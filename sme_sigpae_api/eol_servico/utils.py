@@ -29,38 +29,6 @@ class EOLService(object):
     DEFAULT_TIMEOUT = 20
 
     @classmethod
-    def get_informacoes_aluno(cls, codigo_eol):
-        """Retorna detalhes do aluno.
-
-        A api do EOL retorna assim:
-        {
-            'cd_aluno': 0001234,
-            'nm_aluno': 'XXXXXX',
-            'nm_social_aluno': None,
-            'dt_nascimento_aluno': '1973-08-14T00:00:00',
-            'cd_sexo_aluno': 'M',
-            'nm_mae_aluno': 'XXXXX',
-            'nm_pai_aluno': 'XXXX',
-            "cd_escola": "017981",
-            "dc_turma_escola": "4C",
-            "dc_tipo_turno": "Manhã               "
-        }
-        """
-        response = requests.get(
-            f"{DJANGO_EOL_API_URL}/alunos/{codigo_eol}",
-            headers=cls.DEFAULT_HEADERS,
-            timeout=cls.DEFAULT_TIMEOUT,
-        )
-
-        if response.status_code == status.HTTP_200_OK:
-            results = response.json()["results"]
-            if len(results) > 0:
-                return results[0]
-            raise EOLException(f"Resultados para o código: {codigo_eol} vazios")
-        else:
-            raise EOLException(f"API EOL com erro. Status: {response.status_code}")
-
-    @classmethod
     def response_escola_turma_aluno(cls, codigo_eol):
         return requests.get(
             f"{DJANGO_EOL_API_URL}/escola_turma_aluno/{codigo_eol}",
