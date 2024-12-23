@@ -824,7 +824,9 @@ def logs_periodo_integral_cei_ou_emei_escola_cemei(
         if not dieta.aluno.serie:
             quantidade_cei += 1
             quantidade_emei += 1
-        elif any(serie in dieta.aluno.serie for serie in series_cei):
+        elif any(
+            serie in dieta.aluno.serie for serie in series_cei if dieta.aluno.serie
+        ):
             quantidade_cei += 1
         else:
             quantidade_emei += 1
@@ -1036,7 +1038,9 @@ def append_faixas_dietas(dietas, escola):
                 ativo=True, inicio__lte=meses, fim__gt=meses
             )
         if escola.eh_cemei and not any(
-            serie in dieta_periodo.aluno.serie for serie in series_cei
+            serie in dieta_periodo.aluno.serie
+            for serie in series_cei
+            if dieta_periodo.aluno.serie
         ):
             continue
         faixas.append(faixa)
