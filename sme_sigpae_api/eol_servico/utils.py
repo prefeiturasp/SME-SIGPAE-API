@@ -93,6 +93,14 @@ class EOLService(object):
             raise EOLException(f"API EOL com erro. Status: {response.status_code}")
 
     @classmethod
+    def response_escola_turma_aluno(cls, codigo_eol):
+        return requests.get(
+            f"{DJANGO_EOL_API_URL}/escola_turma_aluno/{codigo_eol}",
+            headers=cls.DEFAULT_HEADERS,
+            timeout=cls.DEFAULT_TIMEOUT,
+        )
+
+    @classmethod
     def get_informacoes_escola_turma_aluno(cls, codigo_eol):
         """Retorna uma lista de alunos da escola.
 
@@ -114,11 +122,7 @@ class EOLService(object):
             ...
         ]
         """
-        response = requests.get(
-            f"{DJANGO_EOL_API_URL}/escola_turma_aluno/{codigo_eol}",
-            headers=cls.DEFAULT_HEADERS,
-            timeout=cls.DEFAULT_TIMEOUT,
-        )
+        response = cls.response_escola_turma_aluno(codigo_eol)
 
         if response.status_code == status.HTTP_200_OK:
             results = response.json()["results"]

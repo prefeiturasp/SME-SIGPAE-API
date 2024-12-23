@@ -4,9 +4,12 @@ import pytest
 from faker import Faker
 from model_mommy import mommy
 
+from sme_sigpae_api.escola.__tests__.conftest import mocked_response
+
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from ...dados_comuns.models import TemplateMensagem
+from ...eol_servico.utils import EOLService
 from .. import models
 
 fake = Faker("pt-Br")
@@ -793,3 +796,12 @@ def client_autenticado_vinculo_terceirizada_inclusao(
     )
     client.login(username=email, password=password)
     return client, user
+
+
+@pytest.fixture
+def eolservice_get_informacoes_escola_turma_aluno_404(monkeypatch):
+    monkeypatch.setattr(
+        EOLService,
+        "response_escola_turma_aluno",
+        lambda p1: mocked_response("não encontrado", 404),
+    )

@@ -121,6 +121,7 @@ def test_get_solicitacoes_diretoria_regional_eol_exception(
     inclusao_alimentacao_da_cei_factory,
     quantidade_de_alunos_por_faixa_etaria_da_inclusao_de_alimentacao_da_cei_factory,
     escola,
+    eolservice_get_informacoes_escola_turma_aluno_404,
 ):
     inclusao_alimentacao_da_cei = inclusao_alimentacao_da_cei_factory.create(
         escola=escola, rastro_lote=escola.lote, status="DRE_A_VALIDAR"
@@ -172,6 +173,7 @@ def test_get_solicitacoes_codae_gestao_alimentacao_eol_exception(
     inclusao_alimentacao_da_cei_factory,
     quantidade_de_alunos_por_faixa_etaria_da_inclusao_de_alimentacao_da_cei_factory,
     escola,
+    eolservice_get_informacoes_escola_turma_aluno_404,
 ):
     inclusao_alimentacao_da_cei = inclusao_alimentacao_da_cei_factory.create(
         escola=escola,
