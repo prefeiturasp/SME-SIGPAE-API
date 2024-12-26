@@ -6,8 +6,6 @@ import requests
 from rest_framework import status
 
 from ..dados_comuns.constants import (
-    DJANGO_EOL_API_TOKEN,
-    DJANGO_EOL_API_URL,
     DJANGO_EOL_PAPA_API_SENHA_CANCELAMENTO,
     DJANGO_EOL_PAPA_API_SENHA_ENVIO,
     DJANGO_EOL_PAPA_API_URL,
@@ -22,51 +20,6 @@ env = environ.Env()
 
 class EOLException(Exception):
     pass
-
-
-class EOLService(object):
-    DEFAULT_HEADERS = {"Authorization": f"Token {DJANGO_EOL_API_TOKEN}"}
-    DEFAULT_TIMEOUT = 20
-
-    @classmethod
-    def response_escola_turma_aluno(cls, codigo_eol):
-        return requests.get(
-            f"{DJANGO_EOL_API_URL}/escola_turma_aluno/{codigo_eol}",
-            headers=cls.DEFAULT_HEADERS,
-            timeout=cls.DEFAULT_TIMEOUT,
-        )
-
-    @classmethod
-    def get_informacoes_escola_turma_aluno(cls, codigo_eol):
-        """Retorna uma lista de alunos da escola.
-
-        Exemplo de retorno:
-        [
-            {
-                "cod_dre": "109300",
-                "sg_dre": "DRE - MP",
-                "dre": "DIRETORIA REGIONAL DE EDUCACAO SAO MIGUEL",
-                "cd_turma_escola": 2115958,
-                "dc_turma_escola": "1A",
-                "dc_serie_ensino": "1º Ano",
-                "dc_tipo_turno": "Manhã               ",
-                "cd_aluno": 6116689,
-                "dt_nascimento_aluno": "2013-06-18T00:00:00"
-            },
-            {...dados de outro aluno},
-            {...dados de outro aluno},
-            ...
-        ]
-        """
-        response = cls.response_escola_turma_aluno(codigo_eol)
-
-        if response.status_code == status.HTTP_200_OK:
-            results = response.json()["results"]
-            if len(results) == 0:
-                raise EOLException(f"Resultados para o código: {codigo_eol} vazios")
-            return results
-        else:
-            raise EOLException(f"API EOL com erro. Status: {response.status_code}")
 
 
 class EOLServicoSGP:
