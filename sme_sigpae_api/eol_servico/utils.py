@@ -319,7 +319,9 @@ class EOLServicoSGP:
                 }.values()
                 return list(unique_data)
             else:
-                return f"Erro ao consultar alunos para a escola {codigo_eol_ue}. Status: {response.status_code}"
+                raise EOLException(
+                    f"Erro ao consultar alunos para a escola {codigo_eol_ue}. Status: {response.status_code}"
+                )
         except Exception as err:
             raise EOLException(str(err))
 

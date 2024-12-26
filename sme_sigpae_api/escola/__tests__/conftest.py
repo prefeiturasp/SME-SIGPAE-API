@@ -361,17 +361,6 @@ def eolservice_get_informacoes_escola_turma_aluno(monkeypatch):
 
 
 @pytest.fixture
-def eolservicosgp_get_lista_alunos(monkeypatch):
-    with open(
-        "sme_sigpae_api/escola/__tests__/massa_eolservicosgp_lista_alunos.json"
-    ) as jsfile:
-        js = json.load(jsfile)
-    return monkeypatch.setattr(
-        EOLServicoSGP, "get_alunos_por_escola_por_ano_letivo", lambda x: js
-    )
-
-
-@pytest.fixture
 def arquivo():
     return SimpleUploadedFile(
         "planilha-teste.pdf", bytes("CONTEUDO TESTE TESTE TESTE", encoding="utf-8")
