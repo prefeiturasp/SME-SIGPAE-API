@@ -58,7 +58,7 @@ from ..dados_comuns.utils import (
     queryset_por_data,
     subtrai_meses_de_data,
 )
-from ..eol_servico.utils import EOLService, EOLServicoSGP, dt_nascimento_from_api
+from ..eol_servico.utils import EOLServicoSGP, dt_nascimento_from_api
 from ..escola.constants import (
     PERIODOS_ESPECIAIS_CEI_CEU_CCI,
     PERIODOS_ESPECIAIS_CEI_DIRET,
@@ -854,8 +854,8 @@ class Escola(
         lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
             self.codigo_eol
         )
-        ano_seguinte = datetime.datetime.today().year + 1
         if len(lista_alunos) == 0:
+            ano_seguinte = datetime.datetime.today().year + 1
             lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
                 self.codigo_eol, ano_seguinte
             )
@@ -890,16 +890,24 @@ class Escola(
             solicitacao_medicao_inicial__ano=str(data_referencia.year),
         ).values_list("aluno__codigo_eol", flat=True)
 
-        lista_alunos = EOLService.get_informacoes_escola_turma_aluno(self.codigo_eol)
+        lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
+            self.codigo_eol
+        )
+        if len(lista_alunos) == 0:
+            ano_seguinte = datetime.datetime.today().year + 1
+            lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
+                self.codigo_eol, ano_seguinte
+            )
+
         alunos_periodo_parcial_set = set(alunos_periodo_parcial)
         seis_anos_atras = datetime.date.today() - relativedelta(years=6)
 
         resultados = {}
         for aluno in lista_alunos:
-            if str(aluno["cd_aluno"]) not in alunos_periodo_parcial_set:
+            if str(aluno["codigoAluno"]) not in alunos_periodo_parcial_set:
                 continue
             periodo = "PARCIAL"
-            data_nascimento = dt_nascimento_from_api(aluno["dt_nascimento_aluno"])
+            data_nascimento = dt_nascimento_from_api(aluno["dataNascimento"])
             if periodo not in resultados:
                 resultados[periodo] = Counter()
             resultados[periodo] += self.contar_alunos_por_faixa(
@@ -909,7 +917,7 @@ class Escola(
 
     def alunos_por_periodo_e_faixa_etaria_objetos_alunos(
         self, data_referencia=None, faixas_etarias=None
-    ):  # noqa C901
+    ):
         data_referencia = self.obter_data_referencia(data_referencia)
         faixas_etarias = self.obter_faixas_etarias(faixas_etarias)
 
@@ -928,17 +936,24 @@ class Escola(
             )
         return resultados
 
-    def alunos_por_faixa_etaria(
-        self, data_referencia=None, faixas_etarias=None
-    ):  # noqa C901
+    def alunos_por_faixa_etaria(self, data_referencia=None, faixas_etarias=None):
         data_referencia = self.obter_data_referencia(data_referencia)
         faixas_etarias = self.obter_faixas_etarias(faixas_etarias)
-        lista_alunos = EOLService.get_informacoes_escola_turma_aluno(self.codigo_eol)
+
+        lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
+            self.codigo_eol
+        )
+        if len(lista_alunos) == 0:
+            ano_seguinte = datetime.datetime.today().year + 1
+            lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
+                self.codigo_eol, ano_seguinte
+            )
+
         seis_anos_atras = datetime.date.today() - relativedelta(years=6)
 
         resultados = Counter()
         for aluno in lista_alunos:
-            data_nascimento = dt_nascimento_from_api(aluno["dt_nascimento_aluno"])
+            data_nascimento = dt_nascimento_from_api(aluno["dataNascimento"])
             resultados += self.contar_alunos_por_faixa(
                 data_nascimento, data_referencia, faixas_etarias, seis_anos_atras
             )
@@ -992,6 +1007,12 @@ class EscolaPeriodoEscolar(
         lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
             self.escola.codigo_eol
         )
+        if len(lista_alunos) == 0:
+            ano_seguinte = datetime.datetime.today().year + 1
+            lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
+                self.codigo_eol, ano_seguinte
+            )
+
         faixa_alunos = Counter()
         for aluno in lista_alunos:
             if aluno["tipoTurno"] == self.periodo_escolar.tipo_turno:

@@ -1,15 +1,18 @@
 [
   {
+    "codigoAluno": 8888888,
     "tipoTurno": 1,
     "codigoSituacaoMatricula": 13,
     "dataNascimento": "2018-06-17T00:00:00"
   },
   {
+    "codigoAluno": 9999999,
     "tipoTurno": 1,
     "codigoSituacaoMatricula": 14,
     "dataNascimento": "2018-07-22T00:00:00"
   },
   {
+    "codigoAluno": 7777777,
     "tipoTurno": 1,
     "codigoSituacaoMatricula": 13,
     "dataNascimento": "2019-03-22T00:00:00"

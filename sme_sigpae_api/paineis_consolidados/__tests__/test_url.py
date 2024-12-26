@@ -576,13 +576,10 @@ def test_solicitacoes_detalhadas_kit_lanche(
     solicitacao_unificada,
     kit_lanche_cei,
     kit_lanche_cemei,
-    monkeypatch,
+    eolservicosgp_get_lista_alunos,
+    periodo_escolar_factory,
 ):
-    monkeypatch.setattr(
-        EOLService,
-        "get_informacoes_escola_turma_aluno",
-        lambda p1: mocked_informacoes_escola_turma_aluno(),
-    )
+    periodo_escolar_factory.create(tipo_turno=1, nome="INTEGRAL")
     response = client_autenticado_escola_paineis_consolidados.get(
         "/solicitacoes-genericas/solicitacoes-detalhadas/"
         "?solicitacoes[]="

@@ -498,20 +498,17 @@ def test_alunos_por_periodo_e_faixa_etaria(
 
 @freeze_time("2023-08-28")
 def test_alunos_periodo_parcial_e_faixa_etaria(
-    escola_cei, faixas_etarias, alunos_periodo_parcial, monkeypatch
+    escola_cei,
+    faixas_etarias,
+    alunos_periodo_parcial,
+    periodo_escolar,
+    eolservicosgp_get_lista_alunos,
 ):
-    monkeypatch.setattr(
-        EOLService,
-        "get_informacoes_escola_turma_aluno",
-        lambda p1: mocked_informacoes_escola_turma_aluno(),
-    )
     response = escola_cei.alunos_periodo_parcial_e_faixa_etaria()
     assert len(response) == 1
     assert response["PARCIAL"] == Counter(
         {
-            f"{str([f for f in faixas_etarias if f.inicio == 12][0].uuid)}": 2,
-            f"{str([f for f in faixas_etarias if f.inicio == 24][0].uuid)}": 1,
-            f"{str([f for f in faixas_etarias if f.inicio == 48][0].uuid)}": 1,
+            f"{str([f for f in faixas_etarias if f.inicio == 48][0].uuid)}": 2,
         }
     )
 
@@ -524,27 +521,20 @@ def test_alunos_por_periodo_e_faixa_etaria_objetos_alunos(
     assert len(response) == 1
     assert response["INTEGRAL"] == Counter(
         {
-            f"{str([f for f in faixas_etarias if f.inicio == 12][0].uuid)}": 4,
-            f"{str([f for f in faixas_etarias if f.inicio == 24][0].uuid)}": 2,
-            f"{str([f for f in faixas_etarias if f.inicio == 48][0].uuid)}": 2,
+            f"{str([f for f in faixas_etarias if f.inicio == 48][0].uuid)}": 3,
         }
     )
 
 
 @freeze_time("2023-08-28")
-def test_alunos_por_faixa_etaria(escola_cei, faixas_etarias, monkeypatch):
-    monkeypatch.setattr(
-        EOLService,
-        "get_informacoes_escola_turma_aluno",
-        lambda p1: mocked_informacoes_escola_turma_aluno(),
-    )
+def test_alunos_por_faixa_etaria(
+    escola_cei, faixas_etarias, eolservicosgp_get_lista_alunos
+):
     response = escola_cei.alunos_por_faixa_etaria()
-    assert len(response.items()) == 3
+    assert len(response.items()) == 1
     assert response == Counter(
         {
-            f"{str([f for f in faixas_etarias if f.inicio == 12][0].uuid)}": 4,
-            f"{str([f for f in faixas_etarias if f.inicio == 24][0].uuid)}": 2,
-            f"{str([f for f in faixas_etarias if f.inicio == 48][0].uuid)}": 2,
+            f"{str([f for f in faixas_etarias if f.inicio == 48][0].uuid)}": 3,
         }
     )
 
