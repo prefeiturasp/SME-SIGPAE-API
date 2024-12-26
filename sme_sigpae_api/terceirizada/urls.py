@@ -22,5 +22,8 @@ router.register(
 )
 router.register("contratos", viewsets.ContratoViewSet, basename="Contratos")
 router.register("vigencias", viewsets.VigenciaContratoViewSet, basename="Vigencias")
+router.register(
+    "modalidades", viewsets.ModalidadesContratoViewSet, basename="Modalidades"
+)
 
 urlpatterns = [path("", include(router.urls))]
