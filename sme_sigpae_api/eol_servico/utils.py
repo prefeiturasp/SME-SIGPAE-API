@@ -1,5 +1,5 @@
 import json
-from datetime import date
+from datetime import date, datetime
 
 import environ
 import requests
@@ -285,6 +285,43 @@ class EOLServicoSGP:
         logger.info("Checa dados do usuário no CoreSSO.")
         response = cls.chamada_externa_dados_usuario(registro_funcional)
         return response
+
+    @classmethod
+    def chamada_externa_alunos_por_escola_por_ano_letivo(
+        cls, codigo_eol_ue, ano=datetime.today().year
+    ):
+        return requests.get(
+            f"{DJANGO_EOL_SGP_API_URL}/alunos/ues/{codigo_eol_ue}/anosLetivos/{ano}",
+            headers=cls.HEADER,
+        )
+
+    @classmethod
+    def get_alunos_por_escola_por_ano_letivo(
+        cls, codigo_eol_ue, ano=datetime.today().year
+    ):
+        status_matricula_ativa = [1, 6, 10, 13]
+        codigo_turma_regular = 1
+
+        try:
+            response = cls.chamada_externa_alunos_por_escola_por_ano_letivo(
+                codigo_eol_ue, ano
+            )
+            if response.status_code == status.HTTP_200_OK:
+                lista_alunos = response.json()
+                lista_alunos_filtrada = [
+                    aluno
+                    for aluno in lista_alunos
+                    if aluno["codigoSituacaoMatricula"] in status_matricula_ativa
+                    and aluno["codigoTipoTurma"] == codigo_turma_regular
+                ]
+                unique_data = {
+                    aluno["codigoAluno"]: aluno for aluno in lista_alunos_filtrada
+                }.values()
+                return list(unique_data)
+            else:
+                return f"Erro ao consultar alunos para a escola {codigo_eol_ue}. Status: {response.status_code}"
+        except Exception as err:
+            raise EOLException(str(err))
 
 
 class EOLPapaService:

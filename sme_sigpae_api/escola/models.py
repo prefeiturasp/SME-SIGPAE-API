@@ -58,7 +58,7 @@ from ..dados_comuns.utils import (
     queryset_por_data,
     subtrai_meses_de_data,
 )
-from ..eol_servico.utils import EOLService, dt_nascimento_from_api
+from ..eol_servico.utils import EOLService, EOLServicoSGP, dt_nascimento_from_api
 from ..escola.constants import (
     PERIODOS_ESPECIAIS_CEI_CEU_CCI,
     PERIODOS_ESPECIAIS_CEI_DIRET,
@@ -78,11 +78,7 @@ from ..kit_lanche.models import (
 )
 from .constants import CEI_OU_EMEI, PERIODOS_ESPECIAIS_CEMEI
 from .services import NovoSGPServicoLogado
-from .utils import (
-    deletar_alunos_periodo_parcial_outras_escolas,
-    faixa_to_string,
-    remove_acentos,
-)
+from .utils import deletar_alunos_periodo_parcial_outras_escolas, faixa_to_string
 
 env = environ.Env()
 REDIS_HOST = env("REDIS_HOST")
@@ -983,16 +979,13 @@ class EscolaPeriodoEscolar(
         faixas_etarias = FaixaEtaria.objects.filter(ativo=True)
         if faixas_etarias.count() == 0:
             raise ObjectDoesNotExist()
-        lista_alunos = EOLService.get_informacoes_escola_turma_aluno(
+        lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
             self.escola.codigo_eol
         )
         faixa_alunos = Counter()
         for aluno in lista_alunos:
-            if (
-                remove_acentos(aluno["dc_tipo_turno"].strip()).upper()
-                == self.periodo_escolar.nome
-            ):
-                data_nascimento = dt_nascimento_from_api(aluno["dt_nascimento_aluno"])
+            if aluno["tipoTurno"] == self.periodo_escolar.tipo_turno:
+                data_nascimento = dt_nascimento_from_api(aluno["dataNascimento"])
                 meses = (data_nascimento.year - data_referencia.year) * 12
                 meses = meses + (data_nascimento.month - data_referencia.month)
                 meses = meses * (-1)
