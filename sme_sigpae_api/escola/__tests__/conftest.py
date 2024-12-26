@@ -6,7 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
 from model_mommy import mommy
 
-from ...eol_servico.utils import EOLService, dt_nascimento_from_api
+from ...eol_servico.utils import EOLService, EOLServicoSGP, dt_nascimento_from_api
 from ...escola.api.serializers import (
     Aluno,
     EscolaSimplissimaSerializer,
@@ -167,7 +167,7 @@ def codae(escola):
 
 @pytest.fixture
 def periodo_escolar():
-    return mommy.make(models.PeriodoEscolar, nome="INTEGRAL")
+    return mommy.make(models.PeriodoEscolar, nome="INTEGRAL", tipo_turno=1)
 
 
 @pytest.fixture
@@ -357,6 +357,17 @@ def eolservice_get_informacoes_escola_turma_aluno(monkeypatch):
         js = json.load(jsfile)
     return monkeypatch.setattr(
         EOLService, "get_informacoes_escola_turma_aluno", lambda x: js["results"]
+    )
+
+
+@pytest.fixture
+def eolservicosgp_get_lista_alunos(monkeypatch):
+    with open(
+        "sme_sigpae_api/escola/__tests__/massa_eolservicosgp_lista_alunos.json"
+    ) as jsfile:
+        js = json.load(jsfile)
+    return monkeypatch.setattr(
+        EOLServicoSGP, "get_alunos_por_escola_por_ano_letivo", lambda x: js
     )
 
 

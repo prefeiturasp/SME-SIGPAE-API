@@ -65,7 +65,7 @@ def test_url_endpoint_alunos_por_faixa_etaria_periodo_invalido(
 def test_url_endpoint_alunos_por_faixa_etaria(
     client_autenticado,
     escola_periodo_escolar,
-    eolservice_get_informacoes_escola_turma_aluno,
+    eolservicosgp_get_lista_alunos,
     faixas_etarias,
 ):
     url = f"/quantidade-alunos-por-periodo/{escola_periodo_escolar.uuid}/alunos-por-faixa-etaria/2020-10-20/"
@@ -74,19 +74,15 @@ def test_url_endpoint_alunos_por_faixa_etaria(
 
     json = response.json()
 
-    assert json["count"] == 3
+    assert json["count"] == 2
     result0 = json["results"][0]
     assert result0["faixa_etaria"]["inicio"] == 12
     assert result0["faixa_etaria"]["fim"] == 24
-    assert result0["count"] == 18
+    assert result0["count"] == 1
     result1 = json["results"][1]
     assert result1["faixa_etaria"]["inicio"] == 24
     assert result1["faixa_etaria"]["fim"] == 48
-    assert result1["count"] == 93
-    result2 = json["results"][2]
-    assert result2["faixa_etaria"]["inicio"] == 48
-    assert result2["faixa_etaria"]["fim"] == 72
-    assert result2["count"] == 27
+    assert result1["count"] == 2
 
 
 def test_url_endpoint_cria_mudanca_faixa_etaria(client_autenticado_coordenador_codae):
