@@ -82,6 +82,7 @@ class EtapasDoCronogramaCalendarioSerializer(serializers.ModelSerializer):
     nome_fornecedor = serializers.SerializerMethodField()
     data_programada = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
+    unidade_medida = serializers.SerializerMethodField()
 
     def get_nome_produto(self, obj):
         try:
@@ -104,6 +105,9 @@ class EtapasDoCronogramaCalendarioSerializer(serializers.ModelSerializer):
     def get_status(self, obj):
         return obj.cronograma.get_status_display() if obj.cronograma else None
 
+    def get_unidade_medida(self, obj):
+        return obj.cronograma.unidade_medida.abreviacao if obj.cronograma else None
+
     class Meta:
         model = EtapasDoCronograma
         fields = (
@@ -118,6 +122,7 @@ class EtapasDoCronogramaCalendarioSerializer(serializers.ModelSerializer):
             "parte",
             "quantidade",
             "status",
+            "unidade_medida",
         )
 
 

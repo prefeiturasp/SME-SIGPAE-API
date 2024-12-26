@@ -3,6 +3,7 @@ import datetime
 import pytest
 from faker import Faker
 from model_mommy import mommy
+from django.utils import timezone
 
 from sme_sigpae_api.dados_comuns.constants import (
     DILOG_CRONOGRAMA,
@@ -100,6 +101,16 @@ def etapa(cronograma):
         parte="Parte 1",
     )
 
+@pytest.fixture
+def etapa_com_quantidade_e_data(cronograma):
+    return mommy.make(
+        "EtapasDoCronograma",
+        cronograma=cronograma,
+        etapa="Etapa 1",
+        parte="Parte 1",
+        data_programada = timezone.now().date(),
+        quantidade=5.0,
+    )
 
 @pytest.fixture
 def programacao(cronograma):
