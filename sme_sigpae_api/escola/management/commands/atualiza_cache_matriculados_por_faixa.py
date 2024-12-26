@@ -48,6 +48,7 @@ class Command(BaseCommand):
         ]
         escolas = Escola.objects.filter(tipo_unidade__iniciais__in=iniciais)
         for escola in escolas:
+            print("-------- escola -----------", escola.codigo_eol)
             self._criar_cache_matriculados_por_faixa(escola)
             self._salvar_matriculados_por_faixa_dia(escola)
 
@@ -56,6 +57,7 @@ class Command(BaseCommand):
             msg = f"Atualizando cache para escola {escola.codigo_eol} - {escola.nome}"
             self.stdout.write(self.style.SUCCESS(msg))
             periodos_faixas = escola.alunos_por_periodo_e_faixa_etaria()
+            print("----- periodos_faixas -----", periodos_faixas)
             for periodo, qtdFaixas in periodos_faixas.items():
                 nome_periodo = self._formatar_periodo_eol(periodo)
                 redis_connection.delete(
