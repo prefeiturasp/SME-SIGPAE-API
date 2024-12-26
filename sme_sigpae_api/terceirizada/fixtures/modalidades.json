@@ -1,0 +1,44 @@
+[
+    {
+        "model": "terceirizada.modalidade",
+        "id": 1,
+        "fields": {
+            "nome": "Pregão Eletrônico"
+        }
+    },
+    {
+        "model": "terceirizada.modalidade",
+        "id": 2,
+        "fields": {
+            "nome": "Chamada Pública"
+        }
+    },
+    {
+        "model": "terceirizada.modalidade",
+        "id": 3,
+        "fields": {
+            "nome": "Emergencial"
+        }
+    },
+    {
+        "model": "terceirizada.modalidade",
+        "id": 4,
+        "fields": {
+            "nome": "Contratação Direta"
+        }
+    },
+    {
+        "model": "terceirizada.modalidade",
+        "id": 5,
+        "fields": {
+            "nome": "Carona de ATA"
+        }
+    },
+    {
+        "model": "terceirizada.modalidade",
+        "id": 6,
+        "fields": {
+            "nome": "Não definida"
+        }
+    }
+]

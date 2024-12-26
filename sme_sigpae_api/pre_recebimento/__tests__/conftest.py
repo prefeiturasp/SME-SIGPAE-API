@@ -35,12 +35,18 @@ def codae():
 
 
 @pytest.fixture
-def contrato():
+def modalidade():
+    return mommy.make("Modalidade", nome="Pregão Eletrônico")
+
+
+@pytest.fixture
+def contrato(modalidade):
     return mommy.make(
         "Contrato",
         numero="0003/2022",
         processo="123",
         numero_pregao="123456789",
+        modalidade=modalidade,
     )
 
 

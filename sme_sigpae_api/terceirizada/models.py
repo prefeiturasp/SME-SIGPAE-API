@@ -550,16 +550,16 @@ class Terceirizada(
         verbose_name_plural = "Terceirizadas"
 
 
+class Modalidade(ExportModelOperationsMixin("modalidade"), TemChaveExterna, Nomeavel):
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        verbose_name = "Modalidade"
+        verbose_name_plural = "Modalidades"
+
+
 class Contrato(ExportModelOperationsMixin("contato"), TemChaveExterna):
-    # Modalidade Choices
-    PREGAO_ELETRONICO = "PREGAO_ELETRONICO"
-    CHAMADA_PUBLICA = "CHAMADA_PUBLICA"
-
-    MODALIDADE_CHOICES = (
-        (PREGAO_ELETRONICO, "Pregão Eletrônico"),
-        (CHAMADA_PUBLICA, "Chamada Pública"),
-    )
-
     numero = models.CharField("No do contrato", max_length=100, unique=True)
     processo = models.CharField(
         "Processo Administrativo",
@@ -590,7 +590,13 @@ class Contrato(ExportModelOperationsMixin("contato"), TemChaveExterna):
         "Data e hora do encerramento", null=True, default=None
     )
     ata = models.CharField("No da Ata", max_length=100, blank=True)
-    modalidade = models.CharField(choices=MODALIDADE_CHOICES, max_length=17, blank=True)
+    modalidade = models.ForeignKey(
+        Modalidade,
+        on_delete=models.PROTECT,
+        related_name="contratos",
+        blank=True,
+        null=True,
+    )
     numero_pregao = models.CharField(
         "Nº do Pregão Eletrônico", max_length=100, blank=True
     )
@@ -603,8 +609,11 @@ class Contrato(ExportModelOperationsMixin("contato"), TemChaveExterna):
 
     @property
     def pregao_chamada_publica(self):
-        if self.modalidade == self.PREGAO_ELETRONICO:
+        # Verificar com essa função irá se comportar com os novos valores de modalidade
+        if self.modalidade.nome == "Pregão Eletrônico":
             return self.numero_pregao
+        elif self.modalidade.nome == "Chamada Pública":
+            return self.numero_chamada_publica
         else:
             return self.numero_chamada_publica
 

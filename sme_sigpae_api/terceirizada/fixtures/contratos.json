@@ -9,7 +9,8 @@
       "edital": 1,
       "lotes": [1, 3],
       "terceirizada": 4,
-      "diretorias_regionais": [4,7]
+      "diretorias_regionais": [4,7],
+      "modalidade": 1
     }
   },
   {
@@ -22,7 +23,8 @@
       "edital": 1,
       "lotes": [5, 2],
       "terceirizada": 1,
-      "diretorias_regionais": [4,7]
+      "diretorias_regionais": [4,7],
+      "modalidade": 2
     }
   },
   {
@@ -35,7 +37,8 @@
       "edital": 1,
       "lotes": [5, 2],
       "terceirizada": 2,
-      "diretorias_regionais": [4,7]
+      "diretorias_regionais": [4,7],
+      "modalidade": 3
     }
   },
   {
@@ -48,7 +51,8 @@
       "edital": 1,
       "lotes": [5, 2],
       "terceirizada": 3,
-      "diretorias_regionais": [4,7]
+      "diretorias_regionais": [4,7],
+      "modalidade": 4
     }
   },
   {
@@ -61,7 +65,8 @@
       "edital": 1,
       "lotes": [5, 2],
       "terceirizada": 5,
-      "diretorias_regionais": [4,7]
+      "diretorias_regionais": [4,7],
+      "modalidade": 5
     }
   }
 ]
