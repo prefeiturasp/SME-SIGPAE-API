@@ -802,7 +802,7 @@ def client_autenticado_vinculo_terceirizada_inclusao(
 
 
 @pytest.fixture
-def eolservice_get_informacoes_escola_turma_aluno_404(monkeypatch):
+def eolservicosgp_get_alunos_por_escola_por_ano_letivo_404(monkeypatch):
     monkeypatch.setattr(
         EOLServicoSGP,
         "chamada_externa_alunos_por_escola_por_ano_letivo",

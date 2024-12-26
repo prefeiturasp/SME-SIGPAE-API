@@ -1,6 +1,8 @@
+import datetime
+
 from django.core.management import BaseCommand
 
-from ....eol_servico.utils import EOLService
+from ....eol_servico.utils import EOLServicoSGP
 from ...models import Aluno, Escola, LogAlunoPorDia, LogAlunosMatriculadosFaixaEtariaDia
 from .atualiza_cache_matriculados_por_faixa import Command as c
 
@@ -70,9 +72,15 @@ class Command(BaseCommand):
         )
         total_logs = logs.count()
         try:
-            lista_alunos_eol = EOLService.get_informacoes_escola_turma_aluno(
+            lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
                 escola.codigo_eol
             )
+            if len(lista_alunos) == 0:
+                ano_seguinte = datetime.datetime.today().year + 1
+                lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
+                    escola.codigo_eol, ano_seguinte
+                )
+
             for i, log in enumerate(logs):
                 self.stdout.write(
                     self.style.SUCCESS(
@@ -83,7 +91,7 @@ class Command(BaseCommand):
                     periodo_do_log = log.periodo_escolar.nome
                     faixa_etaria_do_log = log.faixa_etaria
                     lista_filtrada_alunos_eol = c().get_lista_filtrada_alunos_eol(
-                        lista_alunos_eol, periodo_do_log, faixa_etaria_do_log
+                        lista_alunos, periodo_do_log, faixa_etaria_do_log
                     )
                     self.update_or_create_logs_alunos_por_dia(
                         lista_filtrada_alunos_eol, log

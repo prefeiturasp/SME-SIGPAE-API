@@ -7,7 +7,6 @@ from freezegun import freeze_time
 
 from ...cardapio.models import Cardapio
 from ...dados_comuns.constants import DAQUI_A_SETE_DIAS, DAQUI_A_TRINTA_DIAS, SEM_FILTRO
-from ...eol_servico.utils import EOLService
 from ..admin import PlanilhaAtualizacaoTipoGestaoEscolaAdmin
 from ..models import (
     AlunosMatriculadosPeriodoEscola,

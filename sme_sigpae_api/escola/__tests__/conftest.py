@@ -6,7 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
 from model_mommy import mommy
 
-from ...eol_servico.utils import EOLService, EOLServicoSGP, dt_nascimento_from_api
+from ...eol_servico.utils import dt_nascimento_from_api
 from ...escola.api.serializers import (
     Aluno,
     EscolaSimplissimaSerializer,
@@ -346,17 +346,6 @@ def datas_e_faixas(request):
         data,
         mommy.make("FaixaEtaria", inicio=inicio_faixa, fim=fim_faixa, ativo=True),
         eh_pertencente,
-    )
-
-
-@pytest.fixture
-def eolservice_get_informacoes_escola_turma_aluno(monkeypatch):
-    with open(
-        "sme_sigpae_api/escola/__tests__/massa_eolservice_get_informacoes_escola_turma_aluno.json"
-    ) as jsfile:
-        js = json.load(jsfile)
-    return monkeypatch.setattr(
-        EOLService, "get_informacoes_escola_turma_aluno", lambda x: js["results"]
     )
 
 

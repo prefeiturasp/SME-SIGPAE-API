@@ -4,8 +4,6 @@ from freezegun import freeze_time
 from rest_framework import status
 
 from ...dados_comuns.constants import SEM_FILTRO
-from ...eol_servico.utils import EOLService
-from ...escola.__tests__.conftest import mocked_informacoes_escola_turma_aluno
 from ...escola.models import TipoUnidadeEscolar
 from ...terceirizada.models import Terceirizada
 from ..api.constants import (

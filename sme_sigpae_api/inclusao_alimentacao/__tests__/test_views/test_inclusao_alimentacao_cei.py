@@ -2,10 +2,6 @@ import pytest
 from rest_framework import status
 
 from sme_sigpae_api.dados_comuns.constants import SOLICITACOES_DO_USUARIO
-from sme_sigpae_api.eol_servico.utils import EOLService
-from sme_sigpae_api.escola.__tests__.conftest import (
-    mocked_informacoes_escola_turma_aluno,
-)
 from sme_sigpae_api.perfil.models import Usuario
 
 pytestmark = pytest.mark.django_db
@@ -104,7 +100,7 @@ def test_get_solicitacoes_diretoria_regional_eol_exception(
     inclusao_alimentacao_da_cei_factory,
     quantidade_de_alunos_por_faixa_etaria_da_inclusao_de_alimentacao_da_cei_factory,
     escola,
-    eolservice_get_informacoes_escola_turma_aluno_404,
+    eolservicosgp_get_alunos_por_escola_por_ano_letivo_404,
 ):
     inclusao_alimentacao_da_cei = inclusao_alimentacao_da_cei_factory.create(
         escola=escola, rastro_lote=escola.lote, status="DRE_A_VALIDAR"
@@ -153,7 +149,7 @@ def test_get_solicitacoes_codae_gestao_alimentacao_eol_exception(
     inclusao_alimentacao_da_cei_factory,
     quantidade_de_alunos_por_faixa_etaria_da_inclusao_de_alimentacao_da_cei_factory,
     escola,
-    eolservice_get_informacoes_escola_turma_aluno_404,
+    eolservicosgp_get_alunos_por_escola_por_ano_letivo_404,
 ):
     inclusao_alimentacao_da_cei = inclusao_alimentacao_da_cei_factory.create(
         escola=escola,
