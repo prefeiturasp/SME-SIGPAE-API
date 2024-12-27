@@ -345,7 +345,6 @@ def test_lista_requisicoes_para_envio_distribuidor_nao_pode(client_autenticado_d
 
 def test_lista_requisicoes_para_envio_sem_numero_requisicao(client_autenticado_dilog, solicitacao, guia):
     params = {
-        "numero_requisicao": None, 
         "nome_distribuidor": solicitacao.distribuidor.nome, 
         "data_inicio": guia.data_entrega, 
         "data_fim": datetime.now().date()
@@ -363,7 +362,6 @@ def test_lista_requisicoes_para_envio_sem_numero_requisicao(client_autenticado_d
 def test_lista_requisicoes_para_envio_sem_nome_distribuidor(client_autenticado_dilog, solicitacao, guia):
     params = {
         "numero_requisicao": solicitacao.numero_solicitacao, 
-        "nome_distribuidor": "None", 
         "data_inicio": guia.data_entrega, 
         "data_fim": datetime.now().date()
     }
@@ -372,6 +370,64 @@ def test_lista_requisicoes_para_envio_sem_nome_distribuidor(client_autenticado_d
         params=params,
         content_type="application/json",
     )
+    assert response.status_code == status.HTTP_200_OK
     informacoes = response.json()
     assert "results" in informacoes
     assert len(informacoes["results"]) == 1
+    
+def test_lista_requisicoes_para_envio_sem_data_inicio(client_autenticado_dilog, solicitacao):
+    params = {
+        "numero_requisicao": solicitacao.numero_solicitacao, 
+        "nome_distribuidor": solicitacao.distribuidor.nome, 
+        "data_fim": datetime.now().date()
+    }
+    response = client_autenticado_dilog.get(
+        "/solicitacao-remessa/lista-requisicoes-para-envio/",
+        params=params,
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    informacoes = response.json()
+    assert "results" in informacoes
+    assert len(informacoes["results"]) == 1
+    
+def test_lista_requisicoes_para_envio_sem_data_fim(client_autenticado_dilog, solicitacao, guia):
+    params = {
+        "numero_requisicao": solicitacao.numero_solicitacao, 
+        "nome_distribuidor": solicitacao.distribuidor.nome, 
+        "data_inicio": guia.data_entrega, 
+    }
+    response = client_autenticado_dilog.get(
+        "/solicitacao-remessa/lista-requisicoes-para-envio/",
+        params=params,
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    informacoes = response.json()
+    assert "results" in informacoes
+    assert len(informacoes["results"]) == 1
+    
+    
+def test_consolidado_alimentos_solicitacao_valida(client_autenticado_dilog, solicitacao, guia, alimento, embalagem):
+    response = client_autenticado_dilog.get(f"/solicitacao-remessa/{solicitacao.uuid}/consolidado-alimentos/")
+
+    assert response.status_code == status.HTTP_200_OK
+    informacoes = response.json()
+
+    assert len(informacoes) == 1
+    assert informacoes[0]["nome_alimento"] == alimento.nome_alimento
+    assert informacoes[0]["peso_total"] == embalagem.capacidade_embalagem * embalagem.qtd_volume
+    assert len(informacoes[0]["total_embalagens"]) == 1
+    assert informacoes[0]["total_embalagens"][0]["descricao_embalagem"] == embalagem.descricao_embalagem
+
+def test_consolidado_alimentos_solicitacao_inexistente(client_autenticado_dilog, solicitacao):
+    response = client_autenticado_dilog.get("/solicitacao-remessa/00000000-0000-0000-0000-000000000000/consolidado-alimentos/")
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == "Solicitação inexistente."
+    
+def test_consolidado_alimentos_sem_dados(client_autenticado_dilog, solicitacao):
+    response = client_autenticado_dilog.get(f"/solicitacao-remessa/{solicitacao.uuid}/consolidado-alimentos/")
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == []
+    
+    
