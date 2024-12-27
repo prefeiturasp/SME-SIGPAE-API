@@ -14,7 +14,7 @@ def test_url_authorized_solicitacao(client_autenticado_dilog):
 
 
 def test_url_endpoint_empresas_nao_terceirizadas_create(
-    client_autenticado_dilog_cronograma,
+    client_autenticado_dilog_cronograma, modalidade
 ):
     payload = {
         "nome_fantasia": "Empresa Teste",
@@ -50,6 +50,7 @@ def test_url_endpoint_empresas_nao_terceirizadas_create(
                 "vigencias": [
                     {"data_inicial": "10/01/2023", "data_final": "15/01/2023"},
                 ],
+                "modalidade": str(modalidade.uuid)
             }
         ],
         "super_admin": {
@@ -72,7 +73,7 @@ def test_url_endpoint_empresas_nao_terceirizadas_create(
 
 
 def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos(
-    client_autenticado_dilog_cronograma, terceirizada
+    client_autenticado_dilog_cronograma, terceirizada, modalidade
 ):
     payload = {
         "contratos": [
@@ -85,6 +86,7 @@ def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos(
                 "vigencias": [
                     {"data_inicial": "01/01/2023", "data_final": "31/12/2023"},
                 ],
+                "modalidade": str(modalidade.uuid)
             },
             {
                 "encerrado": False,
@@ -95,6 +97,7 @@ def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos(
                 "vigencias": [
                     {"data_inicial": "01/01/2023", "data_final": "31/12/2023"},
                 ],
+                "modalidade": str(modalidade.uuid)
             },
         ],
     }
@@ -121,6 +124,7 @@ def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos(
                 "vigencias": [
                     {"data_inicial": "09/09/1999", "data_final": "31/12/2023"},
                 ],
+                "modalidade": str(modalidade.uuid)
             },
         ],
     }
