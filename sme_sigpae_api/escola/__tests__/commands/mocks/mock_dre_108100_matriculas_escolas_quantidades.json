@@ -1,0 +1,39 @@
+[
+  {
+    "totalMatriculas": 211,
+    "codigoEolEscola": "011924",
+    "turnos": [
+      {
+        "turno": "Manhã",
+        "tipoTurno": 1,
+        "quantidade": 121
+      },
+      {
+        "turno": "Tarde",
+        "tipoTurno": 3,
+        "quantidade": 90
+      }
+    ]
+  },
+  {
+    "totalMatriculas": 711,
+    "codigoEolEscola": "018830",
+    "turnos": [
+      {
+        "turno": "Manhã",
+        "tipoTurno": 1,
+        "quantidade": 313
+      },
+      {
+        "turno": "Tarde",
+        "tipoTurno": 3,
+        "quantidade": 340
+      },
+      {
+        "turno": "Noite",
+        "tipoTurno": 5,
+        "quantidade": 58
+      }
+    ]
+  }
+]
