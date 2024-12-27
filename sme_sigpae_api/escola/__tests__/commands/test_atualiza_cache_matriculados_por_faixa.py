@@ -81,6 +81,10 @@ class AtualizaCacheMatriculadosPorFaixaCommandTest(TestCase):
         mock_get_alunos_por_escola_por_ano_letivo.side_effect = [
             self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_1,
             self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_1,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_1,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_1,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_2,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_2,
             self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_2,
             self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_2,
         ]
@@ -90,4 +94,14 @@ class AtualizaCacheMatriculadosPorFaixaCommandTest(TestCase):
         mock_redis_instance.delete.assert_called()
         mock_redis_instance.hset.assert_called()
 
-        assert LogAlunosMatriculadosFaixaEtariaDia.objects.count() == 2
+        assert LogAlunosMatriculadosFaixaEtariaDia.objects.count() == 3
+        assert (
+            LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
+                escola=self.cei_diret
+            ).count()
+            == 2
+        )
+        assert (
+            LogAlunosMatriculadosFaixaEtariaDia.objects.filter(escola=self.cci).count()
+            == 1
+        )

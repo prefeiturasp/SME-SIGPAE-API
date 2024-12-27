@@ -854,7 +854,6 @@ class Escola(
         lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
             self.codigo_eol
         )
-        print("------- lista alunos --------", lista_alunos)
         if len(lista_alunos) == 0:
             ano_seguinte = datetime.datetime.today().year + 1
             lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
@@ -864,11 +863,8 @@ class Escola(
         seis_anos_atras = datetime.date.today() - relativedelta(years=6)
         dict_periodos = dict(PeriodoEscolar.objects.values_list("tipo_turno", "nome"))
 
-        print(dict_periodos)
-
         resultados = {}
         for aluno in lista_alunos:
-            print("---------aluno--------", aluno)
             tipo_turno = aluno.get("tipoTurno")
             nome_periodo = dict_periodos[tipo_turno]
             data_nascimento = dt_nascimento_from_api(aluno["dataNascimento"])
