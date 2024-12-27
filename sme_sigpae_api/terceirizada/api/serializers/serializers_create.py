@@ -8,6 +8,7 @@ from ...models import (
     Contrato,
     Edital,
     EmailTerceirizadaPorModulo,
+    Modalidade,
     Modulo,
     Nutricionista,
     Terceirizada,
@@ -110,6 +111,7 @@ class ContratoCreateSerializer(serializers.ModelSerializer):
 class ContratoAbastecimentoCreateSerializer(serializers.ModelSerializer):
     uuid = serializers.UUIDField(required=False)
     vigencias = VigenciaContratoCreateSerializer(many=True, required=False)
+    modalidade = serializers.SlugRelatedField(slug_field="uuid", queryset=Modalidade.objects.all())
 
     def create(self, validated_data):
         vigencias_array = validated_data.pop("vigencias")
@@ -248,6 +250,8 @@ class EmpresaNaoTerceirizadaCreateSerializer(serializers.ModelSerializer):
 
         for dados_contrato in dados_contratos:
             encerrado = dados_contrato.pop("encerrado")
+            uuid_modalidade = dados_contrato.get('modalidade').uuid
+            dados_contrato['modalidade'] = uuid_modalidade
             if not encerrado:
                 uuid_contrato = dados_contrato.get("uuid")
                 if uuid_contrato is not None:
