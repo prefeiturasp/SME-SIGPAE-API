@@ -851,14 +851,11 @@ class Escola(
         data_referencia = self.obter_data_referencia(data_referencia)
         faixas_etarias = self.obter_faixas_etarias(faixas_etarias)
 
-        lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
-            self.codigo_eol
-        )
-        if len(lista_alunos) == 0:
-            ano_seguinte = datetime.datetime.today().year + 1
-            lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
-                self.codigo_eol, ano_seguinte
+        lista_alunos = (
+            EOLServicoSGP.get_lista_alunos_por_escola_ano_corrente_ou_seguinte(
+                self.codigo_eol
             )
+        )
 
         seis_anos_atras = datetime.date.today() - relativedelta(years=6)
         dict_periodos = dict(PeriodoEscolar.objects.values_list("tipo_turno", "nome"))
@@ -890,14 +887,11 @@ class Escola(
             solicitacao_medicao_inicial__ano=str(data_referencia.year),
         ).values_list("aluno__codigo_eol", flat=True)
 
-        lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
-            self.codigo_eol
-        )
-        if len(lista_alunos) == 0:
-            ano_seguinte = datetime.datetime.today().year + 1
-            lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
-                self.codigo_eol, ano_seguinte
+        lista_alunos = (
+            EOLServicoSGP.get_lista_alunos_por_escola_ano_corrente_ou_seguinte(
+                self.codigo_eol
             )
+        )
 
         alunos_periodo_parcial_set = set(alunos_periodo_parcial)
         seis_anos_atras = datetime.date.today() - relativedelta(years=6)
@@ -940,14 +934,11 @@ class Escola(
         data_referencia = self.obter_data_referencia(data_referencia)
         faixas_etarias = self.obter_faixas_etarias(faixas_etarias)
 
-        lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
-            self.codigo_eol
-        )
-        if len(lista_alunos) == 0:
-            ano_seguinte = datetime.datetime.today().year + 1
-            lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
-                self.codigo_eol, ano_seguinte
+        lista_alunos = (
+            EOLServicoSGP.get_lista_alunos_por_escola_ano_corrente_ou_seguinte(
+                self.codigo_eol
             )
+        )
 
         seis_anos_atras = datetime.date.today() - relativedelta(years=6)
 
@@ -1004,14 +995,11 @@ class EscolaPeriodoEscolar(
         faixas_etarias = FaixaEtaria.objects.filter(ativo=True)
         if faixas_etarias.count() == 0:
             raise ObjectDoesNotExist()
-        lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
-            self.escola.codigo_eol
-        )
-        if len(lista_alunos) == 0:
-            ano_seguinte = datetime.datetime.today().year + 1
-            lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
-                self.codigo_eol, ano_seguinte
+        lista_alunos = (
+            EOLServicoSGP.get_lista_alunos_por_escola_ano_corrente_ou_seguinte(
+                self.escola.codigo_eol
             )
+        )
 
         faixa_alunos = Counter()
         for aluno in lista_alunos:

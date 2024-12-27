@@ -278,6 +278,25 @@ class EOLServicoSGP:
         except Exception as err:
             raise EOLException(str(err))
 
+    @classmethod
+    def get_alunos_ano_seguinte(self, codigo_eol):
+        ano_seguinte = datetime.today().year + 1
+        return EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
+            codigo_eol, ano_seguinte
+        )
+
+    @classmethod
+    def get_lista_alunos_por_escola_ano_corrente_ou_seguinte(cls, codigo_eol):
+        try:
+            lista_alunos_eol = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
+                codigo_eol
+            )
+            if len(lista_alunos_eol) == 0:
+                return cls.get_alunos_ano_seguinte(codigo_eol)
+            return lista_alunos_eol
+        except EOLException:
+            return cls.get_alunos_ano_seguinte(codigo_eol)
+
 
 class EOLPapaService:
     TIMEOUT = 120

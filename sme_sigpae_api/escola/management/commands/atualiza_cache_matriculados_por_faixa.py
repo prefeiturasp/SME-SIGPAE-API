@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 
 import environ
 import redis
@@ -133,14 +133,11 @@ class Command(BaseCommand):
         return lista_filtrada_alunos_eol
 
     def _cria_log_aluno_por_dia(self, escola, log_alunos_matriculados_faixa_dia):
-        lista_alunos_eol = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
-            escola.codigo_eol
-        )
-        if len(lista_alunos_eol) == 0:
-            ano_seguinte = datetime.today().year + 1
-            lista_alunos_eol = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
-                escola.codigo_eol, ano_seguinte
+        lista_alunos_eol = (
+            EOLServicoSGP.get_lista_alunos_por_escola_ano_corrente_ou_seguinte(
+                escola.codigo_eol
             )
+        )
         if not log_alunos_matriculados_faixa_dia.periodo_escolar.nome == "PARCIAL":
             periodo_do_log = (
                 log_alunos_matriculados_faixa_dia.periodo_escolar.tipo_turno

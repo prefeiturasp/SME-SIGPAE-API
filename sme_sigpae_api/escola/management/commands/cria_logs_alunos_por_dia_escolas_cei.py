@@ -1,5 +1,3 @@
-import datetime
-
 from django.core.management import BaseCommand
 
 from ....eol_servico.utils import EOLServicoSGP
@@ -72,14 +70,11 @@ class Command(BaseCommand):
         )
         total_logs = logs.count()
         try:
-            lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
-                escola.codigo_eol
-            )
-            if len(lista_alunos) == 0:
-                ano_seguinte = datetime.datetime.today().year + 1
-                lista_alunos = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
-                    escola.codigo_eol, ano_seguinte
+            lista_alunos = (
+                EOLServicoSGP.get_lista_alunos_por_escola_ano_corrente_ou_seguinte(
+                    escola.codigo_eol
                 )
+            )
 
             for i, log in enumerate(logs):
                 self.stdout.write(
