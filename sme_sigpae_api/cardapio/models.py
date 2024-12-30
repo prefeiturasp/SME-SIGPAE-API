@@ -422,7 +422,9 @@ class MotivoSuspensao(
 
 
 class SuspensaoAlimentacao(
-    ExportModelOperationsMixin("suspensao_alimentacao"), TemData, TemChaveExterna
+    ExportModelOperationsMixin("suspensao_alimentacao"),
+    TemData,
+    TemChaveExterna,
 ):
     """Trabalha em conjunto com GrupoSuspensaoAlimentacao."""
 

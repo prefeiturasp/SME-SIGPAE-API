@@ -13,6 +13,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
+from rest_framework.status import HTTP_200_OK
 from simple_email_confirmation.models import SimpleEmailConfirmationUserMixin
 
 from ...dados_comuns.behaviors import (
@@ -48,8 +49,9 @@ from ...dados_comuns.constants import (
 )
 from ...dados_comuns.tasks import envia_email_unico_task
 from ...dados_comuns.utils import url_configs
-from ...eol_servico.utils import EOLService, EOLServicoSGP
+from ...eol_servico.utils import EOLServicoSGP
 from ..models import Perfil, Vinculo
+from ..utils import get_cargo_eol
 
 log = logging.getLogger("sigpae.usuario")
 
@@ -332,14 +334,13 @@ class Usuario(
 
     @property
     def pode_efetuar_cadastro(self):
-        dados_usuario = EOLService.get_informacoes_usuario(
-            self.registro_funcional
-        )  # noqa
+        response = EOLServicoSGP.get_dados_usuario(self.registro_funcional)
+        if response.status_code != HTTP_200_OK:
+            return False
+        nome_cargo = get_cargo_eol(response)
         diretor_de_escola = False
-        for dado in dados_usuario:
-            if dado["cargo"] == "DIRETOR DE ESCOLA":
-                diretor_de_escola = True
-                break
+        if nome_cargo["cargo"] == "DIRETOR DE ESCOLA":
+            diretor_de_escola = True
         vinculo_aguardando_ativacao = (
             self.vinculo_atual.status == Vinculo.STATUS_AGUARDANDO_ATIVACAO
         )
