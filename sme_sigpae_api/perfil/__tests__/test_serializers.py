@@ -1,5 +1,7 @@
 import pytest
 
+from sme_sigpae_api.escola.__tests__.conftest import mocked_response
+
 from ..__tests__.conftest import mocked_request_api_eol
 from ..api.serializers import UsuarioUpdateSerializer
 from ..models import Usuario
@@ -31,12 +33,12 @@ def test_usuario_update_serializer_partial_update(
 def test_usuario_update_serializer_create(monkeypatch):
     monkeypatch.setattr(
         UsuarioUpdateSerializer,
-        "get_informacoes_usuario",
-        lambda p1, p2: mocked_request_api_eol(),
+        "get_dados_usuario",
+        lambda p1, p2: mocked_response(mocked_request_api_eol(), 200),
     )
-    data = {"registro_funcional": "5696569", "instituicao": "NOE AZEVEDO, PROF"}
+    data = {"registro_funcional": "5858585", "instituicao": "IRAPARA"}
     usuario = UsuarioUpdateSerializer(data).create(validated_data=data)
     assert isinstance(usuario, Usuario)
-    assert usuario.registro_funcional == "5696569"
+    assert usuario.registro_funcional == "5858585"
     assert usuario.is_active is False
-    assert usuario.cpf == "95887745002"
+    assert usuario.cpf == "34811126025"

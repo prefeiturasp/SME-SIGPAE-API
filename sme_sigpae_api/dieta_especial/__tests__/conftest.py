@@ -10,7 +10,6 @@ from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...dados_comuns.models import TemplateMensagem
 from ...dados_comuns.utils import convert_base64_to_contentfile
-from ...eol_servico.utils import EOLService
 from ...escola.models import Aluno, FaixaEtaria, PeriodoEscolar
 from ...perfil.models import Usuario
 from ...produto.models import Produto
@@ -783,16 +782,6 @@ def solicitacoes_dieta_especial_com_data_termino(
 @pytest.fixture
 def periodo_escolar_integral():
     return mommy.make("PeriodoEscolar", nome="INTEGRAL")
-
-
-@pytest.fixture
-def eolservice_get_informacoes_escola_turma_aluno(monkeypatch):
-    js_path = "sme_sigpae_api/dieta_especial/__tests__/massa_eolservice_get_informacoes_escola_turma_aluno.json"
-    with open(js_path) as jsfile:
-        js = json.load(jsfile)
-    return monkeypatch.setattr(
-        EOLService, "get_informacoes_escola_turma_aluno", lambda x: js["results"]
-    )
 
 
 @pytest.fixture
