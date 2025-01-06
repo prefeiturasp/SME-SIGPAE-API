@@ -11,7 +11,7 @@ from utility.carga_dados.perfil.importa_dados import (
     valida_arquivo_importacao_usuarios,
 )
 
-from ..eol_servico.utils import EOLException, EOLService
+from ..eol_servico.utils import EOLException, EOLServicoSGP
 from .models import (
     Cargo,
     ImportacaoPlanilhaUsuarioExternoCoreSSO,
@@ -19,6 +19,7 @@ from .models import (
     ImportacaoPlanilhaUsuarioUEParceiraCoreSSO,
     Usuario,
 )
+from .utils import get_cargo_eol
 
 logger = logging.getLogger("sigpae.taskPerfil")
 
@@ -29,22 +30,23 @@ def get_usuario(registro_funcional):
         return usuario
 
 
-def compara_e_atualiza_dados_do_eol(dados, usuario):
-    for dado in dados:
-        nome_cargo = dado.get("cargo")
-        if usuario.cargo != nome_cargo:
-            usuario.desativa_cargo()
-            cargo = Cargo.objects.create(usuario=usuario, nome=nome_cargo)
-            cargo.ativar_cargo()
-            usuario.atualizar_cargo()
+def compara_e_atualiza_dados_do_eol(response, usuario):
+    nome_cargo = get_cargo_eol(response)
+    if not nome_cargo:
+        return
+    if usuario.cargo != nome_cargo:
+        usuario.desativa_cargo()
+        cargo = Cargo.objects.create(usuario=usuario, nome=nome_cargo)
+        cargo.ativar_cargo()
+        usuario.atualizar_cargo()
 
 
 @shared_task
 def busca_cargo_de_usuario(registro_funcional):
     try:
         usuario = get_usuario(registro_funcional)
-        dados = EOLService.get_informacoes_usuario(registro_funcional)
-        compara_e_atualiza_dados_do_eol(dados, usuario)
+        response = EOLServicoSGP.get_dados_usuario(registro_funcional)
+        compara_e_atualiza_dados_do_eol(response, usuario)
 
     except EOLException:
         logger.debug(f"Usuario com rf {registro_funcional} não esta cadastro no EOL")
