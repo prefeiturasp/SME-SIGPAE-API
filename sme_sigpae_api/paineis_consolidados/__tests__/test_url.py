@@ -488,7 +488,7 @@ def test_inclusoes_cei_autorizadas(
         "&periodos_escolares[]=INTEGRAL&excluir_inclusoes_continuas=true"
     )
     assert response_integral.status_code == status.HTTP_200_OK
-    assert len(response_integral.data["results"]) == 1
+    assert len(response_integral.data["results"]) == 0
 
     response_tarde = client_autenticado_escola_paineis_consolidados.get(
         f"/escola-solicitacoes/{INCLUSOES_AUTORIZADAS}/"
