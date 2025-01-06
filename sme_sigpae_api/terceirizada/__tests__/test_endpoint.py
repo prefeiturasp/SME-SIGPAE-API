@@ -72,6 +72,65 @@ def test_url_endpoint_empresas_nao_terceirizadas_create(
     assert empresa.tipo_servico == Terceirizada.DISTRIBUIDOR_ARMAZEM
 
 
+def test_url_endpoint_empresas_nao_terceirizadas_create_sem_modalidade(
+    client_autenticado_dilog_cronograma
+):
+    payload = {
+        "nome_fantasia": "Empresa Teste",
+        "tipo_alimento": "FLVO",
+        "tipo_empresa": "CONVENCIONAL",
+        "tipo_servico": "DISTRIBUIDOR_ARMAZEM",
+        "numero_contrato": "89849",
+        "razao_social": "Empresa Teste SA",
+        "cnpj": "65241564654645",
+        "endereco": "Rua teste",
+        "cep": "04037000",
+        "contatos": [
+            {"nome": "nome", "telefone": "0000000000000", "email": "teste@gmail.com"}
+        ],
+        "bairro": "Teste",
+        "cidade": "Teste",
+        "complemento": "Sim",
+        "estado": "SP",
+        "numero": "58",
+        "responsavel_cargo": "Diretor",
+        "responsavel_cpf": "68052799091",
+        "responsavel_nome": "Responsavel",
+        "responsavel_telefone": "11999999999",
+        "responsavel_email": "responsavel@gmail.com",
+        "lotes": [],
+        "ativo": "true",
+        "contratos": [
+            {
+                "numero": "12345",
+                "processo": "123",
+                "numero_pregao": "12345",
+                "ata": "1234",
+                "vigencias": [
+                    {"data_inicial": "10/01/2023", "data_final": "15/01/2023"},
+                ],
+                "modalidade": None
+            }
+        ],
+        "super_admin": {
+            "nome": "xxx",
+            "cpf": "00000000000",
+            "email": "xxx@xxx.com",
+            "contatos": [{"email": "xxx@xxx.com", "telefone": "000000000"}],
+        },
+    }
+
+    response = client_autenticado_dilog_cronograma.post(
+        "/empresas-nao-terceirizadas/",
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+    empresa = Terceirizada.objects.first()
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert empresa.tipo_servico == Terceirizada.DISTRIBUIDOR_ARMAZEM
+    assert response.json()["contratos"][0]['modalidade'] is None
+
 def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos(
     client_autenticado_dilog_cronograma, terceirizada, modalidade
 ):
@@ -153,6 +212,92 @@ def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos(
         vigencia_contrato_edicao.data_final.strftime("%d/%m/%Y")
         == vigencia_payload["data_final"]
     )
+
+
+def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos_sem_modalidade(
+    client_autenticado_dilog_cronograma, terceirizada, modalidade
+):
+    payload = {
+        "contratos": [
+            {
+                "encerrado": False,
+                "numero": "1",
+                "processo": "1",
+                "ata": "1",
+                "numero_pregao": "1",
+                "vigencias": [
+                    {"data_inicial": "01/01/2023", "data_final": "31/12/2023"},
+                ],
+                "modalidade": None
+            },
+            {
+                "encerrado": False,
+                "numero": "2",
+                "processo": "2",
+                "ata": "2",
+                "numero_pregao": "2",
+                "vigencias": [
+                    {"data_inicial": "01/01/2023", "data_final": "31/12/2023"},
+                ],
+                "modalidade": None
+            },
+        ],
+    }
+
+    response = client_autenticado_dilog_cronograma.patch(
+        f"/empresas-nao-terceirizadas/{terceirizada.uuid}/",
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+
+    terceirizada.refresh_from_db()
+    assert response.status_code == status.HTTP_200_OK
+    assert terceirizada.contratos.count() == 2
+    assert response.json()["contratos"][0]['modalidade'] is None
+    assert response.json()["contratos"][1]['modalidade'] is None
+
+    contrato_edicao = terceirizada.contratos.first()
+    payload = {
+        "contratos": [
+            {
+                "uuid": str(contrato_edicao.uuid),
+                "encerrado": False,
+                "processo": "9",
+                "ata": "9",
+                "numero_pregao": "9",
+                "vigencias": [
+                    {"data_inicial": "09/09/1999", "data_final": "31/12/2023"},
+                ],
+                "modalidade": str(modalidade.uuid)
+            },
+        ],
+    }
+
+    response = client_autenticado_dilog_cronograma.patch(
+        f"/empresas-nao-terceirizadas/{terceirizada.uuid}/",
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+    contrato_edicao.refresh_from_db()
+    assert response.status_code == status.HTTP_200_OK
+    assert terceirizada.contratos.count() == 2
+    assert terceirizada.contratos.filter(uuid=contrato_edicao.uuid).exists()
+
+    assert contrato_edicao.processo == payload["contratos"][0]["processo"]
+    assert contrato_edicao.ata == payload["contratos"][0]["ata"]
+    assert contrato_edicao.numero_pregao == payload["contratos"][0]["numero_pregao"]
+
+    vigencia_contrato_edicao = contrato_edicao.vigencias.last()
+    vigencia_payload = payload["contratos"][0]["vigencias"][0]
+    assert (
+        vigencia_contrato_edicao.data_inicial.strftime("%d/%m/%Y")
+        == vigencia_payload["data_inicial"]
+    )
+    assert (
+        vigencia_contrato_edicao.data_final.strftime("%d/%m/%Y")
+        == vigencia_payload["data_final"]
+    )
+    assert contrato_edicao.modalidade == modalidade
 
 
 def test_url_endpoint_terceirizadas_actions(client_autenticado_dilog):
