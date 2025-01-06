@@ -648,34 +648,43 @@ def users_terceirizada(client, django_user_model, request, usuario_2):
 
 
 def mocked_request_api_eol():
-    return [
-        {
-            "nm_pessoa": "IARA DAREZZO",
-            "cargo": "PROF.ED.INF.E ENS.FUND.I",
-            "divisao": "ODILIO DENYS, MAL.",
-            "cd_cpf_pessoa": "95887745002",
-            "coord": "DIRETORIA REGIONAL DE EDUCACAO FREGUESIA/BRASILANDIA",
-        },
-        {
-            "nm_pessoa": "IARA DAREZZO",
-            "cargo": "PROF.ENS.FUND.II E MED.-PORTUGUES",
-            "divisao": "NOE AZEVEDO, PROF",
-            "cd_cpf_pessoa": "95887745002",
-            "coord": "DIRETORIA REGIONAL DE EDUCACAO JACANA/TREMEMBE",
-        },
-    ]
+    return {
+        "rf": "5858585",
+        "cpf": "34811126025",
+        "email": "fulana.silva@sme.prefeitura.sp.gov.br",
+        "cargos": [
+            {
+                "codigoCargo": 3085,
+                "descricaoCargo": "ASSISTENTE DE DIRETOR DE ESCOLA         ",
+                "codigoUnidade": "019532",
+                "descricaoUnidade": "CEMEI - IRAPARA",
+                "codigoDre": "108100",
+                "contratoExterno": False,
+            }
+        ],
+        "nome": "FULANA DA SILVA",
+        "inexistenteEol": False,
+    }
 
 
 def mocked_request_api_eol_usuario_diretoria_regional():
-    return [
-        {
-            "nm_pessoa": "LUIZA MARIA BASTOS",
-            "cargo": "AUXILIAR TECNICO DE EDUCACAO",
-            "divisao": "DIRETORIA REGIONAL DE EDUCACAO CAPELA DO SOCORRO",
-            "cd_cpf_pessoa": "47088910080",
-            "coord": "DIRETORIA REGIONAL DE EDUCACAO CAPELA DO SOCORRO",
-        }
-    ]
+    return {
+        "rf": "9090909",
+        "cpf": "22406543099",
+        "email": "beltrana.souza@sme.prefeitura.sp.gov.br",
+        "cargos": [
+            {
+                "codigoCargo": 4502,
+                "descricaoCargo": "AUXILIAR ADM. DE ENSINO                 ",
+                "codigoUnidade": "109101",
+                "descricaoUnidade": "ASSISTENCIA ADMINISTRATIVA-CE SA",
+                "codigoDre": "109100",
+                "contratoExterno": False,
+            }
+        ],
+        "nome": "BELTRANA DE SOUZA",
+        "inexistenteEol": False,
+    }
 
 
 @pytest.fixture(
