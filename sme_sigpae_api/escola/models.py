@@ -58,7 +58,7 @@ from ..dados_comuns.utils import (
     queryset_por_data,
     subtrai_meses_de_data,
 )
-from ..eol_servico.utils import EOLService, dt_nascimento_from_api
+from ..eol_servico.utils import EOLServicoSGP, dt_nascimento_from_api
 from ..escola.constants import (
     PERIODOS_ESPECIAIS_CEI_CEU_CCI,
     PERIODOS_ESPECIAIS_CEI_DIRET,
@@ -78,11 +78,7 @@ from ..kit_lanche.models import (
 )
 from .constants import CEI_OU_EMEI, PERIODOS_ESPECIAIS_CEMEI
 from .services import NovoSGPServicoLogado
-from .utils import (
-    deletar_alunos_periodo_parcial_outras_escolas,
-    faixa_to_string,
-    remove_acentos,
-)
+from .utils import deletar_alunos_periodo_parcial_outras_escolas, faixa_to_string
 
 env = environ.Env()
 REDIS_HOST = env("REDIS_HOST")
@@ -851,20 +847,27 @@ class Escola(
 
     def alunos_por_periodo_e_faixa_etaria(
         self, data_referencia=None, faixas_etarias=None
-    ):  # noqa C901
+    ):
         data_referencia = self.obter_data_referencia(data_referencia)
         faixas_etarias = self.obter_faixas_etarias(faixas_etarias)
 
-        lista_alunos = EOLService.get_informacoes_escola_turma_aluno(self.codigo_eol)
+        lista_alunos = (
+            EOLServicoSGP.get_lista_alunos_por_escola_ano_corrente_ou_seguinte(
+                self.codigo_eol
+            )
+        )
+
         seis_anos_atras = datetime.date.today() - relativedelta(years=6)
+        dict_periodos = dict(PeriodoEscolar.objects.values_list("tipo_turno", "nome"))
 
         resultados = {}
         for aluno in lista_alunos:
-            periodo = aluno["dc_tipo_turno"].strip().upper()
-            data_nascimento = dt_nascimento_from_api(aluno["dt_nascimento_aluno"])
-            if periodo not in resultados:
-                resultados[periodo] = Counter()
-            resultados[periodo] += self.contar_alunos_por_faixa(
+            tipo_turno = aluno.get("tipoTurno")
+            nome_periodo = dict_periodos[tipo_turno]
+            data_nascimento = dt_nascimento_from_api(aluno["dataNascimento"])
+            if nome_periodo not in resultados:
+                resultados[nome_periodo] = Counter()
+            resultados[nome_periodo] += self.contar_alunos_por_faixa(
                 data_nascimento, data_referencia, faixas_etarias, seis_anos_atras
             )
         return resultados
@@ -884,16 +887,21 @@ class Escola(
             solicitacao_medicao_inicial__ano=str(data_referencia.year),
         ).values_list("aluno__codigo_eol", flat=True)
 
-        lista_alunos = EOLService.get_informacoes_escola_turma_aluno(self.codigo_eol)
+        lista_alunos = (
+            EOLServicoSGP.get_lista_alunos_por_escola_ano_corrente_ou_seguinte(
+                self.codigo_eol
+            )
+        )
+
         alunos_periodo_parcial_set = set(alunos_periodo_parcial)
         seis_anos_atras = datetime.date.today() - relativedelta(years=6)
 
         resultados = {}
         for aluno in lista_alunos:
-            if str(aluno["cd_aluno"]) not in alunos_periodo_parcial_set:
+            if str(aluno["codigoAluno"]) not in alunos_periodo_parcial_set:
                 continue
             periodo = "PARCIAL"
-            data_nascimento = dt_nascimento_from_api(aluno["dt_nascimento_aluno"])
+            data_nascimento = dt_nascimento_from_api(aluno["dataNascimento"])
             if periodo not in resultados:
                 resultados[periodo] = Counter()
             resultados[periodo] += self.contar_alunos_por_faixa(
@@ -903,7 +911,7 @@ class Escola(
 
     def alunos_por_periodo_e_faixa_etaria_objetos_alunos(
         self, data_referencia=None, faixas_etarias=None
-    ):  # noqa C901
+    ):
         data_referencia = self.obter_data_referencia(data_referencia)
         faixas_etarias = self.obter_faixas_etarias(faixas_etarias)
 
@@ -922,17 +930,21 @@ class Escola(
             )
         return resultados
 
-    def alunos_por_faixa_etaria(
-        self, data_referencia=None, faixas_etarias=None
-    ):  # noqa C901
+    def alunos_por_faixa_etaria(self, data_referencia=None, faixas_etarias=None):
         data_referencia = self.obter_data_referencia(data_referencia)
         faixas_etarias = self.obter_faixas_etarias(faixas_etarias)
-        lista_alunos = EOLService.get_informacoes_escola_turma_aluno(self.codigo_eol)
+
+        lista_alunos = (
+            EOLServicoSGP.get_lista_alunos_por_escola_ano_corrente_ou_seguinte(
+                self.codigo_eol
+            )
+        )
+
         seis_anos_atras = datetime.date.today() - relativedelta(years=6)
 
         resultados = Counter()
         for aluno in lista_alunos:
-            data_nascimento = dt_nascimento_from_api(aluno["dt_nascimento_aluno"])
+            data_nascimento = dt_nascimento_from_api(aluno["dataNascimento"])
             resultados += self.contar_alunos_por_faixa(
                 data_nascimento, data_referencia, faixas_etarias, seis_anos_atras
             )
@@ -983,16 +995,16 @@ class EscolaPeriodoEscolar(
         faixas_etarias = FaixaEtaria.objects.filter(ativo=True)
         if faixas_etarias.count() == 0:
             raise ObjectDoesNotExist()
-        lista_alunos = EOLService.get_informacoes_escola_turma_aluno(
-            self.escola.codigo_eol
+        lista_alunos = (
+            EOLServicoSGP.get_lista_alunos_por_escola_ano_corrente_ou_seguinte(
+                self.escola.codigo_eol
+            )
         )
+
         faixa_alunos = Counter()
         for aluno in lista_alunos:
-            if (
-                remove_acentos(aluno["dc_tipo_turno"].strip()).upper()
-                == self.periodo_escolar.nome
-            ):
-                data_nascimento = dt_nascimento_from_api(aluno["dt_nascimento_aluno"])
+            if aluno["tipoTurno"] == self.periodo_escolar.tipo_turno:
+                data_nascimento = dt_nascimento_from_api(aluno["dataNascimento"])
                 meses = (data_nascimento.year - data_referencia.year) * 12
                 meses = meses + (data_nascimento.month - data_referencia.month)
                 meses = meses * (-1)

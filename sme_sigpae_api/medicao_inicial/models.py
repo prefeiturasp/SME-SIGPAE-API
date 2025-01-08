@@ -112,6 +112,19 @@ class SolicitacaoMedicaoInicial(
         )
 
     @property
+    def escola_cei_com_inclusao_parcial_autorizada(self):
+        if not self.escola.eh_cei:
+            return False
+        return self.escola.inclusao_alimentacao_inclusaoalimentacaodacei_rastro_escola.filter(
+            status="CODAE_AUTORIZADO",
+            quantidade_alunos_da_inclusao__periodo_externo__nome="INTEGRAL",
+            quantidade_alunos_da_inclusao__periodo__nome__in=["TARDE", "MANHA"],
+            dias_motivos_da_inclusao_cei__data__month=self.mes,
+            dias_motivos_da_inclusao_cei__data__year=self.ano,
+            dias_motivos_da_inclusao_cei__cancelado=False,
+        ).exists()
+
+    @property
     def todas_medicoes_e_ocorrencia_aprovados_por_medicao(self):
         ocorrencia_aprovada = True
         if self.tem_ocorrencia:

@@ -7,7 +7,6 @@ from freezegun import freeze_time
 
 from ...cardapio.models import Cardapio
 from ...dados_comuns.constants import DAQUI_A_SETE_DIAS, DAQUI_A_TRINTA_DIAS, SEM_FILTRO
-from ...eol_servico.utils import EOLService
 from ..admin import PlanilhaAtualizacaoTipoGestaoEscolaAdmin
 from ..models import (
     AlunosMatriculadosPeriodoEscola,
@@ -193,12 +192,12 @@ def test_data_pertence_faixa_etaria_hoje(datas_e_faixas):
 def test_escola_periodo_escolar_alunos_por_faixa_etaria(
     faixas_etarias,
     escola_periodo_escolar,
-    eolservice_get_informacoes_escola_turma_aluno,
+    eolservicosgp_get_lista_alunos,
 ):
     faixas_alunos = escola_periodo_escolar.alunos_por_faixa_etaria(
         datetime.date(2020, 10, 25)
     )
-    assert [i for i in faixas_alunos.values()] == [93, 18, 27]
+    assert [i for i in faixas_alunos.values()] == [2, 1]
 
 
 def test_faixa_str():
@@ -484,45 +483,31 @@ def test_log_alteracao_quantidade_alunos_por_escola_periodo(
 
 
 @freeze_time("2023-08-28")
-def test_alunos_por_periodo_e_faixa_etaria(escola, faixas_etarias, monkeypatch):
-    monkeypatch.setattr(
-        EOLService,
-        "get_informacoes_escola_turma_aluno",
-        lambda p1: mocked_informacoes_escola_turma_aluno(),
-    )
+def test_alunos_por_periodo_e_faixa_etaria(
+    escola, faixas_etarias, periodo_escolar, eolservicosgp_get_lista_alunos
+):
     response = escola.alunos_por_periodo_e_faixa_etaria()
-    assert len(response) == 2
+    assert len(response) == 1
     assert response["INTEGRAL"] == Counter(
         {
-            f"{str([f for f in faixas_etarias if f.inicio == 12][0].uuid)}": 3,
-            f"{str([f for f in faixas_etarias if f.inicio == 24][0].uuid)}": 2,
-            f"{str([f for f in faixas_etarias if f.inicio == 48][0].uuid)}": 1,
-        }
-    )
-    assert response["MANHÃ"] == Counter(
-        {
-            f"{str([f for f in faixas_etarias if f.inicio == 12][0].uuid)}": 1,
-            f"{str([f for f in faixas_etarias if f.inicio == 48][0].uuid)}": 1,
+            f"{str([f for f in faixas_etarias if f.inicio == 48][0].uuid)}": 3,
         }
     )
 
 
 @freeze_time("2023-08-28")
 def test_alunos_periodo_parcial_e_faixa_etaria(
-    escola_cei, faixas_etarias, alunos_periodo_parcial, monkeypatch
+    escola_cei,
+    faixas_etarias,
+    alunos_periodo_parcial,
+    periodo_escolar,
+    eolservicosgp_get_lista_alunos,
 ):
-    monkeypatch.setattr(
-        EOLService,
-        "get_informacoes_escola_turma_aluno",
-        lambda p1: mocked_informacoes_escola_turma_aluno(),
-    )
     response = escola_cei.alunos_periodo_parcial_e_faixa_etaria()
     assert len(response) == 1
     assert response["PARCIAL"] == Counter(
         {
-            f"{str([f for f in faixas_etarias if f.inicio == 12][0].uuid)}": 2,
-            f"{str([f for f in faixas_etarias if f.inicio == 24][0].uuid)}": 1,
-            f"{str([f for f in faixas_etarias if f.inicio == 48][0].uuid)}": 1,
+            f"{str([f for f in faixas_etarias if f.inicio == 48][0].uuid)}": 2,
         }
     )
 
@@ -535,27 +520,20 @@ def test_alunos_por_periodo_e_faixa_etaria_objetos_alunos(
     assert len(response) == 1
     assert response["INTEGRAL"] == Counter(
         {
-            f"{str([f for f in faixas_etarias if f.inicio == 12][0].uuid)}": 4,
-            f"{str([f for f in faixas_etarias if f.inicio == 24][0].uuid)}": 2,
-            f"{str([f for f in faixas_etarias if f.inicio == 48][0].uuid)}": 2,
+            f"{str([f for f in faixas_etarias if f.inicio == 48][0].uuid)}": 3,
         }
     )
 
 
 @freeze_time("2023-08-28")
-def test_alunos_por_faixa_etaria(escola_cei, faixas_etarias, monkeypatch):
-    monkeypatch.setattr(
-        EOLService,
-        "get_informacoes_escola_turma_aluno",
-        lambda p1: mocked_informacoes_escola_turma_aluno(),
-    )
+def test_alunos_por_faixa_etaria(
+    escola_cei, faixas_etarias, eolservicosgp_get_lista_alunos
+):
     response = escola_cei.alunos_por_faixa_etaria()
-    assert len(response.items()) == 3
+    assert len(response.items()) == 1
     assert response == Counter(
         {
-            f"{str([f for f in faixas_etarias if f.inicio == 12][0].uuid)}": 4,
-            f"{str([f for f in faixas_etarias if f.inicio == 24][0].uuid)}": 2,
-            f"{str([f for f in faixas_etarias if f.inicio == 48][0].uuid)}": 2,
+            f"{str([f for f in faixas_etarias if f.inicio == 48][0].uuid)}": 3,
         }
     )
 

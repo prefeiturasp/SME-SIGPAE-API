@@ -1299,13 +1299,7 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                     periodos_internos = ["MANHA", "TARDE"]
                 if "INTEGRAL" in periodos_escolares:
                     periodos_externos = ["INTEGRAL"]
-                    if (
-                        sol_medicao_inicial
-                        and sol_medicao_inicial.ue_possui_alunos_periodo_parcial
-                    ):
-                        periodos_internos = ["INTEGRAL"]
-                    else:
-                        periodos_internos = ["INTEGRAL", "MANHA", "TARDE"]
+                    periodos_internos = ["INTEGRAL"]
                 if "MANHA" in periodos_escolares:
                     periodos_externos = ["MANHA"]
                     periodos_internos = ["MANHA"]

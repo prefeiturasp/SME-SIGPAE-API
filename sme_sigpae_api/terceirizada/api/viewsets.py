@@ -17,6 +17,7 @@ from ..models import (
     Contrato,
     Edital,
     EmailTerceirizadaPorModulo,
+    Modalidade,
     Terceirizada,
     VigenciaContrato,
 )
@@ -34,6 +35,7 @@ from .serializers.serializers import (
     EditalSimplesSerializer,
     EmailsPorModuloSerializer,
     EmailsTerceirizadaPorModuloSerializer,
+    ModalidadeSerializer,
     TerceirizadaLookUpSerializer,
     TerceirizadaSimplesSerializer,
     VigenciaContratoSerializer,
@@ -249,3 +251,9 @@ class VigenciaContratoViewSet(ReadOnlyModelViewSet):
         return Response(
             {"results": VigenciaContratoSerializer(vigencias_contratos, many=True).data}
         )
+
+
+class ModalidadesContratoViewSet(ReadOnlyModelViewSet):
+    lookup_field = "uuid"
+    serializer_class = ModalidadeSerializer
+    queryset = Modalidade.objects.all()

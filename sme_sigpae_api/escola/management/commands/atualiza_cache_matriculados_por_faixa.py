@@ -4,7 +4,7 @@ import environ
 import redis
 from django.core.management.base import BaseCommand
 
-from ....eol_servico.utils import EOLService, dt_nascimento_from_api
+from ....eol_servico.utils import EOLServicoSGP, dt_nascimento_from_api
 from ...models import (
     Aluno,
     Escola,
@@ -125,28 +125,30 @@ class Command(BaseCommand):
     ):
         lista_filtrada_alunos_eol = []
         for aluno in lista_alunos_eol:
-            if aluno["dc_tipo_turno"].strip().upper() == periodo_do_log:
+            if aluno["tipoTurno"] == periodo_do_log:
                 faixa = FaixaEtaria.objects.get(uuid=faixa_etaria_do_log.uuid)
-                aluno_data_nascimento = dt_nascimento_from_api(
-                    aluno["dt_nascimento_aluno"]
-                )
+                aluno_data_nascimento = dt_nascimento_from_api(aluno["dataNascimento"])
                 if faixa.data_pertence_a_faixa(aluno_data_nascimento, date.today()):
                     lista_filtrada_alunos_eol.append(aluno)
         return lista_filtrada_alunos_eol
 
     def _cria_log_aluno_por_dia(self, escola, log_alunos_matriculados_faixa_dia):
-        lista_alunos_eol = EOLService.get_informacoes_escola_turma_aluno(
-            escola.codigo_eol
+        lista_alunos_eol = (
+            EOLServicoSGP.get_lista_alunos_por_escola_ano_corrente_ou_seguinte(
+                escola.codigo_eol
+            )
         )
         if not log_alunos_matriculados_faixa_dia.periodo_escolar.nome == "PARCIAL":
-            periodo_do_log = log_alunos_matriculados_faixa_dia.periodo_escolar.nome
+            periodo_do_log = (
+                log_alunos_matriculados_faixa_dia.periodo_escolar.tipo_turno
+            )
             faixa_etaria_do_log = log_alunos_matriculados_faixa_dia.faixa_etaria
             lista_filtrada_alunos_eol = self.get_lista_filtrada_alunos_eol(
                 lista_alunos_eol, periodo_do_log, faixa_etaria_do_log
             )
             for aluno_eol in lista_filtrada_alunos_eol:
                 try:
-                    aluno = Aluno.objects.get(codigo_eol=aluno_eol["cd_aluno"])
+                    aluno = Aluno.objects.get(codigo_eol=aluno_eol["codigoAluno"])
                     LogAlunoPorDia.objects.update_or_create(
                         log_alunos_matriculados_faixa_dia=log_alunos_matriculados_faixa_dia,
                         aluno=aluno,

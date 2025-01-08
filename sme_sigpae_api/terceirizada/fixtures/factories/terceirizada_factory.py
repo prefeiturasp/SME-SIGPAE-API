@@ -8,7 +8,12 @@ from factory import (
 )
 from faker import Faker
 
-from sme_sigpae_api.terceirizada.models import Contrato, Edital, Terceirizada
+from sme_sigpae_api.terceirizada.models import (
+    Contrato,
+    Edital,
+    Modalidade,
+    Terceirizada,
+)
 
 fake = Faker("pt_BR")
 
@@ -32,6 +37,13 @@ class EditalFactory(DjangoModelFactory):
     objeto = Sequence(lambda n: f"Objeto {n}")
 
 
+class ModalidadeFactory(DjangoModelFactory):
+    class Meta:
+        model = Modalidade
+
+    nome = Sequence(lambda n: f"Modalidade {n}")
+
+
 class ContratoFactory(DjangoModelFactory):
     numero = Sequence(lambda n: f"{str(n).zfill(5)}")
     terceirizada = SubFactory(EmpresaFactory)
@@ -40,6 +52,7 @@ class ContratoFactory(DjangoModelFactory):
     numero_chamada_publica = LazyFunction(
         lambda: str(fake.random_number(digits=10, fix_len=True))
     )
+    modalidade = SubFactory(ModalidadeFactory)
 
     @factory.post_generation
     def lotes(self, create, extracted, **kwargs):

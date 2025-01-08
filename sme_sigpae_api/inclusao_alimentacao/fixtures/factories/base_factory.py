@@ -48,7 +48,7 @@ class InclusaoAlimentacaoNormalFactory(DjangoModelFactory):
 
 
 class QuantidadePorPeriodoFactory(DjangoModelFactory):
-    numero_alunos = Sequence(lambda n: fake.unique.random_int(min=1, max=100))
+    numero_alunos = Sequence(lambda n: fake.random_int(min=1, max=100))
     periodo_escolar = SubFactory(PeriodoEscolarFactory)
     grupo_inclusao_normal = SubFactory(GrupoInclusaoAlimentacaoNormalFactory)
 
@@ -90,7 +90,7 @@ class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEIFactory(
 ):
     inclusao_alimentacao_da_cei = SubFactory(InclusaoAlimentacaoDaCEIFactory)
     faixa_etaria = SubFactory(FaixaEtariaFactory)
-    quantidade_alunos = Sequence(lambda n: fake.unique.random_int(min=1, max=100))
+    quantidade_alunos = Sequence(lambda n: fake.random_int(min=1, max=100))
     periodo = SubFactory(PeriodoEscolarFactory)
 
     class Meta:

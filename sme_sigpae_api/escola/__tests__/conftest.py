@@ -6,7 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
 from model_mommy import mommy
 
-from ...eol_servico.utils import EOLService, dt_nascimento_from_api
+from ...eol_servico.utils import dt_nascimento_from_api
 from ...escola.api.serializers import (
     Aluno,
     EscolaSimplissimaSerializer,
@@ -167,7 +167,7 @@ def codae(escola):
 
 @pytest.fixture
 def periodo_escolar():
-    return mommy.make(models.PeriodoEscolar, nome="INTEGRAL")
+    return mommy.make(models.PeriodoEscolar, nome="INTEGRAL", tipo_turno=1)
 
 
 @pytest.fixture
@@ -350,17 +350,6 @@ def datas_e_faixas(request):
 
 
 @pytest.fixture
-def eolservice_get_informacoes_escola_turma_aluno(monkeypatch):
-    with open(
-        "sme_sigpae_api/escola/__tests__/massa_eolservice_get_informacoes_escola_turma_aluno.json"
-    ) as jsfile:
-        js = json.load(jsfile)
-    return monkeypatch.setattr(
-        EOLService, "get_informacoes_escola_turma_aluno", lambda x: js["results"]
-    )
-
-
-@pytest.fixture
 def arquivo():
     return SimpleUploadedFile(
         "planilha-teste.pdf", bytes("CONTEUDO TESTE TESTE TESTE", encoding="utf-8")
@@ -455,6 +444,7 @@ def mocked_response(*args, **kwargs):
     class MockResponse:
         def __init__(self, json_data, status_code):
             self.json_data = json_data
+            self.text = json_data
             self.status_code = status_code
             self.content = b"erro"
 
@@ -524,100 +514,22 @@ def log_rotina_diaria_alunos():
 def mocked_informacoes_escola_turma_aluno():
     informacoes = [
         {
-            "cod_dre": "108600",
-            "sg_dre": "DRE - IP",
-            "dre": "DIRETORIA REGIONAL DE EDUCACAO IPIRANGA",
-            "cd_turma_escola": 2531083,
-            "dc_turma_escola": "1B",
-            "dc_serie_ensino": "Bercario I",
-            "dc_tipo_turno": "Integral            ",
-            "cd_aluno": 8069951,
-            "nm_aluno": "HEITOR ALVES CAMPELO",
-            "dt_nascimento_aluno": "2022-08-06T00:00:00",
+            "codigoAluno": 8888888,
+            "tipoTurno": 1,
+            "codigoSituacaoMatricula": 13,
+            "dataNascimento": "2018-06-17T00:00:00",
         },
         {
-            "cod_dre": "108600",
-            "sg_dre": "DRE - IP",
-            "dre": "DIRETORIA REGIONAL DE EDUCACAO IPIRANGA",
-            "cd_turma_escola": 2531083,
-            "dc_turma_escola": "1B",
-            "dc_serie_ensino": "Bercario I",
-            "dc_tipo_turno": "Integral            ",
-            "cd_aluno": 8120853,
-            "nm_aluno": "BENICIO NEVES GUIMARAES",
-            "dt_nascimento_aluno": "2022-06-25T00:00:00",
+            "codigoAluno": 9999999,
+            "tipoTurno": 1,
+            "codigoSituacaoMatricula": 14,
+            "dataNascimento": "2018-07-22T00:00:00",
         },
         {
-            "cod_dre": "108600",
-            "sg_dre": "DRE - IP",
-            "dre": "DIRETORIA REGIONAL DE EDUCACAO IPIRANGA",
-            "cd_turma_escola": 2531164,
-            "dc_turma_escola": "2D",
-            "dc_serie_ensino": "Bercario II",
-            "dc_tipo_turno": "Manhã            ",
-            "cd_aluno": 8050067,
-            "nm_aluno": "DANIEL ALEXANDRE SANCHES CAMARGO",
-            "dt_nascimento_aluno": "2021-08-28T00:00:00",
-        },
-        {
-            "cod_dre": "108600",
-            "sg_dre": "DRE - IP",
-            "dre": "DIRETORIA REGIONAL DE EDUCACAO IPIRANGA",
-            "cd_turma_escola": 2531164,
-            "dc_turma_escola": "2D",
-            "dc_serie_ensino": "Bercario II",
-            "dc_tipo_turno": "Integral            ",
-            "cd_aluno": 7895682,
-            "nm_aluno": "ENRICO LIRA FERREIRA",
-            "dt_nascimento_aluno": "2021-11-29T00:00:00",
-        },
-        {
-            "cod_dre": "108600",
-            "sg_dre": "DRE - IP",
-            "dre": "DIRETORIA REGIONAL DE EDUCACAO IPIRANGA",
-            "cd_turma_escola": 2531192,
-            "dc_turma_escola": "3C",
-            "dc_serie_ensino": "MINI GRUPO I",
-            "dc_tipo_turno": "Integral            ",
-            "cd_aluno": 8113297,
-            "nm_aluno": "LEONARDO NOSSE SANCHES",
-            "dt_nascimento_aluno": "2021-02-14T00:00:00",
-        },
-        {
-            "cod_dre": "108600",
-            "sg_dre": "DRE - IP",
-            "dre": "DIRETORIA REGIONAL DE EDUCACAO IPIRANGA",
-            "cd_turma_escola": 2531192,
-            "dc_turma_escola": "3C",
-            "dc_serie_ensino": "MINI GRUPO I",
-            "dc_tipo_turno": "Integral            ",
-            "cd_aluno": 7852833,
-            "nm_aluno": "CAETANO MALTA MORI",
-            "dt_nascimento_aluno": "2020-07-07T00:00:00",
-        },
-        {
-            "cod_dre": "108600",
-            "sg_dre": "DRE - IP",
-            "dre": "DIRETORIA REGIONAL DE EDUCACAO IPIRANGA",
-            "cd_turma_escola": 2531209,
-            "dc_turma_escola": "4B",
-            "dc_serie_ensino": "MINI GRUPO II",
-            "dc_tipo_turno": "Manhã            ",
-            "cd_aluno": 7591345,
-            "nm_aluno": "ISAAC LOPES DE SOUZA",
-            "dt_nascimento_aluno": "2019-08-03T00:00:00",
-        },
-        {
-            "cod_dre": "108600",
-            "sg_dre": "DRE - IP",
-            "dre": "DIRETORIA REGIONAL DE EDUCACAO IPIRANGA",
-            "cd_turma_escola": 2531209,
-            "dc_turma_escola": "4B",
-            "dc_serie_ensino": "MINI GRUPO II",
-            "dc_tipo_turno": "Integral            ",
-            "cd_aluno": 8247330,
-            "nm_aluno": "ALYSSE EMANUELLY DE OLIVEIRA MACIEL",
-            "dt_nascimento_aluno": "2019-08-23T00:00:00",
+            "codigoAluno": 7777777,
+            "tipoTurno": 1,
+            "codigoSituacaoMatricula": 13,
+            "dataNascimento": "2019-03-22T00:00:00",
         },
     ]
     return informacoes
@@ -633,11 +545,8 @@ def alunos_periodo_parcial(escola_cei, periodo_escolar):
         informacao_aluno = mocked_informacoes_escola_turma_aluno()[i]
         aluno = mommy.make(
             "Aluno",
-            nome=informacao_aluno["nm_aluno"],
-            codigo_eol=informacao_aluno["cd_aluno"],
-            data_nascimento=dt_nascimento_from_api(
-                informacao_aluno["dt_nascimento_aluno"]
-            ),
+            codigo_eol=informacao_aluno["codigoAluno"],
+            data_nascimento=dt_nascimento_from_api(informacao_aluno["dataNascimento"]),
             escola=escola_cei,
             periodo_escolar=periodo_escolar,
         )
@@ -656,11 +565,8 @@ def alunos(escola_cei, periodo_escolar):
         informacao_aluno = mocked_informacoes_escola_turma_aluno()[i]
         mommy.make(
             "Aluno",
-            nome=informacao_aluno["nm_aluno"],
-            codigo_eol=informacao_aluno["cd_aluno"],
-            data_nascimento=dt_nascimento_from_api(
-                informacao_aluno["dt_nascimento_aluno"]
-            ),
+            codigo_eol=informacao_aluno["codigoAluno"],
+            data_nascimento=dt_nascimento_from_api(informacao_aluno["dataNascimento"]),
             escola=escola_cei,
             periodo_escolar=periodo_escolar,
             serie=f"{i}A",

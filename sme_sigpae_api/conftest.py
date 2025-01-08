@@ -1,5 +1,6 @@
 import base64
 import datetime
+import json
 
 import pytest
 from faker import Faker
@@ -11,6 +12,7 @@ from .dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
 from .dados_comuns.models import TemplateMensagem
+from .eol_servico.utils import EOLServicoSGP
 from .escola.fixtures.factories.escola_factory import (
     DiretoriaRegionalFactory,
     EscolaFactory,
@@ -667,3 +669,14 @@ def arquivo_pdf_base64():
 def arquivo_base64():
     arquivo = f"data:image/jpeg;base64,{base64.b64encode(b'arquivo imagem teste').decode('utf-8')}"
     return arquivo
+
+
+@pytest.fixture
+def eolservicosgp_get_lista_alunos(monkeypatch):
+    with open(
+        "sme_sigpae_api/escola/__tests__/massa_eolservicosgp_lista_alunos.json"
+    ) as jsfile:
+        js = json.load(jsfile)
+    return monkeypatch.setattr(
+        EOLServicoSGP, "get_alunos_por_escola_por_ano_letivo", lambda x: js
+    )

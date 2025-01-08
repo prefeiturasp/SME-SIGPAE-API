@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
 from model_mommy import mommy
@@ -647,34 +648,43 @@ def users_terceirizada(client, django_user_model, request, usuario_2):
 
 
 def mocked_request_api_eol():
-    return [
-        {
-            "nm_pessoa": "IARA DAREZZO",
-            "cargo": "PROF.ED.INF.E ENS.FUND.I",
-            "divisao": "ODILIO DENYS, MAL.",
-            "cd_cpf_pessoa": "95887745002",
-            "coord": "DIRETORIA REGIONAL DE EDUCACAO FREGUESIA/BRASILANDIA",
-        },
-        {
-            "nm_pessoa": "IARA DAREZZO",
-            "cargo": "PROF.ENS.FUND.II E MED.-PORTUGUES",
-            "divisao": "NOE AZEVEDO, PROF",
-            "cd_cpf_pessoa": "95887745002",
-            "coord": "DIRETORIA REGIONAL DE EDUCACAO JACANA/TREMEMBE",
-        },
-    ]
+    return {
+        "rf": "5858585",
+        "cpf": "34811126025",
+        "email": "fulana.silva@sme.prefeitura.sp.gov.br",
+        "cargos": [
+            {
+                "codigoCargo": 3085,
+                "descricaoCargo": "ASSISTENTE DE DIRETOR DE ESCOLA         ",
+                "codigoUnidade": "019532",
+                "descricaoUnidade": "CEMEI - IRAPARA",
+                "codigoDre": "108100",
+                "contratoExterno": False,
+            }
+        ],
+        "nome": "FULANA DA SILVA",
+        "inexistenteEol": False,
+    }
 
 
 def mocked_request_api_eol_usuario_diretoria_regional():
-    return [
-        {
-            "nm_pessoa": "LUIZA MARIA BASTOS",
-            "cargo": "AUXILIAR TECNICO DE EDUCACAO",
-            "divisao": "DIRETORIA REGIONAL DE EDUCACAO CAPELA DO SOCORRO",
-            "cd_cpf_pessoa": "47088910080",
-            "coord": "DIRETORIA REGIONAL DE EDUCACAO CAPELA DO SOCORRO",
-        }
-    ]
+    return {
+        "rf": "9090909",
+        "cpf": "22406543099",
+        "email": "beltrana.souza@sme.prefeitura.sp.gov.br",
+        "cargos": [
+            {
+                "codigoCargo": 4502,
+                "descricaoCargo": "AUXILIAR ADM. DE ENSINO                 ",
+                "codigoUnidade": "109101",
+                "descricaoUnidade": "ASSISTENCIA ADMINISTRATIVA-CE SA",
+                "codigoDre": "109100",
+                "contratoExterno": False,
+            }
+        ],
+        "nome": "BELTRANA DE SOUZA",
+        "inexistenteEol": False,
+    }
 
 
 @pytest.fixture(
@@ -1009,6 +1019,141 @@ def client_autenticado_da_dre(client, django_user_model, escola, escola_cei):
     )
     client.login(username=rf, password=password)
     return client
+
+
+@pytest.fixture
+def setup_usuarios_command():
+    usuario1 = mommy.make(
+        "Usuario",
+        uuid="a9469d8f-6578-4ebb-8b90-6a98fa97c188",
+        email="usuario1@test.com",
+        registro_funcional="1234567",
+        username="usuario1",
+        cpf="12345678901",
+        is_active=True,
+    )
+    usuario2 = mommy.make(
+        "Usuario",
+        uuid="32d150bc-6241-4967-a21b-2f219b2d5317",
+        email="usuario2@test.com",
+        registro_funcional="754321",
+        username="usuario2",
+        cpf="98765432109",
+        is_active=True,
+    )
+    usuario3 = mommy.make(
+        "Usuario",
+        uuid="cd0bc9f3-17f8-4fe6-9dac-38dd108d6223",
+        email="usuario3@admin.com",
+        registro_funcional="1726354",
+        username="usuario3",
+        cpf=None,
+        is_active=True,
+    )
+    usuario4 = mommy.make(
+        "Usuario",
+        uuid="79cc6d39-5d2b-4ed8-8b02-25558db82952",
+        email="usuario4@test.com",
+        registro_funcional=None,
+        username="usuario4",
+        cpf="11122233344",
+        is_active=False,
+    )
+    return usuario1, usuario2, usuario3, usuario4
+
+
+@pytest.fixture
+def setup_vinculos_e_usuarios(setup_usuarios_command):
+    terceirizada_ct, created = ContentType.objects.get_or_create(
+        app_label="terceirizada", model="terceirizada"
+    )
+    mommy.make(
+        "Vinculo",
+        usuario=setup_usuarios_command[0],
+        ativo=True,
+        content_type=terceirizada_ct,
+    )
+    mommy.make(
+        "Vinculo",
+        usuario=setup_usuarios_command[1],
+        ativo=True,
+        content_type=terceirizada_ct,
+    )
+    mommy.make(
+        "Vinculo",
+        usuario=setup_usuarios_command[2],
+        ativo=True,
+        content_type=terceirizada_ct,
+    )  # Sem CPF
+    mommy.make(
+        "Vinculo",
+        usuario=setup_usuarios_command[3],
+        ativo=True,
+        content_type=terceirizada_ct,
+    )  # Usuário inativo
+
+
+@pytest.fixture
+def setup_vinculos_e_perfis(django_db_setup, django_db_blocker):
+    mommy.make("Perfil", nome="DIRETOR")
+    mommy.make("Perfil", nome="ADMINISTRADOR_EMPRESA")
+    mommy.make("Perfil", nome="ADMINISTRADOR_TERCEIRIZADA")
+    mommy.make("Perfil", nome="ADMINISTRADOR_UE")
+    mommy.make("Perfil", nome="USUARIO_EMPRESA")
+
+    mommy.make("Vinculo", perfil__nome="DIRETOR", ativo=True)
+    mommy.make("Vinculo", perfil__nome="ADMINISTRADOR_TERCEIRIZADA", ativo=True)
+    mommy.make("Vinculo", perfil__nome="NUTRI_ADMIN_RESPONSAVEL", ativo=True)
+    mommy.make("Vinculo", perfil__nome="ADMINISTRADOR_DISTRIBUIDORA", ativo=True)
+    mommy.make("Vinculo", perfil__nome="ADMINISTRADOR_FORNECEDOR", ativo=True)
+
+
+@pytest.fixture
+def setup_normaliza_vinculos(django_db_setup, django_db_blocker):
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        ativo=True,
+        data_inicial=hoje - datetime.timedelta(days=10),
+        data_final=hoje - datetime.timedelta(days=5),
+        _quantity=3,
+    )
+    mommy.make(
+        "Vinculo",
+        ativo=True,
+        data_inicial=None,
+        data_final=None,
+        _quantity=3,
+    )
+    mommy.make(
+        "Vinculo",
+        ativo=False,
+        data_inicial=hoje - datetime.timedelta(days=5),
+        data_final=None,
+        _quantity=3,
+    )
+    mommy.make(
+        "Vinculo",
+        ativo=False,
+        data_inicial=None,
+        data_final=hoje - datetime.timedelta(days=2),
+        _quantity=3,
+    )
+
+
+@pytest.fixture
+def setup_unificar_perfis():
+    suplente = mommy.make("Perfil", nome="SUPLENTE")
+    administrador_dre = mommy.make("Perfil", nome="ADMINISTRADOR_DRE")
+    cogestor = mommy.make("Perfil", nome="COGESTOR")
+    cogestor_dre = mommy.make("Perfil", nome="COGESTOR_DRE")
+
+    mommy.make("Vinculo", perfil=suplente, _quantity=2)
+    mommy.make("Vinculo", perfil=administrador_dre, _quantity=2)
+    mommy.make("Vinculo", perfil=cogestor, _quantity=2)
+
+    perfil_nao_alterado = mommy.make("Perfil", nome="NAO_ALTERADO")
+    mommy.make("Vinculo", perfil=perfil_nao_alterado, _quantity=2)
 
 
 def mocked_response_autentica_coresso_adm_ue():

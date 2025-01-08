@@ -2,10 +2,6 @@ import pytest
 from rest_framework import status
 
 from sme_sigpae_api.dados_comuns.constants import SOLICITACOES_DO_USUARIO
-from sme_sigpae_api.eol_servico.utils import EOLService
-from sme_sigpae_api.escola.__tests__.conftest import (
-    mocked_informacoes_escola_turma_aluno,
-)
 from sme_sigpae_api.perfil.models import Usuario
 
 pytestmark = pytest.mark.django_db
@@ -15,13 +11,9 @@ def test_get_minhas_solicitacoes(
     client_autenticado_vinculo_escola_inclusao,
     inclusao_alimentacao_da_cei_factory,
     escola,
-    monkeypatch,
+    periodo_escolar,
+    eolservicosgp_get_lista_alunos,
 ):
-    monkeypatch.setattr(
-        EOLService,
-        "get_informacoes_escola_turma_aluno",
-        lambda p1: mocked_informacoes_escola_turma_aluno(),
-    )
     user = Usuario.objects.get(
         id=client_autenticado_vinculo_escola_inclusao.session["_auth_user_id"]
     )
@@ -41,13 +33,9 @@ def test_destroy(
     client_autenticado_vinculo_escola_inclusao,
     inclusao_alimentacao_da_cei_factory,
     escola,
-    monkeypatch,
+    periodo_escolar,
+    eolservicosgp_get_lista_alunos,
 ):
-    monkeypatch.setattr(
-        EOLService,
-        "get_informacoes_escola_turma_aluno",
-        lambda p1: mocked_informacoes_escola_turma_aluno(),
-    )
     user = Usuario.objects.get(
         id=client_autenticado_vinculo_escola_inclusao.session["_auth_user_id"]
     )
@@ -66,13 +54,9 @@ def test_destroy_falha(
     client_autenticado_vinculo_escola_inclusao,
     inclusao_alimentacao_da_cei_factory,
     escola,
-    monkeypatch,
+    periodo_escolar,
+    eolservicosgp_get_lista_alunos,
 ):
-    monkeypatch.setattr(
-        EOLService,
-        "get_informacoes_escola_turma_aluno",
-        lambda p1: mocked_informacoes_escola_turma_aluno(),
-    )
     user = Usuario.objects.get(
         id=client_autenticado_vinculo_escola_inclusao.session["_auth_user_id"]
     )
@@ -94,14 +78,9 @@ def test_get_solicitacoes_diretoria_regional(
     inclusao_alimentacao_da_cei_factory,
     quantidade_de_alunos_por_faixa_etaria_da_inclusao_de_alimentacao_da_cei_factory,
     escola,
-    monkeypatch,
+    periodo_escolar,
+    eolservicosgp_get_lista_alunos,
 ):
-    monkeypatch.setattr(
-        EOLService,
-        "get_informacoes_escola_turma_aluno",
-        lambda p1: mocked_informacoes_escola_turma_aluno(),
-    )
-
     inclusao_alimentacao_da_cei = inclusao_alimentacao_da_cei_factory.create(
         escola=escola, rastro_lote=escola.lote, status="DRE_A_VALIDAR"
     )
@@ -121,6 +100,7 @@ def test_get_solicitacoes_diretoria_regional_eol_exception(
     inclusao_alimentacao_da_cei_factory,
     quantidade_de_alunos_por_faixa_etaria_da_inclusao_de_alimentacao_da_cei_factory,
     escola,
+    eolservicosgp_get_alunos_por_escola_por_ano_letivo_404,
 ):
     inclusao_alimentacao_da_cei = inclusao_alimentacao_da_cei_factory.create(
         escola=escola, rastro_lote=escola.lote, status="DRE_A_VALIDAR"
@@ -133,7 +113,9 @@ def test_get_solicitacoes_diretoria_regional_eol_exception(
         f"/inclusoes-alimentacao-da-cei/pedidos-diretoria-regional/sem_filtro/?lote={escola.lote.uuid}"
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {"detail": "API EOL com erro. Status: 404"}
+    assert response.json() == {
+        "detail": "Erro ao consultar alunos para a escola 000086. Status: 404"
+    }
 
 
 def test_get_solicitacoes_codae_gestao_alimentacao(
@@ -141,14 +123,9 @@ def test_get_solicitacoes_codae_gestao_alimentacao(
     inclusao_alimentacao_da_cei_factory,
     quantidade_de_alunos_por_faixa_etaria_da_inclusao_de_alimentacao_da_cei_factory,
     escola,
-    monkeypatch,
+    periodo_escolar,
+    eolservicosgp_get_lista_alunos,
 ):
-    monkeypatch.setattr(
-        EOLService,
-        "get_informacoes_escola_turma_aluno",
-        lambda p1: mocked_informacoes_escola_turma_aluno(),
-    )
-
     inclusao_alimentacao_da_cei = inclusao_alimentacao_da_cei_factory.create(
         escola=escola,
         rastro_dre=escola.diretoria_regional,
@@ -172,6 +149,7 @@ def test_get_solicitacoes_codae_gestao_alimentacao_eol_exception(
     inclusao_alimentacao_da_cei_factory,
     quantidade_de_alunos_por_faixa_etaria_da_inclusao_de_alimentacao_da_cei_factory,
     escola,
+    eolservicosgp_get_alunos_por_escola_por_ano_letivo_404,
 ):
     inclusao_alimentacao_da_cei = inclusao_alimentacao_da_cei_factory.create(
         escola=escola,
@@ -188,4 +166,6 @@ def test_get_solicitacoes_codae_gestao_alimentacao_eol_exception(
         f"?lote={escola.lote.uuid}&diretoria_regional={escola.diretoria_regional.uuid}"
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {"detail": "API EOL com erro. Status: 404"}
+    assert response.json() == {
+        "detail": "Erro ao consultar alunos para a escola 000086. Status: 404"
+    }

@@ -6,6 +6,7 @@ from ...models import (
     Contrato,
     Edital,
     EmailTerceirizadaPorModulo,
+    Modalidade,
     Modulo,
     Nutricionista,
     Terceirizada,
@@ -83,10 +84,17 @@ class ContratoEditalSerializer(serializers.ModelSerializer):
         fields = ("uuid", "edital", "edital_numero", "eh_imr", "encerrado")
 
 
+class ModalidadeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Modalidade
+        # fields = "__all__"
+        exclude = ("id",)
+
+
 class ContratoSimplesSerializer(serializers.ModelSerializer):
     edital = EditalSerializer()
     vigencias = VigenciaContratoSimplesSerializer(many=True)
-    modalidade_display = serializers.CharField(source="get_modalidade_display")
+    modalidade = ModalidadeSerializer()
 
     class Meta:
         model = Contrato
@@ -123,6 +131,8 @@ class ContratoSerializer(serializers.ModelSerializer):
     terceirizada = TerceirizadaSimplesSerializer()
 
     diretorias_regionais = DiretoriaRegionalSimplesSerializer(many=True)
+
+    modalidade = ModalidadeSerializer()
 
     class Meta:
         model = Contrato
