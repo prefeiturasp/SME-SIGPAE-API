@@ -950,25 +950,34 @@ class GrupoSuspensaoAlimentacaoSerializerViewSet(viewsets.ModelViewSet):
         url_path="escola-cancela",
     )
     def escola_cancela(self, request, uuid=None):
-
         grupo_suspensao_de_alimentacao: GrupoSuspensaoAlimentacao = self.get_object()
         datas = request.data.get("datas", [])
         justificativa = request.data.get("justificativa", "")
         try:
             assert (  # nosec
-                grupo_suspensao_de_alimentacao.status != grupo_suspensao_de_alimentacao.workflow_class.ESCOLA_CANCELOU
+                grupo_suspensao_de_alimentacao.status
+                != grupo_suspensao_de_alimentacao.workflow_class.ESCOLA_CANCELOU
             ), "Solicitação já está cancelada"
             self.valida_datas(grupo_suspensao_de_alimentacao, datas)
             if (
                 not hasattr(grupo_suspensao_de_alimentacao, "suspensoes_alimentacao")
-                or len(datas) + grupo_suspensao_de_alimentacao.suspensoes_alimentacao.filter(cancelado=True).count()
+                or len(datas)
+                + grupo_suspensao_de_alimentacao.suspensoes_alimentacao.filter(
+                    cancelado=True
+                ).count()
                 == grupo_suspensao_de_alimentacao.suspensoes_alimentacao.count()
             ):
-                grupo_suspensao_de_alimentacao.cancelar_pedido(user=request.user, justificativa=justificativa)
+                grupo_suspensao_de_alimentacao.cancelar_pedido(
+                    user=request.user, justificativa=justificativa
+                )
             else:
-                services.enviar_email_ue_cancelar_pedido_parcialmente(grupo_suspensao_de_alimentacao)
+                services.enviar_email_ue_cancelar_pedido_parcialmente(
+                    grupo_suspensao_de_alimentacao
+                )
             if hasattr(grupo_suspensao_de_alimentacao, "suspensoes_alimentacao"):
-                grupo_suspensao_de_alimentacao.suspensoes_alimentacao.filter(data__in=datas).update(cancelado_justificativa=justificativa, cancelado=True)
+                grupo_suspensao_de_alimentacao.suspensoes_alimentacao.filter(
+                    data__in=datas
+                ).update(cancelado_justificativa=justificativa, cancelado=True)
             serializer = self.get_serializer(grupo_suspensao_de_alimentacao)
             return Response(serializer.data)
         except InvalidTransitionError as e:
