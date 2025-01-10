@@ -12,6 +12,7 @@ from sme_sigpae_api.pre_recebimento.api.serializers.serializers import (
     EtapasDoCronogramaSerializer,
     PainelCronogramaSerializer,
     UnidadeMedidaSerialzer,
+    EtapasDoCronogramaCalendarioSerializer,
 )
 from sme_sigpae_api.pre_recebimento.models import UnidadeMedida
 from sme_sigpae_api.pre_recebimento.models.cronograma import Cronograma
@@ -132,3 +133,24 @@ def test_novo_numero_solicitacao(solicitacao_cronograma_em_analise):
 
     novo_numero_solicitacao(solicitacao)
     assert solicitacao.numero_solicitacao == f"{str(solicitacao.pk).zfill(8)}-ALT"
+
+def test_etapas_do_cronograma_calendario_serializer(etapa_com_quantidade_e_data, cronograma_assinado_perfil_dilog, unidade_medida_logistica):
+    cronograma = cronograma_assinado_perfil_dilog
+    etapa = etapa_com_quantidade_e_data
+    cronograma.unidade_medida = unidade_medida_logistica
+    etapa.cronograma = cronograma
+    etapa.save()
+
+    serializer = EtapasDoCronogramaCalendarioSerializer(etapa)
+
+    assert serializer.data["uuid"] == str(etapa.uuid)
+    assert serializer.data["nome_produto"] == cronograma.ficha_tecnica.produto.nome
+    assert serializer.data["numero_cronograma"] == cronograma.numero
+    assert serializer.data["nome_fornecedor"] == cronograma.empresa.nome_fantasia
+    assert serializer.data["data_programada"] == etapa.data_programada.strftime("%d/%m/%Y")
+    assert serializer.data["numero_empenho"] == etapa.numero_empenho
+    assert serializer.data["etapa"] == etapa.etapa
+    assert serializer.data["parte"] == etapa.parte
+    assert serializer.data["quantidade"] == etapa.quantidade
+    assert serializer.data["status"] == cronograma.get_status_display()
+    assert serializer.data["unidade_medida"] == cronograma.unidade_medida.abreviacao

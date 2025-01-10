@@ -1,4 +1,5 @@
 from rest_framework import serializers, status
+from rest_framework.response import Response
 
 from ...eol_servico.utils import EOLException
 from ...terceirizada.models import Terceirizada
@@ -60,18 +61,18 @@ def deve_ser_email_sme_ou_prefeitura(email):
 
 
 def usuario_e_vinculado_a_aquela_instituicao(
-    descricao_instituicao: str, instituicoes_eol: list
+    descricao_instituicao: str, response: Response
 ):
-    for instituicao_eol in instituicoes_eol:
-        divisao = instituicao_eol["divisao"]
-        pertencem_mesma_divisao = (
-            divisao in descricao_instituicao or descricao_instituicao in divisao
-        )
-        pertencem_a_codae = (
-            "codae" in divisao.lower() and "codae" in descricao_instituicao.lower()
-        )
-        if pertencem_mesma_divisao or pertencem_a_codae:
-            return True
+    dados = response.json()
+    instituicao = dados.get("cargos")[0].get("descricaoUnidade").replace(" - ", " ")
+    pertencem_mesma_divisao = (
+        instituicao in descricao_instituicao or descricao_instituicao in instituicao
+    )
+    pertencem_a_codae = (
+        "codae" in instituicao.lower() and "codae" in descricao_instituicao.lower()
+    )
+    if pertencem_mesma_divisao or pertencem_a_codae:
+        return True
     raise serializers.ValidationError("Instituições devem ser a mesma")
 
 

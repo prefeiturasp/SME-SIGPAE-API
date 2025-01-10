@@ -121,6 +121,7 @@ class SolicitacaoMedicaoInicialSerializer(serializers.ModelSerializer):
     alunos_periodo_parcial = AlunoPeriodoParcialSimplesSerializer(many=True)
     historico = serializers.SerializerMethodField()
     escola_eh_emebs = serializers.SerializerMethodField()
+    escola_cei_com_inclusao_parcial_autorizada = serializers.BooleanField()
 
     def get_historico(self, obj):
         if not obj.historico:
@@ -144,7 +145,14 @@ class SolicitacaoMedicaoInicialLancadaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SolicitacaoMedicaoInicial
-        fields = ("uuid", "mes", "ano", "escola", "escola_uuid")
+        fields = (
+            "uuid",
+            "mes",
+            "ano",
+            "escola",
+            "escola_uuid",
+            "escola_cei_com_inclusao_parcial_autorizada",
+        )
 
 
 class SolicitacaoMedicaoInicialDashboardSerializer(serializers.ModelSerializer):
@@ -179,6 +187,7 @@ class SolicitacaoMedicaoInicialDashboardSerializer(serializers.ModelSerializer):
             "log_mais_recente",
             "dre_ciencia_correcao_data",
             "todas_medicoes_e_ocorrencia_aprovados_por_medicao",
+            "escola_cei_com_inclusao_parcial_autorizada",
         )
 
 

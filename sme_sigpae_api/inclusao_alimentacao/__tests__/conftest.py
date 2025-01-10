@@ -4,9 +4,12 @@ import pytest
 from faker import Faker
 from model_mommy import mommy
 
+from sme_sigpae_api.escola.__tests__.conftest import mocked_response
+
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from ...dados_comuns.models import TemplateMensagem
+from ...eol_servico.utils import EOLServicoSGP
 from .. import models
 
 fake = Faker("pt-Br")
@@ -31,6 +34,7 @@ def escola():
     tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
     return mommy.make(
         "Escola",
+        codigo_eol="000086",
         lote=lote,
         diretoria_regional=diretoria_regional,
         contato=contato,
@@ -623,7 +627,9 @@ def motivo_inclusao_normal_nome():
 
 @pytest.fixture
 def periodo_escolar():
-    return mommy.make("PeriodoEscolar", uuid="208f7cb4-b03a-4357-ab6d-bda078a37748")
+    return mommy.make(
+        "PeriodoEscolar", uuid="208f7cb4-b03a-4357-ab6d-bda078a37748", tipo_turno=1
+    )
 
 
 @pytest.fixture
@@ -793,3 +799,12 @@ def client_autenticado_vinculo_terceirizada_inclusao(
     )
     client.login(username=email, password=password)
     return client, user
+
+
+@pytest.fixture
+def eolservicosgp_get_alunos_por_escola_por_ano_letivo_404(monkeypatch):
+    monkeypatch.setattr(
+        EOLServicoSGP,
+        "chamada_externa_alunos_por_escola_por_ano_letivo",
+        lambda p1, p2: mocked_response("não encontrado", 404),
+    )

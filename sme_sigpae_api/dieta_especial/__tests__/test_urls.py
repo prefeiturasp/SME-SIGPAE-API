@@ -106,7 +106,6 @@ def test_permissoes_dieta_especial_viewset(
 def test_url_criar_dieta(
     client_autenticado_vinculo_escola,
     periodo_escolar_integral,
-    eolservice_get_informacoes_escola_turma_aluno,
 ):
     payload = {
         "observacoes": "<p>dsadsadasd</p>\n",

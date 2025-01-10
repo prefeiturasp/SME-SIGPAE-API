@@ -53,10 +53,11 @@ class EscolaFactory(DjangoModelFactory):
 
 
 class PeriodoEscolarFactory(DjangoModelFactory):
+    nome = Sequence(lambda n: f"Periodo {n} - {fake.unique.word()}")
+    tipo_turno = Sequence(lambda n: fake.random_int(min=1, max=7))
+
     class Meta:
         model = PeriodoEscolar
-
-    nome = Sequence(lambda n: f"Periodo {n} - {fake.unique.word()}")
 
 
 class LogAlunosMatriculadosPeriodoEscolaFactory(DjangoModelFactory):
