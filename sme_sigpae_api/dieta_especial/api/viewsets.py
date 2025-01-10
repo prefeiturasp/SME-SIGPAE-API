@@ -1332,6 +1332,7 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
             "CODAE_AUTORIZADO",
             "CODAE_AUTORIZOU_INATIVACAO",
             "TERMINADA_AUTOMATICAMENTE_SISTEMA",
+            "CANCELADO_ALUNO_NAO_PERTENCE_REDE",
         ]
         queryset = self.filter_queryset(self.get_queryset())
         total_ativas = (
