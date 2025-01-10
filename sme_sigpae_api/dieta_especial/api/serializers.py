@@ -396,6 +396,7 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
                 "CODAE_AUTORIZADO",
                 "CODAE_AUTORIZOU_INATIVACAO",
                 "TERMINADA_AUTOMATICAMENTE_SISTEMA",
+                "CANCELADO_ALUNO_NAO_PERTENCE_REDE",
             ],
             ativo=True,
         ).count()
@@ -406,6 +407,7 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
                 "CODAE_AUTORIZADO",
                 "CODAE_AUTORIZOU_INATIVACAO",
                 "TERMINADA_AUTOMATICAMENTE_SISTEMA",
+                "CANCELADO_ALUNO_NAO_PERTENCE_REDE",
             ],
             ativo=False,
         ).count()
