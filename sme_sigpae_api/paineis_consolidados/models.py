@@ -154,11 +154,13 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
         DietaEspecialWorkflow.CODAE_AUTORIZOU_INATIVACAO,
         PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO,
         PedidoAPartirDaEscolaWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
+        DietaEspecialWorkflow.CANCELADO_ALUNO_NAO_PERTENCE_REDE,
     ]
     INATIVOS_EVENTO_DIETA_ESPECIAL = [
         LogSolicitacoesUsuario.CODAE_AUTORIZOU_INATIVACAO,
         LogSolicitacoesUsuario.CODAE_AUTORIZOU,
         LogSolicitacoesUsuario.TERCEIRIZADA_TOMOU_CIENCIA,
+        LogSolicitacoesUsuario.CANCELADO_ALUNO_NAO_PERTENCE_REDE,
     ]
 
     CANCELADOS_STATUS_DIETA_ESPECIAL_TEMP = [
