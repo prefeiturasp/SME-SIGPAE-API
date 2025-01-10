@@ -12,8 +12,13 @@ from .dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
 from .dados_comuns.models import TemplateMensagem
+from .dieta_especial.fixtures.factories.dieta_especial_base_factory import (
+    ClassificacaoDietaFactory,
+    SolicitacaoDietaEspecialFactory,
+)
 from .eol_servico.utils import EOLServicoSGP
 from .escola.fixtures.factories.escola_factory import (
+    AlunoFactory,
     DiretoriaRegionalFactory,
     EscolaFactory,
     FaixaEtariaFactory,
@@ -207,6 +212,9 @@ register(QuantidadePorPeriodoFactory)
 register(KitLancheFactory)
 register(SolicitacaoKitLancheFactory)
 register(SolicitacaoKitLancheAvulsaFactory)
+register(AlunoFactory)
+register(SolicitacaoDietaEspecialFactory)
+register(ClassificacaoDietaFactory)
 
 
 @pytest.fixture
