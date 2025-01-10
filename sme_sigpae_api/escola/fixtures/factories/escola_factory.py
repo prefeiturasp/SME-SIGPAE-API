@@ -1,8 +1,11 @@
+from random import random
+
 from factory import DjangoModelFactory, LazyAttribute, Sequence, SubFactory
 from faker import Faker
 
 from sme_sigpae_api.escola.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
 from sme_sigpae_api.escola.models import (
+    Aluno,
     DiretoriaRegional,
     Escola,
     FaixaEtaria,
@@ -86,3 +89,16 @@ class FaixaEtariaFactory(DjangoModelFactory):
 
     class Meta:
         model = FaixaEtaria
+
+
+class AlunoFactory(DjangoModelFactory):
+    nome = Sequence(lambda n: f"{fake.word()}")
+    escola = SubFactory(EscolaFactory)
+    periodo_escolar = SubFactory(PeriodoEscolarFactory)
+    codigo_eol = LazyAttribute(lambda _: random.randint(1000000, 9999999))
+    data_nascimento = LazyAttribute(
+        lambda _: fake.date_of_birth(minimum_age=1, maximum_age=6)
+    )
+
+    class Meta:
+        model = Aluno
