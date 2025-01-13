@@ -134,16 +134,13 @@ class SolicitacoesViewSet(viewsets.ReadOnlyModelViewSet):
 
     @classmethod
     def remove_duplicados_do_query_set(cls, query_set):
-        """_remove_duplicados_do_query_set é criado por não ser possível juntar order_by e distinct na mesma query."""
-        # TODO: se alguém descobrir como ordenar a query e tirar os uuids
-        # repetidos, por favor melhore
-        aux = []
-        sem_uuid_repetido = []
-        for resultado in query_set:
-            if resultado.uuid not in aux:
-                aux.append(resultado.uuid)
-                sem_uuid_repetido.append(resultado)
-        return sem_uuid_repetido
+        uuids_repetidos = set()
+        return [
+            solicitacao
+            for solicitacao in query_set
+            if solicitacao.uuid not in uuids_repetidos
+            and not uuids_repetidos.add(solicitacao.uuid)
+        ]
 
     def _retorno_base(self, query_set, sem_paginacao=None):
         sem_uuid_repetido = self.remove_duplicados_do_query_set(query_set)
