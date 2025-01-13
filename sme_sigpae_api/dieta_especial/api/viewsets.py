@@ -602,6 +602,7 @@ class SolicitacaoDietaEspecialViewSet(
             "CODAE_AUTORIZOU_INATIVACAO",
             "TERCEIRIZADA_TOMOU_CIENCIA_INATIVACAO",
             "TERMINADA_AUTOMATICAMENTE_SISTEMA",
+            "CANCELADO_ALUNO_NAO_PERTENCE_REDE",
         ]
 
         when_data = {
@@ -1332,6 +1333,7 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
             "CODAE_AUTORIZADO",
             "CODAE_AUTORIZOU_INATIVACAO",
             "TERMINADA_AUTOMATICAMENTE_SISTEMA",
+            "CANCELADO_ALUNO_NAO_PERTENCE_REDE",
         ]
         queryset = self.filter_queryset(self.get_queryset())
         total_ativas = (
@@ -1387,6 +1389,7 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
             "CODAE_AUTORIZADO",
             "CODAE_AUTORIZOU_INATIVACAO",
             "TERMINADA_AUTOMATICAMENTE_SISTEMA",
+            "CANCELADO_ALUNO_NAO_PERTENCE_REDE",
         ]
 
         qs = Aluno.objects.filter(dietas_especiais__status__in=STATUS_DIETA_ESPECIAL)
