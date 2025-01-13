@@ -425,6 +425,7 @@ class SuspensaoAlimentacao(
     ExportModelOperationsMixin("suspensao_alimentacao"),
     TemData,
     TemChaveExterna,
+    CanceladoIndividualmente,
 ):
     """Trabalha em conjunto com GrupoSuspensaoAlimentacao."""
 

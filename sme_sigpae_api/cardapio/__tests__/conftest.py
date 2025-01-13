@@ -9,6 +9,7 @@ from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import (
     InformativoPartindoDaEscolaWorkflow,
     PedidoAPartirDaEscolaWorkflow,
+    SolicitacaoRemessaWorkFlow,
 )
 from ...dados_comuns.models import TemplateMensagem
 from ..api.serializers.serializers import (
@@ -527,7 +528,7 @@ def template_mensagem_suspensao_alimentacao():
 
 
 @pytest.fixture
-def grupo_suspensao_alimentacao(escola, template_mensagem_suspensao_alimentacao):
+def grupo_suspensao_alimentacao(escola):
     grupo_suspensao = mommy.make(
         GrupoSuspensaoAlimentacao,
         observacao="lorem ipsum",
@@ -536,8 +537,21 @@ def grupo_suspensao_alimentacao(escola, template_mensagem_suspensao_alimentacao)
     )
     mommy.make(
         SuspensaoAlimentacao,
-        data=datetime.date(2022, 8, 22),
+        data=datetime.date(2022, 1, 29),
         grupo_suspensao=grupo_suspensao,
+        cancelado=False,
+    )
+    mommy.make(
+        SuspensaoAlimentacao,
+        data=datetime.date(2022, 1, 30),
+        grupo_suspensao=grupo_suspensao,
+        cancelado=False,
+    )
+    mommy.make(
+        SuspensaoAlimentacao,
+        data=datetime.date(2022, 1, 31),
+        grupo_suspensao=grupo_suspensao,
+        cancelado=False,
     )
     return grupo_suspensao
 
@@ -576,6 +590,11 @@ def grupo_suspensao_alimentacao_informado(grupo_suspensao_alimentacao):
 
 @pytest.fixture
 def grupo_suspensao_alimentacao_escola_cancelou(grupo_suspensao_alimentacao):
+    for (
+        suspensao_alimentacao
+    ) in grupo_suspensao_alimentacao.suspensoes_alimentacao.all():
+        suspensao_alimentacao.cancelado = True
+
     grupo_suspensao_alimentacao.status = (
         InformativoPartindoDaEscolaWorkflow.ESCOLA_CANCELOU
     )
