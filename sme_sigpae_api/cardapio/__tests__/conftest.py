@@ -1630,8 +1630,3 @@ def client_autenticado_vinculo_dre_escola_cemei(
 
     client.login(username=email, password=password)
     return client
-
-
-def converter_data(formato):
-    data_obj = datetime.datetime.strptime(formato, "%Y-%m-%d")
-    return data_obj.strftime("%d/%m/%Y")
