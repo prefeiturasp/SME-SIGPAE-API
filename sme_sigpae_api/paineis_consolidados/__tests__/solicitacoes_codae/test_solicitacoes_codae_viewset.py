@@ -184,6 +184,28 @@ class TestEndpointsPainelGerencialDietaEspecial:
             usuario=usuario,
         )
 
+    def setup_solicitacoes_inativas_temporariamente(
+        self,
+        usuario,
+    ):
+        aluno = AlunoFactory.create(codigo_eol="1234567")
+
+        self.solicitacao_dieta_especial = SolicitacaoDietaEspecialFactory.create(
+            aluno=aluno,
+            ativo=False,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+        )
+        SolicitacaoDietaEspecialFactory.create(
+            aluno=aluno,
+            tipo_solicitacao="ALTERACAO_UE",
+            dieta_alterada=self.solicitacao_dieta_especial,
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.solicitacao_dieta_especial.uuid,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            usuario=usuario,
+        )
+
     def test_pendentes_autorizacao_dieta_especial(
         self,
         client_autenticado_codae_paineis_consolidados,
@@ -351,6 +373,33 @@ class TestEndpointsPainelGerencialDietaEspecial:
 
         response = client.get(
             "/codae-solicitacoes/autorizadas-temporariamente-dieta/?sem_paginacao=true"
+        )
+        assert "count" not in response.json()
+        assert len(response.json()["results"]) == 1
+
+    def test_inativas_temporariamente_dieta_especial(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+
+        self.setup_solicitacoes_inativas_temporariamente(usuario)
+
+        response = client.get(
+            "/codae-solicitacoes/inativas-temporariamente-dieta/?limit=6&offset=0"
+        )
+        assert response.json()["count"] == 1
+
+    def test_inativas_temporariamente_dieta_especial_sem_paginacao(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+
+        self.setup_solicitacoes_inativas_temporariamente(usuario)
+
+        response = client.get(
+            "/codae-solicitacoes/inativas-temporariamente-dieta/?sem_paginacao=true"
         )
         assert "count" not in response.json()
         assert len(response.json()["results"]) == 1
