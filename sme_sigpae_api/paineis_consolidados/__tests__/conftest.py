@@ -717,6 +717,32 @@ def client_autenticado_dre_paineis_consolidados(
 
 
 @pytest.fixture
+def client_autenticado_codae_paineis_consolidados(client, django_user_model):
+    email = "test@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    perfil_admin_gestao_alimentacao = mommy.make(
+        "Perfil",
+        nome=constants.ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+        ativo=True,
+    )
+    codae = mommy.make("Codae")
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_admin_gestao_alimentacao,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client, user
+
+
+@pytest.fixture
 def motivo_inclusao_normal():
     return mommy.make("MotivoInclusaoNormal", nome=fake.name())
 

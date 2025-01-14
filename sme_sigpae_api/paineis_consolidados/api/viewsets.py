@@ -4,7 +4,6 @@ import unicodedata
 from dateutil.relativedelta import relativedelta
 from django.db.models import Q
 from django.db.models.query import QuerySet
-from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -21,7 +20,6 @@ from ...dados_comuns.permissions import (
     PermissaoParaRecuperarDietaEspecial,
     UsuarioCODAEDietaEspecial,
     UsuarioCODAEGabinete,
-    UsuarioCODAEGestaoAlimentacao,
     UsuarioCODAERelatorios,
     UsuarioDiretoriaRegional,
     UsuarioGticCODAE,
@@ -122,7 +120,6 @@ from .constants import (
     RESUMO_MES,
     SUSPENSOES_AUTORIZADAS,
 )
-from .filters import SolicitacoesCODAEFilter
 
 
 class SolicitacoesViewSet(viewsets.ReadOnlyModelViewSet):
@@ -134,16 +131,13 @@ class SolicitacoesViewSet(viewsets.ReadOnlyModelViewSet):
 
     @classmethod
     def remove_duplicados_do_query_set(cls, query_set):
-        """_remove_duplicados_do_query_set é criado por não ser possível juntar order_by e distinct na mesma query."""
-        # TODO: se alguém descobrir como ordenar a query e tirar os uuids
-        # repetidos, por favor melhore
-        aux = []
-        sem_uuid_repetido = []
-        for resultado in query_set:
-            if resultado.uuid not in aux:
-                aux.append(resultado.uuid)
-                sem_uuid_repetido.append(resultado)
-        return sem_uuid_repetido
+        uuids_repetidos = set()
+        return [
+            solicitacao
+            for solicitacao in query_set
+            if solicitacao.uuid not in uuids_repetidos
+            and not uuids_repetidos.add(solicitacao.uuid)
+        ]
 
     def _retorno_base(self, query_set, sem_paginacao=None):
         sem_uuid_repetido = self.remove_duplicados_do_query_set(query_set)
@@ -748,326 +742,6 @@ class NutrimanifestacaoSolicitacoesViewSet(SolicitacoesViewSet):
             query_set, request.query_params
         )
         return self._retorno_base(query_set)
-
-
-class CODAESolicitacoesViewSet(SolicitacoesViewSet):
-    lookup_field = "uuid"
-    permission_classes = (IsAuthenticated,)
-    queryset = SolicitacoesCODAE.objects.all()
-    serializer_class = SolicitacoesSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
-    filterset_class = SolicitacoesCODAEFilter
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=f"{PENDENTES_AUTORIZACAO}/{FILTRO_PADRAO_PEDIDOS}/{TIPO_VISAO}",
-    )
-    def pendentes_autorizacao_secao_pendencias(
-        self, request, filtro_aplicado=SEM_FILTRO, tipo_visao=TIPO_VISAO_SOLICITACOES
-    ):
-        usuario = request.user
-        diretoria_regional = usuario.vinculo_atual.instituicao
-        query_set = SolicitacoesCODAE.get_pendentes_autorizacao(
-            dre_uuid=diretoria_regional.uuid, filtro=filtro_aplicado
-        )
-        query_set = SolicitacoesCODAE.busca_filtro(query_set, request.query_params)
-        response = {
-            "results": self._agrupa_por_tipo_visao(
-                tipo_visao=tipo_visao, query_set=query_set
-            )
-        }
-
-        return Response(response)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=PENDENTES_AUTORIZACAO_DIETA_ESPECIAL,
-        permission_classes=(
-            IsAuthenticated,
-            PermissaoParaRecuperarDietaEspecial,
-        ),
-    )
-    def pendentes_autorizacao_dieta_especial(self, request):
-        tem_parametro_sem_paginacao = request.GET.get("sem_paginacao", False)
-        query_set = SolicitacoesCODAE.get_pendentes_dieta_especial()
-        query_set = SolicitacoesCODAE.busca_filtro_dietas_especiais(
-            query_set, request.query_params
-        )
-        if tem_parametro_sem_paginacao:
-            return self._retorno_base(query_set, True)
-        return self._retorno_base(query_set)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=AUTORIZADOS_DIETA_ESPECIAL,
-        permission_classes=(
-            IsAuthenticated,
-            PermissaoParaRecuperarDietaEspecial,
-        ),
-    )
-    def autorizados_dieta_especial(self, request):
-        tem_parametro_sem_paginacao = request.GET.get("sem_paginacao", False)
-        query_set = SolicitacoesCODAE.get_autorizados_dieta_especial()
-        query_set = SolicitacoesCODAE.busca_filtro_dietas_especiais(
-            query_set, request.query_params
-        )
-        if tem_parametro_sem_paginacao:
-            return self._retorno_base(query_set, True)
-        return self._retorno_base(query_set)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=NEGADOS_DIETA_ESPECIAL,
-        permission_classes=(
-            IsAuthenticated,
-            PermissaoParaRecuperarDietaEspecial,
-        ),
-    )
-    def negados_dieta_especial(self, request):
-        tem_parametro_sem_paginacao = request.GET.get("sem_paginacao", False)
-        query_set = SolicitacoesCODAE.get_negados_dieta_especial()
-        query_set = SolicitacoesCODAE.busca_filtro_dietas_especiais(
-            query_set, request.query_params
-        )
-        if tem_parametro_sem_paginacao:
-            return self._retorno_base(query_set, True)
-        return self._retorno_base(query_set)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=CANCELADOS_DIETA_ESPECIAL,
-        permission_classes=(
-            IsAuthenticated,
-            PermissaoParaRecuperarDietaEspecial,
-        ),
-    )
-    def cancelados_dieta_especial(self, request):
-        tem_parametro_sem_paginacao = request.GET.get("sem_paginacao", False)
-        query_set = SolicitacoesCODAE.get_cancelados_dieta_especial()
-        query_set = SolicitacoesCODAE.busca_filtro_dietas_especiais(
-            query_set, request.query_params
-        )
-        if tem_parametro_sem_paginacao:
-            return self._retorno_base(query_set, True)
-        return self._retorno_base(query_set)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=AUTORIZADAS_TEMPORARIAMENTE_DIETA_ESPECIAL,
-        permission_classes=(
-            IsAuthenticated,
-            PermissaoParaRecuperarDietaEspecial,
-        ),
-    )
-    def autorizadas_temporariamente_dieta_especial(self, request, dre_uuid=None):
-        tem_parametro_sem_paginacao = request.GET.get("sem_paginacao", False)
-        query_set = SolicitacoesCODAE.get_autorizadas_temporariamente_dieta_especial()
-        query_set = SolicitacoesCODAE.busca_filtro_dietas_especiais(
-            query_set, request.query_params
-        )
-        if tem_parametro_sem_paginacao:
-            return self._retorno_base(query_set, True)
-        return self._retorno_base(query_set)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=INATIVAS_TEMPORARIAMENTE_DIETA_ESPECIAL,
-        permission_classes=(
-            IsAuthenticated,
-            PermissaoParaRecuperarDietaEspecial,
-        ),
-    )
-    def inativas_temporariamente_dieta_especial(self, request, dre_uuid=None):
-        tem_parametro_sem_paginacao = request.GET.get("sem_paginacao", False)
-        query_set = SolicitacoesCODAE.get_inativas_temporariamente_dieta_especial()
-        query_set = SolicitacoesCODAE.busca_filtro_dietas_especiais(
-            query_set, request.query_params
-        )
-        if tem_parametro_sem_paginacao:
-            return self._retorno_base(query_set, True)
-        return self._retorno_base(query_set)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=INATIVAS_DIETA_ESPECIAL,
-        permission_classes=(
-            IsAuthenticated,
-            PermissaoParaRecuperarDietaEspecial,
-        ),
-    )
-    def inativas_dieta_especial(self, request):
-        tem_parametro_sem_paginacao = request.GET.get("sem_paginacao", False)
-        query_set = SolicitacoesCODAE.get_inativas_dieta_especial()
-        query_set = SolicitacoesCODAE.busca_filtro_dietas_especiais(
-            query_set, request.query_params
-        )
-        if tem_parametro_sem_paginacao:
-            return self._retorno_base(query_set, True)
-        return self._retorno_base(query_set)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=f"{PENDENTES_AUTORIZACAO}/{FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def pendentes_autorizacao(self, request, filtro_aplicado=SEM_FILTRO):
-        query_set = SolicitacoesCODAE.get_pendentes_autorizacao(filtro=filtro_aplicado)
-        return self._retorno_base(query_set)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=f"{PENDENTES_AUTORIZACAO}",
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def pendentes_autorizacao_sem_filtro(self, request):
-        query_set = SolicitacoesCODAE.get_pendentes_autorizacao()
-        query_set = SolicitacoesCODAE.busca_filtro(query_set, request.query_params)
-        return self._retorno_base(query_set)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=AUTORIZADOS,
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def autorizados(self, request):
-        query_set = SolicitacoesCODAE.get_autorizados()
-        query_set = SolicitacoesCODAE.busca_filtro(query_set, request.query_params)
-        return self._retorno_base(query_set)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=NEGADOS,
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def negados(self, request):
-        query_set = SolicitacoesCODAE.get_negados()
-        query_set = SolicitacoesCODAE.busca_filtro(query_set, request.query_params)
-        return self._retorno_base(query_set)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=CANCELADOS,
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def cancelados(self, request):
-        query_set = SolicitacoesCODAE.get_cancelados()
-        query_set = SolicitacoesCODAE.busca_filtro(query_set, request.query_params)
-        return self._retorno_base(query_set)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=QUESTIONAMENTOS,
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def questionamentos(self, request):
-        query_set = SolicitacoesCODAE.get_questionamentos()
-        query_set = SolicitacoesCODAE.busca_filtro(query_set, request.query_params)
-        return self._retorno_base(query_set)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=f"{PESQUISA}/{FILTRO_DRE_UUID}/{FILTRO_ESCOLA_UUID}",
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def filtro_periodo_tipo_solicitacao(self, request, escola_uuid=None, dre_uuid=None):
-        """Filtro de todas as solicitações da  codae.
-
-        ---
-        tipo_solicitacao -- ALT_CARDAPIO|INV_CARDAPIO|INC_ALIMENTA|INC_ALIMENTA_CONTINUA|
-        KIT_LANCHE_AVULSA|SUSP_ALIMENTACAO|KIT_LANCHE_UNIFICADA|TODOS
-        status_solicitacao -- AUTORIZADOS|NEGADOS|CANCELADOS|RECEBIDAS|TODOS
-        data_inicial -- dd-mm-yyyy
-        data_final -- dd-mm-yyyy
-        """
-        form = FiltroValidator(request.GET)
-        if form.is_valid():
-            cleaned_data = form.cleaned_data
-            query_set = SolicitacoesCODAE.filtros_codae(
-                escola_uuid=escola_uuid,
-                dre_uuid=dre_uuid,
-                data_inicial=cleaned_data.get("data_inicial"),
-                data_final=cleaned_data.get("data_final"),
-                tipo_solicitacao=cleaned_data.get("tipo_solicitacao"),
-                status_solicitacao=cleaned_data.get("status_solicitacao"),
-            )
-            return self._retorno_base(query_set)
-        else:
-            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=f"{RESUMO_MES}",
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def resumo_mes(self, request):
-        totais_dict = SolicitacoesCODAE.resumo_totais_mes()
-        return Response(totais_dict)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=f"{RELATORIO_RESUMO_MES_ANO}",
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def relatorio_resumo_anual_e_mensal(self, request):
-        query_set = SolicitacoesCODAE.get_solicitacoes_ano_corrente()
-        resumo_do_ano = self._agrupa_por_mes_por_solicitacao(query_set=query_set)
-        resumo_do_mes = SolicitacoesCODAE.resumo_totais_mes()
-        return relatorio_resumo_anual_e_mensal(request, resumo_do_mes, resumo_do_ano)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=f"{RELATORIO_PERIODO}/{FILTRO_DRE_UUID}/{FILTRO_ESCOLA_UUID}",
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def relatorio_filtro_periodo(self, request, escola_uuid=None, dre_uuid=None):
-        form = FiltroValidator(request.GET)
-        if form.is_valid():
-            cleaned_data = form.cleaned_data
-            query_set = SolicitacoesCODAE.filtros_codae(
-                escola_uuid=escola_uuid,
-                dre_uuid=dre_uuid,
-                data_inicial=cleaned_data.get("data_inicial"),
-                data_final=cleaned_data.get("data_final"),
-                tipo_solicitacao=cleaned_data.get("tipo_solicitacao"),
-                status_solicitacao=cleaned_data.get("status_solicitacao"),
-            )
-            query_set = self.remove_duplicados_do_query_set(query_set)
-
-            return relatorio_filtro_periodo(request, query_set)
-        else:
-            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=f"{RESUMO_ANO}",
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def evolucao_solicitacoes(self, request):
-        # TODO: verificar se a pessoa é do lugar certo da codae
-        query_set = SolicitacoesCODAE.get_solicitacoes_ano_corrente()
-        response = {
-            "results": self._agrupa_por_mes_por_solicitacao(query_set=query_set)
-        }
-        return Response(response)
 
 
 class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
