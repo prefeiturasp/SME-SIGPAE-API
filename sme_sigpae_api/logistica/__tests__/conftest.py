@@ -1,7 +1,7 @@
+import xml.etree.ElementTree as ET
 from datetime import datetime
 
 import pytest
-import xml.etree.ElementTree as ET
 from faker import Faker
 from model_mommy import mommy
 
@@ -301,20 +301,21 @@ def previsoes_contratuais(notificacao_ocorrencia):
     return objects
 
 
-
 @pytest.fixture
 def setup_solicitacao_remessa_envio():
     data = {
-        "StrCnpj": fake.bothify(text='########0001##'),  # Gera um CNPJ fictício
-        "StrNumSol": fake.bothify(text='####################'),  # Gera o número da solicitação
+        "StrCnpj": fake.bothify(text="########0001##"),  # Gera um CNPJ fictício
+        "StrNumSol": fake.bothify(
+            text="####################"
+        ),  # Gera o número da solicitação
         "IntSeqenv": 3,
         "IntQtGuia": 3,
-        "IntTotVol": 3, 
+        "IntTotVol": 3,
         "guias": [
             {
                 "StrNumGui": fake.uuid4(),  # Gera um UUID para número da guia
                 "DtEntrega": fake.date(pattern="%Y-%m-%d"),  # Gera uma data
-                "StrCodUni": fake.bothify(text='UNI####'),  # Gera um código de unidade
+                "StrCodUni": fake.bothify(text="UNI####"),  # Gera um código de unidade
                 "StrNomUni": fake.company(),  # Gera um nome de unidade
                 "StrEndUni": fake.street_address(),  # Gera um endereço de unidade
                 "StrNumUni": fake.building_number(),  # Gera um número de unidade
@@ -326,15 +327,21 @@ def setup_solicitacao_remessa_envio():
                 "StrTelUni": fake.phone_number(),  # Gera um telefone
                 "alimentos": [
                     {
-                        "StrCodSup": fake.bothify(text='SUP####'),  # Gera um código de suprimento
-                        "StrCodPapa": fake.bothify(text='PAPA####'),  # Gera um código do PAPA
+                        "StrCodSup": fake.bothify(
+                            text="SUP####"
+                        ),  # Gera um código de suprimento
+                        "StrCodPapa": fake.bothify(
+                            text="PAPA####"
+                        ),  # Gera um código do PAPA
                         "StrNomAli": fake.word(),  # Gera um nome de alimento
                         "StrEmbala": fake.word(),  # Gera um tipo de embalagem
-                        "IntQtdVol": str(fake.random_int(min=1, max=100))  # Gera uma quantidade
+                        "IntQtdVol": str(
+                            fake.random_int(min=1, max=100)
+                        ),  # Gera uma quantidade
                     }
-                ]
+                ],
             }
-        ]
+        ],
     }
     return data
 
@@ -357,16 +364,18 @@ def dict_to_xml(tag, d):
 @pytest.fixture
 def setup_solicitacao_cancelamento():
     data = {
-        "StrCnpj": fake.bothify(text='########0001##'),  # Gera um CNPJ fictício
-        "StrNumSol": fake.bothify(text='####################'),  # Gera o número da solicitação
+        "StrCnpj": fake.bothify(text="########0001##"),  # Gera um CNPJ fictício
+        "StrNumSol": fake.bothify(
+            text="####################"
+        ),  # Gera o número da solicitação
         "IntSeqenv": 3,
         "IntQtGuia": 3,
-        "IntTotVol": 3, 
+        "IntTotVol": 3,
         "guias": [
             {
                 "StrNumGui": fake.uuid4(),  # Gera um UUID para número da guia
                 "DtEntrega": fake.date(pattern="%Y-%m-%d"),  # Gera uma data
-                "StrCodUni": fake.bothify(text='UNI####'),  # Gera um código de unidade
+                "StrCodUni": fake.bothify(text="UNI####"),  # Gera um código de unidade
                 "StrNomUni": fake.company(),  # Gera um nome de unidade
                 "StrEndUni": fake.street_address(),  # Gera um endereço de unidade
                 "StrNumUni": fake.building_number(),  # Gera um número de unidade
@@ -378,17 +387,23 @@ def setup_solicitacao_cancelamento():
                 "StrTelUni": fake.phone_number(),  # Gera um telefone
                 "alimentos": [
                     {
-                        "StrCodSup": fake.bothify(text='SUP####'),  # Gera um código de suprimento
-                        "StrCodPapa": fake.bothify(text='PAPA####'),  # Gera um código do PAPA
+                        "StrCodSup": fake.bothify(
+                            text="SUP####"
+                        ),  # Gera um código de suprimento
+                        "StrCodPapa": fake.bothify(
+                            text="PAPA####"
+                        ),  # Gera um código do PAPA
                         "StrNomAli": fake.word(),  # Gera um nome de alimento
                         "StrEmbala": fake.word(),  # Gera um tipo de embalagem
-                        "IntQtdVol": str(fake.random_int(min=1, max=100))  # Gera uma quantidade
+                        "IntQtdVol": str(
+                            fake.random_int(min=1, max=100)
+                        ),  # Gera uma quantidade
                     }
-                ]
+                ],
             }
-        ]
+        ],
     }
-    
+
     root = dict_to_xml("XmlParserSolicitacao", data)
     xml_data = ET.tostring(root, encoding="utf-8").decode("utf-8")
     return xml_data
@@ -400,7 +415,9 @@ def setup_solicitacao_confirmar_cancelamento(solicitacao):
         "logs": [
             {
                 "descricao": fake.sentence(nb_words=6),  # Gera uma descrição aleatória
-                "justificativa": fake.text(max_nb_chars=50),  # Gera uma justificativa aleatória
+                "justificativa": fake.text(
+                    max_nb_chars=50
+                ),  # Gera uma justificativa aleatória
                 "resposta_sim_nao": fake.boolean(),  # Gera um valor booleano
             }
         ],
@@ -413,15 +430,25 @@ def setup_solicitacao_confirmar_cancelamento(solicitacao):
                         },
                         "nome": fake.word(),  # Gera o nome do alimento
                         "ativo": fake.boolean(),  # Gera um valor booleano para ativo
-                        "tipo": fake.random_element(elements=["E", "D", "C"]),  # Gera um tipo aleatório
-                        "outras_informacoes": fake.text(max_nb_chars=100),  # Gera informações adicionais
+                        "tipo": fake.random_element(
+                            elements=["E", "D", "C"]
+                        ),  # Gera um tipo aleatório
+                        "outras_informacoes": fake.text(
+                            max_nb_chars=100
+                        ),  # Gera informações adicionais
                         "tipo_listagem_protocolo": "SO_ALIMENTOS",  # Valor fixo
                     }
                 ],
                 "status": "AGUARDANDO_ENVIO",  # Valor fixo
-                "numero_guia": fake.bothify(text="####-#####"),  # Gera um número de guia
-                "data_entrega": fake.date(pattern="%Y-%m-%d"),  # Gera uma data de entrega
-                "codigo_unidade": fake.bothify(text="UNI###"),  # Gera um código de unidade
+                "numero_guia": fake.bothify(
+                    text="####-#####"
+                ),  # Gera um número de guia
+                "data_entrega": fake.date(
+                    pattern="%Y-%m-%d"
+                ),  # Gera uma data de entrega
+                "codigo_unidade": fake.bothify(
+                    text="UNI###"
+                ),  # Gera um código de unidade
                 "nome_unidade": fake.company(),  # Gera um nome de unidade
                 "endereco_unidade": fake.street_address(),  # Gera um endereço de unidade
                 "numero_unidade": fake.building_number(),  # Gera um número de unidade
@@ -432,27 +459,45 @@ def setup_solicitacao_confirmar_cancelamento(solicitacao):
                 "contato_unidade": fake.name(),  # Gera um nome de contato
                 "telefone_unidade": fake.phone_number(),  # Gera um telefone
                 "situacao": "ATIVA",  # Valor fixo
-                "solicitacao": fake.random_int(min=1, max=1000),  # Gera um número aleatório para solicitação
-                "escola": fake.random_int(min=1, max=1000),  # Gera um número aleatório para escola
-                "notificacao": fake.random_int(min=1, max=1000),  # Gera um número aleatório para notificação
+                "solicitacao": fake.random_int(
+                    min=1, max=1000
+                ),  # Gera um número aleatório para solicitação
+                "escola": fake.random_int(
+                    min=1, max=1000
+                ),  # Gera um número aleatório para escola
+                "notificacao": fake.random_int(
+                    min=1, max=1000
+                ),  # Gera um número aleatório para notificação
             }
         ],
         "status": "AGUARDANDO_ENVIO",  # Valor fixo
         "cnpj": fake.bothify(text="########0001##"),  # Gera um CNPJ fictício
         "numero_requisicao": solicitacao.numero_solicitacao,  # Gera um número de solicitação
-        "quantidade_total_guias": fake.random_int(min=1, max=100),  # Gera uma quantidade total de guias
-        "sequencia_envio": fake.random_int(min=1, max=100),  # Gera uma sequência de envio
+        "quantidade_total_guias": fake.random_int(
+            min=1, max=100
+        ),  # Gera uma quantidade total de guias
+        "sequencia_envio": fake.random_int(
+            min=1, max=100
+        ),  # Gera uma sequência de envio
         "situacao": "ATIVA",  # Valor fixo
-        "distribuidor": fake.random_int(min=1, max=1000),  # Gera um número aleatório para distribuidor
+        "distribuidor": fake.random_int(
+            min=1, max=1000
+        ),  # Gera um número aleatório para distribuidor
     }
     return data
 
-@pytest.fixture
-def setup_solicitacao_confirmar_cancelamentos_sem_numero_requisicao(setup_solicitacao_confirmar_cancelamento):
-    _ = setup_solicitacao_confirmar_cancelamento.pop("numero_requisicao")   
-    return setup_solicitacao_confirmar_cancelamento
 
 @pytest.fixture
-def setup_solicitacao_confirmar_cancelamentos_sem_guia(setup_solicitacao_confirmar_cancelamento):
-     _ = setup_solicitacao_confirmar_cancelamento.pop("guias")   
-     return setup_solicitacao_confirmar_cancelamento
+def setup_solicitacao_confirmar_cancelamentos_sem_numero_requisicao(
+    setup_solicitacao_confirmar_cancelamento,
+):
+    _ = setup_solicitacao_confirmar_cancelamento.pop("numero_requisicao")
+    return setup_solicitacao_confirmar_cancelamento
+
+
+@pytest.fixture
+def setup_solicitacao_confirmar_cancelamentos_sem_guia(
+    setup_solicitacao_confirmar_cancelamento,
+):
+    _ = setup_solicitacao_confirmar_cancelamento.pop("guias")
+    return setup_solicitacao_confirmar_cancelamento

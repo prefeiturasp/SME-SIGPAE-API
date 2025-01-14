@@ -50,7 +50,7 @@ def test_url_endpoint_empresas_nao_terceirizadas_create(
                 "vigencias": [
                     {"data_inicial": "10/01/2023", "data_final": "15/01/2023"},
                 ],
-                "modalidade": str(modalidade.uuid)
+                "modalidade": str(modalidade.uuid),
             }
         ],
         "super_admin": {
@@ -73,7 +73,7 @@ def test_url_endpoint_empresas_nao_terceirizadas_create(
 
 
 def test_url_endpoint_empresas_nao_terceirizadas_create_sem_modalidade(
-    client_autenticado_dilog_cronograma
+    client_autenticado_dilog_cronograma,
 ):
     payload = {
         "nome_fantasia": "Empresa Teste",
@@ -109,7 +109,7 @@ def test_url_endpoint_empresas_nao_terceirizadas_create_sem_modalidade(
                 "vigencias": [
                     {"data_inicial": "10/01/2023", "data_final": "15/01/2023"},
                 ],
-                "modalidade": None
+                "modalidade": None,
             }
         ],
         "super_admin": {
@@ -129,7 +129,8 @@ def test_url_endpoint_empresas_nao_terceirizadas_create_sem_modalidade(
 
     assert response.status_code == status.HTTP_201_CREATED
     assert empresa.tipo_servico == Terceirizada.DISTRIBUIDOR_ARMAZEM
-    assert response.json()["contratos"][0]['modalidade'] is None
+    assert response.json()["contratos"][0]["modalidade"] is None
+
 
 def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos(
     client_autenticado_dilog_cronograma, terceirizada, modalidade
@@ -145,7 +146,7 @@ def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos(
                 "vigencias": [
                     {"data_inicial": "01/01/2023", "data_final": "31/12/2023"},
                 ],
-                "modalidade": str(modalidade.uuid)
+                "modalidade": str(modalidade.uuid),
             },
             {
                 "encerrado": False,
@@ -156,7 +157,7 @@ def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos(
                 "vigencias": [
                     {"data_inicial": "01/01/2023", "data_final": "31/12/2023"},
                 ],
-                "modalidade": str(modalidade.uuid)
+                "modalidade": str(modalidade.uuid),
             },
         ],
     }
@@ -183,7 +184,7 @@ def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos(
                 "vigencias": [
                     {"data_inicial": "09/09/1999", "data_final": "31/12/2023"},
                 ],
-                "modalidade": str(modalidade.uuid)
+                "modalidade": str(modalidade.uuid),
             },
         ],
     }
@@ -228,7 +229,7 @@ def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos_sem
                 "vigencias": [
                     {"data_inicial": "01/01/2023", "data_final": "31/12/2023"},
                 ],
-                "modalidade": None
+                "modalidade": None,
             },
             {
                 "encerrado": False,
@@ -239,7 +240,7 @@ def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos_sem
                 "vigencias": [
                     {"data_inicial": "01/01/2023", "data_final": "31/12/2023"},
                 ],
-                "modalidade": None
+                "modalidade": None,
             },
         ],
     }
@@ -253,8 +254,8 @@ def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos_sem
     terceirizada.refresh_from_db()
     assert response.status_code == status.HTTP_200_OK
     assert terceirizada.contratos.count() == 2
-    assert response.json()["contratos"][0]['modalidade'] is None
-    assert response.json()["contratos"][1]['modalidade'] is None
+    assert response.json()["contratos"][0]["modalidade"] is None
+    assert response.json()["contratos"][1]["modalidade"] is None
 
     contrato_edicao = terceirizada.contratos.first()
     payload = {
@@ -268,7 +269,7 @@ def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos_sem
                 "vigencias": [
                     {"data_inicial": "09/09/1999", "data_final": "31/12/2023"},
                 ],
-                "modalidade": str(modalidade.uuid)
+                "modalidade": str(modalidade.uuid),
             },
         ],
     }

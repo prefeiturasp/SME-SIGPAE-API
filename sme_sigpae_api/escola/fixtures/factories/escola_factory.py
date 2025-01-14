@@ -1,4 +1,4 @@
-from random import random
+import random
 
 from factory import DjangoModelFactory, LazyAttribute, Sequence, SubFactory
 from faker import Faker
