@@ -91,7 +91,7 @@ def test_obter_titulo_log_reclamacao():
     assert titulo_log == "Resposta CODAE"
 
 
-def obter_rotulo_data_log():
+def test_obter_rotulo_data_log():
     from ..templatetags.index import obter_rotulo_data_log
 
     rotulo_data_log = obter_rotulo_data_log(constants.TERCEIRIZADA_RESPONDEU_RECLAMACAO)
