@@ -6,6 +6,11 @@ from sme_sigpae_api.dados_comuns.fixtures.factories.dados_comuns_factories impor
     LogSolicitacoesUsuarioFactory,
 )
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
+from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
+    SolicitacaoDietaEspecialFactory,
+)
+from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+from sme_sigpae_api.escola.fixtures.factories.escola_factory import AlunoFactory
 from sme_sigpae_api.inclusao_alimentacao.fixtures.factories.base_factory import (
     GrupoInclusaoAlimentacaoNormalFactory,
     InclusaoAlimentacaoNormalFactory,
@@ -64,8 +69,8 @@ def test_pendentes_autorizacao_secao_pendencias(
 
 
 @pytest.mark.usefixtures("client_autenticado_codae_paineis_consolidados", "escola")
-class TestGrupoInclusao:
-    def setup_grupo_inclusao(
+class TestEndpointsPainelGerencialAlimentacao:
+    def setup_solicitacoes(
         self,
         escola,
         usuario,
@@ -99,7 +104,7 @@ class TestGrupoInclusao:
         escola,
     ):
         client, usuario = client_autenticado_codae_paineis_consolidados
-        self.setup_grupo_inclusao(
+        self.setup_solicitacoes(
             escola,
             usuario,
             status=GrupoInclusaoAlimentacaoNormal.workflow_class.DRE_VALIDADO,
@@ -118,7 +123,7 @@ class TestGrupoInclusao:
         escola,
     ):
         client, usuario = client_autenticado_codae_paineis_consolidados
-        self.setup_grupo_inclusao(
+        self.setup_solicitacoes(
             escola,
             usuario,
             status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_QUESTIONADO,
@@ -129,3 +134,57 @@ class TestGrupoInclusao:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.json()["count"] == 1
+
+
+@pytest.mark.usefixtures("client_autenticado_codae_paineis_consolidados")
+class TestEndpointsPainelGerencialDietaEspecial:
+    def setup_solicitacoes(
+        self,
+        usuario,
+        status,
+        status_evento,
+    ):
+        aluno = AlunoFactory.create(codigo_eol="1234567")
+        solicitacao_dieta_especial = SolicitacaoDietaEspecialFactory.create(
+            aluno=aluno, ativo=True, status=status
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=solicitacao_dieta_especial.uuid,
+            status_evento=status_evento,
+            usuario=usuario,
+        )
+
+    def test_pendentes_autorizacao_dieta_especial(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+
+        self.setup_solicitacoes(
+            usuario,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR,
+            status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+        )
+
+        response = client.get(
+            "/codae-solicitacoes/pendentes-autorizacao-dieta/?limit=6&offset=0"
+        )
+        assert response.json()["count"] == 1
+
+    def test_pendentes_autorizacao_dieta_especial_sem_paginacao(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+
+        self.setup_solicitacoes(
+            usuario,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR,
+            status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+        )
+
+        response = client.get(
+            "/codae-solicitacoes/pendentes-autorizacao-dieta/?sem_paginacao=true"
+        )
+        assert "count" not in response.json()
+        assert len(response.json()["results"]) == 1
