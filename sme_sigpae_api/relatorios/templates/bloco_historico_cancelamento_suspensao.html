@@ -6,7 +6,7 @@
       <div>
         <p class="cabecalho">Histórico de cancelamento:</p>
         {% for suspensao in solicitacao|suspensoes_canceladas %}
-            <div>{{ suspensao.data }} - justificativa: {{ suspensao.cancelado_justificativa }}</div>
+            <div>{{ suspensao.data }} - justificativa: {{ suspensao.cancelado_justificativa }}</div><br>
         {% endfor %}
       </div>
     </div>

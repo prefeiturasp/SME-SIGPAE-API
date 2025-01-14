@@ -893,6 +893,6 @@ def suspensoes_canceladas(
     """
     if solicitacao.status == "ESCOLA_CANCELOU":
         return solicitacao.suspensoes_alimentacao.all()
-    return solicitacao.suspensao_alimentacao.filter(
+    return solicitacao.suspensoes_alimentacao.filter(
         cancelado_justificativa__isnull=False
     ).exclude(cancelado_justificativa="")

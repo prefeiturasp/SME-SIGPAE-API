@@ -16,7 +16,9 @@
         <tr>
           <td style="color: #686868">Motivo</td>
           <td style="color: #686868">Dia(s) de suspensão</td>
-          <td style="color: #686868">Justificativa</td>
+          {% if existe_cancelamento %}
+            <td style="color: #686868">Justificativa</td>
+          {% endif %}
         </tr>
       </thead>
       <tbody>
@@ -36,7 +38,9 @@
                 {{ motivo.data|date:"d/m/Y" }}
               {% endif %}
             </td>
-            <td>{{ motivo.cancelado_justificativa }}</td>
+            {% if existe_cancelamento %}
+              <td>{{ motivo.cancelado_justificativa }}</td>
+            {% endif %}
           </tr>
         {% endfor %}
       </tbody>
