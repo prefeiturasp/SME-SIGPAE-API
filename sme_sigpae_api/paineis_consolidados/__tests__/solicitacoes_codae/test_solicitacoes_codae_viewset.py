@@ -23,54 +23,8 @@ from sme_sigpae_api.inclusao_alimentacao.models import GrupoInclusaoAlimentacaoN
 pytestmark = pytest.mark.django_db
 
 
-@freeze_time("2025-01-13")
-def test_pendentes_autorizacao_secao_pendencias(
-    client_autenticado_codae_paineis_consolidados,
-    grupo_inclusao_alimentacao_normal_factory,
-    quantidade_por_periodo_factory,
-    inclusao_alimentacao_normal_factory,
-    log_solicitacoes_usuario_factory,
-    escola,
-):
-    client, usuario = client_autenticado_codae_paineis_consolidados
-
-    grupo_inclusao_alimentacao_normal = (
-        grupo_inclusao_alimentacao_normal_factory.create(
-            escola=escola,
-            rastro_lote=escola.lote,
-            rastro_dre=escola.diretoria_regional,
-            status=GrupoInclusaoAlimentacaoNormal.workflow_class.DRE_VALIDADO,
-        )
-    )
-    inclusao_alimentacao_normal_factory.create(
-        data="2025-01-14", grupo_inclusao=grupo_inclusao_alimentacao_normal
-    )
-    quantidade_por_periodo_factory.create(
-        grupo_inclusao_normal=grupo_inclusao_alimentacao_normal
-    )
-    log_solicitacoes_usuario_factory.create(
-        uuid_original=grupo_inclusao_alimentacao_normal.uuid,
-        status_evento=LogSolicitacoesUsuario.DRE_VALIDOU,
-        usuario=usuario,
-    )
-
-    response = client.get(
-        "/codae-solicitacoes/pendentes-autorizacao/sem_filtro/tipo_solicitacao/?limit=6&offset=0"
-    )
-    assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {
-        "results": {
-            "Inclusão de Alimentação": {
-                "LIMITE": 0,
-                "PRIORITARIO": 1,
-                "REGULAR": 0,
-                "TOTAL": 1,
-            }
-        }
-    }
-
-
 @pytest.mark.usefixtures("client_autenticado_codae_paineis_consolidados", "escola")
+@freeze_time("2025-01-13")
 class TestEndpointsPainelGerencialAlimentacao:
     def setup_solicitacoes(
         self,
@@ -99,7 +53,34 @@ class TestEndpointsPainelGerencialAlimentacao:
             usuario=usuario,
         )
 
-    @freeze_time("2025-01-13")
+    def test_pendentes_autorizacao_secao_pendencias(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+        escola,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+        self.setup_solicitacoes(
+            escola,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.DRE_VALIDADO,
+            status_evento=LogSolicitacoesUsuario.DRE_VALIDOU,
+        )
+
+        response = client.get(
+            "/codae-solicitacoes/pendentes-autorizacao/sem_filtro/tipo_solicitacao/?limit=6&offset=0"
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == {
+            "results": {
+                "Inclusão de Alimentação": {
+                    "LIMITE": 0,
+                    "PRIORITARIO": 1,
+                    "REGULAR": 0,
+                    "TOTAL": 1,
+                }
+            }
+        }
+
     def test_pendentes_autorizacao_sem_filtro(
         self,
         client_autenticado_codae_paineis_consolidados,
@@ -118,7 +99,6 @@ class TestEndpointsPainelGerencialAlimentacao:
         assert response.status_code == status.HTTP_200_OK
         assert response.json()["count"] == 1
 
-    @freeze_time("2025-01-13")
     def test_questionamentos(
         self,
         client_autenticado_codae_paineis_consolidados,
