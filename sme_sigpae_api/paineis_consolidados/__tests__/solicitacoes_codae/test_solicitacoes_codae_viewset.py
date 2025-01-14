@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 from freezegun.api import freeze_time
 from rest_framework import status
@@ -137,19 +139,47 @@ class TestEndpointsPainelGerencialAlimentacao:
 
 
 @pytest.mark.usefixtures("client_autenticado_codae_paineis_consolidados")
+@freeze_time("2025-01-14")
 class TestEndpointsPainelGerencialDietaEspecial:
+    def setup_dieta_alterada_id(self, dieta_alterada_id):
+        if dieta_alterada_id:
+            SolicitacaoDietaEspecialFactory.create(id=dieta_alterada_id)
+            self.solicitacao_dieta_especial.dieta_alterada_id = dieta_alterada_id
+
+    def setup_em_vigencia(self, em_vigencia):
+        if em_vigencia is True:
+            data_inicio = datetime.date.today() - datetime.timedelta(days=1)
+            data_termino = datetime.date.today() + datetime.timedelta(days=1)
+            self.solicitacao_dieta_especial.data_inicio = data_inicio
+            self.solicitacao_dieta_especial.data_termino = data_termino
+            self.solicitacao_dieta_especial.save()
+        if em_vigencia is False:
+            data_inicio = datetime.date.today() + datetime.timedelta(days=1)
+            data_termino = datetime.date.today() + datetime.timedelta(days=2)
+            self.solicitacao_dieta_especial.data_inicio = data_inicio
+            self.solicitacao_dieta_especial.data_termino = data_termino
+            self.solicitacao_dieta_especial.save()
+
     def setup_solicitacoes(
         self,
         usuario,
         status,
         status_evento,
+        dieta_alterada_id=None,
+        em_vigencia=None,
     ):
         aluno = AlunoFactory.create(codigo_eol="1234567")
-        solicitacao_dieta_especial = SolicitacaoDietaEspecialFactory.create(
-            aluno=aluno, ativo=True, status=status
+
+        self.solicitacao_dieta_especial = SolicitacaoDietaEspecialFactory.create(
+            aluno=aluno,
+            ativo=True,
+            status=status,
         )
+        self.setup_dieta_alterada_id(dieta_alterada_id)
+        self.setup_em_vigencia(em_vigencia)
+
         LogSolicitacoesUsuarioFactory.create(
-            uuid_original=solicitacao_dieta_especial.uuid,
+            uuid_original=self.solicitacao_dieta_especial.uuid,
             status_evento=status_evento,
             usuario=usuario,
         )
@@ -185,6 +215,142 @@ class TestEndpointsPainelGerencialDietaEspecial:
 
         response = client.get(
             "/codae-solicitacoes/pendentes-autorizacao-dieta/?sem_paginacao=true"
+        )
+        assert "count" not in response.json()
+        assert len(response.json()["results"]) == 1
+
+    def test_autorizados_dieta_especial(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+
+        self.setup_solicitacoes(
+            usuario,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+
+        response = client.get("/codae-solicitacoes/autorizados-dieta/?limit=6&offset=0")
+        assert response.json()["count"] == 1
+
+    def test_autorizados_dieta_especial_sem_paginacao(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+
+        self.setup_solicitacoes(
+            usuario,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+
+        response = client.get(
+            "/codae-solicitacoes/autorizados-dieta/?sem_paginacao=true"
+        )
+        assert "count" not in response.json()
+        assert len(response.json()["results"]) == 1
+
+    def test_negados_dieta_especial(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+
+        self.setup_solicitacoes(
+            usuario,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_NEGOU_PEDIDO,
+            status_evento=LogSolicitacoesUsuario.CODAE_NEGOU,
+        )
+
+        response = client.get("/codae-solicitacoes/negados-dieta/?limit=6&offset=0")
+        assert response.json()["count"] == 1
+
+    def test_negados_dieta_especial_sem_paginacao(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+
+        self.setup_solicitacoes(
+            usuario,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_NEGOU_PEDIDO,
+            status_evento=LogSolicitacoesUsuario.CODAE_NEGOU,
+        )
+
+        response = client.get("/codae-solicitacoes/negados-dieta/?sem_paginacao=true")
+        assert "count" not in response.json()
+        assert len(response.json()["results"]) == 1
+
+    def test_cancelados_dieta_especial(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+
+        self.setup_solicitacoes(
+            usuario,
+            status=SolicitacaoDietaEspecial.workflow_class.ESCOLA_CANCELOU,
+            status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+        )
+
+        response = client.get("/codae-solicitacoes/cancelados-dieta/?limit=6&offset=0")
+        assert response.json()["count"] == 1
+
+    def test_cancelados_dieta_especial_sem_paginacao(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+
+        self.setup_solicitacoes(
+            usuario,
+            status=SolicitacaoDietaEspecial.workflow_class.ESCOLA_CANCELOU,
+            status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+        )
+
+        response = client.get(
+            "/codae-solicitacoes/cancelados-dieta/?sem_paginacao=true"
+        )
+        assert "count" not in response.json()
+        assert len(response.json()["results"]) == 1
+
+    def test_autorizadas_temporariamente_dieta_especial(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+
+        self.setup_solicitacoes(
+            usuario,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            dieta_alterada_id=1,
+            em_vigencia=False,
+        )
+
+        response = client.get(
+            "/codae-solicitacoes/autorizadas-temporariamente-dieta/?limit=6&offset=0"
+        )
+        assert response.json()["count"] == 1
+
+    def test_autorizadas_temporariamente_dieta_especial_sem_paginacao(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+
+        self.setup_solicitacoes(
+            usuario,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            dieta_alterada_id=1,
+            em_vigencia=False,
+        )
+
+        response = client.get(
+            "/codae-solicitacoes/autorizadas-temporariamente-dieta/?sem_paginacao=true"
         )
         assert "count" not in response.json()
         assert len(response.json()["results"]) == 1
