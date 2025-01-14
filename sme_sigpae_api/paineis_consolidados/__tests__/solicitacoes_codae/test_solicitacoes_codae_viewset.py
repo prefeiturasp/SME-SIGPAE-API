@@ -184,25 +184,24 @@ class TestEndpointsPainelGerencialDietaEspecial:
             usuario=usuario,
         )
 
-    def setup_solicitacoes_inativas_temporariamente(
-        self,
-        usuario,
+    def setup_solicitacoes_inativas(
+        self, usuario, status, status_evento, temporariamente=False
     ):
         aluno = AlunoFactory.create(codigo_eol="1234567")
 
         self.solicitacao_dieta_especial = SolicitacaoDietaEspecialFactory.create(
             aluno=aluno,
             ativo=False,
-            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+            status=status,
         )
         SolicitacaoDietaEspecialFactory.create(
             aluno=aluno,
             tipo_solicitacao="ALTERACAO_UE",
-            dieta_alterada=self.solicitacao_dieta_especial,
+            dieta_alterada=self.solicitacao_dieta_especial if temporariamente else None,
         )
         LogSolicitacoesUsuarioFactory.create(
             uuid_original=self.solicitacao_dieta_especial.uuid,
-            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            status_evento=status_evento,
             usuario=usuario,
         )
 
@@ -383,7 +382,12 @@ class TestEndpointsPainelGerencialDietaEspecial:
     ):
         client, usuario = client_autenticado_codae_paineis_consolidados
 
-        self.setup_solicitacoes_inativas_temporariamente(usuario)
+        self.setup_solicitacoes_inativas(
+            usuario,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            temporariamente=True,
+        )
 
         response = client.get(
             "/codae-solicitacoes/inativas-temporariamente-dieta/?limit=6&offset=0"
@@ -396,10 +400,46 @@ class TestEndpointsPainelGerencialDietaEspecial:
     ):
         client, usuario = client_autenticado_codae_paineis_consolidados
 
-        self.setup_solicitacoes_inativas_temporariamente(usuario)
+        self.setup_solicitacoes_inativas(
+            usuario,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            temporariamente=True,
+        )
 
         response = client.get(
             "/codae-solicitacoes/inativas-temporariamente-dieta/?sem_paginacao=true"
         )
+        assert "count" not in response.json()
+        assert len(response.json()["results"]) == 1
+
+    def test_inativas_dieta_especial(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+
+        self.setup_solicitacoes_inativas(
+            usuario,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZOU_INATIVACAO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU_INATIVACAO,
+        )
+
+        response = client.get("/codae-solicitacoes/inativas-dieta/?limit=6&offset=0")
+        assert response.json()["count"] == 1
+
+    def test_inativas_dieta_especial_sem_paginacao(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+
+        self.setup_solicitacoes_inativas(
+            usuario,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZOU_INATIVACAO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU_INATIVACAO,
+        )
+
+        response = client.get("/codae-solicitacoes/inativas-dieta/?sem_paginacao=true")
         assert "count" not in response.json()
         assert len(response.json()["results"]) == 1
