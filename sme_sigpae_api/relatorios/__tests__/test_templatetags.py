@@ -1,3 +1,13 @@
+import pytest
+
+from sme_sigpae_api.cardapio.api.serializers.serializers import (
+    GrupoSuspensaoAlimentacaoSerializer,
+)
+from sme_sigpae_api.relatorios.templatetags.index import (
+    existe_suspensoes_cancelada,
+    suspensoes_canceladas,
+)
+
 from ...dados_comuns import constants
 from ...dados_comuns.models import LogSolicitacoesUsuario
 
@@ -104,3 +114,64 @@ def test_obter_rotulo_data_log():
     assert rotulo_data_log == "Data avaliação CODAE"
     rotulo_data_log = obter_rotulo_data_log(constants.CODAE_RESPONDEU_RECLAMACAO)
     assert rotulo_data_log == "Data resposta CODAE"
+
+
+@pytest.mark.django_db
+def test_existe_suspensoes_cancelada_status_escola_cancelou(
+    grupo_suspensao_alimentacao_cancelamento_total,
+):
+    assert (
+        existe_suspensoes_cancelada(grupo_suspensao_alimentacao_cancelamento_total)
+        is True
+    )
+
+
+@pytest.mark.django_db
+def test_existe_suspensoes_cancelada_com_justificativa(
+    grupo_suspensao_alimentacao_cancelamento_parcial,
+):
+    assert (
+        existe_suspensoes_cancelada(grupo_suspensao_alimentacao_cancelamento_parcial)
+        is True
+    )
+
+
+@pytest.mark.django_db
+def test_existe_suspensoes_cancelada_sem_cancelamentos(grupo_suspensao_alimentacao):
+    assert existe_suspensoes_cancelada(grupo_suspensao_alimentacao) is False
+
+
+@pytest.mark.django_db
+def test_existe_suspensoes_cancelada_com_dicionario(
+    grupo_suspensao_alimentacao_cancelamento_total,
+):
+    serializer = GrupoSuspensaoAlimentacaoSerializer(
+        grupo_suspensao_alimentacao_cancelamento_total
+    )
+    assert existe_suspensoes_cancelada(serializer.data) is True
+
+
+@pytest.mark.django_db
+def test_suspensoes_canceladas_status_escola_cancelou(
+    grupo_suspensao_alimentacao_cancelamento_total,
+):
+    resultado = suspensoes_canceladas(grupo_suspensao_alimentacao_cancelamento_total)
+
+    assert len(resultado) == 5
+    assert set(resultado) == set(
+        grupo_suspensao_alimentacao_cancelamento_total.suspensoes_alimentacao.all()
+    )
+
+
+@pytest.mark.django_db
+def test_suspensoes_canceladas_com_justificativa(
+    grupo_suspensao_alimentacao_cancelamento_parcial,
+):
+    resultado = suspensoes_canceladas(grupo_suspensao_alimentacao_cancelamento_parcial)
+    assert len(resultado) == 2
+
+
+@pytest.mark.django_db
+def test_suspensoes_canceladas_sem_cancelamentos(grupo_suspensao_alimentacao):
+    resultado = suspensoes_canceladas(grupo_suspensao_alimentacao)
+    assert len(resultado) == 0

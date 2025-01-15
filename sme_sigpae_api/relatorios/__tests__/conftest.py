@@ -64,6 +64,7 @@ def grupo_suspensao_alimentacao(escola):
         observacao="lorem ipsum",
         escola=escola,
         rastro_escola=escola,
+        status="INFORMADO",
     )
     criar_suspensoes(
         grupo_suspensao,
@@ -86,6 +87,7 @@ def grupo_suspensao_alimentacao_cancelamento_parcial(escola):
         observacao="lorem ipsum",
         escola=escola,
         rastro_escola=escola,
+        status="INFORMADO",
     )
     criar_suspensoes(
         grupo_suspensao,
@@ -112,6 +114,7 @@ def grupo_suspensao_alimentacao_cancelamento_total(escola):
         observacao="lorem ipsum",
         escola=escola,
         rastro_escola=escola,
+        status="ESCOLA_CANCELOU",
     )
     criar_suspensoes(
         grupo_suspensao,
