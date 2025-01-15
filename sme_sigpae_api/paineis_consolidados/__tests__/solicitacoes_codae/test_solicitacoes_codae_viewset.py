@@ -119,7 +119,6 @@ class TestEndpointsPainelGerencialAlimentacao:
 
 
 @pytest.mark.usefixtures("client_autenticado_codae_paineis_consolidados")
-@freeze_time("2025-01-14")
 class TestEndpointsPainelGerencialDietaEspecial:
     def setup_dieta_alterada_id(self, dieta_alterada_id):
         if dieta_alterada_id:
