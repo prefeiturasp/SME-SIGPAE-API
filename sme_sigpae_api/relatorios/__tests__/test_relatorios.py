@@ -1,7 +1,8 @@
-from io import BytesIO
+import re
 
 import pytest
-from PyPDF4 import PdfFileReader
+
+from sme_sigpae_api.relatorios.utils import extrair_texto_de_pdf
 
 from ..relatorios import (
     relatorio_dieta_especial_protocolo,
@@ -32,21 +33,20 @@ def test_relatorio_suspensao_de_alimentacao(grupo_suspensao_alimentacao):
         == f'filename="solicitacao_suspensao_{grupo_suspensao_alimentacao.id_externo}.pdf"'
     )
 
-    pdf_reader = PdfFileReader(BytesIO(pdf_response.content))
-    text = ""
-    for page_num in range(pdf_reader.getNumPages()):
-        text += pdf_reader.getPage(page_num).extractText()
+    texto = extrair_texto_de_pdf(pdf_response.content)
 
-    assert grupo_suspensao_alimentacao.escola.nome in text
-    assert grupo_suspensao_alimentacao.observacao in text
-    assert "Justificativa" not in text
-    assert "Histórico de cancelamento" not in text
+    assert grupo_suspensao_alimentacao.escola.nome in texto
+    assert f"Observações: {grupo_suspensao_alimentacao.observacao}" in texto
+    # r"Justi.*cativa": '.*' significa qualquer sequência de caracteres, incluindo quebras de linha
+    assert not re.search(r"Justi.*cativa", texto)
+    assert "Histórico de cancelamento" not in texto
 
     for (
         sustentacao_alimentacao
     ) in grupo_suspensao_alimentacao.suspensoes_alimentacao.all():
-        assert sustentacao_alimentacao.data.strftime("%d/%m/%Y") in text
-        assert sustentacao_alimentacao.motivo.nome in text
+        assert sustentacao_alimentacao.data.strftime("%d/%m/%Y") in texto
+        assert sustentacao_alimentacao.motivo.nome in texto
+        assert sustentacao_alimentacao.cancelado_justificativa == ""
 
 
 @pytest.mark.django_db
@@ -63,24 +63,25 @@ def test_relatorio_suspensao_de_alimentacao_parcialmente_cancelado(
         pdf_response.headers["Content-Disposition"]
         == f'filename="solicitacao_suspensao_{grupo_suspensao_alimentacao_cancelamento_parcial.id_externo}.pdf"'
     )
+    texto = extrair_texto_de_pdf(pdf_response.content)
 
-    pdf_reader = PdfFileReader(BytesIO(pdf_response.content))
-    text = ""
-    for page_num in range(pdf_reader.getNumPages()):
-        text += pdf_reader.getPage(page_num).extractText()
-
-    assert grupo_suspensao_alimentacao_cancelamento_parcial.escola.nome in text
-    assert grupo_suspensao_alimentacao_cancelamento_parcial.observacao in text
-    assert "Justificativa" in text
-    assert "Histórico de cancelamento" in text
+    assert grupo_suspensao_alimentacao_cancelamento_parcial.escola.nome in texto
+    assert (
+        f"Observações: {grupo_suspensao_alimentacao_cancelamento_parcial.observacao}"
+        in texto
+    )
+    # r"Justi.*cativa": '.*' significa qualquer sequência de caracteres, incluindo quebras de linha
+    assert re.search(r"Justi.*cativa", texto)
+    assert "Histórico de cancelamento" in texto
 
     for (
         sustentacao_alimentacao
     ) in grupo_suspensao_alimentacao_cancelamento_parcial.suspensoes_alimentacao.all():
-        assert sustentacao_alimentacao.data.strftime("%d/%m/%Y") in text
-        assert sustentacao_alimentacao.motivo.nome in text
+        assert sustentacao_alimentacao.data.strftime("%d/%m/%Y") in texto
+        assert sustentacao_alimentacao.motivo.nome in texto
         if sustentacao_alimentacao.cancelado:
-            assert sustentacao_alimentacao.cancelado_justificativa in text
+            assert sustentacao_alimentacao.cancelado_justificativa in texto
+            assert texto.count(sustentacao_alimentacao.cancelado_justificativa) == 2
 
 
 @pytest.mark.django_db
@@ -98,19 +99,21 @@ def test_relatorio_suspensao_de_alimentacao_totalmente_cancelado(
         == f'filename="solicitacao_suspensao_{grupo_suspensao_alimentacao_cancelamento_total.id_externo}.pdf"'
     )
 
-    pdf_reader = PdfFileReader(BytesIO(pdf_response.content))
-    text = ""
-    for page_num in range(pdf_reader.getNumPages()):
-        text += pdf_reader.getPage(page_num).extractText()
+    texto = extrair_texto_de_pdf(pdf_response.content)
 
-    assert grupo_suspensao_alimentacao_cancelamento_total.escola.nome in text
-    assert grupo_suspensao_alimentacao_cancelamento_total.observacao in text
-    assert "Justificativa" in text
-    assert "Histórico de cancelamento" in text
+    assert grupo_suspensao_alimentacao_cancelamento_total.escola.nome in texto
+    assert (
+        f"Observações: {grupo_suspensao_alimentacao_cancelamento_total.observacao}"
+        in texto
+    )
+    # r"Justi.*cativa": '.*' significa qualquer sequência de caracteres, incluindo quebras de linha
+    assert re.search(r"Justi.*cativa", texto)
+    assert "Histórico de cancelamento" in texto
 
     for (
         sustentacao_alimentacao
     ) in grupo_suspensao_alimentacao_cancelamento_total.suspensoes_alimentacao.all():
-        assert sustentacao_alimentacao.data.strftime("%d/%m/%Y") in text
-        assert sustentacao_alimentacao.motivo.nome in text
-        assert sustentacao_alimentacao.cancelado_justificativa in text
+        assert sustentacao_alimentacao.data.strftime("%d/%m/%Y") in texto
+        assert sustentacao_alimentacao.motivo.nome in texto
+        assert sustentacao_alimentacao.cancelado_justificativa in texto
+        assert texto.count(sustentacao_alimentacao.cancelado_justificativa) == 2

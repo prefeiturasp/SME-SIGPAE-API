@@ -167,3 +167,30 @@ def solicitacao_dieta_especial_a_autorizar(
     solic.inicia_fluxo(user=user)
 
     return solic
+
+
+@pytest.fixture
+def solicitacao_dieta_especial_autorizada(
+    client, escola, solicitacao_dieta_especial_a_autorizar
+):
+    email = "terceirizada@admin.com"
+    password = DJANGO_ADMIN_PASSWORD
+    rf = "4545454"
+    user = Usuario.objects.create_user(
+        username=email, password=password, email=email, registro_funcional=rf
+    )
+    client.login(username=email, password=password)
+
+    perfil = mommy.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+    mommy.make(
+        "perfil.Vinculo",
+        usuario=user,
+        instituicao=escola.lote.terceirizada,
+        perfil=perfil,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+
+    solicitacao_dieta_especial_a_autorizar.codae_autoriza(user=user)
+
+    return solicitacao_dieta_especial_a_autorizar
