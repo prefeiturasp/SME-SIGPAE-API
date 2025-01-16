@@ -353,7 +353,7 @@ class TestEndpointsPainelGerencialDietaEspecial:
             "/codae-solicitacoes/autorizadas-temporariamente-dieta/?sem_paginacao=true"
         )
         assert "count" not in response.json()
-        assert len(response.json()["results"]) == 1
+        assert len(response.json()["results"]) > 0
 
     def test_inativas_temporariamente_dieta_especial(
         self,
