@@ -1,0 +1,17 @@
+{% load index %}
+
+{% block historico_cancelamento_suspensao %}
+  {% if solicitacao|existe_suspensoes_cancelada %}
+    <div class="observacoes">
+      <div>
+        <p class="cabecalho">Histórico de cancelamento:</p>
+        {% for suspensao in solicitacao|suspensoes_canceladas %}
+            <div>{{ suspensao.data }} - justificativa: {{ suspensao.cancelado_justificativa }}</div><br>
+        {% endfor %}
+      </div>
+    </div>
+    <div>
+      <hr style="color: #EEEEEE; opacity: 0.3">
+    </div>
+  {% endif %}
+{% endblock %}

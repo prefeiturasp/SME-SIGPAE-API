@@ -5,6 +5,10 @@ from django import template
 from django.db.models import QuerySet
 from django.template import base as template_base
 
+from sme_sigpae_api.cardapio.models import (
+    GrupoSuspensaoAlimentacao,
+    SuspensaoAlimentacao,
+)
 from sme_sigpae_api.dados_comuns.utils import numero_com_agrupador_de_milhar_e_decimal
 
 from ...dados_comuns import constants
@@ -859,3 +863,36 @@ def calcular_index(index_loop: int, tipos_ocorrencia: QuerySet[TipoOcorrencia]) 
         ):
             indice += 1
     return indice
+
+
+@register.filter
+def existe_suspensoes_cancelada(solicitacao: GrupoSuspensaoAlimentacao) -> bool:
+    """
+    Verifica se uma solicitação possui suspensões de alimentação canceladas.
+    """
+    status_ = (
+        solicitacao["status"] if isinstance(solicitacao, dict) else solicitacao.status
+    )
+
+    return (
+        status_ == "ESCOLA_CANCELOU"
+        or solicitacao.suspensoes_alimentacao.filter(
+            cancelado_justificativa__isnull=False
+        )
+        .exclude(cancelado_justificativa="")
+        .exists()
+    )
+
+
+@register.filter
+def suspensoes_canceladas(
+    solicitacao: GrupoSuspensaoAlimentacao,
+) -> SuspensaoAlimentacao:
+    """
+    Retorna todas as suspensões de alimentação canceladas para uma solicitação.
+    """
+    if solicitacao.status == "ESCOLA_CANCELOU":
+        return solicitacao.suspensoes_alimentacao.all()
+    return solicitacao.suspensoes_alimentacao.filter(
+        cancelado_justificativa__isnull=False
+    ).exclude(cancelado_justificativa="")

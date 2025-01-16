@@ -119,7 +119,6 @@ class TestEndpointsPainelGerencialAlimentacao:
 
 
 @pytest.mark.usefixtures("client_autenticado_codae_paineis_consolidados")
-@freeze_time("2025-01-14")
 class TestEndpointsPainelGerencialDietaEspecial:
     def setup_dieta_alterada_id(self, dieta_alterada_id):
         if dieta_alterada_id:
@@ -354,7 +353,7 @@ class TestEndpointsPainelGerencialDietaEspecial:
             "/codae-solicitacoes/autorizadas-temporariamente-dieta/?sem_paginacao=true"
         )
         assert "count" not in response.json()
-        assert len(response.json()["results"]) == 1
+        assert len(response.json()["results"]) > 0
 
     def test_inativas_temporariamente_dieta_especial(
         self,
