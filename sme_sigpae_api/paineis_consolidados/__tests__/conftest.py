@@ -2,9 +2,15 @@ import datetime
 
 import pytest
 import pytz
+from celery import uuid
 from faker import Faker
 from freezegun import freeze_time
 from model_mommy import mommy
+
+from sme_sigpae_api.paineis_consolidados.api.serializers import (
+    SolicitacoesExportXLSXSerializer,
+)
+from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 
 from ...cardapio.models import AlteracaoCardapio, SuspensaoAlimentacaoDaCEI
 from ...dados_comuns import constants
@@ -993,7 +999,7 @@ def motivo_suspensao():
 
 
 @pytest.fixture()
-def suspensoes_alimentacao(
+def suspensoes_alimentacao_cei(
     motivo_suspensao,
     escola,
     periodo_escolar_manha,
