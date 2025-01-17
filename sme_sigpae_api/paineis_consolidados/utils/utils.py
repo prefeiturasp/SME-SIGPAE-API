@@ -89,6 +89,7 @@ def get_dias_inclusao(obj, model_obj):
         "INC_ALIMENTA": "inclusoes_normais",
         "INC_ALIMENTA_CEI": "dias_motivos_da_inclusao_cei",
         "INC_ALIMENTA_CEMEI": "dias_motivos_da_inclusao_cemei",
+        "SUSP_ALIMENTACAO": "suspensoes_alimentacao",
     }
     return getattr(model_obj, objects[obj.tipo_doc]).all()
 

@@ -578,6 +578,10 @@ class GrupoSuspensaoAlimentacao(
             "id_externo": self.id_externo,
         }
 
+    @property
+    def existe_dia_cancelado(self):
+        return self.suspensoes_alimentacao.all().filter(cancelado=True).exists()
+
     def __str__(self):
         return f"{self.observacao}"
 
