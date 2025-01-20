@@ -168,3 +168,9 @@ def test_horario_combo_tipo_alimentacao(horario_tipo_alimentacao):
 
 def test_existe_dia_cancelado_sem_cancelamento(grupo_suspensao_alimentacao):
     assert grupo_suspensao_alimentacao.existe_dia_cancelado == False
+
+
+def test_existe_dia_cancelado_com_cancelamento(
+    grupo_suspensao_alimentacao_escola_cancelou,
+):
+    assert grupo_suspensao_alimentacao_escola_cancelou.existe_dia_cancelado == True
