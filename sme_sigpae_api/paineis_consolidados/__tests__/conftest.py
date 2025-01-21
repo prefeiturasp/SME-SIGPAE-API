@@ -1,16 +1,11 @@
 import datetime
+import uuid
 
 import pytest
 import pytz
-from celery import uuid
 from faker import Faker
 from freezegun import freeze_time
 from model_mommy import mommy
-
-from sme_sigpae_api.paineis_consolidados.api.serializers import (
-    SolicitacoesExportXLSXSerializer,
-)
-from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 
 from ...cardapio.models import AlteracaoCardapio, SuspensaoAlimentacaoDaCEI
 from ...dados_comuns import constants

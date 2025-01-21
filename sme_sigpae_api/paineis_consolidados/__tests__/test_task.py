@@ -1,17 +1,18 @@
 import io
 import uuid
 from datetime import datetime
-from unittest.mock import Mock
 
 import pandas as pd
 import pytest
-import xlsxwriter
-from django.db.models.query import QuerySet
+from openpyxl import load_workbook
 
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
+from sme_sigpae_api.inclusao_alimentacao.models import GrupoInclusaoAlimentacaoNormal
 from sme_sigpae_api.paineis_consolidados.api import constants
 from sme_sigpae_api.paineis_consolidados.api.serializers import (
     SolicitacoesExportXLSXSerializer,
 )
+from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 from sme_sigpae_api.paineis_consolidados.tasks import (
     build_pdf,
     build_xlsx,
@@ -20,6 +21,7 @@ from sme_sigpae_api.paineis_consolidados.tasks import (
     gera_xls_relatorio_solicitacoes_alimentacao_async,
     get_formats,
     nomes_colunas,
+    novas_linhas_inc_continua_e_kit_lanche,
 )
 from sme_sigpae_api.relatorios.utils import extrair_texto_de_pdf
 
@@ -85,96 +87,207 @@ def test_pdf_relatorio_status(users_diretor_escola):
     assert resultado.successful() is True
 
 
-# def test_build_xlsx(users_diretor_escola, solicitacoes_export_excel_serializers):
+def test_build_xlsx(
+    users_diretor_escola,
+    grupo_inclusao_alimentacao_normal_factory,
+    log_solicitacoes_usuario_factory,
+    quantidade_por_periodo_factory,
+    inclusao_alimentacao_normal_factory,
+):
+    usuario = users_diretor_escola[5]
+    instituicao = usuario.vinculo_atual.instituicao
+    grupo_inclusao_alimentacao_normal = (
+        grupo_inclusao_alimentacao_normal_factory.create(
+            escola=instituicao,
+            rastro_lote=instituicao.lote,
+            rastro_dre=instituicao.diretoria_regional,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.ESCOLA_CANCELOU,
+        )
+    )
+    inclusao_alimentacao_normal_factory.create(
+        data="2025-01-14", grupo_inclusao=grupo_inclusao_alimentacao_normal
+    )
+    quantidade_por_periodo_factory.create(
+        grupo_inclusao_normal=grupo_inclusao_alimentacao_normal
+    )
+    log_solicitacoes_usuario_factory.create(
+        uuid_original=grupo_inclusao_alimentacao_normal.uuid,
+        status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+        usuario=usuario,
+    )
+    output = io.BytesIO()
+    data = {
+        "status": "CANCELADOS",
+        "tipos_solicitacao": ["SUSP_ALIMENTACAO", "INC_ALIMENTA"],
+        "de": "01/01/2025",
+        "ate": "28/02/2025",
+    }
+    # SolicitacoesCODAE.objects.values_list('uuid', flat=True)
+    sem_uuids_repetido = [s for s in SolicitacoesCODAE.objects.all()]
+    serializer = SolicitacoesExportXLSXSerializer(
+        sem_uuids_repetido,
+        context={"instituicao": instituicao, "status": data.get("status").upper()},
+        many=True,
+    )
 
-#     usuario = users_diretor_escola[5]
-#     instituicao = usuario.vinculo_atual.instituicao
-#     uuids = ["7fa6e609-db33-48e1-94ea-6d5a0c07935c"]
-#     lotes = []
-#     tipos_solicitacao = []
-#     tipos_unidade = []
-#     unidades_educacionais = []
-#     request_data = {
-#         "status": "CANCELADOS",
-#         "tipos_solicitacao": ["SUSP_ALIMENTACAO", "INC_ALIMENTA"],
-#         "de": "01/01/2025",
-#         "ate": "28/02/2025",
-#     }
-#     serializer = SolicitacoesExportXLSXSerializer(
-#         [solicitacoes_export_excel_serializers],
-#         context={"instituicao": instituicao, "status": request_data.get("status").upper()},
-#         many=True,
-#     )
-#     output = io.BytesIO()
-#     build_xlsx(
-#         output,
-#         serializer,
-#         uuids,
-#         request_data,
-#         lotes,
-#         tipos_solicitacao,
-#         tipos_unidade,
-#         unidades_educacionais,
-#         instituicao,
-#     )
-#     pass
+    lotes = []
+    tipos_solicitacao = ["SUSP_ALIMENTACAO", "INC_ALIMENTA"]
+    tipos_unidade = []
+    unidades_educacionais = []
+    build_xlsx(
+        output,
+        serializer,
+        sem_uuids_repetido,
+        data,
+        lotes,
+        tipos_solicitacao,
+        tipos_unidade,
+        unidades_educacionais,
+        instituicao,
+    )
+    workbook = load_workbook(output)
+    sheet = workbook[f"Relatório - Canceladas"]
+    rows = list(sheet.iter_rows(values_only=True))
+
+    assert rows[0] == (
+        "Relatório de Solicitações de Alimentação Canceladas",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[1] == (
+        "Total de Solicitações Canceladas: 11 | Tipo(s) de solicitação(ões): Suspensão de Alimentação, Inclusão de Alimentação | Data inicial: 01/01/2025 | Data final: 28/02/2025 | Data de Extração do Relatório: 21/01/2025",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[3] == (
+        "N",
+        "Lote",
+        "Unidade Educacional",
+        "Tipo de Solicitação",
+        "ID da Solicitação",
+        "Data do Evento",
+        "Dia da semana",
+        "Período",
+        "Tipo de Alimentação",
+        "Tipo de Alteração",
+        "Nª de Alunos",
+        "N° total de Kits",
+        "Observações",
+        "Data de Cancelamento",
+    )
+    assert rows[4][3] == "Inclusão de Alimentação"
+    assert rows[4][5] == "14/01/2025"
+    assert rows[4][12] == "cancelado"
 
 
-def test_cria_nova_linha():
-    pass
-    # model_obj = Mock()
-    # qt_periodo = Mock()
-    # qt_periodo.dias_semana_display.return_value = "Segunda-feira"
-    # qt_periodo.periodo_escolar.nome = "2025 - Primeiro Semestre"
-    # qt_periodo.cancelado = False
-    # qt_periodo.cancelado_justificativa = "Cancelado por motivo X"
-    # qt_periodo.numero_alunos = 30
-    # qt_periodo.tipos_alimentacao = QuerySet()
+def test_cria_nova_linha(
+    users_diretor_escola,
+    grupo_inclusao_alimentacao_normal_factory,
+    log_solicitacoes_usuario_factory,
+    quantidade_por_periodo_factory,
+    inclusao_alimentacao_normal_factory,
+):
+    usuario = users_diretor_escola[5]
+    instituicao = usuario.vinculo_atual.instituicao
 
-    # observacoes = "Nenhuma observação"
+    grupo_inclusao_alimentacao_normal = (
+        grupo_inclusao_alimentacao_normal_factory.create(
+            escola=instituicao,
+            rastro_lote=instituicao.lote,
+            rastro_dre=instituicao.diretoria_regional,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.ESCOLA_CANCELOU,
+        )
+    )
+    inclusao_alimentacao_normal_factory.create(
+        data="2025-01-14", grupo_inclusao=grupo_inclusao_alimentacao_normal
+    )
+    quantidade_por_periodo_factory.create(
+        grupo_inclusao_normal=grupo_inclusao_alimentacao_normal
+    )
+    log_solicitacoes_usuario_factory.create(
+        uuid_original=grupo_inclusao_alimentacao_normal.uuid,
+        status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+        usuario=usuario,
+    )
+    queryset = [s for s in SolicitacoesCODAE.objects.all()]
+    serializer = SolicitacoesExportXLSXSerializer(
+        queryset,
+        context={"instituicao": instituicao, "status": "CANCELADOS"},
+        many=True,
+    )
+    df = pd.DataFrame(serializer.data)
+    novas_colunas = ["dia_semana", "periodo_inclusao", "tipo_alimentacao"]
+    for i, nova_coluna in enumerate(novas_colunas):
+        df.insert(constants.COL_IDX_DATA_EVENTO + i, nova_coluna, "-")
+    df.insert(constants.COL_IDX_NUMERO_DE_ALUNOS, "quantidade_alimentacoes", "-")
 
-    # # def mock_formata_data(model):
-    # #     return "20/01/2025"
+    solicitacao = queryset[0]
+    model_obj = solicitacao.get_raw_model.objects.get(uuid=solicitacao.uuid)
+    qt_periodo = model_obj.quantidades_periodo.all()[0]
+    # TODO: O ERRO ESTÁ AQUI
+    nova_linha = cria_nova_linha(df, 0, model_obj, qt_periodo, model_obj.observacoes)
 
-    # # def mock_cria_tipos_alimentacao(periodo):
-    # #     return ["Café da manhã", "Almoço"]
-
-    # # # Patching das funções auxiliares
-    # # global formata_data, cria_tipos_alimentacao
-    # # formata_data = mock_formata_data
-    # # cria_tipos_alimentacao = mock_cria_tipos_alimentacao
-
-    # mock_dataframe = pd.DataFrame(
-    #     [
-    #         {"col1": "value1", "col2": "value2"},
-    #         {"col1": "value3", "col2": "value4"},
-    #     ]
-    # )
-
-    # index = 0
-
-    # # Chamada da função
-    # nova_linha = cria_nova_linha(mock_dataframe, index, model_obj, qt_periodo, observacoes)
-
-    # # Verificações
-    # assert nova_linha["data_evento"] == "20/01/2025"
-    # assert nova_linha["dia_semana"] == "Segunda-feira"
-    # assert nova_linha["periodo_inclusao"] == "2025 - Primeiro Semestre"
-    # assert nova_linha["observacoes"] == "Nenhuma observação"
-    # assert nova_linha["tipo_alimentacao"] == ["Café da manhã", "Almoço"]
-    # assert nova_linha["numero_alunos"] == 30
+    # for index, solicitacao in enumerate(queryset):
+    #     model_obj = solicitacao.get_raw_model.objects.get(uuid=solicitacao.uuid)
+    #     nova_linha = cria_nova_linha(
+    #         df, 0, model_obj, qt_periodo, model_obj.observacoe
+    #     )
+    assert nova_linha["data_evento"] == "20/01/2025"
+    assert nova_linha["dia_semana"] == "Segunda-feira"
+    assert nova_linha["periodo_inclusao"] == "2025 - Primeiro Semestre"
+    assert nova_linha["observacoes"] == "Nenhuma observação"
+    assert nova_linha["tipo_alimentacao"] == ["Café da manhã", "Almoço"]
+    assert nova_linha["numero_alunos"] == 30
 
 
-def test_cria_nova_linha_para_alimentacao_continua():
-    pass
+def test_novas_linhas_inc_continua_e_kit_lanche(users_diretor_escola):
+    usuario = users_diretor_escola[5]
+    instituicao = usuario.vinculo_atual.instituicao
+    queryset = [s for s in SolicitacoesCODAE.objects.all()]
+    serializer = SolicitacoesExportXLSXSerializer(
+        queryset,
+        context={"instituicao": instituicao, "status": "CANCELADOS"},
+        many=True,
+    )
 
+    df = pd.DataFrame(serializer.data)
+    novas_colunas = ["dia_semana", "periodo_inclusao", "tipo_alimentacao"]
+    for i, nova_coluna in enumerate(novas_colunas):
+        df.insert(constants.COL_IDX_DATA_EVENTO + i, nova_coluna, "-")
+    df.insert(constants.COL_IDX_NUMERO_DE_ALUNOS, "quantidade_alimentacoes", "-")
+    novas_linhas, lista_uuids = novas_linhas_inc_continua_e_kit_lanche(
+        df, queryset, instituicao
+    )
 
-def test_cria_nova_linha_para_kit_lanche():
-    pass
+    assert isinstance(novas_linhas, list)
+    for linha in novas_linhas:
+        assert isinstance(linha, pd.Series)
 
-
-def test_novas_linhas_inc_continua_e_kit_lanche():
-    pass
+    assert isinstance(lista_uuids, list)
+    for lu in lista_uuids:
+        assert isinstance(lu, SolicitacoesCODAE)
 
 
 def test_get_formats():
