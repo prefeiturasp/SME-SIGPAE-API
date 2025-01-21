@@ -21,6 +21,7 @@ from ...dados_comuns.permissions import (
     UsuarioCODAEDietaEspecial,
     UsuarioCODAEGabinete,
     UsuarioCODAERelatorios,
+    UsuarioDinutreDiretoria,
     UsuarioDiretoriaRegional,
     UsuarioGticCODAE,
     UsuarioNutricionista,
@@ -708,7 +709,9 @@ class NutrimanifestacaoSolicitacoesViewSet(SolicitacoesViewSet):
         detail=False,
         methods=["GET"],
         url_path=AUTORIZADOS,
-        permission_classes=[UsuarioNutricionista | UsuarioCODAEGabinete],
+        permission_classes=[
+            UsuarioNutricionista | UsuarioCODAEGabinete | UsuarioDinutreDiretoria
+        ],
     )
     def autorizados(self, request):
         query_set = SolicitacoesNutrimanifestacao.get_autorizados()
@@ -721,7 +724,9 @@ class NutrimanifestacaoSolicitacoesViewSet(SolicitacoesViewSet):
         detail=False,
         methods=["GET"],
         url_path=NEGADOS,
-        permission_classes=[UsuarioNutricionista | UsuarioCODAEGabinete],
+        permission_classes=[
+            UsuarioNutricionista | UsuarioCODAEGabinete | UsuarioDinutreDiretoria
+        ],
     )
     def negados(self, request):
         query_set = SolicitacoesNutrimanifestacao.get_negados()
@@ -734,7 +739,9 @@ class NutrimanifestacaoSolicitacoesViewSet(SolicitacoesViewSet):
         detail=False,
         methods=["GET"],
         url_path=CANCELADOS,
-        permission_classes=[UsuarioNutricionista | UsuarioCODAEGabinete],
+        permission_classes=[
+            UsuarioNutricionista | UsuarioCODAEGabinete | UsuarioDinutreDiretoria
+        ],
     )
     def cancelados(self, request):
         query_set = SolicitacoesNutrimanifestacao.get_cancelados()
