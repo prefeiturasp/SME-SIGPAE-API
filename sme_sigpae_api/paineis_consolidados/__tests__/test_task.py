@@ -1,20 +1,31 @@
 import io
+import random
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pandas as pd
 import pytest
+from faker import Faker
+from freezegun import freeze_time
+from model_mommy import mommy
 from openpyxl import load_workbook
 
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
-from sme_sigpae_api.inclusao_alimentacao.models import GrupoInclusaoAlimentacaoNormal
+from sme_sigpae_api.inclusao_alimentacao.models import (
+    GrupoInclusaoAlimentacaoNormal,
+    InclusaoAlimentacaoContinua,
+)
 from sme_sigpae_api.paineis_consolidados.api import constants
 from sme_sigpae_api.paineis_consolidados.api.serializers import (
     SolicitacoesExportXLSXSerializer,
 )
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 from sme_sigpae_api.paineis_consolidados.tasks import (
+    aplica_fundo_amarelo_canceladas,
+    aplica_fundo_amarelo_tipo1,
+    aplica_fundo_amarelo_tipo2,
     build_pdf,
+    build_subtitulo,
     build_xlsx,
     cria_nova_linha,
     gera_pdf_relatorio_solicitacoes_alimentacao_async,
@@ -26,6 +37,7 @@ from sme_sigpae_api.paineis_consolidados.tasks import (
 from sme_sigpae_api.relatorios.utils import extrair_texto_de_pdf
 
 pytestmark = pytest.mark.django_db
+f = Faker("pt-br")
 
 
 def test_xls_relatorio_status(users_diretor_escola):
@@ -87,6 +99,7 @@ def test_pdf_relatorio_status(users_diretor_escola):
     assert resultado.successful() is True
 
 
+@freeze_time("2025-01-22")
 def test_build_xlsx(
     users_diretor_escola,
     grupo_inclusao_alimentacao_normal_factory,
@@ -166,7 +179,7 @@ def test_build_xlsx(
         None,
     )
     assert rows[1] == (
-        "Total de Solicitações Canceladas: 11 | Tipo(s) de solicitação(ões): Suspensão de Alimentação, Inclusão de Alimentação | Data inicial: 01/01/2025 | Data final: 28/02/2025 | Data de Extração do Relatório: 21/01/2025",
+        "Total de Solicitações Canceladas: 11 | Tipo(s) de solicitação(ões): Suspensão de Alimentação, Inclusão de Alimentação | Data inicial: 01/01/2025 | Data final: 28/02/2025 | Data de Extração do Relatório: 22/01/2025",
         None,
         None,
         None,
@@ -220,11 +233,19 @@ def test_cria_nova_linha(
             status=GrupoInclusaoAlimentacaoNormal.workflow_class.ESCOLA_CANCELOU,
         )
     )
+    hoje = datetime.now().date() - timedelta(days=180)
+
+    inclusao_continua = mommy.make(
+        "InclusaoAlimentacaoContinua",
+        escola=instituicao,
+        status=InclusaoAlimentacaoContinua.workflow_class.ESCOLA_CANCELOU,
+    )
     inclusao_alimentacao_normal_factory.create(
         data="2025-01-14", grupo_inclusao=grupo_inclusao_alimentacao_normal
     )
     quantidade_por_periodo_factory.create(
-        grupo_inclusao_normal=grupo_inclusao_alimentacao_normal
+        grupo_inclusao_normal=grupo_inclusao_alimentacao_normal,
+        inclusao_alimentacao_continua=inclusao_continua,
     )
     log_solicitacoes_usuario_factory.create(
         uuid_original=grupo_inclusao_alimentacao_normal.uuid,
@@ -314,8 +335,107 @@ def test_get_formats():
     workbook.close()
 
 
-def test_build_subtitulo():
-    pass
+@freeze_time("2025-01-22")
+def test_build_subtitulo_autorizadas(
+    users_diretor_escola,
+    grupo_inclusao_alimentacao_normal_factory,
+    log_solicitacoes_usuario_factory,
+    quantidade_por_periodo_factory,
+    inclusao_alimentacao_normal_factory,
+):
+    usuario = users_diretor_escola[5]
+    instituicao = usuario.vinculo_atual.instituicao
+    grupo_inclusao_alimentacao_normal = (
+        grupo_inclusao_alimentacao_normal_factory.create(
+            escola=instituicao,
+            rastro_lote=instituicao.lote,
+            rastro_dre=instituicao.diretoria_regional,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.ESCOLA_CANCELOU,
+        )
+    )
+    inclusao_alimentacao_normal_factory.create(
+        data="2025-01-14", grupo_inclusao=grupo_inclusao_alimentacao_normal
+    )
+    quantidade_por_periodo_factory.create(
+        grupo_inclusao_normal=grupo_inclusao_alimentacao_normal
+    )
+    log_solicitacoes_usuario_factory.create(
+        uuid_original=grupo_inclusao_alimentacao_normal.uuid,
+        status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+        usuario=usuario,
+    )
+    queryset = [s for s in SolicitacoesCODAE.objects.all()]
+    data = {
+        "status": "AUTORIZADAS",
+        "tipos_solicitacao": ["INC_ALIMENTA"],
+        "de": "01/01/2025",
+        "ate": "28/02/2025",
+    }
+    subtitulo_autorizadas = build_subtitulo(
+        data,
+        "Autorizadas",
+        queryset,
+        [],
+        ["INC_ALIMENTA"],
+        [],
+        [],
+    )
+    assert (
+        subtitulo_autorizadas
+        == "Total de Solicitações Autorizadas: 11 | Tipo(s) de solicitação(ões): Inclusão de Alimentação | Data inicial: 01/01/2025 | Data final: 28/02/2025 | Data de Extração do Relatório: 22/01/2025"
+    )
+
+
+@freeze_time("2025-01-22")
+def test_build_subtitulo_canceladas(
+    users_diretor_escola,
+    grupo_inclusao_alimentacao_normal_factory,
+    log_solicitacoes_usuario_factory,
+    quantidade_por_periodo_factory,
+    inclusao_alimentacao_normal_factory,
+):
+    usuario = users_diretor_escola[5]
+    instituicao = usuario.vinculo_atual.instituicao
+    grupo_inclusao_alimentacao_normal = (
+        grupo_inclusao_alimentacao_normal_factory.create(
+            escola=instituicao,
+            rastro_lote=instituicao.lote,
+            rastro_dre=instituicao.diretoria_regional,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.ESCOLA_CANCELOU,
+        )
+    )
+    inclusao_alimentacao_normal_factory.create(
+        data="2025-01-14", grupo_inclusao=grupo_inclusao_alimentacao_normal
+    )
+    quantidade_por_periodo_factory.create(
+        grupo_inclusao_normal=grupo_inclusao_alimentacao_normal
+    )
+    log_solicitacoes_usuario_factory.create(
+        uuid_original=grupo_inclusao_alimentacao_normal.uuid,
+        status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+        usuario=usuario,
+    )
+    queryset = [s for s in SolicitacoesCODAE.objects.all()]
+    data = {
+        "status": "CANCELADOS",
+        "tipos_solicitacao": ["SUSP_ALIMENTACAO", "INC_ALIMENTA"],
+        "de": "01/01/2025",
+        "ate": "28/02/2025",
+    }
+
+    subtitulo_canceladas = build_subtitulo(
+        data,
+        "Canceladas",
+        queryset,
+        [],
+        ["SUSP_ALIMENTACAO", "INC_ALIMENTA"],
+        [],
+        [],
+    )
+    assert (
+        subtitulo_canceladas
+        == "Total de Solicitações Canceladas: 11 | Tipo(s) de solicitação(ões): Suspensão de Alimentação, Inclusão de Alimentação | Data inicial: 01/01/2025 | Data final: 28/02/2025 | Data de Extração do Relatório: 22/01/2025"
+    )
 
 
 def test_nomes_colunas():
@@ -375,16 +495,316 @@ def test_nomes_colunas():
     xlwriter.close()
 
 
-def test_aplica_fundo_amarelo_canceladas():
-    pass
+def test_aplica_fundo_amarelo_canceladas(
+    users_diretor_escola,
+    grupo_inclusao_alimentacao_normal_factory,
+    log_solicitacoes_usuario_factory,
+    quantidade_por_periodo_factory,
+    inclusao_alimentacao_normal_factory,
+):
+    usuario = users_diretor_escola[5]
+    instituicao = usuario.vinculo_atual.instituicao
+    grupo_inclusao_alimentacao_normal = (
+        grupo_inclusao_alimentacao_normal_factory.create(
+            escola=instituicao,
+            rastro_lote=instituicao.lote,
+            rastro_dre=instituicao.diretoria_regional,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.ESCOLA_CANCELOU,
+        )
+    )
+    inclusao_alimentacao_normal_factory.create(
+        data="2025-01-14", grupo_inclusao=grupo_inclusao_alimentacao_normal
+    )
+    quantidade_por_periodo_factory.create(
+        grupo_inclusao_normal=grupo_inclusao_alimentacao_normal
+    )
+    log_solicitacoes_usuario_factory.create(
+        uuid_original=grupo_inclusao_alimentacao_normal.uuid,
+        status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+        usuario=usuario,
+    )
+    data = {
+        "status": "CANCELADOS",
+        "tipos_solicitacao": ["SUSP_ALIMENTACAO", "INC_ALIMENTA"],
+        "de": "01/01/2025",
+        "ate": "28/02/2025",
+    }
+    # SolicitacoesCODAE.objects.values_list('uuid', flat=True)
+    sem_uuids_repetido = [s for s in SolicitacoesCODAE.objects.all()]
+    serializer = SolicitacoesExportXLSXSerializer(
+        sem_uuids_repetido,
+        context={"instituicao": instituicao, "status": data.get("status").upper()},
+        many=True,
+    )
+    LINHAS = [
+        constants.ROW_IDX_TITULO_ARQUIVO,
+        constants.ROW_IDX_FILTROS_PT1,
+        constants.ROW_IDX_FILTROS_PT2,
+        constants.ROW_IDX_HEADER_CAMPOS,
+    ]
+    COLUNAS = [
+        constants.COL_IDX_N,
+        constants.COL_IDX_LOTE,
+        constants.COL_IDX_UNIDADE_EDUCACIONAL,
+        constants.COL_IDX_TIPO_DE_SOLICITACAO,
+        constants.COL_IDX_ID_SOLICITACAO,
+        constants.COL_IDX_DATA_EVENTO,
+        constants.COL_IDX_DIA_DA_SEMANA,
+        constants.COL_IDX_PERIODO,
+        constants.COL_IDX_TIPO_DE_ALIMENTACAO,
+        constants.COL_IDX_TIPO_DE_ALTERACAO,
+        constants.COL_IDX_NUMERO_DE_ALUNOS,
+        constants.COL_IDX_NUMERO_TOTAL_KITS,
+        constants.COL_IDX_OBSERVACOES,
+        constants.COL_IDX_DATA_LOG,
+    ]
+
+    output_file = "/tmp/test.xlsx"
+    nome_aba = "Relatório"
+    xlwriter = pd.ExcelWriter(output_file, engine="xlsxwriter")
+    df = pd.DataFrame(serializer.data)
+    workbook = xlwriter.book
+    worksheet = workbook.add_worksheet(nome_aba)
+    xlwriter.sheets[nome_aba] = worksheet
+    worksheet.set_row(LINHAS[0], 50)
+    worksheet.set_row(LINHAS[1], 30)
+    columns_width = {
+        "A:A": 5,
+        "B:B": 8,
+        "C:C": 40,
+        "D:D": 30,
+        "E:E": 15,
+        "F:G": 30,
+        "H:H": 10,
+        "I:J": 30,
+        "K:K": 13,
+        "L:L": 15,
+        "M:M": 30,
+        "N:N": 20,
+    }
+    for col, width in columns_width.items():
+        worksheet.set_column(col, width)
+    df.to_excel(xlwriter, nome_aba, index=False)
+    aplica_fundo_amarelo_canceladas(
+        df, worksheet, workbook, sem_uuids_repetido, LINHAS, COLUNAS
+    )
+    xlwriter.close()
+    workbook_openpyxl = load_workbook(output_file)
+    sheet = workbook_openpyxl[nome_aba]
+    for row in sheet.iter_rows():
+        for cell in row:
+            if cell.coordinate == "F5":
+                assert cell.fill.start_color.rgb == "FFFFFF00"
 
 
-def test_aplica_fundo_amarelo_tipo1():
-    pass
+def test_aplica_fundo_amarelo_tipo1(
+    users_diretor_escola,
+    grupo_inclusao_alimentacao_normal_factory,
+    log_solicitacoes_usuario_factory,
+    quantidade_por_periodo_factory,
+    inclusao_alimentacao_normal_factory,
+):
+    usuario = users_diretor_escola[5]
+    instituicao = usuario.vinculo_atual.instituicao
+    grupo_inclusao_alimentacao_normal = (
+        grupo_inclusao_alimentacao_normal_factory.create(
+            escola=instituicao,
+            rastro_lote=instituicao.lote,
+            rastro_dre=instituicao.diretoria_regional,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.ESCOLA_CANCELOU,
+        )
+    )
+    inclusao_alimentacao_normal_factory.create(
+        data="2025-01-14", grupo_inclusao=grupo_inclusao_alimentacao_normal
+    )
+    quantidade_por_periodo_factory.create(
+        grupo_inclusao_normal=grupo_inclusao_alimentacao_normal
+    )
+    log_solicitacoes_usuario_factory.create(
+        uuid_original=grupo_inclusao_alimentacao_normal.uuid,
+        status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+        usuario=usuario,
+    )
+    data = {
+        "status": "CANCELADOS",
+        "tipos_solicitacao": ["SUSP_ALIMENTACAO", "INC_ALIMENTA"],
+        "de": "01/01/2025",
+        "ate": "28/02/2025",
+    }
+    # SolicitacoesCODAE.objects.values_list('uuid', flat=True)
+    sem_uuids_repetido = [s for s in SolicitacoesCODAE.objects.all()]
+    serializer = SolicitacoesExportXLSXSerializer(
+        sem_uuids_repetido,
+        context={"instituicao": instituicao, "status": data.get("status").upper()},
+        many=True,
+    )
+    LINHAS = [
+        constants.ROW_IDX_TITULO_ARQUIVO,
+        constants.ROW_IDX_FILTROS_PT1,
+        constants.ROW_IDX_FILTROS_PT2,
+        constants.ROW_IDX_HEADER_CAMPOS,
+    ]
+    COLUNAS = [
+        constants.COL_IDX_N,
+        constants.COL_IDX_LOTE,
+        constants.COL_IDX_UNIDADE_EDUCACIONAL,
+        constants.COL_IDX_TIPO_DE_SOLICITACAO,
+        constants.COL_IDX_ID_SOLICITACAO,
+        constants.COL_IDX_DATA_EVENTO,
+        constants.COL_IDX_DIA_DA_SEMANA,
+        constants.COL_IDX_PERIODO,
+        constants.COL_IDX_TIPO_DE_ALIMENTACAO,
+        constants.COL_IDX_TIPO_DE_ALTERACAO,
+        constants.COL_IDX_NUMERO_DE_ALUNOS,
+        constants.COL_IDX_NUMERO_TOTAL_KITS,
+        constants.COL_IDX_OBSERVACOES,
+        constants.COL_IDX_DATA_LOG,
+    ]
+
+    output_file = "/tmp/test.xlsx"
+    nome_aba = "Relatório"
+    xlwriter = pd.ExcelWriter(output_file, engine="xlsxwriter")
+    df = pd.DataFrame(serializer.data)
+    workbook = xlwriter.book
+    worksheet = workbook.add_worksheet(nome_aba)
+    xlwriter.sheets[nome_aba] = worksheet
+    worksheet.set_row(LINHAS[0], 50)
+    worksheet.set_row(LINHAS[1], 30)
+    columns_width = {
+        "A:A": 5,
+        "B:B": 8,
+        "C:C": 40,
+        "D:D": 30,
+        "E:E": 15,
+        "F:G": 30,
+        "H:H": 10,
+        "I:J": 30,
+        "K:K": 13,
+        "L:L": 15,
+        "M:M": 30,
+        "N:N": 20,
+    }
+    for col, width in columns_width.items():
+        worksheet.set_column(col, width)
+    df.to_excel(xlwriter, nome_aba, index=False)
+
+    solicitacao = sem_uuids_repetido[0]
+    model_obj = solicitacao.get_raw_model.objects.get(uuid=solicitacao.uuid)
+    aplica_fundo_amarelo_tipo1(
+        df, worksheet, workbook, sem_uuids_repetido[0], model_obj, LINHAS, COLUNAS, 0
+    )
+    xlwriter.close()
+    workbook_openpyxl = load_workbook(output_file)
+    sheet = workbook_openpyxl[nome_aba]
+    for row in sheet.iter_rows():
+        for cell in row:
+            if cell.coordinate == "F5":
+                assert cell.fill.start_color.rgb == "FFFFFF00"
 
 
-def test_aplica_fundo_amarelo_tipo2():
-    pass
+def test_aplica_fundo_amarelo_tipo2(
+    users_diretor_escola,
+    grupo_inclusao_alimentacao_normal_factory,
+    log_solicitacoes_usuario_factory,
+    quantidade_por_periodo_factory,
+    inclusao_alimentacao_normal_factory,
+):
+    usuario = users_diretor_escola[5]
+    instituicao = usuario.vinculo_atual.instituicao
+    grupo_inclusao_alimentacao_normal = (
+        grupo_inclusao_alimentacao_normal_factory.create(
+            escola=instituicao,
+            rastro_lote=instituicao.lote,
+            rastro_dre=instituicao.diretoria_regional,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.ESCOLA_CANCELOU,
+        )
+    )
+    inclusao_alimentacao_normal_factory.create(
+        data="2025-01-14", grupo_inclusao=grupo_inclusao_alimentacao_normal
+    )
+    quantidade_por_periodo_factory.create(
+        grupo_inclusao_normal=grupo_inclusao_alimentacao_normal
+    )
+    log_solicitacoes_usuario_factory.create(
+        uuid_original=grupo_inclusao_alimentacao_normal.uuid,
+        status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+        usuario=usuario,
+    )
+    data = {
+        "status": "CANCELADOS",
+        "tipos_solicitacao": ["SUSP_ALIMENTACAO", "INC_ALIMENTA"],
+        "de": "01/01/2025",
+        "ate": "28/02/2025",
+    }
+    # SolicitacoesCODAE.objects.values_list('uuid', flat=True)
+    sem_uuids_repetido = [s for s in SolicitacoesCODAE.objects.all()]
+    serializer = SolicitacoesExportXLSXSerializer(
+        sem_uuids_repetido,
+        context={"instituicao": instituicao, "status": data.get("status").upper()},
+        many=True,
+    )
+    LINHAS = [
+        constants.ROW_IDX_TITULO_ARQUIVO,
+        constants.ROW_IDX_FILTROS_PT1,
+        constants.ROW_IDX_FILTROS_PT2,
+        constants.ROW_IDX_HEADER_CAMPOS,
+    ]
+    COLUNAS = [
+        constants.COL_IDX_N,
+        constants.COL_IDX_LOTE,
+        constants.COL_IDX_UNIDADE_EDUCACIONAL,
+        constants.COL_IDX_TIPO_DE_SOLICITACAO,
+        constants.COL_IDX_ID_SOLICITACAO,
+        constants.COL_IDX_DATA_EVENTO,
+        constants.COL_IDX_DIA_DA_SEMANA,
+        constants.COL_IDX_PERIODO,
+        constants.COL_IDX_TIPO_DE_ALIMENTACAO,
+        constants.COL_IDX_TIPO_DE_ALTERACAO,
+        constants.COL_IDX_NUMERO_DE_ALUNOS,
+        constants.COL_IDX_NUMERO_TOTAL_KITS,
+        constants.COL_IDX_OBSERVACOES,
+        constants.COL_IDX_DATA_LOG,
+    ]
+
+    output_file = "/tmp/test.xlsx"
+    nome_aba = "Relatório"
+    xlwriter = pd.ExcelWriter(output_file, engine="xlsxwriter")
+    df = pd.DataFrame(serializer.data)
+    workbook = xlwriter.book
+    worksheet = workbook.add_worksheet(nome_aba)
+    xlwriter.sheets[nome_aba] = worksheet
+    worksheet.set_row(LINHAS[0], 50)
+    worksheet.set_row(LINHAS[1], 30)
+    columns_width = {
+        "A:A": 5,
+        "B:B": 8,
+        "C:C": 40,
+        "D:D": 30,
+        "E:E": 15,
+        "F:G": 30,
+        "H:H": 10,
+        "I:J": 30,
+        "K:K": 13,
+        "L:L": 15,
+        "M:M": 30,
+        "N:N": 20,
+    }
+    for col, width in columns_width.items():
+        worksheet.set_column(col, width)
+    df.to_excel(xlwriter, nome_aba, index=False)
+
+    solicitacao = sem_uuids_repetido[0]
+    model_obj = solicitacao.get_raw_model.objects.get(uuid=solicitacao.uuid)
+    idx = aplica_fundo_amarelo_tipo2(
+        df, worksheet, workbook, sem_uuids_repetido[0], model_obj, LINHAS, COLUNAS, 0, 0
+    )
+    assert idx == 0
+    xlwriter.close()
+    workbook_openpyxl = load_workbook(output_file)
+    sheet = workbook_openpyxl[nome_aba]
+    for row in sheet.iter_rows():
+        for cell in row:
+            assert cell.fill.start_color.rgb == "00000000"
 
 
 def test_build_pdf():
