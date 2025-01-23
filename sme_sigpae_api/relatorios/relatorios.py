@@ -1027,12 +1027,14 @@ def relatorio_suspensao_de_alimentacao(request, solicitacao):
     # tem é cada suspensão do relacionamento
     suspensoes = solicitacao.suspensoes_alimentacao.all()
     quantidades_por_periodo = solicitacao.quantidades_por_periodo.all()
+    existe_cancelamento = suspensoes.filter(cancelado=True).exists()
     html_string = render_to_string(
         "solicitacao_suspensao_de_alimentacao.html",
         {
             "escola": escola,
             "solicitacao": solicitacao,
             "suspensoes": suspensoes,
+            "existe_cancelamento": existe_cancelamento,
             "quantidades_por_periodo": quantidades_por_periodo,
             "fluxo": constants.FLUXO_SUSPENSAO_ALIMENTACAO,
             "width": get_width(constants.FLUXO_SUSPENSAO_ALIMENTACAO, solicitacao.logs),
