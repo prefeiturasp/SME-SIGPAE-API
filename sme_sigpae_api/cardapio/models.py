@@ -576,7 +576,12 @@ class GrupoSuspensaoAlimentacao(
             "datas": self.datas,
             "observacao": self.observacao,
             "id_externo": self.id_externo,
+            "existe_dia_cancelado": self.existe_dia_cancelado,
         }
+
+    @property
+    def existe_dia_cancelado(self):
+        return self.suspensoes_alimentacao.all().filter(cancelado=True).exists()
 
     def __str__(self):
         return f"{self.observacao}"

@@ -15,11 +15,31 @@
           {% else %}
           <div class="col-3"></div>
           {% endif %}
-          <div class="col-3"><b>{{ dia_motivo.motivo.nome }}</b></div>
-          <div class="col-3"><b>{{ dia_motivo.data|formatar_data_solicitacoes_alimentacao }}</b></div>
+          <div class="col-3 {% if dia_motivo.cancelado or solicitacao.status == 'ESCOLA_CANCELOU' %} dia-cancelado{% endif %}">
+            <b>{{ dia_motivo.motivo }}</b>
+          </div>
+          <div class="col-3 {% if dia_motivo.cancelado or solicitacao.status == 'ESCOLA_CANCELOU' %} dia-cancelado{% endif %}">
+            <b>{{ dia_motivo.data|formatar_data_solicitacoes_alimentacao }}</b>
+          </div>
           {% if forloop.first %}<div class="col-3"><b>{{ solicitacao.data_log }}</b></div>{% endif %}
         </div>
       {% endfor %}
+      {% if solicitacao.existe_dia_cancelado %}
+        <div class="row mt-4 mb-2 mx-4">
+          <b class="mb-2">Histórico de cancelamento:</b>
+          {% for suspensao in solicitacao.dias_motivos.all %}
+            {% if suspensao.cancelado or solicitacao.status == 'ESCOLA_CANCELOU' %}
+              {% if suspensao.cancelado_justificativa %}
+                <div class="mb-1">
+                  <p class="cancelado_justificativa my-0">
+                    {{ suspensao.data|formatar_data_solicitacoes_alimentacao }} - justificativa: {{ suspensao.cancelado_justificativa }}
+                  </p>
+                </div>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
       </td>
   </tr>
   <tr>
