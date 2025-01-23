@@ -150,6 +150,7 @@ class SolicitacoesExportXLSXSerializer(serializers.ModelSerializer):
             "INC_ALIMENTA",
             "ALT_CARDAPIO",
             "ALT_CARDAPIO_CEMEI",
+            "SUSP_ALIMENTACAO",
         ]:
             dias = get_dias_inclusao(obj, model_obj)
             if model_obj.status == "ESCOLA_CANCELOU":

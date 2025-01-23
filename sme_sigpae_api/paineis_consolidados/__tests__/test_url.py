@@ -500,7 +500,7 @@ def test_inclusoes_cei_autorizadas(
 
 
 def test_suspensoes_autorizadas(
-    client_autenticado_escola_paineis_consolidados, escola, suspensoes_alimentacao
+    client_autenticado_escola_paineis_consolidados, escola, suspensoes_alimentacao_cei
 ):
     response_manha_cei = client_autenticado_escola_paineis_consolidados.get(
         f"/escola-solicitacoes/{SUSPENSOES_AUTORIZADAS}/"
@@ -867,4 +867,42 @@ def test_filtrar_solicitacoes_ga_graficos_empresa_terceirizada_codae(
     assert (
         len(response.json()[4]["labels"])
         == Terceirizada.objects.filter(tipo_empresa=Terceirizada.TERCEIRIZADA).count()
+    )
+
+
+def test_exportar_xlsx(client_autenticado_vinculo_escola):
+    data = {
+        "status": "CANCELADOS",
+        "tipos_solicitacao": ["SUSP_ALIMENTACAO", "INC_ALIMENTA"],
+        "de": "01/01/2025",
+        "ate": "28/02/2025",
+    }
+    response = client_autenticado_vinculo_escola.post(
+        "/escola-solicitacoes/exportar-xlsx/",
+        content_type="application/json",
+        data=data,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert (
+        response.json()["detail"]
+        == "Solicitação de geração de arquivo recebida com sucesso."
+    )
+
+
+def test_exportar_pdf(client_autenticado_vinculo_escola):
+    data = {
+        "status": "CANCELADOS",
+        "tipos_solicitacao": ["SUSP_ALIMENTACAO", "INC_ALIMENTA"],
+        "de": "01/01/2025",
+        "ate": "28/02/2025",
+    }
+    response = client_autenticado_vinculo_escola.post(
+        "/escola-solicitacoes/exportar-pdf/",
+        content_type="application/json",
+        data=data,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert (
+        response.json()["detail"]
+        == "Solicitação de geração de arquivo recebida com sucesso."
     )
