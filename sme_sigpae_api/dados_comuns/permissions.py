@@ -386,6 +386,7 @@ class PermissaoParaRecuperarObjeto(BasePermission):
                 COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
                 ADMINISTRADOR_MEDICAO,
                 ADMINISTRADOR_CODAE_GABINETE,
+                DINUTRE_DIRETORIA,
             ]
         elif isinstance(usuario.vinculo_atual.instituicao, Terceirizada):
             try:  # solicitacoes normais
@@ -421,6 +422,7 @@ class PermissaoParaRecuperarSolicitacaoUnificada(BasePermission):
                 COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
                 ADMINISTRADOR_MEDICAO,
                 ADMINISTRADOR_CODAE_GABINETE,
+                DINUTRE_DIRETORIA,
             ]
         elif isinstance(usuario.vinculo_atual.instituicao, Terceirizada):
             return usuario.vinculo_atual.instituicao in [
@@ -456,6 +458,7 @@ class PermissaoParaRecuperarDietaEspecial(BasePermission):
                 COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
                 ADMINISTRADOR_MEDICAO,
                 ADMINISTRADOR_CODAE_GABINETE,
+                DINUTRE_DIRETORIA,
             ]
         elif isinstance(usuario.vinculo_atual.instituicao, Terceirizada):
             return usuario.vinculo_atual.instituicao in [
@@ -828,7 +831,7 @@ class PermissaoParaAssinarCronogramaUsuarioCronograma(BasePermission):
         )
 
 
-class PermissaoParaAssinarCronogramaUsuarioDinutre(BasePermission):
+class UsuarioDinutreDiretoria(BasePermission):
     def has_permission(self, request, view):
         usuario = request.user
         return (

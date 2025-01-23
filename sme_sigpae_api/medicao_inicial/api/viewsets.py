@@ -28,6 +28,7 @@ from ...dados_comuns.permissions import (
     UsuarioCODAEGabinete,
     UsuarioCODAEGestaoAlimentacao,
     UsuarioCODAENutriManifestacao,
+    UsuarioDinutreDiretoria,
     UsuarioDiretorEscolaTercTotal,
     UsuarioDiretoriaRegional,
     UsuarioEscolaTercTotal,
@@ -218,6 +219,7 @@ class SolicitacaoMedicaoInicialViewSet(
         | UsuarioCODAEGestaoAlimentacao
         | UsuarioCODAENutriManifestacao
         | UsuarioCODAEGabinete
+        | UsuarioDinutreDiretoria
     ]
     queryset = SolicitacaoMedicaoInicial.objects.all()
 
@@ -429,6 +431,7 @@ class SolicitacaoMedicaoInicialViewSet(
             | UsuarioCODAEGestaoAlimentacao
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGabinete
+            | UsuarioDinutreDiretoria
         ],
     )
     def dashboard(self, request):
@@ -455,6 +458,7 @@ class SolicitacaoMedicaoInicialViewSet(
             | UsuarioCODAEGestaoAlimentacao
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGabinete
+            | UsuarioDinutreDiretoria
         ],
     )
     def meses_anos(self, request):
@@ -666,6 +670,7 @@ class SolicitacaoMedicaoInicialViewSet(
             | UsuarioCODAEGestaoAlimentacao
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGabinete
+            | UsuarioDinutreDiretoria
         ],
     )
     def periodos_grupos_medicao(self, request):
@@ -1406,6 +1411,7 @@ class MedicaoViewSet(
             | UsuarioCODAEGestaoAlimentacao
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGabinete
+            | UsuarioDinutreDiretoria
         ],
     )
     def feriados_no_mes_com_nome(self, request, uuid=None):
@@ -1582,6 +1588,7 @@ class PermissaoLancamentoEspecialViewSet(ModelViewSet):
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGestaoAlimentacao
             | UsuarioCODAEGabinete
+            | UsuarioDinutreDiretoria
         ],
     )
     def permissoes_lancamentos_especiais_mes_ano_por_periodo(self, request):
@@ -1726,6 +1733,7 @@ class RelatoriosViewSet(ViewSet):
         | UsuarioCODAEGestaoAlimentacao
         | UsuarioCODAENutriManifestacao
         | UsuarioCODAEGabinete
+        | UsuarioDinutreDiretoria
     ]
 
     @action(detail=False, url_name="relatorio-adesao", url_path="relatorio-adesao")

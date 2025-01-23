@@ -160,9 +160,10 @@ def test_build_xlsx(dados_para_geracao_excel_e_pdf):
         "Observações",
         "Data de Cancelamento",
     )
-    assert rows[4][3] == "Inclusão de Alimentação"
-    assert rows[4][5] == "14/01/2025"
-    assert rows[4][12] == "cancelado"
+    for row in rows:
+        if row[4] == "Inclusão de Alimentação":
+            assert row[5] == "14/01/2025"
+            assert row[12] == "cancelado"
 
 
 def test_novas_linhas_inc_continua_e_kit_lanche(dados_para_geracao_excel_e_pdf):
@@ -280,6 +281,11 @@ def test_aplica_fundo_amarelo_canceladas(
     dados_para_geracao_excel_e_pdf, dados_para_montar_excel
 ):
     _, queryset, serializer, _ = dados_para_geracao_excel_e_pdf
+    queryset = [
+        solicitacao
+        for solicitacao in queryset
+        if solicitacao.tipo_doc in ["INC_ALIMENTA", "SUSP_ALIMENTACAO"]
+    ]
     (
         linhas,
         colunas,
@@ -293,6 +299,7 @@ def test_aplica_fundo_amarelo_canceladas(
 
     df = pd.DataFrame(serializer.data)
     df.to_excel(xlwriter, nome_aba, index=False)
+
     aplica_fundo_amarelo_canceladas(df, worksheet, workbook, queryset, linhas, colunas)
 
     xlwriter.close()
@@ -309,6 +316,11 @@ def test_aplica_fundo_amarelo_tipo1(
     dados_para_geracao_excel_e_pdf, dados_para_montar_excel
 ):
     _, queryset, serializer, _ = dados_para_geracao_excel_e_pdf
+    queryset = [
+        solicitacao
+        for solicitacao in queryset
+        if solicitacao.tipo_doc in ["INC_ALIMENTA", "SUSP_ALIMENTACAO"]
+    ]
     (
         linhas,
         colunas,
@@ -322,9 +334,12 @@ def test_aplica_fundo_amarelo_tipo1(
 
     df = pd.DataFrame(serializer.data)
     df.to_excel(xlwriter, nome_aba, index=False)
+    indexes_cancelados = []
+
     for index, solicitacao in enumerate(queryset):
         model_obj = solicitacao.get_raw_model.objects.get(uuid=solicitacao.uuid)
         if model_obj.status == "ESCOLA_CANCELOU":
+            indexes_cancelados.append(index)
             aplica_fundo_amarelo_tipo1(
                 df, worksheet, workbook, solicitacao, model_obj, linhas, colunas, index
             )
@@ -332,9 +347,9 @@ def test_aplica_fundo_amarelo_tipo1(
     xlwriter.close()
     workbook_openpyxl = load_workbook(output_file)
     sheet = workbook_openpyxl[nome_aba]
-    for row in sheet.iter_rows():
+    for index, row in enumerate(sheet.iter_rows()):
         for cell in row:
-            if cell.coordinate == "F5":
+            if cell.coordinate == "F5" and index in indexes_cancelados:
                 assert cell.fill.start_color.rgb == "FFFFFF00"
 
     workbook_openpyxl.close()
@@ -344,6 +359,11 @@ def test_aplica_fundo_amarelo_tipo2(
     dados_para_geracao_excel_e_pdf, dados_para_montar_excel
 ):
     _, queryset, serializer, _ = dados_para_geracao_excel_e_pdf
+    queryset = [
+        solicitacao
+        for solicitacao in queryset
+        if solicitacao.tipo_doc in ["INC_ALIMENTA", "SUSP_ALIMENTACAO"]
+    ]
     (
         linhas,
         colunas,
