@@ -335,9 +335,9 @@ def test_aplica_fundo_amarelo_tipo1(
     xlwriter.close()
     workbook_openpyxl = load_workbook(output_file)
     sheet = workbook_openpyxl[nome_aba]
-    for row in sheet.iter_rows():
+    for index, row in enumerate(sheet.iter_rows()):
         for cell in row:
-            if cell.coordinate == "F5" and row in indexes_cancelados:
+            if cell.coordinate == "F5" and index in indexes_cancelados:
                 assert cell.fill.start_color.rgb == "FFFFFF00"
 
     workbook_openpyxl.close()
