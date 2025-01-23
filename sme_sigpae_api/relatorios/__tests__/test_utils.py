@@ -83,3 +83,30 @@ def test_extrair_texto_de_pdf():
     assert "Teste de PDF" in texto
     assert "Conteúdo do PDF gerado" in texto
     assert texto.count("PDF") == 2
+
+
+def test_html_to_pdf_file_async_true():
+    html_string = "<h1>Teste de PDF</h1><p>Conteúdo do PDF gerado</p>"
+    nome_pdf = "teste.pdf"
+    pdf = html_to_pdf_file(html_string, nome_pdf, is_async=True)
+    assert isinstance(pdf, bytes)
+
+    texto = extrair_texto_de_pdf(pdf)
+    assert "Teste de PDF" in texto
+    assert "Conteúdo do PDF gerado" in texto
+    assert texto.count("PDF") == 2
+
+
+def test_html_to_pdf_file_async_false():
+    html_string = "<h1>Teste de PDF</h1><p>Conteúdo do PDF gerado</p>"
+    nome_pdf = "teste.pdf"
+    pdf = html_to_pdf_file(html_string, nome_pdf, is_async=False)
+
+    assert pdf.status_code == 200
+    assert pdf.headers["Content-Type"] == "application/pdf"
+    assert pdf.headers["Content-Disposition"] == f'filename="{nome_pdf}"'
+
+    texto = extrair_texto_de_pdf(pdf.content)
+    assert "Teste de PDF" in texto
+    assert "Conteúdo do PDF gerado" in texto
+    assert texto.count("PDF") == 2

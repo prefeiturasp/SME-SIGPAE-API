@@ -208,6 +208,7 @@ def aplica_fundo_amarelo_tipo1(
         "INC_ALIMENTA",
         "ALT_CARDAPIO",
         "ALT_CARDAPIO_CEMEI",
+        "SUSP_ALIMENTACAO",
     ]:
         if model_obj.existe_dia_cancelado or model_obj.status == "ESCOLA_CANCELOU":
             worksheet.write(

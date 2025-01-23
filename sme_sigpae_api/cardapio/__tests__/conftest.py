@@ -594,6 +594,7 @@ def grupo_suspensao_alimentacao_escola_cancelou(grupo_suspensao_alimentacao):
         suspensao_alimentacao
     ) in grupo_suspensao_alimentacao.suspensoes_alimentacao.all():
         suspensao_alimentacao.cancelado = True
+        suspensao_alimentacao.save()
 
     grupo_suspensao_alimentacao.status = (
         InformativoPartindoDaEscolaWorkflow.ESCOLA_CANCELOU
