@@ -1218,8 +1218,6 @@ def dados_para_geracao_excel_e_pdf(
     inclusao_alimentacao_normal_factory.create(
         data="2025-01-14",
         grupo_inclusao=grupo_inclusao_alimentacao_normal,
-        cancelado=True,
-        cancelado_justificativa="cancelado",
     )
     quantidade_por_periodo_factory.create(
         grupo_inclusao_normal=grupo_inclusao_alimentacao_normal

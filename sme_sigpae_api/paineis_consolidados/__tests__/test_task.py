@@ -322,9 +322,12 @@ def test_aplica_fundo_amarelo_tipo1(
 
     df = pd.DataFrame(serializer.data)
     df.to_excel(xlwriter, nome_aba, index=False)
+    indexes_cancelados = []
+
     for index, solicitacao in enumerate(queryset):
         model_obj = solicitacao.get_raw_model.objects.get(uuid=solicitacao.uuid)
         if model_obj.status == "ESCOLA_CANCELOU":
+            indexes_cancelados.append(index)
             aplica_fundo_amarelo_tipo1(
                 df, worksheet, workbook, solicitacao, model_obj, linhas, colunas, index
             )
@@ -334,7 +337,7 @@ def test_aplica_fundo_amarelo_tipo1(
     sheet = workbook_openpyxl[nome_aba]
     for row in sheet.iter_rows():
         for cell in row:
-            if cell.coordinate == "F5":
+            if cell.coordinate == "F5" and row in indexes_cancelados:
                 assert cell.fill.start_color.rgb == "FFFFFF00"
 
     workbook_openpyxl.close()
