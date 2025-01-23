@@ -1297,11 +1297,10 @@ def dados_para_montar_excel():
     for col, width in columns_width.items():
         worksheet.set_column(col, width)
     single_cell_format = workbook.add_format({"bg_color": "#a9d18e"})
-
-    # return linhas, colunas, output_file, xlwriter, workbook, worksheet, single_cell_format, nome_aba
     try:
         yield linhas, colunas, output_file, xlwriter, workbook, worksheet, single_cell_format, nome_aba
     finally:
+        workbook.close()
         xlwriter.close()
         if os.path.exists(output_file):
             os.remove(output_file)

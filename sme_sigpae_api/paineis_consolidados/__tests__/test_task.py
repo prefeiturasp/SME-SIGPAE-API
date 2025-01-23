@@ -18,7 +18,6 @@ from sme_sigpae_api.paineis_consolidados.tasks import (
     build_pdf,
     build_subtitulo,
     build_xlsx,
-    cria_nova_linha,
     gera_pdf_relatorio_solicitacoes_alimentacao_async,
     gera_xls_relatorio_solicitacoes_alimentacao_async,
     get_formats,
@@ -303,6 +302,7 @@ def test_aplica_fundo_amarelo_canceladas(
         for cell in row:
             if cell.coordinate == "F5":
                 assert cell.fill.start_color.rgb == "FFFFFF00"
+    workbook_openpyxl.close()
 
 
 def test_aplica_fundo_amarelo_tipo1(
@@ -337,6 +337,8 @@ def test_aplica_fundo_amarelo_tipo1(
             if cell.coordinate == "F5":
                 assert cell.fill.start_color.rgb == "FFFFFF00"
 
+    workbook_openpyxl.close()
+
 
 def test_aplica_fundo_amarelo_tipo2(
     dados_para_geracao_excel_e_pdf, dados_para_montar_excel
@@ -369,6 +371,7 @@ def test_aplica_fundo_amarelo_tipo2(
     for row in sheet.iter_rows():
         for cell in row:
             assert cell.fill.start_color.rgb == "00000000"
+    workbook_openpyxl.close()
 
 
 def test_build_pdf():
