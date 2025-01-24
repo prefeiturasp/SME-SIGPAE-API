@@ -4,7 +4,7 @@
 {% block conteudo %}
   <div>Caros,</div>
   <br/>
-  <div>Informo que a reclamação feita para o produto {{ reclamacao.homologacao_produto.produto.nome }} foi analisada.</div>
+  <div>Informo que a reclamação feita para o produto {{ reclamacao.homologacao_produto.produto.nome }} - {{ reclamacao.homologacao_produto.produto.marca.nome}} foi analisada.</div>
   <br/>
   <p><b>Reclamação:</b></p>
   <div>{{ reclamacao.reclamacao | safe }}</div>
