@@ -1,5 +1,8 @@
 import pytest
 
+from sme_sigpae_api.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
+from sme_sigpae_api.produto.models import AnaliseSensorial
+
 pytestmark = pytest.mark.django_db
 
 
@@ -69,3 +72,41 @@ def test_produto_edital(produto_edital):
     assert serializer.data is not None
     assert serializer.data["uuid"] == str(produto_edital.uuid)
     assert serializer.data["nome"] == produto_edital.nome
+
+
+def test_reclamaco_produto_serializer(reclamacao_respondido_terceirizada):
+    from sme_sigpae_api.produto.api.serializers.serializers import (
+        ReclamacaoDeProdutoSerializer,
+    )
+
+    serializer = ReclamacaoDeProdutoSerializer(reclamacao_respondido_terceirizada)
+
+    assert serializer.data is not None
+    assert serializer.data["uuid"] == str(reclamacao_respondido_terceirizada.uuid)
+    assert (
+        serializer.data["reclamante_registro_funcional"]
+        == reclamacao_respondido_terceirizada.reclamante_registro_funcional
+    )
+    assert (
+        serializer.data["reclamante_cargo"]
+        == reclamacao_respondido_terceirizada.reclamante_cargo
+    )
+    assert (
+        serializer.data["reclamante_nome"]
+        == reclamacao_respondido_terceirizada.reclamante_nome
+    )
+    assert (
+        serializer.data["status"] == ReclamacaoProdutoWorkflow.RESPONDIDO_TERCEIRIZADA
+    )
+
+
+def test_analise_sensorial_serializer(analise_sensorial):
+    from sme_sigpae_api.produto.api.serializers.serializers import (
+        AnaliseSensorialSerializer,
+    )
+
+    serializer = AnaliseSensorialSerializer(analise_sensorial)
+
+    assert serializer.data is not None
+    assert serializer.data["uuid"] == str(analise_sensorial.uuid)
+    assert serializer.data["status"] == AnaliseSensorial.STATUS_AGUARDANDO_RESPOSTA

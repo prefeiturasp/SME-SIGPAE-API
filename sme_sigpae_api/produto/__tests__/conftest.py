@@ -1,10 +1,16 @@
 import datetime
+from unittest.mock import Mock
 
 import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
 from model_mommy import mommy
+
+from sme_sigpae_api.produto.api.serializers.serializers import (
+    ReclamacaoDeProdutoSerializer,
+)
+from sme_sigpae_api.produto.api.viewsets import ReclamacaoProdutoViewSet
 
 from ...dados_comuns import constants
 from ...dados_comuns.constants import DJANGO_ADMIN_PASSWORD
@@ -15,7 +21,7 @@ from ...dados_comuns.fluxo_status import (
 from ...dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
 from ...escola.models import DiretoriaRegional, TipoGestao
 from ...terceirizada.models import Contrato
-from ..models import ProdutoEdital
+from ..models import AnaliseSensorial, ProdutoEdital
 
 fake = Faker("pt-Br")
 Faker.seed(420)
@@ -984,3 +990,66 @@ def homologacao_produto_suspenso(homologacao_produto):
     homologacao_produto.status = HomologacaoProdutoWorkflow.CODAE_SUSPENDEU
     homologacao_produto.save()
     return homologacao_produto
+
+
+@pytest.fixture
+def analise_sensorial(homologacao_produto_gpcodae_questionou_escola):
+    analise = mommy.make(
+        "AnaliseSensorial",
+        status=AnaliseSensorial.STATUS_AGUARDANDO_RESPOSTA,
+        homologacao_produto=homologacao_produto_gpcodae_questionou_escola,
+    )
+    return analise
+
+
+@pytest.fixture
+def reclamacao_respondido_terceirizada(
+    reclamacao, homologacao_produto_gpcodae_questionou_escola, analise_sensorial
+):
+    reclamacao.homologacao_produto = homologacao_produto_gpcodae_questionou_escola
+    reclamacao.status = ReclamacaoProdutoWorkflow.RESPONDIDO_TERCEIRIZADA
+    reclamacao.save()
+    return reclamacao
+
+
+@pytest.fixture
+def user_codae_produto(django_user_model, codae):
+    email = "test2@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    perfil_admin_gestao_produto = mommy.make(
+        "Perfil",
+        nome=constants.ADMINISTRADOR_GESTAO_PRODUTO,
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf2",
+    )
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_admin_gestao_produto,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    return user
+
+
+@pytest.fixture
+def mock_view_de_reclamacao_produto(
+    user_codae_produto, reclamacao_respondido_terceirizada
+):
+    data = {"anexos": [], "justificativa": "Produto vencido."}
+    mock_request = Mock()
+    mock_request.data = data
+    mock_request.user = user_codae_produto
+
+    viewset = ReclamacaoProdutoViewSet()
+    viewset.request = mock_request
+    viewset.kwargs = {"uuid": "uuid"}
+    viewset.get_object = Mock(return_value=reclamacao_respondido_terceirizada)
+    viewset.get_serializer = ReclamacaoDeProdutoSerializer
+
+    return mock_request, viewset
