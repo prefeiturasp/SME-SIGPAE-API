@@ -4,9 +4,15 @@ import os
 import pytest
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.template.loader import render_to_string
 from faker import Faker
 from model_mommy import mommy
 
+from sme_sigpae_api.dados_comuns import constants
+from sme_sigpae_api.dados_comuns.fluxo_status import (
+    HomologacaoProdutoWorkflow,
+    ReclamacaoProdutoWorkflow,
+)
 from sme_sigpae_api.dieta_especial.models import (
     ClassificacaoDieta,
     LogQuantidadeDietasAutorizadas,
@@ -15,7 +21,12 @@ from sme_sigpae_api.dieta_especial.models import (
 
 from ...escola import models
 from ..constants import COORDENADOR_LOGISTICA, DJANGO_ADMIN_PASSWORD
-from ..models import CentralDeDownload, Notificacao, TemplateMensagem
+from ..models import (
+    CentralDeDownload,
+    LogSolicitacoesUsuario,
+    Notificacao,
+    TemplateMensagem,
+)
 
 fake = Faker("pt_BR")
 Faker.seed(420)
@@ -645,3 +656,78 @@ def arquivo_temporario():
             os.remove(file_path)
         except:
             pass
+
+
+@pytest.fixture
+def user_codae_produto(django_user_model):
+    email = "test2@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    perfil_admin_gestao_produto = mommy.make(
+        "Perfil",
+        nome=constants.ADMINISTRADOR_GESTAO_PRODUTO,
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf2",
+    )
+    hoje = datetime.date.today()
+    codae = mommy.make("Codae")
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_admin_gestao_produto,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    return user
+
+
+@pytest.fixture
+def reclamacao_produto(django_user_model):
+    email = "test@test1.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    usuario = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888881"
+    )
+    return mommy.make(
+        "ReclamacaoDeProduto",
+        criado_por=usuario,
+        status=ReclamacaoProdutoWorkflow.RESPONDIDO_TERCEIRIZADA,
+    )
+
+
+@pytest.fixture
+def reclamacao_produto_codae_recusou(reclamacao_produto, user_codae_produto):
+    kwargs = {
+        "user": user_codae_produto,
+        "anexos": [],
+        "justificativa": "Produto não atende os requisitos.",
+    }
+    reclamacao_produto.status = ReclamacaoProdutoWorkflow.CODAE_RECUSOU
+    reclamacao_produto.save()
+    return kwargs, reclamacao_produto
+
+
+@pytest.fixture
+def dados_log_recusa(reclamacao_produto_codae_recusou):
+    kwargs, reclamacao_produto = reclamacao_produto_codae_recusou
+    log_recusa = reclamacao_produto.salvar_log_transicao(
+        status_evento=LogSolicitacoesUsuario.CODAE_RECUSOU_RECLAMACAO, **kwargs
+    )
+    return kwargs, reclamacao_produto, log_recusa
+
+
+@pytest.fixture
+def dados_html(dados_log_recusa):
+    _, reclamacao_produto, log_recusa = dados_log_recusa
+    html = render_to_string(
+        template_name="produto_codae_recusou_reclamacao.html",
+        context={
+            "titulo": "Reclamação Analisada",
+            "reclamacao": reclamacao_produto,
+            "log_recusa": log_recusa,
+        },
+    )
+    return html
