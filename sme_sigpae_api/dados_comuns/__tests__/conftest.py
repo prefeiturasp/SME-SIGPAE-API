@@ -9,10 +9,7 @@ from faker import Faker
 from model_mommy import mommy
 
 from sme_sigpae_api.dados_comuns import constants
-from sme_sigpae_api.dados_comuns.fluxo_status import (
-    HomologacaoProdutoWorkflow,
-    ReclamacaoProdutoWorkflow,
-)
+from sme_sigpae_api.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from sme_sigpae_api.dieta_especial.models import (
     ClassificacaoDieta,
     LogQuantidadeDietasAutorizadas,
