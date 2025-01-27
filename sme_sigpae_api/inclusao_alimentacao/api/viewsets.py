@@ -705,7 +705,7 @@ class InclusaoAlimentacaoCEMEIViewSet(
             self.permission_classes = (UsuarioEscolaTercTotal,)
         return super(InclusaoAlimentacaoCEMEIViewSet, self).get_permissions()
 
-    def get_queryset(self):  # noqa C901
+    def get_queryset(self):
         queryset = InclusaoDeAlimentacaoCEMEI.objects.all()
         user = self.request.user
         if user.tipo_usuario == "escola":
