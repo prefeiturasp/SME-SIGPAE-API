@@ -2,7 +2,7 @@ from datetime import date, datetime, timedelta
 
 import pytest
 
-from sme_sigpae_api.produto.models import UnidadeMedida
+from sme_sigpae_api.produto.models import AnaliseSensorial, UnidadeMedida
 
 pytestmark = pytest.mark.django_db
 
@@ -53,3 +53,13 @@ def test_modelo_embalagem(embalagem_produto):
 def test_produto_logistica(produto_logistica):
     assert produto_logistica.nome == "PRODUTO TESTE"
     assert produto_logistica.tipo_produto == "LOGISTICA"
+
+
+def test_reclamacao_produto(reclamacao):
+    assert reclamacao.reclamante_registro_funcional == "23456789"
+    assert reclamacao.reclamante_cargo == "Cargo"
+    assert reclamacao.reclamante_nome == "Anderson"
+
+
+def test_analise_sensorial(analise_sensorial):
+    assert analise_sensorial.status == AnaliseSensorial.STATUS_AGUARDANDO_RESPOSTA

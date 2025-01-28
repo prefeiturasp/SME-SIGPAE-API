@@ -2,6 +2,7 @@ import uuid
 from datetime import date
 
 import environ
+import pytest
 from freezegun import freeze_time
 
 from sme_sigpae_api.dieta_especial.models import (
@@ -23,6 +24,7 @@ from ..utils import (
     atualiza_central_download,
     atualiza_central_download_com_erro,
     eh_email_dev,
+    envia_email_unico,
     gera_objeto_na_central_download,
     ordena_dias_semana_comeca_domingo,
     queryset_por_data,
@@ -213,3 +215,26 @@ def test_gera_objeto_na_central_download(
     assert obj_central_download.visto == False
     assert obj_central_download.usuario == usuario
     assert isinstance(obj_central_download.uuid, uuid.UUID)
+
+
+def test_envia_email_unico(reclamacao_produto_codae_recusou, dados_html):
+    _, reclamacao_produto = reclamacao_produto_codae_recusou
+
+    assunto = "[SIGPAE] Reclamação Analisada"
+    email = reclamacao_produto.criado_por.email
+    corpo = ""
+    html = dados_html
+    email = envia_email_unico(assunto, corpo, email, None, None, html)
+    assert email == 1
+
+
+def test_envia_email_unico_exception(reclamacao_produto_codae_recusou, dados_html):
+    _, reclamacao_produto = reclamacao_produto_codae_recusou
+
+    assunto = "[SIGPAE] Reclamação Analisada"
+    email = reclamacao_produto
+    corpo = ""
+    html = dados_html
+    with pytest.raises(ValueError):
+        email = envia_email_unico(assunto, corpo, email, None, None, html)
+    assert email == reclamacao_produto
