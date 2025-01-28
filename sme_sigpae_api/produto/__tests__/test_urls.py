@@ -6,7 +6,10 @@ from model_mommy import mommy
 from rest_framework import status
 
 from sme_sigpae_api.dados_comuns import constants
-from sme_sigpae_api.dados_comuns.fluxo_status import HomologacaoProdutoWorkflow
+from sme_sigpae_api.dados_comuns.fluxo_status import (
+    HomologacaoProdutoWorkflow,
+    ReclamacaoProdutoWorkflow,
+)
 from sme_sigpae_api.produto.models import (
     DataHoraVinculoProdutoEdital,
     HomologacaoProduto,
@@ -1822,3 +1825,23 @@ def test_url_informacoes_nutricionais_ordenadas(
         informacoes_nutricionais,
     ):
         assert recebido["nome"] == cadastrado.nome
+
+
+def test_url_endpoint_reclamacao_produto_codae_recusa(
+    client_autenticado_vinculo_codae_produto,
+    reclamacao_respondido_terceirizada,
+):
+    assert (
+        reclamacao_respondido_terceirizada.status
+        == ReclamacaoProdutoWorkflow.RESPONDIDO_TERCEIRIZADA
+    )
+    response = client_autenticado_vinculo_codae_produto.patch(
+        f"/reclamacoes-produtos/{reclamacao_respondido_terceirizada.uuid}/{constants.CODAE_RECUSA}/",
+        content_type="application/json",
+        data=json.dumps({"justificativa": "Produto vencido."}),
+    )
+    assert response.status_code == status.HTTP_200_OK
+    dados = response.json()
+    assert dados["status"] == ReclamacaoProdutoWorkflow.CODAE_RECUSOU
+    assert dados["status_titulo"] == "CODAE recusou"
+    assert len(dados["anexos"]) == 0
