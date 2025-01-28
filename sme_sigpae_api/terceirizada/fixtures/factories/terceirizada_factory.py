@@ -24,7 +24,7 @@ class EmpresaFactory(DjangoModelFactory):
 
     nome_fantasia = Sequence(lambda n: fake.unique.company())
     razao_social = LazyAttribute(
-        lambda obj: f"{obj.nome_fantasia} {fake.unique.company_suffix()}"
+        lambda obj: f"{obj.nome_fantasia} {fake.company_suffix()}"
     )
     cnpj = Sequence(
         lambda n: fake.unique.cnpj().replace(".", "").replace("/", "").replace("-", "")
