@@ -4,7 +4,7 @@
 {% block conteudo %}
   <div>Caros,</div>
   <br/>
-  <div>Sua reclamação no produto {{ reclamacao.homologacao_produto.produto.nome }} foi respondida pela CODAE.</div>
+  <div>Sua reclamação no produto {{ reclamacao.homologacao_produto.produto.nome }} - {{ reclamacao.homologacao_produto.produto.marca.nome}} foi respondida pela CODAE.</div>
   <br/>
   <p><b>Reclamação:</b></p>
   <div>{{ reclamacao.reclamacao | safe }}</div>
