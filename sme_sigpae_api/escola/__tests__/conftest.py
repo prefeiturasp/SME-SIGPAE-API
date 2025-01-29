@@ -7,6 +7,11 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
 from model_mommy import mommy
 
+from sme_sigpae_api.escola.utils_analise_dietas_ativas import (
+    dict_codigo_aluno_por_codigo_escola,
+    dict_codigos_escolas,
+)
+
 from ...eol_servico.utils import dt_nascimento_from_api
 from ...escola.api.serializers import (
     Aluno,
@@ -641,3 +646,29 @@ def dados_planilha_alunos_matriculados_cei_cemei(
     }
 
     return dados
+
+
+@pytest.fixture
+def protocolos():
+    mommy.make("ProtocoloDeDietaEspecial", nome="Protocolo1")
+    mommy.make("ProtocoloDeDietaEspecial", nome="Protocolo2")
+    mommy.make("ProtocoloDeDietaEspecial", nome="Protocolo3")
+
+
+@pytest.fixture
+def variaveis_globais():
+    global dict_codigos_escolas, dict_codigo_aluno_por_codigo_escola
+
+    dict_codigos_escolas.clear()
+    dict_codigo_aluno_por_codigo_escola.clear()
+
+    dict_codigos_escolas.update(
+        {
+            "1001": "123456789",
+            "1002": "987654321",
+        }
+    )
+
+    yield dict_codigos_escolas, dict_codigo_aluno_por_codigo_escola
+    dict_codigos_escolas.clear()
+    dict_codigo_aluno_por_codigo_escola.clear()
