@@ -668,7 +668,15 @@ def variaveis_globais():
             "1002": "987654321",
         }
     )
+    dict_codigo_aluno_por_codigo_escola.update(
+        {
+            "20001": "Escola A",
+            "20002": "Escola B",
+            "20003": "Escola C",
+        }
+    )
 
     yield dict_codigos_escolas, dict_codigo_aluno_por_codigo_escola
+
     dict_codigos_escolas.clear()
     dict_codigo_aluno_por_codigo_escola.clear()
