@@ -24,22 +24,6 @@
           {% if forloop.first %}<div class="col-3"><b>{{ solicitacao.data_log }}</b></div>{% endif %}
         </div>
       {% endfor %}
-      {% if solicitacao.existe_dia_cancelado %}
-        <div class="row mt-4 mb-2 mx-4">
-          <b class="mb-2">Histórico de cancelamento:</b>
-          {% for suspensao in solicitacao.dias_motivos.all %}
-            {% if suspensao.cancelado or solicitacao.status == 'ESCOLA_CANCELOU' %}
-              {% if suspensao.cancelado_justificativa %}
-                <div class="mb-1">
-                  <p class="cancelado_justificativa my-0">
-                    {{ suspensao.data|formatar_data_solicitacoes_alimentacao }} - justificativa: {{ suspensao.cancelado_justificativa }}
-                  </p>
-                </div>
-              {% endif %}
-            {% endif %}
-          {% endfor %}
-        </div>
-      {% endif %}
       </td>
   </tr>
   <tr>
@@ -56,6 +40,26 @@
           <div class="col-3"><b>{{ quantidade_periodo.numero_alunos }}</b></div>
         </div>
       {% endfor %}
+    </td>
+  </tr>
+  <tr>
+    <td colspan="6" style="border-top: none">
+      {% if solicitacao.existe_dia_cancelado %}
+        <div class="row mt-4 mb-2 mx-4">
+          <b class="mb-2">Histórico de cancelamento:</b>
+          {% for suspensao in solicitacao.dias_motivos.all %}
+            {% if suspensao.cancelado or solicitacao.status == 'ESCOLA_CANCELOU' %}
+              {% if suspensao.cancelado_justificativa %}
+                <div class="mb-1">
+                  <p class="cancelado_justificativa my-0">
+                    {{ suspensao.data|formatar_data_solicitacoes_alimentacao }} - justificativa: {{ suspensao.cancelado_justificativa }}
+                  </p>
+                </div>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
     </td>
   </tr>
 {% endblock %}

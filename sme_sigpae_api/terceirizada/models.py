@@ -610,9 +610,9 @@ class Contrato(ExportModelOperationsMixin("contato"), TemChaveExterna):
     @property
     def pregao_chamada_publica(self):
         # Verificar com essa função irá se comportar com os novos valores de modalidade
-        if self.modalidade.nome == "Pregão Eletrônico":
+        if self.modalidade and self.modalidade.nome == "Pregão Eletrônico":
             return self.numero_pregao
-        elif self.modalidade.nome == "Chamada Pública":
+        elif self.modalidade and self.modalidade.nome == "Chamada Pública":
             return self.numero_chamada_publica
         else:
             return self.numero_chamada_publica
