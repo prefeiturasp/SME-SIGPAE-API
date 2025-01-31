@@ -1,10 +1,16 @@
 import datetime
 import json
+import uuid
 
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
 from model_mommy import mommy
+
+from sme_sigpae_api.escola.utils_analise_dietas_ativas import (
+    dict_codigo_aluno_por_codigo_escola,
+    dict_codigos_escolas,
+)
 
 from ...eol_servico.utils import dt_nascimento_from_api
 from ...escola.api.serializers import (
@@ -582,3 +588,95 @@ def dia_suspensao_atividades(tipo_unidade_escolar):
         data=datetime.date(2022, 8, 8),
         tipo_unidade=tipo_unidade_escolar,
     )
+
+
+@pytest.fixture
+def dados_planilha_alunos_matriculados(alunos_matriculados_periodo_escola_regular):
+    faixas_etarias = [{"nome": "04 anos a 06 anos", "uuid": uuid.uuid4()}]
+    queryset = [
+        {
+            "dre": alunos_matriculados_periodo_escola_regular.escola.diretoria_regional.nome,
+            "lote": alunos_matriculados_periodo_escola_regular.escola.lote.nome
+            if alunos_matriculados_periodo_escola_regular.escola.lote
+            else " - ",
+            "tipo_unidade": alunos_matriculados_periodo_escola_regular.escola.tipo_unidade.iniciais,
+            "escola": alunos_matriculados_periodo_escola_regular.escola.nome,
+            "periodo_escolar": alunos_matriculados_periodo_escola_regular.periodo_escolar.nome,
+            "tipo_turma": alunos_matriculados_periodo_escola_regular.tipo_turma,
+            "eh_cei": alunos_matriculados_periodo_escola_regular.escola.eh_cei,
+            "eh_cemei": alunos_matriculados_periodo_escola_regular.escola.eh_cemei,
+            "matriculados": alunos_matriculados_periodo_escola_regular.quantidade_alunos,
+            "alunos_por_faixa_etaria": alunos_matriculados_periodo_escola_regular.escola.matriculados_por_periodo_e_faixa_etaria(),
+        }
+    ]
+    dados = {
+        "faixas_etarias": faixas_etarias,
+        "queryset": queryset,
+        "usuario": "Faker usuario",
+    }
+
+    return dados
+
+
+@pytest.fixture
+def dados_planilha_alunos_matriculados_cei_cemei(
+    alunos_matriculados_periodo_escola_regular,
+):
+    faixas_etarias = [{"nome": "04 anos a 06 anos", "uuid": uuid.uuid4()}]
+    queryset = [
+        {
+            "dre": alunos_matriculados_periodo_escola_regular.escola.diretoria_regional.nome,
+            "lote": alunos_matriculados_periodo_escola_regular.escola.lote.nome
+            if alunos_matriculados_periodo_escola_regular.escola.lote
+            else " - ",
+            "tipo_unidade": alunos_matriculados_periodo_escola_regular.escola.tipo_unidade.iniciais,
+            "escola": alunos_matriculados_periodo_escola_regular.escola.nome,
+            "periodo_escolar": alunos_matriculados_periodo_escola_regular.periodo_escolar.nome,
+            "tipo_turma": alunos_matriculados_periodo_escola_regular.tipo_turma,
+            "eh_cei": True,
+            "eh_cemei": alunos_matriculados_periodo_escola_regular.escola.eh_cemei,
+            "matriculados": alunos_matriculados_periodo_escola_regular.quantidade_alunos,
+            "alunos_por_faixa_etaria": alunos_matriculados_periodo_escola_regular.escola.matriculados_por_periodo_e_faixa_etaria(),
+        }
+    ]
+    dados = {
+        "faixas_etarias": faixas_etarias,
+        "queryset": queryset,
+        "usuario": "Faker usuario",
+    }
+
+    return dados
+
+
+@pytest.fixture
+def protocolos():
+    mommy.make("ProtocoloDeDietaEspecial", nome="Protocolo1")
+    mommy.make("ProtocoloDeDietaEspecial", nome="Protocolo2")
+    mommy.make("ProtocoloDeDietaEspecial", nome="Protocolo3")
+
+
+@pytest.fixture
+def variaveis_globais():
+    global dict_codigos_escolas, dict_codigo_aluno_por_codigo_escola
+
+    dict_codigos_escolas.clear()
+    dict_codigo_aluno_por_codigo_escola.clear()
+
+    dict_codigos_escolas.update(
+        {
+            "1001": "123456789",
+            "1002": "987654321",
+        }
+    )
+    dict_codigo_aluno_por_codigo_escola.update(
+        {
+            "20001": "Escola A",
+            "20002": "Escola B",
+            "20003": "Escola C",
+        }
+    )
+
+    yield dict_codigos_escolas, dict_codigo_aluno_por_codigo_escola
+
+    dict_codigos_escolas.clear()
+    dict_codigo_aluno_por_codigo_escola.clear()
