@@ -9,7 +9,6 @@ from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import (
     InformativoPartindoDaEscolaWorkflow,
     PedidoAPartirDaEscolaWorkflow,
-    SolicitacaoRemessaWorkFlow,
 )
 from ...dados_comuns.models import TemplateMensagem
 from ..api.serializers.serializers import (
@@ -1631,3 +1630,47 @@ def client_autenticado_vinculo_dre_escola_cemei(
 
     client.login(username=email, password=password)
     return client
+
+
+@pytest.fixture
+def vinculos_alimentacao():
+    mommy.make(
+        "TipoUnidadeEscolar", iniciais="CEI DIRET", tem_somente_integral_e_parcial=False
+    )
+    mommy.make(
+        "TipoUnidadeEscolar", iniciais="EMEF", tem_somente_integral_e_parcial=False
+    )
+    mommy.make(
+        "TipoUnidadeEscolar",
+        iniciais="EMEF P FOM",
+        tem_somente_integral_e_parcial=False,
+    )
+
+    tipo_unidade = mommy.make(
+        "TipoUnidadeEscolar", iniciais="CEMEI", tem_somente_integral_e_parcial=True
+    )
+    escola = mommy.make("Escola", tipo_unidade=tipo_unidade)
+    periodo_escolar = mommy.make(
+        "PeriodoEscolar",
+        nome="INTEGRAL",
+    )
+    escola_periodo_escolar = mommy.make(
+        "EscolaPeriodoEscolar",
+        periodo_escolar=periodo_escolar,
+        escola=escola,
+        quantidade_alunos=20,
+    )
+
+    return tipo_unidade, escola, periodo_escolar, escola_periodo_escolar
+
+
+@pytest.fixture
+def ativa_vinculo(vinculos_alimentacao):
+    tipo_unidade, escola, periodo_escolar, escola_periodo_escolar = vinculos_alimentacao
+    mommy.make(
+        "VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
+        tipo_unidade_escolar=tipo_unidade,
+        periodo_escolar=periodo_escolar,
+        ativo=False,
+    )
+    return tipo_unidade, escola_periodo_escolar
