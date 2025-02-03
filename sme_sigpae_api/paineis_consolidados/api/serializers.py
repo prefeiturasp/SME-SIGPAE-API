@@ -144,20 +144,28 @@ class SolicitacoesExportXLSXSerializer(serializers.ModelSerializer):
 
     def get_observacoes(self, obj):
         model_obj = obj.get_raw_model.objects.get(uuid=obj.uuid)
+
         if obj.tipo_doc in [
             "INC_ALIMENTA_CEMEI",
             "INC_ALIMENTA_CEI",
             "INC_ALIMENTA",
             "ALT_CARDAPIO",
             "ALT_CARDAPIO_CEMEI",
+            "SUSP_ALIMENTACAO",
         ]:
             dias = get_dias_inclusao(obj, model_obj)
+            if obj.tipo_doc == "SUSP_ALIMENTACAO":
+                dias = dias.order_by("data")
             if model_obj.status == "ESCOLA_CANCELOU":
                 return ("cancelado, " * len(dias))[:-2]
             if model_obj.existe_dia_cancelado:
                 return ", ".join(
                     ["cancelado" if dia.cancelado else "autorizado" for dia in dias]
                 )
+
+        return self._processar_observacoes(model_obj)
+
+    def _processar_observacoes(self, model_obj):
         if hasattr(model_obj, "observacao"):
             return (
                 remove_tags_html_from_string(model_obj.observacao)

@@ -1,10 +1,19 @@
 import datetime
+import os
+import uuid
 
+import pandas as pd
 import pytest
 import pytz
 from faker import Faker
 from freezegun import freeze_time
 from model_mommy import mommy
+
+from sme_sigpae_api.paineis_consolidados.api import constants as consts_pc
+from sme_sigpae_api.paineis_consolidados.api.serializers import (
+    SolicitacoesExportXLSXSerializer,
+)
+from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 
 from ...cardapio.models import AlteracaoCardapio, SuspensaoAlimentacaoDaCEI
 from ...dados_comuns import constants
@@ -13,6 +22,7 @@ from ...dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
 from ...dieta_especial.models import SolicitacaoDietaEspecial
 from ...inclusao_alimentacao.models import (
     DiasMotivosInclusaoDeAlimentacaoCEI,
+    GrupoInclusaoAlimentacaoNormal,
     InclusaoAlimentacaoContinua,
     InclusaoAlimentacaoDaCEI,
     QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEI,
@@ -717,6 +727,32 @@ def client_autenticado_dre_paineis_consolidados(
 
 
 @pytest.fixture
+def client_autenticado_codae_paineis_consolidados(client, django_user_model):
+    email = "test@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    perfil_admin_gestao_alimentacao = mommy.make(
+        "Perfil",
+        nome=constants.ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+        ativo=True,
+    )
+    codae = mommy.make("Codae")
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_admin_gestao_alimentacao,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client, user
+
+
+@pytest.fixture
 def motivo_inclusao_normal():
     return mommy.make("MotivoInclusaoNormal", nome=fake.name())
 
@@ -967,7 +1003,7 @@ def motivo_suspensao():
 
 
 @pytest.fixture()
-def suspensoes_alimentacao(
+def suspensoes_alimentacao_cei(
     motivo_suspensao,
     escola,
     periodo_escolar_manha,
@@ -1157,3 +1193,115 @@ def vinculo_periodo_alimentacao(escola, periodo_escolar_manha):
     tipo_alimentacao_refeicao = mommy.make("TipoAlimentacao", nome="Refeição")
     vinculo_alimentacao.tipos_alimentacao.add(tipo_alimentacao_refeicao)
     vinculo_alimentacao.save()
+
+
+@pytest.fixture
+def dados_para_geracao_excel_e_pdf(
+    users_diretor_escola,
+    grupo_inclusao_alimentacao_normal_factory,
+    inclusao_alimentacao_normal_factory,
+    quantidade_por_periodo_factory,
+    log_solicitacoes_usuario_factory,
+):
+    _, _, _, _, _, usuario = users_diretor_escola
+    instituicao = usuario.vinculo_atual.instituicao
+
+    # Alimentacao Normal
+    grupo_inclusao_alimentacao_normal = (
+        grupo_inclusao_alimentacao_normal_factory.create(
+            escola=instituicao,
+            rastro_lote=instituicao.lote,
+            rastro_dre=instituicao.diretoria_regional,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.ESCOLA_CANCELOU,
+        )
+    )
+    inclusao_alimentacao_normal_factory.create(
+        data="2025-01-14",
+        grupo_inclusao=grupo_inclusao_alimentacao_normal,
+    )
+    quantidade_por_periodo_factory.create(
+        grupo_inclusao_normal=grupo_inclusao_alimentacao_normal
+    )
+    log_solicitacoes_usuario_factory.create(
+        uuid_original=grupo_inclusao_alimentacao_normal.uuid,
+        status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+        usuario=usuario,
+    )
+
+    data = {
+        "status": "CANCELADOS",
+        "tipos_solicitacao": ["SUSP_ALIMENTACAO", "INC_ALIMENTA"],
+        "de": "01/01/2025",
+        "ate": "28/02/2025",
+    }
+    queryset = [s for s in SolicitacoesCODAE.objects.all()]
+    serializer = SolicitacoesExportXLSXSerializer(
+        queryset,
+        context={
+            "instituicao": dados_para_geracao_excel_e_pdf,
+            "status": data.get("status").upper(),
+        },
+        many=True,
+    )
+
+    return instituicao, queryset, serializer, data
+
+
+@pytest.fixture
+def dados_para_montar_excel():
+    linhas = [
+        consts_pc.ROW_IDX_TITULO_ARQUIVO,
+        consts_pc.ROW_IDX_FILTROS_PT1,
+        consts_pc.ROW_IDX_FILTROS_PT2,
+        consts_pc.ROW_IDX_HEADER_CAMPOS,
+    ]
+    colunas = [
+        consts_pc.COL_IDX_N,
+        consts_pc.COL_IDX_LOTE,
+        consts_pc.COL_IDX_UNIDADE_EDUCACIONAL,
+        consts_pc.COL_IDX_TIPO_DE_SOLICITACAO,
+        consts_pc.COL_IDX_ID_SOLICITACAO,
+        consts_pc.COL_IDX_DATA_EVENTO,
+        consts_pc.COL_IDX_DIA_DA_SEMANA,
+        consts_pc.COL_IDX_PERIODO,
+        consts_pc.COL_IDX_TIPO_DE_ALIMENTACAO,
+        consts_pc.COL_IDX_TIPO_DE_ALTERACAO,
+        consts_pc.COL_IDX_NUMERO_DE_ALUNOS,
+        consts_pc.COL_IDX_NUMERO_TOTAL_KITS,
+        consts_pc.COL_IDX_OBSERVACOES,
+        consts_pc.COL_IDX_DATA_LOG,
+    ]
+    output_file = f"/tmp/{uuid.uuid4()}.xlsx"
+    nome_aba = "Relatório"
+
+    xlwriter = pd.ExcelWriter(output_file, engine="xlsxwriter")
+    workbook = xlwriter.book
+    worksheet = workbook.add_worksheet(nome_aba)
+    xlwriter.sheets["Relatório"] = worksheet
+
+    worksheet.set_row(linhas[0], 50)
+    worksheet.set_row(linhas[1], 30)
+    columns_width = {
+        "A:A": 5,
+        "B:B": 8,
+        "C:C": 40,
+        "D:D": 30,
+        "E:E": 15,
+        "F:G": 30,
+        "H:H": 10,
+        "I:J": 30,
+        "K:K": 13,
+        "L:L": 15,
+        "M:M": 30,
+        "N:N": 20,
+    }
+    for col, width in columns_width.items():
+        worksheet.set_column(col, width)
+    single_cell_format = workbook.add_format({"bg_color": "#a9d18e"})
+    try:
+        yield linhas, colunas, output_file, xlwriter, workbook, worksheet, single_cell_format, nome_aba
+    finally:
+        workbook.close()
+        xlwriter.close()
+        if os.path.exists(output_file):
+            os.remove(output_file)

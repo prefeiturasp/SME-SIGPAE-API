@@ -527,7 +527,7 @@ def template_mensagem_suspensao_alimentacao():
 
 
 @pytest.fixture
-def grupo_suspensao_alimentacao(escola, template_mensagem_suspensao_alimentacao):
+def grupo_suspensao_alimentacao(escola):
     grupo_suspensao = mommy.make(
         GrupoSuspensaoAlimentacao,
         observacao="lorem ipsum",
@@ -536,8 +536,21 @@ def grupo_suspensao_alimentacao(escola, template_mensagem_suspensao_alimentacao)
     )
     mommy.make(
         SuspensaoAlimentacao,
-        data=datetime.date(2022, 8, 22),
+        data=datetime.date(2022, 1, 29),
         grupo_suspensao=grupo_suspensao,
+        cancelado=False,
+    )
+    mommy.make(
+        SuspensaoAlimentacao,
+        data=datetime.date(2022, 1, 30),
+        grupo_suspensao=grupo_suspensao,
+        cancelado=False,
+    )
+    mommy.make(
+        SuspensaoAlimentacao,
+        data=datetime.date(2022, 1, 31),
+        grupo_suspensao=grupo_suspensao,
+        cancelado=False,
     )
     return grupo_suspensao
 
@@ -576,6 +589,12 @@ def grupo_suspensao_alimentacao_informado(grupo_suspensao_alimentacao):
 
 @pytest.fixture
 def grupo_suspensao_alimentacao_escola_cancelou(grupo_suspensao_alimentacao):
+    for (
+        suspensao_alimentacao
+    ) in grupo_suspensao_alimentacao.suspensoes_alimentacao.all():
+        suspensao_alimentacao.cancelado = True
+        suspensao_alimentacao.save()
+
     grupo_suspensao_alimentacao.status = (
         InformativoPartindoDaEscolaWorkflow.ESCOLA_CANCELOU
     )
@@ -1611,3 +1630,47 @@ def client_autenticado_vinculo_dre_escola_cemei(
 
     client.login(username=email, password=password)
     return client
+
+
+@pytest.fixture
+def vinculos_alimentacao():
+    mommy.make(
+        "TipoUnidadeEscolar", iniciais="CEI DIRET", tem_somente_integral_e_parcial=False
+    )
+    mommy.make(
+        "TipoUnidadeEscolar", iniciais="EMEF", tem_somente_integral_e_parcial=False
+    )
+    mommy.make(
+        "TipoUnidadeEscolar",
+        iniciais="EMEF P FOM",
+        tem_somente_integral_e_parcial=False,
+    )
+
+    tipo_unidade = mommy.make(
+        "TipoUnidadeEscolar", iniciais="CEMEI", tem_somente_integral_e_parcial=True
+    )
+    escola = mommy.make("Escola", tipo_unidade=tipo_unidade)
+    periodo_escolar = mommy.make(
+        "PeriodoEscolar",
+        nome="INTEGRAL",
+    )
+    escola_periodo_escolar = mommy.make(
+        "EscolaPeriodoEscolar",
+        periodo_escolar=periodo_escolar,
+        escola=escola,
+        quantidade_alunos=20,
+    )
+
+    return tipo_unidade, escola, periodo_escolar, escola_periodo_escolar
+
+
+@pytest.fixture
+def ativa_vinculo(vinculos_alimentacao):
+    tipo_unidade, escola, periodo_escolar, escola_periodo_escolar = vinculos_alimentacao
+    mommy.make(
+        "VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
+        tipo_unidade_escolar=tipo_unidade,
+        periodo_escolar=periodo_escolar,
+        ativo=False,
+    )
+    return tipo_unidade, escola_periodo_escolar

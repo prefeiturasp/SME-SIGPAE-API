@@ -1,9 +1,9 @@
 import datetime
 
 import pytest
+from django.utils import timezone
 from faker import Faker
 from model_mommy import mommy
-from django.utils import timezone
 
 from sme_sigpae_api.dados_comuns.constants import (
     DILOG_CRONOGRAMA,
@@ -101,6 +101,7 @@ def etapa(cronograma):
         parte="Parte 1",
     )
 
+
 @pytest.fixture
 def etapa_com_quantidade_e_data(cronograma):
     return mommy.make(
@@ -108,9 +109,10 @@ def etapa_com_quantidade_e_data(cronograma):
         cronograma=cronograma,
         etapa="Etapa 1",
         parte="Parte 1",
-        data_programada = timezone.now().date(),
+        data_programada=timezone.now().date(),
         quantidade=5.0,
     )
+
 
 @pytest.fixture
 def programacao(cronograma):
@@ -765,9 +767,9 @@ def payload_ficha_tecnica_rascunho(
         "componentes_produto": "",
         "ingredientes_alergenicos": "",
         "lactose_detalhe": "",
-        "porcao": None,
+        "porcao": "",
         "unidade_medida_porcao": "",
-        "valor_unidade_caseira": None,
+        "valor_unidade_caseira": "",
         "unidade_medida_caseira": "",
         "informacoes_nutricionais": [],
         "condicoes_de_conservacao": "",
@@ -813,9 +815,9 @@ def payload_ficha_tecnica_pereciveis(
         "gluten": True,
         "lactose": True,
         "lactose_detalhe": fake.pystr(max_chars=150),
-        "porcao": fake.random_number() / 100,
+        "porcao": fake.pystr(max_chars=100),
         "unidade_medida_porcao": str(unidade_medida_logistica.uuid),
-        "valor_unidade_caseira": fake.random_number() / 100,
+        "valor_unidade_caseira": fake.pystr(max_chars=100),
         "unidade_medida_caseira": str(unidade_medida_logistica.uuid),
         "prazo_validade_descongelamento": fake.pystr(max_chars=50),
         "condicoes_de_conservacao": fake.pystr(max_chars=150),
@@ -932,9 +934,9 @@ def payload_atualizacao_ficha_tecnica(unidade_medida_logistica, arquivo_pdf_base
         "alergenicos": True,
         "ingredientes_alergenicos": fake.pystr(max_chars=150),
         "gluten": True,
-        "porcao": fake.random_number() / 100,
+        "porcao": fake.pystr(max_chars=100),
         "unidade_medida_porcao": str(unidade_medida_logistica.uuid),
-        "valor_unidade_caseira": fake.random_number() / 100,
+        "valor_unidade_caseira": fake.pystr(max_chars=100),
         "unidade_medida_caseira": str(unidade_medida_logistica.uuid),
         "informacoes_nutricionais": [],
         "condicoes_de_conservacao": fake.pystr(max_chars=150),

@@ -1,6 +1,8 @@
+import uuid
 from datetime import date
 
 import environ
+import pytest
 from freezegun import freeze_time
 
 from sme_sigpae_api.dieta_especial.models import (
@@ -20,7 +22,10 @@ from ..utils import (
     analisa_logs_alunos_matriculados_periodo_escola,
     analisa_logs_quantidade_dietas_autorizadas,
     atualiza_central_download,
+    atualiza_central_download_com_erro,
     eh_email_dev,
+    envia_email_unico,
+    gera_objeto_na_central_download,
     ordena_dias_semana_comeca_domingo,
     queryset_por_data,
     remove_emails_dev,
@@ -174,3 +179,62 @@ def test_atualiza_central_download(obj_central_download):
     assert obj_central_download.status == CentralDeDownload.STATUS_CONCLUIDO
 
     obj_central_download.arquivo.close()
+
+
+def test_atualiza_central_download_com_erro(obj_central_download):
+    mensagem_erro = "Erro ao gerar download do arquivo."
+
+    atualiza_central_download_com_erro(obj_central_download, mensagem_erro)
+    assert obj_central_download.status == CentralDeDownload.STATUS_ERRO
+    assert obj_central_download.msg_erro == mensagem_erro
+
+
+def test_gera_objeto_na_central_download(
+    usuario_teste_notificacao_autenticado, obj_central_download
+):
+    identificador_arquivo_excel = "relatorio.xlsx"
+    usuario = usuario_teste_notificacao_autenticado[0]
+    obj_central_download = gera_objeto_na_central_download(
+        usuario.username, identificador_arquivo_excel
+    )
+
+    assert obj_central_download.status == CentralDeDownload.STATUS_EM_PROCESSAMENTO
+    assert obj_central_download.identificador == identificador_arquivo_excel
+    assert obj_central_download.visto == False
+    assert obj_central_download.usuario == usuario
+    assert isinstance(obj_central_download.uuid, uuid.UUID)
+
+    identificador_arquivo_pdf = "relatorio.pdf"
+    usuario = usuario_teste_notificacao_autenticado[0]
+    obj_central_download = gera_objeto_na_central_download(
+        usuario.username, identificador_arquivo_pdf
+    )
+
+    assert obj_central_download.status == CentralDeDownload.STATUS_EM_PROCESSAMENTO
+    assert obj_central_download.identificador == identificador_arquivo_pdf
+    assert obj_central_download.visto == False
+    assert obj_central_download.usuario == usuario
+    assert isinstance(obj_central_download.uuid, uuid.UUID)
+
+
+def test_envia_email_unico(reclamacao_produto_codae_recusou, dados_html):
+    _, reclamacao_produto = reclamacao_produto_codae_recusou
+
+    assunto = "[SIGPAE] Reclamação Analisada"
+    email = reclamacao_produto.criado_por.email
+    corpo = ""
+    html = dados_html
+    email = envia_email_unico(assunto, corpo, email, None, None, html)
+    assert email == 1
+
+
+def test_envia_email_unico_exception(reclamacao_produto_codae_recusou, dados_html):
+    _, reclamacao_produto = reclamacao_produto_codae_recusou
+
+    assunto = "[SIGPAE] Reclamação Analisada"
+    email = reclamacao_produto
+    corpo = ""
+    html = dados_html
+    with pytest.raises(ValueError):
+        email = envia_email_unico(assunto, corpo, email, None, None, html)
+    assert email == reclamacao_produto

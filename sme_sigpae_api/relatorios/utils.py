@@ -363,6 +363,20 @@ def todas_escolas_sol_kit_lanche_unificado_cancelado(solicitacao):
     return not solicitacao.escolas_quantidades.filter(cancelado=False).exists()
 
 
+def extrair_texto_de_pdf(conteudo: bytes) -> str:
+    """
+    Extrai o texto de um PDF a partir de uma resposta HTTP.
+    Remove quebras de linha desnecessárias e trata a codificação.
+    """
+    pdf_reader = PdfFileReader(io.BytesIO(conteudo))
+    texto = ""
+    for page_num in range(pdf_reader.getNumPages()):
+        texto_bruto = pdf_reader.getPage(page_num).extractText()
+        texto_codificado = texto_bruto.encode().decode("utf-8", errors="ignore")
+        texto += texto_codificado.replace("\n\n", "").replace("\n", " ")
+    return texto
+
+
 class PDFMergeService:
     def __init__(self):
         self.merger = PdfFileMerger(strict=False)

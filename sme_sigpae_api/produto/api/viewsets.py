@@ -37,6 +37,7 @@ from ...dados_comuns.permissions import (
     UsuarioCODAEGabinete,
     UsuarioCODAEGestaoAlimentacao,
     UsuarioCODAEGestaoProduto,
+    UsuarioDinutreDiretoria,
     UsuarioDiretoriaRegional,
     UsuarioNutricionista,
     UsuarioOrgaoFiscalizador,
@@ -2194,6 +2195,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             | UsuarioNutricionista
             | UsuarioOrgaoFiscalizador
             | UsuarioCODAEGabinete
+            | UsuarioDinutreDiretoria
         ],
     )
     def filtro_reclamacoes_terceirizada(self, request):

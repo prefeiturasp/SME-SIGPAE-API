@@ -16,6 +16,9 @@
         <tr>
           <td style="color: #686868">Motivo</td>
           <td style="color: #686868">Dia(s) de suspensão</td>
+          {% if existe_cancelamento %}
+            <td style="color: #686868">Justificativa</td>
+          {% endif %}
         </tr>
       </thead>
       <tbody>
@@ -28,7 +31,16 @@
                 {{ motivo.motivo.nome }}
               {% endif %}
             </td>
-            <td>{{ motivo.data|date:"d/m/Y" }}</td>
+            <td>
+              {% if motivo.cancelado %}
+                <s>{{ motivo.data|date:"d/m/Y" }}<s>
+              {% else %}
+                {{ motivo.data|date:"d/m/Y" }}
+              {% endif %}
+            </td>
+            {% if existe_cancelamento %}
+              <td>{{ motivo.cancelado_justificativa }}</td>
+            {% endif %}
           </tr>
         {% endfor %}
       </tbody>
@@ -60,8 +72,12 @@
       </table>
     </div>
     {% include "bloco_observacoes.html" %}
+    {% include "bloco_historico_cancelamento_suspensao.html" %}
     {% include "bloco_historico_questionamento.html" %}
-    {% include "bloco_historico_cancelamento.html" %}
+    {% if solicitacao.status == 'ESCOLA_CANCELOU' %}
+      {% include "bloco_historico_cancelamento.html" %}
+    {% endif %}
+
   </div>
 
 

@@ -1,110 +1,13 @@
-import datetime
+import re
 
 import pytest
-from model_mommy import mommy
 
-from ...dados_comuns.constants import DJANGO_ADMIN_PASSWORD
-from ...dados_comuns.models import TemplateMensagem
-from ...dieta_especial.models import SolicitacaoDietaEspecial
-from ...escola.models import Aluno
-from ...perfil.models import Usuario
-from ..relatorios import relatorio_dieta_especial_protocolo
+from sme_sigpae_api.relatorios.utils import extrair_texto_de_pdf
 
-
-@pytest.fixture
-def escola():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    diretoria_regional = mommy.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL IPIRANGA"
-    )
-    escola = mommy.make(
-        "Escola",
-        lote=lote,
-        nome="EMEF JOAO MENDES",
-        codigo_eol="000546",
-        diretoria_regional=diretoria_regional,
-    )
-    return escola
-
-
-@pytest.fixture
-def template_mensagem_dieta_especial():
-    return mommy.make(
-        TemplateMensagem,
-        tipo=TemplateMensagem.DIETA_ESPECIAL,
-        assunto="TESTE DIETA ESPECIAL",
-        template_html="@id @criado_em @status @link",
-    )
-
-
-@pytest.fixture
-def solicitacao_dieta_especial_a_autorizar(
-    client, escola, template_mensagem_dieta_especial
-):
-    email = "escola@admin.com"
-    password = DJANGO_ADMIN_PASSWORD
-    rf = "1545933"
-    user = Usuario.objects.create_user(
-        username=email, password=password, email=email, registro_funcional=rf
-    )
-    client.login(username=email, password=password)
-
-    perfil_professor = mommy.make("perfil.Perfil", nome="ADMINISTRADOR_UE", ativo=False)
-    mommy.make(
-        "perfil.Vinculo",
-        usuario=user,
-        instituicao=escola,
-        perfil=perfil_professor,
-        data_inicial=datetime.date.today(),
-        ativo=True,
-    )  # ativo
-
-    aluno = mommy.make(
-        Aluno,
-        nome="Roberto Alves da Silva",
-        codigo_eol="123456",
-        data_nascimento="2000-01-01",
-    )
-    solic = mommy.make(
-        SolicitacaoDietaEspecial,
-        escola_destino=escola,
-        rastro_escola=escola,
-        rastro_terceirizada=escola.lote.terceirizada,
-        aluno=aluno,
-        ativo=True,
-        criado_por=user,
-    )
-    solic.inicia_fluxo(user=user)
-
-    return solic
-
-
-@pytest.fixture
-def solicitacao_dieta_especial_autorizada(
-    client, escola, solicitacao_dieta_especial_a_autorizar
-):
-    email = "terceirizada@admin.com"
-    password = DJANGO_ADMIN_PASSWORD
-    rf = "4545454"
-    user = Usuario.objects.create_user(
-        username=email, password=password, email=email, registro_funcional=rf
-    )
-    client.login(username=email, password=password)
-
-    perfil = mommy.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
-    mommy.make(
-        "perfil.Vinculo",
-        usuario=user,
-        instituicao=escola.lote.terceirizada,
-        perfil=perfil,
-        data_inicial=datetime.date.today(),
-        ativo=True,
-    )
-
-    solicitacao_dieta_especial_a_autorizar.codae_autoriza(user=user)
-
-    return solicitacao_dieta_especial_a_autorizar
+from ..relatorios import (
+    relatorio_dieta_especial_protocolo,
+    relatorio_suspensao_de_alimentacao,
+)
 
 
 @pytest.mark.django_db
@@ -117,3 +20,100 @@ def test_relatorio_dieta_especial_protocolo(solicitacao_dieta_especial_autorizad
     assert (
         solicitacao_dieta_especial_autorizada.orientacoes_gerais in html_string
     ) is True
+
+
+@pytest.mark.django_db
+def test_relatorio_suspensao_de_alimentacao(grupo_suspensao_alimentacao):
+    pdf_response = relatorio_suspensao_de_alimentacao(None, grupo_suspensao_alimentacao)
+
+    assert pdf_response.status_code == 200
+    assert pdf_response.headers["Content-Type"] == "application/pdf"
+    assert (
+        pdf_response.headers["Content-Disposition"]
+        == f'filename="solicitacao_suspensao_{grupo_suspensao_alimentacao.id_externo}.pdf"'
+    )
+
+    texto = extrair_texto_de_pdf(pdf_response.content)
+
+    assert grupo_suspensao_alimentacao.escola.nome in texto
+    assert f"Observações: {grupo_suspensao_alimentacao.observacao}" in texto
+    # r"Justi.*cativa": '.*' significa qualquer sequência de caracteres, incluindo quebras de linha
+    assert not re.search(r"Justi.*cativa", texto)
+    assert "Histórico de cancelamento" not in texto
+
+    for (
+        sustentacao_alimentacao
+    ) in grupo_suspensao_alimentacao.suspensoes_alimentacao.all():
+        assert sustentacao_alimentacao.data.strftime("%d/%m/%Y") in texto
+        assert sustentacao_alimentacao.motivo.nome in texto
+        assert sustentacao_alimentacao.cancelado_justificativa == ""
+
+
+@pytest.mark.django_db
+def test_relatorio_suspensao_de_alimentacao_parcialmente_cancelado(
+    grupo_suspensao_alimentacao_cancelamento_parcial,
+):
+    pdf_response = relatorio_suspensao_de_alimentacao(
+        None, grupo_suspensao_alimentacao_cancelamento_parcial
+    )
+
+    assert pdf_response.status_code == 200
+    assert pdf_response.headers["Content-Type"] == "application/pdf"
+    assert (
+        pdf_response.headers["Content-Disposition"]
+        == f'filename="solicitacao_suspensao_{grupo_suspensao_alimentacao_cancelamento_parcial.id_externo}.pdf"'
+    )
+    texto = extrair_texto_de_pdf(pdf_response.content)
+
+    assert grupo_suspensao_alimentacao_cancelamento_parcial.escola.nome in texto
+    assert (
+        f"Observações: {grupo_suspensao_alimentacao_cancelamento_parcial.observacao}"
+        in texto
+    )
+    # r"Justi.*cativa": '.*' significa qualquer sequência de caracteres, incluindo quebras de linha
+    assert re.search(r"Justi.*cativa", texto)
+    assert "Histórico de cancelamento" in texto
+
+    for (
+        sustentacao_alimentacao
+    ) in grupo_suspensao_alimentacao_cancelamento_parcial.suspensoes_alimentacao.all():
+        assert sustentacao_alimentacao.data.strftime("%d/%m/%Y") in texto
+        assert sustentacao_alimentacao.motivo.nome in texto
+        if sustentacao_alimentacao.cancelado:
+            assert sustentacao_alimentacao.cancelado_justificativa in texto
+            assert texto.count(sustentacao_alimentacao.cancelado_justificativa) == 2
+
+
+@pytest.mark.django_db
+def test_relatorio_suspensao_de_alimentacao_totalmente_cancelado(
+    grupo_suspensao_alimentacao_cancelamento_total,
+):
+    pdf_response = relatorio_suspensao_de_alimentacao(
+        None, grupo_suspensao_alimentacao_cancelamento_total
+    )
+
+    assert pdf_response.status_code == 200
+    assert pdf_response.headers["Content-Type"] == "application/pdf"
+    assert (
+        pdf_response.headers["Content-Disposition"]
+        == f'filename="solicitacao_suspensao_{grupo_suspensao_alimentacao_cancelamento_total.id_externo}.pdf"'
+    )
+
+    texto = extrair_texto_de_pdf(pdf_response.content)
+
+    assert grupo_suspensao_alimentacao_cancelamento_total.escola.nome in texto
+    assert (
+        f"Observações: {grupo_suspensao_alimentacao_cancelamento_total.observacao}"
+        in texto
+    )
+    # r"Justi.*cativa": '.*' significa qualquer sequência de caracteres, incluindo quebras de linha
+    assert re.search(r"Justi.*cativa", texto)
+    assert "Histórico de cancelamento" in texto
+
+    for (
+        sustentacao_alimentacao
+    ) in grupo_suspensao_alimentacao_cancelamento_total.suspensoes_alimentacao.all():
+        assert sustentacao_alimentacao.data.strftime("%d/%m/%Y") in texto
+        assert sustentacao_alimentacao.motivo.nome in texto
+        assert sustentacao_alimentacao.cancelado_justificativa in texto
+        assert texto.count(sustentacao_alimentacao.cancelado_justificativa) == 2
