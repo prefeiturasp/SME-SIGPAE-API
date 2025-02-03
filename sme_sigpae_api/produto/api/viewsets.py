@@ -1813,6 +1813,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
         return queryset
 
     def list(self, request, *args, **kwargs):
+        print("aqui")
         queryset = (
             self.filter_queryset(
                 self.get_queryset().filter(homologacao__eh_copia=False)
