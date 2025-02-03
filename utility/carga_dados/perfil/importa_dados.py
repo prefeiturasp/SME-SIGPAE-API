@@ -104,6 +104,7 @@ def cria_vinculos():
         "perfil_usuario_representante_codae": Perfil.objects.get(
             nome="ADMINISTRADOR_REPRESENTANTE_CODAE"
         ),
+        "perfil_administrador_dicae": Perfil.objects.get(nome="ADMINISTRADOR_DICAE"),
     }
 
     usuario = {
@@ -154,6 +155,9 @@ def cria_vinculos():
         ),
         "usuario_representante_codae": Usuario.objects.get(
             email="representantecodae@admin.com"
+        ),
+        "usuario_administrador_dicae": Usuario.objects.get(
+            email="administradordicae@admin.com"
         ),
     }
 
@@ -247,6 +251,11 @@ def cria_vinculos():
             "nome": "REPRESENTANTE CODAE ADM",
             "perfil": perfil["perfil_usuario_representante_codae"],
             "usuario": usuario["usuario_representante_codae"],
+        },
+        {
+            "nome": "ADMINISTRADOR DICAE",
+            "perfil": perfil["perfil_administrador_dicae"],
+            "usuario": usuario["usuario_administrador_dicae"],
         },
     ]
 
@@ -350,6 +359,12 @@ def cria_vinculos():
             "instituicao": dilog,
             "perfil": perfil["perfil_usuario_dinutre_diretoria"],
             "usuario": usuario["usuario_dinutre_diretoria"],
+        },
+        {
+            # TODO: Precisa trocar a instituição depois
+            "instituicao": dilog,
+            "perfil": perfil["perfil_administrador_dicae"],
+            "usuario": usuario["usuario_administrador_dicae"],
         },
     ]
 
