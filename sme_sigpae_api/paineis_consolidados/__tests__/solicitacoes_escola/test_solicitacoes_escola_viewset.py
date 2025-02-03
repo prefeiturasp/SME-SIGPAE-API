@@ -396,6 +396,49 @@ class TestEndpointsPainelGerencialDietaEspecialEscola:
         assert "count" not in response.json()
         assert len(response.json()["results"]) > 0
 
+    def test_aguardando_inicio_vigencia_dieta_especial(
+        self,
+        client_autenticado_escola_paineis_consolidados,
+        escola,
+    ):
+        client, usuario = client_autenticado_escola_paineis_consolidados
+
+        self.setup_solicitacoes(
+            usuario,
+            escola,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            dieta_alterada_id=1,
+            em_vigencia=False,
+        )
+
+        response = client.get(
+            f"/escola-solicitacoes/aguardando-vigencia-dieta/{escola.uuid}/?limit=6&offset=0"
+        )
+        assert response.json()["count"] == 1
+
+    def test_aguardando_inicio_vigencia_dieta_especial_sem_paginacao(
+        self,
+        client_autenticado_escola_paineis_consolidados,
+        escola,
+    ):
+        client, usuario = client_autenticado_escola_paineis_consolidados
+
+        self.setup_solicitacoes(
+            usuario,
+            escola,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            dieta_alterada_id=1,
+            em_vigencia=False,
+        )
+
+        response = client.get(
+            f"/escola-solicitacoes/aguardando-vigencia-dieta/{escola.uuid}/?sem_paginacao=true"
+        )
+        assert "count" not in response.json()
+        assert len(response.json()["results"]) > 0
+
     def test_inativas_temporariamente_dieta_especial(
         self,
         client_autenticado_escola_paineis_consolidados,
