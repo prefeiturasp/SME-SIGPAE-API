@@ -528,7 +528,7 @@ def test_suspensoes_autorizadas(
         "&nome_periodo_escolar=MANHA"
     )
     assert response_suspensao_manha.status_code == status.HTTP_200_OK
-    assert len(response_suspensao_manha.data["results"]) == 2
+    assert len(response_suspensao_manha.data["results"]) == 1
     assert response_suspensao_manha.data["results"][0]["numero_alunos"] == 75
     assert response_suspensao_manha.data["results"][0]["periodo"] == "MANHA"
 
@@ -538,7 +538,7 @@ def test_suspensoes_autorizadas(
         "&nome_periodo_escolar=INTEGRAL"
     )
     assert response_suspensao_integral.status_code == status.HTTP_200_OK
-    assert len(response_suspensao_integral.data["results"]) == 2
+    assert len(response_suspensao_integral.data["results"]) == 1
     assert response_suspensao_integral.data["results"][0]["numero_alunos"] == 50
     assert response_suspensao_integral.data["results"][0]["periodo"] == "INTEGRAL"
 

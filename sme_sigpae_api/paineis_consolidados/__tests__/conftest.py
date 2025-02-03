@@ -1047,12 +1047,14 @@ def suspensoes_alimentacao_cei(
         data=datetime.date(2023, 8, 3),
         motivo=motivo_suspensao,
         grupo_suspensao=grupo_suspensao_alimentacao,
+        cancelado=True,
     )
     mommy.make(
         "SuspensaoAlimentacao",
         data=datetime.date(2023, 8, 13),
         motivo=motivo_suspensao,
         grupo_suspensao=grupo_suspensao_alimentacao,
+        cancelado=False,
     )
     qp_suspensao_manha = mommy.make(
         "QuantidadePorPeriodoSuspensaoAlimentacao",
