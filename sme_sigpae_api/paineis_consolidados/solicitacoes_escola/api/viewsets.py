@@ -482,7 +482,9 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                     periodo_escolar__nome=nome_periodo_escolar
                 )
                 for s_quant_periodo in s_quant_por_periodo:
-                    for suspensao in susp.suspensoes_alimentacao.all():
+                    for suspensao in susp.suspensoes_alimentacao.filter(
+                        cancelado=False
+                    ):
                         tipos_alimentacao = s_quant_periodo.tipos_alimentacao.all()
                         alimentacoes = [
                             unicodedata.normalize(
