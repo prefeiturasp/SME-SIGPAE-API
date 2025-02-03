@@ -21,6 +21,9 @@ from sme_sigpae_api.inclusao_alimentacao.models import (
 from sme_sigpae_api.perfil.fixtures.factories.perfil_base_factories import (
     UsuarioFactory,
 )
+from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import (
+    EmpresaFactory,
+)
 
 fake = Faker("pt_BR")
 
@@ -34,6 +37,10 @@ class MotivoInclusaoNormalFactory(DjangoModelFactory):
 
 class GrupoInclusaoAlimentacaoNormalFactory(DjangoModelFactory):
     escola = SubFactory(EscolaFactory)
+    rastro_escola = SubFactory(EscolaFactory)
+    rastro_dre = SubFactory(DiretoriaRegionalFactory)
+    rastro_lote = SubFactory(LoteFactory)
+    rastro_terceirizada = SubFactory(EmpresaFactory)
 
     class Meta:
         model = GrupoInclusaoAlimentacaoNormal

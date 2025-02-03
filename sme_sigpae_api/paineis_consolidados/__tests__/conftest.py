@@ -868,7 +868,7 @@ def client_autenticado_escola_paineis_consolidados(
         ativo=True,
     )
     client.login(username=email, password=password)
-    return client
+    return client, user
 
 
 @pytest.fixture

@@ -73,6 +73,27 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         query_set = SolicitacoesEscola.busca_filtro(query_set, request.query_params)
         return self._retorno_base(query_set)
 
+    @action(detail=False, methods=["GET"], url_path=f"{AUTORIZADOS}")
+    def autorizados(self, request):
+        escola_uuid = request.user.vinculo_atual.instituicao.uuid
+        query_set = SolicitacoesEscola.get_autorizados(escola_uuid=escola_uuid)
+        query_set = SolicitacoesEscola.busca_filtro(query_set, request.query_params)
+        return self._retorno_base(query_set)
+
+    @action(detail=False, methods=["GET"], url_path=f"{NEGADOS}")
+    def negados(self, request):
+        escola_uuid = request.user.vinculo_atual.instituicao.uuid
+        query_set = SolicitacoesEscola.get_negados(escola_uuid=escola_uuid)
+        query_set = SolicitacoesEscola.busca_filtro(query_set, request.query_params)
+        return self._retorno_base(query_set)
+
+    @action(detail=False, methods=["GET"], url_path=f"{CANCELADOS}")
+    def cancelados(self, request):
+        escola_uuid = request.user.vinculo_atual.instituicao.uuid
+        query_set = SolicitacoesEscola.get_cancelados(escola_uuid=escola_uuid)
+        query_set = SolicitacoesEscola.busca_filtro(query_set, request.query_params)
+        return self._retorno_base(query_set)
+
     @action(
         detail=False,
         methods=["GET"],
@@ -211,13 +232,6 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         )
         if tem_parametro_sem_paginacao:
             return self._retorno_base(query_set, True)
-        return self._retorno_base(query_set)
-
-    @action(detail=False, methods=["GET"], url_path=f"{AUTORIZADOS}")
-    def autorizados(self, request):
-        escola_uuid = request.user.vinculo_atual.instituicao.uuid
-        query_set = SolicitacoesEscola.get_autorizados(escola_uuid=escola_uuid)
-        query_set = SolicitacoesEscola.busca_filtro(query_set, request.query_params)
         return self._retorno_base(query_set)
 
     @action(
@@ -720,17 +734,3 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         data = {"results": tratar_dias_duplicados(return_dict)}
 
         return Response(data)
-
-    @action(detail=False, methods=["GET"], url_path=f"{NEGADOS}")
-    def negados(self, request):
-        escola_uuid = request.user.vinculo_atual.instituicao.uuid
-        query_set = SolicitacoesEscola.get_negados(escola_uuid=escola_uuid)
-        query_set = SolicitacoesEscola.busca_filtro(query_set, request.query_params)
-        return self._retorno_base(query_set)
-
-    @action(detail=False, methods=["GET"], url_path=f"{CANCELADOS}")
-    def cancelados(self, request):
-        escola_uuid = request.user.vinculo_atual.instituicao.uuid
-        query_set = SolicitacoesEscola.get_cancelados(escola_uuid=escola_uuid)
-        query_set = SolicitacoesEscola.busca_filtro(query_set, request.query_params)
-        return self._retorno_base(query_set)
