@@ -38,11 +38,6 @@ from sme_sigpae_api.paineis_consolidados.api.constants import (
     NEGADOS_DIETA_ESPECIAL,
     PENDENTES_AUTORIZACAO,
     PENDENTES_AUTORIZACAO_DIETA_ESPECIAL,
-    PESQUISA,
-    RELATORIO_PERIODO,
-    RELATORIO_RESUMO_MES_ANO,
-    RESUMO_ANO,
-    RESUMO_MES,
     SUSPENSOES_AUTORIZADAS,
 )
 from sme_sigpae_api.paineis_consolidados.api.serializers import SolicitacoesSerializer
@@ -57,11 +52,6 @@ from sme_sigpae_api.paineis_consolidados.utils.utils import (
     tratar_inclusao_continua,
     tratar_periodo_parcial,
     tratar_periodo_parcial_cemei,
-)
-from sme_sigpae_api.paineis_consolidados.validators import FiltroValidator
-from sme_sigpae_api.relatorios.relatorios import (
-    relatorio_filtro_periodo,
-    relatorio_resumo_anual_e_mensal,
 )
 
 
@@ -744,95 +734,3 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         query_set = SolicitacoesEscola.get_cancelados(escola_uuid=escola_uuid)
         query_set = SolicitacoesEscola.busca_filtro(query_set, request.query_params)
         return self._retorno_base(query_set)
-
-    @action(detail=False, methods=["GET"], url_path=f"{RESUMO_ANO}")
-    def evolucao_solicitacoes(self, request):
-        usuario = request.user
-        escola_uuid = usuario.vinculo_atual.instituicao.uuid
-        query_set = SolicitacoesEscola.get_solicitacoes_ano_corrente(
-            escola_uuid=escola_uuid
-        )
-        response = {
-            "results": self._agrupa_por_mes_por_solicitacao(query_set=query_set)
-        }
-        return Response(response)
-
-    @action(detail=False, methods=["GET"], url_path=f"{RESUMO_MES}")
-    def resumo_mes(self, request):
-        usuario = request.user
-        escola_uuid = usuario.vinculo_atual.instituicao.uuid
-        totais_dict = SolicitacoesEscola.resumo_totais_mes(
-            escola_uuid=escola_uuid,
-        )
-        return Response(totais_dict)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=f"{RELATORIO_RESUMO_MES_ANO}",
-    )
-    def relatorio_resumo_anual_e_mensal(self, request):
-        usuario = request.user
-        escola_uuid = usuario.vinculo_atual.instituicao.uuid
-
-        query_set = SolicitacoesEscola.get_solicitacoes_ano_corrente(
-            escola_uuid=escola_uuid
-        )
-        resumo_do_ano = self._agrupa_por_mes_por_solicitacao(query_set=query_set)
-        resumo_do_mes = SolicitacoesEscola.resumo_totais_mes(
-            escola_uuid=escola_uuid,
-        )
-        return relatorio_resumo_anual_e_mensal(request, resumo_do_mes, resumo_do_ano)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=f"{RELATORIO_PERIODO}",
-    )
-    def relatorio_filtro_periodo(self, request):
-        usuario = request.user
-        escola = usuario.vinculo_atual.instituicao
-        form = FiltroValidator(request.GET)
-        if form.is_valid():
-            cleaned_data = form.cleaned_data
-            query_set = SolicitacoesEscola.filtros_escola(
-                escola_uuid=escola.uuid,
-                data_inicial=cleaned_data.get("data_inicial"),
-                data_final=cleaned_data.get("data_final"),
-                tipo_solicitacao=cleaned_data.get("tipo_solicitacao"),
-                status_solicitacao=cleaned_data.get("status_solicitacao"),
-            )
-            query_set = self.remove_duplicados_do_query_set(query_set)
-
-            return relatorio_filtro_periodo(
-                request, query_set, escola.nome, escola.diretoria_regional.nome
-            )
-        else:
-            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, methods=["GET"], url_path=f"{PESQUISA}")
-    def filtro_periodo_tipo_solicitacao(self, request):
-        """Filtro de todas as solicitações da escola.
-
-        ---
-        tipo_solicitacao -- ALT_CARDAPIO|INV_CARDAPIO|INC_ALIMENTA|INC_ALIMENTA_CONTINUA|
-        KIT_LANCHE_AVULSA|SUSP_ALIMENTACAO|KIT_LANCHE_UNIFICADA|TODOS
-        status_solicitacao -- AUTORIZADOS|NEGADOS|CANCELADOS|RECEBIDAS|TODOS
-        data_inicial -- dd-mm-yyyy
-        data_final -- dd-mm-yyyy
-        """
-        usuario = request.user
-        escola_uuid = usuario.vinculo_atual.instituicao.uuid
-        form = FiltroValidator(request.GET)
-        if form.is_valid():
-            cleaned_data = form.cleaned_data
-            query_set = SolicitacoesEscola.filtros_escola(
-                escola_uuid=escola_uuid,
-                data_inicial=cleaned_data.get("data_inicial"),
-                data_final=cleaned_data.get("data_final"),
-                tipo_solicitacao=cleaned_data.get("tipo_solicitacao"),
-                status_solicitacao=cleaned_data.get("status_solicitacao"),
-            )
-            return self._retorno_base(query_set)
-        else:
-            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
