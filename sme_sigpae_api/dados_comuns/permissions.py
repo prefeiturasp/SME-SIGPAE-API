@@ -605,6 +605,7 @@ class PermissaoParaCriarUsuarioComCoresso(BasePermission):
                 ADMINISTRADOR_REPRESENTANTE_CODAE,
                 COORDENADOR_SUPERVISAO_NUTRICAO,
                 USUARIO_GTIC_CODAE,
+                ADMINISTRADOR_DICAE,
             ]
             or isinstance(usuario.vinculo_atual.instituicao, Escola)
             and usuario.vinculo_atual.perfil.nome in [DIRETOR_UE]
