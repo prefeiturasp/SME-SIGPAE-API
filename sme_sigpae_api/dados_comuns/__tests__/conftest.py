@@ -1,5 +1,6 @@
 import datetime
 import os
+import xml.etree.ElementTree as ET
 
 import pytest
 from django.conf import settings
@@ -10,6 +11,7 @@ from model_mommy import mommy
 
 from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
+from sme_sigpae_api.dados_comuns.parser_xml import ListXMLParser
 from sme_sigpae_api.dieta_especial.models import (
     ClassificacaoDieta,
     LogQuantidadeDietasAutorizadas,
@@ -728,3 +730,22 @@ def dados_html(dados_log_recusa):
         },
     )
     return html
+
+
+@pytest.fixture
+def parser_xml():
+    parser = ListXMLParser()
+    xml_dicionario = """<root>
+        <name>Maria Antônia</name>
+        <age>10</age>
+        <Str>Aluno com alergia a frutos do mar.</Str>
+    </root>"""
+    elemento_1 = ET.fromstring(xml_dicionario)
+
+    xml_lista = """<root>
+        <item>Paulo Antônio</item>
+        <item>Maria Antônia</item>
+    </root>"""
+    elemento_2 = ET.fromstring(xml_lista)
+
+    return parser, elemento_1, elemento_2
