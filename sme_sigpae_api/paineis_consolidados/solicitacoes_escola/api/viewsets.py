@@ -270,181 +270,257 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
             status=status.HTTP_200_OK,
         )
 
-    @action(detail=False, methods=["GET"], url_path=f"{INCLUSOES_AUTORIZADAS}")
-    def inclusoes_autorizadas(self, request):  # noqa C901
+    def filtra_inclusoes(self, request):
         escola_uuid = request.query_params.get("escola_uuid")
         mes = request.query_params.get("mes")
         ano = request.query_params.get("ano")
-        date = datetime.date(int(ano), int(mes), 1)
-        periodos_escolares = request.query_params.getlist("periodos_escolares[]")
+        primeiro_dia_mes = datetime.date(int(ano), int(mes), 1)
+        hoje = datetime.date.today()
 
         query_set = SolicitacoesEscola.get_autorizados(escola_uuid=escola_uuid)
         query_set = SolicitacoesEscola.busca_filtro(query_set, request.query_params)
         query_set = query_set.filter(
             Q(data_evento__month=mes, data_evento__year=ano)
-            | Q(data_evento__lt=date, data_evento_2__gte=date)
+            | Q(data_evento__lt=primeiro_dia_mes, data_evento_2__gte=primeiro_dia_mes)
         )
-        query_set = query_set.filter(data_evento__lt=datetime.date.today())
+        query_set = query_set.filter(data_evento__lt=hoje)
         query_set = self.remove_duplicados_do_query_set(query_set)
+
+        return query_set, mes, ano, escola_uuid
+
+    def inclusoes_cei(self, query_set, mes, ano, periodos_escolares, return_dict):
+        inclusoes_cei = [
+            inclusao
+            for inclusao in query_set
+            if inclusao.tipo_doc == "INC_ALIMENTA_CEI"
+        ]
+        for inclusao in inclusoes_cei:
+            inc = inclusao.get_raw_model.objects.get(uuid=inclusao.uuid)
+            periodos_internos = []
+            periodos_externos = []
+
+            mapeamento_periodos = {
+                "PARCIAL": (["INTEGRAL"], ["MANHA", "TARDE"]),
+                "INTEGRAL": (["INTEGRAL"], ["INTEGRAL"]),
+                "MANHA": (["MANHA"], ["MANHA"]),
+                "TARDE": (["TARDE"], ["TARDE"]),
+            }
+
+            for periodo in periodos_escolares:
+                if periodo in mapeamento_periodos:
+                    periodos_externos, periodos_internos = mapeamento_periodos[periodo]
+                    break
+
+            dias_motivos = inc.dias_motivos_da_inclusao_cei.filter(
+                data__month=mes, data__year=ano, cancelado=False
+            )
+            quantidade_por_faixa = inc.quantidade_alunos_da_inclusao.filter(
+                periodo__nome__in=periodos_internos,
+                periodo_externo__nome__in=periodos_externos,
+            )
+            if quantidade_por_faixa:
+                for dia_motivo in dias_motivos:
+                    faixas_etarias_uuids = quantidade_por_faixa.values_list(
+                        "faixa_etaria__uuid", flat=True
+                    )
+                    return_dict.append(
+                        {
+                            "dia": dia_motivo.data.day,
+                            "faixas_etarias": faixas_etarias_uuids.distinct(),
+                        }
+                    )
+        return return_dict
+
+    def get_qtd_alunos_cei_cemei_por_periodo(self, inc, periodo, sol_medicao_inicial):
+        eh_parcial_integral = False
+        if periodo == "PARCIAL":
+            qtd_alunos_cei_cemei_por_periodo = (
+                inc.quantidade_alunos_cei_da_inclusao_cemei.filter(
+                    periodo_escolar__nome__in=["MANHA", "TARDE"]
+                )
+            )
+            if not qtd_alunos_cei_cemei_por_periodo.exists():
+                qtd_alunos_cei_cemei_por_periodo = (
+                    inc.quantidade_alunos_cei_da_inclusao_cemei.filter(
+                        periodo_escolar__nome="INTEGRAL"
+                    )
+                )
+                eh_parcial_integral = True
+        else:
+            if (
+                periodo == "INTEGRAL"
+                and sol_medicao_inicial
+                and not sol_medicao_inicial.ue_possui_alunos_periodo_parcial
+            ):
+                qtd_alunos_cei_cemei_por_periodo = (
+                    inc.quantidade_alunos_cei_da_inclusao_cemei.filter(
+                        periodo_escolar__nome__in=[
+                            "INTEGRAL",
+                            "MANHA",
+                            "TARDE",
+                        ]
+                    )
+                )
+            else:
+                qtd_alunos_cei_cemei_por_periodo = (
+                    inc.quantidade_alunos_cei_da_inclusao_cemei.filter(
+                        periodo_escolar__nome=periodo
+                    )
+                )
+        return qtd_alunos_cei_cemei_por_periodo, eh_parcial_integral
+
+    def atualizar_return_dict(
+        self, return_dict, dias_motivos_cemei, faixas_etarias_uuids, eh_parcial_integral
+    ):
+        return_dict_map = {r["dia"]: r for r in return_dict}
+
+        for dia_motivo_cemei in dias_motivos_cemei:
+            dia = dia_motivo_cemei.data.day
+            if dia in return_dict_map:
+                if (
+                    return_dict_map[dia]["eh_parcial_integral"]
+                    and not eh_parcial_integral
+                ):
+                    return_dict_map[dia] = {
+                        "dia": dia,
+                        "faixas_etarias": faixas_etarias_uuids,
+                        "eh_parcial_integral": eh_parcial_integral,
+                    }
+            else:
+                return_dict_map[dia] = {
+                    "dia": dia,
+                    "faixas_etarias": faixas_etarias_uuids,
+                    "eh_parcial_integral": eh_parcial_integral,
+                }
+
+        return list(return_dict_map.values())
+
+    def inclusoes_cemei_nao_infantil(
+        self, periodo, inc, sol_medicao_inicial, dias_motivos_cemei, return_dict
+    ):
+        if (
+            "Infantil" in periodo
+            or not inc.quantidade_alunos_cei_da_inclusao_cemei.exists()
+        ):
+            return return_dict
+
+        (
+            qtd_alunos_cei_cemei_por_periodo,
+            eh_parcial_integral,
+        ) = self.get_qtd_alunos_cei_cemei_por_periodo(inc, periodo, sol_medicao_inicial)
+        if not qtd_alunos_cei_cemei_por_periodo.exists():
+            return return_dict
+
+        faixas_etarias_uuids = list(
+            qtd_alunos_cei_cemei_por_periodo.values_list(
+                "faixa_etaria__uuid", flat=True
+            ).distinct()
+        )
+
+        return_dict = self.atualizar_return_dict(
+            return_dict, dias_motivos_cemei, faixas_etarias_uuids, eh_parcial_integral
+        )
+
+        return return_dict
+
+    def inclusoes_cemei_infantil(
+        self, periodo, inc, dias_motivos_cemei, mes, ano, inclusao, return_dict
+    ):
+        periodo = periodo.split(" ")[1]
+        if not inc.quantidade_alunos_emei_da_inclusao_cemei.filter(
+            periodo_escolar__nome=periodo
+        ).exists():
+            return return_dict
+        for dia_motivo_cemei in dias_motivos_cemei:
+            tratar_append_return_dict(
+                dia_motivo_cemei.data.day,
+                mes,
+                ano,
+                inc.quantidade_alunos_emei_da_inclusao_cemei.get(
+                    periodo_escolar__nome=periodo
+                ),
+                inclusao,
+                return_dict,
+            )
+        return return_dict
+
+    def inclusoes_cemei(
+        self, query_set, mes, ano, periodos_escolares, escola_uuid, return_dict
+    ):
         sol_medicao_inicial = SolicitacaoMedicaoInicial.objects.filter(
             escola__uuid=escola_uuid, mes=mes, ano=ano
         ).first()
-        return_dict = []
-        for inclusao in query_set:
+        inclusoes_cemei = [
+            inclusao
+            for inclusao in query_set
+            if inclusao.tipo_doc == "INC_ALIMENTA_CEMEI"
+        ]
+        for inclusao in inclusoes_cemei:
             inc = inclusao.get_raw_model.objects.get(uuid=inclusao.uuid)
-            if inclusao.tipo_doc == "INC_ALIMENTA_CEI":
-                periodos_internos = []
-                periodos_externos = []
-                if "PARCIAL" in periodos_escolares:
-                    periodos_externos = ["INTEGRAL"]
-                    periodos_internos = ["MANHA", "TARDE"]
-                if "INTEGRAL" in periodos_escolares:
-                    periodos_externos = ["INTEGRAL"]
-                    periodos_internos = ["INTEGRAL"]
-                if "MANHA" in periodos_escolares:
-                    periodos_externos = ["MANHA"]
-                    periodos_internos = ["MANHA"]
-                if "TARDE" in periodos_escolares:
-                    periodos_externos = ["TARDE"]
-                    periodos_internos = ["TARDE"]
-                dias_motivos = inc.dias_motivos_da_inclusao_cei.filter(
-                    data__month=mes, data__year=ano, cancelado=False
+            dias_motivos_cemei = inc.dias_motivos_da_inclusao_cemei.filter(
+                data__month=mes, data__year=ano
+            )
+            for periodo in periodos_escolares:
+                return_dict = self.inclusoes_cemei_nao_infantil(
+                    periodo, inc, sol_medicao_inicial, dias_motivos_cemei, return_dict
                 )
-                quantidade_por_faixa = inc.quantidade_alunos_da_inclusao.filter(
-                    periodo__nome__in=periodos_internos,
-                    periodo_externo__nome__in=periodos_externos,
+                return_dict = self.inclusoes_cemei_infantil(
+                    periodo, inc, dias_motivos_cemei, mes, ano, inclusao, return_dict
                 )
-                if quantidade_por_faixa:
-                    for dia_motivo in dias_motivos:
-                        faixas_etarias_uuids = quantidade_por_faixa.values_list(
-                            "faixa_etaria__uuid", flat=True
-                        )
-                        return_dict.append(
-                            {
-                                "dia": dia_motivo.data.day,
-                                "faixas_etarias": faixas_etarias_uuids.distinct(),
-                            }
-                        )
-            elif inclusao.tipo_doc == "INC_ALIMENTA_CEMEI":
-                dias_motivos_cemei = inc.dias_motivos_da_inclusao_cemei.filter(
-                    data__month=mes, data__year=ano
-                )
-                for periodo in periodos_escolares:
-                    if "Infantil" not in periodo:
-                        eh_parcial_integral = None
-                        if not inc.quantidade_alunos_cei_da_inclusao_cemei.exists():
-                            continue
-                        if periodo == "PARCIAL":
-                            qtd_alunos_cei_cemei_por_periodo = (
-                                inc.quantidade_alunos_cei_da_inclusao_cemei.filter(
-                                    periodo_escolar__nome__in=["MANHA", "TARDE"]
-                                )
-                            )
-                            eh_parcial_integral = False
-                            if not qtd_alunos_cei_cemei_por_periodo.exists():
-                                qtd_alunos_cei_cemei_por_periodo = (
-                                    inc.quantidade_alunos_cei_da_inclusao_cemei.filter(
-                                        periodo_escolar__nome="INTEGRAL"
-                                    )
-                                )
-                                eh_parcial_integral = True
-                        else:
-                            if (
-                                periodo == "INTEGRAL"
-                                and sol_medicao_inicial
-                                and not sol_medicao_inicial.ue_possui_alunos_periodo_parcial
-                            ):
-                                qtd_alunos_cei_cemei_por_periodo = (
-                                    inc.quantidade_alunos_cei_da_inclusao_cemei.filter(
-                                        periodo_escolar__nome__in=[
-                                            "INTEGRAL",
-                                            "MANHA",
-                                            "TARDE",
-                                        ]
-                                    )
-                                )
-                            else:
-                                qtd_alunos_cei_cemei_por_periodo = (
-                                    inc.quantidade_alunos_cei_da_inclusao_cemei.filter(
-                                        periodo_escolar__nome=periodo
-                                    )
-                                )
-                        if not qtd_alunos_cei_cemei_por_periodo.exists():
-                            continue
-                        faixas_etarias_uuids = (
-                            qtd_alunos_cei_cemei_por_periodo.values_list(
-                                "faixa_etaria__uuid", flat=True
-                            )
-                        )
-                        for dia_motivo_cemei in dias_motivos_cemei:
-                            if [
-                                r_dict
-                                for r_dict in return_dict
-                                if r_dict["dia"] == dia_motivo_cemei.data.day
-                            ]:
-                                if [
-                                    r_dict
-                                    for r_dict in return_dict
-                                    if r_dict["dia"] == dia_motivo_cemei.data.day
-                                    and r_dict["eh_parcial_integral"]
-                                ] and not eh_parcial_integral:
-                                    return_dict = [
-                                        r_dict
-                                        for r_dict in return_dict
-                                        if r_dict["dia"] != dia_motivo_cemei.data.day
-                                    ]
-                                    return_dict.append(
-                                        {
-                                            "dia": dia_motivo_cemei.data.day,
-                                            "faixas_etarias": faixas_etarias_uuids.distinct(),
-                                            "eh_parcial_integral": eh_parcial_integral,
-                                        }
-                                    )
-                            else:
-                                return_dict.append(
-                                    {
-                                        "dia": dia_motivo_cemei.data.day,
-                                        "faixas_etarias": faixas_etarias_uuids.distinct(),
-                                        "eh_parcial_integral": eh_parcial_integral,
-                                    }
-                                )
-                    else:
-                        periodo = periodo.split(" ")[1]
-                        if not inc.quantidade_alunos_emei_da_inclusao_cemei.filter(
-                            periodo_escolar__nome=periodo
-                        ).exists():
-                            continue
-                        for dia_motivo_cemei in dias_motivos_cemei:
-                            tratar_append_return_dict(
-                                dia_motivo_cemei.data.day,
-                                mes,
-                                ano,
-                                inc.quantidade_alunos_emei_da_inclusao_cemei.get(
-                                    periodo_escolar__nome=periodo
-                                ),
-                                inclusao,
-                                return_dict,
-                            )
-            else:
-                for periodo in inc.quantidades_periodo.all():
-                    if periodo.periodo_escolar.nome in periodos_escolares:
-                        if inclusao.tipo_doc == "INC_ALIMENTA_CONTINUA":
-                            if not periodo.cancelado:
-                                tratar_inclusao_continua(
-                                    mes, ano, periodo, inclusao, return_dict
-                                )
-                        else:
-                            for inclusao_normal in inc.inclusoes_normais.filter(
-                                data__month=mes, data__year=ano, cancelado=False
-                            ):
-                                tratar_append_return_dict(
-                                    inclusao_normal.data.day,
-                                    mes,
-                                    ano,
-                                    periodo,
-                                    inclusao,
-                                    return_dict,
-                                )
+        return return_dict
+
+    def tratar_inclusoes_normais(self, inc, mes, ano, periodo, inclusao, return_dict):
+        for inclusao_normal in inc.inclusoes_normais.filter(
+            data__month=mes, data__year=ano, cancelado=False
+        ):
+            tratar_append_return_dict(
+                inclusao_normal.data.day, mes, ano, periodo, inclusao, return_dict
+            )
+        return return_dict
+
+    def inclusoes_normal_continua(
+        self, query_set, periodos_escolares, mes, ano, return_dict
+    ):
+        inclusoes_normal_continua = [
+            inclusao
+            for inclusao in query_set
+            if inclusao.tipo_doc in ["INC_ALIMENTA", "INC_ALIMENTA_CONTINUA"]
+        ]
+
+        for inclusao in inclusoes_normal_continua:
+            inc = inclusao.get_raw_model.objects.get(uuid=inclusao.uuid)
+
+            for periodo in inc.quantidades_periodo.all():
+                if (
+                    periodo.periodo_escolar.nome not in periodos_escolares
+                    or periodo.cancelado
+                ):
+                    continue
+
+                if inclusao.tipo_doc == "INC_ALIMENTA_CONTINUA":
+                    tratar_inclusao_continua(mes, ano, periodo, inclusao, return_dict)
+                else:
+                    return_dict = self.tratar_inclusoes_normais(
+                        inc, mes, ano, periodo, inclusao, return_dict
+                    )
+        return return_dict
+
+    @action(detail=False, methods=["GET"], url_path=f"{INCLUSOES_AUTORIZADAS}")
+    def inclusoes_autorizadas(self, request):
+        query_set, mes, ano, escola_uuid = self.filtra_inclusoes(request)
+        periodos_escolares = request.query_params.getlist("periodos_escolares[]")
+
+        return_dict = []
+        return_dict = self.inclusoes_cei(
+            query_set, mes, ano, periodos_escolares, return_dict
+        )
+        return_dict = self.inclusoes_cemei(
+            query_set, mes, ano, periodos_escolares, escola_uuid, return_dict
+        )
+        return_dict = self.inclusoes_normal_continua(
+            query_set, periodos_escolares, mes, ano, return_dict
+        )
+
         data = {"results": return_dict}
 
         return Response(data)
