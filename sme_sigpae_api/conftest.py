@@ -7,6 +7,12 @@ from faker import Faker
 from model_mommy import mommy
 from pytest_factoryboy import register
 
+from .cardapio.fixtures.factories.alteracao_cardapio_factory import (
+    AlteracaoCardapioFactory,
+    DataIntervaloAlteracaoCardapioFactory,
+    MotivoAlteracaoCardapioFactory,
+    SubstituicaoAlimentacaoNoPeriodoEscolarFactory,
+)
 from .cardapio.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory,
@@ -229,6 +235,10 @@ register(QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEIFactory)
 register(DiasMotivosInclusaoDeAlimentacaoCEMEIFactory)
 register(TipoAlimentacaoFactory)
 register(VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory)
+register(MotivoAlteracaoCardapioFactory)
+register(AlteracaoCardapioFactory)
+register(DataIntervaloAlteracaoCardapioFactory)
+register(SubstituicaoAlimentacaoNoPeriodoEscolarFactory)
 
 
 @pytest.fixture

@@ -463,6 +463,7 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
         queryset = cls.filtrar_tipo_doc(queryset, query_params)
         queryset = cls.busca_por_tipo_solicitacao(queryset, query_params)
         queryset = cls.busca_data_evento(queryset, query_params)
+
         return queryset
 
     @classmethod

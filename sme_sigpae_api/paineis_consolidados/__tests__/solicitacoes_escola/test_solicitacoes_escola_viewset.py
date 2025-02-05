@@ -4,6 +4,12 @@ import pytest
 from freezegun.api import freeze_time
 from rest_framework import status
 
+from sme_sigpae_api.cardapio.fixtures.factories.alteracao_cardapio_factory import (
+    AlteracaoCardapioFactory,
+    DataIntervaloAlteracaoCardapioFactory,
+    MotivoAlteracaoCardapioFactory,
+    SubstituicaoAlimentacaoNoPeriodoEscolarFactory,
+)
 from sme_sigpae_api.cardapio.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory,
@@ -587,7 +593,7 @@ class TestEndpointInclusoesAutorizadas:
             usuario=usuario,
         )
 
-    def test_pendentes_autorizacao_infantil(
+    def test_inclusoes_autorizadas_infantil(
         self,
         client_autenticado_vinculo_escola_cemei,
         escola_cemei,
@@ -624,7 +630,7 @@ class TestEndpointInclusoesAutorizadas:
             }
         ]
 
-    def test_pendentes_autorizacao_parcial(
+    def test_inclusoes_autorizadas_parcial(
         self,
         client_autenticado_vinculo_escola_cemei,
         escola_cemei,
@@ -656,7 +662,7 @@ class TestEndpointInclusoesAutorizadas:
             }
         ]
 
-    def test_pendentes_autorizacao_integral(
+    def test_inclusoes_autorizadas_integral(
         self,
         client_autenticado_vinculo_escola_cemei,
         escola_cemei,
@@ -687,3 +693,160 @@ class TestEndpointInclusoesAutorizadas:
                 "faixas_etarias": [str(self.faixa_etaria.uuid)],
             }
         ]
+
+
+@pytest.mark.usefixtures("client_autenticado_escola_paineis_consolidados", "escola")
+@freeze_time("2025-02-05")
+class TestEndpointAlteracoesAutorizadas:
+    def setup_solicitacoes(
+        self,
+        escola,
+        usuario,
+        status,
+        status_evento,
+    ):
+        motivo_rpl = MotivoAlteracaoCardapioFactory.create(
+            nome="RPL - Refeição por Lanche"
+        )
+        motivo_lanche_emergencial = MotivoAlteracaoCardapioFactory.create(
+            nome="Lanche Emergencial"
+        )
+        periodo_manha = PeriodoEscolarFactory.create(nome="MANHA")
+        refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
+        lanche = TipoAlimentacaoFactory.create(nome="Lanche")
+        lanche_emergencial = TipoAlimentacaoFactory.create(nome="Lanche Emergencial")
+
+        self.alteracao_tipo_alimentacao_rpl = AlteracaoCardapioFactory.create(
+            escola=escola,
+            rastro_escola=escola,
+            rastro_dre=escola.diretoria_regional,
+            rastro_lote=escola.lote,
+            motivo=motivo_rpl,
+            data_inicial="2025-02-01",
+            data_final="2025-02-01",
+            status=status,
+            uuid="044d9980-30e7-46f4-b329-c2cc406ef999",
+        )
+        DataIntervaloAlteracaoCardapioFactory.create(
+            alteracao_cardapio=self.alteracao_tipo_alimentacao_rpl, data=f"2025-02-01"
+        )
+        SubstituicaoAlimentacaoNoPeriodoEscolarFactory.create(
+            alteracao_cardapio=self.alteracao_tipo_alimentacao_rpl,
+            periodo_escolar=periodo_manha,
+            tipos_alimentacao_de=[refeicao],
+            tipos_alimentacao_para=[lanche],
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.alteracao_tipo_alimentacao_rpl.uuid,
+            status_evento=status_evento,
+            usuario=usuario,
+        )
+
+        alteracao_tipo_alimentacao_lanche_emergencial = AlteracaoCardapioFactory.create(
+            escola=escola,
+            rastro_escola=escola,
+            rastro_dre=escola.diretoria_regional,
+            rastro_lote=escola.lote,
+            motivo=motivo_lanche_emergencial,
+            data_inicial="2025-02-01",
+            data_final="2025-02-03",
+            status=status,
+            uuid="c76cfacc-f1cb-4ad6-86a3-5a2dc8dc3cd7",
+        )
+        for dia in ["01", "02", "03"]:
+            DataIntervaloAlteracaoCardapioFactory.create(
+                alteracao_cardapio=alteracao_tipo_alimentacao_lanche_emergencial,
+                data=f"2025-02-{dia}",
+            )
+        SubstituicaoAlimentacaoNoPeriodoEscolarFactory.create(
+            alteracao_cardapio=alteracao_tipo_alimentacao_lanche_emergencial,
+            periodo_escolar=periodo_manha,
+            tipos_alimentacao_de=[refeicao, lanche],
+            tipos_alimentacao_para=[lanche_emergencial],
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=alteracao_tipo_alimentacao_lanche_emergencial.uuid,
+            status_evento=status_evento,
+            usuario=usuario,
+        )
+
+    def test_alteracoes_autorizadas_rpl(
+        self,
+        client_autenticado_escola_paineis_consolidados,
+        escola,
+    ):
+        client, usuario = client_autenticado_escola_paineis_consolidados
+        self.setup_solicitacoes(
+            escola,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+
+        response = client.get(
+            "/escola-solicitacoes/alteracoes-alimentacao-autorizadas/"
+            f"?escola_uuid={escola.uuid}"
+            f"&tipo_solicitacao=Alteração"
+            f"&mes=02"
+            f"&ano=2025&"
+            f"eh_lanche_emergencial=false"
+            f"&nome_periodo_escolar=MANHA"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["results"] == [
+            {
+                "dia": "01",
+                "periodo": "MANHA",
+                "numero_alunos": 0,
+                "inclusao_id_externo": "044D9",
+                "motivo": "RPL - Refeição por Lanche",
+            }
+        ]
+
+    def test_alteracoes_autorizadas_lanche_emergencial(
+        self,
+        client_autenticado_escola_paineis_consolidados,
+        escola,
+    ):
+        client, usuario = client_autenticado_escola_paineis_consolidados
+        self.setup_solicitacoes(
+            escola,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+
+        response = client.get(
+            "/escola-solicitacoes/alteracoes-alimentacao-autorizadas/"
+            f"?escola_uuid={escola.uuid}"
+            f"&tipo_solicitacao=Alteração"
+            f"&mes=02"
+            f"&ano=2025&"
+            f"eh_lanche_emergencial=true"
+            f"&nome_periodo_escolar=MANHA"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == {
+            "results": [
+                {
+                    "dia": "01",
+                    "numero_alunos": 0,
+                    "inclusao_id_externo": "C76CF",
+                    "motivo": "Lanche Emergencial",
+                },
+                {
+                    "dia": "02",
+                    "numero_alunos": 0,
+                    "inclusao_id_externo": "C76CF",
+                    "motivo": "Lanche Emergencial",
+                },
+                {
+                    "dia": "03",
+                    "numero_alunos": 0,
+                    "inclusao_id_externo": "C76CF",
+                    "motivo": "Lanche Emergencial",
+                },
+            ]
+        }
