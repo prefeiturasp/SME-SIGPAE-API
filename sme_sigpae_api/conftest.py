@@ -7,6 +7,16 @@ from faker import Faker
 from model_mommy import mommy
 from pytest_factoryboy import register
 
+from .cardapio.fixtures.factories.alteracao_cardapio_factory import (
+    AlteracaoCardapioFactory,
+    DataIntervaloAlteracaoCardapioFactory,
+    MotivoAlteracaoCardapioFactory,
+    SubstituicaoAlimentacaoNoPeriodoEscolarFactory,
+)
+from .cardapio.fixtures.factories.base_factory import (
+    TipoAlimentacaoFactory,
+    VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory,
+)
 from .dados_comuns import constants
 from .dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
@@ -64,10 +74,14 @@ from .imr.fixtures.factories.imr_importacao_planilha_base_factory import (
 )
 from .inclusao_alimentacao.fixtures.factories.base_factory import (
     DiasMotivosInclusaoDeAlimentacaoCEIFactory,
+    DiasMotivosInclusaoDeAlimentacaoCEMEIFactory,
     GrupoInclusaoAlimentacaoNormalFactory,
     InclusaoAlimentacaoDaCEIFactory,
     InclusaoAlimentacaoNormalFactory,
+    InclusaoDeAlimentacaoCEMEIFactory,
     MotivoInclusaoNormalFactory,
+    QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEIFactory,
+    QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEIFactory,
     QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEIFactory,
     QuantidadePorPeriodoFactory,
 )
@@ -215,6 +229,16 @@ register(SolicitacaoKitLancheAvulsaFactory)
 register(AlunoFactory)
 register(SolicitacaoDietaEspecialFactory)
 register(ClassificacaoDietaFactory)
+register(InclusaoDeAlimentacaoCEMEIFactory)
+register(QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEIFactory)
+register(QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEIFactory)
+register(DiasMotivosInclusaoDeAlimentacaoCEMEIFactory)
+register(TipoAlimentacaoFactory)
+register(VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory)
+register(MotivoAlteracaoCardapioFactory)
+register(AlteracaoCardapioFactory)
+register(DataIntervaloAlteracaoCardapioFactory)
+register(SubstituicaoAlimentacaoNoPeriodoEscolarFactory)
 
 
 @pytest.fixture
