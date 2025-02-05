@@ -46,6 +46,7 @@ from ...escola.models import (
     GrupoUnidadeEscolar,
     LogAlunosMatriculadosPeriodoEscola,
     Lote,
+    TipoTurma,
 )
 from ..models import (
     AlimentacaoLancamentoEspecial,
@@ -795,7 +796,10 @@ class SolicitacaoMedicaoInicialViewSet(
         retorno = []
         if escola.eh_cemei:
             logs = LogAlunosMatriculadosPeriodoEscola.objects.filter(
-                escola=escola, criado_em__year=ano, criado_em__month=mes
+                escola=escola,
+                criado_em__year=ano,
+                criado_em__month=mes,
+                tipo_turma=TipoTurma.REGULAR.name,
             )
             retorno = sorted(
                 list(set([f"Infantil {log.periodo_escolar.nome}" for log in logs]))

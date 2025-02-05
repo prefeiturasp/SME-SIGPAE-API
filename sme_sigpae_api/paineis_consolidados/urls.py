@@ -1,8 +1,13 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from .api import viewsets
-from .solicitacoes_codae.api.viewsets import CODAESolicitacoesViewSet
+from sme_sigpae_api.paineis_consolidados.api import viewsets
+from sme_sigpae_api.paineis_consolidados.solicitacoes_codae.api.viewsets import (
+    CODAESolicitacoesViewSet,
+)
+from sme_sigpae_api.paineis_consolidados.solicitacoes_escola.api.viewsets import (
+    EscolaSolicitacoesViewSet,
+)
 
 router = routers.DefaultRouter()
 router.register(
@@ -24,9 +29,7 @@ router.register(
     viewsets.DietaEspecialSolicitacoesViewSet,
     "dieta_especial_solicitacoes",
 )
-router.register(
-    "escola-solicitacoes", viewsets.EscolaSolicitacoesViewSet, "escola_solicitacoes"
-)
+router.register("escola-solicitacoes", EscolaSolicitacoesViewSet, "escola_solicitacoes")
 router.register(
     "diretoria-regional-solicitacoes",
     viewsets.DRESolicitacoesViewSet,
