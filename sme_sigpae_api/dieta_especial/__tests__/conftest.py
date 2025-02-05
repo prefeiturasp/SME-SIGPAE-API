@@ -1204,6 +1204,7 @@ def usuario_com_pk():
     email = "test@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = Usuario.objects.create_user(
+        nome="Antonio Jose",
         username=email,
         password=password,
         email=email,
@@ -1213,9 +1214,17 @@ def usuario_com_pk():
     return user
 
 
-@freeze_time("2025-2-1")
+@freeze_time("2025-1-10")
 @pytest.fixture
 def solicitacoes_processa_dieta_especial(escola_cei):
+    aluno = mommy.make(
+        Aluno,
+        nome="Roberto Alves da Silva",
+        codigo_eol="123456",
+        data_nascimento="2022-01-01",
+        escola=escola_cei,
+        periodo_escolar=mommy.make(PeriodoEscolar, nome="INTEGRAL"),
+    )
     dieta_alterada = mommy.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
@@ -1223,6 +1232,8 @@ def solicitacoes_processa_dieta_especial(escola_cei):
         data_inicio=datetime.date.today(),
         tipo_solicitacao=constants.TIPO_SOLICITACAO_DIETA.get("COMUM"),
         escola_destino=escola_cei,
+        aluno=aluno,
+        rastro_escola=escola_cei,
     )
 
     mommy.make(
@@ -1233,6 +1244,8 @@ def solicitacoes_processa_dieta_especial(escola_cei):
         tipo_solicitacao=constants.TIPO_SOLICITACAO_DIETA.get("ALTERACAO_UE"),
         dieta_alterada=dieta_alterada,
         escola_destino=escola_cei,
+        aluno=aluno,
+        rastro_escola=escola_cei,
     )
     mommy.make(
         SolicitacaoDietaEspecial,
@@ -1242,6 +1255,8 @@ def solicitacoes_processa_dieta_especial(escola_cei):
         tipo_solicitacao=constants.TIPO_SOLICITACAO_DIETA.get("ALTERACAO_UE"),
         dieta_alterada=dieta_alterada,
         escola_destino=escola_cei,
+        aluno=aluno,
+        rastro_escola=escola_cei,
     )
     mommy.make(
         SolicitacaoDietaEspecial,
@@ -1251,4 +1266,6 @@ def solicitacoes_processa_dieta_especial(escola_cei):
         tipo_solicitacao=constants.TIPO_SOLICITACAO_DIETA.get("COMUM"),
         dieta_alterada=dieta_alterada,
         escola_destino=escola_cei,
+        aluno=aluno,
+        rastro_escola=escola_cei,
     )
