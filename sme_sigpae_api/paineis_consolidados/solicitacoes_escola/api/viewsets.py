@@ -426,7 +426,8 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
     def inclusoes_cemei_infantil(
         self, periodo, inc, dias_motivos_cemei, mes, ano, inclusao, return_dict
     ):
-        periodo = periodo.split(" ")[1]
+        if " " in periodo:
+            periodo = periodo.split(" ")[1]
         if not inc.quantidade_alunos_emei_da_inclusao_cemei.filter(
             periodo_escolar__nome=periodo
         ).exists():

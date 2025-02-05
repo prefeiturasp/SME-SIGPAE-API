@@ -4,6 +4,10 @@ import pytest
 from freezegun.api import freeze_time
 from rest_framework import status
 
+from sme_sigpae_api.cardapio.fixtures.factories.base_factory import (
+    TipoAlimentacaoFactory,
+    VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory,
+)
 from sme_sigpae_api.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
@@ -12,10 +16,18 @@ from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factor
     SolicitacaoDietaEspecialFactory,
 )
 from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
-from sme_sigpae_api.escola.fixtures.factories.escola_factory import AlunoFactory
+from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
+    AlunoFactory,
+    FaixaEtariaFactory,
+    PeriodoEscolarFactory,
+)
 from sme_sigpae_api.inclusao_alimentacao.fixtures.factories.base_factory import (
+    DiasMotivosInclusaoDeAlimentacaoCEMEIFactory,
     GrupoInclusaoAlimentacaoNormalFactory,
     InclusaoAlimentacaoNormalFactory,
+    InclusaoDeAlimentacaoCEMEIFactory,
+    QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEIFactory,
+    QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEIFactory,
     QuantidadePorPeriodoFactory,
 )
 from sme_sigpae_api.inclusao_alimentacao.models import GrupoInclusaoAlimentacaoNormal
@@ -518,3 +530,160 @@ class TestEndpointsPainelGerencialDietaEspecialEscola:
         )
         assert "count" not in response.json()
         assert len(response.json()["results"]) == 1
+
+
+@pytest.mark.usefixtures("client_autenticado_vinculo_escola_cemei", "escola_cemei")
+@freeze_time("2025-02-05")
+class TestEndpointInclusoesAutorizadas:
+    def setup_solicitacoes(
+        self,
+        escola_cemei,
+        usuario,
+        status,
+        status_evento,
+    ):
+        self.faixa_etaria = FaixaEtariaFactory.create(inicio=0, fim=1)
+        periodo_manha = PeriodoEscolarFactory.create(nome="MANHA")
+        periodo_integral = PeriodoEscolarFactory.create(nome="INTEGRAL")
+        refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
+        VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory.create(
+            tipo_unidade_escolar__iniciais="EMEI",
+            periodo_escolar=periodo_manha,
+            tipos_alimentacao=[refeicao],
+        )
+        VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory.create(
+            tipo_unidade_escolar__iniciais="EMEI",
+            periodo_escolar=periodo_integral,
+            tipos_alimentacao=[refeicao],
+        )
+
+        inclusao_alimentacao_cemei = InclusaoDeAlimentacaoCEMEIFactory.create(
+            escola=escola_cemei,
+            rastro_escola=escola_cemei,
+            rastro_lote=escola_cemei.lote,
+            rastro_dre=escola_cemei.diretoria_regional,
+            status=status,
+        )
+        QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEIFactory.create(
+            inclusao_alimentacao_cemei=inclusao_alimentacao_cemei,
+            faixa_etaria=self.faixa_etaria,
+            matriculados_quando_criado=10,
+            quantidade_alunos=10,
+            periodo_escolar=periodo_integral,
+        )
+        QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEIFactory.create(
+            inclusao_alimentacao_cemei=inclusao_alimentacao_cemei,
+            matriculados_quando_criado=20,
+            quantidade_alunos=20,
+            periodo_escolar=periodo_manha,
+            tipos_alimentacao=[refeicao],
+        )
+        DiasMotivosInclusaoDeAlimentacaoCEMEIFactory.create(
+            inclusao_alimentacao_cemei=inclusao_alimentacao_cemei, data="2025-02-03"
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=inclusao_alimentacao_cemei.uuid,
+            status_evento=status_evento,
+            usuario=usuario,
+        )
+
+    def test_pendentes_autorizacao_infantil(
+        self,
+        client_autenticado_vinculo_escola_cemei,
+        escola_cemei,
+    ):
+        client, usuario = client_autenticado_vinculo_escola_cemei
+        self.setup_solicitacoes(
+            escola_cemei,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+
+        response = client.get(
+            "/escola-solicitacoes/inclusoes-autorizadas/"
+            f"?escola_uuid={escola_cemei.uuid}"
+            f"&tipo_solicitacao=Inclus%C3%A3o+de"
+            f"&mes=2"
+            f"&ano=2025"
+            f"&periodos_escolares[]=Infantil+MANHA"
+            f"&excluir_inclusoes_continuas=true"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+
+        results = response.json()["results"]
+        results[0].pop("inclusao_id_externo")
+        assert results == [
+            {
+                "dia": "03",
+                "periodo": "MANHA",
+                "alimentacoes": "refeicao",
+                "numero_alunos": 20,
+                "dias_semana": None,
+            }
+        ]
+
+    def test_pendentes_autorizacao_parcial(
+        self,
+        client_autenticado_vinculo_escola_cemei,
+        escola_cemei,
+    ):
+        client, usuario = client_autenticado_vinculo_escola_cemei
+        self.setup_solicitacoes(
+            escola_cemei,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+
+        response = client.get(
+            "/escola-solicitacoes/inclusoes-autorizadas/"
+            f"?escola_uuid={escola_cemei.uuid}"
+            f"&tipo_solicitacao=Inclus%C3%A3o+de"
+            f"&mes=2"
+            f"&ano=2025"
+            f"&periodos_escolares[]=PARCIAL"
+            f"&excluir_inclusoes_continuas=true"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["results"] == [
+            {
+                "dia": 3,
+                "eh_parcial_integral": True,
+                "faixas_etarias": [str(self.faixa_etaria.uuid)],
+            }
+        ]
+
+    def test_pendentes_autorizacao_integral(
+        self,
+        client_autenticado_vinculo_escola_cemei,
+        escola_cemei,
+    ):
+        client, usuario = client_autenticado_vinculo_escola_cemei
+        self.setup_solicitacoes(
+            escola_cemei,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+
+        response = client.get(
+            "/escola-solicitacoes/inclusoes-autorizadas/"
+            f"?escola_uuid={escola_cemei.uuid}"
+            f"&tipo_solicitacao=Inclus%C3%A3o+de"
+            f"&mes=2"
+            f"&ano=2025"
+            f"&periodos_escolares[]=INTEGRAL"
+            f"&excluir_inclusoes_continuas=true"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["results"] == [
+            {
+                "dia": 3,
+                "eh_parcial_integral": False,
+                "faixas_etarias": [str(self.faixa_etaria.uuid)],
+            }
+        ]

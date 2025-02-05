@@ -1307,3 +1307,45 @@ def dados_para_montar_excel():
         xlwriter.close()
         if os.path.exists(output_file):
             os.remove(output_file)
+
+
+@pytest.fixture
+def escola_cemei():
+    terceirizada = mommy.make("Terceirizada")
+    lote = mommy.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = mommy.make(
+        "DiretoriaRegional",
+        nome="DIRETORIA REGIONAL GUAIANASES",
+        uuid="e5583462-d6d5-4580-afd4-de2fd94a3440",
+    )
+    tipo_unidade = mommy.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
+    return mommy.make(
+        "Escola",
+        nome="CEMEI PARQUE DO LAGO",
+        lote=lote,
+        diretoria_regional=diretoria_regional,
+        tipo_gestao=tipo_gestao,
+        tipo_unidade=tipo_unidade,
+    )
+
+
+@pytest.fixture
+def client_autenticado_vinculo_escola_cemei(client, django_user_model, escola_cemei):
+    email = "test3@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888887"
+    )
+    perfil_diretor = mommy.make("Perfil", nome=constants.DIRETOR_UE, ativo=True)
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=escola_cemei,
+        perfil=perfil_diretor,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client, user
