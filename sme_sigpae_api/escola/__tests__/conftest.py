@@ -8,8 +8,16 @@ from faker import Faker
 from model_mommy import mommy
 
 from sme_sigpae_api.escola.utils_analise_dietas_ativas import (
-    dict_codigo_aluno_por_codigo_escola,
-    dict_codigos_escolas,
+    dict_codigo_aluno_por_codigo_escola as dict_aluno_utils_dieta,
+)
+from sme_sigpae_api.escola.utils_analise_dietas_ativas import (
+    dict_codigos_escolas as dict_escola_utils_dieta,
+)
+from sme_sigpae_api.escola.utils_escola import (
+    dict_codigo_aluno_por_codigo_escola as dict_aluno_utils_escola,
+)
+from sme_sigpae_api.escola.utils_escola import (
+    dict_codigos_escolas as dict_escola_utils_escola,
 )
 
 from ...eol_servico.utils import dt_nascimento_from_api
@@ -21,6 +29,12 @@ from ...escola.api.serializers import (
 from ...medicao_inicial.models import SolicitacaoMedicaoInicial
 from ...perfil.models import Vinculo
 from .. import models
+
+# from sme_sigpae_api.escola.utils_analise_dietas_ativas import (
+#     dict_codigo_aluno_por_codigo_escola,
+#     dict_codigos_escolas,
+# )
+
 
 fake = Faker("pt_BR")
 Faker.seed(420)
@@ -656,19 +670,19 @@ def protocolos():
 
 
 @pytest.fixture
-def variaveis_globais():
-    global dict_codigos_escolas, dict_codigo_aluno_por_codigo_escola
+def variaveis_globais_dieta():
+    global dict_escola_utils_dieta, dict_aluno_utils_dieta
 
-    dict_codigos_escolas.clear()
-    dict_codigo_aluno_por_codigo_escola.clear()
+    dict_escola_utils_dieta.clear()
+    dict_aluno_utils_dieta.clear()
 
-    dict_codigos_escolas.update(
+    dict_escola_utils_dieta.update(
         {
             "1001": "123456789",
             "1002": "987654321",
         }
     )
-    dict_codigo_aluno_por_codigo_escola.update(
+    dict_aluno_utils_dieta.update(
         {
             "20001": "Escola A",
             "20002": "Escola B",
@@ -676,7 +690,34 @@ def variaveis_globais():
         }
     )
 
-    yield dict_codigos_escolas, dict_codigo_aluno_por_codigo_escola
+    yield dict_escola_utils_dieta, dict_aluno_utils_dieta
 
-    dict_codigos_escolas.clear()
-    dict_codigo_aluno_por_codigo_escola.clear()
+    dict_escola_utils_dieta.clear()
+    dict_aluno_utils_dieta.clear()
+
+
+@pytest.fixture
+def variaveis_globais_escola():
+    global dict_escola_utils_escola, dict_aluno_utils_dieta
+
+    dict_escola_utils_escola.clear()
+    dict_aluno_utils_escola.clear()
+
+    dict_escola_utils_escola.update(
+        {
+            "1001": "123456789",
+            "1002": "987654321",
+        }
+    )
+    dict_aluno_utils_escola.update(
+        {
+            "20001": "Escola A",
+            "20002": "Escola B",
+            "20003": "Escola C",
+        }
+    )
+
+    yield dict_escola_utils_escola, dict_aluno_utils_escola
+
+    dict_escola_utils_escola.clear()
+    dict_aluno_utils_escola.clear()
