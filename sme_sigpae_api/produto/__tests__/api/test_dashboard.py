@@ -34,9 +34,9 @@ class TestDashboardGestaoProdutos:
         )
 
         escola_2 = EscolaFactory.create()
-        edital_2 = EditalFactory.create(numero="31/SME/2022")
+        self.edital_2 = EditalFactory.create(numero="31/SME/2022")
         ContratoFactory.create(
-            edital=edital_2,
+            edital=self.edital_2,
             terceirizada=escola_2.lote.terceirizada,
             lotes=[escola_2.lote],
         )
@@ -63,7 +63,7 @@ class TestDashboardGestaoProdutos:
         produto_2 = ProdutoFactory.create(
             nome="MACARRAO", marca__nome="ADRIA", fabricante__nome="ADRIA LTDA"
         )
-        ProdutoEditalFactory.create(produto=produto_2, edital=edital_2)
+        ProdutoEditalFactory.create(produto=produto_2, edital=self.edital_2)
         homologacao_produto_2 = HomologacaoProdutoFactory.create(
             produto=produto_2,
             status=status,
@@ -91,6 +91,24 @@ class TestDashboardGestaoProdutos:
             uuid_original=self.homologacao_produto.uuid,
             status_evento=LogSolicitacoesUsuario.CODAE_SUSPENDEU,
             criado_em=datetime.datetime.now() + datetime.timedelta(days=1),
+            usuario=usuario,
+        )
+
+    def homologa_em_outro_edital(self, usuario):
+        vinculo_novo = ProdutoEditalFactory.create(
+            produto=self.produto, edital=self.edital_2
+        )
+        DataHoraVinculoProdutoEditalFactory.create(produto_edital=vinculo_novo)
+
+        self.homologacao_produto.status = (
+            HomologacaoProduto.workflow_class.CODAE_HOMOLOGADO
+        )
+        self.homologacao_produto.save()
+
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.homologacao_produto.uuid,
+            status_evento=LogSolicitacoesUsuario.CODAE_HOMOLOGADO,
+            criado_em=datetime.datetime.now() + datetime.timedelta(days=2),
             usuario=usuario,
         )
 
@@ -317,6 +335,76 @@ class TestDashboardGestaoProdutos:
                 produto
                 for produto in response.json()["results"]
                 if produto["nome_produto"] == "MACARRAO"
+            )
+            is True
+        )
+
+    def test_produtos_suspensos(
+        self,
+        client_autenticado_vinculo_escola_ue,
+        escola,
+    ):
+        client, usuario = client_autenticado_vinculo_escola_ue
+        self.setup_produtos(
+            escola,
+            usuario,
+            status=HomologacaoProduto.workflow_class.CODAE_HOMOLOGADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_HOMOLOGADO,
+        )
+        self.suspende_produto(usuario)
+
+        response = client.get("/dashboard-produtos/suspensos/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["count"] == 1
+        assert (
+            any(
+                produto
+                for produto in response.json()["results"]
+                if produto["nome_produto"] == "SALSICHA"
+            )
+            is True
+        )
+
+    def test_produtos_suspensos_nao_encontra(
+        self,
+        client_autenticado_vinculo_escola_ue,
+        escola,
+    ):
+        client, usuario = client_autenticado_vinculo_escola_ue
+        self.setup_produtos(
+            escola,
+            usuario,
+            status=HomologacaoProduto.workflow_class.CODAE_HOMOLOGADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_HOMOLOGADO,
+        )
+
+        response = client.get("/dashboard-produtos/suspensos/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["count"] == 0
+
+    def test_produtos_suspensos_homologado_em_outro_edital(
+        self,
+        client_autenticado_vinculo_escola_ue,
+        escola,
+    ):
+        client, usuario = client_autenticado_vinculo_escola_ue
+        self.setup_produtos(
+            escola,
+            usuario,
+            status=HomologacaoProduto.workflow_class.CODAE_HOMOLOGADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_HOMOLOGADO,
+        )
+        self.suspende_produto(usuario)
+        self.homologa_em_outro_edital(usuario)
+
+        response = client.get("/dashboard-produtos/suspensos/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["count"] == 1
+        assert (
+            any(
+                produto
+                for produto in response.json()["results"]
+                if produto["nome_produto"] == "SALSICHA"
             )
             is True
         )
