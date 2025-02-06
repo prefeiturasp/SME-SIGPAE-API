@@ -634,6 +634,7 @@ class PermissaoParaListarVinculosAtivos(BasePermission):
                 ADMINISTRADOR_CODAE_GABINETE,
                 DILOG_DIRETORIA,
                 USUARIO_GTIC_CODAE,
+                ADMINISTRADOR_DICAE,
             ]
             or isinstance(usuario.vinculo_atual.instituicao, Escola)
             and usuario.vinculo_atual.perfil.nome in [DIRETOR_UE]
@@ -1386,8 +1387,8 @@ class PermissaoObjetoFormularioSupervisao(BasePermission):
         return obj.formulario_base.usuario == usuario
 
 
-class UsuarioAdministradorDICAE(BasePermission):
-    """Permite acesso a usuários com vinculo a CODAE - Nutri Manifestação."""
+class UsuarioAdministradorContratos(BasePermission):
+    """Permite acesso a usuários com vinculo a CODAE - Administrador Contratos."""
 
     def has_permission(self, request, view):
         usuario = request.user

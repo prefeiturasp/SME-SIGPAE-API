@@ -298,6 +298,7 @@ def cria_vinculos():
     )
     escola = Escola.objects.get(nome="EMEF JOSE ERMIRIO DE MORAIS, SEN.")  # noqa
     terceirizada = escola.lote.terceirizada
+    dicae, created = Codae.objects.get_or_create(nome="CODAE - Administrador Contratos")
 
     items_especificos = [
         {
@@ -361,8 +362,7 @@ def cria_vinculos():
             "usuario": usuario["usuario_dinutre_diretoria"],
         },
         {
-            # TODO: Precisa trocar a instituição depois
-            "instituicao": dilog,
+            "instituicao": dicae,
             "perfil": perfil["perfil_administrador_dicae"],
             "usuario": usuario["usuario_administrador_dicae"],
         },
