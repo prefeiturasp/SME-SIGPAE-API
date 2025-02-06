@@ -1,0 +1,82 @@
+from collections import defaultdict
+
+from django.db.models import CharField, F, Q, QuerySet
+from django.db.models.functions import Cast, Substr
+from rest_framework.request import Request
+
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
+from sme_sigpae_api.produto.models import HomologacaoProduto
+
+
+def filtra_editais(
+    request: Request, query_set: QuerySet[HomologacaoProduto]
+) -> QuerySet[HomologacaoProduto]:
+    if hasattr(request.user.vinculo_atual.instituicao, "editais"):
+        query_set = query_set.filter(
+            produto__vinculos__edital__uuid__in=request.user.vinculo_atual.instituicao.editais,
+        )
+    numero_edital = request.query_params.get("edital_produto")
+    if numero_edital:
+        query_set = query_set.filter(produto__vinculos__edital__numero=numero_edital)
+    return query_set
+
+
+def trata_parcialmente_homologados(
+    request: Request, query_set: QuerySet[HomologacaoProduto]
+) -> QuerySet[HomologacaoProduto]:
+    numero_edital = request.query_params.get("edital_produto")
+    if numero_edital:
+        query_set = query_set.filter(
+            produto__vinculos__suspenso=False,
+            produto__vinculos__edital__numero=numero_edital,
+        )
+    if hasattr(request.user.vinculo_atual.instituicao, "editais"):
+        query_set = query_set.filter(
+            produto__vinculos__suspenso=False,
+            produto__vinculos__edital__uuid__in=request.user.vinculo_atual.instituicao.editais,
+        )
+    return query_set
+
+
+def filtrar_query_params(
+    request: Request, query_set: QuerySet[HomologacaoProduto]
+) -> QuerySet[HomologacaoProduto]:
+    titulo = request.query_params.get("titulo_produto")
+    marca = request.query_params.get("marca_produto")
+
+    if titulo:
+        query_set = query_set.annotate(
+            id_amigavel=Substr(Cast(F("uuid"), output_field=CharField()), 1, 5)
+        ).filter(Q(id_amigavel__icontains=titulo) | Q(produto__nome__icontains=titulo))
+    if marca:
+        query_set = query_set.filter(produto__marca__nome__icontains=marca)
+
+    query_set = filtra_editais(request, query_set)
+    return query_set
+
+
+def retorna_produtos_homologados(
+    query_set: QuerySet[HomologacaoProduto],
+) -> QuerySet[HomologacaoProduto]:
+    all_logs = LogSolicitacoesUsuario.objects.filter(
+        uuid_original__in=query_set.values_list("uuid", flat=True)
+    ).order_by("-criado_em")
+
+    logs_by_uuid = defaultdict(list)
+    for log in all_logs:
+        logs_by_uuid[log.uuid_original].append(log)
+
+    def produto_homologado(obj):
+        for log in logs_by_uuid.get(obj.uuid, []):
+            if log.status_evento == LogSolicitacoesUsuario.CODAE_HOMOLOGADO:
+                return True
+            elif log.status_evento in [
+                LogSolicitacoesUsuario.CODAE_SUSPENDEU,
+                LogSolicitacoesUsuario.CODAE_NAO_HOMOLOGADO,
+            ]:
+                continue
+        return False
+
+    filtered_objects = [obj for obj in query_set if produto_homologado(obj)]
+    query_set = query_set.filter(id__in=[obj.id for obj in filtered_objects])
+    return query_set

@@ -24,6 +24,7 @@ from django.core.mail import (
     get_connection,
     send_mail,
 )
+from django.db.models import QuerySet
 from django.template.loader import render_to_string
 from workalendar.america import BrazilSaoPauloCity
 
@@ -699,7 +700,7 @@ def numero_com_agrupador_de_milhar_e_decimal(value: int | float) -> str:
         return value
 
 
-def ordena_queryset_por_ultimo_log(queryset):
+def ordena_queryset_por_ultimo_log(queryset: QuerySet) -> list:
     all_logs = LogSolicitacoesUsuario.objects.filter(
         uuid_original__in=queryset.values_list("uuid", flat=True)
     ).order_by("criado_em")

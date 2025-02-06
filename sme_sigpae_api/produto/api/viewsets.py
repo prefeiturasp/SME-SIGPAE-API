@@ -1,5 +1,5 @@
 import json
-from collections import Counter, defaultdict
+from collections import Counter
 from datetime import datetime
 from itertools import chain
 from operator import attrgetter
@@ -44,7 +44,7 @@ from ...dados_comuns.permissions import (
     UsuarioOrgaoFiscalizador,
     UsuarioTerceirizadaProduto,
 )
-from ...dados_comuns.utils import ordena_queryset_por_ultimo_log, url_configs
+from ...dados_comuns.utils import url_configs
 from ...dieta_especial.models import Alimento
 from ...escola.models import DiretoriaRegional, Escola, Lote
 from ...paineis_consolidados.api.viewsets import SolicitacoesViewSet
@@ -92,7 +92,6 @@ from ..tasks import (
 )
 from ..utils import (
     CadastroProdutosEditalPagination,
-    DashboardPagination,
     ItemCadastroPagination,
     StandardResultsSetPagination,
     atualiza_queryset_codae_suspendeu,
@@ -537,88 +536,6 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
             )
         }
         return Response(response)
-
-    def filtra_editais(self, query_set):
-        if hasattr(self.request.user.vinculo_atual.instituicao, "editais"):
-            query_set = query_set.filter(
-                produto__vinculos__edital__uuid__in=self.request.user.vinculo_atual.instituicao.editais,
-            )
-        numero_edital = self.request.query_params.get("edital_produto")
-        if numero_edital:
-            query_set = query_set.filter(
-                produto__vinculos__edital__numero=numero_edital
-            )
-        return query_set
-
-    def trata_parcialmente_homologados(self, query_set):
-        numero_edital = self.request.query_params.get("edital_produto")
-        if numero_edital:
-            query_set = query_set.filter(
-                produto__vinculos__suspenso=False,
-                produto__vinculos__edital__numero=numero_edital,
-            )
-        if hasattr(self.request.user.vinculo_atual.instituicao, "editais"):
-            query_set = query_set.filter(
-                produto__vinculos__suspenso=False,
-                produto__vinculos__edital__uuid__in=self.request.user.vinculo_atual.instituicao.editais,
-            )
-        return query_set
-
-    def filtrar_query_params(self, query_set):
-        titulo = self.request.query_params.get("titulo_produto")
-        marca = self.request.query_params.get("marca_produto")
-
-        if titulo:
-            query_set = query_set.annotate(
-                id_amigavel=Substr(Cast(F("uuid"), output_field=CharField()), 1, 5)
-            ).filter(
-                Q(id_amigavel__icontains=titulo) | Q(produto__nome__icontains=titulo)
-            )
-        if marca:
-            query_set = query_set.filter(produto__marca__nome__icontains=marca)
-
-        query_set = self.filtra_editais(query_set)
-        return query_set
-
-    def retorna_produtos_homologados(self, query_set):
-        all_logs = LogSolicitacoesUsuario.objects.filter(
-            uuid_original__in=query_set.values_list("uuid", flat=True)
-        ).order_by("-criado_em")
-
-        logs_by_uuid = defaultdict(list)
-        for log in all_logs:
-            logs_by_uuid[log.uuid_original].append(log)
-
-        def produto_homologado(obj):
-            for log in logs_by_uuid.get(obj.uuid, []):
-                if log.status_evento == LogSolicitacoesUsuario.CODAE_HOMOLOGADO:
-                    return True
-                elif log.status_evento in [
-                    LogSolicitacoesUsuario.CODAE_SUSPENDEU,
-                    LogSolicitacoesUsuario.CODAE_NAO_HOMOLOGADO,
-                ]:
-                    continue
-            return False
-
-        filtered_objects = [obj for obj in query_set if produto_homologado(obj)]
-        query_set = query_set.filter(id__in=[obj.id for obj in filtered_objects])
-        return query_set
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path="dashboard/homologados",
-        pagination_class=DashboardPagination,
-    )
-    def dashboard_homologados(self, request):
-        query_set = self.get_queryset()
-        query_set = self.filtrar_query_params(query_set)
-        query_set = self.trata_parcialmente_homologados(query_set)
-        query_set = self.retorna_produtos_homologados(query_set)
-        query_set = ordena_queryset_por_ultimo_log(query_set)
-        page = self.paginate_queryset(query_set)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
 
     def produtos_sem_agrupamento(self, nome_edital, qs_produtos, offset, limit):
         produtos_agrupados = []

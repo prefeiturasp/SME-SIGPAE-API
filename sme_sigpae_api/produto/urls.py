@@ -2,6 +2,7 @@ from django.urls import include, path
 from rest_framework import routers
 
 from .api import viewsets
+from .api.dashboard_viewset import HomologacaoProdutoDashboardViewSet
 
 router = routers.DefaultRouter()
 
@@ -65,6 +66,11 @@ router.register(
     "embalagens-produto",
     viewsets.EmbalagemProdutoViewSet,
     basename="embalagens-produto",
+)
+router.register(
+    "dashboard-produtos",
+    HomologacaoProdutoDashboardViewSet,
+    basename="dashboard-produtos",
 )
 
 urlpatterns = [

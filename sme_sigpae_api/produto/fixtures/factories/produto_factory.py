@@ -3,9 +3,11 @@ from faker import Faker
 
 from sme_sigpae_api.produto.models import (
     Fabricante,
+    HomologacaoProduto,
     InformacaoNutricional,
     Marca,
     NomeDeProdutoEdital,
+    Produto,
     TipoDeInformacaoNutricional,
 )
 
@@ -52,3 +54,19 @@ class InformacaoNutricionalFactory(DjangoModelFactory):
         model = InformacaoNutricional
 
     tipo_nutricional = SubFactory(TipoDeInformacaoNutricionalFactory)
+
+
+class ProdutoFactory(DjangoModelFactory):
+    nome = Sequence(lambda n: str(fake.unique.name()).upper())
+    marca = SubFactory(MarcaFactory)
+    fabricante = SubFactory(FabricanteFactory)
+
+    class Meta:
+        model = Produto
+
+
+class HomologacaoProdutoFactory(DjangoModelFactory):
+    produto = SubFactory(ProdutoFactory)
+
+    class Meta:
+        model = HomologacaoProduto

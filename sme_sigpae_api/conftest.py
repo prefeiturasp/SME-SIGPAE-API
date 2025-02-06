@@ -124,8 +124,10 @@ from .pre_recebimento.fixtures.factories.unidade_medida_factory import (
 )
 from .produto.fixtures.factories.produto_factory import (
     FabricanteFactory,
+    HomologacaoProdutoFactory,
     InformacaoNutricionalFactory,
     MarcaFactory,
+    ProdutoFactory,
     ProdutoLogisticaFactory,
     ProdutoTerceirizadaFactory,
     TipoDeInformacaoNutricionalFactory,
@@ -239,6 +241,8 @@ register(MotivoAlteracaoCardapioFactory)
 register(AlteracaoCardapioFactory)
 register(DataIntervaloAlteracaoCardapioFactory)
 register(SubstituicaoAlimentacaoNoPeriodoEscolarFactory)
+register(ProdutoFactory)
+register(HomologacaoProdutoFactory)
 
 
 @pytest.fixture
