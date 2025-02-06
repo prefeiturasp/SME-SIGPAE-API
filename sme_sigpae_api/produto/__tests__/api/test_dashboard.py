@@ -287,3 +287,36 @@ class TestDashboardGestaoProdutos:
         response = client.get("/dashboard-produtos/homologados/")
         assert response.status_code == status.HTTP_200_OK
         assert response.json()["count"] == 0
+
+    def test_produtos_nao_homologados(
+        self,
+        client_autenticado_vinculo_escola_ue,
+        escola,
+    ):
+        client, usuario = client_autenticado_vinculo_escola_ue
+        self.setup_produtos(
+            escola,
+            usuario,
+            status=HomologacaoProduto.workflow_class.CODAE_NAO_HOMOLOGADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_NAO_HOMOLOGADO,
+        )
+
+        response = client.get("/dashboard-produtos/nao-homologados/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["count"] == 2
+        assert (
+            any(
+                produto
+                for produto in response.json()["results"]
+                if produto["nome_produto"] == "SALSICHA"
+            )
+            is True
+        )
+        assert (
+            any(
+                produto
+                for produto in response.json()["results"]
+                if produto["nome_produto"] == "MACARRAO"
+            )
+            is True
+        )

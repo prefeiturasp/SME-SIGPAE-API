@@ -45,8 +45,7 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
         pagination_class=DashboardPagination,
     )
     def dashboard_nao_homologados(self, request):
-        query_set = self.get_queryset()
-        query_set = query_set.filter(
+        query_set = self.get_queryset().filter(
             status=HomologacaoProduto.workflow_class.CODAE_NAO_HOMOLOGADO
         )
         query_set = filtrar_query_params(request, query_set, filtra_por_edital=False)
