@@ -1,8 +1,11 @@
 from django.urls import include, path
 from rest_framework import routers
 
+from sme_sigpae_api.produto.api.dashboard.dashboard_viewset import (
+    HomologacaoProdutoDashboardViewSet,
+)
+
 from .api import viewsets
-from .api.dashboard_viewset import HomologacaoProdutoDashboardViewSet
 
 router = routers.DefaultRouter()
 

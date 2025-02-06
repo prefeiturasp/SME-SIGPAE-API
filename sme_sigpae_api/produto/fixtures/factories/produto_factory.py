@@ -2,13 +2,18 @@ from factory import DjangoModelFactory, Sequence, SubFactory
 from faker import Faker
 
 from sme_sigpae_api.produto.models import (
+    DataHoraVinculoProdutoEdital,
     Fabricante,
     HomologacaoProduto,
     InformacaoNutricional,
     Marca,
     NomeDeProdutoEdital,
     Produto,
+    ProdutoEdital,
     TipoDeInformacaoNutricional,
+)
+from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import (
+    EditalFactory,
 )
 
 fake = Faker("pt_BR")
@@ -70,3 +75,19 @@ class HomologacaoProdutoFactory(DjangoModelFactory):
 
     class Meta:
         model = HomologacaoProduto
+
+
+class ProdutoEditalFactory(DjangoModelFactory):
+    produto = SubFactory(ProdutoFactory)
+    edital = SubFactory(EditalFactory)
+    tipo_produto = ProdutoEdital.COMUM
+
+    class Meta:
+        model = ProdutoEdital
+
+
+class DataHoraVinculoProdutoEditalFactory(DjangoModelFactory):
+    produto_edital = SubFactory(ProdutoEditalFactory)
+
+    class Meta:
+        model = DataHoraVinculoProdutoEdital
