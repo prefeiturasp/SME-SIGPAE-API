@@ -21,18 +21,18 @@ def filtra_editais(
     return query_set
 
 
-def trata_parcialmente_homologados(
-    request: Request, query_set: QuerySet[HomologacaoProduto]
+def trata_parcialmente_homologados_ou_suspensos(
+    request: Request, query_set: QuerySet[HomologacaoProduto], vinculo_suspenso: bool
 ) -> QuerySet[HomologacaoProduto]:
     numero_edital = request.query_params.get("edital_produto")
     if numero_edital:
         query_set = query_set.filter(
-            produto__vinculos__suspenso=False,
+            produto__vinculos__suspenso=vinculo_suspenso,
             produto__vinculos__edital__numero=numero_edital,
         )
     if hasattr(request.user.vinculo_atual.instituicao, "editais"):
         query_set = query_set.filter(
-            produto__vinculos__suspenso=False,
+            produto__vinculos__suspenso=vinculo_suspenso,
             produto__vinculos__edital__uuid__in=request.user.vinculo_atual.instituicao.editais,
         )
     return query_set
