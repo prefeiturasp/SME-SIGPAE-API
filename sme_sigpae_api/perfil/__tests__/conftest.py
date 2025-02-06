@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
 from model_mommy import mommy

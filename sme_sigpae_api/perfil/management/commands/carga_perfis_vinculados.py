@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
 
+from sme_sigpae_api.perfil.models.perfil import Perfil, PerfisVinculados
+
 from ....dados_comuns.constants import (
     ADMINISTRADOR_DICAE,
     ADMINISTRADOR_DIETA_ESPECIAL,
@@ -10,7 +12,6 @@ from ....dados_comuns.constants import (
     COORDENADOR_GESTAO_PRODUTO,
     COORDENADOR_SUPERVISAO_NUTRICAO,
 )
-from ...models import Perfil, PerfisVinculados
 
 
 class Command(BaseCommand):
