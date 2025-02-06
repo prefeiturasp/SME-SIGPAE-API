@@ -157,6 +157,12 @@ def get_filtros_data(data_inicial, data_final):
     return filtros_data
 
 
+class DashboardPagination(PageNumberPagination):
+    page_size = 6
+    page_size_query_param = "page_size"
+    max_page_size = 6
+
+
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 100
     page_size_query_param = "page_size"

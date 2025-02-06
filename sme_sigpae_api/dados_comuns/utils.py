@@ -5,6 +5,7 @@ import os
 import re
 import uuid
 from calendar import monthrange
+from collections import defaultdict
 from copy import deepcopy
 from mimetypes import guess_extension, guess_type
 from typing import Any
@@ -29,7 +30,7 @@ from workalendar.america import BrazilSaoPauloCity
 from config.settings.base import URL_CONFIGS
 
 from .constants import DAQUI_A_SETE_DIAS, DAQUI_A_TRINTA_DIAS, DOMINIOS_DEV
-from .models import CentralDeDownload, Notificacao
+from .models import CentralDeDownload, LogSolicitacoesUsuario, Notificacao
 
 calendar = BrazilSaoPauloCity()
 
@@ -696,3 +697,28 @@ def numero_com_agrupador_de_milhar_e_decimal(value: int | float) -> str:
 
     except (ValueError, TypeError):
         return value
+
+
+def ordena_queryset_por_ultimo_log(queryset):
+    all_logs = LogSolicitacoesUsuario.objects.filter(
+        uuid_original__in=queryset.values_list("uuid", flat=True)
+    ).order_by("criado_em")
+
+    logs_by_uuid = defaultdict(list)
+    for log in all_logs:
+        logs_by_uuid[log.uuid_original].append(log)
+
+    for obj in queryset:
+        obj._prefetched_logs = logs_by_uuid.get(obj.uuid, [])
+        obj.ultimo_log_cached = (
+            obj._prefetched_logs[-1] if obj._prefetched_logs else None
+        )
+
+    queryset = sorted(
+        queryset,
+        key=lambda x: x.ultimo_log_cached.criado_em
+        if x.ultimo_log_cached
+        else datetime.datetime.min,
+        reverse=True,
+    )
+    return queryset

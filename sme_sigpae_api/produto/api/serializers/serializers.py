@@ -440,6 +440,10 @@ class HomologacaoProdutoSerializer(serializers.ModelSerializer):
     logs = LogSolicitacoesUsuarioComAnexosSerializer(many=True)
     rastro_terceirizada = TerceirizadaSimplesSerializer()
     ultima_analise = AnaliseSensorialSerializer()
+    esta_homologado = serializers.SerializerMethodField()
+
+    def get_esta_homologado(self, obj):
+        return obj.esta_homologado()
 
     class Meta:
         model = HomologacaoProduto
