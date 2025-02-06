@@ -1,7 +1,6 @@
 import datetime
 
 import pytest
-from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
 from model_mommy import mommy
@@ -1331,6 +1330,7 @@ def usuario_administrador_dicae():
     usuario = mommy.make("Usuario", username="testuser")
     mommy.make("Cargo", usuario=usuario, ativo=False, nome="Gerente")
     mommy.make("Cargo", usuario=usuario, ativo=True, nome="Analista")
+    codae = mommy.make("Codae", nome="Codae - Administrador Contratos")
     mommy.make(
         "Vinculo",
         usuario=usuario,
@@ -1338,6 +1338,8 @@ def usuario_administrador_dicae():
         ativo=True,
         data_inicial=datetime.date.today(),
         data_final=None,
+        content_type=models.ContentType.objects.get(model="codae"),
+        object_id=codae.pk,
     )
 
     return usuario

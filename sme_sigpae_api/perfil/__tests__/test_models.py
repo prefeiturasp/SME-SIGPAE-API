@@ -4,7 +4,6 @@ import pytest
 from django.db.utils import IntegrityError
 
 from sme_sigpae_api.dados_comuns.constants import ADMINISTRADOR_DICAE
-from sme_sigpae_api.perfil.models.usuario import Cargo
 
 from ..models import Perfil, Usuario
 
@@ -83,3 +82,4 @@ def test_desativa_cargo(usuario_administrador_dicae):
 
 def test_usuario_dicae(usuario_administrador_dicae):
     assert usuario_administrador_dicae.vinculo_atual.perfil.nome == ADMINISTRADOR_DICAE
+    assert usuario_administrador_dicae.tipo_usuario == "administrador_dicae"
