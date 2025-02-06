@@ -39,7 +39,7 @@ def trata_parcialmente_homologados(
 
 
 def filtrar_query_params(
-    request: Request, query_set: QuerySet[HomologacaoProduto]
+    request: Request, query_set: QuerySet[HomologacaoProduto], filtra_por_edital=True
 ) -> QuerySet[HomologacaoProduto]:
     titulo = request.query_params.get("titulo_produto")
     marca = request.query_params.get("marca_produto")
@@ -51,7 +51,8 @@ def filtrar_query_params(
     if marca:
         query_set = query_set.filter(produto__marca__nome__icontains=marca)
 
-    query_set = filtra_editais(request, query_set)
+    if filtra_por_edital:
+        query_set = filtra_editais(request, query_set)
     return query_set
 
 
