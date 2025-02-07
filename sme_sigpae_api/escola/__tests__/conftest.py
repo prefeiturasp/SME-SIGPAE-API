@@ -1,12 +1,14 @@
 import datetime
-import json
 import uuid
+from pathlib import Path
 
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
 from model_mommy import mommy
 
+from sme_sigpae_api.dados_comuns.constants import StatusProcessamentoArquivo
+from sme_sigpae_api.escola.utils import cria_arquivo_excel
 from sme_sigpae_api.escola.utils_analise_dietas_ativas import (
     dict_codigo_aluno_por_codigo_escola as dict_aluno_utils_dieta,
 )
@@ -715,3 +717,56 @@ def variaveis_globais_escola():
 
     dict_escola_utils_escola.clear()
     dict_aluno_utils_escola.clear()
+
+
+@pytest.fixture
+def codigo_codae_das_escolas():
+    escola1 = mommy.make("Escola", codigo_eol="123456", codigo_codae="00000")
+    escola2 = mommy.make("Escola", codigo_eol="789012", codigo_codae="00000")
+    planilha = mommy.make(
+        "PlanilhaEscolaDeParaCodigoEolCodigoCoade", codigos_codae_vinculados=False
+    )
+
+    return escola1, escola2, planilha
+
+
+@pytest.fixture
+def tipo_gestao_das_escolas():
+    caminho_arquivo_escola = Path(f"/tmp/{uuid.uuid4()}.xlsx")
+    cria_arquivo_excel(
+        caminho_arquivo_escola,
+        [
+            {"CÓDIGO EOL": 123456, "TIPO": "PARCEIRA"},
+            {"CÓDIGO EOL": 789012, "TIPO": "DIRETA"},
+        ],
+    )
+
+    with open(caminho_arquivo_escola, "rb") as f:
+        uploaded_file = SimpleUploadedFile(
+            "escolas.xlsx",
+            f.read(),
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+
+    parceira = mommy.make("TipoGestao", nome="PARCEIRA")
+    direta = mommy.make("TipoGestao", nome="DIRETA")
+    mista = mommy.make("TipoGestao", nome="MISTA")
+    tercerizada = mommy.make("TipoGestao", nome="TERC TOTAL")
+
+    escola1 = mommy.make("Escola", codigo_eol="123456", tipo_gestao=None)
+    escola2 = mommy.make("Escola", codigo_eol="789012", tipo_gestao=None)
+
+    planilha_atualizacao_tipo_gestao = mommy.make(
+        "PlanilhaAtualizacaoTipoGestaoEscola",
+        conteudo=uploaded_file,
+        criado_em=datetime.date.today(),
+        status=StatusProcessamentoArquivo.PENDENTE.value,
+    )
+    return (
+        escola1,
+        escola2,
+        planilha_atualizacao_tipo_gestao,
+        caminho_arquivo_escola,
+        parceira,
+        direta,
+    )

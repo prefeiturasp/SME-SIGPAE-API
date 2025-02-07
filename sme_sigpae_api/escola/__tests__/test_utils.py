@@ -1,7 +1,11 @@
+import os
+from pathlib import Path
+
 import pytest
+from openpyxl import load_workbook
 
 from ...eol_servico.utils import EOLException, EOLServicoSGP
-from ..utils import meses_to_mes_e_ano_string
+from ..utils import cria_arquivo_excel, meses_to_mes_e_ano_string
 from .conftest import mocked_response
 
 
@@ -90,3 +94,24 @@ def test_criar_usuario_coresso_eol_exception(client_autenticado_da_escola, monke
         EOLServicoSGP.cria_usuario_core_sso(
             "123456", "FULANO DA SILVA", "fulano@silva.com"
         )
+
+
+def test_cria_arquivo_excel():
+    dados = [
+        {"Nome": "Alice", "Idade": "25", "Cidade": "São Paulo"},
+        {"Nome": "Bob", "Idade": "30", "Cidade": "Rio de Janeiro"},
+    ]
+    caminho_arquivo = Path("/tmp/teste.xlsx")
+    cria_arquivo_excel(caminho_arquivo, dados)
+    assert caminho_arquivo.exists(), "O arquivo Excel não foi criado."
+
+    wb = load_workbook(caminho_arquivo)
+    ws = wb.active
+
+    assert [cell.value for cell in ws[1]] == list(dados[0].keys())
+
+    for idx, row in enumerate(dados, start=2):
+        assert [cell.value for cell in ws[idx]] == list(row.values())
+
+    if os.path.exists(caminho_arquivo):
+        os.remove(caminho_arquivo)
