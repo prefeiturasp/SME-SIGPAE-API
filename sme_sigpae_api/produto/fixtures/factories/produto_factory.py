@@ -1,6 +1,7 @@
 from factory import DjangoModelFactory, Sequence, SubFactory
 from faker import Faker
 
+from sme_sigpae_api.escola.fixtures.factories.escola_factory import EscolaFactory
 from sme_sigpae_api.produto.models import (
     DataHoraVinculoProdutoEdital,
     Fabricante,
@@ -10,6 +11,7 @@ from sme_sigpae_api.produto.models import (
     NomeDeProdutoEdital,
     Produto,
     ProdutoEdital,
+    ReclamacaoDeProduto,
     TipoDeInformacaoNutricional,
 )
 from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import (
@@ -91,3 +93,14 @@ class DataHoraVinculoProdutoEditalFactory(DjangoModelFactory):
 
     class Meta:
         model = DataHoraVinculoProdutoEdital
+
+
+class ReclamacaoDeProdutoFactory(DjangoModelFactory):
+    homologacao_produto = SubFactory(HomologacaoProdutoFactory)
+    reclamante_registro_funcional = Sequence(lambda n: str(fake.unique.name()).upper())
+    reclamante_nome = Sequence(lambda n: str(fake.unique.name()).upper())
+    reclamacao = Sequence(lambda n: str(fake.name()).upper())
+    escola = SubFactory(EscolaFactory)
+
+    class Meta:
+        model = ReclamacaoDeProduto

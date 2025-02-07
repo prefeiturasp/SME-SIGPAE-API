@@ -132,6 +132,7 @@ from .produto.fixtures.factories.produto_factory import (
     ProdutoFactory,
     ProdutoLogisticaFactory,
     ProdutoTerceirizadaFactory,
+    ReclamacaoDeProdutoFactory,
     TipoDeInformacaoNutricionalFactory,
 )
 from .recebimento.fixtures.factories.ficha_de_recebimento_factory import (
@@ -247,6 +248,7 @@ register(ProdutoFactory)
 register(HomologacaoProdutoFactory)
 register(ProdutoEditalFactory)
 register(DataHoraVinculoProdutoEditalFactory)
+register(ReclamacaoDeProdutoFactory)
 
 
 @pytest.fixture

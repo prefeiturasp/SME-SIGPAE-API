@@ -13,6 +13,7 @@ from sme_sigpae_api.produto.fixtures.factories.produto_factory import (
     HomologacaoProdutoFactory,
     ProdutoEditalFactory,
     ProdutoFactory,
+    ReclamacaoDeProdutoFactory,
 )
 from sme_sigpae_api.produto.models import HomologacaoProduto
 from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import (
@@ -33,12 +34,12 @@ class TestDashboardGestaoProdutos:
             lotes=[escola.lote],
         )
 
-        escola_2 = EscolaFactory.create()
+        self.escola_2 = EscolaFactory.create()
         self.edital_2 = EditalFactory.create(numero="31/SME/2022")
         ContratoFactory.create(
             edital=self.edital_2,
-            terceirizada=escola_2.lote.terceirizada,
-            lotes=[escola_2.lote],
+            terceirizada=self.escola_2.lote.terceirizada,
+            lotes=[self.escola_2.lote],
         )
 
         self.produto = ProdutoFactory.create(
@@ -64,12 +65,12 @@ class TestDashboardGestaoProdutos:
             nome="MACARRAO", marca__nome="ADRIA", fabricante__nome="ADRIA LTDA"
         )
         ProdutoEditalFactory.create(produto=produto_2, edital=self.edital_2)
-        homologacao_produto_2 = HomologacaoProdutoFactory.create(
+        self.homologacao_produto_2 = HomologacaoProdutoFactory.create(
             produto=produto_2,
             status=status,
         )
         LogSolicitacoesUsuarioFactory.create(
-            uuid_original=homologacao_produto_2.uuid,
+            uuid_original=self.homologacao_produto_2.uuid,
             status_evento=status_evento,
             usuario=usuario,
         )
@@ -110,6 +111,39 @@ class TestDashboardGestaoProdutos:
             status_evento=LogSolicitacoesUsuario.CODAE_HOMOLOGADO,
             criado_em=datetime.datetime.now() + datetime.timedelta(days=2),
             usuario=usuario,
+        )
+
+    def gera_reclamacao(self, escola, usuario):
+        ReclamacaoDeProdutoFactory.create(
+            homologacao_produto=self.homologacao_produto, escola=escola
+        )
+
+        self.homologacao_produto.status = (
+            HomologacaoProduto.workflow_class.ESCOLA_OU_NUTRICIONISTA_RECLAMOU
+        )
+        self.homologacao_produto.save()
+
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.homologacao_produto.uuid,
+            status_evento=LogSolicitacoesUsuario.ESCOLA_OU_NUTRICIONISTA_RECLAMOU,
+            criado_em=datetime.datetime.now() + datetime.timedelta(days=3),
+            usuario=usuario,
+        )
+
+    def gera_reclamacao_produto_de_outra_escola(self):
+        ReclamacaoDeProdutoFactory.create(
+            homologacao_produto=self.homologacao_produto_2, escola=self.escola_2
+        )
+
+        self.homologacao_produto_2.status = (
+            HomologacaoProduto.workflow_class.ESCOLA_OU_NUTRICIONISTA_RECLAMOU
+        )
+        self.homologacao_produto_2.save()
+
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.homologacao_produto.uuid,
+            status_evento=LogSolicitacoesUsuario.ESCOLA_OU_NUTRICIONISTA_RECLAMOU,
+            criado_em=datetime.datetime.now() + datetime.timedelta(days=3),
         )
 
     def test_produtos_homologados(
@@ -398,6 +432,33 @@ class TestDashboardGestaoProdutos:
         self.homologa_em_outro_edital(usuario)
 
         response = client.get("/dashboard-produtos/suspensos/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["count"] == 1
+        assert (
+            any(
+                produto
+                for produto in response.json()["results"]
+                if produto["nome_produto"] == "SALSICHA"
+            )
+            is True
+        )
+
+    def test_aguardando_analise_reclamacao(
+        self,
+        client_autenticado_vinculo_escola_ue,
+        escola,
+    ):
+        client, usuario = client_autenticado_vinculo_escola_ue
+        self.setup_produtos(
+            escola,
+            usuario,
+            status=HomologacaoProduto.workflow_class.CODAE_HOMOLOGADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_HOMOLOGADO,
+        )
+        self.gera_reclamacao(escola, usuario)
+        self.gera_reclamacao_produto_de_outra_escola()
+
+        response = client.get("/dashboard-produtos/aguardando-analise-reclamacao/")
         assert response.status_code == status.HTTP_200_OK
         assert response.json()["count"] == 1
         assert (
