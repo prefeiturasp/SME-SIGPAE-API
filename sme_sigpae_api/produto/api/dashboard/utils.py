@@ -104,6 +104,45 @@ def filtra_reclamacoes_por_usuario(
     return query_set
 
 
+def filtra_reclamacoes_questionamento_codae(
+    request: Request, query_set: QuerySet[HomologacaoProduto]
+) -> QuerySet[HomologacaoProduto]:
+    filtros = {
+        constants.TIPO_USUARIO_ESCOLA: {
+            "reclamacoes__escola": request.user.vinculo_atual.instituicao,
+            "status": HomologacaoProduto.workflow_class.CODAE_QUESTIONOU_UE,
+        },
+        constants.TIPO_USUARIO_TERCEIRIZADA: {
+            "reclamacoes__escola__lote__terceirizada": request.user.vinculo_atual.instituicao,
+            "status": HomologacaoProduto.workflow_class.CODAE_PEDIU_ANALISE_RECLAMACAO,
+        },
+        constants.TIPO_USUARIO_DIRETORIA_REGIONAL: {
+            "reclamacoes__escola__lote__diretoria_regional": request.user.vinculo_atual.instituicao
+        },
+        constants.TIPO_USUARIO_NUTRISUPERVISOR: {
+            "status": HomologacaoProduto.workflow_class.CODAE_QUESTIONOU_NUTRISUPERVISOR
+        },
+    }
+    filtros_kwargs = filtros.get(request.user.tipo_usuario, {})
+    if filtros_kwargs:
+        query_set = query_set.filter(**filtros_kwargs)
+    if request.user.tipo_usuario not in [
+        constants.TIPO_USUARIO_ESCOLA,
+        constants.TIPO_USUARIO_TERCEIRIZADA,
+        constants.TIPO_USUARIO_DIRETORIA_REGIONAL,
+        constants.TIPO_USUARIO_NUTRISUPERVISOR,
+    ]:
+        query_set = query_set.filter(
+            status__in=[
+                HomologacaoProduto.workflow_class.CODAE_QUESTIONOU_UE,
+                HomologacaoProduto.workflow_class.CODAE_PEDIU_ANALISE_RECLAMACAO,
+                HomologacaoProduto.workflow_class.CODAE_QUESTIONOU_NUTRISUPERVISOR,
+            ]
+        )
+
+    return query_set
+
+
 def filtra_produtos_da_terceirizada(
     request: Request, query_set: QuerySet[HomologacaoProduto]
 ) -> QuerySet[HomologacaoProduto]:

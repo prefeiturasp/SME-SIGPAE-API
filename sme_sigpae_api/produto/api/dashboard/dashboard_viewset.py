@@ -9,6 +9,7 @@ from sme_sigpae_api.dados_comuns.utils import ordena_queryset_por_ultimo_log
 from sme_sigpae_api.produto.api.dashboard.utils import (
     filtra_produtos_da_terceirizada,
     filtra_reclamacoes_por_usuario,
+    filtra_reclamacoes_questionamento_codae,
     filtrar_query_params,
     retorna_produtos_homologados,
     trata_parcialmente_homologados_ou_suspensos,
@@ -168,5 +169,22 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
         page = self.paginate_queryset(lista)
         serializer = self.get_serializer(
             page, context={"workflow": "CODAE_PEDIU_ANALISE_SENSORIAL"}, many=True
+        )
+        return self.get_paginated_response(serializer.data)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="questionamento-da-codae",
+        pagination_class=DashboardPagination,
+    )
+    def dashboard_questionamento_da_codae(self, request):
+        query_set = self.get_queryset()
+        query_set = filtrar_query_params(request, query_set)
+        query_set = filtra_reclamacoes_questionamento_codae(request, query_set)
+        lista = ordena_queryset_por_ultimo_log(query_set)
+        page = self.paginate_queryset(lista)
+        serializer = self.get_serializer(
+            page, context={"workflow": "CODAE_PEDIU_ANALISE_RECLAMACAO"}, many=True
         )
         return self.get_paginated_response(serializer.data)
