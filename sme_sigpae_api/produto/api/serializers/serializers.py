@@ -502,7 +502,8 @@ class HomologacaoProdutoPainelGerencialSerializer(HomologacaoProdutoBase):
 
     def get_nome_usuario_log_de_reclamacao(self, obj) -> str:
         if obj.status.is_CODAE_QUESTIONOU_UE:
-            status_reclamacao = LogSolicitacoesUsuario.STATUS_POSSIVEIS.get(
+            status_dict = dict(LogSolicitacoesUsuario.STATUS_POSSIVEIS)
+            status_reclamacao = status_dict.get(
                 "Escola/Nutricionista reclamou do produto"
             )
             usr_log = next(

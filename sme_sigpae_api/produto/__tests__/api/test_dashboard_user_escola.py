@@ -521,3 +521,40 @@ class TestDashboardGestaoProdutos:
             "/dashboard-produtos/aguardando-amostra-analise-sensorial/"
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_questionamento_da_codae(
+        self,
+        client_autenticado_vinculo_escola_ue,
+        escola,
+    ):
+        client, usuario = client_autenticado_vinculo_escola_ue
+        self.setup_produtos(
+            escola,
+            usuario,
+            status=HomologacaoProduto.workflow_class.CODAE_HOMOLOGADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_HOMOLOGADO,
+        )
+        self.gera_reclamacao(escola, usuario)
+        self.gera_reclamacao_produto_de_outra_escola()
+
+        self.homologacao_produto.status = (
+            HomologacaoProduto.workflow_class.CODAE_QUESTIONOU_UE
+        )
+        self.homologacao_produto.save()
+
+        self.homologacao_produto_2.status = (
+            HomologacaoProduto.workflow_class.CODAE_QUESTIONOU_UE
+        )
+        self.homologacao_produto_2.save()
+
+        response = client.get("/dashboard-produtos/questionamento-da-codae/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["count"] == 1
+        assert (
+            any(
+                produto
+                for produto in response.json()["results"]
+                if produto["nome_produto"] == "SALSICHA"
+            )
+            is True
+        )
