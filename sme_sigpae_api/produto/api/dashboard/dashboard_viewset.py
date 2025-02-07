@@ -3,6 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from sme_sigpae_api.dados_comuns.utils import ordena_queryset_por_ultimo_log
 from sme_sigpae_api.produto.api.dashboard.utils import (
+    filtra_reclamacoes_por_usuario,
     filtrar_query_params,
     retorna_produtos_homologados,
     trata_parcialmente_homologados_ou_suspensos,
@@ -76,5 +77,32 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
         page = self.paginate_queryset(lista)
         serializer = self.get_serializer(
             page, context={"workflow": "CODAE_SUSPENDEU"}, many=True
+        )
+        return self.get_paginated_response(serializer.data)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="aguardando-analise-reclamacao",
+        pagination_class=DashboardPagination,
+    )
+    def dashboard_aguardando_analise_reclamacao(self, request):
+        query_set = self.get_queryset().filter(
+            status__in=[
+                HomologacaoProduto.workflow_class.ESCOLA_OU_NUTRICIONISTA_RECLAMOU,
+                HomologacaoProduto.workflow_class.CODAE_PEDIU_ANALISE_RECLAMACAO,
+                HomologacaoProduto.workflow_class.CODAE_QUESTIONOU_UE,
+                HomologacaoProduto.workflow_class.CODAE_QUESTIONOU_NUTRISUPERVISOR,
+                HomologacaoProduto.workflow_class.TERCEIRIZADA_RESPONDEU_RECLAMACAO,
+                HomologacaoProduto.workflow_class.UE_RESPONDEU_QUESTIONAMENTO,
+                HomologacaoProduto.workflow_class.NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO,
+            ]
+        )
+        query_set = filtrar_query_params(request, query_set)
+        query_set = filtra_reclamacoes_por_usuario(request, query_set)
+        lista = ordena_queryset_por_ultimo_log(query_set)
+        page = self.paginate_queryset(lista)
+        serializer = self.get_serializer(
+            page, context={"workflow": "ESCOLA_OU_NUTRICIONISTA_RECLAMOU"}, many=True
         )
         return self.get_paginated_response(serializer.data)
