@@ -30,12 +30,6 @@ from ...medicao_inicial.models import SolicitacaoMedicaoInicial
 from ...perfil.models import Vinculo
 from .. import models
 
-# from sme_sigpae_api.escola.utils_analise_dietas_ativas import (
-#     dict_codigo_aluno_por_codigo_escola,
-#     dict_codigos_escolas,
-# )
-
-
 fake = Faker("pt_BR")
 Faker.seed(420)
 

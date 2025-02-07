@@ -1,20 +1,27 @@
+import asyncio
+import datetime
 import json
 import os
 import tempfile
 import uuid
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 from openpyxl import Workbook
 
+from sme_sigpae_api.dados_comuns.constants import StatusProcessamentoArquivo
 from sme_sigpae_api.escola.models import (
     Escola,
-    PlanilhaEscolaDeParaCodigoEolCodigoCoade,
+    PlanilhaAtualizacaoTipoGestaoEscola,
+    TipoGestao,
 )
 from sme_sigpae_api.escola.utils_escola import (
     PATH,
+    EOLException,
     ajustes_no_arquivo,
     atualiza_codigo_codae_das_escolas,
+    atualiza_tipo_gestao_das_escolas,
     create_tempfile,
     dict_codigos_escolas,
     escreve_escolas_json,
@@ -24,6 +31,7 @@ from sme_sigpae_api.escola.utils_escola import (
     get_codigo_eol_escola,
     get_escolas,
     get_escolas_unicas,
+    get_informacoes_escola_turma_aluno,
     grava_codescola_nao_existentes,
 )
 
@@ -91,7 +99,7 @@ def test_gera_dict_codigo_aluno_por_codigo_escola_exception():
         {"CodEscola": "1002", "CodEOLAluno": "20002"},
         {"CodEscola": "9999", "CodEOLAluno": "20003"},
     ]
-    with pytest.raises(Exception):
+    with pytest.raises(Exception, match="'1001'"):
         gera_dict_codigo_aluno_por_codigo_escola(items)
 
 
@@ -125,7 +133,7 @@ def test_escreve_escolas_json():
         os.remove(caminho_do_arquivo)
 
 
-def test_ajustes_no_arquivo(tmp_path):
+def test_ajustes_no_arquivo():
     caminho_do_arquivo = Path(f"/tmp/{uuid.uuid4()}.json")
     conteudo_inicial = (
         """{'nome': "Escola A"}\n{'codigo_EOL': '454353464'}\n{'id': '6'}"""
@@ -149,7 +157,58 @@ def test_ajustes_no_arquivo(tmp_path):
 
 
 def test_get_informacoes_escola_turma_aluno():
-    pass
+    tempfile = Path(f"/tmp/{uuid.uuid4()}.json")
+    codigo_eol = "123456"
+
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {"results": [{"turma": "A", "aluno": "João"}]}
+
+    with patch("httpx.AsyncClient.get", return_value=mock_response):
+        resultado = asyncio.run(
+            get_informacoes_escola_turma_aluno(tempfile, codigo_eol)
+        )
+
+    assert resultado == [{"turma": "A", "aluno": "João"}]
+    with open(tempfile, "r") as f:
+        conteudo = f.readlines()
+
+    assert conteudo == ["\"123456\": [{'turma': 'A', 'aluno': 'João'}]\n"]
+
+
+def test_get_informacoes_escola_turma_aluno_vazio():
+    codigo_eol = "654321"
+    tempfile = "/tmp/fake.json"
+
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {"results": []}  # Resposta vazia
+
+    with patch("httpx.AsyncClient.get", return_value=mock_response):
+        with pytest.raises(
+            EOLException, match=f"Resultados para o código: {codigo_eol} vazios"
+        ):
+            asyncio.run(get_informacoes_escola_turma_aluno(tempfile, codigo_eol))
+
+
+def test_get_informacoes_escola_turma_aluno_api_erro():
+    tempfile = "/tmp/fake.json"
+    codigo_eol = "9999995991919"
+
+    mock_response = MagicMock()
+    mock_response.status_code = 500
+
+    with patch("httpx.AsyncClient.get", return_value=mock_response):
+        resultado = asyncio.run(
+            get_informacoes_escola_turma_aluno(tempfile, codigo_eol)
+        )
+
+    assert resultado is None
+    with open(f"{PATH}/codigo_eol_erro_da_api_eol.txt", "r") as f:
+        conteudo = f.readlines()
+
+    # TODO: tem que resetar o PATH
+    assert f"{codigo_eol}\n" in conteudo
 
 
 def test_create_tempfile():
@@ -215,11 +274,39 @@ def test_get_escolas(variaveis_globais_escola):
             assert "}" in conteudo
 
 
-def test_atualiza_codigo_codae_das_escolas(planilha_de_para_eol_codae):
+def test_get_escolas_erro_cod_escola(variaveis_globais_escola):
     with tempfile.TemporaryDirectory() as temp_dir:
         arquivo_path = Path(temp_dir) / "escolas.xlsx"
+        arquivo_codigos_escolas_path = Path(temp_dir) / "codigos_escolas.xlsx"
+        tempfile_output_path = Path(temp_dir) / "output.json"
+        cod_escola = "22345"
+        create_excel_file(
+            arquivo_path,
+            [
+                {"CodEscola": cod_escola, "CodEOLAluno": "1111"},
+            ],
+        )
+        create_excel_file(
+            arquivo_codigos_escolas_path,
+            [
+                {"CÓDIGO UNIDADE": "12345", "CODIGO EOL": "54321"},
+                {"CÓDIGO UNIDADE": "67890", "CODIGO EOL": "98765"},
+            ],
+        )
+        with pytest.raises(KeyError, match=f"'{cod_escola}'"):
+            get_escolas(
+                arquivo_path,
+                arquivo_codigos_escolas_path,
+                tempfile_output_path,
+                in_memory=False,
+            )
 
-        # Criar arquivo Excel de teste
+
+def test_atualiza_codigo_codae_das_escolas():
+    from model_mommy import mommy
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        arquivo_path = Path(temp_dir) / "escolas.xlsx"
         create_excel_file(
             arquivo_path,
             [
@@ -227,37 +314,149 @@ def test_atualiza_codigo_codae_das_escolas(planilha_de_para_eol_codae):
                 {"codigo_eol": 789012, "codigo_unidade": 98765},
             ],
         )
-
-        # Criar escolas no banco de dados
-        escola1 = Escola.objects.create(codigo_eol="123456", codigo_codae="00000")
-        escola2 = Escola.objects.create(codigo_eol="789012", codigo_codae="00000")
-
-        # Criar planilha no banco de dados
-        planilha = PlanilhaEscolaDeParaCodigoEolCodigoCoade.objects.create(
-            id=1, codigos_codae_vinculados=False
+        escola1 = mommy.make("Escola", codigo_eol="123456", codigo_codae="00000")
+        escola2 = mommy.make("Escola", codigo_eol="789012", codigo_codae="00000")
+        planilha = mommy.make(
+            "PlanilhaEscolaDeParaCodigoEolCodigoCoade", codigos_codae_vinculados=False
         )
 
-        # Executar a função
         atualiza_codigo_codae_das_escolas(arquivo_path, planilha.id)
 
-        # Recarregar objetos do banco
         escola1.refresh_from_db()
         escola2.refresh_from_db()
         planilha.refresh_from_db()
 
-        # Verificar se os códigos foram atualizados corretamente
-        assert (
-            escola1.codigo_codae == "54321"
-        ), "Código CODAE da escola1 não foi atualizado corretamente."
-        assert (
-            escola2.codigo_codae == "98765"
-        ), "Código CODAE da escola2 não foi atualizado corretamente."
+        assert escola1.codigo_codae == "54321"
+        assert escola2.codigo_codae == "98765"
+        assert planilha.codigos_codae_vinculados is True
 
-        # Verificar se a flag foi atualizada na planilha
-        assert (
-            planilha.codigos_codae_vinculados
-        ), "A flag de codigos_codae_vinculados não foi atualizada."
+
+def test_atualiza_codigo_codae_das_escolas_erro():
+    from model_mommy import mommy
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        arquivo_path = Path(temp_dir) / "escolas.xlsx"
+        create_excel_file(
+            arquivo_path,
+            [
+                {"codigo_eol": 123456, "codigo_unidade": 54321},
+                {"codigo_eol": 789012, "codigo_unidade": 98765},
+            ],
+        )
+        escola1 = mommy.make("Escola", codigo_eol="123456", codigo_codae="00000")
+        escola2 = mommy.make("Escola", codigo_eol="789012", codigo_codae="00000")
+        planilha = mommy.make(
+            "PlanilhaEscolaDeParaCodigoEolCodigoCoade", codigos_codae_vinculados=False
+        )
+
+        atualiza_codigo_codae_das_escolas(arquivo_path, planilha.id + 1)
+
+        escola1.refresh_from_db()
+        escola2.refresh_from_db()
+        planilha.refresh_from_db()
+
+        assert escola1.codigo_codae == "54321"
+        assert escola2.codigo_codae == "98765"
+        assert planilha.codigos_codae_vinculados is False
 
 
 def test_atualiza_tipo_gestao_das_escolas():
-    pass
+    from django.core.files.uploadedfile import SimpleUploadedFile
+    from model_mommy import mommy
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        arquivo_path = Path(temp_dir) / "escolas.xlsx"
+        create_excel_file(
+            arquivo_path,
+            [
+                {"CÓDIGO EOL": 123456, "TIPO": "PARCEIRA"},
+                {"CÓDIGO EOL": 789012, "TIPO": "DIRETA"},
+            ],
+        )
+
+        with open(arquivo_path, "rb") as f:
+            uploaded_file = SimpleUploadedFile(
+                "escolas.xlsx",
+                f.read(),
+                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+
+        parceira = mommy.make(TipoGestao, nome="PARCEIRA")
+        direta = mommy.make(TipoGestao, nome="DIRETA")
+        mista = mommy.make(TipoGestao, nome="MISTA")
+        tercerizada = mommy.make(TipoGestao, nome="TERC TOTAL")
+
+        escola1 = mommy.make(Escola, codigo_eol="123456", tipo_gestao=None)
+        escola2 = mommy.make(Escola, codigo_eol="789012", tipo_gestao=None)
+
+        planilha_atualizacao_tipo_gestao = mommy.make(
+            PlanilhaAtualizacaoTipoGestaoEscola,
+            conteudo=uploaded_file,
+            criado_em=datetime.date.today(),
+            status=StatusProcessamentoArquivo.PENDENTE.value,
+        )
+        atualiza_tipo_gestao_das_escolas(
+            arquivo_path, planilha_atualizacao_tipo_gestao.id
+        )
+
+        escola1.refresh_from_db()
+        escola2.refresh_from_db()
+        planilha_atualizacao_tipo_gestao.refresh_from_db()
+
+        assert escola1.tipo_gestao == parceira
+        assert escola2.tipo_gestao == direta
+        assert (
+            planilha_atualizacao_tipo_gestao.status
+            == StatusProcessamentoArquivo.SUCESSO.value
+        )
+
+
+def test_atualiza_tipo_gestao_das_escolas_erro():
+    from django.core.files.uploadedfile import SimpleUploadedFile
+    from model_mommy import mommy
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        arquivo_path = Path(temp_dir) / "escolas.xlsx"
+        create_excel_file(
+            arquivo_path,
+            [
+                {"CÓDIGO EOL": 123456, "TIPO": "PARCEIRA"},
+                {"CÓDIGO EOL": 789012, "TIPO": "DIRETA"},
+            ],
+        )
+
+        with open(arquivo_path, "rb") as f:
+            uploaded_file = SimpleUploadedFile(
+                "escolas.xlsx",
+                f.read(),
+                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+
+        parceira = mommy.make(TipoGestao, nome="PARCEIRA")
+        direta = mommy.make(TipoGestao, nome="DIRETA")
+        mista = mommy.make(TipoGestao, nome="MISTA")
+        tercerizada = mommy.make(TipoGestao, nome="TERC TOTAL")
+
+        escola1 = mommy.make(Escola, codigo_eol="123456", tipo_gestao=None)
+        escola2 = mommy.make(Escola, codigo_eol="989012", tipo_gestao=None)
+
+        planilha_atualizacao_tipo_gestao = mommy.make(
+            PlanilhaAtualizacaoTipoGestaoEscola,
+            conteudo=uploaded_file,
+            criado_em=datetime.date.today(),
+            status=StatusProcessamentoArquivo.PENDENTE.value,
+        )
+        atualiza_tipo_gestao_das_escolas(
+            arquivo_path, planilha_atualizacao_tipo_gestao.id + 1
+        )
+
+        escola1.refresh_from_db()
+        escola2.refresh_from_db()
+        planilha_atualizacao_tipo_gestao.refresh_from_db()
+
+        assert escola1.tipo_gestao == parceira
+        assert escola2.tipo_gestao is None
+        assert (
+            planilha_atualizacao_tipo_gestao.status
+            == StatusProcessamentoArquivo.PENDENTE.value
+        )
