@@ -504,3 +504,28 @@ class TestDashboardGestaoProdutosTerceirizada:
             )
             is True
         )
+
+    def test_correcao_de_produtos(
+        self,
+        client_autenticado_vinculo_terceirizada,
+        escola,
+    ):
+        client, usuario = client_autenticado_vinculo_terceirizada
+        self.setup_produtos(
+            escola,
+            usuario,
+            status=HomologacaoProduto.workflow_class.CODAE_QUESTIONADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_QUESTIONOU,
+        )
+
+        response = client.get("/dashboard-produtos/correcao-de-produtos/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["count"] == 1
+        assert (
+            any(
+                produto
+                for produto in response.json()["results"]
+                if produto["nome_produto"] == "SALSICHA"
+            )
+            is True
+        )

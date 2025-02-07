@@ -487,3 +487,19 @@ class TestDashboardGestaoProdutos:
 
         response = client.get("/dashboard-produtos/pendente-homologacao/")
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_correcao_de_produtos_403_forbidden(
+        self,
+        client_autenticado_vinculo_escola_ue,
+        escola,
+    ):
+        client, usuario = client_autenticado_vinculo_escola_ue
+        self.setup_produtos(
+            escola,
+            usuario,
+            status=HomologacaoProduto.workflow_class.CODAE_QUESTIONADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_QUESTIONOU,
+        )
+
+        response = client.get("/dashboard-produtos/correcao-de-produtos/")
+        assert response.status_code == status.HTTP_403_FORBIDDEN
