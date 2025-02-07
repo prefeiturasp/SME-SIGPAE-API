@@ -1,8 +1,13 @@
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
 
+from sme_sigpae_api.dados_comuns.permissions import (
+    UsuarioCODAEGestaoProduto,
+    UsuarioTerceirizada,
+)
 from sme_sigpae_api.dados_comuns.utils import ordena_queryset_por_ultimo_log
 from sme_sigpae_api.produto.api.dashboard.utils import (
+    filtra_codae_questionado_por_usuario,
     filtra_reclamacoes_por_usuario,
     filtrar_query_params,
     retorna_produtos_homologados,
@@ -104,5 +109,44 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
         page = self.paginate_queryset(lista)
         serializer = self.get_serializer(
             page, context={"workflow": "ESCOLA_OU_NUTRICIONISTA_RECLAMOU"}, many=True
+        )
+        return self.get_paginated_response(serializer.data)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="pendente-homologacao",
+        pagination_class=DashboardPagination,
+        permission_classes=[UsuarioTerceirizada | UsuarioCODAEGestaoProduto],
+    )
+    def dashboard_pendente_homologacao(self, request):
+        query_set = self.get_queryset().filter(
+            status=HomologacaoProduto.workflow_class.CODAE_PENDENTE_HOMOLOGACAO
+        )
+        query_set = filtrar_query_params(request, query_set, filtra_por_edital=False)
+        lista = ordena_queryset_por_ultimo_log(query_set)
+        page = self.paginate_queryset(lista)
+        serializer = self.get_serializer(
+            page, context={"workflow": "CODAE_PENDENTE_HOMOLOGACAO"}, many=True
+        )
+        return self.get_paginated_response(serializer.data)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="correcao-de-produtos",
+        pagination_class=DashboardPagination,
+        permission_classes=[UsuarioTerceirizada | UsuarioCODAEGestaoProduto],
+    )
+    def dashboard_correcao_de_produtos(self, request):
+        query_set = self.get_queryset().filter(
+            status=HomologacaoProduto.workflow_class.CODAE_QUESTIONADO
+        )
+        query_set = filtrar_query_params(request, query_set)
+        query_set = filtra_codae_questionado_por_usuario(request, query_set)
+        lista = ordena_queryset_por_ultimo_log(query_set)
+        page = self.paginate_queryset(lista)
+        serializer = self.get_serializer(
+            page, context={"workflow": "CODAE_QUESTIONADO"}, many=True
         )
         return self.get_paginated_response(serializer.data)

@@ -102,3 +102,17 @@ def filtra_reclamacoes_por_usuario(
     if filtros_kwargs:
         query_set = query_set.filter(**filtros_kwargs)
     return query_set
+
+
+def filtra_codae_questionado_por_usuario(
+    request: Request, query_set: QuerySet[HomologacaoProduto]
+) -> QuerySet[HomologacaoProduto]:
+    filtros = {
+        constants.TIPO_USUARIO_TERCEIRIZADA: {
+            "rastro_terceirizada": request.user.vinculo_atual.instituicao
+        },
+    }
+    filtros_kwargs = filtros.get(request.user.tipo_usuario, {})
+    if filtros_kwargs:
+        query_set = query_set.filter(**filtros_kwargs)
+    return query_set
