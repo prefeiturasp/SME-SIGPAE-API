@@ -503,3 +503,21 @@ class TestDashboardGestaoProdutos:
 
         response = client.get("/dashboard-produtos/correcao-de-produtos/")
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_aguardando_amostra_analise_sensorial_403_forbidden(
+        self,
+        client_autenticado_vinculo_escola_ue,
+        escola,
+    ):
+        client, usuario = client_autenticado_vinculo_escola_ue
+        self.setup_produtos(
+            escola,
+            usuario,
+            status=HomologacaoProduto.workflow_class.CODAE_PEDIU_ANALISE_SENSORIAL,
+            status_evento=LogSolicitacoesUsuario.CODAE_PEDIU_ANALISE_SENSORIAL,
+        )
+
+        response = client.get(
+            "/dashboard-produtos/aguardando-amostra-analise-sensorial/"
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN

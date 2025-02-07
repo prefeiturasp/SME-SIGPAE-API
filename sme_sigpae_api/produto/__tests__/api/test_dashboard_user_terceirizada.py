@@ -529,3 +529,30 @@ class TestDashboardGestaoProdutosTerceirizada:
             )
             is True
         )
+
+    def test_aguardando_amostra_analise_sensorial(
+        self,
+        client_autenticado_vinculo_terceirizada,
+        escola,
+    ):
+        client, usuario = client_autenticado_vinculo_terceirizada
+        self.setup_produtos(
+            escola,
+            usuario,
+            status=HomologacaoProduto.workflow_class.CODAE_PEDIU_ANALISE_SENSORIAL,
+            status_evento=LogSolicitacoesUsuario.CODAE_PEDIU_ANALISE_SENSORIAL,
+        )
+
+        response = client.get(
+            "/dashboard-produtos/aguardando-amostra-analise-sensorial/"
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["count"] == 1
+        assert (
+            any(
+                produto
+                for produto in response.json()["results"]
+                if produto["nome_produto"] == "SALSICHA"
+            )
+            is True
+        )
