@@ -16,6 +16,7 @@ from sme_sigpae_api.produto.models import (
 )
 from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import (
     EditalFactory,
+    EmpresaFactory,
 )
 
 fake = Faker("pt_BR")
@@ -74,6 +75,7 @@ class ProdutoFactory(DjangoModelFactory):
 
 class HomologacaoProdutoFactory(DjangoModelFactory):
     produto = SubFactory(ProdutoFactory)
+    rastro_terceirizada = SubFactory(EmpresaFactory)
 
     class Meta:
         model = HomologacaoProduto

@@ -24,8 +24,8 @@ from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import 
 pytestmark = pytest.mark.django_db
 
 
-@pytest.mark.usefixtures("client_autenticado_vinculo_escola_ue", "escola")
-class TestDashboardGestaoProdutos:
+@pytest.mark.usefixtures("client_autenticado_vinculo_terceirizada", "escola")
+class TestDashboardGestaoProdutosTerceirizada:
     def setup_produtos(self, escola, usuario, status, status_evento, suspenso=False):
         self.edital = EditalFactory.create(numero="78/SME/2016")
         ContratoFactory.create(
@@ -150,10 +150,10 @@ class TestDashboardGestaoProdutos:
 
     def test_produtos_homologados(
         self,
-        client_autenticado_vinculo_escola_ue,
+        client_autenticado_vinculo_terceirizada,
         escola,
     ):
-        client, usuario = client_autenticado_vinculo_escola_ue
+        client, usuario = client_autenticado_vinculo_terceirizada
         self.setup_produtos(
             escola,
             usuario,
@@ -175,10 +175,10 @@ class TestDashboardGestaoProdutos:
 
     def test_produtos_homologados_filtro_nome(
         self,
-        client_autenticado_vinculo_escola_ue,
+        client_autenticado_vinculo_terceirizada,
         escola,
     ):
-        client, usuario = client_autenticado_vinculo_escola_ue
+        client, usuario = client_autenticado_vinculo_terceirizada
         self.setup_produtos(
             escola,
             usuario,
@@ -201,10 +201,10 @@ class TestDashboardGestaoProdutos:
 
     def test_produtos_homologados_filtro_nome_nao_encontra(
         self,
-        client_autenticado_vinculo_escola_ue,
+        client_autenticado_vinculo_terceirizada,
         escola,
     ):
-        client, usuario = client_autenticado_vinculo_escola_ue
+        client, usuario = client_autenticado_vinculo_terceirizada
         self.setup_produtos(
             escola,
             usuario,
@@ -220,10 +220,10 @@ class TestDashboardGestaoProdutos:
 
     def test_produtos_homologados_filtro_marca(
         self,
-        client_autenticado_vinculo_escola_ue,
+        client_autenticado_vinculo_terceirizada,
         escola,
     ):
-        client, usuario = client_autenticado_vinculo_escola_ue
+        client, usuario = client_autenticado_vinculo_terceirizada
         self.setup_produtos(
             escola,
             usuario,
@@ -245,10 +245,10 @@ class TestDashboardGestaoProdutos:
 
     def test_produtos_homologados_filtro_marca_nao_encontra(
         self,
-        client_autenticado_vinculo_escola_ue,
+        client_autenticado_vinculo_terceirizada,
         escola,
     ):
-        client, usuario = client_autenticado_vinculo_escola_ue
+        client, usuario = client_autenticado_vinculo_terceirizada
         self.setup_produtos(
             escola,
             usuario,
@@ -262,10 +262,10 @@ class TestDashboardGestaoProdutos:
 
     def test_produtos_homologados_filtro_suspenso_nao_encontra(
         self,
-        client_autenticado_vinculo_escola_ue,
+        client_autenticado_vinculo_terceirizada,
         escola,
     ):
-        client, usuario = client_autenticado_vinculo_escola_ue
+        client, usuario = client_autenticado_vinculo_terceirizada
         self.setup_produtos(
             escola,
             usuario,
@@ -280,10 +280,10 @@ class TestDashboardGestaoProdutos:
 
     def test_produtos_homologados_filtro_edital(
         self,
-        client_autenticado_vinculo_escola_ue,
+        client_autenticado_vinculo_terceirizada,
         escola,
     ):
-        client, usuario = client_autenticado_vinculo_escola_ue
+        client, usuario = client_autenticado_vinculo_terceirizada
         self.setup_produtos(
             escola,
             usuario,
@@ -307,10 +307,10 @@ class TestDashboardGestaoProdutos:
 
     def test_produtos_homologados_filtro_edital_nao_encontra(
         self,
-        client_autenticado_vinculo_escola_ue,
+        client_autenticado_vinculo_terceirizada,
         escola,
     ):
-        client, usuario = client_autenticado_vinculo_escola_ue
+        client, usuario = client_autenticado_vinculo_terceirizada
         self.setup_produtos(
             escola,
             usuario,
@@ -326,10 +326,10 @@ class TestDashboardGestaoProdutos:
 
     def test_produtos_homologados_produto_suspenso_nao_encontra(
         self,
-        client_autenticado_vinculo_escola_ue,
+        client_autenticado_vinculo_terceirizada,
         escola,
     ):
-        client, usuario = client_autenticado_vinculo_escola_ue
+        client, usuario = client_autenticado_vinculo_terceirizada
         self.setup_produtos(
             escola,
             usuario,
@@ -344,10 +344,10 @@ class TestDashboardGestaoProdutos:
 
     def test_produtos_nao_homologados(
         self,
-        client_autenticado_vinculo_escola_ue,
+        client_autenticado_vinculo_terceirizada,
         escola,
     ):
-        client, usuario = client_autenticado_vinculo_escola_ue
+        client, usuario = client_autenticado_vinculo_terceirizada
         self.setup_produtos(
             escola,
             usuario,
@@ -377,10 +377,10 @@ class TestDashboardGestaoProdutos:
 
     def test_produtos_suspensos(
         self,
-        client_autenticado_vinculo_escola_ue,
+        client_autenticado_vinculo_terceirizada,
         escola,
     ):
-        client, usuario = client_autenticado_vinculo_escola_ue
+        client, usuario = client_autenticado_vinculo_terceirizada
         self.setup_produtos(
             escola,
             usuario,
@@ -403,10 +403,10 @@ class TestDashboardGestaoProdutos:
 
     def test_produtos_suspensos_nao_encontra(
         self,
-        client_autenticado_vinculo_escola_ue,
+        client_autenticado_vinculo_terceirizada,
         escola,
     ):
-        client, usuario = client_autenticado_vinculo_escola_ue
+        client, usuario = client_autenticado_vinculo_terceirizada
         self.setup_produtos(
             escola,
             usuario,
@@ -420,10 +420,10 @@ class TestDashboardGestaoProdutos:
 
     def test_produtos_suspensos_homologado_em_outro_edital(
         self,
-        client_autenticado_vinculo_escola_ue,
+        client_autenticado_vinculo_terceirizada,
         escola,
     ):
-        client, usuario = client_autenticado_vinculo_escola_ue
+        client, usuario = client_autenticado_vinculo_terceirizada
         self.setup_produtos(
             escola,
             usuario,
@@ -447,10 +447,10 @@ class TestDashboardGestaoProdutos:
 
     def test_aguardando_analise_reclamacao(
         self,
-        client_autenticado_vinculo_escola_ue,
+        client_autenticado_vinculo_terceirizada,
         escola,
     ):
-        client, usuario = client_autenticado_vinculo_escola_ue
+        client, usuario = client_autenticado_vinculo_terceirizada
         self.setup_produtos(
             escola,
             usuario,
@@ -472,12 +472,12 @@ class TestDashboardGestaoProdutos:
             is True
         )
 
-    def test_pendente_homologacao_403_forbidden(
+    def test_pendente_homologacao(
         self,
-        client_autenticado_vinculo_escola_ue,
+        client_autenticado_vinculo_terceirizada,
         escola,
     ):
-        client, usuario = client_autenticado_vinculo_escola_ue
+        client, usuario = client_autenticado_vinculo_terceirizada
         self.setup_produtos(
             escola,
             usuario,
@@ -486,4 +486,21 @@ class TestDashboardGestaoProdutos:
         )
 
         response = client.get("/dashboard-produtos/pendente-homologacao/")
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["count"] == 2
+        assert (
+            any(
+                produto
+                for produto in response.json()["results"]
+                if produto["nome_produto"] == "SALSICHA"
+            )
+            is True
+        )
+        assert (
+            any(
+                produto
+                for produto in response.json()["results"]
+                if produto["nome_produto"] == "MACARRAO"
+            )
+            is True
+        )
