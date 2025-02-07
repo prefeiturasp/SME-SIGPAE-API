@@ -104,7 +104,7 @@ def filtra_reclamacoes_por_usuario(
     return query_set
 
 
-def filtra_codae_questionado_por_usuario(
+def filtra_produtos_da_terceirizada(
     request: Request, query_set: QuerySet[HomologacaoProduto]
 ) -> QuerySet[HomologacaoProduto]:
     filtros = {
