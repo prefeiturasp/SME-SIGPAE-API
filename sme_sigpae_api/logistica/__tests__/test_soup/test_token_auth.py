@@ -13,18 +13,21 @@ def test_get_model(token_valido):
     usuario, token, model = token_valido
     token_auth = TokenAuthentication()
     token_auth.model = model
+    token_auth.keyword = "Auth"
     assert token_auth.get_model() == model
+    assert token_auth.keyword == "Auth"
 
 
 def test_get_model_default():
     token_auth = TokenAuthentication()
     assert token_auth.get_model() == Token
+    assert token_auth.keyword == "Token"
 
 
 def test_authenticate_token_valido(token_valido):
     usuario, token, model = token_valido
     token_auth = TokenAuthentication()
-    user, token_ok = token_auth.authenticate_credentials(model.StrToken)
+    user, token_ok = token_auth.authenticate(model)
     assert user == usuario
     assert token_ok == token
 
@@ -49,12 +52,7 @@ def test_authenticate_falha_no_strtoken(token_valido):
 def test_authenticate_credentials(token_valido):
     usuario, token, model = token_valido
     token_auth = TokenAuthentication()
-    with patch.object(
-        token_auth, "authenticate_credentials", return_value=(usuario, token)
-    ) as mock_auth_cred:
-        user, token_ok = token_auth.authenticate(model)
-
-    mock_auth_cred.assert_called_once_with(model.StrToken)
+    user, token_ok = token_auth.authenticate_credentials(model.StrToken)
     assert user == usuario
     assert token_ok == token
 
@@ -66,7 +64,6 @@ def test_authenticate_credentials_invalida():
 
 def test_authenticate_credentials_usuario_inativo(token_valido):
     usuario, token, model = token_valido
-    token.model = MagicMock()
     usuario.is_active = False
     usuario.save()
 
