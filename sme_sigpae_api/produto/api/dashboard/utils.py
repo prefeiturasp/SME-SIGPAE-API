@@ -120,7 +120,8 @@ def filtra_reclamacoes_questionamento_codae(
             "reclamacoes__escola__lote__diretoria_regional": request.user.vinculo_atual.instituicao
         },
         constants.TIPO_USUARIO_NUTRISUPERVISOR: {
-            "status": HomologacaoProduto.workflow_class.CODAE_QUESTIONOU_NUTRISUPERVISOR
+            "status": HomologacaoProduto.workflow_class.CODAE_QUESTIONOU_NUTRISUPERVISOR,
+            "reclamacoes__criado_por": request.user,
         },
     }
     filtros_kwargs = filtros.get(request.user.tipo_usuario, {})
