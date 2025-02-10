@@ -3,16 +3,32 @@ import os
 from pathlib import Path
 
 import pytest
+from django.core.exceptions import ObjectDoesNotExist
 from freezegun import freeze_time
 from openpyxl import load_workbook
 
-from sme_sigpae_api.escola.models import Escola, LogAlunosMatriculadosPeriodoEscola
+from sme_sigpae_api.escola.models import (
+    AlunoPeriodoParcial,
+    AlunosMatriculadosPeriodoEscola,
+    Codae,
+    DiaCalendario,
+    Escola,
+    EscolaPeriodoEscolar,
+    LogAlunosMatriculadosPeriodoEscola,
+    Lote,
+)
 
 from ..utils import (
     EscolaSimplissimaPagination,
+    create_update_objeto_escola_periodo_escolar,
     cria_arquivo_excel,
+    deletar_alunos_periodo_parcial_outras_escolas,
+    duplica_dia_anterior,
     faixa_to_string,
+    lotes_endpoint_filtrar_relatorio_alunos_matriculados,
     meses_to_mes_e_ano_string,
+    processa_dias_letivos,
+    registra_quantidade_matriculados,
     remove_acentos,
     string_to_faixa,
     string_to_meses,
@@ -96,7 +112,7 @@ def test_remove_acentos():
 def test_update_datetime_log_alunos_matriculados_periodo_escola(
     update_log_alunos_matriculados,
 ):
-    assert LogAlunosMatriculadosPeriodoEscola.objects.all().count() == 2
+    assert LogAlunosMatriculadosPeriodoEscola.objects.count() == 2
     assert (
         LogAlunosMatriculadosPeriodoEscola.objects.filter(
             criado_em__date=datetime.date(2025, 2, 5)
@@ -117,7 +133,7 @@ def test_update_datetime_log_alunos_matriculados_periodo_escola(
     )
 
     update_datetime_LogAlunosMatriculadosPeriodoEscola()
-    assert LogAlunosMatriculadosPeriodoEscola.objects.all().count() == 2
+    assert LogAlunosMatriculadosPeriodoEscola.objects.count() == 2
     assert (
         LogAlunosMatriculadosPeriodoEscola.objects.filter(
             criado_em__date=datetime.date(2025, 2, 5)
@@ -136,6 +152,135 @@ def test_update_datetime_log_alunos_matriculados_periodo_escola(
         ).count()
         == 1
     )
+
+
+def test_registra_quantidade_matriculados(dicionario_de_alunos_matriculados):
+    ontem = datetime.date(2025, 2, 5)
+    tipo_turma = "REGULAR"
+
+    assert AlunosMatriculadosPeriodoEscola.objects.count() == 3
+    assert LogAlunosMatriculadosPeriodoEscola.objects.count() == 0
+
+    registra_quantidade_matriculados(
+        dicionario_de_alunos_matriculados, ontem, tipo_turma
+    )
+    assert AlunosMatriculadosPeriodoEscola.objects.count() == 9
+    assert LogAlunosMatriculadosPeriodoEscola.objects.count() == 8
+
+
+def test_create_update_objeto_escola_periodo_escolar(escola_cemei, periodo_escolar):
+    quantidade_alunos = 100
+
+    with pytest.raises(ObjectDoesNotExist):
+        EscolaPeriodoEscolar.objects.get(
+            periodo_escolar=periodo_escolar, escola=escola_cemei
+        )
+    create_update_objeto_escola_periodo_escolar(
+        escola_cemei, periodo_escolar, quantidade_alunos
+    )
+
+    epe = EscolaPeriodoEscolar.objects.get(
+        periodo_escolar=periodo_escolar, escola=escola_cemei
+    )
+    assert epe.quantidade_alunos == quantidade_alunos
+    assert epe.escola == escola_cemei
+    assert epe.periodo_escolar == periodo_escolar
+
+
+@freeze_time("2025-02-07")
+def test_duplica_dia_anterior(update_log_alunos_matriculados):
+    periodo_escolar_regular, periodo_escolar_programas = update_log_alunos_matriculados
+
+    dre = periodo_escolar_regular.escola.diretoria_regional
+    tipo_turma_name = periodo_escolar_regular.tipo_turma
+    dois_dias_atras = datetime.date(2025, 2, 5)
+    ontem = datetime.date(2025, 2, 6)
+    hoje = datetime.date(2025, 2, 7)
+
+    assert LogAlunosMatriculadosPeriodoEscola.objects.count() == 2
+    assert (
+        LogAlunosMatriculadosPeriodoEscola.objects.filter(
+            criado_em__date=dois_dias_atras
+        ).count()
+        == 1
+    )
+    assert (
+        LogAlunosMatriculadosPeriodoEscola.objects.filter(criado_em__date=ontem).count()
+        == 0
+    )
+    assert (
+        LogAlunosMatriculadosPeriodoEscola.objects.filter(criado_em__date=hoje).count()
+        == 0
+    )
+    assert (
+        LogAlunosMatriculadosPeriodoEscola.objects.filter(
+            criado_em__date=datetime.date(2025, 2, 1)
+        ).count()
+        == 1
+    )
+    duplica_dia_anterior(dre, dois_dias_atras, ontem, tipo_turma_name)
+
+    assert LogAlunosMatriculadosPeriodoEscola.objects.count() == 3
+    assert (
+        LogAlunosMatriculadosPeriodoEscola.objects.filter(
+            criado_em__date=dois_dias_atras
+        ).count()
+        == 1
+    )
+    assert (
+        LogAlunosMatriculadosPeriodoEscola.objects.filter(criado_em__date=ontem).count()
+        == 1
+    )
+    assert (
+        LogAlunosMatriculadosPeriodoEscola.objects.filter(criado_em__date=hoje).count()
+        == 0
+    )
+    assert (
+        LogAlunosMatriculadosPeriodoEscola.objects.filter(
+            criado_em__date=datetime.date(2025, 2, 1)
+        ).count()
+        == 1
+    )
+
+
+def test_registro_quantidade_alunos_matriculados_por_escola_periodo():
+    # TODO: precisa fazer mock da requisão para EOL
+    pass
+
+
+def test_processa_dias_letivos(lista_dias_letivos):
+    escola, dias_letivos = lista_dias_letivos
+    assert DiaCalendario.objects.count() == 2
+    assert DiaCalendario.objects.filter(dia_letivo=True).count() == 1
+    assert DiaCalendario.objects.filter(dia_letivo=False).count() == 1
+    processa_dias_letivos(dias_letivos, escola)
+    assert DiaCalendario.objects.count() == 3
+    assert DiaCalendario.objects.filter(dia_letivo=True).count() == 1
+    assert DiaCalendario.objects.filter(dia_letivo=False).count() == 2
+
+
+def test_calendario_sgp():
+    # TODO: precisa fazer mock da requisão para NovoSGP
+    pass
+
+
+def test_lotes_endpoint_filtrar_relatorio_alunos_matriculados(
+    usuario_coordenador_codae, lote
+):
+    instituicao = usuario_coordenador_codae.vinculo_atual.instituicao
+    lotes = lotes_endpoint_filtrar_relatorio_alunos_matriculados(
+        instituicao, Codae, Lote
+    )
+    assert lotes.count() == 2
+    # TODO: falta o perfil não CODAE
+
+
+def test_deletar_alunos_periodo_parcial_outras_escolas(excluir_alunos_periodo_parcial):
+    escola, data_referencia = excluir_alunos_periodo_parcial
+
+    assert AlunoPeriodoParcial.objects.count() == 3
+    deletar_alunos_periodo_parcial_outras_escolas(escola, data_referencia)
+    assert AlunoPeriodoParcial.objects.count() == 2
 
 
 def test_cria_arquivo_excel():

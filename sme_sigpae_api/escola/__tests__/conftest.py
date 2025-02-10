@@ -773,7 +773,6 @@ def tipo_gestao_das_escolas():
     )
 
 
-@freeze_time("2025-02-05")
 @pytest.fixture
 def update_log_alunos_matriculados(
     log_alunos_matriculados_periodo_escola_regular,
@@ -786,3 +785,166 @@ def update_log_alunos_matriculados(
         2025, 2, 1
     )
     log_alunos_matriculados_periodo_escola_programas.save()
+
+    return (
+        log_alunos_matriculados_periodo_escola_regular,
+        log_alunos_matriculados_periodo_escola_programas,
+    )
+
+
+@pytest.fixture
+def dicionario_de_alunos_matriculados():
+    manha = mommy.make(models.PeriodoEscolar, nome="MANHA")
+    tarde = mommy.make(models.PeriodoEscolar, nome="TARDE")
+    integral = mommy.make(models.PeriodoEscolar, nome="INTEGRAL")
+
+    escola = mommy.make(models.Escola, codigo_eol=fake.name()[:6])
+    alunos_matriculados_integral = mommy.make(
+        models.AlunosMatriculadosPeriodoEscola,
+        escola=escola,
+        periodo_escolar=integral,
+        tipo_turma=models.TipoTurma.REGULAR.name,
+        quantidade_alunos=25,
+    )
+    alunos_matriculados_manha = mommy.make(
+        models.AlunosMatriculadosPeriodoEscola,
+        escola=escola,
+        periodo_escolar=manha,
+        tipo_turma=models.TipoTurma.REGULAR.name,
+        quantidade_alunos=25,
+    )
+    alunos_matriculados_noite = mommy.make(
+        models.AlunosMatriculadosPeriodoEscola,
+        escola=escola,
+        tipo_turma=models.TipoTurma.PROGRAMAS.name,
+        quantidade_alunos=25,
+    )
+
+    matriculados = [
+        {
+            "codigoEolEscola": escola.codigo_eol,
+            "turnos": [
+                {
+                    "turno": alunos_matriculados_integral.periodo_escolar.nome,
+                    "quantidade": alunos_matriculados_integral.quantidade_alunos,
+                },
+                {
+                    "turno": alunos_matriculados_manha.periodo_escolar.nome,
+                    "quantidade": alunos_matriculados_manha.quantidade_alunos,
+                },
+                {
+                    "turno": "noite",
+                    "quantidade": alunos_matriculados_noite.quantidade_alunos,
+                },
+            ],
+        }
+    ]
+
+    escolas = mommy.make(models.Escola, _quantity=6)
+    for escola in escolas:
+        matriculados.append(
+            {
+                "codigoEolEscola": escola.codigo_eol,
+                "turnos": [{"turno": "integral", "quantidade": 40}],
+            }
+        )
+    return matriculados
+
+
+@pytest.fixture
+def lista_dias_letivos(escola, dia_calendario_letivo, dia_calendario_nao_letivo):
+    dias_letivos = [
+        {
+            "data": dia_calendario_letivo.data.strftime("%Y-%m-%dT00:00:00"),
+            "ehLetivo": dia_calendario_letivo.dia_letivo,
+        },
+        {
+            "data": dia_calendario_nao_letivo.data.strftime("%Y-%m-%dT00:00:00"),
+            "ehLetivo": dia_calendario_nao_letivo.dia_letivo,
+        },
+        {
+            "data": datetime.datetime(2021, 9, 26).strftime("%Y-%m-%dT00:00:00"),
+            "ehLetivo": False,
+        },
+    ]
+    return escola, dias_letivos
+
+
+@pytest.fixture
+def usuario_coordenador_codae(client, django_user_model):
+    email, password, rf, cpf = (
+        "cogestor_1@sme.prefeitura.sp.gov.br",
+        "adminadmin",
+        "0000001",
+        "44426575052",
+    )
+    usuario = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional=rf, cpf=cpf
+    )
+    codae = mommy.make(
+        "Codae", nome="CODAE", uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd"
+    )
+
+    perfil_coordenador = mommy.make(
+        "Perfil",
+        nome="COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA",
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
+    )
+    mommy.make("Lote", uuid="143c2550-8bf0-46b4-b001-27965cfcd107")
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=codae,
+        perfil=perfil_coordenador,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    return usuario
+
+
+@pytest.fixture
+def excluir_alunos_periodo_parcial(escola, aluno, escola_cei):
+    data = datetime.datetime(2025, 2, 7)
+    solicitacao_medicao_inicial = mommy.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola,
+        ano=data.year,
+        mes=f"{data.month:02d}",
+    )
+    mommy.make(
+        "AlunoPeriodoParcial",
+        aluno=aluno,
+        escola=escola,
+        solicitacao_medicao_inicial=solicitacao_medicao_inicial,
+    )
+
+    data_referencia = datetime.datetime(2025, 1, 1)
+    solicitacao_medicao_inicial = mommy.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola,
+        ano=data_referencia.year,
+        mes=f"{data_referencia.month:02d}",
+    )
+    mommy.make(
+        "AlunoPeriodoParcial",
+        aluno=aluno,
+        escola=escola,
+        solicitacao_medicao_inicial=solicitacao_medicao_inicial,
+    )
+
+    solicitacao_medicao_inicial = mommy.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola_cei,
+        ano=data_referencia.year,
+        mes=f"{data_referencia.month:02d}",
+    )
+    mommy.make(
+        "AlunoPeriodoParcial",
+        aluno=aluno,
+        escola=escola_cei,
+        solicitacao_medicao_inicial=solicitacao_medicao_inicial,
+    )
+
+    return escola_cei, data_referencia
