@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
+from freezegun import freeze_time
 from model_mommy import mommy
 
 from sme_sigpae_api.dados_comuns.constants import StatusProcessamentoArquivo
@@ -770,3 +771,18 @@ def tipo_gestao_das_escolas():
         parceira,
         direta,
     )
+
+
+@freeze_time("2025-02-05")
+@pytest.fixture
+def update_log_alunos_matriculados(
+    log_alunos_matriculados_periodo_escola_regular,
+    log_alunos_matriculados_periodo_escola_programas,
+):
+    log_alunos_matriculados_periodo_escola_regular.criado_em = datetime.date(2025, 2, 5)
+    log_alunos_matriculados_periodo_escola_regular.save()
+
+    log_alunos_matriculados_periodo_escola_programas.criado_em = datetime.date(
+        2025, 2, 1
+    )
+    log_alunos_matriculados_periodo_escola_programas.save()
