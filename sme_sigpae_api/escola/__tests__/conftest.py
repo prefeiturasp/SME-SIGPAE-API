@@ -8,7 +8,10 @@ from faker import Faker
 from freezegun import freeze_time
 from model_mommy import mommy
 
+from sme_sigpae_api.cardapio.models import AlteracaoCardapio
 from sme_sigpae_api.dados_comuns.constants import StatusProcessamentoArquivo
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
+from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 from sme_sigpae_api.escola.utils import cria_arquivo_excel
 from sme_sigpae_api.escola.utils_analise_dietas_ativas import (
     dict_codigo_aluno_por_codigo_escola as dict_aluno_utils_dieta,
@@ -948,3 +951,63 @@ def excluir_alunos_periodo_parcial(escola, aluno, escola_cei):
     )
 
     return escola_cei, data_referencia
+
+
+@pytest.fixture
+def alteracao_cardapio(escola):
+    return mommy.make(
+        AlteracaoCardapio,
+        escola=escola,
+        observacao="teste",
+        data_inicial=datetime.date(2025, 2, 1),
+        data_final=datetime.date(2025, 3, 17),
+        rastro_escola=escola,
+        rastro_dre=escola.diretoria_regional,
+    )
+
+
+@freeze_time("2025-01-01")
+@pytest.fixture
+def dieta_codae_autorizou(aluno, escola):
+    aluno.nome = "Antônio"
+    aluno.save()
+    classificacao = mommy.make("ClassificacaoDieta", nome="Tipo A")
+    solicitacao_dieta = mommy.make(
+        "SolicitacaoDietaEspecial",
+        rastro_escola=escola,
+        aluno=aluno,
+        classificacao=classificacao,
+        tipo_solicitacao="COMUM",
+    )
+    solicitacao_dieta.criado_em = datetime.date(2025, 1, 1)
+    solicitacao_dieta.save()
+
+    log = mommy.make(
+        "LogSolicitacoesUsuario",
+        status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        uuid_original=solicitacao_dieta.uuid,
+    )
+    log.criado_em = datetime.date(2025, 1, 1)
+    log.save()
+
+    return solicitacao_dieta
+
+
+@pytest.fixture
+def dieta_cancelada(aluno, escola):
+    aluno.nome = "Lucas"
+    aluno.save()
+    classificacao = mommy.make("ClassificacaoDieta", nome="Tipo B")
+
+    solicitacao_dieta = mommy.make(
+        "SolicitacaoDietaEspecial",
+        rastro_escola=escola,
+        aluno=aluno,
+        classificacao=classificacao,
+    )
+    mommy.make(
+        "LogSolicitacoesUsuario",
+        status_evento=LogSolicitacoesUsuario.CANCELADO_ALUNO_MUDOU_ESCOLA,
+        uuid_original=solicitacao_dieta.uuid,
+    )
+    return solicitacao_dieta

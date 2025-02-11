@@ -7,6 +7,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from freezegun import freeze_time
 from openpyxl import load_workbook
 
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
+from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 from sme_sigpae_api.escola.models import (
     AlunoPeriodoParcial,
     AlunosMatriculadosPeriodoEscola,
@@ -20,11 +22,14 @@ from sme_sigpae_api.escola.models import (
 
 from ..utils import (
     EscolaSimplissimaPagination,
+    analise_alunos_dietas_somente_uma_data,
     create_update_objeto_escola_periodo_escolar,
     cria_arquivo_excel,
     deletar_alunos_periodo_parcial_outras_escolas,
     duplica_dia_anterior,
+    eh_dia_sem_atividade_escolar,
     faixa_to_string,
+    get_alunos_com_dietas_autorizadas,
     lotes_endpoint_filtrar_relatorio_alunos_matriculados,
     meses_to_mes_e_ano_string,
     processa_dias_letivos,
@@ -175,6 +180,7 @@ def test_create_update_objeto_escola_periodo_escolar(escola_cemei, periodo_escol
         EscolaPeriodoEscolar.objects.get(
             periodo_escolar=periodo_escolar, escola=escola_cemei
         )
+
     create_update_objeto_escola_periodo_escolar(
         escola_cemei, periodo_escolar, quantidade_alunos
     )
@@ -272,7 +278,6 @@ def test_lotes_endpoint_filtrar_relatorio_alunos_matriculados(
         instituicao, Codae, Lote
     )
     assert lotes.count() == 2
-    # TODO: falta o perfil não CODAE
 
 
 def test_deletar_alunos_periodo_parcial_outras_escolas(excluir_alunos_periodo_parcial):
@@ -281,6 +286,96 @@ def test_deletar_alunos_periodo_parcial_outras_escolas(excluir_alunos_periodo_pa
     assert AlunoPeriodoParcial.objects.count() == 3
     deletar_alunos_periodo_parcial_outras_escolas(escola, data_referencia)
     assert AlunoPeriodoParcial.objects.count() == 2
+
+
+def test_eh_dia_sem_atividade_escolar(
+    dia_calendario_letivo, dia_calendario_nao_letivo, escola, alteracao_cardapio
+):
+    resposta = eh_dia_sem_atividade_escolar(
+        escola, dia_calendario_letivo.data, alteracao_cardapio
+    )
+    assert resposta is False
+
+    resposta = eh_dia_sem_atividade_escolar(
+        escola, dia_calendario_nao_letivo.data, alteracao_cardapio
+    )
+    assert resposta is True
+
+    resposta = eh_dia_sem_atividade_escolar(
+        escola, datetime.date(2025, 2, 10), alteracao_cardapio
+    )
+    assert resposta is False
+
+
+def test_analise_alunos_dietas_somente_uma_data(dieta_codae_autorizou, dieta_cancelada):
+    alunos_com_dietas_autorizadas = []
+
+    datetime_autorizacao = datetime.datetime(2025, 1, 1)
+    data_inicial = "2025-01-10"
+    data_final = "2025-03-01"
+    alunos = analise_alunos_dietas_somente_uma_data(
+        datetime_autorizacao,
+        data_inicial,
+        data_final,
+        dieta_codae_autorizou,
+        alunos_com_dietas_autorizadas,
+    )
+    assert isinstance(alunos, list)
+    assert len(alunos) == 0
+
+    # ------------------------------------------------------
+    alunos_com_dietas_autorizadas = []
+    datetime_autorizacao = datetime.datetime(2025, 1, 1)
+    data_inicial = "2025-03-01"
+    data_final = "2025-03-01"
+    alunos = analise_alunos_dietas_somente_uma_data(
+        datetime_autorizacao,
+        data_inicial,
+        data_final,
+        dieta_codae_autorizou,
+        alunos_com_dietas_autorizadas,
+    )
+    assert isinstance(alunos, list)
+    assert len(alunos) == 1
+    assert alunos[0]["aluno"] == dieta_codae_autorizou.aluno.nome
+    assert alunos[0]["tipo_dieta"] == dieta_codae_autorizou.classificacao.nome
+    assert alunos[0]["data_autorizacao"] == dieta_codae_autorizou.data_autorizacao
+
+    # ------------------------------------------------------
+    alunos_com_dietas_autorizadas = []
+    datetime_autorizacao = datetime.datetime(2025, 1, 1)
+    data_inicial = "2025-02-01"
+    data_final = "2025-02-01"
+    alunos = analise_alunos_dietas_somente_uma_data(
+        datetime_autorizacao,
+        data_inicial,
+        data_final,
+        dieta_cancelada,
+        alunos_com_dietas_autorizadas,
+    )
+    assert isinstance(alunos, list)
+    assert len(alunos) == 1
+    assert alunos[0]["aluno"] == dieta_cancelada.aluno.nome
+    assert alunos[0]["tipo_dieta"] == dieta_cancelada.classificacao.nome
+    assert alunos[0]["data_autorizacao"] == dieta_cancelada.data_autorizacao
+
+
+# @freeze_time("2025-01-01")
+def test_get_alunos_com_dietas_autorizadas(dieta_codae_autorizou, escola):
+    data_inicial = "2025-01-01"
+    data_final = "2025-01-01"
+    query_params = {"data_inicial": data_inicial, "data_fianl": data_final}
+    alunos = get_alunos_com_dietas_autorizadas(query_params, escola)
+    assert len(alunos) == 0
+
+    # ------------------------------------------------
+    query_params = {"mes_ano": "02_2025"}
+    alunos = get_alunos_com_dietas_autorizadas(query_params, escola)
+    assert isinstance(alunos, list)
+    assert len(alunos) == 1
+    assert alunos[0]["aluno"] == dieta_codae_autorizou.aluno.nome
+    assert alunos[0]["tipo_dieta"] == dieta_codae_autorizou.classificacao.nome
+    assert alunos[0]["data_autorizacao"] == dieta_codae_autorizou.data_autorizacao
 
 
 def test_cria_arquivo_excel():
