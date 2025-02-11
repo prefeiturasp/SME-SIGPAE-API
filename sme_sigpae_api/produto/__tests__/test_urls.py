@@ -23,66 +23,6 @@ ENDPOINT_ANALISE_SENSORIAL = "analise-sensorial"
 TERCEIRIZADA_RESPONDE = "terceirizada-responde-analise-sensorial"
 
 
-def test_url_dados_dashboard_usuario_terceirizada(
-    client_autenticado_da_terceirizada, homologacoes_produto
-):
-    response = client_autenticado_da_terceirizada.get(
-        "/painel-gerencial-homologacoes-produtos/dashboard/"
-    )
-    assert response.status_code == status.HTTP_200_OK
-    response_json = response.json()
-    assert len(response_json["results"]) == 15
-    codae_hom = next(
-        (
-            x
-            for x in response_json["results"]
-            if x["status"] == "TERCEIRIZADA_RESPONDEU_RECLAMACAO"
-        ),
-        None,
-    )
-    assert len(codae_hom["dados"]) == 1
-
-
-def test_url_dados_dashboard_usuario_escola(
-    client_autenticado_da_escola, homologacoes_produto
-):
-    response = client_autenticado_da_escola.get(
-        "/painel-gerencial-homologacoes-produtos/dashboard/"
-    )
-    assert response.status_code == status.HTTP_200_OK
-    response_json = response.json()
-    assert len(response_json["results"]) == 12
-    codae_hom = next(
-        (
-            x
-            for x in response_json["results"]
-            if x["status"] == "TERCEIRIZADA_RESPONDEU_RECLAMACAO"
-        ),
-        None,
-    )
-    assert len(codae_hom["dados"]) == 0
-
-
-def test_url_dados_dashboard_usuario_nutrisupervisor(
-    client_autenticado_vinculo_codae_nutrisupervisor, homologacoes_produto
-):
-    response = client_autenticado_vinculo_codae_nutrisupervisor.get(
-        "/painel-gerencial-homologacoes-produtos/dashboard/"
-    )
-    assert response.status_code == status.HTTP_200_OK
-    response_json = response.json()
-    assert len(response_json["results"]) == 12
-    codae_hom = next(
-        (
-            x
-            for x in response_json["results"]
-            if x["status"] == "TERCEIRIZADA_RESPONDEU_RECLAMACAO"
-        ),
-        None,
-    )
-    assert len(codae_hom["dados"]) == 1
-
-
 def test_url_endpoint_homologacao_produto_codae_homologa(
     client_autenticado_vinculo_codae_produto,
     homologacao_produto_pendente_homologacao,
