@@ -8,7 +8,7 @@ from rest_framework import serializers
 from rest_framework.pagination import PageNumberPagination
 
 from ..dados_comuns import constants
-from .models import HomologacaoProduto, ImagemDoProduto
+from .models import ImagemDoProduto
 
 
 def agrupa_por_terceirizada(queryset):  # noqa C901
@@ -390,12 +390,3 @@ def data_para_ordenacao(hom):
         else hom.ultimo_log.criado_em
     )
     return data
-
-
-def atualiza_queryset_codae_suspendeu(
-    qs, uuids_workflow_homologado_com_vinc_prod_edital_suspenso
-):
-    qs = [q for q in qs]
-    for uuid in uuids_workflow_homologado_com_vinc_prod_edital_suspenso:
-        qs.insert(0, HomologacaoProduto.objects.get(uuid=uuid))
-    return sorted(qs, key=lambda hom: data_para_ordenacao(hom), reverse=True)
