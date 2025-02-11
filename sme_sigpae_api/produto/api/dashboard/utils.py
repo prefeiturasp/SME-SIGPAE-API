@@ -36,6 +36,10 @@ def trata_parcialmente_homologados_ou_suspensos(
             produto__vinculos__suspenso=vinculo_suspenso,
             produto__vinculos__edital__uuid__in=request.user.vinculo_atual.instituicao.editais,
         )
+    else:
+        query_set = query_set.filter(
+            produto__vinculos__suspenso=vinculo_suspenso,
+        )
     return query_set
 
 

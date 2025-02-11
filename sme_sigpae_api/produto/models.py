@@ -509,7 +509,7 @@ class HomologacaoProduto(
                     if v.suspenso
                 ]
             )
-        return datetime.min
+        return None
 
     def gera_protocolo_analise_sensorial(self):
         id_sequecial = str(get_next_value("protocolo_analise_sensorial"))
