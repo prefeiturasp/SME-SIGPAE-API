@@ -44,7 +44,7 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
         pagination_class=DashboardPagination,
     )
     def dashboard_homologados(self, request):
-        query_set = self.get_queryset()
+        query_set = self.get_queryset().filter(eh_copia=False)
         query_set = filtrar_query_params(request, query_set)
         query_set = trata_parcialmente_homologados_ou_suspensos(
             request, query_set, vinculo_suspenso=False
@@ -66,7 +66,12 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
     )
     def dashboard_nao_homologados(self, request):
         query_set = self.get_queryset().filter(
-            status=HomologacaoProduto.workflow_class.CODAE_NAO_HOMOLOGADO
+            status__in=[
+                HomologacaoProduto.workflow_class.CODAE_NAO_HOMOLOGADO,
+                HomologacaoProduto.workflow_class.TERCEIRIZADA_CANCELOU_SOLICITACAO_HOMOLOGACAO,
+                HomologacaoProduto.workflow_class.CODAE_AUTORIZOU_RECLAMACAO,
+                HomologacaoProduto.workflow_class.CODAE_CANCELOU_ANALISE_SENSORIAL,
+            ]
         )
         query_set = filtrar_query_params(request, query_set, filtra_por_edital=False)
         lista = ordena_queryset_por_ultimo_log(query_set)
