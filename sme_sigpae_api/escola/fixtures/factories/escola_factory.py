@@ -45,14 +45,14 @@ class LoteFactory(DjangoModelFactory):
 
 
 class EscolaFactory(DjangoModelFactory):
-    class Meta:
-        model = Escola
-
     nome = Sequence(lambda n: f"Escola {n} - {fake.unique.company()}")
     codigo_eol = Sequence(lambda n: fake.unique.random_int(min=1, max=999999))
     lote = SubFactory(LoteFactory)
     diretoria_regional = SubFactory(DiretoriaRegionalFactory)
     tipo_unidade = SubFactory(TipoUnidadeEscolarFactory)
+
+    class Meta:
+        model = Escola
 
 
 class PeriodoEscolarFactory(DjangoModelFactory):
