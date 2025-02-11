@@ -31,6 +31,7 @@ def trata_parcialmente_homologados_ou_suspensos(
             produto__vinculos__suspenso=vinculo_suspenso,
             produto__vinculos__edital__numero=numero_edital,
         )
+        return query_set
     if hasattr(request.user.vinculo_atual.instituicao, "editais"):
         query_set = query_set.filter(
             produto__vinculos__suspenso=vinculo_suspenso,
