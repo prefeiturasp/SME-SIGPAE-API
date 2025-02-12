@@ -15,7 +15,6 @@ from sme_sigpae_api.escola.models import (
     AlunosMatriculadosPeriodoEscola,
     Codae,
     DiaCalendario,
-    Escola,
     EscolaPeriodoEscolar,
     LogAlunosMatriculadosPeriodoEscola,
     Lote,
@@ -44,8 +43,6 @@ from ..utils import (
     remove_acentos,
     string_to_faixa,
     string_to_meses,
-    trata_dados_futuro,
-    trata_dados_futuro_mes_atual,
     trata_filtro_data_relatorio_controle_frequencia_pdf,
     update_datetime_LogAlunosMatriculadosPeriodoEscola,
 )
@@ -327,22 +324,16 @@ def test_processa_dias_letivos(lista_dias_letivos):
 
 
 def test_calendario_sgp(mock_escolas):
-    # Mock do objeto Escola.objects.all()
     with patch(
         "sme_sigpae_api.escola.models.Escola.objects.all", return_value=mock_escolas
     ):
-        # Mock do método NovoSGPServico.dias_letivos
         with patch.object(
             NovoSGPServico, "dias_letivos", return_value={"dias": 180}
         ) as mock_dias_letivos:
-            # Mockando a função processa_dias_letivos
             with patch(
                 "sme_sigpae_api.escola.utils.processa_dias_letivos"
             ) as mock_processa_dias_letivos:
-                # Executa o método
                 calendario_sgp()
-
-                # Verifica se o método dias_letivos foi chamado com os parâmetros corretos
                 escola_mock = mock_escolas[0]
                 hoje = datetime.date.today()
                 data_inicio = hoje.strftime("%Y-%m-%d")
@@ -353,8 +344,6 @@ def test_calendario_sgp(mock_escolas):
                     data_inicio=data_inicio,
                     data_fim=data_fim,
                 )
-
-                # Verifica se o processa_dias_letivos foi chamado
                 mock_processa_dias_letivos.assert_called_once_with(
                     {"dias": 180}, escola_mock
                 )
@@ -423,7 +412,7 @@ def test_eh_dia_sem_atividade_escolar(
     assert resposta is False
 
 
-def test_analise_alunos_dietas_somente_uma_data(dieta_codae_autorizou, dieta_cancelada):
+def test_analise_alunos_dietas_somente_uma_data(dieta_codae_autorizou):
     alunos_com_dietas_autorizadas = []
 
     datetime_autorizacao = datetime.datetime(2025, 1, 1)
@@ -439,7 +428,10 @@ def test_analise_alunos_dietas_somente_uma_data(dieta_codae_autorizou, dieta_can
     assert isinstance(alunos, list)
     assert len(alunos) == 0
 
-    # ------------------------------------------------------
+
+def test_analise_alunos_dietas_somente_uma_data_inicio_fim_iguais(
+    dieta_codae_autorizou,
+):
     alunos_com_dietas_autorizadas = []
     datetime_autorizacao = datetime.datetime(2025, 1, 1)
     data_inicial = "2025-03-01"
@@ -457,7 +449,8 @@ def test_analise_alunos_dietas_somente_uma_data(dieta_codae_autorizou, dieta_can
     assert alunos[0]["tipo_dieta"] == dieta_codae_autorizou.classificacao.nome
     assert alunos[0]["data_autorizacao"] == dieta_codae_autorizou.data_autorizacao
 
-    # ------------------------------------------------------
+
+def test_analise_alunos_dietas_somente_uma_data_dieta_cancelada(dieta_cancelada):
     alunos_com_dietas_autorizadas = []
     datetime_autorizacao = datetime.datetime(2025, 1, 1)
     data_inicial = "2025-02-01"
@@ -477,7 +470,7 @@ def test_analise_alunos_dietas_somente_uma_data(dieta_codae_autorizou, dieta_can
 
 
 @freeze_time("2025-01-01")
-def test_get_alunos_com_dietas_autorizadas(dieta_codae_autorizou, escola):
+def test_get_alunos_com_dietas_autorizadas_com_datas(dieta_codae_autorizou, escola):
     data_inicial = "2025-01-01"
     data_final = "2025-01-01"
     query_params = {"data_inicial": data_inicial, "data_final": data_final}
@@ -487,7 +480,9 @@ def test_get_alunos_com_dietas_autorizadas(dieta_codae_autorizou, escola):
     assert alunos[0]["tipo_dieta"] == dieta_codae_autorizou.classificacao.nome
     assert alunos[0]["data_autorizacao"] == dieta_codae_autorizou.data_autorizacao
 
-    # ------------------------------------------------
+
+@freeze_time("2025-01-01")
+def test_get_alunos_com_dietas_autorizadas_com_mes_ano(dieta_codae_autorizou, escola):
     query_params = {"mes_ano": "02_2025"}
     alunos = get_alunos_com_dietas_autorizadas(query_params, escola)
     assert isinstance(alunos, list)
@@ -623,18 +618,6 @@ def test_dias_append_em_lista_existente():
     assert len(dias) == 3
     assert dias[2]["dia"] == "03"
     assert dias[2]["alunos_por_dia"] == alunos_por_dia
-
-
-def test_trata_dados_futuro_mes_atual():
-    pass
-
-
-def test_trata_dados_futuro():
-    pass
-
-
-def test_formata_periodos_pdf_controle_frequencia():
-    pass
 
 
 def test_ordenar_alunos_matriculados(dicionario_de_alunos_matriculados):

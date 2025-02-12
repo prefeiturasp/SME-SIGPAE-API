@@ -1031,9 +1031,8 @@ def mock_tipo_turma():
 
 
 @pytest.fixture
-def mock_escolas():
-    # Cria uma lista de escolas mockadas
+def mock_escolas(escola):
     escola_mock = MagicMock()
-    escola_mock.nome = "Escola Teste"
+    escola_mock.nome = escola.nome
     escola_mock.codigo_eol = "12345"
     return [escola_mock]
