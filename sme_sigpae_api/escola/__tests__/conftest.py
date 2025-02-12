@@ -1,6 +1,7 @@
 import datetime
 import uuid
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -1011,3 +1012,28 @@ def dieta_cancelada(aluno, escola):
         uuid_original=solicitacao_dieta.uuid,
     )
     return solicitacao_dieta
+
+
+@pytest.fixture
+def mock_diretoria_regional():
+    dre_mock = MagicMock()
+    dre_mock.nome = "DRE Teste"
+    dre_mock.codigo_eol = "12345"
+    return [dre_mock]
+
+
+@pytest.fixture
+def mock_tipo_turma():
+    mock = MagicMock()
+    mock.name = "Ensino Fundamental"
+    mock.value = "EF"
+    return mock
+
+
+@pytest.fixture
+def mock_escolas():
+    # Cria uma lista de escolas mockadas
+    escola_mock = MagicMock()
+    escola_mock.nome = "Escola Teste"
+    escola_mock.codigo_eol = "12345"
+    return [escola_mock]

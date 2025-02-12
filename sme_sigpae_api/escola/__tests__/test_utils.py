@@ -1,14 +1,15 @@
 import datetime
 import os
 from pathlib import Path
+from unittest import mock
+from unittest.mock import patch
 
+import pandas as pd
 import pytest
 from django.core.exceptions import ObjectDoesNotExist
 from freezegun import freeze_time
 from openpyxl import load_workbook
 
-from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
-from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 from sme_sigpae_api.escola.models import (
     AlunoPeriodoParcial,
     AlunosMatriculadosPeriodoEscola,
@@ -19,24 +20,33 @@ from sme_sigpae_api.escola.models import (
     LogAlunosMatriculadosPeriodoEscola,
     Lote,
 )
+from sme_sigpae_api.escola.services import NovoSGPServico
+from sme_sigpae_api.escola.utils import calendario_sgp
 
 from ..utils import (
-    EscolaSimplissimaPagination,
+    alunos_por_faixa_append,
     analise_alunos_dietas_somente_uma_data,
     create_update_objeto_escola_periodo_escolar,
     cria_arquivo_excel,
     deletar_alunos_periodo_parcial_outras_escolas,
+    dias_append,
     duplica_dia_anterior,
     eh_dia_sem_atividade_escolar,
+    eh_mes_atual,
     faixa_to_string,
     get_alunos_com_dietas_autorizadas,
     lotes_endpoint_filtrar_relatorio_alunos_matriculados,
     meses_to_mes_e_ano_string,
+    ordenar_alunos_matriculados,
     processa_dias_letivos,
     registra_quantidade_matriculados,
+    registro_quantidade_alunos_matriculados_por_escola_periodo,
     remove_acentos,
     string_to_faixa,
     string_to_meses,
+    trata_dados_futuro,
+    trata_dados_futuro_mes_atual,
+    trata_filtro_data_relatorio_controle_frequencia_pdf,
     update_datetime_LogAlunosMatriculadosPeriodoEscola,
 )
 
@@ -249,9 +259,60 @@ def test_duplica_dia_anterior(update_log_alunos_matriculados):
     )
 
 
-def test_registro_quantidade_alunos_matriculados_por_escola_periodo():
-    # TODO: precisa fazer mock da requisão para EOL
-    pass
+@patch("sme_sigpae_api.escola.models.DiretoriaRegional.objects.all")
+@patch("sme_sigpae_api.eol_servico.utils.EOLServicoSGP.matricula_por_escola")
+@patch("sme_sigpae_api.escola.utils.registra_quantidade_matriculados")
+@patch("sme_sigpae_api.escola.utils.duplica_dia_anterior")
+@patch("sme_sigpae_api.escola.utils.logger")
+def test_registro_quantidade_alunos_matriculados_por_escola_periodo_sucesso(
+    mock_logger,
+    mock_duplica_dia_anterior,
+    mock_registra_quantidade_matriculados,
+    mock_matricula_por_escola,
+    mock_diretoria_all,
+    mock_diretoria_regional,
+    mock_tipo_turma,
+):
+    mock_diretoria_all.return_value = mock_diretoria_regional
+    mock_matricula_por_escola.return_value = {
+        "escola": "Escola Teste",
+        "matriculados": 50,
+    }
+
+    registro_quantidade_alunos_matriculados_por_escola_periodo(mock_tipo_turma)
+
+    mock_matricula_por_escola.assert_called_once()
+    mock_registra_quantidade_matriculados.assert_called_once()
+    mock_duplica_dia_anterior.assert_not_called()
+    mock_logger.error.assert_not_called()
+
+
+@patch("sme_sigpae_api.escola.models.DiretoriaRegional.objects.all")
+@patch(
+    "sme_sigpae_api.eol_servico.utils.EOLServicoSGP.matricula_por_escola",
+    side_effect=Exception(
+        "Erro no serviço; as quantidades de alunos foram duplicadas do dia anterio"
+    ),
+)
+@patch("sme_sigpae_api.escola.utils.registra_quantidade_matriculados")
+@patch("sme_sigpae_api.escola.utils.duplica_dia_anterior")
+@patch("sme_sigpae_api.escola.utils.logger")
+def test_registro_quantidade_alunos_matriculados_por_escola_periodo_exception(
+    mock_logger,
+    mock_duplica_dia_anterior,
+    mock_registra_quantidade_matriculados,
+    mock_matricula_por_escola,
+    mock_diretoria_all,
+    mock_diretoria_regional,
+    mock_tipo_turma,
+):
+    mock_diretoria_all.return_value = mock_diretoria_regional
+    registro_quantidade_alunos_matriculados_por_escola_periodo(mock_tipo_turma)
+
+    mock_matricula_por_escola.assert_called_once()
+    mock_duplica_dia_anterior.assert_called_once()
+    mock_registra_quantidade_matriculados.assert_not_called()
+    mock_logger.error.assert_called_once()
 
 
 def test_processa_dias_letivos(lista_dias_letivos):
@@ -265,9 +326,64 @@ def test_processa_dias_letivos(lista_dias_letivos):
     assert DiaCalendario.objects.filter(dia_letivo=False).count() == 2
 
 
-def test_calendario_sgp():
-    # TODO: precisa fazer mock da requisão para NovoSGP
-    pass
+def test_calendario_sgp(mock_escolas):
+    # Mock do objeto Escola.objects.all()
+    with patch(
+        "sme_sigpae_api.escola.models.Escola.objects.all", return_value=mock_escolas
+    ):
+        # Mock do método NovoSGPServico.dias_letivos
+        with patch.object(
+            NovoSGPServico, "dias_letivos", return_value={"dias": 180}
+        ) as mock_dias_letivos:
+            # Mockando a função processa_dias_letivos
+            with patch(
+                "sme_sigpae_api.escola.utils.processa_dias_letivos"
+            ) as mock_processa_dias_letivos:
+                # Executa o método
+                calendario_sgp()
+
+                # Verifica se o método dias_letivos foi chamado com os parâmetros corretos
+                escola_mock = mock_escolas[0]
+                hoje = datetime.date.today()
+                data_inicio = hoje.strftime("%Y-%m-%d")
+                data_final = (hoje + pd.DateOffset(months=3)).date()
+                data_fim = data_final.strftime("%Y-%m-%d")
+                mock_dias_letivos.assert_any_call(
+                    codigo_eol=escola_mock.codigo_eol,
+                    data_inicio=data_inicio,
+                    data_fim=data_fim,
+                )
+
+                # Verifica se o processa_dias_letivos foi chamado
+                mock_processa_dias_letivos.assert_called_once_with(
+                    {"dias": 180}, escola_mock
+                )
+
+
+def test_calendario_sgp_exception(mock_escolas):
+    with patch(
+        "sme_sigpae_api.escola.models.Escola.objects.all", return_value=mock_escolas
+    ):
+        with patch.object(NovoSGPServico, "dias_letivos") as mock_dias_letivos:
+            mock_dias_letivos.side_effect = Exception("Erro ao buscar dias letivos")
+            with patch(
+                "sme_sigpae_api.escola.utils.processa_dias_letivos"
+            ) as mock_processa_dias_letivos:
+                calendario_sgp()
+                mock_dias_letivos.assert_any_call(
+                    codigo_eol="12345", data_inicio=mock.ANY, data_fim=mock.ANY
+                )
+                mock_dias_letivos.side_effect = Exception(
+                    "Erro ao buscar dias letivos no turno da noite"
+                )
+                calendario_sgp()
+                mock_dias_letivos.assert_any_call(
+                    codigo_eol="12345",
+                    data_inicio=mock.ANY,
+                    data_fim=mock.ANY,
+                    tipo_turno=3,
+                )
+                mock_processa_dias_letivos.assert_not_called()
 
 
 def test_lotes_endpoint_filtrar_relatorio_alunos_matriculados(
@@ -360,13 +476,16 @@ def test_analise_alunos_dietas_somente_uma_data(dieta_codae_autorizou, dieta_can
     assert alunos[0]["data_autorizacao"] == dieta_cancelada.data_autorizacao
 
 
-# @freeze_time("2025-01-01")
+@freeze_time("2025-01-01")
 def test_get_alunos_com_dietas_autorizadas(dieta_codae_autorizou, escola):
     data_inicial = "2025-01-01"
     data_final = "2025-01-01"
-    query_params = {"data_inicial": data_inicial, "data_fianl": data_final}
+    query_params = {"data_inicial": data_inicial, "data_final": data_final}
     alunos = get_alunos_com_dietas_autorizadas(query_params, escola)
-    assert len(alunos) == 0
+    assert len(alunos) == 1
+    assert alunos[0]["aluno"] == dieta_codae_autorizou.aluno.nome
+    assert alunos[0]["tipo_dieta"] == dieta_codae_autorizou.classificacao.nome
+    assert alunos[0]["data_autorizacao"] == dieta_codae_autorizou.data_autorizacao
 
     # ------------------------------------------------
     query_params = {"mes_ano": "02_2025"}
@@ -376,6 +495,159 @@ def test_get_alunos_com_dietas_autorizadas(dieta_codae_autorizou, escola):
     assert alunos[0]["aluno"] == dieta_codae_autorizou.aluno.nome
     assert alunos[0]["tipo_dieta"] == dieta_codae_autorizou.classificacao.nome
     assert alunos[0]["data_autorizacao"] == dieta_codae_autorizou.data_autorizacao
+
+
+@freeze_time("2024-06-15")
+def test_trata_filtro_data_relatorio_mes_futuro():
+    filtros = {}
+    query_params = {}
+
+    mes_seguinte = trata_filtro_data_relatorio_controle_frequencia_pdf(
+        filtros, query_params, "2024", "07", 31
+    )
+    assert filtros["data"] == "2024-6-14"
+    assert mes_seguinte is True
+
+
+@freeze_time("2024-06-15")
+def test_trata_filtro_data_relatorio_mes_atual_data_unica():
+    filtros = {}
+    query_params = {"data_inicial": "2024-06-15", "data_final": "2024-06-15"}
+    mes_seguinte = trata_filtro_data_relatorio_controle_frequencia_pdf(
+        filtros, query_params, "2024", "06", 30
+    )
+    assert filtros["data"] == datetime.date(2024, 6, 14)
+    assert mes_seguinte is False
+
+
+@freeze_time("2024-06-15")
+def test_trata_filtro_data_relatorio_mes_atual_intervalo():
+    filtros = {}
+    query_params = {"data_inicial": "2024-06-16", "data_final": "2024-06-20"}
+    mes_seguinte = trata_filtro_data_relatorio_controle_frequencia_pdf(
+        filtros, query_params, "2024", "06", 30
+    )
+    assert filtros["data"] == datetime.date(2024, 6, 14)
+    assert mes_seguinte is False
+
+
+@freeze_time("2024-06-15")
+def test_trata_filtro_data_relatorio_mes_anterior():
+    filtros = {}
+    query_params = {"data_inicial": "2024-05-10", "data_final": "2024-05-20"}
+    mes_seguinte = trata_filtro_data_relatorio_controle_frequencia_pdf(
+        filtros, query_params, "2024", "05", 31
+    )
+    assert filtros["data__gte"] == "2024-05-10"
+    assert filtros["data__lte"] == "2024-05-20"
+    assert mes_seguinte is False
+
+
+@freeze_time("2025-02-12")
+def test_mes_atual_com_mes_correto():
+    query_params = {"mes_ano": "02_2025"}
+    assert eh_mes_atual(query_params) is True
+
+
+@freeze_time("2025-02-12")
+def test_mes_atual_com_mes_errado():
+    query_params = {"mes_ano": "03_2025"}
+    assert eh_mes_atual(query_params) is False
+
+
+@freeze_time("2025-02-12")
+def test_mes_atual_com_mes_ausente():
+    query_params = {}
+    with pytest.raises(AttributeError):
+        assert eh_mes_atual(query_params) is False
+
+
+def test_alunos_por_faixa():
+    alunos_por_faixa = ["João", "Maria"]
+    aluno = "Carlos"
+
+    resultado = alunos_por_faixa_append(alunos_por_faixa, aluno)
+
+    assert aluno in resultado
+    assert len(resultado) == 3
+
+
+def test_alunos_por_faixa_nao_adiciona_aluno_duplicado():
+    alunos_por_faixa = ["João", "Maria"]
+    aluno = "Maria"
+
+    resultado = alunos_por_faixa_append(alunos_por_faixa, aluno)
+
+    assert resultado == alunos_por_faixa
+    assert len(resultado) == 2
+
+
+def test_alunos_por_faixa_lista_vazia_adiciona_aluno():
+    alunos_por_faixa = []
+    aluno = "Carlos"
+
+    resultado = alunos_por_faixa_append(alunos_por_faixa, aluno)
+
+    assert aluno in resultado
+    assert len(resultado) == 1
+
+
+def test_dias_append_dia_com_alunos():
+    dias = []
+    dia = 5
+    alunos_por_dia = ["João", "Maria"]
+    dias_append(dias, dia, alunos_por_dia)
+    assert len(dias) == 1
+    assert dias[0]["dia"] == "05"
+    assert dias[0]["alunos_por_dia"] == alunos_por_dia
+
+
+def test_dias_append_dia_com_alunos_vazio():
+    dias = []
+    dia = 10
+    alunos_por_dia = []
+    dias_append(dias, dia, alunos_por_dia)
+    assert len(dias) == 1
+    assert dias[0]["dia"] == "10"
+    assert dias[0]["alunos_por_dia"] == alunos_por_dia
+
+
+def test_dias_append_em_lista_existente():
+    dias = [
+        {"dia": "01", "alunos_por_dia": ["Ana"]},
+        {"dia": "02", "alunos_por_dia": ["Carlos"]},
+    ]
+    dia = 3
+    alunos_por_dia = ["Mariana"]
+    dias_append(dias, dia, alunos_por_dia)
+    assert len(dias) == 3
+    assert dias[2]["dia"] == "03"
+    assert dias[2]["alunos_por_dia"] == alunos_por_dia
+
+
+def test_trata_dados_futuro_mes_atual():
+    pass
+
+
+def test_trata_dados_futuro():
+    pass
+
+
+def test_formata_periodos_pdf_controle_frequencia():
+    pass
+
+
+def test_ordenar_alunos_matriculados(dicionario_de_alunos_matriculados):
+    alunos_matriculados = AlunosMatriculadosPeriodoEscola.objects.all()
+    assert alunos_matriculados.count() == 3
+    assert alunos_matriculados[0].periodo_escolar.nome == "INTEGRAL"
+    assert alunos_matriculados[1].periodo_escolar.nome == "MANHA"
+    assert alunos_matriculados[2].periodo_escolar.nome == ""
+
+    queryset = ordenar_alunos_matriculados(alunos_matriculados)
+    assert queryset[0].periodo_escolar.nome == "MANHA"
+    assert queryset[1].periodo_escolar.nome == "INTEGRAL"
+    assert queryset[2].periodo_escolar.nome == ""
 
 
 def test_cria_arquivo_excel():
