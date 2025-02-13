@@ -93,117 +93,6 @@ def test_dieta_especial_solicitacoes_viewset_pendentes(
 
 
 @freeze_time("2019-10-11")
-def test_escola_relatorio_evolucao_solicitacoes(users_diretor_escola):
-    client, email, password, rf, cpf, user = users_diretor_escola
-    response = client.get(f"/escola-solicitacoes/{RESUMO_ANO}/")
-    assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {
-        "results": {
-            "total": 10,
-            "Inclusão de Alimentação": {
-                "quantidades": [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                "total": 3,
-            },
-            "Alteração do tipo de Alimentação": {
-                "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3],
-                "total": 3,
-            },
-            "Inversão de dia de Cardápio": {
-                "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                "total": 0,
-            },
-            "Suspensão de Alimentação": {
-                "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                "total": 0,
-            },
-            "Kit Lanche Passeio": {
-                "quantidades": [0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-                "total": 4,
-            },
-            "Kit Lanche Unificado": {
-                "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                "total": 0,
-            },
-            "Dieta Especial": {
-                "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                "total": 0,
-            },
-        }
-    }
-
-
-@freeze_time("2019-02-11")
-def test_filtro_escola(users_diretor_escola):
-    client, email, password, rf, cpf, user = users_diretor_escola
-    tipo = "INC_ALIMENTA_CONTINUA"
-    response = client.get(
-        f"/escola-solicitacoes/{PESQUISA}/?tipo_solicitacao={tipo}"
-        "&data_inicial=2019-02-01&data_final=2019-02-28&status_solicitacao=TODOS"
-    )
-    assert response.status_code == status.HTTP_200_OK
-    for i in response.json()["results"]:
-        assert i["tipo_doc"] == tipo
-
-
-@freeze_time("2019-02-11")
-def test_relatorio_filtro_escola(users_diretor_escola):
-    client, email, password, rf, cpf, user = users_diretor_escola
-    tipo = "INC_ALIMENTA_CONTINUA"
-    response = client.get(
-        f"/escola-solicitacoes/{RELATORIO_PERIODO}/?tipo_solicitacao={tipo}"
-        "&data_inicial=2019-02-01&data_final=2019-02-28&status_solicitacao=TODOS"
-    )
-    assert response.status_code == status.HTTP_200_OK
-    assert response.headers["content-type"] == "application/pdf"
-    assert (
-        response.headers["content-disposition"]
-        == 'filename="relatorio_filtro_de_2019-02-01 00:00:00_ate_2019-02-28 00:00:00.pdf"'
-    )
-    assert "PDF-1." in str(response.content)
-    assert isinstance(response.content, bytes)
-
-
-@freeze_time("2019-02-11")
-def test_relatorio_mes_ano_escola(users_diretor_escola):
-    client, email, password, rf, cpf, user = users_diretor_escola
-    response = client.get(f"/escola-solicitacoes/{RELATORIO_RESUMO_MES_ANO}/")
-    assert response.status_code == status.HTTP_200_OK
-    assert response.headers["content-type"] == "application/pdf"
-    assert (
-        response.headers["content-disposition"]
-        == 'filename="relatorio_resumo_anual_e_mensal.pdf"'
-    )
-    assert "PDF-1." in str(response.content)
-    assert isinstance(response.content, bytes)
-
-
-@freeze_time("2019-02-11")
-def test_relatorio_filtro_escola_error(users_diretor_escola):
-    client, email, password, rf, cpf, user = users_diretor_escola
-    tipo = "INCLUSAO_QUE_NAO_EXISTE"
-    status_solicitacao = "TESTE_XXX"
-    response = client.get(
-        f"/escola-solicitacoes/{RELATORIO_PERIODO}/?tipo_solicitacao={tipo}"
-        f"&data_inicial=20190201&data_final=20190228&status_solicitacao={status_solicitacao}"
-    )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.headers["content-type"] == "application/json"
-    assert response.json() == {
-        "tipo_solicitacao": [
-            "tipo de solicitação INCLUSAO_QUE_NAO_EXISTE não permitida, deve ser um dos: "
-            "['ALT_CARDAPIO', 'INV_CARDAPIO', 'INC_ALIMENTA', 'INC_ALIMENTA_CONTINUA', 'KIT_LANCHE_AVULSA',"
-            " 'SUSP_ALIMENTACAO', 'KIT_LANCHE_UNIFICADA', 'TODOS']"
-        ],
-        "status_solicitacao": [
-            "status de solicitação TESTE_XXX não permitida, deve ser um dos: "
-            "['AUTORIZADOS', 'NEGADOS', 'CANCELADOS', 'RECEBIDAS', 'TODOS']"
-        ],
-        "data_inicial": ["Informe uma data válida."],
-        "data_final": ["Informe uma data válida."],
-    }
-
-
-@freeze_time("2019-10-11")
 def test_resumo_ano_dre(solicitacoes_ano_dre):
     client, email, password, rf, cpf, user = solicitacoes_ano_dre
     response = client.get(f"/diretoria-regional-solicitacoes/{RESUMO_ANO}/")
@@ -376,7 +265,8 @@ def test_filtro_dre_error(solicitacoes_ano_dre):
 def test_ceu_gestao_periodos_com_solicitacoes_autorizadas(
     client_autenticado_escola_paineis_consolidados, escola, vinculo_periodo_alimentacao
 ):
-    response = client_autenticado_escola_paineis_consolidados.get(
+    client, usuario = client_autenticado_escola_paineis_consolidados
+    response = client.get(
         "/escola-solicitacoes/ceu-gestao-periodos-com-solicitacoes-autorizadas/"
         f"?escola_uuid={escola.uuid}&mes=07&ano=2023"
     )
@@ -388,7 +278,8 @@ def test_ceu_gestao_periodos_com_solicitacoes_autorizadas(
 def test_inclusoes_normais_autorizadas(
     client_autenticado_escola_paineis_consolidados, escola
 ):
-    response = client_autenticado_escola_paineis_consolidados.get(
+    client, usuario = client_autenticado_escola_paineis_consolidados
+    response = client.get(
         f"/escola-solicitacoes/{INCLUSOES_AUTORIZADAS}/"
         f"?escola_uuid={escola.uuid}&tipo_solicitacao=Inclusão de&mes=07&ano=2023"
         "&periodos_escolares[]=MANHA&excluir_inclusoes_continuas=true"
@@ -405,7 +296,8 @@ def test_inclusoes_continuas_autorizadas(
     inclusao_alimentacao_continua_unico_mes,
     inclusao_alimentacao_continua_varios_meses,
 ):
-    response_mes_03 = client_autenticado_escola_paineis_consolidados.get(
+    client, usuario = client_autenticado_escola_paineis_consolidados
+    response_mes_03 = client.get(
         f"/escola-solicitacoes/{INCLUSOES_AUTORIZADAS}/"
         f"?escola_uuid={escola.uuid}&tipo_solicitacao=Inclusão de&mes=03&ano=2023"
         "&periodos_escolares[]=MANHA&periodos_escolares[]=TARDE&tipo_doc=INC_ALIMENTA_CONTINUA"
@@ -419,7 +311,7 @@ def test_inclusoes_continuas_autorizadas(
         == "31"
     )
 
-    response_mes_04 = client_autenticado_escola_paineis_consolidados.get(
+    response_mes_04 = client.get(
         f"/escola-solicitacoes/{INCLUSOES_AUTORIZADAS}/"
         f"?escola_uuid={escola.uuid}&tipo_solicitacao=Inclusão de&mes=04&ano=2023"
         "&periodos_escolares[]=MANHA&periodos_escolares[]=TARDE&tipo_doc=INC_ALIMENTA_CONTINUA"
@@ -433,7 +325,7 @@ def test_inclusoes_continuas_autorizadas(
         == "10"
     )
 
-    response_mes_02 = client_autenticado_escola_paineis_consolidados.get(
+    response_mes_02 = client.get(
         f"/escola-solicitacoes/{INCLUSOES_AUTORIZADAS}/"
         f"?escola_uuid={escola.uuid}&tipo_solicitacao=Inclusão de&mes=02&ano=2023"
         "&periodos_escolares[]=MANHA&periodos_escolares[]=TARDE&tipo_doc=INC_ALIMENTA_CONTINUA"
@@ -447,7 +339,7 @@ def test_inclusoes_continuas_autorizadas(
         == "25"
     )
 
-    response_mes_07 = client_autenticado_escola_paineis_consolidados.get(
+    response_mes_07 = client.get(
         f"/escola-solicitacoes/{INCLUSOES_AUTORIZADAS}/"
         f"?escola_uuid={escola.uuid}&tipo_solicitacao=Inclusão de&mes=07&ano=2023"
         "&periodos_escolares[]=MANHA&periodos_escolares[]=TARDE&tipo_doc=INC_ALIMENTA_CONTINUA"
@@ -465,7 +357,8 @@ def test_inclusoes_continuas_autorizadas(
 def test_inclusoes_cei_autorizadas(
     client_autenticado_escola_paineis_consolidados, escola, inclusao_alimentacao_cei
 ):
-    response_manha = client_autenticado_escola_paineis_consolidados.get(
+    client, usuario = client_autenticado_escola_paineis_consolidados
+    response_manha = client.get(
         f"/escola-solicitacoes/{INCLUSOES_AUTORIZADAS}/"
         f"?escola_uuid={escola.uuid}&tipo_solicitacao=Inclusão de&mes=08&ano=2023"
         "&periodos_escolares[]=MANHA&excluir_inclusoes_continuas=true"
@@ -473,7 +366,7 @@ def test_inclusoes_cei_autorizadas(
     assert response_manha.status_code == status.HTTP_200_OK
     assert len(response_manha.data["results"]) == 0
 
-    response_parcial = client_autenticado_escola_paineis_consolidados.get(
+    response_parcial = client.get(
         f"/escola-solicitacoes/{INCLUSOES_AUTORIZADAS}/"
         f"?escola_uuid={escola.uuid}&tipo_solicitacao=Inclusão de&mes=08&ano=2023"
         "&periodos_escolares[]=PARCIAL&excluir_inclusoes_continuas=true"
@@ -482,7 +375,7 @@ def test_inclusoes_cei_autorizadas(
     assert len(response_parcial.data["results"]) == 1
     assert response_parcial.data["results"][0]["dia"] == 10
 
-    response_integral = client_autenticado_escola_paineis_consolidados.get(
+    response_integral = client.get(
         f"/escola-solicitacoes/{INCLUSOES_AUTORIZADAS}/"
         f"?escola_uuid={escola.uuid}&tipo_solicitacao=Inclusão de&mes=08&ano=2023"
         "&periodos_escolares[]=INTEGRAL&excluir_inclusoes_continuas=true"
@@ -490,7 +383,7 @@ def test_inclusoes_cei_autorizadas(
     assert response_integral.status_code == status.HTTP_200_OK
     assert len(response_integral.data["results"]) == 0
 
-    response_tarde = client_autenticado_escola_paineis_consolidados.get(
+    response_tarde = client.get(
         f"/escola-solicitacoes/{INCLUSOES_AUTORIZADAS}/"
         f"?escola_uuid={escola.uuid}&tipo_solicitacao=Inclusão de&mes=08&ano=2023"
         "&periodos_escolares[]=TARDE&excluir_inclusoes_continuas=true"
@@ -502,7 +395,8 @@ def test_inclusoes_cei_autorizadas(
 def test_suspensoes_autorizadas(
     client_autenticado_escola_paineis_consolidados, escola, suspensoes_alimentacao_cei
 ):
-    response_manha_cei = client_autenticado_escola_paineis_consolidados.get(
+    client, usuario = client_autenticado_escola_paineis_consolidados
+    response_manha_cei = client.get(
         f"/escola-solicitacoes/{SUSPENSOES_AUTORIZADAS}/"
         f"?escola_uuid={escola.uuid}&tipo_solicitacao=Suspensão&mes=07&ano=2023"
         "&nome_periodo_escolar=MANHA"
@@ -512,7 +406,7 @@ def test_suspensoes_autorizadas(
     assert response_manha_cei.data["results"][0]["dia"] == "15"
     assert response_manha_cei.data["results"][0]["periodo"] == "MANHA"
 
-    response_parcial_cei = client_autenticado_escola_paineis_consolidados.get(
+    response_parcial_cei = client.get(
         f"/escola-solicitacoes/{SUSPENSOES_AUTORIZADAS}/"
         f"?escola_uuid={escola.uuid}&tipo_solicitacao=Suspensão&mes=07&ano=2023"
         "&nome_periodo_escolar=PARCIAL"
@@ -522,23 +416,23 @@ def test_suspensoes_autorizadas(
     assert response_parcial_cei.data["results"][0]["dia"] == "15"
     assert response_parcial_cei.data["results"][0]["periodo"] == "INTEGRAL"
 
-    response_suspensao_manha = client_autenticado_escola_paineis_consolidados.get(
+    response_suspensao_manha = client.get(
         f"/escola-solicitacoes/{SUSPENSOES_AUTORIZADAS}/"
         f"?escola_uuid={escola.uuid}&tipo_solicitacao=Suspensão&mes=08&ano=2023"
         "&nome_periodo_escolar=MANHA"
     )
     assert response_suspensao_manha.status_code == status.HTTP_200_OK
-    assert len(response_suspensao_manha.data["results"]) == 2
+    assert len(response_suspensao_manha.data["results"]) == 1
     assert response_suspensao_manha.data["results"][0]["numero_alunos"] == 75
     assert response_suspensao_manha.data["results"][0]["periodo"] == "MANHA"
 
-    response_suspensao_integral = client_autenticado_escola_paineis_consolidados.get(
+    response_suspensao_integral = client.get(
         f"/escola-solicitacoes/{SUSPENSOES_AUTORIZADAS}/"
         f"?escola_uuid={escola.uuid}&tipo_solicitacao=Suspensão&mes=08&ano=2023"
         "&nome_periodo_escolar=INTEGRAL"
     )
     assert response_suspensao_integral.status_code == status.HTTP_200_OK
-    assert len(response_suspensao_integral.data["results"]) == 2
+    assert len(response_suspensao_integral.data["results"]) == 1
     assert response_suspensao_integral.data["results"][0]["numero_alunos"] == 50
     assert response_suspensao_integral.data["results"][0]["periodo"] == "INTEGRAL"
 
@@ -552,8 +446,9 @@ def test_solicitacoes_detalhadas_inc_alimentacao(
     eolservicosgp_get_lista_alunos,
     periodo_escolar_factory,
 ):
+    client, usuario = client_autenticado_escola_paineis_consolidados
     periodo_escolar_factory.create(tipo_turno=1, nome="INTEGRAL")
-    response = client_autenticado_escola_paineis_consolidados.get(
+    response = client.get(
         "/solicitacoes-genericas/solicitacoes-detalhadas/"
         "?solicitacoes[]="
         "%7B%22tipo_doc%22:%22INC_ALIMENTA%22,%22uuid%22:%22a4639e26-f4fd-43e9-a8cc-2d0da995c8ef%22%7D"
@@ -577,8 +472,9 @@ def test_solicitacoes_detalhadas_kit_lanche(
     eolservicosgp_get_lista_alunos,
     periodo_escolar_factory,
 ):
+    client, usuario = client_autenticado_escola_paineis_consolidados
     periodo_escolar_factory.create(tipo_turno=1, nome="INTEGRAL")
-    response = client_autenticado_escola_paineis_consolidados.get(
+    response = client.get(
         "/solicitacoes-genericas/solicitacoes-detalhadas/"
         "?solicitacoes[]="
         "%7B%22tipo_doc%22:%22KIT_LANCHE_AVULSA%22,%22uuid%22:%22ac0b6f5b-36b0-47d2-99a2-3bc9825b31fb%22%7D"

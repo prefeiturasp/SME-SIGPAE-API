@@ -440,6 +440,10 @@ class HomologacaoProdutoSerializer(serializers.ModelSerializer):
     logs = LogSolicitacoesUsuarioComAnexosSerializer(many=True)
     rastro_terceirizada = TerceirizadaSimplesSerializer()
     ultima_analise = AnaliseSensorialSerializer()
+    esta_homologado = serializers.SerializerMethodField()
+
+    def get_esta_homologado(self, obj):
+        return obj.esta_homologado()
 
     class Meta:
         model = HomologacaoProduto
@@ -484,33 +488,33 @@ class HomologacaoProdutoPainelGerencialSerializer(HomologacaoProdutoBase):
     fabricante_produto = serializers.SerializerMethodField()
     log_mais_recente = serializers.SerializerMethodField()
     nome_usuario_log_de_reclamacao = serializers.SerializerMethodField()
-    tem_vinculo_produto_edital_suspenso = serializers.SerializerMethodField()
+    tem_vinculo_produto_edital_suspenso = serializers.BooleanField()
     data_edital_suspenso_mais_recente = serializers.SerializerMethodField()
     editais = serializers.SerializerMethodField()
     produto_editais = serializers.SerializerMethodField()
 
     def get_log_mais_recente(self, obj):
-        if obj.log_mais_recente:
-            if obj.log_mais_recente.criado_em.date() == datetime.date.today():
-                return datetime.datetime.strftime(
-                    obj.log_mais_recente.criado_em, "%d/%m/%Y %H:%M"
-                )
-            return datetime.datetime.strftime(
-                obj.log_mais_recente.criado_em, "%d/%m/%Y"
-            )
-        else:
-            return datetime.datetime.strftime(obj.criado_em, "%d/%m/%Y")
+        data = obj.log_mais_recente.criado_em if obj.log_mais_recente else obj.criado_em
+        format_str = (
+            "%d/%m/%Y %H:%M" if data.date() == datetime.date.today() else "%d/%m/%Y"
+        )
+        return data.strftime(format_str)
 
     def get_nome_usuario_log_de_reclamacao(self, obj) -> str:
         if obj.status.is_CODAE_QUESTIONOU_UE:
-            _status = LogSolicitacoesUsuario.STATUS_POSSIVEIS
-            status = {v: k for (k, v) in _status}
-            usr = obj.logs.filter(
-                status_evento=status["Escola/Nutricionista reclamou do produto"]
+            status_dict = dict(LogSolicitacoesUsuario.STATUS_POSSIVEIS)
+            status_reclamacao = status_dict.get(
+                "Escola/Nutricionista reclamou do produto"
             )
-            if not usr:
-                return ""
-            return usr.first().usuario.nome
+            usr_log = next(
+                (
+                    log
+                    for log in obj.logs.all()
+                    if log.status_evento == status_reclamacao
+                ),
+                None,
+            )
+            return usr_log.usuario.nome if usr_log else ""
         return ""
 
     def get_nome_produto(self, obj):
@@ -521,9 +525,6 @@ class HomologacaoProdutoPainelGerencialSerializer(HomologacaoProdutoBase):
 
     def get_fabricante_produto(self, obj):
         return obj.produto.fabricante.nome
-
-    def get_tem_vinculo_produto_edital_suspenso(self, obj):
-        return obj.tem_vinculo_produto_edital_suspenso
 
     def get_data_edital_suspenso_mais_recente(self, obj):
         workflow = self.context.get("workflow", "")

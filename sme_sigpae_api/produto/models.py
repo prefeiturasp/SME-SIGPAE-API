@@ -503,8 +503,13 @@ class HomologacaoProduto(
     def data_edital_suspenso_mais_recente(self):
         if self.tem_vinculo_produto_edital_suspenso:
             return max(
-                [v.suspenso_em for v in self.produto.vinculos.all() if v.suspenso]
+                [
+                    v.suspenso_em or datetime.min
+                    for v in self.produto.vinculos.all()
+                    if v.suspenso
+                ]
             )
+        return None
 
     def gera_protocolo_analise_sensorial(self):
         id_sequecial = str(get_next_value("protocolo_analise_sensorial"))
@@ -529,10 +534,10 @@ class HomologacaoProduto(
         serial = serial + str(id_sequecial)
         return f"AS{serial}"
 
-    @property
-    def esta_homologado(self):
+    def esta_homologado(self, logs_list=None):
         esta_homologado = False
-        for log in self.logs.order_by("-criado_em"):
+        logs = logs_list or self.logs
+        for log in logs.order_by("-criado_em"):
             if log.status_evento == LogSolicitacoesUsuario.CODAE_HOMOLOGADO:
                 esta_homologado = True
                 continue
