@@ -749,3 +749,20 @@ def parser_xml():
     elemento_2 = ET.fromstring(xml_lista)
 
     return parser, elemento_1, elemento_2
+
+
+@pytest.fixture
+def solicitacoes_abertas():
+    mommy.make(
+        "SolicitacaoAberta",
+        datetime_ultimo_acesso=datetime.datetime(2025, 2, 5, 12, 34, 54),
+    )
+    mommy.make(
+        "SolicitacaoAberta",
+        datetime_ultimo_acesso=datetime.datetime(2025, 2, 10, 9, 18, 12),
+    )
+    solictacao = mommy.make(
+        "SolicitacaoAberta",
+        datetime_ultimo_acesso=datetime.datetime(2025, 2, 10, 16, 28, 50),
+    )
+    return solictacao

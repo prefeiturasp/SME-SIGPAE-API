@@ -32,7 +32,7 @@ pytestmark = pytest.mark.django_db
 
 @patch("django.core.management.call_command")
 def test_atualiza_total_alunos_escolas(mock_call_command):
-    atualiza_total_alunos_escolas.delay()
+    atualiza_total_alunos_escolas()
     mock_call_command.assert_called_once_with(
         "atualiza_total_alunos_escolas", verbosity=0
     )
@@ -40,13 +40,13 @@ def test_atualiza_total_alunos_escolas(mock_call_command):
 
 @patch("django.core.management.call_command")
 def test_atualiza_dados_escolas(mock_call_command):
-    atualiza_dados_escolas.delay()
+    atualiza_dados_escolas()
     mock_call_command.assert_called_once_with("atualiza_dados_escolas", verbosity=0)
 
 
 @patch("django.core.management.call_command")
 def test_atualiza_alunos_escolas(mock_call_command):
-    atualiza_alunos_escolas.delay()
+    atualiza_alunos_escolas()
     mock_call_command.assert_called_once_with("atualiza_alunos_escolas", verbosity=0)
 
 
@@ -173,7 +173,7 @@ def test_nega_solicitacoes_pendentes_autorizacao_vencidas(
 
 @patch("django.core.management.call_command")
 def test_atualiza_cache_matriculados_por_faixa(mock_call_command):
-    atualiza_cache_matriculados_por_faixa.delay()
+    atualiza_cache_matriculados_por_faixa()
     mock_call_command.assert_called_once_with(
         "atualiza_cache_matriculados_por_faixa", verbosity=0
     )
@@ -199,17 +199,9 @@ def test_gera_pdf_relatorio_alunos_matriculados_async(
     uuids = [am.uuid for am in AlunosMatriculadosPeriodoEscola.objects.all()]
     username = usuario_coordenador_codae.username
     nome_pdf = "teste.pdf"
-    resultado = gera_pdf_relatorio_alunos_matriculados_async.delay(
+    gera_pdf_relatorio_alunos_matriculados_async(
         user=username, nome_arquivo=nome_pdf, uuids=uuids
     )
-    assert resultado.status == "SUCCESS"
-    assert resultado.id == resultado.task_id
-    assert isinstance(resultado.task_id, str)
-    assert isinstance(uuid.UUID(resultado.task_id), uuid.UUID)
-    assert isinstance(resultado.id, str)
-    assert isinstance(uuid.UUID(resultado.id), uuid.UUID)
-    assert resultado.ready() is True
-    assert resultado.successful() is True
 
     central_download = CentralDeDownload.objects.get(identificador=nome_pdf)
     assert central_download.arquivo is not None
@@ -238,17 +230,9 @@ def test_gera_xlsx_relatorio_alunos_matriculados_async(
     uuids = [am.uuid for am in AlunosMatriculadosPeriodoEscola.objects.all()]
     username = usuario_coordenador_codae.username
     nome_pdf = "teste.pdf"
-    resultado = gera_xlsx_relatorio_alunos_matriculados_async.delay(
+    gera_xlsx_relatorio_alunos_matriculados_async(
         user=username, nome_arquivo=nome_pdf, uuids=uuids
     )
-    assert resultado.status == "SUCCESS"
-    assert resultado.id == resultado.task_id
-    assert isinstance(resultado.task_id, str)
-    assert isinstance(uuid.UUID(resultado.task_id), uuid.UUID)
-    assert isinstance(resultado.id, str)
-    assert isinstance(uuid.UUID(resultado.id), uuid.UUID)
-    assert resultado.ready() is True
-    assert resultado.successful() is True
 
     central_download = CentralDeDownload.objects.get(identificador=nome_pdf)
     assert central_download.arquivo is not None
@@ -270,7 +254,7 @@ def test_gera_xlsx_relatorio_alunos_matriculados_async_erro(usuario_coordenador_
 
 @patch("django.core.management.call_command")
 def test_registra_historico_matriculas_alunos(mock_call_command):
-    registra_historico_matriculas_alunos.delay()
+    registra_historico_matriculas_alunos()
     mock_call_command.assert_called_once_with(
         "registra_historico_matriculas_alunos", verbosity=0
     )
@@ -278,7 +262,7 @@ def test_registra_historico_matriculas_alunos(mock_call_command):
 
 @patch("django.core.management.call_command")
 def test_registra_historico_matriculas_alunos_com_parametro(mock_call_command):
-    registra_historico_matriculas_alunos.apply(kwargs={"ano": "2025"})
+    registra_historico_matriculas_alunos(ano="2025")
     mock_call_command.assert_called_once_with(
         "registra_historico_matriculas_alunos", "--ano=2025", verbosity=0
     )
@@ -286,7 +270,7 @@ def test_registra_historico_matriculas_alunos_com_parametro(mock_call_command):
 
 @patch("django.core.management.call_command")
 def test_cria_logs_alunos_por_dia_escolas_cei(mock_call_command):
-    cria_logs_alunos_por_dia_escolas_cei.delay()
+    cria_logs_alunos_por_dia_escolas_cei()
     mock_call_command.assert_called_once_with(
         "cria_logs_alunos_por_dia_escolas_cei", verbosity=0
     )
