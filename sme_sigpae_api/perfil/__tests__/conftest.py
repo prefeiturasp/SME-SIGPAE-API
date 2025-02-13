@@ -6,7 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
 from model_mommy import mommy
 
-from ...dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+from ...dados_comuns.constants import ADMINISTRADOR_DICAE, DJANGO_ADMIN_PASSWORD
 from .. import models
 from ..api.serializers import UsuarioSerializer, UsuarioUpdateSerializer
 
@@ -1324,3 +1324,23 @@ def mocked_response_get_dados_usuario_coresso_sem_acesso_automatico():
         ],
         "nome": "RONALDO DIRETOR",
     }
+
+
+@pytest.fixture
+def usuario_administrador_dicae():
+    usuario = mommy.make("Usuario", username="testuser")
+    mommy.make("Cargo", usuario=usuario, ativo=False, nome="Gerente")
+    mommy.make("Cargo", usuario=usuario, ativo=True, nome="Analista")
+    codae = mommy.make("Codae", nome="Codae - Administrador Contratos")
+    mommy.make(
+        "Vinculo",
+        usuario=usuario,
+        perfil=mommy.make("Perfil", nome=ADMINISTRADOR_DICAE),
+        ativo=True,
+        data_inicial=datetime.date.today(),
+        data_final=None,
+        content_type=models.ContentType.objects.get(model="codae"),
+        object_id=codae.pk,
+    )
+
+    return usuario
