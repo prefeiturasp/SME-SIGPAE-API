@@ -104,6 +104,7 @@ def cria_vinculos():
         "perfil_usuario_representante_codae": Perfil.objects.get(
             nome="ADMINISTRADOR_REPRESENTANTE_CODAE"
         ),
+        "perfil_administrador_dicae": Perfil.objects.get(nome="ADMINISTRADOR_DICAE"),
     }
 
     usuario = {
@@ -154,6 +155,9 @@ def cria_vinculos():
         ),
         "usuario_representante_codae": Usuario.objects.get(
             email="representantecodae@admin.com"
+        ),
+        "usuario_administrador_dicae": Usuario.objects.get(
+            email="administradordicae@admin.com"
         ),
     }
 
@@ -248,6 +252,11 @@ def cria_vinculos():
             "perfil": perfil["perfil_usuario_representante_codae"],
             "usuario": usuario["usuario_representante_codae"],
         },
+        {
+            "nome": "ADMINISTRADOR DICAE",
+            "perfil": perfil["perfil_administrador_dicae"],
+            "usuario": usuario["usuario_administrador_dicae"],
+        },
     ]
 
     data_atual = date.today()
@@ -289,6 +298,7 @@ def cria_vinculos():
     )
     escola = Escola.objects.get(nome="EMEF JOSE ERMIRIO DE MORAIS, SEN.")  # noqa
     terceirizada = escola.lote.terceirizada
+    dicae, created = Codae.objects.get_or_create(nome="CODAE - Administrador Contratos")
 
     items_especificos = [
         {
@@ -350,6 +360,11 @@ def cria_vinculos():
             "instituicao": dilog,
             "perfil": perfil["perfil_usuario_dinutre_diretoria"],
             "usuario": usuario["usuario_dinutre_diretoria"],
+        },
+        {
+            "instituicao": dicae,
+            "perfil": perfil["perfil_administrador_dicae"],
+            "usuario": usuario["usuario_administrador_dicae"],
         },
     ]
 
