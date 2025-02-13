@@ -4,9 +4,10 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from freezegun import freeze_time
 
 from sme_sigpae_api.dados_comuns.constants import StatusProcessamentoArquivo
-from sme_sigpae_api.dados_comuns.models import CentralDeDownload
+from sme_sigpae_api.dados_comuns.models import CentralDeDownload, LogSolicitacoesUsuario
 from sme_sigpae_api.escola.models import AlunosMatriculadosPeriodoEscola
 from sme_sigpae_api.escola.tasks import (
     atualiza_alunos_escolas,
@@ -16,12 +17,9 @@ from sme_sigpae_api.escola.tasks import (
     atualiza_tipo_gestao_das_escolas_task,
     atualiza_total_alunos_escolas,
     build_pdf_alunos_matriculados,
-    calendario_escolas,
     cria_logs_alunos_por_dia_escolas_cei,
     gera_pdf_relatorio_alunos_matriculados_async,
     gera_xlsx_relatorio_alunos_matriculados_async,
-    matriculados_por_escola_e_periodo_programas,
-    matriculados_por_escola_e_periodo_regulares,
     nega_solicitacoes_pendentes_autorizacao_vencidas,
     nega_solicitacoes_vencidas,
     registra_historico_matriculas_alunos,
@@ -103,24 +101,74 @@ def test_atualiza_tipo_gestao_das_escolas_task(tipo_gestao_das_escolas):
         os.remove(caminho_arquivo_escola)
 
 
-def test_nega_solicitacoes_vencidas():
+@freeze_time("2025-01-22")
+def test_nega_solicitacoes_vencidas(solicitacoes_vencidas):
+    assert (
+        LogSolicitacoesUsuario.objects.filter(
+            status_evento=LogSolicitacoesUsuario.INICIO_FLUXO
+        ).count()
+        == 1
+    )
+    assert (
+        LogSolicitacoesUsuario.objects.filter(
+            status_evento=LogSolicitacoesUsuario.DRE_NAO_VALIDOU
+        ).count()
+        == 0
+    )
+    assert LogSolicitacoesUsuario.objects.count() == 1
     nega_solicitacoes_vencidas()
+    assert (
+        LogSolicitacoesUsuario.objects.filter(
+            status_evento=LogSolicitacoesUsuario.INICIO_FLUXO
+        ).count()
+        == 1
+    )
+    assert (
+        LogSolicitacoesUsuario.objects.filter(
+            status_evento=LogSolicitacoesUsuario.DRE_NAO_VALIDOU
+        ).count()
+        == 1
+    )
+    assert LogSolicitacoesUsuario.objects.count() == 2
 
 
-def test_nega_solicitacoes_pendentes_autorizacao_vencidas():
+@freeze_time("2025-01-22")
+def test_nega_solicitacoes_pendentes_autorizacao_vencidas(
+    solicitacoes_pendentes_autorizacao_vencidas,
+):
+    assert (
+        LogSolicitacoesUsuario.objects.filter(
+            status_evento=LogSolicitacoesUsuario.TERCEIRIZADA_RESPONDEU_QUESTIONAMENTO
+        ).count()
+        == 1
+    )
+    assert (
+        LogSolicitacoesUsuario.objects.filter(
+            status_evento=LogSolicitacoesUsuario.DRE_VALIDOU
+        ).count()
+        == 1
+    )
+    assert LogSolicitacoesUsuario.objects.count() == 2
     nega_solicitacoes_pendentes_autorizacao_vencidas()
-
-
-def test_matriculados_por_escola_e_periodo_regulares():
-    matriculados_por_escola_e_periodo_regulares()
-
-
-def test_matriculados_por_escola_e_periodo_programas():
-    matriculados_por_escola_e_periodo_programas()
-
-
-def test_calendario_escolas():
-    calendario_escolas()
+    assert (
+        LogSolicitacoesUsuario.objects.filter(
+            status_evento=LogSolicitacoesUsuario.TERCEIRIZADA_RESPONDEU_QUESTIONAMENTO
+        ).count()
+        == 1
+    )
+    assert (
+        LogSolicitacoesUsuario.objects.filter(
+            status_evento=LogSolicitacoesUsuario.DRE_VALIDOU
+        ).count()
+        == 1
+    )
+    assert (
+        LogSolicitacoesUsuario.objects.filter(
+            status_evento=LogSolicitacoesUsuario.CODAE_NEGOU
+        ).count()
+        == 2
+    )
+    assert LogSolicitacoesUsuario.objects.count() == 4
 
 
 @patch("django.core.management.call_command")

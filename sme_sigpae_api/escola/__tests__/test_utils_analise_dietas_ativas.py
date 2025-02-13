@@ -331,7 +331,7 @@ def test_escreve_xlsx_dados_sigpae(escola, escola_cei):
         escola.diretoria_regional.nome,
         escola.lote.nome,
         escola.tipo_gestao.nome,
-        None,
+        escola.contato.email,
         None,
         None,
         None,

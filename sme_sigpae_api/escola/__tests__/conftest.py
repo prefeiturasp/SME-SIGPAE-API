@@ -11,8 +11,8 @@ from model_mommy import mommy
 
 from sme_sigpae_api.cardapio.models import AlteracaoCardapio
 from sme_sigpae_api.dados_comuns.constants import StatusProcessamentoArquivo
+from sme_sigpae_api.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
-from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 from sme_sigpae_api.escola.utils import cria_arquivo_excel
 from sme_sigpae_api.escola.utils_analise_dietas_ativas import (
     dict_codigo_aluno_por_codigo_escola as dict_aluno_utils_dieta,
@@ -88,6 +88,7 @@ def escola(lote, tipo_gestao, diretoria_regional):
         codigo_eol=fake.name()[:6],
         lote=lote,
         tipo_gestao=tipo_gestao,
+        contato=mommy.make("Contato", email="escola@email.com"),
     )
 
 
@@ -1036,3 +1037,105 @@ def mock_escolas(escola):
     escola_mock.nome = escola.nome
     escola_mock.codigo_eol = "12345"
     return [escola_mock]
+
+
+@pytest.fixture
+def users_diretor_escola(django_user_model, escola):
+    user = django_user_model.objects.create_user(
+        username="system@admin.com", email="system@admin.com"
+    )
+    perfil_diretor = mommy.make(
+        "Perfil",
+        nome="DIRETOR_UE",
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
+    )
+
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=escola,
+        perfil=perfil_diretor,
+        data_inicial=hoje,
+        ativo=True,
+    )
+
+    return user
+
+
+@pytest.fixture
+def solicitacoes_vencidas(
+    users_diretor_escola,
+    grupo_inclusao_alimentacao_normal_factory,
+    inclusao_alimentacao_normal_factory,
+    log_solicitacoes_usuario_factory,
+):
+    instituicao = users_diretor_escola.vinculo_atual.instituicao
+
+    grupo_inclusao_alimentacao_normal = (
+        grupo_inclusao_alimentacao_normal_factory.create(
+            escola=instituicao,
+            rastro_lote=instituicao.lote,
+            rastro_dre=instituicao.diretoria_regional,
+            rastro_escola=instituicao,
+            status=PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR,
+        )
+    )
+    inclusao_alimentacao_normal_factory.create(
+        data="2025-01-14",
+        grupo_inclusao=grupo_inclusao_alimentacao_normal,
+    )
+    log_solicitacoes_usuario_factory.create(
+        uuid_original=grupo_inclusao_alimentacao_normal.uuid,
+        status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+        usuario=users_diretor_escola,
+    )
+
+
+@pytest.fixture
+def solicitacoes_pendentes_autorizacao_vencidas(
+    users_diretor_escola,
+    grupo_inclusao_alimentacao_normal_factory,
+    inclusao_alimentacao_normal_factory,
+    log_solicitacoes_usuario_factory,
+):
+    instituicao = users_diretor_escola.vinculo_atual.instituicao
+
+    grupo_inclusao_alimentacao_normal = (
+        grupo_inclusao_alimentacao_normal_factory.create(
+            escola=instituicao,
+            rastro_lote=instituicao.lote,
+            rastro_dre=instituicao.diretoria_regional,
+            rastro_escola=instituicao,
+            status=PedidoAPartirDaEscolaWorkflow.TERCEIRIZADA_RESPONDEU_QUESTIONAMENTO,
+        )
+    )
+    inclusao_alimentacao_normal_factory.create(
+        data="2025-01-14",
+        grupo_inclusao=grupo_inclusao_alimentacao_normal,
+    )
+    log_solicitacoes_usuario_factory.create(
+        uuid_original=grupo_inclusao_alimentacao_normal.uuid,
+        status_evento=LogSolicitacoesUsuario.TERCEIRIZADA_RESPONDEU_QUESTIONAMENTO,
+        usuario=users_diretor_escola,
+    )
+
+    grupo_inclusao_alimentacao_normal = (
+        grupo_inclusao_alimentacao_normal_factory.create(
+            escola=instituicao,
+            rastro_lote=instituicao.lote,
+            rastro_dre=instituicao.diretoria_regional,
+            rastro_escola=instituicao,
+            status=PedidoAPartirDaEscolaWorkflow.DRE_VALIDADO,
+        )
+    )
+    inclusao_alimentacao_normal_factory.create(
+        data="2025-01-14",
+        grupo_inclusao=grupo_inclusao_alimentacao_normal,
+    )
+    log_solicitacoes_usuario_factory.create(
+        uuid_original=grupo_inclusao_alimentacao_normal.uuid,
+        status_evento=LogSolicitacoesUsuario.DRE_VALIDOU,
+        usuario=users_diretor_escola,
+    )
