@@ -1,4 +1,11 @@
+import datetime
+
 import pytest
+from faker import Faker
+from model_mommy import mommy
+
+fake = Faker("pt_BR")
+Faker.seed(420)
 
 
 @pytest.fixture(
@@ -10,3 +17,30 @@ import pytest
 )
 def datas_nascimento_api(request):
     return request.param
+
+
+@pytest.fixture
+def client_autenticado_da_escola(client, django_user_model):
+    email = "user@escola.com"
+    password = "admin@123"
+    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    usuario = django_user_model.objects.create_user(
+        username=email,
+        password=password,
+        email=email,
+        registro_funcional="123456",
+    )
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=mommy.make(
+            "Escola",
+            nome=fake.name(),
+        ),
+        perfil=perfil_diretor,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client

@@ -4,6 +4,7 @@ from random import randint, sample
 
 import pytest
 from faker import Faker
+from freezegun import freeze_time
 from model_mommy import mommy
 
 from ...dados_comuns import constants
@@ -1196,3 +1197,75 @@ def solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao(
         classificacao=classificacoes_dietas[2],
     )
     return SolicitacaoDietaEspecial.objects.all()
+
+
+@pytest.fixture
+def usuario_com_pk():
+    email = "test@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = Usuario.objects.create_user(
+        nome="Antonio Jose",
+        username=email,
+        password=password,
+        email=email,
+        registro_funcional="1545933",
+        pk=1,
+    )
+    return user
+
+
+@freeze_time("2025-1-10")
+@pytest.fixture
+def solicitacoes_processa_dieta_especial(escola_cei):
+    aluno = mommy.make(
+        Aluno,
+        nome="Roberto Alves da Silva",
+        codigo_eol="123456",
+        data_nascimento="2022-01-01",
+        escola=escola_cei,
+        periodo_escolar=mommy.make(PeriodoEscolar, nome="INTEGRAL"),
+    )
+    dieta_alterada = mommy.make(
+        SolicitacaoDietaEspecial,
+        status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
+        ativo=True,
+        data_inicio=datetime.date.today(),
+        tipo_solicitacao=constants.TIPO_SOLICITACAO_DIETA.get("COMUM"),
+        escola_destino=escola_cei,
+        aluno=aluno,
+        rastro_escola=escola_cei,
+    )
+
+    mommy.make(
+        SolicitacaoDietaEspecial,
+        status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
+        ativo=False,
+        data_inicio=datetime.date.today(),
+        tipo_solicitacao=constants.TIPO_SOLICITACAO_DIETA.get("ALTERACAO_UE"),
+        dieta_alterada=dieta_alterada,
+        escola_destino=escola_cei,
+        aluno=aluno,
+        rastro_escola=escola_cei,
+    )
+    mommy.make(
+        SolicitacaoDietaEspecial,
+        status=DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
+        ativo=False,
+        data_inicio=datetime.date.today(),
+        tipo_solicitacao=constants.TIPO_SOLICITACAO_DIETA.get("ALTERACAO_UE"),
+        dieta_alterada=dieta_alterada,
+        escola_destino=escola_cei,
+        aluno=aluno,
+        rastro_escola=escola_cei,
+    )
+    mommy.make(
+        SolicitacaoDietaEspecial,
+        status=DietaEspecialWorkflow.ESCOLA_SOLICITOU_INATIVACAO,
+        ativo=False,
+        data_inicio=datetime.date.today(),
+        tipo_solicitacao=constants.TIPO_SOLICITACAO_DIETA.get("COMUM"),
+        dieta_alterada=dieta_alterada,
+        escola_destino=escola_cei,
+        aluno=aluno,
+        rastro_escola=escola_cei,
+    )
