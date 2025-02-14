@@ -732,6 +732,8 @@ def dados_html(dados_log_recusa):
     )
     return html
 
+
+@pytest.fixture
 def parser_xml():
     parser = ListXMLParser()
     xml_dicionario = """<root>
@@ -766,7 +768,7 @@ def solicitacoes_abertas():
     )
     return solictacao
 
-  
+
 @pytest.fixture
 def user_admin_dicae(django_user_model):
     email = "test2@test.com"
