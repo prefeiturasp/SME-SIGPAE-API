@@ -739,7 +739,7 @@ def client_autenticado_vinculo_escola_ue(client, django_user_model, escola):
         template_html="@id @criado_em @status @link",
     )
     client.login(username=email, password=password)
-    return client
+    return client, user
 
 
 @pytest.fixture

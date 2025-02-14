@@ -17,6 +17,7 @@ from sme_sigpae_api.dieta_especial.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
+from sme_sigpae_api.perfil.models import ContentType
 
 from ...escola import models
 from ..constants import COORDENADOR_LOGISTICA, DJANGO_ADMIN_PASSWORD
@@ -731,8 +732,6 @@ def dados_html(dados_log_recusa):
     )
     return html
 
-
-@pytest.fixture
 def parser_xml():
     parser = ListXMLParser()
     xml_dicionario = """<root>
@@ -766,3 +765,31 @@ def solicitacoes_abertas():
         datetime_ultimo_acesso=datetime.datetime(2025, 2, 10, 16, 28, 50),
     )
     return solictacao
+
+  
+@pytest.fixture
+def user_admin_dicae(django_user_model):
+    email = "test2@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    codae = mommy.make("Codae", nome="Codae - Administrador Contratos")
+    perfil_admin_dicae = mommy.make(
+        "Perfil",
+        nome=constants.ADMINISTRADOR_DICAE,
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf2",
+    )
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_admin_dicae,
+        data_inicial=hoje,
+        ativo=True,
+        content_type=ContentType.objects.get(model="codae"),
+        object_id=codae.pk,
+    )
+    return user

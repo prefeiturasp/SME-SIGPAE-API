@@ -7,6 +7,7 @@ from .constants import (
     ADMINISTRADOR_CODAE_DILOG_CONTABIL,
     ADMINISTRADOR_CODAE_DILOG_JURIDICO,
     ADMINISTRADOR_CODAE_GABINETE,
+    ADMINISTRADOR_DICAE,
     ADMINISTRADOR_DIETA_ESPECIAL,
     ADMINISTRADOR_EMPRESA,
     ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
@@ -604,6 +605,7 @@ class PermissaoParaCriarUsuarioComCoresso(BasePermission):
                 ADMINISTRADOR_REPRESENTANTE_CODAE,
                 COORDENADOR_SUPERVISAO_NUTRICAO,
                 USUARIO_GTIC_CODAE,
+                ADMINISTRADOR_DICAE,
             ]
             or isinstance(usuario.vinculo_atual.instituicao, Escola)
             and usuario.vinculo_atual.perfil.nome in [DIRETOR_UE]
@@ -632,6 +634,7 @@ class PermissaoParaListarVinculosAtivos(BasePermission):
                 ADMINISTRADOR_CODAE_GABINETE,
                 DILOG_DIRETORIA,
                 USUARIO_GTIC_CODAE,
+                ADMINISTRADOR_DICAE,
             ]
             or isinstance(usuario.vinculo_atual.instituicao, Escola)
             and usuario.vinculo_atual.perfil.nome in [DIRETOR_UE]
@@ -1382,3 +1385,16 @@ class PermissaoObjetoFormularioSupervisao(BasePermission):
     def has_object_permission(self, request, view, obj):
         usuario = request.user
         return obj.formulario_base.usuario == usuario
+
+
+class UsuarioAdministradorContratos(BasePermission):
+    """Permite acesso a usuários com vinculo a CODAE - Administrador Contratos."""
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and isinstance(usuario.vinculo_atual.instituicao, Codae)
+            and usuario.vinculo_atual.perfil.nome in [ADMINISTRADOR_DICAE]
+        )

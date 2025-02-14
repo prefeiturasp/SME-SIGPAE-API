@@ -773,7 +773,7 @@ class Escola(
 
         return return_array
 
-    @property  # noqa C901
+    @property
     def quantidade_alunos_por_periodo_cei_emei(self):
         if not self.eh_cemei:
             return None

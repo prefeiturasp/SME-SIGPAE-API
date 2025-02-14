@@ -26,6 +26,7 @@ from ...dados_comuns.constants import (
     ADMINISTRADOR_CODAE_DILOG_CONTABIL,
     ADMINISTRADOR_CODAE_DILOG_JURIDICO,
     ADMINISTRADOR_CODAE_GABINETE,
+    ADMINISTRADOR_DICAE,
     ADMINISTRADOR_EMPRESA,
     ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
     ADMINISTRADOR_GESTAO_PRODUTO,
@@ -301,6 +302,8 @@ class Usuario(
                     tipo_usuario = "usuario_relatorios"
                 elif self.vinculo_atual.perfil.nome in [USUARIO_GTIC_CODAE]:
                     tipo_usuario = "usuario_gtic"
+                elif self.vinculo_atual.perfil.nome in [ADMINISTRADOR_DICAE]:
+                    tipo_usuario = "administrador_dicae"
                 else:
                     tipo_usuario = "dieta_especial"
         return tipo_usuario

@@ -322,6 +322,14 @@ USUARIOS = [
         "nome": "USUÁRIO GTIC CODAE",
         "cargo": "Coordenador",
     },
+    {
+        "email": "administradordicae@admin.com",
+        "password": DJANGO_ADMIN_PASSWORD,
+        "cpf": "11111111145",
+        "registro_funcional": "1242199",
+        "nome": "ADMINISTRADOR DICAE",
+        "cargo": "Coordenador",
+    },
 ]
 
 
