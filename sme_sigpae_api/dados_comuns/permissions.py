@@ -541,6 +541,7 @@ class UsuarioPodeAlterarVinculo(BasePermission):
                 COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
                 ADMINISTRADOR_REPRESENTANTE_CODAE,
                 USUARIO_GTIC_CODAE,
+                ADMINISTRADOR_DICAE,
             ]
             or usuario.vinculo_atual.perfil.nome in [ADMINISTRADOR_EMPRESA]
         )
@@ -564,6 +565,7 @@ class UsuarioPodeFinalizarVinculo(BasePermission):
                 COORDENADOR_GESTAO_PRODUTO,
                 COORDENADOR_SUPERVISAO_NUTRICAO,
                 USUARIO_GTIC_CODAE,
+                ADMINISTRADOR_DICAE,
             ]
             or isinstance(usuario.vinculo_atual.instituicao, DiretoriaRegional)
             and usuario.vinculo_atual.perfil.nome in [COGESTOR_DRE]

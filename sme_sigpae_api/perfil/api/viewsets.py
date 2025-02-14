@@ -22,6 +22,7 @@ from sme_sigpae_api.perfil.models.usuario import (
 )
 
 from ...dados_comuns.constants import (
+    ADMINISTRADOR_DICAE,
     ADMINISTRADOR_EMPRESA,
     COGESTOR_DRE,
     DIRETOR_UE,
@@ -30,6 +31,7 @@ from ...dados_comuns.constants import (
 from ...dados_comuns.permissions import (
     PermissaoParaCriarUsuarioComCoresso,
     PermissaoParaListarVinculosAtivos,
+    UsuarioAdministradorContratos,
     UsuarioGticCODAE,
     UsuarioPodeAlterarVinculo,
     UsuarioPodeFinalizarVinculo,
@@ -309,6 +311,17 @@ class VinculoViewSet(viewsets.ReadOnlyModelViewSet):
                 .filter(
                     content_type=usuario.vinculo_atual.content_type,
                     object_id=usuario.vinculo_atual.object_id,
+                )
+                .order_by("-data_inicial")
+            )
+        elif usuario.vinculo_atual.perfil.nome == ADMINISTRADOR_DICAE:
+            queryset = (
+                self.get_queryset()
+                .filter(
+                    perfil__nome__in=[
+                        Terceirizada.FORNECEDOR,
+                        Terceirizada.FORNECEDOR_E_DISTRIBUIDOR,
+                    ]
                 )
                 .order_by("-data_inicial")
             )
@@ -671,7 +684,9 @@ class UsuarioComCoreSSOViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet)
 
     @action(
         detail=True,
-        permission_classes=[UsuarioSuperCodae | UsuarioGticCODAE],
+        permission_classes=[
+            UsuarioSuperCodae | UsuarioGticCODAE | UsuarioAdministradorContratos
+        ],
         url_path="alterar-email",
         methods=["patch"],
     )
