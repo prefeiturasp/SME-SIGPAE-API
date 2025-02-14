@@ -345,7 +345,7 @@ class TestEndpointsPainelGerencialDietaEspecial:
             usuario,
             status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
             status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
-            dieta_alterada_id=1,
+            dieta_alterada_id=2,
             em_vigencia=False,
         )
 

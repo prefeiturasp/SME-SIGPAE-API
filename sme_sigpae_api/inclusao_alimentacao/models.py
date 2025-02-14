@@ -1090,9 +1090,9 @@ class InclusaoDeAlimentacaoCEMEI(
         return dias_motivos_da_inclusao
 
     def solicitacao_dict_para_relatorio(self, label_data, data_log, instituicao):
-        eh_evento_especifico = False
-        if self.dias_motivos_da_inclusao_cemei.filter(motivo__nome="Evento Específico"):
-            eh_evento_especifico = True
+        eh_evento_especifico = self.dias_motivos_da_inclusao_cemei.filter(
+            motivo__nome="Evento Específico"
+        ).exists()
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
             "unidade_educacional": self.rastro_escola.nome,
