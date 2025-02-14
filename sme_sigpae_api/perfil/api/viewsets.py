@@ -315,16 +315,16 @@ class VinculoViewSet(viewsets.ReadOnlyModelViewSet):
                 .order_by("-data_inicial")
             )
         elif usuario.vinculo_atual.perfil.nome == ADMINISTRADOR_DICAE:
-            queryset = (
-                self.get_queryset()
-                .filter(
-                    perfil__nome__in=[
-                        Terceirizada.FORNECEDOR,
-                        Terceirizada.FORNECEDOR_E_DISTRIBUIDOR,
-                    ]
-                )
-                .order_by("-data_inicial")
-            )
+            # TODO: Precisa otimar essa parte!
+            vinculos = self.get_queryset()
+            lista_vinculo = [
+                vinc.uuid
+                for vinc in vinculos
+                if isinstance(vinc.instituicao, Terceirizada)
+                and vinc.instituicao.tipo_servico
+                in [Terceirizada.FORNECEDOR, Terceirizada.FORNECEDOR_E_DISTRIBUIDOR]
+            ]
+            queryset = vinculos.filter(uuid__in=lista_vinculo).order_by("-data_inicial")
         else:
             queryset = self.get_queryset().order_by("-data_inicial")
 
