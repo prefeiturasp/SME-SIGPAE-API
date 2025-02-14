@@ -70,14 +70,14 @@ def test_gera_dict_codigos_escolas():
     }
 
 
-def test_gera_dict_codigo_aluno_por_codigo_escola(variaveis_globais):
+def test_gera_dict_codigo_aluno_por_codigo_escola(variaveis_globais_dieta):
     items = [
         {"CodEscola": "1001", "CodEOLAluno": "20001"},
         {"CodEscola": "1002", "CodEOLAluno": "20002"},
     ]
     gera_dict_codigo_aluno_por_codigo_escola(items)
     esperado = {"0020001": "123456789", "0020002": "987654321"}
-    assert esperado.items() <= variaveis_globais[1].items()
+    assert esperado.items() <= variaveis_globais_dieta[1].items()
 
 
 def test_gera_dict_codigo_aluno_por_codigo_escola_exception():
@@ -209,7 +209,7 @@ def test_escreve_xlsx_codescola_nao_existentes():
         os.remove(arquivo_saida)
 
 
-def test_retorna_codigo_eol_escolas_nao_identificadas(variaveis_globais):
+def test_retorna_codigo_eol_escolas_nao_identificadas(variaveis_globais_dieta):
     items = [
         {"CodEscola": "1001", "CodEOLAluno": "20001"},
         {"CodEscola": "1002", "CodEOLAluno": "20002"},
@@ -265,7 +265,7 @@ def test_get_escolas_json():
         assert result == escolas_data
 
 
-def test_retorna_alunos_nao_matriculados_na_escola(variaveis_globais):
+def test_retorna_alunos_nao_matriculados_na_escola(variaveis_globais_dieta):
     items = [
         {"CodEOLAluno": "20001", "NomeAluno": "Ana Silva"},
         {"CodEOLAluno": "20002", "NomeAluno": "Carlos Souza"},
@@ -331,7 +331,7 @@ def test_escreve_xlsx_dados_sigpae(escola, escola_cei):
         escola.diretoria_regional.nome,
         escola.lote.nome,
         escola.tipo_gestao.nome,
-        None,
+        escola.contato.email,
         None,
         None,
         None,
@@ -353,7 +353,7 @@ def test_escreve_xlsx_dados_sigpae(escola, escola_cei):
         os.remove(arquivo_saida)
 
 
-def test_retorna_dados_sigpae(variaveis_globais, escola):
+def test_retorna_dados_sigpae(variaveis_globais_dieta, escola):
     dict_codigos_escolas.update({escola.codigo_eol: "123456789"})
     items = [
         {"CodEscola": "1001", "CodEOLAluno": "20001"},
@@ -582,7 +582,7 @@ def test_escreve_xlsx_alunos_com_nascimento_diferente():
         os.remove(arquivo_saida)
 
 
-def test_retorna_alunos_com_nome_diferente(variaveis_globais):
+def test_retorna_alunos_com_nome_diferente(variaveis_globais_dieta):
     escolas = {
         "Escola A": [{"cd_aluno": "20001", "nm_aluno": "João Antônio"}],
         "Escola B": [{"cd_aluno": "20002", "nm_aluno": "Maria Lopes"}],
@@ -615,7 +615,7 @@ def test_retorna_alunos_com_nome_diferente(variaveis_globais):
         os.remove(arquivo_saida)
 
 
-def test_retorna_alunos_com_nascimento_diferente(variaveis_globais):
+def test_retorna_alunos_com_nascimento_diferente(variaveis_globais_dieta):
     escolas = {
         "Escola A": [
             {
