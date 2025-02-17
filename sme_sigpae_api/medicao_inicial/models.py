@@ -41,7 +41,7 @@ class DiaSobremesaDoce(TemData, TemChaveExterna, CriadoEm, CriadoPor):
         return None
 
     @property
-    def cadastros_sobremesa_doce(self):
+    def cadastros_calendario(self):
         return None
 
     def __str__(self):

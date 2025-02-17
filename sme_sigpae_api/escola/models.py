@@ -2019,6 +2019,9 @@ class AlunoPeriodoParcial(TemChaveExterna, CriadoEm):
 
 class DiaSuspensaoAtividades(TemData, TemChaveExterna, CriadoEm, CriadoPor):
     tipo_unidade = models.ForeignKey(TipoUnidadeEscolar, on_delete=models.CASCADE)
+    edital = models.ForeignKey(
+        "terceirizada.Edital", on_delete=models.CASCADE, blank=True, null=True
+    )
 
     @property
     def tipo_unidades(self):
@@ -2052,15 +2055,12 @@ class DiaSuspensaoAtividades(TemData, TemChaveExterna, CriadoEm, CriadoPor):
         ).exists()
 
     def __str__(self):
-        return f'{self.data.strftime("%d/%m/%Y")} - {self.tipo_unidade.iniciais}'
+        return f'{self.data.strftime("%d/%m/%Y")} - {self.tipo_unidade.iniciais} - Edital {self.edital}'
 
     class Meta:
         verbose_name = "Dia de suspensão de atividades"
         verbose_name_plural = "Dias de suspensão de atividades"
-        unique_together = (
-            "tipo_unidade",
-            "data",
-        )
+        unique_together = ("tipo_unidade", "data", "edital")
         ordering = ("data",)
 
 
