@@ -1674,3 +1674,11 @@ def ativa_vinculo(vinculos_alimentacao):
         ativo=False,
     )
     return tipo_unidade, escola_periodo_escolar
+
+
+@pytest.fixture
+def label_tipos_alimentacao():
+    model = mommy.make("SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE")
+    tipo_vegetariano = mommy.make("TipoAlimentacao", nome="Vegetariano")
+    tipo_vegano = mommy.make("TipoAlimentacao", nome="Vegano")
+    return model, tipo_vegetariano, tipo_vegano

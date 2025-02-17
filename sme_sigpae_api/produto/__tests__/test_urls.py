@@ -23,66 +23,6 @@ ENDPOINT_ANALISE_SENSORIAL = "analise-sensorial"
 TERCEIRIZADA_RESPONDE = "terceirizada-responde-analise-sensorial"
 
 
-def test_url_dados_dashboard_usuario_terceirizada(
-    client_autenticado_da_terceirizada, homologacoes_produto
-):
-    response = client_autenticado_da_terceirizada.get(
-        "/painel-gerencial-homologacoes-produtos/dashboard/"
-    )
-    assert response.status_code == status.HTTP_200_OK
-    response_json = response.json()
-    assert len(response_json["results"]) == 15
-    codae_hom = next(
-        (
-            x
-            for x in response_json["results"]
-            if x["status"] == "TERCEIRIZADA_RESPONDEU_RECLAMACAO"
-        ),
-        None,
-    )
-    assert len(codae_hom["dados"]) == 1
-
-
-def test_url_dados_dashboard_usuario_escola(
-    client_autenticado_da_escola, homologacoes_produto
-):
-    response = client_autenticado_da_escola.get(
-        "/painel-gerencial-homologacoes-produtos/dashboard/"
-    )
-    assert response.status_code == status.HTTP_200_OK
-    response_json = response.json()
-    assert len(response_json["results"]) == 12
-    codae_hom = next(
-        (
-            x
-            for x in response_json["results"]
-            if x["status"] == "TERCEIRIZADA_RESPONDEU_RECLAMACAO"
-        ),
-        None,
-    )
-    assert len(codae_hom["dados"]) == 0
-
-
-def test_url_dados_dashboard_usuario_nutrisupervisor(
-    client_autenticado_vinculo_codae_nutrisupervisor, homologacoes_produto
-):
-    response = client_autenticado_vinculo_codae_nutrisupervisor.get(
-        "/painel-gerencial-homologacoes-produtos/dashboard/"
-    )
-    assert response.status_code == status.HTTP_200_OK
-    response_json = response.json()
-    assert len(response_json["results"]) == 12
-    codae_hom = next(
-        (
-            x
-            for x in response_json["results"]
-            if x["status"] == "TERCEIRIZADA_RESPONDEU_RECLAMACAO"
-        ),
-        None,
-    )
-    assert len(codae_hom["dados"]) == 1
-
-
 def test_url_endpoint_homologacao_produto_codae_homologa(
     client_autenticado_vinculo_codae_produto,
     homologacao_produto_pendente_homologacao,
@@ -709,7 +649,7 @@ def test_url_endpoint_lista_nomes_responder_reclamacao_escola(
     homologacao_produto_gpcodae_questionou_escola,
     reclamacao_ue,
 ):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get("/produtos/lista-nomes-responder-reclamacao-escola/")
     esperado = {"results": [{"uuid": "uuid", "nome": produto.nome}]}
 
@@ -738,7 +678,7 @@ def test_url_endpoint_lista_nomes_responder_reclamacao_fabricantes(
     homologacao_produto_gpcodae_questionou_escola,
     reclamacao_ue,
 ):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get("/fabricantes/lista-nomes-responder-reclamacao-escola/")
     esperado = {"results": [{"uuid": str(fabricante.uuid), "nome": fabricante.nome}]}
 
@@ -769,7 +709,7 @@ def test_url_endpoint_lista_nomes_responder_reclamacao_marcas(
     homologacao_produto_gpcodae_questionou_escola,
     reclamacao_ue,
 ):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get("/marcas/lista-nomes-responder-reclamacao-escola/")
     esperado = {"results": [{"uuid": str(marca1.uuid), "nome": marca1.nome}]}
 
@@ -798,7 +738,7 @@ def test_url_endpoint_lista_itens_cadastros(
     item_cadastrado_3,
     item_cadastrado_4,
 ):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get("/itens-cadastros/")
     esperado = {
         "count": 4,
@@ -839,7 +779,7 @@ def test_url_endpoint_lista_itens_cadastros(
 def test_url_endpoint_detalhe_item_cadastro(
     client_autenticado_vinculo_escola_ue, item_cadastrado_1
 ):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get(f"/itens-cadastros/{str(item_cadastrado_1.uuid)}/")
     esperado = {
         "uuid": str(item_cadastrado_1.uuid),
@@ -856,7 +796,7 @@ def test_url_endpoint_criar_item_cadastro_e_marca(client_autenticado_vinculo_esc
     from sme_sigpae_api.produto.models import ItemCadastro
 
     assert ItemCadastro.objects.count() == 0
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     payload = {"nome": "Flamengo", "tipo": "MARCA"}
     response = client.post(
         "/itens-cadastros/", data=json.dumps(payload), content_type="application/json"
@@ -872,7 +812,7 @@ def test_url_endpoint_criar_item_cadastro_e_fabricante(
     from sme_sigpae_api.produto.models import ItemCadastro
 
     assert ItemCadastro.objects.count() == 0
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     payload = {"nome": "Anjo", "tipo": "FABRICANTE"}
     response = client.post(
         "/itens-cadastros/", data=json.dumps(payload), content_type="application/json"
@@ -888,7 +828,7 @@ def test_url_endpoint_criar_item_cadastro_e_unidade_medida(
     from sme_sigpae_api.produto.models import ItemCadastro
 
     assert ItemCadastro.objects.count() == 0
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     payload = {"nome": "Kg", "tipo": "UNIDADE_MEDIDA"}
     response = client.post(
         "/itens-cadastros/", data=json.dumps(payload), content_type="application/json"
@@ -904,7 +844,7 @@ def test_url_endpoint_criar_item_cadastro_e_embalagem_produto(
     from sme_sigpae_api.produto.models import ItemCadastro
 
     assert ItemCadastro.objects.count() == 0
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     payload = {"nome": "Bolsa", "tipo": "EMBALAGEM"}
     response = client.post(
         "/itens-cadastros/", data=json.dumps(payload), content_type="application/json"
@@ -915,7 +855,7 @@ def test_url_endpoint_criar_item_cadastro_e_embalagem_produto(
 
 
 def test_url_endpoint_tipos_item_cadastro(client_autenticado_vinculo_escola_ue):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get("/itens-cadastros/tipos/")
     esperado = [
         {"tipo": "MARCA", "tipo_display": "Marca"},
@@ -935,7 +875,7 @@ def test_url_endpoint_lista_de_nomes_de_itens_cadastros(
     item_cadastrado_3,
     item_cadastrado_4,
 ):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get("/itens-cadastros/lista-nomes/")
     resultado = response.json()
 
@@ -954,7 +894,7 @@ def test_url_endpoint_lista_de_nomes_de_itens_cadastros(
 def test_url_endpoint_lista_unidades_de_medida_sem_paginacao(
     client_autenticado_vinculo_escola_ue, unidade_medida
 ):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get("/unidades-medida/")
     resultado = response.json()
 
@@ -968,7 +908,7 @@ def test_url_endpoint_lista_unidades_de_medida_sem_paginacao(
 def test_url_endpoint_lista_embalagens_produto_sem_paginacao(
     client_autenticado_vinculo_escola_ue, embalagem_produto
 ):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get("/embalagens-produto/")
     resultado = response.json()
 

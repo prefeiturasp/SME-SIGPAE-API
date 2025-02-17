@@ -99,4 +99,9 @@ data_perfis = [
         "ativo": True,
         "super_usuario": True,
     },
+    {
+        "nome": "ADMINISTRADOR_DICAE",
+        "ativo": True,
+        "super_usuario": True,
+    },
 ]

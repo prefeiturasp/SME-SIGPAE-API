@@ -5,6 +5,8 @@ import pytest
 from faker import Faker
 from model_mommy import mommy
 
+from sme_sigpae_api.logistica.api.soup.models import oWsAcessoModel
+
 from ...escola import models
 from ..models.guia import ConferenciaIndividualPorAlimento
 
@@ -501,3 +503,12 @@ def setup_solicitacao_confirmar_cancelamentos_sem_guia(
 ):
     _ = setup_solicitacao_confirmar_cancelamento.pop("guias")
     return setup_solicitacao_confirmar_cancelamento
+
+
+@pytest.fixture
+def token_valido():
+    usuario = mommy.make("Usuario", username="testuser", is_active=True)
+    token = mommy.make("Token", user=usuario, key="oWsAcessoModel")
+    model = oWsAcessoModel(StrId="123456", StrToken="oWsAcessoModel")
+
+    return usuario, token, model

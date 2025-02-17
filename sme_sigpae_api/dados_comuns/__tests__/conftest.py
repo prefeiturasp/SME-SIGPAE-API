@@ -1,5 +1,6 @@
 import datetime
 import os
+import xml.etree.ElementTree as ET
 
 import pytest
 from django.conf import settings
@@ -10,11 +11,13 @@ from model_mommy import mommy
 
 from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
+from sme_sigpae_api.dados_comuns.parser_xml import ListXMLParser
 from sme_sigpae_api.dieta_especial.models import (
     ClassificacaoDieta,
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
+from sme_sigpae_api.perfil.models import ContentType
 
 from ...escola import models
 from ..constants import COORDENADOR_LOGISTICA, DJANGO_ADMIN_PASSWORD
@@ -728,3 +731,67 @@ def dados_html(dados_log_recusa):
         },
     )
     return html
+
+
+@pytest.fixture
+def parser_xml():
+    parser = ListXMLParser()
+    xml_dicionario = """<root>
+        <name>Maria Antônia</name>
+        <age>10</age>
+        <Str>Aluno com alergia a frutos do mar.</Str>
+    </root>"""
+    elemento_1 = ET.fromstring(xml_dicionario)
+
+    xml_lista = """<root>
+        <item>Paulo Antônio</item>
+        <item>Maria Antônia</item>
+    </root>"""
+    elemento_2 = ET.fromstring(xml_lista)
+
+    return parser, elemento_1, elemento_2
+
+
+@pytest.fixture
+def solicitacoes_abertas():
+    mommy.make(
+        "SolicitacaoAberta",
+        datetime_ultimo_acesso=datetime.datetime(2025, 2, 5, 12, 34, 54),
+    )
+    mommy.make(
+        "SolicitacaoAberta",
+        datetime_ultimo_acesso=datetime.datetime(2025, 2, 10, 9, 18, 12),
+    )
+    solictacao = mommy.make(
+        "SolicitacaoAberta",
+        datetime_ultimo_acesso=datetime.datetime(2025, 2, 10, 16, 28, 50),
+    )
+    return solictacao
+
+
+@pytest.fixture
+def user_admin_dicae(django_user_model):
+    email = "test2@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    codae = mommy.make("Codae", nome="Codae - Administrador Contratos")
+    perfil_admin_dicae = mommy.make(
+        "Perfil",
+        nome=constants.ADMINISTRADOR_DICAE,
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf2",
+    )
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_admin_dicae,
+        data_inicial=hoje,
+        ativo=True,
+        content_type=ContentType.objects.get(model="codae"),
+        object_id=codae.pk,
+    )
+    return user

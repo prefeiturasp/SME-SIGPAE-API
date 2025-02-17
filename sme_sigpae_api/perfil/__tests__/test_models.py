@@ -3,6 +3,8 @@ import datetime
 import pytest
 from django.db.utils import IntegrityError
 
+from sme_sigpae_api.dados_comuns.constants import ADMINISTRADOR_DICAE
+
 from ..models import Perfil, Usuario
 
 pytestmark = pytest.mark.django_db
@@ -58,3 +60,26 @@ def test_vinculo_invalido(vinculo_invalido):
 
 def test_vinculo_diretoria_regional(vinculo_diretoria_regional):
     assert vinculo_diretoria_regional.usuario.tipo_usuario == "diretoriaregional"
+
+
+def test_vinculos(usuario_3):
+    assert usuario_3.vinculos.count() == 1
+
+
+def test_atualiza_cargo(usuario_administrador_dicae):
+    usuario_administrador_dicae.atualizar_cargo()
+    usuario_administrador_dicae.refresh_from_db()
+    assert usuario_administrador_dicae.cargo == "Analista"
+
+
+def test_desativa_cargo(usuario_administrador_dicae):
+    usuario_administrador_dicae.desativa_cargo()
+    usuario_administrador_dicae.refresh_from_db()
+    assert usuario_administrador_dicae.cargos.last().nome == "Analista"
+    assert usuario_administrador_dicae.cargos.last().ativo is False
+    assert usuario_administrador_dicae.cargos.last().data_final is not None
+
+
+def test_usuario_dicae(usuario_administrador_dicae):
+    assert usuario_administrador_dicae.vinculo_atual.perfil.nome == ADMINISTRADOR_DICAE
+    assert usuario_administrador_dicae.tipo_usuario == "administrador_dicae"
