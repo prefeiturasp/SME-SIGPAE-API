@@ -599,10 +599,16 @@ def alunos(escola_cei, periodo_escolar):
 
 @pytest.fixture
 def dia_suspensao_atividades(tipo_unidade_escolar):
+    edital = mommy.make(
+        "Edital",
+        numero="Edital de Pregão nº 13/SME/2020",
+        uuid="3a9082ae-2b8c-44f6-83af-fcab9452f932",
+    )
     return mommy.make(
         "DiaSuspensaoAtividades",
         data=datetime.date(2022, 8, 8),
         tipo_unidade=tipo_unidade_escolar,
+        edital=edital,
     )
 
 
