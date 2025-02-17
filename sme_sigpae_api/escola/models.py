@@ -2028,30 +2028,39 @@ class DiaSuspensaoAtividades(TemData, TemChaveExterna, CriadoEm, CriadoPor):
         return None
 
     @staticmethod
-    def get_dias_com_suspensao(
-        escola: Escola, eh_solicitacao_unificada: bool, quantidade_dias: int
+    def get_dias_com_suspensao_escola(escola: Escola, quantidade_dias: int):
+        hoje = datetime.date.today()
+        proximos_dias_uteis = obter_dias_uteis_apos_hoje(quantidade_dias)
+        dias = datetime_range(hoje, proximos_dias_uteis)
+        dias_com_suspensao = DiaSuspensaoAtividades.objects.filter(
+            data__in=dias,
+            tipo_unidade=escola.tipo_unidade,
+            edital__uuid__in=escola.editais,
+        ).count()
+        return dias_com_suspensao
+
+    @staticmethod
+    def get_dias_com_suspensao_solicitacao_unificada(
+        dre: DiretoriaRegional, quantidade_dias: int
     ):
         hoje = datetime.date.today()
         proximos_dias_uteis = obter_dias_uteis_apos_hoje(quantidade_dias)
         dias = datetime_range(hoje, proximos_dias_uteis)
         dias_com_suspensao = 0
-        if escola:
-            dias_com_suspensao = DiaSuspensaoAtividades.objects.filter(
-                data__in=dias, tipo_unidade=escola.tipo_unidade
-            ).count()
-        elif eh_solicitacao_unificada:
-            for dia in dias:
-                if (
-                    DiaSuspensaoAtividades.objects.filter(data=dia).count()
-                    == TipoUnidadeEscolar.objects.count()
-                ):
-                    dias_com_suspensao += 1
+        for dia in dias:
+            if (
+                DiaSuspensaoAtividades.objects.filter(
+                    data=dia, edital__uuid__in=dre.editais
+                ).count()
+                == TipoUnidadeEscolar.objects.count()
+            ):
+                dias_com_suspensao += 1
         return dias_com_suspensao
 
     @staticmethod
     def eh_dia_de_suspensao(escola: Escola, data: date):
         return DiaSuspensaoAtividades.objects.filter(
-            data=data, tipo_unidade=escola.tipo_unidade
+            data=data, tipo_unidade=escola.tipo_unidade, edital__uuid__in=escola.editais
         ).exists()
 
     def __str__(self):
