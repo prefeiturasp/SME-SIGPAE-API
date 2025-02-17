@@ -873,7 +873,7 @@ class DiaSuspensaoAtividadesSerializer(serializers.ModelSerializer):
     edital = serializers.SlugRelatedField(
         slug_field="uuid", queryset=Edital.objects.all()
     )
-    edital_numero = serializers.CharField(source="edital.numero")
+    edital_numero = serializers.CharField(read_only=True)
 
     class Meta:
         model = DiaSuspensaoAtividades

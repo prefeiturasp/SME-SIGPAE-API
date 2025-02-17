@@ -2,7 +2,7 @@ import datetime
 import json
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db.models import Max, Sum
+from django.db.models import F, Max, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
@@ -1082,7 +1082,13 @@ class DiaSuspensaoAtividadesViewSet(ViewSetActionPermissionMixin, ModelViewSet):
         "create": [UsuarioCODAEGestaoAlimentacao],
         "delete": [UsuarioCODAEGestaoAlimentacao],
     }
-    queryset = DiaSuspensaoAtividades.objects.all()
+    queryset = (
+        DiaSuspensaoAtividades.objects.select_related(
+            "tipo_unidade", "criado_por", "edital"
+        )
+        .annotate(edital_numero=F("edital__numero"))
+        .all()
+    )
     lookup_field = "uuid"
     pagination_class = None
 
@@ -1092,7 +1098,7 @@ class DiaSuspensaoAtividadesViewSet(ViewSetActionPermissionMixin, ModelViewSet):
         return DiaSuspensaoAtividadesSerializer
 
     def get_queryset(self):
-        queryset = DiaSuspensaoAtividades.objects.all()
+        queryset = super().get_queryset()
         if "mes" in self.request.query_params and "ano" in self.request.query_params:
             queryset = queryset.filter(
                 data__month=self.request.query_params.get("mes"),
