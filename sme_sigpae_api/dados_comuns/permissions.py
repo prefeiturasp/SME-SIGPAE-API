@@ -762,7 +762,6 @@ class PermissaoParaVisualizarCronograma(BasePermission):
                         DILOG_CRONOGRAMA,
                         DILOG_QUALIDADE,
                         DILOG_DIRETORIA,
-                        DINUTRE_DIRETORIA,
                         COORDENADOR_CODAE_DILOG_LOGISTICA,
                         ADMINISTRADOR_CODAE_GABINETE,
                         USUARIO_RELATORIOS,
@@ -789,7 +788,6 @@ class PermissaoParaVisualizarRelatorioCronograma(BasePermission):
                         DILOG_CRONOGRAMA,
                         USUARIO_RELATORIOS,
                         DILOG_DIRETORIA,
-                        DINUTRE_DIRETORIA,
                         COORDENADOR_CODAE_DILOG_LOGISTICA,
                         ADMINISTRADOR_CODAE_GABINETE,
                         USUARIO_GTIC_CODAE,
@@ -854,7 +852,7 @@ class UsuarioDinutreDiretoria(BasePermission):
         )
 
 
-class UsuarioDialogAbastecimento(BasePermission):
+class UsuarioDilogAbastecimento(BasePermission):
     def has_permission(self, request, view):
         usuario = request.user
         return (
@@ -878,8 +876,7 @@ class PermissaoParaAssinarCronogramaUsuarioDilog(BasePermission):
             and (
                 (
                     isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome
-                    in [DILOG_DIRETORIA, DILOG_ABASTECIMENTO]
+                    and usuario.vinculo_atual.perfil.nome == DILOG_DIRETORIA
                 )
             )
         )
@@ -887,7 +884,6 @@ class PermissaoParaAssinarCronogramaUsuarioDilog(BasePermission):
 
 class PermissaoParaDashboardCronograma(BasePermission):
     PERFIS_PERMITIDOS = [
-        DINUTRE_DIRETORIA,
         DILOG_DIRETORIA,
         COORDENADOR_CODAE_DILOG_LOGISTICA,
         DILOG_CRONOGRAMA,
@@ -914,7 +910,6 @@ class PermissaoParaVisualizarCalendarioCronograma(BasePermission):
         DILOG_CRONOGRAMA,
         DILOG_QUALIDADE,
         COORDENADOR_CODAE_DILOG_LOGISTICA,
-        DINUTRE_DIRETORIA,
         DILOG_DIRETORIA,
         ADMINISTRADOR_CODAE_GABINETE,
         DILOG_ABASTECIMENTO,
@@ -1061,7 +1056,6 @@ class PermissaoParaVisualizarUnidadesMedida(BasePermission):
 
 class PermissaoParaVisualizarSolicitacoesAlteracaoCronograma(BasePermission):
     PERFIS_PERMITIDOS = [
-        DINUTRE_DIRETORIA,
         DILOG_DIRETORIA,
         COORDENADOR_CODAE_DILOG_LOGISTICA,
         DILOG_CRONOGRAMA,
@@ -1119,7 +1113,6 @@ class PermissaoParaCriarSolicitacoesAlteracaoCronograma(BasePermission):
 
 class PermissaoParaListarDashboardSolicitacaoAlteracaoCronograma(BasePermission):
     PERFIS_PERMITIDOS = [
-        DINUTRE_DIRETORIA,
         DILOG_DIRETORIA,
         COORDENADOR_CODAE_DILOG_LOGISTICA,
         DILOG_CRONOGRAMA,
@@ -1136,14 +1129,15 @@ class PermissaoParaListarDashboardSolicitacaoAlteracaoCronograma(BasePermission)
         )
 
 
-class PermissaoParaAnalisarDinutreSolicitacaoAlteracaoCronograma(BasePermission):
+class PermissaoParaAnalisarDilogAbastecimentoSolicitacaoAlteracaoCronograma(
+    BasePermission
+):
     def has_permission(self, request, view):
         usuario = request.user
         return (
             not usuario.is_anonymous
             and usuario.vinculo_atual
-            and usuario.vinculo_atual.perfil.nome
-            in [DINUTRE_DIRETORIA, DILOG_ABASTECIMENTO]
+            and usuario.vinculo_atual.perfil.nome in [DILOG_ABASTECIMENTO]
         )
 
 
