@@ -2126,8 +2126,8 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
     def get_dias_suspensao(self):
         from sme_sigpae_api.escola.models import DiaSuspensaoAtividades
 
-        dias_suspensao = DiaSuspensaoAtividades.get_dias_com_suspensao(
-            self.escola, False, self.DIAS_UTEIS_PARA_CANCELAR
+        dias_suspensao = DiaSuspensaoAtividades.get_dias_com_suspensao_escola(
+            self.escola, self.DIAS_UTEIS_PARA_CANCELAR
         )
         return dias_suspensao
 
@@ -2551,8 +2551,10 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
     def get_dias_suspensao(self):
         from sme_sigpae_api.escola.models import DiaSuspensaoAtividades
 
-        dias_suspensao = DiaSuspensaoAtividades.get_dias_com_suspensao(
-            None, True, self.DIAS_UTEIS_PARA_CANCELAR
+        dias_suspensao = (
+            DiaSuspensaoAtividades.get_dias_com_suspensao_solicitacao_unificada(
+                self.diretoria_regional, self.DIAS_UTEIS_PARA_CANCELAR
+            )
         )
         return dias_suspensao
 
@@ -2905,8 +2907,8 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
     def get_dias_suspensao(self):
         from sme_sigpae_api.escola.models import DiaSuspensaoAtividades
 
-        dias_suspensao = DiaSuspensaoAtividades.get_dias_com_suspensao(
-            self.escola, False, self.DIAS_UTEIS_PARA_CANCELAR
+        dias_suspensao = DiaSuspensaoAtividades.get_dias_com_suspensao_escola(
+            self.escola, self.DIAS_UTEIS_PARA_CANCELAR
         )
         return dias_suspensao
 

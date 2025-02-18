@@ -27,6 +27,9 @@ from .dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     SolicitacaoDietaEspecialFactory,
 )
 from .eol_servico.utils import EOLServicoSGP
+from .escola.fixtures.factories.dia_suspensao_atividades_factory import (
+    DiaSuspensaoAtividadesFactory,
+)
 from .escola.fixtures.factories.escola_factory import (
     AlunoFactory,
     DiretoriaRegionalFactory,
@@ -249,6 +252,7 @@ register(HomologacaoProdutoFactory)
 register(ProdutoEditalFactory)
 register(DataHoraVinculoProdutoEditalFactory)
 register(ReclamacaoDeProdutoFactory)
+register(DiaSuspensaoAtividadesFactory)
 
 
 @pytest.fixture

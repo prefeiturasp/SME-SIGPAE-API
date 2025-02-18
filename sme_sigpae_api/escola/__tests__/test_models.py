@@ -539,4 +539,7 @@ def test_alunos_por_faixa_etaria(
 
 
 def test_dia_suspensao_atividades_model(dia_suspensao_atividades):
-    assert dia_suspensao_atividades.__str__() == "08/08/2022 - EMEF"
+    assert (
+        dia_suspensao_atividades.__str__()
+        == "08/08/2022 - EMEF - Edital Edital de Pregão nº 13/SME/2020"
+    )

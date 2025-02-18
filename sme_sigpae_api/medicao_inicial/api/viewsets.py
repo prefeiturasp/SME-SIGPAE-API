@@ -4,7 +4,7 @@ import json
 
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from django.db.models import IntegerField, Q, QuerySet
+from django.db.models import F, IntegerField, Q, QuerySet
 from django.db.models.functions import Cast
 from django_filters import rest_framework as filters
 from rest_framework import mixins, status
@@ -157,7 +157,11 @@ class DiaSobremesaDoceViewSet(ViewSetActionPermissionMixin, ModelViewSet):
         "create": [PodeCriarAdministradoresDaCODAEGestaoAlimentacaoTerceirizada],
         "delete": [PodeCriarAdministradoresDaCODAEGestaoAlimentacaoTerceirizada],
     }
-    queryset = DiaSobremesaDoce.objects.all()
+    queryset = (
+        DiaSobremesaDoce.objects.select_related("tipo_unidade", "criado_por", "edital")
+        .annotate(edital_numero=F("edital__numero"))
+        .all()
+    )
     lookup_field = "uuid"
     pagination_class = None
 
@@ -167,7 +171,7 @@ class DiaSobremesaDoceViewSet(ViewSetActionPermissionMixin, ModelViewSet):
         return DiaSobremesaDoceSerializer
 
     def get_queryset(self):
-        queryset = DiaSobremesaDoce.objects.all()
+        queryset = super().get_queryset()
         if "mes" in self.request.query_params and "ano" in self.request.query_params:
             queryset = queryset.filter(
                 data__month=self.request.query_params.get("mes"),
