@@ -722,3 +722,30 @@ def eolservicosgp_get_lista_alunos(monkeypatch):
     return monkeypatch.setattr(
         EOLServicoSGP, "get_alunos_por_escola_por_ano_letivo", lambda x: js
     )
+
+
+@pytest.fixture
+def client_autenticado_dilog_abastecimento(client, django_user_model):
+    email = "dilogabastecimento@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email,
+        password=password,
+        email=email,
+        registro_funcional=str(f.unique.random_int(min=100000, max=999999)),
+    )
+    perfil_dilog_abastecimento = mommy.make(
+        "Perfil", nome=constants.DILOG_ABASTECIMENTO, ativo=True
+    )
+    codae = mommy.make("Codae")
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_dilog_abastecimento,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client
