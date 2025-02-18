@@ -5,7 +5,6 @@ from unittest import TestCase, mock
 import pytest
 from django.core.management import call_command
 
-from sme_sigpae_api.dados_comuns.models import Contato
 from sme_sigpae_api.escola.fixtures.factories.dia_suspensao_atividades_factory import (
     DiaSuspensaoAtividadesFactory,
 )
@@ -13,11 +12,9 @@ from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
     TipoUnidadeEscolarFactory,
 )
 from sme_sigpae_api.escola.models import DiaSuspensaoAtividades
-from sme_sigpae_api.perfil.models import Usuario
 from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import (
     EditalFactory,
 )
-from sme_sigpae_api.terceirizada.models import Terceirizada
 
 
 class VinculaEditaisDiasSuspensaoCommandTest(TestCase):
@@ -48,7 +45,7 @@ class VinculaEditaisDiasSuspensaoCommandTest(TestCase):
             "Edital de Pregão n° 35/SME/2022",
         ]
         for edital in self.lista_editais:
-            EditalFactory.create(numero=edital)
+            self.edital = EditalFactory.create(numero=edital)
 
         self.dias = [10, 11, 12, 13, 14, 15]
         for dia in self.dias:
@@ -75,3 +72,18 @@ class VinculaEditaisDiasSuspensaoCommandTest(TestCase):
             assert DiaSuspensaoAtividades.objects.filter(
                 data__day=dia, tipo_unidade__iniciais="EMEF"
             ).count() == len(self.lista_editais)
+
+    @mock.patch.dict(os.environ, {"DJANGO_ENV": "development"})
+    @pytest.mark.django_db(transaction=True)
+    def test_command_vincula_editais_a_dias_suspensao_dev_dias_suspensao_sem_edital(
+        self,
+    ) -> None:
+        DiaSuspensaoAtividades.objects.update(edital=self.edital)
+        self.call_command()
+        for dia in self.dias:
+            assert (
+                DiaSuspensaoAtividades.objects.filter(
+                    data__day=dia, tipo_unidade__iniciais="EMEF"
+                ).count()
+                == 1
+            )

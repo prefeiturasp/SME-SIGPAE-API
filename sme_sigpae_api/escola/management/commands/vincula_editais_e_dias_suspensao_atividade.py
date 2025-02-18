@@ -73,6 +73,7 @@ class Command(BaseCommand):
                     "****************************************************************"
                 )
             )
+            return
         total_dias_suspensao_sem_edital = dias_suspensao_sem_edital.count()
         total_editais = editais.count()
         for i_dia, dia_suspensao_atividades in enumerate(dias_suspensao_sem_edital):
