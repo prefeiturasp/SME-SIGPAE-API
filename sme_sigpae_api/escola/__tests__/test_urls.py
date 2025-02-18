@@ -439,32 +439,60 @@ def test_url_log_alunos_matriculados_faixa_etaria_dia(
 
 
 def test_url_endpoint_cria_dias_suspensao_atividades(
-    client_autenticado_coordenador_codae,
+    client_autenticado_coordenador_codae, edital_factory
 ):
+    edital_factory.create(
+        numero="Edital de Pregão nº 75/SME/2022",
+        uuid="85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2",
+    )
+    edital_factory.create(
+        numero="Edital de Pregão nº 36/SME/2022",
+        uuid="10b56d45-b82d-4cce-9a14-36bbb082ac4d",
+    )
+    edital_factory.create(
+        numero="Edital de Pregão nº 18/SME/2023",
+        uuid="00f008ea-3410-4547-99e6-4e91e0168af8",
+    )
     data = {
         "data": "2022-08-08",
-        "tipo_unidades": [
-            "1cc3253b-e297-42b3-8e57-ebfd115a1aba",
-            "40ee89a7-dc70-4abb-ae21-369c67f2b9e3",
-            "ac4858ff-1c11-41f3-b539-7a02696d6d1b",
+        "cadastros_calendario": [
+            {
+                "editais": [
+                    "85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2",
+                    "10b56d45-b82d-4cce-9a14-36bbb082ac4d",
+                ],
+                "tipo_unidades": [
+                    "1cc3253b-e297-42b3-8e57-ebfd115a1aba",
+                    "40ee89a7-dc70-4abb-ae21-369c67f2b9e3",
+                ],
+            },
+            {
+                "editais": [
+                    "85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2",
+                    "00f008ea-3410-4547-99e6-4e91e0168af8",
+                ],
+                "tipo_unidades": [
+                    "ac4858ff-1c11-41f3-b539-7a02696d6d1b",
+                ],
+            },
         ],
     }
     response = client_autenticado_coordenador_codae.post(
         "/dias-suspensao-atividades/", content_type="application/json", data=data
     )
     assert response.status_code == status.HTTP_201_CREATED
-    assert DiaSuspensaoAtividades.objects.count() == 3
+    assert DiaSuspensaoAtividades.objects.count() == 6
     response = client_autenticado_coordenador_codae.get(
         "/dias-suspensao-atividades/?mes=8&ano=2022", content_type="application/json"
     )
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.json()["results"]) == 3
+    assert len(response.json()) == 6
     response = client_autenticado_coordenador_codae.get(
         "/dias-suspensao-atividades/?mes=9&ano=2022", content_type="application/json"
     )
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.json()["results"]) == 0
-    data = {"data": "2022-08-08", "tipo_unidades": []}
+    assert len(response.json()) == 0
+    data = {"data": "2022-08-08", "cadastros_calendario": []}
     response = client_autenticado_coordenador_codae.post(
         "/dias-suspensao-atividades/", content_type="application/json", data=data
     )

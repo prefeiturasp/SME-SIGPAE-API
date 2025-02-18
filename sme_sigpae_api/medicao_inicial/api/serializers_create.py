@@ -118,7 +118,7 @@ class CadastroSobremesaDoceCreateSerializer(serializers.ModelSerializer):
 
 
 class DiaSobremesaDoceCreateManySerializer(serializers.ModelSerializer):
-    cadastros_sobremesa_doce = CadastroSobremesaDoceCreateSerializer(
+    cadastros_calendario = CadastroSobremesaDoceCreateSerializer(
         many=True, required=True
     )
 
@@ -126,7 +126,7 @@ class DiaSobremesaDoceCreateManySerializer(serializers.ModelSerializer):
         """Cria ou atualiza dias de sobremesa doce."""
         DiaSobremesaDoce.objects.filter(data=validated_data["data"]).delete()
         dia_sobremesa_doce = None
-        for cadastro in validated_data["cadastros_sobremesa_doce"]:
+        for cadastro in validated_data["cadastros_calendario"]:
             for tipo_unidade in cadastro["tipo_unidades"]:
                 for edital in cadastro["editais"]:
                     if not DiaSobremesaDoce.objects.filter(
@@ -145,7 +145,7 @@ class DiaSobremesaDoceCreateManySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DiaSobremesaDoce
-        fields = ("data", "uuid", "cadastros_sobremesa_doce")
+        fields = ("data", "uuid", "cadastros_calendario")
 
 
 class OcorrenciaMedicaoInicialCreateSerializer(serializers.ModelSerializer):
