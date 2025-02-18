@@ -47,6 +47,7 @@ from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaVisualizarRelatorioCronograma,
     PermissaoParaVisualizarSolicitacoesAlteracaoCronograma,
     PermissaoParaVisualizarUnidadesMedida,
+    UsuarioDialogAbastecimento,
     UsuarioDinutreDiretoria,
     UsuarioEhDilogQualidade,
     UsuarioEhFornecedor,
@@ -385,7 +386,10 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
     @transaction.atomic
     @action(
         detail=True,
-        permission_classes=(UsuarioDinutreDiretoria,),
+        permission_classes=(
+            UsuarioDinutreDiretoria,
+            UsuarioDialogAbastecimento,
+        ),
         methods=["patch"],
         url_path="dinutre-assina",
     )
