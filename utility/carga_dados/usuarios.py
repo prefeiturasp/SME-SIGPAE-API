@@ -330,6 +330,14 @@ USUARIOS = [
         "nome": "ADMINISTRADOR DICAE",
         "cargo": "Coordenador",
     },
+    {
+        "email": "dilogabastecimento@admin.com",
+        "password": DJANGO_ADMIN_PASSWORD,
+        "cpf": "11111111146",
+        "registro_funcional": "1242200",
+        "nome": "DILOG ABASTECIMENTO",
+        "cargo": "Coordenador",
+    },
 ]
 
 

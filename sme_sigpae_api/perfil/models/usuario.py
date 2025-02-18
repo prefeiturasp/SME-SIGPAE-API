@@ -39,6 +39,7 @@ from ...dados_comuns.constants import (
     COORDENADOR_LOGISTICA,
     COORDENADOR_SUPERVISAO_NUTRICAO,
     COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
+    DILOG_ABASTECIMENTO,
     DILOG_CRONOGRAMA,
     DILOG_DIRETORIA,
     DILOG_QUALIDADE,
@@ -294,6 +295,7 @@ class Usuario(
                     DILOG_QUALIDADE,
                     DILOG_DIRETORIA,
                     DINUTRE_DIRETORIA,
+                    DILOG_ABASTECIMENTO,
                 ]:
                     tipo_usuario = "pre_recebimento"
                 elif self.vinculo_atual.perfil.nome in [ORGAO_FISCALIZADOR]:
