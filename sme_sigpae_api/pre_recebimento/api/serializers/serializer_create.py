@@ -298,7 +298,6 @@ class SolicitacaoDeAlteracaoCronogramaCreateSerializer(serializers.ModelSerializ
     def validate(self, attrs):
         for etapa in attrs["etapas"]:
             self.valida_campo_etapa(etapa, "etapa")
-            self.valida_campo_etapa(etapa, "parte")
             self.valida_campo_etapa(etapa, "data_programada")
             self.valida_campo_etapa(etapa, "quantidade")
             self.valida_campo_etapa(etapa, "total_embalagens")
