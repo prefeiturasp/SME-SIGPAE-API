@@ -13,7 +13,7 @@ from ...terceirizada.api.serializers.serializers import (
     ContratoSimplesSerializer,
     TerceirizadaSimplesSerializer,
 )
-from ...terceirizada.models import Terceirizada
+from ...terceirizada.models import Edital, Terceirizada
 from ..models import (
     Aluno,
     AlunoPeriodoParcial,
@@ -870,6 +870,10 @@ class LogAlunosMatriculadosFaixaEtariaDiaSerializer(serializers.ModelSerializer)
 class DiaSuspensaoAtividadesSerializer(serializers.ModelSerializer):
     tipo_unidade = TipoUnidadeEscolarSerializer()
     criado_por = UsuarioSerializer()
+    edital = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=Edital.objects.all()
+    )
+    edital_numero = serializers.CharField(read_only=True)
 
     class Meta:
         model = DiaSuspensaoAtividades

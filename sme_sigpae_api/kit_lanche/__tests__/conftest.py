@@ -65,9 +65,16 @@ def escola(diretoria_regional, lote, tipo_unidade):
 
 @pytest.fixture
 def dia_suspensao_atividades_2019_11_13(escola):
+    edital = mommy.make("Edital", numero="78/SME/2023")
+    contrato = mommy.make(
+        "Contrato", edital=edital, terceirizada=escola.lote.terceirizada
+    )
+    contrato.lotes.add(escola.lote)
+    contrato.save()
     return mommy.make(
         "DiaSuspensaoAtividades",
         tipo_unidade=escola.tipo_unidade,
+        edital=edital,
         data=datetime.date(2019, 11, 13),
     )
 

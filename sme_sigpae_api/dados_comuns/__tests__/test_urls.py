@@ -6,6 +6,7 @@ from freezegun import freeze_time
 from model_mommy import mommy
 from rest_framework import status
 
+from ...escola.models import TipoUnidadeEscolar
 from ..models import (
     CategoriaPerguntaFrequente,
     CentralDeDownload,
@@ -351,7 +352,9 @@ def test_get_download_filters(usuario_teste_notificacao_autenticado, download):
 
 
 @freeze_time("2023-09-25")
-def test_get_dias_uteis(client_autenticado_da_escola, escola, dia_suspensao_atividades):
+def test_get_dias_uteis_escola(
+    client_autenticado_da_escola, escola, dia_suspensao_atividades
+):
     response = client_autenticado_da_escola.get("/dias-uteis/")
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {
@@ -371,7 +374,12 @@ def test_get_dias_uteis(client_autenticado_da_escola, escola, dia_suspensao_ativ
         "proximos_dois_dias_uteis": "2023-09-29",
     }
 
-    response = client_autenticado_da_escola.get(
+
+@freeze_time("2023-09-25")
+def test_get_dias_uteis_dre(
+    client_autenticado_da_dre, escola, dia_suspensao_atividades
+):
+    response = client_autenticado_da_dre.get(
         "/dias-uteis/?eh_solicitacao_unificada=true"
     )
     assert response.status_code == status.HTTP_200_OK

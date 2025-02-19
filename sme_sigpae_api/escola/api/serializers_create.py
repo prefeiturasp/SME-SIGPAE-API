@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from ...dados_comuns.utils import update_instance_from_dict
 from ...perfil.models import Usuario
+from ...terceirizada.models import Edital
 from ..models import (
     AlunoPeriodoParcial,
     DiaSuspensaoAtividades,
@@ -141,33 +142,49 @@ class DiaSuspensaoAtividadesCreateSerializer(serializers.ModelSerializer):
         exclude = ("id",)
 
 
-class DiaSuspensaoAtividadesCreateManySerializer(serializers.ModelSerializer):
+class CadastroCalendarioCreateSerializer(serializers.ModelSerializer):
     tipo_unidades = serializers.SlugRelatedField(
         slug_field="uuid",
         queryset=TipoUnidadeEscolar.objects.all(),
-        many=True,
         required=True,
+        many=True,
     )
-
-    def create(self, validated_data):
-        """Cria ou atualiza dias de sobremesa doce."""
-        dia_sobremesa_doce = None
-        DiaSuspensaoAtividades.objects.filter(data=validated_data["data"]).exclude(
-            tipo_unidade__in=validated_data["tipo_unidades"]
-        ).delete()
-        dias_sobremesa_doce = DiaSuspensaoAtividades.objects.filter(
-            data=validated_data["data"]
-        )
-        for tipo_unidade in validated_data["tipo_unidades"]:
-            if not dias_sobremesa_doce.filter(tipo_unidade=tipo_unidade).exists():
-                dia_sobremesa_doce = DiaSuspensaoAtividades(
-                    criado_por=self.context["request"].user,
-                    data=validated_data["data"],
-                    tipo_unidade=tipo_unidade,
-                )
-                dia_sobremesa_doce.save()
-        return dia_sobremesa_doce
+    editais = serializers.SlugRelatedField(
+        slug_field="uuid",
+        queryset=Edital.objects.all(),
+        required=True,
+        many=True,
+    )
 
     class Meta:
         model = DiaSuspensaoAtividades
-        fields = ("tipo_unidades", "data", "uuid")
+        fields = ("tipo_unidades", "editais")
+
+
+class DiaSuspensaoAtividadesCreateManySerializer(serializers.ModelSerializer):
+    cadastros_calendario = CadastroCalendarioCreateSerializer(many=True, required=True)
+
+    def create(self, validated_data):
+        """Cria ou atualiza dias de suspensao de atividades"""
+        DiaSuspensaoAtividades.objects.filter(data=validated_data["data"]).delete()
+        dia_calendario = None
+        for cadastro in validated_data["cadastros_calendario"]:
+            for tipo_unidade in cadastro["tipo_unidades"]:
+                for edital in cadastro["editais"]:
+                    if not DiaSuspensaoAtividades.objects.filter(
+                        data=validated_data["data"],
+                        tipo_unidade=tipo_unidade,
+                        edital=edital,
+                    ):
+                        dia_sobremesa_doce = DiaSuspensaoAtividades(
+                            criado_por=self.context["request"].user,
+                            data=validated_data["data"],
+                            tipo_unidade=tipo_unidade,
+                            edital=edital,
+                        )
+                        dia_sobremesa_doce.save()
+        return dia_calendario
+
+    class Meta:
+        model = DiaSuspensaoAtividades
+        fields = ("data", "uuid", "cadastros_calendario")
