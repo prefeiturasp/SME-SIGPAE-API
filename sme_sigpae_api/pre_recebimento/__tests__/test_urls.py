@@ -342,7 +342,7 @@ def test_url_perfil_dilog_abastecimento_cronograma(
     assert obj.status == "APROVADO_DINUTRE"
 
 
-def test_url_perfil_dinutre_reprova_alteracao_cronograma(
+def test_url_perfil_dilog_abastecimento_reprova_alteracao_cronograma(
     client_autenticado_dilog_abastecimento, solicitacao_cronograma_ciente
 ):
     data = json.dumps(
@@ -360,7 +360,7 @@ def test_url_perfil_dinutre_reprova_alteracao_cronograma(
     assert obj.status == "REPROVADO_DINUTRE"
 
 
-def test_url_analise_dinutre_erro_parametro_aprovado_invalida(
+def test_url_analise_dilog_abastecimento_erro_parametro_aprovado_invalida(
     client_autenticado_dilog_abastecimento, solicitacao_cronograma_ciente
 ):
     data = json.dumps({"justificativa_dilog": "teste justificativa", "aprovado": ""})
@@ -372,7 +372,7 @@ def test_url_analise_dinutre_erro_parametro_aprovado_invalida(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
-def test_url_analise_dinutre_erro_solicitacao_cronograma_invalido(
+def test_url_analise_dilog_abastecimento_erro_solicitacao_cronograma_invalido(
     client_autenticado_dilog_abastecimento,
 ):
     response = client_autenticado_dilog_abastecimento.patch(
@@ -382,7 +382,7 @@ def test_url_analise_dinutre_erro_solicitacao_cronograma_invalido(
     assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE
 
 
-def test_url_analise_dinutre_erro_transicao_estado(
+def test_url_analise_dilog_abastecimento_erro_transicao_estado(
     client_autenticado_dilog_abastecimento, solicitacao_cronograma_aprovado_dinutre
 ):
     data = json.dumps({"justificativa_dilog": "teste justificativa", "aprovado": True})
@@ -760,7 +760,7 @@ def test_url_perfil_cronograma_assina_not_authorized(client_autenticado_dilog):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-def test_url_dinutre_assina_cronograma_authorized(
+def test_url_dilog_abastecimento_assina_cronograma_authorized(
     client_autenticado_dilog_abastecimento,
     cronograma_factory,
 ):
@@ -778,7 +778,7 @@ def test_url_dinutre_assina_cronograma_authorized(
     assert obj.status == "ASSINADO_DINUTRE"
 
 
-def test_url_dinutre_assina_cronograma_erro_senha(
+def test_url_dilog_abastecimento_assina_cronograma_erro_senha(
     client_autenticado_dilog_abastecimento, cronograma_assinado_fornecedor
 ):
     data = json.dumps({"password": "senha_errada"})
@@ -790,7 +790,7 @@ def test_url_dinutre_assina_cronograma_erro_senha(
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-def test_url_dinutre_assina_cronograma_erro_cronograma_invalido(
+def test_url_dilog_abastecimento_assina_cronograma_erro_cronograma_invalido(
     client_autenticado_dilog_abastecimento,
 ):
     data = json.dumps({"password": constants.DJANGO_ADMIN_PASSWORD})
@@ -802,7 +802,7 @@ def test_url_dinutre_assina_cronograma_erro_cronograma_invalido(
     assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE
 
 
-def test_url_dinutre_assina_cronograma_erro_transicao_estado(
+def test_url_dilog_abastecimento_assina_cronograma_erro_transicao_estado(
     client_autenticado_dilog_abastecimento, cronograma
 ):
     data = json.dumps({"password": constants.DJANGO_ADMIN_PASSWORD})
@@ -910,7 +910,7 @@ def test_url_conogramas_detalhar(
     )
 
 
-def test_url_dashboard_painel_usuario_dinutre(
+def test_url_dashboard_painel_usuario_dilog_abastecimento(
     client_autenticado_dilog_abastecimento, cronogramas_multiplos_status_com_log
 ):
     response = client_autenticado_dilog_abastecimento.get("/cronogramas/dashboard/")
@@ -931,7 +931,7 @@ def test_url_dashboard_painel_usuario_dinutre(
             assert len(resultado["dados"]) == 1
 
 
-def test_url_dashboard_painel_usuario_dinutre_com_paginacao(
+def test_url_dashboard_painel_usuario_dilog_abastecimento_com_paginacao(
     client_autenticado_dilog_abastecimento, cronogramas_multiplos_status_com_log
 ):
     response = client_autenticado_dilog_abastecimento.get(
@@ -995,22 +995,14 @@ def test_url_dashboard_cronograma_com_filtro(
 
 
 # FIXME: Esse teste precisa ser corrigido na historia 125750
-# def test_url_dashboard_painel_solicitacao_alteracao_dinutre(
-#     client_autenticado_dilog_abastecimento,
-#     cronogramas_multiplos_status_com_log_cronograma_ciente,
-# ):
-#     response = client_autenticado_dilog_abastecimento.get(
-#         "/solicitacao-de-alteracao-de-cronograma/dashboard/"
-#     )
-#     QTD_STATUS_DASHBOARD_DINUTRE = 5
-#     SOLICITACOES_STATUS_CRONOGRAMA_CIENTE = 2
-#     assert response.status_code == status.HTTP_200_OK
-#     assert len(response.json()["results"]) == QTD_STATUS_DASHBOARD_DINUTRE
-#     assert response.json()["results"][0]["status"] == "CRONOGRAMA_CIENTE"
-#     assert (
-#         len(response.json()["results"][0]["dados"])
-#         == SOLICITACOES_STATUS_CRONOGRAMA_CIENTE
-#     )
+def test_url_dashboard_painel_solicitacao_alteracao_dilog_abastecimento(
+    client_autenticado_dilog_abastecimento,
+    cronogramas_multiplos_status_com_log_cronograma_ciente,
+):
+    with pytest.raises(ValueError):
+        response = client_autenticado_dilog_abastecimento.get(
+            "/solicitacao-de-alteracao-de-cronograma/dashboard/"
+        )
 
 
 def test_url_relatorio_cronograma_authorized(
