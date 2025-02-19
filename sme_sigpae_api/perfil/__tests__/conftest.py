@@ -6,7 +6,11 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
 from model_mommy import mommy
 
-from ...dados_comuns.constants import ADMINISTRADOR_DICAE, DJANGO_ADMIN_PASSWORD
+from ...dados_comuns.constants import (
+    ADMINISTRADOR_DICAE,
+    DILOG_ABASTECIMENTO,
+    DJANGO_ADMIN_PASSWORD,
+)
 from .. import models
 from ..api.serializers import UsuarioSerializer, UsuarioUpdateSerializer
 
@@ -1336,6 +1340,26 @@ def usuario_administrador_dicae():
         "Vinculo",
         usuario=usuario,
         perfil=mommy.make("Perfil", nome=ADMINISTRADOR_DICAE),
+        ativo=True,
+        data_inicial=datetime.date.today(),
+        data_final=None,
+        content_type=models.ContentType.objects.get(model="codae"),
+        object_id=codae.pk,
+    )
+
+    return usuario
+
+
+@pytest.fixture
+def usuario_dilog_abastecimento(django_user_model):
+    usuario = mommy.make("Usuario", username="testuser")
+    mommy.make("Cargo", usuario=usuario, ativo=False, nome="Diretor")
+    mommy.make("Cargo", usuario=usuario, ativo=True, nome="Coordenador")
+    codae = mommy.make("Codae", nome="Codae - Dilog")
+    mommy.make(
+        "Vinculo",
+        usuario=usuario,
+        perfil=mommy.make("Perfil", nome=DILOG_ABASTECIMENTO),
         ativo=True,
         data_inicial=datetime.date.today(),
         data_final=None,

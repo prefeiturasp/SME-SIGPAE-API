@@ -6,6 +6,7 @@ from faker import Faker
 from model_mommy import mommy
 
 from sme_sigpae_api.dados_comuns.constants import (
+    DILOG_ABASTECIMENTO,
     DILOG_CRONOGRAMA,
     DILOG_QUALIDADE,
     DJANGO_ADMIN_PASSWORD,
@@ -1012,3 +1013,30 @@ def client_autenticado_vinculo_dilog_qualidade(client, django_user_model, codae)
     )
     client.login(username=email, password=password)
     return client, user
+
+
+@pytest.fixture
+def client_autenticado_dilog_abastecimento(client, django_user_model):
+    email = "dilogabastecimento@test.com"
+    password = DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email,
+        password=password,
+        email=email,
+        registro_funcional=str(fake.unique.random_int(min=100000, max=999999)),
+    )
+    perfil_dilog_abastecimento = mommy.make(
+        "Perfil", nome=DILOG_ABASTECIMENTO, ativo=True
+    )
+    codae = mommy.make("Codae")
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_dilog_abastecimento,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client

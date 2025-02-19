@@ -104,4 +104,9 @@ data_perfis = [
         "ativo": True,
         "super_usuario": True,
     },
+    {
+        "nome": "DILOG_ABASTECIMENTO",
+        "ativo": True,
+        "super_usuario": True,
+    },
 ]
