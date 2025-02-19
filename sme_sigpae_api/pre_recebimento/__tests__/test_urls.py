@@ -775,7 +775,7 @@ def test_url_dilog_abastecimento_assina_cronograma_authorized(
     obj = Cronograma.objects.get(uuid=cronograma.uuid)
 
     assert response.status_code == status.HTTP_200_OK
-    assert obj.status == "ASSINADO_DINUTRE"
+    assert obj.status == "ASSINADO_DILOG_ABASTECIMENTO"
 
 
 def test_url_dilog_abastecimento_assina_cronograma_erro_senha(
@@ -916,7 +916,11 @@ def test_url_dashboard_painel_usuario_dilog_abastecimento(
     response = client_autenticado_dilog_abastecimento.get("/cronogramas/dashboard/")
     assert response.status_code == status.HTTP_200_OK
 
-    status_esperados = ["ASSINADO_FORNECEDOR", "ASSINADO_DINUTRE", "ASSINADO_CODAE"]
+    status_esperados = [
+        "ASSINADO_FORNECEDOR",
+        "ASSINADO_DILOG_ABASTECIMENTO",
+        "ASSINADO_CODAE",
+    ]
     status_recebidos = [result["status"] for result in response.json()["results"]]
     for status_esperado in status_esperados:
         assert status_esperado in status_recebidos
@@ -925,7 +929,7 @@ def test_url_dashboard_painel_usuario_dilog_abastecimento(
     for resultado in resultados_recebidos:
         if resultado["status"] == "ASSINADO_FORNECEDOR":
             assert len(resultado["dados"]) == 3
-        elif resultado["status"] == "ASSINADO_DINUTRE":
+        elif resultado["status"] == "ASSINADO_DILOG_ABASTECIMENTO":
             assert len(resultado["dados"]) == 2
         elif resultado["status"] == "ASSINADO_CODAE":
             assert len(resultado["dados"]) == 1
@@ -948,7 +952,7 @@ def test_url_dashboard_painel_usuario_dilog_abastecimento_com_paginacao(
     "status_card",
     [
         CronogramaWorkflow.ASSINADO_FORNECEDOR,
-        CronogramaWorkflow.ASSINADO_DINUTRE,
+        CronogramaWorkflow.ASSINADO_DILOG_ABASTECIMENTO,
         CronogramaWorkflow.ASSINADO_CODAE,
     ],
 )
@@ -1231,7 +1235,7 @@ def test_url_cronograma_lista_cronogramas_ficha_recebimento(
     cronogramas_assinados_codae = cronograma_factory.create_batch(
         size=5, status=CronogramaWorkflow.ASSINADO_CODAE
     )
-    cronograma_factory(status=CronogramaWorkflow.ASSINADO_DINUTRE)
+    cronograma_factory(status=CronogramaWorkflow.ASSINADO_DILOG_ABASTECIMENTO)
 
     response = client_autenticado_qualidade.get(
         "/cronogramas/lista-cronogramas-ficha-recebimento/"

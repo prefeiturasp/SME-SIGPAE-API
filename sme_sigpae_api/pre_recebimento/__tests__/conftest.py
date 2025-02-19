@@ -217,7 +217,7 @@ def cronograma_assinado_perfil_dinutre(armazem, contrato, empresa):
         contrato=contrato,
         empresa=empresa,
         armazem=armazem,
-        status="ASSINADO_DINUTRE",
+        status="ASSINADO_DILOG_ABASTECIMENTO",
     )
 
 
@@ -287,7 +287,7 @@ def cronogramas_multiplos_status_com_log(
         contrato=contrato,
         empresa=empresa,
         armazem=armazem,
-        status="ASSINADO_DINUTRE",
+        status="ASSINADO_DILOG_ABASTECIMENTO",
         ficha_tecnica=ficha_tecnica_factory(),
     )
     c4 = mommy.make(
@@ -296,7 +296,7 @@ def cronogramas_multiplos_status_com_log(
         contrato=contrato,
         empresa=empresa,
         armazem=armazem,
-        status="ASSINADO_DINUTRE",
+        status="ASSINADO_DILOG_ABASTECIMENTO",
         ficha_tecnica=ficha_tecnica_factory(),
     )
     c5 = mommy.make(
