@@ -4286,7 +4286,7 @@ class CronogramaWorkflow(xwf_models.Workflow):
     ALTERACAO_CODAE = "ALTERACAO_CODAE"
     ASSINADO_FORNECEDOR = "ASSINADO_FORNECEDOR"
     SOLICITADO_ALTERACAO = "SOLICITADO_ALTERACAO"
-    ASSINADO_DINUTRE = "ASSINADO_DINUTRE"
+    ASSINADO_DILOG_ABASTECIMENTO = "ASSINADO_DILOG_ABASTECIMENTO"
     ASSINADO_CODAE = "ASSINADO_CODAE"
 
     states = (
@@ -4295,15 +4295,19 @@ class CronogramaWorkflow(xwf_models.Workflow):
         (ALTERACAO_CODAE, "Alteração CODAE"),
         (ASSINADO_FORNECEDOR, "Assinado Fornecedor"),
         (SOLICITADO_ALTERACAO, "Solicitado Alteração"),
-        (ASSINADO_DINUTRE, "Assinado Dinutre"),
+        (ASSINADO_DILOG_ABASTECIMENTO, "Assinado Dilog Abastecimento"),
         (ASSINADO_CODAE, "Assinado CODAE"),
     )
 
     transitions = (
         ("inicia_fluxo", RASCUNHO, ASSINADO_E_ENVIADO_AO_FORNECEDOR),
         ("fornecedor_assina", ASSINADO_E_ENVIADO_AO_FORNECEDOR, ASSINADO_FORNECEDOR),
-        ("dinutre_assina", ASSINADO_FORNECEDOR, ASSINADO_DINUTRE),
-        ("codae_assina", ASSINADO_DINUTRE, ASSINADO_CODAE),
+        (
+            "dilog_abastecimento_assina",
+            ASSINADO_FORNECEDOR,
+            ASSINADO_DILOG_ABASTECIMENTO,
+        ),
+        ("codae_assina", ASSINADO_DILOG_ABASTECIMENTO, ASSINADO_CODAE),
         ("fornecedor_solicita_alteracao", ASSINADO_CODAE, SOLICITADO_ALTERACAO),
         ("codae_realiza_alteracao", ASSINADO_CODAE, ALTERACAO_CODAE),
         (
@@ -4459,8 +4463,8 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 usuario=user,
             )
 
-    @xworkflows.after_transition("dinutre_assina")
-    def _dinutre_assina_hook(self, *args, **kwargs):
+    @xworkflows.after_transition("dilog_abastecimento_assina")
+    def _dilog_abastecimento_assina_hook(self, *args, **kwargs):
         user = kwargs["user"]
         if user:
             self.salvar_log_transicao(

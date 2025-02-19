@@ -176,7 +176,7 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         lista_status = [
             Cronograma.workflow_class.ASSINADO_E_ENVIADO_AO_FORNECEDOR,
             Cronograma.workflow_class.ASSINADO_FORNECEDOR,
-            Cronograma.workflow_class.ASSINADO_DINUTRE,
+            Cronograma.workflow_class.ASSINADO_DILOG_ABASTECIMENTO,
             Cronograma.workflow_class.ASSINADO_CODAE,
         ]
 
@@ -402,7 +402,7 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
 
         try:
             cronograma = Cronograma.objects.get(uuid=uuid)
-            cronograma.dinutre_assina(user=usuario)
+            cronograma.dilog_abastecimento_assina(user=usuario)
             serializer = CronogramaSerializer(cronograma)
             return Response(serializer.data)
 
