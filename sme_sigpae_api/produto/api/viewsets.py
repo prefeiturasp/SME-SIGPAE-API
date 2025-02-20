@@ -568,7 +568,7 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
             raw_sql += f"AND most_recent_log.status_evento = {LogSolicitacoesUsuario.CODAE_HOMOLOGADO} "
         if edital:
             raw_sql += (
-                "LEFT JOIN (SELECT DISTINCT id AS produto_edital_id, suspenso,"
+                "LEFT JOIN (SELECT DISTINCT id AS produto_edital_id, suspenso,1"
                 "produto_id as produto_id_prod_edit, edital_id as edital_id_prod_edit FROM %(produto_edital)s) "
                 "AS produto_edital "
                 "ON produto_edital.produto_id_prod_edit = %(homologacao_produto)s.produto_id AND "
