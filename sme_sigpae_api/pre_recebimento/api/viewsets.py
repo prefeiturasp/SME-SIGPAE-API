@@ -23,8 +23,8 @@ from sme_sigpae_api.dados_comuns.fluxo_status import (
     DocumentoDeRecebimentoWorkflow,
 )
 from sme_sigpae_api.dados_comuns.permissions import (
+    PermissaoParaAnalisarDilogAbastecimentoSolicitacaoAlteracaoCronograma,
     PermissaoParaAnalisarDilogSolicitacaoAlteracaoCronograma,
-    PermissaoParaAnalisarDinutreSolicitacaoAlteracaoCronograma,
     PermissaoParaAnalisarFichaTecnica,
     PermissaoParaAssinarCronogramaUsuarioDilog,
     PermissaoParaAssinarCronogramaUsuarioFornecedor,
@@ -47,7 +47,7 @@ from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaVisualizarRelatorioCronograma,
     PermissaoParaVisualizarSolicitacoesAlteracaoCronograma,
     PermissaoParaVisualizarUnidadesMedida,
-    UsuarioDinutreDiretoria,
+    UsuarioDilogAbastecimento,
     UsuarioEhDilogQualidade,
     UsuarioEhFornecedor,
     ViewSetActionPermissionMixin,
@@ -385,7 +385,7 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
     @transaction.atomic
     @action(
         detail=True,
-        permission_classes=(UsuarioDinutreDiretoria,),
+        permission_classes=(UsuarioDilogAbastecimento,),
         methods=["patch"],
         url_path="dinutre-assina",
     )
@@ -780,7 +780,7 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         permission_classes=(
-            PermissaoParaAnalisarDinutreSolicitacaoAlteracaoCronograma,
+            PermissaoParaAnalisarDilogAbastecimentoSolicitacaoAlteracaoCronograma,
         ),
         methods=["patch"],
         url_path="analise-dinutre",
