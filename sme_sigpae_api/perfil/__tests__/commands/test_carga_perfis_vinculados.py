@@ -15,6 +15,7 @@ from ....dados_comuns.constants import (
     COORDENADOR_DIETA_ESPECIAL,
     COORDENADOR_GESTAO_PRODUTO,
     COORDENADOR_SUPERVISAO_NUTRICAO,
+    DILOG_ABASTECIMENTO,
 )
 
 
@@ -59,6 +60,10 @@ class CargaPerfisVinculadosCommandTest(TestCase):
             Perfil,
             nome=ADMINISTRADOR_DICAE,
         )
+        mommy.make(
+            Perfil,
+            nome=DILOG_ABASTECIMENTO,
+        )
 
     @pytest.mark.django_db(transaction=True)
     def test_command_carga(self) -> None:
@@ -66,22 +71,28 @@ class CargaPerfisVinculadosCommandTest(TestCase):
         dieta = PerfisVinculados.objects.filter(
             perfil_master__nome=COORDENADOR_DIETA_ESPECIAL
         )[0]
+        assert dieta.perfis_subordinados.first().nome == ADMINISTRADOR_DIETA_ESPECIAL
+
         produto = PerfisVinculados.objects.filter(
             perfil_master__nome=COORDENADOR_GESTAO_PRODUTO
         )[0]
+        assert produto.perfis_subordinados.first().nome == ADMINISTRADOR_GESTAO_PRODUTO
+
         coordenador_supervisao_nutricao = PerfisVinculados.objects.filter(
             perfil_master__nome=COORDENADOR_SUPERVISAO_NUTRICAO
         )[0]
-        coordenador_dialog_logistica = PerfisVinculados.objects.filter(
-            perfil_master__nome=COORDENADOR_CODAE_DILOG_LOGISTICA
-        )[0]
-        assert dieta.perfis_subordinados.first().nome == ADMINISTRADOR_DIETA_ESPECIAL
-        assert produto.perfis_subordinados.first().nome == ADMINISTRADOR_GESTAO_PRODUTO
         assert (
             coordenador_supervisao_nutricao.perfis_subordinados.first().nome
             == ADMINISTRADOR_SUPERVISAO_NUTRICAO
         )
-        assert (
-            coordenador_dialog_logistica.perfis_subordinados.first().nome
-            == ADMINISTRADOR_DICAE
+        coordenador_dialog_logistica = PerfisVinculados.objects.filter(
+            perfil_master__nome=COORDENADOR_CODAE_DILOG_LOGISTICA
+        )[0]
+        perfis_subordinado_dialog_logistica = list(
+            coordenador_dialog_logistica.perfis_subordinados.values_list(
+                "nome", flat=True
+            )
         )
+        assert len(perfis_subordinado_dialog_logistica) == 2
+        assert ADMINISTRADOR_DICAE in perfis_subordinado_dialog_logistica
+        assert DILOG_ABASTECIMENTO in perfis_subordinado_dialog_logistica

@@ -3,8 +3,16 @@ from unittest.mock import MagicMock
 import pytest
 
 from sme_sigpae_api.dados_comuns.permissions import (
+    PermissaoParaAnalisarDilogAbastecimentoSolicitacaoAlteracaoCronograma,
     PermissaoParaCriarUsuarioComCoresso,
+    PermissaoParaDashboardCronograma,
+    PermissaoParaListarDashboardSolicitacaoAlteracaoCronograma,
+    PermissaoParaVisualizarCalendarioCronograma,
+    PermissaoParaVisualizarCronograma,
+    PermissaoParaVisualizarRelatorioCronograma,
+    PermissaoParaVisualizarSolicitacoesAlteracaoCronograma,
     UsuarioAdministradorContratos,
+    UsuarioDilogAbastecimento,
 )
 
 pytestmark = pytest.mark.django_db
@@ -32,3 +40,73 @@ def test_usuario_sem_permissao_administrador_contrato(
     request.user = usuario
     permissao = UsuarioAdministradorContratos()
     assert not permissao.has_permission(request, None)
+
+
+def test_usuario_dilog_abastecimento(user_dilog_abastecimento):
+    request = MagicMock()
+    request.user = user_dilog_abastecimento
+    permissao = UsuarioDilogAbastecimento()
+    assert permissao.has_permission(request, None)
+
+
+def test_usuario_dilog_abastecimento_permissao_para_visualizar_cronograma(
+    user_dilog_abastecimento,
+):
+    request = MagicMock()
+    request.user = user_dilog_abastecimento
+    permissao = PermissaoParaVisualizarCronograma()
+    assert permissao.has_permission(request, None)
+
+
+def test_usuario_dilog_abastecimento_permissao_para_visualizar_relatorio_cronograma(
+    user_dilog_abastecimento,
+):
+    request = MagicMock()
+    request.user = user_dilog_abastecimento
+    permissao = PermissaoParaVisualizarRelatorioCronograma()
+    assert permissao.has_permission(request, None)
+
+
+def test_usuario_dilog_abastecimento_permissao_para_dashboard_cronograma(
+    user_dilog_abastecimento,
+):
+    request = MagicMock()
+    request.user = user_dilog_abastecimento
+    permissao = PermissaoParaDashboardCronograma()
+    assert permissao.has_permission(request, None)
+
+
+def test_usuario_dilog_abastecimento_permissao_para_visualizar_calendario_cronograma(
+    user_dilog_abastecimento,
+):
+    request = MagicMock()
+    request.user = user_dilog_abastecimento
+    permissao = PermissaoParaVisualizarCalendarioCronograma()
+    assert permissao.has_permission(request, None)
+
+
+def test_usuario_dilog_abastecimento_permissao_para_visualizar_solicitacoes_alteracao_cronograma(
+    user_dilog_abastecimento,
+):
+    request = MagicMock()
+    request.user = user_dilog_abastecimento
+    permissao = PermissaoParaVisualizarSolicitacoesAlteracaoCronograma()
+    assert permissao.has_permission(request, None)
+
+
+def test_usuario_dilog_abastecimento_permissao_para_listar_dashboard_solicitacao_alteracao_cronograma(
+    user_dilog_abastecimento,
+):
+    request = MagicMock()
+    request.user = user_dilog_abastecimento
+    permissao = PermissaoParaListarDashboardSolicitacaoAlteracaoCronograma()
+    assert permissao.has_permission(request, None)
+
+
+def test_usuario_dilog_abastecimento_permissao_para_analisar_solicitacao_alteracao_cronograma(
+    user_dilog_abastecimento,
+):
+    request = MagicMock()
+    request.user = user_dilog_abastecimento
+    permissao = PermissaoParaAnalisarDilogAbastecimentoSolicitacaoAlteracaoCronograma()
+    assert permissao.has_permission(request, None)

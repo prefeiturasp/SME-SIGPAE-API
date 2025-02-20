@@ -3,7 +3,10 @@ import datetime
 import pytest
 from django.db.utils import IntegrityError
 
-from sme_sigpae_api.dados_comuns.constants import ADMINISTRADOR_DICAE
+from sme_sigpae_api.dados_comuns.constants import (
+    ADMINISTRADOR_DICAE,
+    DILOG_ABASTECIMENTO,
+)
 
 from ..models import Perfil, Usuario
 
@@ -66,13 +69,13 @@ def test_vinculos(usuario_3):
     assert usuario_3.vinculos.count() == 1
 
 
-def test_atualiza_cargo(usuario_administrador_dicae):
+def test_atualiza_cargo_adm_dicae(usuario_administrador_dicae):
     usuario_administrador_dicae.atualizar_cargo()
     usuario_administrador_dicae.refresh_from_db()
     assert usuario_administrador_dicae.cargo == "Analista"
 
 
-def test_desativa_cargo(usuario_administrador_dicae):
+def test_desativa_cargo_adm_dicae(usuario_administrador_dicae):
     usuario_administrador_dicae.desativa_cargo()
     usuario_administrador_dicae.refresh_from_db()
     assert usuario_administrador_dicae.cargos.last().nome == "Analista"
@@ -80,6 +83,25 @@ def test_desativa_cargo(usuario_administrador_dicae):
     assert usuario_administrador_dicae.cargos.last().data_final is not None
 
 
-def test_usuario_dicae(usuario_administrador_dicae):
+def test_usuario_adm_dicae(usuario_administrador_dicae):
     assert usuario_administrador_dicae.vinculo_atual.perfil.nome == ADMINISTRADOR_DICAE
     assert usuario_administrador_dicae.tipo_usuario == "administrador_dicae"
+
+
+def test_atualiza_cargo_dilog_abastecimento(usuario_dilog_abastecimento):
+    usuario_dilog_abastecimento.atualizar_cargo()
+    usuario_dilog_abastecimento.refresh_from_db()
+    assert usuario_dilog_abastecimento.cargo == "Coordenador"
+
+
+def test_desativa_cargodilog_abastecimento(usuario_dilog_abastecimento):
+    usuario_dilog_abastecimento.desativa_cargo()
+    usuario_dilog_abastecimento.refresh_from_db()
+    assert usuario_dilog_abastecimento.cargos.last().nome == "Coordenador"
+    assert usuario_dilog_abastecimento.cargos.last().ativo is False
+    assert usuario_dilog_abastecimento.cargos.last().data_final is not None
+
+
+def test_usuario_dilog_abastecimento(usuario_dilog_abastecimento):
+    assert usuario_dilog_abastecimento.vinculo_atual.perfil.nome == DILOG_ABASTECIMENTO
+    assert usuario_dilog_abastecimento.tipo_usuario == "pre_recebimento"
