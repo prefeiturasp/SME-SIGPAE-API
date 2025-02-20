@@ -4295,7 +4295,7 @@ class CronogramaWorkflow(xwf_models.Workflow):
         (ALTERACAO_CODAE, "Alteração CODAE"),
         (ASSINADO_FORNECEDOR, "Assinado Fornecedor"),
         (SOLICITADO_ALTERACAO, "Solicitado Alteração"),
-        (ASSINADO_DILOG_ABASTECIMENTO, "Assinado Dilog Abastecimento"),
+        (ASSINADO_DILOG_ABASTECIMENTO, "Assinado Abastecimento"),
         (ASSINADO_CODAE, "Assinado CODAE"),
     )
 
@@ -4488,7 +4488,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
             EmailENotificacaoService.enviar_notificacao(
                 template="pre_recebimento_notificacao_assinatura_cronograma.html",
                 contexto_template=contexto,
-                titulo_notificacao=f"Cronograma { self.numero } assinado pelo DILOG ABASTECIMENTO",
+                titulo_notificacao=f"Cronograma { self.numero } assinado pelo Abastecimento",
                 tipo_notificacao=Notificacao.TIPO_NOTIFICACAO_AVISO,
                 categoria_notificacao=Notificacao.CATEGORIA_NOTIFICACAO_CRONOGRAMA,
                 link_acesse_aqui=url_detalhe_cronograma,
@@ -4498,8 +4498,8 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
             )
 
             EmailENotificacaoService.enviar_email(
-                titulo=f"Assinatura do Cronograma {self.numero}\npelo DILOG ABASTECIMENTO",
-                assunto=f"[SIGPAE] Assinatura do Cronograma {self.numero} pelo DILOG ABASTECIMENTO",
+                titulo=f"Assinatura do Cronograma {self.numero}\npelo Abastecimento",
+                assunto=f"[SIGPAE] Assinatura do Cronograma {self.numero} pelo Abastecimento",
                 template="pre_recebimento_email_assinatura_dilog_abastecimento.html",
                 contexto_template=contexto,
                 destinatarios=PartesInteressadasService.usuarios_por_perfis(
@@ -4597,8 +4597,8 @@ class CronogramaAlteracaoWorkflow(xwf_models.Workflow):
         (ALTERACAO_ENVIADA_FORNECEDOR, "Alteração Enviada ao Fornecedor"),
         (FORNECEDOR_CIENTE, "Fornecedor Ciente"),
         (CRONOGRAMA_CIENTE, "Cronograma ciente"),
-        (APROVADO_DILOG_ABASTECIMENTO, "Aprovado Dilog Abastecimento"),
-        (REPROVADO_DILOG_ABASTECIMENTO, "Reprovado Dilog Abastecimento"),
+        (APROVADO_DILOG_ABASTECIMENTO, "Aprovado Abastecimento"),
+        (REPROVADO_DILOG_ABASTECIMENTO, "Reprovado Abastecimento"),
         (APROVADO_DILOG, "Aprovado DILOG"),
         (REPROVADO_DILOG, "Reprovado DILOG"),
     )
