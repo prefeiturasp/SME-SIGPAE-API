@@ -330,7 +330,7 @@ def test_url_perfil_dilog_abastecimento_cronograma(
 ):
     data = json.dumps({"aprovado": True})
     response = client_autenticado_dilog_abastecimento.patch(
-        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao_cronograma_ciente.uuid}/analise-dinutre/",
+        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao_cronograma_ciente.uuid}/analise-abastecimento/",
         data,
         content_type="application/json",
     )
@@ -346,10 +346,10 @@ def test_url_perfil_dilog_abastecimento_reprova_alteracao_cronograma(
     client_autenticado_dilog_abastecimento, solicitacao_cronograma_ciente
 ):
     data = json.dumps(
-        {"justificativa_dinutre": "teste justificativa", "aprovado": False}
+        {"justificativa_abastecimento": "teste justificativa", "aprovado": False}
     )
     response = client_autenticado_dilog_abastecimento.patch(
-        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao_cronograma_ciente.uuid}/analise-dinutre/",
+        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao_cronograma_ciente.uuid}/analise-abastecimento/",
         data,
         content_type="application/json",
     )
@@ -365,7 +365,7 @@ def test_url_analise_dilog_abastecimento_erro_parametro_aprovado_invalida(
 ):
     data = json.dumps({"justificativa_dilog": "teste justificativa", "aprovado": ""})
     response = client_autenticado_dilog_abastecimento.patch(
-        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao_cronograma_ciente.uuid}/analise-dinutre/",
+        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao_cronograma_ciente.uuid}/analise-abastecimento/",
         data,
         content_type="application/json",
     )
@@ -376,7 +376,7 @@ def test_url_analise_dilog_abastecimento_erro_solicitacao_cronograma_invalido(
     client_autenticado_dilog_abastecimento,
 ):
     response = client_autenticado_dilog_abastecimento.patch(
-        f"/solicitacao-de-alteracao-de-cronograma/{uuid.uuid4()}/analise-dinutre/",
+        f"/solicitacao-de-alteracao-de-cronograma/{uuid.uuid4()}/analise-abastecimento/",
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE
@@ -388,7 +388,7 @@ def test_url_analise_dilog_abastecimento_erro_transicao_estado(
 ):
     data = json.dumps({"justificativa_dilog": "teste justificativa", "aprovado": True})
     response = client_autenticado_dilog_abastecimento.patch(
-        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao_cronograma_aprovado_dilog_abastecimento.uuid}/analise-dinutre/",
+        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao_cronograma_aprovado_dilog_abastecimento.uuid}/analise-abastecimento/",
         data,
         content_type="application/json",
     )
@@ -772,7 +772,7 @@ def test_url_dilog_abastecimento_assina_cronograma_authorized(
 
     data = json.dumps({"password": constants.DJANGO_ADMIN_PASSWORD})
     response = client_autenticado_dilog_abastecimento.patch(
-        f"/cronogramas/{cronograma.uuid}/dinutre-assina/",
+        f"/cronogramas/{cronograma.uuid}/abastecimento-assina/",
         data,
         content_type="application/json",
     )
@@ -787,7 +787,7 @@ def test_url_dilog_abastecimento_assina_cronograma_erro_senha(
 ):
     data = json.dumps({"password": "senha_errada"})
     response = client_autenticado_dilog_abastecimento.patch(
-        f"/cronogramas/{cronograma_assinado_fornecedor.uuid}/dinutre-assina/",
+        f"/cronogramas/{cronograma_assinado_fornecedor.uuid}/abastecimento-assina/",
         data,
         content_type="application/json",
     )
@@ -799,7 +799,7 @@ def test_url_dilog_abastecimento_assina_cronograma_erro_cronograma_invalido(
 ):
     data = json.dumps({"password": constants.DJANGO_ADMIN_PASSWORD})
     response = client_autenticado_dilog_abastecimento.patch(
-        f"/cronogramas/{uuid.uuid4()}/dinutre-assina/",
+        f"/cronogramas/{uuid.uuid4()}/abastecimento-assina/",
         data,
         content_type="application/json",
     )
@@ -811,18 +811,18 @@ def test_url_dilog_abastecimento_assina_cronograma_erro_transicao_estado(
 ):
     data = json.dumps({"password": constants.DJANGO_ADMIN_PASSWORD})
     response = client_autenticado_dilog_abastecimento.patch(
-        f"/cronogramas/{cronograma.uuid}/dinutre-assina/",
+        f"/cronogramas/{cronograma.uuid}/abastecimento-assina/",
         data,
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
-def test_url_dinutre_assina_cronograma_not_authorized(
+def test_url_dilog_abastecimento_assina_cronograma_not_authorized(
     client_autenticado_dilog, cronograma_recebido
 ):
     response = client_autenticado_dilog.patch(
-        f"/cronogramas/{cronograma_recebido.uuid}/dinutre-assina/"
+        f"/cronogramas/{cronograma_recebido.uuid}/abastecimento-assina/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
@@ -1012,10 +1012,10 @@ def test_url_dashboard_painel_solicitacao_alteracao_dilog_abastecimento(
         "/solicitacao-de-alteracao-de-cronograma/dashboard/"
     )
 
-    QTD_STATUS_DASHBOARD_DINUTRE = 5
+    QTD_STATUS_DASHBOARD_DILOG_ABASTECIMENTO = 5
     SOLICITACOES_STATUS_CRONOGRAMA_CIENTE = 2
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.json()["results"]) == QTD_STATUS_DASHBOARD_DINUTRE
+    assert len(response.json()["results"]) == QTD_STATUS_DASHBOARD_DILOG_ABASTECIMENTO
     assert response.json()["results"][0]["status"] == "CRONOGRAMA_CIENTE"
     assert (
         len(response.json()["results"][0]["dados"])
