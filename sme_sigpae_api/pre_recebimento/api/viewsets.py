@@ -793,10 +793,10 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
                 uuid=uuid
             )
             if aprovado is True:
-                solicitacao_cronograma.dinutre_aprova(user=usuario)
+                solicitacao_cronograma.dilog_abastecimento_aprova(user=usuario)
             elif aprovado is False:
                 justificativa = request.data.get("justificativa_dinutre")
-                solicitacao_cronograma.dinutre_reprova(
+                solicitacao_cronograma.dilog_abastecimento_reprova(
                     user=usuario, justificativa=justificativa
                 )
             else:
