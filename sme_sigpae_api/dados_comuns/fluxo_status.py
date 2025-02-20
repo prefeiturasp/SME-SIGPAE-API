@@ -4836,7 +4836,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
             )
             self._envia_email_notificacao_ciencia_fornecedor(user)
 
-    def _montar_dinutre_notificacao(self):
+    def _montar_dilog_abastecimento_notificacao(self):
         log_transicao = self.log_mais_recente
         usuarios = PartesInteressadasService.usuarios_por_perfis("DILOG_DIRETORIA")
         template_notif = (
@@ -4869,7 +4869,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 usuario=user,
                 justificativa=kwargs.get("justificativa", ""),
             )
-            self._montar_dinutre_notificacao()
+            self._montar_dilog_abastecimento_notificacao()
 
     @xworkflows.after_transition("dilog_abastecimento_reprova")
     def _dilog_abastecimento_reprova_hook(self, *args, **kwargs):
@@ -4880,7 +4880,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 usuario=user,
                 justificativa=kwargs.get("justificativa", ""),
             )
-            self._montar_dinutre_notificacao()
+            self._montar_dilog_abastecimento_notificacao()
 
     def _montar_dilog_notificacao(self):
         log_transicao = self.log_mais_recente

@@ -783,9 +783,9 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
             PermissaoParaAnalisarDilogAbastecimentoSolicitacaoAlteracaoCronograma,
         ),
         methods=["patch"],
-        url_path="analise-dinutre",
+        url_path="analise-abastecimento",
     )
-    def analise_dinutre(self, request, uuid):
+    def analise_abastecimento(self, request, uuid):
         usuario = request.user
         aprovado = request.data.get(("aprovado"), "aprovado")
         try:
@@ -795,7 +795,7 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
             if aprovado is True:
                 solicitacao_cronograma.dilog_abastecimento_aprova(user=usuario)
             elif aprovado is False:
-                justificativa = request.data.get("justificativa_dinutre")
+                justificativa = request.data.get("justificativa_abastecimento")
                 solicitacao_cronograma.dilog_abastecimento_reprova(
                     user=usuario, justificativa=justificativa
                 )
