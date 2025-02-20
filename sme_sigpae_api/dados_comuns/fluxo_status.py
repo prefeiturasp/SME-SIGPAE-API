@@ -4865,7 +4865,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         if user:
             self.salvar_log_transicao(
-                status_evento=LogSolicitacoesUsuario.APROVADO_DINUTRE_SOLICITACAO_ALTERACAO,
+                status_evento=LogSolicitacoesUsuario.APROVADO_DILOG_ABASTECIMENTO_SOLICITACAO_ALTERACAO,
                 usuario=user,
                 justificativa=kwargs.get("justificativa", ""),
             )
@@ -4876,7 +4876,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         if user:
             self.salvar_log_transicao(
-                status_evento=LogSolicitacoesUsuario.REPROVADO_DINUTRE_SOLICITACAO_ALTERACAO,
+                status_evento=LogSolicitacoesUsuario.REPROVADO_DILOG_ABASTECIMENTO_SOLICITACAO_ALTERACAO,
                 usuario=user,
                 justificativa=kwargs.get("justificativa", ""),
             )
