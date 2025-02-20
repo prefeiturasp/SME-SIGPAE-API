@@ -2359,31 +2359,16 @@ class ProdutosEditaisViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["GET"], url_path="lista-nomes-unicos")
     def lista_nomes_unicos(self, request):
-        editais = self.get_queryset()
+        produtos_editais = self.get_queryset()
         usuario = request.user
-        lotes_uuid = Lote.objects.all().values_list("uuid", flat=True)
 
-        if usuario.eh_parceira:
-            lotes_uuid = []
-        elif usuario.tipo_usuario == "escola":
-            lotes_uuid = [usuario.vinculo_atual.instituicao.lote.uuid]
-        elif usuario.tipo_usuario == "diretoriaregional":
-            lotes_uuid = usuario.vinculo_atual.instituicao.lotes.values_list(
-                "uuid", flat=True
-            )
-        elif usuario.tipo_usuario == "terceirizada":
-            terceirizada = usuario.vinculo_atual.instituicao
-            lotes_uuid = lotes_uuid.filter(terceirizada=terceirizada).values_list(
-                "uuid", flat=True
+        if hasattr(usuario.vinculo_atual.instituicao, "editais"):
+            produtos_editais = produtos_editais.filter(
+                edital__uuid__in=usuario.vinculo_atual.instituicao.editais
             )
 
-        if usuario.tipo_usuario in ["escola", "diretoriaregional", "terceirizada"]:
-            editais_id = Contrato.objects.filter(
-                lotes__uuid__in=lotes_uuid
-            ).values_list("edital_id", flat=True)
-            editais = editais.filter(edital__id__in=editais_id)
         nomes_unicos = (
-            editais.exclude(edital__numero="Edital de Pregão nº 41/sme/2017")
+            produtos_editais.exclude(edital__numero="Edital de Pregão nº 41/sme/2017")
             .values_list("edital__numero", flat=True)
             .distinct()
         )
