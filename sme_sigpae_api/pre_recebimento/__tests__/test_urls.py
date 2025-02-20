@@ -339,7 +339,7 @@ def test_url_perfil_dilog_abastecimento_cronograma(
     obj = SolicitacaoAlteracaoCronograma.objects.get(
         uuid=solicitacao_cronograma_ciente.uuid
     )
-    assert obj.status == "APROVADO_DINUTRE"
+    assert obj.status == "APROVADO_DILOG_ABASTECIMENTO"
 
 
 def test_url_perfil_dilog_abastecimento_reprova_alteracao_cronograma(
@@ -357,7 +357,7 @@ def test_url_perfil_dilog_abastecimento_reprova_alteracao_cronograma(
     obj = SolicitacaoAlteracaoCronograma.objects.get(
         uuid=solicitacao_cronograma_ciente.uuid
     )
-    assert obj.status == "REPROVADO_DINUTRE"
+    assert obj.status == "REPROVADO_DILOG_ABASTECIMENTO"
 
 
 def test_url_analise_dilog_abastecimento_erro_parametro_aprovado_invalida(
@@ -383,11 +383,12 @@ def test_url_analise_dilog_abastecimento_erro_solicitacao_cronograma_invalido(
 
 
 def test_url_analise_dilog_abastecimento_erro_transicao_estado(
-    client_autenticado_dilog_abastecimento, solicitacao_cronograma_aprovado_dinutre
+    client_autenticado_dilog_abastecimento,
+    solicitacao_cronograma_aprovado_dilog_abastecimento,
 ):
     data = json.dumps({"justificativa_dilog": "teste justificativa", "aprovado": True})
     response = client_autenticado_dilog_abastecimento.patch(
-        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao_cronograma_aprovado_dinutre.uuid}/analise-dinutre/",
+        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao_cronograma_aprovado_dilog_abastecimento.uuid}/analise-dinutre/",
         data,
         content_type="application/json",
     )
@@ -395,34 +396,36 @@ def test_url_analise_dilog_abastecimento_erro_transicao_estado(
 
 
 def test_url_perfil_dilog_aprova_alteracao_cronograma(
-    client_autenticado_dilog_diretoria, solicitacao_cronograma_aprovado_dinutre
+    client_autenticado_dilog_diretoria,
+    solicitacao_cronograma_aprovado_dilog_abastecimento,
 ):
     data = json.dumps({"aprovado": True})
     response = client_autenticado_dilog_diretoria.patch(
-        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao_cronograma_aprovado_dinutre.uuid}/analise-dilog/",
+        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao_cronograma_aprovado_dilog_abastecimento.uuid}/analise-dilog/",
         data,
         content_type="application/json",
     )
 
     assert response.status_code == status.HTTP_200_OK
     obj = SolicitacaoAlteracaoCronograma.objects.get(
-        uuid=solicitacao_cronograma_aprovado_dinutre.uuid
+        uuid=solicitacao_cronograma_aprovado_dilog_abastecimento.uuid
     )
     assert obj.status == "APROVADO_DILOG"
 
 
 def test_url_perfil_dilog_reprova_alteracao_cronograma(
-    client_autenticado_dilog_diretoria, solicitacao_cronograma_aprovado_dinutre
+    client_autenticado_dilog_diretoria,
+    solicitacao_cronograma_aprovado_dilog_abastecimento,
 ):
     data = json.dumps({"justificativa_dilog": "teste justificativa", "aprovado": False})
     response = client_autenticado_dilog_diretoria.patch(
-        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao_cronograma_aprovado_dinutre.uuid}/analise-dilog/",
+        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao_cronograma_aprovado_dilog_abastecimento.uuid}/analise-dilog/",
         data,
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
     obj = SolicitacaoAlteracaoCronograma.objects.get(
-        uuid=solicitacao_cronograma_aprovado_dinutre.uuid
+        uuid=solicitacao_cronograma_aprovado_dilog_abastecimento.uuid
     )
     assert obj.status == "REPROVADO_DILOG"
 
@@ -438,11 +441,12 @@ def test_url_analise_dilog_erro_solicitacao_cronograma_invalido(
 
 
 def test_url_analise_dilog_erro_parametro_aprovado_invalida(
-    client_autenticado_dilog_diretoria, solicitacao_cronograma_aprovado_dinutre
+    client_autenticado_dilog_diretoria,
+    solicitacao_cronograma_aprovado_dilog_abastecimento,
 ):
     data = json.dumps({"justificativa_dilog": "teste justificativa", "aprovado": ""})
     response = client_autenticado_dilog_diretoria.patch(
-        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao_cronograma_aprovado_dinutre.uuid}/analise-dilog/",
+        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao_cronograma_aprovado_dilog_abastecimento.uuid}/analise-dilog/",
         data,
         content_type="application/json",
     )
@@ -824,25 +828,27 @@ def test_url_dinutre_assina_cronograma_not_authorized(
 
 
 def test_url_dilog_assina_cronograma_authorized(
-    client_autenticado_dilog_diretoria, cronograma_assinado_perfil_dinutre
+    client_autenticado_dilog_diretoria, cronograma_assinado_perfil_dilog_abastecimento
 ):
     data = json.dumps({"password": constants.DJANGO_ADMIN_PASSWORD})
     response = client_autenticado_dilog_diretoria.patch(
-        f"/cronogramas/{cronograma_assinado_perfil_dinutre.uuid}/codae-assina/",
+        f"/cronogramas/{cronograma_assinado_perfil_dilog_abastecimento.uuid}/codae-assina/",
         data,
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
-    obj = Cronograma.objects.get(uuid=cronograma_assinado_perfil_dinutre.uuid)
+    obj = Cronograma.objects.get(
+        uuid=cronograma_assinado_perfil_dilog_abastecimento.uuid
+    )
     assert obj.status == "ASSINADO_CODAE"
 
 
 def test_url_dilog_assina_cronograma_erro_senha(
-    client_autenticado_dilog_diretoria, cronograma_assinado_perfil_dinutre
+    client_autenticado_dilog_diretoria, cronograma_assinado_perfil_dilog_abastecimento
 ):
     data = json.dumps({"password": "senha_errada"})
     response = client_autenticado_dilog_diretoria.patch(
-        f"/cronogramas/{cronograma_assinado_perfil_dinutre.uuid}/codae-assina/",
+        f"/cronogramas/{cronograma_assinado_perfil_dilog_abastecimento.uuid}/codae-assina/",
         data,
         content_type="application/json",
     )
@@ -998,15 +1004,23 @@ def test_url_dashboard_cronograma_com_filtro(
     assert len(response.json()["results"][0]["dados"]) == 1
 
 
-# FIXME: Esse teste precisa ser corrigido na historia 125750
 def test_url_dashboard_painel_solicitacao_alteracao_dilog_abastecimento(
     client_autenticado_dilog_abastecimento,
     cronogramas_multiplos_status_com_log_cronograma_ciente,
 ):
-    with pytest.raises(ValueError):
-        response = client_autenticado_dilog_abastecimento.get(
-            "/solicitacao-de-alteracao-de-cronograma/dashboard/"
-        )
+    response = client_autenticado_dilog_abastecimento.get(
+        "/solicitacao-de-alteracao-de-cronograma/dashboard/"
+    )
+
+    QTD_STATUS_DASHBOARD_DINUTRE = 5
+    SOLICITACOES_STATUS_CRONOGRAMA_CIENTE = 2
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json()["results"]) == QTD_STATUS_DASHBOARD_DINUTRE
+    assert response.json()["results"][0]["status"] == "CRONOGRAMA_CIENTE"
+    assert (
+        len(response.json()["results"][0]["dados"])
+        == SOLICITACOES_STATUS_CRONOGRAMA_CIENTE
+    )
 
 
 def test_url_relatorio_cronograma_authorized(
