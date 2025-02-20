@@ -174,13 +174,13 @@
 
 
 
-      {% get_assinatura_dinutre logs as log_dinutre %}
+      {% get_assinatura_dilog_abastecimento logs as log_dilog_abastecimento %}
 
-      {% if log_dinutre %}
+      {% if log_dilog_abastecimento %}
 
       <div class="assinatura">
         <div class="title titulo-assinatura">
-          Assinatura Eletrônica DINUTRE
+          Assinatura Eletrônica Dilog Abastecimento
         </div>
         <div class="assinatura-container">
 
@@ -190,8 +190,8 @@
           <div class="col-10 ml-3">
             <span class="texto-assinatura">
               Cronograma de Entrega assinado eletronicamente por
-              <strong>{{ log_dinutre.usuario.nome }}</strong>, <strong>{{ log_dinutre.usuario.cargo }}</strong>, <strong>{{ log_dinutre.usuario.username }}</strong>,
-              em {{ log_dinutre.criado_em|date:"d/m/Y" }}, às {{ log_dinutre.criado_em|time:"H:i" }}.
+              <strong>{{ log_dilog_abastecimento.usuario.nome }}</strong>, <strong>{{ log_dilog_abastecimento.usuario.cargo }}</strong>, <strong>{{ log_dilog_abastecimento.usuario.username }}</strong>,
+              em {{ log_dilog_abastecimento.criado_em|date:"d/m/Y" }}, às {{ log_dilog_abastecimento.criado_em|time:"H:i" }}.
             </span>
           </div>
         </div>

@@ -4468,7 +4468,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         if user:
             self.salvar_log_transicao(
-                status_evento=LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELA_DINUTRE,
+                status_evento=LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELO_DILOG_ABASTECIMENTO,
                 usuario=user,
             )
 

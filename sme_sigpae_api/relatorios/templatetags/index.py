@@ -347,9 +347,9 @@ def get_assinatura_fornecedor(logs):
 
 
 @register.simple_tag
-def get_assinatura_dinutre(logs):
+def get_assinatura_dilog_abastecimento(logs):
     return logs.filter(
-        status_evento=LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELA_DINUTRE
+        status_evento=LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELO_DILOG_ABASTECIMENTO
     ).last()
 
 
