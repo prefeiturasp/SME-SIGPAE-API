@@ -387,9 +387,9 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         detail=True,
         permission_classes=(UsuarioDilogAbastecimento,),
         methods=["patch"],
-        url_path="dinutre-assina",
+        url_path="abastecimento-assina",
     )
-    def dinutre_assina(self, request, uuid):
+    def abastecimento_assina(self, request, uuid):
         usuario = request.user
 
         if not usuario.verificar_autenticidade(request.data.get("password")):
