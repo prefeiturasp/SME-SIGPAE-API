@@ -21,9 +21,9 @@ from ..relatorios.utils import html_to_pdf_email_anexo
 from .constants import (
     ADMINISTRADOR_MEDICAO,
     COGESTOR_DRE,
+    DILOG_ABASTECIMENTO,
     DILOG_CRONOGRAMA,
     DILOG_DIRETORIA,
-    DINUTRE_DIRETORIA,
     DIRETOR_UE,
 )
 from .models import AnexoLogSolicitacoesUsuario, LogSolicitacoesUsuario, Notificacao
@@ -4394,7 +4394,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 categoria_notificacao=Notificacao.CATEGORIA_NOTIFICACAO_CRONOGRAMA,
                 link_acesse_aqui=url_detalhe_cronograma,
                 usuarios=PartesInteressadasService.usuarios_por_perfis(
-                    DINUTRE_DIRETORIA
+                    DILOG_ABASTECIMENTO
                 ),
             )
 
@@ -4404,7 +4404,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 template="pre_recebimento_email_assinatura_fornecedor.html",
                 contexto_template=contexto,
                 destinatarios=PartesInteressadasService.usuarios_por_perfis(
-                    DINUTRE_DIRETORIA,
+                    DILOG_ABASTECIMENTO,
                     somente_email=True,
                 ),
             )
@@ -4553,7 +4553,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
         )
 
         partes_interessadas = PartesInteressadasService.usuarios_por_perfis(
-            ["DILOG_CRONOGRAMA", "DINUTRE_DIRETORIA"], True
+            ["DILOG_CRONOGRAMA", "DILOG_ABASTECIMENTO"], True
         ) + PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
             self, True
         )
