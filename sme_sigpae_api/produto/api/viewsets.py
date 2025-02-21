@@ -101,7 +101,9 @@ from ..utils import (
 )
 from .filters import (
     CadastroProdutosEditalFilter,
+    FabricanteFilter,
     ItemCadastroFilter,
+    MarcaFilter,
     ProdutoFilter,
     filtros_produto_reclamacoes,
 )
@@ -1599,7 +1601,8 @@ class ProdutoViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["GET"], url_path="lista-nomes-nova-reclamacao")
     def lista_produtos_nova_reclamacao(self, request):
         query_set = (
-            Produto.objects.filter(
+            self.filter_queryset(self.get_queryset())
+            .filter(
                 ativo=True, homologacao__status__in=NOVA_RECLAMACAO_HOMOLOGACOES_STATUS
             )
             .only("nome")
@@ -2553,6 +2556,8 @@ class FabricanteViewSet(viewsets.ModelViewSet, ListaNomesUnicos):
     lookup_field = "uuid"
     serializer_class = FabricanteSerializer
     queryset = Fabricante.objects.all()
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = FabricanteFilter
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -2584,10 +2589,14 @@ class FabricanteViewSet(viewsets.ModelViewSet, ListaNomesUnicos):
 
     @action(detail=False, methods=["GET"], url_path="lista-nomes-nova-reclamacao")
     def lista_fabricantes_nova_reclamacao(self, request):
-        query_set = Fabricante.objects.filter(
-            produto__ativo=True,
-            produto__homologacao__status__in=NOVA_RECLAMACAO_HOMOLOGACOES_STATUS,
-        ).distinct("nome")
+        query_set = (
+            self.filter_queryset(self.get_queryset())
+            .filter(
+                produto__ativo=True,
+                produto__homologacao__status__in=NOVA_RECLAMACAO_HOMOLOGACOES_STATUS,
+            )
+            .distinct("nome")
+        )
         response = {"results": FabricanteSimplesSerializer(query_set, many=True).data}
         return Response(response)
 
@@ -2669,6 +2678,8 @@ class MarcaViewSet(viewsets.ModelViewSet, ListaNomesUnicos):
     lookup_field = "uuid"
     serializer_class = MarcaSerializer
     queryset = Marca.objects.all()
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = MarcaFilter
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -2700,10 +2711,14 @@ class MarcaViewSet(viewsets.ModelViewSet, ListaNomesUnicos):
 
     @action(detail=False, methods=["GET"], url_path="lista-nomes-nova-reclamacao")
     def lista_marcas_nova_reclamacao(self, request):
-        query_set = Marca.objects.filter(
-            produto__ativo=True,
-            produto__homologacao__status__in=NOVA_RECLAMACAO_HOMOLOGACOES_STATUS,
-        ).distinct("nome")
+        query_set = (
+            self.filter_queryset(self.get_queryset())
+            .filter(
+                produto__ativo=True,
+                produto__homologacao__status__in=NOVA_RECLAMACAO_HOMOLOGACOES_STATUS,
+            )
+            .distinct("nome")
+        )
         response = {"results": MarcaSimplesSerializer(query_set, many=True).data}
         return Response(response)
 
