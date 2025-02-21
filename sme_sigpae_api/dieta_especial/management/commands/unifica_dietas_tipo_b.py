@@ -9,6 +9,7 @@ from sme_sigpae_api.dieta_especial.models import (
     LogQuantidadeDietasAutorizadasCEI,
     SolicitacaoDietaEspecial,
 )
+from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
 
 logger = logging.getLogger("sigpae.cmd_unifica_dietas_tipo_b")
 
@@ -37,6 +38,7 @@ class Command(BaseCommand):
             self.renomeia_classificacao_e_remove_extra(
                 classificacao_tipo_b_lanche, classificacao_tipo_b_lanche_refeicao
             )
+            self.renomeia_categoria_medicao()
 
     def checa_se_classificacoes_exitem(self):
         self.stdout.write(self.style.SUCCESS("Checa se classificações existem"))
@@ -148,3 +150,13 @@ class Command(BaseCommand):
         classificacao_tipo_b_lanche.nome = "Tipo B"
         classificacao_tipo_b_lanche.save()
         classificacao_tipo_b_lanche_refeicao.delete()
+
+    def renomeia_categoria_medicao(
+        self,
+    ):
+        self.stdout.write(
+            self.style.SUCCESS("Renomeia categoria de medição para Tipo B")
+        )
+        CategoriaMedicao.objects.filter(nome="DIETA ESPECIAL - TIPO B - LANCHE").update(
+            nome="DIETA ESPECIAL - TIPO B"
+        )
