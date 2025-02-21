@@ -26,6 +26,7 @@ from ...dados_comuns.constants import (
     TIPO_USUARIO_GESTAO_ALIMENTACAO_TERCEIRIZADA,
     TIPO_USUARIO_NUTRIMANIFESTACAO,
     TIPO_USUARIO_ORGAO_FISCALIZADOR,
+    TIPO_USUARIO_TERCEIRIZADA,
 )
 from ...dados_comuns.fluxo_status import (
     HomologacaoProdutoWorkflow,
@@ -1857,15 +1858,21 @@ class ProdutoViewSet(viewsets.ModelViewSet):
         ],
     )
     def filtro_reclamacoes_terceirizada(self, request):
-        if self.request.user.tipo_usuario in [
-            TIPO_USUARIO_CODAE_GABINETE,
-            TIPO_USUARIO_DIRETORIA_REGIONAL,
-            TIPO_USUARIO_GESTAO_ALIMENTACAO_TERCEIRIZADA,
-            TIPO_USUARIO_NUTRIMANIFESTACAO,
-            TIPO_USUARIO_ORGAO_FISCALIZADOR,
-        ]:
-            queryset = Produto.objects.filter(
-                homologacao__uuid=request.query_params.get("uuid")
+        uuid = request.query_params.get("uuid")
+        if (
+            self.request.user.tipo_usuario
+            in [
+                TIPO_USUARIO_TERCEIRIZADA,
+                TIPO_USUARIO_CODAE_GABINETE,
+                TIPO_USUARIO_DIRETORIA_REGIONAL,
+                TIPO_USUARIO_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+                TIPO_USUARIO_NUTRIMANIFESTACAO,
+                TIPO_USUARIO_ORGAO_FISCALIZADOR,
+            ]
+            and uuid
+        ):
+            queryset = Produto.objects.filter(homologacao__uuid=uuid).annotate(
+                qtde_questionamentos=Count("homologacao__reclamacoes")
             )
         else:
             filtro_homologacao = {
@@ -1877,6 +1884,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
                     ReclamacaoProdutoWorkflow.RESPONDIDO_TERCEIRIZADA,
                 ]
             }
+
             qtde_questionamentos = Count(
                 "homologacao__reclamacoes",
                 filter=Q(
