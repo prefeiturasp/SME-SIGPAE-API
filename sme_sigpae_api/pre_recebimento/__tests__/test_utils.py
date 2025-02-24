@@ -8,15 +8,15 @@ pytestmark = pytest.mark.django_db
 
 
 def test_service_dashboard_solicitacao_alteracao_cronograma_profiles(
-    django_user_model, client_autenticado_dinutre_diretoria
+    django_user_model, client_autenticado_dilog_abastecimento
 ):
     service = ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles
-    user_id = client_autenticado_dinutre_diretoria.session["_auth_user_id"]
+    user_id = client_autenticado_dilog_abastecimento.session["_auth_user_id"]
     usuario = django_user_model.objects.get(pk=user_id)
     status_esperados = [
         "CRONOGRAMA_CIENTE",
-        "APROVADO_DINUTRE",
-        "REPROVADO_DINUTRE",
+        "APROVADO_DILOG_ABASTECIMENTO",
+        "REPROVADO_DILOG_ABASTECIMENTO",
         "ALTERACAO_ENVIADA_FORNECEDOR",
         "FORNECEDOR_CIENTE",
     ]

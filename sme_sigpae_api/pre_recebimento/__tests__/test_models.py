@@ -145,19 +145,19 @@ def test_solicitacao_alteracao_cronograma_queryset_em_analise(
 def test_solicitacao_alteracao_cronograma_queryset_filtrar_por_status(
     solicitacao_cronograma_em_analise,
     solicitacao_cronograma_ciente,
-    solicitacao_cronograma_aprovado_dinutre,
+    solicitacao_cronograma_aprovado_dilog_abastecimento,
     ficha_tecnica_perecivel_enviada_para_analise,
     empresa,
 ):
     qs = SolicitacaoAlteracaoCronograma.objects.filtrar_por_status(
         status=[
             CronogramaAlteracaoWorkflow.EM_ANALISE,
-            CronogramaAlteracaoWorkflow.APROVADO_DINUTRE,
+            CronogramaAlteracaoWorkflow.APROVADO_DILOG_ABASTECIMENTO,
         ]
     )
     assert qs.count() == 2
     assert solicitacao_cronograma_em_analise in qs
-    assert solicitacao_cronograma_aprovado_dinutre in qs
+    assert solicitacao_cronograma_aprovado_dilog_abastecimento in qs
     assert solicitacao_cronograma_ciente not in qs
 
     solicitacao_cronograma_em_analise.cronograma.empresa = empresa
