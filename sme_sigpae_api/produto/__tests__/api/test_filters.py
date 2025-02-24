@@ -94,16 +94,16 @@ def test_fabricante_filter(produtos_edital_41):
     )
     assert filtro_nome_edital.qs.count() == 1
     marca = filtro_nome_edital.qs[0]
-    marca.nome = nome_marca_1
+    assert marca.nome == nome_marca_1
 
     filtro_nome_edital = MarcaFilter(
         data={"nome_edital": nome_edital_2017}, queryset=Marca.objects.all()
     )
     assert filtro_nome_edital.qs.count() == 2
     marca = filtro_nome_edital.qs[0]
-    marca.nome = nome_marca_1
+    assert marca.nome == nome_marca_1
     marca = filtro_nome_edital.qs[1]
-    marca.nome = nome_marca_2
+    assert marca.nome == nome_marca_2
 
     filtro_nome_edital = MarcaFilter(
         data={"nome_edital": nome_edital_2016}, queryset=Marca.objects.all()

@@ -1785,3 +1785,80 @@ def test_url_endpoint_reclamacao_produto_codae_recusa(
     assert dados["status"] == ReclamacaoProdutoWorkflow.CODAE_RECUSOU
     assert dados["status_titulo"] == "CODAE recusou"
     assert len(dados["anexos"]) == 0
+
+
+def test_url_lista_fabricantes_nova_reclamacao(
+    client_autenticado_vinculo_codae_produto, produtos_edital_41
+):
+    response = client_autenticado_vinculo_codae_produto.get(
+        f"/fabricantes/lista-nomes-nova-reclamacao/", content_type="application/json"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    dados = response.json()
+    assert len(dados["results"]) == 2
+    assert dados["results"][0]["nome"] == "Fabricante 001"
+    assert dados["results"][1]["nome"] == "Fabricante 002"
+
+
+def test_url_lista_fabricantes_nova_reclamacao_com_filtro_edital(
+    client_autenticado_vinculo_codae_produto, produtos_edital_41
+):
+    response = client_autenticado_vinculo_codae_produto.get(
+        f"/fabricantes/lista-nomes-nova-reclamacao/?nome_edital=Edital de Pregão nº 78/sme/2022",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    dados = response.json()
+    assert len(dados["results"]) == 1
+    assert dados["results"][0]["nome"] == "Fabricante 001"
+
+
+def test_url_lista_marcas_nova_reclamacao(
+    client_autenticado_vinculo_codae_produto, produtos_edital_41
+):
+    response = client_autenticado_vinculo_codae_produto.get(
+        f"/marcas/lista-nomes-nova-reclamacao/", content_type="application/json"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    dados = response.json()
+    assert len(dados["results"]) == 2
+    assert dados["results"][0]["nome"] == "NAMORADOS"
+    assert dados["results"][1]["nome"] == "TIO JOÃO"
+
+
+def test_url_lista_marcas_nova_reclamacao_com_filtro_edital(
+    client_autenticado_vinculo_codae_produto, produtos_edital_41
+):
+    response = client_autenticado_vinculo_codae_produto.get(
+        f"/marcas/lista-nomes-nova-reclamacao/?nome_edital=Edital de Pregão nº 78/sme/2022",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    dados = response.json()
+    assert len(dados["results"]) == 1
+    assert dados["results"][0]["nome"] == "NAMORADOS"
+
+
+def test_url_lista_produtos_nova_reclamacao(
+    client_autenticado_vinculo_codae_produto, produtos_edital_41
+):
+    response = client_autenticado_vinculo_codae_produto.get(
+        f"/produtos/lista-nomes-nova-reclamacao/", content_type="application/json"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    dados = response.json()
+    assert len(dados["results"]) == 1
+    assert dados["results"][0]["nome"] == "ARROZ"
+
+
+def test_url_lista_produtos_nova_reclamacao_com_filtro_edital(
+    client_autenticado_vinculo_codae_produto, produtos_edital_41
+):
+    response = client_autenticado_vinculo_codae_produto.get(
+        f"/produtos/lista-nomes-nova-reclamacao/?nome_edital=Edital de Pregão nº 78/sme/2022",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    dados = response.json()
+    assert len(dados["results"]) == 1
+    assert dados["results"][0]["nome"] == "ARROZ"
