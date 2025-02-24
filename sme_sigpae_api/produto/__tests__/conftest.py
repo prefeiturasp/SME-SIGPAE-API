@@ -114,8 +114,14 @@ def produtos_edital_41(escola):
     )
     marca_1 = mommy.make("Marca", nome="NAMORADOS")
     marca_2 = mommy.make("Marca", nome="TIO JOÃO")
-    produto_1 = mommy.make("Produto", nome="ARROZ", marca=marca_1)
-    produto_2 = mommy.make("Produto", nome="ARROZ", marca=marca_2)
+    fabricante_1 = mommy.make("Fabricante", nome="Fabricante 001")
+    fabricante_2 = mommy.make("Fabricante", nome="Fabricante 002")
+    produto_1 = mommy.make(
+        "Produto", nome="ARROZ", marca=marca_1, fabricante=fabricante_1
+    )
+    produto_2 = mommy.make(
+        "Produto", nome="ARROZ", marca=marca_2, fabricante=fabricante_2
+    )
     homologacao_p1 = mommy.make(
         "HomologacaoProduto",
         produto=produto_1,
