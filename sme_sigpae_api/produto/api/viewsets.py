@@ -65,7 +65,7 @@ from ..constants import (
     RESPONDER_RECLAMACAO_HOMOLOGACOES_STATUS,
     RESPONDER_RECLAMACAO_RECLAMACOES_STATUS,
 )
-from ..forms import ProdutoJaExisteForm, ProdutoPorParametrosForm
+from ..forms import ProdutoJaExisteForm
 from ..models import (
     AnaliseSensorial,
     EmbalagemProduto,
@@ -96,7 +96,6 @@ from ..utils import (
     converte_para_datetime,
     cria_filtro_aditivos,
     cria_filtro_homologacao_produto_por_parametros,
-    cria_filtro_produto_por_parametros_form,
     get_filtros_data,
 )
 from .filters import (
@@ -1787,21 +1786,6 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             request, produto=self.get_object()
         )
 
-    def get_queryset_filtrado(self, cleaned_data):
-        logs_homologados = LogSolicitacoesUsuario.objects.filter(
-            status_evento=LogSolicitacoesUsuario.CODAE_HOMOLOGADO
-        ).values_list("uuid_original", flat=True)
-        campos_a_pesquisar = cria_filtro_produto_por_parametros_form(cleaned_data)
-        queryset = (
-            self.get_queryset()
-            .filter(**campos_a_pesquisar)
-            .filter(homologacao__uuid__in=logs_homologados)
-        )
-        if "aditivos" in cleaned_data:
-            filtro_aditivos = cria_filtro_aditivos(cleaned_data["aditivos"])
-            queryset = queryset.filter(filtro_aditivos)
-        return queryset.order_by("-criado_em")
-
     @action(detail=False, methods=["POST"], url_path="exportar-xlsx")
     def exportar_xlsx(self, request):
         agrupado_nome_marca = request.data.get("agrupado_por_nome_e_marca")
@@ -1819,30 +1803,17 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
-    # TODO: Remover esse endpoint legado refatorando o frontend
-    @action(
-        detail=False, methods=["POST"], url_path="filtro-homologados-por-parametros"
-    )
+    @action(detail=False, methods=["GET"], url_path="filtro-homologados-por-parametros")
     def filtro_homologados_por_parametros(self, request):
-        form = ProdutoPorParametrosForm(request.data)
-
-        if not form.is_valid():
-            return Response(form.errors)
-
-        form_data = form.cleaned_data.copy()
-        form_data["status"] = [
-            HomologacaoProdutoWorkflow.CODAE_HOMOLOGADO,
-            HomologacaoProdutoWorkflow.CODAE_QUESTIONADO,
-            HomologacaoProdutoWorkflow.ESCOLA_OU_NUTRICIONISTA_RECLAMOU,
-            HomologacaoProdutoWorkflow.CODAE_PEDIU_ANALISE_RECLAMACAO,
-            HomologacaoProdutoWorkflow.TERCEIRIZADA_RESPONDEU_RECLAMACAO,
-            HomologacaoProdutoWorkflow.CODAE_QUESTIONOU_UE,
-            HomologacaoProdutoWorkflow.CODAE_QUESTIONOU_NUTRISUPERVISOR,
-            HomologacaoProdutoWorkflow.NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO,
-            HomologacaoProdutoWorkflow.UE_RESPONDEU_QUESTIONAMENTO,
-        ]
-
-        queryset = self.get_queryset_filtrado(form_data)
+        logs_homologados = LogSolicitacoesUsuario.objects.filter(
+            status_evento=LogSolicitacoesUsuario.CODAE_HOMOLOGADO
+        ).values_list("uuid_original", flat=True)
+        queryset = self.filter_queryset(self.get_queryset()).filter(
+            homologacao__uuid__in=logs_homologados
+        )
+        if "aditivos" in request.query_params:
+            filtro_aditivos = cria_filtro_aditivos(request.query_params["aditivos"])
+            queryset = queryset.filter(filtro_aditivos)
         return self.paginated_response(queryset)
 
     @action(
