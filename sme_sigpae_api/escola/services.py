@@ -62,6 +62,7 @@ class NovoSGPServicoLogado:
             f"{DJANGO_NOVO_SGP_API_URL}/v1/autenticacao",
             json=data,
             headers=self.headers,
+            timeout=120,
         )
         return response
 
@@ -93,6 +94,7 @@ class NovoSGPServicoLogado:
         response = requests.get(
             f"{DJANGO_NOVO_SGP_API_URL}/v1/estudante/{codigo_eol_aluno}/foto",
             headers=self.headers,
+            timeout=120,
         )
         return response
 
@@ -103,6 +105,7 @@ class NovoSGPServicoLogado:
             f"{DJANGO_NOVO_SGP_API_URL}/v1/estudante/{codigo_eol_aluno}/foto",
             files=files,
             headers=headers,
+            timeout=120,
         )
         return response
 
@@ -111,5 +114,6 @@ class NovoSGPServicoLogado:
         response = requests.delete(
             f"{DJANGO_NOVO_SGP_API_URL}/v1/estudante/{codigo_eol_aluno}/foto",
             headers=self.headers,
+            timeout=120,
         )
         return response
