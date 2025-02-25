@@ -101,3 +101,15 @@ class CadastroProdutosEditalFilter(filters.FilterSet):
     def filtra_status(self, qs, name, value):
         filtro = False if value == "Inativo" else True
         return qs.filter(ativo=filtro)
+
+
+class MarcaFilter(filters.FilterSet):
+    nome_edital = filters.CharFilter(
+        field_name="produto__vinculos__edital__numero", lookup_expr="iexact"
+    )
+
+
+class FabricanteFilter(filters.FilterSet):
+    nome_edital = filters.CharFilter(
+        field_name="produto__vinculos__edital__numero", lookup_expr="iexact"
+    )
