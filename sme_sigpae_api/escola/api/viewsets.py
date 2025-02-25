@@ -226,12 +226,17 @@ class EscolaSimplissimaComDREUnpaginatedViewSet(EscolaSimplissimaComDREViewSet):
         escola = request.query_params.get("escola", None)
         dre = request.query_params.get("dre", None)
         terceirizada = request.query_params.get("terceirizada", None)
+        nome_edital = request.query_params.get("nome_edital", None)
         if escola:
             escolas = escolas.filter(uuid=escola)
         if dre:
             escolas = escolas.filter(diretoria_regional__uuid=dre)
         if terceirizada:
             escolas = escolas.filter(lote__terceirizada__uuid=terceirizada)
+        if nome_edital:
+            escolas = escolas.filter(
+                lote__contratos_do_lote__edital__numero=nome_edital
+            )
         return Response(self.get_serializer(escolas, many=True).data)
 
 
