@@ -120,7 +120,11 @@ def produtos_edital_41(escola):
         "Produto", nome="ARROZ", marca=marca_1, fabricante=fabricante_1
     )
     produto_2 = mommy.make(
-        "Produto", nome="ARROZ", marca=marca_2, fabricante=fabricante_2
+        "Produto",
+        nome="ARROZ",
+        marca=marca_2,
+        fabricante=fabricante_2,
+        aditivos="aditivoA, aditivoB, aditivoC",
     )
     homologacao_p1 = mommy.make(
         "HomologacaoProduto",
