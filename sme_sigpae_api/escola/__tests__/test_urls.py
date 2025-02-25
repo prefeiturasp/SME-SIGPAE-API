@@ -606,3 +606,17 @@ def test_url_endpoint_filtrar(
     assert response.status_code == status.HTTP_200_OK
     assert response.data["periodos"].get("INTEGRAL") == 0
     assert response.data["total_matriculados"] == 0
+
+
+def test_escola_simplissima_dre_unpaginated_nome_edital(
+    client_autenticado_da_dre, escola_edital_41
+):
+    nome_edital = "Edital de Pregão nº 41/sme/2017"
+    response = client_autenticado_da_dre.get(
+        f"/escolas-simplissima-com-dre-unpaginated/terc-total/?nome_edital={nome_edital}"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json()) == 1
+    escola = response.json()[0]
+    assert escola_edital_41.nome == escola["nome"]
+    assert nome_edital == escola["lote_obj"]["contratos_do_lote"][0]["edital_numero"]
