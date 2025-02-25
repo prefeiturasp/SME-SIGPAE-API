@@ -1110,8 +1110,8 @@ def validate_lancamento_inclusoes(solicitacao, lista_erros, eh_emebs=False):
                 set(tipos_alimentacao.values_list("nome", flat=True))
             )
             alimentacoes = tipos_alimentacao + alimentacoes_permitidas
-            eh_numero_alunos = (
-                periodo.periodo_escolar not in escola.periodos_escolares()
+            eh_numero_alunos = periodo.periodo_escolar not in escola.periodos_escolares(
+                ano=solicitacao.ano
             )
             linhas_da_tabela = get_linhas_da_tabela(alimentacoes, eh_numero_alunos)
             dia_da_inclusao = str(inclusao.data.day)
@@ -1154,7 +1154,8 @@ def validate_lancamento_inclusoes_emei_cemei(
                 )
                 alimentacoes = alimentacoes_vinculadas + alimentacoes_permitidas
                 eh_numero_alunos = (
-                    periodo.periodo_escolar not in escola.periodos_escolares()
+                    periodo.periodo_escolar
+                    not in escola.periodos_escolares(ano=solicitacao.ano)
                 )
                 linhas_da_tabela = get_linhas_da_tabela(alimentacoes, eh_numero_alunos)
 
