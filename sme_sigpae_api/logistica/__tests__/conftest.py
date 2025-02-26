@@ -5,7 +5,15 @@ import pytest
 from faker import Faker
 from model_mommy import mommy
 
-from sme_sigpae_api.logistica.api.soup.models import oWsAcessoModel
+from sme_sigpae_api.logistica.api.soup.models import (
+    Alimento,
+    ArqCancelamento,
+    ArqSolicitacaoMOD,
+    Guia,
+    GuiCan,
+    oWsAcessoModel,
+)
+from sme_sigpae_api.terceirizada.models import Terceirizada
 
 from ...escola import models
 from ..models.guia import ConferenciaIndividualPorAlimento
@@ -512,3 +520,186 @@ def token_valido():
     model = oWsAcessoModel(StrId="123456", StrToken="oWsAcessoModel")
 
     return usuario, token, model
+
+
+@pytest.fixture
+def fake_alimento():
+    StrCodSup = fake.unique.random_number(digits=5, fix_len=True)
+    StrCodPapa = fake.bothify(text="PAPA####")
+    StrNomAli = fake.word()
+    StrTpEmbala = fake.word()
+    StrQtEmbala = str(fake.random_int(min=1, max=100))
+    StrDescEmbala = fake.sentence()
+    StrPesoEmbala = str(fake.pydecimal(left_digits=3, right_digits=2, positive=True))
+    StrUnMedEmbala = fake.random_element(elements=["kg", "g", "ml", "L"])
+    return {
+        "StrCodSup": StrCodSup,
+        "StrCodPapa": StrCodPapa,
+        "StrNomAli": StrNomAli,
+        "StrTpEmbala": StrTpEmbala,
+        "StrQtEmbala": StrQtEmbala,
+        "StrDescEmbala": StrDescEmbala,
+        "StrPesoEmbala": StrPesoEmbala,
+        "StrUnMedEmbala": StrUnMedEmbala,
+    }
+
+
+@pytest.fixture
+def soup_alimento(fake_alimento):
+    alimento = Alimento(
+        StrCodSup=fake_alimento.get("StrCodSup"),
+        StrCodPapa=fake_alimento.get("StrCodPapa"),
+        StrNomAli=fake_alimento.get("StrNomAli"),
+        StrTpEmbala=fake_alimento.get("StrTpEmbala"),
+        StrQtEmbala=fake_alimento.get("StrQtEmbala"),
+        StrDescEmbala=fake_alimento.get("StrDescEmbala"),
+        StrPesoEmbala=fake_alimento.get("StrPesoEmbala"),
+        StrUnMedEmbala=fake_alimento.get("StrUnMedEmbala"),
+    )
+    return alimento
+
+
+@pytest.fixture
+def fake_guia(soup_alimento):
+    StrNumGui = fake.random_int(min=1000, max=9999)
+    DtEntrega = fake.date_object()
+    StrCodUni = fake.bothify(text="UNI####")
+    StrNomUni = fake.company()
+    StrEndUni = fake.street_address()
+    StrNumUni = str(fake.random_int(min=1, max=1000))
+    StrBaiUni = fake.city()
+    StrCepUni = fake.postcode()
+    StrCidUni = fake.city()
+    StrEstUni = fake.state_abbr()
+    StrConUni = fake.name()
+    StrTelUni = fake.phone_number()
+    alimentos = [soup_alimento for _ in range(3)]
+    return {
+        "StrNumGui": StrNumGui,
+        "DtEntrega": DtEntrega,
+        "StrCodUni": StrCodUni,
+        "StrNomUni": StrNomUni,
+        "StrEndUni": StrEndUni,
+        "StrNumUni": StrNumUni,
+        "StrBaiUni": StrBaiUni,
+        "StrCepUni": StrCepUni,
+        "StrCidUni": StrCidUni,
+        "StrEstUni": StrEstUni,
+        "StrConUni": StrConUni,
+        "StrTelUni": StrTelUni,
+        "alimentos": alimentos,
+    }
+
+
+@pytest.fixture
+def soup_guia(fake_guia):
+    guia = Guia(
+        StrNumGui=fake_guia.get("StrNumGui"),
+        DtEntrega=fake_guia.get("DtEntrega"),
+        StrCodUni=fake_guia.get("StrCodUni"),
+        StrNomUni=fake_guia.get("StrNomUni"),
+        StrEndUni=fake_guia.get("StrEndUni"),
+        StrNumUni=fake_guia.get("StrNumUni"),
+        StrBaiUni=fake_guia.get("StrBaiUni"),
+        StrCepUni=fake_guia.get("StrCepUni"),
+        StrCidUni=fake_guia.get("StrCidUni"),
+        StrEstUni=fake_guia.get("StrEstUni"),
+        StrConUni=fake_guia.get("StrConUni"),
+        StrTelUni=fake_guia.get("StrTelUni"),
+        alimentos=fake_guia.get("alimentos"),
+    )
+    return guia
+
+
+@pytest.fixture
+def fake_arq_solicitacao_mod(soup_guia):
+    guias = [soup_guia for _ in range(3)]
+    StrCnpj = fake.cnpj()
+    StrNumSol = fake.random_int(min=1000, max=9999)
+    IntSeqenv = fake.random_int(min=1, max=10)
+    IntTotVol = fake.random_int(min=1, max=50)
+    guias = guias
+    IntQtGuia = len(guias)
+
+    return {
+        "StrCnpj": StrCnpj,
+        "StrNumSol": StrNumSol,
+        "IntSeqenv": IntSeqenv,
+        "IntTotVol": IntTotVol,
+        "guias": guias,
+        "IntQtGuia": IntQtGuia,
+    }
+
+
+@pytest.fixture
+def soup_arq_solicitacao_mod(fake_arq_solicitacao_mod):
+    arquivo_solicitacao = ArqSolicitacaoMOD(
+        StrCnpj=fake_arq_solicitacao_mod.get("StrCnpj"),
+        StrNumSol=fake_arq_solicitacao_mod.get("StrNumSol"),
+        IntSeqenv=fake_arq_solicitacao_mod.get("IntSeqenv"),
+        IntTotVol=fake_arq_solicitacao_mod.get("IntTotVol"),
+        guias=fake_arq_solicitacao_mod.get("guias"),
+        IntQtGuia=fake_arq_solicitacao_mod.get("IntQtGuia"),
+    )
+    return arquivo_solicitacao
+
+
+@pytest.fixture
+def soup_guican():
+    return GuiCan(StrNumGui=fake.random_int(min=1000, max=9999))
+
+
+@pytest.fixture
+def fake_arq_cancelamento(soup_guican):
+    guias = [soup_guican for _ in range(3)]
+    StrCnpj = fake.cnpj()
+    StrNumSol = fake.random_int(min=1000, max=9999)
+    IntSeqenv = fake.random_int(min=1, max=10)
+    guias = guias
+    IntQtGuia = len(guias)
+
+    return {
+        "StrCnpj": StrCnpj,
+        "StrNumSol": StrNumSol,
+        "IntSeqenv": IntSeqenv,
+        "guias": guias,
+        "IntQtGuia": IntQtGuia,
+    }
+
+
+@pytest.fixture
+def soup_arq_cancelamento(fake_arq_cancelamento):
+    arquivo_cancelamento = ArqCancelamento(
+        StrCnpj=fake_arq_cancelamento.get("StrCnpj"),
+        StrNumSol=fake_arq_cancelamento.get("StrNumSol"),
+        IntSeqenv=fake_arq_cancelamento.get("IntSeqenv"),
+        guias=fake_arq_cancelamento.get("guias"),
+        IntQtGuia=fake_arq_cancelamento.get("IntQtGuia"),
+    )
+    return arquivo_cancelamento
+
+
+@pytest.fixture
+def terceirizada_soup():
+    cnpj = fake.cnpj().replace(".", "").replace("/", "").replace("-", "")
+    return mommy.make(
+        "Terceirizada", cnpj=cnpj, tipo_servico=Terceirizada.DISTRIBUIDOR_ARMAZEM
+    )
+
+
+@pytest.fixture
+def arq_solicitacao_mod(fake_arq_solicitacao_mod, soup_guia, terceirizada_soup):
+    codigo_codae = fake.random_int(min=1000, max=9999)
+    soup_guia.StrCodUni = codigo_codae
+
+    arquivo_solicitacao = ArqSolicitacaoMOD(
+        StrCnpj=terceirizada_soup.cnpj,
+        StrNumSol=fake_arq_solicitacao_mod.get("StrNumSol"),
+        IntSeqenv=fake_arq_solicitacao_mod.get("IntSeqenv"),
+        IntTotVol=fake_arq_solicitacao_mod.get("IntTotVol"),
+        guias=[soup_guia],
+        IntQtGuia=fake_arq_solicitacao_mod.get("IntQtGuia"),
+    )
+
+    escola = mommy.make("Escola", codigo_codae=codigo_codae)
+    return arquivo_solicitacao
