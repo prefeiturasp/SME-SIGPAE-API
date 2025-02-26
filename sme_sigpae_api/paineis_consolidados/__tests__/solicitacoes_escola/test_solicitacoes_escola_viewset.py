@@ -1,4 +1,5 @@
 import datetime
+import random
 
 import pytest
 from freezegun.api import freeze_time
@@ -383,7 +384,7 @@ class TestEndpointsPainelGerencialDietaEspecialEscola:
             escola,
             status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
             status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
-            dieta_alterada_id=10,
+            dieta_alterada_id=random.randint(1, 100000),
             em_vigencia=True,
         )
 
@@ -404,7 +405,7 @@ class TestEndpointsPainelGerencialDietaEspecialEscola:
             escola,
             status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
             status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
-            dieta_alterada_id=11,
+            dieta_alterada_id=random.randint(1, 100000),
             em_vigencia=True,
         )
 
@@ -426,7 +427,7 @@ class TestEndpointsPainelGerencialDietaEspecialEscola:
             escola,
             status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
             status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
-            dieta_alterada_id=1,
+            dieta_alterada_id=random.randint(1, 100000),
             em_vigencia=False,
         )
 
@@ -447,7 +448,7 @@ class TestEndpointsPainelGerencialDietaEspecialEscola:
             escola,
             status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
             status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
-            dieta_alterada_id=3,
+            dieta_alterada_id=random.randint(1, 100000),
             em_vigencia=False,
         )
 

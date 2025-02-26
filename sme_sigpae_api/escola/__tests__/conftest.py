@@ -11,7 +11,10 @@ from model_mommy import mommy
 
 from sme_sigpae_api.cardapio.models import AlteracaoCardapio
 from sme_sigpae_api.dados_comuns.constants import StatusProcessamentoArquivo
-from sme_sigpae_api.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
+from sme_sigpae_api.dados_comuns.fluxo_status import (
+    HomologacaoProdutoWorkflow,
+    PedidoAPartirDaEscolaWorkflow,
+)
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.escola.utils import cria_arquivo_excel
 from sme_sigpae_api.escola.utils_analise_dietas_ativas import (
@@ -1145,3 +1148,50 @@ def solicitacoes_pendentes_autorizacao_vencidas(
         status_evento=LogSolicitacoesUsuario.DRE_VALIDOU,
         usuario=users_diretor_escola,
     )
+
+
+@pytest.fixture
+def escola_edital_41(escola):
+    edital = mommy.make(
+        "Edital",
+        numero="Edital de Pregão nº 41/sme/2017",
+        uuid="12288b47-9d27-4089-8c2e-48a6061d83ea",
+    )
+    contrato = mommy.make(
+        "Contrato",
+        terceirizada=mommy.make("Terceirizada"),
+        edital=edital,
+        make_m2m=True,
+        uuid="44d51e10-8999-48bb-889a-1540c9e8c895",
+    )
+    contrato.lotes.set([escola.lote])
+
+    marca = mommy.make("Marca", nome="NAMORADOS")
+    fabricante = mommy.make("Fabricante", nome="Fabricante 001")
+    produto = mommy.make("Produto", nome="ARROZ", marca=marca, fabricante=fabricante)
+    homologacao = mommy.make(
+        "HomologacaoProduto",
+        produto=produto,
+        rastro_terceirizada=escola.lote.terceirizada,
+        status=HomologacaoProdutoWorkflow.CODAE_HOMOLOGADO,
+    )
+
+    log = mommy.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=homologacao.uuid,
+        criado_em=datetime.date(2023, 1, 1),
+        status_evento=22,  # CODAE_HOMOLOGADO
+        solicitacao_tipo=10,
+    )  # HOMOLOGACAO_PRODUTO
+    log.criado_em = datetime.date(2023, 1, 1)
+    log.save()
+
+    pe_1 = mommy.make(
+        "ProdutoEdital",
+        produto=produto,
+        edital=edital,
+        tipo_produto="Comum",
+        uuid="0f81a49b-0836-42d5-af9e-12cbd7ca76a8",
+    )
+
+    return escola
