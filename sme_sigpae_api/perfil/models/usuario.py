@@ -294,7 +294,6 @@ class Usuario(
                     DILOG_CRONOGRAMA,
                     DILOG_QUALIDADE,
                     DILOG_DIRETORIA,
-                    DINUTRE_DIRETORIA,
                     DILOG_ABASTECIMENTO,
                 ]:
                     tipo_usuario = "pre_recebimento"
@@ -306,6 +305,8 @@ class Usuario(
                     tipo_usuario = "usuario_gtic"
                 elif self.vinculo_atual.perfil.nome in [ADMINISTRADOR_DICAE]:
                     tipo_usuario = "administrador_dicae"
+                elif self.vinculo_atual.perfil.nome == DINUTRE_DIRETORIA:
+                    tipo_usuario = "dinutre"
                 else:
                     tipo_usuario = "dieta_especial"
         return tipo_usuario
