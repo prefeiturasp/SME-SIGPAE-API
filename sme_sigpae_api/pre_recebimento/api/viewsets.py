@@ -176,7 +176,7 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         lista_status = [
             Cronograma.workflow_class.ASSINADO_E_ENVIADO_AO_FORNECEDOR,
             Cronograma.workflow_class.ASSINADO_FORNECEDOR,
-            Cronograma.workflow_class.ASSINADO_DINUTRE,
+            Cronograma.workflow_class.ASSINADO_DILOG_ABASTECIMENTO,
             Cronograma.workflow_class.ASSINADO_CODAE,
         ]
 
@@ -387,9 +387,9 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         detail=True,
         permission_classes=(UsuarioDilogAbastecimento,),
         methods=["patch"],
-        url_path="dinutre-assina",
+        url_path="abastecimento-assina",
     )
-    def dinutre_assina(self, request, uuid):
+    def abastecimento_assina(self, request, uuid):
         usuario = request.user
 
         if not usuario.verificar_autenticidade(request.data.get("password")):
@@ -402,7 +402,7 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
 
         try:
             cronograma = Cronograma.objects.get(uuid=uuid)
-            cronograma.dinutre_assina(user=usuario)
+            cronograma.dilog_abastecimento_assina(user=usuario)
             serializer = CronogramaSerializer(cronograma)
             return Response(serializer.data)
 
@@ -783,9 +783,9 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
             PermissaoParaAnalisarDilogAbastecimentoSolicitacaoAlteracaoCronograma,
         ),
         methods=["patch"],
-        url_path="analise-dinutre",
+        url_path="analise-abastecimento",
     )
-    def analise_dinutre(self, request, uuid):
+    def analise_abastecimento(self, request, uuid):
         usuario = request.user
         aprovado = request.data.get(("aprovado"), "aprovado")
         try:
@@ -793,10 +793,10 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
                 uuid=uuid
             )
             if aprovado is True:
-                solicitacao_cronograma.dinutre_aprova(user=usuario)
+                solicitacao_cronograma.dilog_abastecimento_aprova(user=usuario)
             elif aprovado is False:
-                justificativa = request.data.get("justificativa_dinutre")
-                solicitacao_cronograma.dinutre_reprova(
+                justificativa = request.data.get("justificativa_abastecimento")
+                solicitacao_cronograma.dilog_abastecimento_reprova(
                     user=usuario, justificativa=justificativa
                 )
             else:
