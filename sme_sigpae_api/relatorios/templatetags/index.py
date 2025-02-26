@@ -347,9 +347,9 @@ def get_assinatura_fornecedor(logs):
 
 
 @register.simple_tag
-def get_assinatura_dinutre(logs):
+def get_assinatura_dilog_abastecimento(logs):
     return logs.filter(
-        status_evento=LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELA_DINUTRE
+        status_evento=LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELO_DILOG_ABASTECIMENTO
     ).last()
 
 
@@ -775,7 +775,7 @@ def get_nome_header(nome):
         "MANHA": "MANHÃ",
         "NOITE": "NOITE/EJA",
         "TIPO A": "DIETAS TIPO A / ENTERAL / REST. DE AMINOÁCIDOS",
-        "TIPO B": "DIETAS TIPO B - LANCHE",
+        "TIPO B": "DIETAS TIPO B",
         "Infantil INTEGRAL": "INTEGRAL",
         "Infantil MANHA": "MANHÃ",
         "Infantil TARDE": "TARDE",

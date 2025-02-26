@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 
 def test_template_email_base():
     titulo = "Teste template"
-    template = "pre_recebimento_email_assinatura_dinutre.html"
+    template = "pre_recebimento_email_assinatura_dilog_abastecimento.html"
     hidden_email = None
 
     dados_template = {
