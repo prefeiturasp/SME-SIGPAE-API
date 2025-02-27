@@ -592,13 +592,14 @@ def soup_guican():
 
 
 @pytest.fixture
-def fake_arq_cancelamento(soup_guican):
+def fake_arq_cancelamento(fake_arq_solicitacao_mod):
+    guia = fake_arq_solicitacao_mod["guias"][0]
     return {
-        "StrCnpj": fake.cnpj(),
-        "StrNumSol": fake.random_int(min=1000, max=9999),
-        "IntSeqenv": fake.random_int(min=1, max=10),
-        "IntQtGuia": 1,
-        "guias": [soup_guican],
+        "StrCnpj": fake_arq_solicitacao_mod["StrCnpj"],
+        "StrNumSol": fake_arq_solicitacao_mod["StrNumSol"],
+        "IntSeqenv": fake_arq_solicitacao_mod["IntSeqenv"],
+        "IntQtGuia": fake_arq_solicitacao_mod["IntQtGuia"],
+        "guias": [GuiCan(StrNumGui=guia.StrNumGui)],
     }
 
 

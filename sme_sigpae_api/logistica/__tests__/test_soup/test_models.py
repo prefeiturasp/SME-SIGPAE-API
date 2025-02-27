@@ -2,15 +2,15 @@ import datetime
 
 import pytest
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import DataError, IntegrityError
+from django.db import IntegrityError
 from faker import Faker
 from spyne.model.primitive import Date, Integer, String
-from spyne.util.dictdoc import get_object_as_dict
 
 from sme_sigpae_api.dados_comuns.fluxo_status import (
     GuiaRemessaWorkFlow,
     SolicitacaoRemessaWorkFlow,
 )
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.escola.models import Escola
 from sme_sigpae_api.logistica.api.soup.models import (
     NS,
@@ -25,8 +25,12 @@ from sme_sigpae_api.logistica.api.soup.models import (
     SoapResponse,
     oWsAcessoModel,
 )
+from sme_sigpae_api.logistica.api.soup.token_auth import TokenAuthentication
 from sme_sigpae_api.logistica.models import Guia as model_guia
-from sme_sigpae_api.logistica.models.solicitacao import SolicitacaoRemessa
+from sme_sigpae_api.logistica.models.solicitacao import (
+    LogSolicitacaoDeCancelamentoPeloPapa,
+    SolicitacaoRemessa,
+)
 
 fake = Faker("pt_BR")
 pytestmark = pytest.mark.django_db
@@ -319,7 +323,7 @@ def test_alimento_create_many(dicioanario_alimentos):
     assert alimento.codigo_suprimento == dicioanario_alimentos.get("StrCodSup")
 
 
-def test_build_alimento_obj(dicioanario_alimentos):
+def test_alimento_build_alimento_obj(dicioanario_alimentos):
     alimento = Alimento().build_alimento_obj(dicioanario_alimentos)
     assert alimento.guia == dicioanario_alimentos.get("guia")
     assert alimento.codigo_papa == dicioanario_alimentos.get("StrCodPapa")
@@ -327,7 +331,7 @@ def test_build_alimento_obj(dicioanario_alimentos):
     assert alimento.codigo_suprimento == dicioanario_alimentos.get("StrCodSup")
 
 
-def test_create_embalagens(dicioanario_alimentos):
+def test_alimento_create_embalagens(dicioanario_alimentos):
     alimento_obj = Alimento().build_alimento_obj(dicioanario_alimentos)
     alimento_obj.save()
     dicioanario_alimentos["alimento"] = alimento_obj
@@ -345,7 +349,7 @@ def test_create_embalagens(dicioanario_alimentos):
     assert embalagem.qtd_volume == dicioanario_alimentos.get("StrQtEmbala")
 
 
-def test_build_embalagem_obj(dicioanario_alimentos):
+def test_alimento_build_embalagem_obj(dicioanario_alimentos):
     alimento_obj = Alimento().build_alimento_obj(dicioanario_alimentos)
     alimento_obj.save()
     dicioanario_alimentos["alimento"] = alimento_obj
@@ -358,3 +362,136 @@ def test_build_embalagem_obj(dicioanario_alimentos):
     )
     assert embalagem.unidade_medida == dicioanario_alimentos.get("StrUnMedEmbala")
     assert embalagem.qtd_volume == dicioanario_alimentos.get("StrQtEmbala")
+
+
+def test_arq_cancelamento_cancel_aguardando_envio(
+    token_valido, soup_arq_cancelamento, solicitacao
+):
+    assert LogSolicitacaoDeCancelamentoPeloPapa.objects.count() == 0
+    assert LogSolicitacoesUsuario.objects.count() == 0
+    assert SolicitacaoRemessa.objects.count() == 1
+    assert (
+        SolicitacaoRemessa.objects.filter(
+            situacao=SolicitacaoRemessa.ATIVA,
+            status=SolicitacaoRemessaWorkFlow.AGUARDANDO_ENVIO,
+        ).count()
+        == 1
+    )
+    _, _, model = token_valido
+    usuario, _ = TokenAuthentication().authenticate(model)
+    numero_solicitacao = soup_arq_cancelamento.StrNumSol
+    solicitacao.numero_solicitacao = numero_solicitacao
+    solicitacao.save()
+    confirma_cancelamento = soup_arq_cancelamento.cancel(usuario)
+    assert confirma_cancelamento is True
+
+    assert LogSolicitacaoDeCancelamentoPeloPapa.objects.count() == 1
+    assert (
+        LogSolicitacaoDeCancelamentoPeloPapa.objects.filter(
+            requisicao=solicitacao, sequencia_envio=soup_arq_cancelamento.IntSeqenv
+        ).count()
+        == 1
+    )
+    assert LogSolicitacoesUsuario.objects.count() == 1
+    assert (
+        LogSolicitacoesUsuario.objects.filter(
+            status_evento=LogSolicitacoesUsuario.PAPA_CANCELA_SOLICITACAO
+        ).count()
+        == 1
+    )
+    assert SolicitacaoRemessa.objects.count() == 1
+    assert (
+        SolicitacaoRemessa.objects.filter(
+            situacao=SolicitacaoRemessa.ATIVA,
+            status=SolicitacaoRemessaWorkFlow.PAPA_CANCELA,
+        ).count()
+        == 1
+    )
+
+
+def test_arq_cancelamento_cancel_distribuidor_confirma(
+    token_valido, soup_arq_cancelamento, solicitacao
+):
+    numero_solicitacao = soup_arq_cancelamento.StrNumSol
+    solicitacao.numero_solicitacao = numero_solicitacao
+    solicitacao.status = SolicitacaoRemessaWorkFlow.DISTRIBUIDOR_CONFIRMA
+    solicitacao.save()
+
+    assert LogSolicitacaoDeCancelamentoPeloPapa.objects.count() == 0
+    assert LogSolicitacoesUsuario.objects.count() == 0
+    assert SolicitacaoRemessa.objects.count() == 1
+    assert (
+        SolicitacaoRemessa.objects.filter(
+            situacao=SolicitacaoRemessa.ATIVA,
+            status=SolicitacaoRemessaWorkFlow.DISTRIBUIDOR_CONFIRMA,
+        ).count()
+        == 1
+    )
+    _, _, model = token_valido
+    usuario, _ = TokenAuthentication().authenticate(model)
+    confirma_cancelamento = soup_arq_cancelamento.cancel(usuario)
+    assert confirma_cancelamento is False
+
+    assert LogSolicitacaoDeCancelamentoPeloPapa.objects.count() == 1
+    assert (
+        LogSolicitacaoDeCancelamentoPeloPapa.objects.filter(
+            requisicao=solicitacao, sequencia_envio=soup_arq_cancelamento.IntSeqenv
+        ).count()
+        == 1
+    )
+    assert LogSolicitacoesUsuario.objects.count() == 1
+    assert (
+        LogSolicitacoesUsuario.objects.filter(
+            status_evento=LogSolicitacoesUsuario.PAPA_AGUARDA_CONFIRMACAO_CANCELAMENTO_SOLICITACAO
+        ).count()
+        == 1
+    )
+    assert SolicitacaoRemessa.objects.count() == 1
+    assert (
+        SolicitacaoRemessa.objects.filter(
+            situacao=SolicitacaoRemessa.ATIVA,
+            status=SolicitacaoRemessaWorkFlow.AGUARDANDO_CANCELAMENTO,
+        ).count()
+        == 1
+    )
+
+
+def test_arq_cancelamento_cancel_sem_solicitacao(token_valido, soup_arq_cancelamento):
+    _, _, model = token_valido
+    usuario, _ = TokenAuthentication().authenticate(model)
+    with pytest.raises(
+        ObjectDoesNotExist,
+        match=f"Solicitacão {soup_arq_cancelamento.StrNumSol} não encontrada.",
+    ):
+        soup_arq_cancelamento.cancel(usuario)
+
+
+def test_arq_cancelamento_cancel_aguardando_envio_retorna_true(
+    token_valido, soup_arq_cancelamento, arq_solicitacao_mod, terceirizada_soup
+):
+    assert soup_arq_cancelamento.StrNumSol == arq_solicitacao_mod.StrNumSol
+    arq_solicitacao_mod.create()
+
+    _, _, model = token_valido
+    usuario, _ = TokenAuthentication().authenticate(model)
+    confirma_cancelamento = soup_arq_cancelamento.cancel(usuario)
+    assert confirma_cancelamento is True
+
+
+def test_arq_cancelamento_cancel_aguardando_envio_retorna_false(
+    token_valido, soup_arq_cancelamento, arq_solicitacao_mod, terceirizada_soup
+):
+    assert soup_arq_cancelamento.StrNumSol == arq_solicitacao_mod.StrNumSol
+    arq_solicitacao_mod.create()
+
+    solicitacao = SolicitacaoRemessa.objects.get(
+        situacao=SolicitacaoRemessa.ATIVA,
+        status=SolicitacaoRemessaWorkFlow.AGUARDANDO_ENVIO,
+    )
+    solicitacao.status = SolicitacaoRemessaWorkFlow.DISTRIBUIDOR_CONFIRMA
+    solicitacao.save()
+
+    _, _, model = token_valido
+    usuario, _ = TokenAuthentication().authenticate(model)
+    confirma_cancelamento = soup_arq_cancelamento.cancel(usuario)
+    assert confirma_cancelamento is False
