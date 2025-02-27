@@ -270,12 +270,8 @@ def test_arq_solicitacao_mod_create_duplicada(arq_solicitacao_mod):
         arq_solicitacao_mod.create()
 
 
-def test_guia_create_many(arq_solicitacao_mod):
-    data = get_object_as_dict(arq_solicitacao_mod)
-    guias = data.pop("guias", [])
-    data.pop("IntTotVol", None)
-    solicitacao = SolicitacaoRemessa.objects.create_solicitacao(**data)
-
+def test_guia_create_many(soup_solicitacao_remessa):
+    solicitacao, guias = soup_solicitacao_remessa
     guias_obj_list = Guia().create_many(guias, solicitacao)
     assert len(guias_obj_list) == 1
     guia = guias_obj_list[0]
@@ -284,12 +280,8 @@ def test_guia_create_many(arq_solicitacao_mod):
     assert guia.codigo_unidade == guias[0].get("StrCodUni")
 
 
-def test_guia_create_many_sem_escola(arq_solicitacao_mod):
-    data = get_object_as_dict(arq_solicitacao_mod)
-    guias = data.pop("guias", [])
-    data.pop("IntTotVol", None)
-    solicitacao = SolicitacaoRemessa.objects.create_solicitacao(**data)
-
+def test_guia_create_many_sem_escola(soup_solicitacao_remessa):
+    solicitacao, guias = soup_solicitacao_remessa
     guias[0]["StrCodUni"] = "naoExiste"
     guias_obj_list = Guia().create_many(guias, solicitacao)
     assert len(guias_obj_list) == 1
@@ -300,23 +292,15 @@ def test_guia_create_many_sem_escola(arq_solicitacao_mod):
     assert guia.escola is None
 
 
-def test_guia_create_many_duplicada(arq_solicitacao_mod):
-    data = get_object_as_dict(arq_solicitacao_mod)
-    guias = data.pop("guias", [])
-    data.pop("IntTotVol", None)
-    solicitacao = SolicitacaoRemessa.objects.create_solicitacao(**data)
-
+def test_guia_create_many_duplicada(soup_solicitacao_remessa):
+    solicitacao, guias = soup_solicitacao_remessa
     Guia().create_many(guias, solicitacao)
     with pytest.raises(IntegrityError, match="Guia duplicada:"):
         Guia().create_many(guias, solicitacao)
 
 
-def test_guia_build_guia_obj(arq_solicitacao_mod):
-    data = get_object_as_dict(arq_solicitacao_mod)
-    guias = data.pop("guias", [])
-    data.pop("IntTotVol", None)
-    solicitacao = SolicitacaoRemessa.objects.create_solicitacao(**data)
-
+def test_guia_build_guia_obj(soup_solicitacao_remessa):
+    solicitacao, guias = soup_solicitacao_remessa
     guia = guias[0]
     guia_obj = Guia().build_guia_obj(guia, solicitacao)
     assert guia_obj.situacao == model_guia.ATIVA
@@ -324,102 +308,53 @@ def test_guia_build_guia_obj(arq_solicitacao_mod):
     assert guia_obj.codigo_unidade == guia.get("StrCodUni")
 
 
-def test_alimento_create_many(arq_solicitacao_mod):
-    data = get_object_as_dict(arq_solicitacao_mod)
-    guias = data.pop("guias", [])
-    data.pop("IntTotVol", None)
-    solicitacao = SolicitacaoRemessa.objects.create_solicitacao(**data)
-
-    guia = guias[0]
-    alimentos_data = guia.pop("alimentos", [])[0]
-    guia_obj = Guia().build_guia_obj(guia, solicitacao)
-    escola = Escola.objects.get(codigo_codae=guia_obj.codigo_unidade)
-    guia_obj.escola = escola
-    guia_obj.save()
-    alimentos_data["guia"] = guia_obj
-
-    lista_alimentos = Alimento().create_many([alimentos_data])
+def test_alimento_create_many(dicioanario_alimentos):
+    lista_alimentos = Alimento().create_many([dicioanario_alimentos])
     assert isinstance(lista_alimentos, list)
     assert len(lista_alimentos) == 1
     alimento = lista_alimentos[0]
-    assert alimento.guia == guia_obj
-    assert alimento.codigo_papa == alimentos_data.get("StrCodPapa")
-    assert alimento.nome_alimento == alimentos_data.get("StrNomAli")
-    assert alimento.codigo_suprimento == alimentos_data.get("StrCodSup")
+    assert alimento.guia == dicioanario_alimentos.get("guia")
+    assert alimento.codigo_papa == dicioanario_alimentos.get("StrCodPapa")
+    assert alimento.nome_alimento == dicioanario_alimentos.get("StrNomAli")
+    assert alimento.codigo_suprimento == dicioanario_alimentos.get("StrCodSup")
 
 
-def test_build_alimento_obj(arq_solicitacao_mod):
-    data = get_object_as_dict(arq_solicitacao_mod)
-    guias = data.pop("guias", [])
-    data.pop("IntTotVol", None)
-    solicitacao = SolicitacaoRemessa.objects.create_solicitacao(**data)
-
-    guia = guias[0]
-    alimentos_data = guia.pop("alimentos", [])[0]
-    guia_obj = Guia().build_guia_obj(guia, solicitacao)
-    escola = Escola.objects.get(codigo_codae=guia_obj.codigo_unidade)
-    guia_obj.escola = escola
-    guia_obj.save()
-    alimentos_data["guia"] = guia_obj
-
-    alimento = Alimento().build_alimento_obj(alimentos_data)
-    assert alimento.guia == guia_obj
-    assert alimento.codigo_papa == alimentos_data.get("StrCodPapa")
-    assert alimento.nome_alimento == alimentos_data.get("StrNomAli")
-    assert alimento.codigo_suprimento == alimentos_data.get("StrCodSup")
+def test_build_alimento_obj(dicioanario_alimentos):
+    alimento = Alimento().build_alimento_obj(dicioanario_alimentos)
+    assert alimento.guia == dicioanario_alimentos.get("guia")
+    assert alimento.codigo_papa == dicioanario_alimentos.get("StrCodPapa")
+    assert alimento.nome_alimento == dicioanario_alimentos.get("StrNomAli")
+    assert alimento.codigo_suprimento == dicioanario_alimentos.get("StrCodSup")
 
 
-def test_create_embalagens(arq_solicitacao_mod):
-    data = get_object_as_dict(arq_solicitacao_mod)
-    guias = data.pop("guias", [])
-    data.pop("IntTotVol", None)
-    solicitacao = SolicitacaoRemessa.objects.create_solicitacao(**data)
-
-    guia = guias[0]
-    alimentos_data = guia.pop("alimentos", [])[0]
-    guia_obj = Guia().build_guia_obj(guia, solicitacao)
-    escola = Escola.objects.get(codigo_codae=guia_obj.codigo_unidade)
-    guia_obj.escola = escola
-    guia_obj.save()
-    alimentos_data["guia"] = guia_obj
-
-    alimento_obj = Alimento().build_alimento_obj(alimentos_data)
+def test_create_embalagens(dicioanario_alimentos):
+    alimento_obj = Alimento().build_alimento_obj(dicioanario_alimentos)
     alimento_obj.save()
-    alimentos_data["alimento"] = alimento_obj
+    dicioanario_alimentos["alimento"] = alimento_obj
 
-    lista_embalagem = Alimento().create_embalagens([alimentos_data])
-
+    lista_embalagem = Alimento().create_embalagens([dicioanario_alimentos])
     assert isinstance(lista_embalagem, list)
     assert len(lista_embalagem) == 1
     embalagem = lista_embalagem[0]
     assert embalagem.alimento == alimento_obj
-    assert embalagem.descricao_embalagem == alimentos_data.get("StrDescEmbala")
-    assert embalagem.capacidade_embalagem == float(alimentos_data.get("StrPesoEmbala"))
-    assert embalagem.unidade_medida == alimentos_data.get("StrUnMedEmbala")
-    assert embalagem.qtd_volume == alimentos_data.get("StrQtEmbala")
+    assert embalagem.descricao_embalagem == dicioanario_alimentos.get("StrDescEmbala")
+    assert embalagem.capacidade_embalagem == float(
+        dicioanario_alimentos.get("StrPesoEmbala")
+    )
+    assert embalagem.unidade_medida == dicioanario_alimentos.get("StrUnMedEmbala")
+    assert embalagem.qtd_volume == dicioanario_alimentos.get("StrQtEmbala")
 
 
-def test_build_embalagem_obj(arq_solicitacao_mod):
-    data = get_object_as_dict(arq_solicitacao_mod)
-    guias = data.pop("guias", [])
-    data.pop("IntTotVol", None)
-    solicitacao = SolicitacaoRemessa.objects.create_solicitacao(**data)
-
-    guia = guias[0]
-    alimentos_data = guia.pop("alimentos", [])[0]
-    guia_obj = Guia().build_guia_obj(guia, solicitacao)
-    escola = Escola.objects.get(codigo_codae=guia_obj.codigo_unidade)
-    guia_obj.escola = escola
-    guia_obj.save()
-    alimentos_data["guia"] = guia_obj
-
-    alimento_obj = Alimento().build_alimento_obj(alimentos_data)
+def test_build_embalagem_obj(dicioanario_alimentos):
+    alimento_obj = Alimento().build_alimento_obj(dicioanario_alimentos)
     alimento_obj.save()
-    alimentos_data["alimento"] = alimento_obj
+    dicioanario_alimentos["alimento"] = alimento_obj
 
-    embalagem = Alimento().build_embalagem_obj(alimentos_data)
+    embalagem = Alimento().build_embalagem_obj(dicioanario_alimentos)
     assert embalagem.alimento == alimento_obj
-    assert embalagem.descricao_embalagem == alimentos_data.get("StrDescEmbala")
-    assert embalagem.capacidade_embalagem == float(alimentos_data.get("StrPesoEmbala"))
-    assert embalagem.unidade_medida == alimentos_data.get("StrUnMedEmbala")
-    assert embalagem.qtd_volume == alimentos_data.get("StrQtEmbala")
+    assert embalagem.descricao_embalagem == dicioanario_alimentos.get("StrDescEmbala")
+    assert embalagem.capacidade_embalagem == float(
+        dicioanario_alimentos.get("StrPesoEmbala")
+    )
+    assert embalagem.unidade_medida == dicioanario_alimentos.get("StrUnMedEmbala")
+    assert embalagem.qtd_volume == dicioanario_alimentos.get("StrQtEmbala")
