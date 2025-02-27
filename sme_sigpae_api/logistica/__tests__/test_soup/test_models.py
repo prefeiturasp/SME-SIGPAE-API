@@ -5,11 +5,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import DataError, IntegrityError
 from faker import Faker
 from spyne.model.primitive import Date, Integer, String
+from spyne.util.dictdoc import get_object_as_dict
 
 from sme_sigpae_api.dados_comuns.fluxo_status import (
     GuiaRemessaWorkFlow,
     SolicitacaoRemessaWorkFlow,
 )
+from sme_sigpae_api.escola.models import Escola
 from sme_sigpae_api.logistica.api.soup.models import (
     NS,
     Alimento,
@@ -154,7 +156,7 @@ def test_guia(fake_guia, soup_guia):
 
     assert soup_guia.alimentos == fake_guia.get("alimentos")
     assert isinstance(soup_guia.alimentos, list)
-    assert len(soup_guia.alimentos) == 3
+    assert len(soup_guia.alimentos) == 1
 
 
 def test_guia_atributos_da_classe():
@@ -196,7 +198,7 @@ def test_arq_solicitacao_mod(fake_arq_solicitacao_mod, soup_arq_solicitacao_mod)
 
     assert soup_arq_solicitacao_mod.guias == fake_arq_solicitacao_mod.get("guias")
     assert isinstance(soup_arq_solicitacao_mod.guias, list)
-    assert len(soup_arq_solicitacao_mod.guias) == 3
+    assert len(soup_arq_solicitacao_mod.guias) == 1
 
     assert soup_arq_solicitacao_mod.IntQtGuia == fake_arq_solicitacao_mod.get(
         "IntQtGuia"
@@ -228,7 +230,7 @@ def test_arq_cancelamento_mod(fake_arq_cancelamento, soup_arq_cancelamento):
 
     assert soup_arq_cancelamento.guias == fake_arq_cancelamento.get("guias")
     assert isinstance(soup_arq_cancelamento.guias, list)
-    assert len(soup_arq_cancelamento.guias) == 3
+    assert len(soup_arq_cancelamento.guias) == 1
 
     assert soup_arq_cancelamento.IntQtGuia == fake_arq_cancelamento.get("IntQtGuia")
     assert isinstance(soup_arq_cancelamento.IntQtGuia, int)
@@ -269,15 +271,155 @@ def test_arq_solicitacao_mod_create_duplicada(arq_solicitacao_mod):
 
 
 def test_guia_create_many(arq_solicitacao_mod):
-    from spyne.util.dictdoc import get_object_as_dict
-
     data = get_object_as_dict(arq_solicitacao_mod)
     guias = data.pop("guias", [])
     data.pop("IntTotVol", None)
     solicitacao = SolicitacaoRemessa.objects.create_solicitacao(**data)
+
     guias_obj_list = Guia().create_many(guias, solicitacao)
     assert len(guias_obj_list) == 1
     guia = guias_obj_list[0]
     assert guia.situacao == model_guia.ATIVA
     assert guia.status == GuiaRemessaWorkFlow.AGUARDANDO_ENVIO
     assert guia.codigo_unidade == guias[0].get("StrCodUni")
+
+
+def test_guia_create_many_sem_escola(arq_solicitacao_mod):
+    data = get_object_as_dict(arq_solicitacao_mod)
+    guias = data.pop("guias", [])
+    data.pop("IntTotVol", None)
+    solicitacao = SolicitacaoRemessa.objects.create_solicitacao(**data)
+
+    guias[0]["StrCodUni"] = "naoExiste"
+    guias_obj_list = Guia().create_many(guias, solicitacao)
+    assert len(guias_obj_list) == 1
+    guia = guias_obj_list[0]
+    assert guia.situacao == model_guia.ATIVA
+    assert guia.status == GuiaRemessaWorkFlow.AGUARDANDO_ENVIO
+    assert guia.codigo_unidade == guias[0].get("StrCodUni")
+    assert guia.escola is None
+
+
+def test_guia_create_many_duplicada(arq_solicitacao_mod):
+    data = get_object_as_dict(arq_solicitacao_mod)
+    guias = data.pop("guias", [])
+    data.pop("IntTotVol", None)
+    solicitacao = SolicitacaoRemessa.objects.create_solicitacao(**data)
+
+    Guia().create_many(guias, solicitacao)
+    with pytest.raises(IntegrityError, match="Guia duplicada:"):
+        Guia().create_many(guias, solicitacao)
+
+
+def test_guia_build_guia_obj(arq_solicitacao_mod):
+    data = get_object_as_dict(arq_solicitacao_mod)
+    guias = data.pop("guias", [])
+    data.pop("IntTotVol", None)
+    solicitacao = SolicitacaoRemessa.objects.create_solicitacao(**data)
+
+    guia = guias[0]
+    guia_obj = Guia().build_guia_obj(guia, solicitacao)
+    assert guia_obj.situacao == model_guia.ATIVA
+    assert guia_obj.status == GuiaRemessaWorkFlow.AGUARDANDO_ENVIO
+    assert guia_obj.codigo_unidade == guia.get("StrCodUni")
+
+
+def test_alimento_create_many(arq_solicitacao_mod):
+    data = get_object_as_dict(arq_solicitacao_mod)
+    guias = data.pop("guias", [])
+    data.pop("IntTotVol", None)
+    solicitacao = SolicitacaoRemessa.objects.create_solicitacao(**data)
+
+    guia = guias[0]
+    alimentos_data = guia.pop("alimentos", [])[0]
+    guia_obj = Guia().build_guia_obj(guia, solicitacao)
+    escola = Escola.objects.get(codigo_codae=guia_obj.codigo_unidade)
+    guia_obj.escola = escola
+    guia_obj.save()
+    alimentos_data["guia"] = guia_obj
+
+    lista_alimentos = Alimento().create_many([alimentos_data])
+    assert isinstance(lista_alimentos, list)
+    assert len(lista_alimentos) == 1
+    alimento = lista_alimentos[0]
+    assert alimento.guia == guia_obj
+    assert alimento.codigo_papa == alimentos_data.get("StrCodPapa")
+    assert alimento.nome_alimento == alimentos_data.get("StrNomAli")
+    assert alimento.codigo_suprimento == alimentos_data.get("StrCodSup")
+
+
+def test_build_alimento_obj(arq_solicitacao_mod):
+    data = get_object_as_dict(arq_solicitacao_mod)
+    guias = data.pop("guias", [])
+    data.pop("IntTotVol", None)
+    solicitacao = SolicitacaoRemessa.objects.create_solicitacao(**data)
+
+    guia = guias[0]
+    alimentos_data = guia.pop("alimentos", [])[0]
+    guia_obj = Guia().build_guia_obj(guia, solicitacao)
+    escola = Escola.objects.get(codigo_codae=guia_obj.codigo_unidade)
+    guia_obj.escola = escola
+    guia_obj.save()
+    alimentos_data["guia"] = guia_obj
+
+    alimento = Alimento().build_alimento_obj(alimentos_data)
+    assert alimento.guia == guia_obj
+    assert alimento.codigo_papa == alimentos_data.get("StrCodPapa")
+    assert alimento.nome_alimento == alimentos_data.get("StrNomAli")
+    assert alimento.codigo_suprimento == alimentos_data.get("StrCodSup")
+
+
+def test_create_embalagens(arq_solicitacao_mod):
+    data = get_object_as_dict(arq_solicitacao_mod)
+    guias = data.pop("guias", [])
+    data.pop("IntTotVol", None)
+    solicitacao = SolicitacaoRemessa.objects.create_solicitacao(**data)
+
+    guia = guias[0]
+    alimentos_data = guia.pop("alimentos", [])[0]
+    guia_obj = Guia().build_guia_obj(guia, solicitacao)
+    escola = Escola.objects.get(codigo_codae=guia_obj.codigo_unidade)
+    guia_obj.escola = escola
+    guia_obj.save()
+    alimentos_data["guia"] = guia_obj
+
+    alimento_obj = Alimento().build_alimento_obj(alimentos_data)
+    alimento_obj.save()
+    alimentos_data["alimento"] = alimento_obj
+
+    lista_embalagem = Alimento().create_embalagens([alimentos_data])
+
+    assert isinstance(lista_embalagem, list)
+    assert len(lista_embalagem) == 1
+    embalagem = lista_embalagem[0]
+    assert embalagem.alimento == alimento_obj
+    assert embalagem.descricao_embalagem == alimentos_data.get("StrDescEmbala")
+    assert embalagem.capacidade_embalagem == float(alimentos_data.get("StrPesoEmbala"))
+    assert embalagem.unidade_medida == alimentos_data.get("StrUnMedEmbala")
+    assert embalagem.qtd_volume == alimentos_data.get("StrQtEmbala")
+
+
+def test_build_embalagem_obj(arq_solicitacao_mod):
+    data = get_object_as_dict(arq_solicitacao_mod)
+    guias = data.pop("guias", [])
+    data.pop("IntTotVol", None)
+    solicitacao = SolicitacaoRemessa.objects.create_solicitacao(**data)
+
+    guia = guias[0]
+    alimentos_data = guia.pop("alimentos", [])[0]
+    guia_obj = Guia().build_guia_obj(guia, solicitacao)
+    escola = Escola.objects.get(codigo_codae=guia_obj.codigo_unidade)
+    guia_obj.escola = escola
+    guia_obj.save()
+    alimentos_data["guia"] = guia_obj
+
+    alimento_obj = Alimento().build_alimento_obj(alimentos_data)
+    alimento_obj.save()
+    alimentos_data["alimento"] = alimento_obj
+
+    embalagem = Alimento().build_embalagem_obj(alimentos_data)
+    assert embalagem.alimento == alimento_obj
+    assert embalagem.descricao_embalagem == alimentos_data.get("StrDescEmbala")
+    assert embalagem.capacidade_embalagem == float(alimentos_data.get("StrPesoEmbala"))
+    assert embalagem.unidade_medida == alimentos_data.get("StrUnMedEmbala")
+    assert embalagem.qtd_volume == alimentos_data.get("StrQtEmbala")

@@ -573,7 +573,7 @@ def fake_guia(soup_alimento):
     StrEstUni = fake.state_abbr()
     StrConUni = fake.name()
     StrTelUni = fake.phone_number()
-    alimentos = [soup_alimento for _ in range(3)]
+    alimentos = [soup_alimento]
     return {
         "StrNumGui": StrNumGui,
         "DtEntrega": DtEntrega,
@@ -613,7 +613,7 @@ def soup_guia(fake_guia):
 
 @pytest.fixture
 def fake_arq_solicitacao_mod(soup_guia):
-    guias = [soup_guia for _ in range(3)]
+    guias = [soup_guia]
     StrCnpj = fake.cnpj()
     StrNumSol = fake.random_int(min=1000, max=9999)
     IntSeqenv = fake.random_int(min=1, max=10)
@@ -651,7 +651,7 @@ def soup_guican():
 
 @pytest.fixture
 def fake_arq_cancelamento(soup_guican):
-    guias = [soup_guican for _ in range(3)]
+    guias = [soup_guican]
     StrCnpj = fake.cnpj()
     StrNumSol = fake.random_int(min=1000, max=9999)
     IntSeqenv = fake.random_int(min=1, max=10)
