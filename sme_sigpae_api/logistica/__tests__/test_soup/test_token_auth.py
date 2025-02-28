@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock, patch
-
 import pytest
 from rest_framework import exceptions
 from rest_framework.authtoken.models import Token
