@@ -62,7 +62,6 @@ from ..eol_servico.utils import EOLServicoSGP, dt_nascimento_from_api
 from ..escola.constants import (
     PERIODOS_ESPECIAIS_CEI_CEU_CCI,
     PERIODOS_ESPECIAIS_CEI_DIRET,
-    PERIODOS_ESPECIAIS_CEU_GESTAO,
 )
 from ..inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
@@ -635,21 +634,24 @@ class Escola(
     @property
     def possui_alunos_regulares(self):
         return AlunosMatriculadosPeriodoEscola.objects.filter(
-            escola__uuid=self.uuid, tipo_turma="REGULAR"
+            escola__uuid=self.uuid, tipo_turma="REGULAR", quantidade_alunos__gte=1
         ).exists()
 
     def periodos_escolares(self, ano=datetime.date.today().year):
         """Recupera periodos escolares da escola, desde que haja pelomenos um aluno para este período."""
 
-        self.possui_alunos_regulares()
         if self.tipo_unidade.tem_somente_integral_e_parcial:
             periodos = PeriodoEscolar.objects.filter(
                 nome__in=PERIODOS_ESPECIAIS_CEI_CEU_CCI
             )
-        elif self.tipo_unidade.iniciais == "CEU GESTAO":
-            periodos = PeriodoEscolar.objects.filter(
-                nome__in=PERIODOS_ESPECIAIS_CEU_GESTAO
+        elif not self.possui_alunos_regulares:
+            periodos_ids = self.tipo_unidade.vinculotipoalimentacaocomperiodoescolaretipounidadeescolar_set.filter(
+                ativo=True
+            ).values_list(
+                "periodo_escolar", flat=True
             )
+            periodos = PeriodoEscolar.objects.filter(id__in=periodos_ids)
+
         elif self.eh_cei:
             periodos = PeriodoEscolar.objects.filter(
                 nome__in=PERIODOS_ESPECIAIS_CEI_DIRET
