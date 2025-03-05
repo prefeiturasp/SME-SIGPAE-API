@@ -632,8 +632,16 @@ class Escola(
                 return edital
         return None
 
+    @property
+    def possui_alunos_regulares(self):
+        return AlunosMatriculadosPeriodoEscola.objects.filter(
+            escola__uuid=self.uuid, tipo_turma="REGULAR"
+        ).exists()
+
     def periodos_escolares(self, ano=datetime.date.today().year):
         """Recupera periodos escolares da escola, desde que haja pelomenos um aluno para este período."""
+
+        self.possui_alunos_regulares()
         if self.tipo_unidade.tem_somente_integral_e_parcial:
             periodos = PeriodoEscolar.objects.filter(
                 nome__in=PERIODOS_ESPECIAIS_CEI_CEU_CCI
