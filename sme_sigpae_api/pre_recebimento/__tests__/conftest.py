@@ -6,6 +6,7 @@ from faker import Faker
 from model_mommy import mommy
 
 from sme_sigpae_api.dados_comuns.constants import (
+    DILOG_ABASTECIMENTO,
     DILOG_CRONOGRAMA,
     DILOG_QUALIDADE,
     DJANGO_ADMIN_PASSWORD,
@@ -175,12 +176,14 @@ def solicitacao_cronograma_ciente(cronograma):
 
 
 @pytest.fixture
-def solicitacao_cronograma_aprovado_dinutre(cronograma_solicitado_alteracao):
+def solicitacao_cronograma_aprovado_dilog_abastecimento(
+    cronograma_solicitado_alteracao,
+):
     return mommy.make(
         "SolicitacaoAlteracaoCronograma",
         numero_solicitacao="00222/2022",
         cronograma=cronograma_solicitado_alteracao,
-        status="APROVADO_DINUTRE",
+        status="APROVADO_DILOG_ABASTECIMENTO",
     )
 
 
@@ -209,14 +212,14 @@ def cronograma_assinado_perfil_cronograma(armazem, contrato, empresa):
 
 
 @pytest.fixture
-def cronograma_assinado_perfil_dinutre(armazem, contrato, empresa):
+def cronograma_assinado_perfil_dilog_abastecimento(armazem, contrato, empresa):
     return mommy.make(
         "Cronograma",
         numero="003/2022A",
         contrato=contrato,
         empresa=empresa,
         armazem=armazem,
-        status="ASSINADO_DINUTRE",
+        status="ASSINADO_DILOG_ABASTECIMENTO",
     )
 
 
@@ -286,7 +289,7 @@ def cronogramas_multiplos_status_com_log(
         contrato=contrato,
         empresa=empresa,
         armazem=armazem,
-        status="ASSINADO_DINUTRE",
+        status="ASSINADO_DILOG_ABASTECIMENTO",
         ficha_tecnica=ficha_tecnica_factory(),
     )
     c4 = mommy.make(
@@ -295,7 +298,7 @@ def cronogramas_multiplos_status_com_log(
         contrato=contrato,
         empresa=empresa,
         armazem=armazem,
-        status="ASSINADO_DINUTRE",
+        status="ASSINADO_DILOG_ABASTECIMENTO",
         ficha_tecnica=ficha_tecnica_factory(),
     )
     c5 = mommy.make(
@@ -331,13 +334,13 @@ def cronogramas_multiplos_status_com_log(
     mommy.make(
         "LogSolicitacoesUsuario",
         uuid_original=c3.uuid,
-        status_evento=69,  # CRONOGRAMA_ASSINADO_PELA_DINUTRE
+        status_evento=69,  # CRONOGRAMA_ASSINADO_PELA_DILOG_ABASTECIMENTO
         solicitacao_tipo=19,
     )  # CRONOGRAMA
     mommy.make(
         "LogSolicitacoesUsuario",
         uuid_original=c4.uuid,
-        status_evento=69,  # CRONOGRAMA_ASSINADO_PELA_DINUTRE
+        status_evento=69,  # CRONOGRAMA_ASSINADO_PELA_DILOG_ABASTECIMENTO
         solicitacao_tipo=19,
     )  # CRONOGRAMA
     mommy.make(
@@ -482,7 +485,7 @@ def tipo_de_embalagem_de_layout(layout_de_embalagem):
 
 @pytest.fixture
 def lista_layouts_de_embalagem_enviados_para_analise(ficha_tecnica_factory, empresa):
-    layouts_cronograma_assinado_dinutre = [
+    layouts_cronograma_assinado_dilog_abastecimento = [
         {
             "ficha_tecnica": ficha_tecnica_factory(
                 status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
@@ -506,7 +509,10 @@ def lista_layouts_de_embalagem_enviados_para_analise(ficha_tecnica_factory, empr
         for i in range(6, 16)
     ]
 
-    data = layouts_cronograma_assinado_dilog + layouts_cronograma_assinado_dinutre
+    data = (
+        layouts_cronograma_assinado_dilog
+        + layouts_cronograma_assinado_dilog_abastecimento
+    )
 
     objects = [mommy.make(LayoutDeEmbalagem, **attrs) for attrs in data]
 
@@ -515,7 +521,7 @@ def lista_layouts_de_embalagem_enviados_para_analise(ficha_tecnica_factory, empr
 
 @pytest.fixture
 def lista_layouts_de_embalagem_aprovados(ficha_tecnica_factory, empresa):
-    layouts_cronograma_assinado_dinutre = [
+    layouts_cronograma_assinado_dilog_abastecimento = [
         {
             "ficha_tecnica": ficha_tecnica_factory(
                 status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
@@ -539,7 +545,10 @@ def lista_layouts_de_embalagem_aprovados(ficha_tecnica_factory, empresa):
         for i in range(6, 16)
     ]
 
-    data = layouts_cronograma_assinado_dilog + layouts_cronograma_assinado_dinutre
+    data = (
+        layouts_cronograma_assinado_dilog
+        + layouts_cronograma_assinado_dilog_abastecimento
+    )
 
     objects = [mommy.make(LayoutDeEmbalagem, **attrs) for attrs in data]
 
@@ -548,7 +557,7 @@ def lista_layouts_de_embalagem_aprovados(ficha_tecnica_factory, empresa):
 
 @pytest.fixture
 def lista_layouts_de_embalagem_solicitado_correcao(ficha_tecnica_factory, empresa):
-    layouts_cronograma_assinado_dinutre = [
+    layouts_cronograma_assinado_dilog_abastecimento = [
         {
             "ficha_tecnica": ficha_tecnica_factory(
                 status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
@@ -572,7 +581,10 @@ def lista_layouts_de_embalagem_solicitado_correcao(ficha_tecnica_factory, empres
         for i in range(6, 16)
     ]
 
-    data = layouts_cronograma_assinado_dilog + layouts_cronograma_assinado_dinutre
+    data = (
+        layouts_cronograma_assinado_dilog
+        + layouts_cronograma_assinado_dilog_abastecimento
+    )
 
     objects = [mommy.make(LayoutDeEmbalagem, **attrs) for attrs in data]
 
@@ -1012,3 +1024,30 @@ def client_autenticado_vinculo_dilog_qualidade(client, django_user_model, codae)
     )
     client.login(username=email, password=password)
     return client, user
+
+
+@pytest.fixture
+def client_autenticado_dilog_abastecimento(client, django_user_model):
+    email = "dilogabastecimento@test.com"
+    password = DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email,
+        password=password,
+        email=email,
+        registro_funcional=str(fake.unique.random_int(min=100000, max=999999)),
+    )
+    perfil_dilog_abastecimento = mommy.make(
+        "Perfil", nome=DILOG_ABASTECIMENTO, ativo=True
+    )
+    codae = mommy.make("Codae")
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_dilog_abastecimento,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client

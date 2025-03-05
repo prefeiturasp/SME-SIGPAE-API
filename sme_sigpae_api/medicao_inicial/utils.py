@@ -943,8 +943,7 @@ def popula_campo_aprovadas(
                 ]
             elif "TIPO B" in categoria_corrente:
                 classificacoes_nomes = [
-                    "Tipo B - LANCHE",
-                    "Tipo B - LANCHE e REFEIÇÃO",
+                    "Tipo B",
                 ]
             else:
                 classificacoes_nomes = ["Tipo A"]
@@ -983,7 +982,7 @@ def popula_campo_aprovadas_cei(
                 "Tipo A ENTERAL",
             ]
         else:
-            nomes_classificacoes = ["Tipo B - LANCHE", "Tipo B - LANCHE e REFEIÇÃO"]
+            nomes_classificacoes = ["Tipo B"]
         quantidade = (
             logs_dietas.filter(
                 data__day=dia,

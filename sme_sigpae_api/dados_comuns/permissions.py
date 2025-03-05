@@ -24,6 +24,7 @@ from .constants import (
     COORDENADOR_LOGISTICA,
     COORDENADOR_SUPERVISAO_NUTRICAO,
     COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
+    DILOG_ABASTECIMENTO,
     DILOG_CRONOGRAMA,
     DILOG_DIRETORIA,
     DILOG_QUALIDADE,
@@ -761,11 +762,11 @@ class PermissaoParaVisualizarCronograma(BasePermission):
                         DILOG_CRONOGRAMA,
                         DILOG_QUALIDADE,
                         DILOG_DIRETORIA,
-                        DINUTRE_DIRETORIA,
                         COORDENADOR_CODAE_DILOG_LOGISTICA,
                         ADMINISTRADOR_CODAE_GABINETE,
                         USUARIO_RELATORIOS,
                         USUARIO_GTIC_CODAE,
+                        DILOG_ABASTECIMENTO,
                     ]
                 )
                 or usuario.eh_fornecedor
@@ -787,10 +788,10 @@ class PermissaoParaVisualizarRelatorioCronograma(BasePermission):
                         DILOG_CRONOGRAMA,
                         USUARIO_RELATORIOS,
                         DILOG_DIRETORIA,
-                        DINUTRE_DIRETORIA,
                         COORDENADOR_CODAE_DILOG_LOGISTICA,
                         ADMINISTRADOR_CODAE_GABINETE,
                         USUARIO_GTIC_CODAE,
+                        DILOG_ABASTECIMENTO,
                     ]
                 )
                 or usuario.eh_fornecedor
@@ -851,6 +852,21 @@ class UsuarioDinutreDiretoria(BasePermission):
         )
 
 
+class UsuarioDilogAbastecimento(BasePermission):
+    def has_permission(self, request, view):
+        usuario = request.user
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and (
+                (
+                    isinstance(usuario.vinculo_atual.instituicao, Codae)
+                    and usuario.vinculo_atual.perfil.nome == DILOG_ABASTECIMENTO
+                )
+            )
+        )
+
+
 class PermissaoParaAssinarCronogramaUsuarioDilog(BasePermission):
     def has_permission(self, request, view):
         usuario = request.user
@@ -868,11 +884,11 @@ class PermissaoParaAssinarCronogramaUsuarioDilog(BasePermission):
 
 class PermissaoParaDashboardCronograma(BasePermission):
     PERFIS_PERMITIDOS = [
-        DINUTRE_DIRETORIA,
         DILOG_DIRETORIA,
         COORDENADOR_CODAE_DILOG_LOGISTICA,
         DILOG_CRONOGRAMA,
         ADMINISTRADOR_CODAE_GABINETE,
+        DILOG_ABASTECIMENTO,
     ]
 
     def has_permission(self, request, view):
@@ -894,9 +910,9 @@ class PermissaoParaVisualizarCalendarioCronograma(BasePermission):
         DILOG_CRONOGRAMA,
         DILOG_QUALIDADE,
         COORDENADOR_CODAE_DILOG_LOGISTICA,
-        DINUTRE_DIRETORIA,
         DILOG_DIRETORIA,
         ADMINISTRADOR_CODAE_GABINETE,
+        DILOG_ABASTECIMENTO,
     ]
 
     def has_permission(self, request, view):
@@ -1040,11 +1056,11 @@ class PermissaoParaVisualizarUnidadesMedida(BasePermission):
 
 class PermissaoParaVisualizarSolicitacoesAlteracaoCronograma(BasePermission):
     PERFIS_PERMITIDOS = [
-        DINUTRE_DIRETORIA,
         DILOG_DIRETORIA,
         COORDENADOR_CODAE_DILOG_LOGISTICA,
         DILOG_CRONOGRAMA,
         ADMINISTRADOR_CODAE_GABINETE,
+        DILOG_ABASTECIMENTO,
     ]
 
     def has_permission(self, request, view):
@@ -1097,11 +1113,11 @@ class PermissaoParaCriarSolicitacoesAlteracaoCronograma(BasePermission):
 
 class PermissaoParaListarDashboardSolicitacaoAlteracaoCronograma(BasePermission):
     PERFIS_PERMITIDOS = [
-        DINUTRE_DIRETORIA,
         DILOG_DIRETORIA,
         COORDENADOR_CODAE_DILOG_LOGISTICA,
         DILOG_CRONOGRAMA,
         ADMINISTRADOR_CODAE_GABINETE,
+        DILOG_ABASTECIMENTO,
     ]
 
     def has_permission(self, request, view):
@@ -1113,13 +1129,15 @@ class PermissaoParaListarDashboardSolicitacaoAlteracaoCronograma(BasePermission)
         )
 
 
-class PermissaoParaAnalisarDinutreSolicitacaoAlteracaoCronograma(BasePermission):
+class PermissaoParaAnalisarDilogAbastecimentoSolicitacaoAlteracaoCronograma(
+    BasePermission
+):
     def has_permission(self, request, view):
         usuario = request.user
         return (
             not usuario.is_anonymous
             and usuario.vinculo_atual
-            and usuario.vinculo_atual.perfil.nome in [DINUTRE_DIRETORIA]
+            and usuario.vinculo_atual.perfil.nome in [DILOG_ABASTECIMENTO]
         )
 
 

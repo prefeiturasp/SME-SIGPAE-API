@@ -84,33 +84,58 @@ class DiasUteisViewSet(ViewSet):
     permission_classes = (IsAuthenticated,)
 
     def list(self, request):
-        data = request.query_params.get("data", "")
-        escola_uuid = request.query_params.get("escola_uuid")
-        eh_solicitacao_unificada = request.query_params.get(
-            "eh_solicitacao_unificada", False
-        )
+        data = request.query_params.get("data")
         if data:
-            result = obter_dias_uteis_apos(
+            data_apos_quatro_dias_uteis = obter_dias_uteis_apos(
                 datetime.datetime.strptime(data, "%d/%m/%Y"), quantidade_dias=4
             )
-            return Response({"data_apos_quatro_dias_uteis": result})
-        dias_com_suspensao_2 = 0
-        dias_com_suspensao_5 = 0
-        if escola_uuid or eh_solicitacao_unificada == "true":
-            escola = None
-            if escola_uuid:
-                escola = Escola.objects.get(uuid=escola_uuid)
-            dias_com_suspensao_2 = DiaSuspensaoAtividades.get_dias_com_suspensao(
-                escola=escola,
-                eh_solicitacao_unificada=eh_solicitacao_unificada,
-                quantidade_dias=2,
+            return Response(
+                {"data_apos_quatro_dias_uteis": data_apos_quatro_dias_uteis}
             )
-            dias_com_suspensao_5 = DiaSuspensaoAtividades.get_dias_com_suspensao(
-                escola=escola,
-                eh_solicitacao_unificada=eh_solicitacao_unificada,
-                quantidade_dias=5,
+
+        dias_com_suspensao_2, dias_com_suspensao_5 = self._calcular_dias_com_suspensao(
+            request
+        )
+        dias_uteis = self._calcular_dias_uteis(
+            dias_com_suspensao_2, dias_com_suspensao_5
+        )
+
+        return Response(dias_uteis)
+
+    def _calcular_dias_com_suspensao(self, request):
+        escola_uuid = request.query_params.get("escola_uuid")
+        eh_solicitacao_unificada = (
+            request.query_params.get("eh_solicitacao_unificada", "false").lower()
+            == "true"
+        )
+
+        if escola_uuid:
+            escola = Escola.objects.get(uuid=escola_uuid)
+            dias_com_suspensao_2 = DiaSuspensaoAtividades.get_dias_com_suspensao_escola(
+                escola=escola, quantidade_dias=2
             )
-        dias_uteis = {
+            dias_com_suspensao_5 = DiaSuspensaoAtividades.get_dias_com_suspensao_escola(
+                escola=escola, quantidade_dias=5
+            )
+        elif eh_solicitacao_unificada:
+            dre = request.user.vinculo_atual.instituicao
+            dias_com_suspensao_2 = (
+                DiaSuspensaoAtividades.get_dias_com_suspensao_solicitacao_unificada(
+                    dre=dre, quantidade_dias=2
+                )
+            )
+            dias_com_suspensao_5 = (
+                DiaSuspensaoAtividades.get_dias_com_suspensao_solicitacao_unificada(
+                    dre=dre, quantidade_dias=5
+                )
+            )
+        else:
+            dias_com_suspensao_2, dias_com_suspensao_5 = 0, 0
+
+        return dias_com_suspensao_2, dias_com_suspensao_5
+
+    def _calcular_dias_uteis(self, dias_com_suspensao_2, dias_com_suspensao_5):
+        return {
             "proximos_cinco_dias_uteis": obter_dias_uteis_apos_hoje(
                 5 + dias_com_suspensao_5
             ),
@@ -118,7 +143,6 @@ class DiasUteisViewSet(ViewSet):
                 3 + dias_com_suspensao_2
             ),
         }
-        return Response(dias_uteis)
 
 
 class FeriadosAnoViewSet(ViewSet):

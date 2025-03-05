@@ -24,9 +24,14 @@ from .dados_comuns.fixtures.factories.dados_comuns_factories import (
 from .dados_comuns.models import TemplateMensagem
 from .dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
+    LogQuantidadeDietasAutorizadasCEIFactory,
+    LogQuantidadeDietasAutorizadasFactory,
     SolicitacaoDietaEspecialFactory,
 )
 from .eol_servico.utils import EOLServicoSGP
+from .escola.fixtures.factories.dia_suspensao_atividades_factory import (
+    DiaSuspensaoAtividadesFactory,
+)
 from .escola.fixtures.factories.escola_factory import (
     AlunoFactory,
     DiretoriaRegionalFactory,
@@ -249,6 +254,9 @@ register(HomologacaoProdutoFactory)
 register(ProdutoEditalFactory)
 register(DataHoraVinculoProdutoEditalFactory)
 register(ReclamacaoDeProdutoFactory)
+register(DiaSuspensaoAtividadesFactory)
+register(LogQuantidadeDietasAutorizadasFactory)
+register(LogQuantidadeDietasAutorizadasCEIFactory)
 
 
 @pytest.fixture

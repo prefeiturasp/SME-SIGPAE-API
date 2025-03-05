@@ -21,9 +21,9 @@ from ..relatorios.utils import html_to_pdf_email_anexo
 from .constants import (
     ADMINISTRADOR_MEDICAO,
     COGESTOR_DRE,
+    DILOG_ABASTECIMENTO,
     DILOG_CRONOGRAMA,
     DILOG_DIRETORIA,
-    DINUTRE_DIRETORIA,
     DIRETOR_UE,
 )
 from .models import AnexoLogSolicitacoesUsuario, LogSolicitacoesUsuario, Notificacao
@@ -2126,8 +2126,8 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
     def get_dias_suspensao(self):
         from sme_sigpae_api.escola.models import DiaSuspensaoAtividades
 
-        dias_suspensao = DiaSuspensaoAtividades.get_dias_com_suspensao(
-            self.escola, False, self.DIAS_UTEIS_PARA_CANCELAR
+        dias_suspensao = DiaSuspensaoAtividades.get_dias_com_suspensao_escola(
+            self.escola, self.DIAS_UTEIS_PARA_CANCELAR
         )
         return dias_suspensao
 
@@ -2551,8 +2551,10 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
     def get_dias_suspensao(self):
         from sme_sigpae_api.escola.models import DiaSuspensaoAtividades
 
-        dias_suspensao = DiaSuspensaoAtividades.get_dias_com_suspensao(
-            None, True, self.DIAS_UTEIS_PARA_CANCELAR
+        dias_suspensao = (
+            DiaSuspensaoAtividades.get_dias_com_suspensao_solicitacao_unificada(
+                self.diretoria_regional, self.DIAS_UTEIS_PARA_CANCELAR
+            )
         )
         return dias_suspensao
 
@@ -2905,8 +2907,8 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
     def get_dias_suspensao(self):
         from sme_sigpae_api.escola.models import DiaSuspensaoAtividades
 
-        dias_suspensao = DiaSuspensaoAtividades.get_dias_com_suspensao(
-            self.escola, False, self.DIAS_UTEIS_PARA_CANCELAR
+        dias_suspensao = DiaSuspensaoAtividades.get_dias_com_suspensao_escola(
+            self.escola, self.DIAS_UTEIS_PARA_CANCELAR
         )
         return dias_suspensao
 
@@ -4284,7 +4286,7 @@ class CronogramaWorkflow(xwf_models.Workflow):
     ALTERACAO_CODAE = "ALTERACAO_CODAE"
     ASSINADO_FORNECEDOR = "ASSINADO_FORNECEDOR"
     SOLICITADO_ALTERACAO = "SOLICITADO_ALTERACAO"
-    ASSINADO_DINUTRE = "ASSINADO_DINUTRE"
+    ASSINADO_DILOG_ABASTECIMENTO = "ASSINADO_DILOG_ABASTECIMENTO"
     ASSINADO_CODAE = "ASSINADO_CODAE"
 
     states = (
@@ -4293,15 +4295,19 @@ class CronogramaWorkflow(xwf_models.Workflow):
         (ALTERACAO_CODAE, "Alteração CODAE"),
         (ASSINADO_FORNECEDOR, "Assinado Fornecedor"),
         (SOLICITADO_ALTERACAO, "Solicitado Alteração"),
-        (ASSINADO_DINUTRE, "Assinado Dinutre"),
+        (ASSINADO_DILOG_ABASTECIMENTO, "Assinado Abastecimento"),
         (ASSINADO_CODAE, "Assinado CODAE"),
     )
 
     transitions = (
         ("inicia_fluxo", RASCUNHO, ASSINADO_E_ENVIADO_AO_FORNECEDOR),
         ("fornecedor_assina", ASSINADO_E_ENVIADO_AO_FORNECEDOR, ASSINADO_FORNECEDOR),
-        ("dinutre_assina", ASSINADO_FORNECEDOR, ASSINADO_DINUTRE),
-        ("codae_assina", ASSINADO_DINUTRE, ASSINADO_CODAE),
+        (
+            "dilog_abastecimento_assina",
+            ASSINADO_FORNECEDOR,
+            ASSINADO_DILOG_ABASTECIMENTO,
+        ),
+        ("codae_assina", ASSINADO_DILOG_ABASTECIMENTO, ASSINADO_CODAE),
         ("fornecedor_solicita_alteracao", ASSINADO_CODAE, SOLICITADO_ALTERACAO),
         ("codae_realiza_alteracao", ASSINADO_CODAE, ALTERACAO_CODAE),
         (
@@ -4388,7 +4394,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 categoria_notificacao=Notificacao.CATEGORIA_NOTIFICACAO_CRONOGRAMA,
                 link_acesse_aqui=url_detalhe_cronograma,
                 usuarios=PartesInteressadasService.usuarios_por_perfis(
-                    DINUTRE_DIRETORIA
+                    DILOG_ABASTECIMENTO
                 ),
             )
 
@@ -4398,7 +4404,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 template="pre_recebimento_email_assinatura_fornecedor.html",
                 contexto_template=contexto,
                 destinatarios=PartesInteressadasService.usuarios_por_perfis(
-                    DINUTRE_DIRETORIA,
+                    DILOG_ABASTECIMENTO,
                     somente_email=True,
                 ),
             )
@@ -4457,12 +4463,12 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 usuario=user,
             )
 
-    @xworkflows.after_transition("dinutre_assina")
-    def _dinutre_assina_hook(self, *args, **kwargs):
+    @xworkflows.after_transition("dilog_abastecimento_assina")
+    def _dilog_abastecimento_assina_hook(self, *args, **kwargs):
         user = kwargs["user"]
         if user:
             self.salvar_log_transicao(
-                status_evento=LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELA_DINUTRE,
+                status_evento=LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELO_DILOG_ABASTECIMENTO,
                 usuario=user,
             )
 
@@ -4482,7 +4488,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
             EmailENotificacaoService.enviar_notificacao(
                 template="pre_recebimento_notificacao_assinatura_cronograma.html",
                 contexto_template=contexto,
-                titulo_notificacao=f"Cronograma { self.numero } assinado pela DINUTRE",
+                titulo_notificacao=f"Cronograma { self.numero } assinado pelo Abastecimento",
                 tipo_notificacao=Notificacao.TIPO_NOTIFICACAO_AVISO,
                 categoria_notificacao=Notificacao.CATEGORIA_NOTIFICACAO_CRONOGRAMA,
                 link_acesse_aqui=url_detalhe_cronograma,
@@ -4492,9 +4498,9 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
             )
 
             EmailENotificacaoService.enviar_email(
-                titulo=f"Assinatura do Cronograma {self.numero}\npela DINUTRE",
-                assunto=f"[SIGPAE] Assinatura do Cronograma {self.numero} pela DINUTRE",
-                template="pre_recebimento_email_assinatura_dinutre.html",
+                titulo=f"Assinatura do Cronograma {self.numero}\npelo Abastecimento",
+                assunto=f"[SIGPAE] Assinatura do Cronograma {self.numero} pelo Abastecimento",
+                template="pre_recebimento_email_assinatura_dilog_abastecimento.html",
                 contexto_template=contexto,
                 destinatarios=PartesInteressadasService.usuarios_por_perfis(
                     DILOG_DIRETORIA,
@@ -4547,7 +4553,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
         )
 
         partes_interessadas = PartesInteressadasService.usuarios_por_perfis(
-            ["DILOG_CRONOGRAMA", "DINUTRE_DIRETORIA"], True
+            ["DILOG_CRONOGRAMA", "DILOG_ABASTECIMENTO"], True
         ) + PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
             self, True
         )
@@ -4580,8 +4586,8 @@ class CronogramaAlteracaoWorkflow(xwf_models.Workflow):
     ALTERACAO_ENVIADA_FORNECEDOR = "ALTERACAO_ENVIADA_FORNECEDOR"
     FORNECEDOR_CIENTE = "FORNECEDOR_CIENTE"
     CRONOGRAMA_CIENTE = "CRONOGRAMA_CIENTE"
-    APROVADO_DINUTRE = "APROVADO_DINUTRE"
-    REPROVADO_DINUTRE = "REPROVADO_DINUTRE"
+    APROVADO_DILOG_ABASTECIMENTO = "APROVADO_DILOG_ABASTECIMENTO"
+    REPROVADO_DILOG_ABASTECIMENTO = "REPROVADO_DILOG_ABASTECIMENTO"
     APROVADO_DILOG = "APROVADO_DILOG"
     REPROVADO_DILOG = "REPROVADO_DILOG"
 
@@ -4591,8 +4597,8 @@ class CronogramaAlteracaoWorkflow(xwf_models.Workflow):
         (ALTERACAO_ENVIADA_FORNECEDOR, "Alteração Enviada ao Fornecedor"),
         (FORNECEDOR_CIENTE, "Fornecedor Ciente"),
         (CRONOGRAMA_CIENTE, "Cronograma ciente"),
-        (APROVADO_DINUTRE, "Aprovado DINUTRE"),
-        (REPROVADO_DINUTRE, "Reprovado DINUTRE"),
+        (APROVADO_DILOG_ABASTECIMENTO, "Aprovado Abastecimento"),
+        (REPROVADO_DILOG_ABASTECIMENTO, "Reprovado Abastecimento"),
         (APROVADO_DILOG, "Aprovado DILOG"),
         (REPROVADO_DILOG, "Reprovado DILOG"),
     )
@@ -4602,10 +4608,22 @@ class CronogramaAlteracaoWorkflow(xwf_models.Workflow):
         ("inicia_fluxo_codae", SOLICITACAO_CRIADA, ALTERACAO_ENVIADA_FORNECEDOR),
         ("fornecedor_ciente", ALTERACAO_ENVIADA_FORNECEDOR, FORNECEDOR_CIENTE),
         ("cronograma_ciente", EM_ANALISE, CRONOGRAMA_CIENTE),
-        ("dinutre_aprova", CRONOGRAMA_CIENTE, APROVADO_DINUTRE),
-        ("dinutre_reprova", CRONOGRAMA_CIENTE, REPROVADO_DINUTRE),
-        ("dilog_aprova", [APROVADO_DINUTRE, REPROVADO_DINUTRE], APROVADO_DILOG),
-        ("dilog_reprova", [APROVADO_DINUTRE, REPROVADO_DINUTRE], REPROVADO_DILOG),
+        ("dilog_abastecimento_aprova", CRONOGRAMA_CIENTE, APROVADO_DILOG_ABASTECIMENTO),
+        (
+            "dilog_abastecimento_reprova",
+            CRONOGRAMA_CIENTE,
+            REPROVADO_DILOG_ABASTECIMENTO,
+        ),
+        (
+            "dilog_aprova",
+            [APROVADO_DILOG_ABASTECIMENTO, REPROVADO_DILOG_ABASTECIMENTO],
+            APROVADO_DILOG,
+        ),
+        (
+            "dilog_reprova",
+            [APROVADO_DILOG_ABASTECIMENTO, REPROVADO_DILOG_ABASTECIMENTO],
+            REPROVADO_DILOG,
+        ),
     )
 
     initial_state = SOLICITACAO_CRIADA
@@ -4703,7 +4721,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
             emails=PartesInteressadasService.usuarios_por_perfis(
                 nomes_perfis=[
                     "DILOG_CRONOGRAMA",
-                    "DINUTRE_DIRETORIA",
+                    "DILOG_ABASTECIMENTO",
                     "DILOG_DIRETORIA",
                 ],
                 somente_email=True,
@@ -4764,7 +4782,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
             # Montar Notificação
             log_transicao = self.log_mais_recente
             usuarios = PartesInteressadasService.usuarios_por_perfis(
-                "DINUTRE_DIRETORIA"
+                "DILOG_ABASTECIMENTO"
             )
             template_notif = (
                 "pre_recebimento_notificacao_solicitacao_cronograma_ciente.html"
@@ -4798,7 +4816,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
             )
             log_transicao = self.log_mais_recente
             usuarios = PartesInteressadasService.usuarios_por_perfis(
-                ["DILOG_CRONOGRAMA", "DINUTRE_DIRETORIA", "DILOG_DIRETORIA"]
+                ["DILOG_CRONOGRAMA", "DILOG_ABASTECIMENTO", "DILOG_DIRETORIA"]
             )
             template_notif = "pre_recebimento_notificacao_alteracao_cronograma_codae_ciencia_fornecedor.html"
             tipo = Notificacao.TIPO_NOTIFICACAO_ALERTA
@@ -4818,10 +4836,12 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
             )
             self._envia_email_notificacao_ciencia_fornecedor(user)
 
-    def _montar_dinutre_notificacao(self):
+    def _montar_dilog_abastecimento_notificacao(self):
         log_transicao = self.log_mais_recente
         usuarios = PartesInteressadasService.usuarios_por_perfis("DILOG_DIRETORIA")
-        template_notif = "pre_recebimento_notificacao_solicitacao_parecer_dinutre.html"
+        template_notif = (
+            "pre_recebimento_notificacao_solicitacao_parecer_dilog_abastecimento.html"
+        )
         tipo = Notificacao.TIPO_NOTIFICACAO_ALERTA
         titulo_notificacao = (
             f" Solicitação de Alteração do Cronograma Nº { self.cronograma.numero }"
@@ -4840,33 +4860,33 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
             log_transicao,
         )
 
-    @xworkflows.after_transition("dinutre_aprova")
-    def _dinutre_aprova_hook(self, *args, **kwargs):
+    @xworkflows.after_transition("dilog_abastecimento_aprova")
+    def _dilog_abastecimento_aprova_hook(self, *args, **kwargs):
         user = kwargs["user"]
         if user:
             self.salvar_log_transicao(
-                status_evento=LogSolicitacoesUsuario.APROVADO_DINUTRE_SOLICITACAO_ALTERACAO,
+                status_evento=LogSolicitacoesUsuario.APROVADO_DILOG_ABASTECIMENTO_SOLICITACAO_ALTERACAO,
                 usuario=user,
                 justificativa=kwargs.get("justificativa", ""),
             )
-            self._montar_dinutre_notificacao()
+            self._montar_dilog_abastecimento_notificacao()
 
-    @xworkflows.after_transition("dinutre_reprova")
-    def _dinutre_reprova_hook(self, *args, **kwargs):
+    @xworkflows.after_transition("dilog_abastecimento_reprova")
+    def _dilog_abastecimento_reprova_hook(self, *args, **kwargs):
         user = kwargs["user"]
         if user:
             self.salvar_log_transicao(
-                status_evento=LogSolicitacoesUsuario.REPROVADO_DINUTRE_SOLICITACAO_ALTERACAO,
+                status_evento=LogSolicitacoesUsuario.REPROVADO_DILOG_ABASTECIMENTO_SOLICITACAO_ALTERACAO,
                 usuario=user,
                 justificativa=kwargs.get("justificativa", ""),
             )
-            self._montar_dinutre_notificacao()
+            self._montar_dilog_abastecimento_notificacao()
 
     def _montar_dilog_notificacao(self):
         log_transicao = self.log_mais_recente
         usuarios = [
             *PartesInteressadasService.usuarios_por_perfis(
-                ["DINUTRE_DIRETORIA", "DILOG_CRONOGRAMA"]
+                ["DILOG_ABASTECIMENTO", "DILOG_CRONOGRAMA"]
             ),
             *PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
                 self.cronograma
@@ -4916,7 +4936,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 self.cronograma, True
             )
             + PartesInteressadasService.usuarios_por_perfis(
-                ["DILOG_CRONOGRAMA", "DINUTRE_DIRETORIA"], True
+                ["DILOG_CRONOGRAMA", "DILOG_ABASTECIMENTO"], True
             )
         )
 

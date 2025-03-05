@@ -114,3 +114,7 @@
   fields:
     nome: ADMINISTRADOR_DICAE
     visao: CODAE
+- model: perfil.perfil
+  fields:
+    nome: DILOG_ABASTECIMENTO
+    visao: CODAE

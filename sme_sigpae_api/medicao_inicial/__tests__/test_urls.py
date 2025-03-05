@@ -17,7 +17,7 @@ from sme_sigpae_api.medicao_inicial.models import (
 def test_url_endpoint_cria_dias_sobremesa_doce(client_autenticado_coordenador_codae):
     data = {
         "data": "2022-08-08",
-        "cadastros_sobremesa_doce": [
+        "cadastros_calendario": [
             {
                 "editais": [
                     "85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2",
@@ -67,7 +67,7 @@ def test_url_endpoint_cria_dias_sobremesa_doce(client_autenticado_coordenador_co
     )
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()) == 0
-    data = {"data": "2022-08-08", "cadastros_sobremesa_doce": []}
+    data = {"data": "2022-08-08", "cadastros_calendario": []}
     response = client_autenticado_coordenador_codae.post(
         "/medicao-inicial/dias-sobremesa-doce/",
         content_type="application/json",

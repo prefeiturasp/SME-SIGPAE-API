@@ -206,22 +206,47 @@ def tipo_unidade():
 
 
 @pytest.fixture
-def escola(tipo_unidade):
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    return mommy.make(
-        models.Escola,
-        nome=fake.name(),
-        codigo_eol=fake.name()[:6],
+def diretoria_regional():
+    return mommy.make("DiretoriaRegional", nome="DIRETORIA REGIONAL IPIRANGA")
+
+
+@pytest.fixture
+def escola(tipo_unidade, diretoria_regional):
+    terceirizada = mommy.make("Terceirizada")
+    lote = mommy.make(
+        "Lote",
+        terceirizada=terceirizada,
+        nome="LOTE 07",
+        diretoria_regional=diretoria_regional,
+    )
+    tipo_gestao = mommy.make(
+        "TipoGestao",
+        nome="TERC TOTAL",
+    )
+    escola = mommy.make(
+        "Escola",
+        lote=lote,
+        nome="EMEF JOAO MENDES",
+        codigo_eol="000546",
         tipo_unidade=tipo_unidade,
+        diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
     )
+    return escola
 
 
 @pytest.fixture
 def dia_suspensao_atividades(escola):
+    edital = mommy.make("Edital", numero="78/SME/2023")
+    contrato = mommy.make(
+        "Contrato", edital=edital, terceirizada=escola.lote.terceirizada
+    )
+    contrato.lotes.add(escola.lote)
+    contrato.save()
     return mommy.make(
         "DiaSuspensaoAtividades",
         tipo_unidade=escola.tipo_unidade,
+        edital=edital,
         data=datetime.date(2023, 9, 26),
     )
 
@@ -326,6 +351,27 @@ def client_autenticado_da_escola(client, django_user_model, escola):
         usuario=usuario,
         instituicao=escola,
         perfil=perfil_diretor,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client
+
+
+@pytest.fixture
+def client_autenticado_da_dre(client, django_user_model, diretoria_regional):
+    email = "user@dre.com"
+    password = DJANGO_ADMIN_PASSWORD
+    perfil_cogestor_dre = mommy.make("Perfil", nome="COGESTOR_DRE", ativo=True)
+    usuario = django_user_model.objects.create_user(
+        password=password, username=email, email=email, registro_funcional="123456"
+    )
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=diretoria_regional,
+        perfil=perfil_cogestor_dre,
         data_inicial=hoje,
         ativo=True,
     )
@@ -789,6 +835,34 @@ def user_admin_dicae(django_user_model):
         usuario=user,
         instituicao=codae,
         perfil=perfil_admin_dicae,
+        data_inicial=hoje,
+        ativo=True,
+        content_type=ContentType.objects.get(model="codae"),
+        object_id=codae.pk,
+    )
+    return user
+
+
+@pytest.fixture
+def user_dilog_abastecimento(django_user_model):
+    email = "test2@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    codae = mommy.make("Codae", nome="Codae - Dilog")
+    perfil_dilog_abastecimento = mommy.make(
+        "Perfil",
+        nome=constants.DILOG_ABASTECIMENTO,
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf2",
+    )
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_dilog_abastecimento,
         data_inicial=hoje,
         ativo=True,
         content_type=ContentType.objects.get(model="codae"),

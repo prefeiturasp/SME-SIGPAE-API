@@ -4,8 +4,18 @@ from datetime import datetime
 import pytest
 from faker import Faker
 from model_mommy import mommy
+from spyne.util.dictdoc import get_object_as_dict
 
-from sme_sigpae_api.logistica.api.soup.models import oWsAcessoModel
+from sme_sigpae_api.logistica.api.soup.models import (
+    Alimento,
+    ArqCancelamento,
+    ArqSolicitacaoMOD,
+    Guia,
+    GuiCan,
+    oWsAcessoModel,
+)
+from sme_sigpae_api.logistica.models.solicitacao import SolicitacaoRemessa
+from sme_sigpae_api.terceirizada.models import Terceirizada
 
 from ...escola import models
 from ..models.guia import ConferenciaIndividualPorAlimento
@@ -512,3 +522,132 @@ def token_valido():
     model = oWsAcessoModel(StrId="123456", StrToken="oWsAcessoModel")
 
     return usuario, token, model
+
+
+@pytest.fixture
+def fake_alimento():
+    return {
+        "StrCodSup": fake.unique.random_number(digits=5, fix_len=True),
+        "StrCodPapa": fake.bothify(text="PAPA####"),
+        "StrNomAli": fake.word(),
+        "StrTpEmbala": fake.word(),
+        "StrQtEmbala": str(fake.random_int(min=1, max=100)),
+        "StrDescEmbala": fake.sentence(),
+        "StrPesoEmbala": str(
+            fake.pydecimal(left_digits=3, right_digits=2, positive=True)
+        ),
+        "StrUnMedEmbala": fake.random_element(elements=["kg", "g", "ml", "L"]),
+    }
+
+
+@pytest.fixture
+def soup_alimento(fake_alimento):
+    return Alimento(**fake_alimento)
+
+
+@pytest.fixture
+def fake_guia(soup_alimento):
+    return {
+        "StrNumGui": fake.random_int(min=1000, max=9999),
+        "DtEntrega": fake.date_object(),
+        "StrCodUni": fake.bothify(text="UNI####"),
+        "StrNomUni": fake.company(),
+        "StrEndUni": fake.street_address(),
+        "StrNumUni": str(fake.random_int(min=1, max=1000)),
+        "StrBaiUni": fake.city_suffix(),
+        "StrCepUni": fake.postcode(),
+        "StrCidUni": fake.city(),
+        "StrEstUni": fake.state_abbr(),
+        "StrConUni": fake.name(),
+        "StrTelUni": fake.phone_number(),
+        "alimentos": [soup_alimento],
+    }
+
+
+@pytest.fixture
+def soup_guia(fake_guia):
+    return Guia(**fake_guia)
+
+
+@pytest.fixture
+def fake_arq_solicitacao_mod(soup_guia):
+    return {
+        "StrCnpj": fake.cnpj(),
+        "StrNumSol": fake.random_int(min=1000, max=9999),
+        "IntSeqenv": fake.random_int(min=1, max=10),
+        "IntTotVol": fake.random_int(min=1, max=50),
+        "IntQtGuia": 1,
+        "guias": [soup_guia],
+    }
+
+
+@pytest.fixture
+def soup_arq_solicitacao_mod(fake_arq_solicitacao_mod):
+    return ArqSolicitacaoMOD(**fake_arq_solicitacao_mod)
+
+
+@pytest.fixture
+def soup_guican():
+    return GuiCan(StrNumGui=fake.random_int(min=1000, max=9999))
+
+
+@pytest.fixture
+def fake_arq_cancelamento(fake_arq_solicitacao_mod):
+    guia = fake_arq_solicitacao_mod["guias"][0]
+    return {
+        "StrCnpj": fake_arq_solicitacao_mod["StrCnpj"],
+        "StrNumSol": fake_arq_solicitacao_mod["StrNumSol"],
+        "IntSeqenv": fake_arq_solicitacao_mod["IntSeqenv"],
+        "IntQtGuia": fake_arq_solicitacao_mod["IntQtGuia"],
+        "guias": [GuiCan(StrNumGui=guia.StrNumGui)],
+    }
+
+
+@pytest.fixture
+def soup_arq_cancelamento(fake_arq_cancelamento):
+    return ArqCancelamento(**fake_arq_cancelamento)
+
+
+@pytest.fixture
+def terceirizada_soup():
+    cnpj = fake.cnpj().replace(".", "").replace("/", "").replace("-", "")
+    return mommy.make(
+        "Terceirizada", cnpj=cnpj, tipo_servico=Terceirizada.DISTRIBUIDOR_ARMAZEM
+    )
+
+
+@pytest.fixture
+def arq_solicitacao_mod(fake_arq_solicitacao_mod, soup_guia, terceirizada_soup):
+    codigo_codae = fake.random_int(min=1000, max=9999)
+    soup_guia.StrCodUni = codigo_codae
+    mommy.make("Escola", codigo_codae=codigo_codae)
+    arquivo_solicitacao = ArqSolicitacaoMOD(
+        StrCnpj=terceirizada_soup.cnpj,
+        StrNumSol=fake_arq_solicitacao_mod.get("StrNumSol"),
+        IntSeqenv=fake_arq_solicitacao_mod.get("IntSeqenv"),
+        IntTotVol=fake_arq_solicitacao_mod.get("IntTotVol"),
+        guias=[soup_guia],
+        IntQtGuia=fake_arq_solicitacao_mod.get("IntQtGuia"),
+    )
+    return arquivo_solicitacao
+
+
+@pytest.fixture
+def soup_solicitacao_remessa(arq_solicitacao_mod):
+    data = get_object_as_dict(arq_solicitacao_mod)
+    guias = data.pop("guias", [])
+    data.pop("IntTotVol", None)
+    return SolicitacaoRemessa.objects.create_solicitacao(**data), guias
+
+
+@pytest.fixture
+def dicioanario_alimentos(soup_solicitacao_remessa):
+    solicitacao, guias = soup_solicitacao_remessa
+    guia = guias[0]
+    alimentos_data = guia.pop("alimentos", [])[0]
+    guia_obj = Guia().build_guia_obj(guia, solicitacao)
+    escola = models.Escola.objects.get(codigo_codae=guia_obj.codigo_unidade)
+    guia_obj.escola = escola
+    guia_obj.save()
+    alimentos_data["guia"] = guia_obj
+    return alimentos_data
