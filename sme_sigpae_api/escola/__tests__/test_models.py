@@ -18,6 +18,7 @@ from ..models import (
     LogAlunosMatriculadosPeriodoEscola,
     LogAtualizaDadosAluno,
     LogRotinaDiariaAlunos,
+    PeriodoEscolar,
     PlanilhaAtualizacaoTipoGestaoEscola,
     PlanilhaEscolaDeParaCodigoEolCodigoCoade,
     TipoGestao,
@@ -543,3 +544,38 @@ def test_dia_suspensao_atividades_model(dia_suspensao_atividades):
         dia_suspensao_atividades.__str__()
         == "08/08/2022 - EMEF - Edital Edital de Pregão nº 13/SME/2020"
     )
+
+
+def test_possui_alunos_regulares_retorna_false(
+    alunos_matriculados_periodo_escola_programas,
+):
+    assert (
+        alunos_matriculados_periodo_escola_programas.escola.possui_alunos_regulares
+        is False
+    )
+
+
+def test_possui_alunos_regulares_retorna_true(
+    alunos_matriculados_periodo_escola_regular,
+):
+    assert (
+        alunos_matriculados_periodo_escola_regular.escola.possui_alunos_regulares
+        is True
+    )
+
+
+def test_periodos_escolares_cei(escola_cei, periodo_escolar):
+    periodos = escola_cei.periodos_escolares()
+    assert periodos.count() == 1
+    assert isinstance(periodos[0], PeriodoEscolar)
+    assert periodos[0].nome == periodo_escolar.nome
+
+
+def test_periodos_escolares_cmct(escola_cmct):
+    assert escola_cmct.possui_alunos_regulares is False
+    periodos = escola_cmct.periodos_escolares()
+    assert periodos.count() == 2
+    assert isinstance(periodos[0], PeriodoEscolar)
+    assert periodos[0].nome == "NOITE"
+    assert isinstance(periodos[1], PeriodoEscolar)
+    assert periodos[1].nome == "MANHA"

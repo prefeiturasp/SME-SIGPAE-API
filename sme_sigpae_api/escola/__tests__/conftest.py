@@ -45,6 +45,11 @@ Faker.seed(420)
 
 
 @pytest.fixture
+def periodo_escolar():
+    return mommy.make(models.PeriodoEscolar, nome="INTEGRAL", tipo_turno=1)
+
+
+@pytest.fixture
 def tipo_unidade_escolar():
     cardapio1 = mommy.make("cardapio.Cardapio", data=datetime.date(2019, 10, 11))
     cardapio2 = mommy.make("cardapio.Cardapio", data=datetime.date(2019, 10, 15))
@@ -92,6 +97,7 @@ def escola(lote, tipo_gestao, diretoria_regional):
         lote=lote,
         tipo_gestao=tipo_gestao,
         contato=mommy.make("Contato", email="escola@email.com"),
+        uuid="4282d012-2f38-4f04-97a3-217c49bb8040",
     )
 
 
@@ -188,11 +194,6 @@ def faixa_idade_escolar():
 @pytest.fixture
 def codae(escola):
     return mommy.make(models.Codae, make_m2m=True)
-
-
-@pytest.fixture
-def periodo_escolar():
-    return mommy.make(models.PeriodoEscolar, nome="INTEGRAL", tipo_turno=1)
 
 
 @pytest.fixture
@@ -1192,6 +1193,77 @@ def escola_edital_41(escola):
         edital=edital,
         tipo_produto="Comum",
         uuid="0f81a49b-0836-42d5-af9e-12cbd7ca76a8",
+    )
+
+    return escola
+
+
+@pytest.fixture
+def tipo_alimentacao():
+    return mommy.make("cardapio.TipoAlimentacao", nome="Refeição")
+
+
+@pytest.fixture
+def tipo_alimentacao_lanche_emergencial():
+    return mommy.make("cardapio.TipoAlimentacao", nome="Lanche Emergencial")
+
+
+@pytest.fixture
+def escola_cmct(tipo_alimentacao, tipo_alimentacao_lanche_emergencial):
+    noite = mommy.make(models.PeriodoEscolar, nome="NOITE", tipo_turno=2)
+    manha = mommy.make(models.PeriodoEscolar, nome="MANHA", tipo_turno=1)
+    tipo_unidade_escolar = mommy.make(models.TipoUnidadeEscolar, iniciais="CMCT")
+    mommy.make(
+        "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
+        periodo_escolar=manha,
+        tipo_unidade_escolar=tipo_unidade_escolar,
+        tipos_alimentacao=[tipo_alimentacao, tipo_alimentacao_lanche_emergencial],
+    )
+    mommy.make(
+        "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
+        periodo_escolar=noite,
+        tipo_unidade_escolar=tipo_unidade_escolar,
+        tipos_alimentacao=[tipo_alimentacao, tipo_alimentacao_lanche_emergencial],
+    )
+
+    terceirizada = mommy.make("Terceirizada")
+    lote = mommy.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = mommy.make(
+        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+    )
+    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
+    escola = mommy.make(
+        "Escola",
+        nome="CMCT TESTE",
+        lote=lote,
+        diretoria_regional=diretoria_regional,
+        tipo_gestao=tipo_gestao,
+        tipo_unidade=tipo_unidade_escolar,
+    )
+    mommy.make(
+        "Aluno",
+        escola=escola,
+        periodo_escolar=manha,
+    )
+    mommy.make(
+        "Aluno",
+        escola=escola,
+        periodo_escolar=noite,
+    )
+
+    mommy.make(
+        models.AlunosMatriculadosPeriodoEscola,
+        escola=escola,
+        periodo_escolar=manha,
+        quantidade_alunos=50,
+        tipo_turma=models.TipoTurma.PROGRAMAS.name,
+    )
+    mommy.make(
+        models.AlunosMatriculadosPeriodoEscola,
+        escola=escola,
+        periodo_escolar=noite,
+        quantidade_alunos=50,
+        tipo_turma=models.TipoTurma.PROGRAMAS.name,
     )
 
     return escola

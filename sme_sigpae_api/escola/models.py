@@ -651,7 +651,7 @@ class Escola(
         elif not self.possui_alunos_regulares:
             periodos = PeriodoEscolar.objects.filter(
                 vinculotipoalimentacaocomperiodoescolaretipounidadeescolar__tipo_unidade_escolar=self.tipo_unidade,
-                vinculotipoalimentacaocomperiodoescolaretipounidadeescolar__ativo=True
+                vinculotipoalimentacaocomperiodoescolaretipounidadeescolar__ativo=True,
             ).distinct()
         else:
             # TODO: ver uma forma melhor de fazer essa query
