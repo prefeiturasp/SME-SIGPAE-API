@@ -644,18 +644,15 @@ class Escola(
             periodos = PeriodoEscolar.objects.filter(
                 nome__in=PERIODOS_ESPECIAIS_CEI_CEU_CCI
             )
-        elif not self.possui_alunos_regulares:
-            periodos_ids = self.tipo_unidade.vinculotipoalimentacaocomperiodoescolaretipounidadeescolar_set.filter(
-                ativo=True
-            ).values_list(
-                "periodo_escolar", flat=True
-            )
-            periodos = PeriodoEscolar.objects.filter(id__in=periodos_ids)
-
         elif self.eh_cei:
             periodos = PeriodoEscolar.objects.filter(
                 nome__in=PERIODOS_ESPECIAIS_CEI_DIRET
             )
+        elif not self.possui_alunos_regulares:
+            periodos = PeriodoEscolar.objects.filter(
+                vinculotipoalimentacaocomperiodoescolaretipounidadeescolar__tipo_unidade_escolar=self.tipo_unidade,
+                vinculotipoalimentacaocomperiodoescolaretipounidadeescolar__ativo=True
+            ).distinct()
         else:
             # TODO: ver uma forma melhor de fazer essa query
             periodos_ids = self.logs_alunos_matriculados_por_periodo.filter(
