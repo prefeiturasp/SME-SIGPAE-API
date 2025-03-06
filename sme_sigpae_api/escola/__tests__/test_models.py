@@ -564,18 +564,28 @@ def test_possui_alunos_regulares_retorna_true(
     )
 
 
-def test_periodos_escolares_cei(escola_cei, periodo_escolar):
+def test_periodos_escolares_escola_cei(escola_cei, periodo_escolar):
     periodos = escola_cei.periodos_escolares()
     assert periodos.count() == 1
     assert isinstance(periodos[0], PeriodoEscolar)
     assert periodos[0].nome == periodo_escolar.nome
 
 
-def test_periodos_escolares_cmct(escola_cmct):
+def test_periodos_escolares_escola_cemei(escola_cemei):
+    periodos = escola_cemei.periodos_escolares()
+    assert periodos.count() == 0
+
+
+def test_periodos_escolares_escola_emebs(escola_emebs):
+    periodos = escola_emebs.periodos_escolares()
+    assert periodos.count() == 0
+
+
+def test_periodos_escolares_escola_cmct(escola_cmct):
     assert escola_cmct.possui_alunos_regulares is False
     periodos = escola_cmct.periodos_escolares()
     assert periodos.count() == 2
-    assert isinstance(periodos[0], PeriodoEscolar)
-    assert periodos[0].nome == "NOITE"
-    assert isinstance(periodos[1], PeriodoEscolar)
-    assert periodos[1].nome == "MANHA"
+    esperado = [("NOITE", PeriodoEscolar), ("MANHA", PeriodoEscolar)]
+    for periodo, (nome_esperado, tipo_esperado) in zip(periodos, esperado):
+        assert isinstance(periodo, tipo_esperado)
+        assert periodo.nome == nome_esperado

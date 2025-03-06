@@ -1205,7 +1205,7 @@ def tipo_alimentacao():
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
-    return mommy.make("cardapio.TipoAlimentacao", nome="Lanche Emergencial")
+    return mommy.make("cardapio.TipoAlimentacao", nome="Sobremesa")
 
 
 @pytest.fixture
