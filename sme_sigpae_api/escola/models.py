@@ -1565,6 +1565,17 @@ class Aluno(TemChaveExterna):
         except MultipleObjectsReturned:
             logger.critical("Aluno não deve possuir mais de uma Dieta Especial ativa")
 
+    def cria_historico(self, codigo_situacao, situacao, escola=None):
+        historico = HistoricoMatriculaAluno(
+            aluno=self,
+            escola=escola or self.escola,
+            data_inicio=datetime.date.today(),
+            codigo_situacao=codigo_situacao,
+            situacao=situacao,
+        )
+        historico.save()
+        return historico
+
     class Meta:
         verbose_name = "Aluno"
         verbose_name_plural = "Alunos"
@@ -2124,7 +2135,6 @@ class HistoricoMatriculaAluno(TemChaveExterna):
     class Meta:
         verbose_name = "Histórico de Matrícula do Aluno"
         verbose_name_plural = "Históricos de Matrículas dos Alunos"
-        unique_together = ["aluno", "escola"]
 
     def __str__(self) -> str:
         return f"{self.aluno} - {self.escola} | De: {self.data_inicio} Ate: {self.data_fim}"

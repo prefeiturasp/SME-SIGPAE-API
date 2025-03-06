@@ -261,6 +261,7 @@ class Command(BaseCommand):
         self, escola, dados_alunos_escola, dados_alunos_escola_prox_ano
     ):
         novos_alunos = {}
+        registros_alunos_novos = {}
         self.total_alunos += len(dados_alunos_escola)
         codigos_consultados = []
         for registro in dados_alunos_escola:
@@ -281,9 +282,22 @@ class Command(BaseCommand):
                 data_nascimento = registro["dataNascimento"].split("T")[0]
                 if aluno:
                     self._atualiza_aluno(aluno, registro, data_nascimento, escola)
+                    self._lida_com_matricula_aluno_existente(aluno, registro)
                 else:
                     novos_alunos[registro["codigoAluno"]] = self._monta_obj_aluno(
                         registro, escola, data_nascimento
+                    )
+                    registros_alunos_novos[registro["codigoAluno"]] = registro
+            if (
+                registro["codigoSituacaoMatricula"] not in self.status_matricula_ativa
+                or self.aluno_matriculado_prox_ano(
+                    dados_alunos_escola_prox_ano, registro["nomeAluno"]
+                )
+            ) and registro["codigoTipoTurma"] == self.codigo_turma_regular:
+                aluno = Aluno.objects.filter(codigo_eol=registro["codigoAluno"]).first()
+                if aluno:
+                    self._lida_com_matricula_aluno_existente_outra_escola(
+                        aluno, registro, escola
                     )
 
         alunos_nao_consultados = Aluno.objects.filter(escola=escola).exclude(
@@ -291,6 +305,7 @@ class Command(BaseCommand):
         )
         self._desvincular_matriculas(alunos_nao_consultados)
         Aluno.objects.bulk_create(novos_alunos.values())
+        self._lida_com_matricula_alunos_novos(novos_alunos, registros_alunos_novos)
 
     def _atualiza_todas_as_escolas_d_menos_1(self):
         escolas = Escola.objects.all()
@@ -311,6 +326,51 @@ class Command(BaseCommand):
                 self._atualiza_alunos_da_escola(
                     escola, dados_alunos_escola, dados_alunos_escola_prox_ano
                 )
+
+    def _lida_com_matricula_aluno_existente(self, aluno: Aluno, registro: dict):
+        codigo_situacao = registro["codigoSituacaoMatricula"]
+        situacao = registro["situacaoMatricula"]
+
+        if not aluno.historico.exists():
+            aluno.cria_historico(codigo_situacao, situacao)
+            return
+
+        if not aluno.historico.filter(escola=aluno.escola).exists():
+            aluno.cria_historico(codigo_situacao, situacao)
+
+        if codigo_situacao not in self.status_matricula_ativa:
+            aluno.historico.filter(escola=aluno.escola).update(
+                data_fim=datetime.date.today(),
+                codigo_situacao=codigo_situacao,
+                situacao=situacao,
+            )
+
+    def _lida_com_matricula_alunos_novos(
+        self, dict_alunos: dict[Aluno], registros_alunos_novos: dict
+    ):
+        for codigo_eol, aluno in dict_alunos.items():
+            codigo_situacao = registros_alunos_novos[aluno.codigo_eol][
+                "codigoSituacaoMatricula"
+            ]
+            situacao = registros_alunos_novos[aluno.codigo_eol]["situacaoMatricula"]
+            aluno_obj = Aluno.objects.get(codigo_eol=aluno.codigo_eol)
+            aluno_obj.cria_historico(codigo_situacao, situacao)
+
+    def _lida_com_matricula_aluno_existente_outra_escola(
+        self, aluno: Aluno, registro: dict, escola: Escola
+    ):
+        codigo_situacao = registro["codigoSituacaoMatricula"]
+        situacao = registro["situacaoMatricula"]
+
+        if not aluno.historico.filter(escola=escola).exists():
+            aluno.cria_historico(codigo_situacao, situacao, escola)
+
+        if aluno.historico.filter(escola=escola, data_fim=None).exists():
+            aluno.historico.filter(escola=escola).update(
+                data_fim=datetime.date.today(),
+                codigo_situacao=codigo_situacao,
+                situacao=situacao,
+            )
 
 
 class MaxRetriesExceeded(Exception):
