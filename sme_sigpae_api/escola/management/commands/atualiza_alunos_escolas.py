@@ -189,7 +189,9 @@ class Command(BaseCommand):
             todos_os_registros.extend(dados_alunos_escola)
             todos_os_registros.extend(dados_alunos_escola_prox_ano)
 
-        todos_os_registros.sort(key=lambda x: (x["codigoAluno"], x["anoLetivo"]))
+        todos_os_registros.sort(
+            key=lambda x: (x["codigoAluno"], x["anoLetivo"], x["dataSituacao"])
+        )
         return todos_os_registros
 
     def _processa_dados_alunos(self, dados_alunos, escola):
@@ -215,12 +217,13 @@ class Command(BaseCommand):
                         f"{self.contador_alunos} DE UM TOTAL DE {self.total_alunos} MATRICULAS"
                     )
                 )
+            escola = Escola.objects.get(codigo_eol=registro["codigoEolEscola"])
+            self._lida_com_matricula_aluno_existente_d_menos_2(registro, escola)
             if registro["codigoAluno"] in alunos_ativos:
                 continue
             if registro["codigoTipoTurma"] != self.codigo_turma_regular:
                 continue
 
-            escola = Escola.objects.get(codigo_eol=registro["codigoEolEscola"])
             self._trata_alunos_status_ativo_d_menos_2(
                 registro,
                 alunos_ativos,
@@ -229,7 +232,6 @@ class Command(BaseCommand):
                 registros_alunos_novos,
                 escola,
             )
-            self._trata_alunos_status_NAO_ativo_d_menos_2(registro, escola)
 
         self.stdout.write(self.style.SUCCESS("criando alunos... aguarde..."))
         Aluno.objects.bulk_create(novos_alunos.values())
@@ -257,20 +259,11 @@ class Command(BaseCommand):
             if aluno:
                 self._atualiza_aluno(aluno, registro, data_nascimento, escola)
                 alunos_para_atualizar.append(aluno)
-                self._lida_com_matricula_aluno_existente(aluno, registro)
             else:
                 novos_alunos[registro["codigoAluno"]] = self._monta_obj_aluno(
                     registro, escola, data_nascimento
                 )
                 registros_alunos_novos[registro["codigoAluno"]] = registro
-
-    def _trata_alunos_status_NAO_ativo_d_menos_2(self, registro, escola):
-        if registro["codigoSituacaoMatricula"] not in self.status_matricula_ativa:
-            aluno = Aluno.objects.filter(codigo_eol=registro["codigoAluno"]).first()
-            if aluno:
-                self._lida_com_matricula_aluno_existente_outra_escola(
-                    aluno, registro, escola
-                )
 
     def _desvincular_matriculas(self, alunos):
         alunos.update(nao_matriculado=True, escola=None)
@@ -430,6 +423,40 @@ class Command(BaseCommand):
             aluno.cria_historico(codigo_situacao, situacao, escola)
 
         if aluno.historico.filter(escola=escola, data_fim=None).exists():
+            aluno.historico.filter(escola=escola).update(
+                data_fim=datetime.date.today(),
+                codigo_situacao=codigo_situacao,
+                situacao=situacao,
+            )
+
+    def _lida_com_matricula_aluno_existente_d_menos_2(
+        self, registro: dict, escola: Escola
+    ):
+        aluno = Aluno.objects.filter(codigo_eol=registro["codigoAluno"]).first()
+
+        if not aluno:
+            return
+
+        codigo_situacao = registro["codigoSituacaoMatricula"]
+        situacao = registro["situacaoMatricula"]
+
+        if not aluno.historico.filter(escola=escola).exists():
+            aluno.cria_historico(codigo_situacao, situacao, escola)
+
+        if (
+            aluno.historico.filter(escola=escola, data_fim__isnull=False).exists()
+            and codigo_situacao in self.status_matricula_ativa
+        ):
+            aluno.historico.filter(escola=escola).update(
+                data_fim=None,
+                codigo_situacao=codigo_situacao,
+                situacao=situacao,
+            )
+
+        if (
+            aluno.historico.filter(escola=escola, data_fim=None).exists()
+            and codigo_situacao not in self.status_matricula_ativa
+        ):
             aluno.historico.filter(escola=escola).update(
                 data_fim=datetime.date.today(),
                 codigo_situacao=codigo_situacao,
