@@ -170,79 +170,107 @@ class Command(BaseCommand):
         aluno.ciclo = registro.get("cicloEnsino", None)
         aluno.desc_etapa = registro.get("descEtapaEnsino", "")
         aluno.desc_ciclo = registro.get("descCicloEnsino", "")
-        aluno.save()
 
     def get_todos_os_registros(self):
-        escolas = Escola.objects.all()
+        escolas = Escola.objects.prefetch_related("aluno_set")
         proximo_ano = datetime.date.today().year + 1
 
-        total = escolas.count()
         todos_os_registros = []
+        total = escolas.count()
         for i, escola in enumerate(escolas):
-            logger.debug(f"{i + 1}/{total} - {escola}")
-            dados_alunos_escola = self._obtem_alunos_escola(escola.codigo_eol)
-            dados_alunos_escola_prox_ano = self._obtem_alunos_escola(
-                escola.codigo_eol, proximo_ano
+            if (i + 1) % 10 == 0:
+                logger.debug(f"{i + 1}/{total} - {escola}")
+            dados_alunos_escola = self._processa_dados_alunos(
+                self._obtem_alunos_escola(escola.codigo_eol), escola
             )
-            if (
-                dados_alunos_escola
-                and type(dados_alunos_escola) is list
-                and len(dados_alunos_escola) > 0
-            ):
-                for dado in dados_alunos_escola:
-                    dado["codigoEolEscola"] = escola.codigo_eol
-                todos_os_registros += dados_alunos_escola
-            if (
-                dados_alunos_escola_prox_ano
-                and type(dados_alunos_escola_prox_ano) is list
-                and len(dados_alunos_escola_prox_ano) > 0
-            ):
-                for dado in dados_alunos_escola_prox_ano:
-                    dado["codigoEolEscola"] = escola.codigo_eol
-                todos_os_registros += dados_alunos_escola_prox_ano
-        todos_os_registros = sorted(
-            todos_os_registros,
-            key=lambda registro_: (
-                registro_["codigoAluno"],
-                registro_["anoLetivo"],
-            ),
-        )
+            dados_alunos_escola_prox_ano = self._processa_dados_alunos(
+                self._obtem_alunos_escola(escola.codigo_eol, proximo_ano), escola
+            )
+            todos_os_registros.extend(dados_alunos_escola)
+            todos_os_registros.extend(dados_alunos_escola_prox_ano)
+
+        todos_os_registros.sort(key=lambda x: (x["codigoAluno"], x["anoLetivo"]))
         return todos_os_registros
+
+    def _processa_dados_alunos(self, dados_alunos, escola):
+        if dados_alunos and isinstance(dados_alunos, list):
+            for dado in dados_alunos:
+                dado["codigoEolEscola"] = escola.codigo_eol
+            return dados_alunos
+        return []
 
     def _atualiza_todas_as_escolas_d_menos_2(self):
         todos_os_registros = self.get_todos_os_registros()
         self.total_alunos += len(todos_os_registros)
-        alunos_ativos = []
+        alunos_ativos = set()
         novos_alunos = {}
+        alunos_para_atualizar = []
+        registros_alunos_novos = {}
+
         for registro in todos_os_registros:
             self.contador_alunos += 1
-            self.stdout.write(
-                self.style.SUCCESS(
-                    f"{self.contador_alunos} DE UM TOTAL DE {self.total_alunos} MATRICULAS"
+            if self.contador_alunos % 10 == 0:
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f"{self.contador_alunos} DE UM TOTAL DE {self.total_alunos} MATRICULAS"
+                    )
                 )
-            )
             if registro["codigoAluno"] in alunos_ativos:
                 continue
-            if (
-                registro["codigoSituacaoMatricula"] in self.status_matricula_ativa
-                and registro["codigoTipoTurma"] == self.codigo_turma_regular
-            ):
-                alunos_ativos.append(registro["codigoAluno"])
-                escola = Escola.objects.get(codigo_eol=registro["codigoEolEscola"])
-                data_nascimento = registro["dataNascimento"].split("T")[0]
-                try:
-                    aluno = Aluno.objects.get(codigo_eol=registro["codigoAluno"])
-                    self._atualiza_aluno(aluno, registro, data_nascimento, escola)
-                except Aluno.DoesNotExist:
-                    novos_alunos[registro["codigoAluno"]] = self._monta_obj_aluno(
-                        registro, escola, data_nascimento
-                    )
+            if registro["codigoTipoTurma"] != self.codigo_turma_regular:
+                continue
+
+            escola = Escola.objects.get(codigo_eol=registro["codigoEolEscola"])
+            self._trata_alunos_status_ativo_d_menos_2(
+                registro,
+                alunos_ativos,
+                alunos_para_atualizar,
+                novos_alunos,
+                registros_alunos_novos,
+                escola,
+            )
+            self._trata_alunos_status_NAO_ativo_d_menos_2(registro, escola)
+
         self.stdout.write(self.style.SUCCESS("criando alunos... aguarde..."))
         Aluno.objects.bulk_create(novos_alunos.values())
+        self.stdout.write(self.style.SUCCESS("atualizando alunos... aguarde..."))
+        self._atualiza_alunos(alunos_para_atualizar)
         self.stdout.write(self.style.SUCCESS("desvinculando alunos... aguarde..."))
-        Aluno.objects.filter(escola__isnull=False).exclude(
-            codigo_eol__in=alunos_ativos
-        ).update(nao_matriculado=True, escola=None)
+        self.stdout.write(
+            self.style.SUCCESS("Criando histórico de matrículas... aguarde...")
+        )
+        self._lida_com_matricula_alunos_novos(novos_alunos, registros_alunos_novos)
+
+    def _trata_alunos_status_ativo_d_menos_2(
+        self,
+        registro,
+        alunos_ativos,
+        alunos_para_atualizar,
+        novos_alunos,
+        registros_alunos_novos,
+        escola,
+    ):
+        if registro["codigoSituacaoMatricula"] in self.status_matricula_ativa:
+            alunos_ativos.add(registro["codigoAluno"])
+            aluno = Aluno.objects.filter(codigo_eol=registro["codigoAluno"]).first()
+            data_nascimento = registro["dataNascimento"].split("T")[0]
+            if aluno:
+                self._atualiza_aluno(aluno, registro, data_nascimento, escola)
+                alunos_para_atualizar.append(aluno)
+                self._lida_com_matricula_aluno_existente(aluno, registro)
+            else:
+                novos_alunos[registro["codigoAluno"]] = self._monta_obj_aluno(
+                    registro, escola, data_nascimento
+                )
+                registros_alunos_novos[registro["codigoAluno"]] = registro
+
+    def _trata_alunos_status_NAO_ativo_d_menos_2(self, registro, escola):
+        if registro["codigoSituacaoMatricula"] not in self.status_matricula_ativa:
+            aluno = Aluno.objects.filter(codigo_eol=registro["codigoAluno"]).first()
+            if aluno:
+                self._lida_com_matricula_aluno_existente_outra_escola(
+                    aluno, registro, escola
+                )
 
     def _desvincular_matriculas(self, alunos):
         alunos.update(nao_matriculado=True, escola=None)
@@ -264,51 +292,87 @@ class Command(BaseCommand):
         registros_alunos_novos = {}
         self.total_alunos += len(dados_alunos_escola)
         codigos_consultados = []
+        alunos_para_atualizar = []
         for registro in dados_alunos_escola:
             self.contador_alunos += 1
-            self.stdout.write(
-                self.style.SUCCESS(
-                    f"{self.contador_alunos} DE UM TOTAL DE {self.total_alunos} MATRICULAS"
+            if self.contador_alunos % 10 == 0:
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f"{self.contador_alunos} DE UM TOTAL DE {self.total_alunos} MATRICULAS"
+                    )
                 )
+            if registro["codigoTipoTurma"] != self.codigo_turma_regular:
+                continue
+            self._trata_aluno_status_ativo(
+                registro,
+                escola,
+                dados_alunos_escola_prox_ano,
+                codigos_consultados,
+                alunos_para_atualizar,
+                novos_alunos,
+                registros_alunos_novos,
             )
-            if (
-                registro["codigoSituacaoMatricula"] in self.status_matricula_ativa
-                or self.aluno_matriculado_prox_ano(
-                    dados_alunos_escola_prox_ano, registro["nomeAluno"]
-                )
-            ) and registro["codigoTipoTurma"] == self.codigo_turma_regular:
-                codigos_consultados.append(registro["codigoAluno"])
-                aluno = Aluno.objects.filter(codigo_eol=registro["codigoAluno"]).first()
-                data_nascimento = registro["dataNascimento"].split("T")[0]
-                if aluno:
-                    self._atualiza_aluno(aluno, registro, data_nascimento, escola)
-                    self._lida_com_matricula_aluno_existente(aluno, registro)
-                else:
-                    novos_alunos[registro["codigoAluno"]] = self._monta_obj_aluno(
-                        registro, escola, data_nascimento
-                    )
-                    registros_alunos_novos[registro["codigoAluno"]] = registro
-            if (
-                registro["codigoSituacaoMatricula"] not in self.status_matricula_ativa
-                or self.aluno_matriculado_prox_ano(
-                    dados_alunos_escola_prox_ano, registro["nomeAluno"]
-                )
-            ) and registro["codigoTipoTurma"] == self.codigo_turma_regular:
-                aluno = Aluno.objects.filter(codigo_eol=registro["codigoAluno"]).first()
-                if aluno:
-                    self._lida_com_matricula_aluno_existente_outra_escola(
-                        aluno, registro, escola
-                    )
+            self._trata_alunos_status_NAO_ativo(
+                registro, escola, dados_alunos_escola_prox_ano
+            )
 
         alunos_nao_consultados = Aluno.objects.filter(escola=escola).exclude(
             codigo_eol__in=codigos_consultados
         )
         self._desvincular_matriculas(alunos_nao_consultados)
         Aluno.objects.bulk_create(novos_alunos.values())
+        self.stdout.write(self.style.SUCCESS("atualizando alunos... aguarde..."))
+        self._atualiza_alunos(alunos_para_atualizar)
+        self.stdout.write(
+            self.style.SUCCESS("Criando histórico de matrículas... aguarde...")
+        )
         self._lida_com_matricula_alunos_novos(novos_alunos, registros_alunos_novos)
 
+    def _trata_aluno_status_ativo(
+        self,
+        registro,
+        escola,
+        dados_alunos_escola_prox_ano,
+        codigos_consultados,
+        alunos_para_atualizar,
+        novos_alunos,
+        registros_alunos_novos,
+    ):
+        if registro[
+            "codigoSituacaoMatricula"
+        ] in self.status_matricula_ativa or self.aluno_matriculado_prox_ano(
+            dados_alunos_escola_prox_ano, registro["nomeAluno"]
+        ):
+            codigos_consultados.append(registro["codigoAluno"])
+            aluno = Aluno.objects.filter(codigo_eol=registro["codigoAluno"]).first()
+            data_nascimento = registro["dataNascimento"].split("T")[0]
+            if aluno:
+                self._atualiza_aluno(aluno, registro, data_nascimento, escola)
+                alunos_para_atualizar.append(aluno)
+                self._lida_com_matricula_aluno_existente(aluno, registro)
+            else:
+                novos_alunos[registro["codigoAluno"]] = self._monta_obj_aluno(
+                    registro, escola, data_nascimento
+                )
+                registros_alunos_novos[registro["codigoAluno"]] = registro
+
+    def _trata_alunos_status_NAO_ativo(
+        self, registro, escola, dados_alunos_escola_prox_ano
+    ):
+        if not (
+            registro["codigoSituacaoMatricula"] in self.status_matricula_ativa
+            or self.aluno_matriculado_prox_ano(
+                dados_alunos_escola_prox_ano, registro["nomeAluno"]
+            )
+        ):
+            aluno = Aluno.objects.filter(codigo_eol=registro["codigoAluno"]).first()
+            if aluno:
+                self._lida_com_matricula_aluno_existente_outra_escola(
+                    aluno, registro, escola
+                )
+
     def _atualiza_todas_as_escolas_d_menos_1(self):
-        escolas = Escola.objects.all()
+        escolas = Escola.objects.prefetch_related("aluno_set")
         proximo_ano = datetime.date.today().year + 1
 
         total = escolas.count()
@@ -371,6 +435,23 @@ class Command(BaseCommand):
                 codigo_situacao=codigo_situacao,
                 situacao=situacao,
             )
+
+    def _atualiza_alunos(self, lista_alunos: list[Aluno]):
+        fields_to_update = [
+            "nome",
+            "codigo_eol",
+            "data_nascimento",
+            "escola",
+            "periodo_escolar",
+            "cpf",
+            "nao_matriculado",
+            "serie",
+            "etapa",
+            "ciclo",
+            "desc_etapa",
+            "desc_ciclo",
+        ]
+        Aluno.objects.bulk_update(lista_alunos, fields=fields_to_update)
 
 
 class MaxRetriesExceeded(Exception):
