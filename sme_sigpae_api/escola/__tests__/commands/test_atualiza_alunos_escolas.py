@@ -87,20 +87,20 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         self.setup_escola2()
 
         AlunoFactory.create(
-            codigo_eol="7388348",
+            codigo_eol="7777777",
             periodo_escolar=self.periodo_escolar_manha,
             escola=self.escola,
         )
 
-        aluno_7924897 = AlunoFactory.create(
-            codigo_eol="7924897",
+        aluno_9999999 = AlunoFactory.create(
+            codigo_eol="9999999",
             periodo_escolar=self.periodo_escolar_manha,
             escola=self.escola,
         )
-        HistoricoMatriculaAlunoFactory.create(aluno=aluno_7924897, escola=self.escola)
+        HistoricoMatriculaAlunoFactory.create(aluno=aluno_9999999, escola=self.escola)
 
         AlunoFactory.create(
-            codigo_eol="8030441",
+            codigo_eol="8888888",
             periodo_escolar=self.periodo_escolar_manha,
             escola=self.escola,
         )
@@ -112,9 +112,9 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
             mocked_response({}, 404),
         ]
         self.call_command()
-        assert Aluno.objects.count() == 289
+        assert Aluno.objects.count() == 3
 
-        aluno_davi = Aluno.objects.get(nome="DAVI LUCAS THOMAZ NASCIMENTO")
+        aluno_davi = Aluno.objects.get(nome="DAVI ALUNO TESTE")
         assert aluno_davi.nao_matriculado is False
         assert aluno_davi.escola == self.escola
 
@@ -122,14 +122,14 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         historico_escola_000086 = aluno_davi.historico.get(escola=self.escola)
         assert historico_escola_000086.data_fim is None
 
-        aluno_kimberlly = Aluno.objects.get(codigo_eol="8030441")
+        aluno_kimberlly = Aluno.objects.get(codigo_eol="8888888")
         assert aluno_kimberlly.historico.exists() is True
 
-        aluno_theo = Aluno.objects.get(codigo_eol="7924897")
+        aluno_theo = Aluno.objects.get(codigo_eol="9999999")
         assert aluno_theo.historico.count() == 1
         assert aluno_theo.historico.get().data_fim is not None
 
-        assert Aluno.objects.filter(nome="ZOE MOURA VIANA CARDOSO").exists() is False
+        assert Aluno.objects.filter(nome="ZOE ALUNA TESTE").exists() is False
 
     @freeze_time("2024-12-12")
     @patch(
@@ -143,7 +143,7 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         self.setup_escola2_matricula_concluida()
 
         AlunoFactory.create(
-            codigo_eol="7388348",
+            codigo_eol="7777777",
             periodo_escolar=self.periodo_escolar_manha,
             escola=self.escola,
         )
@@ -155,9 +155,9 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
             mocked_response({}, 404),
         ]
         self.call_command()
-        assert Aluno.objects.count() == 288
+        assert Aluno.objects.count() == 2
 
-        aluno_davi = Aluno.objects.get(nome="DAVI LUCAS THOMAZ NASCIMENTO")
+        aluno_davi = Aluno.objects.get(nome="DAVI ALUNO TESTE")
         assert aluno_davi.nao_matriculado is False
         assert aluno_davi.escola == self.escola
 
@@ -168,7 +168,7 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         historico_escola_000094 = aluno_davi.historico.get(escola=self.escola2)
         assert historico_escola_000094.data_fim is not None
 
-        assert Aluno.objects.filter(nome="ZOE MOURA VIANA CARDOSO").exists() is False
+        assert Aluno.objects.filter(nome="ZOE ALUNA TESTE").exists() is False
 
     @freeze_time("2025-01-01")
     @patch(
@@ -181,15 +181,15 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
     ) -> None:
         self.setup_escola2()
 
-        aluno_7924897 = AlunoFactory.create(
-            codigo_eol="7924897",
+        aluno_9999999 = AlunoFactory.create(
+            codigo_eol="9999999",
             periodo_escolar=self.periodo_escolar_manha,
             escola=self.escola,
         )
-        HistoricoMatriculaAlunoFactory.create(aluno=aluno_7924897, escola=self.escola)
+        HistoricoMatriculaAlunoFactory.create(aluno=aluno_9999999, escola=self.escola)
 
         AlunoFactory.create(
-            codigo_eol="8030441",
+            codigo_eol="8888888",
             periodo_escolar=self.periodo_escolar_manha,
             escola=self.escola,
         )
@@ -201,9 +201,9 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
             mocked_response({}, 404),
         ]
         self.call_command()
-        assert Aluno.objects.count() == 289
+        assert Aluno.objects.count() == 3
 
-        aluno_davi = Aluno.objects.get(nome="DAVI LUCAS THOMAZ NASCIMENTO")
+        aluno_davi = Aluno.objects.get(nome="DAVI ALUNO TESTE")
         assert aluno_davi.nao_matriculado is False
         assert aluno_davi.escola == self.escola2
 
@@ -214,14 +214,14 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         historico_escola_000094 = aluno_davi.historico.get(escola=self.escola2)
         assert historico_escola_000094.data_fim is None
 
-        aluno_kimberlly = Aluno.objects.get(codigo_eol="8030441")
+        aluno_kimberlly = Aluno.objects.get(codigo_eol="8888888")
         assert aluno_kimberlly.historico.exists() is True
 
-        aluno_theo = Aluno.objects.get(codigo_eol="7924897")
+        aluno_theo = Aluno.objects.get(codigo_eol="9999999")
         assert aluno_theo.historico.count() == 1
         assert aluno_theo.historico.get().data_fim is not None
 
-        assert Aluno.objects.filter(nome="ZOE MOURA VIANA CARDOSO").exists() is False
+        assert Aluno.objects.filter(nome="ZOE ALUNA TESTE").exists() is False
 
     @freeze_time("2025-01-01")
     @patch(
@@ -240,9 +240,9 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
             mocked_response({}, 404),
         ]
         self.call_command()
-        assert Aluno.objects.count() == 288
+        assert Aluno.objects.count() == 2
 
-        aluno_davi = Aluno.objects.get(nome="DAVI LUCAS THOMAZ NASCIMENTO")
+        aluno_davi = Aluno.objects.get(nome="DAVI ALUNO TESTE")
         assert aluno_davi.nao_matriculado is False
         assert aluno_davi.escola == self.escola
 
@@ -253,7 +253,7 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         historico_escola_000094 = aluno_davi.historico.get(escola=self.escola2)
         assert historico_escola_000094.data_fim is not None
 
-        assert Aluno.objects.filter(nome="ZOE MOURA VIANA CARDOSO").exists() is False
+        assert Aluno.objects.filter(nome="ZOE ALUNA TESTE").exists() is False
 
 
 class TestObtemAlunosEscola(TestCase):
