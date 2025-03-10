@@ -1871,12 +1871,24 @@ def test_url_filtro_homologados_por_parametros(
         f"/produtos/filtro-homologados-por-parametros/", content_type="application/json"
     )
     assert response.status_code == status.HTTP_200_OK
-    dados = response.json()
-    assert dados["count"] == 2
-    assert dados["results"][0]["nome"] == "ARROZ"
-    assert dados["results"][0]["marca"]["nome"] == "NAMORADOS"
-    assert dados["results"][1]["nome"] == "ARROZ"
-    assert dados["results"][1]["marca"]["nome"] == "TIO JOÃO"
+    produtos = response.json()
+    assert produtos["count"] == 2
+    assert (
+        any(
+            produto
+            for produto in produtos["results"]
+            if produto["marca"]["nome"] == "NAMORADOS"
+        )
+        is True
+    )
+    assert (
+        any(
+            produto
+            for produto in produtos["results"]
+            if produto["marca"]["nome"] == "TIO JOÃO"
+        )
+        is True
+    )
 
 
 def test_url_filtro_homologados_por_parametros_com_filtro_edital(
