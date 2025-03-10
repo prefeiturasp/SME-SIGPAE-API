@@ -386,9 +386,11 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
         raw_sql += f"AND escola_lote.diretoria_regional_id = {escola_ou_dre_id}"
         return raw_sql, filtros
 
-    def trata_edital(self, raw_sql, edital):
+    def trata_edital(self, raw_sql, edital, editais=None):
         if edital:
             raw_sql += f" AND produto_edital.edital_id_prod_edit = {edital.id} "
+        elif editais:
+            raw_sql += f" AND produto_edital.edital_id_prod_edit IN ({editais}) "
         return raw_sql
 
     def build_raw_sql_filtro_codae_pediu_analise_reclamacao(
@@ -482,6 +484,7 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
         filtros,
         tipo_usuario,
         escola_ou_dre_id,
+        editais=None,
     ):
         data = {
             "logs": LogSolicitacoesUsuario._meta.db_table,
@@ -577,6 +580,15 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
                 "ON produto_edital.produto_id_prod_edit = %(homologacao_produto)s.produto_id AND "
                 f"produto_edital.edital_id_prod_edit = {edital.id} AND produto_edital.suspenso = false "
             )
+        elif editais:
+            raw_sql += (
+                "LEFT JOIN (SELECT DISTINCT id AS produto_edital_id, suspenso,"
+                "produto_id as produto_id_prod_edit, edital_id as edital_id_prod_edit FROM %(produto_edital)s) "
+                "AS produto_edital "
+                "ON produto_edital.produto_id_prod_edit = %(homologacao_produto)s.produto_id AND "
+                f"produto_edital.edital_id_prod_edit IN ({editais}) AND produto_edital.suspenso = false "
+            )
+
         raw_sql += (
             "LEFT JOIN (SELECT DISTINCT ON (homologacao_produto_id) homologacao_produto_id, escola_id "
             "AS escola_reclamacao_id FROM %(reclamacoes_produto)s) AS homolog_com_reclamacao "
@@ -606,7 +618,7 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
                 )
         if filtro_aplicado == "codae_suspendeu":
             filtros["produto__vinculos__suspenso"] = True
-        raw_sql = self.trata_edital(raw_sql, edital)
+        raw_sql = self.trata_edital(raw_sql, edital, editais=editais)
         raw_sql = self.checa_se_remove_eh_copia(filtro_aplicado, raw_sql)
         raw_sql += "ORDER BY log_criado_em DESC"
         return raw_sql, data
@@ -638,14 +650,27 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
         return query_set
 
     def get_queryset_solicitacoes_homologacao_por_status(
-        self, request_data, perfil_nome, tipo_usuario, escola_ou_dre_id, filtro_aplicado
+        self,
+        request_data,
+        perfil_nome,
+        tipo_usuario,
+        escola_ou_dre_id,
+        filtro_aplicado,
+        instituicao=None,
     ):
         filtros = {}
         page = request_data.get("page", False)
         nome_edital = request_data.get("nome_edital", None)
         edital = None
+        editais = None
+        query_set = self.get_queryset()
         if nome_edital:
             edital = Edital.objects.get(numero=nome_edital)
+        elif hasattr(instituicao, "editais"):
+            id_editais = query_set.filter(
+                produto__vinculos__edital__uuid__in=instituicao.editais,
+            ).values_list("produto__vinculos__edital__id", flat=True)
+            editais = ", ".join(f"'{edital}'" for edital in id_editais)
         algum_filtro = (
             request_data.get("nome_terceirizada")
             or request_data.get("data_homologacao")
@@ -655,7 +680,7 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
             or request_data.get("tipo")
         )
         titulo = request_data.get("titulo_produto", None)
-        query_set = self.get_queryset()
+
         raw_sql, data = self.build_raw_sql_produtos_por_status(
             filtro_aplicado,
             edital,
@@ -663,6 +688,7 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
             filtros,
             tipo_usuario,
             escola_ou_dre_id,
+            editais=editais,
         )
         if page or (edital and not algum_filtro and not titulo):
             query_set = query_set.raw(raw_sql % data)
@@ -737,6 +763,7 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
             user.tipo_usuario,
             user.vinculo_atual.object_id,
             filtro_aplicado,
+            instituicao=user.vinculo_atual.instituicao,
         )
 
         solicitacoes_viewset = SolicitacoesViewSet()
@@ -1810,8 +1837,10 @@ class ProdutoViewSet(viewsets.ModelViewSet):
         logs_homologados = LogSolicitacoesUsuario.objects.filter(
             status_evento=LogSolicitacoesUsuario.CODAE_HOMOLOGADO
         ).values_list("uuid_original", flat=True)
-        queryset = self.filter_queryset(self.get_queryset()).filter(
-            homologacao__uuid__in=logs_homologados
+        queryset = (
+            self.filter_queryset(self.get_queryset())
+            .filter(homologacao__uuid__in=logs_homologados)
+            .order_by("nome", "marca__nome")
         )
         if "aditivos" in request.query_params:
             filtro_aditivos = cria_filtro_aditivos(request.query_params["aditivos"])
