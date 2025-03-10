@@ -7,7 +7,7 @@ from model_mommy import mommy
 from sme_sigpae_api.perfil.models.perfil import Perfil, PerfisVinculados
 
 from ....dados_comuns.constants import (
-    ADMINISTRADOR_DICAE,
+    ADMINISTRADOR_CONTRATOS,
     ADMINISTRADOR_DIETA_ESPECIAL,
     ADMINISTRADOR_GESTAO_PRODUTO,
     ADMINISTRADOR_SUPERVISAO_NUTRICAO,
@@ -58,7 +58,7 @@ class CargaPerfisVinculadosCommandTest(TestCase):
         )
         mommy.make(
             Perfil,
-            nome=ADMINISTRADOR_DICAE,
+            nome=ADMINISTRADOR_CONTRATOS,
         )
         mommy.make(
             Perfil,
@@ -94,5 +94,5 @@ class CargaPerfisVinculadosCommandTest(TestCase):
             )
         )
         assert len(perfis_subordinado_dialog_logistica) == 2
-        assert ADMINISTRADOR_DICAE in perfis_subordinado_dialog_logistica
+        assert ADMINISTRADOR_CONTRATOS in perfis_subordinado_dialog_logistica
         assert DILOG_ABASTECIMENTO in perfis_subordinado_dialog_logistica

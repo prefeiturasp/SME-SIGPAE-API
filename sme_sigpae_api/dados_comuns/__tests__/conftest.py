@@ -816,16 +816,16 @@ def solicitacoes_abertas():
 
 
 @pytest.fixture
-def user_admin_dicae(django_user_model):
+def user_admin_contratos(django_user_model):
     email = "test2@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
     codae = mommy.make("Codae", nome="Codae - Administrador Contratos")
-    perfil_admin_dicae = mommy.make(
+    perfil_admin_contratos = mommy.make(
         "Perfil",
-        nome=constants.ADMINISTRADOR_DICAE,
+        nome=constants.ADMINISTRADOR_CONTRATOS,
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf2",
     )
@@ -834,7 +834,7 @@ def user_admin_dicae(django_user_model):
         "Vinculo",
         usuario=user,
         instituicao=codae,
-        perfil=perfil_admin_dicae,
+        perfil=perfil_admin_contratos,
         data_inicial=hoje,
         ativo=True,
         content_type=ContentType.objects.get(model="codae"),
