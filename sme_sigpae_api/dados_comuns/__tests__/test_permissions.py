@@ -18,16 +18,16 @@ from sme_sigpae_api.dados_comuns.permissions import (
 pytestmark = pytest.mark.django_db
 
 
-def test_usuario_dicae_criar_usuario(user_admin_dicae):
+def test_usuario_contratos_criar_usuario(user_admin_contratos):
     request = MagicMock()
-    request.user = user_admin_dicae
+    request.user = user_admin_contratos
     permissao = PermissaoParaCriarUsuarioComCoresso()
     assert permissao.has_permission(request, None)
 
 
-def test_usuario_com_permissao_administrador_contrato(user_admin_dicae):
+def test_usuario_com_permissao_administrador_contrato(user_admin_contratos):
     request = MagicMock()
-    request.user = user_admin_dicae
+    request.user = user_admin_contratos
     permissao = UsuarioAdministradorContratos()
     assert permissao.has_permission(request, None)
 
