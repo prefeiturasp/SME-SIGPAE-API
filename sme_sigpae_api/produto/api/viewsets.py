@@ -476,25 +476,14 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
             raw_sql += "AND %(homologacao_produto)s.eh_copia = false "
         return raw_sql
 
-    def build_raw_sql_produtos_por_status(
+    def build_raw_sql_filtro_aplicado(
         self,
+        raw_sql,
         filtro_aplicado,
-        edital,
-        perfil_nome,
         filtros,
         tipo_usuario,
         escola_ou_dre_id,
-        editais=None,
     ):
-        data = {
-            "logs": LogSolicitacoesUsuario._meta.db_table,
-            "homologacao_produto": HomologacaoProduto._meta.db_table,
-            "reclamacoes_produto": ReclamacaoDeProduto._meta.db_table,
-            "produto_edital": ProdutoEdital._meta.db_table,
-            "escola": Escola._meta.db_table,
-            "lote": Lote._meta.db_table,
-        }
-
         filtros_dict = {
             filtro_aplicado: {
                 "status__in": [filtro_aplicado.upper()],
@@ -562,6 +551,36 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
                 ),
             },
         }
+        if filtro_aplicado and filtro_aplicado != "codae_pediu_analise_reclamacao":
+            filtros["status__in"] = filtros_dict[filtro_aplicado]["status__in"]
+            raw_sql += filtros_dict[filtro_aplicado]["raw_sql"]
+            if filtro_aplicado == "responder_questionamentos_da_codae":
+                raw_sql, filtros = self.build_raw_sql_filtro_dre(
+                    raw_sql, None, None, tipo_usuario, filtros, escola_ou_dre_id
+                )
+        if filtro_aplicado == "codae_suspendeu":
+            filtros["produto__vinculos__suspenso"] = True
+
+        return raw_sql, filtros
+
+    def build_raw_sql_produtos_por_status(
+        self,
+        filtro_aplicado,
+        edital,
+        perfil_nome,
+        filtros,
+        tipo_usuario,
+        escola_ou_dre_id,
+        editais=None,
+    ):
+        data = {
+            "logs": LogSolicitacoesUsuario._meta.db_table,
+            "homologacao_produto": HomologacaoProduto._meta.db_table,
+            "reclamacoes_produto": ReclamacaoDeProduto._meta.db_table,
+            "produto_edital": ProdutoEdital._meta.db_table,
+            "escola": Escola._meta.db_table,
+            "lote": Lote._meta.db_table,
+        }
 
         raw_sql = (
             "SELECT %(homologacao_produto)s.* FROM %(homologacao_produto)s "
@@ -609,15 +628,9 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
             tipo_usuario,
             escola_ou_dre_id,
         )
-        if filtro_aplicado and filtro_aplicado != "codae_pediu_analise_reclamacao":
-            filtros["status__in"] = filtros_dict[filtro_aplicado]["status__in"]
-            raw_sql += filtros_dict[filtro_aplicado]["raw_sql"]
-            if filtro_aplicado == "responder_questionamentos_da_codae":
-                raw_sql, filtros = self.build_raw_sql_filtro_dre(
-                    raw_sql, None, None, tipo_usuario, filtros, escola_ou_dre_id
-                )
-        if filtro_aplicado == "codae_suspendeu":
-            filtros["produto__vinculos__suspenso"] = True
+        raw_sql, filtros = self.build_raw_sql_filtro_aplicado(
+            raw_sql, filtro_aplicado, filtros, tipo_usuario, escola_ou_dre_id
+        )
         raw_sql = self.trata_edital(raw_sql, edital, editais=editais)
         raw_sql = self.checa_se_remove_eh_copia(filtro_aplicado, raw_sql)
         raw_sql += "ORDER BY log_criado_em DESC"
