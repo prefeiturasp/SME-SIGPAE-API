@@ -7,7 +7,7 @@ from .constants import (
     ADMINISTRADOR_CODAE_DILOG_CONTABIL,
     ADMINISTRADOR_CODAE_DILOG_JURIDICO,
     ADMINISTRADOR_CODAE_GABINETE,
-    ADMINISTRADOR_DICAE,
+    ADMINISTRADOR_CONTRATOS,
     ADMINISTRADOR_DIETA_ESPECIAL,
     ADMINISTRADOR_EMPRESA,
     ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
@@ -542,7 +542,7 @@ class UsuarioPodeAlterarVinculo(BasePermission):
                 COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
                 ADMINISTRADOR_REPRESENTANTE_CODAE,
                 USUARIO_GTIC_CODAE,
-                ADMINISTRADOR_DICAE,
+                ADMINISTRADOR_CONTRATOS,
             ]
             or usuario.vinculo_atual.perfil.nome in [ADMINISTRADOR_EMPRESA]
         )
@@ -566,7 +566,7 @@ class UsuarioPodeFinalizarVinculo(BasePermission):
                 COORDENADOR_GESTAO_PRODUTO,
                 COORDENADOR_SUPERVISAO_NUTRICAO,
                 USUARIO_GTIC_CODAE,
-                ADMINISTRADOR_DICAE,
+                ADMINISTRADOR_CONTRATOS,
             ]
             or isinstance(usuario.vinculo_atual.instituicao, DiretoriaRegional)
             and usuario.vinculo_atual.perfil.nome in [COGESTOR_DRE]
@@ -608,7 +608,7 @@ class PermissaoParaCriarUsuarioComCoresso(BasePermission):
                 ADMINISTRADOR_REPRESENTANTE_CODAE,
                 COORDENADOR_SUPERVISAO_NUTRICAO,
                 USUARIO_GTIC_CODAE,
-                ADMINISTRADOR_DICAE,
+                ADMINISTRADOR_CONTRATOS,
             ]
             or isinstance(usuario.vinculo_atual.instituicao, Escola)
             and usuario.vinculo_atual.perfil.nome in [DIRETOR_UE]
@@ -637,7 +637,7 @@ class PermissaoParaListarVinculosAtivos(BasePermission):
                 ADMINISTRADOR_CODAE_GABINETE,
                 DILOG_DIRETORIA,
                 USUARIO_GTIC_CODAE,
-                ADMINISTRADOR_DICAE,
+                ADMINISTRADOR_CONTRATOS,
             ]
             or isinstance(usuario.vinculo_atual.instituicao, Escola)
             and usuario.vinculo_atual.perfil.nome in [DIRETOR_UE]
@@ -1416,5 +1416,5 @@ class UsuarioAdministradorContratos(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and isinstance(usuario.vinculo_atual.instituicao, Codae)
-            and usuario.vinculo_atual.perfil.nome in [ADMINISTRADOR_DICAE]
+            and usuario.vinculo_atual.perfil.nome in [ADMINISTRADOR_CONTRATOS]
         )
