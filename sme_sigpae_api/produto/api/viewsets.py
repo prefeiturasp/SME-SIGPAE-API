@@ -1810,8 +1810,10 @@ class ProdutoViewSet(viewsets.ModelViewSet):
         logs_homologados = LogSolicitacoesUsuario.objects.filter(
             status_evento=LogSolicitacoesUsuario.CODAE_HOMOLOGADO
         ).values_list("uuid_original", flat=True)
-        queryset = self.filter_queryset(self.get_queryset()).filter(
-            homologacao__uuid__in=logs_homologados
+        queryset = (
+            self.filter_queryset(self.get_queryset())
+            .filter(homologacao__uuid__in=logs_homologados)
+            .order_by("nome", "marca__nome")
         )
         if "aditivos" in request.query_params:
             filtro_aditivos = cria_filtro_aditivos(request.query_params["aditivos"])
