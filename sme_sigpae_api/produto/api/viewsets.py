@@ -662,6 +662,74 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
                 query_set = query_set.exclude(uuid=hom_produto.uuid)
         return query_set
 
+    def atualiza_queryset_de_homologados(
+        self,
+        query_set,
+        titulo,
+        request_data,
+        filtros,
+        filtro_aplicado,
+        edital,
+        contem_edital_associado,
+        instituicao,
+    ):
+        if titulo:
+            query_set = query_set.annotate(
+                id_amigavel=Substr(Cast(F("uuid"), output_field=CharField()), 1, 5)
+            ).filter(
+                Q(id_amigavel__icontains=titulo) | Q(produto__nome__icontains=titulo)
+            )
+        filtros_params = cria_filtro_homologacao_produto_por_parametros(request_data)
+        query_set_nao_homologados = (
+            query_set.filter(
+                status__in=[
+                    "CODAE_NAO_HOMOLOGADO",
+                    "CODAE_AUTORIZOU_RECLAMACAO",
+                    "CODAE_SUSPENDEU",
+                ]
+            )
+            .filter(**filtros_params)
+            .distinct()
+        )
+        self.checa_se_remove_eh_copia_queryset(filtro_aplicado, query_set)
+        query_set = query_set.filter(**filtros).filter(**filtros_params).distinct()
+
+        if request_data.get("data_homologacao"):
+            data_homologacao = datetime.strptime(
+                request_data.get("data_homologacao"), "%d/%m/%Y"
+            ).date()
+            query_set = query_set | query_set_nao_homologados
+            query_set = query_set.filter(
+                produto__vinculos__edital=edital,
+                produto__vinculos__datas_horas_vinculo__suspenso=False,
+                produto__vinculos__datas_horas_vinculo__criado_em__date__lte=data_homologacao,
+            )
+            produtos_editais_mais_de_uma_data_hora = ProdutoEdital.objects.annotate(
+                Count("datas_horas_vinculo")
+            ).filter(datas_horas_vinculo__count__gt=1)
+            query_set = self.exclui_produtos_suspensos(
+                query_set,
+                produtos_editais_mais_de_uma_data_hora,
+                edital,
+                data_homologacao,
+            )
+        elif edital:
+            query_set = query_set.filter(
+                produto__vinculos__edital=edital,
+                produto__vinculos__suspenso=False,
+            )
+        elif contem_edital_associado:
+            query_set = query_set.filter(
+                produto__vinculos__edital__uuid__in=instituicao.editais,
+                produto__vinculos__suspenso=False,
+            )
+        query_set = sorted(
+            query_set,
+            key=lambda x: x.produto.data_homologacao or x.produto.criado_em,
+            reverse=True,
+        )
+        return query_set
+
     def get_queryset_solicitacoes_homologacao_por_status(
         self,
         request_data,
@@ -674,12 +742,13 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
         filtros = {}
         page = request_data.get("page", False)
         nome_edital = request_data.get("nome_edital", None)
+        contem_edital_associado = hasattr(instituicao, "editais")
         edital = None
         editais = None
         query_set = self.get_queryset()
         if nome_edital:
             edital = Edital.objects.get(numero=nome_edital)
-        elif hasattr(instituicao, "editais"):
+        elif contem_edital_associado:
             id_editais = query_set.filter(
                 produto__vinculos__edital__uuid__in=instituicao.editais,
             ).values_list("produto__vinculos__edital__id", flat=True)
@@ -706,57 +775,15 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
         if page or (edital and not algum_filtro and not titulo):
             query_set = query_set.raw(raw_sql % data)
         else:
-            if titulo:
-                query_set = query_set.annotate(
-                    id_amigavel=Substr(Cast(F("uuid"), output_field=CharField()), 1, 5)
-                ).filter(
-                    Q(id_amigavel__icontains=titulo)
-                    | Q(produto__nome__icontains=titulo)
-                )
-            filtros_params = cria_filtro_homologacao_produto_por_parametros(
-                request_data
-            )
-            query_set_nao_homologados = (
-                query_set.filter(
-                    status__in=[
-                        "CODAE_NAO_HOMOLOGADO",
-                        "CODAE_AUTORIZOU_RECLAMACAO",
-                        "CODAE_SUSPENDEU",
-                    ]
-                )
-                .filter(**filtros_params)
-                .distinct()
-            )
-            self.checa_se_remove_eh_copia_queryset(filtro_aplicado, query_set)
-            query_set = query_set.filter(**filtros).filter(**filtros_params).distinct()
-            if request_data.get("data_homologacao"):
-                data_homologacao = datetime.strptime(
-                    request_data.get("data_homologacao"), "%d/%m/%Y"
-                ).date()
-                query_set = query_set | query_set_nao_homologados
-                query_set = query_set.filter(
-                    produto__vinculos__edital=edital,
-                    produto__vinculos__datas_horas_vinculo__suspenso=False,
-                    produto__vinculos__datas_horas_vinculo__criado_em__date__lte=data_homologacao,
-                )
-                produtos_editais_mais_de_uma_data_hora = ProdutoEdital.objects.annotate(
-                    Count("datas_horas_vinculo")
-                ).filter(datas_horas_vinculo__count__gt=1)
-                query_set = self.exclui_produtos_suspensos(
-                    query_set,
-                    produtos_editais_mais_de_uma_data_hora,
-                    edital,
-                    data_homologacao,
-                )
-            elif edital:
-                query_set = query_set.filter(
-                    produto__vinculos__edital=edital,
-                    produto__vinculos__suspenso=False,
-                )
-            query_set = sorted(
+            query_set = self.atualiza_queryset_de_homologados(
                 query_set,
-                key=lambda x: x.produto.data_homologacao or x.produto.criado_em,
-                reverse=True,
+                titulo,
+                request_data,
+                filtros,
+                filtro_aplicado,
+                edital,
+                contem_edital_associado,
+                instituicao,
             )
         return query_set
 
