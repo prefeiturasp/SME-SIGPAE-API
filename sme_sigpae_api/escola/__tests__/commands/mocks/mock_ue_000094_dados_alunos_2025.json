@@ -1,0 +1,26 @@
+[
+  {
+    "codigoAluno": 7777777,
+    "tipoTurno": 1,
+    "anoLetivo": 2024,
+    "nomeAluno": "DAVI ALUNO TESTE",
+    "nomeSocialAluno": null,
+    "codigoSituacaoMatricula": 1,
+    "situacaoMatricula": "Ativo",
+    "dataSituacao": "2024-11-06T10:09:54.24",
+    "dataNascimento": "2019-01-06T00:00:00",
+    "numeroAlunoChamada": "004",
+    "codigoTurma": 2651131,
+    "nomeResponsavel": null,
+    "tipoResponsavel": null,
+    "celularResponsavel": null,
+    "dataAtualizacaoContato": "0001-01-01T00:00:00",
+    "codigoTipoTurma": 1,
+    "turmaNome": "7A",
+    "etapaEnsino": 1,
+    "cicloEnsino": 2,
+    "descEtapaEnsino": "EDUCACAO INFANTIL",
+    "descCicloEnsino": "PRE",
+    "dataAtualizacaoTabela": "0001-01-01T00:00:00"
+  }
+]

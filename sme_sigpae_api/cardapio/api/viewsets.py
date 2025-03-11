@@ -1141,7 +1141,7 @@ class AlteracoesCardapioViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        permission_classes=[UsuarioEscolaTercTotal],  # noqa C901
+        permission_classes=[UsuarioEscolaTercTotal],
         methods=["patch"],
         url_path=constants.ESCOLA_INICIO_PEDIDO,
     )
