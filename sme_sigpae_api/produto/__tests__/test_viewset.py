@@ -1,4 +1,5 @@
 import pytest
+from django.db.models.query import RawQuerySet
 from rest_framework import status
 
 from sme_sigpae_api.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
@@ -92,3 +93,126 @@ def test_view_update_analise_sensorial_status(reclamacao_respondido_terceirizada
         status=AnaliseSensorial.STATUS_RESPONDIDA
     ).count()
     assert analises_respondidas == 1
+
+
+def test_get_queryset_solicitacoes_homologacao_por_status(
+    mock_view_de_homologacao_produto_painel_gerencial, hom_produto_com_editais
+):
+    mock_request, viewset = mock_view_de_homologacao_produto_painel_gerencial
+    user = mock_request.user
+    filtro_aplicado = "codae_pediu_analise_reclamacao"
+    query_set = viewset.get_queryset_solicitacoes_homologacao_por_status(
+        mock_request.query_params,
+        user.vinculo_atual.perfil.nome,
+        user.tipo_usuario,
+        user.vinculo_atual.object_id,
+        filtro_aplicado,
+        instituicao=user.vinculo_atual.instituicao,
+    )
+    assert isinstance(query_set, RawQuerySet)
+    sql_gerado = str(query_set.query)
+    assert sql_gerado.count("SELECT produto_homologacaoproduto.* ") == 1
+    assert (
+        sql_gerado.count(
+            "LEFT JOIN (SELECT DISTINCT ON (homologacao_produto_id) homologacao_produto_id, escola_id AS escola_reclamacao_id FROM produto_reclamacaodeproduto)"
+        )
+        == 1
+    )
+    assert (
+        sql_gerado.count(
+            "LEFT JOIN (SELECT id AS escola_id_escola, lote_id FROM escola_escola) "
+        )
+        == 1
+    )
+    assert (
+        sql_gerado.count(
+            "LEFT JOIN (SELECT id AS lote_id_lote, terceirizada_id, diretoria_regional_id FROM escola_lote)"
+        )
+        == 1
+    )
+    assert sql_gerado.count("AND produto_homologacaoproduto.eh_copia = false") == 1
+    assert sql_gerado.count("ORDER BY log_criado_em DESC") == 1
+
+
+def test_build_raw_sql_produtos_por_status_com_dois_editais(
+    mock_view_de_homologacao_produto_painel_gerencial,
+):
+    mock_request, viewset = mock_view_de_homologacao_produto_painel_gerencial
+    user = mock_request.user
+
+    filtro_aplicado = "codae_pediu_analise_reclamacao"
+    edital = None
+    filtros = {}
+    editais = "'20', '30'"
+    sql_gerado, dados = viewset.build_raw_sql_produtos_por_status(
+        filtro_aplicado,
+        edital,
+        user.vinculo_atual.perfil.nome,
+        filtros,
+        user.tipo_usuario,
+        user.vinculo_atual.object_id,
+        editais=editais,
+    )
+    assert isinstance(dados, dict)
+    assert dados == {
+        "logs": "dados_comuns_logsolicitacoesusuario",
+        "homologacao_produto": "produto_homologacaoproduto",
+        "reclamacoes_produto": "produto_reclamacaodeproduto",
+        "produto_edital": "produto_produtoedital",
+        "escola": "escola_escola",
+        "lote": "escola_lote",
+    }
+
+    assert isinstance(sql_gerado, str)
+    assert (
+        sql_gerado.count(
+            "LEFT JOIN (SELECT DISTINCT id AS produto_edital_id, suspenso,produto_id as produto_id_prod_edit, edital_id as edital_id_prod_edit FROM %(produto_edital)s) "
+        )
+        == 1
+    )
+    assert (
+        sql_gerado.count(
+            "LEFT JOIN (SELECT DISTINCT ON (homologacao_produto_id) homologacao_produto_id, escola_id AS escola_reclamacao_id FROM %(reclamacoes_produto)s)"
+        )
+        == 1
+    )
+    assert (
+        sql_gerado.count(
+            "LEFT JOIN (SELECT id AS escola_id_escola, lote_id FROM %(escola)s)"
+        )
+        == 1
+    )
+    assert (
+        sql_gerado.count(
+            "LEFT JOIN (SELECT id AS lote_id_lote, terceirizada_id, diretoria_regional_id FROM %(lote)s"
+        )
+        == 1
+    )
+    assert sql_gerado.count("ORDER BY log_criado_em DESC") == 1
+    assert sql_gerado.count("IN ('20', '30')") == 2
+
+
+def test_trata_edital_com_um_edital(
+    mock_view_de_homologacao_produto_painel_gerencial, edital
+):
+    raw_sql = "SELECT * FROM %(produto_edital)s) AS produto_edital ON produto_edital.produto_id_prod_edit = %(homologacao_produto)s.produto_id"
+    _, viewset = mock_view_de_homologacao_produto_painel_gerencial
+    sql_gerado = viewset.trata_edital(raw_sql, edital)
+    assert isinstance(sql_gerado, str)
+    assert (
+        sql_gerado.count(f"AND produto_edital.edital_id_prod_edit = {edital.id}") == 1
+    )
+
+
+def test_trata_edital_com_dois_editais(
+    mock_view_de_homologacao_produto_painel_gerencial,
+):
+    raw_sql = "SELECT * FROM %(produto_edital)s) AS produto_edital ON produto_edital.produto_id_prod_edit = %(homologacao_produto)s.produto_id"
+    edital = None
+    editais = "'20', '30'"
+    _, viewset = mock_view_de_homologacao_produto_painel_gerencial
+    sql_gerado = viewset.trata_edital(raw_sql, edital, editais)
+    assert isinstance(sql_gerado, str)
+    assert (
+        sql_gerado.count(f"AND produto_edital.edital_id_prod_edit IN ({editais})") == 1
+    )

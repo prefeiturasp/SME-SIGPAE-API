@@ -96,9 +96,7 @@ def filtra_reclamacoes_por_usuario(
         constants.TIPO_USUARIO_ESCOLA: {
             "reclamacoes__escola": request.user.vinculo_atual.instituicao
         },
-        constants.TIPO_USUARIO_TERCEIRIZADA: {
-            "reclamacoes__escola__lote__terceirizada": request.user.vinculo_atual.instituicao
-        },
+        constants.TIPO_USUARIO_TERCEIRIZADA: {"reclamacoes__isnull": False},
         constants.TIPO_USUARIO_DIRETORIA_REGIONAL: {
             "reclamacoes__escola__lote__diretoria_regional_id": request.user.vinculo_atual.instituicao
         },

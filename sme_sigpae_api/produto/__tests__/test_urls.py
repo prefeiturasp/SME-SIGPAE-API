@@ -979,7 +979,7 @@ def test_url_endpoint_produtos_editais_ativar_inativar(
 def test_url_endpoint_produtos_editais_lista_editais_dre(
     client_autenticado_da_dre, contrato, diretoria_regional
 ):
-    client = client_autenticado_da_dre
+    client, _ = client_autenticado_da_dre
     response = client.get("/produtos-editais/lista-editais-dre/")
     assert response.status_code == status.HTTP_200_OK
     resultado = response.json()
@@ -997,7 +997,7 @@ def test_url_endpoint_produtos_editais_lista_editais_dre(
 def test_url_endpoint_produtos_editais_filtro_por_parametros_agrupado_terceirizada(
     client_autenticado_da_dre,
 ):
-    client = client_autenticado_da_dre
+    client, _ = client_autenticado_da_dre
     params = {
         "agrupado_por_nome_e_marca": False,
         "data_homologacao": "14/10/2022",
