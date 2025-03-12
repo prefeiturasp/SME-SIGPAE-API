@@ -22,7 +22,7 @@ from sme_sigpae_api.perfil.models.usuario import (
 )
 
 from ...dados_comuns.constants import (
-    ADMINISTRADOR_DICAE,
+    ADMINISTRADOR_CONTRATOS,
     ADMINISTRADOR_EMPRESA,
     COGESTOR_DRE,
     DIRETOR_UE,
@@ -314,7 +314,7 @@ class VinculoViewSet(viewsets.ReadOnlyModelViewSet):
                 )
                 .order_by("-data_inicial")
             )
-        elif usuario.vinculo_atual.perfil.nome == ADMINISTRADOR_DICAE:
+        elif usuario.vinculo_atual.perfil.nome == ADMINISTRADOR_CONTRATOS:
             # TODO: Precisa otimar essa parte!
             vinculos = self.get_queryset()
             lista_vinculo = [

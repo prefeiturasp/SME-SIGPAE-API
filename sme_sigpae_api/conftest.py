@@ -37,6 +37,7 @@ from .escola.fixtures.factories.escola_factory import (
     DiretoriaRegionalFactory,
     EscolaFactory,
     FaixaEtariaFactory,
+    HistoricoMatriculaAlunoFactory,
     LogAlunosMatriculadosPeriodoEscolaFactory,
     LoteFactory,
     PeriodoEscolarFactory,
@@ -257,6 +258,7 @@ register(ReclamacaoDeProdutoFactory)
 register(DiaSuspensaoAtividadesFactory)
 register(LogQuantidadeDietasAutorizadasFactory)
 register(LogQuantidadeDietasAutorizadasCEIFactory)
+register(HistoricoMatriculaAlunoFactory)
 
 
 @pytest.fixture
