@@ -730,3 +730,31 @@ def eolservicosgp_get_lista_alunos(monkeypatch):
     return monkeypatch.setattr(
         EOLServicoSGP, "get_alunos_por_escola_por_ano_letivo", lambda x: js
     )
+
+
+@pytest.fixture
+def client_autenticado_vinculo_coordenador_supervisao_nutricao(
+    client, django_user_model, codae
+):
+    email = "nutri@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    perfil_supervisao_nutricao = mommy.make(
+        "Perfil",
+        nome=constants.COORDENADOR_SUPERVISAO_NUTRICAO,
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
+    )
+
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_supervisao_nutricao,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client, user

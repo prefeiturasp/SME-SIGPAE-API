@@ -21,7 +21,7 @@ from ...dados_comuns.fluxo_status import (
 from ...dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
 from ...escola.models import DiretoriaRegional, TipoGestao
 from ...terceirizada.models import Contrato
-from ..models import AnaliseSensorial, ProdutoEdital
+from ..models import AnaliseSensorial, HomologacaoProduto, ProdutoEdital
 
 fake = Faker("pt-Br")
 Faker.seed(420)
@@ -593,7 +593,7 @@ def client_autenticado_da_dre(client, django_user_model, diretoria_regional):
         ativo=True,
     )
     client.login(username=email, password=password)
-    return client
+    return client, usuario
 
 
 @pytest.fixture
@@ -617,7 +617,7 @@ def client_autenticado_da_escola(client, django_user_model, escola):
         ativo=True,
     )
     client.login(username=email, password=password)
-    return client
+    return client, usuario
 
 
 @pytest.fixture
@@ -1063,3 +1063,28 @@ def mock_view_de_reclamacao_produto(
     viewset.get_serializer = ReclamacaoDeProdutoSerializer
 
     return mock_request, viewset
+
+
+@pytest.fixture
+def usuario_nutri_supervisao(django_user_model):
+    email = "nutrisupervisao@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    perfil_supervisao_nutricao = mommy.make(
+        "Perfil",
+        nome=constants.COORDENADOR_SUPERVISAO_NUTRICAO,
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
+    )
+
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_supervisao_nutricao,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    return user
