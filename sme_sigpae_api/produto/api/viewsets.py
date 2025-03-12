@@ -752,7 +752,7 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
             id_editais = query_set.filter(
                 produto__vinculos__edital__uuid__in=instituicao.editais,
             ).values_list("produto__vinculos__edital__id", flat=True)
-            editais = ", ".join(f"'{edital}'" for edital in id_editais)
+            editais = ", ".join(f"'{edital}'" for edital in list(set(id_editais)))
         algum_filtro = (
             request_data.get("nome_terceirizada")
             or request_data.get("data_homologacao")

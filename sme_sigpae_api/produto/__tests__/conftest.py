@@ -8,9 +8,13 @@ from faker import Faker
 from model_mommy import mommy
 
 from sme_sigpae_api.produto.api.serializers.serializers import (
+    HomologacaoProdutoPainelGerencialSerializer,
     ReclamacaoDeProdutoSerializer,
 )
-from sme_sigpae_api.produto.api.viewsets import ReclamacaoProdutoViewSet
+from sme_sigpae_api.produto.api.viewsets import (
+    HomologacaoProdutoPainelGerencialViewSet,
+    ReclamacaoProdutoViewSet,
+)
 
 from ...dados_comuns import constants
 from ...dados_comuns.constants import DJANGO_ADMIN_PASSWORD
@@ -1088,3 +1092,21 @@ def usuario_nutri_supervisao(django_user_model):
         ativo=True,
     )
     return user
+
+
+@pytest.fixture
+def mock_view_de_homologacao_produto_painel_gerencial(
+    client_autenticado_vinculo_terceirizada,
+):
+    client, usuario = client_autenticado_vinculo_terceirizada
+    mock_request = Mock()
+    mock_request.data = {}
+    mock_request.user = usuario
+    mock_request.query_params = {"page": ["1"], "page_size": ["10"]}
+
+    viewset = HomologacaoProdutoPainelGerencialViewSet()
+    viewset.request = mock_request
+    viewset.kwargs = {"uuid": "uuid"}
+    viewset.get_serializer = HomologacaoProdutoPainelGerencialSerializer
+
+    return mock_request, viewset
