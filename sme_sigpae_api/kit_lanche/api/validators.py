@@ -134,7 +134,7 @@ def nao_deve_ter_mais_solicitacoes_que_alunos(solicitacao_avulsa):
     """
     data = solicitacao_avulsa.data
     escola = solicitacao_avulsa.escola
-    if escola.tipo_unidade.iniciais != "CEU GESTAO":
+    if escola.tipo_unidade.iniciais not in ["CEU GESTAO", "CMCT"]:
         quantidade_aluno_passeio = solicitacao_avulsa.quantidade_alunos
 
         solicitacoes = SolicitacaoKitLancheAvulsa.objects.filter(
