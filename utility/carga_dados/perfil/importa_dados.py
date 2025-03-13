@@ -104,7 +104,9 @@ def cria_vinculos():
         "perfil_usuario_representante_codae": Perfil.objects.get(
             nome="ADMINISTRADOR_REPRESENTANTE_CODAE"
         ),
-        "perfil_administrador_contratos": Perfil.objects.get(nome="ADMINISTRADOR_CONTRATOS"),
+        "perfil_administrador_contratos": Perfil.objects.get(
+            nome="ADMINISTRADOR_CONTRATOS"
+        ),
         "perfil_dilog_abastecimento": Perfil.objects.get(nome="DILOG_ABASTECIMENTO"),
     }
 
@@ -307,7 +309,9 @@ def cria_vinculos():
     )
     escola = Escola.objects.get(nome="EMEF JOSE ERMIRIO DE MORAIS, SEN.")  # noqa
     terceirizada = escola.lote.terceirizada
-    contratos, created = Codae.objects.get_or_create(nome="CODAE - Administrador Contratos")
+    contratos, created = Codae.objects.get_or_create(
+        nome="CODAE - Administrador Contratos"
+    )
 
     items_especificos = [
         {
