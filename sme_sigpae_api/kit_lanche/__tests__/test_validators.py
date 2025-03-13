@@ -104,15 +104,22 @@ def test_valida_quantidade_kits_tempo_passeio(tempo_kits):
     assert valida_quantidade_kits_tempo_passeio(tempo, qtd_kits) is True
 
 
-def test_nao_deve_ter_mais_solicitacoes_que_alunos(solicitacao_avulsa):
-    assert nao_deve_ter_mais_solicitacoes_que_alunos(solicitacao_avulsa) is None
+def test_nao_deve_ter_mais_solicitacoes_que_alunos(
+    solicitacao_avulsa_escolas_regulares,
+):
+    assert (
+        nao_deve_ter_mais_solicitacoes_que_alunos(solicitacao_avulsa_escolas_regulares)
+        is None
+    )
 
 
-def test_nao_deve_ter_mais_solicitacoes_que_alunos_com_erro(solicitacao_na_mesma_data):
+def test_nao_deve_ter_mais_solicitacoes_que_alunos_com_erro(
+    solicitacao_avulsa_na_mesma_data,
+):
     esperado = "A quantidade de alunos informados para o evento excede a quantidade de alunos matriculados na escola. Na data 01-01-2000 já tem pedidos para 300 alunos"
     with pytest.raises(ValidationError, match=esperado):
-        nao_deve_ter_mais_solicitacoes_que_alunos(solicitacao_na_mesma_data)
+        nao_deve_ter_mais_solicitacoes_que_alunos(solicitacao_avulsa_na_mesma_data)
 
 
-def test_nao_deve_ter_mais_solicitacoes_que_alunos_escola_cmct(solicitacao_cmct):
-    assert nao_deve_ter_mais_solicitacoes_que_alunos(solicitacao_cmct) is None
+def test_nao_deve_ter_mais_solicitacoes_que_alunos_escola_cmct(solicitacao_avulsa_cmct):
+    assert nao_deve_ter_mais_solicitacoes_que_alunos(solicitacao_avulsa_cmct) is None
