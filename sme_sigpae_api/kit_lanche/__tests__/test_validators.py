@@ -5,12 +5,15 @@ from ..api.validators import (
     escola_quantidade_deve_ter_0_kit,
     escola_quantidade_deve_ter_1_ou_mais_kits,
     escola_quantidade_deve_ter_mesmo_tempo_passeio,
+    nao_deve_ter_mais_solicitacoes_que_alunos,
     solicitacao_deve_ter_0_kit,
     solicitacao_deve_ter_1_ou_mais_kits,
     valida_quantidade_kits_tempo_passeio,
     valida_tempo_passeio_lista_igual,
     valida_tempo_passeio_lista_nao_igual,
 )
+
+pytestmark = pytest.mark.django_db
 
 
 def test_valida_tempo_passeio_lista_nao_igual():
@@ -99,3 +102,24 @@ def test_solicitacao_deve_ter_1_ou_mais_kits_exception():
 def test_valida_quantidade_kits_tempo_passeio(tempo_kits):
     tempo, qtd_kits = tempo_kits
     assert valida_quantidade_kits_tempo_passeio(tempo, qtd_kits) is True
+
+
+def test_nao_deve_ter_mais_solicitacoes_que_alunos(
+    solicitacao_avulsa_escolas_regulares,
+):
+    assert (
+        nao_deve_ter_mais_solicitacoes_que_alunos(solicitacao_avulsa_escolas_regulares)
+        is None
+    )
+
+
+def test_nao_deve_ter_mais_solicitacoes_que_alunos_com_erro(
+    solicitacao_avulsa_na_mesma_data,
+):
+    esperado = "A quantidade de alunos informados para o evento excede a quantidade de alunos matriculados na escola. Na data 01-01-2000 já tem pedidos para 300 alunos"
+    with pytest.raises(ValidationError, match=esperado):
+        nao_deve_ter_mais_solicitacoes_que_alunos(solicitacao_avulsa_na_mesma_data)
+
+
+def test_nao_deve_ter_mais_solicitacoes_que_alunos_escola_cmct(solicitacao_avulsa_cmct):
+    assert nao_deve_ter_mais_solicitacoes_que_alunos(solicitacao_avulsa_cmct) is None

@@ -84,7 +84,10 @@ def test_desativa_cargo_adm_contratos(usuario_administrador_contratos):
 
 
 def test_usuario_adm_contratos(usuario_administrador_contratos):
-    assert usuario_administrador_contratos.vinculo_atual.perfil.nome == ADMINISTRADOR_CONTRATOS
+    assert (
+        usuario_administrador_contratos.vinculo_atual.perfil.nome
+        == ADMINISTRADOR_CONTRATOS
+    )
     assert usuario_administrador_contratos.tipo_usuario == "administrador_contratos"
 
 
