@@ -378,7 +378,7 @@ def test_calendario_sgp_exception(mock_escolas):
 def test_lotes_endpoint_filtrar_relatorio_alunos_matriculados(
     usuario_coordenador_codae, lote
 ):
-    instituicao = usuario_coordenador_codae.vinculo_atual.instituicao
+    instituicao = usuario_coordenador_codae[0].vinculo_atual.instituicao
     lotes = lotes_endpoint_filtrar_relatorio_alunos_matriculados(
         instituicao, Codae, Lote
     )
