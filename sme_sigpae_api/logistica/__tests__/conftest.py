@@ -6,6 +6,7 @@ from faker import Faker
 from model_mommy import mommy
 from spyne.util.dictdoc import get_object_as_dict
 
+from sme_sigpae_api.dados_comuns.fluxo_status import SolicitacaoRemessaWorkFlow
 from sme_sigpae_api.logistica.api.soup.models import (
     Alimento,
     ArqCancelamento,
@@ -633,6 +634,13 @@ def arq_solicitacao_mod(fake_arq_solicitacao_mod, soup_guia, terceirizada_soup):
 
 
 @pytest.fixture
+def arq_cancelamento_mod(soup_arq_cancelamento, solicitacao):
+    solicitacao.numero_solicitacao = soup_arq_cancelamento.StrNumSol
+    solicitacao.save()
+    return soup_arq_cancelamento
+
+
+@pytest.fixture
 def soup_solicitacao_remessa(arq_solicitacao_mod):
     data = get_object_as_dict(arq_solicitacao_mod)
     guias = data.pop("guias", [])
@@ -651,3 +659,12 @@ def dicioanario_alimentos(soup_solicitacao_remessa):
     guia_obj.save()
     alimentos_data["guia"] = guia_obj
     return alimentos_data
+
+
+@pytest.fixture
+def mock_ctx():
+    class MockContext:
+        out_string = [b"<tns:Test>soap11env:Body</tns:Test>"]
+
+    ctx = MockContext()
+    return ctx
