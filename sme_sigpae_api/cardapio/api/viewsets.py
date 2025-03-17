@@ -1064,22 +1064,6 @@ class AlteracoesCardapioViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
-    @action(
-        detail=False,
-        url_path="com-lanche-do-mes-corrente/(?P<escola_uuid>[^/.]+)",
-        permission_classes=(UsuarioEscolaTercTotal,),
-    )
-    def minhas_solicitacoes_do_mes_com_lanches(self, request, escola_uuid):
-        alteracoes_cardapio = AlteracaoCardapio.com_lanche_do_mes_corrente(escola_uuid)
-        page = self.paginate_queryset(alteracoes_cardapio)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
-
-    @action(
-        detail=False,
-        url_path=f"{constants.PEDIDOS_CODAE}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=[UsuarioCODAEGestaoAlimentacao],
-    )
     def solicitacoes_codae(self, request, filtro_aplicado=constants.SEM_FILTRO):
         # TODO: colocar regras de codae CODAE aqui...
         usuario = request.user
@@ -1112,23 +1096,6 @@ class AlteracoesCardapioViewSet(viewsets.ModelViewSet):
 
         page = self.paginate_queryset(alteracoes_cardapio)
         serializer = AlteracaoCardapioSimplesSerializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
-
-    @action(
-        detail=False,
-        url_path=f"{constants.PEDIDOS_TERCEIRIZADA}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=[UsuarioTerceirizada],
-    )
-    def solicitacoes_terceirizada(self, request, filtro_aplicado=constants.SEM_FILTRO):
-        # TODO: colocar regras de Terceirizada aqui...
-        usuario = request.user
-        terceirizada = usuario.vinculo_atual.instituicao
-        alteracoes_cardapio = terceirizada.alteracoes_cardapio_das_minhas(
-            filtro_aplicado
-        )
-
-        page = self.paginate_queryset(alteracoes_cardapio)
-        serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
     @action(detail=True, methods=["GET"], url_path=f"{constants.RELATORIO}")
