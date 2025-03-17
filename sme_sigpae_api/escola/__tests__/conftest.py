@@ -224,13 +224,14 @@ def vinculo_instituto_serializer(vinculo):
 
 
 @pytest.fixture
-def aluno(escola):
+def aluno(escola, periodo_escolar):
     return mommy.make(
         models.Aluno,
         nome="Fulano da Silva",
         codigo_eol="000001",
         data_nascimento=datetime.date(2000, 1, 1),
         escola=escola,
+        periodo_escolar=periodo_escolar,
     )
 
 
