@@ -104,7 +104,9 @@ def cria_vinculos():
         "perfil_usuario_representante_codae": Perfil.objects.get(
             nome="ADMINISTRADOR_REPRESENTANTE_CODAE"
         ),
-        "perfil_administrador_dicae": Perfil.objects.get(nome="ADMINISTRADOR_DICAE"),
+        "perfil_administrador_contratos": Perfil.objects.get(
+            nome="ADMINISTRADOR_CONTRATOS"
+        ),
         "perfil_dilog_abastecimento": Perfil.objects.get(nome="DILOG_ABASTECIMENTO"),
     }
 
@@ -157,8 +159,8 @@ def cria_vinculos():
         "usuario_representante_codae": Usuario.objects.get(
             email="representantecodae@admin.com"
         ),
-        "usuario_administrador_dicae": Usuario.objects.get(
-            email="administradordicae@admin.com"
+        "usuario_administrador_contratos": Usuario.objects.get(
+            email="administradorcontratos@admin.com"
         ),
         "usuario_dilog_abastecimento": Usuario.objects.get(
             email="dilogabastecimento@admin.com"
@@ -257,9 +259,9 @@ def cria_vinculos():
             "usuario": usuario["usuario_representante_codae"],
         },
         {
-            "nome": "ADMINISTRADOR DICAE",
-            "perfil": perfil["perfil_administrador_dicae"],
-            "usuario": usuario["usuario_administrador_dicae"],
+            "nome": "ADMINISTRADOR CONTRATOS",
+            "perfil": perfil["perfil_administrador_contratos"],
+            "usuario": usuario["usuario_administrador_contratos"],
         },
         {
             "nome": "DILOG ABASTECIMENTO",
@@ -307,7 +309,9 @@ def cria_vinculos():
     )
     escola = Escola.objects.get(nome="EMEF JOSE ERMIRIO DE MORAIS, SEN.")  # noqa
     terceirizada = escola.lote.terceirizada
-    dicae, created = Codae.objects.get_or_create(nome="CODAE - Administrador Contratos")
+    contratos, created = Codae.objects.get_or_create(
+        nome="CODAE - Administrador Contratos"
+    )
 
     items_especificos = [
         {
@@ -371,9 +375,9 @@ def cria_vinculos():
             "usuario": usuario["usuario_dinutre_diretoria"],
         },
         {
-            "instituicao": dicae,
-            "perfil": perfil["perfil_administrador_dicae"],
-            "usuario": usuario["usuario_administrador_dicae"],
+            "instituicao": contratos,
+            "perfil": perfil["perfil_administrador_contratos"],
+            "usuario": usuario["usuario_administrador_contratos"],
         },
         {
             "instituicao": dilog,

@@ -323,11 +323,11 @@ USUARIOS = [
         "cargo": "Coordenador",
     },
     {
-        "email": "administradordicae@admin.com",
+        "email": "administradorcontratos@admin.com",
         "password": DJANGO_ADMIN_PASSWORD,
         "cpf": "11111111145",
         "registro_funcional": "1242199",
-        "nome": "ADMINISTRADOR DICAE",
+        "nome": "ADMINISTRADOR CONTRATOS",
         "cargo": "Coordenador",
     },
     {

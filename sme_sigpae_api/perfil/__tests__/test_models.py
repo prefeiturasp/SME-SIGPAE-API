@@ -4,7 +4,7 @@ import pytest
 from django.db.utils import IntegrityError
 
 from sme_sigpae_api.dados_comuns.constants import (
-    ADMINISTRADOR_DICAE,
+    ADMINISTRADOR_CONTRATOS,
     DILOG_ABASTECIMENTO,
 )
 
@@ -69,23 +69,26 @@ def test_vinculos(usuario_3):
     assert usuario_3.vinculos.count() == 1
 
 
-def test_atualiza_cargo_adm_dicae(usuario_administrador_dicae):
-    usuario_administrador_dicae.atualizar_cargo()
-    usuario_administrador_dicae.refresh_from_db()
-    assert usuario_administrador_dicae.cargo == "Analista"
+def test_atualiza_cargo_adm_contratos(usuario_administrador_contratos):
+    usuario_administrador_contratos.atualizar_cargo()
+    usuario_administrador_contratos.refresh_from_db()
+    assert usuario_administrador_contratos.cargo == "Analista"
 
 
-def test_desativa_cargo_adm_dicae(usuario_administrador_dicae):
-    usuario_administrador_dicae.desativa_cargo()
-    usuario_administrador_dicae.refresh_from_db()
-    assert usuario_administrador_dicae.cargos.last().nome == "Analista"
-    assert usuario_administrador_dicae.cargos.last().ativo is False
-    assert usuario_administrador_dicae.cargos.last().data_final is not None
+def test_desativa_cargo_adm_contratos(usuario_administrador_contratos):
+    usuario_administrador_contratos.desativa_cargo()
+    usuario_administrador_contratos.refresh_from_db()
+    assert usuario_administrador_contratos.cargos.last().nome == "Analista"
+    assert usuario_administrador_contratos.cargos.last().ativo is False
+    assert usuario_administrador_contratos.cargos.last().data_final is not None
 
 
-def test_usuario_adm_dicae(usuario_administrador_dicae):
-    assert usuario_administrador_dicae.vinculo_atual.perfil.nome == ADMINISTRADOR_DICAE
-    assert usuario_administrador_dicae.tipo_usuario == "administrador_dicae"
+def test_usuario_adm_contratos(usuario_administrador_contratos):
+    assert (
+        usuario_administrador_contratos.vinculo_atual.perfil.nome
+        == ADMINISTRADOR_CONTRATOS
+    )
+    assert usuario_administrador_contratos.tipo_usuario == "administrador_contratos"
 
 
 def test_atualiza_cargo_dilog_abastecimento(usuario_dilog_abastecimento):

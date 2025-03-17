@@ -7,7 +7,7 @@ from faker import Faker
 from model_mommy import mommy
 
 from ...dados_comuns.constants import (
-    ADMINISTRADOR_DICAE,
+    ADMINISTRADOR_CONTRATOS,
     DILOG_ABASTECIMENTO,
     DJANGO_ADMIN_PASSWORD,
 )
@@ -1331,7 +1331,7 @@ def mocked_response_get_dados_usuario_coresso_sem_acesso_automatico():
 
 
 @pytest.fixture
-def usuario_administrador_dicae():
+def usuario_administrador_contratos():
     usuario = mommy.make("Usuario", username="testuser")
     mommy.make("Cargo", usuario=usuario, ativo=False, nome="Gerente")
     mommy.make("Cargo", usuario=usuario, ativo=True, nome="Analista")
@@ -1339,7 +1339,7 @@ def usuario_administrador_dicae():
     mommy.make(
         "Vinculo",
         usuario=usuario,
-        perfil=mommy.make("Perfil", nome=ADMINISTRADOR_DICAE),
+        perfil=mommy.make("Perfil", nome=ADMINISTRADOR_CONTRATOS),
         ativo=True,
         data_inicial=datetime.date.today(),
         data_final=None,
