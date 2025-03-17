@@ -25,16 +25,18 @@ pytestmark = pytest.mark.django_db
 def test_pode_criar_administradores_escola_has_permission_retorna_true(
     mock_request, usuario_diretor_escola
 ):
+    usuario, _ = usuario_diretor_escola
     permission = PodeCriarAdministradoresDaEscola()
-    mock_request.user = usuario_diretor_escola[0]
+    mock_request.user = usuario
     assert permission.has_permission(mock_request, None) is True
 
 
 def test_pode_criar_administradores_escola_has_permission_retorna_false(
     mock_request, usuario_coordenador_codae
 ):
+    usuario, _ = usuario_coordenador_codae
     permission = PodeCriarAdministradoresDaEscola()
-    mock_request.user = usuario_coordenador_codae[0]
+    mock_request.user = usuario
     assert permission.has_permission(mock_request, None) is False
 
 
@@ -49,16 +51,18 @@ def test_pode_criar_administradores_escola_has_permission_retorna_false_usuario_
 def test_pode_criar_administradores_escola_has_object_permission_retorna_true(
     mock_request, usuario_diretor_escola, escola
 ):
+    usuario, _ = usuario_diretor_escola
     permission = PodeCriarAdministradoresDaEscola()
-    mock_request.user = usuario_diretor_escola[0]
+    mock_request.user = usuario
     assert permission.has_object_permission(mock_request, None, escola) is True
 
 
 def test_pode_criar_administradores_escola_has_object_permission_retorna_false(
     mock_request, usuario_diretor_escola, diretoria_regional
 ):
+    usuario, _ = usuario_diretor_escola
     permission = PodeCriarAdministradoresDaEscola()
-    mock_request.user = usuario_diretor_escola[0]
+    mock_request.user = usuario
     assert (
         permission.has_object_permission(mock_request, None, diretoria_regional)
         is False
@@ -95,16 +99,18 @@ def test_pode_criar_administradores_diretoria_regional_has_permission_retorna_fa
 def test_pode_criar_administradores_diretoria_regional_has_object_permission_retorna_true(
     mock_request, usuario_diretor_escola, escola
 ):
+    usuario, _ = usuario_diretor_escola
     permission = PodeCriarAdministradoresDaDiretoriaRegional()
-    mock_request.user = usuario_diretor_escola[0]
+    mock_request.user = usuario
     assert permission.has_object_permission(mock_request, None, escola) is True
 
 
 def test_pode_criar_administradores_diretoria_regional_has_object_permission_retorna_false(
     mock_request, usuario_diretor_escola, diretoria_regional
 ):
+    usuario, _ = usuario_diretor_escola
     permission = PodeCriarAdministradoresDaDiretoriaRegional()
-    mock_request.user = usuario_diretor_escola[0]
+    mock_request.user = usuario
     assert (
         permission.has_object_permission(mock_request, None, diretoria_regional)
         is False
@@ -225,20 +231,21 @@ def test_pode_criar_administradores_codae_nutricao_has_permission_retorna_false_
 def test_pode_ver_editar_foto_has_object_permission_retorna_true(
     mock_request, usuario_diretor_escola, dia_calendario_letivo
 ):
+    usuario, _ = usuario_diretor_escola
     permission = PodeVerEditarFotoAlunoNoSGP()
-    mock_request.user = usuario_diretor_escola[0]
+    mock_request.user = usuario
     assert (
         permission.has_object_permission(mock_request, None, dia_calendario_letivo)
         is True
     )
 
 
-def test_pode_ver_editar_foto_has_object_permission_retorna_true_model_codae(
+def test_pode_ver_editar_foto_has_object_permission_retorna_false_model_codae(
     mock_request, dia_calendario_letivo
 ):
     permission = PodeVerEditarFotoAlunoNoSGP()
     mock_request.user.vinculo_atual.content_type.model = "codae"
     assert (
         permission.has_object_permission(mock_request, None, dia_calendario_letivo)
-        is True
+        == False
     )

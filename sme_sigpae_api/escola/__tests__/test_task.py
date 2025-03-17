@@ -196,8 +196,9 @@ def test_gera_pdf_relatorio_alunos_matriculados_async(
     faixas_etarias,
     usuario_coordenador_codae,
 ):
+    usuario, _ = usuario_coordenador_codae
     uuids = [am.uuid for am in AlunosMatriculadosPeriodoEscola.objects.all()]
-    username = usuario_coordenador_codae[0].username
+    username = usuario.username
     nome_pdf = "teste.pdf"
     gera_pdf_relatorio_alunos_matriculados_async(
         user=username, nome_arquivo=nome_pdf, uuids=uuids
@@ -209,8 +210,9 @@ def test_gera_pdf_relatorio_alunos_matriculados_async(
 
 
 def test_gera_pdf_relatorio_alunos_matriculados_async_erro(usuario_coordenador_codae):
+    usuario, _ = usuario_coordenador_codae
     uuids = "5645645646"
-    username = usuario_coordenador_codae[0].username
+    username = usuario.username
     nome_pdf = "teste.pdf"
     gera_pdf_relatorio_alunos_matriculados_async(
         user=username, nome_arquivo=nome_pdf, uuids=uuids
@@ -227,8 +229,9 @@ def test_gera_xlsx_relatorio_alunos_matriculados_async(
     faixas_etarias,
     usuario_coordenador_codae,
 ):
+    usuario, _ = usuario_coordenador_codae
     uuids = [am.uuid for am in AlunosMatriculadosPeriodoEscola.objects.all()]
-    username = usuario_coordenador_codae[0].username
+    username = usuario.username
     nome_pdf = "teste.pdf"
     gera_xlsx_relatorio_alunos_matriculados_async(
         user=username, nome_arquivo=nome_pdf, uuids=uuids
@@ -240,8 +243,9 @@ def test_gera_xlsx_relatorio_alunos_matriculados_async(
 
 
 def test_gera_xlsx_relatorio_alunos_matriculados_async_erro(usuario_coordenador_codae):
+    usuario, _ = usuario_coordenador_codae
     uuids = "5645645646"
-    username = usuario_coordenador_codae[0].username
+    username = usuario.username
     nome_pdf = "teste.pdf"
     gera_xlsx_relatorio_alunos_matriculados_async(
         user=username, nome_arquivo=nome_pdf, uuids=uuids
