@@ -29,7 +29,7 @@ class AutenticacaoService:
                 json=payload,
             )
             return response
-        except Timeout as e:
+        except Timeout:
             LOG.info("Erro de timeout ao tentar autenticar o usuário %s", login)
             raise Timeout("Erro de timeout: o servidor demorou demais para responder.")
         except Exception as e:
