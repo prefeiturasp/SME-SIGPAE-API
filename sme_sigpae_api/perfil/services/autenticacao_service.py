@@ -1,6 +1,6 @@
 import logging
-
 import requests
+from requests.exceptions import Timeout
 
 from sme_sigpae_api.dados_comuns.constants import (
     DJANGO_AUTENTICA_CORESSO_API_TOKEN,
@@ -29,6 +29,9 @@ class AutenticacaoService:
                 json=payload,
             )
             return response
+        except Timeout as e:
+            LOG.info("Erro de timeout ao tentar autenticar o usuário %s", login)
+            raise Timeout("Erro de timeout: o servidor demorou demais para responder.")
         except Exception as e:
             LOG.info("ERROR - %s", str(e))
             raise e

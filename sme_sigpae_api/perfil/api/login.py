@@ -1,6 +1,7 @@
 import datetime
-import logging
 import re
+import logging
+from requests.exceptions import Timeout
 
 from django.contrib.auth import get_user_model
 from rest_framework import permissions, status
@@ -270,3 +271,9 @@ class LoginView(TokenObtainPairView):
         except EOLException as e:
             logger.info(f"{str(e)}, {login}")
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Timeout as e:
+            logger.error(f"Timeout ao tentar autenticar usuário {login}")
+            return Response(
+                {"detail": str(e)},
+                status=status.HTTP_504_GATEWAY_TIMEOUT,
+            )
