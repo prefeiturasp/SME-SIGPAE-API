@@ -108,9 +108,9 @@ def usuario_2():
         models.Usuario,
         uuid="8344f23a-95c4-4871-8f20-3880529767c0",
         nome="Fulano da Silva",
-        email="fulano@teste.com",
+        email="fulano2@teste.com",
         cpf="11111111111",
-        registro_funcional="1234567",
+        registro_funcional="7234561",
     )
 
 
