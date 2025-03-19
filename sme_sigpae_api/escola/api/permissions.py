@@ -107,11 +107,10 @@ class PodeVerEditarFotoAlunoNoSGP(permissions.BasePermission):
     )
 
     def has_object_permission(self, request, view, obj):
-        if request.user and obj.escola:
-            if request.user.vinculo_atual.content_type.model == "escola":
-                aluno_pertence_a_escola = (
-                    request.user.vinculo_atual.object_id == obj.escola.id
-                )
-                return aluno_pertence_a_escola
-            return True
-        return False
+        if not (
+            request.user
+            or obj.escola
+            or request.user.vinculo_atual.content_type.model == "escola"
+        ):
+            return 5
+        return request.user.vinculo_atual.object_id == obj.escola.id

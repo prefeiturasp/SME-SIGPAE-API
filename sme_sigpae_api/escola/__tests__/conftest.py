@@ -45,6 +45,11 @@ Faker.seed(420)
 
 
 @pytest.fixture
+def periodo_escolar():
+    return mommy.make(models.PeriodoEscolar, nome="INTEGRAL", tipo_turno=1)
+
+
+@pytest.fixture
 def tipo_unidade_escolar():
     cardapio1 = mommy.make("cardapio.Cardapio", data=datetime.date(2019, 10, 11))
     cardapio2 = mommy.make("cardapio.Cardapio", data=datetime.date(2019, 10, 15))
@@ -92,6 +97,7 @@ def escola(lote, tipo_gestao, diretoria_regional):
         lote=lote,
         tipo_gestao=tipo_gestao,
         contato=mommy.make("Contato", email="escola@email.com"),
+        uuid="4282d012-2f38-4f04-97a3-217c49bb8040",
     )
 
 
@@ -191,11 +197,6 @@ def codae(escola):
 
 
 @pytest.fixture
-def periodo_escolar():
-    return mommy.make(models.PeriodoEscolar, nome="INTEGRAL", tipo_turno=1)
-
-
-@pytest.fixture
 def periodo_escolar_parcial():
     return mommy.make(models.PeriodoEscolar, nome="PARCIAL")
 
@@ -223,18 +224,19 @@ def vinculo_instituto_serializer(vinculo):
 
 
 @pytest.fixture
-def aluno(escola):
+def aluno(escola, periodo_escolar):
     return mommy.make(
         models.Aluno,
         nome="Fulano da Silva",
         codigo_eol="000001",
         data_nascimento=datetime.date(2000, 1, 1),
         escola=escola,
+        periodo_escolar=periodo_escolar,
     )
 
 
 @pytest.fixture
-def client_autenticado_coordenador_codae(client, django_user_model):
+def usuario_coordenador_codae(django_user_model):
     email, password, rf, cpf = (
         "cogestor_1@sme.prefeitura.sp.gov.br",
         "adminadmin",
@@ -244,7 +246,6 @@ def client_autenticado_coordenador_codae(client, django_user_model):
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional=rf, cpf=cpf
     )
-    client.login(username=email, password=password)
 
     codae = mommy.make(
         "Codae", nome="CODAE", uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd"
@@ -256,7 +257,9 @@ def client_autenticado_coordenador_codae(client, django_user_model):
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
     )
+
     mommy.make("Lote", uuid="143c2550-8bf0-46b4-b001-27965cfcd107")
+
     hoje = datetime.date.today()
     mommy.make(
         "Vinculo",
@@ -266,6 +269,7 @@ def client_autenticado_coordenador_codae(client, django_user_model):
         data_inicial=hoje,
         ativo=True,
     )
+
     mommy.make(
         "TipoUnidadeEscolar",
         iniciais="EMEF",
@@ -281,20 +285,28 @@ def client_autenticado_coordenador_codae(client, django_user_model):
         iniciais="CIEJA",
         uuid="ac4858ff-1c11-41f3-b539-7a02696d6d1b",
     )
+
+    return user, password
+
+
+@pytest.fixture
+def client_autenticado_coordenador_codae(client, usuario_coordenador_codae):
+    usuario, password = usuario_coordenador_codae
+    client.login(username=usuario.email, password=password)
     return client
 
 
 @pytest.fixture
-def client_autenticado_da_escola(client, django_user_model, escola):
+def usuario_diretor_escola(django_user_model, escola):
     email = "user@escola.com"
     password = "admin@123"
+
     perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+
     usuario = django_user_model.objects.create_user(
-        username=email,
-        password=password,
-        email=email,
-        registro_funcional="123456",
+        username=email, password=password, email=email, registro_funcional="123456"
     )
+
     hoje = datetime.date.today()
     mommy.make(
         "Vinculo",
@@ -304,7 +316,14 @@ def client_autenticado_da_escola(client, django_user_model, escola):
         data_inicial=hoje,
         ativo=True,
     )
-    client.login(username=email, password=password)
+
+    return usuario, password
+
+
+@pytest.fixture
+def client_autenticado_da_escola(client, usuario_diretor_escola):
+    usuario, password = usuario_diretor_escola
+    client.login(username=usuario.email, password=password)
     return client
 
 
@@ -885,40 +904,6 @@ def lista_dias_letivos(escola, dia_calendario_letivo, dia_calendario_nao_letivo)
 
 
 @pytest.fixture
-def usuario_coordenador_codae(client, django_user_model):
-    email, password, rf, cpf = (
-        "cogestor_1@sme.prefeitura.sp.gov.br",
-        "adminadmin",
-        "0000001",
-        "44426575052",
-    )
-    usuario = django_user_model.objects.create_user(
-        username=email, password=password, email=email, registro_funcional=rf, cpf=cpf
-    )
-    codae = mommy.make(
-        "Codae", nome="CODAE", uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd"
-    )
-
-    perfil_coordenador = mommy.make(
-        "Perfil",
-        nome="COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA",
-        ativo=True,
-        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
-    )
-    mommy.make("Lote", uuid="143c2550-8bf0-46b4-b001-27965cfcd107")
-    hoje = datetime.date.today()
-    mommy.make(
-        "Vinculo",
-        usuario=usuario,
-        instituicao=codae,
-        perfil=perfil_coordenador,
-        data_inicial=hoje,
-        ativo=True,
-    )
-    return usuario
-
-
-@pytest.fixture
 def excluir_alunos_periodo_parcial(escola, aluno, escola_cei):
     data = datetime.datetime(2025, 2, 7)
     solicitacao_medicao_inicial = mommy.make(
@@ -1195,3 +1180,83 @@ def escola_edital_41(escola):
     )
 
     return escola
+
+
+@pytest.fixture
+def tipo_alimentacao():
+    return mommy.make("cardapio.TipoAlimentacao", nome="Refeição")
+
+
+@pytest.fixture
+def tipo_alimentacao_lanche_emergencial():
+    return mommy.make("cardapio.TipoAlimentacao", nome="Sobremesa")
+
+
+@pytest.fixture
+def escola_cmct(tipo_alimentacao, tipo_alimentacao_lanche_emergencial):
+    noite = mommy.make(models.PeriodoEscolar, nome="NOITE", tipo_turno=2)
+    manha = mommy.make(models.PeriodoEscolar, nome="MANHA", tipo_turno=1)
+    tipo_unidade_escolar = mommy.make(models.TipoUnidadeEscolar, iniciais="CMCT")
+    mommy.make(
+        "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
+        periodo_escolar=manha,
+        tipo_unidade_escolar=tipo_unidade_escolar,
+        tipos_alimentacao=[tipo_alimentacao, tipo_alimentacao_lanche_emergencial],
+    )
+    mommy.make(
+        "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
+        periodo_escolar=noite,
+        tipo_unidade_escolar=tipo_unidade_escolar,
+        tipos_alimentacao=[tipo_alimentacao, tipo_alimentacao_lanche_emergencial],
+    )
+
+    terceirizada = mommy.make("Terceirizada")
+    lote = mommy.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = mommy.make(
+        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+    )
+    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
+    escola = mommy.make(
+        "Escola",
+        nome="CMCT TESTE",
+        lote=lote,
+        diretoria_regional=diretoria_regional,
+        tipo_gestao=tipo_gestao,
+        tipo_unidade=tipo_unidade_escolar,
+    )
+    mommy.make(
+        "Aluno",
+        escola=escola,
+        periodo_escolar=manha,
+    )
+    mommy.make(
+        "Aluno",
+        escola=escola,
+        periodo_escolar=noite,
+    )
+
+    mommy.make(
+        models.AlunosMatriculadosPeriodoEscola,
+        escola=escola,
+        periodo_escolar=manha,
+        quantidade_alunos=50,
+        tipo_turma=models.TipoTurma.PROGRAMAS.name,
+    )
+    mommy.make(
+        models.AlunosMatriculadosPeriodoEscola,
+        escola=escola,
+        periodo_escolar=noite,
+        quantidade_alunos=50,
+        tipo_turma=models.TipoTurma.PROGRAMAS.name,
+    )
+
+    return escola
+
+
+@pytest.fixture
+def mock_request():
+    request = MagicMock()
+    request.user = MagicMock()
+    request.user.vinculo_atual.perfil.nome = None
+    request.user.vinculo_atual.content_type.model = None
+    return request

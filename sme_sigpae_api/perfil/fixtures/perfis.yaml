@@ -112,7 +112,7 @@
     visao: CODAE
 - model: perfil.perfil
   fields:
-    nome: ADMINISTRADOR_DICAE
+    nome: ADMINISTRADOR_CONTRATOS
     visao: CODAE
 - model: perfil.perfil
   fields:

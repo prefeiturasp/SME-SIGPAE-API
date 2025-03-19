@@ -62,12 +62,12 @@ class TestDashboardGestaoProdutosTerceirizada:
             usuario=usuario,
         )
 
-        produto_2 = ProdutoFactory.create(
+        self.produto_2 = ProdutoFactory.create(
             nome="MACARRAO", marca__nome="ADRIA", fabricante__nome="ADRIA LTDA"
         )
-        ProdutoEditalFactory.create(produto=produto_2, edital=self.edital_2)
+        ProdutoEditalFactory.create(produto=self.produto_2, edital=self.edital_2)
         self.homologacao_produto_2 = HomologacaoProdutoFactory.create(
-            produto=produto_2,
+            produto=self.produto_2,
             rastro_terceirizada=self.escola_2.lote.terceirizada,
             status=status,
         )
@@ -583,6 +583,72 @@ class TestDashboardGestaoProdutosTerceirizada:
         self.homologacao_produto_2.save()
 
         response = client.get("/dashboard-produtos/questionamento-da-codae/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["count"] == 1
+        assert (
+            any(
+                produto
+                for produto in response.json()["results"]
+                if produto["nome_produto"] == "SALSICHA"
+            )
+            is True
+        )
+
+    def inclui_novo_edital(self):
+        self.edital_3 = EditalFactory.create(numero="99/SME/2025")
+        self.escola_3 = EscolaFactory.create()
+        ContratoFactory.create(
+            edital=self.edital_3,
+            terceirizada=self.escola_3.lote.terceirizada,
+            lotes=[self.escola_3.lote],
+        )
+        ProdutoEditalFactory.create(
+            produto=self.produto, edital=self.edital_3, suspenso=False
+        )
+        ProdutoEditalFactory.create(
+            produto=self.produto_2, edital=self.edital_3, suspenso=False
+        )
+
+    def gera_reclamacao_produto_de_outra_escola_3(self):
+        ReclamacaoDeProdutoFactory.create(
+            homologacao_produto=self.homologacao_produto, escola=self.escola_3
+        )
+
+        self.homologacao_produto.status = (
+            HomologacaoProduto.workflow_class.ESCOLA_OU_NUTRICIONISTA_RECLAMOU
+        )
+        self.homologacao_produto.save()
+
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.homologacao_produto_2.uuid,
+            status_evento=LogSolicitacoesUsuario.ESCOLA_OU_NUTRICIONISTA_RECLAMOU,
+            criado_em=datetime.datetime.now() + datetime.timedelta(days=3),
+        )
+
+    def test_aguardando_analise_reclamacao_unidade_nao_atendida(
+        self,
+        client_autenticado_vinculo_terceirizada,
+        escola,
+    ):
+        client, usuario = client_autenticado_vinculo_terceirizada
+        self.setup_produtos(
+            escola,
+            usuario,
+            status=HomologacaoProduto.workflow_class.CODAE_HOMOLOGADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_HOMOLOGADO,
+        )
+        self.inclui_novo_edital()
+        self.gera_reclamacao_produto_de_outra_escola_3()
+
+        assert (
+            HomologacaoProduto.objects.filter(
+                reclamacoes__escola__lote__terceirizada=usuario.vinculo_atual.instituicao
+            ).count()
+            == 0
+        )
+        assert HomologacaoProduto.objects.filter(reclamacoes__isnull=False).count() == 1
+
+        response = client.get("/dashboard-produtos/aguardando-analise-reclamacao/")
         assert response.status_code == status.HTTP_200_OK
         assert response.json()["count"] == 1
         assert (

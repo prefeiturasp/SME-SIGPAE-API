@@ -1,6 +1,7 @@
 import datetime
-import logging
 import re
+import logging
+from requests.exceptions import Timeout
 
 from django.contrib.auth import get_user_model
 from rest_framework import permissions, status
@@ -233,40 +234,45 @@ class LoginView(TokenObtainPairView):
         login = request.data.get("login", "")
         senha = request.data.get("password", "")
         try:
-            response = AutenticacaoService.autentica(login, senha)
-            user_dict = response.json()
-            if "login" in user_dict.keys():
-                user_dict["email"] = self.validar_email_usuario_coresso(
-                    user_dict["email"], login
-                )
-                self.checa_vinculo_se_servidor(login)
-                user, last_login = self.update_user(user_dict, senha)
-                data = self.build_response_data(
-                    request, user_dict, senha, last_login, args, kwargs
-                )
-                return Response(data)
-            else:
-                self.checa_login_senha_coresso(login, senha)
-                dados_usuario = self.get_dados_usuario_json(login)
-                dados_usuario["email"] = self.validar_email_usuario_coresso(
-                    dados_usuario["email"], login
-                )
-                self.checa_se_cria_usuario(dados_usuario)
-                user_dict = {"login": login, **dados_usuario}
-                user, last_login = self.update_user(user_dict, senha)
-                data = self.build_response_data(
-                    request, user_dict, senha, last_login, args, kwargs
-                )
-                return Response(data)
+            user_dict = self.autenticar_usuario(login, senha)
+            user, last_login = self.update_user(user_dict, senha)
+            data = self.build_response_data(request, user_dict, senha, last_login, args, kwargs)
+            return Response(data)
         except User.DoesNotExist:
-            logger.info("Usuário %s não encontrado.", login)
-            return Response(
-                {"detail": "Usuário não encontrado."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+            return self.handle_user_not_found(login)
         except (NovoSGPServicoLogadoException, PermissionDenied) as e:
-            logger.info(f"{str(e)}, {login}")
-            return Response({"detail": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+            return self.handle_unauthorized_error(e, login)
         except EOLException as e:
-            logger.info(f"{str(e)}, {login}")
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return self.handle_bad_request_error(e, login)
+        except Timeout as e:
+            return self.handle_timeout_error(e, login)
+
+    def autenticar_usuario(self, login, senha):
+        response = AutenticacaoService.autentica(login, senha)
+        user_dict = response.json()
+        if "login" in user_dict.keys():
+            user_dict["email"] = self.validar_email_usuario_coresso(user_dict["email"], login)
+            self.checa_vinculo_se_servidor(login)
+        else:
+            self.checa_login_senha_coresso(login, senha)
+            dados_usuario = self.get_dados_usuario_json(login)
+            dados_usuario["email"] = self.validar_email_usuario_coresso(dados_usuario["email"], login)
+            self.checa_se_cria_usuario(dados_usuario)
+            user_dict = {"login": login, **dados_usuario}
+        return user_dict
+
+    def handle_user_not_found(self, login):
+        logger.info("Usuário %s não encontrado.", login)
+        return Response({"detail": "Usuário não encontrado."}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def handle_unauthorized_error(self, e, login):
+        logger.info(f"{str(e)}, {login}")
+        return Response({"detail": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def handle_bad_request_error(self, e, login):
+        logger.info(f"{str(e)}, {login}")
+        return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def handle_timeout_error(self, e, login):
+        logger.error(f"Timeout ao tentar autenticar usuário {login}")
+        return Response({"detail": str(e)}, status=status.HTTP_504_GATEWAY_TIMEOUT)
