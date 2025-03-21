@@ -16,6 +16,8 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from xworkflows import InvalidTransitionError
 
+from sme_sigpae_api.dados_comuns.api.paginations import CustomPagination
+
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...dados_comuns.models import LogSolicitacoesUsuario
@@ -75,7 +77,11 @@ from ..tasks import (
 from ..utils import (
     ProtocoloPadraoPagination,
     RelatorioPagination,
+    dados_dietas_escolas_cei,
+    dados_dietas_escolas_comuns,
     filtrar_alunos_com_dietas_nos_status_e_rastro_escola,
+    gera_dicionario_historico_dietas,
+    gerar_filtros_relatorio_historico,
     trata_lotes_dict_duplicados,
 )
 from .filters import (
@@ -169,6 +175,8 @@ class SolicitacaoDietaEspecialViewSet(
                 IsAuthenticated,
                 PermissaoRelatorioDietasEspeciais,
             )
+        elif self.action == "relatorio-historico-dieta-especial":
+            self.permission_classes = (IsAuthenticated,)
         return super(SolicitacaoDietaEspecialViewSet, self).get_permissions()
 
     def get_serializer_class(self):  # noqa C901
@@ -1324,6 +1332,22 @@ class SolicitacaoDietaEspecialViewSet(
             status=status.HTTP_200_OK,
         )
 
+    @action(
+        detail=False, methods=["GET"], url_path="relatorio-historico-dieta-especial"
+    )
+    def relatorio_historico_dieta_especial(self, request):
+        filtros = gerar_filtros_relatorio_historico(request.query_params)
+        dietas_cei = dados_dietas_escolas_cei(filtros)
+        dietas_outras_escolas = dados_dietas_escolas_comuns(filtros)
+        dietas = gera_dicionario_historico_dietas(dietas_cei, dietas_outras_escolas)
+
+        # resultado = {
+        #     "cei": dietas_cei,
+        #     "outras": dietas_outras_escolas,
+        # }
+
+        return Response(dietas)
+
 
 class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
     serializer_class = SolicitacoesAtivasInativasPorAlunoSerializer
@@ -1711,7 +1735,7 @@ class LogQuantidadeDietasAutorizadasViewSet(mixins.ListModelMixin, GenericViewSe
     queryset = LogQuantidadeDietasAutorizadas.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = LogQuantidadeDietasEspeciaisFilter
-    pagination_class = None
+    pagination_class = CustomPagination
 
 
 class LogQuantidadeDietasAutorizadasCEIViewSet(mixins.ListModelMixin, GenericViewSet):
@@ -1719,4 +1743,4 @@ class LogQuantidadeDietasAutorizadasCEIViewSet(mixins.ListModelMixin, GenericVie
     queryset = LogQuantidadeDietasAutorizadasCEI.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = LogQuantidadeDietasEspeciaisFilter
-    pagination_class = None
+    pagination_class = CustomPagination
