@@ -2944,98 +2944,91 @@ def get_somatorio_total_tabela(valores_somatorios_tabela):
     return somatorio_total_tabela
 
 
-def get_somatorio_noite_eja(
-    campo, solicitacao, dict_total_refeicoes, dict_total_sobremesas, tipo_turma=None
+def get_somatorio_eja_helper(
+    periodo_nome,
+    tipo_alimentacao,
+    solicitacao,
+    dict_total_refeicoes,
+    dict_total_sobremesas,
+    tipo_turma=None,
 ):
-    # ajustar para filtrar periodo/grupo EJA
     try:
-        medicao = solicitacao.medicoes.get(periodo_escolar__nome="NOITE", grupo=None)
+        medicao = solicitacao.medicoes.get(
+            periodo_escolar__nome=periodo_nome, grupo=None
+        )
         values = medicao.valores_medicao.filter(
             categoria_medicao__nome="ALIMENTAÇÃO",
-            nome_campo=campo,
+            nome_campo=tipo_alimentacao,
             infantil_ou_fundamental=tipo_turma if tipo_turma is not None else "N/A",
         )
         values = somar_valores_semelhantes(
             values,
             medicao,
-            campo,
+            tipo_alimentacao,
             solicitacao,
             dict_total_refeicoes,
             dict_total_sobremesas,
             tipo_turma,
         )
-        somatorio_noite = (
+        somatorio = (
             values if type(values) is int else sum([int(v.valor) for v in values])
         )
-        if somatorio_noite == 0:
-            somatorio_noite = 0
+        if somatorio == 0:
+            somatorio = 0
     except Exception:
-        somatorio_noite = 0
-    return somatorio_noite
+        somatorio = 0
+    return somatorio
+
+
+def get_somatorio_noite_eja(
+    tipo_alimentacao,
+    solicitacao,
+    dict_total_refeicoes,
+    dict_total_sobremesas,
+    tipo_turma=None,
+):
+    return get_somatorio_eja_helper(
+        "NOITE",
+        tipo_alimentacao,
+        solicitacao,
+        dict_total_refeicoes,
+        dict_total_sobremesas,
+        tipo_turma,
+    )
 
 
 def get_somatorio_intermediario_eja(
-    campo, solicitacao, dict_total_refeicoes, dict_total_sobremesas, tipo_turma=None
+    tipo_alimentacao,
+    solicitacao,
+    dict_total_refeicoes,
+    dict_total_sobremesas,
+    tipo_turma=None,
 ):
-    # ajustar para filtrar periodo/grupo EJA
-    try:
-        medicao = solicitacao.medicoes.get(
-            periodo_escolar__nome="INTERMEDIARIO", grupo=None
-        )
-        values = medicao.valores_medicao.filter(
-            categoria_medicao__nome="ALIMENTAÇÃO",
-            nome_campo=campo,
-            infantil_ou_fundamental=tipo_turma if tipo_turma is not None else "N/A",
-        )
-        values = somar_valores_semelhantes(
-            values,
-            medicao,
-            campo,
-            solicitacao,
-            dict_total_refeicoes,
-            dict_total_sobremesas,
-            tipo_turma,
-        )
-        somatorio_noite = (
-            values if type(values) is int else sum([int(v.valor) for v in values])
-        )
-        if somatorio_noite == 0:
-            somatorio_noite = 0
-    except Exception:
-        somatorio_noite = 0
-    return somatorio_noite
+    return get_somatorio_eja_helper(
+        "INTERMEDIARIO",
+        tipo_alimentacao,
+        solicitacao,
+        dict_total_refeicoes,
+        dict_total_sobremesas,
+        tipo_turma,
+    )
 
 
 def get_somatorio_vespertino_eja(
-    campo, solicitacao, dict_total_refeicoes, dict_total_sobremesas, tipo_turma=None
+    tipo_alimentacao,
+    solicitacao,
+    dict_total_refeicoes,
+    dict_total_sobremesas,
+    tipo_turma=None,
 ):
-    # ajustar para filtrar periodo/grupo EJA
-    try:
-        medicao = solicitacao.medicoes.get(
-            periodo_escolar__nome="VESPERTINO", grupo=None
-        )
-        values = medicao.valores_medicao.filter(
-            categoria_medicao__nome="ALIMENTAÇÃO",
-            nome_campo=campo,
-            infantil_ou_fundamental=tipo_turma if tipo_turma is not None else "N/A",
-        )
-        values = somar_valores_semelhantes(
-            values,
-            medicao,
-            campo,
-            solicitacao,
-            dict_total_refeicoes,
-            dict_total_sobremesas,
-            tipo_turma,
-        )
-        somatorio_noite = (
-            values if type(values) is int else sum([int(v.valor) for v in values])
-        )
-        if somatorio_noite == 0:
-            somatorio_noite = 0
-    except Exception:
-        somatorio_noite = 0
-    return somatorio_noite
+    return get_somatorio_eja_helper(
+        "VESPERTINO",
+        tipo_alimentacao,
+        solicitacao,
+        dict_total_refeicoes,
+        dict_total_sobremesas,
+        tipo_turma,
+    )
 
 
 def get_somatorio_etec(campo, solicitacao, dict_total_refeicoes, dict_total_sobremesas):
@@ -3379,27 +3372,23 @@ def get_somatorio_periodos_params(
     dict_total_sobremesas,
     tipo_turma,
 ):
-    params = (
-        (
+    if periodo.upper() == "ETEC":
+        return (
+            tipo_alimentacao,
+            solicitacao,
+            dict_total_refeicoes,
+            dict_total_sobremesas,
+        )
+    elif periodo.upper() == "SOLICITAÇÕES DE ALIMENTAÇÃO":
+        return tipo_alimentacao, solicitacao
+    else:
+        return (
             tipo_alimentacao,
             solicitacao,
             dict_total_refeicoes,
             dict_total_sobremesas,
             tipo_turma,
         )
-        if periodo.upper() not in ["ETEC", "SOLICITAÇÕES DE ALIMENTAÇÃO"]
-        else (
-            (
-                tipo_alimentacao,
-                solicitacao,
-                dict_total_refeicoes,
-                dict_total_sobremesas,
-            )
-            if periodo == "ETEC"
-            else (tipo_alimentacao, solicitacao)
-        )
-    )
-    return params
 
 
 def somatorio_periodo(
