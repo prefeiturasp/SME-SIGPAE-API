@@ -2261,8 +2261,10 @@ def get_tipos_alimentacao(escola, medicao, inclusoes, nomes_campos, eh_ceu_gesta
             .values_list("tipos_alimentacao__nome", flat=True)
             .distinct()
         )
-        if "Lanche" or "Lanche 4h" in tipos_alimentacao:
+        if "Lanche" in tipos_alimentacao:
             nomes_campos.append("lanche")
+        if "Lanche 4h" in tipos_alimentacao:
+            nomes_campos.append("lanche_4h")
     return tipos_alimentacao, nomes_campos
 
 
@@ -2487,7 +2489,7 @@ def tratar_nomes_campos_periodo_com_erro(
     return periodo_com_erro_dieta
 
 
-def incluir_lanche_4h_sol_continuas(nomes_campos, escola, medicao):
+def incluir_lanche_e_ou_lanche_4h_sol_continuas(nomes_campos, escola, medicao):
     tipos_alimentacao = list(
         VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
             tipo_unidade_escolar=escola.tipo_unidade,
@@ -2500,6 +2502,9 @@ def incluir_lanche_4h_sol_continuas(nomes_campos, escola, medicao):
     )
     if "Lanche 4h" in tipos_alimentacao and "lanche_4h" not in nomes_campos:
         nomes_campos.append("lanche_4h")
+    if "Lanche" in tipos_alimentacao and "lanche_4h" not in nomes_campos:
+        nomes_campos.append("lanche")
+
     return nomes_campos
 
 
@@ -2516,7 +2521,7 @@ def valida_dietas_solicitacoes_continuas(
     periodo_com_erro_dieta = False
 
     categorias = CategoriaMedicao.objects.filter(nome__icontains="dieta")
-    nomes_campos = ["frequencia", "lanche"]
+    nomes_campos = ["frequencia"]
     ids_categorias_existentes_no_mes = list(
         set(
             escola.logs_dietas_autorizadas.filter(
@@ -2538,7 +2543,7 @@ def valida_dietas_solicitacoes_continuas(
         nomes_campos, categoria = get_nomes_campos_categoria(
             nomes_campos, classificacao, categorias
         )
-        nomes_campos = incluir_lanche_4h_sol_continuas(
+        nomes_campos = incluir_lanche_e_ou_lanche_4h_sol_continuas(
             nomes_campos, escola, medicao_programas_projetos
         )
         for dia in range(1, quantidade_dias_mes + 1):

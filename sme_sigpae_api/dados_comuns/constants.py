@@ -282,10 +282,11 @@ ORDEM_PERIODOS_GRUPOS = {
     "Infantil INTEGRAL": 3,
     "NOITE": 4,
     "Infantil NOITE": 4,
-    "VESPERTINO": 5,
-    "Programas e Projetos": 6,
-    "Solicitações de Alimentação": 7,
-    "ETEC": 8,
+    "INTERMEDIARIO": 5,
+    "VESPERTINO": 6,
+    "Programas e Projetos": 7,
+    "Solicitações de Alimentação": 8,
+    "ETEC": 9,
 }
 
 ORDEM_PERIODOS_GRUPOS_CEI = {
@@ -348,12 +349,13 @@ ORDEM_HEADERS = {
     "TARDE": 3,
     "INTEGRAL": 4,
     "NOITE": 5,
-    "VESPERTINO": 6,
-    "Programas e Projetos": 7,
-    "ETEC": 8,
-    "DIETA ESPECIAL - TIPO A": 9,
-    "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": 10,
-    "DIETA ESPECIAL - TIPO B": 11,
+    "INTERMEDIARIO": 6,
+    "VESPERTINO": 7,
+    "Programas e Projetos": 8,
+    "ETEC": 9,
+    "DIETA ESPECIAL - TIPO A": 10,
+    "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": 11,
+    "DIETA ESPECIAL - TIPO B": 12,
 }
 
 
