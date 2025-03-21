@@ -1,11 +1,11 @@
 import re
-from collections import Counter
+from collections import Counter, defaultdict
 from datetime import date, datetime
 from typing import List
 
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q, Sum
+from django.db.models import Q
 from django.template.loader import render_to_string
 from rest_framework.pagination import PageNumberPagination
 
@@ -1103,6 +1103,7 @@ def gerar_filtros_relatorio_historico(query_params: dict) -> dict:
     """_
     Gera os filtros
     """
+    # FIXME: precisa alterar esse filtro para quando a escola não existir na tabelas de logs, retornar o nome dela sem os dados
     map_filtros = {
         "escola__uuid__in": query_params.getlist(
             "unidades_educacionais_selecionadas[]", None
@@ -1130,27 +1131,40 @@ def gerar_filtros_relatorio_historico(query_params: dict) -> dict:
 
 
 def dados_dietas_escolas_cei(filtros: dict) -> List[dict]:
-    logs_dietas_escolas_cei = (
-        LogQuantidadeDietasAutorizadasCEI.objects.filter(**filtros)
-        .values(
-            "escola__nome",
-            "escola__tipo_unidade__iniciais",
-            "escola__lote__nome",
-            "classificacao__nome",
-            "periodo_escolar__nome",
-            "faixa_etaria__inicio",
-            "faixa_etaria__fim",
-            "escola__uuid",
-        )
-        .annotate(quantidade_total=Sum("quantidade"))
+    logs_dietas_escolas_cei = LogQuantidadeDietasAutorizadasCEI.objects.filter(
+        **filtros
+    ).values(
+        "escola__nome",
+        "escola__tipo_unidade__iniciais",
+        "escola__lote__nome",
+        "classificacao__nome",
+        "periodo_escolar__nome",
+        "faixa_etaria__inicio",
+        "faixa_etaria__fim",
+        "escola__uuid",
     )
 
-    return list(logs_dietas_escolas_cei)
+    return logs_dietas_escolas_cei
 
 
 def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
-    logs_dietas_outras_escolas = (
-        LogQuantidadeDietasAutorizadas.objects.filter(**filtros)
+    """
+    Regras:
+    Excluir todos que periodo escolar for nulo
+    Para escolas CEMEI excluir todos que
+    ta certo (acho) kk
+
+    """
+    logs_dietas_outras_escolas = LogQuantidadeDietasAutorizadas.objects.filter(
+        **filtros
+    )
+
+    # filtros extras para emebs
+    emebs = (
+        logs_dietas_outras_escolas.filter(
+            periodo_escolar_id__isnull=False,
+        )
+        .exclude(infantil_ou_fundamental="N/A")
         .values(
             "escola__nome",
             "escola__tipo_unidade__iniciais",
@@ -1160,30 +1174,112 @@ def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
             "infantil_ou_fundamental",
             "cei_ou_emei",
             "escola__uuid",
+            "quantidade",
         )
-        .annotate(quantidade_total=Sum("quantidade"))
     )
+    logs = emebs
+    # emebs.union(??)
 
-    return list(logs_dietas_outras_escolas)
+    return logs
 
 
 def gera_dicionario_historico_dietas(log_escolas_cei, log_escolas):
-    logs_dietas = log_escolas + log_escolas_cei
-    info = transform_data(logs_dietas)
+    logs_dietas = list(log_escolas_cei) + list(log_escolas)
+    info = cria_dicionario_historico_dietas(logs_dietas)
     return info
 
 
-def transform_data(data):
-    from collections import defaultdict
-
-    categorias = {
-        "cei_ceucei_cci": ["CEI", "CEU CEI", "CCI"],
-        "cemei": ["CEMEI"],
-        "emebs": ["EMEBS"],
-    }
-
+def cria_dicionario_historico_dietas(informacoes_logs):
     resultado = defaultdict(list)
+    resultado["data"] = None
     resultado["total_dietas"] = 0
+    resultado["resultados"] = []
+
+    dicionario_funcoes = {"EMEBS": unidades_tipo_emebs}
+    for item in informacoes_logs:
+        # print(item)
+        resultado["total_dietas"] += item["quantidade"]
+        tipo_unidade = item.get("escola__tipo_unidade__iniciais")
+        unidade_educacional = next(
+            (
+                escola
+                for escola in resultado["resultados"]
+                if escola["unidade_educacional"] == item["escola__nome"]
+            ),
+            None,
+        )
+        if not unidade_educacional:
+            unidade_educacional = {
+                "lote": item["escola__lote__nome"],
+                "unidade_educacional": item["escola__nome"],
+                "tipo_unidade": tipo_unidade,
+                "classificacao_dieta": [],
+            }
+            resultado["resultados"].append(unidade_educacional)
+        classificacao_dieta = next(
+            (
+                c
+                for c in unidade_educacional["classificacao_dieta"]
+                if c["tipo"] == item["classificacao__nome"]
+            ),
+            None,
+        )
+        if not classificacao_dieta:
+            classificacao_dieta = {
+                "tipo": item["classificacao__nome"],
+                "total": 0,
+            }
+            if tipo_unidade in ["EMEBS", "CEMEI"]:
+                classificacao_dieta["periodos"] = {}
+            elif tipo_unidade not in ["CEU GESTAO", "CMCT"]:
+                classificacao_dieta["periodos"] = []
+
+            unidade_educacional["classificacao_dieta"].append(classificacao_dieta)
+        classificacao_dieta["total"] += item["quantidade"]
+
+        classificacao_dieta = dicionario_funcoes[tipo_unidade](
+            item, classificacao_dieta
+        )
+    return resultado
+
+
+def unidades_tipo_emebs(item, classificacao_dieta):
+    """
+    Alunos do Infantil (4 a 6 anos) - caso haja, os períodos existentes e o quantitativo de dietas correspondentes
+    Alunos do Fundamental (acima de 6 anos), os períodos existentes e o quantitativo de dietas correspondentes.
+    """
+    periodo_escolar = item["periodo_escolar__nome"]
+    dietas_autorizadas = item["quantidade"]
+    turma = (
+        "fundamental"
+        if item.get("infantil_ou_fundamental") == "FUNDAMENTAL"
+        else "infantil"
+    )
+    if turma not in classificacao_dieta["periodos"]:
+        classificacao_dieta["periodos"][turma] = []
+
+    periodo = next(
+        (
+            p
+            for p in classificacao_dieta["periodos"].get(turma, [])
+            if p["periodo"] == periodo_escolar
+        ),
+        None,
+    )
+    if not periodo:
+        periodo = {"periodo": periodo_escolar, "autorizadas": dietas_autorizadas}
+        classificacao_dieta["periodos"][turma].append(periodo)
+    else:
+        periodo["autorizadas"] += dietas_autorizadas
+
+    return classificacao_dieta
+
+
+def auxiliar():
+    data = []
+    categorias = {}
+    resultado = defaultdict(list)
+    resultado["total_geral_autorizadas"] = 0
 
     for item in data:
         resultado["total_dietas"] += item["quantidade_total"]
@@ -1343,6 +1439,7 @@ def transform_data(data):
                     periodo["faixa_etaria"].append(faixa_etaria)
                 else:
                     faixa_etaria["autorizadas"] += item["quantidade_total"]
+
         else:
             try:
                 periodo = next(
