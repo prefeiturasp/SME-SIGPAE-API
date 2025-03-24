@@ -1108,10 +1108,6 @@ def trata_lotes_dict_duplicados(lotes_dict):
 
 
 def gerar_filtros_relatorio_historico(query_params: dict) -> dict:
-    """_
-    Gera os filtros
-    """
-    # FIXME: precisa alterar esse filtro para quando a escola não existir na tabelas de logs, retornar o nome dela sem os dados
     map_filtros = {
         "escola__uuid__in": query_params.getlist(
             "unidades_educacionais_selecionadas[]", None
@@ -1232,7 +1228,9 @@ def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
     return logs
 
 
-def gera_dicionario_historico_dietas(log_escolas_cei, log_escolas):
+def gera_dicionario_historico_dietas(filtros):
+    log_escolas_cei = dados_dietas_escolas_cei(filtros)
+    log_escolas = dados_dietas_escolas_comuns(filtros)
     logs_dietas = list(log_escolas_cei) + list(log_escolas)
     informacoes = cria_dicionario_historico_dietas(logs_dietas)
     informacoes["resultados"] = sorted(
@@ -1279,10 +1277,6 @@ def cria_dicionario_historico_dietas(informacoes_logs):
                 "total": 0,
                 "periodos": [],
             }
-            # if tipo_unidade in UNIDADES_CEMEI + UNIDADES_EMEBS:
-            #     classificacao_dieta["periodos"] = {}
-            # elif tipo_unidade not in UNIDADES_SEM_PERIODOS:
-            #     classificacao_dieta["periodos"] = []
 
             unidade_educacional["classificacao_dieta"].append(classificacao_dieta)
 

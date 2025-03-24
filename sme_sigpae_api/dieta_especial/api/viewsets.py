@@ -25,6 +25,7 @@ from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...dados_comuns.models import LogSolicitacoesUsuario
 from ...dados_comuns.permissions import (
+    PermissaoHistoricoDietasEspeciais,
     PermissaoParaRecuperarDietaEspecial,
     PermissaoRelatorioDietasEspeciais,
     UsuarioCODAEDietaEspecial,
@@ -80,8 +81,6 @@ from ..tasks import (
 from ..utils import (
     ProtocoloPadraoPagination,
     RelatorioPagination,
-    dados_dietas_escolas_cei,
-    dados_dietas_escolas_comuns,
     filtrar_alunos_com_dietas_nos_status_e_rastro_escola,
     gera_dicionario_historico_dietas,
     gerar_filtros_relatorio_historico,
@@ -180,7 +179,10 @@ class SolicitacaoDietaEspecialViewSet(
                 PermissaoRelatorioDietasEspeciais,
             )
         elif self.action == "relatorio-historico-dieta-especial":
-            self.permission_classes = (IsAuthenticated,)
+            self.permission_classes = (
+                IsAuthenticated,
+                PermissaoHistoricoDietasEspeciais,
+            )
         return super(SolicitacaoDietaEspecialViewSet, self).get_permissions()
 
     def get_serializer_class(self):  # noqa C901
@@ -204,6 +206,8 @@ class SolicitacaoDietaEspecialViewSet(
             return PanoramaSerializer
         elif self.action == "alteracao_ue":
             return AlteracaoUESerializer
+        elif self.action == "relatorio-historico-dieta-especial":
+            return UnidadeEducacionalSerializer
         return SolicitacaoDietaEspecialSerializer
 
     def atualiza_solicitacao(self, solicitacao, request):
@@ -1341,10 +1345,7 @@ class SolicitacaoDietaEspecialViewSet(
     )
     def relatorio_historico_dieta_especial(self, request):
         filtros, data_dieta = gerar_filtros_relatorio_historico(request.query_params)
-        dietas_cei = dados_dietas_escolas_cei(filtros)
-        dietas_outras_escolas = dados_dietas_escolas_comuns(filtros)
-        dietas = gera_dicionario_historico_dietas(dietas_cei, dietas_outras_escolas)
-
+        dietas = gera_dicionario_historico_dietas(filtros)
         paginator = HistoricoDietasPagination()
         page = paginator.paginate_queryset(dietas["resultados"], request)
         serializer = UnidadeEducacionalSerializer(page, many=True)
