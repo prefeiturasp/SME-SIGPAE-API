@@ -16,7 +16,10 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from xworkflows import InvalidTransitionError
 
-from sme_sigpae_api.dados_comuns.api.paginations import CustomPagination
+from sme_sigpae_api.dados_comuns.api.paginations import (
+    CustomPagination,
+    HistoricoDietasPagination,
+)
 
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
@@ -109,6 +112,7 @@ from .serializers import (
     SolicitacaoDietaEspecialUpdateSerializer,
     SolicitacoesAtivasInativasPorAlunoSerializer,
     TipoContagemSerializer,
+    UnidadeEducacionalSerializer,
 )
 from .serializers_create import (
     AlteracaoUESerializer,
@@ -1336,17 +1340,17 @@ class SolicitacaoDietaEspecialViewSet(
         detail=False, methods=["GET"], url_path="relatorio-historico-dieta-especial"
     )
     def relatorio_historico_dieta_especial(self, request):
-        filtros = gerar_filtros_relatorio_historico(request.query_params)
+        filtros, data_dieta = gerar_filtros_relatorio_historico(request.query_params)
         dietas_cei = dados_dietas_escolas_cei(filtros)
         dietas_outras_escolas = dados_dietas_escolas_comuns(filtros)
         dietas = gera_dicionario_historico_dietas(dietas_cei, dietas_outras_escolas)
 
-        # resultado = {
-        #     "cei": dietas_cei,
-        #     "outras": dietas_outras_escolas,
-        # }
-
-        return Response(dietas)
+        paginator = HistoricoDietasPagination()
+        page = paginator.paginate_queryset(dietas["resultados"], request)
+        serializer = UnidadeEducacionalSerializer(page, many=True)
+        return paginator.get_paginated_response(
+            serializer.data, dietas["total_dietas"], data_dieta
+        )
 
 
 class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):

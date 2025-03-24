@@ -1135,7 +1135,7 @@ def gerar_filtros_relatorio_historico(query_params: dict) -> dict:
     filtros = {
         key: value for key, value in map_filtros.items() if value not in [None, []]
     }
-    return filtros
+    return filtros, data_dieta
 
 
 def dados_dietas_escolas_cei(filtros: dict) -> List[dict]:
@@ -1234,13 +1234,15 @@ def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
 
 def gera_dicionario_historico_dietas(log_escolas_cei, log_escolas):
     logs_dietas = list(log_escolas_cei) + list(log_escolas)
-    info = cria_dicionario_historico_dietas(logs_dietas)
-    return info
+    informacoes = cria_dicionario_historico_dietas(logs_dietas)
+    informacoes["resultados"] = sorted(
+        informacoes["resultados"], key=lambda x: x["unidade_educacional"]
+    )
+    return informacoes
 
 
 def cria_dicionario_historico_dietas(informacoes_logs):
     resultado = defaultdict(list)
-    resultado["data"] = None
     resultado["total_dietas"] = 0
     resultado["resultados"] = []
 
@@ -1275,11 +1277,12 @@ def cria_dicionario_historico_dietas(informacoes_logs):
             classificacao_dieta = {
                 "tipo": item["classificacao__nome"],
                 "total": 0,
+                "periodos": [],
             }
-            if tipo_unidade in UNIDADES_CEMEI + UNIDADES_EMEBS:
-                classificacao_dieta["periodos"] = {}
-            elif tipo_unidade not in UNIDADES_SEM_PERIODOS:
-                classificacao_dieta["periodos"] = []
+            # if tipo_unidade in UNIDADES_CEMEI + UNIDADES_EMEBS:
+            #     classificacao_dieta["periodos"] = {}
+            # elif tipo_unidade not in UNIDADES_SEM_PERIODOS:
+            #     classificacao_dieta["periodos"] = []
 
             unidade_educacional["classificacao_dieta"].append(classificacao_dieta)
 
@@ -1290,14 +1293,17 @@ def cria_dicionario_historico_dietas(informacoes_logs):
                 item, classificacao_dieta
             )
         elif tipo_unidade in UNIDADES_SEM_PERIODOS:
+            classificacao_dieta.pop("periodos")
             classificacao_dieta = unidades_tipos_cmct_ceugestao(
                 item, classificacao_dieta
             )
         elif tipo_unidade in UNIDADES_CEI:
             classificacao_dieta = unidades_tipo_cei(item, classificacao_dieta)
         elif tipo_unidade in UNIDADES_CEMEI:
+            classificacao_dieta["periodos"] = {}
             classificacao_dieta = unidades_tipo_cemei(item, classificacao_dieta)
         elif tipo_unidade in UNIDADES_EMEBS:
+            classificacao_dieta["periodos"] = {}
             classificacao_dieta = unidades_tipo_emebs(item, classificacao_dieta)
         else:
             raise ValueError
@@ -1333,13 +1339,20 @@ def unidades_tipo_emebs(item, classificacao_dieta):
     return classificacao_dieta
 
 
-def unidades_tipos_emei_emef_cieja(item, classificacao_dieta, eh_escola_cemei=False):
+def unidades_tipos_emei_emef_cieja(item, classificacao_dieta):
+    if classificacao_dieta.get("periodos"):
+        print(True)
+    else:
+        print(item["escola__uuid"])
+
     periodo_escolar = item["periodo_escolar__nome"]
     dietas_autorizadas = item["quantidade"]
+
     periodo = next(
         (p for p in classificacao_dieta["periodos"] if p["periodo"] == periodo_escolar),
         None,
     )
+
     if not periodo:
         periodo = {
             "periodo": periodo_escolar,

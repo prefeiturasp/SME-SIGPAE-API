@@ -2,7 +2,7 @@ from datetime import datetime
 
 import environ
 from drf_base64.serializers import ModelSerializer
-from rest_framework import serializers, status
+from rest_framework import pagination, serializers, status
 
 from ...dados_comuns.api.serializers import (
     ContatoSerializer,
@@ -788,3 +788,16 @@ class LogQuantidadeDietasAutorizadasCEISerializer(serializers.ModelSerializer):
     class Meta:
         model = LogQuantidadeDietasAutorizadasCEI
         exclude = ("id", "uuid")
+
+
+class ClassificacaoDietaSerializer(serializers.Serializer):
+    tipo = serializers.CharField()
+    total = serializers.IntegerField()
+    periodos = serializers.JSONField(required=False)
+
+
+class UnidadeEducacionalSerializer(serializers.Serializer):
+    lote = serializers.CharField()
+    unidade_educacional = serializers.CharField()
+    tipo_unidade = serializers.CharField()
+    classificacao_dieta = ClassificacaoDietaSerializer(many=True)
