@@ -1109,6 +1109,11 @@ def trata_lotes_dict_duplicados(lotes_dict):
 
 def gerar_filtros_relatorio_historico(query_params: dict) -> dict:
     map_filtros = {
+        "escola__tipo_gestao__uuid": query_params.get("tipo_gestao", None),
+        "escola__tipo_unidade__uuid__in": query_params.getlist(
+            "tipos_unidades_selecionadas[]", None
+        ),
+        "escola__lote__uuid": query_params.get("lote", None),
         "escola__uuid__in": query_params.getlist(
             "unidades_educacionais_selecionadas[]", None
         ),
@@ -1147,19 +1152,42 @@ def dados_dietas_escolas_cei(filtros: dict) -> List[dict]:
         "faixa_etaria__fim",
         "escola__uuid",
         "quantidade",
+        "data",
     )
 
     cei = logs_dietas_escolas_cei.filter(
         escola__tipo_unidade__iniciais__in=UNIDADES_CEI,
         periodo_escolar_id__isnull=False,
+    ).values(
+        "escola__nome",
+        "escola__tipo_unidade__iniciais",
+        "escola__lote__nome",
+        "classificacao__nome",
+        "periodo_escolar__nome",
+        "faixa_etaria__inicio",
+        "faixa_etaria__fim",
+        "escola__uuid",
+        "quantidade",
+        "data",
     )
 
     cemei = logs_dietas_escolas_cei.filter(
         escola__tipo_unidade__iniciais__in=UNIDADES_CEMEI,
         periodo_escolar_id__isnull=False,
+    ).values(
+        "escola__nome",
+        "escola__tipo_unidade__iniciais",
+        "escola__lote__nome",
+        "classificacao__nome",
+        "periodo_escolar__nome",
+        "faixa_etaria__inicio",
+        "faixa_etaria__fim",
+        "escola__uuid",
+        "quantidade",
+        "data",
     )
 
-    logs = cei.union(cemei)
+    logs = list(cei) + list(cemei)
     return logs
 
 
@@ -1184,6 +1212,7 @@ def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
             "cei_ou_emei",
             "escola__uuid",
             "quantidade",
+            "data",
         )
     )
 
@@ -1201,6 +1230,7 @@ def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
         "cei_ou_emei",
         "escola__uuid",
         "quantidade",
+        "data",
     )
 
     escolas_sem_periodos = logs_dietas_outras_escolas.filter(
@@ -1216,15 +1246,29 @@ def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
         "cei_ou_emei",
         "escola__uuid",
         "quantidade",
+        "data",
     )
 
     cemei = logs_dietas_outras_escolas.filter(
         escola__tipo_unidade__iniciais__in=UNIDADES_CEMEI,
         periodo_escolar_id__isnull=False,
         cei_ou_emei="N/A",
+    ).values(
+        "escola__nome",
+        "escola__tipo_unidade__iniciais",
+        "escola__lote__nome",
+        "classificacao__nome",
+        "periodo_escolar__nome",
+        "infantil_ou_fundamental",
+        "cei_ou_emei",
+        "escola__uuid",
+        "quantidade",
+        "data",
     )
-    logs = emebs.union(emei_emef_cieja).union(escolas_sem_periodos).union(cemei)
 
+    logs = (
+        list(emebs) + list(emei_emef_cieja) + list(escolas_sem_periodos) + list(cemei)
+    )
     return logs
 
 
@@ -1280,14 +1324,12 @@ def cria_dicionario_historico_dietas(informacoes_logs):
 
             unidade_educacional["classificacao_dieta"].append(classificacao_dieta)
 
-        classificacao_dieta["total"] += item["quantidade"]
-
         if tipo_unidade in UNIDADES_EMEI_EMEF_CIEJA:
             classificacao_dieta = unidades_tipos_emei_emef_cieja(
                 item, classificacao_dieta
             )
         elif tipo_unidade in UNIDADES_SEM_PERIODOS:
-            classificacao_dieta.pop("periodos")
+            classificacao_dieta.pop("periodos", None)
             classificacao_dieta = unidades_tipos_cmct_ceugestao(
                 item, classificacao_dieta
             )
@@ -1330,15 +1372,11 @@ def unidades_tipo_emebs(item, classificacao_dieta):
     else:
         periodo["autorizadas"] += dietas_autorizadas
 
+    classificacao_dieta["total"] += dietas_autorizadas
     return classificacao_dieta
 
 
 def unidades_tipos_emei_emef_cieja(item, classificacao_dieta):
-    if classificacao_dieta.get("periodos"):
-        print(True)
-    else:
-        print(item["escola__uuid"])
-
     periodo_escolar = item["periodo_escolar__nome"]
     dietas_autorizadas = item["quantidade"]
 
@@ -1357,6 +1395,7 @@ def unidades_tipos_emei_emef_cieja(item, classificacao_dieta):
     else:
         periodo["autorizadas"] += dietas_autorizadas
 
+    classificacao_dieta["total"] += dietas_autorizadas
     return classificacao_dieta
 
 
@@ -1400,6 +1439,7 @@ def unidades_tipo_cei(item, classificacao_dieta):
     else:
         faixa_etaria["autorizadas"] += dietas_autorizadas
 
+    classificacao_dieta["total"] += dietas_autorizadas
     return classificacao_dieta
 
 
@@ -1469,4 +1509,5 @@ def unidades_tipo_cemei(item, classificacao_dieta):
         else:
             periodo["autorizadas"] += dietas_autorizadas
 
+    classificacao_dieta["total"] += dietas_autorizadas
     return classificacao_dieta
