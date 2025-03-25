@@ -1,5 +1,4 @@
 import re
-from collections import Counter, defaultdict
 from datetime import date, datetime
 from typing import List
 
@@ -1284,45 +1283,34 @@ def gera_dicionario_historico_dietas(filtros):
 
 
 def cria_dicionario_historico_dietas(informacoes_logs):
-    resultado = defaultdict(list)
-    resultado["total_dietas"] = 0
-    resultado["resultados"] = []
+    resultado = {"total_dietas": 0, "resultados": {}}
 
     for item in informacoes_logs:
         resultado["total_dietas"] += item["quantidade"]
         tipo_unidade = item.get("escola__tipo_unidade__iniciais")
-        unidade_educacional = next(
-            (
-                escola
-                for escola in resultado["resultados"]
-                if escola["unidade_educacional"] == item["escola__nome"]
-            ),
-            None,
-        )
-        if not unidade_educacional:
-            unidade_educacional = {
-                "lote": item["escola__lote__nome"],
-                "unidade_educacional": item["escola__nome"],
-                "tipo_unidade": tipo_unidade,
-                "classificacao_dieta": [],
-            }
-            resultado["resultados"].append(unidade_educacional)
-        classificacao_dieta = next(
-            (
-                c
-                for c in unidade_educacional["classificacao_dieta"]
-                if c["tipo"] == item["classificacao__nome"]
-            ),
-            None,
-        )
-        if not classificacao_dieta:
-            classificacao_dieta = {
-                "tipo": item["classificacao__nome"],
-                "total": 0,
-                "periodos": [],
-            }
+        escola_nome = item["escola__nome"]
+        classificacao_nome = item["classificacao__nome"]
 
-            unidade_educacional["classificacao_dieta"].append(classificacao_dieta)
+        if escola_nome not in resultado["resultados"]:
+            resultado["resultados"][escola_nome] = {
+                "lote": item["escola__lote__nome"],
+                "unidade_educacional": escola_nome,
+                "tipo_unidade": tipo_unidade,
+                "classificacao_dieta": {},
+            }
+        unidade_educacional = resultado["resultados"][escola_nome]
+
+        if classificacao_nome not in unidade_educacional["classificacao_dieta"]:
+            unidade_educacional["classificacao_dieta"][classificacao_nome] = {
+                "tipo": classificacao_nome,
+                "total": 0,
+                "periodos": {}
+                if tipo_unidade in UNIDADES_CEMEI + UNIDADES_EMEBS
+                else [],
+            }
+        classificacao_dieta = unidade_educacional["classificacao_dieta"][
+            classificacao_nome
+        ]
 
         if tipo_unidade in UNIDADES_EMEI_EMEF_CIEJA:
             classificacao_dieta = unidades_tipos_emei_emef_cieja(
@@ -1336,13 +1324,13 @@ def cria_dicionario_historico_dietas(informacoes_logs):
         elif tipo_unidade in UNIDADES_CEI:
             classificacao_dieta = unidades_tipo_cei(item, classificacao_dieta)
         elif tipo_unidade in UNIDADES_CEMEI:
-            classificacao_dieta["periodos"] = {}
             classificacao_dieta = unidades_tipo_cemei(item, classificacao_dieta)
         elif tipo_unidade in UNIDADES_EMEBS:
-            classificacao_dieta["periodos"] = {}
             classificacao_dieta = unidades_tipo_emebs(item, classificacao_dieta)
-        else:
-            raise ValueError
+
+    resultado["resultados"] = list(resultado["resultados"].values())
+    for unidade in resultado["resultados"]:
+        unidade["classificacao_dieta"] = list(unidade["classificacao_dieta"].values())
 
     return resultado
 
