@@ -1153,9 +1153,8 @@ def validate_lancamento_inclusoes_emei_cemei(
                     set(alimentacoes_vinculadas.values_list("nome", flat=True))
                 )
                 alimentacoes = alimentacoes_vinculadas + alimentacoes_permitidas
-                eh_numero_alunos = (
-                    periodo.periodo_escolar
-                    not in escola.periodos_escolares(ano=solicitacao.ano)
+                eh_numero_alunos = periodo not in escola.periodos_escolares(
+                    ano=solicitacao.ano
                 )
                 linhas_da_tabela = get_linhas_da_tabela(alimentacoes, eh_numero_alunos)
 
