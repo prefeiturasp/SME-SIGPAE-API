@@ -1366,3 +1366,21 @@ def escolas_tipos_cmct_ceugestao():
     }
     classificacao = {"tipo": "Tipo A", "total": 100}
     return item, classificacao
+
+
+@pytest.fixture
+def escolas_tipo_cei():
+    item = {
+        "escola__nome": "Escola CEI DIRET",
+        "escola__tipo_unidade__iniciais": "CEI DIRET",
+        "escola__lote__nome": "LOTE CEI DIRET",
+        "classificacao__nome": "Tipo A ENTERAL",
+        "periodo_escolar__nome": "INTEGRAL",
+        "faixa_etaria__inicio": 1,
+        "faixa_etaria__fim": 4,
+        "escola__uuid": "40009a06-3d65-478d-83ef-e0352ef88c7d",
+        "quantidade": 20,
+        "data": datetime.date(2024, 2, 20),
+    }
+    classificacao = {"tipo": "Tipo A ENTERAL", "total": 0, "periodos": []}
+    return item, classificacao

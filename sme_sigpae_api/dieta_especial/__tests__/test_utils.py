@@ -3,6 +3,8 @@ import datetime
 import pytest
 from django.http import QueryDict
 
+from sme_sigpae_api.escola.utils import faixa_to_string
+
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...terceirizada.models import Edital
 from ..models import SolicitacaoDietaEspecial
@@ -12,6 +14,7 @@ from ..utils import (
     gera_logs_dietas_escolas_comuns,
     gerar_filtros_relatorio_historico,
     termina_dietas_especiais,
+    unidades_tipo_cei,
     unidades_tipo_emebs,
     unidades_tipos_cmct_ceugestao,
     unidades_tipos_emei_emef_cieja,
@@ -279,3 +282,23 @@ def test_unidades_tipos_cmct_ceugestao(escolas_tipos_cmct_ceugestao):
 
     assert isinstance(classificacao_dieta, dict)
     assert classificacao_dieta["total"] == 110
+
+
+def test_unidades_tipo_cei(escolas_tipo_cei):
+    item, classificacao = escolas_tipo_cei
+    classificacao_dieta = unidades_tipo_cei(item, classificacao)
+
+    assert isinstance(classificacao_dieta, dict)
+    assert classificacao_dieta["total"] == 20
+    assert len(classificacao_dieta["periodos"]) == 1
+
+    periodo = classificacao_dieta["periodos"][0]
+    assert periodo["periodo"] == "INTEGRAL"
+    assert isinstance(periodo["faixa_etaria"], list)
+    assert len(periodo["faixa_etaria"]) == 1
+
+    faixa_etaria = periodo["faixa_etaria"][0]
+    assert faixa_etaria["autorizadas"] == 20
+    assert faixa_etaria["faixa"] == faixa_to_string(
+        item["faixa_etaria__inicio"], item["faixa_etaria__fim"]
+    )
