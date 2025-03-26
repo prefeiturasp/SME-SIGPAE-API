@@ -1384,3 +1384,39 @@ def escolas_tipo_cei():
     }
     classificacao = {"tipo": "Tipo A ENTERAL", "total": 0, "periodos": []}
     return item, classificacao
+
+
+@pytest.fixture
+def escolas_tipo_cemei_por_faixa_etaria():
+    item = {
+        "escola__nome": "Escola CEU CEMEI",
+        "escola__tipo_unidade__iniciais": "CEU CEMEI",
+        "escola__lote__nome": "LOTE CEU CEMEI",
+        "classificacao__nome": "Tipo A",
+        "periodo_escolar__nome": "INTEGRAL",
+        "faixa_etaria__inicio": 12,
+        "faixa_etaria__fim": 48,
+        "escola__uuid": "1fc5fca2-2694-4781-be65-8331716c74a0",
+        "quantidade": 6,
+        "data": datetime.date(2024, 2, 20),
+    }
+    classificacao = {"tipo": "Tipo A", "total": 0, "periodos": {}}
+    return item, classificacao
+
+
+@pytest.fixture
+def escolas_tipo_cemei_por_periodo():
+    item = {
+        "escola__nome": "Escola CEU CEMEI ",
+        "escola__tipo_unidade__iniciais": "CEU CEMEI",
+        "escola__lote__nome": "LOTE CEU CEMEI",
+        "classificacao__nome": "Tipo A ENTERAL",
+        "periodo_escolar__nome": "MANHA",
+        "infantil_ou_fundamental": "N/A",
+        "cei_ou_emei": "N/A",
+        "escola__uuid": "1fc5fca2-2694-4781-be65-8331716c74a0",
+        "quantidade": 8,
+        "data": datetime.date(2024, 2, 20),
+    }
+    classificacao = {"tipo": "Tipo A ENTERAL", "total": 0, "periodos": {}}
+    return item, classificacao

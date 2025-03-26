@@ -15,6 +15,7 @@ from ..utils import (
     gerar_filtros_relatorio_historico,
     termina_dietas_especiais,
     unidades_tipo_cei,
+    unidades_tipo_cemei,
     unidades_tipo_emebs,
     unidades_tipos_cmct_ceugestao,
     unidades_tipos_emei_emef_cieja,
@@ -302,3 +303,40 @@ def test_unidades_tipo_cei(escolas_tipo_cei):
     assert faixa_etaria["faixa"] == faixa_to_string(
         item["faixa_etaria__inicio"], item["faixa_etaria__fim"]
     )
+
+
+def test_unidades_tipo_cemei_por_faixa_etaria(escolas_tipo_cemei_por_faixa_etaria):
+    item, classificacao = escolas_tipo_cemei_por_faixa_etaria
+    classificacao_dieta = unidades_tipo_cemei(item, classificacao)
+
+    assert isinstance(classificacao_dieta, dict)
+    assert classificacao_dieta["total"] == 6
+    assert "por_idade" in classificacao_dieta["periodos"]
+    assert isinstance(classificacao_dieta["periodos"]["por_idade"], list)
+    assert len(classificacao_dieta["periodos"]["por_idade"]) == 1
+
+    periodo = classificacao_dieta["periodos"]["por_idade"][0]
+    assert periodo["periodo"] == "INTEGRAL"
+    assert isinstance(periodo["faixa_etaria"], list)
+    assert len(periodo["faixa_etaria"]) == 1
+
+    faixa_etaria = periodo["faixa_etaria"][0]
+    assert faixa_etaria["autorizadas"] == 6
+    assert faixa_etaria["faixa"] == faixa_to_string(
+        item["faixa_etaria__inicio"], item["faixa_etaria__fim"]
+    )
+
+
+def test_unidades_tipo_cemei_por_periodo(escolas_tipo_cemei_por_periodo):
+    item, classificacao = escolas_tipo_cemei_por_periodo
+    classificacao_dieta = unidades_tipo_cemei(item, classificacao)
+
+    assert isinstance(classificacao_dieta, dict)
+    assert classificacao_dieta["total"] == 8
+    assert "turma_infantil" in classificacao_dieta["periodos"]
+    assert isinstance(classificacao_dieta["periodos"]["turma_infantil"], list)
+    assert len(classificacao_dieta["periodos"]["turma_infantil"]) == 1
+
+    periodo = classificacao_dieta["periodos"]["turma_infantil"][0]
+    assert periodo["periodo"] == "MANHA"
+    assert periodo["autorizadas"] == 8
