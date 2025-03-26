@@ -264,7 +264,6 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             != SolicitacaoMedicaoInicial.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
         ):
             return
-
         lista_erros = validate_medicao_cemei(instance)
         if lista_erros:
             raise ValidationError(lista_erros)
