@@ -215,6 +215,10 @@ class ServiceValidacaoCorrecaoFichaTecnica:
         },
     }
 
+    CAMPOS_OPCIONAIS_COMUNS = [
+        "numero_registro",
+    ]
+
     def __init__(self, ficha_tecnica, attrs) -> None:
         self._ficha_tecnica = ficha_tecnica
         self._attrs = attrs
@@ -269,7 +273,7 @@ class ServiceValidacaoCorrecaoFichaTecnica:
             "dependentes", []
         )
 
-        campos_collapse = campos_obrigatorios_collapse + campos_dependentes_collapse
+        campos_collapse = campos_obrigatorios_collapse + campos_dependentes_collapse + self.CAMPOS_OPCIONAIS_COMUNS
 
         for attr in self._attrs:
             if attr not in campos_collapse:
