@@ -46,7 +46,7 @@ class HistoricoDietasPagination(PageNumberPagination):
         page_size = request.query_params.get("page_size", self.page_size)
         try:
             page_size = int(page_size)
-        except ValueError:
+        except (TypeError, ValueError):
             page_size = self.max_page_size
 
         return min(page_size, self.max_page_size)
