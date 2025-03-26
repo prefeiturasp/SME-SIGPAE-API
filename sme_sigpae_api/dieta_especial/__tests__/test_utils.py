@@ -241,3 +241,17 @@ def test_gerar_filtros_relatorio_historico_retona_dicionario_vazio():
     filtros, _ = gerar_filtros_relatorio_historico(query_params)
     assert isinstance(filtros, dict)
     assert len(filtros) == 0
+
+
+def test_unidades_tipo_emebs(escolas_tipo_emebs):
+    item, classificacao = escolas_tipo_emebs
+    classificacao_dieta = unidades_tipo_emebs(item, classificacao)
+
+    assert isinstance(classificacao_dieta, dict)
+    assert classificacao_dieta["total"] == 70
+    assert "fundamental" in classificacao_dieta["periodos"]
+    assert isinstance(classificacao_dieta["periodos"]["fundamental"], list)
+    assert len(classificacao_dieta["periodos"]["fundamental"]) == 1
+    periodo = classificacao_dieta["periodos"]["fundamental"][0]
+    assert periodo["periodo"] == "TARDE"
+    assert periodo["autorizadas"] == 30

@@ -1302,3 +1302,31 @@ def filtro_historico_relatorio_dietas(
     query_params["data"] = "12/04/2025"
 
     return query_params
+
+
+@pytest.fixture
+def escolas_tipo_emebs():
+    item = {
+        "escola__nome": "Escola Teste",
+        "escola__tipo_unidade__iniciais": "EMEBS",
+        "escola__lote__nome": "Lote J",
+        "classificacao__nome": "Tipo A",
+        "periodo_escolar__nome": "TARDE",
+        "infantil_ou_fundamental": "FUNDAMENTAL",
+        "cei_ou_emei": "N/A",
+        "escola__uuid": "a57faf92-b683-455e-a808-7f76a696cac0",
+        "quantidade": 30,
+        "data": datetime.date(2023, 12, 1),
+    }
+
+    classificacao = {
+        "tipo": "Tipo A",
+        "total": 40,
+        "periodos": {
+            "infantil": [
+                {"periodo": "TARDE", "autorizadas": 0},
+                {"periodo": "MANHA", "autorizadas": 0},
+            ]
+        },
+    }
+    return item, classificacao
