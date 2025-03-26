@@ -13,6 +13,7 @@ from ..utils import (
     gerar_filtros_relatorio_historico,
     termina_dietas_especiais,
     unidades_tipo_emebs,
+    unidades_tipos_emei_emef_cieja,
 )
 
 pytestmark = pytest.mark.django_db
@@ -254,4 +255,16 @@ def test_unidades_tipo_emebs(escolas_tipo_emebs):
     assert len(classificacao_dieta["periodos"]["fundamental"]) == 1
     periodo = classificacao_dieta["periodos"]["fundamental"][0]
     assert periodo["periodo"] == "TARDE"
+    assert periodo["autorizadas"] == 30
+
+
+def test_unidades_tipos_emei_emef_cieja(escolas_tipo_emei_emef_cieja):
+    item, classificacao = escolas_tipo_emei_emef_cieja
+
+    classificacao_dieta = unidades_tipos_emei_emef_cieja(item, classificacao)
+    assert isinstance(classificacao_dieta, dict)
+    assert classificacao_dieta["total"] == 30
+    assert len(classificacao_dieta["periodos"]) == 1
+    periodo = classificacao_dieta["periodos"][0]
+    assert periodo["periodo"] == "INTEGRAL"
     assert periodo["autorizadas"] == 30

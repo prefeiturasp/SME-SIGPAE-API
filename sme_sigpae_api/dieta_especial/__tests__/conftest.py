@@ -1307,7 +1307,7 @@ def filtro_historico_relatorio_dietas(
 @pytest.fixture
 def escolas_tipo_emebs():
     item = {
-        "escola__nome": "Escola Teste",
+        "escola__nome": "Escola EMEBS",
         "escola__tipo_unidade__iniciais": "EMEBS",
         "escola__lote__nome": "Lote J",
         "classificacao__nome": "Tipo A",
@@ -1329,4 +1329,22 @@ def escolas_tipo_emebs():
             ]
         },
     }
+    return item, classificacao
+
+
+@pytest.fixture
+def escolas_tipo_emei_emef_cieja():
+    item = {
+        "escola__nome": "Escola CEU EMEF",
+        "escola__tipo_unidade__iniciais": "CEU EMEF",
+        "escola__lote__nome": "LOTE 14",
+        "classificacao__nome": "Tipo A ENTERAL",
+        "periodo_escolar__nome": "INTEGRAL",
+        "infantil_ou_fundamental": "N/A",
+        "cei_ou_emei": "N/A",
+        "escola__uuid": "f4545228-4866-458f-a669-17c62a2b6891",
+        "quantidade": 30,
+        "data": datetime.date(2024, 2, 12),
+    }
+    classificacao = {"tipo": "Tipo A ENTERAL", "total": 0, "periodos": []}
     return item, classificacao
