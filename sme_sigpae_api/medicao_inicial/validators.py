@@ -1153,9 +1153,8 @@ def validate_lancamento_inclusoes_emei_cemei(
                     set(alimentacoes_vinculadas.values_list("nome", flat=True))
                 )
                 alimentacoes = alimentacoes_vinculadas + alimentacoes_permitidas
-                eh_numero_alunos = (
-                    periodo.periodo_escolar
-                    not in escola.periodos_escolares(ano=solicitacao.ano)
+                eh_numero_alunos = periodo not in escola.periodos_escolares(
+                    ano=solicitacao.ano
                 )
                 linhas_da_tabela = get_linhas_da_tabela(alimentacoes, eh_numero_alunos)
 
@@ -2242,7 +2241,7 @@ def append_lanches_nomes_campos(nomes_campos, tipos_alimentacao):
 def get_tipos_alimentacao(escola, medicao, inclusoes, nomes_campos, eh_ceu_gestao):
     nomes_campos = ["frequencia"]
     tipos_alimentacao = []
-    if eh_ceu_gestao:
+    if eh_ceu_gestao or escola.eh_cemei:
         for inclusao in inclusoes:
             for qp in inclusao.quantidades_periodo.all():
                 tipos_alimentacao += qp.tipos_alimentacao.all().values_list(
@@ -2594,7 +2593,7 @@ def valida_dietas_solicitacoes_continuas_emei_cemei(
     periodo_com_erro_dieta = False
 
     categorias = CategoriaMedicao.objects.filter(nome__icontains="dieta")
-    nomes_campos = ["frequencia", "lanche"]
+    nomes_campos = ["frequencia"]
     ids_categorias_existentes_no_mes = list(
         set(
             escola.logs_dietas_autorizadas.filter(
