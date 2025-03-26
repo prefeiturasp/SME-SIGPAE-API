@@ -446,7 +446,15 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         return return_dict
 
     def inclusoes_cemei(
-        self, query_set, mes, ano, periodos_escolares, escola_uuid, return_dict
+        self,
+        query_set,
+        mes,
+        ano,
+        periodos_escolares,
+        escola_uuid,
+        cemei_cei,
+        cemei_emei,
+        return_dict,
     ):
         sol_medicao_inicial = SolicitacaoMedicaoInicial.objects.filter(
             escola__uuid=escola_uuid, mes=mes, ano=ano
@@ -462,12 +470,24 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                 data__month=mes, data__year=ano
             )
             for periodo in periodos_escolares:
-                return_dict = self.inclusoes_cemei_nao_infantil(
-                    periodo, inc, sol_medicao_inicial, dias_motivos_cemei, return_dict
-                )
-                return_dict = self.inclusoes_cemei_infantil(
-                    periodo, inc, dias_motivos_cemei, mes, ano, inclusao, return_dict
-                )
+                if cemei_cei:
+                    return_dict = self.inclusoes_cemei_nao_infantil(
+                        periodo,
+                        inc,
+                        sol_medicao_inicial,
+                        dias_motivos_cemei,
+                        return_dict,
+                    )
+                if cemei_emei:
+                    return_dict = self.inclusoes_cemei_infantil(
+                        periodo,
+                        inc,
+                        dias_motivos_cemei,
+                        mes,
+                        ano,
+                        inclusao,
+                        return_dict,
+                    )
         return return_dict
 
     def tratar_inclusoes_normais(self, inc, mes, ano, periodo, inclusao, return_dict):
@@ -510,13 +530,22 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
     def inclusoes_autorizadas(self, request):
         query_set, mes, ano, escola_uuid = self.filtra_inclusoes(request)
         periodos_escolares = request.query_params.getlist("periodos_escolares[]")
+        cemei_cei = request.query_params.get("cemei_cei", False) == "true"
+        cemei_emei = request.query_params.get("cemei_emei", False) == "true"
 
         return_dict = []
         return_dict = self.inclusoes_cei(
             query_set, mes, ano, periodos_escolares, return_dict
         )
         return_dict = self.inclusoes_cemei(
-            query_set, mes, ano, periodos_escolares, escola_uuid, return_dict
+            query_set,
+            mes,
+            ano,
+            periodos_escolares,
+            escola_uuid,
+            cemei_cei,
+            cemei_emei,
+            return_dict,
         )
         return_dict = self.inclusoes_normal_continua(
             query_set, periodos_escolares, mes, ano, return_dict
