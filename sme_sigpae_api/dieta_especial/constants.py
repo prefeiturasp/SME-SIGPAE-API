@@ -26,7 +26,6 @@ UNIDADES_CEMEI = [
 UNIDADES_EMEI_EMEF_CIEJA = [
     "EMEI",
     "CEU EMEI",
-    "CEU EMEI",
     "EMEF",
     "CEU EMEF",
     "EMEFM",

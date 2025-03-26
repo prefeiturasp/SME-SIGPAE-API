@@ -1269,3 +1269,36 @@ def solicitacoes_processa_dieta_especial(escola_cei):
         aluno=aluno,
         rastro_escola=escola_cei,
     )
+
+
+@pytest.fixture
+def filtro_historico_relatorio_dietas(
+    escola, escola_emebs, periodo_escolar_integral, classificacoes_dietas
+):
+    from django.http import QueryDict
+
+    query_params = QueryDict(mutable=True)
+    query_params.setlist(
+        "unidades_educacionais_selecionadas[]",
+        [
+            str(escola.uuid),
+            str(escola_emebs.uuid),
+        ],
+    )
+    query_params.setlist(
+        "tipos_unidades_selecionadas[]",
+        [str(escola_emebs.tipo_unidade.uuid)],
+    )
+    query_params.setlist(
+        "periodos_escolares_selecionadas[]",
+        [str(periodo_escolar_integral.uuid)],
+    )
+    query_params.setlist(
+        "classificacoes_selecionadas[]",
+        [classificacao.id for classificacao in classificacoes_dietas],
+    )
+    query_params["tipo_gestao"] = str(escola_emebs.tipo_gestao.uuid)
+    query_params["lote"] = str(escola_emebs.lote.uuid)
+    query_params["data"] = "12/04/2025"
+
+    return query_params
