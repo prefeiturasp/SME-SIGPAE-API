@@ -1309,7 +1309,7 @@ def escolas_tipo_emebs():
     item = {
         "escola__nome": "Escola EMEBS",
         "escola__tipo_unidade__iniciais": "EMEBS",
-        "escola__lote__nome": "Lote J",
+        "escola__lote__nome": "Lote EMEBS",
         "classificacao__nome": "Tipo A",
         "periodo_escolar__nome": "TARDE",
         "infantil_ou_fundamental": "FUNDAMENTAL",
@@ -1337,7 +1337,7 @@ def escolas_tipo_emei_emef_cieja():
     item = {
         "escola__nome": "Escola CEU EMEF",
         "escola__tipo_unidade__iniciais": "CEU EMEF",
-        "escola__lote__nome": "LOTE 14",
+        "escola__lote__nome": "LOTE CEU EMEF",
         "classificacao__nome": "Tipo A ENTERAL",
         "periodo_escolar__nome": "INTEGRAL",
         "infantil_ou_fundamental": "N/A",
@@ -1347,4 +1347,22 @@ def escolas_tipo_emei_emef_cieja():
         "data": datetime.date(2024, 2, 12),
     }
     classificacao = {"tipo": "Tipo A ENTERAL", "total": 0, "periodos": []}
+    return item, classificacao
+
+
+@pytest.fixture
+def escolas_tipos_cmct_ceugestao():
+    item = {
+        "escola__nome": "Escola CEU GESTAO",
+        "escola__tipo_unidade__iniciais": "CEU GESTAO",
+        "escola__lote__nome": "Teste CEU GESTAO",
+        "classificacao__nome": "Tipo A",
+        "periodo_escolar__nome": None,
+        "infantil_ou_fundamental": "N/A",
+        "cei_ou_emei": "N/A",
+        "escola__uuid": "49e6bf7f-36ad-418b-a5ec-2b03442aba22",
+        "quantidade": 10,
+        "data": datetime.date(2024, 2, 20),
+    }
+    classificacao = {"tipo": "Tipo A", "total": 100}
     return item, classificacao
