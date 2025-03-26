@@ -217,7 +217,7 @@ class ServiceValidacaoCorrecaoFichaTecnica:
 
     CAMPOS_OPCIONAIS_COMUNS = {
         "numero_registro",
-    } 
+    }
 
     def __init__(self, ficha_tecnica, attrs) -> None:
         self._ficha_tecnica = ficha_tecnica
