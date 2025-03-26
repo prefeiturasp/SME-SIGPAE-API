@@ -615,6 +615,7 @@ class TestEndpointInclusoesAutorizadas:
             f"&ano=2025"
             f"&periodos_escolares[]=Infantil+MANHA"
             f"&excluir_inclusoes_continuas=true"
+            f"&cemei_emei=true"
         )
 
         assert response.status_code == status.HTTP_200_OK
@@ -652,6 +653,7 @@ class TestEndpointInclusoesAutorizadas:
             f"&ano=2025"
             f"&periodos_escolares[]=PARCIAL"
             f"&excluir_inclusoes_continuas=true"
+            f"&cemei_cei=true"
         )
 
         assert response.status_code == status.HTTP_200_OK
@@ -684,6 +686,7 @@ class TestEndpointInclusoesAutorizadas:
             f"&ano=2025"
             f"&periodos_escolares[]=INTEGRAL"
             f"&excluir_inclusoes_continuas=true"
+            f"&cemei_cei=true"
         )
 
         assert response.status_code == status.HTTP_200_OK
