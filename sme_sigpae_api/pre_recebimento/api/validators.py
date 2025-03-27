@@ -273,7 +273,11 @@ class ServiceValidacaoCorrecaoFichaTecnica:
             "dependentes", []
         )
 
-        campos_collapse = campos_obrigatorios_collapse + campos_dependentes_collapse + self.CAMPOS_OPCIONAIS_COMUNS
+        campos_collapse = (
+            campos_obrigatorios_collapse
+            + campos_dependentes_collapse
+            + self.CAMPOS_OPCIONAIS_COMUNS
+        )
 
         for attr in self._attrs:
             if attr not in campos_collapse:
