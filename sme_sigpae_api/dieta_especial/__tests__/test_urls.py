@@ -972,3 +972,153 @@ def test_filtros_relatorio_dieta_especial_success(
         ],
         "tipos_unidades": [],
     }
+
+
+def test_relatorio_historico_dieta_especial(
+    client_autenticado_vinculo_terceirizada_dieta,
+    log_dietas_autorizadas,
+    log_dietas_autorizadas_cei,
+):
+    response = client_autenticado_vinculo_terceirizada_dieta.get(
+        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    historico = response.json()
+    assert historico["count"] == 3
+    assert historico["page_size"] == 2
+    assert historico["previous"] is None
+    assert "?page=2" in historico["next"]
+
+    assert len(historico["results"]) == 1
+    resultado = historico["results"][0]
+    assert resultado["total_dietas"] == 72
+    assert len(resultado["resultado"]) == 2
+    assert resultado["resultado"] == [
+        {
+            "lote": "",
+            "unidade_educacional": "CEI DIRET JOAO MENDES",
+            "tipo_unidade": "CEI DIRET",
+            "classificacao_dieta": [
+                {
+                    "tipo": "Tipo B",
+                    "total": 10,
+                    "periodos": [
+                        {
+                            "periodo": "INTEGRAL",
+                            "faixa_etaria": [
+                                {"faixa": "0 meses a 05 meses", "autorizadas": 10}
+                            ],
+                        }
+                    ],
+                },
+                {
+                    "tipo": "Tipo A",
+                    "total": 11,
+                    "periodos": [
+                        {
+                            "periodo": "MANHA",
+                            "faixa_etaria": [
+                                {"faixa": "07 a 11 meses", "autorizadas": 11}
+                            ],
+                        }
+                    ],
+                },
+            ],
+        },
+        {
+            "lote": "",
+            "unidade_educacional": "CEMEI",
+            "tipo_unidade": "CEMEI",
+            "classificacao_dieta": [
+                {
+                    "tipo": "Tipo B",
+                    "total": 19,
+                    "periodos": {
+                        "por_idade": [
+                            {
+                                "periodo": "INTEGRAL",
+                                "faixa_etaria": [
+                                    {"faixa": "0 meses a 05 meses", "autorizadas": 12}
+                                ],
+                            }
+                        ],
+                        "turma_infantil": [{"periodo": "INTEGRAL", "autorizadas": 7}],
+                    },
+                },
+                {
+                    "tipo": "Tipo A",
+                    "total": 21,
+                    "periodos": {
+                        "por_idade": [
+                            {
+                                "periodo": "MANHA",
+                                "faixa_etaria": [
+                                    {"faixa": "07 a 11 meses", "autorizadas": 13}
+                                ],
+                            }
+                        ],
+                        "turma_infantil": [{"periodo": "MANHA", "autorizadas": 8}],
+                    },
+                },
+            ],
+        },
+    ]
+
+
+def test_relatorio_historico_dieta_especial_pagina_dois(
+    client_autenticado_vinculo_terceirizada_dieta,
+    log_dietas_autorizadas,
+    log_dietas_autorizadas_cei,
+):
+    response = client_autenticado_vinculo_terceirizada_dieta.get(
+        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/?page=2"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    historico = response.json()
+    assert historico["count"] == 3
+    assert historico["page_size"] == 2
+    assert historico["next"] is None
+    assert historico["previous"] is not None
+
+    assert len(historico["results"]) == 1
+    resultado = historico["results"][0]
+    assert resultado["total_dietas"] == 72
+    assert len(resultado["resultado"]) == 1
+    assert resultado["resultado"] == [
+        {
+            "lote": "",
+            "unidade_educacional": "EMEBS",
+            "tipo_unidade": "EMEBS",
+            "classificacao_dieta": [
+                {
+                    "tipo": "Tipo B",
+                    "total": 5,
+                    "periodos": {
+                        "infantil": [{"periodo": "INTEGRAL", "autorizadas": 5}]
+                    },
+                },
+                {
+                    "tipo": "Tipo A",
+                    "total": 6,
+                    "periodos": {
+                        "fundamental": [{"periodo": "MANHA", "autorizadas": 6}]
+                    },
+                },
+            ],
+        }
+    ]
+
+
+def test_relatorio_historico_dieta_especial_cliente_nao_autorizado(
+    client_autenticado_dilog,
+    log_dietas_autorizadas,
+    log_dietas_autorizadas_cei,
+):
+    response = client_autenticado_dilog.get(
+        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/"
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == {
+        "detail": "Você não tem permissão para executar essa ação."
+    }

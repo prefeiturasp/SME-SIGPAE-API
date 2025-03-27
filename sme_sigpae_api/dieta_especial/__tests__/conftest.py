@@ -895,7 +895,7 @@ def escola_cei():
         "Escola",
         lote=lote,
         nome="CEI DIRET JOAO MENDES",
-        codigo_eol="000546",
+        codigo_eol="001546",
         uuid="a627fc63-16fd-482c-a877-16ebc1a82e57",
         contato=contato,
         diretoria_regional=diretoria_regional,
@@ -1420,3 +1420,103 @@ def escolas_tipo_cemei_por_periodo():
     }
     classificacao = {"tipo": "Tipo A ENTERAL", "total": 0, "periodos": {}}
     return item, classificacao
+
+
+@freeze_time("2025-3-27")
+@pytest.fixture
+def log_dietas_autorizadas(escola_emebs, escola_cemei, periodo_escolar_integral):
+    classificacao_tipo_a = mommy.make("ClassificacaoDieta", nome="Tipo A")
+    classificacao_tipo_b = mommy.make("ClassificacaoDieta", nome="Tipo B")
+    periodo_escolar_manha = mommy.make(PeriodoEscolar, nome="MANHA")
+
+    data = datetime.date.today()
+
+    mommy.make(
+        "LogQuantidadeDietasAutorizadas",
+        escola=escola_emebs,
+        quantidade=5,
+        classificacao=classificacao_tipo_b,
+        periodo_escolar=periodo_escolar_integral,
+        cei_ou_emei="N/A",
+        infantil_ou_fundamental="INFANTIL",
+        data=data,
+    )
+    mommy.make(
+        "LogQuantidadeDietasAutorizadas",
+        escola=escola_emebs,
+        quantidade=6,
+        classificacao=classificacao_tipo_a,
+        periodo_escolar=periodo_escolar_manha,
+        cei_ou_emei="N/A",
+        infantil_ou_fundamental="FUNDAMENTAL",
+        data=data,
+    )
+
+    mommy.make(
+        "LogQuantidadeDietasAutorizadas",
+        escola=escola_cemei,
+        quantidade=7,
+        classificacao=classificacao_tipo_b,
+        periodo_escolar=periodo_escolar_integral,
+        cei_ou_emei="N/A",
+        infantil_ou_fundamental="N/A",
+        data=data,
+    )
+    mommy.make(
+        "LogQuantidadeDietasAutorizadas",
+        escola=escola_cemei,
+        quantidade=8,
+        classificacao=classificacao_tipo_a,
+        periodo_escolar=periodo_escolar_manha,
+        cei_ou_emei="N/A",
+        infantil_ou_fundamental="N/A",
+        data=data,
+    )
+
+
+@freeze_time("2025-3-27")
+@pytest.fixture
+def log_dietas_autorizadas_cei(escola_cei, escola_cemei, periodo_escolar_integral):
+    classificacao_tipo_a = mommy.make("ClassificacaoDieta", nome="Tipo A")
+    classificacao_tipo_b = mommy.make("ClassificacaoDieta", nome="Tipo B")
+    periodo_escolar_manha = mommy.make(PeriodoEscolar, nome="MANHA")
+    data = datetime.date.today()
+    faixa_um = mommy.make("FaixaEtaria", inicio=0, fim=6)
+    faixa_dois = mommy.make("FaixaEtaria", inicio=7, fim=12)
+    mommy.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=escola_cei,
+        quantidade=10,
+        classificacao=classificacao_tipo_b,
+        periodo_escolar=periodo_escolar_integral,
+        faixa_etaria=faixa_um,
+        data=data,
+    )
+    mommy.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=escola_cei,
+        quantidade=11,
+        classificacao=classificacao_tipo_a,
+        periodo_escolar=periodo_escolar_manha,
+        faixa_etaria=faixa_dois,
+        data=data,
+    )
+
+    mommy.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=escola_cemei,
+        quantidade=12,
+        classificacao=classificacao_tipo_b,
+        periodo_escolar=periodo_escolar_integral,
+        faixa_etaria=faixa_um,
+        data=data,
+    )
+    mommy.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=escola_cemei,
+        quantidade=13,
+        classificacao=classificacao_tipo_a,
+        periodo_escolar=periodo_escolar_manha,
+        faixa_etaria=faixa_dois,
+        data=data,
+    )
