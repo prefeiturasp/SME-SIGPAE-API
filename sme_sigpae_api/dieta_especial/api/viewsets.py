@@ -178,11 +178,6 @@ class SolicitacaoDietaEspecialViewSet(
                 IsAuthenticated,
                 PermissaoRelatorioDietasEspeciais,
             )
-        elif self.action == "relatorio-historico-dieta-especial":
-            self.permission_classes = (
-                IsAuthenticated,
-                PermissaoHistoricoDietasEspeciais,
-            )
         return super(SolicitacaoDietaEspecialViewSet, self).get_permissions()
 
     def get_serializer_class(self):  # noqa C901
@@ -1341,7 +1336,10 @@ class SolicitacaoDietaEspecialViewSet(
         )
 
     @action(
-        detail=False, methods=["GET"], url_path="relatorio-historico-dieta-especial"
+        detail=False,
+        methods=["GET"],
+        url_path="relatorio-historico-dieta-especial",
+        permission_classes=(PermissaoHistoricoDietasEspeciais,),
     )
     def relatorio_historico_dieta_especial(self, request):
         filtros, data_dieta = gerar_filtros_relatorio_historico(request.query_params)

@@ -1423,13 +1423,13 @@ class UsuarioAdministradorContratos(BasePermission):
 class PermissaoHistoricoDietasEspeciais(BasePermission):
     """Permite acesso ao objeto se a dieta especial pertence ao usuário."""
 
-    def has_object_permission(self, request, view, obj):
+    def has_permission(self, request, view):
         usuario = request.user
+
         if isinstance(usuario.vinculo_atual.instituicao, DiretoriaRegional):
-            return usuario.vinculo_atual.instituicao in [
-                obj.escola.diretoria_regional,
-                obj.rastro_dre,
-            ]
+            return True
+        elif isinstance(usuario.vinculo_atual.instituicao, Terceirizada):
+            return True
         elif isinstance(usuario.vinculo_atual.instituicao, Codae):
             return usuario.vinculo_atual.perfil.nome in [
                 ADMINISTRADOR_MEDICAO,
@@ -1444,9 +1444,4 @@ class PermissaoHistoricoDietasEspeciais(BasePermission):
                 ADMINISTRADOR_CODAE_GABINETE,
                 DINUTRE_DIRETORIA,
                 ADMINISTRADOR_REPRESENTANTE_CODAE,
-            ]
-        elif isinstance(usuario.vinculo_atual.instituicao, Terceirizada):
-            return usuario.vinculo_atual.instituicao in [
-                obj.escola.lote.terceirizada,
-                obj.rastro_terceirizada,
             ]
