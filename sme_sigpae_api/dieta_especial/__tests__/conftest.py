@@ -1269,3 +1269,154 @@ def solicitacoes_processa_dieta_especial(escola_cei):
         aluno=aluno,
         rastro_escola=escola_cei,
     )
+
+
+@pytest.fixture
+def filtro_historico_relatorio_dietas(
+    escola, escola_emebs, periodo_escolar_integral, classificacoes_dietas
+):
+    from django.http import QueryDict
+
+    query_params = QueryDict(mutable=True)
+    query_params.setlist(
+        "unidades_educacionais_selecionadas[]",
+        [
+            str(escola.uuid),
+            str(escola_emebs.uuid),
+        ],
+    )
+    query_params.setlist(
+        "tipos_unidades_selecionadas[]",
+        [str(escola_emebs.tipo_unidade.uuid)],
+    )
+    query_params.setlist(
+        "periodos_escolares_selecionadas[]",
+        [str(periodo_escolar_integral.uuid)],
+    )
+    query_params.setlist(
+        "classificacoes_selecionadas[]",
+        [classificacao.id for classificacao in classificacoes_dietas],
+    )
+    query_params["tipo_gestao"] = str(escola_emebs.tipo_gestao.uuid)
+    query_params["lote"] = str(escola_emebs.lote.uuid)
+    query_params["data"] = "12/04/2025"
+
+    return query_params
+
+
+@pytest.fixture
+def escolas_tipo_emebs():
+    item = {
+        "escola__nome": "Escola EMEBS",
+        "escola__tipo_unidade__iniciais": "EMEBS",
+        "escola__lote__nome": "Lote EMEBS",
+        "classificacao__nome": "Tipo A",
+        "periodo_escolar__nome": "TARDE",
+        "infantil_ou_fundamental": "FUNDAMENTAL",
+        "cei_ou_emei": "N/A",
+        "escola__uuid": "a57faf92-b683-455e-a808-7f76a696cac0",
+        "quantidade": 30,
+        "data": datetime.date(2023, 12, 1),
+    }
+
+    classificacao = {
+        "tipo": "Tipo A",
+        "total": 40,
+        "periodos": {
+            "infantil": [
+                {"periodo": "TARDE", "autorizadas": 0},
+                {"periodo": "MANHA", "autorizadas": 0},
+            ]
+        },
+    }
+    return item, classificacao
+
+
+@pytest.fixture
+def escolas_tipo_emei_emef_cieja():
+    item = {
+        "escola__nome": "Escola CEU EMEF",
+        "escola__tipo_unidade__iniciais": "CEU EMEF",
+        "escola__lote__nome": "LOTE CEU EMEF",
+        "classificacao__nome": "Tipo A ENTERAL",
+        "periodo_escolar__nome": "INTEGRAL",
+        "infantil_ou_fundamental": "N/A",
+        "cei_ou_emei": "N/A",
+        "escola__uuid": "f4545228-4866-458f-a669-17c62a2b6891",
+        "quantidade": 30,
+        "data": datetime.date(2024, 2, 12),
+    }
+    classificacao = {"tipo": "Tipo A ENTERAL", "total": 0, "periodos": []}
+    return item, classificacao
+
+
+@pytest.fixture
+def escolas_tipos_cmct_ceugestao():
+    item = {
+        "escola__nome": "Escola CEU GESTAO",
+        "escola__tipo_unidade__iniciais": "CEU GESTAO",
+        "escola__lote__nome": "Teste CEU GESTAO",
+        "classificacao__nome": "Tipo A",
+        "periodo_escolar__nome": None,
+        "infantil_ou_fundamental": "N/A",
+        "cei_ou_emei": "N/A",
+        "escola__uuid": "49e6bf7f-36ad-418b-a5ec-2b03442aba22",
+        "quantidade": 10,
+        "data": datetime.date(2024, 2, 20),
+    }
+    classificacao = {"tipo": "Tipo A", "total": 100}
+    return item, classificacao
+
+
+@pytest.fixture
+def escolas_tipo_cei():
+    item = {
+        "escola__nome": "Escola CEI DIRET",
+        "escola__tipo_unidade__iniciais": "CEI DIRET",
+        "escola__lote__nome": "LOTE CEI DIRET",
+        "classificacao__nome": "Tipo A ENTERAL",
+        "periodo_escolar__nome": "INTEGRAL",
+        "faixa_etaria__inicio": 1,
+        "faixa_etaria__fim": 4,
+        "escola__uuid": "40009a06-3d65-478d-83ef-e0352ef88c7d",
+        "quantidade": 20,
+        "data": datetime.date(2024, 2, 20),
+    }
+    classificacao = {"tipo": "Tipo A ENTERAL", "total": 0, "periodos": []}
+    return item, classificacao
+
+
+@pytest.fixture
+def escolas_tipo_cemei_por_faixa_etaria():
+    item = {
+        "escola__nome": "Escola CEU CEMEI",
+        "escola__tipo_unidade__iniciais": "CEU CEMEI",
+        "escola__lote__nome": "LOTE CEU CEMEI",
+        "classificacao__nome": "Tipo A",
+        "periodo_escolar__nome": "INTEGRAL",
+        "faixa_etaria__inicio": 12,
+        "faixa_etaria__fim": 48,
+        "escola__uuid": "1fc5fca2-2694-4781-be65-8331716c74a0",
+        "quantidade": 6,
+        "data": datetime.date(2024, 2, 20),
+    }
+    classificacao = {"tipo": "Tipo A", "total": 0, "periodos": {}}
+    return item, classificacao
+
+
+@pytest.fixture
+def escolas_tipo_cemei_por_periodo():
+    item = {
+        "escola__nome": "Escola CEU CEMEI ",
+        "escola__tipo_unidade__iniciais": "CEU CEMEI",
+        "escola__lote__nome": "LOTE CEU CEMEI",
+        "classificacao__nome": "Tipo A ENTERAL",
+        "periodo_escolar__nome": "MANHA",
+        "infantil_ou_fundamental": "N/A",
+        "cei_ou_emei": "N/A",
+        "escola__uuid": "1fc5fca2-2694-4781-be65-8331716c74a0",
+        "quantidade": 8,
+        "data": datetime.date(2024, 2, 20),
+    }
+    classificacao = {"tipo": "Tipo A ENTERAL", "total": 0, "periodos": {}}
+    return item, classificacao

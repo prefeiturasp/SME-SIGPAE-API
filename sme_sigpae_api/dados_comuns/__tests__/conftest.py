@@ -6,10 +6,12 @@ import pytest
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.template.loader import render_to_string
+from django.test import RequestFactory
 from faker import Faker
 from model_mommy import mommy
 
 from sme_sigpae_api.dados_comuns import constants
+from sme_sigpae_api.dados_comuns.api.paginations import HistoricoDietasPagination
 from sme_sigpae_api.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from sme_sigpae_api.dados_comuns.parser_xml import ListXMLParser
 from sme_sigpae_api.dieta_especial.models import (
@@ -869,3 +871,11 @@ def user_dilog_abastecimento(django_user_model):
         object_id=codae.pk,
     )
     return user
+
+
+@pytest.fixture
+def paginacao_historico_dietas():
+    paginacao = HistoricoDietasPagination()
+    requisicao = RequestFactory()
+
+    return paginacao, requisicao

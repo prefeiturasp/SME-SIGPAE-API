@@ -1,6 +1,7 @@
 import re
 from collections import Counter
-from datetime import date
+from datetime import date, datetime
+from typing import List
 
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
@@ -14,6 +15,7 @@ from sme_sigpae_api.dieta_especial.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
 from sme_sigpae_api.escola.models import Lote
+from sme_sigpae_api.escola.utils import faixa_to_string
 from sme_sigpae_api.medicao_inicial.models import SolicitacaoMedicaoInicial
 from sme_sigpae_api.perfil.models import Usuario
 from sme_sigpae_api.relatorios.relatorios import relatorio_dieta_especial_conteudo
@@ -24,7 +26,14 @@ from ..dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ..dados_comuns.utils import envia_email_unico, envia_email_unico_com_anexo_inmemory
 from ..escola.models import Aluno, FaixaEtaria, PeriodoEscolar
 from ..paineis_consolidados.models import SolicitacoesCODAE
-from .constants import ETAPA_INFANTIL
+from .constants import (
+    ETAPA_INFANTIL,
+    UNIDADES_CEI,
+    UNIDADES_CEMEI,
+    UNIDADES_EMEBS,
+    UNIDADES_EMEI_EMEF_CIEJA,
+    UNIDADES_SEM_PERIODOS,
+)
 from .models import LogDietasAtivasCanceladasAutomaticamente, SolicitacaoDietaEspecial
 
 
@@ -1096,3 +1105,398 @@ def trata_lotes_dict_duplicados(lotes_dict):
         except Lote.DoesNotExist:
             continue
     return dict(lotes_)
+
+
+def gerar_filtros_relatorio_historico(query_params: dict) -> dict:
+    map_filtros = {
+        "escola__tipo_gestao__uuid": query_params.get("tipo_gestao", None),
+        "escola__tipo_unidade__uuid__in": query_params.getlist(
+            "tipos_unidades_selecionadas[]", None
+        ),
+        "escola__lote__uuid": query_params.get("lote", None),
+        "escola__uuid__in": query_params.getlist(
+            "unidades_educacionais_selecionadas[]", None
+        ),
+        "periodo_escolar__uuid__in": query_params.getlist(
+            "periodos_escolares_selecionadas[]", None
+        ),
+        "classificacao__id__in": query_params.getlist(
+            "classificacoes_selecionadas[]", None
+        ),
+    }
+
+    formato = "%d/%m/%Y"
+    data_dieta = query_params.get("data")
+    if data_dieta:
+        data = datetime.strptime(data_dieta, formato)
+        map_filtros.update(
+            {"data__day": data.day, "data__month": data.month, "data__year": data.year}
+        )
+
+    filtros = {
+        key: value for key, value in map_filtros.items() if value not in [None, []]
+    }
+    return filtros, data_dieta
+
+
+def dados_dietas_escolas_cei(filtros: dict) -> List[dict]:
+    logs_dietas_escolas_cei = LogQuantidadeDietasAutorizadasCEI.objects.filter(
+        **filtros
+    ).values(
+        "escola__nome",
+        "escola__tipo_unidade__iniciais",
+        "escola__lote__nome",
+        "classificacao__nome",
+        "periodo_escolar__nome",
+        "faixa_etaria__inicio",
+        "faixa_etaria__fim",
+        "escola__uuid",
+        "quantidade",
+        "data",
+    )
+
+    cei = logs_dietas_escolas_cei.filter(
+        escola__tipo_unidade__iniciais__in=UNIDADES_CEI,
+        periodo_escolar_id__isnull=False,
+    ).values(
+        "escola__nome",
+        "escola__tipo_unidade__iniciais",
+        "escola__lote__nome",
+        "classificacao__nome",
+        "periodo_escolar__nome",
+        "faixa_etaria__inicio",
+        "faixa_etaria__fim",
+        "escola__uuid",
+        "quantidade",
+        "data",
+    )
+
+    cemei = logs_dietas_escolas_cei.filter(
+        escola__tipo_unidade__iniciais__in=UNIDADES_CEMEI,
+        periodo_escolar_id__isnull=False,
+    ).values(
+        "escola__nome",
+        "escola__tipo_unidade__iniciais",
+        "escola__lote__nome",
+        "classificacao__nome",
+        "periodo_escolar__nome",
+        "faixa_etaria__inicio",
+        "faixa_etaria__fim",
+        "escola__uuid",
+        "quantidade",
+        "data",
+    )
+
+    logs = list(cei) + list(cemei)
+    return logs
+
+
+def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
+    logs_dietas_outras_escolas = LogQuantidadeDietasAutorizadas.objects.filter(
+        **filtros
+    )
+
+    emebs = (
+        logs_dietas_outras_escolas.filter(
+            escola__tipo_unidade__iniciais__in=UNIDADES_EMEBS,
+            periodo_escolar_id__isnull=False,
+        )
+        .exclude(infantil_ou_fundamental="N/A")
+        .values(
+            "escola__nome",
+            "escola__tipo_unidade__iniciais",
+            "escola__lote__nome",
+            "classificacao__nome",
+            "periodo_escolar__nome",
+            "infantil_ou_fundamental",
+            "cei_ou_emei",
+            "escola__uuid",
+            "quantidade",
+            "data",
+        )
+    )
+
+    emei_emef_cieja = logs_dietas_outras_escolas.filter(
+        escola__tipo_unidade__iniciais__in=UNIDADES_EMEI_EMEF_CIEJA,
+        periodo_escolar_id__isnull=False,
+        cei_ou_emei="N/A",
+    ).values(
+        "escola__nome",
+        "escola__tipo_unidade__iniciais",
+        "escola__lote__nome",
+        "classificacao__nome",
+        "periodo_escolar__nome",
+        "infantil_ou_fundamental",
+        "cei_ou_emei",
+        "escola__uuid",
+        "quantidade",
+        "data",
+    )
+
+    escolas_sem_periodos = logs_dietas_outras_escolas.filter(
+        escola__tipo_unidade__iniciais__in=UNIDADES_SEM_PERIODOS,
+        periodo_escolar_id__isnull=True,
+    ).values(
+        "escola__nome",
+        "escola__tipo_unidade__iniciais",
+        "escola__lote__nome",
+        "classificacao__nome",
+        "periodo_escolar__nome",
+        "infantil_ou_fundamental",
+        "cei_ou_emei",
+        "escola__uuid",
+        "quantidade",
+        "data",
+    )
+
+    cemei = logs_dietas_outras_escolas.filter(
+        escola__tipo_unidade__iniciais__in=UNIDADES_CEMEI,
+        periodo_escolar_id__isnull=False,
+        cei_ou_emei="N/A",
+    ).values(
+        "escola__nome",
+        "escola__tipo_unidade__iniciais",
+        "escola__lote__nome",
+        "classificacao__nome",
+        "periodo_escolar__nome",
+        "infantil_ou_fundamental",
+        "cei_ou_emei",
+        "escola__uuid",
+        "quantidade",
+        "data",
+    )
+
+    logs = (
+        list(emebs) + list(emei_emef_cieja) + list(escolas_sem_periodos) + list(cemei)
+    )
+    return logs
+
+
+def gera_dicionario_historico_dietas(filtros):
+    log_escolas_cei = dados_dietas_escolas_cei(filtros)
+    log_escolas = dados_dietas_escolas_comuns(filtros)
+    logs_dietas = list(log_escolas_cei) + list(log_escolas)
+    informacoes = cria_dicionario_historico_dietas(logs_dietas)
+    informacoes["resultados"] = sorted(
+        informacoes["resultados"], key=lambda x: x["unidade_educacional"]
+    )
+    return informacoes
+
+
+def cria_dicionario_historico_dietas(informacoes_logs):  # noqa: C901
+    resultado = {"total_dietas": 0, "resultados": {}}
+
+    for item in informacoes_logs:
+        resultado["total_dietas"] += item["quantidade"]
+        tipo_unidade = item.get("escola__tipo_unidade__iniciais")
+        escola_nome = item["escola__nome"]
+        classificacao_nome = item["classificacao__nome"]
+
+        if escola_nome not in resultado["resultados"]:
+            resultado["resultados"][escola_nome] = {
+                "lote": item["escola__lote__nome"],
+                "unidade_educacional": escola_nome,
+                "tipo_unidade": tipo_unidade,
+                "classificacao_dieta": {},
+            }
+        unidade_educacional = resultado["resultados"][escola_nome]
+
+        if classificacao_nome not in unidade_educacional["classificacao_dieta"]:
+            unidade_educacional["classificacao_dieta"][classificacao_nome] = {
+                "tipo": classificacao_nome,
+                "total": 0,
+                "periodos": {}
+                if tipo_unidade in UNIDADES_CEMEI + UNIDADES_EMEBS
+                else [],
+            }
+        classificacao_dieta = unidade_educacional["classificacao_dieta"][
+            classificacao_nome
+        ]
+
+        if tipo_unidade in UNIDADES_EMEI_EMEF_CIEJA:
+            classificacao_dieta = unidades_tipos_emei_emef_cieja(
+                item, classificacao_dieta
+            )
+        elif tipo_unidade in UNIDADES_SEM_PERIODOS:
+            classificacao_dieta.pop("periodos", None)
+            classificacao_dieta = unidades_tipos_cmct_ceugestao(
+                item, classificacao_dieta
+            )
+        elif tipo_unidade in UNIDADES_CEI:
+            classificacao_dieta = unidades_tipo_cei(item, classificacao_dieta)
+        elif tipo_unidade in UNIDADES_CEMEI:
+            classificacao_dieta = unidades_tipo_cemei(item, classificacao_dieta)
+        elif tipo_unidade in UNIDADES_EMEBS:
+            classificacao_dieta = unidades_tipo_emebs(item, classificacao_dieta)
+
+    resultado["resultados"] = list(resultado["resultados"].values())
+    for unidade in resultado["resultados"]:
+        unidade["classificacao_dieta"] = list(unidade["classificacao_dieta"].values())
+
+    return resultado
+
+
+def unidades_tipo_emebs(item, classificacao_dieta):
+    periodo_escolar = item["periodo_escolar__nome"]
+    dietas_autorizadas = item["quantidade"]
+    turma = (
+        "fundamental"
+        if item.get("infantil_ou_fundamental") == "FUNDAMENTAL"
+        else "infantil"
+    )
+    if turma not in classificacao_dieta["periodos"]:
+        classificacao_dieta["periodos"][turma] = []
+
+    periodo = next(
+        (
+            p
+            for p in classificacao_dieta["periodos"].get(turma, [])
+            if p["periodo"] == periodo_escolar
+        ),
+        None,
+    )
+    if not periodo:
+        periodo = {"periodo": periodo_escolar, "autorizadas": dietas_autorizadas}
+        classificacao_dieta["periodos"][turma].append(periodo)
+    else:
+        periodo["autorizadas"] += dietas_autorizadas
+
+    classificacao_dieta["total"] += dietas_autorizadas
+    return classificacao_dieta
+
+
+def unidades_tipos_emei_emef_cieja(item, classificacao_dieta):
+    periodo_escolar = item["periodo_escolar__nome"]
+    dietas_autorizadas = item["quantidade"]
+
+    periodo = next(
+        (p for p in classificacao_dieta["periodos"] if p["periodo"] == periodo_escolar),
+        None,
+    )
+
+    if not periodo:
+        periodo = {
+            "periodo": periodo_escolar,
+            "autorizadas": dietas_autorizadas,
+        }
+
+        classificacao_dieta["periodos"].append(periodo)
+    else:
+        periodo["autorizadas"] += dietas_autorizadas
+
+    classificacao_dieta["total"] += dietas_autorizadas
+    return classificacao_dieta
+
+
+def unidades_tipos_cmct_ceugestao(item, classificacao_dieta):
+    dietas_autorizadas = item["quantidade"]
+    classificacao_dieta["total"] += dietas_autorizadas
+    return classificacao_dieta
+
+
+def unidades_tipo_cei(item, classificacao_dieta):
+    periodo_escolar = item["periodo_escolar__nome"]
+    dietas_autorizadas = item["quantidade"]
+    faixa_etaria_infantil = faixa_to_string(
+        item["faixa_etaria__inicio"], item["faixa_etaria__fim"]
+    )
+    periodo = next(
+        (p for p in classificacao_dieta["periodos"] if p["periodo"] == periodo_escolar),
+        None,
+    )
+    if not periodo:
+        periodo = {
+            "periodo": periodo_escolar,
+            "faixa_etaria": [],
+        }
+        classificacao_dieta["periodos"].append(periodo)
+
+    faixa_etaria = next(
+        (
+            f
+            for f in periodo.get("faixa_etaria", [])
+            if f["faixa"] == faixa_etaria_infantil
+        ),
+        None,
+    )
+    if not faixa_etaria:
+        faixa_etaria = {
+            "faixa": faixa_etaria_infantil,
+            "autorizadas": dietas_autorizadas,
+        }
+        periodo["faixa_etaria"].append(faixa_etaria)
+    else:
+        faixa_etaria["autorizadas"] += dietas_autorizadas
+
+    classificacao_dieta["total"] += dietas_autorizadas
+    return classificacao_dieta
+
+
+def unidades_tipo_cemei(item, classificacao_dieta):  # noqa: C901
+    periodo_escolar = item["periodo_escolar__nome"]
+    dietas_autorizadas = item["quantidade"]
+
+    if "faixa_etaria__inicio" in item and "faixa_etaria__fim" in item:
+        faixa_etaria_infantil = faixa_to_string(
+            item["faixa_etaria__inicio"], item["faixa_etaria__fim"]
+        )
+        turma = "por_idade"
+        if turma not in classificacao_dieta["periodos"]:
+            classificacao_dieta["periodos"][turma] = []
+
+        periodo = next(
+            (
+                p
+                for p in classificacao_dieta["periodos"].get(turma, [])
+                if p["periodo"] == periodo_escolar
+            ),
+            None,
+        )
+
+        if not periodo:
+            periodo = {
+                "periodo": periodo_escolar,
+                "faixa_etaria": [],
+            }
+            classificacao_dieta["periodos"][turma].append(periodo)
+
+        faixa_etaria = next(
+            (
+                f
+                for f in periodo.get("faixa_etaria", [])
+                if f["faixa"] == faixa_etaria_infantil
+            ),
+            None,
+        )
+        if not faixa_etaria:
+            faixa_etaria = {
+                "faixa": faixa_etaria_infantil,
+                "autorizadas": dietas_autorizadas,
+            }
+            periodo["faixa_etaria"].append(faixa_etaria)
+        else:
+            faixa_etaria["autorizadas"] += dietas_autorizadas
+
+    else:
+        turma = "turma_infantil"
+        if turma not in classificacao_dieta["periodos"]:
+            classificacao_dieta["periodos"][turma] = []
+        periodo = next(
+            (
+                p
+                for p in classificacao_dieta["periodos"].get(turma, [])
+                if p["periodo"] == periodo_escolar
+            ),
+            None,
+        )
+        if not periodo:
+            periodo = {
+                "periodo": periodo_escolar,
+                "autorizadas": dietas_autorizadas,
+            }
+            classificacao_dieta["periodos"][turma].append(periodo)
+        else:
+            periodo["autorizadas"] += dietas_autorizadas
+
+    classificacao_dieta["total"] += dietas_autorizadas
+    return classificacao_dieta
