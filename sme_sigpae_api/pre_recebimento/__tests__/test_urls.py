@@ -2877,7 +2877,6 @@ def test_ficha_tecnica_validate_pereciveis(
     # testa validação dos atributos presentes somente em perecíveis
     payload = {**payload_ficha_tecnica_pereciveis}
     attrs_obrigatorios_pereciveis = {
-        "numero_registro",
         "agroecologico",
         "organico",
         "prazo_validade_descongelamento",
@@ -2898,7 +2897,7 @@ def test_ficha_tecnica_validate_pereciveis(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json()["non_field_errors"] == [
         "Fichas Técnicas de Produtos PERECÍVEIS exigem que sejam forncecidos valores para os campos"
-        + " numero_registro, agroecologico, organico, prazo_validade_descongelamento, temperatura_congelamento"
+        + " agroecologico, organico, prazo_validade_descongelamento, temperatura_congelamento"
         + ", temperatura_veiculo, condicoes_de_transporte e variacao_percentual."
     ]
 
@@ -2955,7 +2954,6 @@ def test_ficha_tecnica_validate_nao_pereciveis(
     payload = {**payload_ficha_tecnica_nao_pereciveis}
     attrs_obrigatorios_nao_pereciveis = {
         "produto_eh_liquido",
-        "numero_registro",
         "agroecologico",
         "organico",
     }
@@ -2970,10 +2968,10 @@ def test_ficha_tecnica_validate_nao_pereciveis(
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json()["non_field_errors"] == [
-        "Fichas Técnicas de Produtos NÃO PERECÍVEIS exigem que sejam forncecidos valores para os campos numero_registro, agroecologico, organico, e produto_eh_liquido"
+        "Fichas Técnicas de Produtos NÃO PERECÍVEIS exigem que sejam forncecidos valores para os campos agroecologico, organico, e produto_eh_liquido"
     ]
 
-    # testa validação dos atributos volume_embalagem_primaria e unidade_medida_volume_primaria
+    # teste de validação dos atributos volume_embalagem_primaria e unidade_medida_volume_primaria
     payload = {**payload_ficha_tecnica_nao_pereciveis}
     payload.pop("volume_embalagem_primaria")
 

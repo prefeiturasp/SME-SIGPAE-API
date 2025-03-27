@@ -43,7 +43,6 @@ def valida_parametros_calendario(mes, ano):
 
 def valida_campos_pereciveis_ficha_tecnica(attrs):
     attrs_obrigatorios_pereciveis = {
-        "numero_registro",
         "agroecologico",
         "organico",
         "prazo_validade_descongelamento",
@@ -56,14 +55,13 @@ def valida_campos_pereciveis_ficha_tecnica(attrs):
     if not attrs_obrigatorios_pereciveis.issubset(attrs.keys()):
         raise serializers.ValidationError(
             "Fichas Técnicas de Produtos PERECÍVEIS exigem que sejam forncecidos valores para os campos"
-            + " numero_registro, agroecologico, organico, prazo_validade_descongelamento, temperatura_congelamento"
+            + " agroecologico, organico, prazo_validade_descongelamento, temperatura_congelamento"
             + ", temperatura_veiculo, condicoes_de_transporte e variacao_percentual."
         )
 
 
 def valida_campos_nao_pereciveis_ficha_tecnica(attrs):
     attrs_obrigatorios_pereciveis = {
-        "numero_registro",
         "agroecologico",
         "organico",
         "produto_eh_liquido",
@@ -72,7 +70,7 @@ def valida_campos_nao_pereciveis_ficha_tecnica(attrs):
     if not attrs_obrigatorios_pereciveis.issubset(attrs.keys()):
         raise serializers.ValidationError(
             "Fichas Técnicas de Produtos NÃO PERECÍVEIS exigem que sejam forncecidos valores para os campos"
-            + " numero_registro, agroecologico, organico, e produto_eh_liquido"
+            + " agroecologico, organico, e produto_eh_liquido"
         )
 
 
@@ -129,7 +127,6 @@ class ServiceValidacaoCorrecaoFichaTecnica:
         "detalhes_produto_conferido": {
             "obrigatorios": [
                 "prazo_validade",
-                "numero_registro",
                 "agroecologico",
                 "organico",
                 "componentes_produto",
@@ -218,6 +215,10 @@ class ServiceValidacaoCorrecaoFichaTecnica:
         },
     }
 
+    CAMPOS_OPCIONAIS_COMUNS = [
+        "numero_registro",
+    ]
+
     def __init__(self, ficha_tecnica, attrs) -> None:
         self._ficha_tecnica = ficha_tecnica
         self._attrs = attrs
@@ -272,7 +273,7 @@ class ServiceValidacaoCorrecaoFichaTecnica:
             "dependentes", []
         )
 
-        campos_collapse = campos_obrigatorios_collapse + campos_dependentes_collapse
+        campos_collapse = campos_obrigatorios_collapse + campos_dependentes_collapse + self.CAMPOS_OPCIONAIS_COMUNS
 
         for attr in self._attrs:
             if attr not in campos_collapse:
