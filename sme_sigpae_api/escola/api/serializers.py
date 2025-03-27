@@ -577,6 +577,9 @@ class VinculoInstituicaoSerializer(serializers.ModelSerializer):
                 "possui_escolas_com_acesso_ao_medicao_inicial"
             ] = obj.instituicao.possui_escolas_com_acesso_ao_medicao_inicial
         if isinstance(obj.instituicao, Escola):
+            instituicao_dict[
+                "possui_alunos_regulares"
+            ] = obj.instituicao.possui_alunos_regulares
             instituicao_dict["eh_cei"] = self.get_eh_cei(obj)
             instituicao_dict["eh_cemei"] = self.get_eh_cemei(obj)
             instituicao_dict["eh_emebs"] = self.get_eh_emebs(obj)
