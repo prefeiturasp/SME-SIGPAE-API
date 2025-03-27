@@ -1,10 +1,6 @@
 from unittest.mock import Mock
 
-import pytest
 from rest_framework.response import Response
-from rest_framework.test import APIRequestFactory
-
-from sme_sigpae_api.dados_comuns.api.paginations import HistoricoDietasPagination
 
 
 def test_tamanho_pagina_padrao(paginacao_historico_dietas):

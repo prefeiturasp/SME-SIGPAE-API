@@ -1283,7 +1283,7 @@ def gera_dicionario_historico_dietas(filtros):
     return informacoes
 
 
-def cria_dicionario_historico_dietas(informacoes_logs):
+def cria_dicionario_historico_dietas(informacoes_logs):  # noqa: C901
     resultado = {"total_dietas": 0, "resultados": {}}
 
     for item in informacoes_logs:
@@ -1432,7 +1432,7 @@ def unidades_tipo_cei(item, classificacao_dieta):
     return classificacao_dieta
 
 
-def unidades_tipo_cemei(item, classificacao_dieta):
+def unidades_tipo_cemei(item, classificacao_dieta):  # noqa: C901
     periodo_escolar = item["periodo_escolar__nome"]
     dietas_autorizadas = item["quantidade"]
 
