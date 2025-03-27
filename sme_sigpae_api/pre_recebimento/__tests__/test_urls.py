@@ -2971,7 +2971,7 @@ def test_ficha_tecnica_validate_nao_pereciveis(
         "Fichas Técnicas de Produtos NÃO PERECÍVEIS exigem que sejam forncecidos valores para os campos agroecologico, organico, e produto_eh_liquido"
     ]
 
-    # testa validação dos atributos volume_embalagem_primaria e unidade_medida_volume_primaria
+    # teste de validação dos atributos volume_embalagem_primaria e unidade_medida_volume_primaria
     payload = {**payload_ficha_tecnica_nao_pereciveis}
     payload.pop("volume_embalagem_primaria")
 
