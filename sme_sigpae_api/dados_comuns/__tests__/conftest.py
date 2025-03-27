@@ -361,7 +361,7 @@ def client_autenticado_da_escola(client, django_user_model, escola):
 
 
 @pytest.fixture
-def client_autenticado_da_dre(client, django_user_model, diretoria_regional):
+def usuario_da_dre(django_user_model, diretoria_regional):
     email = "user@dre.com"
     password = DJANGO_ADMIN_PASSWORD
     perfil_cogestor_dre = mommy.make("Perfil", nome="COGESTOR_DRE", ativo=True)
@@ -377,7 +377,14 @@ def client_autenticado_da_dre(client, django_user_model, diretoria_regional):
         data_inicial=hoje,
         ativo=True,
     )
-    client.login(username=email, password=password)
+
+    return usuario, password
+
+
+@pytest.fixture
+def client_autenticado_da_dre(client, usuario_da_dre):
+    usuario, password = usuario_da_dre
+    client.login(username=usuario.email, password=password)
     return client
 
 
@@ -822,7 +829,7 @@ def user_admin_contratos(django_user_model):
     email = "test2@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
-        username=email, password=password, email=email, registro_funcional="8888888"
+        username=email, password=password, email=email, registro_funcional="9888888"
     )
     codae = mommy.make("Codae", nome="Codae - Administrador Contratos")
     perfil_admin_contratos = mommy.make(
@@ -847,7 +854,7 @@ def user_admin_contratos(django_user_model):
 
 @pytest.fixture
 def user_dilog_abastecimento(django_user_model):
-    email = "test2@test.com"
+    email = "test3@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -857,7 +864,7 @@ def user_dilog_abastecimento(django_user_model):
         "Perfil",
         nome=constants.DILOG_ABASTECIMENTO,
         ativo=True,
-        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf2",
+        uuid="c204e9e2-5435-4b57-b0c5-c8fd0ea67b7b",
     )
     hoje = datetime.date.today()
     mommy.make(
