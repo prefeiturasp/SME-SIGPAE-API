@@ -105,6 +105,22 @@ def valida_ingredientes_alergenicos_ficha_tecnica(attrs):
 
 class ServiceValidacaoCorrecaoFichaTecnica:
     CAMPOS_OBRIGATORIOS_COMUNS = {
+        "detalhes_produto_conferido": {
+            "obrigatorios": [
+                "prazo_validade",
+                "agroecologico",
+                "organico",
+                "componentes_produto",
+                "alergenicos",
+                "gluten",
+                "lactose",
+            ],
+            "dependentes": [
+                "mecanismo_controle",
+                "ingredientes_alergenicos",
+                "lactose_detalhe",
+            ],
+        },
         "informacoes_nutricionais_conferido": {
             "obrigatorios": [
                 "porcao",
@@ -124,22 +140,6 @@ class ServiceValidacaoCorrecaoFichaTecnica:
 
     CAMPOS_PERECIVEIS = {
         **CAMPOS_OBRIGATORIOS_COMUNS,
-        "detalhes_produto_conferido": {
-            "obrigatorios": [
-                "prazo_validade",
-                "agroecologico",
-                "organico",
-                "componentes_produto",
-                "alergenicos",
-                "gluten",
-                "lactose",
-            ],
-            "dependentes": [
-                "mecanismo_controle",
-                "ingredientes_alergenicos",
-                "lactose_detalhe",
-            ],
-        },
         "conservacao_conferido": {
             "obrigatorios": [
                 "prazo_validade_descongelamento",
@@ -174,19 +174,6 @@ class ServiceValidacaoCorrecaoFichaTecnica:
 
     CAMPOS_NAO_PERECIVEIS = {
         **CAMPOS_OBRIGATORIOS_COMUNS,
-        "detalhes_produto_conferido": {
-            "obrigatorios": [
-                "prazo_validade",
-                "componentes_produto",
-                "alergenicos",
-                "gluten",
-                "lactose",
-            ],
-            "dependentes": [
-                "ingredientes_alergenicos",
-                "lactose_detalhe",
-            ],
-        },
         "conservacao_conferido": {
             "obrigatorios": [
                 "condicoes_de_conservacao",
