@@ -1388,6 +1388,7 @@ class PermissaoParaAnalisarFichaTecnica(BasePermission):
     PERFIS_PERMITIDOS = [
         COORDENADOR_GESTAO_PRODUTO,
         COORDENADOR_CODAE_DILOG_LOGISTICA,
+        ADMINISTRADOR_GESTAO_PRODUTO,
     ]
 
     def has_permission(self, request, view):
