@@ -36,7 +36,7 @@ class DefaultPagination(PageNumberPagination):
 
 class HistoricoDietasPagination(PageNumberPagination):
     page = DEFAULT_PAGE
-    page_size = None
+    page_size = 2
     max_page_size = 2
 
     def get_page_size(self, request):
@@ -52,12 +52,17 @@ class HistoricoDietasPagination(PageNumberPagination):
         return min(page_size, self.max_page_size)
 
     def get_paginated_response(self, data, total_dietas, data_log):
+        page_size = self.request.GET.get("page_size", self.page_size)
+        try:
+            page_size = int(page_size)
+        except (TypeError, ValueError):
+            page_size = self.page_size
         return Response(
             {
                 "next": self.get_next_link(),
                 "previous": self.get_previous_link(),
                 "count": self.page.paginator.count,
-                "page_size": int(self.request.GET.get("page_size", self.page_size)),
+                "page_size": page_size,
                 "results": [
                     {"total_dietas": total_dietas, "data": data_log, "resultado": data}
                 ],
