@@ -1,11 +1,17 @@
 import datetime
 import json
+import random
 from random import randint, sample
 
 import pytest
 from faker import Faker
 from freezegun import freeze_time
 from model_mommy import mommy
+
+from sme_sigpae_api.dieta_especial.api.serializers import (
+    ClassificacoesSerializer,
+    UnidadeEducacionalSerializer,
+)
 
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
@@ -212,7 +218,7 @@ def solicitacao_dieta_especial_a_autorizar(
     )
     client.login(username=email, password=password)
 
-    mommy.make(AlergiaIntolerancia, id=1)
+    mommy.make(AlergiaIntolerancia, id=random.randint(1, 100000))
     perfil_professor = mommy.make("perfil.Perfil", nome="ADMINISTRADOR_UE", ativo=False)
     mommy.make(
         "perfil.Vinculo",
@@ -525,7 +531,9 @@ def client_autenticado_vinculo_terceirizada_dieta(
         data_inicial=hoje,
         ativo=True,
     )
-    classificacao = mommy.make("ClassificacaoDieta", id=1, nome="Tipo A")
+    classificacao = mommy.make(
+        "ClassificacaoDieta", id=random.randint(1, 100000), nome="Tipo A"
+    )
     protocolo_padrao = mommy.make(
         "ProtocoloPadraoDietaEspecial",
         nome_protocolo="ALERGIA - OVO",
@@ -869,10 +877,10 @@ def client_autenticado_protocolo_dieta(client, django_user_model, escola, codae)
     mommy.make("Edital", uuid="b7b6a0a7-b230-4783-94b6-8d3d22041ab3")
     mommy.make("Edital", uuid="60f5a64e-8652-422d-a6e9-0a36717829c9")
     mommy.make("Edital", uuid="4f7287e5-da63-4b23-8bbc-48cc6722c91e")
-    mommy.make("dieta_especial.Alimento", id=1)
+    mommy.make("dieta_especial.Alimento", id=random.randint(1, 100000))
     mommy.make(
         "dieta_especial.Alimento",
-        id=2,
+        id=random.randint(1, 100000),
         uuid="e67b6e67-7501-4d6e-8fac-ce219df3ed2b",
         tipo_listagem_protocolo="AMBOS",
     )
@@ -895,7 +903,7 @@ def escola_cei():
         "Escola",
         lote=lote,
         nome="CEI DIRET JOAO MENDES",
-        codigo_eol="000546",
+        codigo_eol="001546",
         uuid="a627fc63-16fd-482c-a877-16ebc1a82e57",
         contato=contato,
         diretoria_regional=diretoria_regional,
@@ -1420,3 +1428,173 @@ def escolas_tipo_cemei_por_periodo():
     }
     classificacao = {"tipo": "Tipo A ENTERAL", "total": 0, "periodos": {}}
     return item, classificacao
+
+
+@pytest.fixture
+def classificacao_tipo_a():
+    return mommy.make("ClassificacaoDieta", nome="Tipo A")
+
+
+@pytest.fixture
+def classificacao_tipo_b():
+    return mommy.make("ClassificacaoDieta", nome="Tipo B")
+
+
+@pytest.fixture
+def periodo_escolar_manha():
+    return mommy.make(PeriodoEscolar, nome="MANHA")
+
+
+@pytest.fixture
+def log_dietas_autorizadas(
+    escola_emebs,
+    escola_cemei,
+    periodo_escolar_integral,
+    classificacao_tipo_a,
+    classificacao_tipo_b,
+    periodo_escolar_manha,
+):
+    data = datetime.date(2024, 3, 20)
+
+    mommy.make(
+        "LogQuantidadeDietasAutorizadas",
+        escola=escola_emebs,
+        quantidade=5,
+        classificacao=classificacao_tipo_b,
+        periodo_escolar=periodo_escolar_integral,
+        cei_ou_emei="N/A",
+        infantil_ou_fundamental="INFANTIL",
+        data=data,
+    )
+    mommy.make(
+        "LogQuantidadeDietasAutorizadas",
+        escola=escola_emebs,
+        quantidade=6,
+        classificacao=classificacao_tipo_a,
+        periodo_escolar=periodo_escolar_manha,
+        cei_ou_emei="N/A",
+        infantil_ou_fundamental="FUNDAMENTAL",
+        data=data,
+    )
+
+    mommy.make(
+        "LogQuantidadeDietasAutorizadas",
+        escola=escola_cemei,
+        quantidade=7,
+        classificacao=classificacao_tipo_b,
+        periodo_escolar=periodo_escolar_integral,
+        cei_ou_emei="N/A",
+        infantil_ou_fundamental="N/A",
+        data=data,
+    )
+    mommy.make(
+        "LogQuantidadeDietasAutorizadas",
+        escola=escola_cemei,
+        quantidade=8,
+        classificacao=classificacao_tipo_a,
+        periodo_escolar=periodo_escolar_manha,
+        cei_ou_emei="N/A",
+        infantil_ou_fundamental="N/A",
+        data=data,
+    )
+
+
+@pytest.fixture
+def log_dietas_autorizadas_cei(
+    escola_cei,
+    escola_cemei,
+    periodo_escolar_integral,
+    classificacao_tipo_a,
+    classificacao_tipo_b,
+    periodo_escolar_manha,
+):
+    data = data = datetime.date(2024, 3, 20)
+    faixa_um = mommy.make("FaixaEtaria", inicio=0, fim=6)
+    faixa_dois = mommy.make("FaixaEtaria", inicio=7, fim=12)
+    mommy.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=escola_cei,
+        quantidade=10,
+        classificacao=classificacao_tipo_b,
+        periodo_escolar=periodo_escolar_integral,
+        faixa_etaria=faixa_um,
+        data=data,
+    )
+    mommy.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=escola_cei,
+        quantidade=11,
+        classificacao=classificacao_tipo_a,
+        periodo_escolar=periodo_escolar_manha,
+        faixa_etaria=faixa_dois,
+        data=data,
+    )
+
+    mommy.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=escola_cemei,
+        quantidade=12,
+        classificacao=classificacao_tipo_b,
+        periodo_escolar=periodo_escolar_integral,
+        faixa_etaria=faixa_um,
+        data=data,
+    )
+    mommy.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=escola_cemei,
+        quantidade=13,
+        classificacao=classificacao_tipo_a,
+        periodo_escolar=periodo_escolar_manha,
+        faixa_etaria=faixa_dois,
+        data=data,
+    )
+
+
+@pytest.fixture
+def classificacoes():
+    classificacao = {
+        "tipo": "Tipo B",
+        "total": 10,
+        "periodos": [
+            {
+                "periodo": "INTEGRAL",
+                "faixa_etaria": [{"faixa": "0 meses a 05 meses", "autorizadas": 10}],
+            }
+        ],
+    }
+    return ClassificacoesSerializer(classificacao)
+
+
+@pytest.fixture
+def unidade_educacional():
+    resultado = {
+        "lote": "545",
+        "unidade_educacional": "Escola CEI DIRET",
+        "tipo_unidade": "CEI DIRET",
+        "classificacao_dieta": [
+            {
+                "tipo": "Tipo B",
+                "total": 10,
+                "periodos": [
+                    {
+                        "periodo": "INTEGRAL",
+                        "faixa_etaria": [
+                            {"faixa": "0 meses a 05 meses", "autorizadas": 10}
+                        ],
+                    }
+                ],
+            },
+            {
+                "tipo": "Tipo A",
+                "total": 11,
+                "periodos": [
+                    {
+                        "periodo": "MANHA",
+                        "faixa_etaria": [{"faixa": "07 a 11 meses", "autorizadas": 11}],
+                    }
+                ],
+            },
+        ],
+    }
+
+    return UnidadeEducacionalSerializer(resultado)

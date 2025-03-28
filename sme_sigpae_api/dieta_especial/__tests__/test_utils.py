@@ -2,14 +2,23 @@ import datetime
 
 import pytest
 from django.http import QueryDict
+from freezegun import freeze_time
 
 from sme_sigpae_api.escola.utils import faixa_to_string
 
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...terceirizada.models import Edital
-from ..models import SolicitacaoDietaEspecial
+from ..models import (
+    LogQuantidadeDietasAutorizadas,
+    LogQuantidadeDietasAutorizadasCEI,
+    SolicitacaoDietaEspecial,
+)
 from ..utils import (
+    cria_dicionario_historico_dietas,
+    dados_dietas_escolas_cei,
+    dados_dietas_escolas_comuns,
     dietas_especiais_a_terminar,
+    gera_dicionario_historico_dietas,
     gera_logs_dietas_escolas_cei,
     gera_logs_dietas_escolas_comuns,
     gerar_filtros_relatorio_historico,
@@ -340,3 +349,168 @@ def test_unidades_tipo_cemei_por_periodo(escolas_tipo_cemei_por_periodo):
     periodo = classificacao_dieta["periodos"]["turma_infantil"][0]
     assert periodo["periodo"] == "MANHA"
     assert periodo["autorizadas"] == 8
+
+
+def test_gera_dicionario_historico_dietas(
+    log_dietas_autorizadas, log_dietas_autorizadas_cei
+):
+    data = datetime.date(2024, 3, 20)
+    filtros = {
+        "data__day": data.day,
+        "data__month": data.month,
+        "data__year": data.year,
+    }
+    informacoes = gera_dicionario_historico_dietas(filtros)
+    assert informacoes["total_dietas"] == 72
+    assert len(informacoes["resultados"]) == 3
+    resultados = informacoes["resultados"]
+    assert resultados[0]["unidade_educacional"] == "CEI DIRET JOAO MENDES"
+    assert resultados[1]["unidade_educacional"] == "CEMEI"
+    assert resultados[2]["unidade_educacional"] == "EMEBS"
+
+
+def test_gera_dicionario_historico_dietas_escola_cemei(
+    log_dietas_autorizadas, log_dietas_autorizadas_cei, escola_cemei
+):
+    data = datetime.date(2024, 3, 20)
+    filtros = {
+        "data__day": data.day,
+        "data__month": data.month,
+        "data__year": data.year,
+        "escola__uuid__in": [escola_cemei.uuid],
+    }
+    informacoes = gera_dicionario_historico_dietas(filtros)
+    assert informacoes["total_dietas"] == 40
+    assert len(informacoes["resultados"]) == 1
+    resultados = informacoes["resultados"]
+    assert resultados[0]["unidade_educacional"] == "CEMEI"
+
+
+def test_gera_dicionario_historico_dietas_escola_cei(
+    log_dietas_autorizadas_cei, escola_cei
+):
+    data = datetime.date(2024, 3, 20)
+    filtros = {
+        "data__day": data.day,
+        "data__month": data.month,
+        "data__year": data.year,
+        "escola__uuid__in": [escola_cei.uuid],
+    }
+    informacoes = gera_dicionario_historico_dietas(filtros)
+    assert informacoes["total_dietas"] == 21
+    assert len(informacoes["resultados"]) == 1
+    resultados = informacoes["resultados"]
+    assert resultados[0]["unidade_educacional"] == "CEI DIRET JOAO MENDES"
+
+
+def test_gera_dicionario_historico_dietas_escola_emebs(
+    log_dietas_autorizadas, escola_emebs
+):
+    data = datetime.date(2024, 3, 20)
+    filtros = {
+        "data__day": data.day,
+        "data__month": data.month,
+        "data__year": data.year,
+        "escola__uuid__in": [escola_emebs.uuid],
+    }
+    informacoes = gera_dicionario_historico_dietas(filtros)
+    assert informacoes["total_dietas"] == 11
+    assert len(informacoes["resultados"]) == 1
+    resultados = informacoes["resultados"]
+    assert resultados[0]["unidade_educacional"] == "EMEBS"
+
+
+def test_cria_dicionario_historico_dietas_autorizadas_cei(log_dietas_autorizadas_cei):
+    informacoes_logs = LogQuantidadeDietasAutorizadasCEI.objects.all().values(
+        "escola__nome",
+        "escola__tipo_unidade__iniciais",
+        "escola__lote__nome",
+        "classificacao__nome",
+        "periodo_escolar__nome",
+        "faixa_etaria__inicio",
+        "faixa_etaria__fim",
+        "escola__uuid",
+        "quantidade",
+        "data",
+    )
+    informacoes = cria_dicionario_historico_dietas(informacoes_logs)
+    assert informacoes["total_dietas"] == 46
+    assert isinstance(informacoes["resultados"], list)
+    assert len(informacoes["resultados"]) == 2
+    resultados = informacoes["resultados"]
+    assert resultados[0]["unidade_educacional"] == "CEI DIRET JOAO MENDES"
+    assert resultados[1]["unidade_educacional"] == "CEMEI"
+
+
+def test_cria_dicionario_historico_dietas_autorizadas(log_dietas_autorizadas):
+    informacoes_logs = LogQuantidadeDietasAutorizadas.objects.all().values(
+        "escola__nome",
+        "escola__tipo_unidade__iniciais",
+        "escola__lote__nome",
+        "classificacao__nome",
+        "periodo_escolar__nome",
+        "infantil_ou_fundamental",
+        "cei_ou_emei",
+        "escola__uuid",
+        "quantidade",
+        "data",
+    )
+    informacoes = cria_dicionario_historico_dietas(informacoes_logs)
+    assert informacoes["total_dietas"] == 26
+    assert isinstance(informacoes["resultados"], list)
+    assert len(informacoes["resultados"]) == 2
+    resultados = informacoes["resultados"]
+    assert resultados[0]["unidade_educacional"] == "CEMEI"
+    assert resultados[1]["unidade_educacional"] == "EMEBS"
+
+
+def test_dados_dietas_escolas_cei(log_dietas_autorizadas_cei):
+    data = datetime.date(2024, 3, 20)
+    filtros = {
+        "data__day": data.day,
+        "data__month": data.month,
+        "data__year": data.year,
+    }
+    logs = dados_dietas_escolas_cei(filtros)
+    assert len(logs) == 4
+    assert logs[0]["escola__nome"] == "CEI DIRET JOAO MENDES"
+    assert logs[0]["classificacao__nome"] == "Tipo B"
+    assert logs[0]["periodo_escolar__nome"] == "INTEGRAL"
+
+    assert logs[1]["escola__nome"] == "CEI DIRET JOAO MENDES"
+    assert logs[1]["classificacao__nome"] == "Tipo A"
+    assert logs[1]["periodo_escolar__nome"] == "MANHA"
+
+    assert logs[2]["escola__nome"] == "CEMEI"
+    assert logs[2]["classificacao__nome"] == "Tipo B"
+    assert logs[2]["periodo_escolar__nome"] == "INTEGRAL"
+
+    assert logs[3]["escola__nome"] == "CEMEI"
+    assert logs[3]["classificacao__nome"] == "Tipo A"
+    assert logs[3]["periodo_escolar__nome"] == "MANHA"
+
+
+def test_dados_dietas_escolas_comuns(log_dietas_autorizadas):
+    data = datetime.date(2024, 3, 20)
+    filtros = {
+        "data__day": data.day,
+        "data__month": data.month,
+        "data__year": data.year,
+    }
+    logs = dados_dietas_escolas_comuns(filtros)
+    assert len(logs) == 4
+    assert logs[0]["escola__nome"] == "EMEBS"
+    assert logs[0]["classificacao__nome"] == "Tipo B"
+    assert logs[0]["periodo_escolar__nome"] == "INTEGRAL"
+
+    assert logs[1]["escola__nome"] == "EMEBS"
+    assert logs[1]["classificacao__nome"] == "Tipo A"
+    assert logs[1]["periodo_escolar__nome"] == "MANHA"
+
+    assert logs[2]["escola__nome"] == "CEMEI"
+    assert logs[2]["classificacao__nome"] == "Tipo B"
+    assert logs[2]["periodo_escolar__nome"] == "INTEGRAL"
+
+    assert logs[3]["escola__nome"] == "CEMEI"
+    assert logs[3]["classificacao__nome"] == "Tipo A"
+    assert logs[3]["periodo_escolar__nome"] == "MANHA"

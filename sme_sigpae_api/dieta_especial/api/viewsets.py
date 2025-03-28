@@ -16,10 +16,7 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from xworkflows import InvalidTransitionError
 
-from sme_sigpae_api.dados_comuns.api.paginations import (
-    CustomPagination,
-    HistoricoDietasPagination,
-)
+from sme_sigpae_api.dados_comuns.api.paginations import HistoricoDietasPagination
 
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
@@ -177,11 +174,6 @@ class SolicitacaoDietaEspecialViewSet(
             self.permission_classes = (
                 IsAuthenticated,
                 PermissaoRelatorioDietasEspeciais,
-            )
-        elif self.action == "relatorio-historico-dieta-especial":
-            self.permission_classes = (
-                IsAuthenticated,
-                PermissaoHistoricoDietasEspeciais,
             )
         return super(SolicitacaoDietaEspecialViewSet, self).get_permissions()
 
@@ -1341,7 +1333,10 @@ class SolicitacaoDietaEspecialViewSet(
         )
 
     @action(
-        detail=False, methods=["GET"], url_path="relatorio-historico-dieta-especial"
+        detail=False,
+        methods=["GET"],
+        url_path="relatorio-historico-dieta-especial",
+        permission_classes=(PermissaoHistoricoDietasEspeciais,),
     )
     def relatorio_historico_dieta_especial(self, request):
         filtros, data_dieta = gerar_filtros_relatorio_historico(request.query_params)
@@ -1740,7 +1735,7 @@ class LogQuantidadeDietasAutorizadasViewSet(mixins.ListModelMixin, GenericViewSe
     queryset = LogQuantidadeDietasAutorizadas.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = LogQuantidadeDietasEspeciaisFilter
-    pagination_class = CustomPagination
+    pagination_class = None
 
 
 class LogQuantidadeDietasAutorizadasCEIViewSet(mixins.ListModelMixin, GenericViewSet):
@@ -1748,4 +1743,4 @@ class LogQuantidadeDietasAutorizadasCEIViewSet(mixins.ListModelMixin, GenericVie
     queryset = LogQuantidadeDietasAutorizadasCEI.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = LogQuantidadeDietasEspeciaisFilter
-    pagination_class = CustomPagination
+    pagination_class = None
