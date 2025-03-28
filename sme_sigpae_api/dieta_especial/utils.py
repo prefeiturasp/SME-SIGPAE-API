@@ -1140,19 +1140,21 @@ def gerar_filtros_relatorio_historico(query_params: dict) -> dict:
 
 
 def dados_dietas_escolas_cei(filtros: dict) -> List[dict]:
-    logs_dietas_escolas_cei = LogQuantidadeDietasAutorizadasCEI.objects.filter(
-        **filtros
-    ).values(
-        "escola__nome",
-        "escola__tipo_unidade__iniciais",
-        "escola__lote__nome",
-        "classificacao__nome",
-        "periodo_escolar__nome",
-        "faixa_etaria__inicio",
-        "faixa_etaria__fim",
-        "escola__uuid",
-        "quantidade",
-        "data",
+    logs_dietas_escolas_cei = (
+        LogQuantidadeDietasAutorizadasCEI.objects.filter(**filtros)
+        .values(
+            "escola__nome",
+            "escola__tipo_unidade__iniciais",
+            "escola__lote__nome",
+            "classificacao__nome",
+            "periodo_escolar__nome",
+            "faixa_etaria__inicio",
+            "faixa_etaria__fim",
+            "escola__uuid",
+            "quantidade",
+            "data",
+        )
+        .order_by("faixa_etaria__inicio")
     )
 
     cei = logs_dietas_escolas_cei.filter(
