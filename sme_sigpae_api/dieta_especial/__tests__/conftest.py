@@ -1428,11 +1428,29 @@ def escolas_tipo_cemei_por_periodo():
 
 
 @pytest.fixture
-def log_dietas_autorizadas(escola_emebs, escola_cemei, periodo_escolar_integral):
-    classificacao_tipo_a = mommy.make("ClassificacaoDieta", nome="Tipo A")
-    classificacao_tipo_b = mommy.make("ClassificacaoDieta", nome="Tipo B")
-    periodo_escolar_manha = mommy.make(PeriodoEscolar, nome="MANHA")
+def classificacao_tipo_a():
+    return mommy.make("ClassificacaoDieta", nome="Tipo A")
 
+
+@pytest.fixture
+def classificacao_tipo_b():
+    return mommy.make("ClassificacaoDieta", nome="Tipo B")
+
+
+@pytest.fixture
+def periodo_escolar_manha():
+    return mommy.make(PeriodoEscolar, nome="MANHA")
+
+
+@pytest.fixture
+def log_dietas_autorizadas(
+    escola_emebs,
+    escola_cemei,
+    periodo_escolar_integral,
+    classificacao_tipo_a,
+    classificacao_tipo_b,
+    periodo_escolar_manha,
+):
     data = datetime.date(2024, 3, 20)
 
     mommy.make(
@@ -1479,10 +1497,14 @@ def log_dietas_autorizadas(escola_emebs, escola_cemei, periodo_escolar_integral)
 
 
 @pytest.fixture
-def log_dietas_autorizadas_cei(escola_cei, escola_cemei, periodo_escolar_integral):
-    classificacao_tipo_a = mommy.make("ClassificacaoDieta", nome="Tipo A")
-    classificacao_tipo_b = mommy.make("ClassificacaoDieta", nome="Tipo B")
-    periodo_escolar_manha = mommy.make(PeriodoEscolar, nome="MANHA")
+def log_dietas_autorizadas_cei(
+    escola_cei,
+    escola_cemei,
+    periodo_escolar_integral,
+    classificacao_tipo_a,
+    classificacao_tipo_b,
+    periodo_escolar_manha,
+):
     data = data = datetime.date(2024, 3, 20)
     faixa_um = mommy.make("FaixaEtaria", inicio=0, fim=6)
     faixa_dois = mommy.make("FaixaEtaria", inicio=7, fim=12)
