@@ -1,5 +1,6 @@
 import datetime
 import json
+import random
 from random import randint, sample
 
 import pytest
@@ -217,7 +218,7 @@ def solicitacao_dieta_especial_a_autorizar(
     )
     client.login(username=email, password=password)
 
-    mommy.make(AlergiaIntolerancia, id=1)
+    mommy.make(AlergiaIntolerancia, id=random.randint(1, 100000))
     perfil_professor = mommy.make("perfil.Perfil", nome="ADMINISTRADOR_UE", ativo=False)
     mommy.make(
         "perfil.Vinculo",
@@ -530,7 +531,9 @@ def client_autenticado_vinculo_terceirizada_dieta(
         data_inicial=hoje,
         ativo=True,
     )
-    classificacao = mommy.make("ClassificacaoDieta", id=1, nome="Tipo A")
+    classificacao = mommy.make(
+        "ClassificacaoDieta", id=random.randint(1, 100000), nome="Tipo A"
+    )
     protocolo_padrao = mommy.make(
         "ProtocoloPadraoDietaEspecial",
         nome_protocolo="ALERGIA - OVO",
@@ -874,10 +877,10 @@ def client_autenticado_protocolo_dieta(client, django_user_model, escola, codae)
     mommy.make("Edital", uuid="b7b6a0a7-b230-4783-94b6-8d3d22041ab3")
     mommy.make("Edital", uuid="60f5a64e-8652-422d-a6e9-0a36717829c9")
     mommy.make("Edital", uuid="4f7287e5-da63-4b23-8bbc-48cc6722c91e")
-    mommy.make("dieta_especial.Alimento", id=1)
+    mommy.make("dieta_especial.Alimento", id=random.randint(1, 100000))
     mommy.make(
         "dieta_especial.Alimento",
-        id=2,
+        id=random.randint(1, 100000),
         uuid="e67b6e67-7501-4d6e-8fac-ce219df3ed2b",
         tipo_listagem_protocolo="AMBOS",
     )

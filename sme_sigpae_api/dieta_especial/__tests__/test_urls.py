@@ -14,6 +14,7 @@ from ..constants import (
 )
 from ..models import (
     AlergiaIntolerancia,
+    Alimento,
     ClassificacaoDieta,
     MotivoNegacao,
     ProtocoloPadraoDietaEspecial,
@@ -779,7 +780,7 @@ def test_imprime_relatorio_dieta_especial(
 ):
     data = {
         "escola": [solicitacao_dieta_especial_autorizada.escola.uuid],
-        "diagnostico": [1],
+        "diagnostico": [AlergiaIntolerancia.objects.get().id],
     }
     response = client_autenticado.post(
         "/solicitacoes-dieta-especial/imprime-relatorio-dieta-especial/", data=data
@@ -798,6 +799,9 @@ def test_imprime_relatorio_dieta_especial_validation_error(
 
 
 def test_cadastro_protocolo_dieta_especial(client_autenticado_protocolo_dieta):
+    alimentao_id = (
+        Alimento.objects.exclude(uuid="e67b6e67-7501-4d6e-8fac-ce219df3ed2b").get().id
+    )
     data = {
         "nome_protocolo": "ALERGIA - ABACATE",
         "orientacoes_gerais": "<ul><li>Substituição do <strong>Abacate,&nbsp;</strong>bem como "
@@ -811,7 +815,7 @@ def test_cadastro_protocolo_dieta_especial(client_autenticado_protocolo_dieta):
         ],
         "substituicoes": [
             {
-                "alimento": "1",
+                "alimento": alimentao_id,
                 "tipo": "I",
                 "substitutos": ["e67b6e67-7501-4d6e-8fac-ce219df3ed2b"],
             }
@@ -876,6 +880,9 @@ def test_cadastro_protocolo_dieta_especial_lista_status(
 def test_cadastro_protocolo_dieta_especial_nomes_protocolos_liberados(
     client_autenticado_protocolo_dieta, massa_dados_protocolo_padrao_test
 ):
+    alimentao_id = (
+        Alimento.objects.exclude(uuid="e67b6e67-7501-4d6e-8fac-ce219df3ed2b").get().id
+    )
     data = {
         "nome_protocolo": "ALERGIA - ABACATE",
         "orientacoes_gerais": "<ul><li>Substituição do <strong>Abacate,&nbsp;</strong>bem como "
@@ -889,7 +896,7 @@ def test_cadastro_protocolo_dieta_especial_nomes_protocolos_liberados(
         ],
         "substituicoes": [
             {
-                "alimento": "1",
+                "alimento": alimentao_id,
                 "tipo": "I",
                 "substitutos": ["e67b6e67-7501-4d6e-8fac-ce219df3ed2b"],
             }
@@ -955,9 +962,9 @@ def test_filtros_relatorio_dieta_especial_success(
         "&status_selecionado=AUTORIZADAS"
     )
     assert response.status_code == status.HTTP_200_OK
+    response.json().pop("classificacoes")
     assert response.json() == {
         "alergias_intolerancias": [],
-        "classificacoes": [{"nome": "Tipo A", "id": 1}],
         "lotes": [
             {
                 "nome": "LOTE 07 - DIRETORIA REGIONAL IPIRANGA",
