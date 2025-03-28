@@ -7,6 +7,11 @@ from faker import Faker
 from freezegun import freeze_time
 from model_mommy import mommy
 
+from sme_sigpae_api.dieta_especial.api.serializers import (
+    ClassificacoesSerializer,
+    UnidadeEducacionalSerializer,
+)
+
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...dados_comuns.models import TemplateMensagem
@@ -1422,14 +1427,13 @@ def escolas_tipo_cemei_por_periodo():
     return item, classificacao
 
 
-@freeze_time("2025-3-27")
 @pytest.fixture
 def log_dietas_autorizadas(escola_emebs, escola_cemei, periodo_escolar_integral):
     classificacao_tipo_a = mommy.make("ClassificacaoDieta", nome="Tipo A")
     classificacao_tipo_b = mommy.make("ClassificacaoDieta", nome="Tipo B")
     periodo_escolar_manha = mommy.make(PeriodoEscolar, nome="MANHA")
 
-    data = datetime.date.today()
+    data = datetime.date(2024, 3, 20)
 
     mommy.make(
         "LogQuantidadeDietasAutorizadas",
@@ -1474,13 +1478,12 @@ def log_dietas_autorizadas(escola_emebs, escola_cemei, periodo_escolar_integral)
     )
 
 
-@freeze_time("2025-3-27")
 @pytest.fixture
 def log_dietas_autorizadas_cei(escola_cei, escola_cemei, periodo_escolar_integral):
     classificacao_tipo_a = mommy.make("ClassificacaoDieta", nome="Tipo A")
     classificacao_tipo_b = mommy.make("ClassificacaoDieta", nome="Tipo B")
     periodo_escolar_manha = mommy.make(PeriodoEscolar, nome="MANHA")
-    data = datetime.date.today()
+    data = data = datetime.date(2024, 3, 20)
     faixa_um = mommy.make("FaixaEtaria", inicio=0, fim=6)
     faixa_dois = mommy.make("FaixaEtaria", inicio=7, fim=12)
     mommy.make(
@@ -1520,3 +1523,53 @@ def log_dietas_autorizadas_cei(escola_cei, escola_cemei, periodo_escolar_integra
         faixa_etaria=faixa_dois,
         data=data,
     )
+
+
+@pytest.fixture
+def classificacoes():
+    classificacao = {
+        "tipo": "Tipo B",
+        "total": 10,
+        "periodos": [
+            {
+                "periodo": "INTEGRAL",
+                "faixa_etaria": [{"faixa": "0 meses a 05 meses", "autorizadas": 10}],
+            }
+        ],
+    }
+    return ClassificacoesSerializer(classificacao)
+
+
+@pytest.fixture
+def unidade_educacional():
+    resultado = {
+        "lote": "545",
+        "unidade_educacional": "Escola CEI DIRET",
+        "tipo_unidade": "CEI DIRET",
+        "classificacao_dieta": [
+            {
+                "tipo": "Tipo B",
+                "total": 10,
+                "periodos": [
+                    {
+                        "periodo": "INTEGRAL",
+                        "faixa_etaria": [
+                            {"faixa": "0 meses a 05 meses", "autorizadas": 10}
+                        ],
+                    }
+                ],
+            },
+            {
+                "tipo": "Tipo A",
+                "total": 11,
+                "periodos": [
+                    {
+                        "periodo": "MANHA",
+                        "faixa_etaria": [{"faixa": "07 a 11 meses", "autorizadas": 11}],
+                    }
+                ],
+            },
+        ],
+    }
+
+    return UnidadeEducacionalSerializer(resultado)
