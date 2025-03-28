@@ -892,7 +892,7 @@ def paginacao_historico_dietas():
 
 
 @pytest.fixture
-def substituicoes_alimentacao_periodo(escola):
+def solicitacao_substituicao_cardapio(escola):
     motivo = mommy.make(
         "MotivoAlteracaoCardapio", nome="Aniversariantes do mês", uuid=fake.uuid4()
     )
@@ -926,5 +926,42 @@ def substituicoes_alimentacao_periodo(escola):
         "substituicoes": [
             {"periodo_escolar": periodo_escolar_integral},
             {"periodo_escolar": periodo_escolar_manha},
+        ],
+    }
+
+
+@pytest.fixture
+def solicitacao_substituicao_cardapio_cei(escola):
+    motivo = mommy.make(
+        "MotivoAlteracaoCardapio", nome="Aniversariantes do mês", uuid=fake.uuid4()
+    )
+    periodo_escolar_integral = mommy.make(
+        models.PeriodoEscolar, nome="INTEGRAL", uuid=fake.uuid4()
+    )
+    periodo_escolar_manha = mommy.make(
+        models.PeriodoEscolar, nome="MANHA", uuid=fake.uuid4()
+    )
+    data = datetime.date(2024, 3, 1)
+    alteracao_cardapio = mommy.make(
+        "AlteracaoCardapioCEI",
+        escola=escola,
+        motivo=motivo,
+        data=data,
+        status=PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR,
+        uuid=fake.uuid4(),
+    )
+    mommy.make(
+        "SubstituicaoAlimentacaoNoPeriodoEscolarCEI",
+        alteracao_cardapio=alteracao_cardapio,
+        periodo_escolar=periodo_escolar_integral,
+        uuid=fake.uuid4(),
+    )
+
+    return {
+        "escola": escola.uuid,
+        "motivo": motivo.uuid,
+        "substituicoes": [
+            {"periodo_escolar": periodo_escolar_integral.uuid},
+            {"periodo_escolar": periodo_escolar_manha.uuid},
         ],
     }
