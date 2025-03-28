@@ -16,10 +16,7 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from xworkflows import InvalidTransitionError
 
-from sme_sigpae_api.dados_comuns.api.paginations import (
-    CustomPagination,
-    HistoricoDietasPagination,
-)
+from sme_sigpae_api.dados_comuns.api.paginations import HistoricoDietasPagination
 
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
@@ -1738,7 +1735,7 @@ class LogQuantidadeDietasAutorizadasViewSet(mixins.ListModelMixin, GenericViewSe
     queryset = LogQuantidadeDietasAutorizadas.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = LogQuantidadeDietasEspeciaisFilter
-    pagination_class = CustomPagination
+    pagination_class = None
 
 
 class LogQuantidadeDietasAutorizadasCEIViewSet(mixins.ListModelMixin, GenericViewSet):
@@ -1746,4 +1743,4 @@ class LogQuantidadeDietasAutorizadasCEIViewSet(mixins.ListModelMixin, GenericVie
     queryset = LogQuantidadeDietasAutorizadasCEI.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = LogQuantidadeDietasEspeciaisFilter
-    pagination_class = CustomPagination
+    pagination_class = None
