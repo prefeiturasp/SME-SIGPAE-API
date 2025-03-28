@@ -12,7 +12,10 @@ from model_mommy import mommy
 
 from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.api.paginations import HistoricoDietasPagination
-from sme_sigpae_api.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
+from sme_sigpae_api.dados_comuns.fluxo_status import (
+    PedidoAPartirDaEscolaWorkflow,
+    ReclamacaoProdutoWorkflow,
+)
 from sme_sigpae_api.dados_comuns.parser_xml import ListXMLParser
 from sme_sigpae_api.dieta_especial.models import (
     ClassificacaoDieta,
@@ -886,3 +889,42 @@ def paginacao_historico_dietas():
     requisicao = RequestFactory()
 
     return paginacao, requisicao
+
+
+@pytest.fixture
+def substituicoes_alimentacao_periodo(escola):
+    motivo = mommy.make(
+        "MotivoAlteracaoCardapio", nome="Aniversariantes do mês", uuid=fake.uuid4()
+    )
+    periodo_escolar_integral = mommy.make(
+        models.PeriodoEscolar, nome="INTEGRAL", uuid=fake.uuid4()
+    )
+    periodo_escolar_manha = mommy.make(
+        models.PeriodoEscolar, nome="MANHA", uuid=fake.uuid4()
+    )
+    data_inicial = datetime.date(2024, 3, 1)
+    data_final = datetime.date(2024, 3, 31)
+    alteracao_cardapio = mommy.make(
+        "AlteracaoCardapio",
+        escola=escola,
+        motivo=motivo,
+        data_inicial=data_inicial,
+        data_final=data_final,
+        status=PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR,
+        uuid=fake.uuid4(),
+    )
+    mommy.make(
+        "SubstituicaoAlimentacaoNoPeriodoEscolar",
+        alteracao_cardapio=alteracao_cardapio,
+        periodo_escolar=periodo_escolar_integral,
+        uuid=fake.uuid4(),
+    )
+
+    return {
+        "escola": escola,
+        "motivo": motivo,
+        "substituicoes": [
+            {"periodo_escolar": periodo_escolar_integral},
+            {"periodo_escolar": periodo_escolar_manha},
+        ],
+    }
