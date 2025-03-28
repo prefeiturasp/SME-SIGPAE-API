@@ -652,7 +652,7 @@ class Escola(
             periodos = PeriodoEscolar.objects.filter(
                 vinculotipoalimentacaocomperiodoescolaretipounidadeescolar__tipo_unidade_escolar=self.tipo_unidade,
                 vinculotipoalimentacaocomperiodoescolaretipounidadeescolar__ativo=True,
-            ).distinct()
+            )
         else:
             # TODO: ver uma forma melhor de fazer essa query
             periodos_ids = self.logs_alunos_matriculados_por_periodo.filter(
