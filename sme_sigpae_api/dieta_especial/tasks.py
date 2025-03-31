@@ -97,26 +97,22 @@ def gera_pdf_relatorio_dieta_especial_async(user, nome_arquivo, ids_dietas, data
 
 
 def cria_logs_totais_cei_por_faixa_etaria(logs_escola, ontem, escola):
-    periodos = list(set([log.periodo_escolar for log in logs_escola]))
+    logs = [log for log in logs_escola if log.periodo_escolar.nome == "INTEGRAL"]
+    if not logs:
+        return logs_escola
     for classificacao in ClassificacaoDieta.objects.all():
-        for periodo in periodos:
-            quantidade_total = sum(
-                [
-                    log.quantidade
-                    for log in logs_escola
-                    if log.classificacao == classificacao
-                    and log.periodo_escolar == periodo
-                ]
-            )
-            log_total = LogQuantidadeDietasAutorizadasCEI(
-                data=ontem,
-                escola=escola,
-                quantidade=quantidade_total,
-                classificacao=classificacao,
-                periodo_escolar=periodo,
-                faixa_etaria=None,
-            )
-            logs_escola.append(log_total)
+        quantidade_total = sum(
+            [log.quantidade for log in logs if log.classificacao == classificacao]
+        )
+        log_total = LogQuantidadeDietasAutorizadasCEI(
+            data=ontem,
+            escola=escola,
+            quantidade=quantidade_total,
+            classificacao=classificacao,
+            periodo_escolar=logs[0].periodo_escolar,
+            faixa_etaria=None,
+        )
+        logs_escola.append(log_total)
     return logs_escola
 
 
