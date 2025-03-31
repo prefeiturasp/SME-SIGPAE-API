@@ -1,7 +1,15 @@
+import datetime
+
 import pytest
 from freezegun import freeze_time
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+
+from sme_sigpae_api.cardapio.models import (
+    AlteracaoCardapio,
+    AlteracaoCardapioCEI,
+    SubstituicaoAlimentacaoNoPeriodoEscolar,
+)
 
 from ..validators import (
     campo_deve_ser_deste_tipo,
@@ -15,6 +23,8 @@ from ..validators import (
     nao_pode_ser_feriado,
     nao_pode_ser_no_passado,
     objeto_nao_deve_ter_duplicidade,
+    valida_duplicidade_solicitacoes,
+    valida_duplicidade_solicitacoes_cei,
     verificar_se_existe,
 )
 
@@ -145,3 +155,66 @@ def test_anexo_extensoes_invalidas(nomes_anexos_invalidos):
 def test_data_deve_ser_no_passado_raise_error(data_maior_que_hoje):
     with pytest.raises(ValidationError, match="Deve ser data anterior a hoje"):
         deve_ser_no_passado(data_maior_que_hoje)
+
+
+def test_valida_duplicidade_solicitacoes(solicitacao_substituicao_cardapio):
+    solicitacao_substituicao_cardapio["data_inicial"] = datetime.date(2024, 4, 10)
+    solicitacao_substituicao_cardapio["data_final"] = datetime.date(2024, 4, 30)
+    assert valida_duplicidade_solicitacoes(solicitacao_substituicao_cardapio) is True
+
+
+def test_valida_duplicidade_solicitacoes_duplicada(solicitacao_substituicao_cardapio):
+    solicitacao_substituicao_cardapio["data_inicial"] = datetime.date(2024, 3, 10)
+    solicitacao_substituicao_cardapio["data_final"] = datetime.date(2024, 3, 20)
+
+    solicitacoes = AlteracaoCardapio.objects.filter(
+        motivo=solicitacao_substituicao_cardapio["motivo"],
+        escola=solicitacao_substituicao_cardapio["escola"],
+    ).exclude(
+        status__in=[
+            "ESCOLA_CANCELOU",
+            "DRE_NAO_VALIDOU_PEDIDO_ESCOLA",
+            "CODAE_NEGOU_PEDIDO",
+            "RASCUNHO",
+        ]
+    )
+
+    assert solicitacoes.exists()
+    with pytest.raises(
+        ValidationError,
+        match="Já existe uma solicitação de RPL para o mês e período selecionado!",
+    ):
+        valida_duplicidade_solicitacoes(solicitacao_substituicao_cardapio)
+
+
+def test_valida_duplicidade_solicitacoes_cei(solicitacao_substituicao_cardapio_cei):
+    data = datetime.date(2024, 4, 10)
+    assert (
+        valida_duplicidade_solicitacoes_cei(solicitacao_substituicao_cardapio_cei, data)
+        is True
+    )
+
+
+def test_valida_duplicidade_solicitacoes_duplicada_cei(
+    solicitacao_substituicao_cardapio_cei,
+):
+    data = datetime.date(2024, 3, 1)
+
+    solicitacoes = AlteracaoCardapioCEI.objects.filter(
+        motivo__uuid=solicitacao_substituicao_cardapio_cei["motivo"],
+        escola__uuid=solicitacao_substituicao_cardapio_cei["escola"],
+    ).exclude(
+        status__in=[
+            "ESCOLA_CANCELOU",
+            "DRE_NAO_VALIDOU_PEDIDO_ESCOLA",
+            "CODAE_NEGOU_PEDIDO",
+            "RASCUNHO",
+        ]
+    )
+
+    assert solicitacoes.exists()
+    with pytest.raises(
+        ValidationError,
+        match="Já existe uma solicitação de RPL para o mês e período selecionado!",
+    ):
+        valida_duplicidade_solicitacoes_cei(solicitacao_substituicao_cardapio_cei, data)
