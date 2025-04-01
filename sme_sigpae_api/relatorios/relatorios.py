@@ -6,6 +6,8 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import F, FloatField, Sum
 from django.template.loader import get_template, render_to_string
 
+from sme_sigpae_api.paineis_consolidados.models import MoldeConsolidado
+
 from ..cardapio.models import VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar
 from ..dados_comuns.fluxo_status import GuiaRemessaWorkFlow as GuiaStatus
 from ..dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
@@ -614,9 +616,20 @@ def relatorio_dieta_especial_protocolo(request, solicitacao):
         escola = solicitacao.rastro_escola
     else:
         escola = solicitacao.escola_destino
+
     substituicao_ordenada = solicitacao.substituicoes.order_by("alimento__nome")
 
     referencia = "unidade" if escola.eh_parceira else "empresa"
+
+    justificativa_cancelamento = None
+    if (
+        solicitacao.status.state.name
+        in MoldeConsolidado.CANCELADOS_STATUS_DIETA_ESPECIAL
+        + MoldeConsolidado.CANCELADOS_STATUS_DIETA_ESPECIAL_TEMP
+    ):
+        log_cancelamento = solicitacao.logs.last()
+        data = log_cancelamento.criado_em.strftime("%d/%m/%Y")
+        justificativa_cancelamento = f"Dieta cancelada em: {data} | Justificativa: {log_cancelamento.status_evento_explicacao}"
 
     html_string = render_to_string(
         "solicitacao_dieta_especial_protocolo.html",
@@ -637,6 +650,7 @@ def relatorio_dieta_especial_protocolo(request, solicitacao):
                 if solicitacao.motivo_alteracao_ue
                 else None
             ),
+            "justificativa_cancelamento": justificativa_cancelamento,
         },
     )
     if request:
