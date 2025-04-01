@@ -1419,3 +1419,30 @@ class UsuarioAdministradorContratos(BasePermission):
             and isinstance(usuario.vinculo_atual.instituicao, Codae)
             and usuario.vinculo_atual.perfil.nome in [ADMINISTRADOR_CONTRATOS]
         )
+
+
+class PermissaoHistoricoDietasEspeciais(BasePermission):
+    """Permite acesso ao objeto se a dieta especial pertence ao usuário."""
+
+    def has_permission(self, request, view):
+        usuario = request.user
+
+        if isinstance(usuario.vinculo_atual.instituicao, DiretoriaRegional):
+            return True
+        elif isinstance(usuario.vinculo_atual.instituicao, Terceirizada):
+            return True
+        elif isinstance(usuario.vinculo_atual.instituicao, Codae):
+            return usuario.vinculo_atual.perfil.nome in [
+                ADMINISTRADOR_MEDICAO,
+                COORDENADOR_DIETA_ESPECIAL,
+                ADMINISTRADOR_DIETA_ESPECIAL,
+                COORDENADOR_SUPERVISAO_NUTRICAO,
+                ADMINISTRADOR_SUPERVISAO_NUTRICAO,
+                COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
+                USUARIO_RELATORIOS,
+                COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+                ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+                ADMINISTRADOR_CODAE_GABINETE,
+                DINUTRE_DIRETORIA,
+                ADMINISTRADOR_REPRESENTANTE_CODAE,
+            ]

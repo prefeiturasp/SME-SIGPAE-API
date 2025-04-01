@@ -6,11 +6,16 @@ import pytest
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.template.loader import render_to_string
+from django.test import RequestFactory
 from faker import Faker
 from model_mommy import mommy
 
 from sme_sigpae_api.dados_comuns import constants
-from sme_sigpae_api.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
+from sme_sigpae_api.dados_comuns.api.paginations import HistoricoDietasPagination
+from sme_sigpae_api.dados_comuns.fluxo_status import (
+    PedidoAPartirDaEscolaWorkflow,
+    ReclamacaoProdutoWorkflow,
+)
 from sme_sigpae_api.dados_comuns.parser_xml import ListXMLParser
 from sme_sigpae_api.dieta_especial.models import (
     ClassificacaoDieta,
@@ -359,7 +364,7 @@ def client_autenticado_da_escola(client, django_user_model, escola):
 
 
 @pytest.fixture
-def client_autenticado_da_dre(client, django_user_model, diretoria_regional):
+def usuario_da_dre(django_user_model, diretoria_regional):
     email = "user@dre.com"
     password = DJANGO_ADMIN_PASSWORD
     perfil_cogestor_dre = mommy.make("Perfil", nome="COGESTOR_DRE", ativo=True)
@@ -375,7 +380,14 @@ def client_autenticado_da_dre(client, django_user_model, diretoria_regional):
         data_inicial=hoje,
         ativo=True,
     )
-    client.login(username=email, password=password)
+
+    return usuario, password
+
+
+@pytest.fixture
+def client_autenticado_da_dre(client, usuario_da_dre):
+    usuario, password = usuario_da_dre
+    client.login(username=usuario.email, password=password)
     return client
 
 
@@ -820,7 +832,7 @@ def user_admin_contratos(django_user_model):
     email = "test2@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
-        username=email, password=password, email=email, registro_funcional="8888888"
+        username=email, password=password, email=email, registro_funcional="9888888"
     )
     codae = mommy.make("Codae", nome="Codae - Administrador Contratos")
     perfil_admin_contratos = mommy.make(
@@ -845,7 +857,7 @@ def user_admin_contratos(django_user_model):
 
 @pytest.fixture
 def user_dilog_abastecimento(django_user_model):
-    email = "test2@test.com"
+    email = "test3@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -855,7 +867,7 @@ def user_dilog_abastecimento(django_user_model):
         "Perfil",
         nome=constants.DILOG_ABASTECIMENTO,
         ativo=True,
-        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf2",
+        uuid="c204e9e2-5435-4b57-b0c5-c8fd0ea67b7b",
     )
     hoje = datetime.date.today()
     mommy.make(
@@ -869,3 +881,87 @@ def user_dilog_abastecimento(django_user_model):
         object_id=codae.pk,
     )
     return user
+
+
+@pytest.fixture
+def paginacao_historico_dietas():
+    paginacao = HistoricoDietasPagination()
+    requisicao = RequestFactory()
+
+    return paginacao, requisicao
+
+
+@pytest.fixture
+def solicitacao_substituicao_cardapio(escola):
+    motivo = mommy.make(
+        "MotivoAlteracaoCardapio", nome="Aniversariantes do mês", uuid=fake.uuid4()
+    )
+    periodo_escolar_integral = mommy.make(
+        models.PeriodoEscolar, nome="INTEGRAL", uuid=fake.uuid4()
+    )
+    periodo_escolar_manha = mommy.make(
+        models.PeriodoEscolar, nome="MANHA", uuid=fake.uuid4()
+    )
+    data_inicial = datetime.date(2024, 3, 1)
+    data_final = datetime.date(2024, 3, 31)
+    alteracao_cardapio = mommy.make(
+        "AlteracaoCardapio",
+        escola=escola,
+        motivo=motivo,
+        data_inicial=data_inicial,
+        data_final=data_final,
+        status=PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR,
+        uuid=fake.uuid4(),
+    )
+    mommy.make(
+        "SubstituicaoAlimentacaoNoPeriodoEscolar",
+        alteracao_cardapio=alteracao_cardapio,
+        periodo_escolar=periodo_escolar_integral,
+        uuid=fake.uuid4(),
+    )
+
+    return {
+        "escola": escola,
+        "motivo": motivo,
+        "substituicoes": [
+            {"periodo_escolar": periodo_escolar_integral},
+            {"periodo_escolar": periodo_escolar_manha},
+        ],
+    }
+
+
+@pytest.fixture
+def solicitacao_substituicao_cardapio_cei(escola):
+    motivo = mommy.make(
+        "MotivoAlteracaoCardapio", nome="Aniversariantes do mês", uuid=fake.uuid4()
+    )
+    periodo_escolar_integral = mommy.make(
+        models.PeriodoEscolar, nome="INTEGRAL", uuid=fake.uuid4()
+    )
+    periodo_escolar_manha = mommy.make(
+        models.PeriodoEscolar, nome="MANHA", uuid=fake.uuid4()
+    )
+    data = datetime.date(2024, 3, 1)
+    alteracao_cardapio = mommy.make(
+        "AlteracaoCardapioCEI",
+        escola=escola,
+        motivo=motivo,
+        data=data,
+        status=PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR,
+        uuid=fake.uuid4(),
+    )
+    mommy.make(
+        "SubstituicaoAlimentacaoNoPeriodoEscolarCEI",
+        alteracao_cardapio=alteracao_cardapio,
+        periodo_escolar=periodo_escolar_integral,
+        uuid=fake.uuid4(),
+    )
+
+    return {
+        "escola": escola.uuid,
+        "motivo": motivo.uuid,
+        "substituicoes": [
+            {"periodo_escolar": periodo_escolar_integral.uuid},
+            {"periodo_escolar": periodo_escolar_manha.uuid},
+        ],
+    }

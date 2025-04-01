@@ -215,6 +215,7 @@ def test_cadastro_diretor(client, users_diretor_escola, monkeypatch):
             "eh_cemei": False,
             "eh_emebs": False,
             "acesso_modulo_medicao_inicial": False,
+            "possui_alunos_regulares": True,
             "modulo_gestao": "TERCEIRIZADA",
             "diretoria_regional": {
                 "uuid": "7da9acec-48e1-430c-8a5c-1f1efc666fad",
@@ -322,6 +323,7 @@ def test_confirmar_email(client, usuarios_pendentes_confirmacao):
                 "eh_cei": False,
                 "eh_cemei": False,
                 "eh_emebs": False,
+                "possui_alunos_regulares": False,
                 "acesso_modulo_medicao_inicial": False,
                 "modulo_gestao": "TERCEIRIZADA",
                 "tipo_unidade_escolar": "56725de5-89d3-4edf-8633-3e0b5c99e9d4",

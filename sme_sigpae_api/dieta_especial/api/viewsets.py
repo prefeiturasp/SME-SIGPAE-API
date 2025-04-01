@@ -16,10 +16,13 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from xworkflows import InvalidTransitionError
 
+from sme_sigpae_api.dados_comuns.api.paginations import HistoricoDietasPagination
+
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...dados_comuns.models import LogSolicitacoesUsuario
 from ...dados_comuns.permissions import (
+    PermissaoHistoricoDietasEspeciais,
     PermissaoParaRecuperarDietaEspecial,
     PermissaoRelatorioDietasEspeciais,
     UsuarioCODAEDietaEspecial,
@@ -76,6 +79,8 @@ from ..utils import (
     ProtocoloPadraoPagination,
     RelatorioPagination,
     filtrar_alunos_com_dietas_nos_status_e_rastro_escola,
+    gera_dicionario_historico_dietas,
+    gerar_filtros_relatorio_historico,
     trata_lotes_dict_duplicados,
 )
 from .filters import (
@@ -103,6 +108,7 @@ from .serializers import (
     SolicitacaoDietaEspecialUpdateSerializer,
     SolicitacoesAtivasInativasPorAlunoSerializer,
     TipoContagemSerializer,
+    UnidadeEducacionalSerializer,
 )
 from .serializers_create import (
     AlteracaoUESerializer,
@@ -192,6 +198,8 @@ class SolicitacaoDietaEspecialViewSet(
             return PanoramaSerializer
         elif self.action == "alteracao_ue":
             return AlteracaoUESerializer
+        elif self.action == "relatorio-historico-dieta-especial":
+            return UnidadeEducacionalSerializer
         return SolicitacaoDietaEspecialSerializer
 
     def atualiza_solicitacao(self, solicitacao, request):
@@ -1322,6 +1330,22 @@ class SolicitacaoDietaEspecialViewSet(
         return Response(
             dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
             status=status.HTTP_200_OK,
+        )
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="relatorio-historico-dieta-especial",
+        permission_classes=(PermissaoHistoricoDietasEspeciais,),
+    )
+    def relatorio_historico_dieta_especial(self, request):
+        filtros, data_dieta = gerar_filtros_relatorio_historico(request.query_params)
+        dietas = gera_dicionario_historico_dietas(filtros)
+        paginator = HistoricoDietasPagination()
+        page = paginator.paginate_queryset(dietas["resultados"], request)
+        serializer = UnidadeEducacionalSerializer(page, many=True)
+        return paginator.get_paginated_response(
+            serializer.data, dietas["total_dietas"], data_dieta
         )
 
 

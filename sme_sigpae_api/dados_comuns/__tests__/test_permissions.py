@@ -3,6 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from sme_sigpae_api.dados_comuns.permissions import (
+    PermissaoHistoricoDietasEspeciais,
     PermissaoParaAnalisarDilogAbastecimentoSolicitacaoAlteracaoCronograma,
     PermissaoParaCriarUsuarioComCoresso,
     PermissaoParaDashboardCronograma,
@@ -110,3 +111,24 @@ def test_usuario_dilog_abastecimento_permissao_para_analisar_solicitacao_alterac
     request.user = user_dilog_abastecimento
     permissao = PermissaoParaAnalisarDilogAbastecimentoSolicitacaoAlteracaoCronograma()
     assert permissao.has_permission(request, None)
+
+
+def test_usuario_permissao_historico_dietas_especiais(usuario_da_dre):
+    usuario, _ = usuario_da_dre
+    request = MagicMock()
+    request.user = usuario
+    permissao = PermissaoHistoricoDietasEspeciais()
+    assert permissao.has_permission(request, None)
+
+
+def test_usuario_permissao_historico_dietas_especiais(
+    user_dilog_abastecimento, user_admin_contratos
+):
+    request = MagicMock()
+    request.user = user_dilog_abastecimento
+    permissao = PermissaoHistoricoDietasEspeciais()
+    assert not permissao.has_permission(request, None)
+
+    request.user = user_admin_contratos
+    permissao = PermissaoHistoricoDietasEspeciais()
+    assert not permissao.has_permission(request, None)
