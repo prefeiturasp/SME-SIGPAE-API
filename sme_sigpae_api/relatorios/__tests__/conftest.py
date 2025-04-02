@@ -131,17 +131,13 @@ def grupo_suspensao_alimentacao_cancelamento_total(escola):
 
 
 @pytest.fixture
-def solicitacao_dieta_especial_a_autorizar(
-    client, escola, template_mensagem_dieta_especial
-):
+def usuario_escola(escola):
     email = "escola@admin.com"
     password = DJANGO_ADMIN_PASSWORD
     rf = "1545933"
     user = Usuario.objects.create_user(
         username=email, password=password, email=email, registro_funcional=rf
     )
-    client.login(username=email, password=password)
-
     perfil_professor = mommy.make("perfil.Perfil", nome="ADMINISTRADOR_UE", ativo=False)
     mommy.make(
         "perfil.Vinculo",
@@ -151,6 +147,15 @@ def solicitacao_dieta_especial_a_autorizar(
         data_inicial=datetime.date.today(),
         ativo=True,
     )  # ativo
+    return user, password
+
+
+@pytest.fixture
+def solicitacao_dieta_especial_a_autorizar(
+    client, escola, template_mensagem_dieta_especial, usuario_escola
+):
+    user, password = usuario_escola
+    client.login(username=user.email, password=password)
 
     aluno = mommy.make(
         Aluno,
@@ -197,3 +202,16 @@ def solicitacao_dieta_especial_autorizada(
     solicitacao_dieta_especial_a_autorizar.codae_autoriza(user=user)
 
     return solicitacao_dieta_especial_a_autorizar
+
+
+@pytest.fixture
+def solicitacao_dieta_especial_cancelada(
+    client, solicitacao_dieta_especial_autorizada, usuario_escola
+):
+    user, password = usuario_escola
+    client.login(username=user.email, password=password)
+    solicitacao_dieta_especial_autorizada.cancelar_pedido(
+        user=user, justificativa="Não há necessidade"
+    )
+
+    return solicitacao_dieta_especial_autorizada
