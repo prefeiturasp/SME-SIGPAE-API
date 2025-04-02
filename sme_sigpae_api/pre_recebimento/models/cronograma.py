@@ -145,7 +145,6 @@ class EtapasDoCronograma(ModeloBase):
         return "Etapa sem Cronograma"
 
     class Meta:
-        ordering = ("etapa", "data_programada")
         verbose_name = "Etapa do Cronograma"
         verbose_name_plural = "Etapas dos Cronogramas"
 
