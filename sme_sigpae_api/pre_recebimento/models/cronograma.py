@@ -149,7 +149,7 @@ class EtapasDoCronograma(ModeloBase):
         ordering = (
             Case(
                 When(etapa__isnull=False, etapa__gt="", then=Cast(Substr(F('etapa'), Value(7)), IntegerField())),
-                default=Value(0),  # Caso o campo 'etapa' seja vazio ou nulo, usa 0
+                default=Value(0),
                 output_field=IntegerField()
             ),
             'parte',
