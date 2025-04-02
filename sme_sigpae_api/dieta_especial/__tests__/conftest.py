@@ -1280,6 +1280,16 @@ def solicitacoes_processa_dieta_especial(escola_cei):
 
 
 @pytest.fixture
+def make_periodo_escolar():
+    def handle(nome: str):
+        if PeriodoEscolar.objects.filter(nome=nome).exists():
+            return PeriodoEscolar.objects.get(nome=nome)
+        return mommy.make("PeriodoEscolar", nome=nome)
+
+    return handle
+
+
+@pytest.fixture
 def filtro_historico_relatorio_dietas(
     escola, escola_emebs, periodo_escolar_integral, classificacoes_dietas
 ):

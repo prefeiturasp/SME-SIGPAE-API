@@ -158,8 +158,8 @@ def test_gera_logs_dietas_escolas_emebs(
     logs = gera_logs_dietas_escolas_comuns(
         escola_emebs, solicitacoes_dieta_especial_ativas_emebs, ontem
     )
-    assert len(logs) == 12
-    assert len([log for log in logs if log.periodo_escolar == None]) == 6
+    assert len(logs) == 15
+    assert len([log for log in logs if log.periodo_escolar == None]) == 9
     assert (
         len(
             [

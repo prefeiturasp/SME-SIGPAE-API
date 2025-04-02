@@ -583,9 +583,9 @@ def test_periodos_escolares_escola_emebs(escola_emebs):
 
 def test_periodos_escolares_escola_cmct(escola_cmct):
     assert escola_cmct.possui_alunos_regulares is False
-    periodos = escola_cmct.periodos_escolares()
+    periodos = escola_cmct.periodos_escolares().order_by("nome")
     assert periodos.count() == 2
-    esperado = [("NOITE", PeriodoEscolar), ("MANHA", PeriodoEscolar)]
+    esperado = [("MANHA", PeriodoEscolar), ("NOITE", PeriodoEscolar)]
     for periodo, (nome_esperado, tipo_esperado) in zip(periodos, esperado):
         assert isinstance(periodo, tipo_esperado)
         assert periodo.nome == nome_esperado
