@@ -96,6 +96,26 @@ def gera_pdf_relatorio_dieta_especial_async(user, nome_arquivo, ids_dietas, data
     logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
 
 
+def cria_logs_totais_cei_por_faixa_etaria(logs_escola, ontem, escola):
+    logs = [log for log in logs_escola if log.periodo_escolar.nome == "INTEGRAL"]
+    if not logs:
+        return logs_escola
+    for classificacao in ClassificacaoDieta.objects.all():
+        quantidade_total = sum(
+            [log.quantidade for log in logs if log.classificacao == classificacao]
+        )
+        log_total = LogQuantidadeDietasAutorizadasCEI(
+            data=ontem,
+            escola=escola,
+            quantidade=quantidade_total,
+            classificacao=classificacao,
+            periodo_escolar=logs[0].periodo_escolar,
+            faixa_etaria=None,
+        )
+        logs_escola.append(log_total)
+    return logs_escola
+
+
 @shared_task(
     retry_backoff=2,
     retry_kwargs={"max_retries": 8},
@@ -122,16 +142,25 @@ def gera_logs_dietas_especiais_diariamente():
         msg += f" {escola.nome} ({index + 1}/{(escolas).count()}) x-x-x-x"
         logger.info(msg)
         if escola.eh_cei:
-            logs_a_criar_escolas_cei += gera_logs_dietas_escolas_cei(
+            logs_escola = gera_logs_dietas_escolas_cei(
                 escola, dietas_autorizadas, ontem
             )
+            logs_escola = cria_logs_totais_cei_por_faixa_etaria(
+                logs_escola, ontem, escola
+            )
+            logs_a_criar_escolas_cei += logs_escola
         elif escola.eh_cemei:
             logs_a_criar_escolas_comuns += gera_logs_dietas_escolas_comuns(
                 escola, dietas_autorizadas, ontem
             )
-            logs_a_criar_escolas_cei += gera_logs_dietas_escolas_cei(
+
+            logs_escola = gera_logs_dietas_escolas_cei(
                 escola, dietas_autorizadas, ontem
             )
+            logs_escola = cria_logs_totais_cei_por_faixa_etaria(
+                logs_escola, ontem, escola
+            )
+            logs_a_criar_escolas_cei += logs_escola
         else:
             logs_a_criar_escolas_comuns += gera_logs_dietas_escolas_comuns(
                 escola, dietas_autorizadas, ontem

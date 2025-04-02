@@ -444,6 +444,7 @@ class PeriodoEscolar(
             ],
             "VESPERTINO": PeriodoEscolar.objects.get_or_create(nome="VESPERTINO")[0],
             "PARCIAL": PeriodoEscolar.objects.get_or_create(nome="PARCIAL")[0],
+            None: None,
         }
 
     class Meta:
