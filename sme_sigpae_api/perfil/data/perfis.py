@@ -60,11 +60,6 @@ data_perfis = [
         "super_usuario": True,
     },
     {
-        "nome": "COORDENADOR_LOGISTICA",
-        "ativo": True,
-        "super_usuario": True,
-    },
-    {
         "nome": "COORDENADOR_CODAE_DILOG_LOGISTICA",
         "ativo": True,
         "super_usuario": True,
