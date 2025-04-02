@@ -20,6 +20,9 @@ def test_relatorio_dieta_especial_protocolo(solicitacao_dieta_especial_autorizad
     assert (
         solicitacao_dieta_especial_autorizada.orientacoes_gerais in html_string
     ) is True
+    assert "PROTOCOLO PADRÃO DE DIETA ESPECIAL" in html_string
+    assert "Dieta cancelada em" not in html_string
+    assert "Justificativa" not in html_string
 
 
 @pytest.mark.django_db
@@ -117,3 +120,20 @@ def test_relatorio_suspensao_de_alimentacao_totalmente_cancelado(
         assert sustentacao_alimentacao.motivo.nome in texto
         assert sustentacao_alimentacao.cancelado_justificativa in texto
         assert texto.count(sustentacao_alimentacao.cancelado_justificativa) == 2
+
+
+@pytest.mark.django_db
+def test_relatorio_dieta_especial_protocolo_cancelada(
+    solicitacao_dieta_especial_cancelada,
+):
+    html_string = relatorio_dieta_especial_protocolo(
+        None, solicitacao_dieta_especial_cancelada
+    )
+    assert ("Orientações Gerais" in html_string) is True
+    assert (
+        solicitacao_dieta_especial_cancelada.orientacoes_gerais in html_string
+    ) is True
+
+    assert "PROTOCOLO PADRÃO DE DIETA ESPECIAL" in html_string
+    assert "Dieta cancelada em" in html_string
+    assert "Justificativa" in html_string
