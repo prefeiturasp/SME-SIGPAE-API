@@ -3,9 +3,8 @@ import os
 
 from django.core.validators import FileExtensionValidator, MinLengthValidator
 from django.db import models
-from django.db.models import OuterRef, F
+from django.db.models import OuterRef
 from django.db.models.signals import post_save, pre_save
-from django.db.models.functions import Cast
 from django.dispatch import receiver
 from django.template.loader import render_to_string
 from rest_framework.exceptions import ValidationError
@@ -151,15 +150,11 @@ class EtapasDoCronograma(ModeloBase):
 
     @classmethod
     def etapas_to_json(cls):
-        etapas = cls.objects.annotate(
-            etapa_numero=Cast(F('etapa').split(" ")[1], models.IntegerField())
-        ).order_by('etapa_numero', 'parte', 'data_programada')
-        
         result = []
-        for etapa in etapas:
-            choice = {"uuid": etapa.etapa, "value": etapa.etapa}
+        for numero in range(1, 101):
+            choice = {"uuid": f"Etapa {numero}", "value": f"Etapa {numero}"}
             result.append(choice)
-        
+
         return result
 
 
