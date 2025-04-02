@@ -3,8 +3,9 @@ import os
 
 from django.core.validators import FileExtensionValidator, MinLengthValidator
 from django.db import models
-from django.db.models import OuterRef
+from django.db.models import OuterRef, F, Value, IntegerField, Case, When
 from django.db.models.signals import post_save, pre_save
+from django.db.models.functions import Cast, Substr
 from django.dispatch import receiver
 from django.template.loader import render_to_string
 from rest_framework.exceptions import ValidationError
@@ -145,6 +146,15 @@ class EtapasDoCronograma(ModeloBase):
         return "Etapa sem Cronograma"
 
     class Meta:
+        ordering = (
+            Case(
+                When(etapa__isnull=False, etapa__gt="", then=Cast(Substr(F('etapa'), Value(7)), IntegerField())),
+                default=Value(0),
+                output_field=IntegerField()
+            ),
+            'parte',
+            'data_programada'
+        )
         verbose_name = "Etapa do Cronograma"
         verbose_name_plural = "Etapas dos Cronogramas"
 
