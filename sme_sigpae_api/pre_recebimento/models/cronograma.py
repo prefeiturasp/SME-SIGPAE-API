@@ -9,6 +9,9 @@ from django.dispatch import receiver
 from django.template.loader import render_to_string
 from rest_framework.exceptions import ValidationError
 
+from django.db.models import F
+from django.db.models.functions import Cast
+
 from sme_sigpae_api.dados_comuns.utils import convert_image_to_base64
 from sme_sigpae_api.relatorios.utils import merge_pdf_com_string_template
 
@@ -145,16 +148,20 @@ class EtapasDoCronograma(ModeloBase):
         return "Etapa sem Cronograma"
 
     class Meta:
-        ordering = ("etapa", "data_programada")
         verbose_name = "Etapa do Cronograma"
         verbose_name_plural = "Etapas dos Cronogramas"
 
     @classmethod
     def etapas_to_json(cls):
+        etapas = cls.objects.annotate(
+            etapa_numero=Cast(F('etapa').split(" ")[1], models.IntegerField())
+        ).order_by('etapa_numero', 'parte', 'data_programada')
+        
         result = []
-        for numero in range(1, 101):
-            choice = {"uuid": f"Etapa {numero}", "value": f"Etapa {numero}"}
+        for etapa in etapas:
+            choice = {"uuid": etapa.etapa, "value": etapa.etapa}
             result.append(choice)
+        
         return result
 
 
