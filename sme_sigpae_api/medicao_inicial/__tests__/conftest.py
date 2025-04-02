@@ -2670,6 +2670,8 @@ def make_dia_letivo():
 @pytest.fixture
 def make_periodo_escolar():
     def handle(nome: str):
+        if PeriodoEscolar.objects.filter(nome=nome).exists():
+            return PeriodoEscolar.objects.get(nome=nome)
         return mommy.make("PeriodoEscolar", nome=nome)
 
     return handle

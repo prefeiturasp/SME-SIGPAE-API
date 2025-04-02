@@ -11,6 +11,7 @@ from rest_framework.pagination import PageNumberPagination
 
 from sme_sigpae_api.eol_servico.utils import EOLServicoSGP
 
+from ..dados_comuns.utils import get_ultimo_dia_mes
 from ..escola import models
 
 logger = logging.getLogger("sigpae.taskEscola")
@@ -469,7 +470,10 @@ def trata_filtro_data_relatorio_controle_frequencia_pdf(
         else [None, None, None]
     )
     if int(mes) > hoje.month:
-        filtros["data"] = f"{hoje.year}-{hoje.month}-{ontem.day}"
+        ultimo_dia_mes = get_ultimo_dia_mes(hoje)
+        filtros[
+            "data"
+        ] = f"{hoje.year}-{hoje.month}-{min(ontem.day, ultimo_dia_mes.day)}"
         mes_seguinte = True
     elif (
         int(mes) == hoje.month
