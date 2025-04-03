@@ -23,6 +23,12 @@ from sme_sigpae_api.dieta_especial.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
 from sme_sigpae_api.perfil.models import ContentType
+from utility.carga_dados.escola.importa_dados import (
+    cria_diretorias_regionais,
+    cria_lotes,
+    cria_tipos_gestao,
+)
+from utility.carga_dados.terceirizada.importa_dados import cria_terceirizadas
 
 from ...escola import models
 from ..constants import COORDENADOR_LOGISTICA, DJANGO_ADMIN_PASSWORD
@@ -965,3 +971,11 @@ def solicitacao_substituicao_cardapio_cei(escola):
             {"periodo_escolar": periodo_escolar_manha.uuid},
         ],
     }
+
+
+@pytest.fixture
+def lotes():
+    cria_diretorias_regionais()
+    cria_tipos_gestao()
+    cria_terceirizadas()
+    cria_lotes()

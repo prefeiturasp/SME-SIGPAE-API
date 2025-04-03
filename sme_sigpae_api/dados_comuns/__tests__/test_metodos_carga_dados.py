@@ -104,14 +104,6 @@ from utility.carga_dados.usuarios import cria_usuarios
 pytestmark = pytest.mark.django_db(transaction=True)
 
 
-@pytest.fixture
-def lotes():
-    cria_diretorias_regionais()
-    cria_tipos_gestao()
-    cria_terceirizadas()
-    cria_lotes()
-
-
 def test_criar_perfis():
     assert Perfil.objects.count() == 0
     cria_perfis()
