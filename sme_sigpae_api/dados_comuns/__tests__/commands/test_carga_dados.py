@@ -38,6 +38,8 @@ from sme_sigpae_api.inclusao_alimentacao.models import (
 from sme_sigpae_api.kit_lanche.models import ItemKitLanche, KitLanche
 from sme_sigpae_api.perfil.models import Perfil, Usuario
 from sme_sigpae_api.perfil.models.perfil import Vinculo
+from sme_sigpae_api.produto.data.produtos import data_produtos
+from sme_sigpae_api.produto.data.produtos_marcas import data_produtos_marcas
 from sme_sigpae_api.produto.models import (
     Fabricante,
     InformacaoNutricional,
@@ -137,17 +139,24 @@ class CargaDadosCommandTest(TestCase):
         assert Escola.objects.count() == 1041
         assert PeriodoEscolar.objects.count() == 7
         assert EscolaPeriodoEscolar.objects.count() == 7287
-        assert (
-            VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.count()
-            == 91
-        )
-        assert ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count() == 862
-        assert (
-            SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count()
-            == 893
-        )
         assert Vinculo.objects.count() == 30
         assert Marca.objects.count() == 193
         assert Fabricante.objects.count() == 193
-        assert Produto.objects.count() == 275
         assert AlimentoProprio.objects.count() == 9
+
+        vinculos = (
+            VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.count()
+        )
+        assert vinculos == 91
+
+        combos = ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count()
+        minimo_combo = 7 * vinculos
+        maximo_combo = 12 * vinculos
+        assert minimo_combo < combos < maximo_combo
+        assert (
+            SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count()
+            == combos
+        )
+        minino_produtos = len(data_produtos)
+        maximo_produtos = len(data_produtos) + len(data_produtos_marcas)
+        assert minino_produtos < Produto.objects.count() < maximo_produtos

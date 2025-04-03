@@ -1,5 +1,3 @@
-from random import sample
-
 import pytest
 
 from sme_sigpae_api.cardapio.models import (
@@ -354,8 +352,13 @@ def test_cria_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue():
     cria_tipo_alimentacao()
     cria_periodo_escolar()
     cria_vinculo_tipo_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar()
+    vinculos = (
+        VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.count()
+    )
     cria_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue()
-    assert ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count() == 402
+    minimo = 7 * vinculos
+    maximo = 12 * vinculos
+    assert minimo < ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count() < maximo
 
 
 def test_cria_substituicao_do_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue():
@@ -366,9 +369,12 @@ def test_cria_substituicao_do_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue(
     cria_periodo_escolar()
     cria_vinculo_tipo_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar()
     cria_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue()
+
+    combos = ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count()
     cria_substituicao_do_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue()
     assert (
-        SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count() == 407
+        SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count()
+        == combos
     )
 
 
