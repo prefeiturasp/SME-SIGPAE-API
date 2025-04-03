@@ -174,17 +174,17 @@ def cria_vinculos():
             "usuario": usuario["usuario_escola"],
         },
         {
-            "nome": "CEI DIRET ENEDINA DE SOUSA CARVALHO",
+            "nome": "CEI ENEDINA DE SOUSA CARVALHO",
             "perfil": perfil["perfil_diretor_escola"],
             "usuario": usuario["usuario_escola_cei"],
         },
         {
-            "nome": "CEU CEI MENINOS",
+            "nome": "CEI CEU MENINOS",
             "perfil": perfil["perfil_diretor_escola"],
             "usuario": usuario["usuario_escola_cei_ceu"],
         },
         {
-            "nome": "CCI/CIPS CAMARA MUNICIPAL DE SAO PAULO",
+            "nome": "CCI CAMARA MUNICIPAL DE SAO PAULO",
             "perfil": perfil["perfil_diretor_escola"],
             "usuario": usuario["usuario_escola_cci"],
         },
@@ -219,7 +219,7 @@ def cria_vinculos():
             "usuario": usuario["usuario_escola_ceu_emei"],
         },
         {
-            "nome": "CEU EMEF MARA CRISTINA TARTAGLIA SENA, PROFA.",
+            "nome": "CEU EMEF MARA CRISTINA TATAGLIA SENA, PROFA.",
             "perfil": perfil["perfil_diretor_escola"],
             "usuario": usuario["usuario_escola_ceu_emef"],
         },
@@ -229,7 +229,7 @@ def cria_vinculos():
             "usuario": usuario["usuario_ue"],
         },
         {
-            "nome": "CEI DIRET PINHEIROS",
+            "nome": "CEI MUN. PINHEIROS - (MIST)",
             "perfil": perfil["perfil_administrador_ue"],
             "usuario": usuario["usuario_ue_mista"],
         },
@@ -239,7 +239,7 @@ def cria_vinculos():
             "usuario": usuario["usuario_ue_direta"],
         },
         {
-            "nome": "CR.P.CONV FRATERNIDADE MARIA DE NAZARE",
+            "nome": "CEI FRATERNIDADE MARIA DE NAZARÉ",
             "perfil": perfil["perfil_administrador_ue"],
             "usuario": usuario["usuario_ue_parceira"],
         },
@@ -247,26 +247,6 @@ def cria_vinculos():
             "nome": "CEI DIRET ROBERTO ARANTES LANHOSO",
             "perfil": perfil["perfil_diretor_escola"],
             "usuario": usuario["usuario_diretor_ue_abastecimento"],
-        },
-        {
-            "nome": "FORNECEDOR ADMIN",
-            "perfil": perfil["perfil_admin_fornecedor"],
-            "usuario": usuario["usuario_admin_fornecedor"],
-        },
-        {
-            "nome": "REPRESENTANTE CODAE ADM",
-            "perfil": perfil["perfil_usuario_representante_codae"],
-            "usuario": usuario["usuario_representante_codae"],
-        },
-        {
-            "nome": "ADMINISTRADOR CONTRATOS",
-            "perfil": perfil["perfil_administrador_contratos"],
-            "usuario": usuario["usuario_administrador_contratos"],
-        },
-        {
-            "nome": "DILOG ABASTECIMENTO",
-            "perfil": perfil["perfil_dilog_abastecimento"],
-            "usuario": usuario["usuario_dilog_abastecimento"],
         },
     ]
 

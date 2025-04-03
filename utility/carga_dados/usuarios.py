@@ -277,7 +277,7 @@ USUARIOS = [
     {
         "email": "qualidade@admin.com",
         "password": DJANGO_ADMIN_PASSWORD,
-        "cpf": "11111111128",
+        "cpf": "11111111129",
         "registro_funcional": "1240000",
         "nome": "SUPER USUARIO QUALIDADE",
         "cargo": "Coordenador",
@@ -310,7 +310,7 @@ USUARIOS = [
         "email": "usariorelatorios@admin.com",
         "password": DJANGO_ADMIN_PASSWORD,
         "cpf": "61583337865",
-        "registro_funcional": "1242099",
+        "registro_funcional": "1242098",
         "nome": "USUARIO RELATORIOS",
         "cargo": "Coordenador",
     },
@@ -356,6 +356,7 @@ def cria_usuarios():  # noqa C901
                 nome=usuario["nome"],
                 crn_numero=usuario.get("crn_numero"),
                 cargo=usuario.get("cargo"),
+                username=usuario.get("cpf"),
             )
 
     try:

@@ -20,7 +20,7 @@ from sme_sigpae_api.produto.data.tipo_informacao_nutricional import (  # noqa
 )
 from sme_sigpae_api.produto.models import (
     Fabricante,
-    HomologacaoDoProduto,
+    HomologacaoProduto,
     InformacaoNutricional,
     Marca,
     Produto,
@@ -118,7 +118,7 @@ def cria_homologacao_do_produto_passo_01(produto, codae_homologa=False):
         status = "CODAE_HOMOLOGADO"
     else:
         status = "CODAE_PENDENTE_HOMOLOGACAO"
-    homologacao_do_produto = HomologacaoDoProduto.objects.create(
+    homologacao_do_produto = HomologacaoProduto.objects.create(
         criado_por=criado_por,
         produto=produto,
         status=status,
@@ -231,7 +231,7 @@ def cria_homologacao_do_produto():
     criado_por = Usuario.objects.get(email="terceirizada@admin.com")
     for status in HomologacaoProdutoWorkflow.states:
         produto = Produto.objects.first()
-        HomologacaoDoProduto.objects.create(
+        HomologacaoProduto.objects.create(
             criado_por=criado_por,
             produto=produto,
             status=status,
