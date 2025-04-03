@@ -193,15 +193,15 @@ def test_cria_subprefeituras(lotes):
 
 
 def test_cria_motivo_inclusao_continua():
-    assert MotivoInclusaoContinua.objects.count() == 0
+    quantidade_atual_motivos = MotivoInclusaoContinua.objects.count()
     cria_motivo_inclusao_continua()
-    assert MotivoInclusaoContinua.objects.count() == 4
+    assert MotivoInclusaoContinua.objects.count() == quantidade_atual_motivos + 4
 
 
 def test_cria_motivo_inclusao_normal():
-    assert MotivoInclusaoNormal.objects.count() == 0
+    quantidade_atual_motivos = MotivoInclusaoNormal.objects.count()
     cria_motivo_inclusao_normal()
-    assert MotivoInclusaoNormal.objects.count() == 3
+    assert MotivoInclusaoNormal.objects.count() == quantidade_atual_motivos + 3
 
 
 def test_cria_kit_lanche_item():
