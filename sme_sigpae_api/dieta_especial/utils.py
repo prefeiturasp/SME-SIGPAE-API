@@ -725,11 +725,15 @@ def get_quantidade_dietas_emebs(each, dietas):
             aluno__etapa=ETAPA_INFANTIL
         ).count()
         quantidade += get_quantidade_nao_matriculados_entre_4_e_6_anos(dietas)
-    else:
+    elif each == "FUNDAMENTAL":
         quantidade = dietas_sem_alunos_nao_matriculados.exclude(
             aluno__etapa=ETAPA_INFANTIL
         ).count()
         quantidade += get_quantidade_nao_matriculados_maior_6_anos(dietas)
+    else:
+        quantidade = dietas_sem_alunos_nao_matriculados.count()
+        quantidade += get_quantidade_nao_matriculados_maior_6_anos(dietas)
+        quantidade += get_quantidade_nao_matriculados_entre_4_e_6_anos(dietas)
     return quantidade
 
 
@@ -737,7 +741,7 @@ def logs_a_criar_sem_periodo_escolar(
     logs_a_criar, escola, dietas_filtradas, ontem, classificacao
 ):
     if escola.eh_emebs:
-        for each in ["INFANTIL", "FUNDAMENTAL"]:
+        for each in ["INFANTIL", "FUNDAMENTAL", "N/A"]:
             quantidade = get_quantidade_dietas_emebs(each, dietas_filtradas)
             log = LogQuantidadeDietasAutorizadas(
                 quantidade=quantidade,
