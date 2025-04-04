@@ -2288,10 +2288,10 @@ def valida_campo_a_campo_alimentacao_continua(
 ):
     campos_infantil_ou_fundamental = [ValorMedicao.NA]
     if eh_emebs:
-        campos_infantil_ou_fundamental = [
-            ValorMedicao.INFANTIL,
-            ValorMedicao.FUNDAMENTAL,
-        ]
+        campos_infantil_ou_fundamental = [ValorMedicao.FUNDAMENTAL]
+        escola = medicao_programas_projetos.solicitacao_medicao_inicial.escola
+        if escola.quantidade_alunos_emebs_infantil > 0:
+            campos_infantil_ou_fundamental.append(ValorMedicao.INFANTIL)
     for nome_campo in nomes_campos:
         for campo_infantil_ou_fundamental in campos_infantil_ou_fundamental:
             if not medicao_programas_projetos.valores_medicao.filter(
