@@ -4,7 +4,7 @@ from datetime import date, datetime
 from typing import List
 
 from dateutil.relativedelta import relativedelta
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models import Q
 from django.template.loader import render_to_string
 from rest_framework.pagination import PageNumberPagination
@@ -1127,15 +1127,23 @@ def gerar_filtros_relatorio_historico(query_params: dict) -> dict:
         "classificacao__id__in": query_params.getlist(
             "classificacoes_selecionadas[]", None
         ),
+        "quantidade__gt": 0,
     }
 
-    formato = "%d/%m/%Y"
     data_dieta = query_params.get("data")
-    if data_dieta:
+    if not data_dieta:
+        raise ValidationError("Data é um parâmetro obrigatório")
+    try:
+        formato = "%d/%m/%Y"
         data = datetime.strptime(data_dieta, formato)
-        map_filtros.update(
-            {"data__day": data.day, "data__month": data.month, "data__year": data.year}
+    except ValueError:
+        raise ValidationError(
+            f"A data {data_dieta} não corresponde ao formato esperado 'dd/mm/YYYY'."
         )
+
+    map_filtros.update(
+        {"data__day": data.day, "data__month": data.month, "data__year": data.year}
+    )
 
     filtros = {
         key: value for key, value in map_filtros.items() if value not in [None, []]
