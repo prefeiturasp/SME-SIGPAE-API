@@ -1344,7 +1344,7 @@ def transformar_dados_escolas(dados):
                     "total"
                 ] += quantidade
                 total_dietas += quantidade
-                continue
+
         elif tipo_unidade in UNIDADES_EMEI_EMEF_CIEJA:
             if periodo_escola:
                 escolas[nome_escola]["classificacoes"][classificacao]["periodos"][
@@ -1355,7 +1355,11 @@ def transformar_dados_escolas(dados):
                     "total"
                 ] += quantidade
                 total_dietas += quantidade
-                continue
+
+        elif tipo_unidade in UNIDADES_SEM_PERIODOS:
+            escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
+            total_dietas += quantidade
+            continue
 
     resultado = []
     for escola_nome, dados_escola in escolas.items():
