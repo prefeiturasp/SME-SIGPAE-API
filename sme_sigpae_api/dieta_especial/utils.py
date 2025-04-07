@@ -1273,6 +1273,14 @@ def transformar_dados_escolas(dados):
         }
     )
 
+    tipos_unidades = {
+        **{tipo: unidades_tipo_emebs for tipo in UNIDADES_EMEBS},
+        **{tipo: unidades_tipos_emei_emef_cieja for tipo in UNIDADES_EMEI_EMEF_CIEJA},
+        **{tipo: unidades_tipos_cmct_ceugestao for tipo in UNIDADES_SEM_PERIODOS},
+        **{tipo: unidades_tipo_cemei for tipo in UNIDADES_CEMEI},
+        **{tipo: unidades_tipo_cei for tipo in UNIDADES_CEI},
+    }
+
     total_dietas = 0
     for item in dados:
         nome_escola = item["nome_escola"]
@@ -1282,21 +1290,22 @@ def transformar_dados_escolas(dados):
         escolas[nome_escola]["lote"] = item["lote"]
         escolas[nome_escola]["data"] = item["data"]
 
-        if tipo_unidade in UNIDADES_EMEBS:
-            total_dietas += unidades_tipo_emebs(item, escolas)
-        elif tipo_unidade in UNIDADES_EMEI_EMEF_CIEJA:
-            total_dietas += unidades_tipos_emei_emef_cieja(item, escolas)
-        elif tipo_unidade in UNIDADES_SEM_PERIODOS:
-            total_dietas += unidades_tipos_cmct_ceugestao(item, escolas)
-        elif tipo_unidade in UNIDADES_CEMEI:
-            total_dietas += unidades_tipo_cemei(item, escolas)
-        elif tipo_unidade in UNIDADES_CEI:
-            total_dietas += unidades_tipo_cei(item, escolas)
+        unidade = tipos_unidades.get(tipo_unidade, lambda e, i: 0)
+        total_dietas += unidade(item, escolas)
 
     return escolas, total_dietas
 
 
 def formatar_informacoes_historioco_dietas(escolas, total_dietas):
+    tipos_unidades = {
+        **{tipo: formatar_periodos_emebs for tipo in UNIDADES_EMEBS},
+        **{
+            tipo: formatar_periodos_emei_emef_cieja for tipo in UNIDADES_EMEI_EMEF_CIEJA
+        },
+        **{tipo: formatar_periodos_cemei for tipo in UNIDADES_CEMEI},
+        **{tipo: formatar_periodos_cei for tipo in UNIDADES_CEI},
+    }
+
     resultado = []
     for escola_nome, dados_escola in escolas.items():
         for classificacao, dados_classificacao in dados_escola[
@@ -1311,22 +1320,8 @@ def formatar_informacoes_historioco_dietas(escolas, total_dietas):
                 "classificacao": classificacao,
                 "total": dados_classificacao["total"],
             }
-            if tipo_unidade in UNIDADES_EMEBS:
-                formatar_periodos_emebs(
-                    informacao_escola_por_classificacao, dados_classificacao
-                )
-            elif tipo_unidade in UNIDADES_EMEI_EMEF_CIEJA:
-                formatar_periodos_emei_emef_cieja(
-                    informacao_escola_por_classificacao, dados_classificacao
-                )
-            elif tipo_unidade in UNIDADES_CEMEI:
-                formatar_periodos_cemei(
-                    informacao_escola_por_classificacao, dados_classificacao
-                )
-            elif tipo_unidade in UNIDADES_CEI:
-                formatar_periodos_cei(
-                    informacao_escola_por_classificacao, dados_classificacao
-                )
+            unidade = tipos_unidades.get(tipo_unidade, lambda i, d: None)
+            unidade(informacao_escola_por_classificacao, dados_classificacao)
             resultado.append(informacao_escola_por_classificacao)
 
     return {
