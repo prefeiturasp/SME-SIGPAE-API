@@ -267,10 +267,16 @@ ORDEM_PERIODOS_GRUPOS_EMEBS = {
     "TARDE - FUNDAMENTAL": 4,
     "INTEGRAL - INFANTIL": 5,
     "INTEGRAL - FUNDAMENTAL": 6,
-    "NOITE - INFANTIL": 7,
-    "NOITE - FUNDAMENTAL": 8,
-    "Programas e Projetos - INFANTIL": 9,
-    "Programas e Projetos - FUNDAMENTAL": 10,
+    "VESPERTINO - INFANTIL": 7,
+    "VESPERTINO - FUNDAMENTAL": 8,
+    "INTERMEDIARIO - INFANTIL": 9,
+    "INTERMEDIARIO - FUNDAMENTAL": 10,
+    "NOITE - INFANTIL": 11,
+    "NOITE - FUNDAMENTAL": 12,
+    "Programas e Projetos - INFANTIL": 13,
+    "Programas e Projetos - FUNDAMENTAL": 14,
+    "Solicitações de Alimentação - INFANTIL": 15,
+    "Solicitações de Alimentação - FUNDAMENTAL": 16,
 }
 
 ORDEM_PERIODOS_GRUPOS = {

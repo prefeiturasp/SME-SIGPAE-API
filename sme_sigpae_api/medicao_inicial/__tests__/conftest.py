@@ -398,6 +398,20 @@ def solicitacao_medicao_inicial_cei(escola_cei, categoria_medicao):
     tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
     periodo_integral = mommy.make("PeriodoEscolar", nome="INTEGRAL")
     periodo_manha = mommy.make("PeriodoEscolar", nome="MANHA")
+    mommy.make(
+        LogAlunosMatriculadosPeriodoEscola,
+        escola=escola_cei,
+        criado_em="01-04-2023",
+        quantidade_alunos=100,
+        periodo_escolar=periodo_manha,
+    )
+    mommy.make(
+        LogAlunosMatriculadosPeriodoEscola,
+        escola=escola_cei,
+        criado_em="01-04-2023",
+        quantidade_alunos=100,
+        periodo_escolar=periodo_integral,
+    )
     solicitacao_medicao = mommy.make(
         "SolicitacaoMedicaoInicial",
         mes=4,

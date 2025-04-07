@@ -1025,6 +1025,7 @@ def popula_campos_preenchidos_pela_escola(
             medicao = medicoes.get(grupo__nome=periodo)
         else:
             medicao = medicoes.get(periodo_escolar__nome=periodo, grupo=None)
+
         valores_dia += [
             medicao.valores_medicao.filter(
                 dia=f"{dia:02d}",
@@ -1941,6 +1942,9 @@ def popula_tabelas_emebs(solicitacao, tabelas):
     indice_periodo = 0
     quantidade_tabelas = range(0, len(tabelas))
 
+    alteracoes_lanche_emergencial = get_alteracoes_lanche_emergencial(solicitacao)
+    kits_lanches = get_kit_lanche(solicitacao)
+
     for indice_tabela in quantidade_tabelas:
         tabela = tabelas[indice_tabela]
         for dia in list(dias_no_mes) + ["Total"]:
@@ -1959,6 +1963,8 @@ def popula_tabelas_emebs(solicitacao, tabelas):
                 valores_dia,
                 tabelas,
                 indice_tabela,
+                alteracoes_lanche_emergencial,
+                kits_lanches,
             )
             tabela["valores_campos"] += [valores_dia]
             tabela["dias_letivos"] += [eh_dia_letivo if not dia == "Total" else False]
@@ -1975,6 +1981,8 @@ def popula_valores_campos(
     valores_dia,
     tabelas,
     indice_tabela,
+    alteracoes_lanche_emergencial,
+    kits_lanches,
 ):
     categoria_corrente = tabela["categorias"][indice_categoria]
     periodo_corrente = tabela["periodos"][indice_periodo]
@@ -1982,7 +1990,6 @@ def popula_valores_campos(
         solicitacao, "alunos_matriculados", periodo_corrente
     )
     logs_dietas = get_logs_emebs(solicitacao, "dietas", periodo_corrente)
-
     for campo in tabela["nomes_campos"]:
         if indice_campo > tabela["len_categorias"][indice_categoria] - 1:
             indice_campo = 0
@@ -2056,12 +2063,27 @@ def popula_valores_campos(
                 tabelas,
                 indice_tabela,
             )
+            popula_campo_solicitado(
+                solicitacao,
+                tabela,
+                campo,
+                dia,
+                categoria_corrente,
+                valores_dia,
+                alteracoes_lanche_emergencial,
+                kits_lanches,
+            )
+            popula_campo_consumido_solicitacoes_alimentacao(
+                solicitacao, dia, campo, categoria_corrente, valores_dia
+            )
 
             if campo not in [
                 "matriculados",
                 "aprovadas",
                 "total_refeicoes_pagamento",
                 "total_sobremesas_pagamento",
+                "solicitado",
+                "consumido",
             ]:
                 popula_campos_preenchidos_pela_escola(
                     solicitacao,
