@@ -756,13 +756,11 @@ def validate_lancamento_alimentacoes_medicao_cei_dietas_faixas_etarias(
 
 
 def valida_medicoes_inexistentes_cei(solicitacao, lista_erros):
-    for periodo_escolar_nome in solicitacao.escola.periodos_escolares_com_alunos:
-        if not solicitacao.medicoes.filter(
-            periodo_escolar__nome=periodo_escolar_nome
-        ).exists():
+    for periodo_escolar in solicitacao.escola.periodos_escolares(ano=solicitacao.ano):
+        if not solicitacao.medicoes.filter(periodo_escolar=periodo_escolar).exists():
             lista_erros.append(
                 {
-                    "periodo_escolar": periodo_escolar_nome,
+                    "periodo_escolar": periodo_escolar.nome,
                     "erro": "Restam dias a serem lançados nas alimentações.",
                 }
             )
@@ -2288,10 +2286,10 @@ def valida_campo_a_campo_alimentacao_continua(
 ):
     campos_infantil_ou_fundamental = [ValorMedicao.NA]
     if eh_emebs:
-        campos_infantil_ou_fundamental = [
-            ValorMedicao.INFANTIL,
-            ValorMedicao.FUNDAMENTAL,
-        ]
+        campos_infantil_ou_fundamental = [ValorMedicao.FUNDAMENTAL]
+        escola = medicao_programas_projetos.solicitacao_medicao_inicial.escola
+        if escola.quantidade_alunos_emebs_infantil > 0:
+            campos_infantil_ou_fundamental.append(ValorMedicao.INFANTIL)
     for nome_campo in nomes_campos:
         for campo_infantil_ou_fundamental in campos_infantil_ou_fundamental:
             if not medicao_programas_projetos.valores_medicao.filter(
@@ -3193,13 +3191,11 @@ def validate_medicao_cemei(solicitacao):
 
 
 def valida_medicoes_inexistentes_emebs(solicitacao, lista_erros):
-    for periodo_escolar_nome in solicitacao.escola.periodos_escolares_com_alunos:
-        if not solicitacao.medicoes.filter(
-            periodo_escolar__nome=periodo_escolar_nome
-        ).exists():
+    for periodo_escolar in solicitacao.escola.periodos_escolares(ano=solicitacao.ano):
+        if not solicitacao.medicoes.filter(periodo_escolar=periodo_escolar).exists():
             lista_erros.append(
                 {
-                    "periodo_escolar": periodo_escolar_nome,
+                    "periodo_escolar": periodo_escolar.nome,
                     "erro": "Restam dias a serem lançados nas alimentações.",
                 }
             )

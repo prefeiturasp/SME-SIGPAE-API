@@ -559,6 +559,12 @@ class Escola(
             ciclo=Aluno.CICLO_ALUNO_CEI,
         ).count()
 
+    @property
+    def quantidade_alunos_emebs_infantil(self):
+        if not self.eh_emebs:
+            return None
+        return self.aluno_set.filter(etapa=Aluno.ETAPA_INFANTIL).count()
+
     def quantidade_alunos_emebs_por_periodo_infantil(self, nome_periodo_escolar):
         if not self.eh_emebs:
             return None
