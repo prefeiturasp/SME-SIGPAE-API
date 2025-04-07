@@ -756,7 +756,9 @@ def validate_lancamento_alimentacoes_medicao_cei_dietas_faixas_etarias(
 
 
 def valida_medicoes_inexistentes_cei(solicitacao, lista_erros):
-    for periodo_escolar_nome in solicitacao.escola.periodos_escolares_com_alunos:
+    for periodo_escolar_nome in solicitacao.escola.periodos_escolares(
+        ano=solicitacao.ano
+    ):
         if not solicitacao.medicoes.filter(
             periodo_escolar__nome=periodo_escolar_nome
         ).exists():
@@ -3193,7 +3195,9 @@ def validate_medicao_cemei(solicitacao):
 
 
 def valida_medicoes_inexistentes_emebs(solicitacao, lista_erros):
-    for periodo_escolar_nome in solicitacao.escola.periodos_escolares_com_alunos:
+    for periodo_escolar_nome in solicitacao.escola.periodos_escolares(
+        ano=solicitacao.ano
+    ):
         if not solicitacao.medicoes.filter(
             periodo_escolar__nome=periodo_escolar_nome
         ).exists():
