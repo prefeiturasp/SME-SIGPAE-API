@@ -3,11 +3,7 @@ def test_unidade_educacional_serializer(unidade_educacional):
     assert "lote" in unidade_educacional.data
     assert "unidade_educacional" in unidade_educacional.data
     assert "tipo_unidade" in unidade_educacional.data
-    assert "classificacao_dieta" in unidade_educacional.data
-
-
-def test_classificacoes_serializer(classificacoes):
-    assert classificacoes.data is not None
-    assert "tipo" in classificacoes.data
-    assert "total" in classificacoes.data
-    assert "periodos" in classificacoes.data
+    assert "classificacao" in unidade_educacional.data
+    assert "total" in unidade_educacional.data
+    assert "data" in unidade_educacional.data
+    assert "periodos" in unidade_educacional.data

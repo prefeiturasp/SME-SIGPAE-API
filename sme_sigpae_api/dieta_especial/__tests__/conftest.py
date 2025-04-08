@@ -8,10 +8,7 @@ from faker import Faker
 from freezegun import freeze_time
 from model_mommy import mommy
 
-from sme_sigpae_api.dieta_especial.api.serializers import (
-    ClassificacoesSerializer,
-    UnidadeEducacionalSerializer,
-)
+from sme_sigpae_api.dieta_especial.api.serializers import UnidadeEducacionalSerializer
 
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
@@ -1561,47 +1558,31 @@ def log_dietas_autorizadas_cei(
 
 
 @pytest.fixture
-def classificacoes():
-    classificacao = {
-        "tipo": "Tipo B",
-        "total": 10,
-        "periodos": [
-            {
-                "periodo": "INTEGRAL",
-                "faixa_etaria": [{"faixa": "0 meses a 05 meses", "autorizadas": 10}],
-            }
-        ],
-    }
-    return ClassificacoesSerializer(classificacao)
-
-
-@pytest.fixture
 def unidade_educacional():
     resultado = {
-        "lote": "545",
-        "unidade_educacional": "Escola CEI DIRET",
-        "tipo_unidade": "CEI DIRET",
-        "classificacao_dieta": [
+        "lote": "LOTE 07",
+        "unidade_educacional": "CEI ANTÔNIO",
+        "tipo_unidade": "CEI",
+        "classificacao": "Tipo A",
+        "total": 20,
+        "data:": "24/08/2023",
+        "periodos": [
             {
-                "tipo": "Tipo B",
-                "total": 10,
-                "periodos": [
-                    {
-                        "periodo": "INTEGRAL",
-                        "faixa_etaria": [
-                            {"faixa": "0 meses a 05 meses", "autorizadas": 10}
-                        ],
-                    }
+                "periodo": "TARDE",
+                "faixa_etaria": [
+                    {"faixa": "01 a 03 meses", "autorizadas": 5},
+                    {"faixa": "07 a 11 meses", "autorizadas": 2},
+                    {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1},
+                    {"faixa": "04 anos a 06 anos", "autorizadas": 2},
                 ],
             },
             {
-                "tipo": "Tipo A",
-                "total": 11,
-                "periodos": [
-                    {
-                        "periodo": "MANHA",
-                        "faixa_etaria": [{"faixa": "07 a 11 meses", "autorizadas": 11}],
-                    }
+                "periodo": "MANHA",
+                "faixa_etaria": [
+                    {"faixa": "01 a 03 meses", "autorizadas": 3},
+                    {"faixa": "07 a 11 meses", "autorizadas": 2},
+                    {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 2},
+                    {"faixa": "04 anos a 06 anos", "autorizadas": 3},
                 ],
             },
         ],
