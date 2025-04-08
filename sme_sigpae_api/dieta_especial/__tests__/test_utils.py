@@ -284,68 +284,114 @@ def test_unidades_tipo_emebs(escolas_tipo_emebs):
     item, item_somatorio, classificacao = escolas_tipo_emebs
     total_dietas = 0
 
-    total_dietas += unidades_tipo_emebs(item, classificacao)
+    dietas = unidades_tipo_emebs(item, classificacao)
+    assert dietas == 0
     informacao_classificacao = classificacao["Escola EMEBS"]["classificacoes"]["Tipo A"]
-    periodo = informacao_classificacao["fundamental"]
-    assert total_dietas == 0
+    total_dietas += dietas
     assert "fundamental" in informacao_classificacao
-    assert informacao_classificacao["total"] == 0
-    assert isinstance(informacao_classificacao["fundamental"], dict)
+    assert informacao_classificacao["total"] == total_dietas
+    periodo = informacao_classificacao["fundamental"]
+    assert isinstance(periodo, dict)
     assert len(periodo) == 1
     assert "TARDE" in periodo
     assert periodo["TARDE"] == 6
 
-    total_dietas += unidades_tipo_emebs(item_somatorio, classificacao)
+    dietas = unidades_tipo_emebs(item_somatorio, classificacao)
+    assert dietas == 6
     informacao_classificacao = classificacao["Escola EMEBS"]["classificacoes"]["Tipo A"]
-    periodo = informacao_classificacao["fundamental"]
-    assert total_dietas == 6
+    total_dietas += dietas
     assert "fundamental" in informacao_classificacao
-    assert informacao_classificacao["total"] == 6
-    assert isinstance(informacao_classificacao["fundamental"], dict)
+    assert informacao_classificacao["total"] == total_dietas
+    periodo = informacao_classificacao["fundamental"]
+    assert isinstance(periodo, dict)
     assert len(periodo) == 1
     assert "TARDE" in periodo
     assert periodo["TARDE"] == 6
 
 
 def test_unidades_tipos_emei_emef_cieja(escolas_tipo_emei_emef_cieja):
-    item, classificacao = escolas_tipo_emei_emef_cieja
-    classificacao_dieta = unidades_tipos_emei_emef_cieja(item, classificacao)
+    item, item_somatorio, classificacao = escolas_tipo_emei_emef_cieja
+    total_dietas = 0
 
-    assert isinstance(classificacao_dieta, dict)
-    assert classificacao_dieta["total"] == 30
-    assert len(classificacao_dieta["periodos"]) == 1
+    dietas = unidades_tipos_emei_emef_cieja(item, classificacao)
+    assert dietas == 0
+    informacao_classificacao = classificacao["Escola EMEF"]["classificacoes"]["Tipo A"]
+    total_dietas += dietas
+    assert "periodos" in informacao_classificacao
+    assert informacao_classificacao["total"] == total_dietas
+    periodo = informacao_classificacao["periodos"]
+    assert isinstance(periodo, dict)
+    assert len(periodo) == 1
+    assert "TARDE" in periodo
+    assert periodo["TARDE"] == 6
 
-    periodo = classificacao_dieta["periodos"][0]
-    assert periodo["periodo"] == "INTEGRAL"
-    assert periodo["autorizadas"] == 30
+    dietas = unidades_tipos_emei_emef_cieja(item_somatorio, classificacao)
+    assert dietas == 6
+    informacao_classificacao = classificacao["Escola EMEF"]["classificacoes"]["Tipo A"]
+    total_dietas += dietas
+    assert "periodos" in informacao_classificacao
+    assert informacao_classificacao["total"] == total_dietas
+    periodo = informacao_classificacao["periodos"]
+    assert isinstance(periodo, dict)
+    assert len(periodo) == 1
+    assert "TARDE" in periodo
+    assert periodo["TARDE"] == 6
 
 
 def test_unidades_tipos_cmct_ceugestao(escolas_tipos_cmct_ceugestao):
-    item, classificacao = escolas_tipos_cmct_ceugestao
-    classificacao_dieta = unidades_tipos_cmct_ceugestao(item, classificacao)
+    item, item_somatorio, classificacao = escolas_tipos_cmct_ceugestao
+    total_dietas = classificacao["Escola CEU GESTAO"]["classificacoes"]["Tipo A"][
+        "total"
+    ]
 
-    assert isinstance(classificacao_dieta, dict)
-    assert classificacao_dieta["total"] == 110
+    dietas = unidades_tipos_cmct_ceugestao(item, classificacao)
+    assert dietas == 10
+    informacao_classificacao = classificacao["Escola CEU GESTAO"]["classificacoes"][
+        "Tipo A"
+    ]
+    total_dietas += dietas
+    assert informacao_classificacao["total"] == total_dietas
+
+    dietas = unidades_tipos_cmct_ceugestao(item_somatorio, classificacao)
+    assert dietas == 5
+    informacao_classificacao = classificacao["Escola CEU GESTAO"]["classificacoes"][
+        "Tipo A"
+    ]
+    total_dietas += dietas
+    assert informacao_classificacao["total"] == total_dietas
 
 
 def test_unidades_tipo_cei(escolas_tipo_cei):
-    item, classificacao = escolas_tipo_cei
-    classificacao_dieta = unidades_tipo_cei(item, classificacao)
+    item, item_somatorio, classificacao = escolas_tipo_cei
+    total_dietas = 0
 
-    assert isinstance(classificacao_dieta, dict)
-    assert classificacao_dieta["total"] == 20
-    assert len(classificacao_dieta["periodos"]) == 1
+    dietas = unidades_tipo_cei(item, classificacao)
+    assert dietas == 0
+    informacao_classificacao = classificacao["Escola CEI DIRET"]["classificacoes"][
+        "Tipo A"
+    ]
+    total_dietas += dietas
+    assert "periodos" in informacao_classificacao
+    assert informacao_classificacao["total"] == total_dietas
+    periodo = informacao_classificacao["periodos"]["INTEGRAL"]
+    assert isinstance(periodo, list)
+    assert len(periodo) == 2
+    assert periodo[1]["autorizadas"] == 3
+    assert periodo[1]["faixa"] == "07 a 11 meses"
 
-    periodo = classificacao_dieta["periodos"][0]
-    assert periodo["periodo"] == "INTEGRAL"
-    assert isinstance(periodo["faixa_etaria"], list)
-    assert len(periodo["faixa_etaria"]) == 1
-
-    faixa_etaria = periodo["faixa_etaria"][0]
-    assert faixa_etaria["autorizadas"] == 20
-    assert faixa_etaria["faixa"] == faixa_to_string(
-        item["faixa_etaria__inicio"], item["faixa_etaria__fim"]
-    )
+    dietas = unidades_tipo_cei(item_somatorio, classificacao)
+    assert dietas == 4
+    informacao_classificacao = classificacao["Escola CEI DIRET"]["classificacoes"][
+        "Tipo A"
+    ]
+    total_dietas += dietas
+    assert "periodos" in informacao_classificacao
+    assert informacao_classificacao["total"] == total_dietas
+    periodo = informacao_classificacao["periodos"]["INTEGRAL"]
+    assert isinstance(periodo, list)
+    assert len(periodo) == 2
+    assert periodo[1]["autorizadas"] == 3
+    assert periodo[1]["faixa"] == "07 a 11 meses"
 
 
 def test_unidades_tipo_cemei_por_faixa_etaria(escolas_tipo_cemei_por_faixa_etaria):

@@ -1324,7 +1324,7 @@ def escolas_tipo_emebs():
     classificacao = {
         "Escola EMEBS": {
             "tipo_unidade": "EMEBS",
-            "lote": "3567-2",
+            "lote": "Lote EMEBS",
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
                 "Tipo A": {
@@ -1343,11 +1343,11 @@ def escolas_tipo_emebs():
     item = {
         "infantil_ou_fundamental": "FUNDAMENTAL",
         "cei_ou_emei": "N/A",
-        "data": datetime.date(2024, 2, 12),
+        "data": datetime.date(2023, 12, 1),
         "nome_escola": "Escola EMEBS",
         "nome_periodo_escolar": "TARDE",
         "tipo_unidade": "EMEBS",
-        "lote": "3567-2",
+        "lote": "Lote EMEBS",
         "nome_classificacao": "Tipo A",
         "quantidade_total": 5,
         "inicio": None,
@@ -1356,11 +1356,11 @@ def escolas_tipo_emebs():
     item_somatorio = {
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
-        "data": datetime.date(2024, 2, 12),
+        "data": datetime.date(2023, 12, 1),
         "nome_escola": "Escola EMEBS",
         "nome_periodo_escolar": None,
         "tipo_unidade": "EMEBS",
-        "lote": "3567-2",
+        "lote": "Lote EMEBS",
         "nome_classificacao": "Tipo A",
         "quantidade_total": 6,
         "inicio": None,
@@ -1371,56 +1371,159 @@ def escolas_tipo_emebs():
 
 @pytest.fixture
 def escolas_tipo_emei_emef_cieja():
+    classificacao = {
+        "Escola EMEF": {
+            "tipo_unidade": "EMEF",
+            "lote": "LOTE EMEF",
+            "data": datetime.date(2023, 12, 1),
+            "classificacoes": {
+                "Tipo A": {
+                    "infantil": {},
+                    "fundamental": {},
+                    "periodos": {"TARDE": 1},
+                    "por_idade": {},
+                    "turma_infantil": {},
+                    "faixa_etaria": {},
+                    "total": 0,
+                },
+            },
+        }
+    }
+
     item = {
-        "escola__nome": "Escola CEU EMEF",
-        "escola__tipo_unidade__iniciais": "CEU EMEF",
-        "escola__lote__nome": "LOTE CEU EMEF",
-        "classificacao__nome": "Tipo A ENTERAL",
-        "periodo_escolar__nome": "INTEGRAL",
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
-        "escola__uuid": "f4545228-4866-458f-a669-17c62a2b6891",
-        "quantidade": 30,
-        "data": datetime.date(2024, 2, 12),
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola EMEF",
+        "nome_periodo_escolar": "TARDE",
+        "tipo_unidade": "EMEF",
+        "lote": "LOTE EMEF",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 5,
+        "inicio": None,
+        "fim": None,
     }
-    classificacao = {"tipo": "Tipo A ENTERAL", "total": 0, "periodos": []}
-    return item, classificacao
+
+    item_somatorio = {
+        "infantil_ou_fundamental": "N/A",
+        "cei_ou_emei": "N/A",
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola EMEF",
+        "nome_periodo_escolar": None,
+        "tipo_unidade": "EMEF",
+        "lote": "LOTE EMEF",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 6,
+        "inicio": None,
+        "fim": None,
+    }
+    return item, item_somatorio, classificacao
 
 
 @pytest.fixture
 def escolas_tipos_cmct_ceugestao():
+    classificacao = {
+        "Escola CEU GESTAO": {
+            "tipo_unidade": "CEU GESTAO",
+            "lote": "LOTE CEU GESTAO",
+            "data": datetime.date(2023, 12, 1),
+            "classificacoes": {
+                "Tipo A": {
+                    "infantil": {},
+                    "fundamental": {},
+                    "periodos": {},
+                    "por_idade": {},
+                    "turma_infantil": {},
+                    "faixa_etaria": {},
+                    "total": 5,
+                },
+            },
+        }
+    }
+
     item = {
-        "escola__nome": "Escola CEU GESTAO",
-        "escola__tipo_unidade__iniciais": "CEU GESTAO",
-        "escola__lote__nome": "Teste CEU GESTAO",
-        "classificacao__nome": "Tipo A",
-        "periodo_escolar__nome": None,
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
-        "escola__uuid": "49e6bf7f-36ad-418b-a5ec-2b03442aba22",
-        "quantidade": 10,
-        "data": datetime.date(2024, 2, 20),
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola CEU GESTAO",
+        "nome_periodo_escolar": None,
+        "tipo_unidade": "CEU GESTAO",
+        "lote": "LOTE CEU GESTAO",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 10,
+        "inicio": None,
+        "fim": None,
     }
-    classificacao = {"tipo": "Tipo A", "total": 100}
-    return item, classificacao
+
+    item_somatorio = {
+        "infantil_ou_fundamental": "N/A",
+        "cei_ou_emei": "N/A",
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola CEU GESTAO",
+        "nome_periodo_escolar": None,
+        "tipo_unidade": "CEU GESTAO",
+        "lote": "LOTE CEU GESTAO",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 5,
+        "inicio": None,
+        "fim": None,
+    }
+    return item, item_somatorio, classificacao
 
 
 @pytest.fixture
 def escolas_tipo_cei():
-    item = {
-        "escola__nome": "Escola CEI DIRET",
-        "escola__tipo_unidade__iniciais": "CEI DIRET",
-        "escola__lote__nome": "LOTE CEI DIRET",
-        "classificacao__nome": "Tipo A ENTERAL",
-        "periodo_escolar__nome": "INTEGRAL",
-        "faixa_etaria__inicio": 1,
-        "faixa_etaria__fim": 4,
-        "escola__uuid": "40009a06-3d65-478d-83ef-e0352ef88c7d",
-        "quantidade": 20,
-        "data": datetime.date(2024, 2, 20),
+    classificacao = {
+        "Escola CEI DIRET": {
+            "tipo_unidade": "CEI DIRET",
+            "lote": "LOTE CEI DIRET",
+            "data": datetime.date(2023, 12, 1),
+            "classificacoes": {
+                "Tipo A": {
+                    "infantil": {},
+                    "fundamental": {},
+                    "periodos": {
+                        "INTEGRAL": [
+                            {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1}
+                        ]
+                    },
+                    "por_idade": {},
+                    "turma_infantil": {},
+                    "faixa_etaria": {},
+                    "total": 0,
+                }
+            },
+        }
     }
-    classificacao = {"tipo": "Tipo A ENTERAL", "total": 0, "periodos": []}
-    return item, classificacao
+    a = "07 a 11 meses"
+
+    item = {
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola CEI DIRET",
+        "nome_periodo_escolar": "INTEGRAL",
+        "tipo_unidade": "CEI DIRET",
+        "lote": "LOTE CEI DIRET",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 3,
+        "inicio": 7,
+        "fim": 12,
+        "infantil_ou_fundamental": None,
+        "cei_ou_emei": None,
+    }
+    item_somatorio = {
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola CEI DIRET",
+        "nome_periodo_escolar": "INTEGRAL",
+        "tipo_unidade": "CEI DIRET",
+        "lote": "LOTE CEI DIRET",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 4,
+        "inicio": None,
+        "fim": None,
+        "infantil_ou_fundamental": None,
+        "cei_ou_emei": None,
+    }
+    return item, item_somatorio, classificacao
 
 
 @pytest.fixture
