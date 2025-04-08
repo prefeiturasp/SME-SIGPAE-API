@@ -462,11 +462,23 @@ def test_gera_dicionario_historico_dietas(
     }
     informacoes = gera_dicionario_historico_dietas(filtros)
     assert informacoes["total_dietas"] == 72
-    assert len(informacoes["resultados"]) == 3
+    assert len(informacoes["resultados"]) == 4
     resultados = informacoes["resultados"]
     assert resultados[0]["unidade_educacional"] == "CEI DIRET JOAO MENDES"
+    assert resultados[0]["classificacao"] == "Tipo B"
+    assert resultados[0]["total"] == 21
+
     assert resultados[1]["unidade_educacional"] == "CEMEI"
-    assert resultados[2]["unidade_educacional"] == "EMEBS"
+    assert resultados[1]["classificacao"] == "Tipo A"
+    assert resultados[1]["total"] == 25
+
+    assert resultados[2]["unidade_educacional"] == "CEMEI"
+    assert resultados[2]["classificacao"] == "Tipo B"
+    assert resultados[2]["total"] == 15
+
+    assert resultados[3]["unidade_educacional"] == "EMEBS"
+    assert resultados[3]["classificacao"] == "Tipo A"
+    assert resultados[3]["total"] == 11
 
 
 def test_gera_dicionario_historico_dietas_escola_cemei(
@@ -481,9 +493,15 @@ def test_gera_dicionario_historico_dietas_escola_cemei(
     }
     informacoes = gera_dicionario_historico_dietas(filtros)
     assert informacoes["total_dietas"] == 40
-    assert len(informacoes["resultados"]) == 1
+    assert len(informacoes["resultados"]) == 2
     resultados = informacoes["resultados"]
     assert resultados[0]["unidade_educacional"] == "CEMEI"
+    assert resultados[0]["classificacao"] == "Tipo A"
+    assert resultados[0]["total"] == 25
+
+    assert resultados[1]["unidade_educacional"] == "CEMEI"
+    assert resultados[1]["classificacao"] == "Tipo B"
+    assert resultados[1]["total"] == 15
 
 
 def test_gera_dicionario_historico_dietas_escola_cei(
@@ -501,6 +519,8 @@ def test_gera_dicionario_historico_dietas_escola_cei(
     assert len(informacoes["resultados"]) == 1
     resultados = informacoes["resultados"]
     assert resultados[0]["unidade_educacional"] == "CEI DIRET JOAO MENDES"
+    assert resultados[0]["classificacao"] == "Tipo B"
+    assert resultados[0]["total"] == 21
 
 
 def test_gera_dicionario_historico_dietas_escola_emebs(
@@ -518,6 +538,8 @@ def test_gera_dicionario_historico_dietas_escola_emebs(
     assert len(informacoes["resultados"]) == 1
     resultados = informacoes["resultados"]
     assert resultados[0]["unidade_educacional"] == "EMEBS"
+    assert resultados[0]["classificacao"] == "Tipo A"
+    assert resultados[0]["total"] == 11
 
 
 def test_cria_dicionario_historico_dietas_autorizadas_cei(log_dietas_autorizadas_cei):
@@ -572,22 +594,22 @@ def test_dados_dietas_escolas_cei(log_dietas_autorizadas_cei):
         "data__year": data.year,
     }
     logs = dados_dietas_escolas_cei(filtros)
-    assert len(logs) == 4
-    assert logs[0]["escola__nome"] == "CEI DIRET JOAO MENDES"
-    assert logs[0]["classificacao__nome"] == "Tipo B"
-    assert logs[0]["periodo_escolar__nome"] == "INTEGRAL"
+    assert len(logs) == 6
+    assert logs[0]["nome_escola"] == "CEI DIRET JOAO MENDES"
+    assert logs[0]["nome_classificacao"] == "Tipo B"
+    assert logs[0]["nome_periodo_escolar"] == "INTEGRAL"
 
-    assert logs[1]["escola__nome"] == "CEI DIRET JOAO MENDES"
-    assert logs[1]["classificacao__nome"] == "Tipo A"
-    assert logs[1]["periodo_escolar__nome"] == "MANHA"
+    assert logs[1]["nome_escola"] == "CEI DIRET JOAO MENDES"
+    assert logs[1]["nome_classificacao"] == "Tipo B"
+    assert logs[1]["nome_periodo_escolar"] == "MANHA"
 
-    assert logs[2]["escola__nome"] == "CEMEI"
-    assert logs[2]["classificacao__nome"] == "Tipo B"
-    assert logs[2]["periodo_escolar__nome"] == "INTEGRAL"
+    assert logs[2]["nome_escola"] == "CEMEI"
+    assert logs[2]["nome_classificacao"] == "Tipo B"
+    assert logs[2]["nome_periodo_escolar"] == "INTEGRAL"
 
-    assert logs[3]["escola__nome"] == "CEMEI"
+    assert logs[3]["nome_escola"] == "CEMEI"
     assert logs[3]["classificacao__nome"] == "Tipo A"
-    assert logs[3]["periodo_escolar__nome"] == "MANHA"
+    assert logs[3]["nome_periodo_escolar"] == "MANHA"
 
 
 def test_dados_dietas_escolas_comuns(log_dietas_autorizadas):
@@ -598,7 +620,7 @@ def test_dados_dietas_escolas_comuns(log_dietas_autorizadas):
         "data__year": data.year,
     }
     logs = dados_dietas_escolas_comuns(filtros)
-    assert len(logs) == 4
+    assert len(logs) == 6
     assert logs[0]["escola__nome"] == "EMEBS"
     assert logs[0]["classificacao__nome"] == "Tipo B"
     assert logs[0]["periodo_escolar__nome"] == "INTEGRAL"

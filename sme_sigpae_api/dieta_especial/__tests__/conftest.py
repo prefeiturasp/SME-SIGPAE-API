@@ -1740,9 +1740,18 @@ def log_dietas_autorizadas_cei(
         "LogQuantidadeDietasAutorizadasCEI",
         escola=escola_cei,
         quantidade=11,
-        classificacao=classificacao_tipo_a,
+        classificacao=classificacao_tipo_b,
         periodo_escolar=periodo_escolar_manha,
         faixa_etaria=faixa_dois,
+        data=data,
+    )
+    mommy.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=escola_cei,
+        quantidade=21,
+        classificacao=classificacao_tipo_b,
+        periodo_escolar=periodo_escolar_integral,
+        faixa_etaria=None,
         data=data,
     )
 
@@ -1750,7 +1759,7 @@ def log_dietas_autorizadas_cei(
         "LogQuantidadeDietasAutorizadasCEI",
         escola=escola_cemei,
         quantidade=12,
-        classificacao=classificacao_tipo_b,
+        classificacao=classificacao_tipo_a,
         periodo_escolar=periodo_escolar_integral,
         faixa_etaria=faixa_um,
         data=data,
@@ -1762,6 +1771,15 @@ def log_dietas_autorizadas_cei(
         classificacao=classificacao_tipo_a,
         periodo_escolar=periodo_escolar_manha,
         faixa_etaria=faixa_dois,
+        data=data,
+    )
+    mommy.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=escola_cemei,
+        quantidade=25,
+        classificacao=classificacao_tipo_a,
+        periodo_escolar=periodo_escolar_integral,
+        faixa_etaria=None,
         data=data,
     )
 
