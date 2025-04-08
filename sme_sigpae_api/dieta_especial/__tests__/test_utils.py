@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from django.core.exceptions import ValidationError
 from django.http import QueryDict
 from freezegun import freeze_time
 
@@ -14,7 +15,6 @@ from ..models import (
     SolicitacaoDietaEspecial,
 )
 from ..utils import (
-    cria_dicionario_historico_dietas,
     dados_dietas_escolas_cei,
     dados_dietas_escolas_comuns,
     dietas_especiais_a_terminar,
@@ -229,9 +229,21 @@ def test_gerar_filtros_relatorio_historico(
     assert filtros["data__day"] == 12
     assert filtros["data__month"] == 4
     assert filtros["data__year"] == 2025
+    assert filtros["quantidade__gt"] == 0
 
 
-def test_gerar_filtros_relatorio_historico_retona_dicionario_vazio():
+def test_gerar_filtros_relatorio_historico_somente_com_data():
+    query_params = QueryDict(mutable=True)
+    query_params["data"] = "20/04/2025"
+
+    filtros, _ = gerar_filtros_relatorio_historico(query_params)
+    assert filtros["data__day"] == 20
+    assert filtros["data__month"] == 4
+    assert filtros["data__year"] == 2025
+    assert filtros["quantidade__gt"] == 0
+
+
+def test_gerar_filtros_relatorio_historico_retona_data_obrigatoria():
     query_params = QueryDict(mutable=True)
     query_params.setlist(
         "unidades_educacionais_selecionadas[]",
@@ -253,24 +265,46 @@ def test_gerar_filtros_relatorio_historico_retona_dicionario_vazio():
     query_params["lote"] = None
     query_params["data"] = None
 
-    filtros, _ = gerar_filtros_relatorio_historico(query_params)
-    assert isinstance(filtros, dict)
-    assert len(filtros) == 0
+    with pytest.raises(ValidationError, match="Data é um parâmetro obrigatório"):
+        gerar_filtros_relatorio_historico(query_params)
+
+
+def test_gerar_filtros_relatorio_historico_retona_data_padrao_incorreto():
+    query_params = QueryDict(mutable=True)
+    query_params["data"] = "2025-04-20"
+
+    with pytest.raises(
+        ValidationError,
+        match="A data 2025-04-20 não corresponde ao formato esperado 'dd/mm/YYYY'.",
+    ):
+        gerar_filtros_relatorio_historico(query_params)
 
 
 def test_unidades_tipo_emebs(escolas_tipo_emebs):
-    item, classificacao = escolas_tipo_emebs
-    classificacao_dieta = unidades_tipo_emebs(item, classificacao)
+    item, item_somatorio, classificacao = escolas_tipo_emebs
+    total_dietas = 0
 
-    assert isinstance(classificacao_dieta, dict)
-    assert classificacao_dieta["total"] == 70
-    assert "fundamental" in classificacao_dieta["periodos"]
-    assert isinstance(classificacao_dieta["periodos"]["fundamental"], list)
-    assert len(classificacao_dieta["periodos"]["fundamental"]) == 1
+    total_dietas += unidades_tipo_emebs(item, classificacao)
+    informacao_classificacao = classificacao["Escola EMEBS"]["classificacoes"]["Tipo A"]
+    periodo = informacao_classificacao["fundamental"]
+    assert total_dietas == 0
+    assert "fundamental" in informacao_classificacao
+    assert informacao_classificacao["total"] == 0
+    assert isinstance(informacao_classificacao["fundamental"], dict)
+    assert len(periodo) == 1
+    assert "TARDE" in periodo
+    assert periodo["TARDE"] == 6
 
-    periodo = classificacao_dieta["periodos"]["fundamental"][0]
-    assert periodo["periodo"] == "TARDE"
-    assert periodo["autorizadas"] == 30
+    total_dietas += unidades_tipo_emebs(item_somatorio, classificacao)
+    informacao_classificacao = classificacao["Escola EMEBS"]["classificacoes"]["Tipo A"]
+    periodo = informacao_classificacao["fundamental"]
+    assert total_dietas == 6
+    assert "fundamental" in informacao_classificacao
+    assert informacao_classificacao["total"] == 6
+    assert isinstance(informacao_classificacao["fundamental"], dict)
+    assert len(periodo) == 1
+    assert "TARDE" in periodo
+    assert periodo["TARDE"] == 6
 
 
 def test_unidades_tipos_emei_emef_cieja(escolas_tipo_emei_emef_cieja):

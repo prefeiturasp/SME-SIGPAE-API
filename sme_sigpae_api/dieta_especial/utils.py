@@ -1342,7 +1342,7 @@ def unidades_tipo_emebs(item, escolas):
     if periodo_escola:
         escolas[nome_escola]["classificacoes"][classificacao][f"{tipo_turma}".lower()][
             periodo_escola
-        ] = quantidade
+        ] += quantidade
     elif periodo_escola is None and tipo_turma == "N/A" and cei_emei == "N/A":
         escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
         total_dietas = quantidade

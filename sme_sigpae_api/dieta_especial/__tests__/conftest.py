@@ -1321,30 +1321,52 @@ def filtro_historico_relatorio_dietas(
 
 @pytest.fixture
 def escolas_tipo_emebs():
-    item = {
-        "escola__nome": "Escola EMEBS",
-        "escola__tipo_unidade__iniciais": "EMEBS",
-        "escola__lote__nome": "Lote EMEBS",
-        "classificacao__nome": "Tipo A",
-        "periodo_escolar__nome": "TARDE",
-        "infantil_ou_fundamental": "FUNDAMENTAL",
-        "cei_ou_emei": "N/A",
-        "escola__uuid": "a57faf92-b683-455e-a808-7f76a696cac0",
-        "quantidade": 30,
-        "data": datetime.date(2023, 12, 1),
+    classificacao = {
+        "Escola EMEBS": {
+            "tipo_unidade": "EMEBS",
+            "lote": "3567-2",
+            "data": datetime.date(2023, 12, 1),
+            "classificacoes": {
+                "Tipo A": {
+                    "infantil": {},
+                    "fundamental": {"TARDE": 1},
+                    "periodos": {},
+                    "por_idade": {},
+                    "turma_infantil": {},
+                    "faixa_etaria": {},
+                    "total": 0,
+                },
+            },
+        }
     }
 
-    classificacao = {
-        "tipo": "Tipo A",
-        "total": 40,
-        "periodos": {
-            "infantil": [
-                {"periodo": "TARDE", "autorizadas": 0},
-                {"periodo": "MANHA", "autorizadas": 0},
-            ]
-        },
+    item = {
+        "infantil_ou_fundamental": "FUNDAMENTAL",
+        "cei_ou_emei": "N/A",
+        "data": datetime.date(2024, 2, 12),
+        "nome_escola": "Escola EMEBS",
+        "nome_periodo_escolar": "TARDE",
+        "tipo_unidade": "EMEBS",
+        "lote": "3567-2",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 5,
+        "inicio": None,
+        "fim": None,
     }
-    return item, classificacao
+    item_somatorio = {
+        "infantil_ou_fundamental": "N/A",
+        "cei_ou_emei": "N/A",
+        "data": datetime.date(2024, 2, 12),
+        "nome_escola": "Escola EMEBS",
+        "nome_periodo_escolar": None,
+        "tipo_unidade": "EMEBS",
+        "lote": "3567-2",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 6,
+        "inicio": None,
+        "fim": None,
+    }
+    return item, item_somatorio, classificacao
 
 
 @pytest.fixture
