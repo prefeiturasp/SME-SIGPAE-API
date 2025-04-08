@@ -3,7 +3,6 @@ import datetime
 import pytest
 from django.core.exceptions import ValidationError
 from django.http import QueryDict
-from freezegun import freeze_time
 
 from sme_sigpae_api.escola.utils import faixa_to_string
 
@@ -395,40 +394,61 @@ def test_unidades_tipo_cei(escolas_tipo_cei):
 
 
 def test_unidades_tipo_cemei_por_faixa_etaria(escolas_tipo_cemei_por_faixa_etaria):
-    item, classificacao = escolas_tipo_cemei_por_faixa_etaria
-    classificacao_dieta = unidades_tipo_cemei(item, classificacao)
+    item, item_somatorio, classificacao = escolas_tipo_cemei_por_faixa_etaria
+    total_dietas = 0
 
-    assert isinstance(classificacao_dieta, dict)
-    assert classificacao_dieta["total"] == 6
-    assert "por_idade" in classificacao_dieta["periodos"]
-    assert isinstance(classificacao_dieta["periodos"]["por_idade"], list)
-    assert len(classificacao_dieta["periodos"]["por_idade"]) == 1
+    dietas = unidades_tipo_cemei(item, classificacao)
+    assert dietas == 0
+    informacao_classificacao = classificacao["Escola CEMEI"]["classificacoes"]["Tipo A"]
+    total_dietas += dietas
+    assert "por_idade" in informacao_classificacao
+    assert informacao_classificacao["total"] == total_dietas
+    periodo = informacao_classificacao["por_idade"]
+    assert isinstance(periodo, dict)
+    assert len(periodo) == 2
+    assert "07 a 11 meses" in periodo
+    assert periodo["07 a 11 meses"] == 3
 
-    periodo = classificacao_dieta["periodos"]["por_idade"][0]
-    assert periodo["periodo"] == "INTEGRAL"
-    assert isinstance(periodo["faixa_etaria"], list)
-    assert len(periodo["faixa_etaria"]) == 1
-
-    faixa_etaria = periodo["faixa_etaria"][0]
-    assert faixa_etaria["autorizadas"] == 6
-    assert faixa_etaria["faixa"] == faixa_to_string(
-        item["faixa_etaria__inicio"], item["faixa_etaria__fim"]
-    )
+    dietas = unidades_tipo_cemei(item_somatorio, classificacao)
+    assert dietas == 4
+    informacao_classificacao = classificacao["Escola CEMEI"]["classificacoes"]["Tipo A"]
+    total_dietas += dietas
+    assert "por_idade" in informacao_classificacao
+    assert informacao_classificacao["total"] == total_dietas
+    periodo = informacao_classificacao["por_idade"]
+    assert isinstance(periodo, dict)
+    assert len(periodo) == 2
+    assert "07 a 11 meses" in periodo
+    assert periodo["07 a 11 meses"] == 3
 
 
 def test_unidades_tipo_cemei_por_periodo(escolas_tipo_cemei_por_periodo):
-    item, classificacao = escolas_tipo_cemei_por_periodo
-    classificacao_dieta = unidades_tipo_cemei(item, classificacao)
+    item, item_somatorio, classificacao = escolas_tipo_cemei_por_periodo
+    total_dietas = 0
 
-    assert isinstance(classificacao_dieta, dict)
-    assert classificacao_dieta["total"] == 8
-    assert "turma_infantil" in classificacao_dieta["periodos"]
-    assert isinstance(classificacao_dieta["periodos"]["turma_infantil"], list)
-    assert len(classificacao_dieta["periodos"]["turma_infantil"]) == 1
+    dietas = unidades_tipo_cemei(item, classificacao)
+    assert dietas == 0
+    informacao_classificacao = classificacao["Escola CEMEI"]["classificacoes"]["Tipo A"]
+    total_dietas += dietas
+    assert "turma_infantil" in informacao_classificacao
+    assert informacao_classificacao["total"] == total_dietas
+    periodo = informacao_classificacao["turma_infantil"]
+    assert isinstance(periodo, dict)
+    assert len(periodo) == 1
+    assert "INTEGRAL" in periodo
+    assert periodo["INTEGRAL"] == 3
 
-    periodo = classificacao_dieta["periodos"]["turma_infantil"][0]
-    assert periodo["periodo"] == "MANHA"
-    assert periodo["autorizadas"] == 8
+    dietas = unidades_tipo_cemei(item_somatorio, classificacao)
+    assert dietas == 4
+    informacao_classificacao = classificacao["Escola CEMEI"]["classificacoes"]["Tipo A"]
+    total_dietas += dietas
+    assert "turma_infantil" in informacao_classificacao
+    assert informacao_classificacao["total"] == total_dietas
+    periodo = informacao_classificacao["turma_infantil"]
+    assert isinstance(periodo, dict)
+    assert len(periodo) == 1
+    assert "INTEGRAL" in periodo
+    assert periodo["INTEGRAL"] == 3
 
 
 def test_gera_dicionario_historico_dietas(
