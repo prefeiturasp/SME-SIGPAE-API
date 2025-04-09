@@ -2236,42 +2236,21 @@ def append_lanches_nomes_campos(nomes_campos, tipos_alimentacao):
     return nomes_campos
 
 
-def get_tipos_alimentacao(escola, medicao, inclusoes, nomes_campos, eh_ceu_gestao):
+def get_tipos_alimentacao(inclusoes):
     nomes_campos = ["frequencia"]
     tipos_alimentacao = []
-    if eh_ceu_gestao or escola.eh_cemei:
-        for inclusao in inclusoes:
-            for qp in inclusao.quantidades_periodo.all():
-                tipos_alimentacao += qp.tipos_alimentacao.all().values_list(
-                    "nome", flat=True
-                )
-        tipos_alimentacao = list(set(tipos_alimentacao))
-        nomes_campos = append_lanches_nomes_campos(nomes_campos, tipos_alimentacao)
-    else:
-        tipos_alimentacao = list(
-            VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
-                tipo_unidade_escolar=escola.tipo_unidade,
-                periodo_escolar__in=escola.periodos_escolares(
-                    medicao.solicitacao_medicao_inicial.ano
-                ),
+    for inclusao in inclusoes:
+        for qp in inclusao.quantidades_periodo.all():
+            tipos_alimentacao += qp.tipos_alimentacao.all().values_list(
+                "nome", flat=True
             )
-            .values_list("tipos_alimentacao__nome", flat=True)
-            .distinct()
-        )
-        if "Lanche" in tipos_alimentacao:
-            nomes_campos.append("lanche")
-        if "Lanche 4h" in tipos_alimentacao:
-            nomes_campos.append("lanche_4h")
+    tipos_alimentacao = list(set(tipos_alimentacao))
+    nomes_campos = append_lanches_nomes_campos(nomes_campos, tipos_alimentacao)
     return tipos_alimentacao, nomes_campos
 
 
-def build_nomes_campos_alimentacoes_programas_e_projetos(
-    escola, medicao, inclusoes, eh_ceu_gestao=False
-):
-    nomes_campos = ["frequencia"]
-    tipos_alimentacao, nomes_campos = get_tipos_alimentacao(
-        escola, medicao, inclusoes, nomes_campos, eh_ceu_gestao
-    )
+def build_nomes_campos_alimentacoes_programas_e_projetos(inclusoes):
+    tipos_alimentacao, nomes_campos = get_tipos_alimentacao(inclusoes)
     if "Refeição" in tipos_alimentacao:
         nomes_campos.append("refeicao")
         nomes_campos.append("repeticao_refeicao")
@@ -2315,9 +2294,7 @@ def valida_alimentacoes_solicitacoes_continuas(
 ):
     periodo_com_erro = False
     categoria = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
-    nomes_campos = build_nomes_campos_alimentacoes_programas_e_projetos(
-        escola, medicao_programas_projetos, inclusoes, eh_ceu_gestao
-    )
+    nomes_campos = build_nomes_campos_alimentacoes_programas_e_projetos(inclusoes)
 
     for dia in range(1, quantidade_dias_mes + 1):
         feriados = calendario.holidays(int(ano))
@@ -2388,9 +2365,7 @@ def valida_alimentacoes_solicitacoes_continuas_emei_cemei(
 ):
     periodo_com_erro = False
     categoria = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
-    nomes_campos = build_nomes_campos_alimentacoes_programas_e_projetos(
-        escola, medicao_programas_projetos, inclusoes, eh_ceu_gestao
-    )
+    nomes_campos = build_nomes_campos_alimentacoes_programas_e_projetos(inclusoes)
 
     for dia in range(1, quantidade_dias_mes + 1):
         feriados = calendario.holidays(int(ano))
