@@ -1029,8 +1029,16 @@ def test_relatorio_historico_dieta_especial(
             "data": "20/03/2024",
             "periodos": {
                 "por_idade": [
-                    {"periodo": "0 meses a 05 meses", "autorizadas": 12},
-                    {"periodo": "07 a 11 meses", "autorizadas": 13},
+                    {
+                        "periodo": "INTEGRAL",
+                        "faixa_etaria": [
+                            {"faixa": "0 meses a 05 meses", "autorizadas": 12}
+                        ],
+                    },
+                    {
+                        "periodo": "MANHA",
+                        "faixa_etaria": [{"faixa": "07 a 11 meses", "autorizadas": 13}],
+                    },
                 ]
             },
         },
