@@ -11,6 +11,11 @@ from ..utils import (
     dados_dietas_escolas_cei,
     dados_dietas_escolas_comuns,
     dietas_especiais_a_terminar,
+    formatar_informacoes_historioco_dietas,
+    formatar_periodos_cei,
+    formatar_periodos_cemei,
+    formatar_periodos_emebs,
+    formatar_periodos_emei_emef_cieja,
     gera_dicionario_historico_dietas,
     gera_logs_dietas_escolas_cei,
     gera_logs_dietas_escolas_comuns,
@@ -400,9 +405,8 @@ def test_unidades_tipo_cemei_por_faixa_etaria(escolas_tipo_cemei_por_faixa_etari
     assert informacao_classificacao["total"] == total_dietas
     periodo = informacao_classificacao["por_idade"]
     assert isinstance(periodo, dict)
-    assert len(periodo) == 2
-    assert "07 a 11 meses" in periodo
-    assert periodo["07 a 11 meses"] == 3
+    assert "INTEGRAL" in periodo
+    assert len(periodo["INTEGRAL"]) == 2
 
     dietas = unidades_tipo_cemei(item_somatorio, classificacao)
     assert dietas == 4
@@ -412,9 +416,8 @@ def test_unidades_tipo_cemei_por_faixa_etaria(escolas_tipo_cemei_por_faixa_etari
     assert informacao_classificacao["total"] == total_dietas
     periodo = informacao_classificacao["por_idade"]
     assert isinstance(periodo, dict)
-    assert len(periodo) == 2
-    assert "07 a 11 meses" in periodo
-    assert periodo["07 a 11 meses"] == 3
+    assert "INTEGRAL" in periodo
+    assert len(periodo["INTEGRAL"]) == 2
 
 
 def test_unidades_tipo_cemei_por_periodo(escolas_tipo_cemei_por_periodo):
@@ -630,3 +633,157 @@ def test_dados_dietas_escolas_comuns(log_dietas_autorizadas):
     assert logs[5]["nome_escola"] == "EMEBS"
     assert logs[5]["nome_classificacao"] == "Tipo A"
     assert logs[5]["nome_periodo_escolar"] is None
+
+
+def test_formatar_periodos_emebs():
+    informacao = {
+        "data": datetime.date(2024, 2, 12),
+        "unidade_educacional": "Escola EMEBS",
+        "tipo_unidade": "EMEBS",
+        "lote": "Lote EMEBS",
+        "classificacao": "Tipo A",
+        "total": 2,
+    }
+    classificacao = {
+        "infantil": {"MANHA": 1},
+        "fundamental": {"TARDE": 1},
+        "periodos": {},
+        "por_idade": {},
+        "turma_infantil": {},
+        "faixa_etaria": {},
+        "total": 2,
+    }
+    formatar_periodos_emebs(informacao, classificacao)
+    assert "periodos" in informacao
+    assert isinstance(informacao["periodos"], dict)
+
+    assert "fundamental" in informacao["periodos"]
+    assert isinstance(informacao["periodos"]["fundamental"], list)
+    assert len(informacao["periodos"]["fundamental"]) == 1
+    assert {"periodo": "TARDE", "autorizadas": 1} == informacao["periodos"][
+        "fundamental"
+    ][0]
+
+    assert "infantil" in informacao["periodos"]
+    assert isinstance(informacao["periodos"]["infantil"], list)
+    assert len(informacao["periodos"]["infantil"]) == 1
+    assert {"periodo": "MANHA", "autorizadas": 1} == informacao["periodos"]["infantil"][
+        0
+    ]
+
+
+def test_formatar_periodos_emei_emef_cieja(escolas_tipo_emei_emef_cieja):
+    _, _, classificacao = escolas_tipo_emei_emef_cieja
+    informacao = {
+        "data": datetime.date(2024, 2, 12),
+        "unidade_educacional": "Escola EMEF",
+        "tipo_unidade": "EMEF",
+        "lote": "LOTE EMEF",
+        "classificacao": "Tipo A",
+        "total": 1,
+    }
+    formatar_periodos_emei_emef_cieja(
+        informacao, classificacao["Escola EMEF"]["classificacoes"]["Tipo A"]
+    )
+    assert "periodos" in informacao
+    assert isinstance(informacao["periodos"], list)
+    assert len(informacao["periodos"]) == 1
+    assert {"periodo": "TARDE", "autorizadas": 1} == informacao["periodos"][0]
+
+
+def test_formatar_periodos_cemei():
+    informacao = {
+        "data": datetime.date(2024, 2, 12),
+        "unidade_educacional": "Escola CEMEI",
+        "tipo_unidade": "CEMEI",
+        "lote": "LOTE CEMEI",
+        "classificacao": "Tipo A",
+        "total": 2,
+    }
+    classificacao = {
+        "infantil": {},
+        "fundamental": {},
+        "periodos": {},
+        "por_idade": {
+            "INTEGRAL": [{"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1}]
+        },
+        "turma_infantil": {"INTEGRAL": 1},
+        "faixa_etaria": {},
+        "total": 2,
+    }
+    formatar_periodos_cemei(informacao, classificacao)
+
+    assert "periodos" in informacao
+    assert isinstance(informacao["periodos"], dict)
+
+    assert "turma_infantil" in informacao["periodos"]
+    assert isinstance(informacao["periodos"]["turma_infantil"], list)
+    assert len(informacao["periodos"]["turma_infantil"]) == 1
+    assert {"periodo": "INTEGRAL", "autorizadas": 1} == informacao["periodos"][
+        "turma_infantil"
+    ][0]
+
+    assert "por_idade" in informacao["periodos"]
+    assert isinstance(informacao["periodos"]["por_idade"], list)
+    assert len(informacao["periodos"]["por_idade"]) == 1
+    assert "periodo" in informacao["periodos"]["por_idade"][0]
+    assert "faixa_etaria" in informacao["periodos"]["por_idade"][0]
+
+    assert [{"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1}] == informacao[
+        "periodos"
+    ]["por_idade"][0]["faixa_etaria"]
+
+
+def test_formatar_periodos_cei(escolas_tipo_cei):
+    _, _, classificacao = escolas_tipo_cei
+    informacao = {
+        "data": datetime.date(2024, 2, 12),
+        "unidade_educacional": "Escola CEI DIRET",
+        "tipo_unidade": "CEI DIRET",
+        "lote": "LOTE CEI DIRET",
+        "classificacao": "Tipo A",
+        "total": 1,
+    }
+
+    formatar_periodos_cei(
+        informacao, classificacao["Escola CEI DIRET"]["classificacoes"]["Tipo A"]
+    )
+
+    assert "periodos" in informacao
+    assert isinstance(informacao["periodos"], list)
+    assert "periodo" in informacao["periodos"][0]
+    assert "faixa_etaria" in informacao["periodos"][0]
+    assert [{"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1}] == informacao[
+        "periodos"
+    ][0]["faixa_etaria"]
+
+
+def test_formatar_informacoes_historioco_dietas(
+    escolas_tipo_emebs,
+    escolas_tipo_emei_emef_cieja,
+    escolas_tipos_cmct_ceugestao,
+    escolas_tipo_cei,
+    escolas_tipo_cemei_por_faixa_etaria,
+    escolas_tipo_cemei_por_periodo,
+):
+    _, _, emebs = escolas_tipo_emebs
+    _, _, emef = escolas_tipo_emei_emef_cieja
+    _, _, ceu_gestao = escolas_tipos_cmct_ceugestao
+    _, _, cei = escolas_tipo_cei
+    _, _, cemei_cei = escolas_tipo_cemei_por_faixa_etaria
+    _, _, cemei_emei = escolas_tipo_cemei_por_periodo
+
+    escolas = {**emebs, **emef, **ceu_gestao, **cei, **cemei_cei, **cemei_emei}
+    total_dietas = 8
+    resultado = formatar_informacoes_historioco_dietas(escolas, total_dietas)
+    assert isinstance(resultado, dict)
+    assert "total_dietas" in resultado
+    assert resultado["total_dietas"] == total_dietas
+    assert "resultados" in resultado
+    assert isinstance(resultado["resultados"], list)
+    assert len(resultado["resultados"]) == 5
+    assert resultado["resultados"][0]["unidade_educacional"] == "Escola EMEBS"
+    assert resultado["resultados"][1]["unidade_educacional"] == "Escola EMEF"
+    assert resultado["resultados"][2]["unidade_educacional"] == "Escola CEU GESTAO"
+    assert resultado["resultados"][3]["unidade_educacional"] == "Escola CEI DIRET"
+    assert resultado["resultados"][4]["unidade_educacional"] == "Escola CEMEI"

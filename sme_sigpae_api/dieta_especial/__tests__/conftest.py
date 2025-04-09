@@ -1537,7 +1537,11 @@ def escolas_tipo_cemei_por_faixa_etaria():
                     "infantil": {},
                     "fundamental": {},
                     "periodos": {},
-                    "por_idade": {"01 ano a 03 anos e 11 meses": 1},
+                    "por_idade": {
+                        "INTEGRAL": [
+                            {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1}
+                        ]
+                    },
                     "turma_infantil": {},
                     "faixa_etaria": {},
                     "total": 0,
