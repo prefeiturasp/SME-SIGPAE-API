@@ -129,10 +129,10 @@ def test_fabricante_filter(produtos_edital_41):
         data={"nome_edital": nome_edital_2017}, queryset=Fabricante.objects.all()
     )
     assert filtro_nome_edital.qs.count() == 2
-    fabricante = filtro_nome_edital.qs[0]
-    assert fabricante.nome == nome_fabricante_1
-    fabricante = filtro_nome_edital.qs[1]
-    assert fabricante.nome == nome_fabricante_2
+    assert list(filtro_nome_edital.qs.values_list("nome", flat=True)) == [
+        nome_fabricante_1,
+        nome_fabricante_2,
+    ]
 
     filtro_nome_edital = FabricanteFilter(
         data={"nome_edital": nome_edital_2016}, queryset=Fabricante.objects.all()
