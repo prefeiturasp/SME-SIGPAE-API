@@ -4,15 +4,9 @@ import pytest
 from django.core.exceptions import ValidationError
 from django.http import QueryDict
 
-from sme_sigpae_api.escola.utils import faixa_to_string
-
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...terceirizada.models import Edital
-from ..models import (
-    LogQuantidadeDietasAutorizadas,
-    LogQuantidadeDietasAutorizadasCEI,
-    SolicitacaoDietaEspecial,
-)
+from ..models import SolicitacaoDietaEspecial
 from ..utils import (
     dados_dietas_escolas_cei,
     dados_dietas_escolas_comuns,
@@ -22,6 +16,7 @@ from ..utils import (
     gera_logs_dietas_escolas_comuns,
     gerar_filtros_relatorio_historico,
     termina_dietas_especiais,
+    transformar_dados_escolas,
     unidades_tipo_cei,
     unidades_tipo_cemei,
     unidades_tipo_emebs,
@@ -543,47 +538,25 @@ def test_gera_dicionario_historico_dietas_escola_emebs(
 
 
 def test_cria_dicionario_historico_dietas_autorizadas_cei(log_dietas_autorizadas_cei):
-    informacoes_logs = LogQuantidadeDietasAutorizadasCEI.objects.all().values(
-        "escola__nome",
-        "escola__tipo_unidade__iniciais",
-        "escola__lote__nome",
-        "classificacao__nome",
-        "periodo_escolar__nome",
-        "faixa_etaria__inicio",
-        "faixa_etaria__fim",
-        "escola__uuid",
-        "quantidade",
-        "data",
-    )
-    informacoes = cria_dicionario_historico_dietas(informacoes_logs)
-    assert informacoes["total_dietas"] == 46
-    assert isinstance(informacoes["resultados"], list)
-    assert len(informacoes["resultados"]) == 2
-    resultados = informacoes["resultados"]
-    assert resultados[0]["unidade_educacional"] == "CEI DIRET JOAO MENDES"
-    assert resultados[1]["unidade_educacional"] == "CEMEI"
+    informacoes_logs = dados_dietas_escolas_cei({})
+    informacoes, total_dietas = transformar_dados_escolas(informacoes_logs)
+
+    assert total_dietas == 46
+    assert isinstance(informacoes, dict)
+    assert len(informacoes) == 2
+    assert "CEI DIRET JOAO MENDES" in informacoes
+    assert "CEMEI" in informacoes
 
 
 def test_cria_dicionario_historico_dietas_autorizadas(log_dietas_autorizadas):
-    informacoes_logs = LogQuantidadeDietasAutorizadas.objects.all().values(
-        "escola__nome",
-        "escola__tipo_unidade__iniciais",
-        "escola__lote__nome",
-        "classificacao__nome",
-        "periodo_escolar__nome",
-        "infantil_ou_fundamental",
-        "cei_ou_emei",
-        "escola__uuid",
-        "quantidade",
-        "data",
-    )
-    informacoes = cria_dicionario_historico_dietas(informacoes_logs)
-    assert informacoes["total_dietas"] == 26
-    assert isinstance(informacoes["resultados"], list)
-    assert len(informacoes["resultados"]) == 2
-    resultados = informacoes["resultados"]
-    assert resultados[0]["unidade_educacional"] == "CEMEI"
-    assert resultados[1]["unidade_educacional"] == "EMEBS"
+    informacoes_logs = dados_dietas_escolas_comuns({})
+    informacoes, total_dietas = transformar_dados_escolas(informacoes_logs)
+
+    assert total_dietas == 26
+    assert isinstance(informacoes, dict)
+    assert len(informacoes) == 2
+    assert "CEMEI" in informacoes
+    assert "EMEBS" in informacoes
 
 
 def test_dados_dietas_escolas_cei(log_dietas_autorizadas_cei):
@@ -603,13 +576,25 @@ def test_dados_dietas_escolas_cei(log_dietas_autorizadas_cei):
     assert logs[1]["nome_classificacao"] == "Tipo B"
     assert logs[1]["nome_periodo_escolar"] == "MANHA"
 
-    assert logs[2]["nome_escola"] == "CEMEI"
+    assert logs[2]["nome_escola"] == "CEI DIRET JOAO MENDES"
     assert logs[2]["nome_classificacao"] == "Tipo B"
     assert logs[2]["nome_periodo_escolar"] == "INTEGRAL"
+    assert logs[2]["inicio"] is None
+    assert logs[2]["fim"] is None
 
     assert logs[3]["nome_escola"] == "CEMEI"
-    assert logs[3]["classificacao__nome"] == "Tipo A"
-    assert logs[3]["nome_periodo_escolar"] == "MANHA"
+    assert logs[3]["nome_classificacao"] == "Tipo A"
+    assert logs[3]["nome_periodo_escolar"] == "INTEGRAL"
+
+    assert logs[4]["nome_escola"] == "CEMEI"
+    assert logs[4]["nome_classificacao"] == "Tipo A"
+    assert logs[4]["nome_periodo_escolar"] == "MANHA"
+
+    assert logs[5]["nome_escola"] == "CEMEI"
+    assert logs[5]["nome_classificacao"] == "Tipo A"
+    assert logs[5]["nome_periodo_escolar"] == "INTEGRAL"
+    assert logs[5]["inicio"] is None
+    assert logs[5]["fim"] is None
 
 
 def test_dados_dietas_escolas_comuns(log_dietas_autorizadas):
@@ -621,18 +606,27 @@ def test_dados_dietas_escolas_comuns(log_dietas_autorizadas):
     }
     logs = dados_dietas_escolas_comuns(filtros)
     assert len(logs) == 6
-    assert logs[0]["escola__nome"] == "EMEBS"
-    assert logs[0]["classificacao__nome"] == "Tipo B"
-    assert logs[0]["periodo_escolar__nome"] == "INTEGRAL"
 
-    assert logs[1]["escola__nome"] == "EMEBS"
-    assert logs[1]["classificacao__nome"] == "Tipo A"
-    assert logs[1]["periodo_escolar__nome"] == "MANHA"
+    assert logs[0]["nome_escola"] == "CEMEI"
+    assert logs[0]["nome_classificacao"] == "Tipo B"
+    assert logs[0]["nome_periodo_escolar"] == "INTEGRAL"
 
-    assert logs[2]["escola__nome"] == "CEMEI"
-    assert logs[2]["classificacao__nome"] == "Tipo B"
-    assert logs[2]["periodo_escolar__nome"] == "INTEGRAL"
+    assert logs[1]["nome_escola"] == "CEMEI"
+    assert logs[1]["nome_classificacao"] == "Tipo B"
+    assert logs[1]["nome_periodo_escolar"] == "MANHA"
 
-    assert logs[3]["escola__nome"] == "CEMEI"
-    assert logs[3]["classificacao__nome"] == "Tipo A"
-    assert logs[3]["periodo_escolar__nome"] == "MANHA"
+    assert logs[2]["nome_escola"] == "CEMEI"
+    assert logs[2]["nome_classificacao"] == "Tipo B"
+    assert logs[2]["nome_periodo_escolar"] is None
+
+    assert logs[3]["nome_escola"] == "EMEBS"
+    assert logs[3]["nome_classificacao"] == "Tipo A"
+    assert logs[3]["nome_periodo_escolar"] == "INTEGRAL"
+
+    assert logs[4]["nome_escola"] == "EMEBS"
+    assert logs[4]["nome_classificacao"] == "Tipo A"
+    assert logs[4]["nome_periodo_escolar"] == "MANHA"
+
+    assert logs[5]["nome_escola"] == "EMEBS"
+    assert logs[5]["nome_classificacao"] == "Tipo A"
+    assert logs[5]["nome_periodo_escolar"] is None

@@ -987,48 +987,36 @@ def test_relatorio_historico_dieta_especial(
     log_dietas_autorizadas_cei,
 ):
     response = client_autenticado_vinculo_terceirizada_dieta.get(
-        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/"
+        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/?data=20/03/2024"
     )
     assert response.status_code == status.HTTP_200_OK
     historico = response.json()
-    assert historico["count"] == 3
-    assert historico["page_size"] == 2
+    assert historico["count"] == 4
+    assert historico["page_size"] == 10
     assert historico["previous"] is None
-    assert "?page=2" in historico["next"]
+    assert historico["next"] is None
+    assert historico["total_dietas"] == 72
+    assert historico["data"] == "20/03/2024"
 
-    assert len(historico["results"]) == 1
-    resultado = historico["results"][0]
-    assert resultado["total_dietas"] == 72
-    assert len(resultado["resultado"]) == 2
-    assert resultado["resultado"] == [
+    assert len(historico["results"]) == 4
+    assert historico["results"] == [
         {
             "lote": "",
             "unidade_educacional": "CEI DIRET JOAO MENDES",
             "tipo_unidade": "CEI DIRET",
-            "classificacao_dieta": [
+            "classificacao": "Tipo B",
+            "total": 21,
+            "data": "20/03/2024",
+            "periodos": [
                 {
-                    "tipo": "Tipo B",
-                    "total": 10,
-                    "periodos": [
-                        {
-                            "periodo": "INTEGRAL",
-                            "faixa_etaria": [
-                                {"faixa": "0 meses a 05 meses", "autorizadas": 10}
-                            ],
-                        }
+                    "periodo": "INTEGRAL",
+                    "faixa_etaria": [
+                        {"faixa": "0 meses a 05 meses", "autorizadas": 10}
                     ],
                 },
                 {
-                    "tipo": "Tipo A",
-                    "total": 11,
-                    "periodos": [
-                        {
-                            "periodo": "MANHA",
-                            "faixa_etaria": [
-                                {"faixa": "07 a 11 meses", "autorizadas": 11}
-                            ],
-                        }
-                    ],
+                    "periodo": "MANHA",
+                    "faixa_etaria": [{"faixa": "07 a 11 meses", "autorizadas": 11}],
                 },
             ],
         },
@@ -1036,91 +1024,70 @@ def test_relatorio_historico_dieta_especial(
             "lote": "",
             "unidade_educacional": "CEMEI",
             "tipo_unidade": "CEMEI",
-            "classificacao_dieta": [
-                {
-                    "tipo": "Tipo B",
-                    "total": 19,
-                    "periodos": {
-                        "por_idade": [
-                            {
-                                "periodo": "INTEGRAL",
-                                "faixa_etaria": [
-                                    {"faixa": "0 meses a 05 meses", "autorizadas": 12}
-                                ],
-                            }
-                        ],
-                        "turma_infantil": [{"periodo": "INTEGRAL", "autorizadas": 7}],
-                    },
-                },
-                {
-                    "tipo": "Tipo A",
-                    "total": 21,
-                    "periodos": {
-                        "por_idade": [
-                            {
-                                "periodo": "MANHA",
-                                "faixa_etaria": [
-                                    {"faixa": "07 a 11 meses", "autorizadas": 13}
-                                ],
-                            }
-                        ],
-                        "turma_infantil": [{"periodo": "MANHA", "autorizadas": 8}],
-                    },
-                },
-            ],
+            "classificacao": "Tipo A",
+            "total": 25,
+            "data": "20/03/2024",
+            "periodos": {
+                "por_idade": [
+                    {"periodo": "0 meses a 05 meses", "autorizadas": 12},
+                    {"periodo": "07 a 11 meses", "autorizadas": 13},
+                ]
+            },
         },
-    ]
-
-
-def test_relatorio_historico_dieta_especial_pagina_dois(
-    client_autenticado_vinculo_terceirizada_dieta,
-    log_dietas_autorizadas,
-    log_dietas_autorizadas_cei,
-):
-    response = client_autenticado_vinculo_terceirizada_dieta.get(
-        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/?page=2"
-    )
-
-    assert response.status_code == status.HTTP_200_OK
-    historico = response.json()
-    assert historico["count"] == 3
-    assert historico["page_size"] == 2
-    assert historico["next"] is None
-    assert historico["previous"] is not None
-
-    assert len(historico["results"]) == 1
-    resultado = historico["results"][0]
-    assert resultado["total_dietas"] == 72
-    assert len(resultado["resultado"]) == 1
-    assert resultado["resultado"] == [
+        {
+            "lote": "",
+            "unidade_educacional": "CEMEI",
+            "tipo_unidade": "CEMEI",
+            "classificacao": "Tipo B",
+            "total": 15,
+            "data": "20/03/2024",
+            "periodos": {
+                "turma_infantil": [
+                    {"periodo": "INTEGRAL", "autorizadas": 7},
+                    {"periodo": "MANHA", "autorizadas": 8},
+                ]
+            },
+        },
         {
             "lote": "",
             "unidade_educacional": "EMEBS",
             "tipo_unidade": "EMEBS",
-            "classificacao_dieta": [
-                {
-                    "tipo": "Tipo B",
-                    "total": 5,
-                    "periodos": {
-                        "infantil": [{"periodo": "INTEGRAL", "autorizadas": 5}]
-                    },
-                },
-                {
-                    "tipo": "Tipo A",
-                    "total": 6,
-                    "periodos": {
-                        "fundamental": [{"periodo": "MANHA", "autorizadas": 6}]
-                    },
-                },
-            ],
-        }
+            "classificacao": "Tipo A",
+            "total": 11,
+            "data": "20/03/2024",
+            "periodos": {
+                "infantil": [{"periodo": "INTEGRAL", "autorizadas": 5}],
+                "fundamental": [{"periodo": "MANHA", "autorizadas": 6}],
+            },
+        },
     ]
+
+
+def test_relatorio_historico_dieta_especial_retona_data_obrigatoria(
+    client_autenticado_vinculo_terceirizada_dieta,
+):
+    response = client_autenticado_vinculo_terceirizada_dieta.get(
+        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/"
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {"detail": "Data é um parâmetro obrigatório."}
+
+
+def test_relatorio_historico_dieta_especial_retona_data_padrao_incorreto(
+    client_autenticado_vinculo_terceirizada_dieta,
+):
+    response = client_autenticado_vinculo_terceirizada_dieta.get(
+        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/?data=2025-02-06"
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": "A data 2025-02-06 não corresponde ao formato esperado 'dd/mm/YYYY'."
+    }
 
 
 def test_relatorio_historico_dieta_especial_cliente_nao_autorizado(
     client_autenticado_dilog,
-    log_dietas_autorizadas,
-    log_dietas_autorizadas_cei,
 ):
     response = client_autenticado_dilog.get(
         "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/"

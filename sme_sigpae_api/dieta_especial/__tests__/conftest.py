@@ -1792,7 +1792,7 @@ def unidade_educacional():
         "tipo_unidade": "CEI",
         "classificacao": "Tipo A",
         "total": 20,
-        "data:": "24/08/2023",
+        "data": "24/08/2023",
         "periodos": [
             {
                 "periodo": "TARDE",
