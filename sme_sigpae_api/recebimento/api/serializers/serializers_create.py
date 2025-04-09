@@ -14,6 +14,7 @@ from sme_sigpae_api.recebimento.models import (
     ArquivoFichaRecebimento,
     FichaDeRecebimento,
     QuestaoConferencia,
+    QuestaoFichaRecebimento,
     QuestoesPorProduto,
     VeiculoFichaDeRecebimento,
 )
@@ -67,6 +68,18 @@ class VeiculoFichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
         exclude = ("id", "ficha_recebimento")
 
 
+class QuestaoFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
+    questao_conferencia = serializers.SlugRelatedField(
+        slug_field="uuid",
+        queryset=QuestaoConferencia.objects.all(),
+        many=False,
+    )
+
+    class Meta:
+        model = QuestaoFichaRecebimento
+        exclude = ("id", "ficha_recebimento")
+
+
 class ArquivoFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
     arquivo = serializers.CharField()
 
@@ -97,17 +110,23 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
         many=True,
         required=False,
     )
+    questoes = QuestaoFichaRecebimentoCreateSerializer(
+        many=True,
+        required=False,
+    )
 
     def create(self, validated_data):
         dados_veiculos = validated_data.pop("veiculos", [])
         documentos_recebimento = validated_data.pop("documentos_recebimento", [])
         dados_arquivos = validated_data.pop("arquivos", [])
+        dados_questoes = validated_data.pop("questoes", [])
 
         instance = FichaDeRecebimento.objects.create(**validated_data)
 
         instance.documentos_recebimento.set(documentos_recebimento)
         self._criar_veiculos(instance, dados_veiculos)
         self._criar_arquivos(instance, dados_arquivos)
+        self._criar_questoes(instance, dados_questoes)
 
         return instance
 
@@ -115,16 +134,19 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
         instance.veiculos.all().delete()
         instance.documentos_recebimento.clear()
         instance.arquivos.all().delete()
+        instance.questoes.all().delete()
 
         dados_veiculos = validated_data.pop("veiculos", [])
         documentos_recebimento = validated_data.pop("documentos_recebimento", [])
         dados_arquivos = validated_data.pop("arquivos", [])
+        dados_questoes = validated_data.pop("questoes", [])
 
         instance = update_instance_from_dict(instance, validated_data, save=True)
 
         instance.documentos_recebimento.set(documentos_recebimento)
         self._criar_veiculos(instance, dados_veiculos)
         self._criar_arquivos(instance, dados_arquivos)
+        self._criar_questoes(instance, dados_questoes)
 
         return instance
 
@@ -142,6 +164,13 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
                 ficha_recebimento=instance,
                 arquivo=contentfile,
                 nome=dados_arquivo.get("nome"),
+            )
+
+    def _criar_questoes(self, instance, dados_questoes):
+        for dados_questao in dados_questoes:
+            QuestaoFichaRecebimento.objects.create(
+                ficha_recebimento=instance,
+                **dados_questao,
             )
 
     class Meta:

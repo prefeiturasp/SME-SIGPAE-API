@@ -4,7 +4,12 @@ from sme_sigpae_api.pre_recebimento.api.serializers.serializers import (
     FichaTecnicaSimplesSerializer,
 )
 
-from ...models import FichaDeRecebimento, QuestaoConferencia, QuestoesPorProduto
+from ...models import (
+    FichaDeRecebimento,
+    QuestaoConferencia,
+    QuestaoFichaRecebimento,
+    QuestoesPorProduto,
+)
 
 
 class QuestaoConferenciaSerializer(serializers.ModelSerializer):
@@ -90,6 +95,25 @@ class QuestoesPorProdutoSimplesSerializer(serializers.ModelSerializer):
             "questoes_primarias",
             "questoes_secundarias",
         )
+
+
+class QuestoesPorProdutoDetalheSerializer(serializers.ModelSerializer):
+    questoes_primarias = QuestaoConferenciaSimplesSerializer(many=True)
+    questoes_secundarias = QuestaoConferenciaSimplesSerializer(many=True)
+
+    class Meta:
+        model = QuestoesPorProduto
+        fields = (
+            "uuid",
+            "questoes_primarias",
+            "questoes_secundarias",
+        )
+
+
+class QuestaoFichaRecebimentosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestaoFichaRecebimento
+        exclude = ("id",)
 
 
 class FichaDeRecebimentoSerializer(serializers.ModelSerializer):
