@@ -2711,6 +2711,9 @@ def tratar_valores(escola, total_por_nome_campo: dict):
 def get_nome_campo(campo):
     campos = {
         "desjejum": "Desjejum",
+        "colacao": "Colação",
+        "refeicao_tarde": "Refeição da tarde",
+        "almoco": "Almoco",
         "lanche": "Lanche",
         "lanche_4h": "Lanche 4h",
         "lanche_extra": "Lanche Extra",
@@ -4487,6 +4490,9 @@ def get_name_campo(campo):
         "Repetição de Refeição": "repeticao_refeicao",
         "Sobremesa": "sobremesa",
         "Repetição de Sobremesa": "repeticao_sobremesa",
+        "Colação": "colacao",
+        "Almoço": "almoco",
+        "Refeição da tarde": "refeicao_tarde",
         "2º Lanche 4h": "2_lanche_4h",
         "2º Lanche 5h": "2_lanche_5h",
         "Lanche Extra": "lanche_extra",
