@@ -790,14 +790,11 @@ class LogQuantidadeDietasAutorizadasCEISerializer(serializers.ModelSerializer):
         exclude = ("id", "uuid")
 
 
-class ClassificacoesSerializer(serializers.Serializer):
-    tipo = serializers.CharField()
-    total = serializers.IntegerField()
-    periodos = serializers.JSONField(required=False)
-
-
 class UnidadeEducacionalSerializer(serializers.Serializer):
     lote = serializers.CharField()
     unidade_educacional = serializers.CharField()
     tipo_unidade = serializers.CharField()
-    classificacao_dieta = ClassificacoesSerializer(many=True)
+    classificacao = serializers.CharField()
+    total = serializers.IntegerField()
+    data = serializers.DateField()
+    periodos = serializers.JSONField(required=False)
