@@ -1339,14 +1339,20 @@ class SolicitacaoDietaEspecialViewSet(
         permission_classes=(PermissaoHistoricoDietasEspeciais,),
     )
     def relatorio_historico_dieta_especial(self, request):
-        filtros, data_dieta = gerar_filtros_relatorio_historico(request.query_params)
-        dietas = gera_dicionario_historico_dietas(filtros)
-        paginator = HistoricoDietasPagination()
-        page = paginator.paginate_queryset(dietas["resultados"], request)
-        serializer = UnidadeEducacionalSerializer(page, many=True)
-        return paginator.get_paginated_response(
-            serializer.data, dietas["total_dietas"], data_dieta
-        )
+        try:
+            filtros, data_dieta = gerar_filtros_relatorio_historico(
+                request.query_params
+            )
+            dietas = gera_dicionario_historico_dietas(filtros)
+            paginator = HistoricoDietasPagination()
+            page = paginator.paginate_queryset(dietas["resultados"], request)
+            serializer = UnidadeEducacionalSerializer(page, many=True)
+            return paginator.get_paginated_response(
+                serializer.data, dietas["total_dietas"], data_dieta
+            )
+        except ValidationError as e:
+            print(e)
+            return Response(dict(detail=e.messages[0]), status=HTTP_400_BAD_REQUEST)
 
 
 class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):

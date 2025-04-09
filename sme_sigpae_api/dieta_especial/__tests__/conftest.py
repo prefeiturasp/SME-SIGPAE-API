@@ -8,10 +8,7 @@ from faker import Faker
 from freezegun import freeze_time
 from model_mommy import mommy
 
-from sme_sigpae_api.dieta_especial.api.serializers import (
-    ClassificacoesSerializer,
-    UnidadeEducacionalSerializer,
-)
+from sme_sigpae_api.dieta_especial.api.serializers import UnidadeEducacionalSerializer
 
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
@@ -1324,120 +1321,313 @@ def filtro_historico_relatorio_dietas(
 
 @pytest.fixture
 def escolas_tipo_emebs():
-    item = {
-        "escola__nome": "Escola EMEBS",
-        "escola__tipo_unidade__iniciais": "EMEBS",
-        "escola__lote__nome": "Lote EMEBS",
-        "classificacao__nome": "Tipo A",
-        "periodo_escolar__nome": "TARDE",
-        "infantil_ou_fundamental": "FUNDAMENTAL",
-        "cei_ou_emei": "N/A",
-        "escola__uuid": "a57faf92-b683-455e-a808-7f76a696cac0",
-        "quantidade": 30,
-        "data": datetime.date(2023, 12, 1),
+    classificacao = {
+        "Escola EMEBS": {
+            "tipo_unidade": "EMEBS",
+            "lote": "Lote EMEBS",
+            "data": datetime.date(2023, 12, 1),
+            "classificacoes": {
+                "Tipo A": {
+                    "infantil": {},
+                    "fundamental": {"TARDE": 1},
+                    "periodos": {},
+                    "por_idade": {},
+                    "turma_infantil": {},
+                    "faixa_etaria": {},
+                    "total": 0,
+                },
+            },
+        }
     }
 
-    classificacao = {
-        "tipo": "Tipo A",
-        "total": 40,
-        "periodos": {
-            "infantil": [
-                {"periodo": "TARDE", "autorizadas": 0},
-                {"periodo": "MANHA", "autorizadas": 0},
-            ]
-        },
+    item = {
+        "infantil_ou_fundamental": "FUNDAMENTAL",
+        "cei_ou_emei": "N/A",
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola EMEBS",
+        "nome_periodo_escolar": "TARDE",
+        "tipo_unidade": "EMEBS",
+        "lote": "Lote EMEBS",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 5,
+        "inicio": None,
+        "fim": None,
     }
-    return item, classificacao
+    item_somatorio = {
+        "infantil_ou_fundamental": "N/A",
+        "cei_ou_emei": "N/A",
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola EMEBS",
+        "nome_periodo_escolar": None,
+        "tipo_unidade": "EMEBS",
+        "lote": "Lote EMEBS",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 6,
+        "inicio": None,
+        "fim": None,
+    }
+    return item, item_somatorio, classificacao
 
 
 @pytest.fixture
 def escolas_tipo_emei_emef_cieja():
+    classificacao = {
+        "Escola EMEF": {
+            "tipo_unidade": "EMEF",
+            "lote": "LOTE EMEF",
+            "data": datetime.date(2023, 12, 1),
+            "classificacoes": {
+                "Tipo A": {
+                    "infantil": {},
+                    "fundamental": {},
+                    "periodos": {"TARDE": 1},
+                    "por_idade": {},
+                    "turma_infantil": {},
+                    "faixa_etaria": {},
+                    "total": 0,
+                },
+            },
+        }
+    }
+
     item = {
-        "escola__nome": "Escola CEU EMEF",
-        "escola__tipo_unidade__iniciais": "CEU EMEF",
-        "escola__lote__nome": "LOTE CEU EMEF",
-        "classificacao__nome": "Tipo A ENTERAL",
-        "periodo_escolar__nome": "INTEGRAL",
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
-        "escola__uuid": "f4545228-4866-458f-a669-17c62a2b6891",
-        "quantidade": 30,
-        "data": datetime.date(2024, 2, 12),
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola EMEF",
+        "nome_periodo_escolar": "TARDE",
+        "tipo_unidade": "EMEF",
+        "lote": "LOTE EMEF",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 5,
+        "inicio": None,
+        "fim": None,
     }
-    classificacao = {"tipo": "Tipo A ENTERAL", "total": 0, "periodos": []}
-    return item, classificacao
+
+    item_somatorio = {
+        "infantil_ou_fundamental": "N/A",
+        "cei_ou_emei": "N/A",
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola EMEF",
+        "nome_periodo_escolar": None,
+        "tipo_unidade": "EMEF",
+        "lote": "LOTE EMEF",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 6,
+        "inicio": None,
+        "fim": None,
+    }
+    return item, item_somatorio, classificacao
 
 
 @pytest.fixture
 def escolas_tipos_cmct_ceugestao():
+    classificacao = {
+        "Escola CEU GESTAO": {
+            "tipo_unidade": "CEU GESTAO",
+            "lote": "LOTE CEU GESTAO",
+            "data": datetime.date(2023, 12, 1),
+            "classificacoes": {
+                "Tipo A": {
+                    "infantil": {},
+                    "fundamental": {},
+                    "periodos": {},
+                    "por_idade": {},
+                    "turma_infantil": {},
+                    "faixa_etaria": {},
+                    "total": 5,
+                },
+            },
+        }
+    }
+
     item = {
-        "escola__nome": "Escola CEU GESTAO",
-        "escola__tipo_unidade__iniciais": "CEU GESTAO",
-        "escola__lote__nome": "Teste CEU GESTAO",
-        "classificacao__nome": "Tipo A",
-        "periodo_escolar__nome": None,
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
-        "escola__uuid": "49e6bf7f-36ad-418b-a5ec-2b03442aba22",
-        "quantidade": 10,
-        "data": datetime.date(2024, 2, 20),
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola CEU GESTAO",
+        "nome_periodo_escolar": None,
+        "tipo_unidade": "CEU GESTAO",
+        "lote": "LOTE CEU GESTAO",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 10,
+        "inicio": None,
+        "fim": None,
     }
-    classificacao = {"tipo": "Tipo A", "total": 100}
-    return item, classificacao
+
+    item_somatorio = {
+        "infantil_ou_fundamental": "N/A",
+        "cei_ou_emei": "N/A",
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola CEU GESTAO",
+        "nome_periodo_escolar": None,
+        "tipo_unidade": "CEU GESTAO",
+        "lote": "LOTE CEU GESTAO",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 5,
+        "inicio": None,
+        "fim": None,
+    }
+    return item, item_somatorio, classificacao
 
 
 @pytest.fixture
 def escolas_tipo_cei():
-    item = {
-        "escola__nome": "Escola CEI DIRET",
-        "escola__tipo_unidade__iniciais": "CEI DIRET",
-        "escola__lote__nome": "LOTE CEI DIRET",
-        "classificacao__nome": "Tipo A ENTERAL",
-        "periodo_escolar__nome": "INTEGRAL",
-        "faixa_etaria__inicio": 1,
-        "faixa_etaria__fim": 4,
-        "escola__uuid": "40009a06-3d65-478d-83ef-e0352ef88c7d",
-        "quantidade": 20,
-        "data": datetime.date(2024, 2, 20),
+    classificacao = {
+        "Escola CEI DIRET": {
+            "tipo_unidade": "CEI DIRET",
+            "lote": "LOTE CEI DIRET",
+            "data": datetime.date(2023, 12, 1),
+            "classificacoes": {
+                "Tipo A": {
+                    "infantil": {},
+                    "fundamental": {},
+                    "periodos": {
+                        "INTEGRAL": [
+                            {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1}
+                        ]
+                    },
+                    "por_idade": {},
+                    "turma_infantil": {},
+                    "faixa_etaria": {},
+                    "total": 0,
+                }
+            },
+        }
     }
-    classificacao = {"tipo": "Tipo A ENTERAL", "total": 0, "periodos": []}
-    return item, classificacao
+
+    item = {
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola CEI DIRET",
+        "nome_periodo_escolar": "INTEGRAL",
+        "tipo_unidade": "CEI DIRET",
+        "lote": "LOTE CEI DIRET",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 3,
+        "inicio": 7,
+        "fim": 12,
+        "infantil_ou_fundamental": None,
+        "cei_ou_emei": None,
+    }
+    item_somatorio = {
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola CEI DIRET",
+        "nome_periodo_escolar": "INTEGRAL",
+        "tipo_unidade": "CEI DIRET",
+        "lote": "LOTE CEI DIRET",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 4,
+        "inicio": None,
+        "fim": None,
+        "infantil_ou_fundamental": None,
+        "cei_ou_emei": None,
+    }
+    return item, item_somatorio, classificacao
 
 
 @pytest.fixture
 def escolas_tipo_cemei_por_faixa_etaria():
-    item = {
-        "escola__nome": "Escola CEU CEMEI",
-        "escola__tipo_unidade__iniciais": "CEU CEMEI",
-        "escola__lote__nome": "LOTE CEU CEMEI",
-        "classificacao__nome": "Tipo A",
-        "periodo_escolar__nome": "INTEGRAL",
-        "faixa_etaria__inicio": 12,
-        "faixa_etaria__fim": 48,
-        "escola__uuid": "1fc5fca2-2694-4781-be65-8331716c74a0",
-        "quantidade": 6,
-        "data": datetime.date(2024, 2, 20),
+    classificacao = {
+        "Escola CEMEI": {
+            "tipo_unidade": "CEMEI",
+            "lote": "LOTE CEMEI",
+            "data": datetime.date(2023, 12, 1),
+            "classificacoes": {
+                "Tipo A": {
+                    "infantil": {},
+                    "fundamental": {},
+                    "periodos": {},
+                    "por_idade": {
+                        "INTEGRAL": [
+                            {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1}
+                        ]
+                    },
+                    "turma_infantil": {},
+                    "faixa_etaria": {},
+                    "total": 0,
+                }
+            },
+        }
     }
-    classificacao = {"tipo": "Tipo A", "total": 0, "periodos": {}}
-    return item, classificacao
+    item = {
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola CEMEI",
+        "nome_periodo_escolar": "INTEGRAL",
+        "tipo_unidade": "CEMEI",
+        "lote": "LOTE CEMEI",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 3,
+        "inicio": 7,
+        "fim": 12,
+        "infantil_ou_fundamental": None,
+        "cei_ou_emei": None,
+    }
+    item_somatorio = {
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola CEMEI",
+        "nome_periodo_escolar": "INTEGRAL",
+        "tipo_unidade": "CEMEI",
+        "lote": "LOTE CEMEI",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 4,
+        "inicio": None,
+        "fim": None,
+        "infantil_ou_fundamental": None,
+        "cei_ou_emei": None,
+    }
+    return item, item_somatorio, classificacao
 
 
 @pytest.fixture
 def escolas_tipo_cemei_por_periodo():
+    classificacao = {
+        "Escola CEMEI": {
+            "tipo_unidade": "CEMEI",
+            "lote": "LOTE CEMEI",
+            "data": datetime.date(2023, 12, 1),
+            "classificacoes": {
+                "Tipo A": {
+                    "infantil": {},
+                    "fundamental": {},
+                    "periodos": {},
+                    "por_idade": {},
+                    "turma_infantil": {"INTEGRAL": 1},
+                    "faixa_etaria": {},
+                    "total": 0,
+                }
+            },
+        }
+    }
+
     item = {
-        "escola__nome": "Escola CEU CEMEI ",
-        "escola__tipo_unidade__iniciais": "CEU CEMEI",
-        "escola__lote__nome": "LOTE CEU CEMEI",
-        "classificacao__nome": "Tipo A ENTERAL",
-        "periodo_escolar__nome": "MANHA",
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
-        "escola__uuid": "1fc5fca2-2694-4781-be65-8331716c74a0",
-        "quantidade": 8,
-        "data": datetime.date(2024, 2, 20),
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola CEMEI",
+        "nome_periodo_escolar": "INTEGRAL",
+        "tipo_unidade": "CEMEI",
+        "lote": "LOTE CEMEI",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 3,
+        "inicio": None,
+        "fim": None,
     }
-    classificacao = {"tipo": "Tipo A ENTERAL", "total": 0, "periodos": {}}
-    return item, classificacao
+
+    item_somatorio = {
+        "infantil_ou_fundamental": "N/A",
+        "cei_ou_emei": "N/A",
+        "data": datetime.date(2023, 12, 1),
+        "nome_escola": "Escola CEMEI",
+        "nome_periodo_escolar": None,
+        "tipo_unidade": "CEMEI",
+        "lote": "LOTE CEMEI",
+        "nome_classificacao": "Tipo A",
+        "quantidade_total": 4,
+        "inicio": None,
+        "fim": None,
+    }
+
+    return item, item_somatorio, classificacao
 
 
 @pytest.fixture
@@ -1470,7 +1660,7 @@ def log_dietas_autorizadas(
         "LogQuantidadeDietasAutorizadas",
         escola=escola_emebs,
         quantidade=5,
-        classificacao=classificacao_tipo_b,
+        classificacao=classificacao_tipo_a,
         periodo_escolar=periodo_escolar_integral,
         cei_ou_emei="N/A",
         infantil_ou_fundamental="INFANTIL",
@@ -1484,6 +1674,16 @@ def log_dietas_autorizadas(
         periodo_escolar=periodo_escolar_manha,
         cei_ou_emei="N/A",
         infantil_ou_fundamental="FUNDAMENTAL",
+        data=data,
+    )
+    mommy.make(
+        "LogQuantidadeDietasAutorizadas",
+        escola=escola_emebs,
+        quantidade=11,
+        classificacao=classificacao_tipo_a,
+        periodo_escolar=None,
+        cei_ou_emei="N/A",
+        infantil_ou_fundamental="N/A",
         data=data,
     )
 
@@ -1501,8 +1701,18 @@ def log_dietas_autorizadas(
         "LogQuantidadeDietasAutorizadas",
         escola=escola_cemei,
         quantidade=8,
-        classificacao=classificacao_tipo_a,
+        classificacao=classificacao_tipo_b,
         periodo_escolar=periodo_escolar_manha,
+        cei_ou_emei="N/A",
+        infantil_ou_fundamental="N/A",
+        data=data,
+    )
+    mommy.make(
+        "LogQuantidadeDietasAutorizadas",
+        escola=escola_cemei,
+        quantidade=15,
+        classificacao=classificacao_tipo_b,
+        periodo_escolar=None,
         cei_ou_emei="N/A",
         infantil_ou_fundamental="N/A",
         data=data,
@@ -1534,9 +1744,18 @@ def log_dietas_autorizadas_cei(
         "LogQuantidadeDietasAutorizadasCEI",
         escola=escola_cei,
         quantidade=11,
-        classificacao=classificacao_tipo_a,
+        classificacao=classificacao_tipo_b,
         periodo_escolar=periodo_escolar_manha,
         faixa_etaria=faixa_dois,
+        data=data,
+    )
+    mommy.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=escola_cei,
+        quantidade=21,
+        classificacao=classificacao_tipo_b,
+        periodo_escolar=periodo_escolar_integral,
+        faixa_etaria=None,
         data=data,
     )
 
@@ -1544,7 +1763,7 @@ def log_dietas_autorizadas_cei(
         "LogQuantidadeDietasAutorizadasCEI",
         escola=escola_cemei,
         quantidade=12,
-        classificacao=classificacao_tipo_b,
+        classificacao=classificacao_tipo_a,
         periodo_escolar=periodo_escolar_integral,
         faixa_etaria=faixa_um,
         data=data,
@@ -1558,50 +1777,43 @@ def log_dietas_autorizadas_cei(
         faixa_etaria=faixa_dois,
         data=data,
     )
-
-
-@pytest.fixture
-def classificacoes():
-    classificacao = {
-        "tipo": "Tipo B",
-        "total": 10,
-        "periodos": [
-            {
-                "periodo": "INTEGRAL",
-                "faixa_etaria": [{"faixa": "0 meses a 05 meses", "autorizadas": 10}],
-            }
-        ],
-    }
-    return ClassificacoesSerializer(classificacao)
+    mommy.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=escola_cemei,
+        quantidade=25,
+        classificacao=classificacao_tipo_a,
+        periodo_escolar=periodo_escolar_integral,
+        faixa_etaria=None,
+        data=data,
+    )
 
 
 @pytest.fixture
 def unidade_educacional():
     resultado = {
-        "lote": "545",
-        "unidade_educacional": "Escola CEI DIRET",
-        "tipo_unidade": "CEI DIRET",
-        "classificacao_dieta": [
+        "lote": "LOTE 07",
+        "unidade_educacional": "CEI ANTÔNIO",
+        "tipo_unidade": "CEI",
+        "classificacao": "Tipo A",
+        "total": 20,
+        "data": "24/08/2023",
+        "periodos": [
             {
-                "tipo": "Tipo B",
-                "total": 10,
-                "periodos": [
-                    {
-                        "periodo": "INTEGRAL",
-                        "faixa_etaria": [
-                            {"faixa": "0 meses a 05 meses", "autorizadas": 10}
-                        ],
-                    }
+                "periodo": "TARDE",
+                "faixa_etaria": [
+                    {"faixa": "01 a 03 meses", "autorizadas": 5},
+                    {"faixa": "07 a 11 meses", "autorizadas": 2},
+                    {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1},
+                    {"faixa": "04 anos a 06 anos", "autorizadas": 2},
                 ],
             },
             {
-                "tipo": "Tipo A",
-                "total": 11,
-                "periodos": [
-                    {
-                        "periodo": "MANHA",
-                        "faixa_etaria": [{"faixa": "07 a 11 meses", "autorizadas": 11}],
-                    }
+                "periodo": "MANHA",
+                "faixa_etaria": [
+                    {"faixa": "01 a 03 meses", "autorizadas": 3},
+                    {"faixa": "07 a 11 meses", "autorizadas": 2},
+                    {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 2},
+                    {"faixa": "04 anos a 06 anos", "autorizadas": 3},
                 ],
             },
         ],
