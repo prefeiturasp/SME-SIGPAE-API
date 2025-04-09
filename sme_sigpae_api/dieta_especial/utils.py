@@ -1134,7 +1134,7 @@ def gerar_filtros_relatorio_historico(query_params: dict) -> dict:
 
     data_dieta = query_params.get("data")
     if not data_dieta:
-        raise ValidationError("Data é um parâmetro obrigatório")
+        raise ValidationError("Data é um parâmetro obrigatório.")
     try:
         formato = "%d/%m/%Y"
         data = datetime.strptime(data_dieta, formato)
@@ -1361,7 +1361,7 @@ def unidades_tipos_emei_emef_cieja(item, escolas):
     if periodo_escola:
         escolas[nome_escola]["classificacoes"][classificacao]["periodos"][
             periodo_escola
-        ] = quantidade
+        ] += quantidade
     elif periodo_escola is None and tipo_turma == "N/A" and cei_emei == "N/A":
         escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
         total_dietas = quantidade
@@ -1422,9 +1422,18 @@ def unidades_tipo_cemei(item, escolas):
     total_dietas = 0
     if inicio is not None and fim is not None:
         faixa_etaria_infantil = faixa_to_string(item["inicio"], item["fim"])
+        if (
+            escolas[nome_escola]["classificacoes"][classificacao]["por_idade"][
+                periodo_escola
+            ]
+            == 0
+        ):
+            escolas[nome_escola]["classificacoes"][classificacao]["por_idade"][
+                periodo_escola
+            ] = []
         escolas[nome_escola]["classificacoes"][classificacao]["por_idade"][
-            faixa_etaria_infantil
-        ] = quantidade
+            periodo_escola
+        ].append({"faixa": faixa_etaria_infantil, "autorizadas": quantidade})
     elif inicio is None and fim is None and tipo_turma is None and cei_emei is None:
         escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
         total_dietas = quantidade
@@ -1472,7 +1481,7 @@ def formatar_periodos_cemei(informacao_escola_por_classificacao, dados_classific
     por_idade = dados_classificacao["por_idade"]
     if len(por_idade) > 0:
         informacao_escola_por_classificacao["periodos"]["por_idade"] = [
-            {"periodo": p, "autorizadas": q} for p, q in por_idade.items()
+            {"periodo": p, "faixa_etaria": q} for p, q in por_idade.items()
         ]
 
 
