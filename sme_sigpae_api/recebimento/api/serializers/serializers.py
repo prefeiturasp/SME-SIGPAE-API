@@ -110,7 +110,7 @@ class QuestoesPorProdutoDetalheSerializer(serializers.ModelSerializer):
         )
 
 
-class QuestaoFichaRecebimentosSerializer(serializers.ModelSerializer):
+class QuestaoFichaRecebimentoSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestaoFichaRecebimento
         exclude = ("id",)

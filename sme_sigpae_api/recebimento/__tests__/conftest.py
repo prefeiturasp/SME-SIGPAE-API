@@ -7,7 +7,31 @@ from sme_sigpae_api.dados_comuns.fluxo_status import (
     DocumentoDeRecebimentoWorkflow,
     FichaTecnicaDoProdutoWorkflow,
 )
-from sme_sigpae_api.recebimento.models import QuestaoConferencia
+from sme_sigpae_api.pre_recebimento.fixtures.factories.cronograma_factory import (
+    EtapasDoCronogramaFactory,
+)
+from sme_sigpae_api.pre_recebimento.fixtures.factories.documentos_de_recebimento_factory import (
+    DocumentoDeRecebimentoFactory,
+)
+from sme_sigpae_api.pre_recebimento.fixtures.factories.ficha_tecnica_do_produto_factory import (
+    FichaTecnicaFactory,
+)
+from sme_sigpae_api.recebimento.fixtures.factories.ficha_de_recebimento_factory import (
+    FichaDeRecebimentoFactory,
+)
+from sme_sigpae_api.recebimento.fixtures.factories.questao_conferencia_factory import (
+    QuestaoConferenciaFactory,
+)
+from sme_sigpae_api.recebimento.fixtures.factories.questao_ficha_recebimento_factory import (
+    QuestaoFichaRecebimentoFactory,
+)
+from sme_sigpae_api.recebimento.fixtures.factories.questoes_por_produto_factory import (
+    QuestoesPorProdutoFactory,
+)
+from sme_sigpae_api.recebimento.models import (
+    QuestaoConferencia,
+    QuestaoFichaRecebimento,
+)
 
 fake = Faker("pt_BR")
 
@@ -115,5 +139,62 @@ def payload_ficha_recebimento_rascunho(
         "arquivos": [
             {"arquivo": arquivo_pdf_base64, "nome": "Arquivo1.pdf"},
             {"arquivo": arquivo_pdf_base64, "nome": "Arquivo2.pdf"},
+        ],
+    }
+
+
+@pytest.fixture
+def questoes_por_produto():
+    ficha_tecnica = FichaTecnicaFactory()
+    questoes_produto = QuestoesPorProdutoFactory(ficha_tecnica=ficha_tecnica)
+    questao_primaria = QuestaoConferenciaFactory(
+        tipo_questao=QuestaoConferencia.TIPO_QUESTAO_PRIMARIA
+    )
+    questao_secundaria = QuestaoConferenciaFactory(
+        tipo_questao=QuestaoConferencia.TIPO_QUESTAO_SECUNDARIA
+    )
+    questoes_produto.questoes_primarias.add(questao_primaria)
+    questoes_produto.questoes_secundarias.add(questao_secundaria)
+    return questoes_produto
+
+
+@pytest.fixture
+def questao_ficha_recebimento():
+    return QuestaoFichaRecebimentoFactory()
+
+
+@pytest.fixture
+def questao_conferencia():
+    return QuestaoConferenciaFactory(
+        tipo_questao=QuestaoConferencia.TIPO_QUESTAO_PRIMARIA
+    )
+
+
+@pytest.fixture
+def ficha_recebimento():
+    return FichaDeRecebimentoFactory()
+
+
+@pytest.fixture
+def etapa_cronograma():
+    return EtapasDoCronogramaFactory()
+
+
+@pytest.fixture
+def ficha_recebimento_rascunho(etapa_cronograma):
+    documento = DocumentoDeRecebimentoFactory(status="APROVADO")
+    questao = QuestaoConferenciaFactory()
+
+    return {
+        "etapa": str(etapa_cronograma.uuid),
+        "data_entrega": "2025-04-10",
+        "documentos_recebimento": [str(documento.uuid)],
+        "veiculos": [{"numero": "ABC1D23"}],
+        "questoes": [
+            {
+                "questao_conferencia": str(questao.uuid),
+                "resposta": True,
+                "tipo_questao": QuestaoFichaRecebimento.TIPO_QUESTAO_PRIMARIA,
+            }
         ],
     }
