@@ -134,7 +134,7 @@ class SolicitacaoDietaEspecialViewSet(
         if self.action in [
             "relatorio_dieta_especial",
             "imprime_relatorio_dieta_especial",
-        ]:  # noqa
+        ]:
             return self.queryset.select_related(
                 "rastro_escola__diretoria_regional"
             ).order_by(
