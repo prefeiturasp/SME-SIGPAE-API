@@ -8,6 +8,7 @@ from sme_sigpae_api.dados_comuns.fluxo_status import (
     FichaTecnicaDoProdutoWorkflow,
 )
 from sme_sigpae_api.pre_recebimento.fixtures.factories.cronograma_factory import (
+    CronogramaFactory,
     EtapasDoCronogramaFactory,
 )
 from sme_sigpae_api.pre_recebimento.fixtures.factories.documentos_de_recebimento_factory import (
@@ -86,6 +87,10 @@ def payload_ficha_recebimento_rascunho(
         status=DocumentoDeRecebimentoWorkflow.APROVADO,
     )
 
+    questao = QuestaoConferenciaFactory(
+        tipo_questao=QuestaoConferencia.TIPO_QUESTAO_PRIMARIA
+    )
+
     return {
         "etapa": str(etapa.uuid),
         "data_entrega": str(date.today() + timedelta(days=10)),
@@ -139,6 +144,13 @@ def payload_ficha_recebimento_rascunho(
         "arquivos": [
             {"arquivo": arquivo_pdf_base64, "nome": "Arquivo1.pdf"},
             {"arquivo": arquivo_pdf_base64, "nome": "Arquivo2.pdf"},
+        ],
+        "questoes": [
+            {
+                "questao_conferencia": str(questao.uuid),
+                "resposta": False,
+                "tipo_questao": "PRIMARIA",
+            }
         ],
     }
 
@@ -198,3 +210,13 @@ def ficha_recebimento_rascunho(etapa_cronograma):
             }
         ],
     }
+
+
+@pytest.fixture
+def cronograma():
+    return CronogramaFactory()
+
+
+@pytest.fixture
+def cronograma_completo(questoes_por_produto):
+    return CronogramaFactory(ficha_tecnica=questoes_por_produto.ficha_tecnica)
