@@ -195,6 +195,16 @@ class ServiceDashboardLayoutEmbalagem(BaseServiceDashboard):
             LayoutDeEmbalagemWorkflow.APROVADO,
             LayoutDeEmbalagemWorkflow.SOLICITADO_CORRECAO,
         ],
+        DILOG_ABASTECIMENTO: [
+            LayoutDeEmbalagemWorkflow.ENVIADO_PARA_ANALISE,
+            LayoutDeEmbalagemWorkflow.APROVADO,
+            LayoutDeEmbalagemWorkflow.SOLICITADO_CORRECAO,
+        ],
+        DILOG_CRONOGRAMA: [
+            LayoutDeEmbalagemWorkflow.ENVIADO_PARA_ANALISE,
+            LayoutDeEmbalagemWorkflow.APROVADO,
+            LayoutDeEmbalagemWorkflow.SOLICITADO_CORRECAO,
+        ],
     }
 
 
@@ -256,6 +266,16 @@ class ServiceDashboardFichaTecnica(BaseServiceDashboard):
             FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO,
         ],
         DILOG_QUALIDADE: [
+            FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
+            FichaTecnicaDoProdutoWorkflow.APROVADA,
+            FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO,
+        ],
+        DILOG_ABASTECIMENTO: [
+            FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
+            FichaTecnicaDoProdutoWorkflow.APROVADA,
+            FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO,
+        ],
+        DILOG_CRONOGRAMA: [
             FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
             FichaTecnicaDoProdutoWorkflow.APROVADA,
             FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO,
