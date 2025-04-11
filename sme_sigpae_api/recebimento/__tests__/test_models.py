@@ -1,6 +1,9 @@
 import pytest
 
-from sme_sigpae_api.recebimento.models import QuestaoConferencia
+from sme_sigpae_api.recebimento.models import (
+    QuestaoConferencia,
+    QuestaoFichaRecebimento,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -43,3 +46,28 @@ def test_model_arquivo_ficha_recebimento_str(arquivo_ficha_de_recebimento_factor
     arquivo = arquivo_ficha_de_recebimento_factory(nome="arquivo-teste.pdf")
 
     assert str(arquivo) == f"{arquivo.nome} - {arquivo.ficha_recebimento}"
+
+
+def test_questao_ficha_recebimento_instance_model(questao_ficha_recebimento_factory):
+    questao_ficha_recebimento = questao_ficha_recebimento_factory.create()
+    assert isinstance(questao_ficha_recebimento, QuestaoFichaRecebimento)
+
+
+def test_questao_ficha_recebimento_srt_model(questao_ficha_recebimento_factory):
+    questao_ficha_recebimento = questao_ficha_recebimento_factory.create()
+    assert (
+        questao_ficha_recebimento.__str__()
+        == f"{questao_ficha_recebimento.questao_conferencia.questao} - {questao_ficha_recebimento.ficha_recebimento}"
+    )
+
+
+def test_questao_ficha_recebimento_meta_modelo(questao_ficha_recebimento_factory):
+    questao_ficha_recebimento = questao_ficha_recebimento_factory.create()
+    assert (
+        questao_ficha_recebimento._meta.verbose_name
+        == "Questão por Ficha de Recebimento"
+    )
+    assert (
+        questao_ficha_recebimento._meta.verbose_name_plural
+        == "Questões por Fichas de Recebimento"
+    )

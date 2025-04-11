@@ -5,6 +5,7 @@ from sme_sigpae_api.recebimento.models import (
     ArquivoFichaRecebimento,
     FichaDeRecebimento,
     QuestaoConferencia,
+    QuestaoFichaRecebimento,
     QuestoesPorProduto,
     VeiculoFichaDeRecebimento,
 )
@@ -49,10 +50,16 @@ class ArquivoFichaRecebimentoInline(admin.StackedInline):
     extra = 0
 
 
+class QuestaoFichaRecebimentoInline(admin.StackedInline):
+    model = QuestaoFichaRecebimento
+    extra = 0
+
+
 @admin.register(FichaDeRecebimento)
 class FichaDeRecebimentoAdmin(admin.ModelAdmin):
     list_display = ("__str__", "data_entrega")
     inlines = [
         VeiculoFichaDeRecebimentoInline,
         ArquivoFichaRecebimentoInline,
+        QuestaoFichaRecebimentoInline,
     ]
