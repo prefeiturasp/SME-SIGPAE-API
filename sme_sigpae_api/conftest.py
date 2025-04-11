@@ -7,6 +7,10 @@ from faker import Faker
 from model_mommy import mommy
 from pytest_factoryboy import register
 
+from sme_sigpae_api.recebimento.fixtures.factories.questao_ficha_recebimento_factory import (
+    QuestaoFichaRecebimentoFactory,
+)
+
 from .cardapio.fixtures.factories.alteracao_cardapio_factory import (
     AlteracaoCardapioFactory,
     DataIntervaloAlteracaoCardapioFactory,
@@ -259,6 +263,7 @@ register(DiaSuspensaoAtividadesFactory)
 register(LogQuantidadeDietasAutorizadasFactory)
 register(LogQuantidadeDietasAutorizadasCEIFactory)
 register(HistoricoMatriculaAlunoFactory)
+register(QuestaoFichaRecebimentoFactory)
 
 
 @pytest.fixture
