@@ -159,6 +159,10 @@ def test_url_ficha_recebimento_rascunho_create_update(
         payload_ficha_recebimento_rascunho["documentos_recebimento"]
     )
     assert ficha.arquivos.count() == len(payload_ficha_recebimento_rascunho["arquivos"])
+    assert ficha.questoes_conferencia.count() == len(
+        payload_ficha_recebimento_rascunho["questoes"]
+    )
+    assert len(response_create.json()["questoes_conferencia"]) == 1
 
     nova_data_entrega = date.today() + timedelta(days=11)
     payload_ficha_recebimento_rascunho["data_entrega"] = str(nova_data_entrega)
@@ -182,3 +186,51 @@ def test_url_ficha_recebimento_rascunho_create_update(
         payload_ficha_recebimento_rascunho["documentos_recebimento"]
     )
     assert ficha.arquivos.count() == len(payload_ficha_recebimento_rascunho["arquivos"])
+    assert ficha.questoes_conferencia.count() == len(
+        payload_ficha_recebimento_rascunho["questoes"]
+    )
+    assert len(response_update.json()["questoes_conferencia"]) == 1
+
+
+def test_url_busca_questoes_cronograma(
+    client_autenticado_qualidade, cronograma_completo
+):
+    response = client_autenticado_qualidade.get(
+        f"/questoes-por-produto/busca-questoes-cronograma/?cronograma_uuid={cronograma_completo.uuid}"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    resposta = response.json()
+    assert "uuid" in resposta
+    assert "questoes_primarias" in resposta
+    assert "questoes_secundarias" in resposta
+    assert "ficha_tecnica" not in resposta
+
+
+def test_url_busca_questoes_cronograma_nao_encontrado(
+    client_autenticado_qualidade,
+):
+    response = client_autenticado_qualidade.get(
+        "/questoes-por-produto/busca-questoes-cronograma/?cronograma_uuid=7c200bb9-032a-4ffe-be6d-b687d06cee2b"
+    )
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json()["detail"] == "Cronograma não encontrado."
+
+
+def test_url_busca_questoes_cronograma_uuid_invalido(
+    client_autenticado_qualidade,
+):
+    response = client_autenticado_qualidade.get(
+        "/questoes-por-produto/busca-questoes-cronograma/?cronograma_uuid=7c200bb9-032a-4ffe-be6d-b687d06cee2bAa"
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()["detail"] == "UUID inválido."
+
+
+def test_url_busca_questoes_cronograma_sem_questoes_por_produto(
+    client_autenticado_qualidade, cronograma
+):
+    response = client_autenticado_qualidade.get(
+        f"/questoes-por-produto/busca-questoes-cronograma/?cronograma_uuid={cronograma.uuid}"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data is None
