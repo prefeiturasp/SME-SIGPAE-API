@@ -134,7 +134,9 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
         instance.veiculos.all().delete()
         instance.documentos_recebimento.clear()
         instance.arquivos.all().delete()
-        instance.questoes.all().delete()
+        instance.questoes_conferencia.through.objects.filter(
+            ficha_recebimento=instance
+        ).delete()
 
         dados_veiculos = validated_data.pop("veiculos", [])
         documentos_recebimento = validated_data.pop("documentos_recebimento", [])
