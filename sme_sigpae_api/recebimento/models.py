@@ -352,7 +352,7 @@ class QuestaoFichaRecebimento(ModeloBase):
     class Meta:
         verbose_name = "Questão por Ficha de Recebimento"
         verbose_name_plural = "Questões por Fichas de Recebimento"
-        unique_together = ("ficha_recebimento", "questao_conferencia")
+        unique_together = ("ficha_recebimento", "questao_conferencia", "tipo_questao")
 
     def __str__(self):
         return f"{self.questao_conferencia.questao} - {self.ficha_recebimento}"
