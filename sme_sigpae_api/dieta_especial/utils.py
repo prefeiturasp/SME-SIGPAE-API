@@ -1380,7 +1380,7 @@ def unidades_tipos_emei_emef_cieja(item, escolas, periodo_escolar_selecionado=Fa
     return total_dietas
 
 
-def unidades_tipos_cmct_ceugestao(item, escolas):
+def unidades_tipos_cmct_ceugestao(item, escolas, periodo_escolar_selecionado=False):
     nome_escola = item["nome_escola"]
     classificacao = item["nome_classificacao"]
     quantidade = item["quantidade_total"]
