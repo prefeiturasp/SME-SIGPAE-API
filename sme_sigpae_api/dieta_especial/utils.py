@@ -1259,7 +1259,7 @@ def gera_dicionario_historico_dietas(filtros):
     return informacoes
 
 
-def transformar_dados_escolas(dados, periodo_escolar_selecionado):
+def transformar_dados_escolas(dados, periodo_escolar_selecionado=False):
     escolas = defaultdict(
         lambda: {
             "tipo_unidade": None,
@@ -1335,7 +1335,7 @@ def formatar_informacoes_historioco_dietas(escolas, total_dietas):
     }
 
 
-def unidades_tipo_emebs(item, escolas, periodo_escolar_selecionado):
+def unidades_tipo_emebs(item, escolas, periodo_escolar_selecionado=False):
     nome_escola = item["nome_escola"]
     classificacao = item["nome_classificacao"]
     periodo_escola = item["nome_periodo_escolar"]
@@ -1357,7 +1357,7 @@ def unidades_tipo_emebs(item, escolas, periodo_escolar_selecionado):
     return total_dietas
 
 
-def unidades_tipos_emei_emef_cieja(item, escolas, periodo_escolar_selecionado):
+def unidades_tipos_emei_emef_cieja(item, escolas, periodo_escolar_selecionado=False):
     nome_escola = item["nome_escola"]
     classificacao = item["nome_classificacao"]
     periodo_escola = item["nome_periodo_escolar"]
@@ -1389,7 +1389,7 @@ def unidades_tipos_cmct_ceugestao(item, escolas):
     return quantidade
 
 
-def unidades_tipo_cei(item, escolas, periodo_escolar_selecionado):
+def unidades_tipo_cei(item, escolas, periodo_escolar_selecionado=False):
     nome_escola = item["nome_escola"]
     classificacao = item["nome_classificacao"]
     periodo_escola = item["nome_periodo_escolar"]
@@ -1420,7 +1420,7 @@ def unidades_tipo_cei(item, escolas, periodo_escolar_selecionado):
     return total_dietas
 
 
-def unidades_tipo_cemei(item, escolas, periodo_escolar_selecionado):
+def unidades_tipo_cemei(item, escolas, periodo_escolar_selecionado=False):  # noqa
     nome_escola = item["nome_escola"]
     classificacao = item["nome_classificacao"]
     periodo_escola = item["nome_periodo_escolar"]
