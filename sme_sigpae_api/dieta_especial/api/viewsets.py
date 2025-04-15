@@ -141,7 +141,7 @@ class SolicitacaoDietaEspecialViewSet(
         if self.action in ["relatorio_dieta_especial_terceirizada"]:  # noqa
             return self.queryset.select_related("rastro_terceirizada").order_by(
                 "-criado_em"
-            )  # noqa
+            )
         return super().get_queryset()
 
     def get_permissions(self):  # noqa C901
