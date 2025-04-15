@@ -1413,9 +1413,6 @@ def unidades_tipo_cei(item, escolas, periodo_escolar_selecionado):
         escolas[nome_escola]["classificacoes"][classificacao]["periodos"][
             periodo_escola
         ].append({"faixa": faixa_etaria_infantil, "autorizadas": quantidade})
-        if periodo_escolar_selecionado:
-            escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
-            total_dietas = quantidade
     else:
         escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
         total_dietas = quantidade
