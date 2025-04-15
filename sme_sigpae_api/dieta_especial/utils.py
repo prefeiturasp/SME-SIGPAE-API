@@ -1249,12 +1249,15 @@ def gera_dicionario_historico_dietas(filtros):
     log_dietas = sorted(
         chain(log_escolas_cei, log_escolas), key=lambda x: x["nome_escola"]
     )
-    escolas, total_dietas = transformar_dados_escolas(log_dietas)
+    periodo_escolar_selecionado = False
+    if "periodo_escolar__uuid__in" in filtros:
+        periodo_escolar_selecionado = True
+    escolas, total_dietas = transformar_dados_escolas(log_dietas, periodo_escolar_selecionado)
     informacoes = formatar_informacoes_historioco_dietas(escolas, total_dietas)
     return informacoes
 
 
-def transformar_dados_escolas(dados):
+def transformar_dados_escolas(dados, periodo_escolar_selecionado):
     escolas = defaultdict(
         lambda: {
             "tipo_unidade": None,
@@ -1291,7 +1294,7 @@ def transformar_dados_escolas(dados):
         escolas[nome_escola]["data"] = item["data"]
 
         unidade = tipos_unidades.get(tipo_unidade, lambda e, i: 0)
-        total_dietas += unidade(item, escolas)
+        total_dietas += unidade(item, escolas, periodo_escolar_selecionado)
 
     return escolas, total_dietas
 
@@ -1330,7 +1333,7 @@ def formatar_informacoes_historioco_dietas(escolas, total_dietas):
     }
 
 
-def unidades_tipo_emebs(item, escolas):
+def unidades_tipo_emebs(item, escolas, periodo_escolar_selecionado):
     nome_escola = item["nome_escola"]
     classificacao = item["nome_classificacao"]
     periodo_escola = item["nome_periodo_escolar"]
@@ -1343,13 +1346,13 @@ def unidades_tipo_emebs(item, escolas):
         escolas[nome_escola]["classificacoes"][classificacao][f"{tipo_turma}".lower()][
             periodo_escola
         ] += quantidade
-    elif periodo_escola is None and tipo_turma == "N/A" and cei_emei == "N/A":
+    elif (periodo_escolar_selecionado) or (periodo_escola is None and tipo_turma == "N/A" and cei_emei == "N/A"):
         escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
         total_dietas = quantidade
     return total_dietas
 
 
-def unidades_tipos_emei_emef_cieja(item, escolas):
+def unidades_tipos_emei_emef_cieja(item, escolas, periodo_escolar_selecionado):
     nome_escola = item["nome_escola"]
     classificacao = item["nome_classificacao"]
     periodo_escola = item["nome_periodo_escolar"]
@@ -1362,7 +1365,7 @@ def unidades_tipos_emei_emef_cieja(item, escolas):
         escolas[nome_escola]["classificacoes"][classificacao]["periodos"][
             periodo_escola
         ] += quantidade
-    elif periodo_escola is None and tipo_turma == "N/A" and cei_emei == "N/A":
+    elif (periodo_escolar_selecionado) or (periodo_escola is None and tipo_turma == "N/A" and cei_emei == "N/A"):
         escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
         total_dietas = quantidade
 
@@ -1409,7 +1412,7 @@ def unidades_tipo_cei(item, escolas):
     return total_dietas
 
 
-def unidades_tipo_cemei(item, escolas):
+def unidades_tipo_cemei(item, escolas, periodo_escolar_selecionado):
     nome_escola = item["nome_escola"]
     classificacao = item["nome_classificacao"]
     periodo_escola = item["nome_periodo_escolar"]
@@ -1441,7 +1444,7 @@ def unidades_tipo_cemei(item, escolas):
         escolas[nome_escola]["classificacoes"][classificacao]["turma_infantil"][
             periodo_escola
         ] = quantidade
-    elif periodo_escola is None and tipo_turma == "N/A" and cei_emei == "N/A":
+    elif (periodo_escolar_selecionado) or (periodo_escola is None and tipo_turma == "N/A" and cei_emei == "N/A"):
         escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
         total_dietas = quantidade
 
