@@ -137,9 +137,7 @@ class SolicitacaoDietaEspecialViewSet(
         ]:
             return self.queryset.select_related(
                 "rastro_escola__diretoria_regional"
-            ).order_by(
-                "criado_em"
-            )  # noqa
+            ).order_by("criado_em")
         if self.action in ["relatorio_dieta_especial_terceirizada"]:  # noqa
             return self.queryset.select_related("rastro_terceirizada").order_by(
                 "-criado_em"
