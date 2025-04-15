@@ -1252,7 +1252,9 @@ def gera_dicionario_historico_dietas(filtros):
     periodo_escolar_selecionado = False
     if "periodo_escolar__uuid__in" in filtros:
         periodo_escolar_selecionado = True
-    escolas, total_dietas = transformar_dados_escolas(log_dietas, periodo_escolar_selecionado)
+    escolas, total_dietas = transformar_dados_escolas(
+        log_dietas, periodo_escolar_selecionado
+    )
     informacoes = formatar_informacoes_historioco_dietas(escolas, total_dietas)
     return informacoes
 
@@ -1346,7 +1348,10 @@ def unidades_tipo_emebs(item, escolas, periodo_escolar_selecionado):
         escolas[nome_escola]["classificacoes"][classificacao][f"{tipo_turma}".lower()][
             periodo_escola
         ] += quantidade
-    elif (periodo_escolar_selecionado) or (periodo_escola is None and tipo_turma == "N/A" and cei_emei == "N/A"):
+        if periodo_escolar_selecionado:
+            escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
+            total_dietas = quantidade
+    elif periodo_escola is None and tipo_turma == "N/A" and cei_emei == "N/A":
         escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
         total_dietas = quantidade
     return total_dietas
@@ -1365,7 +1370,10 @@ def unidades_tipos_emei_emef_cieja(item, escolas, periodo_escolar_selecionado):
         escolas[nome_escola]["classificacoes"][classificacao]["periodos"][
             periodo_escola
         ] += quantidade
-    elif (periodo_escolar_selecionado) or (periodo_escola is None and tipo_turma == "N/A" and cei_emei == "N/A"):
+        if periodo_escolar_selecionado:
+            escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
+            total_dietas = quantidade
+    elif periodo_escola is None and tipo_turma == "N/A" and cei_emei == "N/A":
         escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
         total_dietas = quantidade
 
@@ -1381,7 +1389,7 @@ def unidades_tipos_cmct_ceugestao(item, escolas):
     return quantidade
 
 
-def unidades_tipo_cei(item, escolas):
+def unidades_tipo_cei(item, escolas, periodo_escolar_selecionado):
     nome_escola = item["nome_escola"]
     classificacao = item["nome_classificacao"]
     periodo_escola = item["nome_periodo_escolar"]
@@ -1405,6 +1413,9 @@ def unidades_tipo_cei(item, escolas):
         escolas[nome_escola]["classificacoes"][classificacao]["periodos"][
             periodo_escola
         ].append({"faixa": faixa_etaria_infantil, "autorizadas": quantidade})
+        if periodo_escolar_selecionado:
+            escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
+            total_dietas = quantidade
     else:
         escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
         total_dietas = quantidade
@@ -1444,7 +1455,10 @@ def unidades_tipo_cemei(item, escolas, periodo_escolar_selecionado):
         escolas[nome_escola]["classificacoes"][classificacao]["turma_infantil"][
             periodo_escola
         ] = quantidade
-    elif (periodo_escolar_selecionado) or (periodo_escola is None and tipo_turma == "N/A" and cei_emei == "N/A"):
+        if periodo_escolar_selecionado:
+            escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
+            total_dietas = quantidade
+    elif periodo_escola is None and tipo_turma == "N/A" and cei_emei == "N/A":
         escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
         total_dietas = quantidade
 
