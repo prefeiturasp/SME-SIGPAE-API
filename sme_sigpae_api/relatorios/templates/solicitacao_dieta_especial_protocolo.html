@@ -6,11 +6,11 @@
 {% block conteudo %}
 <link rel="stylesheet" href="{% sass_src 'css/dieta_especial_protocolo.scss' %}" type="text/css">
 <div class="conteudo dieta-especial-protocolo">
-  <div class="justificativa-cancelamento">
-    {% if justificativa_cancelamento is not None %}
+  {% if justificativa_cancelamento is not None %}
+    <div class="justificativa-cancelamento">
       {{ justificativa_cancelamento }}
-    {% endif %}
-  </div>
+    </div>
+  {% endif %}
   <div class="tabela-dados-solicitacao">
     <div class="row">
         <div class="col-2 ml-4 mt-4">
