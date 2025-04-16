@@ -1295,7 +1295,7 @@ def transformar_dados_escolas(dados, periodo_escolar_selecionado=False):
         escolas[nome_escola]["lote"] = item["lote"]
         escolas[nome_escola]["data"] = item["data"]
 
-        unidade = tipos_unidades.get(tipo_unidade, lambda e, i: 0)
+        unidade = tipos_unidades.get(tipo_unidade, lambda e, i, p: 0)
         total_dietas += unidade(item, escolas, periodo_escolar_selecionado)
 
     return escolas, total_dietas
