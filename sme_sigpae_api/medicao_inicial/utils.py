@@ -1721,7 +1721,7 @@ def avalia_soma_total_com_dados_tabela_anterior(
         ]
         qtd_items_antes_total = todas_faixas_anterior[::-1].index("total")
         valores_tabela_anterior_para_somar = valores_campos_linha_total_tabela_anterior[
-            -(qtd_items_antes_total):
+            -(qtd_items_antes_total * 2) :
         ]
         valores_para_soma += valores_tabela_anterior_para_somar
     return valores_para_soma
