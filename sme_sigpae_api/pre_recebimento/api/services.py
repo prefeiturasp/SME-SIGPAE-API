@@ -11,10 +11,10 @@ from sme_sigpae_api.dados_comuns.constants import (
     ADMINISTRADOR_GESTAO_PRODUTO,
     COORDENADOR_CODAE_DILOG_LOGISTICA,
     COORDENADOR_GESTAO_PRODUTO,
+    DILOG_ABASTECIMENTO,
     DILOG_CRONOGRAMA,
     DILOG_DIRETORIA,
     DILOG_QUALIDADE,
-    DINUTRE_DIRETORIA,
     USUARIO_EMPRESA,
 )
 from sme_sigpae_api.dados_comuns.fluxo_status import (
@@ -124,16 +124,16 @@ class BaseServiceDashboard:
 
 class ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles(BaseServiceDashboard):
     STATUS_POR_PERFIL = {
-        DINUTRE_DIRETORIA: [
+        DILOG_ABASTECIMENTO: [
             CronogramaAlteracaoWorkflow.CRONOGRAMA_CIENTE,
-            CronogramaAlteracaoWorkflow.APROVADO_DINUTRE,
-            CronogramaAlteracaoWorkflow.REPROVADO_DINUTRE,
+            CronogramaAlteracaoWorkflow.APROVADO_DILOG_ABASTECIMENTO,
+            CronogramaAlteracaoWorkflow.REPROVADO_DILOG_ABASTECIMENTO,
             CronogramaAlteracaoWorkflow.ALTERACAO_ENVIADA_FORNECEDOR,
             CronogramaAlteracaoWorkflow.FORNECEDOR_CIENTE,
         ],
         DILOG_DIRETORIA: [
-            CronogramaAlteracaoWorkflow.APROVADO_DINUTRE,
-            CronogramaAlteracaoWorkflow.REPROVADO_DINUTRE,
+            CronogramaAlteracaoWorkflow.APROVADO_DILOG_ABASTECIMENTO,
+            CronogramaAlteracaoWorkflow.REPROVADO_DILOG_ABASTECIMENTO,
             CronogramaAlteracaoWorkflow.APROVADO_DILOG,
             CronogramaAlteracaoWorkflow.REPROVADO_DILOG,
             CronogramaAlteracaoWorkflow.ALTERACAO_ENVIADA_FORNECEDOR,
@@ -191,6 +191,16 @@ class ServiceDashboardLayoutEmbalagem(BaseServiceDashboard):
             LayoutDeEmbalagemWorkflow.SOLICITADO_CORRECAO,
         ],
         DILOG_DIRETORIA: [
+            LayoutDeEmbalagemWorkflow.ENVIADO_PARA_ANALISE,
+            LayoutDeEmbalagemWorkflow.APROVADO,
+            LayoutDeEmbalagemWorkflow.SOLICITADO_CORRECAO,
+        ],
+        DILOG_ABASTECIMENTO: [
+            LayoutDeEmbalagemWorkflow.ENVIADO_PARA_ANALISE,
+            LayoutDeEmbalagemWorkflow.APROVADO,
+            LayoutDeEmbalagemWorkflow.SOLICITADO_CORRECAO,
+        ],
+        DILOG_CRONOGRAMA: [
             LayoutDeEmbalagemWorkflow.ENVIADO_PARA_ANALISE,
             LayoutDeEmbalagemWorkflow.APROVADO,
             LayoutDeEmbalagemWorkflow.SOLICITADO_CORRECAO,
@@ -260,6 +270,16 @@ class ServiceDashboardFichaTecnica(BaseServiceDashboard):
             FichaTecnicaDoProdutoWorkflow.APROVADA,
             FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO,
         ],
+        DILOG_ABASTECIMENTO: [
+            FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
+            FichaTecnicaDoProdutoWorkflow.APROVADA,
+            FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO,
+        ],
+        DILOG_CRONOGRAMA: [
+            FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
+            FichaTecnicaDoProdutoWorkflow.APROVADA,
+            FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO,
+        ],
     }
 
 
@@ -278,10 +298,10 @@ class ServiceQuerysetAlteracaoCronograma:
             CronogramaAlteracaoWorkflow.EM_ANALISE,
         ],
         DILOG_DIRETORIA: [
-            CronogramaAlteracaoWorkflow.APROVADO_DINUTRE,
-            CronogramaAlteracaoWorkflow.REPROVADO_DINUTRE,
+            CronogramaAlteracaoWorkflow.APROVADO_DILOG_ABASTECIMENTO,
+            CronogramaAlteracaoWorkflow.REPROVADO_DILOG_ABASTECIMENTO,
         ],
-        DINUTRE_DIRETORIA: [
+        DILOG_ABASTECIMENTO: [
             CronogramaAlteracaoWorkflow.CRONOGRAMA_CIENTE,
         ],
     }

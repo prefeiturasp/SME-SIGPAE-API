@@ -1,4 +1,4 @@
-from random import random
+import random
 
 from factory import DjangoModelFactory, LazyAttribute, Sequence, SubFactory
 from faker import Faker
@@ -9,6 +9,7 @@ from sme_sigpae_api.escola.models import (
     DiretoriaRegional,
     Escola,
     FaixaEtaria,
+    HistoricoMatriculaAluno,
     LogAlunosMatriculadosPeriodoEscola,
     Lote,
     PeriodoEscolar,
@@ -45,14 +46,14 @@ class LoteFactory(DjangoModelFactory):
 
 
 class EscolaFactory(DjangoModelFactory):
-    class Meta:
-        model = Escola
-
     nome = Sequence(lambda n: f"Escola {n} - {fake.unique.company()}")
     codigo_eol = Sequence(lambda n: fake.unique.random_int(min=1, max=999999))
     lote = SubFactory(LoteFactory)
     diretoria_regional = SubFactory(DiretoriaRegionalFactory)
     tipo_unidade = SubFactory(TipoUnidadeEscolarFactory)
+
+    class Meta:
+        model = Escola
 
 
 class PeriodoEscolarFactory(DjangoModelFactory):
@@ -102,3 +103,13 @@ class AlunoFactory(DjangoModelFactory):
 
     class Meta:
         model = Aluno
+
+
+class HistoricoMatriculaAlunoFactory(DjangoModelFactory):
+    aluno = SubFactory(AlunoFactory)
+    escola = SubFactory(EscolaFactory)
+    data_inicio = LazyAttribute(lambda _: fake.date())
+    codigo_situacao = LazyAttribute(lambda _: random.randint(1, 13))
+
+    class Meta:
+        model = HistoricoMatriculaAluno

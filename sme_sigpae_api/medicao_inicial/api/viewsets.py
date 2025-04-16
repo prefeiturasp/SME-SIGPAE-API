@@ -4,7 +4,7 @@ import json
 
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from django.db.models import IntegerField, Q, QuerySet
+from django.db.models import F, IntegerField, Q, QuerySet
 from django.db.models.functions import Cast
 from django_filters import rest_framework as filters
 from rest_framework import mixins, status
@@ -28,6 +28,7 @@ from ...dados_comuns.permissions import (
     UsuarioCODAEGabinete,
     UsuarioCODAEGestaoAlimentacao,
     UsuarioCODAENutriManifestacao,
+    UsuarioDinutreDiretoria,
     UsuarioDiretorEscolaTercTotal,
     UsuarioDiretoriaRegional,
     UsuarioEscolaTercTotal,
@@ -45,6 +46,7 @@ from ...escola.models import (
     GrupoUnidadeEscolar,
     LogAlunosMatriculadosPeriodoEscola,
     Lote,
+    TipoTurma,
 )
 from ..models import (
     AlimentacaoLancamentoEspecial,
@@ -155,7 +157,11 @@ class DiaSobremesaDoceViewSet(ViewSetActionPermissionMixin, ModelViewSet):
         "create": [PodeCriarAdministradoresDaCODAEGestaoAlimentacaoTerceirizada],
         "delete": [PodeCriarAdministradoresDaCODAEGestaoAlimentacaoTerceirizada],
     }
-    queryset = DiaSobremesaDoce.objects.all()
+    queryset = (
+        DiaSobremesaDoce.objects.select_related("tipo_unidade", "criado_por", "edital")
+        .annotate(edital_numero=F("edital__numero"))
+        .all()
+    )
     lookup_field = "uuid"
     pagination_class = None
 
@@ -165,7 +171,7 @@ class DiaSobremesaDoceViewSet(ViewSetActionPermissionMixin, ModelViewSet):
         return DiaSobremesaDoceSerializer
 
     def get_queryset(self):
-        queryset = DiaSobremesaDoce.objects.all()
+        queryset = super().get_queryset()
         if "mes" in self.request.query_params and "ano" in self.request.query_params:
             queryset = queryset.filter(
                 data__month=self.request.query_params.get("mes"),
@@ -218,6 +224,7 @@ class SolicitacaoMedicaoInicialViewSet(
         | UsuarioCODAEGestaoAlimentacao
         | UsuarioCODAENutriManifestacao
         | UsuarioCODAEGabinete
+        | UsuarioDinutreDiretoria
     ]
     queryset = SolicitacaoMedicaoInicial.objects.all()
 
@@ -429,6 +436,7 @@ class SolicitacaoMedicaoInicialViewSet(
             | UsuarioCODAEGestaoAlimentacao
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGabinete
+            | UsuarioDinutreDiretoria
         ],
     )
     def dashboard(self, request):
@@ -455,6 +463,7 @@ class SolicitacaoMedicaoInicialViewSet(
             | UsuarioCODAEGestaoAlimentacao
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGabinete
+            | UsuarioDinutreDiretoria
         ],
     )
     def meses_anos(self, request):
@@ -666,6 +675,7 @@ class SolicitacaoMedicaoInicialViewSet(
             | UsuarioCODAEGestaoAlimentacao
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGabinete
+            | UsuarioDinutreDiretoria
         ],
     )
     def periodos_grupos_medicao(self, request):
@@ -790,7 +800,10 @@ class SolicitacaoMedicaoInicialViewSet(
         retorno = []
         if escola.eh_cemei:
             logs = LogAlunosMatriculadosPeriodoEscola.objects.filter(
-                escola=escola, criado_em__year=ano, criado_em__month=mes
+                escola=escola,
+                criado_em__year=ano,
+                criado_em__month=mes,
+                tipo_turma=TipoTurma.REGULAR.name,
             )
             retorno = sorted(
                 list(set([f"Infantil {log.periodo_escolar.nome}" for log in logs]))
@@ -1406,6 +1419,7 @@ class MedicaoViewSet(
             | UsuarioCODAEGestaoAlimentacao
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGabinete
+            | UsuarioDinutreDiretoria
         ],
     )
     def feriados_no_mes_com_nome(self, request, uuid=None):
@@ -1582,6 +1596,7 @@ class PermissaoLancamentoEspecialViewSet(ModelViewSet):
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGestaoAlimentacao
             | UsuarioCODAEGabinete
+            | UsuarioDinutreDiretoria
         ],
     )
     def permissoes_lancamentos_especiais_mes_ano_por_periodo(self, request):
@@ -1726,6 +1741,7 @@ class RelatoriosViewSet(ViewSet):
         | UsuarioCODAEGestaoAlimentacao
         | UsuarioCODAENutriManifestacao
         | UsuarioCODAEGabinete
+        | UsuarioDinutreDiretoria
     ]
 
     @action(detail=False, url_name="relatorio-adesao", url_path="relatorio-adesao")

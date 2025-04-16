@@ -7,6 +7,20 @@ from faker import Faker
 from model_mommy import mommy
 from pytest_factoryboy import register
 
+from sme_sigpae_api.recebimento.fixtures.factories.questao_ficha_recebimento_factory import (
+    QuestaoFichaRecebimentoFactory,
+)
+
+from .cardapio.fixtures.factories.alteracao_cardapio_factory import (
+    AlteracaoCardapioFactory,
+    DataIntervaloAlteracaoCardapioFactory,
+    MotivoAlteracaoCardapioFactory,
+    SubstituicaoAlimentacaoNoPeriodoEscolarFactory,
+)
+from .cardapio.fixtures.factories.base_factory import (
+    TipoAlimentacaoFactory,
+    VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory,
+)
 from .dados_comuns import constants
 from .dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
@@ -14,14 +28,20 @@ from .dados_comuns.fixtures.factories.dados_comuns_factories import (
 from .dados_comuns.models import TemplateMensagem
 from .dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
+    LogQuantidadeDietasAutorizadasCEIFactory,
+    LogQuantidadeDietasAutorizadasFactory,
     SolicitacaoDietaEspecialFactory,
 )
 from .eol_servico.utils import EOLServicoSGP
+from .escola.fixtures.factories.dia_suspensao_atividades_factory import (
+    DiaSuspensaoAtividadesFactory,
+)
 from .escola.fixtures.factories.escola_factory import (
     AlunoFactory,
     DiretoriaRegionalFactory,
     EscolaFactory,
     FaixaEtariaFactory,
+    HistoricoMatriculaAlunoFactory,
     LogAlunosMatriculadosPeriodoEscolaFactory,
     LoteFactory,
     PeriodoEscolarFactory,
@@ -64,10 +84,14 @@ from .imr.fixtures.factories.imr_importacao_planilha_base_factory import (
 )
 from .inclusao_alimentacao.fixtures.factories.base_factory import (
     DiasMotivosInclusaoDeAlimentacaoCEIFactory,
+    DiasMotivosInclusaoDeAlimentacaoCEMEIFactory,
     GrupoInclusaoAlimentacaoNormalFactory,
     InclusaoAlimentacaoDaCEIFactory,
     InclusaoAlimentacaoNormalFactory,
+    InclusaoDeAlimentacaoCEMEIFactory,
     MotivoInclusaoNormalFactory,
+    QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEIFactory,
+    QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEIFactory,
     QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEIFactory,
     QuantidadePorPeriodoFactory,
 )
@@ -109,11 +133,16 @@ from .pre_recebimento.fixtures.factories.unidade_medida_factory import (
     UnidadeMedidaFactory,
 )
 from .produto.fixtures.factories.produto_factory import (
+    DataHoraVinculoProdutoEditalFactory,
     FabricanteFactory,
+    HomologacaoProdutoFactory,
     InformacaoNutricionalFactory,
     MarcaFactory,
+    ProdutoEditalFactory,
+    ProdutoFactory,
     ProdutoLogisticaFactory,
     ProdutoTerceirizadaFactory,
+    ReclamacaoDeProdutoFactory,
     TipoDeInformacaoNutricionalFactory,
 )
 from .recebimento.fixtures.factories.ficha_de_recebimento_factory import (
@@ -215,6 +244,26 @@ register(SolicitacaoKitLancheAvulsaFactory)
 register(AlunoFactory)
 register(SolicitacaoDietaEspecialFactory)
 register(ClassificacaoDietaFactory)
+register(InclusaoDeAlimentacaoCEMEIFactory)
+register(QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEIFactory)
+register(QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEIFactory)
+register(DiasMotivosInclusaoDeAlimentacaoCEMEIFactory)
+register(TipoAlimentacaoFactory)
+register(VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory)
+register(MotivoAlteracaoCardapioFactory)
+register(AlteracaoCardapioFactory)
+register(DataIntervaloAlteracaoCardapioFactory)
+register(SubstituicaoAlimentacaoNoPeriodoEscolarFactory)
+register(ProdutoFactory)
+register(HomologacaoProdutoFactory)
+register(ProdutoEditalFactory)
+register(DataHoraVinculoProdutoEditalFactory)
+register(ReclamacaoDeProdutoFactory)
+register(DiaSuspensaoAtividadesFactory)
+register(LogQuantidadeDietasAutorizadasFactory)
+register(LogQuantidadeDietasAutorizadasCEIFactory)
+register(HistoricoMatriculaAlunoFactory)
+register(QuestaoFichaRecebimentoFactory)
 
 
 @pytest.fixture
@@ -688,3 +737,31 @@ def eolservicosgp_get_lista_alunos(monkeypatch):
     return monkeypatch.setattr(
         EOLServicoSGP, "get_alunos_por_escola_por_ano_letivo", lambda x: js
     )
+
+
+@pytest.fixture
+def client_autenticado_vinculo_coordenador_supervisao_nutricao(
+    client, django_user_model, codae
+):
+    email = "nutri@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    perfil_supervisao_nutricao = mommy.make(
+        "Perfil",
+        nome=constants.COORDENADOR_SUPERVISAO_NUTRICAO,
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
+    )
+
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_supervisao_nutricao,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client, user

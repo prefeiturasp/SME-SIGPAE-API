@@ -14,7 +14,7 @@ from ...dados_comuns.fluxo_status import (
     PedidoAPartirDaEscolaWorkflow,
 )
 from ...dados_comuns.models import TemplateMensagem
-from ...escola.models import Aluno
+from ...escola.models import Aluno, TipoTurma
 from .. import models
 from ..models import KitLanche
 
@@ -64,10 +64,31 @@ def escola(diretoria_regional, lote, tipo_unidade):
 
 
 @pytest.fixture
+def escola_cmct(diretoria_regional, lote):
+    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
+    return mommy.make(
+        "Escola",
+        nome="CMCT TESTE",
+        lote=lote,
+        diretoria_regional=diretoria_regional,
+        tipo_gestao=tipo_gestao,
+        tipo_unidade=mommy.make("TipoUnidadeEscolar", iniciais="CMCT"),
+        uuid="798b90e7-cd37-4031-a4cd-fccb236419f9",
+    )
+
+
+@pytest.fixture
 def dia_suspensao_atividades_2019_11_13(escola):
+    edital = mommy.make("Edital", numero="78/SME/2023")
+    contrato = mommy.make(
+        "Contrato", edital=edital, terceirizada=escola.lote.terceirizada
+    )
+    contrato.lotes.add(escola.lote)
+    contrato.save()
     return mommy.make(
         "DiaSuspensaoAtividades",
         tipo_unidade=escola.tipo_unidade,
+        edital=edital,
         data=datetime.date(2019, 11, 13),
     )
 
@@ -781,3 +802,117 @@ def kit_lanche_cemei():
     )
 
     return kit_lanche_cemei
+
+
+@pytest.fixture
+def dados_alunos_matriculados(escola):
+    mommy.make("escola.EscolaPeriodoEscolar", escola=escola, quantidade_alunos=500)
+    mommy.make(
+        "AlunosMatriculadosPeriodoEscola",
+        escola=escola,
+        periodo_escolar=mommy.make("PeriodoEscolar", nome="MANHA", tipo_turno=1),
+        quantidade_alunos=200,
+        tipo_turma=TipoTurma.REGULAR.name,
+    )
+    mommy.make(
+        "AlunosMatriculadosPeriodoEscola",
+        escola=escola,
+        periodo_escolar=mommy.make("PeriodoEscolar", nome="TARDE", tipo_turno=1),
+        quantidade_alunos=200,
+        tipo_turma=TipoTurma.REGULAR.name,
+    )
+    mommy.make(
+        "AlunosMatriculadosPeriodoEscola",
+        escola=escola,
+        periodo_escolar=mommy.make("PeriodoEscolar", nome="INTEGRAL", tipo_turno=1),
+        quantidade_alunos=100,
+        tipo_turma=TipoTurma.REGULAR.name,
+    )
+
+
+@pytest.fixture
+def solicitacao_avulsa_escolas_regulares(
+    dados_alunos_matriculados, escola_cmct, terceirizada
+):
+    mommy.make(TemplateMensagem, tipo=TemplateMensagem.SOLICITACAO_KIT_LANCHE_AVULSA)
+    kits = mommy.make(models.KitLanche, _quantity=3)
+    solicitacao_kit_lanche = mommy.make(
+        models.SolicitacaoKitLanche, kits=kits, data=datetime.date(2000, 1, 1)
+    )
+    return mommy.make(
+        models.SolicitacaoKitLancheAvulsa,
+        local=fake.text()[:160],
+        quantidade_alunos=300,
+        solicitacao_kit_lanche=solicitacao_kit_lanche,
+        escola=escola_cmct,
+        rastro_escola=escola_cmct,
+        rastro_dre=escola_cmct.diretoria_regional,
+        rastro_terceirizada=terceirizada,
+        status=PedidoAPartirDaEscolaWorkflow.RASCUNHO,
+    )
+
+
+@pytest.fixture
+def solicitacao_avulsa_na_mesma_data(
+    dados_alunos_matriculados, escola, terceirizada, solicitacao_avulsa
+):
+    solicitacao_avulsa.status = PedidoAPartirDaEscolaWorkflow.DRE_VALIDADO
+    solicitacao_avulsa.save()
+
+    return mommy.make(
+        models.SolicitacaoKitLancheAvulsa,
+        local=fake.text()[:160],
+        quantidade_alunos=300,
+        solicitacao_kit_lanche=solicitacao_avulsa.solicitacao_kit_lanche,
+        escola=escola,
+        rastro_escola=escola,
+        rastro_dre=escola.diretoria_regional,
+        rastro_terceirizada=terceirizada,
+        status=PedidoAPartirDaEscolaWorkflow.RASCUNHO,
+    )
+
+
+@pytest.fixture
+def solicitacao_avulsa_cmct(dados_alunos_matriculados, escola_cmct, terceirizada):
+    mommy.make(TemplateMensagem, tipo=TemplateMensagem.SOLICITACAO_KIT_LANCHE_AVULSA)
+    kits = mommy.make(models.KitLanche, _quantity=3)
+    solicitacao_kit_lanche = mommy.make(
+        models.SolicitacaoKitLanche, kits=kits, data=datetime.datetime.now().date()
+    )
+    return mommy.make(
+        models.SolicitacaoKitLancheAvulsa,
+        local=fake.text()[:160],
+        quantidade_alunos=50,
+        solicitacao_kit_lanche=solicitacao_kit_lanche,
+        escola=escola_cmct,
+        rastro_escola=escola_cmct,
+        rastro_dre=escola_cmct.diretoria_regional,
+        rastro_terceirizada=terceirizada,
+        status=PedidoAPartirDaEscolaWorkflow.RASCUNHO,
+    )
+
+
+@pytest.fixture
+def client_autenticado_da_escola_cmct(
+    client, django_user_model, escola_cmct, aluno, mocks_kit_lanche_cemei
+):
+    email = "user@escola.com"
+    password = DJANGO_ADMIN_PASSWORD
+    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    usuario = django_user_model.objects.create_user(
+        username=email,
+        password=password,
+        email=email,
+        registro_funcional="123456",
+    )
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=escola_cmct,
+        perfil=perfil_diretor,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client

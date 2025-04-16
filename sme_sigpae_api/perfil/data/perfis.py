@@ -60,11 +60,6 @@ data_perfis = [
         "super_usuario": True,
     },
     {
-        "nome": "COORDENADOR_LOGISTICA",
-        "ativo": True,
-        "super_usuario": True,
-    },
-    {
         "nome": "COORDENADOR_CODAE_DILOG_LOGISTICA",
         "ativo": True,
         "super_usuario": True,
@@ -96,6 +91,46 @@ data_perfis = [
     },
     {
         "nome": "USUARIO_EMPRESA",
+        "ativo": True,
+        "super_usuario": True,
+    },
+    {
+        "nome": "ADMINISTRADOR_CONTRATOS",
+        "ativo": True,
+        "super_usuario": True,
+    },
+    {
+        "nome": "DILOG_ABASTECIMENTO",
+        "ativo": True,
+        "super_usuario": True,
+    },
+    {
+        "nome": "COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO",
+        "ativo": True,
+        "super_usuario": True,
+    },
+    {
+        "nome": "ADMINSTRADOR_FORNECEDOR",
+        "ativo": True,
+        "super_usuario": True,
+    },
+    {
+        "nome": "DILOG_CRONOGRAMA",
+        "ativo": True,
+        "super_usuario": True,
+    },
+    {
+        "nome": "DILOG_QUALIDADE",
+        "ativo": True,
+        "super_usuario": True,
+    },
+    {
+        "nome": "DILOG_DIRETORIA",
+        "ativo": True,
+        "super_usuario": True,
+    },
+    {
+        "nome": "DINUTRE_DIRETORIA",
         "ativo": True,
         "super_usuario": True,
     },

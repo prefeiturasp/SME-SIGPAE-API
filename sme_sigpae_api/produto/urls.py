@@ -1,6 +1,10 @@
 from django.urls import include, path
 from rest_framework import routers
 
+from sme_sigpae_api.produto.api.dashboard.dashboard_viewset import (
+    HomologacaoProdutoDashboardViewSet,
+)
+
 from .api import viewsets
 
 router = routers.DefaultRouter()
@@ -65,6 +69,11 @@ router.register(
     "embalagens-produto",
     viewsets.EmbalagemProdutoViewSet,
     basename="embalagens-produto",
+)
+router.register(
+    "dashboard-produtos",
+    HomologacaoProdutoDashboardViewSet,
+    basename="dashboard-produtos",
 )
 
 urlpatterns = [

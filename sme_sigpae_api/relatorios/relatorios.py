@@ -6,7 +6,10 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import F, FloatField, Sum
 from django.template.loader import get_template, render_to_string
 
+from sme_sigpae_api.paineis_consolidados.models import MoldeConsolidado
+
 from ..cardapio.models import VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar
+from ..dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ..dados_comuns.fluxo_status import GuiaRemessaWorkFlow as GuiaStatus
 from ..dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from ..dados_comuns.models import LogSolicitacoesUsuario
@@ -614,9 +617,25 @@ def relatorio_dieta_especial_protocolo(request, solicitacao):
         escola = solicitacao.rastro_escola
     else:
         escola = solicitacao.escola_destino
+
     substituicao_ordenada = solicitacao.substituicoes.order_by("alimento__nome")
 
     referencia = "unidade" if escola.eh_parceira else "empresa"
+
+    justificativa_cancelamento = None
+    if (
+        solicitacao.status.state.name
+        in MoldeConsolidado.CANCELADOS_STATUS_DIETA_ESPECIAL
+        + MoldeConsolidado.CANCELADOS_STATUS_DIETA_ESPECIAL_TEMP
+    ):
+        log_cancelamento = solicitacao.logs.last()
+        data = log_cancelamento.criado_em.strftime("%d/%m/%Y")
+        mensagem = formata_justificativa(
+            solicitacao, log_cancelamento.status_evento_explicacao
+        )
+        justificativa_cancelamento = (
+            f"Dieta cancelada em: {data} | Justificativa: {mensagem}"
+        )
 
     html_string = render_to_string(
         "solicitacao_dieta_especial_protocolo.html",
@@ -637,6 +656,7 @@ def relatorio_dieta_especial_protocolo(request, solicitacao):
                 if solicitacao.motivo_alteracao_ue
                 else None
             ),
+            "justificativa_cancelamento": justificativa_cancelamento,
         },
     )
     if request:
@@ -1027,12 +1047,14 @@ def relatorio_suspensao_de_alimentacao(request, solicitacao):
     # tem é cada suspensão do relacionamento
     suspensoes = solicitacao.suspensoes_alimentacao.all()
     quantidades_por_periodo = solicitacao.quantidades_por_periodo.all()
+    existe_cancelamento = suspensoes.filter(cancelado=True).exists()
     html_string = render_to_string(
         "solicitacao_suspensao_de_alimentacao.html",
         {
             "escola": escola,
             "solicitacao": solicitacao,
             "suspensoes": suspensoes,
+            "existe_cancelamento": existe_cancelamento,
             "quantidades_por_periodo": quantidades_por_periodo,
             "fluxo": constants.FLUXO_SUSPENSAO_ALIMENTACAO,
             "width": get_width(constants.FLUXO_SUSPENSAO_ALIMENTACAO, solicitacao.logs),
@@ -1747,3 +1769,22 @@ def exportar_relatorio_notificacao(data, template_name, filename):
     return html_to_pdf_file(
         rendered_html.replace("dt_file", data_arquivo), filename, is_async=True
     )
+
+
+def formata_justificativa(solicitacao, status_evento_explicacao):
+    justificativa = None
+    status_solicitacao = solicitacao.status.state.name
+    if status_solicitacao == DietaEspecialWorkflow.TERMINADA_AUTOMATICAMENTE_SISTEMA:
+        justificativa = "Cancelamento automático por atingir data de término."
+    elif status_solicitacao == DietaEspecialWorkflow.CANCELADO_ALUNO_NAO_PERTENCE_REDE:
+        justificativa = (
+            "Cancelamento automático para aluno não matriculado na rede municipal."
+        )
+    elif status_solicitacao == DietaEspecialWorkflow.CANCELADO_ALUNO_MUDOU_ESCOLA:
+        justificativa = (
+            "Cancelamento automático para aluno não matriculado na Unidade Educacional."
+        )
+    else:
+        justificativa = status_evento_explicacao
+
+    return justificativa

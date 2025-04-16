@@ -6,7 +6,10 @@ from model_mommy import mommy
 from rest_framework import status
 
 from sme_sigpae_api.dados_comuns import constants
-from sme_sigpae_api.dados_comuns.fluxo_status import HomologacaoProdutoWorkflow
+from sme_sigpae_api.dados_comuns.fluxo_status import (
+    HomologacaoProdutoWorkflow,
+    ReclamacaoProdutoWorkflow,
+)
 from sme_sigpae_api.produto.models import (
     DataHoraVinculoProdutoEdital,
     HomologacaoProduto,
@@ -18,66 +21,6 @@ pytestmark = pytest.mark.django_db
 
 ENDPOINT_ANALISE_SENSORIAL = "analise-sensorial"
 TERCEIRIZADA_RESPONDE = "terceirizada-responde-analise-sensorial"
-
-
-def test_url_dados_dashboard_usuario_terceirizada(
-    client_autenticado_da_terceirizada, homologacoes_produto
-):
-    response = client_autenticado_da_terceirizada.get(
-        "/painel-gerencial-homologacoes-produtos/dashboard/"
-    )
-    assert response.status_code == status.HTTP_200_OK
-    response_json = response.json()
-    assert len(response_json["results"]) == 15
-    codae_hom = next(
-        (
-            x
-            for x in response_json["results"]
-            if x["status"] == "TERCEIRIZADA_RESPONDEU_RECLAMACAO"
-        ),
-        None,
-    )
-    assert len(codae_hom["dados"]) == 1
-
-
-def test_url_dados_dashboard_usuario_escola(
-    client_autenticado_da_escola, homologacoes_produto
-):
-    response = client_autenticado_da_escola.get(
-        "/painel-gerencial-homologacoes-produtos/dashboard/"
-    )
-    assert response.status_code == status.HTTP_200_OK
-    response_json = response.json()
-    assert len(response_json["results"]) == 12
-    codae_hom = next(
-        (
-            x
-            for x in response_json["results"]
-            if x["status"] == "TERCEIRIZADA_RESPONDEU_RECLAMACAO"
-        ),
-        None,
-    )
-    assert len(codae_hom["dados"]) == 0
-
-
-def test_url_dados_dashboard_usuario_nutrisupervisor(
-    client_autenticado_vinculo_codae_nutrisupervisor, homologacoes_produto
-):
-    response = client_autenticado_vinculo_codae_nutrisupervisor.get(
-        "/painel-gerencial-homologacoes-produtos/dashboard/"
-    )
-    assert response.status_code == status.HTTP_200_OK
-    response_json = response.json()
-    assert len(response_json["results"]) == 12
-    codae_hom = next(
-        (
-            x
-            for x in response_json["results"]
-            if x["status"] == "TERCEIRIZADA_RESPONDEU_RECLAMACAO"
-        ),
-        None,
-    )
-    assert len(codae_hom["dados"]) == 1
 
 
 def test_url_endpoint_homologacao_produto_codae_homologa(
@@ -706,7 +649,7 @@ def test_url_endpoint_lista_nomes_responder_reclamacao_escola(
     homologacao_produto_gpcodae_questionou_escola,
     reclamacao_ue,
 ):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get("/produtos/lista-nomes-responder-reclamacao-escola/")
     esperado = {"results": [{"uuid": "uuid", "nome": produto.nome}]}
 
@@ -735,7 +678,7 @@ def test_url_endpoint_lista_nomes_responder_reclamacao_fabricantes(
     homologacao_produto_gpcodae_questionou_escola,
     reclamacao_ue,
 ):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get("/fabricantes/lista-nomes-responder-reclamacao-escola/")
     esperado = {"results": [{"uuid": str(fabricante.uuid), "nome": fabricante.nome}]}
 
@@ -766,7 +709,7 @@ def test_url_endpoint_lista_nomes_responder_reclamacao_marcas(
     homologacao_produto_gpcodae_questionou_escola,
     reclamacao_ue,
 ):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get("/marcas/lista-nomes-responder-reclamacao-escola/")
     esperado = {"results": [{"uuid": str(marca1.uuid), "nome": marca1.nome}]}
 
@@ -795,7 +738,7 @@ def test_url_endpoint_lista_itens_cadastros(
     item_cadastrado_3,
     item_cadastrado_4,
 ):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get("/itens-cadastros/")
     esperado = {
         "count": 4,
@@ -836,7 +779,7 @@ def test_url_endpoint_lista_itens_cadastros(
 def test_url_endpoint_detalhe_item_cadastro(
     client_autenticado_vinculo_escola_ue, item_cadastrado_1
 ):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get(f"/itens-cadastros/{str(item_cadastrado_1.uuid)}/")
     esperado = {
         "uuid": str(item_cadastrado_1.uuid),
@@ -853,7 +796,7 @@ def test_url_endpoint_criar_item_cadastro_e_marca(client_autenticado_vinculo_esc
     from sme_sigpae_api.produto.models import ItemCadastro
 
     assert ItemCadastro.objects.count() == 0
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     payload = {"nome": "Flamengo", "tipo": "MARCA"}
     response = client.post(
         "/itens-cadastros/", data=json.dumps(payload), content_type="application/json"
@@ -869,7 +812,7 @@ def test_url_endpoint_criar_item_cadastro_e_fabricante(
     from sme_sigpae_api.produto.models import ItemCadastro
 
     assert ItemCadastro.objects.count() == 0
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     payload = {"nome": "Anjo", "tipo": "FABRICANTE"}
     response = client.post(
         "/itens-cadastros/", data=json.dumps(payload), content_type="application/json"
@@ -885,7 +828,7 @@ def test_url_endpoint_criar_item_cadastro_e_unidade_medida(
     from sme_sigpae_api.produto.models import ItemCadastro
 
     assert ItemCadastro.objects.count() == 0
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     payload = {"nome": "Kg", "tipo": "UNIDADE_MEDIDA"}
     response = client.post(
         "/itens-cadastros/", data=json.dumps(payload), content_type="application/json"
@@ -901,7 +844,7 @@ def test_url_endpoint_criar_item_cadastro_e_embalagem_produto(
     from sme_sigpae_api.produto.models import ItemCadastro
 
     assert ItemCadastro.objects.count() == 0
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     payload = {"nome": "Bolsa", "tipo": "EMBALAGEM"}
     response = client.post(
         "/itens-cadastros/", data=json.dumps(payload), content_type="application/json"
@@ -912,7 +855,7 @@ def test_url_endpoint_criar_item_cadastro_e_embalagem_produto(
 
 
 def test_url_endpoint_tipos_item_cadastro(client_autenticado_vinculo_escola_ue):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get("/itens-cadastros/tipos/")
     esperado = [
         {"tipo": "MARCA", "tipo_display": "Marca"},
@@ -932,7 +875,7 @@ def test_url_endpoint_lista_de_nomes_de_itens_cadastros(
     item_cadastrado_3,
     item_cadastrado_4,
 ):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get("/itens-cadastros/lista-nomes/")
     resultado = response.json()
 
@@ -951,7 +894,7 @@ def test_url_endpoint_lista_de_nomes_de_itens_cadastros(
 def test_url_endpoint_lista_unidades_de_medida_sem_paginacao(
     client_autenticado_vinculo_escola_ue, unidade_medida
 ):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get("/unidades-medida/")
     resultado = response.json()
 
@@ -965,7 +908,7 @@ def test_url_endpoint_lista_unidades_de_medida_sem_paginacao(
 def test_url_endpoint_lista_embalagens_produto_sem_paginacao(
     client_autenticado_vinculo_escola_ue, embalagem_produto
 ):
-    client = client_autenticado_vinculo_escola_ue
+    client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get("/embalagens-produto/")
     resultado = response.json()
 
@@ -1036,7 +979,7 @@ def test_url_endpoint_produtos_editais_ativar_inativar(
 def test_url_endpoint_produtos_editais_lista_editais_dre(
     client_autenticado_da_dre, contrato, diretoria_regional
 ):
-    client = client_autenticado_da_dre
+    client, _ = client_autenticado_da_dre
     response = client.get("/produtos-editais/lista-editais-dre/")
     assert response.status_code == status.HTTP_200_OK
     resultado = response.json()
@@ -1054,7 +997,7 @@ def test_url_endpoint_produtos_editais_lista_editais_dre(
 def test_url_endpoint_produtos_editais_filtro_por_parametros_agrupado_terceirizada(
     client_autenticado_da_dre,
 ):
-    client = client_autenticado_da_dre
+    client, _ = client_autenticado_da_dre
     params = {
         "agrupado_por_nome_e_marca": False,
         "data_homologacao": "14/10/2022",
@@ -1822,3 +1765,155 @@ def test_url_informacoes_nutricionais_ordenadas(
         informacoes_nutricionais,
     ):
         assert recebido["nome"] == cadastrado.nome
+
+
+def test_url_endpoint_reclamacao_produto_codae_recusa(
+    client_autenticado_vinculo_codae_produto,
+    reclamacao_respondido_terceirizada,
+):
+    assert (
+        reclamacao_respondido_terceirizada.status
+        == ReclamacaoProdutoWorkflow.RESPONDIDO_TERCEIRIZADA
+    )
+    response = client_autenticado_vinculo_codae_produto.patch(
+        f"/reclamacoes-produtos/{reclamacao_respondido_terceirizada.uuid}/{constants.CODAE_RECUSA}/",
+        content_type="application/json",
+        data=json.dumps({"justificativa": "Produto vencido."}),
+    )
+    assert response.status_code == status.HTTP_200_OK
+    dados = response.json()
+    assert dados["status"] == ReclamacaoProdutoWorkflow.CODAE_RECUSOU
+    assert dados["status_titulo"] == "CODAE recusou"
+    assert len(dados["anexos"]) == 0
+
+
+def test_url_lista_fabricantes_nova_reclamacao(
+    client_autenticado_vinculo_codae_produto, produtos_edital_41
+):
+    response = client_autenticado_vinculo_codae_produto.get(
+        f"/fabricantes/lista-nomes-nova-reclamacao/", content_type="application/json"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    dados = response.json()
+    assert len(dados["results"]) == 2
+    assert dados["results"][0]["nome"] == "Fabricante 001"
+    assert dados["results"][1]["nome"] == "Fabricante 002"
+
+
+def test_url_lista_fabricantes_nova_reclamacao_com_filtro_edital(
+    client_autenticado_vinculo_codae_produto, produtos_edital_41
+):
+    response = client_autenticado_vinculo_codae_produto.get(
+        f"/fabricantes/lista-nomes-nova-reclamacao/?nome_edital=Edital de Pregão nº 78/sme/2022",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    dados = response.json()
+    assert len(dados["results"]) == 1
+    assert dados["results"][0]["nome"] == "Fabricante 001"
+
+
+def test_url_lista_marcas_nova_reclamacao(
+    client_autenticado_vinculo_codae_produto, produtos_edital_41
+):
+    response = client_autenticado_vinculo_codae_produto.get(
+        f"/marcas/lista-nomes-nova-reclamacao/", content_type="application/json"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    dados = response.json()
+    assert len(dados["results"]) == 2
+    assert dados["results"][0]["nome"] == "NAMORADOS"
+    assert dados["results"][1]["nome"] == "TIO JOÃO"
+
+
+def test_url_lista_marcas_nova_reclamacao_com_filtro_edital(
+    client_autenticado_vinculo_codae_produto, produtos_edital_41
+):
+    response = client_autenticado_vinculo_codae_produto.get(
+        f"/marcas/lista-nomes-nova-reclamacao/?nome_edital=Edital de Pregão nº 78/sme/2022",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    dados = response.json()
+    assert len(dados["results"]) == 1
+    assert dados["results"][0]["nome"] == "NAMORADOS"
+
+
+def test_url_lista_produtos_nova_reclamacao(
+    client_autenticado_vinculo_codae_produto, produtos_edital_41
+):
+    response = client_autenticado_vinculo_codae_produto.get(
+        f"/produtos/lista-nomes-nova-reclamacao/", content_type="application/json"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    dados = response.json()
+    assert len(dados["results"]) == 1
+    assert dados["results"][0]["nome"] == "ARROZ"
+
+
+def test_url_lista_produtos_nova_reclamacao_com_filtro_edital(
+    client_autenticado_vinculo_codae_produto, produtos_edital_41
+):
+    response = client_autenticado_vinculo_codae_produto.get(
+        f"/produtos/lista-nomes-nova-reclamacao/?nome_edital=Edital de Pregão nº 78/sme/2022",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    dados = response.json()
+    assert len(dados["results"]) == 1
+    assert dados["results"][0]["nome"] == "ARROZ"
+
+
+def test_url_filtro_homologados_por_parametros(
+    client_autenticado_vinculo_codae_produto, produtos_edital_41
+):
+    response = client_autenticado_vinculo_codae_produto.get(
+        f"/produtos/filtro-homologados-por-parametros/", content_type="application/json"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    produtos = response.json()
+    assert produtos["count"] == 2
+    assert (
+        any(
+            produto
+            for produto in produtos["results"]
+            if produto["marca"]["nome"] == "NAMORADOS"
+        )
+        is True
+    )
+    assert (
+        any(
+            produto
+            for produto in produtos["results"]
+            if produto["marca"]["nome"] == "TIO JOÃO"
+        )
+        is True
+    )
+
+
+def test_url_filtro_homologados_por_parametros_com_filtro_edital(
+    client_autenticado_vinculo_codae_produto, produtos_edital_41
+):
+    response = client_autenticado_vinculo_codae_produto.get(
+        f"/produtos/filtro-homologados-por-parametros/?nome_edital=Edital de Pregão nº 78/sme/2022",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    dados = response.json()
+    assert dados["count"] == 1
+    assert dados["results"][0]["nome"] == "ARROZ"
+    assert dados["results"][0]["marca"]["nome"] == "NAMORADOS"
+
+
+def test_url_filtro_homologados_por_parametros_com_aditivo(
+    client_autenticado_vinculo_codae_produto, produtos_edital_41
+):
+    response = client_autenticado_vinculo_codae_produto.get(
+        f"/produtos/filtro-homologados-por-parametros/?aditivos=aditivoB",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    dados = response.json()
+    assert dados["count"] == 1
+    assert dados["results"][0]["nome"] == "ARROZ"
+    assert dados["results"][0]["marca"]["nome"] == "TIO JOÃO"

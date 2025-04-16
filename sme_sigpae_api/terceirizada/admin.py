@@ -6,6 +6,7 @@ from .models import (
     Contrato,
     Edital,
     EmailTerceirizadaPorModulo,
+    Modalidade,
     Modulo,
     Nutricionista,
     Terceirizada,
@@ -82,3 +83,8 @@ class ModuloModelAdmin(admin.ModelAdmin):
 @admin.register(EmailTerceirizadaPorModulo)
 class EmailTerceirizadaPorModuloModelAdmin(admin.ModelAdmin):
     model = EmailTerceirizadaPorModulo
+
+
+@admin.register(Modalidade)
+class ModalidadeModelAdmin(admin.ModelAdmin):
+    model = Modalidade

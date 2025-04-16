@@ -1,10 +1,34 @@
 import datetime
-import json
+import uuid
+from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
+from freezegun import freeze_time
 from model_mommy import mommy
+
+from sme_sigpae_api.cardapio.models import AlteracaoCardapio
+from sme_sigpae_api.dados_comuns.constants import StatusProcessamentoArquivo
+from sme_sigpae_api.dados_comuns.fluxo_status import (
+    HomologacaoProdutoWorkflow,
+    PedidoAPartirDaEscolaWorkflow,
+)
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
+from sme_sigpae_api.escola.utils import cria_arquivo_excel
+from sme_sigpae_api.escola.utils_analise_dietas_ativas import (
+    dict_codigo_aluno_por_codigo_escola as dict_aluno_utils_dieta,
+)
+from sme_sigpae_api.escola.utils_analise_dietas_ativas import (
+    dict_codigos_escolas as dict_escola_utils_dieta,
+)
+from sme_sigpae_api.escola.utils_escola import (
+    dict_codigo_aluno_por_codigo_escola as dict_aluno_utils_escola,
+)
+from sme_sigpae_api.escola.utils_escola import (
+    dict_codigos_escolas as dict_escola_utils_escola,
+)
 
 from ...eol_servico.utils import dt_nascimento_from_api
 from ...escola.api.serializers import (
@@ -18,6 +42,11 @@ from .. import models
 
 fake = Faker("pt_BR")
 Faker.seed(420)
+
+
+@pytest.fixture
+def periodo_escolar():
+    return mommy.make(models.PeriodoEscolar, nome="INTEGRAL", tipo_turno=1)
 
 
 @pytest.fixture
@@ -67,6 +96,8 @@ def escola(lote, tipo_gestao, diretoria_regional):
         codigo_eol=fake.name()[:6],
         lote=lote,
         tipo_gestao=tipo_gestao,
+        contato=mommy.make("Contato", email="escola@email.com"),
+        uuid="4282d012-2f38-4f04-97a3-217c49bb8040",
     )
 
 
@@ -166,11 +197,6 @@ def codae(escola):
 
 
 @pytest.fixture
-def periodo_escolar():
-    return mommy.make(models.PeriodoEscolar, nome="INTEGRAL", tipo_turno=1)
-
-
-@pytest.fixture
 def periodo_escolar_parcial():
     return mommy.make(models.PeriodoEscolar, nome="PARCIAL")
 
@@ -198,18 +224,19 @@ def vinculo_instituto_serializer(vinculo):
 
 
 @pytest.fixture
-def aluno(escola):
+def aluno(escola, periodo_escolar):
     return mommy.make(
         models.Aluno,
         nome="Fulano da Silva",
         codigo_eol="000001",
         data_nascimento=datetime.date(2000, 1, 1),
         escola=escola,
+        periodo_escolar=periodo_escolar,
     )
 
 
 @pytest.fixture
-def client_autenticado_coordenador_codae(client, django_user_model):
+def usuario_coordenador_codae(django_user_model):
     email, password, rf, cpf = (
         "cogestor_1@sme.prefeitura.sp.gov.br",
         "adminadmin",
@@ -219,7 +246,6 @@ def client_autenticado_coordenador_codae(client, django_user_model):
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional=rf, cpf=cpf
     )
-    client.login(username=email, password=password)
 
     codae = mommy.make(
         "Codae", nome="CODAE", uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd"
@@ -231,7 +257,9 @@ def client_autenticado_coordenador_codae(client, django_user_model):
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
     )
+
     mommy.make("Lote", uuid="143c2550-8bf0-46b4-b001-27965cfcd107")
+
     hoje = datetime.date.today()
     mommy.make(
         "Vinculo",
@@ -241,6 +269,7 @@ def client_autenticado_coordenador_codae(client, django_user_model):
         data_inicial=hoje,
         ativo=True,
     )
+
     mommy.make(
         "TipoUnidadeEscolar",
         iniciais="EMEF",
@@ -256,20 +285,28 @@ def client_autenticado_coordenador_codae(client, django_user_model):
         iniciais="CIEJA",
         uuid="ac4858ff-1c11-41f3-b539-7a02696d6d1b",
     )
+
+    return user, password
+
+
+@pytest.fixture
+def client_autenticado_coordenador_codae(client, usuario_coordenador_codae):
+    usuario, password = usuario_coordenador_codae
+    client.login(username=usuario.email, password=password)
     return client
 
 
 @pytest.fixture
-def client_autenticado_da_escola(client, django_user_model, escola):
+def usuario_diretor_escola(django_user_model, escola):
     email = "user@escola.com"
     password = "admin@123"
+
     perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+
     usuario = django_user_model.objects.create_user(
-        username=email,
-        password=password,
-        email=email,
-        registro_funcional="123456",
+        username=email, password=password, email=email, registro_funcional="123456"
     )
+
     hoje = datetime.date.today()
     mommy.make(
         "Vinculo",
@@ -279,7 +316,14 @@ def client_autenticado_da_escola(client, django_user_model, escola):
         data_inicial=hoje,
         ativo=True,
     )
-    client.login(username=email, password=password)
+
+    return usuario, password
+
+
+@pytest.fixture
+def client_autenticado_da_escola(client, usuario_diretor_escola):
+    usuario, password = usuario_diretor_escola
+    client.login(username=usuario.email, password=password)
     return client
 
 
@@ -577,8 +621,642 @@ def alunos(escola_cei, periodo_escolar):
 
 @pytest.fixture
 def dia_suspensao_atividades(tipo_unidade_escolar):
+    edital = mommy.make(
+        "Edital",
+        numero="Edital de Pregão nº 13/SME/2020",
+        uuid="3a9082ae-2b8c-44f6-83af-fcab9452f932",
+    )
     return mommy.make(
         "DiaSuspensaoAtividades",
         data=datetime.date(2022, 8, 8),
         tipo_unidade=tipo_unidade_escolar,
+        edital=edital,
     )
+
+
+@pytest.fixture
+def dados_planilha_alunos_matriculados(alunos_matriculados_periodo_escola_regular):
+    faixas_etarias = [{"nome": "04 anos a 06 anos", "uuid": uuid.uuid4()}]
+    queryset = [
+        {
+            "dre": alunos_matriculados_periodo_escola_regular.escola.diretoria_regional.nome,
+            "lote": alunos_matriculados_periodo_escola_regular.escola.lote.nome
+            if alunos_matriculados_periodo_escola_regular.escola.lote
+            else " - ",
+            "tipo_unidade": alunos_matriculados_periodo_escola_regular.escola.tipo_unidade.iniciais,
+            "escola": alunos_matriculados_periodo_escola_regular.escola.nome,
+            "periodo_escolar": alunos_matriculados_periodo_escola_regular.periodo_escolar.nome,
+            "tipo_turma": alunos_matriculados_periodo_escola_regular.tipo_turma,
+            "eh_cei": alunos_matriculados_periodo_escola_regular.escola.eh_cei,
+            "eh_cemei": alunos_matriculados_periodo_escola_regular.escola.eh_cemei,
+            "matriculados": alunos_matriculados_periodo_escola_regular.quantidade_alunos,
+            "alunos_por_faixa_etaria": alunos_matriculados_periodo_escola_regular.escola.matriculados_por_periodo_e_faixa_etaria(),
+        }
+    ]
+    dados = {
+        "faixas_etarias": faixas_etarias,
+        "queryset": queryset,
+        "usuario": "Faker usuario",
+    }
+
+    return dados
+
+
+@pytest.fixture
+def dados_planilha_alunos_matriculados_cei_cemei(
+    alunos_matriculados_periodo_escola_regular,
+):
+    faixas_etarias = [{"nome": "04 anos a 06 anos", "uuid": uuid.uuid4()}]
+    queryset = [
+        {
+            "dre": alunos_matriculados_periodo_escola_regular.escola.diretoria_regional.nome,
+            "lote": alunos_matriculados_periodo_escola_regular.escola.lote.nome
+            if alunos_matriculados_periodo_escola_regular.escola.lote
+            else " - ",
+            "tipo_unidade": alunos_matriculados_periodo_escola_regular.escola.tipo_unidade.iniciais,
+            "escola": alunos_matriculados_periodo_escola_regular.escola.nome,
+            "periodo_escolar": alunos_matriculados_periodo_escola_regular.periodo_escolar.nome,
+            "tipo_turma": alunos_matriculados_periodo_escola_regular.tipo_turma,
+            "eh_cei": True,
+            "eh_cemei": alunos_matriculados_periodo_escola_regular.escola.eh_cemei,
+            "matriculados": alunos_matriculados_periodo_escola_regular.quantidade_alunos,
+            "alunos_por_faixa_etaria": alunos_matriculados_periodo_escola_regular.escola.matriculados_por_periodo_e_faixa_etaria(),
+        }
+    ]
+    dados = {
+        "faixas_etarias": faixas_etarias,
+        "queryset": queryset,
+        "usuario": "Faker usuario",
+    }
+
+    return dados
+
+
+@pytest.fixture
+def protocolos():
+    mommy.make("ProtocoloDeDietaEspecial", nome="Protocolo1")
+    mommy.make("ProtocoloDeDietaEspecial", nome="Protocolo2")
+    mommy.make("ProtocoloDeDietaEspecial", nome="Protocolo3")
+
+
+@pytest.fixture
+def variaveis_globais_dieta():
+    global dict_escola_utils_dieta, dict_aluno_utils_dieta
+
+    dict_escola_utils_dieta.clear()
+    dict_aluno_utils_dieta.clear()
+
+    dict_escola_utils_dieta.update(
+        {
+            "1001": "123456789",
+            "1002": "987654321",
+        }
+    )
+    dict_aluno_utils_dieta.update(
+        {
+            "20001": "Escola A",
+            "20002": "Escola B",
+            "20003": "Escola C",
+        }
+    )
+
+    yield dict_escola_utils_dieta, dict_aluno_utils_dieta
+
+    dict_escola_utils_dieta.clear()
+    dict_aluno_utils_dieta.clear()
+
+
+@pytest.fixture
+def variaveis_globais_escola():
+    global dict_escola_utils_escola, dict_aluno_utils_dieta
+
+    dict_escola_utils_escola.clear()
+    dict_aluno_utils_escola.clear()
+
+    dict_escola_utils_escola.update(
+        {
+            "1001": "123456789",
+            "1002": "987654321",
+        }
+    )
+    dict_aluno_utils_escola.update(
+        {
+            "20001": "Escola A",
+            "20002": "Escola B",
+            "20003": "Escola C",
+        }
+    )
+
+    yield dict_escola_utils_escola, dict_aluno_utils_escola
+
+    dict_escola_utils_escola.clear()
+    dict_aluno_utils_escola.clear()
+
+
+@pytest.fixture
+def codigo_codae_das_escolas():
+    escola1 = mommy.make("Escola", codigo_eol="123456", codigo_codae="00000")
+    escola2 = mommy.make("Escola", codigo_eol="789012", codigo_codae="00000")
+    planilha = mommy.make(
+        "PlanilhaEscolaDeParaCodigoEolCodigoCoade", codigos_codae_vinculados=False
+    )
+
+    return escola1, escola2, planilha
+
+
+@pytest.fixture
+def tipo_gestao_das_escolas():
+    caminho_arquivo_escola = Path(f"/tmp/{uuid.uuid4()}.xlsx")
+    cria_arquivo_excel(
+        caminho_arquivo_escola,
+        [
+            {"CÓDIGO EOL": 123456, "TIPO": "PARCEIRA"},
+            {"CÓDIGO EOL": 789012, "TIPO": "DIRETA"},
+        ],
+    )
+
+    with open(caminho_arquivo_escola, "rb") as f:
+        uploaded_file = SimpleUploadedFile(
+            "escolas.xlsx",
+            f.read(),
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+
+    parceira = mommy.make("TipoGestao", nome="PARCEIRA")
+    direta = mommy.make("TipoGestao", nome="DIRETA")
+    mista = mommy.make("TipoGestao", nome="MISTA")
+    tercerizada = mommy.make("TipoGestao", nome="TERC TOTAL")
+
+    escola1 = mommy.make("Escola", codigo_eol="123456", tipo_gestao=None)
+    escola2 = mommy.make("Escola", codigo_eol="789012", tipo_gestao=None)
+
+    planilha_atualizacao_tipo_gestao = mommy.make(
+        "PlanilhaAtualizacaoTipoGestaoEscola",
+        conteudo=uploaded_file,
+        criado_em=datetime.date.today(),
+        status=StatusProcessamentoArquivo.PENDENTE.value,
+    )
+    return (
+        escola1,
+        escola2,
+        planilha_atualizacao_tipo_gestao,
+        caminho_arquivo_escola,
+        parceira,
+        direta,
+    )
+
+
+@pytest.fixture
+def update_log_alunos_matriculados(
+    log_alunos_matriculados_periodo_escola_regular,
+    log_alunos_matriculados_periodo_escola_programas,
+):
+    log_alunos_matriculados_periodo_escola_regular.criado_em = datetime.date(2025, 2, 5)
+    log_alunos_matriculados_periodo_escola_regular.save()
+
+    log_alunos_matriculados_periodo_escola_programas.criado_em = datetime.date(
+        2025, 2, 1
+    )
+    log_alunos_matriculados_periodo_escola_programas.save()
+
+    return (
+        log_alunos_matriculados_periodo_escola_regular,
+        log_alunos_matriculados_periodo_escola_programas,
+    )
+
+
+@pytest.fixture
+def dicionario_de_alunos_matriculados():
+    manha = mommy.make(models.PeriodoEscolar, nome="MANHA")
+    tarde = mommy.make(models.PeriodoEscolar, nome="TARDE")
+    integral = mommy.make(models.PeriodoEscolar, nome="INTEGRAL")
+
+    escola = mommy.make(models.Escola, codigo_eol=fake.name()[:6])
+    alunos_matriculados_integral = mommy.make(
+        models.AlunosMatriculadosPeriodoEscola,
+        escola=escola,
+        periodo_escolar=integral,
+        tipo_turma=models.TipoTurma.REGULAR.name,
+        quantidade_alunos=25,
+    )
+    alunos_matriculados_manha = mommy.make(
+        models.AlunosMatriculadosPeriodoEscola,
+        escola=escola,
+        periodo_escolar=manha,
+        tipo_turma=models.TipoTurma.REGULAR.name,
+        quantidade_alunos=25,
+    )
+    alunos_matriculados_noite = mommy.make(
+        models.AlunosMatriculadosPeriodoEscola,
+        escola=escola,
+        tipo_turma=models.TipoTurma.PROGRAMAS.name,
+        quantidade_alunos=25,
+    )
+
+    matriculados = [
+        {
+            "codigoEolEscola": escola.codigo_eol,
+            "turnos": [
+                {
+                    "turno": alunos_matriculados_integral.periodo_escolar.nome,
+                    "quantidade": alunos_matriculados_integral.quantidade_alunos,
+                },
+                {
+                    "turno": alunos_matriculados_manha.periodo_escolar.nome,
+                    "quantidade": alunos_matriculados_manha.quantidade_alunos,
+                },
+                {
+                    "turno": "noite",
+                    "quantidade": alunos_matriculados_noite.quantidade_alunos,
+                },
+            ],
+        }
+    ]
+
+    escolas = mommy.make(models.Escola, _quantity=6)
+    for escola in escolas:
+        matriculados.append(
+            {
+                "codigoEolEscola": escola.codigo_eol,
+                "turnos": [{"turno": "integral", "quantidade": 40}],
+            }
+        )
+    return matriculados
+
+
+@pytest.fixture
+def lista_dias_letivos(escola, dia_calendario_letivo, dia_calendario_nao_letivo):
+    dias_letivos = [
+        {
+            "data": dia_calendario_letivo.data.strftime("%Y-%m-%dT00:00:00"),
+            "ehLetivo": dia_calendario_letivo.dia_letivo,
+        },
+        {
+            "data": dia_calendario_nao_letivo.data.strftime("%Y-%m-%dT00:00:00"),
+            "ehLetivo": dia_calendario_nao_letivo.dia_letivo,
+        },
+        {
+            "data": datetime.datetime(2021, 9, 26).strftime("%Y-%m-%dT00:00:00"),
+            "ehLetivo": False,
+        },
+    ]
+    return escola, dias_letivos
+
+
+@pytest.fixture
+def excluir_alunos_periodo_parcial(escola, aluno, escola_cei):
+    data = datetime.datetime(2025, 2, 7)
+    solicitacao_medicao_inicial = mommy.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola,
+        ano=data.year,
+        mes=f"{data.month:02d}",
+    )
+    mommy.make(
+        "AlunoPeriodoParcial",
+        aluno=aluno,
+        escola=escola,
+        solicitacao_medicao_inicial=solicitacao_medicao_inicial,
+    )
+
+    data_referencia = datetime.datetime(2025, 1, 1)
+    solicitacao_medicao_inicial = mommy.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola,
+        ano=data_referencia.year,
+        mes=f"{data_referencia.month:02d}",
+    )
+    mommy.make(
+        "AlunoPeriodoParcial",
+        aluno=aluno,
+        escola=escola,
+        solicitacao_medicao_inicial=solicitacao_medicao_inicial,
+    )
+
+    solicitacao_medicao_inicial = mommy.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola_cei,
+        ano=data_referencia.year,
+        mes=f"{data_referencia.month:02d}",
+    )
+    mommy.make(
+        "AlunoPeriodoParcial",
+        aluno=aluno,
+        escola=escola_cei,
+        solicitacao_medicao_inicial=solicitacao_medicao_inicial,
+    )
+
+    return escola_cei, data_referencia
+
+
+@pytest.fixture
+def alteracao_cardapio(escola):
+    return mommy.make(
+        AlteracaoCardapio,
+        escola=escola,
+        observacao="teste",
+        data_inicial=datetime.date(2025, 2, 1),
+        data_final=datetime.date(2025, 3, 17),
+        rastro_escola=escola,
+        rastro_dre=escola.diretoria_regional,
+    )
+
+
+@freeze_time("2025-01-01")
+@pytest.fixture
+def dieta_codae_autorizou(aluno, escola):
+    aluno.nome = "Antônio"
+    aluno.save()
+    classificacao = mommy.make("ClassificacaoDieta", nome="Tipo A")
+    solicitacao_dieta = mommy.make(
+        "SolicitacaoDietaEspecial",
+        rastro_escola=escola,
+        aluno=aluno,
+        classificacao=classificacao,
+        tipo_solicitacao="COMUM",
+    )
+    solicitacao_dieta.criado_em = datetime.date(2025, 1, 1)
+    solicitacao_dieta.save()
+
+    log = mommy.make(
+        "LogSolicitacoesUsuario",
+        status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        uuid_original=solicitacao_dieta.uuid,
+    )
+    log.criado_em = datetime.date(2025, 1, 1)
+    log.save()
+
+    return solicitacao_dieta
+
+
+@pytest.fixture
+def dieta_cancelada(aluno, escola):
+    aluno.nome = "Lucas"
+    aluno.save()
+    classificacao = mommy.make("ClassificacaoDieta", nome="Tipo B")
+
+    solicitacao_dieta = mommy.make(
+        "SolicitacaoDietaEspecial",
+        rastro_escola=escola,
+        aluno=aluno,
+        classificacao=classificacao,
+    )
+    mommy.make(
+        "LogSolicitacoesUsuario",
+        status_evento=LogSolicitacoesUsuario.CANCELADO_ALUNO_MUDOU_ESCOLA,
+        uuid_original=solicitacao_dieta.uuid,
+    )
+    return solicitacao_dieta
+
+
+@pytest.fixture
+def mock_diretoria_regional():
+    dre_mock = MagicMock()
+    dre_mock.nome = "DRE Teste"
+    dre_mock.codigo_eol = "12345"
+    return [dre_mock]
+
+
+@pytest.fixture
+def mock_tipo_turma():
+    mock = MagicMock()
+    mock.name = "Ensino Fundamental"
+    mock.value = "EF"
+    return mock
+
+
+@pytest.fixture
+def mock_escolas(escola):
+    escola_mock = MagicMock()
+    escola_mock.nome = escola.nome
+    escola_mock.codigo_eol = "12345"
+    return [escola_mock]
+
+
+@pytest.fixture
+def users_diretor_escola(django_user_model, escola):
+    user = django_user_model.objects.create_user(
+        username="system@admin.com", email="system@admin.com"
+    )
+    perfil_diretor = mommy.make(
+        "Perfil",
+        nome="DIRETOR_UE",
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
+    )
+
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=escola,
+        perfil=perfil_diretor,
+        data_inicial=hoje,
+        ativo=True,
+    )
+
+    return user
+
+
+@pytest.fixture
+def solicitacoes_vencidas(
+    users_diretor_escola,
+    grupo_inclusao_alimentacao_normal_factory,
+    inclusao_alimentacao_normal_factory,
+    log_solicitacoes_usuario_factory,
+):
+    instituicao = users_diretor_escola.vinculo_atual.instituicao
+
+    grupo_inclusao_alimentacao_normal = (
+        grupo_inclusao_alimentacao_normal_factory.create(
+            escola=instituicao,
+            rastro_lote=instituicao.lote,
+            rastro_dre=instituicao.diretoria_regional,
+            rastro_escola=instituicao,
+            status=PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR,
+        )
+    )
+    inclusao_alimentacao_normal_factory.create(
+        data="2025-01-14",
+        grupo_inclusao=grupo_inclusao_alimentacao_normal,
+    )
+    log_solicitacoes_usuario_factory.create(
+        uuid_original=grupo_inclusao_alimentacao_normal.uuid,
+        status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+        usuario=users_diretor_escola,
+    )
+
+
+@pytest.fixture
+def solicitacoes_pendentes_autorizacao_vencidas(
+    users_diretor_escola,
+    grupo_inclusao_alimentacao_normal_factory,
+    inclusao_alimentacao_normal_factory,
+    log_solicitacoes_usuario_factory,
+):
+    instituicao = users_diretor_escola.vinculo_atual.instituicao
+
+    grupo_inclusao_alimentacao_normal = (
+        grupo_inclusao_alimentacao_normal_factory.create(
+            escola=instituicao,
+            rastro_lote=instituicao.lote,
+            rastro_dre=instituicao.diretoria_regional,
+            rastro_escola=instituicao,
+            status=PedidoAPartirDaEscolaWorkflow.TERCEIRIZADA_RESPONDEU_QUESTIONAMENTO,
+        )
+    )
+    inclusao_alimentacao_normal_factory.create(
+        data="2025-01-14",
+        grupo_inclusao=grupo_inclusao_alimentacao_normal,
+    )
+    log_solicitacoes_usuario_factory.create(
+        uuid_original=grupo_inclusao_alimentacao_normal.uuid,
+        status_evento=LogSolicitacoesUsuario.TERCEIRIZADA_RESPONDEU_QUESTIONAMENTO,
+        usuario=users_diretor_escola,
+    )
+
+    grupo_inclusao_alimentacao_normal = (
+        grupo_inclusao_alimentacao_normal_factory.create(
+            escola=instituicao,
+            rastro_lote=instituicao.lote,
+            rastro_dre=instituicao.diretoria_regional,
+            rastro_escola=instituicao,
+            status=PedidoAPartirDaEscolaWorkflow.DRE_VALIDADO,
+        )
+    )
+    inclusao_alimentacao_normal_factory.create(
+        data="2025-01-14",
+        grupo_inclusao=grupo_inclusao_alimentacao_normal,
+    )
+    log_solicitacoes_usuario_factory.create(
+        uuid_original=grupo_inclusao_alimentacao_normal.uuid,
+        status_evento=LogSolicitacoesUsuario.DRE_VALIDOU,
+        usuario=users_diretor_escola,
+    )
+
+
+@pytest.fixture
+def escola_edital_41(escola):
+    edital = mommy.make(
+        "Edital",
+        numero="Edital de Pregão nº 41/sme/2017",
+        uuid="12288b47-9d27-4089-8c2e-48a6061d83ea",
+    )
+    contrato = mommy.make(
+        "Contrato",
+        terceirizada=mommy.make("Terceirizada"),
+        edital=edital,
+        make_m2m=True,
+        uuid="44d51e10-8999-48bb-889a-1540c9e8c895",
+    )
+    contrato.lotes.set([escola.lote])
+
+    marca = mommy.make("Marca", nome="NAMORADOS")
+    fabricante = mommy.make("Fabricante", nome="Fabricante 001")
+    produto = mommy.make("Produto", nome="ARROZ", marca=marca, fabricante=fabricante)
+    homologacao = mommy.make(
+        "HomologacaoProduto",
+        produto=produto,
+        rastro_terceirizada=escola.lote.terceirizada,
+        status=HomologacaoProdutoWorkflow.CODAE_HOMOLOGADO,
+    )
+
+    log = mommy.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=homologacao.uuid,
+        criado_em=datetime.date(2023, 1, 1),
+        status_evento=22,  # CODAE_HOMOLOGADO
+        solicitacao_tipo=10,
+    )  # HOMOLOGACAO_PRODUTO
+    log.criado_em = datetime.date(2023, 1, 1)
+    log.save()
+
+    pe_1 = mommy.make(
+        "ProdutoEdital",
+        produto=produto,
+        edital=edital,
+        tipo_produto="Comum",
+        uuid="0f81a49b-0836-42d5-af9e-12cbd7ca76a8",
+    )
+
+    return escola
+
+
+@pytest.fixture
+def tipo_alimentacao():
+    return mommy.make("cardapio.TipoAlimentacao", nome="Refeição")
+
+
+@pytest.fixture
+def tipo_alimentacao_lanche_emergencial():
+    return mommy.make("cardapio.TipoAlimentacao", nome="Sobremesa")
+
+
+@pytest.fixture
+def escola_cmct(tipo_alimentacao, tipo_alimentacao_lanche_emergencial):
+    noite = mommy.make(models.PeriodoEscolar, nome="NOITE", tipo_turno=2)
+    manha = mommy.make(models.PeriodoEscolar, nome="MANHA", tipo_turno=1)
+    tipo_unidade_escolar = mommy.make(models.TipoUnidadeEscolar, iniciais="CMCT")
+    mommy.make(
+        "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
+        periodo_escolar=manha,
+        tipo_unidade_escolar=tipo_unidade_escolar,
+        tipos_alimentacao=[tipo_alimentacao, tipo_alimentacao_lanche_emergencial],
+    )
+    mommy.make(
+        "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
+        periodo_escolar=noite,
+        tipo_unidade_escolar=tipo_unidade_escolar,
+        tipos_alimentacao=[tipo_alimentacao, tipo_alimentacao_lanche_emergencial],
+    )
+
+    terceirizada = mommy.make("Terceirizada")
+    lote = mommy.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = mommy.make(
+        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+    )
+    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
+    escola = mommy.make(
+        "Escola",
+        nome="CMCT TESTE",
+        lote=lote,
+        diretoria_regional=diretoria_regional,
+        tipo_gestao=tipo_gestao,
+        tipo_unidade=tipo_unidade_escolar,
+    )
+    mommy.make(
+        "Aluno",
+        escola=escola,
+        periodo_escolar=manha,
+    )
+    mommy.make(
+        "Aluno",
+        escola=escola,
+        periodo_escolar=noite,
+    )
+
+    mommy.make(
+        models.AlunosMatriculadosPeriodoEscola,
+        escola=escola,
+        periodo_escolar=manha,
+        quantidade_alunos=50,
+        tipo_turma=models.TipoTurma.PROGRAMAS.name,
+    )
+    mommy.make(
+        models.AlunosMatriculadosPeriodoEscola,
+        escola=escola,
+        periodo_escolar=noite,
+        quantidade_alunos=50,
+        tipo_turma=models.TipoTurma.PROGRAMAS.name,
+    )
+
+    return escola
+
+
+@pytest.fixture
+def mock_request():
+    request = MagicMock()
+    request.user = MagicMock()
+    request.user.vinculo_atual.perfil.nome = None
+    request.user.vinculo_atual.content_type.model = None
+    return request

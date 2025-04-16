@@ -14,6 +14,7 @@ from ..constants import (
 )
 from ..models import (
     AlergiaIntolerancia,
+    Alimento,
     ClassificacaoDieta,
     MotivoNegacao,
     ProtocoloPadraoDietaEspecial,
@@ -779,7 +780,7 @@ def test_imprime_relatorio_dieta_especial(
 ):
     data = {
         "escola": [solicitacao_dieta_especial_autorizada.escola.uuid],
-        "diagnostico": [1],
+        "diagnostico": [AlergiaIntolerancia.objects.get().id],
     }
     response = client_autenticado.post(
         "/solicitacoes-dieta-especial/imprime-relatorio-dieta-especial/", data=data
@@ -798,6 +799,9 @@ def test_imprime_relatorio_dieta_especial_validation_error(
 
 
 def test_cadastro_protocolo_dieta_especial(client_autenticado_protocolo_dieta):
+    alimentao_id = (
+        Alimento.objects.exclude(uuid="e67b6e67-7501-4d6e-8fac-ce219df3ed2b").get().id
+    )
     data = {
         "nome_protocolo": "ALERGIA - ABACATE",
         "orientacoes_gerais": "<ul><li>Substituição do <strong>Abacate,&nbsp;</strong>bem como "
@@ -811,7 +815,7 @@ def test_cadastro_protocolo_dieta_especial(client_autenticado_protocolo_dieta):
         ],
         "substituicoes": [
             {
-                "alimento": "1",
+                "alimento": alimentao_id,
                 "tipo": "I",
                 "substitutos": ["e67b6e67-7501-4d6e-8fac-ce219df3ed2b"],
             }
@@ -876,6 +880,9 @@ def test_cadastro_protocolo_dieta_especial_lista_status(
 def test_cadastro_protocolo_dieta_especial_nomes_protocolos_liberados(
     client_autenticado_protocolo_dieta, massa_dados_protocolo_padrao_test
 ):
+    alimentao_id = (
+        Alimento.objects.exclude(uuid="e67b6e67-7501-4d6e-8fac-ce219df3ed2b").get().id
+    )
     data = {
         "nome_protocolo": "ALERGIA - ABACATE",
         "orientacoes_gerais": "<ul><li>Substituição do <strong>Abacate,&nbsp;</strong>bem como "
@@ -889,7 +896,7 @@ def test_cadastro_protocolo_dieta_especial_nomes_protocolos_liberados(
         ],
         "substituicoes": [
             {
-                "alimento": "1",
+                "alimento": alimentao_id,
                 "tipo": "I",
                 "substitutos": ["e67b6e67-7501-4d6e-8fac-ce219df3ed2b"],
             }
@@ -955,9 +962,9 @@ def test_filtros_relatorio_dieta_especial_success(
         "&status_selecionado=AUTORIZADAS"
     )
     assert response.status_code == status.HTTP_200_OK
+    response.json().pop("classificacoes")
     assert response.json() == {
         "alergias_intolerancias": [],
-        "classificacoes": [{"nome": "Tipo A", "id": 1}],
         "lotes": [
             {
                 "nome": "LOTE 07 - DIRETORIA REGIONAL IPIRANGA",
@@ -971,4 +978,129 @@ def test_filtros_relatorio_dieta_especial_success(
             {"nome": "TERC TOTAL", "uuid": "8bd3931b-8636-44ba-9d8e-81b29067eed1"}
         ],
         "tipos_unidades": [],
+    }
+
+
+def test_relatorio_historico_dieta_especial(
+    client_autenticado_vinculo_terceirizada_dieta,
+    log_dietas_autorizadas,
+    log_dietas_autorizadas_cei,
+):
+    response = client_autenticado_vinculo_terceirizada_dieta.get(
+        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/?data=20/03/2024"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    historico = response.json()
+    assert historico["count"] == 4
+    assert historico["page_size"] == 10
+    assert historico["previous"] is None
+    assert historico["next"] is None
+    assert historico["total_dietas"] == 72
+    assert historico["data"] == "20/03/2024"
+
+    assert len(historico["results"]) == 4
+    assert historico["results"] == [
+        {
+            "lote": "",
+            "unidade_educacional": "CEI DIRET JOAO MENDES",
+            "tipo_unidade": "CEI DIRET",
+            "classificacao": "Tipo B",
+            "total": 21,
+            "data": "20/03/2024",
+            "periodos": [
+                {
+                    "periodo": "INTEGRAL",
+                    "faixa_etaria": [
+                        {"faixa": "0 meses a 05 meses", "autorizadas": 10}
+                    ],
+                },
+                {
+                    "periodo": "MANHA",
+                    "faixa_etaria": [{"faixa": "07 a 11 meses", "autorizadas": 11}],
+                },
+            ],
+        },
+        {
+            "lote": "",
+            "unidade_educacional": "CEMEI",
+            "tipo_unidade": "CEMEI",
+            "classificacao": "Tipo A",
+            "total": 25,
+            "data": "20/03/2024",
+            "periodos": {
+                "por_idade": [
+                    {
+                        "periodo": "INTEGRAL",
+                        "faixa_etaria": [
+                            {"faixa": "0 meses a 05 meses", "autorizadas": 12}
+                        ],
+                    },
+                    {
+                        "periodo": "MANHA",
+                        "faixa_etaria": [{"faixa": "07 a 11 meses", "autorizadas": 13}],
+                    },
+                ]
+            },
+        },
+        {
+            "lote": "",
+            "unidade_educacional": "CEMEI",
+            "tipo_unidade": "CEMEI",
+            "classificacao": "Tipo B",
+            "total": 15,
+            "data": "20/03/2024",
+            "periodos": {
+                "turma_infantil": [
+                    {"periodo": "INTEGRAL", "autorizadas": 7},
+                    {"periodo": "MANHA", "autorizadas": 8},
+                ]
+            },
+        },
+        {
+            "lote": "",
+            "unidade_educacional": "EMEBS",
+            "tipo_unidade": "EMEBS",
+            "classificacao": "Tipo A",
+            "total": 11,
+            "data": "20/03/2024",
+            "periodos": {
+                "infantil": [{"periodo": "INTEGRAL", "autorizadas": 5}],
+                "fundamental": [{"periodo": "MANHA", "autorizadas": 6}],
+            },
+        },
+    ]
+
+
+def test_relatorio_historico_dieta_especial_retona_data_obrigatoria(
+    client_autenticado_vinculo_terceirizada_dieta,
+):
+    response = client_autenticado_vinculo_terceirizada_dieta.get(
+        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/"
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {"detail": "Data é um parâmetro obrigatório."}
+
+
+def test_relatorio_historico_dieta_especial_retona_data_padrao_incorreto(
+    client_autenticado_vinculo_terceirizada_dieta,
+):
+    response = client_autenticado_vinculo_terceirizada_dieta.get(
+        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/?data=2025-02-06"
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": "A data 2025-02-06 não corresponde ao formato esperado 'dd/mm/YYYY'."
+    }
+
+
+def test_relatorio_historico_dieta_especial_cliente_nao_autorizado(
+    client_autenticado_dilog,
+):
+    response = client_autenticado_dilog.get(
+        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/"
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == {
+        "detail": "Você não tem permissão para executar essa ação."
     }

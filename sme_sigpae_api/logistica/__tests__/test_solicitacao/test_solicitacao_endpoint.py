@@ -1,5 +1,5 @@
-from datetime import datetime, timedelta
 import json
+from datetime import datetime, timedelta
 
 import pytest
 from rest_framework import status
@@ -123,8 +123,11 @@ def test_arquivar_guias_da_requisicao(client_autenticado_dilog, solicitacao, gui
 
     assert response.status_code == status.HTTP_200_OK
     assert requisicao.situacao == SolicitacaoRemessa.ARQUIVADA
-    
-def test_arquivar_guias_da_requisicao_sem_numero_requisicao(client_autenticado_dilog, guia):
+
+
+def test_arquivar_guias_da_requisicao_sem_numero_requisicao(
+    client_autenticado_dilog, guia
+):
     payload = {
         "numero_requisicao": None,
         "guias": [f"{guia.numero_guia}"],
@@ -137,9 +140,12 @@ def test_arquivar_guias_da_requisicao_sem_numero_requisicao(client_autenticado_d
     )
 
     assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE
-    mensagem = "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m)."
+    mensagem = (
+        "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m)."
+    )
     assert mensagem in response.json()
-    
+
+
 def test_arquivar_guias_da_requisicao_sem_guias(client_autenticado_dilog, solicitacao):
     payload = {
         "numero_requisicao": str(solicitacao.numero_solicitacao),
@@ -155,6 +161,7 @@ def test_arquivar_guias_da_requisicao_sem_guias(client_autenticado_dilog, solici
     assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE
     mensagem = "É necessario informar o número das guias para arquivamento."
     assert mensagem in response.json()
+
 
 def test_arquivar_guias_da_requisicao_distribuidor_nao_pode(
     client_autenticado_distribuidor, solicitacao, guia
@@ -187,7 +194,8 @@ def test_desarquivar_guias_da_requisicao_distribuidor_nao_pode(
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    
+
+
 def test_desarquivar_guias_da_requisicao(client_autenticado_dilog, solicitacao, guia):
     solicitacao.situacao = SolicitacaoRemessa.ARQUIVADA
     solicitacao.save()
@@ -208,7 +216,10 @@ def test_desarquivar_guias_da_requisicao(client_autenticado_dilog, solicitacao, 
     assert response.status_code == status.HTTP_200_OK
     assert requisicao.situacao == SolicitacaoRemessa.ATIVA
 
-def test_desarquivar_guias_da_requisicao_sem_numero_requisicao(client_autenticado_dilog, guia):
+
+def test_desarquivar_guias_da_requisicao_sem_numero_requisicao(
+    client_autenticado_dilog, guia
+):
     payload = {
         "numero_requisicao": None,
         "guias": [f"{guia.numero_guia}"],
@@ -221,10 +232,15 @@ def test_desarquivar_guias_da_requisicao_sem_numero_requisicao(client_autenticad
     )
 
     assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE
-    mensagem = "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m)."
+    mensagem = (
+        "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m)."
+    )
     assert mensagem in response.json()
-    
-def test_desarquivar_guias_da_requisicao_sem_guias(client_autenticado_dilog, solicitacao):
+
+
+def test_desarquivar_guias_da_requisicao_sem_guias(
+    client_autenticado_dilog, solicitacao
+):
     payload = {
         "numero_requisicao": str(solicitacao.numero_solicitacao),
         "guias": None,
@@ -239,6 +255,7 @@ def test_desarquivar_guias_da_requisicao_sem_guias(client_autenticado_dilog, sol
     assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE
     mensagem = "É necessario informar o número das guias para desarquivamento."
     assert mensagem in response.json()
+
 
 def test_url_relatorio_guia_remessa_authorized_dilog(
     client_autenticado_dilog, solicitacao
@@ -265,14 +282,14 @@ def test_url_solicitacao_de_alteracao_de_requisicao(
 def test_solicitacao_remessa_envio_envia_grade(
     client_autenticado_codae_dilog, setup_solicitacao_remessa_envio
 ):
-
     response = client_autenticado_codae_dilog.post(
         "/solicitacao-remessa-envio/envia-grade/",
         data=setup_solicitacao_remessa_envio,
         content_type="application/json",
     )
-    assert response.status_code == status.HTTP_200_OK 
-    
+    assert response.status_code == status.HTTP_200_OK
+
+
 # def test_solicitacao_confirma_cancelamento_guias(
 #     client_autenticado_distribuidor, setup_solicitacao_confirmar_cancelamento
 # ):
@@ -282,44 +299,48 @@ def test_solicitacao_remessa_envio_envia_grade(
 #         data=setup_solicitacao_confirmar_cancelamento,
 #         content_type="application/json",
 #     )
-#     assert response.status_code == status.HTTP_200_OK 
+#     assert response.status_code == status.HTTP_200_OK
 #     mensagem = "Cancelamento realizado com sucesso."
 #     assert mensagem in response.json()
-    
-def test_solicitacao_confirma_cancelamento_guias_sem_requisicao(
-    client_autenticado_distribuidor, setup_solicitacao_confirmar_cancelamentos_sem_numero_requisicao
-):
 
+
+def test_solicitacao_confirma_cancelamento_guias_sem_requisicao(
+    client_autenticado_distribuidor,
+    setup_solicitacao_confirmar_cancelamentos_sem_numero_requisicao,
+):
     response = client_autenticado_distribuidor.post(
         "/solicitacao-remessa/confirmar-cancelamento/",
         data=setup_solicitacao_confirmar_cancelamentos_sem_numero_requisicao,
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE
-    mensagem = "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m)."
+    mensagem = (
+        "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m)."
+    )
     assert mensagem in response.json()
-    
-    
+
+
 def test_solicitacao_confirma_cancelamento_guias_sem_guias(
     client_autenticado_distribuidor, setup_solicitacao_confirmar_cancelamentos_sem_guia
 ):
-
     response = client_autenticado_distribuidor.post(
         "/solicitacao-remessa/confirmar-cancelamento/",
         data=setup_solicitacao_confirmar_cancelamentos_sem_guia,
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE
-    mensagem = "É necessario informar o número das guias para confirmação do cancelamento."
+    mensagem = (
+        "É necessario informar o número das guias para confirmação do cancelamento."
+    )
     assert mensagem in response.json()
-    
+
 
 def test_lista_requisicoes_para_envio(client_autenticado_dilog, solicitacao):
     params = {
-        "numero_requisicao": solicitacao.numero_solicitacao, 
-        "nome_distribuidor": solicitacao.distribuidor.nome, 
-        "data_inicio": (datetime.now() - timedelta(days=10)).date(), 
-        "data_fim": datetime.now().date()
+        "numero_requisicao": solicitacao.numero_solicitacao,
+        "nome_distribuidor": solicitacao.distribuidor.nome,
+        "data_inicio": (datetime.now() - timedelta(days=10)).date(),
+        "data_fim": datetime.now().date(),
     }
     response = client_autenticado_dilog.get(
         "/solicitacao-remessa/lista-requisicoes-para-envio/",
@@ -329,12 +350,15 @@ def test_lista_requisicoes_para_envio(client_autenticado_dilog, solicitacao):
     assert response.status_code == status.HTTP_200_OK
     assert "results" in response.json()
 
-def test_lista_requisicoes_para_envio_distribuidor_nao_pode(client_autenticado_distribuidor, solicitacao):
+
+def test_lista_requisicoes_para_envio_distribuidor_nao_pode(
+    client_autenticado_distribuidor, solicitacao
+):
     params = {
-        "numero_requisicao": solicitacao.numero_solicitacao, 
-        "nome_distribuidor": solicitacao.distribuidor.nome, 
-        "data_inicio": (datetime.now() - timedelta(days=10)).date(), 
-        "data_fim": datetime.now().date()
+        "numero_requisicao": solicitacao.numero_solicitacao,
+        "nome_distribuidor": solicitacao.distribuidor.nome,
+        "data_inicio": (datetime.now() - timedelta(days=10)).date(),
+        "data_fim": datetime.now().date(),
     }
     response = client_autenticado_distribuidor.get(
         "/solicitacao-remessa/lista-requisicoes-para-envio/",
@@ -343,11 +367,14 @@ def test_lista_requisicoes_para_envio_distribuidor_nao_pode(client_autenticado_d
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
-def test_lista_requisicoes_para_envio_sem_numero_requisicao(client_autenticado_dilog, solicitacao, guia):
+
+def test_lista_requisicoes_para_envio_sem_numero_requisicao(
+    client_autenticado_dilog, solicitacao, guia
+):
     params = {
-        "nome_distribuidor": solicitacao.distribuidor.nome, 
-        "data_inicio": guia.data_entrega, 
-        "data_fim": datetime.now().date()
+        "nome_distribuidor": solicitacao.distribuidor.nome,
+        "data_inicio": guia.data_entrega,
+        "data_fim": datetime.now().date(),
     }
     response = client_autenticado_dilog.get(
         "/solicitacao-remessa/lista-requisicoes-para-envio/",
@@ -358,12 +385,15 @@ def test_lista_requisicoes_para_envio_sem_numero_requisicao(client_autenticado_d
     informacoes = response.json()
     assert "results" in informacoes
     assert len(informacoes["results"]) == 1
-    
-def test_lista_requisicoes_para_envio_sem_nome_distribuidor(client_autenticado_dilog, solicitacao, guia):
+
+
+def test_lista_requisicoes_para_envio_sem_nome_distribuidor(
+    client_autenticado_dilog, solicitacao, guia
+):
     params = {
-        "numero_requisicao": solicitacao.numero_solicitacao, 
-        "data_inicio": guia.data_entrega, 
-        "data_fim": datetime.now().date()
+        "numero_requisicao": solicitacao.numero_solicitacao,
+        "data_inicio": guia.data_entrega,
+        "data_fim": datetime.now().date(),
     }
     response = client_autenticado_dilog.get(
         "/solicitacao-remessa/lista-requisicoes-para-envio/",
@@ -374,12 +404,15 @@ def test_lista_requisicoes_para_envio_sem_nome_distribuidor(client_autenticado_d
     informacoes = response.json()
     assert "results" in informacoes
     assert len(informacoes["results"]) == 1
-    
-def test_lista_requisicoes_para_envio_sem_data_inicio(client_autenticado_dilog, solicitacao):
+
+
+def test_lista_requisicoes_para_envio_sem_data_inicio(
+    client_autenticado_dilog, solicitacao
+):
     params = {
-        "numero_requisicao": solicitacao.numero_solicitacao, 
-        "nome_distribuidor": solicitacao.distribuidor.nome, 
-        "data_fim": datetime.now().date()
+        "numero_requisicao": solicitacao.numero_solicitacao,
+        "nome_distribuidor": solicitacao.distribuidor.nome,
+        "data_fim": datetime.now().date(),
     }
     response = client_autenticado_dilog.get(
         "/solicitacao-remessa/lista-requisicoes-para-envio/",
@@ -390,12 +423,15 @@ def test_lista_requisicoes_para_envio_sem_data_inicio(client_autenticado_dilog, 
     informacoes = response.json()
     assert "results" in informacoes
     assert len(informacoes["results"]) == 1
-    
-def test_lista_requisicoes_para_envio_sem_data_fim(client_autenticado_dilog, solicitacao, guia):
+
+
+def test_lista_requisicoes_para_envio_sem_data_fim(
+    client_autenticado_dilog, solicitacao, guia
+):
     params = {
-        "numero_requisicao": solicitacao.numero_solicitacao, 
-        "nome_distribuidor": solicitacao.distribuidor.nome, 
-        "data_inicio": guia.data_entrega, 
+        "numero_requisicao": solicitacao.numero_solicitacao,
+        "nome_distribuidor": solicitacao.distribuidor.nome,
+        "data_inicio": guia.data_entrega,
     }
     response = client_autenticado_dilog.get(
         "/solicitacao-remessa/lista-requisicoes-para-envio/",
@@ -406,28 +442,44 @@ def test_lista_requisicoes_para_envio_sem_data_fim(client_autenticado_dilog, sol
     informacoes = response.json()
     assert "results" in informacoes
     assert len(informacoes["results"]) == 1
-    
-    
-def test_consolidado_alimentos_solicitacao_valida(client_autenticado_dilog, solicitacao, guia, alimento, embalagem):
-    response = client_autenticado_dilog.get(f"/solicitacao-remessa/{solicitacao.uuid}/consolidado-alimentos/")
+
+
+def test_consolidado_alimentos_solicitacao_valida(
+    client_autenticado_dilog, solicitacao, guia, alimento, embalagem
+):
+    response = client_autenticado_dilog.get(
+        f"/solicitacao-remessa/{solicitacao.uuid}/consolidado-alimentos/"
+    )
 
     assert response.status_code == status.HTTP_200_OK
     informacoes = response.json()
 
     assert len(informacoes) == 1
     assert informacoes[0]["nome_alimento"] == alimento.nome_alimento
-    assert informacoes[0]["peso_total"] == embalagem.capacidade_embalagem * embalagem.qtd_volume
+    assert (
+        informacoes[0]["peso_total"]
+        == embalagem.capacidade_embalagem * embalagem.qtd_volume
+    )
     assert len(informacoes[0]["total_embalagens"]) == 1
-    assert informacoes[0]["total_embalagens"][0]["descricao_embalagem"] == embalagem.descricao_embalagem
+    assert (
+        informacoes[0]["total_embalagens"][0]["descricao_embalagem"]
+        == embalagem.descricao_embalagem
+    )
 
-def test_consolidado_alimentos_solicitacao_inexistente(client_autenticado_dilog, solicitacao):
-    response = client_autenticado_dilog.get("/solicitacao-remessa/00000000-0000-0000-0000-000000000000/consolidado-alimentos/")
+
+def test_consolidado_alimentos_solicitacao_inexistente(
+    client_autenticado_dilog, solicitacao
+):
+    response = client_autenticado_dilog.get(
+        "/solicitacao-remessa/00000000-0000-0000-0000-000000000000/consolidado-alimentos/"
+    )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == "Solicitação inexistente."
-    
+
+
 def test_consolidado_alimentos_sem_dados(client_autenticado_dilog, solicitacao):
-    response = client_autenticado_dilog.get(f"/solicitacao-remessa/{solicitacao.uuid}/consolidado-alimentos/")
+    response = client_autenticado_dilog.get(
+        f"/solicitacao-remessa/{solicitacao.uuid}/consolidado-alimentos/"
+    )
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == []
-    
-    

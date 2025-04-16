@@ -62,7 +62,6 @@ from ..eol_servico.utils import EOLServicoSGP, dt_nascimento_from_api
 from ..escola.constants import (
     PERIODOS_ESPECIAIS_CEI_CEU_CCI,
     PERIODOS_ESPECIAIS_CEI_DIRET,
-    PERIODOS_ESPECIAIS_CEU_GESTAO,
 )
 from ..inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
@@ -445,6 +444,7 @@ class PeriodoEscolar(
             ],
             "VESPERTINO": PeriodoEscolar.objects.get_or_create(nome="VESPERTINO")[0],
             "PARCIAL": PeriodoEscolar.objects.get_or_create(nome="PARCIAL")[0],
+            None: None,
         }
 
     class Meta:
@@ -559,6 +559,12 @@ class Escola(
             ciclo=Aluno.CICLO_ALUNO_CEI,
         ).count()
 
+    @property
+    def quantidade_alunos_emebs_infantil(self):
+        if not self.eh_emebs:
+            return None
+        return self.aluno_set.filter(etapa=Aluno.ETAPA_INFANTIL).count()
+
     def quantidade_alunos_emebs_por_periodo_infantil(self, nome_periodo_escolar):
         if not self.eh_emebs:
             return None
@@ -632,19 +638,27 @@ class Escola(
                 return edital
         return None
 
+    @property
+    def possui_alunos_regulares(self):
+        return AlunosMatriculadosPeriodoEscola.objects.filter(
+            escola__uuid=self.uuid, tipo_turma="REGULAR", quantidade_alunos__gte=1
+        ).exists()
+
     def periodos_escolares(self, ano=datetime.date.today().year):
         """Recupera periodos escolares da escola, desde que haja pelomenos um aluno para este período."""
+
         if self.tipo_unidade.tem_somente_integral_e_parcial:
             periodos = PeriodoEscolar.objects.filter(
                 nome__in=PERIODOS_ESPECIAIS_CEI_CEU_CCI
             )
-        elif self.tipo_unidade.iniciais == "CEU GESTAO":
-            periodos = PeriodoEscolar.objects.filter(
-                nome__in=PERIODOS_ESPECIAIS_CEU_GESTAO
-            )
         elif self.eh_cei:
             periodos = PeriodoEscolar.objects.filter(
                 nome__in=PERIODOS_ESPECIAIS_CEI_DIRET
+            )
+        elif not self.possui_alunos_regulares:
+            periodos = PeriodoEscolar.objects.filter(
+                vinculotipoalimentacaocomperiodoescolaretipounidadeescolar__tipo_unidade_escolar=self.tipo_unidade,
+                vinculotipoalimentacaocomperiodoescolaretipounidadeescolar__ativo=True,
             )
         else:
             # TODO: ver uma forma melhor de fazer essa query
@@ -773,7 +787,7 @@ class Escola(
 
         return return_array
 
-    @property  # noqa C901
+    @property
     def quantidade_alunos_por_periodo_cei_emei(self):
         if not self.eh_cemei:
             return None
@@ -1565,6 +1579,17 @@ class Aluno(TemChaveExterna):
         except MultipleObjectsReturned:
             logger.critical("Aluno não deve possuir mais de uma Dieta Especial ativa")
 
+    def cria_historico(self, codigo_situacao, situacao, escola=None):
+        historico = HistoricoMatriculaAluno(
+            aluno=self,
+            escola=escola or self.escola,
+            data_inicio=datetime.date.today(),
+            codigo_situacao=codigo_situacao,
+            situacao=situacao,
+        )
+        historico.save()
+        return historico
+
     class Meta:
         verbose_name = "Aluno"
         verbose_name_plural = "Alunos"
@@ -2019,48 +2044,57 @@ class AlunoPeriodoParcial(TemChaveExterna, CriadoEm):
 
 class DiaSuspensaoAtividades(TemData, TemChaveExterna, CriadoEm, CriadoPor):
     tipo_unidade = models.ForeignKey(TipoUnidadeEscolar, on_delete=models.CASCADE)
+    edital = models.ForeignKey(
+        "terceirizada.Edital", on_delete=models.CASCADE, blank=True, null=True
+    )
 
     @property
     def tipo_unidades(self):
         return None
 
     @staticmethod
-    def get_dias_com_suspensao(
-        escola: Escola, eh_solicitacao_unificada: bool, quantidade_dias: int
+    def get_dias_com_suspensao_escola(escola: Escola, quantidade_dias: int):
+        hoje = datetime.date.today()
+        proximos_dias_uteis = obter_dias_uteis_apos_hoje(quantidade_dias)
+        dias = datetime_range(hoje, proximos_dias_uteis)
+        dias_com_suspensao = DiaSuspensaoAtividades.objects.filter(
+            data__in=dias,
+            tipo_unidade=escola.tipo_unidade,
+            edital__uuid__in=escola.editais,
+        ).count()
+        return dias_com_suspensao
+
+    @staticmethod
+    def get_dias_com_suspensao_solicitacao_unificada(
+        dre: DiretoriaRegional, quantidade_dias: int
     ):
         hoje = datetime.date.today()
         proximos_dias_uteis = obter_dias_uteis_apos_hoje(quantidade_dias)
         dias = datetime_range(hoje, proximos_dias_uteis)
         dias_com_suspensao = 0
-        if escola:
-            dias_com_suspensao = DiaSuspensaoAtividades.objects.filter(
-                data__in=dias, tipo_unidade=escola.tipo_unidade
-            ).count()
-        elif eh_solicitacao_unificada:
-            for dia in dias:
-                if (
-                    DiaSuspensaoAtividades.objects.filter(data=dia).count()
-                    == TipoUnidadeEscolar.objects.count()
-                ):
-                    dias_com_suspensao += 1
+        for dia in dias:
+            if (
+                DiaSuspensaoAtividades.objects.filter(
+                    data=dia, edital__uuid__in=dre.editais
+                ).count()
+                == TipoUnidadeEscolar.objects.count()
+            ):
+                dias_com_suspensao += 1
         return dias_com_suspensao
 
     @staticmethod
     def eh_dia_de_suspensao(escola: Escola, data: date):
         return DiaSuspensaoAtividades.objects.filter(
-            data=data, tipo_unidade=escola.tipo_unidade
+            data=data, tipo_unidade=escola.tipo_unidade, edital__uuid__in=escola.editais
         ).exists()
 
     def __str__(self):
-        return f'{self.data.strftime("%d/%m/%Y")} - {self.tipo_unidade.iniciais}'
+        return f'{self.data.strftime("%d/%m/%Y")} - {self.tipo_unidade.iniciais} - Edital {self.edital}'
 
     class Meta:
         verbose_name = "Dia de suspensão de atividades"
         verbose_name_plural = "Dias de suspensão de atividades"
-        unique_together = (
-            "tipo_unidade",
-            "data",
-        )
+        unique_together = ("tipo_unidade", "data", "edital")
         ordering = ("data",)
 
 
@@ -2115,7 +2149,6 @@ class HistoricoMatriculaAluno(TemChaveExterna):
     class Meta:
         verbose_name = "Histórico de Matrícula do Aluno"
         verbose_name_plural = "Históricos de Matrículas dos Alunos"
-        unique_together = ["aluno", "escola"]
 
     def __str__(self) -> str:
         return f"{self.aluno} - {self.escola} | De: {self.data_inicio} Ate: {self.data_fim}"

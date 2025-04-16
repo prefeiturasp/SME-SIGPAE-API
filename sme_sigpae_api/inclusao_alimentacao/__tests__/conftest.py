@@ -89,6 +89,27 @@ def escola_cei():
 
 
 @pytest.fixture
+def escola_cemei():
+    terceirizada = mommy.make("Terceirizada")
+    lote = mommy.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = mommy.make(
+        "DiretoriaRegional",
+        nome="DIRETORIA REGIONAL GUAIANASES",
+        uuid="e5583462-d6d5-4580-afd4-de2fd94a3440",
+    )
+    tipo_unidade = mommy.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
+    return mommy.make(
+        "Escola",
+        nome="CEMEI PARQUE DO LAGO",
+        lote=lote,
+        diretoria_regional=diretoria_regional,
+        tipo_gestao=tipo_gestao,
+        tipo_unidade=tipo_unidade,
+    )
+
+
+@pytest.fixture
 def make_escola_cei():
     def handle(kwargs_escola=None):
         kwargs_escola = kwargs_escola or {}

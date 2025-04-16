@@ -1,10 +1,13 @@
 import re
-from collections import Counter
-from datetime import date
+from collections import Counter, defaultdict
+from datetime import date, datetime
+from itertools import chain
+from typing import List
 
 from dateutil.relativedelta import relativedelta
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db.models import CharField, F, IntegerField, Q, Sum, Value
+from django.db.models.functions import Coalesce
 from django.template.loader import render_to_string
 from rest_framework.pagination import PageNumberPagination
 
@@ -14,6 +17,7 @@ from sme_sigpae_api.dieta_especial.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
 from sme_sigpae_api.escola.models import Lote
+from sme_sigpae_api.escola.utils import faixa_to_string
 from sme_sigpae_api.medicao_inicial.models import SolicitacaoMedicaoInicial
 from sme_sigpae_api.perfil.models import Usuario
 from sme_sigpae_api.relatorios.relatorios import relatorio_dieta_especial_conteudo
@@ -24,7 +28,14 @@ from ..dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ..dados_comuns.utils import envia_email_unico, envia_email_unico_com_anexo_inmemory
 from ..escola.models import Aluno, FaixaEtaria, PeriodoEscolar
 from ..paineis_consolidados.models import SolicitacoesCODAE
-from .constants import ETAPA_INFANTIL
+from .constants import (
+    ETAPA_INFANTIL,
+    UNIDADES_CEI,
+    UNIDADES_CEMEI,
+    UNIDADES_EMEBS,
+    UNIDADES_EMEI_EMEF_CIEJA,
+    UNIDADES_SEM_PERIODOS,
+)
 from .models import LogDietasAtivasCanceladasAutomaticamente, SolicitacaoDietaEspecial
 
 
@@ -716,11 +727,15 @@ def get_quantidade_dietas_emebs(each, dietas):
             aluno__etapa=ETAPA_INFANTIL
         ).count()
         quantidade += get_quantidade_nao_matriculados_entre_4_e_6_anos(dietas)
-    else:
+    elif each == "FUNDAMENTAL":
         quantidade = dietas_sem_alunos_nao_matriculados.exclude(
             aluno__etapa=ETAPA_INFANTIL
         ).count()
         quantidade += get_quantidade_nao_matriculados_maior_6_anos(dietas)
+    else:
+        quantidade = dietas_sem_alunos_nao_matriculados.count()
+        quantidade += get_quantidade_nao_matriculados_maior_6_anos(dietas)
+        quantidade += get_quantidade_nao_matriculados_entre_4_e_6_anos(dietas)
     return quantidade
 
 
@@ -728,7 +743,7 @@ def logs_a_criar_sem_periodo_escolar(
     logs_a_criar, escola, dietas_filtradas, ontem, classificacao
 ):
     if escola.eh_emebs:
-        for each in ["INFANTIL", "FUNDAMENTAL"]:
+        for each in ["INFANTIL", "FUNDAMENTAL", "N/A"]:
             quantidade = get_quantidade_dietas_emebs(each, dietas_filtradas)
             log = LogQuantidadeDietasAutorizadas(
                 quantidade=quantidade,
@@ -1096,3 +1111,396 @@ def trata_lotes_dict_duplicados(lotes_dict):
         except Lote.DoesNotExist:
             continue
     return dict(lotes_)
+
+
+def gerar_filtros_relatorio_historico(query_params: dict) -> dict:
+    map_filtros = {
+        "escola__tipo_gestao__uuid": query_params.get("tipo_gestao", None),
+        "escola__tipo_unidade__uuid__in": query_params.getlist(
+            "tipos_unidades_selecionadas[]", None
+        ),
+        "escola__lote__uuid": query_params.get("lote", None),
+        "escola__uuid__in": query_params.getlist(
+            "unidades_educacionais_selecionadas[]", None
+        ),
+        "periodo_escolar__uuid__in": query_params.getlist(
+            "periodos_escolares_selecionadas[]", None
+        ),
+        "classificacao__id__in": query_params.getlist(
+            "classificacoes_selecionadas[]", None
+        ),
+        "quantidade__gt": 0,
+    }
+
+    data_dieta = query_params.get("data")
+    if not data_dieta:
+        raise ValidationError("Data é um parâmetro obrigatório.")
+    try:
+        formato = "%d/%m/%Y"
+        data = datetime.strptime(data_dieta, formato)
+    except ValueError:
+        raise ValidationError(
+            f"A data {data_dieta} não corresponde ao formato esperado 'dd/mm/YYYY'."
+        )
+
+    map_filtros.update(
+        {"data__day": data.day, "data__month": data.month, "data__year": data.year}
+    )
+
+    filtros = {
+        key: value for key, value in map_filtros.items() if value not in [None, []]
+    }
+    return filtros, data_dieta
+
+
+def dados_dietas_escolas_cei(filtros: dict) -> List[dict]:
+    logs_dietas_escolas_cei = (
+        LogQuantidadeDietasAutorizadasCEI.objects.filter(**filtros)
+        .select_related(
+            "escola",
+            "periodo_escolar",
+            "escola__tipo_unidade",
+            "classificacao",
+            "faixa_etaria",
+        )
+        .annotate(
+            nome_escola=F("escola__nome"),
+            nome_periodo_escolar=Coalesce(F("periodo_escolar__nome"), Value(None)),
+            tipo_unidade=F("escola__tipo_unidade__iniciais"),
+            lote=F("escola__lote__nome"),
+            nome_classificacao=F("classificacao__nome"),
+            quantidade_total=Sum("quantidade"),
+            inicio=Coalesce(F("faixa_etaria__inicio"), Value(None)),
+            fim=Coalesce(F("faixa_etaria__fim"), Value(None)),
+            infantil_ou_fundamental=Value(None, output_field=CharField()),
+            cei_ou_emei=Value(None, output_field=CharField()),
+        )
+        .values(
+            "nome_escola",
+            "tipo_unidade",
+            "lote",
+            "nome_classificacao",
+            "nome_periodo_escolar",
+            "infantil_ou_fundamental",
+            "cei_ou_emei",
+            "data",
+            "quantidade_total",
+            "inicio",
+            "fim",
+        )
+        .order_by("nome_escola", "faixa_etaria__inicio")
+    )
+
+    return logs_dietas_escolas_cei
+
+
+def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
+    filtro_por_tipo_unidade = Q(
+        Q(
+            escola__tipo_unidade__iniciais__in=UNIDADES_EMEBS,
+            periodo_escolar__isnull=True,
+            cei_ou_emei="N/A",
+            infantil_ou_fundamental__in=["FUNDAMENTAL", "INFANTIL"],
+        )
+        | Q(
+            escola__tipo_unidade__iniciais__in=UNIDADES_CEMEI,
+            periodo_escolar__nome="INTEGRAL",
+            cei_ou_emei__in=["CEI", "EMEI"],
+        )
+    )
+    logs_dietas_outras_escolas = (
+        LogQuantidadeDietasAutorizadas.objects.filter(**filtros)
+        .exclude(filtro_por_tipo_unidade)
+        .select_related(
+            "escola", "periodo_escolar", "escola__tipo_unidade", "classificacao"
+        )
+        .annotate(
+            nome_escola=F("escola__nome"),
+            nome_periodo_escolar=Coalesce(F("periodo_escolar__nome"), Value(None)),
+            tipo_unidade=F("escola__tipo_unidade__iniciais"),
+            lote=F("escola__lote__nome"),
+            nome_classificacao=F("classificacao__nome"),
+            quantidade_total=Sum("quantidade"),
+            inicio=Value(None, output_field=IntegerField()),
+            fim=Value(None, output_field=IntegerField()),
+        )
+        .values(
+            "nome_escola",
+            "tipo_unidade",
+            "lote",
+            "nome_classificacao",
+            "nome_periodo_escolar",
+            "infantil_ou_fundamental",
+            "cei_ou_emei",
+            "data",
+            "quantidade_total",
+            "inicio",
+            "fim",
+        )
+        .order_by("nome_escola")
+    )
+
+    return logs_dietas_outras_escolas
+
+
+def gera_dicionario_historico_dietas(filtros):
+    log_escolas_cei = dados_dietas_escolas_cei(filtros)
+    log_escolas = dados_dietas_escolas_comuns(filtros)
+    log_dietas = sorted(
+        chain(log_escolas_cei, log_escolas), key=lambda x: x["nome_escola"]
+    )
+    periodo_escolar_selecionado = False
+    if "periodo_escolar__uuid__in" in filtros:
+        periodo_escolar_selecionado = True
+    escolas, total_dietas = transformar_dados_escolas(
+        log_dietas, periodo_escolar_selecionado
+    )
+    informacoes = formatar_informacoes_historioco_dietas(escolas, total_dietas)
+    return informacoes
+
+
+def transformar_dados_escolas(dados, periodo_escolar_selecionado=False):
+    escolas = defaultdict(
+        lambda: {
+            "tipo_unidade": None,
+            "lote": None,
+            "classificacoes": defaultdict(
+                lambda: {
+                    "infantil": defaultdict(int),
+                    "fundamental": defaultdict(int),
+                    "periodos": defaultdict(int),
+                    "por_idade": defaultdict(int),
+                    "turma_infantil": defaultdict(int),
+                    "faixa_etaria": defaultdict(int),
+                    "total": 0,
+                }
+            ),
+        }
+    )
+
+    tipos_unidades = {
+        **{tipo: unidades_tipo_emebs for tipo in UNIDADES_EMEBS},
+        **{tipo: unidades_tipos_emei_emef_cieja for tipo in UNIDADES_EMEI_EMEF_CIEJA},
+        **{tipo: unidades_tipos_cmct_ceugestao for tipo in UNIDADES_SEM_PERIODOS},
+        **{tipo: unidades_tipo_cemei for tipo in UNIDADES_CEMEI},
+        **{tipo: unidades_tipo_cei for tipo in UNIDADES_CEI},
+    }
+
+    total_dietas = 0
+    for item in dados:
+        nome_escola = item["nome_escola"]
+        tipo_unidade = item["tipo_unidade"]
+
+        escolas[nome_escola]["tipo_unidade"] = tipo_unidade
+        escolas[nome_escola]["lote"] = item["lote"]
+        escolas[nome_escola]["data"] = item["data"]
+
+        unidade = tipos_unidades.get(tipo_unidade, lambda e, i: 0)
+        total_dietas += unidade(item, escolas, periodo_escolar_selecionado)
+
+    return escolas, total_dietas
+
+
+def formatar_informacoes_historioco_dietas(escolas, total_dietas):
+    tipos_unidades = {
+        **{tipo: formatar_periodos_emebs for tipo in UNIDADES_EMEBS},
+        **{
+            tipo: formatar_periodos_emei_emef_cieja for tipo in UNIDADES_EMEI_EMEF_CIEJA
+        },
+        **{tipo: formatar_periodos_cemei for tipo in UNIDADES_CEMEI},
+        **{tipo: formatar_periodos_cei for tipo in UNIDADES_CEI},
+    }
+
+    resultado = []
+    for escola_nome, dados_escola in escolas.items():
+        for classificacao, dados_classificacao in dados_escola[
+            "classificacoes"
+        ].items():
+            tipo_unidade = dados_escola["tipo_unidade"]
+            informacao_escola_por_classificacao = {
+                "data": dados_escola["data"],
+                "lote": dados_escola["lote"],
+                "unidade_educacional": escola_nome,
+                "tipo_unidade": dados_escola["tipo_unidade"],
+                "classificacao": classificacao,
+                "total": dados_classificacao["total"],
+            }
+            unidade = tipos_unidades.get(tipo_unidade, lambda i, d: None)
+            unidade(informacao_escola_por_classificacao, dados_classificacao)
+            resultado.append(informacao_escola_por_classificacao)
+
+    return {
+        "total_dietas": total_dietas,
+        "resultados": resultado,
+    }
+
+
+def unidades_tipo_emebs(item, escolas, periodo_escolar_selecionado=False):
+    nome_escola = item["nome_escola"]
+    classificacao = item["nome_classificacao"]
+    periodo_escola = item["nome_periodo_escolar"]
+    tipo_turma = item["infantil_ou_fundamental"]
+    cei_emei = item["cei_ou_emei"]
+    quantidade = item["quantidade_total"]
+
+    total_dietas = 0
+    if periodo_escola:
+        escolas[nome_escola]["classificacoes"][classificacao][f"{tipo_turma}".lower()][
+            periodo_escola
+        ] += quantidade
+        if periodo_escolar_selecionado:
+            escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
+            total_dietas = quantidade
+    elif periodo_escola is None and tipo_turma == "N/A" and cei_emei == "N/A":
+        escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
+        total_dietas = quantidade
+    return total_dietas
+
+
+def unidades_tipos_emei_emef_cieja(item, escolas, periodo_escolar_selecionado=False):
+    nome_escola = item["nome_escola"]
+    classificacao = item["nome_classificacao"]
+    periodo_escola = item["nome_periodo_escolar"]
+    tipo_turma = item["infantil_ou_fundamental"]
+    cei_emei = item["cei_ou_emei"]
+    quantidade = item["quantidade_total"]
+
+    total_dietas = 0
+    if periodo_escola:
+        escolas[nome_escola]["classificacoes"][classificacao]["periodos"][
+            periodo_escola
+        ] += quantidade
+        if periodo_escolar_selecionado:
+            escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
+            total_dietas = quantidade
+    elif periodo_escola is None and tipo_turma == "N/A" and cei_emei == "N/A":
+        escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
+        total_dietas = quantidade
+
+    return total_dietas
+
+
+def unidades_tipos_cmct_ceugestao(item, escolas, periodo_escolar_selecionado=False):
+    nome_escola = item["nome_escola"]
+    classificacao = item["nome_classificacao"]
+    quantidade = item["quantidade_total"]
+
+    escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
+    return quantidade
+
+
+def unidades_tipo_cei(item, escolas, periodo_escolar_selecionado=False):
+    nome_escola = item["nome_escola"]
+    classificacao = item["nome_classificacao"]
+    periodo_escola = item["nome_periodo_escolar"]
+    quantidade = item["quantidade_total"]
+    inicio = item["inicio"]
+    fim = item["fim"]
+
+    total_dietas = 0
+    if inicio is not None and fim is not None:
+        faixa_etaria_infantil = faixa_to_string(item["inicio"], item["fim"])
+        if (
+            escolas[nome_escola]["classificacoes"][classificacao]["periodos"][
+                periodo_escola
+            ]
+            == 0
+        ):
+            escolas[nome_escola]["classificacoes"][classificacao]["periodos"][
+                periodo_escola
+            ] = []
+
+        escolas[nome_escola]["classificacoes"][classificacao]["periodos"][
+            periodo_escola
+        ].append({"faixa": faixa_etaria_infantil, "autorizadas": quantidade})
+    else:
+        escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
+        total_dietas = quantidade
+
+    return total_dietas
+
+
+def unidades_tipo_cemei(item, escolas, periodo_escolar_selecionado=False):  # noqa
+    nome_escola = item["nome_escola"]
+    classificacao = item["nome_classificacao"]
+    periodo_escola = item["nome_periodo_escolar"]
+    tipo_turma = item["infantil_ou_fundamental"]
+    cei_emei = item["cei_ou_emei"]
+    quantidade = item["quantidade_total"]
+    inicio = item["inicio"]
+    fim = item["fim"]
+
+    total_dietas = 0
+    if inicio is not None and fim is not None:
+        faixa_etaria_infantil = faixa_to_string(item["inicio"], item["fim"])
+        if (
+            escolas[nome_escola]["classificacoes"][classificacao]["por_idade"][
+                periodo_escola
+            ]
+            == 0
+        ):
+            escolas[nome_escola]["classificacoes"][classificacao]["por_idade"][
+                periodo_escola
+            ] = []
+        escolas[nome_escola]["classificacoes"][classificacao]["por_idade"][
+            periodo_escola
+        ].append({"faixa": faixa_etaria_infantil, "autorizadas": quantidade})
+    elif inicio is None and fim is None and tipo_turma is None and cei_emei is None:
+        escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
+        total_dietas = quantidade
+    elif periodo_escola:
+        escolas[nome_escola]["classificacoes"][classificacao]["turma_infantil"][
+            periodo_escola
+        ] = quantidade
+        if periodo_escolar_selecionado:
+            escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
+            total_dietas = quantidade
+    elif periodo_escola is None and tipo_turma == "N/A" and cei_emei == "N/A":
+        escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
+        total_dietas = quantidade
+
+    return total_dietas
+
+
+def formatar_periodos_emebs(informacao_escola_por_classificacao, dados_classificacao):
+    informacao_escola_por_classificacao["periodos"] = {}
+    infantil = dados_classificacao["infantil"]
+    if len(infantil) > 0:
+        informacao_escola_por_classificacao["periodos"]["infantil"] = [
+            {"periodo": p, "autorizadas": q} for p, q in infantil.items()
+        ]
+    fundamental = dados_classificacao["fundamental"]
+    if len(fundamental) > 0:
+        informacao_escola_por_classificacao["periodos"]["fundamental"] = [
+            {"periodo": p, "autorizadas": q} for p, q in fundamental.items()
+        ]
+
+
+def formatar_periodos_emei_emef_cieja(
+    informacao_escola_por_classificacao, dados_classificacao
+):
+    informacao_escola_por_classificacao["periodos"] = [
+        {"periodo": p, "autorizadas": q}
+        for p, q in dados_classificacao["periodos"].items()
+    ]
+
+
+def formatar_periodos_cemei(informacao_escola_por_classificacao, dados_classificacao):
+    informacao_escola_por_classificacao["periodos"] = {}
+    turma_infantil = dados_classificacao["turma_infantil"]
+    if len(turma_infantil) > 0:
+        informacao_escola_por_classificacao["periodos"]["turma_infantil"] = [
+            {"periodo": p, "autorizadas": q} for p, q in turma_infantil.items()
+        ]
+    por_idade = dados_classificacao["por_idade"]
+    if len(por_idade) > 0:
+        informacao_escola_por_classificacao["periodos"]["por_idade"] = [
+            {"periodo": p, "faixa_etaria": q} for p, q in por_idade.items()
+        ]
+
+
+def formatar_periodos_cei(informacao_escola_por_classificacao, dados_classificacao):
+    informacao_escola_por_classificacao["periodos"] = [
+        {"periodo": p, "faixa_etaria": q}
+        for p, q in dados_classificacao["periodos"].items()
+    ]

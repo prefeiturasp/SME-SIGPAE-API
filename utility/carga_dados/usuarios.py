@@ -277,7 +277,7 @@ USUARIOS = [
     {
         "email": "qualidade@admin.com",
         "password": DJANGO_ADMIN_PASSWORD,
-        "cpf": "11111111128",
+        "cpf": "11111111129",
         "registro_funcional": "1240000",
         "nome": "SUPER USUARIO QUALIDADE",
         "cargo": "Coordenador",
@@ -310,7 +310,7 @@ USUARIOS = [
         "email": "usariorelatorios@admin.com",
         "password": DJANGO_ADMIN_PASSWORD,
         "cpf": "61583337865",
-        "registro_funcional": "1242099",
+        "registro_funcional": "1242098",
         "nome": "USUARIO RELATORIOS",
         "cargo": "Coordenador",
     },
@@ -320,6 +320,22 @@ USUARIOS = [
         "cpf": "43278537475",
         "registro_funcional": "1242099",
         "nome": "USUÁRIO GTIC CODAE",
+        "cargo": "Coordenador",
+    },
+    {
+        "email": "administradorcontratos@admin.com",
+        "password": DJANGO_ADMIN_PASSWORD,
+        "cpf": "11111111145",
+        "registro_funcional": "1242199",
+        "nome": "ADMINISTRADOR CONTRATOS",
+        "cargo": "Coordenador",
+    },
+    {
+        "email": "dilogabastecimento@admin.com",
+        "password": DJANGO_ADMIN_PASSWORD,
+        "cpf": "11111111146",
+        "registro_funcional": "1242200",
+        "nome": "DILOG ABASTECIMENTO",
         "cargo": "Coordenador",
     },
 ]
@@ -340,6 +356,7 @@ def cria_usuarios():  # noqa C901
                 nome=usuario["nome"],
                 crn_numero=usuario.get("crn_numero"),
                 cargo=usuario.get("cargo"),
+                username=usuario.get("cpf"),
             )
 
     try:

@@ -86,3 +86,18 @@
 .rodape {
   font-size: 0.8em;
 }
+
+.justificativa-cancelamento {
+  color: $branco;
+  background-color: $cinza;
+  margin-top: 20px;
+  font-size: 10px;
+  font-weight: bold;
+
+  padding-top: 6px;
+  padding-bottom: 6px;
+  padding-left: 8px;
+  padding-right: 8px;
+
+  border-radius: 15px;
+}

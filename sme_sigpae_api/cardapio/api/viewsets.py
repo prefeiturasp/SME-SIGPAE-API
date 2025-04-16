@@ -937,6 +937,12 @@ class GrupoSuspensaoAlimentacaoSerializerViewSet(viewsets.ModelViewSet):
                 status=HTTP_400_BAD_REQUEST,
             )
 
+    def valida_datas(self, obj, datas):
+        if datas:
+            for data in datas:
+                data_obj = datetime.datetime.strptime(data, "%Y-%m-%d").date()
+                obj.checa_se_pode_cancelar(data_obj)
+
     @action(
         detail=True,
         permission_classes=(UsuarioEscolaTercTotal,),
@@ -944,17 +950,40 @@ class GrupoSuspensaoAlimentacaoSerializerViewSet(viewsets.ModelViewSet):
         url_path="escola-cancela",
     )
     def escola_cancela(self, request, uuid=None):
+        grupo_suspensao_de_alimentacao: GrupoSuspensaoAlimentacao = self.get_object()
+        datas = request.data.get("datas", [])
+        justificativa = request.data.get("justificativa", "")
         try:
-            grupo_suspensao_de_alimentacao = self.get_object()
-            grupo_suspensao_de_alimentacao.cancelar_pedido(
-                user=request.user, justificativa=request.data.get("justificativa")
-            )
+            assert (  # nosec
+                grupo_suspensao_de_alimentacao.status
+                != grupo_suspensao_de_alimentacao.workflow_class.ESCOLA_CANCELOU
+            ), "Solicitação já está cancelada"
+            self.valida_datas(grupo_suspensao_de_alimentacao, datas)
+            if (
+                not hasattr(grupo_suspensao_de_alimentacao, "suspensoes_alimentacao")
+                or len(datas)
+                + grupo_suspensao_de_alimentacao.suspensoes_alimentacao.filter(
+                    cancelado=True
+                ).count()
+                == grupo_suspensao_de_alimentacao.suspensoes_alimentacao.count()
+            ):
+                grupo_suspensao_de_alimentacao.cancelar_pedido(
+                    user=request.user, justificativa=justificativa
+                )
+            else:
+                services.enviar_email_ue_cancelar_pedido_parcialmente(
+                    grupo_suspensao_de_alimentacao
+                )
+            if hasattr(grupo_suspensao_de_alimentacao, "suspensoes_alimentacao"):
+                grupo_suspensao_de_alimentacao.suspensoes_alimentacao.filter(
+                    data__in=datas
+                ).update(cancelado_justificativa=justificativa, cancelado=True)
             serializer = self.get_serializer(grupo_suspensao_de_alimentacao)
             return Response(serializer.data)
         except InvalidTransitionError as e:
             return Response(
                 dict(detail=f"Erro de transição de estado: {e}"),
-                status=HTTP_400_BAD_REQUEST,
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
     def destroy(self, request, *args, **kwargs):
@@ -1037,17 +1066,6 @@ class AlteracoesCardapioViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=False,
-        url_path="com-lanche-do-mes-corrente/(?P<escola_uuid>[^/.]+)",
-        permission_classes=(UsuarioEscolaTercTotal,),
-    )
-    def minhas_solicitacoes_do_mes_com_lanches(self, request, escola_uuid):
-        alteracoes_cardapio = AlteracaoCardapio.com_lanche_do_mes_corrente(escola_uuid)
-        page = self.paginate_queryset(alteracoes_cardapio)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
-
-    @action(
-        detail=False,
         url_path=f"{constants.PEDIDOS_CODAE}/{constants.FILTRO_PADRAO_PEDIDOS}",
         permission_classes=[UsuarioCODAEGestaoAlimentacao],
     )
@@ -1085,23 +1103,6 @@ class AlteracoesCardapioViewSet(viewsets.ModelViewSet):
         serializer = AlteracaoCardapioSimplesSerializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
-    @action(
-        detail=False,
-        url_path=f"{constants.PEDIDOS_TERCEIRIZADA}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=[UsuarioTerceirizada],
-    )
-    def solicitacoes_terceirizada(self, request, filtro_aplicado=constants.SEM_FILTRO):
-        # TODO: colocar regras de Terceirizada aqui...
-        usuario = request.user
-        terceirizada = usuario.vinculo_atual.instituicao
-        alteracoes_cardapio = terceirizada.alteracoes_cardapio_das_minhas(
-            filtro_aplicado
-        )
-
-        page = self.paginate_queryset(alteracoes_cardapio)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
-
     @action(detail=True, methods=["GET"], url_path=f"{constants.RELATORIO}")
     def relatorio(self, request, uuid=None):
         return relatorio_alteracao_cardapio(request, solicitacao=self.get_object())
@@ -1112,7 +1113,7 @@ class AlteracoesCardapioViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        permission_classes=[UsuarioEscolaTercTotal],  # noqa C901
+        permission_classes=[UsuarioEscolaTercTotal],
         methods=["patch"],
         url_path=constants.ESCOLA_INICIO_PEDIDO,
     )

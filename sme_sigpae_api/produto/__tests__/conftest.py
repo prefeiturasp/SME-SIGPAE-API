@@ -1,10 +1,20 @@
 import datetime
+from unittest.mock import Mock
 
 import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
 from model_mommy import mommy
+
+from sme_sigpae_api.produto.api.serializers.serializers import (
+    HomologacaoProdutoPainelGerencialSerializer,
+    ReclamacaoDeProdutoSerializer,
+)
+from sme_sigpae_api.produto.api.viewsets import (
+    HomologacaoProdutoPainelGerencialViewSet,
+    ReclamacaoProdutoViewSet,
+)
 
 from ...dados_comuns import constants
 from ...dados_comuns.constants import DJANGO_ADMIN_PASSWORD
@@ -15,7 +25,7 @@ from ...dados_comuns.fluxo_status import (
 from ...dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
 from ...escola.models import DiretoriaRegional, TipoGestao
 from ...terceirizada.models import Contrato
-from ..models import ProdutoEdital
+from ..models import AnaliseSensorial, HomologacaoProduto, ProdutoEdital
 
 fake = Faker("pt-Br")
 Faker.seed(420)
@@ -108,8 +118,18 @@ def produtos_edital_41(escola):
     )
     marca_1 = mommy.make("Marca", nome="NAMORADOS")
     marca_2 = mommy.make("Marca", nome="TIO JOÃO")
-    produto_1 = mommy.make("Produto", nome="ARROZ", marca=marca_1)
-    produto_2 = mommy.make("Produto", nome="ARROZ", marca=marca_2)
+    fabricante_1 = mommy.make("Fabricante", nome="Fabricante 001")
+    fabricante_2 = mommy.make("Fabricante", nome="Fabricante 002")
+    produto_1 = mommy.make(
+        "Produto", nome="ARROZ", marca=marca_1, fabricante=fabricante_1
+    )
+    produto_2 = mommy.make(
+        "Produto",
+        nome="ARROZ",
+        marca=marca_2,
+        fabricante=fabricante_2,
+        aditivos="aditivoA, aditivoB, aditivoC",
+    )
     homologacao_p1 = mommy.make(
         "HomologacaoProduto",
         produto=produto_1,
@@ -577,7 +597,7 @@ def client_autenticado_da_dre(client, django_user_model, diretoria_regional):
         ativo=True,
     )
     client.login(username=email, password=password)
-    return client
+    return client, usuario
 
 
 @pytest.fixture
@@ -601,7 +621,7 @@ def client_autenticado_da_escola(client, django_user_model, escola):
         ativo=True,
     )
     client.login(username=email, password=password)
-    return client
+    return client, usuario
 
 
 @pytest.fixture
@@ -733,7 +753,7 @@ def client_autenticado_vinculo_escola_ue(client, django_user_model, escola):
         template_html="@id @criado_em @status @link",
     )
     client.login(username=email, password=password)
-    return client
+    return client, user
 
 
 @pytest.fixture
@@ -984,3 +1004,109 @@ def homologacao_produto_suspenso(homologacao_produto):
     homologacao_produto.status = HomologacaoProdutoWorkflow.CODAE_SUSPENDEU
     homologacao_produto.save()
     return homologacao_produto
+
+
+@pytest.fixture
+def analise_sensorial(homologacao_produto_gpcodae_questionou_escola):
+    analise = mommy.make(
+        "AnaliseSensorial",
+        status=AnaliseSensorial.STATUS_AGUARDANDO_RESPOSTA,
+        homologacao_produto=homologacao_produto_gpcodae_questionou_escola,
+    )
+    return analise
+
+
+@pytest.fixture
+def reclamacao_respondido_terceirizada(
+    reclamacao, homologacao_produto_gpcodae_questionou_escola, analise_sensorial
+):
+    reclamacao.homologacao_produto = homologacao_produto_gpcodae_questionou_escola
+    reclamacao.status = ReclamacaoProdutoWorkflow.RESPONDIDO_TERCEIRIZADA
+    reclamacao.save()
+    return reclamacao
+
+
+@pytest.fixture
+def user_codae_produto(django_user_model, codae):
+    email = "test2@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    perfil_admin_gestao_produto = mommy.make(
+        "Perfil",
+        nome=constants.ADMINISTRADOR_GESTAO_PRODUTO,
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf2",
+    )
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_admin_gestao_produto,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    return user
+
+
+@pytest.fixture
+def mock_view_de_reclamacao_produto(
+    user_codae_produto, reclamacao_respondido_terceirizada
+):
+    data = {"anexos": [], "justificativa": "Produto vencido."}
+    mock_request = Mock()
+    mock_request.data = data
+    mock_request.user = user_codae_produto
+
+    viewset = ReclamacaoProdutoViewSet()
+    viewset.request = mock_request
+    viewset.kwargs = {"uuid": "uuid"}
+    viewset.get_object = Mock(return_value=reclamacao_respondido_terceirizada)
+    viewset.get_serializer = ReclamacaoDeProdutoSerializer
+
+    return mock_request, viewset
+
+
+@pytest.fixture
+def usuario_nutri_supervisao(django_user_model):
+    email = "nutrisupervisao@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    perfil_supervisao_nutricao = mommy.make(
+        "Perfil",
+        nome=constants.COORDENADOR_SUPERVISAO_NUTRICAO,
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
+    )
+
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_supervisao_nutricao,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    return user
+
+
+@pytest.fixture
+def mock_view_de_homologacao_produto_painel_gerencial(
+    client_autenticado_vinculo_terceirizada,
+):
+    client, usuario = client_autenticado_vinculo_terceirizada
+    mock_request = Mock()
+    mock_request.data = {}
+    mock_request.user = usuario
+    mock_request.query_params = {"page": ["1"], "page_size": ["10"]}
+
+    viewset = HomologacaoProdutoPainelGerencialViewSet()
+    viewset.request = mock_request
+    viewset.kwargs = {"uuid": "uuid"}
+    viewset.get_serializer = HomologacaoProdutoPainelGerencialSerializer
+
+    return mock_request, viewset

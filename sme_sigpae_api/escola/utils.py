@@ -2,12 +2,16 @@ import logging
 import re
 from calendar import monthrange
 from datetime import date, datetime, timedelta
+from pathlib import Path
+from typing import Dict, List
 
 from django.db.models import Case, Q, Value, When
+from openpyxl import Workbook
 from rest_framework.pagination import PageNumberPagination
 
 from sme_sigpae_api.eol_servico.utils import EOLServicoSGP
 
+from ..dados_comuns.utils import get_ultimo_dia_mes
 from ..escola import models
 
 logger = logging.getLogger("sigpae.taskEscola")
@@ -466,7 +470,10 @@ def trata_filtro_data_relatorio_controle_frequencia_pdf(
         else [None, None, None]
     )
     if int(mes) > hoje.month:
-        filtros["data"] = f"{hoje.year}-{hoje.month}-{ontem.day}"
+        ultimo_dia_mes = get_ultimo_dia_mes(hoje)
+        filtros[
+            "data"
+        ] = f"{hoje.year}-{hoje.month}-{min(ontem.day, ultimo_dia_mes.day)}"
         mes_seguinte = True
     elif (
         int(mes) == hoje.month
@@ -691,3 +698,15 @@ def ordenar_alunos_matriculados(queryset):
         "escola__nome", "ordering"
     )
     return queryset
+
+
+def cria_arquivo_excel(caminho_arquivo: Path, dados: List[Dict[str, str]]):
+    """
+    Cria um arquivo Excel a partir dos dados fornecidos.s
+    """
+    wb = Workbook()
+    ws = wb.active
+    ws.append(list(dados[0].keys()))
+    for row in dados:
+        ws.append(list(row.values()))
+    wb.save(caminho_arquivo)

@@ -106,7 +106,15 @@
   fields:
     nome: USUARIO_RELATORIOS
     visao: CODAE
-      - model: perfil.perfil
-        fields:
-          nome: USUARIO_GTIC_CODAE
-          visao: CODAE
+- model: perfil.perfil
+  fields:
+    nome: USUARIO_GTIC_CODAE
+    visao: CODAE
+- model: perfil.perfil
+  fields:
+    nome: ADMINISTRADOR_CONTRATOS
+    visao: CODAE
+- model: perfil.perfil
+  fields:
+    nome: DILOG_ABASTECIMENTO
+    visao: CODAE

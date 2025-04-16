@@ -1,9 +1,22 @@
+import xml.etree.ElementTree as ET
 from datetime import datetime
 
 import pytest
-import xml.etree.ElementTree as ET
 from faker import Faker
 from model_mommy import mommy
+from spyne.util.dictdoc import get_object_as_dict
+
+from sme_sigpae_api.dados_comuns.fluxo_status import SolicitacaoRemessaWorkFlow
+from sme_sigpae_api.logistica.api.soup.models import (
+    Alimento,
+    ArqCancelamento,
+    ArqSolicitacaoMOD,
+    Guia,
+    GuiCan,
+    oWsAcessoModel,
+)
+from sme_sigpae_api.logistica.models.solicitacao import SolicitacaoRemessa
+from sme_sigpae_api.terceirizada.models import Terceirizada
 
 from ...escola import models
 from ..models.guia import ConferenciaIndividualPorAlimento
@@ -301,20 +314,21 @@ def previsoes_contratuais(notificacao_ocorrencia):
     return objects
 
 
-
 @pytest.fixture
 def setup_solicitacao_remessa_envio():
     data = {
-        "StrCnpj": fake.bothify(text='########0001##'),  # Gera um CNPJ fictício
-        "StrNumSol": fake.bothify(text='####################'),  # Gera o número da solicitação
+        "StrCnpj": fake.bothify(text="########0001##"),  # Gera um CNPJ fictício
+        "StrNumSol": fake.bothify(
+            text="####################"
+        ),  # Gera o número da solicitação
         "IntSeqenv": 3,
         "IntQtGuia": 3,
-        "IntTotVol": 3, 
+        "IntTotVol": 3,
         "guias": [
             {
                 "StrNumGui": fake.uuid4(),  # Gera um UUID para número da guia
                 "DtEntrega": fake.date(pattern="%Y-%m-%d"),  # Gera uma data
-                "StrCodUni": fake.bothify(text='UNI####'),  # Gera um código de unidade
+                "StrCodUni": fake.bothify(text="UNI####"),  # Gera um código de unidade
                 "StrNomUni": fake.company(),  # Gera um nome de unidade
                 "StrEndUni": fake.street_address(),  # Gera um endereço de unidade
                 "StrNumUni": fake.building_number(),  # Gera um número de unidade
@@ -326,15 +340,21 @@ def setup_solicitacao_remessa_envio():
                 "StrTelUni": fake.phone_number(),  # Gera um telefone
                 "alimentos": [
                     {
-                        "StrCodSup": fake.bothify(text='SUP####'),  # Gera um código de suprimento
-                        "StrCodPapa": fake.bothify(text='PAPA####'),  # Gera um código do PAPA
+                        "StrCodSup": fake.bothify(
+                            text="SUP####"
+                        ),  # Gera um código de suprimento
+                        "StrCodPapa": fake.bothify(
+                            text="PAPA####"
+                        ),  # Gera um código do PAPA
                         "StrNomAli": fake.word(),  # Gera um nome de alimento
                         "StrEmbala": fake.word(),  # Gera um tipo de embalagem
-                        "IntQtdVol": str(fake.random_int(min=1, max=100))  # Gera uma quantidade
+                        "IntQtdVol": str(
+                            fake.random_int(min=1, max=100)
+                        ),  # Gera uma quantidade
                     }
-                ]
+                ],
             }
-        ]
+        ],
     }
     return data
 
@@ -357,16 +377,18 @@ def dict_to_xml(tag, d):
 @pytest.fixture
 def setup_solicitacao_cancelamento():
     data = {
-        "StrCnpj": fake.bothify(text='########0001##'),  # Gera um CNPJ fictício
-        "StrNumSol": fake.bothify(text='####################'),  # Gera o número da solicitação
+        "StrCnpj": fake.bothify(text="########0001##"),  # Gera um CNPJ fictício
+        "StrNumSol": fake.bothify(
+            text="####################"
+        ),  # Gera o número da solicitação
         "IntSeqenv": 3,
         "IntQtGuia": 3,
-        "IntTotVol": 3, 
+        "IntTotVol": 3,
         "guias": [
             {
                 "StrNumGui": fake.uuid4(),  # Gera um UUID para número da guia
                 "DtEntrega": fake.date(pattern="%Y-%m-%d"),  # Gera uma data
-                "StrCodUni": fake.bothify(text='UNI####'),  # Gera um código de unidade
+                "StrCodUni": fake.bothify(text="UNI####"),  # Gera um código de unidade
                 "StrNomUni": fake.company(),  # Gera um nome de unidade
                 "StrEndUni": fake.street_address(),  # Gera um endereço de unidade
                 "StrNumUni": fake.building_number(),  # Gera um número de unidade
@@ -378,17 +400,23 @@ def setup_solicitacao_cancelamento():
                 "StrTelUni": fake.phone_number(),  # Gera um telefone
                 "alimentos": [
                     {
-                        "StrCodSup": fake.bothify(text='SUP####'),  # Gera um código de suprimento
-                        "StrCodPapa": fake.bothify(text='PAPA####'),  # Gera um código do PAPA
+                        "StrCodSup": fake.bothify(
+                            text="SUP####"
+                        ),  # Gera um código de suprimento
+                        "StrCodPapa": fake.bothify(
+                            text="PAPA####"
+                        ),  # Gera um código do PAPA
                         "StrNomAli": fake.word(),  # Gera um nome de alimento
                         "StrEmbala": fake.word(),  # Gera um tipo de embalagem
-                        "IntQtdVol": str(fake.random_int(min=1, max=100))  # Gera uma quantidade
+                        "IntQtdVol": str(
+                            fake.random_int(min=1, max=100)
+                        ),  # Gera uma quantidade
                     }
-                ]
+                ],
             }
-        ]
+        ],
     }
-    
+
     root = dict_to_xml("XmlParserSolicitacao", data)
     xml_data = ET.tostring(root, encoding="utf-8").decode("utf-8")
     return xml_data
@@ -400,7 +428,9 @@ def setup_solicitacao_confirmar_cancelamento(solicitacao):
         "logs": [
             {
                 "descricao": fake.sentence(nb_words=6),  # Gera uma descrição aleatória
-                "justificativa": fake.text(max_nb_chars=50),  # Gera uma justificativa aleatória
+                "justificativa": fake.text(
+                    max_nb_chars=50
+                ),  # Gera uma justificativa aleatória
                 "resposta_sim_nao": fake.boolean(),  # Gera um valor booleano
             }
         ],
@@ -413,15 +443,25 @@ def setup_solicitacao_confirmar_cancelamento(solicitacao):
                         },
                         "nome": fake.word(),  # Gera o nome do alimento
                         "ativo": fake.boolean(),  # Gera um valor booleano para ativo
-                        "tipo": fake.random_element(elements=["E", "D", "C"]),  # Gera um tipo aleatório
-                        "outras_informacoes": fake.text(max_nb_chars=100),  # Gera informações adicionais
+                        "tipo": fake.random_element(
+                            elements=["E", "D", "C"]
+                        ),  # Gera um tipo aleatório
+                        "outras_informacoes": fake.text(
+                            max_nb_chars=100
+                        ),  # Gera informações adicionais
                         "tipo_listagem_protocolo": "SO_ALIMENTOS",  # Valor fixo
                     }
                 ],
                 "status": "AGUARDANDO_ENVIO",  # Valor fixo
-                "numero_guia": fake.bothify(text="####-#####"),  # Gera um número de guia
-                "data_entrega": fake.date(pattern="%Y-%m-%d"),  # Gera uma data de entrega
-                "codigo_unidade": fake.bothify(text="UNI###"),  # Gera um código de unidade
+                "numero_guia": fake.bothify(
+                    text="####-#####"
+                ),  # Gera um número de guia
+                "data_entrega": fake.date(
+                    pattern="%Y-%m-%d"
+                ),  # Gera uma data de entrega
+                "codigo_unidade": fake.bothify(
+                    text="UNI###"
+                ),  # Gera um código de unidade
                 "nome_unidade": fake.company(),  # Gera um nome de unidade
                 "endereco_unidade": fake.street_address(),  # Gera um endereço de unidade
                 "numero_unidade": fake.building_number(),  # Gera um número de unidade
@@ -432,27 +472,199 @@ def setup_solicitacao_confirmar_cancelamento(solicitacao):
                 "contato_unidade": fake.name(),  # Gera um nome de contato
                 "telefone_unidade": fake.phone_number(),  # Gera um telefone
                 "situacao": "ATIVA",  # Valor fixo
-                "solicitacao": fake.random_int(min=1, max=1000),  # Gera um número aleatório para solicitação
-                "escola": fake.random_int(min=1, max=1000),  # Gera um número aleatório para escola
-                "notificacao": fake.random_int(min=1, max=1000),  # Gera um número aleatório para notificação
+                "solicitacao": fake.random_int(
+                    min=1, max=1000
+                ),  # Gera um número aleatório para solicitação
+                "escola": fake.random_int(
+                    min=1, max=1000
+                ),  # Gera um número aleatório para escola
+                "notificacao": fake.random_int(
+                    min=1, max=1000
+                ),  # Gera um número aleatório para notificação
             }
         ],
         "status": "AGUARDANDO_ENVIO",  # Valor fixo
         "cnpj": fake.bothify(text="########0001##"),  # Gera um CNPJ fictício
         "numero_requisicao": solicitacao.numero_solicitacao,  # Gera um número de solicitação
-        "quantidade_total_guias": fake.random_int(min=1, max=100),  # Gera uma quantidade total de guias
-        "sequencia_envio": fake.random_int(min=1, max=100),  # Gera uma sequência de envio
+        "quantidade_total_guias": fake.random_int(
+            min=1, max=100
+        ),  # Gera uma quantidade total de guias
+        "sequencia_envio": fake.random_int(
+            min=1, max=100
+        ),  # Gera uma sequência de envio
         "situacao": "ATIVA",  # Valor fixo
-        "distribuidor": fake.random_int(min=1, max=1000),  # Gera um número aleatório para distribuidor
+        "distribuidor": fake.random_int(
+            min=1, max=1000
+        ),  # Gera um número aleatório para distribuidor
     }
     return data
 
-@pytest.fixture
-def setup_solicitacao_confirmar_cancelamentos_sem_numero_requisicao(setup_solicitacao_confirmar_cancelamento):
-    _ = setup_solicitacao_confirmar_cancelamento.pop("numero_requisicao")   
-    return setup_solicitacao_confirmar_cancelamento
 
 @pytest.fixture
-def setup_solicitacao_confirmar_cancelamentos_sem_guia(setup_solicitacao_confirmar_cancelamento):
-     _ = setup_solicitacao_confirmar_cancelamento.pop("guias")   
-     return setup_solicitacao_confirmar_cancelamento
+def setup_solicitacao_confirmar_cancelamentos_sem_numero_requisicao(
+    setup_solicitacao_confirmar_cancelamento,
+):
+    _ = setup_solicitacao_confirmar_cancelamento.pop("numero_requisicao")
+    return setup_solicitacao_confirmar_cancelamento
+
+
+@pytest.fixture
+def setup_solicitacao_confirmar_cancelamentos_sem_guia(
+    setup_solicitacao_confirmar_cancelamento,
+):
+    _ = setup_solicitacao_confirmar_cancelamento.pop("guias")
+    return setup_solicitacao_confirmar_cancelamento
+
+
+@pytest.fixture
+def token_valido():
+    usuario = mommy.make("Usuario", username="testuser", is_active=True)
+    token = mommy.make("Token", user=usuario, key="oWsAcessoModel")
+    model = oWsAcessoModel(StrId="123456", StrToken="oWsAcessoModel")
+
+    return usuario, token, model
+
+
+@pytest.fixture
+def fake_alimento():
+    return {
+        "StrCodSup": fake.unique.random_number(digits=5, fix_len=True),
+        "StrCodPapa": fake.bothify(text="PAPA####"),
+        "StrNomAli": fake.word(),
+        "StrTpEmbala": fake.word(),
+        "StrQtEmbala": str(fake.random_int(min=1, max=100)),
+        "StrDescEmbala": fake.sentence(),
+        "StrPesoEmbala": str(
+            fake.pydecimal(left_digits=3, right_digits=2, positive=True)
+        ),
+        "StrUnMedEmbala": fake.random_element(elements=["kg", "g", "ml", "L"]),
+    }
+
+
+@pytest.fixture
+def soup_alimento(fake_alimento):
+    return Alimento(**fake_alimento)
+
+
+@pytest.fixture
+def fake_guia(soup_alimento):
+    return {
+        "StrNumGui": fake.random_int(min=1000, max=9999),
+        "DtEntrega": fake.date_object(),
+        "StrCodUni": fake.bothify(text="UNI####"),
+        "StrNomUni": fake.company(),
+        "StrEndUni": fake.street_address(),
+        "StrNumUni": str(fake.random_int(min=1, max=1000)),
+        "StrBaiUni": fake.city_suffix(),
+        "StrCepUni": fake.postcode(),
+        "StrCidUni": fake.city(),
+        "StrEstUni": fake.state_abbr(),
+        "StrConUni": fake.name(),
+        "StrTelUni": fake.phone_number(),
+        "alimentos": [soup_alimento],
+    }
+
+
+@pytest.fixture
+def soup_guia(fake_guia):
+    return Guia(**fake_guia)
+
+
+@pytest.fixture
+def fake_arq_solicitacao_mod(soup_guia):
+    return {
+        "StrCnpj": fake.cnpj(),
+        "StrNumSol": fake.random_int(min=1000, max=9999),
+        "IntSeqenv": fake.random_int(min=1, max=10),
+        "IntTotVol": fake.random_int(min=1, max=50),
+        "IntQtGuia": 1,
+        "guias": [soup_guia],
+    }
+
+
+@pytest.fixture
+def soup_arq_solicitacao_mod(fake_arq_solicitacao_mod):
+    return ArqSolicitacaoMOD(**fake_arq_solicitacao_mod)
+
+
+@pytest.fixture
+def soup_guican():
+    return GuiCan(StrNumGui=fake.random_int(min=1000, max=9999))
+
+
+@pytest.fixture
+def fake_arq_cancelamento(fake_arq_solicitacao_mod):
+    guia = fake_arq_solicitacao_mod["guias"][0]
+    return {
+        "StrCnpj": fake_arq_solicitacao_mod["StrCnpj"],
+        "StrNumSol": fake_arq_solicitacao_mod["StrNumSol"],
+        "IntSeqenv": fake_arq_solicitacao_mod["IntSeqenv"],
+        "IntQtGuia": fake_arq_solicitacao_mod["IntQtGuia"],
+        "guias": [GuiCan(StrNumGui=guia.StrNumGui)],
+    }
+
+
+@pytest.fixture
+def soup_arq_cancelamento(fake_arq_cancelamento):
+    return ArqCancelamento(**fake_arq_cancelamento)
+
+
+@pytest.fixture
+def terceirizada_soup():
+    cnpj = fake.cnpj().replace(".", "").replace("/", "").replace("-", "")
+    return mommy.make(
+        "Terceirizada", cnpj=cnpj, tipo_servico=Terceirizada.DISTRIBUIDOR_ARMAZEM
+    )
+
+
+@pytest.fixture
+def arq_solicitacao_mod(fake_arq_solicitacao_mod, soup_guia, terceirizada_soup):
+    codigo_codae = fake.random_int(min=1000, max=9999)
+    soup_guia.StrCodUni = codigo_codae
+    mommy.make("Escola", codigo_codae=codigo_codae)
+    arquivo_solicitacao = ArqSolicitacaoMOD(
+        StrCnpj=terceirizada_soup.cnpj,
+        StrNumSol=fake_arq_solicitacao_mod.get("StrNumSol"),
+        IntSeqenv=fake_arq_solicitacao_mod.get("IntSeqenv"),
+        IntTotVol=fake_arq_solicitacao_mod.get("IntTotVol"),
+        guias=[soup_guia],
+        IntQtGuia=fake_arq_solicitacao_mod.get("IntQtGuia"),
+    )
+    return arquivo_solicitacao
+
+
+@pytest.fixture
+def arq_cancelamento_mod(soup_arq_cancelamento, solicitacao):
+    solicitacao.numero_solicitacao = soup_arq_cancelamento.StrNumSol
+    solicitacao.save()
+    return soup_arq_cancelamento
+
+
+@pytest.fixture
+def soup_solicitacao_remessa(arq_solicitacao_mod):
+    data = get_object_as_dict(arq_solicitacao_mod)
+    guias = data.pop("guias", [])
+    data.pop("IntTotVol", None)
+    return SolicitacaoRemessa.objects.create_solicitacao(**data), guias
+
+
+@pytest.fixture
+def dicioanario_alimentos(soup_solicitacao_remessa):
+    solicitacao, guias = soup_solicitacao_remessa
+    guia = guias[0]
+    alimentos_data = guia.pop("alimentos", [])[0]
+    guia_obj = Guia().build_guia_obj(guia, solicitacao)
+    escola = models.Escola.objects.get(codigo_codae=guia_obj.codigo_unidade)
+    guia_obj.escola = escola
+    guia_obj.save()
+    alimentos_data["guia"] = guia_obj
+    return alimentos_data
+
+
+@pytest.fixture
+def mock_ctx():
+    class MockContext:
+        out_string = [b"<tns:Test>soap11env:Body</tns:Test>"]
+
+    ctx = MockContext()
+    return ctx

@@ -3,7 +3,8 @@ import os
 
 from django.core.validators import FileExtensionValidator, MinLengthValidator
 from django.db import models
-from django.db.models import OuterRef
+from django.db.models import Case, F, IntegerField, OuterRef, Value, When
+from django.db.models.functions import Cast, Substr
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
@@ -145,7 +146,19 @@ class EtapasDoCronograma(ModeloBase):
         return "Etapa sem Cronograma"
 
     class Meta:
-        ordering = ("etapa", "data_programada")
+        ordering = (
+            Case(
+                When(
+                    etapa__isnull=False,
+                    etapa__gt="",
+                    then=Cast(Substr(F("etapa"), Value(7)), IntegerField()),
+                ),
+                default=Value(0),
+                output_field=IntegerField(),
+            ),
+            "parte",
+            "data_programada",
+        )
         verbose_name = "Etapa do Cronograma"
         verbose_name_plural = "Etapas dos Cronogramas"
 
@@ -743,7 +756,7 @@ class FichaTecnicaDoProduto(
     gluten = models.BooleanField("Contém glúten?", null=True)
     lactose = models.BooleanField("Contém lactose?", null=True)
     lactose_detalhe = models.CharField("Detalhar Lactose", max_length=150, blank=True)
-    porcao = models.FloatField("Porção", blank=True, null=True)
+    porcao = models.CharField("Porção", max_length=100, blank=True, null=True)
     unidade_medida_porcao = models.ForeignKey(
         UnidadeMedida,
         on_delete=models.PROTECT,
@@ -751,8 +764,9 @@ class FichaTecnicaDoProduto(
         null=True,
         related_name="fichas_tecnicas_unidade_porcao",
     )
-    valor_unidade_caseira = models.FloatField(
+    valor_unidade_caseira = models.CharField(
         "Unidade Caseira",
+        max_length=100,
         blank=True,
         null=True,
     )

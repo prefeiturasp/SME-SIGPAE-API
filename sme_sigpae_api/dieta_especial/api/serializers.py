@@ -788,3 +788,13 @@ class LogQuantidadeDietasAutorizadasCEISerializer(serializers.ModelSerializer):
     class Meta:
         model = LogQuantidadeDietasAutorizadasCEI
         exclude = ("id", "uuid")
+
+
+class UnidadeEducacionalSerializer(serializers.Serializer):
+    lote = serializers.CharField()
+    unidade_educacional = serializers.CharField()
+    tipo_unidade = serializers.CharField()
+    classificacao = serializers.CharField()
+    total = serializers.IntegerField()
+    data = serializers.DateField()
+    periodos = serializers.JSONField(required=False)

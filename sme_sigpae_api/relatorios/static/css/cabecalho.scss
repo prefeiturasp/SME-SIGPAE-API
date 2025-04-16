@@ -63,6 +63,10 @@ h2.subtitulo {
   text-transform: uppercase;
   color: $preto;
 }
+.subtitulo-centralizado {
+  text-align: center;
+}
+
 
 .header {
   padding: 1em 2em 1em 2em;
@@ -760,3 +764,5 @@ h2.subtitulo {
     }
   }
 }
+
+

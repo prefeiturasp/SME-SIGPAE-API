@@ -442,6 +442,9 @@ def _ajusta_layout_tabela(workbook, worksheet, df):
     formatacao_vespertino = workbook.add_format(
         {**formatacao_base, "bg_color": "#C13FD6"}
     )
+    formatacao_intermediario = workbook.add_format(
+        {**formatacao_base, "bg_color": "#2F80ED"}
+    )
     formatacao_programas = workbook.add_format(
         {**formatacao_base, "bg_color": "#72BC17"}
     )
@@ -465,11 +468,12 @@ def _ajusta_layout_tabela(workbook, worksheet, df):
         "INTEGRAL": formatacao_integral,
         "NOITE": formatacao_noite,
         "VESPERTINO": formatacao_vespertino,
+        "INTERMEDIARIO": formatacao_intermediario,
         "PROGRAMAS E PROJETOS": formatacao_programas,
         "ETEC": formatacao_etec,
         "DIETA ESPECIAL - TIPO A": formatacao_dieta_a,
         "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": formatacao_dieta_a,
-        "DIETA ESPECIAL - TIPO B - LANCHE": formatacao_dieta_b,
+        "DIETA ESPECIAL - TIPO B": formatacao_dieta_b,
     }
 
     for col_num, value in enumerate(df.columns.values):

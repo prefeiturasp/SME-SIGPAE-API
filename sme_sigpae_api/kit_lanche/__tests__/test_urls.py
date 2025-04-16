@@ -930,3 +930,44 @@ def test_url_endpoint_solicitacao_kit_lanche_cemei(client_autenticado_da_escola)
         response.json()["detail"]
         == "Você só pode excluir quando o status for RASCUNHO."
     )
+
+
+def test_url_endpoint_solicitacoes_kit_lanche_avulsa_inicio_fluxo_escola_cmct(
+    client_autenticado_da_escola_cmct, solicitacao_avulsa_cmct, periodo_escolar
+):
+    assert str(solicitacao_avulsa_cmct.status) == PedidoAPartirDaEscolaWorkflow.RASCUNHO
+    response = client_autenticado_da_escola_cmct.patch(
+        f"/{ENDPOINT_AVULSO}/{solicitacao_avulsa_cmct.uuid}/{constants.ESCOLA_INICIO_PEDIDO}/"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()
+    assert json["status"] == "DRE_A_VALIDAR"
+    solicitacao_avulsa_atualizada = SolicitacaoKitLancheAvulsa.objects.get(
+        id=solicitacao_avulsa_cmct.id
+    )
+    assert (
+        str(solicitacao_avulsa_atualizada.status)
+        == PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR
+    )
+    assert str(json["uuid"]) == str(solicitacao_avulsa_cmct.uuid)
+
+
+def test_url_endpoint_solicitacoes_kit_lanche_avulsa_inicio_fluxo_erro_transicao_escola_cmct(
+    client_autenticado_da_escola_cmct, solicitacao_avulsa_cmct, periodo_escolar
+):
+    solicitacao_avulsa_cmct.status = PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR
+    solicitacao_avulsa_cmct.save()
+
+    assert (
+        str(solicitacao_avulsa_cmct.status)
+        == PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR
+    )
+    response = client_autenticado_da_escola_cmct.patch(
+        f"/{ENDPOINT_AVULSO}/{solicitacao_avulsa_cmct.uuid}/{constants.ESCOLA_INICIO_PEDIDO}/"
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    json = response.json()
+    assert (
+        json["detail"]
+        == "Erro de transição de estado: Transition 'inicia_fluxo' isn't available from state 'DRE_A_VALIDAR'."
+    )

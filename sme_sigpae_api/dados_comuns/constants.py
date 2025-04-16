@@ -210,6 +210,8 @@ ADMINISTRADOR_REPRESENTANTE_CODAE = "ADMINISTRADOR_REPRESENTANTE_CODAE"
 ORGAO_FISCALIZADOR = "ORGAO_FISCALIZADOR"
 USUARIO_RELATORIOS = "USUARIO_RELATORIOS"
 USUARIO_GTIC_CODAE = "USUARIO_GTIC_CODAE"
+ADMINISTRADOR_CONTRATOS = "ADMINISTRADOR_CONTRATOS"
+DILOG_ABASTECIMENTO = "DILOG_ABASTECIMENTO"
 
 #
 # TIPOS DE USUARIO
@@ -223,6 +225,8 @@ TIPO_USUARIO_GESTAO_ALIMENTACAO_TERCEIRIZADA = "gestao_alimentacao_terceirizada"
 TIPO_USUARIO_NUTRIMANIFESTACAO = "nutricao_manifestacao"
 TIPO_USUARIO_ORGAO_FISCALIZADOR = "orgao_fiscalizador"
 TIPO_USUARIO_CODAE_GABINETE = "codae_gabinete"
+TIPO_USUARIO_ADMINISTRADOR_CONTRATOS = "administrador_contratos"
+TIPO_USUARIO_DILOG_ABASTECIMENTO = "dilog_abastecimento"
 
 #
 # DOMINIOS USADOS APENAS EM DESENVOLVIMENTO
@@ -263,10 +267,16 @@ ORDEM_PERIODOS_GRUPOS_EMEBS = {
     "TARDE - FUNDAMENTAL": 4,
     "INTEGRAL - INFANTIL": 5,
     "INTEGRAL - FUNDAMENTAL": 6,
-    "NOITE - INFANTIL": 7,
-    "NOITE - FUNDAMENTAL": 8,
-    "Programas e Projetos - INFANTIL": 9,
-    "Programas e Projetos - FUNDAMENTAL": 10,
+    "VESPERTINO - INFANTIL": 7,
+    "VESPERTINO - FUNDAMENTAL": 8,
+    "INTERMEDIARIO - INFANTIL": 9,
+    "INTERMEDIARIO - FUNDAMENTAL": 10,
+    "NOITE - INFANTIL": 11,
+    "NOITE - FUNDAMENTAL": 12,
+    "Programas e Projetos - INFANTIL": 13,
+    "Programas e Projetos - FUNDAMENTAL": 14,
+    "Solicitações de Alimentação - INFANTIL": 15,
+    "Solicitações de Alimentação - FUNDAMENTAL": 16,
 }
 
 ORDEM_PERIODOS_GRUPOS = {
@@ -278,10 +288,11 @@ ORDEM_PERIODOS_GRUPOS = {
     "Infantil INTEGRAL": 3,
     "NOITE": 4,
     "Infantil NOITE": 4,
-    "VESPERTINO": 5,
-    "Programas e Projetos": 6,
-    "Solicitações de Alimentação": 7,
-    "ETEC": 8,
+    "INTERMEDIARIO": 5,
+    "VESPERTINO": 6,
+    "Programas e Projetos": 7,
+    "Solicitações de Alimentação": 8,
+    "ETEC": 9,
 }
 
 ORDEM_PERIODOS_GRUPOS_CEI = {
@@ -344,12 +355,13 @@ ORDEM_HEADERS = {
     "TARDE": 3,
     "INTEGRAL": 4,
     "NOITE": 5,
-    "VESPERTINO": 6,
-    "Programas e Projetos": 7,
-    "ETEC": 8,
-    "DIETA ESPECIAL - TIPO A": 9,
-    "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": 10,
-    "DIETA ESPECIAL - TIPO B - LANCHE": 11,
+    "INTERMEDIARIO": 6,
+    "VESPERTINO": 7,
+    "Programas e Projetos": 8,
+    "ETEC": 9,
+    "DIETA ESPECIAL - TIPO A": 10,
+    "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": 11,
+    "DIETA ESPECIAL - TIPO B": 12,
 }
 
 
