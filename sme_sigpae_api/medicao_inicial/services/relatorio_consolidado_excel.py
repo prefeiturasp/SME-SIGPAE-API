@@ -223,6 +223,7 @@ def _get_valores_tabela(solicitacoes, colunas):
 
 
 def get_solicitacoes_ordenadas(solicitacoes):
+    # TODO: aqui tem que ajustar para o tipo de grupo
     return sorted(
         solicitacoes,
         key=lambda k: ORDEM_UNIDADES_GRUPO_EMEF[k.escola.tipo_unidade.iniciais],
@@ -460,7 +461,7 @@ def _ajusta_layout_tabela(workbook, worksheet, df):
             "text_wrap": True,
         }
     )
-
+    # TODO: E os outros tipos de dieta?
     formatacao_level1 = {
         "": formatacao_level2,
         "MANHA": formatacao_manha,

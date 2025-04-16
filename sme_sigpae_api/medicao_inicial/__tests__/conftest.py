@@ -7,6 +7,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from model_mommy import mommy
 
 from sme_sigpae_api.dados_comuns.behaviors import TempoPasseio
+from sme_sigpae_api.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.escola.models import (
     DiaCalendario,
@@ -2748,3 +2749,48 @@ def periodos_integral_parcial_e_logs(escola, faixas_etarias_ativas):
                 quantidade=2,
                 data=datetime.date(2022, 12, dia),
             )
+
+
+@pytest.fixture
+def mock_relatorio_consolidado_xlsx(
+    escola, categoria_medicao, categoria_medicao_dieta_a, categoria_medicao_dieta_b
+):
+    solicitacao = mommy.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola,
+        mes="04",
+        ano="2025",
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+        # rastro_lote=escola.lote,
+    )
+    medicao_manha = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=mommy.make("PeriodoEscolar", nome="MANHA"),
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+    )
+    medicao_tarde = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=mommy.make("PeriodoEscolar", nome="TARDE"),
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+    )
+
+    for dia in ["01", "02", "03", "04", "05"]:
+        for campo in ["lanche", "refeicao", "lanche_emergencial", "sobremesa"]:
+            for categoria in [
+                categoria_medicao,
+                categoria_medicao_dieta_a,
+                categoria_medicao_dieta_b,
+            ]:
+                for medicao_ in [medicao_manha, medicao_tarde]:
+                    mommy.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao_,
+                        categoria_medicao=categoria,
+                        valor="10",
+                    )
+
+    return solicitacao
