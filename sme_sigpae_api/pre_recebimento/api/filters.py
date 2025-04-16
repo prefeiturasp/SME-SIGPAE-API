@@ -137,6 +137,10 @@ class LayoutDeEmbalagemFilter(filters.FilterSet):
         field_name="ficha_tecnica__pregao_chamada_publica",
         lookup_expr="icontains",
     )
+    numero_cronograma = filters.CharFilter(
+        field_name="ficha_tecnica__cronograma__numero",
+        lookup_expr="icontains",
+    )
     status = filters.MultipleChoiceFilter(
         field_name="status",
         choices=[(str(state), state) for state in LayoutDeEmbalagemWorkflow.states],

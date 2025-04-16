@@ -46,16 +46,16 @@ def test_resposta_paginada(paginacao_historico_dietas):
     assert resposta.data["previous"] == "url_pagina_anterior"
     assert resposta.data["count"] == 10
     assert resposta.data["page_size"] == 1
-    assert resposta.data["results"] == [
-        {"total_dietas": 5, "data": dados_log, "resultado": dados}
-    ]
+    assert resposta.data["total_dietas"] == 5
+    assert resposta.data["data"] == dados_log
+    assert resposta.data["results"] == dados
 
 
 def test_tamanho_pagina_padrao_ao_nao_enviar_page_size(paginacao_historico_dietas):
     paginacao, mock_requisicao = paginacao_historico_dietas
     requisicao = mock_requisicao.get("/")
     requisicao.query_params = {}
-    assert paginacao.get_page_size(requisicao) == 2
+    assert paginacao.get_page_size(requisicao) == 10
 
 
 def test_tamanho_pagina_none_ao_enviar_page_size_none(paginacao_historico_dietas):
@@ -63,7 +63,7 @@ def test_tamanho_pagina_none_ao_enviar_page_size_none(paginacao_historico_dietas
     requisicao = mock_requisicao.get("/")
     requisicao.query_params = {"page_size": None}
 
-    assert paginacao.get_page_size(requisicao) == 2
+    assert paginacao.get_page_size(requisicao) == 10
 
 
 def test_resposta_paginada_com_page_size_padrao(paginacao_historico_dietas):
@@ -87,7 +87,7 @@ def test_resposta_paginada_com_page_size_padrao(paginacao_historico_dietas):
     assert resposta.data["next"] == "url_proxima_pagina"
     assert resposta.data["previous"] == "url_pagina_anterior"
     assert resposta.data["count"] == 10
-    assert resposta.data["page_size"] == 2
-    assert resposta.data["results"] == [
-        {"total_dietas": 5, "data": dados_log, "resultado": dados}
-    ]
+    assert resposta.data["page_size"] == 10
+    assert resposta.data["total_dietas"] == 5
+    assert resposta.data["data"] == dados_log
+    assert resposta.data["results"] == dados

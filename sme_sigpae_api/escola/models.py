@@ -444,6 +444,7 @@ class PeriodoEscolar(
             ],
             "VESPERTINO": PeriodoEscolar.objects.get_or_create(nome="VESPERTINO")[0],
             "PARCIAL": PeriodoEscolar.objects.get_or_create(nome="PARCIAL")[0],
+            None: None,
         }
 
     class Meta:
@@ -557,6 +558,12 @@ class Escola(
             data_nascimento__gte=data_fim,
             ciclo=Aluno.CICLO_ALUNO_CEI,
         ).count()
+
+    @property
+    def quantidade_alunos_emebs_infantil(self):
+        if not self.eh_emebs:
+            return None
+        return self.aluno_set.filter(etapa=Aluno.ETAPA_INFANTIL).count()
 
     def quantidade_alunos_emebs_por_periodo_infantil(self, nome_periodo_escolar):
         if not self.eh_emebs:

@@ -17,7 +17,6 @@ from ..dados_comuns.behaviors import (
     Nomeavel,
     TemChaveExterna,
     TemData,
-    TemFaixaEtariaEQuantidade,
     TemIdentificadorExternoAmigavel,
     TemPrioridade,
 )
@@ -760,9 +759,7 @@ class LogQuantidadeDietasAutorizadas(TemChaveExterna, TemData, CriadoEm):
         ordering = ("-data", "escola__nome")
 
 
-class LogQuantidadeDietasAutorizadasCEI(
-    TemChaveExterna, TemData, CriadoEm, TemFaixaEtariaEQuantidade
-):
+class LogQuantidadeDietasAutorizadasCEI(TemChaveExterna, TemData, CriadoEm):
     escola = models.ForeignKey(
         "escola.Escola",
         on_delete=models.CASCADE,
@@ -778,6 +775,9 @@ class LogQuantidadeDietasAutorizadasCEI(
         "escola.PeriodoEscolar",
         related_name="logs_dietas_autorizadas_cei",
         on_delete=models.CASCADE,
+    )
+    faixa_etaria = models.ForeignKey(
+        "escola.FaixaEtaria", null=True, on_delete=models.DO_NOTHING
     )
 
     def __str__(self) -> str:

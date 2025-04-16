@@ -59,7 +59,6 @@ from utility.carga_dados.usuarios import cria_usuarios
 class Command(BaseCommand):
     help = "Importa dados iniciais no banco de dados."
 
-    # flake8: noqa: C901
     def handle(self, *args, **options):
         self.stdout.write("Importando dados...")
 

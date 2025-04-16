@@ -179,6 +179,17 @@ class FichaDeRecebimento(ModeloBase):
         blank=True,
     )
 
+    questoes_conferencia = models.ManyToManyField(
+        QuestaoConferencia,
+        through="QuestaoFichaRecebimento",
+        related_name="fichas_vinculadas",
+    )
+
+    observacoes_conferencia = models.TextField(
+        null=True,
+        blank=True,
+    )
+
     observacao = models.TextField(
         null=True,
         blank=True,
@@ -308,3 +319,40 @@ class ArquivoFichaRecebimento(TemChaveExterna, TemArquivosDeletaveis):
     class Meta:
         verbose_name = "Arquivo Ficha de Recebimento"
         verbose_name_plural = "Arquivos Fichas de Recebimentos"
+
+
+class QuestaoFichaRecebimento(ModeloBase):
+    TIPO_QUESTAO_PRIMARIA = "PRIMARIA"
+    TIPO_QUESTAO_SECUNDARIA = "SECUNDARIA"
+
+    TIPO_QUESTAO_NOMES = {
+        TIPO_QUESTAO_PRIMARIA: "Primária",
+        TIPO_QUESTAO_SECUNDARIA: "Secundária",
+    }
+
+    TIPO_QUESTAO_CHOICES = (
+        (TIPO_QUESTAO_PRIMARIA, TIPO_QUESTAO_NOMES[TIPO_QUESTAO_PRIMARIA]),
+        (TIPO_QUESTAO_SECUNDARIA, TIPO_QUESTAO_NOMES[TIPO_QUESTAO_SECUNDARIA]),
+    )
+
+    ficha_recebimento = models.ForeignKey(
+        FichaDeRecebimento,
+        on_delete=models.CASCADE,
+        verbose_name="Ficha de Recebimento",
+    )
+    questao_conferencia = models.ForeignKey(
+        QuestaoConferencia,
+        on_delete=models.CASCADE,
+        verbose_name="Questão de Conferência",
+    )
+    resposta = models.BooleanField("Resposta (Sim/Não)", null=True, blank=True)
+
+    tipo_questao = models.CharField(choices=TIPO_QUESTAO_CHOICES)
+
+    class Meta:
+        verbose_name = "Questão por Ficha de Recebimento"
+        verbose_name_plural = "Questões por Fichas de Recebimento"
+        unique_together = ("ficha_recebimento", "questao_conferencia", "tipo_questao")
+
+    def __str__(self):
+        return f"{self.questao_conferencia.questao} - {self.ficha_recebimento}"

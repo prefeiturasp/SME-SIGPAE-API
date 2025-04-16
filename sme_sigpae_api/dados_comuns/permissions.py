@@ -937,6 +937,8 @@ class PermissaoParaDashboardLayoutEmbalagem(BasePermission):
         COORDENADOR_GESTAO_PRODUTO,
         ADMINISTRADOR_CODAE_GABINETE,
         DILOG_DIRETORIA,
+        DILOG_ABASTECIMENTO,
+        DILOG_CRONOGRAMA,
     ]
 
     def has_permission(self, request, view):
@@ -1278,6 +1280,8 @@ class PermissaoParaVisualizarLayoutDeEmbalagem(BasePermission):
         COORDENADOR_CODAE_DILOG_LOGISTICA,
         ADMINISTRADOR_CODAE_GABINETE,
         DILOG_DIRETORIA,
+        DILOG_ABASTECIMENTO,
+        DILOG_CRONOGRAMA,
     ]
 
     def has_permission(self, request, view):
@@ -1342,6 +1346,8 @@ class PermissaoParaDashboardFichaTecnica(BasePermission):
         ADMINISTRADOR_CODAE_GABINETE,
         DILOG_DIRETORIA,
         DILOG_QUALIDADE,
+        DILOG_ABASTECIMENTO,
+        DILOG_CRONOGRAMA,
     ]
 
     def has_permission(self, request, view):
@@ -1367,6 +1373,8 @@ class PermissaoParaVisualizarFichaTecnica(BasePermission):
         DILOG_CRONOGRAMA,
         DILOG_DIRETORIA,
         DILOG_QUALIDADE,
+        DILOG_CRONOGRAMA,
+        DILOG_ABASTECIMENTO,
     ]
 
     def has_permission(self, request, view):

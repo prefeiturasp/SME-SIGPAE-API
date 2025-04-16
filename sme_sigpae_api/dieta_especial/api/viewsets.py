@@ -134,16 +134,14 @@ class SolicitacaoDietaEspecialViewSet(
         if self.action in [
             "relatorio_dieta_especial",
             "imprime_relatorio_dieta_especial",
-        ]:  # noqa
+        ]:
             return self.queryset.select_related(
                 "rastro_escola__diretoria_regional"
-            ).order_by(
-                "criado_em"
-            )  # noqa
+            ).order_by("criado_em")
         if self.action in ["relatorio_dieta_especial_terceirizada"]:  # noqa
             return self.queryset.select_related("rastro_terceirizada").order_by(
                 "-criado_em"
-            )  # noqa
+            )
         return super().get_queryset()
 
     def get_permissions(self):  # noqa C901
@@ -1339,14 +1337,20 @@ class SolicitacaoDietaEspecialViewSet(
         permission_classes=(PermissaoHistoricoDietasEspeciais,),
     )
     def relatorio_historico_dieta_especial(self, request):
-        filtros, data_dieta = gerar_filtros_relatorio_historico(request.query_params)
-        dietas = gera_dicionario_historico_dietas(filtros)
-        paginator = HistoricoDietasPagination()
-        page = paginator.paginate_queryset(dietas["resultados"], request)
-        serializer = UnidadeEducacionalSerializer(page, many=True)
-        return paginator.get_paginated_response(
-            serializer.data, dietas["total_dietas"], data_dieta
-        )
+        try:
+            filtros, data_dieta = gerar_filtros_relatorio_historico(
+                request.query_params
+            )
+            dietas = gera_dicionario_historico_dietas(filtros)
+            paginator = HistoricoDietasPagination()
+            page = paginator.paginate_queryset(dietas["resultados"], request)
+            serializer = UnidadeEducacionalSerializer(page, many=True)
+            return paginator.get_paginated_response(
+                serializer.data, dietas["total_dietas"], data_dieta
+            )
+        except ValidationError as e:
+            print(e)
+            return Response(dict(detail=e.messages[0]), status=HTTP_400_BAD_REQUEST)
 
 
 class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
