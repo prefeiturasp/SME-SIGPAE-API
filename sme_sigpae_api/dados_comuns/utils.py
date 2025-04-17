@@ -12,6 +12,7 @@ from typing import Any
 
 import environ
 import numpy as np
+import requests
 from des.models import DynamicEmailConfiguration
 from django.conf import settings
 from django.contrib import admin
@@ -30,7 +31,14 @@ from workalendar.america import BrazilSaoPauloCity
 
 from config.settings.base import URL_CONFIGS
 
-from .constants import DAQUI_A_SETE_DIAS, DAQUI_A_TRINTA_DIAS, DOMINIOS_DEV
+from .constants import (
+    DAQUI_A_SETE_DIAS,
+    DAQUI_A_TRINTA_DIAS,
+    DOMINIOS_DEV,
+    GITHUB_API_VERSION,
+    REPOSITORIO,
+    USUARIO,
+)
 from .models import CentralDeDownload, LogSolicitacoesUsuario, Notificacao
 
 calendar = BrazilSaoPauloCity()
@@ -723,3 +731,23 @@ def ordena_queryset_por_ultimo_log(queryset: QuerySet) -> list:
         reverse=True,
     )
     return queryset
+
+
+def obter_versao_api():
+    url = f"https://api.github.com/repos/{USUARIO}/{REPOSITORIO}/releases/latest"
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": GITHUB_API_VERSION,
+    }
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+
+        latest_release = response.json()
+        return latest_release.get("tag_name")
+
+    except requests.exceptions.RequestException as ex:
+        logger.error(f"Erro na requisição: {ex}")
+    except Exception as ex:
+        logger.error(f"Não foi possível obter a última versão da API: {ex}")
+    return None

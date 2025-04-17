@@ -398,3 +398,8 @@ TRADUCOES_FERIADOS = {
     "Dia da Consciência Negra": "Dia da Consciência Negra",
     "Christmas Day": "Natal",
 }
+
+# Dados para obter a ultima release no GitHub
+GITHUB_API_VERSION = "2022-11-28"
+USUARIO = "prefeiturasp"
+REPOSITORIO = "SME-SIGPAE-API"

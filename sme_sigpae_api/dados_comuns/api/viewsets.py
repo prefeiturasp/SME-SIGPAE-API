@@ -12,7 +12,6 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from workalendar.america import BrazilSaoPauloCity
 
-from ... import __version__
 from ...escola.models import DiaSuspensaoAtividades, Escola
 from ..behaviors import DiasSemana, TempoPasseio
 from ..constants import TEMPO_CACHE_6H, obter_dias_uteis_apos_hoje
@@ -25,7 +24,7 @@ from ..models import (
     TemplateMensagem,
 )
 from ..permissions import UsuarioCODAEGestaoAlimentacao
-from ..utils import obter_dias_uteis_apos
+from ..utils import obter_dias_uteis_apos, obter_versao_api
 from .filters import CentralDeDownloadFilter, NotificacaoFilter
 from .paginations import CustomPagination, DownloadPagination
 from .serializers import (
@@ -46,8 +45,16 @@ calendario = BrazilSaoPauloCity()
 class ApiVersion(viewsets.ViewSet):
     permission_classes = (AllowAny,)
 
+    @method_decorator(cache_page(TEMPO_CACHE_6H))
     def list(self, request):
-        return Response({"API_Version": __version__})
+        versao = obter_versao_api()
+        if versao:
+            return Response({"API_Version": versao})
+        else:
+            return Response(
+                {"detail": "Não foi possível obter a última versão da API"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class DiasDaSemanaViewSet(ViewSet):
