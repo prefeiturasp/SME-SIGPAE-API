@@ -94,6 +94,7 @@ def _get_alimentacoes_por_periodo(solicitacoes):
 
 
 def _get_nome_periodo(medicao):
+    # TODO: se a mediçao tiver o grupo dá erro no merge
     return (
         medicao.periodo_escolar.nome
         if not medicao.grupo
@@ -192,6 +193,7 @@ def _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes):
     }
 
     dict_periodos_dietas = {**periodos_alimentacoes, **dietas_alimentacoes}
+
     dict_periodos_dietas = dict(
         sorted(dict_periodos_dietas.items(), key=lambda item: ORDEM_HEADERS[item[0]])
     )

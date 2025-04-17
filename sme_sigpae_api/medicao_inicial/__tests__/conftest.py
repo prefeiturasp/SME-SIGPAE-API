@@ -2761,7 +2761,6 @@ def mock_relatorio_consolidado_xlsx(
         mes="04",
         ano="2025",
         status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
-        # rastro_lote=escola.lote,
     )
     medicao_manha = mommy.make(
         "Medicao",
@@ -2794,3 +2793,25 @@ def mock_relatorio_consolidado_xlsx(
                     )
 
     return solicitacao
+
+
+@pytest.fixture
+def medico_com_grupo(mock_relatorio_consolidado_xlsx):
+    return mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=mock_relatorio_consolidado_xlsx,
+        periodo_escolar=mommy.make("PeriodoEscolar", nome="TARDE"),
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+        grupo=mommy.make("GrupoMedicao", nome="ALIMENTAÇÃO"),
+    )
+
+
+@pytest.fixture
+def medico_sem_periodo_escolar(mock_relatorio_consolidado_xlsx):
+    return mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=mock_relatorio_consolidado_xlsx,
+        periodo_escolar=None,
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+        grupo=mommy.make("GrupoMedicao", nome="ALIMENTAÇÃO"),
+    )
