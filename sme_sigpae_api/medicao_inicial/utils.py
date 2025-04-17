@@ -923,6 +923,21 @@ def popula_campo_matriculados_cei(
         valores_dia += [valor_para_nao_excluir.valor]
 
 
+def get_nomes_classificacoes(categoria_corrente):
+    if "ENTERAL" in categoria_corrente:
+        classificacoes_nomes = [
+            "Tipo A RESTRIÇÃO DE AMINOÁCIDOS",
+            "Tipo A ENTERAL",
+        ]
+    elif "TIPO B" in categoria_corrente:
+        classificacoes_nomes = [
+            "Tipo B",
+        ]
+    else:
+        classificacoes_nomes = ["Tipo A"]
+    return classificacoes_nomes
+
+
 def popula_campo_aprovadas(
     solicitacao,
     dia,
@@ -935,28 +950,18 @@ def popula_campo_aprovadas(
     if campo == "aprovadas":
         try:
             periodo = get_nome_periodo(periodo_corrente)
-            if "ENTERAL" in categoria_corrente:
-                classificacoes_nomes = [
-                    "Tipo A RESTRIÇÃO DE AMINOÁCIDOS",
-                    "Tipo A ENTERAL",
-                ]
-            elif "TIPO B" in categoria_corrente:
-                classificacoes_nomes = [
-                    "Tipo B",
-                ]
-            else:
-                classificacoes_nomes = ["Tipo A"]
-            quantidade = (
-                logs_dietas.filter(
-                    data__day=dia,
-                    data__month=solicitacao.mes,
-                    data__year=solicitacao.ano,
-                    periodo_escolar__nome=periodo,
-                    classificacao__nome__in=classificacoes_nomes,
-                )
-                .aggregate(Sum("quantidade"))
-                .get("quantidade__sum")
+            classificacoes_nomes = get_nomes_classificacoes(categoria_corrente)
+            logs_dietas = logs_dietas.filter(
+                data__day=dia,
+                data__month=solicitacao.mes,
+                data__year=solicitacao.ano,
+                classificacao__nome__in=classificacoes_nomes,
             )
+            if periodo in ["Programas e Projetos", "ETEC"]:
+                logs_dietas = logs_dietas.filter(periodo_escolar=None)
+            else:
+                logs_dietas = logs_dietas.filter(periodo_escolar__nome=periodo)
+            quantidade = logs_dietas.aggregate(Sum("quantidade")).get("quantidade__sum")
             valores_dia += [quantidade or "0"]
         except LogQuantidadeDietasAutorizadas.DoesNotExist:
             valores_dia += ["0"]
@@ -1909,13 +1914,10 @@ def popula_tabelas(solicitacao, tabelas):
         data__month=solicitacao.mes,
         data__year=solicitacao.ano,
     )
-
     alteracoes_lanche_emergencial = get_alteracoes_lanche_emergencial(solicitacao)
     kits_lanches = get_kit_lanche(solicitacao)
-
     indice_periodo = 0
     quantidade_tabelas = range(0, len(tabelas))
-
     for indice_tabela in quantidade_tabelas:
         tabela = tabelas[indice_tabela]
         for dia in list(dias_no_mes) + ["Total"]:
@@ -1931,7 +1933,6 @@ def popula_tabelas(solicitacao, tabelas):
                 tabelas,
                 indice_tabela,
             )
-
     return tabelas
 
 
@@ -2276,17 +2277,16 @@ def popula_campos_nomes(
 ):
     categoria_corrente = tabela["categorias"][indice_categoria]
     periodo_corrente = tabela["periodos"][indice_periodo]
-
+    indice_nome_por_periodo = 0
     for campo in tabela["nomes_campos"]:
         if indice_campo > tabela["len_categorias"][indice_categoria] - 1:
             indice_campo = 0
             indice_categoria += 1
             categoria_corrente = tabela["categorias"][indice_categoria]
-            periodo_corrente = tabela["periodos"][indice_periodo]
-            if indice_categoria > len(
-                tabela["categorias_dos_periodos"][periodo_corrente]
-            ) - 1 and indice_periodo + 1 < len(tabela["periodos"]):
+            if indice_nome_por_periodo > tabela["len_periodos"][indice_periodo] - 1:
                 indice_periodo += 1
+                periodo_corrente = tabela["periodos"][indice_periodo]
+                indice_nome_por_periodo = 0
         if dia == "Total":
             popula_campo_total(
                 tabela,
@@ -2306,7 +2306,6 @@ def popula_campos_nomes(
                 categoria_corrente,
                 periodo_corrente,
             )
-
             popula_campo_aprovadas(
                 solicitacao,
                 dia,
@@ -2316,11 +2315,9 @@ def popula_campos_nomes(
                 logs_dietas,
                 periodo_corrente,
             )
-
             popula_campo_consumido_solicitacoes_alimentacao(
                 solicitacao, dia, campo, categoria_corrente, valores_dia
             )
-
             popula_campo_total_refeicoes_pagamento(
                 solicitacao,
                 tabela,
@@ -2331,7 +2328,6 @@ def popula_campos_nomes(
                 tabelas,
                 indice_tabela,
             )
-
             popula_campo_total_sobremesas_pagamento(
                 solicitacao,
                 tabela,
@@ -2342,7 +2338,6 @@ def popula_campos_nomes(
                 tabelas,
                 indice_tabela,
             )
-
             popula_campo_solicitado(
                 solicitacao,
                 tabela,
@@ -2353,7 +2348,6 @@ def popula_campos_nomes(
                 alteracoes_lanche_emergencial,
                 kits_lanches,
             )
-
             if campo not in [
                 "matriculados",
                 "aprovadas",
@@ -2371,8 +2365,8 @@ def popula_campos_nomes(
                     categoria_corrente,
                     valores_dia,
                 )
-
         indice_campo += 1
+        indice_nome_por_periodo += 1
 
 
 def popula_campos_faixas_etarias(
