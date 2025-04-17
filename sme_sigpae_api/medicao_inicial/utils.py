@@ -923,6 +923,21 @@ def popula_campo_matriculados_cei(
         valores_dia += [valor_para_nao_excluir.valor]
 
 
+def get_nomes_classificacoes(categoria_corrente):
+    if "ENTERAL" in categoria_corrente:
+        classificacoes_nomes = [
+            "Tipo A RESTRIÇÃO DE AMINOÁCIDOS",
+            "Tipo A ENTERAL",
+        ]
+    elif "TIPO B" in categoria_corrente:
+        classificacoes_nomes = [
+            "Tipo B",
+        ]
+    else:
+        classificacoes_nomes = ["Tipo A"]
+    return classificacoes_nomes
+
+
 def popula_campo_aprovadas(
     solicitacao,
     dia,
@@ -935,28 +950,18 @@ def popula_campo_aprovadas(
     if campo == "aprovadas":
         try:
             periodo = get_nome_periodo(periodo_corrente)
-            if "ENTERAL" in categoria_corrente:
-                classificacoes_nomes = [
-                    "Tipo A RESTRIÇÃO DE AMINOÁCIDOS",
-                    "Tipo A ENTERAL",
-                ]
-            elif "TIPO B" in categoria_corrente:
-                classificacoes_nomes = [
-                    "Tipo B",
-                ]
-            else:
-                classificacoes_nomes = ["Tipo A"]
-            quantidade = (
-                logs_dietas.filter(
-                    data__day=dia,
-                    data__month=solicitacao.mes,
-                    data__year=solicitacao.ano,
-                    periodo_escolar__nome=periodo,
-                    classificacao__nome__in=classificacoes_nomes,
-                )
-                .aggregate(Sum("quantidade"))
-                .get("quantidade__sum")
+            classificacoes_nomes = get_nomes_classificacoes(categoria_corrente)
+            logs_dietas = logs_dietas.filter(
+                data__day=dia,
+                data__month=solicitacao.mes,
+                data__year=solicitacao.ano,
+                classificacao__nome__in=classificacoes_nomes,
             )
+            if periodo in ["Programas e Projetos", "ETEC"]:
+                logs_dietas = logs_dietas.filter(periodo_escolar=None)
+            else:
+                logs_dietas = logs_dietas.filter(periodo_escolar__nome=periodo)
+            quantidade = logs_dietas.aggregate(Sum("quantidade")).get("quantidade__sum")
             valores_dia += [quantidade or "0"]
         except LogQuantidadeDietasAutorizadas.DoesNotExist:
             valores_dia += ["0"]
