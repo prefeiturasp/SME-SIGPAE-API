@@ -723,3 +723,13 @@ def ordena_queryset_por_ultimo_log(queryset: QuerySet) -> list:
         reverse=True,
     )
     return queryset
+
+
+def remove_duplicados_do_query_set(query_set: QuerySet | list) -> list:
+    uuids_repetidos = set()
+    return [
+        solicitacao
+        for solicitacao in query_set
+        if solicitacao.uuid not in uuids_repetidos
+        and not uuids_repetidos.add(solicitacao.uuid)
+    ]

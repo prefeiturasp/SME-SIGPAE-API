@@ -5,20 +5,26 @@ from sme_sigpae_api.dados_comuns.permissions import (
     UsuarioCODAEGestaoProduto,
     UsuarioTerceirizada,
 )
-from sme_sigpae_api.dados_comuns.utils import ordena_queryset_por_ultimo_log
+from sme_sigpae_api.dados_comuns.utils import (
+    ordena_queryset_por_ultimo_log,
+    remove_duplicados_do_query_set,
+)
 from sme_sigpae_api.produto.api.dashboard.utils import (
     filtra_produtos_da_terceirizada,
     filtra_reclamacoes_por_usuario,
     filtra_reclamacoes_questionamento_codae,
     filtrar_query_params,
-    retorna_produtos_homologados,
-    trata_parcialmente_homologados_ou_suspensos,
 )
 from sme_sigpae_api.produto.api.serializers.serializers import (
     HomologacaoProdutoPainelGerencialSerializer,
 )
 from sme_sigpae_api.produto.models import HomologacaoProduto
-from sme_sigpae_api.produto.utils import DashboardPagination
+from sme_sigpae_api.produto.utils.genericos import DashboardPagination
+from sme_sigpae_api.produto.utils.query_produtos_por_status import (
+    produtos_homologados,
+    produtos_nao_homologados,
+    produtos_suspensos,
+)
 
 
 class HomologacaoProdutoDashboardViewSet(ModelViewSet):
@@ -27,16 +33,6 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
     queryset = HomologacaoProduto.objects.all()
     pagination_class = DashboardPagination
 
-    @classmethod
-    def remove_duplicados_do_query_set(cls, query_set):
-        uuids_repetidos = set()
-        return [
-            solicitacao
-            for solicitacao in query_set
-            if solicitacao.uuid not in uuids_repetidos
-            and not uuids_repetidos.add(solicitacao.uuid)
-        ]
-
     @action(
         detail=False,
         methods=["GET"],
@@ -44,15 +40,8 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
         pagination_class=DashboardPagination,
     )
     def dashboard_homologados(self, request):
-        query_set = self.get_queryset().filter(eh_copia=False)
-        query_set = filtrar_query_params(request, query_set)
-        query_set = trata_parcialmente_homologados_ou_suspensos(
-            request, query_set, vinculo_suspenso=False
-        )
-        query_set = retorna_produtos_homologados(query_set)
-        lista = ordena_queryset_por_ultimo_log(query_set)
-        lista = self.remove_duplicados_do_query_set(lista)
-        page = self.paginate_queryset(lista)
+        lista_produtos_homologados = produtos_homologados(request)
+        page = self.paginate_queryset(lista_produtos_homologados)
         serializer = self.get_serializer(
             page, context={"workflow": "CODAE_HOMOLOGADO"}, many=True
         )
@@ -65,17 +54,7 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
         pagination_class=DashboardPagination,
     )
     def dashboard_nao_homologados(self, request):
-        query_set = self.get_queryset().filter(
-            status__in=[
-                HomologacaoProduto.workflow_class.CODAE_NAO_HOMOLOGADO,
-                HomologacaoProduto.workflow_class.TERCEIRIZADA_CANCELOU_SOLICITACAO_HOMOLOGACAO,
-                HomologacaoProduto.workflow_class.CODAE_AUTORIZOU_RECLAMACAO,
-                HomologacaoProduto.workflow_class.CODAE_CANCELOU_ANALISE_SENSORIAL,
-            ]
-        )
-        query_set = filtrar_query_params(request, query_set, filtra_por_edital=False)
-        lista = ordena_queryset_por_ultimo_log(query_set)
-        lista = self.remove_duplicados_do_query_set(lista)
+        lista = produtos_nao_homologados(request)
         page = self.paginate_queryset(lista)
         serializer = self.get_serializer(
             page, context={"workflow": "CODAE_NAO_HOMOLOGADO"}, many=True
@@ -89,15 +68,7 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
         pagination_class=DashboardPagination,
     )
     def dashboard_suspensos(self, request):
-        query_set = self.get_queryset().exclude(
-            status=HomologacaoProduto.workflow_class.CODAE_NAO_HOMOLOGADO
-        )
-        query_set = filtrar_query_params(request, query_set, filtra_por_edital=True)
-        query_set = trata_parcialmente_homologados_ou_suspensos(
-            request, query_set, vinculo_suspenso=True
-        )
-        lista = ordena_queryset_por_ultimo_log(query_set)
-        lista = self.remove_duplicados_do_query_set(lista)
+        lista = produtos_suspensos(request)
         page = self.paginate_queryset(lista)
         serializer = self.get_serializer(
             page, context={"workflow": "CODAE_SUSPENDEU"}, many=True
@@ -125,7 +96,7 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
         query_set = filtrar_query_params(request, query_set)
         query_set = filtra_reclamacoes_por_usuario(request, query_set)
         lista = ordena_queryset_por_ultimo_log(query_set)
-        lista = self.remove_duplicados_do_query_set(lista)
+        lista = remove_duplicados_do_query_set(lista)
         page = self.paginate_queryset(lista)
         serializer = self.get_serializer(
             page, context={"workflow": "ESCOLA_OU_NUTRICIONISTA_RECLAMOU"}, many=True
@@ -145,7 +116,7 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
         )
         query_set = filtrar_query_params(request, query_set, filtra_por_edital=False)
         lista = ordena_queryset_por_ultimo_log(query_set)
-        lista = self.remove_duplicados_do_query_set(lista)
+        lista = remove_duplicados_do_query_set(lista)
         page = self.paginate_queryset(lista)
         serializer = self.get_serializer(
             page, context={"workflow": "CODAE_PENDENTE_HOMOLOGACAO"}, many=True
@@ -166,7 +137,7 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
         query_set = filtrar_query_params(request, query_set, filtra_por_edital=False)
         query_set = filtra_produtos_da_terceirizada(request, query_set)
         lista = ordena_queryset_por_ultimo_log(query_set)
-        lista = self.remove_duplicados_do_query_set(lista)
+        lista = remove_duplicados_do_query_set(lista)
         page = self.paginate_queryset(lista)
         serializer = self.get_serializer(
             page, context={"workflow": "CODAE_QUESTIONADO"}, many=True
@@ -187,7 +158,7 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
         query_set = filtrar_query_params(request, query_set, filtra_por_edital=False)
         query_set = filtra_produtos_da_terceirizada(request, query_set)
         lista = ordena_queryset_por_ultimo_log(query_set)
-        lista = self.remove_duplicados_do_query_set(lista)
+        lista = remove_duplicados_do_query_set(lista)
         page = self.paginate_queryset(lista)
         serializer = self.get_serializer(
             page, context={"workflow": "CODAE_PEDIU_ANALISE_SENSORIAL"}, many=True
@@ -205,7 +176,7 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
         query_set = filtrar_query_params(request, query_set)
         query_set = filtra_reclamacoes_questionamento_codae(request, query_set)
         lista = ordena_queryset_por_ultimo_log(query_set)
-        lista = self.remove_duplicados_do_query_set(lista)
+        lista = remove_duplicados_do_query_set(lista)
         page = self.paginate_queryset(lista)
         serializer = self.get_serializer(
             page, context={"workflow": "CODAE_PEDIU_ANALISE_RECLAMACAO"}, many=True

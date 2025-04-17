@@ -19,6 +19,16 @@ from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_406_NOT_ACCEPTABLE
 from xworkflows import InvalidTransitionError
 
+from sme_sigpae_api.produto.utils.genericos import (
+    CadastroProdutosEditalPagination,
+    ItemCadastroPagination,
+    StandardResultsSetPagination,
+    converte_para_datetime,
+    cria_filtro_aditivos,
+    cria_filtro_homologacao_produto_por_parametros,
+    get_filtros_data,
+)
+
 from ...dados_comuns import constants
 from ...dados_comuns.constants import (
     TIPO_USUARIO_CODAE_GABINETE,
@@ -48,7 +58,6 @@ from ...dados_comuns.permissions import (
 from ...dados_comuns.utils import url_configs
 from ...dieta_especial.models import Alimento
 from ...escola.models import DiretoriaRegional, Escola, Lote
-from ...paineis_consolidados.api.viewsets import SolicitacoesViewSet
 from ...relatorios.relatorios import (
     relatorio_produto_analise_sensorial,
     relatorio_produto_analise_sensorial_recebimento,
@@ -91,14 +100,10 @@ from ..tasks import (
     gera_xls_relatorio_produtos_homologados_async,
     gera_xls_relatorio_produtos_suspensos_async,
 )
-from ..utils import (
-    CadastroProdutosEditalPagination,
-    ItemCadastroPagination,
-    StandardResultsSetPagination,
-    converte_para_datetime,
-    cria_filtro_aditivos,
-    cria_filtro_homologacao_produto_por_parametros,
-    get_filtros_data,
+from ..utils.query_produtos_por_status import (
+    produtos_homologados,
+    produtos_nao_homologados,
+    produtos_suspensos,
 )
 from .filters import (
     CadastroProdutosEditalFilter,
@@ -693,7 +698,6 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
         )
         self.checa_se_remove_eh_copia_queryset(filtro_aplicado, query_set)
         query_set = query_set.filter(**filtros).filter(**filtros_params).distinct()
-
         if request_data.get("data_homologacao"):
             data_homologacao = datetime.strptime(
                 request_data.get("data_homologacao"), "%d/%m/%Y"
@@ -762,7 +766,6 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
             or request_data.get("tipo")
         )
         titulo = request_data.get("titulo_produto", None)
-
         raw_sql, data = self.build_raw_sql_produtos_por_status(
             filtro_aplicado,
             edital,
@@ -794,7 +797,22 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
     )
     def solicitacoes_homologacao_por_status(
         self, request, filtro_aplicado=constants.RASCUNHO
-    ):  # noqa C901
+    ):
+        filtros_funcao = {
+            constants.CODAE_HOMOLOGADO: produtos_homologados,
+            constants.CODAE_NAO_HOMOLOGADO: produtos_nao_homologados,
+            constants.CODAE_SUSPENDEU: produtos_suspensos,
+        }
+
+        funcao = filtros_funcao.get(filtro_aplicado)
+        lista_produtos = funcao(request) if funcao else []
+
+        page = self.paginate_queryset(lista_produtos)
+        serializer = HomologacaoProdutoPainelGerencialSerializer(
+            page, context={"workflow": filtro_aplicado}, many=True
+        )
+        return self.get_paginated_response(serializer.data)
+        """
         page = request.query_params.get("page", None)
         user = self.request.user
         query_set = self.get_queryset_solicitacoes_homologacao_por_status(
@@ -831,6 +849,7 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
                 ).data
             }
             return Response(response)
+        """
 
 
 class HomologacaoProdutoViewSet(viewsets.ModelViewSet):
