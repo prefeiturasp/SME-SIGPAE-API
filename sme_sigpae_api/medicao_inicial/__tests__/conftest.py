@@ -2753,7 +2753,12 @@ def periodos_integral_parcial_e_logs(escola, faixas_etarias_ativas):
 
 @pytest.fixture
 def mock_relatorio_consolidado_xlsx(
-    escola, categoria_medicao, categoria_medicao_dieta_a, categoria_medicao_dieta_b
+    escola,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_b,
+    periodo_escolar_manha,
+    periodo_escolar_tarde,
 ):
     solicitacao = mommy.make(
         "SolicitacaoMedicaoInicial",
@@ -2765,13 +2770,13 @@ def mock_relatorio_consolidado_xlsx(
     medicao_manha = mommy.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao,
-        periodo_escolar=mommy.make("PeriodoEscolar", nome="MANHA"),
+        periodo_escolar=periodo_escolar_manha,
         status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
     )
     medicao_tarde = mommy.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao,
-        periodo_escolar=mommy.make("PeriodoEscolar", nome="TARDE"),
+        periodo_escolar=periodo_escolar_tarde,
         status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
     )
 
@@ -2791,6 +2796,22 @@ def mock_relatorio_consolidado_xlsx(
                         categoria_medicao=categoria,
                         valor="10",
                     )
+        mommy.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo="matriculados",
+            medicao=medicao_manha,
+            categoria_medicao=categoria_medicao,
+            valor="30",
+        )
+        mommy.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo="numero_de_alunos",
+            medicao=medicao_manha,
+            categoria_medicao=categoria_medicao,
+            valor="9",
+        )
 
     return solicitacao
 
