@@ -822,44 +822,6 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
             page, context={"workflow": filtro_aplicado}, many=True
         )
         return self.get_paginated_response(serializer.data)
-        """
-        page = request.query_params.get("page", None)
-        user = self.request.user
-        query_set = self.get_queryset_solicitacoes_homologacao_por_status(
-            request.query_params,
-            user.vinculo_atual.perfil.nome,
-            user.tipo_usuario,
-            user.vinculo_atual.object_id,
-            filtro_aplicado,
-            instituicao=user.vinculo_atual.instituicao,
-        )
-
-        solicitacoes_viewset = SolicitacoesViewSet()
-        query_set = solicitacoes_viewset.remove_duplicados_do_query_set(query_set)
-
-        if page:
-            page = self.paginate_queryset(query_set)
-            serializer = HomologacaoProdutoPainelGerencialSerializer(
-                page,
-                context={"request": request, "workflow": filtro_aplicado.upper()},
-                many=True,
-            )
-            return self.get_paginated_response(serializer.data)
-        else:
-            serializer = (
-                HomologacaoProdutoPainelGerencialSerializer
-                if filtro_aplicado != constants.RASCUNHO
-                else HomologacaoProdutoSerializer
-            )
-            response = {
-                "results": serializer(
-                    query_set,
-                    context={"request": request, "workflow": filtro_aplicado.upper()},
-                    many=True,
-                ).data
-            }
-            return Response(response)
-        """
 
 
 class HomologacaoProdutoViewSet(viewsets.ModelViewSet):
