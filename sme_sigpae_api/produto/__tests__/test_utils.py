@@ -3,7 +3,7 @@ from datetime import date, datetime
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from ..utils import (
+from sme_sigpae_api.produto.utils.genericos import (
     changes_between,
     compara_lista_imagens,
     compara_lista_informacoes_nutricionais,

@@ -747,3 +747,13 @@ def obter_versao_api():
     except Exception as ex:
         logger.error(f"Não foi possível obter a última versão da API: {ex}")
     return None
+
+
+def remove_duplicados_do_query_set(query_set: QuerySet | list) -> list:
+    uuids_repetidos = set()
+    return [
+        solicitacao
+        for solicitacao in query_set
+        if solicitacao.uuid not in uuids_repetidos
+        and not uuids_repetidos.add(solicitacao.uuid)
+    ]

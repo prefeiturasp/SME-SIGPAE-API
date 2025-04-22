@@ -7,8 +7,8 @@ from django.template.loader import render_to_string
 from rest_framework import serializers
 from rest_framework.pagination import PageNumberPagination
 
-from ..dados_comuns import constants
-from .models import ImagemDoProduto
+from sme_sigpae_api.dados_comuns import constants
+from sme_sigpae_api.produto.models import ImagemDoProduto
 
 
 def agrupa_por_terceirizada(queryset):  # noqa C901

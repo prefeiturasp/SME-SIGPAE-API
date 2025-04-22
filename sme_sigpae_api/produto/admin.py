@@ -133,7 +133,7 @@ class ItemCadastroModelAdmin(admin.ModelAdmin):
     actions = ("cria_itens",)
 
     def cria_itens(self, request, _):
-        from sme_sigpae_api.produto.utils import cria_itens_cadastro
+        from sme_sigpae_api.produto.utils.genericos import cria_itens_cadastro
 
         cria_itens_cadastro()
 
