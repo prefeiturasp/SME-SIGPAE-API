@@ -828,7 +828,7 @@ def client_autenticado_vinculo_codae_nutrisupervisor(client, django_user_model, 
 
 
 @pytest.fixture
-def homologacao_produto(escola, template_homologacao_produto, user, produto):
+def homologacao_produto(escola, template_homologacao_produto, user, produto, edital):
     perfil_admin_terceirizada = mommy.make(
         "Perfil", nome=constants.ADMINISTRADOR_EMPRESA, ativo=True
     )
@@ -848,6 +848,7 @@ def homologacao_produto(escola, template_homologacao_produto, user, produto):
         criado_por=user,
         criado_em=datetime.datetime.utcnow(),
     )
+    mommy.make("ProdutoEdital", edital=edital, produto=produto, suspenso=False)
     return homologacao_produto
 
 
