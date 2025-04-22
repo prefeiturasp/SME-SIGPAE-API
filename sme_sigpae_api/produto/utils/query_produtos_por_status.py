@@ -135,3 +135,12 @@ def produtos_questionamento_da_codae(
     lista = ordena_queryset_por_ultimo_log(query_set)
     lista = remove_duplicados_do_query_set(lista)
     return lista
+
+
+def produtos_por_status(
+    status: str, query_set: QuerySet[HomologacaoProduto] = None
+) -> QuerySet:
+    if not query_set:
+        query_set = HomologacaoProduto.objects.all()
+    query_set = query_set.filter(status=status.upper())
+    return query_set

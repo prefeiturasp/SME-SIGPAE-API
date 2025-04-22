@@ -107,6 +107,7 @@ from ..utils.query_produtos_por_status import (
     produtos_homologados,
     produtos_nao_homologados,
     produtos_pendente_homologacao,
+    produtos_por_status,
     produtos_questionamento_da_codae,
     produtos_suspensos,
 )
@@ -815,7 +816,9 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
         }
 
         funcao = filtros_funcao.get(filtro_aplicado)
-        lista_produtos = funcao(request) if funcao else []
+        lista_produtos = (
+            funcao(request) if funcao else produtos_por_status(filtro_aplicado)
+        )
 
         page = self.paginate_queryset(lista_produtos)
         serializer = HomologacaoProdutoPainelGerencialSerializer(
