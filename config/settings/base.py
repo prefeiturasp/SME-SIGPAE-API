@@ -5,10 +5,9 @@ import logging.config
 import os
 
 import environ
+import requests
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
-
-from sme_sigpae_api import __version__ as api_version
 
 # (sme_sigpae_api/config/settings/base.py - 3 = sme_sigpae_api/)
 
@@ -318,12 +317,24 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
+
 # DRF-SPECTACULAR SETTINGS
 # ------------------------------------------------------------------------------
+def obter_versao():
+    try:
+        url = "https://api.github.com/repos/prefeiturasp/SME-SIGPAE-API/releases/latest"
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        return response.json().get("tag_name")
+    except Exception as e:
+        print(f"[WARN] Não foi possível obter versão do GitHub: {e}")
+        return "2.0.0"
+
+
 SPECTACULAR_SETTINGS = {
     "TITLE": "SIGPAE API",
     "DESCRIPTION": "API da aplicação SIGPAE",
-    "VERSION": api_version,
+    "VERSION": obter_versao(),
     "SERVE_INCLUDE_SCHEMA": False,
     "SCHEMA_PATH_PREFIX": r"/api/",
     "SCHEMA_PATH_PREFIX_INSERT": "/api",
