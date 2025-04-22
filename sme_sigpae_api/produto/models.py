@@ -449,6 +449,7 @@ class HomologacaoProduto(
             ).first()
             if log:
                 return log.criado_em.date()
+        return None
 
     @property
     def template_mensagem(self):
