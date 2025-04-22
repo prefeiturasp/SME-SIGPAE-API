@@ -101,8 +101,13 @@ from ..tasks import (
     gera_xls_relatorio_produtos_suspensos_async,
 )
 from ..utils.query_produtos_por_status import (
+    produtos_aguardando_amostra_analise_sensorial,
+    produtos_aguardando_analise_reclamacao,
+    produtos_correcao_de_produto,
     produtos_homologados,
     produtos_nao_homologados,
+    produtos_pendente_homologacao,
+    produtos_questionamento_da_codae,
     produtos_suspensos,
 )
 from .filters import (
@@ -802,6 +807,11 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
             constants.CODAE_HOMOLOGADO: produtos_homologados,
             constants.CODAE_NAO_HOMOLOGADO: produtos_nao_homologados,
             constants.CODAE_SUSPENDEU: produtos_suspensos,
+            constants.ESCOLA_OU_NUTRICIONISTA_RECLAMOU: produtos_aguardando_analise_reclamacao,
+            constants.CODAE_PENDENTE_HOMOLOGACAO: produtos_pendente_homologacao,
+            constants.CODAE_QUESTIONADO: produtos_correcao_de_produto,
+            constants.CODAE_PEDIU_ANALISE_SENSORIAL: produtos_aguardando_amostra_analise_sensorial,
+            constants.CODAE_PEDIU_ANALISE_RECLAMACAO: produtos_questionamento_da_codae,
         }
 
         funcao = filtros_funcao.get(filtro_aplicado)
