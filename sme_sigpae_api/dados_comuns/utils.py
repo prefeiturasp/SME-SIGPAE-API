@@ -31,14 +31,7 @@ from workalendar.america import BrazilSaoPauloCity
 
 from config.settings.base import URL_CONFIGS
 
-from .constants import (
-    DAQUI_A_SETE_DIAS,
-    DAQUI_A_TRINTA_DIAS,
-    DOMINIOS_DEV,
-    GITHUB_API_VERSION,
-    REPOSITORIO,
-    USUARIO,
-)
+from .constants import DAQUI_A_SETE_DIAS, DAQUI_A_TRINTA_DIAS, DOMINIOS_DEV
 from .models import CentralDeDownload, LogSolicitacoesUsuario, Notificacao
 
 calendar = BrazilSaoPauloCity()
@@ -734,10 +727,13 @@ def ordena_queryset_por_ultimo_log(queryset: QuerySet) -> list:
 
 
 def obter_versao_api():
-    url = f"https://api.github.com/repos/{USUARIO}/{REPOSITORIO}/releases/latest"
+    github_api_version = "2022-11-28"
+    usuario = "prefeiturasp"
+    repositorio = "SME-SIGPAE-API"
+    url = f"https://api.github.com/repos/{usuario}/{repositorio}/releases/latest"
     headers = {
         "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": GITHUB_API_VERSION,
+        "X-GitHub-Api-Version": github_api_version,
     }
     try:
         response = requests.get(url, headers=headers, timeout=10)
