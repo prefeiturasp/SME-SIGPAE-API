@@ -249,19 +249,21 @@ def calendario_sgp(data_inicio=date.today()):
     escolas = Escola.objects.all()
     total = len(escolas)
     data_fim = None
+    data_inicio_formatada = data_inicio.strftime("%Y-%m-%d")
     for cont, escola in enumerate(escolas, 1):
         logger.debug(f"Processando {cont} de {total}")
         logger.debug(
             f"""Consultando dias letivos da escola com Nome: {escola.nome}
-        e código eol: {escola.codigo_eol}, data: {data_inicio.strftime("%Y-%m-%d")}"""
+        e código eol: {escola.codigo_eol}, data: {data_inicio_formatada}"""
         )
         try:
             data_final = (data_inicio + pd.DateOffset(months=3)).date()
-            data_inicio = data_inicio.strftime("%Y-%m-%d")
             data_fim = data_final.strftime("%Y-%m-%d")
 
             resposta = NovoSGPServico.dias_letivos(
-                codigo_eol=escola.codigo_eol, data_inicio=data_inicio, data_fim=data_fim
+                codigo_eol=escola.codigo_eol,
+                data_inicio=data_inicio_formatada,
+                data_fim=data_fim,
             )
             logger.debug(resposta)
 
@@ -272,7 +274,7 @@ def calendario_sgp(data_inicio=date.today()):
             try:
                 resposta = NovoSGPServico.dias_letivos(
                     codigo_eol=escola.codigo_eol,
-                    data_inicio=data_inicio,
+                    data_inicio=data_inicio_formatada,
                     data_fim=data_fim,
                     tipo_turno=3,
                 )
