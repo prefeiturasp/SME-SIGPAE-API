@@ -16,8 +16,11 @@ def filtra_editais(
         query_set = query_set.filter(
             produto__vinculos__edital__uuid__in=request.user.vinculo_atual.instituicao.editais,
         )
-    numero_edital = request.query_params.get("edital_produto")
+    numero_edital = request.query_params.get(
+        "edital_produto"
+    ) or request.query_params.get("nome_edital")
     if numero_edital:
+        print(numero_edital)
         query_set = query_set.filter(produto__vinculos__edital__numero=numero_edital)
     return query_set
 
@@ -25,7 +28,9 @@ def filtra_editais(
 def trata_parcialmente_homologados_ou_suspensos(
     request: Request, query_set: QuerySet[HomologacaoProduto], vinculo_suspenso: bool
 ) -> QuerySet[HomologacaoProduto]:
-    numero_edital = request.query_params.get("edital_produto")
+    numero_edital = request.query_params.get(
+        "edital_produto"
+    ) or request.query_params.get("nome_edital")
     if numero_edital:
         query_set = query_set.filter(
             produto__vinculos__suspenso=vinculo_suspenso,
@@ -48,7 +53,9 @@ def filtrar_query_params(
     request: Request, query_set: QuerySet[HomologacaoProduto], filtra_por_edital=True
 ) -> QuerySet[HomologacaoProduto]:
     titulo = request.query_params.get("titulo_produto")
-    marca = request.query_params.get("marca_produto")
+    marca = request.query_params.get("marca_produto") or request.query_params.get(
+        "nome_marca"
+    )
 
     if titulo:
         query_set = query_set.annotate(
