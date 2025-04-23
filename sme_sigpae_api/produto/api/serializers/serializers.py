@@ -527,7 +527,7 @@ class HomologacaoProdutoPainelGerencialSerializer(HomologacaoProdutoBase):
         return obj.produto.fabricante.nome
 
     def get_data_edital_suspenso_mais_recente(self, obj):
-        workflow = self.context.get("workflow", "")
+        workflow = self.context.get("workflow", "").upper()
         data = obj.data_edital_suspenso_mais_recente
         if (
             obj.status in ["CODAE_HOMOLOGADO", "CODAE_AUTORIZOU_RECLAMACAO"]
@@ -537,9 +537,10 @@ class HomologacaoProdutoPainelGerencialSerializer(HomologacaoProdutoBase):
             if data.date() == datetime.date.today():
                 return datetime.datetime.strftime(data, "%d/%m/%Y %H:%M")
             return datetime.datetime.strftime(data, "%d/%m/%Y")
+        return None
 
     def get_editais(self, obj):
-        workflow = self.context.get("workflow", "")
+        workflow = self.context.get("workflow", "").upper()
         editais = None
         if workflow == "CODAE_HOMOLOGADO":
             editais = ", ".join(
