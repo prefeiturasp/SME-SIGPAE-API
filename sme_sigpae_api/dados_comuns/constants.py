@@ -349,6 +349,12 @@ ORDEM_UNIDADES_GRUPO_EMEF = {
     "CEU EMEF": 5,
 }
 
+ORDEM_UNIDADES_GRUPO_EMEI = {
+    "EMEI": 1,
+    "CEU EMEI": 2,
+    "EMEI PFOM": 3,
+}
+
 ORDEM_HEADERS = {
     "Solicitações de Alimentação": 1,
     "MANHA": 2,

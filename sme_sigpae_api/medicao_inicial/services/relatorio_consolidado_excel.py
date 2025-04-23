@@ -8,6 +8,7 @@ from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_CAMPOS,
     ORDEM_HEADERS,
     ORDEM_UNIDADES_GRUPO_EMEF,
+    ORDEM_UNIDADES_GRUPO_EMEI,
 )
 from sme_sigpae_api.dados_comuns.utils import converte_numero_em_mes
 from sme_sigpae_api.escola.models import DiretoriaRegional, Lote
@@ -18,7 +19,7 @@ from ..models import SolicitacaoMedicaoInicial
 def gera_relatorio_consolidado_xlsx(solicitacoes_uuid, tipos_de_unidade, query_params):
     solicitacoes = SolicitacaoMedicaoInicial.objects.filter(uuid__in=solicitacoes_uuid)
     colunas = _get_alimentacoes_por_periodo(solicitacoes)
-    linhas = _get_valores_tabela(solicitacoes, colunas)
+    linhas = _get_valores_tabela(solicitacoes, colunas, tipos_de_unidade)
 
     file = io.BytesIO()
 
@@ -210,10 +211,10 @@ def _generate_columns(dict_periodos_dietas):
     return columns
 
 
-def _get_valores_tabela(solicitacoes, colunas):
+def _get_valores_tabela(solicitacoes, colunas, tipos_de_unidade):
     valores = []
 
-    for solicitacao in get_solicitacoes_ordenadas(solicitacoes):
+    for solicitacao in get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade):
         valores_solicitacao_atual = []
         valores_solicitacao_atual += _get_valores_iniciais(solicitacao)
         for periodo, campo in colunas:
@@ -224,11 +225,15 @@ def _get_valores_tabela(solicitacoes, colunas):
     return valores
 
 
-def get_solicitacoes_ordenadas(solicitacoes):
-    # TODO: aqui tem que ajustar para o tipo de grupo
+def get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade):
+    if set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_EMEF):
+        ordem_unidades = ORDEM_UNIDADES_GRUPO_EMEF
+    else:
+        ordem_unidades = ORDEM_UNIDADES_GRUPO_EMEI
+
     return sorted(
         solicitacoes,
-        key=lambda k: ORDEM_UNIDADES_GRUPO_EMEF[k.escola.tipo_unidade.iniciais],
+        key=lambda k: ordem_unidades[k.escola.tipo_unidade.iniciais],
     )
 
 
@@ -248,6 +253,12 @@ def _define_filtro(periodo):
         "Solicitações de Alimentação",
     ]:
         filtros["grupo__nome"] = periodo
+    elif periodo in [
+        "DIETA ESPECIAL - TIPO A",
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        "DIETA ESPECIAL - TIPO B",
+    ]:
+        filtros["periodo_escolar__nome__in"] = ["MANHA", "TARDE"]
     else:
         filtros["periodo_escolar__nome"] = periodo
     return filtros
@@ -256,12 +267,29 @@ def _define_filtro(periodo):
 def _processa_periodo_campo(solicitacao, periodo, campo, valores):
     filtros = _define_filtro(periodo)
     try:
-        medicao = solicitacao.medicoes.get(**filtros)
-        if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
-            total = _get_total_pagamento(medicao, campo)
+        if periodo in [
+            "DIETA ESPECIAL - TIPO A",
+            "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+            "DIETA ESPECIAL - TIPO B",
+        ]:
+            medicoes = solicitacao.medicoes.filter(**filtros)
+            total = "-" if medicoes.count() == 0 else 0
+            for medicao in medicoes:
+                queryset = medicao.valores_medicao.filter(
+                    nome_campo=campo, categoria_medicao__nome=periodo
+                )
+                total += sum(int(m.valor) for m in queryset)
         else:
-            queryset = medicao.valores_medicao.filter(nome_campo=campo)
-            total = sum(int(medicao.valor) for medicao in queryset) if queryset else "-"
+            medicao = solicitacao.medicoes.get(**filtros)
+            if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
+                total = _get_total_pagamento(medicao, campo)
+            else:
+                queryset = medicao.valores_medicao.filter(
+                    nome_campo=campo, categoria_medicao__nome="ALIMENTAÇÃO"
+                )
+                total = (
+                    sum(int(medicao.valor) for medicao in queryset) if queryset else "-"
+                )
         valores.append(total)
     except Exception:
         valores.append("-")
@@ -269,6 +297,9 @@ def _processa_periodo_campo(solicitacao, periodo, campo, valores):
 
 
 def _get_total_pagamento(medicao, nome_campo):
+    """
+    Para EMEF: O total é sempre menor valor entre os matriculados e o que foi servido.
+    """
     campos_refeicoes = [
         "refeicao",
         "repeticao_refeicao",
@@ -463,7 +494,7 @@ def _ajusta_layout_tabela(workbook, worksheet, df):
             "text_wrap": True,
         }
     )
-    # TODO: E os outros tipos de dieta?
+
     formatacao_level1 = {
         "": formatacao_level2,
         "MANHA": formatacao_manha,
