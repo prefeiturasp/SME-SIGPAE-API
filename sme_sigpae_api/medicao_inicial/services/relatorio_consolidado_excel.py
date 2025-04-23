@@ -266,6 +266,7 @@ def _define_filtro(periodo):
 
 def _processa_periodo_campo(solicitacao, periodo, campo, valores):
     filtros = _define_filtro(periodo)
+
     try:
         if periodo in [
             "DIETA ESPECIAL - TIPO A",
@@ -282,7 +283,9 @@ def _processa_periodo_campo(solicitacao, periodo, campo, valores):
         else:
             medicao = solicitacao.medicoes.get(**filtros)
             if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
-                total = _get_total_pagamento(medicao, campo)
+                total = _get_total_pagamento(
+                    medicao, campo, solicitacao.escola.tipo_unidade.iniciais
+                )
             else:
                 queryset = medicao.valores_medicao.filter(
                     nome_campo=campo, categoria_medicao__nome="ALIMENTAÇÃO"
@@ -296,7 +299,14 @@ def _processa_periodo_campo(solicitacao, periodo, campo, valores):
     return valores
 
 
-def _get_total_pagamento(medicao, nome_campo):
+def _get_total_pagamento(medicao, nome_campo, tipo_unidade):
+    if tipo_unidade in ORDEM_UNIDADES_GRUPO_EMEF.keys():
+        return _total_pagamento_emef(medicao, nome_campo)
+    elif tipo_unidade in ORDEM_UNIDADES_GRUPO_EMEI.keys():
+        return _total_pagamento_emei(medicao, nome_campo)
+
+
+def _total_pagamento_emef(medicao, nome_campo):
     """
     Para EMEF: O total é sempre menor valor entre os matriculados e o que foi servido.
     """
@@ -323,6 +333,13 @@ def _get_total_pagamento(medicao, nome_campo):
     total_pagamento = 0
 
     for dia in range(1, total_dias_no_mes + 1):
+        matriculados = medicao.valores_medicao.filter(
+            nome_campo="matriculados", dia=f"{dia:02d}"
+        ).first()
+        numero_de_alunos = medicao.valores_medicao.filter(
+            nome_campo="numero_de_alunos", dia=f"{dia:02d}"
+        ).first()
+
         totais = []
         for campo in lista_campos:
             valor_campo_obj = medicao.valores_medicao.filter(
@@ -331,12 +348,7 @@ def _get_total_pagamento(medicao, nome_campo):
             if valor_campo_obj:
                 valor_campo = valor_campo_obj.valor
                 totais.append(int(valor_campo))
-        matriculados = medicao.valores_medicao.filter(
-            nome_campo="matriculados", dia=f"{dia:02d}"
-        ).first()
-        numero_de_alunos = medicao.valores_medicao.filter(
-            nome_campo="numero_de_alunos", dia=f"{dia:02d}"
-        ).first()
+
         total_dia = sum(totais)
         valor_comparativo = (
             matriculados.valor
@@ -347,6 +359,41 @@ def _get_total_pagamento(medicao, nome_campo):
         )
         total_pagamento += min(int(total_dia), int(valor_comparativo))
 
+    return total_pagamento
+
+
+def _total_pagamento_emei(medicao, nome_campo):
+    """
+    Para EMEI: o que vai pagamento é só o que foi servido em "refeicao" e "2_refeicao_1_oferta"
+    """
+    campos_refeicoes = [
+        "refeicao",
+        "2_refeicao_1_oferta",
+    ]
+    campos_sobremesas = [
+        "sobremesa",
+        "2_sobremesa_1_oferta",
+    ]
+    lista_campos = (
+        campos_refeicoes
+        if nome_campo == "total_refeicoes_pagamento"
+        else campos_sobremesas
+    )
+    mes = medicao.solicitacao_medicao_inicial.mes
+    ano = medicao.solicitacao_medicao_inicial.ano
+    total_dias_no_mes = calendar.monthrange(int(ano), int(mes))[1]
+    total_pagamento = 0
+
+    for dia in range(1, total_dias_no_mes + 1):
+        totais = []
+        for campo in lista_campos:
+            valor_campo_obj = medicao.valores_medicao.filter(
+                nome_campo=campo, dia=f"{dia:02d}"
+            ).first()
+            if valor_campo_obj:
+                valor_campo = valor_campo_obj.valor
+                totais.append(int(valor_campo))
+        total_pagamento += sum(totais)
     return total_pagamento
 
 
