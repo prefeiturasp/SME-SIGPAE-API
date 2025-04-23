@@ -61,7 +61,7 @@ class UnidadeMedida(TemChaveExterna, Nomeavel, CriadoEm):
 
 class Cronograma(ModeloBase, TemIdentificadorExternoAmigavel, Logs, FluxoCronograma):
     numero = models.CharField(
-        "Número do Cronograma", blank=True, max_length=50, unique=True
+        "Número do Cronograma", blank=True, max_length=250, unique=True
     )
     contrato = models.ForeignKey(
         Contrato, on_delete=models.CASCADE, blank=True, null=True
@@ -694,7 +694,7 @@ class FichaTecnicaDoProduto(
     )
 
     numero = models.CharField(
-        "Número da Ficha Técnica", blank=True, max_length=50, unique=True
+        "Número da Ficha Técnica", blank=True, max_length=250, unique=True
     )
     produto = models.ForeignKey(
         NomeDeProdutoEdital,
@@ -729,7 +729,7 @@ class FichaTecnicaDoProduto(
     cep_fabricante = models.CharField("CEP", max_length=8, blank=True)
     endereco_fabricante = models.CharField("Endereco", max_length=160, blank=True)
     numero_fabricante = models.CharField("Número", max_length=10, blank=True)
-    complemento_fabricante = models.CharField("Complemento", max_length=50, blank=True)
+    complemento_fabricante = models.CharField("Complemento", max_length=250, blank=True)
     bairro_fabricante = models.CharField("Bairro", max_length=150, blank=True)
     cidade_fabricante = models.CharField("Cidade", max_length=150, blank=True)
     estado_fabricante = models.CharField("Estado", max_length=150, blank=True)
@@ -778,7 +778,7 @@ class FichaTecnicaDoProduto(
     prazo_validade_descongelamento = models.CharField(
         "Prazo de Validade Descongelamento",
         help_text="Prazo de Validade após o descongelamento e mantido sob refrigeração",
-        max_length=50,
+        max_length=250,
         blank=True,
     )
     condicoes_de_conservacao = models.TextField(
@@ -868,11 +868,11 @@ class FichaTecnicaDoProduto(
         null=True,
     )
     nome_responsavel_tecnico = models.CharField(
-        "Nome completo do Responsável Técnico", max_length=100, blank=True
+        "Nome completo do Responsável Técnico", max_length=250, blank=True
     )
-    habilitacao = models.CharField("Habilitação", max_length=100, blank=True)
+    habilitacao = models.CharField("Habilitação", max_length=250, blank=True)
     numero_registro_orgao = models.CharField(
-        "Nº do Registro em Órgão Competente", max_length=50, blank=True
+        "Nº do Registro em Órgão Competente", max_length=250, blank=True
     )
     arquivo = models.FileField(
         upload_to="fichas_tecnicas",
