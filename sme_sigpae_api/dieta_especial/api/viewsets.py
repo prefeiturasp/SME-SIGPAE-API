@@ -1744,7 +1744,9 @@ class LogQuantidadeDietasAutorizadasViewSet(mixins.ListModelMixin, GenericViewSe
 
 class LogQuantidadeDietasAutorizadasCEIViewSet(mixins.ListModelMixin, GenericViewSet):
     serializer_class = LogQuantidadeDietasAutorizadasCEISerializer
-    queryset = LogQuantidadeDietasAutorizadasCEI.objects.all()
+    queryset = LogQuantidadeDietasAutorizadasCEI.objects.filter(
+        faixa_etaria__isnull=False
+    )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = LogQuantidadeDietasEspeciaisFilter
     pagination_class = None
