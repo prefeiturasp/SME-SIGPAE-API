@@ -190,27 +190,26 @@ def reseta_analise_atualizacao(analise, payload):
 
 
 def gerar_nova_analise_ficha_tecnica(ficha_tecnica, payload=None):
-    campos_conferidos = [
-        campo.name
-        for campo in AnaliseFichaTecnica._meta.fields
-        if campo.name.endswith("_conferido")
-    ]
-
     analise_antiga = ficha_tecnica.analises.last()
-
     if payload:
         analise_antiga = reseta_analise_atualizacao(analise_antiga, payload)
 
-    valores_conferidos_antigos = {
-        campo: getattr(analise_antiga, campo)
-        for campo in campos_conferidos
-        if getattr(analise_antiga, campo) is True
-    }
+    campos = AnaliseFichaTecnica._meta.fields
+    valores_antigos = {}
+
+    for campo in [c.name for c in campos if c.name.endswith("_conferido")]:
+        if getattr(analise_antiga, campo) is True:
+            valores_antigos[campo] = True
+
+    for campo in [c.name for c in campos if c.name.endswith("_correcoes")]:
+        campo_conferido = campo.replace("_correcoes", "_conferido")
+        if getattr(analise_antiga, campo_conferido) is False:
+            valores_antigos[campo] = getattr(analise_antiga, campo)
 
     AnaliseFichaTecnica.objects.create(
         criado_por=analise_antiga.criado_por,
         ficha_tecnica=ficha_tecnica,
-        **valores_conferidos_antigos,
+        **valores_antigos,
     )
 
 
