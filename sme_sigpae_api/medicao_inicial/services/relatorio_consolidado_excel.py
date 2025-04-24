@@ -12,9 +12,9 @@ from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEI,
 )
 from sme_sigpae_api.dados_comuns.utils import converte_numero_em_mes
-from sme_sigpae_api.escola.models import DiretoriaRegional, Lote
+from sme_sigpae_api.escola.models import DiretoriaRegional, Lote, PeriodoEscolar
 
-from ..models import SolicitacaoMedicaoInicial
+from ..models import CategoriaMedicao, SolicitacaoMedicaoInicial
 
 
 def gera_relatorio_consolidado_xlsx(solicitacoes_uuid, tipos_de_unidade, query_params):
@@ -213,14 +213,22 @@ def _generate_columns(dict_periodos_dietas):
 
 
 def _get_valores_tabela(solicitacoes, colunas, tipos_de_unidade):
+    dietas_especiais = CategoriaMedicao.objects.filter(
+        nome__icontains="DIETA ESPECIAL"
+    ).values_list("nome", flat=True)
+    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     valores = []
-
     for solicitacao in get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade):
         valores_solicitacao_atual = []
         valores_solicitacao_atual += _get_valores_iniciais(solicitacao)
         for periodo, campo in colunas:
             valores_solicitacao_atual = _processa_periodo_campo(
-                solicitacao, periodo, campo, valores_solicitacao_atual
+                solicitacao,
+                periodo,
+                campo,
+                valores_solicitacao_atual,
+                dietas_especiais,
+                periodos_escolares,
             )
         valores.append(valores_solicitacao_atual)
     return valores
@@ -246,7 +254,7 @@ def _get_valores_iniciais(solicitacao):
     ]
 
 
-def _define_filtro(periodo):
+def _define_filtro(periodo, dietas_especiais, periodos_escolares):
     filtros = {}
     if periodo in [
         "Programas e Projetos",
@@ -254,62 +262,67 @@ def _define_filtro(periodo):
         "Solicitações de Alimentação",
     ]:
         filtros["grupo__nome"] = periodo
-    elif periodo in [
-        "DIETA ESPECIAL - TIPO A",
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
-        "DIETA ESPECIAL - TIPO B",
-    ]:
-        filtros["periodo_escolar__nome__in"] = ["MANHA", "TARDE"]
+    elif periodo in dietas_especiais:
+        filtros["periodo_escolar__nome__in"] = periodos_escolares
     else:
         filtros["periodo_escolar__nome"] = periodo
     return filtros
 
 
-def _processa_periodo_campo(solicitacao, periodo, campo, valores):
-    filtros = _define_filtro(periodo)
+def _processa_periodo_campo(
+    solicitacao, periodo, campo, valores, dietas_especiais, periodos_escolares
+):
+    filtros = _define_filtro(periodo, dietas_especiais, periodos_escolares)
 
     try:
-        if periodo in [
-            "DIETA ESPECIAL - TIPO A",
-            "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
-            "DIETA ESPECIAL - TIPO B",
-        ]:
-            medicoes = solicitacao.medicoes.filter(**filtros)
-            total = "-" if medicoes.count() == 0 else 0
-            for medicao in medicoes:
-                soma = (
-                    medicao.valores_medicao.filter(
-                        nome_campo=campo, categoria_medicao__nome=periodo
-                    )
-                    .annotate(valor_float=Cast("valor", output_field=FloatField()))
-                    .aggregate(total=Sum("valor_float"))["total"]
-                )
-                if soma is not None:
-                    total += soma
+        if periodo in dietas_especiais:
+            total = _processa_dieta_especial(solicitacao, filtros, campo, periodo)
         else:
-            medicao = solicitacao.medicoes.get(**filtros)
-            if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
-                total = _get_total_pagamento(
-                    medicao, campo, solicitacao.escola.tipo_unidade.iniciais
-                )
-            else:
-                categoria = (
-                    periodo.upper()
-                    if periodo == "Solicitações de Alimentação"
-                    else "ALIMENTAÇÃO"
-                )
-                soma = (
-                    medicao.valores_medicao.filter(
-                        nome_campo=campo, categoria_medicao__nome=categoria
-                    )
-                    .annotate(valor_float=Cast("valor", output_field=FloatField()))
-                    .aggregate(total=Sum("valor_float"))["total"]
-                )
-                total = soma if soma is not None else "-"
+            total = _processa_periodo_regular(solicitacao, filtros, campo, periodo)
         valores.append(total)
     except Exception:
         valores.append("-")
     return valores
+
+
+def _processa_dieta_especial(solicitacao, filtros, campo, periodo):
+    medicoes = solicitacao.medicoes.filter(**filtros)
+    if not medicoes.exists():
+        return "-"
+
+    total = 0.0
+    for medicao in medicoes:
+        soma = _calcula_soma_medicao(medicao, campo, periodo)
+        if soma is not None:
+            total += soma
+
+    return "-" if total == 0.0 else total
+
+
+def _processa_periodo_regular(solicitacao, filtros, campo, periodo):
+    medicao = solicitacao.medicoes.get(**filtros)
+
+    if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
+        return _get_total_pagamento(
+            medicao, campo, solicitacao.escola.tipo_unidade.iniciais
+        )
+
+    categoria = "ALIMENTAÇÃO"
+    if periodo == "Solicitações de Alimentação":
+        categoria = periodo.upper()
+
+    soma = _calcula_soma_medicao(medicao, campo, categoria)
+    return soma if soma is not None else "-"
+
+
+def _calcula_soma_medicao(medicao, campo, categoria):
+    return (
+        medicao.valores_medicao.filter(
+            nome_campo=campo, categoria_medicao__nome=categoria
+        )
+        .annotate(valor_float=Cast("valor", output_field=FloatField()))
+        .aggregate(total=Sum("valor_float"))["total"]
+    )
 
 
 def _get_total_pagamento(medicao, nome_campo, tipo_unidade):
@@ -392,22 +405,6 @@ def _total_pagamento_emei(medicao, nome_campo):
         if nome_campo == "total_refeicoes_pagamento"
         else campos_sobremesas
     )
-    # mes = medicao.solicitacao_medicao_inicial.mes
-    # ano = medicao.solicitacao_medicao_inicial.ano
-    # total_dias_no_mes = calendar.monthrange(int(ano), int(mes))[1]
-    # total_pagamento = 0
-
-    # for dia in range(1, total_dias_no_mes + 1):
-    #     totais = []
-    #     for campo in lista_campos:
-    #         valor_campo_obj = medicao.valores_medicao.filter(
-    #             nome_campo=campo, dia=f"{dia:02d}"
-    #         ).first()
-    #         if valor_campo_obj:
-    #             valor_campo = valor_campo_obj.valor
-    #             totais.append(int(valor_campo))
-    #     total_pagamento += sum(totais)
-    # return total_pagamento
 
     total_pagamento = (
         medicao.valores_medicao.filter(
