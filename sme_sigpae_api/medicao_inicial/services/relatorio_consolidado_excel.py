@@ -2,7 +2,8 @@ import calendar
 import io
 
 import pandas as pd
-from django.db.models import Q
+from django.db.models import FloatField, Q, Sum
+from django.db.models.functions import Cast
 
 from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_CAMPOS,
@@ -276,10 +277,15 @@ def _processa_periodo_campo(solicitacao, periodo, campo, valores):
             medicoes = solicitacao.medicoes.filter(**filtros)
             total = "-" if medicoes.count() == 0 else 0
             for medicao in medicoes:
-                queryset = medicao.valores_medicao.filter(
-                    nome_campo=campo, categoria_medicao__nome=periodo
+                soma = (
+                    medicao.valores_medicao.filter(
+                        nome_campo=campo, categoria_medicao__nome=periodo
+                    )
+                    .annotate(valor_float=Cast("valor", output_field=FloatField()))
+                    .aggregate(total=Sum("valor_float"))["total"]
                 )
-                total += sum(int(m.valor) for m in queryset)
+                if soma is not None:
+                    total += soma
         else:
             medicao = solicitacao.medicoes.get(**filtros)
             if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
@@ -287,12 +293,19 @@ def _processa_periodo_campo(solicitacao, periodo, campo, valores):
                     medicao, campo, solicitacao.escola.tipo_unidade.iniciais
                 )
             else:
-                queryset = medicao.valores_medicao.filter(
-                    nome_campo=campo, categoria_medicao__nome="ALIMENTAÇÃO"
+                categoria = (
+                    periodo.upper()
+                    if periodo == "Solicitações de Alimentação"
+                    else "ALIMENTAÇÃO"
                 )
-                total = (
-                    sum(int(medicao.valor) for medicao in queryset) if queryset else "-"
+                soma = (
+                    medicao.valores_medicao.filter(
+                        nome_campo=campo, categoria_medicao__nome=categoria
+                    )
+                    .annotate(valor_float=Cast("valor", output_field=FloatField()))
+                    .aggregate(total=Sum("valor_float"))["total"]
                 )
+                total = soma if soma is not None else "-"
         valores.append(total)
     except Exception:
         valores.append("-")
@@ -379,22 +392,32 @@ def _total_pagamento_emei(medicao, nome_campo):
         if nome_campo == "total_refeicoes_pagamento"
         else campos_sobremesas
     )
-    mes = medicao.solicitacao_medicao_inicial.mes
-    ano = medicao.solicitacao_medicao_inicial.ano
-    total_dias_no_mes = calendar.monthrange(int(ano), int(mes))[1]
-    total_pagamento = 0
+    # mes = medicao.solicitacao_medicao_inicial.mes
+    # ano = medicao.solicitacao_medicao_inicial.ano
+    # total_dias_no_mes = calendar.monthrange(int(ano), int(mes))[1]
+    # total_pagamento = 0
 
-    for dia in range(1, total_dias_no_mes + 1):
-        totais = []
-        for campo in lista_campos:
-            valor_campo_obj = medicao.valores_medicao.filter(
-                nome_campo=campo, dia=f"{dia:02d}"
-            ).first()
-            if valor_campo_obj:
-                valor_campo = valor_campo_obj.valor
-                totais.append(int(valor_campo))
-        total_pagamento += sum(totais)
-    return total_pagamento
+    # for dia in range(1, total_dias_no_mes + 1):
+    #     totais = []
+    #     for campo in lista_campos:
+    #         valor_campo_obj = medicao.valores_medicao.filter(
+    #             nome_campo=campo, dia=f"{dia:02d}"
+    #         ).first()
+    #         if valor_campo_obj:
+    #             valor_campo = valor_campo_obj.valor
+    #             totais.append(int(valor_campo))
+    #     total_pagamento += sum(totais)
+    # return total_pagamento
+
+    total_pagamento = (
+        medicao.valores_medicao.filter(
+            nome_campo__in=lista_campos, categoria_medicao__nome="ALIMENTAÇÃO"
+        )
+        .annotate(valor_float=Cast("valor", output_field=FloatField()))
+        .aggregate(total=Sum("valor_float"))
+    )
+
+    return total_pagamento["total"]
 
 
 def _preenche_titulo(workbook, worksheet, colunas):
