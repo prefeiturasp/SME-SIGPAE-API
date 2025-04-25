@@ -334,44 +334,44 @@ def build_xlsx_generico(
 
     import pandas as pd
 
-    xlwriter = pd.ExcelWriter(output, engine="xlsxwriter")
+    with pd.ExcelWriter(output, engine="xlsxwriter") as xlwriter:
+        df = pd.DataFrame(queryset_serializada)
 
-    df = pd.DataFrame(queryset_serializada)
+        # Adiciona linhas em branco no comeco do arquivo
+        df_auxiliar = pd.DataFrame([[np.nan] * len(df.columns)], columns=df.columns)
+        df = pd.concat([df_auxiliar, df], ignore_index=True)
+        df = pd.concat([df_auxiliar, df], ignore_index=True)
+        df = pd.concat([df_auxiliar, df], ignore_index=True)
 
-    # Adiciona linhas em branco no comeco do arquivo
-    df_auxiliar = pd.DataFrame([[np.nan] * len(df.columns)], columns=df.columns)
-    df = df_auxiliar.append(df, ignore_index=True)
-    df = df_auxiliar.append(df, ignore_index=True)
-    df = df_auxiliar.append(df, ignore_index=True)
+        df.to_excel(xlwriter, titulo_sheet)
+        workbook = xlwriter.book
+        worksheet = xlwriter.sheets[titulo_sheet]
+        worksheet.set_row(LINHA_0, ALTURA_COLUNA_50)
+        worksheet.set_row(LINHA_1, ALTURA_COLUNA_30)
+        worksheet.set_column("B:H", ALTURA_COLUNA_30)
+        merge_format = workbook.add_format(
+            {"align": "center", "bg_color": "#a9d18e", "border_color": "#198459"}
+        )
+        merge_format.set_align("vcenter")
+        merge_format.set_bold()
+        cell_format = workbook.add_format()
+        cell_format.set_text_wrap()
+        cell_format.set_align("vcenter")
+        cell_format.set_bold()
+        v_center_format = workbook.add_format()
+        v_center_format.set_align("vcenter")
+        single_cell_format = workbook.add_format({"bg_color": "#a9d18e"})
+        len_cols = len(df.columns)
+        worksheet.merge_range(0, 0, 0, len_cols, titulo, merge_format)
 
-    df.to_excel(xlwriter, titulo_sheet)
-    workbook = xlwriter.book
-    worksheet = xlwriter.sheets[titulo_sheet]
-    worksheet.set_row(LINHA_0, ALTURA_COLUNA_50)
-    worksheet.set_row(LINHA_1, ALTURA_COLUNA_30)
-    worksheet.set_column("B:H", ALTURA_COLUNA_30)
-    merge_format = workbook.add_format(
-        {"align": "center", "bg_color": "#a9d18e", "border_color": "#198459"}
-    )
-    merge_format.set_align("vcenter")
-    merge_format.set_bold()
-    cell_format = workbook.add_format()
-    cell_format.set_text_wrap()
-    cell_format.set_align("vcenter")
-    cell_format.set_bold()
-    v_center_format = workbook.add_format()
-    v_center_format.set_align("vcenter")
-    single_cell_format = workbook.add_format({"bg_color": "#a9d18e"})
-    len_cols = len(df.columns)
-    worksheet.merge_range(0, 0, 0, len_cols, titulo, merge_format)
+        worksheet.merge_range(LINHA_1, 0, LINHA_2, len_cols, subtitulo, cell_format)
+        worksheet.insert_image(
+            "A1", "sme_sigpae_api/static/images/logo-sigpae-light.png"
+        )
+        for index, titulo_coluna in enumerate(titulos_colunas, start=1):
+            worksheet.write(LINHA_3, index, titulo_coluna, single_cell_format)
 
-    worksheet.merge_range(LINHA_1, 0, LINHA_2, len_cols, subtitulo, cell_format)
-    worksheet.insert_image("A1", "sme_sigpae_api/static/images/logo-sigpae-light.png")
-    for index, titulo_coluna in enumerate(titulos_colunas, start=1):
-        worksheet.write(LINHA_3, index, titulo_coluna, single_cell_format)
-
-    df.reset_index(drop=True, inplace=True)
-    xlwriter.save()
+        df.reset_index(drop=True, inplace=True)
     output.seek(0)
 
 
