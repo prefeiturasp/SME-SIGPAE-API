@@ -217,37 +217,35 @@ def test_get_alimentacoes_por_periodo(mock_relatorio_consolidado_xlsx):
     assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 1
 
 
-def test_get_valores_tabela(mock_relatorio_consolidado_xlsx):
-    colunas = _get_alimentacoes_por_periodo([mock_relatorio_consolidado_xlsx])
-    linhas = _get_valores_tabela([mock_relatorio_consolidado_xlsx], colunas)
+def test_get_valores_tabela(mock_relatorio_consolidado_xlsx, mock_colunas):
+    tipos_unidade = ["EMEF"]
+    linhas = _get_valores_tabela(
+        [mock_relatorio_consolidado_xlsx], mock_colunas, tipos_unidade
+    )
     assert isinstance(linhas, list)
     assert len(linhas) == 1
     assert isinstance(linhas[0], list)
-    assert len(linhas[0]) == 23
+    assert len(linhas[0]) == 19
     assert linhas[0] == [
         "EMEF",
         "123456",
         "EMEF TESTE",
-        150,
-        150,
-        50,
-        150,
-        50,
-        150,
-        150,
-        150,
-        0,
-        150,
-        0,
-        150,
-        "-",
-        "-",
-        "-",
-        "-",
-        "-",
-        "-",
-        "-",
-        "-",
+        10.0,
+        10.0,
+        125.0,
+        125.0,
+        125.0,
+        125,
+        125.0,
+        125,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
     ]
 
 

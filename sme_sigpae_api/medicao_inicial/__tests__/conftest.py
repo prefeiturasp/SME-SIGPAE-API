@@ -2853,3 +2853,25 @@ def mock_query_params_excel(solicitacao_relatorio_consolidado, grupo_escolar):
         "lotes[]": solicitacao_relatorio_consolidado.escola.lote.uuid,
         "lotes": [solicitacao_relatorio_consolidado.escola.lote.uuid],
     }
+
+
+@pytest.fixture
+def mock_colunas():
+    return [
+        ("Solicitações de Alimentação", "kit_lanche"),
+        ("Solicitações de Alimentação", "lanche_emergencial"),
+        ("MANHA", "lanche"),
+        ("MANHA", "lanche_4h"),
+        ("MANHA", "refeicao"),
+        ("MANHA", "total_refeicoes_pagamento"),
+        ("MANHA", "sobremesa"),
+        ("MANHA", "total_sobremesas_pagamento"),
+        ("DIETA ESPECIAL - TIPO A", "lanche"),
+        ("DIETA ESPECIAL - TIPO A", "lanche_4h"),
+        ("DIETA ESPECIAL - TIPO A", "refeicao"),
+        ("DIETA ESPECIAL - TIPO A", "sobremesa"),
+        ("DIETA ESPECIAL - TIPO B", "lanche"),
+        ("DIETA ESPECIAL - TIPO B", "lanche_4h"),
+        ("DIETA ESPECIAL - TIPO B", "refeicao"),
+        ("DIETA ESPECIAL - TIPO B", "sobremesa"),
+    ]
