@@ -421,24 +421,15 @@ def test_formata_total_geral(informacoes_excel_writer):
 
 
 def test_get_nome_periodo(
-    mock_relatorio_consolidado_xlsx, medico_com_grupo, medico_sem_periodo_escolar
+    medicao_grupo_solicitacao_alimentacao, medicao_grupo_alimentacao
 ):
-    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all()
-    periodo_manha = _get_nome_periodo(medicoes[0])
+    periodo = _get_nome_periodo(medicao_grupo_solicitacao_alimentacao)
+    assert isinstance(periodo, str)
+    assert periodo == "Solicitações de Alimentação"
+
+    periodo_manha = _get_nome_periodo(medicao_grupo_alimentacao)
     assert isinstance(periodo_manha, str)
     assert periodo_manha == "MANHA"
-
-    periodo_tarde = _get_nome_periodo(medicoes[1])
-    assert isinstance(periodo_tarde, str)
-    assert periodo_tarde == "TARDE"
-
-    periodo_com_grupo = _get_nome_periodo(medico_com_grupo)
-    assert isinstance(periodo_com_grupo, str)
-    assert periodo_com_grupo == "ALIMENTAÇÃO - TARDE"
-
-    periodo_sem_periodo = _get_nome_periodo(medico_sem_periodo_escolar)
-    assert isinstance(periodo_sem_periodo, str)
-    assert periodo_sem_periodo == "ALIMENTAÇÃO"
 
 
 def test_get_lista_alimentacoes(mock_relatorio_consolidado_xlsx):
