@@ -323,10 +323,7 @@ def test_preenche_titulo(informacoes_excel_writer):
     writer.close()
     workbook_openpyxl = openpyxl.load_workbook(arquivo)
     sheet = workbook_openpyxl[aba]
-    assert (
-        sheet["A1"].value
-        == "Relatório de Totalização da Medição Inicial do Serviço de Fornecimento da Alimentação Escolar"
-    )
+
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 5
     assert str(merged_ranges[0]) == "A3:E3"
@@ -335,6 +332,10 @@ def test_preenche_titulo(informacoes_excel_writer):
     assert str(merged_ranges[3]) == "P3:S3"
     assert str(merged_ranges[4]) == "A1:S1"
 
+    assert (
+        sheet["A1"].value
+        == "Relatório de Totalização da Medição Inicial do Serviço de Fornecimento da Alimentação Escolar"
+    )
     assert sheet["A1"].alignment.horizontal == "center"
     assert sheet["A1"].alignment.vertical == "center"
     assert sheet["A1"].font.bold is True
@@ -355,7 +356,6 @@ def test_preenche_linha_dos_filtros_selecionados(
     workbook_openpyxl = openpyxl.load_workbook(arquivo)
     sheet = workbook_openpyxl[aba]
 
-    assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL IPIRANGA - 1 - EMEF"
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 5
     assert str(merged_ranges[0]) == "A3:E3"
@@ -364,6 +364,7 @@ def test_preenche_linha_dos_filtros_selecionados(
     assert str(merged_ranges[3]) == "P3:S3"
     assert str(merged_ranges[4]) == "A2:S2"
 
+    assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL IPIRANGA - 1 - EMEF"
     assert sheet["A2"].alignment.horizontal == "center"
     assert sheet["A2"].alignment.vertical == "center"
     assert sheet["A2"].font.bold is True
@@ -375,37 +376,27 @@ def test_preenche_linha_dos_filtros_selecionados(
     workbook_openpyxl.close()
 
 
-def test_ajusta_layout_tabela(mock_relatorio_consolidado_xlsx):
-    file = BytesIO()
-    aba = f"Relatório Consolidado {mock_relatorio_consolidado_xlsx.mes}-{ mock_relatorio_consolidado_xlsx.ano}"
-    writer = pd.ExcelWriter(file, engine="xlsxwriter")
-    workbook = writer.book
-    worksheet = workbook.add_worksheet(aba)
-    worksheet.set_default_row(20)
-
-    colunas = _get_alimentacoes_por_periodo([mock_relatorio_consolidado_xlsx])
-    linhas = _get_valores_tabela([mock_relatorio_consolidado_xlsx], colunas)
-    df = _insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer)
+def test_ajusta_layout_tabela(informacoes_excel_writer):
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer
     _ajusta_layout_tabela(workbook, worksheet, df)
     writer.close()
-    workbook_openpyxl = openpyxl.load_workbook(file)
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
     sheet = workbook_openpyxl[aba]
     merged_ranges = sheet.merged_cells.ranges
-    assert len(merged_ranges) == 5
-    assert str(merged_ranges[0]) == "A3:C3"
-    assert str(merged_ranges[1]) == "D3:I3"
-    assert str(merged_ranges[2]) == "J3:O3"
+    assert len(merged_ranges) == 4
+    assert str(merged_ranges[0]) == "A3:E3"
+    assert str(merged_ranges[1]) == "F3:K3"
+    assert str(merged_ranges[2]) == "L3:O3"
     assert str(merged_ranges[3]) == "P3:S3"
-    assert str(merged_ranges[4]) == "T3:W3"
 
-    assert sheet["D3"].value == "MANHA"
-    assert sheet["D3"].fill.fgColor.rgb == "FF198459"
-    assert sheet["J3"].value == "TARDE"
-    assert sheet["J3"].fill.fgColor.rgb == "FFD06D12"
-    assert sheet["P3"].value == "DIETA ESPECIAL - TIPO A"
-    assert sheet["P3"].fill.fgColor.rgb == "FF198459"
-    assert sheet["T3"].value == "DIETA ESPECIAL - TIPO B"
-    assert sheet["T3"].fill.fgColor.rgb == "FF20AA73"
+    assert sheet["A3"].value is None
+    assert sheet["F3"].value == "MANHA"
+    assert sheet["F3"].fill.fgColor.rgb == "FF198459"
+    assert sheet["L3"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["L3"].fill.fgColor.rgb == "FF198459"
+    assert sheet["P3"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["P3"].fill.fgColor.rgb == "FF20AA73"
+    workbook_openpyxl.close()
 
 
 def test_formata_total_geral(mock_relatorio_consolidado_xlsx):
