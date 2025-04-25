@@ -433,30 +433,28 @@ def test_get_nome_periodo(
 
 
 def test_get_lista_alimentacoes(mock_relatorio_consolidado_xlsx):
-    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all()
-    periodo_manha = _get_nome_periodo(medicoes[0])
-    lista_alimentacoes_manha = _get_lista_alimentacoes(medicoes[0], periodo_manha)
+    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all().order_by(
+        "periodo_escolar__nome"
+    )
+    medicao_manha = medicoes[0]
+    medicao_solicitacao = medicoes[1]
+
+    lista_alimentacoes_manha = _get_lista_alimentacoes(medicao_manha, "MANHA")
     assert isinstance(lista_alimentacoes_manha, list)
     assert lista_alimentacoes_manha == [
         "lanche",
-        "lanche_emergencial",
+        "lanche_4h",
         "refeicao",
         "sobremesa",
         "total_refeicoes_pagamento",
         "total_sobremesas_pagamento",
     ]
 
-    periodo_tarde = _get_nome_periodo(medicoes[1])
-    lista_alimentacoes_tarde = _get_lista_alimentacoes(medicoes[1], periodo_tarde)
-    assert isinstance(lista_alimentacoes_tarde, list)
-    assert lista_alimentacoes_tarde == [
-        "lanche",
-        "lanche_emergencial",
-        "refeicao",
-        "sobremesa",
-        "total_refeicoes_pagamento",
-        "total_sobremesas_pagamento",
-    ]
+    lista_alimentacoes_solicitacao = _get_lista_alimentacoes(
+        medicao_solicitacao, "Solicitações de Alimentação"
+    )
+    assert isinstance(lista_alimentacoes_solicitacao, list)
+    assert lista_alimentacoes_solicitacao == ["kit_lanche", "lanche_emergencial"]
 
 
 def test_update_periodos_alimentacoes(mock_relatorio_consolidado_xlsx):
