@@ -16,6 +16,7 @@ from ....dados_comuns.validators import (
     valida_duplicidade_solicitacoes,
     valida_duplicidade_solicitacoes_cei,
     valida_duplicidade_solicitacoes_cemei,
+    valida_duplicidade_solicitacoes_lanche_emergencial_cemei
 )
 from ....escola.models import (
     DiaCalendario,
@@ -801,6 +802,7 @@ class AlteracaoCardapioCEMEISerializerCreate(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
+        valida_duplicidade_solicitacoes_lanche_emergencial_cemei(validated_data)
         motivo = validated_data.get("motivo", None)
         if motivo and motivo.nome == "RPL - Refeição por Lanche":
             valida_duplicidade_solicitacoes_cemei(validated_data)

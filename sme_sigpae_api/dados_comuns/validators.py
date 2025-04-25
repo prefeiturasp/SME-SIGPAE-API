@@ -11,6 +11,7 @@ from ..cardapio.models import (
     AlteracaoCardapioCEI,
     AlteracaoCardapioCEMEI,
     DataIntervaloAlteracaoCardapio,
+    MotivoAlteracaoCardapio,
     SubstituicaoAlimentacaoNoPeriodoEscolar,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEI,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
@@ -81,55 +82,49 @@ def valida_duplicidade_solicitacoes(attrs):
     return True
 
 def valida_duplicidade_solicitacoes_lanche_emergencial_cemei(attrs):
+    motivo = attrs["motivo"]
+    
+    if motivo.nome != "Lanche Emergencial":
+        return True
+
+    escola = attrs["escola"]
+    substituicoes = attrs["substituicoes_cemei_emei_periodo_escolar"]
+    periodos_e_tipos = []
+    for sub in substituicoes:
+        elem = (sub["periodo_escolar"].uuid, [item.uuid for item in sub["tipos_alimentacao_de"]])
+        periodos_e_tipos.append(elem)
+
     status_permitidos = [
         "ESCOLA_CANCELOU",
         "DRE_NAO_VALIDOU_PEDIDO_ESCOLA",
         "CODAE_NEGOU_PEDIDO",
+        "RASCUNHO",
     ]
 
-    substituicoes = attrs["substituicoes_cemei_emei_periodo_escolar"]
-    tipos_alimentacao_de = []
-    for sub in substituicoes:
-        tipos_alimentacao_de.extend(sub["tipos_alimentacao_de"])
-    periodos_uuids = [sub["periodo_escolar"] for sub in substituicoes]
-    motivo = attrs["motivo"]
-    escola = attrs["escola"]
-
     datas_intervalo = attrs["datas_intervalo"]
+    datas = [item['data'] for item in datas_intervalo]
 
-    registros = SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI.objects.filter(
-                    alteracao_cardapio__escola__uuid=escola, 
-                    alteracao_cardapio__motivo__uuid=motivo,
-                    alteracao_cardapio__datas_intervalo__data__in=datas_intervalo, 
-                    periodo_escolar__uuid__in=periodos_uuids,
-                    tipos_alimentacao_de__nome__in=['Refeição', 'Lanche']
+    registros = []
+
+    for data in datas:
+        for periodo, tipos_de_alimentacao in periodos_e_tipos:
+            registros.extend(
+                SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI.objects.filter(
+                    alteracao_cardapio__escola__uuid=escola.uuid,
+                    alteracao_cardapio__motivo__nome=motivo.nome,
+                    alteracao_cardapio__datas_intervalo__data=data, 
+                    periodo_escolar__uuid=periodo,
+                    tipos_alimentacao_de__uuid__in=tipos_de_alimentacao
                 )
-        
-    registros = registros.exclude(alteracao_cardapio__status__in=status_permitidos)
-
-
-    
-    for data in datas_intervalo:
-        solicitacoes.extend(
-            AlteracaoCardapioCEMEI.objects.filter(
-                motivo__uuid=motivo,
-                alunos_cei_e_ou_emei="EMEI",
-                escola__uuid=escola,
-                alterar_dia=data,
-                substituicoes_cemei_emei_periodo_escolar__periodo_escolar__uuid__in=periodos_uuids,
-                substituicoes_cemei_emei_periodo_escolar__tipos_alimentacao_de__uuid__in=tipos_alimentacao_de
             )
-        )
+        
+    registros = [r for r in registros if r.alteracao_cardapio.status not in status_permitidos]
 
-    solicitacoes = solicitacoes.exclude(status__in=status_permitidos)
-
-    if solicitacoes:
+    if registros:
         raise serializers.ValidationError(
-            "Já existe uma solicitação de Lanche Emergencial com esta data, período e tipo de alimentação selecionados"
+            "Já existe uma solicitação de Lanche Emergencial para a mesma data e período selecionado!"
         )
     return True
-
-
 
 def valida_duplicidade_solicitacoes_cei(attrs, data):
     status_permitidos = [
