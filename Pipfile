@@ -47,7 +47,7 @@ pip-audit = "==2.6.1"
 # Ensure no binary package -> export PIP_NO_BINARY=:psycopg2:
 psycopg2="==2.9.9"  # https://github.com/psycopg/psycopg2
 requests="==2.31.0"
-celery = "==5.3.4"   # http://www.celeryproject.org
+celery = "==5.5.1"   # http://www.celeryproject.org
 pytz= "==2022.7"  # https://github.com/stub42/pytz
 python-slugify= "==8.0.1"  # https://github.com/un33k/python-slugify
 Pillow= "==10.1.0"  # https://github.com/python-pillow/Pillow
@@ -83,7 +83,7 @@ django-simple-email-confirmation = {editable = true, ref = "1.0", git = "https:/
 gunicorn="==19.9.0"  # https://github.com/benoitc/gunicorn
 tornado="==6.3.3"    # http://www.tornadoweb.org/en/stable/
 sentry-sdk = "==2.27.0"
-django-prometheus = "==2.2.0"
+django-prometheus = "==2.3.1"
 # Relatórios
 weasyprint = "==52"
 django-sass-processor = "==1.4.1"
