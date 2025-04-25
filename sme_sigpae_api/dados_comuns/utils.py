@@ -27,6 +27,7 @@ from django.core.mail import (
 )
 from django.db.models import QuerySet
 from django.template.loader import render_to_string
+from django_celery_beat.schedulers import DatabaseScheduler
 from workalendar.america import BrazilSaoPauloCity
 
 from config.settings.base import URL_CONFIGS
@@ -757,3 +758,12 @@ def remove_duplicados_do_query_set(query_set: QuerySet | list) -> list:
         if solicitacao.uuid not in uuids_repetidos
         and not uuids_repetidos.add(solicitacao.uuid)
     ]
+
+
+class NaiveDatabaseScheduler(DatabaseScheduler):
+    def get_excluded_hours_for_crontab_tasks(self):
+        from datetime import datetime
+
+        # Example: exclude current hour and next hour
+        current_hour = datetime.now().hour
+        return {current_hour, (current_hour + 1) % 24}
