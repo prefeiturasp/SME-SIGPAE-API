@@ -457,24 +457,39 @@ def test_get_lista_alimentacoes(mock_relatorio_consolidado_xlsx):
     assert lista_alimentacoes_solicitacao == ["kit_lanche", "lanche_emergencial"]
 
 
-def test_update_periodos_alimentacoes(mock_relatorio_consolidado_xlsx):
-    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all()
-    periodo_manha = _get_nome_periodo(medicoes[0])
-    lista_alimentacoes_manha = _get_lista_alimentacoes(medicoes[0], periodo_manha)
+def test_update_periodos_alimentacoes():
+    lista_alimentacoes_manha = [
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+        "sobremesa",
+        "total_refeicoes_pagamento",
+        "total_sobremesas_pagamento",
+    ]
+    lista_alimentacoes_solicitacao = ["kit_lanche", "lanche_emergencial"]
+
     periodos_alimentacoes_manha = _update_periodos_alimentacoes(
-        {}, periodo_manha, lista_alimentacoes_manha
+        {}, "MANHA", lista_alimentacoes_manha
     )
     assert isinstance(periodos_alimentacoes_manha, dict)
-    assert periodo_manha in periodos_alimentacoes_manha.keys()
+    assert "MANHA" in periodos_alimentacoes_manha.keys()
+    assert periodos_alimentacoes_manha["MANHA"] == [
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+        "sobremesa",
+        "total_refeicoes_pagamento",
+        "total_sobremesas_pagamento",
+    ]
 
-    periodo_tarde = _get_nome_periodo(medicoes[1])
-    lista_alimentacoes_tarde = _get_lista_alimentacoes(medicoes[0], periodo_tarde)
     periodos_alimentacoes_tarde = _update_periodos_alimentacoes(
-        periodos_alimentacoes_manha, periodo_tarde, lista_alimentacoes_tarde
+        periodos_alimentacoes_manha,
+        "Solicitações de Alimentação",
+        lista_alimentacoes_solicitacao,
     )
     assert isinstance(periodos_alimentacoes_tarde, dict)
-    assert periodo_tarde in periodos_alimentacoes_tarde.keys()
-    assert periodo_manha in periodos_alimentacoes_tarde.keys()
+    assert "Solicitações de Alimentação" in periodos_alimentacoes_tarde.keys()
+    assert "MANHA" in periodos_alimentacoes_tarde.keys()
 
 
 def test_get_categorias_dietas(mock_relatorio_consolidado_xlsx):
