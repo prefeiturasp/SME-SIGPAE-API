@@ -201,11 +201,20 @@ def test_gera_relatorio_consolidado_xlsx(
 def test_get_alimentacoes_por_periodo(mock_relatorio_consolidado_xlsx):
     colunas = _get_alimentacoes_por_periodo([mock_relatorio_consolidado_xlsx])
     assert isinstance(colunas, list)
-    assert len(colunas) == 20
+    assert len(colunas) == 16
     assert sum(1 for tupla in colunas if tupla[0] == "MANHA") == 6
-    assert sum(1 for tupla in colunas if tupla[0] == "TARDE") == 6
     assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A") == 4
     assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B") == 4
+    assert sum(1 for tupla in colunas if tupla[0] == "Solicitações de Alimentação") == 2
+
+    assert sum(1 for tupla in colunas if tupla[1] == "kit_lanche") == 1
+    assert sum(1 for tupla in colunas if tupla[1] == "lanche_emergencial") == 1
+    assert sum(1 for tupla in colunas if tupla[1] == "lanche") == 3
+    assert sum(1 for tupla in colunas if tupla[1] == "lanche_4h") == 3
+    assert sum(1 for tupla in colunas if tupla[1] == "refeicao") == 3
+    assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 3
+    assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 1
+    assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 1
 
 
 def test_get_valores_tabela(mock_relatorio_consolidado_xlsx):
