@@ -344,42 +344,25 @@ def test_preenche_titulo(informacoes_excel_writer):
 
 
 def test_preenche_linha_dos_filtros_selecionados(
-    mock_relatorio_consolidado_xlsx, grupo_escolar
+    mock_query_params_excel, informacoes_excel_writer
 ):
-    query_params = {
-        "dre": mock_relatorio_consolidado_xlsx.escola.diretoria_regional.uuid,
-        "status": "MEDICAO_APROVADA_PELA_CODAE",
-        "grupo_escolar": grupo_escolar,
-        "mes": mock_relatorio_consolidado_xlsx.mes,
-        "ano": mock_relatorio_consolidado_xlsx.ano,
-        "lotes[]": mock_relatorio_consolidado_xlsx.escola.lote.uuid,
-        "lotes": [mock_relatorio_consolidado_xlsx.escola.lote.uuid],
-    }
     tipos_unidades = ["EMEF"]
-    file = BytesIO()
-    aba = f"Relatório Consolidado {mock_relatorio_consolidado_xlsx.mes}-{ mock_relatorio_consolidado_xlsx.ano}"
-    writer = pd.ExcelWriter(file, engine="xlsxwriter")
-    workbook = writer.book
-    worksheet = workbook.add_worksheet(aba)
-    worksheet.set_default_row(20)
-
-    colunas = _get_alimentacoes_por_periodo([mock_relatorio_consolidado_xlsx])
-    linhas = _get_valores_tabela([mock_relatorio_consolidado_xlsx], colunas)
-    df = _insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer)
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer
     _preenche_linha_dos_filtros_selecionados(
-        workbook, worksheet, query_params, df.columns, tipos_unidades
+        workbook, worksheet, mock_query_params_excel, df.columns, tipos_unidades
     )
     writer.close()
-    workbook_openpyxl = openpyxl.load_workbook(file)
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
     sheet = workbook_openpyxl[aba]
+
+    assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL IPIRANGA - 1 - EMEF"
     merged_ranges = sheet.merged_cells.ranges
-    assert len(merged_ranges) == 6
-    assert str(merged_ranges[0]) == "A3:C3"
-    assert str(merged_ranges[1]) == "D3:I3"
-    assert str(merged_ranges[2]) == "J3:O3"
+    assert len(merged_ranges) == 5
+    assert str(merged_ranges[0]) == "A3:E3"
+    assert str(merged_ranges[1]) == "F3:K3"
+    assert str(merged_ranges[2]) == "L3:O3"
     assert str(merged_ranges[3]) == "P3:S3"
-    assert str(merged_ranges[4]) == "T3:W3"
-    assert str(merged_ranges[5]) == "A2:W2"
+    assert str(merged_ranges[4]) == "A2:S2"
 
     assert sheet["A2"].alignment.horizontal == "center"
     assert sheet["A2"].alignment.vertical == "center"
@@ -389,6 +372,7 @@ def test_preenche_linha_dos_filtros_selecionados(
 
     rows = list(sheet.iter_rows(values_only=True))
     assert tipos_unidades[0] in rows[1][0]
+    workbook_openpyxl.close()
 
 
 def test_ajusta_layout_tabela(mock_relatorio_consolidado_xlsx):
