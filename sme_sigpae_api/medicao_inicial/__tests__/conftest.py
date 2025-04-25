@@ -2752,87 +2752,104 @@ def periodos_integral_parcial_e_logs(escola, faixas_etarias_ativas):
 
 
 @pytest.fixture
-def mock_relatorio_consolidado_xlsx(
-    escola,
-    categoria_medicao,
-    categoria_medicao_dieta_a,
-    categoria_medicao_dieta_b,
-    periodo_escolar_manha,
-    periodo_escolar_tarde,
-):
-    solicitacao = mommy.make(
+def solicitacao_relatorio_consolidado(escola):
+    return mommy.make(
         "SolicitacaoMedicaoInicial",
         escola=escola,
         mes="04",
         ano="2025",
         status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
     )
-    medicao_manha = mommy.make(
+
+
+@pytest.fixture
+def medicao_grupo_solicitacao_alimentacao(
+    solicitacao_relatorio_consolidado, grupo_solicitacoes_alimentacao
+):
+    return mommy.make(
         "Medicao",
-        solicitacao_medicao_inicial=solicitacao,
-        periodo_escolar=periodo_escolar_manha,
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado,
+        periodo_escolar=None,
         status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
-    )
-    medicao_tarde = mommy.make(
-        "Medicao",
-        solicitacao_medicao_inicial=solicitacao,
-        periodo_escolar=periodo_escolar_tarde,
-        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+        grupo=grupo_solicitacoes_alimentacao,
     )
 
+
+@pytest.fixture
+def medicao_grupo_alimentacao(solicitacao_relatorio_consolidado, periodo_escolar_manha):
+    return mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado,
+        periodo_escolar=periodo_escolar_manha,
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+        grupo=None,
+    )
+
+
+@pytest.fixture
+def mock_relatorio_consolidado_xlsx(
+    solicitacao_relatorio_consolidado,
+    medicao_grupo_alimentacao,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_b,
+    medicao_grupo_solicitacao_alimentacao,
+    categoria_medicao_solicitacoes_alimentacao,
+):
     for dia in ["01", "02", "03", "04", "05"]:
-        for campo in ["lanche", "refeicao", "lanche_emergencial", "sobremesa"]:
+        for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
             for categoria in [
                 categoria_medicao,
                 categoria_medicao_dieta_a,
                 categoria_medicao_dieta_b,
             ]:
-                for medicao_ in [medicao_manha, medicao_tarde]:
-                    mommy.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo=campo,
-                        medicao=medicao_,
-                        categoria_medicao=categoria,
-                        valor="10",
-                    )
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao_grupo_alimentacao,
+                    categoria_medicao=categoria,
+                    valor="25",
+                )
+        if dia == "05":
+            for campo in ["kit_lanche", "lanche_emergencial"]:
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao_grupo_solicitacao_alimentacao,
+                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
+                    valor="10",
+                )
+
         mommy.make(
             "ValorMedicao",
             dia=dia,
             nome_campo="matriculados",
-            medicao=medicao_manha,
+            medicao=medicao_grupo_alimentacao,
             categoria_medicao=categoria_medicao,
-            valor="30",
+            valor="100",
         )
         mommy.make(
             "ValorMedicao",
             dia=dia,
-            nome_campo="numero_de_alunos",
-            medicao=medicao_manha,
+            nome_campo="frequencia",
+            medicao=medicao_grupo_alimentacao,
             categoria_medicao=categoria_medicao,
-            valor="9",
+            valor="90",
         )
 
-    return solicitacao
+    return solicitacao_relatorio_consolidado
 
 
 @pytest.fixture
-def medico_com_grupo(mock_relatorio_consolidado_xlsx):
-    return mommy.make(
-        "Medicao",
-        solicitacao_medicao_inicial=mock_relatorio_consolidado_xlsx,
-        periodo_escolar=mommy.make("PeriodoEscolar", nome="TARDE"),
-        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
-        grupo=mommy.make("GrupoMedicao", nome="ALIMENTAÇÃO"),
-    )
-
-
-@pytest.fixture
-def medico_sem_periodo_escolar(mock_relatorio_consolidado_xlsx):
-    return mommy.make(
-        "Medicao",
-        solicitacao_medicao_inicial=mock_relatorio_consolidado_xlsx,
-        periodo_escolar=None,
-        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
-        grupo=mommy.make("GrupoMedicao", nome="ALIMENTAÇÃO"),
-    )
+def mock_query_params_excel(solicitacao_relatorio_consolidado, grupo_escolar):
+    return {
+        "dre": solicitacao_relatorio_consolidado.escola.diretoria_regional.uuid,
+        "status": "MEDICAO_APROVADA_PELA_CODAE",
+        "grupo_escolar": grupo_escolar,
+        "mes": solicitacao_relatorio_consolidado.mes,
+        "ano": solicitacao_relatorio_consolidado.ano,
+        "lotes[]": solicitacao_relatorio_consolidado.escola.lote.uuid,
+        "lotes": [solicitacao_relatorio_consolidado.escola.lote.uuid],
+    }
