@@ -24,6 +24,9 @@ from sme_sigpae_api.medicao_inicial.models import (
     PermissaoLancamentoEspecial,
     SolicitacaoMedicaoInicial,
 )
+from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_excel import (
+    _insere_tabela_periodos_na_planilha,
+)
 
 
 @pytest.fixture
@@ -2906,9 +2909,18 @@ def mock_linhas():
 
 
 @pytest.fixture
-def informacoes_excel_writer(mock_relatorio_consolidado_xlsx):
+def informacoes_excel_writer(
+    mock_relatorio_consolidado_xlsx, mock_colunas, mock_linhas
+):
     arquivo = BytesIO()
     aba = f"Relatório Consolidado {mock_relatorio_consolidado_xlsx.mes}-{ mock_relatorio_consolidado_xlsx.ano}"
     writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
-
-    return aba, writer
+    workbook = writer.book
+    worksheet = workbook.add_worksheet(aba)
+    worksheet.set_default_row(20)
+    df = _insere_tabela_periodos_na_planilha(aba, mock_colunas, mock_linhas, writer)
+    try:
+        yield aba, writer, workbook, worksheet, df, arquivo
+    finally:
+        workbook.close()
+        writer.close()

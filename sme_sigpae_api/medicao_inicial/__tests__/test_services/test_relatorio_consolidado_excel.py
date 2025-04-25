@@ -252,7 +252,7 @@ def test_get_valores_tabela(mock_relatorio_consolidado_xlsx, mock_colunas):
 def test_insere_tabela_periodos_na_planilha(
     informacoes_excel_writer, mock_colunas, mock_linhas
 ):
-    aba, writer = informacoes_excel_writer
+    aba, writer, _, _, _, _ = informacoes_excel_writer
 
     df = _insere_tabela_periodos_na_planilha(aba, mock_colunas, mock_linhas, writer)
     assert isinstance(df, pd.DataFrame)
@@ -317,40 +317,29 @@ def test_insere_tabela_periodos_na_planilha(
     ]
 
 
-def test_preenche_titulo(mock_relatorio_consolidado_xlsx):
-    file = BytesIO()
-    aba = f"Relatório Consolidado {mock_relatorio_consolidado_xlsx.mes}-{ mock_relatorio_consolidado_xlsx.ano}"
-    writer = pd.ExcelWriter(file, engine="xlsxwriter")
-    workbook = writer.book
-    worksheet = workbook.add_worksheet(aba)
-    worksheet.set_default_row(20)
-
-    colunas = _get_alimentacoes_por_periodo([mock_relatorio_consolidado_xlsx])
-    linhas = _get_valores_tabela([mock_relatorio_consolidado_xlsx], colunas)
-    df = _insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer)
+def test_preenche_titulo(informacoes_excel_writer):
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer
     _preenche_titulo(workbook, worksheet, df.columns)
     writer.close()
-    workbook_openpyxl = openpyxl.load_workbook(file)
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
     sheet = workbook_openpyxl[aba]
     assert (
         sheet["A1"].value
         == "Relatório de Totalização da Medição Inicial do Serviço de Fornecimento da Alimentação Escolar"
     )
     merged_ranges = sheet.merged_cells.ranges
-    assert len(merged_ranges) == 6
-    assert str(merged_ranges[0]) == "A3:C3"
-    assert str(merged_ranges[1]) == "D3:I3"
-    assert str(merged_ranges[2]) == "J3:O3"
+    assert len(merged_ranges) == 5
+    assert str(merged_ranges[0]) == "A3:E3"
+    assert str(merged_ranges[1]) == "F3:K3"
+    assert str(merged_ranges[2]) == "L3:O3"
     assert str(merged_ranges[3]) == "P3:S3"
-    assert str(merged_ranges[4]) == "T3:W3"
-    assert str(merged_ranges[5]) == "A1:W1"
+    assert str(merged_ranges[4]) == "A1:S1"
 
     assert sheet["A1"].alignment.horizontal == "center"
     assert sheet["A1"].alignment.vertical == "center"
     assert sheet["A1"].font.bold is True
     assert sheet["A1"].font.color.rgb == "FF42474A"
     assert sheet["A1"].fill.fgColor.rgb == "FFD6F2E7"
-
     workbook_openpyxl.close()
 
 
