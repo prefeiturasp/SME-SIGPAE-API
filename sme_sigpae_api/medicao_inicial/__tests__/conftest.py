@@ -1,7 +1,9 @@
 import datetime
 import json
 import random
+from io import BytesIO
 
+import pandas as pd
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from model_mommy import mommy
@@ -12,7 +14,6 @@ from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.escola.models import (
     DiaCalendario,
     Escola,
-    FaixaEtaria,
     LogAlunosMatriculadosPeriodoEscola,
     PeriodoEscolar,
     TipoTurma,
@@ -2875,3 +2876,39 @@ def mock_colunas():
         ("DIETA ESPECIAL - TIPO B", "refeicao"),
         ("DIETA ESPECIAL - TIPO B", "sobremesa"),
     ]
+
+
+@pytest.fixture
+def mock_linhas():
+    return [
+        [
+            "EMEF",
+            "123456",
+            "EMEF TESTE",
+            10.0,
+            10.0,
+            125.0,
+            125.0,
+            125.0,
+            125,
+            125.0,
+            125,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+        ]
+    ]
+
+
+@pytest.fixture
+def informacoes_excel_writer(mock_relatorio_consolidado_xlsx):
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {mock_relatorio_consolidado_xlsx.mes}-{ mock_relatorio_consolidado_xlsx.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+
+    return aba, writer

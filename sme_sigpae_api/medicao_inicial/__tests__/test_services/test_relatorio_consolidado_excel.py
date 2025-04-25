@@ -249,72 +249,71 @@ def test_get_valores_tabela(mock_relatorio_consolidado_xlsx, mock_colunas):
     ]
 
 
-def test_insere_tabela_periodos_na_planilha(mock_relatorio_consolidado_xlsx):
-    arquivo = BytesIO()
-    aba = f"Relatório Consolidado {mock_relatorio_consolidado_xlsx.mes}-{ mock_relatorio_consolidado_xlsx.ano}"
-    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
-    colunas = _get_alimentacoes_por_periodo([mock_relatorio_consolidado_xlsx])
-    linhas = _get_valores_tabela([mock_relatorio_consolidado_xlsx], colunas)
-    df = _insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer)
+def test_insere_tabela_periodos_na_planilha(
+    informacoes_excel_writer, mock_colunas, mock_linhas
+):
+    aba, writer = informacoes_excel_writer
+
+    df = _insere_tabela_periodos_na_planilha(aba, mock_colunas, mock_linhas, writer)
     assert isinstance(df, pd.DataFrame)
     colunas_df = df.columns.tolist()
-    assert len(colunas_df) == 23
+    assert len(colunas_df) == 19
     assert sum(1 for tupla in colunas_df if tupla[0] == "MANHA") == 6
-    assert sum(1 for tupla in colunas_df if tupla[0] == "TARDE") == 6
     assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 4
     assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 4
     assert sum(1 for tupla in colunas_df if tupla[1] == "Tipo") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Cód. EOL") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 5h") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeições p/ Pagamento") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesas p/ Pagamento") == 1
+
     assert df.iloc[0].tolist() == [
         "EMEF",
         "123456",
         "EMEF TESTE",
-        150.0,
-        150.0,
-        50.0,
-        150.0,
-        50.0,
-        150.0,
-        150.0,
-        150.0,
-        0.0,
-        150.0,
-        0.0,
-        150.0,
-        "-",
-        "-",
-        "-",
-        "-",
-        "-",
-        "-",
-        "-",
-        "-",
+        10.0,
+        10.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
     ]
     assert df.iloc[1].tolist() == [
         0.0,
         123456.0,
         0.0,
-        150.0,
-        150.0,
-        50.0,
-        150.0,
-        50.0,
-        150.0,
-        150.0,
-        150.0,
-        0.0,
-        150.0,
-        0.0,
-        150.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
+        10.0,
+        10.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
+        125.0,
     ]
 
 
