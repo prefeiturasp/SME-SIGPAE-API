@@ -5,6 +5,8 @@ import pandas as pd
 import pytest
 from openpyxl import load_workbook
 
+from sme_sigpae_api.escola.models import PeriodoEscolar
+from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
 from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_excel import (
     _ajusta_layout_tabela,
     _define_filtro,
@@ -468,163 +470,181 @@ def test_update_periodos_alimentacoes():
     ]
     lista_alimentacoes_solicitacao = ["kit_lanche", "lanche_emergencial"]
 
-    periodos_alimentacoes_manha = _update_periodos_alimentacoes(
+    periodos_alimentacoes = _update_periodos_alimentacoes(
         {}, "MANHA", lista_alimentacoes_manha
     )
-    assert isinstance(periodos_alimentacoes_manha, dict)
-    assert "MANHA" in periodos_alimentacoes_manha.keys()
-    assert periodos_alimentacoes_manha["MANHA"] == [
-        "lanche",
-        "lanche_4h",
-        "refeicao",
-        "sobremesa",
-        "total_refeicoes_pagamento",
-        "total_sobremesas_pagamento",
-    ]
+    assert isinstance(periodos_alimentacoes, dict)
+    assert "MANHA" in periodos_alimentacoes.keys()
+    assert periodos_alimentacoes["MANHA"] == lista_alimentacoes_manha
 
-    periodos_alimentacoes_tarde = _update_periodos_alimentacoes(
-        periodos_alimentacoes_manha,
+    periodos_alimentacoes = _update_periodos_alimentacoes(
+        periodos_alimentacoes,
         "Solicitações de Alimentação",
         lista_alimentacoes_solicitacao,
     )
-    assert isinstance(periodos_alimentacoes_tarde, dict)
-    assert "Solicitações de Alimentação" in periodos_alimentacoes_tarde.keys()
-    assert "MANHA" in periodos_alimentacoes_tarde.keys()
+    assert isinstance(periodos_alimentacoes, dict)
+    assert "Solicitações de Alimentação" in periodos_alimentacoes.keys()
+    assert (
+        periodos_alimentacoes["Solicitações de Alimentação"]
+        == lista_alimentacoes_solicitacao
+    )
+    assert "MANHA" in periodos_alimentacoes.keys()
 
 
 def test_get_categorias_dietas(mock_relatorio_consolidado_xlsx):
-    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all()
-    categoria_manha = _get_categorias_dietas(medicoes[0])
+    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all().order_by(
+        "periodo_escolar__nome"
+    )
+    medicao_manha = medicoes[0]
+    medicao_solicitacao = medicoes[1]
+
+    categoria_manha = _get_categorias_dietas(medicao_manha)
     assert isinstance(categoria_manha, list)
     assert len(categoria_manha) == 2
     assert categoria_manha == ["DIETA ESPECIAL - TIPO A", "DIETA ESPECIAL - TIPO B"]
 
-    categoria_tarde = _get_categorias_dietas(medicoes[1])
-    assert isinstance(categoria_tarde, list)
-    assert len(categoria_tarde) == 2
-    assert categoria_tarde == ["DIETA ESPECIAL - TIPO A", "DIETA ESPECIAL - TIPO B"]
+    categoria_solicitacao = _get_categorias_dietas(medicao_solicitacao)
+    assert isinstance(categoria_solicitacao, list)
+    assert len(categoria_solicitacao) == 0
 
 
 def test_get_lista_alimentacoes_dietas(mock_relatorio_consolidado_xlsx):
-    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all()
-    categoria_manha = _get_categorias_dietas(medicoes[0])
-    lista_dietas_manha = _get_lista_alimentacoes_dietas(medicoes[0], categoria_manha[0])
-    assert isinstance(lista_dietas_manha, list)
-    assert len(lista_dietas_manha) == 4
-    assert lista_dietas_manha == [
-        "lanche",
-        "lanche_emergencial",
-        "refeicao",
-        "sobremesa",
-    ]
+    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all().order_by(
+        "periodo_escolar__nome"
+    )
+    medicao_manha = medicoes[0]
+    dieta_a = "DIETA ESPECIAL - TIPO A"
+    dieta_b = "DIETA ESPECIAL - TIPO B"
 
-    categoria_tarde = _get_categorias_dietas(medicoes[1])
-    lista_dietas_tarde = _get_lista_alimentacoes_dietas(medicoes[0], categoria_tarde[1])
-    assert isinstance(lista_dietas_tarde, list)
-    assert len(lista_dietas_tarde) == 4
-    assert lista_dietas_tarde == [
-        "lanche",
-        "lanche_emergencial",
-        "refeicao",
-        "sobremesa",
-    ]
+    lista_dietas_a = _get_lista_alimentacoes_dietas(medicao_manha, dieta_a)
+    assert isinstance(lista_dietas_a, list)
+    assert len(lista_dietas_a) == 4
+    assert lista_dietas_a == ["lanche", "lanche_4h", "refeicao", "sobremesa"]
+
+    lista_dietas_b = _get_lista_alimentacoes_dietas(medicao_manha, dieta_b)
+    assert isinstance(lista_dietas_b, list)
+    assert len(lista_dietas_b) == 4
+    assert lista_dietas_b == ["lanche", "lanche_4h", "refeicao", "sobremesa"]
 
 
-def test_update_dietas_alimentacoes(mock_relatorio_consolidado_xlsx):
-    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all()
-    categoria_manha = _get_categorias_dietas(medicoes[0])
-    lista_dietas_manha = _get_lista_alimentacoes_dietas(medicoes[0], categoria_manha[0])
+def test_update_dietas_alimentacoes():
+    categoria_a = "DIETA ESPECIAL - TIPO A"
+    categoria_b = "DIETA ESPECIAL - TIPO B"
+    lista_alimentacoes = ["lanche", "lanche_4h", "refeicao", "sobremesa"]
+
     dietas_alimentacoes = _update_dietas_alimentacoes(
-        {}, categoria_manha[0], lista_dietas_manha
+        {}, categoria_a, lista_alimentacoes
     )
     assert isinstance(dietas_alimentacoes, dict)
-    assert categoria_manha[0] in dietas_alimentacoes.keys()
+    assert categoria_a in dietas_alimentacoes.keys()
+    assert dietas_alimentacoes[categoria_a] == lista_alimentacoes
 
-    categoria_tarde = _get_categorias_dietas(medicoes[1])
-    lista_dietas_tarde = _get_lista_alimentacoes_dietas(medicoes[0], categoria_tarde[1])
     dietas_alimentacoes = _update_dietas_alimentacoes(
-        dietas_alimentacoes, categoria_tarde[1], lista_dietas_tarde
+        dietas_alimentacoes, categoria_b, lista_alimentacoes
     )
     assert isinstance(dietas_alimentacoes, dict)
-    assert categoria_manha[0] in dietas_alimentacoes.keys()
+    assert categoria_b in dietas_alimentacoes.keys()
+    assert dietas_alimentacoes[categoria_b] == lista_alimentacoes
 
 
-def test_sort_and_merge(mock_relatorio_consolidado_xlsx):
-    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all()
-
-    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all()
-    periodo_manha = _get_nome_periodo(medicoes[0])
-    lista_alimentacoes_manha = _get_lista_alimentacoes(medicoes[0], periodo_manha)
-    periodos_alimentacoes_manha = _update_periodos_alimentacoes(
-        {}, periodo_manha, lista_alimentacoes_manha
-    )
-
-    categoria_manha = _get_categorias_dietas(medicoes[0])
-    lista_dietas_manha = _get_lista_alimentacoes_dietas(medicoes[0], categoria_manha[0])
-    dietas_alimentacoes = _update_dietas_alimentacoes(
-        {}, categoria_manha[0], lista_dietas_manha
-    )
-
-    dict_periodos_dietas = _sort_and_merge(
-        periodos_alimentacoes_manha, dietas_alimentacoes
-    )
+def test_sort_and_merge():
+    periodos_alimentacoes = {
+        "MANHA": [
+            "lanche",
+            "lanche_4h",
+            "refeicao",
+            "sobremesa",
+            "total_refeicoes_pagamento",
+            "total_sobremesas_pagamento",
+        ],
+        "Solicitações de Alimentação": ["kit_lanche", "lanche_emergencial"],
+    }
+    dietas_alimentacoes = {
+        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h", "refeicao", "sobremesa"],
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h", "refeicao", "sobremesa"],
+    }
+    dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
     assert isinstance(dict_periodos_dietas, dict)
 
     assert "DIETA ESPECIAL - TIPO A" in dict_periodos_dietas
     assert len(dict_periodos_dietas["DIETA ESPECIAL - TIPO A"]) == 4
     assert dict_periodos_dietas["DIETA ESPECIAL - TIPO A"] == [
         "lanche",
+        "lanche_4h",
         "refeicao",
         "sobremesa",
-        "lanche_emergencial",
+    ]
+
+    assert "DIETA ESPECIAL - TIPO B" in dict_periodos_dietas
+    assert len(dict_periodos_dietas["DIETA ESPECIAL - TIPO B"]) == 4
+    assert dict_periodos_dietas["DIETA ESPECIAL - TIPO B"] == [
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+        "sobremesa",
     ]
 
     assert "MANHA" in dict_periodos_dietas
     assert len(dict_periodos_dietas["MANHA"]) == 6
     assert dict_periodos_dietas["MANHA"] == [
         "lanche",
+        "lanche_4h",
         "refeicao",
         "total_refeicoes_pagamento",
         "sobremesa",
         "total_sobremesas_pagamento",
+    ]
+
+    assert "Solicitações de Alimentação" in dict_periodos_dietas
+    assert len(dict_periodos_dietas["Solicitações de Alimentação"]) == 2
+    assert dict_periodos_dietas["Solicitações de Alimentação"] == [
+        "kit_lanche",
         "lanche_emergencial",
     ]
 
 
-def test_generate_columns(mock_relatorio_consolidado_xlsx):
-    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all()
-    periodo_manha = _get_nome_periodo(medicoes[0])
-    lista_alimentacoes_manha = _get_lista_alimentacoes(medicoes[0], periodo_manha)
-    periodos_alimentacoes_manha = _update_periodos_alimentacoes(
-        {}, periodo_manha, lista_alimentacoes_manha
-    )
-
-    categoria_manha = _get_categorias_dietas(medicoes[0])
-    lista_dietas_manha = _get_lista_alimentacoes_dietas(medicoes[0], categoria_manha[0])
-    dietas_alimentacoes = _update_dietas_alimentacoes(
-        {}, categoria_manha[0], lista_dietas_manha
-    )
-
-    dict_periodos_dietas = _sort_and_merge(
-        periodos_alimentacoes_manha, dietas_alimentacoes
-    )
+def test_generate_columns():
+    dict_periodos_dietas = {
+        "Solicitações de Alimentação": ["kit_lanche", "lanche_emergencial"],
+        "MANHA": [
+            "lanche",
+            "lanche_4h",
+            "refeicao",
+            "total_refeicoes_pagamento",
+            "sobremesa",
+            "total_sobremesas_pagamento",
+        ],
+        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h", "refeicao", "sobremesa"],
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h", "refeicao", "sobremesa"],
+    }
     colunas = _generate_columns(dict_periodos_dietas)
     assert isinstance(colunas, list)
-    assert len(colunas) == 10
+    assert len(colunas) == 16
     assert sum(1 for tupla in colunas if tupla[0] == "MANHA") == 6
     assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A") == 4
+    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B") == 4
+    assert sum(1 for tupla in colunas if tupla[0] == "Solicitações de Alimentação") == 2
+
+    assert sum(1 for tupla in colunas if tupla[1] == "kit_lanche") == 1
+    assert sum(1 for tupla in colunas if tupla[1] == "lanche_emergencial") == 1
+    assert sum(1 for tupla in colunas if tupla[1] == "lanche") == 3
+    assert sum(1 for tupla in colunas if tupla[1] == "lanche_4h") == 3
+    assert sum(1 for tupla in colunas if tupla[1] == "refeicao") == 3
+    assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 3
+    assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 1
+    assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 1
 
 
 def test_get_solicitacoes_ordenadas(
     solicitacao_medicao_inicial_varios_valores_ceu_gestao,
     mock_relatorio_consolidado_xlsx,
 ):
-    ordenados = get_solicitacoes_ordenadas(
-        [
-            solicitacao_medicao_inicial_varios_valores_ceu_gestao,
-            mock_relatorio_consolidado_xlsx,
-        ]
-    )
+    tipos_de_unidade = ["EMEF"]
+    solicitacoes = [
+        solicitacao_medicao_inicial_varios_valores_ceu_gestao,
+        mock_relatorio_consolidado_xlsx,
+    ]
+    ordenados = get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade)
     assert isinstance(ordenados, list)
     assert ordenados[0].escola.nome == mock_relatorio_consolidado_xlsx.escola.nome
     assert (
@@ -650,68 +670,95 @@ def test_processa_periodo_campo(mock_relatorio_consolidado_xlsx):
         mock_relatorio_consolidado_xlsx.escola.codigo_eol,
         mock_relatorio_consolidado_xlsx.escola.nome,
     ]
+    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
+    dietas_especiais = CategoriaMedicao.objects.filter(
+        nome__icontains="DIETA ESPECIAL"
+    ).values_list("nome", flat=True)
+
     manha_refeicao = _processa_periodo_campo(
-        mock_relatorio_consolidado_xlsx, "MANHA", "refeicao", valores_iniciais
+        mock_relatorio_consolidado_xlsx,
+        "MANHA",
+        "refeicao",
+        valores_iniciais,
+        dietas_especiais,
+        periodos_escolares,
     )
     assert isinstance(manha_refeicao, list)
     assert len(manha_refeicao) == 4
-    assert manha_refeicao == ["EMEF", "123456", "EMEF TESTE", 150]
+    assert manha_refeicao == ["EMEF", "123456", "EMEF TESTE", 125.0]
 
-    tarde_sobremesa = _processa_periodo_campo(
+    solicitacao_kit_lanche = _processa_periodo_campo(
         mock_relatorio_consolidado_xlsx,
-        "TARDE",
-        "total_sobremesas_pagamento",
+        "Solicitações de Alimentação",
+        "kit_lanche",
         valores_iniciais,
+        dietas_especiais,
+        periodos_escolares,
     )
-    assert isinstance(tarde_sobremesa, list)
-    assert len(tarde_sobremesa) == 5
-    assert tarde_sobremesa == ["EMEF", "123456", "EMEF TESTE", 150, 0]
+    assert isinstance(solicitacao_kit_lanche, list)
+    assert len(solicitacao_kit_lanche) == 5
+    assert solicitacao_kit_lanche == ["EMEF", "123456", "EMEF TESTE", 125.0, 10]
 
-    integral_sobremesa = _processa_periodo_campo(
-        mock_relatorio_consolidado_xlsx, "INTEGRAL", "lanche", valores_iniciais
+    dieta_a_lanche = _processa_periodo_campo(
+        mock_relatorio_consolidado_xlsx,
+        "DIETA ESPECIAL - TIPO A",
+        "lanche_4h",
+        valores_iniciais,
+        dietas_especiais,
+        periodos_escolares,
     )
-    assert isinstance(integral_sobremesa, list)
-    assert len(integral_sobremesa) == 6
-    assert integral_sobremesa == ["EMEF", "123456", "EMEF TESTE", 150, 0, "-"]
+    assert isinstance(dieta_a_lanche, list)
+    assert len(dieta_a_lanche) == 6
+    assert dieta_a_lanche == ["EMEF", "123456", "EMEF TESTE", 125.0, 10.0, 125.0]
 
 
-def test_define_filtro():
-    manha = _define_filtro("MANHA")
+def test_define_filtro(mock_relatorio_consolidado_xlsx):
+    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
+    dietas_especiais = CategoriaMedicao.objects.filter(
+        nome__icontains="DIETA ESPECIAL"
+    ).values_list("nome", flat=True)
+
+    manha = _define_filtro("MANHA", dietas_especiais, periodos_escolares)
     assert isinstance(manha, dict)
     assert "grupo__nome" not in manha
     assert "periodo_escolar__nome" in manha
     assert manha["periodo_escolar__nome"] == "MANHA"
 
-    etec = _define_filtro("ETEC")
-    assert isinstance(etec, dict)
-    assert "periodo_escolar__nome" not in etec
-    assert "grupo__nome" in etec
-    assert etec["grupo__nome"] == "ETEC"
+    dieta_especial = _define_filtro(
+        "DIETA ESPECIAL - TIPO A", dietas_especiais, periodos_escolares
+    )
+    assert isinstance(dieta_especial, dict)
+    assert "grupo__nome" not in dieta_especial
+    assert "periodo_escolar__nome__in" in dieta_especial
+    assert dieta_especial["periodo_escolar__nome__in"] == periodos_escolares
+
+    solicitacao = _define_filtro(
+        "Solicitações de Alimentação", dietas_especiais, periodos_escolares
+    )
+    assert isinstance(solicitacao, dict)
+    assert "periodo_escolar__nome" not in solicitacao
+    assert "grupo__nome" in solicitacao
+    assert solicitacao["grupo__nome"] == "Solicitações de Alimentação"
 
 
 def test_get_total_pagamento(mock_relatorio_consolidado_xlsx):
-    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all()
-    total_lanche = _get_total_pagamento(medicoes[0], "lanche")
-    assert total_lanche == 50
-    total_refeicao = _get_total_pagamento(medicoes[0], "refeicao")
-    assert total_refeicao == 50
-    total_lanche_emergencial = _get_total_pagamento(medicoes[0], "lanche_emergencial")
-    assert total_lanche_emergencial == 50
-    total_sobremesa = _get_total_pagamento(medicoes[0], "sobremesa")
-    assert total_sobremesa == 50
+    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all().order_by(
+        "periodo_escolar__nome"
+    )
+    medicao_manha = medicoes[0]
+    tipos_unidades = "EMEF"
+    total_refeicao = _get_total_pagamento(
+        medicao_manha, "total_refeicoes_pagamento", tipos_unidades
+    )
+    assert total_refeicao == 125
+    total_sobremesa = _get_total_pagamento(
+        medicao_manha, "total_sobremesas_pagamento", tipos_unidades
+    )
+    assert total_sobremesa == 125
 
 
-def test_formata_filtros(mock_relatorio_consolidado_xlsx, grupo_escolar):
-    query_params = {
-        "dre": mock_relatorio_consolidado_xlsx.escola.diretoria_regional.uuid,
-        "status": "MEDICAO_APROVADA_PELA_CODAE",
-        "grupo_escolar": grupo_escolar,
-        "mes": mock_relatorio_consolidado_xlsx.mes,
-        "ano": mock_relatorio_consolidado_xlsx.ano,
-        "lotes[]": mock_relatorio_consolidado_xlsx.escola.lote.uuid,
-        "lotes": [mock_relatorio_consolidado_xlsx.escola.lote.uuid],
-    }
+def test_formata_filtros(mock_query_params_excel):
     tipos_unidades = ["EMEF"]
-    filtros = _formata_filtros(query_params, tipos_unidades)
+    filtros = _formata_filtros(mock_query_params_excel, tipos_unidades)
     assert isinstance(filtros, str)
     assert filtros == "Abril/2025 - DIRETORIA REGIONAL IPIRANGA - 1 - EMEF"
