@@ -8,6 +8,7 @@ from ...cardapio.models import (
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
+    SubstituicaoAlimentacaoNoPeriodoEscolar,
 )
 from ...escola.models import Escola, PeriodoEscolar
 from ..models import InversaoCardapio
@@ -126,5 +127,50 @@ def escola_nao_pode_cadastrar_dois_combos_iguais(
     if horario_alimento_por_escola_e_periodo:
         raise serializers.ValidationError(
             "Já existe um horário registrado para esse tipo de alimentacao neste período e escola"
+        )
+    return True
+
+def valida_duplicidade_solicitacoes_lanche_emergencial(attrs):
+    motivo = attrs["motivo"]
+    
+    if motivo.nome != "Lanche Emergencial":
+        return True
+
+    escola = attrs["escola"]
+    substituicoes = attrs["substituicoes"]
+    periodos_e_tipos = []
+    for sub in substituicoes:
+        elem = (sub["periodo_escolar"].uuid, [item.uuid for item in sub["tipos_alimentacao_de"]])
+        periodos_e_tipos.append(elem)
+
+    status_permitidos = [
+        "ESCOLA_CANCELOU",
+        "DRE_NAO_VALIDOU_PEDIDO_ESCOLA",
+        "CODAE_NEGOU_PEDIDO",
+        "RASCUNHO",
+    ]
+
+    datas_intervalo = attrs["datas_intervalo"]
+    datas = [item['data'] for item in datas_intervalo]
+
+    registros = []
+
+    for data in datas:
+        for periodo, tipos_de_alimentacao in periodos_e_tipos:
+            registros.extend(
+                SubstituicaoAlimentacaoNoPeriodoEscolar.objects.filter(
+                    alteracao_cardapio__escola__uuid=escola.uuid,
+                    alteracao_cardapio__motivo__nome=motivo.nome,
+                    alteracao_cardapio__datas_intervalo__data=data, 
+                    periodo_escolar__uuid=periodo,
+                    tipos_alimentacao_de__uuid__in=tipos_de_alimentacao
+                )
+            )
+        
+    registros = [r for r in registros if r.alteracao_cardapio.status not in status_permitidos]
+
+    if registros:
+        raise serializers.ValidationError(
+            "Já existe uma solicitação de Lanche Emergencial para a mesma data e período selecionado!"
         )
     return True
