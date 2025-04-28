@@ -987,17 +987,6 @@ def escola_cemei_1():
         uuid="1fc5fca2-2694-4781-be65-8331716c74a0",
         tipo_gestao__nome="TERC TOTAL"
     )
-
-@pytest.fixture
-def escola_cemei_2():
-    return mommy.make(
-        "Escola",
-        uuid="a7b9cf39-ab0a-4c6f-8e42-230243f9763f",
-    )
-
-# @pytest.fixture
-# def alteracao_cardapio_datas_intervalo():
-#     datas_intervalo = [{"data": "07/05/2025"}, {"data": "08/05/2025"}, {"data": "09/05/2025"}]
     
 @pytest.fixture
 def tipo_alimentacao_refeicao():
@@ -1048,35 +1037,6 @@ def alteracao_cemei(escola_cemei_1,
         periodo_escolar=periodo_manha,
     )
     subs1.tipos_alimentacao_de.set([tipo_alimentacao_refeicao])
-    subs1.tipos_alimentacao_para.set([tipo_alimentacao_lanche_emergencial])
-    subs1.save()
-    mommy.make(
-        "DataIntervaloAlteracaoCardapioCEMEI",
-        data="2025-04-28",
-        alteracao_cardapio_cemei=alteracao_cemei
-    )
-    return alteracao_cemei
-
-@pytest.fixture
-def alteracao_cemei_2(escola_cemei_1, 
-                    tipo_alimentacao_refeicao,
-                    tipo_alimentacao_lanche, 
-                    tipo_alimentacao_lanche_emergencial,
-                    motivo_alteracao_cardapio_lanche_emergencial,
-                    periodo_manha):
-    alteracao_cemei = mommy.make(
-        "AlteracaoCardapioCEMEI",
-        escola=escola_cemei_1,
-        alunos_cei_e_ou_emei="EMEI",
-        alterar_dia="2025-04-28",
-        motivo=motivo_alteracao_cardapio_lanche_emergencial
-    )
-    subs1 = mommy.make(
-        "SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI",
-        alteracao_cardapio=alteracao_cemei,
-        periodo_escolar=periodo_manha,
-    )
-    subs1.tipos_alimentacao_de.set([tipo_alimentacao_refeicao, tipo_alimentacao_lanche])
     subs1.tipos_alimentacao_para.set([tipo_alimentacao_lanche_emergencial])
     subs1.save()
     mommy.make(
