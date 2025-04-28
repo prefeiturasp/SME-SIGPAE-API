@@ -3,8 +3,11 @@ from datetime import timedelta
 from django.db.models import Q
 from django_filters import rest_framework as filters
 
-from ..models import Produto
-from ..utils import converte_para_datetime, cria_filtro_aditivos
+from sme_sigpae_api.produto.models import Produto
+from sme_sigpae_api.produto.utils.genericos import (
+    converte_para_datetime,
+    cria_filtro_aditivos,
+)
 
 
 class ProdutoFilter(filters.FilterSet):

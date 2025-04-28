@@ -1,5 +1,10 @@
 from rest_framework import serializers
 
+from sme_sigpae_api.produto.utils.genericos import (
+    changes_between,
+    mudancas_para_justificativa_html,
+)
+
 from ....dados_comuns.constants import DEZ_MB
 from ....dados_comuns.models import LogSolicitacoesUsuario
 from ....dados_comuns.utils import (
@@ -30,7 +35,6 @@ from ...models import (
     SolicitacaoCadastroProdutoDieta,
     UnidadeMedida,
 )
-from ...utils import changes_between, mudancas_para_justificativa_html
 
 
 class ImagemDoProdutoSerializerCreate(serializers.ModelSerializer):

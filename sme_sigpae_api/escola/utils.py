@@ -240,28 +240,30 @@ def processa_dias_letivos(lista_dias_letivos, escola):
             dia_calendario.save()
 
 
-def calendario_sgp():  # noqa C901
+def calendario_sgp(data_inicio=date.today()):
     import pandas as pd
 
     from sme_sigpae_api.escola.models import Escola
     from sme_sigpae_api.escola.services import NovoSGPServico
 
-    hoje = date.today()
     escolas = Escola.objects.all()
     total = len(escolas)
+    data_fim = None
+    data_inicio_formatada = data_inicio.strftime("%Y-%m-%d")
     for cont, escola in enumerate(escolas, 1):
         logger.debug(f"Processando {cont} de {total}")
         logger.debug(
             f"""Consultando dias letivos da escola com Nome: {escola.nome}
-        e código eol: {escola.codigo_eol}, data: {hoje.strftime('%Y-%m-%d')}"""
+        e código eol: {escola.codigo_eol}, data: {data_inicio_formatada}"""
         )
         try:
-            data_inicio = hoje.strftime("%Y-%m-%d")
-            data_final = (hoje + pd.DateOffset(months=3)).date()
+            data_final = (data_inicio + pd.DateOffset(months=3)).date()
             data_fim = data_final.strftime("%Y-%m-%d")
 
             resposta = NovoSGPServico.dias_letivos(
-                codigo_eol=escola.codigo_eol, data_inicio=data_inicio, data_fim=data_fim
+                codigo_eol=escola.codigo_eol,
+                data_inicio=data_inicio_formatada,
+                data_fim=data_fim,
             )
             logger.debug(resposta)
 
@@ -272,7 +274,7 @@ def calendario_sgp():  # noqa C901
             try:
                 resposta = NovoSGPServico.dias_letivos(
                     codigo_eol=escola.codigo_eol,
-                    data_inicio=data_inicio,
+                    data_inicio=data_inicio_formatada,
                     data_fim=data_fim,
                     tipo_turno=3,
                 )

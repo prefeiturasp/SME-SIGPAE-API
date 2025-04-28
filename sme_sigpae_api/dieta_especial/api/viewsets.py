@@ -138,7 +138,7 @@ class SolicitacaoDietaEspecialViewSet(
             return self.queryset.select_related(
                 "rastro_escola__diretoria_regional"
             ).order_by("criado_em")
-        if self.action in ["relatorio_dieta_especial_terceirizada"]:  # noqa
+        if self.action in ["relatorio_dieta_especial_terceirizada"]:
             return self.queryset.select_related("rastro_terceirizada").order_by(
                 "-criado_em"
             )
@@ -400,7 +400,7 @@ class SolicitacaoDietaEspecialViewSet(
             return Response(
                 dict(detail=f"Erro de transição de estado: {e}"),
                 status=HTTP_400_BAD_REQUEST,
-            )  # noqa
+            )
 
     @action(
         detail=True,
@@ -1744,7 +1744,9 @@ class LogQuantidadeDietasAutorizadasViewSet(mixins.ListModelMixin, GenericViewSe
 
 class LogQuantidadeDietasAutorizadasCEIViewSet(mixins.ListModelMixin, GenericViewSet):
     serializer_class = LogQuantidadeDietasAutorizadasCEISerializer
-    queryset = LogQuantidadeDietasAutorizadasCEI.objects.all()
+    queryset = LogQuantidadeDietasAutorizadasCEI.objects.filter(
+        faixa_etaria__isnull=False
+    )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = LogQuantidadeDietasEspeciaisFilter
     pagination_class = None

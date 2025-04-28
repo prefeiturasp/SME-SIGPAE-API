@@ -19,6 +19,16 @@ from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_406_NOT_ACCEPTABLE
 from xworkflows import InvalidTransitionError
 
+from sme_sigpae_api.produto.utils.genericos import (
+    CadastroProdutosEditalPagination,
+    ItemCadastroPagination,
+    StandardResultsSetPagination,
+    converte_para_datetime,
+    cria_filtro_aditivos,
+    cria_filtro_homologacao_produto_por_parametros,
+    get_filtros_data,
+)
+
 from ...dados_comuns import constants
 from ...dados_comuns.constants import (
     TIPO_USUARIO_CODAE_GABINETE,
@@ -48,7 +58,6 @@ from ...dados_comuns.permissions import (
 from ...dados_comuns.utils import url_configs
 from ...dieta_especial.models import Alimento
 from ...escola.models import DiretoriaRegional, Escola, Lote
-from ...paineis_consolidados.api.viewsets import SolicitacoesViewSet
 from ...relatorios.relatorios import (
     relatorio_produto_analise_sensorial,
     relatorio_produto_analise_sensorial_recebimento,
@@ -91,14 +100,16 @@ from ..tasks import (
     gera_xls_relatorio_produtos_homologados_async,
     gera_xls_relatorio_produtos_suspensos_async,
 )
-from ..utils import (
-    CadastroProdutosEditalPagination,
-    ItemCadastroPagination,
-    StandardResultsSetPagination,
-    converte_para_datetime,
-    cria_filtro_aditivos,
-    cria_filtro_homologacao_produto_por_parametros,
-    get_filtros_data,
+from ..utils.query_produtos_por_status import (
+    produtos_aguardando_amostra_analise_sensorial,
+    produtos_aguardando_analise_reclamacao,
+    produtos_correcao_de_produto,
+    produtos_homologados,
+    produtos_nao_homologados,
+    produtos_pendente_homologacao,
+    produtos_por_status,
+    produtos_questionamento_da_codae,
+    produtos_suspensos,
 )
 from .filters import (
     CadastroProdutosEditalFilter,
@@ -693,7 +704,6 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
         )
         self.checa_se_remove_eh_copia_queryset(filtro_aplicado, query_set)
         query_set = query_set.filter(**filtros).filter(**filtros_params).distinct()
-
         if request_data.get("data_homologacao"):
             data_homologacao = datetime.strptime(
                 request_data.get("data_homologacao"), "%d/%m/%Y"
@@ -762,7 +772,6 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
             or request_data.get("tipo")
         )
         titulo = request_data.get("titulo_produto", None)
-
         raw_sql, data = self.build_raw_sql_produtos_por_status(
             filtro_aplicado,
             edital,
@@ -794,43 +803,32 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
     )
     def solicitacoes_homologacao_por_status(
         self, request, filtro_aplicado=constants.RASCUNHO
-    ):  # noqa C901
-        page = request.query_params.get("page", None)
-        user = self.request.user
-        query_set = self.get_queryset_solicitacoes_homologacao_por_status(
-            request.query_params,
-            user.vinculo_atual.perfil.nome,
-            user.tipo_usuario,
-            user.vinculo_atual.object_id,
-            filtro_aplicado,
-            instituicao=user.vinculo_atual.instituicao,
+    ):
+        filtros_funcao = {
+            constants.CODAE_HOMOLOGADO: produtos_homologados,
+            constants.CODAE_NAO_HOMOLOGADO: produtos_nao_homologados,
+            constants.CODAE_SUSPENDEU: produtos_suspensos,
+            constants.ESCOLA_OU_NUTRICIONISTA_RECLAMOU: produtos_aguardando_analise_reclamacao,
+            constants.CODAE_PENDENTE_HOMOLOGACAO: produtos_pendente_homologacao,
+            constants.CODAE_QUESTIONADO: produtos_correcao_de_produto,
+            constants.CODAE_PEDIU_ANALISE_SENSORIAL: produtos_aguardando_amostra_analise_sensorial,
+            constants.CODAE_PEDIU_ANALISE_RECLAMACAO: produtos_questionamento_da_codae,
+        }
+
+        funcao = filtros_funcao.get(filtro_aplicado)
+        lista_produtos = (
+            funcao(request) if funcao else produtos_por_status(filtro_aplicado)
         )
-
-        solicitacoes_viewset = SolicitacoesViewSet()
-        query_set = solicitacoes_viewset.remove_duplicados_do_query_set(query_set)
-
-        if page:
-            page = self.paginate_queryset(query_set)
-            serializer = HomologacaoProdutoPainelGerencialSerializer(
-                page,
-                context={"request": request, "workflow": filtro_aplicado.upper()},
-                many=True,
-            )
-            return self.get_paginated_response(serializer.data)
-        else:
-            serializer = (
-                HomologacaoProdutoPainelGerencialSerializer
-                if filtro_aplicado != constants.RASCUNHO
-                else HomologacaoProdutoSerializer
-            )
-            response = {
-                "results": serializer(
-                    query_set,
-                    context={"request": request, "workflow": filtro_aplicado.upper()},
-                    many=True,
-                ).data
-            }
-            return Response(response)
+        page = self.paginate_queryset(lista_produtos)
+        serializer_class = (
+            HomologacaoProdutoPainelGerencialSerializer
+            if filtro_aplicado != constants.RASCUNHO
+            else HomologacaoProdutoSerializer
+        )
+        serializer = serializer_class(
+            page, context={"workflow": filtro_aplicado}, many=True
+        )
+        return self.get_paginated_response(serializer.data)
 
 
 class HomologacaoProdutoViewSet(viewsets.ModelViewSet):
