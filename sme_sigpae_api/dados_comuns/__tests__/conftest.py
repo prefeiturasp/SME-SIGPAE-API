@@ -972,6 +972,142 @@ def solicitacao_substituicao_cardapio_cei(escola):
         ],
     }
 
+@pytest.fixture
+def motivo_alteracao_cardapio_lanche_emergencial():
+    return mommy.make(
+        "MotivoAlteracaoCardapio",
+        nome="Lanche Emergencial",
+        uuid="1ddec320-cd24-4cf4-9666-3e7b3a2b903c",
+    )
+
+@pytest.fixture
+def escola_cemei_1():
+    return mommy.make(
+        "Escola",
+        uuid="1fc5fca2-2694-4781-be65-8331716c74a0",
+        tipo_gestao__nome="TERC TOTAL"
+    )
+
+@pytest.fixture
+def escola_cemei_2():
+    return mommy.make(
+        "Escola",
+        uuid="a7b9cf39-ab0a-4c6f-8e42-230243f9763f",
+    )
+
+# @pytest.fixture
+# def alteracao_cardapio_datas_intervalo():
+#     datas_intervalo = [{"data": "07/05/2025"}, {"data": "08/05/2025"}, {"data": "09/05/2025"}]
+    
+@pytest.fixture
+def tipo_alimentacao_refeicao():
+    return mommy.make("cardapio.TipoAlimentacao", nome="Refeição")
+
+@pytest.fixture
+def tipo_alimentacao_lanche():
+    return mommy.make("cardapio.TipoAlimentacao", nome="Lanche")
+
+@pytest.fixture
+def tipo_alimentacao_lanche_emergencial():
+    return mommy.make("cardapio.TipoAlimentacao", nome="Lanche Emergencial")
+
+@pytest.fixture
+def periodo_manha():
+    return mommy.make(
+        "escola.PeriodoEscolar",
+        nome="MANHA",
+        uuid="42325516-aebd-4a3d-97c0-2a77c317c6be",
+    )
+
+
+@pytest.fixture
+def periodo_tarde():
+    return mommy.make(
+        "escola.PeriodoEscolar",
+        nome="TARDE",
+        uuid="88966d6a-f9d5-4986-9ffb-25b6f41b0795",
+    )
+
+@pytest.fixture
+def alteracao_cemei(escola_cemei_1,
+                    motivo_alteracao_cardapio_lanche_emergencial,
+                    tipo_alimentacao_refeicao,
+                    tipo_alimentacao_lanche_emergencial, 
+                    periodo_manha):
+    alteracao_cemei = mommy.make(
+        "AlteracaoCardapioCEMEI",
+        escola=escola_cemei_1,
+        alunos_cei_e_ou_emei="EMEI",
+        alterar_dia="2025-04-28",
+        motivo=motivo_alteracao_cardapio_lanche_emergencial,
+        status="CODAE_AUTORIZADO"
+    )
+    subs1 = mommy.make(
+        "SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI",
+        alteracao_cardapio=alteracao_cemei,
+        periodo_escolar=periodo_manha,
+    )
+    subs1.tipos_alimentacao_de.set([tipo_alimentacao_refeicao])
+    subs1.tipos_alimentacao_para.set([tipo_alimentacao_lanche_emergencial])
+    subs1.save()
+    mommy.make(
+        "DataIntervaloAlteracaoCardapioCEMEI",
+        data="2025-04-28",
+        alteracao_cardapio_cemei=alteracao_cemei
+    )
+    return alteracao_cemei
+
+@pytest.fixture
+def alteracao_cemei_2(escola_cemei_1, 
+                    tipo_alimentacao_refeicao,
+                    tipo_alimentacao_lanche, 
+                    tipo_alimentacao_lanche_emergencial,
+                    motivo_alteracao_cardapio_lanche_emergencial,
+                    periodo_manha):
+    alteracao_cemei = mommy.make(
+        "AlteracaoCardapioCEMEI",
+        escola=escola_cemei_1,
+        alunos_cei_e_ou_emei="EMEI",
+        alterar_dia="2025-04-28",
+        motivo=motivo_alteracao_cardapio_lanche_emergencial
+    )
+    subs1 = mommy.make(
+        "SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI",
+        alteracao_cardapio=alteracao_cemei,
+        periodo_escolar=periodo_manha,
+    )
+    subs1.tipos_alimentacao_de.set([tipo_alimentacao_refeicao, tipo_alimentacao_lanche])
+    subs1.tipos_alimentacao_para.set([tipo_alimentacao_lanche_emergencial])
+    subs1.save()
+    mommy.make(
+        "DataIntervaloAlteracaoCardapioCEMEI",
+        data="2025-04-28",
+        alteracao_cardapio_cemei=alteracao_cemei
+    )
+    return alteracao_cemei
+
+@pytest.fixture
+def client_autenticado_vinculo_escola_cemei(
+    client, django_user_model, escola_cemei_1
+):
+    email = "test@test1.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888889"
+    )
+    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=escola_cemei_1,
+        perfil=perfil_diretor,
+        data_inicial=hoje,
+        ativo=True,
+    )
+
+    client.login(username=email, password=password)
+    return client, user
 
 @pytest.fixture
 def lotes():
