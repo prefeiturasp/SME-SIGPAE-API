@@ -16,6 +16,7 @@ from ....dados_comuns.validators import (
     valida_duplicidade_solicitacoes,
     valida_duplicidade_solicitacoes_cei,
     valida_duplicidade_solicitacoes_cemei,
+    valida_duplicidade_solicitacoes_lanche_emergencial_cemei
 )
 from ....escola.models import (
     DiaCalendario,
@@ -32,6 +33,7 @@ from ...api.validators import (
     nao_pode_existir_solicitacao_igual_para_mesma_escola,
     nao_pode_ter_mais_que_60_dias_diferenca,
     precisa_pertencer_a_um_tipo_de_alimentacao,
+    valida_duplicidade_solicitacoes_lanche_emergencial,
 )
 from ...models import (
     AlteracaoCardapio,
@@ -568,6 +570,7 @@ class AlteracaoCardapioSerializerCreate(AlteracaoCardapioSerializerCreateBase):
             substituicao_alimentacao.tipos_alimentacao_para.set(tipos_alimentacao_para)
 
     def create(self, validated_data):
+        valida_duplicidade_solicitacoes_lanche_emergencial(validated_data)
         validated_data["criado_por"] = self.context["request"].user
         substituicoes = validated_data.pop("substituicoes")
         datas_intervalo = validated_data.pop("datas_intervalo", [])
@@ -801,6 +804,7 @@ class AlteracaoCardapioCEMEISerializerCreate(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
+        valida_duplicidade_solicitacoes_lanche_emergencial_cemei(validated_data)
         motivo = validated_data.get("motivo", None)
         if motivo and motivo.nome == "RPL - Refeição por Lanche":
             valida_duplicidade_solicitacoes_cemei(validated_data)
