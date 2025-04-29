@@ -11,7 +11,6 @@ from ..cardapio.models import (
     AlteracaoCardapioCEI,
     AlteracaoCardapioCEMEI,
     DataIntervaloAlteracaoCardapio,
-    MotivoAlteracaoCardapio,
     SubstituicaoAlimentacaoNoPeriodoEscolar,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEI,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
@@ -81,9 +80,10 @@ def valida_duplicidade_solicitacoes(attrs):
         )
     return True
 
+
 def valida_duplicidade_solicitacoes_lanche_emergencial_cemei(attrs):
     motivo = attrs["motivo"]
-    
+
     if motivo.nome != "Lanche Emergencial":
         return True
 
@@ -112,12 +112,12 @@ def valida_duplicidade_solicitacoes_lanche_emergencial_cemei(attrs):
                 SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI.objects.filter(
                     alteracao_cardapio__escola__uuid=escola.uuid,
                     alteracao_cardapio__motivo__nome=motivo.nome,
-                    alteracao_cardapio__datas_intervalo__data=data, 
+                    alteracao_cardapio__datas_intervalo__data=data,
                     periodo_escolar__uuid=periodo,
                     tipos_alimentacao_de__uuid__in=tipos_de_alimentacao
                 )
             )
-        
+
     registros = [r for r in registros if r.alteracao_cardapio.status not in status_permitidos]
 
     if registros:
@@ -125,6 +125,7 @@ def valida_duplicidade_solicitacoes_lanche_emergencial_cemei(attrs):
             "Já existe uma solicitação de Lanche Emergencial para a mesma data e período selecionado!"
         )
     return True
+
 
 def valida_duplicidade_solicitacoes_cei(attrs, data):
     status_permitidos = [

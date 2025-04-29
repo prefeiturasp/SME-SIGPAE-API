@@ -130,9 +130,10 @@ def escola_nao_pode_cadastrar_dois_combos_iguais(
         )
     return True
 
+
 def valida_duplicidade_solicitacoes_lanche_emergencial(attrs):
     motivo = attrs["motivo"]
-    
+
     if motivo.nome != "Lanche Emergencial":
         return True
 
@@ -161,12 +162,12 @@ def valida_duplicidade_solicitacoes_lanche_emergencial(attrs):
                 SubstituicaoAlimentacaoNoPeriodoEscolar.objects.filter(
                     alteracao_cardapio__escola__uuid=escola.uuid,
                     alteracao_cardapio__motivo__nome=motivo.nome,
-                    alteracao_cardapio__datas_intervalo__data=data, 
+                    alteracao_cardapio__datas_intervalo__data=data,
                     periodo_escolar__uuid=periodo,
                     tipos_alimentacao_de__uuid__in=tipos_de_alimentacao
                 )
             )
-        
+
     registros = [r for r in registros if r.alteracao_cardapio.status not in status_permitidos]
 
     if registros:
