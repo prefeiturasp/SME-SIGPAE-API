@@ -6,9 +6,10 @@ from rest_framework import serializers
 from ...cardapio.models import (
     Cardapio,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
+    SubstituicaoAlimentacaoNoPeriodoEscolar,
+    SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
-    SubstituicaoAlimentacaoNoPeriodoEscolar,
 )
 from ...escola.models import Escola, PeriodoEscolar
 from ..models import InversaoCardapio
@@ -131,18 +132,50 @@ def escola_nao_pode_cadastrar_dois_combos_iguais(
     return True
 
 
-def valida_duplicidade_solicitacoes_lanche_emergencial(attrs):
+def get_parametros_queryset(attrs, eh_cemei):
+    escola = attrs["escola"]
+    substituicoes = attrs.get("substituicoes")
+    if eh_cemei:
+        substituicoes = attrs["substituicoes_cemei_emei_periodo_escolar"]
+    periodos_e_tipos = []
+    for sub in substituicoes:
+        elem = (
+            sub["periodo_escolar"].uuid,
+            [item.uuid for item in sub["tipos_alimentacao_de"]],
+        )
+        periodos_e_tipos.append(elem)
+
+    datas_intervalo = attrs["datas_intervalo"]
+    datas = [item["data"] for item in datas_intervalo]
+
+    modelo = SubstituicaoAlimentacaoNoPeriodoEscolar
+    if eh_cemei:
+        modelo = SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI
+
+    return escola, periodos_e_tipos, datas, modelo
+
+
+def valida_duplicidade_solicitacoes_lanche_emergencial(attrs, eh_cemei=False):
     motivo = attrs["motivo"]
 
     if motivo.nome != "Lanche Emergencial":
         return True
 
-    escola = attrs["escola"]
-    substituicoes = attrs["substituicoes"]
-    periodos_e_tipos = []
-    for sub in substituicoes:
-        elem = (sub["periodo_escolar"].uuid, [item.uuid for item in sub["tipos_alimentacao_de"]])
-        periodos_e_tipos.append(elem)
+    escola, periodos_e_tipos, datas, modelo = get_parametros_queryset(attrs, eh_cemei)
+
+    registros = []
+
+    for data in datas:
+        for periodo, tipos_de_alimentacao in periodos_e_tipos:
+            registros.extend(
+                modelo.objects.filter(
+                    alteracao_cardapio__escola__uuid=escola.uuid,
+                    alteracao_cardapio__motivo__nome=motivo.nome,
+                    alteracao_cardapio__datas_intervalo__data=data,
+                    periodo_escolar__uuid=periodo,
+                    tipos_alimentacao_de__uuid__in=tipos_de_alimentacao,
+                )
+            )
 
     status_permitidos = [
         "ESCOLA_CANCELOU",
@@ -151,24 +184,9 @@ def valida_duplicidade_solicitacoes_lanche_emergencial(attrs):
         "RASCUNHO",
     ]
 
-    datas_intervalo = attrs["datas_intervalo"]
-    datas = [item['data'] for item in datas_intervalo]
-
-    registros = []
-
-    for data in datas:
-        for periodo, tipos_de_alimentacao in periodos_e_tipos:
-            registros.extend(
-                SubstituicaoAlimentacaoNoPeriodoEscolar.objects.filter(
-                    alteracao_cardapio__escola__uuid=escola.uuid,
-                    alteracao_cardapio__motivo__nome=motivo.nome,
-                    alteracao_cardapio__datas_intervalo__data=data,
-                    periodo_escolar__uuid=periodo,
-                    tipos_alimentacao_de__uuid__in=tipos_de_alimentacao
-                )
-            )
-
-    registros = [r for r in registros if r.alteracao_cardapio.status not in status_permitidos]
+    registros = [
+        r for r in registros if r.alteracao_cardapio.status not in status_permitidos
+    ]
 
     # Caso ainda haja algum registro que esteja dando match com a solicitação
     if registros:
