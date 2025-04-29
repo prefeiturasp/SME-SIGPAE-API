@@ -3123,3 +3123,24 @@ def informacoes_excel_writer_emei(
     finally:
         workbook.close()
         writer.close()
+
+
+@pytest.fixture
+def clausula_desconto(edital):
+    return mommy.make(
+        "ClausulaDeDesconto",
+        numero_clausula="N485959",
+        porcentagem_desconto=0.12,
+        edital=edital,
+    )
+
+
+@pytest.fixture
+def relatorio_financeiro():
+    return mommy.make(
+        "RelatorioFinanceiro",
+        grupo_unidade_escolar=mommy.make("GrupoUnidadeEscolar"),
+        lote=mommy.make("escola.Lote"),
+        mes="10",
+        ano="2025",
+    )

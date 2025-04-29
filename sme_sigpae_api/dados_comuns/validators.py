@@ -91,7 +91,10 @@ def valida_duplicidade_solicitacoes_lanche_emergencial_cemei(attrs):
     substituicoes = attrs["substituicoes_cemei_emei_periodo_escolar"]
     periodos_e_tipos = []
     for sub in substituicoes:
-        elem = (sub["periodo_escolar"].uuid, [item.uuid for item in sub["tipos_alimentacao_de"]])
+        elem = (
+            sub["periodo_escolar"].uuid,
+            [item.uuid for item in sub["tipos_alimentacao_de"]],
+        )
         periodos_e_tipos.append(elem)
 
     status_permitidos = [
@@ -102,7 +105,7 @@ def valida_duplicidade_solicitacoes_lanche_emergencial_cemei(attrs):
     ]
 
     datas_intervalo = attrs["datas_intervalo"]
-    datas = [item['data'] for item in datas_intervalo]
+    datas = [item["data"] for item in datas_intervalo]
 
     registros = []
 
@@ -114,11 +117,13 @@ def valida_duplicidade_solicitacoes_lanche_emergencial_cemei(attrs):
                     alteracao_cardapio__motivo__nome=motivo.nome,
                     alteracao_cardapio__datas_intervalo__data=data,
                     periodo_escolar__uuid=periodo,
-                    tipos_alimentacao_de__uuid__in=tipos_de_alimentacao
+                    tipos_alimentacao_de__uuid__in=tipos_de_alimentacao,
                 )
             )
 
-    registros = [r for r in registros if r.alteracao_cardapio.status not in status_permitidos]
+    registros = [
+        r for r in registros if r.alteracao_cardapio.status not in status_permitidos
+    ]
 
     if registros:
         raise serializers.ValidationError(

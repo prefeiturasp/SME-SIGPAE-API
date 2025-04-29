@@ -16,7 +16,7 @@ from ....dados_comuns.validators import (
     valida_duplicidade_solicitacoes,
     valida_duplicidade_solicitacoes_cei,
     valida_duplicidade_solicitacoes_cemei,
-    valida_duplicidade_solicitacoes_lanche_emergencial_cemei
+    valida_duplicidade_solicitacoes_lanche_emergencial_cemei,
 )
 from ....escola.models import (
     DiaCalendario,
