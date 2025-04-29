@@ -9,6 +9,7 @@ from ...cardapio.models import (
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
     SubstituicaoAlimentacaoNoPeriodoEscolar,
+    SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
 )
 from ...escola.models import Escola, PeriodoEscolar
 from ..models import InversaoCardapio
@@ -131,20 +132,22 @@ def escola_nao_pode_cadastrar_dois_combos_iguais(
     return True
 
 
-def valida_duplicidade_solicitacoes_lanche_emergencial(attrs):
+def valida_duplicidade_solicitacoes_lanche_emergencial(attrs, eh_cemei=False):
     motivo = attrs["motivo"]
 
     if motivo.nome != "Lanche Emergencial":
         return True
 
     escola = attrs["escola"]
-    substituicoes = attrs["substituicoes"]
+    substituicoes = attrs.get("substituicoes")
+    if eh_cemei:
+        substituicoes = attrs["substituicoes_cemei_emei_periodo_escolar"]
     periodos_e_tipos = []
     for sub in substituicoes:
         elem = (sub["periodo_escolar"].uuid, [item.uuid for item in sub["tipos_alimentacao_de"]])
         periodos_e_tipos.append(elem)
 
-    status_permitidos = [
+    status_permitidos = [ 
         "ESCOLA_CANCELOU",
         "DRE_NAO_VALIDOU_PEDIDO_ESCOLA",
         "CODAE_NEGOU_PEDIDO",
@@ -154,12 +157,16 @@ def valida_duplicidade_solicitacoes_lanche_emergencial(attrs):
     datas_intervalo = attrs["datas_intervalo"]
     datas = [item['data'] for item in datas_intervalo]
 
-    registros = []
+    modelo = SubstituicaoAlimentacaoNoPeriodoEscolar
+    if eh_cemei:
+        modelo = SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI
 
+    registros = []
+    
     for data in datas:
         for periodo, tipos_de_alimentacao in periodos_e_tipos:
             registros.extend(
-                SubstituicaoAlimentacaoNoPeriodoEscolar.objects.filter(
+                modelo.objects.filter(
                     alteracao_cardapio__escola__uuid=escola.uuid,
                     alteracao_cardapio__motivo__nome=motivo.nome,
                     alteracao_cardapio__datas_intervalo__data=data,
