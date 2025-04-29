@@ -39,10 +39,10 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_excel import 
 pytestmark = pytest.mark.django_db
 
 
-def test_gera_relatorio_consolidado_xlsx(
-    mock_relatorio_consolidado_xlsx, mock_query_params_excel
+def test_gera_relatorio_consolidado_xlsx_emef(
+    relatorio_consolidado_xlsx_emef, mock_query_params_excel
 ):
-    solicitacoes = [mock_relatorio_consolidado_xlsx.uuid]
+    solicitacoes = [relatorio_consolidado_xlsx_emef.uuid]
     tipos_unidade = ["EMEF"]
     arquivo = gera_relatorio_consolidado_xlsx(
         solicitacoes, tipos_unidade, mock_query_params_excel
@@ -51,7 +51,7 @@ def test_gera_relatorio_consolidado_xlsx(
     excel_buffer = BytesIO(arquivo)
 
     workbook = load_workbook(filename=excel_buffer)
-    nome_aba = f"Relatório Consolidado { mock_relatorio_consolidado_xlsx.mes}-{ mock_relatorio_consolidado_xlsx.ano}"
+    nome_aba = f"Relatório Consolidado { relatorio_consolidado_xlsx_emef.mes}-{ relatorio_consolidado_xlsx_emef.ano}"
     assert nome_aba in workbook.sheetnames
     sheet = workbook[nome_aba]
     rows = list(sheet.iter_rows(values_only=True))
@@ -204,8 +204,12 @@ def test_gera_relatorio_consolidado_xlsx(
     )
 
 
-def test_get_alimentacoes_por_periodo(mock_relatorio_consolidado_xlsx):
-    colunas = _get_alimentacoes_por_periodo([mock_relatorio_consolidado_xlsx])
+def test_gera_relatorio_consolidado_xlsx_emei():
+    pass
+
+
+def test_get_alimentacoes_por_periodo(relatorio_consolidado_xlsx_emef):
+    colunas = _get_alimentacoes_por_periodo([relatorio_consolidado_xlsx_emef])
     assert isinstance(colunas, list)
     assert len(colunas) == 16
     assert sum(1 for tupla in colunas if tupla[0] == "MANHA") == 6
@@ -223,10 +227,10 @@ def test_get_alimentacoes_por_periodo(mock_relatorio_consolidado_xlsx):
     assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 1
 
 
-def test_get_valores_tabela(mock_relatorio_consolidado_xlsx, mock_colunas):
+def test_get_valores_tabela_unidade_emef(relatorio_consolidado_xlsx_emef, mock_colunas):
     tipos_unidade = ["EMEF"]
     linhas = _get_valores_tabela(
-        [mock_relatorio_consolidado_xlsx], mock_colunas, tipos_unidade
+        [relatorio_consolidado_xlsx_emef], mock_colunas, tipos_unidade
     )
     assert isinstance(linhas, list)
     assert len(linhas) == 1
@@ -255,7 +259,11 @@ def test_get_valores_tabela(mock_relatorio_consolidado_xlsx, mock_colunas):
     ]
 
 
-def test_insere_tabela_periodos_na_planilha(
+def test_get_valores_tabela_unidade_emei():
+    pass
+
+
+def test_insere_tabela_periodos_na_planilha_unidade_emef(
     informacoes_excel_writer, mock_colunas, mock_linhas
 ):
     aba, writer, _, _, _, _ = informacoes_excel_writer
@@ -323,6 +331,10 @@ def test_insere_tabela_periodos_na_planilha(
     ]
 
 
+def test_insere_tabela_periodos_na_planilha_unidade_emei():
+    pass
+
+
 def test_preenche_titulo(informacoes_excel_writer):
     aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer
     _preenche_titulo(workbook, worksheet, df.columns)
@@ -350,7 +362,7 @@ def test_preenche_titulo(informacoes_excel_writer):
     workbook_openpyxl.close()
 
 
-def test_preenche_linha_dos_filtros_selecionados(
+def test_preenche_linha_dos_filtros_selecionados_unidade_emef(
     mock_query_params_excel, informacoes_excel_writer
 ):
     tipos_unidades = ["EMEF"]
@@ -380,6 +392,10 @@ def test_preenche_linha_dos_filtros_selecionados(
     rows = list(sheet.iter_rows(values_only=True))
     assert tipos_unidades[0] in rows[1][0]
     workbook_openpyxl.close()
+
+
+def test_preenche_linha_dos_filtros_selecionados_unidade_emei():
+    pass
 
 
 def test_ajusta_layout_tabela(informacoes_excel_writer):
@@ -429,17 +445,17 @@ def test_formata_total_geral(informacoes_excel_writer):
 def test_get_nome_periodo(
     medicao_grupo_solicitacao_alimentacao, medicao_grupo_alimentacao
 ):
-    periodo = _get_nome_periodo(medicao_grupo_solicitacao_alimentacao)
+    periodo = _get_nome_periodo(medicao_grupo_solicitacao_alimentacao[0])
     assert isinstance(periodo, str)
     assert periodo == "Solicitações de Alimentação"
 
-    periodo_manha = _get_nome_periodo(medicao_grupo_alimentacao)
+    periodo_manha = _get_nome_periodo(medicao_grupo_alimentacao[0])
     assert isinstance(periodo_manha, str)
     assert periodo_manha == "MANHA"
 
 
-def test_get_lista_alimentacoes(mock_relatorio_consolidado_xlsx):
-    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all().order_by(
+def test_get_lista_alimentacoes(relatorio_consolidado_xlsx_emef):
+    medicoes = relatorio_consolidado_xlsx_emef.medicoes.all().order_by(
         "periodo_escolar__nome"
     )
     medicao_manha = medicoes[0]
@@ -495,8 +511,8 @@ def test_update_periodos_alimentacoes():
     assert "MANHA" in periodos_alimentacoes.keys()
 
 
-def test_get_categorias_dietas(mock_relatorio_consolidado_xlsx):
-    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all().order_by(
+def test_get_categorias_dietas(relatorio_consolidado_xlsx_emef):
+    medicoes = relatorio_consolidado_xlsx_emef.medicoes.all().order_by(
         "periodo_escolar__nome"
     )
     medicao_manha = medicoes[0]
@@ -512,8 +528,8 @@ def test_get_categorias_dietas(mock_relatorio_consolidado_xlsx):
     assert len(categoria_solicitacao) == 0
 
 
-def test_get_lista_alimentacoes_dietas(mock_relatorio_consolidado_xlsx):
-    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all().order_by(
+def test_get_lista_alimentacoes_dietas(relatorio_consolidado_xlsx_emef):
+    medicoes = relatorio_consolidado_xlsx_emef.medicoes.all().order_by(
         "periodo_escolar__nome"
     )
     medicao_manha = medicoes[0]
@@ -639,40 +655,44 @@ def test_generate_columns():
     assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 1
 
 
-def test_get_solicitacoes_ordenadas(
+def test_get_solicitacoes_ordenadas_unidade_emef(
     solicitacao_medicao_inicial_varios_valores_ceu_gestao,
-    mock_relatorio_consolidado_xlsx,
+    relatorio_consolidado_xlsx_emef,
 ):
     tipos_de_unidade = ["EMEF"]
     solicitacoes = [
         solicitacao_medicao_inicial_varios_valores_ceu_gestao,
-        mock_relatorio_consolidado_xlsx,
+        relatorio_consolidado_xlsx_emef,
     ]
     ordenados = get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade)
     assert isinstance(ordenados, list)
-    assert ordenados[0].escola.nome == mock_relatorio_consolidado_xlsx.escola.nome
+    assert ordenados[0].escola.nome == relatorio_consolidado_xlsx_emef.escola.nome
     assert (
         ordenados[1].escola.nome
         == solicitacao_medicao_inicial_varios_valores_ceu_gestao.escola.nome
     )
 
 
-def test_get_valores_iniciais(mock_relatorio_consolidado_xlsx):
-    valores = _get_valores_iniciais(mock_relatorio_consolidado_xlsx)
+def test_get_solicitacoes_ordenadas_unidades_emei():
+    pass
+
+
+def test_get_valores_iniciais(relatorio_consolidado_xlsx_emef):
+    valores = _get_valores_iniciais(relatorio_consolidado_xlsx_emef)
     assert isinstance(valores, list)
     assert len(valores) == 3
     assert valores == [
-        mock_relatorio_consolidado_xlsx.escola.tipo_unidade.iniciais,
-        mock_relatorio_consolidado_xlsx.escola.codigo_eol,
-        mock_relatorio_consolidado_xlsx.escola.nome,
+        relatorio_consolidado_xlsx_emef.escola.tipo_unidade.iniciais,
+        relatorio_consolidado_xlsx_emef.escola.codigo_eol,
+        relatorio_consolidado_xlsx_emef.escola.nome,
     ]
 
 
-def test_processa_periodo_campo(mock_relatorio_consolidado_xlsx):
+def test_processa_periodo_campo_unidade_emef(relatorio_consolidado_xlsx_emef):
     valores_iniciais = [
-        mock_relatorio_consolidado_xlsx.escola.tipo_unidade.iniciais,
-        mock_relatorio_consolidado_xlsx.escola.codigo_eol,
-        mock_relatorio_consolidado_xlsx.escola.nome,
+        relatorio_consolidado_xlsx_emef.escola.tipo_unidade.iniciais,
+        relatorio_consolidado_xlsx_emef.escola.codigo_eol,
+        relatorio_consolidado_xlsx_emef.escola.nome,
     ]
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     dietas_especiais = CategoriaMedicao.objects.filter(
@@ -680,7 +700,7 @@ def test_processa_periodo_campo(mock_relatorio_consolidado_xlsx):
     ).values_list("nome", flat=True)
 
     manha_refeicao = _processa_periodo_campo(
-        mock_relatorio_consolidado_xlsx,
+        relatorio_consolidado_xlsx_emef,
         "MANHA",
         "refeicao",
         valores_iniciais,
@@ -692,7 +712,7 @@ def test_processa_periodo_campo(mock_relatorio_consolidado_xlsx):
     assert manha_refeicao == ["EMEF", "123456", "EMEF TESTE", 125.0]
 
     solicitacao_kit_lanche = _processa_periodo_campo(
-        mock_relatorio_consolidado_xlsx,
+        relatorio_consolidado_xlsx_emef,
         "Solicitações de Alimentação",
         "kit_lanche",
         valores_iniciais,
@@ -704,7 +724,7 @@ def test_processa_periodo_campo(mock_relatorio_consolidado_xlsx):
     assert solicitacao_kit_lanche == ["EMEF", "123456", "EMEF TESTE", 125.0, 10]
 
     dieta_a_lanche = _processa_periodo_campo(
-        mock_relatorio_consolidado_xlsx,
+        relatorio_consolidado_xlsx_emef,
         "DIETA ESPECIAL - TIPO A",
         "lanche_4h",
         valores_iniciais,
@@ -716,7 +736,11 @@ def test_processa_periodo_campo(mock_relatorio_consolidado_xlsx):
     assert dieta_a_lanche == ["EMEF", "123456", "EMEF TESTE", 125.0, 10.0, 125.0]
 
 
-def test_define_filtro(mock_relatorio_consolidado_xlsx):
+def test_processa_periodo_campo_unidade_emei():
+    pass
+
+
+def test_define_filtro(relatorio_consolidado_xlsx_emef):
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     dietas_especiais = CategoriaMedicao.objects.filter(
         nome__icontains="DIETA ESPECIAL"
@@ -745,8 +769,8 @@ def test_define_filtro(mock_relatorio_consolidado_xlsx):
     assert solicitacao["grupo__nome"] == "Solicitações de Alimentação"
 
 
-def test_get_total_pagamento(mock_relatorio_consolidado_xlsx):
-    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all().order_by(
+def test_get_total_pagamento_unidade_emef(relatorio_consolidado_xlsx_emef):
+    medicoes = relatorio_consolidado_xlsx_emef.medicoes.all().order_by(
         "periodo_escolar__nome"
     )
     medicao_manha = medicoes[0]
@@ -761,19 +785,27 @@ def test_get_total_pagamento(mock_relatorio_consolidado_xlsx):
     assert total_sobremesa == 125
 
 
-def test_formata_filtros(mock_query_params_excel):
+def test_get_total_pagamento_unidade_emei():
+    pass
+
+
+def test_formata_filtros_unidade_emef(mock_query_params_excel):
     tipos_unidades = ["EMEF"]
     filtros = _formata_filtros(mock_query_params_excel, tipos_unidades)
     assert isinstance(filtros, str)
     assert filtros == "Abril/2025 - DIRETORIA REGIONAL IPIRANGA - 1 - EMEF"
 
 
-def test_processa_dieta_especial(mock_relatorio_consolidado_xlsx):
+def test_formata_filtros_unidade_emei():
+    pass
+
+
+def test_processa_dieta_especial(relatorio_consolidado_xlsx_emef):
     periodo = "MANHA"
     filtros = {"periodo_escolar__nome": periodo}
     campo = "refeicao"
     total = _processa_dieta_especial(
-        mock_relatorio_consolidado_xlsx, filtros, campo, periodo
+        relatorio_consolidado_xlsx_emef, filtros, campo, periodo
     )
     assert total == "-"
 
@@ -781,7 +813,7 @@ def test_processa_dieta_especial(mock_relatorio_consolidado_xlsx):
     filtros = {"grupo__nome": periodo}
     campo = "kit_lanche"
     total = _processa_dieta_especial(
-        mock_relatorio_consolidado_xlsx, filtros, campo, periodo
+        relatorio_consolidado_xlsx_emef, filtros, campo, periodo
     )
     assert total == "-"
 
@@ -790,17 +822,17 @@ def test_processa_dieta_especial(mock_relatorio_consolidado_xlsx):
     periodo = "DIETA ESPECIAL - TIPO A"
     campo = "lanche_4h"
     total = _processa_dieta_especial(
-        mock_relatorio_consolidado_xlsx, filtros, campo, periodo
+        relatorio_consolidado_xlsx_emef, filtros, campo, periodo
     )
     assert total == 125.0
 
 
-def test_processa_periodo_regular(mock_relatorio_consolidado_xlsx):
+def test_processa_periodo_regular(relatorio_consolidado_xlsx_emef):
     periodo = "MANHA"
     filtros = {"periodo_escolar__nome": periodo}
     campo = "refeicao"
     total = _processa_periodo_regular(
-        mock_relatorio_consolidado_xlsx, filtros, campo, periodo
+        relatorio_consolidado_xlsx_emef, filtros, campo, periodo
     )
     assert total == 125.0
 
@@ -808,13 +840,13 @@ def test_processa_periodo_regular(mock_relatorio_consolidado_xlsx):
     filtros = {"grupo__nome": periodo}
     campo = "kit_lanche"
     total = _processa_periodo_regular(
-        mock_relatorio_consolidado_xlsx, filtros, campo, periodo
+        relatorio_consolidado_xlsx_emef, filtros, campo, periodo
     )
     assert total == 10
 
 
-def test_calcula_soma_medicao(mock_relatorio_consolidado_xlsx):
-    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all().order_by(
+def test_calcula_soma_medicao(relatorio_consolidado_xlsx_emef):
+    medicoes = relatorio_consolidado_xlsx_emef.medicoes.all().order_by(
         "periodo_escolar__nome"
     )
     medicao_manha = medicoes[0]
@@ -836,8 +868,8 @@ def test_calcula_soma_medicao(mock_relatorio_consolidado_xlsx):
     assert total == 125.0
 
 
-def test_total_pagamento_emef(mock_relatorio_consolidado_xlsx):
-    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all().order_by(
+def test_total_pagamento_emef(relatorio_consolidado_xlsx_emef):
+    medicoes = relatorio_consolidado_xlsx_emef.medicoes.all().order_by(
         "periodo_escolar__nome"
     )
     medicao_manha = medicoes[0]

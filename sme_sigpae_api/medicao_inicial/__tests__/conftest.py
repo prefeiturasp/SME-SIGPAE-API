@@ -2756,7 +2756,7 @@ def periodos_integral_parcial_e_logs(escola, faixas_etarias_ativas):
 
 
 @pytest.fixture
-def solicitacao_relatorio_consolidado(escola):
+def solicitacao_relatorio_consolidado_grupo_emef(escola):
     return mommy.make(
         "SolicitacaoMedicaoInicial",
         escola=escola,
@@ -2767,39 +2767,78 @@ def solicitacao_relatorio_consolidado(escola):
 
 
 @pytest.fixture
-def medicao_grupo_solicitacao_alimentacao(
-    solicitacao_relatorio_consolidado, grupo_solicitacoes_alimentacao
-):
+def solicitacao_relatorio_consolidado_grupo_emei(escola_emei):
     return mommy.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola_emei,
+        mes="04",
+        ano="2025",
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+    )
+
+
+@pytest.fixture
+def medicao_grupo_solicitacao_alimentacao(
+    solicitacao_relatorio_consolidado_grupo_emef,
+    solicitacao_relatorio_consolidado_grupo_emei,
+    grupo_solicitacoes_alimentacao,
+):
+    medicao_emef = mommy.make(
         "Medicao",
-        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado,
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emef,
         periodo_escolar=None,
         status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
         grupo=grupo_solicitacoes_alimentacao,
     )
 
+    medicao_emei = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emei,
+        periodo_escolar=None,
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+        grupo=grupo_solicitacoes_alimentacao,
+    )
+
+    return medicao_emef, medicao_emei
+
 
 @pytest.fixture
-def medicao_grupo_alimentacao(solicitacao_relatorio_consolidado, periodo_escolar_manha):
-    return mommy.make(
+def medicao_grupo_alimentacao(
+    solicitacao_relatorio_consolidado_grupo_emef,
+    solicitacao_relatorio_consolidado_grupo_emei,
+    periodo_escolar_manha,
+):
+    medicao_emef = mommy.make(
         "Medicao",
-        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado,
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emef,
         periodo_escolar=periodo_escolar_manha,
         status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
         grupo=None,
     )
 
+    medicao_emei = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emei,
+        periodo_escolar=periodo_escolar_manha,
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+        grupo=None,
+    )
+
+    return medicao_emef, medicao_emei
+
 
 @pytest.fixture
-def mock_relatorio_consolidado_xlsx(
-    solicitacao_relatorio_consolidado,
+def relatorio_consolidado_xlsx_emef(
+    solicitacao_relatorio_consolidado_grupo_emef,
     medicao_grupo_alimentacao,
+    medicao_grupo_solicitacao_alimentacao,
     categoria_medicao,
     categoria_medicao_dieta_a,
     categoria_medicao_dieta_b,
-    medicao_grupo_solicitacao_alimentacao,
     categoria_medicao_solicitacoes_alimentacao,
 ):
+    medicao_alimentacao_emef, _ = medicao_grupo_alimentacao
+    medicao_solicitacao_emef, _ = medicao_grupo_solicitacao_alimentacao
     for dia in ["01", "02", "03", "04", "05"]:
         for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
             for categoria in [
@@ -2811,7 +2850,7 @@ def mock_relatorio_consolidado_xlsx(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo=campo,
-                    medicao=medicao_grupo_alimentacao,
+                    medicao=medicao_alimentacao_emef,
                     categoria_medicao=categoria,
                     valor="25",
                 )
@@ -2821,7 +2860,7 @@ def mock_relatorio_consolidado_xlsx(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo=campo,
-                    medicao=medicao_grupo_solicitacao_alimentacao,
+                    medicao=medicao_solicitacao_emef,
                     categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
                     valor="10",
                 )
@@ -2830,7 +2869,7 @@ def mock_relatorio_consolidado_xlsx(
             "ValorMedicao",
             dia=dia,
             nome_campo="matriculados",
-            medicao=medicao_grupo_alimentacao,
+            medicao=medicao_alimentacao_emef,
             categoria_medicao=categoria_medicao,
             valor="100",
         )
@@ -2838,24 +2877,26 @@ def mock_relatorio_consolidado_xlsx(
             "ValorMedicao",
             dia=dia,
             nome_campo="frequencia",
-            medicao=medicao_grupo_alimentacao,
+            medicao=medicao_alimentacao_emef,
             categoria_medicao=categoria_medicao,
             valor="90",
         )
 
-    return solicitacao_relatorio_consolidado
+    return solicitacao_relatorio_consolidado_grupo_emef
 
 
 @pytest.fixture
-def mock_query_params_excel(solicitacao_relatorio_consolidado, grupo_escolar):
+def mock_query_params_excel(
+    solicitacao_relatorio_consolidado_grupo_emef, grupo_escolar
+):
     return {
-        "dre": solicitacao_relatorio_consolidado.escola.diretoria_regional.uuid,
+        "dre": solicitacao_relatorio_consolidado_grupo_emef.escola.diretoria_regional.uuid,
         "status": "MEDICAO_APROVADA_PELA_CODAE",
         "grupo_escolar": grupo_escolar,
-        "mes": solicitacao_relatorio_consolidado.mes,
-        "ano": solicitacao_relatorio_consolidado.ano,
-        "lotes[]": solicitacao_relatorio_consolidado.escola.lote.uuid,
-        "lotes": [solicitacao_relatorio_consolidado.escola.lote.uuid],
+        "mes": solicitacao_relatorio_consolidado_grupo_emef.mes,
+        "ano": solicitacao_relatorio_consolidado_grupo_emef.ano,
+        "lotes[]": solicitacao_relatorio_consolidado_grupo_emef.escola.lote.uuid,
+        "lotes": [solicitacao_relatorio_consolidado_grupo_emef.escola.lote.uuid],
     }
 
 
@@ -2910,10 +2951,10 @@ def mock_linhas():
 
 @pytest.fixture
 def informacoes_excel_writer(
-    mock_relatorio_consolidado_xlsx, mock_colunas, mock_linhas
+    relatorio_consolidado_xlsx_emef, mock_colunas, mock_linhas
 ):
     arquivo = BytesIO()
-    aba = f"Relatório Consolidado {mock_relatorio_consolidado_xlsx.mes}-{ mock_relatorio_consolidado_xlsx.ano}"
+    aba = f"Relatório Consolidado {relatorio_consolidado_xlsx_emef.mes}-{ relatorio_consolidado_xlsx_emef.ano}"
     writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
     workbook = writer.book
     worksheet = workbook.add_worksheet(aba)
