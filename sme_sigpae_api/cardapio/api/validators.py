@@ -170,6 +170,7 @@ def valida_duplicidade_solicitacoes_lanche_emergencial(attrs):
 
     registros = [r for r in registros if r.alteracao_cardapio.status not in status_permitidos]
 
+    # Caso ainda haja algum registro que esteja dando match com a solicitação
     if registros:
         raise serializers.ValidationError(
             "Já existe uma solicitação de Lanche Emergencial para a mesma data e período selecionado!"
