@@ -9,6 +9,7 @@ from sme_sigpae_api.escola.models import PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
 from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_excel import (
     _ajusta_layout_tabela,
+    _calcula_soma_medicao,
     _define_filtro,
     _formata_filtros,
     _formata_total_geral,
@@ -24,8 +25,11 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_excel import 
     _insere_tabela_periodos_na_planilha,
     _preenche_linha_dos_filtros_selecionados,
     _preenche_titulo,
+    _processa_dieta_especial,
     _processa_periodo_campo,
+    _processa_periodo_regular,
     _sort_and_merge,
+    _total_pagamento_emef,
     _update_dietas_alimentacoes,
     _update_periodos_alimentacoes,
     gera_relatorio_consolidado_xlsx,
@@ -762,3 +766,86 @@ def test_formata_filtros(mock_query_params_excel):
     filtros = _formata_filtros(mock_query_params_excel, tipos_unidades)
     assert isinstance(filtros, str)
     assert filtros == "Abril/2025 - DIRETORIA REGIONAL IPIRANGA - 1 - EMEF"
+
+
+def test_processa_dieta_especial(mock_relatorio_consolidado_xlsx):
+    periodo = "MANHA"
+    filtros = {"periodo_escolar__nome": periodo}
+    campo = "refeicao"
+    total = _processa_dieta_especial(
+        mock_relatorio_consolidado_xlsx, filtros, campo, periodo
+    )
+    assert total == "-"
+
+    periodo = "Solicitações de Alimentação"
+    filtros = {"grupo__nome": periodo}
+    campo = "kit_lanche"
+    total = _processa_dieta_especial(
+        mock_relatorio_consolidado_xlsx, filtros, campo, periodo
+    )
+    assert total == "-"
+
+    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
+    filtros = {"periodo_escolar__nome__in": periodos_escolares}
+    periodo = "DIETA ESPECIAL - TIPO A"
+    campo = "lanche_4h"
+    total = _processa_dieta_especial(
+        mock_relatorio_consolidado_xlsx, filtros, campo, periodo
+    )
+    assert total == 125.0
+
+
+def test_processa_periodo_regular(mock_relatorio_consolidado_xlsx):
+    periodo = "MANHA"
+    filtros = {"periodo_escolar__nome": periodo}
+    campo = "refeicao"
+    total = _processa_periodo_regular(
+        mock_relatorio_consolidado_xlsx, filtros, campo, periodo
+    )
+    assert total == 125.0
+
+    periodo = "Solicitações de Alimentação"
+    filtros = {"grupo__nome": periodo}
+    campo = "kit_lanche"
+    total = _processa_periodo_regular(
+        mock_relatorio_consolidado_xlsx, filtros, campo, periodo
+    )
+    assert total == 10
+
+
+def test_calcula_soma_medicao(mock_relatorio_consolidado_xlsx):
+    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all().order_by(
+        "periodo_escolar__nome"
+    )
+    medicao_manha = medicoes[0]
+    medicao_solicitacao = medicoes[1]
+
+    campo = "refeicao"
+    categoria = "ALIMENTAÇÃO"
+    total = _calcula_soma_medicao(medicao_manha, campo, categoria)
+    assert total == 125.0
+
+    campo = "kit_lanche"
+    categoria = "SOLICITAÇÕES DE ALIMENTAÇÃO"
+    total = _calcula_soma_medicao(medicao_solicitacao, campo, categoria)
+    assert total == 10.0
+
+    campo = "lanche_4h"
+    categoria = "DIETA ESPECIAL - TIPO A"
+    total = _calcula_soma_medicao(medicao_manha, campo, categoria)
+    assert total == 125.0
+
+
+def test_total_pagamento_emef(mock_relatorio_consolidado_xlsx):
+    medicoes = mock_relatorio_consolidado_xlsx.medicoes.all().order_by(
+        "periodo_escolar__nome"
+    )
+    medicao_manha = medicoes[0]
+    total_refeicao = _total_pagamento_emef(medicao_manha, "total_refeicoes_pagamento")
+    assert total_refeicao == 125
+    total_sobremesa = _total_pagamento_emef(medicao_manha, "total_sobremesas_pagamento")
+    assert total_sobremesa == 125
+
+
+def test_total_pagamento_emei():
+    pass
