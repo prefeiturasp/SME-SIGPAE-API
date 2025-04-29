@@ -409,3 +409,123 @@ def test_get_feriados_ano_atual_e_proximo_ano(client_autenticado):
     assert response.status_code == status.HTTP_200_OK
     assert str(ano_atual) in data["results"][0]
     assert str(ano_proximo) in data["results"][-1]
+
+@freeze_time("2025-04-18")
+def test_validacao_duplicidade_lanche_emergencial(client_autenticado_vinculo_escola_cemei, alteracao_cemei, periodo_manha, tipo_alimentacao_refeicao, tipo_alimentacao_lanche_emergencial):
+    client, user = client_autenticado_vinculo_escola_cemei
+    payload = {
+        "escola": alteracao_cemei.escola.uuid,
+        "motivo": alteracao_cemei.motivo.uuid,
+        "alunos_cei_e_ou_emei": "EMEI",
+        "alterar_dia": "28/04/2025",
+        "substituicoes_cemei_cei_periodo_escolar": [],
+        "substituicoes_cemei_emei_periodo_escolar": [
+            {
+                "qtd_alunos": "45",
+                "matriculados_quando_criado": 261,
+                "periodo_escolar": periodo_manha.uuid,
+                "tipos_alimentacao_de": [
+                    tipo_alimentacao_refeicao.uuid
+                ],
+                "tipos_alimentacao_para": [
+                    tipo_alimentacao_lanche_emergencial.uuid
+                ]
+            }
+        ],
+        "datas_intervalo": [
+            {
+                "data": "2025-04-28"
+            }
+        ]
+    }
+    response = client.post(
+        "/alteracoes-cardapio-cemei/", content_type="application/json", data=payload
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == ['Já existe uma solicitação de Lanche Emergencial para a mesma data e período selecionado!']
+    
+@freeze_time("2025-04-18")
+def test_validacao_duplicidade_lanche_emergencial_2(client_autenticado_vinculo_escola_cemei, alteracao_cemei, periodo_manha, tipo_alimentacao_refeicao, tipo_alimentacao_lanche_emergencial, tipo_alimentacao_lanche):
+    client, user = client_autenticado_vinculo_escola_cemei
+    payload = {
+        "escola": alteracao_cemei.escola.uuid,
+        "motivo": alteracao_cemei.motivo.uuid,
+        "alunos_cei_e_ou_emei": "EMEI",
+        "alterar_dia": "28/04/2025",
+        "substituicoes_cemei_cei_periodo_escolar": [],
+        "substituicoes_cemei_emei_periodo_escolar": [
+            {
+                "qtd_alunos": "45",
+                "matriculados_quando_criado": 261,
+                "periodo_escolar": periodo_manha.uuid,
+                "tipos_alimentacao_de": [
+                    tipo_alimentacao_refeicao.uuid,
+                    tipo_alimentacao_lanche.uuid,
+                ],
+                "tipos_alimentacao_para": [
+                    tipo_alimentacao_lanche_emergencial.uuid
+                ]
+            }
+        ],
+        "datas_intervalo": [
+            {
+                "data": "2025-04-27"
+            },
+            {
+                "data": "2025-04-28"
+            },
+            {
+                "data": "2025-04-29"
+            }
+        ]
+    }
+    response = client.post(
+        "/alteracoes-cardapio-cemei/", content_type="application/json", data=payload
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == ['Já existe uma solicitação de Lanche Emergencial para a mesma data e período selecionado!']
+
+@freeze_time("2025-04-18")
+def test_validacao_duplicidade_lanche_emergencial_caso_valido(client_autenticado_vinculo_escola_cemei, alteracao_cemei, periodo_manha, periodo_tarde, tipo_alimentacao_lanche, tipo_alimentacao_refeicao, tipo_alimentacao_lanche_emergencial):
+    client, user = client_autenticado_vinculo_escola_cemei
+    payload = {
+        "escola": alteracao_cemei.escola.uuid,
+        "motivo": alteracao_cemei.motivo.uuid,
+        "alunos_cei_e_ou_emei": "EMEI",
+        "alterar_dia": "28/04/2025",
+        "substituicoes_cemei_cei_periodo_escolar": [],
+        "substituicoes_cemei_emei_periodo_escolar": [
+            {
+                "qtd_alunos": "45",
+                "matriculados_quando_criado": 261,
+                "periodo_escolar": periodo_tarde.uuid,
+                "tipos_alimentacao_de": [
+                    tipo_alimentacao_refeicao.uuid,
+                    tipo_alimentacao_lanche.uuid
+                ],
+                "tipos_alimentacao_para": [
+                    tipo_alimentacao_lanche_emergencial.uuid
+                ]
+            },
+            {
+                "qtd_alunos": "45",
+                "matriculados_quando_criado": 261,
+                "periodo_escolar": periodo_manha.uuid,
+                "tipos_alimentacao_de": [
+                    tipo_alimentacao_lanche.uuid
+                ],
+                "tipos_alimentacao_para": [
+                    tipo_alimentacao_lanche_emergencial.uuid
+                ]
+            }
+        ],
+        "datas_intervalo": [
+            {
+                "data": "2025-04-28"
+            }
+        ]
+    }
+    response = client.post(
+        "/alteracoes-cardapio-cemei/", content_type="application/json", data=payload
+    )
+    assert response.status_code == status.HTTP_201_CREATED
