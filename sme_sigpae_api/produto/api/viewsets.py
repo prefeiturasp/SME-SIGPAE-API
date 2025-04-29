@@ -819,9 +819,13 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
         lista_produtos = (
             funcao(request) if funcao else produtos_por_status(filtro_aplicado)
         )
-
         page = self.paginate_queryset(lista_produtos)
-        serializer = HomologacaoProdutoPainelGerencialSerializer(
+        serializer_class = (
+            HomologacaoProdutoPainelGerencialSerializer
+            if filtro_aplicado != constants.RASCUNHO
+            else HomologacaoProdutoSerializer
+        )
+        serializer = serializer_class(
             page, context={"workflow": filtro_aplicado}, many=True
         )
         return self.get_paginated_response(serializer.data)

@@ -1,17 +1,19 @@
 import datetime
 import json
 import random
+from io import BytesIO
 
+import pandas as pd
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from model_mommy import mommy
 
 from sme_sigpae_api.dados_comuns.behaviors import TempoPasseio
+from sme_sigpae_api.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.escola.models import (
     DiaCalendario,
     Escola,
-    FaixaEtaria,
     LogAlunosMatriculadosPeriodoEscola,
     PeriodoEscolar,
     TipoTurma,
@@ -21,6 +23,9 @@ from sme_sigpae_api.medicao_inicial.models import (
     Medicao,
     PermissaoLancamentoEspecial,
     SolicitacaoMedicaoInicial,
+)
+from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_excel import (
+    _insere_tabela_periodos_na_planilha,
 )
 
 
@@ -2748,3 +2753,174 @@ def periodos_integral_parcial_e_logs(escola, faixas_etarias_ativas):
                 quantidade=2,
                 data=datetime.date(2022, 12, dia),
             )
+
+
+@pytest.fixture
+def solicitacao_relatorio_consolidado(escola):
+    return mommy.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola,
+        mes="04",
+        ano="2025",
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+    )
+
+
+@pytest.fixture
+def medicao_grupo_solicitacao_alimentacao(
+    solicitacao_relatorio_consolidado, grupo_solicitacoes_alimentacao
+):
+    return mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado,
+        periodo_escolar=None,
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+        grupo=grupo_solicitacoes_alimentacao,
+    )
+
+
+@pytest.fixture
+def medicao_grupo_alimentacao(solicitacao_relatorio_consolidado, periodo_escolar_manha):
+    return mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado,
+        periodo_escolar=periodo_escolar_manha,
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+        grupo=None,
+    )
+
+
+@pytest.fixture
+def mock_relatorio_consolidado_xlsx(
+    solicitacao_relatorio_consolidado,
+    medicao_grupo_alimentacao,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_b,
+    medicao_grupo_solicitacao_alimentacao,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    for dia in ["01", "02", "03", "04", "05"]:
+        for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
+            for categoria in [
+                categoria_medicao,
+                categoria_medicao_dieta_a,
+                categoria_medicao_dieta_b,
+            ]:
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao_grupo_alimentacao,
+                    categoria_medicao=categoria,
+                    valor="25",
+                )
+        if dia == "05":
+            for campo in ["kit_lanche", "lanche_emergencial"]:
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao_grupo_solicitacao_alimentacao,
+                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
+                    valor="10",
+                )
+
+        mommy.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo="matriculados",
+            medicao=medicao_grupo_alimentacao,
+            categoria_medicao=categoria_medicao,
+            valor="100",
+        )
+        mommy.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo="frequencia",
+            medicao=medicao_grupo_alimentacao,
+            categoria_medicao=categoria_medicao,
+            valor="90",
+        )
+
+    return solicitacao_relatorio_consolidado
+
+
+@pytest.fixture
+def mock_query_params_excel(solicitacao_relatorio_consolidado, grupo_escolar):
+    return {
+        "dre": solicitacao_relatorio_consolidado.escola.diretoria_regional.uuid,
+        "status": "MEDICAO_APROVADA_PELA_CODAE",
+        "grupo_escolar": grupo_escolar,
+        "mes": solicitacao_relatorio_consolidado.mes,
+        "ano": solicitacao_relatorio_consolidado.ano,
+        "lotes[]": solicitacao_relatorio_consolidado.escola.lote.uuid,
+        "lotes": [solicitacao_relatorio_consolidado.escola.lote.uuid],
+    }
+
+
+@pytest.fixture
+def mock_colunas():
+    return [
+        ("Solicitações de Alimentação", "kit_lanche"),
+        ("Solicitações de Alimentação", "lanche_emergencial"),
+        ("MANHA", "lanche"),
+        ("MANHA", "lanche_4h"),
+        ("MANHA", "refeicao"),
+        ("MANHA", "total_refeicoes_pagamento"),
+        ("MANHA", "sobremesa"),
+        ("MANHA", "total_sobremesas_pagamento"),
+        ("DIETA ESPECIAL - TIPO A", "lanche"),
+        ("DIETA ESPECIAL - TIPO A", "lanche_4h"),
+        ("DIETA ESPECIAL - TIPO A", "refeicao"),
+        ("DIETA ESPECIAL - TIPO A", "sobremesa"),
+        ("DIETA ESPECIAL - TIPO B", "lanche"),
+        ("DIETA ESPECIAL - TIPO B", "lanche_4h"),
+        ("DIETA ESPECIAL - TIPO B", "refeicao"),
+        ("DIETA ESPECIAL - TIPO B", "sobremesa"),
+    ]
+
+
+@pytest.fixture
+def mock_linhas():
+    return [
+        [
+            "EMEF",
+            "123456",
+            "EMEF TESTE",
+            10.0,
+            10.0,
+            125.0,
+            125.0,
+            125.0,
+            125,
+            125.0,
+            125,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+            125.0,
+        ]
+    ]
+
+
+@pytest.fixture
+def informacoes_excel_writer(
+    mock_relatorio_consolidado_xlsx, mock_colunas, mock_linhas
+):
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {mock_relatorio_consolidado_xlsx.mes}-{ mock_relatorio_consolidado_xlsx.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+    workbook = writer.book
+    worksheet = workbook.add_worksheet(aba)
+    worksheet.set_default_row(20)
+    df = _insere_tabela_periodos_na_planilha(aba, mock_colunas, mock_linhas, writer)
+    try:
+        yield aba, writer, workbook, worksheet, df, arquivo
+    finally:
+        workbook.close()
+        writer.close()
