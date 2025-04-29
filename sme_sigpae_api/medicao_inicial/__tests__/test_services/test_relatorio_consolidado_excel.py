@@ -30,6 +30,7 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_excel import 
     _processa_periodo_regular,
     _sort_and_merge,
     _total_pagamento_emef,
+    _total_pagamento_emei,
     _update_dietas_alimentacoes,
     _update_periodos_alimentacoes,
     gera_relatorio_consolidado_xlsx,
@@ -40,12 +41,12 @@ pytestmark = pytest.mark.django_db
 
 
 def test_gera_relatorio_consolidado_xlsx_emef(
-    relatorio_consolidado_xlsx_emef, mock_query_params_excel
+    relatorio_consolidado_xlsx_emef, mock_query_params_excel_emef
 ):
     solicitacoes = [relatorio_consolidado_xlsx_emef.uuid]
     tipos_unidade = ["EMEF"]
     arquivo = gera_relatorio_consolidado_xlsx(
-        solicitacoes, tipos_unidade, mock_query_params_excel
+        solicitacoes, tipos_unidade, mock_query_params_excel_emef
     )
     assert isinstance(arquivo, bytes)
     excel_buffer = BytesIO(arquivo)
@@ -204,8 +205,169 @@ def test_gera_relatorio_consolidado_xlsx_emef(
     )
 
 
-def test_gera_relatorio_consolidado_xlsx_emei():
-    pass
+def test_gera_relatorio_consolidado_xlsx_emei(
+    relatorio_consolidado_xlsx_emei, mock_query_params_excel_emei
+):
+    solicitacoes = [relatorio_consolidado_xlsx_emei.uuid]
+    tipos_unidade = ["EMEI"]
+    arquivo = gera_relatorio_consolidado_xlsx(
+        solicitacoes, tipos_unidade, mock_query_params_excel_emei
+    )
+    assert isinstance(arquivo, bytes)
+    excel_buffer = BytesIO(arquivo)
+
+    workbook = load_workbook(filename=excel_buffer)
+    nome_aba = f"Relatório Consolidado { relatorio_consolidado_xlsx_emei.mes}-{ relatorio_consolidado_xlsx_emei.ano}"
+    assert nome_aba in workbook.sheetnames
+    sheet = workbook[nome_aba]
+    rows = list(sheet.iter_rows(values_only=True))
+    assert rows[0] == (
+        "Relatório de Totalização da Medição Inicial do Serviço de Fornecimento da Alimentação Escolar",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[1] == (
+        "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - EMEI",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[2] == (
+        None,
+        None,
+        None,
+        None,
+        None,
+        "MANHA",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "DIETA ESPECIAL - TIPO A",
+        None,
+        None,
+        None,
+        "DIETA ESPECIAL - TIPO B",
+        None,
+        None,
+        None,
+    )
+    assert rows[3] == (
+        "Tipo",
+        "Cód. EOL",
+        "Unidade Escolar",
+        "Kit Lanche",
+        "Lanche Emerg.",
+        "Lanche 5h",
+        "Lanche 4h",
+        "Refeição",
+        "Refeições p/ Pagamento",
+        "Sobremesa",
+        "Sobremesas p/ Pagamento",
+        "Lanche 5h",
+        "Lanche 4h",
+        "Refeição",
+        "Sobremesa",
+        "Lanche 5h",
+        "Lanche 4h",
+        "Refeição",
+        "Sobremesa",
+    )
+    assert rows[4] == (
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[5] == (
+        "EMEI",
+        "987654",
+        "EMEI TESTE",
+        5,
+        5,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+    )
+    assert rows[6] == (
+        "TOTAL",
+        None,
+        None,
+        5,
+        5,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+    )
 
 
 def test_get_alimentacoes_por_periodo(relatorio_consolidado_xlsx_emef):
@@ -259,16 +421,46 @@ def test_get_valores_tabela_unidade_emef(relatorio_consolidado_xlsx_emef, mock_c
     ]
 
 
-def test_get_valores_tabela_unidade_emei():
-    pass
+def test_get_valores_tabela_unidade_emei(relatorio_consolidado_xlsx_emei, mock_colunas):
+    tipos_unidade = ["EMEI"]
+    linhas = _get_valores_tabela(
+        [relatorio_consolidado_xlsx_emei], mock_colunas, tipos_unidade
+    )
+    assert isinstance(linhas, list)
+    assert len(linhas) == 1
+    assert isinstance(linhas[0], list)
+    assert len(linhas[0]) == 19
+    assert linhas[0] == [
+        "EMEI",
+        "987654",
+        "EMEI TESTE",
+        5.0,
+        5.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+    ]
 
 
 def test_insere_tabela_periodos_na_planilha_unidade_emef(
-    informacoes_excel_writer, mock_colunas, mock_linhas
+    informacoes_excel_writer_emef, mock_colunas, mock_linhas_emef
 ):
-    aba, writer, _, _, _, _ = informacoes_excel_writer
+    aba, writer, _, _, _, _ = informacoes_excel_writer_emef
 
-    df = _insere_tabela_periodos_na_planilha(aba, mock_colunas, mock_linhas, writer)
+    df = _insere_tabela_periodos_na_planilha(
+        aba, mock_colunas, mock_linhas_emef, writer
+    )
     assert isinstance(df, pd.DataFrame)
     colunas_df = df.columns.tolist()
     assert len(colunas_df) == 19
@@ -331,12 +523,78 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
     ]
 
 
-def test_insere_tabela_periodos_na_planilha_unidade_emei():
-    pass
+def test_insere_tabela_periodos_na_planilha_unidade_emei(
+    informacoes_excel_writer_emei, mock_colunas, mock_linhas_emei
+):
+    aba, writer, _, _, _, _ = informacoes_excel_writer_emei
+
+    df = _insere_tabela_periodos_na_planilha(
+        aba, mock_colunas, mock_linhas_emei, writer
+    )
+    assert isinstance(df, pd.DataFrame)
+    colunas_df = df.columns.tolist()
+    assert len(colunas_df) == 19
+    assert sum(1 for tupla in colunas_df if tupla[0] == "MANHA") == 6
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 4
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 4
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Tipo") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Cód. EOL") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 5h") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeições p/ Pagamento") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesas p/ Pagamento") == 1
+
+    assert df.iloc[0].tolist() == [
+        "EMEI",
+        "987654",
+        "EMEI TESTE",
+        5.0,
+        5.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+    ]
+    assert df.iloc[1].tolist() == [
+        0.0,
+        987654.0,
+        0.0,
+        5.0,
+        5.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+    ]
 
 
-def test_preenche_titulo(informacoes_excel_writer):
-    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer
+def test_preenche_titulo(informacoes_excel_writer_emef):
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emef
     _preenche_titulo(workbook, worksheet, df.columns)
     writer.close()
     workbook_openpyxl = openpyxl.load_workbook(arquivo)
@@ -363,12 +621,12 @@ def test_preenche_titulo(informacoes_excel_writer):
 
 
 def test_preenche_linha_dos_filtros_selecionados_unidade_emef(
-    mock_query_params_excel, informacoes_excel_writer
+    mock_query_params_excel_emef, informacoes_excel_writer_emef
 ):
     tipos_unidades = ["EMEF"]
-    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emef
     _preenche_linha_dos_filtros_selecionados(
-        workbook, worksheet, mock_query_params_excel, df.columns, tipos_unidades
+        workbook, worksheet, mock_query_params_excel_emef, df.columns, tipos_unidades
     )
     writer.close()
     workbook_openpyxl = openpyxl.load_workbook(arquivo)
@@ -394,12 +652,40 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_emef(
     workbook_openpyxl.close()
 
 
-def test_preenche_linha_dos_filtros_selecionados_unidade_emei():
-    pass
+def test_preenche_linha_dos_filtros_selecionados_unidade_emei(
+    mock_query_params_excel_emei, informacoes_excel_writer_emei
+):
+    tipos_unidades = ["EMEI"]
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emei
+    _preenche_linha_dos_filtros_selecionados(
+        workbook, worksheet, mock_query_params_excel_emei, df.columns, tipos_unidades
+    )
+    writer.close()
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
+    sheet = workbook_openpyxl[aba]
+
+    merged_ranges = sheet.merged_cells.ranges
+    assert len(merged_ranges) == 5
+    assert str(merged_ranges[0]) == "A3:E3"
+    assert str(merged_ranges[1]) == "F3:K3"
+    assert str(merged_ranges[2]) == "L3:O3"
+    assert str(merged_ranges[3]) == "P3:S3"
+    assert str(merged_ranges[4]) == "A2:S2"
+
+    assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - EMEI"
+    assert sheet["A2"].alignment.horizontal == "center"
+    assert sheet["A2"].alignment.vertical == "center"
+    assert sheet["A2"].font.bold is True
+    assert sheet["A2"].font.color.rgb == "FF0C6B45"
+    assert sheet["A2"].fill.fgColor.rgb == "FFEAFFF6"
+
+    rows = list(sheet.iter_rows(values_only=True))
+    assert tipos_unidades[0] in rows[1][0]
+    workbook_openpyxl.close()
 
 
-def test_ajusta_layout_tabela(informacoes_excel_writer):
-    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer
+def test_ajusta_layout_tabela(informacoes_excel_writer_emef):
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emef
     _ajusta_layout_tabela(workbook, worksheet, df)
     writer.close()
     workbook_openpyxl = openpyxl.load_workbook(arquivo)
@@ -421,8 +707,8 @@ def test_ajusta_layout_tabela(informacoes_excel_writer):
     workbook_openpyxl.close()
 
 
-def test_formata_total_geral(informacoes_excel_writer):
-    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer
+def test_formata_total_geral(informacoes_excel_writer_emef):
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emef
     _formata_total_geral(workbook, worksheet, df)
     writer.close()
     workbook_openpyxl = openpyxl.load_workbook(arquivo)
@@ -657,24 +943,38 @@ def test_generate_columns():
 
 def test_get_solicitacoes_ordenadas_unidade_emef(
     solicitacao_medicao_inicial_varios_valores_ceu_gestao,
-    relatorio_consolidado_xlsx_emef,
+    solicitacao_relatorio_consolidado_grupo_emef,
 ):
     tipos_de_unidade = ["EMEF"]
     solicitacoes = [
         solicitacao_medicao_inicial_varios_valores_ceu_gestao,
-        relatorio_consolidado_xlsx_emef,
+        solicitacao_relatorio_consolidado_grupo_emef,
     ]
     ordenados = get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade)
     assert isinstance(ordenados, list)
-    assert ordenados[0].escola.nome == relatorio_consolidado_xlsx_emef.escola.nome
+    assert (
+        ordenados[0].escola.nome
+        == solicitacao_relatorio_consolidado_grupo_emef.escola.nome
+    )
     assert (
         ordenados[1].escola.nome
         == solicitacao_medicao_inicial_varios_valores_ceu_gestao.escola.nome
     )
 
 
-def test_get_solicitacoes_ordenadas_unidades_emei():
-    pass
+def test_get_solicitacoes_ordenadas_unidade_emei(
+    solicitacao_escola_ceuemei,
+    relatorio_consolidado_xlsx_emei,
+):
+    tipos_de_unidade = ["EMEI"]
+    solicitacoes = [
+        solicitacao_escola_ceuemei,
+        relatorio_consolidado_xlsx_emei,
+    ]
+    ordenados = get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade)
+    assert isinstance(ordenados, list)
+    assert ordenados[0].escola.nome == relatorio_consolidado_xlsx_emei.escola.nome
+    assert ordenados[1].escola.nome == solicitacao_escola_ceuemei.escola.nome
 
 
 def test_get_valores_iniciais(relatorio_consolidado_xlsx_emef):
@@ -736,8 +1036,52 @@ def test_processa_periodo_campo_unidade_emef(relatorio_consolidado_xlsx_emef):
     assert dieta_a_lanche == ["EMEF", "123456", "EMEF TESTE", 125.0, 10.0, 125.0]
 
 
-def test_processa_periodo_campo_unidade_emei():
-    pass
+def test_processa_periodo_campo_unidade_emei(relatorio_consolidado_xlsx_emei):
+    valores_iniciais = [
+        relatorio_consolidado_xlsx_emei.escola.tipo_unidade.iniciais,
+        relatorio_consolidado_xlsx_emei.escola.codigo_eol,
+        relatorio_consolidado_xlsx_emei.escola.nome,
+    ]
+    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
+    dietas_especiais = CategoriaMedicao.objects.filter(
+        nome__icontains="DIETA ESPECIAL"
+    ).values_list("nome", flat=True)
+
+    manha_refeicao = _processa_periodo_campo(
+        relatorio_consolidado_xlsx_emei,
+        "MANHA",
+        "refeicao",
+        valores_iniciais,
+        dietas_especiais,
+        periodos_escolares,
+    )
+    assert isinstance(manha_refeicao, list)
+    assert len(manha_refeicao) == 4
+    assert manha_refeicao == ["EMEI", "987654", "EMEI TESTE", 150.0]
+
+    solicitacao_kit_lanche = _processa_periodo_campo(
+        relatorio_consolidado_xlsx_emei,
+        "Solicitações de Alimentação",
+        "kit_lanche",
+        valores_iniciais,
+        dietas_especiais,
+        periodos_escolares,
+    )
+    assert isinstance(solicitacao_kit_lanche, list)
+    assert len(solicitacao_kit_lanche) == 5
+    assert solicitacao_kit_lanche == ["EMEI", "987654", "EMEI TESTE", 150.0, 5.0]
+
+    dieta_a_lanche = _processa_periodo_campo(
+        relatorio_consolidado_xlsx_emei,
+        "DIETA ESPECIAL - TIPO A",
+        "lanche_4h",
+        valores_iniciais,
+        dietas_especiais,
+        periodos_escolares,
+    )
+    assert isinstance(dieta_a_lanche, list)
+    assert len(dieta_a_lanche) == 6
+    assert dieta_a_lanche == ["EMEI", "987654", "EMEI TESTE", 150.0, 5.0, 150.0]
 
 
 def test_define_filtro(relatorio_consolidado_xlsx_emef):
@@ -785,19 +1129,34 @@ def test_get_total_pagamento_unidade_emef(relatorio_consolidado_xlsx_emef):
     assert total_sobremesa == 125
 
 
-def test_get_total_pagamento_unidade_emei():
-    pass
+def test_get_total_pagamento_unidade_emei(relatorio_consolidado_xlsx_emei):
+    medicoes = relatorio_consolidado_xlsx_emei.medicoes.all().order_by(
+        "periodo_escolar__nome"
+    )
+    medicao_manha = medicoes[0]
+    tipos_unidades = "EMEI"
+    total_refeicao = _get_total_pagamento(
+        medicao_manha, "total_refeicoes_pagamento", tipos_unidades
+    )
+    assert total_refeicao == 150
+    total_sobremesa = _get_total_pagamento(
+        medicao_manha, "total_sobremesas_pagamento", tipos_unidades
+    )
+    assert total_sobremesa == 150
 
 
-def test_formata_filtros_unidade_emef(mock_query_params_excel):
+def test_formata_filtros_unidade_emef(mock_query_params_excel_emef):
     tipos_unidades = ["EMEF"]
-    filtros = _formata_filtros(mock_query_params_excel, tipos_unidades)
+    filtros = _formata_filtros(mock_query_params_excel_emef, tipos_unidades)
     assert isinstance(filtros, str)
     assert filtros == "Abril/2025 - DIRETORIA REGIONAL IPIRANGA - 1 - EMEF"
 
 
-def test_formata_filtros_unidade_emei():
-    pass
+def test_formata_filtros_unidade_emei(mock_query_params_excel_emei):
+    tipos_unidades = ["EMEI"]
+    filtros = _formata_filtros(mock_query_params_excel_emei, tipos_unidades)
+    assert isinstance(filtros, str)
+    assert filtros == "Abril/2025 - DIRETORIA REGIONAL TESTE -  - EMEI"
 
 
 def test_processa_dieta_especial(relatorio_consolidado_xlsx_emef):
@@ -879,5 +1238,12 @@ def test_total_pagamento_emef(relatorio_consolidado_xlsx_emef):
     assert total_sobremesa == 125
 
 
-def test_total_pagamento_emei():
-    pass
+def test_total_pagamento_emei(relatorio_consolidado_xlsx_emei):
+    medicoes = relatorio_consolidado_xlsx_emei.medicoes.all().order_by(
+        "periodo_escolar__nome"
+    )
+    medicao_manha = medicoes[0]
+    total_refeicao = _total_pagamento_emei(medicao_manha, "total_refeicoes_pagamento")
+    assert total_refeicao == 150
+    total_sobremesa = _total_pagamento_emei(medicao_manha, "total_sobremesas_pagamento")
+    assert total_sobremesa == 150
