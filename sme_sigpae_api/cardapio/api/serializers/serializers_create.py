@@ -582,6 +582,7 @@ class AlteracaoCardapioSerializerCreate(AlteracaoCardapioSerializerCreateBase):
         return alteracao_cardapio
 
     def update(self, instance, validated_data):
+        valida_duplicidade_solicitacoes_lanche_emergencial(validated_data)
         instance.substituicoes.all().delete()
         instance.datas_intervalo.all().delete()
 
@@ -826,6 +827,7 @@ class AlteracaoCardapioCEMEISerializerCreate(serializers.ModelSerializer):
         return alteracao_cemei
 
     def update(self, instance, validated_data):
+        valida_duplicidade_solicitacoes_lanche_emergencial_cemei(validated_data)
         instance.substituicoes_cemei_cei_periodo_escolar.all().delete()
         instance.substituicoes_cemei_emei_periodo_escolar.all().delete()
         instance.datas_intervalo.all().delete()
