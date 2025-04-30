@@ -18,6 +18,9 @@ from ..models import CategoriaMedicao, SolicitacaoMedicaoInicial
 
 
 def gera_relatorio_consolidado_xlsx(solicitacoes_uuid, tipos_de_unidade, query_params):
+    """
+    Gera o relatorio consolidado das unidades EMEI e EMEF
+    """
     solicitacoes = SolicitacaoMedicaoInicial.objects.filter(uuid__in=solicitacoes_uuid)
     colunas = _get_alimentacoes_por_periodo(solicitacoes)
     linhas = _get_valores_tabela(solicitacoes, colunas, tipos_de_unidade)
@@ -480,7 +483,7 @@ def _formata_filtros(query_params, tipos_de_unidade):
 
 def _insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
     NOMES_CAMPOS = {
-        "lanche": "Lanche 5h",
+        "lanche": "Lanche",
         "lanche_4h": "Lanche 4h",
         "2_lanche_4h": "2º Lanche 4h",
         "2_lanche_5h": "2º Lanche 5h",
