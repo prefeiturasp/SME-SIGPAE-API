@@ -972,6 +972,7 @@ def solicitacao_substituicao_cardapio_cei(escola):
         ],
     }
 
+
 @pytest.fixture
 def motivo_alteracao_cardapio_lanche_emergencial():
     return mommy.make(
@@ -980,25 +981,30 @@ def motivo_alteracao_cardapio_lanche_emergencial():
         uuid="1ddec320-cd24-4cf4-9666-3e7b3a2b903c",
     )
 
+
 @pytest.fixture
 def escola_cemei_1():
     return mommy.make(
         "Escola",
         uuid="1fc5fca2-2694-4781-be65-8331716c74a0",
-        tipo_gestao__nome="TERC TOTAL"
+        tipo_gestao__nome="TERC TOTAL",
     )
-    
+
+
 @pytest.fixture
 def tipo_alimentacao_refeicao():
     return mommy.make("cardapio.TipoAlimentacao", nome="Refeição")
+
 
 @pytest.fixture
 def tipo_alimentacao_lanche():
     return mommy.make("cardapio.TipoAlimentacao", nome="Lanche")
 
+
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
     return mommy.make("cardapio.TipoAlimentacao", nome="Lanche Emergencial")
+
 
 @pytest.fixture
 def periodo_manha():
@@ -1017,19 +1023,22 @@ def periodo_tarde():
         uuid="88966d6a-f9d5-4986-9ffb-25b6f41b0795",
     )
 
+
 @pytest.fixture
-def alteracao_cemei(escola_cemei_1,
-                    motivo_alteracao_cardapio_lanche_emergencial,
-                    tipo_alimentacao_refeicao,
-                    tipo_alimentacao_lanche_emergencial, 
-                    periodo_manha):
+def alteracao_cemei(
+    escola_cemei_1,
+    motivo_alteracao_cardapio_lanche_emergencial,
+    tipo_alimentacao_refeicao,
+    tipo_alimentacao_lanche_emergencial,
+    periodo_manha,
+):
     alteracao_cemei = mommy.make(
         "AlteracaoCardapioCEMEI",
         escola=escola_cemei_1,
         alunos_cei_e_ou_emei="EMEI",
         alterar_dia="2025-04-28",
         motivo=motivo_alteracao_cardapio_lanche_emergencial,
-        status="CODAE_AUTORIZADO"
+        status="CODAE_AUTORIZADO",
     )
     subs1 = mommy.make(
         "SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI",
@@ -1042,14 +1051,13 @@ def alteracao_cemei(escola_cemei_1,
     mommy.make(
         "DataIntervaloAlteracaoCardapioCEMEI",
         data="2025-04-28",
-        alteracao_cardapio_cemei=alteracao_cemei
+        alteracao_cardapio_cemei=alteracao_cemei,
     )
     return alteracao_cemei
 
+
 @pytest.fixture
-def client_autenticado_vinculo_escola_cemei(
-    client, django_user_model, escola_cemei_1
-):
+def client_autenticado_vinculo_escola_cemei(client, django_user_model, escola_cemei_1):
     email = "test@test1.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
@@ -1068,6 +1076,7 @@ def client_autenticado_vinculo_escola_cemei(
 
     client.login(username=email, password=password)
     return client, user
+
 
 @pytest.fixture
 def lotes():
