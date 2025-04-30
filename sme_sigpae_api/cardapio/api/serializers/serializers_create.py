@@ -16,7 +16,6 @@ from ....dados_comuns.validators import (
     valida_duplicidade_solicitacoes,
     valida_duplicidade_solicitacoes_cei,
     valida_duplicidade_solicitacoes_cemei,
-    valida_duplicidade_solicitacoes_lanche_emergencial_cemei,
 )
 from ....escola.models import (
     DiaCalendario,
@@ -582,6 +581,7 @@ class AlteracaoCardapioSerializerCreate(AlteracaoCardapioSerializerCreateBase):
         return alteracao_cardapio
 
     def update(self, instance, validated_data):
+        valida_duplicidade_solicitacoes_lanche_emergencial(validated_data)
         instance.substituicoes.all().delete()
         instance.datas_intervalo.all().delete()
 
@@ -804,7 +804,7 @@ class AlteracaoCardapioCEMEISerializerCreate(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        valida_duplicidade_solicitacoes_lanche_emergencial_cemei(validated_data)
+        valida_duplicidade_solicitacoes_lanche_emergencial(validated_data, eh_cemei=True)
         motivo = validated_data.get("motivo", None)
         if motivo and motivo.nome == "RPL - Refeição por Lanche":
             valida_duplicidade_solicitacoes_cemei(validated_data)
@@ -826,6 +826,7 @@ class AlteracaoCardapioCEMEISerializerCreate(serializers.ModelSerializer):
         return alteracao_cemei
 
     def update(self, instance, validated_data):
+        valida_duplicidade_solicitacoes_lanche_emergencial(validated_data, eh_cemei=True)
         instance.substituicoes_cemei_cei_periodo_escolar.all().delete()
         instance.substituicoes_cemei_emei_periodo_escolar.all().delete()
         instance.datas_intervalo.all().delete()

@@ -13,7 +13,6 @@ from ..cardapio.models import (
     DataIntervaloAlteracaoCardapio,
     SubstituicaoAlimentacaoNoPeriodoEscolar,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEI,
-    SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
 )
 from .constants import obter_dias_uteis_apos_hoje
 from .utils import datetime_range, eh_dia_util
@@ -81,6 +80,7 @@ def valida_duplicidade_solicitacoes(attrs):
     return True
 
 
+
 def valida_duplicidade_solicitacoes_lanche_emergencial_cemei(attrs):
     motivo = attrs["motivo"]
 
@@ -130,7 +130,6 @@ def valida_duplicidade_solicitacoes_lanche_emergencial_cemei(attrs):
             "Já existe uma solicitação de Lanche Emergencial para a mesma data e período selecionado!"
         )
     return True
-
 
 def valida_duplicidade_solicitacoes_cei(attrs, data):
     status_permitidos = [

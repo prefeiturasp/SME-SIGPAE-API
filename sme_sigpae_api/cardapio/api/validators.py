@@ -7,6 +7,7 @@ from ...cardapio.models import (
     Cardapio,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
     SubstituicaoAlimentacaoNoPeriodoEscolar,
+    SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
@@ -131,14 +132,11 @@ def escola_nao_pode_cadastrar_dois_combos_iguais(
     return True
 
 
-def valida_duplicidade_solicitacoes_lanche_emergencial(attrs):
-    motivo = attrs["motivo"]
-
-    if motivo.nome != "Lanche Emergencial":
-        return True
-
+def get_parametros_queryset(attrs, eh_cemei):
     escola = attrs["escola"]
-    substituicoes = attrs["substituicoes"]
+    substituicoes = attrs.get("substituicoes")
+    if eh_cemei:
+        substituicoes = attrs["substituicoes_cemei_emei_periodo_escolar"]
     periodos_e_tipos = []
     for sub in substituicoes:
         elem = (
@@ -147,22 +145,30 @@ def valida_duplicidade_solicitacoes_lanche_emergencial(attrs):
         )
         periodos_e_tipos.append(elem)
 
-    status_permitidos = [
-        "ESCOLA_CANCELOU",
-        "DRE_NAO_VALIDOU_PEDIDO_ESCOLA",
-        "CODAE_NEGOU_PEDIDO",
-        "RASCUNHO",
-    ]
-
     datas_intervalo = attrs["datas_intervalo"]
     datas = [item["data"] for item in datas_intervalo]
+
+    modelo = SubstituicaoAlimentacaoNoPeriodoEscolar
+    if eh_cemei:
+        modelo = SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI
+
+    return escola, periodos_e_tipos, datas, modelo
+
+
+def valida_duplicidade_solicitacoes_lanche_emergencial(attrs, eh_cemei=False):
+    motivo = attrs["motivo"]
+
+    if motivo.nome != "Lanche Emergencial":
+        return True
+
+    escola, periodos_e_tipos, datas, modelo = get_parametros_queryset(attrs, eh_cemei)
 
     registros = []
 
     for data in datas:
         for periodo, tipos_de_alimentacao in periodos_e_tipos:
             registros.extend(
-                SubstituicaoAlimentacaoNoPeriodoEscolar.objects.filter(
+                modelo.objects.filter(
                     alteracao_cardapio__escola__uuid=escola.uuid,
                     alteracao_cardapio__motivo__nome=motivo.nome,
                     alteracao_cardapio__datas_intervalo__data=data,
@@ -170,6 +176,13 @@ def valida_duplicidade_solicitacoes_lanche_emergencial(attrs):
                     tipos_alimentacao_de__uuid__in=tipos_de_alimentacao,
                 )
             )
+
+    status_permitidos = [
+        "ESCOLA_CANCELOU",
+        "DRE_NAO_VALIDOU_PEDIDO_ESCOLA",
+        "CODAE_NEGOU_PEDIDO",
+        "RASCUNHO",
+    ]
 
     registros = [
         r for r in registros if r.alteracao_cardapio.status not in status_permitidos
