@@ -480,7 +480,7 @@ def _formata_filtros(query_params, tipos_de_unidade):
 
 def _insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
     NOMES_CAMPOS = {
-        "lanche": "Lanche 5h",
+        "lanche": "Lanche",
         "lanche_4h": "Lanche 4h",
         "2_lanche_4h": "2º Lanche 4h",
         "2_lanche_5h": "2º Lanche 5h",
