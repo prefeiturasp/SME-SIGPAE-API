@@ -18,6 +18,9 @@ from ..models import CategoriaMedicao, SolicitacaoMedicaoInicial
 
 
 def gera_relatorio_consolidado_xlsx(solicitacoes_uuid, tipos_de_unidade, query_params):
+    """
+    Gera o relatorio consolidado das unidades EMEI e EMEF
+    """
     solicitacoes = SolicitacaoMedicaoInicial.objects.filter(uuid__in=solicitacoes_uuid)
     colunas = _get_alimentacoes_por_periodo(solicitacoes)
     linhas = _get_valores_tabela(solicitacoes, colunas, tipos_de_unidade)
