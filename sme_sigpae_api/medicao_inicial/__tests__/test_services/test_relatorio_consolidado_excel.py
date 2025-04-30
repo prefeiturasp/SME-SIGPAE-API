@@ -125,17 +125,17 @@ def test_gera_relatorio_consolidado_xlsx_emef(
         "Unidade Escolar",
         "Kit Lanche",
         "Lanche Emerg.",
-        "Lanche 5h",
+        "Lanche",
         "Lanche 4h",
         "Refeição",
         "Refeições p/ Pagamento",
         "Sobremesa",
         "Sobremesas p/ Pagamento",
-        "Lanche 5h",
+        "Lanche",
         "Lanche 4h",
         "Refeição",
         "Sobremesa",
-        "Lanche 5h",
+        "Lanche",
         "Lanche 4h",
         "Refeição",
         "Sobremesa",
@@ -290,17 +290,17 @@ def test_gera_relatorio_consolidado_xlsx_emei(
         "Unidade Escolar",
         "Kit Lanche",
         "Lanche Emerg.",
-        "Lanche 5h",
+        "Lanche",
         "Lanche 4h",
         "Refeição",
         "Refeições p/ Pagamento",
         "Sobremesa",
         "Sobremesas p/ Pagamento",
-        "Lanche 5h",
+        "Lanche",
         "Lanche 4h",
         "Refeição",
         "Sobremesa",
-        "Lanche 5h",
+        "Lanche",
         "Lanche 4h",
         "Refeição",
         "Sobremesa",
@@ -472,7 +472,7 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 5h") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 3
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 3
     assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 3
     assert sum(1 for tupla in colunas_df if tupla[1] == "Refeições p/ Pagamento") == 1
@@ -542,7 +542,7 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 5h") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 3
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 3
     assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 3
     assert sum(1 for tupla in colunas_df if tupla[1] == "Refeições p/ Pagamento") == 1
