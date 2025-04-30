@@ -93,7 +93,7 @@ def test_clausula_desconto_filter_porcentagem_desconto(clausula_desconto):
 
 def test_clausula_desconto_filter_edital(clausula_desconto):
     filtro = ClausulaDeDescontoFilter(
-        data={"edital": clausula_desconto.edital},
+        data={"edital": clausula_desconto.edital.uuid},
         queryset=ClausulaDeDesconto.objects.all(),
     )
     assert filtro.qs.count() == 1
