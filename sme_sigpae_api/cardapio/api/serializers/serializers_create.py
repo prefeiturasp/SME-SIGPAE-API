@@ -804,7 +804,9 @@ class AlteracaoCardapioCEMEISerializerCreate(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        valida_duplicidade_solicitacoes_lanche_emergencial(validated_data, eh_cemei=True)
+        valida_duplicidade_solicitacoes_lanche_emergencial(
+            validated_data, eh_cemei=True
+        )
         motivo = validated_data.get("motivo", None)
         if motivo and motivo.nome == "RPL - Refeição por Lanche":
             valida_duplicidade_solicitacoes_cemei(validated_data)
@@ -826,7 +828,9 @@ class AlteracaoCardapioCEMEISerializerCreate(serializers.ModelSerializer):
         return alteracao_cemei
 
     def update(self, instance, validated_data):
-        valida_duplicidade_solicitacoes_lanche_emergencial(validated_data, eh_cemei=True)
+        valida_duplicidade_solicitacoes_lanche_emergencial(
+            validated_data, eh_cemei=True
+        )
         instance.substituicoes_cemei_cei_periodo_escolar.all().delete()
         instance.substituicoes_cemei_emei_periodo_escolar.all().delete()
         instance.datas_intervalo.all().delete()
