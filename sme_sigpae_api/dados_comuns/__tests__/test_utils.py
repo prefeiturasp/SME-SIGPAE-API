@@ -1,8 +1,10 @@
 import uuid
 from datetime import date
+from unittest.mock import MagicMock, patch
 
 import environ
 import pytest
+import requests
 from freezegun import freeze_time
 
 from sme_sigpae_api.dieta_especial.models import (
@@ -26,6 +28,7 @@ from ..utils import (
     eh_email_dev,
     envia_email_unico,
     gera_objeto_na_central_download,
+    obter_versao_api,
     ordena_dias_semana_comeca_domingo,
     queryset_por_data,
     remove_emails_dev,
@@ -238,3 +241,25 @@ def test_envia_email_unico_exception(reclamacao_produto_codae_recusou, dados_htm
     with pytest.raises(ValueError):
         email = envia_email_unico(assunto, corpo, email, None, None, html)
     assert email == reclamacao_produto
+
+
+@patch("requests.get")
+def test_obter_versao_api(mock_get):
+    mock_response = MagicMock()
+    mock_response.raise_for_status.return_value = None
+    mock_response.json.return_value = {"tag_name": "1.2.3"}
+    mock_get.return_value = mock_response
+
+    resultado = obter_versao_api()
+    assert resultado == "1.2.3"
+
+
+@patch("requests.get")
+def test_obter_versao_api_exception(mock_get):
+    mock_get.side_effect = requests.exceptions.RequestException("Erro de rede")
+    resultado = obter_versao_api()
+    assert resultado is None
+
+    mock_get.side_effect = Exception("Erro de rede")
+    resultado = obter_versao_api()
+    assert resultado is None
