@@ -355,6 +355,12 @@ ORDEM_UNIDADES_GRUPO_EMEI = {
     "EMEI PFOM": 3,
 }
 
+ORDEM_UNIDADES_GRUPO_CEI = {
+    "CCI": 1,
+    "CEI": 2,
+    "CEI CEU": 3,
+}
+
 ORDEM_HEADERS = {
     "Solicitações de Alimentação": 1,
     "MANHA": 2,
@@ -368,6 +374,16 @@ ORDEM_HEADERS = {
     "DIETA ESPECIAL - TIPO A": 10,
     "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": 11,
     "DIETA ESPECIAL - TIPO B": 12,
+}
+
+ORDEM_HEADERS_CEI = {
+    "Solicitações de Alimentação": 1,
+    "INTEGRAL": 2,
+    "PARCIAL": 3,
+    "MANHA": 4,
+    "TARDE": 5,
+    "DIETA ESPECIAL - TIPO A": 6,
+    "DIETA ESPECIAL - TIPO B": 7,
 }
 
 
