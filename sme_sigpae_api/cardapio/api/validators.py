@@ -6,6 +6,8 @@ from rest_framework import serializers
 from ...cardapio.models import (
     Cardapio,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
+    SubstituicaoAlimentacaoNoPeriodoEscolar,
+    SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
@@ -126,5 +128,69 @@ def escola_nao_pode_cadastrar_dois_combos_iguais(
     if horario_alimento_por_escola_e_periodo:
         raise serializers.ValidationError(
             "Já existe um horário registrado para esse tipo de alimentacao neste período e escola"
+        )
+    return True
+
+
+def get_parametros_queryset(attrs, eh_cemei):
+    escola = attrs["escola"]
+    substituicoes = attrs.get("substituicoes")
+    if eh_cemei:
+        substituicoes = attrs["substituicoes_cemei_emei_periodo_escolar"]
+    periodos_e_tipos = []
+    for sub in substituicoes:
+        elem = (
+            sub["periodo_escolar"].uuid,
+            [item.uuid for item in sub["tipos_alimentacao_de"]],
+        )
+        periodos_e_tipos.append(elem)
+
+    datas_intervalo = attrs["datas_intervalo"]
+    datas = [item["data"] for item in datas_intervalo]
+
+    modelo = SubstituicaoAlimentacaoNoPeriodoEscolar
+    if eh_cemei:
+        modelo = SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI
+
+    return escola, periodos_e_tipos, datas, modelo
+
+
+def valida_duplicidade_solicitacoes_lanche_emergencial(attrs, eh_cemei=False):
+    motivo = attrs["motivo"]
+
+    if motivo.nome != "Lanche Emergencial":
+        return True
+
+    escola, periodos_e_tipos, datas, modelo = get_parametros_queryset(attrs, eh_cemei)
+
+    registros = []
+
+    for data in datas:
+        for periodo, tipos_de_alimentacao in periodos_e_tipos:
+            registros.extend(
+                modelo.objects.filter(
+                    alteracao_cardapio__escola__uuid=escola.uuid,
+                    alteracao_cardapio__motivo__nome=motivo.nome,
+                    alteracao_cardapio__datas_intervalo__data=data,
+                    periodo_escolar__uuid=periodo,
+                    tipos_alimentacao_de__uuid__in=tipos_de_alimentacao,
+                )
+            )
+
+    status_permitidos = [
+        "ESCOLA_CANCELOU",
+        "DRE_NAO_VALIDOU_PEDIDO_ESCOLA",
+        "CODAE_NEGOU_PEDIDO",
+        "RASCUNHO",
+    ]
+
+    registros = [
+        r for r in registros if r.alteracao_cardapio.status not in status_permitidos
+    ]
+
+    # Caso ainda haja algum registro que esteja dando match com a solicitação
+    if registros:
+        raise serializers.ValidationError(
+            "Já existe uma solicitação de Lanche Emergencial para a mesma data e período selecionado!"
         )
     return True

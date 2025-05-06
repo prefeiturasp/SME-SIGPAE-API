@@ -12,6 +12,7 @@ from typing import Any
 
 import environ
 import numpy as np
+import requests
 from des.models import DynamicEmailConfiguration
 from django.conf import settings
 from django.contrib import admin
@@ -723,6 +724,29 @@ def ordena_queryset_por_ultimo_log(queryset: QuerySet) -> list:
         reverse=True,
     )
     return queryset
+
+
+def obter_versao_api():
+    github_api_version = "2022-11-28"
+    usuario = "prefeiturasp"
+    repositorio = "SME-SIGPAE-API"
+    url = f"https://api.github.com/repos/{usuario}/{repositorio}/releases/latest"
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": github_api_version,
+    }
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+
+        latest_release = response.json()
+        return latest_release.get("tag_name")
+
+    except requests.exceptions.RequestException as ex:
+        logger.error(f"Erro na requisição: {ex}")
+    except Exception as ex:
+        logger.error(f"Não foi possível obter a última versão da API: {ex}")
+    return None
 
 
 def remove_duplicados_do_query_set(query_set: QuerySet | list) -> list:

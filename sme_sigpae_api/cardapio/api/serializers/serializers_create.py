@@ -32,6 +32,7 @@ from ...api.validators import (
     nao_pode_existir_solicitacao_igual_para_mesma_escola,
     nao_pode_ter_mais_que_60_dias_diferenca,
     precisa_pertencer_a_um_tipo_de_alimentacao,
+    valida_duplicidade_solicitacoes_lanche_emergencial,
 )
 from ...models import (
     AlteracaoCardapio,
@@ -568,6 +569,7 @@ class AlteracaoCardapioSerializerCreate(AlteracaoCardapioSerializerCreateBase):
             substituicao_alimentacao.tipos_alimentacao_para.set(tipos_alimentacao_para)
 
     def create(self, validated_data):
+        valida_duplicidade_solicitacoes_lanche_emergencial(validated_data)
         validated_data["criado_por"] = self.context["request"].user
         substituicoes = validated_data.pop("substituicoes")
         datas_intervalo = validated_data.pop("datas_intervalo", [])
@@ -579,6 +581,7 @@ class AlteracaoCardapioSerializerCreate(AlteracaoCardapioSerializerCreateBase):
         return alteracao_cardapio
 
     def update(self, instance, validated_data):
+        valida_duplicidade_solicitacoes_lanche_emergencial(validated_data)
         instance.substituicoes.all().delete()
         instance.datas_intervalo.all().delete()
 
@@ -801,6 +804,9 @@ class AlteracaoCardapioCEMEISerializerCreate(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
+        valida_duplicidade_solicitacoes_lanche_emergencial(
+            validated_data, eh_cemei=True
+        )
         motivo = validated_data.get("motivo", None)
         if motivo and motivo.nome == "RPL - Refeição por Lanche":
             valida_duplicidade_solicitacoes_cemei(validated_data)
@@ -822,6 +828,9 @@ class AlteracaoCardapioCEMEISerializerCreate(serializers.ModelSerializer):
         return alteracao_cemei
 
     def update(self, instance, validated_data):
+        valida_duplicidade_solicitacoes_lanche_emergencial(
+            validated_data, eh_cemei=True
+        )
         instance.substituicoes_cemei_cei_periodo_escolar.all().delete()
         instance.substituicoes_cemei_emei_periodo_escolar.all().delete()
         instance.datas_intervalo.all().delete()
