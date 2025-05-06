@@ -74,6 +74,7 @@ from ..models import (
 from ..tasks import (
     gera_pdf_relatorio_dietas_especiais_terceirizadas_async,
     gera_xlsx_relatorio_dietas_especiais_terceirizadas_async,
+    gera_xlsx_relatorio_historico_dietas_especiais_async,
 )
 from ..utils import (
     ProtocoloPadraoPagination,
@@ -1347,6 +1348,33 @@ class SolicitacaoDietaEspecialViewSet(
             serializer = UnidadeEducacionalSerializer(page, many=True)
             return paginator.get_paginated_response(
                 serializer.data, dietas["total_dietas"], data_dieta
+            )
+        except ValidationError as e:
+            print(e)
+            return Response(dict(detail=e.messages[0]), status=HTTP_400_BAD_REQUEST)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="relatorio-historico-dieta-especial/exportar-excel",
+        permission_classes=(PermissaoHistoricoDietasEspeciais,),
+    )
+    def relatorio_historico_dieta_especial_exportar_excel(self, request):
+        try:
+            query_dict = request.query_params
+            data = {
+                key: query_dict.getlist(key) if "[]" in key else query_dict.get(key)
+                for key in query_dict.keys()
+            }
+            user = request.user.get_username()
+            gera_xlsx_relatorio_historico_dietas_especiais_async(
+                user=user,
+                nome_arquivo="relatorio_historico_dietas_especiais.xlsx",
+                data=json.dumps(data),
+            )
+            return Response(
+                dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+                status=status.HTTP_200_OK,
             )
         except ValidationError as e:
             print(e)
