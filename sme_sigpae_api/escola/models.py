@@ -60,10 +60,7 @@ from ..dados_comuns.utils import (
     subtrai_meses_de_data,
 )
 from ..eol_servico.utils import EOLServicoSGP, dt_nascimento_from_api
-from ..escola.constants import (
-    PERIODOS_ESPECIAIS_CEI_CEU_CCI,
-    PERIODOS_ESPECIAIS_CEI_DIRET,
-)
+from ..escola.constants import PERIODOS_ESPECIAIS_CEI_CEU_CCI
 from ..inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoAlimentacaoContinua,
@@ -651,10 +648,6 @@ class Escola(
         if self.tipo_unidade.tem_somente_integral_e_parcial:
             periodos = PeriodoEscolar.objects.filter(
                 nome__in=PERIODOS_ESPECIAIS_CEI_CEU_CCI
-            )
-        elif self.eh_cei:
-            periodos = PeriodoEscolar.objects.filter(
-                nome__in=PERIODOS_ESPECIAIS_CEI_DIRET
             )
         elif not self.possui_alunos_regulares:
             periodos = PeriodoEscolar.objects.filter(

@@ -139,11 +139,14 @@ def test_gera_pdf_relatorio_dieta_especial_erro(usuario_com_pk):
     assert central_download.status == CentralDeDownload.STATUS_ERRO
 
 
+@freeze_time("2025-05-05")
 def test_gera_logs_dietas_especiais_diariamente_sem_logs_gerados(
     solicitacoes_processa_dieta_especial,
     escola_cemei,
     escola_emebs,
     escola_cei,
+    log_aluno_integral_cei,
+    log_alunos_matriculados_integral_cei,
     escola_dre_guaianases,
 ):
     assert Escola.objects.filter(tipo_gestao__nome="TERC TOTAL").count() == 4
