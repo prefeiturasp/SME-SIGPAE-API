@@ -421,7 +421,7 @@ class SolicitacaoDietaEspecialViewSet(
             return Response(
                 dict(detail=f"Erro de transição de estado: {e}"),
                 status=HTTP_400_BAD_REQUEST,
-            )  # noqa
+            )
 
     @action(
         detail=True,
