@@ -1,6 +1,6 @@
 import pytest
+from freezegun.api import freeze_time
 
-from sme_sigpae_api.medicao_inicial.utils import get_lista_dias_inclusoes_ceu_gestao
 from sme_sigpae_api.medicao_inicial.validators import (
     valida_medicoes_inexistentes_cei,
     valida_medicoes_inexistentes_ceu_gestao,
@@ -18,6 +18,7 @@ from sme_sigpae_api.medicao_inicial.validators import (
 pytestmark = pytest.mark.django_db
 
 
+@freeze_time("2025-05-05")
 def test_valida_medicoes_inexistentes_cei(
     solicitacao_medicao_inicial_cei,
     log_aluno_integral_cei,
