@@ -121,6 +121,29 @@ def escola_cei():
 
 
 @pytest.fixture
+def log_aluno_integral_cei(escola_cei, periodo_escolar):
+    log = mommy.make(
+        "LogAlunosMatriculadosPeriodoEscola",
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar,
+        quantidade_alunos=100,
+    )
+    log.criado_em = datetime.date(2025, 5, 5)
+    log.save()
+    return log
+
+
+@pytest.fixture
+def log_alunos_matriculados_integral_cei(escola_cei, periodo_escolar):
+    return mommy.make(
+        "AlunosMatriculadosPeriodoEscola",
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar,
+        quantidade_alunos=100,
+    )
+
+
+@pytest.fixture
 def escola_cemei(periodo_escolar):
     terceirizada = mommy.make("Terceirizada")
     lote = mommy.make("Lote", terceirizada=terceirizada)
