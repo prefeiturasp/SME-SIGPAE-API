@@ -7,7 +7,6 @@ from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_CEI,
 )
 from sme_sigpae_api.escola.models import FaixaEtaria, PeriodoEscolar
-from sme_sigpae_api.escola.utils import string_to_faixa
 
 from ..models import CategoriaMedicao
 
@@ -19,7 +18,7 @@ def _get_alimentacoes_por_periodo(solicitacoes):
     for solicitacao in solicitacoes:
         for medicao in solicitacao.medicoes.all():
             nome_periodo = _get_nome_periodo(medicao)
-            lista_faixas = _get_faixas_etarias(medicao, nome_periodo)
+            lista_faixas = _get_faixas_etarias(medicao)
             periodos_alimentacoes = _update_periodos_alimentacoes(
                 periodos_alimentacoes, nome_periodo, lista_faixas
             )
@@ -52,9 +51,9 @@ def _get_nome_periodo(medicao):
     )
 
 
-def _get_faixas_etarias(medicao, nome_periodo):
+def _get_faixas_etarias(medicao):
     lista_faixas = list(
-        faixa.__str__()
+        faixa.id
         for faixa in FaixaEtaria.objects.filter(
             id__in=medicao.valores_medicao.filter(nome_campo="frequencia").values_list(
                 "faixa_etaria", flat=True
@@ -89,7 +88,7 @@ def _get_categorias_dietas(medicao):
 
 def _get_lista_alimentacoes_dietas_por_faixa(medicao, categoria):
     dietas_por_faixa = list(
-        faixa.__str__()
+        faixa.id
         for faixa in FaixaEtaria.objects.filter(
             id__in=medicao.valores_medicao.filter(
                 categoria_medicao__nome=categoria, nome_campo="frequencia"
@@ -114,7 +113,10 @@ def _update_dietas_alimentacoes(
 
 
 def _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes):
-    dict_periodos_dietas = {**periodos_alimentacoes, **dietas_alimentacoes}
+    dict_periodos_dietas = {
+        **{k: list(set(v)) for k, v in periodos_alimentacoes.items()},
+        **{k: list(set(v)) for k, v in dietas_alimentacoes.items()},
+    }
 
     dict_periodos_dietas = dict(
         sorted(
@@ -235,12 +237,10 @@ def _processa_periodo_regular(solicitacao, filtros, faixa_etaria, periodo):
 
 
 def _calcula_soma_medicao(medicao, faixa_etaria, categoria):
-    inicio, fim = string_to_faixa(faixa_etaria)
     return (
         medicao.valores_medicao.filter(
             nome_campo="frequencia",
-            faixa_etaria__inicio=inicio,
-            faixa_etaria__fim=fim,
+            faixa_etaria_id=faixa_etaria,
             categoria_medicao__nome=categoria,
         )
         .annotate(valor_float=Cast("valor", output_field=FloatField()))
@@ -249,6 +249,10 @@ def _calcula_soma_medicao(medicao, faixa_etaria, categoria):
 
 
 def _insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
+    NOMES_CAMPOS = {
+        faixa.id: faixa.__str__() for faixa in FaixaEtaria.objects.filter(ativo=True)
+    }
+
     colunas_fixas = [
         ("", "Tipo"),
         ("", "Cód. EOL"),
@@ -257,7 +261,7 @@ def _insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
     headers = [
         (
             chave.upper() if chave != "Solicitações de Alimentação" else "",
-            valor,
+            NOMES_CAMPOS[valor],
         )
         for chave, valor in colunas
     ]
