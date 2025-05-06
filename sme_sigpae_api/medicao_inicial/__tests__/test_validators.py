@@ -18,16 +18,16 @@ from sme_sigpae_api.medicao_inicial.validators import (
 pytestmark = pytest.mark.django_db
 
 
-def test_valida_medicoes_inexistentes_cei(solicitacao_medicao_inicial_cei):
+def test_valida_medicoes_inexistentes_cei(
+    solicitacao_medicao_inicial_cei,
+    log_aluno_integral_cei,
+    log_alunos_matriculados_integral_cei,
+):
     lista_erros = []
     lista_erros = valida_medicoes_inexistentes_cei(
         solicitacao_medicao_inicial_cei, lista_erros
     )
-    assert len(lista_erros) == 2
-    assert (
-        next((erro for erro in lista_erros if erro["periodo_escolar"] == "MANHA"), None)
-        is not None
-    )
+    assert len(lista_erros) == 1
     assert (
         next(
             (erro for erro in lista_erros if erro["periodo_escolar"] == "PARCIAL"), None

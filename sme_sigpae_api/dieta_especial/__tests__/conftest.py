@@ -911,6 +911,29 @@ def escola_cei():
 
 
 @pytest.fixture
+def log_aluno_integral_cei(escola_cei, periodo_escolar_integral):
+    log = mommy.make(
+        "LogAlunosMatriculadosPeriodoEscola",
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar_integral,
+        quantidade_alunos=100,
+    )
+    log.criado_em = datetime.date(2025, 5, 5)
+    log.save()
+    return log
+
+
+@pytest.fixture
+def log_alunos_matriculados_integral_cei(escola_cei, periodo_escolar_integral):
+    return mommy.make(
+        "AlunosMatriculadosPeriodoEscola",
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar_integral,
+        quantidade_alunos=100,
+    )
+
+
+@pytest.fixture
 def classificacoes_dietas():
     return [
         mommy.make(ClassificacaoDieta, nome="Tipo A"),
@@ -990,8 +1013,9 @@ def solicitacoes_dieta_especial_ativas_cei(escola_cei, classificacoes_dietas):
 
 
 @pytest.fixture
-def solicitacoes_dieta_especial_ativas_cemei(escola_cemei, classificacoes_dietas):
-    periodo_integral = mommy.make(PeriodoEscolar, nome="INTEGRAL")
+def solicitacoes_dieta_especial_ativas_cemei(
+    escola_cemei, classificacoes_dietas, periodo_escolar_integral
+):
     mommy.make(FaixaEtaria, inicio=1, fim=31)
     mommy.make(FaixaEtaria, inicio=32, fim=88)
     aluno_a = mommy.make(
@@ -1000,7 +1024,7 @@ def solicitacoes_dieta_especial_ativas_cemei(escola_cemei, classificacoes_dietas
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_cemei,
-        periodo_escolar=periodo_integral,
+        periodo_escolar=periodo_escolar_integral,
         serie="3B",
     )
     aluno_b = mommy.make(
@@ -1009,7 +1033,7 @@ def solicitacoes_dieta_especial_ativas_cemei(escola_cemei, classificacoes_dietas
         codigo_eol="456789",
         data_nascimento="2017-01-01",
         escola=escola_cemei,
-        periodo_escolar=periodo_integral,
+        periodo_escolar=periodo_escolar_integral,
         serie="6C",
     )
     aluno_c = mommy.make(
@@ -1018,7 +1042,7 @@ def solicitacoes_dieta_especial_ativas_cemei(escola_cemei, classificacoes_dietas
         codigo_eol="123025",
         data_nascimento="2017-01-01",
         escola=escola_cemei,
-        periodo_escolar=periodo_integral,
+        periodo_escolar=periodo_escolar_integral,
         serie="1A",
     )
     mommy.make(
@@ -1156,9 +1180,11 @@ def solicitacao_medicao_inicial(escola_cei, categoria_medicao):
 
 @pytest.fixture
 def solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao(
-    escola_cei, classificacoes_dietas, solicitacao_medicao_inicial
+    escola_cei,
+    classificacoes_dietas,
+    solicitacao_medicao_inicial,
+    periodo_escolar_integral,
 ):
-    periodo_integral = mommy.make(PeriodoEscolar, nome="INTEGRAL")
     mommy.make(FaixaEtaria, inicio=1, fim=50)
     mommy.make(ClassificacaoDieta, nome="Tipo C")
     aluno = mommy.make(
@@ -1167,7 +1193,7 @@ def solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao(
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_cei,
-        periodo_escolar=periodo_integral,
+        periodo_escolar=periodo_escolar_integral,
     )
     mommy.make(
         SolicitacaoDietaEspecial,
@@ -1221,14 +1247,14 @@ def usuario_com_pk():
 
 @freeze_time("2025-1-10")
 @pytest.fixture
-def solicitacoes_processa_dieta_especial(escola_cei):
+def solicitacoes_processa_dieta_especial(escola_cei, periodo_escolar_integral):
     aluno = mommy.make(
         Aluno,
         nome="Roberto Alves da Silva",
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_cei,
-        periodo_escolar=mommy.make(PeriodoEscolar, nome="INTEGRAL"),
+        periodo_escolar=periodo_escolar_integral,
     )
     dieta_alterada = mommy.make(
         SolicitacaoDietaEspecial,

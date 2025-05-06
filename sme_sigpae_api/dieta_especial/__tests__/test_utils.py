@@ -89,7 +89,10 @@ def test_gera_logs_dietas_escolas_comuns(escola, solicitacoes_dieta_especial_ati
 
 
 def test_gera_logs_dietas_escolas_cei(
-    escola_cei, solicitacoes_dieta_especial_ativas_cei
+    escola_cei,
+    solicitacoes_dieta_especial_ativas_cei,
+    log_aluno_integral_cei,
+    log_alunos_matriculados_integral_cei,
 ):
     hoje = datetime.date.today()
     ontem = hoje - datetime.timedelta(days=1)
@@ -130,7 +133,10 @@ def test_gera_logs_dietas_escolas_cemei(
 
 
 def test_gera_logs_dietas_escolas_cei_com_solicitacao_medicao(
-    escola_cei, solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao
+    escola_cei,
+    solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao,
+    log_aluno_integral_cei,
+    log_alunos_matriculados_integral_cei,
 ):
     hoje = datetime.date.today()
     ontem = hoje - datetime.timedelta(days=1)
