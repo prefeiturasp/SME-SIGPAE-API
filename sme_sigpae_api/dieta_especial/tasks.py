@@ -1,5 +1,6 @@
 import datetime
 import io
+import json
 import logging
 
 import numpy as np
@@ -19,6 +20,7 @@ from sme_sigpae_api.escola.utils_escola import get_escolas
 from ..dados_comuns.utils import (
     atualiza_central_download,
     atualiza_central_download_com_erro,
+    convert_dict_to_querydict,
     converte_numero_em_mes,
     gera_objeto_na_central_download,
 )
@@ -33,6 +35,8 @@ from .utils import (
     cancela_dietas_ativas_automaticamente,
     gera_logs_dietas_escolas_cei,
     gera_logs_dietas_escolas_comuns,
+    gerar_filtros_relatorio_historico,
+    get_logs_historico_dietas,
     inicia_dietas_temporarias,
     termina_dietas_especiais,
 )
@@ -390,6 +394,30 @@ def gera_xlsx_relatorio_dietas_especiais_terceirizadas_async(
             data_final,
             exibir_diagnostico,
         )
+        atualiza_central_download(obj_central_download, nome_arquivo, output.read())
+    except Exception as e:
+        atualiza_central_download_com_erro(obj_central_download, str(e))
+
+    logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
+
+
+@shared_task(
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 8},
+    time_limit=3000,
+    soft_time_limit=3000,
+)
+def gera_xlsx_relatorio_historico_dietas_especiais_async(user, nome_arquivo, data):
+    logger.info(f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x")
+    obj_central_download = gera_objeto_na_central_download(
+        user=user, identificador=nome_arquivo
+    )
+    try:
+        data_json = json.loads(data)
+        querydict_params = convert_dict_to_querydict(data_json)
+        filtros, data_dieta = gerar_filtros_relatorio_historico(querydict_params)
+        get_logs_historico_dietas(filtros)
+        output = io.BytesIO()
         atualiza_central_download(obj_central_download, nome_arquivo, output.read())
     except Exception as e:
         atualiza_central_download_com_erro(obj_central_download, str(e))
