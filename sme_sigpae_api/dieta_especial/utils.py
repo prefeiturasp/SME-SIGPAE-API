@@ -25,7 +25,11 @@ from sme_sigpae_api.relatorios.utils import html_to_pdf_email_anexo
 
 from ..dados_comuns.constants import TIPO_SOLICITACAO_DIETA
 from ..dados_comuns.fluxo_status import DietaEspecialWorkflow
-from ..dados_comuns.utils import envia_email_unico, envia_email_unico_com_anexo_inmemory
+from ..dados_comuns.utils import (
+    envia_email_unico,
+    envia_email_unico_com_anexo_inmemory,
+    quantidade_meses,
+)
 from ..escola.models import Aluno, FaixaEtaria, PeriodoEscolar
 from ..paineis_consolidados.models import SolicitacoesCODAE
 from .constants import (
@@ -1032,11 +1036,6 @@ def append_periodo_parcial(periodos, solicitacao_medicao):
     if solicitacao_medicao.ue_possui_alunos_periodo_parcial:
         periodos.append("PARCIAL")
     return periodos
-
-
-def quantidade_meses(d1, d2):
-    delta = relativedelta(d1, d2)
-    return (delta.years * 12) + delta.months
 
 
 def append_faixas_dietas(dietas, escola):

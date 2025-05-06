@@ -55,6 +55,7 @@ from ..dados_comuns.fluxo_status import (
 from ..dados_comuns.utils import (
     datetime_range,
     eh_fim_de_semana,
+    quantidade_meses,
     queryset_por_data,
     subtrai_meses_de_data,
 )
@@ -1512,6 +1513,22 @@ class Responsavel(Nomeavel, TemChaveExterna, CriadoEm):
         verbose_name_plural = "Reponsáveis"
 
 
+class FaixaEtaria(Ativavel, TemChaveExterna):
+    inicio = models.PositiveSmallIntegerField()
+    fim = models.PositiveSmallIntegerField()
+
+    def data_pertence_a_faixa(self, data_pesquisada, data_referencia_arg=None):
+        data_referencia = (
+            date.today() if data_referencia_arg is None else data_referencia_arg
+        )
+        data_inicio = subtrai_meses_de_data(self.fim, data_referencia)
+        data_fim = subtrai_meses_de_data(self.inicio, data_referencia)
+        return data_inicio <= data_pesquisada < data_fim
+
+    def __str__(self):
+        return faixa_to_string(self.inicio, self.fim)
+
+
 class Aluno(TemChaveExterna):
     ETAPA_INFANTIL = 10
 
@@ -1556,6 +1573,17 @@ class Aluno(TemChaveExterna):
             return f"{self.nome} - Não Matriculado"
         return f"{self.nome} - {self.codigo_eol}"
 
+    def faixa_etaria(self, data_comparacao=date.today()) -> FaixaEtaria:
+        meses = quantidade_meses(data_comparacao, self.data_nascimento)
+        ultima_faixa = FaixaEtaria.objects.filter(ativo=True).order_by("fim").last()
+        if meses >= ultima_faixa.fim:
+            faixa = ultima_faixa
+        else:
+            faixa = FaixaEtaria.objects.get(
+                ativo=True, inicio__lte=meses, fim__gt=meses
+            )
+        return faixa
+
     @property
     def possui_dieta_especial_ativa(self):
         return self.dietas_especiais.filter(ativo=True).exists()
@@ -1568,6 +1596,7 @@ class Aluno(TemChaveExterna):
             if response.status_code == status.HTTP_200_OK:
                 download = response.json()["download"]
                 return f'data:{download["item2"]};base64,{download["item1"]}'
+            return None
         except Exception:
             return None
 
@@ -1593,22 +1622,6 @@ class Aluno(TemChaveExterna):
     class Meta:
         verbose_name = "Aluno"
         verbose_name_plural = "Alunos"
-
-
-class FaixaEtaria(Ativavel, TemChaveExterna):
-    inicio = models.PositiveSmallIntegerField()
-    fim = models.PositiveSmallIntegerField()
-
-    def data_pertence_a_faixa(self, data_pesquisada, data_referencia_arg=None):
-        data_referencia = (
-            date.today() if data_referencia_arg is None else data_referencia_arg
-        )
-        data_inicio = subtrai_meses_de_data(self.fim, data_referencia)
-        data_fim = subtrai_meses_de_data(self.inicio, data_referencia)
-        return data_inicio <= data_pesquisada < data_fim
-
-    def __str__(self):
-        return faixa_to_string(self.inicio, self.fim)
 
 
 class MudancaFaixasEtarias(Justificativa, TemChaveExterna):
