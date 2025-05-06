@@ -13,6 +13,7 @@ from typing import Any
 import environ
 import numpy as np
 import requests
+from dateutil.relativedelta import relativedelta
 from des.models import DynamicEmailConfiguration
 from django.conf import settings
 from django.contrib import admin
@@ -757,3 +758,8 @@ def remove_duplicados_do_query_set(query_set: QuerySet | list) -> list:
         if solicitacao.uuid not in uuids_repetidos
         and not uuids_repetidos.add(solicitacao.uuid)
     ]
+
+
+def quantidade_meses(d1, d2):
+    delta = relativedelta(d1, d2)
+    return (delta.years * 12) + delta.months
