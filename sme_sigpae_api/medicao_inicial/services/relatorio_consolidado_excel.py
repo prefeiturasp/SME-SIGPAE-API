@@ -48,13 +48,23 @@ def gera_relatorio_consolidado_xlsx(solicitacoes_uuid, tipos_de_unidade, query_p
         worksheet = workbook.add_worksheet(aba)
         worksheet.set_default_row(20)
 
-        df = _insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer)
+        if set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_CEI):
+            df = relatorio_consolidado_cei._insere_tabela_periodos_na_planilha(
+                aba, colunas, linhas, writer
+            )
+        else:
+            df = _insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer)
 
         _preenche_titulo(workbook, worksheet, df.columns)
         _preenche_linha_dos_filtros_selecionados(
             workbook, worksheet, query_params, df.columns, tipos_de_unidade
         )
-        _ajusta_layout_tabela(workbook, worksheet, df)
+
+        if set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_CEI):
+            relatorio_consolidado_cei._ajusta_layout_tabela(workbook, worksheet, df)
+        else:
+            _ajusta_layout_tabela(workbook, worksheet, df)
+
         _formata_total_geral(workbook, worksheet, df)
 
     return file.getvalue()
