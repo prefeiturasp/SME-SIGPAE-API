@@ -3,6 +3,7 @@ import datetime
 import pytest
 from django.core.exceptions import ValidationError
 from django.http import QueryDict
+from freezegun.api import freeze_time
 
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...terceirizada.models import Edital
@@ -88,8 +89,12 @@ def test_gera_logs_dietas_escolas_comuns(escola, solicitacoes_dieta_especial_ati
     assert len([log for log in logs if log.classificacao.nome == "Tipo A"]) == 2
 
 
+@freeze_time("2025-05-05")
 def test_gera_logs_dietas_escolas_cei(
-    escola_cei, solicitacoes_dieta_especial_ativas_cei
+    escola_cei,
+    solicitacoes_dieta_especial_ativas_cei,
+    log_aluno_integral_cei,
+    log_alunos_matriculados_integral_cei,
 ):
     hoje = datetime.date.today()
     ontem = hoje - datetime.timedelta(days=1)
@@ -129,8 +134,12 @@ def test_gera_logs_dietas_escolas_cemei(
     ][0].quantidade == 1
 
 
+@freeze_time("2025-05-05")
 def test_gera_logs_dietas_escolas_cei_com_solicitacao_medicao(
-    escola_cei, solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao
+    escola_cei,
+    solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao,
+    log_aluno_integral_cei,
+    log_alunos_matriculados_integral_cei,
 ):
     hoje = datetime.date.today()
     ontem = hoje - datetime.timedelta(days=1)

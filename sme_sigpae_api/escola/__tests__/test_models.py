@@ -564,7 +564,13 @@ def test_possui_alunos_regulares_retorna_true(
     )
 
 
-def test_periodos_escolares_escola_cei(escola_cei, periodo_escolar):
+@freeze_time("2025-05-05")
+def test_periodos_escolares_escola_cei(
+    escola_cei,
+    periodo_escolar,
+    log_aluno_integral_cei,
+    log_alunos_matriculados_integral_cei,
+):
     periodos = escola_cei.periodos_escolares()
     assert periodos.count() == 1
     assert isinstance(periodos[0], PeriodoEscolar)
