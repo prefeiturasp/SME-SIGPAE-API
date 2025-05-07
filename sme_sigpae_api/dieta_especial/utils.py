@@ -1158,10 +1158,13 @@ def gerar_filtros_relatorio_historico(
     return filtros, data_dieta
 
 
-def dados_dietas_escolas_cei(filtros: dict) -> List[dict]:
+def dados_dietas_escolas_cei(filtros: dict, eh_exportacao: bool = False) -> List[dict]:
+    queryset = LogQuantidadeDietasAutorizadasCEI.objects.filter(**filtros)
+    if eh_exportacao:
+        queryset = queryset.filter(faixa_etaria__isnull=False)
+
     logs_dietas_escolas_cei = (
-        LogQuantidadeDietasAutorizadasCEI.objects.filter(**filtros)
-        .select_related(
+        queryset.select_related(
             "escola",
             "periodo_escolar",
             "escola__tipo_unidade",
@@ -1173,6 +1176,7 @@ def dados_dietas_escolas_cei(filtros: dict) -> List[dict]:
             nome_periodo_escolar=Coalesce(F("periodo_escolar__nome"), Value(None)),
             tipo_unidade=F("escola__tipo_unidade__iniciais"),
             lote=F("escola__lote__nome"),
+            dre=F("escola__lote__diretoria_regional__iniciais"),
             nome_classificacao=F("classificacao__nome"),
             quantidade_total=Sum("quantidade"),
             inicio=Coalesce(F("faixa_etaria__inicio"), Value(None)),
@@ -1184,6 +1188,7 @@ def dados_dietas_escolas_cei(filtros: dict) -> List[dict]:
             "nome_escola",
             "tipo_unidade",
             "lote",
+            "dre",
             "nome_classificacao",
             "nome_periodo_escolar",
             "infantil_ou_fundamental",
@@ -1224,6 +1229,7 @@ def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
             nome_periodo_escolar=Coalesce(F("periodo_escolar__nome"), Value(None)),
             tipo_unidade=F("escola__tipo_unidade__iniciais"),
             lote=F("escola__lote__nome"),
+            dre=F("escola__lote__diretoria_regional__iniciais"),
             nome_classificacao=F("classificacao__nome"),
             quantidade_total=Sum("quantidade"),
             inicio=Value(None, output_field=IntegerField()),
@@ -1233,6 +1239,7 @@ def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
             "nome_escola",
             "tipo_unidade",
             "lote",
+            "dre",
             "nome_classificacao",
             "nome_periodo_escolar",
             "infantil_ou_fundamental",
@@ -1249,7 +1256,7 @@ def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
 
 
 def get_logs_historico_dietas(filtros) -> list:
-    log_escolas_cei = dados_dietas_escolas_cei(filtros)
+    log_escolas_cei = dados_dietas_escolas_cei(filtros, eh_exportacao=True)
     log_escolas = dados_dietas_escolas_comuns(filtros)
     log_dietas = sorted(
         chain(log_escolas_cei, log_escolas), key=lambda x: x["nome_escola"]

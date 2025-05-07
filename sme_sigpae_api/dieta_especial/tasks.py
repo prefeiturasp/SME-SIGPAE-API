@@ -25,6 +25,7 @@ from ..dados_comuns.utils import (
     gera_objeto_na_central_download,
 )
 from ..escola.models import Escola, Lote
+from ..escola.utils import faixa_to_string
 from ..perfil.models import Usuario
 from ..relatorios.relatorios import relatorio_dietas_especiais_terceirizada
 from .api.serializers import (
@@ -401,6 +402,107 @@ def gera_xlsx_relatorio_dietas_especiais_terceirizadas_async(
     logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
 
 
+def get_faixa_etaria_cei(log: dict, faixa_etaria: str) -> str:
+    if log["tipo_unidade"] not in [
+        "CEI DIRET",
+        "CEU CEI",
+        "CEI",
+        "CCI",
+        "CCI/CIPS",
+        "CEI CEU",
+    ]:
+        return faixa_etaria
+    faixa_etaria = faixa_to_string(log["inicio"], log["fim"])
+    return faixa_etaria
+
+
+def get_faixa_etaria_cemei(log: dict, faixa_etaria: str) -> str:
+    if log["tipo_unidade"] not in ["CEMEI", "CEU CEMEI"]:
+        return faixa_etaria
+    if log["inicio"]:
+        faixa_etaria = faixa_to_string(log["inicio"], log["fim"])
+    else:
+        faixa_etaria = "Infantil"
+    return faixa_etaria
+
+
+def get_faixa_etaria_emebs(log: dict, faixa_etaria: str) -> str:
+    if log["tipo_unidade"] != "EMEBS":
+        return faixa_etaria
+    if log["infantil_ou_fundamental"] == "INFANTIL":
+        faixa_etaria = "Infantil (4 a 6 anos)"
+    elif log["infantil_ou_fundamental"] == "FUNDAMENTAL":
+        faixa_etaria = "Fundamental (acima de 6 anos)"
+    return faixa_etaria
+
+
+def get_faixa_etaria(log: dict) -> str:
+    faixa_etaria = ""
+    faixa_etaria = get_faixa_etaria_cei(log, faixa_etaria)
+    faixa_etaria = get_faixa_etaria_cemei(log, faixa_etaria)
+    faixa_etaria = get_faixa_etaria_emebs(log, faixa_etaria)
+    return faixa_etaria
+
+
+def build_xlsx_relatorio_historico_dietas(output, logs_dietas: list[dict]) -> None:
+    import pandas as pd
+
+    xlwriter = pd.ExcelWriter(output, engine="xlsxwriter")
+
+    logs_dietas_formatados = [
+        {
+            "dre_lote": f"{log['lote']} - DRE {log['dre']}",
+            "unidade_educacional": log["nome_escola"],
+            "classificacao_da_dieta": log["nome_classificacao"],
+            "periodo": log["nome_periodo_escolar"],
+            "faixa_etaria": get_faixa_etaria(log),
+            "dietas_autorizadas": log["quantidade_total"],
+            "data_de_referencia": log["data"].strftime("%d/%m/%Y"),
+        }
+        for log in logs_dietas
+    ]
+
+    df = pd.DataFrame(logs_dietas_formatados)
+
+    # Adiciona linhas em branco no comeco do arquivo
+    df_auxiliar = pd.DataFrame([[np.nan] * len(df.columns)], columns=df.columns)
+    df = df_auxiliar.append(df, ignore_index=True)
+    df = df_auxiliar.append(df, ignore_index=True)
+    df = df_auxiliar.append(df, ignore_index=True)
+
+    df.to_excel(xlwriter, "Histórico de Dietas Autorizadas")
+    workbook = xlwriter.book
+    worksheet = xlwriter.sheets["Histórico de Dietas Autorizadas"]
+    worksheet.set_row(0, 30)
+    worksheet.set_row(1, 30)
+    worksheet.set_column("B:H", 30)
+    worksheet.set_column("C:C", 50)
+    merge_format = workbook.add_format({"align": "center", "bg_color": "#a9d18e"})
+    merge_format.set_align("vcenter")
+    cell_format = workbook.add_format()
+    cell_format.set_text_wrap()
+    cell_format.set_align("vcenter")
+    v_center_format = workbook.add_format()
+    v_center_format.set_align("vcenter")
+    single_cell_format = workbook.add_format({"bg_color": "#a9d18e"})
+    len_cols = len(df.columns)
+    worksheet.merge_range(
+        0, 0, 0, len_cols, "Relatório Histórico de Dietas Autorizadas", merge_format
+    )
+    titulo = "xablau"
+    worksheet.merge_range(1, 0, 2, len_cols, titulo, cell_format)
+    worksheet.write(3, 1, "Lote/DRE", single_cell_format)
+    worksheet.write(3, 2, "Unidade Educacional", single_cell_format)
+    worksheet.write(3, 3, "Classificação da Dieta", single_cell_format)
+    worksheet.write(3, 4, "Período", single_cell_format)
+    worksheet.write(3, 5, "Faixa Etária", single_cell_format)
+    worksheet.write(3, 6, "Dietas Autorizadas", single_cell_format)
+    worksheet.write(3, 7, "Data de Referência", single_cell_format)
+    df.reset_index(drop=True, inplace=True)
+    xlwriter.save()
+    output.seek(0)
+
+
 @shared_task(
     retry_backoff=2,
     retry_kwargs={"max_retries": 8},
@@ -415,9 +517,12 @@ def gera_xlsx_relatorio_historico_dietas_especiais_async(user, nome_arquivo, dat
     try:
         data_json = json.loads(data)
         querydict_params = convert_dict_to_querydict(data_json)
-        filtros, data_dieta = gerar_filtros_relatorio_historico(querydict_params)
-        get_logs_historico_dietas(filtros)
+        filtros, data_dieta = gerar_filtros_relatorio_historico(
+            querydict_params, eh_exportacao=True
+        )
+        logs_dietas = get_logs_historico_dietas(filtros)
         output = io.BytesIO()
+        build_xlsx_relatorio_historico_dietas(output, logs_dietas)
         atualiza_central_download(obj_central_download, nome_arquivo, output.read())
     except Exception as e:
         atualiza_central_download_com_erro(obj_central_download, str(e))
