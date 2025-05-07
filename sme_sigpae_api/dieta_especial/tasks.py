@@ -2,9 +2,11 @@ import datetime
 import io
 import json
 import logging
+from typing import BinaryIO
 
 import numpy as np
 from celery import shared_task
+from django.http import QueryDict
 from rest_framework.exceptions import ValidationError
 
 from sme_sigpae_api.dieta_especial.models import (
@@ -24,7 +26,7 @@ from ..dados_comuns.utils import (
     converte_numero_em_mes,
     gera_objeto_na_central_download,
 )
-from ..escola.models import Escola, Lote
+from ..escola.models import DiretoriaRegional, Escola, Lote, PeriodoEscolar
 from ..escola.utils import faixa_to_string
 from ..perfil.models import Usuario
 from ..relatorios.relatorios import relatorio_dietas_especiais_terceirizada
@@ -444,14 +446,38 @@ def get_faixa_etaria(log: dict) -> str:
     return faixa_etaria
 
 
-def build_xlsx_relatorio_historico_dietas(output, logs_dietas: list[dict]) -> None:
+def build_titulo_relatorio_historico_dietas(
+    logs_dietas_formatados: list[dict], querydict_params: QueryDict
+) -> str:
+    dre_nome = DiretoriaRegional.objects.get(
+        iniciais=logs_dietas_formatados[0]["lote_dre"].split(" DRE ")[1]
+    ).nome
+    titulo = f"Total de Dietas Autorizadas em {logs_dietas_formatados[0]['data_de_referencia']} "
+    titulo += f"para as unidades da DRE {dre_nome}"
+
+    periodos_escolares = querydict_params.getlist("periodos_escolares_selecionadas[]")
+    if periodos_escolares:
+        nomes_periodos = PeriodoEscolar.objects.filter(
+            uuid__in=periodos_escolares
+        ).values_list("nome", flat=True)
+        titulo += f" | Períodos: {nomes_periodos}"
+
+    total_dietas = sum([log["dietas_autorizadas"] for log in logs_dietas_formatados])
+    titulo += f": {total_dietas}"
+    titulo += f" | Data de extração do relatório: {datetime.date.today().strftime('%d/%m/%Y')}"
+    return titulo
+
+
+def build_xlsx_relatorio_historico_dietas(
+    output: BinaryIO, logs_dietas: list[dict], querydict_params: QueryDict
+) -> None:
     import pandas as pd
 
     xlwriter = pd.ExcelWriter(output, engine="xlsxwriter")
 
     logs_dietas_formatados = [
         {
-            "dre_lote": f"{log['lote']} - DRE {log['dre']}",
+            "lote_dre": f"{log['lote']} - DRE {log['dre']}",
             "unidade_educacional": log["nome_escola"],
             "classificacao_da_dieta": log["nome_classificacao"],
             "periodo": log["nome_periodo_escolar"],
@@ -466,9 +492,9 @@ def build_xlsx_relatorio_historico_dietas(output, logs_dietas: list[dict]) -> No
 
     # Adiciona linhas em branco no comeco do arquivo
     df_auxiliar = pd.DataFrame([[np.nan] * len(df.columns)], columns=df.columns)
-    df = df_auxiliar.append(df, ignore_index=True)
-    df = df_auxiliar.append(df, ignore_index=True)
-    df = df_auxiliar.append(df, ignore_index=True)
+    df = pd.concat([df_auxiliar, df], ignore_index=True)
+    df = pd.concat([df_auxiliar, df], ignore_index=True)
+    df = pd.concat([df_auxiliar, df], ignore_index=True)
 
     df.to_excel(xlwriter, "Histórico de Dietas Autorizadas")
     workbook = xlwriter.book
@@ -487,9 +513,16 @@ def build_xlsx_relatorio_historico_dietas(output, logs_dietas: list[dict]) -> No
     single_cell_format = workbook.add_format({"bg_color": "#a9d18e"})
     len_cols = len(df.columns)
     worksheet.merge_range(
-        0, 0, 0, len_cols, "Relatório Histórico de Dietas Autorizadas", merge_format
+        0,
+        0,
+        0,
+        len_cols,
+        "Relatório Histórico de Dietas Especiais Autorizadas",
+        merge_format,
     )
-    titulo = "xablau"
+    titulo = build_titulo_relatorio_historico_dietas(
+        logs_dietas_formatados, querydict_params
+    )
     worksheet.merge_range(1, 0, 2, len_cols, titulo, cell_format)
     worksheet.write(3, 1, "Lote/DRE", single_cell_format)
     worksheet.write(3, 2, "Unidade Educacional", single_cell_format)
@@ -522,7 +555,7 @@ def gera_xlsx_relatorio_historico_dietas_especiais_async(user, nome_arquivo, dat
         )
         logs_dietas = get_logs_historico_dietas(filtros)
         output = io.BytesIO()
-        build_xlsx_relatorio_historico_dietas(output, logs_dietas)
+        build_xlsx_relatorio_historico_dietas(output, logs_dietas, querydict_params)
         atualiza_central_download(obj_central_download, nome_arquivo, output.read())
     except Exception as e:
         atualiza_central_download_com_erro(obj_central_download, str(e))
