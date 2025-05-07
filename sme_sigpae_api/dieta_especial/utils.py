@@ -1255,8 +1255,8 @@ def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
     return logs_dietas_outras_escolas
 
 
-def get_logs_historico_dietas(filtros) -> list:
-    log_escolas_cei = dados_dietas_escolas_cei(filtros, eh_exportacao=True)
+def get_logs_historico_dietas(filtros, eh_exportacao=False) -> list:
+    log_escolas_cei = dados_dietas_escolas_cei(filtros, eh_exportacao)
     log_escolas = dados_dietas_escolas_comuns(filtros)
     log_dietas = sorted(
         chain(log_escolas_cei, log_escolas), key=lambda x: x["nome_escola"]
@@ -1430,6 +1430,9 @@ def unidades_tipo_cei(item, escolas, periodo_escolar_selecionado=False):
         escolas[nome_escola]["classificacoes"][classificacao]["periodos"][
             periodo_escola
         ].append({"faixa": faixa_etaria_infantil, "autorizadas": quantidade})
+        if periodo_escola in ["MANHA", "TARDE"]:
+            total_dietas = quantidade
+            escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
     else:
         escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
         total_dietas = quantidade
