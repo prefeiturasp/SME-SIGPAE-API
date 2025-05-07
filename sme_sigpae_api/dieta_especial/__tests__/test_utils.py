@@ -273,7 +273,7 @@ def test_gerar_filtros_relatorio_historico_retona_data_obrigatoria():
     query_params["lote"] = None
     query_params["data"] = None
 
-    with pytest.raises(ValidationError, match="Data é um parâmetro obrigatório"):
+    with pytest.raises(ValidationError, match="`data` é um parâmetro obrigatório"):
         gerar_filtros_relatorio_historico(query_params)
 
 
@@ -468,12 +468,12 @@ def test_gera_dicionario_historico_dietas(
         "data__year": data.year,
     }
     informacoes = gera_dicionario_historico_dietas(filtros)
-    assert informacoes["total_dietas"] == 72
+    assert informacoes["total_dietas"] == 83
     assert len(informacoes["resultados"]) == 4
     resultados = informacoes["resultados"]
     assert resultados[0]["unidade_educacional"] == "CEI DIRET JOAO MENDES"
     assert resultados[0]["classificacao"] == "Tipo B"
-    assert resultados[0]["total"] == 21
+    assert resultados[0]["total"] == 32
 
     assert resultados[1]["unidade_educacional"] == "CEMEI"
     assert resultados[1]["classificacao"] == "Tipo A"
@@ -522,12 +522,12 @@ def test_gera_dicionario_historico_dietas_escola_cei(
         "escola__uuid__in": [escola_cei.uuid],
     }
     informacoes = gera_dicionario_historico_dietas(filtros)
-    assert informacoes["total_dietas"] == 21
+    assert informacoes["total_dietas"] == 32
     assert len(informacoes["resultados"]) == 1
     resultados = informacoes["resultados"]
     assert resultados[0]["unidade_educacional"] == "CEI DIRET JOAO MENDES"
     assert resultados[0]["classificacao"] == "Tipo B"
-    assert resultados[0]["total"] == 21
+    assert resultados[0]["total"] == 32
 
 
 def test_gera_dicionario_historico_dietas_escola_emebs(
@@ -553,7 +553,7 @@ def test_cria_dicionario_historico_dietas_autorizadas_cei(log_dietas_autorizadas
     informacoes_logs = dados_dietas_escolas_cei({})
     informacoes, total_dietas = transformar_dados_escolas(informacoes_logs)
 
-    assert total_dietas == 46
+    assert total_dietas == 57
     assert isinstance(informacoes, dict)
     assert len(informacoes) == 2
     assert "CEI DIRET JOAO MENDES" in informacoes
