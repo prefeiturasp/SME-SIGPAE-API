@@ -1,4 +1,5 @@
 import pandas as pd
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import FloatField, Sum
 from django.db.models.functions import Cast
 
@@ -227,7 +228,11 @@ def _processa_dieta_especial(solicitacao, filtros, faixa_etaria, periodo):
 
 
 def _processa_periodo_regular(solicitacao, filtros, faixa_etaria, periodo):
-    medicao = solicitacao.medicoes.get(**filtros)
+    try:
+        medicao = solicitacao.medicoes.get(**filtros)
+    except ObjectDoesNotExist:
+        return "-"
+
     categoria = "ALIMENTAÇÃO"
     if periodo == "Solicitações de Alimentação":
         categoria = periodo.upper()
@@ -292,8 +297,8 @@ def _ajusta_layout_tabela(workbook, worksheet, df):
         {**formatacao_base, "bg_color": "#198459"}
     )
     formatacao_parcial = workbook.add_format({**formatacao_base, "bg_color": "#D06D12"})
-    formatacao_manha = workbook.add_format({**formatacao_base, "bg_color": "#B40C02"})
-    formatacao_tarde = workbook.add_format({**formatacao_base, "bg_color": "#C13FD6"})
+    formatacao_manha = workbook.add_format({**formatacao_base, "bg_color": "#C13FD6"})
+    formatacao_tarde = workbook.add_format({**formatacao_base, "bg_color": "#2F80ED"})
     formatacao_dieta_a = workbook.add_format({**formatacao_base, "bg_color": "#20AA73"})
     formatacao_dieta_b = workbook.add_format({**formatacao_base, "bg_color": "#198459"})
 

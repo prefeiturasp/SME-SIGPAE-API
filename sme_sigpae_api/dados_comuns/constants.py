@@ -359,6 +359,9 @@ ORDEM_UNIDADES_GRUPO_CEI = {
     "CCI": 1,
     "CEI": 2,
     "CEI CEU": 3,
+    "CEI DIRET": 4,
+    "CEU CEI": 5,
+    "CCI/CIPS": 6,
 }
 
 ORDEM_HEADERS = {
