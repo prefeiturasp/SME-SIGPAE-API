@@ -13,6 +13,7 @@ from typing import Any
 import environ
 import numpy as np
 import requests
+from dateutil.relativedelta import relativedelta
 from des.models import DynamicEmailConfiguration
 from django.conf import settings
 from django.contrib import admin
@@ -769,3 +770,8 @@ def convert_dict_to_querydict(dict_: dict) -> QueryDict:
         else:
             query_dict[key] = value
     return query_dict
+
+
+def quantidade_meses(d1, d2):
+    delta = relativedelta(d1, d2)
+    return (delta.years * 12) + delta.months
