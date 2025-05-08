@@ -22,13 +22,15 @@ from sme_sigpae_api.dieta_especial.models import (
 from sme_sigpae_api.dieta_especial.tasks import (
     build_titulo,
     build_xlsx,
-    gera_logs_dietas_especiais_diariamente,
     gera_pdf_relatorio_dieta_especial_async,
     gera_pdf_relatorio_dietas_especiais_terceirizadas_async,
     gera_xlsx_relatorio_dietas_especiais_terceirizadas_async,
     processa_dietas_especiais_task,
 )
-from sme_sigpae_api.escola.models import Aluno, Escola, FaixaEtaria
+from sme_sigpae_api.dieta_especial.tasks.logs import (
+    gera_logs_dietas_especiais_diariamente,
+)
+from sme_sigpae_api.escola.models import Aluno, Escola
 
 pytestmark = pytest.mark.django_db
 
