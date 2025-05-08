@@ -995,7 +995,7 @@ def test_relatorio_historico_dieta_especial(
     assert historico["page_size"] == 10
     assert historico["previous"] is None
     assert historico["next"] is None
-    assert historico["total_dietas"] == 72
+    assert historico["total_dietas"] == 83
     assert historico["data"] == "20/03/2024"
 
     assert len(historico["results"]) == 4
@@ -1005,7 +1005,7 @@ def test_relatorio_historico_dieta_especial(
             "unidade_educacional": "CEI DIRET JOAO MENDES",
             "tipo_unidade": "CEI DIRET",
             "classificacao": "Tipo B",
-            "total": 21,
+            "total": 32,
             "data": "20/03/2024",
             "periodos": [
                 {
@@ -1079,7 +1079,7 @@ def test_relatorio_historico_dieta_especial_retona_data_obrigatoria(
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {"detail": "Data é um parâmetro obrigatório."}
+    assert response.json() == {"detail": "`data` é um parâmetro obrigatório."}
 
 
 def test_relatorio_historico_dieta_especial_retona_data_padrao_incorreto(

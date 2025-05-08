@@ -27,6 +27,7 @@ from django.core.mail import (
     send_mail,
 )
 from django.db.models import QuerySet
+from django.http import QueryDict
 from django.template.loader import render_to_string
 from workalendar.america import BrazilSaoPauloCity
 
@@ -758,6 +759,17 @@ def remove_duplicados_do_query_set(query_set: QuerySet | list) -> list:
         if solicitacao.uuid not in uuids_repetidos
         and not uuids_repetidos.add(solicitacao.uuid)
     ]
+
+
+def convert_dict_to_querydict(dict_: dict) -> QueryDict:
+    query_dict = QueryDict("", mutable=True)
+    for key, value in dict_.items():
+        if isinstance(value, list):
+            for item in value:
+                query_dict.update({key: item})
+        else:
+            query_dict[key] = value
+    return query_dict
 
 
 def quantidade_meses(d1, d2):
