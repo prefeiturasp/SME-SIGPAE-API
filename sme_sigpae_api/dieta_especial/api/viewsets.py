@@ -1366,10 +1366,11 @@ class SolicitacaoDietaEspecialViewSet(
                 key: query_dict.getlist(key) if "[]" in key else query_dict.get(key)
                 for key in query_dict.keys()
             }
+            data_str = data.get("data").replace("/", "_")
             user = request.user.get_username()
-            gera_xlsx_relatorio_historico_dietas_especiais_async(
+            gera_xlsx_relatorio_historico_dietas_especiais_async.delay(
                 user=user,
-                nome_arquivo="relatorio_historico_dietas_especiais.xlsx",
+                nome_arquivo=f"relatorio_historico_dietas_especiais_{data_str}.xlsx",
                 data=json.dumps(data),
             )
             return Response(
