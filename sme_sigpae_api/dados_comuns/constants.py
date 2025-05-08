@@ -311,6 +311,11 @@ ORDEM_PERIODOS_GRUPOS_CEMEI = {
     "Programas e Projetos": 6,
     "Solicitações de Alimentação": 7,
 }
+MAX_COLUNAS = 15
+
+#
+# MEDICAO INICIAL - EXCEL RELATÓRIO CONSOLIDADO
+#
 
 ORDEM_CAMPOS = [
     "numero_de_alunos",
@@ -339,7 +344,6 @@ ORDEM_CAMPOS = [
     "lanche_emergencial",
 ]
 
-MAX_COLUNAS = 15
 
 ORDEM_UNIDADES_GRUPO_EMEF = {
     "EMEF": 1,
@@ -352,19 +356,19 @@ ORDEM_UNIDADES_GRUPO_EMEF = {
 ORDEM_UNIDADES_GRUPO_EMEI = {
     "EMEI": 1,
     "CEU EMEI": 2,
-    "EMEI PFOM": 3,
+    "EMEI P FOM": 3,
 }
 
 ORDEM_UNIDADES_GRUPO_CEI = {
     "CCI": 1,
-    "CEI": 2,
-    "CEI CEU": 3,
+    "CCI/CIPS": 2,
+    "CEI": 3,
     "CEI DIRET": 4,
-    "CEU CEI": 5,
-    "CCI/CIPS": 6,
+    "CEI CEU": 5,
+    "CEU CEI": 6,
 }
 
-ORDEM_HEADERS = {
+ORDEM_HEADERS_EMEI_EMEF = {
     "Solicitações de Alimentação": 1,
     "MANHA": 2,
     "TARDE": 3,

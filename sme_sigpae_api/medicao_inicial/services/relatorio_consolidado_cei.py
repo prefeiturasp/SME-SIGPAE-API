@@ -12,7 +12,7 @@ from sme_sigpae_api.escola.models import FaixaEtaria, PeriodoEscolar
 from ..models import CategoriaMedicao
 
 
-def _get_alimentacoes_por_periodo(solicitacoes):
+def get_alimentacoes_por_periodo(solicitacoes):
     periodos_alimentacoes = {}
     dietas_alimentacoes = {}
 
@@ -137,7 +137,7 @@ def _generate_columns(dict_periodos_dietas):
     return columns
 
 
-def _get_valores_tabela(solicitacoes, colunas, tipos_de_unidade):
+def get_valores_tabela(solicitacoes, colunas, tipos_de_unidade):
     dietas_especiais = CategoriaMedicao.objects.filter(
         nome__icontains="DIETA ESPECIAL"
     ).values_list("nome", flat=True)
@@ -200,11 +200,7 @@ def _processa_periodo_campo(
 
 def _define_filtro(periodo, dietas_especiais, periodos_escolares):
     filtros = {}
-    if periodo in [
-        "Programas e Projetos",
-        "ETEC",
-        "Solicitações de Alimentação",
-    ]:
+    if periodo in ["Solicitações de Alimentação"]:
         filtros["grupo__nome"] = periodo
     elif periodo in dietas_especiais:
         filtros["periodo_escolar__nome__in"] = periodos_escolares
@@ -253,7 +249,7 @@ def _calcula_soma_medicao(medicao, faixa_etaria, categoria):
     )
 
 
-def _insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
+def insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
     NOMES_CAMPOS = {
         faixa.id: faixa.__str__() for faixa in FaixaEtaria.objects.filter(ativo=True)
     }
@@ -284,7 +280,7 @@ def _insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
     return df
 
 
-def _ajusta_layout_tabela(workbook, worksheet, df):
+def ajusta_layout_tabela(workbook, worksheet, df):
     formatacao_base = {
         "align": "center",
         "valign": "vcenter",
