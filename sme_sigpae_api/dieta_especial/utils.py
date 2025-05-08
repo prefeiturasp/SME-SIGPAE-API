@@ -1,39 +1,32 @@
 import re
-from collections import Counter, defaultdict
+from collections import defaultdict
 from datetime import date, datetime
 from itertools import chain
 from typing import List
 
-from dateutil.relativedelta import relativedelta
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.db.models import CharField, F, IntegerField, Q, Sum, Value
 from django.db.models.functions import Coalesce
+from django.http import QueryDict
 from django.template.loader import render_to_string
 from rest_framework.pagination import PageNumberPagination
 
 from sme_sigpae_api.dieta_especial.models import (
-    ClassificacaoDieta,
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
 from sme_sigpae_api.escola.models import Lote
 from sme_sigpae_api.escola.utils import faixa_to_string
-from sme_sigpae_api.medicao_inicial.models import SolicitacaoMedicaoInicial
 from sme_sigpae_api.perfil.models import Usuario
 from sme_sigpae_api.relatorios.relatorios import relatorio_dieta_especial_conteudo
 from sme_sigpae_api.relatorios.utils import html_to_pdf_email_anexo
 
 from ..dados_comuns.constants import TIPO_SOLICITACAO_DIETA
 from ..dados_comuns.fluxo_status import DietaEspecialWorkflow
-from ..dados_comuns.utils import (
-    envia_email_unico,
-    envia_email_unico_com_anexo_inmemory,
-    quantidade_meses,
-)
-from ..escola.models import Aluno, FaixaEtaria, PeriodoEscolar
+from ..dados_comuns.utils import envia_email_unico, envia_email_unico_com_anexo_inmemory
+from ..escola.models import Aluno
 from ..paineis_consolidados.models import SolicitacoesCODAE
 from .constants import (
-    ETAPA_INFANTIL,
     UNIDADES_CEI,
     UNIDADES_CEMEI,
     UNIDADES_EMEBS,
@@ -707,399 +700,6 @@ def filtrar_alunos_com_dietas_nos_status_e_rastro_escola(
     return queryset
 
 
-def get_quantidade_nao_matriculados_entre_4_e_6_anos(dietas):
-    return dietas.filter(
-        tipo_solicitacao="ALUNO_NAO_MATRICULADO",
-        aluno__data_nascimento__lte=date.today() - relativedelta(years=4),
-        aluno__data_nascimento__gte=date.today() - relativedelta(years=6),
-    ).count()
-
-
-def get_quantidade_nao_matriculados_maior_6_anos(dietas):
-    return dietas.filter(
-        tipo_solicitacao="ALUNO_NAO_MATRICULADO",
-        aluno__data_nascimento__lte=date.today() - relativedelta(years=6),
-    ).count()
-
-
-def get_quantidade_dietas_emebs(each, dietas):
-    dietas_sem_alunos_nao_matriculados = dietas.exclude(
-        tipo_solicitacao="ALUNO_NAO_MATRICULADO"
-    )
-    if each == "INFANTIL":
-        quantidade = dietas_sem_alunos_nao_matriculados.filter(
-            aluno__etapa=ETAPA_INFANTIL
-        ).count()
-        quantidade += get_quantidade_nao_matriculados_entre_4_e_6_anos(dietas)
-    elif each == "FUNDAMENTAL":
-        quantidade = dietas_sem_alunos_nao_matriculados.exclude(
-            aluno__etapa=ETAPA_INFANTIL
-        ).count()
-        quantidade += get_quantidade_nao_matriculados_maior_6_anos(dietas)
-    else:
-        quantidade = dietas_sem_alunos_nao_matriculados.count()
-        quantidade += get_quantidade_nao_matriculados_maior_6_anos(dietas)
-        quantidade += get_quantidade_nao_matriculados_entre_4_e_6_anos(dietas)
-    return quantidade
-
-
-def logs_a_criar_sem_periodo_escolar(
-    logs_a_criar, escola, dietas_filtradas, ontem, classificacao
-):
-    if escola.eh_emebs:
-        for each in ["INFANTIL", "FUNDAMENTAL", "N/A"]:
-            quantidade = get_quantidade_dietas_emebs(each, dietas_filtradas)
-            log = LogQuantidadeDietasAutorizadas(
-                quantidade=quantidade,
-                escola=escola,
-                data=ontem,
-                classificacao=classificacao,
-                infantil_ou_fundamental=each,
-            )
-            logs_a_criar.append(log)
-    else:
-        log = LogQuantidadeDietasAutorizadas(
-            quantidade=dietas_filtradas.count(),
-            escola=escola,
-            data=ontem,
-            classificacao=classificacao,
-        )
-        logs_a_criar.append(log)
-    return logs_a_criar
-
-
-def gera_logs_dietas_escolas_comuns(escola, dietas_autorizadas, ontem):
-    logs_a_criar = []
-    dict_periodos = PeriodoEscolar.dict_periodos()
-    for classificacao in ClassificacaoDieta.objects.all():
-        dietas_filtradas = dietas_autorizadas.filter(
-            classificacao=classificacao, escola_destino=escola
-        )
-        logs_a_criar = logs_a_criar_sem_periodo_escolar(
-            logs_a_criar, escola, dietas_filtradas, ontem, classificacao
-        )
-        for periodo_escolar_nome in escola.periodos_escolares_com_alunos:
-            dietas_filtradas_periodo = dietas_autorizadas.filter(
-                classificacao=classificacao, escola_destino=escola
-            ).filter(
-                Q(aluno__periodo_escolar__nome=periodo_escolar_nome)
-                | Q(tipo_solicitacao="ALUNO_NAO_MATRICULADO")
-            )
-            if escola.eh_cemei and periodo_escolar_nome == "INTEGRAL":
-                logs_a_criar = logs_periodo_integral_cei_ou_emei_escola_cemei(
-                    logs_a_criar,
-                    dietas_autorizadas,
-                    classificacao,
-                    escola,
-                    periodo_escolar_nome,
-                    dict_periodos,
-                    ontem,
-                )
-            if escola.eh_emebs:
-                for each in ["INFANTIL", "FUNDAMENTAL"]:
-                    quantidade = get_quantidade_dietas_emebs(
-                        each, dietas_filtradas_periodo
-                    )
-                    log = LogQuantidadeDietasAutorizadas(
-                        quantidade=quantidade,
-                        escola=escola,
-                        data=ontem,
-                        periodo_escolar=dict_periodos[periodo_escolar_nome],
-                        classificacao=classificacao,
-                        infantil_ou_fundamental=each,
-                    )
-                    logs_a_criar.append(log)
-            else:
-                log = LogQuantidadeDietasAutorizadas(
-                    quantidade=dietas_filtradas_periodo.count(),
-                    escola=escola,
-                    data=ontem,
-                    periodo_escolar=dict_periodos[periodo_escolar_nome],
-                    classificacao=classificacao,
-                )
-                logs_a_criar.append(log)
-    return logs_a_criar
-
-
-def logs_periodo_integral_cei_ou_emei_escola_cemei(
-    logs_a_criar,
-    dietas_autorizadas,
-    classificacao,
-    escola,
-    periodo_escolar_nome,
-    dict_periodos,
-    ontem,
-):
-    dietas = dietas_autorizadas.filter(
-        classificacao=classificacao, escola_destino=escola
-    ).filter(
-        Q(aluno__periodo_escolar__nome=periodo_escolar_nome)
-        | Q(tipo_solicitacao="ALUNO_NAO_MATRICULADO")
-    )
-    series_cei = ["1", "2", "3", "4"]
-    quantidade_cei = 0
-    quantidade_emei = 0
-    for dieta in dietas:
-        if not dieta.aluno.serie:
-            quantidade_cei += 1
-            quantidade_emei += 1
-        elif any(
-            serie in dieta.aluno.serie for serie in series_cei if dieta.aluno.serie
-        ):
-            quantidade_cei += 1
-        else:
-            quantidade_emei += 1
-    log_cei = LogQuantidadeDietasAutorizadas(
-        quantidade=quantidade_cei,
-        escola=escola,
-        data=ontem,
-        periodo_escolar=dict_periodos[periodo_escolar_nome],
-        classificacao=classificacao,
-        cei_ou_emei="CEI",
-    )
-    log_emei = LogQuantidadeDietasAutorizadas(
-        quantidade=quantidade_emei,
-        escola=escola,
-        data=ontem,
-        periodo_escolar=dict_periodos[periodo_escolar_nome],
-        classificacao=classificacao,
-        cei_ou_emei="EMEI",
-    )
-    return logs_a_criar + [log_cei] + [log_emei]
-
-
-def gera_logs_dietas_escolas_cei(escola, dietas_autorizadas, ontem):
-    try:
-        return logs_a_criar_existe_solicitacao_medicao(
-            escola, dietas_autorizadas, ontem
-        )
-    except ObjectDoesNotExist:
-        return logs_a_criar_nao_existe_solicitacao_medicao(
-            escola, dietas_autorizadas, ontem
-        )
-
-
-def logs_a_criar_existe_solicitacao_medicao(escola, dietas_autorizadas, ontem):
-    solicitacao_medicao = SolicitacaoMedicaoInicial.objects.get(
-        escola__codigo_eol=escola.codigo_eol,
-        mes=f"{date.today().month:02d}",
-        ano=date.today().year,
-    )
-    dict_periodos = PeriodoEscolar.dict_periodos()
-    logs_a_criar = []
-    periodos = escola.periodos_escolares_com_alunos
-    periodos = append_periodo_parcial(periodos, solicitacao_medicao)
-    periodos = list(set(periodos))
-    for periodo in periodos:
-        for classificacao in ClassificacaoDieta.objects.all():
-            dietas = dietas_autorizadas.filter(
-                classificacao=classificacao, escola_destino=escola
-            )
-            dietas_filtradas_periodo = dietas.filter(
-                aluno__periodo_escolar__nome=periodo
-            )
-            dietas_nao_matriculados = dietas.filter(
-                tipo_solicitacao="ALUNO_NAO_MATRICULADO"
-            )
-            faixas = []
-            faixas += append_faixas_dietas(dietas_filtradas_periodo, escola)
-            faixas += append_faixas_dietas(dietas_nao_matriculados, escola)
-            if periodo == "INTEGRAL" and "PARCIAL" in periodos:
-                logs_a_criar += criar_logs_integral_parcial(
-                    True,
-                    dietas,
-                    solicitacao_medicao,
-                    escola,
-                    ontem,
-                    classificacao,
-                    periodo,
-                    faixas,
-                )
-            elif periodo == "PARCIAL":
-                logs_a_criar += criar_logs_integral_parcial(
-                    False,
-                    dietas,
-                    solicitacao_medicao,
-                    escola,
-                    ontem,
-                    classificacao,
-                    periodo,
-                    None,
-                )
-            else:
-                for faixa, quantidade in Counter(faixas).items():
-                    log = LogQuantidadeDietasAutorizadasCEI(
-                        quantidade=quantidade,
-                        escola=escola,
-                        data=ontem,
-                        classificacao=classificacao,
-                        periodo_escolar=dict_periodos[periodo],
-                        faixa_etaria=faixa,
-                    )
-                    logs_a_criar.append(log)
-    logs_a_criar = append_logs_a_criar_de_quantidade_zero(
-        logs_a_criar, periodos, escola, ontem
-    )
-    return logs_a_criar
-
-
-def logs_a_criar_nao_existe_solicitacao_medicao(escola, dietas_autorizadas, ontem):
-    logs_a_criar = []
-    periodos = escola.periodos_escolares_com_alunos
-    dict_periodos = PeriodoEscolar.dict_periodos()
-    for periodo in periodos:
-        for classificacao in ClassificacaoDieta.objects.all():
-            dietas = dietas_autorizadas.filter(
-                classificacao=classificacao, escola_destino=escola
-            )
-            dietas_filtradas_periodo = dietas.filter(
-                aluno__periodo_escolar__nome=periodo
-            )
-            dietas_nao_matriculados = dietas.filter(
-                tipo_solicitacao="ALUNO_NAO_MATRICULADO"
-            )
-            faixas = []
-            faixas += append_faixas_dietas(dietas_filtradas_periodo, escola)
-            faixas += append_faixas_dietas(dietas_nao_matriculados, escola)
-            for faixa, quantidade in Counter(faixas).items():
-                log = LogQuantidadeDietasAutorizadasCEI(
-                    quantidade=quantidade,
-                    escola=escola,
-                    data=ontem,
-                    classificacao=classificacao,
-                    periodo_escolar=dict_periodos[periodo],
-                    faixa_etaria=faixa,
-                )
-                logs_a_criar.append(log)
-    logs_a_criar = append_logs_a_criar_de_quantidade_zero(
-        logs_a_criar, periodos, escola, ontem
-    )
-    return logs_a_criar
-
-
-def append_logs_a_criar_de_quantidade_zero(logs_a_criar, periodos, escola, ontem):
-    dict_periodos = PeriodoEscolar.dict_periodos()
-    for periodo in periodos:
-        faixas = faixas_por_periodo_e_faixa_etaria(escola, periodo)
-        for faixa, _ in faixas.items():
-            if faixa in [
-                str(f)
-                for f in FaixaEtaria.objects.filter(ativo=True).values_list(
-                    "uuid", flat=True
-                )
-            ]:
-                for classificacao in ClassificacaoDieta.objects.all():
-                    if not existe_log(
-                        logs_a_criar, escola, ontem, classificacao, periodo, faixa
-                    ):
-                        log = LogQuantidadeDietasAutorizadasCEI(
-                            quantidade=0,
-                            escola=escola,
-                            data=ontem,
-                            classificacao=classificacao,
-                            periodo_escolar=dict_periodos[periodo],
-                            faixa_etaria=FaixaEtaria.objects.get(uuid=faixa),
-                        )
-                        logs_a_criar.append(log)
-    return logs_a_criar
-
-
-def faixas_por_periodo_e_faixa_etaria(escola, periodo):
-    try:
-        return escola.matriculados_por_periodo_e_faixa_etaria()[periodo]
-    except KeyError:
-        return escola.matriculados_por_periodo_e_faixa_etaria()["INTEGRAL"]
-
-
-def existe_log(logs_a_criar, escola, ontem, classificacao, periodo, faixa):
-    resultado = list(
-        filter(
-            lambda log: condicoes(log, escola, ontem, classificacao, periodo, faixa),
-            logs_a_criar,
-        )
-    )
-    return resultado
-
-
-def condicoes(log, escola, ontem, classificacao, periodo, faixa):
-    resultado = (
-        log.escola == escola
-        and log.data == ontem
-        and log.classificacao == classificacao
-        and log.periodo_escolar.nome == periodo
-        and str(log.faixa_etaria.uuid) == faixa
-    )
-    return resultado
-
-
-def append_periodo_parcial(periodos, solicitacao_medicao):
-    if solicitacao_medicao.ue_possui_alunos_periodo_parcial:
-        periodos.append("PARCIAL")
-    return periodos
-
-
-def append_faixas_dietas(dietas, escola):
-    faixas = []
-    series_cei = ["1", "2", "3", "4"]
-    for dieta_periodo in dietas:
-        data_nascimento = dieta_periodo.aluno.data_nascimento
-        meses = quantidade_meses(date.today(), data_nascimento)
-        ultima_faixa = FaixaEtaria.objects.filter(ativo=True).order_by("fim").last()
-        if meses >= ultima_faixa.fim:
-            faixa = ultima_faixa
-        else:
-            faixa = FaixaEtaria.objects.get(
-                ativo=True, inicio__lte=meses, fim__gt=meses
-            )
-        if escola.eh_cemei and not any(
-            serie in dieta_periodo.aluno.serie
-            for serie in series_cei
-            if dieta_periodo.aluno.serie
-        ):
-            continue
-        faixas.append(faixa)
-    return faixas
-
-
-def criar_logs_integral_parcial(
-    eh_integral,
-    dietas,
-    solicitacao_medicao,
-    escola,
-    ontem,
-    classificacao,
-    periodo,
-    faixas,
-):
-    logs = []
-    dict_periodos = PeriodoEscolar.dict_periodos()
-    faixas_alunos_parciais = []
-    for dieta in dietas:
-        if dieta.aluno.nome in solicitacao_medicao.alunos_periodo_parcial.values_list(
-            "aluno__nome", flat=True
-        ):
-            data_nascimento = dieta.aluno.data_nascimento
-            meses = quantidade_meses(date.today(), data_nascimento)
-            faixa = FaixaEtaria.objects.get(
-                ativo=True, inicio__lte=meses, fim__gt=meses
-            )
-            faixas_alunos_parciais.append(faixa)
-    faixas = faixas if eh_integral else faixas_alunos_parciais
-    for faixa, quantidade in Counter(faixas).items():
-        if eh_integral and faixa in Counter(faixas_alunos_parciais).keys():
-            quantidade = quantidade - Counter(faixas_alunos_parciais).get(faixa)
-        log = LogQuantidadeDietasAutorizadasCEI(
-            quantidade=quantidade,
-            escola=escola,
-            data=ontem,
-            classificacao=classificacao,
-            periodo_escolar=dict_periodos[periodo],
-            faixa_etaria=faixa,
-        )
-        logs.append(log)
-    return logs
-
-
 def trata_lotes_dict_duplicados(lotes_dict):
     lotes_ = []
     for lote_uuid in lotes_dict.values():
@@ -1112,7 +712,9 @@ def trata_lotes_dict_duplicados(lotes_dict):
     return dict(lotes_)
 
 
-def gerar_filtros_relatorio_historico(query_params: dict) -> dict:
+def gerar_filtros_relatorio_historico(
+    query_params: QueryDict, eh_exportacao=False
+) -> tuple:
     map_filtros = {
         "escola__tipo_gestao__uuid": query_params.get("tipo_gestao", None),
         "escola__tipo_unidade__uuid__in": query_params.getlist(
@@ -1131,9 +733,12 @@ def gerar_filtros_relatorio_historico(query_params: dict) -> dict:
         "quantidade__gt": 0,
     }
 
+    if eh_exportacao:
+        map_filtros["periodo_escolar__isnull"] = False
+
     data_dieta = query_params.get("data")
     if not data_dieta:
-        raise ValidationError("Data é um parâmetro obrigatório.")
+        raise ValidationError("`data` é um parâmetro obrigatório.")
     try:
         formato = "%d/%m/%Y"
         data = datetime.strptime(data_dieta, formato)
@@ -1152,10 +757,13 @@ def gerar_filtros_relatorio_historico(query_params: dict) -> dict:
     return filtros, data_dieta
 
 
-def dados_dietas_escolas_cei(filtros: dict) -> List[dict]:
+def dados_dietas_escolas_cei(filtros: dict, eh_exportacao: bool = False) -> List[dict]:
+    queryset = LogQuantidadeDietasAutorizadasCEI.objects.filter(**filtros)
+    if eh_exportacao:
+        queryset = queryset.filter(faixa_etaria__isnull=False)
+
     logs_dietas_escolas_cei = (
-        LogQuantidadeDietasAutorizadasCEI.objects.filter(**filtros)
-        .select_related(
+        queryset.select_related(
             "escola",
             "periodo_escolar",
             "escola__tipo_unidade",
@@ -1167,6 +775,7 @@ def dados_dietas_escolas_cei(filtros: dict) -> List[dict]:
             nome_periodo_escolar=Coalesce(F("periodo_escolar__nome"), Value(None)),
             tipo_unidade=F("escola__tipo_unidade__iniciais"),
             lote=F("escola__lote__nome"),
+            dre=F("escola__lote__diretoria_regional__iniciais"),
             nome_classificacao=F("classificacao__nome"),
             quantidade_total=Sum("quantidade"),
             inicio=Coalesce(F("faixa_etaria__inicio"), Value(None)),
@@ -1178,6 +787,7 @@ def dados_dietas_escolas_cei(filtros: dict) -> List[dict]:
             "nome_escola",
             "tipo_unidade",
             "lote",
+            "dre",
             "nome_classificacao",
             "nome_periodo_escolar",
             "infantil_ou_fundamental",
@@ -1218,6 +828,7 @@ def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
             nome_periodo_escolar=Coalesce(F("periodo_escolar__nome"), Value(None)),
             tipo_unidade=F("escola__tipo_unidade__iniciais"),
             lote=F("escola__lote__nome"),
+            dre=F("escola__lote__diretoria_regional__iniciais"),
             nome_classificacao=F("classificacao__nome"),
             quantidade_total=Sum("quantidade"),
             inicio=Value(None, output_field=IntegerField()),
@@ -1227,6 +838,7 @@ def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
             "nome_escola",
             "tipo_unidade",
             "lote",
+            "dre",
             "nome_classificacao",
             "nome_periodo_escolar",
             "infantil_ou_fundamental",
@@ -1242,12 +854,17 @@ def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
     return logs_dietas_outras_escolas
 
 
-def gera_dicionario_historico_dietas(filtros):
-    log_escolas_cei = dados_dietas_escolas_cei(filtros)
+def get_logs_historico_dietas(filtros, eh_exportacao=False) -> list:
+    log_escolas_cei = dados_dietas_escolas_cei(filtros, eh_exportacao)
     log_escolas = dados_dietas_escolas_comuns(filtros)
     log_dietas = sorted(
         chain(log_escolas_cei, log_escolas), key=lambda x: x["nome_escola"]
     )
+    return log_dietas
+
+
+def gera_dicionario_historico_dietas(filtros):
+    log_dietas = get_logs_historico_dietas(filtros)
     periodo_escolar_selecionado = False
     if "periodo_escolar__uuid__in" in filtros:
         periodo_escolar_selecionado = True
@@ -1412,6 +1029,9 @@ def unidades_tipo_cei(item, escolas, periodo_escolar_selecionado=False):
         escolas[nome_escola]["classificacoes"][classificacao]["periodos"][
             periodo_escola
         ].append({"faixa": faixa_etaria_infantil, "autorizadas": quantidade})
+        if periodo_escola in ["MANHA", "TARDE"]:
+            total_dietas = quantidade
+            escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
     else:
         escolas[nome_escola]["classificacoes"][classificacao]["total"] += quantidade
         total_dietas = quantidade
