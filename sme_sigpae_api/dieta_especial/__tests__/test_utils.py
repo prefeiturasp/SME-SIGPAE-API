@@ -8,6 +8,10 @@ from freezegun.api import freeze_time
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...terceirizada.models import Edital
 from ..models import SolicitacaoDietaEspecial
+from ..tasks.utils.logs import (
+    gera_logs_dietas_escolas_cei,
+    gera_logs_dietas_escolas_comuns,
+)
 from ..utils import (
     dados_dietas_escolas_cei,
     dados_dietas_escolas_comuns,
@@ -18,8 +22,6 @@ from ..utils import (
     formatar_periodos_emebs,
     formatar_periodos_emei_emef_cieja,
     gera_dicionario_historico_dietas,
-    gera_logs_dietas_escolas_cei,
-    gera_logs_dietas_escolas_comuns,
     gerar_filtros_relatorio_historico,
     termina_dietas_especiais,
     transformar_dados_escolas,
