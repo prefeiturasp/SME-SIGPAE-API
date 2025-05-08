@@ -3096,7 +3096,7 @@ def informacoes_excel_writer_emef(
     worksheet = workbook.add_worksheet(aba)
     worksheet.set_default_row(20)
     df = _insere_tabela_periodos_na_planilha(
-        aba, mock_colunas, mock_linhas_emef, writer
+        ["EMEF"], aba, mock_colunas, mock_linhas_emef, writer
     )
     try:
         yield aba, writer, workbook, worksheet, df, arquivo
@@ -3116,7 +3116,7 @@ def informacoes_excel_writer_emei(
     worksheet = workbook.add_worksheet(aba)
     worksheet.set_default_row(20)
     df = _insere_tabela_periodos_na_planilha(
-        aba, mock_colunas, mock_linhas_emei, writer
+        ["EMEI"], aba, mock_colunas, mock_linhas_emei, writer
     )
     try:
         yield aba, writer, workbook, worksheet, df, arquivo
