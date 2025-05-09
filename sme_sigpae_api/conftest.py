@@ -45,6 +45,7 @@ from .escola.fixtures.factories.escola_factory import (
     LogAlunosMatriculadosPeriodoEscolaFactory,
     LoteFactory,
     PeriodoEscolarFactory,
+    TipoGestaoFactory,
     TipoUnidadeEscolarFactory,
 )
 from .imr.fixtures.factories.imr_base_factory import (
@@ -264,6 +265,7 @@ register(LogQuantidadeDietasAutorizadasFactory)
 register(LogQuantidadeDietasAutorizadasCEIFactory)
 register(HistoricoMatriculaAlunoFactory)
 register(QuestaoFichaRecebimentoFactory)
+register(TipoGestaoFactory)
 
 
 @pytest.fixture

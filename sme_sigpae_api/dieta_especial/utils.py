@@ -852,6 +852,7 @@ def dados_dietas_escolas_comuns(filtros: dict) -> QuerySet[dict]:
 def get_logs_historico_dietas(filtros, eh_exportacao=False) -> list:
     log_escolas_cei = dados_dietas_escolas_cei(filtros, eh_exportacao)
     log_escolas = dados_dietas_escolas_comuns(filtros)
+    print(log_escolas)
     if eh_exportacao:
         log_escolas = [
             log

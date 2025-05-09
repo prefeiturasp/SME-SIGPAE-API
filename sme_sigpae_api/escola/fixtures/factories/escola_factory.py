@@ -13,6 +13,7 @@ from sme_sigpae_api.escola.models import (
     LogAlunosMatriculadosPeriodoEscola,
     Lote,
     PeriodoEscolar,
+    TipoGestao,
     TipoTurma,
     TipoUnidadeEscolar,
 )
@@ -21,6 +22,11 @@ from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import 
 )
 
 fake = Faker("pt_BR")
+
+
+class TipoGestaoFactory(DjangoModelFactory):
+    class Meta:
+        model = TipoGestao
 
 
 class TipoUnidadeEscolarFactory(DjangoModelFactory):
@@ -51,6 +57,7 @@ class EscolaFactory(DjangoModelFactory):
     lote = SubFactory(LoteFactory)
     diretoria_regional = SubFactory(DiretoriaRegionalFactory)
     tipo_unidade = SubFactory(TipoUnidadeEscolarFactory)
+    tipo_gestao = SubFactory(TipoGestaoFactory)
 
     class Meta:
         model = Escola

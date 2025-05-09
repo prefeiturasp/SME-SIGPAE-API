@@ -1,5 +1,9 @@
-import pytest
+import json
 
+import pytest
+from openpyxl import load_workbook
+
+from sme_sigpae_api.dados_comuns.models import CentralDeDownload
 from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
     LogQuantidadeDietasAutorizadasFactory,
@@ -23,12 +27,12 @@ pytestmark = pytest.mark.django_db
 
 
 @pytest.mark.usefixtures("client_autenticado_vinculo_codae_gestao_alimentacao_dieta")
-class GeraXlsxRelatorioHistoricoDietasEspeciaisAsyncTest:
+class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync:
     def setup_generico(self):
         self.periodo_manha = PeriodoEscolarFactory.create(nome="MANHA")
         self.periodo_tarde = PeriodoEscolarFactory.create(nome="TARDE")
 
-        self.dre = DiretoriaRegionalFactory.create(nome="IPIRANGA")
+        self.dre = DiretoriaRegionalFactory.create(nome="IPIRANGA", iniciais="IP")
         self.terceirizada = EmpresaFactory.create(nome_fantasia="EMPRESA LTDA")
         self.lote = LoteFactory.create(
             nome="LOTE 01", diretoria_regional=self.dre, terceirizada=self.terceirizada
@@ -42,9 +46,10 @@ class GeraXlsxRelatorioHistoricoDietasEspeciaisAsyncTest:
         self.tipo_unidade_emef = TipoUnidadeEscolarFactory.create(iniciais="EMEF")
         self.escola_emef = EscolaFactory.create(
             nome="EMEF PERICLES",
-            codigo_eol="100000",
             tipo_gestao__nome="TERC TOTAL",
             tipo_unidade=self.tipo_unidade_emef,
+            lote=self.lote,
+            diretoria_regional=self.dre,
         )
 
     def setup_logs_escola_emef(self):
@@ -64,7 +69,7 @@ class GeraXlsxRelatorioHistoricoDietasEspeciaisAsyncTest:
                     quantidade=5,
                 )
 
-    def setUp(self):
+    def setup(self):
         self.setup_generico()
         self.setup_classificacoes_dieta()
         self.setup_escola_emef()
@@ -75,5 +80,16 @@ class GeraXlsxRelatorioHistoricoDietasEspeciaisAsyncTest:
     ):
         client, user = client_autenticado_vinculo_codae_gestao_alimentacao_dieta
         nome_arquivo = "relatorio_historico_dietas_especiais.xlsx"
-        data = {"lote": str(self.lote.uuid), "data": "09/05/2025"}
+        data = json.dumps({"lote": str(self.lote.uuid), "data": "09/05/2025"})
         gera_xlsx_relatorio_historico_dietas_especiais_async(user, nome_arquivo, data)
+
+        central_download = CentralDeDownload.objects.get()
+        assert central_download.status == CentralDeDownload.STATUS_CONCLUIDO
+
+        with central_download.arquivo.open("rb") as f:
+            loaded_wb = load_workbook(f)
+            sheet = loaded_wb["Histórico de Dietas Autorizadas"]
+            assert (
+                sheet["A2"].value
+                == "Total de Dietas Autorizadas em 09/05/2025 para as unidades da DRE IPIRANGA: 20 | Data de extração do relatório: 09/05/2025"
+            )
