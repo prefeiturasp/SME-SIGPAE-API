@@ -25,8 +25,14 @@ router.register(
     viewsets.SolicitacaoDeAlteracaoCronogramaViewSet,
     basename="solicitacao-de-alteracao-de-cronograma",
 )
-router.register("rascunho-ficha-tecnica", viewsets.FichaTecnicaRascunhoViewSet)
-router.register("ficha-tecnica", viewsets.FichaTecnicaModelViewSet)
+router.register(
+    "rascunho-ficha-tecnica",
+    viewsets.FichaTecnicaRascunhoViewSet,
+    basename="rascunho-ficha-tecnica",
+)
+router.register(
+    "ficha-tecnica", viewsets.FichaTecnicaModelViewSet, basename="ficha-tecnica"
+)
 router.register(
     "calendario-cronogramas",
     viewsets.CalendarioCronogramaViewset,

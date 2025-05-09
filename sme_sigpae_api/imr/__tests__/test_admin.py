@@ -67,12 +67,16 @@ def test_perfis_filter_admin(
 ):
     client, usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao
 
-    parametrizacao_ocorrencia_factory.create(tipo_ocorrencia__perfis=["DIRETOR"])
-    parametrizacao_ocorrencia_factory.create(tipo_ocorrencia__perfis=["SUPERVISAO"])
+    parametrizacao_ocorrencia_factory.create(
+        tipo_ocorrencia__perfis=[PerfilDiretorSupervisao.DIRETOR]
+    )
+    parametrizacao_ocorrencia_factory.create(
+        tipo_ocorrencia__perfis=[PerfilDiretorSupervisao.SUPERVISAO]
+    )
 
     perfis_filter = PerfisFilter(
         Mock(user=usuario),
-        {"perfis": "Diretor"},
+        {"perfis": [PerfilDiretorSupervisao.DIRETOR]},
         PerfilDiretorSupervisao,
         ParametrizacaoOcorrenciaAdmin,
     )
@@ -83,7 +87,7 @@ def test_perfis_filter_admin(
 
     perfis_filter = PerfisFilter(
         Mock(user=usuario),
-        {"perfis": "Supervisao"},
+        {"perfis": [PerfilDiretorSupervisao.SUPERVISAO]},
         PerfilDiretorSupervisao,
         ParametrizacaoOcorrenciaAdmin,
     )
@@ -94,7 +98,7 @@ def test_perfis_filter_admin(
 
     perfis_filter = PerfisFilter(
         Mock(user=usuario),
-        {"perfis": "Tudo"},
+        {"perfis": ["Tudo"]},
         PerfilDiretorSupervisao,
         ParametrizacaoOcorrenciaAdmin,
     )
@@ -109,7 +113,7 @@ def test_parametrizacao_ocorrencia_admin(
     parametrizacao_ocorrencia_factory,
 ):
     edital_numero = "78/SME/2016"
-    perfis = ["DIRETOR"]
+    perfis = [PerfilDiretorSupervisao.DIRETOR]
     parametrizacao_ocorrencia = parametrizacao_ocorrencia_factory.create(
         tipo_ocorrencia__edital__numero=edital_numero, tipo_ocorrencia__perfis=perfis
     )
@@ -135,7 +139,7 @@ def test_tipo_formulario_filter_admin(
 
     tipo_formulario_filter = TipoFormularioFilter(
         Mock(user=usuario),
-        {"tipo_formulario": "Diretor"},
+        {"tipo_formulario": [PerfilDiretorSupervisao.DIRETOR]},
         FormularioOcorrenciasBase,
         FormularioOcorrenciasBaseAdmin,
     )
@@ -146,7 +150,7 @@ def test_tipo_formulario_filter_admin(
 
     tipo_formulario_filter = TipoFormularioFilter(
         Mock(user=usuario),
-        {"tipo_formulario": "Supervisao"},
+        {"tipo_formulario": [PerfilDiretorSupervisao.SUPERVISAO]},
         FormularioOcorrenciasBase,
         FormularioOcorrenciasBaseAdmin,
     )
@@ -157,7 +161,7 @@ def test_tipo_formulario_filter_admin(
 
     tipo_formulario_filter = TipoFormularioFilter(
         Mock(user=usuario),
-        {"tipo_formulario": "Tudo"},
+        {"tipo_formulario": ["Tudo"]},
         FormularioOcorrenciasBase,
         FormularioOcorrenciasBaseAdmin,
     )

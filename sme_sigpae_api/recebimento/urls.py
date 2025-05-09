@@ -16,10 +16,12 @@ router.register(
 router.register(
     "rascunho-ficha-de-recebimento",
     viewsets.FichaDeRecebimentoRascunhoViewSet,
+    basename="rascunho-ficha-de-recebimento",
 )
 router.register(
     "fichas-de-recebimento",
     viewsets.FichaRecebimentoModelViewSet,
+    basename="fichas-de-recebimento",
 )
 
 urlpatterns = [path("", include(router.urls))]

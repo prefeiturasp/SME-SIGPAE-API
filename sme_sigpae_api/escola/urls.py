@@ -29,12 +29,12 @@ router.register(
 router.register(
     "escolas-simplissima-com-dre",
     viewsets.EscolaSimplissimaComDREViewSet,
-    basename="escolas-simplissima",
+    basename="escolas-simplissima-com-dre",
 )
 router.register(
     "escolas-simplissima-com-eol",
     viewsets.EscolaSimplissimaComEolViewSet,
-    basename="escolas-simplissima",
+    basename="escolas-simplissima-com-eol",
 )
 router.register(
     "escolas-simplissima-com-dre-unpaginated",

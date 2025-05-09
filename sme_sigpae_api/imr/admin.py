@@ -238,13 +238,20 @@ class PerfisFilter(admin.SimpleListFilter):
     parameter_name = "perfis"
 
     def lookups(self, request, model_admin):
-        return [("Diretor", "Diretor"), ("Supervisao", "Supervisao")]
+        return [
+            (PerfilDiretorSupervisao.DIRETOR, PerfilDiretorSupervisao.DIRETOR),
+            (PerfilDiretorSupervisao.SUPERVISAO, PerfilDiretorSupervisao.SUPERVISAO),
+        ]
 
     def queryset(self, request, queryset):
         if self.value() == "Tudo":
             return queryset.all()
-        if self.value() in ["Diretor", "Supervisao"]:
-            return queryset.filter(tipo_ocorrencia__perfis__icontains=self.value())
+        if self.value() in [
+            PerfilDiretorSupervisao.DIRETOR,
+            PerfilDiretorSupervisao.SUPERVISAO,
+        ]:
+            return queryset.filter(tipo_ocorrencia__perfis__contains=[self.value()])
+        return queryset.all()
 
 
 @admin.register(ParametrizacaoOcorrencia)
@@ -276,15 +283,19 @@ class TipoFormularioFilter(admin.SimpleListFilter):
     parameter_name = "tipo_formulario"
 
     def lookups(self, request, model_admin):
-        return [("Diretor", "Diretor"), ("Supervisao", "Supervisao")]
+        return [
+            (PerfilDiretorSupervisao.DIRETOR, PerfilDiretorSupervisao.DIRETOR),
+            (PerfilDiretorSupervisao.SUPERVISAO, PerfilDiretorSupervisao.SUPERVISAO),
+        ]
 
     def queryset(self, request, queryset):
         if self.value() == "Tudo":
             return queryset.all()
-        elif self.value() == "Diretor":
+        elif self.value() == PerfilDiretorSupervisao.DIRETOR:
             return queryset.filter(formulariodiretor__isnull=False)
-        elif self.value() == "Supervisao":
+        elif self.value() == PerfilDiretorSupervisao.SUPERVISAO:
             return queryset.filter(formulariosupervisao__isnull=False)
+        return queryset.all()
 
 
 class OcorrenciaNaoSeAplicaInline(admin.TabularInline):
