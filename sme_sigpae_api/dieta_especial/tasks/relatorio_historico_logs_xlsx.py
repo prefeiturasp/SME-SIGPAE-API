@@ -35,9 +35,7 @@ def gera_xlsx_relatorio_historico_dietas_especiais_async(user, nome_arquivo, dat
     try:
         data_json = json.loads(data)
         querydict_params = convert_dict_to_querydict(data_json)
-        filtros, data_dieta = gerar_filtros_relatorio_historico(
-            querydict_params, eh_exportacao=True
-        )
+        filtros, data_dieta = gerar_filtros_relatorio_historico(querydict_params)
         logs_dietas = get_logs_historico_dietas(filtros, eh_exportacao=True)
         output = io.BytesIO()
         build_xlsx_relatorio_historico_dietas(output, logs_dietas, querydict_params)
