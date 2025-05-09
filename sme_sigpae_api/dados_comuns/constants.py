@@ -311,6 +311,11 @@ ORDEM_PERIODOS_GRUPOS_CEMEI = {
     "Programas e Projetos": 6,
     "Solicitações de Alimentação": 7,
 }
+MAX_COLUNAS = 15
+
+#
+# MEDICAO INICIAL - EXCEL RELATÓRIO CONSOLIDADO
+#
 
 ORDEM_CAMPOS = [
     "numero_de_alunos",
@@ -339,7 +344,6 @@ ORDEM_CAMPOS = [
     "lanche_emergencial",
 ]
 
-MAX_COLUNAS = 15
 
 ORDEM_UNIDADES_GRUPO_EMEF = {
     "EMEF": 1,
@@ -349,7 +353,22 @@ ORDEM_UNIDADES_GRUPO_EMEF = {
     "CEU EMEF": 5,
 }
 
-ORDEM_HEADERS = {
+ORDEM_UNIDADES_GRUPO_EMEI = {
+    "EMEI": 1,
+    "CEU EMEI": 2,
+    "EMEI P FOM": 3,
+}
+
+ORDEM_UNIDADES_GRUPO_CEI = {
+    "CCI": 1,
+    "CCI/CIPS": 2,
+    "CEI": 3,
+    "CEI DIRET": 4,
+    "CEI CEU": 5,
+    "CEU CEI": 6,
+}
+
+ORDEM_HEADERS_EMEI_EMEF = {
     "Solicitações de Alimentação": 1,
     "MANHA": 2,
     "TARDE": 3,
@@ -362,6 +381,16 @@ ORDEM_HEADERS = {
     "DIETA ESPECIAL - TIPO A": 10,
     "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": 11,
     "DIETA ESPECIAL - TIPO B": 12,
+}
+
+ORDEM_HEADERS_CEI = {
+    "Solicitações de Alimentação": 1,
+    "INTEGRAL": 2,
+    "PARCIAL": 3,
+    "MANHA": 4,
+    "TARDE": 5,
+    "DIETA ESPECIAL - TIPO A": 6,
+    "DIETA ESPECIAL - TIPO B": 7,
 }
 
 
