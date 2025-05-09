@@ -27,11 +27,11 @@ def get_alimentacoes_por_periodo(solicitacoes):
             categorias_dietas = _get_categorias_dietas(medicao)
 
             for categoria in categorias_dietas:
-                lista_alimentacoes_dietas = _get_lista_alimentacoes_dietas_por_faixa(
+                lista_faixa_dietas = _get_lista_alimentacoes_dietas_por_faixa(
                     medicao, categoria
                 )
-                dietas_alimentacoes = _update_dietas_alimentacoes(
-                    dietas_alimentacoes, categoria, lista_alimentacoes_dietas
+                dietas_alimentacoes = _update_dietas_alimentacoes_por_faixa(
+                    dietas_alimentacoes, categoria, lista_faixa_dietas
                 )
 
     dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
@@ -102,7 +102,7 @@ def _get_lista_alimentacoes_dietas_por_faixa(medicao, categoria):
     return dietas_por_faixa
 
 
-def _update_dietas_alimentacoes(
+def _update_dietas_alimentacoes_por_faixa(
     dietas_alimentacoes, categoria, lista_alimentacoes_dietas
 ):
     if lista_alimentacoes_dietas:
