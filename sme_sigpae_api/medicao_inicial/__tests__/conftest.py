@@ -318,6 +318,29 @@ def escola_cei():
 
 
 @pytest.fixture
+def log_aluno_integral_cei(escola_cei, periodo_escolar_integral):
+    log = mommy.make(
+        "LogAlunosMatriculadosPeriodoEscola",
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar_integral,
+        quantidade_alunos=100,
+    )
+    log.criado_em = datetime.date(2025, 5, 5)
+    log.save()
+    return log
+
+
+@pytest.fixture
+def log_alunos_matriculados_integral_cei(escola_cei, periodo_escolar_integral):
+    return mommy.make(
+        "AlunosMatriculadosPeriodoEscola",
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar_integral,
+        quantidade_alunos=100,
+    )
+
+
+@pytest.fixture
 def escola_cemei():
     terceirizada = mommy.make("Terceirizada")
     lote = mommy.make("Lote", terceirizada=terceirizada)
@@ -424,23 +447,23 @@ def solicitacao_medicao_inicial_cemei(escola_cemei, categoria_medicao):
 
 
 @pytest.fixture
-def solicitacao_medicao_inicial_cei(escola_cei, categoria_medicao):
+def solicitacao_medicao_inicial_cei(
+    escola_cei, categoria_medicao, periodo_escolar_integral, periodo_escolar_manha
+):
     tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    periodo_integral = mommy.make("PeriodoEscolar", nome="INTEGRAL")
-    periodo_manha = mommy.make("PeriodoEscolar", nome="MANHA")
     mommy.make(
         LogAlunosMatriculadosPeriodoEscola,
         escola=escola_cei,
         criado_em="01-04-2023",
         quantidade_alunos=100,
-        periodo_escolar=periodo_manha,
+        periodo_escolar=periodo_escolar_manha,
     )
     mommy.make(
         LogAlunosMatriculadosPeriodoEscola,
         escola=escola_cei,
         criado_em="01-04-2023",
         quantidade_alunos=100,
-        periodo_escolar=periodo_integral,
+        periodo_escolar=periodo_escolar_integral,
     )
     solicitacao_medicao = mommy.make(
         "SolicitacaoMedicaoInicial",
@@ -453,12 +476,12 @@ def solicitacao_medicao_inicial_cei(escola_cei, categoria_medicao):
     mommy.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
-        periodo_escolar=periodo_integral,
+        periodo_escolar=periodo_escolar_integral,
     )
     mommy.make(
         "FaixaEtaria", inicio=1, fim=10, uuid="0c914b27-c7cd-4682-a439-a4874745b005"
     )
-    mommy.make("Aluno", periodo_escolar=periodo_manha, escola=escola_cei)
+    mommy.make("Aluno", periodo_escolar=periodo_escolar_manha, escola=escola_cei)
     return solicitacao_medicao
 
 
@@ -1201,6 +1224,11 @@ def periodo_escolar_tarde():
 @pytest.fixture
 def periodo_escolar_noite():
     return mommy.make("PeriodoEscolar", nome="NOITE")
+
+
+@pytest.fixture
+def periodo_escolar_integral():
+    return mommy.make("PeriodoEscolar", nome="INTEGRAL")
 
 
 @pytest.fixture
@@ -3096,7 +3124,7 @@ def informacoes_excel_writer_emef(
     worksheet = workbook.add_worksheet(aba)
     worksheet.set_default_row(20)
     df = _insere_tabela_periodos_na_planilha(
-        aba, mock_colunas, mock_linhas_emef, writer
+        ["EMEF"], aba, mock_colunas, mock_linhas_emef, writer
     )
     try:
         yield aba, writer, workbook, worksheet, df, arquivo
@@ -3116,7 +3144,7 @@ def informacoes_excel_writer_emei(
     worksheet = workbook.add_worksheet(aba)
     worksheet.set_default_row(20)
     df = _insere_tabela_periodos_na_planilha(
-        aba, mock_colunas, mock_linhas_emei, writer
+        ["EMEI"], aba, mock_colunas, mock_linhas_emei, writer
     )
     try:
         yield aba, writer, workbook, worksheet, df, arquivo
