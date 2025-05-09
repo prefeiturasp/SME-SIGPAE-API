@@ -50,7 +50,7 @@ celery = "==5.5.1"   # http://www.celeryproject.org
 pytz= "==2022.7"  # https://github.com/stub42/pytz
 python-slugify= "==8.0.1"  # https://github.com/un33k/python-slugify
 Pillow= "==10.4.0"  # https://github.com/python-pillow/Pillow
-argon2-cffi= "==19.1.0"  # https://github.com/hynek/argon2_cffi
+argon2-cffi= "==23.1.0"  # https://github.com/hynek/argon2_cffi
 redis= "==5.0.1"  # https://github.com/antirez/redis
 django-xworkflows="==1.0.0" # https://github.com/rbarrois/django_xworkflows
 drf_base64="==2.0" # https://pypi.org/project/drf_base64/
