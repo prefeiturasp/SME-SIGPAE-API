@@ -20,15 +20,19 @@ from sme_sigpae_api.dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.dieta_especial.tasks import (
-    build_titulo,
-    build_xlsx,
-    gera_logs_dietas_especiais_diariamente,
     gera_pdf_relatorio_dieta_especial_async,
     gera_pdf_relatorio_dietas_especiais_terceirizadas_async,
     gera_xlsx_relatorio_dietas_especiais_terceirizadas_async,
     processa_dietas_especiais_task,
 )
-from sme_sigpae_api.escola.models import Aluno, Escola, FaixaEtaria
+from sme_sigpae_api.dieta_especial.tasks.logs import (
+    gera_logs_dietas_especiais_diariamente,
+)
+from sme_sigpae_api.dieta_especial.tasks.utils.relatorio_terceirizadas_xlsx import (
+    build_titulo,
+    build_xlsx_relatorio_terceirizadas,
+)
+from sme_sigpae_api.escola.models import Aluno, Escola
 
 pytestmark = pytest.mark.django_db
 
@@ -416,7 +420,7 @@ def test_build_xlsx_status_cancelado(
     data_final = "2025-01-31"
     exibir_diagnostico = False
 
-    build_xlsx(
+    build_xlsx_relatorio_terceirizadas(
         output,
         serializer,
         query_set,
@@ -522,7 +526,7 @@ def test_build_xlsx_status_autorizado(
     data_final = "31/01/2025"
     exibir_diagnostico = False
 
-    build_xlsx(
+    build_xlsx_relatorio_terceirizadas(
         output,
         serializer,
         query_set,
