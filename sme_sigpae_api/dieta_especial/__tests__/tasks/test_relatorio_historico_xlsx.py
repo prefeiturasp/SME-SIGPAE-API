@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from freezegun.api import freeze_time
 from openpyxl import load_workbook
 
 from sme_sigpae_api.dados_comuns.models import CentralDeDownload
@@ -30,6 +31,7 @@ pytestmark = pytest.mark.django_db
 
 
 @pytest.mark.usefixtures("client_autenticado_vinculo_codae_gestao_alimentacao_dieta")
+@freeze_time("2025-05-09")
 class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync:
     def setup_generico(self):
         self.periodo_manha = PeriodoEscolarFactory.create(nome="MANHA")
@@ -109,7 +111,7 @@ class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync:
                 ]:
                     LogQuantidadeDietasAutorizadasCEIFactory.create(
                         data="2025-05-09",
-                        escola=self.escola_emef,
+                        escola=self.escola_cei,
                         periodo_escolar=periodo_escolar,
                         classificacao=classificacao,
                         faixa_etaria=faixa_etaria,
@@ -143,3 +145,5 @@ class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync:
                 sheet["A2"].value
                 == "Total de Dietas Autorizadas em 09/05/2025 para as unidades da DRE IPIRANGA: 40 | Data de extração do relatório: 09/05/2025"
             )
+            assert sheet["F5"].value == "07 a 11 meses"
+            assert sheet["F7"].value == "01 ano a 03 anos e 11 meses"
