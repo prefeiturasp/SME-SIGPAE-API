@@ -10,6 +10,7 @@ from sme_sigpae_api.escola.models import (
     Escola,
     FaixaEtaria,
     HistoricoMatriculaAluno,
+    LogAlunosMatriculadosFaixaEtariaDia,
     LogAlunosMatriculadosPeriodoEscola,
     Lote,
     PeriodoEscolar,
@@ -120,3 +121,13 @@ class HistoricoMatriculaAlunoFactory(DjangoModelFactory):
 
     class Meta:
         model = HistoricoMatriculaAluno
+
+
+class LogAlunosMatriculadosFaixaEtariaDiaFactory(DjangoModelFactory):
+    escola = SubFactory(EscolaFactory)
+    periodo_escolar = SubFactory(PeriodoEscolarFactory)
+    quantidade = Sequence(lambda n: fake.unique.random_int(min=0, max=100))
+    faixa_etaria = SubFactory(FaixaEtariaFactory)
+
+    class Meta:
+        model = LogAlunosMatriculadosFaixaEtariaDia
