@@ -3265,17 +3265,14 @@ def relatorio_consolidado_xlsx_cei(
     )
 
     for dia in ["01", "02", "03", "04"]:
-        for faixa in faixas_etarias_ativas:
-            for medicao in [
-                medicao_integral,
-                medicao_parcial,
-                medicao_manha,
-                medicao_tarde,
-            ]:
-                if not (
-                    medicao in [medicao_manha, medicao_tarde]
-                    and faixa.inicio not in [1, 6, 12]
-                ):
+        for medicao in [
+            medicao_integral,
+            medicao_parcial,
+            medicao_manha,
+            medicao_tarde,
+        ]:
+            if medicao in [medicao_integral, medicao_parcial]:
+                for faixa in faixas_etarias_ativas:
                     mommy.make(
                         "ValorMedicao",
                         dia=dia,
@@ -3285,19 +3282,62 @@ def relatorio_consolidado_xlsx_cei(
                         valor=20,
                         faixa_etaria=faixa,
                     )
-
-            for medicao in [medicao_manha, medicao_tarde]:
-                for categoria in [categoria_medicao_dieta_a, categoria_medicao_dieta_b]:
-                    if faixa.inicio not in [1, 6, 12]:
-                        mommy.make(
-                            "ValorMedicao",
-                            dia=dia,
-                            nome_campo="frequencia",
-                            medicao=medicao,
-                            categoria_medicao=categoria,
-                            valor=2,
-                            faixa_etaria=faixa,
-                        )
+            elif medicao == medicao_manha:
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo="frequencia",
+                    medicao=medicao,
+                    categoria_medicao=categoria_medicao,
+                    valor=20,
+                    faixa_etaria=faixas_etarias_ativas[2],
+                )
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo="frequencia",
+                    medicao=medicao,
+                    categoria_medicao=categoria_medicao,
+                    valor=15,
+                    faixa_etaria=faixas_etarias_ativas[4],
+                )
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo="frequencia",
+                    medicao=medicao,
+                    categoria_medicao=categoria_medicao_dieta_a,
+                    valor=2,
+                    faixa_etaria=faixas_etarias_ativas[2],
+                )
+            elif medicao == medicao_tarde:
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo="frequencia",
+                    medicao=medicao,
+                    categoria_medicao=categoria_medicao,
+                    valor=15,
+                    faixa_etaria=faixas_etarias_ativas[3],
+                )
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo="frequencia",
+                    medicao=medicao,
+                    categoria_medicao=categoria_medicao,
+                    valor=20,
+                    faixa_etaria=faixas_etarias_ativas[6],
+                )
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo="frequencia",
+                    medicao=medicao,
+                    categoria_medicao=categoria_medicao_dieta_b,
+                    valor=1,
+                    faixa_etaria=faixas_etarias_ativas[3],
+                )
 
     return solicitacao_relatorio_consolidado_grupo_cei
 
