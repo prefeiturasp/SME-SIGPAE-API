@@ -463,9 +463,7 @@ class SolicitacaoDietaEspecialViewSet(
         solicitacao = self.get_object()
         try:
             solicitacao.terceirizada_toma_ciencia(user=request.user)
-            return Response(
-                {"mensagem": "Ciente da solicitação de dieta especial"}
-            )  # noqa
+            return Response({"mensagem": "Ciente da solicitação de dieta especial"})
         except InvalidTransitionError as e:
             return Response(
                 dict(detail=f"Erro de transição de estado: {e}"),
