@@ -118,6 +118,28 @@ class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync:
                         quantidade=5,
                     )
 
+    def setup_escola_ceu_gestao(self):
+        self.tipo_unidade_ceu_gestao = TipoUnidadeEscolarFactory.create(
+            iniciais="CEU GESTAO"
+        )
+        self.escola_ceu_gestao = EscolaFactory.create(
+            nome="CEU GESTAO 9 DE JULHO",
+            tipo_gestao__nome="TERC TOTAL",
+            tipo_unidade=self.tipo_unidade_ceu_gestao,
+            lote=self.lote,
+            diretoria_regional=self.dre,
+        )
+
+    def setup_logs_escola_ceu_gestao(self):
+        for classificacao in [self.classificacao_tipo_a, self.classificacao_tipo_b]:
+            LogQuantidadeDietasAutorizadasFactory.create(
+                data="2025-05-09",
+                escola=self.escola_ceu_gestao,
+                periodo_escolar=None,
+                classificacao=classificacao,
+                quantidade=5,
+            )
+
     def setup(self):
         self.setup_generico()
         self.setup_classificacoes_dieta()
@@ -126,6 +148,8 @@ class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync:
         self.setup_faixas_etarias()
         self.setup_escola_cei()
         self.setup_logs_escola_cei()
+        self.setup_escola_ceu_gestao()
+        self.setup_logs_escola_ceu_gestao()
 
     def test_gera_xlsx_historico_dietas_especiais(
         self, client_autenticado_vinculo_codae_gestao_alimentacao_dieta
@@ -143,7 +167,8 @@ class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync:
             sheet = loaded_wb["Histórico de Dietas Autorizadas"]
             assert (
                 sheet["A2"].value
-                == "Total de Dietas Autorizadas em 09/05/2025 para as unidades da DRE IPIRANGA: 40 | Data de extração do relatório: 09/05/2025"
+                == "Total de Dietas Autorizadas em 09/05/2025 para as unidades da DRE IPIRANGA: 50 | Data de extração do relatório: 09/05/2025"
             )
+
             assert sheet["F5"].value == "07 a 11 meses"
             assert sheet["F7"].value == "01 ano a 03 anos e 11 meses"
