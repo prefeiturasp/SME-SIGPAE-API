@@ -114,7 +114,9 @@ def _update_dietas_alimentacoes_por_faixa(
 
 
 def _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes):
-    ORDEM_CAMPOS = [faixa.id for faixa in FaixaEtaria.objects.filter(ativo=True).order_by("inicio")]
+    ORDEM_CAMPOS = [
+        faixa.id for faixa in FaixaEtaria.objects.filter(ativo=True).order_by("inicio")
+    ]
 
     periodos_alimentacoes = {
         chave: sorted(list(set(valores)), key=lambda valor: ORDEM_CAMPOS.index(valor))

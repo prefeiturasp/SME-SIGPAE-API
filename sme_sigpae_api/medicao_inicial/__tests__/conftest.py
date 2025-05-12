@@ -3338,7 +3338,7 @@ def relatorio_consolidado_xlsx_cei(
                     valor=1,
                     faixa_etaria=faixas_etarias_ativas[3],
                 )
-
+    # print(faixas_etarias_ativas)
     return solicitacao_relatorio_consolidado_grupo_cei
 
 
@@ -3371,18 +3371,22 @@ def mock_query_params_excel_cei(solicitacao_relatorio_consolidado_grupo_cei):
 @pytest.fixture
 def mock_colunas_cei(faixas_etarias_ativas):
     faixas = [faixa.id for faixa in faixas_etarias_ativas]
-    faixas_dietas = [
-        faixa.id for faixa in faixas_etarias_ativas if faixa.inicio not in [1, 6, 12]
-    ]
     colunas = []
 
-    for periodo in ["INTEGRAL", "PARCIAL", "MANHA", "TARDE"]:
+    for periodo in ["INTEGRAL", "PARCIAL"]:
         for faixa in faixas:
             colunas.append((periodo, faixa))
-    for periodo in ["DIETA ESPECIAL - TIPO A", "DIETA ESPECIAL - TIPO B"]:
-        for faixa in faixas_dietas:
-            colunas.append((periodo, faixa))
 
+    colunas.append(("MANHA", faixas_etarias_ativas[2].id))
+    colunas.append(("MANHA", faixas_etarias_ativas[4].id))
+
+    colunas.append(("TARDE", faixas_etarias_ativas[3].id))
+    colunas.append(("TARDE", faixas_etarias_ativas[6].id))
+
+    colunas.append(("DIETA ESPECIAL - TIPO A", faixas_etarias_ativas[2].id))
+    colunas.append(("DIETA ESPECIAL - TIPO B", faixas_etarias_ativas[3].id))
+
+    # print(colunas)
     return colunas
 
 
@@ -3409,32 +3413,12 @@ def mock_linhas_cei():
             80.0,
             80.0,
             80.0,
-            "-",
             80.0,
-            "-",
+            60.0,
+            60.0,
             80.0,
-            "-",
-            80.0,
-            "-",
-            "-",
-            "-",
-            80.0,
-            "-",
-            80.0,
-            "-",
-            80.0,
-            "-",
-            "-",
-            16.0,
-            16.0,
-            16.0,
-            16.0,
-            16.0,
-            16.0,
-            16.0,
-            16.0,
-            16.0,
-            16.0,
+            8.0,
+            4.0,
         ]
     ]
 
