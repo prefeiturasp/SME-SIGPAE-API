@@ -4492,7 +4492,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
             EmailENotificacaoService.enviar_notificacao(
                 template="pre_recebimento_notificacao_assinatura_cronograma.html",
                 contexto_template=contexto,
-                titulo_notificacao=f"Cronograma { self.numero } assinado pelo Abastecimento",
+                titulo_notificacao=f"Cronograma {self.numero} assinado pelo Abastecimento",
                 tipo_notificacao=Notificacao.TIPO_NOTIFICACAO_AVISO,
                 categoria_notificacao=Notificacao.CATEGORIA_NOTIFICACAO_CRONOGRAMA,
                 link_acesse_aqui=url_detalhe_cronograma,

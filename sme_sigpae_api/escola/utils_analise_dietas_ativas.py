@@ -66,7 +66,7 @@ def escreve_xlsx(codigo_eol_escola_nao_existentes):
         for i, item in enumerate(
             progressbar(list(codigo_eol_escola_nao_existentes), "Escrevendo...")
         ):
-            ws[f"A{i+2}"] = str(item)
+            ws[f"A{i + 2}"] = str(item)
         nome_excel_tempfile = f"{tmp.name}.xlsx"
         wb.save(nome_excel_tempfile)
         output = BytesIO(save_virtual_workbook(wb))
