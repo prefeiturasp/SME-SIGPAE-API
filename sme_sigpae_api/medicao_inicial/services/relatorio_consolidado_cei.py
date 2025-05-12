@@ -114,10 +114,22 @@ def _update_dietas_alimentacoes_por_faixa(
 
 
 def _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes):
-    dict_periodos_dietas = {
-        **{k: list(set(v)) for k, v in periodos_alimentacoes.items()},
-        **{k: list(set(v)) for k, v in dietas_alimentacoes.items()},
+    ORDEM_CAMPOS = [faixa.id for faixa in FaixaEtaria.objects.filter(ativo=True).order_by("inicio")]
+
+    periodos_alimentacoes = {
+        chave: sorted(list(set(valores)), key=lambda valor: ORDEM_CAMPOS.index(valor))
+        for chave, valores in periodos_alimentacoes.items()
     }
+
+    dietas_alimentacoes = {
+        chave: sorted(list(set(valores)), key=lambda valor: ORDEM_CAMPOS.index(valor))
+        for chave, valores in dietas_alimentacoes.items()
+    }
+    dict_periodos_dietas = {**periodos_alimentacoes, **dietas_alimentacoes}
+    # dict_periodos_dietas = {
+    #     **{k: list(set(v)) for k, v in periodos_alimentacoes.items()},
+    #     **{k: list(set(v)) for k, v in dietas_alimentacoes.items()},
+    # }
 
     dict_periodos_dietas = dict(
         sorted(
