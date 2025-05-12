@@ -128,10 +128,6 @@ def _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes):
         for chave, valores in dietas_alimentacoes.items()
     }
     dict_periodos_dietas = {**periodos_alimentacoes, **dietas_alimentacoes}
-    # dict_periodos_dietas = {
-    #     **{k: list(set(v)) for k, v in periodos_alimentacoes.items()},
-    #     **{k: list(set(v)) for k, v in dietas_alimentacoes.items()},
-    # }
 
     dict_periodos_dietas = dict(
         sorted(
@@ -206,8 +202,7 @@ def _processa_periodo_campo(
                 solicitacao, filtros, faixa_etaria, periodo
             )
         valores.append(total)
-    except Exception as e:
-        print(e)
+    except Exception:
         valores.append("-")
     return valores
 
