@@ -142,7 +142,7 @@ class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync:
 
     def setup_escola_emebs(self):
         self.tipo_unidade_emebs = TipoUnidadeEscolarFactory.create(iniciais="EMEBS")
-        self.escola_ceu_gestao = EscolaFactory.create(
+        self.escola_emebs = EscolaFactory.create(
             nome="EMEBS HELEN KELLER",
             tipo_gestao__nome="TERC TOTAL",
             tipo_unidade=self.tipo_unidade_emebs,
@@ -153,7 +153,7 @@ class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync:
     def setup_logs_escola_emebs(self):
         for periodo_escolar in [self.periodo_manha, self.periodo_tarde]:
             LogAlunosMatriculadosPeriodoEscolaFactory.create(
-                escola=self.escola_emef,
+                escola=self.escola_emebs,
                 periodo_escolar=periodo_escolar,
                 quantidade_alunos=100,
                 criado_em="2025-05-09",
@@ -162,12 +162,63 @@ class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync:
                 for infantil_ou_fundamental in ["INFANTIL", "FUNDAMENTAL"]:
                     LogQuantidadeDietasAutorizadasFactory.create(
                         data="2025-05-09",
-                        escola=self.escola_emef,
+                        escola=self.escola_emebs,
                         periodo_escolar=periodo_escolar,
                         classificacao=classificacao,
                         quantidade=5,
                         infantil_ou_fundamental=infantil_ou_fundamental,
                     )
+
+    def setup_escola_cemei(self):
+        self.tipo_unidade_cemei = TipoUnidadeEscolarFactory.create(iniciais="CEMEI")
+        self.escola_cemei = EscolaFactory.create(
+            nome="CEMEI ALZIRA",
+            tipo_gestao__nome="TERC TOTAL",
+            tipo_unidade=self.tipo_unidade_cemei,
+            lote=self.lote,
+            diretoria_regional=self.dre,
+        )
+
+    def setup_logs_escola_cemei_cei(self):
+        for periodo_escolar in [self.periodo_integral]:
+            for faixa_etaria in [self.faixa_1]:
+                LogAlunosMatriculadosFaixaEtariaDiaFactory.create(
+                    escola=self.escola_cemei,
+                    periodo_escolar=periodo_escolar,
+                    quantidade=100,
+                    faixa_etaria=faixa_etaria,
+                    criado_em="2025-05-09",
+                    data="2025-05-09",
+                )
+                for classificacao in [
+                    self.classificacao_tipo_a,
+                    self.classificacao_tipo_b,
+                ]:
+                    LogQuantidadeDietasAutorizadasCEIFactory.create(
+                        data="2025-05-09",
+                        escola=self.escola_cemei,
+                        periodo_escolar=periodo_escolar,
+                        classificacao=classificacao,
+                        faixa_etaria=faixa_etaria,
+                        quantidade=5,
+                    )
+
+    def setup_logs_escola_cemei_emei(self):
+        for periodo_escolar in [self.periodo_manha, self.periodo_tarde]:
+            LogAlunosMatriculadosPeriodoEscolaFactory.create(
+                escola=self.escola_cemei,
+                periodo_escolar=periodo_escolar,
+                quantidade_alunos=100,
+                criado_em="2025-05-09",
+            )
+            for classificacao in [self.classificacao_tipo_a, self.classificacao_tipo_b]:
+                LogQuantidadeDietasAutorizadasFactory.create(
+                    data="2025-05-09",
+                    escola=self.escola_cemei,
+                    periodo_escolar=periodo_escolar,
+                    classificacao=classificacao,
+                    quantidade=5,
+                )
 
     def setup(self):
         self.setup_generico()
@@ -181,6 +232,9 @@ class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync:
         self.setup_logs_escola_ceu_gestao()
         self.setup_escola_emebs()
         self.setup_logs_escola_emebs()
+        self.setup_escola_cemei()
+        self.setup_logs_escola_cemei_cei()
+        self.setup_logs_escola_cemei_emei()
 
     def test_gera_xlsx_historico_dietas_especiais(
         self, client_autenticado_vinculo_codae_gestao_alimentacao_dieta
@@ -198,7 +252,7 @@ class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync:
             sheet = loaded_wb["Histórico de Dietas Autorizadas"]
             assert (
                 sheet["A2"].value
-                == "Total de Dietas Autorizadas em 09/05/2025 para as unidades da DRE IPIRANGA: 90 | Data de extração do relatório: 09/05/2025"
+                == "Total de Dietas Autorizadas em 09/05/2025 para as unidades da DRE IPIRANGA: 120 | Data de extração do relatório: 09/05/2025"
             )
 
             assert sheet["F5"].value == "07 a 11 meses"
