@@ -255,5 +255,30 @@ class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync:
                 == "Total de Dietas Autorizadas em 09/05/2025 para as unidades da DRE IPIRANGA: 120 | Data de extração do relatório: 09/05/2025"
             )
 
+            assert sheet["C5"].value == "CEI DIRET HAROLDO"
             assert sheet["F5"].value == "07 a 11 meses"
+            assert sheet["F6"].value == "07 a 11 meses"
             assert sheet["F7"].value == "01 ano a 03 anos e 11 meses"
+            assert sheet["F8"].value == "01 ano a 03 anos e 11 meses"
+
+            assert sheet["C9"].value == "CEMEI ALZIRA"
+            assert sheet["F9"].value == "07 a 11 meses"
+            assert sheet["F10"].value == "07 a 11 meses"
+            assert sheet["F11"].value == "Infantil"
+            assert sheet["F12"].value == "Infantil"
+            assert sheet["F13"].value == "Infantil"
+            assert sheet["F14"].value == "Infantil"
+
+            assert sheet["C15"].value == "CEU GESTAO 9 DE JULHO"
+
+            assert sheet["C17"].value == "EMEBS HELEN KELLER"
+            assert sheet["F17"].value == "Infantil (4 a 6 anos)"
+            assert sheet["F18"].value == "Fundamental (acima de 6 anos)"
+            assert sheet["F19"].value == "Infantil (4 a 6 anos)"
+            assert sheet["F20"].value == "Fundamental (acima de 6 anos)"
+            assert sheet["F21"].value == "Infantil (4 a 6 anos)"
+            assert sheet["F22"].value == "Fundamental (acima de 6 anos)"
+            assert sheet["F23"].value == "Infantil (4 a 6 anos)"
+            assert sheet["F24"].value == "Fundamental (acima de 6 anos)"
+
+            assert sheet["C25"].value == "EMEF PERICLES"
