@@ -282,3 +282,25 @@ class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync:
             assert sheet["F24"].value == "Fundamental (acima de 6 anos)"
 
             assert sheet["C25"].value == "EMEF PERICLES"
+
+    def test_gera_xlsx_historico_dietas_especiais_periodo_param(
+        self, client_autenticado_vinculo_codae_gestao_alimentacao_dieta
+    ):
+        client, user = client_autenticado_vinculo_codae_gestao_alimentacao_dieta
+        nome_arquivo = "relatorio_historico_dietas_especiais.xlsx"
+        data = json.dumps(
+            {
+                "lote": str(self.lote.uuid),
+                "data": "09/05/2025",
+                "periodos_escolares_selecionadas[]": str(self.periodo_integral.uuid),
+            }
+        )
+        gera_xlsx_relatorio_historico_dietas_especiais_async(user, nome_arquivo, data)
+
+        central_download = CentralDeDownload.objects.get()
+        assert central_download.status == CentralDeDownload.STATUS_CONCLUIDO
+
+        with central_download.arquivo.open("rb") as f:
+            loaded_wb = load_workbook(f)
+            sheet = loaded_wb["Histórico de Dietas Autorizadas"]
+            assert "Períodos: INTEGRAL" in sheet["A2"].value
