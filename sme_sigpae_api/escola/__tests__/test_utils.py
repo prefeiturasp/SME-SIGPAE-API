@@ -634,12 +634,12 @@ def test_ordenar_alunos_matriculados(dicionario_de_alunos_matriculados):
     assert queryset[2].periodo_escolar.nome == ""
 
 
-def test_cria_arquivo_excel(tmp_path):
+def test_cria_arquivo_excel():
     dados = [
         {"Nome": "Alice", "Idade": "25", "Cidade": "São Paulo"},
         {"Nome": "Bob", "Idade": "30", "Cidade": "Rio de Janeiro"},
     ]
-    caminho_arquivo = tmp_path / "teste.xlsx"
+    caminho_arquivo = Path("/tmp/teste.xlsx")
     cria_arquivo_excel(caminho_arquivo, dados)
     assert caminho_arquivo.exists(), "O arquivo Excel não foi criado."
 
