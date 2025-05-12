@@ -96,7 +96,7 @@ attrs = "==22.2.0"
 xlrd = "*"
 spyne = { git = "https://github.com/t-8ch/spyne.git", ref = "refs/heads/cgi/parse_header", editable = true }
 lxml = "*"
-openpyxl = "==3.0.10"
+openpyxl = "==3.1.5"
 httpx = "*"
 pikepdf = "*"
 PyPDF4 = "*"
