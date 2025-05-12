@@ -448,7 +448,7 @@ def test_define_filtro(relatorio_consolidado_xlsx_cei):
 
 
 def test_processa_dieta_especial(relatorio_consolidado_xlsx_cei, faixas_etarias_ativas):
-    periodo = "MANHA"
+    periodo = "NOITE"
     filtros = {"periodo_escolar__nome": periodo}
     faixa_etaria = faixas_etarias_ativas[2].id
     total = _processa_dieta_especial(
@@ -485,15 +485,13 @@ def test_processa_periodo_regular(
     )
     assert total == 80.0
 
-    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
-    filtros = {"periodo_escolar__nome__in": periodos_escolares}
-    periodo = "DIETA ESPECIAL - TIPO A"
+    periodo = "NOITE"
+    filtros = {"periodo_escolar__nome": periodo}
     faixa_etaria = faixas_etarias_ativas[0].id
-
-    with pytest.raises(MultipleObjectsReturned):
-        total = _processa_periodo_regular(
-            relatorio_consolidado_xlsx_cei, filtros, faixa_etaria, periodo
-        )
+    total = _processa_periodo_regular(
+        relatorio_consolidado_xlsx_cei, filtros, faixa_etaria, periodo
+    )
+    assert total == "-"
 
 
 def test_calcula_soma_medicao_alimentacao(

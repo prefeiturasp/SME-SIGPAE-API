@@ -3338,7 +3338,6 @@ def relatorio_consolidado_xlsx_cei(
                     valor=1,
                     faixa_etaria=faixas_etarias_ativas[3],
                 )
-    # print(faixas_etarias_ativas)
     return solicitacao_relatorio_consolidado_grupo_cei
 
 
@@ -3386,7 +3385,6 @@ def mock_colunas_cei(faixas_etarias_ativas):
     colunas.append(("DIETA ESPECIAL - TIPO A", faixas_etarias_ativas[2].id))
     colunas.append(("DIETA ESPECIAL - TIPO B", faixas_etarias_ativas[3].id))
 
-    # print(colunas)
     return colunas
 
 

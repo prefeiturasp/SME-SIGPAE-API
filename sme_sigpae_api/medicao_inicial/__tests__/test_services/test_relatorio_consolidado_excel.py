@@ -695,8 +695,96 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
     ]
 
 
-def test_insere_tabela_periodos_na_planilha_unidade_cei():
-    pass
+def test_insere_tabela_periodos_na_planilha_unidade_cei(
+    informacoes_excel_writer_cei, mock_colunas_cei, mock_linhas_cei
+):
+    aba, writer, _, _, _, _ = informacoes_excel_writer_cei
+
+    df = _insere_tabela_periodos_na_planilha(
+        ["CEI"], aba, mock_colunas_cei, mock_linhas_cei, writer
+    )
+    assert isinstance(df, pd.DataFrame)
+    colunas_df = df.columns.tolist()
+    assert len(colunas_df) == 25
+    assert sum(1 for tupla in colunas_df if tupla[0] == "INTEGRAL") == 8
+    assert sum(1 for tupla in colunas_df if tupla[0] == "PARCIAL") == 8
+    assert sum(1 for tupla in colunas_df if tupla[0] == "MANHA") == 2
+    assert sum(1 for tupla in colunas_df if tupla[0] == "TARDE") == 2
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 1
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 1
+
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Tipo") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Cód. EOL") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
+
+    assert sum(1 for tupla in colunas_df if tupla[1] == "00 meses") == 2
+    assert sum(1 for tupla in colunas_df if tupla[1] == "01 a 03 meses") == 2
+    assert sum(1 for tupla in colunas_df if tupla[1] == "04 a 05 meses") == 4
+    assert sum(1 for tupla in colunas_df if tupla[1] == "06 a 07 meses") == 4
+    assert sum(1 for tupla in colunas_df if tupla[1] == "08 a 11 meses") == 3
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == "01 ano a 01 ano e 11 meses") == 2
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == "02 anos a 03 anos e 11 meses")
+        == 3
+    )
+    assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 2
+
+    assert df.iloc[0].tolist() == [
+        "CEI DIRET",
+        "765432",
+        "CEI DIRET TESTE",
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        60.0,
+        60.0,
+        80.0,
+        8.0,
+        4.0,
+    ]
+    assert df.iloc[1].tolist() == [
+        0.0,
+        765432.0,
+        0.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        60.0,
+        60.0,
+        80.0,
+        8.0,
+        4.0,
+    ]
 
 
 def test_preenche_titulo(informacoes_excel_writer_emef):
@@ -790,6 +878,39 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_emei(
     workbook_openpyxl.close()
 
 
+def test_preenche_linha_dos_filtros_selecionados_unidade_cei(
+    mock_query_params_excel_cei, informacoes_excel_writer_cei
+):
+    tipos_unidades = ["CEI"]
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_cei
+    _preenche_linha_dos_filtros_selecionados(
+        workbook, worksheet, mock_query_params_excel_cei, df.columns, tipos_unidades
+    )
+    writer.close()
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
+    sheet = workbook_openpyxl[aba]
+
+    merged_ranges = sheet.merged_cells.ranges
+    assert len(merged_ranges) == 6
+    assert str(merged_ranges[0]) == "A3:C3"
+    assert str(merged_ranges[1]) == "D3:K3"
+    assert str(merged_ranges[2]) == "L3:S3"
+    assert str(merged_ranges[3]) == "T3:U3"
+    assert str(merged_ranges[4]) == "V3:W3"
+    assert str(merged_ranges[5]) == "A2:Y2"
+
+    assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - CEI"
+    assert sheet["A2"].alignment.horizontal == "center"
+    assert sheet["A2"].alignment.vertical == "center"
+    assert sheet["A2"].font.bold is True
+    assert sheet["A2"].font.color.rgb == "FF0C6B45"
+    assert sheet["A2"].fill.fgColor.rgb == "FFEAFFF6"
+
+    rows = list(sheet.iter_rows(values_only=True))
+    assert tipos_unidades[0] in rows[1][0]
+    workbook_openpyxl.close()
+
+
 def test_ajusta_layout_tabela_emef(informacoes_excel_writer_emef):
     aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emef
     _ajusta_layout_tabela(["EMEF"], workbook, worksheet, df)
@@ -836,6 +957,32 @@ def test_ajusta_layout_tabela_emei(informacoes_excel_writer_emei):
     workbook_openpyxl.close()
 
 
+def test_ajusta_layout_tabela_cei(informacoes_excel_writer_cei):
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_cei
+    _ajusta_layout_tabela(["CEI"], workbook, worksheet, df)
+    writer.close()
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
+    sheet = workbook_openpyxl[aba]
+    merged_ranges = sheet.merged_cells.ranges
+    assert len(merged_ranges) == 5
+    assert str(merged_ranges[0]) == "A3:C3"
+    assert str(merged_ranges[1]) == "D3:K3"
+    assert str(merged_ranges[2]) == "L3:S3"
+    assert str(merged_ranges[3]) == "T3:U3"
+    assert str(merged_ranges[4]) == "V3:W3"
+
+    assert sheet["A3"].value is None
+    assert sheet["D3"].value == "INTEGRAL"
+    assert sheet["D3"].fill.fgColor.rgb == "FF198459"
+    assert sheet["L3"].value == "PARCIAL"
+    assert sheet["L3"].fill.fgColor.rgb == "FFD06D12"
+    assert sheet["T3"].value == "MANHA"
+    assert sheet["T3"].fill.fgColor.rgb == "FFC13FD6"
+    assert sheet["V3"].value == "TARDE"
+    assert sheet["V3"].fill.fgColor.rgb == "FF2F80ED"
+    workbook_openpyxl.close()
+
+
 def test_formata_total_geral(informacoes_excel_writer_emef):
     aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emef
     _formata_total_geral(workbook, worksheet, df)
@@ -869,3 +1016,42 @@ def test_formata_filtros_unidade_emei(mock_query_params_excel_emei):
     filtros = _formata_filtros(mock_query_params_excel_emei, tipos_unidades)
     assert isinstance(filtros, str)
     assert filtros == "Abril/2025 - DIRETORIA REGIONAL TESTE -  - EMEI"
+
+
+def test_formata_filtros_unidade_cei(mock_query_params_excel_cei):
+    tipos_unidades = ["CEI"]
+    filtros = _formata_filtros(mock_query_params_excel_cei, tipos_unidades)
+    assert isinstance(filtros, str)
+    assert filtros == "Abril/2025 - DIRETORIA REGIONAL TESTE -  - CEI"
+
+
+def test_gera_relatorio_consolidado_xlsx_tipo_unidade_invalida():
+    tipos_de_unidade = ["aaa", "bbb"]
+    with pytest.raises(ValueError, match=f"Unidades inválidas"):
+        gera_relatorio_consolidado_xlsx([], tipos_de_unidade, {})
+
+
+def test_insere_tabela_periodos_na_planilha_tipo_unidade_invalida(
+    informacoes_excel_writer_emef, mock_colunas, mock_linhas_emef
+):
+    aba, writer, _, _, _, _ = informacoes_excel_writer_emef
+    tipos_de_unidade = ["aaa", "bbb"]
+
+    with pytest.raises(ValueError, match=f"Unidades inválidas"):
+        _insere_tabela_periodos_na_planilha(
+            tipos_de_unidade, aba, mock_colunas, mock_linhas_emef, writer
+        )
+
+
+def test_ajusta_layout_tabela_tipo_unidade_invalida(informacoes_excel_writer_cei):
+    _, _, workbook, worksheet, df, _ = informacoes_excel_writer_cei
+    tipos_de_unidade = ["aaa", "bbb"]
+
+    with pytest.raises(ValueError, match=f"Unidades inválidas"):
+        _ajusta_layout_tabela(tipos_de_unidade, workbook, worksheet, df)
+
+
+def test_gera_relatorio_consolidado_xlsx_retorna_exception():
+    tipos_de_unidade = ["CEI"]
+    with pytest.raises(Exception):
+        gera_relatorio_consolidado_xlsx([], tipos_de_unidade, {})
