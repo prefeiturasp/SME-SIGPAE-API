@@ -1,4 +1,5 @@
-from factory import DjangoModelFactory, LazyFunction, Sequence
+from factory import LazyFunction, Sequence
+from factory.django import DjangoModelFactory
 from faker import Faker
 
 from sme_sigpae_api.recebimento.models import QuestaoConferencia

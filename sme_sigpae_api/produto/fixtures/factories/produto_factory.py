@@ -1,4 +1,5 @@
-from factory import DjangoModelFactory, Sequence, SubFactory
+from factory import Sequence, SubFactory
+from factory.django import DjangoModelFactory
 from faker import Faker
 
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import EscolaFactory
