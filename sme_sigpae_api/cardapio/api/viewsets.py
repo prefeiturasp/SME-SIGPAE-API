@@ -39,23 +39,24 @@ from ...relatorios.relatorios import (
     relatorio_suspensao_de_alimentacao,
     relatorio_suspensao_de_alimentacao_cei,
 )
-from ..models import (
+from ..alteracao_tipo_alimentacao.models import (
     AlteracaoCardapio,
-    AlteracaoCardapioCEI,
-    AlteracaoCardapioCEMEI,
+    MotivoAlteracaoCardapio,
+)
+from ..alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
+from ..alteracao_tipo_alimentacao_cemei.models import AlteracaoCardapioCEMEI
+from ..base.models import (
     Cardapio,
     ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
-    GrupoSuspensaoAlimentacao,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
-    InversaoCardapio,
-    MotivoAlteracaoCardapio,
     MotivoDRENaoValida,
-    MotivoSuspensao,
     SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
-    SuspensaoAlimentacaoDaCEI,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from ..inversao_dia_cardapio.models import InversaoCardapio
+from ..suspensao_alimentacao.models import GrupoSuspensaoAlimentacao, MotivoSuspensao
+from ..suspensao_alimentacao_cei.models import SuspensaoAlimentacaoDaCEI
 from .serializers.serializers import (
     AlteracaoCardapioCEISerializer,
     AlteracaoCardapioCEMEISerializer,

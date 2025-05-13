@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from workalendar.america import BrazilSaoPauloCity
 
-from ....cardapio.models import TipoAlimentacao
+from ....cardapio.base.models import TipoAlimentacao
 from ....dados_comuns.utils import update_instance_from_dict
 from ....dados_comuns.validators import (
     deve_pedir_com_antecedencia,

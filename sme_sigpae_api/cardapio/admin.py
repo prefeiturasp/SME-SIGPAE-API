@@ -1,24 +1,34 @@
 from django.contrib import admin
 
-from .models import (
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
     AlteracaoCardapio,
+    MotivoAlteracaoCardapio,
+)
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.models import (
     AlteracaoCardapioCEI,
+    SubstituicaoAlimentacaoNoPeriodoEscolarCEI,
+)
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models import (
     AlteracaoCardapioCEMEI,
+)
+from sme_sigpae_api.cardapio.base.models import (
     Cardapio,
     ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
-    GrupoSuspensaoAlimentacao,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
-    InversaoCardapio,
-    MotivoAlteracaoCardapio,
     MotivoDRENaoValida,
-    MotivoSuspensao,
-    QuantidadePorPeriodoSuspensaoAlimentacao,
-    SubstituicaoAlimentacaoNoPeriodoEscolarCEI,
     SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
-    SuspensaoAlimentacao,
-    SuspensaoAlimentacaoDaCEI,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
+)
+from sme_sigpae_api.cardapio.inversao_dia_cardapio.models import InversaoCardapio
+from sme_sigpae_api.cardapio.suspensao_alimentacao.models import (
+    GrupoSuspensaoAlimentacao,
+    MotivoSuspensao,
+    QuantidadePorPeriodoSuspensaoAlimentacao,
+    SuspensaoAlimentacao,
+)
+from sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models import (
+    SuspensaoAlimentacaoDaCEI,
 )
 
 admin.site.register(TipoAlimentacao)

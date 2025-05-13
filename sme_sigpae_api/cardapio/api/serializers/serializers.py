@@ -15,32 +15,40 @@ from ....terceirizada.api.serializers.serializers import (
     EditalSerializer,
     TerceirizadaSimplesSerializer,
 )
-from ...models import (
+from ...alteracao_tipo_alimentacao.models import (
     AlteracaoCardapio,
-    AlteracaoCardapioCEI,
-    AlteracaoCardapioCEMEI,
-    Cardapio,
-    ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
-    FaixaEtariaSubstituicaoAlimentacaoCEI,
-    FaixaEtariaSubstituicaoAlimentacaoCEMEICEI,
-    GrupoSuspensaoAlimentacao,
-    HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
-    InversaoCardapio,
     MotivoAlteracaoCardapio,
-    MotivoDRENaoValida,
-    MotivoSuspensao,
-    QuantidadePorPeriodoSuspensaoAlimentacao,
     SubstituicaoAlimentacaoNoPeriodoEscolar,
+)
+from ...alteracao_tipo_alimentacao_cei.models import (
+    AlteracaoCardapioCEI,
+    FaixaEtariaSubstituicaoAlimentacaoCEI,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEI,
+)
+from ...alteracao_tipo_alimentacao_cemei.models import (
+    AlteracaoCardapioCEMEI,
+    FaixaEtariaSubstituicaoAlimentacaoCEMEICEI,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
+)
+from ...base.models import (
+    Cardapio,
+    ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
+    HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
+    MotivoDRENaoValida,
     SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
-    SuspensaoAlimentacao,
-    SuspensaoAlimentacaoDaCEI,
-    SuspensaoAlimentacaoNoPeriodoEscolar,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from ...inversao_dia_cardapio.models import InversaoCardapio
+from ...suspensao_alimentacao.models import (
+    GrupoSuspensaoAlimentacao,
+    MotivoSuspensao,
+    QuantidadePorPeriodoSuspensaoAlimentacao,
+    SuspensaoAlimentacao,
+    SuspensaoAlimentacaoNoPeriodoEscolar,
+)
+from ...suspensao_alimentacao_cei.models import SuspensaoAlimentacaoDaCEI
 from .serializers_create import (
     DatasIntervaloAlteracaoCardapioCEMEICreateSerializer,
     DatasIntervaloAlteracaoCardapioSerializerCreateSerializer,

@@ -8,7 +8,6 @@ from django.db.models import QuerySet
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
-from sme_sigpae_api.cardapio.models import TipoAlimentacao
 from sme_sigpae_api.dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
 from sme_sigpae_api.dados_comuns.utils import (
     convert_base64_to_contentfile,
@@ -49,6 +48,7 @@ from sme_sigpae_api.medicao_inicial.models import (
 from sme_sigpae_api.perfil.models import Usuario
 from sme_sigpae_api.terceirizada.models import Contrato, Edital
 
+from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns.constants import DIRETOR_UE
 from ...inclusao_alimentacao.models import InclusaoAlimentacaoContinua
 from ..utils import (

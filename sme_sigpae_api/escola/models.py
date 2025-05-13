@@ -15,14 +15,12 @@ from django.db.models import Q, Sum
 from django_prometheus.models import ExportModelOperationsMixin
 from rest_framework import status
 
-from ..cardapio.models import (
-    AlteracaoCardapio,
-    AlteracaoCardapioCEI,
-    AlteracaoCardapioCEMEI,
-    GrupoSuspensaoAlimentacao,
-    InversaoCardapio,
-    TipoAlimentacao,
-)
+from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
+from ..cardapio.alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
+from ..cardapio.alteracao_tipo_alimentacao_cemei.models import AlteracaoCardapioCEMEI
+from ..cardapio.base.models import TipoAlimentacao
+from ..cardapio.inversao_dia_cardapio.models import InversaoCardapio
+from ..cardapio.suspensao_alimentacao.models import GrupoSuspensaoAlimentacao
 from ..dados_comuns.behaviors import (
     AcessoModuloMedicaoInicial,
     ArquivoCargaBase,

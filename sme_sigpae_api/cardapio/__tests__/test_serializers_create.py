@@ -2,17 +2,15 @@ import pytest
 from freezegun import freeze_time
 from model_mommy import mommy
 
-from ...cardapio.models import (
-    GrupoSuspensaoAlimentacao,
-    InversaoCardapio,
-    SuspensaoAlimentacaoDaCEI,
-)
 from ..api.serializers.serializers_create import (
     GrupoSuspensaoAlimentacaoCreateSerializer,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate,
     InversaoCardapioSerializerCreate,
     SuspensaoAlimentacaodeCEICreateSerializer,
 )
+from ..inversao_dia_cardapio.models import InversaoCardapio
+from ..suspensao_alimentacao.models import GrupoSuspensaoAlimentacao
+from ..suspensao_alimentacao_cei.models import SuspensaoAlimentacaoDaCEI
 
 pytestmark = pytest.mark.django_db
 

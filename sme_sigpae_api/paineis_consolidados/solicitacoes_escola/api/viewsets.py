@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from sme_sigpae_api.cardapio.api.serializers.serializers import (
     VinculoTipoAlimentoPeriodoSerializer,
 )
-from sme_sigpae_api.cardapio.models import (
+from sme_sigpae_api.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from sme_sigpae_api.dados_comuns.permissions import PermissaoParaRecuperarDietaEspecial

@@ -15,7 +15,8 @@ from sme_sigpae_api.paineis_consolidados.api.serializers import (
 )
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 
-from ...cardapio.models import AlteracaoCardapio, SuspensaoAlimentacaoDaCEI
+from ...cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
+from ...cardapio.suspensao_alimentacao_cei.models import SuspensaoAlimentacaoDaCEI
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem

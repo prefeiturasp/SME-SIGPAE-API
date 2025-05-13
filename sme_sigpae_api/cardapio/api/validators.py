@@ -3,16 +3,18 @@ import datetime
 from django.db.models import Q
 from rest_framework import serializers
 
-from ...cardapio.models import (
+from ...escola.models import Escola, PeriodoEscolar
+from ..alteracao_tipo_alimentacao.models import SubstituicaoAlimentacaoNoPeriodoEscolar
+from ..alteracao_tipo_alimentacao_cemei.models import (
+    SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
+)
+from ..base.models import (
     Cardapio,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
-    SubstituicaoAlimentacaoNoPeriodoEscolar,
-    SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
-from ...escola.models import Escola, PeriodoEscolar
-from ..models import InversaoCardapio
+from ..inversao_dia_cardapio.models import InversaoCardapio
 
 
 def cardapio_antigo(cardapio: Cardapio):

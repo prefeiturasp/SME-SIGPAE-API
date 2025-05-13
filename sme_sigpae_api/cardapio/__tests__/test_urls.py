@@ -5,12 +5,6 @@ import pytest
 from freezegun import freeze_time
 from rest_framework import status
 
-from sme_sigpae_api.cardapio.models import (
-    AlteracaoCardapio,
-    GrupoSuspensaoAlimentacao,
-    InversaoCardapio,
-    VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
-)
 from sme_sigpae_api.cardapio.utils import converter_data
 
 from ...dados_comuns import constants
@@ -18,6 +12,7 @@ from ...dados_comuns.fluxo_status import (
     InformativoPartindoDaEscolaWorkflow,
     PedidoAPartirDaEscolaWorkflow,
 )
+from ..base.models import VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar
 
 ENDPOINT_INVERSOES = "inversoes-dia-cardapio"
 ENDPOINT_SUSPENSOES = "grupos-suspensoes-alimentacao"

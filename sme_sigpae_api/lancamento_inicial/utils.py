@@ -4,7 +4,8 @@ from datetime import date
 from django.db.models import Count, F, Q, Sum
 from workalendar.america import BrazilSaoPauloCity
 
-from ..cardapio.models import AlteracaoCardapio, TipoAlimentacao
+from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
+from ..cardapio.base.models import TipoAlimentacao
 from ..dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from ..dieta_especial.models import ClassificacaoDieta
 from ..escola.models import Aluno, LogAlteracaoQuantidadeAlunosPorEscolaEPeriodoEscolar

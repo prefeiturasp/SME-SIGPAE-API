@@ -17,12 +17,10 @@ from sme_sigpae_api.escola.utils_escola import (
     atualiza_tipo_gestao_das_escolas,
 )
 
-from ..cardapio.models import (
-    AlteracaoCardapio,
-    AlteracaoCardapioCEI,
-    AlteracaoCardapioCEMEI,
-    InversaoCardapio,
-)
+from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
+from ..cardapio.alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
+from ..cardapio.alteracao_tipo_alimentacao_cemei.models import AlteracaoCardapioCEMEI
+from ..cardapio.inversao_dia_cardapio.models import InversaoCardapio
 from ..dados_comuns.fluxo_status import (
     PedidoAPartirDaDiretoriaRegionalWorkflow,
     PedidoAPartirDaEscolaWorkflow,

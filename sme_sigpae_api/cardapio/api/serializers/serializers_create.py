@@ -26,6 +26,24 @@ from ....escola.models import (
 )
 from ....escola.utils import eh_dia_sem_atividade_escolar
 from ....terceirizada.models import Edital
+from ...alteracao_tipo_alimentacao.models import (
+    AlteracaoCardapio,
+    DataIntervaloAlteracaoCardapio,
+    MotivoAlteracaoCardapio,
+    SubstituicaoAlimentacaoNoPeriodoEscolar,
+)
+from ...alteracao_tipo_alimentacao_cei.models import (
+    AlteracaoCardapioCEI,
+    FaixaEtariaSubstituicaoAlimentacaoCEI,
+    SubstituicaoAlimentacaoNoPeriodoEscolarCEI,
+)
+from ...alteracao_tipo_alimentacao_cemei.models import (
+    AlteracaoCardapioCEMEI,
+    DataIntervaloAlteracaoCardapioCEMEI,
+    FaixaEtariaSubstituicaoAlimentacaoCEMEICEI,
+    SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI,
+    SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
+)
 from ...api.validators import (
     escola_nao_pode_cadastrar_dois_combos_iguais,
     hora_inicio_nao_pode_ser_maior_que_hora_final,
@@ -34,33 +52,23 @@ from ...api.validators import (
     precisa_pertencer_a_um_tipo_de_alimentacao,
     valida_duplicidade_solicitacoes_lanche_emergencial,
 )
-from ...models import (
-    AlteracaoCardapio,
-    AlteracaoCardapioCEI,
-    AlteracaoCardapioCEMEI,
+from ...base.models import (
     Cardapio,
     ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
-    DataIntervaloAlteracaoCardapio,
-    DataIntervaloAlteracaoCardapioCEMEI,
-    FaixaEtariaSubstituicaoAlimentacaoCEI,
-    FaixaEtariaSubstituicaoAlimentacaoCEMEICEI,
-    GrupoSuspensaoAlimentacao,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
-    InversaoCardapio,
-    MotivoAlteracaoCardapio,
-    MotivoSuspensao,
-    QuantidadePorPeriodoSuspensaoAlimentacao,
-    SubstituicaoAlimentacaoNoPeriodoEscolar,
-    SubstituicaoAlimentacaoNoPeriodoEscolarCEI,
-    SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI,
-    SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
     SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
-    SuspensaoAlimentacao,
-    SuspensaoAlimentacaoDaCEI,
-    SuspensaoAlimentacaoNoPeriodoEscolar,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from ...inversao_dia_cardapio.models import InversaoCardapio
+from ...suspensao_alimentacao.models import (
+    GrupoSuspensaoAlimentacao,
+    MotivoSuspensao,
+    QuantidadePorPeriodoSuspensaoAlimentacao,
+    SuspensaoAlimentacao,
+    SuspensaoAlimentacaoNoPeriodoEscolar,
+)
+from ...suspensao_alimentacao_cei.models import SuspensaoAlimentacaoDaCEI
 
 
 class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate(

@@ -5,9 +5,9 @@ from freezegun import freeze_time
 from model_mommy import mommy
 from xworkflows.base import InvalidTransitionError
 
-from ...cardapio.models import Cardapio
 from ...dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from ...escola.models import Escola
+from ..base.models import Cardapio
 
 pytestmark = pytest.mark.django_db
 
