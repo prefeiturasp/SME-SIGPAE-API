@@ -1,5 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
@@ -286,17 +288,25 @@ class FormularioSupervisaoModelViewSet(
 
     @action(detail=True, methods=["GET"], url_path="relatorio-pdf")
     def relatorio_pdf(self, request, uuid):
-        user = request.user.get_username()
-        formulario_supervisao = self.get_object()
-        gera_pdf_relatorio_formulario_supervisao_async.delay(
-            user=user,
-            nome_arquivo=f"Relatório de Fiscalização - {formulario_supervisao.escola.nome}.pdf",
-            uuid=uuid,
-        )
-        return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
-            status=status.HTTP_200_OK,
-        )
+        try:
+            user = request.user.get_username()
+            formulario_supervisao = get_object_or_404(FormularioSupervisao, uuid=uuid)
+            gera_pdf_relatorio_formulario_supervisao_async.delay(
+                user=user,
+                nome_arquivo=f"Relatório de Fiscalização - {formulario_supervisao.escola.nome}.pdf",
+                uuid=uuid,
+            )
+            return Response(
+                dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+                status=status.HTTP_200_OK,
+            )
+        except Http404:
+            return Response(
+                {
+                    "detail": "FormularioSupervisao com o UUID informado não foi encontrado."
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
     @action(
         detail=False,

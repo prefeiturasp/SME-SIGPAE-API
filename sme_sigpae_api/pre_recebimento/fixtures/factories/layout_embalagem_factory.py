@@ -1,4 +1,5 @@
-from factory import DjangoModelFactory, SubFactory
+from factory import SubFactory
+from factory.django import DjangoModelFactory
 from faker import Faker
 
 from sme_sigpae_api.pre_recebimento.fixtures.factories.cronograma_factory import (

@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 
-from factory import DjangoModelFactory, LazyFunction, Sequence, SubFactory
+from factory import LazyFunction, Sequence, SubFactory
+from factory.django import DjangoModelFactory
 from faker import Faker
 
 from sme_sigpae_api.pre_recebimento.fixtures.factories.ficha_tecnica_do_produto_factory import (

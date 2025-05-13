@@ -538,6 +538,8 @@ class UsuarioPodeAlterarVinculo(BasePermission):
             and isinstance(usuario.vinculo_atual.instituicao, Codae)
             and usuario.vinculo_atual.perfil.nome
             in [
+                COORDENADOR_GESTAO_PRODUTO,
+                ADMINISTRADOR_GESTAO_PRODUTO,
                 COORDENADOR_CODAE_DILOG_LOGISTICA,
                 COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
                 ADMINISTRADOR_REPRESENTANTE_CODAE,
@@ -559,6 +561,7 @@ class UsuarioPodeFinalizarVinculo(BasePermission):
             and isinstance(usuario.vinculo_atual.instituicao, Codae)
             and usuario.vinculo_atual.perfil.nome
             in [
+                ADMINISTRADOR_GESTAO_PRODUTO,
                 COORDENADOR_CODAE_DILOG_LOGISTICA,
                 COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
                 ADMINISTRADOR_REPRESENTANTE_CODAE,
@@ -601,6 +604,7 @@ class PermissaoParaCriarUsuarioComCoresso(BasePermission):
             and isinstance(usuario.vinculo_atual.instituicao, Codae)
             and usuario.vinculo_atual.perfil.nome
             in [
+                ADMINISTRADOR_GESTAO_PRODUTO,
                 COORDENADOR_GESTAO_PRODUTO,
                 COORDENADOR_DIETA_ESPECIAL,
                 COORDENADOR_CODAE_DILOG_LOGISTICA,
@@ -629,6 +633,7 @@ class PermissaoParaListarVinculosAtivos(BasePermission):
             and usuario.vinculo_atual.perfil.nome
             in [
                 COORDENADOR_GESTAO_PRODUTO,
+                ADMINISTRADOR_GESTAO_PRODUTO,
                 COORDENADOR_DIETA_ESPECIAL,
                 COORDENADOR_CODAE_DILOG_LOGISTICA,
                 COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,

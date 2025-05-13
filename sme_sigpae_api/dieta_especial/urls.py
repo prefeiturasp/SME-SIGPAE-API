@@ -38,15 +38,10 @@ router.register(
     basename="Motivos de negação de dieta especial",
 )
 router.register(
-    ENDPOINT_MOTIVOS_NEGACAO,
-    viewsets.MotivoNegacaoViewSet,
-    basename="Motivos de negação de dieta especial",
-)
-router.register(
     ENDPOINT_TIPO_CONTAGEM,
     viewsets.TipoContagemViewSet,
     basename="Tipos de contagem de refeições",
-),
+)
 router.register(
     "motivo-alteracao-ue",
     viewsets.MotivoAlteracaoUEViewSet,
