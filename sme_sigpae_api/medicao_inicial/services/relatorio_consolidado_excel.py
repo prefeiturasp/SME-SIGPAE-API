@@ -19,29 +19,29 @@ from ..models import SolicitacaoMedicaoInicial
 
 def gera_relatorio_consolidado_xlsx(solicitacoes_uuid, tipos_de_unidade, query_params):
     solicitacoes = SolicitacaoMedicaoInicial.objects.filter(uuid__in=solicitacoes_uuid)
-
-    if set(tipos_de_unidade).issubset(
-        ORDEM_UNIDADES_GRUPO_EMEF | ORDEM_UNIDADES_GRUPO_EMEI
-    ):
-        colunas = relatorio_consolidado_emei_emef.get_alimentacoes_por_periodo(
-            solicitacoes
-        )
-        linhas = relatorio_consolidado_emei_emef.get_valores_tabela(
-            solicitacoes, colunas, tipos_de_unidade
-        )
-    elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_CEI):
-        colunas = relatorio_consolidado_cei.get_alimentacoes_por_periodo(solicitacoes)
-        linhas = relatorio_consolidado_cei.get_valores_tabela(
-            solicitacoes, colunas, tipos_de_unidade
-        )
-    else:
-        raise ValueError("Tipo de unidade invalida")
-
     try:
+        if set(tipos_de_unidade).issubset(
+            ORDEM_UNIDADES_GRUPO_EMEF | ORDEM_UNIDADES_GRUPO_EMEI
+        ):
+            colunas = relatorio_consolidado_emei_emef.get_alimentacoes_por_periodo(
+                solicitacoes
+            )
+            linhas = relatorio_consolidado_emei_emef.get_valores_tabela(
+                solicitacoes, colunas, tipos_de_unidade
+            )
+        elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_CEI):
+            colunas = relatorio_consolidado_cei.get_alimentacoes_por_periodo(
+                solicitacoes
+            )
+            linhas = relatorio_consolidado_cei.get_valores_tabela(
+                solicitacoes, colunas, tipos_de_unidade
+            )
+        else:
+            raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
+
         arquivo_excel = _gera_excel(tipos_de_unidade, query_params, colunas, linhas)
     except Exception as e:
-        print(e)
-        raise
+        raise e
     return arquivo_excel
 
 
@@ -81,7 +81,7 @@ def _insere_tabela_periodos_na_planilha(tipos_de_unidade, aba, colunas, linhas, 
             aba, colunas, linhas, writer
         )
     else:
-        raise ValueError("Tipo de unidade invalida")
+        raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
 
     return df
 
@@ -94,7 +94,7 @@ def _ajusta_layout_tabela(tipos_de_unidade, workbook, worksheet, df):
     elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_CEI):
         relatorio_consolidado_cei.ajusta_layout_tabela(workbook, worksheet, df)
     else:
-        raise ValueError("Tipo de unidade invalida")
+        raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
 
 
 def _formata_total_geral(workbook, worksheet, df):

@@ -62,6 +62,7 @@ class CargaDadosCommandTest(TestCase):
     @pytest.mark.django_db(transaction=True)
     @override_settings(DEBUG=True)
     def test_command_carga_dados(self) -> None:
+        call_command("flush", verbosity=0, interactive=False)
         assert Perfil.objects.count() == 0
         assert Usuario.objects.count() == 0
         assert MotivoAlteracaoCardapio.objects.count() == 0

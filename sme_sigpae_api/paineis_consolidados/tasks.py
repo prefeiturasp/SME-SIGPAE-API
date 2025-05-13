@@ -301,81 +301,81 @@ def build_xlsx(
 
     import pandas as pd
 
-    xlwriter = pd.ExcelWriter(output, engine="xlsxwriter")
-    df = pd.DataFrame(serializer.data)
+    with pd.ExcelWriter(output, engine="xlsxwriter") as xlwriter:
+        df = pd.DataFrame(serializer.data)
 
-    novas_colunas = ["dia_semana", "periodo_inclusao", "tipo_alimentacao"]
-    for i, nova_coluna in enumerate(novas_colunas):
-        df.insert(constants.COL_IDX_DATA_EVENTO + i, nova_coluna, "-")
+        novas_colunas = ["dia_semana", "periodo_inclusao", "tipo_alimentacao"]
+        for i, nova_coluna in enumerate(novas_colunas):
+            df.insert(constants.COL_IDX_DATA_EVENTO + i, nova_coluna, "-")
 
-    df.insert(constants.COL_IDX_NUMERO_DE_ALUNOS, "quantidade_alimentacoes", "-")
-    novas_linhas, lista_uuids = novas_linhas_inc_continua_e_kit_lanche(
-        df, queryset, instituicao
-    )
-    df = pd.DataFrame(novas_linhas)
-    df.reset_index(drop=True, inplace=True)
+        df.insert(constants.COL_IDX_NUMERO_DE_ALUNOS, "quantidade_alimentacoes", "-")
+        novas_linhas, lista_uuids = novas_linhas_inc_continua_e_kit_lanche(
+            df, queryset, instituicao
+        )
+        df = pd.DataFrame(novas_linhas)
+        df.reset_index(drop=True, inplace=True)
 
-    df.insert(0, "N", range(1, len(df) + 1))
-    df_auxiliar = pd.DataFrame([[np.nan] * len(df.columns)], columns=df.columns)
-    for _ in range(3):
-        df = df_auxiliar.append(df, ignore_index=True)
+        df.insert(0, "N", range(1, len(df) + 1))
+        df_auxiliar = pd.DataFrame([[np.nan] * len(df.columns)], columns=df.columns)
+        for _ in range(3):
+            df = pd.concat([df_auxiliar, df], ignore_index=True)
 
-    df["N"] = df["N"].apply(lambda x: str(int(x or "0")) if pd.notnull(x) else "")
-    df["numero_alunos"] = df["numero_alunos"].apply(
-        lambda x: str(int(x or "0")) if pd.notnull(x) else ""
-    )
+        df["N"] = df["N"].apply(lambda x: str(int(x or "0")) if pd.notnull(x) else "")
+        df["numero_alunos"] = df["numero_alunos"].apply(
+            lambda x: str(int(x or "0")) if pd.notnull(x) else ""
+        )
 
-    status_map = {"Em_andamento": "Recebidas"}
-    status_ = data.get("status").capitalize()
-    status_ = status_map.get(status_, status_[:-2] + "as")
-    titulo = f"Relatório de Solicitações de Alimentação {status_}"
+        status_map = {"Em_andamento": "Recebidas"}
+        status_ = data.get("status").capitalize()
+        status_ = status_map.get(status_, status_[:-2] + "as")
+        titulo = f"Relatório de Solicitações de Alimentação {status_}"
 
-    df.to_excel(xlwriter, f"Relatório - {status_}", index=False)
-    workbook = xlwriter.book
-    worksheet = xlwriter.sheets[f"Relatório - {status_}"]
-    worksheet.set_row(LINHAS[0], ALTURA_COLUNA_50)
-    worksheet.set_row(LINHAS[1], ALTURA_COLUNA_30)
+        df.to_excel(xlwriter, f"Relatório - {status_}", index=False)
+        workbook = xlwriter.book
+        worksheet = xlwriter.sheets[f"Relatório - {status_}"]
+        worksheet.set_row(LINHAS[0], ALTURA_COLUNA_50)
+        worksheet.set_row(LINHAS[1], ALTURA_COLUNA_30)
 
-    columns_width = {
-        "A:A": 5,
-        "B:B": 8,
-        "C:C": 40,
-        "D:D": 30,
-        "E:E": 15,
-        "F:G": 30,
-        "H:H": 10,
-        "I:J": 30,
-        "K:K": 13,
-        "L:L": 15,
-        "M:M": 30,
-        "N:N": 20,
-    }
-    for col, width in columns_width.items():
-        worksheet.set_column(col, width)
+        columns_width = {
+            "A:A": 5,
+            "B:B": 8,
+            "C:C": 40,
+            "D:D": 30,
+            "E:E": 15,
+            "F:G": 30,
+            "H:H": 10,
+            "I:J": 30,
+            "K:K": 13,
+            "L:L": 15,
+            "M:M": 30,
+            "N:N": 20,
+        }
+        for col, width in columns_width.items():
+            worksheet.set_column(col, width)
 
-    merge_format, cell_format, single_cell_format = get_formats(workbook)
-    len_cols = len(df.columns) - 1
-    worksheet.merge_range(0, 0, 0, len_cols, titulo, merge_format)
+        merge_format, cell_format, single_cell_format = get_formats(workbook)
+        len_cols = len(df.columns) - 1
+        worksheet.merge_range(0, 0, 0, len_cols, titulo, merge_format)
 
-    subtitulo = build_subtitulo(
-        data,
-        status_,
-        queryset,
-        lotes,
-        tipos_solicitacao,
-        tipos_unidade,
-        unidades_educacionais,
-    )
-    worksheet.merge_range(LINHAS[1], 0, LINHAS[2], len_cols, subtitulo, cell_format)
-    worksheet.insert_image("A1", "sme_sigpae_api/static/images/logo-sigpae-light.png")
+        subtitulo = build_subtitulo(
+            data,
+            status_,
+            queryset,
+            lotes,
+            tipos_solicitacao,
+            tipos_unidade,
+            unidades_educacionais,
+        )
+        worksheet.merge_range(LINHAS[1], 0, LINHAS[2], len_cols, subtitulo, cell_format)
+        worksheet.insert_image(
+            "A1", "sme_sigpae_api/static/images/logo-sigpae-light.png"
+        )
 
-    nomes_colunas(worksheet, status_, LINHAS, COLUNAS, single_cell_format)
+        nomes_colunas(worksheet, status_, LINHAS, COLUNAS, single_cell_format)
 
-    aplica_fundo_amarelo_canceladas(
-        df, worksheet, workbook, lista_uuids, LINHAS, COLUNAS
-    )
-
-    xlwriter.save()
+        aplica_fundo_amarelo_canceladas(
+            df, worksheet, workbook, lista_uuids, LINHAS, COLUNAS
+        )
     output.seek(0)
 
 

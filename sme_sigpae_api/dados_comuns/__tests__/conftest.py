@@ -708,6 +708,8 @@ def obj_central_download():
 
 @pytest.fixture
 def arquivo_temporario():
+    # Cria o diretório MEDIA_ROOT se não existir
+    os.makedirs(settings.MEDIA_ROOT, exist_ok=True)
     try:
         file_path = os.path.join(settings.MEDIA_ROOT, "test_file.pdf")
         with open(file_path, "w") as f:

@@ -1,4 +1,4 @@
-FROM python:3.11.7-bullseye
+FROM python:3.13.3-bullseye
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends gcc g++ git libpq-dev libmagic1 libcairo2 libpango-1.0-0 libpangocairo-1.0-0  && \

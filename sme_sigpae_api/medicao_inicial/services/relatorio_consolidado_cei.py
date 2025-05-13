@@ -27,11 +27,11 @@ def get_alimentacoes_por_periodo(solicitacoes):
             categorias_dietas = _get_categorias_dietas(medicao)
 
             for categoria in categorias_dietas:
-                lista_alimentacoes_dietas = _get_lista_alimentacoes_dietas_por_faixa(
+                lista_faixa_dietas = _get_lista_alimentacoes_dietas_por_faixa(
                     medicao, categoria
                 )
-                dietas_alimentacoes = _update_dietas_alimentacoes(
-                    dietas_alimentacoes, categoria, lista_alimentacoes_dietas
+                dietas_alimentacoes = _update_dietas_alimentacoes_por_faixa(
+                    dietas_alimentacoes, categoria, lista_faixa_dietas
                 )
 
     dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
@@ -102,7 +102,7 @@ def _get_lista_alimentacoes_dietas_por_faixa(medicao, categoria):
     return dietas_por_faixa
 
 
-def _update_dietas_alimentacoes(
+def _update_dietas_alimentacoes_por_faixa(
     dietas_alimentacoes, categoria, lista_alimentacoes_dietas
 ):
     if lista_alimentacoes_dietas:
@@ -114,10 +114,20 @@ def _update_dietas_alimentacoes(
 
 
 def _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes):
-    dict_periodos_dietas = {
-        **{k: list(set(v)) for k, v in periodos_alimentacoes.items()},
-        **{k: list(set(v)) for k, v in dietas_alimentacoes.items()},
+    ORDEM_CAMPOS = [
+        faixa.id for faixa in FaixaEtaria.objects.filter(ativo=True).order_by("inicio")
+    ]
+
+    periodos_alimentacoes = {
+        chave: sorted(list(set(valores)), key=lambda valor: ORDEM_CAMPOS.index(valor))
+        for chave, valores in periodos_alimentacoes.items()
     }
+
+    dietas_alimentacoes = {
+        chave: sorted(list(set(valores)), key=lambda valor: ORDEM_CAMPOS.index(valor))
+        for chave, valores in dietas_alimentacoes.items()
+    }
+    dict_periodos_dietas = {**periodos_alimentacoes, **dietas_alimentacoes}
 
     dict_periodos_dietas = dict(
         sorted(
@@ -192,8 +202,7 @@ def _processa_periodo_campo(
                 solicitacao, filtros, faixa_etaria, periodo
             )
         valores.append(total)
-    except Exception as e:
-        print(e)
+    except Exception:
         valores.append("-")
     return valores
 
