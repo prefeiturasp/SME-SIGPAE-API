@@ -5,6 +5,8 @@ from sme_sigpae_api.escola.models import Escola
 
 from ..importa_dietas_especiais import ProcessadorPlanilha
 from ..schemas import ArquivoCargaDietaEspecialSchema
+from sme_sigpae_api.processamento_arquivos.dieta_especial import importa_dietas_especiais as imp_dietas
+
 
 pytestmark = pytest.mark.django_db
 
@@ -63,3 +65,9 @@ def test_eh_exatamente_mesma_solicitacao(
     )
     with pytest.raises(Exception):
         processador.consulta_escola(solicitacao_dieta_schema_escola_incorreta)
+
+
+def test_importa_dietas_especiais(arquivo_carga_dieta_especial_com_arquivo, usuario):
+    importacao = imp_dietas(usuario,arquivo_carga_dieta_especial_com_arquivo)
+    assert importacao is None
+    
