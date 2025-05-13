@@ -360,12 +360,12 @@ ORDEM_UNIDADES_GRUPO_EMEI = {
 }
 
 ORDEM_UNIDADES_GRUPO_CEI = {
-    "CCI": 1,
-    "CCI/CIPS": 2,
-    "CEI": 3,
-    "CEI DIRET": 4,
-    "CEI CEU": 5,
-    "CEU CEI": 6,
+    "CEI DIRET": 1,
+    "CEI CEU": 2,
+    "CEU CEI": 3,
+    "CCI": 4,
+    "CCI/CIPS": 5,
+    "CEI": 6,
 }
 
 ORDEM_HEADERS_EMEI_EMEF = {
