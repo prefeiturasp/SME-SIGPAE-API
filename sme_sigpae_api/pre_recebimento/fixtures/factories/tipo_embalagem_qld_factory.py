@@ -1,4 +1,4 @@
-from factory import DjangoModelFactory
+from factory.django import DjangoModelFactory
 from faker import Faker
 
 from sme_sigpae_api.pre_recebimento.models import TipoEmbalagemQld

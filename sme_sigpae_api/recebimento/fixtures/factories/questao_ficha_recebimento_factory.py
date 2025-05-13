@@ -1,4 +1,5 @@
-from factory import DjangoModelFactory, LazyFunction, SubFactory
+from factory import LazyFunction, SubFactory
+from factory.django import DjangoModelFactory
 from faker import Faker
 
 from sme_sigpae_api.recebimento.fixtures.factories.ficha_de_recebimento_factory import (
