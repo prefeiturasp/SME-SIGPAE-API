@@ -79,7 +79,7 @@ workalendar="==17.0.0" # https://github.com/peopledoc/workalendar
 djangorestframework-xml = "==2.0.0"
 django-simple-email-confirmation = {editable = true, ref = "1.0", git = "https://github.com/kelwys/django-simple-email-confirmation.git"}
 # Produção
-gunicorn="==19.9.0"  # https://github.com/benoitc/gunicorn
+gunicorn="==23.0.0"  # https://github.com/benoitc/gunicorn
 tornado="==6.3.3"    # http://www.tornadoweb.org/en/stable/
 sentry-sdk = "==2.27.0"
 django-prometheus = "==2.3.1"
