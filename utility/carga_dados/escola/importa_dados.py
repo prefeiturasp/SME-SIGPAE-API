@@ -3,7 +3,7 @@ from random import choice, randint
 import environ
 from django.db.models import Q
 
-from sme_sigpae_api.cardapio.models import TipoAlimentacao
+from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
 from sme_sigpae_api.dados_comuns.models import Contato
 from sme_sigpae_api.escola.data.diretorias_regionais import (  # noqa
     data_diretorias_regionais,
