@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ....cardapio.api.serializers.serializers import TipoAlimentacaoSimplesSerializer
+from ....cardapio.base.api.serializers import TipoAlimentacaoSimplesSerializer
 from ....dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
 from ....escola.api.serializers import (
     EscolaSimplesSerializer,

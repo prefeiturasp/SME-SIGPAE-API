@@ -17,6 +17,7 @@ from ...dados_comuns.permissions import (
     UsuarioEscolaTercTotal,
     UsuarioTerceirizada,
 )
+from ...escola.api.serializers import TipoAlimentacaoSerializer
 from ...escola.api.viewsets import PeriodoEscolarViewSet
 from ...escola.constants import PERIODOS_ESPECIAIS_CEMEI
 from ...escola.models import Escola, PeriodoEscolar
@@ -39,12 +40,31 @@ from ...relatorios.relatorios import (
     relatorio_suspensao_de_alimentacao,
     relatorio_suspensao_de_alimentacao_cei,
 )
+from ..alteracao_tipo_alimentacao.api.serializers import (
+    AlteracaoCardapioSerializer,
+    AlteracaoCardapioSimplesSerializer,
+    MotivoAlteracaoCardapioSerializer,
+)
 from ..alteracao_tipo_alimentacao.models import (
     AlteracaoCardapio,
     MotivoAlteracaoCardapio,
 )
+from ..alteracao_tipo_alimentacao_cei.api.serializers import (
+    AlteracaoCardapioCEISerializer,
+)
 from ..alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
+from ..alteracao_tipo_alimentacao_cemei.api.serializers import (
+    AlteracaoCardapioCEMEISerializer,
+)
 from ..alteracao_tipo_alimentacao_cemei.models import AlteracaoCardapioCEMEI
+from ..base.api.serializers import (
+    CardapioSerializer,
+    CombosVinculoTipoAlimentoSimplesSerializer,
+    HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer,
+    MotivoDRENaoValidaSerializer,
+    SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer,
+    VinculoTipoAlimentoSimplesSerializer,
+)
 from ..base.models import (
     Cardapio,
     ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
@@ -54,29 +74,17 @@ from ..base.models import (
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from ..inversao_dia_cardapio.api.serializers import InversaoCardapioSerializer
 from ..inversao_dia_cardapio.models import InversaoCardapio
-from ..suspensao_alimentacao.models import GrupoSuspensaoAlimentacao, MotivoSuspensao
-from ..suspensao_alimentacao_cei.models import SuspensaoAlimentacaoDaCEI
-from .serializers.serializers import (
-    AlteracaoCardapioCEISerializer,
-    AlteracaoCardapioCEMEISerializer,
-    AlteracaoCardapioSerializer,
-    AlteracaoCardapioSimplesSerializer,
-    CardapioSerializer,
-    CombosVinculoTipoAlimentoSimplesSerializer,
+from ..suspensao_alimentacao.api.serializers import (
     GrupoSupensaoAlimentacaoListagemSimplesSerializer,
     GrupoSuspensaoAlimentacaoSerializer,
     GrupoSuspensaoAlimentacaoSimplesSerializer,
-    HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer,
-    InversaoCardapioSerializer,
-    MotivoAlteracaoCardapioSerializer,
-    MotivoDRENaoValidaSerializer,
     MotivoSuspensaoSerializer,
-    SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer,
     SuspensaoAlimentacaoDaCEISerializer,
-    TipoAlimentacaoSerializer,
-    VinculoTipoAlimentoSimplesSerializer,
 )
+from ..suspensao_alimentacao.models import GrupoSuspensaoAlimentacao, MotivoSuspensao
+from ..suspensao_alimentacao_cei.models import SuspensaoAlimentacaoDaCEI
 from .serializers.serializers_create import (
     AlteracaoCardapioCEISerializerCreate,
     AlteracaoCardapioCEMEISerializerCreate,

@@ -8,7 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from sme_sigpae_api.cardapio.api.serializers.serializers import (
+from sme_sigpae_api.cardapio.base.api.serializers import (
     VinculoTipoAlimentoPeriodoSerializer,
 )
 from sme_sigpae_api.cardapio.base.models import (
