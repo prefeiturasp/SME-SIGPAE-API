@@ -497,11 +497,8 @@ def test_preenche_titulo(informacoes_excel_writer_emef):
 
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 5
-    assert str(merged_ranges[0]) == "A3:E3"
-    assert str(merged_ranges[1]) == "F3:K3"
-    assert str(merged_ranges[2]) == "L3:O3"
-    assert str(merged_ranges[3]) == "P3:S3"
-    assert str(merged_ranges[4]) == "A1:S1"
+    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3", "A1:S1"}
+    assert {str(r) for r in merged_ranges} == esperados
 
     assert (
         sheet["A1"].value
@@ -529,11 +526,8 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_emef(
 
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 5
-    assert str(merged_ranges[0]) == "A3:E3"
-    assert str(merged_ranges[1]) == "F3:K3"
-    assert str(merged_ranges[2]) == "L3:O3"
-    assert str(merged_ranges[3]) == "P3:S3"
-    assert str(merged_ranges[4]) == "A2:S2"
+    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3", "A2:S2"}
+    assert {str(r) for r in merged_ranges} == esperados
 
     assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL IPIRANGA - 1 - EMEF"
     assert sheet["A2"].alignment.horizontal == "center"
@@ -561,11 +555,8 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_emei(
 
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 5
-    assert str(merged_ranges[0]) == "A3:E3"
-    assert str(merged_ranges[1]) == "F3:K3"
-    assert str(merged_ranges[2]) == "L3:O3"
-    assert str(merged_ranges[3]) == "P3:S3"
-    assert str(merged_ranges[4]) == "A2:S2"
+    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3", "A2:S2"}
+    assert {str(r) for r in merged_ranges} == esperados
 
     assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - EMEI"
     assert sheet["A2"].alignment.horizontal == "center"
@@ -587,10 +578,8 @@ def test_ajusta_layout_tabela_emef(informacoes_excel_writer_emef):
     sheet = workbook_openpyxl[aba]
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 4
-    assert str(merged_ranges[0]) == "A3:E3"
-    assert str(merged_ranges[1]) == "F3:K3"
-    assert str(merged_ranges[2]) == "L3:O3"
-    assert str(merged_ranges[3]) == "P3:S3"
+    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3"}
+    assert {str(r) for r in merged_ranges} == esperados
 
     assert sheet["A3"].value is None
     assert sheet["F3"].value == "MANHA"
@@ -610,10 +599,8 @@ def test_ajusta_layout_tabela_emei(informacoes_excel_writer_emei):
     sheet = workbook_openpyxl[aba]
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 4
-    assert str(merged_ranges[0]) == "A3:E3"
-    assert str(merged_ranges[1]) == "F3:K3"
-    assert str(merged_ranges[2]) == "L3:O3"
-    assert str(merged_ranges[3]) == "P3:S3"
+    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3"}
+    assert {str(r) for r in merged_ranges} == esperados
 
     assert sheet["A3"].value is None
     assert sheet["F3"].value == "MANHA"
@@ -633,11 +620,8 @@ def test_formata_total_geral(informacoes_excel_writer_emef):
     sheet = workbook_openpyxl[aba]
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 5
-    assert str(merged_ranges[0]) == "A3:E3"
-    assert str(merged_ranges[1]) == "F3:K3"
-    assert str(merged_ranges[2]) == "L3:O3"
-    assert str(merged_ranges[3]) == "P3:S3"
-    assert str(merged_ranges[4]) == "A7:C7"
+    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3", "A7:C7"}
+    assert {str(r) for r in merged_ranges} == esperados
 
     assert sheet["A7"].value == "TOTAL"
     assert sheet["A7"].alignment.horizontal == "center"

@@ -2,10 +2,8 @@ import json
 from datetime import date, datetime
 from io import BytesIO
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 
 import openpyxl
-from openpyxl.writer.excel import save_virtual_workbook
 
 from sme_sigpae_api.escola.models import Escola
 from sme_sigpae_api.produto.models import ProtocoloDeDietaEspecial
@@ -60,16 +58,20 @@ def get_escolas_unicas(items):
 
 def escreve_xlsx(codigo_eol_escola_nao_existentes):
     wb = openpyxl.Workbook()
-    with NamedTemporaryFile() as tmp:
-        ws = wb.create_sheet("Código EOL das Escolas não identificadas no SIGPAE")
-        ws["A1"] = "codigo_eol_escola"
-        for i, item in enumerate(
-            progressbar(list(codigo_eol_escola_nao_existentes), "Escrevendo...")
-        ):
-            ws[f"A{i + 2}"] = str(item)
-        nome_excel_tempfile = f"{tmp.name}.xlsx"
-        wb.save(nome_excel_tempfile)
-        output = BytesIO(save_virtual_workbook(wb))
+    output = BytesIO()
+
+    ws = wb.create_sheet("Código EOL das Escolas não identificadas no SIGPAE")
+    ws["A1"] = "codigo_eol_escola"
+
+    for i, item in enumerate(
+        progressbar(list(codigo_eol_escola_nao_existentes), "Escrevendo...")
+    ):
+        ws[f"A{i + 2}"] = str(item)
+
+    wb.save(output)
+    output.seek(0)
+
+    nome_excel_tempfile = "temp_export.xlsx"
     return output, nome_excel_tempfile
 
 
