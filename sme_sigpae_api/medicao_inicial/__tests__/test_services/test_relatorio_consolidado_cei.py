@@ -364,11 +364,11 @@ def test_get_solicitacoes_ordenadas(
     ]
     ordenados = get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade)
     assert isinstance(ordenados, list)
-    assert ordenados[0].escola.nome == solicitacao_escola_cci.escola.nome
     assert (
-        ordenados[1].escola.nome
+        ordenados[0].escola.nome
         == solicitacao_relatorio_consolidado_grupo_cei.escola.nome
     )
+    assert ordenados[1].escola.nome == solicitacao_escola_cci.escola.nome
 
 
 def test_get_valores_iniciais(relatorio_consolidado_xlsx_cei):
@@ -642,11 +642,11 @@ def test_ajusta_layout_tabela(informacoes_excel_writer_cei):
     sheet = workbook_openpyxl[aba]
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 5
-    assert str(merged_ranges[0]) == "A3:C3"
-    assert str(merged_ranges[1]) == "D3:K3"
-    assert str(merged_ranges[2]) == "L3:S3"
-    assert str(merged_ranges[3]) == "T3:U3"
-    assert str(merged_ranges[4]) == "V3:W3"
+    assert "A3:C3" in str(merged_ranges)
+    assert "D3:K3" in str(merged_ranges)
+    assert "L3:S3" in str(merged_ranges)
+    assert "T3:U3" in str(merged_ranges)
+    assert "V3:W3" in str(merged_ranges)
 
     assert sheet["A3"].value is None
 

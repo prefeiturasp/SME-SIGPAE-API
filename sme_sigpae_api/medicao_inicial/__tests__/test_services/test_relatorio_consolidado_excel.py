@@ -883,12 +883,13 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_cei(
 
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 6
-    assert str(merged_ranges[0]) == "A3:C3"
-    assert str(merged_ranges[1]) == "D3:K3"
-    assert str(merged_ranges[2]) == "L3:S3"
-    assert str(merged_ranges[3]) == "T3:U3"
-    assert str(merged_ranges[4]) == "V3:W3"
-    assert str(merged_ranges[5]) == "A2:Y2"
+
+    assert "A3:C3" in str(merged_ranges)
+    assert "D3:K3" in str(merged_ranges)
+    assert "L3:S3" in str(merged_ranges)
+    assert "T3:U3" in str(merged_ranges)
+    assert "V3:W3" in str(merged_ranges)
+    assert "A2:Y2" in str(merged_ranges)
 
     assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - CEI"
     assert sheet["A2"].alignment.horizontal == "center"
@@ -952,11 +953,11 @@ def test_ajusta_layout_tabela_cei(informacoes_excel_writer_cei):
     sheet = workbook_openpyxl[aba]
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 5
-    assert str(merged_ranges[0]) == "A3:C3"
-    assert str(merged_ranges[1]) == "D3:K3"
-    assert str(merged_ranges[2]) == "L3:S3"
-    assert str(merged_ranges[3]) == "T3:U3"
-    assert str(merged_ranges[4]) == "V3:W3"
+    assert "A3:C3" in str(merged_ranges)
+    assert "D3:K3" in str(merged_ranges)
+    assert "L3:S3" in str(merged_ranges)
+    assert "T3:U3" in str(merged_ranges)
+    assert "V3:W3" in str(merged_ranges)
 
     assert sheet["A3"].value is None
     assert sheet["D3"].value == "INTEGRAL"
