@@ -693,7 +693,9 @@ def test_get_pdf_formulario_supervisao_error_does_not_exist(
     uuid_invalido = uuid.uuid4()
     response = client.get(f"/imr/formulario-supervisao/{uuid_invalido}/relatorio-pdf/")
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json() == {"detail": "Não encontrado."}
+    assert response.json() == {
+        "detail": "FormularioSupervisao com o UUID informado não foi encontrado."
+    }
 
 
 def test_get_lista_nomes_nutricionistas(
