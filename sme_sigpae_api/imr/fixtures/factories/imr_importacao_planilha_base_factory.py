@@ -1,5 +1,5 @@
 import factory
-from factory import DjangoModelFactory
+from factory.django import DjangoModelFactory
 from faker import Faker
 
 from sme_sigpae_api.imr.models import (

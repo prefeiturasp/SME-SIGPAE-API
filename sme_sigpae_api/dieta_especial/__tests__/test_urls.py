@@ -347,10 +347,11 @@ def test_url_endpoint_autorizar_dieta_gestao_alimentacao(
     solicitacao_dieta_especial,
     payload_autorizar,
 ):
+    client, user = client_autenticado_vinculo_codae_gestao_alimentacao_dieta
     obj = SolicitacaoDietaEspecial.objects.first()
     obj.status = SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR
     obj.save()
-    response = client_autenticado_vinculo_codae_gestao_alimentacao_dieta.patch(
+    response = client.patch(
         f"/solicitacoes-dieta-especial/{obj.uuid}/autorizar/",
         content_type="application/json",
         data=payload_autorizar,

@@ -2,8 +2,8 @@
 ![build](https://img.shields.io/badge/build-passing-green)
 ![license](https://img.shields.io/badge/license-GPL-green)
 
-![python-version](https://img.shields.io/badge/python-3.11-blue)
-![django-version](https://img.shields.io/badge/django-4.2-blue)
+![python-version](https://img.shields.io/badge/python-3.13-blue)
+![django-version](https://img.shields.io/badge/django-5.2-blue)
 ![pipenv-version](https://img.shields.io/badge/pipenv-2023.11.15-blue)
 
 # Estratégia de Transformação Digital e Governo Aberto na SME
@@ -200,7 +200,7 @@ version: '3.1'
 
 services: 
   db:
-    image: postgres:12.17-alpine
+    image: postgres:14.17-alpine
     restart: always
     env_file:
       - HOME/SME-SIGPAE-API/.env
@@ -239,7 +239,7 @@ docker-compose -f docker-celery.yml up -d
 Na pasta `SME-SIGPAE-API`, com a virtualenv ativa rode
 
 ```
-celery -A config worker --beat --scheduler django --loglevel=info
+celery -A config worker --beat -S sme_sigpae_api.dados_comuns.utils.NaiveDatabaseScheduler --loglevel=info
 ```
 
 
@@ -247,7 +247,7 @@ celery -A config worker --beat --scheduler django --loglevel=info
 
 Pré-requisitos:
 
-* Python 3.11.7
+* Python 3.13.3
 * pipenv versão 2023.11.15
 
 Para instalação dos pré-requisitos utilizando o Pyenv, abra um terminal na pasta do backend do projeto na sua máquina e execute os comandos abaixo:
@@ -257,10 +257,10 @@ Para instalação dos pré-requisitos utilizando o Pyenv, abra um terminal na pa
 $ pyenv update
 
 # Instale a versão necessária do Python
-$ pyenv install 3.11.7
+$ pyenv install 3.13.3
 
 # Defina a versão do Python para a pasta
-$ pyenv local 3.11.7
+$ pyenv local 3.13.3
 
 $ pip install pipenv==2023.11.15
 

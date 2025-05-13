@@ -96,83 +96,81 @@ def build_xlsx_relatorio_historico_dietas(
 ) -> None:
     import pandas as pd
 
-    xlwriter = pd.ExcelWriter(output, engine="xlsxwriter")
+    with pd.ExcelWriter(output, engine="xlsxwriter") as xlwriter:
+        logs_dietas_formatados = [
+            {
+                "lote_dre": f"{log['lote']} - DRE {log['dre']}",
+                "unidade_educacional": log["nome_escola"],
+                "classificacao_da_dieta": log["nome_classificacao"],
+                "periodo": log["nome_periodo_escolar"],
+                "faixa_etaria": get_faixa_etaria(log),
+                "dietas_autorizadas": log["quantidade_total"],
+                "data_de_referencia": log["data"].strftime("%d/%m/%Y"),
+            }
+            for log in logs_dietas
+        ]
 
-    logs_dietas_formatados = [
-        {
-            "lote_dre": f"{log['lote']} - DRE {log['dre']}",
-            "unidade_educacional": log["nome_escola"],
-            "classificacao_da_dieta": log["nome_classificacao"],
-            "periodo": log["nome_periodo_escolar"],
-            "faixa_etaria": get_faixa_etaria(log),
-            "dietas_autorizadas": log["quantidade_total"],
-            "data_de_referencia": log["data"].strftime("%d/%m/%Y"),
-        }
-        for log in logs_dietas
-    ]
+        df = pd.DataFrame(logs_dietas_formatados)
+        df.insert(0, "Nº", range(1, len(df) + 1))
 
-    df = pd.DataFrame(logs_dietas_formatados)
-    df.insert(0, "Nº", range(1, len(df) + 1))
+        # Adiciona linhas em branco no comeco do arquivo
+        df_auxiliar = pd.DataFrame([[np.nan] * len(df.columns)], columns=df.columns)
+        df = pd.concat([df_auxiliar, df], ignore_index=True)
+        df = pd.concat([df_auxiliar, df], ignore_index=True)
+        df = pd.concat([df_auxiliar, df], ignore_index=True)
+        df.to_excel(xlwriter, "Histórico de Dietas Autorizadas", index=False)
+        workbook = xlwriter.book
+        worksheet = xlwriter.sheets["Histórico de Dietas Autorizadas"]
+        worksheet.set_row(0, 30)
+        worksheet.set_row(1, 30)
+        worksheet.set_column("B:H", 30)
+        worksheet.set_column("C:C", 50)
+        merge_format = workbook.add_format(
+            {"align": "center", "bg_color": "#a9d18e", "bold": True}
+        )
+        merge_format.set_align("vcenter")
+        cell_format = workbook.add_format({"align": "center", "bold": True})
+        cell_format.set_text_wrap()
+        cell_format.set_align("vcenter")
+        v_center_format = workbook.add_format()
+        v_center_format.set_align("vcenter")
+        single_cell_format = workbook.add_format({"bg_color": "#a9d18e"})
+        len_cols = len(df.columns)
+        worksheet.merge_range(
+            0,
+            0,
+            0,
+            len_cols - 1,
+            "Relatório Histórico de Dietas Especiais Autorizadas",
+            merge_format,
+        )
+        worksheet.insert_image(
+            0,
+            0,
+            "sme_sigpae_api/relatorios/static/images/logo-sigpae.png",
+            {
+                "x_offset": 0,
+                "y_offset": 0,
+                "x_scale": 0.05,
+                "y_scale": 0.05,
+            },
+        )
+        titulo = build_titulo(logs_dietas_formatados, querydict_params)
+        worksheet.merge_range(1, 0, 2, len_cols - 1, titulo, cell_format)
+        worksheet.write(3, 0, "Nº", single_cell_format)
+        worksheet.write(3, 1, "Lote/DRE", single_cell_format)
+        worksheet.write(3, 2, "Unidade Educacional", single_cell_format)
+        worksheet.write(3, 3, "Classificação da Dieta", single_cell_format)
+        worksheet.write(3, 4, "Período", single_cell_format)
+        worksheet.write(3, 5, "Faixa Etária", single_cell_format)
+        worksheet.write(3, 6, "Dietas Autorizadas", single_cell_format)
+        worksheet.write(3, 7, "Data de Referência", single_cell_format)
 
-    # Adiciona linhas em branco no comeco do arquivo
-    df_auxiliar = pd.DataFrame([[np.nan] * len(df.columns)], columns=df.columns)
-    df = pd.concat([df_auxiliar, df], ignore_index=True)
-    df = pd.concat([df_auxiliar, df], ignore_index=True)
-    df = pd.concat([df_auxiliar, df], ignore_index=True)
-    df.to_excel(xlwriter, "Histórico de Dietas Autorizadas", index=False)
-    workbook = xlwriter.book
-    worksheet = xlwriter.sheets["Histórico de Dietas Autorizadas"]
-    worksheet.set_row(0, 30)
-    worksheet.set_row(1, 30)
-    worksheet.set_column("B:H", 30)
-    worksheet.set_column("C:C", 50)
-    merge_format = workbook.add_format(
-        {"align": "center", "bg_color": "#a9d18e", "bold": True}
-    )
-    merge_format.set_align("vcenter")
-    cell_format = workbook.add_format({"align": "center", "bold": True})
-    cell_format.set_text_wrap()
-    cell_format.set_align("vcenter")
-    v_center_format = workbook.add_format()
-    v_center_format.set_align("vcenter")
-    single_cell_format = workbook.add_format({"bg_color": "#a9d18e"})
-    len_cols = len(df.columns)
-    worksheet.merge_range(
-        0,
-        0,
-        0,
-        len_cols - 1,
-        "Relatório Histórico de Dietas Especiais Autorizadas",
-        merge_format,
-    )
-    worksheet.insert_image(
-        0,
-        0,
-        "sme_sigpae_api/relatorios/static/images/logo-sigpae.png",
-        {
-            "x_offset": 0,
-            "y_offset": 0,
-            "x_scale": 0.05,
-            "y_scale": 0.05,
-        },
-    )
-    titulo = build_titulo(logs_dietas_formatados, querydict_params)
-    worksheet.merge_range(1, 0, 2, len_cols - 1, titulo, cell_format)
-    worksheet.write(3, 0, "Nº", single_cell_format)
-    worksheet.write(3, 1, "Lote/DRE", single_cell_format)
-    worksheet.write(3, 2, "Unidade Educacional", single_cell_format)
-    worksheet.write(3, 3, "Classificação da Dieta", single_cell_format)
-    worksheet.write(3, 4, "Período", single_cell_format)
-    worksheet.write(3, 5, "Faixa Etária", single_cell_format)
-    worksheet.write(3, 6, "Dietas Autorizadas", single_cell_format)
-    worksheet.write(3, 7, "Data de Referência", single_cell_format)
-
-    formata_celula_faixa_etaria(df, workbook, worksheet, "#F4B084", '"Infantil"')
-    formata_celula_faixa_etaria(
-        df, workbook, worksheet, "#BDD7EE", '"Infantil (4 a 6 anos)"'
-    )
-    formata_celula_faixa_etaria(
-        df, workbook, worksheet, "#C6E0B4", '"Fundamental (acima de 6 anos)"'
-    )
-    xlwriter.save()
+        formata_celula_faixa_etaria(df, workbook, worksheet, "#F4B084", '"Infantil"')
+        formata_celula_faixa_etaria(
+            df, workbook, worksheet, "#BDD7EE", '"Infantil (4 a 6 anos)"'
+        )
+        formata_celula_faixa_etaria(
+            df, workbook, worksheet, "#C6E0B4", '"Fundamental (acima de 6 anos)"'
+        )
     output.seek(0)

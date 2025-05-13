@@ -1,7 +1,8 @@
 import base64
 from datetime import date, timedelta
 
-from factory import DjangoModelFactory, LazyFunction, Sequence, SubFactory
+from factory import LazyFunction, Sequence, SubFactory
+from factory.django import DjangoModelFactory
 from faker import Faker
 
 from sme_sigpae_api.dados_comuns.utils import convert_base64_to_contentfile

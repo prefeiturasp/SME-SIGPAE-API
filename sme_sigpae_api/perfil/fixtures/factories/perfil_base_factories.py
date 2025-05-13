@@ -1,4 +1,5 @@
-from factory import DjangoModelFactory, Sequence
+from factory import Sequence
+from factory.django import DjangoModelFactory
 from faker import Faker
 
 from sme_sigpae_api.perfil.models import Usuario

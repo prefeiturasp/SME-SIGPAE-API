@@ -5,7 +5,7 @@ from itertools import chain
 from typing import List
 
 from django.core.exceptions import ValidationError
-from django.db.models import CharField, F, IntegerField, Q, Sum, Value
+from django.db.models import CharField, F, IntegerField, Q, QuerySet, Sum, Value
 from django.db.models.functions import Coalesce
 from django.http import QueryDict
 from django.template.loader import render_to_string
@@ -712,9 +712,7 @@ def trata_lotes_dict_duplicados(lotes_dict):
     return dict(lotes_)
 
 
-def gerar_filtros_relatorio_historico(
-    query_params: QueryDict, eh_exportacao=False
-) -> tuple:
+def gerar_filtros_relatorio_historico(query_params: QueryDict) -> tuple:
     map_filtros = {
         "escola__tipo_gestao__uuid": query_params.get("tipo_gestao", None),
         "escola__tipo_unidade__uuid__in": query_params.getlist(
@@ -732,9 +730,6 @@ def gerar_filtros_relatorio_historico(
         ),
         "quantidade__gt": 0,
     }
-
-    if eh_exportacao:
-        map_filtros["periodo_escolar__isnull"] = False
 
     data_dieta = query_params.get("data")
     if not data_dieta:
@@ -803,7 +798,7 @@ def dados_dietas_escolas_cei(filtros: dict, eh_exportacao: bool = False) -> List
     return logs_dietas_escolas_cei
 
 
-def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
+def dados_dietas_escolas_comuns(filtros: dict) -> QuerySet[dict]:
     filtro_por_tipo_unidade = Q(
         Q(
             escola__tipo_unidade__iniciais__in=UNIDADES_EMEBS,
@@ -857,6 +852,14 @@ def dados_dietas_escolas_comuns(filtros: dict) -> List[dict]:
 def get_logs_historico_dietas(filtros, eh_exportacao=False) -> list:
     log_escolas_cei = dados_dietas_escolas_cei(filtros, eh_exportacao)
     log_escolas = dados_dietas_escolas_comuns(filtros)
+    print(log_escolas)
+    if eh_exportacao:
+        log_escolas = [
+            log
+            for log in log_escolas
+            if log.get("nome_periodo_escolar") is not None
+            or log.get("tipo_unidade") in {"CEU GESTAO", "CMCT"}
+        ]
     log_dietas = sorted(
         chain(log_escolas_cei, log_escolas), key=lambda x: x["nome_escola"]
     )

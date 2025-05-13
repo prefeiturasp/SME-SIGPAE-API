@@ -2319,7 +2319,7 @@ def medicao_aprovada_pela_dre(
 @pytest.fixture
 def categoria_medicao():
     return mommy.make(
-        "CategoriaMedicao", nome="ALIMENTAÇÃO", id=random.randint(1, 10000)
+        "CategoriaMedicao", nome="ALIMENTAÇÃO", id=random.randint(1, 1000000)
     )
 
 

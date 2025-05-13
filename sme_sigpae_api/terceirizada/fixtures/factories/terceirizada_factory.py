@@ -1,11 +1,6 @@
 import factory
-from factory import (
-    DjangoModelFactory,
-    LazyAttribute,
-    LazyFunction,
-    Sequence,
-    SubFactory,
-)
+from factory import LazyAttribute, LazyFunction, Sequence, SubFactory
+from factory.django import DjangoModelFactory
 from faker import Faker
 
 from sme_sigpae_api.terceirizada.models import (
