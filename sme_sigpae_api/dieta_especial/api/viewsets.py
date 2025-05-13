@@ -488,7 +488,7 @@ class SolicitacaoDietaEspecialViewSet(
     def protocolo(self, request, uuid=None):
         return relatorio_dieta_especial_protocolo(
             request, solicitacao=self.get_object()
-        )  # noqa
+        )
 
     @action(
         detail=True, methods=["post"], url_path=constants.ESCOLA_CANCELA_DIETA_ESPECIAL
