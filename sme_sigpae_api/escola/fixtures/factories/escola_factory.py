@@ -11,9 +11,11 @@ from sme_sigpae_api.escola.models import (
     Escola,
     FaixaEtaria,
     HistoricoMatriculaAluno,
+    LogAlunosMatriculadosFaixaEtariaDia,
     LogAlunosMatriculadosPeriodoEscola,
     Lote,
     PeriodoEscolar,
+    TipoGestao,
     TipoTurma,
     TipoUnidadeEscolar,
 )
@@ -22,6 +24,11 @@ from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import 
 )
 
 fake = Faker("pt_BR")
+
+
+class TipoGestaoFactory(DjangoModelFactory):
+    class Meta:
+        model = TipoGestao
 
 
 class TipoUnidadeEscolarFactory(DjangoModelFactory):
@@ -52,6 +59,7 @@ class EscolaFactory(DjangoModelFactory):
     lote = SubFactory(LoteFactory)
     diretoria_regional = SubFactory(DiretoriaRegionalFactory)
     tipo_unidade = SubFactory(TipoUnidadeEscolarFactory)
+    tipo_gestao = SubFactory(TipoGestaoFactory)
 
     class Meta:
         model = Escola
@@ -114,3 +122,13 @@ class HistoricoMatriculaAlunoFactory(DjangoModelFactory):
 
     class Meta:
         model = HistoricoMatriculaAluno
+
+
+class LogAlunosMatriculadosFaixaEtariaDiaFactory(DjangoModelFactory):
+    escola = SubFactory(EscolaFactory)
+    periodo_escolar = SubFactory(PeriodoEscolarFactory)
+    quantidade = Sequence(lambda n: fake.unique.random_int(min=0, max=100))
+    faixa_etaria = SubFactory(FaixaEtariaFactory)
+
+    class Meta:
+        model = LogAlunosMatriculadosFaixaEtariaDia
