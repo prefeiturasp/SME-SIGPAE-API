@@ -239,6 +239,7 @@ class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync:
     def test_gera_xlsx_historico_dietas_especiais(
         self, client_autenticado_vinculo_codae_gestao_alimentacao_dieta
     ):
+        self.setup()
         client, user = client_autenticado_vinculo_codae_gestao_alimentacao_dieta
         nome_arquivo = "relatorio_historico_dietas_especiais.xlsx"
         data = json.dumps({"lote": str(self.lote.uuid), "data": "09/05/2025"})
@@ -286,6 +287,7 @@ class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync:
     def test_gera_xlsx_historico_dietas_especiais_periodo_param(
         self, client_autenticado_vinculo_codae_gestao_alimentacao_dieta
     ):
+        self.setup()
         client, user = client_autenticado_vinculo_codae_gestao_alimentacao_dieta
         nome_arquivo = "relatorio_historico_dietas_especiais.xlsx"
         data = json.dumps(
