@@ -3,7 +3,8 @@ from datetime import date, timedelta
 
 import factory
 from django.core.files.base import ContentFile
-from factory import DjangoModelFactory, LazyFunction, SubFactory
+from factory import LazyFunction, SubFactory
+from factory.django import DjangoModelFactory
 from faker import Faker
 
 from sme_sigpae_api.pre_recebimento.fixtures.factories.cronograma_factory import (

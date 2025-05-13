@@ -262,10 +262,8 @@ def test_ajusta_layout_tabela(informacoes_excel_writer_emef):
     sheet = workbook_openpyxl[aba]
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 4
-    assert str(merged_ranges[0]) == "A3:E3"
-    assert str(merged_ranges[1]) == "F3:K3"
-    assert str(merged_ranges[2]) == "L3:O3"
-    assert str(merged_ranges[3]) == "P3:S3"
+    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3"}
+    assert {str(r) for r in merged_ranges} == esperados
 
     assert sheet["A3"].value is None
     assert sheet["F3"].value == "MANHA"

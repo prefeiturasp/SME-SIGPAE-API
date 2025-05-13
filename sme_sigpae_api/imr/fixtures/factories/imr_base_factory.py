@@ -1,5 +1,6 @@
 import factory
-from factory import DjangoModelFactory, Sequence, SubFactory
+from factory import Sequence, SubFactory
+from factory.django import DjangoModelFactory
 from factory.fuzzy import FuzzyInteger
 from faker import Faker
 
