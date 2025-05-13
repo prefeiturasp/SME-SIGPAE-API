@@ -2,10 +2,8 @@ import json
 from datetime import date, datetime
 from io import BytesIO
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 
 import openpyxl
-from openpyxl.writer.excel import save_virtual_workbook
 
 from sme_sigpae_api.escola.models import Escola
 from sme_sigpae_api.produto.models import ProtocoloDeDietaEspecial
@@ -60,16 +58,20 @@ def get_escolas_unicas(items):
 
 def escreve_xlsx(codigo_eol_escola_nao_existentes):
     wb = openpyxl.Workbook()
-    with NamedTemporaryFile() as tmp:
-        ws = wb.create_sheet("Código EOL das Escolas não identificadas no SIGPAE")
-        ws["A1"] = "codigo_eol_escola"
-        for i, item in enumerate(
-            progressbar(list(codigo_eol_escola_nao_existentes), "Escrevendo...")
-        ):
-            ws[f"A{i+2}"] = str(item)
-        nome_excel_tempfile = f"{tmp.name}.xlsx"
-        wb.save(nome_excel_tempfile)
-        output = BytesIO(save_virtual_workbook(wb))
+    output = BytesIO()
+
+    ws = wb.create_sheet("Código EOL das Escolas não identificadas no SIGPAE")
+    ws["A1"] = "codigo_eol_escola"
+
+    for i, item in enumerate(
+        progressbar(list(codigo_eol_escola_nao_existentes), "Escrevendo...")
+    ):
+        ws[f"A{i + 2}"] = str(item)
+
+    wb.save(output)
+    output.seek(0)
+
+    nome_excel_tempfile = "temp_export.xlsx"
     return output, nome_excel_tempfile
 
 
@@ -100,9 +102,9 @@ def escreve_xlsx_alunos_nao_matriculados_na_escola(
     for i, item in enumerate(
         progressbar(list(alunos_nao_matriculados_na_escola_lista), "Escrevendo...")
     ):
-        ws[f"A{i+2}"] = str(item[0])
-        ws[f"B{i+2}"] = str(item[1])
-        ws[f"C{i+2}"] = str(item[2])
+        ws[f"A{i + 2}"] = str(item[0])
+        ws[f"B{i + 2}"] = str(item[1])
+        ws[f"C{i + 2}"] = str(item[2])
     wb.save(arquivo_saida)
     return arquivo_saida
 
@@ -114,7 +116,7 @@ def escreve_xlsx_codescola_nao_existentes(codescola_nao_existentes, arquivo_said
     for i, item in enumerate(
         progressbar(list(codescola_nao_existentes), "Escrevendo...")
     ):
-        ws[f"A{i+2}"] = str(item)
+        ws[f"A{i + 2}"] = str(item)
     wb.save(arquivo_saida)
 
 
@@ -193,19 +195,19 @@ def escreve_xlsx_dados_sigpae(items, arquivo_saida):  # noqa C901
     for item in progressbar(items, "Escrevendo..."):
         escola = Escola.objects.filter(codigo_eol=item).first()
         if escola:
-            ws[f"A{i+2}"] = escola.codigo_eol
-            ws[f"B{i+2}"] = escola.nome
+            ws[f"A{i + 2}"] = escola.codigo_eol
+            ws[f"B{i + 2}"] = escola.nome
             if escola.diretoria_regional:
-                ws[f"C{i+2}"] = escola.diretoria_regional.nome
+                ws[f"C{i + 2}"] = escola.diretoria_regional.nome
             if escola.lote:
-                ws[f"D{i+2}"] = escola.lote.nome
+                ws[f"D{i + 2}"] = escola.lote.nome
             if escola.tipo_gestao:
-                ws[f"E{i+2}"] = escola.tipo_gestao.nome
+                ws[f"E{i + 2}"] = escola.tipo_gestao.nome
             if escola.contato:
-                ws[f"F{i+2}"] = escola.contato.email
-                ws[f"G{i+2}"] = escola.contato.telefone
-                ws[f"H{i+2}"] = escola.contato.telefone2
-                ws[f"I{i+2}"] = escola.contato.celular
+                ws[f"F{i + 2}"] = escola.contato.email
+                ws[f"G{i + 2}"] = escola.contato.telefone
+                ws[f"H{i + 2}"] = escola.contato.telefone2
+                ws[f"I{i + 2}"] = escola.contato.celular
             i += 1
     wb.save(arquivo_saida)
 
@@ -231,7 +233,7 @@ def escreve_xlsx_cod_diagnostico_inexistentes(
     for i, item in enumerate(
         progressbar(list(cod_diagnostico_inexistentes), "Escrevendo...")
     ):
-        ws[f"A{i+2}"] = str(item)
+        ws[f"A{i + 2}"] = str(item)
     wb.save(arquivo_saida)
 
 
@@ -244,7 +246,7 @@ def escreve_xlsx_protocolo_dieta_inexistentes(
     for i, item in enumerate(
         progressbar(list(protocolo_dieta_inexistentes), "Escrevendo...")
     ):
-        ws[f"A{i+2}"] = str(item)
+        ws[f"A{i + 2}"] = str(item)
     wb.save(arquivo_saida)
 
 
@@ -287,8 +289,8 @@ def escreve_xlsx_alunos_com_nome_diferente(lista, arquivo_saida):
     ws["A1"] = "nome_aluno_planilha"
     ws["B1"] = "nome_aluno_eol"
     for i, item in enumerate(progressbar(lista, "Escrevendo...")):
-        ws[f"A{i+2}"] = str(item[0])
-        ws[f"B{i+2}"] = str(item[1])
+        ws[f"A{i + 2}"] = str(item[0])
+        ws[f"B{i + 2}"] = str(item[1])
     wb.save(arquivo_saida)
 
 
@@ -298,8 +300,8 @@ def escreve_xlsx_alunos_com_nascimento_diferente(lista, arquivo_saida):
     ws["A1"] = "nascimento_planilha"
     ws["B1"] = "nascimento_eol"
     for i, item in enumerate(progressbar(lista, "Escrevendo...")):
-        ws[f"A{i+2}"] = str(item[0])
-        ws[f"B{i+2}"] = str(item[1])
+        ws[f"A{i + 2}"] = str(item[0])
+        ws[f"B{i + 2}"] = str(item[1])
     wb.save(arquivo_saida)
 
 

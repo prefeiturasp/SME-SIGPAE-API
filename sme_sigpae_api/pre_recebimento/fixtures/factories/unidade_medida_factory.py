@@ -1,4 +1,5 @@
-from factory import DjangoModelFactory, LazyAttribute, Sequence
+from factory import LazyAttribute, Sequence
+from factory.django import DjangoModelFactory
 from faker import Faker
 
 from sme_sigpae_api.pre_recebimento.models import UnidadeMedida

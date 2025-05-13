@@ -1,6 +1,7 @@
 import random
 
-from factory import DjangoModelFactory, LazyAttribute, Sequence, SubFactory
+from factory import LazyAttribute, Sequence, SubFactory
+from factory.django import DjangoModelFactory
 from faker import Faker
 
 from sme_sigpae_api.escola.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
