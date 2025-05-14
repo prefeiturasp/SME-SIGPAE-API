@@ -2,11 +2,11 @@ import datetime
 
 from rest_framework import serializers
 
-from sme_sigpae_api.cardapio.api.validators import (
+from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
+from sme_sigpae_api.cardapio.inversao_dia_cardapio.api.validators import (
     nao_pode_existir_solicitacao_igual_para_mesma_escola,
     nao_pode_ter_mais_que_60_dias_diferenca,
 )
-from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
 from sme_sigpae_api.cardapio.inversao_dia_cardapio.models import InversaoCardapio
 from sme_sigpae_api.dados_comuns.utils import update_instance_from_dict
 from sme_sigpae_api.dados_comuns.validators import (

@@ -1,11 +1,12 @@
 import pytest
-from freezegun import freeze_time
 from model_mommy import mommy
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from sme_sigpae_api.cardapio.api.validators import (
+from sme_sigpae_api.cardapio.base.api.validators import (
     hora_inicio_nao_pode_ser_maior_que_hora_final,
+)
+from sme_sigpae_api.cardapio.inversao_dia_cardapio.api.validators import (
     nao_pode_existir_solicitacao_igual_para_mesma_escola,
     nao_pode_ter_mais_que_60_dias_diferenca,
 )

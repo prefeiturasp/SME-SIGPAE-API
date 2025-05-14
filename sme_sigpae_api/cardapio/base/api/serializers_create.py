@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from sme_sigpae_api.cardapio.api.validators import (
+from sme_sigpae_api.cardapio.base.api.validators import (
     escola_nao_pode_cadastrar_dois_combos_iguais,
     hora_inicio_nao_pode_ser_maior_que_hora_final,
 )

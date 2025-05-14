@@ -1,5 +1,8 @@
 from rest_framework import serializers
 
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.validators import (
+    valida_duplicidade_solicitacoes_lanche_emergencial,
+)
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
     MotivoAlteracaoCardapio,
 )
@@ -9,9 +12,6 @@ from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models import (
     FaixaEtariaSubstituicaoAlimentacaoCEMEICEI,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
-)
-from sme_sigpae_api.cardapio.api.validators import (
-    valida_duplicidade_solicitacoes_lanche_emergencial,
 )
 from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
 from sme_sigpae_api.dados_comuns.utils import update_instance_from_dict

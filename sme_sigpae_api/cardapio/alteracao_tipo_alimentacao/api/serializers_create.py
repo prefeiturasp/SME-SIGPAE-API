@@ -1,15 +1,15 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.validators import (
+    precisa_pertencer_a_um_tipo_de_alimentacao,
+    valida_duplicidade_solicitacoes_lanche_emergencial,
+)
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
     AlteracaoCardapio,
     DataIntervaloAlteracaoCardapio,
     MotivoAlteracaoCardapio,
     SubstituicaoAlimentacaoNoPeriodoEscolar,
-)
-from sme_sigpae_api.cardapio.api.validators import (
-    precisa_pertencer_a_um_tipo_de_alimentacao,
-    valida_duplicidade_solicitacoes_lanche_emergencial,
 )
 from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
 from sme_sigpae_api.dados_comuns.utils import update_instance_from_dict
