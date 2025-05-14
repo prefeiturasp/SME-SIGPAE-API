@@ -1,8 +1,13 @@
 import pytest
 from model_mommy import mommy
 
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers import (
+    AlteracaoCardapioSerializer,
+    MotivoAlteracaoCardapioSerializer,
+)
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
     AlteracaoCardapio,
+    MotivoAlteracaoCardapio,
     SubstituicaoAlimentacaoNoPeriodoEscolar,
 )
 from sme_sigpae_api.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
@@ -63,3 +68,15 @@ def substituicoes_alimentacao_periodo(escola):
         uuid="59beb0ca-982a-49da-98b8-10a296f274ba",
         alteracao_cardapio=alteracao_cardapio,
     )
+
+
+@pytest.fixture
+def motivo_alteracao_cardapio_serializer():
+    motivo_alteracao_cardapio = mommy.make(MotivoAlteracaoCardapio)
+    return MotivoAlteracaoCardapioSerializer(motivo_alteracao_cardapio)
+
+
+@pytest.fixture
+def alteracao_cardapio_serializer(escola):
+    alteracao_cardapio = mommy.make(AlteracaoCardapio, escola=escola)
+    return AlteracaoCardapioSerializer(alteracao_cardapio)

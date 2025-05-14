@@ -120,3 +120,37 @@ def datas_inversao_desta_semana(request):
 )
 def datas_inversao_deste_mes(request):
     return request.param
+
+
+@pytest.fixture(
+    params=[
+        (
+            datetime.date(2019, 8, 10),
+            datetime.date(2019, 10, 24),
+            "Diferença entre as datas não pode ultrapassar de 60 dias",
+        ),
+        (
+            datetime.date(2019, 1, 1),
+            datetime.date(2019, 3, 3),
+            "Diferença entre as datas não pode ultrapassar de 60 dias",
+        ),
+        (
+            datetime.date(2019, 1, 1),
+            datetime.date(2019, 3, 4),
+            "Diferença entre as datas não pode ultrapassar de 60 dias",
+        ),
+    ]
+)
+def datas_de_inversoes_intervalo_maior_60_dias(request):
+    return request.param
+
+
+@pytest.fixture(
+    params=[
+        (datetime.date(2019, 8, 10), datetime.date(2019, 10, 9), True),
+        (datetime.date(2019, 1, 1), datetime.date(2019, 3, 1), True),
+        (datetime.date(2019, 1, 1), datetime.date(2019, 3, 2), True),
+    ]
+)
+def datas_de_inversoes_intervalo_entre_60_dias(request):
+    return request.param

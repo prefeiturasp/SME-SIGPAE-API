@@ -1,9 +1,11 @@
 import pytest
 from model_mommy import mommy
+from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from sme_sigpae_api.cardapio.inversao_dia_cardapio.api.validators import (
     nao_pode_existir_solicitacao_igual_para_mesma_escola,
+    nao_pode_ter_mais_que_60_dias_diferenca,
 )
 from sme_sigpae_api.cardapio.inversao_dia_cardapio.models import InversaoCardapio
 
@@ -34,3 +36,14 @@ def test_nao_pode_existir_solicitacao_igual_para_mesma_escola_exception(
             escola=escola,
             tipos_alimentacao=[tipo_alimentacao],
         )
+
+
+def test_valida_60_dias_exception(datas_de_inversoes_intervalo_maior_60_dias):
+    data_de, data_para, esperado = datas_de_inversoes_intervalo_maior_60_dias
+    with pytest.raises(serializers.ValidationError, match=esperado):
+        nao_pode_ter_mais_que_60_dias_diferenca(data_de, data_para)
+
+
+def test_valida_intervalo_menor_que_60_dias(datas_de_inversoes_intervalo_entre_60_dias):
+    data_de, data_para, esperado = datas_de_inversoes_intervalo_entre_60_dias
+    assert nao_pode_ter_mais_que_60_dias_diferenca(data_de, data_para) is esperado

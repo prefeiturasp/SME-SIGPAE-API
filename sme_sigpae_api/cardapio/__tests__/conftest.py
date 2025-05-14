@@ -606,11 +606,6 @@ def grupo_suspensao_alimentacao_escola_cancelou(grupo_suspensao_alimentacao):
 
 
 @pytest.fixture
-def suspensao_alimentacao_serializer(suspensao_alimentacao):
-    return SuspensaoAlimentacaoSerializer(suspensao_alimentacao)
-
-
-@pytest.fixture
 def motivo_alteracao_cardapio():
     return mommy.make(MotivoAlteracaoCardapio, nome="Aniversariantes do mês")
 
@@ -632,12 +627,6 @@ def motivo_alteracao_cardapio_inativo():
 @pytest.fixture
 def motivo_suspensao_alimentacao():
     return mommy.make(MotivoSuspensao, nome="Não vai ter aula")
-
-
-@pytest.fixture
-def motivo_alteracao_cardapio_serializer():
-    motivo_alteracao_cardapio = mommy.make(MotivoAlteracaoCardapio)
-    return MotivoAlteracaoCardapioSerializer(motivo_alteracao_cardapio)
 
 
 @pytest.fixture
@@ -746,12 +735,6 @@ def alteracao_cardapio_codae_questionado(alteracao_cardapio):
 
 
 @pytest.fixture
-def alteracao_cardapio_serializer(escola):
-    alteracao_cardapio = mommy.make(AlteracaoCardapio, escola=escola)
-    return AlteracaoCardapioSerializer(alteracao_cardapio)
-
-
-@pytest.fixture
 def substituicoes_alimentacao_no_periodo_escolar_serializer():
     substituicoes_alimentacao_no_periodo_escolar = mommy.make(
         SubstituicaoAlimentacaoNoPeriodoEscolar
@@ -759,100 +742,6 @@ def substituicoes_alimentacao_no_periodo_escolar_serializer():
     return SubstituicoesAlimentacaoNoPeriodoEscolarSerializer(
         substituicoes_alimentacao_no_periodo_escolar
     )
-
-
-@pytest.fixture(
-    params=[
-        (
-            datetime.date(2019, 8, 10),
-            datetime.date(2019, 10, 24),
-            "Diferença entre as datas não pode ultrapassar de 60 dias",
-        ),
-        (
-            datetime.date(2019, 1, 1),
-            datetime.date(2019, 3, 3),
-            "Diferença entre as datas não pode ultrapassar de 60 dias",
-        ),
-        (
-            datetime.date(2019, 1, 1),
-            datetime.date(2019, 3, 4),
-            "Diferença entre as datas não pode ultrapassar de 60 dias",
-        ),
-    ]
-)
-def datas_de_inversoes_intervalo_maior_60_dias(request):
-    return request.param
-
-
-@pytest.fixture(
-    params=[
-        (datetime.date(2019, 8, 10), datetime.date(2019, 10, 9), True),
-        (datetime.date(2019, 1, 1), datetime.date(2019, 3, 1), True),
-        (datetime.date(2019, 1, 1), datetime.date(2019, 3, 2), True),
-    ]
-)
-def datas_de_inversoes_intervalo_entre_60_dias(request):
-    return request.param
-
-
-@pytest.fixture(
-    params=[
-        # data inicio, data fim, esperado
-        (datetime.time(10, 29), datetime.time(11, 29), True),
-        (datetime.time(7, 10), datetime.time(7, 30), True),
-        (datetime.time(6, 0), datetime.time(6, 10), True),
-        (datetime.time(23, 30), datetime.time(23, 59), True),
-        (datetime.time(20, 0), datetime.time(20, 22), True),
-        (datetime.time(11, 0), datetime.time(13, 0), True),
-        (datetime.time(15, 3), datetime.time(15, 21), True),
-    ]
-)
-def horarios_combos_tipo_alimentacao_validos(request):
-    return request.param
-
-
-@pytest.fixture(
-    params=[
-        # data inicio, data fim, esperado
-        (
-            datetime.time(10, 29),
-            datetime.time(9, 29),
-            "Hora Inicio não pode ser maior do que hora final",
-        ),
-        (
-            datetime.time(7, 10),
-            datetime.time(6, 30),
-            "Hora Inicio não pode ser maior do que hora final",
-        ),
-        (
-            datetime.time(6, 0),
-            datetime.time(5, 59),
-            "Hora Inicio não pode ser maior do que hora final",
-        ),
-        (
-            datetime.time(23, 30),
-            datetime.time(22, 59),
-            "Hora Inicio não pode ser maior do que hora final",
-        ),
-        (
-            datetime.time(20, 0),
-            datetime.time(19, 22),
-            "Hora Inicio não pode ser maior do que hora final",
-        ),
-        (
-            datetime.time(11, 0),
-            datetime.time(11, 0),
-            "Hora Inicio não pode ser maior do que hora final",
-        ),
-        (
-            datetime.time(15, 3),
-            datetime.time(12, 21),
-            "Hora Inicio não pode ser maior do que hora final",
-        ),
-    ]
-)
-def horarios_combos_tipo_alimentacao_invalidos(request):
-    return request.param
 
 
 @pytest.fixture(
@@ -991,49 +880,6 @@ def alteracao_substituicoes_params(request, daqui_dez_dias_ou_ultimo_dia_do_ano)
         "data_inicial": daqui_dez_dias_ou_ultimo_dia_do_ano.isoformat(),
         "data_final": daqui_dez_dias_ou_ultimo_dia_do_ano.isoformat(),
     }
-
-
-@pytest.fixture(
-    params=[
-        # data_create , data_update
-        (datetime.date(2019, 10, 17), datetime.date(2019, 10, 18)),
-    ]
-)
-def suspensao_alimentacao_cei_params(request):
-    motivo = mommy.make(
-        "cardapio.MotivoSuspensao",
-        nome="outro",
-        uuid="478b09e1-4c14-4e50-a446-fbc0af727a08",
-    )
-
-    data_create, data_update = request.param
-    return motivo, data_create, data_update
-
-
-@pytest.fixture(
-    params=[
-        # data do teste 14 out 2019
-        # data de, data para
-        (
-            datetime.date(2019, 12, 25),
-            datetime.date(2020, 1, 10),
-        ),  # deve ser no ano corrente
-        (
-            datetime.date(2019, 10, 1),
-            datetime.date(2019, 10, 20),
-        ),  # nao pode ser no passado
-        (
-            datetime.date(2019, 10, 17),
-            datetime.date(2019, 12, 20),
-        ),  # nao pode ter mais de 60 dias de intervalo
-        (
-            datetime.date(2019, 10, 31),
-            datetime.date(2019, 10, 15),
-        ),  # data de nao pode ser maior que data para
-    ]
-)
-def grupo_suspensao_alimentacao_params(request):
-    return request.param
 
 
 @pytest.fixture
