@@ -10,6 +10,7 @@ from openpyxl.cell import Cell
 
 from sme_sigpae_api.dieta_especial.models import (
     AlergiaIntolerancia,
+    Alimento,
     ArquivoCargaAlimentosSubstitutos,
     ArquivoCargaDietaEspecial,
     ArquivoCargaUsuariosEscola,
@@ -219,7 +220,7 @@ def arquivo_extensao_incorreta(arquivo_carga_dieta_especial):
 def arquivo_colunas_incorreta(arquivo_carga_dieta_especial):
     wb = Workbook()
     ws = wb.active
-    ws.append(["A"])
+    ws.append(["A", "B"])
     buffer = BytesIO()
     wb.save(buffer)
     buffer.seek(0)
@@ -238,3 +239,79 @@ def solicitacao_dieta_schema(mock_cabecalho_e_informacoes_excel):
     cabecalhos, informacoes = mock_cabecalho_e_informacoes_excel
     dicionario_dados = dict(zip(cabecalhos, informacoes))
     return ArquivoCargaDietaEspecialSchema(**dicionario_dados)
+
+
+@pytest.fixture
+def alimentos():
+    return [
+        mommy.make(
+            "dieta_especial.Alimento",
+            nome="ARROZ",
+            tipo_listagem_protocolo=Alimento.SO_ALIMENTOS,
+        ),
+        mommy.make(
+            "dieta_especial.Alimento",
+            nome="FEIJAO",
+            tipo_listagem_protocolo=Alimento.SO_ALIMENTOS,
+        ),
+        mommy.make(
+            "dieta_especial.Alimento",
+            nome="BATATA",
+            tipo_listagem_protocolo=Alimento.SO_SUBSTITUTOS,
+        ),
+    ]
+
+
+@pytest.fixture
+def alimentos_substitutivos():
+    return [
+        mommy.make(
+            "dieta_especial.Alimento",
+            nome="AVEIA",
+            tipo_listagem_protocolo=Alimento.SO_SUBSTITUTOS,
+        ),
+        mommy.make(
+            "dieta_especial.Alimento",
+            nome="LENTILHA",
+            tipo_listagem_protocolo=Alimento.SO_SUBSTITUTOS,
+        ),
+        mommy.make(
+            "dieta_especial.Alimento",
+            nome="ERVILHA",
+            tipo_listagem_protocolo=Alimento.SO_ALIMENTOS,
+        ),
+    ]
+
+
+@pytest.fixture
+def arquivo_carga_alimentos_com_informacoes(
+    arquivo_carga_alimentos_e_substitutos, alimentos, alimentos_substitutivos
+):
+    cabecalho = ["nome"]
+    alimentos = [alimento.nome for alimento in alimentos] + ["FARINHA DE TRIGO"]
+    substitutos = [alimento.nome for alimento in alimentos_substitutivos] + [
+        "FARINHA DE MILHO"
+    ]
+    wb = Workbook()
+
+    ws1 = wb.active
+    ws1.title = "Aba1"
+    ws1.append(cabecalho)
+    ws1.append(alimentos)
+
+    ws2 = wb.create_sheet("Aba2")
+    ws2.append(cabecalho)
+    ws2.append(substitutos)
+
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+
+    arquivo = SimpleUploadedFile(
+        name=f"{uuid.uuid4()}.xlsx",
+        content=buffer.read(),
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    arquivo_carga_alimentos_e_substitutos.conteudo = arquivo
+    arquivo_carga_alimentos_e_substitutos.save()
+    return arquivo_carga_alimentos_e_substitutos
