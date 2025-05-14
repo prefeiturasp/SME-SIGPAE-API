@@ -2,8 +2,10 @@ from django.db import models
 from django.db.models import Sum
 from django_prometheus.models import ExportModelOperationsMixin
 
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors import (
+    EhAlteracaoCardapio,
+)
 from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
-from sme_sigpae_api.cardapio.behaviors import EhAlteracaoCardapio
 from sme_sigpae_api.dados_comuns.behaviors import (
     Ativavel,
     CanceladoIndividualmente,

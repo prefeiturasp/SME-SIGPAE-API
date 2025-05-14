@@ -8,21 +8,6 @@ from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_
 )
 
 
-class TemLabelDeTiposDeAlimentacao(models.Model):
-    @property
-    def label(self):
-        label = ""
-        for tipo_alimentacao in self.tipos_alimentacao.all():
-            if len(label) == 0:
-                label += tipo_alimentacao.nome
-            else:
-                label += f" e {tipo_alimentacao.nome}"
-        return label
-
-    class Meta:
-        abstract = True
-
-
 class EhAlteracaoCardapio(models.Model):
     objects = models.Manager()  # Manager Padrão
     desta_semana = AlteracoesCardapioDestaSemanaManager()

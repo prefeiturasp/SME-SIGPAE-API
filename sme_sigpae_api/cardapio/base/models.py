@@ -1,7 +1,7 @@
 from django.db import models
 from django_prometheus.models import ExportModelOperationsMixin
 
-from sme_sigpae_api.cardapio.behaviors import TemLabelDeTiposDeAlimentacao
+from sme_sigpae_api.cardapio.base.behaviors import TemLabelDeTiposDeAlimentacao
 from sme_sigpae_api.dados_comuns.behaviors import (
     Ativavel,
     CriadoEm,
