@@ -832,10 +832,6 @@ class AlunosMatriculadosPeriodoEscolaCompletoSerializer(serializers.ModelSeriali
     def get_alunos_por_faixa_etaria(self, obj):
         try:
             periodos_faixas = obj.escola.matriculados_por_periodo_e_faixa_etaria()
-            if obj.periodo_escolar.nome == "MANHA":
-                return periodos_faixas["MANHÃ"]
-            if obj.periodo_escolar.nome == "INTERMEDIARIO":
-                return periodos_faixas["INTERMEDIÁRIO"]
             return periodos_faixas[obj.periodo_escolar.nome]
         except Exception:
             return None
