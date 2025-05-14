@@ -9,15 +9,15 @@ from sme_sigpae_api.cardapio.base.models import (
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
-from sme_sigpae_api.cardapio.data.motivos_alteracao_cardapio import (
-    data_motivoalteracaocardapio,
-)
-from sme_sigpae_api.cardapio.data.motivos_suspensao_alimentacao import (
-    data_motivosuspensao,
-)
-from sme_sigpae_api.cardapio.data.tipo_alimentacao import data_tipo_alimentacao
 from sme_sigpae_api.cardapio.suspensao_alimentacao.models import MotivoSuspensao
 from sme_sigpae_api.escola.models import PeriodoEscolar, TipoUnidadeEscolar
+from utility.carga_dados.cardapio.data.motivos_alteracao_cardapio import (
+    data_motivoalteracaocardapio,
+)
+from utility.carga_dados.cardapio.data.motivos_suspensao_alimentacao import (
+    data_motivosuspensao,
+)
+from utility.carga_dados.cardapio.data.tipo_alimentacao import data_tipo_alimentacao
 from utility.carga_dados.helper import ja_existe, progressbar
 
 
