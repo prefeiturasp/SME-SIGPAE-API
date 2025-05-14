@@ -1,11 +1,11 @@
 from django.db import models
 from django.db.models import Sum
 
-from sme_sigpae_api.cardapio.behaviors import EhAlteracaoCardapio
-from sme_sigpae_api.cardapio.managers import (
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.managers.alteracao_tipo_alimentacao_cemei_managers import (
     AlteracoesCardapioCEMEIDestaSemanaManager,
     AlteracoesCardapioCEMEIDesteMesManager,
 )
+from sme_sigpae_api.cardapio.behaviors import EhAlteracaoCardapio
 from sme_sigpae_api.dados_comuns.behaviors import (
     CanceladoIndividualmente,
     CriadoEm,

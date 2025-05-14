@@ -3,7 +3,7 @@ import datetime
 from django.db import models
 from django.db.models import Q
 
-from ...dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
+from sme_sigpae_api.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 
 
 class InversaoCardapioDestaSemanaManager(models.Manager):
@@ -47,7 +47,6 @@ class InversaoCardapioDesteMesManager(models.Manager):
 
 
 class InversaoCardapioVencidaManager(models.Manager):
-    # TODO verificar melhor a regra de vencimento de cardapio.
     def get_queryset(self):
         hoje = datetime.date.today()
         return (

@@ -1,6 +1,6 @@
 from django.db import models
 
-from .managers import (
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers import (
     AlteracoesCardapioDestaSemanaManager,
     AlteracoesCardapioDesteMesManager,
     AlteracoesCardapioDoMesCorrenteManager,

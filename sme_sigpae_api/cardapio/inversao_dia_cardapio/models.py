@@ -2,7 +2,7 @@ from django.db import models
 from django_prometheus.models import ExportModelOperationsMixin
 
 from sme_sigpae_api.cardapio.base.models import Cardapio
-from sme_sigpae_api.cardapio.managers import (
+from sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers import (
     InversaoCardapioDestaSemanaManager,
     InversaoCardapioDesteMesManager,
     InversaoCardapioVencidaManager,
