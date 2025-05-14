@@ -9,18 +9,11 @@ from ..alteracao_tipo_alimentacao_cemei.models import (
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
 )
 from ..base.models import (
-    Cardapio,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from ..inversao_dia_cardapio.models import InversaoCardapio
-
-
-def cardapio_antigo(cardapio: Cardapio):
-    if cardapio.data <= datetime.date.today():
-        raise serializers.ValidationError("Não pode ser cardápio antigo")
-    return True
 
 
 def nao_pode_existir_solicitacao_igual_para_mesma_escola(

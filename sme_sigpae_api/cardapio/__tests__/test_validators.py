@@ -5,7 +5,6 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from sme_sigpae_api.cardapio.api.validators import (
-    cardapio_antigo,
     hora_inicio_nao_pode_ser_maior_que_hora_final,
     nao_pode_existir_solicitacao_igual_para_mesma_escola,
     nao_pode_ter_mais_que_60_dias_diferenca,
@@ -13,13 +12,6 @@ from sme_sigpae_api.cardapio.api.validators import (
 from sme_sigpae_api.cardapio.inversao_dia_cardapio.models import InversaoCardapio
 
 pytestmark = pytest.mark.django_db
-
-
-@freeze_time("2019-11-28")
-def test_valida_se_data_de_cardapio_eh_antiga(cardapio_valido, cardapio_invalido):
-    assert cardapio_antigo(cardapio_valido)
-    with pytest.raises(ValidationError, match="Não pode ser cardápio antigo"):
-        cardapio_antigo(cardapio_invalido)
 
 
 def test_valida_60_dias_exception(datas_de_inversoes_intervalo_maior_60_dias):
