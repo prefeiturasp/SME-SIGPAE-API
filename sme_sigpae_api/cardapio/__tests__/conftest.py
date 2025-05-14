@@ -33,7 +33,6 @@ from ..suspensao_alimentacao.api.serializers import SuspensaoAlimentacaoSerializ
 from ..suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
     MotivoSuspensao,
-    QuantidadePorPeriodoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
     SuspensaoAlimentacaoNoPeriodoEscolar,
 )
@@ -607,11 +606,6 @@ def grupo_suspensao_alimentacao_escola_cancelou(grupo_suspensao_alimentacao):
 
 
 @pytest.fixture
-def quantidade_por_periodo_suspensao_alimentacao():
-    return mommy.make(QuantidadePorPeriodoSuspensaoAlimentacao, numero_alunos=100)
-
-
-@pytest.fixture
 def suspensao_alimentacao_serializer(suspensao_alimentacao):
     return SuspensaoAlimentacaoSerializer(suspensao_alimentacao)
 
@@ -752,18 +746,6 @@ def alteracao_cardapio_codae_questionado(alteracao_cardapio):
 
 
 @pytest.fixture
-def substituicoes_alimentacao_periodo(escola):
-    alteracao_cardapio = mommy.make(
-        AlteracaoCardapio, escola=escola, observacao="teste"
-    )
-    return mommy.make(
-        SubstituicaoAlimentacaoNoPeriodoEscolar,
-        uuid="59beb0ca-982a-49da-98b8-10a296f274ba",
-        alteracao_cardapio=alteracao_cardapio,
-    )
-
-
-@pytest.fixture
 def alteracao_cardapio_serializer(escola):
     alteracao_cardapio = mommy.make(AlteracaoCardapio, escola=escola)
     return AlteracaoCardapioSerializer(alteracao_cardapio)
@@ -810,123 +792,6 @@ def datas_de_inversoes_intervalo_maior_60_dias(request):
     ]
 )
 def datas_de_inversoes_intervalo_entre_60_dias(request):
-    return request.param
-
-
-@pytest.fixture(
-    params=[
-        # dia cardapio de, dia cardapio para, status
-        (
-            datetime.date(2019, 10, 1),
-            datetime.date(2019, 10, 5),
-            PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR,
-        ),
-        (
-            datetime.date(2019, 10, 2),
-            datetime.date(2019, 10, 6),
-            PedidoAPartirDaEscolaWorkflow.RASCUNHO,
-        ),
-        (
-            datetime.date(2019, 10, 3),
-            datetime.date(2019, 10, 7),
-            PedidoAPartirDaEscolaWorkflow.DRE_PEDIU_ESCOLA_REVISAR,
-        ),
-        (
-            datetime.date(2019, 10, 5),
-            datetime.date(2019, 10, 1),
-            PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR,
-        ),
-        (
-            datetime.date(2019, 10, 6),
-            datetime.date(2019, 10, 2),
-            PedidoAPartirDaEscolaWorkflow.RASCUNHO,
-        ),
-        (
-            datetime.date(2019, 10, 7),
-            datetime.date(2019, 10, 3),
-            PedidoAPartirDaEscolaWorkflow.DRE_PEDIU_ESCOLA_REVISAR,
-        ),
-    ]
-)
-def datas_inversao_vencida(request):
-    return request.param
-
-
-@pytest.fixture(
-    params=[
-        # dia cardapio de, dia cardapio para, status
-        ((2019, 10, 4), (2019, 10, 30), PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR),
-        ((2019, 10, 5), (2019, 10, 12), PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR),
-        ((2019, 10, 6), (2019, 10, 13), PedidoAPartirDaEscolaWorkflow.RASCUNHO),
-        (
-            (2019, 10, 7),
-            (2019, 10, 14),
-            PedidoAPartirDaEscolaWorkflow.DRE_PEDIU_ESCOLA_REVISAR,
-        ),
-        ((2019, 10, 28), (2019, 10, 7), PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR),
-        ((2019, 10, 29), (2019, 10, 8), PedidoAPartirDaEscolaWorkflow.RASCUNHO),
-        (
-            (2019, 10, 30),
-            (2019, 10, 9),
-            PedidoAPartirDaEscolaWorkflow.DRE_PEDIU_ESCOLA_REVISAR,
-        ),
-        (
-            (2019, 10, 30),
-            (2019, 10, 4),
-            PedidoAPartirDaEscolaWorkflow.DRE_PEDIU_ESCOLA_REVISAR,
-        ),
-    ]
-)
-def datas_inversao_desta_semana(request):
-    return request.param
-
-
-@pytest.fixture(
-    params=[
-        # dia cardapio de, dia cardapio para, status
-        (
-            datetime.date(2019, 10, 29),
-            datetime.date(2019, 11, 1),
-            PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR,
-        ),
-        (
-            datetime.date(2019, 10, 15),
-            datetime.date(2019, 10, 31),
-            PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR,
-        ),
-        (
-            datetime.date(2019, 10, 10),
-            datetime.date(2019, 10, 29),
-            PedidoAPartirDaEscolaWorkflow.RASCUNHO,
-        ),
-        (
-            datetime.date(2019, 10, 28),
-            datetime.date(2019, 11, 3),
-            PedidoAPartirDaEscolaWorkflow.DRE_PEDIU_ESCOLA_REVISAR,
-        ),
-        (
-            datetime.date(2019, 10, 10),
-            datetime.date(2019, 10, 15),
-            PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR,
-        ),
-        (
-            datetime.date(2019, 10, 15),
-            datetime.date(2019, 10, 10),
-            PedidoAPartirDaEscolaWorkflow.RASCUNHO,
-        ),
-        (
-            datetime.date(2019, 10, 4),
-            datetime.date(2019, 11, 4),
-            PedidoAPartirDaEscolaWorkflow.DRE_PEDIU_ESCOLA_REVISAR,
-        ),
-        (
-            datetime.date(2019, 11, 4),
-            datetime.date(2019, 10, 4),
-            PedidoAPartirDaEscolaWorkflow.DRE_PEDIU_ESCOLA_REVISAR,
-        ),
-    ]
-)
-def datas_inversao_deste_mes(request):
     return request.param
 
 
@@ -992,51 +857,6 @@ def horarios_combos_tipo_alimentacao_invalidos(request):
 
 @pytest.fixture(
     params=[
-        # data inicial, status
-        ((2019, 10, 1), PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR),
-        ((2019, 10, 2), PedidoAPartirDaEscolaWorkflow.RASCUNHO),
-        ((2019, 10, 3), PedidoAPartirDaEscolaWorkflow.DRE_PEDIU_ESCOLA_REVISAR),
-        ((2019, 9, 30), PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR),
-        ((2019, 9, 29), PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR),
-        ((2019, 9, 28), PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR),
-    ]
-)
-def datas_alteracao_vencida(request):
-    return request.param
-
-
-@pytest.fixture(
-    params=[
-        # data inicial, status
-        ((2019, 10, 4), PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR),
-        ((2019, 10, 5), PedidoAPartirDaEscolaWorkflow.RASCUNHO),
-        ((2019, 10, 6), PedidoAPartirDaEscolaWorkflow.DRE_PEDIU_ESCOLA_REVISAR),
-        ((2019, 10, 7), PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR),
-        ((2019, 10, 8), PedidoAPartirDaEscolaWorkflow.RASCUNHO),
-        ((2019, 10, 9), PedidoAPartirDaEscolaWorkflow.DRE_PEDIU_ESCOLA_REVISAR),
-    ]
-)
-def datas_alteracao_semana(request):
-    return request.param
-
-
-@pytest.fixture(
-    params=[
-        # data inicial, status
-        ((2019, 10, 4), PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR),
-        ((2019, 10, 10), PedidoAPartirDaEscolaWorkflow.RASCUNHO),
-        ((2019, 10, 15), PedidoAPartirDaEscolaWorkflow.DRE_PEDIU_ESCOLA_REVISAR),
-        ((2019, 10, 20), PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR),
-        ((2019, 10, 30), PedidoAPartirDaEscolaWorkflow.RASCUNHO),
-        ((2019, 11, 4), PedidoAPartirDaEscolaWorkflow.DRE_PEDIU_ESCOLA_REVISAR),
-    ]
-)
-def datas_alteracao_mes(request):
-    return request.param
-
-
-@pytest.fixture(
-    params=[
         # data do teste 14 out 2019
         # data de create, data para create, data de update, data para update
         (
@@ -1086,40 +906,6 @@ def inversao_card_params(request):
     ]
 )
 def inversao_card_params_error(request):
-    return request.param
-
-
-@pytest.fixture(
-    params=[
-        # data_inicial, data_final
-        (datetime.date(2019, 10, 4), datetime.date(2019, 12, 31)),
-        (datetime.date(2019, 10, 5), datetime.date(2019, 12, 31)),
-        (datetime.date(2019, 10, 10), datetime.date(2019, 12, 31)),
-        (datetime.date(2019, 10, 20), datetime.date(2019, 12, 31)),
-        (datetime.date(2019, 10, 25), datetime.date(2019, 12, 31)),
-        (datetime.date(2019, 10, 31), datetime.date(2019, 12, 31)),
-        (datetime.date(2019, 11, 3), datetime.date(2019, 12, 31)),
-        (datetime.date(2019, 11, 4), datetime.date(2019, 12, 31)),
-    ]
-)
-def suspensao_alimentacao_parametros_mes(request):
-    return request.param
-
-
-@pytest.fixture(
-    params=[
-        # data_inicial, data_final
-        (datetime.date(2019, 10, 4), datetime.date(2019, 10, 4)),
-        (datetime.date(2019, 10, 4), datetime.date(2019, 10, 5)),
-        (datetime.date(2019, 10, 4), datetime.date(2019, 10, 6)),
-        (datetime.date(2019, 10, 4), datetime.date(2019, 10, 7)),
-        (datetime.date(2019, 10, 4), datetime.date(2019, 10, 8)),
-        (datetime.date(2019, 10, 4), datetime.date(2019, 10, 9)),
-        (datetime.date(2019, 10, 4), datetime.date(2019, 10, 10)),
-        (datetime.date(2019, 10, 4), datetime.date(2019, 10, 11)),
-    ]
-)
-def suspensao_alimentacao_parametros_semana(request):
     return request.param
 
 
@@ -1678,11 +1464,3 @@ def ativa_vinculo(vinculos_alimentacao):
         ativo=False,
     )
     return tipo_unidade, escola_periodo_escolar
-
-
-@pytest.fixture
-def label_tipos_alimentacao():
-    model = mommy.make("SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE")
-    tipo_vegetariano = mommy.make("TipoAlimentacao", nome="Vegetariano")
-    tipo_vegano = mommy.make("TipoAlimentacao", nome="Vegano")
-    return model, tipo_vegetariano, tipo_vegano
