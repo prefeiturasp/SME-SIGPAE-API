@@ -9,6 +9,17 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import GenericViewSet
 from xworkflows import InvalidTransitionError
 
+from sme_sigpae_api.cardapio.base.api.serializers_create import (
+    CardapioCreateSerializer,
+    ComboDoVinculoTipoAlimentoSimplesSerializerCreate,
+    HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate,
+    SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate,
+    VinculoTipoAlimentoCreateSerializer,
+)
+from sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create import (
+    InversaoCardapioSerializerCreate,
+)
+
 from ...dados_comuns import constants, services
 from ...dados_comuns.permissions import (
     PermissaoParaRecuperarObjeto,
@@ -45,6 +56,9 @@ from ..alteracao_tipo_alimentacao.api.serializers import (
     AlteracaoCardapioSimplesSerializer,
     MotivoAlteracaoCardapioSerializer,
 )
+from ..alteracao_tipo_alimentacao.api.serializers_create import (
+    AlteracaoCardapioSerializerCreate,
+)
 from ..alteracao_tipo_alimentacao.models import (
     AlteracaoCardapio,
     MotivoAlteracaoCardapio,
@@ -52,9 +66,15 @@ from ..alteracao_tipo_alimentacao.models import (
 from ..alteracao_tipo_alimentacao_cei.api.serializers import (
     AlteracaoCardapioCEISerializer,
 )
+from ..alteracao_tipo_alimentacao_cei.api.serializers_create import (
+    AlteracaoCardapioCEISerializerCreate,
+)
 from ..alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
 from ..alteracao_tipo_alimentacao_cemei.api.serializers import (
     AlteracaoCardapioCEMEISerializer,
+)
+from ..alteracao_tipo_alimentacao_cemei.api.serializers_create import (
+    AlteracaoCardapioCEMEISerializerCreate,
 )
 from ..alteracao_tipo_alimentacao_cemei.models import AlteracaoCardapioCEMEI
 from ..base.api.serializers import (
@@ -83,21 +103,14 @@ from ..suspensao_alimentacao.api.serializers import (
     MotivoSuspensaoSerializer,
     SuspensaoAlimentacaoDaCEISerializer,
 )
-from ..suspensao_alimentacao.models import GrupoSuspensaoAlimentacao, MotivoSuspensao
-from ..suspensao_alimentacao_cei.models import SuspensaoAlimentacaoDaCEI
-from .serializers.serializers_create import (
-    AlteracaoCardapioCEISerializerCreate,
-    AlteracaoCardapioCEMEISerializerCreate,
-    AlteracaoCardapioSerializerCreate,
-    CardapioCreateSerializer,
-    ComboDoVinculoTipoAlimentoSimplesSerializerCreate,
+from ..suspensao_alimentacao.api.serializers_create import (
     GrupoSuspensaoAlimentacaoCreateSerializer,
-    HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate,
-    InversaoCardapioSerializerCreate,
-    SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate,
-    SuspensaoAlimentacaodeCEICreateSerializer,
-    VinculoTipoAlimentoCreateSerializer,
 )
+from ..suspensao_alimentacao.models import GrupoSuspensaoAlimentacao, MotivoSuspensao
+from ..suspensao_alimentacao_cei.api.serializers_create import (
+    SuspensaoAlimentacaodeCEICreateSerializer,
+)
+from ..suspensao_alimentacao_cei.models import SuspensaoAlimentacaoDaCEI
 
 
 class CardapioViewSet(viewsets.ModelViewSet):

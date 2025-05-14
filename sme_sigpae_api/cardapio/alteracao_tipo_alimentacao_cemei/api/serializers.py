@@ -3,14 +3,14 @@ from rest_framework import serializers
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers import (
     MotivoAlteracaoCardapioSerializer,
 )
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create import (
+    DatasIntervaloAlteracaoCardapioCEMEICreateSerializer,
+)
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models import (
     AlteracaoCardapioCEMEI,
     FaixaEtariaSubstituicaoAlimentacaoCEMEICEI,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
-)
-from sme_sigpae_api.cardapio.api.serializers.serializers_create import (
-    DatasIntervaloAlteracaoCardapioCEMEICreateSerializer,
 )
 from sme_sigpae_api.dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
 from sme_sigpae_api.escola.api.serializers import (

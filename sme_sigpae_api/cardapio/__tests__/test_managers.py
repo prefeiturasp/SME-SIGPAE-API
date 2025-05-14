@@ -4,10 +4,10 @@ import pytest
 from freezegun import freeze_time
 from model_mommy import mommy
 
-from ..models import (
-    AlteracaoCardapio,
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
+from sme_sigpae_api.cardapio.inversao_dia_cardapio.models import InversaoCardapio
+from sme_sigpae_api.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
-    InversaoCardapio,
     SuspensaoAlimentacao,
 )
 

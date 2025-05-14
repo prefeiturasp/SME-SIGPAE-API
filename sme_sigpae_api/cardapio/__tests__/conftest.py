@@ -11,29 +11,33 @@ from ...dados_comuns.fluxo_status import (
     PedidoAPartirDaEscolaWorkflow,
 )
 from ...dados_comuns.models import TemplateMensagem
-from ..api.serializers.serializers import (
+from ..alteracao_tipo_alimentacao.api.serializers import (
     AlteracaoCardapioSerializer,
-    GrupoSuspensaoAlimentacao,
-    InversaoCardapioSerializer,
     MotivoAlteracaoCardapioSerializer,
-    QuantidadePorPeriodoSuspensaoAlimentacao,
     SubstituicoesAlimentacaoNoPeriodoEscolarSerializer,
-    SuspensaoAlimentacaoNoPeriodoEscolar,
-    SuspensaoAlimentacaoSerializer,
 )
-from ..models import (
+from ..alteracao_tipo_alimentacao.models import (
     AlteracaoCardapio,
-    AlteracaoCardapioCEI,
+    MotivoAlteracaoCardapio,
+    SubstituicaoAlimentacaoNoPeriodoEscolar,
+)
+from ..alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
+from ..alteracao_tipo_alimentacao_cemei.models import (
     AlteracaoCardapioCEMEI,
     FaixaEtariaSubstituicaoAlimentacaoCEMEICEI,
-    InversaoCardapio,
-    MotivoAlteracaoCardapio,
-    MotivoSuspensao,
-    SubstituicaoAlimentacaoNoPeriodoEscolar,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI,
-    SuspensaoAlimentacao,
-    SuspensaoAlimentacaoDaCEI,
 )
+from ..inversao_dia_cardapio.api.serializers import InversaoCardapioSerializer
+from ..inversao_dia_cardapio.models import InversaoCardapio
+from ..suspensao_alimentacao.api.serializers import SuspensaoAlimentacaoSerializer
+from ..suspensao_alimentacao.models import (
+    GrupoSuspensaoAlimentacao,
+    MotivoSuspensao,
+    QuantidadePorPeriodoSuspensaoAlimentacao,
+    SuspensaoAlimentacao,
+    SuspensaoAlimentacaoNoPeriodoEscolar,
+)
+from ..suspensao_alimentacao_cei.models import SuspensaoAlimentacaoDaCEI
 
 fake = Faker("pt_BR")
 Faker.seed(420)
