@@ -1,10 +1,13 @@
+import uuid
 from io import BytesIO
 from pathlib import Path
-import uuid
-from openpyxl import Workbook
+
 import pytest
-from model_mommy import mommy
 from django.core.files.uploadedfile import SimpleUploadedFile
+from model_mommy import mommy
+from openpyxl import Workbook
+from openpyxl.cell import Cell
+
 from sme_sigpae_api.dieta_especial.models import (
     AlergiaIntolerancia,
     ArquivoCargaAlimentosSubstitutos,
@@ -12,6 +15,9 @@ from sme_sigpae_api.dieta_especial.models import (
     ArquivoCargaUsuariosEscola,
     ClassificacaoDieta,
     SolicitacaoDietaEspecial,
+)
+from sme_sigpae_api.processamento_arquivos.dieta_especial.schemas import (
+    ArquivoCargaDietaEspecialSchema,
 )
 
 
@@ -29,17 +35,30 @@ def arquivo_carga_alimentos_e_substitutos():
 def arquivo_carga_usuarios_escola():
     return mommy.make(ArquivoCargaUsuariosEscola)
 
+
 @pytest.fixture
 def aluno():
     return mommy.make("escola.Aluno", codigo_eol="1234567", nome="TESTE ALUNO DIETA")
 
+
+@pytest.fixture
+def perfil():
+    return mommy.make("Perfil", nome="DIRETOR_UE")
+
+
 @pytest.fixture
 def escola():
-    return mommy.make("escola.Escola", codigo_codae="12345678", lote= mommy.make("Lote"))
+    return mommy.make(
+        "escola.Escola",
+        codigo_codae="12345678",
+        lote=mommy.make("Lote", terceirizada=mommy.make("Terceirizada")),
+    )
+
 
 @pytest.fixture
 def classificacao_dieta():
-    return  mommy.make(ClassificacaoDieta, nome="Tipo A")
+    return mommy.make(ClassificacaoDieta, nome="Tipo A")
+
 
 @pytest.fixture
 def edital(escola):
@@ -58,9 +77,10 @@ def edital(escola):
     contrato.lotes.set([escola.lote])
     return edital
 
+
 @pytest.fixture
 def protocolo_padrao_dieta_especial(edital):
-    protocolo= mommy.make(
+    protocolo = mommy.make(
         "ProtocoloPadraoDietaEspecial",
         nome_protocolo="ALERGIA - OVO",
         uuid="5d7f80b8-7b62-441b-89da-4d5dd5c1e7e8",
@@ -70,24 +90,43 @@ def protocolo_padrao_dieta_especial(edital):
 
 
 @pytest.fixture
-def dieta_especial_ativa(aluno, escola, classificacao_dieta):
-    # aluno = mommy.make("escola.Aluno", codigo_eol="1234567", nome="TESTE ALUNO DIETA")
-    # escola = mommy.make("escola.Escola", codigo_codae="12345678")
-    # classificacao = mommy.make(ClassificacaoDieta, nome="Tipo A")
-    alergias_set = mommy.prepare(
-        AlergiaIntolerancia, descricao="Aluno Alérgico", _quantity=1
+def substituicao_alimento(protocolo_padrao_dieta_especial):
+    return mommy.make(
+        "SubstituicaoAlimentoProtocoloPadrao",
+        protocolo_padrao=protocolo_padrao_dieta_especial,
     )
-    solicitacao = mommy.make(
+
+
+@pytest.fixture
+def alergia_intolerancia():
+    return [
+        mommy.make(AlergiaIntolerancia, descricao="Pão"),
+        mommy.make(AlergiaIntolerancia, descricao="Bolo"),
+        mommy.make(AlergiaIntolerancia, descricao="Biscoito"),
+    ]
+
+
+@pytest.fixture
+def solicitacao_dieta_especial(aluno, escola, classificacao_dieta):
+    return mommy.make(
         SolicitacaoDietaEspecial,
         aluno=aluno,
         ativo=True,
         classificacao=classificacao_dieta,
         escola_destino=escola,
         nome_protocolo="Alérgico",
-        alergias_intolerancias=alergias_set,
         eh_importado=True,
     )
-    return solicitacao
+
+
+@pytest.fixture
+def dieta_especial_ativa(solicitacao_dieta_especial):
+    alergias_set = mommy.make(
+        AlergiaIntolerancia, descricao="Aluno Alérgico", _quantity=1
+    )
+    solicitacao_dieta_especial.alergias_intolerancias.set(alergias_set)
+    solicitacao_dieta_especial.save()
+    return solicitacao_dieta_especial
 
 
 @pytest.fixture
@@ -96,9 +135,14 @@ def usuario():
 
 
 @pytest.fixture
-def arquivo_carga_dieta_especial_com_arquivo(arquivo_carga_dieta_especial, aluno, escola, protocolo_padrao_dieta_especial, classificacao_dieta):
-    wb = Workbook()
-    ws = wb.active
+def mock_cabecalho_e_informacoes_excel(
+    aluno,
+    escola,
+    protocolo_padrao_dieta_especial,
+    classificacao_dieta,
+    alergia_intolerancia,
+):
+    alergia = ";".join([alergia.descricao for alergia in alergia_intolerancia])
     cabecalhos = [
         "dre",
         "tipo_gestao",
@@ -111,33 +155,86 @@ def arquivo_carga_dieta_especial_com_arquivo(arquivo_carga_dieta_especial, aluno
         "data_ocorrencia",
         "codigo_diagnostico",
         "protocolo_dieta",
-        "codigo_categoria_dieta"
+        "codigo_categoria_dieta",
     ]
+    informacoes = [
+        "DRE XYZ",  # dre
+        "TERCEIRIZADA",  # tipo_gestao
+        "EMEF",  # tipo_unidade
+        escola.codigo_codae,  # codigo_escola
+        "Escola Teste",  # nome_unidade
+        aluno.codigo_eol,  # codigo_eol_aluno (obrigatório)
+        aluno.nome,  # nome_aluno
+        "01/01/2010",  # data_nascimento
+        "15/05/2023",  # data_ocorrencia
+        f"{alergia};Maionese",  # codigo_diagnostico (obrigatório)
+        protocolo_padrao_dieta_especial.nome_protocolo,  # protocolo_dieta (obrigatório)
+        classificacao_dieta.nome[-1],  # codigo_categoria_dieta (obrigatório)
+    ]
+    return cabecalhos, informacoes
+
+
+@pytest.fixture
+def arquivo_carga_dieta_especial_com_informacoes(
+    arquivo_carga_dieta_especial, mock_cabecalho_e_informacoes_excel
+):
+    cabecalhos, informacoes = mock_cabecalho_e_informacoes_excel
+    wb = Workbook()
+    ws = wb.active
     ws.append(cabecalhos)
-    dados_exemplo = [
-        "DRE XYZ",              # dre
-        "TERCEIRIZADA",         # tipo_gestao
-        "EMEF",                   # tipo_unidade
-        escola.codigo_codae,           # codigo_escola
-        "Escola Teste",         # nome_unidade
-        aluno.codigo_eol,        # codigo_eol_aluno (obrigatório)
-        aluno.nome,         # nome_aluno
-        "01/01/2010",       # data_nascimento
-        "15/05/2023",       # data_ocorrencia
-        "DIAG001",          # codigo_diagnostico (obrigatório)
-        protocolo_padrao_dieta_especial.nome_protocolo,      # protocolo_dieta (obrigatório)
-        "A"           # codigo_categoria_dieta (obrigatório)
-    ]
-    ws.append(dados_exemplo)
+    ws.append(informacoes)
     buffer = BytesIO()
     wb.save(buffer)
     buffer.seek(0)
-    
+
     arquivo = SimpleUploadedFile(
         name=f"{uuid.uuid4()}.xlsx",
-        content=buffer.read(), 
+        content=buffer.read(),
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
     arquivo_carga_dieta_especial.conteudo = arquivo
     arquivo_carga_dieta_especial.save()
     return arquivo_carga_dieta_especial
+
+
+@pytest.fixture
+def arquivo_extensao_incorreta(arquivo_carga_dieta_especial):
+    wb = Workbook()
+    ws = wb.active
+    ws.append(["A"])
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+    arquivo = SimpleUploadedFile(
+        name=f"{uuid.uuid4()}.xlsm",
+        content=buffer.read(),
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    arquivo_carga_dieta_especial.conteudo = arquivo
+    arquivo_carga_dieta_especial.save()
+    return arquivo_carga_dieta_especial
+
+
+@pytest.fixture
+def arquivo_colunas_incorreta(arquivo_carga_dieta_especial):
+    wb = Workbook()
+    ws = wb.active
+    ws.append(["A"])
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+    arquivo = SimpleUploadedFile(
+        name=f"{uuid.uuid4()}.xlsx",
+        content=buffer.read(),
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    arquivo_carga_dieta_especial.conteudo = arquivo
+    arquivo_carga_dieta_especial.save()
+    return arquivo_carga_dieta_especial
+
+
+@pytest.fixture
+def solicitacao_dieta_schema(mock_cabecalho_e_informacoes_excel):
+    cabecalhos, informacoes = mock_cabecalho_e_informacoes_excel
+    dicionario_dados = dict(zip(cabecalhos, informacoes))
+    return ArquivoCargaDietaEspecialSchema(**dicionario_dados)
