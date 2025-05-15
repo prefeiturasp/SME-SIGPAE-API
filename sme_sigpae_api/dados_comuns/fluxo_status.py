@@ -2113,8 +2113,8 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         self.save()
 
     def eh_alteracao_lanche_emergencial(self):
-        from sme_sigpae_api.cardapio.models import (
-            AlteracaoCardapio,
+        from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
+        from ..cardapio.alteracao_tipo_alimentacao_cemei.models import (
             AlteracaoCardapioCEMEI,
         )
 
@@ -2411,7 +2411,9 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
     @xworkflows.before_transition("codae_autoriza_questionamento")
     @xworkflows.before_transition("codae_autoriza")
     def _codae_autoriza_hook_antes(self, *args, **kwargs):
-        from sme_sigpae_api.cardapio.models import AlteracaoCardapio
+        from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
+            AlteracaoCardapio,
+        )
 
         if (
             self.foi_solicitado_fora_do_prazo

@@ -3,7 +3,7 @@ import datetime
 import pytest
 from model_mommy import mommy
 
-from sme_sigpae_api.cardapio.models import (
+from sme_sigpae_api.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
 )

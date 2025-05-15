@@ -7,20 +7,20 @@ from faker import Faker
 from model_mommy import mommy
 from pytest_factoryboy import register
 
-from sme_sigpae_api.recebimento.fixtures.factories.questao_ficha_recebimento_factory import (
-    QuestaoFichaRecebimentoFactory,
-)
-
-from .cardapio.fixtures.factories.alteracao_cardapio_factory import (
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory import (
     AlteracaoCardapioFactory,
     DataIntervaloAlteracaoCardapioFactory,
     MotivoAlteracaoCardapioFactory,
     SubstituicaoAlimentacaoNoPeriodoEscolarFactory,
 )
-from .cardapio.fixtures.factories.base_factory import (
+from sme_sigpae_api.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory,
 )
+from sme_sigpae_api.recebimento.fixtures.factories.questao_ficha_recebimento_factory import (
+    QuestaoFichaRecebimentoFactory,
+)
+
 from .dados_comuns import constants
 from .dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,

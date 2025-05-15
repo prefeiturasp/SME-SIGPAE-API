@@ -10,7 +10,7 @@ from django.core.validators import (
 )
 from django.db import models
 
-from ..cardapio.models import TipoAlimentacao
+from ..cardapio.base.models import TipoAlimentacao
 from ..dados_comuns.behaviors import (
     ArquivoCargaBase,
     CriadoPor,
