@@ -288,20 +288,65 @@ def arquivo_carga_alimentos_com_informacoes(
     arquivo_carga_alimentos_e_substitutos, alimentos, alimentos_substitutivos
 ):
     cabecalho = ["nome"]
-    alimentos = [alimento.nome for alimento in alimentos] + ["FARINHA DE TRIGO"]
-    substitutos = [alimento.nome for alimento in alimentos_substitutivos] + [
-        "FARINHA DE MILHO"
-    ]
     wb = Workbook()
 
     ws1 = wb.active
     ws1.title = "Aba1"
     ws1.append(cabecalho)
-    ws1.append(alimentos)
+    for alimento in alimentos:
+        ws1.append([alimento.nome])
+    ws1.append(["FARINHA DE TRIGO"])
 
     ws2 = wb.create_sheet("Aba2")
     ws2.append(cabecalho)
-    ws2.append(substitutos)
+    for alimento in alimentos_substitutivos:
+        ws2.append([alimento.nome])
+    ws2.append(["FARINHA DE MILHO"])
+
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+
+    arquivo = SimpleUploadedFile(
+        name=f"{uuid.uuid4()}.xlsx",
+        content=buffer.read(),
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    arquivo_carga_alimentos_e_substitutos.conteudo = arquivo
+    arquivo_carga_alimentos_e_substitutos.save()
+    return arquivo_carga_alimentos_e_substitutos
+
+
+@pytest.fixture
+def arquivo_alimentos_abas_incorreta(arquivo_carga_alimentos_e_substitutos):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Aba1"
+    ws.append(["A", "B"])
+    ws.append(["Arroz", "Feijão"])
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+    arquivo = SimpleUploadedFile(
+        name=f"{uuid.uuid4()}.xlsx",
+        content=buffer.read(),
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    arquivo_carga_alimentos_e_substitutos.conteudo = arquivo
+    arquivo_carga_alimentos_e_substitutos.save()
+    return arquivo_carga_alimentos_e_substitutos
+
+    cabecalho = ["123456"]
+    wb = Workbook()
+
+    ws1 = wb.active
+    ws1.title = "Aba1"
+    ws1.append(cabecalho)
+    ws1.append(["Arroz"])
+
+    ws2 = wb.create_sheet("Aba2")
+    ws2.append(cabecalho)
+    ws2.append(["lentilha"])
 
     buffer = BytesIO()
     wb.save(buffer)
