@@ -651,6 +651,7 @@ def relatorio_dieta_especial_protocolo(request, solicitacao):
                 status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU
             ),
             "foto_aluno": solicitacao.aluno.foto_aluno_base64,
+            "eh_dieta_especial": True,
             "eh_protocolo_dieta_especial": solicitacao.tipo_solicitacao
             == "ALTERACAO_UE",
             "motivo": (
