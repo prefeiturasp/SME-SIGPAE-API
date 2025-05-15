@@ -6,7 +6,9 @@ from workalendar.america import BrazilSaoPauloCity
 
 from sme_sigpae_api.dados_comuns.utils import get_ultimo_dia_mes
 
-from ..cardapio.models import VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar
+from ..cardapio.base.models import (
+    VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
+)
 from ..dieta_especial.models import (
     ClassificacaoDieta,
     LogQuantidadeDietasAutorizadas,

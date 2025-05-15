@@ -8,12 +8,10 @@ from django_prometheus.models import ExportModelOperationsMixin
 
 from sme_sigpae_api.dieta_especial.managers import EditalManager
 
-from ..cardapio.models import (
-    AlteracaoCardapio,
-    AlteracaoCardapioCEI,
-    GrupoSuspensaoAlimentacao,
-    InversaoCardapio,
-)
+from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
+from ..cardapio.alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
+from ..cardapio.inversao_dia_cardapio.models import InversaoCardapio
+from ..cardapio.suspensao_alimentacao.models import GrupoSuspensaoAlimentacao
 from ..dados_comuns.behaviors import (
     Ativavel,
     IntervaloDeDia,

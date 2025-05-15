@@ -5,7 +5,7 @@ import unicodedata
 from dateutil.relativedelta import relativedelta
 from django.db.models import Q
 
-from sme_sigpae_api.cardapio.models import (
+from sme_sigpae_api.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from sme_sigpae_api.dados_comuns.utils import get_ultimo_dia_mes

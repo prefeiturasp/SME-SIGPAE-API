@@ -5,12 +5,12 @@ from django import template
 from django.db.models import QuerySet
 from django.template import base as template_base
 
-from sme_sigpae_api.cardapio.models import (
+from sme_sigpae_api.dados_comuns.utils import numero_com_agrupador_de_milhar_e_decimal
+
+from ...cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
 )
-from sme_sigpae_api.dados_comuns.utils import numero_com_agrupador_de_milhar_e_decimal
-
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...dados_comuns.models import LogSolicitacoesUsuario

@@ -3,7 +3,7 @@ import datetime
 
 from rest_framework import serializers
 
-from sme_sigpae_api.cardapio.models import TipoAlimentacao
+from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
 from sme_sigpae_api.dados_comuns.utils import convert_base64_to_contentfile
 from sme_sigpae_api.escola.models import Escola
 from sme_sigpae_api.imr.models import (

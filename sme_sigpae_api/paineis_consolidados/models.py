@@ -5,22 +5,26 @@ import operator
 from django.db import models
 from django.db.models import Q
 
-from ..cardapio.api.serializers.serializers import (
-    AlteracaoCardapioCEISerializer,
-    AlteracaoCardapioCEMEISerializer,
+from ..cardapio.alteracao_tipo_alimentacao.api.serializers import (
     AlteracaoCardapioSerializer,
+)
+from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
+from ..cardapio.alteracao_tipo_alimentacao_cei.api.serializers import (
+    AlteracaoCardapioCEISerializer,
+)
+from ..cardapio.alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
+from ..cardapio.alteracao_tipo_alimentacao_cemei.api.serializers import (
+    AlteracaoCardapioCEMEISerializer,
+)
+from ..cardapio.alteracao_tipo_alimentacao_cemei.models import AlteracaoCardapioCEMEI
+from ..cardapio.inversao_dia_cardapio.api.serializers import InversaoCardapioSerializer
+from ..cardapio.inversao_dia_cardapio.models import InversaoCardapio
+from ..cardapio.suspensao_alimentacao.api.serializers import (
     GrupoSuspensaoAlimentacaoSerializer,
-    InversaoCardapioSerializer,
     SuspensaoAlimentacaoDaCEISerializer,
 )
-from ..cardapio.models import (
-    AlteracaoCardapio,
-    AlteracaoCardapioCEI,
-    AlteracaoCardapioCEMEI,
-    GrupoSuspensaoAlimentacao,
-    InversaoCardapio,
-    SuspensaoAlimentacaoDaCEI,
-)
+from ..cardapio.suspensao_alimentacao.models import GrupoSuspensaoAlimentacao
+from ..cardapio.suspensao_alimentacao_cei.models import SuspensaoAlimentacaoDaCEI
 from ..dados_comuns.behaviors import TemIdentificadorExternoAmigavel, TemPrioridade
 from ..dados_comuns.constants import DAQUI_A_SETE_DIAS, DAQUI_A_TRINTA_DIAS
 from ..dados_comuns.fluxo_status import (

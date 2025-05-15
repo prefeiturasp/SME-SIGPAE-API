@@ -5,12 +5,8 @@ from freezegun import freeze_time
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from sme_sigpae_api.cardapio.models import (
-    AlteracaoCardapio,
-    AlteracaoCardapioCEI,
-    SubstituicaoAlimentacaoNoPeriodoEscolar,
-)
-
+from ...cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
+from ...cardapio.alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
 from ..validators import (
     campo_deve_ser_deste_tipo,
     campo_nao_pode_ser_nulo,

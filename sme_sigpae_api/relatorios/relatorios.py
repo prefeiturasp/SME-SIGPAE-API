@@ -8,7 +8,9 @@ from django.template.loader import get_template, render_to_string
 
 from sme_sigpae_api.paineis_consolidados.models import MoldeConsolidado
 
-from ..cardapio.models import VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar
+from ..cardapio.base.models import (
+    VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
+)
 from ..dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ..dados_comuns.fluxo_status import GuiaRemessaWorkFlow as GuiaStatus
 from ..dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
