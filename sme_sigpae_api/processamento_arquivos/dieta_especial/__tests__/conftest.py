@@ -1,6 +1,5 @@
 import uuid
 from io import BytesIO
-from pathlib import Path
 
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -52,6 +51,7 @@ def escola():
     return mommy.make(
         "escola.Escola",
         codigo_codae="12345678",
+        codigo_eol="654321",
         lote=mommy.make("Lote", terceirizada=mommy.make("Terceirizada")),
     )
 
@@ -133,6 +133,16 @@ def dieta_especial_ativa(solicitacao_dieta_especial):
 @pytest.fixture
 def usuario():
     return mommy.make("perfil.Usuario")
+
+
+@pytest.fixture
+def usuario_diretor():
+    return mommy.make("perfil.Usuario")
+
+
+@pytest.fixture
+def perfil_diretor():
+    return mommy.make("perfil.perfil", nome="DIRETOR")
 
 
 @pytest.fixture
@@ -336,27 +346,109 @@ def arquivo_alimentos_abas_incorreta(arquivo_carga_alimentos_e_substitutos):
     arquivo_carga_alimentos_e_substitutos.save()
     return arquivo_carga_alimentos_e_substitutos
 
-    cabecalho = ["123456"]
+
+@pytest.fixture
+def dados_planilha_valida(escola):
+    return {
+        "dre": "DRE Teste",
+        "unidade_escola": "Escola Teste",
+        "codigo_eol_escola": escola.codigo_eol,
+        "nome_diretor": "Diretor Teste",
+        "rg_diretor": "12345678",
+        "rf_diretor": "1234567",
+        "cpf_diretor": "12345678901",
+        "email_diretor": "diretor@teste.com",
+        "telefone_diretor": "11999999999",
+        "nome_assistente": "Assistente Teste",
+        "rg_assistente": "87654321",
+        "rf_assistente": "4710987",
+        "cpf_assistente": "10987654321",
+        "email_assistente": "assistenter@email",
+        "telefone_assistente": "11888888888",
+    }
+
+
+@pytest.fixture
+def dados_planilha_invalida(escola, usuario_diretor):
+    return {
+        "dre": "DRE Teste",
+        "unidade_escola": "Escola Teste",
+        "codigo_eol_escola": escola.codigo_codae,
+        "nome_diretor": "Diretor Teste",
+        "rg_diretor": "12345678",
+        "rf_diretor": "1234567",
+        "cpf_diretor": "12345678901",
+        "email_diretor": "diretor@teste.com",
+        "telefone_diretor": "11999999999",
+        "nome_assistente": "Assistente Teste",
+        "rg_assistente": "87654321",
+        "rf_assistente": usuario_diretor.registro_funcional,
+        "cpf_assistente": "10987654321",
+        "email_assistente": usuario_diretor.email,
+        "telefone_assistente": "11888888888",
+    }
+
+
+@pytest.fixture
+def linha_planilha_valida(dados_planilha_valida):
+    colunas = [
+        "dre",
+        "unidade_escola",
+        "codigo_eol_escola",
+        "nome_diretor",
+        "rg_diretor",
+        "rf_diretor",
+        "cpf_diretor",
+        "email_diretor",
+        "telefone_diretor",
+        "nome_assistente",
+        "rg_assistente",
+        "rf_assistente",
+        "cpf_assistente",
+        "email_assistente",
+        "telefone_assistente",
+    ]
+    valores = [dados_planilha_valida[col] for col in colunas]
+    return tuple(Cell(worksheet=None, value=valor) for valor in valores)
+
+
+@pytest.fixture
+def arquivo_carga_usuario_escola_com_informacoes(
+    arquivo_carga_usuarios_escola, dados_planilha_valida
+):
     wb = Workbook()
+    ws = wb.active
+    cabecalho = [
+        "dre",
+        "unidade_escola",
+        "codigo_eol_escola",
+        "nome_diretor",
+        "rg_diretor",
+        "rf_diretor",
+        "cpf_diretor",
+        "email_diretor",
+        "telefone_diretor",
+        "nome_assistente",
+        "rg_assistente",
+        "rf_assistente",
+        "cpf_assistente",
+        "email_assistente",
+        "telefone_assistente",
+    ]
+    ws.append(cabecalho)
 
-    ws1 = wb.active
-    ws1.title = "Aba1"
-    ws1.append(cabecalho)
-    ws1.append(["Arroz"])
-
-    ws2 = wb.create_sheet("Aba2")
-    ws2.append(cabecalho)
-    ws2.append(["lentilha"])
-
+    # Dados na mesma ordem
+    dados = [dados_planilha_valida[col] for col in cabecalho]
+    ws.append(dados)
     buffer = BytesIO()
     wb.save(buffer)
     buffer.seek(0)
 
     arquivo = SimpleUploadedFile(
-        name=f"{uuid.uuid4()}.xlsx",
+        name="teste_valido.xlsx",
         content=buffer.read(),
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
-    arquivo_carga_alimentos_e_substitutos.conteudo = arquivo
-    arquivo_carga_alimentos_e_substitutos.save()
-    return arquivo_carga_alimentos_e_substitutos
+    arquivo_carga_usuarios_escola.conteudo = arquivo
+    arquivo_carga_usuarios_escola.save()
+    return arquivo_carga_usuarios_escola
