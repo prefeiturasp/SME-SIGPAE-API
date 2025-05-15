@@ -190,16 +190,22 @@ def test_url_endpoint_alt_card_codae_questiona(
     observacao_questionamento_codae = "VAI_DAR?"
     response = client_autenticado_vinculo_codae_cardapio.patch(
         f"/{ENDPOINT_ALTERACAO_CARD}/{alteracao_cardapio_dre_validado.uuid}/{constants.CODAE_QUESTIONA_PEDIDO}/",
-        data={"observacao_questionamento_codae": observacao_questionamento_codae},
+        data=json.dumps(
+            {"observacao_questionamento_codae": observacao_questionamento_codae}
+        ),
+        content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
-    json = response.json()
-    assert json["logs"][0]["justificativa"] == observacao_questionamento_codae
-    assert json["status"] == PedidoAPartirDaEscolaWorkflow.CODAE_QUESTIONADO
-    assert str(json["uuid"]) == str(alteracao_cardapio_dre_validado.uuid)
+    json_ = response.json()
+    assert json_["logs"][0]["justificativa"] == observacao_questionamento_codae
+    assert json_["status"] == PedidoAPartirDaEscolaWorkflow.CODAE_QUESTIONADO
+    assert str(json_["uuid"]) == str(alteracao_cardapio_dre_validado.uuid)
     response = client_autenticado_vinculo_codae_cardapio.patch(
         f"/{ENDPOINT_ALTERACAO_CARD}/{alteracao_cardapio_dre_validado.uuid}/{constants.CODAE_QUESTIONA_PEDIDO}/",
-        data={"observacao_questionamento_codae": observacao_questionamento_codae},
+        data=json.dumps(
+            {"observacao_questionamento_codae": observacao_questionamento_codae}
+        ),
+        content_type="application/json",
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {
@@ -223,6 +229,7 @@ def test_url_endpoint_alt_card_terceirizada_responde_questionamento(
         f"{alteracao_cardapio_codae_questionado.uuid}/"
         f"{constants.TERCEIRIZADA_RESPONDE_QUESTIONAMENTO}/",
         data={"justificativa": justificativa, "resposta_sim_nao": resposta_sim_nao},
+        content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
     json = response.json()
@@ -237,6 +244,7 @@ def test_url_endpoint_alt_card_terceirizada_responde_questionamento(
         f"{alteracao_cardapio_codae_questionado.uuid}/"
         f"{constants.TERCEIRIZADA_RESPONDE_QUESTIONAMENTO}/",
         data={"justificativa": justificativa, "resposta_sim_nao": resposta_sim_nao},
+        content_type="application/json",
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {

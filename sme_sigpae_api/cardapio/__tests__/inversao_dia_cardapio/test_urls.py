@@ -294,6 +294,7 @@ def test_url_endpoint_solicitacoes_inversao_terceirizada_responde_questionamento
         f"{inversao_dia_cardapio_codae_questionado.uuid}/"
         f"{constants.TERCEIRIZADA_RESPONDE_QUESTIONAMENTO}/",
         data={"justificativa": justificativa, "resposta_sim_nao": resposta},
+        content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
     json = response.json()
@@ -313,6 +314,7 @@ def test_url_endpoint_solicitacoes_inversao_terceirizada_responde_questionamento
         f"{inversao_dia_cardapio_codae_questionado.uuid}/"
         f"{constants.TERCEIRIZADA_RESPONDE_QUESTIONAMENTO}/",
         data={"justificativa": justificativa, "resposta_sim_nao": resposta},
+        content_type="application/json",
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     detail = "Erro de transição de estado: Transition 'terceirizada_responde_questionamento' isn't available from state 'TERCEIRIZADA_RESPONDEU_QUESTIONAMENTO'."
