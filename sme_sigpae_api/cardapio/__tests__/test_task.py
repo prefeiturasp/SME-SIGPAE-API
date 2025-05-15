@@ -1,6 +1,6 @@
 import pytest
 
-from sme_sigpae_api.cardapio.models import (
+from sme_sigpae_api.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from sme_sigpae_api.cardapio.tasks import (

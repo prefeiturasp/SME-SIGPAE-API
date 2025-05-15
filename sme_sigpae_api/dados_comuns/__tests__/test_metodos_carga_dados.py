@@ -1,13 +1,15 @@
 import pytest
 
-from sme_sigpae_api.cardapio.models import (
-    ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
     MotivoAlteracaoCardapio,
-    MotivoSuspensao,
+)
+from sme_sigpae_api.cardapio.base.models import (
+    ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from sme_sigpae_api.cardapio.suspensao_alimentacao.models import MotivoSuspensao
 from sme_sigpae_api.dados_comuns.models import Contato, TemplateMensagem
 from sme_sigpae_api.dieta_especial.models import (
     AlergiaIntolerancia,

@@ -8,16 +8,17 @@ import numpy as np
 from faker import Faker
 from xworkflows import InvalidTransitionError
 
-from sme_sigpae_api.cardapio.models import (
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
     AlteracaoCardapio,
-    Cardapio,
-    GrupoSuspensaoAlimentacao,
-    InversaoCardapio,
     MotivoAlteracaoCardapio,
+)
+from sme_sigpae_api.cardapio.base.models import Cardapio, TipoAlimentacao
+from sme_sigpae_api.cardapio.inversao_dia_cardapio.models import InversaoCardapio
+from sme_sigpae_api.cardapio.suspensao_alimentacao.models import (
+    GrupoSuspensaoAlimentacao,
     MotivoSuspensao,
     QuantidadePorPeriodoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
-    TipoAlimentacao,
 )
 from sme_sigpae_api.escola.models import DiretoriaRegional, Escola, PeriodoEscolar
 from sme_sigpae_api.inclusao_alimentacao.models import (

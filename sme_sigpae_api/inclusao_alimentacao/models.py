@@ -3,7 +3,9 @@ from django.db import models
 from django.db.models import Q, Sum
 from django_prometheus.models import ExportModelOperationsMixin
 
-from ..cardapio.models import VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar
+from ..cardapio.base.models import (
+    VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
+)
 from ..dados_comuns.behaviors import (
     CanceladoIndividualmente,
     CriadoEm,

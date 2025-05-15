@@ -6,7 +6,7 @@ import random
 
 from faker import Faker
 
-from sme_sigpae_api.cardapio.models import Cardapio, TipoAlimentacao
+from sme_sigpae_api.cardapio.base.models import Cardapio, TipoAlimentacao
 from sme_sigpae_api.dados_comuns.utils import eh_dia_util
 from sme_sigpae_api.escola.models import TipoUnidadeEscolar
 from sme_sigpae_api.terceirizada.models import Edital
