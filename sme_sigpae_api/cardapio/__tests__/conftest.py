@@ -12,8 +12,6 @@ from ...dados_comuns.fluxo_status import (
 )
 from ...dados_comuns.models import TemplateMensagem
 from ..alteracao_tipo_alimentacao.api.serializers import (
-    AlteracaoCardapioSerializer,
-    MotivoAlteracaoCardapioSerializer,
     SubstituicoesAlimentacaoNoPeriodoEscolarSerializer,
 )
 from ..alteracao_tipo_alimentacao.models import (
@@ -29,7 +27,6 @@ from ..alteracao_tipo_alimentacao_cemei.models import (
 )
 from ..inversao_dia_cardapio.api.serializers import InversaoCardapioSerializer
 from ..inversao_dia_cardapio.models import InversaoCardapio
-from ..suspensao_alimentacao.api.serializers import SuspensaoAlimentacaoSerializer
 from ..suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
     MotivoSuspensao,
