@@ -3,37 +3,18 @@ import datetime
 import pytest
 from faker import Faker
 from model_mommy import mommy
-from rest_framework.test import APIClient
 
-from ...dados_comuns import constants
-from ...dados_comuns.fluxo_status import (
-    InformativoPartindoDaEscolaWorkflow,
-    PedidoAPartirDaEscolaWorkflow,
-)
-from ...dados_comuns.models import TemplateMensagem
-from ..alteracao_tipo_alimentacao.api.serializers import (
-    SubstituicoesAlimentacaoNoPeriodoEscolarSerializer,
-)
-from ..alteracao_tipo_alimentacao.models import (
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
     AlteracaoCardapio,
     MotivoAlteracaoCardapio,
-    SubstituicaoAlimentacaoNoPeriodoEscolar,
 )
-from ..alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
-from ..alteracao_tipo_alimentacao_cemei.models import (
-    AlteracaoCardapioCEMEI,
-    FaixaEtariaSubstituicaoAlimentacaoCEMEICEI,
-    SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI,
-)
-from ..inversao_dia_cardapio.api.serializers import InversaoCardapioSerializer
-from ..inversao_dia_cardapio.models import InversaoCardapio
-from ..suspensao_alimentacao.models import (
+from sme_sigpae_api.cardapio.inversao_dia_cardapio.models import InversaoCardapio
+from sme_sigpae_api.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
-    MotivoSuspensao,
-    SuspensaoAlimentacao,
-    SuspensaoAlimentacaoNoPeriodoEscolar,
 )
-from ..suspensao_alimentacao_cei.models import SuspensaoAlimentacaoDaCEI
+from sme_sigpae_api.dados_comuns import constants
+from sme_sigpae_api.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
+from sme_sigpae_api.dados_comuns.models import TemplateMensagem
 
 fake = Faker("pt_BR")
 Faker.seed(420)

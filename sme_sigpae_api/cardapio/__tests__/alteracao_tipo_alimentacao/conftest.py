@@ -13,7 +13,6 @@ from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
     SubstituicaoAlimentacaoNoPeriodoEscolar,
 )
 from sme_sigpae_api.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
-from sme_sigpae_api.dados_comuns.models import TemplateMensagem
 
 
 @pytest.fixture(
