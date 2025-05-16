@@ -69,7 +69,7 @@ django-cors-headers="==3.10.1"   # https://pypi.org/project/django-cors-headers/
 django-sequences="==2.8"  # https://pypi.org/project/django-sequences/
 django-multiselectfield="==0.1.13" # https://github.com/goinnn/django-multiselectfield
 django-celery-beat="==2.8.0"  # https://github.com/celery/django-celery-beat
-django-admin-rangefilter="==0.9.0" # https://github.com/silentsokolov/django-admin-rangefilter
+django-admin-rangefilter="==0.13.2" # https://github.com/silentsokolov/django-admin-rangefilter
 django-nested-inline="==0.4.6"
 # Django REST Framework
 # ------------------------------------------------------------------------------
