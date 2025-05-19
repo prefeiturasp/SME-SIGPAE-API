@@ -8,7 +8,9 @@ from django.template.loader import get_template, render_to_string
 
 from sme_sigpae_api.paineis_consolidados.models import MoldeConsolidado
 
-from ..cardapio.models import VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar
+from ..cardapio.base.models import (
+    VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
+)
 from ..dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ..dados_comuns.fluxo_status import GuiaRemessaWorkFlow as GuiaStatus
 from ..dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
@@ -649,6 +651,7 @@ def relatorio_dieta_especial_protocolo(request, solicitacao):
                 status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU
             ),
             "foto_aluno": solicitacao.aluno.foto_aluno_base64,
+            "eh_dieta_especial": True,
             "eh_protocolo_dieta_especial": solicitacao.tipo_solicitacao
             == "ALTERACAO_UE",
             "motivo": (

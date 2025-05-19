@@ -3518,7 +3518,7 @@ def test_url_ficha_tecnica_correcao_fornecedor(
     assert response.status_code == status.HTTP_200_OK
     assert ficha.status == FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE
     assert ficha.analises.last().armazenamento_conferido is None
-    assert analise.armazenamento_correcoes is not ""
+    assert analise.armazenamento_correcoes != ""
 
 
 def test_url_ficha_tecnica_correcao_fornecedor_validate_status(

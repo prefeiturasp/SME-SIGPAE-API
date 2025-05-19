@@ -3,7 +3,7 @@ from django.db.models import Q
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from ...cardapio.models import TipoAlimentacao
+from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns.api.serializers import ContatoSerializer, EnderecoSerializer
 from ...paineis_consolidados import models
 from ...perfil.api.serializers import PerfilSimplesSerializer, UsuarioSerializer
@@ -832,10 +832,6 @@ class AlunosMatriculadosPeriodoEscolaCompletoSerializer(serializers.ModelSeriali
     def get_alunos_por_faixa_etaria(self, obj):
         try:
             periodos_faixas = obj.escola.matriculados_por_periodo_e_faixa_etaria()
-            if obj.periodo_escolar.nome == "MANHA":
-                return periodos_faixas["MANHÃ"]
-            if obj.periodo_escolar.nome == "INTERMEDIARIO":
-                return periodos_faixas["INTERMEDIÁRIO"]
             return periodos_faixas[obj.periodo_escolar.nome]
         except Exception:
             return None

@@ -6,14 +6,16 @@ from django.db import models
 from rest_framework import serializers
 from workalendar.america import BrazilSaoPauloCity
 
-from ..cardapio.models import (
+from ..cardapio.alteracao_tipo_alimentacao.models import (
     AlteracaoCardapio,
-    AlteracaoCardapioCEI,
-    AlteracaoCardapioCEMEI,
     DataIntervaloAlteracaoCardapio,
     SubstituicaoAlimentacaoNoPeriodoEscolar,
+)
+from ..cardapio.alteracao_tipo_alimentacao_cei.models import (
+    AlteracaoCardapioCEI,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEI,
 )
+from ..cardapio.alteracao_tipo_alimentacao_cemei.models import AlteracaoCardapioCEMEI
 from .constants import obter_dias_uteis_apos_hoje
 from .utils import datetime_range, eh_dia_util
 

@@ -27,7 +27,9 @@ from django.core.mail import (
     send_mail,
 )
 from django.db.models import QuerySet
+from django.http import QueryDict
 from django.template.loader import render_to_string
+from django_celery_beat.schedulers import DatabaseScheduler
 from workalendar.america import BrazilSaoPauloCity
 
 from config.settings.base import URL_CONFIGS
@@ -335,44 +337,44 @@ def build_xlsx_generico(
 
     import pandas as pd
 
-    xlwriter = pd.ExcelWriter(output, engine="xlsxwriter")
+    with pd.ExcelWriter(output, engine="xlsxwriter") as xlwriter:
+        df = pd.DataFrame(queryset_serializada)
 
-    df = pd.DataFrame(queryset_serializada)
+        # Adiciona linhas em branco no comeco do arquivo
+        df_auxiliar = pd.DataFrame([[np.nan] * len(df.columns)], columns=df.columns)
+        df = pd.concat([df_auxiliar, df], ignore_index=True)
+        df = pd.concat([df_auxiliar, df], ignore_index=True)
+        df = pd.concat([df_auxiliar, df], ignore_index=True)
 
-    # Adiciona linhas em branco no comeco do arquivo
-    df_auxiliar = pd.DataFrame([[np.nan] * len(df.columns)], columns=df.columns)
-    df = df_auxiliar.append(df, ignore_index=True)
-    df = df_auxiliar.append(df, ignore_index=True)
-    df = df_auxiliar.append(df, ignore_index=True)
+        df.to_excel(xlwriter, titulo_sheet)
+        workbook = xlwriter.book
+        worksheet = xlwriter.sheets[titulo_sheet]
+        worksheet.set_row(LINHA_0, ALTURA_COLUNA_50)
+        worksheet.set_row(LINHA_1, ALTURA_COLUNA_30)
+        worksheet.set_column("B:H", ALTURA_COLUNA_30)
+        merge_format = workbook.add_format(
+            {"align": "center", "bg_color": "#a9d18e", "border_color": "#198459"}
+        )
+        merge_format.set_align("vcenter")
+        merge_format.set_bold()
+        cell_format = workbook.add_format()
+        cell_format.set_text_wrap()
+        cell_format.set_align("vcenter")
+        cell_format.set_bold()
+        v_center_format = workbook.add_format()
+        v_center_format.set_align("vcenter")
+        single_cell_format = workbook.add_format({"bg_color": "#a9d18e"})
+        len_cols = len(df.columns)
+        worksheet.merge_range(0, 0, 0, len_cols, titulo, merge_format)
 
-    df.to_excel(xlwriter, titulo_sheet)
-    workbook = xlwriter.book
-    worksheet = xlwriter.sheets[titulo_sheet]
-    worksheet.set_row(LINHA_0, ALTURA_COLUNA_50)
-    worksheet.set_row(LINHA_1, ALTURA_COLUNA_30)
-    worksheet.set_column("B:H", ALTURA_COLUNA_30)
-    merge_format = workbook.add_format(
-        {"align": "center", "bg_color": "#a9d18e", "border_color": "#198459"}
-    )
-    merge_format.set_align("vcenter")
-    merge_format.set_bold()
-    cell_format = workbook.add_format()
-    cell_format.set_text_wrap()
-    cell_format.set_align("vcenter")
-    cell_format.set_bold()
-    v_center_format = workbook.add_format()
-    v_center_format.set_align("vcenter")
-    single_cell_format = workbook.add_format({"bg_color": "#a9d18e"})
-    len_cols = len(df.columns)
-    worksheet.merge_range(0, 0, 0, len_cols, titulo, merge_format)
+        worksheet.merge_range(LINHA_1, 0, LINHA_2, len_cols, subtitulo, cell_format)
+        worksheet.insert_image(
+            "A1", "sme_sigpae_api/static/images/logo-sigpae-light.png"
+        )
+        for index, titulo_coluna in enumerate(titulos_colunas, start=1):
+            worksheet.write(LINHA_3, index, titulo_coluna, single_cell_format)
 
-    worksheet.merge_range(LINHA_1, 0, LINHA_2, len_cols, subtitulo, cell_format)
-    worksheet.insert_image("A1", "sme_sigpae_api/static/images/logo-sigpae-light.png")
-    for index, titulo_coluna in enumerate(titulos_colunas, start=1):
-        worksheet.write(LINHA_3, index, titulo_coluna, single_cell_format)
-
-    df.reset_index(drop=True, inplace=True)
-    xlwriter.save()
+        df.reset_index(drop=True, inplace=True)
     output.seek(0)
 
 
@@ -760,6 +762,26 @@ def remove_duplicados_do_query_set(query_set: QuerySet | list) -> list:
     ]
 
 
+def convert_dict_to_querydict(dict_: dict) -> QueryDict:
+    query_dict = QueryDict("", mutable=True)
+    for key, value in dict_.items():
+        if isinstance(value, list):
+            for item in value:
+                query_dict.update({key: item})
+        else:
+            query_dict[key] = value
+    return query_dict
+
+
 def quantidade_meses(d1, d2):
     delta = relativedelta(d1, d2)
     return (delta.years * 12) + delta.months
+
+
+class NaiveDatabaseScheduler(DatabaseScheduler):
+    def get_excluded_hours_for_crontab_tasks(self):
+        from datetime import datetime
+
+        # Example: exclude current hour and next hour
+        current_hour = datetime.now().hour
+        return {current_hour, (current_hour + 1) % 24}

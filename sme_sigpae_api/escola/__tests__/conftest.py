@@ -9,7 +9,7 @@ from faker import Faker
 from freezegun import freeze_time
 from model_mommy import mommy
 
-from sme_sigpae_api.cardapio.models import AlteracaoCardapio
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from sme_sigpae_api.dados_comuns.constants import StatusProcessamentoArquivo
 from sme_sigpae_api.dados_comuns.fluxo_status import (
     HomologacaoProdutoWorkflow,

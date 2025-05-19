@@ -1,15 +1,14 @@
 import pytest
 
-from sme_sigpae_api.cardapio.api.serializers.serializers import (
+from sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers import (
     GrupoSuspensaoAlimentacaoSerializer,
 )
+from sme_sigpae_api.dados_comuns import constants
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.relatorios.templatetags.index import (
     existe_suspensoes_cancelada,
     suspensoes_canceladas,
 )
-
-from ...dados_comuns import constants
-from ...dados_comuns.models import LogSolicitacoesUsuario
 
 
 def test_aceita_nao_aceita_str():
