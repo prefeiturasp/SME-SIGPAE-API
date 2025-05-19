@@ -4,7 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-Werkzeug="==3.0.1"  # https://github.com/pallets/werkzeug
+Werkzeug="==3.1.3"  # https://github.com/pallets/werkzeug
 ipdb="==0.13.9"  # https://github.com/gotcha/ipdb
 Sphinx="==1.8.4"  # https://github.com/sphinx-doc/sphinx
 # Testing
@@ -32,7 +32,7 @@ django-coverage-plugin="==3.1.0"  # https://github.com/nedbat/django_coverage_pl
 flower = "==1.2.0"
 notebook = "==7.4.1"
 pre-commit = "==3.5.0"
-black = "==23.11.0"
+black = "==25.1.0"
 isort = "==5.12.0"
 flake8 = "==6.1.0"
 pip-audit = "==2.6.1"
@@ -45,7 +45,7 @@ pip-audit = "==2.6.1"
 # For production use you are advised to use the source distribution.
 # Ensure no binary package -> export PIP_NO_BINARY=:psycopg2:
 psycopg2="==2.9.10"  # https://github.com/psycopg/psycopg2
-requests="==2.31.0"
+requests="==2.32.3"
 celery = "==5.5.1"   # http://www.celeryproject.org
 pytz= "==2022.7"  # https://github.com/stub42/pytz
 python-slugify= "==8.0.1"  # https://github.com/un33k/python-slugify
@@ -59,7 +59,7 @@ numpy="==1.26.4" # https://github.com/numpy/numpy/
 XlsxWriter="==3.0.3" # https://github.com/jmcnamara/XlsxWriter
 # Django
 # ------------------------------------------------------------------------------
-django="==5.2"          # https://www.djangoproject.com/
+django="==5.2.1"          # https://www.djangoproject.com/
 django-environ="==0.4.5"  # https://github.com/joke2k/django-environ
 django-model-utils="==3.1.2"  # https://github.com/jazzband/django-model-utils
 django-redis="==5.4.0"  # https://github.com/niwinz/django-redis
@@ -74,13 +74,13 @@ django-nested-inline="==0.4.6"
 # Django REST Framework
 # ------------------------------------------------------------------------------
 djangorestframework="==3.16.0"  # https://github.com/encode/django-rest-framework
-djangorestframework-simplejwt="==5.3.1" # https://github.com/jazzband/djangorestframework-simplejwt
+djangorestframework-simplejwt="==5.5.0" # https://github.com/jazzband/djangorestframework-simplejwt
 workalendar="==17.0.0" # https://github.com/peopledoc/workalendar
 djangorestframework-xml = "==2.0.0"
 django-simple-email-confirmation = {editable = true, ref = "1.0", git = "https://github.com/kelwys/django-simple-email-confirmation.git"}
 # Produção
 gunicorn="==23.0.0"  # https://github.com/benoitc/gunicorn
-tornado="==6.3.3"    # http://www.tornadoweb.org/en/stable/
+tornado="==6.5"    # http://www.tornadoweb.org/en/stable/
 sentry-sdk = "==2.27.0"
 django-prometheus = "==2.3.1"
 # Relatórios
@@ -100,7 +100,7 @@ openpyxl = "==3.1.5"
 httpx = "*"
 pikepdf = "*"
 PyPDF4 = "*"
-pydantic = "==1.8.2"
+pydantic = "==2.11.4"
 python-magic = {version = "*", markers = "sys_platform == 'linux'"}
 python-magic-bin = {version = "==0.4.14", markers = "sys_platform == 'win32'"}
 Unidecode="==1.3.4"
@@ -112,6 +112,7 @@ daphne = "==4.1.0"
 drf-spectacular = "==0.28.0"
 cerberus = "*"
 coverage-badge = "==1.1.1"
+py = ">=1.11.1"
 
 [requires]
 python_version = "3.13.3"
