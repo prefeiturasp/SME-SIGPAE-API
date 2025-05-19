@@ -252,9 +252,17 @@ def _processa_dieta_especial(solicitacao, filtros, campo, periodo):
     if not medicoes.exists():
         return "-"
 
+    categorias = (
+        [
+            "DIETA ESPECIAL - TIPO A",
+            "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        ]
+        if periodo == "DIETA ESPECIAL - TIPO A"
+        else [periodo]
+    )
     total = 0.0
     for medicao in medicoes:
-        soma = _calcula_soma_medicao(medicao, campo, periodo)
+        soma = _calcula_soma_medicao(medicao, campo, categorias)
         if soma is not None:
             total += soma
 
@@ -269,18 +277,19 @@ def _processa_periodo_regular(solicitacao, filtros, campo, periodo):
             medicao, campo, solicitacao.escola.tipo_unidade.iniciais
         )
 
-    categoria = "ALIMENTAÇÃO"
-    if periodo == "Solicitações de Alimentação":
-        categoria = periodo.upper()
-
-    soma = _calcula_soma_medicao(medicao, campo, categoria)
+    categorias = (
+        [periodo.upper()]
+        if periodo == "Solicitações de Alimentação"
+        else ["ALIMENTAÇÃO"]
+    )
+    soma = _calcula_soma_medicao(medicao, campo, categorias)
     return soma if soma is not None else "-"
 
 
-def _calcula_soma_medicao(medicao, campo, categoria):
+def _calcula_soma_medicao(medicao, campo, categorias):
     return (
         medicao.valores_medicao.filter(
-            nome_campo=campo, categoria_medicao__nome=categoria
+            nome_campo=campo, categoria_medicao__nome__in=categorias
         )
         .annotate(valor_float=Cast("valor", output_field=FloatField()))
         .aggregate(total=Sum("valor_float"))["total"]
