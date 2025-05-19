@@ -837,3 +837,16 @@ def test_unificar_dietas_tipo_a_sem_dieta_principal():
         "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
     )
     assert len(resultado["DIETA ESPECIAL - TIPO A"]) == 3
+
+
+def test_unificar_dietas_tipo_a_sem_dietas_do_tipo_a():
+    dietas_alimentacoes = {
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+    }
+    resultado = _unificar_dietas_tipo_a(dietas_alimentacoes)
+    assert "DIETA ESPECIAL - TIPO A" not in resultado
+    assert "DIETA ESPECIAL - TIPO B" in resultado
+    assert (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+    )
+    assert len(resultado["DIETA ESPECIAL - TIPO B"]) == 2
