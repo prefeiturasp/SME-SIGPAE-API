@@ -23,6 +23,7 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef imp
     _sort_and_merge,
     _total_pagamento_emef,
     _total_pagamento_emei,
+    _unificar_dietas_tipo_a,
     _update_dietas_alimentacoes,
     _update_periodos_alimentacoes,
     ajusta_layout_tabela,
@@ -785,3 +786,54 @@ def test_total_pagamento_emei(relatorio_consolidado_xlsx_emei):
     assert total_refeicao == 150
     total_sobremesa = _total_pagamento_emei(medicao_manha, "total_sobremesas_pagamento")
     assert total_sobremesa == 150
+
+
+def test_unificar_dietas_tipo_a():
+    dietas_alimentacoes = {
+        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h"],
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": [
+            "lanche",
+            "lanche_4h",
+            "refeicao",
+        ],
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+    }
+    resultado = _unificar_dietas_tipo_a(dietas_alimentacoes)
+    assert "DIETA ESPECIAL - TIPO A" in resultado
+    assert "DIETA ESPECIAL - TIPO B" in resultado
+    assert (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+    )
+    assert len(resultado["DIETA ESPECIAL - TIPO A"]) == 5
+
+
+def test_unificar_dietas_tipo_a_sem_dieta_enteral():
+    dietas_alimentacoes = {
+        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h"],
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+    }
+    resultado = _unificar_dietas_tipo_a(dietas_alimentacoes)
+    assert "DIETA ESPECIAL - TIPO A" in resultado
+    assert "DIETA ESPECIAL - TIPO B" in resultado
+    assert (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+    )
+    assert len(resultado["DIETA ESPECIAL - TIPO A"]) == 2
+
+
+def test_unificar_dietas_tipo_a_sem_dieta_principal():
+    dietas_alimentacoes = {
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": [
+            "lanche",
+            "lanche_4h",
+            "refeicao",
+        ],
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+    }
+    resultado = _unificar_dietas_tipo_a(dietas_alimentacoes)
+    assert "DIETA ESPECIAL - TIPO A" in resultado
+    assert "DIETA ESPECIAL - TIPO B" in resultado
+    assert (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+    )
+    assert len(resultado["DIETA ESPECIAL - TIPO A"]) == 3
