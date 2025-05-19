@@ -1,7 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, validator
-from pydantic.functional_validators import model_validator
+from pydantic import BaseModel, root_validator, validator
 
 TAMANHO_CPF = 11
 TAMANHO_RF = 7
@@ -280,7 +279,7 @@ class ImportacaoPlanilhaUsuarioServidorCoreSSOSchema(BaseModel):
         value = value.upper().strip()
         return value
 
-    @model_validator(mode="after")
+    @root_validator
     def validate_codigo_eol(cls, values):
         if values["tipo_perfil"].upper() != "CODAE":
             if not values["codigo_eol"]:
@@ -385,7 +384,7 @@ class ImportacaoPlanilhaUsuarioUEParceiraCoreSSOSchema(BaseModel):
         value = value.upper().strip()
         return value
 
-    @model_validator(mode="after")
+    @root_validator
     def validate_codigo_eol(cls, values):
         if not values["codigo_eol"]:
             raise ValueError("Codigo EOL obrigatório")
