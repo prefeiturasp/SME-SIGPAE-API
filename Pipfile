@@ -35,7 +35,7 @@ pre-commit = "==3.5.0"
 black = "==25.1.0"
 isort = "==5.12.0"
 flake8 = "==6.1.0"
-pip-audit = "==2.6.1"
+pip-audit = "==2.9.0"
 
 [packages]
 # The psycopg2-binary package is meant for beginners to start playing with
@@ -112,7 +112,6 @@ daphne = "==4.1.0"
 drf-spectacular = "==0.28.0"
 cerberus = "*"
 coverage-badge = "==1.1.1"
-py = ">=1.11.1"
 
 [requires]
 python_version = "3.13.3"
