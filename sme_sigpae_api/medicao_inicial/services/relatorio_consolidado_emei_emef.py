@@ -37,6 +37,7 @@ def get_alimentacoes_por_periodo(solicitacoes):
                     dietas_alimentacoes, categoria, lista_alimentacoes_dietas
                 )
 
+    dietas_alimentacoes = _unificar_dietas_tipo_a(dietas_alimentacoes)
     dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
     columns = _generate_columns(dict_periodos_dietas)
 
@@ -127,6 +128,17 @@ def _update_dietas_alimentacoes(
             dietas_alimentacoes[categoria] += lista_alimentacoes_dietas
         else:
             dietas_alimentacoes[categoria] = lista_alimentacoes_dietas
+    return dietas_alimentacoes
+
+
+def _unificar_dietas_tipo_a(dietas_alimentacoes):
+    dieta_principal = "DIETA ESPECIAL - TIPO A"
+    dieta_alternativa = "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    valor_principal = dietas_alimentacoes.get(dieta_principal, [])
+    valor_alternativo = dietas_alimentacoes.get(dieta_alternativa, [])
+    if valor_alternativo:
+        dietas_alimentacoes[dieta_principal] = valor_principal + valor_alternativo
+        dietas_alimentacoes.pop(dieta_alternativa, None)
     return dietas_alimentacoes
 
 
