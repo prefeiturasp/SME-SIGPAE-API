@@ -38,18 +38,18 @@ pytestmark = pytest.mark.django_db
 def test_get_alimentacoes_por_periodo(relatorio_consolidado_xlsx_emef):
     colunas = get_alimentacoes_por_periodo([relatorio_consolidado_xlsx_emef])
     assert isinstance(colunas, list)
-    assert len(colunas) == 16
+    assert len(colunas) == 13
     assert sum(1 for tupla in colunas if tupla[0] == "MANHA") == 6
-    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A") == 4
-    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B") == 4
+    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A") == 3
+    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B") == 2
     assert sum(1 for tupla in colunas if tupla[0] == "Solicitações de Alimentação") == 2
 
     assert sum(1 for tupla in colunas if tupla[1] == "kit_lanche") == 1
     assert sum(1 for tupla in colunas if tupla[1] == "lanche_emergencial") == 1
     assert sum(1 for tupla in colunas if tupla[1] == "lanche") == 3
     assert sum(1 for tupla in colunas if tupla[1] == "lanche_4h") == 3
-    assert sum(1 for tupla in colunas if tupla[1] == "refeicao") == 3
-    assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 3
+    assert sum(1 for tupla in colunas if tupla[1] == "refeicao") == 2
+    assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 1
     assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 1
     assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 1
 
@@ -62,7 +62,7 @@ def test_get_valores_tabela_unidade_emef(relatorio_consolidado_xlsx_emef, mock_c
     assert isinstance(linhas, list)
     assert len(linhas) == 1
     assert isinstance(linhas[0], list)
-    assert len(linhas[0]) == 19
+    assert len(linhas[0]) == 16
     assert linhas[0] == [
         "EMEF",
         "123456",
@@ -75,14 +75,11 @@ def test_get_valores_tabela_unidade_emef(relatorio_consolidado_xlsx_emef, mock_c
         125,
         125.0,
         125,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
+        20.0,
+        20.0,
+        10.0,
+        10.0,
+        10.0,
     ]
 
 
@@ -94,7 +91,7 @@ def test_get_valores_tabela_unidade_emei(relatorio_consolidado_xlsx_emei, mock_c
     assert isinstance(linhas, list)
     assert len(linhas) == 1
     assert isinstance(linhas[0], list)
-    assert len(linhas[0]) == 19
+    assert len(linhas[0]) == 16
     assert linhas[0] == [
         "EMEI",
         "987654",
@@ -107,14 +104,11 @@ def test_get_valores_tabela_unidade_emei(relatorio_consolidado_xlsx_emei, mock_c
         150.0,
         150.0,
         150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
+        40.0,
+        40.0,
+        20.0,
+        20.0,
+        20.0,
     ]
 
 
@@ -126,10 +120,10 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
     df = insere_tabela_periodos_na_planilha(aba, mock_colunas, mock_linhas_emef, writer)
     assert isinstance(df, pd.DataFrame)
     colunas_df = df.columns.tolist()
-    assert len(colunas_df) == 19
+    assert len(colunas_df) == 16
     assert sum(1 for tupla in colunas_df if tupla[0] == "MANHA") == 6
-    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 4
-    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 4
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 3
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 2
     assert sum(1 for tupla in colunas_df if tupla[1] == "Tipo") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Cód. EOL") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
@@ -137,9 +131,9 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 3
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 2
     assert sum(1 for tupla in colunas_df if tupla[1] == "Refeições p/ Pagamento") == 1
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesas p/ Pagamento") == 1
 
     assert df.iloc[0].tolist() == [
@@ -154,14 +148,11 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
         125.0,
         125.0,
         125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
+        20.0,
+        20.0,
+        10.0,
+        10.0,
+        10.0,
     ]
     assert df.iloc[1].tolist() == [
         0.0,
@@ -175,14 +166,11 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
         125.0,
         125.0,
         125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
+        20.0,
+        20.0,
+        10.0,
+        10.0,
+        10.0,
     ]
 
 
@@ -194,10 +182,10 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
     df = insere_tabela_periodos_na_planilha(aba, mock_colunas, mock_linhas_emei, writer)
     assert isinstance(df, pd.DataFrame)
     colunas_df = df.columns.tolist()
-    assert len(colunas_df) == 19
+    assert len(colunas_df) == 16
     assert sum(1 for tupla in colunas_df if tupla[0] == "MANHA") == 6
-    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 4
-    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 4
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 3
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 2
     assert sum(1 for tupla in colunas_df if tupla[1] == "Tipo") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Cód. EOL") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
@@ -205,9 +193,9 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 3
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 2
     assert sum(1 for tupla in colunas_df if tupla[1] == "Refeições p/ Pagamento") == 1
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesas p/ Pagamento") == 1
 
     assert df.iloc[0].tolist() == [
@@ -222,14 +210,11 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
         150.0,
         150.0,
         150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
+        40.0,
+        40.0,
+        20.0,
+        20.0,
+        20.0,
     ]
     assert df.iloc[1].tolist() == [
         0.0,
@@ -243,14 +228,11 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
         150.0,
         150.0,
         150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
+        40.0,
+        40.0,
+        20.0,
+        20.0,
+        20.0,
     ]
 
 
@@ -262,7 +244,7 @@ def test_ajusta_layout_tabela(informacoes_excel_writer_emef):
     sheet = workbook_openpyxl[aba]
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 4
-    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3"}
+    esperados = {"A3:E3", "F3:K3", "L3:N3", "O3:P3"}
     assert {str(r) for r in merged_ranges} == esperados
 
     assert sheet["A3"].value is None
@@ -270,8 +252,8 @@ def test_ajusta_layout_tabela(informacoes_excel_writer_emef):
     assert sheet["F3"].fill.fgColor.rgb == "FF198459"
     assert sheet["L3"].value == "DIETA ESPECIAL - TIPO A"
     assert sheet["L3"].fill.fgColor.rgb == "FF198459"
-    assert sheet["P3"].value == "DIETA ESPECIAL - TIPO B"
-    assert sheet["P3"].fill.fgColor.rgb == "FF20AA73"
+    assert sheet["O3"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["O3"].fill.fgColor.rgb == "FF20AA73"
     workbook_openpyxl.close()
 
 
@@ -353,8 +335,12 @@ def test_get_categorias_dietas(relatorio_consolidado_xlsx_emef):
 
     categoria_manha = _get_categorias_dietas(medicao_manha)
     assert isinstance(categoria_manha, list)
-    assert len(categoria_manha) == 2
-    assert categoria_manha == ["DIETA ESPECIAL - TIPO A", "DIETA ESPECIAL - TIPO B"]
+    assert len(categoria_manha) == 3
+    assert categoria_manha == [
+        "DIETA ESPECIAL - TIPO A",
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        "DIETA ESPECIAL - TIPO B",
+    ]
 
     categoria_solicitacao = _get_categorias_dietas(medicao_solicitacao)
     assert isinstance(categoria_solicitacao, list)
@@ -367,23 +353,37 @@ def test_get_lista_alimentacoes_dietas(relatorio_consolidado_xlsx_emef):
     )
     medicao_manha = medicoes[0]
     dieta_a = "DIETA ESPECIAL - TIPO A"
+    dieta_a_enteral_restricao = (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    )
     dieta_b = "DIETA ESPECIAL - TIPO B"
 
     lista_dietas_a = _get_lista_alimentacoes_dietas(medicao_manha, dieta_a)
     assert isinstance(lista_dietas_a, list)
-    assert len(lista_dietas_a) == 4
-    assert lista_dietas_a == ["lanche", "lanche_4h", "refeicao", "sobremesa"]
+    assert len(lista_dietas_a) == 2
+    assert lista_dietas_a == ["lanche", "lanche_4h"]
+
+    lista_dietas_a_er = _get_lista_alimentacoes_dietas(
+        medicao_manha, dieta_a_enteral_restricao
+    )
+    assert isinstance(lista_dietas_a_er, list)
+    assert len(lista_dietas_a_er) == 3
+    assert lista_dietas_a_er == ["lanche", "lanche_4h", "refeicao"]
 
     lista_dietas_b = _get_lista_alimentacoes_dietas(medicao_manha, dieta_b)
     assert isinstance(lista_dietas_b, list)
-    assert len(lista_dietas_b) == 4
-    assert lista_dietas_b == ["lanche", "lanche_4h", "refeicao", "sobremesa"]
+    assert len(lista_dietas_b) == 2
+    assert lista_dietas_b == ["lanche", "lanche_4h"]
 
 
 def test_update_dietas_alimentacoes():
     categoria_a = "DIETA ESPECIAL - TIPO A"
+    categoria_a_enteral_restricao = (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    )
     categoria_b = "DIETA ESPECIAL - TIPO B"
-    lista_alimentacoes = ["lanche", "lanche_4h", "refeicao", "sobremesa"]
+
+    lista_alimentacoes = ["lanche", "lanche_4h"]
 
     dietas_alimentacoes = _update_dietas_alimentacoes(
         {}, categoria_a, lista_alimentacoes
@@ -399,6 +399,14 @@ def test_update_dietas_alimentacoes():
     assert categoria_b in dietas_alimentacoes.keys()
     assert dietas_alimentacoes[categoria_b] == lista_alimentacoes
 
+    lista_alimentacoes += ["refeicao"]
+    dietas_alimentacoes = _update_dietas_alimentacoes(
+        dietas_alimentacoes, categoria_a_enteral_restricao, lista_alimentacoes
+    )
+    assert isinstance(dietas_alimentacoes, dict)
+    assert categoria_a_enteral_restricao in dietas_alimentacoes.keys()
+    assert dietas_alimentacoes[categoria_a_enteral_restricao] == lista_alimentacoes
+
 
 def test_sort_and_merge():
     periodos_alimentacoes = {
@@ -413,29 +421,23 @@ def test_sort_and_merge():
         "Solicitações de Alimentação": ["kit_lanche", "lanche_emergencial"],
     }
     dietas_alimentacoes = {
-        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h", "refeicao", "sobremesa"],
-        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h", "refeicao", "sobremesa"],
+        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h", "refeicao"],
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
     }
     dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
     assert isinstance(dict_periodos_dietas, dict)
 
     assert "DIETA ESPECIAL - TIPO A" in dict_periodos_dietas
-    assert len(dict_periodos_dietas["DIETA ESPECIAL - TIPO A"]) == 4
+    assert len(dict_periodos_dietas["DIETA ESPECIAL - TIPO A"]) == 3
     assert dict_periodos_dietas["DIETA ESPECIAL - TIPO A"] == [
         "lanche",
         "lanche_4h",
         "refeicao",
-        "sobremesa",
     ]
 
     assert "DIETA ESPECIAL - TIPO B" in dict_periodos_dietas
-    assert len(dict_periodos_dietas["DIETA ESPECIAL - TIPO B"]) == 4
-    assert dict_periodos_dietas["DIETA ESPECIAL - TIPO B"] == [
-        "lanche",
-        "lanche_4h",
-        "refeicao",
-        "sobremesa",
-    ]
+    assert len(dict_periodos_dietas["DIETA ESPECIAL - TIPO B"]) == 2
+    assert dict_periodos_dietas["DIETA ESPECIAL - TIPO B"] == ["lanche", "lanche_4h"]
 
     assert "MANHA" in dict_periodos_dietas
     assert len(dict_periodos_dietas["MANHA"]) == 6
@@ -467,23 +469,23 @@ def test_generate_columns():
             "sobremesa",
             "total_sobremesas_pagamento",
         ],
-        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h", "refeicao", "sobremesa"],
-        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h", "refeicao", "sobremesa"],
+        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h", "refeicao"],
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
     }
     colunas = _generate_columns(dict_periodos_dietas)
     assert isinstance(colunas, list)
-    assert len(colunas) == 16
+    assert len(colunas) == 13
     assert sum(1 for tupla in colunas if tupla[0] == "MANHA") == 6
-    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A") == 4
-    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B") == 4
+    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A") == 3
+    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B") == 2
     assert sum(1 for tupla in colunas if tupla[0] == "Solicitações de Alimentação") == 2
 
     assert sum(1 for tupla in colunas if tupla[1] == "kit_lanche") == 1
     assert sum(1 for tupla in colunas if tupla[1] == "lanche_emergencial") == 1
     assert sum(1 for tupla in colunas if tupla[1] == "lanche") == 3
     assert sum(1 for tupla in colunas if tupla[1] == "lanche_4h") == 3
-    assert sum(1 for tupla in colunas if tupla[1] == "refeicao") == 3
-    assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 3
+    assert sum(1 for tupla in colunas if tupla[1] == "refeicao") == 2
+    assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 1
     assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 1
     assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 1
 
@@ -580,7 +582,7 @@ def test_processa_periodo_campo_unidade_emef(relatorio_consolidado_xlsx_emef):
     )
     assert isinstance(dieta_a_lanche, list)
     assert len(dieta_a_lanche) == 6
-    assert dieta_a_lanche == ["EMEF", "123456", "EMEF TESTE", 125.0, 10.0, 125.0]
+    assert dieta_a_lanche == ["EMEF", "123456", "EMEF TESTE", 125.0, 10.0, 20.0]
 
 
 def test_processa_periodo_campo_unidade_emei(relatorio_consolidado_xlsx_emei):
@@ -628,7 +630,7 @@ def test_processa_periodo_campo_unidade_emei(relatorio_consolidado_xlsx_emei):
     )
     assert isinstance(dieta_a_lanche, list)
     assert len(dieta_a_lanche) == 6
-    assert dieta_a_lanche == ["EMEI", "987654", "EMEI TESTE", 150.0, 5.0, 150.0]
+    assert dieta_a_lanche == ["EMEI", "987654", "EMEI TESTE", 150.0, 5.0, 40.0]
 
 
 def test_define_filtro(relatorio_consolidado_xlsx_emef):
@@ -716,7 +718,7 @@ def test_processa_dieta_especial(relatorio_consolidado_xlsx_emef):
     total = _processa_dieta_especial(
         relatorio_consolidado_xlsx_emef, filtros, campo, periodo
     )
-    assert total == 125.0
+    assert total == 20.0
 
 
 def test_processa_periodo_regular(relatorio_consolidado_xlsx_emef):
@@ -745,19 +747,22 @@ def test_calcula_soma_medicao(relatorio_consolidado_xlsx_emef):
     medicao_solicitacao = medicoes[1]
 
     campo = "refeicao"
-    categoria = "ALIMENTAÇÃO"
+    categoria = ["ALIMENTAÇÃO"]
     total = _calcula_soma_medicao(medicao_manha, campo, categoria)
     assert total == 125.0
 
     campo = "kit_lanche"
-    categoria = "SOLICITAÇÕES DE ALIMENTAÇÃO"
+    categoria = ["SOLICITAÇÕES DE ALIMENTAÇÃO"]
     total = _calcula_soma_medicao(medicao_solicitacao, campo, categoria)
     assert total == 10.0
 
     campo = "lanche_4h"
-    categoria = "DIETA ESPECIAL - TIPO A"
+    categoria = [
+        "DIETA ESPECIAL - TIPO A",
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+    ]
     total = _calcula_soma_medicao(medicao_manha, campo, categoria)
-    assert total == 125.0
+    assert total == 20.0
 
 
 def test_total_pagamento_emef(relatorio_consolidado_xlsx_emef):

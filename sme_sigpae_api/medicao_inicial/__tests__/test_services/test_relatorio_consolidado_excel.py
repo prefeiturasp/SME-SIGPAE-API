@@ -523,10 +523,10 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
     )
     assert isinstance(df, pd.DataFrame)
     colunas_df = df.columns.tolist()
-    assert len(colunas_df) == 19
+    assert len(colunas_df) == 16
     assert sum(1 for tupla in colunas_df if tupla[0] == "MANHA") == 6
-    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 4
-    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 4
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 3
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 2
     assert sum(1 for tupla in colunas_df if tupla[1] == "Tipo") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Cód. EOL") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
@@ -534,9 +534,9 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 3
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 2
     assert sum(1 for tupla in colunas_df if tupla[1] == "Refeições p/ Pagamento") == 1
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesas p/ Pagamento") == 1
 
     assert df.iloc[0].tolist() == [
@@ -551,14 +551,11 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
         125.0,
         125.0,
         125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
+        20.0,
+        20.0,
+        10.0,
+        10.0,
+        10.0,
     ]
     assert df.iloc[1].tolist() == [
         0.0,
@@ -572,14 +569,11 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
         125.0,
         125.0,
         125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
+        20.0,
+        20.0,
+        10.0,
+        10.0,
+        10.0,
     ]
 
 
@@ -593,10 +587,10 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
     )
     assert isinstance(df, pd.DataFrame)
     colunas_df = df.columns.tolist()
-    assert len(colunas_df) == 19
+    assert len(colunas_df) == 16
     assert sum(1 for tupla in colunas_df if tupla[0] == "MANHA") == 6
-    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 4
-    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 4
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 3
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 2
     assert sum(1 for tupla in colunas_df if tupla[1] == "Tipo") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Cód. EOL") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
@@ -604,9 +598,9 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 3
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 2
     assert sum(1 for tupla in colunas_df if tupla[1] == "Refeições p/ Pagamento") == 1
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesas p/ Pagamento") == 1
 
     assert df.iloc[0].tolist() == [
@@ -621,14 +615,11 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
         150.0,
         150.0,
         150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
+        40.0,
+        40.0,
+        20.0,
+        20.0,
+        20.0,
     ]
     assert df.iloc[1].tolist() == [
         0.0,
@@ -642,14 +633,11 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
         150.0,
         150.0,
         150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
+        40.0,
+        40.0,
+        20.0,
+        20.0,
+        20.0,
     ]
 
 
@@ -754,7 +742,7 @@ def test_preenche_titulo(informacoes_excel_writer_emef):
 
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 5
-    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3", "A1:S1"}
+    esperados = {"A3:E3", "F3:K3", "L3:N3", "O3:P3", "A1:P1"}
     assert {str(r) for r in merged_ranges} == esperados
 
     assert (
@@ -783,7 +771,7 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_emef(
 
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 5
-    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3", "A2:S2"}
+    esperados = {"A3:E3", "F3:K3", "L3:N3", "O3:P3", "A2:P2"}
     assert {str(r) for r in merged_ranges} == esperados
 
     assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL IPIRANGA - 1 - EMEF"
@@ -812,7 +800,7 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_emei(
 
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 5
-    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3", "A2:S2"}
+    esperados = {"A3:E3", "F3:K3", "L3:N3", "O3:P3", "A2:P2"}
     assert {str(r) for r in merged_ranges} == esperados
 
     assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - EMEI"
@@ -869,7 +857,7 @@ def test_ajusta_layout_tabela_emef(informacoes_excel_writer_emef):
     sheet = workbook_openpyxl[aba]
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 4
-    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3"}
+    esperados = {"A3:E3", "F3:K3", "L3:N3", "O3:P3"}
     assert {str(r) for r in merged_ranges} == esperados
 
     assert sheet["A3"].value is None
@@ -877,8 +865,8 @@ def test_ajusta_layout_tabela_emef(informacoes_excel_writer_emef):
     assert sheet["F3"].fill.fgColor.rgb == "FF198459"
     assert sheet["L3"].value == "DIETA ESPECIAL - TIPO A"
     assert sheet["L3"].fill.fgColor.rgb == "FF198459"
-    assert sheet["P3"].value == "DIETA ESPECIAL - TIPO B"
-    assert sheet["P3"].fill.fgColor.rgb == "FF20AA73"
+    assert sheet["O3"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["O3"].fill.fgColor.rgb == "FF20AA73"
     workbook_openpyxl.close()
 
 
@@ -890,7 +878,7 @@ def test_ajusta_layout_tabela_emei(informacoes_excel_writer_emei):
     sheet = workbook_openpyxl[aba]
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 4
-    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3"}
+    esperados = {"A3:E3", "F3:K3", "L3:N3", "O3:P3"}
     assert {str(r) for r in merged_ranges} == esperados
 
     assert sheet["A3"].value is None
@@ -898,8 +886,8 @@ def test_ajusta_layout_tabela_emei(informacoes_excel_writer_emei):
     assert sheet["F3"].fill.fgColor.rgb == "FF198459"
     assert sheet["L3"].value == "DIETA ESPECIAL - TIPO A"
     assert sheet["L3"].fill.fgColor.rgb == "FF198459"
-    assert sheet["P3"].value == "DIETA ESPECIAL - TIPO B"
-    assert sheet["P3"].fill.fgColor.rgb == "FF20AA73"
+    assert sheet["O3"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["O3"].fill.fgColor.rgb == "FF20AA73"
     workbook_openpyxl.close()
 
 
@@ -937,7 +925,7 @@ def test_formata_total_geral(informacoes_excel_writer_emef):
     sheet = workbook_openpyxl[aba]
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 5
-    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3", "A7:C7"}
+    esperados = {"A3:E3", "F3:K3", "L3:N3", "O3:P3", "A7:C7"}
     assert {str(r) for r in merged_ranges} == esperados
 
     assert sheet["A7"].value == "TOTAL"
