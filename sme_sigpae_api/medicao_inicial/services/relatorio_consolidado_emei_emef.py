@@ -483,7 +483,6 @@ def ajusta_layout_tabela(workbook, worksheet, df):
         "PROGRAMAS E PROJETOS": formatacao_programas,
         "ETEC": formatacao_etec,
         "DIETA ESPECIAL - TIPO A": formatacao_dieta_a,
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": formatacao_dieta_a,
         "DIETA ESPECIAL - TIPO B": formatacao_dieta_b,
     }
 
