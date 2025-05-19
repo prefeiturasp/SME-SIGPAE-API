@@ -2924,25 +2924,45 @@ def relatorio_consolidado_xlsx_emef(
     medicao_grupo_solicitacao_alimentacao,
     categoria_medicao,
     categoria_medicao_dieta_a,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
     categoria_medicao_dieta_b,
     categoria_medicao_solicitacoes_alimentacao,
 ):
     medicao_alimentacao_emef, _ = medicao_grupo_alimentacao
     medicao_solicitacao_emef, _ = medicao_grupo_solicitacao_alimentacao
+
     for dia in ["01", "02", "03", "04", "05"]:
         for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
-            for categoria in [
-                categoria_medicao,
-                categoria_medicao_dieta_a,
-                categoria_medicao_dieta_b,
-            ]:
+            mommy.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo=campo,
+                medicao=medicao_alimentacao_emef,
+                categoria_medicao=categoria_medicao,
+                valor="25",
+            )
+            if campo in ["lanche", "lanche_4h"]:
+                for categoria in [
+                    categoria_medicao_dieta_a,
+                    categoria_medicao_dieta_b,
+                    categoria_medicao_dieta_a_enteral_aminoacidos,
+                ]:
+                    mommy.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao_alimentacao_emef,
+                        categoria_medicao=categoria,
+                        valor="2",
+                    )
+            elif campo == "refeicao":
                 mommy.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo=campo,
                     medicao=medicao_alimentacao_emef,
-                    categoria_medicao=categoria,
-                    valor="25",
+                    categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                    valor="2",
                 )
         if dia == "05":
             for campo in ["kit_lanche", "lanche_emergencial"]:
@@ -2982,25 +3002,45 @@ def relatorio_consolidado_xlsx_emei(
     medicao_grupo_solicitacao_alimentacao,
     categoria_medicao,
     categoria_medicao_dieta_a,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
     categoria_medicao_dieta_b,
     categoria_medicao_solicitacoes_alimentacao,
 ):
     _, medicao_alimentacao_emei = medicao_grupo_alimentacao
     _, medicao_solicitacao_emei = medicao_grupo_solicitacao_alimentacao
+
     for dia in ["01", "02", "03", "04", "05"]:
         for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
-            for categoria in [
-                categoria_medicao,
-                categoria_medicao_dieta_a,
-                categoria_medicao_dieta_b,
-            ]:
+            mommy.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo=campo,
+                medicao=medicao_alimentacao_emei,
+                categoria_medicao=categoria_medicao,
+                valor="30",
+            )
+            if campo in ["lanche", "lanche_4h"]:
+                for categoria in [
+                    categoria_medicao_dieta_a,
+                    categoria_medicao_dieta_b,
+                    categoria_medicao_dieta_a_enteral_aminoacidos,
+                ]:
+                    mommy.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao_alimentacao_emei,
+                        categoria_medicao=categoria,
+                        valor="4",
+                    )
+            elif campo == "refeicao":
                 mommy.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo=campo,
                     medicao=medicao_alimentacao_emei,
-                    categoria_medicao=categoria,
-                    valor="30",
+                    categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                    valor="4",
                 )
         if dia == "05":
             for campo in ["kit_lanche", "lanche_emergencial"]:
