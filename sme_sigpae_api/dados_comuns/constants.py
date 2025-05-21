@@ -368,6 +368,11 @@ ORDEM_UNIDADES_GRUPO_CEI = {
     "CEI": 6,
 }
 
+ORDEM_UNIDADES_GRUPO_CEMEI = {
+    "CEMEI": 1,
+    "CEU CEMEI": 2,
+}
+
 ORDEM_HEADERS_EMEI_EMEF = {
     "Solicitações de Alimentação": 1,
     "MANHA": 2,
@@ -390,6 +395,19 @@ ORDEM_HEADERS_CEI = {
     "TARDE": 5,
     "DIETA ESPECIAL - TIPO A": 6,
     "DIETA ESPECIAL - TIPO B": 7,
+}
+
+ORDEM_HEADERS_CEMEI = {
+    "Solicitações de Alimentação": 1,
+    "INTEGRAL": 2,
+    "PARCIAL": 3,
+    "Infantil INTEGRAL": 4,
+    "Infantil MANHA": 5,
+    "Infantil TARDE": 6,
+    "DIETA ESPECIAL - TIPO A - CEI": 7,
+    "DIETA ESPECIAL - TIPO A - INFANTIL": 8,
+    "DIETA ESPECIAL - TIPO B - CEI": 9,
+    "DIETA ESPECIAL - TIPO B - INFANTIL": 10,
 }
 
 
