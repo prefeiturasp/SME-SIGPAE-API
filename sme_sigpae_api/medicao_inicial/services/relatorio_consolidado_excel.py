@@ -43,7 +43,7 @@ def gera_relatorio_consolidado_xlsx(solicitacoes_uuid, tipos_de_unidade, query_p
                 solicitacoes
             )
             linhas = relatorio_consolidado_cemei.get_valores_tabela(
-                solicitacoes, colunas, tipos_de_unidade
+                solicitacoes, colunas
             )
         else:
             raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
