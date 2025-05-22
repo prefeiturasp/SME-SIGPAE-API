@@ -194,9 +194,7 @@ def _processa_periodo_campo(
 
     try:
         if periodo in dietas_especiais:
-            total = _processa_dieta_especial(
-                solicitacao, filtros, faixa_etaria, periodo
-            )
+            total = processa_dieta_especial(solicitacao, filtros, faixa_etaria, periodo)
         else:
             total = _processa_periodo_regular(
                 solicitacao, filtros, faixa_etaria, periodo
@@ -218,7 +216,7 @@ def _define_filtro(periodo, dietas_especiais, periodos_escolares):
     return filtros
 
 
-def _processa_dieta_especial(solicitacao, filtros, faixa_etaria, periodo):
+def processa_dieta_especial(solicitacao, filtros, faixa_etaria, periodo):
     medicoes = solicitacao.medicoes.filter(**filtros)
     if not medicoes.exists():
         return "-"

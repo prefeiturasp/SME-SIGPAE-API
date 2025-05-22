@@ -401,12 +401,12 @@ ORDEM_HEADERS_CEMEI = {
     "Solicitações de Alimentação": 1,
     "INTEGRAL": 2,
     "PARCIAL": 3,
-    "Infantil INTEGRAL": 4,
-    "Infantil MANHA": 5,
-    "Infantil TARDE": 6,
-    "DIETA ESPECIAL - TIPO A - CEI": 7,
-    "DIETA ESPECIAL - TIPO A - INFANTIL": 8,
-    "DIETA ESPECIAL - TIPO B - CEI": 9,
+    "DIETA ESPECIAL - TIPO A - CEI": 4,
+    "DIETA ESPECIAL - TIPO B - CEI": 5,
+    "Infantil INTEGRAL": 6,
+    "Infantil MANHA": 7,
+    "Infantil TARDE": 8,
+    "DIETA ESPECIAL - TIPO A - INFANTIL": 9,
     "DIETA ESPECIAL - TIPO B - INFANTIL": 10,
 }
 

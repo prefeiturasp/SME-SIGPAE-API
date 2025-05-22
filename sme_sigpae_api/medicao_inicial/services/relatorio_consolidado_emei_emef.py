@@ -223,7 +223,7 @@ def _processa_periodo_campo(
 
     try:
         if periodo in dietas_especiais:
-            total = _processa_dieta_especial(solicitacao, filtros, campo, periodo)
+            total = processa_dieta_especial(solicitacao, filtros, campo, periodo)
         else:
             total = _processa_periodo_regular(solicitacao, filtros, campo, periodo)
         valores.append(total)
@@ -247,7 +247,7 @@ def _define_filtro(periodo, dietas_especiais, periodos_escolares):
     return filtros
 
 
-def _processa_dieta_especial(solicitacao, filtros, campo, periodo):
+def processa_dieta_especial(solicitacao, filtros, campo, periodo):
     medicoes = solicitacao.medicoes.filter(**filtros)
     if not medicoes.exists():
         return "-"

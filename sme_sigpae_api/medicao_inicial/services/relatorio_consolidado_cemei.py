@@ -1,6 +1,5 @@
 import pandas as pd
-from django.db.models import FloatField, Q, Sum
-from django.db.models.functions import Cast
+from django.db.models import Q
 
 from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_CAMPOS,
@@ -9,6 +8,10 @@ from sme_sigpae_api.dados_comuns.constants import (
 )
 from sme_sigpae_api.escola.models import FaixaEtaria, PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.models import GrupoMedicao
+from sme_sigpae_api.medicao_inicial.services import (
+    relatorio_consolidado_cei,
+    relatorio_consolidado_emei_emef,
+)
 
 
 def get_alimentacoes_por_periodo(solicitacoes):
@@ -272,50 +275,17 @@ def _define_filtro(periodo, periodos_escolares, grupos_medicao):
 
 
 def _processa_dieta_especial(solicitacao, filtros, campo, periodo):
-    medicoes = solicitacao.medicoes.filter(**filtros)
-    if not medicoes.exists():
-        return "-"
-
-    categorias = (
-        [
-            "DIETA ESPECIAL - TIPO A",
-            "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
-        ]
-        if "TIPO A" in periodo
-        else [periodo.replace(" - CEI", "").replace(" - INFANTIL", "")]
-    )
-    total = 0.0
-    for medicao in medicoes:
-        if medicao.periodo_escolar:
-            soma = _calcula_soma_medicao_cei(medicao, campo, categorias)
-        elif medicao.grupo:
-            soma = _calcula_soma_medicao_emei(medicao, campo, categorias)
-        if soma is not None:
-            total += soma
-
-    return "-" if total == 0.0 else total
-
-
-def _calcula_soma_medicao_cei(medicao, faixa_etaria, categorias):
-    return (
-        medicao.valores_medicao.filter(
-            nome_campo="frequencia",
-            faixa_etaria_id=faixa_etaria,
-            categoria_medicao__nome__in=categorias,
+    periodo = periodo.replace(" - CEI", "").replace(" - INFANTIL", "")
+    soma = "-"
+    if any("periodo_escolar" in chave for chave in filtros.keys()):
+        soma = relatorio_consolidado_cei.processa_dieta_especial(
+            solicitacao, filtros, campo, periodo
         )
-        .annotate(valor_float=Cast("valor", output_field=FloatField()))
-        .aggregate(total=Sum("valor_float"))["total"]
-    )
-
-
-def _calcula_soma_medicao_emei(medicao, campo, categorias):
-    return (
-        medicao.valores_medicao.filter(
-            nome_campo=campo, categoria_medicao__nome__in=categorias
+    elif any("grupo" in chave for chave in filtros.keys()):
+        soma = relatorio_consolidado_emei_emef.processa_dieta_especial(
+            solicitacao, filtros, campo, periodo
         )
-        .annotate(valor_float=Cast("valor", output_field=FloatField()))
-        .aggregate(total=Sum("valor_float"))["total"]
-    )
+    return soma
 
 
 def insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
@@ -402,12 +372,12 @@ def ajusta_layout_tabela(workbook, worksheet, df):
         "": formatacao_level2,
         "INTEGRAL": formatacao_integral_cei,
         "PARCIAL": formatacao_parcial,
+        "DIETA ESPECIAL - TIPO A - CEI": formatacao_dieta_a,
+        "DIETA ESPECIAL - TIPO B - CEI": formatacao_dieta_b,
         "INFANTIL INTEGRAL": formatacao_integral,
         "INFANTIL MANHA": formatacao_manha,
         "INFANTIL TARDE": formatacao_tarde,
-        "DIETA ESPECIAL - TIPO A - CEI": formatacao_dieta_a,
-        "DIETA ESPECIAL - TIPO A - INFANTIL": formatacao_dieta_b,
-        "DIETA ESPECIAL - TIPO B - CEI": formatacao_dieta_a,
+        "DIETA ESPECIAL - TIPO A - INFANTIL": formatacao_dieta_a,
         "DIETA ESPECIAL - TIPO B - INFANTIL": formatacao_dieta_b,
     }
 
