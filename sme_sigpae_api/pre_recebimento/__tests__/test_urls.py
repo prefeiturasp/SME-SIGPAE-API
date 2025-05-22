@@ -1376,7 +1376,10 @@ def test_url_layout_de_embalagem_detalhar(
     assert dados["status"] == layout.get_status_display()
     assert dados["numero_ficha_tecnica"] == str(layout.ficha_tecnica.numero)
     assert dados["nome_produto"] == str(layout.ficha_tecnica.produto.nome)
-    assert dados["nome_empresa"] == str(layout.ficha_tecnica.empresa.razao_social)
+    assert (
+        dados["nome_empresa"]
+        == f"{layout.ficha_tecnica.empresa.nome_fantasia} / {layout.ficha_tecnica.empresa.razao_social}"
+    )
     assert dados["pregao_chamada_publica"] == str(
         layout.ficha_tecnica.pregao_chamada_publica
     )
