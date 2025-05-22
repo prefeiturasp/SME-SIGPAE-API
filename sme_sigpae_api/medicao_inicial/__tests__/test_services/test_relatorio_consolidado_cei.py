@@ -14,7 +14,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
     _get_lista_alimentacoes_dietas_por_faixa,
     _get_nome_periodo,
     _get_valores_iniciais,
-    _processa_dieta_especial,
     _processa_periodo_campo,
     _processa_periodo_regular,
     _sort_and_merge,
@@ -25,6 +24,7 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
     get_solicitacoes_ordenadas,
     get_valores_tabela,
     insere_tabela_periodos_na_planilha,
+    processa_dieta_especial,
 )
 
 pytestmark = pytest.mark.django_db
@@ -451,7 +451,7 @@ def test_processa_dieta_especial(relatorio_consolidado_xlsx_cei, faixas_etarias_
     periodo = "NOITE"
     filtros = {"periodo_escolar__nome": periodo}
     faixa_etaria = faixas_etarias_ativas[2].id
-    total = _processa_dieta_especial(
+    total = processa_dieta_especial(
         relatorio_consolidado_xlsx_cei, filtros, faixa_etaria, periodo
     )
     assert total == "-"
@@ -460,7 +460,7 @@ def test_processa_dieta_especial(relatorio_consolidado_xlsx_cei, faixas_etarias_
     filtros = {"periodo_escolar__nome__in": periodos_escolares}
     periodo = "DIETA ESPECIAL - TIPO A"
     faixa_etaria = faixas_etarias_ativas[2].id
-    total = _processa_dieta_especial(
+    total = processa_dieta_especial(
         relatorio_consolidado_xlsx_cei, filtros, faixa_etaria, periodo
     )
     assert total == 8.0
