@@ -35,7 +35,6 @@ from sme_sigpae_api.terceirizada.api.serializers.serializers import (
     DistribuidorComEnderecoSimplesSerializer,
     DistribuidorSimplesSerializer,
     TerceirizadaLookUpSerializer,
-    TerceirizadaSimplesSerializer,
 )
 
 from ....dados_comuns.api.serializers import (
@@ -212,7 +211,7 @@ class CronogramaSerializer(serializers.ModelSerializer):
     )
     armazem = DistribuidorSimplesSerializer()
     status = serializers.CharField(source="get_status_display")
-    empresa = TerceirizadaSimplesSerializer()
+    empresa = TerceirizadaLookUpSerializer()
     contrato = ContratoSimplesSerializer()
     unidade_medida = UnidadeMedidaSerialzer()
     ficha_tecnica = FichaTecnicaCronogramaSerializer()
@@ -247,7 +246,7 @@ class CronogramaComLogSerializer(serializers.ModelSerializer):
     )
     armazem = DistribuidorComEnderecoSimplesSerializer()
     status = serializers.CharField(source="get_status_display")
-    empresa = TerceirizadaSimplesSerializer()
+    empresa = TerceirizadaLookUpSerializer()
     contrato = ContratoSimplesSerializer()
     unidade_medida = UnidadeMedidaSerialzer()
     logs = LogSolicitacoesUsuarioSerializer(many=True)
@@ -691,7 +690,7 @@ class PainelCronogramaSerializer(serializers.ModelSerializer):
             return None
 
     def get_empresa(self, obj):
-        return obj.empresa.razao_social if obj.empresa else None
+        return obj.empresa.nome_fantasia if obj.empresa else None
 
     def get_log_mais_recente(self, obj):
         if obj.log_mais_recente:
@@ -847,7 +846,7 @@ class LayoutDeEmbalagemDetalheSerializer(serializers.ModelSerializer):
 
     def get_nome_empresa(self, obj):
         try:
-            return obj.ficha_tecnica.empresa.razao_social
+            return f"{obj.ficha_tecnica.empresa.nome_fantasia} / {obj.ficha_tecnica.empresa.razao_social}"
         except AttributeError:
             None
 
@@ -904,7 +903,7 @@ class PainelLayoutEmbalagemSerializer(serializers.ModelSerializer):
 
     def get_nome_empresa(self, obj):
         try:
-            return obj.ficha_tecnica.empresa.razao_social
+            return obj.ficha_tecnica.empresa.nome_fantasia
         except AttributeError:
             return ""
 
@@ -984,7 +983,7 @@ class PainelDocumentoDeRecebimentoSerializer(serializers.ModelSerializer):
 
     def get_nome_empresa(self, obj):
         try:
-            return obj.cronograma.empresa.razao_social
+            return obj.cronograma.empresa.nome_fantasia
         except AttributeError:
             return ""
 
