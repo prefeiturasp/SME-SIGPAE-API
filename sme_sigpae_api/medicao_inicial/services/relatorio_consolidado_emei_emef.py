@@ -225,7 +225,7 @@ def _processa_periodo_campo(
         if periodo in dietas_especiais:
             total = processa_dieta_especial(solicitacao, filtros, campo, periodo)
         else:
-            total = _processa_periodo_regular(solicitacao, filtros, campo, periodo)
+            total = processa_periodo_regular(solicitacao, filtros, campo, periodo)
         valores.append(total)
     except Exception:
         valores.append("-")
@@ -269,13 +269,16 @@ def processa_dieta_especial(solicitacao, filtros, campo, periodo):
     return "-" if total == 0.0 else total
 
 
-def _processa_periodo_regular(solicitacao, filtros, campo, periodo):
+def processa_periodo_regular(solicitacao, filtros, campo, periodo, tipo_unidade=None):
     medicao = solicitacao.medicoes.get(**filtros)
 
+    iniciais = (
+        solicitacao.escola.tipo_unidade.iniciais
+        if tipo_unidade is None
+        else tipo_unidade
+    )
     if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
-        return _get_total_pagamento(
-            medicao, campo, solicitacao.escola.tipo_unidade.iniciais
-        )
+        return _get_total_pagamento(medicao, campo, iniciais)
 
     categorias = (
         [periodo.upper()]

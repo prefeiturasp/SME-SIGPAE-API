@@ -252,8 +252,8 @@ def _processa_periodo_campo(
     try:
         if "DIETA ESPECIAL" in periodo:
             total = _processa_dieta_especial(solicitacao, filtros, campo, periodo)
-        # else:
-        #     total = _processa_periodo_regular(solicitacao, filtros, campo, periodo)
+        else:
+            total = _processa_periodo_regular(solicitacao, filtros, campo, periodo)
         valores.append(total)
     except Exception:
         valores.append("-")
@@ -284,6 +284,19 @@ def _processa_dieta_especial(solicitacao, filtros, campo, periodo):
     elif any("grupo" in chave for chave in filtros.keys()):
         soma = relatorio_consolidado_emei_emef.processa_dieta_especial(
             solicitacao, filtros, campo, periodo
+        )
+    return soma
+
+
+def _processa_periodo_regular(solicitacao, filtros, campo, periodo):
+    soma = "-"
+    if any("periodo_escolar" in chave for chave in filtros.keys()):
+        soma = relatorio_consolidado_cei.processa_periodo_regular(
+            solicitacao, filtros, campo, periodo
+        )
+    elif any("grupo" in chave for chave in filtros.keys()):
+        soma = relatorio_consolidado_emei_emef.processa_periodo_regular(
+            solicitacao, filtros, campo, periodo, tipo_unidade="EMEI"
         )
     return soma
 
