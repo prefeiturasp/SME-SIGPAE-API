@@ -15,7 +15,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
     _get_nome_periodo,
     _get_valores_iniciais,
     _processa_periodo_campo,
-    _processa_periodo_regular,
     _sort_and_merge,
     _update_dietas_alimentacoes_por_faixa,
     _update_periodos_alimentacoes,
@@ -25,6 +24,7 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
     get_valores_tabela,
     insere_tabela_periodos_na_planilha,
     processa_dieta_especial,
+    processa_periodo_regular,
 )
 
 pytestmark = pytest.mark.django_db
@@ -472,7 +472,7 @@ def test_processa_periodo_regular(
     periodo = "MANHA"
     filtros = {"periodo_escolar__nome": periodo}
     faixa_etaria = faixas_etarias_ativas[0].id
-    total = _processa_periodo_regular(
+    total = processa_periodo_regular(
         relatorio_consolidado_xlsx_cei, filtros, faixa_etaria, periodo
     )
     assert total == "-"
@@ -480,7 +480,7 @@ def test_processa_periodo_regular(
     periodo = "INTEGRAL"
     filtros = {"periodo_escolar__nome": periodo}
     faixa_etaria = faixas_etarias_ativas[0].id
-    total = _processa_periodo_regular(
+    total = processa_periodo_regular(
         relatorio_consolidado_xlsx_cei, filtros, faixa_etaria, periodo
     )
     assert total == 80.0
@@ -488,7 +488,7 @@ def test_processa_periodo_regular(
     periodo = "NOITE"
     filtros = {"periodo_escolar__nome": periodo}
     faixa_etaria = faixas_etarias_ativas[0].id
-    total = _processa_periodo_regular(
+    total = processa_periodo_regular(
         relatorio_consolidado_xlsx_cei, filtros, faixa_etaria, periodo
     )
     assert total == "-"
