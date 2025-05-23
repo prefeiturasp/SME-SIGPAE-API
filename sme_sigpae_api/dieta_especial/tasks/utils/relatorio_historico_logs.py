@@ -3,9 +3,11 @@ from typing import BinaryIO
 
 import numpy as np
 from django.http import QueryDict
+from django.template.loader import render_to_string
 
 from sme_sigpae_api.escola.models import DiretoriaRegional, PeriodoEscolar
 from sme_sigpae_api.escola.utils import faixa_to_string
+from sme_sigpae_api.relatorios.utils import html_to_pdf_file
 
 
 def get_faixa_etaria_cei(log: dict, faixa_etaria: str) -> str:
@@ -174,3 +176,36 @@ def build_xlsx_relatorio_historico_dietas(
             df, workbook, worksheet, "#C6E0B4", '"Fundamental (acima de 6 anos)"'
         )
     output.seek(0)
+
+
+def gera_pdf_relatorio_historico_dieta_especial(dados, user, filtros):
+    unidades_cei = ["CEI DIRET", "CEU CEI", "CEI", "CCI", "CCI/CIPS", "CEI CEU"]
+    unidades_cemei = ["CEMEI", "CEU CEMEI"]
+    unidades_emei_emef = [
+        "EMEI",
+        "CEU EMEI",
+        "CEU EMEI",
+        "EMEF",
+        "CEU EMEF",
+        "EMEFM",
+        "CIEJA",
+    ]
+    unidades_emebs = ["EMEBS"]
+    unidades_sem_periodos = ["CMCT", "CEU GESTAO"]
+
+    html_string = render_to_string(
+        "relatorio_historico_dieta_especial.html",
+        {
+            "unidades_cei": unidades_cei,
+            "unidades_cemei": unidades_cemei,
+            "unidades_emei_emef": unidades_emei_emef,
+            "unidades_emebs": unidades_emebs,
+            "unidades_sem_periodos": unidades_sem_periodos,
+            "dados": dados,
+            "user": user,
+            "filtros": filtros,
+        },
+    )
+    return html_to_pdf_file(
+        html_string, "relatorio_historico_dieta_especial.pdf", is_async=True
+    )

@@ -915,11 +915,17 @@ def transformar_dados_escolas(dados, periodo_escolar_selecionado=False):
 
         unidade = tipos_unidades.get(tipo_unidade, lambda e, i, p: 0)
         total_dietas += unidade(item, escolas, periodo_escolar_selecionado)
+        print("Dentro da Transformar")
+        print(item)
+        # print(escolas)
+        # print(periodo_escolar_selecionado)
+        print(unidade(item, escolas, periodo_escolar_selecionado))
 
     return escolas, total_dietas
 
 
 def formatar_informacoes_historioco_dietas(escolas, total_dietas):
+    print("Total", total_dietas)
     tipos_unidades = {
         **{tipo: formatar_periodos_emebs for tipo in UNIDADES_EMEBS},
         **{

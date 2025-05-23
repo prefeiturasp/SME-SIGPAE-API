@@ -73,6 +73,7 @@ from ..models import (
 )
 from ..tasks import (
     gera_pdf_relatorio_dietas_especiais_terceirizadas_async,
+    gera_pdf_relatorio_historico_dietas_especiais_async,
     gera_xlsx_relatorio_dietas_especiais_terceirizadas_async,
     gera_xlsx_relatorio_historico_dietas_especiais_async,
 )
@@ -1348,7 +1349,33 @@ class SolicitacaoDietaEspecialViewSet(
                 serializer.data, dietas["total_dietas"], data_dieta
             )
         except ValidationError as e:
-            print(e)
+            return Response(dict(detail=e.messages[0]), status=HTTP_400_BAD_REQUEST)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="relatorio-historico-dieta-especial/exportar-pdf",
+        permission_classes=(PermissaoHistoricoDietasEspeciais,),
+    )
+    def relatorio_historico_dieta_especial_exportar_pdf(self, request):
+        try:
+            query_dict = request.query_params
+            data = {
+                key: query_dict.getlist(key) if "[]" in key else query_dict.get(key)
+                for key in query_dict.keys()
+            }
+            data_str = data.get("data").replace("/", "_")
+            user = request.user.get_username()
+            gera_pdf_relatorio_historico_dietas_especiais_async.delay(
+                user=user,
+                nome_arquivo=f"relatorio_historico_dietas_especiais_{data_str}.pdf",
+                data=json.dumps(data),
+            )
+            return Response(
+                dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+                status=status.HTTP_200_OK,
+            )
+        except ValidationError as e:
             return Response(dict(detail=e.messages[0]), status=HTTP_400_BAD_REQUEST)
 
     @action(
@@ -1376,7 +1403,6 @@ class SolicitacaoDietaEspecialViewSet(
                 status=status.HTTP_200_OK,
             )
         except ValidationError as e:
-            print(e)
             return Response(dict(detail=e.messages[0]), status=HTTP_400_BAD_REQUEST)
 
 
