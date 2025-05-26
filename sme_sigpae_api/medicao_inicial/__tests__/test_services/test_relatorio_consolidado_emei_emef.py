@@ -17,9 +17,7 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef imp
     _get_nome_periodo,
     _get_total_pagamento,
     _get_valores_iniciais,
-    _processa_dieta_especial,
     _processa_periodo_campo,
-    _processa_periodo_regular,
     _sort_and_merge,
     _total_pagamento_emef,
     _total_pagamento_emei,
@@ -31,6 +29,8 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef imp
     get_solicitacoes_ordenadas,
     get_valores_tabela,
     insere_tabela_periodos_na_planilha,
+    processa_dieta_especial,
+    processa_periodo_regular,
 )
 
 pytestmark = pytest.mark.django_db
@@ -699,7 +699,7 @@ def test_processa_dieta_especial(relatorio_consolidado_xlsx_emef):
     periodo = "MANHA"
     filtros = {"periodo_escolar__nome": periodo}
     campo = "refeicao"
-    total = _processa_dieta_especial(
+    total = processa_dieta_especial(
         relatorio_consolidado_xlsx_emef, filtros, campo, periodo
     )
     assert total == "-"
@@ -707,7 +707,7 @@ def test_processa_dieta_especial(relatorio_consolidado_xlsx_emef):
     periodo = "Solicitações de Alimentação"
     filtros = {"grupo__nome": periodo}
     campo = "kit_lanche"
-    total = _processa_dieta_especial(
+    total = processa_dieta_especial(
         relatorio_consolidado_xlsx_emef, filtros, campo, periodo
     )
     assert total == "-"
@@ -716,7 +716,7 @@ def test_processa_dieta_especial(relatorio_consolidado_xlsx_emef):
     filtros = {"periodo_escolar__nome__in": periodos_escolares}
     periodo = "DIETA ESPECIAL - TIPO A"
     campo = "lanche_4h"
-    total = _processa_dieta_especial(
+    total = processa_dieta_especial(
         relatorio_consolidado_xlsx_emef, filtros, campo, periodo
     )
     assert total == 20.0
@@ -726,7 +726,7 @@ def test_processa_periodo_regular(relatorio_consolidado_xlsx_emef):
     periodo = "MANHA"
     filtros = {"periodo_escolar__nome": periodo}
     campo = "refeicao"
-    total = _processa_periodo_regular(
+    total = processa_periodo_regular(
         relatorio_consolidado_xlsx_emef, filtros, campo, periodo
     )
     assert total == 125.0
@@ -734,7 +734,7 @@ def test_processa_periodo_regular(relatorio_consolidado_xlsx_emef):
     periodo = "Solicitações de Alimentação"
     filtros = {"grupo__nome": periodo}
     campo = "kit_lanche"
-    total = _processa_periodo_regular(
+    total = processa_periodo_regular(
         relatorio_consolidado_xlsx_emef, filtros, campo, periodo
     )
     assert total == 10

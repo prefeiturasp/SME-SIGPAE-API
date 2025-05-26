@@ -55,6 +55,21 @@ def grupo_solicitacoes_alimentacao():
 
 
 @pytest.fixture
+def grupo_infantil_integral():
+    return mommy.make("GrupoMedicao", nome="Infantil INTEGRAL")
+
+
+@pytest.fixture
+def grupo_infantil_manha():
+    return mommy.make("GrupoMedicao", nome="Infantil MANHA")
+
+
+@pytest.fixture
+def grupo_infantil_tarde():
+    return mommy.make("GrupoMedicao", nome="Infantil TARDE")
+
+
+@pytest.fixture
 def motivo_inclusao_continua_programas_projetos():
     return mommy.make("MotivoInclusaoContinua", nome="Programas/Projetos Contínuos")
 
@@ -377,6 +392,27 @@ def escola_cemei():
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
         tipo_unidade=tipo_unidade_escolar,
+        codigo_eol="543210",
+    )
+
+
+@pytest.fixture
+def escola_ceu_cemei():
+    terceirizada = mommy.make("Terceirizada")
+    lote = mommy.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = mommy.make(
+        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+    )
+    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = mommy.make("TipoUnidadeEscolar", iniciais="CEU CEMEI")
+    return mommy.make(
+        "Escola",
+        nome="CEU CEMEI TESTE",
+        lote=lote,
+        diretoria_regional=diretoria_regional,
+        tipo_gestao=tipo_gestao,
+        tipo_unidade=tipo_unidade_escolar,
+        codigo_eol="432105",
     )
 
 
@@ -3464,6 +3500,286 @@ def informacoes_excel_writer_cei(
     worksheet.set_default_row(20)
     df = _insere_tabela_periodos_na_planilha(
         ["CEI"], aba, mock_colunas_cei, mock_linhas_cei, writer
+    )
+    try:
+        yield aba, writer, workbook, worksheet, df, arquivo
+    finally:
+        workbook.close()
+        writer.close()
+
+
+@pytest.fixture
+def solicitacao_relatorio_consolidado_grupo_cemei(escola_cemei):
+    return mommy.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola_cemei,
+        mes="04",
+        ano="2025",
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+    )
+
+
+@pytest.fixture
+def solicitacao_escola_ceu_cemei(escola_ceu_cemei):
+    return mommy.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola_ceu_cemei,
+        mes="04",
+        ano="2025",
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+    )
+
+
+@pytest.fixture
+def relatorio_consolidado_xlsx_cemei(
+    solicitacao_relatorio_consolidado_grupo_cemei,
+    periodo_escolar_integral,
+    periodo_escolar_parcial,
+    faixas_etarias_ativas,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+    categoria_medicao_dieta_b,
+    grupo_infantil_integral,
+    grupo_infantil_manha,
+    grupo_infantil_tarde,
+    grupo_solicitacoes_alimentacao,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    medicao_integral = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
+        periodo_escolar=periodo_escolar_integral,
+    )
+    medicao_parcial = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
+        periodo_escolar=periodo_escolar_parcial,
+    )
+
+    medicao_infantil_integral = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
+        grupo=grupo_infantil_integral,
+    )
+    medicao_infantil_manha = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
+        grupo=grupo_infantil_manha,
+    )
+    medicao_infantil_tarde = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
+        grupo=grupo_infantil_tarde,
+    )
+
+    solicitacao_alimentacao = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
+        grupo=grupo_solicitacoes_alimentacao,
+    )
+
+    for dia in ["01", "02", "03", "04", "05"]:
+        if dia == "05":
+            for campo in ["kit_lanche", "lanche_emergencial"]:
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=solicitacao_alimentacao,
+                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
+                    valor="5",
+                )
+        for medicao in [medicao_integral, medicao_parcial]:
+            for faixa in faixas_etarias_ativas:
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo="frequencia",
+                    medicao=medicao,
+                    categoria_medicao=categoria_medicao,
+                    valor=20,
+                    faixa_etaria=faixa,
+                )
+            mommy.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo="frequencia",
+                medicao=medicao,
+                categoria_medicao=categoria_medicao_dieta_a,
+                valor=3,
+                faixa_etaria=faixas_etarias_ativas[2],
+            )
+            mommy.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo="frequencia",
+                medicao=medicao,
+                categoria_medicao=categoria_medicao_dieta_b,
+                valor=2,
+                faixa_etaria=faixas_etarias_ativas[4],
+            )
+        for medicao in [
+            medicao_infantil_integral,
+            medicao_infantil_manha,
+            medicao_infantil_tarde,
+        ]:
+            for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao,
+                    categoria_medicao=categoria_medicao,
+                    valor="30",
+                )
+                if campo in ["lanche", "lanche_4h"]:
+                    for categoria in [
+                        categoria_medicao_dieta_a,
+                        categoria_medicao_dieta_b,
+                        categoria_medicao_dieta_a_enteral_aminoacidos,
+                    ]:
+                        mommy.make(
+                            "ValorMedicao",
+                            dia=dia,
+                            nome_campo=campo,
+                            medicao=medicao,
+                            categoria_medicao=categoria,
+                            valor=1,
+                        )
+                elif campo == "refeicao":
+                    mommy.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao,
+                        categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                        valor=1,
+                    )
+
+    return solicitacao_relatorio_consolidado_grupo_cemei
+
+
+@pytest.fixture
+def mock_query_params_excel_cemei(solicitacao_relatorio_consolidado_grupo_cemei):
+    grupo_escolar = mommy.make(
+        "GrupoUnidadeEscolar",
+        nome="Grupo 2",
+        uuid="012dc7a2-eb11-4000-96b9-e3c5130dc64c",
+        tipos_unidades=[
+            mommy.make("TipoUnidadeEscolar", iniciais="CEMEI"),
+            mommy.make("TipoUnidadeEscolar", iniciais="CEU CEMEI"),
+        ],
+    )
+    return {
+        "dre": solicitacao_relatorio_consolidado_grupo_cemei.escola.diretoria_regional.uuid,
+        "status": "MEDICAO_APROVADA_PELA_CODAE",
+        "grupo_escolar": grupo_escolar,
+        "mes": solicitacao_relatorio_consolidado_grupo_cemei.mes,
+        "ano": solicitacao_relatorio_consolidado_grupo_cemei.ano,
+        "lotes[]": solicitacao_relatorio_consolidado_grupo_cemei.escola.lote.uuid,
+        "lotes": [solicitacao_relatorio_consolidado_grupo_cemei.escola.lote.uuid],
+    }
+
+
+@pytest.fixture
+def mock_colunas_cemei(faixas_etarias_ativas):
+    colunas = [
+        ("Solicitações de Alimentação", "kit_lanche"),
+        ("Solicitações de Alimentação", "lanche_emergencial"),
+    ]
+    faixas = [faixa.id for faixa in faixas_etarias_ativas]
+    for periodo in ["INTEGRAL", "PARCIAL"]:
+        for faixa in faixas:
+            colunas.append((periodo, faixa))
+    colunas.append(("DIETA ESPECIAL - TIPO A - CEI", faixas_etarias_ativas[2].id))
+    colunas.append(("DIETA ESPECIAL - TIPO B - CEI", faixas_etarias_ativas[4].id))
+    for periodo in ["Infantil INTEGRAL", "Infantil MANHA", "Infantil TARDE"]:
+        for campo in [
+            "lanche",
+            "lanche_4h",
+            "refeicao",
+            "total_refeicoes_pagamento",
+            "sobremesa",
+            "total_sobremesas_pagamento",
+        ]:
+            colunas.append((periodo, campo))
+
+    colunas.append(("DIETA ESPECIAL - TIPO A - INFANTIL", "lanche"))
+    colunas.append(("DIETA ESPECIAL - TIPO A - INFANTIL", "lanche_4h"))
+    colunas.append(("DIETA ESPECIAL - TIPO A - INFANTIL", "refeicao"))
+    colunas.append(("DIETA ESPECIAL - TIPO B - INFANTIL", "lanche"))
+    colunas.append(("DIETA ESPECIAL - TIPO B - INFANTIL", "lanche_4h"))
+
+    return colunas
+
+
+@pytest.fixture
+def mock_linhas_cemei():
+    return [
+        [
+            "CEMEI",
+            "543210",
+            "CEMEI TESTE",
+            5.0,
+            5.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            30.0,
+            20.0,
+            150.0,
+            150.0,
+            150.0,
+            150.0,
+            150.0,
+            150.0,
+            150.0,
+            150.0,
+            150.0,
+            150.0,
+            150.0,
+            150.0,
+            150.0,
+            150.0,
+            150.0,
+            150.0,
+            150.0,
+            150.0,
+            30.0,
+            30.0,
+            15.0,
+            15.0,
+            15.0,
+        ]
+    ]
+
+
+@pytest.fixture
+def informacoes_excel_writer_cemei(
+    relatorio_consolidado_xlsx_cemei, mock_colunas_cemei, mock_linhas_cemei
+):
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {relatorio_consolidado_xlsx_cemei.mes}-{ relatorio_consolidado_xlsx_cemei.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+    workbook = writer.book
+    worksheet = workbook.add_worksheet(aba)
+    worksheet.set_default_row(20)
+    df = _insere_tabela_periodos_na_planilha(
+        ["CEMEI"], aba, mock_colunas_cemei, mock_linhas_cemei, writer
     )
     try:
         yield aba, writer, workbook, worksheet, df, arquivo
