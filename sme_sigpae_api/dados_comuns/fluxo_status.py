@@ -763,7 +763,7 @@ class FluxoSolicitacaoRemessa(xwf_models.WorkflowEnabled, models.Model):
     ):
         raise NotImplementedError(
             "Deve criar um método de envio de email as partes interessadas"
-        )  # noqa
+        )
 
     def _titulo_notificacao_confirma_cancelamento(self):
         return f"Cancelamento de Guias de Remessa da Requisição N° {self.numero_solicitacao}"
@@ -2119,10 +2119,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         )
 
         return (
-            (
-                isinstance(self, AlteracaoCardapio)
-                or isinstance(self, AlteracaoCardapioCEMEI)
-            )
+            (isinstance(self, (AlteracaoCardapio, AlteracaoCardapioCEMEI)))
             and self.motivo
             and self.motivo.nome == "Lanche Emergencial"
         )
@@ -2414,14 +2411,17 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
             AlteracaoCardapio,
         )
+        from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models import (
+            AlteracaoCardapioCEMEI,
+        )
 
         if (
             self.foi_solicitado_fora_do_prazo
             and self.status
             != PedidoAPartirDaEscolaWorkflow.TERCEIRIZADA_RESPONDEU_QUESTIONAMENTO
-        ):  # noqa #129
+        ):
             if (
-                isinstance(self, AlteracaoCardapio)
+                isinstance(self, (AlteracaoCardapio, AlteracaoCardapioCEMEI))
                 and self.motivo.nome == "Lanche Emergencial"
             ):
                 return
@@ -5458,9 +5458,11 @@ class FluxoDocumentoDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
             contexto = {
                 "numero_cronograma": numero_cronograma,
                 "nome_empresa": self.cronograma.empresa.nome_fantasia,
-                "nome_produto": self.cronograma.ficha_tecnica.produto.nome
-                if self.cronograma.ficha_tecnica
-                else "-",
+                "nome_produto": (
+                    self.cronograma.ficha_tecnica.produto.nome
+                    if self.cronograma.ficha_tecnica
+                    else "-"
+                ),
                 "nome_usuario_empresa": user.nome,
                 "cpf_usuario_empresa": user.cpf_formatado_e_censurado,
                 "data_envio": self.log_mais_recente.criado_em.strftime("%d/%m/%Y"),

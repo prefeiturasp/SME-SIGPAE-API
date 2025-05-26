@@ -82,7 +82,7 @@ def test_painel_cronograma_serializer(cronograma, cronogramas_multiplos_status_c
     serializer = PainelCronogramaSerializer(cronograma_completo)
 
     assert cronograma_completo.empresa is not None
-    assert serializer.data["empresa"] == str(cronograma_completo.empresa.razao_social)
+    assert serializer.data["empresa"] == str(cronograma_completo.empresa.nome_fantasia)
     assert cronograma_completo.ficha_tecnica.produto is not None
     assert serializer.data["produto"] == str(
         cronograma_completo.ficha_tecnica.produto.nome
