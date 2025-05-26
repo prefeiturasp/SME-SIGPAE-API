@@ -19,6 +19,7 @@ from ..escola.models import (
     FaixaEtaria,
     LogAlunosMatriculadosFaixaEtariaDia,
     LogAlunosMatriculadosPeriodoEscola,
+    PeriodoEscolar,
 )
 from ..inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
@@ -652,12 +653,12 @@ def validate_lancamento_alimentacoes_medicao_emei_cemei_dietas(
     PERIODO_ESCOLAR_ID_INDEX = 1
     QUANTIDADE_INDEX = 2
     CLASSIFICACAO_ID_INDEX = 3
-
     NOME_CAMPO_INDEX = 0
     CATEGORIA_MEDICAO_ID_INDEX = 1
     DIA_ID = 2
-
     nomes_campos = build_nomes_campos_dietas_emei_cemei(medicao, categoria)
+    nome_periodo_escolar = medicao.grupo.nome.split(" ")[1]
+    periodo_escolar = PeriodoEscolar.objects.get(nome=nome_periodo_escolar)
     for nome_campo in nomes_campos:
         if lista_erros_com_periodo(lista_erros, medicao, "dietas"):
             continue
@@ -669,7 +670,7 @@ def validate_lancamento_alimentacoes_medicao_emei_cemei_dietas(
                     for log_ in logs_
                     if (
                         log_[DATA_INDEX] == datetime.date(int(ano), int(mes), int(dia))
-                        and log_[PERIODO_ESCOLAR_ID_INDEX] is None
+                        and log_[PERIODO_ESCOLAR_ID_INDEX] == periodo_escolar.id
                         and log_[CLASSIFICACAO_ID_INDEX] == classificacao.id
                     )
                 ),
