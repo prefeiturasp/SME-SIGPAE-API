@@ -712,8 +712,15 @@ class PainelCronogramaSerializer(serializers.ModelSerializer):
 class PainelSolicitacaoAlteracaoCronogramaSerializerItem(serializers.ModelSerializer):
     empresa = serializers.CharField(source="cronograma.empresa")
     cronograma = serializers.CharField(source="cronograma.numero")
+    produto = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
     log_mais_recente = serializers.SerializerMethodField()
+
+    def get_produto(self, obj):
+        try:
+            return obj.cronograma.ficha_tecnica.produto.nome
+        except AttributeError:
+            return None
 
     def get_log_mais_recente(self, obj):
         if obj.log_criado_em:
@@ -731,6 +738,7 @@ class PainelSolicitacaoAlteracaoCronogramaSerializerItem(serializers.ModelSerial
             "empresa",
             "status",
             "cronograma",
+            "produto",
             "log_mais_recente",
         )
 
