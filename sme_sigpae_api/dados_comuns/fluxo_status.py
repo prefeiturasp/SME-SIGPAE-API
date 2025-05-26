@@ -763,7 +763,7 @@ class FluxoSolicitacaoRemessa(xwf_models.WorkflowEnabled, models.Model):
     ):
         raise NotImplementedError(
             "Deve criar um método de envio de email as partes interessadas"
-        )  # noqa
+        )
 
     def _titulo_notificacao_confirma_cancelamento(self):
         return f"Cancelamento de Guias de Remessa da Requisição N° {self.numero_solicitacao}"
