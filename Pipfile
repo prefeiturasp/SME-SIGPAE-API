@@ -94,7 +94,7 @@ django-filter = "==24.2"
 importlib-metadata = "==1.7.0"
 attrs = "==22.2.0"
 xlrd = "*"
-spyne = { git = "https://github.com/t-8ch/spyne.git", ref = "refs/heads/cgi/parse_header", editable = true }
+spyne = { git = "https://github.com/prefeiturasp/spyne-fork.git" }
 lxml = "*"
 openpyxl = "==3.1.5"
 httpx = "*"
