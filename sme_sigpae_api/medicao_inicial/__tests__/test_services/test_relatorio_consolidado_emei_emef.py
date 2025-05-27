@@ -652,7 +652,9 @@ def test_define_filtro(relatorio_consolidado_xlsx_emef):
     assert isinstance(dieta_especial, dict)
     assert "grupo__nome" not in dieta_especial
     assert "periodo_escolar__nome__in" in dieta_especial
+    assert "grupo__nome__in" in dieta_especial
     assert dieta_especial["periodo_escolar__nome__in"] == periodos_escolares
+    assert dieta_especial["grupo__nome__in"] == ["Programas e Projetos", "ETEC"]
 
     solicitacao = _define_filtro(
         "Solicitações de Alimentação", dietas_especiais, periodos_escolares
