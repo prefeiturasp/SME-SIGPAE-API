@@ -652,7 +652,9 @@ def test_define_filtro(relatorio_consolidado_xlsx_emef):
     assert isinstance(dieta_especial, dict)
     assert "grupo__nome" not in dieta_especial
     assert "periodo_escolar__nome__in" in dieta_especial
+    assert "grupo__nome__in" in dieta_especial
     assert dieta_especial["periodo_escolar__nome__in"] == periodos_escolares
+    assert dieta_especial["grupo__nome__in"] == ["Programas e Projetos", "ETEC"]
 
     solicitacao = _define_filtro(
         "Solicitações de Alimentação", dietas_especiais, periodos_escolares
@@ -720,6 +722,35 @@ def test_processa_dieta_especial(relatorio_consolidado_xlsx_emef):
         relatorio_consolidado_xlsx_emef, filtros, campo, periodo
     )
     assert total == 20.0
+
+
+def test_pocessa_dieta_especial_etc_programas_e_projetos(
+    solicitacao_medicao_inicial_dietas,
+):
+    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
+    filtros = {
+        "periodo_escolar__nome__in": periodos_escolares,
+        "grupo__nome__in": ["Programas e Projetos", "ETEC"],
+    }
+    campo = "lanche_4h"
+    total = processa_dieta_especial(
+        solicitacao_medicao_inicial_dietas, filtros, campo, "DIETA ESPECIAL - TIPO A"
+    )
+    assert total == 80.0
+    total = processa_dieta_especial(
+        solicitacao_medicao_inicial_dietas, filtros, campo, "DIETA ESPECIAL - TIPO B"
+    )
+    assert total == 80.0
+
+    campo = "refeicao"
+    total = processa_dieta_especial(
+        solicitacao_medicao_inicial_dietas, filtros, campo, "DIETA ESPECIAL - TIPO A"
+    )
+    assert total == 80.0
+    total = processa_dieta_especial(
+        solicitacao_medicao_inicial_dietas, filtros, campo, "DIETA ESPECIAL - TIPO B"
+    )
+    assert total == "-"
 
 
 def test_processa_periodo_regular(relatorio_consolidado_xlsx_emef):

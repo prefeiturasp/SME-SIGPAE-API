@@ -242,13 +242,18 @@ def _define_filtro(periodo, dietas_especiais, periodos_escolares):
         filtros["grupo__nome"] = periodo
     elif periodo in dietas_especiais:
         filtros["periodo_escolar__nome__in"] = periodos_escolares
+        filtros["grupo__nome__in"] = ["Programas e Projetos", "ETEC"]
     else:
         filtros["periodo_escolar__nome"] = periodo
     return filtros
 
 
 def processa_dieta_especial(solicitacao, filtros, campo, periodo):
-    medicoes = solicitacao.medicoes.filter(**filtros)
+    condicoes = Q()
+    for filtro, valor in filtros.items():
+        condicoes = condicoes | Q(**{filtro: valor})
+
+    medicoes = solicitacao.medicoes.filter(condicoes)
     if not medicoes.exists():
         return "-"
 
