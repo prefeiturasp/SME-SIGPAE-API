@@ -10,11 +10,14 @@ from sme_sigpae_api.dados_comuns.utils import (
     gera_objeto_na_central_download,
 )
 from sme_sigpae_api.dieta_especial.tasks.utils.relatorio_historico_logs import (
+    build_titulo,
+    formata_logs_para_titulo,
     gera_pdf_relatorio_historico_dieta_especial,
 )
 from sme_sigpae_api.dieta_especial.utils import (
     gera_dicionario_historico_dietas,
     gerar_filtros_relatorio_historico,
+    get_logs_historico_dietas,
 )
 
 logger = logging.getLogger(__name__)
@@ -35,9 +38,16 @@ def gera_pdf_relatorio_historico_dietas_especiais_async(user, nome_arquivo, data
         data_json = json.loads(data)
         querydict_params = convert_dict_to_querydict(data_json)
         filtros, data_dieta = gerar_filtros_relatorio_historico(querydict_params)
+
+        logs_dietas_auxiliar = get_logs_historico_dietas(filtros, eh_exportacao=True)
+        logs_dietas_formatados = formata_logs_para_titulo(logs_dietas_auxiliar)
+        subtitulo_relatorio = build_titulo(
+            logs_dietas_formatados, querydict_params, for_pdf=True
+        )
+
         logs_dietas = gera_dicionario_historico_dietas(filtros)
         arquivo = gera_pdf_relatorio_historico_dieta_especial(
-            logs_dietas, user, filtros
+            logs_dietas, user, subtitulo_relatorio
         )
         atualiza_central_download(obj_central_download, nome_arquivo, arquivo)
     except Exception as e:
