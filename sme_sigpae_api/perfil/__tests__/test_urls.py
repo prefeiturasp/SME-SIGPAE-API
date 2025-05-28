@@ -168,7 +168,7 @@ def test_cadastro_erro(client):
     assert response.json() == {"detail": "RF não cadastrado no sistema"}
 
 
-def test_cadastro_diretor(client, users_diretor_escola, monkeypatch):
+def test_cadastro_diretor(client, users_diretor_escola, tipo_gestao, monkeypatch):
     _, email, password, rf, cpf, user = users_diretor_escola
     data = {
         "email": email,
@@ -227,6 +227,7 @@ def test_cadastro_diretor(client, users_diretor_escola, monkeypatch):
             "tipo_unidade_escolar": "56725de5-89d3-4edf-8633-3e0b5c99e9d4",
             "tipo_unidade_escolar_iniciais": "EMEF",
             "tipo_gestao": "TERC TOTAL",
+            "tipo_gestao_uuid": str(tipo_gestao.uuid),
             "tipos_contagem": [],
             "endereco": {
                 "logradouro": "",
@@ -261,7 +262,7 @@ def test_post_usuarios(client_autenticado):
     assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
 
-def test_confirmar_email(client, usuarios_pendentes_confirmacao):
+def test_confirmar_email(client, usuarios_pendentes_confirmacao, tipo_gestao):
     usuario = usuarios_pendentes_confirmacao
     assert usuario.is_active is False  # deve estar inativo no sistema
     assert usuario.is_confirmed is False  # deve estar com email nao confirmado
@@ -329,6 +330,7 @@ def test_confirmar_email(client, usuarios_pendentes_confirmacao):
                 "tipo_unidade_escolar": "56725de5-89d3-4edf-8633-3e0b5c99e9d4",
                 "tipo_unidade_escolar_iniciais": "EMEF",
                 "tipo_gestao": "TERC TOTAL",
+                "tipo_gestao_uuid": str(tipo_gestao.uuid),
                 "tipos_contagem": [],
                 "endereco": {
                     "logradouro": "",

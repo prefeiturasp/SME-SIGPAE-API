@@ -51,15 +51,9 @@ def test_gera_relatorio_consolidado_xlsx_emef(
         None,
         None,
         None,
-        None,
-        None,
-        None,
     )
     assert rows[1] == (
         "ABRIL/2025 - DIRETORIA REGIONAL IPIRANGA - 1 - EMEF",
-        None,
-        None,
-        None,
         None,
         None,
         None,
@@ -91,10 +85,7 @@ def test_gera_relatorio_consolidado_xlsx_emef(
         "DIETA ESPECIAL - TIPO A",
         None,
         None,
-        None,
         "DIETA ESPECIAL - TIPO B",
-        None,
-        None,
         None,
     )
     assert rows[3] == (
@@ -112,16 +103,10 @@ def test_gera_relatorio_consolidado_xlsx_emef(
         "Lanche",
         "Lanche 4h",
         "Refeição",
-        "Sobremesa",
         "Lanche",
         "Lanche 4h",
-        "Refeição",
-        "Sobremesa",
     )
     assert rows[4] == (
-        None,
-        None,
-        None,
         None,
         None,
         None,
@@ -151,14 +136,11 @@ def test_gera_relatorio_consolidado_xlsx_emef(
         125,
         125,
         125,
-        125,
-        125,
-        125,
-        125,
-        125,
-        125,
-        125,
-        125,
+        20,
+        20,
+        10,
+        10,
+        10,
     )
     assert rows[6] == (
         "TOTAL",
@@ -172,14 +154,11 @@ def test_gera_relatorio_consolidado_xlsx_emef(
         125,
         125,
         125,
-        125,
-        125,
-        125,
-        125,
-        125,
-        125,
-        125,
-        125,
+        20,
+        20,
+        10,
+        10,
+        10,
     )
 
 
@@ -216,15 +195,9 @@ def test_gera_relatorio_consolidado_xlsx_emei(
         None,
         None,
         None,
-        None,
-        None,
-        None,
     )
     assert rows[1] == (
         "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - EMEI",
-        None,
-        None,
-        None,
         None,
         None,
         None,
@@ -256,10 +229,7 @@ def test_gera_relatorio_consolidado_xlsx_emei(
         "DIETA ESPECIAL - TIPO A",
         None,
         None,
-        None,
         "DIETA ESPECIAL - TIPO B",
-        None,
-        None,
         None,
     )
     assert rows[3] == (
@@ -277,16 +247,10 @@ def test_gera_relatorio_consolidado_xlsx_emei(
         "Lanche",
         "Lanche 4h",
         "Refeição",
-        "Sobremesa",
         "Lanche",
         "Lanche 4h",
-        "Refeição",
-        "Sobremesa",
     )
     assert rows[4] == (
-        None,
-        None,
-        None,
         None,
         None,
         None,
@@ -316,14 +280,11 @@ def test_gera_relatorio_consolidado_xlsx_emei(
         150,
         150,
         150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
+        40,
+        40,
+        20,
+        20,
+        20,
     )
     assert rows[6] == (
         "TOTAL",
@@ -337,14 +298,11 @@ def test_gera_relatorio_consolidado_xlsx_emei(
         150,
         150,
         150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
+        40,
+        40,
+        20,
+        20,
+        20,
     )
 
 
@@ -555,6 +513,361 @@ def test_gera_relatorio_consolidado_xlsx_cei(
     )
 
 
+def test_gera_relatorio_consolidado_xlsx_cemei(
+    relatorio_consolidado_xlsx_cemei, mock_query_params_excel_cemei
+):
+    solicitacoes = [relatorio_consolidado_xlsx_cemei.uuid]
+    tipos_unidade = ["CEMEI"]
+    arquivo = gera_relatorio_consolidado_xlsx(
+        solicitacoes, tipos_unidade, mock_query_params_excel_cemei
+    )
+    assert isinstance(arquivo, bytes)
+    excel_buffer = BytesIO(arquivo)
+
+    workbook = load_workbook(filename=excel_buffer)
+    nome_aba = f"Relatório Consolidado { relatorio_consolidado_xlsx_cemei.mes}-{ relatorio_consolidado_xlsx_cemei.ano}"
+    assert nome_aba in workbook.sheetnames
+    sheet = workbook[nome_aba]
+    rows = list(sheet.iter_rows(values_only=True))
+
+    assert rows[0] == (
+        "Relatório de Totalização da Medição Inicial do Serviço de Fornecimento da Alimentação Escolar",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[1] == (
+        "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - CEMEI",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[2] == (
+        None,
+        None,
+        None,
+        None,
+        None,
+        "INTEGRAL",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        "PARCIAL",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        "DIETA ESPECIAL - TIPO A - CEI",
+        "DIETA ESPECIAL - TIPO B - CEI",
+        "INFANTIL INTEGRAL",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "INFANTIL MANHA",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "INFANTIL TARDE",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "DIETA ESPECIAL - TIPO A - INFANTIL",
+        None,
+        None,
+        "DIETA ESPECIAL - TIPO B - INFANTIL",
+        None,
+    )
+    assert rows[3] == (
+        "Tipo",
+        "Cód. EOL",
+        "Unidade Escolar",
+        "Kit Lanche",
+        "Lanche Emerg.",
+        "00 meses",
+        "01 a 03 meses",
+        "04 a 05 meses",
+        "06 a 07 meses",
+        "08 a 11 meses",
+        "01 ano a 01 ano e 11 meses",
+        "02 anos a 03 anos e 11 meses",
+        "04 anos a 06 anos",
+        "00 meses",
+        "01 a 03 meses",
+        "04 a 05 meses",
+        "06 a 07 meses",
+        "08 a 11 meses",
+        "01 ano a 01 ano e 11 meses",
+        "02 anos a 03 anos e 11 meses",
+        "04 anos a 06 anos",
+        "04 a 05 meses",
+        "08 a 11 meses",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Refeições p/ Pagamento",
+        "Sobremesa",
+        "Sobremesas p/ Pagamento",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Refeições p/ Pagamento",
+        "Sobremesa",
+        "Sobremesas p/ Pagamento",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Refeições p/ Pagamento",
+        "Sobremesa",
+        "Sobremesas p/ Pagamento",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Lanche",
+        "Lanche 4h",
+    )
+    assert rows[4] == (
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[5] == (
+        "CEMEI",
+        "543210",
+        "CEMEI TESTE",
+        5,
+        5,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        30,
+        20,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        30,
+        30,
+        15,
+        15,
+        15,
+    )
+    assert rows[6] == (
+        "TOTAL",
+        None,
+        None,
+        5,
+        5,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        30,
+        20,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        30,
+        30,
+        15,
+        15,
+        15,
+    )
+
+
 def test_insere_tabela_periodos_na_planilha_unidade_emef(
     informacoes_excel_writer_emef, mock_colunas, mock_linhas_emef
 ):
@@ -565,10 +878,10 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
     )
     assert isinstance(df, pd.DataFrame)
     colunas_df = df.columns.tolist()
-    assert len(colunas_df) == 19
+    assert len(colunas_df) == 16
     assert sum(1 for tupla in colunas_df if tupla[0] == "MANHA") == 6
-    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 4
-    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 4
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 3
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 2
     assert sum(1 for tupla in colunas_df if tupla[1] == "Tipo") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Cód. EOL") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
@@ -576,9 +889,9 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 3
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 2
     assert sum(1 for tupla in colunas_df if tupla[1] == "Refeições p/ Pagamento") == 1
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesas p/ Pagamento") == 1
 
     assert df.iloc[0].tolist() == [
@@ -593,14 +906,11 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
         125.0,
         125.0,
         125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
+        20.0,
+        20.0,
+        10.0,
+        10.0,
+        10.0,
     ]
     assert df.iloc[1].tolist() == [
         0.0,
@@ -614,14 +924,11 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
         125.0,
         125.0,
         125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
-        125.0,
+        20.0,
+        20.0,
+        10.0,
+        10.0,
+        10.0,
     ]
 
 
@@ -635,10 +942,10 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
     )
     assert isinstance(df, pd.DataFrame)
     colunas_df = df.columns.tolist()
-    assert len(colunas_df) == 19
+    assert len(colunas_df) == 16
     assert sum(1 for tupla in colunas_df if tupla[0] == "MANHA") == 6
-    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 4
-    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 4
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 3
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 2
     assert sum(1 for tupla in colunas_df if tupla[1] == "Tipo") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Cód. EOL") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
@@ -646,9 +953,9 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 3
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 2
     assert sum(1 for tupla in colunas_df if tupla[1] == "Refeições p/ Pagamento") == 1
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesas p/ Pagamento") == 1
 
     assert df.iloc[0].tolist() == [
@@ -663,14 +970,11 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
         150.0,
         150.0,
         150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
+        40.0,
+        40.0,
+        20.0,
+        20.0,
+        20.0,
     ]
     assert df.iloc[1].tolist() == [
         0.0,
@@ -684,14 +988,11 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
         150.0,
         150.0,
         150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
-        150.0,
+        40.0,
+        40.0,
+        20.0,
+        20.0,
+        20.0,
     ]
 
 
@@ -787,6 +1088,173 @@ def test_insere_tabela_periodos_na_planilha_unidade_cei(
     ]
 
 
+def test_insere_tabela_periodos_na_planilha_unidade_cemei(
+    informacoes_excel_writer_cemei, mock_colunas_cemei, mock_linhas_cemei
+):
+    aba, writer, _, _, _, _ = informacoes_excel_writer_cemei
+
+    df = _insere_tabela_periodos_na_planilha(
+        ["CEMEI"], aba, mock_colunas_cemei, mock_linhas_cemei, writer
+    )
+    assert isinstance(df, pd.DataFrame)
+    colunas_df = df.columns.tolist()
+    assert len(colunas_df) == 46
+
+    assert sum(1 for tupla in colunas_df if tupla[0] == "INTEGRAL") == 8
+    assert sum(1 for tupla in colunas_df if tupla[0] == "PARCIAL") == 8
+    assert (
+        sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A - CEI")
+        == 1
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B - CEI")
+        == 1
+    )
+    assert sum(1 for tupla in colunas_df if tupla[0] == "INFANTIL INTEGRAL") == 6
+    assert sum(1 for tupla in colunas_df if tupla[0] == "INFANTIL MANHA") == 6
+    assert sum(1 for tupla in colunas_df if tupla[0] == "INFANTIL TARDE") == 6
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[0] == "DIETA ESPECIAL - TIPO A - INFANTIL"
+        )
+        == 3
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[0] == "DIETA ESPECIAL - TIPO B - INFANTIL"
+        )
+        == 2
+    )
+
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Tipo") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Cód. EOL") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
+
+    assert sum(1 for tupla in colunas_df if tupla[1] == "00 meses") == 2
+    assert sum(1 for tupla in colunas_df if tupla[1] == "01 a 03 meses") == 2
+    assert sum(1 for tupla in colunas_df if tupla[1] == "04 a 05 meses") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "06 a 07 meses") == 2
+    assert sum(1 for tupla in colunas_df if tupla[1] == "08 a 11 meses") == 3
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == "01 ano a 01 ano e 11 meses") == 2
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == "02 anos a 03 anos e 11 meses")
+        == 2
+    )
+    assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 2
+
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 5
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 5
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 4
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeições p/ Pagamento") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesas p/ Pagamento") == 3
+
+    assert df.iloc[0].tolist() == [
+        "CEMEI",
+        "543210",
+        "CEMEI TESTE",
+        5.0,
+        5.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        30.0,
+        20.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        30.0,
+        30.0,
+        15.0,
+        15.0,
+        15.0,
+    ]
+    assert df.iloc[1].tolist() == [
+        0.0,
+        543210.0,
+        0.0,
+        5.0,
+        5.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        30.0,
+        20.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        30.0,
+        30.0,
+        15.0,
+        15.0,
+        15.0,
+    ]
+
+
 def test_preenche_titulo(informacoes_excel_writer_emef):
     aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emef
     _preenche_titulo(workbook, worksheet, df.columns)
@@ -796,7 +1264,7 @@ def test_preenche_titulo(informacoes_excel_writer_emef):
 
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 5
-    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3", "A1:S1"}
+    esperados = {"A3:E3", "F3:K3", "L3:N3", "O3:P3", "A1:P1"}
     assert {str(r) for r in merged_ranges} == esperados
 
     assert (
@@ -825,7 +1293,7 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_emef(
 
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 5
-    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3", "A2:S2"}
+    esperados = {"A3:E3", "F3:K3", "L3:N3", "O3:P3", "A2:P2"}
     assert {str(r) for r in merged_ranges} == esperados
 
     assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL IPIRANGA - 1 - EMEF"
@@ -854,7 +1322,7 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_emei(
 
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 5
-    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3", "A2:S2"}
+    esperados = {"A3:E3", "F3:K3", "L3:N3", "O3:P3", "A2:P2"}
     assert {str(r) for r in merged_ranges} == esperados
 
     assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - EMEI"
@@ -903,6 +1371,43 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_cei(
     workbook_openpyxl.close()
 
 
+def test_preenche_linha_dos_filtros_selecionados_unidade_cemei(
+    mock_query_params_excel_cemei, informacoes_excel_writer_cemei
+):
+    tipos_unidades = ["CEMEI"]
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_cemei
+    _preenche_linha_dos_filtros_selecionados(
+        workbook, worksheet, mock_query_params_excel_cemei, df.columns, tipos_unidades
+    )
+    writer.close()
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
+    sheet = workbook_openpyxl[aba]
+
+    merged_ranges = sheet.merged_cells.ranges
+    assert len(merged_ranges) == 9
+
+    assert "A3:E3" in str(merged_ranges)
+    assert "F3:M3" in str(merged_ranges)
+    assert "N3:U3" in str(merged_ranges)
+    assert "X3:AC3" in str(merged_ranges)
+    assert "AD3:AI3" in str(merged_ranges)
+    assert "AJ3:AO3" in str(merged_ranges)
+    assert "AP3:AR3" in str(merged_ranges)
+    assert "AS3:AT3" in str(merged_ranges)
+    assert "A2:AT2" in str(merged_ranges)
+
+    assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - CEMEI"
+    assert sheet["A2"].alignment.horizontal == "center"
+    assert sheet["A2"].alignment.vertical == "center"
+    assert sheet["A2"].font.bold is True
+    assert sheet["A2"].font.color.rgb == "FF0C6B45"
+    assert sheet["A2"].fill.fgColor.rgb == "FFEAFFF6"
+
+    rows = list(sheet.iter_rows(values_only=True))
+    assert tipos_unidades[0] in rows[1][0]
+    workbook_openpyxl.close()
+
+
 def test_ajusta_layout_tabela_emef(informacoes_excel_writer_emef):
     aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emef
     _ajusta_layout_tabela(["EMEF"], workbook, worksheet, df)
@@ -911,7 +1416,7 @@ def test_ajusta_layout_tabela_emef(informacoes_excel_writer_emef):
     sheet = workbook_openpyxl[aba]
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 4
-    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3"}
+    esperados = {"A3:E3", "F3:K3", "L3:N3", "O3:P3"}
     assert {str(r) for r in merged_ranges} == esperados
 
     assert sheet["A3"].value is None
@@ -919,8 +1424,8 @@ def test_ajusta_layout_tabela_emef(informacoes_excel_writer_emef):
     assert sheet["F3"].fill.fgColor.rgb == "FF198459"
     assert sheet["L3"].value == "DIETA ESPECIAL - TIPO A"
     assert sheet["L3"].fill.fgColor.rgb == "FF198459"
-    assert sheet["P3"].value == "DIETA ESPECIAL - TIPO B"
-    assert sheet["P3"].fill.fgColor.rgb == "FF20AA73"
+    assert sheet["O3"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["O3"].fill.fgColor.rgb == "FF20AA73"
     workbook_openpyxl.close()
 
 
@@ -932,7 +1437,7 @@ def test_ajusta_layout_tabela_emei(informacoes_excel_writer_emei):
     sheet = workbook_openpyxl[aba]
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 4
-    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3"}
+    esperados = {"A3:E3", "F3:K3", "L3:N3", "O3:P3"}
     assert {str(r) for r in merged_ranges} == esperados
 
     assert sheet["A3"].value is None
@@ -940,8 +1445,8 @@ def test_ajusta_layout_tabela_emei(informacoes_excel_writer_emei):
     assert sheet["F3"].fill.fgColor.rgb == "FF198459"
     assert sheet["L3"].value == "DIETA ESPECIAL - TIPO A"
     assert sheet["L3"].fill.fgColor.rgb == "FF198459"
-    assert sheet["P3"].value == "DIETA ESPECIAL - TIPO B"
-    assert sheet["P3"].fill.fgColor.rgb == "FF20AA73"
+    assert sheet["O3"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["O3"].fill.fgColor.rgb == "FF20AA73"
     workbook_openpyxl.close()
 
 
@@ -971,6 +1476,45 @@ def test_ajusta_layout_tabela_cei(informacoes_excel_writer_cei):
     workbook_openpyxl.close()
 
 
+def test_ajusta_layout_tabela_cemei(informacoes_excel_writer_cemei):
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_cemei
+    _ajusta_layout_tabela(["CEMEI"], workbook, worksheet, df)
+    writer.close()
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
+    sheet = workbook_openpyxl[aba]
+    merged_ranges = sheet.merged_cells.ranges
+    assert len(merged_ranges) == 8
+    esperados = {
+        "A3:E3",
+        "F3:M3",
+        "N3:U3",
+        "X3:AC3",
+        "AD3:AI3",
+        "AJ3:AO3",
+        "AP3:AR3",
+        "AS3:AT3",
+    }
+    assert {str(r) for r in merged_ranges} == esperados
+
+    assert sheet["A3"].value is None
+    assert sheet["F3"].value == "INTEGRAL"
+    assert sheet["F3"].fill.fgColor.rgb == "FF198459"
+    assert sheet["N3"].value == "PARCIAL"
+    assert sheet["N3"].fill.fgColor.rgb == "FFD06D12"
+    assert sheet["X3"].value == "INFANTIL INTEGRAL"
+    assert sheet["X3"].fill.fgColor.rgb == "FFB40C02"
+    assert sheet["AD3"].value == "INFANTIL MANHA"
+    assert sheet["AD3"].fill.fgColor.rgb == "FFC13FD6"
+    assert sheet["AJ3"].value == "INFANTIL TARDE"
+    assert sheet["AJ3"].fill.fgColor.rgb == "FF2F80ED"
+    assert sheet["AP3"].value == "DIETA ESPECIAL - TIPO A - INFANTIL"
+    assert sheet["AP3"].fill.fgColor.rgb == "FF20AA73"
+    assert sheet["AS3"].value == "DIETA ESPECIAL - TIPO B - INFANTIL"
+    assert sheet["AS3"].fill.fgColor.rgb == "FF198459"
+
+    workbook_openpyxl.close()
+
+
 def test_formata_total_geral(informacoes_excel_writer_emef):
     aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emef
     _formata_total_geral(workbook, worksheet, df)
@@ -979,7 +1523,7 @@ def test_formata_total_geral(informacoes_excel_writer_emef):
     sheet = workbook_openpyxl[aba]
     merged_ranges = sheet.merged_cells.ranges
     assert len(merged_ranges) == 5
-    esperados = {"A3:E3", "F3:K3", "L3:O3", "P3:S3", "A7:C7"}
+    esperados = {"A3:E3", "F3:K3", "L3:N3", "O3:P3", "A7:C7"}
     assert {str(r) for r in merged_ranges} == esperados
 
     assert sheet["A7"].value == "TOTAL"
@@ -1008,6 +1552,13 @@ def test_formata_filtros_unidade_cei(mock_query_params_excel_cei):
     filtros = _formata_filtros(mock_query_params_excel_cei, tipos_unidades)
     assert isinstance(filtros, str)
     assert filtros == "Abril/2025 - DIRETORIA REGIONAL TESTE -  - CEI"
+
+
+def test_formata_filtros_unidade_cemei(mock_query_params_excel_cemei):
+    tipos_unidades = ["CEMEI"]
+    filtros = _formata_filtros(mock_query_params_excel_cemei, tipos_unidades)
+    assert isinstance(filtros, str)
+    assert filtros == "Abril/2025 - DIRETORIA REGIONAL TESTE -  - CEMEI"
 
 
 def test_gera_relatorio_consolidado_xlsx_tipo_unidade_invalida():

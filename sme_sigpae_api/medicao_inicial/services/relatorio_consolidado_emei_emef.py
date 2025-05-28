@@ -37,6 +37,7 @@ def get_alimentacoes_por_periodo(solicitacoes):
                     dietas_alimentacoes, categoria, lista_alimentacoes_dietas
                 )
 
+    dietas_alimentacoes = _unificar_dietas_tipo_a(dietas_alimentacoes)
     dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
     columns = _generate_columns(dict_periodos_dietas)
 
@@ -130,6 +131,17 @@ def _update_dietas_alimentacoes(
     return dietas_alimentacoes
 
 
+def _unificar_dietas_tipo_a(dietas_alimentacoes):
+    dieta_principal = "DIETA ESPECIAL - TIPO A"
+    dieta_alternativa = "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    valor_principal = dietas_alimentacoes.get(dieta_principal, [])
+    valor_alternativo = dietas_alimentacoes.get(dieta_alternativa, [])
+    if valor_alternativo:
+        dietas_alimentacoes[dieta_principal] = valor_principal + valor_alternativo
+        dietas_alimentacoes.pop(dieta_alternativa, None)
+    return dietas_alimentacoes
+
+
 def _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes):
     periodos_alimentacoes = {
         chave: sorted(list(set(valores)), key=lambda valor: ORDEM_CAMPOS.index(valor))
@@ -211,9 +223,9 @@ def _processa_periodo_campo(
 
     try:
         if periodo in dietas_especiais:
-            total = _processa_dieta_especial(solicitacao, filtros, campo, periodo)
+            total = processa_dieta_especial(solicitacao, filtros, campo, periodo)
         else:
-            total = _processa_periodo_regular(solicitacao, filtros, campo, periodo)
+            total = processa_periodo_regular(solicitacao, filtros, campo, periodo)
         valores.append(total)
     except Exception:
         valores.append("-")
@@ -230,45 +242,62 @@ def _define_filtro(periodo, dietas_especiais, periodos_escolares):
         filtros["grupo__nome"] = periodo
     elif periodo in dietas_especiais:
         filtros["periodo_escolar__nome__in"] = periodos_escolares
+        filtros["grupo__nome__in"] = ["Programas e Projetos", "ETEC"]
     else:
         filtros["periodo_escolar__nome"] = periodo
     return filtros
 
 
-def _processa_dieta_especial(solicitacao, filtros, campo, periodo):
-    medicoes = solicitacao.medicoes.filter(**filtros)
+def processa_dieta_especial(solicitacao, filtros, campo, periodo):
+    condicoes = Q()
+    for filtro, valor in filtros.items():
+        condicoes = condicoes | Q(**{filtro: valor})
+
+    medicoes = solicitacao.medicoes.filter(condicoes)
     if not medicoes.exists():
         return "-"
 
+    categorias = (
+        [
+            "DIETA ESPECIAL - TIPO A",
+            "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        ]
+        if periodo == "DIETA ESPECIAL - TIPO A"
+        else [periodo]
+    )
     total = 0.0
     for medicao in medicoes:
-        soma = _calcula_soma_medicao(medicao, campo, periodo)
+        soma = _calcula_soma_medicao(medicao, campo, categorias)
         if soma is not None:
             total += soma
 
     return "-" if total == 0.0 else total
 
 
-def _processa_periodo_regular(solicitacao, filtros, campo, periodo):
+def processa_periodo_regular(solicitacao, filtros, campo, periodo, tipo_unidade=None):
     medicao = solicitacao.medicoes.get(**filtros)
 
+    iniciais = (
+        solicitacao.escola.tipo_unidade.iniciais
+        if tipo_unidade is None
+        else tipo_unidade
+    )
     if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
-        return _get_total_pagamento(
-            medicao, campo, solicitacao.escola.tipo_unidade.iniciais
-        )
+        return _get_total_pagamento(medicao, campo, iniciais)
 
-    categoria = "ALIMENTAÇÃO"
-    if periodo == "Solicitações de Alimentação":
-        categoria = periodo.upper()
-
-    soma = _calcula_soma_medicao(medicao, campo, categoria)
+    categorias = (
+        [periodo.upper()]
+        if periodo == "Solicitações de Alimentação"
+        else ["ALIMENTAÇÃO"]
+    )
+    soma = _calcula_soma_medicao(medicao, campo, categorias)
     return soma if soma is not None else "-"
 
 
-def _calcula_soma_medicao(medicao, campo, categoria):
+def _calcula_soma_medicao(medicao, campo, categorias):
     return (
         medicao.valores_medicao.filter(
-            nome_campo=campo, categoria_medicao__nome=categoria
+            nome_campo=campo, categoria_medicao__nome__in=categorias
         )
         .annotate(valor_float=Cast("valor", output_field=FloatField()))
         .aggregate(total=Sum("valor_float"))["total"]
@@ -462,7 +491,6 @@ def ajusta_layout_tabela(workbook, worksheet, df):
         "PROGRAMAS E PROJETOS": formatacao_programas,
         "ETEC": formatacao_etec,
         "DIETA ESPECIAL - TIPO A": formatacao_dieta_a,
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": formatacao_dieta_a,
         "DIETA ESPECIAL - TIPO B": formatacao_dieta_b,
     }
 
