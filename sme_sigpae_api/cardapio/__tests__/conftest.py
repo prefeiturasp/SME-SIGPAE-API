@@ -524,3 +524,18 @@ def ativa_vinculo(vinculos_alimentacao):
         ativo=False,
     )
     return tipo_unidade, escola_periodo_escolar
+
+
+@pytest.fixture
+def escola_com_horario_vinculo_alimentacao(
+    escola_dre_guaianases,
+    periodo_manha,
+    tipo_alimentacao,
+):
+    mommy.make(
+        "cardapio.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar",
+        periodo_escolar=periodo_manha,
+        escola=escola_dre_guaianases,
+        tipo_alimentacao=tipo_alimentacao,
+    )
+    return escola
