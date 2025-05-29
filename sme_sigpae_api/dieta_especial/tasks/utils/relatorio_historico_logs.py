@@ -90,6 +90,7 @@ def build_titulo(
     querydict_params: QueryDict,
     for_pdf: bool = False,
 ) -> str:
+    lote_nome = logs_dietas_formatados[0]["lote_dre"].split(" - DRE ")[0]
     dre_nome = DiretoriaRegional.objects.get(
         iniciais=logs_dietas_formatados[0]["lote_dre"].split(" DRE ")[1]
     ).nome
@@ -102,18 +103,25 @@ def build_titulo(
     )
 
     titulo = f"Total de Dietas Autorizadas em {bold(data_referencia)} "
-    titulo += f"para as unidades da DRE {bold(dre_nome)}"
+    titulo += f"para as unidades da DRE {bold(dre_nome)} - {bold(lote_nome)}"
 
     periodos_escolares = querydict_params.getlist("periodos_escolares_selecionadas[]")
     if periodos_escolares:
         nomes_periodos = ", ".join(
-            PeriodoEscolar.objects.filter(uuid__in=periodos_escolares).values_list(
-                "nome", flat=True
-            )
+            nome
+            for nome in PeriodoEscolar.objects.filter(
+                uuid__in=periodos_escolares
+            ).values_list("nome", flat=True)
+            if nome and nome != "None"
         )
         titulo += f" | {bold('Períodos:')} {nomes_periodos}"
+
     elif for_pdf:
-        nomes_periodos = ", ".join(encontrar_todos_os_periodos(logs_dietas_formatados))
+        nomes_periodos = ", ".join(
+            nome
+            for nome in encontrar_todos_os_periodos(logs_dietas_formatados)
+            if nome and nome != "None"
+        )
         titulo += f" | {bold('Períodos:')} {nomes_periodos}"
 
     total_dietas = sum(log["dietas_autorizadas"] for log in logs_dietas_formatados)
@@ -307,7 +315,7 @@ def reestruturar_resultados(objeto):
     return {"total_dietas": objeto["total_dietas"], "resultados": resultados_novos}
 
 
-def gera_pdf_relatorio_historico_dieta_especial(dados, user, titulo):
+def gera_pdf_relatorio_historico_dieta_especial(dados, user, titulo, iniciais_dre):
     unidades_cei = ["CEI DIRET", "CEU CEI", "CEI", "CCI", "CCI/CIPS", "CEI CEU"]
     unidades_cemei = ["CEMEI", "CEU CEMEI"]
     unidades_emei_emef = [
@@ -335,6 +343,7 @@ def gera_pdf_relatorio_historico_dieta_especial(dados, user, titulo):
             "dados": dados,
             "user": user,
             "titulo_filtros": titulo,
+            "iniciais_dre": iniciais_dre,
         },
     )
     return html_to_pdf_file(

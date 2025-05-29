@@ -40,6 +40,7 @@ def gera_pdf_relatorio_historico_dietas_especiais_async(user, nome_arquivo, data
         filtros, data_dieta = gerar_filtros_relatorio_historico(querydict_params)
 
         logs_dietas_auxiliar = get_logs_historico_dietas(filtros, eh_exportacao=True)
+        iniciais_dre = logs_dietas_auxiliar[0]["dre"]
         logs_dietas_formatados = formata_logs_para_titulo(logs_dietas_auxiliar)
         subtitulo_relatorio = build_titulo(
             logs_dietas_formatados, querydict_params, for_pdf=True
@@ -47,7 +48,7 @@ def gera_pdf_relatorio_historico_dietas_especiais_async(user, nome_arquivo, data
 
         logs_dietas = gera_dicionario_historico_dietas(filtros)
         arquivo = gera_pdf_relatorio_historico_dieta_especial(
-            logs_dietas, user, subtitulo_relatorio
+            logs_dietas, user, subtitulo_relatorio, iniciais_dre
         )
         atualiza_central_download(obj_central_download, nome_arquivo, arquivo)
     except Exception as e:
