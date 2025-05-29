@@ -111,10 +111,10 @@ def build_titulo(
                 "nome", flat=True
             )
         )
+        titulo += f" | {bold('Períodos:')} {nomes_periodos}"
     elif for_pdf:
         nomes_periodos = ", ".join(encontrar_todos_os_periodos(logs_dietas_formatados))
-
-    titulo += f" | {bold('Períodos:')} {nomes_periodos}"
+        titulo += f" | {bold('Períodos:')} {nomes_periodos}"
 
     total_dietas = sum(log["dietas_autorizadas"] for log in logs_dietas_formatados)
     data_extraido = datetime.date.today().strftime("%d/%m/%Y")
