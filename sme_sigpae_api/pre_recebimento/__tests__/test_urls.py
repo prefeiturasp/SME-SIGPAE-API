@@ -1809,9 +1809,6 @@ def test_url_layout_embalagem_validacao_analise_correcao(
     dados_analise = {
         "tipos_de_embalagens": [
             {
-                "uuid": str(
-                    tipos_embalagem_analisados.get(tipo_embalagem="PRIMARIA").uuid
-                ),
                 "tipo_embalagem": "PRIMARIA",
                 "status": "APROVADO",
                 "complemento_do_status": "Teste complemento",
@@ -1833,7 +1830,7 @@ def test_url_layout_embalagem_validacao_analise_correcao(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert (
         msg_erro
-        in response.json()["tipos_de_embalagens"][1]["Layout Embalagem SECUNDARIA"]
+        in response.json()["tipos_de_embalagens"][0]["Layout Embalagem PRIMARIA"]
     )
 
 
