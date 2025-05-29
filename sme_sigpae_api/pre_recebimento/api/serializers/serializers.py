@@ -872,6 +872,22 @@ class LayoutDeEmbalagemDetalheSerializer(serializers.ModelSerializer):
     def get_primeira_analise(self, obj):
         return obj.eh_primeira_analise
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        if "tipos_de_embalagens" in representation:
+            embalagens = representation["tipos_de_embalagens"]
+            emb_dict = {emb["tipo_embalagem"]: emb for emb in embalagens}
+
+            ordered_embalagens = [
+                emb_dict.get("PRIMARIA"),
+                emb_dict.get("SECUNDARIA"),
+                emb_dict.get("TERCIARIA"),
+            ]
+            representation["tipos_de_embalagens"] = ordered_embalagens
+
+        return representation
+
     class Meta:
         model = LayoutDeEmbalagem
         fields = (
