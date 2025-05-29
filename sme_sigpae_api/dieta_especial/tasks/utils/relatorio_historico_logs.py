@@ -1,11 +1,14 @@
 import datetime
+from copy import deepcopy
 from typing import BinaryIO
 
 import numpy as np
 from django.http import QueryDict
+from django.template.loader import render_to_string
 
 from sme_sigpae_api.escola.models import DiretoriaRegional, PeriodoEscolar
 from sme_sigpae_api.escola.utils import faixa_to_string
+from sme_sigpae_api.relatorios.utils import html_to_pdf_file
 
 
 def get_faixa_etaria_cei(log: dict, faixa_etaria: str) -> str:
@@ -50,14 +53,56 @@ def get_faixa_etaria(log: dict) -> str:
     return faixa_etaria
 
 
+def formata_logs_para_titulo(logs_dietas: list[dict]) -> list[dict]:
+    logs_dietas_formatados = [
+        {
+            "lote_dre": f"{log['lote']} - DRE {log['dre']}",
+            "unidade_educacional": log["nome_escola"],
+            "classificacao_da_dieta": log["nome_classificacao"],
+            "periodo": log["nome_periodo_escolar"],
+            "faixa_etaria": get_faixa_etaria(log),
+            "dietas_autorizadas": log["quantidade_total"],
+            "data_de_referencia": log["data"].strftime("%d/%m/%Y"),
+        }
+        for log in logs_dietas
+    ]
+    return logs_dietas_formatados
+
+
+def encontrar_todos_os_periodos(obj):
+    periodos = []
+
+    if isinstance(obj, dict):
+        for chave, valor in obj.items():
+            if chave == "periodo":
+                periodos.append(valor)
+            periodos.extend(encontrar_todos_os_periodos(valor))
+    elif isinstance(obj, list):
+        for item in obj:
+            periodos.extend(encontrar_todos_os_periodos(item))
+
+    periodos_unicos = list(set(periodos))
+    return [str(p).title() for p in periodos_unicos]
+
+
 def build_titulo(
-    logs_dietas_formatados: list[dict], querydict_params: QueryDict
+    logs_dietas_formatados: list[dict],
+    querydict_params: QueryDict,
+    for_pdf: bool = False,
 ) -> str:
     dre_nome = DiretoriaRegional.objects.get(
         iniciais=logs_dietas_formatados[0]["lote_dre"].split(" DRE ")[1]
     ).nome
-    titulo = f"Total de Dietas Autorizadas em {logs_dietas_formatados[0]['data_de_referencia']} "
-    titulo += f"para as unidades da DRE {dre_nome}"
+    data_referencia = logs_dietas_formatados[0]["data_de_referencia"]
+
+    bold = (
+        (lambda text: f"<strong>{text}</strong>")
+        if for_pdf
+        else (lambda text: str(text))
+    )
+
+    titulo = f"Total de Dietas Autorizadas em {bold(data_referencia)} "
+    titulo += f"para as unidades da DRE {bold(dre_nome)}"
 
     periodos_escolares = querydict_params.getlist("periodos_escolares_selecionadas[]")
     if periodos_escolares:
@@ -66,11 +111,16 @@ def build_titulo(
                 "nome", flat=True
             )
         )
-        titulo += f" | Períodos: {nomes_periodos}"
+        titulo += f" | {bold('Períodos:')} {nomes_periodos}"
+    elif for_pdf:
+        nomes_periodos = ", ".join(encontrar_todos_os_periodos(logs_dietas_formatados))
+        titulo += f" | {bold('Períodos:')} {nomes_periodos}"
 
-    total_dietas = sum([log["dietas_autorizadas"] for log in logs_dietas_formatados])
-    titulo += f": {total_dietas}"
-    titulo += f" | Data de extração do relatório: {datetime.date.today().strftime('%d/%m/%Y')}"
+    total_dietas = sum(log["dietas_autorizadas"] for log in logs_dietas_formatados)
+    data_extraido = datetime.date.today().strftime("%d/%m/%Y")
+
+    titulo += f": {bold(total_dietas)}"
+    titulo += f" | Data de extração do relatório: {bold(data_extraido)}"
     return titulo
 
 
@@ -174,3 +224,119 @@ def build_xlsx_relatorio_historico_dietas(
             df, workbook, worksheet, "#C6E0B4", '"Fundamental (acima de 6 anos)"'
         )
     output.seek(0)
+
+
+def processar_cemei(periodos):
+    turma_infantil = periodos.get("turma_infantil", [])
+    por_idade = periodos.get("por_idade", [])
+
+    dados_combinados = {}
+
+    for item in turma_infantil:
+        periodo = item["periodo"]
+        dados_combinados[periodo] = {
+            "periodo": periodo,
+            "autorizadas_infantil": item["autorizadas"],
+            "por_idade": [],
+        }
+
+    for item in por_idade:
+        periodo = item["periodo"]
+        if periodo not in dados_combinados:
+            dados_combinados[periodo] = {
+                "periodo": periodo,
+                "autorizadas_infantil": 0,
+                "por_idade": [],
+            }
+        dados_combinados[periodo]["por_idade"].extend(item.get("faixa_etaria", []))
+
+    return list(dados_combinados.values())
+
+
+def processar_emebs(periodos):
+    infantil = periodos.get("infantil", [])
+    fundamental = periodos.get("fundamental", [])
+
+    dados_combinados = {}
+
+    for item in infantil:
+        periodo = item["periodo"]
+        dados_combinados.setdefault(
+            periodo,
+            {
+                "periodo": periodo,
+                "autorizadas_infantil": 0,
+                "autorizadas_fundamental": 0,
+            },
+        )
+        dados_combinados[periodo]["autorizadas_infantil"] += item["autorizadas"]
+
+    for item in fundamental:
+        periodo = item["periodo"]
+        dados_combinados.setdefault(
+            periodo,
+            {
+                "periodo": periodo,
+                "autorizadas_infantil": 0,
+                "autorizadas_fundamental": 0,
+            },
+        )
+        dados_combinados[periodo]["autorizadas_fundamental"] += item["autorizadas"]
+
+    return list(dados_combinados.values())
+
+
+def reestruturar_resultados(objeto):
+    unidades_cemei = ["CEMEI", "CEU CEMEI"]
+    unidades_emebs = ["EMEBS"]
+
+    resultados_novos = []
+
+    for resultado in objeto["resultados"]:
+        novo_resultado = deepcopy(resultado)
+        tipo_unidade = resultado.get("tipo_unidade", "")
+        periodos = resultado.get("periodos", {})
+
+        if tipo_unidade in unidades_cemei:
+            novo_resultado["periodos"] = processar_cemei(periodos)
+        elif tipo_unidade in unidades_emebs:
+            novo_resultado["periodos"] = processar_emebs(periodos)
+
+        resultados_novos.append(novo_resultado)
+
+    return {"total_dietas": objeto["total_dietas"], "resultados": resultados_novos}
+
+
+def gera_pdf_relatorio_historico_dieta_especial(dados, user, titulo):
+    unidades_cei = ["CEI DIRET", "CEU CEI", "CEI", "CCI", "CCI/CIPS", "CEI CEU"]
+    unidades_cemei = ["CEMEI", "CEU CEMEI"]
+    unidades_emei_emef = [
+        "EMEI",
+        "CEU EMEI",
+        "CEU EMEI",
+        "EMEF",
+        "CEU EMEF",
+        "EMEFM",
+        "CIEJA",
+    ]
+    unidades_emebs = ["EMEBS"]
+    unidades_sem_periodos = ["CMCT", "CEU GESTAO"]
+
+    dados = reestruturar_resultados(dados)
+
+    html_string = render_to_string(
+        "relatorio_historico_dieta_especial.html",
+        {
+            "unidades_cei": unidades_cei,
+            "unidades_cemei": unidades_cemei,
+            "unidades_emei_emef": unidades_emei_emef,
+            "unidades_emebs": unidades_emebs,
+            "unidades_sem_periodos": unidades_sem_periodos,
+            "dados": dados,
+            "user": user,
+            "titulo_filtros": titulo,
+        },
+    )
+    return html_to_pdf_file(
+        html_string, "relatorio_historico_dieta_especial.pdf", is_async=True
+    )
