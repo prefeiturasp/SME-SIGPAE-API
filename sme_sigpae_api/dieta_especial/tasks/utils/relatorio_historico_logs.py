@@ -103,7 +103,10 @@ def build_titulo(
     )
 
     titulo = f"Total de Dietas Autorizadas em {bold(data_referencia)} "
-    titulo += f"para as unidades da DRE {bold(dre_nome)} - {bold(lote_nome)}"
+    if for_pdf:
+        titulo += f"para as unidades da DRE {bold(dre_nome)} - {bold(lote_nome)}"
+    else:
+        titulo += f"para as unidades da DRE {dre_nome}"
 
     periodos_escolares = querydict_params.getlist("periodos_escolares_selecionadas[]")
     if periodos_escolares:
