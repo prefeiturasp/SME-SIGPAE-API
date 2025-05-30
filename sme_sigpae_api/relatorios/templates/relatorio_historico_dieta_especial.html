@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="{% sass_src 'css/cabecalho.scss' %}" type="text/css">
   <link rel="stylesheet" href="{% sass_src 'css/produtos_terceirizada.scss' %}" type="text/css">
   <link rel="stylesheet" href="{% sass_src 'css/relatorio_historico_dieta_especial.scss' %}" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,600,600i,700,700i,900,900i" rel="stylesheet" />
 </head>
 <header class="header">
   <section class="titulo-e-logo">
@@ -45,8 +46,8 @@
               </tr>
               <tr class="detalhes-collapse-cei">
                 <td colspan="6">
-                    <div class="linha">
-                      <strong>Faixas Etárias com Dietas Autorizadas</strong>
+                    <div class="linha fonte-semi-bold">
+                      Faixas Etárias com Dietas Autorizadas
                     </div>
                 </td>
               </tr>
@@ -74,8 +75,8 @@
               {% if periodo.por_idade %}
                 <tr class="detalhes-collapse-cei">
                   <td colspan="6">
-                      <div class="linha">
-                        <strong>Faixas Etárias com Dietas Autorizadas</strong>
+                      <div class="linha fonte-semi-bold">
+                        Faixas Etárias com Dietas Autorizadas
                       </div>
                   </td>
                 </tr>
@@ -94,8 +95,8 @@
               {% endif %}
               {% if periodo.autorizadas_infantil > 0 %}
                 <tr class="detalhes-collapse-cei">
-                  <td colspan="2" class="linha sem-bordas">
-                    <span><b>Dietas Autorizadas nas Turmas do Infantil</b></span>
+                  <td colspan="2" class="linha sem-bordas fonte-semi-bold">
+                    <span>Dietas Autorizadas nas Turmas do Infantil</span>
                   </td>
                   <td colspan="2" class="sem-bordas"></td>
                   <td col="2" class="center sem-bordas">
@@ -115,8 +116,8 @@
               </tr>
               {% if periodo.autorizadas_infantil > 0 %}
                 <tr class="detalhes-collapse-cei">
-                  <td colspan="2" class="linha sem-bordas">
-                    <span><b>Alunos do Infantil (4 a 6 anos)</b></span>
+                  <td colspan="2" class="linha sem-bordas fonte-media">
+                    <span>Alunos do Infantil (4 a 6 anos)</span>
                   </td>
                   <td colspan="2" class="sem-bordas"></td>
                   <td col="2" class="center sem-bordas">
@@ -127,8 +128,8 @@
               {% endif %}
               {% if periodo.autorizadas_fundamental > 0 %}
                 <tr class="detalhes-collapse-cei">
-                  <td colspan="2" class="linha sem-bordas">
-                    <span><b>Alunos do Fundamental (acima de 6 anos)</b></span>
+                  <td colspan="2" class="linha sem-bordas fonte-media">
+                    <span>Alunos do Fundamental (acima de 6 anos)</span>
                   </td>
                   <td colspan="2" class="sem-bordas"></td>
                   <td col="2" class="center sem-bordas">
