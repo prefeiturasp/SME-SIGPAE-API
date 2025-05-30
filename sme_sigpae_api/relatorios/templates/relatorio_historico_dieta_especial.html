@@ -36,7 +36,7 @@
           {% for periodo in registro.periodos %}
             {% if registro.tipo_unidade in unidades_cei %}
               <tr>
-                <td>{{ registro.lote }}</td>
+                <td>{{ iniciais_dre }} - {{ registro.lote }}</td>
                 <td>{{ registro.unidade_educacional }}</td>
                 <td>{{ registro.classificacao }}</td>
                 <td class="center">{{ periodo.periodo|title_personalizado }}</td>
@@ -64,7 +64,7 @@
               {% endfor %}
             {% elif registro.tipo_unidade in unidades_cemei %}
               <tr>
-                <td>{{ registro.lote }}</td>
+                <td>{{ iniciais_dre }} - {{ registro.lote }}</td>
                 <td>{{ registro.unidade_educacional }}</td>
                 <td>{{ registro.classificacao }}</td>
                 <td class="center">{{ periodo.periodo|title_personalizado }}</td>
@@ -106,7 +106,7 @@
               {% endif %}
             {% elif registro.tipo_unidade in unidades_emebs %}
               <tr>
-                <td>{{ registro.lote }}</td>
+                <td>{{ iniciais_dre }} - {{ registro.lote }}</td>
                 <td>{{ registro.unidade_educacional }}</td>
                 <td>{{ registro.classificacao }}</td>
                 <td class="center">{{ periodo.periodo|title_personalizado }}</td>
@@ -139,7 +139,7 @@
               {% endif %}
             {% else %}
               <tr>
-                <td>{{ registro.lote }}</td>
+                <td>{{ iniciais_dre }} - {{ registro.lote }}</td>
                 <td>{{ registro.unidade_educacional }}</td>
                 <td>{{ registro.classificacao }}</td>
                 <td class="center">{{ periodo.periodo|title_personalizado }}</td>
