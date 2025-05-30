@@ -488,10 +488,7 @@ class TipoDeEmbalagemDeLayoutAnaliseSerializer(serializers.ModelSerializer):
         tipo_embalagem = attrs.get("tipo_embalagem", None)
         status = attrs.get("status", None)
 
-        if tipo_embalagem in [
-            TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_PRIMARIA,
-            TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_SECUNDARIA,
-        ]:
+        if tipo_embalagem is TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_PRIMARIA:
             if not uuid or not status:
                 raise serializers.ValidationError(
                     {
@@ -534,11 +531,10 @@ class LayoutDeEmbalagemAnaliseSerializer(serializers.ModelSerializer):
             dados_tipos_de_embalagens = validated_data.pop("tipos_de_embalagens", [])
 
             for dados in dados_tipos_de_embalagens:
-                if dados[
-                    "tipo_embalagem"
-                ] == TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_TERCIARIA and not dados.get(
-                    "uuid", None
-                ):
+                if dados["tipo_embalagem"] in [
+                    TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_SECUNDARIA,
+                    TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_TERCIARIA,
+                ] and not dados.get("uuid", None):
                     TipoDeEmbalagemDeLayout.objects.create(
                         layout_de_embalagem=instance, **dados
                     )
