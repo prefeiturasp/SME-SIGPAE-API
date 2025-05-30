@@ -1386,6 +1386,13 @@ def get_total_por_periodo(tabelas, campo):
 
             for indice_campo in indices_campos:
                 periodo = get_periodo(periodos, indice_campo, tabela["len_periodos"])
+
+                posicao_periodo = periodos.index(periodo)
+                if posicao_periodo > 0:
+                    indice_campo = (
+                        sum(tabela["len_periodos"][:posicao_periodo]) + indice_campo
+                    )
+
                 dict_periodos_total_campo[periodo] = tabela["valores_campos"][-1][
                     indice_campo + 1
                 ]
