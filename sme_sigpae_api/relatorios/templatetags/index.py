@@ -4,13 +4,14 @@ import re
 from django import template
 from django.db.models import QuerySet
 from django.template import base as template_base
+from django.template.defaultfilters import title as django_title
 
-from sme_sigpae_api.cardapio.models import (
+from sme_sigpae_api.dados_comuns.utils import numero_com_agrupador_de_milhar_e_decimal
+
+from ...cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
 )
-from sme_sigpae_api.dados_comuns.utils import numero_com_agrupador_de_milhar_e_decimal
-
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...dados_comuns.models import LogSolicitacoesUsuario
@@ -896,3 +897,38 @@ def suspensoes_canceladas(
     return solicitacao.suspensoes_alimentacao.filter(
         cancelado_justificativa__isnull=False
     ).exclude(cancelado_justificativa="")
+
+
+@register.filter
+def sum_faixas(faixa_etaria):
+    return sum(faixa["autorizadas"] for faixa in faixa_etaria)
+
+
+@register.filter
+def soma_dietas_periodo_cemei(periodo_obj):
+    if not isinstance(periodo_obj, dict):
+        return 0
+
+    total = periodo_obj.get("autorizadas_infantil", 0)
+
+    por_idade = periodo_obj.get("por_idade", [])
+    for faixa in por_idade:
+        total += faixa.get("autorizadas", 0)
+
+    return total
+
+
+@register.filter
+def soma_autorizadas_emebs(periodo):
+    infantil = periodo.get("autorizadas_infantil", 0)
+    fundamental = periodo.get("autorizadas_fundamental", 0)
+    return infantil + fundamental
+
+
+@register.filter
+def title_personalizado(value):
+    titled_value = django_title(str(value))
+
+    if titled_value == "Manha":
+        return "Manhã"
+    return titled_value

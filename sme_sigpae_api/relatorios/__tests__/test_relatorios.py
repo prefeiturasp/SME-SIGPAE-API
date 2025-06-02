@@ -5,12 +5,14 @@ import pytest
 from sme_sigpae_api.relatorios.utils import extrair_texto_de_pdf
 
 from ..relatorios import (
+    get_total_por_periodo,
     relatorio_dieta_especial_protocolo,
     relatorio_suspensao_de_alimentacao,
 )
 
+pytestmark = pytest.mark.django_db
 
-@pytest.mark.django_db
+
 def test_relatorio_dieta_especial_protocolo(solicitacao_dieta_especial_autorizada):
     html_string = relatorio_dieta_especial_protocolo(
         None, solicitacao_dieta_especial_autorizada
@@ -25,7 +27,6 @@ def test_relatorio_dieta_especial_protocolo(solicitacao_dieta_especial_autorizad
     assert "Justificativa" not in html_string
 
 
-@pytest.mark.django_db
 def test_relatorio_suspensao_de_alimentacao(grupo_suspensao_alimentacao):
     pdf_response = relatorio_suspensao_de_alimentacao(None, grupo_suspensao_alimentacao)
 
@@ -52,7 +53,6 @@ def test_relatorio_suspensao_de_alimentacao(grupo_suspensao_alimentacao):
         assert sustentacao_alimentacao.cancelado_justificativa == ""
 
 
-@pytest.mark.django_db
 def test_relatorio_suspensao_de_alimentacao_parcialmente_cancelado(
     grupo_suspensao_alimentacao_cancelamento_parcial,
 ):
@@ -87,7 +87,6 @@ def test_relatorio_suspensao_de_alimentacao_parcialmente_cancelado(
             assert texto.count(sustentacao_alimentacao.cancelado_justificativa) == 2
 
 
-@pytest.mark.django_db
 def test_relatorio_suspensao_de_alimentacao_totalmente_cancelado(
     grupo_suspensao_alimentacao_cancelamento_total,
 ):
@@ -122,7 +121,6 @@ def test_relatorio_suspensao_de_alimentacao_totalmente_cancelado(
         assert texto.count(sustentacao_alimentacao.cancelado_justificativa) == 2
 
 
-@pytest.mark.django_db
 def test_relatorio_dieta_especial_protocolo_cancelada(
     solicitacao_dieta_especial_cancelada,
 ):
@@ -137,3 +135,90 @@ def test_relatorio_dieta_especial_protocolo_cancelada(
     assert "PROTOCOLO PADRÃO DE DIETA ESPECIAL" in html_string
     assert "Dieta cancelada em" in html_string
     assert "Justificativa" in html_string
+
+
+def test_get_total_por_periodo_unico_periodo():
+    tabelas = [
+        {
+            "periodos": ["Infantil INTEGRAL"],
+            "nomes_campos": [
+                "matriculados",
+                "frequencia",
+                "lanche",
+                "lanche_4h",
+                "refeicao",
+                "repeticao_refeicao",
+                "total_refeicoes_pagamento",
+                "sobremesa",
+                "repeticao_sobremesa",
+                "total_sobremesas_pagamento",
+            ],
+            "len_periodos": [10],
+            "valores_campos": [
+                [
+                    "Total",
+                    "-",
+                    "-",
+                    40,
+                    50,
+                    60,
+                    70,
+                    80,
+                    90,
+                    100,
+                    110,
+                ]
+            ],
+        }
+    ]
+    total_refeicao = get_total_por_periodo(tabelas, "total_refeicoes_pagamento")
+    assert total_refeicao == {"Infantil INTEGRAL": 80}
+
+    total_sobremesa = get_total_por_periodo(tabelas, "total_sobremesas_pagamento")
+    assert total_sobremesa == {"Infantil INTEGRAL": 110}
+
+
+def test_get_total_por_periodo_multiplos_periodos():
+    tabelas = [
+        {
+            "periodos": ["PARCIAL", "Infantil INTEGRAL"],
+            "nomes_campos": [
+                "matriculados",
+                "frequencia",
+                "lanche",
+                "lanche_4h",
+                "refeicao",
+                "repeticao_refeicao",
+                "total_refeicoes_pagamento",
+                "sobremesa",
+                "repeticao_sobremesa",
+                "total_sobremesas_pagamento",
+            ],
+            "len_periodos": [5, 10],
+            "valores_campos": [
+                [
+                    "Total",
+                    "-",
+                    "10",
+                    "-",
+                    "20",
+                    30,
+                    "-",
+                    "-",
+                    40,
+                    50,
+                    60,
+                    70,
+                    80,
+                    90,
+                    100,
+                    110,
+                ]
+            ],
+        }
+    ]
+    total_refeicao = get_total_por_periodo(tabelas, "total_refeicoes_pagamento")
+    assert total_refeicao == {"Infantil INTEGRAL": 80}
+
+    total_sobremesa = get_total_por_periodo(tabelas, "total_sobremesas_pagamento")
+    assert total_sobremesa == {"Infantil INTEGRAL": 110}

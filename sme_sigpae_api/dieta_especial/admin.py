@@ -39,7 +39,8 @@ from .models import (
     SubstituicaoAlimentoProtocoloPadrao,
     TipoContagem,
 )
-from .tasks import get_escolas_task, processa_dietas_especiais_task
+from .tasks import processa_dietas_especiais_task
+from .tasks.admin_actions import get_escolas_task
 from .utils import is_alpha_numeric_and_has_single_space
 
 

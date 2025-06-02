@@ -1376,7 +1376,10 @@ def test_url_layout_de_embalagem_detalhar(
     assert dados["status"] == layout.get_status_display()
     assert dados["numero_ficha_tecnica"] == str(layout.ficha_tecnica.numero)
     assert dados["nome_produto"] == str(layout.ficha_tecnica.produto.nome)
-    assert dados["nome_empresa"] == str(layout.ficha_tecnica.empresa.razao_social)
+    assert (
+        dados["nome_empresa"]
+        == f"{layout.ficha_tecnica.empresa.nome_fantasia} / {layout.ficha_tecnica.empresa.razao_social}"
+    )
     assert dados["pregao_chamada_publica"] == str(
         layout.ficha_tecnica.pregao_chamada_publica
     )
@@ -1806,9 +1809,6 @@ def test_url_layout_embalagem_validacao_analise_correcao(
     dados_analise = {
         "tipos_de_embalagens": [
             {
-                "uuid": str(
-                    tipos_embalagem_analisados.get(tipo_embalagem="PRIMARIA").uuid
-                ),
                 "tipo_embalagem": "PRIMARIA",
                 "status": "APROVADO",
                 "complemento_do_status": "Teste complemento",
@@ -1830,7 +1830,7 @@ def test_url_layout_embalagem_validacao_analise_correcao(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert (
         msg_erro
-        in response.json()["tipos_de_embalagens"][1]["Layout Embalagem SECUNDARIA"]
+        in response.json()["tipos_de_embalagens"][0]["Layout Embalagem PRIMARIA"]
     )
 
 
@@ -3518,7 +3518,7 @@ def test_url_ficha_tecnica_correcao_fornecedor(
     assert response.status_code == status.HTTP_200_OK
     assert ficha.status == FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE
     assert ficha.analises.last().armazenamento_conferido is None
-    assert analise.armazenamento_correcoes is not ""
+    assert analise.armazenamento_correcoes != ""
 
 
 def test_url_ficha_tecnica_correcao_fornecedor_validate_status(

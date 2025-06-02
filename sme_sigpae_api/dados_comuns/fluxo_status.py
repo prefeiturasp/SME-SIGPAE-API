@@ -763,7 +763,7 @@ class FluxoSolicitacaoRemessa(xwf_models.WorkflowEnabled, models.Model):
     ):
         raise NotImplementedError(
             "Deve criar um método de envio de email as partes interessadas"
-        )  # noqa
+        )
 
     def _titulo_notificacao_confirma_cancelamento(self):
         return f"Cancelamento de Guias de Remessa da Requisição N° {self.numero_solicitacao}"
@@ -2113,16 +2113,13 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         self.save()
 
     def eh_alteracao_lanche_emergencial(self):
-        from sme_sigpae_api.cardapio.models import (
-            AlteracaoCardapio,
+        from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
+        from ..cardapio.alteracao_tipo_alimentacao_cemei.models import (
             AlteracaoCardapioCEMEI,
         )
 
         return (
-            (
-                isinstance(self, AlteracaoCardapio)
-                or isinstance(self, AlteracaoCardapioCEMEI)
-            )
+            (isinstance(self, (AlteracaoCardapio, AlteracaoCardapioCEMEI)))
             and self.motivo
             and self.motivo.nome == "Lanche Emergencial"
         )
@@ -2411,15 +2408,20 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
     @xworkflows.before_transition("codae_autoriza_questionamento")
     @xworkflows.before_transition("codae_autoriza")
     def _codae_autoriza_hook_antes(self, *args, **kwargs):
-        from sme_sigpae_api.cardapio.models import AlteracaoCardapio
+        from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
+            AlteracaoCardapio,
+        )
+        from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models import (
+            AlteracaoCardapioCEMEI,
+        )
 
         if (
             self.foi_solicitado_fora_do_prazo
             and self.status
             != PedidoAPartirDaEscolaWorkflow.TERCEIRIZADA_RESPONDEU_QUESTIONAMENTO
-        ):  # noqa #129
+        ):
             if (
-                isinstance(self, AlteracaoCardapio)
+                isinstance(self, (AlteracaoCardapio, AlteracaoCardapioCEMEI))
                 and self.motivo.nome == "Lanche Emergencial"
             ):
                 return
@@ -4492,7 +4494,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
             EmailENotificacaoService.enviar_notificacao(
                 template="pre_recebimento_notificacao_assinatura_cronograma.html",
                 contexto_template=contexto,
-                titulo_notificacao=f"Cronograma { self.numero } assinado pelo Abastecimento",
+                titulo_notificacao=f"Cronograma {self.numero} assinado pelo Abastecimento",
                 tipo_notificacao=Notificacao.TIPO_NOTIFICACAO_AVISO,
                 categoria_notificacao=Notificacao.CATEGORIA_NOTIFICACAO_CRONOGRAMA,
                 link_acesse_aqui=url_detalhe_cronograma,
@@ -4531,7 +4533,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
             ]
             template_notif = "pre_recebimento_notificacao_assinatura_codae.html"
             tipo = Notificacao.TIPO_NOTIFICACAO_AVISO
-            titulo_notificacao = f"Cronograma { self.numero } assinado pela CODAE"
+            titulo_notificacao = f"Cronograma {self.numero} assinado pela CODAE"
             link = f"/pre-recebimento/detalhe-cronograma?uuid={self.uuid}"
             self._cria_notificacao(
                 template_notif, titulo_notificacao, usuarios, link, tipo, log_transicao
@@ -4753,7 +4755,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
             )
 
         template = "pre_recebimento_notificacao_solicitacao_cronograma_codae.html"
-        titulo_notificacao = f"Alteração do Cronograma Nº { self.cronograma.numero }"
+        titulo_notificacao = f"Alteração do Cronograma Nº {self.cronograma.numero}"
         usuarios = PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
             self.cronograma
         )
@@ -4793,7 +4795,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
             )
             tipo = Notificacao.TIPO_NOTIFICACAO_ALERTA
             titulo_notificacao = (
-                f" Solicitação de Alteração do Cronograma Nº { self.cronograma.numero }"
+                f" Solicitação de Alteração do Cronograma Nº {self.cronograma.numero}"
             )
             link = f"/pre-recebimento/detalhe-alteracao-cronograma?uuid={self.uuid}"
             categoria_notificacao = (
@@ -4824,7 +4826,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
             )
             template_notif = "pre_recebimento_notificacao_alteracao_cronograma_codae_ciencia_fornecedor.html"
             tipo = Notificacao.TIPO_NOTIFICACAO_ALERTA
-            titulo_notificacao = f"Ciência da Alteração do Cronograma Nº { self.cronograma.numero } pelo Fornecedor"
+            titulo_notificacao = f"Ciência da Alteração do Cronograma Nº {self.cronograma.numero} pelo Fornecedor"
             link = f"/pre-recebimento/detalhe-alteracao-cronograma?uuid={self.uuid}"
             categoria_notificacao = (
                 Notificacao.CATEGORIA_NOTIFICACAO_ALTERACAO_CRONOGRAMA
@@ -4848,7 +4850,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
         )
         tipo = Notificacao.TIPO_NOTIFICACAO_ALERTA
         titulo_notificacao = (
-            f" Solicitação de Alteração do Cronograma Nº { self.cronograma.numero }"
+            f" Solicitação de Alteração do Cronograma Nº {self.cronograma.numero}"
         )
         link = f"/pre-recebimento/detalhe-alteracao-cronograma?uuid={self.uuid}"
         categoria_notificacao = (
@@ -4899,7 +4901,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
         template_notif = "pre_recebimento_notificacao_solicitacao_parecer_codae.html"
         tipo = Notificacao.TIPO_NOTIFICACAO_ALERTA
         titulo_notificacao = (
-            f" Solicitação de Alteração do Cronograma Nº { self.cronograma.numero }"
+            f" Solicitação de Alteração do Cronograma Nº {self.cronograma.numero}"
         )
         link = f"/pre-recebimento/detalhe-alteracao-cronograma?uuid={self.uuid}"
         categoria_notificacao = (
@@ -5456,9 +5458,11 @@ class FluxoDocumentoDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
             contexto = {
                 "numero_cronograma": numero_cronograma,
                 "nome_empresa": self.cronograma.empresa.nome_fantasia,
-                "nome_produto": self.cronograma.ficha_tecnica.produto.nome
-                if self.cronograma.ficha_tecnica
-                else "-",
+                "nome_produto": (
+                    self.cronograma.ficha_tecnica.produto.nome
+                    if self.cronograma.ficha_tecnica
+                    else "-"
+                ),
                 "nome_usuario_empresa": user.nome,
                 "cpf_usuario_empresa": user.cpf_formatado_e_censurado,
                 "data_envio": self.log_mais_recente.criado_em.strftime("%d/%m/%Y"),

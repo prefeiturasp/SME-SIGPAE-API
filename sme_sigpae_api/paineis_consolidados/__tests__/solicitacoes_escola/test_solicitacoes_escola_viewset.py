@@ -5,13 +5,13 @@ import pytest
 from freezegun.api import freeze_time
 from rest_framework import status
 
-from sme_sigpae_api.cardapio.fixtures.factories.alteracao_cardapio_factory import (
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory import (
     AlteracaoCardapioFactory,
     DataIntervaloAlteracaoCardapioFactory,
     MotivoAlteracaoCardapioFactory,
     SubstituicaoAlimentacaoNoPeriodoEscolarFactory,
 )
-from sme_sigpae_api.cardapio.fixtures.factories.base_factory import (
+from sme_sigpae_api.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory,
 )

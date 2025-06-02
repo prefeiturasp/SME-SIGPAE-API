@@ -5,7 +5,7 @@ import pytest
 from django.contrib import admin
 from freezegun import freeze_time
 
-from ...cardapio.models import Cardapio
+from ...cardapio.base.models import Cardapio
 from ...dados_comuns.constants import DAQUI_A_SETE_DIAS, DAQUI_A_TRINTA_DIAS, SEM_FILTRO
 from ..admin import PlanilhaAtualizacaoTipoGestaoEscolaAdmin
 from ..models import (

@@ -1,9 +1,11 @@
 from django.core.management.base import BaseCommand
 
-from sme_sigpae_api.cardapio.models import (
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.models import (
     AlteracaoCardapioCEI,
-    AlteracaoCardapioCEMEI,
     FaixaEtariaSubstituicaoAlimentacaoCEI,
+)
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models import (
+    AlteracaoCardapioCEMEI,
     FaixaEtariaSubstituicaoAlimentacaoCEMEICEI,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
 )

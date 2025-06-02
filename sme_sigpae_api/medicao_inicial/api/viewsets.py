@@ -19,7 +19,7 @@ from xworkflows import InvalidTransitionError
 
 from sme_sigpae_api.medicao_inicial.services.relatorio_adesao import obtem_resultados
 
-from ...cardapio.models import TipoAlimentacao
+from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns import constants
 from ...dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
 from ...dados_comuns.constants import TRADUCOES_FERIADOS

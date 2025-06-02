@@ -7,9 +7,15 @@ router = routers.DefaultRouter()
 
 router.register("periodos-de-visita", viewsets.PeriodoVisitaModelViewSet)
 router.register(
-    "rascunho-formulario-supervisao", viewsets.FormularioSupervisaoRascunhoModelViewSet
+    "rascunho-formulario-supervisao",
+    viewsets.FormularioSupervisaoRascunhoModelViewSet,
+    basename="rascunho-formulario-supervisao",
 )
-router.register("formulario-supervisao", viewsets.FormularioSupervisaoModelViewSet)
+router.register(
+    "formulario-supervisao",
+    viewsets.FormularioSupervisaoModelViewSet,
+    basename="formulario-supervisao",
+)
 router.register("formulario-diretor", viewsets.FormularioDiretorModelViewSet)
 router.register("utensilios-cozinha", viewsets.UtensilioCozinhaViewSet)
 router.register("utensilios-mesa", viewsets.UtensilioMesaViewSet)

@@ -1,10 +1,14 @@
 import datetime
+from io import BytesIO
+from tempfile import SpooledTemporaryFile
 
+import pandas as pd
 import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
 from model_mommy import mommy
+from openpyxl import Workbook
 
 from ...dados_comuns.constants import (
     ADMINISTRADOR_CONTRATOS,

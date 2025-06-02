@@ -504,7 +504,7 @@ def client_autenticado_vinculo_codae_gestao_alimentacao_dieta(
         ativo=True,
     )
     client.login(username=email, password=password)
-    return client
+    return client, user
 
 
 @pytest.fixture

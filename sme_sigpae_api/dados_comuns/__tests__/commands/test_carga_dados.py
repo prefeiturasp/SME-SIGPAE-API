@@ -4,14 +4,16 @@ import pytest
 from django.core.management import call_command
 from django.test import override_settings
 
-from sme_sigpae_api.cardapio.models import (
-    ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
     MotivoAlteracaoCardapio,
-    MotivoSuspensao,
+)
+from sme_sigpae_api.cardapio.base.models import (
+    ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from sme_sigpae_api.cardapio.suspensao_alimentacao.models import MotivoSuspensao
 from sme_sigpae_api.dados_comuns.models import Contato, TemplateMensagem
 from sme_sigpae_api.dieta_especial.models import (
     AlergiaIntolerancia,
@@ -62,6 +64,7 @@ class CargaDadosCommandTest(TestCase):
     @pytest.mark.django_db(transaction=True)
     @override_settings(DEBUG=True)
     def test_command_carga_dados(self) -> None:
+        call_command("flush", verbosity=0, interactive=False)
         assert Perfil.objects.count() == 0
         assert Usuario.objects.count() == 0
         assert MotivoAlteracaoCardapio.objects.count() == 0

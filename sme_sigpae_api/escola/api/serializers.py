@@ -3,7 +3,7 @@ from django.db.models import Q
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from ...cardapio.models import TipoAlimentacao
+from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns.api.serializers import ContatoSerializer, EnderecoSerializer
 from ...paineis_consolidados import models
 from ...perfil.api.serializers import PerfilSimplesSerializer, UsuarioSerializer
@@ -485,70 +485,92 @@ class VinculoInstituicaoSerializer(serializers.ModelSerializer):
     def get_lotes(self, obj):
         if isinstance(obj.instituicao, (Terceirizada, DiretoriaRegional)):
             return LoteNomeSerializer(obj.instituicao.lotes.all(), many=True).data
+        elif isinstance(obj.instituicao, Escola) and obj.instituicao.lote:
+            return LoteSerializer([obj.instituicao.lote], many=True).data
         else:
             return []
 
     def get_diretoria_regional(self, obj):
-        if isinstance(obj.instituicao, Escola):
-            return DiretoriaRegionalSimplissimaSerializer(
-                obj.instituicao.diretoria_regional
-            ).data
+        if not isinstance(obj.instituicao, Escola):
+            return None
+        return DiretoriaRegionalSimplissimaSerializer(
+            obj.instituicao.diretoria_regional
+        ).data
 
     def get_codigo_eol(self, obj):
         if isinstance(obj.instituicao, Escola):
             return obj.instituicao.codigo_eol
-        if isinstance(obj.instituicao, DiretoriaRegional):
+        elif isinstance(obj.instituicao, DiretoriaRegional):
             return obj.instituicao.codigo_eol
+        return None
 
     def get_tipo_unidade_escolar(self, obj):
-        if isinstance(obj.instituicao, Escola):
-            return obj.instituicao.tipo_unidade.uuid
+        if not isinstance(obj.instituicao, Escola):
+            return None
+        return obj.instituicao.tipo_unidade.uuid
 
     def get_tipo_unidade_escolar_iniciais(self, obj):
-        if isinstance(obj.instituicao, Escola):
-            return obj.instituicao.tipo_unidade.iniciais
+        if not isinstance(obj.instituicao, Escola):
+            return None
+        return obj.instituicao.tipo_unidade.iniciais
 
     def get_tipo_gestao(self, obj):
-        if isinstance(obj.instituicao, Escola):
-            if not obj.instituicao.tipo_gestao:
-                raise ValidationError(
-                    "Escola não possui tipo de gestão. Favor contatar a CODAE."
-                )
-            return obj.instituicao.tipo_gestao.nome
+        if not isinstance(obj.instituicao, Escola):
+            return None
+        if not obj.instituicao.tipo_gestao:
+            raise ValidationError(
+                "Escola não possui tipo de gestão. Favor contatar a CODAE."
+            )
+        return obj.instituicao.tipo_gestao.nome
+
+    def get_tipo_gestao_uuid(self, obj):
+        if not isinstance(obj.instituicao, Escola):
+            return None
+        if not obj.instituicao.tipo_gestao:
+            raise ValidationError(
+                "Escola não possui tipo de gestão. Favor contatar a CODAE."
+            )
+        return obj.instituicao.tipo_gestao.uuid
 
     def get_tipos_contagem(self, obj):
-        if isinstance(obj.instituicao, Escola):
-            return TipoContagemSerializer(
-                obj.instituicao.tipos_contagem, many=True
-            ).data
+        if not isinstance(obj.instituicao, Escola):
+            return None
+        return TipoContagemSerializer(obj.instituicao.tipos_contagem, many=True).data
 
     def get_endereco(self, obj):
-        if isinstance(obj.instituicao, Escola):
-            return EnderecoSerializer(obj.instituicao.endereco).data
+        if not isinstance(obj.instituicao, Escola):
+            return None
+        return EnderecoSerializer(obj.instituicao.endereco).data
 
     def get_contato(self, obj):
-        if isinstance(obj.instituicao, Escola):
-            return ContatoSerializer(obj.instituicao.contato).data
+        if not isinstance(obj.instituicao, Escola):
+            return None
+        return ContatoSerializer(obj.instituicao.contato).data
 
     def get_modulo_gestao(self, obj):
-        if isinstance(obj.instituicao, Escola):
-            return obj.instituicao.modulo_gestao
+        if not isinstance(obj.instituicao, Escola):
+            return None
+        return obj.instituicao.modulo_gestao
 
     def get_eh_cei(self, obj):
-        if isinstance(obj.instituicao, Escola):
-            return obj.instituicao.eh_cei
+        if not isinstance(obj.instituicao, Escola):
+            return None
+        return obj.instituicao.eh_cei
 
     def get_eh_cemei(self, obj):
-        if isinstance(obj.instituicao, Escola):
-            return obj.instituicao.eh_cemei
+        if not isinstance(obj.instituicao, Escola):
+            return None
+        return obj.instituicao.eh_cemei
 
     def get_eh_emebs(self, obj):
-        if isinstance(obj.instituicao, Escola):
-            return obj.instituicao.eh_emebs
+        if not isinstance(obj.instituicao, Escola):
+            return None
+        return obj.instituicao.eh_emebs
 
     def get_tipo_servico(self, obj):
-        if isinstance(obj.instituicao, Terceirizada):
-            return obj.instituicao.tipo_servico
+        if not isinstance(obj.instituicao, Terceirizada):
+            return None
+        return obj.instituicao.tipo_servico
 
     def get_instituicao(self, obj):
         instituicao_dict = {
@@ -564,6 +586,7 @@ class VinculoInstituicaoSerializer(serializers.ModelSerializer):
                 obj
             ),
             "tipo_gestao": self.get_tipo_gestao(obj),
+            "tipo_gestao_uuid": self.get_tipo_gestao_uuid(obj),
             "tipos_contagem": self.get_tipos_contagem(obj),
             "endereco": self.get_endereco(obj),
             "contato": self.get_contato(obj),
@@ -832,10 +855,6 @@ class AlunosMatriculadosPeriodoEscolaCompletoSerializer(serializers.ModelSeriali
     def get_alunos_por_faixa_etaria(self, obj):
         try:
             periodos_faixas = obj.escola.matriculados_por_periodo_e_faixa_etaria()
-            if obj.periodo_escolar.nome == "MANHA":
-                return periodos_faixas["MANHÃ"]
-            if obj.periodo_escolar.nome == "INTERMEDIARIO":
-                return periodos_faixas["INTERMEDIÁRIO"]
             return periodos_faixas[obj.periodo_escolar.nome]
         except Exception:
             return None

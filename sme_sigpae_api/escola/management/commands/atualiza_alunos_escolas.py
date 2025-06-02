@@ -99,6 +99,7 @@ class Command(BaseCommand):
         return requests.get(
             f"{DJANGO_EOL_SGP_API_URL}/alunos/ues/{cod_eol_escola}/anosLetivos/{ano_param or ano}",
             headers=self.headers,
+            timeout=10,
         )
 
     def _obtem_alunos_escola(self, cod_eol_escola, ano_param=None):
@@ -370,7 +371,7 @@ class Command(BaseCommand):
 
         total = escolas.count()
         for i, escola in enumerate(escolas):
-            logger.debug(f"{i+1}/{total} - {escola}")
+            logger.debug(f"{i + 1}/{total} - {escola}")
             dados_alunos_escola = self._obtem_alunos_escola(escola.codigo_eol)
             dados_alunos_escola_prox_ano = self._obtem_alunos_escola(
                 escola.codigo_eol, proximo_ano
