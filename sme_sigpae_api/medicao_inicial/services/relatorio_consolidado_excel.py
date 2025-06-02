@@ -5,6 +5,7 @@ import pandas as pd
 from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_CEI,
     ORDEM_UNIDADES_GRUPO_CEMEI,
+    ORDEM_UNIDADES_GRUPO_EMEBS,
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
 )
@@ -13,6 +14,7 @@ from sme_sigpae_api.escola.models import DiretoriaRegional, Lote
 from sme_sigpae_api.medicao_inicial.services import (
     relatorio_consolidado_cei,
     relatorio_consolidado_cemei,
+    relatorio_consolidado_emebs,
     relatorio_consolidado_emei_emef,
 )
 
@@ -43,6 +45,13 @@ def gera_relatorio_consolidado_xlsx(solicitacoes_uuid, tipos_de_unidade, query_p
                 solicitacoes
             )
             linhas = relatorio_consolidado_cemei.get_valores_tabela(
+                solicitacoes, colunas
+            )
+        elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_EMEBS):
+            colunas = relatorio_consolidado_emebs.get_alimentacoes_por_periodo(
+                solicitacoes
+            )
+            linhas = relatorio_consolidado_emebs.get_valores_tabela(
                 solicitacoes, colunas
             )
         else:
