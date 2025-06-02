@@ -1440,9 +1440,9 @@ class PermissaoHistoricoDietasEspeciais(BasePermission):
     def has_permission(self, request, view):
         usuario = request.user
 
-        if isinstance(usuario.vinculo_atual.instituicao, DiretoriaRegional):
-            return True
-        elif isinstance(usuario.vinculo_atual.instituicao, Terceirizada):
+        if isinstance(
+            usuario.vinculo_atual.instituicao, (DiretoriaRegional, Escola, Terceirizada)
+        ):
             return True
         elif isinstance(usuario.vinculo_atual.instituicao, Codae):
             return usuario.vinculo_atual.perfil.nome in [
@@ -1459,3 +1459,4 @@ class PermissaoHistoricoDietasEspeciais(BasePermission):
                 DINUTRE_DIRETORIA,
                 ADMINISTRADOR_REPRESENTANTE_CODAE,
             ]
+        return False

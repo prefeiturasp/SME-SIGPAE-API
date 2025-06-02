@@ -1,0 +1,156 @@
+{% include 'relatorio_base.html' %}
+{% load static %}
+{% load index %}
+{% load sass_tags %}
+
+<html>
+<head>
+  <link rel="stylesheet" href="{% sass_src 'css/cabecalho.scss' %}" type="text/css">
+  <link rel="stylesheet" href="{% sass_src 'css/produtos_terceirizada.scss' %}" type="text/css">
+  <link rel="stylesheet" href="{% sass_src 'css/relatorio_historico_dieta_especial.scss' %}" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,600,600i,700,700i,900,900i" rel="stylesheet" />
+</head>
+<header class="header">
+  <section class="titulo-e-logo">
+    <img src="{% static 'images/LOGO_PB_POSITIVO.png' %}" alt=""/>
+    <h1>SIGPAE - RELATÓRIO HISTÓRICO DE DIETAS AUTORIZADAS</h1>
+  </section>
+  <div class="filtros-box">
+    {{ titulo_filtros|safe }}
+  </div>
+</header>
+<body>
+  <div class="container">
+    <table class="dietas-table">
+      <thead>
+        <tr>
+          <th>DRE/LOTE</th>
+          <th>Unidade Educacional</th>
+          <th>Classificação da Dieta</th>
+          <th><center>Período</center></th>
+          <th><center>Dietas Autorizadas</center></th>
+          <th><center>Data de Referência</center></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for registro in dados.resultados %}
+          {% for periodo in registro.periodos %}
+            {% if registro.tipo_unidade in unidades_cei %}
+              <tr>
+                <td>{{ iniciais_dre }} - {{ registro.lote }}</td>
+                <td>{{ registro.unidade_educacional }}</td>
+                <td>{{ registro.classificacao }}</td>
+                <td class="center">{{ periodo.periodo|title_personalizado }}</td>
+                <td class="center">{{ periodo.faixa_etaria|sum_faixas }}</td>
+                <td class="center">{{ registro.data|date:"d/m/Y" }}</td>             
+              </tr>
+              <tr class="detalhes-collapse-cei">
+                <td colspan="6">
+                    <div class="linha fonte-semi-bold">
+                      Faixas Etárias com Dietas Autorizadas
+                    </div>
+                </td>
+              </tr>
+              {% for faixa in periodo.faixa_etaria %}
+                <tr class="detalhes-collapse-cei">
+                  <td colspan="2" class="texto-faixa sem-bordas">
+                    <span class="faixa-etaria">{{ faixa.faixa }}</span>
+                  </td>
+                  <td colspan="2" class="sem-bordas"></td>
+                  <td col="2" class="center sem-bordas">
+                    <span class="autorizadas">{{ faixa.autorizadas }}</span>
+                  </td>
+                  <td colspan="1" class="sem-bordas"></td>
+                </tr>
+              {% endfor %}
+            {% elif registro.tipo_unidade in unidades_cemei %}
+              <tr>
+                <td>{{ iniciais_dre }} - {{ registro.lote }}</td>
+                <td>{{ registro.unidade_educacional }}</td>
+                <td>{{ registro.classificacao }}</td>
+                <td class="center">{{ periodo.periodo|title_personalizado }}</td>
+                <td class="center">{{ periodo|soma_dietas_periodo_cemei }}</td>
+                <td class="center">{{ registro.data|date:"d/m/Y" }}</td>            
+              </tr>
+              {% if periodo.por_idade %}
+                <tr class="detalhes-collapse-cei">
+                  <td colspan="6">
+                      <div class="linha fonte-semi-bold">
+                        Faixas Etárias com Dietas Autorizadas
+                      </div>
+                  </td>
+                </tr>
+                {% for faixa in periodo.por_idade %}
+                  <tr class="detalhes-collapse-cei">
+                    <td colspan="2" class="texto-faixa sem-bordas">
+                      <span class="faixa-etaria">{{ faixa.faixa }}</span>
+                    </td>
+                    <td colspan="2" class="sem-bordas"></td>
+                    <td col="2" class="center sem-bordas">
+                      <span class="autorizadas">{{ faixa.autorizadas }}</span>
+                    </td>
+                    <td colspan="1" class="sem-bordas"></td>
+                  </tr>
+                {% endfor %}
+              {% endif %}
+              {% if periodo.autorizadas_infantil > 0 %}
+                <tr class="detalhes-collapse-cei">
+                  <td colspan="2" class="linha sem-bordas fonte-semi-bold">
+                    <span>Dietas Autorizadas nas Turmas do Infantil</span>
+                  </td>
+                  <td colspan="2" class="sem-bordas"></td>
+                  <td col="2" class="center sem-bordas">
+                    <span class="autorizadas">{{ periodo.autorizadas_infantil }}</span>
+                  </td>
+                  <td colspan="1" class="sem-bordas"></td>
+                </tr>
+              {% endif %}
+            {% elif registro.tipo_unidade in unidades_emebs %}
+              <tr>
+                <td>{{ iniciais_dre }} - {{ registro.lote }}</td>
+                <td>{{ registro.unidade_educacional }}</td>
+                <td>{{ registro.classificacao }}</td>
+                <td class="center">{{ periodo.periodo|title_personalizado }}</td>
+                <td class="center">{{ periodo|soma_autorizadas_emebs }}</td>
+                <td class="center">{{ registro.data|date:"d/m/Y" }}</td>            
+              </tr>
+              {% if periodo.autorizadas_infantil > 0 %}
+                <tr class="detalhes-collapse-cei">
+                  <td colspan="2" class="linha sem-bordas fonte-media">
+                    <span>Alunos do Infantil (4 a 6 anos)</span>
+                  </td>
+                  <td colspan="2" class="sem-bordas"></td>
+                  <td col="2" class="center sem-bordas">
+                    <span class="autorizadas">{{ periodo.autorizadas_infantil }}</span>
+                  </td>
+                  <td colspan="1" class="sem-bordas"></td>
+                </tr>
+              {% endif %}
+              {% if periodo.autorizadas_fundamental > 0 %}
+                <tr class="detalhes-collapse-cei">
+                  <td colspan="2" class="linha sem-bordas fonte-media">
+                    <span>Alunos do Fundamental (acima de 6 anos)</span>
+                  </td>
+                  <td colspan="2" class="sem-bordas"></td>
+                  <td col="2" class="center sem-bordas">
+                    <span class="autorizadas">{{ periodo.autorizadas_fundamental }}</span>
+                  </td>
+                  <td colspan="1" class="sem-bordas"></td>
+                </tr>
+              {% endif %}
+            {% else %}
+              <tr>
+                <td>{{ iniciais_dre }} - {{ registro.lote }}</td>
+                <td>{{ registro.unidade_educacional }}</td>
+                <td>{{ registro.classificacao }}</td>
+                <td class="center">{{ periodo.periodo|title_personalizado }}</td>
+                <td class="center">{{ periodo.autorizadas }}</td>
+                <td class="center">{{ registro.data|date:"d/m/Y" }}</td>            
+              </tr>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+</body>
+</html>

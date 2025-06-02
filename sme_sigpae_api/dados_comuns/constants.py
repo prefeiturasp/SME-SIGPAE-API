@@ -368,6 +368,11 @@ ORDEM_UNIDADES_GRUPO_CEI = {
     "CEI": 6,
 }
 
+ORDEM_UNIDADES_GRUPO_CEMEI = {
+    "CEMEI": 1,
+    "CEU CEMEI": 2,
+}
+
 ORDEM_HEADERS_EMEI_EMEF = {
     "Solicitações de Alimentação": 1,
     "MANHA": 2,
@@ -379,8 +384,7 @@ ORDEM_HEADERS_EMEI_EMEF = {
     "Programas e Projetos": 8,
     "ETEC": 9,
     "DIETA ESPECIAL - TIPO A": 10,
-    "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": 11,
-    "DIETA ESPECIAL - TIPO B": 12,
+    "DIETA ESPECIAL - TIPO B": 11,
 }
 
 ORDEM_HEADERS_CEI = {
@@ -391,6 +395,19 @@ ORDEM_HEADERS_CEI = {
     "TARDE": 5,
     "DIETA ESPECIAL - TIPO A": 6,
     "DIETA ESPECIAL - TIPO B": 7,
+}
+
+ORDEM_HEADERS_CEMEI = {
+    "Solicitações de Alimentação": 1,
+    "INTEGRAL": 2,
+    "PARCIAL": 3,
+    "DIETA ESPECIAL - TIPO A - CEI": 4,
+    "DIETA ESPECIAL - TIPO B - CEI": 5,
+    "Infantil INTEGRAL": 6,
+    "Infantil MANHA": 7,
+    "Infantil TARDE": 8,
+    "DIETA ESPECIAL - TIPO A - INFANTIL": 9,
+    "DIETA ESPECIAL - TIPO B - INFANTIL": 10,
 }
 
 

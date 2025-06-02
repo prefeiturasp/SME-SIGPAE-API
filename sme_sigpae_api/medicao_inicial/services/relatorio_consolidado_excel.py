@@ -4,6 +4,7 @@ import pandas as pd
 
 from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_CEI,
+    ORDEM_UNIDADES_GRUPO_CEMEI,
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
 )
@@ -11,6 +12,7 @@ from sme_sigpae_api.dados_comuns.utils import converte_numero_em_mes
 from sme_sigpae_api.escola.models import DiretoriaRegional, Lote
 from sme_sigpae_api.medicao_inicial.services import (
     relatorio_consolidado_cei,
+    relatorio_consolidado_cemei,
     relatorio_consolidado_emei_emef,
 )
 
@@ -35,6 +37,13 @@ def gera_relatorio_consolidado_xlsx(solicitacoes_uuid, tipos_de_unidade, query_p
             )
             linhas = relatorio_consolidado_cei.get_valores_tabela(
                 solicitacoes, colunas, tipos_de_unidade
+            )
+        elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_CEMEI):
+            colunas = relatorio_consolidado_cemei.get_alimentacoes_por_periodo(
+                solicitacoes
+            )
+            linhas = relatorio_consolidado_cemei.get_valores_tabela(
+                solicitacoes, colunas
             )
         else:
             raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
@@ -80,6 +89,10 @@ def _insere_tabela_periodos_na_planilha(tipos_de_unidade, aba, colunas, linhas, 
         df = relatorio_consolidado_cei.insere_tabela_periodos_na_planilha(
             aba, colunas, linhas, writer
         )
+    elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_CEMEI):
+        df = relatorio_consolidado_cemei.insere_tabela_periodos_na_planilha(
+            aba, colunas, linhas, writer
+        )
     else:
         raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
 
@@ -93,6 +106,8 @@ def _ajusta_layout_tabela(tipos_de_unidade, workbook, worksheet, df):
         relatorio_consolidado_emei_emef.ajusta_layout_tabela(workbook, worksheet, df)
     elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_CEI):
         relatorio_consolidado_cei.ajusta_layout_tabela(workbook, worksheet, df)
+    elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_CEMEI):
+        relatorio_consolidado_cemei.ajusta_layout_tabela(workbook, worksheet, df)
     else:
         raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
 
