@@ -418,18 +418,13 @@ ORDEM_HEADERS_CEMEI = {
 
 ORDEM_HEADERS_EMEBS = {
     "Solicitações de Alimentação": 1,
-    "MANHA - INFANTIL": 2,
-    "TARDE - INFANTIL": 3,
-    "INTEGRAL - INFANTIL": 4,
-    "DIETA ESPECIAL - TIPO A - INFANTIL": 5,
-    "DIETA ESPECIAL - TIPO B - INFANTIL": 6,
-    "MANHA - FUNDAMENTAL": 7,
-    "TARDE - FUNDAMENTAL": 8,
-    "INTEGRAL - FUNDAMENTAL": 9,
-    "NOITE - FUNDAMENTAL": 10,
-    "Programas e Projetos": 11,
-    "DIETA ESPECIAL - TIPO A - FUNDAMENTAL": 12,
-    "DIETA ESPECIAL - TIPO B - FUNDAMENTAL": 13,
+    "MANHA": 2,
+    "TARDE": 3,
+    "INTEGRAL": 4,
+    "NOITE": 5,
+    "Programas e Projetos": 6,
+    "DIETA ESPECIAL - TIPO A": 7,
+    "DIETA ESPECIAL - TIPO B": 8,
 }
 
 

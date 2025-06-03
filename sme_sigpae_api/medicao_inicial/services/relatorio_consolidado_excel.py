@@ -102,6 +102,10 @@ def _insere_tabela_periodos_na_planilha(tipos_de_unidade, aba, colunas, linhas, 
         df = relatorio_consolidado_cemei.insere_tabela_periodos_na_planilha(
             aba, colunas, linhas, writer
         )
+    elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_EMEBS):
+        df = relatorio_consolidado_emebs.insere_tabela_periodos_na_planilha(
+            aba, colunas, linhas, writer
+        )
     else:
         raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
 
@@ -117,6 +121,8 @@ def _ajusta_layout_tabela(tipos_de_unidade, workbook, worksheet, df):
         relatorio_consolidado_cei.ajusta_layout_tabela(workbook, worksheet, df)
     elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_CEMEI):
         relatorio_consolidado_cemei.ajusta_layout_tabela(workbook, worksheet, df)
+    elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_EMEBS):
+        relatorio_consolidado_emebs.ajusta_layout_tabela(workbook, worksheet, df)
     else:
         raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
 
