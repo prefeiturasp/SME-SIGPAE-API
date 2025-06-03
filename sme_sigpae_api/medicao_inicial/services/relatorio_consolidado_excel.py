@@ -82,7 +82,7 @@ def _gera_excel(tipos_de_unidade, query_params, colunas, linhas):
             workbook, worksheet, query_params, df.columns, tipos_de_unidade
         )
         _ajusta_layout_tabela(tipos_de_unidade, workbook, worksheet, df)
-        _formata_total_geral(workbook, worksheet, df)
+        _formata_total_geral(workbook, worksheet, df, tipos_de_unidade)
 
     return file.getvalue()
 
@@ -127,8 +127,11 @@ def _ajusta_layout_tabela(tipos_de_unidade, workbook, worksheet, df):
         raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
 
 
-def _formata_total_geral(workbook, worksheet, df):
-    ultima_linha = len(df.values) + 4
+def _formata_total_geral(workbook, worksheet, df, tipos_de_unidade=None):
+    linha_adicional = (
+        1 if set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_EMEBS) else 0
+    )
+    ultima_linha = len(df.values) + 4 + linha_adicional
 
     estilo_base = {
         "align": "center",
