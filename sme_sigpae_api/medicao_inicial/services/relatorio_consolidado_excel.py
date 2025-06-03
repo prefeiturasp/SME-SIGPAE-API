@@ -128,9 +128,11 @@ def _ajusta_layout_tabela(tipos_de_unidade, workbook, worksheet, df):
 
 
 def _formata_total_geral(workbook, worksheet, df, tipos_de_unidade=None):
-    linha_adicional = (
-        1 if set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_EMEBS) else 0
-    )
+    linha_adicional = 0
+    if tipos_de_unidade is not None and set(tipos_de_unidade).issubset(
+        ORDEM_UNIDADES_GRUPO_EMEBS
+    ):
+        linha_adicional = 1
     ultima_linha = len(df.values) + 4 + linha_adicional
 
     estilo_base = {

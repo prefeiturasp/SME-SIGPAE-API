@@ -1,11 +1,14 @@
 import pandas as pd
-from django.db.models import Q
+from django.db.models import FloatField, Q, Sum
+from django.db.models.functions import Cast
 
 from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_CAMPOS,
     ORDEM_HEADERS_EMEBS,
     ORDEM_UNIDADES_GRUPO_EMEBS,
 )
+from sme_sigpae_api.escola.models import PeriodoEscolar
+from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
 
 
 def get_alimentacoes_por_periodo(solicitacoes):
@@ -198,27 +201,6 @@ def _unificar_dietas_tipo_a(dietas_alimentacoes, turma):
 
 
 def _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes):
-    # periodos_alimentacoes = {
-    #     chave: sorted(list(set(valores)), key=lambda valor: ORDEM_CAMPOS.index(valor))
-    #     for chave, valores in periodos_alimentacoes.items()
-    # }
-
-    # dietas_alimentacoes = {
-    #     chave: sorted(list(set(valores)), key=lambda valor: ORDEM_CAMPOS.index(valor))
-    #     for chave, valores in dietas_alimentacoes.items()
-    # }
-
-    # dict_periodos_dietas = {**periodos_alimentacoes, **dietas_alimentacoes}
-
-    # dict_periodos_dietas = dict(
-    #     sorted(
-    #         dict_periodos_dietas.items(),
-    #         key=lambda item: ORDEM_HEADERS_EMEBS[item[0]],
-    #     )
-    # )
-
-    # return dict_periodos_dietas
-
     periodos_alimentacoes = {
         nivel: {
             chave: sorted(
@@ -266,7 +248,7 @@ def _generate_columns(dict_periodos_dietas):
         solicitacoes += dict_periodos_dietas["FUNDAMENTAL"].pop(
             "Solicitações de Alimentação", []
         )
-    ordem_solicitacoes = ["kit_lanche", "lanche_emergencial"]
+    ordem_solicitacoes = ["lanche_emergencial", "kit_lanche"]
     solicitacoes = sorted(solicitacoes, key=lambda x: ordem_solicitacoes.index(x))
     columns = [("", "Solicitações de Alimentação", valor) for valor in solicitacoes]
     for turma, categorias in dict_periodos_dietas.items():
@@ -277,7 +259,111 @@ def _generate_columns(dict_periodos_dietas):
 
 
 def get_valores_tabela(solicitacoes, colunas):
-    return []
+    dietas_especiais = CategoriaMedicao.objects.filter(
+        nome__icontains="DIETA ESPECIAL"
+    ).values_list("nome", flat=True)
+    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
+    valores = []
+    for solicitacao in get_solicitacoes_ordenadas(solicitacoes):
+        valores_solicitacao_atual = []
+        valores_solicitacao_atual += _get_valores_iniciais(solicitacao)
+        for turma, periodo, campo in colunas:
+            valores_solicitacao_atual = _processa_periodo_campo(
+                solicitacao,
+                turma,
+                periodo,
+                campo,
+                valores_solicitacao_atual,
+                dietas_especiais,
+                periodos_escolares,
+            )
+        valores.append(valores_solicitacao_atual)
+    return valores
+
+
+def get_solicitacoes_ordenadas(solicitacoes):
+    return sorted(
+        solicitacoes,
+        key=lambda k: ORDEM_UNIDADES_GRUPO_EMEBS[k.escola.tipo_unidade.iniciais],
+    )
+
+
+def _get_valores_iniciais(solicitacao):
+    return [
+        solicitacao.escola.tipo_unidade.iniciais,
+        solicitacao.escola.codigo_eol,
+        solicitacao.escola.nome,
+    ]
+
+
+def _processa_periodo_campo(
+    solicitacao, turma, periodo, campo, valores, dietas_especiais, periodos_escolares
+):
+    filtros = _define_filtro(periodo, dietas_especiais, periodos_escolares)
+
+    try:
+        if periodo in dietas_especiais:
+            total = processa_dieta_especial(solicitacao, filtros, campo, periodo, turma)
+        # else:
+        #     total = processa_periodo_regular(solicitacao, filtros, campo, periodo)
+        valores.append(total)
+    except Exception:
+        valores.append("-")
+    return valores
+
+
+def _define_filtro(periodo, dietas_especiais, periodos_escolares):
+    filtros = {}
+    if periodo in [
+        "Programas e Projetos",
+        "ETEC",
+        "Solicitações de Alimentação",
+    ]:
+        filtros["grupo__nome"] = periodo
+    elif periodo in dietas_especiais:
+        filtros["periodo_escolar__nome__in"] = periodos_escolares
+        filtros["grupo__nome__in"] = ["Programas e Projetos", "ETEC"]
+    else:
+        filtros["periodo_escolar__nome"] = periodo
+    return filtros
+
+
+def processa_dieta_especial(solicitacao, filtros, campo, periodo, turma):
+    condicoes = Q()
+    for filtro, valor in filtros.items():
+        condicoes = condicoes | Q(**{filtro: valor})
+
+    medicoes = solicitacao.medicoes.filter(condicoes)
+    if not medicoes.exists():
+        return "-"
+
+    categorias = (
+        [
+            "DIETA ESPECIAL - TIPO A",
+            "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        ]
+        if periodo == "DIETA ESPECIAL - TIPO A"
+        else [periodo]
+    )
+    total = 0.0
+    for medicao in medicoes:
+        soma = _calcula_soma_medicao(medicao, campo, categorias, turma)
+        if soma is not None:
+            total += soma
+
+    return "-" if total == 0.0 else total
+
+
+def _calcula_soma_medicao(medicao, campo, categorias, turma):
+    return (
+        medicao.valores_medicao.filter(
+            nome_campo=campo,
+            categoria_medicao__nome__in=categorias,
+            infantil_ou_fundamental=turma,
+        )
+        .annotate(valor_float=Cast("valor", output_field=FloatField()))
+        .aggregate(total=Sum("valor_float"))["total"]
+    )
 
 
 def insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
