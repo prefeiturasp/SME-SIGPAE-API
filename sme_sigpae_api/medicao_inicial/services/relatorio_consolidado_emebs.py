@@ -96,14 +96,13 @@ def _get_lista_alimentacoes(medicao, nome_periodo):
 
     if nome_periodo != "Solicitações de Alimentação":
         if nome_periodo.upper() != "NOITE":
-            infantil += [
-                "total_refeicoes_pagamento",
-                "total_sobremesas_pagamento",
-            ]
-        fundamental += [
-            "total_refeicoes_pagamento",
-            "total_sobremesas_pagamento",
-        ]
+            infantil.append("total_refeicoes_pagamento")
+            if "sobremesa" in infantil:
+                infantil.append("total_sobremesas_pagamento")
+
+        fundamental.append("total_refeicoes_pagamento")
+        if "sobremesa" in fundamental:
+            fundamental.append("total_sobremesas_pagamento")
 
     return infantil, fundamental
 
@@ -304,8 +303,10 @@ def _processa_periodo_campo(
     try:
         if periodo in dietas_especiais:
             total = processa_dieta_especial(solicitacao, filtros, campo, periodo, turma)
-        # else:
-        #     total = processa_periodo_regular(solicitacao, filtros, campo, periodo)
+        else:
+            total = processa_periodo_regular(
+                solicitacao, filtros, campo, periodo, turma
+            )
         valores.append(total)
     except Exception:
         valores.append("-")
@@ -347,11 +348,25 @@ def processa_dieta_especial(solicitacao, filtros, campo, periodo, turma):
     )
     total = 0.0
     for medicao in medicoes:
-        soma = _calcula_soma_medicao(medicao, campo, categorias, turma)
+        soma = _calcula_soma_medicao(medicao, campo, categorias, [turma])
         if soma is not None:
             total += soma
 
     return "-" if total == 0.0 else total
+
+
+def processa_periodo_regular(solicitacao, filtros, campo, periodo, turma):
+    medicao = solicitacao.medicoes.get(**filtros)
+
+    if periodo == "Solicitações de Alimentação":
+        categorias = [periodo.upper()]
+        turma = ["INFANTIL", "FUNDAMENTAL"]
+    else:
+        categorias = ["ALIMENTAÇÃO"]
+        turma = [turma]
+
+    soma = _calcula_soma_medicao(medicao, campo, categorias, turma)
+    return soma if soma is not None else "-"
 
 
 def _calcula_soma_medicao(medicao, campo, categorias, turma):
@@ -359,7 +374,7 @@ def _calcula_soma_medicao(medicao, campo, categorias, turma):
         medicao.valores_medicao.filter(
             nome_campo=campo,
             categoria_medicao__nome__in=categorias,
-            infantil_ou_fundamental=turma,
+            infantil_ou_fundamental__in=turma,
         )
         .annotate(valor_float=Cast("valor", output_field=FloatField()))
         .aggregate(total=Sum("valor_float"))["total"]
