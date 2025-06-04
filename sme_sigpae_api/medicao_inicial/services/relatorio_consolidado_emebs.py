@@ -1,3 +1,5 @@
+import calendar
+
 import pandas as pd
 from django.db.models import FloatField, Q, Sum
 from django.db.models.functions import Cast
@@ -96,13 +98,14 @@ def _get_lista_alimentacoes(medicao, nome_periodo):
 
     if nome_periodo != "Solicitações de Alimentação":
         if nome_periodo.upper() != "NOITE":
-            infantil.append("total_refeicoes_pagamento")
-            if "sobremesa" in infantil:
-                infantil.append("total_sobremesas_pagamento")
-
-        fundamental.append("total_refeicoes_pagamento")
-        if "sobremesa" in fundamental:
-            fundamental.append("total_sobremesas_pagamento")
+            infantil += [
+                "total_refeicoes_pagamento",
+                "total_sobremesas_pagamento",
+            ]
+        fundamental += [
+            "total_refeicoes_pagamento",
+            "total_sobremesas_pagamento",
+        ]
 
     return infantil, fundamental
 
@@ -358,6 +361,9 @@ def processa_dieta_especial(solicitacao, filtros, campo, periodo, turma):
 def processa_periodo_regular(solicitacao, filtros, campo, periodo, turma):
     medicao = solicitacao.medicoes.get(**filtros)
 
+    if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
+        return _get_total_pagamento(medicao, campo, turma)
+
     if periodo == "Solicitações de Alimentação":
         categorias = [periodo.upper()]
         turma = ["INFANTIL", "FUNDAMENTAL"]
@@ -379,6 +385,100 @@ def _calcula_soma_medicao(medicao, campo, categorias, turma):
         .annotate(valor_float=Cast("valor", output_field=FloatField()))
         .aggregate(total=Sum("valor_float"))["total"]
     )
+
+
+def _get_total_pagamento(medicao, nome_campo, turma):
+    if turma == "INFANTIL":
+        return _total_pagamento_infantil(medicao, nome_campo)
+    elif turma == "FUNDAMENTAL":
+        return _total_pagamento_fundamental(medicao, nome_campo)
+
+
+def _total_pagamento_infantil(medicao, nome_campo):
+    campos_refeicoes = [
+        "refeicao",
+        "2_refeicao_1_oferta",
+    ]
+    campos_sobremesas = [
+        "sobremesa",
+        "2_sobremesa_1_oferta",
+    ]
+    lista_campos = (
+        campos_refeicoes
+        if nome_campo == "total_refeicoes_pagamento"
+        else campos_sobremesas
+    )
+
+    total_pagamento = (
+        medicao.valores_medicao.filter(
+            nome_campo__in=lista_campos,
+            categoria_medicao__nome="ALIMENTAÇÃO",
+            infantil_ou_fundamental="INFANTIL",
+        )
+        .annotate(valor_float=Cast("valor", output_field=FloatField()))
+        .aggregate(total=Sum("valor_float"))
+    )
+    total = total_pagamento["total"]
+    return total if total is not None else 0
+
+
+def _total_pagamento_fundamental(medicao, nome_campo):
+    campos_refeicoes = [
+        "refeicao",
+        "repeticao_refeicao",
+        "2_refeicao_1_oferta",
+        "repeticao_2_refeicao",
+    ]
+    campos_sobremesas = [
+        "sobremesa",
+        "repeticao_sobremesa",
+        "2_sobremesa_1_oferta",
+        "repeticao_2_sobremesa",
+    ]
+    lista_campos = (
+        campos_refeicoes
+        if nome_campo == "total_refeicoes_pagamento"
+        else campos_sobremesas
+    )
+    mes = medicao.solicitacao_medicao_inicial.mes
+    ano = medicao.solicitacao_medicao_inicial.ano
+    total_dias_no_mes = calendar.monthrange(int(ano), int(mes))[1]
+    total_pagamento = 0
+
+    for dia in range(1, total_dias_no_mes + 1):
+        matriculados = medicao.valores_medicao.filter(
+            nome_campo="matriculados",
+            dia=f"{dia:02d}",
+            infantil_ou_fundamental="FUNDAMENTAL",
+        ).first()
+        numero_de_alunos = medicao.valores_medicao.filter(
+            nome_campo="numero_de_alunos",
+            dia=f"{dia:02d}",
+            infantil_ou_fundamental="FUNDAMENTAL",
+        ).first()
+
+        totais = []
+        for campo in lista_campos:
+            valor_campo_obj = medicao.valores_medicao.filter(
+                nome_campo=campo,
+                dia=f"{dia:02d}",
+                infantil_ou_fundamental="FUNDAMENTAL",
+            ).first()
+            if valor_campo_obj:
+                valor_campo = valor_campo_obj.valor
+                totais.append(int(valor_campo))
+
+        total_dia = sum(totais)
+        valor_comparativo = (
+            matriculados.valor
+            if matriculados
+            else numero_de_alunos.valor
+            if numero_de_alunos
+            else 0
+        )
+        total_pagamento += min(int(total_dia), int(valor_comparativo))
+
+    return total_pagamento
 
 
 def insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
