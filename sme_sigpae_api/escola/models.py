@@ -653,11 +653,15 @@ class Escola(
                 vinculotipoalimentacaocomperiodoescolaretipounidadeescolar__ativo=True,
             )
         else:
-            # TODO: ver uma forma melhor de fazer essa query
-            periodos_ids = self.logs_alunos_matriculados_por_periodo.filter(
-                tipo_turma="REGULAR", quantidade_alunos__gte=1, criado_em__year=ano
-            ).values_list("periodo_escolar", flat=True)
-            periodos = PeriodoEscolar.objects.filter(id__in=periodos_ids)
+            periodos = PeriodoEscolar.objects.filter(
+                id__in=self.logs_alunos_matriculados_por_periodo.filter(
+                    tipo_turma="REGULAR",
+                    quantidade_alunos__gte=1,
+                    criado_em__year=ano,
+                )
+                .values_list("periodo_escolar", flat=True)
+                .distinct()
+            )
         return periodos
 
     @property
