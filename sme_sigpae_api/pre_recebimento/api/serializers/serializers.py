@@ -56,9 +56,13 @@ class ProgramacaoDoRecebimentoDoCronogramaSerializer(serializers.ModelSerializer
 
 class EtapasDoCronogramaSerializer(serializers.ModelSerializer):
     data_programada = serializers.SerializerMethodField()
+    etapa = serializers.SerializerMethodField()
 
     def get_data_programada(self, obj):
         return obj.data_programada.strftime("%d/%m/%Y") if obj.data_programada else None
+
+    def get_etapa(self, obj):
+        return f"Etapa {obj.etapa}" if obj.etapa is not None else None
 
     class Meta:
         model = EtapasDoCronograma
@@ -82,6 +86,10 @@ class EtapasDoCronogramaCalendarioSerializer(serializers.ModelSerializer):
     data_programada = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
     unidade_medida = serializers.SerializerMethodField()
+    etapa = serializers.SerializerMethodField()
+
+    def get_etapa(self, obj):
+        return f"Etapa {obj.etapa}" if obj.etapa is not None else None
 
     def get_nome_produto(self, obj):
         try:
@@ -327,6 +335,10 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
     quantidade = serializers.SerializerMethodField()
     total_embalagens = serializers.SerializerMethodField()
     desvinculada_recebimento = serializers.SerializerMethodField()
+    etapa = serializers.SerializerMethodField()
+
+    def get_etapa(self, obj):
+        return f"Etapa {obj.etapa}" if obj.etapa is not None else None
 
     def get_qtd_total_empenho(self, obj):
         try:
@@ -534,6 +546,10 @@ class EtapaCronogramaRelatorioSerializer(serializers.ModelSerializer):
     status_cronograma = serializers.SerializerMethodField()
     total_embalagens = serializers.SerializerMethodField()
     situacao = serializers.SerializerMethodField()
+    etapa = serializers.SerializerMethodField()
+
+    def get_etapa(self, obj):
+        return f"Etapa {obj.etapa}" if obj.etapa is not None else None
 
     def get_numero_cronograma(self, obj):
         try:
