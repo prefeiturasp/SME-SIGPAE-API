@@ -563,10 +563,10 @@ def ajusta_layout_tabela(workbook, worksheet, df):
     formatacao_dieta_b = workbook.add_format({**formatacao_base, "bg_color": "#20AA73"})
 
     formatacao_infantil = workbook.add_format(
-        {**formatacao_base, "bg_color": "#C13FD6"}
+        {**formatacao_base, "bg_color": "#4a9a74"}
     )
     formatacao_fundamental = workbook.add_format(
-        {**formatacao_base, "bg_color": "#DE9524"}
+        {**formatacao_base, "bg_color": "#2e7453"}
     )
 
     formatacao_level2 = workbook.add_format(
