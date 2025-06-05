@@ -24,43 +24,42 @@ from ..models import SolicitacaoMedicaoInicial
 def gera_relatorio_consolidado_xlsx(solicitacoes_uuid, tipos_de_unidade, query_params):
     solicitacoes = SolicitacaoMedicaoInicial.objects.filter(uuid__in=solicitacoes_uuid)
     try:
-        if set(tipos_de_unidade).issubset(
-            ORDEM_UNIDADES_GRUPO_EMEF | ORDEM_UNIDADES_GRUPO_EMEI
-        ):
-            colunas = relatorio_consolidado_emei_emef.get_alimentacoes_por_periodo(
-                solicitacoes
-            )
-            linhas = relatorio_consolidado_emei_emef.get_valores_tabela(
-                solicitacoes, colunas, tipos_de_unidade
-            )
-        elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_CEI):
-            colunas = relatorio_consolidado_cei.get_alimentacoes_por_periodo(
-                solicitacoes
-            )
-            linhas = relatorio_consolidado_cei.get_valores_tabela(
-                solicitacoes, colunas, tipos_de_unidade
-            )
-        elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_CEMEI):
-            colunas = relatorio_consolidado_cemei.get_alimentacoes_por_periodo(
-                solicitacoes
-            )
-            linhas = relatorio_consolidado_cemei.get_valores_tabela(
-                solicitacoes, colunas
-            )
-        elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_EMEBS):
-            colunas = relatorio_consolidado_emebs.get_alimentacoes_por_periodo(
-                solicitacoes
-            )
-            linhas = relatorio_consolidado_emebs.get_valores_tabela(
-                solicitacoes, colunas
-            )
-        else:
-            raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
-
+        modulo, parametros = _obter_modulo_da_unidade(tipos_de_unidade)
+        colunas = modulo.get_alimentacoes_por_periodo(solicitacoes)
+        linhas = modulo.get_valores_tabela(solicitacoes, colunas, *parametros)
         arquivo_excel = _gera_excel(tipos_de_unidade, query_params, colunas, linhas)
     except Exception as e:
         raise e
     return arquivo_excel
+
+
+def _obter_modulo_da_unidade(tipos_de_unidade):
+    estrategias = [
+        {
+            "unidades": ORDEM_UNIDADES_GRUPO_EMEF | ORDEM_UNIDADES_GRUPO_EMEI,
+            "modulo": relatorio_consolidado_emei_emef,
+            "parametros": [tipos_de_unidade],
+        },
+        {
+            "unidades": ORDEM_UNIDADES_GRUPO_CEI,
+            "modulo": relatorio_consolidado_cei,
+            "parametros": [tipos_de_unidade],
+        },
+        {
+            "unidades": ORDEM_UNIDADES_GRUPO_CEMEI,
+            "modulo": relatorio_consolidado_cemei,
+            "parametros": [],
+        },
+        {
+            "unidades": ORDEM_UNIDADES_GRUPO_EMEBS,
+            "modulo": relatorio_consolidado_emebs,
+            "parametros": [],
+        },
+    ]
+    for estrategia in estrategias:
+        if set(tipos_de_unidade).issubset(estrategia["unidades"]):
+            return estrategia["modulo"], estrategia["parametros"]
+    raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
 
 
 def _gera_excel(tipos_de_unidade, query_params, colunas, linhas):
