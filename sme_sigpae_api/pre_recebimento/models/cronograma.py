@@ -3,8 +3,7 @@ import os
 
 from django.core.validators import FileExtensionValidator, MinLengthValidator
 from django.db import models
-from django.db.models import Case, F, IntegerField, OuterRef, Value, When
-from django.db.models.functions import Cast, Substr
+from django.db.models import OuterRef
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
@@ -130,15 +129,15 @@ class EtapasDoCronograma(ModeloBase):
     qtd_total_empenho = models.FloatField(
         "Qtde. Total do Empenho", blank=True, null=True
     )
-    etapa = models.CharField(blank=True, max_length=15)
+    etapa = models.IntegerField(blank=True, null=True, verbose_name="Etapa")
     parte = models.CharField(blank=True, max_length=15)
     data_programada = models.DateField("Data Programada", blank=True, null=True)
     quantidade = models.FloatField(blank=True, null=True)
     total_embalagens = models.FloatField("Total de Embalagens", blank=True, null=True)
 
     def __str__(self):
-        if self.etapa and self.parte and self.cronograma:
-            return f"{self.etapa} - {self.parte} - Cronograma {self.cronograma.numero}"
+        if self.etapa is not None and self.parte and self.cronograma:
+            return f"Etapa {self.etapa} - {self.parte} - Cronograma {self.cronograma.numero}"
 
         if self.cronograma:
             return f"Etapa do Cronograma {self.cronograma.numero}"
@@ -146,19 +145,6 @@ class EtapasDoCronograma(ModeloBase):
         return "Etapa sem Cronograma"
 
     class Meta:
-        ordering = (
-            Case(
-                When(
-                    etapa__isnull=False,
-                    etapa__gt="",
-                    then=Cast(Substr(F("etapa"), Value(7)), IntegerField()),
-                ),
-                default=Value(0),
-                output_field=IntegerField(),
-            ),
-            "parte",
-            "data_programada",
-        )
         verbose_name = "Etapa do Cronograma"
         verbose_name_plural = "Etapas dos Cronogramas"
 
@@ -166,7 +152,7 @@ class EtapasDoCronograma(ModeloBase):
     def etapas_to_json(cls):
         result = []
         for numero in range(1, 101):
-            choice = {"uuid": f"Etapa {numero}", "value": f"Etapa {numero}"}
+            choice = {"uuid": numero, "value": f"Etapa {numero}"}
             result.append(choice)
         return result
 
