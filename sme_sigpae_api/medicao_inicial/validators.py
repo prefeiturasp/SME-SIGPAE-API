@@ -2305,8 +2305,6 @@ def valida_alimentacoes_solicitacoes_continuas(
 ):
     periodo_com_erro = False
     categoria = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
-    nomes_campos = build_nomes_campos_alimentacoes_programas_e_projetos(inclusoes)
-
     for dia in range(1, quantidade_dias_mes + 1):
         feriados = calendario.holidays(int(ano))
         if dia in [
@@ -2328,6 +2326,9 @@ def valida_alimentacoes_solicitacoes_continuas(
                 quantidades_por_periodo__cancelado=False,
                 quantidades_por_periodo__dias_semana__icontains=dia_semana,
             )
+        nomes_campos = build_nomes_campos_alimentacoes_programas_e_projetos(
+            inclusoes_filtradas
+        )
         if (
             periodo_com_erro
             or not inclusoes_filtradas.exists()
