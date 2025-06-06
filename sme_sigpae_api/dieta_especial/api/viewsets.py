@@ -1071,9 +1071,8 @@ class SolicitacaoDietaEspecialViewSet(
             ],
             key=lambda alergia_intolerancia: alergia_intolerancia["nome"],
         )
-
         tipos_gestao_dict = dict(
-            set(TipoGestao.objects.all().values_list("nome", "uuid"))
+            set(TipoGestao.objects.exclude(nome__in=["DIRETA", "MISTA"]).values_list("nome", "uuid"))
         )
         tipos_gestao = [
             {"nome": key, "uuid": tipos_gestao_dict[key]}
@@ -1094,7 +1093,6 @@ class SolicitacaoDietaEspecialViewSet(
             for key in tipos_unidades_dict.keys()
             if key
         ]
-
         return Response(
             {
                 "alergias_intolerancias": alergias_intolerancias,
