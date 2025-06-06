@@ -105,8 +105,6 @@ class UsuarioViewSet(viewsets.ReadOnlyModelViewSet):
         usuario.last_login = datetime.datetime.now()
         usuario.save()
         if isinstance(result, Response):
-            usuario.last_login = None
-            usuario.save()
             logger.error("Erro ao alterar a senha:", result)
             return result
         return Response(
@@ -207,8 +205,6 @@ class UsuarioUpdateViewSet(viewsets.GenericViewSet):
         usuario.last_login = datetime.datetime.now()
         usuario.save()
         if isinstance(result, Response):
-            usuario.last_login = None
-            usuario.save()
             logger.error("Erro ao alterar a senha:", result)
             return result
         return Response(

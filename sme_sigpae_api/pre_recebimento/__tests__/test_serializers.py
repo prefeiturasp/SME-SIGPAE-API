@@ -156,7 +156,7 @@ def test_etapas_do_cronograma_calendario_serializer(
         "%d/%m/%Y"
     )
     assert serializer.data["numero_empenho"] == etapa.numero_empenho
-    assert serializer.data["etapa"] == etapa.etapa
+    assert serializer.data["etapa"] == f"Etapa {etapa.etapa}"
     assert serializer.data["parte"] == etapa.parte
     assert serializer.data["quantidade"] == etapa.quantidade
     assert serializer.data["status"] == cronograma.get_status_display()

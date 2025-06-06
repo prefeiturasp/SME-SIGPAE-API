@@ -73,7 +73,7 @@ def test_rascunho_cronograma_create_ok(
             {
                 "numero_empenho": "1891425",
                 "qtd_total_empenho": qtd_total_empenho,
-                "etapa": "Etapa 1",
+                "etapa": 1,
             },
         ],
         "programacoes_de_recebimento": [
@@ -198,14 +198,14 @@ def test_url_solicitacao_alteracao_fornecedor(
         "etapas": [
             {
                 "numero_empenho": "43532542",
-                "etapa": "Etapa 4",
+                "etapa": 4,
                 "parte": "Parte 2",
                 "data_programada": "2023-06-03",
                 "quantidade": 123,
                 "total_embalagens": 333,
             },
             {
-                "etapa": "Etapa 1",
+                "etapa": 1,
                 "parte": "Parte 1",
                 "data_programada": "2023-09-14",
                 "quantidade": "0",
@@ -233,14 +233,14 @@ def test_url_solicitacao_alteracao_dilog(
         "etapas": [
             {
                 "numero_empenho": "43532542",
-                "etapa": "Etapa 4",
+                "etapa": 4,
                 "parte": "Parte 2",
                 "data_programada": "2023-06-03",
                 "quantidade": 123,
                 "total_embalagens": 333,
             },
             {
-                "etapa": "Etapa 1",
+                "etapa": 1,
                 "parte": "Parte 1",
                 "data_programada": "2023-09-14",
                 "quantidade": 1,
@@ -277,7 +277,7 @@ def test_url_perfil_cronograma_ciente_alteracao_cronograma(
             "justificativa_cronograma": "teste justificativa",
             "etapas": [
                 {"numero_empenho": "123456789"},
-                {"numero_empenho": "1891425", "etapa": "Etapa 1"},
+                {"numero_empenho": "1891425", "etapa": 1},
             ],
             "programacoes_de_recebimento": [
                 {
@@ -538,7 +538,7 @@ def test_url_endpoint_cronograma_editar(
         "cadastro_finalizado": True,
         "etapas": [
             {"numero_empenho": "123456789"},
-            {"numero_empenho": "1891425", "etapa": "Etapa 1"},
+            {"numero_empenho": "1891425", "etapa": 1},
         ],
         "programacoes_de_recebimento": [
             {
@@ -718,7 +718,7 @@ def test_url_perfil_cronograma_assina_cronograma_authorized(
         "cadastro_finalizado": True,
         "etapas": [
             {"numero_empenho": "123456789"},
-            {"numero_empenho": "1891425", "etapa": "Etapa 1"},
+            {"numero_empenho": "1891425", "etapa": 1},
         ],
         "programacoes_de_recebimento": [
             {
@@ -744,7 +744,7 @@ def test_url_perfil_cronograma_assina_cronograma_erro_senha(
         "cadastro_finalizado": True,
         "etapas": [
             {"numero_empenho": "123456789"},
-            {"numero_empenho": "1891425", "etapa": "Etapa 1"},
+            {"numero_empenho": "1891425", "etapa": 1},
         ],
         "programacoes_de_recebimento": [
             {
