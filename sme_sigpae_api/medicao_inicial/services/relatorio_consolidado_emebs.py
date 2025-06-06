@@ -97,15 +97,16 @@ def _get_lista_alimentacoes(medicao, nome_periodo):
     )
 
     if nome_periodo != "Solicitações de Alimentação":
-        if nome_periodo.upper() != "NOITE":
+        if nome_periodo.upper() != "NOITE" and len(infantil) > 0:
             infantil += [
                 "total_refeicoes_pagamento",
                 "total_sobremesas_pagamento",
             ]
-        fundamental += [
-            "total_refeicoes_pagamento",
-            "total_sobremesas_pagamento",
-        ]
+        if len(fundamental) > 0:
+            fundamental += [
+                "total_refeicoes_pagamento",
+                "total_sobremesas_pagamento",
+            ]
 
     return infantil, fundamental
 
@@ -192,9 +193,11 @@ def _update_dietas_alimentacoes(
 def _unificar_dietas_tipo_a(dietas_alimentacoes, turma):
     dieta_principal = "DIETA ESPECIAL - TIPO A"
     dieta_alternativa = "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
-    valor_principal = dietas_alimentacoes[turma].get(dieta_principal, [])
-    valor_alternativo = dietas_alimentacoes[turma].get(dieta_alternativa, [])
+    valor_principal = dietas_alimentacoes.get(turma, {}).get(dieta_principal, [])
+    valor_alternativo = dietas_alimentacoes.get(turma, {}).get(dieta_alternativa, [])
     if valor_alternativo:
+        if turma not in dietas_alimentacoes:
+            dietas_alimentacoes[turma] = dict()
         dietas_alimentacoes[turma][dieta_principal] = (
             valor_principal + valor_alternativo
         )
