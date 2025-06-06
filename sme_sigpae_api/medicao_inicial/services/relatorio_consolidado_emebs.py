@@ -1,4 +1,5 @@
 import calendar
+import logging
 
 import pandas as pd
 from django.db.models import FloatField, Q, Sum
@@ -11,6 +12,8 @@ from sme_sigpae_api.dados_comuns.constants import (
 )
 from sme_sigpae_api.escola.models import PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
+
+logger = logging.getLogger(__name__)
 
 
 def get_alimentacoes_por_periodo(solicitacoes):
@@ -314,6 +317,12 @@ def _processa_periodo_campo(
                 solicitacao, filtros, campo, periodo, turma
             )
         valores.append(total)
+    except (TypeError, AttributeError, ValueError) as exception:
+        valores.append("-")
+        logger.error(
+            f"Erro ao atribuir valores para a solicitacao {solicitacao.uuid} para o campo {campo} no período {periodo} e turma {turma}:",
+            exception,
+        )
     except Exception:
         valores.append("-")
     return valores
@@ -391,22 +400,21 @@ def _calcula_soma_medicao(medicao, campo, categorias, turma):
 
 
 def _get_total_pagamento(medicao, nome_campo, turma):
-    total_valores = medicao.valores_medicao.filter(
-        infantil_ou_fundamental=turma
-    ).count()
-    if (
-        total_valores > 0
-        and medicao.periodo_escolar
-        in medicao.solicitacao_medicao_inicial.escola.periodos_escolares()
-    ):
-        valor_padrao = 0
-    else:
-        valor_padrao = "-"
-
     if turma == "INFANTIL":
+        total_valores = medicao.valores_medicao.filter(
+            infantil_ou_fundamental=turma
+        ).count()
+        if (
+            total_valores > 0
+            and medicao.periodo_escolar
+            in medicao.solicitacao_medicao_inicial.escola.periodos_escolares()
+        ) or (medicao.grupo and medicao.grupo.nome == "Programas e Projetos"):
+            valor_padrao = 0
+        else:
+            valor_padrao = "-"
         return _total_pagamento_infantil(medicao, nome_campo, valor_padrao)
     elif turma == "FUNDAMENTAL":
-        return _total_pagamento_fundamental(medicao, nome_campo, valor_padrao)
+        return _total_pagamento_fundamental(medicao, nome_campo)
 
 
 def _total_pagamento_infantil(medicao, nome_campo, valor_padrao):
@@ -437,7 +445,7 @@ def _total_pagamento_infantil(medicao, nome_campo, valor_padrao):
     return total if total is not None else valor_padrao
 
 
-def _total_pagamento_fundamental(medicao, nome_campo, valor_padrao):
+def _total_pagamento_fundamental(medicao, nome_campo):
     campos_refeicoes = [
         "refeicao",
         "repeticao_refeicao",
@@ -489,7 +497,7 @@ def _total_pagamento_fundamental(medicao, nome_campo, valor_padrao):
             if matriculados
             else numero_de_alunos.valor
             if numero_de_alunos
-            else valor_padrao
+            else 0
         )
         total_pagamento += min(int(total_dia), int(valor_comparativo))
 
