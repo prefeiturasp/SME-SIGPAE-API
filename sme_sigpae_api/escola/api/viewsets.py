@@ -194,12 +194,27 @@ class EscolaSimplissimaComEolViewSet(ReadOnlyModelViewSet):
     @action(detail=False, methods=["POST"], url_path="escolas-com-cod-eol")
     def escolas_com_cod_eol(self, request):
         escolas = self.get_queryset()
-        lote = request.data.get("lote", None)
-        if lote:
-            escolas = escolas.filter(lote__uuid=lote)
+        
+        lote_uuid = request.data.get("lote")
+        tipos_uuids = request.data.get("tipos_unidades_selecionadas", [])
+        if isinstance(tipos_uuids, str):
+            tipos_uuids = [tipos_uuids]
+            
+        if lote_uuid:
+            escolas = escolas.filter(lote__uuid=lote_uuid)
+            if tipos_uuids:
+                escolas = escolas.filter(tipo_unidade__uuid__in=tipos_uuids)
+        
+        escolas = escolas.distinct().order_by("nome")
+        
+        if not escolas.exists():
+            return Response(
+                {"mensagem": "Não existem resultados para os filtros selecionados"},
+                status=status.HTTP_200_OK,
+            )
+        
         serializer = self.serializer_class(escolas, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
     @action(detail=False, methods=["POST"], url_path="terc-total")
     def terc_total(self, request):
         escolas = self.get_queryset().filter(tipo_gestao__nome="TERC TOTAL")
