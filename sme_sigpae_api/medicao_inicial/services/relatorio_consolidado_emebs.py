@@ -5,11 +5,7 @@ import pandas as pd
 from django.db.models import FloatField, Q, Sum
 from django.db.models.functions import Cast
 
-from sme_sigpae_api.dados_comuns.constants import (
-    ORDEM_CAMPOS,
-    ORDEM_HEADERS_EMEBS,
-    ORDEM_UNIDADES_GRUPO_EMEBS,
-)
+from sme_sigpae_api.dados_comuns.constants import ORDEM_CAMPOS, ORDEM_HEADERS_EMEBS
 from sme_sigpae_api.escola.models import PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
 
@@ -292,7 +288,7 @@ def get_valores_tabela(solicitacoes, colunas):
 def get_solicitacoes_ordenadas(solicitacoes):
     return sorted(
         solicitacoes,
-        key=lambda k: ORDEM_UNIDADES_GRUPO_EMEBS[k.escola.tipo_unidade.iniciais],
+        key=lambda k: k.escola.nome,
     )
 
 
