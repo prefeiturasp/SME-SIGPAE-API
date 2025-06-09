@@ -68,6 +68,10 @@
     visao: CODAE
 - model: perfil.perfil
   fields:
+    nome: DILOG_VISUALIZACAO
+    visao: CODAE
+- model: perfil.perfil
+  fields:
     nome: ADMINISTRADOR_MEDICAO
     visao: CODAE
 - model: perfil.perfil
