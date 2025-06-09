@@ -3531,6 +3531,17 @@ def solicitacao_escola_ceu_cemei(escola_ceu_cemei):
 
 
 @pytest.fixture
+def solicitacao_relatorio_consolidado_grupo_emebs(escola_emebs):
+    return mommy.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola_emebs,
+        mes="04",
+        ano="2025",
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+    )
+
+
+@pytest.fixture
 def relatorio_consolidado_xlsx_cemei(
     solicitacao_relatorio_consolidado_grupo_cemei,
     periodo_escolar_integral,
@@ -3786,3 +3797,165 @@ def informacoes_excel_writer_cemei(
     finally:
         workbook.close()
         writer.close()
+
+
+@pytest.fixture
+def relatorio_consolidado_xlsx_emebs(
+    solicitacao_relatorio_consolidado_grupo_emebs,
+    periodo_escolar_manha,
+    periodo_escolar_tarde,
+    periodo_escolar_integral,
+    periodo_escolar_noite,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+    categoria_medicao_dieta_b,
+    grupo_solicitacoes_alimentacao,
+    categoria_medicao_solicitacoes_alimentacao,
+    grupo_programas_e_projetos,
+):
+    medicao_manha = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
+        periodo_escolar=periodo_escolar_manha,
+    )
+    medicao_tarde = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
+        periodo_escolar=periodo_escolar_tarde,
+    )
+
+    medicao_integral = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
+        periodo_escolar=periodo_escolar_integral,
+    )
+
+    medicao_noite = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
+        periodo_escolar=periodo_escolar_noite,
+    )
+
+    medicao_programas_e_projetos = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
+        grupo=grupo_programas_e_projetos,
+    )
+    solicitacao_alimentacao = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
+        grupo=grupo_solicitacoes_alimentacao,
+    )
+
+    for dia in ["01", "02", "03", "04", "05"]:
+        if dia == "05":
+            for campo in ["kit_lanche", "lanche_emergencial"]:
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=solicitacao_alimentacao,
+                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
+                    valor="5",
+                    infantil_ou_fundamental="FUNDAMENTAL",
+                )
+
+        for medicao in [
+            medicao_manha,
+            medicao_tarde,
+            medicao_integral,
+            medicao_noite,
+            medicao_programas_e_projetos,
+        ]:
+            for turma in ["INFANTIL", "FUNDAMENTAL"]:
+                if medicao == medicao_noite and turma == "INFANTIL":
+                    continue
+                if medicao == medicao_programas_e_projetos:
+                    mommy.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo="numero_de_alunos",
+                        medicao=medicao,
+                        categoria_medicao=categoria_medicao,
+                        valor="90",
+                        infantil_ou_fundamental=turma,
+                    )
+                else:
+                    mommy.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo="matriculados",
+                        medicao=medicao,
+                        categoria_medicao=categoria_medicao,
+                        valor="90",
+                        infantil_ou_fundamental=turma,
+                    )
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo="frequencia",
+                    medicao=medicao,
+                    categoria_medicao=categoria_medicao,
+                    valor="80",
+                    infantil_ou_fundamental=turma,
+                )
+
+                for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
+                    mommy.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao,
+                        categoria_medicao=categoria_medicao,
+                        valor="70",
+                        infantil_ou_fundamental=turma,
+                    )
+                    if campo in ["lanche", "lanche_4h"]:
+                        for categoria in [
+                            categoria_medicao_dieta_a,
+                            categoria_medicao_dieta_b,
+                            categoria_medicao_dieta_a_enteral_aminoacidos,
+                        ]:
+                            mommy.make(
+                                "ValorMedicao",
+                                dia=dia,
+                                nome_campo=campo,
+                                medicao=medicao,
+                                categoria_medicao=categoria,
+                                valor=1,
+                                infantil_ou_fundamental=turma,
+                            )
+                    elif campo == "refeicao":
+                        mommy.make(
+                            "ValorMedicao",
+                            dia=dia,
+                            nome_campo=campo,
+                            medicao=medicao,
+                            categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                            valor=1,
+                            infantil_ou_fundamental=turma,
+                        )
+
+    return solicitacao_relatorio_consolidado_grupo_emebs
+
+
+@pytest.fixture
+def mock_query_params_excel_emebs(solicitacao_relatorio_consolidado_grupo_emebs):
+    grupo_escolar = mommy.make(
+        "GrupoUnidadeEscolar",
+        nome="Grupo 5",
+        uuid="172a2ae6-c417-49d3-91d3-a2dae3d8a56b",
+        tipos_unidades=[
+            mommy.make("TipoUnidadeEscolar", iniciais="EMEBS"),
+        ],
+    )
+    return {
+        "dre": solicitacao_relatorio_consolidado_grupo_emebs.escola.diretoria_regional.uuid,
+        "status": "MEDICAO_APROVADA_PELA_CODAE",
+        "grupo_escolar": grupo_escolar,
+        "mes": solicitacao_relatorio_consolidado_grupo_emebs.mes,
+        "ano": solicitacao_relatorio_consolidado_grupo_emebs.ano,
+        "lotes[]": solicitacao_relatorio_consolidado_grupo_emebs.escola.lote.uuid,
+        "lotes": [solicitacao_relatorio_consolidado_grupo_emebs.escola.lote.uuid],
+    }
