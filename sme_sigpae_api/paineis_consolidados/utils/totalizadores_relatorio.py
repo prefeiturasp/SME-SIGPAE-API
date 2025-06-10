@@ -1,3 +1,5 @@
+from collections import Counter
+
 from sme_sigpae_api.dieta_especial.models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
@@ -386,46 +388,68 @@ def totalizador_periodo(request, model, queryset, list_cards_totalizadores):
 def totalizador_tipo_de_gestao(
     request, model, queryset, list_cards_totalizadores, string_polo_ou_recreio=None
 ):
-    tipo_gestao_uuid = request.data.get("tipo_gestao", [])
-    classificacoes = request.data.get("classificacoes_selecionadas", [])
-    tipos_unidade = request.data.get("tipos_unidades_selecionadas", [])
-    lote = request.data.get("lote", [])
-    unidades_educacionais = request.data.get("unidades_educacionais_selecionadas", [])
-    alergias_ids = request.data.get("alergias_intolerancias_selecionadas", [])
-    cei_polo = request.data.get("cei_polo", False)
-    recreio_nas_ferias = request.data.get("recreio_nas_ferias", False)
-
-    if not tipo_gestao_uuid:
+    filtros = _obter_filtros_totalizador_tipo_de_gestao(request)
+    if not filtros["tipo_gestao_uuid"]:
         return list_cards_totalizadores
 
-    map_filtros = {
-        "escola_tipo_gestao_uuid": tipo_gestao_uuid,
-        "classificacao_id__in": classificacoes,
-        "escola_destino_tipo_unidade_uuid__in": tipos_unidade,
-        "lote_escola_destino_uuid": lote,
-        "escola_destino_uuid__in": unidades_educacionais,
-    }
-    queryset = filtro_geral_totalizadores(request, model, queryset, map_filtros)
-    lista_uuids = [uuid for uuid in set(queryset.values_list("uuid", flat=True))]
-    qs = SolicitacaoDietaEspecial.objects.filter(uuid__in=lista_uuids)
-    if alergias_ids:
-        qs = qs.filter(alergias_intolerancias__in=alergias_ids).distinct()
-    if cei_polo and not recreio_nas_ferias:
-        qs = qs.filter(motivo_alteracao_ue__nome__icontains="polo")
-    if recreio_nas_ferias and not cei_polo:
-        qs = qs.filter(motivo_alteracao_ue__nome__icontains="recreio")
-    if cei_polo and recreio_nas_ferias:
-        qs_ = qs
-        qs_cei_polo = qs_.filter(motivo_alteracao_ue__nome__icontains="polo")
-        qs_recreio_nas_ferias = qs_.filter(
-            motivo_alteracao_ue__nome__icontains="recreio"
-        )
-        qs = qs_cei_polo if string_polo_ou_recreio == "polo" else qs_recreio_nas_ferias
-    tipo_gestao = TipoGestao.objects.get(uuid=tipo_gestao_uuid)
-    list_cards_totalizadores.append(
-        {f"{tipo_gestao.nome}": count_query_set_sem_duplicados(qs)}
+    queryset = _aplicar_filtros_base(queryset, request, model, filtros)
+
+    qs = _filtrar_solicitacoes_dieta(queryset, filtros, string_polo_ou_recreio)
+
+    tipo_gestao_nome = (
+        TipoGestao.objects.only("nome").get(uuid=filtros["tipo_gestao_uuid"]).nome
     )
+
+    total = qs.distinct().count()
+    list_cards_totalizadores.append({tipo_gestao_nome: total})
     return list_cards_totalizadores
+
+
+def _obter_filtros_totalizador_tipo_de_gestao(request):
+    return {
+        "tipo_gestao_uuid": request.data.get("tipo_gestao"),
+        "classificacoes": request.data.get("classificacoes_selecionadas", []),
+        "tipos_unidade": request.data.get("tipos_unidades_selecionadas", []),
+        "lote": request.data.get("lote", []),
+        "unidades_educacionais": request.data.get(
+            "unidades_educacionais_selecionadas", []
+        ),
+        "alergias_ids": request.data.get("alergias_intolerancias_selecionadas", []),
+        "cei_polo": request.data.get("cei_polo", False),
+        "recreio_nas_ferias": request.data.get("recreio_nas_ferias", False),
+    }
+
+
+def _aplicar_filtros_base(queryset, request, model, filtros):
+    map_filtros = {
+        "escola_tipo_gestao_uuid": filtros["tipo_gestao_uuid"],
+        "classificacao_id__in": filtros["classificacoes"],
+        "escola_destino_tipo_unidade_uuid__in": filtros["tipos_unidade"],
+        "lote_escola_destino_uuid": filtros["lote"],
+        "escola_destino_uuid__in": filtros["unidades_educacionais"],
+    }
+    return filtro_geral_totalizadores(request, model, queryset, map_filtros)
+
+
+def _filtrar_solicitacoes_dieta(queryset, filtros, string_polo_ou_recreio):
+    lista_uuids = queryset.values_list("uuid", flat=True).distinct()
+    qs = SolicitacaoDietaEspecial.objects.filter(uuid__in=lista_uuids)
+
+    if filtros["alergias_ids"]:
+        qs = qs.filter(alergias_intolerancias__id__in=filtros["alergias_ids"])
+
+    cei = filtros["cei_polo"]
+    recreio = filtros["recreio_nas_ferias"]
+
+    if cei and recreio:
+        filtro = "polo" if string_polo_ou_recreio == "polo" else "recreio"
+        qs = qs.filter(motivo_alteracao_ue__nome__icontains=filtro)
+    elif cei:
+        qs = qs.filter(motivo_alteracao_ue__nome__icontains="polo")
+    elif recreio:
+        qs = qs.filter(motivo_alteracao_ue__nome__icontains="recreio")
+
+    return qs
 
 
 def totalizador_classificacao_dieta(
@@ -492,22 +516,27 @@ def totalizador_relacao_diagnostico(
         "escola_destino_uuid__in": unidades_educacionais,
         "classificacao_id__in": classificacoes,
     }
+
     queryset = filtro_geral_totalizadores(request, model, queryset, map_filtros)
-    lista_uuids = [uuid for uuid in set(queryset.values_list("uuid", flat=True))]
-    dietas = SolicitacaoDietaEspecial.objects.filter(uuid__in=lista_uuids)
+    lista_uuids = queryset.values_list("uuid", flat=True).distinct()
+    dietas = SolicitacaoDietaEspecial.objects.filter(
+        uuid__in=lista_uuids
+    ).prefetch_related("alergias_intolerancias")
     dietas = dietas_polo_recreio_relacao_diagnostico(
         dietas, cei_polo, recreio_nas_ferias, string_polo_ou_recreio
     )
+    alergias = AlergiaIntolerancia.objects.filter(id__in=alergias_ids)
+    alergias_dict = {a.id: a.descricao for a in alergias}
+    contagens = Counter()
 
-    for alergia_id in alergias_ids:
-        alergia = AlergiaIntolerancia.objects.get(id=alergia_id)
-        contagem = 0
-        for dieta in dietas:
-            if alergia_id in dieta.alergias_intolerancias.all().values_list(
-                "id", flat=True
-            ):
-                contagem += 1
-        list_cards_totalizadores.append({alergia.descricao: contagem})
+    for dieta in dietas:
+        for alergia in dieta.alergias_intolerancias.all():
+            if alergia.id in alergias_dict:
+                contagens[alergia.id] += 1
+
+    for alergia_id, descricao in alergias_dict.items():
+        list_cards_totalizadores.append({descricao: contagens.get(alergia_id, 0)})
+
     return list_cards_totalizadores
 
 
