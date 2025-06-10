@@ -67,6 +67,8 @@ class Perfil(
             {"codigo": 3085, "cargo": "ASSISTENTE DE DIREÇÃO DE ESCOLA"},
             {"codigo": 43, "cargo": "COORDENADOR GERAL"},
             {"codigo": 515, "cargo": "GESTOR DE EQUIPAMENTO PÚBLICO II"},
+            {"codigo": 3298, "cargo": "CIEJA COORDENADOR GERAL"},
+            {"codigo": 3875, "cargo": "CIEJA ASSIST COORD GERAL"},
         ]
 
     @classmethod
