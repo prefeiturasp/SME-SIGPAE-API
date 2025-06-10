@@ -1,14 +1,34 @@
+import openpyxl
+import pandas as pd
 import pytest
 
+from sme_sigpae_api.escola.models import PeriodoEscolar
+from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
 from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emebs import (
+    _calcula_soma_medicao,
+    _define_filtro,
+    _generate_columns,
     _get_categorias_dietas,
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
     _get_nome_periodo,
+    _get_total_pagamento,
+    _get_valores_iniciais,
     _obter_dietas_especiais,
+    _processa_periodo_campo,
+    _sort_and_merge,
+    _total_pagamento_fundamental,
+    _total_pagamento_infantil,
+    _unificar_dietas_tipo_a,
     _update_dietas_alimentacoes,
     _update_periodos_alimentacoes,
+    ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
+    get_solicitacoes_ordenadas,
+    get_valores_tabela,
+    insere_tabela_periodos_na_planilha,
+    processa_dieta_especial,
+    processa_periodo_regular,
 )
 
 pytestmark = pytest.mark.django_db
@@ -18,7 +38,7 @@ def test_get_alimentacoes_por_periodo(relatorio_consolidado_xlsx_emebs):
     colunas = get_alimentacoes_por_periodo([relatorio_consolidado_xlsx_emebs])
     assert isinstance(colunas, list)
     assert len(colunas) == 66
-    assert sum(1 for tupla in colunas if tupla[0] == "INFANTIL") == 29
+    assert sum(1 for tupla in colunas if tupla[0] == "INFANTIL") == 28
     assert sum(1 for tupla in colunas if tupla[0] == "FUNDAMENTAL") == 35
     assert sum(1 for tupla in colunas if tupla[1] == "Solicitações de Alimentação") == 2
     assert sum(1 for tupla in colunas if tupla[1] == "MANHA") == 12
@@ -245,3 +265,652 @@ def test_update_dietas_alimentacoes():
         dietas_alimentacoes["FUNDAMENTAL"]["DIETA ESPECIAL - TIPO A"]
         == lista_alimentacoes
     )
+
+
+def test_unificar_dietas():
+    dietas_alimentacoes = {
+        "FUNDAMENTAL": {
+            "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h"],
+            "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": [
+                "lanche",
+                "lanche_4h",
+                "refeicao",
+            ],
+            "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+        }
+    }
+    resultado = _unificar_dietas_tipo_a(dietas_alimentacoes, turma="FUNDAMENTAL")
+    assert "FUNDAMENTAL" in resultado.keys()
+    assert "DIETA ESPECIAL - TIPO A" in resultado["FUNDAMENTAL"]
+    assert "DIETA ESPECIAL - TIPO B" in resultado["FUNDAMENTAL"]
+    assert (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+        not in resultado["FUNDAMENTAL"]
+    )
+    assert len(resultado["FUNDAMENTAL"]["DIETA ESPECIAL - TIPO A"]) == 5
+
+
+def test_sort_and_merge():
+    refeicoes = [
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+        "sobremesa",
+        "total_refeicoes_pagamento",
+        "total_sobremesas_pagamento",
+    ]
+    dieta_a = [
+        "refeicao",
+        "lanche",
+        "lanche_4h",
+    ]
+    dieta_b = [
+        "lanche_4h",
+        "lanche",
+    ]
+    periodos_alimentacoes = {
+        "INFANTIL": {
+            "MANHA": refeicoes,
+        },
+        "FUNDAMENTAL": {
+            "MANHA": refeicoes,
+            "Solicitações de Alimentação": ["kit_lanche", "lanche_emergencial"],
+        },
+    }
+
+    dietas_alimentacoes = {
+        "INFANTIL": {
+            "DIETA ESPECIAL - TIPO A": dieta_a,
+            "DIETA ESPECIAL - TIPO B": dieta_b,
+        },
+        "FUNDAMENTAL": {
+            "DIETA ESPECIAL - TIPO A": dieta_a,
+            "DIETA ESPECIAL - TIPO B": dieta_b,
+        },
+    }
+
+    dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
+    assert isinstance(dict_periodos_dietas, dict)
+    assert set(["INFANTIL", "FUNDAMENTAL"]).issubset(dict_periodos_dietas.keys())
+
+    assert dict_periodos_dietas["INFANTIL"]["MANHA"] == [
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+        "total_refeicoes_pagamento",
+        "sobremesa",
+        "total_sobremesas_pagamento",
+    ]
+    assert dict_periodos_dietas["FUNDAMENTAL"]["MANHA"] == [
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+        "total_refeicoes_pagamento",
+        "sobremesa",
+        "total_sobremesas_pagamento",
+    ]
+    assert dict_periodos_dietas["FUNDAMENTAL"]["Solicitações de Alimentação"] == [
+        "kit_lanche",
+        "lanche_emergencial",
+    ]
+
+    assert dict_periodos_dietas["INFANTIL"]["DIETA ESPECIAL - TIPO A"] == [
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+    ]
+    assert dict_periodos_dietas["FUNDAMENTAL"]["DIETA ESPECIAL - TIPO A"] == [
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+    ]
+    assert dict_periodos_dietas["INFANTIL"]["DIETA ESPECIAL - TIPO B"] == [
+        "lanche",
+        "lanche_4h",
+    ]
+    assert dict_periodos_dietas["FUNDAMENTAL"]["DIETA ESPECIAL - TIPO B"] == [
+        "lanche",
+        "lanche_4h",
+    ]
+
+
+def test_generate_columns():
+    periodos_dietas = {
+        "MANHA": [
+            "lanche",
+            "lanche_4h",
+            "refeicao",
+            "total_refeicoes_pagamento",
+            "sobremesa",
+            "total_sobremesas_pagamento",
+        ],
+        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h", "refeicao"],
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+    }
+
+    dict_periodos_dietas = {
+        "INFANTIL": periodos_dietas,
+        "FUNDAMENTAL": {
+            **periodos_dietas,
+            "Solicitações de Alimentação": ["kit_lanche", "lanche_emergencial"],
+        },
+    }
+    colunas = _generate_columns(dict_periodos_dietas)
+    assert isinstance(colunas, list)
+    assert len(colunas) == 24
+    assert sum(1 for tupla in colunas if tupla[0] == "INFANTIL") == 11
+    assert sum(1 for tupla in colunas if tupla[0] == "FUNDAMENTAL") == 11
+    assert sum(1 for tupla in colunas if tupla[1] == "Solicitações de Alimentação") == 2
+    assert sum(1 for tupla in colunas if tupla[1] == "MANHA") == 12
+    assert sum(1 for tupla in colunas if tupla[1] == "DIETA ESPECIAL - TIPO A") == 6
+    assert sum(1 for tupla in colunas if tupla[1] == "DIETA ESPECIAL - TIPO B") == 4
+    assert sum(1 for tupla in colunas if tupla[2] == "kit_lanche") == 1
+    assert sum(1 for tupla in colunas if tupla[2] == "lanche_emergencial") == 1
+    assert sum(1 for tupla in colunas if tupla[2] == "lanche") == 6
+    assert sum(1 for tupla in colunas if tupla[2] == "lanche_4h") == 6
+    assert sum(1 for tupla in colunas if tupla[2] == "refeicao") == 4
+    assert sum(1 for tupla in colunas if tupla[2] == "sobremesa") == 2
+    assert sum(1 for tupla in colunas if tupla[2] == "total_refeicoes_pagamento") == 2
+    assert sum(1 for tupla in colunas if tupla[2] == "total_sobremesas_pagamento") == 2
+
+
+def test_get_valores_tabela(relatorio_consolidado_xlsx_emebs, mock_colunas_emebs):
+    linhas = get_valores_tabela([relatorio_consolidado_xlsx_emebs], mock_colunas_emebs)
+    assert isinstance(linhas, list)
+    assert len(linhas) == 1
+    assert isinstance(linhas[0], list)
+    assert len(linhas[0]) == 67
+    assert linhas[0] == [
+        "EMEBS",
+        "000329",
+        "EMEBS TESTE",
+        5.0,
+        5.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        40.0,
+        40.0,
+        20.0,
+        20.0,
+        20.0,
+        350.0,
+        350.0,
+        350.0,
+        350,
+        350.0,
+        350,
+        350.0,
+        350.0,
+        350.0,
+        350,
+        350.0,
+        350,
+        350.0,
+        350.0,
+        350.0,
+        350,
+        350.0,
+        350,
+        350.0,
+        350.0,
+        350.0,
+        350,
+        350.0,
+        350,
+        350.0,
+        350.0,
+        350.0,
+        350,
+        350,
+        50.0,
+        50.0,
+        25.0,
+        25.0,
+        25.0,
+    ]
+
+
+def test_get_solicitacoes_ordenadas(
+    solicitacao_escola_emebs,
+    solicitacao_relatorio_consolidado_grupo_emebs,
+):
+    solicitacoes = [
+        solicitacao_relatorio_consolidado_grupo_emebs,
+        solicitacao_escola_emebs,
+    ]
+    ordenados = get_solicitacoes_ordenadas(solicitacoes)
+    assert isinstance(ordenados, list)
+    assert ordenados[0].escola.nome == solicitacao_escola_emebs.escola.nome
+    assert (
+        ordenados[1].escola.nome
+        == solicitacao_relatorio_consolidado_grupo_emebs.escola.nome
+    )
+
+
+def test_get_valores_iniciais(relatorio_consolidado_xlsx_emebs):
+    valores = _get_valores_iniciais(relatorio_consolidado_xlsx_emebs)
+    assert isinstance(valores, list)
+    assert len(valores) == 3
+    assert valores == [
+        relatorio_consolidado_xlsx_emebs.escola.tipo_unidade.iniciais,
+        relatorio_consolidado_xlsx_emebs.escola.codigo_eol,
+        relatorio_consolidado_xlsx_emebs.escola.nome,
+    ]
+
+
+def test_processa_periodo_campo(relatorio_consolidado_xlsx_emebs):
+    valores_iniciais = [
+        relatorio_consolidado_xlsx_emebs.escola.tipo_unidade.iniciais,
+        relatorio_consolidado_xlsx_emebs.escola.codigo_eol,
+        relatorio_consolidado_xlsx_emebs.escola.nome,
+    ]
+    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
+    dietas_especiais = CategoriaMedicao.objects.filter(
+        nome__icontains="DIETA ESPECIAL"
+    ).values_list("nome", flat=True)
+
+    integral = _processa_periodo_campo(
+        relatorio_consolidado_xlsx_emebs,
+        "INFANTIL",
+        "INTEGRAL",
+        "lanche",
+        valores_iniciais,
+        dietas_especiais,
+        periodos_escolares,
+    )
+
+    assert isinstance(integral, list)
+    assert len(integral) == 4
+    assert integral == ["EMEBS", "000329", "EMEBS TESTE", 350.0]
+
+
+def test_define_filtro(relatorio_consolidado_xlsx_emebs):
+    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
+    dietas_especiais = CategoriaMedicao.objects.filter(
+        nome__icontains="DIETA ESPECIAL"
+    ).values_list("nome", flat=True)
+
+    manha = _define_filtro("MANHA", dietas_especiais, periodos_escolares)
+    assert isinstance(manha, dict)
+    assert "grupo__nome" not in manha
+    assert "periodo_escolar__nome" in manha
+    assert manha["periodo_escolar__nome"] == "MANHA"
+
+    dieta_especial = _define_filtro(
+        "DIETA ESPECIAL - TIPO A", dietas_especiais, periodos_escolares
+    )
+    assert isinstance(dieta_especial, dict)
+    assert "grupo__nome__in" in dieta_especial
+    assert "periodo_escolar__nome__in" in dieta_especial
+    assert dieta_especial["periodo_escolar__nome__in"] == periodos_escolares
+    assert dieta_especial["grupo__nome__in"] == ["Programas e Projetos", "ETEC"]
+
+    solicitacao = _define_filtro(
+        "Solicitações de Alimentação", dietas_especiais, periodos_escolares
+    )
+    assert isinstance(solicitacao, dict)
+    assert "periodo_escolar__nome" not in solicitacao
+    assert "grupo__nome" in solicitacao
+    assert solicitacao["grupo__nome"] == "Solicitações de Alimentação"
+
+
+def test_processa_dieta_especial(relatorio_consolidado_xlsx_emebs):
+    periodo = "NOITE"
+    filtros = {"periodo_escolar__nome": periodo}
+    campo = "refeicao"
+    turma = "INFANTIL"
+
+    total = processa_dieta_especial(
+        relatorio_consolidado_xlsx_emebs, filtros, campo, periodo, turma
+    )
+    assert total == "-"
+
+    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
+    filtros = {
+        "periodo_escolar__nome__in": periodos_escolares,
+        "grupo__nome__in": ["Programas e Projetos", "ETEC"],
+    }
+    periodo = "DIETA ESPECIAL - TIPO A"
+    total = processa_dieta_especial(
+        relatorio_consolidado_xlsx_emebs, filtros, campo, periodo, turma
+    )
+    assert total == 20.0
+
+
+def test_processa_periodo_regular(relatorio_consolidado_xlsx_emebs):
+    periodo = "NOITE"
+    filtros = {"periodo_escolar__nome": periodo}
+    campo = "refeicao"
+    turma = "INFANTIL"
+    total = processa_periodo_regular(
+        relatorio_consolidado_xlsx_emebs, filtros, campo, periodo, turma
+    )
+    assert total == "-"
+
+    turma = "FUNDAMENTAL"
+    total = processa_periodo_regular(
+        relatorio_consolidado_xlsx_emebs, filtros, campo, periodo, turma
+    )
+    assert total == 350.0
+
+
+def test_calcula_soma_medicao_alimentacao(relatorio_consolidado_xlsx_emebs):
+    medicoes = relatorio_consolidado_xlsx_emebs.medicoes.all().order_by(
+        "periodo_escolar__nome", "grupo__nome"
+    )
+    campo = "refeicao"
+    categoria = ["ALIMENTAÇÃO"]
+
+    turma = ["INFANTIL"]
+    manha = _calcula_soma_medicao(medicoes[1], campo, categoria, turma)
+    assert manha == 350.0
+
+    noite = _calcula_soma_medicao(medicoes[2], campo, categoria, turma)
+    assert noite is None
+
+    turma = ["FUNDAMENTAL"]
+    manha = _calcula_soma_medicao(medicoes[1], campo, categoria, turma)
+    assert manha == 350.0
+
+    noite = _calcula_soma_medicao(medicoes[2], campo, categoria, turma)
+    assert noite == 350.0
+
+    categoria = ["Solicitações de Alimentação".upper()]
+    turma = ["INFANTIL", "FUNDAMENTAL"]
+    solicitacao = _calcula_soma_medicao(medicoes[5], "kit_lanche", categoria, turma)
+    assert solicitacao == 5.0
+
+
+def test_get_total_pagamento(relatorio_consolidado_xlsx_emebs):
+    medicoes = relatorio_consolidado_xlsx_emebs.medicoes.all().order_by(
+        "periodo_escolar__nome", "grupo__nome"
+    )
+    campo = "total_refeicoes_pagamento"
+    turma = "INFANTIL"
+
+    integral = _get_total_pagamento(medicoes[0], campo, turma)
+    assert integral == 350.0
+
+    manha = _get_total_pagamento(medicoes[1], campo, turma)
+    assert manha == 350.0
+
+    noite = _get_total_pagamento(medicoes[2], campo, turma)
+    assert noite == "-"
+
+    tarde = _get_total_pagamento(medicoes[3], campo, turma)
+    assert tarde == 350.0
+
+    campo = "total_sobremesas_pagamento"
+    turma = "INFANTIL"
+    programas_projetos = _get_total_pagamento(medicoes[4], campo, turma)
+    assert programas_projetos == 350.0
+
+
+def test_get_total_pagamento_infantil(relatorio_consolidado_xlsx_emebs):
+    medicoes = relatorio_consolidado_xlsx_emebs.medicoes.all().order_by(
+        "periodo_escolar__nome", "grupo__nome"
+    )
+    campo = "total_refeicoes_pagamento"
+
+    integral = _total_pagamento_infantil(medicoes[0], campo, 0)
+    assert integral == 350.0
+
+    manha = _total_pagamento_infantil(medicoes[1], campo, 0)
+    assert manha == 350.0
+
+    noite = _total_pagamento_infantil(medicoes[2], campo, "-")
+    assert noite == "-"
+
+    tarde = _total_pagamento_infantil(medicoes[3], campo, 0)
+    assert tarde == 350.0
+
+    campo = "total_sobremesas_pagamento"
+    programas_projetos = _total_pagamento_infantil(medicoes[4], campo, 0)
+    assert programas_projetos == 350.0
+
+
+def test_get_total_pagamento_fundamental(relatorio_consolidado_xlsx_emebs):
+    medicoes = relatorio_consolidado_xlsx_emebs.medicoes.all().order_by(
+        "periodo_escolar__nome", "grupo__nome"
+    )
+    campo = "total_refeicoes_pagamento"
+
+    integral = _total_pagamento_fundamental(medicoes[0], campo)
+    assert integral == 350.0
+
+    manha = _total_pagamento_fundamental(medicoes[1], campo)
+    assert manha == 350.0
+
+    noite = _total_pagamento_fundamental(medicoes[2], campo)
+    assert noite == 350.0
+
+    tarde = _total_pagamento_fundamental(medicoes[3], campo)
+    assert tarde == 350.0
+
+    campo = "total_sobremesas_pagamento"
+    programas_projetos = _total_pagamento_fundamental(medicoes[4], campo)
+    assert programas_projetos == 350.0
+
+
+def test_insere_tabela_periodos_na_planilha(
+    informacoes_excel_writer_emebs, mock_colunas_emebs, mock_linhas_emebs
+):
+    aba, writer, _, _, _, _ = informacoes_excel_writer_emebs
+
+    df = insere_tabela_periodos_na_planilha(
+        aba, mock_colunas_emebs, mock_linhas_emebs, writer
+    )
+    assert isinstance(df, pd.DataFrame)
+    colunas_df = df.columns.tolist()
+    assert len(colunas_df) == 67
+
+    assert sum(1 for tupla in colunas_df if tupla[0] == "INFANTIL") == 28
+    assert sum(1 for tupla in colunas_df if tupla[0] == "FUNDAMENTAL") == 34
+
+    assert sum(1 for tupla in colunas_df if tupla[1] == "MANHA") == 12
+    assert sum(1 for tupla in colunas_df if tupla[1] == "TARDE") == 12
+    assert sum(1 for tupla in colunas_df if tupla[1] == "INTEGRAL") == 12
+    assert sum(1 for tupla in colunas_df if tupla[1] == "NOITE") == 6
+    assert sum(1 for tupla in colunas_df if tupla[1] == "PROGRAMAS E PROJETOS") == 10
+    assert sum(1 for tupla in colunas_df if tupla[1] == "DIETA ESPECIAL - TIPO A") == 6
+    assert sum(1 for tupla in colunas_df if tupla[1] == "DIETA ESPECIAL - TIPO B") == 4
+
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Tipo") == 1
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Cód. EOL") == 1
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Unidade Escolar") == 1
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Kit Lanche") == 1
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Lanche Emerg.") == 1
+
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Lanche") == 13
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Lanche 4h") == 13
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Refeição") == 11
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Sobremesa") == 7
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Refeições p/ Pagamento") == 9
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Sobremesas p/ Pagamento") == 9
+
+    assert df.iloc[0].tolist() == [
+        "EMEBS",
+        "000329",
+        "EMEBS TESTE",
+        5.0,
+        5.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        40.0,
+        40.0,
+        20.0,
+        20.0,
+        20.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        50.0,
+        50.0,
+        25.0,
+        25.0,
+        25.0,
+    ]
+    assert df.iloc[1].tolist() == [
+        0.0,
+        329.0,
+        0.0,
+        5.0,
+        5.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        40.0,
+        40.0,
+        20.0,
+        20.0,
+        20.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        50.0,
+        50.0,
+        25.0,
+        25.0,
+        25.0,
+    ]
+
+
+def test_ajusta_layout_tabela(informacoes_excel_writer_emebs):
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emebs
+    ajusta_layout_tabela(workbook, worksheet, df)
+    writer.close()
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
+    sheet = workbook_openpyxl[aba]
+    merged_ranges = sheet.merged_cells.ranges
+    assert len(merged_ranges) == 17
+    esperados = {
+        "A3:E3",
+        "F3:AG3" "AH3:BO3" "A4:E4",
+        "F4:K4",
+        "X4:AB4," "AC4:AE4",
+        "AF4:AG4",
+        "AH4:AM4",
+        "AN4:AS4",
+        "AT4:AY4",
+        "AZ4:BE4" "BF4:BJ4",
+        "BK4:BM4",
+        "BN4:BO4" "L4:Q4",
+        "R4:W4",
+    }
+    assert {str(r) for r in merged_ranges} == esperados
+
+    workbook_openpyxl.close()

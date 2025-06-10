@@ -3531,17 +3531,6 @@ def solicitacao_escola_ceu_cemei(escola_ceu_cemei):
 
 
 @pytest.fixture
-def solicitacao_relatorio_consolidado_grupo_emebs(escola_emebs):
-    return mommy.make(
-        "SolicitacaoMedicaoInicial",
-        escola=escola_emebs,
-        mes="04",
-        ano="2025",
-        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
-    )
-
-
-@pytest.fixture
 def relatorio_consolidado_xlsx_cemei(
     solicitacao_relatorio_consolidado_grupo_cemei,
     periodo_escolar_integral,
@@ -3800,6 +3789,28 @@ def informacoes_excel_writer_cemei(
 
 
 @pytest.fixture
+def solicitacao_escola_emebs():
+    return mommy.make(
+        "SolicitacaoMedicaoInicial",
+        escola=mommy.make("Escola", nome="EMEBS PRIMEIRA"),
+        mes="04",
+        ano="2025",
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+    )
+
+
+@pytest.fixture
+def solicitacao_relatorio_consolidado_grupo_emebs(escola_emebs):
+    return mommy.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola_emebs,
+        mes="04",
+        ano="2025",
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+    )
+
+
+@pytest.fixture
 def relatorio_consolidado_xlsx_emebs(
     solicitacao_relatorio_consolidado_grupo_emebs,
     periodo_escolar_manha,
@@ -3959,3 +3970,199 @@ def mock_query_params_excel_emebs(solicitacao_relatorio_consolidado_grupo_emebs)
         "lotes[]": solicitacao_relatorio_consolidado_grupo_emebs.escola.lote.uuid,
         "lotes": [solicitacao_relatorio_consolidado_grupo_emebs.escola.lote.uuid],
     }
+
+
+@pytest.fixture
+def mock_colunas_emebs():
+    colunas = [
+        ("", "Solicitações de Alimentação", "lanche_emergencial"),
+        ("", "Solicitações de Alimentação", "kit_lanche"),
+    ]
+
+    for turma in ["INFANTIL", "FUNDAMENTAL"]:
+        for periodo in ["MANHA", "TARDE", "INTEGRAL", "NOITE", "Programas e Projetos"]:
+            if turma == "INFANTIL" and periodo == "NOITE":
+                continue
+
+            for campo in [
+                "lanche",
+                "lanche_4h",
+                "refeicao",
+                "total_refeicoes_pagamento",
+                "sobremesa",
+                "total_sobremesas_pagamento",
+            ]:
+                if periodo == "Programas e Projetos" and campo == "sobremesa":
+                    continue
+                colunas.append((turma, periodo, campo))
+
+        colunas.append((turma, "DIETA ESPECIAL - TIPO A", "lanche"))
+        colunas.append((turma, "DIETA ESPECIAL - TIPO A", "lanche_4h"))
+        colunas.append((turma, "DIETA ESPECIAL - TIPO A", "refeicao"))
+        colunas.append((turma, "DIETA ESPECIAL - TIPO B", "lanche"))
+        colunas.append((turma, "DIETA ESPECIAL - TIPO B", "lanche_4h"))
+
+    # colunas = [
+    #     ("", "Solicitações de Alimentação", "lanche_emergencial"),
+    #     ("", "Solicitações de Alimentação", "kit_lanche"),
+    #     ("INFANTIL", "MANHA", "lanche"),
+    #     ("INFANTIL", "MANHA", "lanche_4h"),
+    #     ("INFANTIL", "MANHA", "refeicao"),
+    #     ("INFANTIL", "MANHA", "total_refeicoes_pagamento"),
+    #     ("INFANTIL", "MANHA", "sobremesa"),
+    #     ("INFANTIL", "MANHA", "total_sobremesas_pagamento"),
+    #     ("INFANTIL", "TARDE", "lanche"),
+    #     ("INFANTIL", "TARDE", "lanche_4h"),
+    #     ("INFANTIL", "TARDE", "refeicao"),
+    #     ("INFANTIL", "TARDE", "total_refeicoes_pagamento"),
+    #     ("INFANTIL", "TARDE", "sobremesa"),
+    #     ("INFANTIL", "TARDE", "total_sobremesas_pagamento"),
+    #     ("INFANTIL", "INTEGRAL", "lanche"),
+    #     ("INFANTIL", "INTEGRAL", "lanche_4h"),
+    #     ("INFANTIL", "INTEGRAL", "refeicao"),
+    #     ("INFANTIL", "INTEGRAL", "total_refeicoes_pagamento"),
+    #     ("INFANTIL", "INTEGRAL", "sobremesa"),
+    #     ("INFANTIL", "INTEGRAL", "total_sobremesas_pagamento"),
+    #     ("INFANTIL", "Programas e Projetos", "lanche"),
+    #     ("INFANTIL", "Programas e Projetos", "lanche_4h"),
+    #     ("INFANTIL", "Programas e Projetos", "refeicao"),
+    #     ("INFANTIL", "Programas e Projetos", "total_refeicoes_pagamento"),
+    #     ("INFANTIL", "Programas e Projetos", "sobremesa"),
+    #     ("INFANTIL", "Programas e Projetos", "total_sobremesas_pagamento"),
+    #     ("INFANTIL", "DIETA ESPECIAL - TIPO A", "lanche"),
+    #     ("INFANTIL", "DIETA ESPECIAL - TIPO A", "lanche_4h"),
+    #     ("INFANTIL", "DIETA ESPECIAL - TIPO A", "refeicao"),
+    #     ("INFANTIL", "DIETA ESPECIAL - TIPO B", "lanche"),
+    #     ("INFANTIL", "DIETA ESPECIAL - TIPO B", "lanche_4h"),
+    #     ("FUNDAMENTAL", "MANHA", "lanche"),
+    #     ("FUNDAMENTAL", "MANHA", "lanche_4h"),
+    #     ("FUNDAMENTAL", "MANHA", "refeicao"),
+    #     ("FUNDAMENTAL", "MANHA", "total_refeicoes_pagamento"),
+    #     ("FUNDAMENTAL", "MANHA", "sobremesa"),
+    #     ("FUNDAMENTAL", "MANHA", "total_sobremesas_pagamento"),
+    #     ("FUNDAMENTAL", "TARDE", "lanche"),
+    #     ("FUNDAMENTAL", "TARDE", "lanche_4h"),
+    #     ("FUNDAMENTAL", "TARDE", "refeicao"),
+    #     ("FUNDAMENTAL", "TARDE", "total_refeicoes_pagamento"),
+    #     ("FUNDAMENTAL", "TARDE", "sobremesa"),
+    #     ("FUNDAMENTAL", "TARDE", "total_sobremesas_pagamento"),
+    #     ("FUNDAMENTAL", "INTEGRAL", "lanche"),
+    #     ("FUNDAMENTAL", "INTEGRAL", "lanche_4h"),
+    #     ("FUNDAMENTAL", "INTEGRAL", "refeicao"),
+    #     ("FUNDAMENTAL", "INTEGRAL", "total_refeicoes_pagamento"),
+    #     ("FUNDAMENTAL", "INTEGRAL", "sobremesa"),
+    #     ("FUNDAMENTAL", "INTEGRAL", "total_sobremesas_pagamento"),
+    #     ("FUNDAMENTAL", "NOITE", "lanche"),
+    #     ("FUNDAMENTAL", "NOITE", "lanche_4h"),
+    #     ("FUNDAMENTAL", "NOITE", "refeicao"),
+    #     ("FUNDAMENTAL", "NOITE", "total_refeicoes_pagamento"),
+    #     ("FUNDAMENTAL", "NOITE", "sobremesa"),
+    #     ("FUNDAMENTAL", "NOITE", "total_sobremesas_pagamento"),
+    #     ("FUNDAMENTAL", "Programas e Projetos", "lanche"),
+    #     ("FUNDAMENTAL", "Programas e Projetos", "lanche_4h"),
+    #     ("FUNDAMENTAL", "Programas e Projetos", "refeicao"),
+    #     ("FUNDAMENTAL", "Programas e Projetos", "total_refeicoes_pagamento"),
+    #     ("FUNDAMENTAL", "Programas e Projetos", "sobremesa"),
+    #     ("FUNDAMENTAL", "Programas e Projetos", "total_sobremesas_pagamento"),
+    #     ("FUNDAMENTAL", "DIETA ESPECIAL - TIPO A", "lanche"),
+    #     ("FUNDAMENTAL", "DIETA ESPECIAL - TIPO A", "lanche_4h"),
+    #     ("FUNDAMENTAL", "DIETA ESPECIAL - TIPO A", "refeicao"),
+    #     ("FUNDAMENTAL", "DIETA ESPECIAL - TIPO B", "lanche"),
+    #     ("FUNDAMENTAL", "DIETA ESPECIAL - TIPO B", "lanche_4h"),
+    # ]
+    return colunas
+
+
+@pytest.fixture
+def mock_linhas_emebs():
+    return [
+        [
+            "EMEBS",
+            "000329",
+            "EMEBS TESTE",
+            5.0,
+            5.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            40.0,
+            40.0,
+            20.0,
+            20.0,
+            20.0,
+            350.0,
+            350.0,
+            350.0,
+            350,
+            350.0,
+            350,
+            350.0,
+            350.0,
+            350.0,
+            350,
+            350.0,
+            350,
+            350.0,
+            350.0,
+            350.0,
+            350,
+            350.0,
+            350,
+            350.0,
+            350.0,
+            350.0,
+            350,
+            350.0,
+            350,
+            350.0,
+            350.0,
+            350.0,
+            350,
+            350,
+            50.0,
+            50.0,
+            25.0,
+            25.0,
+            25.0,
+        ]
+    ]
+
+
+@pytest.fixture
+def informacoes_excel_writer_emebs(
+    relatorio_consolidado_xlsx_emebs, mock_colunas_emebs, mock_linhas_emebs
+):
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {relatorio_consolidado_xlsx_emebs.mes}-{ relatorio_consolidado_xlsx_emebs.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+    workbook = writer.book
+    worksheet = workbook.add_worksheet(aba)
+    worksheet.set_default_row(20)
+    df = _insere_tabela_periodos_na_planilha(
+        ["EMEBS"], aba, mock_colunas_emebs, mock_linhas_emebs, writer
+    )
+    try:
+        yield aba, writer, workbook, worksheet, df, arquivo
+    finally:
+        workbook.close()
+        writer.close()
