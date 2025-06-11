@@ -14,7 +14,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef imp
     _get_categorias_dietas,
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
-    _get_nome_periodo,
     _get_total_pagamento,
     _get_valores_iniciais,
     _processa_periodo_campo,
@@ -256,18 +255,6 @@ def test_ajusta_layout_tabela(informacoes_excel_writer_emef):
     assert sheet["O3"].value == "DIETA ESPECIAL - TIPO B"
     assert sheet["O3"].fill.fgColor.rgb == "FF20AA73"
     workbook_openpyxl.close()
-
-
-def test_get_nome_periodo(
-    medicao_grupo_solicitacao_alimentacao, medicao_grupo_alimentacao
-):
-    periodo = _get_nome_periodo(medicao_grupo_solicitacao_alimentacao[0])
-    assert isinstance(periodo, str)
-    assert periodo == "Solicitações de Alimentação"
-
-    periodo_manha = _get_nome_periodo(medicao_grupo_alimentacao[0])
-    assert isinstance(periodo_manha, str)
-    assert periodo_manha == "MANHA"
 
 
 def test_get_lista_alimentacoes(relatorio_consolidado_xlsx_emef):

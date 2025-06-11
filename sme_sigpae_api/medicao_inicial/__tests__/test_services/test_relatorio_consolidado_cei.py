@@ -1,7 +1,6 @@
 import openpyxl
 import pandas as pd
 import pytest
-from django.core.exceptions import MultipleObjectsReturned
 
 from sme_sigpae_api.escola.models import PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
@@ -12,7 +11,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
     _get_categorias_dietas,
     _get_faixas_etarias,
     _get_lista_alimentacoes_dietas_por_faixa,
-    _get_nome_periodo,
     _get_valores_iniciais,
     _processa_periodo_campo,
     _sort_and_merge,
@@ -51,29 +49,6 @@ def test_get_alimentacoes_por_periodo(
     assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[5].id) == 2
     assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[6].id) == 3
     assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[7].id) == 2
-
-
-def test_get_nome_periodo(relatorio_consolidado_xlsx_cei):
-    medicoes = relatorio_consolidado_xlsx_cei.medicoes.all().order_by(
-        "periodo_escolar__nome"
-    )
-    assert medicoes.count() == 4
-
-    integral = _get_nome_periodo(medicoes[0])
-    assert isinstance(integral, str)
-    assert integral == "INTEGRAL"
-
-    manha = _get_nome_periodo(medicoes[1])
-    assert isinstance(manha, str)
-    assert manha == "MANHA"
-
-    parcial = _get_nome_periodo(medicoes[2])
-    assert isinstance(parcial, str)
-    assert parcial == "PARCIAL"
-
-    tarde = _get_nome_periodo(medicoes[3])
-    assert isinstance(tarde, str)
-    assert tarde == "TARDE"
 
 
 def test_get_faixas_etarias(relatorio_consolidado_xlsx_cei, faixas_etarias_ativas):

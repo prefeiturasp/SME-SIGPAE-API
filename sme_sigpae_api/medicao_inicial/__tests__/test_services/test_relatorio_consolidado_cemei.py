@@ -12,7 +12,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cemei import 
     _get_categorias_dietas,
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
-    _get_nome_periodo,
     _get_valores_iniciais,
     _processa_dieta_especial,
     _processa_periodo_campo,
@@ -74,37 +73,6 @@ def test_get_alimentacoes_por_periodo(
     assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 3
     assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 3
     assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 3
-
-
-def test_get_nome_periodo(relatorio_consolidado_xlsx_cemei):
-    medicoes = relatorio_consolidado_xlsx_cemei.medicoes.all().order_by(
-        "periodo_escolar__nome", "grupo__nome"
-    )
-    assert medicoes.count() == 6
-
-    integral_cei = _get_nome_periodo(medicoes[0])
-    assert isinstance(integral_cei, str)
-    assert integral_cei == "INTEGRAL"
-
-    parcial = _get_nome_periodo(medicoes[1])
-    assert isinstance(parcial, str)
-    assert parcial == "PARCIAL"
-
-    integral = _get_nome_periodo(medicoes[2])
-    assert isinstance(integral, str)
-    assert integral == "Infantil INTEGRAL"
-
-    manha = _get_nome_periodo(medicoes[3])
-    assert isinstance(manha, str)
-    assert manha == "Infantil MANHA"
-
-    tarde = _get_nome_periodo(medicoes[4])
-    assert isinstance(tarde, str)
-    assert tarde == "Infantil TARDE"
-
-    solicitacao = _get_nome_periodo(medicoes[5])
-    assert isinstance(solicitacao, str)
-    assert solicitacao == "Solicitações de Alimentação"
 
 
 def test_get_lista_alimentacoes(

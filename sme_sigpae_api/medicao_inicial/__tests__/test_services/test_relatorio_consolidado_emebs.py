@@ -11,7 +11,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emebs import 
     _get_categorias_dietas,
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
-    _get_nome_periodo,
     _get_total_pagamento,
     _get_valores_iniciais,
     _obter_dietas_especiais,
@@ -56,37 +55,6 @@ def test_get_alimentacoes_por_periodo(relatorio_consolidado_xlsx_emebs):
     assert sum(1 for tupla in colunas if tupla[2] == "sobremesa") == 9
     assert sum(1 for tupla in colunas if tupla[2] == "total_refeicoes_pagamento") == 9
     assert sum(1 for tupla in colunas if tupla[2] == "total_sobremesas_pagamento") == 9
-
-
-def test_get_nome_periodo(relatorio_consolidado_xlsx_emebs):
-    medicoes = relatorio_consolidado_xlsx_emebs.medicoes.all().order_by(
-        "periodo_escolar__nome", "grupo__nome"
-    )
-    assert medicoes.count() == 6
-
-    integral = _get_nome_periodo(medicoes[0])
-    assert isinstance(integral, str)
-    assert integral == "INTEGRAL"
-
-    manha = _get_nome_periodo(medicoes[1])
-    assert isinstance(manha, str)
-    assert manha == "MANHA"
-
-    noite = _get_nome_periodo(medicoes[2])
-    assert isinstance(noite, str)
-    assert noite == "NOITE"
-
-    tarde = _get_nome_periodo(medicoes[3])
-    assert isinstance(tarde, str)
-    assert tarde == "TARDE"
-
-    programas_projetos = _get_nome_periodo(medicoes[4])
-    assert isinstance(programas_projetos, str)
-    assert programas_projetos == "Programas e Projetos"
-
-    solicitacao = _get_nome_periodo(medicoes[5])
-    assert isinstance(solicitacao, str)
-    assert solicitacao == "Solicitações de Alimentação"
 
 
 def test_get_lista_alimentacoes(relatorio_consolidado_xlsx_emebs):
