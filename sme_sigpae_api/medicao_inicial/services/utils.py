@@ -42,3 +42,12 @@ def update_dietas_alimentacoes(
         else:
             dietas_alimentacoes[categoria] = lista_alimentacoes_dietas
     return dietas_alimentacoes
+
+
+def generate_columns(dict_periodos_dietas: dict) -> list:
+    columns = [
+        (chave, valor)
+        for chave, valores in dict_periodos_dietas.items()
+        for valor in valores
+    ]
+    return columns

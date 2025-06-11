@@ -9,6 +9,7 @@ from sme_sigpae_api.dados_comuns.constants import (
 )
 from sme_sigpae_api.escola.models import FaixaEtaria, PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.services.utils import (
+    generate_columns,
     get_categorias_dietas,
     get_nome_periodo,
     update_dietas_alimentacoes,
@@ -41,7 +42,7 @@ def get_alimentacoes_por_periodo(solicitacoes):
                 )
 
     dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
-    columns = _generate_columns(dict_periodos_dietas)
+    columns = generate_columns(dict_periodos_dietas)
 
     return columns
 
@@ -99,15 +100,6 @@ def _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes):
     )
 
     return dict_periodos_dietas
-
-
-def _generate_columns(dict_periodos_dietas):
-    columns = [
-        (chave, valor)
-        for chave, valores in dict_periodos_dietas.items()
-        for valor in valores
-    ]
-    return columns
 
 
 def get_valores_tabela(solicitacoes, colunas, tipos_de_unidade):
