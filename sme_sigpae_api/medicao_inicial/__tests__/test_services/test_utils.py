@@ -1,7 +1,10 @@
+import pandas as pd
 import pytest
 
+from sme_sigpae_api.dados_comuns.constants import NOMES_CAMPOS
 from sme_sigpae_api.medicao_inicial.services.utils import (
     generate_columns,
+    gera_colunas_alimentacao,
     get_categorias_dietas,
     get_nome_periodo,
     get_valores_iniciais,
@@ -379,4 +382,369 @@ def test_get_valores_iniciais_emebs(relatorio_consolidado_xlsx_emebs):
         relatorio_consolidado_xlsx_emebs.escola.tipo_unidade.iniciais,
         relatorio_consolidado_xlsx_emebs.escola.codigo_eol,
         relatorio_consolidado_xlsx_emebs.escola.nome,
+    ]
+
+
+def test_gera_colunas_alimentacao_cemei(
+    informacoes_excel_writer_cemei,
+    mock_colunas_cemei,
+    mock_linhas_cemei,
+    faixas_etarias_ativas,
+):
+    aba, writer, _, _, _, _ = informacoes_excel_writer_cemei
+    NOMES_CAMPOS.update({faixa.id: faixa.__str__() for faixa in faixas_etarias_ativas})
+
+    df = gera_colunas_alimentacao(
+        aba, mock_colunas_cemei, mock_linhas_cemei, writer, NOMES_CAMPOS
+    )
+    assert isinstance(df, pd.DataFrame)
+    colunas_df = df.columns.tolist()
+    assert len(colunas_df) == 46
+
+    assert sum(1 for tupla in colunas_df if tupla[0] == "INTEGRAL") == 8
+    assert sum(1 for tupla in colunas_df if tupla[0] == "PARCIAL") == 8
+    assert (
+        sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A - CEI")
+        == 1
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B - CEI")
+        == 1
+    )
+    assert sum(1 for tupla in colunas_df if tupla[0] == "INFANTIL INTEGRAL") == 6
+    assert sum(1 for tupla in colunas_df if tupla[0] == "INFANTIL MANHA") == 6
+    assert sum(1 for tupla in colunas_df if tupla[0] == "INFANTIL TARDE") == 6
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[0] == "DIETA ESPECIAL - TIPO A - INFANTIL"
+        )
+        == 3
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[0] == "DIETA ESPECIAL - TIPO B - INFANTIL"
+        )
+        == 2
+    )
+
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Tipo") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Cód. EOL") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
+
+    assert sum(1 for tupla in colunas_df if tupla[1] == "00 meses") == 2
+    assert sum(1 for tupla in colunas_df if tupla[1] == "01 a 03 meses") == 2
+    assert sum(1 for tupla in colunas_df if tupla[1] == "04 a 05 meses") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "06 a 07 meses") == 2
+    assert sum(1 for tupla in colunas_df if tupla[1] == "08 a 11 meses") == 3
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == "01 ano a 01 ano e 11 meses") == 2
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == "02 anos a 03 anos e 11 meses")
+        == 2
+    )
+    assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 2
+
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 5
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 5
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 4
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeições p/ Pagamento") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesas p/ Pagamento") == 3
+
+    assert df.iloc[0].tolist() == [
+        "CEMEI",
+        "543210",
+        "CEMEI TESTE",
+        5.0,
+        5.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        30.0,
+        20.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        30.0,
+        30.0,
+        15.0,
+        15.0,
+        15.0,
+    ]
+    assert df.iloc[1].tolist() == [
+        0.0,
+        543210.0,
+        0.0,
+        5.0,
+        5.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        30.0,
+        20.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        150.0,
+        30.0,
+        30.0,
+        15.0,
+        15.0,
+        15.0,
+    ]
+
+
+def test_gera_colunas_alimentacao_emebs(
+    informacoes_excel_writer_emebs, mock_colunas_emebs, mock_linhas_emebs
+):
+    aba, writer, _, _, _, _ = informacoes_excel_writer_emebs
+    colunas_fixas = [
+        ("", "", "Tipo"),
+        ("", "", "Cód. EOL"),
+        ("", "", "Unidade Escolar"),
+    ]
+
+    headers = []
+    for turma, chave, valor in mock_colunas_emebs:
+        if chave == "Solicitações de Alimentação":
+            headers.append(("", "", NOMES_CAMPOS[valor]))
+        else:
+            headers.append((turma, chave.upper(), NOMES_CAMPOS[valor]))
+
+    df = gera_colunas_alimentacao(
+        aba,
+        None,
+        mock_linhas_emebs,
+        writer,
+        None,
+        colunas_fixas=colunas_fixas,
+        headers=headers,
+    )
+    assert isinstance(df, pd.DataFrame)
+    colunas_df = df.columns.tolist()
+    assert len(colunas_df) == 67
+
+    assert sum(1 for tupla in colunas_df if tupla[0] == "INFANTIL") == 28
+    assert sum(1 for tupla in colunas_df if tupla[0] == "FUNDAMENTAL") == 34
+
+    assert sum(1 for tupla in colunas_df if tupla[1] == "MANHA") == 12
+    assert sum(1 for tupla in colunas_df if tupla[1] == "TARDE") == 12
+    assert sum(1 for tupla in colunas_df if tupla[1] == "INTEGRAL") == 12
+    assert sum(1 for tupla in colunas_df if tupla[1] == "NOITE") == 6
+    assert sum(1 for tupla in colunas_df if tupla[1] == "PROGRAMAS E PROJETOS") == 10
+    assert sum(1 for tupla in colunas_df if tupla[1] == "DIETA ESPECIAL - TIPO A") == 6
+    assert sum(1 for tupla in colunas_df if tupla[1] == "DIETA ESPECIAL - TIPO B") == 4
+
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Tipo") == 1
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Cód. EOL") == 1
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Unidade Escolar") == 1
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Kit Lanche") == 1
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Lanche Emerg.") == 1
+
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Lanche") == 13
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Lanche 4h") == 13
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Refeição") == 11
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Sobremesa") == 7
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Refeições p/ Pagamento") == 9
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Sobremesas p/ Pagamento") == 9
+
+    assert df.iloc[0].tolist() == [
+        "EMEBS",
+        "000329",
+        "EMEBS TESTE",
+        5.0,
+        5.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        40.0,
+        40.0,
+        20.0,
+        20.0,
+        20.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        50.0,
+        50.0,
+        25.0,
+        25.0,
+        25.0,
+    ]
+    assert df.iloc[1].tolist() == [
+        0.0,
+        329.0,
+        0.0,
+        5.0,
+        5.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        40.0,
+        40.0,
+        20.0,
+        20.0,
+        20.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        50.0,
+        50.0,
+        25.0,
+        25.0,
+        25.0,
     ]
