@@ -3,6 +3,7 @@ import pytest
 from sme_sigpae_api.medicao_inicial.services.utils import (
     get_categorias_dietas,
     get_nome_periodo,
+    update_dietas_alimentacoes,
     update_periodos_alimentacoes,
 )
 
@@ -244,3 +245,57 @@ def test_get_categorias_dietas_cei(relatorio_consolidado_xlsx_cei):
     assert isinstance(categoria_tarde, list)
     assert len(categoria_tarde) == 1
     assert categoria_tarde == ["DIETA ESPECIAL - TIPO B"]
+
+
+def test_update_dietas_alimentacoes_por_faixa(faixas_etarias_ativas):
+    lista_faixa_dietas = [faixa.id for faixa in faixas_etarias_ativas]
+    categoria_a = "DIETA ESPECIAL - TIPO A"
+    categoria_b = "DIETA ESPECIAL - TIPO B"
+
+    dietas_alimentacoes = update_dietas_alimentacoes(
+        {}, categoria_a, lista_faixa_dietas
+    )
+    assert isinstance(dietas_alimentacoes, dict)
+    assert categoria_a in dietas_alimentacoes.keys()
+    assert dietas_alimentacoes[categoria_a] == lista_faixa_dietas
+
+    dietas_alimentacoes = update_dietas_alimentacoes(
+        dietas_alimentacoes, categoria_b, lista_faixa_dietas
+    )
+    assert isinstance(dietas_alimentacoes, dict)
+    assert categoria_b in dietas_alimentacoes.keys()
+    assert dietas_alimentacoes[categoria_b] == lista_faixa_dietas
+
+    assert set([categoria_a, categoria_b]).issubset(dietas_alimentacoes.keys())
+
+
+def test_update_dietas_alimentacoes():
+    categoria_a = "DIETA ESPECIAL - TIPO A"
+    categoria_a_enteral_restricao = (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    )
+    categoria_b = "DIETA ESPECIAL - TIPO B"
+
+    lista_alimentacoes = ["lanche", "lanche_4h"]
+
+    dietas_alimentacoes = update_dietas_alimentacoes(
+        {}, categoria_a, lista_alimentacoes
+    )
+    assert isinstance(dietas_alimentacoes, dict)
+    assert categoria_a in dietas_alimentacoes.keys()
+    assert dietas_alimentacoes[categoria_a] == lista_alimentacoes
+
+    dietas_alimentacoes = update_dietas_alimentacoes(
+        dietas_alimentacoes, categoria_b, lista_alimentacoes
+    )
+    assert isinstance(dietas_alimentacoes, dict)
+    assert categoria_b in dietas_alimentacoes.keys()
+    assert dietas_alimentacoes[categoria_b] == lista_alimentacoes
+
+    lista_alimentacoes += ["refeicao"]
+    dietas_alimentacoes = update_dietas_alimentacoes(
+        dietas_alimentacoes, categoria_a_enteral_restricao, lista_alimentacoes
+    )
+    assert isinstance(dietas_alimentacoes, dict)
+    assert categoria_a_enteral_restricao in dietas_alimentacoes.keys()
+    assert dietas_alimentacoes[categoria_a_enteral_restricao] == lista_alimentacoes

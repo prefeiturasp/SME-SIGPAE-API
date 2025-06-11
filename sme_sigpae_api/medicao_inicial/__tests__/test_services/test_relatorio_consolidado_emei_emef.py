@@ -20,7 +20,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef imp
     _total_pagamento_emef,
     _total_pagamento_emei,
     _unificar_dietas_tipo_a,
-    _update_dietas_alimentacoes,
     ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_solicitacoes_ordenadas,
@@ -307,38 +306,6 @@ def test_get_lista_alimentacoes_dietas(relatorio_consolidado_xlsx_emef):
     assert isinstance(lista_dietas_b, list)
     assert len(lista_dietas_b) == 2
     assert lista_dietas_b == ["lanche", "lanche_4h"]
-
-
-def test_update_dietas_alimentacoes():
-    categoria_a = "DIETA ESPECIAL - TIPO A"
-    categoria_a_enteral_restricao = (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
-    )
-    categoria_b = "DIETA ESPECIAL - TIPO B"
-
-    lista_alimentacoes = ["lanche", "lanche_4h"]
-
-    dietas_alimentacoes = _update_dietas_alimentacoes(
-        {}, categoria_a, lista_alimentacoes
-    )
-    assert isinstance(dietas_alimentacoes, dict)
-    assert categoria_a in dietas_alimentacoes.keys()
-    assert dietas_alimentacoes[categoria_a] == lista_alimentacoes
-
-    dietas_alimentacoes = _update_dietas_alimentacoes(
-        dietas_alimentacoes, categoria_b, lista_alimentacoes
-    )
-    assert isinstance(dietas_alimentacoes, dict)
-    assert categoria_b in dietas_alimentacoes.keys()
-    assert dietas_alimentacoes[categoria_b] == lista_alimentacoes
-
-    lista_alimentacoes += ["refeicao"]
-    dietas_alimentacoes = _update_dietas_alimentacoes(
-        dietas_alimentacoes, categoria_a_enteral_restricao, lista_alimentacoes
-    )
-    assert isinstance(dietas_alimentacoes, dict)
-    assert categoria_a_enteral_restricao in dietas_alimentacoes.keys()
-    assert dietas_alimentacoes[categoria_a_enteral_restricao] == lista_alimentacoes
 
 
 def test_sort_and_merge():

@@ -17,7 +17,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cemei import 
     _processa_periodo_regular,
     _sort_and_merge,
     _unificar_dietas,
-    _update_dietas_alimentacoes,
     ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_solicitacoes_ordenadas,
@@ -134,17 +133,6 @@ def test_get_lista_alimentacoes_dietas(
     )
     assert isinstance(lista_dietas_integral_emei, list)
     assert lista_dietas_integral_emei == ["lanche", "lanche_4h"]
-
-
-def test_update_dietas_alimentacoes():
-    categoria_a = "DIETA ESPECIAL - TIPO A"
-    lista_alimentacoes = ["lanche", "lanche_4h"]
-    dietas_alimentacoes = _update_dietas_alimentacoes(
-        {}, categoria_a, lista_alimentacoes
-    )
-    assert isinstance(dietas_alimentacoes, dict)
-    assert categoria_a in dietas_alimentacoes.keys()
-    assert dietas_alimentacoes[categoria_a] == lista_alimentacoes
 
 
 def test_unificar_dietas():

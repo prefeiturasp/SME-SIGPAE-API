@@ -13,7 +13,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
     _get_valores_iniciais,
     _processa_periodo_campo,
     _sort_and_merge,
-    _update_dietas_alimentacoes_por_faixa,
     ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_solicitacoes_ordenadas,
@@ -131,28 +130,6 @@ def test_get_lista_alimentacoes_dietas_por_faixa_dieta_b(
     assert isinstance(lista_dietas_tarde, list)
     assert len(lista_dietas_tarde) == 1
     assert lista_dietas_tarde == [faixas_etarias_ativas[3].id]
-
-
-def test_update_dietas_alimentacoes_por_faixa(faixas_etarias_ativas):
-    lista_faixa_dietas = [faixa.id for faixa in faixas_etarias_ativas]
-    categoria_a = "DIETA ESPECIAL - TIPO A"
-    categoria_b = "DIETA ESPECIAL - TIPO B"
-
-    dietas_alimentacoes = _update_dietas_alimentacoes_por_faixa(
-        {}, categoria_a, lista_faixa_dietas
-    )
-    assert isinstance(dietas_alimentacoes, dict)
-    assert categoria_a in dietas_alimentacoes.keys()
-    assert dietas_alimentacoes[categoria_a] == lista_faixa_dietas
-
-    dietas_alimentacoes = _update_dietas_alimentacoes_por_faixa(
-        dietas_alimentacoes, categoria_b, lista_faixa_dietas
-    )
-    assert isinstance(dietas_alimentacoes, dict)
-    assert categoria_b in dietas_alimentacoes.keys()
-    assert dietas_alimentacoes[categoria_b] == lista_faixa_dietas
-
-    assert set([categoria_a, categoria_b]).issubset(dietas_alimentacoes.keys())
 
 
 def test_sort_and_merge(faixas_etarias_ativas):
