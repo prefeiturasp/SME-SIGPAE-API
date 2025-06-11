@@ -8,7 +8,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
     _calcula_soma_medicao,
     _define_filtro,
     _generate_columns,
-    _get_categorias_dietas,
     _get_faixas_etarias,
     _get_lista_alimentacoes_dietas_por_faixa,
     _get_valores_iniciais,
@@ -76,31 +75,6 @@ def test_get_faixas_etarias(relatorio_consolidado_xlsx_cei, faixas_etarias_ativa
     assert isinstance(faixa_tarde, list)
     assert len(faixa_tarde) == 2
     assert faixa_tarde == [faixas_etarias_ativas[3].id, faixas_etarias_ativas[6].id]
-
-
-def test_get_categorias_dietas(relatorio_consolidado_xlsx_cei):
-    medicoes = relatorio_consolidado_xlsx_cei.medicoes.all().order_by(
-        "periodo_escolar__nome"
-    )
-    assert medicoes.count() == 4
-
-    categoria_integral = _get_categorias_dietas(medicoes[0])
-    assert isinstance(categoria_integral, list)
-    assert len(categoria_integral) == 0
-
-    categoria_manha = _get_categorias_dietas(medicoes[1])
-    assert isinstance(categoria_manha, list)
-    assert len(categoria_manha) == 1
-    assert categoria_manha == ["DIETA ESPECIAL - TIPO A"]
-
-    categoria_parcial = _get_categorias_dietas(medicoes[2])
-    assert isinstance(categoria_parcial, list)
-    assert len(categoria_parcial) == 0
-
-    categoria_tarde = _get_categorias_dietas(medicoes[3])
-    assert isinstance(categoria_tarde, list)
-    assert len(categoria_tarde) == 1
-    assert categoria_tarde == ["DIETA ESPECIAL - TIPO B"]
 
 
 def test_get_lista_alimentacoes_dietas_por_faixa_dieta_a(

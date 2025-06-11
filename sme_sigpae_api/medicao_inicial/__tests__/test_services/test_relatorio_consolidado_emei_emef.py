@@ -11,7 +11,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef imp
     _calcula_soma_medicao,
     _define_filtro,
     _generate_columns,
-    _get_categorias_dietas,
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
     _get_total_pagamento,
@@ -279,27 +278,6 @@ def test_get_lista_alimentacoes(relatorio_consolidado_xlsx_emef):
     )
     assert isinstance(lista_alimentacoes_solicitacao, list)
     assert lista_alimentacoes_solicitacao == ["kit_lanche", "lanche_emergencial"]
-
-
-def test_get_categorias_dietas(relatorio_consolidado_xlsx_emef):
-    medicoes = relatorio_consolidado_xlsx_emef.medicoes.all().order_by(
-        "periodo_escolar__nome"
-    )
-    medicao_manha = medicoes[0]
-    medicao_solicitacao = medicoes[1]
-
-    categoria_manha = _get_categorias_dietas(medicao_manha)
-    assert isinstance(categoria_manha, list)
-    assert len(categoria_manha) == 3
-    assert categoria_manha == [
-        "DIETA ESPECIAL - TIPO A",
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
-        "DIETA ESPECIAL - TIPO B",
-    ]
-
-    categoria_solicitacao = _get_categorias_dietas(medicao_solicitacao)
-    assert isinstance(categoria_solicitacao, list)
-    assert len(categoria_solicitacao) == 0
 
 
 def test_get_lista_alimentacoes_dietas(relatorio_consolidado_xlsx_emef):

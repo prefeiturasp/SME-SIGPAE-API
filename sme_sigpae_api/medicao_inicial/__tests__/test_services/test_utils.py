@@ -1,6 +1,7 @@
 import pytest
 
 from sme_sigpae_api.medicao_inicial.services.utils import (
+    get_categorias_dietas,
     get_nome_periodo,
     update_periodos_alimentacoes,
 )
@@ -174,3 +175,72 @@ def test_update_periodos_alimentacoes(faixas_etarias_ativas):
             "Solicitações de Alimentação",
         ]
     ).issubset(periodos_alimentacoes.keys())
+
+
+def test_get_categorias_dietas_emef(relatorio_consolidado_xlsx_emef):
+    medicoes = relatorio_consolidado_xlsx_emef.medicoes.all().order_by(
+        "periodo_escolar__nome"
+    )
+    medicao_manha = medicoes[0]
+    medicao_solicitacao = medicoes[1]
+
+    categoria_manha = get_categorias_dietas(medicao_manha)
+    assert isinstance(categoria_manha, list)
+    assert len(categoria_manha) == 3
+    assert categoria_manha == [
+        "DIETA ESPECIAL - TIPO A",
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        "DIETA ESPECIAL - TIPO B",
+    ]
+
+    categoria_solicitacao = get_categorias_dietas(medicao_solicitacao)
+    assert isinstance(categoria_solicitacao, list)
+    assert len(categoria_solicitacao) == 0
+
+
+def test_get_categorias_dietas_cemei(relatorio_consolidado_xlsx_cemei):
+    medicoes = relatorio_consolidado_xlsx_cemei.medicoes.all().order_by(
+        "periodo_escolar__nome", "grupo__nome"
+    )
+
+    categoria_integral_cei = get_categorias_dietas(medicoes[0])
+    assert isinstance(categoria_integral_cei, list)
+    assert len(categoria_integral_cei) == 2
+    assert categoria_integral_cei == [
+        "DIETA ESPECIAL - TIPO A",
+        "DIETA ESPECIAL - TIPO B",
+    ]
+
+    categoria_integral_emei = get_categorias_dietas(medicoes[3])
+    assert isinstance(categoria_integral_emei, list)
+    assert len(categoria_integral_emei) == 3
+    assert categoria_integral_emei == [
+        "DIETA ESPECIAL - TIPO A",
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        "DIETA ESPECIAL - TIPO B",
+    ]
+
+
+def test_get_categorias_dietas_cei(relatorio_consolidado_xlsx_cei):
+    medicoes = relatorio_consolidado_xlsx_cei.medicoes.all().order_by(
+        "periodo_escolar__nome"
+    )
+    assert medicoes.count() == 4
+
+    categoria_integral = get_categorias_dietas(medicoes[0])
+    assert isinstance(categoria_integral, list)
+    assert len(categoria_integral) == 0
+
+    categoria_manha = get_categorias_dietas(medicoes[1])
+    assert isinstance(categoria_manha, list)
+    assert len(categoria_manha) == 1
+    assert categoria_manha == ["DIETA ESPECIAL - TIPO A"]
+
+    categoria_parcial = get_categorias_dietas(medicoes[2])
+    assert isinstance(categoria_parcial, list)
+    assert len(categoria_parcial) == 0
+
+    categoria_tarde = get_categorias_dietas(medicoes[3])
+    assert isinstance(categoria_tarde, list)
+    assert len(categoria_tarde) == 1
+    assert categoria_tarde == ["DIETA ESPECIAL - TIPO B"]

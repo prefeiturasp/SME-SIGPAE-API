@@ -9,7 +9,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
 )
 from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cemei import (
     _define_filtro,
-    _get_categorias_dietas,
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
     _get_valores_iniciais,
@@ -115,29 +114,6 @@ def test_get_lista_alimentacoes(
     solicitacao = _get_lista_alimentacoes(medicoes[5], "Solicitações de Alimentação")
     assert isinstance(solicitacao, list)
     assert solicitacao == ["kit_lanche", "lanche_emergencial"]
-
-
-def test_get_categorias_dietas(relatorio_consolidado_xlsx_cemei):
-    medicoes = relatorio_consolidado_xlsx_cemei.medicoes.all().order_by(
-        "periodo_escolar__nome", "grupo__nome"
-    )
-
-    categoria_integral_cei = _get_categorias_dietas(medicoes[0])
-    assert isinstance(categoria_integral_cei, list)
-    assert len(categoria_integral_cei) == 2
-    assert categoria_integral_cei == [
-        "DIETA ESPECIAL - TIPO A",
-        "DIETA ESPECIAL - TIPO B",
-    ]
-
-    categoria_integral_emei = _get_categorias_dietas(medicoes[3])
-    assert isinstance(categoria_integral_emei, list)
-    assert len(categoria_integral_emei) == 3
-    assert categoria_integral_emei == [
-        "DIETA ESPECIAL - TIPO A",
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
-        "DIETA ESPECIAL - TIPO B",
-    ]
 
 
 def test_get_lista_alimentacoes_dietas(
