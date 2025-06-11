@@ -11,7 +11,10 @@ from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEI,
 )
 from sme_sigpae_api.escola.models import PeriodoEscolar
-from sme_sigpae_api.medicao_inicial.services.utils import get_nome_periodo
+from sme_sigpae_api.medicao_inicial.services.utils import (
+    get_nome_periodo,
+    update_periodos_alimentacoes,
+)
 
 from ..models import CategoriaMedicao
 
@@ -24,7 +27,7 @@ def get_alimentacoes_por_periodo(solicitacoes):
         for medicao in solicitacao.medicoes.all():
             nome_periodo = get_nome_periodo(medicao)
             lista_alimentacoes = _get_lista_alimentacoes(medicao, nome_periodo)
-            periodos_alimentacoes = _update_periodos_alimentacoes(
+            periodos_alimentacoes = update_periodos_alimentacoes(
                 periodos_alimentacoes, nome_periodo, lista_alimentacoes
             )
 
@@ -72,14 +75,14 @@ def _get_lista_alimentacoes(medicao, nome_periodo):
     return lista_alimentacoes
 
 
-def _update_periodos_alimentacoes(
-    periodos_alimentacoes, nome_periodo, lista_alimentacoes
-):
-    if nome_periodo in periodos_alimentacoes:
-        periodos_alimentacoes[nome_periodo] += lista_alimentacoes
-    else:
-        periodos_alimentacoes[nome_periodo] = lista_alimentacoes
-    return periodos_alimentacoes
+# def _update_periodos_alimentacoes(
+#     periodos_alimentacoes, nome_periodo, lista_alimentacoes
+# ):
+#     if nome_periodo in periodos_alimentacoes:
+#         periodos_alimentacoes[nome_periodo] += lista_alimentacoes
+#     else:
+#         periodos_alimentacoes[nome_periodo] = lista_alimentacoes
+#     return periodos_alimentacoes
 
 
 def _get_categorias_dietas(medicao):
