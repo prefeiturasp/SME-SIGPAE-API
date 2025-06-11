@@ -1,7 +1,12 @@
 import pytest
-from sme_sigpae_api.medicao_inicial.services.utils import get_nome_periodo
+
+from sme_sigpae_api.medicao_inicial.services.utils import (
+    get_nome_periodo,
+    update_periodos_alimentacoes,
+)
 
 pytestmark = pytest.mark.django_db
+
 
 def test_get_nome_periodo_emei_emef(
     medicao_grupo_solicitacao_alimentacao, medicao_grupo_alimentacao
@@ -98,3 +103,74 @@ def test_get_nome_periodo_emebs(relatorio_consolidado_xlsx_emebs):
     solicitacao = get_nome_periodo(medicoes[5])
     assert isinstance(solicitacao, str)
     assert solicitacao == "Solicitações de Alimentação"
+
+
+def test_update_periodos_alimentacoes(faixas_etarias_ativas):
+    lista_faixas = [faixa.id for faixa in faixas_etarias_ativas]
+    lista_alimentacoes = [
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+        "sobremesa",
+        "total_refeicoes_pagamento",
+        "total_sobremesas_pagamento",
+    ]
+    lista_alimentacoes_solicitacao = ["kit_lanche", "lanche_emergencial"]
+    periodos_alimentacoes = {}
+
+    periodos_alimentacoes = update_periodos_alimentacoes(
+        periodos_alimentacoes, "INTEGRAL", lista_faixas
+    )
+    assert isinstance(periodos_alimentacoes, dict)
+    assert "INTEGRAL" in periodos_alimentacoes.keys()
+    assert periodos_alimentacoes["INTEGRAL"] == lista_faixas
+
+    periodos_alimentacoes = update_periodos_alimentacoes(
+        periodos_alimentacoes, "PARCIAL", lista_faixas
+    )
+    assert isinstance(periodos_alimentacoes, dict)
+    assert "PARCIAL" in periodos_alimentacoes.keys()
+    assert periodos_alimentacoes["PARCIAL"] == lista_faixas
+
+    periodos_alimentacoes = update_periodos_alimentacoes(
+        periodos_alimentacoes, "Infantil INTEGRAL", lista_alimentacoes
+    )
+    assert isinstance(periodos_alimentacoes, dict)
+    assert "Infantil INTEGRAL" in periodos_alimentacoes.keys()
+    assert periodos_alimentacoes["Infantil INTEGRAL"] == lista_alimentacoes
+
+    periodos_alimentacoes = update_periodos_alimentacoes(
+        periodos_alimentacoes, "Infantil MANHA", lista_alimentacoes
+    )
+    assert isinstance(periodos_alimentacoes, dict)
+    assert "Infantil MANHA" in periodos_alimentacoes.keys()
+    assert periodos_alimentacoes["Infantil MANHA"] == lista_alimentacoes
+
+    periodos_alimentacoes = update_periodos_alimentacoes(
+        periodos_alimentacoes, "Infantil TARDE", lista_alimentacoes
+    )
+    assert isinstance(periodos_alimentacoes, dict)
+    assert "Infantil TARDE" in periodos_alimentacoes.keys()
+    assert periodos_alimentacoes["Infantil TARDE"] == lista_alimentacoes
+
+    periodos_alimentacoes = update_periodos_alimentacoes(
+        periodos_alimentacoes,
+        "Solicitações de Alimentação",
+        lista_alimentacoes_solicitacao,
+    )
+    assert isinstance(periodos_alimentacoes, dict)
+    assert "Solicitações de Alimentação" in periodos_alimentacoes.keys()
+    assert (
+        periodos_alimentacoes["Solicitações de Alimentação"]
+        == lista_alimentacoes_solicitacao
+    )
+    assert set(
+        [
+            "INTEGRAL",
+            "PARCIAL",
+            "Infantil INTEGRAL",
+            "Infantil MANHA",
+            "Infantil TARDE",
+            "Solicitações de Alimentação",
+        ]
+    ).issubset(periodos_alimentacoes.keys())

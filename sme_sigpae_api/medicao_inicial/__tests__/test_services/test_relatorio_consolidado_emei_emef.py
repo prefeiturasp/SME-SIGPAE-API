@@ -22,7 +22,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef imp
     _total_pagamento_emei,
     _unificar_dietas_tipo_a,
     _update_dietas_alimentacoes,
-    _update_periodos_alimentacoes,
     ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_solicitacoes_ordenadas,
@@ -280,38 +279,6 @@ def test_get_lista_alimentacoes(relatorio_consolidado_xlsx_emef):
     )
     assert isinstance(lista_alimentacoes_solicitacao, list)
     assert lista_alimentacoes_solicitacao == ["kit_lanche", "lanche_emergencial"]
-
-
-def test_update_periodos_alimentacoes():
-    lista_alimentacoes_manha = [
-        "lanche",
-        "lanche_4h",
-        "refeicao",
-        "sobremesa",
-        "total_refeicoes_pagamento",
-        "total_sobremesas_pagamento",
-    ]
-    lista_alimentacoes_solicitacao = ["kit_lanche", "lanche_emergencial"]
-
-    periodos_alimentacoes = _update_periodos_alimentacoes(
-        {}, "MANHA", lista_alimentacoes_manha
-    )
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "MANHA" in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes["MANHA"] == lista_alimentacoes_manha
-
-    periodos_alimentacoes = _update_periodos_alimentacoes(
-        periodos_alimentacoes,
-        "Solicitações de Alimentação",
-        lista_alimentacoes_solicitacao,
-    )
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "Solicitações de Alimentação" in periodos_alimentacoes.keys()
-    assert (
-        periodos_alimentacoes["Solicitações de Alimentação"]
-        == lista_alimentacoes_solicitacao
-    )
-    assert "MANHA" in periodos_alimentacoes.keys()
 
 
 def test_get_categorias_dietas(relatorio_consolidado_xlsx_emef):

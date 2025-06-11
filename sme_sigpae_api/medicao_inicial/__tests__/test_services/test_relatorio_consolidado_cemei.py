@@ -19,7 +19,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cemei import 
     _sort_and_merge,
     _unificar_dietas,
     _update_dietas_alimentacoes,
-    _update_periodos_alimentacoes,
     ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_solicitacoes_ordenadas,
@@ -116,77 +115,6 @@ def test_get_lista_alimentacoes(
     solicitacao = _get_lista_alimentacoes(medicoes[5], "Solicitações de Alimentação")
     assert isinstance(solicitacao, list)
     assert solicitacao == ["kit_lanche", "lanche_emergencial"]
-
-
-def test_update_periodos_alimentacoes(faixas_etarias_ativas):
-    lista_faixas = [faixa.id for faixa in faixas_etarias_ativas]
-    lista_alimentacoes = [
-        "lanche",
-        "lanche_4h",
-        "refeicao",
-        "sobremesa",
-        "total_refeicoes_pagamento",
-        "total_sobremesas_pagamento",
-    ]
-    lista_alimentacoes_solicitacao = ["kit_lanche", "lanche_emergencial"]
-    periodos_alimentacoes = {}
-
-    periodos_alimentacoes = _update_periodos_alimentacoes(
-        periodos_alimentacoes, "INTEGRAL", lista_faixas
-    )
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "INTEGRAL" in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes["INTEGRAL"] == lista_faixas
-
-    periodos_alimentacoes = _update_periodos_alimentacoes(
-        periodos_alimentacoes, "PARCIAL", lista_faixas
-    )
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "PARCIAL" in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes["PARCIAL"] == lista_faixas
-
-    periodos_alimentacoes = _update_periodos_alimentacoes(
-        periodos_alimentacoes, "Infantil INTEGRAL", lista_alimentacoes
-    )
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "Infantil INTEGRAL" in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes["Infantil INTEGRAL"] == lista_alimentacoes
-
-    periodos_alimentacoes = _update_periodos_alimentacoes(
-        periodos_alimentacoes, "Infantil MANHA", lista_alimentacoes
-    )
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "Infantil MANHA" in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes["Infantil MANHA"] == lista_alimentacoes
-
-    periodos_alimentacoes = _update_periodos_alimentacoes(
-        periodos_alimentacoes, "Infantil TARDE", lista_alimentacoes
-    )
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "Infantil TARDE" in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes["Infantil TARDE"] == lista_alimentacoes
-
-    periodos_alimentacoes = _update_periodos_alimentacoes(
-        periodos_alimentacoes,
-        "Solicitações de Alimentação",
-        lista_alimentacoes_solicitacao,
-    )
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "Solicitações de Alimentação" in periodos_alimentacoes.keys()
-    assert (
-        periodos_alimentacoes["Solicitações de Alimentação"]
-        == lista_alimentacoes_solicitacao
-    )
-    assert set(
-        [
-            "INTEGRAL",
-            "PARCIAL",
-            "Infantil INTEGRAL",
-            "Infantil MANHA",
-            "Infantil TARDE",
-            "Solicitações de Alimentação",
-        ]
-    ).issubset(periodos_alimentacoes.keys())
 
 
 def test_get_categorias_dietas(relatorio_consolidado_xlsx_cemei):

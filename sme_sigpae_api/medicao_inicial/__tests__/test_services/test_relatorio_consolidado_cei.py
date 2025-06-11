@@ -15,7 +15,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
     _processa_periodo_campo,
     _sort_and_merge,
     _update_dietas_alimentacoes_por_faixa,
-    _update_periodos_alimentacoes,
     ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_solicitacoes_ordenadas,
@@ -77,40 +76,6 @@ def test_get_faixas_etarias(relatorio_consolidado_xlsx_cei, faixas_etarias_ativa
     assert isinstance(faixa_tarde, list)
     assert len(faixa_tarde) == 2
     assert faixa_tarde == [faixas_etarias_ativas[3].id, faixas_etarias_ativas[6].id]
-
-
-def test_update_periodos_alimentacoes(faixas_etarias_ativas):
-    lista_faixas = [faixa.id for faixa in faixas_etarias_ativas]
-
-    periodos_alimentacoes = _update_periodos_alimentacoes({}, "MANHA", lista_faixas)
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "MANHA" in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes["MANHA"] == lista_faixas
-
-    periodos_alimentacoes = _update_periodos_alimentacoes(
-        periodos_alimentacoes, "INTEGRAL", lista_faixas
-    )
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "INTEGRAL" in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes["INTEGRAL"] == lista_faixas
-
-    periodos_alimentacoes = _update_periodos_alimentacoes(
-        periodos_alimentacoes, "PARCIAL", lista_faixas
-    )
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "PARCIAL" in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes["PARCIAL"] == lista_faixas
-
-    periodos_alimentacoes = _update_periodos_alimentacoes(
-        periodos_alimentacoes, "TARDE", lista_faixas
-    )
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "TARDE" in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes["TARDE"] == lista_faixas
-
-    assert set(["MANHA", "INTEGRAL", "PARCIAL", "TARDE"]).issubset(
-        periodos_alimentacoes.keys()
-    )
 
 
 def test_get_categorias_dietas(relatorio_consolidado_xlsx_cei):
