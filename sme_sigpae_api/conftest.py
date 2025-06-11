@@ -23,6 +23,7 @@ from sme_sigpae_api.recebimento.fixtures.factories.questao_ficha_recebimento_fac
 
 from .dados_comuns import constants
 from .dados_comuns.fixtures.factories.dados_comuns_factories import (
+    ContatoFactory,
     LogSolicitacoesUsuarioFactory,
 )
 from .dados_comuns.models import TemplateMensagem
@@ -268,6 +269,7 @@ register(HistoricoMatriculaAlunoFactory)
 register(QuestaoFichaRecebimentoFactory)
 register(TipoGestaoFactory)
 register(LogAlunosMatriculadosFaixaEtariaDiaFactory)
+register(ContatoFactory)
 
 
 @pytest.fixture
