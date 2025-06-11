@@ -98,7 +98,7 @@ def etapa(cronograma):
     return mommy.make(
         "EtapasDoCronograma",
         cronograma=cronograma,
-        etapa="Etapa 1",
+        etapa=1,
         parte="Parte 1",
     )
 
@@ -108,7 +108,7 @@ def etapa_com_quantidade_e_data(cronograma):
     return mommy.make(
         "EtapasDoCronograma",
         cronograma=cronograma,
-        etapa="Etapa 1",
+        etapa=1,
         parte="Parte 1",
         data_programada=timezone.now().date(),
         quantidade=5.0,
