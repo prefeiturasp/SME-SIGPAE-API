@@ -13,7 +13,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef imp
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
     _get_total_pagamento,
-    _get_valores_iniciais,
     _processa_periodo_campo,
     _sort_and_merge,
     _total_pagamento_emef,
@@ -391,17 +390,6 @@ def test_get_solicitacoes_ordenadas_unidade_emei(
     assert isinstance(ordenados, list)
     assert ordenados[0].escola.nome == relatorio_consolidado_xlsx_emei.escola.nome
     assert ordenados[1].escola.nome == solicitacao_escola_ceuemei.escola.nome
-
-
-def test_get_valores_iniciais(relatorio_consolidado_xlsx_emef):
-    valores = _get_valores_iniciais(relatorio_consolidado_xlsx_emef)
-    assert isinstance(valores, list)
-    assert len(valores) == 3
-    assert valores == [
-        relatorio_consolidado_xlsx_emef.escola.tipo_unidade.iniciais,
-        relatorio_consolidado_xlsx_emef.escola.codigo_eol,
-        relatorio_consolidado_xlsx_emef.escola.nome,
-    ]
 
 
 def test_processa_periodo_campo_unidade_emef(relatorio_consolidado_xlsx_emef):

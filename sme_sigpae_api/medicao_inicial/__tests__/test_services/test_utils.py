@@ -4,6 +4,7 @@ from sme_sigpae_api.medicao_inicial.services.utils import (
     generate_columns,
     get_categorias_dietas,
     get_nome_periodo,
+    get_valores_iniciais,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
 )
@@ -335,3 +336,47 @@ def test_generate_columns(faixas_etarias_ativas):
     assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 1
     assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 1
     assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 1
+
+
+def test_get_valores_iniciais_emef(relatorio_consolidado_xlsx_emef):
+    valores = get_valores_iniciais(relatorio_consolidado_xlsx_emef)
+    assert isinstance(valores, list)
+    assert len(valores) == 3
+    assert valores == [
+        relatorio_consolidado_xlsx_emef.escola.tipo_unidade.iniciais,
+        relatorio_consolidado_xlsx_emef.escola.codigo_eol,
+        relatorio_consolidado_xlsx_emef.escola.nome,
+    ]
+
+
+def test_get_valores_iniciais_cei(relatorio_consolidado_xlsx_cei):
+    valores = get_valores_iniciais(relatorio_consolidado_xlsx_cei)
+    assert isinstance(valores, list)
+    assert len(valores) == 3
+    assert valores == [
+        relatorio_consolidado_xlsx_cei.escola.tipo_unidade.iniciais,
+        relatorio_consolidado_xlsx_cei.escola.codigo_eol,
+        relatorio_consolidado_xlsx_cei.escola.nome,
+    ]
+
+
+def test_get_valores_iniciais_cemei(relatorio_consolidado_xlsx_cemei):
+    valores = get_valores_iniciais(relatorio_consolidado_xlsx_cemei)
+    assert isinstance(valores, list)
+    assert len(valores) == 3
+    assert valores == [
+        relatorio_consolidado_xlsx_cemei.escola.tipo_unidade.iniciais,
+        relatorio_consolidado_xlsx_cemei.escola.codigo_eol,
+        relatorio_consolidado_xlsx_cemei.escola.nome,
+    ]
+
+
+def test_get_valores_iniciais_emebs(relatorio_consolidado_xlsx_emebs):
+    valores = get_valores_iniciais(relatorio_consolidado_xlsx_emebs)
+    assert isinstance(valores, list)
+    assert len(valores) == 3
+    assert valores == [
+        relatorio_consolidado_xlsx_emebs.escola.tipo_unidade.iniciais,
+        relatorio_consolidado_xlsx_emebs.escola.codigo_eol,
+        relatorio_consolidado_xlsx_emebs.escola.nome,
+    ]

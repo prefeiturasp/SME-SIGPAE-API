@@ -12,7 +12,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emebs import 
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
     _get_total_pagamento,
-    _get_valores_iniciais,
     _obter_dietas_especiais,
     _processa_periodo_campo,
     _sort_and_merge,
@@ -473,17 +472,6 @@ def test_get_solicitacoes_ordenadas(
         ordenados[1].escola.nome
         == solicitacao_relatorio_consolidado_grupo_emebs.escola.nome
     )
-
-
-def test_get_valores_iniciais(relatorio_consolidado_xlsx_emebs):
-    valores = _get_valores_iniciais(relatorio_consolidado_xlsx_emebs)
-    assert isinstance(valores, list)
-    assert len(valores) == 3
-    assert valores == [
-        relatorio_consolidado_xlsx_emebs.escola.tipo_unidade.iniciais,
-        relatorio_consolidado_xlsx_emebs.escola.codigo_eol,
-        relatorio_consolidado_xlsx_emebs.escola.nome,
-    ]
 
 
 def test_processa_periodo_campo(relatorio_consolidado_xlsx_emebs):

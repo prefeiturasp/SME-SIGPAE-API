@@ -9,7 +9,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
     _define_filtro,
     _get_faixas_etarias,
     _get_lista_alimentacoes_dietas_por_faixa,
-    _get_valores_iniciais,
     _processa_periodo_campo,
     _sort_and_merge,
     ajusta_layout_tabela,
@@ -225,17 +224,6 @@ def test_get_solicitacoes_ordenadas(
         == solicitacao_relatorio_consolidado_grupo_cei.escola.nome
     )
     assert ordenados[1].escola.nome == solicitacao_escola_cci.escola.nome
-
-
-def test_get_valores_iniciais(relatorio_consolidado_xlsx_cei):
-    valores = _get_valores_iniciais(relatorio_consolidado_xlsx_cei)
-    assert isinstance(valores, list)
-    assert len(valores) == 3
-    assert valores == [
-        relatorio_consolidado_xlsx_cei.escola.tipo_unidade.iniciais,
-        relatorio_consolidado_xlsx_cei.escola.codigo_eol,
-        relatorio_consolidado_xlsx_cei.escola.nome,
-    ]
 
 
 def test_processa_periodo_campo(relatorio_consolidado_xlsx_cei, faixas_etarias_ativas):

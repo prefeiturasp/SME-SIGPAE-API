@@ -8,7 +8,6 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cemei import 
     _define_filtro,
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
-    _get_valores_iniciais,
     _processa_dieta_especial,
     _processa_periodo_campo,
     _processa_periodo_regular,
@@ -282,17 +281,6 @@ def test_get_solicitacoes_ordenadas(
         == solicitacao_relatorio_consolidado_grupo_cemei.escola.nome
     )
     assert ordenados[1].escola.nome == solicitacao_escola_ceu_cemei.escola.nome
-
-
-def test_get_valores_iniciais(relatorio_consolidado_xlsx_cemei):
-    valores = _get_valores_iniciais(relatorio_consolidado_xlsx_cemei)
-    assert isinstance(valores, list)
-    assert len(valores) == 3
-    assert valores == [
-        relatorio_consolidado_xlsx_cemei.escola.tipo_unidade.iniciais,
-        relatorio_consolidado_xlsx_cemei.escola.codigo_eol,
-        relatorio_consolidado_xlsx_cemei.escola.nome,
-    ]
 
 
 def test_processa_periodo_campo(
