@@ -330,6 +330,7 @@ ORDEM_CAMPOS = [
     "2_lanche_4h",
     "2_lanche_5h",
     "lanche_extra",
+    "colacao",
     "refeicao",
     "repeticao_refeicao",
     "2_refeicao_1_oferta",
@@ -373,6 +374,11 @@ ORDEM_UNIDADES_GRUPO_CEMEI = {
     "CEU CEMEI": 2,
 }
 
+ORDEM_UNIDADES_GRUPO_EMEBS = {
+    "EMEBS": 1,
+}
+
+
 ORDEM_HEADERS_EMEI_EMEF = {
     "Solicitações de Alimentação": 1,
     "MANHA": 2,
@@ -408,6 +414,17 @@ ORDEM_HEADERS_CEMEI = {
     "Infantil TARDE": 8,
     "DIETA ESPECIAL - TIPO A - INFANTIL": 9,
     "DIETA ESPECIAL - TIPO B - INFANTIL": 10,
+}
+
+ORDEM_HEADERS_EMEBS = {
+    "Solicitações de Alimentação": 1,
+    "MANHA": 2,
+    "TARDE": 3,
+    "INTEGRAL": 4,
+    "NOITE": 5,
+    "Programas e Projetos": 6,
+    "DIETA ESPECIAL - TIPO A": 7,
+    "DIETA ESPECIAL - TIPO B": 8,
 }
 
 

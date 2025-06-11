@@ -868,6 +868,593 @@ def test_gera_relatorio_consolidado_xlsx_cemei(
     )
 
 
+def test_gera_relatorio_consolidado_xlsx_emebs(
+    relatorio_consolidado_xlsx_emebs, mock_query_params_excel_emebs
+):
+    solicitacoes = [relatorio_consolidado_xlsx_emebs.uuid]
+    tipos_unidade = ["EMEBS"]
+    arquivo = gera_relatorio_consolidado_xlsx(
+        solicitacoes, tipos_unidade, mock_query_params_excel_emebs
+    )
+    assert isinstance(arquivo, bytes)
+    excel_buffer = BytesIO(arquivo)
+
+    workbook = load_workbook(filename=excel_buffer)
+    nome_aba = f"Relatório Consolidado { relatorio_consolidado_xlsx_emebs.mes}-{ relatorio_consolidado_xlsx_emebs.ano}"
+    assert nome_aba in workbook.sheetnames
+    sheet = workbook[nome_aba]
+    rows = list(sheet.iter_rows(values_only=True))
+
+    assert rows[0] == (
+        "Relatório de Totalização da Medição Inicial do Serviço de Fornecimento da Alimentação Escolar",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[1] == (
+        "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - EMEBS",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[2] == (
+        None,
+        None,
+        None,
+        None,
+        None,
+        "INFANTIL (4 a 6 anos)",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        "FUNDAMENTAL (acima de 6 anos)",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[3] == (
+        None,
+        None,
+        None,
+        None,
+        None,
+        "MANHA",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "TARDE",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "INTEGRAL",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "PROGRAMAS E PROJETOS",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "DIETA ESPECIAL - TIPO A",
+        None,
+        None,
+        "DIETA ESPECIAL - TIPO B",
+        None,
+        "MANHA",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "TARDE",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "INTEGRAL",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "NOITE",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "PROGRAMAS E PROJETOS",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "DIETA ESPECIAL - TIPO A",
+        None,
+        None,
+        "DIETA ESPECIAL - TIPO B",
+        None,
+    )
+    assert rows[4] == (
+        "Tipo",
+        "Cód. EOL",
+        "Unidade Escolar",
+        "Lanche Emerg.",
+        "Kit Lanche",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Refeições p/ Pagamento",
+        "Sobremesa",
+        "Sobremesas p/ Pagamento",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Refeições p/ Pagamento",
+        "Sobremesa",
+        "Sobremesas p/ Pagamento",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Refeições p/ Pagamento",
+        "Sobremesa",
+        "Sobremesas p/ Pagamento",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Refeições p/ Pagamento",
+        "Sobremesa",
+        "Sobremesas p/ Pagamento",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Lanche",
+        "Lanche 4h",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Refeições p/ Pagamento",
+        "Sobremesa",
+        "Sobremesas p/ Pagamento",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Refeições p/ Pagamento",
+        "Sobremesa",
+        "Sobremesas p/ Pagamento",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Refeições p/ Pagamento",
+        "Sobremesa",
+        "Sobremesas p/ Pagamento",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Refeições p/ Pagamento",
+        "Sobremesa",
+        "Sobremesas p/ Pagamento",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Refeições p/ Pagamento",
+        "Sobremesa",
+        "Sobremesas p/ Pagamento",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Lanche",
+        "Lanche 4h",
+    )
+    assert rows[5] == (
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[6] == (
+        "EMEBS",
+        "000329",
+        "EMEBS TESTE",
+        5,
+        5,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        40,
+        40,
+        20,
+        20,
+        20,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        50,
+        50,
+        25,
+        25,
+        25,
+    )
+    assert rows[7] == (
+        "TOTAL",
+        None,
+        None,
+        5,
+        5,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        40,
+        40,
+        20,
+        20,
+        20,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        350,
+        50,
+        50,
+        25,
+        25,
+        25,
+    )
+
+
 def test_insere_tabela_periodos_na_planilha_unidade_emef(
     informacoes_excel_writer_emef, mock_colunas, mock_linhas_emef
 ):
@@ -1255,6 +1842,182 @@ def test_insere_tabela_periodos_na_planilha_unidade_cemei(
     ]
 
 
+def test_insere_tabela_periodos_na_planilha_unidade_emebs(
+    informacoes_excel_writer_emebs, mock_colunas_emebs, mock_linhas_emebs
+):
+    aba, writer, _, _, _, _ = informacoes_excel_writer_emebs
+
+    df = _insere_tabela_periodos_na_planilha(
+        ["EMEBS"], aba, mock_colunas_emebs, mock_linhas_emebs, writer
+    )
+    assert isinstance(df, pd.DataFrame)
+    colunas_df = df.columns.tolist()
+    assert len(colunas_df) == 67
+
+    assert sum(1 for tupla in colunas_df if tupla[0] == "INFANTIL") == 28
+    assert sum(1 for tupla in colunas_df if tupla[0] == "FUNDAMENTAL") == 34
+
+    assert sum(1 for tupla in colunas_df if tupla[1] == "MANHA") == 12
+    assert sum(1 for tupla in colunas_df if tupla[1] == "TARDE") == 12
+    assert sum(1 for tupla in colunas_df if tupla[1] == "INTEGRAL") == 12
+    assert sum(1 for tupla in colunas_df if tupla[1] == "NOITE") == 6
+    assert sum(1 for tupla in colunas_df if tupla[1] == "PROGRAMAS E PROJETOS") == 10
+    assert sum(1 for tupla in colunas_df if tupla[1] == "DIETA ESPECIAL - TIPO A") == 6
+    assert sum(1 for tupla in colunas_df if tupla[1] == "DIETA ESPECIAL - TIPO B") == 4
+
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Tipo") == 1
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Cód. EOL") == 1
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Unidade Escolar") == 1
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Kit Lanche") == 1
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Lanche Emerg.") == 1
+
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Lanche") == 13
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Lanche 4h") == 13
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Refeição") == 11
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Sobremesa") == 7
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Refeições p/ Pagamento") == 9
+    assert sum(1 for tupla in colunas_df if tupla[2] == "Sobremesas p/ Pagamento") == 9
+
+    assert df.iloc[0].tolist() == [
+        "EMEBS",
+        "000329",
+        "EMEBS TESTE",
+        5.0,
+        5.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        40.0,
+        40.0,
+        20.0,
+        20.0,
+        20.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        50.0,
+        50.0,
+        25.0,
+        25.0,
+        25.0,
+    ]
+    assert df.iloc[1].tolist() == [
+        0.0,
+        329.0,
+        0.0,
+        5.0,
+        5.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        40.0,
+        40.0,
+        20.0,
+        20.0,
+        20.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        350.0,
+        50.0,
+        50.0,
+        25.0,
+        25.0,
+        25.0,
+    ]
+
+
 def test_preenche_titulo(informacoes_excel_writer_emef):
     aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emef
     _preenche_titulo(workbook, worksheet, df.columns)
@@ -1408,6 +2171,52 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_cemei(
     workbook_openpyxl.close()
 
 
+def test_preenche_linha_dos_filtros_selecionados_unidade_emebs(
+    mock_query_params_excel_emebs, informacoes_excel_writer_emebs
+):
+    tipos_unidades = ["EMEBS"]
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emebs
+    _preenche_linha_dos_filtros_selecionados(
+        workbook, worksheet, mock_query_params_excel_emebs, df.columns, tipos_unidades
+    )
+    writer.close()
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
+    sheet = workbook_openpyxl[aba]
+
+    merged_ranges = sheet.merged_cells.ranges
+    assert len(merged_ranges) == 18
+
+    assert "A2:BO2" in str(merged_ranges)
+    assert "AF4:AG4" in str(merged_ranges)
+    assert "AH4:AM4" in str(merged_ranges)
+    assert "A4:E4" in str(merged_ranges)
+    assert "BF4:BJ4" in str(merged_ranges)
+    assert "BN4:BO4" in str(merged_ranges)
+    assert "L4:Q4" in str(merged_ranges)
+    assert "R4:W4" in str(merged_ranges)
+    assert "AZ4:BE4" in str(merged_ranges)
+    assert "F4:K4" in str(merged_ranges)
+    assert "BK4:BM4" in str(merged_ranges)
+    assert "AC4:AE4" in str(merged_ranges)
+    assert "AN4:AS4" in str(merged_ranges)
+    assert "AT4:AY4" in str(merged_ranges)
+    assert "F3:AG3" in str(merged_ranges)
+    assert "X4:AB4" in str(merged_ranges)
+    assert "A3:E3" in str(merged_ranges)
+    assert "AH3:BO3" in str(merged_ranges)
+
+    assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - EMEBS"
+    assert sheet["A2"].alignment.horizontal == "center"
+    assert sheet["A2"].alignment.vertical == "center"
+    assert sheet["A2"].font.bold is True
+    assert sheet["A2"].font.color.rgb == "FF0C6B45"
+    assert sheet["A2"].fill.fgColor.rgb == "FFEAFFF6"
+
+    rows = list(sheet.iter_rows(values_only=True))
+    assert tipos_unidades[0] in rows[1][0]
+    workbook_openpyxl.close()
+
+
 def test_ajusta_layout_tabela_emef(informacoes_excel_writer_emef):
     aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emef
     _ajusta_layout_tabela(["EMEF"], workbook, worksheet, df)
@@ -1515,6 +2324,83 @@ def test_ajusta_layout_tabela_cemei(informacoes_excel_writer_cemei):
     workbook_openpyxl.close()
 
 
+def test_ajusta_layout_tabela_emebs(informacoes_excel_writer_emebs):
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emebs
+    _ajusta_layout_tabela(["EMEBS"], workbook, worksheet, df)
+    writer.close()
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
+    sheet = workbook_openpyxl[aba]
+    merged_ranges = sheet.merged_cells.ranges
+    assert len(merged_ranges) == 17
+    esperados = {
+        "A3:E3",
+        "F3:AG3",
+        "AH3:BO3",
+        "A4:E4",
+        "F4:K4",
+        "X4:AB4",
+        "AC4:AE4",
+        "AF4:AG4",
+        "AH4:AM4",
+        "AN4:AS4",
+        "AT4:AY4",
+        "AZ4:BE4",
+        "BF4:BJ4",
+        "BK4:BM4",
+        "BN4:BO4",
+        "L4:Q4",
+        "R4:W4",
+    }
+    assert {str(r) for r in merged_ranges} == esperados
+
+    assert sheet["F3"].value == "INFANTIL (4 a 6 anos)"
+    assert sheet["F3"].fill.fgColor.rgb == "FF4A9A74"
+
+    assert sheet["F4"].value == "MANHA"
+    assert sheet["F4"].fill.fgColor.rgb == "FF198459"
+
+    assert sheet["L4"].value == "TARDE"
+    assert sheet["L4"].fill.fgColor.rgb == "FFD06D12"
+
+    assert sheet["R4"].value == "INTEGRAL"
+    assert sheet["R4"].fill.fgColor.rgb == "FF2F80ED"
+
+    assert sheet["X4"].value == "PROGRAMAS E PROJETOS"
+    assert sheet["X4"].fill.fgColor.rgb == "FF72BC17"
+
+    assert sheet["AC4"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["AC4"].fill.fgColor.rgb == "FF198459"
+
+    assert sheet["AF4"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["AF4"].fill.fgColor.rgb == "FF20AA73"
+
+    assert sheet["AH3"].value == "FUNDAMENTAL (acima de 6 anos)"
+    assert sheet["AH3"].fill.fgColor.rgb == "FF2E7453"
+
+    assert sheet["AH4"].value == "MANHA"
+    assert sheet["AH4"].fill.fgColor.rgb == "FF198459"
+
+    assert sheet["AN4"].value == "TARDE"
+    assert sheet["AN4"].fill.fgColor.rgb == "FFD06D12"
+
+    assert sheet["AT4"].value == "INTEGRAL"
+    assert sheet["AT4"].fill.fgColor.rgb == "FF2F80ED"
+
+    assert sheet["AZ4"].value == "NOITE"
+    assert sheet["AZ4"].fill.fgColor.rgb == "FFB40C02"
+
+    assert sheet["BF4"].value == "PROGRAMAS E PROJETOS"
+    assert sheet["BF4"].fill.fgColor.rgb == "FF72BC17"
+
+    assert sheet["BK4"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["BK4"].fill.fgColor.rgb == "FF198459"
+
+    assert sheet["BN4"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["BN4"].fill.fgColor.rgb == "FF20AA73"
+
+    workbook_openpyxl.close()
+
+
 def test_formata_total_geral(informacoes_excel_writer_emef):
     aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emef
     _formata_total_geral(workbook, worksheet, df)
@@ -1559,6 +2445,13 @@ def test_formata_filtros_unidade_cemei(mock_query_params_excel_cemei):
     filtros = _formata_filtros(mock_query_params_excel_cemei, tipos_unidades)
     assert isinstance(filtros, str)
     assert filtros == "Abril/2025 - DIRETORIA REGIONAL TESTE -  - CEMEI"
+
+
+def test_formata_filtros_unidade_emebs(mock_query_params_excel_emebs):
+    tipos_unidades = ["EMEBS"]
+    filtros = _formata_filtros(mock_query_params_excel_emebs, tipos_unidades)
+    assert isinstance(filtros, str)
+    assert filtros == "Abril/2025 - DIRETORIA REGIONAL TESTE -  - EMEBS"
 
 
 def test_gera_relatorio_consolidado_xlsx_tipo_unidade_invalida():
