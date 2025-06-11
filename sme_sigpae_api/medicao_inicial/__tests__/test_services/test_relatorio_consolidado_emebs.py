@@ -38,7 +38,7 @@ def test_get_alimentacoes_por_periodo(relatorio_consolidado_xlsx_emebs):
     colunas = get_alimentacoes_por_periodo([relatorio_consolidado_xlsx_emebs])
     assert isinstance(colunas, list)
     assert len(colunas) == 66
-    assert sum(1 for tupla in colunas if tupla[0] == "INFANTIL") == 28
+    assert sum(1 for tupla in colunas if tupla[0] == "INFANTIL") == 29
     assert sum(1 for tupla in colunas if tupla[0] == "FUNDAMENTAL") == 35
     assert sum(1 for tupla in colunas if tupla[1] == "Solicitações de Alimentação") == 2
     assert sum(1 for tupla in colunas if tupla[1] == "MANHA") == 12
@@ -270,7 +270,6 @@ def test_update_dietas_alimentacoes():
 def test_unificar_dietas():
     dietas_alimentacoes = {
         "FUNDAMENTAL": {
-            "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h"],
             "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": [
                 "lanche",
                 "lanche_4h",
@@ -287,7 +286,7 @@ def test_unificar_dietas():
         "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
         not in resultado["FUNDAMENTAL"]
     )
-    assert len(resultado["FUNDAMENTAL"]["DIETA ESPECIAL - TIPO A"]) == 5
+    assert len(resultado["FUNDAMENTAL"]["DIETA ESPECIAL - TIPO A"]) == 3
 
 
 def test_sort_and_merge():
@@ -899,18 +898,68 @@ def test_ajusta_layout_tabela(informacoes_excel_writer_emebs):
     assert len(merged_ranges) == 17
     esperados = {
         "A3:E3",
-        "F3:AG3" "AH3:BO3" "A4:E4",
+        "F3:AG3",
+        "AH3:BO3",
+        "A4:E4",
         "F4:K4",
-        "X4:AB4," "AC4:AE4",
+        "X4:AB4",
+        "AC4:AE4",
         "AF4:AG4",
         "AH4:AM4",
         "AN4:AS4",
         "AT4:AY4",
-        "AZ4:BE4" "BF4:BJ4",
+        "AZ4:BE4",
+        "BF4:BJ4",
         "BK4:BM4",
-        "BN4:BO4" "L4:Q4",
+        "BN4:BO4",
+        "L4:Q4",
         "R4:W4",
     }
     assert {str(r) for r in merged_ranges} == esperados
+
+    assert sheet["F3"].value == "INFANTIL (4 a 6 anos)"
+    assert sheet["F3"].fill.fgColor.rgb == "FF4A9A74"
+
+    assert sheet["F4"].value == "MANHA"
+    assert sheet["F4"].fill.fgColor.rgb == "FF198459"
+
+    assert sheet["L4"].value == "TARDE"
+    assert sheet["L4"].fill.fgColor.rgb == "FFD06D12"
+
+    assert sheet["R4"].value == "INTEGRAL"
+    assert sheet["R4"].fill.fgColor.rgb == "FF2F80ED"
+
+    assert sheet["X4"].value == "PROGRAMAS E PROJETOS"
+    assert sheet["X4"].fill.fgColor.rgb == "FF72BC17"
+
+    assert sheet["AC4"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["AC4"].fill.fgColor.rgb == "FF198459"
+
+    assert sheet["AF4"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["AF4"].fill.fgColor.rgb == "FF20AA73"
+
+    assert sheet["AH3"].value == "FUNDAMENTAL (acima de 6 anos)"
+    assert sheet["AH3"].fill.fgColor.rgb == "FF2E7453"
+
+    assert sheet["AH4"].value == "MANHA"
+    assert sheet["AH4"].fill.fgColor.rgb == "FF198459"
+
+    assert sheet["AN4"].value == "TARDE"
+    assert sheet["AN4"].fill.fgColor.rgb == "FFD06D12"
+
+    assert sheet["AT4"].value == "INTEGRAL"
+    assert sheet["AT4"].fill.fgColor.rgb == "FF2F80ED"
+
+    assert sheet["AZ4"].value == "NOITE"
+    assert sheet["AZ4"].fill.fgColor.rgb == "FFB40C02"
+
+    assert sheet["BF4"].value == "PROGRAMAS E PROJETOS"
+    assert sheet["BF4"].fill.fgColor.rgb == "FF72BC17"
+
+    assert sheet["BK4"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["BK4"].fill.fgColor.rgb == "FF198459"
+
+    assert sheet["BN4"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["BN4"].fill.fgColor.rgb == "FF20AA73"
 
     workbook_openpyxl.close()
