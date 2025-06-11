@@ -1,7 +1,7 @@
-import pandas as pd
 from django.db.models import Q
 
 from sme_sigpae_api.dados_comuns.constants import (
+    NOMES_CAMPOS,
     ORDEM_CAMPOS,
     ORDEM_HEADERS_CEMEI,
     ORDEM_UNIDADES_GRUPO_CEMEI,
@@ -14,6 +14,7 @@ from sme_sigpae_api.medicao_inicial.services import (
 )
 from sme_sigpae_api.medicao_inicial.services.utils import (
     generate_columns,
+    gera_colunas_alimentacao,
     get_categorias_dietas,
     get_nome_periodo,
     get_valores_iniciais,
@@ -192,19 +193,10 @@ def get_solicitacoes_ordenadas(solicitacoes):
     )
 
 
-# def _get_valores_iniciais(solicitacao):
-#     return [
-#         solicitacao.escola.tipo_unidade.iniciais,
-#         solicitacao.escola.codigo_eol,
-#         solicitacao.escola.nome,
-#     ]
-
-
 def _processa_periodo_campo(
     solicitacao, periodo, campo, valores, periodos_escolares, grupos_medicao
 ):
     filtros = _define_filtro(periodo, periodos_escolares, grupos_medicao)
-    total = "-"
     try:
         if "DIETA ESPECIAL" in periodo:
             total = _processa_dieta_especial(solicitacao, filtros, campo, periodo)
@@ -258,52 +250,10 @@ def _processa_periodo_regular(solicitacao, filtros, campo, periodo):
 
 
 def insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
-    NOMES_CAMPOS = {
-        "lanche": "Lanche",
-        "lanche_4h": "Lanche 4h",
-        "2_lanche_4h": "2º Lanche 4h",
-        "2_lanche_5h": "2º Lanche 5h",
-        "lanche_extra": "Lanche Extra",
-        "refeicao": "Refeição",
-        "repeticao_refeicao": "Repetição de Refeição",
-        "2_refeicao_1_oferta": "2ª Refeição 1ª Oferta",
-        "repeticao_2_refeicao": "Repetição 2ª Refeição",
-        "kit_lanche": "Kit Lanche",
-        "total_refeicoes_pagamento": "Refeições p/ Pagamento",
-        "sobremesa": "Sobremesa",
-        "repeticao_sobremesa": "Repetição de Sobremesa",
-        "2_sobremesa_1_oferta": "2ª Sobremesa 1ª Oferta",
-        "repeticao_2_sobremesa": "Repetição 2ª Sobremesa",
-        "total_sobremesas_pagamento": "Sobremesas p/ Pagamento",
-        "lanche_emergencial": "Lanche Emerg.",
-    }
     NOMES_CAMPOS.update(
         {faixa.id: faixa.__str__() for faixa in FaixaEtaria.objects.filter(ativo=True)}
     )
-
-    colunas_fixas = [
-        ("", "Tipo"),
-        ("", "Cód. EOL"),
-        ("", "Unidade Escolar"),
-    ]
-    headers = [
-        (
-            chave.upper() if chave != "Solicitações de Alimentação" else "",
-            NOMES_CAMPOS[valor],
-        )
-        for chave, valor in colunas
-    ]
-    headers = colunas_fixas + headers
-
-    index = pd.MultiIndex.from_tuples(headers)
-    df = pd.DataFrame(
-        data=linhas,
-        index=None,
-        columns=index,
-    )
-    df.loc["TOTAL"] = df.apply(pd.to_numeric, errors="coerce").sum()
-
-    df.to_excel(writer, sheet_name=aba, startrow=2, startcol=-1)
+    df = gera_colunas_alimentacao(aba, colunas, linhas, writer, NOMES_CAMPOS)
     return df
 
 

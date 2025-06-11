@@ -1,3 +1,5 @@
+import pandas as pd
+
 from sme_sigpae_api.medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
 
 
@@ -59,3 +61,33 @@ def get_valores_iniciais(solicitacao: SolicitacaoMedicaoInicial) -> list:
         solicitacao.escola.codigo_eol,
         solicitacao.escola.nome,
     ]
+
+
+def gera_colunas_alimentacao(
+    aba, colunas, linhas, writer, nomes_campos, colunas_fixas=None, headers=None
+):
+    if colunas_fixas is None:
+        colunas_fixas = [
+            ("", "Tipo"),
+            ("", "Cód. EOL"),
+            ("", "Unidade Escolar"),
+        ]
+    if headers is None:
+        headers = [
+            (
+                chave.upper() if chave != "Solicitações de Alimentação" else "",
+                nomes_campos[valor],
+            )
+            for chave, valor in colunas
+        ]
+    headers = colunas_fixas + headers
+    index = pd.MultiIndex.from_tuples(headers)
+    df = pd.DataFrame(
+        data=linhas,
+        index=None,
+        columns=index,
+    )
+    df.loc["TOTAL"] = df.apply(pd.to_numeric, errors="coerce").sum()
+
+    df.to_excel(writer, sheet_name=aba, startrow=2, startcol=-1)
+    return df

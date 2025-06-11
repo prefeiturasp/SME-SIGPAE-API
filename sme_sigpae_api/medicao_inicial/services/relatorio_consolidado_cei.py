@@ -1,4 +1,3 @@
-import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import FloatField, Sum
 from django.db.models.functions import Cast
@@ -10,6 +9,7 @@ from sme_sigpae_api.dados_comuns.constants import (
 from sme_sigpae_api.escola.models import FaixaEtaria, PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.services.utils import (
     generate_columns,
+    gera_colunas_alimentacao,
     get_categorias_dietas,
     get_nome_periodo,
     get_valores_iniciais,
@@ -135,14 +135,6 @@ def get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade):
     )
 
 
-# def _get_valores_iniciais(solicitacao):
-#     return [
-#         solicitacao.escola.tipo_unidade.iniciais,
-#         solicitacao.escola.codigo_eol,
-#         solicitacao.escola.nome,
-#     ]
-
-
 def _processa_periodo_campo(
     solicitacao, periodo, faixa_etaria, valores, dietas_especiais, periodos_escolares
 ):
@@ -216,30 +208,7 @@ def insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
     NOMES_CAMPOS = {
         faixa.id: faixa.__str__() for faixa in FaixaEtaria.objects.filter(ativo=True)
     }
-
-    colunas_fixas = [
-        ("", "Tipo"),
-        ("", "Cód. EOL"),
-        ("", "Unidade Escolar"),
-    ]
-    headers = [
-        (
-            chave.upper() if chave != "Solicitações de Alimentação" else "",
-            NOMES_CAMPOS[valor],
-        )
-        for chave, valor in colunas
-    ]
-    headers = colunas_fixas + headers
-
-    index = pd.MultiIndex.from_tuples(headers)
-    df = pd.DataFrame(
-        data=linhas,
-        index=None,
-        columns=index,
-    )
-    df.loc["TOTAL"] = df.apply(pd.to_numeric, errors="coerce").sum()
-
-    df.to_excel(writer, sheet_name=aba, startrow=2, startcol=-1)
+    df = gera_colunas_alimentacao(aba, colunas, linhas, writer, NOMES_CAMPOS)
     return df
 
 
