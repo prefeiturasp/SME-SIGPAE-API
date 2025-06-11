@@ -12,6 +12,7 @@ from sme_sigpae_api.dados_comuns.constants import (
 )
 from sme_sigpae_api.escola.models import PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.services.utils import (
+    get_categorias_dietas,
     get_nome_periodo,
     update_periodos_alimentacoes,
 )
@@ -31,7 +32,7 @@ def get_alimentacoes_por_periodo(solicitacoes):
                 periodos_alimentacoes, nome_periodo, lista_alimentacoes
             )
 
-            categorias_dietas = _get_categorias_dietas(medicao)
+            categorias_dietas = get_categorias_dietas(medicao)
 
             for categoria in categorias_dietas:
                 lista_alimentacoes_dietas = _get_lista_alimentacoes_dietas(
@@ -73,26 +74,6 @@ def _get_lista_alimentacoes(medicao, nome_periodo):
         ]
 
     return lista_alimentacoes
-
-
-# def _update_periodos_alimentacoes(
-#     periodos_alimentacoes, nome_periodo, lista_alimentacoes
-# ):
-#     if nome_periodo in periodos_alimentacoes:
-#         periodos_alimentacoes[nome_periodo] += lista_alimentacoes
-#     else:
-#         periodos_alimentacoes[nome_periodo] = lista_alimentacoes
-#     return periodos_alimentacoes
-
-
-def _get_categorias_dietas(medicao):
-    return list(
-        medicao.valores_medicao.exclude(
-            categoria_medicao__nome__icontains="ALIMENTAÇÃO"
-        )
-        .values_list("categoria_medicao__nome", flat=True)
-        .distinct()
-    )
 
 
 def _get_lista_alimentacoes_dietas(medicao, categoria):
