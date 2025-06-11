@@ -106,14 +106,12 @@ def gerar_log_dietas_ativas_canceladas_automaticamente(
 def _cancelar_dieta(dieta):
     usuario_admin = Usuario.objects.get(pk=1)
     dieta.cancelar_aluno_mudou_escola(user=usuario_admin)
-    dieta.ativo = False
     dieta.save()
 
 
 def _cancelar_dieta_aluno_fora_da_rede(dieta):
     usuario_admin = Usuario.objects.get(pk=1)
     dieta.cancelar_aluno_nao_pertence_rede(user=usuario_admin)
-    dieta.ativo = False
     dieta.save()
 
 
@@ -577,12 +575,14 @@ def diff_substituicoes(substituicoes_old, substituicoes_new):  # noqa C901
 
                 sub["substitutos"] = {
                     "from": from_,
-                    "to": [
-                        {"uuid": str(s.uuid), "nome": s.nome}
-                        for s in subs_new["substitutos"]
-                    ]
-                    if subs_new["substitutos"]
-                    else None,
+                    "to": (
+                        [
+                            {"uuid": str(s.uuid), "nome": s.nome}
+                            for s in subs_new["substitutos"]
+                        ]
+                        if subs_new["substitutos"]
+                        else None
+                    ),
                 }
 
             if sub:
@@ -662,12 +662,14 @@ def diff_substituicoes(substituicoes_old, substituicoes_new):  # noqa C901
                 substitutos = [*alimentos_substitutos, *substitutos_]
 
                 sub["substitutos"] = {
-                    "from": [
-                        {"uuid": sub["uuid"], "nome": sub["nome"]}
-                        for sub in substitutos
-                    ]
-                    if substitutos
-                    else None,
+                    "from": (
+                        [
+                            {"uuid": sub["uuid"], "nome": sub["nome"]}
+                            for sub in substitutos
+                        ]
+                        if substitutos
+                        else None
+                    ),
                     "to": to_,
                 }
 
