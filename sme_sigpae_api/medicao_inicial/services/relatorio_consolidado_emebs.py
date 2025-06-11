@@ -8,7 +8,10 @@ from django.db.models.functions import Cast
 from sme_sigpae_api.dados_comuns.constants import ORDEM_CAMPOS, ORDEM_HEADERS_EMEBS
 from sme_sigpae_api.escola.models import PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
-from sme_sigpae_api.medicao_inicial.services.utils import get_nome_periodo
+from sme_sigpae_api.medicao_inicial.services.utils import (
+    get_nome_periodo,
+    get_valores_iniciais,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -259,7 +262,7 @@ def get_valores_tabela(solicitacoes, colunas):
     valores = []
     for solicitacao in get_solicitacoes_ordenadas(solicitacoes):
         valores_solicitacao_atual = []
-        valores_solicitacao_atual += _get_valores_iniciais(solicitacao)
+        valores_solicitacao_atual += get_valores_iniciais(solicitacao)
         for turma, periodo, campo in colunas:
             valores_solicitacao_atual = _processa_periodo_campo(
                 solicitacao,
@@ -281,12 +284,12 @@ def get_solicitacoes_ordenadas(solicitacoes):
     )
 
 
-def _get_valores_iniciais(solicitacao):
-    return [
-        solicitacao.escola.tipo_unidade.iniciais,
-        solicitacao.escola.codigo_eol,
-        solicitacao.escola.nome,
-    ]
+# def _get_valores_iniciais(solicitacao):
+#     return [
+#         solicitacao.escola.tipo_unidade.iniciais,
+#         solicitacao.escola.codigo_eol,
+#         solicitacao.escola.nome,
+#     ]
 
 
 def _processa_periodo_campo(

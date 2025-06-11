@@ -1,4 +1,4 @@
-from sme_sigpae_api.medicao_inicial.models import Medicao
+from sme_sigpae_api.medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
 
 
 def get_nome_periodo(medicao: Medicao) -> str:
@@ -51,3 +51,11 @@ def generate_columns(dict_periodos_dietas: dict) -> list:
         for valor in valores
     ]
     return columns
+
+
+def get_valores_iniciais(solicitacao: SolicitacaoMedicaoInicial) -> list:
+    return [
+        solicitacao.escola.tipo_unidade.iniciais,
+        solicitacao.escola.codigo_eol,
+        solicitacao.escola.nome,
+    ]

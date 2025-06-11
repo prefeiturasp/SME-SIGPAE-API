@@ -15,6 +15,7 @@ from sme_sigpae_api.medicao_inicial.services.utils import (
     generate_columns,
     get_categorias_dietas,
     get_nome_periodo,
+    get_valores_iniciais,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
 )
@@ -137,7 +138,7 @@ def get_valores_tabela(solicitacoes, colunas, tipos_de_unidade):
     valores = []
     for solicitacao in get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade):
         valores_solicitacao_atual = []
-        valores_solicitacao_atual += _get_valores_iniciais(solicitacao)
+        valores_solicitacao_atual += get_valores_iniciais(solicitacao)
         for periodo, campo in colunas:
             valores_solicitacao_atual = _processa_periodo_campo(
                 solicitacao,
@@ -163,12 +164,12 @@ def get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade):
     )
 
 
-def _get_valores_iniciais(solicitacao):
-    return [
-        solicitacao.escola.tipo_unidade.iniciais,
-        solicitacao.escola.codigo_eol,
-        solicitacao.escola.nome,
-    ]
+# def _get_valores_iniciais(solicitacao):
+#     return [
+#         solicitacao.escola.tipo_unidade.iniciais,
+#         solicitacao.escola.codigo_eol,
+#         solicitacao.escola.nome,
+#     ]
 
 
 def _processa_periodo_campo(
