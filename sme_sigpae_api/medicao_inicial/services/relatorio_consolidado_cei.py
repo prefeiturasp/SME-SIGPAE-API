@@ -11,6 +11,7 @@ from sme_sigpae_api.escola.models import FaixaEtaria, PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.services.utils import (
     get_categorias_dietas,
     get_nome_periodo,
+    update_dietas_alimentacoes,
     update_periodos_alimentacoes,
 )
 
@@ -35,7 +36,7 @@ def get_alimentacoes_por_periodo(solicitacoes):
                 lista_faixa_dietas = _get_lista_alimentacoes_dietas_por_faixa(
                     medicao, categoria
                 )
-                dietas_alimentacoes = _update_dietas_alimentacoes_por_faixa(
+                dietas_alimentacoes = update_dietas_alimentacoes(
                     dietas_alimentacoes, categoria, lista_faixa_dietas
                 )
 
@@ -73,17 +74,6 @@ def _get_lista_alimentacoes_dietas_por_faixa(medicao, categoria):
     )
 
     return dietas_por_faixa
-
-
-def _update_dietas_alimentacoes_por_faixa(
-    dietas_alimentacoes, categoria, lista_alimentacoes_dietas
-):
-    if lista_alimentacoes_dietas:
-        if categoria in dietas_alimentacoes:
-            dietas_alimentacoes[categoria] += lista_alimentacoes_dietas
-        else:
-            dietas_alimentacoes[categoria] = lista_alimentacoes_dietas
-    return dietas_alimentacoes
 
 
 def _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes):

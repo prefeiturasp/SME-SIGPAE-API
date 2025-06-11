@@ -31,3 +31,14 @@ def get_categorias_dietas(medicao: Medicao) -> list:
         .values_list("categoria_medicao__nome", flat=True)
         .distinct()
     )
+
+
+def update_dietas_alimentacoes(
+    dietas_alimentacoes: dict, categoria: str, lista_alimentacoes_dietas: list
+):
+    if lista_alimentacoes_dietas:
+        if categoria in dietas_alimentacoes:
+            dietas_alimentacoes[categoria] += lista_alimentacoes_dietas
+        else:
+            dietas_alimentacoes[categoria] = lista_alimentacoes_dietas
+    return dietas_alimentacoes

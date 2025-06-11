@@ -15,6 +15,7 @@ from sme_sigpae_api.medicao_inicial.services import (
 from sme_sigpae_api.medicao_inicial.services.utils import (
     get_categorias_dietas,
     get_nome_periodo,
+    update_dietas_alimentacoes,
     update_periodos_alimentacoes,
 )
 
@@ -39,7 +40,7 @@ def get_alimentacoes_por_periodo(solicitacoes):
                     nome_categoria = categoria + " - INFANTIL"
                 else:
                     nome_categoria = categoria + " - CEI"
-                dietas_alimentacoes = _update_dietas_alimentacoes(
+                dietas_alimentacoes = update_dietas_alimentacoes(
                     dietas_alimentacoes, nome_categoria, lista_alimentacoes_dietas
                 )
 
@@ -115,17 +116,6 @@ def _get_lista_alimentacoes_dietas(medicao, categoria):
             .values_list("nome_campo", flat=True)
             .distinct()
         )
-
-
-def _update_dietas_alimentacoes(
-    dietas_alimentacoes, categoria, lista_alimentacoes_dietas
-):
-    if lista_alimentacoes_dietas:
-        if categoria in dietas_alimentacoes:
-            dietas_alimentacoes[categoria] += lista_alimentacoes_dietas
-        else:
-            dietas_alimentacoes[categoria] = lista_alimentacoes_dietas
-    return dietas_alimentacoes
 
 
 def _unificar_dietas(dietas_alimentacoes):
