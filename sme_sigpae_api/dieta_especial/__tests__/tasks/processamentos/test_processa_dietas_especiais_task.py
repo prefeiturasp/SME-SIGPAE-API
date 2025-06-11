@@ -13,7 +13,10 @@ from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factor
     SolicitacaoDietaEspecialFactory,
 )
 from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
-from sme_sigpae_api.dieta_especial.tasks import processa_dietas_especiais_task
+from sme_sigpae_api.dieta_especial.tasks import (
+    cancela_dietas_ativas_automaticamente_task,
+    processa_dietas_especiais_task,
+)
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
     AlunoFactory,
     DiretoriaRegionalFactory,
@@ -83,6 +86,14 @@ class TestProcessaDietasEspeciaisTask:
             lote=self.lote,
             diretoria_regional=self.dre,
         )
+        self.tipo_unidade_emebs = TipoUnidadeEscolarFactory.create(iniciais="EMEBS")
+        self.escola_emebs = EscolaFactory.create(
+            nome="EMEBS HELEN KELLER",
+            tipo_gestao__nome="TERC TOTAL",
+            tipo_unidade=self.tipo_unidade_emebs,
+            lote=self.lote,
+            diretoria_regional=self.dre,
+        )
 
     def setup_dieta_em_vigencia(self):
         self.aluno_1 = AlunoFactory.create(
@@ -130,6 +141,49 @@ class TestProcessaDietasEspeciaisTask:
             usuario=self.usuario,
         )
 
+    def setup_dieta_aluno_mudou_escola(self):
+        self.aluno_3 = AlunoFactory.create(
+            codigo_eol="9999999",
+            periodo_escolar=self.periodo_integral,
+            escola=self.escola_emebs,
+        )
+        self.solicitacao_dieta_especial_aluno_mudou_escola = (
+            SolicitacaoDietaEspecialFactory.create(
+                aluno=self.aluno_3,
+                ativo=True,
+                status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+                escola_destino=self.escola_emef,
+                rastro_terceirizada=self.terceirizada,
+            )
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.solicitacao_dieta_especial_aluno_mudou_escola.uuid,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            usuario=self.usuario,
+        )
+
+    def setup_dieta_aluno_saiu_da_rede(self):
+        self.aluno_4 = AlunoFactory.create(
+            codigo_eol="1111111",
+            periodo_escolar=self.periodo_integral,
+            escola=None,
+            nao_matriculado=True,
+        )
+        self.solicitacao_dieta_especial_saiu_da_rede = (
+            SolicitacaoDietaEspecialFactory.create(
+                aluno=self.aluno_4,
+                ativo=True,
+                status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+                escola_destino=self.escola_emef,
+                rastro_terceirizada=self.terceirizada,
+            )
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.solicitacao_dieta_especial_saiu_da_rede.uuid,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            usuario=self.usuario,
+        )
+
     def test_processa_dietas_especiais_task(self):
         app.conf.update(CELERY_ALWAYS_EAGER=True)
 
@@ -156,6 +210,37 @@ class TestProcessaDietasEspeciaisTask:
         assert (
             SolicitacaoDietaEspecial.objects.filter(
                 status=SolicitacaoDietaEspecial.workflow_class.TERMINADA_AUTOMATICAMENTE_SISTEMA
+            ).count()
+            == 1
+        )
+        assert SolicitacaoDietaEspecial.objects.filter(ativo=True).count() == 2
+
+    def test_cancela_dietas_ativas_automaticamente_task(self):
+        app.conf.update(CELERY_ALWAYS_EAGER=True)
+
+        self.setup_generico()
+        self.setup_dieta_aluno_mudou_escola()
+        self.setup_dieta_aluno_saiu_da_rede()
+
+        assert SolicitacaoDietaEspecial.objects.count() == 2
+        assert (
+            SolicitacaoDietaEspecial.objects.filter(
+                status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
+            ).count()
+            == 2
+        )
+
+        cancela_dietas_ativas_automaticamente_task()
+
+        assert (
+            SolicitacaoDietaEspecial.objects.filter(
+                status=SolicitacaoDietaEspecial.workflow_class.CANCELADO_ALUNO_MUDOU_ESCOLA
+            ).count()
+            == 1
+        )
+        assert (
+            SolicitacaoDietaEspecial.objects.filter(
+                status=SolicitacaoDietaEspecial.workflow_class.CANCELADO_ALUNO_NAO_PERTENCE_REDE
             ).count()
             == 1
         )
