@@ -10,7 +10,6 @@ from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
 from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef import (
     _calcula_soma_medicao,
     _define_filtro,
-    _generate_columns,
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
     _get_total_pagamento,
@@ -356,38 +355,6 @@ def test_sort_and_merge():
         "kit_lanche",
         "lanche_emergencial",
     ]
-
-
-def test_generate_columns():
-    dict_periodos_dietas = {
-        "Solicitações de Alimentação": ["kit_lanche", "lanche_emergencial"],
-        "MANHA": [
-            "lanche",
-            "lanche_4h",
-            "refeicao",
-            "total_refeicoes_pagamento",
-            "sobremesa",
-            "total_sobremesas_pagamento",
-        ],
-        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h", "refeicao"],
-        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
-    }
-    colunas = _generate_columns(dict_periodos_dietas)
-    assert isinstance(colunas, list)
-    assert len(colunas) == 13
-    assert sum(1 for tupla in colunas if tupla[0] == "MANHA") == 6
-    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A") == 3
-    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B") == 2
-    assert sum(1 for tupla in colunas if tupla[0] == "Solicitações de Alimentação") == 2
-
-    assert sum(1 for tupla in colunas if tupla[1] == "kit_lanche") == 1
-    assert sum(1 for tupla in colunas if tupla[1] == "lanche_emergencial") == 1
-    assert sum(1 for tupla in colunas if tupla[1] == "lanche") == 3
-    assert sum(1 for tupla in colunas if tupla[1] == "lanche_4h") == 3
-    assert sum(1 for tupla in colunas if tupla[1] == "refeicao") == 2
-    assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 1
-    assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 1
-    assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 1
 
 
 def test_get_solicitacoes_ordenadas_unidade_emef(

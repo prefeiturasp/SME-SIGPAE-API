@@ -7,7 +7,6 @@ from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
 from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
     _calcula_soma_medicao,
     _define_filtro,
-    _generate_columns,
     _get_faixas_etarias,
     _get_lista_alimentacoes_dietas_por_faixa,
     _get_valores_iniciais,
@@ -170,40 +169,6 @@ def test_sort_and_merge(faixas_etarias_ativas):
     assert "DIETA ESPECIAL - TIPO B" in dict_periodos_dietas
     assert len(dict_periodos_dietas["DIETA ESPECIAL - TIPO B"]) == 8
     assert dict_periodos_dietas["DIETA ESPECIAL - TIPO B"] == faixas
-
-
-def test_generate_columns(faixas_etarias_ativas):
-    faixas = [faixa.id for faixa in faixas_etarias_ativas]
-    faixas_dietas = [
-        faixa.id for faixa in faixas_etarias_ativas if faixa.inicio not in [1, 6, 12]
-    ]
-    dict_periodos_dietas = {
-        "MANHA": faixas,
-        "INTEGRAL": faixas,
-        "PARCIAL": faixas,
-        "TARDE": faixas,
-        "DIETA ESPECIAL - TIPO A": faixas_dietas,
-        "DIETA ESPECIAL - TIPO B": faixas_dietas,
-    }
-
-    colunas = _generate_columns(dict_periodos_dietas)
-    assert isinstance(colunas, list)
-    assert len(colunas) == 42
-    assert sum(1 for tupla in colunas if tupla[0] == "INTEGRAL") == 8
-    assert sum(1 for tupla in colunas if tupla[0] == "PARCIAL") == 8
-    assert sum(1 for tupla in colunas if tupla[0] == "MANHA") == 8
-    assert sum(1 for tupla in colunas if tupla[0] == "TARDE") == 8
-    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A") == 5
-    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B") == 5
-
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[0].id) == 6
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[1].id) == 4
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[2].id) == 6
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[3].id) == 4
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[4].id) == 6
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[5].id) == 4
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[6].id) == 6
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[7].id) == 6
 
 
 def test_get_valores_tabela(relatorio_consolidado_xlsx_cei, mock_colunas_cei):

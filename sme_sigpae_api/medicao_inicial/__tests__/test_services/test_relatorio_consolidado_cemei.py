@@ -4,9 +4,6 @@ import pytest
 
 from sme_sigpae_api.escola.models import PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.models import GrupoMedicao
-from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
-    _generate_columns,
-)
 from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cemei import (
     _define_filtro,
     _get_lista_alimentacoes,
@@ -212,41 +209,6 @@ def test_sort_and_merge(faixas_etarias_ativas):
         "kit_lanche",
         "lanche_emergencial",
     ]
-
-
-def test_generate_columns(faixas_etarias_ativas):
-    faixas = [faixa.id for faixa in faixas_etarias_ativas]
-    dict_periodos_dietas = {
-        "Solicitações de Alimentação": ["kit_lanche", "lanche_emergencial"],
-        "INTEGRAL": faixas,
-        "Infantil MANHA": [
-            "lanche",
-            "lanche_4h",
-            "refeicao",
-            "total_refeicoes_pagamento",
-            "sobremesa",
-            "total_sobremesas_pagamento",
-        ],
-        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h", "refeicao"],
-        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
-    }
-    colunas = _generate_columns(dict_periodos_dietas)
-    assert isinstance(colunas, list)
-    assert len(colunas) == 21
-    assert sum(1 for tupla in colunas if tupla[0] == "INTEGRAL") == 8
-    assert sum(1 for tupla in colunas if tupla[0] == "Infantil MANHA") == 6
-    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A") == 3
-    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B") == 2
-    assert sum(1 for tupla in colunas if tupla[0] == "Solicitações de Alimentação") == 2
-
-    assert sum(1 for tupla in colunas if tupla[1] == "kit_lanche") == 1
-    assert sum(1 for tupla in colunas if tupla[1] == "lanche_emergencial") == 1
-    assert sum(1 for tupla in colunas if tupla[1] == "lanche") == 3
-    assert sum(1 for tupla in colunas if tupla[1] == "lanche_4h") == 3
-    assert sum(1 for tupla in colunas if tupla[1] == "refeicao") == 2
-    assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 1
-    assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 1
-    assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 1
 
 
 def test_get_valores_tabela(relatorio_consolidado_xlsx_cemei, mock_colunas_cemei):
