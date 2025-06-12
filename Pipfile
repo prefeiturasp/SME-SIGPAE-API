@@ -10,7 +10,7 @@ Sphinx="==8.2.3"  # https://github.com/sphinx-doc/sphinx
 # Testing
 # ------------------------------------------------------------------------------
 mypy="==1.16.0"  # https://github.com/python/mypy
-pytest="==8.4.0"  # https://github.com/pytest-dev/pytest
+pytest="==8.3.5"  # https://github.com/pytest-dev/pytest
 freezegun="==1.5.1"    # https://pypi.org/project/freezegun/
 pytest-watch="==4.2.0"  # https://github.com/joeyespo/pytest-watch
 model_mommy="==1.6.0"   # https://github.com/berinhard/model_mommy/
