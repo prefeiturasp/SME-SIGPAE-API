@@ -1,5 +1,6 @@
 import calendar
 import datetime
+import unicodedata
 
 from django.db.models import Q
 from workalendar.america import BrazilSaoPauloCity
@@ -2247,11 +2248,13 @@ def append_lanches_nomes_campos(nomes_campos, tipos_alimentacao):
     return nomes_campos
 
 
-def get_tipos_alimentacao(inclusoes):
+def get_tipos_alimentacao(inclusoes, dia_semana):
     nomes_campos = ["frequencia"]
     tipos_alimentacao = []
     for inclusao in inclusoes:
-        for qp in inclusao.quantidades_periodo.all():
+        for qp in inclusao.quantidades_periodo.filter(
+            dias_semana__icontains=dia_semana
+        ):
             tipos_alimentacao += qp.tipos_alimentacao.all().values_list(
                 "nome", flat=True
             )
@@ -2260,8 +2263,8 @@ def get_tipos_alimentacao(inclusoes):
     return tipos_alimentacao, nomes_campos
 
 
-def build_nomes_campos_alimentacoes_programas_e_projetos(inclusoes):
-    tipos_alimentacao, nomes_campos = get_tipos_alimentacao(inclusoes)
+def build_nomes_campos_alimentacoes_programas_e_projetos(inclusoes, dia_semana):
+    tipos_alimentacao, nomes_campos = get_tipos_alimentacao(inclusoes, dia_semana)
     if "Refeição" in tipos_alimentacao:
         nomes_campos.append("refeicao")
         nomes_campos.append("repeticao_refeicao")
@@ -2327,7 +2330,7 @@ def valida_alimentacoes_solicitacoes_continuas(
                 quantidades_por_periodo__dias_semana__icontains=dia_semana,
             )
         nomes_campos = build_nomes_campos_alimentacoes_programas_e_projetos(
-            inclusoes_filtradas
+            inclusoes_filtradas, dia_semana
         )
         if (
             periodo_com_erro
@@ -2377,7 +2380,6 @@ def valida_alimentacoes_solicitacoes_continuas_emei_cemei(
 ):
     periodo_com_erro = False
     categoria = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
-    nomes_campos = build_nomes_campos_alimentacoes_programas_e_projetos(inclusoes)
 
     for dia in range(1, quantidade_dias_mes + 1):
         feriados = calendario.holidays(int(ano))
@@ -2399,6 +2401,9 @@ def valida_alimentacoes_solicitacoes_continuas_emei_cemei(
             )
         ):
             continue
+        nomes_campos = build_nomes_campos_alimentacoes_programas_e_projetos(
+            inclusoes, dia_semana
+        )
         for nome_campo in nomes_campos:
             if not medicao_programas_projetos.valores_medicao.filter(
                 categoria_medicao=categoria,
@@ -2412,23 +2417,24 @@ def valida_alimentacoes_solicitacoes_continuas_emei_cemei(
 
 def get_nomes_campos_categoria(nomes_campos, classificacao, categorias):
     if "ENTERAL" in classificacao.nome or "AMINOÁCIDOS" in classificacao.nome:
-        nomes_campos.append("refeicao")
         categoria = categorias.get(nome__icontains="enteral")
+        if "refeicao" not in nomes_campos:
+            nomes_campos.append("refeicao")
     else:
         categoria = categorias.exclude(nome__icontains="enteral").get(
             nome__icontains=classificacao.nome
         )
-        try:
+        if "refeicao" in nomes_campos:
             nomes_campos.remove("refeicao")
-        except ValueError:
-            pass
     return nomes_campos, categoria
 
 
-def inclusoes_tem_lanche_4h(inclusoes_filtradas):
+def inclusoes_tem_lanche_4h(inclusoes_filtradas, dia_semana):
     tipos_alimentacao = []
     for inclusao in inclusoes_filtradas:
-        for qp in inclusao.quantidades_por_periodo.all():
+        for qp in inclusao.quantidades_por_periodo.filter(
+            dias_semana__icontains=dia_semana
+        ):
             [
                 tipos_alimentacao.append(tipo_alimentacao.nome)
                 for tipo_alimentacao in qp.tipos_alimentacao.all()
@@ -2444,11 +2450,34 @@ def tratar_nomes_campos_periodo_com_erro(
     eh_ceu_gestao,
     periodo_com_erro_dieta,
     inclusoes_filtradas,
+    dia_semana,
     infantil_ou_fundamental=ValorMedicao.NA,
 ):
-    for nome_campo in nomes_campos:
+    tipos_alimentacao_inclusoes = list(
+        set(
+            inclusoes_filtradas.values_list(
+                "quantidades_por_periodo__tipos_alimentacao__nome", flat=True
+            )
+        )
+    )
+    tipos_alimentacao_inclusoes_normalizados = [
+        unicodedata.normalize("NFD", nome.replace(" ", "_").lower())
+        .encode("ascii", "ignore")
+        .decode("utf-8")
+        for nome in tipos_alimentacao_inclusoes
+    ]
+    if not any(
+        item in tipos_alimentacao_inclusoes_normalizados for item in nomes_campos
+    ):
+        return periodo_com_erro_dieta
+    nomes_campos_ = ["frequencia"] + [
+        item
+        for item in tipos_alimentacao_inclusoes_normalizados
+        if item in nomes_campos
+    ]
+    for nome_campo in nomes_campos_:
         if (
-            not inclusoes_tem_lanche_4h(inclusoes_filtradas)
+            not inclusoes_tem_lanche_4h(inclusoes_filtradas, dia_semana)
             and nome_campo == "lanche_4h"
         ):
             continue
@@ -2559,6 +2588,7 @@ def valida_dietas_solicitacoes_continuas(
                 eh_ceu_gestao,
                 periodo_com_erro_dieta,
                 inclusoes_filtradas,
+                dia_semana,
                 infantil_ou_fundamental,
             )
     return periodo_com_erro_dieta
@@ -2634,6 +2664,7 @@ def valida_dietas_solicitacoes_continuas_emei_cemei(
                 eh_ceu_gestao,
                 periodo_com_erro_dieta,
                 inclusoes_filtradas,
+                dia_semana,
             )
     return periodo_com_erro_dieta
 
@@ -2675,6 +2706,7 @@ def validate_solicitacoes_continuas(
                 False,
                 ValorMedicao.NA,
             )
+
         else:
             periodo_com_erro_dieta = valida_dietas_solicitacoes_continuas(
                 solicitacao.escola,
