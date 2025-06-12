@@ -4702,38 +4702,6 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
             ),
         )
 
-    def _envia_email_notificacao_ciencia_fornecedor(self, user):
-        numero_cronograma = self.cronograma.numero
-        url_solicitacao_alteracao = (
-            f"{base_url}/pre-recebimento/detalhe-alteracao-cronograma?uuid={self.uuid}"
-        )
-        log_transicao = self.log_mais_recente
-
-        html = render_to_string(
-            template_name="pre_recebimento_notificacao_alteracao_cronograma_codae_ciencia_fornecedor.html",
-            context={
-                "titulo": f"Solicitação de Alteração do Cronograma {numero_cronograma}",
-                "numero_cronograma": numero_cronograma,
-                "url_solicitacao_alteracao": url_solicitacao_alteracao,
-                "fornecedor": user.nome,
-                "log_transicao": log_transicao,
-            },
-        )
-
-        envia_email_em_massa_task.delay(
-            assunto=f"[SIGPAE] Ciência da Alteração do Cronograma {numero_cronograma}",
-            corpo="",
-            html=html,
-            emails=PartesInteressadasService.usuarios_por_perfis(
-                nomes_perfis=[
-                    "DILOG_CRONOGRAMA",
-                    "DILOG_ABASTECIMENTO",
-                    "DILOG_DIRETORIA",
-                ],
-                somente_email=True,
-            ),
-        )
-
     @xworkflows.after_transition("inicia_fluxo")
     def _inicia_fluxo_hook(self, *args, **kwargs):
         user = kwargs["user"]
@@ -4861,7 +4829,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
             EmailENotificacaoService.enviar_email(
                 titulo=f"Ciência da Alteração do Cronograma Nº {numero_cronograma} pelo Fornecedor",
                 assunto=f"[SIGPAE] Ciência da Alteração do Cronograma Nº {numero_cronograma}",
-                template="pre_recebimento_notificacao_alteracao_cronograma_codae_ciencia_fornecedor.html",
+                template="pre_recebimento_email_alteracao_cronograma_codae_ciencia_fornecedor.html",
                 contexto_template=contexto,
                 destinatarios=emails_destinatarios,
             )
