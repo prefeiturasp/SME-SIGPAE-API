@@ -23,6 +23,5 @@ class LogSolicitacoesUsuarioFactory(DjangoModelFactory):
 
 
 class ContatoFactory(DjangoModelFactory):
-
     class Meta:
         model = Contato

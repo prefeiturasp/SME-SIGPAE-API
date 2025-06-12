@@ -4800,11 +4800,13 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 "log_transicao": log_transicao,
             }
 
-            usuarios_notificacao = PartesInteressadasService.usuarios_por_perfis([
-                constants.DILOG_CRONOGRAMA,
-                constants.DILOG_ABASTECIMENTO,
-                constants.DILOG_DIRETORIA,
-            ])
+            usuarios_notificacao = PartesInteressadasService.usuarios_por_perfis(
+                [
+                    constants.DILOG_CRONOGRAMA,
+                    constants.DILOG_ABASTECIMENTO,
+                    constants.DILOG_DIRETORIA,
+                ]
+            )
 
             emails_destinatarios = PartesInteressadasService.usuarios_por_perfis(
                 nomes_perfis=[
