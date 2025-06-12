@@ -40,10 +40,10 @@ def test_etapas_do_cronograma_instance_model(etapa):
 def test_etapas_do_cronograma_srt_model(etapa):
     assert (
         etapa.__str__()
-        == f"{etapa.etapa} - {etapa.parte} - Cronograma {etapa.cronograma.numero}"
+        == f"Etapa {etapa.etapa} - {etapa.parte} - Cronograma {etapa.cronograma.numero}"
     )
 
-    etapa.etapa = ""
+    etapa.etapa = None
     etapa.save()
     assert str(etapa) == f"Etapa do Cronograma {etapa.cronograma.numero}"
 

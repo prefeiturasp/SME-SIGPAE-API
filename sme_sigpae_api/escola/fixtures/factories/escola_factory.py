@@ -4,6 +4,9 @@ from factory import LazyAttribute, Sequence, SubFactory
 from factory.django import DjangoModelFactory
 from faker import Faker
 
+from sme_sigpae_api.dados_comuns.fixtures.factories.dados_comuns_factories import (
+    ContatoFactory,
+)
 from sme_sigpae_api.escola.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
 from sme_sigpae_api.escola.models import (
     Aluno,
@@ -60,6 +63,7 @@ class EscolaFactory(DjangoModelFactory):
     diretoria_regional = SubFactory(DiretoriaRegionalFactory)
     tipo_unidade = SubFactory(TipoUnidadeEscolarFactory)
     tipo_gestao = SubFactory(TipoGestaoFactory)
+    contato = SubFactory(ContatoFactory)
 
     class Meta:
         model = Escola

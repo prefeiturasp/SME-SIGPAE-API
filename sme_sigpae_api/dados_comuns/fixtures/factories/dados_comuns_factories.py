@@ -2,7 +2,7 @@ from factory import Sequence, SubFactory
 from factory.django import DjangoModelFactory
 from faker import Faker
 
-from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
+from sme_sigpae_api.dados_comuns.models import Contato, LogSolicitacoesUsuario
 from sme_sigpae_api.perfil.fixtures.factories.perfil_base_factories import (
     UsuarioFactory,
 )
@@ -20,3 +20,9 @@ class LogSolicitacoesUsuarioFactory(DjangoModelFactory):
 
     class Meta:
         model = LogSolicitacoesUsuario
+
+
+class ContatoFactory(DjangoModelFactory):
+
+    class Meta:
+        model = Contato
