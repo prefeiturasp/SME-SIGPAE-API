@@ -1,14 +1,20 @@
 from datetime import date
 
+from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django_weasyprint.utils import django_url_fetcher
 from weasyprint import HTML
 
 from ..utils import (
+    PDFMergeService,
     extrair_texto_de_pdf,
     get_config_cabecario_relatorio_analise,
+    html_to_pdf_cancelada,
+    html_to_pdf_email_anexo,
     html_to_pdf_file,
+    html_to_pdf_multiple,
     html_to_pdf_response,
+    merge_pdf_com_string_template,
 )
 
 
@@ -110,3 +116,121 @@ def test_html_to_pdf_file_async_false():
     assert "Teste de PDF" in texto
     assert "Conteúdo do PDF gerado" in texto
     assert texto.count("PDF") == 2
+
+
+def test_html_to_pdf_cancelada():
+    html_string = "<h1>PDF Cancelado</h1><p>Conteúdo para testar marca d'água</p>"
+    nome_pdf = "cancelado.pdf"
+
+    pdf = html_to_pdf_cancelada(html_string, nome_pdf, is_async=True)
+    assert isinstance(pdf, bytes)
+
+    texto = extrair_texto_de_pdf(pdf)
+    assert "PDF Cancelado" in texto
+    assert "Conteúdo para testar marca d'água" in texto
+
+
+def test_html_to_pdf_cancelada_async_false():
+    html_string = "<h1>PDF Cancelado</h1><p>Conteúdo para testar marca d'água</p>"
+    nome_pdf = "cancelado.pdf"
+
+    response = html_to_pdf_cancelada(html_string, nome_pdf, is_async=False)
+
+    assert response.status_code == 200
+    assert response.headers["Content-Type"] == "application/pdf"
+    assert response.headers["Content-Disposition"] == f'filename="{nome_pdf}"'
+
+    texto = extrair_texto_de_pdf(response.content)
+    assert "PDF Cancelado" in texto
+    assert "Conteúdo para testar marca d'água" in texto
+
+
+def test_html_to_pdf_multiple_async_true():
+    lista_strings = [
+        "<h1>Página 1</h1><p>Conteúdo da primeira página</p>",
+        "<h1>Página 2</h1><p>Conteúdo da segunda página</p>",
+    ]
+    nome_pdf = "multiplo.pdf"
+
+    pdf_bytes = html_to_pdf_multiple(lista_strings, nome_pdf, is_async=True)
+    assert isinstance(pdf_bytes, bytes)
+
+    texto = extrair_texto_de_pdf(pdf_bytes)
+    assert "Página 1" in texto
+    assert "Conteúdo da primeira página" in texto
+    assert "Página 2" in texto
+    assert "Conteúdo da segunda página" in texto
+
+
+def test_html_to_pdf_multiple_async_false():
+    lista_strings = [
+        "<h1>Página 1</h1><p>Conteúdo da primeira página</p>",
+        "<h1>Página 2</h1><p>Conteúdo da segunda página</p>",
+    ]
+    nome_pdf = "multiplo.pdf"
+
+    response = html_to_pdf_multiple(lista_strings, nome_pdf, is_async=False)
+
+    assert response.status_code == 200
+    assert response.headers["Content-Type"] == "application/pdf"
+    assert response.headers["Content-Disposition"] == f'filename="{nome_pdf}"'
+
+    texto = extrair_texto_de_pdf(response.content)
+    assert "Página 1" in texto
+    assert "Conteúdo da primeira página" in texto
+    assert "Página 2" in texto
+    assert "Conteúdo da segunda página" in texto
+
+
+def test_html_to_pdf_email_anexo():
+    html_string = (
+        "<h1>Dieta Cancelada</h1><p>A dieta foi cancelada automaticamente.</p>"
+    )
+    nome_pdf = "cancelamento.pdf"
+
+    pdf_bytes = html_to_pdf_email_anexo(html_string, pdf_filename=nome_pdf)
+    assert isinstance(pdf_bytes, bytes)
+
+    texto = extrair_texto_de_pdf(pdf_bytes)
+    assert "Dieta Cancelada" in texto
+    assert "A dieta foi cancelada automaticamente." in texto
+
+
+def test_merge_pdf_com_string_template_todas_paginas(gerar_pdf_simples):
+    html_template = "<div><p>Assinatura: NUTRICIONISTA</p></div>"
+    resultado = merge_pdf_com_string_template(
+        gerar_pdf_simples, html_template, somente_ultima_pagina=False
+    )
+    assert isinstance(resultado, ContentFile)
+
+    texto = extrair_texto_de_pdf(resultado.read())
+    assert "Dieta especial autorizada para o aluno Fulano1 - Página 1" in texto
+    assert "Dieta especial autorizada para o aluno Fulano2 - Página 2" in texto
+    assert texto.count("Assinatura: NUTRICIONISTA") == 2
+
+
+def test_merge_pdf_com_string_template_todas_paginas(gerar_pdf_simples):
+    html_template = "<div><p>Assinatura: NUTRICIONISTA</p></div>"
+    resultado = merge_pdf_com_string_template(
+        gerar_pdf_simples, html_template, somente_ultima_pagina=True
+    )
+    assert isinstance(resultado, ContentFile)
+
+    texto = extrair_texto_de_pdf(resultado.read())
+    assert "Dieta especial autorizada para o aluno Fulano1 - Página 1" in texto
+    assert "Dieta especial autorizada para o aluno Fulano2 - Página 2" in texto
+    assert texto.count("Assinatura: NUTRICIONISTA") == 1
+
+
+def test_pdf_merge_service_mescla_dois_pdfs():
+    service = PDFMergeService()
+    pdf_1 = HTML(string=f"<h1>Primeiro PDF</h1>").write_pdf()
+    service.append_pdf(pdf_1)
+    pdf_2 = HTML(string=f"<h1>Segundo PDF</h1>").write_pdf()
+    service.append_pdf(pdf_2)
+
+    pdf_final = service.merge_pdfs()
+    assert isinstance(pdf_final, bytes)
+    texto = extrair_texto_de_pdf(pdf_final)
+    assert "Primeiro PDF" in texto
+    assert "Segundo PDF" in texto
