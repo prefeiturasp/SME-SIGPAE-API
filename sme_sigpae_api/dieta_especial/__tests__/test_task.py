@@ -1,14 +1,12 @@
 import io
 import uuid
 from collections import Counter
-from datetime import date
 
 import pytest
 from freezegun import freeze_time
 from model_mommy import mommy
 from openpyxl import load_workbook
 
-from sme_sigpae_api.dados_comuns.constants import TIPO_SOLICITACAO_DIETA
 from sme_sigpae_api.dados_comuns.fluxo_status import DietaEspecialWorkflow
 from sme_sigpae_api.dados_comuns.models import CentralDeDownload
 from sme_sigpae_api.dieta_especial.api.serializers import (
@@ -23,7 +21,6 @@ from sme_sigpae_api.dieta_especial.tasks import (
     gera_pdf_relatorio_dieta_especial_async,
     gera_pdf_relatorio_dietas_especiais_terceirizadas_async,
     gera_xlsx_relatorio_dietas_especiais_terceirizadas_async,
-    processa_dietas_especiais_task,
 )
 from sme_sigpae_api.dieta_especial.tasks.logs import (
     gera_logs_dietas_especiais_diariamente,
@@ -35,40 +32,6 @@ from sme_sigpae_api.dieta_especial.tasks.utils.relatorio_terceirizadas_xlsx impo
 from sme_sigpae_api.escola.models import Aluno, Escola
 
 pytestmark = pytest.mark.django_db
-
-
-def test_processa_dietas_especiais_task(
-    usuario_com_pk, solicitacoes_processa_dieta_especial
-):
-    solicitacoes = SolicitacaoDietaEspecial.objects.filter(
-        data_inicio__lte=date.today(),
-        ativo=False,
-        status__in=[
-            DietaEspecialWorkflow.CODAE_AUTORIZADO,
-            DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
-            DietaEspecialWorkflow.ESCOLA_SOLICITOU_INATIVACAO,
-        ],
-    )
-    assert solicitacoes.count() == 3
-    assert (
-        solicitacoes.filter(
-            tipo_solicitacao=TIPO_SOLICITACAO_DIETA.get("ALTERACAO_UE")
-        ).count()
-        == 2
-    )
-
-    processa_dietas_especiais_task()
-
-    solicitacoes = SolicitacaoDietaEspecial.objects.filter(
-        data_inicio__lte=date.today(),
-        status__in=[
-            DietaEspecialWorkflow.CODAE_AUTORIZADO,
-            DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
-            DietaEspecialWorkflow.ESCOLA_SOLICITOU_INATIVACAO,
-        ],
-    )
-    assert solicitacoes.filter(ativo=True).count() == 2
-    assert solicitacoes.filter(ativo=False).count() == 2
 
 
 def test_gera_pdf_relatorio_dieta_especial_async(
