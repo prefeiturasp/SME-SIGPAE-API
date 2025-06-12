@@ -109,7 +109,7 @@ pytestmark = pytest.mark.django_db(transaction=True)
 def test_criar_perfis():
     assert Perfil.objects.count() == 0
     cria_perfis()
-    assert Perfil.objects.count() == 27
+    assert Perfil.objects.count() == 28
 
 
 def test_cria_usuarios():

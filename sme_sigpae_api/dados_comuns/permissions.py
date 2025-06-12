@@ -28,6 +28,7 @@ from .constants import (
     DILOG_CRONOGRAMA,
     DILOG_DIRETORIA,
     DILOG_QUALIDADE,
+    DILOG_VISUALIZACAO,
     DINUTRE_DIRETORIA,
     DIRETA,
     DIRETOR_UE,
@@ -772,6 +773,7 @@ class PermissaoParaVisualizarCronograma(BasePermission):
                         USUARIO_RELATORIOS,
                         USUARIO_GTIC_CODAE,
                         DILOG_ABASTECIMENTO,
+                        DILOG_VISUALIZACAO,
                     ]
                 )
                 or usuario.eh_fornecedor
@@ -797,6 +799,7 @@ class PermissaoParaVisualizarRelatorioCronograma(BasePermission):
                         ADMINISTRADOR_CODAE_GABINETE,
                         USUARIO_GTIC_CODAE,
                         DILOG_ABASTECIMENTO,
+                        DILOG_VISUALIZACAO,
                     ]
                 )
                 or usuario.eh_fornecedor
@@ -918,6 +921,7 @@ class PermissaoParaVisualizarCalendarioCronograma(BasePermission):
         DILOG_DIRETORIA,
         ADMINISTRADOR_CODAE_GABINETE,
         DILOG_ABASTECIMENTO,
+        DILOG_VISUALIZACAO,
     ]
 
     def has_permission(self, request, view):
@@ -1068,6 +1072,7 @@ class PermissaoParaVisualizarSolicitacoesAlteracaoCronograma(BasePermission):
         DILOG_CRONOGRAMA,
         ADMINISTRADOR_CODAE_GABINETE,
         DILOG_ABASTECIMENTO,
+        DILOG_VISUALIZACAO,
     ]
 
     def has_permission(self, request, view):
