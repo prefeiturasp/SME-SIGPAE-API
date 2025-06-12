@@ -1,23 +1,16 @@
 import openpyxl
 import pandas as pd
 import pytest
-from django.core.exceptions import MultipleObjectsReturned
 
 from sme_sigpae_api.escola.models import PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
 from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
     _calcula_soma_medicao,
     _define_filtro,
-    _generate_columns,
-    _get_categorias_dietas,
     _get_faixas_etarias,
     _get_lista_alimentacoes_dietas_por_faixa,
-    _get_nome_periodo,
-    _get_valores_iniciais,
     _processa_periodo_campo,
     _sort_and_merge,
-    _update_dietas_alimentacoes_por_faixa,
-    _update_periodos_alimentacoes,
     ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_solicitacoes_ordenadas,
@@ -53,29 +46,6 @@ def test_get_alimentacoes_por_periodo(
     assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[7].id) == 2
 
 
-def test_get_nome_periodo(relatorio_consolidado_xlsx_cei):
-    medicoes = relatorio_consolidado_xlsx_cei.medicoes.all().order_by(
-        "periodo_escolar__nome"
-    )
-    assert medicoes.count() == 4
-
-    integral = _get_nome_periodo(medicoes[0])
-    assert isinstance(integral, str)
-    assert integral == "INTEGRAL"
-
-    manha = _get_nome_periodo(medicoes[1])
-    assert isinstance(manha, str)
-    assert manha == "MANHA"
-
-    parcial = _get_nome_periodo(medicoes[2])
-    assert isinstance(parcial, str)
-    assert parcial == "PARCIAL"
-
-    tarde = _get_nome_periodo(medicoes[3])
-    assert isinstance(tarde, str)
-    assert tarde == "TARDE"
-
-
 def test_get_faixas_etarias(relatorio_consolidado_xlsx_cei, faixas_etarias_ativas):
     faixas = [faixa.id for faixa in faixas_etarias_ativas]
     medicoes = relatorio_consolidado_xlsx_cei.medicoes.all().order_by(
@@ -102,65 +72,6 @@ def test_get_faixas_etarias(relatorio_consolidado_xlsx_cei, faixas_etarias_ativa
     assert isinstance(faixa_tarde, list)
     assert len(faixa_tarde) == 2
     assert faixa_tarde == [faixas_etarias_ativas[3].id, faixas_etarias_ativas[6].id]
-
-
-def test_update_periodos_alimentacoes(faixas_etarias_ativas):
-    lista_faixas = [faixa.id for faixa in faixas_etarias_ativas]
-
-    periodos_alimentacoes = _update_periodos_alimentacoes({}, "MANHA", lista_faixas)
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "MANHA" in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes["MANHA"] == lista_faixas
-
-    periodos_alimentacoes = _update_periodos_alimentacoes(
-        periodos_alimentacoes, "INTEGRAL", lista_faixas
-    )
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "INTEGRAL" in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes["INTEGRAL"] == lista_faixas
-
-    periodos_alimentacoes = _update_periodos_alimentacoes(
-        periodos_alimentacoes, "PARCIAL", lista_faixas
-    )
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "PARCIAL" in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes["PARCIAL"] == lista_faixas
-
-    periodos_alimentacoes = _update_periodos_alimentacoes(
-        periodos_alimentacoes, "TARDE", lista_faixas
-    )
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "TARDE" in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes["TARDE"] == lista_faixas
-
-    assert set(["MANHA", "INTEGRAL", "PARCIAL", "TARDE"]).issubset(
-        periodos_alimentacoes.keys()
-    )
-
-
-def test_get_categorias_dietas(relatorio_consolidado_xlsx_cei):
-    medicoes = relatorio_consolidado_xlsx_cei.medicoes.all().order_by(
-        "periodo_escolar__nome"
-    )
-    assert medicoes.count() == 4
-
-    categoria_integral = _get_categorias_dietas(medicoes[0])
-    assert isinstance(categoria_integral, list)
-    assert len(categoria_integral) == 0
-
-    categoria_manha = _get_categorias_dietas(medicoes[1])
-    assert isinstance(categoria_manha, list)
-    assert len(categoria_manha) == 1
-    assert categoria_manha == ["DIETA ESPECIAL - TIPO A"]
-
-    categoria_parcial = _get_categorias_dietas(medicoes[2])
-    assert isinstance(categoria_parcial, list)
-    assert len(categoria_parcial) == 0
-
-    categoria_tarde = _get_categorias_dietas(medicoes[3])
-    assert isinstance(categoria_tarde, list)
-    assert len(categoria_tarde) == 1
-    assert categoria_tarde == ["DIETA ESPECIAL - TIPO B"]
 
 
 def test_get_lista_alimentacoes_dietas_por_faixa_dieta_a(
@@ -219,28 +130,6 @@ def test_get_lista_alimentacoes_dietas_por_faixa_dieta_b(
     assert lista_dietas_tarde == [faixas_etarias_ativas[3].id]
 
 
-def test_update_dietas_alimentacoes_por_faixa(faixas_etarias_ativas):
-    lista_faixa_dietas = [faixa.id for faixa in faixas_etarias_ativas]
-    categoria_a = "DIETA ESPECIAL - TIPO A"
-    categoria_b = "DIETA ESPECIAL - TIPO B"
-
-    dietas_alimentacoes = _update_dietas_alimentacoes_por_faixa(
-        {}, categoria_a, lista_faixa_dietas
-    )
-    assert isinstance(dietas_alimentacoes, dict)
-    assert categoria_a in dietas_alimentacoes.keys()
-    assert dietas_alimentacoes[categoria_a] == lista_faixa_dietas
-
-    dietas_alimentacoes = _update_dietas_alimentacoes_por_faixa(
-        dietas_alimentacoes, categoria_b, lista_faixa_dietas
-    )
-    assert isinstance(dietas_alimentacoes, dict)
-    assert categoria_b in dietas_alimentacoes.keys()
-    assert dietas_alimentacoes[categoria_b] == lista_faixa_dietas
-
-    assert set([categoria_a, categoria_b]).issubset(dietas_alimentacoes.keys())
-
-
 def test_sort_and_merge(faixas_etarias_ativas):
     faixas = [faixa.id for faixa in faixas_etarias_ativas]
     periodos_alimentacoes = {
@@ -279,40 +168,6 @@ def test_sort_and_merge(faixas_etarias_ativas):
     assert "DIETA ESPECIAL - TIPO B" in dict_periodos_dietas
     assert len(dict_periodos_dietas["DIETA ESPECIAL - TIPO B"]) == 8
     assert dict_periodos_dietas["DIETA ESPECIAL - TIPO B"] == faixas
-
-
-def test_generate_columns(faixas_etarias_ativas):
-    faixas = [faixa.id for faixa in faixas_etarias_ativas]
-    faixas_dietas = [
-        faixa.id for faixa in faixas_etarias_ativas if faixa.inicio not in [1, 6, 12]
-    ]
-    dict_periodos_dietas = {
-        "MANHA": faixas,
-        "INTEGRAL": faixas,
-        "PARCIAL": faixas,
-        "TARDE": faixas,
-        "DIETA ESPECIAL - TIPO A": faixas_dietas,
-        "DIETA ESPECIAL - TIPO B": faixas_dietas,
-    }
-
-    colunas = _generate_columns(dict_periodos_dietas)
-    assert isinstance(colunas, list)
-    assert len(colunas) == 42
-    assert sum(1 for tupla in colunas if tupla[0] == "INTEGRAL") == 8
-    assert sum(1 for tupla in colunas if tupla[0] == "PARCIAL") == 8
-    assert sum(1 for tupla in colunas if tupla[0] == "MANHA") == 8
-    assert sum(1 for tupla in colunas if tupla[0] == "TARDE") == 8
-    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A") == 5
-    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B") == 5
-
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[0].id) == 6
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[1].id) == 4
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[2].id) == 6
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[3].id) == 4
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[4].id) == 6
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[5].id) == 4
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[6].id) == 6
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[7].id) == 6
 
 
 def test_get_valores_tabela(relatorio_consolidado_xlsx_cei, mock_colunas_cei):
@@ -369,17 +224,6 @@ def test_get_solicitacoes_ordenadas(
         == solicitacao_relatorio_consolidado_grupo_cei.escola.nome
     )
     assert ordenados[1].escola.nome == solicitacao_escola_cci.escola.nome
-
-
-def test_get_valores_iniciais(relatorio_consolidado_xlsx_cei):
-    valores = _get_valores_iniciais(relatorio_consolidado_xlsx_cei)
-    assert isinstance(valores, list)
-    assert len(valores) == 3
-    assert valores == [
-        relatorio_consolidado_xlsx_cei.escola.tipo_unidade.iniciais,
-        relatorio_consolidado_xlsx_cei.escola.codigo_eol,
-        relatorio_consolidado_xlsx_cei.escola.nome,
-    ]
 
 
 def test_processa_periodo_campo(relatorio_consolidado_xlsx_cei, faixas_etarias_ativas):

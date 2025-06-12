@@ -24,8 +24,17 @@ from sme_sigpae_api.medicao_inicial.models import (
     PermissaoLancamentoEspecial,
     SolicitacaoMedicaoInicial,
 )
-from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_excel import (
-    _insere_tabela_periodos_na_planilha,
+from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
+    insere_tabela_periodos_na_planilha as cei_insere_tabela,
+)
+from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cemei import (
+    insere_tabela_periodos_na_planilha as cemei_insere_tabela,
+)
+from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emebs import (
+    insere_tabela_periodos_na_planilha as emebs_insere_tabela,
+)
+from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef import (
+    insere_tabela_periodos_na_planilha as emei_emef_insere_tabela,
 )
 
 
@@ -3224,9 +3233,7 @@ def informacoes_excel_writer_emef(
     workbook = writer.book
     worksheet = workbook.add_worksheet(aba)
     worksheet.set_default_row(20)
-    df = _insere_tabela_periodos_na_planilha(
-        ["EMEF"], aba, mock_colunas, mock_linhas_emef, writer
-    )
+    df = emei_emef_insere_tabela(aba, mock_colunas, mock_linhas_emef, writer)
     try:
         yield aba, writer, workbook, worksheet, df, arquivo
     finally:
@@ -3244,9 +3251,7 @@ def informacoes_excel_writer_emei(
     workbook = writer.book
     worksheet = workbook.add_worksheet(aba)
     worksheet.set_default_row(20)
-    df = _insere_tabela_periodos_na_planilha(
-        ["EMEI"], aba, mock_colunas, mock_linhas_emei, writer
-    )
+    df = emei_emef_insere_tabela(aba, mock_colunas, mock_linhas_emei, writer)
     try:
         yield aba, writer, workbook, worksheet, df, arquivo
     finally:
@@ -3498,9 +3503,7 @@ def informacoes_excel_writer_cei(
     workbook = writer.book
     worksheet = workbook.add_worksheet(aba)
     worksheet.set_default_row(20)
-    df = _insere_tabela_periodos_na_planilha(
-        ["CEI"], aba, mock_colunas_cei, mock_linhas_cei, writer
-    )
+    df = cei_insere_tabela(aba, mock_colunas_cei, mock_linhas_cei, writer)
     try:
         yield aba, writer, workbook, worksheet, df, arquivo
     finally:
@@ -3778,9 +3781,385 @@ def informacoes_excel_writer_cemei(
     workbook = writer.book
     worksheet = workbook.add_worksheet(aba)
     worksheet.set_default_row(20)
-    df = _insere_tabela_periodos_na_planilha(
-        ["CEMEI"], aba, mock_colunas_cemei, mock_linhas_cemei, writer
+    df = cemei_insere_tabela(aba, mock_colunas_cemei, mock_linhas_cemei, writer)
+    try:
+        yield aba, writer, workbook, worksheet, df, arquivo
+    finally:
+        workbook.close()
+        writer.close()
+
+
+@pytest.fixture
+def solicitacao_escola_emebs():
+    return mommy.make(
+        "SolicitacaoMedicaoInicial",
+        escola=mommy.make("Escola", nome="EMEBS PRIMEIRA"),
+        mes="04",
+        ano="2025",
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
     )
+
+
+@pytest.fixture
+def solicitacao_relatorio_consolidado_grupo_emebs(escola_emebs):
+    return mommy.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola_emebs,
+        mes="04",
+        ano="2025",
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+    )
+
+
+@pytest.fixture
+def relatorio_consolidado_xlsx_emebs(
+    solicitacao_relatorio_consolidado_grupo_emebs,
+    periodo_escolar_manha,
+    periodo_escolar_tarde,
+    periodo_escolar_integral,
+    periodo_escolar_noite,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+    categoria_medicao_dieta_b,
+    grupo_solicitacoes_alimentacao,
+    categoria_medicao_solicitacoes_alimentacao,
+    grupo_programas_e_projetos,
+):
+    medicao_manha = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
+        periodo_escolar=periodo_escolar_manha,
+    )
+    medicao_tarde = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
+        periodo_escolar=periodo_escolar_tarde,
+    )
+
+    medicao_integral = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
+        periodo_escolar=periodo_escolar_integral,
+    )
+
+    medicao_noite = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
+        periodo_escolar=periodo_escolar_noite,
+    )
+
+    medicao_programas_e_projetos = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
+        grupo=grupo_programas_e_projetos,
+    )
+    solicitacao_alimentacao = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
+        grupo=grupo_solicitacoes_alimentacao,
+    )
+
+    for dia in ["01", "02", "03", "04", "05"]:
+        if dia == "05":
+            for campo in ["kit_lanche", "lanche_emergencial"]:
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=solicitacao_alimentacao,
+                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
+                    valor="5",
+                    infantil_ou_fundamental="FUNDAMENTAL",
+                )
+
+        for medicao in [
+            medicao_manha,
+            medicao_tarde,
+            medicao_integral,
+            medicao_noite,
+            medicao_programas_e_projetos,
+        ]:
+            for turma in ["INFANTIL", "FUNDAMENTAL"]:
+                if medicao == medicao_noite and turma == "INFANTIL":
+                    continue
+                if medicao == medicao_programas_e_projetos:
+                    mommy.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo="numero_de_alunos",
+                        medicao=medicao,
+                        categoria_medicao=categoria_medicao,
+                        valor="90",
+                        infantil_ou_fundamental=turma,
+                    )
+                else:
+                    mommy.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo="matriculados",
+                        medicao=medicao,
+                        categoria_medicao=categoria_medicao,
+                        valor="90",
+                        infantil_ou_fundamental=turma,
+                    )
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo="frequencia",
+                    medicao=medicao,
+                    categoria_medicao=categoria_medicao,
+                    valor="80",
+                    infantil_ou_fundamental=turma,
+                )
+
+                for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
+                    mommy.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao,
+                        categoria_medicao=categoria_medicao,
+                        valor="70",
+                        infantil_ou_fundamental=turma,
+                    )
+                    if campo in ["lanche", "lanche_4h"]:
+                        for categoria in [
+                            categoria_medicao_dieta_a,
+                            categoria_medicao_dieta_b,
+                            categoria_medicao_dieta_a_enteral_aminoacidos,
+                        ]:
+                            mommy.make(
+                                "ValorMedicao",
+                                dia=dia,
+                                nome_campo=campo,
+                                medicao=medicao,
+                                categoria_medicao=categoria,
+                                valor=1,
+                                infantil_ou_fundamental=turma,
+                            )
+                    elif campo == "refeicao":
+                        mommy.make(
+                            "ValorMedicao",
+                            dia=dia,
+                            nome_campo=campo,
+                            medicao=medicao,
+                            categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                            valor=1,
+                            infantil_ou_fundamental=turma,
+                        )
+
+    return solicitacao_relatorio_consolidado_grupo_emebs
+
+
+@pytest.fixture
+def mock_query_params_excel_emebs(solicitacao_relatorio_consolidado_grupo_emebs):
+    grupo_escolar = mommy.make(
+        "GrupoUnidadeEscolar",
+        nome="Grupo 5",
+        uuid="172a2ae6-c417-49d3-91d3-a2dae3d8a56b",
+        tipos_unidades=[
+            mommy.make("TipoUnidadeEscolar", iniciais="EMEBS"),
+        ],
+    )
+    return {
+        "dre": solicitacao_relatorio_consolidado_grupo_emebs.escola.diretoria_regional.uuid,
+        "status": "MEDICAO_APROVADA_PELA_CODAE",
+        "grupo_escolar": grupo_escolar,
+        "mes": solicitacao_relatorio_consolidado_grupo_emebs.mes,
+        "ano": solicitacao_relatorio_consolidado_grupo_emebs.ano,
+        "lotes[]": solicitacao_relatorio_consolidado_grupo_emebs.escola.lote.uuid,
+        "lotes": [solicitacao_relatorio_consolidado_grupo_emebs.escola.lote.uuid],
+    }
+
+
+@pytest.fixture
+def mock_colunas_emebs():
+    colunas = [
+        ("", "Solicitações de Alimentação", "lanche_emergencial"),
+        ("", "Solicitações de Alimentação", "kit_lanche"),
+    ]
+
+    for turma in ["INFANTIL", "FUNDAMENTAL"]:
+        for periodo in ["MANHA", "TARDE", "INTEGRAL", "NOITE", "Programas e Projetos"]:
+            if turma == "INFANTIL" and periodo == "NOITE":
+                continue
+
+            for campo in [
+                "lanche",
+                "lanche_4h",
+                "refeicao",
+                "total_refeicoes_pagamento",
+                "sobremesa",
+                "total_sobremesas_pagamento",
+            ]:
+                if periodo == "Programas e Projetos" and campo == "sobremesa":
+                    continue
+                colunas.append((turma, periodo, campo))
+
+        colunas.append((turma, "DIETA ESPECIAL - TIPO A", "lanche"))
+        colunas.append((turma, "DIETA ESPECIAL - TIPO A", "lanche_4h"))
+        colunas.append((turma, "DIETA ESPECIAL - TIPO A", "refeicao"))
+        colunas.append((turma, "DIETA ESPECIAL - TIPO B", "lanche"))
+        colunas.append((turma, "DIETA ESPECIAL - TIPO B", "lanche_4h"))
+
+    # colunas = [
+    #     ("", "Solicitações de Alimentação", "lanche_emergencial"),
+    #     ("", "Solicitações de Alimentação", "kit_lanche"),
+    #     ("INFANTIL", "MANHA", "lanche"),
+    #     ("INFANTIL", "MANHA", "lanche_4h"),
+    #     ("INFANTIL", "MANHA", "refeicao"),
+    #     ("INFANTIL", "MANHA", "total_refeicoes_pagamento"),
+    #     ("INFANTIL", "MANHA", "sobremesa"),
+    #     ("INFANTIL", "MANHA", "total_sobremesas_pagamento"),
+    #     ("INFANTIL", "TARDE", "lanche"),
+    #     ("INFANTIL", "TARDE", "lanche_4h"),
+    #     ("INFANTIL", "TARDE", "refeicao"),
+    #     ("INFANTIL", "TARDE", "total_refeicoes_pagamento"),
+    #     ("INFANTIL", "TARDE", "sobremesa"),
+    #     ("INFANTIL", "TARDE", "total_sobremesas_pagamento"),
+    #     ("INFANTIL", "INTEGRAL", "lanche"),
+    #     ("INFANTIL", "INTEGRAL", "lanche_4h"),
+    #     ("INFANTIL", "INTEGRAL", "refeicao"),
+    #     ("INFANTIL", "INTEGRAL", "total_refeicoes_pagamento"),
+    #     ("INFANTIL", "INTEGRAL", "sobremesa"),
+    #     ("INFANTIL", "INTEGRAL", "total_sobremesas_pagamento"),
+    #     ("INFANTIL", "Programas e Projetos", "lanche"),
+    #     ("INFANTIL", "Programas e Projetos", "lanche_4h"),
+    #     ("INFANTIL", "Programas e Projetos", "refeicao"),
+    #     ("INFANTIL", "Programas e Projetos", "total_refeicoes_pagamento"),
+    #     ("INFANTIL", "Programas e Projetos", "sobremesa"),
+    #     ("INFANTIL", "Programas e Projetos", "total_sobremesas_pagamento"),
+    #     ("INFANTIL", "DIETA ESPECIAL - TIPO A", "lanche"),
+    #     ("INFANTIL", "DIETA ESPECIAL - TIPO A", "lanche_4h"),
+    #     ("INFANTIL", "DIETA ESPECIAL - TIPO A", "refeicao"),
+    #     ("INFANTIL", "DIETA ESPECIAL - TIPO B", "lanche"),
+    #     ("INFANTIL", "DIETA ESPECIAL - TIPO B", "lanche_4h"),
+    #     ("FUNDAMENTAL", "MANHA", "lanche"),
+    #     ("FUNDAMENTAL", "MANHA", "lanche_4h"),
+    #     ("FUNDAMENTAL", "MANHA", "refeicao"),
+    #     ("FUNDAMENTAL", "MANHA", "total_refeicoes_pagamento"),
+    #     ("FUNDAMENTAL", "MANHA", "sobremesa"),
+    #     ("FUNDAMENTAL", "MANHA", "total_sobremesas_pagamento"),
+    #     ("FUNDAMENTAL", "TARDE", "lanche"),
+    #     ("FUNDAMENTAL", "TARDE", "lanche_4h"),
+    #     ("FUNDAMENTAL", "TARDE", "refeicao"),
+    #     ("FUNDAMENTAL", "TARDE", "total_refeicoes_pagamento"),
+    #     ("FUNDAMENTAL", "TARDE", "sobremesa"),
+    #     ("FUNDAMENTAL", "TARDE", "total_sobremesas_pagamento"),
+    #     ("FUNDAMENTAL", "INTEGRAL", "lanche"),
+    #     ("FUNDAMENTAL", "INTEGRAL", "lanche_4h"),
+    #     ("FUNDAMENTAL", "INTEGRAL", "refeicao"),
+    #     ("FUNDAMENTAL", "INTEGRAL", "total_refeicoes_pagamento"),
+    #     ("FUNDAMENTAL", "INTEGRAL", "sobremesa"),
+    #     ("FUNDAMENTAL", "INTEGRAL", "total_sobremesas_pagamento"),
+    #     ("FUNDAMENTAL", "NOITE", "lanche"),
+    #     ("FUNDAMENTAL", "NOITE", "lanche_4h"),
+    #     ("FUNDAMENTAL", "NOITE", "refeicao"),
+    #     ("FUNDAMENTAL", "NOITE", "total_refeicoes_pagamento"),
+    #     ("FUNDAMENTAL", "NOITE", "sobremesa"),
+    #     ("FUNDAMENTAL", "NOITE", "total_sobremesas_pagamento"),
+    #     ("FUNDAMENTAL", "Programas e Projetos", "lanche"),
+    #     ("FUNDAMENTAL", "Programas e Projetos", "lanche_4h"),
+    #     ("FUNDAMENTAL", "Programas e Projetos", "refeicao"),
+    #     ("FUNDAMENTAL", "Programas e Projetos", "total_refeicoes_pagamento"),
+    #     ("FUNDAMENTAL", "Programas e Projetos", "sobremesa"),
+    #     ("FUNDAMENTAL", "Programas e Projetos", "total_sobremesas_pagamento"),
+    #     ("FUNDAMENTAL", "DIETA ESPECIAL - TIPO A", "lanche"),
+    #     ("FUNDAMENTAL", "DIETA ESPECIAL - TIPO A", "lanche_4h"),
+    #     ("FUNDAMENTAL", "DIETA ESPECIAL - TIPO A", "refeicao"),
+    #     ("FUNDAMENTAL", "DIETA ESPECIAL - TIPO B", "lanche"),
+    #     ("FUNDAMENTAL", "DIETA ESPECIAL - TIPO B", "lanche_4h"),
+    # ]
+    return colunas
+
+
+@pytest.fixture
+def mock_linhas_emebs():
+    return [
+        [
+            "EMEBS",
+            "000329",
+            "EMEBS TESTE",
+            5.0,
+            5.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            350.0,
+            40.0,
+            40.0,
+            20.0,
+            20.0,
+            20.0,
+            350.0,
+            350.0,
+            350.0,
+            350,
+            350.0,
+            350,
+            350.0,
+            350.0,
+            350.0,
+            350,
+            350.0,
+            350,
+            350.0,
+            350.0,
+            350.0,
+            350,
+            350.0,
+            350,
+            350.0,
+            350.0,
+            350.0,
+            350,
+            350.0,
+            350,
+            350.0,
+            350.0,
+            350.0,
+            350,
+            350,
+            50.0,
+            50.0,
+            25.0,
+            25.0,
+            25.0,
+        ]
+    ]
+
+
+@pytest.fixture
+def informacoes_excel_writer_emebs(
+    relatorio_consolidado_xlsx_emebs, mock_colunas_emebs, mock_linhas_emebs
+):
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {relatorio_consolidado_xlsx_emebs.mes}-{ relatorio_consolidado_xlsx_emebs.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+    workbook = writer.book
+    worksheet = workbook.add_worksheet(aba)
+    worksheet.set_default_row(20)
+    df = emebs_insere_tabela(aba, mock_colunas_emebs, mock_linhas_emebs, writer)
     try:
         yield aba, writer, workbook, worksheet, df, arquivo
     finally:
