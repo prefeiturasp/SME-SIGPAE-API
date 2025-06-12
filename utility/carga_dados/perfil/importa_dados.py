@@ -101,6 +101,9 @@ def cria_vinculos():
         "perfil_usuario_dinutre_diretoria": Perfil.objects.get(
             nome="DINUTRE_DIRETORIA"
         ),
+        "perfil_usuario_dilog_visualizacao": Perfil.objects.get(
+            nome="DILOG_VISUALIZACAO"
+        ),
         "perfil_usuario_representante_codae": Perfil.objects.get(
             nome="ADMINISTRADOR_REPRESENTANTE_CODAE"
         ),

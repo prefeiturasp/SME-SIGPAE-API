@@ -15,6 +15,7 @@ from sme_sigpae_api.dados_comuns.constants import (
     DILOG_CRONOGRAMA,
     DILOG_DIRETORIA,
     DILOG_QUALIDADE,
+    DILOG_VISUALIZACAO,
     USUARIO_EMPRESA,
 )
 from sme_sigpae_api.dados_comuns.fluxo_status import (
@@ -304,6 +305,7 @@ class ServiceQuerysetAlteracaoCronograma:
         DILOG_ABASTECIMENTO: [
             CronogramaAlteracaoWorkflow.CRONOGRAMA_CIENTE,
         ],
+        DILOG_VISUALIZACAO: [],
     }
 
     def __init__(
