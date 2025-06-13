@@ -897,6 +897,7 @@ class PermissaoParaDashboardCronograma(BasePermission):
         DILOG_CRONOGRAMA,
         ADMINISTRADOR_CODAE_GABINETE,
         DILOG_ABASTECIMENTO,
+        DILOG_VISUALIZACAO,
     ]
 
     def has_permission(self, request, view):
@@ -1130,6 +1131,7 @@ class PermissaoParaListarDashboardSolicitacaoAlteracaoCronograma(BasePermission)
         DILOG_CRONOGRAMA,
         ADMINISTRADOR_CODAE_GABINETE,
         DILOG_ABASTECIMENTO,
+        DILOG_VISUALIZACAO,
     ]
 
     def has_permission(self, request, view):
