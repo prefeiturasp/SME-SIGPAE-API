@@ -161,6 +161,13 @@ class ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles(BaseServiceDashboar
             CronogramaAlteracaoWorkflow.ALTERACAO_ENVIADA_FORNECEDOR,
             CronogramaAlteracaoWorkflow.FORNECEDOR_CIENTE,
         ],
+        DILOG_VISUALIZACAO: [
+            CronogramaAlteracaoWorkflow.EM_ANALISE,
+            CronogramaAlteracaoWorkflow.APROVADO_DILOG,
+            CronogramaAlteracaoWorkflow.REPROVADO_DILOG,
+            CronogramaAlteracaoWorkflow.ALTERACAO_ENVIADA_FORNECEDOR,
+            CronogramaAlteracaoWorkflow.FORNECEDOR_CIENTE,
+        ],
     }
 
 
