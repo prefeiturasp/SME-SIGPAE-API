@@ -1,5 +1,3 @@
-from freezegun.api import freeze_time
-
 from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
     LogQuantidadeDietasAutorizadasCEIFactory,
