@@ -24,10 +24,14 @@ from ..models import SolicitacaoMedicaoInicial
 def gera_relatorio_consolidado_xlsx(solicitacoes_uuid, tipos_de_unidade, query_params):
     solicitacoes = SolicitacaoMedicaoInicial.objects.filter(uuid__in=solicitacoes_uuid)
     try:
-        modulo, parametros = _obter_modulo_da_unidade(tipos_de_unidade)
-        colunas = modulo.get_alimentacoes_por_periodo(solicitacoes)
-        linhas = modulo.get_valores_tabela(solicitacoes, colunas, *parametros)
-        arquivo_excel = _gera_excel(tipos_de_unidade, query_params, colunas, linhas)
+        modulo_da_unidade, parametros = _obter_modulo_da_unidade(tipos_de_unidade)
+        colunas = modulo_da_unidade.get_alimentacoes_por_periodo(solicitacoes)
+        linhas = modulo_da_unidade.get_valores_tabela(
+            solicitacoes, colunas, *parametros
+        )
+        arquivo_excel = _gera_excel(
+            tipos_de_unidade, query_params, colunas, linhas, modulo_da_unidade
+        )
     except Exception as e:
         raise e
     return arquivo_excel
@@ -62,7 +66,7 @@ def _obter_modulo_da_unidade(tipos_de_unidade):
     raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
 
 
-def _gera_excel(tipos_de_unidade, query_params, colunas, linhas):
+def _gera_excel(tipos_de_unidade, query_params, colunas, linhas, modulo_da_unidade):
     file = io.BytesIO()
 
     with pd.ExcelWriter(file, engine="xlsxwriter") as writer:
@@ -73,57 +77,17 @@ def _gera_excel(tipos_de_unidade, query_params, colunas, linhas):
         workbook = writer.book
         worksheet = workbook.add_worksheet(aba)
         worksheet.set_default_row(20)
-        df = _insere_tabela_periodos_na_planilha(
-            tipos_de_unidade, aba, colunas, linhas, writer
+        df = modulo_da_unidade.insere_tabela_periodos_na_planilha(
+            aba, colunas, linhas, writer
         )
         _preenche_titulo(workbook, worksheet, df.columns)
         _preenche_linha_dos_filtros_selecionados(
             workbook, worksheet, query_params, df.columns, tipos_de_unidade
         )
-        _ajusta_layout_tabela(tipos_de_unidade, workbook, worksheet, df)
+        modulo_da_unidade.ajusta_layout_tabela(workbook, worksheet, df)
         _formata_total_geral(workbook, worksheet, df, tipos_de_unidade)
 
     return file.getvalue()
-
-
-def _insere_tabela_periodos_na_planilha(tipos_de_unidade, aba, colunas, linhas, writer):
-    if set(tipos_de_unidade).issubset(
-        ORDEM_UNIDADES_GRUPO_EMEF | ORDEM_UNIDADES_GRUPO_EMEI
-    ):
-        df = relatorio_consolidado_emei_emef.insere_tabela_periodos_na_planilha(
-            aba, colunas, linhas, writer
-        )
-    elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_CEI):
-        df = relatorio_consolidado_cei.insere_tabela_periodos_na_planilha(
-            aba, colunas, linhas, writer
-        )
-    elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_CEMEI):
-        df = relatorio_consolidado_cemei.insere_tabela_periodos_na_planilha(
-            aba, colunas, linhas, writer
-        )
-    elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_EMEBS):
-        df = relatorio_consolidado_emebs.insere_tabela_periodos_na_planilha(
-            aba, colunas, linhas, writer
-        )
-    else:
-        raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
-
-    return df
-
-
-def _ajusta_layout_tabela(tipos_de_unidade, workbook, worksheet, df):
-    if set(tipos_de_unidade).issubset(
-        ORDEM_UNIDADES_GRUPO_EMEF | ORDEM_UNIDADES_GRUPO_EMEI
-    ):
-        relatorio_consolidado_emei_emef.ajusta_layout_tabela(workbook, worksheet, df)
-    elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_CEI):
-        relatorio_consolidado_cei.ajusta_layout_tabela(workbook, worksheet, df)
-    elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_CEMEI):
-        relatorio_consolidado_cemei.ajusta_layout_tabela(workbook, worksheet, df)
-    elif set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_EMEBS):
-        relatorio_consolidado_emebs.ajusta_layout_tabela(workbook, worksheet, df)
-    else:
-        raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
 
 
 def _formata_total_geral(workbook, worksheet, df, tipos_de_unidade=None):
