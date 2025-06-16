@@ -3146,9 +3146,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
             "Deve criar um property que recupera o assunto e corpo mensagem desse objeto"
         )
 
-    def _envia_email_autorizar(
-        self, assunto, titulo, user, partes_interessadas
-    ):
+    def _envia_email_autorizar(self, assunto, titulo, user, partes_interessadas):
         from ..relatorios.relatorios import relatorio_dieta_especial_protocolo
 
         template = "fluxo_autorizar_dieta.html"
