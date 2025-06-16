@@ -112,7 +112,7 @@ class CargaDadosCommandTest(TestCase):
 
         self.call_command()
 
-        assert Perfil.objects.count() == 27
+        assert Perfil.objects.count() == 28
         assert Usuario.objects.count() == 41
         assert MotivoAlteracaoCardapio.objects.count() == 3
         assert MotivoSuspensao.objects.count() == 3
