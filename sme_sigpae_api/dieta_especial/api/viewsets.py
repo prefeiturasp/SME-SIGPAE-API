@@ -1484,10 +1484,14 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
                 qs = qs.filter(
                     Q(
                         dietas_especiais__rastro_escola=user.vinculo_atual.instituicao,
+                        dietas_especiais__status__in=["CODAE_AUTORIZADO"],
+                        dietas_especiais__ativo=True,
                         dietas_especiais__tipo_solicitacao="COMUM",
                     )
                     | Q(
                         dietas_especiais__escola_destino=user.vinculo_atual.instituicao,
+                        dietas_especiais__status__in=["CODAE_AUTORIZADO"],
+                        dietas_especiais__ativo=True,
                         dietas_especiais__tipo_solicitacao="ALTERACAO_UE",
                     )
                 )
@@ -1500,10 +1504,14 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
                 qs = qs.filter(
                     Q(
                         dietas_especiais__rastro_escola=form.cleaned_data["escola"],
+                        dietas_especiais__status__in=["CODAE_AUTORIZADO"],
+                        dietas_especiais__ativo=True,
                         dietas_especiais__tipo_solicitacao="COMUM",
                     )
                     | Q(
                         dietas_especiais__escola_destino=form.cleaned_data["escola"],
+                        dietas_especiais__status__in=["CODAE_AUTORIZADO"],
+                        dietas_especiais__ativo=True,
                         dietas_especiais__tipo_solicitacao="ALTERACAO_UE",
                     )
                 )
@@ -1519,10 +1527,14 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
                 qs = qs.filter(
                     Q(
                         dietas_especiais__rastro_escola__diretoria_regional=user.vinculo_atual.instituicao,
+                        dietas_especiais__status__in=["CODAE_AUTORIZADO"],
+                        dietas_especiais__ativo=True,
                         dietas_especiais__tipo_solicitacao="COMUM",
                     )
                     | Q(
                         dietas_especiais__escola_destino__diretoria_regional=user.vinculo_atual.instituicao,
+                        dietas_especiais__status__in=["CODAE_AUTORIZADO"],
+                        dietas_especiais__ativo=True,
                         dietas_especiais__tipo_solicitacao="ALTERACAO_UE",
                     )
                 )
@@ -1538,12 +1550,16 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
                         dietas_especiais__rastro_escola__diretoria_regional=form.cleaned_data[
                             "dre"
                         ],
+                        dietas_especiais__status__in=["CODAE_AUTORIZADO"],
+                        dietas_especiais__ativo=True,
                         dietas_especiais__tipo_solicitacao="COMUM",
                     )
                     | Q(
                         dietas_especiais__escola_destino__diretoria_regional=form.cleaned_data[
                             "dre"
                         ],
+                        dietas_especiais__status__in=["CODAE_AUTORIZADO"],
+                        dietas_especiais__ativo=True,
                         dietas_especiais__tipo_solicitacao="ALTERACAO_UE",
                     )
                 )
