@@ -3056,7 +3056,6 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
                 "Não pode terminar uma dieta antes da data"
             )
         self.status = self.workflow_class.TERMINADA_AUTOMATICAMENTE_SISTEMA
-        self.ativo = False
         self.salvar_log_transicao(
             status_evento=LogSolicitacoesUsuario.TERMINADA_AUTOMATICAMENTE_SISTEMA,
             usuario=usuario,
@@ -4702,38 +4701,6 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
             ),
         )
 
-    def _envia_email_notificacao_ciencia_fornecedor(self, user):
-        numero_cronograma = self.cronograma.numero
-        url_solicitacao_alteracao = (
-            f"{base_url}/pre-recebimento/detalhe-alteracao-cronograma?uuid={self.uuid}"
-        )
-        log_transicao = self.log_mais_recente
-
-        html = render_to_string(
-            template_name="pre_recebimento_notificacao_alteracao_cronograma_codae_ciencia_fornecedor.html",
-            context={
-                "titulo": f"Solicitação de Alteração do Cronograma {numero_cronograma}",
-                "numero_cronograma": numero_cronograma,
-                "url_solicitacao_alteracao": url_solicitacao_alteracao,
-                "fornecedor": user.nome,
-                "log_transicao": log_transicao,
-            },
-        )
-
-        envia_email_em_massa_task.delay(
-            assunto=f"[SIGPAE] Ciência da Alteração do Cronograma {numero_cronograma}",
-            corpo="",
-            html=html,
-            emails=PartesInteressadasService.usuarios_por_perfis(
-                nomes_perfis=[
-                    "DILOG_CRONOGRAMA",
-                    "DILOG_ABASTECIMENTO",
-                    "DILOG_DIRETORIA",
-                ],
-                somente_email=True,
-            ),
-        )
-
     @xworkflows.after_transition("inicia_fluxo")
     def _inicia_fluxo_hook(self, *args, **kwargs):
         user = kwargs["user"]
@@ -4820,27 +4787,53 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 usuario=user,
                 justificativa=kwargs.get("justificativa", ""),
             )
+            numero_cronograma = self.cronograma.numero
             log_transicao = self.log_mais_recente
-            usuarios = PartesInteressadasService.usuarios_por_perfis(
-                ["DILOG_CRONOGRAMA", "DILOG_ABASTECIMENTO", "DILOG_DIRETORIA"]
-            )
-            template_notif = "pre_recebimento_notificacao_alteracao_cronograma_codae_ciencia_fornecedor.html"
-            tipo = Notificacao.TIPO_NOTIFICACAO_ALERTA
-            titulo_notificacao = f"Ciência da Alteração do Cronograma Nº {self.cronograma.numero} pelo Fornecedor"
             link = f"/pre-recebimento/detalhe-alteracao-cronograma?uuid={self.uuid}"
-            categoria_notificacao = (
-                Notificacao.CATEGORIA_NOTIFICACAO_ALTERACAO_CRONOGRAMA
+            url_completo = base_url + link
+
+            contexto = {
+                "titulo": f"Solicitação de Alteração do Cronograma {numero_cronograma}",
+                "numero_cronograma": numero_cronograma,
+                "url_solicitacao_alteracao": url_completo,
+                "fornecedor": user.nome,
+                "log_transicao": log_transicao,
+            }
+
+            usuarios_notificacao = PartesInteressadasService.usuarios_por_perfis(
+                [
+                    constants.DILOG_CRONOGRAMA,
+                    constants.DILOG_ABASTECIMENTO,
+                    constants.DILOG_DIRETORIA,
+                ]
             )
-            self._cria_notificacao(
-                template_notif,
-                titulo_notificacao,
-                usuarios,
-                link,
-                tipo,
-                categoria_notificacao,
-                log_transicao,
+
+            emails_destinatarios = PartesInteressadasService.usuarios_por_perfis(
+                nomes_perfis=[
+                    constants.DILOG_CRONOGRAMA,
+                    constants.DILOG_ABASTECIMENTO,
+                    constants.DILOG_DIRETORIA,
+                ],
+                somente_email=True,
             )
-            self._envia_email_notificacao_ciencia_fornecedor(user)
+
+            EmailENotificacaoService.enviar_notificacao(
+                template="pre_recebimento_notificacao_alteracao_cronograma_codae_ciencia_fornecedor.html",
+                contexto_template=contexto,
+                titulo_notificacao=f"Ciência da Alteração do Cronograma Nº {numero_cronograma} pelo Fornecedor",
+                tipo_notificacao=Notificacao.TIPO_NOTIFICACAO_ALERTA,
+                categoria_notificacao=Notificacao.CATEGORIA_NOTIFICACAO_ALTERACAO_CRONOGRAMA,
+                link_acesse_aqui=link,
+                usuarios=usuarios_notificacao,
+            )
+
+            EmailENotificacaoService.enviar_email(
+                titulo=f"Ciência da Alteração do Cronograma Nº {numero_cronograma} pelo Fornecedor",
+                assunto=f"[SIGPAE] Ciência da Alteração do Cronograma Nº {numero_cronograma}",
+                template="pre_recebimento_email_alteracao_cronograma_codae_ciencia_fornecedor.html",
+                contexto_template=contexto,
+                destinatarios=emails_destinatarios,
+            )
 
     def _montar_dilog_abastecimento_notificacao(self):
         log_transicao = self.log_mais_recente

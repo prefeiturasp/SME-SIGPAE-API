@@ -1,16 +1,25 @@
 import calendar
 
-import pandas as pd
 from django.db.models import FloatField, Q, Sum
 from django.db.models.functions import Cast
 
 from sme_sigpae_api.dados_comuns.constants import (
+    NOMES_CAMPOS,
     ORDEM_CAMPOS,
     ORDEM_HEADERS_EMEI_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
 )
 from sme_sigpae_api.escola.models import PeriodoEscolar
+from sme_sigpae_api.medicao_inicial.services.utils import (
+    generate_columns,
+    gera_colunas_alimentacao,
+    get_categorias_dietas,
+    get_nome_periodo,
+    get_valores_iniciais,
+    update_dietas_alimentacoes,
+    update_periodos_alimentacoes,
+)
 
 from ..models import CategoriaMedicao
 
@@ -21,39 +30,27 @@ def get_alimentacoes_por_periodo(solicitacoes):
 
     for solicitacao in solicitacoes:
         for medicao in solicitacao.medicoes.all():
-            nome_periodo = _get_nome_periodo(medicao)
+            nome_periodo = get_nome_periodo(medicao)
             lista_alimentacoes = _get_lista_alimentacoes(medicao, nome_periodo)
-            periodos_alimentacoes = _update_periodos_alimentacoes(
+            periodos_alimentacoes = update_periodos_alimentacoes(
                 periodos_alimentacoes, nome_periodo, lista_alimentacoes
             )
 
-            categorias_dietas = _get_categorias_dietas(medicao)
+            categorias_dietas = get_categorias_dietas(medicao)
 
             for categoria in categorias_dietas:
                 lista_alimentacoes_dietas = _get_lista_alimentacoes_dietas(
                     medicao, categoria
                 )
-                dietas_alimentacoes = _update_dietas_alimentacoes(
+                dietas_alimentacoes = update_dietas_alimentacoes(
                     dietas_alimentacoes, categoria, lista_alimentacoes_dietas
                 )
 
     dietas_alimentacoes = _unificar_dietas_tipo_a(dietas_alimentacoes)
     dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
-    columns = _generate_columns(dict_periodos_dietas)
+    columns = generate_columns(dict_periodos_dietas)
 
     return columns
-
-
-def _get_nome_periodo(medicao):
-    return (
-        medicao.periodo_escolar.nome
-        if not medicao.grupo
-        else (
-            f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome}"
-            if medicao.periodo_escolar
-            else medicao.grupo.nome
-        )
-    )
 
 
 def _get_lista_alimentacoes(medicao, nome_periodo):
@@ -83,26 +80,6 @@ def _get_lista_alimentacoes(medicao, nome_periodo):
     return lista_alimentacoes
 
 
-def _update_periodos_alimentacoes(
-    periodos_alimentacoes, nome_periodo, lista_alimentacoes
-):
-    if nome_periodo in periodos_alimentacoes:
-        periodos_alimentacoes[nome_periodo] += lista_alimentacoes
-    else:
-        periodos_alimentacoes[nome_periodo] = lista_alimentacoes
-    return periodos_alimentacoes
-
-
-def _get_categorias_dietas(medicao):
-    return list(
-        medicao.valores_medicao.exclude(
-            categoria_medicao__nome__icontains="ALIMENTAÇÃO"
-        )
-        .values_list("categoria_medicao__nome", flat=True)
-        .distinct()
-    )
-
-
 def _get_lista_alimentacoes_dietas(medicao, categoria):
     return list(
         medicao.valores_medicao.filter(categoria_medicao__nome=categoria)
@@ -118,17 +95,6 @@ def _get_lista_alimentacoes_dietas(medicao, categoria):
         .values_list("nome_campo", flat=True)
         .distinct()
     )
-
-
-def _update_dietas_alimentacoes(
-    dietas_alimentacoes, categoria, lista_alimentacoes_dietas
-):
-    if lista_alimentacoes_dietas:
-        if categoria in dietas_alimentacoes:
-            dietas_alimentacoes[categoria] += lista_alimentacoes_dietas
-        else:
-            dietas_alimentacoes[categoria] = lista_alimentacoes_dietas
-    return dietas_alimentacoes
 
 
 def _unificar_dietas_tipo_a(dietas_alimentacoes):
@@ -165,15 +131,6 @@ def _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes):
     return dict_periodos_dietas
 
 
-def _generate_columns(dict_periodos_dietas):
-    columns = [
-        (chave, valor)
-        for chave, valores in dict_periodos_dietas.items()
-        for valor in valores
-    ]
-    return columns
-
-
 def get_valores_tabela(solicitacoes, colunas, tipos_de_unidade):
     dietas_especiais = CategoriaMedicao.objects.filter(
         nome__icontains="DIETA ESPECIAL"
@@ -182,7 +139,7 @@ def get_valores_tabela(solicitacoes, colunas, tipos_de_unidade):
     valores = []
     for solicitacao in get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade):
         valores_solicitacao_atual = []
-        valores_solicitacao_atual += _get_valores_iniciais(solicitacao)
+        valores_solicitacao_atual += get_valores_iniciais(solicitacao)
         for periodo, campo in colunas:
             valores_solicitacao_atual = _processa_periodo_campo(
                 solicitacao,
@@ -206,14 +163,6 @@ def get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade):
         solicitacoes,
         key=lambda k: ordem_unidades[k.escola.tipo_unidade.iniciais],
     )
-
-
-def _get_valores_iniciais(solicitacao):
-    return [
-        solicitacao.escola.tipo_unidade.iniciais,
-        solicitacao.escola.codigo_eol,
-        solicitacao.escola.nome,
-    ]
 
 
 def _processa_periodo_campo(
@@ -397,49 +346,7 @@ def _total_pagamento_emei(medicao, nome_campo):
 
 
 def insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
-    NOMES_CAMPOS = {
-        "lanche": "Lanche",
-        "lanche_4h": "Lanche 4h",
-        "2_lanche_4h": "2º Lanche 4h",
-        "2_lanche_5h": "2º Lanche 5h",
-        "lanche_extra": "Lanche Extra",
-        "refeicao": "Refeição",
-        "repeticao_refeicao": "Repetição de Refeição",
-        "2_refeicao_1_oferta": "2ª Refeição 1ª Oferta",
-        "repeticao_2_refeicao": "Repetição 2ª Refeição",
-        "kit_lanche": "Kit Lanche",
-        "total_refeicoes_pagamento": "Refeições p/ Pagamento",
-        "sobremesa": "Sobremesa",
-        "repeticao_sobremesa": "Repetição de Sobremesa",
-        "2_sobremesa_1_oferta": "2ª Sobremesa 1ª Oferta",
-        "repeticao_2_sobremesa": "Repetição 2ª Sobremesa",
-        "total_sobremesas_pagamento": "Sobremesas p/ Pagamento",
-        "lanche_emergencial": "Lanche Emerg.",
-    }
-
-    colunas_fixas = [
-        ("", "Tipo"),
-        ("", "Cód. EOL"),
-        ("", "Unidade Escolar"),
-    ]
-    headers = [
-        (
-            chave.upper() if chave != "Solicitações de Alimentação" else "",
-            NOMES_CAMPOS[valor],
-        )
-        for chave, valor in colunas
-    ]
-    headers = colunas_fixas + headers
-
-    index = pd.MultiIndex.from_tuples(headers)
-    df = pd.DataFrame(
-        data=linhas,
-        index=None,
-        columns=index,
-    )
-    df.loc["TOTAL"] = df.apply(pd.to_numeric, errors="coerce").sum()
-
-    df.to_excel(writer, sheet_name=aba, startrow=2, startcol=-1)
+    df = gera_colunas_alimentacao(aba, colunas, linhas, writer, NOMES_CAMPOS)
     return df
 
 

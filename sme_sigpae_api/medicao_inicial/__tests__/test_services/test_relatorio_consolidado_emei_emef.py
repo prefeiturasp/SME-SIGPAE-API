@@ -10,20 +10,14 @@ from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
 from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef import (
     _calcula_soma_medicao,
     _define_filtro,
-    _generate_columns,
-    _get_categorias_dietas,
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
-    _get_nome_periodo,
     _get_total_pagamento,
-    _get_valores_iniciais,
     _processa_periodo_campo,
     _sort_and_merge,
     _total_pagamento_emef,
     _total_pagamento_emei,
     _unificar_dietas_tipo_a,
-    _update_dietas_alimentacoes,
-    _update_periodos_alimentacoes,
     ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_solicitacoes_ordenadas,
@@ -258,18 +252,6 @@ def test_ajusta_layout_tabela(informacoes_excel_writer_emef):
     workbook_openpyxl.close()
 
 
-def test_get_nome_periodo(
-    medicao_grupo_solicitacao_alimentacao, medicao_grupo_alimentacao
-):
-    periodo = _get_nome_periodo(medicao_grupo_solicitacao_alimentacao[0])
-    assert isinstance(periodo, str)
-    assert periodo == "Solicitações de Alimentação"
-
-    periodo_manha = _get_nome_periodo(medicao_grupo_alimentacao[0])
-    assert isinstance(periodo_manha, str)
-    assert periodo_manha == "MANHA"
-
-
 def test_get_lista_alimentacoes(relatorio_consolidado_xlsx_emef):
     medicoes = relatorio_consolidado_xlsx_emef.medicoes.all().order_by(
         "periodo_escolar__nome"
@@ -293,59 +275,6 @@ def test_get_lista_alimentacoes(relatorio_consolidado_xlsx_emef):
     )
     assert isinstance(lista_alimentacoes_solicitacao, list)
     assert lista_alimentacoes_solicitacao == ["kit_lanche", "lanche_emergencial"]
-
-
-def test_update_periodos_alimentacoes():
-    lista_alimentacoes_manha = [
-        "lanche",
-        "lanche_4h",
-        "refeicao",
-        "sobremesa",
-        "total_refeicoes_pagamento",
-        "total_sobremesas_pagamento",
-    ]
-    lista_alimentacoes_solicitacao = ["kit_lanche", "lanche_emergencial"]
-
-    periodos_alimentacoes = _update_periodos_alimentacoes(
-        {}, "MANHA", lista_alimentacoes_manha
-    )
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "MANHA" in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes["MANHA"] == lista_alimentacoes_manha
-
-    periodos_alimentacoes = _update_periodos_alimentacoes(
-        periodos_alimentacoes,
-        "Solicitações de Alimentação",
-        lista_alimentacoes_solicitacao,
-    )
-    assert isinstance(periodos_alimentacoes, dict)
-    assert "Solicitações de Alimentação" in periodos_alimentacoes.keys()
-    assert (
-        periodos_alimentacoes["Solicitações de Alimentação"]
-        == lista_alimentacoes_solicitacao
-    )
-    assert "MANHA" in periodos_alimentacoes.keys()
-
-
-def test_get_categorias_dietas(relatorio_consolidado_xlsx_emef):
-    medicoes = relatorio_consolidado_xlsx_emef.medicoes.all().order_by(
-        "periodo_escolar__nome"
-    )
-    medicao_manha = medicoes[0]
-    medicao_solicitacao = medicoes[1]
-
-    categoria_manha = _get_categorias_dietas(medicao_manha)
-    assert isinstance(categoria_manha, list)
-    assert len(categoria_manha) == 3
-    assert categoria_manha == [
-        "DIETA ESPECIAL - TIPO A",
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
-        "DIETA ESPECIAL - TIPO B",
-    ]
-
-    categoria_solicitacao = _get_categorias_dietas(medicao_solicitacao)
-    assert isinstance(categoria_solicitacao, list)
-    assert len(categoria_solicitacao) == 0
 
 
 def test_get_lista_alimentacoes_dietas(relatorio_consolidado_xlsx_emef):
@@ -375,38 +304,6 @@ def test_get_lista_alimentacoes_dietas(relatorio_consolidado_xlsx_emef):
     assert isinstance(lista_dietas_b, list)
     assert len(lista_dietas_b) == 2
     assert lista_dietas_b == ["lanche", "lanche_4h"]
-
-
-def test_update_dietas_alimentacoes():
-    categoria_a = "DIETA ESPECIAL - TIPO A"
-    categoria_a_enteral_restricao = (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
-    )
-    categoria_b = "DIETA ESPECIAL - TIPO B"
-
-    lista_alimentacoes = ["lanche", "lanche_4h"]
-
-    dietas_alimentacoes = _update_dietas_alimentacoes(
-        {}, categoria_a, lista_alimentacoes
-    )
-    assert isinstance(dietas_alimentacoes, dict)
-    assert categoria_a in dietas_alimentacoes.keys()
-    assert dietas_alimentacoes[categoria_a] == lista_alimentacoes
-
-    dietas_alimentacoes = _update_dietas_alimentacoes(
-        dietas_alimentacoes, categoria_b, lista_alimentacoes
-    )
-    assert isinstance(dietas_alimentacoes, dict)
-    assert categoria_b in dietas_alimentacoes.keys()
-    assert dietas_alimentacoes[categoria_b] == lista_alimentacoes
-
-    lista_alimentacoes += ["refeicao"]
-    dietas_alimentacoes = _update_dietas_alimentacoes(
-        dietas_alimentacoes, categoria_a_enteral_restricao, lista_alimentacoes
-    )
-    assert isinstance(dietas_alimentacoes, dict)
-    assert categoria_a_enteral_restricao in dietas_alimentacoes.keys()
-    assert dietas_alimentacoes[categoria_a_enteral_restricao] == lista_alimentacoes
 
 
 def test_sort_and_merge():
@@ -459,38 +356,6 @@ def test_sort_and_merge():
     ]
 
 
-def test_generate_columns():
-    dict_periodos_dietas = {
-        "Solicitações de Alimentação": ["kit_lanche", "lanche_emergencial"],
-        "MANHA": [
-            "lanche",
-            "lanche_4h",
-            "refeicao",
-            "total_refeicoes_pagamento",
-            "sobremesa",
-            "total_sobremesas_pagamento",
-        ],
-        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h", "refeicao"],
-        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
-    }
-    colunas = _generate_columns(dict_periodos_dietas)
-    assert isinstance(colunas, list)
-    assert len(colunas) == 13
-    assert sum(1 for tupla in colunas if tupla[0] == "MANHA") == 6
-    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A") == 3
-    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B") == 2
-    assert sum(1 for tupla in colunas if tupla[0] == "Solicitações de Alimentação") == 2
-
-    assert sum(1 for tupla in colunas if tupla[1] == "kit_lanche") == 1
-    assert sum(1 for tupla in colunas if tupla[1] == "lanche_emergencial") == 1
-    assert sum(1 for tupla in colunas if tupla[1] == "lanche") == 3
-    assert sum(1 for tupla in colunas if tupla[1] == "lanche_4h") == 3
-    assert sum(1 for tupla in colunas if tupla[1] == "refeicao") == 2
-    assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 1
-    assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 1
-    assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 1
-
-
 def test_get_solicitacoes_ordenadas_unidade_emef(
     solicitacao_medicao_inicial_varios_valores_ceu_gestao,
     solicitacao_relatorio_consolidado_grupo_emef,
@@ -525,17 +390,6 @@ def test_get_solicitacoes_ordenadas_unidade_emei(
     assert isinstance(ordenados, list)
     assert ordenados[0].escola.nome == relatorio_consolidado_xlsx_emei.escola.nome
     assert ordenados[1].escola.nome == solicitacao_escola_ceuemei.escola.nome
-
-
-def test_get_valores_iniciais(relatorio_consolidado_xlsx_emef):
-    valores = _get_valores_iniciais(relatorio_consolidado_xlsx_emef)
-    assert isinstance(valores, list)
-    assert len(valores) == 3
-    assert valores == [
-        relatorio_consolidado_xlsx_emef.escola.tipo_unidade.iniciais,
-        relatorio_consolidado_xlsx_emef.escola.codigo_eol,
-        relatorio_consolidado_xlsx_emef.escola.nome,
-    ]
 
 
 def test_processa_periodo_campo_unidade_emef(relatorio_consolidado_xlsx_emef):

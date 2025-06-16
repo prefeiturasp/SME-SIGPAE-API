@@ -37,7 +37,7 @@ def test_post_cronogramas(
             {
                 "numero_empenho": "10",
                 "qtd_total_empenho": 10,
-                "etapa": "Etapa 1",
+                "etapa": 1,
                 "data_programada": "2024-07-29",
                 "quantidade": "10",
                 "total_embalagens": "10",
