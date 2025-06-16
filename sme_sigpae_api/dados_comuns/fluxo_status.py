@@ -3157,11 +3157,12 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
             "codigo_eol_aluno": self.aluno.codigo_eol,
             "data_inicio": self.data_inicio.strftime("%d/%m/%Y"),
             "data_termino": self.data_termino.strftime("%d/%m/%Y"),
+            "unidade_destino": self.escola_destino.nome,
         }
 
         html = render_to_string(template, dados_template)
 
-        html_string_relatorio = relatorio_dieta_especial_protocolo(None, dieta_origem)
+        html_string_relatorio = relatorio_dieta_especial_protocolo(None, self)
 
         anexo = {
             "arquivo": html_to_pdf_email_anexo(html_string_relatorio),
