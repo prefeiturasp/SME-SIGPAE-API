@@ -59,7 +59,7 @@ numpy="==1.26.4" # https://github.com/numpy/numpy/
 XlsxWriter="==3.0.3" # https://github.com/jmcnamara/XlsxWriter
 # Django
 # ------------------------------------------------------------------------------
-django="==5.2.1"          # https://www.djangoproject.com/
+django="==5.2.2"          # https://www.djangoproject.com/
 django-environ="==0.4.5"  # https://github.com/joke2k/django-environ
 django-model-utils="==3.1.2"  # https://github.com/jazzband/django-model-utils
 django-redis="==5.4.0"  # https://github.com/niwinz/django-redis
