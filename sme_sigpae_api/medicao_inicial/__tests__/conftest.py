@@ -24,8 +24,17 @@ from sme_sigpae_api.medicao_inicial.models import (
     PermissaoLancamentoEspecial,
     SolicitacaoMedicaoInicial,
 )
-from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_excel import (
-    _insere_tabela_periodos_na_planilha,
+from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
+    insere_tabela_periodos_na_planilha as cei_insere_tabela,
+)
+from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cemei import (
+    insere_tabela_periodos_na_planilha as cemei_insere_tabela,
+)
+from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emebs import (
+    insere_tabela_periodos_na_planilha as emebs_insere_tabela,
+)
+from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef import (
+    insere_tabela_periodos_na_planilha as emei_emef_insere_tabela,
 )
 
 
@@ -3224,9 +3233,7 @@ def informacoes_excel_writer_emef(
     workbook = writer.book
     worksheet = workbook.add_worksheet(aba)
     worksheet.set_default_row(20)
-    df = _insere_tabela_periodos_na_planilha(
-        ["EMEF"], aba, mock_colunas, mock_linhas_emef, writer
-    )
+    df = emei_emef_insere_tabela(aba, mock_colunas, mock_linhas_emef, writer)
     try:
         yield aba, writer, workbook, worksheet, df, arquivo
     finally:
@@ -3244,9 +3251,7 @@ def informacoes_excel_writer_emei(
     workbook = writer.book
     worksheet = workbook.add_worksheet(aba)
     worksheet.set_default_row(20)
-    df = _insere_tabela_periodos_na_planilha(
-        ["EMEI"], aba, mock_colunas, mock_linhas_emei, writer
-    )
+    df = emei_emef_insere_tabela(aba, mock_colunas, mock_linhas_emei, writer)
     try:
         yield aba, writer, workbook, worksheet, df, arquivo
     finally:
@@ -3498,9 +3503,7 @@ def informacoes_excel_writer_cei(
     workbook = writer.book
     worksheet = workbook.add_worksheet(aba)
     worksheet.set_default_row(20)
-    df = _insere_tabela_periodos_na_planilha(
-        ["CEI"], aba, mock_colunas_cei, mock_linhas_cei, writer
-    )
+    df = cei_insere_tabela(aba, mock_colunas_cei, mock_linhas_cei, writer)
     try:
         yield aba, writer, workbook, worksheet, df, arquivo
     finally:
@@ -3778,9 +3781,7 @@ def informacoes_excel_writer_cemei(
     workbook = writer.book
     worksheet = workbook.add_worksheet(aba)
     worksheet.set_default_row(20)
-    df = _insere_tabela_periodos_na_planilha(
-        ["CEMEI"], aba, mock_colunas_cemei, mock_linhas_cemei, writer
-    )
+    df = cemei_insere_tabela(aba, mock_colunas_cemei, mock_linhas_cemei, writer)
     try:
         yield aba, writer, workbook, worksheet, df, arquivo
     finally:
@@ -4158,9 +4159,7 @@ def informacoes_excel_writer_emebs(
     workbook = writer.book
     worksheet = workbook.add_worksheet(aba)
     worksheet.set_default_row(20)
-    df = _insere_tabela_periodos_na_planilha(
-        ["EMEBS"], aba, mock_colunas_emebs, mock_linhas_emebs, writer
-    )
+    df = emebs_insere_tabela(aba, mock_colunas_emebs, mock_linhas_emebs, writer)
     try:
         yield aba, writer, workbook, worksheet, df, arquivo
     finally:

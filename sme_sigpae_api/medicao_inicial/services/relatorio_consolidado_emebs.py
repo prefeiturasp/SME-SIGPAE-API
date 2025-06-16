@@ -1,13 +1,21 @@
 import calendar
 import logging
 
-import pandas as pd
 from django.db.models import FloatField, Q, Sum
 from django.db.models.functions import Cast
 
-from sme_sigpae_api.dados_comuns.constants import ORDEM_CAMPOS, ORDEM_HEADERS_EMEBS
+from sme_sigpae_api.dados_comuns.constants import (
+    NOMES_CAMPOS,
+    ORDEM_CAMPOS,
+    ORDEM_HEADERS_EMEBS,
+)
 from sme_sigpae_api.escola.models import PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
+from sme_sigpae_api.medicao_inicial.services.utils import (
+    gera_colunas_alimentacao,
+    get_nome_periodo,
+    get_valores_iniciais,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +26,7 @@ def get_alimentacoes_por_periodo(solicitacoes):
 
     for solicitacao in solicitacoes:
         for medicao in solicitacao.medicoes.all():
-            nome_periodo = _get_nome_periodo(medicao)
+            nome_periodo = get_nome_periodo(medicao)
             alimentacoes_infantil, alimentacoes_fundamental = _get_lista_alimentacoes(
                 medicao, nome_periodo
             )
@@ -56,18 +64,6 @@ def get_alimentacoes_por_periodo(solicitacoes):
     columns = _generate_columns(dict_periodos_dietas)
 
     return columns
-
-
-def _get_nome_periodo(medicao):
-    return (
-        medicao.periodo_escolar.nome
-        if not medicao.grupo
-        else (
-            f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome}"
-            if medicao.periodo_escolar
-            else medicao.grupo.nome
-        )
-    )
 
 
 def _get_lista_alimentacoes(medicao, nome_periodo):
@@ -270,7 +266,7 @@ def get_valores_tabela(solicitacoes, colunas):
     valores = []
     for solicitacao in get_solicitacoes_ordenadas(solicitacoes):
         valores_solicitacao_atual = []
-        valores_solicitacao_atual += _get_valores_iniciais(solicitacao)
+        valores_solicitacao_atual += get_valores_iniciais(solicitacao)
         for turma, periodo, campo in colunas:
             valores_solicitacao_atual = _processa_periodo_campo(
                 solicitacao,
@@ -290,14 +286,6 @@ def get_solicitacoes_ordenadas(solicitacoes):
         solicitacoes,
         key=lambda k: k.escola.nome,
     )
-
-
-def _get_valores_iniciais(solicitacao):
-    return [
-        solicitacao.escola.tipo_unidade.iniciais,
-        solicitacao.escola.codigo_eol,
-        solicitacao.escola.nome,
-    ]
 
 
 def _processa_periodo_campo(
@@ -501,32 +489,12 @@ def _total_pagamento_fundamental(medicao, nome_campo):
 
 
 def insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
-    NOMES_CAMPOS = {
-        "lanche": "Lanche",
-        "lanche_4h": "Lanche 4h",
-        "2_lanche_4h": "2º Lanche 4h",
-        "2_lanche_5h": "2º Lanche 5h",
-        "lanche_extra": "Lanche Extra",
-        "refeicao": "Refeição",
-        "repeticao_refeicao": "Repetição de Refeição",
-        "2_refeicao_1_oferta": "2ª Refeição 1ª Oferta",
-        "repeticao_2_refeicao": "Repetição 2ª Refeição",
-        "kit_lanche": "Kit Lanche",
-        "total_refeicoes_pagamento": "Refeições p/ Pagamento",
-        "sobremesa": "Sobremesa",
-        "repeticao_sobremesa": "Repetição de Sobremesa",
-        "2_sobremesa_1_oferta": "2ª Sobremesa 1ª Oferta",
-        "repeticao_2_sobremesa": "Repetição 2ª Sobremesa",
-        "total_sobremesas_pagamento": "Sobremesas p/ Pagamento",
-        "lanche_emergencial": "Lanche Emerg.",
-        "colacao": "Colação",
-    }
-
     colunas_fixas = [
         ("", "", "Tipo"),
         ("", "", "Cód. EOL"),
         ("", "", "Unidade Escolar"),
     ]
+
     headers = []
     for turma, chave, valor in colunas:
         if chave == "Solicitações de Alimentação":
@@ -534,17 +502,15 @@ def insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
         else:
             headers.append((turma, chave.upper(), NOMES_CAMPOS[valor]))
 
-    headers = colunas_fixas + headers
-
-    index = pd.MultiIndex.from_tuples(headers)
-    df = pd.DataFrame(
-        data=linhas,
-        index=None,
-        columns=index,
+    df = gera_colunas_alimentacao(
+        aba,
+        None,
+        linhas,
+        writer,
+        None,
+        colunas_fixas=colunas_fixas,
+        headers=headers,
     )
-    df.loc["TOTAL"] = df.apply(pd.to_numeric, errors="coerce").sum()
-
-    df.to_excel(writer, sheet_name=aba, startrow=2, startcol=-1)
     return df
 
 

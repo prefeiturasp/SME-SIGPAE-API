@@ -1,7 +1,10 @@
 import datetime
+import io
 
 import pytest
 from model_mommy import mommy
+from PyPDF4 import PdfFileReader, PdfFileWriter
+from weasyprint import HTML
 
 from sme_sigpae_api.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
@@ -215,3 +218,20 @@ def solicitacao_dieta_especial_cancelada(
     )
 
     return solicitacao_dieta_especial_autorizada
+
+
+@pytest.fixture
+def gerar_pdf_simples():
+    pdf_final = io.BytesIO()
+    documento = PdfFileWriter()
+
+    for i in range(2):
+        html = HTML(
+            string=f"<h1>Dieta especial autorizada para o aluno Fulano{i+1} - Página {i+1}</h1>"
+        ).write_pdf()
+        pagina_pdf = PdfFileReader(io.BytesIO(html))
+        documento.addPage(pagina_pdf.getPage(0))
+
+    documento.write(pdf_final)
+    pdf_final.seek(0)
+    return pdf_final

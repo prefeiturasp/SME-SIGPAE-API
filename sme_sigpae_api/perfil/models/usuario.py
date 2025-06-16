@@ -43,6 +43,7 @@ from ...dados_comuns.constants import (
     DILOG_CRONOGRAMA,
     DILOG_DIRETORIA,
     DILOG_QUALIDADE,
+    DILOG_VISUALIZACAO,
     DINUTRE_DIRETORIA,
     ORGAO_FISCALIZADOR,
     USUARIO_EMPRESA,
@@ -307,6 +308,8 @@ class Usuario(
                     tipo_usuario = "administrador_contratos"
                 elif self.vinculo_atual.perfil.nome == DINUTRE_DIRETORIA:
                     tipo_usuario = "dinutre"
+                elif self.vinculo_atual.perfil.nome == DILOG_VISUALIZACAO:
+                    tipo_usuario = "pre_recebimento_visualizacao"
                 else:
                     tipo_usuario = "dieta_especial"
         return tipo_usuario
