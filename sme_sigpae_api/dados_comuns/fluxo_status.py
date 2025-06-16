@@ -3147,7 +3147,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         )
 
     def _envia_email_autorizar(
-        self, assunto, titulo, user, partes_interessadas, dieta_origem
+        self, assunto, titulo, user, partes_interessadas
     ):
         from ..relatorios.relatorios import relatorio_dieta_especial_protocolo
 
@@ -3166,7 +3166,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
 
         anexo = {
             "arquivo": html_to_pdf_email_anexo(html_string_relatorio),
-            "nome": f"dieta_especial_{dieta_origem.id_externo}.pdf",
+            "nome": f"dieta_especial_{self.id_externo}.pdf",
             "mimetypes": "application/pdf",
         }
 
@@ -3308,17 +3308,11 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
             if self.tipo_solicitacao == "ALTERACAO_UE":
                 assunto = "Alerta de atendimento de Dieta Especial no CEI-Polo/Recreio nas férias"
                 titulo = "Alerta de atendimento de Dieta Especial no CEI-Polo/Recreio nas férias"
-                dieta_origem = self.aluno.dietas_especiais.filter(
-                    tipo_solicitacao="COMUM",
-                    ativo=True,
-                    status=self.workflow_class.CODAE_AUTORIZADO,
-                ).last()
                 self._envia_email_autorizar(
                     assunto,
                     titulo,
                     user,
                     self._partes_interessadas_codae_autoriza,
-                    dieta_origem,
                 )
             else:
                 assunto = "[SIGPAE] Status de solicitação - #" + self.id_externo
