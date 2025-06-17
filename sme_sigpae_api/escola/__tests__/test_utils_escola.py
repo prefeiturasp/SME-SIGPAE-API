@@ -322,9 +322,9 @@ def test_atualiza_codigo_codae_das_escolas(codigo_codae_das_escolas):
         os.remove(caminho_arquivo_escola)
 
 
-def test_atualiza_codigo_codae_das_escolas_erro(codigo_codae_das_escolas):
+def test_atualiza_codigo_codae_das_escolas_erro(codigo_codae_das_escolas, tmp_path):
     escola1, escola2, planilha = codigo_codae_das_escolas
-    caminho_arquivo_escola = Path(f"/tmp/{uuid.uuid4()}.xlsx")
+    caminho_arquivo_escola = tmp_path / f"{uuid.uuid4()}.xlsx"
 
     cria_arquivo_excel(
         caminho_arquivo_escola,
