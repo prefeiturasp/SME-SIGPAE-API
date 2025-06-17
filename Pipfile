@@ -22,7 +22,7 @@ pytest-factoryboy="==2.7.0"
 factory-boy = "==3.3.3"
 # Code quality
 # ------------------------------------------------------------------------------
-coverage="==7.3.2"             # https://github.com/nedbat/coveragepy
+coverage="==7.9.1"             # https://github.com/nedbat/coveragepy
 django-stubs="==1.2.0"         # https://github.com/typeddjango/django-stubs
 bandit="==1.6.2"               # https://github.com/PyCQA/bandit
 django-debug-toolbar="==5.1.0"  # https://github.com/jazzband/django-debug-toolbar
