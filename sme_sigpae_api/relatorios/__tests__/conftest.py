@@ -51,6 +51,23 @@ def escola():
 
 
 @pytest.fixture
+def escola_destino():
+    terceirizada = mommy.make("Terceirizada")
+    lote = mommy.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = mommy.make(
+        "DiretoriaRegional", nome="DIRETORIA REGIONAL IPIRANGA"
+    )
+    escola = mommy.make(
+        "Escola",
+        lote=lote,
+        nome="EMEF MARCOS ANTONIO",
+        codigo_eol="340546",
+        diretoria_regional=diretoria_regional,
+    )
+    return escola
+
+
+@pytest.fixture
 def template_mensagem_dieta_especial():
     return mommy.make(
         TemplateMensagem,
@@ -235,3 +252,42 @@ def gerar_pdf_simples():
     documento.write(pdf_final)
     pdf_final.seek(0)
     return pdf_final
+
+
+@pytest.fixture
+def solicitacao_dieta_especial_autorizada_alteracao_ue(
+    client,
+    escola,
+    solicitacao_dieta_especial_a_autorizar,
+    escola_destino,
+    template_mensagem_dieta_especial,
+):
+    email = "terceirizada@admin.com"
+    password = DJANGO_ADMIN_PASSWORD
+    rf = "4545454"
+    user = Usuario.objects.create_user(
+        username=email, password=password, email=email, registro_funcional=rf
+    )
+    client.login(username=email, password=password)
+
+    perfil = mommy.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+    mommy.make(
+        "perfil.Vinculo",
+        usuario=user,
+        instituicao=escola.lote.terceirizada,
+        perfil=perfil,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+
+    solicitacao_dieta_especial_a_autorizar.tipo_solicitacao = "ALTERACAO_UE"
+    solicitacao_dieta_especial_a_autorizar.escola_destino = escola_destino
+    solicitacao_dieta_especial_a_autorizar.data_inicio = datetime.date(2025, 1, 20)
+    solicitacao_dieta_especial_a_autorizar.data_termino = datetime.date(2025, 2, 20)
+    solicitacao_dieta_especial_a_autorizar.motivo_alteracao_ue = mommy.make(
+        "MotivoAlteracaoUE", nome="Dieta Especial - Recreio nas Férias"
+    )
+    solicitacao_dieta_especial_a_autorizar.save()
+    solicitacao_dieta_especial_a_autorizar.codae_autoriza(user=user)
+
+    return solicitacao_dieta_especial_a_autorizar
