@@ -222,3 +222,26 @@ def test_get_total_por_periodo_multiplos_periodos():
 
     total_sobremesa = get_total_por_periodo(tabelas, "total_sobremesas_pagamento")
     assert total_sobremesa == {"Infantil INTEGRAL": 110}
+
+
+def test_relatorio_dieta_especial_protocolo_alteracao_ue(
+    solicitacao_dieta_especial_autorizada_alteracao_ue,
+):
+    html_string = relatorio_dieta_especial_protocolo(
+        None, solicitacao_dieta_especial_autorizada_alteracao_ue
+    )
+    assert "PROTOCOLO PADRÃO DE DIETA ESPECIAL" in html_string
+    assert (
+        solicitacao_dieta_especial_autorizada_alteracao_ue.escola_destino.nome
+        in html_string
+    )
+    assert (
+        solicitacao_dieta_especial_autorizada_alteracao_ue.rastro_escola.nome
+        not in html_string
+    )
+    assert "Alteração de UE - <b>Recreio nas Férias</b>" in html_string
+    assert solicitacao_dieta_especial_autorizada_alteracao_ue.aluno.nome in html_string
+    assert "Orientações Gerais" in html_string
+    assert "Relação de Alimentos para Substituição" in html_string
+    assert "Dieta cancelada em" not in html_string
+    assert "Justificativa" not in html_string
