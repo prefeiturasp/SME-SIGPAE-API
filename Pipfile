@@ -14,7 +14,7 @@ pytest="==8.3.5"  # https://github.com/pytest-dev/pytest
 freezegun="==1.5.2"    # https://pypi.org/project/freezegun/
 pytest-watch="==4.2.0"  # https://github.com/joeyespo/pytest-watch
 model_mommy="==1.6.0"   # https://github.com/berinhard/model_mommy/
-pytest-cov="==4.1.0"    # https://pypi.org/project/pytest-cov/
+pytest-cov="==6.2.1"    # https://pypi.org/project/pytest-cov/
 pytest-xdist="==3.6.1"
 pytest-testmon="==2.1.3" # https://testmon.org/
 pytest-django="==4.11.1"  # https://github.com/pytest-dev/pytest-django
