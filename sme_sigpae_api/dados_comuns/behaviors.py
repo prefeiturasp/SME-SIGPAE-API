@@ -243,27 +243,34 @@ class TemPrioridade(object):
     """
 
     def get_dias_suspensao_por_prioridade(self):
-        from sme_sigpae_api.escola.models import DiaSuspensaoAtividades
+        from sme_sigpae_api.escola.models import DiaSuspensaoAtividades, Escola
         from sme_sigpae_api.kit_lanche.models import SolicitacaoKitLancheUnificada
+        from sme_sigpae_api.paineis_consolidados.models import MoldeConsolidado
 
         dias_suspensao_prioritario = 0
         dias_suspensao_inferior = 0
         dias_suspensao_superior = 0
 
-        if hasattr(self, "escola"):
+        escola = None
+        if isinstance(self, MoldeConsolidado):
+            escola = Escola.objects.get(uuid=self.escola_uuid)
+        elif hasattr(self, "escola"):
+            escola = self.escola
+
+        if escola:
             dias_suspensao_prioritario = (
                 DiaSuspensaoAtividades.get_dias_com_suspensao_escola(
-                    self.escola, PRIORITARIO
+                    escola, PRIORITARIO
                 )
             )
             dias_suspensao_inferior = (
                 DiaSuspensaoAtividades.get_dias_com_suspensao_escola(
-                    self.escola, LIMITE_INFERIOR
+                    escola, LIMITE_INFERIOR
                 )
             )
             dias_suspensao_superior = (
                 DiaSuspensaoAtividades.get_dias_com_suspensao_escola(
-                    self.escola, LIMITE_SUPERIOR
+                    escola, LIMITE_SUPERIOR
                 )
             )
         elif isinstance(self, SolicitacaoKitLancheUnificada):
