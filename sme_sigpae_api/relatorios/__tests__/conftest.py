@@ -1,7 +1,6 @@
 import datetime
 import io
 
-from freezegun import freeze_time
 import pytest
 from model_mommy import mommy
 from PyPDF4 import PdfFileReader, PdfFileWriter
@@ -196,6 +195,7 @@ def solicitacao_dieta_especial_a_autorizar(
     solic.inicia_fluxo(user=user)
 
     return solic
+
 
 @pytest.fixture
 def solicitacao_dieta_especial_autorizada(
