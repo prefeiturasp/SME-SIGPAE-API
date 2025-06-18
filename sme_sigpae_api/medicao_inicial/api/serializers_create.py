@@ -907,6 +907,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         self._update_tipos_contagem_alimentacao(instance)
         anexos = self._process_anexos(instance)
         self._finaliza_medicao_se_necessario(instance, validated_data, anexos)
+        self._finaliza_medicao_sem_lancamentos(instance, validated_data)
         return instance
 
     def _check_user_permission(self):
@@ -957,9 +958,11 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                     solicitacao_medicao_inicial=instance,
                     aluno=Aluno.objects.get(uuid=aluno.get("aluno", "")),
                     data=date(ano, mes, dia),
-                    data_removido=date(ano_, mes_, dia_)
-                    if aluno.get("data_removido", "")
-                    else None,
+                    data_removido=(
+                        date(ano_, mes_, dia_)
+                        if aluno.get("data_removido", "")
+                        else None
+                    ),
                     escola=escola_associada,
                 )
 
@@ -993,6 +996,8 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             return anexos
 
     def _finaliza_medicao_se_necessario(self, instance, validated_data, anexos):
+        if validated_data.get("justificativa_sem_lancamentos", None):
+            return
         key_com_ocorrencias = validated_data.get("com_ocorrencias", None)
         if key_com_ocorrencias is not None and self.context["request"].data.get(
             "finaliza_medicao"
@@ -1011,6 +1016,13 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 )
             for medicao in instance.medicoes.all():
                 medicao.ue_envia(user=self.context["request"].user)
+
+    def _finaliza_medicao_sem_lancamentos(self, instance, validated_data):
+        if not validated_data.get("justificativa_sem_lancamentos", None):
+            return
+        instance.ue_envia(user=self.context["request"].user)
+        for medicao in instance.medicoes.all():
+            medicao.ue_envia(user=self.context["request"].user)
 
     class Meta:
         model = SolicitacaoMedicaoInicial
