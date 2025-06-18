@@ -2,10 +2,13 @@ import re
 
 import pytest
 
+from sme_sigpae_api.dados_comuns.fluxo_status import DietaEspecialWorkflow
 from sme_sigpae_api.relatorios.utils import extrair_texto_de_pdf
 
 from ..relatorios import (
+    formata_justificativa,
     get_total_por_periodo,
+    obter_justificativa_dieta,
     relatorio_dieta_especial_protocolo,
     relatorio_suspensao_de_alimentacao,
 )
@@ -245,3 +248,37 @@ def test_relatorio_dieta_especial_protocolo_alteracao_ue(
     assert "Relação de Alimentos para Substituição" in html_string
     assert "Dieta cancelada em" not in html_string
     assert "Justificativa" not in html_string
+
+
+def test_relatorio_dieta_especial_protocolo_inativa(
+    solicitacao_dieta_especial_inativa,
+):
+    html_string = relatorio_dieta_especial_protocolo(
+        None, solicitacao_dieta_especial_inativa
+    )
+    assert ("Orientações Gerais" in html_string) is True
+    assert (
+        solicitacao_dieta_especial_inativa.orientacoes_gerais in html_string
+    ) is True
+
+    assert "PROTOCOLO PADRÃO DE DIETA ESPECIAL" in html_string
+    assert "Dieta Inativada em" in html_string
+    assert "Justificativa: Autorização de novo protocolo de dieta especial" in html_string
+    assert "Dieta cancelada em" not in html_string
+    
+    
+def test_obter_justificativa_dieta_dieta_autorizada(solicitacao_dieta_especial_autorizada):
+    justificativa = obter_justificativa_dieta(solicitacao_dieta_especial_autorizada)
+    assert justificativa is None
+    
+def test_obter_justificativa_dieta_dieta_cancelada(solicitacao_dieta_especial_cancelada):
+    log_recente = solicitacao_dieta_especial_cancelada.logs.last()
+    justificativa = obter_justificativa_dieta(solicitacao_dieta_especial_cancelada)
+    assert justificativa  == f'Dieta cancelada em: {log_recente.criado_em.strftime("%d/%m/%Y")} | Justificativa: Escola cancelou'
+    
+def test_obter_justificativa_dieta_dieta_inativa(solicitacao_dieta_especial_inativa):
+    log_recente = solicitacao_dieta_especial_inativa.logs.last()
+    justificativa = obter_justificativa_dieta(solicitacao_dieta_especial_inativa)
+    assert justificativa == f'Dieta Inativada em: {log_recente.criado_em.strftime("%d/%m/%Y")} | Justificativa: Autorização de novo protocolo de dieta especial'
+    
+    
