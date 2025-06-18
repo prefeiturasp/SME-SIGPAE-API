@@ -1786,28 +1786,26 @@ def formata_justificativa(solicitacao, status_evento_explicacao):
 
 
 def obter_justificativa_dieta(solicitacao):
-    justificativa = None
     status_dieta = solicitacao.status.state.name
     ativo = solicitacao.ativo
     log_recente = solicitacao.logs.last()
     data = log_recente.criado_em.strftime("%d/%m/%Y") if log_recente else ""
-
-    if status_dieta in MoldeConsolidado.INATIVOS_STATUS_DIETA_ESPECIAL and not ativo:
-        mensagem = "Autorização de novo protocolo de dieta especial"
-        return f"Dieta Inativada em: {data} | Justificativa: {mensagem}"
-
     status_cancelamentos = [
-        LogSolicitacoesUsuario.CANCELADO_ALUNO_MUDOU_ESCOLA,
-        LogSolicitacoesUsuario.CANCELADO_ALUNO_NAO_PERTENCE_REDE,
-        LogSolicitacoesUsuario.TERMINADA_AUTOMATICAMENTE_SISTEMA,
+        DietaEspecialWorkflow.CANCELADO_ALUNO_MUDOU_ESCOLA,
+        DietaEspecialWorkflow.CANCELADO_ALUNO_NAO_PERTENCE_REDE,
+        DietaEspecialWorkflow.TERMINADA_AUTOMATICAMENTE_SISTEMA,
     ]
-
     cancelamento_padrao = status_dieta in status_cancelamentos and ativo
-    canelamento_pela_escola = (
-        status_dieta == LogSolicitacoesUsuario.ESCOLA_CANCELOU and not ativo
+    cancelado_pela_escola = (
+        status_dieta == DietaEspecialWorkflow.ESCOLA_CANCELOU and not ativo
     )
 
-    if cancelamento_padrao or canelamento_pela_escola:
+    justificativa = None
+    if status_dieta in MoldeConsolidado.INATIVOS_STATUS_DIETA_ESPECIAL and not ativo:
+        mensagem = "Autorização de novo protocolo de dieta especial"
+        justificativa = f"Dieta Inativada em: {data} | Justificativa: {mensagem}"
+
+    elif cancelamento_padrao or cancelado_pela_escola:
         mensagem = formata_justificativa(
             solicitacao, log_recente.status_evento_explicacao
         )
