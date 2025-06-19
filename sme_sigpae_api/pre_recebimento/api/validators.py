@@ -268,9 +268,9 @@ class ServiceValidacaoCorrecaoFichaTecnica:
 
         for attr in self._attrs:
             if attr not in campos_collapse:
-                campos_nao_permitidos[
-                    attr
-                ] = "Este campo não é permitido nesta correção."
+                campos_nao_permitidos[attr] = (
+                    "Este campo não é permitido nesta correção."
+                )
 
             else:
                 campos_validos.add(attr)

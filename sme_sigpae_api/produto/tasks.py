@@ -210,9 +210,11 @@ def gera_xls_relatorio_produtos_suspensos_async(
                 {
                     "nome": produto.nome,
                     "marca": produto.marca.nome,
-                    "tipo": "Dieta especial"
-                    if produto.eh_para_alunos_com_dieta
-                    else "Comum",
+                    "tipo": (
+                        "Dieta especial"
+                        if produto.eh_para_alunos_com_dieta
+                        else "Comum"
+                    ),
                     "edital": nome_edital,
                     "cadastro": data_cadastro,
                     "suspensao": data_suspensao,

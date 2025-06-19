@@ -473,9 +473,9 @@ def trata_filtro_data_relatorio_controle_frequencia_pdf(
     )
     if int(mes) > hoje.month:
         ultimo_dia_mes = get_ultimo_dia_mes(hoje)
-        filtros[
-            "data"
-        ] = f"{hoje.year}-{hoje.month}-{min(ontem.day, ultimo_dia_mes.day)}"
+        filtros["data"] = (
+            f"{hoje.year}-{hoje.month}-{min(ontem.day, ultimo_dia_mes.day)}"
+        )
         mes_seguinte = True
     elif (
         int(mes) == hoje.month

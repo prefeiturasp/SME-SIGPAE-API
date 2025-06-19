@@ -54,9 +54,11 @@ class LancamentoDiarioCreateSerializer(serializers.ModelSerializer):
             lancamento = LancamentoDiario.objects.get(
                 data=validated_data["data"],
                 escola_periodo_escolar=validated_data["escola_periodo_escolar"],
-                tipo_dieta=validated_data["tipo_dieta"]
-                if "tipo_dieta" in validated_data
-                else None,
+                tipo_dieta=(
+                    validated_data["tipo_dieta"]
+                    if "tipo_dieta" in validated_data
+                    else None
+                ),
             )
             self.update(lancamento, validated_data)
         except LancamentoDiario.DoesNotExist:

@@ -65,17 +65,17 @@ def filtros_produto_reclamacoes(request):
         filtro_reclamacao["status__in"] = status_reclamacao
     if data_inicial_reclamacao:
         data_inicial_reclamacao = converte_para_datetime(data_inicial_reclamacao)
-        filtro_homologacao[
-            "homologacao__reclamacoes__criado_em__gte"
-        ] = data_inicial_reclamacao
+        filtro_homologacao["homologacao__reclamacoes__criado_em__gte"] = (
+            data_inicial_reclamacao
+        )
         filtro_reclamacao["criado_em__gte"] = data_inicial_reclamacao
     if data_final_reclamacao:
         data_final_reclamacao = converte_para_datetime(
             data_final_reclamacao
         ) + timedelta(days=1)
-        filtro_homologacao[
-            "homologacao__reclamacoes__criado_em__lte"
-        ] = data_final_reclamacao
+        filtro_homologacao["homologacao__reclamacoes__criado_em__lte"] = (
+            data_final_reclamacao
+        )
         filtro_reclamacao["criado_em__lte"] = data_final_reclamacao
     return filtro_reclamacao, filtro_homologacao
 

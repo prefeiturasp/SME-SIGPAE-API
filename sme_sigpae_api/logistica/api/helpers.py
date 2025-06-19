@@ -337,24 +337,30 @@ def atualiza_guia_com_base_nas_conferencias_por_alimentos(  # noqa: C901
         if len(status_dos_alimentos) == 0:
             raise ValidationError("Status dos alimentos não foram informados.")
         elif all(status == status_alimento_recebido for status in status_dos_alimentos):
-            guia.reposicao_total(user=user) if eh_reposicao else guia.escola_recebe(
-                user=user
+            (
+                guia.reposicao_total(user=user)
+                if eh_reposicao
+                else guia.escola_recebe(user=user)
             )
         elif all(
             status == status_alimento_nao_recebido for status in status_dos_alimentos
         ):
-            guia.reposicao_parcial(
-                user=user
-            ) if eh_reposicao else guia.escola_nao_recebe(user=user)
+            (
+                guia.reposicao_parcial(user=user)
+                if eh_reposicao
+                else guia.escola_nao_recebe(user=user)
+            )
         elif all(
             ocorrencia == ocorrencia_em_atraso
             for ocorrencia in ocorrencias_dos_alimentos
         ):
             guia.escola_recebe_parcial_atraso(user=user)
         else:
-            guia.reposicao_parcial(
-                user=user
-            ) if eh_reposicao else guia.escola_recebe_parcial(user=user)
+            (
+                guia.reposicao_parcial(user=user)
+                if eh_reposicao
+                else guia.escola_recebe_parcial(user=user)
+            )
 
         # Resolve notificação de pendencia de atraso caso exista
         resolve_notificacao_de_pendencia_de_atraso(guia, eh_reposicao)

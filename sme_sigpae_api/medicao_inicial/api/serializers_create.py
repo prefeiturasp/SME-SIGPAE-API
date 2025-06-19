@@ -957,9 +957,11 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                     solicitacao_medicao_inicial=instance,
                     aluno=Aluno.objects.get(uuid=aluno.get("aluno", "")),
                     data=date(ano, mes, dia),
-                    data_removido=date(ano_, mes_, dia_)
-                    if aluno.get("data_removido", "")
-                    else None,
+                    data_removido=(
+                        date(ano_, mes_, dia_)
+                        if aluno.get("data_removido", "")
+                        else None
+                    ),
                     escola=escola_associada,
                 )
 

@@ -721,9 +721,11 @@ def ordena_queryset_por_ultimo_log(queryset: QuerySet) -> list:
 
     queryset = sorted(
         queryset,
-        key=lambda x: x.ultimo_log_cached.criado_em
-        if x.ultimo_log_cached
-        else datetime.datetime.min,
+        key=lambda x: (
+            x.ultimo_log_cached.criado_em
+            if x.ultimo_log_cached
+            else datetime.datetime.min
+        ),
         reverse=True,
     )
     return queryset

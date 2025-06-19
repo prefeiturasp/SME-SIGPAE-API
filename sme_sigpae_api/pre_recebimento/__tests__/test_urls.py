@@ -2443,9 +2443,9 @@ def test_url_documentos_de_recebimento_analisar_documento(
     assert documento.datas_fabricacao_e_prazos.count() == 3
 
     # Teste analise ação solicitar correção (Todos os campos são obrigatórios + correcao_solicitada)
-    dados_atualizados[
-        "correcao_solicitada"
-    ] = "Documentos corrompidos, sem possibilidade de análise."
+    dados_atualizados["correcao_solicitada"] = (
+        "Documentos corrompidos, sem possibilidade de análise."
+    )
     documento.status = DocumentoDeRecebimento.workflow_class.ENVIADO_PARA_ANALISE
     documento.save()
 

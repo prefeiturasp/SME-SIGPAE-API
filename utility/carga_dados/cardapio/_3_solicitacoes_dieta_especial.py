@@ -1,6 +1,7 @@
 """
-    Antes de rodar isso vc deve ter rodado as escolas e as fixtures e associar usuarios as instituicoes
+Antes de rodar isso vc deve ter rodado as escolas e as fixtures e associar usuarios as instituicoes
 """
+
 import datetime
 import random
 import string

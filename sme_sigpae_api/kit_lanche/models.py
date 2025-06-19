@@ -849,13 +849,13 @@ class SolicitacaoKitLancheCEMEI(
     def solicitacoes_similares(self):
         filtros = {"data": self.data, "escola": self.escola}
         if self.tem_solicitacao_cei:
-            filtros[
-                "solicitacao_cei__tempo_passeio"
-            ] = self.solicitacao_cei.tempo_passeio
+            filtros["solicitacao_cei__tempo_passeio"] = (
+                self.solicitacao_cei.tempo_passeio
+            )
         if self.tem_solicitacao_emei:
-            filtros[
-                "solicitacao_emei__tempo_passeio"
-            ] = self.solicitacao_emei.tempo_passeio
+            filtros["solicitacao_emei__tempo_passeio"] = (
+                self.solicitacao_emei.tempo_passeio
+            )
         return SolicitacaoKitLancheCEMEI.objects.filter(**filtros).exclude(
             Q(uuid=self.uuid)
             | Q(status=SolicitacaoKitLancheCEMEI.workflow_class.RASCUNHO)

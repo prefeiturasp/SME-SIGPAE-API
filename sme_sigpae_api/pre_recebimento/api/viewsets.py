@@ -706,11 +706,11 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
         ]
 
         if status:
-            dados_dashboard[0][
-                "total"
-            ] = SolicitacaoAlteracaoCronograma.objects.filtrar_por_status(
-                status, filtros
-            ).count()
+            dados_dashboard[0]["total"] = (
+                SolicitacaoAlteracaoCronograma.objects.filtrar_por_status(
+                    status, filtros
+                ).count()
+            )
 
         return dados_dashboard
 

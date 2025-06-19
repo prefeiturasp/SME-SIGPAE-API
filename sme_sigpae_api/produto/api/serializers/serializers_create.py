@@ -174,10 +174,10 @@ class ProdutoSerializerCreate(serializers.ModelSerializer):
             )
         for informacao in validated_data.get("informacoes_nutricionais", []):
             if type(informacao.get("informacao_nutricional")) == str:
-                informacao[
-                    "informacao_nutricional"
-                ] = InformacaoNutricional.objects.get(
-                    uuid=informacao.get("informacao_nutricional")
+                informacao["informacao_nutricional"] = (
+                    InformacaoNutricional.objects.get(
+                        uuid=informacao.get("informacao_nutricional")
+                    )
                 )
         for especificacao in validated_data.get("especificacoes", []):
             if type(especificacao.get("unidade_de_medida")) == str:

@@ -168,11 +168,9 @@ def get_tamanho_colunas_periodos(tabelas, ordem_periodos_grupos, tipo_unidade=No
         for periodo in tabela["periodos"]:
             if tipo_unidade == "CEMEI" and periodo in ["INTEGRAL", "PARCIAL"]:
                 tabela["len_periodos"] += [
-                    (
-                        sum(
-                            (x["numero_campos"] * 2) + 1
-                            for x in tabela["categorias_dos_periodos"][periodo]
-                        )
+                    sum(
+                        (x["numero_campos"] * 2) + 1
+                        for x in tabela["categorias_dos_periodos"][periodo]
                     )
                 ]
             else:
@@ -622,9 +620,11 @@ def add_periodo_to_table(  # noqa: C901
     ]
     if nome_periodo == "PARCIAL":
         table["len_categorias"] = [
-            table["categoria_values"][f'{cat_obj["categoria"]}__PARCIAL']
-            if cat_obj["periodo"] == "PARCIAL"
-            else table["categoria_values"][cat_obj["categoria"]]
+            (
+                table["categoria_values"][f'{cat_obj["categoria"]}__PARCIAL']
+                if cat_obj["periodo"] == "PARCIAL"
+                else table["categoria_values"][cat_obj["categoria"]]
+            )
             for cat_obj in table["categorias"]
         ]
     else:
@@ -3797,9 +3797,9 @@ def gerar_dicionario_e_buscar_valores_medicao(data, medicao):
             valor_medicao.exists()
             and valor_medicao.first().valor != valor_atualizado.get("valor")
         ):
-            dicionario_alteracoes[
-                str(valor_medicao.first().uuid)
-            ] = valor_atualizado.get("valor")
+            dicionario_alteracoes[str(valor_medicao.first().uuid)] = (
+                valor_atualizado.get("valor")
+            )
 
     valores_medicao = ValorMedicao.objects.filter(uuid__in=dicionario_alteracoes.keys())
     return dicionario_alteracoes, valores_medicao

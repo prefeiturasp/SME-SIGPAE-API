@@ -759,10 +759,9 @@ class SolicitacaoMedicaoInicialViewSet(
                 categoria_medicao__nome__icontains="DIETA"
             ):
                 if valor_medicao.nome_campo not in campos_a_desconsiderar:
-                    total_por_nome_campo[
-                        valor_medicao.nome_campo
-                    ] = total_por_nome_campo.get(valor_medicao.nome_campo, 0) + int(
-                        valor_medicao.valor
+                    total_por_nome_campo[valor_medicao.nome_campo] = (
+                        total_por_nome_campo.get(valor_medicao.nome_campo, 0)
+                        + int(valor_medicao.valor)
                     )
             total_por_nome_campo = tratar_valores(escola, total_por_nome_campo)
             valor_total = get_valor_total(escola, total_por_nome_campo, medicao)
