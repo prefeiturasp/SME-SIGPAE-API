@@ -1020,6 +1020,10 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
     def _finaliza_medicao_sem_lancamentos(self, instance, validated_data):
         if not validated_data.get("justificativa_sem_lancamentos", None):
             return
+        if instance.escola.possui_qualquer_solicitacao_autorizada_no_mes(
+            instance.mes, instance.ano
+        ):
+            pass
         instance.ue_envia(user=self.context["request"].user)
         for medicao in instance.medicoes.all():
             medicao.ue_envia(user=self.context["request"].user)

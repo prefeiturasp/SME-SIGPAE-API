@@ -961,63 +961,105 @@ class Escola(
             )
         return resultados
 
-    def possui_kit_lanche_avulso_autorizado_no_mes(self, mes: int, ano: int) -> bool:
-        if self.eh_cei or self.eh_cemei:
-            return False
-        return self.solicitacoes_kit_lanche_avulsa.filter(
+    def possui_kit_lanche_avulso_autorizado_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
+        if "Solicitações de Alimentação" in lista_erros or self.eh_cei or self.eh_cemei:
+            return lista_erros
+        if self.solicitacoes_kit_lanche_avulsa.filter(
             status="CODAE_AUTORIZADO",
             solicitacao_kit_lanche__data__month=mes,
             solicitacao_kit_lanche__data__year=ano,
-        ).exists()
+        ).exists():
+            lista_erros.append("Solicitações de Alimentação")
+        return lista_erros
 
-    def possui_kit_lanche_unificado_autorizado_no_mes(self, mes: int, ano: int) -> bool:
-        return self.escolaquantidade_set.filter(
+    def possui_kit_lanche_unificado_autorizado_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
+        if "Solicitações de Alimentação" in lista_erros:
+            return lista_erros
+        if self.escolaquantidade_set.filter(
             solicitacao_unificada__status="CODAE_AUTORIZADO",
             cancelado=False,
             solicitacao_unificada__solicitacao_kit_lanche__data__month=mes,
             solicitacao_unificada__solicitacao_kit_lanche__data__year=ano,
-        ).exists()
+        ).exists():
+            lista_erros.append("Solicitações de Alimentação")
+        return lista_erros
 
-    def possui_kit_lanche_cei_autorizado_no_mes(self, mes: int, ano: int) -> bool:
-        if not self.eh_cei:
-            return False
-        return self.solicitacoes_kit_lanche_cei_avulsa.filter(
+    def possui_kit_lanche_cei_autorizado_no_mes(
+        self, mes: int, ano: int, lista_erros
+    ) -> list:
+        if "Solicitações de Alimentação" in lista_erros or not self.eh_cei:
+            return lista_erros
+        if self.solicitacoes_kit_lanche_cei_avulsa.filter(
             status="CODAE_AUTORIZADO",
             solicitacao_kit_lanche__data__month=mes,
             solicitacao_kit_lanche__data__year=ano,
-        ).exists()
+        ).exists():
+            lista_erros.append("Solicitações de Alimentação")
+        return lista_erros
 
-    def possui_kit_lanche_cemei_autorizado_no_mes(self, mes: int, ano: int) -> bool:
-        if not self.eh_cemei:
-            return False
-        return self.solicitacoes_kit_lanche_cemei.filter(
+    def possui_kit_lanche_cemei_autorizado_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
+        if "Solicitações de Alimentação" in lista_erros or not self.eh_cemei:
+            return lista_erros
+        if self.solicitacoes_kit_lanche_cemei.filter(
             status="CODAE_AUTORIZADO", data__month=mes, data__year=ano
-        ).exists()
+        ).exists():
+            lista_erros.append("Solicitações de Alimentação")
+        return lista_erros
 
-    def possui_qualquer_kit_lanche_autorizado_no_mes(self, mes: int, ano: int) -> bool:
-        return (
-            self.possui_kit_lanche_avulso_autorizado_no_mes(mes, ano)
-            | self.possui_kit_lanche_unificado_autorizado_no_mes(mes, ano)
-            | self.possui_kit_lanche_cei_autorizado_no_mes(mes, ano)
-            | self.possui_kit_lanche_cemei_autorizado_no_mes(mes, ano)
+    def possui_qualquer_kit_lanche_autorizado_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
+        lista_erros = self.possui_kit_lanche_avulso_autorizado_no_mes(
+            mes, ano, lista_erros
         )
+        lista_erros = self.possui_kit_lanche_unificado_autorizado_no_mes(
+            mes, ano, lista_erros
+        )
+        lista_erros = self.possui_kit_lanche_cei_autorizado_no_mes(
+            mes, ano, lista_erros
+        )
+        lista_erros = self.possui_kit_lanche_cemei_autorizado_no_mes(
+            mes, ano, lista_erros
+        )
+        return lista_erros
 
-    def possui_alteracao_generica_autorizada_no_mes(self, mes: int, ano: int) -> bool:
-        if self.eh_cei or self.eh_cemei:
-            return False
-        return self.alteracaocardapio_set.filter(
+    def possui_alteracao_generica_lanche_emergencial_autorizada_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
+        if "Solicitações de Alimentação" in lista_erros or self.eh_cei or self.eh_cemei:
+            return lista_erros
+        if self.alteracaocardapio_set.filter(
             status="CODAE_AUTORIZADO",
             datas_intervalo__data__month=mes,
             datas_intervalo__data__year=ano,
             datas_intervalo__cancelado=False,
-        ).exists()
+            motivo__nome="Lanche Emergencial",
+        ).exists():
+            lista_erros.append("Solicitações de Alimentação")
+        return lista_erros
 
-    def possui_alteracao_cei_autorizada_no_mes(self, mes: int, ano: int) -> bool:
+    def possui_alteracao_cei_autorizada_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
         if not self.eh_cei:
-            return False
-        return self.alteracaocardapiocei_set.filter(
+            return lista_erros
+        if self.alteracaocardapiocei_set.filter(
             status="CODAE_AUTORIZADO", data__month=mes, data__year=ano
-        ).exists()
+        ).exists():
+            periodos_escolares_nomes = list(
+                self.alteracaocardapiocei_set.values_list(
+                    "substituicoes_cei_periodo_escolar__periodo_escolar__nome",
+                    flat=True,
+                ).distinct()
+            )
+        lista_erros = list(set(periodos_escolares_nomes + lista_erros))
+        return lista_erros
 
     def possui_alteracao_cemei_autorizada_no_mes(self, mes: int, ano: int) -> bool:
         if not self.eh_cemei:
