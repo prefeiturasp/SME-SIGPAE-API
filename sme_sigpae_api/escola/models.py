@@ -53,6 +53,7 @@ from ..dados_comuns.fluxo_status import (
 from ..dados_comuns.utils import (
     datetime_range,
     eh_fim_de_semana,
+    get_ultimo_dia_mes,
     quantidade_meses,
     queryset_por_data,
     subtrai_meses_de_data,
@@ -993,12 +994,102 @@ class Escola(
             status="CODAE_AUTORIZADO", data__month=mes, data__year=ano
         ).exists()
 
-    def possui_solicitacao_autorizada_no_mes(self, mes, ano):
+    def possui_qualquer_kit_lanche_autorizado_no_mes(self, mes: int, ano: int) -> bool:
         return (
             self.possui_kit_lanche_avulso_autorizado_no_mes(mes, ano)
             | self.possui_kit_lanche_unificado_autorizado_no_mes(mes, ano)
             | self.possui_kit_lanche_cei_autorizado_no_mes(mes, ano)
             | self.possui_kit_lanche_cemei_autorizado_no_mes(mes, ano)
+        )
+
+    def possui_alteracao_generica_autorizada_no_mes(self, mes: int, ano: int) -> bool:
+        if self.eh_cei or self.eh_cemei:
+            return False
+        return self.alteracaocardapio_set.filter(
+            status="CODAE_AUTORIZADO",
+            datas_intervalo__data__month=mes,
+            datas_intervalo__data__year=ano,
+            datas_intervalo__cancelado=False,
+        ).exists()
+
+    def possui_alteracao_cei_autorizada_no_mes(self, mes: int, ano: int) -> bool:
+        if not self.eh_cei:
+            return False
+        return self.alteracaocardapiocei_set.filter(
+            status="CODAE_AUTORIZADO", data__month=mes, data__year=ano
+        ).exists()
+
+    def possui_alteracao_cemei_autorizada_no_mes(self, mes: int, ano: int) -> bool:
+        if not self.eh_cemei:
+            return False
+        return self.alteracaocardapiocemei_set.filter(
+            status="CODAE_AUTORIZADO",
+            datas_intervalo__data__month=mes,
+            datas_intervalo__data__year=ano,
+            datas_intervalo__cancelado=False,
+        ).exists()
+
+    def possui_qualquer_alteracao_autorizada_no_mes(self, mes: int, ano: int) -> bool:
+        return (
+            self.possui_alteracao_generica_autorizada_no_mes(mes, ano)
+            | self.possui_alteracao_cei_autorizada_no_mes(mes, ano)
+            | self.possui_alteracao_cemei_autorizada_no_mes(mes, ano)
+        )
+
+    def possui_inclusao_normal_autorizada_no_mes(self, mes: int, ano: int) -> bool:
+        if self.eh_cei or self.eh_cemei:
+            return False
+        return self.grupos_inclusoes.filter(
+            status="CODAE_AUTORIZADO",
+            quantidades_por_periodo__cancelado=False,
+            inclusoes_normais__data__month=mes,
+            inclusoes_normais__data__year=ano,
+        ).exists()
+
+    def possui_inclusao_continua_autorizada_no_mes(self, mes: int, ano: int) -> bool:
+        if self.eh_cei:
+            return False
+        primeiro_dia_mes = datetime.date(ano, mes, 1)
+        ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
+        return self.inclusoes_alimentacao_continua.filter(
+            status="CODAE_AUTORIZADO",
+            data_inicial__lte=ultimo_dia_mes,
+            data_final__gte=primeiro_dia_mes,
+        ).exists()
+
+    def possui_inclusao_cei_autorizada_no_mes(self, mes: int, ano: int) -> bool:
+        if not self.eh_cei:
+            return False
+        return self.grupos_inclusoes_por_cei.filter(
+            status="CODAE_AUTORIZADO",
+            dias_motivos_da_inclusao_cei__data__month=mes,
+            dias_motivos_da_inclusao_cei__data__year=ano,
+            dias_motivos_da_inclusao_cei__cancelado=False,
+        ).exists()
+
+    def possui_inclusao_cemei_autorizada_no_mes(self, mes: int, ano: int) -> bool:
+        if not self.eh_cemei:
+            return False
+        return self.inclusoes_de_alimentacao_cemei.filter(
+            status="CODAE_AUTORIZADO",
+            dias_motivos_da_inclusao_cemei__data__month=mes,
+            dias_motivos_da_inclusao_cemei__data__year=ano,
+            dias_motivos_da_inclusao_cemei__cancelado=False,
+        ).exists()
+
+    def possui_qualquer_inclusao_autorizada_no_mes(self, mes: int, ano: int) -> bool:
+        return (
+            self.possui_inclusao_normal_autorizada_no_mes(mes, ano)
+            | self.possui_inclusao_continua_autorizada_no_mes(mes, ano)
+            | self.possui_inclusao_cei_autorizada_no_mes(mes, ano)
+            | self.possui_inclusao_cemei_autorizada_no_mes(mes, ano)
+        )
+
+    def possui_qualquer_solicitacao_autorizada_no_mes(self, mes: int, ano: int) -> bool:
+        return (
+            self.possui_qualquer_kit_lanche_autorizado_no_mes(mes, ano)
+            | self.possui_qualquer_alteracao_autorizada_no_mes(mes, ano)
+            | self.possui_qualquer_inclusao_autorizada_no_mes(mes, ano)
         )
 
     class Meta:
