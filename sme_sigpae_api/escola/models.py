@@ -960,6 +960,47 @@ class Escola(
             )
         return resultados
 
+    def possui_kit_lanche_avulso_autorizado_no_mes(self, mes: int, ano: int) -> bool:
+        if self.eh_cei or self.eh_cemei:
+            return False
+        return self.solicitacoes_kit_lanche_avulsa.filter(
+            status="CODAE_AUTORIZADO",
+            solicitacao_kit_lanche__data__month=mes,
+            solicitacao_kit_lanche__data__year=ano,
+        ).exists()
+
+    def possui_kit_lanche_unificado_autorizado_no_mes(self, mes: int, ano: int) -> bool:
+        return self.escolaquantidade_set.filter(
+            solicitacao_unificada__status="CODAE_AUTORIZADO",
+            cancelado=False,
+            solicitacao_unificada__solicitacao_kit_lanche__data__month=mes,
+            solicitacao_unificada__solicitacao_kit_lanche__data__year=ano,
+        ).exists()
+
+    def possui_kit_lanche_cei_autorizado_no_mes(self, mes: int, ano: int) -> bool:
+        if not self.eh_cei:
+            return False
+        return self.solicitacoes_kit_lanche_cei_avulsa.filter(
+            status="CODAE_AUTORIZADO",
+            solicitacao_kit_lanche__data__month=mes,
+            solicitacao_kit_lanche__data__year=ano,
+        ).exists()
+
+    def possui_kit_lanche_cemei_autorizado_no_mes(self, mes: int, ano: int) -> bool:
+        if not self.eh_cemei:
+            return False
+        return self.solicitacoes_kit_lanche_cemei.filter(
+            status="CODAE_AUTORIZADO", data__month=mes, data__year=ano
+        ).exists()
+
+    def possui_solicitacao_autorizada_no_mes(self, mes, ano):
+        return (
+            self.possui_kit_lanche_avulso_autorizado_no_mes(mes, ano)
+            | self.possui_kit_lanche_unificado_autorizado_no_mes(mes, ano)
+            | self.possui_kit_lanche_cei_autorizado_no_mes(mes, ano)
+            | self.possui_kit_lanche_cemei_autorizado_no_mes(mes, ano)
+        )
+
     class Meta:
         verbose_name = "Escola"
         verbose_name_plural = "Escolas"
