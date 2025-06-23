@@ -35,7 +35,11 @@ from ..medicao_inicial.utils import (
     build_tabelas_relatorio_medicao_cemei,
     build_tabelas_relatorio_medicao_emebs,
 )
-from ..pre_recebimento.api.helpers import retorna_status_ficha_tecnica
+from ..pre_recebimento.api.helpers import (
+    formata_cnpj_ficha_tecnica,
+    formata_telefone_ficha_tecnica,
+    retorna_status_ficha_tecnica,
+)
 from ..pre_recebimento.models import InformacoesNutricionaisFichaTecnica
 from ..relatorios.utils import (
     html_to_pdf_cancelada,
@@ -1713,6 +1717,14 @@ def get_pdf_ficha_tecnica(request, ficha):
             "status_ficha": retorna_status_ficha_tecnica(ficha.status),
             "tabela": list(informacoes_nutricionais),
             "logs": ficha.logs,
+            "cnpj_fabricante": formata_cnpj_ficha_tecnica(ficha.cnpj_fabricante),
+            "telefone_fabricante": formata_telefone_ficha_tecnica(
+                ficha.telefone_fabricante
+            ),
+            "cnpj_distribuidor": formata_cnpj_ficha_tecnica(ficha.cnpj_fabricante),
+            "telefone_distribuidor": formata_telefone_ficha_tecnica(
+                ficha.telefone_fabricante
+            ),
         },
     )
     data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")

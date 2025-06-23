@@ -28,19 +28,13 @@
       </div>
     </div>
 
-    <div id="dados_fabricante">
-      <h5 class="title titulo-secao separator">PRODUTO E FABRICANTE </h5>
+    <div id="dados_fabricante_envasador">
+      <h5 class="title titulo-secao separator">FABRICANTE E/OU ENVASADOR/DISTRIBUIDOR </h5>
 
       <div class="content">
         <div class="row pb-3">
-          <div class="col-12">Produto: <span class="font-weight-bold"> {{ficha.produto.nome}}</span> </div>
+          <div class="col-12">Fabricante: <span class="font-weight-bold"> {{ficha.fabricante.nome}}</span> </div>
         </div>
-
-        <div class="row pb-3">
-          <div class="col-6">Marca: <span class="font-weight-bold"> {{ficha.marca.nome}}</span> </div>
-          <div class="col-6">Fabricante: <span class="font-weight-bold"> {{ficha.fabricante.nome}}</span> </div>
-        </div>
-
         <div class="row pb-3">
           <div class="col-12">
             Endereço:
@@ -50,16 +44,31 @@
             </span>
           </div>
         </div>
-
         <div class="row pb-3">
-          <div class="col-6">CNPJ: <span class="font-weight-bold"> {{ficha.cnpj_fabricante}}</span> </div>
-          <div class="col-6">Telefone: <span class="font-weight-bold"> {{ficha.telefone_fabricante}}</span> </div>
-
+          <div class="col-6">CNPJ: <span class="font-weight-bold"> {{cnpj_fabricante}}</span> </div>
+          <div class="col-6">Telefone: <span class="font-weight-bold"> {{telefone_fabricante}}</span> </div>
         </div>
-
         <div class="row pb-3">
           <div class="col-12">E-mail: <span class="font-weight-bold"> {{ficha.email_fabricante}}</span> </div>
         </div>
+
+        <hr/>
+
+        <div class="row pb-3">
+          <div class="col-12">Envasador/Distribuidor: <span class="font-weight-bold"> Envasador Distribuir de São Paulo</span> </div>
+        </div>
+        <div class="row pb-3">
+          <div class="col-12">Endereço: <span class="font-weight-bold"> Rua ABC, número 123, Bairro Centro, São Paulo, SP</span> </div>
+        </div>
+                <div class="row pb-3">
+          <div class="col-6">CNPJ: <span class="font-weight-bold"> {{cnpj_distribuidor}}</span> </div>
+          <div class="col-6">Telefone: <span class="font-weight-bold"> {{telefone_distribuidor}}</span> </div>
+        </div>
+        <div class="row pb-3">
+          <div class="col-12">E-mail: <span class="font-weight-bold"> envasador.fornecedor@email.com</span> </div>
+        </div>
+
+
       </div>
     </div>
 
