@@ -309,3 +309,18 @@ def solicitacao_dieta_especial_inativa(
     solicitacao_dieta_especial_autorizada.ativo = False
     solicitacao_dieta_especial_autorizada.save()
     return solicitacao_dieta_especial_autorizada
+
+
+@pytest.fixture
+def ficha_tecnica():
+    ficha_tecnica = mommy.make(
+        "FichaTecnicaDoProduto",
+        fabricante=mommy.make("Fabricante", nome="FABRICANTE"),
+        endereco_fabricante="Rua Teste, 123",
+        cnpj_fabricante="12345678000195",
+        cep_fabricante="12345678",
+        email_fabricante="fabricante@email.com",
+        telefone_fabricante="11900000000",
+    )
+    mommy.make("InformacoesNutricionaisFichaTecnica", ficha_tecnica=ficha_tecnica)
+    return ficha_tecnica

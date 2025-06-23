@@ -2,9 +2,14 @@ import re
 
 import pytest
 
+from sme_sigpae_api.pre_recebimento.api.helpers import (
+    formata_cnpj_ficha_tecnica,
+    formata_telefone_ficha_tecnica,
+)
 from sme_sigpae_api.relatorios.utils import extrair_texto_de_pdf
 
 from ..relatorios import (
+    get_pdf_ficha_tecnica,
     get_total_por_periodo,
     obter_justificativa_dieta,
     relatorio_dieta_especial_protocolo,
@@ -292,3 +297,22 @@ def test_obter_justificativa_dieta_dieta_inativa(solicitacao_dieta_especial_inat
         justificativa
         == f'Dieta Inativada em: {log_recente.criado_em.strftime("%d/%m/%Y")} | Justificativa: Autorização de novo protocolo de dieta especial'
     )
+
+
+def test_get_pdf_ficha_tecnica(ficha_tecnica):
+
+    response = get_pdf_ficha_tecnica(None, ficha_tecnica)
+    nome_pdf = f"ficha_tecnica_{ficha_tecnica.numero}.pdf"
+    texto = extrair_texto_de_pdf(response.content)
+
+    assert response["Content-Type"] == "application/pdf"
+    assert f'filename="{nome_pdf}"' in response["Content-Disposition"]
+
+    assert "FABRICANTE E/OU ENVASADOR/DISTRIBUIDOR" in texto
+    assert "Fabricante" in texto
+    assert ficha_tecnica.fabricante.nome in texto
+    assert ficha_tecnica.endereco_fabricante in texto
+    assert ficha_tecnica.email_fabricante in texto
+    assert ficha_tecnica.cep_fabricante in texto
+    assert formata_telefone_ficha_tecnica(ficha_tecnica.telefone_fabricante) in texto
+    assert formata_cnpj_ficha_tecnica(ficha_tecnica.cnpj_fabricante) in texto
