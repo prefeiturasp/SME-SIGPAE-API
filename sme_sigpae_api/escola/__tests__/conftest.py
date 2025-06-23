@@ -663,9 +663,11 @@ def dados_planilha_alunos_matriculados(alunos_matriculados_periodo_escola_regula
     queryset = [
         {
             "dre": alunos_matriculados_periodo_escola_regular.escola.diretoria_regional.nome,
-            "lote": alunos_matriculados_periodo_escola_regular.escola.lote.nome
-            if alunos_matriculados_periodo_escola_regular.escola.lote
-            else " - ",
+            "lote": (
+                alunos_matriculados_periodo_escola_regular.escola.lote.nome
+                if alunos_matriculados_periodo_escola_regular.escola.lote
+                else " - "
+            ),
             "tipo_unidade": alunos_matriculados_periodo_escola_regular.escola.tipo_unidade.iniciais,
             "escola": alunos_matriculados_periodo_escola_regular.escola.nome,
             "periodo_escolar": alunos_matriculados_periodo_escola_regular.periodo_escolar.nome,
@@ -693,9 +695,11 @@ def dados_planilha_alunos_matriculados_cei_cemei(
     queryset = [
         {
             "dre": alunos_matriculados_periodo_escola_regular.escola.diretoria_regional.nome,
-            "lote": alunos_matriculados_periodo_escola_regular.escola.lote.nome
-            if alunos_matriculados_periodo_escola_regular.escola.lote
-            else " - ",
+            "lote": (
+                alunos_matriculados_periodo_escola_regular.escola.lote.nome
+                if alunos_matriculados_periodo_escola_regular.escola.lote
+                else " - "
+            ),
             "tipo_unidade": alunos_matriculados_periodo_escola_regular.escola.tipo_unidade.iniciais,
             "escola": alunos_matriculados_periodo_escola_regular.escola.nome,
             "periodo_escolar": alunos_matriculados_periodo_escola_regular.periodo_escolar.nome,

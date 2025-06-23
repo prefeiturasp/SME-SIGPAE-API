@@ -307,9 +307,7 @@ def _total_pagamento_emef(medicao, nome_campo):
         valor_comparativo = (
             matriculados.valor
             if matriculados
-            else numero_de_alunos.valor
-            if numero_de_alunos
-            else 0
+            else numero_de_alunos.valor if numero_de_alunos else 0
         )
         total_pagamento += min(int(total_dia), int(valor_comparativo))
 

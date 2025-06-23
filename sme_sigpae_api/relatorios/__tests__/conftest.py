@@ -233,7 +233,8 @@ def solicitacao_dieta_especial_cancelada(
     solicitacao_dieta_especial_autorizada.cancelar_pedido(
         user=user, justificativa="Não há necessidade"
     )
-
+    solicitacao_dieta_especial_autorizada.ativo = False
+    solicitacao_dieta_especial_autorizada.save()
     return solicitacao_dieta_especial_autorizada
 
 
@@ -291,3 +292,20 @@ def solicitacao_dieta_especial_autorizada_alteracao_ue(
     solicitacao_dieta_especial_a_autorizar.codae_autoriza(user=user)
 
     return solicitacao_dieta_especial_a_autorizar
+
+
+@pytest.fixture
+def solicitacao_dieta_especial_inativa(
+    client, solicitacao_dieta_especial_autorizada, usuario_escola
+):
+    user, password = usuario_escola
+    client.login(username=user.email, password=password)
+    solicitacao_dieta_especial_autorizada.inicia_fluxo_inativacao(
+        user=user, justificativa="Não há necessidade"
+    )
+    solicitacao_dieta_especial_autorizada.codae_autoriza_inativacao(
+        user=user, justificativa="Não há necessidade"
+    )
+    solicitacao_dieta_especial_autorizada.ativo = False
+    solicitacao_dieta_especial_autorizada.save()
+    return solicitacao_dieta_especial_autorizada
