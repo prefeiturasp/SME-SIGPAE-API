@@ -41,9 +41,9 @@ class Command(BaseCommand):
         )
         dict_periodos_escolares_por_tipo_turno = {}
         for tipo_turno in lista_tipo_turnos:
-            dict_periodos_escolares_por_tipo_turno[
-                tipo_turno
-            ] = PeriodoEscolar.objects.get(tipo_turno=tipo_turno)
+            dict_periodos_escolares_por_tipo_turno[tipo_turno] = (
+                PeriodoEscolar.objects.get(tipo_turno=tipo_turno)
+            )
         self.dict_periodos_escolares_por_tipo_turno = (
             dict_periodos_escolares_por_tipo_turno
         )

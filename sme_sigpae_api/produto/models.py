@@ -755,9 +755,11 @@ class HomologacaoProduto(
                 produto_edital, criado = ProdutoEdital.objects.get_or_create(
                     produto=self.produto,
                     edital=edital,
-                    tipo_produto=ProdutoEdital.DIETA_ESPECIAL
-                    if eh_para_alunos_com_dieta
-                    else ProdutoEdital.COMUM,
+                    tipo_produto=(
+                        ProdutoEdital.DIETA_ESPECIAL
+                        if eh_para_alunos_com_dieta
+                        else ProdutoEdital.COMUM
+                    ),
                 )
                 produto_edital.suspenso = False
                 produto_edital.save()

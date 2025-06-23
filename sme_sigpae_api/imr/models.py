@@ -282,9 +282,9 @@ class TipoOcorrencia(
             if self.pontuacao:
                 dict_error["pontuacao"] = "Pontuação só deve ser preenchida se for IMR."
             if self.tolerancia:
-                dict_error[
-                    "tolerancia"
-                ] = "Tolerância só deve ser preenchida se for IMR."
+                dict_error["tolerancia"] = (
+                    "Tolerância só deve ser preenchida se for IMR."
+                )
         return dict_error
 
     def clean(self):
@@ -857,16 +857,16 @@ class FaixaPontuacaoIMR(ModeloBase):
             faixa[0] <= self.pontuacao_minima <= (faixa[1] or faixa[0])
             for faixa in faixas
         ):
-            dict_error[
-                "pontuacao_minima"
-            ] = "Esta pontuação mínima já se encontra dentro de outra faixa."
+            dict_error["pontuacao_minima"] = (
+                "Esta pontuação mínima já se encontra dentro de outra faixa."
+            )
         if self.pontuacao_maxima and any(
             faixa[0] <= self.pontuacao_maxima <= (faixa[1] or faixa[0])
             for faixa in faixas
         ):
-            dict_error[
-                "pontuacao_maxima"
-            ] = "Esta pontuação máxima já se encontra dentro de outra faixa."
+            dict_error["pontuacao_maxima"] = (
+                "Esta pontuação máxima já se encontra dentro de outra faixa."
+            )
         raise ValidationError(dict_error)
 
     def __str__(self):
