@@ -196,7 +196,7 @@ class SolicitacaoMedicaoInicial(
             return None
 
     def get_or_create_medicao_por_periodo_e_ou_grupo(self, periodo_e_ou_grupo: str):
-        if self.medicoes.filter(grupo__nome=periodo_e_ou_grupo).exists():
+        if GrupoMedicao.objects.filter(nome=periodo_e_ou_grupo).exists():
             grupo = GrupoMedicao.objects.get(nome=periodo_e_ou_grupo)
             medicao, created = Medicao.objects.get_or_create(
                 solicitacao_medicao_inicial=self, grupo=grupo
@@ -335,7 +335,7 @@ class Medicao(
 
     def possui_ao_menos_uma_observacao(self) -> bool:
         return (
-            self.valores_medicao.filter(nome_campo="observacao")
+            self.valores_medicao.filter(nome_campo="observacoes")
             .exclude(valor="")
             .exists()
         )

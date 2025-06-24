@@ -1024,32 +1024,34 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 int(instance.mes), int(instance.ano)
             )
         )
-        if medicoes_nomes_com_solicitacoes_autorizadas:
-            lista_erros = []
-            for medicao_nome in medicoes_nomes_com_solicitacoes_autorizadas:
-                medicao = instance.get_or_create_medicao_por_periodo_e_ou_grupo(
-                    medicao_nome
-                )
-                if medicao_nome in ["Programas e Projetos", "ETEC"]:
-                    if not medicao.possui_ao_menos_uma_observacao():
-                        lista_erros.append(
-                            {
-                                "periodo_escolar": medicao_nome,
-                                "erro": "Existem solicitações de alimentações no período, "
-                                "adicione ao menos uma justificativa para finalizar",
-                            }
-                        )
-                else:
+        if not medicoes_nomes_com_solicitacoes_autorizadas:
+            return
+        lista_erros = []
+        print(medicoes_nomes_com_solicitacoes_autorizadas)
+        for medicao_nome in medicoes_nomes_com_solicitacoes_autorizadas:
+            medicao = instance.get_or_create_medicao_por_periodo_e_ou_grupo(
+                medicao_nome
+            )
+            if medicao_nome in ["Programas e Projetos", "ETEC"]:
+                if not medicao.possui_ao_menos_uma_observacao():
                     lista_erros.append(
                         {
                             "periodo_escolar": medicao_nome,
-                            "erro": "Existem solicitações de alimentações no período. "
-                            "Não é possível finalizar sem lançamentos.",
+                            "erro": "Existem solicitações de alimentações no período, "
+                            "adicione ao menos uma justificativa para finalizar",
                         }
                     )
+            else:
+                lista_erros.append(
+                    {
+                        "periodo_escolar": medicao_nome,
+                        "erro": "Existem solicitações de alimentações no período. "
+                        "Não é possível finalizar sem lançamentos.",
+                    }
+                )
 
-            if lista_erros:
-                raise serializers.ValidationError(lista_erros)
+        if lista_erros:
+            raise serializers.ValidationError(lista_erros)
 
     def _finaliza_medicao_sem_lancamentos(self, instance, validated_data):
         if not validated_data.get("justificativa_sem_lancamentos", None):
