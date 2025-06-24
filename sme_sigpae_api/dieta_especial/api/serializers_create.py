@@ -224,12 +224,14 @@ class SolicitacaoDietaEspecialCreateSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
-        if data.get('dieta_para_recreio_ferias'):
-            if not data.get('periodo_recreio_inicio') or not data.get('periodo_recreio_fim'):
+        if data.get("dieta_para_recreio_ferias"):
+            if not data.get("periodo_recreio_inicio") or not data.get(
+                "periodo_recreio_fim"
+            ):
                 raise serializers.ValidationError(
                     "Os campos de período são obrigatórios quando dieta para recreio nas férias está selecionada."
                 )
-            if data['periodo_recreio_fim'] < data['periodo_recreio_inicio']:
+            if data["periodo_recreio_fim"] < data["periodo_recreio_inicio"]:
                 raise serializers.ValidationError(
                     "A data final não pode ser anterior à data inicial."
                 )
