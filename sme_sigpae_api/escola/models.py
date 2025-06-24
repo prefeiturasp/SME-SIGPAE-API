@@ -11,7 +11,7 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.validators import MinLengthValidator, MinValueValidator
 from django.db import models
-from django.db.models import Q, Sum
+from django.db.models import F, Q, Sum
 from django_prometheus.models import ExportModelOperationsMixin
 from rest_framework import status
 
@@ -1015,16 +1015,16 @@ class Escola(
     def get_lista_erros_qualquer_kit_lanche_autorizado_no_mes(
         self, mes: int, ano: int, lista_erros: list
     ) -> list:
-        lista_erros = self.possui_kit_lanche_avulso_autorizado_no_mes(
+        lista_erros = self.get_lista_erros_kit_lanche_avulso_autorizado_no_mes(
             mes, ano, lista_erros
         )
-        lista_erros = self.possui_kit_lanche_unificado_autorizado_no_mes(
+        lista_erros = self.get_lista_erros_kit_lanche_unificado_autorizado_no_mes(
             mes, ano, lista_erros
         )
-        lista_erros = self.possui_kit_lanche_cei_autorizado_no_mes(
+        lista_erros = self.get_lista_erros_kit_lanche_cei_autorizado_no_mes(
             mes, ano, lista_erros
         )
-        lista_erros = self.possui_kit_lanche_cemei_autorizado_no_mes(
+        lista_erros = self.get_lista_erros_kit_lanche_cemei_autorizado_no_mes(
             mes, ano, lista_erros
         )
         return lista_erros
@@ -1129,7 +1129,7 @@ class Escola(
         lista_erros = self.get_lista_erros_alteracao_generica_rpl_lpr_autorizada_no_mes(
             mes, ano, lista_erros
         )
-        lista_erros = self.get_lista_erros_qualquer_kit_lanche_autorizado_no_mes(
+        lista_erros = self.get_lista_erros_alteracao_generica_lanche_emergencial_autorizada_no_mes(
             mes, ano, lista_erros
         )
         lista_erros = self.get_lista_erros_alteracao_cei_autorizada_no_mes(
@@ -1145,61 +1145,256 @@ class Escola(
         )
         return lista_erros
 
-    def possui_inclusao_normal_autorizada_no_mes(self, mes: int, ano: int) -> bool:
+    def get_lista_erros_inclusao_normal_autorizada_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
         if self.eh_cei or self.eh_cemei:
-            return False
-        return self.grupos_inclusoes.filter(
+            return lista_erros
+        queryset = self.grupos_inclusoes.filter(
             status="CODAE_AUTORIZADO",
             quantidades_por_periodo__cancelado=False,
             inclusoes_normais__data__month=mes,
             inclusoes_normais__data__year=ano,
-        ).exists()
+        )
+        if queryset.exists():
+            periodos_escolares_nomes = list(
+                queryset.values_list(
+                    "quantidades_por_periodo__periodo_escolar__nome", flat=True
+                ).distinct()
+            )
+            lista_erros = list(set(periodos_escolares_nomes + lista_erros))
+        return lista_erros
 
-    def possui_inclusao_continua_autorizada_no_mes(self, mes: int, ano: int) -> bool:
-        if self.eh_cei:
-            return False
+    def get_lista_erros_inclusao_continua_programas_projetos_autorizada_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
+        if "Programas e Projetos" in lista_erros or self.eh_cei:
+            return lista_erros
         primeiro_dia_mes = datetime.date(ano, mes, 1)
         ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
-        return self.inclusoes_alimentacao_continua.filter(
+        queryset = self.inclusoes_alimentacao_continua.filter(
             status="CODAE_AUTORIZADO",
             data_inicial__lte=ultimo_dia_mes,
             data_final__gte=primeiro_dia_mes,
-        ).exists()
+        ).exclude(motivo__nome="ETEC")
+        if queryset.exists():
+            lista_erros.append("Programas e Projetos")
+        return lista_erros
 
-    def possui_inclusao_cei_autorizada_no_mes(self, mes: int, ano: int) -> bool:
+    def get_lista_erros_inclusao_continua_etec_autorizada_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
+        if "ETEC" in lista_erros or self.eh_cei:
+            return lista_erros
+        primeiro_dia_mes = datetime.date(ano, mes, 1)
+        ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
+        queryset = self.inclusoes_alimentacao_continua.filter(
+            status="CODAE_AUTORIZADO",
+            data_inicial__lte=ultimo_dia_mes,
+            data_final__gte=primeiro_dia_mes,
+            motivo__nome="ETEC",
+        )
+        if queryset.exists():
+            lista_erros.append("ETEC")
+        return lista_erros
+
+    def get_lista_erros_inclusao_cei_parcial_autorizada_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
+        """
+        Verifica se há alguma inclusão CEI com período externo diferente do interno,
+        autorizada pela CODAE no mês e ano informados.
+
+        Args:
+            mes (int): Mês da solicitação.
+            ano (int): Ano da solicitação.
+            lista_erros (list): Lista de medições iniciais com solicitações identificadas anteriormente.
+
+        Returns:
+            list: A lista de erros atualizada, incluindo "PARCIAL" se for identificado periodos diferentes.
+        """
+
+        if "PARCIAL" in lista_erros or not self.eh_cei:
+            return lista_erros
+        if (
+            self.grupos_inclusoes_por_cei.filter(
+                status="CODAE_AUTORIZADO",
+                dias_motivos_da_inclusao_cei__data__month=mes,
+                dias_motivos_da_inclusao_cei__data__year=ano,
+                dias_motivos_da_inclusao_cei__cancelado=False,
+            )
+            .filter(
+                ~Q(
+                    quantidade_alunos_da_inclusao__periodo=F(
+                        "quantidade_alunos_da_inclusao__periodo_externo"
+                    )
+                )
+            )
+            .exists()
+        ):
+            lista_erros.append("PARCIAL")
+        return lista_erros
+
+    def get_lista_erros_inclusao_cei_periodos_escolares_autorizada_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
+        """
+        Verifica se há alguma inclusão CEI com período externo igual do interno,
+        autorizada pela CODAE no mês e ano informados.
+
+        Args:
+            mes (int): Mês da solicitação.
+            ano (int): Ano da solicitação.
+            lista_erros (list): Lista de medições iniciais com solicitações identificadas anteriormente.
+
+        Returns:
+            list: A lista de erros atualizada, incluindo "INTEGRAL", "MANHA", "TARDE", etc. se for identificado periodos iguais.
+        """
+
         if not self.eh_cei:
-            return False
-        return self.grupos_inclusoes_por_cei.filter(
+            return lista_erros
+        queryset = self.grupos_inclusoes_por_cei.filter(
             status="CODAE_AUTORIZADO",
             dias_motivos_da_inclusao_cei__data__month=mes,
             dias_motivos_da_inclusao_cei__data__year=ano,
             dias_motivos_da_inclusao_cei__cancelado=False,
-        ).exists()
+        ).filter(
+            Q(
+                quantidade_alunos_da_inclusao__periodo=F(
+                    "quantidade_alunos_da_inclusao__periodo_externo"
+                )
+            )
+        )
+        if queryset.exists():
+            periodos_escolares_nomes = list(
+                queryset.values_list(
+                    "quantidade_alunos_da_inclusao__periodo__nome", flat=True
+                ).distinct()
+            )
+            lista_erros = list(set(periodos_escolares_nomes + lista_erros))
+        return lista_erros
 
-    def possui_inclusao_cemei_autorizada_no_mes(self, mes: int, ano: int) -> bool:
-        if not self.eh_cemei:
-            return False
-        return self.inclusoes_de_alimentacao_cemei.filter(
+    def get_lista_erros_inclusao_cemei_cei_parcial_autorizada_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
+        if "PARCIAL" in lista_erros or not self.eh_cemei:
+            return lista_erros
+        queryset = self.inclusoes_de_alimentacao_cemei.filter(
             status="CODAE_AUTORIZADO",
             dias_motivos_da_inclusao_cemei__data__month=mes,
             dias_motivos_da_inclusao_cemei__data__year=ano,
             dias_motivos_da_inclusao_cemei__cancelado=False,
-        ).exists()
+            quantidade_alunos_cei_da_inclusao_cemei__isnull=False,
+        ).filter(
+            ~Q(
+                quantidade_alunos_cei_da_inclusao_cemei__periodo_escolar__nome="INTEGRAL"
+            )
+        )
+        if queryset.exists():
+            lista_erros.append("PARCIAL")
+        return lista_erros
 
-    def possui_qualquer_inclusao_autorizada_no_mes(self, mes: int, ano: int) -> bool:
-        return (
-            self.possui_inclusao_normal_autorizada_no_mes(mes, ano)
-            | self.possui_inclusao_continua_autorizada_no_mes(mes, ano)
-            | self.possui_inclusao_cei_autorizada_no_mes(mes, ano)
-            | self.possui_inclusao_cemei_autorizada_no_mes(mes, ano)
+    def get_lista_erros_inclusao_cemei_cei_integral_autorizada_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
+        if "INTEGRAL" in lista_erros or not self.eh_cemei:
+            return lista_erros
+        queryset = self.inclusoes_de_alimentacao_cemei.filter(
+            status="CODAE_AUTORIZADO",
+            dias_motivos_da_inclusao_cemei__data__month=mes,
+            dias_motivos_da_inclusao_cemei__data__year=ano,
+            dias_motivos_da_inclusao_cemei__cancelado=False,
+            quantidade_alunos_cei_da_inclusao_cemei__periodo_escolar__nome="INTEGRAL",
+        )
+        if queryset.exists():
+            lista_erros.append("INTEGRAL")
+        return lista_erros
+
+    def get_lista_erros_inclusao_cemei_emei_autorizada_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
+        if not self.eh_cemei:
+            return lista_erros
+        queryset = self.inclusoes_de_alimentacao_cemei.filter(
+            status="CODAE_AUTORIZADO",
+            dias_motivos_da_inclusao_cemei__data__month=mes,
+            dias_motivos_da_inclusao_cemei__data__year=ano,
+            dias_motivos_da_inclusao_cemei__cancelado=False,
+            quantidade_alunos_emei_da_inclusao_cemei__isnull=False,
+        )
+        if queryset.exists():
+            periodos_escolares_nomes = list(
+                queryset.values_list(
+                    "quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__nome",
+                    flat=True,
+                ).distinct()
+            )
+            nomes_normalizados = [
+                "Infantil " + nome for nome in periodos_escolares_nomes
+            ]
+            lista_erros = list(set(lista_erros + nomes_normalizados))
+        return lista_erros
+
+    def get_lista_erros_qualquer_inclusao_autorizada_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
+        lista_erros = self.get_lista_erros_inclusao_normal_autorizada_no_mes(
+            mes, ano, lista_erros
+        )
+        lista_erros = (
+            self.get_lista_erros_inclusao_continua_programas_projetos_autorizada_no_mes(
+                mes, ano, lista_erros
+            )
+        )
+        lista_erros = self.get_lista_erros_inclusao_continua_etec_autorizada_no_mes(
+            mes, ano, lista_erros
         )
 
-    def possui_qualquer_solicitacao_autorizada_no_mes(self, mes: int, ano: int) -> bool:
-        return (
-            self.possui_qualquer_kit_lanche_autorizado_no_mes(mes, ano)
-            | self.possui_qualquer_alteracao_autorizada_no_mes(mes, ano)
-            | self.possui_qualquer_inclusao_autorizada_no_mes(mes, ano)
+        lista_erros = (
+            self.get_lista_erros_inclusao_cei_periodos_escolares_autorizada_no_mes(
+                mes, ano, lista_erros
+            )
         )
+        lista_erros = self.get_lista_erros_inclusao_cei_parcial_autorizada_no_mes(
+            mes, ano, lista_erros
+        )
+
+        lista_erros = (
+            self.get_lista_erros_inclusao_cemei_cei_integral_autorizada_no_mes(
+                mes, ano, lista_erros
+            )
+        )
+        lista_erros = self.get_lista_erros_inclusao_cemei_cei_parcial_autorizada_no_mes(
+            mes, ano, lista_erros
+        )
+        lista_erros = self.get_lista_erros_inclusao_cemei_emei_autorizada_no_mes(
+            mes, ano, lista_erros
+        )
+
+        return lista_erros
+
+    def possui_qualquer_solicitacao_autorizada_no_mes(self, mes: int, ano: int) -> list:
+        """
+        Verifica se há alguma solicitação autorizada para o mês e ano passados como parâmetro
+
+        Args:
+            mes (int): Mês da solicitação.
+            ano (int): Ano da solicitação.
+
+        Returns:
+            list[str]: A lista de erros com os tipos de medição inicial possíveis
+        """
+        lista_erros = []
+        lista_erros = self.get_lista_erros_qualquer_kit_lanche_autorizado_no_mes(
+            mes, ano, lista_erros
+        )
+        lista_erros = self.get_lista_erros_qualquer_alteracao_autorizada_no_mes(
+            mes, ano, lista_erros
+        )
+        lista_erros = self.get_lista_erros_qualquer_inclusao_autorizada_no_mes(
+            mes, ano, lista_erros
+        )
+        return lista_erros
 
     class Meta:
         verbose_name = "Escola"
