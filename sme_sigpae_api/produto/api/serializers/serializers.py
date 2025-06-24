@@ -675,10 +675,21 @@ class ProdutoRelatorioAnaliseSensorialSerializer(serializers.ModelSerializer):
 
 class HomologacaoListagemSerializer(serializers.ModelSerializer):
     rastro_terceirizada = TerceirizadaSimplesSerializer()
+    tem_copia = serializers.SerializerMethodField()
+
+    def get_tem_copia(self, obj):
+        return obj.tem_copia
 
     class Meta:
         model = HomologacaoProduto
-        fields = ("uuid", "status", "id_externo", "rastro_terceirizada", "criado_em")
+        fields = (
+            "uuid",
+            "status",
+            "id_externo",
+            "rastro_terceirizada",
+            "tem_copia",
+            "criado_em",
+        )
 
 
 class ProdutoListagemSerializer(serializers.ModelSerializer):

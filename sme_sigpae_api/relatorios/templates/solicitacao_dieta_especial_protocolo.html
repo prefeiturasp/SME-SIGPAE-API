@@ -6,9 +6,9 @@
 {% block conteudo %}
 <link rel="stylesheet" href="{% sass_src 'css/dieta_especial_protocolo.scss' %}" type="text/css">
 <div class="conteudo dieta-especial-protocolo">
-  {% if justificativa_cancelamento is not None %}
+  {% if justificativa is not None %}
     <div class="justificativa-cancelamento">
-      {{ justificativa_cancelamento }}
+      {{ justificativa }}
     </div>
   {% endif %}
 

@@ -17,9 +17,9 @@ def exportar_planilha_importacao_tipos_penalidade(request, **kwargs):
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response[
-        "Content-Disposition"
-    ] = "attachment; filename=planilha_importacao_tipos_penalidade.xlsx"
+    response["Content-Disposition"] = (
+        "attachment; filename=planilha_importacao_tipos_penalidade.xlsx"
+    )
     workbook: Workbook = Workbook()
     ws = workbook.active
     ws.title = "Tipos de Penalidade"
@@ -79,9 +79,9 @@ def exportar_planilha_importacao_tipos_ocorrencia(request, **kwargs):
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response[
-        "Content-Disposition"
-    ] = "attachment; filename=planilha_importacao_tipos_ocorrencia.xlsx"
+    response["Content-Disposition"] = (
+        "attachment; filename=planilha_importacao_tipos_ocorrencia.xlsx"
+    )
     workbook: Workbook = Workbook()
     ws = workbook.active
     ws.title = "Tipos de Ocorrência"
@@ -221,9 +221,11 @@ class RelatorioNotificacaoService:
             "usuario": self.formulario_supervisao.formulario_base.usuario,
             "lote": self.formulario_supervisao.escola.lote.nome,
             "terceirizada": self.formulario_supervisao.escola.lote.terceirizada.nome_fantasia,
-            "edital": f"Edital nº {self.formulario_supervisao.escola.edital.numero}"
-            if self.formulario_supervisao.escola.edital
-            else "-",
+            "edital": (
+                f"Edital nº {self.formulario_supervisao.escola.edital.numero}"
+                if self.formulario_supervisao.escola.edital
+                else "-"
+            ),
             "respostas": self.get_lista_respostas(categoria),
             "data_geracao": datetime.now().strftime("%d/%m/%Y"),
             "hora_geracao": datetime.now().strftime("%H:%M:%S"),
