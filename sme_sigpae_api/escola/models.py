@@ -961,7 +961,7 @@ class Escola(
             )
         return resultados
 
-    def possui_kit_lanche_avulso_autorizado_no_mes(
+    def get_lista_erros_kit_lanche_avulso_autorizado_no_mes(
         self, mes: int, ano: int, lista_erros: list
     ) -> list:
         if "Solicitações de Alimentação" in lista_erros or self.eh_cei or self.eh_cemei:
@@ -974,7 +974,7 @@ class Escola(
             lista_erros.append("Solicitações de Alimentação")
         return lista_erros
 
-    def possui_kit_lanche_unificado_autorizado_no_mes(
+    def get_lista_erros_kit_lanche_unificado_autorizado_no_mes(
         self, mes: int, ano: int, lista_erros: list
     ) -> list:
         if "Solicitações de Alimentação" in lista_erros:
@@ -988,7 +988,7 @@ class Escola(
             lista_erros.append("Solicitações de Alimentação")
         return lista_erros
 
-    def possui_kit_lanche_cei_autorizado_no_mes(
+    def get_lista_erros_kit_lanche_cei_autorizado_no_mes(
         self, mes: int, ano: int, lista_erros
     ) -> list:
         if "Solicitações de Alimentação" in lista_erros or not self.eh_cei:
@@ -1001,7 +1001,7 @@ class Escola(
             lista_erros.append("Solicitações de Alimentação")
         return lista_erros
 
-    def possui_kit_lanche_cemei_autorizado_no_mes(
+    def get_lista_erros_kit_lanche_cemei_autorizado_no_mes(
         self, mes: int, ano: int, lista_erros: list
     ) -> list:
         if "Solicitações de Alimentação" in lista_erros or not self.eh_cemei:
@@ -1012,7 +1012,7 @@ class Escola(
             lista_erros.append("Solicitações de Alimentação")
         return lista_erros
 
-    def possui_qualquer_kit_lanche_autorizado_no_mes(
+    def get_lista_erros_qualquer_kit_lanche_autorizado_no_mes(
         self, mes: int, ano: int, lista_erros: list
     ) -> list:
         lista_erros = self.possui_kit_lanche_avulso_autorizado_no_mes(
@@ -1029,7 +1029,7 @@ class Escola(
         )
         return lista_erros
 
-    def possui_alteracao_generica_lanche_emergencial_autorizada_no_mes(
+    def get_lista_erros_alteracao_generica_lanche_emergencial_autorizada_no_mes(
         self, mes: int, ano: int, lista_erros: list
     ) -> list:
         if "Solicitações de Alimentação" in lista_erros or self.eh_cei or self.eh_cemei:
@@ -1044,39 +1044,106 @@ class Escola(
             lista_erros.append("Solicitações de Alimentação")
         return lista_erros
 
-    def possui_alteracao_cei_autorizada_no_mes(
+    def get_lista_erros_alteracao_generica_rpl_lpr_autorizada_no_mes(
         self, mes: int, ano: int, lista_erros: list
     ) -> list:
-        if not self.eh_cei:
+        if self.eh_cei or self.eh_cemei:
             return lista_erros
-        if self.alteracaocardapiocei_set.filter(
-            status="CODAE_AUTORIZADO", data__month=mes, data__year=ano
-        ).exists():
-            periodos_escolares_nomes = list(
-                self.alteracaocardapiocei_set.values_list(
-                    "substituicoes_cei_periodo_escolar__periodo_escolar__nome",
-                    flat=True,
-                ).distinct()
-            )
-        lista_erros = list(set(periodos_escolares_nomes + lista_erros))
-        return lista_erros
-
-    def possui_alteracao_cemei_autorizada_no_mes(self, mes: int, ano: int) -> bool:
-        if not self.eh_cemei:
-            return False
-        return self.alteracaocardapiocemei_set.filter(
+        queryset = self.alteracaocardapio_set.filter(
             status="CODAE_AUTORIZADO",
             datas_intervalo__data__month=mes,
             datas_intervalo__data__year=ano,
             datas_intervalo__cancelado=False,
-        ).exists()
+        ).exclude(motivo__nome="Lanche Emergencial")
+        if queryset.exists():
+            periodos_escolares_nomes = list(
+                queryset.values_list(
+                    "substituicoes_periodo_escolar__periodo_escolar__nome",
+                    flat=True,
+                ).distinct()
+            )
+            lista_erros = list(set(periodos_escolares_nomes + lista_erros))
+        return lista_erros
 
-    def possui_qualquer_alteracao_autorizada_no_mes(self, mes: int, ano: int) -> bool:
-        return (
-            self.possui_alteracao_generica_autorizada_no_mes(mes, ano)
-            | self.possui_alteracao_cei_autorizada_no_mes(mes, ano)
-            | self.possui_alteracao_cemei_autorizada_no_mes(mes, ano)
+    def get_lista_erros_alteracao_cei_autorizada_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
+        if not self.eh_cei:
+            return lista_erros
+        queryset = self.alteracaocardapiocei_set.filter(
+            status="CODAE_AUTORIZADO", data__month=mes, data__year=ano
         )
+        if queryset.exists():
+            periodos_escolares_nomes = list(
+                queryset.values_list(
+                    "substituicoes_cei_periodo_escolar__periodo_escolar__nome",
+                    flat=True,
+                ).distinct()
+            )
+            lista_erros = list(set(periodos_escolares_nomes + lista_erros))
+        return lista_erros
+
+    def get_lista_erros_alteracao_cemei_lanche_emergencial_autorizada_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
+        if "Solicitações de Alimentação" in lista_erros or not self.eh_cemei:
+            return lista_erros
+        queryset = self.alteracaocardapiocemei_set.filter(
+            status="CODAE_AUTORIZADO",
+            datas_intervalo__data__month=mes,
+            datas_intervalo__data__year=ano,
+            datas_intervalo__cancelado=False,
+            motivo__nome="Lanche Emergencial",
+        )
+        if queryset.exists():
+            lista_erros.append("Solicitações de Alimentação")
+        return lista_erros
+
+    def get_lista_erros_alteracao_cemei_rpl_lpr_autorizada_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
+        if not self.eh_cemei:
+            return lista_erros
+        queryset = self.alteracaocardapiocemei_set.filter(
+            status="CODAE_AUTORIZADO",
+            datas_intervalo__data__month=mes,
+            datas_intervalo__data__year=ano,
+            datas_intervalo__cancelado=False,
+        ).exclude(motivo__nome="Lanche Emergencial")
+        if queryset.exists():
+            periodos_escolares_nomes = list(
+                queryset.values_list(
+                    "substituicoes_cemei_emei_periodo_escolar__periodo_escolar__nome",
+                    "substituicoes_cemei_cei_periodo_escolar__periodo_escolar__nome",
+                ).distinct()
+            )
+            periodos_unicos = list(
+                {nome for tupla in periodos_escolares_nomes for nome in tupla if nome}
+            )
+            lista_erros = list(set(periodos_unicos + lista_erros))
+        return lista_erros
+
+    def get_lista_erros_qualquer_alteracao_autorizada_no_mes(
+        self, mes: int, ano: int, lista_erros: list
+    ) -> list:
+        lista_erros = self.get_lista_erros_alteracao_generica_rpl_lpr_autorizada_no_mes(
+            mes, ano, lista_erros
+        )
+        lista_erros = self.get_lista_erros_qualquer_kit_lanche_autorizado_no_mes(
+            mes, ano, lista_erros
+        )
+        lista_erros = self.get_lista_erros_alteracao_cei_autorizada_no_mes(
+            mes, ano, lista_erros
+        )
+        lista_erros = self.get_lista_erros_alteracao_cemei_rpl_lpr_autorizada_no_mes(
+            mes, ano, lista_erros
+        )
+        lista_erros = (
+            self.get_lista_erros_alteracao_cemei_lanche_emergencial_autorizada_no_mes(
+                mes, ano, lista_erros
+            )
+        )
+        return lista_erros
 
     def possui_inclusao_normal_autorizada_no_mes(self, mes: int, ano: int) -> bool:
         if self.eh_cei or self.eh_cemei:
