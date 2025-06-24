@@ -4,6 +4,7 @@ from .cronograma import Cronograma  # noqa
 from .cronograma import DataDeFabricaoEPrazo  # noqa
 from .cronograma import DocumentoDeRecebimento  # noqa
 from .cronograma import EtapasDoCronograma  # noqa
+from .cronograma import FabricanteFichaTecnica  # noqa
 from .cronograma import FichaTecnicaDoProduto  # noqa
 from .cronograma import ImagemDoTipoDeEmbalagem  # noqa
 from .cronograma import InformacoesNutricionaisFichaTecnica  # noqa
