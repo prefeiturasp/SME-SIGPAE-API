@@ -33,14 +33,14 @@
 
       <div class="content">
         <div class="row pb-3">
-          <div class="col-12">Fabricante: <span class="font-weight-bold"> {{ficha.fabricante.nome}}</span> </div>
+          <div class="col-12">Fabricante: <span class="font-weight-bold"> {{fabricante.fabricante.nome}}</span> </div>
         </div>
         <div class="row pb-3">
           <div class="col-12">
             Endereço:
             <span class="font-weight-bold">
-              {{ficha.endereco_fabricante}}, {{ficha.numero_fabricante}} - {{ficha.bairro_fabricante}} - {{ficha.cidade_fabricante}} - {{ficha.estado_fabricante}}
-              - CEP: {{ficha.cep_fabricante}}
+              {{fabricante.endereco}}, {{fabricante.numero}} - {{fabricante.bairro}} - {{fabricante.cidade}} - {{fabricante.estado}}
+              - CEP: {{fabricante.cep}}
             </span>
           </div>
         </div>
@@ -49,23 +49,26 @@
           <div class="col-6">Telefone: <span class="font-weight-bold"> {{telefone_fabricante}}</span> </div>
         </div>
         <div class="row pb-3">
-          <div class="col-12">E-mail: <span class="font-weight-bold"> {{ficha.email_fabricante}}</span> </div>
+          <div class="col-12">E-mail: <span class="font-weight-bold"> {{fabricante.email}}</span> </div>
         </div>
 
         <hr/>
 
         <div class="row pb-3">
-          <div class="col-12">Envasador/Distribuidor: <span class="font-weight-bold"> Envasador Distribuir de São Paulo</span> </div>
+          <div class="col-12">Envasador/Distribuidor: <span class="font-weight-bold"> {{envasador_distribuidor.fabricante.nome}}</span> </div>
         </div>
         <div class="row pb-3">
-          <div class="col-12">Endereço: <span class="font-weight-bold"> Rua ABC, número 123, Bairro Centro, São Paulo, SP</span> </div>
+          <div class="col-12">Endereço: <span class="font-weight-bold"> 
+            {{envasador_distribuidor.endereco}}, {{envasador_distribuidor.numero}} - {{envasador_distribuidor.bairro}} - {{envasador_distribuidor.cidade}} - {{envasador_distribuidor.estado}} 
+            - CEP: {{envasador_distribuidor.cep}}
+            </span> </div>
         </div>
                 <div class="row pb-3">
           <div class="col-6">CNPJ: <span class="font-weight-bold"> {{cnpj_distribuidor}}</span> </div>
           <div class="col-6">Telefone: <span class="font-weight-bold"> {{telefone_distribuidor}}</span> </div>
         </div>
         <div class="row pb-3">
-          <div class="col-12">E-mail: <span class="font-weight-bold"> envasador.fornecedor@email.com</span> </div>
+          <div class="col-12">E-mail: <span class="font-weight-bold"> {{envasador_distribuidor.email}}</span> </div>
         </div>
 
 

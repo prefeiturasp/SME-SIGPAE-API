@@ -1709,6 +1709,15 @@ def get_pdf_ficha_tecnica(request, ficha):
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnica.objects.filter(
         ficha_tecnica=ficha
     )
+    fabricante = ficha.fabricante
+    cnpj_fabricante = formata_cnpj_ficha_tecnica(fabricante.cnpj)
+    telefone_fabricante = formata_telefone_ficha_tecnica(fabricante.telefone)
+    envasador_distribuidor = ficha.envasador_distribuidor
+    cnpj_distribuidor = formata_cnpj_ficha_tecnica(envasador_distribuidor.cnpj)
+    telefone_distribuidor = formata_telefone_ficha_tecnica(
+        envasador_distribuidor.telefone
+    )
+
     html_string = render_to_string(
         "pre_recebimento/ficha_tecnica/ficha_tecnica.html",
         {
@@ -1717,14 +1726,12 @@ def get_pdf_ficha_tecnica(request, ficha):
             "status_ficha": retorna_status_ficha_tecnica(ficha.status),
             "tabela": list(informacoes_nutricionais),
             "logs": ficha.logs,
-            "cnpj_fabricante": formata_cnpj_ficha_tecnica(ficha.cnpj_fabricante),
-            "telefone_fabricante": formata_telefone_ficha_tecnica(
-                ficha.telefone_fabricante
-            ),
-            "cnpj_distribuidor": formata_cnpj_ficha_tecnica(ficha.cnpj_fabricante),
-            "telefone_distribuidor": formata_telefone_ficha_tecnica(
-                ficha.telefone_fabricante
-            ),
+            "fabricante": fabricante,
+            "cnpj_fabricante": cnpj_fabricante,
+            "telefone_fabricante": telefone_fabricante,
+            "envasador_distribuidor": envasador_distribuidor,
+            "cnpj_distribuidor": cnpj_distribuidor,
+            "telefone_distribuidor": telefone_distribuidor,
         },
     )
     data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
