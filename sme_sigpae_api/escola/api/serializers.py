@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from rest_framework import serializers
@@ -337,8 +339,13 @@ class EscolaSimplesSerializer(serializers.ModelSerializer):
     tipo_unidade = TipoUnidadeEscolarSerializer()
     lote = LoteNomeSerializer()
     tipo_gestao = TipoGestaoSerializer()
-    periodos_escolares = PeriodoEscolarSerializer(many=True)
     diretoria_regional = DiretoriaRegionalSimplissimaSerializer()
+    periodos_escolares = serializers.SerializerMethodField()
+
+    def get_periodos_escolares(self, obj):
+        ano_hoje = datetime.datetime.now().year
+        ano = self.context.get("request").query_params.get("ano", ano_hoje)
+        return PeriodoEscolarSerializer(obj.periodos_escolares(ano), many=True).data
 
     class Meta:
         model = Escola

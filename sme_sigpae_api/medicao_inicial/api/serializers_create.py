@@ -1027,7 +1027,6 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         if not medicoes_nomes_com_solicitacoes_autorizadas:
             return
         lista_erros = []
-        print(medicoes_nomes_com_solicitacoes_autorizadas)
         for medicao_nome in medicoes_nomes_com_solicitacoes_autorizadas:
             medicao = instance.get_or_create_medicao_por_periodo_e_ou_grupo(
                 medicao_nome
