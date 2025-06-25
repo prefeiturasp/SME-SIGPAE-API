@@ -1287,6 +1287,18 @@ class Escola(
     def get_lista_medicoes_inclusao_cemei_cei_parcial_autorizada_no_mes(
         self, mes: int, ano: int, lista_medicoes: list
     ) -> list:
+        """
+        Verifica se há alguma inclusão CEI da CEMEI com período escolar diferente de INTEGRAL
+        autorizada pela CODAE no mês e ano informados.
+
+        Args:
+            mes (int): Mês da solicitação.
+            ano (int): Ano da solicitação.
+            lista_medicoes (list): Lista de medições iniciais com solicitações identificadas anteriormente.
+
+        Returns:
+            list: A lista de erros atualizada, incluindo "PARCIAL" se for identificado um período diferente de INTEGRAL
+        """
         if "PARCIAL" in lista_medicoes or not self.eh_cemei:
             return lista_medicoes
         queryset = self.inclusoes_de_alimentacao_cemei.filter(
