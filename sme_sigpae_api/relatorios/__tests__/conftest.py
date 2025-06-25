@@ -317,12 +317,5 @@ def solicitacao_dieta_especial_inativa(
 
 @pytest.fixture
 def ficha_tecnica():
-    ficha_tecnica = FichaTecnicaFactory(
-        status=FichaTecnicaDoProdutoWorkflow.APROVADA,
-        fabricante=mommy.make("Fabricante", nome="FABRICANTE"),
-        endereco_fabricante="Rua Teste, 123",
-        cnpj_fabricante="12345678000195",
-        telefone_fabricante="11900000000",
-        email_fabricante="fabricante@email.com",
-    )
+    ficha_tecnica = FichaTecnicaFactory(status=FichaTecnicaDoProdutoWorkflow.APROVADA)
     return ficha_tecnica

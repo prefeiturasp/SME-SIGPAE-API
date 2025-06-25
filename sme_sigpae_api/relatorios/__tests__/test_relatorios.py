@@ -322,24 +322,28 @@ def test_get_pdf_ficha_tecnica(ficha_tecnica):
     assert f"Status da Ficha Técnica Aprovada" in texto
 
     assert "FABRICANTE E/OU ENVASADOR/DISTRIBUIDOR" in texto
-    assert f"Fabricante:  {ficha_tecnica.fabricante.nome}" in texto
-    assert f"Endereço:  {ficha_tecnica.endereco_fabricante}" in texto
+    assert f"Fabricante:  {ficha_tecnica.fabricante.fabricante.nome}" in texto
+    assert f"Endereço:  {ficha_tecnica.fabricante.endereco}" in texto
     assert (
-        f"CNPJ:  {formata_cnpj_ficha_tecnica(ficha_tecnica.cnpj_fabricante)}" in texto
+        f"CNPJ:  {formata_cnpj_ficha_tecnica(ficha_tecnica.fabricante.cnpj)}" in texto
     )
     assert (
-        f"Telefone:  {formata_telefone_ficha_tecnica(ficha_tecnica.telefone_fabricante)}"
+        f"Telefone:  {formata_telefone_ficha_tecnica(ficha_tecnica.fabricante.telefone)}"
         in texto
     )
-    assert f"E-mail:  {ficha_tecnica.email_fabricante}" in texto
+    assert f"E-mail:  {ficha_tecnica.fabricante.email}" in texto
 
-    assert f"Envasador/Distribuidor:  Envasador Distribuir de São Paulo" in texto
-    assert f"Endereço:  Rua ABC, número 123, Bairro Centro, São Paulo, SP" in texto
     assert (
-        f"CNPJ:  {formata_cnpj_ficha_tecnica(ficha_tecnica.cnpj_fabricante)}" in texto
-    )
-    assert (
-        f"Telefone:  {formata_telefone_ficha_tecnica(ficha_tecnica.telefone_fabricante)}"
+        f"Envasador/Distribuidor:  {ficha_tecnica.envasador_distribuidor.fabricante.nome}"
         in texto
     )
-    assert f"E-mail:  envasador.fornecedor@email.com" in texto
+    assert f"Endereço:  {ficha_tecnica.envasador_distribuidor.endereco}" in texto
+    assert (
+        f"CNPJ:  {formata_cnpj_ficha_tecnica(ficha_tecnica.envasador_distribuidor.cnpj)}"
+        in texto
+    )
+    assert (
+        f"Telefone:  {formata_telefone_ficha_tecnica(ficha_tecnica.envasador_distribuidor.telefone)}"
+        in texto
+    )
+    assert f"E-mail:  {ficha_tecnica.envasador_distribuidor.email}" in texto
