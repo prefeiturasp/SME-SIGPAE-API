@@ -41,7 +41,7 @@ from ....dados_comuns.api.serializers import (
     LogSolicitacoesUsuarioSerializer,
     LogSolicitacoesUsuarioSimplesSerializer,
 )
-from ...models.cronograma import FichaTecnicaDoProduto
+from ...models.cronograma import FabricanteFichaTecnica, FichaTecnicaDoProduto
 
 
 class ProgramacaoDoRecebimentoDoCronogramaSerializer(serializers.ModelSerializer):
@@ -1179,12 +1179,34 @@ class InformacoesNutricionaisFichaTecnicaSerializer(serializers.ModelSerializer)
         read_only_fields = ("uuid",)
 
 
+class FabricanteFichaTecnicaSerializer(serializers.ModelSerializer):
+    fabricante = FabricanteSimplesSerializer()
+
+    class Meta:
+        model = FabricanteFichaTecnica
+        fields = (
+            "uuid",
+            "fabricante",
+            "cnpj",
+            "cep",
+            "endereco",
+            "numero",
+            "complemento",
+            "bairro",
+            "cidade",
+            "estado",
+            "email",
+            "telefone",
+        )
+
+
 class FichaTecnicaDetalharSerializer(serializers.ModelSerializer):
     criado_em = serializers.SerializerMethodField()
     produto = NomeDeProdutoEditalSerializer()
     marca = MarcaSimplesSerializer()
     empresa = TerceirizadaLookUpSerializer()
-    fabricante = FabricanteSimplesSerializer()
+    fabricante = FabricanteFichaTecnicaSerializer()
+    envasador_distribuidor = FabricanteFichaTecnicaSerializer()
     unidade_medida_porcao = UnidadeMedidaSimplesSerializer()
     status = serializers.CharField(source="get_status_display", read_only=True)
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnicaSerializer(many=True)
@@ -1210,16 +1232,7 @@ class FichaTecnicaDetalharSerializer(serializers.ModelSerializer):
             "criado_em",
             "empresa",
             "fabricante",
-            "cnpj_fabricante",
-            "cep_fabricante",
-            "endereco_fabricante",
-            "numero_fabricante",
-            "complemento_fabricante",
-            "bairro_fabricante",
-            "cidade_fabricante",
-            "estado_fabricante",
-            "email_fabricante",
-            "telefone_fabricante",
+            "envasador_distribuidor",
             "prazo_validade",
             "numero_registro",
             "agroecologico",
