@@ -14,9 +14,11 @@ from sme_sigpae_api.inclusao_alimentacao.models import (
     DiasMotivosInclusaoDeAlimentacaoCEI,
     DiasMotivosInclusaoDeAlimentacaoCEMEI,
     GrupoInclusaoAlimentacaoNormal,
+    InclusaoAlimentacaoContinua,
     InclusaoAlimentacaoDaCEI,
     InclusaoAlimentacaoNormal,
     InclusaoDeAlimentacaoCEMEI,
+    MotivoInclusaoContinua,
     MotivoInclusaoNormal,
     QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI,
     QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI,
@@ -40,6 +42,13 @@ class MotivoInclusaoNormalFactory(DjangoModelFactory):
         model = MotivoInclusaoNormal
 
 
+class MotivoInclusaoContinuaFactory(DjangoModelFactory):
+    nome = Sequence(lambda n: f"nome - {fake.unique.name()}")
+
+    class Meta:
+        model = MotivoInclusaoContinua
+
+
 class GrupoInclusaoAlimentacaoNormalFactory(DjangoModelFactory):
     escola = SubFactory(EscolaFactory)
     rastro_escola = SubFactory(EscolaFactory)
@@ -59,10 +68,25 @@ class InclusaoAlimentacaoNormalFactory(DjangoModelFactory):
         model = InclusaoAlimentacaoNormal
 
 
+class InclusaoAlimentacaoContinuaFactory(DjangoModelFactory):
+    escola = SubFactory(EscolaFactory)
+    motivo = SubFactory(MotivoInclusaoContinuaFactory)
+    rastro_escola = SubFactory(EscolaFactory)
+    rastro_dre = SubFactory(DiretoriaRegionalFactory)
+    rastro_lote = SubFactory(LoteFactory)
+    rastro_terceirizada = SubFactory(EmpresaFactory)
+    data_inicial = factory.faker.Faker("date")
+    data_final = factory.faker.Faker("date")
+
+    class Meta:
+        model = InclusaoAlimentacaoContinua
+
+
 class QuantidadePorPeriodoFactory(DjangoModelFactory):
     numero_alunos = Sequence(lambda n: fake.random_int(min=1, max=100))
     periodo_escolar = SubFactory(PeriodoEscolarFactory)
     grupo_inclusao_normal = SubFactory(GrupoInclusaoAlimentacaoNormalFactory)
+    inclusao_alimentacao_continua = SubFactory(InclusaoAlimentacaoContinuaFactory)
 
     @factory.post_generation
     def tipos_alimentacao(self, create, extracted, **kwargs):

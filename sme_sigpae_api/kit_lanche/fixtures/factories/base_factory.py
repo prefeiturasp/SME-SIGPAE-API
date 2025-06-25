@@ -61,6 +61,7 @@ class SolicitacaoKitLancheFactory(DjangoModelFactory):
 class SolicitacaoKitLancheAvulsaFactory(DjangoModelFactory):
     solicitacao_kit_lanche = SubFactory(SolicitacaoKitLancheFactory)
     criado_por = SubFactory(UsuarioFactory)
+    rastro_escola = SubFactory(EscolaFactory)
     rastro_lote = SubFactory(LoteFactory)
     rastro_dre = SubFactory(DiretoriaRegionalFactory)
     rastro_terceirizada = SubFactory(EmpresaFactory)
