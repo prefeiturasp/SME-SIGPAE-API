@@ -22,6 +22,9 @@ from sme_sigpae_api.inclusao_alimentacao.fixtures.factories.base_factory import 
 from sme_sigpae_api.kit_lanche.fixtures.factories.base_factory import (
     SolicitacaoKitLancheAvulsaFactory,
 )
+from sme_sigpae_api.medicao_inicial.fixtures.factories.base_factory import (
+    GrupoMedicaoFactory,
+)
 from sme_sigpae_api.medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_factory import (
     MedicaoFactory,
     SolicitacaoMedicaoInicialFactory,
@@ -83,10 +86,16 @@ class TestUseCaseFinalizaMedicaoSemLancamentos:
             escola=escola, mes="05", ano="2025"
         )
 
+    def get_or_create_grupo(self, nome):
+        try:
+            return GrupoMedicao.objects.get(nome=nome)
+        except GrupoMedicao.DoesNotExist:
+            return GrupoMedicaoFactory.create(nome=nome)
+
+    def setup_grupos_medicao(self):
+        self.grupo_programas_projetos = self.get_or_create_grupo("Programas e Projetos")
+
     def setup_medicao_programas_projetos_com_observacao(self):
-        self.grupo_programas_projetos = GrupoMedicao.objects.get(
-            nome="Programas e Projetos"
-        )
         self.medicao = MedicaoFactory.create(
             solicitacao_medicao_inicial=self.solicitacao_medicao_inicial,
             periodo_escolar=None,
@@ -122,6 +131,7 @@ class TestUseCaseFinalizaMedicaoSemLancamentos:
         self.setup_periodos_escolares()
         self.setup_tipos_alimentacao()
         self.setup_motivos_inclusao_continua()
+        self.setup_grupos_medicao()
         self.setup_inclusao_continua_programas_projetos(escola)
         self.setup_medicao_inicial(escola)
 
