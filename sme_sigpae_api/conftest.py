@@ -105,8 +105,10 @@ from .inclusao_alimentacao.models import (
     InclusaoAlimentacaoContinua,
 )
 from .kit_lanche.fixtures.factories.base_factory import (
+    FaixaEtariaSolicitacaoKitLancheCEIAvulsaFactory,
     KitLancheFactory,
     SolicitacaoKitLancheAvulsaFactory,
+    SolicitacaoKitLancheCEIAvulsaFactory,
     SolicitacaoKitLancheFactory,
 )
 from .medicao_inicial.fixtures.factories.base_factory import (
@@ -286,6 +288,8 @@ register(MedicaoFactory)
 register(ValorMedicaoFactory)
 register(InclusaoAlimentacaoContinuaFactory)
 register(MotivoInclusaoContinuaFactory)
+register(SolicitacaoKitLancheCEIAvulsaFactory)
+register(FaixaEtariaSolicitacaoKitLancheCEIAvulsaFactory)
 
 
 @pytest.fixture
