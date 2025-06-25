@@ -27,7 +27,7 @@ from ..dados_comuns.fluxo_status import (
     LogSolicitacoesUsuario,
 )
 from ..escola.constants import INFANTIL_OU_FUNDAMENTAL
-from ..escola.models import TipoUnidadeEscolar
+from ..escola.models import PeriodoEscolar, TipoUnidadeEscolar
 from ..perfil.models import Usuario
 from ..terceirizada.models import Edital
 
@@ -195,6 +195,20 @@ class SolicitacaoMedicaoInicial(
         except Medicao.DoesNotExist:
             return None
 
+    def get_or_create_medicao_por_periodo_e_ou_grupo(self, periodo_e_ou_grupo: str):
+        if GrupoMedicao.objects.filter(nome=periodo_e_ou_grupo).exists():
+            grupo = GrupoMedicao.objects.get(nome=periodo_e_ou_grupo)
+            medicao, created = Medicao.objects.get_or_create(
+                solicitacao_medicao_inicial=self, grupo=grupo
+            )
+            return medicao
+        else:
+            periodo_escolar = PeriodoEscolar.objects.get(nome=periodo_e_ou_grupo)
+            medicao, created = Medicao.objects.get_or_create(
+                solicitacao_medicao_inicial=self, periodo_escolar=periodo_escolar
+            )
+            return medicao
+
     class Meta:
         verbose_name = "Solicitação de medição inicial"
         verbose_name_plural = "Solicitações de medição inicial"
@@ -291,6 +305,18 @@ class Medicao(
     )
     alterado_em = models.DateTimeField("Alterado em", null=True, blank=True)
 
+    @property
+    def nome_periodo_grupo(self):
+        if self.grupo and self.periodo_escolar:
+            nome_periodo_grupo = (
+                f"{self.grupo.nome} - " + f"{self.periodo_escolar.nome}"
+            )
+        elif self.grupo and not self.periodo_escolar:
+            nome_periodo_grupo = f"{self.grupo.nome}"
+        else:
+            nome_periodo_grupo = f"{self.periodo_escolar.nome}"
+        return nome_periodo_grupo
+
     def deletar_log_correcao(self, status_evento, **kwargs):
         log = self.logs.last()
         if log and log.status_evento in status_evento:
@@ -307,17 +333,12 @@ class Medicao(
             uuid_original=self.uuid,
         )
 
-    @property
-    def nome_periodo_grupo(self):
-        if self.grupo and self.periodo_escolar:
-            nome_periodo_grupo = (
-                f"{self.grupo.nome} - " + f"{self.periodo_escolar.nome}"
-            )
-        elif self.grupo and not self.periodo_escolar:
-            nome_periodo_grupo = f"{self.grupo.nome}"
-        else:
-            nome_periodo_grupo = f"{self.periodo_escolar.nome}"
-        return nome_periodo_grupo
+    def possui_ao_menos_uma_observacao(self) -> bool:
+        return (
+            self.valores_medicao.filter(nome_campo="observacoes")
+            .exclude(valor="")
+            .exists()
+        )
 
     class Meta:
         verbose_name = "Medição"

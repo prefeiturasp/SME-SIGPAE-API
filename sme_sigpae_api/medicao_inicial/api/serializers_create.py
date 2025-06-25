@@ -198,6 +198,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
     com_ocorrencias = serializers.BooleanField(required=False)
     ocorrencia = OcorrenciaMedicaoInicialCreateSerializer(required=False)
     logs = LogSolicitacoesUsuarioSerializer(many=True, required=False)
+    justificativa_sem_lancamentos = serializers.CharField(required=False)
 
     def create(self, validated_data):
         validated_data["criado_por"] = self.context["request"].user
@@ -907,6 +908,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         self._update_tipos_contagem_alimentacao(instance)
         anexos = self._process_anexos(instance)
         self._finaliza_medicao_se_necessario(instance, validated_data, anexos)
+        self._finaliza_medicao_sem_lancamentos(instance, validated_data)
         return instance
 
     def _check_user_permission(self):
@@ -995,6 +997,8 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             return anexos
 
     def _finaliza_medicao_se_necessario(self, instance, validated_data, anexos):
+        if validated_data.get("justificativa_sem_lancamentos", None):
+            return
         key_com_ocorrencias = validated_data.get("com_ocorrencias", None)
         if key_com_ocorrencias is not None and self.context["request"].data.get(
             "finaliza_medicao"
@@ -1013,6 +1017,48 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 )
             for medicao in instance.medicoes.all():
                 medicao.ue_envia(user=self.context["request"].user)
+
+    def _checa_se_pode_finalizar_sem_lancamentos(self, instance) -> None:
+        medicoes_nomes_com_solicitacoes_autorizadas = (
+            instance.escola.get_lista_medicoes_solicitacoes_autorizadas_no_mes(
+                int(instance.mes), int(instance.ano)
+            )
+        )
+        if not medicoes_nomes_com_solicitacoes_autorizadas:
+            return
+        lista_erros = []
+        for medicao_nome in medicoes_nomes_com_solicitacoes_autorizadas:
+            medicao = instance.get_or_create_medicao_por_periodo_e_ou_grupo(
+                medicao_nome
+            )
+            if medicao_nome in ["Programas e Projetos", "ETEC"]:
+                if not medicao.possui_ao_menos_uma_observacao():
+                    lista_erros.append(
+                        {
+                            "periodo_escolar": medicao_nome,
+                            "erro": "Existem solicitações de alimentações no período, "
+                            "adicione ao menos uma justificativa para finalizar",
+                        }
+                    )
+            else:
+                lista_erros.append(
+                    {
+                        "periodo_escolar": medicao_nome,
+                        "erro": "Existem solicitações de alimentações no período. "
+                        "Não é possível finalizar sem lançamentos.",
+                    }
+                )
+
+        if lista_erros:
+            raise serializers.ValidationError(lista_erros)
+
+    def _finaliza_medicao_sem_lancamentos(self, instance, validated_data):
+        if not validated_data.get("justificativa_sem_lancamentos", None):
+            return
+        self._checa_se_pode_finalizar_sem_lancamentos(instance)
+        instance.ue_envia(user=self.context["request"].user)
+        for medicao in instance.medicoes.all():
+            medicao.ue_envia(user=self.context["request"].user)
 
     class Meta:
         model = SolicitacaoMedicaoInicial
