@@ -344,7 +344,8 @@ class EscolaSimplesSerializer(serializers.ModelSerializer):
 
     def get_periodos_escolares(self, obj):
         ano_hoje = datetime.datetime.now().year
-        ano = self.context.get("request").query_params.get("ano", ano_hoje)
+        request = self.context.get("request")
+        ano = request.query_params.get("ano", ano_hoje) if request else ano_hoje
         return PeriodoEscolarSerializer(obj.periodos_escolares(ano), many=True).data
 
     class Meta:
