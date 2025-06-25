@@ -12,21 +12,21 @@ fake = Faker("pt_BR")
 
 
 class TipoContagemAlimentacaoFactory(DjangoModelFactory):
-    nome = Sequence(lambda n: f"Periodo {n} - {fake.unique.word()}")
+    nome = Sequence(lambda n: f"Periodo {n} - {fake.word()}")
 
     class Meta:
         model = TipoContagemAlimentacao
 
 
 class GrupoMedicaoFactory(DjangoModelFactory):
-    nome = Sequence(lambda n: f"Periodo {n} - {fake.unique.word()}")
+    nome = Sequence(lambda n: f"Periodo {n} - {fake.word()}")
 
     class Meta:
         model = GrupoMedicao
 
 
 class CategoriaMedicaoFactory(DjangoModelFactory):
-    nome = Sequence(lambda n: f"Periodo {n} - {fake.unique.word()}")
+    nome = Sequence(lambda n: f"Periodo {n} - {fake.word()}")
 
     class Meta:
         model = CategoriaMedicao

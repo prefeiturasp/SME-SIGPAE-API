@@ -52,7 +52,7 @@ class MedicaoFactory(DjangoModelFactory):
 
 class ValorMedicaoFactory(DjangoModelFactory):
     valor = str(randint(1, 100))
-    nome_campo = Sequence(lambda n: f"{fake.unique.word()}")
+    nome_campo = Sequence(lambda n: f"{fake.word()}")
     medicao = SubFactory(MedicaoFactory)
     categoria_medicao = SubFactory(CategoriaMedicaoFactory)
     tipo_alimentacao = SubFactory(TipoAlimentacaoFactory)

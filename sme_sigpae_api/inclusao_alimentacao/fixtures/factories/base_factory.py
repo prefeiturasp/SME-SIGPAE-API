@@ -36,14 +36,14 @@ fake = Faker("pt_BR")
 
 
 class MotivoInclusaoNormalFactory(DjangoModelFactory):
-    nome = Sequence(lambda n: f"nome - {fake.unique.name()}")
+    nome = Sequence(lambda n: f"nome - {fake.name()}")
 
     class Meta:
         model = MotivoInclusaoNormal
 
 
 class MotivoInclusaoContinuaFactory(DjangoModelFactory):
-    nome = Sequence(lambda n: f"nome - {fake.unique.name()}")
+    nome = Sequence(lambda n: f"nome - {fake.name()}")
 
     class Meta:
         model = MotivoInclusaoContinua

@@ -94,6 +94,9 @@ class TestUseCaseFinalizaMedicaoSemLancamentos:
 
     def setup_grupos_medicao(self):
         self.grupo_programas_projetos = self.get_or_create_grupo("Programas e Projetos")
+        self.grupo_solicitacoes_alimentacao = self.get_or_create_grupo(
+            "Solicitações de Alimentação"
+        )
 
     def setup_medicao_programas_projetos_com_observacao(self):
         self.medicao = MedicaoFactory.create(
