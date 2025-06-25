@@ -11,10 +11,14 @@ from sme_sigpae_api.cardapio.suspensao_alimentacao.models import (
     SuspensaoAlimentacao,
 )
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+from sme_sigpae_api.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
 from sme_sigpae_api.dados_comuns.models import TemplateMensagem
 from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 from sme_sigpae_api.escola.models import Aluno
 from sme_sigpae_api.perfil.models.usuario import Usuario
+from sme_sigpae_api.pre_recebimento.fixtures.factories.ficha_tecnica_do_produto_factory import (
+    FichaTecnicaFactory,
+)
 
 
 def criar_suspensoes(grupo_suspensao, datas_cancelamentos):
@@ -313,14 +317,12 @@ def solicitacao_dieta_especial_inativa(
 
 @pytest.fixture
 def ficha_tecnica():
-    ficha_tecnica = mommy.make(
-        "FichaTecnicaDoProduto",
+    ficha_tecnica = FichaTecnicaFactory(
+        status=FichaTecnicaDoProdutoWorkflow.APROVADA,
         fabricante=mommy.make("Fabricante", nome="FABRICANTE"),
         endereco_fabricante="Rua Teste, 123",
         cnpj_fabricante="12345678000195",
-        cep_fabricante="12345678",
-        email_fabricante="fabricante@email.com",
         telefone_fabricante="11900000000",
+        email_fabricante="fabricante@email.com",
     )
-    mommy.make("InformacoesNutricionaisFichaTecnica", ficha_tecnica=ficha_tecnica)
     return ficha_tecnica

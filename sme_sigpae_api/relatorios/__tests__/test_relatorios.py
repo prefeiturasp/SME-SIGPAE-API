@@ -308,11 +308,38 @@ def test_get_pdf_ficha_tecnica(ficha_tecnica):
     assert response["Content-Type"] == "application/pdf"
     assert f'filename="{nome_pdf}"' in response["Content-Disposition"]
 
+    assert ficha_tecnica.numero in texto
+    assert ficha_tecnica.produto.nome in texto
+    assert ficha_tecnica.marca.nome in texto
+
+    assert (
+        f"Proponente:  {ficha_tecnica.empresa.nome_fantasia} / {ficha_tecnica.empresa.razao_social}"
+        in texto
+    )
+    assert f"CNPJ:  {ficha_tecnica.empresa.cnpj}" in texto
+    assert f"Endereço:  {ficha_tecnica.empresa.endereco}" in texto
+
+    assert f"Status da Ficha Técnica Aprovada" in texto
+
     assert "FABRICANTE E/OU ENVASADOR/DISTRIBUIDOR" in texto
-    assert "Fabricante" in texto
-    assert ficha_tecnica.fabricante.nome in texto
-    assert ficha_tecnica.endereco_fabricante in texto
-    assert ficha_tecnica.email_fabricante in texto
-    assert ficha_tecnica.cep_fabricante in texto
-    assert formata_telefone_ficha_tecnica(ficha_tecnica.telefone_fabricante) in texto
-    assert formata_cnpj_ficha_tecnica(ficha_tecnica.cnpj_fabricante) in texto
+    assert f"Fabricante:  {ficha_tecnica.fabricante.nome}" in texto
+    assert f"Endereço:  {ficha_tecnica.endereco_fabricante}" in texto
+    assert (
+        f"CNPJ:  {formata_cnpj_ficha_tecnica(ficha_tecnica.cnpj_fabricante)}" in texto
+    )
+    assert (
+        f"Telefone:  {formata_telefone_ficha_tecnica(ficha_tecnica.telefone_fabricante)}"
+        in texto
+    )
+    assert f"E-mail:  {ficha_tecnica.email_fabricante}" in texto
+
+    assert f"Envasador/Distribuidor:  Envasador Distribuir de São Paulo" in texto
+    assert f"Endereço:  Rua ABC, número 123, Bairro Centro, São Paulo, SP" in texto
+    assert (
+        f"CNPJ:  {formata_cnpj_ficha_tecnica(ficha_tecnica.cnpj_fabricante)}" in texto
+    )
+    assert (
+        f"Telefone:  {formata_telefone_ficha_tecnica(ficha_tecnica.telefone_fabricante)}"
+        in texto
+    )
+    assert f"E-mail:  envasador.fornecedor@email.com" in texto
