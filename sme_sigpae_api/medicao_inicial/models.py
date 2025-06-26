@@ -209,6 +209,23 @@ class SolicitacaoMedicaoInicial(
             )
             return medicao
 
+    def get_medicao_por_periodo_e_ou_grupo(self, periodo_e_ou_grupo: str):
+        try:
+            if GrupoMedicao.objects.filter(nome=periodo_e_ou_grupo).exists():
+                grupo = GrupoMedicao.objects.get(nome=periodo_e_ou_grupo)
+                medicao = Medicao.objects.get(
+                    solicitacao_medicao_inicial=self, grupo=grupo
+                )
+                return medicao
+            else:
+                periodo_escolar = PeriodoEscolar.objects.get(nome=periodo_e_ou_grupo)
+                medicao = Medicao.objects.get(
+                    solicitacao_medicao_inicial=self, periodo_escolar=periodo_escolar
+                )
+            return medicao
+        except Medicao.DoesNotExist:
+            return None
+
     class Meta:
         verbose_name = "Solicitação de medição inicial"
         verbose_name_plural = "Solicitações de medição inicial"
@@ -337,6 +354,15 @@ class Medicao(
         return (
             self.valores_medicao.filter(nome_campo="observacoes")
             .exclude(valor="")
+            .exists()
+        )
+
+    def possui_algum_lancamento(self) -> bool:
+        return (
+            self.valores_medicao.exclude(valor__in=["", None])
+            .exclude(
+                nome_campo__in=["dietas_autorizadas", "matriculados", "observacoes"]
+            )
             .exists()
         )
 

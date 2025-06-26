@@ -89,9 +89,11 @@ from .inclusao_alimentacao.fixtures.factories.base_factory import (
     DiasMotivosInclusaoDeAlimentacaoCEIFactory,
     DiasMotivosInclusaoDeAlimentacaoCEMEIFactory,
     GrupoInclusaoAlimentacaoNormalFactory,
+    InclusaoAlimentacaoContinuaFactory,
     InclusaoAlimentacaoDaCEIFactory,
     InclusaoAlimentacaoNormalFactory,
     InclusaoDeAlimentacaoCEMEIFactory,
+    MotivoInclusaoContinuaFactory,
     MotivoInclusaoNormalFactory,
     QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEIFactory,
     QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEIFactory,
@@ -103,12 +105,21 @@ from .inclusao_alimentacao.models import (
     InclusaoAlimentacaoContinua,
 )
 from .kit_lanche.fixtures.factories.base_factory import (
+    FaixaEtariaSolicitacaoKitLancheCEIAvulsaFactory,
     KitLancheFactory,
     SolicitacaoKitLancheAvulsaFactory,
+    SolicitacaoKitLancheCEIAvulsaFactory,
     SolicitacaoKitLancheFactory,
 )
+from .medicao_inicial.fixtures.factories.base_factory import (
+    CategoriaMedicaoFactory,
+    GrupoMedicaoFactory,
+    TipoContagemAlimentacaoFactory,
+)
 from .medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_factory import (
+    MedicaoFactory,
     SolicitacaoMedicaoInicialFactory,
+    ValorMedicaoFactory,
 )
 from .perfil.fixtures.factories.perfil_base_factories import UsuarioFactory
 from .pre_recebimento.fixtures.factories.cronograma_factory import (
@@ -270,6 +281,15 @@ register(QuestaoFichaRecebimentoFactory)
 register(TipoGestaoFactory)
 register(LogAlunosMatriculadosFaixaEtariaDiaFactory)
 register(ContatoFactory)
+register(TipoContagemAlimentacaoFactory)
+register(GrupoMedicaoFactory)
+register(CategoriaMedicaoFactory)
+register(MedicaoFactory)
+register(ValorMedicaoFactory)
+register(InclusaoAlimentacaoContinuaFactory)
+register(MotivoInclusaoContinuaFactory)
+register(SolicitacaoKitLancheCEIAvulsaFactory)
+register(FaixaEtariaSolicitacaoKitLancheCEIAvulsaFactory)
 
 
 @pytest.fixture
