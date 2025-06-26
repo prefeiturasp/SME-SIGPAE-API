@@ -6,12 +6,15 @@ from faker import Faker
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
     DiretoriaRegionalFactory,
     EscolaFactory,
+    FaixaEtariaFactory,
     LoteFactory,
 )
 from sme_sigpae_api.kit_lanche.models import (
+    FaixaEtariaSolicitacaoKitLancheCEIAvulsa,
     KitLanche,
     SolicitacaoKitLanche,
     SolicitacaoKitLancheAvulsa,
+    SolicitacaoKitLancheCEIAvulsa,
 )
 from sme_sigpae_api.perfil.fixtures.factories.perfil_base_factories import (
     UsuarioFactory,
@@ -61,6 +64,7 @@ class SolicitacaoKitLancheFactory(DjangoModelFactory):
 class SolicitacaoKitLancheAvulsaFactory(DjangoModelFactory):
     solicitacao_kit_lanche = SubFactory(SolicitacaoKitLancheFactory)
     criado_por = SubFactory(UsuarioFactory)
+    rastro_escola = SubFactory(EscolaFactory)
     rastro_lote = SubFactory(LoteFactory)
     rastro_dre = SubFactory(DiretoriaRegionalFactory)
     rastro_terceirizada = SubFactory(EmpresaFactory)
@@ -78,3 +82,34 @@ class SolicitacaoKitLancheAvulsaFactory(DjangoModelFactory):
 
     class Meta:
         model = SolicitacaoKitLancheAvulsa
+
+
+class SolicitacaoKitLancheCEIAvulsaFactory(DjangoModelFactory):
+    solicitacao_kit_lanche = SubFactory(SolicitacaoKitLancheFactory)
+    criado_por = SubFactory(UsuarioFactory)
+    rastro_escola = SubFactory(EscolaFactory)
+    rastro_lote = SubFactory(LoteFactory)
+    rastro_dre = SubFactory(DiretoriaRegionalFactory)
+    rastro_terceirizada = SubFactory(EmpresaFactory)
+    escola = SubFactory(EscolaFactory)
+
+    @factory.post_generation
+    def alunos_com_dieta_especial_participantes(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            for aluno in extracted:
+                self.alunos_com_dieta_especial_participantes.add(aluno)
+
+    class Meta:
+        model = SolicitacaoKitLancheCEIAvulsa
+
+
+class FaixaEtariaSolicitacaoKitLancheCEIAvulsaFactory(DjangoModelFactory):
+    solicitacao_kit_lanche_avulsa = SubFactory(SolicitacaoKitLancheCEIAvulsaFactory)
+    faixa_etaria = SubFactory(FaixaEtariaFactory)
+    quantidade = Sequence(lambda n: fake.random_int(min=0, max=100))
+
+    class Meta:
+        model = FaixaEtariaSolicitacaoKitLancheCEIAvulsa

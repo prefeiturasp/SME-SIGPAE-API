@@ -1018,6 +1018,29 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             for medicao in instance.medicoes.all():
                 medicao.ue_envia(user=self.context["request"].user)
 
+    def _checa_se_medicao_possui_algum_lancamento(
+        self, instance: SolicitacaoMedicaoInicial, lista_erros: list[dict]
+    ) -> list:
+        medicoes_instancias_nomes = instance.medicoes.values_list(
+            "periodo_escolar__nome", "grupo__nome"
+        )
+        nomes_normalizados = list(
+            {nome for tupla in medicoes_instancias_nomes for nome in tupla if nome}
+        )
+        for medicao_nome in nomes_normalizados:
+            medicao = instance.get_medicao_por_periodo_e_ou_grupo(medicao_nome)
+            if not medicao:
+                continue
+            if medicao.possui_algum_lancamento():
+                lista_erros.append(
+                    {
+                        "periodo_escolar": medicao_nome,
+                        "erro": "Existem lançamentos no período. "
+                        "Não é possível finalizar sem lançamentos.",
+                    }
+                )
+        return lista_erros
+
     def _checa_se_pode_finalizar_sem_lancamentos(self, instance) -> None:
         medicoes_nomes_com_solicitacoes_autorizadas = (
             instance.escola.get_lista_medicoes_solicitacoes_autorizadas_no_mes(
@@ -1049,6 +1072,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                     }
                 )
 
+        lista_erros = self._checa_se_medicao_possui_algum_lancamento(
+            instance, lista_erros
+        )
         if lista_erros:
             raise serializers.ValidationError(lista_erros)
 

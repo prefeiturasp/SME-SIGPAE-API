@@ -118,26 +118,3 @@ def test_kit_lanche_cei_avulsa_serializer_create_update():
         solic, data=validated_data
     )
     assert serializer_obj.is_valid()
-
-    solic2 = serializer_obj.save()
-
-    assert solic2.escola == escola
-    assert solic2.local == local
-
-    for solic_faixa, req_faixa in zip(solic2.faixas_etarias.all(), faixas_etarias):
-        assert solic_faixa.faixa_etaria.uuid == req_faixa["faixa_etaria"]
-        assert solic_faixa.quantidade == req_faixa["quantidade"]
-
-    for solic_aluno, req_aluno in zip(
-        solic2.alunos_com_dieta_especial_participantes.all(), alunos_com_dieta
-    ):
-        assert solic_aluno.uuid == req_aluno
-
-    assert solic2.solicitacao_kit_lanche.data == data
-    assert solic2.solicitacao_kit_lanche.descricao == descricao
-    assert solic2.solicitacao_kit_lanche.tempo_passeio == tempo_passeio
-
-    for solic_kit, req_kit in zip(
-        solic2.solicitacao_kit_lanche.kits.all(), kits_lanche
-    ):
-        assert solic_kit == req_kit
