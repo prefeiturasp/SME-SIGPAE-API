@@ -9,6 +9,7 @@ from sme_sigpae_api.pre_recebimento.api.helpers import (
 from sme_sigpae_api.relatorios.utils import extrair_texto_de_pdf
 
 from ..relatorios import (
+    formata_informacoes_ficha_tecnica,
     get_pdf_ficha_tecnica,
     get_total_por_periodo,
     obter_justificativa_dieta,
@@ -316,7 +317,7 @@ def test_get_pdf_ficha_tecnica(ficha_tecnica):
         f"Proponente:  {ficha_tecnica.empresa.nome_fantasia} / {ficha_tecnica.empresa.razao_social}"
         in texto
     )
-    assert f"CNPJ:  {ficha_tecnica.empresa.cnpj}" in texto
+    assert f"CNPJ:  {formata_cnpj_ficha_tecnica(ficha_tecnica.empresa.cnpj)}" in texto
     assert f"Endereço:  {ficha_tecnica.empresa.endereco}" in texto
 
     assert f"Status da Ficha Técnica Aprovada" in texto
@@ -347,3 +348,61 @@ def test_get_pdf_ficha_tecnica(ficha_tecnica):
         in texto
     )
     assert f"E-mail:  {ficha_tecnica.envasador_distribuidor.email}" in texto
+
+
+def test_formata_informacoes_ficha_tecnica(ficha_tecnica):
+    cnpj, telefone = formata_informacoes_ficha_tecnica(ficha_tecnica.empresa)
+    assert cnpj == formata_cnpj_ficha_tecnica(ficha_tecnica.empresa.cnpj)
+    assert telefone == formata_telefone_ficha_tecnica(
+        ficha_tecnica.empresa.responsavel_telefone
+    )
+
+
+def test_formata_informacoes_ficha_tecnica_retorna_none():
+    cnpj, telefone = formata_informacoes_ficha_tecnica(None)
+    assert cnpj is None
+    assert telefone is None
+
+
+def test_get_pdf_ficha_tecnica_sem_envasador(ficha_tecnica_sem_envasador):
+
+    response = get_pdf_ficha_tecnica(None, ficha_tecnica_sem_envasador)
+    nome_pdf = f"ficha_tecnica_{ficha_tecnica_sem_envasador.numero}.pdf"
+    texto = extrair_texto_de_pdf(response.content)
+
+    assert response["Content-Type"] == "application/pdf"
+    assert f'filename="{nome_pdf}"' in response["Content-Disposition"]
+
+    assert ficha_tecnica_sem_envasador.numero in texto
+    assert ficha_tecnica_sem_envasador.produto.nome in texto
+    assert ficha_tecnica_sem_envasador.marca.nome in texto
+
+    assert (
+        f"Proponente:  {ficha_tecnica_sem_envasador.empresa.nome_fantasia} / {ficha_tecnica_sem_envasador.empresa.razao_social}"
+        in texto
+    )
+    assert (
+        f"CNPJ:  {formata_cnpj_ficha_tecnica(ficha_tecnica_sem_envasador.empresa.cnpj)}"
+        in texto
+    )
+    assert f"Endereço:  {ficha_tecnica_sem_envasador.empresa.endereco}" in texto
+
+    assert f"Status da Ficha Técnica Aprovada" in texto
+
+    assert "FABRICANTE E/OU ENVASADOR/DISTRIBUIDOR" in texto
+    assert (
+        f"Fabricante:  {ficha_tecnica_sem_envasador.fabricante.fabricante.nome}"
+        in texto
+    )
+    assert f"Endereço:  {ficha_tecnica_sem_envasador.fabricante.endereco}" in texto
+    assert (
+        f"CNPJ:  {formata_cnpj_ficha_tecnica(ficha_tecnica_sem_envasador.fabricante.cnpj)}"
+        in texto
+    )
+    assert (
+        f"Telefone:  {formata_telefone_ficha_tecnica(ficha_tecnica_sem_envasador.fabricante.telefone)}"
+        in texto
+    )
+    assert f"E-mail:  {ficha_tecnica_sem_envasador.fabricante.email}" in texto
+
+    assert "Envasador/Distribuidor" not in texto

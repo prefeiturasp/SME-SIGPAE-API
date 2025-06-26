@@ -319,3 +319,10 @@ def solicitacao_dieta_especial_inativa(
 def ficha_tecnica():
     ficha_tecnica = FichaTecnicaFactory(status=FichaTecnicaDoProdutoWorkflow.APROVADA)
     return ficha_tecnica
+
+
+@pytest.fixture
+def ficha_tecnica_sem_envasador(ficha_tecnica):
+    ficha_tecnica.envasador_distribuidor = None
+    ficha_tecnica.save()
+    return ficha_tecnica
