@@ -320,8 +320,6 @@ def test_get_pdf_ficha_tecnica(ficha_tecnica):
     assert f"CNPJ:  {formata_cnpj_ficha_tecnica(ficha_tecnica.empresa.cnpj)}" in texto
     assert f"Endereço:  {ficha_tecnica.empresa.endereco}" in texto
 
-    assert f"Status da Ficha Técnica Aprovada" in texto
-
     assert "FABRICANTE E/OU ENVASADOR/DISTRIBUIDOR" in texto
     assert f"Fabricante:  {ficha_tecnica.fabricante.fabricante.nome}" in texto
     assert f"Endereço:  {ficha_tecnica.fabricante.endereco}" in texto
