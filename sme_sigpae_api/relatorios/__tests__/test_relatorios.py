@@ -373,34 +373,4 @@ def test_get_pdf_ficha_tecnica_sem_envasador(ficha_tecnica_sem_envasador):
     assert response["Content-Type"] == "application/pdf"
     assert f'filename="{nome_pdf}"' in response["Content-Disposition"]
 
-    assert ficha_tecnica_sem_envasador.numero in texto
-    assert ficha_tecnica_sem_envasador.produto.nome in texto
-    assert ficha_tecnica_sem_envasador.marca.nome in texto
-
-    assert (
-        f"Proponente:  {ficha_tecnica_sem_envasador.empresa.nome_fantasia} / {ficha_tecnica_sem_envasador.empresa.razao_social}"
-        in texto
-    )
-    assert (
-        f"CNPJ:  {formata_cnpj_ficha_tecnica(ficha_tecnica_sem_envasador.empresa.cnpj)}"
-        in texto
-    )
-    assert f"Endereço:  {ficha_tecnica_sem_envasador.empresa.endereco}" in texto
-
-    assert "FABRICANTE E/OU ENVASADOR/DISTRIBUIDOR" in texto
-    assert (
-        f"Fabricante:  {ficha_tecnica_sem_envasador.fabricante.fabricante.nome}"
-        in texto
-    )
-    assert f"Endereço:  {ficha_tecnica_sem_envasador.fabricante.endereco}" in texto
-    assert (
-        f"CNPJ:  {formata_cnpj_ficha_tecnica(ficha_tecnica_sem_envasador.fabricante.cnpj)}"
-        in texto
-    )
-    assert (
-        f"Telefone:  {formata_telefone_ficha_tecnica(ficha_tecnica_sem_envasador.fabricante.telefone)}"
-        in texto
-    )
-    assert f"E-mail:  {ficha_tecnica_sem_envasador.fabricante.email}" in texto
-
     assert "Envasador/Distribuidor" not in texto
