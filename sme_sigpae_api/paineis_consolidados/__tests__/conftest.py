@@ -1223,7 +1223,8 @@ def dados_para_geracao_excel_e_pdf(
         grupo_inclusao=grupo_inclusao_alimentacao_normal,
     )
     quantidade_por_periodo_factory.create(
-        grupo_inclusao_normal=grupo_inclusao_alimentacao_normal
+        grupo_inclusao_normal=grupo_inclusao_alimentacao_normal,
+        inclusao_alimentacao_continua=None,
     )
     log_solicitacoes_usuario_factory.create(
         uuid_original=grupo_inclusao_alimentacao_normal.uuid,

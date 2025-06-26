@@ -11,7 +11,7 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.validators import MinLengthValidator, MinValueValidator
 from django.db import models
-from django.db.models import Q, Sum
+from django.db.models import F, Q, Sum
 from django_prometheus.models import ExportModelOperationsMixin
 from rest_framework import status
 
@@ -53,6 +53,7 @@ from ..dados_comuns.fluxo_status import (
 from ..dados_comuns.utils import (
     datetime_range,
     eh_fim_de_semana,
+    get_ultimo_dia_mes,
     quantidade_meses,
     queryset_por_data,
     subtrai_meses_de_data,
@@ -959,6 +960,467 @@ class Escola(
                 data_nascimento, data_referencia, faixas_etarias, seis_anos_atras
             )
         return resultados
+
+    def get_lista_medicoes_kit_lanche_avulso_autorizado_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        if (
+            "Solicitações de Alimentação" in lista_medicoes
+            or self.eh_cei
+            or self.eh_cemei
+        ):
+            return lista_medicoes
+        if self.solicitacoes_kit_lanche_avulsa.filter(
+            status="CODAE_AUTORIZADO",
+            solicitacao_kit_lanche__data__month=mes,
+            solicitacao_kit_lanche__data__year=ano,
+        ).exists():
+            lista_medicoes.append("Solicitações de Alimentação")
+        return lista_medicoes
+
+    def get_lista_medicoes_kit_lanche_unificado_autorizado_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        if "Solicitações de Alimentação" in lista_medicoes:
+            return lista_medicoes
+        if self.escolaquantidade_set.filter(
+            solicitacao_unificada__status="CODAE_AUTORIZADO",
+            cancelado=False,
+            solicitacao_unificada__solicitacao_kit_lanche__data__month=mes,
+            solicitacao_unificada__solicitacao_kit_lanche__data__year=ano,
+        ).exists():
+            lista_medicoes.append("Solicitações de Alimentação")
+        return lista_medicoes
+
+    def get_lista_medicoes_kit_lanche_cei_autorizado_no_mes(
+        self, mes: int, ano: int, lista_medicoes
+    ) -> list:
+        if "Solicitações de Alimentação" in lista_medicoes or not self.eh_cei:
+            return lista_medicoes
+        if self.solicitacoes_kit_lanche_cei_avulsa.filter(
+            status="CODAE_AUTORIZADO",
+            solicitacao_kit_lanche__data__month=mes,
+            solicitacao_kit_lanche__data__year=ano,
+        ).exists():
+            lista_medicoes.append("Solicitações de Alimentação")
+        return lista_medicoes
+
+    def get_lista_medicoes_kit_lanche_cemei_autorizado_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        if "Solicitações de Alimentação" in lista_medicoes or not self.eh_cemei:
+            return lista_medicoes
+        if self.solicitacoes_kit_lanche_cemei.filter(
+            status="CODAE_AUTORIZADO", data__month=mes, data__year=ano
+        ).exists():
+            lista_medicoes.append("Solicitações de Alimentação")
+        return lista_medicoes
+
+    def get_lista_medicoes_qualquer_kit_lanche_autorizado_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        lista_medicoes = self.get_lista_medicoes_kit_lanche_avulso_autorizado_no_mes(
+            mes, ano, lista_medicoes
+        )
+        lista_medicoes = self.get_lista_medicoes_kit_lanche_unificado_autorizado_no_mes(
+            mes, ano, lista_medicoes
+        )
+        lista_medicoes = self.get_lista_medicoes_kit_lanche_cei_autorizado_no_mes(
+            mes, ano, lista_medicoes
+        )
+        lista_medicoes = self.get_lista_medicoes_kit_lanche_cemei_autorizado_no_mes(
+            mes, ano, lista_medicoes
+        )
+        return lista_medicoes
+
+    def get_lista_medicoes_alteracao_generica_lanche_emergencial_autorizada_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        if (
+            "Solicitações de Alimentação" in lista_medicoes
+            or self.eh_cei
+            or self.eh_cemei
+        ):
+            return lista_medicoes
+        if self.alteracaocardapio_set.filter(
+            status="CODAE_AUTORIZADO",
+            datas_intervalo__data__month=mes,
+            datas_intervalo__data__year=ano,
+            datas_intervalo__cancelado=False,
+            motivo__nome="Lanche Emergencial",
+        ).exists():
+            lista_medicoes.append("Solicitações de Alimentação")
+        return lista_medicoes
+
+    def get_lista_medicoes_alteracao_generica_rpl_lpr_autorizada_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        if self.eh_cei or self.eh_cemei:
+            return lista_medicoes
+        queryset = self.alteracaocardapio_set.filter(
+            status="CODAE_AUTORIZADO",
+            datas_intervalo__data__month=mes,
+            datas_intervalo__data__year=ano,
+            datas_intervalo__cancelado=False,
+        ).exclude(motivo__nome="Lanche Emergencial")
+        if queryset.exists():
+            periodos_escolares_nomes = list(
+                queryset.values_list(
+                    "substituicoes_periodo_escolar__periodo_escolar__nome",
+                    flat=True,
+                ).distinct()
+            )
+            lista_medicoes = list(set(periodos_escolares_nomes + lista_medicoes))
+        return lista_medicoes
+
+    def get_lista_medicoes_alteracao_cei_autorizada_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        if not self.eh_cei:
+            return lista_medicoes
+        queryset = self.alteracaocardapiocei_set.filter(
+            status="CODAE_AUTORIZADO", data__month=mes, data__year=ano
+        )
+        if queryset.exists():
+            periodos_escolares_nomes = list(
+                queryset.values_list(
+                    "substituicoes_cei_periodo_escolar__periodo_escolar__nome",
+                    flat=True,
+                ).distinct()
+            )
+            lista_medicoes = list(set(periodos_escolares_nomes + lista_medicoes))
+        return lista_medicoes
+
+    def get_lista_medicoes_alteracao_cemei_lanche_emergencial_autorizada_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        if "Solicitações de Alimentação" in lista_medicoes or not self.eh_cemei:
+            return lista_medicoes
+        queryset = self.alteracaocardapiocemei_set.filter(
+            status="CODAE_AUTORIZADO",
+            datas_intervalo__data__month=mes,
+            datas_intervalo__data__year=ano,
+            datas_intervalo__cancelado=False,
+            motivo__nome="Lanche Emergencial",
+        )
+        if queryset.exists():
+            lista_medicoes.append("Solicitações de Alimentação")
+        return lista_medicoes
+
+    def get_lista_medicoes_alteracao_cemei_rpl_lpr_autorizada_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        if not self.eh_cemei:
+            return lista_medicoes
+        queryset = self.alteracaocardapiocemei_set.filter(
+            status="CODAE_AUTORIZADO",
+            datas_intervalo__data__month=mes,
+            datas_intervalo__data__year=ano,
+            datas_intervalo__cancelado=False,
+        ).exclude(motivo__nome="Lanche Emergencial")
+        if queryset.exists():
+            periodos_escolares_nomes = list(
+                queryset.values_list(
+                    "substituicoes_cemei_emei_periodo_escolar__periodo_escolar__nome",
+                    "substituicoes_cemei_cei_periodo_escolar__periodo_escolar__nome",
+                ).distinct()
+            )
+            periodos_unicos = list(
+                {nome for tupla in periodos_escolares_nomes for nome in tupla if nome}
+            )
+            lista_medicoes = list(set(periodos_unicos + lista_medicoes))
+        return lista_medicoes
+
+    def get_lista_medicoes_qualquer_alteracao_autorizada_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        lista_medicoes = (
+            self.get_lista_medicoes_alteracao_generica_rpl_lpr_autorizada_no_mes(
+                mes, ano, lista_medicoes
+            )
+        )
+        lista_medicoes = self.get_lista_medicoes_alteracao_generica_lanche_emergencial_autorizada_no_mes(
+            mes, ano, lista_medicoes
+        )
+        lista_medicoes = self.get_lista_medicoes_alteracao_cei_autorizada_no_mes(
+            mes, ano, lista_medicoes
+        )
+        lista_medicoes = (
+            self.get_lista_medicoes_alteracao_cemei_rpl_lpr_autorizada_no_mes(
+                mes, ano, lista_medicoes
+            )
+        )
+        lista_medicoes = self.get_lista_medicoes_alteracao_cemei_lanche_emergencial_autorizada_no_mes(
+            mes, ano, lista_medicoes
+        )
+        return lista_medicoes
+
+    def get_lista_medicoes_inclusao_normal_autorizada_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        if self.eh_cei or self.eh_cemei:
+            return lista_medicoes
+        queryset = self.grupos_inclusoes.filter(
+            status="CODAE_AUTORIZADO",
+            quantidades_por_periodo__cancelado=False,
+            inclusoes_normais__data__month=mes,
+            inclusoes_normais__data__year=ano,
+        )
+        if queryset.exists():
+            periodos_escolares_nomes = list(
+                queryset.values_list(
+                    "quantidades_por_periodo__periodo_escolar__nome", flat=True
+                ).distinct()
+            )
+            lista_medicoes = list(set(periodos_escolares_nomes + lista_medicoes))
+        return lista_medicoes
+
+    def get_lista_medicoes_inclusao_continua_programas_projetos_autorizada_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        if "Programas e Projetos" in lista_medicoes or self.eh_cei:
+            return lista_medicoes
+        primeiro_dia_mes = datetime.date(ano, mes, 1)
+        ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
+        queryset = self.inclusoes_alimentacao_continua.filter(
+            status="CODAE_AUTORIZADO",
+            data_inicial__lte=ultimo_dia_mes,
+            data_final__gte=primeiro_dia_mes,
+        ).exclude(motivo__nome="ETEC")
+        if queryset.exists():
+            lista_medicoes.append("Programas e Projetos")
+        return lista_medicoes
+
+    def get_lista_medicoes_inclusao_continua_etec_autorizada_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        if "ETEC" in lista_medicoes or self.eh_cei:
+            return lista_medicoes
+        primeiro_dia_mes = datetime.date(ano, mes, 1)
+        ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
+        queryset = self.inclusoes_alimentacao_continua.filter(
+            status="CODAE_AUTORIZADO",
+            data_inicial__lte=ultimo_dia_mes,
+            data_final__gte=primeiro_dia_mes,
+            motivo__nome="ETEC",
+        )
+        if queryset.exists():
+            lista_medicoes.append("ETEC")
+        return lista_medicoes
+
+    def get_lista_medicoes_inclusao_cei_parcial_autorizada_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        """
+        Verifica se há alguma inclusão CEI com período externo diferente do interno,
+        autorizada pela CODAE no mês e ano informados.
+
+        Args:
+            mes (int): Mês da solicitação.
+            ano (int): Ano da solicitação.
+            lista_medicoes (list): Lista de medições iniciais com solicitações identificadas anteriormente.
+
+        Returns:
+            list: A lista de erros atualizada, incluindo "PARCIAL" se for identificado periodos diferentes.
+        """
+
+        if "PARCIAL" in lista_medicoes or not self.eh_cei:
+            return lista_medicoes
+        if (
+            self.grupos_inclusoes_por_cei.filter(
+                status="CODAE_AUTORIZADO",
+                dias_motivos_da_inclusao_cei__data__month=mes,
+                dias_motivos_da_inclusao_cei__data__year=ano,
+                dias_motivos_da_inclusao_cei__cancelado=False,
+            )
+            .filter(
+                ~Q(
+                    quantidade_alunos_da_inclusao__periodo=F(
+                        "quantidade_alunos_da_inclusao__periodo_externo"
+                    )
+                )
+            )
+            .exists()
+        ):
+            lista_medicoes.append("PARCIAL")
+        return lista_medicoes
+
+    def get_lista_medicoes_inclusao_cei_periodos_escolares_autorizada_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        """
+        Verifica se há alguma inclusão CEI com período externo igual do interno,
+        autorizada pela CODAE no mês e ano informados.
+
+        Args:
+            mes (int): Mês da solicitação.
+            ano (int): Ano da solicitação.
+            lista_medicoes (list): Lista de medições iniciais com solicitações identificadas anteriormente.
+
+        Returns:
+            list: A lista de erros atualizada, incluindo "INTEGRAL", "MANHA", "TARDE", etc. se for identificado periodos iguais.
+        """
+
+        if not self.eh_cei:
+            return lista_medicoes
+        queryset = self.grupos_inclusoes_por_cei.filter(
+            status="CODAE_AUTORIZADO",
+            dias_motivos_da_inclusao_cei__data__month=mes,
+            dias_motivos_da_inclusao_cei__data__year=ano,
+            dias_motivos_da_inclusao_cei__cancelado=False,
+        ).filter(
+            Q(
+                quantidade_alunos_da_inclusao__periodo=F(
+                    "quantidade_alunos_da_inclusao__periodo_externo"
+                )
+            )
+        )
+        if queryset.exists():
+            periodos_escolares_nomes = list(
+                queryset.values_list(
+                    "quantidade_alunos_da_inclusao__periodo__nome", flat=True
+                ).distinct()
+            )
+            lista_medicoes = list(set(periodos_escolares_nomes + lista_medicoes))
+        return lista_medicoes
+
+    def get_lista_medicoes_inclusao_cemei_cei_parcial_autorizada_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        """
+        Verifica se há alguma inclusão CEI da CEMEI com período escolar diferente de INTEGRAL
+        autorizada pela CODAE no mês e ano informados.
+
+        Args:
+            mes (int): Mês da solicitação.
+            ano (int): Ano da solicitação.
+            lista_medicoes (list): Lista de medições iniciais com solicitações identificadas anteriormente.
+
+        Returns:
+            list: A lista de erros atualizada, incluindo "PARCIAL" se for identificado um período diferente de INTEGRAL
+        """
+        if "PARCIAL" in lista_medicoes or not self.eh_cemei:
+            return lista_medicoes
+        queryset = self.inclusoes_de_alimentacao_cemei.filter(
+            status="CODAE_AUTORIZADO",
+            dias_motivos_da_inclusao_cemei__data__month=mes,
+            dias_motivos_da_inclusao_cemei__data__year=ano,
+            dias_motivos_da_inclusao_cemei__cancelado=False,
+            quantidade_alunos_cei_da_inclusao_cemei__isnull=False,
+        ).filter(
+            ~Q(
+                quantidade_alunos_cei_da_inclusao_cemei__periodo_escolar__nome="INTEGRAL"
+            )
+        )
+        if queryset.exists():
+            lista_medicoes.append("PARCIAL")
+        return lista_medicoes
+
+    def get_lista_medicoes_inclusao_cemei_cei_integral_autorizada_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        if "INTEGRAL" in lista_medicoes or not self.eh_cemei:
+            return lista_medicoes
+        queryset = self.inclusoes_de_alimentacao_cemei.filter(
+            status="CODAE_AUTORIZADO",
+            dias_motivos_da_inclusao_cemei__data__month=mes,
+            dias_motivos_da_inclusao_cemei__data__year=ano,
+            dias_motivos_da_inclusao_cemei__cancelado=False,
+            quantidade_alunos_cei_da_inclusao_cemei__periodo_escolar__nome="INTEGRAL",
+        )
+        if queryset.exists():
+            lista_medicoes.append("INTEGRAL")
+        return lista_medicoes
+
+    def get_lista_medicoes_inclusao_cemei_emei_autorizada_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        if not self.eh_cemei:
+            return lista_medicoes
+        queryset = self.inclusoes_de_alimentacao_cemei.filter(
+            status="CODAE_AUTORIZADO",
+            dias_motivos_da_inclusao_cemei__data__month=mes,
+            dias_motivos_da_inclusao_cemei__data__year=ano,
+            dias_motivos_da_inclusao_cemei__cancelado=False,
+            quantidade_alunos_emei_da_inclusao_cemei__isnull=False,
+        )
+        if queryset.exists():
+            periodos_escolares_nomes = list(
+                queryset.values_list(
+                    "quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__nome",
+                    flat=True,
+                ).distinct()
+            )
+            nomes_normalizados = [
+                "Infantil " + nome for nome in periodos_escolares_nomes
+            ]
+            lista_medicoes = list(set(lista_medicoes + nomes_normalizados))
+        return lista_medicoes
+
+    def get_lista_medicoes_qualquer_inclusao_autorizada_no_mes(
+        self, mes: int, ano: int, lista_medicoes: list
+    ) -> list:
+        lista_medicoes = self.get_lista_medicoes_inclusao_normal_autorizada_no_mes(
+            mes, ano, lista_medicoes
+        )
+        lista_medicoes = self.get_lista_medicoes_inclusao_continua_programas_projetos_autorizada_no_mes(
+            mes, ano, lista_medicoes
+        )
+        lista_medicoes = (
+            self.get_lista_medicoes_inclusao_continua_etec_autorizada_no_mes(
+                mes, ano, lista_medicoes
+            )
+        )
+
+        lista_medicoes = (
+            self.get_lista_medicoes_inclusao_cei_periodos_escolares_autorizada_no_mes(
+                mes, ano, lista_medicoes
+            )
+        )
+        lista_medicoes = self.get_lista_medicoes_inclusao_cei_parcial_autorizada_no_mes(
+            mes, ano, lista_medicoes
+        )
+
+        lista_medicoes = (
+            self.get_lista_medicoes_inclusao_cemei_cei_integral_autorizada_no_mes(
+                mes, ano, lista_medicoes
+            )
+        )
+        lista_medicoes = (
+            self.get_lista_medicoes_inclusao_cemei_cei_parcial_autorizada_no_mes(
+                mes, ano, lista_medicoes
+            )
+        )
+        lista_medicoes = self.get_lista_medicoes_inclusao_cemei_emei_autorizada_no_mes(
+            mes, ano, lista_medicoes
+        )
+
+        return lista_medicoes
+
+    def get_lista_medicoes_solicitacoes_autorizadas_no_mes(
+        self, mes: int, ano: int
+    ) -> list:
+        """
+        Verifica se há alguma solicitação autorizada para o mês e ano passados como parâmetro.
+
+        Args:
+            mes (int): Mês da solicitação.
+            ano (int): Ano da solicitação.
+
+        Returns:
+            list[str]: A lista de strings com os tipos de medição inicial possíveis
+        """
+        lista_medicoes = []
+        lista_medicoes = self.get_lista_medicoes_qualquer_kit_lanche_autorizado_no_mes(
+            mes, ano, lista_medicoes
+        )
+        lista_medicoes = self.get_lista_medicoes_qualquer_alteracao_autorizada_no_mes(
+            mes, ano, lista_medicoes
+        )
+        lista_medicoes = self.get_lista_medicoes_qualquer_inclusao_autorizada_no_mes(
+            mes, ano, lista_medicoes
+        )
+        return lista_medicoes
 
     class Meta:
         verbose_name = "Escola"

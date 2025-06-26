@@ -6,7 +6,7 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import F, FloatField, Sum
 from django.template.loader import get_template, render_to_string
 
-from sme_sigpae_api.paineis_consolidados.models import MoldeConsolidado
+from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
@@ -1813,6 +1813,7 @@ def obter_justificativa_dieta(solicitacao):
     ativo = solicitacao.ativo
     log_recente = solicitacao.logs.last()
     data = log_recente.criado_em.strftime("%d/%m/%Y") if log_recente else ""
+
     status_cancelamentos = [
         DietaEspecialWorkflow.CANCELADO_ALUNO_MUDOU_ESCOLA,
         DietaEspecialWorkflow.CANCELADO_ALUNO_NAO_PERTENCE_REDE,
@@ -1824,7 +1825,11 @@ def obter_justificativa_dieta(solicitacao):
     )
 
     justificativa = None
-    if status_dieta in MoldeConsolidado.INATIVOS_STATUS_DIETA_ESPECIAL and not ativo:
+    if (
+        SolicitacoesCODAE.get_inativas_dieta_especial()
+        .filter(uuid=solicitacao.uuid)
+        .exists()
+    ):
         mensagem = "Autorização de novo protocolo de dieta especial"
         justificativa = f"Dieta Inativada em: {data} | Justificativa: {mensagem}"
 
