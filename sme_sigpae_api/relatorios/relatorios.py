@@ -1709,20 +1709,22 @@ def get_pdf_ficha_tecnica(request, ficha):
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnica.objects.filter(
         ficha_tecnica=ficha
     )
+    empresa = ficha.empresa
+    cnpj_empresa, telefone_empresa = formata_informacoes_ficha_tecnica(empresa)
+ 
     fabricante = ficha.fabricante
-    cnpj_fabricante = formata_cnpj_ficha_tecnica(fabricante.cnpj)
-    telefone_fabricante = formata_telefone_ficha_tecnica(fabricante.telefone)
+    cnpj_fabricante, telefone_fabricante = formata_informacoes_ficha_tecnica(fabricante)
+    
     envasador_distribuidor = ficha.envasador_distribuidor
-    cnpj_distribuidor = formata_cnpj_ficha_tecnica(envasador_distribuidor.cnpj)
-    telefone_distribuidor = formata_telefone_ficha_tecnica(
-        envasador_distribuidor.telefone
-    )
+    cnpj_distribuidor, telefone_distribuidor = formata_informacoes_ficha_tecnica(envasador_distribuidor)
 
     html_string = render_to_string(
         "pre_recebimento/ficha_tecnica/ficha_tecnica.html",
         {
             "ficha": ficha,
-            "empresa": ficha.empresa,
+            "empresa": empresa,
+            "cnpj_empresa": cnpj_empresa,
+            "telefone_empresa": telefone_empresa,
             "status_ficha": retorna_status_ficha_tecnica(ficha.status),
             "tabela": list(informacoes_nutricionais),
             "logs": ficha.logs,
@@ -1831,3 +1833,11 @@ def obter_justificativa_dieta(solicitacao):
         justificativa = f"Dieta cancelada em: {data} | Justificativa: {mensagem}"
 
     return justificativa
+
+
+def formata_informacoes_ficha_tecnica(entidade):
+    if not entidade:
+        return None, None
+    cnpj = formata_cnpj_ficha_tecnica(entidade.cnpj)
+    telefone = formata_telefone_ficha_tecnica(getattr(entidade, 'telefone', getattr(entidade, 'responsavel_telefone', None)))
+    return cnpj, telefone
