@@ -17,6 +17,9 @@ from sme_sigpae_api.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory,
 )
+from sme_sigpae_api.pre_recebimento.fixtures.factories.fabricante_ficha_tecnica_factory import (
+    FabricanteFichaTecnicaFactory,
+)
 from sme_sigpae_api.recebimento.fixtures.factories.questao_ficha_recebimento_factory import (
     QuestaoFichaRecebimentoFactory,
 )
@@ -183,6 +186,7 @@ register(DocumentoDeRecebimentoFactory)
 register(EmpresaFactory)
 register(FabricanteFactory)
 register(FichaTecnicaFactory)
+register(FabricanteFichaTecnicaFactory)
 register(LaboratorioFactory)
 register(MarcaFactory)
 register(ProdutoLogisticaFactory)
