@@ -52,6 +52,7 @@
           <div class="col-12">E-mail: <span class="font-weight-bold"> {{fabricante.email}}</span> </div>
         </div>
 
+        {% if envasador_distribuidor %}
         <hr/>
 
         <div class="row pb-3">
@@ -63,14 +64,14 @@
             - CEP: {{envasador_distribuidor.cep}}
             </span> </div>
         </div>
-                <div class="row pb-3">
+        <div class="row pb-3">
           <div class="col-6">CNPJ: <span class="font-weight-bold"> {{cnpj_distribuidor}}</span> </div>
           <div class="col-6">Telefone: <span class="font-weight-bold"> {{telefone_distribuidor}}</span> </div>
         </div>
         <div class="row pb-3">
           <div class="col-12">E-mail: <span class="font-weight-bold"> {{envasador_distribuidor.email}}</span> </div>
         </div>
-
+        {% endif %}
 
       </div>
     </div>
