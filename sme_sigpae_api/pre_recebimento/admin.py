@@ -9,6 +9,7 @@ from .models import (
     DataDeFabricaoEPrazo,
     DocumentoDeRecebimento,
     EtapasDoCronograma,
+    FabricanteFichaTecnica,
     FichaTecnicaDoProduto,
     ImagemDoTipoDeEmbalagem,
     InformacoesNutricionaisFichaTecnica,
@@ -191,5 +192,15 @@ admin.site.register(DataDeFabricaoEPrazo)
 admin.site.register(LayoutDeEmbalagem, LayoutDeEmbalagemAdmin)
 admin.site.register(EtapasDoCronograma)
 admin.site.register(ProgramacaoDoRecebimentoDoCronograma)
+
+
+@admin.register(FabricanteFichaTecnica)
+class FabricanteFichaTecnicaAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "fabricante", "cidade", "estado", "telefone", "email")
+    list_filter = ("estado",)
+    search_fields = ("fabricante__nome", "cnpj", "cidade", "email")
+    readonly_fields = ("uuid",)
+
+
 admin.site.register(FichaTecnicaDoProduto, FichaTecnicaDoProdutoAdmin)
 admin.site.register(Cronograma, CronogramaAdmin)
