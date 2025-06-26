@@ -2,8 +2,8 @@ from datetime import datetime
 
 from auditlog.models import AuditlogHistoryField
 from auditlog.registry import auditlog
-from django.core.validators import MaxLengthValidator, MinLengthValidator
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxLengthValidator, MinLengthValidator
 from django.db import models
 from django.db.models import QuerySet
 from django_prometheus.models import ExportModelOperationsMixin
@@ -189,15 +189,11 @@ class SolicitacaoDietaEspecial(
     )
 
     periodo_recreio_inicio = models.DateField(
-        "Período do Recreio - De",
-        null=True,
-        blank=True
+        "Período do Recreio - De", null=True, blank=True
     )
 
     periodo_recreio_fim = models.DateField(
-        "Período do Recreio - Até",
-        null=True,
-        blank=True
+        "Período do Recreio - Até", null=True, blank=True
     )
 
     @classmethod
@@ -382,9 +378,13 @@ class SolicitacaoDietaEspecial(
         super().clean()
         if self.dieta_para_recreio_ferias:
             if not self.periodo_recreio_inicio or not self.periodo_recreio_fim:
-                raise ValidationError("Os campos de período são obrigatórios quando dieta para recreio nas férias está selecionada.")
+                raise ValidationError(
+                    "Os campos de período são obrigatórios quando dieta para recreio nas férias está selecionada."
+                )
             if self.periodo_recreio_fim < self.periodo_recreio_inicio:
-                raise ValidationError("A data final não pode ser anterior à data inicial.")
+                raise ValidationError(
+                    "A data final não pode ser anterior à data inicial."
+                )
 
     class Meta:
         ordering = ("-ativo", "-criado_em")

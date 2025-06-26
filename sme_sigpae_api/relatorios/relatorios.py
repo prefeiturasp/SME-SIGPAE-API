@@ -1711,12 +1711,14 @@ def get_pdf_ficha_tecnica(request, ficha):
     )
     empresa = ficha.empresa
     cnpj_empresa, telefone_empresa = formata_informacoes_ficha_tecnica(empresa)
- 
+
     fabricante = ficha.fabricante
     cnpj_fabricante, telefone_fabricante = formata_informacoes_ficha_tecnica(fabricante)
-    
+
     envasador_distribuidor = ficha.envasador_distribuidor
-    cnpj_distribuidor, telefone_distribuidor = formata_informacoes_ficha_tecnica(envasador_distribuidor)
+    cnpj_distribuidor, telefone_distribuidor = formata_informacoes_ficha_tecnica(
+        envasador_distribuidor
+    )
 
     html_string = render_to_string(
         "pre_recebimento/ficha_tecnica/ficha_tecnica.html",
@@ -1839,5 +1841,7 @@ def formata_informacoes_ficha_tecnica(entidade):
     if not entidade:
         return None, None
     cnpj = formata_cnpj_ficha_tecnica(entidade.cnpj)
-    telefone = formata_telefone_ficha_tecnica(getattr(entidade, 'telefone', getattr(entidade, 'responsavel_telefone', None)))
+    telefone = formata_telefone_ficha_tecnica(
+        getattr(entidade, "telefone", getattr(entidade, "responsavel_telefone", None))
+    )
     return cnpj, telefone
