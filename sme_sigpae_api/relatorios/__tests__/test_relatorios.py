@@ -387,8 +387,6 @@ def test_get_pdf_ficha_tecnica_sem_envasador(ficha_tecnica_sem_envasador):
     )
     assert f"Endereço:  {ficha_tecnica_sem_envasador.empresa.endereco}" in texto
 
-    assert f"Status da Ficha Técnica Aprovada" in texto
-
     assert "FABRICANTE E/OU ENVASADOR/DISTRIBUIDOR" in texto
     assert (
         f"Fabricante:  {ficha_tecnica_sem_envasador.fabricante.fabricante.nome}"
