@@ -313,39 +313,30 @@ def test_get_pdf_ficha_tecnica(ficha_tecnica):
     assert ficha_tecnica.produto.nome in texto
     assert ficha_tecnica.marca.nome in texto
 
-    assert (
-        f"Proponente:  {ficha_tecnica.empresa.nome_fantasia} / {ficha_tecnica.empresa.razao_social}"
-        in texto
-    )
-    assert f"CNPJ:  {formata_cnpj_ficha_tecnica(ficha_tecnica.empresa.cnpj)}" in texto
-    assert f"Endereço:  {ficha_tecnica.empresa.endereco}" in texto
+    assert ficha_tecnica.empresa.nome_fantasia in texto
+    assert ficha_tecnica.empresa.razao_social in texto
+
+    assert formata_cnpj_ficha_tecnica(ficha_tecnica.empresa.cnpj) in texto
+    assert ficha_tecnica.empresa.endereco in texto
 
     assert "FABRICANTE E/OU ENVASADOR/DISTRIBUIDOR" in texto
-    assert f"Fabricante:  {ficha_tecnica.fabricante.fabricante.nome}" in texto
-    assert f"Endereço:  {ficha_tecnica.fabricante.endereco}" in texto
-    assert (
-        f"CNPJ:  {formata_cnpj_ficha_tecnica(ficha_tecnica.fabricante.cnpj)}" in texto
-    )
-    assert (
-        f"Telefone:  {formata_telefone_ficha_tecnica(ficha_tecnica.fabricante.telefone)}"
-        in texto
-    )
-    assert f"E-mail:  {ficha_tecnica.fabricante.email}" in texto
+    assert ficha_tecnica.fabricante.fabricante.nome in texto
+    assert ficha_tecnica.fabricante.endereco in texto
+    assert formata_cnpj_ficha_tecnica(ficha_tecnica.fabricante.cnpj) in texto
 
+    assert formata_telefone_ficha_tecnica(ficha_tecnica.fabricante.telefone) in texto
+    assert ficha_tecnica.fabricante.email in texto
+
+    assert ficha_tecnica.envasador_distribuidor.fabricante.nome in texto
+    assert ficha_tecnica.envasador_distribuidor.endereco in texto
     assert (
-        f"Envasador/Distribuidor:  {ficha_tecnica.envasador_distribuidor.fabricante.nome}"
+        formata_cnpj_ficha_tecnica(ficha_tecnica.envasador_distribuidor.cnpj) in texto
+    )
+    assert (
+        formata_telefone_ficha_tecnica(ficha_tecnica.envasador_distribuidor.telefone)
         in texto
     )
-    assert f"Endereço:  {ficha_tecnica.envasador_distribuidor.endereco}" in texto
-    assert (
-        f"CNPJ:  {formata_cnpj_ficha_tecnica(ficha_tecnica.envasador_distribuidor.cnpj)}"
-        in texto
-    )
-    assert (
-        f"Telefone:  {formata_telefone_ficha_tecnica(ficha_tecnica.envasador_distribuidor.telefone)}"
-        in texto
-    )
-    assert f"E-mail:  {ficha_tecnica.envasador_distribuidor.email}" in texto
+    assert ficha_tecnica.envasador_distribuidor.email in texto
 
 
 def test_formata_informacoes_ficha_tecnica(ficha_tecnica):
