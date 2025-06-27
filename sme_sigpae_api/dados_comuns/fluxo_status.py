@@ -3022,8 +3022,11 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
     )
 
     def _salva_rastro_solicitacao(self):
+        criado_em = (
+            self.criado_em if not self.dieta_alterada else self.dieta_alterada.criado_em
+        )
         escola = (
-            self.criado_por.vinculos.filter(data_inicial__lte=self.criado_em)
+            self.criado_por.vinculos.filter(data_inicial__lte=criado_em)
             .last()
             .instituicao
         )
