@@ -1111,3 +1111,18 @@ def mock_view_de_homologacao_produto_painel_gerencial(
     viewset.get_serializer = HomologacaoProdutoPainelGerencialSerializer
 
     return mock_request, viewset
+
+
+@pytest.fixture
+def homologacao_e_copia(terceirizada):
+    produto_principal = mommy.make("produto.Produto", nome="Produto A")
+    produto_copia = mommy.make("produto.Produto", nome="Produto A")
+
+    homologacao_principal = mommy.make(
+        "produto.HomologacaoProduto", produto=produto_principal, eh_copia=False
+    )
+    homologacao_copia = mommy.make(
+        "produto.HomologacaoProduto", produto=produto_copia, eh_copia=True
+    )
+
+    return homologacao_principal
