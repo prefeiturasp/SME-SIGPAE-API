@@ -658,6 +658,42 @@ def data_maxima_recebimento_pre_save(instance, *_args, **_kwargs):
         obj.data_maxima_recebimento = nova_data
 
 
+class FabricanteFichaTecnica(ModeloBase):
+    """Modelo para armazenar informações do fabricante específicas para uma ficha técnica."""
+
+    fabricante = models.ForeignKey(
+        Fabricante,
+        on_delete=models.SET_NULL,
+        related_name="fichas_tecnicas_detalhes",
+        blank=True,
+        null=True,
+    )
+    cnpj = models.CharField(
+        "CNPJ",
+        validators=[MinLengthValidator(14)],
+        max_length=14,
+        blank=True,
+    )
+    cep = models.CharField("CEP", max_length=8, blank=True)
+    endereco = models.CharField("Endereço", max_length=160, blank=True)
+    numero = models.CharField("Número", max_length=10, blank=True)
+    complemento = models.CharField("Complemento", max_length=250, blank=True)
+    bairro = models.CharField("Bairro", max_length=150, blank=True)
+    cidade = models.CharField("Cidade", max_length=150, blank=True)
+    estado = models.CharField("Estado", max_length=150, blank=True)
+    email = models.EmailField("E-mail", blank=True)
+    telefone = models.CharField(
+        "Telefone", max_length=13, validators=[MinLengthValidator(8)], blank=True
+    )
+
+    def __str__(self):
+        return f"Ficha Técnica - {self.fabricante.nome if self.fabricante else 'Fabricante'}"
+
+    class Meta:
+        verbose_name = "Fabricante da Ficha Técnica"
+        verbose_name_plural = "Fabricantes das Fichas Técnicas"
+
+
 class FichaTecnicaDoProduto(
     ModeloBase, TemIdentificadorExternoAmigavel, Logs, FluxoFichaTecnicaDoProduto
 ):
@@ -700,28 +736,19 @@ class FichaTecnicaDoProduto(
         related_name="fichas_tecnicas",
     )
     fabricante = models.ForeignKey(
-        Fabricante,
-        on_delete=models.PROTECT,
+        FabricanteFichaTecnica,
+        on_delete=models.CASCADE,
         blank=True,
         null=True,
-        related_name="fichas_tecnicas",
+        related_name="fichas_tecnicas_como_fabricante",
     )
-    cnpj_fabricante = models.CharField(
-        "CNPJ",
-        validators=[MinLengthValidator(14)],
-        max_length=14,
+    envasador_distribuidor = models.ForeignKey(
+        FabricanteFichaTecnica,
+        on_delete=models.CASCADE,
         blank=True,
-    )
-    cep_fabricante = models.CharField("CEP", max_length=8, blank=True)
-    endereco_fabricante = models.CharField("Endereco", max_length=160, blank=True)
-    numero_fabricante = models.CharField("Número", max_length=10, blank=True)
-    complemento_fabricante = models.CharField("Complemento", max_length=250, blank=True)
-    bairro_fabricante = models.CharField("Bairro", max_length=150, blank=True)
-    cidade_fabricante = models.CharField("Cidade", max_length=150, blank=True)
-    estado_fabricante = models.CharField("Estado", max_length=150, blank=True)
-    email_fabricante = models.EmailField(blank=True)
-    telefone_fabricante = models.CharField(
-        max_length=13, validators=[MinLengthValidator(8)], blank=True
+        null=True,
+        related_name="fichas_tecnicas_como_envasador_distribuidor",
+        verbose_name="Envasador/Distribuidor",
     )
     prazo_validade = models.CharField("Prazo de Validade", max_length=150, blank=True)
     numero_registro = models.CharField(

@@ -18,6 +18,7 @@ from sme_sigpae_api.pre_recebimento.models import (
     TipoDeDocumentoDeRecebimento,
     TipoDeEmbalagemDeLayout,
 )
+from sme_sigpae_api.pre_recebimento.models.cronograma import FabricanteFichaTecnica
 from sme_sigpae_api.produto.models import InformacaoNutricional
 
 
@@ -82,35 +83,80 @@ def cria_datas_e_prazos_doc_recebimento(datas_e_prazos, doc_recebimento):
     return datas_criadas
 
 
+def _cria_fabricante_ficha_tecnica(fabricante_data):
+    if not fabricante_data:
+        return None
+
+    return FabricanteFichaTecnica.objects.create(**fabricante_data)
+
+
+def _atualiza_fabricante_ficha_tecnica(ficha_tecnica, fabricante_data, field_name):
+    current = getattr(ficha_tecnica, field_name, None)
+
+    if current:
+        current.delete()
+
+    if fabricante_data:
+        fabricante = _cria_fabricante_ficha_tecnica(fabricante_data)
+        setattr(ficha_tecnica, field_name, fabricante)
+        ficha_tecnica.save()
+        return fabricante
+
+    setattr(ficha_tecnica, field_name, None)
+    ficha_tecnica.save()
+    return None
+
+
 def cria_ficha_tecnica(validated_data):
     dados_informacoes_nutricionais = validated_data.pop("informacoes_nutricionais", [])
+    fabricante_data = validated_data.pop("fabricante", None)
+    envasador_data = validated_data.pop("envasador_distribuidor", None)
 
     _converte_arquivo_para_contentfile(validated_data)
 
-    instance = FichaTecnicaDoProduto.objects.create(**validated_data)
+    fabricante = (
+        _cria_fabricante_ficha_tecnica(fabricante_data) if fabricante_data else None
+    )
+    envasador = (
+        _cria_fabricante_ficha_tecnica(envasador_data) if envasador_data else None
+    )
+
+    ficha_tecnica = FichaTecnicaDoProduto.objects.create(
+        **validated_data, fabricante=fabricante, envasador_distribuidor=envasador
+    )
 
     if dados_informacoes_nutricionais:
         _cria_informacoes_nutricionais(
-            instance,
+            ficha_tecnica,
             dados_informacoes_nutricionais,
         )
 
-    return instance
+    return ficha_tecnica
 
 
-def atualiza_ficha_tecnica(instance, validated_data):
+def atualiza_ficha_tecnica(ficha_tecnica, validated_data):
     dados_informacoes_nutricionais = validated_data.pop("informacoes_nutricionais", [])
+    fabricante_data = validated_data.pop("fabricante", None)
+    envasador_data = validated_data.pop("envasador_distribuidor", None)
 
     _converte_arquivo_para_contentfile(validated_data)
 
+    if fabricante_data is not None:
+        _atualiza_fabricante_ficha_tecnica(ficha_tecnica, fabricante_data, "fabricante")
+
+    if envasador_data is not None:
+        _atualiza_fabricante_ficha_tecnica(
+            ficha_tecnica, envasador_data, "envasador_distribuidor"
+        )
+
     if dados_informacoes_nutricionais:
         _cria_informacoes_nutricionais(
-            instance,
+            ficha_tecnica,
             dados_informacoes_nutricionais,
             deletar_antigas=True,
         )
 
-    return update_instance_from_dict(instance, validated_data, save=True)
+    return update_instance_from_dict(ficha_tecnica, validated_data, save=True)
 
 
 def _converte_arquivo_para_contentfile(validated_data):
@@ -242,3 +288,21 @@ def totalizador_relatorio_cronograma(queryset):
         sorted(status_count.items(), key=lambda e: e[1], reverse=True)
     )
     return ordered_status_count
+
+
+def formata_cnpj_ficha_tecnica(cnpj):
+    cnpj = "".join(filter(str.isdigit, str(cnpj)))
+    if len(cnpj) != 14:
+        return cnpj
+    return f"{cnpj[:2]}.{cnpj[2:5]}.{cnpj[5:8]}/{cnpj[8:12]}-{cnpj[12:]}"
+
+
+def formata_telefone_ficha_tecnica(telefone):
+    telefone = "".join(filter(str.isdigit, str(telefone)))
+    if len(telefone) < 10:
+        return telefone
+    if len(telefone) == 10:
+        return f"{telefone[:2]} {telefone[2:6]} {telefone[6:]}"
+    elif len(telefone) == 11:
+        return f"{telefone[:2]} {telefone[2:7]} {telefone[7:]}"
+    return telefone
