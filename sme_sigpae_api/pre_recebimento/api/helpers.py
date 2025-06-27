@@ -288,3 +288,21 @@ def totalizador_relatorio_cronograma(queryset):
         sorted(status_count.items(), key=lambda e: e[1], reverse=True)
     )
     return ordered_status_count
+
+
+def formata_cnpj_ficha_tecnica(cnpj):
+    cnpj = "".join(filter(str.isdigit, str(cnpj)))
+    if len(cnpj) != 14:
+        return cnpj
+    return f"{cnpj[:2]}.{cnpj[2:5]}.{cnpj[5:8]}/{cnpj[8:12]}-{cnpj[12:]}"
+
+
+def formata_telefone_ficha_tecnica(telefone):
+    telefone = "".join(filter(str.isdigit, str(telefone)))
+    if len(telefone) < 10:
+        return telefone
+    if len(telefone) == 10:
+        return f"{telefone[:2]} {telefone[2:6]} {telefone[6:]}"
+    elif len(telefone) == 11:
+        return f"{telefone[:2]} {telefone[2:7]} {telefone[7:]}"
+    return telefone
