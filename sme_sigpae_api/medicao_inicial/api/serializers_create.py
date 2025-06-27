@@ -1047,9 +1047,13 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 int(instance.mes), int(instance.ano)
             )
         )
-        if not medicoes_nomes_com_solicitacoes_autorizadas:
-            return
         lista_erros = []
+        lista_erros = self._checa_se_medicao_possui_algum_lancamento(
+            instance, lista_erros
+        )
+
+        if not medicoes_nomes_com_solicitacoes_autorizadas and not lista_erros:
+            return
         for medicao_nome in medicoes_nomes_com_solicitacoes_autorizadas:
             medicao = instance.get_or_create_medicao_por_periodo_e_ou_grupo(
                 medicao_nome
@@ -1072,9 +1076,6 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                     }
                 )
 
-        lista_erros = self._checa_se_medicao_possui_algum_lancamento(
-            instance, lista_erros
-        )
         if lista_erros:
             raise serializers.ValidationError(lista_erros)
 
