@@ -361,7 +361,12 @@ class Medicao(
         return (
             self.valores_medicao.exclude(valor__in=["", None])
             .exclude(
-                nome_campo__in=["dietas_autorizadas", "matriculados", "observacoes"]
+                nome_campo__in=[
+                    "dietas_autorizadas",
+                    "matriculados",
+                    "numero_de_alunos",
+                    "observacoes",
+                ]
             )
             .exists()
         )
