@@ -6,7 +6,7 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import F, FloatField, Sum
 from django.template.loader import get_template, render_to_string
 
-from sme_sigpae_api.paineis_consolidados.models import MoldeConsolidado
+from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
@@ -35,7 +35,11 @@ from ..medicao_inicial.utils import (
     build_tabelas_relatorio_medicao_cemei,
     build_tabelas_relatorio_medicao_emebs,
 )
-from ..pre_recebimento.api.helpers import retorna_status_ficha_tecnica
+from ..pre_recebimento.api.helpers import (
+    formata_cnpj_ficha_tecnica,
+    formata_telefone_ficha_tecnica,
+    retorna_status_ficha_tecnica,
+)
 from ..pre_recebimento.models import InformacoesNutricionaisFichaTecnica
 from ..relatorios.utils import (
     html_to_pdf_cancelada,
@@ -623,22 +627,7 @@ def relatorio_dieta_especial_protocolo(request, solicitacao):
     substituicao_ordenada = solicitacao.substituicoes.order_by("alimento__nome")
 
     referencia = "unidade" if escola.eh_parceira else "empresa"
-
-    justificativa_cancelamento = None
-    if (
-        solicitacao.status.state.name
-        in MoldeConsolidado.CANCELADOS_STATUS_DIETA_ESPECIAL
-        + MoldeConsolidado.CANCELADOS_STATUS_DIETA_ESPECIAL_TEMP
-    ):
-        log_cancelamento = solicitacao.logs.last()
-        data = log_cancelamento.criado_em.strftime("%d/%m/%Y")
-        mensagem = formata_justificativa(
-            solicitacao, log_cancelamento.status_evento_explicacao
-        )
-        justificativa_cancelamento = (
-            f"Dieta cancelada em: {data} | Justificativa: {mensagem}"
-        )
-
+    justificativa = obter_justificativa_dieta(solicitacao)
     html_string = render_to_string(
         "solicitacao_dieta_especial_protocolo.html",
         {
@@ -659,7 +648,7 @@ def relatorio_dieta_especial_protocolo(request, solicitacao):
                 if solicitacao.motivo_alteracao_ue
                 else None
             ),
-            "justificativa_cancelamento": justificativa_cancelamento,
+            "justificativa": justificativa,
         },
     )
     if request:
@@ -1720,14 +1709,33 @@ def get_pdf_ficha_tecnica(request, ficha):
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnica.objects.filter(
         ficha_tecnica=ficha
     )
+    empresa = ficha.empresa
+    cnpj_empresa, telefone_empresa = formata_informacoes_ficha_tecnica(empresa)
+
+    fabricante = ficha.fabricante
+    cnpj_fabricante, telefone_fabricante = formata_informacoes_ficha_tecnica(fabricante)
+
+    envasador_distribuidor = ficha.envasador_distribuidor
+    cnpj_distribuidor, telefone_distribuidor = formata_informacoes_ficha_tecnica(
+        envasador_distribuidor
+    )
+
     html_string = render_to_string(
         "pre_recebimento/ficha_tecnica/ficha_tecnica.html",
         {
             "ficha": ficha,
-            "empresa": ficha.empresa,
+            "empresa": empresa,
+            "cnpj_empresa": cnpj_empresa,
+            "telefone_empresa": telefone_empresa,
             "status_ficha": retorna_status_ficha_tecnica(ficha.status),
             "tabela": list(informacoes_nutricionais),
             "logs": ficha.logs,
+            "fabricante": fabricante,
+            "cnpj_fabricante": cnpj_fabricante,
+            "telefone_fabricante": telefone_fabricante,
+            "envasador_distribuidor": envasador_distribuidor,
+            "cnpj_distribuidor": cnpj_distribuidor,
+            "telefone_distribuidor": telefone_distribuidor,
         },
     )
     data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
@@ -1798,3 +1806,47 @@ def formata_justificativa(solicitacao, status_evento_explicacao):
         justificativa = status_evento_explicacao
 
     return justificativa
+
+
+def obter_justificativa_dieta(solicitacao):
+    status_dieta = solicitacao.status.state.name
+    ativo = solicitacao.ativo
+    log_recente = solicitacao.logs.last()
+    data = log_recente.criado_em.strftime("%d/%m/%Y") if log_recente else ""
+
+    status_cancelamentos = [
+        DietaEspecialWorkflow.CANCELADO_ALUNO_MUDOU_ESCOLA,
+        DietaEspecialWorkflow.CANCELADO_ALUNO_NAO_PERTENCE_REDE,
+        DietaEspecialWorkflow.TERMINADA_AUTOMATICAMENTE_SISTEMA,
+    ]
+    cancelamento_padrao = status_dieta in status_cancelamentos and ativo
+    cancelado_pela_escola = (
+        status_dieta == DietaEspecialWorkflow.ESCOLA_CANCELOU and not ativo
+    )
+
+    justificativa = None
+    if (
+        SolicitacoesCODAE.get_inativas_dieta_especial()
+        .filter(uuid=solicitacao.uuid)
+        .exists()
+    ):
+        mensagem = "Autorização de novo protocolo de dieta especial"
+        justificativa = f"Dieta Inativada em: {data} | Justificativa: {mensagem}"
+
+    elif cancelamento_padrao or cancelado_pela_escola:
+        mensagem = formata_justificativa(
+            solicitacao, log_recente.status_evento_explicacao
+        )
+        justificativa = f"Dieta cancelada em: {data} | Justificativa: {mensagem}"
+
+    return justificativa
+
+
+def formata_informacoes_ficha_tecnica(entidade):
+    if not entidade:
+        return None, None
+    cnpj = formata_cnpj_ficha_tecnica(entidade.cnpj)
+    telefone = formata_telefone_ficha_tecnica(
+        getattr(entidade, "telefone", getattr(entidade, "responsavel_telefone", None))
+    )
+    return cnpj, telefone

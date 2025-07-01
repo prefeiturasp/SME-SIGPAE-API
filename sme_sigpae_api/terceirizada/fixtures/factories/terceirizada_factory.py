@@ -24,6 +24,7 @@ class EmpresaFactory(DjangoModelFactory):
     cnpj = Sequence(
         lambda n: fake.unique.cnpj().replace(".", "").replace("/", "").replace("-", "")
     )
+    endereco = LazyFunction(lambda: fake.address().replace("\n", ", "))
 
 
 class EditalFactory(DjangoModelFactory):

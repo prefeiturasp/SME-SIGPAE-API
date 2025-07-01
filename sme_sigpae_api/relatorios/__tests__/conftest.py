@@ -11,10 +11,14 @@ from sme_sigpae_api.cardapio.suspensao_alimentacao.models import (
     SuspensaoAlimentacao,
 )
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+from sme_sigpae_api.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
 from sme_sigpae_api.dados_comuns.models import TemplateMensagem
 from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 from sme_sigpae_api.escola.models import Aluno
 from sme_sigpae_api.perfil.models.usuario import Usuario
+from sme_sigpae_api.pre_recebimento.fixtures.factories.ficha_tecnica_do_produto_factory import (
+    FichaTecnicaFactory,
+)
 
 
 def criar_suspensoes(grupo_suspensao, datas_cancelamentos):
@@ -233,7 +237,8 @@ def solicitacao_dieta_especial_cancelada(
     solicitacao_dieta_especial_autorizada.cancelar_pedido(
         user=user, justificativa="Não há necessidade"
     )
-
+    solicitacao_dieta_especial_autorizada.ativo = False
+    solicitacao_dieta_especial_autorizada.save()
     return solicitacao_dieta_especial_autorizada
 
 
@@ -291,3 +296,33 @@ def solicitacao_dieta_especial_autorizada_alteracao_ue(
     solicitacao_dieta_especial_a_autorizar.codae_autoriza(user=user)
 
     return solicitacao_dieta_especial_a_autorizar
+
+
+@pytest.fixture
+def solicitacao_dieta_especial_inativa(
+    client, solicitacao_dieta_especial_autorizada, usuario_escola
+):
+    user, password = usuario_escola
+    client.login(username=user.email, password=password)
+    solicitacao_dieta_especial_autorizada.inicia_fluxo_inativacao(
+        user=user, justificativa="Não há necessidade"
+    )
+    solicitacao_dieta_especial_autorizada.codae_autoriza_inativacao(
+        user=user, justificativa="Não há necessidade"
+    )
+    solicitacao_dieta_especial_autorizada.ativo = False
+    solicitacao_dieta_especial_autorizada.save()
+    return solicitacao_dieta_especial_autorizada
+
+
+@pytest.fixture
+def ficha_tecnica():
+    ficha_tecnica = FichaTecnicaFactory(status=FichaTecnicaDoProdutoWorkflow.APROVADA)
+    return ficha_tecnica
+
+
+@pytest.fixture
+def ficha_tecnica_sem_envasador(ficha_tecnica):
+    ficha_tecnica.envasador_distribuidor = None
+    ficha_tecnica.save()
+    return ficha_tecnica

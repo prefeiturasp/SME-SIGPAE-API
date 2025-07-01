@@ -17,10 +17,12 @@
 			<div class="row">
 				<div class="col pt-2 pb-2 grow-2"> N° da Ficha Técnica: </div>
 				<div class="col pt-2 pb-2 grow-2"> Produto: </div>
+        <div class="col pt-2 pb-2 grow-2"> Marca: </div>
 			</div>
 			<div class="row green-important-text">
 				<div class="col pb-2 grow-2"> {{ficha.numero}} </div>
 				<div class="col pb-2 grow-2"> {{ficha.produto.nome}} </div>
+        <div class="col pb-2 grow-2"> {{ficha.marca.nome}} </div>
 			</div>
 		</div>
 
@@ -30,7 +32,7 @@
       </div>
 
       <div class="dados-empresa">
-        <b>CNPJ: </b> {{empresa.cnpj}}
+        <b>CNPJ: </b> {{cnpj_empresa}}
       </div>
     </section>
 
@@ -44,7 +46,7 @@
 
     <section class="flex">
       <div class="dados-empresa">
-        <b>Telefone:</b> {{empresa.responsavel_telefone}}
+        <b>Telefone:</b> {{telefone_empresa}}
       </div>
       <div class="dados-empresa">
         <b>E-mail:</b> {{empresa.responsavel_email}}

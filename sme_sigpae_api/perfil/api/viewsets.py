@@ -370,9 +370,9 @@ def exportar_planilha_importacao_usuarios_perfil_codae(request, **kwargs):
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response[
-        "Content-Disposition"
-    ] = "attachment; filename=planilha_importacao_usuarios_perfil_CODAE.xlsx"
+    response["Content-Disposition"] = (
+        "attachment; filename=planilha_importacao_usuarios_perfil_CODAE.xlsx"
+    )
     workbook: Workbook = Workbook()
     ws = workbook.active
     ws.title = "CODAE"
@@ -419,9 +419,9 @@ def exportar_planilha_importacao_usuarios_perfil_escola(request, **kwargs):
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response[
-        "Content-Disposition"
-    ] = "attachment; filename=planilha_importacao_usuarios_perfil_ESCOLA.xlsx"
+    response["Content-Disposition"] = (
+        "attachment; filename=planilha_importacao_usuarios_perfil_ESCOLA.xlsx"
+    )
     workbook: Workbook = Workbook()
     ws = workbook.active
     ws.title = "ESCOLA"
@@ -461,9 +461,9 @@ def exportar_planilha_importacao_usuarios_perfil_dre(request, **kwargs):
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response[
-        "Content-Disposition"
-    ] = "attachment; filename=planilha_importacao_usuarios_perfil_DRE.xlsx"
+    response["Content-Disposition"] = (
+        "attachment; filename=planilha_importacao_usuarios_perfil_DRE.xlsx"
+    )
     workbook: Workbook = Workbook()
     ws = workbook.active
     ws.title = "DRE"
@@ -503,9 +503,9 @@ def exportar_planilha_importacao_usuarios_servidor_coresso(request, **kwargs):
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response[
-        "Content-Disposition"
-    ] = "attachment; filename=planilha_importacao_usuarios_perfil_servidor_coresso.xlsx"
+    response["Content-Disposition"] = (
+        "attachment; filename=planilha_importacao_usuarios_perfil_servidor_coresso.xlsx"
+    )
     workbook: Workbook = Workbook()
     ws = workbook.active
     ws.title = "Servidores CoreSSO"
@@ -567,9 +567,9 @@ def exportar_planilha_importacao_usuarios_externos_coresso(request, **kwargs):
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response[
-        "Content-Disposition"
-    ] = "attachment; filename=planilha_importacao_usuarios_perfil_servidor_coresso.xlsx"
+    response["Content-Disposition"] = (
+        "attachment; filename=planilha_importacao_usuarios_perfil_servidor_coresso.xlsx"
+    )
     workbook: Workbook = Workbook()
     ws = workbook.active
     ws.title = "Usuários Externos CoreSSO"
@@ -606,9 +606,9 @@ def exportar_planilha_importacao_usuarios_ue_parceira_coresso(request, **kwargs)
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response[
-        "Content-Disposition"
-    ] = "attachment; filename=planilha_importacao_usuarios_perfil_ue_parceira_coresso.xlsx"
+    response["Content-Disposition"] = (
+        "attachment; filename=planilha_importacao_usuarios_perfil_ue_parceira_coresso.xlsx"
+    )
     workbook: Workbook = Workbook()
     ws = workbook.active
     ws.title = "UEs Parceiras CoreSSO"

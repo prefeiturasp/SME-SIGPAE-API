@@ -33,7 +33,7 @@ from sme_sigpae_api.pre_recebimento.models import (
 from sme_sigpae_api.produto.models import Fabricante, Marca, NomeDeProdutoEdital
 from sme_sigpae_api.terceirizada.models import Contrato, Terceirizada
 
-from ...models.cronograma import FichaTecnicaDoProduto
+from ...models.cronograma import FabricanteFichaTecnica, FichaTecnicaDoProduto
 from ..helpers import (
     atualiza_ficha_tecnica,
     cria_datas_e_prazos_doc_recebimento,
@@ -990,6 +990,41 @@ class InformacoesNutricionaisFichaTecnicaCreateSerializer(serializers.ModelSeria
         )
 
 
+class FabricanteFichaTecnicaCreateSerializer(serializers.ModelSerializer):
+    fabricante = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=True,
+        queryset=Fabricante.objects.all(),
+    )
+
+    cnpj = serializers.CharField(required=False, allow_blank=True)
+    cep = serializers.CharField(required=False, allow_blank=True)
+    endereco = serializers.CharField(required=False, allow_blank=True)
+    numero = serializers.CharField(required=False, allow_blank=True)
+    complemento = serializers.CharField(required=False, allow_blank=True)
+    bairro = serializers.CharField(required=False, allow_blank=True)
+    cidade = serializers.CharField(required=False, allow_blank=True)
+    estado = serializers.CharField(required=False, allow_blank=True)
+    email = serializers.CharField(required=False, allow_blank=True)
+    telefone = serializers.CharField(required=False, allow_blank=True)
+
+    class Meta:
+        model = FabricanteFichaTecnica
+        fields = (
+            "fabricante",
+            "cnpj",
+            "cep",
+            "endereco",
+            "numero",
+            "complemento",
+            "bairro",
+            "cidade",
+            "estado",
+            "email",
+            "telefone",
+        )
+
+
 class FichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
     produto = serializers.SlugRelatedField(
         slug_field="uuid",
@@ -1011,22 +1046,8 @@ class FichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
         required=True,
         queryset=Terceirizada.objects.all(),
     )
-    fabricante = serializers.SlugRelatedField(
-        slug_field="uuid",
-        required=False,
-        queryset=Fabricante.objects.all(),
-        allow_null=True,
-    )
-    cnpj_fabricante = serializers.CharField(required=True, allow_blank=True)
-    cep_fabricante = serializers.CharField(required=True, allow_blank=True)
-    endereco_fabricante = serializers.CharField(required=True, allow_blank=True)
-    numero_fabricante = serializers.CharField(required=True, allow_blank=True)
-    complemento_fabricante = serializers.CharField(required=True, allow_blank=True)
-    bairro_fabricante = serializers.CharField(required=True, allow_blank=True)
-    cidade_fabricante = serializers.CharField(required=True, allow_blank=True)
-    estado_fabricante = serializers.CharField(required=True, allow_blank=True)
-    email_fabricante = serializers.CharField(required=True, allow_blank=True)
-    telefone_fabricante = serializers.CharField(required=True, allow_blank=True)
+    fabricante = FabricanteFichaTecnicaCreateSerializer(required=False)
+    envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(required=False)
     prazo_validade = serializers.CharField(required=True, allow_blank=True)
     numero_registro = serializers.CharField(required=False, allow_blank=True)
     agroecologico = serializers.BooleanField(required=False)
@@ -1158,25 +1179,8 @@ class FichaTecnicaCreateSerializer(serializers.ModelSerializer):
         required=True,
         queryset=Terceirizada.objects.all(),
     )
-    fabricante = serializers.SlugRelatedField(
-        slug_field="uuid",
-        required=True,
-        queryset=Fabricante.objects.all(),
-    )
-    cnpj_fabricante = serializers.CharField(required=False, allow_blank=True)
-    cep_fabricante = serializers.CharField(required=False, allow_blank=True)
-    endereco_fabricante = serializers.CharField(required=False, allow_blank=True)
-    numero_fabricante = serializers.CharField(required=False, allow_blank=True)
-    complemento_fabricante = serializers.CharField(required=False, allow_blank=True)
-    bairro_fabricante = serializers.CharField(required=False, allow_blank=True)
-    cidade_fabricante = serializers.CharField(required=False, allow_blank=True)
-    estado_fabricante = serializers.CharField(required=False, allow_blank=True)
-    email_fabricante = serializers.CharField(required=False, allow_blank=True)
-    telefone_fabricante = serializers.CharField(required=False, allow_blank=True)
-    prazo_validade = serializers.CharField(required=True)
-    numero_registro = serializers.CharField(required=False, allow_blank=True)
-    agroecologico = serializers.BooleanField(required=False)
-    organico = serializers.BooleanField(required=False)
+    fabricante = FabricanteFichaTecnicaCreateSerializer(required=False)
+    envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(required=False)
     mecanismo_controle = serializers.ChoiceField(
         choices=FichaTecnicaDoProduto.MECANISMO_CONTROLE_CHOICES,
         required=False,
@@ -1505,12 +1509,8 @@ class CorrecaoFichaTecnicaSerializer(serializers.ModelSerializer):
         allow_null=True,
         queryset=Terceirizada.objects.all(),
     )
-    fabricante = serializers.SlugRelatedField(
-        slug_field="uuid",
-        required=False,
-        allow_null=True,
-        queryset=Fabricante.objects.all(),
-    )
+    fabricante = FabricanteFichaTecnicaCreateSerializer(required=False)
+    envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(required=False)
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnicaCreateSerializer(
         many=True,
         required=False,
