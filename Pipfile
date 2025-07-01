@@ -30,7 +30,7 @@ django-debug-toolbar="==5.2.0"  # https://github.com/jazzband/django-debug-toolb
 django-extensions="==3.2.3"    # https://github.com/django-extensions/django-extensions
 django-coverage-plugin="==3.1.0"  # https://github.com/nedbat/django_coverage_plugin
 flower = "==2.0.1"
-notebook = "==7.4.1"
+notebook = "==7.4.3"
 pre-commit = "==4.2.0"
 black = "==25.1.0"
 isort = "==6.0.1"
