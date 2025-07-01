@@ -128,7 +128,8 @@ class LogSolicitacoesUsuario(
         FICHA_TECNICA_APROVADA,
         FICHA_TECNICA_ENVIADA_PARA_CORRECAO,
         RELATORIO_ENVIADO_PARA_CODAE,
-    ) = range(101)
+        MEDICAO_SEM_LANCAMENTOS,
+    ) = range(102)
 
     STATUS_POSSIVEIS = (
         (INICIO_FLUXO, "Solicitação Realizada"),
@@ -286,6 +287,7 @@ class LogSolicitacoesUsuario(
         (FICHA_TECNICA_APROVADA, "Ficha Técnica aprovada"),
         (FICHA_TECNICA_ENVIADA_PARA_CORRECAO, "Ficha Técnica enviada para correção"),
         (RELATORIO_ENVIADO_PARA_CODAE, "Relatório enviado para CODAE"),
+        (MEDICAO_SEM_LANCAMENTOS, "Medição sem lançamentos"),
     )
     (  # DA ESCOLA
         SOLICITACAO_KIT_LANCHE_AVULSA,

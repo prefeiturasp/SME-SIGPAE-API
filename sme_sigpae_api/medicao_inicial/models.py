@@ -103,13 +103,24 @@ class SolicitacaoMedicaoInicial(
     )
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
+        justificativa = kwargs.get("justificativa", "")
         LogSolicitacoesUsuario.objects.create(
             descricao=str(self),
             status_evento=status_evento,
             solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
             usuario=usuario,
             uuid_original=self.uuid,
+            justificativa=justificativa,
         )
+
+    def cria_medicoes_dos_periodos(self) -> None:
+        periodos_escolares = self.escola.periodos_escolares(self.ano)
+        if not periodos_escolares:
+            return
+        for periodo_escolar in periodos_escolares:
+            Medicao.objects.get_or_create(
+                solicitacao_medicao_inicial=self, periodo_escolar=periodo_escolar
+            )
 
     @property
     def escola_cei_com_inclusao_parcial_autorizada(self):

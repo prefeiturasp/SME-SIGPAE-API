@@ -1080,12 +1080,22 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(lista_erros)
 
     def _finaliza_medicao_sem_lancamentos(self, instance, validated_data):
-        if not validated_data.get("justificativa_sem_lancamentos", None):
+        justificativa_sem_lancamentos = validated_data.get(
+            "justificativa_sem_lancamentos", None
+        )
+        if not justificativa_sem_lancamentos:
             return
         self._checa_se_pode_finalizar_sem_lancamentos(instance)
-        instance.ue_envia(user=self.context["request"].user)
+        instance.cria_medicoes_dos_periodos()
+        instance.ue_envia_sem_lancamentos(
+            user=self.context["request"].user,
+            justificativa_sem_lancamentos=justificativa_sem_lancamentos,
+        )
         for medicao in instance.medicoes.all():
-            medicao.ue_envia(user=self.context["request"].user)
+            medicao.medicao_sem_lancamentos(
+                user=self.context["request"].user,
+                justificativa_sem_lancamentos=justificativa_sem_lancamentos,
+            )
 
     class Meta:
         model = SolicitacaoMedicaoInicial
