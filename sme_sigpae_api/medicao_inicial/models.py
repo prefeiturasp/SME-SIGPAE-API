@@ -206,6 +206,12 @@ class SolicitacaoMedicaoInicial(
         except Medicao.DoesNotExist:
             return None
 
+    @property
+    def sem_lancamentos(self):
+        return self.medicoes.filter(
+            status=self.workflow_class.MEDICAO_SEM_LANCAMENTOS
+        ).exists()
+
     def get_or_create_medicao_por_periodo_e_ou_grupo(self, periodo_e_ou_grupo: str):
         if GrupoMedicao.objects.filter(nome=periodo_e_ou_grupo).exists():
             grupo = GrupoMedicao.objects.get(nome=periodo_e_ou_grupo)

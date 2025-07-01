@@ -122,6 +122,7 @@ class SolicitacaoMedicaoInicialSerializer(serializers.ModelSerializer):
     historico = serializers.SerializerMethodField()
     escola_eh_emebs = serializers.SerializerMethodField()
     escola_cei_com_inclusao_parcial_autorizada = serializers.BooleanField()
+    sem_lancamentos = serializers.BooleanField()
 
     def get_historico(self, obj):
         if not obj.historico:
