@@ -21,23 +21,21 @@ pytest-factoryboy="==2.7.0"
 factory-boy = "==3.3.3"
 faker = "==37.4.0"
 model-mommy = "==2.0.0"
-
 # Code quality
 # ------------------------------------------------------------------------------
 coverage="==7.9.1"             # https://github.com/nedbat/coveragepy
-django-stubs="==1.2.0"         # https://github.com/typeddjango/django-stubs
-bandit="==1.6.2"               # https://github.com/PyCQA/bandit
-django-debug-toolbar="==5.1.0"  # https://github.com/jazzband/django-debug-toolbar
+django-stubs="==5.2.1"         # https://github.com/typeddjango/django-stubs
+bandit="==1.8.5"               # https://github.com/PyCQA/bandit
+django-debug-toolbar="==5.2.0"  # https://github.com/jazzband/django-debug-toolbar
 django-extensions="==3.2.3"    # https://github.com/django-extensions/django-extensions
 django-coverage-plugin="==3.1.0"  # https://github.com/nedbat/django_coverage_plugin
-flower = "==1.2.0"
-notebook = "==7.4.1"
-pre-commit = "==3.5.0"
+flower = "==2.0.1"
+notebook = "==7.4.3"
+pre-commit = "==4.2.0"
 black = "==25.1.0"
-isort = "==5.12.0"
+isort = "==6.0.1"
 flake8 = "==6.1.0"
 pip-audit = "==2.9.0"
-
 
 [packages]
 # The psycopg2-binary package is meant for beginners to start playing with
@@ -49,7 +47,7 @@ pip-audit = "==2.9.0"
 psycopg2="==2.9.10"  # https://github.com/psycopg/psycopg2
 requests="==2.32.4"
 celery = "==5.5.1"   # http://www.celeryproject.org
-pytz= "==2022.7"  # https://github.com/stub42/pytz
+pytz= "==2025.2"  # https://github.com/stub42/pytz
 python-slugify= "==8.0.1"  # https://github.com/un33k/python-slugify
 Pillow= "==10.4.0"  # https://github.com/python-pillow/Pillow
 argon2-cffi= "==23.1.0"  # https://github.com/hynek/argon2_cffi

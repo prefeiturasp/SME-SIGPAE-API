@@ -76,7 +76,11 @@ from sme_sigpae_api.logistica.api.serializers.serializers import (  # noqa
     SolicitacaoRemessaSimplesSerializer,
     XmlParserSolicitacaoSerializer,
 )
-from sme_sigpae_api.logistica.models import Alimento, ConferenciaGuia, Embalagem
+from sme_sigpae_api.logistica.models import (
+    Alimento,
+    ConferenciaGuia,
+    Embalagem,
+)
 from sme_sigpae_api.logistica.models import Guia as GuiasDasRequisicoes
 from sme_sigpae_api.logistica.models import (
     NotificacaoOcorrenciasGuia,
