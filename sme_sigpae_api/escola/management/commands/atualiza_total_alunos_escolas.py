@@ -23,7 +23,9 @@ class Command(BaseCommand):
         headers = {"Authorization": f"Token {DJANGO_EOL_API_TOKEN}"}
 
         try:
-            r = requests.get(f"{DJANGO_EOL_API_URL}/total_alunos/", headers=headers)
+            r = requests.get(
+                f"{DJANGO_EOL_API_URL}/total_alunos/", headers=headers, timeout=120
+            )
             json = r.json()
             logger.debug(f"payload da resposta: {json}")
         except ConnectionError as e:
