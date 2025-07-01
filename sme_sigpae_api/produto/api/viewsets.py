@@ -604,7 +604,7 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
         )
         if filtro_aplicado == "codae_homologado":
             raw_sql += f"AND most_recent_log.status_evento = {LogSolicitacoesUsuario.CODAE_HOMOLOGADO} "
-            
+
         if edital:
             raw_sql += (
                 "LEFT JOIN (SELECT DISTINCT id AS produto_edital_id, suspenso,"
