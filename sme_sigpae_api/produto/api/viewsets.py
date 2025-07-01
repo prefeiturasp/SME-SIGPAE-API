@@ -591,6 +591,8 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
             "produto_edital": ProdutoEdital._meta.db_table,
             "escola": Escola._meta.db_table,
             "lote": Lote._meta.db_table,
+            "edital_id": edital.id if edital else None,
+            "editais": editais,
         }
 
         raw_sql = (
@@ -602,13 +604,14 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
         )
         if filtro_aplicado == "codae_homologado":
             raw_sql += f"AND most_recent_log.status_evento = {LogSolicitacoesUsuario.CODAE_HOMOLOGADO} "
+            
         if edital:
             raw_sql += (
                 "LEFT JOIN (SELECT DISTINCT id AS produto_edital_id, suspenso,"
                 "produto_id as produto_id_prod_edit, edital_id as edital_id_prod_edit FROM %(produto_edital)s) "
                 "AS produto_edital "
                 "ON produto_edital.produto_id_prod_edit = %(homologacao_produto)s.produto_id AND "
-                f"produto_edital.edital_id_prod_edit = {edital.id} AND produto_edital.suspenso = false "
+                "produto_edital.edital_id_prod_edit = %(edital_id)s AND produto_edital.suspenso = false "
             )
         elif editais:
             raw_sql += (
@@ -616,7 +619,7 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
                 "produto_id as produto_id_prod_edit, edital_id as edital_id_prod_edit FROM %(produto_edital)s) "
                 "AS produto_edital "
                 "ON produto_edital.produto_id_prod_edit = %(homologacao_produto)s.produto_id AND "
-                f"produto_edital.edital_id_prod_edit IN ({editais}) AND produto_edital.suspenso = false "
+                "produto_edital.edital_id_prod_edit IN %(editais)s AND produto_edital.suspenso = false "
             )
 
         raw_sql += (
