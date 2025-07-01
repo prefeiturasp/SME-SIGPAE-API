@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "47c26c60b6f6409712302398f8034d95b5bccdb05350f35d3bdc6215bb2b74aa"
+            "sha256": "716ea94729cd5969a771e01a6a09e6da9dd6539d6b58d4c2ae857b8e1311b08a"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -2826,7 +2826,6 @@
                 "sha256:85852e517f84435e9b13421379cd6c43ef5b48a9c8b391d29a26f7900967e952",
                 "sha256:997ef2162d04ead6869551b22cde4e06da1f94cf595f4af3f3d3afeae1f3f6fe"
             ],
-            "index": "pypi",
             "markers": "python_version >= '3.10'",
             "version": "==5.2.2"
         },
@@ -2858,12 +2857,20 @@
         },
         "django-stubs": {
             "hashes": [
-                "sha256:c0515576de547bb33057e24d1b0294d10a68e55150ee32fc964f1082192ab012",
-                "sha256:ca565958a66c0772a11bf95e415d0bcd476eb59919a7ed1a417cc93315d68809"
+                "sha256:c0e170d70329c27e737a5b80c5518fb6161d0c4792321d11a4a93dcda120f4ef",
+                "sha256:e58260958e58f7b6a8da6bba56d6b31d16c0414079a4aa6baa01c668bd08d39d"
             ],
             "index": "pypi",
-            "markers": "python_version >= '3.6'",
-            "version": "==1.2.0"
+            "markers": "python_version >= '3.10'",
+            "version": "==5.2.1"
+        },
+        "django-stubs-ext": {
+            "hashes": [
+                "sha256:98fb0646f1a1ef07708eec5f6f7d27523f12c0c8714abae8db981571ff957588",
+                "sha256:fc0582cb3289306c43ce4a0a15af86922ce1dbec3c19eab80980ee70c04e0392"
+            ],
+            "markers": "python_version >= '3.10'",
+            "version": "==5.2.1"
         },
         "docopt": {
             "hashes": [
@@ -4335,6 +4342,14 @@
             ],
             "markers": "python_version >= '3.9'",
             "version": "==2.9.0.20250516"
+        },
+        "types-pyyaml": {
+            "hashes": [
+                "sha256:8478208feaeb53a34cb5d970c56a7cd76b72659442e733e268a94dc72b2d0530",
+                "sha256:9f21a70216fc0fa1b216a8176db5f9e0af6eb35d2f2932acb87689d03a5bf6ba"
+            ],
+            "markers": "python_version >= '3.9'",
+            "version": "==6.0.12.20250516"
         },
         "typing-extensions": {
             "hashes": [
