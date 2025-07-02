@@ -235,7 +235,8 @@ def test_get_categorias_dietas_cei(relatorio_consolidado_xlsx_cei):
 
     categoria_integral = get_categorias_dietas(medicoes[0])
     assert isinstance(categoria_integral, list)
-    assert len(categoria_integral) == 0
+    assert len(categoria_integral) == 2
+    assert categoria_integral == ["DIETA ESPECIAL - TIPO A", "DIETA ESPECIAL - TIPO B"]
 
     categoria_manha = get_categorias_dietas(medicoes[1])
     assert isinstance(categoria_manha, list)
@@ -244,7 +245,8 @@ def test_get_categorias_dietas_cei(relatorio_consolidado_xlsx_cei):
 
     categoria_parcial = get_categorias_dietas(medicoes[2])
     assert isinstance(categoria_parcial, list)
-    assert len(categoria_parcial) == 0
+    assert len(categoria_parcial) == 2
+    assert categoria_parcial == ["DIETA ESPECIAL - TIPO A", "DIETA ESPECIAL - TIPO B"]
 
     categoria_tarde = get_categorias_dietas(medicoes[3])
     assert isinstance(categoria_tarde, list)

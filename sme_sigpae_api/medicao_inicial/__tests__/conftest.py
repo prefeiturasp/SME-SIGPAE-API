@@ -3354,6 +3354,25 @@ def relatorio_consolidado_xlsx_cei(
                         valor=20,
                         faixa_etaria=faixa,
                     )
+                    mommy.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo="frequencia",
+                        medicao=medicao,
+                        categoria_medicao=categoria_medicao_dieta_a,
+                        valor=2,
+                        faixa_etaria=faixa,
+                    )
+                    mommy.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo="frequencia",
+                        medicao=medicao,
+                        categoria_medicao=categoria_medicao_dieta_b,
+                        valor=2,
+                        faixa_etaria=faixa,
+                    )
+
             elif medicao == medicao_manha:
                 mommy.make(
                     "ValorMedicao",
@@ -3444,9 +3463,13 @@ def mock_colunas_cei(faixas_etarias_ativas):
     faixas = [faixa.id for faixa in faixas_etarias_ativas]
     colunas = []
 
-    for periodo in ["INTEGRAL", "PARCIAL"]:
-        for faixa in faixas:
-            colunas.append((periodo, faixa))
+    colunas.extend(("INTEGRAL", faixa) for faixa in faixas)
+    colunas.extend(("DIETA ESPECIAL - TIPO A - INTEGRAL", faixa) for faixa in faixas)
+    colunas.extend(("DIETA ESPECIAL - TIPO B - INTEGRAL", faixa) for faixa in faixas)
+
+    colunas.extend(("PARCIAL", faixa) for faixa in faixas)
+    colunas.extend(("DIETA ESPECIAL - TIPO A - PARCIAL", faixa) for faixa in faixas)
+    colunas.extend(("DIETA ESPECIAL - TIPO B - PARCIAL", faixa) for faixa in faixas)
 
     colunas.append(("MANHA", faixas_etarias_ativas[2].id))
     colunas.append(("MANHA", faixas_etarias_ativas[4].id))
@@ -3475,6 +3498,22 @@ def mock_linhas_cei():
             80.0,
             80.0,
             80.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
             80.0,
             80.0,
             80.0,
@@ -3483,6 +3522,22 @@ def mock_linhas_cei():
             80.0,
             80.0,
             80.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
             80.0,
             60.0,
             60.0,
