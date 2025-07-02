@@ -39,6 +39,9 @@ def codae():
 def modalidade():
     return mommy.make("Modalidade", nome="Pregão Eletrônico")
 
+@pytest.fixture
+def modalidade_chamada_publica():
+    return mommy.make("Modalidade", nome="Chamada Pública")
 
 @pytest.fixture
 def contrato(modalidade):
@@ -48,6 +51,17 @@ def contrato(modalidade):
         processo="123",
         numero_pregao="123456789",
         modalidade=modalidade,
+    )
+
+@pytest.fixture
+def contrato_chamada_publica(modalidade_chamada_publica):
+    return mommy.make(
+        "Contrato",
+        numero="0004/2022",
+        processo="124",
+        numero_pregao="987654321",
+        numero_chamada_publica="CP-2022-01",
+        modalidade=modalidade_chamada_publica,
     )
 
 
@@ -67,6 +81,14 @@ def cronograma():
     return mommy.make(
         "Cronograma",
         numero="001/2022A",
+    )
+
+@pytest.fixture
+def cronograma_chamada_publica(contrato_chamada_publica):
+    return mommy.make(
+        "Cronograma",
+        numero="003/2022A",
+        contrato=contrato_chamada_publica,
     )
 
 
