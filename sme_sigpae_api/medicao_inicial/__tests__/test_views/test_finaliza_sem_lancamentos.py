@@ -2,6 +2,7 @@ import datetime
 import json
 
 import pytest
+from freezegun import freeze_time
 from rest_framework import status
 
 from sme_sigpae_api.cardapio.base.fixtures.factories.base_factory import (
@@ -12,6 +13,8 @@ from sme_sigpae_api.dados_comuns.fixtures.factories.dados_comuns_factories impor
 )
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
+    AlunosMatriculadosPeriodoEscolaFactory,
+    LogAlunosMatriculadosPeriodoEscolaFactory,
     PeriodoEscolarFactory,
 )
 from sme_sigpae_api.inclusao_alimentacao.fixtures.factories.base_factory import (
@@ -38,14 +41,35 @@ from sme_sigpae_api.perfil.fixtures.factories.perfil_base_factories import (
 pytestmark = pytest.mark.django_db
 
 
+@freeze_time("2025-05-09")
 @pytest.mark.usefixtures("client_autenticado_da_escola", "escola")
 class TestUseCaseFinalizaMedicaoSemLancamentos:
     def setup_usuario(self):
         self.usuario = UsuarioFactory.create(email="system@admin.com")
 
-    def setup_periodos_escolares(self):
-        self.periodo_manha = PeriodoEscolarFactory.create(nome="MANHA")
+    def setup_periodos_escolares(self, escola):
         self.periodo_integral = PeriodoEscolarFactory.create(nome="INTEGRAL")
+        LogAlunosMatriculadosPeriodoEscolaFactory.create(
+            escola=escola,
+            periodo_escolar=self.periodo_integral,
+            quantidade_alunos=100,
+            tipo_turma="REGULAR",
+        )
+        AlunosMatriculadosPeriodoEscolaFactory.create(
+            escola=escola,
+            periodo_escolar=self.periodo_integral,
+            quantidade_alunos=100,
+            tipo_turma="REGULAR",
+        )
+
+        self.periodo_manha = PeriodoEscolarFactory.create(nome="MANHA")
+        LogAlunosMatriculadosPeriodoEscolaFactory.create(
+            escola=escola,
+            periodo_escolar=self.periodo_manha,
+            quantidade_alunos=100,
+            tipo_turma="REGULAR",
+        )
+        assert escola.periodos_escolares().count() == 2
 
     def setup_tipos_alimentacao(self):
         self.tipo_alimentacao_refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
@@ -131,7 +155,7 @@ class TestUseCaseFinalizaMedicaoSemLancamentos:
 
     def setup_testes(self, escola):
         self.setup_usuario()
-        self.setup_periodos_escolares()
+        self.setup_periodos_escolares(escola)
         self.setup_tipos_alimentacao()
         self.setup_motivos_inclusao_continua()
         self.setup_grupos_medicao()
@@ -178,6 +202,11 @@ class TestUseCaseFinalizaMedicaoSemLancamentos:
             data=json.dumps(data_update),
         )
         assert response.status_code == status.HTTP_200_OK
+        assert self.solicitacao_medicao_inicial.sem_lancamentos is True
+        assert (
+            self.solicitacao_medicao_inicial.justificativa_sem_lancamentos
+            == data_update.get("justificativa_sem_lancamentos")
+        )
 
     def test_finaliza_medicao_sem_lancamentos_erro_kit_lanche_nao_pode_finalizar(
         self, client_autenticado_da_escola, escola
