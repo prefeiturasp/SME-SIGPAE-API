@@ -163,6 +163,7 @@ class SolicitacaoMedicaoInicialDashboardSerializer(serializers.ModelSerializer):
     tipo_unidade = serializers.CharField(source="escola.tipo_unidade")
     log_mais_recente = serializers.SerializerMethodField()
     mes_ano = serializers.SerializerMethodField()
+    sem_lancamentos = serializers.BooleanField()
 
     def get_log_mais_recente(self, obj):
         return (
@@ -189,6 +190,7 @@ class SolicitacaoMedicaoInicialDashboardSerializer(serializers.ModelSerializer):
             "dre_ciencia_correcao_data",
             "todas_medicoes_e_ocorrencia_aprovados_por_medicao",
             "escola_cei_com_inclusao_parcial_autorizada",
+            "sem_lancamentos",
         )
 
 
