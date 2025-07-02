@@ -1406,6 +1406,11 @@ class AnaliseFichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
 
 
 class AnaliseFichaTecnicaCreateSerializer(serializers.ModelSerializer):
+    fabricante_envasador_conferido = serializers.BooleanField()
+    fabricante_envasador_correcoes = serializers.CharField(
+        required=False,
+        allow_blank=True,
+    )
     detalhes_produto_conferido = serializers.BooleanField()
     detalhes_produto_correcoes = serializers.CharField(
         required=False,
@@ -1437,7 +1442,15 @@ class AnaliseFichaTecnicaCreateSerializer(serializers.ModelSerializer):
         allow_blank=True,
     )
     responsavel_tecnico_conferido = serializers.BooleanField()
+    responsavel_tecnico_correcoes = serializers.CharField(
+        required=False,
+        allow_blank=True,
+    )
     modo_preparo_conferido = serializers.BooleanField()
+    modo_preparo_correcoes = serializers.CharField(
+        required=False,
+        allow_blank=True,
+    )
     outras_informacoes_conferido = serializers.BooleanField()
 
     def validate(self, attrs):
