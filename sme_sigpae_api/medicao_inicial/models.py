@@ -212,6 +212,18 @@ class SolicitacaoMedicaoInicial(
             status=self.workflow_class.MEDICAO_SEM_LANCAMENTOS
         ).exists()
 
+    @property
+    def justificativa_sem_lancamentos(self):
+        if not self.sem_lancamentos:
+            return None
+        return (
+            self.logs.filter(
+                status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE
+            )
+            .last()
+            .justificativa
+        )
+
     def get_or_create_medicao_por_periodo_e_ou_grupo(self, periodo_e_ou_grupo: str):
         if GrupoMedicao.objects.filter(nome=periodo_e_ou_grupo).exists():
             grupo = GrupoMedicao.objects.get(nome=periodo_e_ou_grupo)
