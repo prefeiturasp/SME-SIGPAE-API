@@ -1312,6 +1312,14 @@ class AnaliseFichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
         slug_field="uuid",
         read_only=True,
     )
+    fabricante_envasador_conferido = serializers.BooleanField(
+        required=False,
+        allow_null=True,
+    )
+    fabricante_envasador_correcoes = serializers.CharField(
+        required=False,
+        allow_blank=True,
+    )
     detalhes_produto_conferido = serializers.BooleanField(
         required=False,
         allow_null=True,
@@ -1364,9 +1372,17 @@ class AnaliseFichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
+    responsavel_tecnico_correcoes = serializers.CharField(
+        required=False,
+        allow_blank=True,
+    )
     modo_preparo_conferido = serializers.BooleanField(
         required=False,
         allow_null=True,
+    )
+    modo_preparo_correcoes = serializers.CharField(
+        required=False,
+        allow_blank=True,
     )
     outras_informacoes_conferido = serializers.BooleanField(
         required=False,
@@ -1426,12 +1442,15 @@ class AnaliseFichaTecnicaCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         campos_dependentes = [
+            "fabricante_envasador",
             "detalhes_produto",
             "informacoes_nutricionais",
             "conservacao",
             "temperatura_e_transporte",
             "armazenamento",
             "embalagem_e_rotulagem",
+            "responsavel_tecnico",
+            "modo_preparo",
         ]
 
         self._validate_campos_correcoes_preenchido(attrs, campos_dependentes)

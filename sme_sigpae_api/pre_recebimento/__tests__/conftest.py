@@ -919,6 +919,8 @@ def ficha_tecnica_perecivel_enviada_para_analise(
 @pytest.fixture
 def payload_analise_ficha_tecnica():
     return {
+        "fabricante_envasador_conferido": True,
+        "fabricante_envasador_correcoes": "",
         "detalhes_produto_conferido": True,
         "detalhes_produto_correcoes": "",
         "informacoes_nutricionais_conferido": True,
@@ -932,7 +934,9 @@ def payload_analise_ficha_tecnica():
         "embalagem_e_rotulagem_conferido": True,
         "embalagem_e_rotulagem_correcoes": "",
         "responsavel_tecnico_conferido": True,
+        "responsavel_tecnico_correcoes": "",
         "modo_preparo_conferido": True,
+        "modo_preparo_correcoes": "",
         "outras_informacoes_conferido": True,
     }
 
