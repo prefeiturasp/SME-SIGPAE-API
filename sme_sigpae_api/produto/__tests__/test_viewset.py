@@ -161,6 +161,8 @@ def test_build_raw_sql_produtos_por_status_com_dois_editais(
         "produto_edital": "produto_produtoedital",
         "escola": "escola_escola",
         "lote": "escola_lote",
+        "edital_id": edital,
+        "editais": editais,
     }
 
     assert isinstance(sql_gerado, str)
@@ -189,7 +191,7 @@ def test_build_raw_sql_produtos_por_status_com_dois_editais(
         == 1
     )
     assert sql_gerado.count("ORDER BY log_criado_em DESC") == 1
-    assert sql_gerado.count("IN ('20', '30')") == 2
+    assert sql_gerado.count("IN ('20', '30')") == 1
 
 
 def test_trata_edital_com_um_edital(
