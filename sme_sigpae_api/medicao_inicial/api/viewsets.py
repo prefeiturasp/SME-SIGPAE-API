@@ -1115,6 +1115,55 @@ class SolicitacaoMedicaoInicialViewSet(
             status=status.HTTP_200_OK,
         )
 
+    def _valida_sem_lancamentos(self, solicitacao):
+        if not solicitacao.sem_lancamentos:
+            raise ValidationError(
+                "Solicitação Medição Inicial não pode voltar para ser preenchida novamente, pois possui lançamentos."
+            )
+
+    def _solicita_correcao_em_solicitacao(self, solicitacao, user, justificativa):
+        solicitacao.codae_pede_correcao_sem_lancamentos(
+            user=user, justificativa=justificativa
+        )
+
+    def _solicita_correcao_em_medicoes(self, solicitacao, user, justificativa):
+        for medicao in solicitacao.medicoes.all():
+            medicao.codae_pede_correcao_sem_lancamentos(
+                user=user, justificativa=justificativa
+            )
+
+    @action(
+        detail=True,
+        methods=["PATCH"],
+        url_path="codae-solicita-correcao-sem-lancamentos",
+        permission_classes=[UsuarioMedicao],
+    )
+    def codae_solicita_correcao_sem_lancamentos(self, request, uuid=None):
+        try:
+            solicitacao_medicao_inicial = self.get_object()
+            self._valida_sem_lancamentos(solicitacao_medicao_inicial)
+            justificativa = request.data.get("justificativa", None)
+            self._solicita_correcao_em_solicitacao(
+                solicitacao_medicao_inicial, request.user, justificativa
+            )
+            self._solicita_correcao_em_medicoes(
+                solicitacao_medicao_inicial, request.user, justificativa
+            )
+            serializer = self.get_serializer(solicitacao_medicao_inicial)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except SolicitacaoMedicaoInicial.DoesNotExist:
+            return Response(
+                {
+                    "detail": "Solicitação Medição Inicial com o UUID informado não foi encontrado."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except (ValidationError, InvalidTransitionError) as e:
+            return Response(
+                dict(detail=str(e)),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
 
 class TipoContagemAlimentacaoViewSet(mixins.ListModelMixin, GenericViewSet):
     queryset = TipoContagemAlimentacao.objects.filter(ativo=True)
@@ -1524,6 +1573,7 @@ class OcorrenciaViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="codae-aprova-ocorrencia",
+        permission_classes=[UsuarioCODAEGestaoAlimentacao],
     )
     def codae_aprova_ocorrencia(self, request, uuid=None):
         object = self.get_object()

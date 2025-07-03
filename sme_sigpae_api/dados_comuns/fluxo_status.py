@@ -3878,6 +3878,11 @@ class SolicitacaoMedicaoInicialWorkflow(xwf_models.Workflow):
             MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
             MEDICAO_SEM_LANCAMENTOS,
         ),
+        (
+            "codae_pede_correcao_sem_lancamentos",
+            [MEDICAO_APROVADA_PELA_CODAE, MEDICAO_SEM_LANCAMENTOS],
+            MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+        ),
     )
 
     initial_state = MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
@@ -4322,6 +4327,18 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             status_evento=LogSolicitacoesUsuario.MEDICAO_SEM_LANCAMENTOS,
             usuario=user,
             justificativa=justificativa_sem_lancamentos,
+        )
+
+    @xworkflows.after_transition("codae_pede_correcao_sem_lancamentos")
+    def _codae_pede_correcao_sem_lancamentos_hook(self, *args, **kwargs):
+        user = kwargs["user"]
+        justificativa = kwargs["justificativa"]
+        if not user or user.vinculo_atual.perfil.nome != ADMINISTRADOR_MEDICAO:
+            raise PermissionDenied("Você não tem permissão para executar essa ação.")
+        self.salvar_log_transicao(
+            status_evento=LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+            usuario=user,
+            justificativa=justificativa,
         )
 
     class Meta:
