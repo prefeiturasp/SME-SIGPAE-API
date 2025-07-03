@@ -6,7 +6,7 @@ from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_HEADERS_CEMEI,
     ORDEM_UNIDADES_GRUPO_CEMEI,
 )
-from sme_sigpae_api.escola.models import FaixaEtaria, PeriodoEscolar
+from sme_sigpae_api.escola.models import FaixaEtaria
 from sme_sigpae_api.medicao_inicial.models import GrupoMedicao
 from sme_sigpae_api.medicao_inicial.services import (
     relatorio_consolidado_cei,
@@ -42,7 +42,7 @@ def get_alimentacoes_por_periodo(solicitacoes):
                 if "infantil" in nome_periodo.lower():
                     nome_categoria = categoria + " - INFANTIL"
                 else:
-                    nome_categoria = categoria + " - CEI"
+                    nome_categoria = f"{categoria} - {nome_periodo.upper()}"
                 dietas_alimentacoes = update_dietas_alimentacoes(
                     dietas_alimentacoes, nome_categoria, lista_alimentacoes_dietas
                 )
@@ -165,7 +165,6 @@ def _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes):
 
 
 def get_valores_tabela(solicitacoes, colunas):
-    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     grupos_medicao = GrupoMedicao.objects.filter(
         nome__icontains="Infantil"
     ).values_list("nome", flat=True)
@@ -179,7 +178,6 @@ def get_valores_tabela(solicitacoes, colunas):
                 periodo,
                 campo,
                 valores_solicitacao_atual,
-                periodos_escolares,
                 grupos_medicao,
             )
         valores.append(valores_solicitacao_atual)
@@ -193,10 +191,8 @@ def get_solicitacoes_ordenadas(solicitacoes):
     )
 
 
-def _processa_periodo_campo(
-    solicitacao, periodo, campo, valores, periodos_escolares, grupos_medicao
-):
-    filtros = _define_filtro(periodo, periodos_escolares, grupos_medicao)
+def _processa_periodo_campo(solicitacao, periodo, campo, valores, grupos_medicao):
+    filtros = _define_filtro(periodo, grupos_medicao)
     try:
         if "DIETA ESPECIAL" in periodo:
             total = _processa_dieta_especial(solicitacao, filtros, campo, periodo)
@@ -208,22 +204,26 @@ def _processa_periodo_campo(
     return valores
 
 
-def _define_filtro(periodo, periodos_escolares, grupos_medicao):
+def _define_filtro(periodo, grupos_medicao):
     filtros = {}
     if periodo in ["Solicitações de Alimentação"] + list(grupos_medicao):
         filtros["grupo__nome"] = periodo
     elif "DIETA ESPECIAL" in periodo:
-        if "CEI" in periodo:
-            filtros["periodo_escolar__nome__in"] = periodos_escolares
-        elif "INFANTIL" in periodo:
+        if "INFANTIL" in periodo:
             filtros["grupo__nome__in"] = grupos_medicao
+        else:
+            filtros["periodo_escolar__nome"] = periodo.split(" - ")[-1]
     else:
         filtros["periodo_escolar__nome"] = periodo
     return filtros
 
 
 def _processa_dieta_especial(solicitacao, filtros, campo, periodo):
-    periodo = periodo.replace(" - CEI", "").replace(" - INFANTIL", "")
+    periodo = (
+        periodo.replace(" - INFANTIL", "")
+        .replace(" - INTEGRAL", "")
+        .replace(" - PARCIAL", "")
+    )
     soma = "-"
     if any("periodo_escolar" in chave for chave in filtros.keys()):
         soma = relatorio_consolidado_cei.processa_dieta_especial(
@@ -288,20 +288,60 @@ def ajusta_layout_tabela(workbook, worksheet, df):
     )
 
     formatacao_level1 = {
-        "": formatacao_level2,
-        "INTEGRAL": formatacao_integral_cei,
-        "PARCIAL": formatacao_parcial,
-        "DIETA ESPECIAL - TIPO A - CEI": formatacao_dieta_a,
-        "DIETA ESPECIAL - TIPO B - CEI": formatacao_dieta_b,
-        "INFANTIL INTEGRAL": formatacao_integral,
-        "INFANTIL MANHA": formatacao_manha,
-        "INFANTIL TARDE": formatacao_tarde,
-        "DIETA ESPECIAL - TIPO A - INFANTIL": formatacao_dieta_a,
-        "DIETA ESPECIAL - TIPO B - INFANTIL": formatacao_dieta_b,
+        "": {"formatacao": formatacao_level2, "nome": ""},
+        "INTEGRAL": {
+            "formatacao": formatacao_integral_cei,
+            "nome": "INTEGRAL",
+        },
+        "DIETA ESPECIAL - TIPO A - INTEGRAL": {
+            "formatacao": formatacao_integral_cei,
+            "nome": "DIETA ESPECIAL - TIPO A",
+        },
+        "DIETA ESPECIAL - TIPO B - INTEGRAL": {
+            "formatacao": formatacao_integral_cei,
+            "nome": "DIETA ESPECIAL - TIPO B",
+        },
+        "PARCIAL": {
+            "formatacao": formatacao_parcial,
+            "nome": "PARCIAL",
+        },
+        "DIETA ESPECIAL - TIPO A - PARCIAL": {
+            "formatacao": formatacao_parcial,
+            "nome": "DIETA ESPECIAL - TIPO A",
+        },
+        "DIETA ESPECIAL - TIPO B - PARCIAL": {
+            "formatacao": formatacao_parcial,
+            "nome": "DIETA ESPECIAL - TIPO B",
+        },
+        "INFANTIL INTEGRAL": {
+            "formatacao": formatacao_integral,
+            "nome": "INFANTIL INTEGRAL",
+        },
+        "INFANTIL MANHA": {
+            "formatacao": formatacao_manha,
+            "nome": "INFANTIL MANHA",
+        },
+        "INFANTIL TARDE": {
+            "formatacao": formatacao_tarde,
+            "nome": "INFANTIL TARDE",
+        },
+        "DIETA ESPECIAL - TIPO A - INFANTIL": {
+            "formatacao": formatacao_dieta_a,
+            "nome": "DIETA ESPECIAL - TIPO A",
+        },
+        "DIETA ESPECIAL - TIPO B - INFANTIL": {
+            "formatacao": formatacao_dieta_b,
+            "nome": "DIETA ESPECIAL - TIPO B",
+        },
     }
 
     for col_num, value in enumerate(df.columns.values):
-        worksheet.write(2, col_num, value[0], formatacao_level1[value[0]])
+        worksheet.write(
+            2,
+            col_num,
+            formatacao_level1[value[0]]["nome"],
+            formatacao_level1[value[0]]["formatacao"],
+        )
         worksheet.write(3, col_num, value[1], formatacao_level2)
 
     formatacao = workbook.add_format(
