@@ -983,7 +983,7 @@ class DocumentoDeRecebimentoSerializer(serializers.ModelSerializer):
 
     def get_pregao_chamada_publica(self, obj):
         return (
-            obj.cronograma.contrato.numero_pregao if obj.cronograma.contrato else None
+            obj.cronograma.contrato.pregao_chamada_publica if obj.cronograma.contrato else None
         )
 
     def get_nome_produto(self, obj):
@@ -1079,7 +1079,7 @@ class DocRecebimentoDetalharSerializer(serializers.ModelSerializer):
 
     def get_pregao_chamada_publica(self, obj):
         return (
-            obj.cronograma.contrato.numero_pregao if obj.cronograma.contrato else None
+            obj.cronograma.contrato.pregao_chamada_publica if obj.cronograma.contrato else None
         )
 
     def get_nome_produto(self, obj):
