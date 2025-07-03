@@ -42,6 +42,7 @@ from .escola.fixtures.factories.dia_suspensao_atividades_factory import (
 )
 from .escola.fixtures.factories.escola_factory import (
     AlunoFactory,
+    AlunosMatriculadosPeriodoEscolaFactory,
     DiretoriaRegionalFactory,
     EscolaFactory,
     FaixaEtariaFactory,
@@ -294,6 +295,7 @@ register(InclusaoAlimentacaoContinuaFactory)
 register(MotivoInclusaoContinuaFactory)
 register(SolicitacaoKitLancheCEIAvulsaFactory)
 register(FaixaEtariaSolicitacaoKitLancheCEIAvulsaFactory)
+register(AlunosMatriculadosPeriodoEscolaFactory)
 
 
 @pytest.fixture
