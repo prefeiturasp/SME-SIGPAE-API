@@ -105,6 +105,11 @@ def valida_ingredientes_alergenicos_ficha_tecnica(attrs):
 
 class ServiceValidacaoCorrecaoFichaTecnica:
     CAMPOS_OBRIGATORIOS_COMUNS = {
+        "fabricante_envasador_conferido": {
+            "obrigatorios": [
+                "fabricante",
+            ],
+        },
         "detalhes_produto_conferido": {
             "obrigatorios": [
                 "prazo_validade",

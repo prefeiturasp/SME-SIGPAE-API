@@ -1616,6 +1616,8 @@ class CorrecaoFichaTecnicaSerializer(serializers.ModelSerializer):
 
 
 class FichaTecnicaAtualizacaoSerializer(serializers.ModelSerializer):
+    fabricante = FabricanteFichaTecnicaCreateSerializer(required=False)
+    envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(required=False)
     componentes_produto = serializers.CharField(required=False, allow_blank=False)
     alergenicos = serializers.BooleanField(required=False)
     ingredientes_alergenicos = serializers.CharField(required=False, allow_blank=False)

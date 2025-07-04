@@ -208,6 +208,8 @@ def limpar_campos_dependentes_ficha_tecnica(instance, validated_data):
 
 def reseta_analise_atualizacao(analise, payload):
     mapa = {
+        "fabricante": "fabricante_envasador_conferido",
+        "envasador_distribuidor": "fabricante_envasador_conferido",
         "componentes_produto": "detalhes_produto_conferido",
         "alergenicos": "detalhes_produto_conferido",
         "ingredientes_alergenicos": "detalhes_produto_conferido",
