@@ -10,6 +10,7 @@ from sme_sigpae_api.dados_comuns.fixtures.factories.dados_comuns_factories impor
 from sme_sigpae_api.escola.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
 from sme_sigpae_api.escola.models import (
     Aluno,
+    AlunosMatriculadosPeriodoEscola,
     DiretoriaRegional,
     Escola,
     FaixaEtaria,
@@ -75,6 +76,14 @@ class PeriodoEscolarFactory(DjangoModelFactory):
 
     class Meta:
         model = PeriodoEscolar
+
+
+class AlunosMatriculadosPeriodoEscolaFactory(DjangoModelFactory):
+    escola = SubFactory(EscolaFactory)
+    periodo_escolar = SubFactory(PeriodoEscolarFactory)
+
+    class Meta:
+        model = AlunosMatriculadosPeriodoEscola
 
 
 class LogAlunosMatriculadosPeriodoEscolaFactory(DjangoModelFactory):

@@ -11,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.template.loader import render_to_string
 from django_xworkflows import models as xwf_models
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 
 from sme_sigpae_api.dados_comuns import constants
 
@@ -3753,6 +3753,7 @@ class SolicitacaoMedicaoInicialWorkflow(xwf_models.Workflow):
     MEDICAO_CORRIGIDA_PARA_CODAE = "MEDICAO_CORRIGIDA_PARA_CODAE"
     MEDICAO_APROVADA_PELA_DRE = "MEDICAO_APROVADA_PELA_DRE"
     MEDICAO_APROVADA_PELA_CODAE = "MEDICAO_APROVADA_PELA_CODAE"
+    MEDICAO_SEM_LANCAMENTOS = "MEDICAO_SEM_LANCAMENTOS"
 
     states = (
         (
@@ -3766,6 +3767,7 @@ class SolicitacaoMedicaoInicialWorkflow(xwf_models.Workflow):
         (MEDICAO_CORRIGIDA_PARA_CODAE, "Corrigido para CODAE"),
         (MEDICAO_APROVADA_PELA_DRE, "Aprovado pela DRE"),
         (MEDICAO_APROVADA_PELA_CODAE, "Aprovado por CODAE"),
+        (MEDICAO_SEM_LANCAMENTOS, "Sem Lançamentos"),
     )
 
     transitions = (
@@ -3865,6 +3867,16 @@ class SolicitacaoMedicaoInicialWorkflow(xwf_models.Workflow):
                 MEDICAO_CORRIGIDA_PARA_CODAE,
             ],
             MEDICAO_CORRECAO_SOLICITADA_CODAE,
+        ),
+        (
+            "ue_envia_sem_lancamentos",
+            MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+            MEDICAO_APROVADA_PELA_CODAE,
+        ),
+        (
+            "medicao_sem_lancamentos",
+            MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+            MEDICAO_SEM_LANCAMENTOS,
         ),
     )
 
@@ -4275,6 +4287,43 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
                 usuario=user,
             )
 
+    @xworkflows.after_transition("ue_envia_sem_lancamentos")
+    def _ue_envia_sem_lancamentos_hook(self, *args, **kwargs):
+        from sme_sigpae_api.medicao_inicial.models import Medicao
+
+        user = kwargs["user"]
+        justificativa_sem_lancamentos = kwargs["justificativa_sem_lancamentos"]
+
+        if not user or user.vinculo_atual.perfil.nome != DIRETOR_UE:
+            raise PermissionDenied("Você não tem permissão para executar essa ação.")
+        if isinstance(self, Medicao):
+            raise ValidationError(
+                "`Medicao` não possui fluxo `ue_envia_sem_lancamentos`"
+            )
+        self.salvar_log_transicao(
+            status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
+            usuario=user,
+            justificativa=justificativa_sem_lancamentos,
+        )
+
+    @xworkflows.after_transition("medicao_sem_lancamentos")
+    def _medicao_sem_lancamentos_hook(self, *args, **kwargs):
+        from sme_sigpae_api.medicao_inicial.models import SolicitacaoMedicaoInicial
+
+        user = kwargs["user"]
+        justificativa_sem_lancamentos = kwargs["justificativa_sem_lancamentos"]
+        if not user or user.vinculo_atual.perfil.nome != DIRETOR_UE:
+            raise PermissionDenied("Você não tem permissão para executar essa ação.")
+        if isinstance(self, SolicitacaoMedicaoInicial):
+            raise ValidationError(
+                "`SolicitacaoMedicaoInicial` não possui fluxo `medicao_sem_lancamentos`"
+            )
+        self.salvar_log_transicao(
+            status_evento=LogSolicitacoesUsuario.MEDICAO_SEM_LANCAMENTOS,
+            usuario=user,
+            justificativa=justificativa_sem_lancamentos,
+        )
+
     class Meta:
         abstract = True
 
@@ -4432,7 +4481,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
             corpo="",
             html=html,
             emails=PartesInteressadasService.usuarios_por_perfis(
-                "DILOG_CRONOGRAMA", somente_email=True
+                ["DILOG_CRONOGRAMA", "COORDENADOR_CODAE_DILOG_LOGISTICA"], somente_email=True
             ),
         )
 
@@ -4554,7 +4603,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
         )
 
         partes_interessadas = PartesInteressadasService.usuarios_por_perfis(
-            ["DILOG_CRONOGRAMA", "DILOG_ABASTECIMENTO"], True
+            ["DILOG_CRONOGRAMA", "DILOG_ABASTECIMENTO", "DILOG_QUALIDADE", "COORDENADOR_CODAE_DILOG_LOGISTICA"], True
         ) + PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
             self, True
         )
@@ -4801,6 +4850,8 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                     constants.DILOG_CRONOGRAMA,
                     constants.DILOG_ABASTECIMENTO,
                     constants.DILOG_DIRETORIA,
+                    constants.COORDENADOR_CODAE_DILOG_LOGISTICA,
+                    constants.DILOG_QUALIDADE,
                 ]
             )
 
@@ -4809,6 +4860,8 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                     constants.DILOG_CRONOGRAMA,
                     constants.DILOG_ABASTECIMENTO,
                     constants.DILOG_DIRETORIA,
+                    constants.COORDENADOR_CODAE_DILOG_LOGISTICA,
+                    constants.DILOG_QUALIDADE,
                 ],
                 somente_email=True,
             )
@@ -4931,7 +4984,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 self.cronograma, True
             )
             + PartesInteressadasService.usuarios_por_perfis(
-                ["DILOG_CRONOGRAMA", "DILOG_ABASTECIMENTO"], True
+                ["DILOG_CRONOGRAMA", "DILOG_ABASTECIMENTO", "COORDENADOR_CODAE_DILOG_LOGISTICA", "DILOG_QUALIDADE"], True
             )
         )
 
