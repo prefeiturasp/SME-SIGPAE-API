@@ -235,7 +235,8 @@ def test_get_categorias_dietas_cei(relatorio_consolidado_xlsx_cei):
 
     categoria_integral = get_categorias_dietas(medicoes[0])
     assert isinstance(categoria_integral, list)
-    assert len(categoria_integral) == 0
+    assert len(categoria_integral) == 2
+    assert categoria_integral == ["DIETA ESPECIAL - TIPO A", "DIETA ESPECIAL - TIPO B"]
 
     categoria_manha = get_categorias_dietas(medicoes[1])
     assert isinstance(categoria_manha, list)
@@ -244,7 +245,8 @@ def test_get_categorias_dietas_cei(relatorio_consolidado_xlsx_cei):
 
     categoria_parcial = get_categorias_dietas(medicoes[2])
     assert isinstance(categoria_parcial, list)
-    assert len(categoria_parcial) == 0
+    assert len(categoria_parcial) == 2
+    assert categoria_parcial == ["DIETA ESPECIAL - TIPO A", "DIETA ESPECIAL - TIPO B"]
 
     categoria_tarde = get_categorias_dietas(medicoes[3])
     assert isinstance(categoria_tarde, list)
@@ -399,17 +401,37 @@ def test_gera_colunas_alimentacao_cemei(
     )
     assert isinstance(df, pd.DataFrame)
     colunas_df = df.columns.tolist()
-    assert len(colunas_df) == 46
+    assert len(colunas_df) == 76
 
     assert sum(1 for tupla in colunas_df if tupla[0] == "INTEGRAL") == 8
     assert sum(1 for tupla in colunas_df if tupla[0] == "PARCIAL") == 8
     assert (
-        sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A - CEI")
-        == 1
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[0] == "DIETA ESPECIAL - TIPO A - INTEGRAL"
+        )
+        == 8
     )
     assert (
-        sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B - CEI")
-        == 1
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[0] == "DIETA ESPECIAL - TIPO B - INTEGRAL"
+        )
+        == 8
+    )
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A - PARCIAL"
+        )
+        == 8
+    )
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B - PARCIAL"
+        )
+        == 8
     )
     assert sum(1 for tupla in colunas_df if tupla[0] == "INFANTIL INTEGRAL") == 6
     assert sum(1 for tupla in colunas_df if tupla[0] == "INFANTIL MANHA") == 6
@@ -437,19 +459,19 @@ def test_gera_colunas_alimentacao_cemei(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
 
-    assert sum(1 for tupla in colunas_df if tupla[1] == "00 meses") == 2
-    assert sum(1 for tupla in colunas_df if tupla[1] == "01 a 03 meses") == 2
-    assert sum(1 for tupla in colunas_df if tupla[1] == "04 a 05 meses") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "06 a 07 meses") == 2
-    assert sum(1 for tupla in colunas_df if tupla[1] == "08 a 11 meses") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "00 meses") == 6
+    assert sum(1 for tupla in colunas_df if tupla[1] == "01 a 03 meses") == 6
+    assert sum(1 for tupla in colunas_df if tupla[1] == "04 a 05 meses") == 6
+    assert sum(1 for tupla in colunas_df if tupla[1] == "06 a 07 meses") == 6
+    assert sum(1 for tupla in colunas_df if tupla[1] == "08 a 11 meses") == 6
     assert (
-        sum(1 for tupla in colunas_df if tupla[1] == "01 ano a 01 ano e 11 meses") == 2
+        sum(1 for tupla in colunas_df if tupla[1] == "01 ano a 01 ano e 11 meses") == 6
     )
     assert (
         sum(1 for tupla in colunas_df if tupla[1] == "02 anos a 03 anos e 11 meses")
-        == 2
+        == 6
     )
-    assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 2
+    assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 6
 
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 5
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 5
@@ -472,6 +494,22 @@ def test_gera_colunas_alimentacao_cemei(
         100.0,
         100.0,
         100.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
         100.0,
         100.0,
         100.0,
@@ -480,8 +518,22 @@ def test_gera_colunas_alimentacao_cemei(
         100.0,
         100.0,
         100.0,
-        30.0,
-        20.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
         150.0,
         150.0,
         150.0,
@@ -520,6 +572,22 @@ def test_gera_colunas_alimentacao_cemei(
         100.0,
         100.0,
         100.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
         100.0,
         100.0,
         100.0,
@@ -528,8 +596,22 @@ def test_gera_colunas_alimentacao_cemei(
         100.0,
         100.0,
         100.0,
-        30.0,
-        20.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
         150.0,
         150.0,
         150.0,
