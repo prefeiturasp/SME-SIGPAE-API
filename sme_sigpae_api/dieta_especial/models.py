@@ -277,7 +277,7 @@ class SolicitacaoDietaEspecial(
             status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
             tipo_solicitacao="ALTERACAO_UE",
             motivo_alteracao_ue=motivo_recreio_ferias
-        ).exists()    
+        ).exists()
 
     @classmethod
     def aluno_possui_dieta_especial_pendente(cls, aluno):
