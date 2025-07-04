@@ -101,7 +101,7 @@ def ajustes_no_arquivo(arquivo):
 
 async def get_informacoes_escola_turma_aluno(tempfile: str, codigo_eol: str):
     headers = DEFAULT_HEADERS
-    async with httpx.AsyncClient(headers=headers, timeout=None) as client:
+    async with httpx.AsyncClient(headers=headers, timeout=120) as client:
         url = f"{DJANGO_EOL_API_URL}/escola_turma_aluno/{codigo_eol}"
         response = await client.get(url)
         if response.status_code == status.HTTP_200_OK:
