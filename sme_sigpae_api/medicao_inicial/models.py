@@ -224,6 +224,25 @@ class SolicitacaoMedicaoInicial(
             .justificativa
         )
 
+    @property
+    def justificativa_codae_correcao_sem_lancamentos(self):
+        if self.status != self.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE:
+            return None
+        uuids_medicoes = self.medicoes.values_list("uuid", flat=True)
+        possui_logs_sem_lancamento = LogSolicitacoesUsuario.objects.filter(
+            uuid_original__in=uuids_medicoes,
+            status_evento=LogSolicitacoesUsuario.MEDICAO_SEM_LANCAMENTOS,
+        ).exists()
+        if not possui_logs_sem_lancamento:
+            return None
+        return (
+            self.logs.filter(
+                status_evento=LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+            )
+            .last()
+            .justificativa
+        )
+
     def get_or_create_medicao_por_periodo_e_ou_grupo(self, periodo_e_ou_grupo: str):
         if GrupoMedicao.objects.filter(nome=periodo_e_ou_grupo).exists():
             grupo = GrupoMedicao.objects.get(nome=periodo_e_ou_grupo)
