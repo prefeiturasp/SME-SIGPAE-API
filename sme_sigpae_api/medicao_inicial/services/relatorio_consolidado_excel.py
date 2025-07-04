@@ -1,6 +1,9 @@
 import io
+from uuid import UUID
 
 import pandas as pd
+from openpyxl.workbook import Workbook
+from openpyxl.worksheet.worksheet import Worksheet
 
 from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_CEI,
@@ -21,7 +24,9 @@ from sme_sigpae_api.medicao_inicial.services import (
 from ..models import SolicitacaoMedicaoInicial
 
 
-def gera_relatorio_consolidado_xlsx(solicitacoes_uuid, tipos_de_unidade, query_params):
+def gera_relatorio_consolidado_xlsx(
+    solicitacoes_uuid: list[UUID], tipos_de_unidade: list[str], query_params: dict
+) -> bytes:
     solicitacoes = SolicitacaoMedicaoInicial.objects.filter(uuid__in=solicitacoes_uuid)
     try:
         modulo_da_unidade, parametros = _obter_modulo_da_unidade(tipos_de_unidade)
@@ -37,7 +42,7 @@ def gera_relatorio_consolidado_xlsx(solicitacoes_uuid, tipos_de_unidade, query_p
     return arquivo_excel
 
 
-def _obter_modulo_da_unidade(tipos_de_unidade):
+def _obter_modulo_da_unidade(tipos_de_unidade: list[str]) -> tuple:
     estrategias = [
         {
             "unidades": ORDEM_UNIDADES_GRUPO_EMEF | ORDEM_UNIDADES_GRUPO_EMEI,
@@ -66,7 +71,13 @@ def _obter_modulo_da_unidade(tipos_de_unidade):
     raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
 
 
-def _gera_excel(tipos_de_unidade, query_params, colunas, linhas, modulo_da_unidade):
+def _gera_excel(
+    tipos_de_unidade: list[str],
+    query_params: dict,
+    colunas: list[tuple],
+    linhas: list[list[str | float]],
+    modulo_da_unidade: object,
+) -> bytes:
     file = io.BytesIO()
 
     with pd.ExcelWriter(file, engine="xlsxwriter") as writer:
@@ -90,7 +101,12 @@ def _gera_excel(tipos_de_unidade, query_params, colunas, linhas, modulo_da_unida
     return file.getvalue()
 
 
-def _formata_total_geral(workbook, worksheet, df, tipos_de_unidade=None):
+def _formata_total_geral(
+    workbook: Workbook,
+    worksheet: Worksheet,
+    df: pd.DataFrame,
+    tipos_de_unidade: list[str] | None = None,
+):
     linha_adicional = 0
     if tipos_de_unidade is not None and set(tipos_de_unidade).issubset(
         ORDEM_UNIDADES_GRUPO_EMEBS
@@ -116,7 +132,9 @@ def _formata_total_geral(workbook, worksheet, df, tipos_de_unidade=None):
     worksheet.set_row(ultima_linha, 20, formatacao)
 
 
-def _preenche_titulo(workbook, worksheet, colunas):
+def _preenche_titulo(
+    workbook: Workbook, worksheet: Worksheet, colunas: pd.MultiIndex
+) -> None:
     formatacao = workbook.add_format(
         {
             "align": "center",
@@ -139,8 +157,12 @@ def _preenche_titulo(workbook, worksheet, colunas):
 
 
 def _preenche_linha_dos_filtros_selecionados(
-    workbook, worksheet, query_params, colunas, tipos_de_unidade
-):
+    workbook: Workbook,
+    worksheet: Worksheet,
+    query_params: dict,
+    colunas: pd.MultiIndex,
+    tipos_de_unidade: list[str],
+) -> None:
     filtros = _formata_filtros(query_params, tipos_de_unidade)
     formatacao = workbook.add_format(
         {
@@ -156,7 +178,7 @@ def _preenche_linha_dos_filtros_selecionados(
     worksheet.set_row(1, 30)
 
 
-def _formata_filtros(query_params, tipos_de_unidade):
+def _formata_filtros(query_params: dict, tipos_de_unidade: list[str]) -> str:
     mes = query_params.get("mes")
     ano = query_params.get("ano")
     filtros = f"{converte_numero_em_mes(int(mes))}/{ano}"

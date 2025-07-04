@@ -1,12 +1,16 @@
+import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import FloatField, Sum
 from django.db.models.functions import Cast
+from openpyxl.workbook import Workbook
+from openpyxl.worksheet.worksheet import Worksheet
 
 from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_HEADERS_CEI,
     ORDEM_UNIDADES_GRUPO_CEI,
 )
 from sme_sigpae_api.escola.models import FaixaEtaria
+from sme_sigpae_api.medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
 from sme_sigpae_api.medicao_inicial.services.utils import (
     generate_columns,
     gera_colunas_alimentacao,
@@ -18,7 +22,9 @@ from sme_sigpae_api.medicao_inicial.services.utils import (
 )
 
 
-def get_alimentacoes_por_periodo(solicitacoes):
+def get_alimentacoes_por_periodo(
+    solicitacoes: list[SolicitacaoMedicaoInicial],
+) -> list[tuple]:
     periodos_alimentacoes = {}
     dietas_alimentacoes = {}
 
@@ -49,7 +55,7 @@ def get_alimentacoes_por_periodo(solicitacoes):
     return columns
 
 
-def _get_faixas_etarias(medicao):
+def _get_faixas_etarias(medicao: Medicao) -> list[int]:
     lista_faixas = list(
         faixa.id
         for faixa in FaixaEtaria.objects.filter(
@@ -64,7 +70,9 @@ def _get_faixas_etarias(medicao):
     return lista_faixas
 
 
-def _get_lista_alimentacoes_dietas_por_faixa(medicao, categoria):
+def _get_lista_alimentacoes_dietas_por_faixa(
+    medicao: Medicao, categoria: str
+) -> list[int]:
     dietas_por_faixa = list(
         faixa.id
         for faixa in FaixaEtaria.objects.filter(
@@ -79,7 +87,7 @@ def _get_lista_alimentacoes_dietas_por_faixa(medicao, categoria):
     return dietas_por_faixa
 
 
-def _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes):
+def _sort_and_merge(periodos_alimentacoes: dict, dietas_alimentacoes: dict) -> dict:
     ORDEM_CAMPOS = [
         faixa.id for faixa in FaixaEtaria.objects.filter(ativo=True).order_by("inicio")
     ]
@@ -104,7 +112,11 @@ def _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes):
     return dict_periodos_dietas
 
 
-def get_valores_tabela(solicitacoes, colunas, tipos_de_unidade):
+def get_valores_tabela(
+    solicitacoes: list[SolicitacaoMedicaoInicial],
+    colunas: list[tuple],
+    tipos_de_unidade: list[str],
+) -> list[list[str | float]]:
     valores = []
     for solicitacao in get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade):
         valores_solicitacao_atual = []
@@ -117,7 +129,9 @@ def get_valores_tabela(solicitacoes, colunas, tipos_de_unidade):
     return valores
 
 
-def get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade):
+def get_solicitacoes_ordenadas(
+    solicitacoes: list[SolicitacaoMedicaoInicial], tipos_de_unidade: list[str]
+) -> list[SolicitacaoMedicaoInicial]:
     if set(tipos_de_unidade).issubset(ORDEM_UNIDADES_GRUPO_CEI):
         ordem_unidades = ORDEM_UNIDADES_GRUPO_CEI
 
@@ -127,7 +141,12 @@ def get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade):
     )
 
 
-def _processa_periodo_campo(solicitacao, periodo, faixa_etaria, valores):
+def _processa_periodo_campo(
+    solicitacao: SolicitacaoMedicaoInicial,
+    periodo: str,
+    faixa_etaria: int,
+    valores: list[str],
+) -> list[str | float]:
     filtros = _define_filtro(periodo)
 
     try:
@@ -143,9 +162,9 @@ def _processa_periodo_campo(solicitacao, periodo, faixa_etaria, valores):
     return valores
 
 
-def _define_filtro(periodo):
+def _define_filtro(periodo: str) -> dict:
     filtros = {}
-    if periodo in ["Solicitações de Alimentação"]:
+    if periodo == "Solicitações de Alimentação":
         filtros["grupo__nome"] = periodo
     elif "DIETA ESPECIAL" in periodo:
         if "INTEGRAL" in periodo or "PARCIAL" in periodo:
@@ -157,7 +176,12 @@ def _define_filtro(periodo):
     return filtros
 
 
-def processa_dieta_especial(solicitacao, filtros, faixa_etaria, periodo):
+def processa_dieta_especial(
+    solicitacao: SolicitacaoMedicaoInicial,
+    filtros: dict,
+    faixa_etaria: int,
+    periodo: str,
+) -> float | str:
     medicoes = solicitacao.medicoes.filter(**filtros)
     if not medicoes.exists():
         return "-"
@@ -172,7 +196,12 @@ def processa_dieta_especial(solicitacao, filtros, faixa_etaria, periodo):
     return "-" if total == 0.0 else total
 
 
-def processa_periodo_regular(solicitacao, filtros, faixa_etaria, periodo):
+def processa_periodo_regular(
+    solicitacao: SolicitacaoMedicaoInicial,
+    filtros: dict,
+    faixa_etaria: int,
+    periodo: str,
+) -> float | str:
     try:
         medicao = solicitacao.medicoes.get(**filtros)
     except ObjectDoesNotExist:
@@ -186,7 +215,9 @@ def processa_periodo_regular(solicitacao, filtros, faixa_etaria, periodo):
     return soma if soma is not None else "-"
 
 
-def _calcula_soma_medicao(medicao, faixa_etaria, categoria):
+def _calcula_soma_medicao(
+    medicao: Medicao, faixa_etaria: int, categoria: str
+) -> float | None:
     return (
         medicao.valores_medicao.filter(
             nome_campo="frequencia",
@@ -198,7 +229,12 @@ def _calcula_soma_medicao(medicao, faixa_etaria, categoria):
     )
 
 
-def insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
+def insere_tabela_periodos_na_planilha(
+    aba: str,
+    colunas: list[tuple],
+    linhas: list[list[str | float]],
+    writer: pd.ExcelWriter,
+) -> pd.DataFrame:
     NOMES_CAMPOS = {
         faixa.id: faixa.__str__() for faixa in FaixaEtaria.objects.filter(ativo=True)
     }
@@ -206,7 +242,9 @@ def insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
     return df
 
 
-def ajusta_layout_tabela(workbook, worksheet, df):
+def ajusta_layout_tabela(
+    workbook: Workbook, worksheet: Worksheet, df: pd.DataFrame
+) -> None:
     formatacao_base = {
         "align": "center",
         "valign": "vcenter",
