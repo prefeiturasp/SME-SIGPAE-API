@@ -207,13 +207,22 @@ class SolicitacaoMedicaoInicial(
             return None
 
     @property
-    def sem_lancamentos(self):
+    def sem_lancamentos(self) -> bool:
+        """
+        Indica se a solicitação possui pelo menos uma medição com o status 'Sem Lançamentos'.
+        """
         return self.medicoes.filter(
             status=self.workflow_class.MEDICAO_SEM_LANCAMENTOS
         ).exists()
 
     @property
-    def justificativa_sem_lancamentos(self):
+    def justificativa_sem_lancamentos(self) -> str | None:
+        """
+        Retorna a justificativa fornecida pela escola ao enviar uma solicitação de medição inicial sem lançamentos.
+
+        Só é retornada se:
+        - a solicitação for sem lançamentos
+        """
         if not self.sem_lancamentos:
             return None
         return (
@@ -225,7 +234,15 @@ class SolicitacaoMedicaoInicial(
         )
 
     @property
-    def justificativa_codae_correcao_sem_lancamentos(self):
+    def justificativa_codae_correcao_sem_lancamentos(self) -> str | None:
+        """
+        Retorna a justificativa registrada pela CODAE quando a escola é solicitada
+        a corrigir uma solicitação de medição inicial sem lançamentos.
+
+        Só é retornada se:
+        - o status atual for 'Medição em aberto para preenchimento pela UE', e
+        - houver um log com evento de 'Medição sem lançamentos'.
+        """
         if self.status != self.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE:
             return None
         uuids_medicoes = self.medicoes.values_list("uuid", flat=True)
