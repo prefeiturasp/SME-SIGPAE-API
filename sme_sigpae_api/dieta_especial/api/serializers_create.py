@@ -279,7 +279,7 @@ class AlteracaoUESerializer(serializers.ModelSerializer):
                 "Motivo 'Dieta Especial - Recreio nas Férias' não encontrado."
             )
 
-        if motivo_alteracao == motivo_recreio_ferias and SolicitacaoDietaEspecial.aluno_possui_dieta_especial_autorizada_auteracao_ue_recreio_ferias(
+        if motivo_alteracao == motivo_recreio_ferias and SolicitacaoDietaEspecial.aluno_possui_dieta_especial_autorizada_alteracao_ue_recreio_ferias(
             dieta_alterada.aluno, dieta_alterada, motivo_recreio_ferias
         ):
             raise serializers.ValidationError(

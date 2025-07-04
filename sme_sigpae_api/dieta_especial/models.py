@@ -270,7 +270,7 @@ class SolicitacaoDietaEspecial(
         }
 
     @classmethod
-    def aluno_possui_dieta_especial_autorizada_auteracao_ue_recreio_ferias(cls, aluno, dieta_alterada, motivo_recreio_ferias):
+    def aluno_possui_dieta_especial_autorizada_alteracao_ue_recreio_ferias(cls, aluno, dieta_alterada, motivo_recreio_ferias):
         return cls.objects.filter(
             aluno=aluno,
             dieta_alterada=dieta_alterada,
