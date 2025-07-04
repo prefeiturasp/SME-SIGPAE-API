@@ -4432,7 +4432,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
             corpo="",
             html=html,
             emails=PartesInteressadasService.usuarios_por_perfis(
-                "DILOG_CRONOGRAMA", somente_email=True
+                ["DILOG_CRONOGRAMA", "COORDENADOR_CODAE_DILOG_LOGISTICA"], somente_email=True
             ),
         )
 
@@ -4554,7 +4554,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
         )
 
         partes_interessadas = PartesInteressadasService.usuarios_por_perfis(
-            ["DILOG_CRONOGRAMA", "DILOG_ABASTECIMENTO"], True
+            ["DILOG_CRONOGRAMA", "DILOG_ABASTECIMENTO", "DILOG_QUALIDADE", "COORDENADOR_CODAE_DILOG_LOGISTICA"], True
         ) + PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
             self, True
         )
@@ -4801,6 +4801,8 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                     constants.DILOG_CRONOGRAMA,
                     constants.DILOG_ABASTECIMENTO,
                     constants.DILOG_DIRETORIA,
+                    constants.COORDENADOR_CODAE_DILOG_LOGISTICA,
+                    constants.DILOG_QUALIDADE,
                 ]
             )
 
@@ -4809,6 +4811,8 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                     constants.DILOG_CRONOGRAMA,
                     constants.DILOG_ABASTECIMENTO,
                     constants.DILOG_DIRETORIA,
+                    constants.COORDENADOR_CODAE_DILOG_LOGISTICA,
+                    constants.DILOG_QUALIDADE,
                 ],
                 somente_email=True,
             )
@@ -4931,7 +4935,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 self.cronograma, True
             )
             + PartesInteressadasService.usuarios_por_perfis(
-                ["DILOG_CRONOGRAMA", "DILOG_ABASTECIMENTO"], True
+                ["DILOG_CRONOGRAMA", "DILOG_ABASTECIMENTO", "COORDENADOR_CODAE_DILOG_LOGISTICA", "DILOG_QUALIDADE"], True
             )
         )
 
