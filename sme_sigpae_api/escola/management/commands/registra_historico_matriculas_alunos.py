@@ -48,7 +48,7 @@ class Command(BaseCommand):
     def _obtem_matriculas_aluno(self, cod_eol_aluno, ano_letivo):
         try:
             url = f"{DJANGO_EOL_SGP_API_URL}/alunos/{cod_eol_aluno}/turmas/anosLetivos/{ano_letivo}/matriculaTurma/true/tipoTurma/true"
-            r = requests.get(url=url, headers=self.headers)
+            r = requests.get(url=url, headers=self.headers, timeout=120)
             if r.status_code == 200:
                 json = r.json()
                 return json

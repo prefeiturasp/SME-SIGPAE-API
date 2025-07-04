@@ -3390,8 +3390,14 @@ def test_url_ficha_tecnica_rascunho_analise_update(
     payload_analise_ficha_tecnica,
 ):
     payload_atualizacao = {**payload_analise_ficha_tecnica}
+    payload_atualizacao["fabricante_envasador_conferido"] = False
+    payload_atualizacao["fabricante_envasador_correcoes"] = "Correção fabricante"
     payload_atualizacao["detalhes_produto_conferido"] = False
     payload_atualizacao["detalhes_produto_correcoes"] = "Uma correção qualquer..."
+    payload_atualizacao["responsavel_tecnico_conferido"] = False
+    payload_atualizacao["responsavel_tecnico_correcoes"] = "Correção responsável"
+    payload_atualizacao["modo_preparo_conferido"] = False
+    payload_atualizacao["modo_preparo_correcoes"] = "Correção modo de preparo"
 
     response = client_autenticado_codae_dilog.put(
         f"/ficha-tecnica/{analise_ficha_tecnica.ficha_tecnica.uuid}/rascunho-analise-gpcodae/",
@@ -3402,8 +3408,14 @@ def test_url_ficha_tecnica_rascunho_analise_update(
 
     assert response.status_code == status.HTTP_200_OK
     assert AnaliseFichaTecnica.objects.count() == 1
-    assert analise.detalhes_produto_conferido == False
+    assert analise.fabricante_envasador_conferido is False
+    assert analise.fabricante_envasador_correcoes == "Correção fabricante"
+    assert analise.detalhes_produto_conferido is False
     assert analise.detalhes_produto_correcoes == "Uma correção qualquer..."
+    assert analise.responsavel_tecnico_conferido is False
+    assert analise.responsavel_tecnico_correcoes == "Correção responsável"
+    assert analise.modo_preparo_conferido is False
+    assert analise.modo_preparo_correcoes == "Correção modo de preparo"
 
 
 def test_url_ficha_tecnica_rascunho_analise_update_criado_por(
@@ -3462,29 +3474,40 @@ def test_url_ficha_tecnica_analise_gpcodae_validate(
     ficha_tecnica_perecivel_enviada_para_analise,
     payload_analise_ficha_tecnica,
 ):
-    payload_invalido = {**payload_analise_ficha_tecnica}
-    payload_invalido["detalhes_produto_conferido"] = False
+    # Test missing correcoes when conferido is False
+    campos_para_testar = [
+        "fabricante_envasador",
+        "detalhes_produto",
+        "responsavel_tecnico",
+        "modo_preparo"
+    ]
+    
+    for campo in campos_para_testar:
+        payload_invalido = {**payload_analise_ficha_tecnica}
+        payload_invalido[f"{campo}_conferido"] = False
 
-    response = client_autenticado_codae_dilog.post(
-        f"/ficha-tecnica/{ficha_tecnica_perecivel_enviada_para_analise.uuid}/analise-gpcodae/",
-        content_type="application/json",
-        data=json.dumps(payload_invalido),
-    )
+        response = client_autenticado_codae_dilog.post(
+            f"/ficha-tecnica/{ficha_tecnica_perecivel_enviada_para_analise.uuid}/analise-gpcodae/",
+            content_type="application/json",
+            data=json.dumps(payload_invalido),
+        )
 
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert not AnaliseFichaTecnica.objects.exists()
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert not AnaliseFichaTecnica.objects.exists()
 
-    payload_invalido = {**payload_analise_ficha_tecnica}
-    payload_invalido["detalhes_produto_correcoes"] = "Uma string não vazia"
+    # Test correcoes not empty when conferido is True
+    for campo in campos_para_testar:
+        payload_invalido = {**payload_analise_ficha_tecnica}
+        payload_invalido[f"{campo}_correcoes"] = f"Correção para {campo}"
 
-    response = client_autenticado_codae_dilog.post(
-        f"/ficha-tecnica/{ficha_tecnica_perecivel_enviada_para_analise.uuid}/analise-gpcodae/",
-        content_type="application/json",
-        data=json.dumps(payload_invalido),
-    )
+        response = client_autenticado_codae_dilog.post(
+            f"/ficha-tecnica/{ficha_tecnica_perecivel_enviada_para_analise.uuid}/analise-gpcodae/",
+            content_type="application/json",
+            data=json.dumps(payload_invalido),
+        )
 
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert not AnaliseFichaTecnica.objects.exists()
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert not AnaliseFichaTecnica.objects.exists()
 
 
 def test_url_ficha_tecnica_correcao_fornecedor(

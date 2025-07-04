@@ -2,6 +2,7 @@ import pytest
 from django.conf import settings
 from django.utils import timezone
 from freezegun import freeze_time
+from model_mommy import mommy
 
 from sme_sigpae_api.pre_recebimento.api.serializers.serializer_create import (
     CronogramaCreateSerializer,
@@ -13,8 +14,9 @@ from sme_sigpae_api.pre_recebimento.api.serializers.serializers import (
     EtapasDoCronogramaSerializer,
     PainelCronogramaSerializer,
     UnidadeMedidaSerialzer,
+    DocRecebimentoDetalharSerializer
 )
-from sme_sigpae_api.pre_recebimento.models import UnidadeMedida
+from sme_sigpae_api.pre_recebimento.models import UnidadeMedida, DocumentoDeRecebimento
 from sme_sigpae_api.pre_recebimento.models.cronograma import Cronograma
 
 pytestmark = pytest.mark.django_db
@@ -161,3 +163,39 @@ def test_etapas_do_cronograma_calendario_serializer(
     assert serializer.data["quantidade"] == etapa.quantidade
     assert serializer.data["status"] == cronograma.get_status_display()
     assert serializer.data["unidade_medida"] == cronograma.unidade_medida.abreviacao
+
+def test_doc_recebimento_serializer_pregao_chamada_publica(cronograma_chamada_publica):
+    doc_recebimento = mommy.make(
+        "DocumentoDeRecebimento",
+        cronograma=cronograma_chamada_publica
+    )
+
+    serializer = DocRecebimentoDetalharSerializer(doc_recebimento)
+
+    print(cronograma_chamada_publica.contrato.numero_chamada_publica)
+    print(serializer.data["pregao_chamada_publica"])
+
+    assert serializer.data["pregao_chamada_publica"] == cronograma_chamada_publica.contrato.numero_chamada_publica
+    assert serializer.data["pregao_chamada_publica"] == "CP-2022-01"
+
+def test_doc_recebimento_serializer_pregao_eletronico(cronograma_recebido):
+    doc_recebimento = mommy.make(
+        "DocumentoDeRecebimento",
+        cronograma=cronograma_recebido
+    )
+
+    serializer = DocRecebimentoDetalharSerializer(doc_recebimento)
+
+    assert serializer.data["pregao_chamada_publica"] == cronograma_recebido.contrato.numero_pregao
+    assert serializer.data["pregao_chamada_publica"] == "123456789"
+
+def test_doc_recebimento_serializer_qualquer_modalidade(cronograma_qualquer):
+    doc_recebimento = mommy.make(
+        "DocumentoDeRecebimento",
+        cronograma=cronograma_qualquer
+    )
+
+    serializer = DocRecebimentoDetalharSerializer(doc_recebimento)
+
+    assert serializer.data["pregao_chamada_publica"] == cronograma_qualquer.contrato.numero_chamada_publica
+    assert serializer.data["pregao_chamada_publica"] == "CP-2022-02"
