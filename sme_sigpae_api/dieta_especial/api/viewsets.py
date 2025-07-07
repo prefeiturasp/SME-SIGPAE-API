@@ -257,7 +257,7 @@ class SolicitacaoDietaEspecialViewSet(
             solicitacoes = (
                 SolicitacaoDietaEspecial.objects.filter(
                     aluno__nao_matriculado=True,
-                    aluno__escola__codigo_eol=codigo_eol_escola,
+                    escola_destino__codigo_eol=codigo_eol_escola,
                     aluno__nome=nome_aluno,
                 )
                 .exclude(
