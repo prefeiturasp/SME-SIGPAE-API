@@ -151,7 +151,7 @@ class ServiceValidacaoCorrecaoFichaTecnica:
             "obrigatorios": [
                 "nome_responsavel_tecnico",
                 "habilitacao",
-                "numero_regristro_orgao",
+                "numero_registro_orgao",
                 "arquivo",
             ]
         },
