@@ -110,3 +110,17 @@ def test_analise_sensorial_serializer(analise_sensorial):
     assert serializer.data is not None
     assert serializer.data["uuid"] == str(analise_sensorial.uuid)
     assert serializer.data["status"] == AnaliseSensorial.STATUS_AGUARDANDO_RESPOSTA
+
+
+def test_homologacao_listagem_serializer_tem_copia(homologacao_e_copia):
+    from sme_sigpae_api.produto.api.serializers.serializers import (
+        HomologacaoListagemSerializer,
+    )
+
+    serializer = HomologacaoListagemSerializer(homologacao_e_copia)
+
+    assert serializer.data["tem_copia"] is True
+
+    homologacao_e_copia.eh_copia = True
+    serializer = HomologacaoListagemSerializer(homologacao_e_copia)
+    assert serializer.data["tem_copia"] is False

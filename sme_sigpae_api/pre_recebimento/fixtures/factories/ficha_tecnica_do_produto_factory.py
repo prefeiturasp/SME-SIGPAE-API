@@ -2,6 +2,9 @@ from factory import LazyFunction, SubFactory
 from factory.django import DjangoModelFactory
 from faker import Faker
 
+from sme_sigpae_api.pre_recebimento.fixtures.factories.fabricante_ficha_tecnica_factory import (
+    FabricanteFichaTecnicaFactory,
+)
 from sme_sigpae_api.pre_recebimento.fixtures.factories.unidade_medida_factory import (
     UnidadeMedidaFactory,
 )
@@ -45,6 +48,8 @@ class FichaTecnicaFactory(DjangoModelFactory):
     unidade_medida_secundaria = SubFactory(UnidadeMedidaFactory)
     embalagem_primaria = LazyFunction(lambda: fake.text())
     embalagem_secundaria = LazyFunction(lambda: fake.text())
+    fabricante = SubFactory(FabricanteFichaTecnicaFactory)
+    envasador_distribuidor = SubFactory(FabricanteFichaTecnicaFactory)
 
 
 class AnaliseFichaTecnicaFactory(DjangoModelFactory):

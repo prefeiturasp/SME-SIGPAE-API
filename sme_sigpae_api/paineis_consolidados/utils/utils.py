@@ -148,12 +148,14 @@ def tratar_append_return_dict(dia, mes, ano, periodo, inclusao, return_dict):
                 "dia": f"{dia:02d}",
                 "periodo": f"{periodo.periodo_escolar.nome}",
                 "alimentacoes": alimentacoes,
-                "numero_alunos": periodo.numero_alunos
-                if hasattr(periodo, "numero_alunos")
-                else periodo.quantidade_alunos,
-                "dias_semana": periodo.dias_semana
-                if hasattr(periodo, "dias_semana")
-                else None,
+                "numero_alunos": (
+                    periodo.numero_alunos
+                    if hasattr(periodo, "numero_alunos")
+                    else periodo.quantidade_alunos
+                ),
+                "dias_semana": (
+                    periodo.dias_semana if hasattr(periodo, "dias_semana") else None
+                ),
                 "inclusao_id_externo": inclusao.id_externo,
             }
         )

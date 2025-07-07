@@ -52,9 +52,9 @@ class Alimento(ComplexModel):
             "capacidade_embalagem": float(data.get("StrPesoEmbala").replace(",", ".")),
             "unidade_medida": data.get("StrUnMedEmbala"),
             "qtd_volume": data.get("StrQtEmbala"),
-            "tipo_embalagem": "FECHADA"
-            if data.get("StrTpEmbala") == "A"
-            else "FRACIONADA",
+            "tipo_embalagem": (
+                "FECHADA" if data.get("StrTpEmbala") == "A" else "FRACIONADA"
+            ),
         }
         return Embalagem(**embalagem_dict)
 
