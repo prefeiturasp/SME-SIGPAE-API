@@ -1541,8 +1541,8 @@ class CorrecaoFichaTecnicaSerializer(serializers.ModelSerializer):
         allow_null=True,
         queryset=Terceirizada.objects.all(),
     )
-    fabricante = FabricanteFichaTecnicaCreateSerializer(required=False)
-    envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(required=False)
+    fabricante = FabricanteFichaTecnicaCreateSerializer(required=False, allow_null=True)
+    envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(required=False, allow_null=True)
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnicaCreateSerializer(
         many=True,
         required=False,
