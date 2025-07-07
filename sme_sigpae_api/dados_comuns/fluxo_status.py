@@ -4331,6 +4331,9 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
 
     @xworkflows.after_transition("codae_pede_correcao_sem_lancamentos")
     def _codae_pede_correcao_sem_lancamentos_hook(self, *args, **kwargs):
+        """
+        Cria objeto LogSolicitacaoUsuario quando o fluxo `codae_pede_correcao_sem_lancamentos` acontece.
+        """
         user = kwargs["user"]
         justificativa = kwargs["justificativa"]
         if not user or user.vinculo_atual.perfil.nome != ADMINISTRADOR_MEDICAO:
@@ -4498,7 +4501,8 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
             corpo="",
             html=html,
             emails=PartesInteressadasService.usuarios_por_perfis(
-                ["DILOG_CRONOGRAMA", "COORDENADOR_CODAE_DILOG_LOGISTICA"], somente_email=True
+                ["DILOG_CRONOGRAMA", "COORDENADOR_CODAE_DILOG_LOGISTICA"],
+                somente_email=True,
             ),
         )
 
@@ -4620,7 +4624,13 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
         )
 
         partes_interessadas = PartesInteressadasService.usuarios_por_perfis(
-            ["DILOG_CRONOGRAMA", "DILOG_ABASTECIMENTO", "DILOG_QUALIDADE", "COORDENADOR_CODAE_DILOG_LOGISTICA"], True
+            [
+                "DILOG_CRONOGRAMA",
+                "DILOG_ABASTECIMENTO",
+                "DILOG_QUALIDADE",
+                "COORDENADOR_CODAE_DILOG_LOGISTICA",
+            ],
+            True,
         ) + PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
             self, True
         )
@@ -5001,7 +5011,13 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 self.cronograma, True
             )
             + PartesInteressadasService.usuarios_por_perfis(
-                ["DILOG_CRONOGRAMA", "DILOG_ABASTECIMENTO", "COORDENADOR_CODAE_DILOG_LOGISTICA", "DILOG_QUALIDADE"], True
+                [
+                    "DILOG_CRONOGRAMA",
+                    "DILOG_ABASTECIMENTO",
+                    "COORDENADOR_CODAE_DILOG_LOGISTICA",
+                    "DILOG_QUALIDADE",
+                ],
+                True,
             )
         )
 
