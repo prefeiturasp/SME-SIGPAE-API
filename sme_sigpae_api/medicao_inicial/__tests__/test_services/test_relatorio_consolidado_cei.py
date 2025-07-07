@@ -28,22 +28,38 @@ def test_get_alimentacoes_por_periodo(
 ):
     colunas = get_alimentacoes_por_periodo([relatorio_consolidado_xlsx_cei])
     assert isinstance(colunas, list)
-    assert len(colunas) == 22
+    assert len(colunas) == 54
     assert sum(1 for tupla in colunas if tupla[0] == "INTEGRAL") == 8
     assert sum(1 for tupla in colunas if tupla[0] == "PARCIAL") == 8
     assert sum(1 for tupla in colunas if tupla[0] == "MANHA") == 2
     assert sum(1 for tupla in colunas if tupla[0] == "TARDE") == 2
     assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A") == 1
     assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B") == 1
+    assert (
+        sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A - INTEGRAL")
+        == 8
+    )
+    assert (
+        sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B - INTEGRAL")
+        == 8
+    )
+    assert (
+        sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A - PARCIAL")
+        == 8
+    )
+    assert (
+        sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B - PARCIAL")
+        == 8
+    )
 
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[0].id) == 2
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[1].id) == 2
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[2].id) == 4
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[3].id) == 4
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[4].id) == 3
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[5].id) == 2
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[6].id) == 3
-    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[7].id) == 2
+    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[0].id) == 6
+    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[1].id) == 6
+    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[2].id) == 8
+    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[3].id) == 8
+    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[4].id) == 7
+    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[5].id) == 6
+    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[6].id) == 7
+    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[7].id) == 6
 
 
 def test_get_faixas_etarias(relatorio_consolidado_xlsx_cei, faixas_etarias_ativas):
@@ -86,7 +102,7 @@ def test_get_lista_alimentacoes_dietas_por_faixa_dieta_a(
 
     lista_dietas_integral = _get_lista_alimentacoes_dietas_por_faixa(medicoes[0], dieta)
     assert isinstance(lista_dietas_integral, list)
-    assert len(lista_dietas_integral) == 0
+    assert len(lista_dietas_integral) == 8
 
     lista_dietas_manha = _get_lista_alimentacoes_dietas_por_faixa(medicoes[1], dieta)
     assert isinstance(lista_dietas_manha, list)
@@ -95,7 +111,7 @@ def test_get_lista_alimentacoes_dietas_por_faixa_dieta_a(
 
     lista_dietas_parcial = _get_lista_alimentacoes_dietas_por_faixa(medicoes[2], dieta)
     assert isinstance(lista_dietas_parcial, list)
-    assert len(lista_dietas_parcial) == 0
+    assert len(lista_dietas_parcial) == 8
 
     lista_dietas_tarde = _get_lista_alimentacoes_dietas_por_faixa(medicoes[3], dieta)
     assert isinstance(lista_dietas_tarde, list)
@@ -114,7 +130,7 @@ def test_get_lista_alimentacoes_dietas_por_faixa_dieta_b(
 
     lista_dietas_integral = _get_lista_alimentacoes_dietas_por_faixa(medicoes[0], dieta)
     assert isinstance(lista_dietas_integral, list)
-    assert len(lista_dietas_integral) == 0
+    assert len(lista_dietas_integral) == 8
 
     lista_dietas_manha = _get_lista_alimentacoes_dietas_por_faixa(medicoes[1], dieta)
     assert isinstance(lista_dietas_manha, list)
@@ -122,7 +138,7 @@ def test_get_lista_alimentacoes_dietas_por_faixa_dieta_b(
 
     lista_dietas_parcial = _get_lista_alimentacoes_dietas_por_faixa(medicoes[2], dieta)
     assert isinstance(lista_dietas_parcial, list)
-    assert len(lista_dietas_parcial) == 0
+    assert len(lista_dietas_parcial) == 8
 
     lista_dietas_tarde = _get_lista_alimentacoes_dietas_por_faixa(medicoes[3], dieta)
     assert isinstance(lista_dietas_tarde, list)
@@ -178,7 +194,7 @@ def test_get_valores_tabela(relatorio_consolidado_xlsx_cei, mock_colunas_cei):
     assert isinstance(linhas, list)
     assert len(linhas) == 1
     assert isinstance(linhas[0], list)
-    assert len(linhas[0]) == 25
+    assert len(linhas[0]) == 57
     assert linhas[0] == [
         "CEI DIRET",
         "765432",
@@ -191,6 +207,22 @@ def test_get_valores_tabela(relatorio_consolidado_xlsx_cei, mock_colunas_cei):
         80.0,
         80.0,
         80.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
         80.0,
         80.0,
         80.0,
@@ -199,6 +231,22 @@ def test_get_valores_tabela(relatorio_consolidado_xlsx_cei, mock_colunas_cei):
         80.0,
         80.0,
         80.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
         80.0,
         60.0,
         60.0,
@@ -232,18 +280,12 @@ def test_processa_periodo_campo(relatorio_consolidado_xlsx_cei, faixas_etarias_a
         relatorio_consolidado_xlsx_cei.escola.codigo_eol,
         relatorio_consolidado_xlsx_cei.escola.nome,
     ]
-    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
-    dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
-    ).values_list("nome", flat=True)
 
     integral = _processa_periodo_campo(
         relatorio_consolidado_xlsx_cei,
         "INTEGRAL",
         faixas_etarias_ativas[0].id,
         valores_iniciais,
-        dietas_especiais,
-        periodos_escolares,
     )
     assert isinstance(integral, list)
     assert len(integral) == 4
@@ -254,8 +296,6 @@ def test_processa_periodo_campo(relatorio_consolidado_xlsx_cei, faixas_etarias_a
         "TARDE",
         faixas_etarias_ativas[0].id,
         valores_iniciais,
-        dietas_especiais,
-        periodos_escolares,
     )
     assert isinstance(manha, list)
     assert len(manha) == 5
@@ -263,28 +303,26 @@ def test_processa_periodo_campo(relatorio_consolidado_xlsx_cei, faixas_etarias_a
 
 
 def test_define_filtro(relatorio_consolidado_xlsx_cei):
-    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
-    dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
-    ).values_list("nome", flat=True)
 
-    manha = _define_filtro("MANHA", dietas_especiais, periodos_escolares)
+    manha = _define_filtro("MANHA")
     assert isinstance(manha, dict)
     assert "grupo__nome" not in manha
     assert "periodo_escolar__nome" in manha
     assert manha["periodo_escolar__nome"] == "MANHA"
 
-    dieta_especial = _define_filtro(
-        "DIETA ESPECIAL - TIPO A", dietas_especiais, periodos_escolares
-    )
+    dieta_especial = _define_filtro("DIETA ESPECIAL - TIPO A")
     assert isinstance(dieta_especial, dict)
     assert "grupo__nome" not in dieta_especial
     assert "periodo_escolar__nome__in" in dieta_especial
-    assert dieta_especial["periodo_escolar__nome__in"] == periodos_escolares
+    assert dieta_especial["periodo_escolar__nome__in"] == ["MANHA", "TARDE"]
 
-    solicitacao = _define_filtro(
-        "Solicitações de Alimentação", dietas_especiais, periodos_escolares
-    )
+    dieta_especial = _define_filtro("DIETA ESPECIAL - TIPO A - PARCIAL")
+    assert isinstance(dieta_especial, dict)
+    assert "grupo__nome" not in dieta_especial
+    assert "periodo_escolar__nome" in dieta_especial
+    assert dieta_especial["periodo_escolar__nome"] == "PARCIAL"
+
+    solicitacao = _define_filtro("Solicitações de Alimentação")
     assert isinstance(solicitacao, dict)
     assert "periodo_escolar__nome" not in solicitacao
     assert "grupo__nome" in solicitacao
@@ -301,8 +339,16 @@ def test_processa_dieta_especial(relatorio_consolidado_xlsx_cei, faixas_etarias_
     assert total == "-"
 
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
-    filtros = {"periodo_escolar__nome__in": periodos_escolares}
+    filtros = {"periodo_escolar__nome__in": ["MANHA", "TARDE"]}
     periodo = "DIETA ESPECIAL - TIPO A"
+    faixa_etaria = faixas_etarias_ativas[2].id
+    total = processa_dieta_especial(
+        relatorio_consolidado_xlsx_cei, filtros, faixa_etaria, periodo
+    )
+    assert total == 8.0
+
+    filtros = {"periodo_escolar__nome": "PARCIAL"}
+    periodo = "DIETA ESPECIAL - TIPO A - PARCIAL"
     faixa_etaria = faixas_etarias_ativas[2].id
     total = processa_dieta_especial(
         relatorio_consolidado_xlsx_cei, filtros, faixa_etaria, periodo
@@ -372,13 +418,13 @@ def test_calcula_soma_medicao_dieta_especial(
     categoria = "DIETA ESPECIAL - TIPO A"
 
     integral = _calcula_soma_medicao(medicoes[0], faixa_etaria, categoria)
-    assert integral is None
+    assert integral == 8.0
 
     manha = _calcula_soma_medicao(medicoes[1], faixa_etaria, categoria)
-    assert manha == 8
+    assert manha == 8.0
 
     parcial = _calcula_soma_medicao(medicoes[2], faixa_etaria, categoria)
-    assert parcial is None
+    assert parcial == 8.0
 
     tarde = _calcula_soma_medicao(medicoes[3], faixa_etaria, categoria)
     assert tarde is None
@@ -395,7 +441,7 @@ def test_insere_tabela_periodos_na_planilha(
     )
     assert isinstance(df, pd.DataFrame)
     colunas_df = df.columns.tolist()
-    assert len(colunas_df) == 25
+    assert len(colunas_df) == 57
 
     assert sum(1 for tupla in colunas_df if tupla[0] == "INTEGRAL") == 8
     assert sum(1 for tupla in colunas_df if tupla[0] == "PARCIAL") == 8
@@ -403,24 +449,52 @@ def test_insere_tabela_periodos_na_planilha(
     assert sum(1 for tupla in colunas_df if tupla[0] == "TARDE") == 2
     assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 1
     assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 1
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[0] == "DIETA ESPECIAL - TIPO A - INTEGRAL"
+        )
+        == 8
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[0] == "DIETA ESPECIAL - TIPO B - INTEGRAL"
+        )
+        == 8
+    )
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A - PARCIAL"
+        )
+        == 8
+    )
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B - PARCIAL"
+        )
+        == 8
+    )
 
     assert sum(1 for tupla in colunas_df if tupla[1] == "Tipo") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Cód. EOL") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
 
-    assert sum(1 for tupla in colunas_df if tupla[1] == "00 meses") == 2
-    assert sum(1 for tupla in colunas_df if tupla[1] == "01 a 03 meses") == 2
-    assert sum(1 for tupla in colunas_df if tupla[1] == "04 a 05 meses") == 4
-    assert sum(1 for tupla in colunas_df if tupla[1] == "06 a 07 meses") == 4
-    assert sum(1 for tupla in colunas_df if tupla[1] == "08 a 11 meses") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "00 meses") == 6
+    assert sum(1 for tupla in colunas_df if tupla[1] == "01 a 03 meses") == 6
+    assert sum(1 for tupla in colunas_df if tupla[1] == "04 a 05 meses") == 8
+    assert sum(1 for tupla in colunas_df if tupla[1] == "06 a 07 meses") == 8
+    assert sum(1 for tupla in colunas_df if tupla[1] == "08 a 11 meses") == 7
     assert (
-        sum(1 for tupla in colunas_df if tupla[1] == "01 ano a 01 ano e 11 meses") == 2
+        sum(1 for tupla in colunas_df if tupla[1] == "01 ano a 01 ano e 11 meses") == 6
     )
     assert (
         sum(1 for tupla in colunas_df if tupla[1] == "02 anos a 03 anos e 11 meses")
-        == 3
+        == 7
     )
-    assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 2
+    assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 6
 
     assert df.iloc[0].tolist() == [
         "CEI DIRET",
@@ -434,6 +508,22 @@ def test_insere_tabela_periodos_na_planilha(
         80.0,
         80.0,
         80.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
         80.0,
         80.0,
         80.0,
@@ -442,6 +532,22 @@ def test_insere_tabela_periodos_na_planilha(
         80.0,
         80.0,
         80.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
         80.0,
         60.0,
         60.0,
@@ -461,6 +567,22 @@ def test_insere_tabela_periodos_na_planilha(
         80.0,
         80.0,
         80.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
         80.0,
         80.0,
         80.0,
@@ -469,6 +591,22 @@ def test_insere_tabela_periodos_na_planilha(
         80.0,
         80.0,
         80.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
         80.0,
         60.0,
         60.0,
@@ -485,24 +623,40 @@ def test_ajusta_layout_tabela(informacoes_excel_writer_cei):
     workbook_openpyxl = openpyxl.load_workbook(arquivo)
     sheet = workbook_openpyxl[aba]
     merged_ranges = sheet.merged_cells.ranges
-    assert len(merged_ranges) == 5
+    assert len(merged_ranges) == 9
     assert "A3:C3" in str(merged_ranges)
     assert "D3:K3" in str(merged_ranges)
     assert "L3:S3" in str(merged_ranges)
-    assert "T3:U3" in str(merged_ranges)
-    assert "V3:W3" in str(merged_ranges)
+    assert "T3:AA3" in str(merged_ranges)
+    assert "AB3:AI3" in str(merged_ranges)
+    assert "AJ3:AQ3" in str(merged_ranges)
+    assert "AR3:AY3" in str(merged_ranges)
+    assert "AZ3:BA3" in str(merged_ranges)
+    assert "BB3:BC3" in str(merged_ranges)
 
     assert sheet["A3"].value is None
 
     assert sheet["D3"].value == "INTEGRAL"
     assert sheet["D3"].fill.fgColor.rgb == "FF198459"
 
-    assert sheet["L3"].value == "PARCIAL"
-    assert sheet["L3"].fill.fgColor.rgb == "FFD06D12"
+    assert sheet["L3"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["L3"].fill.fgColor.rgb == "FF198459"
 
-    assert sheet["T3"].value == "MANHA"
-    assert sheet["T3"].fill.fgColor.rgb == "FFC13FD6"
+    assert sheet["T3"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["T3"].fill.fgColor.rgb == "FF198459"
 
-    assert sheet["V3"].value == "TARDE"
-    assert sheet["V3"].fill.fgColor.rgb == "FF2F80ED"
+    assert sheet["AB3"].value == "PARCIAL"
+    assert sheet["AB3"].fill.fgColor.rgb == "FFD06D12"
+
+    assert sheet["AJ3"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["AJ3"].fill.fgColor.rgb == "FFD06D12"
+
+    assert sheet["AR3"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["AR3"].fill.fgColor.rgb == "FFD06D12"
+
+    assert sheet["AZ3"].value == "MANHA"
+    assert sheet["AZ3"].fill.fgColor.rgb == "FFC13FD6"
+
+    assert sheet["BB3"].value == "TARDE"
+    assert sheet["BB3"].fill.fgColor.rgb == "FF2F80ED"
     workbook_openpyxl.close()
