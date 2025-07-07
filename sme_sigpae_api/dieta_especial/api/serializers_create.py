@@ -283,7 +283,7 @@ class AlteracaoUESerializer(serializers.ModelSerializer):
             dieta_alterada.aluno, dieta_alterada, motivo_recreio_ferias
         ):
             raise serializers.ValidationError(
-                "Aluno já possui Dieta Especial autorizada de alteração de UE por motivo de recreio nas férias"
+                "Já foi realizada uma alteração de UE para o aluno por motivo de Recreio nas Férias"
             )
 
         if SolicitacaoDietaEspecial.aluno_possui_dieta_especial_pendente(
