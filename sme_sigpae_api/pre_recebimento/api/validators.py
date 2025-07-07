@@ -147,6 +147,19 @@ class ServiceValidacaoCorrecaoFichaTecnica:
                 "embalagem_secundaria",
             ]
         },
+        "responsavel_tecnico_conferido": {
+            "obrigatorios": [
+                "nome_responsavel_tecnico",
+                "habilitacao",
+                "numero_regristro_orgao",
+                "arquivo",
+            ]
+        },
+        "modo_preparo_conferido": {
+            "obrigatorios": [
+                "modo_de_preparo",
+            ]
+        }
     }
 
     CAMPOS_PERECIVEIS = {
