@@ -1116,17 +1116,26 @@ class SolicitacaoMedicaoInicialViewSet(
         )
 
     def _valida_sem_lancamentos(self, solicitacao):
+        """
+        Se a Solicitação de Medição Inicial não é sem lançamentos, não pode seguir este fluxo.
+        """
         if not solicitacao.sem_lancamentos:
             raise ValidationError(
                 "Solicitação Medição Inicial não pode voltar para ser preenchida novamente, pois possui lançamentos."
             )
 
     def _solicita_correcao_em_solicitacao(self, solicitacao, user, justificativa):
+        """
+        Altera o status da Solicitação de Medição Inicial sem lançamentos para ser preenchida novamente.
+        """
         solicitacao.codae_pede_correcao_sem_lancamentos(
             user=user, justificativa=justificativa
         )
 
     def _solicita_correcao_em_medicoes(self, solicitacao, user, justificativa):
+        """
+        Altera os status das medições da Solicitação de Medição Inicial sem lançamentos para serem preenchidas novamente.
+        """
         for medicao in solicitacao.medicoes.all():
             medicao.codae_pede_correcao_sem_lancamentos(
                 user=user, justificativa=justificativa
@@ -1139,6 +1148,10 @@ class SolicitacaoMedicaoInicialViewSet(
         permission_classes=[UsuarioMedicao],
     )
     def codae_solicita_correcao_sem_lancamentos(self, request, uuid=None):
+        """
+        CODAE (Medição) solicita correção de uma Solicitação de Medição Inicial sem lançamentos.
+        A Solicitação será preenchida novamente.
+        """
         try:
             solicitacao_medicao_inicial = self.get_object()
             self._valida_sem_lancamentos(solicitacao_medicao_inicial)
