@@ -172,7 +172,7 @@ def test_url_criar_dieta_duplicada_alteracao_ue_recreio_ferias(
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == ["Aluno já possui Dieta Especial autorizada de alteração de UE por motivo de recreio nas férias"]
+    assert response.json() == ["Já foi realizada uma alteração de UE para o aluno por motivo de Recreio nas Férias"]
 
 
 def test_url_criar_dieta_error(client_autenticado_vinculo_escola):
