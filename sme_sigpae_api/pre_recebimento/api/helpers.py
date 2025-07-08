@@ -141,13 +141,10 @@ def atualiza_ficha_tecnica(ficha_tecnica, validated_data):
 
     _converte_arquivo_para_contentfile(validated_data)
 
-    if fabricante_data is not None:
-        _atualiza_fabricante_ficha_tecnica(ficha_tecnica, fabricante_data, "fabricante")
-
-    if envasador_data is not None:
-        _atualiza_fabricante_ficha_tecnica(
-            ficha_tecnica, envasador_data, "envasador_distribuidor"
-        )
+    _atualiza_fabricante_ficha_tecnica(ficha_tecnica, fabricante_data, "fabricante")
+    _atualiza_fabricante_ficha_tecnica(
+        ficha_tecnica, envasador_data, "envasador_distribuidor"
+    )
 
     if dados_informacoes_nutricionais:
         _cria_informacoes_nutricionais(
