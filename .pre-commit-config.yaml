@@ -30,4 +30,4 @@ repos:
             types:
                 - python
 default_stages:
-    - commit
+    - pre-commit

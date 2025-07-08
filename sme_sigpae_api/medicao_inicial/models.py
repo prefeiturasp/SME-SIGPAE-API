@@ -103,13 +103,24 @@ class SolicitacaoMedicaoInicial(
     )
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
+        justificativa = kwargs.get("justificativa", "")
         LogSolicitacoesUsuario.objects.create(
             descricao=str(self),
             status_evento=status_evento,
             solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
             usuario=usuario,
             uuid_original=self.uuid,
+            justificativa=justificativa,
         )
+
+    def cria_medicoes_dos_periodos(self) -> None:
+        periodos_escolares = self.escola.periodos_escolares(self.ano)
+        if not periodos_escolares:
+            return
+        for periodo_escolar in periodos_escolares:
+            Medicao.objects.get_or_create(
+                solicitacao_medicao_inicial=self, periodo_escolar=periodo_escolar
+            )
 
     @property
     def escola_cei_com_inclusao_parcial_autorizada(self):
@@ -194,6 +205,60 @@ class SolicitacaoMedicaoInicial(
             return self.medicoes.get(grupo__nome="ETEC")
         except Medicao.DoesNotExist:
             return None
+
+    @property
+    def sem_lancamentos(self) -> bool:
+        """
+        Indica se a solicitação possui pelo menos uma medição com o status 'Sem Lançamentos'.
+        """
+        return self.medicoes.filter(
+            status=self.workflow_class.MEDICAO_SEM_LANCAMENTOS
+        ).exists()
+
+    @property
+    def justificativa_sem_lancamentos(self) -> str | None:
+        """
+        Retorna a justificativa fornecida pela escola ao enviar uma solicitação de medição inicial sem lançamentos.
+
+        Só é retornada se:
+        - a solicitação for sem lançamentos
+        """
+        if not self.sem_lancamentos:
+            return None
+        return (
+            self.logs.filter(
+                status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE
+            )
+            .last()
+            .justificativa
+        )
+
+    @property
+    def justificativa_codae_correcao_sem_lancamentos(self) -> str | None:
+        """
+        Retorna a justificativa registrada pela CODAE quando a escola é solicitada
+        a corrigir uma solicitação de medição inicial sem lançamentos.
+
+        Só é retornada se:
+        - o status atual for 'Medição em aberto para preenchimento pela UE', e
+        - houver um log com evento de 'Medição sem lançamentos'.
+        """
+        if self.status != self.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE:
+            return None
+        uuids_medicoes = self.medicoes.values_list("uuid", flat=True)
+        possui_logs_sem_lancamento = LogSolicitacoesUsuario.objects.filter(
+            uuid_original__in=uuids_medicoes,
+            status_evento=LogSolicitacoesUsuario.MEDICAO_SEM_LANCAMENTOS,
+        ).exists()
+        if not possui_logs_sem_lancamento:
+            return None
+        return (
+            self.logs.filter(
+                status_evento=LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+            )
+            .last()
+            .justificativa
+        )
 
     def get_or_create_medicao_por_periodo_e_ou_grupo(self, periodo_e_ou_grupo: str):
         if GrupoMedicao.objects.filter(nome=periodo_e_ou_grupo).exists():

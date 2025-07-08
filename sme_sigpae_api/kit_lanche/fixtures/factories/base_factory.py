@@ -46,7 +46,7 @@ class KitLancheFactory(DjangoModelFactory):
 
 class SolicitacaoKitLancheFactory(DjangoModelFactory):
     data = factory.Faker("date")
-    tempo_passeio = Sequence(lambda n: fake.unique.random_int(min=0, max=2))
+    tempo_passeio = Sequence(lambda n: fake.random_int(min=0, max=2))
 
     @factory.post_generation
     def kits(self, create, extracted, **kwargs):
