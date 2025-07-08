@@ -1096,19 +1096,23 @@ def lotes():
 
 
 @pytest.fixture
-def medicao_sem_lancamentos(escola):
-    solicitacao = mommy.make(
+def solicitacao_sem_lancamento(escola):
+    return mommy.make(
         "SolicitacaoMedicaoInicial",
         escola=escola,
         mes="04",
         ano="2025",
         status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
     )
-    mommy.make(
+
+
+@pytest.fixture
+def medicao_sem_lancamento(solicitacao_sem_lancamento):
+
+    return mommy.make(
         "Medicao",
-        solicitacao_medicao_inicial=solicitacao,
+        solicitacao_medicao_inicial=solicitacao_sem_lancamento,
         periodo_escolar=mommy.make("PeriodoEscolar", nome="MANHA"),
         status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
         grupo=None,
     )
-    return solicitacao
