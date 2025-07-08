@@ -93,18 +93,18 @@ def _cria_fabricante_ficha_tecnica(fabricante_data):
 def _atualiza_fabricante_ficha_tecnica(ficha_tecnica, fabricante_data, field_name):
     current = getattr(ficha_tecnica, field_name, None)
 
-    if current:
-        current.delete()
-
     if fabricante_data:
-        fabricante = _cria_fabricante_ficha_tecnica(fabricante_data)
-        setattr(ficha_tecnica, field_name, fabricante)
+        if current:
+            for key, value in fabricante_data.items():
+                setattr(current, key, value)
+            current.save()
+        else:
+            fabricante = _cria_fabricante_ficha_tecnica(fabricante_data)
+            setattr(ficha_tecnica, field_name, fabricante)
+            ficha_tecnica.save()
+    elif current:
+        setattr(ficha_tecnica, field_name, None)
         ficha_tecnica.save()
-        return fabricante
-
-    setattr(ficha_tecnica, field_name, None)
-    ficha_tecnica.save()
-    return None
 
 
 def cria_ficha_tecnica(validated_data):
