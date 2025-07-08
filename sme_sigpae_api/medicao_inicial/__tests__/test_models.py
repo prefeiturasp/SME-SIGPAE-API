@@ -105,3 +105,18 @@ def test_parametrizacao_financeira(parametrizacao_financeira_emef):
         parametrizacao_financeira_emef.__str__()
         == "Edital Edital de Pregão nº 78/SME/2024 | Lote 1 - DIRETORIA REGIONAL IPIRANGA | DRE DIRETORIA REGIONAL IPIRANGA | Tipos de Unidades CEU EMEF, CEU GESTAO, CIEJA, EMEF, EMEFM"
     )
+
+
+def test_solicitacoes_sem_lancamentos(solicitacao_sem_lancamento):
+    assert solicitacao_sem_lancamento.sem_lancamentos == True
+
+
+def test_justificativa_sem_lancamentos_retorna_none(solicitacao_escola_emebs):
+    assert solicitacao_escola_emebs.justificativa_sem_lancamentos is None
+
+
+def test_justificativa_sem_lancamentos(solicitacao_sem_lancamento):
+    assert (
+        solicitacao_sem_lancamento.justificativa_sem_lancamentos
+        == "Não houve aula no período"
+    )

@@ -4184,3 +4184,21 @@ def informacoes_excel_writer_emebs(
     finally:
         workbook.close()
         writer.close()
+
+
+@pytest.fixture
+def solicitacao_sem_lancamento(solicitacao_relatorio_consolidado_grupo_emef):
+    mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emef,
+        periodo_escolar=mommy.make("PeriodoEscolar", nome="MANHA"),
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_SEM_LANCAMENTOS,
+        grupo=None,
+    )
+    usuario = mommy.make("Usuario", email="admin2@admin.com", is_superuser=True)
+    kwargs = {"justificativa": "Não houve aula no período"}
+    solicitacao_relatorio_consolidado_grupo_emef.salvar_log_transicao(
+        LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE, usuario, **kwargs
+    )
+
+    return solicitacao_relatorio_consolidado_grupo_emef
