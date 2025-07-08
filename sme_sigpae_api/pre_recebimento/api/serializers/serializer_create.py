@@ -1583,6 +1583,7 @@ class CorrecaoFichaTecnicaSerializer(serializers.ModelSerializer):
         allow_null=True,
         queryset=UnidadeMedida.objects.all(),
     )
+    arquivo = serializers.CharField(required=False, allow_blank=False)
 
     def validate(self, attrs):
         service_validacao = ServiceValidacaoCorrecaoFichaTecnica(self.instance, attrs)
