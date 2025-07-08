@@ -3479,9 +3479,9 @@ def test_url_ficha_tecnica_analise_gpcodae_validate(
         "fabricante_envasador",
         "detalhes_produto",
         "responsavel_tecnico",
-        "modo_preparo"
+        "modo_preparo",
     ]
-    
+
     for campo in campos_para_testar:
         payload_invalido = {**payload_analise_ficha_tecnica}
         payload_invalido[f"{campo}_conferido"] = False

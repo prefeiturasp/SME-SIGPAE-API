@@ -1061,7 +1061,8 @@ class PermissaoParaVisualizarUnidadesMedida(BasePermission):
                         DILOG_CRONOGRAMA,
                         COORDENADOR_CODAE_DILOG_LOGISTICA,
                     ]
-                    or usuario.vinculo_atual.perfil.nome in [ADMINISTRADOR_EMPRESA, USUARIO_EMPRESA]
+                    or usuario.vinculo_atual.perfil.nome
+                    in [ADMINISTRADOR_EMPRESA, USUARIO_EMPRESA]
                 )
             )
         )
