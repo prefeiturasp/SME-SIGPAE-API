@@ -56,6 +56,7 @@ class EOLServicoSGP:
                 f"{DJANGO_EOL_SGP_API_URL}/AutenticacaoSgp/UsuarioExisteCoreSSO/",
                 headers=cls.HEADER,
                 data={"usuario": login},
+                timeout=cls.TIMEOUT,
             )
             if response.status_code == status.HTTP_200_OK:
                 logger.info(f"Usuário {login} existe no CoreSSO.")
@@ -76,6 +77,7 @@ class EOLServicoSGP:
             response = requests.get(
                 f"{DJANGO_EOL_SGP_API_URL}/AutenticacaoSgp/{login}/dados",
                 headers=cls.HEADER,
+                timeout=cls.TIMEOUT,
             )
             if response.status_code == status.HTTP_200_OK:
                 logger.info(f"Usuário {login} encontrado no CoreSSO.")
@@ -102,7 +104,7 @@ class EOLServicoSGP:
         try:
             grupo_id = next(el["id"] for el in sys_grupo_ids if el["nome"] == perfil)
             url = f"{DJANGO_EOL_SGP_API_URL}/perfis/servidores/{login}/perfil/{grupo_id}/atribuirPerfil"
-            response = requests.get(url, headers=cls.HEADER)
+            response = requests.get(url, headers=cls.HEADER, timeout=cls.TIMEOUT)
             if response.status_code == status.HTTP_200_OK:
                 return ""
             else:
@@ -172,6 +174,7 @@ class EOLServicoSGP:
             f"{DJANGO_EOL_SGP_API_URL}/AutenticacaoSgp/AlterarEmail",
             data=data,
             headers=cls.HEADER,
+            timeout=cls.TIMEOUT,
         )
 
     @classmethod
@@ -197,6 +200,7 @@ class EOLServicoSGP:
             f"{DJANGO_EOL_SGP_API_URL}/AutenticacaoSgp/AlterarSenha",
             data=data,
             headers=cls.HEADER,
+            timeout=cls.TIMEOUT,
         )
 
     @classmethod
@@ -229,6 +233,7 @@ class EOLServicoSGP:
         return requests.get(
             f"{DJANGO_EOL_SGP_API_URL}/funcionarios/DadosSigpae/{registro_funcional}",
             headers=cls.HEADER,
+            timeout=cls.TIMEOUT,
         )
 
     @classmethod
@@ -246,6 +251,7 @@ class EOLServicoSGP:
         return requests.get(
             f"{DJANGO_EOL_SGP_API_URL}/alunos/ues/{codigo_eol_ue}/anosLetivos/{ano}",
             headers=cls.HEADER,
+            timeout=cls.TIMEOUT,
         )
 
     @classmethod
