@@ -2560,7 +2560,7 @@ def client_autenticado_adm_da_escola(client, django_user_model, escola):
 
 
 @pytest.fixture
-def client_autenticado_codae_medicao(client, django_user_model):
+def user_administrador_medicao(django_user_model):
     email = "codae@medicao.com"
     password = "admin@1234"
     perfil_medicao = mommy.make("Perfil", nome="ADMINISTRADOR_MEDICAO", ativo=True)
@@ -2577,7 +2577,13 @@ def client_autenticado_codae_medicao(client, django_user_model):
         data_inicial=hoje,
         ativo=True,
     )
-    client.login(username=email, password=password)
+    return usuario, password
+
+
+@pytest.fixture
+def client_autenticado_codae_medicao(client, user_administrador_medicao):
+    usuario, password = user_administrador_medicao
+    client.login(username=usuario.email, password=password)
     return client
 
 
@@ -4195,7 +4201,6 @@ def solicitacao_sem_lancamento(solicitacao_relatorio_consolidado_grupo_emef, usu
         status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_SEM_LANCAMENTOS,
         grupo=None,
     )
-    # usuario = mommy.make("Usuario", email="admin2@admin.com", is_superuser=True)
     kwargs = {"justificativa": "Não houve aula no período"}
     solicitacao_relatorio_consolidado_grupo_emef.salvar_log_transicao(
         LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE, usuario, **kwargs
