@@ -93,18 +93,21 @@ def _cria_fabricante_ficha_tecnica(fabricante_data):
 def _atualiza_fabricante_ficha_tecnica(ficha_tecnica, fabricante_data, field_name):
     current = getattr(ficha_tecnica, field_name, None)
 
-    if fabricante_data:
+    if fabricante_data == {}:
         if current:
-            for key, value in fabricante_data.items():
-                setattr(current, key, value)
-            current.save()
-        else:
-            fabricante = _cria_fabricante_ficha_tecnica(fabricante_data)
+            setattr(ficha_tecnica, field_name, None)
+            ficha_tecnica.save()
+        return
+
+    if current:
+        for key, value in fabricante_data.items():
+            setattr(current, key, value)
+        current.save()
+    else:
+        fabricante = _cria_fabricante_ficha_tecnica(fabricante_data)
+        if fabricante:
             setattr(ficha_tecnica, field_name, fabricante)
             ficha_tecnica.save()
-    elif current:
-        setattr(ficha_tecnica, field_name, None)
-        ficha_tecnica.save()
 
 
 def cria_ficha_tecnica(validated_data):
@@ -141,10 +144,12 @@ def atualiza_ficha_tecnica(ficha_tecnica, validated_data):
 
     _converte_arquivo_para_contentfile(validated_data)
 
-    _atualiza_fabricante_ficha_tecnica(ficha_tecnica, fabricante_data, "fabricante")
-    _atualiza_fabricante_ficha_tecnica(
-        ficha_tecnica, envasador_data, "envasador_distribuidor"
-    )
+    if fabricante_data is not None:
+        _atualiza_fabricante_ficha_tecnica(ficha_tecnica, fabricante_data, "fabricante")
+    if envasador_data is not None:
+        _atualiza_fabricante_ficha_tecnica(
+            ficha_tecnica, envasador_data, "envasador_distribuidor"
+        )
 
     if dados_informacoes_nutricionais:
         _cria_informacoes_nutricionais(
