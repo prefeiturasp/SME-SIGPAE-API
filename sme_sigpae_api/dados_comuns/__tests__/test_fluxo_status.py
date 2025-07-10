@@ -1,7 +1,12 @@
 import pytest
 import xworkflows
+from rest_framework.exceptions import PermissionDenied, ValidationError
 
-from sme_sigpae_api.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
+from sme_sigpae_api.dados_comuns.fluxo_status import (
+    ReclamacaoProdutoWorkflow,
+    SolicitacaoMedicaoInicialWorkflow,
+)
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 
 pytestmark = pytest.mark.django_db
 
@@ -30,3 +35,105 @@ def test_envia_email_recusa_reclamacao(dados_log_recusa):
     _, reclamacao_produto, log_recusa = dados_log_recusa
     reclamacao_produto._envia_email_recusa_reclamacao(log_recusa)
     assert reclamacao_produto.status == ReclamacaoProdutoWorkflow.CODAE_RECUSOU
+
+
+def test_ue_envia_sem_lancamentos(solicitacao_sem_lancamento, user_diretor_escola):
+    usuario, _ = user_diretor_escola
+    justificativa = "Não houve aulas no período devido a reformas na escola."
+    kwargs = {
+        "user": usuario,
+        "justificativa_sem_lancamentos": justificativa,
+    }
+
+    solicitacao_sem_lancamento.ue_envia_sem_lancamentos(**kwargs)
+    assert (
+        solicitacao_sem_lancamento.status
+        == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
+    )
+
+    assert solicitacao_sem_lancamento.logs.count() == 1
+    log = solicitacao_sem_lancamento.logs.first()
+    assert log.status_evento == LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE
+    assert log.usuario == usuario
+    assert log.justificativa == justificativa
+
+
+def test_ue_envia_sem_lancamentos_usuario_sem_permissao(
+    solicitacao_sem_lancamento, user_codae_produto
+):
+    kwargs = {
+        "user": user_codae_produto,
+        "justificativa_sem_lancamentos": "Não houve aulas no período devido a reformas na escola.",
+    }
+    with pytest.raises(
+        PermissionDenied, match="Você não tem permissão para executar essa ação."
+    ):
+        solicitacao_sem_lancamento.ue_envia_sem_lancamentos(**kwargs)
+
+
+def test_ue_envia_sem_lancamentos_erro_validacao(
+    medicao_sem_lancamento, user_diretor_escola
+):
+    usuario, _ = user_diretor_escola
+    kwargs = {
+        "user": usuario,
+        "justificativa_sem_lancamentos": "Não houve aulas no período devido a reformas na escola.",
+    }
+    with pytest.raises(
+        ValidationError, match=r"`Medicao` não possui fluxo `ue_envia_sem_lancamentos`"
+    ):
+        medicao_sem_lancamento.ue_envia_sem_lancamentos(**kwargs)
+
+
+def test_medicao_sem_lancamentos(medicao_sem_lancamento, user_diretor_escola):
+    usuario, _ = user_diretor_escola
+    justificativa = "Não houve aulas no período devido a reformas na escola."
+    kwargs = {
+        "user": usuario,
+        "justificativa_sem_lancamentos": justificativa,
+    }
+    medicao_sem_lancamento.medicao_sem_lancamentos(**kwargs)
+    assert (
+        medicao_sem_lancamento.status
+        == SolicitacaoMedicaoInicialWorkflow.MEDICAO_SEM_LANCAMENTOS
+    )
+
+    solicitacao = medicao_sem_lancamento.solicitacao_medicao_inicial
+    assert (
+        solicitacao.status
+        == SolicitacaoMedicaoInicialWorkflow.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+    )
+
+    assert medicao_sem_lancamento.logs.count() == 1
+    log = medicao_sem_lancamento.logs.first()
+    assert log.status_evento == LogSolicitacoesUsuario.MEDICAO_SEM_LANCAMENTOS
+    assert log.usuario == usuario
+    assert log.justificativa == justificativa
+
+
+def test_medicao_sem_lancamentos_usuario_sem_permissao(
+    medicao_sem_lancamento, user_codae_produto
+):
+    kwargs = {
+        "user": user_codae_produto,
+        "justificativa_sem_lancamentos": "Não houve aulas no período devido a reformas na escola.",
+    }
+    with pytest.raises(
+        PermissionDenied, match="Você não tem permissão para executar essa ação."
+    ):
+        medicao_sem_lancamento.medicao_sem_lancamentos(**kwargs)
+
+
+def test_medicao_sem_lancamentos_erro_validacao(
+    solicitacao_sem_lancamento, user_diretor_escola
+):
+    usuario, _ = user_diretor_escola
+    kwargs = {
+        "user": usuario,
+        "justificativa_sem_lancamentos": "Não houve aulas no período devido a reformas na escola.",
+    }
+    with pytest.raises(
+        ValidationError,
+        match=r"`SolicitacaoMedicaoInicial` não possui fluxo `medicao_sem_lancamentos`",
+    ):
+        solicitacao_sem_lancamento.medicao_sem_lancamentos(**kwargs)

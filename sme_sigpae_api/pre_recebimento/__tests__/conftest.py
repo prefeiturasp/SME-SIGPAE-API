@@ -39,14 +39,17 @@ def codae():
 def modalidade():
     return mommy.make("Modalidade", nome="Pregão Eletrônico")
 
+
 @pytest.fixture
 def modalidade_chamada_publica():
     return mommy.make("Modalidade", nome="Chamada Pública")
+
 
 @pytest.fixture
 def modalidade_qualquer():
     # Representa qualquer modalidade diferente de "Pregão Eletrônico" e "Chamada Pública"
     return mommy.make("Modalidade", nome="Qualquer")
+
 
 @pytest.fixture
 def contrato(modalidade):
@@ -57,6 +60,7 @@ def contrato(modalidade):
         numero_pregao="123456789",
         modalidade=modalidade,
     )
+
 
 @pytest.fixture
 def contrato_chamada_publica(modalidade_chamada_publica):
@@ -69,6 +73,7 @@ def contrato_chamada_publica(modalidade_chamada_publica):
         modalidade=modalidade_chamada_publica,
     )
 
+
 @pytest.fixture
 def contrato_qualquer(modalidade_qualquer):
     return mommy.make(
@@ -79,6 +84,7 @@ def contrato_qualquer(modalidade_qualquer):
         numero_chamada_publica="CP-2022-02",
         modalidade=modalidade_qualquer,
     )
+
 
 @pytest.fixture
 def empresa(contrato):
@@ -97,6 +103,7 @@ def cronograma():
         "Cronograma",
         numero="001/2022A",
     )
+
 
 @pytest.fixture
 def cronograma_chamada_publica(contrato_chamada_publica):
@@ -129,6 +136,7 @@ def cronograma_recebido(armazem, contrato, empresa):
         status="ASSINADO_E_ENVIADO_AO_FORNECEDOR",
     )
 
+
 @pytest.fixture
 def cronograma_qualquer(contrato_qualquer):
     return mommy.make(
@@ -136,6 +144,7 @@ def cronograma_qualquer(contrato_qualquer):
         numero="002/2022A",
         contrato=contrato_qualquer,
     )
+
 
 @pytest.fixture
 def etapa(cronograma):

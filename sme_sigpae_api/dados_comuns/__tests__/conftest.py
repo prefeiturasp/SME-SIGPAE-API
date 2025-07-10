@@ -15,6 +15,7 @@ from sme_sigpae_api.dados_comuns.api.paginations import HistoricoDietasPaginatio
 from sme_sigpae_api.dados_comuns.fluxo_status import (
     PedidoAPartirDaEscolaWorkflow,
     ReclamacaoProdutoWorkflow,
+    SolicitacaoMedicaoInicialWorkflow,
 )
 from sme_sigpae_api.dados_comuns.parser_xml import ListXMLParser
 from sme_sigpae_api.dieta_especial.models import (
@@ -346,7 +347,7 @@ def client_autenticado_coordenador_codae(client, django_user_model):
 
 
 @pytest.fixture
-def client_autenticado_da_escola(client, django_user_model, escola):
+def user_diretor_escola(django_user_model, escola):
     email = "user@escola.com"
     password = "admin@123"
     perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
@@ -365,7 +366,13 @@ def client_autenticado_da_escola(client, django_user_model, escola):
         data_inicial=hoje,
         ativo=True,
     )
-    client.login(username=email, password=password)
+    return usuario, password
+
+
+@pytest.fixture
+def client_autenticado_da_escola(client, user_diretor_escola):
+    usuario, password = user_diretor_escola
+    client.login(username=usuario.email, password=password)
     return client
 
 
@@ -1086,3 +1093,26 @@ def lotes():
     cria_tipos_gestao()
     cria_terceirizadas()
     cria_lotes()
+
+
+@pytest.fixture
+def solicitacao_sem_lancamento(escola):
+    return mommy.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola,
+        mes="04",
+        ano="2025",
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+    )
+
+
+@pytest.fixture
+def medicao_sem_lancamento(solicitacao_sem_lancamento):
+
+    return mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_sem_lancamento,
+        periodo_escolar=mommy.make("PeriodoEscolar", nome="MANHA"),
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+        grupo=None,
+    )
