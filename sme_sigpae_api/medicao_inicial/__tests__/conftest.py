@@ -4187,18 +4187,55 @@ def informacoes_excel_writer_emebs(
 
 
 @pytest.fixture
-def solicitacao_sem_lancamento(solicitacao_relatorio_consolidado_grupo_emef):
-    mommy.make(
+def solicitacao_sem_lancamento(solicitacao_relatorio_consolidado_grupo_emef, usuario):
+    medicao = mommy.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emef,
         periodo_escolar=mommy.make("PeriodoEscolar", nome="MANHA"),
         status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_SEM_LANCAMENTOS,
         grupo=None,
     )
-    usuario = mommy.make("Usuario", email="admin2@admin.com", is_superuser=True)
+    # usuario = mommy.make("Usuario", email="admin2@admin.com", is_superuser=True)
     kwargs = {"justificativa": "Não houve aula no período"}
     solicitacao_relatorio_consolidado_grupo_emef.salvar_log_transicao(
         LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE, usuario, **kwargs
     )
+    medicao.salvar_log_transicao(
+        LogSolicitacoesUsuario.MEDICAO_SEM_LANCAMENTOS, usuario, **kwargs
+    )
 
     return solicitacao_relatorio_consolidado_grupo_emef
+
+
+@pytest.fixture
+def solicitacao_sem_lancamento_com_correcao(solicitacao_sem_lancamento, usuario):
+    kwargs = {"justificativa": "Houve alimentação ofertadada nesse período"}
+    solicitacao_sem_lancamento.status = (
+        SolicitacaoMedicaoInicialWorkflow.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+    )
+    solicitacao_sem_lancamento.save()
+    solicitacao_sem_lancamento.salvar_log_transicao(
+        LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+        usuario,
+        **kwargs,
+    )
+    return solicitacao_sem_lancamento
+
+
+@pytest.fixture
+def medicao_sem_lancamento_com_correcao(
+    solicitacao_sem_lancamento_com_correcao, usuario
+):
+    kwargs = {"justificativa": "Houve alimentação ofertadada nesse período"}
+    medicao = solicitacao_sem_lancamento_com_correcao.medicoes.first()
+    medicao.status = (
+        SolicitacaoMedicaoInicialWorkflow.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+    )
+    medicao.save()
+    medicao.salvar_log_transicao(
+        LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+        usuario,
+        **kwargs,
+    )
+
+    return solicitacao_sem_lancamento_com_correcao

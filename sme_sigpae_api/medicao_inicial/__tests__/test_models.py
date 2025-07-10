@@ -120,3 +120,31 @@ def test_justificativa_sem_lancamentos(solicitacao_sem_lancamento):
         solicitacao_sem_lancamento.justificativa_sem_lancamentos
         == "Não houve aula no período"
     )
+
+
+def test_justificativa_codae_correcao_sem_lancamentos(
+    solicitacao_sem_lancamento_com_correcao,
+):
+    assert (
+        solicitacao_sem_lancamento_com_correcao.justificativa_codae_correcao_sem_lancamentos
+        == "Houve alimentação ofertadada nesse período"
+    )
+
+
+def test_justificativa_codae_correcao_sem_lancamentos_status_solicitacao_incorreto(
+    solicitacao_sem_lancamento,
+):
+    assert (
+        solicitacao_sem_lancamento.justificativa_codae_correcao_sem_lancamentos is None
+    )
+
+
+def test_justificativa_codae_correcao_sem_lancamentos_possui_logs_sem_lancamento(
+    solicitacao_sem_lancamento_com_correcao,
+):
+    solicitacao_sem_lancamento_com_correcao.medicoes.all().delete()
+    solicitacao_sem_lancamento_com_correcao.save()
+    assert (
+        solicitacao_sem_lancamento_com_correcao.justificativa_codae_correcao_sem_lancamentos
+        is None
+    )
