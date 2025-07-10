@@ -137,3 +137,95 @@ def test_medicao_sem_lancamentos_erro_validacao(
         match=r"`SolicitacaoMedicaoInicial` não possui fluxo `medicao_sem_lancamentos`",
     ):
         solicitacao_sem_lancamento.medicao_sem_lancamentos(**kwargs)
+
+
+def test_codae_pede_correcao_sem_lancamentos_solicitacao(
+    solicitacao_para_corecao, user_administrador_medicao
+):
+    usuario, _ = user_administrador_medicao
+    justificativa = "Houve alimentação ofertadada nesse período"
+    kwargs = {
+        "user": usuario,
+        "justificativa": justificativa,
+    }
+    solicitacao_para_corecao.codae_pede_correcao_sem_lancamentos(**kwargs)
+    assert (
+        solicitacao_para_corecao.status
+        == SolicitacaoMedicaoInicialWorkflow.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+    )
+
+    medicao = solicitacao_para_corecao.medicoes.first()
+    assert medicao.status == SolicitacaoMedicaoInicialWorkflow.MEDICAO_SEM_LANCAMENTOS
+
+    assert solicitacao_para_corecao.logs.count() == 1
+    log = solicitacao_para_corecao.logs.first()
+    assert (
+        log.status_evento
+        == LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+    )
+    assert log.usuario == usuario
+    assert log.justificativa == justificativa
+
+
+def test_codae_pede_correcao_sem_lancamentos_solicitacao_usuario_sem_permissao(
+    solicitacao_para_corecao, user_diretor_escola
+):
+    usuario, _ = user_diretor_escola
+    justificativa = "Houve alimentação ofertadada nesse período"
+    kwargs = {
+        "user": usuario,
+        "justificativa": justificativa,
+    }
+    with pytest.raises(
+        PermissionDenied, match="Você não tem permissão para executar essa ação."
+    ):
+        solicitacao_para_corecao.codae_pede_correcao_sem_lancamentos(**kwargs)
+
+
+def test_codae_pede_correcao_sem_lancamentos_medicao(
+    solicitacao_para_corecao, user_administrador_medicao
+):
+    usuario, _ = user_administrador_medicao
+    justificativa = "Houve alimentação ofertadada nesse período"
+    kwargs = {
+        "user": usuario,
+        "justificativa": justificativa,
+    }
+    medicao = solicitacao_para_corecao.medicoes.first()
+    medicao.codae_pede_correcao_sem_lancamentos(**kwargs)
+    assert (
+        medicao.status
+        == SolicitacaoMedicaoInicialWorkflow.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+    )
+
+    solicitacao = medicao.solicitacao_medicao_inicial
+    assert (
+        solicitacao.status
+        == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
+    )
+
+    assert medicao.logs.count() == 1
+    log = medicao.logs.first()
+    assert (
+        log.status_evento
+        == LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+    )
+    assert log.usuario == usuario
+    assert log.justificativa == justificativa
+
+
+def test_codae_pede_correcao_sem_lancamentos_medicao_usuario_sem_permissao(
+    solicitacao_para_corecao, user_diretor_escola
+):
+    usuario, _ = user_diretor_escola
+    justificativa = "Houve alimentação ofertadada nesse período"
+    kwargs = {
+        "user": usuario,
+        "justificativa": justificativa,
+    }
+
+    medicao = solicitacao_para_corecao.medicoes.first()
+    with pytest.raises(
+        PermissionDenied, match="Você não tem permissão para executar essa ação."
+    ):
+        medicao.codae_pede_correcao_sem_lancamentos(**kwargs)
