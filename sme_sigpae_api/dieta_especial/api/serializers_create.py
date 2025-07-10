@@ -272,6 +272,25 @@ class AlteracaoUESerializer(serializers.ModelSerializer):
         data_termino = validated_data.get("data_termino")
         observacoes_alteracao = validated_data.get("observacoes_alteracao", "")
 
+        try:
+            motivo_recreio_ferias = MotivoAlteracaoUE.objects.get(
+                nome="Dieta Especial - Recreio nas Férias"
+            )
+        except MotivoAlteracaoUE.DoesNotExist:
+            raise serializers.ValidationError(
+                "Motivo 'Dieta Especial - Recreio nas Férias' não encontrado."
+            )
+
+        if (
+            motivo_alteracao == motivo_recreio_ferias
+            and SolicitacaoDietaEspecial.aluno_possui_dieta_especial_autorizada_alteracao_ue_recreio_ferias(
+                dieta_alterada.aluno, dieta_alterada, motivo_recreio_ferias
+            )
+        ):
+            raise serializers.ValidationError(
+                "Já foi realizada uma alteração de UE para o aluno por motivo de Recreio nas Férias"
+            )
+
         if SolicitacaoDietaEspecial.aluno_possui_dieta_especial_pendente(
             dieta_alterada.aluno
         ):

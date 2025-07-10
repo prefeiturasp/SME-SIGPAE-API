@@ -270,6 +270,18 @@ class SolicitacaoDietaEspecial(
         }
 
     @classmethod
+    def aluno_possui_dieta_especial_autorizada_alteracao_ue_recreio_ferias(
+        cls, aluno, dieta_alterada, motivo_recreio_ferias
+    ):
+        return cls.objects.filter(
+            aluno=aluno,
+            dieta_alterada=dieta_alterada,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+            tipo_solicitacao="ALTERACAO_UE",
+            motivo_alteracao_ue=motivo_recreio_ferias,
+        ).exists()
+
+    @classmethod
     def aluno_possui_dieta_especial_pendente(cls, aluno):
         return cls.objects.filter(
             aluno=aluno, status=cls.workflow_class.CODAE_A_AUTORIZAR

@@ -235,3 +235,24 @@ class TestUseCaseFinalizaMedicaoSemLancamentos:
                 "erro": "Existem solicitações de alimentações no período, adicione ao menos uma justificativa para finalizar",
             },
         ]
+
+    def test_finaliza_medicao_sem_lancamentos_erro_permissao_negada(
+        self, client_autenticado_coordenador_codae, escola
+    ):
+        self.setup_testes(escola)
+        self.setup_medicao_programas_projetos_com_observacao()
+        data_update = {
+            "escola": str(escola.uuid),
+            "com_ocorrencias": False,
+            "finaliza_medicao": True,
+            "justificativa_sem_lancamentos": "sem aula nesse mês.",
+        }
+        response = client_autenticado_coordenador_codae.patch(
+            f"/medicao-inicial/solicitacao-medicao-inicial/{self.solicitacao_medicao_inicial.uuid}/",
+            content_type="application/json",
+            data=json.dumps(data_update),
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.json() == {
+            "detail": "Você não tem permissão para executar essa ação."
+        }

@@ -3878,6 +3878,11 @@ class SolicitacaoMedicaoInicialWorkflow(xwf_models.Workflow):
             MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
             MEDICAO_SEM_LANCAMENTOS,
         ),
+        (
+            "codae_pede_correcao_sem_lancamentos",
+            [MEDICAO_APROVADA_PELA_CODAE, MEDICAO_SEM_LANCAMENTOS],
+            MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+        ),
     )
 
     initial_state = MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
@@ -4324,6 +4329,21 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             justificativa=justificativa_sem_lancamentos,
         )
 
+    @xworkflows.after_transition("codae_pede_correcao_sem_lancamentos")
+    def _codae_pede_correcao_sem_lancamentos_hook(self, *args, **kwargs):
+        """
+        Cria objeto LogSolicitacaoUsuario quando o fluxo `codae_pede_correcao_sem_lancamentos` acontece.
+        """
+        user = kwargs["user"]
+        justificativa = kwargs["justificativa"]
+        if not user or user.vinculo_atual.perfil.nome != ADMINISTRADOR_MEDICAO:
+            raise PermissionDenied("Você não tem permissão para executar essa ação.")
+        self.salvar_log_transicao(
+            status_evento=LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+            usuario=user,
+            justificativa=justificativa,
+        )
+
     class Meta:
         abstract = True
 
@@ -4481,7 +4501,8 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
             corpo="",
             html=html,
             emails=PartesInteressadasService.usuarios_por_perfis(
-                ["DILOG_CRONOGRAMA", "COORDENADOR_CODAE_DILOG_LOGISTICA"], somente_email=True
+                ["DILOG_CRONOGRAMA", "COORDENADOR_CODAE_DILOG_LOGISTICA"],
+                somente_email=True,
             ),
         )
 
@@ -4603,7 +4624,13 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
         )
 
         partes_interessadas = PartesInteressadasService.usuarios_por_perfis(
-            ["DILOG_CRONOGRAMA", "DILOG_ABASTECIMENTO", "DILOG_QUALIDADE", "COORDENADOR_CODAE_DILOG_LOGISTICA"], True
+            [
+                "DILOG_CRONOGRAMA",
+                "DILOG_ABASTECIMENTO",
+                "DILOG_QUALIDADE",
+                "COORDENADOR_CODAE_DILOG_LOGISTICA",
+            ],
+            True,
         ) + PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
             self, True
         )
@@ -4984,7 +5011,13 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 self.cronograma, True
             )
             + PartesInteressadasService.usuarios_por_perfis(
-                ["DILOG_CRONOGRAMA", "DILOG_ABASTECIMENTO", "COORDENADOR_CODAE_DILOG_LOGISTICA", "DILOG_QUALIDADE"], True
+                [
+                    "DILOG_CRONOGRAMA",
+                    "DILOG_ABASTECIMENTO",
+                    "COORDENADOR_CODAE_DILOG_LOGISTICA",
+                    "DILOG_QUALIDADE",
+                ],
+                True,
             )
         )
 

@@ -34,6 +34,7 @@ from .constants import (
     DIRETOR_UE,
     ORGAO_FISCALIZADOR,
     PARCEIRA,
+    USUARIO_EMPRESA,
     USUARIO_GTIC_CODAE,
     USUARIO_RELATORIOS,
 )
@@ -1060,7 +1061,8 @@ class PermissaoParaVisualizarUnidadesMedida(BasePermission):
                         DILOG_CRONOGRAMA,
                         COORDENADOR_CODAE_DILOG_LOGISTICA,
                     ]
-                    or usuario.vinculo_atual.perfil.nome in [ADMINISTRADOR_EMPRESA]
+                    or usuario.vinculo_atual.perfil.nome
+                    in [ADMINISTRADOR_EMPRESA, USUARIO_EMPRESA]
                 )
             )
         )
