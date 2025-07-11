@@ -25,7 +25,6 @@ from ..models import (
     ClassificacaoDieta,
     MotivoNegacao,
     SolicitacaoDietaEspecial,
-    MotivoAlteracaoUE,
 )
 
 fake = Faker("pt_BR")
@@ -272,8 +271,11 @@ def solicitacao_dieta_especial_autorizada(
 
     return solicitacao_dieta_especial_a_autorizar
 
+
 @pytest.fixture
-def solicitacao_dieta_especial_aprovada_alteracao_ue(client, escola, motivo_alteracao_ue):
+def solicitacao_dieta_especial_aprovada_alteracao_ue(
+    client, escola, motivo_alteracao_ue
+):
     aluno = mommy.make(
         Aluno,
         nome="Isabella Pereira da Silva",
@@ -322,14 +324,16 @@ def solicitacao_dieta_especial_aprovada_alteracao_ue(client, escola, motivo_alte
     )
     return solicitacao
 
+
 @pytest.fixture
 def motivo_alteracao_ue():
     return mommy.make(
         "MotivoAlteracaoUE",
         uuid="26e7367e-2ef8-49c4-ab2a-9aa9f68475cb",
         nome="Dieta Especial - Recreio nas Férias",
-        descricao=""
+        descricao="",
     )
+
 
 @pytest.fixture
 def solicitacao_dieta_especial_escola_solicitou_inativacao(

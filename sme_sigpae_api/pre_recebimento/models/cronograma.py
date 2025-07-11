@@ -986,7 +986,10 @@ class AnaliseFichaTecnica(ModeloBase, CriadoPor):
     @property
     def aprovada(self):
         return (
-            (self.fabricante_envasador_conferido is True and not self.fabricante_envasador_correcoes)
+            (
+                self.fabricante_envasador_conferido is True
+                and not self.fabricante_envasador_correcoes
+            )
             and (
                 self.detalhes_produto_conferido is True
                 and not self.detalhes_produto_correcoes
@@ -1008,8 +1011,13 @@ class AnaliseFichaTecnica(ModeloBase, CriadoPor):
                 self.embalagem_e_rotulagem_conferido is True
                 and not self.embalagem_e_rotulagem_correcoes
             )
-            and (self.responsavel_tecnico_conferido is True and not self.responsavel_tecnico_correcoes)
-            and (self.modo_preparo_conferido is True and not self.modo_preparo_correcoes)
+            and (
+                self.responsavel_tecnico_conferido is True
+                and not self.responsavel_tecnico_correcoes
+            )
+            and (
+                self.modo_preparo_conferido is True and not self.modo_preparo_correcoes
+            )
             and self.outras_informacoes_conferido is True
         )
 
