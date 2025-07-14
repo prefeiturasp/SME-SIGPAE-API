@@ -105,6 +105,14 @@ def valida_ingredientes_alergenicos_ficha_tecnica(attrs):
 
 class ServiceValidacaoCorrecaoFichaTecnica:
     CAMPOS_OBRIGATORIOS_COMUNS = {
+        "fabricante_envasador_conferido": {
+            "obrigatorios": [
+                "fabricante",
+            ],
+            "opcionais": [
+                "envasador_distribuidor",
+            ],
+        },
         "detalhes_produto_conferido": {
             "obrigatorios": [
                 "prazo_validade",
@@ -119,6 +127,9 @@ class ServiceValidacaoCorrecaoFichaTecnica:
                 "mecanismo_controle",
                 "ingredientes_alergenicos",
                 "lactose_detalhe",
+            ],
+            "opcionais": [
+                "numero_registro",
             ],
         },
         "informacoes_nutricionais_conferido": {
@@ -136,6 +147,19 @@ class ServiceValidacaoCorrecaoFichaTecnica:
                 "embalagem_secundaria",
             ]
         },
+        "responsavel_tecnico_conferido": {
+            "obrigatorios": [
+                "nome_responsavel_tecnico",
+                "habilitacao",
+                "numero_registro_orgao",
+                "arquivo",
+            ]
+        },
+        "modo_preparo_conferido": {
+            "obrigatorios": [
+                "modo_de_preparo",
+            ]
+        }
     }
 
     CAMPOS_PERECIVEIS = {
@@ -202,10 +226,6 @@ class ServiceValidacaoCorrecaoFichaTecnica:
         },
     }
 
-    CAMPOS_OPCIONAIS_COMUNS = [
-        "numero_registro",
-    ]
-
     def __init__(self, ficha_tecnica, attrs) -> None:
         self._ficha_tecnica = ficha_tecnica
         self._attrs = attrs
@@ -260,10 +280,14 @@ class ServiceValidacaoCorrecaoFichaTecnica:
             "dependentes", []
         )
 
+        campos_opcionais_collapse = self._campos_collapses[collapse].get(
+            "opcionais", []
+        )
+
         campos_collapse = (
             campos_obrigatorios_collapse
             + campos_dependentes_collapse
-            + self.CAMPOS_OPCIONAIS_COMUNS
+            + campos_opcionais_collapse
         )
 
         for attr in self._attrs:
