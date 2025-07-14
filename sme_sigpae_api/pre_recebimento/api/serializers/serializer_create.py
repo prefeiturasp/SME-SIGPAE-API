@@ -1547,12 +1547,12 @@ class CorrecaoFichaTecnicaSerializer(serializers.ModelSerializer):
         queryset=Terceirizada.objects.all(),
     )
     fabricante = FabricanteFichaTecnicaCreateSerializer(
-        required=False, 
+        required=False,
         allow_null=True,
         fabricante_opcional=True
     )
     envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(
-        required=False, 
+        required=False,
         allow_null=True,
         fabricante_opcional=True
     )
