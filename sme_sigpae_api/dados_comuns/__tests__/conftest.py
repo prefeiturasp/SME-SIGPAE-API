@@ -427,6 +427,38 @@ def usuario_teste_notificacao_autenticado(client, django_user_model):
 
 
 @pytest.fixture
+def user_administrador_medicao(django_user_model, escola):
+    email = "user@escola.com"
+    password = "admin@123"
+    perfil_admin_medicao = mommy.make(
+        "Perfil", nome="ADMINISTRADOR_MEDICAO", ativo=True
+    )
+    usuario = django_user_model.objects.create_user(
+        username=email,
+        password=password,
+        email=email,
+        registro_funcional="123456",
+    )
+    hoje = datetime.date.today()
+    mommy.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=escola,
+        perfil=perfil_admin_medicao,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    return usuario, password
+
+
+@pytest.fixture
+def client_autenticado_medicao(client, user_administrador_medicao):
+    usuario, password = user_administrador_medicao
+    client.login(username=usuario.email, password=password)
+    return client
+
+
+@pytest.fixture
 def notificacao(usuario_teste_notificacao_autenticado):
     user, client = usuario_teste_notificacao_autenticado
     return mommy.make(
@@ -1116,3 +1148,20 @@ def medicao_sem_lancamento(solicitacao_sem_lancamento):
         status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
         grupo=None,
     )
+
+
+@pytest.fixture
+def solicitacao_para_corecao(solicitacao_sem_lancamento, medicao_sem_lancamento):
+    medicao_sem_lancamento.solicitacao = solicitacao_sem_lancamento
+
+    solicitacao_sem_lancamento.status = (
+        SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
+    )
+    medicao_sem_lancamento.status = (
+        SolicitacaoMedicaoInicialWorkflow.MEDICAO_SEM_LANCAMENTOS
+    )
+
+    medicao_sem_lancamento.save()
+    solicitacao_sem_lancamento.save()
+
+    return solicitacao_sem_lancamento
