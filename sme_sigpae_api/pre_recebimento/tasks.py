@@ -11,12 +11,12 @@ from sme_sigpae_api.dados_comuns.utils import (
     atualiza_central_download_com_erro,
     gera_objeto_na_central_download,
 )
-from sme_sigpae_api.pre_recebimento.api.helpers import totalizador_relatorio_cronograma
-from sme_sigpae_api.pre_recebimento.api.serializers.serializers import (
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.helpers import totalizador_relatorio_cronograma
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     CronogramaRelatorioSerializer,
     EtapaCronogramaRelatorioSerializer,
 )
-from sme_sigpae_api.pre_recebimento.models.cronograma import (
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
     Cronograma,
     EtapasDoCronograma,
 )

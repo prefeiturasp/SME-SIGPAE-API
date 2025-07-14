@@ -3,19 +3,16 @@ import pytest
 from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaAlteracaoWorkflow
 
 from ..fixtures.factories.documentos_de_recebimento_factory import fake
-from ..models import (
+from ..cronograma_entrega.models import (
     Cronograma,
-    DocumentoDeRecebimento,
-    EtapasDoCronograma,
-    Laboratorio,
-    LayoutDeEmbalagem,
-    ProgramacaoDoRecebimentoDoCronograma,
     SolicitacaoAlteracaoCronograma,
-    TipoDeDocumentoDeRecebimento,
-    TipoDeEmbalagemDeLayout,
-    TipoEmbalagemQld,
-    UnidadeMedida,
+    EtapasDoCronograma,
+    ProgramacaoDoRecebimentoDoCronograma,
 )
+from ..documento_recebimento.models import DocumentoDeRecebimento, TipoDeDocumentoDeRecebimento
+from ..qualidade.models import Laboratorio, TipoEmbalagemQld
+from ..base.models import UnidadeMedida
+from ..layout_embalagem.models import LayoutDeEmbalagem, TipoDeEmbalagemDeLayout
 
 pytestmark = pytest.mark.django_db
 

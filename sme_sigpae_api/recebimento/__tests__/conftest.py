@@ -7,14 +7,14 @@ from sme_sigpae_api.dados_comuns.fluxo_status import (
     DocumentoDeRecebimentoWorkflow,
     FichaTecnicaDoProdutoWorkflow,
 )
-from sme_sigpae_api.pre_recebimento.fixtures.factories.cronograma_factory import (
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (
     CronogramaFactory,
     EtapasDoCronogramaFactory,
 )
-from sme_sigpae_api.pre_recebimento.fixtures.factories.documentos_de_recebimento_factory import (
+from sme_sigpae_api.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory import (
     DocumentoDeRecebimentoFactory,
 )
-from sme_sigpae_api.pre_recebimento.fixtures.factories.ficha_tecnica_do_produto_factory import (
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.fixtures.factories.ficha_tecnica_do_produto_factory import (
     FichaTecnicaFactory,
 )
 from sme_sigpae_api.recebimento.fixtures.factories.ficha_de_recebimento_factory import (
