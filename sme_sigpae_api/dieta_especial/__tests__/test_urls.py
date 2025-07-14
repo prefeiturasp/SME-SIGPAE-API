@@ -1,9 +1,5 @@
 import base64
 import datetime
-import pytest
-
-from unittest.mock import patch, MagicMock
-from uuid import UUID
 from datetime import date, timedelta
 
 from rest_framework import status
@@ -140,11 +136,12 @@ def test_url_criar_dieta(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == ["Aluno já possui Solicitação de Dieta Especial pendente"]
 
+
 def test_url_criar_dieta_duplicada_alteracao_ue_recreio_ferias(
     client_autenticado_vinculo_escola_dieta,
     periodo_escolar_integral,
     solicitacao_dieta_especial_aprovada_alteracao_ue,
-    motivo_alteracao_ue
+    motivo_alteracao_ue,
 ):
     client, user = client_autenticado_vinculo_escola_dieta
     dieta_aprovada = solicitacao_dieta_especial_aprovada_alteracao_ue
@@ -162,17 +159,19 @@ def test_url_criar_dieta_duplicada_alteracao_ue_recreio_ferias(
         "data_inicio": date.today().strftime("%d/%m/%Y"),
         "data_termino": (date.today() + timedelta(days=10)).strftime("%d/%m/%Y"),
         "dieta_alterada": dieta_aprovada.dieta_alterada.uuid,
-        "escola_destino": dieta_aprovada.escola_destino.codigo_eol
+        "escola_destino": dieta_aprovada.escola_destino.codigo_eol,
     }
 
     response = client.post(
         "/solicitacoes-dieta-especial/alteracao-ue/",
         content_type="application/json",
-        data=payload
+        data=payload,
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == ["Já foi realizada uma alteração de UE para o aluno por motivo de Recreio nas Férias"]
+    assert response.json() == [
+        "Já foi realizada uma alteração de UE para o aluno por motivo de Recreio nas Férias"
+    ]
 
 
 def test_url_criar_dieta_error(client_autenticado_vinculo_escola):
