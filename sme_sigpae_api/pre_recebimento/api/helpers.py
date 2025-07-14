@@ -93,18 +93,21 @@ def _cria_fabricante_ficha_tecnica(fabricante_data):
 def _atualiza_fabricante_ficha_tecnica(ficha_tecnica, fabricante_data, field_name):
     current = getattr(ficha_tecnica, field_name, None)
 
+    if fabricante_data == {}:
+        if current:
+            setattr(ficha_tecnica, field_name, None)
+            ficha_tecnica.save()
+        return
+
     if current:
-        current.delete()
-
-    if fabricante_data:
+        for key, value in fabricante_data.items():
+            setattr(current, key, value)
+        current.save()
+    else:
         fabricante = _cria_fabricante_ficha_tecnica(fabricante_data)
-        setattr(ficha_tecnica, field_name, fabricante)
-        ficha_tecnica.save()
-        return fabricante
-
-    setattr(ficha_tecnica, field_name, None)
-    ficha_tecnica.save()
-    return None
+        if fabricante:
+            setattr(ficha_tecnica, field_name, fabricante)
+            ficha_tecnica.save()
 
 
 def cria_ficha_tecnica(validated_data):
@@ -143,7 +146,6 @@ def atualiza_ficha_tecnica(ficha_tecnica, validated_data):
 
     if fabricante_data is not None:
         _atualiza_fabricante_ficha_tecnica(ficha_tecnica, fabricante_data, "fabricante")
-
     if envasador_data is not None:
         _atualiza_fabricante_ficha_tecnica(
             ficha_tecnica, envasador_data, "envasador_distribuidor"
@@ -208,6 +210,8 @@ def limpar_campos_dependentes_ficha_tecnica(instance, validated_data):
 
 def reseta_analise_atualizacao(analise, payload):
     mapa = {
+        "fabricante": "fabricante_envasador_conferido",
+        "envasador_distribuidor": "fabricante_envasador_conferido",
         "componentes_produto": "detalhes_produto_conferido",
         "alergenicos": "detalhes_produto_conferido",
         "ingredientes_alergenicos": "detalhes_produto_conferido",

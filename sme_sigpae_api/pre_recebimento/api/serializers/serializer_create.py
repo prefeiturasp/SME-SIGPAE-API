@@ -991,11 +991,16 @@ class InformacoesNutricionaisFichaTecnicaCreateSerializer(serializers.ModelSeria
 
 
 class FabricanteFichaTecnicaCreateSerializer(serializers.ModelSerializer):
-    fabricante = serializers.SlugRelatedField(
-        slug_field="uuid",
-        required=True,
-        queryset=Fabricante.objects.all(),
-    )
+    def __init__(self, *args, **kwargs):
+        self.fabricante_opcional = kwargs.pop('fabricante_opcional', False)
+        super().__init__(*args, **kwargs)
+
+        self.fields['fabricante'] = serializers.SlugRelatedField(
+            slug_field="uuid",
+            required=not self.fabricante_opcional,
+            allow_null=self.fabricante_opcional,
+            queryset=Fabricante.objects.all(),
+        )
 
     cnpj = serializers.CharField(required=False, allow_blank=True)
     cep = serializers.CharField(required=False, allow_blank=True)
@@ -1541,8 +1546,16 @@ class CorrecaoFichaTecnicaSerializer(serializers.ModelSerializer):
         allow_null=True,
         queryset=Terceirizada.objects.all(),
     )
-    fabricante = FabricanteFichaTecnicaCreateSerializer(required=False)
-    envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(required=False)
+    fabricante = FabricanteFichaTecnicaCreateSerializer(
+        required=False,
+        allow_null=True,
+        fabricante_opcional=True
+    )
+    envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(
+        required=False,
+        allow_null=True,
+        fabricante_opcional=True
+    )
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnicaCreateSerializer(
         many=True,
         required=False,
@@ -1583,6 +1596,7 @@ class CorrecaoFichaTecnicaSerializer(serializers.ModelSerializer):
         allow_null=True,
         queryset=UnidadeMedida.objects.all(),
     )
+    arquivo = serializers.CharField(required=False, allow_blank=False)
 
     def validate(self, attrs):
         service_validacao = ServiceValidacaoCorrecaoFichaTecnica(self.instance, attrs)
@@ -1616,6 +1630,8 @@ class CorrecaoFichaTecnicaSerializer(serializers.ModelSerializer):
 
 
 class FichaTecnicaAtualizacaoSerializer(serializers.ModelSerializer):
+    fabricante = FabricanteFichaTecnicaCreateSerializer(required=False)
+    envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(required=False)
     componentes_produto = serializers.CharField(required=False, allow_blank=False)
     alergenicos = serializers.BooleanField(required=False)
     ingredientes_alergenicos = serializers.CharField(required=False, allow_blank=False)
