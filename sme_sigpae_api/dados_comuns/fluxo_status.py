@@ -4332,7 +4332,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
     @xworkflows.after_transition("codae_pede_correcao_sem_lancamentos")
     def _codae_pede_correcao_sem_lancamentos_hook(self, *args, **kwargs):
         """
-        Cria objeto LogSolicitacaoUsuario quando o fluxo `codae_pede_correcao_sem_lancamentos` acontece.
+        Cria objeto LogSolicitacoesUsuario quando o fluxo `codae_pede_correcao_sem_lancamentos` acontece.
         """
         user = kwargs["user"]
         justificativa = kwargs["justificativa"]
