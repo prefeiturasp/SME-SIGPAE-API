@@ -1,6 +1,6 @@
 import pytest
 
-from sme_sigpae_api.pre_recebimento.api.services import (
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.services import (
     ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles,
 )
 

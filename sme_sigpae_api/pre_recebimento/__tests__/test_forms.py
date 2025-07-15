@@ -1,7 +1,7 @@
 import pytest
 
 from sme_sigpae_api.pre_recebimento.forms import CaixaAltaNomeForm
-from sme_sigpae_api.pre_recebimento.models.cronograma import UnidadeMedida
+from sme_sigpae_api.pre_recebimento.base.models import UnidadeMedida
 
 pytestmark = pytest.mark.django_db
 

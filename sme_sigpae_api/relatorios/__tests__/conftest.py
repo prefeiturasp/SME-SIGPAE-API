@@ -16,7 +16,7 @@ from sme_sigpae_api.dados_comuns.models import TemplateMensagem
 from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 from sme_sigpae_api.escola.models import Aluno
 from sme_sigpae_api.perfil.models.usuario import Usuario
-from sme_sigpae_api.pre_recebimento.fixtures.factories.ficha_tecnica_do_produto_factory import (
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.fixtures.factories.ficha_tecnica_do_produto_factory import (
     FichaTecnicaFactory,
 )
 
