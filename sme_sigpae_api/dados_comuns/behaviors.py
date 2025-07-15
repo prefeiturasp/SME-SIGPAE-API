@@ -523,9 +523,7 @@ class TemSemana(models.Model):
 
 
 class MatriculadosQuandoCriado(models.Model):
-    matriculados_quando_criado = models.PositiveSmallIntegerField(
-        null=True, blank=True, validators=[MinValueValidator(1)]
-    )
+    matriculados_quando_criado = models.PositiveSmallIntegerField(null=True, blank=True)
 
     class Meta:
         abstract = True
