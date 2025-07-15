@@ -188,4 +188,3 @@ class DocumentoDeRecebimentoModelViewSet(
             doc_recebimento.arquivo_laudo_assinado,
             content_type="application/pdf",
         )
-

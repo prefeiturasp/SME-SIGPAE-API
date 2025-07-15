@@ -33,4 +33,3 @@ def valida_parametros_calendario(mes, ano):
         raise serializers.ValidationError(
             "Informe um ano valido, deve ser um número inteiro de 4 dígitos (Ex.: 2023)"
         )
-

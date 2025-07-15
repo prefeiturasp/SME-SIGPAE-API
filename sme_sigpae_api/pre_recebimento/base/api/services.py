@@ -98,4 +98,3 @@ class BaseServiceDashboard:
             )
 
         return dados
-

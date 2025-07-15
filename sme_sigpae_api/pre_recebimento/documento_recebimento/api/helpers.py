@@ -32,6 +32,3 @@ def cria_datas_e_prazos_doc_recebimento(datas_e_prazos, doc_recebimento):
             )
         )
     return datas_criadas
-
-
-

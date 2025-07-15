@@ -58,4 +58,3 @@ class ServiceDashboardFichaTecnica(BaseServiceDashboard):
             FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO,
         ],
     }
-

@@ -344,4 +344,3 @@ class FichaTecnicaModelViewSet(
     def gerar_pdf_ficha(self, request, uuid=None):
         ficha = self.get_object()
         return get_pdf_ficha_tecnica(request, ficha)
-

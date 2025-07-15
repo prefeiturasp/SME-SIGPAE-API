@@ -110,4 +110,3 @@ class LayoutDeEmbalagemModelViewSet(
         if serializer.is_valid(raise_exception=True):
             layout_corrigido = serializer.save()
             return Response(LayoutDeEmbalagemDetalheSerializer(layout_corrigido).data)
-

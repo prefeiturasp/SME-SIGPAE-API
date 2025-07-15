@@ -108,4 +108,3 @@ class TipoEmbalagemQldModelViewSet(viewsets.ModelViewSet):
         serializer = TipoEmbalagemQldSerializer(queryset, many=True).data
         response = {"results": serializer}
         return Response(response)
-

@@ -50,4 +50,3 @@ class UnidadeMedidaViewset(viewsets.ModelViewSet):
         serializer = UnidadeMedidaSimplesSerializer(unidades_medida, many=True)
         response = {"results": serializer.data}
         return Response(response)
-

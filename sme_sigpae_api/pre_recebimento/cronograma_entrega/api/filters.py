@@ -72,6 +72,3 @@ class SolicitacaoAlteracaoCronogramaFilter(filters.FilterSet):
         field_name="status",
         choices=[(str(state), state) for state in CronogramaAlteracaoWorkflow.states],
     )
-
-
-

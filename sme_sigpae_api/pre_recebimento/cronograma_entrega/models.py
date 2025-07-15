@@ -258,4 +258,3 @@ def gerar_numero_solicitacao(sender, instance, created, **kwargs):
     if created:
         instance.gerar_numero_solicitacao()
         instance.save()
-

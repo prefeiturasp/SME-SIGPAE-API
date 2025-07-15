@@ -33,7 +33,6 @@ from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaVisualizarSolicitacoesAlteracaoCronograma,
     UsuarioDilogAbastecimento,
     ViewSetActionPermissionMixin,
-    
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.filters import (
     SolicitacaoAlteracaoCronogramaFilter,
