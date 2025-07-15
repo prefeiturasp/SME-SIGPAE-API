@@ -9,11 +9,9 @@ from sme_sigpae_api.dados_comuns.behaviors import (
     TemChaveExterna,
 )
 from sme_sigpae_api.dados_comuns.validators import validate_file_size_10mb
-from sme_sigpae_api.pre_recebimento.models import FichaTecnicaDoProduto
-from sme_sigpae_api.pre_recebimento.models.cronograma import (
-    DocumentoDeRecebimento,
-    EtapasDoCronograma,
-)
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import EtapasDoCronograma
+from sme_sigpae_api.pre_recebimento.documento_recebimento.models import DocumentoDeRecebimento
 
 
 class QuestaoConferencia(ModeloBase):

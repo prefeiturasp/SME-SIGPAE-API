@@ -1,7 +1,7 @@
 import pytest
 from rest_framework.serializers import ValidationError
 
-from ..api.validators import contrato_pertence_a_empresa, valida_parametros_calendario
+from ..cronograma_entrega.api.validators import contrato_pertence_a_empresa, valida_parametros_calendario
 
 pytestmark = pytest.mark.django_db
 

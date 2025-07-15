@@ -1,6 +1,6 @@
 import pytest
 
-from sme_sigpae_api.pre_recebimento.api.helpers import (
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.helpers import (
     formata_cnpj_ficha_tecnica,
     formata_telefone_ficha_tecnica,
 )
