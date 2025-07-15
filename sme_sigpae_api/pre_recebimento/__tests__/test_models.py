@@ -1,8 +1,8 @@
 import pytest
+from faker import Faker
 
 from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaAlteracaoWorkflow
 
-from ..fixtures.factories.documentos_de_recebimento_factory import fake
 from ..cronograma_entrega.models import (
     Cronograma,
     SolicitacaoAlteracaoCronograma,
@@ -16,6 +16,7 @@ from ..layout_embalagem.models import LayoutDeEmbalagem, TipoDeEmbalagemDeLayout
 
 pytestmark = pytest.mark.django_db
 
+fake = Faker("pt_BR")
 
 def test_cronograma_instance_model(cronograma):
     assert isinstance(cronograma, Cronograma)

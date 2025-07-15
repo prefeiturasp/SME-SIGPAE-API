@@ -232,7 +232,7 @@ class SolicitacaoAlteracaoCronograma(
         return log_transicao
 
     def cronograma_confirma_ciencia(self, justificativa, usuario, etapas, programacoes):
-        from ..api.helpers import (
+        from .api.helpers import (
             cria_etapas_de_cronograma,
             cria_programacao_de_cronograma,
         )
