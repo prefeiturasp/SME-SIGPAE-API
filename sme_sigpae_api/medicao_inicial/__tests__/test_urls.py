@@ -1985,3 +1985,74 @@ def test_url_endpoint_relatorio_consolidado_xlsx_com_filtros(
     assert response.json() == {
         "detail": "Solicitação de geração de arquivo recebida com sucesso."
     }
+
+
+def test_codae_solicita_correcao_sem_lancamento(
+    client_autenticado_codae_medicao, solicitacao_sem_lancamento
+):
+    solicita_correcao = {
+        "justificativa": "Houve alimentação ofertadada nesse período",
+    }
+    response = client_autenticado_codae_medicao.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_sem_lancamento.uuid}/codae-solicita-correcao-sem-lancamentos/",
+        content_type="application/json",
+        data=json.dumps(solicita_correcao),
+    )
+    assert response.status_code == status.HTTP_200_OK
+    resposta = response.json()
+    assert (
+        resposta["justificativa_codae_correcao_sem_lancamentos"]
+        == solicita_correcao["justificativa"]
+    )
+    assert resposta["status"] == "MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE"
+
+
+def test_codae_solicita_correcao_sem_lancamento_usuario_sem_permissao(
+    client_autenticado_da_escola, solicitacao_sem_lancamento
+):
+    solicita_correcao = {
+        "justificativa": "Houve alimentação ofertadada nesse período",
+    }
+    response = client_autenticado_da_escola.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_sem_lancamento.uuid}/codae-solicita-correcao-sem-lancamentos/",
+        content_type="application/json",
+        data=json.dumps(solicita_correcao),
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == {
+        "detail": "Você não tem permissão para executar essa ação."
+    }
+
+
+def test_codae_solicita_correcao_sem_lancamento_solicitacao_nao_existe(
+    client_autenticado_codae_medicao, escola
+):
+    solicita_correcao = {
+        "justificativa": "Houve alimentação ofertadada nesse período",
+    }
+    response = client_autenticado_codae_medicao.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{escola.uuid}/codae-solicita-correcao-sem-lancamentos/",
+        content_type="application/json",
+        data=json.dumps(solicita_correcao),
+    )
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {
+        "detail": "No SolicitacaoMedicaoInicial matches the given query."
+    }
+
+
+def test_codae_solicita_correcao_sem_lancamento_erro_transicao(
+    client_autenticado_codae_medicao, medicao_sem_lancamento_com_correcao
+):
+    solicita_correcao = {
+        "justificativa": "Houve alimentação ofertadada nesse período",
+    }
+    response = client_autenticado_codae_medicao.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{medicao_sem_lancamento_com_correcao.uuid}/codae-solicita-correcao-sem-lancamentos/",
+        content_type="application/json",
+        data=json.dumps(solicita_correcao),
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": "['Solicitação Medição Inicial não pode voltar para ser preenchida novamente, pois possui lançamentos.']"
+    }
