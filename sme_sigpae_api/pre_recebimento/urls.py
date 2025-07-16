@@ -1,41 +1,46 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from .api import viewsets
+from .cronograma_entrega.api import viewsets as cronograma_viewsets
+from .qualidade.api import viewsets as qualidade_viewsets
+from .base.api import viewsets as base_viewsets
+from .documento_recebimento.api import viewsets as documento_viewsets
+from .ficha_tecnica.api import viewsets as ficha_tecnica_viewsets
+from .layout_embalagem.api import viewsets as layout_viewsets
 
 router = routers.DefaultRouter()
 
-router.register("cronogramas", viewsets.CronogramaModelViewSet)
-router.register("laboratorios", viewsets.LaboratorioModelViewSet)
-router.register("tipos-embalagens", viewsets.TipoEmbalagemQldModelViewSet)
-router.register("unidades-medida-logistica", viewsets.UnidadeMedidaViewset)
+router.register("cronogramas", cronograma_viewsets.CronogramaModelViewSet)
+router.register("laboratorios", qualidade_viewsets.LaboratorioModelViewSet)
+router.register("tipos-embalagens", qualidade_viewsets.TipoEmbalagemQldModelViewSet)
+router.register("unidades-medida-logistica", base_viewsets.UnidadeMedidaViewset)
 router.register(
     "layouts-de-embalagem",
-    viewsets.LayoutDeEmbalagemModelViewSet,
+    layout_viewsets.LayoutDeEmbalagemModelViewSet,
     basename="layouts-de-embalagem",
 )
 router.register(
     "documentos-de-recebimento",
-    viewsets.DocumentoDeRecebimentoModelViewSet,
+    documento_viewsets.DocumentoDeRecebimentoModelViewSet,
     basename="documentos-de-recebimento",
 )
 
 router.register(
     "solicitacao-de-alteracao-de-cronograma",
-    viewsets.SolicitacaoDeAlteracaoCronogramaViewSet,
+    cronograma_viewsets.SolicitacaoDeAlteracaoCronogramaViewSet,
     basename="solicitacao-de-alteracao-de-cronograma",
 )
 router.register(
     "rascunho-ficha-tecnica",
-    viewsets.FichaTecnicaRascunhoViewSet,
+    ficha_tecnica_viewsets.FichaTecnicaRascunhoViewSet,
     basename="rascunho-ficha-tecnica",
 )
 router.register(
-    "ficha-tecnica", viewsets.FichaTecnicaModelViewSet, basename="ficha-tecnica"
+    "ficha-tecnica", ficha_tecnica_viewsets.FichaTecnicaModelViewSet, basename="ficha-tecnica"
 )
 router.register(
     "calendario-cronogramas",
-    viewsets.CalendarioCronogramaViewset,
+    cronograma_viewsets.CalendarioCronogramaViewset,
     basename="calendario-cronogramas",
 )
 
