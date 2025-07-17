@@ -55,7 +55,7 @@ def generate_columns(dict_periodos_dietas: dict) -> list:
     return columns
 
 
-def get_valores_iniciais(solicitacao: SolicitacaoMedicaoInicial) -> list:
+def get_valores_iniciais(solicitacao: SolicitacaoMedicaoInicial) -> list[str]:
     return [
         solicitacao.escola.tipo_unidade.iniciais,
         solicitacao.escola.codigo_eol,
@@ -64,8 +64,14 @@ def get_valores_iniciais(solicitacao: SolicitacaoMedicaoInicial) -> list:
 
 
 def gera_colunas_alimentacao(
-    aba, colunas, linhas, writer, nomes_campos, colunas_fixas=None, headers=None
-):
+    aba: str,
+    colunas: list[tuple],
+    linhas: list[list[str | float]],
+    writer: pd.ExcelWriter,
+    nomes_campos: dict,
+    colunas_fixas: list[tuple] | None = None,
+    headers: list[tuple] | None = None,
+) -> pd.DataFrame:
     if colunas_fixas is None:
         colunas_fixas = [
             ("", "Tipo"),

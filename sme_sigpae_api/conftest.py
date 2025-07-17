@@ -17,7 +17,7 @@ from sme_sigpae_api.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory,
 )
-from sme_sigpae_api.pre_recebimento.fixtures.factories.fabricante_ficha_tecnica_factory import (
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.fixtures.factories.fabricante_ficha_tecnica_factory import (
     FabricanteFichaTecnicaFactory,
 )
 from sme_sigpae_api.recebimento.fixtures.factories.questao_ficha_recebimento_factory import (
@@ -42,6 +42,7 @@ from .escola.fixtures.factories.dia_suspensao_atividades_factory import (
 )
 from .escola.fixtures.factories.escola_factory import (
     AlunoFactory,
+    AlunosMatriculadosPeriodoEscolaFactory,
     DiretoriaRegionalFactory,
     EscolaFactory,
     FaixaEtariaFactory,
@@ -125,28 +126,31 @@ from .medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_factor
     ValorMedicaoFactory,
 )
 from .perfil.fixtures.factories.perfil_base_factories import UsuarioFactory
-from .pre_recebimento.fixtures.factories.cronograma_factory import (
+from .pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (
     CronogramaFactory,
     EtapasDoCronogramaFactory,
-    LaboratorioFactory,
+
 )
-from .pre_recebimento.fixtures.factories.documentos_de_recebimento_factory import (
+from .pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory import (
     ArquivoDoTipoDeDocumentoFactory,
     DataDeFabricaoEPrazoFactory,
     DocumentoDeRecebimentoFactory,
     TipoDeDocumentoDeRecebimentoFactory,
 )
-from .pre_recebimento.fixtures.factories.ficha_tecnica_do_produto_factory import (
+from .pre_recebimento.ficha_tecnica.fixtures.factories.ficha_tecnica_do_produto_factory import (
     AnaliseFichaTecnicaFactory,
     FichaTecnicaFactory,
 )
-from .pre_recebimento.fixtures.factories.layout_embalagem_factory import (
+from .pre_recebimento.layout_embalagem.fixtures.factories.layout_embalagem_factory import (
     LayoutDeEmbalagemFactory,
 )
-from .pre_recebimento.fixtures.factories.tipo_embalagem_qld_factory import (
+from .pre_recebimento.qualidade.fixtures.factories.tipo_embalagem_qld_factory import (
     TipoEmbalagemQldFactory,
 )
-from .pre_recebimento.fixtures.factories.unidade_medida_factory import (
+from .pre_recebimento.qualidade.fixtures.factories.laboratorio_factory import (
+    LaboratorioFactory,
+)
+from .pre_recebimento.base.fixtures.factories.unidade_medida_factory import (
     UnidadeMedidaFactory,
 )
 from .produto.fixtures.factories.produto_factory import (
@@ -294,6 +298,7 @@ register(InclusaoAlimentacaoContinuaFactory)
 register(MotivoInclusaoContinuaFactory)
 register(SolicitacaoKitLancheCEIAvulsaFactory)
 register(FaixaEtariaSolicitacaoKitLancheCEIAvulsaFactory)
+register(AlunosMatriculadosPeriodoEscolaFactory)
 
 
 @pytest.fixture

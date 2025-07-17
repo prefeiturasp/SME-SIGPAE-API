@@ -902,13 +902,18 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         self._check_user_permission()
+        justificativa_sem_lancamentos = validated_data.pop(
+            "justificativa_sem_lancamentos", None
+        )
         self._update_instance_fields(instance, validated_data)
         self._update_responsaveis(instance)
         self._update_alunos(instance, validated_data)
         self._update_tipos_contagem_alimentacao(instance)
         anexos = self._process_anexos(instance)
-        self._finaliza_medicao_se_necessario(instance, validated_data, anexos)
-        self._finaliza_medicao_sem_lancamentos(instance, validated_data)
+        self._finaliza_medicao_se_necessario(
+            instance, validated_data, anexos, justificativa_sem_lancamentos
+        )
+        self._finaliza_medicao_sem_lancamentos(instance, justificativa_sem_lancamentos)
         return instance
 
     def _check_user_permission(self):
@@ -996,8 +1001,10 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                     )
             return anexos
 
-    def _finaliza_medicao_se_necessario(self, instance, validated_data, anexos):
-        if validated_data.get("justificativa_sem_lancamentos", None):
+    def _finaliza_medicao_se_necessario(
+        self, instance, validated_data, anexos, justificativa_sem_lancamentos
+    ):
+        if justificativa_sem_lancamentos:
             return
         key_com_ocorrencias = validated_data.get("com_ocorrencias", None)
         if key_com_ocorrencias is not None and self.context["request"].data.get(
@@ -1079,13 +1086,22 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         if lista_erros:
             raise serializers.ValidationError(lista_erros)
 
-    def _finaliza_medicao_sem_lancamentos(self, instance, validated_data):
-        if not validated_data.get("justificativa_sem_lancamentos", None):
+    def _finaliza_medicao_sem_lancamentos(
+        self, instance, justificativa_sem_lancamentos
+    ):
+        if not justificativa_sem_lancamentos:
             return
         self._checa_se_pode_finalizar_sem_lancamentos(instance)
-        instance.ue_envia(user=self.context["request"].user)
+        instance.cria_medicoes_dos_periodos()
+        instance.ue_envia_sem_lancamentos(
+            user=self.context["request"].user,
+            justificativa_sem_lancamentos=justificativa_sem_lancamentos,
+        )
         for medicao in instance.medicoes.all():
-            medicao.ue_envia(user=self.context["request"].user)
+            medicao.medicao_sem_lancamentos(
+                user=self.context["request"].user,
+                justificativa_sem_lancamentos=justificativa_sem_lancamentos,
+            )
 
     class Meta:
         model = SolicitacaoMedicaoInicial

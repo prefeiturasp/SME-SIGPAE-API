@@ -1115,6 +1115,68 @@ class SolicitacaoMedicaoInicialViewSet(
             status=status.HTTP_200_OK,
         )
 
+    def _valida_sem_lancamentos(self, solicitacao):
+        """
+        Se a Solicitação de Medição Inicial não é sem lançamentos, não pode seguir este fluxo.
+        """
+        if not solicitacao.sem_lancamentos:
+            raise ValidationError(
+                "Solicitação Medição Inicial não pode voltar para ser preenchida novamente, pois possui lançamentos."
+            )
+
+    def _solicita_correcao_em_solicitacao(self, solicitacao, user, justificativa):
+        """
+        Altera o status da Solicitação de Medição Inicial sem lançamentos para ser preenchida novamente.
+        """
+        solicitacao.codae_pede_correcao_sem_lancamentos(
+            user=user, justificativa=justificativa
+        )
+
+    def _solicita_correcao_em_medicoes(self, solicitacao, user, justificativa):
+        """
+        Altera os status das medições da Solicitação de Medição Inicial sem lançamentos para serem preenchidas novamente.
+        """
+        for medicao in solicitacao.medicoes.all():
+            medicao.codae_pede_correcao_sem_lancamentos(
+                user=user, justificativa=justificativa
+            )
+
+    @action(
+        detail=True,
+        methods=["PATCH"],
+        url_path="codae-solicita-correcao-sem-lancamentos",
+        permission_classes=[UsuarioMedicao],
+    )
+    def codae_solicita_correcao_sem_lancamentos(self, request, uuid=None):
+        """
+        CODAE (Medição) solicita correção de uma Solicitação de Medição Inicial sem lançamentos.
+        A Solicitação será preenchida novamente.
+        """
+        try:
+            solicitacao_medicao_inicial = self.get_object()
+            self._valida_sem_lancamentos(solicitacao_medicao_inicial)
+            justificativa = request.data.get("justificativa", None)
+            self._solicita_correcao_em_solicitacao(
+                solicitacao_medicao_inicial, request.user, justificativa
+            )
+            self._solicita_correcao_em_medicoes(
+                solicitacao_medicao_inicial, request.user, justificativa
+            )
+            serializer = self.get_serializer(solicitacao_medicao_inicial)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except SolicitacaoMedicaoInicial.DoesNotExist:
+            return Response(
+                {
+                    "detail": "Solicitação Medição Inicial com o UUID informado não foi encontrado."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except (ValidationError, InvalidTransitionError) as e:
+            return Response(
+                dict(detail=str(e)),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
 
 class TipoContagemAlimentacaoViewSet(mixins.ListModelMixin, GenericViewSet):
     queryset = TipoContagemAlimentacao.objects.filter(ativo=True)
@@ -1524,6 +1586,7 @@ class OcorrenciaViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="codae-aprova-ocorrencia",
+        permission_classes=[UsuarioCODAEGestaoAlimentacao],
     )
     def codae_aprova_ocorrencia(self, request, uuid=None):
         object = self.get_object()

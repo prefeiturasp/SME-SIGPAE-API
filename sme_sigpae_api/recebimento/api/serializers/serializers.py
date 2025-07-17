@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from sme_sigpae_api.pre_recebimento.api.serializers.serializers import (
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
     FichaTecnicaSimplesSerializer,
 )
 
