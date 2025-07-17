@@ -46,15 +46,15 @@ pip-audit = "==2.9.0"
 # Ensure no binary package -> export PIP_NO_BINARY=:psycopg2:
 psycopg2="==2.9.10"  # https://github.com/psycopg/psycopg2
 requests="==2.32.4"
-celery = "==5.5.1"   # http://www.celeryproject.org
+celery = "==5.5.3"   # http://www.celeryproject.org
 pytz= "==2025.2"  # https://github.com/stub42/pytz
-python-slugify= "==8.0.1"  # https://github.com/un33k/python-slugify
-Pillow= "==10.4.0"  # https://github.com/python-pillow/Pillow
-argon2-cffi= "==23.1.0"  # https://github.com/hynek/argon2_cffi
-redis= "==5.0.1"  # https://github.com/antirez/redis
+python-slugify= "==8.0.4"  # https://github.com/un33k/python-slugify
+pillow= "==11.3.0"  # https://github.com/python-pillow/Pillow
+argon2-cffi= "==25.1.0"  # https://github.com/hynek/argon2_cffi
+redis= "==6.2.0"  # https://github.com/antirez/redis
 django-xworkflows="==1.0.0" # https://github.com/rbarrois/django_xworkflows
 drf_base64="==2.0" # https://pypi.org/project/drf_base64/
-pandas="==2.2.3" # https://github.com/pandas-dev/pandas/
+pandas="==2.3.1" # https://github.com/pandas-dev/pandas/
 numpy="==1.26.4" # https://github.com/numpy/numpy/
 XlsxWriter="==3.0.3" # https://github.com/jmcnamara/XlsxWriter
 # Django
@@ -68,7 +68,7 @@ django-auditlog="==2.2.1"   # https://github.com/jazzband/django-auditlog/
 django-cors-headers="==3.10.1"   # https://pypi.org/project/django-cors-headers/
 django-sequences="==2.8"  # https://pypi.org/project/django-sequences/
 django-multiselectfield="==0.1.13" # https://github.com/goinnn/django-multiselectfield
-django-celery-beat="==2.8.0"  # https://github.com/celery/django-celery-beat
+django-celery-beat="==2.8.1"  # https://github.com/celery/django-celery-beat
 django-admin-rangefilter="==0.13.2" # https://github.com/silentsokolov/django-admin-rangefilter
 django-nested-inline="==0.4.6"
 # Django REST Framework
