@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "63c1fb5683c651ea67a5169f27d896cc48161bbedd6ef5558bc1c10b0b041bce"
+            "sha256": "b0ff4e4e0d042bc49d00d137d90871d636444e8148d8db89c227bad4025628d8"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -70,11 +70,11 @@
         },
         "asgiref": {
             "hashes": [
-                "sha256:3e1e3ecc849832fe52ccf2cb6686b7a55f82bb1d6aee72a58826471390335e47",
-                "sha256:c343bd80a0bec947a9860adb4c432ffa7db769836c64238fc34bdc3fec84d590"
+                "sha256:a5ab6582236218e5ef1648f242fd9f10626cfd4de8dc377db215d5d5098e3142",
+                "sha256:f3bba7092a48005b5f5bacd747d36ee4a5a61f4a269a6df590b43144355ebd2c"
             ],
-            "markers": "python_version >= '3.8'",
-            "version": "==3.8.1"
+            "markers": "python_version >= '3.9'",
+            "version": "==3.9.1"
         },
         "attrs": {
             "hashes": [
@@ -595,12 +595,12 @@
         },
         "django-celery-beat": {
             "hashes": [
-                "sha256:955bfb3c4b8f1026a8d20144d0da39c941e1eb23acbaee9e12a7e7cc1f74959a",
-                "sha256:f8fd2e1ffbfa8e570ab9439383b2cd15a6642b347662d0de79c62ba6f68d4b38"
+                "sha256:da2b1c6939495c05a551717509d6e3b79444e114a027f7b77bf3727c2a39d171",
+                "sha256:dfad0201c0ac50c91a34700ef8fa0a10ee098cc7f3375fe5debed79f2204f80a"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==2.8.0"
+            "version": "==2.8.1"
         },
         "django-compressor": {
             "hashes": [
@@ -1537,10 +1537,10 @@
         },
         "python-crontab": {
             "hashes": [
-                "sha256:40067d1dd39ade3460b2ad8557c7651514cd3851deffff61c5c60e1227c5c36b",
-                "sha256:82cb9b6a312d41ff66fd3caf3eed7115c28c195bfb50711bc2b4b9592feb9fe5"
+                "sha256:007c8aee68dddf3e04ec4dce0fac124b93bd68be7470fc95d2a9617a15de291b",
+                "sha256:739a778b1a771379b75654e53fd4df58e5c63a9279a63b5dfe44c0fcc3ee7884"
             ],
-            "version": "==3.2.0"
+            "version": "==3.3.0"
         },
         "python-dateutil": {
             "hashes": [
