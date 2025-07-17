@@ -48,7 +48,7 @@ psycopg2="==2.9.10"  # https://github.com/psycopg/psycopg2
 requests="==2.32.4"
 celery = "==5.5.3"   # http://www.celeryproject.org
 pytz= "==2025.2"  # https://github.com/stub42/pytz
-python-slugify= "==8.0.1"  # https://github.com/un33k/python-slugify
+python-slugify= "==8.0.4"  # https://github.com/un33k/python-slugify
 Pillow= "==10.4.0"  # https://github.com/python-pillow/Pillow
 argon2-cffi= "==23.1.0"  # https://github.com/hynek/argon2_cffi
 redis= "==5.0.1"  # https://github.com/antirez/redis
