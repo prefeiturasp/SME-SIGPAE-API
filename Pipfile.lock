@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "4edd01cda54b4ec374f219a44241130152bc83664daea845b72ab7302fc77933"
+            "sha256": "63c1fb5683c651ea67a5169f27d896cc48161bbedd6ef5558bc1c10b0b041bce"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -134,12 +134,12 @@
         },
         "celery": {
             "hashes": [
-                "sha256:2af9109a10fe28155044f4c387ce0e5e7f1fc89f9584cfb4b0df94f99a5fedc7",
-                "sha256:9f4f9e57e36000c097c1b6f7a8ab29814b82771e5439836f83915823809729c8"
+                "sha256:0b5761a07057acee94694464ca482416b959568904c9dfa41ce8413a7d65d525",
+                "sha256:6c972ae7968c2b5281227f01c3a3f984037d21c5129d07bf3550cc2afc6b10a5"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==5.5.1"
+            "version": "==5.5.3"
         },
         "cerberus": {
             "hashes": [
@@ -365,10 +365,10 @@
         },
         "click-plugins": {
             "hashes": [
-                "sha256:46ab999744a9d831159c3411bb0c79346d94a444df9a3a3742e9ed63645f264b",
-                "sha256:5d262006d3222f5057fd81e1623d4443e41dcda5dc815c06b442aa3c02889fc8"
+                "sha256:008d65743833ffc1f5417bf0e78e8d2c23aab04d9745ba817bd3e71b0feb6aa6",
+                "sha256:d7af3984a99d243c131aa1a828331e7630f4a88a9741fd05c927b204bcf92261"
             ],
-            "version": "==1.1.1"
+            "version": "==1.1.1.2"
         },
         "click-repl": {
             "hashes": [
