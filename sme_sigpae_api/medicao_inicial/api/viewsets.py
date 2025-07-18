@@ -17,7 +17,10 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet, ViewSet
 from workalendar.america import BrazilSaoPauloCity
 from xworkflows import InvalidTransitionError
 
-from sme_sigpae_api.medicao_inicial.services.relatorio_adesao import obtem_resultados
+from sme_sigpae_api.medicao_inicial.services.relatorio_adesao import (
+    obtem_resultados,
+    valida_parametros_periodo_lancamento,
+)
 
 from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns import constants
@@ -1809,20 +1812,15 @@ class RelatoriosViewSet(ViewSet):
     @action(detail=False, url_name="relatorio-adesao", url_path="relatorio-adesao")
     def relatorio_adesao(self, request: Request):
         query_params = request.query_params
-
-        mes_ano = query_params.get("mes_ano")
-        if not mes_ano:
-            return Response(
-                data="É necessário informar o mês/ano de referência",
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
         try:
-            mes, ano = mes_ano.split("_")
-
-            resultados = obtem_resultados(mes, ano, query_params)
+            valida_parametros_periodo_lancamento(query_params)
+            resultados = obtem_resultados(query_params)
 
             return Response(data=resultados, status=status.HTTP_200_OK)
+        except ValidationError as e:
+            return Response(
+                dict(detail=e.messages[0]), status=status.HTTP_400_BAD_REQUEST
+            )
         except Exception:
             return Response(
                 data={"detail": "Verifique os parâmetros e tente novamente"},

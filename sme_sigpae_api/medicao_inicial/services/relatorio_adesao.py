@@ -1,5 +1,7 @@
+from datetime import datetime
 from typing import List
 
+from django.core.exceptions import ValidationError
 from django.http import QueryDict
 
 from sme_sigpae_api.medicao_inicial.models import Medicao, ValorMedicao
@@ -137,7 +139,10 @@ def _cria_filtros(query_params: QueryDict):
     return filtros
 
 
-def obtem_resultados(mes: str, ano: str, query_params: QueryDict):
+def obtem_resultados(query_params: QueryDict):
+    mes_ano = query_params.get("mes_ano")
+    ano, mes = mes_ano.split("_")
+
     tipos_alimentacao = query_params.getlist("tipos_alimentacao[]")
 
     filtros = _cria_filtros(query_params)
@@ -151,3 +156,63 @@ def obtem_resultados(mes: str, ano: str, query_params: QueryDict):
         )
 
     return resultados
+
+
+def valida_ano_mes(mes_ano):
+    if not mes_ano:
+        raise ValidationError("É necessário informar o mês/ano de referência")
+    try:
+        mes_referencia, ano_referencia = map(int, mes_ano.split("_"))
+    except ValueError:
+        raise ValidationError("mes_ano deve estar no formato MM_AAAA")
+
+    return mes_referencia, ano_referencia
+
+
+def valida_parametros_periodo_lancamento(query_params):
+
+    mes_ano = query_params.get("mes_ano")
+    periodo_lancamento_de = query_params.get("periodo_lancamento_de")
+    periodo_lancamento_ate = query_params.get("periodo_lancamento_ate")
+
+    mes_referencia, ano_referencia = valida_ano_mes(mes_ano)
+
+    if (periodo_lancamento_de and not periodo_lancamento_ate) or (
+        periodo_lancamento_ate and not periodo_lancamento_de
+    ):
+        raise ValidationError(
+            "Ambos 'periodo_lancamento_de' e 'periodo_lancamento_ate' devem ser informados juntos"
+        )
+
+    if periodo_lancamento_de and periodo_lancamento_ate:
+
+        data_de = _parse_data(periodo_lancamento_de, "periodo_lancamento_de")
+        data_ate = _parse_data(periodo_lancamento_ate, "periodo_lancamento_ate")
+
+        if data_de > data_ate:
+            raise ValidationError(
+                "'periodo_lancamento_de' deve ser anterior a 'periodo_lancamento_ate'"
+            )
+
+        _validar_mes_ano_data(
+            data_de, mes_referencia, ano_referencia, "periodo_lancamento_de"
+        )
+        _validar_mes_ano_data(
+            data_ate, mes_referencia, ano_referencia, "periodo_lancamento_ate"
+        )
+
+
+def _parse_data(valor, campo):
+    try:
+        return datetime.strptime(valor, "%d/%m/%Y").date()
+    except ValueError:
+        raise ValidationError(
+            f"Formato de data inválido para '{campo}'. Use o formato dd/mm/yyyy"
+        )
+
+
+def _validar_mes_ano_data(data, mes, ano, campo):
+    if (data.month, data.year) != (mes, ano):
+        raise ValidationError(
+            f"O mês/ano de '{campo}' ({data.month:02}/{data.year}) não coincide com 'mes_ano' ({mes:02}_{ano})."
+        )
