@@ -130,7 +130,8 @@ def _cria_filtros(query_params: QueryDict):
 
     escola = query_params.get("escola")
     if escola:
-        filtros["solicitacao_medicao_inicial__escola__uuid"] = escola
+        escola = escola.split("-")[0].strip()
+        filtros["solicitacao_medicao_inicial__escola__codigo_eol"] = escola
 
     periodos_escolares = query_params.getlist("periodos_escolares[]")
     if periodos_escolares:
@@ -141,7 +142,7 @@ def _cria_filtros(query_params: QueryDict):
 
 def obtem_resultados(query_params: QueryDict):
     mes_ano = query_params.get("mes_ano")
-    ano, mes = mes_ano.split("_")
+    mes, ano = mes_ano.split("_")
 
     tipos_alimentacao = query_params.getlist("tipos_alimentacao[]")
 
