@@ -1843,9 +1843,7 @@ class RelatoriosViewSet(ViewSet):
             )
 
         try:
-            mes, ano = mes_ano.split("_")
-
-            resultados = obtem_resultados(mes, ano, query_params)
+            resultados = obtem_resultados(query_params)
 
             query_params_dict = query_params.dict()
 
@@ -1887,9 +1885,8 @@ class RelatoriosViewSet(ViewSet):
             )
 
         try:
-            mes, ano = mes_ano.split("_")
 
-            resultados = obtem_resultados(mes, ano, query_params)
+            resultados = obtem_resultados(query_params)
 
             query_params_dict = query_params.dict()
 
