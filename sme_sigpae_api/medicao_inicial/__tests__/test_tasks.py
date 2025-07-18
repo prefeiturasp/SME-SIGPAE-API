@@ -227,7 +227,8 @@ def test_exporta_relatorio_adesao_para_xlsx(
     nome_arquivo = "relatorio-adesao.xlsx"
 
     # act
-    resultados = obtem_resultados(mes, ano, QueryDict())
+    query_params = QueryDict(f"mes_ano={mes}_{ano}")
+    resultados = obtem_resultados(query_params)
 
     exporta_relatorio_adesao_para_xlsx(
         usuario, nome_arquivo, resultados, {"mes_ano": f"{mes}_{ano}"}
@@ -300,7 +301,8 @@ def test_exporta_relatorio_adesao_para_pdf(
     nome_arquivo = "relatorio-adesao.pdf"
 
     # act
-    resultados = obtem_resultados(mes, ano, QueryDict())
+    query_params = QueryDict(f"mes_ano={mes}_{ano}")
+    resultados = obtem_resultados(query_params)
 
     exporta_relatorio_adesao_para_pdf(
         usuario, nome_arquivo, resultados, {"mes_ano": f"{mes}_{ano}"}

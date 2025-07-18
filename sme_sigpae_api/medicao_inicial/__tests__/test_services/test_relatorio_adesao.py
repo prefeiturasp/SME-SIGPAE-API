@@ -42,7 +42,8 @@ def test_obtem_resultados_relatorio_adesao(
         )
 
     # act
-    resultados = obtem_resultados(mes, ano, QueryDict())
+    query_params = QueryDict(f"mes_ano={mes}_{ano}")
+    resultados = obtem_resultados(query_params)
 
     # assert
     assert resultados == {
@@ -89,7 +90,8 @@ def test_obtem_resultados_relatorio_adesao_solicitacao_nao_aprovada_pela_codae(
         )
 
     # act
-    resultados = obtem_resultados(mes, ano, QueryDict())
+    query_params = QueryDict(f"mes_ano={mes}_{ano}")
+    resultados = obtem_resultados(query_params)
 
     # assert
     assert resultados == {}
