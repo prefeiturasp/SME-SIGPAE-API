@@ -33,12 +33,14 @@ def _obtem_medicoes(mes: str, ano: str, filtros: dict):
 
 
 def _obtem_valores_medicao(
-    medicao: Medicao,
-    tipos_alimentacao: List[str],
+    medicao: Medicao, tipos_alimentacao: List[str], data_inicio, data_fim
 ):
     queryset = ValorMedicao.objects.select_related("tipo_alimentacao").filter(
         medicao=medicao
     )
+
+    if data_inicio and data_fim:
+        queryset = queryset.filter(dia__gte=data_inicio, dia__lte=data_fim)
 
     if tipos_alimentacao:
         queryset = queryset.filter(
@@ -91,6 +93,8 @@ def _soma_totais_por_medicao(
     total_frequencia_por_medicao,
     medicao: Medicao,
     tipos_alimentacao: List[str],
+    data_inicio,
+    data_fim,
 ):
     medicao_nome = medicao.nome_periodo_grupo.upper()
 
@@ -98,7 +102,9 @@ def _soma_totais_por_medicao(
         resultados[medicao_nome] = {}
         total_frequencia_por_medicao[medicao_nome] = 0
 
-    valores_medicao = _obtem_valores_medicao(medicao, tipos_alimentacao)
+    valores_medicao = _obtem_valores_medicao(
+        medicao, tipos_alimentacao, data_inicio, data_fim
+    )
     for valor_medicao in valores_medicao:
         if valor_medicao.nome_campo == "frequencia":
             total_frequencia_por_medicao[medicao_nome] += int(valor_medicao.valor)
@@ -143,6 +149,14 @@ def _cria_filtros(query_params: QueryDict):
 def obtem_resultados(query_params: QueryDict):
     mes_ano = query_params.get("mes_ano")
     mes, ano = mes_ano.split("_")
+    periodo_lancamento_de = query_params.get("periodo_lancamento_de")
+    periodo_lancamento_ate = query_params.get("periodo_lancamento_ate")
+
+    data_inicio = None
+    data_fim = None
+    if periodo_lancamento_de and periodo_lancamento_ate:
+        data_inicio = periodo_lancamento_de.split("/")[0]
+        data_fim = periodo_lancamento_ate.split("/")[0]
 
     tipos_alimentacao = query_params.getlist("tipos_alimentacao[]")
 
@@ -153,13 +167,18 @@ def obtem_resultados(query_params: QueryDict):
     medicoes = _obtem_medicoes(mes, ano, filtros)
     for medicao in medicoes:
         resultados = _soma_totais_por_medicao(
-            resultados, total_frequencia_por_medicao, medicao, tipos_alimentacao
+            resultados,
+            total_frequencia_por_medicao,
+            medicao,
+            tipos_alimentacao,
+            data_inicio,
+            data_fim,
         )
 
     return resultados
 
 
-def valida_ano_mes(mes_ano):
+def _valida_ano_mes(mes_ano):
     if not mes_ano:
         raise ValidationError("É necessário informar o mês/ano de referência")
     try:
@@ -176,7 +195,7 @@ def valida_parametros_periodo_lancamento(query_params):
     periodo_lancamento_de = query_params.get("periodo_lancamento_de")
     periodo_lancamento_ate = query_params.get("periodo_lancamento_ate")
 
-    mes_referencia, ano_referencia = valida_ano_mes(mes_ano)
+    mes_referencia, ano_referencia = _valida_ano_mes(mes_ano)
 
     if (periodo_lancamento_de and not periodo_lancamento_ate) or (
         periodo_lancamento_ate and not periodo_lancamento_de
