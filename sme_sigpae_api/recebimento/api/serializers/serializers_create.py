@@ -5,13 +5,13 @@ from sme_sigpae_api.dados_comuns.utils import (
     convert_base64_to_contentfile,
     update_instance_from_dict,
 )
-from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
     EtapasDoCronograma,
 )
 from sme_sigpae_api.pre_recebimento.documento_recebimento.models import (
     DocumentoDeRecebimento,
 )
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from sme_sigpae_api.recebimento.models import (
     ArquivoFichaRecebimento,
     FichaDeRecebimento,

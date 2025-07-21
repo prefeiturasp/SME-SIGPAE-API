@@ -1,6 +1,6 @@
 from django.contrib import admin
-from ..forms import CaixaAltaNomeForm
 
+from ..forms import CaixaAltaNomeForm
 from .models import (
     Laboratorio,
     TipoEmbalagemQld,

@@ -1,8 +1,14 @@
 import datetime
 
 from rest_framework import serializers
+
+from sme_sigpae_api.pre_recebimento.base.api.serializers.serializers import (
+    UnidadeMedidaSimplesSerializer,
+)
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
     AnaliseFichaTecnica,
+    FabricanteFichaTecnica,
+    FichaTecnicaDoProduto,
     InformacoesNutricionaisFichaTecnica,
 )
 from sme_sigpae_api.produto.api.serializers.serializers import (
@@ -14,11 +20,6 @@ from sme_sigpae_api.produto.api.serializers.serializers import (
 from sme_sigpae_api.terceirizada.api.serializers.serializers import (
     TerceirizadaLookUpSerializer,
 )
-from sme_sigpae_api.pre_recebimento.base.api.serializers.serializers import (
-    UnidadeMedidaSimplesSerializer,
-)
-
-from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FabricanteFichaTecnica, FichaTecnicaDoProduto
 
 
 class FichaTecnicaSimplesSerializer(serializers.ModelSerializer):

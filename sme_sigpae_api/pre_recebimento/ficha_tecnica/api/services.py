@@ -1,4 +1,3 @@
-
 from sme_sigpae_api.dados_comuns.constants import (
     ADMINISTRADOR_CODAE_GABINETE,
     ADMINISTRADOR_GESTAO_PRODUTO,

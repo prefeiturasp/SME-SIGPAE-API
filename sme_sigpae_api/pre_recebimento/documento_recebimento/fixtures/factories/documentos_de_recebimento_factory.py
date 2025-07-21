@@ -7,15 +7,16 @@ from factory import LazyFunction, SubFactory
 from factory.django import DjangoModelFactory
 from faker import Faker
 
+from sme_sigpae_api.pre_recebimento.base.fixtures.factories.unidade_medida_factory import (
+    UnidadeMedidaFactory,
+)
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (
     CronogramaFactory,
 )
 from sme_sigpae_api.pre_recebimento.qualidade.fixtures.factories.laboratorio_factory import (
     LaboratorioFactory,
 )
-from sme_sigpae_api.pre_recebimento.base.fixtures.factories.unidade_medida_factory import (
-    UnidadeMedidaFactory,
-)
+
 from ...models import (
     ArquivoDoTipoDeDocumento,
     DataDeFabricaoEPrazo,

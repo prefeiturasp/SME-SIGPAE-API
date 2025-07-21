@@ -2,6 +2,7 @@ import os
 
 from django.core.validators import FileExtensionValidator
 from django.db import models
+
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
 from ...dados_comuns.behaviors import (

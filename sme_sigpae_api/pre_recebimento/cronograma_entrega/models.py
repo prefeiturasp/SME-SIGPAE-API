@@ -1,13 +1,22 @@
-from sme_sigpae_api.dados_comuns.behaviors import Logs, ModeloBase, TemIdentificadorExternoAmigavel
-from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaAlteracaoWorkflow, FluxoAlteracaoCronograma, FluxoCronograma
-from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
-from sme_sigpae_api.pre_recebimento.base.models import UnidadeMedida
-from sme_sigpae_api.terceirizada.models import Contrato, Terceirizada
 from django.db import models
-from sme_sigpae_api.pre_recebimento.qualidade.models import TipoEmbalagemQld
 from django.db.models import OuterRef
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
+from sme_sigpae_api.dados_comuns.behaviors import (
+    Logs,
+    ModeloBase,
+    TemIdentificadorExternoAmigavel,
+)
+from sme_sigpae_api.dados_comuns.fluxo_status import (
+    CronogramaAlteracaoWorkflow,
+    FluxoAlteracaoCronograma,
+    FluxoCronograma,
+)
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
+from sme_sigpae_api.pre_recebimento.base.models import UnidadeMedida
+from sme_sigpae_api.pre_recebimento.qualidade.models import TipoEmbalagemQld
+from sme_sigpae_api.terceirizada.models import Contrato, Terceirizada
 
 
 class Cronograma(ModeloBase, TemIdentificadorExternoAmigavel, Logs, FluxoCronograma):

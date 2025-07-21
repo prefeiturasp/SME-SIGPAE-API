@@ -2,8 +2,9 @@ from factory import LazyFunction, SubFactory
 from factory.django import DjangoModelFactory
 from faker import Faker
 
-from ...models import FabricanteFichaTecnica
 from sme_sigpae_api.produto.fixtures.factories.produto_factory import FabricanteFactory
+
+from ...models import FabricanteFichaTecnica
 
 fake = Faker("pt_BR")
 

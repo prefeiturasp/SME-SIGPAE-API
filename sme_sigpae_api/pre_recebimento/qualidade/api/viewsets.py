@@ -8,12 +8,12 @@ from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaCadastrarVisualizarEmbalagem,
     ViewSetActionPermissionMixin,
 )
+from sme_sigpae_api.pre_recebimento.base.api.paginations import (
+    PreRecebimentoPagination,
+)
 from sme_sigpae_api.pre_recebimento.qualidade.api.filters import (
     LaboratorioFilter,
     TipoEmbalagemQldFilter,
-)
-from sme_sigpae_api.pre_recebimento.base.api.paginations import (
-    PreRecebimentoPagination,
 )
 from sme_sigpae_api.pre_recebimento.qualidade.api.serializers.serializer_create import (
     LaboratorioCreateSerializer,

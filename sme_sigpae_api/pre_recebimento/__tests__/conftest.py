@@ -20,7 +20,7 @@ from sme_sigpae_api.dados_comuns.utils import convert_base64_to_contentfile
 from sme_sigpae_api.terceirizada.models import Terceirizada
 
 from ..base.models import UnidadeMedida
-from ..ficha_tecnica.models import FichaTecnicaDoProduto, AnaliseFichaTecnica
+from ..ficha_tecnica.models import AnaliseFichaTecnica, FichaTecnicaDoProduto
 from ..layout_embalagem.models import LayoutDeEmbalagem, TipoDeEmbalagemDeLayout
 
 fake = Faker("pt_BR")
