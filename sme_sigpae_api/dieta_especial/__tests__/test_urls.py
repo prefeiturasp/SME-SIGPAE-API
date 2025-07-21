@@ -1,5 +1,6 @@
 import base64
 import datetime
+from datetime import date, timedelta
 
 from rest_framework import status
 
@@ -88,17 +89,18 @@ def test_permissoes_dieta_especial_viewset(
     solicitacao_dieta_especial,
     solicitacao_dieta_especial_outra_dre,
 ):
+    client, user = client_autenticado_vinculo_escola_dieta
     # pode ver os dados de uma suspensão de alimentação da mesma escola
-    response = client_autenticado_vinculo_escola_dieta.get(
+    response = client.get(
         f"/solicitacoes-dieta-especial/{solicitacao_dieta_especial.uuid}/"
     )
     assert response.status_code == status.HTTP_200_OK
     # Não pode ver dados de uma suspensão de alimentação de outra escola
-    response = client_autenticado_vinculo_escola_dieta.get(
+    response = client.get(
         f"/solicitacoes-dieta-especial/{solicitacao_dieta_especial_outra_dre.uuid}/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    response = client_autenticado_vinculo_escola_dieta.delete(
+    response = client.delete(
         f"/solicitacoes-dieta-especial/{solicitacao_dieta_especial.uuid}/"
     )
     assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
@@ -133,6 +135,43 @@ def test_url_criar_dieta(
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == ["Aluno já possui Solicitação de Dieta Especial pendente"]
+
+
+def test_url_criar_dieta_duplicada_alteracao_ue_recreio_ferias(
+    client_autenticado_vinculo_escola_dieta,
+    periodo_escolar_integral,
+    solicitacao_dieta_especial_aprovada_alteracao_ue,
+    motivo_alteracao_ue,
+):
+    client, user = client_autenticado_vinculo_escola_dieta
+    dieta_aprovada = solicitacao_dieta_especial_aprovada_alteracao_ue
+    motivo_alteracao_ue = motivo_alteracao_ue
+
+    # Prepare payload using real data from fixture
+    payload = {
+        "codigo_eol_aluno": dieta_aprovada.aluno.codigo_eol,
+        "nome_aluno": dieta_aprovada.aluno.nome,
+        "data_nascimento": dieta_aprovada.aluno.data_nascimento,
+        "motivo_alteracao": motivo_alteracao_ue.uuid,
+        "codigo_eol_escola": dieta_aprovada.rastro_escola.codigo_eol,
+        "nome_escola": dieta_aprovada.rastro_escola.nome,
+        "observacoes_alteracao": "<p>teste11</p>",
+        "data_inicio": date.today().strftime("%d/%m/%Y"),
+        "data_termino": (date.today() + timedelta(days=10)).strftime("%d/%m/%Y"),
+        "dieta_alterada": dieta_aprovada.dieta_alterada.uuid,
+        "escola_destino": dieta_aprovada.escola_destino.codigo_eol,
+    }
+
+    response = client.post(
+        "/solicitacoes-dieta-especial/alteracao-ue/",
+        content_type="application/json",
+        data=payload,
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == [
+        "Já foi realizada uma alteração de UE para o aluno por motivo de Recreio nas Férias"
+    ]
 
 
 def test_url_criar_dieta_error(client_autenticado_vinculo_escola):
@@ -488,7 +527,8 @@ def test_url_endpoint_cancelar_dieta(
 ):
     obj = SolicitacaoDietaEspecial.objects.first()
     data = {"justificativa": "Uma justificativa fajuta"}
-    response = client_autenticado_vinculo_escola_dieta.post(
+    client, user = client_autenticado_vinculo_escola_dieta
+    response = client.post(
         f"/solicitacoes-dieta-especial/{obj.uuid}/escola-cancela-dieta-especial/",
         content_type="application/json",
         data=data,
@@ -496,7 +536,7 @@ def test_url_endpoint_cancelar_dieta(
     obj.refresh_from_db()
     assert response.status_code == status.HTTP_200_OK
     assert obj.status == DietaEspecialWorkflow.ESCOLA_CANCELOU
-    response = client_autenticado_vinculo_escola_dieta.post(
+    response = client.post(
         f"/solicitacoes-dieta-especial/{obj.uuid}/escola-cancela-dieta-especial/",
         content_type="application/json",
         data=data,
@@ -518,7 +558,8 @@ def test_url_endpoint_negar_cancelamento_dieta(
         "justificativa": "Uma justificativa fajuta",
         "motivo_negacao": motivos_negacao[0].id,
     }
-    response = client_autenticado_vinculo_escola_dieta.post(
+    client, user = client_autenticado_vinculo_escola_dieta
+    response = client.post(
         f"/solicitacoes-dieta-especial/{obj.uuid}/negar-cancelamento-dieta-especial/",
         content_type="application/json",
         data=data,
@@ -526,7 +567,8 @@ def test_url_endpoint_negar_cancelamento_dieta(
     obj.refresh_from_db()
     assert response.status_code == status.HTTP_200_OK
     assert obj.status == DietaEspecialWorkflow.CODAE_NEGOU_CANCELAMENTO
-    response = client_autenticado_vinculo_escola_dieta.post(
+    client, user = client_autenticado_vinculo_escola_dieta
+    response = client.post(
         f"/solicitacoes-dieta-especial/{obj.uuid}/negar-cancelamento-dieta-especial/",
         content_type="application/json",
         data=data,
@@ -649,7 +691,8 @@ def test_url_endpoint_escola_solicita_inativacao_dieta(
             }
         ],
     }
-    response = client_autenticado_vinculo_escola_dieta.post(
+    client, user = client_autenticado_vinculo_escola_dieta
+    response = client.post(
         f"/solicitacoes-dieta-especial/{obj.uuid}/escola-solicita-inativacao/",
         content_type="application/json",
         data=data,
@@ -658,7 +701,7 @@ def test_url_endpoint_escola_solicita_inativacao_dieta(
     assert response.status_code == status.HTTP_200_OK
     obj.refresh_from_db()
     assert obj.status == DietaEspecialWorkflow.CODAE_AUTORIZADO
-    response = client_autenticado_vinculo_escola_dieta.post(
+    response = client.post(
         f"/solicitacoes-dieta-especial/{obj.uuid}/escola-solicita-inativacao/",
         content_type="application/json",
         data=data,

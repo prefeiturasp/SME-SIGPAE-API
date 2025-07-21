@@ -19,13 +19,9 @@ from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.dados_comuns.utils import convert_base64_to_contentfile
 from sme_sigpae_api.terceirizada.models import Terceirizada
 
-from ..models import (
-    AnaliseFichaTecnica,
-    FichaTecnicaDoProduto,
-    LayoutDeEmbalagem,
-    TipoDeEmbalagemDeLayout,
-    UnidadeMedida,
-)
+from ..base.models import UnidadeMedida
+from ..ficha_tecnica.models import FichaTecnicaDoProduto, AnaliseFichaTecnica
+from ..layout_embalagem.models import LayoutDeEmbalagem, TipoDeEmbalagemDeLayout
 
 fake = Faker("pt_BR")
 
@@ -41,6 +37,17 @@ def modalidade():
 
 
 @pytest.fixture
+def modalidade_chamada_publica():
+    return mommy.make("Modalidade", nome="Chamada Pública")
+
+
+@pytest.fixture
+def modalidade_qualquer():
+    # Representa qualquer modalidade diferente de "Pregão Eletrônico" e "Chamada Pública"
+    return mommy.make("Modalidade", nome="Qualquer")
+
+
+@pytest.fixture
 def contrato(modalidade):
     return mommy.make(
         "Contrato",
@@ -48,6 +55,30 @@ def contrato(modalidade):
         processo="123",
         numero_pregao="123456789",
         modalidade=modalidade,
+    )
+
+
+@pytest.fixture
+def contrato_chamada_publica(modalidade_chamada_publica):
+    return mommy.make(
+        "Contrato",
+        numero="0004/2022",
+        processo="124",
+        numero_pregao="987654321",
+        numero_chamada_publica="CP-2022-01",
+        modalidade=modalidade_chamada_publica,
+    )
+
+
+@pytest.fixture
+def contrato_qualquer(modalidade_qualquer):
+    return mommy.make(
+        "Contrato",
+        numero="0002/2022",
+        processo="222",
+        numero_pregao="PE-2022-02",
+        numero_chamada_publica="CP-2022-02",
+        modalidade=modalidade_qualquer,
     )
 
 
@@ -71,6 +102,15 @@ def cronograma():
 
 
 @pytest.fixture
+def cronograma_chamada_publica(contrato_chamada_publica):
+    return mommy.make(
+        "Cronograma",
+        numero="003/2022A",
+        contrato=contrato_chamada_publica,
+    )
+
+
+@pytest.fixture
 def cronograma_rascunho(armazem, contrato, empresa):
     return mommy.make(
         "Cronograma",
@@ -90,6 +130,15 @@ def cronograma_recebido(armazem, contrato, empresa):
         empresa=empresa,
         armazem=armazem,
         status="ASSINADO_E_ENVIADO_AO_FORNECEDOR",
+    )
+
+
+@pytest.fixture
+def cronograma_qualquer(contrato_qualquer):
+    return mommy.make(
+        "Cronograma",
+        numero="002/2022A",
+        contrato=contrato_qualquer,
     )
 
 
@@ -919,6 +968,8 @@ def ficha_tecnica_perecivel_enviada_para_analise(
 @pytest.fixture
 def payload_analise_ficha_tecnica():
     return {
+        "fabricante_envasador_conferido": True,
+        "fabricante_envasador_correcoes": "",
         "detalhes_produto_conferido": True,
         "detalhes_produto_correcoes": "",
         "informacoes_nutricionais_conferido": True,
@@ -932,7 +983,9 @@ def payload_analise_ficha_tecnica():
         "embalagem_e_rotulagem_conferido": True,
         "embalagem_e_rotulagem_correcoes": "",
         "responsavel_tecnico_conferido": True,
+        "responsavel_tecnico_correcoes": "",
         "modo_preparo_conferido": True,
+        "modo_preparo_correcoes": "",
         "outras_informacoes_conferido": True,
     }
 

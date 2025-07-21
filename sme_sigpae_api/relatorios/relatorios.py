@@ -35,12 +35,12 @@ from ..medicao_inicial.utils import (
     build_tabelas_relatorio_medicao_cemei,
     build_tabelas_relatorio_medicao_emebs,
 )
-from ..pre_recebimento.api.helpers import (
+from ..pre_recebimento.ficha_tecnica.api.helpers import (
     formata_cnpj_ficha_tecnica,
     formata_telefone_ficha_tecnica,
     retorna_status_ficha_tecnica,
 )
-from ..pre_recebimento.models import InformacoesNutricionaisFichaTecnica
+from ..pre_recebimento.ficha_tecnica.models import InformacoesNutricionaisFichaTecnica
 from ..relatorios.utils import (
     html_to_pdf_cancelada,
     html_to_pdf_file,

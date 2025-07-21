@@ -6,7 +6,7 @@ from factory.django import DjangoModelFactory
 from faker import Faker
 
 from sme_sigpae_api.dados_comuns.utils import convert_base64_to_contentfile
-from sme_sigpae_api.pre_recebimento.fixtures.factories.cronograma_factory import (
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (
     EtapasDoCronogramaFactory,
 )
 from sme_sigpae_api.recebimento.models import (

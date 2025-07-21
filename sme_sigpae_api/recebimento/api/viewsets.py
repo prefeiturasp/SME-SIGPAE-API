@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from ...dados_comuns.api.paginations import DefaultPagination
-from ...pre_recebimento.models import Cronograma
+from ...pre_recebimento.cronograma_entrega.models import Cronograma
 from ..models import FichaDeRecebimento, QuestaoConferencia, QuestoesPorProduto
 from .filters import FichaRecebimentoFilter, QuestoesPorProdutoFilter
 from .permissions import (

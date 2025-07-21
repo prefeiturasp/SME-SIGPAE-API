@@ -18,29 +18,18 @@ from sme_sigpae_api.dados_comuns.fluxo_status import (
     LayoutDeEmbalagemWorkflow,
 )
 from sme_sigpae_api.dados_comuns.models import CentralDeDownload
-from sme_sigpae_api.pre_recebimento.api.serializers.serializers import (
-    CronogramaSimplesSerializer,
-    FichaTecnicaComAnaliseDetalharSerializer,
-    FichaTecnicaDetalharSerializer,
-    UnidadeMedidaSimplesSerializer,
-)
-from sme_sigpae_api.pre_recebimento.api.services import (
-    ServiceDashboardDocumentosDeRecebimento,
-    ServiceDashboardFichaTecnica,
-    ServiceDashboardLayoutEmbalagem,
-)
-from sme_sigpae_api.pre_recebimento.models import (
-    AnaliseFichaTecnica,
-    Cronograma,
-    DocumentoDeRecebimento,
-    FichaTecnicaDoProduto,
-    Laboratorio,
-    LayoutDeEmbalagem,
-    SolicitacaoAlteracaoCronograma,
-    TipoDeDocumentoDeRecebimento,
-    TipoEmbalagemQld,
-    UnidadeMedida,
-)
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import CronogramaSimplesSerializer
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializers import FichaTecnicaComAnaliseDetalharSerializer, FichaTecnicaDetalharSerializer
+from sme_sigpae_api.pre_recebimento.base.api.serializers.serializers import UnidadeMedidaSimplesSerializer
+from sme_sigpae_api.pre_recebimento.documento_recebimento.api.services import ServiceDashboardDocumentosDeRecebimento
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.services import ServiceDashboardFichaTecnica
+from sme_sigpae_api.pre_recebimento.layout_embalagem.api.services import ServiceDashboardLayoutEmbalagem
+from sme_sigpae_api.pre_recebimento.base.models import UnidadeMedida
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma, SolicitacaoAlteracaoCronograma
+from sme_sigpae_api.pre_recebimento.documento_recebimento.models import DocumentoDeRecebimento, TipoDeDocumentoDeRecebimento
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto, AnaliseFichaTecnica
+from sme_sigpae_api.pre_recebimento.qualidade.models import Laboratorio, TipoEmbalagemQld
+from sme_sigpae_api.pre_recebimento.layout_embalagem.models import LayoutDeEmbalagem
 from sme_sigpae_api.terceirizada.models import Terceirizada
 
 fake = Faker("pt_BR")
@@ -3390,8 +3379,14 @@ def test_url_ficha_tecnica_rascunho_analise_update(
     payload_analise_ficha_tecnica,
 ):
     payload_atualizacao = {**payload_analise_ficha_tecnica}
+    payload_atualizacao["fabricante_envasador_conferido"] = False
+    payload_atualizacao["fabricante_envasador_correcoes"] = "Correção fabricante"
     payload_atualizacao["detalhes_produto_conferido"] = False
     payload_atualizacao["detalhes_produto_correcoes"] = "Uma correção qualquer..."
+    payload_atualizacao["responsavel_tecnico_conferido"] = False
+    payload_atualizacao["responsavel_tecnico_correcoes"] = "Correção responsável"
+    payload_atualizacao["modo_preparo_conferido"] = False
+    payload_atualizacao["modo_preparo_correcoes"] = "Correção modo de preparo"
 
     response = client_autenticado_codae_dilog.put(
         f"/ficha-tecnica/{analise_ficha_tecnica.ficha_tecnica.uuid}/rascunho-analise-gpcodae/",
@@ -3402,8 +3397,14 @@ def test_url_ficha_tecnica_rascunho_analise_update(
 
     assert response.status_code == status.HTTP_200_OK
     assert AnaliseFichaTecnica.objects.count() == 1
-    assert analise.detalhes_produto_conferido == False
+    assert analise.fabricante_envasador_conferido is False
+    assert analise.fabricante_envasador_correcoes == "Correção fabricante"
+    assert analise.detalhes_produto_conferido is False
     assert analise.detalhes_produto_correcoes == "Uma correção qualquer..."
+    assert analise.responsavel_tecnico_conferido is False
+    assert analise.responsavel_tecnico_correcoes == "Correção responsável"
+    assert analise.modo_preparo_conferido is False
+    assert analise.modo_preparo_correcoes == "Correção modo de preparo"
 
 
 def test_url_ficha_tecnica_rascunho_analise_update_criado_por(
@@ -3462,29 +3463,40 @@ def test_url_ficha_tecnica_analise_gpcodae_validate(
     ficha_tecnica_perecivel_enviada_para_analise,
     payload_analise_ficha_tecnica,
 ):
-    payload_invalido = {**payload_analise_ficha_tecnica}
-    payload_invalido["detalhes_produto_conferido"] = False
+    # Test missing correcoes when conferido is False
+    campos_para_testar = [
+        "fabricante_envasador",
+        "detalhes_produto",
+        "responsavel_tecnico",
+        "modo_preparo",
+    ]
 
-    response = client_autenticado_codae_dilog.post(
-        f"/ficha-tecnica/{ficha_tecnica_perecivel_enviada_para_analise.uuid}/analise-gpcodae/",
-        content_type="application/json",
-        data=json.dumps(payload_invalido),
-    )
+    for campo in campos_para_testar:
+        payload_invalido = {**payload_analise_ficha_tecnica}
+        payload_invalido[f"{campo}_conferido"] = False
 
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert not AnaliseFichaTecnica.objects.exists()
+        response = client_autenticado_codae_dilog.post(
+            f"/ficha-tecnica/{ficha_tecnica_perecivel_enviada_para_analise.uuid}/analise-gpcodae/",
+            content_type="application/json",
+            data=json.dumps(payload_invalido),
+        )
 
-    payload_invalido = {**payload_analise_ficha_tecnica}
-    payload_invalido["detalhes_produto_correcoes"] = "Uma string não vazia"
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert not AnaliseFichaTecnica.objects.exists()
 
-    response = client_autenticado_codae_dilog.post(
-        f"/ficha-tecnica/{ficha_tecnica_perecivel_enviada_para_analise.uuid}/analise-gpcodae/",
-        content_type="application/json",
-        data=json.dumps(payload_invalido),
-    )
+    # Test correcoes not empty when conferido is True
+    for campo in campos_para_testar:
+        payload_invalido = {**payload_analise_ficha_tecnica}
+        payload_invalido[f"{campo}_correcoes"] = f"Correção para {campo}"
 
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert not AnaliseFichaTecnica.objects.exists()
+        response = client_autenticado_codae_dilog.post(
+            f"/ficha-tecnica/{ficha_tecnica_perecivel_enviada_para_analise.uuid}/analise-gpcodae/",
+            content_type="application/json",
+            data=json.dumps(payload_invalido),
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert not AnaliseFichaTecnica.objects.exists()
 
 
 def test_url_ficha_tecnica_correcao_fornecedor(

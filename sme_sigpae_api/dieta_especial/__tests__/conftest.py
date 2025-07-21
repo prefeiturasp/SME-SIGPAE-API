@@ -273,6 +273,69 @@ def solicitacao_dieta_especial_autorizada(
 
 
 @pytest.fixture
+def solicitacao_dieta_especial_aprovada_alteracao_ue(
+    client, escola, motivo_alteracao_ue
+):
+    aluno = mommy.make(
+        Aluno,
+        nome="Isabella Pereira da Silva",
+        codigo_eol="488226",
+        data_nascimento="2000-01-01",
+    )
+    email = "test3@admin.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    rf = "374867"
+    user = Usuario.objects.create_user(
+        username=email, password=password, email=email, registro_funcional=rf
+    )
+    client.login(username=email, password=password)
+
+    perfil = mommy.make("perfil.Perfil", nome="DIRETOR_UE", ativo=False)
+    mommy.make(
+        "perfil.Vinculo",
+        usuario=user,
+        instituicao=escola,
+        perfil=perfil,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    solicitacao_alterada = mommy.make(
+        "SolicitacaoDietaEspecial",
+        criado_por=user,
+        rastro_escola=escola,
+        escola_destino=escola,
+        aluno=aluno,
+        data_inicio=datetime.date.today(),
+        data_termino=datetime.date.today(),
+        status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
+    )
+    solicitacao = mommy.make(
+        "SolicitacaoDietaEspecial",
+        criado_por=user,
+        rastro_escola=escola,
+        escola_destino=escola,
+        aluno=aluno,
+        data_inicio=datetime.date.today(),
+        data_termino=datetime.date.today(),
+        status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
+        motivo_alteracao_ue=motivo_alteracao_ue,
+        tipo_solicitacao="ALTERACAO_UE",
+        dieta_alterada=solicitacao_alterada,
+    )
+    return solicitacao
+
+
+@pytest.fixture
+def motivo_alteracao_ue():
+    return mommy.make(
+        "MotivoAlteracaoUE",
+        uuid="26e7367e-2ef8-49c4-ab2a-9aa9f68475cb",
+        nome="Dieta Especial - Recreio nas Férias",
+        descricao="",
+    )
+
+
+@pytest.fixture
 def solicitacao_dieta_especial_escola_solicitou_inativacao(
     client, escola, solicitacao_dieta_especial_autorizada
 ):
@@ -452,7 +515,7 @@ def client_autenticado_vinculo_escola_dieta(
         ativo=True,
     )
     client.login(username=email, password=password)
-    return client
+    return client, user
 
 
 @pytest.fixture

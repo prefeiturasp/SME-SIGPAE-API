@@ -2560,7 +2560,7 @@ def client_autenticado_adm_da_escola(client, django_user_model, escola):
 
 
 @pytest.fixture
-def client_autenticado_codae_medicao(client, django_user_model):
+def user_administrador_medicao(django_user_model):
     email = "codae@medicao.com"
     password = "admin@1234"
     perfil_medicao = mommy.make("Perfil", nome="ADMINISTRADOR_MEDICAO", ativo=True)
@@ -2577,7 +2577,13 @@ def client_autenticado_codae_medicao(client, django_user_model):
         data_inicial=hoje,
         ativo=True,
     )
-    client.login(username=email, password=password)
+    return usuario, password
+
+
+@pytest.fixture
+def client_autenticado_codae_medicao(client, user_administrador_medicao):
+    usuario, password = user_administrador_medicao
+    client.login(username=usuario.email, password=password)
     return client
 
 
@@ -3354,6 +3360,25 @@ def relatorio_consolidado_xlsx_cei(
                         valor=20,
                         faixa_etaria=faixa,
                     )
+                    mommy.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo="frequencia",
+                        medicao=medicao,
+                        categoria_medicao=categoria_medicao_dieta_a,
+                        valor=2,
+                        faixa_etaria=faixa,
+                    )
+                    mommy.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo="frequencia",
+                        medicao=medicao,
+                        categoria_medicao=categoria_medicao_dieta_b,
+                        valor=2,
+                        faixa_etaria=faixa,
+                    )
+
             elif medicao == medicao_manha:
                 mommy.make(
                     "ValorMedicao",
@@ -3444,9 +3469,13 @@ def mock_colunas_cei(faixas_etarias_ativas):
     faixas = [faixa.id for faixa in faixas_etarias_ativas]
     colunas = []
 
-    for periodo in ["INTEGRAL", "PARCIAL"]:
-        for faixa in faixas:
-            colunas.append((periodo, faixa))
+    colunas.extend(("INTEGRAL", faixa) for faixa in faixas)
+    colunas.extend(("DIETA ESPECIAL - TIPO A - INTEGRAL", faixa) for faixa in faixas)
+    colunas.extend(("DIETA ESPECIAL - TIPO B - INTEGRAL", faixa) for faixa in faixas)
+
+    colunas.extend(("PARCIAL", faixa) for faixa in faixas)
+    colunas.extend(("DIETA ESPECIAL - TIPO A - PARCIAL", faixa) for faixa in faixas)
+    colunas.extend(("DIETA ESPECIAL - TIPO B - PARCIAL", faixa) for faixa in faixas)
 
     colunas.append(("MANHA", faixas_etarias_ativas[2].id))
     colunas.append(("MANHA", faixas_etarias_ativas[4].id))
@@ -3475,6 +3504,22 @@ def mock_linhas_cei():
             80.0,
             80.0,
             80.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
             80.0,
             80.0,
             80.0,
@@ -3483,6 +3528,22 @@ def mock_linhas_cei():
             80.0,
             80.0,
             80.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
+            8.0,
             80.0,
             60.0,
             60.0,
@@ -3604,24 +3665,24 @@ def relatorio_consolidado_xlsx_cemei(
                     valor=20,
                     faixa_etaria=faixa,
                 )
-            mommy.make(
-                "ValorMedicao",
-                dia=dia,
-                nome_campo="frequencia",
-                medicao=medicao,
-                categoria_medicao=categoria_medicao_dieta_a,
-                valor=3,
-                faixa_etaria=faixas_etarias_ativas[2],
-            )
-            mommy.make(
-                "ValorMedicao",
-                dia=dia,
-                nome_campo="frequencia",
-                medicao=medicao,
-                categoria_medicao=categoria_medicao_dieta_b,
-                valor=2,
-                faixa_etaria=faixas_etarias_ativas[4],
-            )
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo="frequencia",
+                    medicao=medicao,
+                    categoria_medicao=categoria_medicao_dieta_a,
+                    valor=2,
+                    faixa_etaria=faixa,
+                )
+                mommy.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo="frequencia",
+                    medicao=medicao,
+                    categoria_medicao=categoria_medicao_dieta_b,
+                    valor=3,
+                    faixa_etaria=faixa,
+                )
         for medicao in [
             medicao_infantil_integral,
             medicao_infantil_manha,
@@ -3692,11 +3753,14 @@ def mock_colunas_cemei(faixas_etarias_ativas):
         ("Solicitações de Alimentação", "lanche_emergencial"),
     ]
     faixas = [faixa.id for faixa in faixas_etarias_ativas]
-    for periodo in ["INTEGRAL", "PARCIAL"]:
-        for faixa in faixas:
-            colunas.append((periodo, faixa))
-    colunas.append(("DIETA ESPECIAL - TIPO A - CEI", faixas_etarias_ativas[2].id))
-    colunas.append(("DIETA ESPECIAL - TIPO B - CEI", faixas_etarias_ativas[4].id))
+
+    colunas.extend(("INTEGRAL", faixa) for faixa in faixas)
+    colunas.extend(("DIETA ESPECIAL - TIPO A - INTEGRAL", faixa) for faixa in faixas)
+    colunas.extend(("DIETA ESPECIAL - TIPO B - INTEGRAL", faixa) for faixa in faixas)
+    colunas.extend(("PARCIAL", faixa) for faixa in faixas)
+    colunas.extend(("DIETA ESPECIAL - TIPO A - PARCIAL", faixa) for faixa in faixas)
+    colunas.extend(("DIETA ESPECIAL - TIPO B - PARCIAL", faixa) for faixa in faixas)
+
     for periodo in ["Infantil INTEGRAL", "Infantil MANHA", "Infantil TARDE"]:
         for campo in [
             "lanche",
@@ -3734,6 +3798,22 @@ def mock_linhas_cemei():
             100.0,
             100.0,
             100.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
             100.0,
             100.0,
             100.0,
@@ -3742,8 +3822,22 @@ def mock_linhas_cemei():
             100.0,
             100.0,
             100.0,
-            30.0,
-            20.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
+            15.0,
             150.0,
             150.0,
             150.0,
@@ -4002,75 +4096,6 @@ def mock_colunas_emebs():
         colunas.append((turma, "DIETA ESPECIAL - TIPO A", "refeicao"))
         colunas.append((turma, "DIETA ESPECIAL - TIPO B", "lanche"))
         colunas.append((turma, "DIETA ESPECIAL - TIPO B", "lanche_4h"))
-
-    # colunas = [
-    #     ("", "Solicitações de Alimentação", "lanche_emergencial"),
-    #     ("", "Solicitações de Alimentação", "kit_lanche"),
-    #     ("INFANTIL", "MANHA", "lanche"),
-    #     ("INFANTIL", "MANHA", "lanche_4h"),
-    #     ("INFANTIL", "MANHA", "refeicao"),
-    #     ("INFANTIL", "MANHA", "total_refeicoes_pagamento"),
-    #     ("INFANTIL", "MANHA", "sobremesa"),
-    #     ("INFANTIL", "MANHA", "total_sobremesas_pagamento"),
-    #     ("INFANTIL", "TARDE", "lanche"),
-    #     ("INFANTIL", "TARDE", "lanche_4h"),
-    #     ("INFANTIL", "TARDE", "refeicao"),
-    #     ("INFANTIL", "TARDE", "total_refeicoes_pagamento"),
-    #     ("INFANTIL", "TARDE", "sobremesa"),
-    #     ("INFANTIL", "TARDE", "total_sobremesas_pagamento"),
-    #     ("INFANTIL", "INTEGRAL", "lanche"),
-    #     ("INFANTIL", "INTEGRAL", "lanche_4h"),
-    #     ("INFANTIL", "INTEGRAL", "refeicao"),
-    #     ("INFANTIL", "INTEGRAL", "total_refeicoes_pagamento"),
-    #     ("INFANTIL", "INTEGRAL", "sobremesa"),
-    #     ("INFANTIL", "INTEGRAL", "total_sobremesas_pagamento"),
-    #     ("INFANTIL", "Programas e Projetos", "lanche"),
-    #     ("INFANTIL", "Programas e Projetos", "lanche_4h"),
-    #     ("INFANTIL", "Programas e Projetos", "refeicao"),
-    #     ("INFANTIL", "Programas e Projetos", "total_refeicoes_pagamento"),
-    #     ("INFANTIL", "Programas e Projetos", "sobremesa"),
-    #     ("INFANTIL", "Programas e Projetos", "total_sobremesas_pagamento"),
-    #     ("INFANTIL", "DIETA ESPECIAL - TIPO A", "lanche"),
-    #     ("INFANTIL", "DIETA ESPECIAL - TIPO A", "lanche_4h"),
-    #     ("INFANTIL", "DIETA ESPECIAL - TIPO A", "refeicao"),
-    #     ("INFANTIL", "DIETA ESPECIAL - TIPO B", "lanche"),
-    #     ("INFANTIL", "DIETA ESPECIAL - TIPO B", "lanche_4h"),
-    #     ("FUNDAMENTAL", "MANHA", "lanche"),
-    #     ("FUNDAMENTAL", "MANHA", "lanche_4h"),
-    #     ("FUNDAMENTAL", "MANHA", "refeicao"),
-    #     ("FUNDAMENTAL", "MANHA", "total_refeicoes_pagamento"),
-    #     ("FUNDAMENTAL", "MANHA", "sobremesa"),
-    #     ("FUNDAMENTAL", "MANHA", "total_sobremesas_pagamento"),
-    #     ("FUNDAMENTAL", "TARDE", "lanche"),
-    #     ("FUNDAMENTAL", "TARDE", "lanche_4h"),
-    #     ("FUNDAMENTAL", "TARDE", "refeicao"),
-    #     ("FUNDAMENTAL", "TARDE", "total_refeicoes_pagamento"),
-    #     ("FUNDAMENTAL", "TARDE", "sobremesa"),
-    #     ("FUNDAMENTAL", "TARDE", "total_sobremesas_pagamento"),
-    #     ("FUNDAMENTAL", "INTEGRAL", "lanche"),
-    #     ("FUNDAMENTAL", "INTEGRAL", "lanche_4h"),
-    #     ("FUNDAMENTAL", "INTEGRAL", "refeicao"),
-    #     ("FUNDAMENTAL", "INTEGRAL", "total_refeicoes_pagamento"),
-    #     ("FUNDAMENTAL", "INTEGRAL", "sobremesa"),
-    #     ("FUNDAMENTAL", "INTEGRAL", "total_sobremesas_pagamento"),
-    #     ("FUNDAMENTAL", "NOITE", "lanche"),
-    #     ("FUNDAMENTAL", "NOITE", "lanche_4h"),
-    #     ("FUNDAMENTAL", "NOITE", "refeicao"),
-    #     ("FUNDAMENTAL", "NOITE", "total_refeicoes_pagamento"),
-    #     ("FUNDAMENTAL", "NOITE", "sobremesa"),
-    #     ("FUNDAMENTAL", "NOITE", "total_sobremesas_pagamento"),
-    #     ("FUNDAMENTAL", "Programas e Projetos", "lanche"),
-    #     ("FUNDAMENTAL", "Programas e Projetos", "lanche_4h"),
-    #     ("FUNDAMENTAL", "Programas e Projetos", "refeicao"),
-    #     ("FUNDAMENTAL", "Programas e Projetos", "total_refeicoes_pagamento"),
-    #     ("FUNDAMENTAL", "Programas e Projetos", "sobremesa"),
-    #     ("FUNDAMENTAL", "Programas e Projetos", "total_sobremesas_pagamento"),
-    #     ("FUNDAMENTAL", "DIETA ESPECIAL - TIPO A", "lanche"),
-    #     ("FUNDAMENTAL", "DIETA ESPECIAL - TIPO A", "lanche_4h"),
-    #     ("FUNDAMENTAL", "DIETA ESPECIAL - TIPO A", "refeicao"),
-    #     ("FUNDAMENTAL", "DIETA ESPECIAL - TIPO B", "lanche"),
-    #     ("FUNDAMENTAL", "DIETA ESPECIAL - TIPO B", "lanche_4h"),
-    # ]
     return colunas
 
 
@@ -4165,3 +4190,57 @@ def informacoes_excel_writer_emebs(
     finally:
         workbook.close()
         writer.close()
+
+
+@pytest.fixture
+def solicitacao_sem_lancamento(solicitacao_relatorio_consolidado_grupo_emef, usuario):
+    medicao = mommy.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emef,
+        periodo_escolar=mommy.make("PeriodoEscolar", nome="MANHA"),
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_SEM_LANCAMENTOS,
+        grupo=None,
+    )
+    kwargs = {"justificativa": "Não houve aula no período"}
+    solicitacao_relatorio_consolidado_grupo_emef.salvar_log_transicao(
+        LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE, usuario, **kwargs
+    )
+    medicao.salvar_log_transicao(
+        LogSolicitacoesUsuario.MEDICAO_SEM_LANCAMENTOS, usuario, **kwargs
+    )
+
+    return solicitacao_relatorio_consolidado_grupo_emef
+
+
+@pytest.fixture
+def solicitacao_sem_lancamento_com_correcao(solicitacao_sem_lancamento, usuario):
+    kwargs = {"justificativa": "Houve alimentação ofertadada nesse período"}
+    solicitacao_sem_lancamento.status = (
+        SolicitacaoMedicaoInicialWorkflow.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+    )
+    solicitacao_sem_lancamento.save()
+    solicitacao_sem_lancamento.salvar_log_transicao(
+        LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+        usuario,
+        **kwargs,
+    )
+    return solicitacao_sem_lancamento
+
+
+@pytest.fixture
+def medicao_sem_lancamento_com_correcao(
+    solicitacao_sem_lancamento_com_correcao, usuario
+):
+    kwargs = {"justificativa": "Houve alimentação ofertadada nesse período"}
+    medicao = solicitacao_sem_lancamento_com_correcao.medicoes.first()
+    medicao.status = (
+        SolicitacaoMedicaoInicialWorkflow.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+    )
+    medicao.save()
+    medicao.salvar_log_transicao(
+        LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+        usuario,
+        **kwargs,
+    )
+
+    return solicitacao_sem_lancamento_com_correcao
