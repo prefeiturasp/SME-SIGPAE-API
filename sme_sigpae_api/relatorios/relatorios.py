@@ -1375,17 +1375,27 @@ def get_total_por_periodo(tabelas, campo):
 
             for indice_campo in indices_campos:
                 periodo = get_periodo(periodos, indice_campo, tabela["len_periodos"])
-
                 posicao_periodo = periodos.index(periodo)
-                if posicao_periodo > 0:
-                    indice_campo = (
-                        sum(tabela["len_periodos"][:posicao_periodo]) + indice_campo
-                    )
+                indice_valor = _calcular_indice_valor(
+                    tabela, posicao_periodo, indice_campo
+                )
+                valor = _obter_valor(tabela, indice_valor, indice_campo)
 
-                dict_periodos_total_campo[periodo] = tabela["valores_campos"][-1][
-                    indice_campo + 1
-                ]
+                dict_periodos_total_campo[periodo] = valor
     return dict_periodos_total_campo
+
+
+def _calcular_indice_valor(tabela, posicao_periodo, indice_campo):
+    if posicao_periodo == 0:
+        return indice_campo
+    return sum(tabela["len_periodos"][:posicao_periodo]) + indice_campo
+
+
+def _obter_valor(tabela, indice_valor, indice_principal):
+    try:
+        return tabela["valores_campos"][-1][indice_valor + 1]
+    except IndexError:
+        return tabela["valores_campos"][-1][indice_principal + 1]
 
 
 def get_indices_campo(nomes_campos, campo):
