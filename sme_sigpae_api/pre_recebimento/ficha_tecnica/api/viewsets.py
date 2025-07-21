@@ -18,7 +18,6 @@ from sme_sigpae_api.dados_comuns.permissions import (
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.filters import (
     FichaTecnicaFilter,
 )
-
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializer_create import (
     AnaliseFichaTecnicaCreateSerializer,
     AnaliseFichaTecnicaRascunhoSerializer,
@@ -26,7 +25,6 @@ from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializer_cre
     FichaTecnicaAtualizacaoSerializer,
     FichaTecnicaCreateSerializer,
     FichaTecnicaRascunhoSerializer,
-
 )
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
     FichaTecnicaComAnaliseDetalharSerializer,

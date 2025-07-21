@@ -1,6 +1,6 @@
-
 from django.db import models
-from sme_sigpae_api.dados_comuns.behaviors import TemChaveExterna, Nomeavel, CriadoEm
+
+from sme_sigpae_api.dados_comuns.behaviors import CriadoEm, Nomeavel, TemChaveExterna
 
 
 class UnidadeMedida(TemChaveExterna, Nomeavel, CriadoEm):

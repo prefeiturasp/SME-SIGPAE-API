@@ -1,12 +1,12 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from .cronograma_entrega.api import viewsets as cronograma_viewsets
-from .qualidade.api import viewsets as qualidade_viewsets
 from .base.api import viewsets as base_viewsets
+from .cronograma_entrega.api import viewsets as cronograma_viewsets
 from .documento_recebimento.api import viewsets as documento_viewsets
 from .ficha_tecnica.api import viewsets as ficha_tecnica_viewsets
 from .layout_embalagem.api import viewsets as layout_viewsets
+from .qualidade.api import viewsets as qualidade_viewsets
 
 router = routers.DefaultRouter()
 
@@ -36,7 +36,9 @@ router.register(
     basename="rascunho-ficha-tecnica",
 )
 router.register(
-    "ficha-tecnica", ficha_tecnica_viewsets.FichaTecnicaModelViewSet, basename="ficha-tecnica"
+    "ficha-tecnica",
+    ficha_tecnica_viewsets.FichaTecnicaModelViewSet,
+    basename="ficha-tecnica",
 )
 router.register(
     "calendario-cronogramas",

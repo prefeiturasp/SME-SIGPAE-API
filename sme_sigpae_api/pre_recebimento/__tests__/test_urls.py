@@ -18,18 +18,43 @@ from sme_sigpae_api.dados_comuns.fluxo_status import (
     LayoutDeEmbalagemWorkflow,
 )
 from sme_sigpae_api.dados_comuns.models import CentralDeDownload
-from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import CronogramaSimplesSerializer
-from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializers import FichaTecnicaComAnaliseDetalharSerializer, FichaTecnicaDetalharSerializer
-from sme_sigpae_api.pre_recebimento.base.api.serializers.serializers import UnidadeMedidaSimplesSerializer
-from sme_sigpae_api.pre_recebimento.documento_recebimento.api.services import ServiceDashboardDocumentosDeRecebimento
-from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.services import ServiceDashboardFichaTecnica
-from sme_sigpae_api.pre_recebimento.layout_embalagem.api.services import ServiceDashboardLayoutEmbalagem
+from sme_sigpae_api.pre_recebimento.base.api.serializers.serializers import (
+    UnidadeMedidaSimplesSerializer,
+)
 from sme_sigpae_api.pre_recebimento.base.models import UnidadeMedida
-from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma, SolicitacaoAlteracaoCronograma
-from sme_sigpae_api.pre_recebimento.documento_recebimento.models import DocumentoDeRecebimento, TipoDeDocumentoDeRecebimento
-from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto, AnaliseFichaTecnica
-from sme_sigpae_api.pre_recebimento.qualidade.models import Laboratorio, TipoEmbalagemQld
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
+    CronogramaSimplesSerializer,
+)
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
+    Cronograma,
+    SolicitacaoAlteracaoCronograma,
+)
+from sme_sigpae_api.pre_recebimento.documento_recebimento.api.services import (
+    ServiceDashboardDocumentosDeRecebimento,
+)
+from sme_sigpae_api.pre_recebimento.documento_recebimento.models import (
+    DocumentoDeRecebimento,
+    TipoDeDocumentoDeRecebimento,
+)
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
+    FichaTecnicaComAnaliseDetalharSerializer,
+    FichaTecnicaDetalharSerializer,
+)
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.services import (
+    ServiceDashboardFichaTecnica,
+)
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
+    AnaliseFichaTecnica,
+    FichaTecnicaDoProduto,
+)
+from sme_sigpae_api.pre_recebimento.layout_embalagem.api.services import (
+    ServiceDashboardLayoutEmbalagem,
+)
 from sme_sigpae_api.pre_recebimento.layout_embalagem.models import LayoutDeEmbalagem
+from sme_sigpae_api.pre_recebimento.qualidade.models import (
+    Laboratorio,
+    TipoEmbalagemQld,
+)
 from sme_sigpae_api.terceirizada.models import Terceirizada
 
 fake = Faker("pt_BR")

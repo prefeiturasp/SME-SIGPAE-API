@@ -1,11 +1,12 @@
 from rest_framework import serializers
 from xworkflows.base import InvalidTransitionError
 
-from sme_sigpae_api.dados_comuns.api.serializers import (
-    CamposObrigatoriosMixin
-)
+from sme_sigpae_api.dados_comuns.api.serializers import CamposObrigatoriosMixin
 from sme_sigpae_api.dados_comuns.utils import (
     update_instance_from_dict,
+)
+from sme_sigpae_api.pre_recebimento.base.models import (
+    UnidadeMedida,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
 from sme_sigpae_api.pre_recebimento.documento_recebimento.models import (
@@ -13,12 +14,10 @@ from sme_sigpae_api.pre_recebimento.documento_recebimento.models import (
     DocumentoDeRecebimento,
     TipoDeDocumentoDeRecebimento,
 )
-from sme_sigpae_api.pre_recebimento.base.models import (
-    UnidadeMedida,
-)
 from sme_sigpae_api.pre_recebimento.qualidade.models import (
     Laboratorio,
 )
+
 from ..helpers import (
     cria_datas_e_prazos_doc_recebimento,
     cria_tipos_de_documentos,

@@ -126,10 +126,12 @@ from .medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_factor
     ValorMedicaoFactory,
 )
 from .perfil.fixtures.factories.perfil_base_factories import UsuarioFactory
+from .pre_recebimento.base.fixtures.factories.unidade_medida_factory import (
+    UnidadeMedidaFactory,
+)
 from .pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (
     CronogramaFactory,
     EtapasDoCronogramaFactory,
-
 )
 from .pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory import (
     ArquivoDoTipoDeDocumentoFactory,
@@ -144,14 +146,11 @@ from .pre_recebimento.ficha_tecnica.fixtures.factories.ficha_tecnica_do_produto_
 from .pre_recebimento.layout_embalagem.fixtures.factories.layout_embalagem_factory import (
     LayoutDeEmbalagemFactory,
 )
-from .pre_recebimento.qualidade.fixtures.factories.tipo_embalagem_qld_factory import (
-    TipoEmbalagemQldFactory,
-)
 from .pre_recebimento.qualidade.fixtures.factories.laboratorio_factory import (
     LaboratorioFactory,
 )
-from .pre_recebimento.base.fixtures.factories.unidade_medida_factory import (
-    UnidadeMedidaFactory,
+from .pre_recebimento.qualidade.fixtures.factories.tipo_embalagem_qld_factory import (
+    TipoEmbalagemQldFactory,
 )
 from .produto.fixtures.factories.produto_factory import (
     DataHoraVinculoProdutoEditalFactory,

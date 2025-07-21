@@ -9,10 +9,6 @@ from sme_sigpae_api.dados_comuns.permissions import (
     UsuarioEhFornecedor,
     ViewSetActionPermissionMixin,
 )
-from sme_sigpae_api.pre_recebimento.layout_embalagem.filters import (
-    LayoutDeEmbalagemFilter,
-)
-
 from sme_sigpae_api.pre_recebimento.layout_embalagem.api.serializers.serializer_create import (
     LayoutDeEmbalagemAnaliseSerializer,
     LayoutDeEmbalagemCorrecaoSerializer,
@@ -25,7 +21,9 @@ from sme_sigpae_api.pre_recebimento.layout_embalagem.api.serializers.serializers
 )
 from sme_sigpae_api.pre_recebimento.layout_embalagem.api.services import (
     ServiceDashboardLayoutEmbalagem,
-
+)
+from sme_sigpae_api.pre_recebimento.layout_embalagem.filters import (
+    LayoutDeEmbalagemFilter,
 )
 from sme_sigpae_api.pre_recebimento.layout_embalagem.models import (
     LayoutDeEmbalagem,

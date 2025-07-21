@@ -8,14 +8,14 @@ from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.dados_comuns.utils import (
     update_instance_from_dict,
 )
+from sme_sigpae_api.pre_recebimento.base.models import (
+    UnidadeMedida,
+)
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
     Cronograma,
     EtapasDoCronograma,
     ProgramacaoDoRecebimentoDoCronograma,
     SolicitacaoAlteracaoCronograma,
-)
-from sme_sigpae_api.pre_recebimento.base.models import (
-    UnidadeMedida,
 )
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from sme_sigpae_api.pre_recebimento.qualidade.models import TipoEmbalagemQld
