@@ -293,7 +293,7 @@ def test_exporta_relatorio_adesao_para_pdf(
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"
     periodo_lancamento_ate = f"03/{mes}/{ano}"
-    
+
     solicitacao = make_solicitacao_medicao_inicial(
         mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
     )
@@ -309,7 +309,7 @@ def test_exporta_relatorio_adesao_para_pdf(
             categoria_medicao=categoria_medicao,
             valor=str(valor).rjust(2, "0"),
             tipo_alimentacao=tipo_alimentacao_refeicao,
-            dia= dia,
+            dia=dia,
         )
         make_valores_medicao(
             medicao=medicao,
@@ -328,9 +328,14 @@ def test_exporta_relatorio_adesao_para_pdf(
     resultados = obtem_resultados(query_params)
 
     exporta_relatorio_adesao_para_pdf(
-        usuario, nome_arquivo, resultados, {"mes_ano": f"{mes}_{ano}",
+        usuario,
+        nome_arquivo,
+        resultados,
+        {
+            "mes_ano": f"{mes}_{ano}",
             "periodo_lancamento_de": periodo_lancamento_de,
-            "periodo_lancamento_ate": periodo_lancamento_ate,}
+            "periodo_lancamento_ate": periodo_lancamento_ate,
+        },
     )
 
     assert CentralDeDownload.objects.count() == 1

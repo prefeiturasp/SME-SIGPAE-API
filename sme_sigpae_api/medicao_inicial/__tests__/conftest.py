@@ -4244,3 +4244,48 @@ def medicao_sem_lancamento_com_correcao(
     )
 
     return solicitacao_sem_lancamento_com_correcao
+
+
+@pytest.fixture
+def mock_exportacao_relatorio_adesao(diretoria_regional, escola):
+    lotes = [mommy.make("Lote", nome=f"Lote {i:02d}") for i in range(1, 4)]
+
+    resultados = {
+        "MANHA": {
+            "LANCHE": {
+                "total_servido": 140,
+                "total_frequencia": 755,
+                "total_adesao": 0.1854,
+            },
+            "SOBREMESA": {
+                "total_servido": 140,
+                "total_frequencia": 755,
+                "total_adesao": 0.1854,
+            },
+        },
+        "TARDE": {
+            "LANCHE": {
+                "total_servido": 130,
+                "total_frequencia": 745,
+                "total_adesao": 0.1745,
+            },
+            "SOBREMESA": {
+                "total_servido": 250,
+                "total_frequencia": 745,
+                "total_adesao": 0.3356,
+            },
+        },
+    }
+
+    query_params = {
+        "mes_ano": "03_2025",
+        "diretoria_regional": str(diretoria_regional.uuid),
+        "lotes[]": str(lotes[0].uuid),
+        "lotes[]": str(lotes[1].uuid),
+        "lotes[]": str(lotes[2].uuid),
+        "escola": f"{escola.codigo_eol} - {escola.nome} - 3567-2",
+        "periodo_lancamento_de": "05/03/2025",
+        "periodo_lancamento_ate": "15/03/2025",
+        "lotes": [str(lote.uuid) for lote in lotes],
+    }
+    return resultados, query_params
