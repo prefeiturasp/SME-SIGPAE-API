@@ -7,23 +7,23 @@ from model_mommy import mommy
 from sme_sigpae_api.pre_recebimento.base.api.serializers.serializer_create import (
     UnidadeMedidaCreateSerializer,
 )
+from sme_sigpae_api.pre_recebimento.base.api.serializers.serializers import (
+    UnidadeMedidaSerialzer,
+)
+from sme_sigpae_api.pre_recebimento.base.models import UnidadeMedida
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializer_create import (
     CronogramaCreateSerializer,
     novo_numero_solicitacao,
-)
-from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
-    DocRecebimentoDetalharSerializer,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     EtapasDoCronogramaCalendarioSerializer,
     EtapasDoCronogramaSerializer,
     PainelCronogramaSerializer,
 )
-from sme_sigpae_api.pre_recebimento.base.api.serializers.serializers import (
-    UnidadeMedidaSerialzer,
-)
-from sme_sigpae_api.pre_recebimento.base.models import UnidadeMedida
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
+from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
+    DocRecebimentoDetalharSerializer,
+)
 
 pytestmark = pytest.mark.django_db
 

@@ -3,7 +3,9 @@ import json
 import pytest
 from rest_framework import status
 
-from sme_sigpae_api.pre_recebimento.documento_recebimento.models import DocumentoDeRecebimento
+from sme_sigpae_api.pre_recebimento.documento_recebimento.models import (
+    DocumentoDeRecebimento,
+)
 
 pytestmark = pytest.mark.django_db
 
