@@ -1876,18 +1876,9 @@ class RelatoriosViewSet(ViewSet):
     )
     def relatorio_adesao_exportar_pdf(self, request: Request):
         query_params = request.query_params
-
-        mes_ano = query_params.get("mes_ano")
-        if not mes_ano:
-            return Response(
-                data="É necessário informar o mês/ano de referência",
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
         try:
-
+            valida_parametros_periodo_lancamento(query_params)
             resultados = obtem_resultados(query_params)
-
             query_params_dict = query_params.dict()
 
             if query_params.get("lotes[]"):
