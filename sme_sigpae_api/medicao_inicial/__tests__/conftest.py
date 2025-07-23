@@ -4289,3 +4289,24 @@ def mock_exportacao_relatorio_adesao(diretoria_regional, escola):
         "lotes": [str(lote.uuid) for lote in lotes],
     }
     return resultados, query_params
+
+
+@pytest.fixture
+def mock_exportacao_informacoes_excel_writer():
+    arquivo = BytesIO()
+    aba = "Relatório de Adesão"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+    workbook = writer.book
+    worksheet = workbook.add_worksheet(aba)
+
+    colunas = [
+        "Tipo de Alimentação",
+        "Total de Alimentações Servidas",
+        "Número Total de Frequência",
+        "% de Adesão",
+    ]
+    try:
+        yield colunas, aba, writer, workbook, worksheet, arquivo
+    finally:
+        workbook.close()
+        writer.close()
