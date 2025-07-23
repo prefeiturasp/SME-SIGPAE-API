@@ -7,6 +7,7 @@ import os
 import environ
 import requests
 import sentry_sdk
+from kombu import Queue
 from sentry_sdk.integrations.django import DjangoIntegration
 
 # (sme_sigpae_api/config/settings/base.py - 3 = sme_sigpae_api/)
@@ -377,6 +378,65 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TIMEZONE = TIME_ZONE
+
+CELERY_TASK_DEFAULT_QUEUE = "default"
+
+CELERY_QUEUES = (
+    Queue("default"),
+    Queue("beat"),
+)
+
+CELERY_ROUTES = {
+    "celery.backend_cleanup": {"queue": "beat"},
+    "sme_sigpae_api.cardapio.tasks.ativa_desativa_vinculos_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar": {
+        "queue": "beat"
+    },
+    "sme_sigpae_api.dados_comuns.tasks.deleta_logs_duplicados_e_cria_logs_caso_nao_existam": {
+        "queue": "beat"
+    },
+    "sme_sigpae_api.dados_comuns.tasks.deleta_solicitacoes_abertas": {"queue": "beat"},
+    "sme_sigpae_api.dieta_especial.tasks.processamentos.cancela_dietas_ativas_automaticamente_task": {
+        "queue": "beat"
+    },
+    "sme_sigpae_api.dieta_especial.tasks.logs.gera_logs_dietas_especiais_diariamente": {
+        "queue": "beat"
+    },
+    "sme_sigpae_api.dieta_especial.tasks.processamentos.processa_dietas_especiais_task": {
+        "queue": "beat"
+    },
+    "sme_sigpae_api.escola.tasks.atualiza_alunos_escolas": {"queue": "beat"},
+    "sme_sigpae_api.escola.tasks.atualiza_cache_matriculados_por_faixa": {
+        "queue": "beat"
+    },
+    "sme_sigpae_api.escola.tasks.atualiza_dados_escolas": {"queue": "beat"},
+    "sme_sigpae_api.escola.tasks.atualiza_total_alunos_escolas": {"queue": "beat"},
+    "sme_sigpae_api.escola.tasks.calendario_escolas": {"queue": "beat"},
+    "sme_sigpae_api.escola.tasks.matriculados_por_escola_e_periodo_programas": {
+        "queue": "beat"
+    },
+    "sme_sigpae_api.escola.tasks.matriculados_por_escola_e_periodo_regulares": {
+        "queue": "beat"
+    },
+    "sme_sigpae_api.escola.tasks.nega_solicitacoes_pendentes_autorizacao_vencidas": {
+        "queue": "beat"
+    },
+    "sme_sigpae_api.escola.tasks.nega_solicitacoes_vencidas": {"queue": "beat"},
+    "sme_sigpae_api.escola.tasks.registra_historico_matriculas_alunos": {
+        "queue": "beat"
+    },
+    "sme_sigpae_api.logistica.tasks.avisa_a_escola_que_hoje_tem_entrega_de_alimentos": {
+        "queue": "beat"
+    },
+    "sme_sigpae_api.logistica.tasks.avisa_a_escola_que_tem_guias_pendestes_de_conferencia": {
+        "queue": "beat"
+    },
+    "sme_sigpae_api.medicao_inicial.tasks.cria_relatorios_financeiros": {
+        "queue": "beat"
+    },
+    "sme_sigpae_api.medicao_inicial.tasks.cria_solicitacao_medicao_inicial_mes_atual": {
+        "queue": "beat"
+    },
+}
 
 # reset password
 PASSWORD_RESET_TIMEOUT_DAYS = 1
