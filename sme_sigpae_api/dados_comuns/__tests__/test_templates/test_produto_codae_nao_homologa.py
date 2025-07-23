@@ -1,13 +1,13 @@
 from django.template.loader import render_to_string
-from model_mommy import mommy
+from model_bakery import baker
 
 
 def test_template_email_base():
     titulo = "Teste template"
     template = "produto_codae_nao_homologa.html"
     hidden_email = None
-    produto = mommy.make(
-        "Produto", nome="maça", marca=mommy.make("Marca", nome="Turma da Mônica")
+    produto = baker.make(
+        "Produto", nome="maça", marca=baker.make("Marca", nome="Turma da Mônica")
     )
 
     dados_template = {

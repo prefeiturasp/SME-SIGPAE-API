@@ -2,7 +2,7 @@ import datetime
 import io
 
 import pytest
-from model_mommy import mommy
+from model_bakery import baker
 from PyPDF4 import PdfFileReader, PdfFileWriter
 from weasyprint import HTML
 
@@ -28,7 +28,7 @@ def criar_suspensoes(grupo_suspensao, datas_cancelamentos):
     :param datas_cancelamentos: Lista de tuplas (data, cancelado, justificativa).
     """
     for data, cancelado, justificativa in datas_cancelamentos:
-        mommy.make(
+        baker.make(
             SuspensaoAlimentacao,
             data=data,
             grupo_suspensao=grupo_suspensao,
@@ -39,12 +39,12 @@ def criar_suspensoes(grupo_suspensao, datas_cancelamentos):
 
 @pytest.fixture
 def escola():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL IPIRANGA"
     )
-    escola = mommy.make(
+    escola = baker.make(
         "Escola",
         lote=lote,
         nome="EMEF JOAO MENDES",
@@ -56,12 +56,12 @@ def escola():
 
 @pytest.fixture
 def escola_destino():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL IPIRANGA"
     )
-    escola = mommy.make(
+    escola = baker.make(
         "Escola",
         lote=lote,
         nome="EMEF MARCOS ANTONIO",
@@ -73,7 +73,7 @@ def escola_destino():
 
 @pytest.fixture
 def template_mensagem_dieta_especial():
-    return mommy.make(
+    return baker.make(
         TemplateMensagem,
         tipo=TemplateMensagem.DIETA_ESPECIAL,
         assunto="TESTE DIETA ESPECIAL",
@@ -83,7 +83,7 @@ def template_mensagem_dieta_especial():
 
 @pytest.fixture
 def grupo_suspensao_alimentacao(escola):
-    grupo_suspensao = mommy.make(
+    grupo_suspensao = baker.make(
         GrupoSuspensaoAlimentacao,
         observacao="lorem ipsum",
         escola=escola,
@@ -106,7 +106,7 @@ def grupo_suspensao_alimentacao(escola):
 
 @pytest.fixture
 def grupo_suspensao_alimentacao_cancelamento_parcial(escola):
-    grupo_suspensao = mommy.make(
+    grupo_suspensao = baker.make(
         GrupoSuspensaoAlimentacao,
         observacao="lorem ipsum",
         escola=escola,
@@ -133,7 +133,7 @@ def grupo_suspensao_alimentacao_cancelamento_parcial(escola):
 
 @pytest.fixture
 def grupo_suspensao_alimentacao_cancelamento_total(escola):
-    grupo_suspensao = mommy.make(
+    grupo_suspensao = baker.make(
         GrupoSuspensaoAlimentacao,
         observacao="lorem ipsum",
         escola=escola,
@@ -162,8 +162,8 @@ def usuario_escola(escola):
     user = Usuario.objects.create_user(
         username=email, password=password, email=email, registro_funcional=rf
     )
-    perfil_professor = mommy.make("perfil.Perfil", nome="ADMINISTRADOR_UE", ativo=False)
-    mommy.make(
+    perfil_professor = baker.make("perfil.Perfil", nome="ADMINISTRADOR_UE", ativo=False)
+    baker.make(
         "perfil.Vinculo",
         usuario=user,
         instituicao=escola,
@@ -181,13 +181,13 @@ def solicitacao_dieta_especial_a_autorizar(
     user, password = usuario_escola
     client.login(username=user.email, password=password)
 
-    aluno = mommy.make(
+    aluno = baker.make(
         Aluno,
         nome="Roberto Alves da Silva",
         codigo_eol="123456",
         data_nascimento="2000-01-01",
     )
-    solic = mommy.make(
+    solic = baker.make(
         SolicitacaoDietaEspecial,
         escola_destino=escola,
         rastro_escola=escola,
@@ -213,8 +213,8 @@ def solicitacao_dieta_especial_autorizada(
     )
     client.login(username=email, password=password)
 
-    perfil = mommy.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
-    mommy.make(
+    perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+    baker.make(
         "perfil.Vinculo",
         usuario=user,
         instituicao=escola.lote.terceirizada,
@@ -275,8 +275,8 @@ def solicitacao_dieta_especial_autorizada_alteracao_ue(
     )
     client.login(username=email, password=password)
 
-    perfil = mommy.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
-    mommy.make(
+    perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+    baker.make(
         "perfil.Vinculo",
         usuario=user,
         instituicao=escola.lote.terceirizada,
@@ -289,7 +289,7 @@ def solicitacao_dieta_especial_autorizada_alteracao_ue(
     solicitacao_dieta_especial_a_autorizar.escola_destino = escola_destino
     solicitacao_dieta_especial_a_autorizar.data_inicio = datetime.date(2025, 1, 20)
     solicitacao_dieta_especial_a_autorizar.data_termino = datetime.date(2025, 2, 20)
-    solicitacao_dieta_especial_a_autorizar.motivo_alteracao_ue = mommy.make(
+    solicitacao_dieta_especial_a_autorizar.motivo_alteracao_ue = baker.make(
         "MotivoAlteracaoUE", nome="Dieta Especial - Recreio nas Férias"
     )
     solicitacao_dieta_especial_a_autorizar.save()

@@ -3,7 +3,7 @@ import random
 
 import pytest
 from freezegun import freeze_time
-from model_mommy import mommy
+from model_bakery import baker
 from rest_framework.exceptions import ValidationError
 
 from ..api.serializers.serializers_create import (
@@ -22,8 +22,8 @@ pytestmark = pytest.mark.django_db
 @freeze_time("2019-10-16")
 def test_kit_lanche_avulso_serializer_validators():
     serializer_obj = SolicitacaoKitLancheAvulsaCreationSerializer()
-    lote = mommy.make("Lote")
-    escola = mommy.make("Escola", lote=lote)
+    lote = baker.make("Lote")
+    escola = baker.make("Escola", lote=lote)
     attrs = dict(
         quantidade_alunos=777,
         escola=escola,
@@ -45,8 +45,8 @@ def test_kit_lanche_avulso_serializer_validators_error(
         erro_esperado,
     ) = kits_avulsos_param_erro_serializer
     serializer_obj = SolicitacaoKitLancheAvulsaCreationSerializer()
-    lote = mommy.make("Lote")
-    escola = mommy.make("Escola", lote=lote)
+    lote = baker.make("Lote")
+    escola = baker.make("Escola", lote=lote)
 
     attrs = dict(
         quantidade_alunos=qtd_alunos_pedido,
@@ -62,14 +62,14 @@ def test_kit_lanche_avulso_serializer_creators(kits_avulsos_param_serializer):
     qtd_alunos_escola, quantidade_alunos_pedido, data = kits_avulsos_param_serializer
 
     class FakeObject(object):
-        user = mommy.make("perfil.Usuario")
+        user = baker.make("perfil.Usuario")
 
     serializer_obj = SolicitacaoKitLancheAvulsaCreationSerializer(
         context={"request": FakeObject}
     )
-    lote = mommy.make("Lote")
-    escola = mommy.make("Escola", lote=lote)
-    aluno = mommy.make("escola.Aluno")
+    lote = baker.make("Lote")
+    escola = baker.make("Escola", lote=lote)
+    aluno = baker.make("escola.Aluno")
     validated_data_create = dict(
         quantidade_alunos=quantidade_alunos_pedido,
         escola=escola,
@@ -109,10 +109,10 @@ def test_kit_lanche_unificado_serializer_validators_lista_igual(
     kits_unificados_param_serializer, periodo_escolar
 ):
     serializer_obj = SolicitacaoKitLancheUnificadaCreationSerializer()
-    kits = mommy.make("KitLanche", _quantity=3)
+    kits = baker.make("KitLanche", _quantity=3)
     qtd_alunos_escola, quantidade_alunos_pedido, data = kits_unificados_param_serializer
-    escola = mommy.make("Escola", nome="teste")
-    mommy.make(
+    escola = baker.make("Escola", nome="teste")
+    baker.make(
         "escola.AlunosMatriculadosPeriodoEscola",
         escola=escola,
         quantidade_alunos=800,
@@ -120,7 +120,7 @@ def test_kit_lanche_unificado_serializer_validators_lista_igual(
     )
     escola_quantidades = []
     for _ in range(3):
-        eq = mommy.make("EscolaQuantidade", quantidade_alunos=quantidade_alunos_pedido)
+        eq = baker.make("EscolaQuantidade", quantidade_alunos=quantidade_alunos_pedido)
         escola_quantidades.append(
             dict(quantidade_alunos=eq.quantidade_alunos, kits=[], escola=escola)
         )
@@ -144,11 +144,11 @@ def test_kit_lanche_unificado_serializer_validators_lista_nao_igual(
     serializer_obj = SolicitacaoKitLancheUnificadaCreationSerializer()
     qtd_alunos_escola, quantidade_alunos_pedido, data = kits_unificados_param_serializer
 
-    escola = mommy.make("Escola")
+    escola = baker.make("Escola")
     escola_quantidades = []
     for _ in range(3):
-        kits = mommy.make("KitLanche", _quantity=random.randint(1, 3))
-        eq = mommy.make("EscolaQuantidade", quantidade_alunos=quantidade_alunos_pedido)
+        kits = baker.make("KitLanche", _quantity=random.randint(1, 3))
+        eq = baker.make("EscolaQuantidade", quantidade_alunos=quantidade_alunos_pedido)
         escola_quantidades.append(
             dict(quantidade_alunos=eq.quantidade_alunos, kits=kits, escola=escola)
         )
@@ -168,20 +168,20 @@ def test_kit_lanche_unificado_serializer_creators_lista_igual(
     kits_unificados_param_serializer,
 ):
     class FakeObject(object):
-        user = mommy.make("perfil.Usuario")
+        user = baker.make("perfil.Usuario")
 
     serializer_obj = SolicitacaoKitLancheUnificadaCreationSerializer(
         context={"request": FakeObject}
     )
 
-    kits = mommy.make("KitLanche", _quantity=3)
+    kits = baker.make("KitLanche", _quantity=3)
     qtd_alunos_escola, quantidade_alunos_pedido, data = kits_unificados_param_serializer
-    escola = mommy.make("Escola", nome="teste")
-    diretoria_regional = mommy.make("DiretoriaRegional", nome="teste")
+    escola = baker.make("Escola", nome="teste")
+    diretoria_regional = baker.make("DiretoriaRegional", nome="teste")
 
     escola_quantidades = []
     for _ in range(3):
-        eq = mommy.make("EscolaQuantidade", quantidade_alunos=quantidade_alunos_pedido)
+        eq = baker.make("EscolaQuantidade", quantidade_alunos=quantidade_alunos_pedido)
         escola_quantidades.append(
             dict(quantidade_alunos=eq.quantidade_alunos, kits=[], escola=escola)
         )

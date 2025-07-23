@@ -1,5 +1,5 @@
 import pytest
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create import (
     GrupoSuspensaoAlimentacaoCreateSerializer,
@@ -17,13 +17,13 @@ def test_suspensao_alimentacao_serializer(suspensao_alimentacao_serializer):
 
 def test_grupo_suspensao_alimentacao_serializer(grupo_suspensao_alimentacao_params):
     class FakeObject(object):
-        user = mommy.make("perfil.Usuario")
+        user = baker.make("perfil.Usuario")
 
     serializer_obj = GrupoSuspensaoAlimentacaoCreateSerializer(
         context={"request": FakeObject}
     )
     quantidades_por_periodo = []
-    quantidades_periodo = mommy.make(
+    quantidades_periodo = baker.make(
         "QuantidadePorPeriodoSuspensaoAlimentacao", _quantity=3
     )
     for quantidade_periodo in quantidades_periodo:
@@ -35,7 +35,7 @@ def test_grupo_suspensao_alimentacao_serializer(grupo_suspensao_alimentacao_para
         )
 
     suspensoes_alimentacao = []
-    suspensoes = mommy.make("SuspensaoAlimentacao", _quantity=3)
+    suspensoes = baker.make("SuspensaoAlimentacao", _quantity=3)
     for suspensao in suspensoes:
         suspensoes_alimentacao.append(
             dict(
@@ -48,7 +48,7 @@ def test_grupo_suspensao_alimentacao_serializer(grupo_suspensao_alimentacao_para
     validated_data_create = dict(
         quantidades_por_periodo=quantidades_por_periodo,
         suspensoes_alimentacao=suspensoes_alimentacao,
-        escola=mommy.make("Escola"),
+        escola=baker.make("Escola"),
     )
     grupo_suspensao_created = serializer_obj.create(
         validated_data=validated_data_create
@@ -62,7 +62,7 @@ def test_grupo_suspensao_alimentacao_serializer(grupo_suspensao_alimentacao_para
     validated_data_update = dict(
         quantidades_por_periodo=quantidades_por_periodo[:2],
         suspensoes_alimentacao=suspensoes_alimentacao[:1],
-        escola=mommy.make("Escola"),
+        escola=baker.make("Escola"),
     )
     grupo_suspensao_updated = serializer_obj.update(
         instance=grupo_suspensao_created, validated_data=validated_data_update

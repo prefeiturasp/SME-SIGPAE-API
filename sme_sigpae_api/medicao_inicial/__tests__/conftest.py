@@ -6,7 +6,7 @@ from io import BytesIO
 import pandas as pd
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.dados_comuns.behaviors import TempoPasseio
 from sme_sigpae_api.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
@@ -40,132 +40,132 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef imp
 
 @pytest.fixture
 def kit_lanche_1():
-    return mommy.make("KitLanche", nome="KIT 1")
+    return baker.make("KitLanche", nome="KIT 1")
 
 
 @pytest.fixture
 def kit_lanche_2():
-    return mommy.make("KitLanche", nome="KIT 2")
+    return baker.make("KitLanche", nome="KIT 2")
 
 
 @pytest.fixture
 def grupo_programas_e_projetos():
-    return mommy.make("GrupoMedicao", nome="Programas e Projetos")
+    return baker.make("GrupoMedicao", nome="Programas e Projetos")
 
 
 @pytest.fixture
 def grupo_etec():
-    return mommy.make("GrupoMedicao", nome="ETEC")
+    return baker.make("GrupoMedicao", nome="ETEC")
 
 
 @pytest.fixture
 def grupo_solicitacoes_alimentacao():
-    return mommy.make("GrupoMedicao", nome="Solicitações de Alimentação")
+    return baker.make("GrupoMedicao", nome="Solicitações de Alimentação")
 
 
 @pytest.fixture
 def grupo_infantil_integral():
-    return mommy.make("GrupoMedicao", nome="Infantil INTEGRAL")
+    return baker.make("GrupoMedicao", nome="Infantil INTEGRAL")
 
 
 @pytest.fixture
 def grupo_infantil_manha():
-    return mommy.make("GrupoMedicao", nome="Infantil MANHA")
+    return baker.make("GrupoMedicao", nome="Infantil MANHA")
 
 
 @pytest.fixture
 def grupo_infantil_tarde():
-    return mommy.make("GrupoMedicao", nome="Infantil TARDE")
+    return baker.make("GrupoMedicao", nome="Infantil TARDE")
 
 
 @pytest.fixture
 def motivo_inclusao_continua_programas_projetos():
-    return mommy.make("MotivoInclusaoContinua", nome="Programas/Projetos Contínuos")
+    return baker.make("MotivoInclusaoContinua", nome="Programas/Projetos Contínuos")
 
 
 @pytest.fixture
 def motivo_inclusao_continua_etec():
-    return mommy.make("MotivoInclusaoContinua", nome="ETEC")
+    return baker.make("MotivoInclusaoContinua", nome="ETEC")
 
 
 @pytest.fixture
 def tipo_alimentacao_refeicao():
-    return mommy.make("TipoAlimentacao", nome="Refeição")
+    return baker.make("TipoAlimentacao", nome="Refeição")
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche():
-    return mommy.make("TipoAlimentacao", nome="Lanche")
+    return baker.make("TipoAlimentacao", nome="Lanche")
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_4h():
-    return mommy.make("TipoAlimentacao", nome="Lanche 4h")
+    return baker.make("TipoAlimentacao", nome="Lanche 4h")
 
 
 @pytest.fixture
 def tipo_alimentacao_sobremesa():
-    return mommy.make("TipoAlimentacao", nome="Sobremesa")
+    return baker.make("TipoAlimentacao", nome="Sobremesa")
 
 
 @pytest.fixture
 def tipo_alimentacao_almoco():
-    return mommy.make("TipoAlimentacao", nome="Almoço")
+    return baker.make("TipoAlimentacao", nome="Almoço")
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
-    return mommy.make("TipoAlimentacao", nome="Lanche Emergencial")
+    return baker.make("TipoAlimentacao", nome="Lanche Emergencial")
 
 
 @pytest.fixture
 def classificacao_dieta_tipo_a():
-    return mommy.make("ClassificacaoDieta", nome="Tipo A")
+    return baker.make("ClassificacaoDieta", nome="Tipo A")
 
 
 @pytest.fixture
 def classificacao_dieta_tipo_a_enteral():
-    return mommy.make("ClassificacaoDieta", nome="Tipo A ENTERAL")
+    return baker.make("ClassificacaoDieta", nome="Tipo A ENTERAL")
 
 
 @pytest.fixture
 def tipo_unidade_escolar():
-    return mommy.make("TipoUnidadeEscolar", iniciais="EMEF")
+    return baker.make("TipoUnidadeEscolar", iniciais="EMEF")
 
 
 @pytest.fixture
 def tipo_unidade_escolar_ceu_emef():
-    return mommy.make("TipoUnidadeEscolar", iniciais="CEU EMEF")
+    return baker.make("TipoUnidadeEscolar", iniciais="CEU EMEF")
 
 
 @pytest.fixture
 def tipo_unidade_escolar_ceu_emei():
-    return mommy.make("TipoUnidadeEscolar", iniciais="CEU EMEI")
+    return baker.make("TipoUnidadeEscolar", iniciais="CEU EMEI")
 
 
 @pytest.fixture
 def tipo_unidade_escolar_emefm():
-    return mommy.make("TipoUnidadeEscolar", iniciais="EMEFM")
+    return baker.make("TipoUnidadeEscolar", iniciais="EMEFM")
 
 
 @pytest.fixture
 def tipo_unidade_escolar_cieja():
-    return mommy.make("TipoUnidadeEscolar", iniciais="CIEJA")
+    return baker.make("TipoUnidadeEscolar", iniciais="CIEJA")
 
 
 @pytest.fixture
 def tipo_unidade_escolar_ceu_gestao():
-    return mommy.make("TipoUnidadeEscolar", iniciais="CEU GESTAO")
+    return baker.make("TipoUnidadeEscolar", iniciais="CEU GESTAO")
 
 
 @pytest.fixture
 def dia_sobremesa_doce(tipo_unidade_escolar):
-    edital = mommy.make(
+    edital = baker.make(
         "Edital",
         numero="Edital de Pregão nº 13/SME/2020",
         uuid="3a9082ae-2b8c-44f6-83af-fcab9452f932",
     )
-    return mommy.make(
+    return baker.make(
         "DiaSobremesaDoce",
         data=datetime.date(2022, 8, 8),
         tipo_unidade=tipo_unidade_escolar,
@@ -186,19 +186,19 @@ def client_autenticado_coordenador_codae(client, django_user_model):
     )
     client.login(username=email, password=password)
 
-    codae = mommy.make(
+    codae = baker.make(
         "Codae", nome="CODAE", uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd"
     )
 
-    perfil_coordenador = mommy.make(
+    perfil_coordenador = baker.make(
         "Perfil",
         nome="COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA",
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
     )
-    mommy.make("Lote", uuid="143c2550-8bf0-46b4-b001-27965cfcd107")
+    baker.make("Lote", uuid="143c2550-8bf0-46b4-b001-27965cfcd107")
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -206,33 +206,33 @@ def client_autenticado_coordenador_codae(client, django_user_model):
         data_inicial=hoje,
         ativo=True,
     )
-    emef = mommy.make(
+    emef = baker.make(
         "TipoUnidadeEscolar",
         iniciais="EMEF",
         uuid="1cc3253b-e297-42b3-8e57-ebfd115a1aba",
     )
-    mommy.make("Escola", tipo_unidade=emef, uuid="95ad02fb-d746-4e0c-95f4-0181a99bc192")
-    mommy.make(
+    baker.make("Escola", tipo_unidade=emef, uuid="95ad02fb-d746-4e0c-95f4-0181a99bc192")
+    baker.make(
         "TipoUnidadeEscolar",
         iniciais="CEU GESTAO",
         uuid="40ee89a7-dc70-4abb-ae21-369c67f2b9e3",
     )
-    mommy.make(
+    baker.make(
         "TipoUnidadeEscolar",
         iniciais="CIEJA",
         uuid="ac4858ff-1c11-41f3-b539-7a02696d6d1b",
     )
-    edital = mommy.make(
+    edital = baker.make(
         "Edital",
         numero="Edital de Pregão nº 75/SME/2022",
         uuid="85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2",
     )
-    edital = mommy.make(
+    edital = baker.make(
         "Edital",
         numero="Edital de Pregão nº 36/SME/2022",
         uuid="10b56d45-b82d-4cce-9a14-36bbb082ac4d",
     )
-    edital = mommy.make(
+    edital = baker.make(
         "Edital",
         numero="Edital de Pregão nº 18/SME/2023",
         uuid="00f008ea-3410-4547-99e6-4e91e0168af8",
@@ -242,15 +242,15 @@ def client_autenticado_coordenador_codae(client, django_user_model):
 
 @pytest.fixture
 def escola(tipo_unidade_escolar, diretoria_regional):
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make(
         "Lote",
         nome="1",
         terceirizada=terceirizada,
         diretoria_regional=diretoria_regional,
     )
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    return mommy.make(
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    return baker.make(
         "Escola",
         nome="EMEF TESTE",
         lote=lote,
@@ -263,16 +263,16 @@ def escola(tipo_unidade_escolar, diretoria_regional):
 
 @pytest.fixture
 def escola_emefm(diretoria_regional):
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make(
         "Lote",
         nome="1",
         terceirizada=terceirizada,
         diretoria_regional=diretoria_regional,
     )
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = mommy.make("TipoUnidadeEscolar", iniciais="EMEFM")
-    return mommy.make(
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="EMEFM")
+    return baker.make(
         "Escola",
         nome="EMEFM TESTE",
         lote=lote,
@@ -285,14 +285,14 @@ def escola_emefm(diretoria_regional):
 
 @pytest.fixture
 def escola_emei():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = mommy.make("TipoUnidadeEscolar", iniciais="EMEI")
-    return mommy.make(
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="EMEI")
+    return baker.make(
         "Escola",
         nome="EMEI TESTE",
         lote=lote,
@@ -305,13 +305,13 @@ def escola_emei():
 
 @pytest.fixture
 def escola_ceu_emei(tipo_unidade_escolar_ceu_emei):
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    return mommy.make(
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    return baker.make(
         "Escola",
         nome="CEU EMEI TESTE",
         lote=lote,
@@ -324,14 +324,14 @@ def escola_ceu_emei(tipo_unidade_escolar_ceu_emei):
 
 @pytest.fixture
 def escola_cei():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = mommy.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
-    return mommy.make(
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
+    return baker.make(
         "Escola",
         nome="CEI DIRET TESTE",
         lote=lote,
@@ -344,14 +344,14 @@ def escola_cei():
 
 @pytest.fixture
 def escola_cci():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = mommy.make("TipoUnidadeEscolar", iniciais="CCI")
-    return mommy.make(
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CCI")
+    return baker.make(
         "Escola",
         nome="CCI TESTE",
         lote=lote,
@@ -364,7 +364,7 @@ def escola_cci():
 
 @pytest.fixture
 def log_aluno_integral_cei(escola_cei, periodo_escolar_integral):
-    log = mommy.make(
+    log = baker.make(
         "LogAlunosMatriculadosPeriodoEscola",
         escola=escola_cei,
         periodo_escolar=periodo_escolar_integral,
@@ -377,7 +377,7 @@ def log_aluno_integral_cei(escola_cei, periodo_escolar_integral):
 
 @pytest.fixture
 def log_alunos_matriculados_integral_cei(escola_cei, periodo_escolar_integral):
-    return mommy.make(
+    return baker.make(
         "AlunosMatriculadosPeriodoEscola",
         escola=escola_cei,
         periodo_escolar=periodo_escolar_integral,
@@ -387,14 +387,14 @@ def log_alunos_matriculados_integral_cei(escola_cei, periodo_escolar_integral):
 
 @pytest.fixture
 def escola_cemei():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = mommy.make("TipoUnidadeEscolar", iniciais="CEMEI")
-    return mommy.make(
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    return baker.make(
         "Escola",
         nome="CEMEI TESTE",
         lote=lote,
@@ -407,14 +407,14 @@ def escola_cemei():
 
 @pytest.fixture
 def escola_ceu_cemei():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = mommy.make("TipoUnidadeEscolar", iniciais="CEU CEMEI")
-    return mommy.make(
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEU CEMEI")
+    return baker.make(
         "Escola",
         nome="CEU CEMEI TESTE",
         lote=lote,
@@ -427,17 +427,17 @@ def escola_ceu_cemei():
 
 @pytest.fixture
 def escola_emebs():
-    terceirizada = mommy.make("Terceirizada")
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    diretoria_regional = baker.make(
         "DiretoriaRegional",
         nome="DIRETORIA REGIONAL TESTE",
     )
-    lote = mommy.make(
+    lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
     )
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = mommy.make("TipoUnidadeEscolar", iniciais="EMEBS")
-    return mommy.make(
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="EMEBS")
+    return baker.make(
         "Escola",
         nome="EMEBS TESTE",
         lote=lote,
@@ -450,16 +450,16 @@ def escola_emebs():
 
 @pytest.fixture
 def escola_ceu_gestao():
-    terceirizada = mommy.make("Terceirizada")
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    lote = mommy.make(
+    lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
     )
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = mommy.make("TipoUnidadeEscolar", iniciais="CEU GESTAO")
-    return mommy.make(
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEU GESTAO")
+    return baker.make(
         "Escola",
         nome="CEMEI TESTE",
         lote=lote,
@@ -471,7 +471,7 @@ def escola_ceu_gestao():
 
 @pytest.fixture
 def aluno():
-    return mommy.make(
+    return baker.make(
         "Aluno",
         nome="Roberto Alves da Silva",
         codigo_eol="123456",
@@ -482,24 +482,24 @@ def aluno():
 
 @pytest.fixture
 def solicitacao_medicao_inicial_cemei(escola_cemei, categoria_medicao):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    periodo_integral = mommy.make("PeriodoEscolar", nome="INTEGRAL")
-    solicitacao_medicao = mommy.make(
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=4, ano=2023, escola=escola_cemei
     )
     solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
-    medicao = mommy.make(
+    medicao = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_integral,
     )
-    mommy.make(
+    baker.make(
         "FaixaEtaria", inicio=1, fim=10, uuid="0c914b27-c7cd-4682-a439-a4874745b005"
     )
-    faixa_etaria = mommy.make(
+    faixa_etaria = baker.make(
         "FaixaEtaria", inicio=1, fim=2, uuid="1d125c38-ce75-6974-b25d-a4874745b996"
     )
-    mommy.make(
+    baker.make(
         "ValorMedicao",
         dia="01",
         semana="1",
@@ -516,22 +516,22 @@ def solicitacao_medicao_inicial_cemei(escola_cemei, categoria_medicao):
 def solicitacao_medicao_inicial_cei(
     escola_cei, categoria_medicao, periodo_escolar_integral, periodo_escolar_manha
 ):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    mommy.make(
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    baker.make(
         LogAlunosMatriculadosPeriodoEscola,
         escola=escola_cei,
         criado_em="01-04-2023",
         quantidade_alunos=100,
         periodo_escolar=periodo_escolar_manha,
     )
-    mommy.make(
+    baker.make(
         LogAlunosMatriculadosPeriodoEscola,
         escola=escola_cei,
         criado_em="01-04-2023",
         quantidade_alunos=100,
         periodo_escolar=periodo_escolar_integral,
     )
-    solicitacao_medicao = mommy.make(
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial",
         mes=4,
         ano=2023,
@@ -539,24 +539,24 @@ def solicitacao_medicao_inicial_cei(
         ue_possui_alunos_periodo_parcial=True,
     )
     solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
-    mommy.make(
+    baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_escolar_integral,
     )
-    mommy.make(
+    baker.make(
         "FaixaEtaria", inicio=1, fim=10, uuid="0c914b27-c7cd-4682-a439-a4874745b005"
     )
-    mommy.make("Aluno", periodo_escolar=periodo_escolar_manha, escola=escola_cei)
+    baker.make("Aluno", periodo_escolar=periodo_escolar_manha, escola=escola_cei)
     return solicitacao_medicao
 
 
 @pytest.fixture
 def solicitacao_medicao_inicial_valores_cei(escola_cei, categoria_medicao):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    periodo_integral = mommy.make("PeriodoEscolar", nome="INTEGRAL")
-    periodo_manha = mommy.make("PeriodoEscolar", nome="MANHA")
-    solicitacao_medicao = mommy.make(
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial",
         mes=4,
         ano=2023,
@@ -564,21 +564,21 @@ def solicitacao_medicao_inicial_valores_cei(escola_cei, categoria_medicao):
         ue_possui_alunos_periodo_parcial=True,
     )
     solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
-    medicao_manha = mommy.make(
+    medicao_manha = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_manha,
     )
-    medicao_integral = mommy.make(
+    medicao_integral = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_integral,
     )
-    faixa_etaria = mommy.make(
+    faixa_etaria = baker.make(
         "FaixaEtaria", inicio=1, fim=10, uuid="0c914b27-c7cd-4682-a439-a4874745b005"
     )
-    mommy.make("Aluno", periodo_escolar=periodo_manha, escola=escola_cei)
-    mommy.make(
+    baker.make("Aluno", periodo_escolar=periodo_manha, escola=escola_cei)
+    baker.make(
         "ValorMedicao",
         dia="01",
         semana="1",
@@ -588,7 +588,7 @@ def solicitacao_medicao_inicial_valores_cei(escola_cei, categoria_medicao):
         valor="10",
         faixa_etaria=faixa_etaria,
     )
-    mommy.make(
+    baker.make(
         "ValorMedicao",
         dia="01",
         semana="1",
@@ -604,8 +604,8 @@ def solicitacao_medicao_inicial_valores_cei(escola_cei, categoria_medicao):
 @pytest.fixture
 def make_solicitacao_medicao_inicial(escola):
     def handle(mes: int, ano: int, status: str | None = None):
-        tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-        solicitacao_medicao = mommy.make(
+        tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+        solicitacao_medicao = baker.make(
             "SolicitacaoMedicaoInicial",
             mes=mes,
             ano=ano,
@@ -621,8 +621,8 @@ def make_solicitacao_medicao_inicial(escola):
 
 @pytest.fixture
 def solicitacao_medicao_inicial(escola, categoria_medicao, aluno):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    periodo_manha = mommy.make("PeriodoEscolar", nome="MANHA")
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
     historico = {
         "usuario": {
             "uuid": "a7f20675-50e1-46d2-a207-28543b93e19d",
@@ -644,7 +644,7 @@ def solicitacao_medicao_inicial(escola, categoria_medicao, aluno):
             },
         ],
     }
-    solicitacao_medicao = mommy.make(
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial",
         uuid="bed4d779-2d57-4c5f-bf9c-9b93ddac54d9",
         mes=12,
@@ -654,18 +654,18 @@ def solicitacao_medicao_inicial(escola, categoria_medicao, aluno):
         historico=json.dumps([historico]),
     )
     solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
-    medicao = mommy.make(
+    medicao = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_manha,
     )
-    mommy.make(
+    baker.make(
         "AlunoPeriodoParcial",
         solicitacao_medicao_inicial=solicitacao_medicao,
         aluno=aluno,
         data=datetime.date(2022, 12, 1),
     )
-    mommy.make(
+    baker.make(
         "ValorMedicao",
         dia="01",
         semana="1",
@@ -775,32 +775,32 @@ def solicitacao_medicao_inicial_medicao_enviada_pela_ue_nok__2(
 
 @pytest.fixture
 def solicitacao_medicao_inicial_varios_valores(escola, categoria_medicao):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    periodo_manha = mommy.make("PeriodoEscolar", nome="MANHA")
-    periodo_tarde = mommy.make("PeriodoEscolar", nome="TARDE")
-    solicitacao_medicao = mommy.make(
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=12, ano=2022, escola=escola
     )
     solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
-    medicao = mommy.make(
+    medicao = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_manha,
     )
-    medicao_programas_projetos = mommy.make(
+    medicao_programas_projetos = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_tarde,
     )
-    categoria_dieta_a = mommy.make(
+    categoria_dieta_a = baker.make(
         "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A ENTERAL"
     )
-    categoria_dieta_b = mommy.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO B")
+    categoria_dieta_b = baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO B")
     for dia in ["01", "02", "03", "04", "05"]:
         for campo in ["lanche", "refeicao", "lanche_emergencial", "sobremesa"]:
             for categoria in [categoria_medicao, categoria_dieta_a, categoria_dieta_b]:
                 for medicao_ in [medicao, medicao_programas_projetos]:
-                    mommy.make(
+                    baker.make(
                         "ValorMedicao",
                         dia=dia,
                         nome_campo=campo,
@@ -813,10 +813,10 @@ def solicitacao_medicao_inicial_varios_valores(escola, categoria_medicao):
 
 @pytest.fixture
 def solicitacao_medicao_inicial_varios_valores_emebs(escola_emebs, categoria_medicao):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    periodo_manha = mommy.make("PeriodoEscolar", nome="MANHA")
-    periodo_tarde = mommy.make("PeriodoEscolar", nome="TARDE")
-    solicitacao_medicao = mommy.make(
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial",
         mes=12,
         ano=2023,
@@ -824,24 +824,24 @@ def solicitacao_medicao_inicial_varios_valores_emebs(escola_emebs, categoria_med
         uuid="da921e20-50f9-41ae-b2dc-4311d47029e8",
     )
     solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
-    medicao_manha = mommy.make(
+    medicao_manha = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_manha,
     )
-    medicao_tarde = mommy.make(
+    medicao_tarde = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_tarde,
     )
-    categoria_dieta_a = mommy.make(
+    categoria_dieta_a = baker.make(
         "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A ENTERAL"
     )
-    categoria_dieta_b = mommy.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO B")
+    categoria_dieta_b = baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO B")
     tipos_turmas = ["INFANTIL", "FUNDAMENTAL"]
 
     for dia in range(1, 15):
-        mommy.make(
+        baker.make(
             "DiaCalendario",
             escola=escola_emebs,
             data=f"2023-12-{dia:02d}",
@@ -857,7 +857,7 @@ def solicitacao_medicao_inicial_varios_valores_emebs(escola_emebs, categoria_med
                     categoria_dieta_b,
                 ]:
                     for medicao_ in [medicao_manha, medicao_tarde]:
-                        mommy.make(
+                        baker.make(
                             "ValorMedicao",
                             dia=dia,
                             nome_campo=campo,
@@ -880,10 +880,10 @@ def solicitacao_medicao_inicial_varios_valores_ceu_gestao(
     tipo_alimentacao_refeicao,
     tipo_alimentacao_lanche,
 ):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    periodo_manha = mommy.make("PeriodoEscolar", nome="MANHA")
-    periodo_tarde = mommy.make("PeriodoEscolar", nome="TARDE")
-    solicitacao_medicao = mommy.make(
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial",
         mes=12,
         ano=2023,
@@ -891,13 +891,13 @@ def solicitacao_medicao_inicial_varios_valores_ceu_gestao(
         uuid="416a47af-6022-4866-989f-9707b2213bfc",
     )
     solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
-    medicao_manha = mommy.make(
+    medicao_manha = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_manha,
     )
-    categoria_dieta_a = mommy.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A")
-    categoria_dieta_b = mommy.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO B")
+    categoria_dieta_a = baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A")
+    categoria_dieta_b = baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO B")
     for dia in ["05"]:
         for campo in [
             "numero_de_alunos",
@@ -909,7 +909,7 @@ def solicitacao_medicao_inicial_varios_valores_ceu_gestao(
         ]:
             for categoria in [categoria_medicao, categoria_dieta_a, categoria_dieta_b]:
                 for medicao_ in [medicao_manha]:
-                    mommy.make(
+                    baker.make(
                         "ValorMedicao",
                         dia=dia,
                         nome_campo=campo,
@@ -917,20 +917,20 @@ def solicitacao_medicao_inicial_varios_valores_ceu_gestao(
                         categoria_medicao=categoria,
                         valor="10",
                     )
-    grupo_inclusao_normal = mommy.make(
+    grupo_inclusao_normal = baker.make(
         "GrupoInclusaoAlimentacaoNormal",
         status="CODAE_AUTORIZADO",
         rastro_escola=escola_ceu_gestao,
         escola=escola_ceu_gestao,
     )
 
-    mommy.make(
+    baker.make(
         "InclusaoAlimentacaoNormal",
         grupo_inclusao=grupo_inclusao_normal,
         data=datetime.date(2023, 12, 5),
     )
 
-    qp_manha = mommy.make(
+    qp_manha = baker.make(
         "QuantidadePorPeriodo",
         grupo_inclusao_normal=grupo_inclusao_normal,
         numero_alunos=15,
@@ -939,7 +939,7 @@ def solicitacao_medicao_inicial_varios_valores_ceu_gestao(
     qp_manha.tipos_alimentacao.add(tipo_alimentacao_refeicao, tipo_alimentacao_lanche)
     qp_manha.save()
 
-    qp_tarde = mommy.make(
+    qp_tarde = baker.make(
         "QuantidadePorPeriodo",
         grupo_inclusao_normal=grupo_inclusao_normal,
         numero_alunos=10,
@@ -955,30 +955,30 @@ def solicitacao_medicao_inicial_varios_valores_ceu_gestao(
 def solicitacao_medicao_inicial_varios_valores_escola_cei(
     escola_cei, categoria_medicao
 ):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    periodo_integral = mommy.make("PeriodoEscolar", nome="INTEGRAL")
-    periodo_parcial = mommy.make("PeriodoEscolar", nome="PARCIAL")
-    periodo_tarde = mommy.make("PeriodoEscolar", nome="TARDE")
-    solicitacao_medicao = mommy.make(
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
+    periodo_parcial = baker.make("PeriodoEscolar", nome="PARCIAL")
+    periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=12, ano=2022, escola=escola_cei
     )
     solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
-    medicao_integral = mommy.make(
+    medicao_integral = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_integral,
     )
-    medicao_parcial = mommy.make(
+    medicao_parcial = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_parcial,
     )
-    medicao_tarde = mommy.make(
+    medicao_tarde = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_tarde,
     )
-    categoria_dieta_a = mommy.make(
+    categoria_dieta_a = baker.make(
         "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A ENTERAL"
     )
     for dia in ["01", "02", "03", "04"]:
@@ -987,7 +987,7 @@ def solicitacao_medicao_inicial_varios_valores_escola_cei(
             for index, medicao_ in enumerate(
                 [medicao_integral, medicao_parcial, medicao_tarde]
             ):
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo="frequencia",
@@ -999,19 +999,19 @@ def solicitacao_medicao_inicial_varios_valores_escola_cei(
 
 
 def medicao_infantil_manha(solicitacao_medicao, categoria_medicao):
-    periodo_infantil_manha = mommy.make("PeriodoEscolar", nome="Infantil MANHA")
-    medicao_infantil_manha = mommy.make(
+    periodo_infantil_manha = baker.make("PeriodoEscolar", nome="Infantil MANHA")
+    medicao_infantil_manha = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_infantil_manha,
     )
-    categoria_dieta_a = mommy.make(
+    categoria_dieta_a = baker.make(
         "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A ENTERAL"
     )
     for dia in ["01", "02"]:
         for campo in ["lanche", "refeicao", "lanche_emergencial", "sobremesa"]:
             for categoria in [categoria_medicao, categoria_dieta_a]:
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo=campo,
@@ -1025,31 +1025,31 @@ def medicao_infantil_manha(solicitacao_medicao, categoria_medicao):
 def solicitacao_medicao_inicial_varios_valores_escola_cemei(
     escola_cemei, categoria_medicao
 ):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    periodo_integral = mommy.make("PeriodoEscolar", nome="INTEGRAL")
-    periodo_parcial = mommy.make("PeriodoEscolar", nome="PARCIAL")
-    solicitacao_medicao = mommy.make(
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
+    periodo_parcial = baker.make("PeriodoEscolar", nome="PARCIAL")
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=12, ano=2022, escola=escola_cemei
     )
     solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
-    medicao_integral = mommy.make(
+    medicao_integral = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_integral,
     )
-    medicao_parcial = mommy.make(
+    medicao_parcial = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_parcial,
     )
-    categoria_dieta_a = mommy.make(
+    categoria_dieta_a = baker.make(
         "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A ENTERAL"
     )
     for dia in ["01", "02", "03"]:
         for categoria in [categoria_medicao, categoria_dieta_a]:
             valores = ["10", "20"]
             for index, medicao_ in enumerate([medicao_integral, medicao_parcial]):
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo="frequencia",
@@ -1063,51 +1063,51 @@ def solicitacao_medicao_inicial_varios_valores_escola_cemei(
 
 @pytest.fixture
 def solicitacao_medicao_inicial_com_valores_repeticao(escola, categoria_medicao):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    periodo_manha = mommy.make("PeriodoEscolar", nome="MANHA")
-    periodo_tarde = mommy.make("PeriodoEscolar", nome="TARDE")
-    periodo_integral = mommy.make("PeriodoEscolar", nome="INTEGRAL")
-    periodo_noite = mommy.make("PeriodoEscolar", nome="NOITE")
-    grupo_solicitacoes_alimentacao = mommy.make(
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
+    periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
+    periodo_noite = baker.make("PeriodoEscolar", nome="NOITE")
+    grupo_solicitacoes_alimentacao = baker.make(
         "GrupoMedicao", nome="Solicitações de Alimentação"
     )
-    grupo_programas_e_projetos = mommy.make("GrupoMedicao", nome="Programas e Projetos")
-    grupo_etec = mommy.make("GrupoMedicao", nome="ETEC")
-    solicitacao_medicao = mommy.make(
+    grupo_programas_e_projetos = baker.make("GrupoMedicao", nome="Programas e Projetos")
+    grupo_etec = baker.make("GrupoMedicao", nome="ETEC")
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=4, ano=2023, escola=escola
     )
     solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
-    medicao_manha = mommy.make(
+    medicao_manha = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_manha,
     )
-    medicao_tarde = mommy.make(
+    medicao_tarde = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_tarde,
     )
-    medicao_integral = mommy.make(
+    medicao_integral = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_integral,
     )
-    medicao_noite = mommy.make(
+    medicao_noite = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_noite,
     )
-    medicao_solicitacoes_alimentacao = mommy.make(
+    medicao_solicitacoes_alimentacao = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         grupo=grupo_solicitacoes_alimentacao,
     )
-    medicao_programas_e_projetos = mommy.make(
+    medicao_programas_e_projetos = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         grupo=grupo_programas_e_projetos,
     )
-    medicao_etec = mommy.make(
+    medicao_etec = baker.make(
         "Medicao", solicitacao_medicao_inicial=solicitacao_medicao, grupo=grupo_etec
     )
     for dia in ["10", "11"]:
@@ -1130,7 +1130,7 @@ def solicitacao_medicao_inicial_com_valores_repeticao(escola, categoria_medicao)
                 medicao_programas_e_projetos,
                 medicao_etec,
             ]:
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo=campo,
@@ -1145,37 +1145,37 @@ def solicitacao_medicao_inicial_com_valores_repeticao(escola, categoria_medicao)
 def solicitacao_medicao_inicial_dietas(
     escola, categoria_medicao_dieta_a, categoria_medicao_dieta_b
 ):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    periodo_manha = mommy.make("PeriodoEscolar", nome="MANHA")
-    periodo_tarde = mommy.make("PeriodoEscolar", nome="TARDE")
-    periodo_integral = mommy.make("PeriodoEscolar", nome="INTEGRAL")
-    periodo_noite = mommy.make("PeriodoEscolar", nome="NOITE")
-    grupo_programas_e_projetos = mommy.make("GrupoMedicao", nome="Programas e Projetos")
-    solicitacao_medicao = mommy.make(
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
+    periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
+    periodo_noite = baker.make("PeriodoEscolar", nome="NOITE")
+    grupo_programas_e_projetos = baker.make("GrupoMedicao", nome="Programas e Projetos")
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=4, ano=2023, escola=escola
     )
     solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
-    medicao_manha = mommy.make(
+    medicao_manha = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_manha,
     )
-    medicao_tarde = mommy.make(
+    medicao_tarde = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_tarde,
     )
-    medicao_integral = mommy.make(
+    medicao_integral = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_integral,
     )
-    medicao_noite = mommy.make(
+    medicao_noite = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_noite,
     )
-    medicao_programas_e_projetos = mommy.make(
+    medicao_programas_e_projetos = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         grupo=grupo_programas_e_projetos,
@@ -1195,7 +1195,7 @@ def solicitacao_medicao_inicial_dietas(
                     medicao_noite,
                     medicao_programas_e_projetos,
                 ]:
-                    mommy.make(
+                    baker.make(
                         "ValorMedicao",
                         dia=dia,
                         nome_campo=campo,
@@ -1203,7 +1203,7 @@ def solicitacao_medicao_inicial_dietas(
                         categoria_medicao=categoria,
                         valor="10",
                     )
-        mommy.make(
+        baker.make(
             "ValorMedicao",
             dia="10",
             nome_campo="lanche",
@@ -1216,14 +1216,14 @@ def solicitacao_medicao_inicial_dietas(
 
 @pytest.fixture
 def medicao_solicitacoes_alimentacao(escola):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    categoria = mommy.make("CategoriaMedicao", nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
-    grupo = mommy.make("GrupoMedicao", nome="Solicitações de Alimentação")
-    solicitacao_medicao = mommy.make(
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    categoria = baker.make("CategoriaMedicao", nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+    grupo = baker.make("GrupoMedicao", nome="Solicitações de Alimentação")
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=6, ano=2023, escola=escola
     )
     solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
-    medicao_solicitacoes_alimentacao = mommy.make(
+    medicao_solicitacoes_alimentacao = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=None,
@@ -1237,7 +1237,7 @@ def medicao_solicitacoes_alimentacao(escola):
             "sobremesa",
             "kit_lanche",
         ]:
-            mommy.make(
+            baker.make(
                 "ValorMedicao",
                 dia=dia,
                 nome_campo=campo,
@@ -1250,22 +1250,22 @@ def medicao_solicitacoes_alimentacao(escola):
 
 @pytest.fixture
 def medicao_solicitacoes_alimentacao_cei(escola):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    categoria = mommy.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
-    periodo_escolar = mommy.make("PeriodoEscolar", nome="INTEGRAL")
-    solicitacao_medicao = mommy.make(
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    categoria = baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
+    periodo_escolar = baker.make("PeriodoEscolar", nome="INTEGRAL")
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=11, ano=2023, escola=escola
     )
-    faixa_etaria = mommy.make("FaixaEtaria", inicio=1, fim=3)
+    faixa_etaria = baker.make("FaixaEtaria", inicio=1, fim=3)
     solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
-    medicao_solicitacoes_alimentacao = mommy.make(
+    medicao_solicitacoes_alimentacao = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_escolar,
         grupo=None,
     )
     for dia in ["01", "02", "03", "04", "05"]:
-        mommy.make(
+        baker.make(
             "ValorMedicao",
             dia=dia,
             nome_campo="frequencia",
@@ -1279,32 +1279,32 @@ def medicao_solicitacoes_alimentacao_cei(escola):
 
 @pytest.fixture
 def periodo_escolar_manha():
-    return mommy.make("PeriodoEscolar", nome="MANHA")
+    return baker.make("PeriodoEscolar", nome="MANHA")
 
 
 @pytest.fixture
 def periodo_escolar_tarde():
-    return mommy.make("PeriodoEscolar", nome="TARDE")
+    return baker.make("PeriodoEscolar", nome="TARDE")
 
 
 @pytest.fixture
 def periodo_escolar_noite():
-    return mommy.make("PeriodoEscolar", nome="NOITE")
+    return baker.make("PeriodoEscolar", nome="NOITE")
 
 
 @pytest.fixture
 def periodo_escolar_integral():
-    return mommy.make("PeriodoEscolar", nome="INTEGRAL")
+    return baker.make("PeriodoEscolar", nome="INTEGRAL")
 
 
 @pytest.fixture
 def periodo_escolar_parcial():
-    return mommy.make("PeriodoEscolar", nome="PARCIAL")
+    return baker.make("PeriodoEscolar", nome="PARCIAL")
 
 
 @pytest.fixture
 def categoria_alimentacoes():
-    return mommy.make("Cate")
+    return baker.make("Cate")
 
 
 @pytest.fixture
@@ -1323,20 +1323,20 @@ def escola_com_logs_para_medicao(
     kit_lanche_1,
     kit_lanche_2,
 ):
-    grupo_inclusao_normal = mommy.make(
+    grupo_inclusao_normal = baker.make(
         "GrupoInclusaoAlimentacaoNormal",
         status="CODAE_AUTORIZADO",
         rastro_escola=escola,
         escola=escola,
     )
 
-    mommy.make(
+    baker.make(
         "InclusaoAlimentacaoNormal",
         grupo_inclusao=grupo_inclusao_normal,
         data=datetime.date(2023, 9, 3),
     )
 
-    qp = mommy.make(
+    qp = baker.make(
         "QuantidadePorPeriodo",
         grupo_inclusao_normal=grupo_inclusao_normal,
         numero_alunos=100,
@@ -1345,7 +1345,7 @@ def escola_com_logs_para_medicao(
     qp.tipos_alimentacao.add(tipo_alimentacao_refeicao)
     qp.save()
 
-    inclusao_continua_programas_projetos = mommy.make(
+    inclusao_continua_programas_projetos = baker.make(
         "InclusaoAlimentacaoContinua",
         escola=escola,
         rastro_escola=escola,
@@ -1355,7 +1355,7 @@ def escola_com_logs_para_medicao(
         status="CODAE_AUTORIZADO",
     )
 
-    inclusao_continua_etec = mommy.make(
+    inclusao_continua_etec = baker.make(
         "InclusaoAlimentacaoContinua",
         escola=escola,
         rastro_escola=escola,
@@ -1365,7 +1365,7 @@ def escola_com_logs_para_medicao(
         status="CODAE_AUTORIZADO",
     )
 
-    solicitacao_kit_lanche = mommy.make(
+    solicitacao_kit_lanche = baker.make(
         "SolicitacaoKitLanche",
         data=datetime.date(2023, 9, 12),
         tempo_passeio=TempoPasseio.OITO_OU_MAIS,
@@ -1374,7 +1374,7 @@ def escola_com_logs_para_medicao(
     solicitacao_kit_lanche.kits.add(kit_lanche_2)
     solicitacao_kit_lanche.save()
 
-    mommy.make(
+    baker.make(
         "SolicitacaoKitLancheAvulsa",
         solicitacao_kit_lanche=solicitacao_kit_lanche,
         status="CODAE_AUTORIZADO",
@@ -1382,14 +1382,14 @@ def escola_com_logs_para_medicao(
         quantidade_alunos=100,
     )
 
-    solicitacao_unificada = mommy.make(
+    solicitacao_unificada = baker.make(
         "SolicitacaoKitLancheUnificada",
         status="CODAE_AUTORIZADO",
         solicitacao_kit_lanche=solicitacao_kit_lanche,
         diretoria_regional=escola.lote.diretoria_regional,
         lista_kit_lanche_igual=False,
     )
-    eq = mommy.make(
+    eq = baker.make(
         "EscolaQuantidade",
         solicitacao_unificada=solicitacao_unificada,
         escola=escola,
@@ -1404,7 +1404,7 @@ def escola_com_logs_para_medicao(
         periodo_escolar_tarde,
         periodo_escolar_noite,
     ]:
-        qp = mommy.make(
+        qp = baker.make(
             "QuantidadePorPeriodo",
             inclusao_alimentacao_continua=inclusao_continua_programas_projetos,
             periodo_escolar=periodo,
@@ -1415,7 +1415,7 @@ def escola_com_logs_para_medicao(
         qp.tipos_alimentacao.add(tipo_alimentacao_lanche)
         qp.save()
 
-        qp = mommy.make(
+        qp = baker.make(
             "QuantidadePorPeriodo",
             inclusao_alimentacao_continua=inclusao_continua_etec,
             periodo_escolar=periodo,
@@ -1426,14 +1426,14 @@ def escola_com_logs_para_medicao(
         qp.tipos_alimentacao.add(tipo_alimentacao_lanche)
         qp.save()
 
-        mommy.make(
+        baker.make(
             "AlunosMatriculadosPeriodoEscola",
             escola=escola,
             periodo_escolar=periodo,
             quantidade_alunos=100,
         )
 
-        vinculo_alimentacao = mommy.make(
+        vinculo_alimentacao = baker.make(
             "VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
             tipo_unidade_escolar=escola.tipo_unidade,
             periodo_escolar=periodo,
@@ -1442,11 +1442,11 @@ def escola_com_logs_para_medicao(
         vinculo_alimentacao.tipos_alimentacao.add(tipo_alimentacao_lanche)
         vinculo_alimentacao.save()
 
-        mommy.make("Aluno", escola=escola, periodo_escolar=periodo)
+        baker.make("Aluno", escola=escola, periodo_escolar=periodo)
 
         for dia in range(1, 31):
             data = datetime.date(2023, 9, dia)
-            log = mommy.make(
+            log = baker.make(
                 "LogAlunosMatriculadosPeriodoEscola",
                 escola=escola,
                 periodo_escolar=periodo,
@@ -1460,7 +1460,7 @@ def escola_com_logs_para_medicao(
                     classificacao_dieta_tipo_a,
                     classificacao_dieta_tipo_a_enteral,
                 ]:
-                    mommy.make(
+                    baker.make(
                         "LogQuantidadeDietasAutorizadas",
                         data=datetime.date(2023, 9, dia),
                         escola=escola,
@@ -1486,7 +1486,7 @@ def solicitacao_medicao_inicial_teste_salvar_logs(
     grupo_solicitacoes_alimentacao,
     categoria_medicao_solicitacoes_alimentacao,
 ):
-    solicitacao_medicao = mommy.make(
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial",
         uuid="bed4d779-2d57-4c5f-bf9c-9b93ddac54d9",
         mes="09",
@@ -1495,7 +1495,7 @@ def solicitacao_medicao_inicial_teste_salvar_logs(
     )
     solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem_alimentacao])
 
-    mommy.make(
+    baker.make(
         "LogAlunosMatriculadosPeriodoEscola",
         escola=escola_com_logs_para_medicao,
         criado_em=datetime.date(2023, 9, 1),
@@ -1503,7 +1503,7 @@ def solicitacao_medicao_inicial_teste_salvar_logs(
         quantidade_alunos=10,
     )
 
-    mommy.make(
+    baker.make(
         "LogAlunosMatriculadosPeriodoEscola",
         escola=escola_com_logs_para_medicao,
         criado_em=datetime.date(2023, 9, 1),
@@ -1511,7 +1511,7 @@ def solicitacao_medicao_inicial_teste_salvar_logs(
         quantidade_alunos=10,
     )
 
-    mommy.make(
+    baker.make(
         "LogAlunosMatriculadosPeriodoEscola",
         escola=escola_com_logs_para_medicao,
         criado_em=datetime.date(2023, 9, 1),
@@ -1519,36 +1519,36 @@ def solicitacao_medicao_inicial_teste_salvar_logs(
         quantidade_alunos=10,
     )
 
-    medicao_manha = mommy.make(
+    medicao_manha = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_escolar_manha,
     )
-    mommy.make(
+    baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_escolar_tarde,
     )
-    mommy.make(
+    baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_escolar_noite,
     )
-    medicao_programas_projetos = mommy.make(
+    medicao_programas_projetos = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         grupo=grupo_programas_e_projetos,
     )
-    medicao_etec = mommy.make(
+    medicao_etec = baker.make(
         "Medicao", solicitacao_medicao_inicial=solicitacao_medicao, grupo=grupo_etec
     )
-    mommy.make(
+    baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         grupo=grupo_solicitacoes_alimentacao,
     )
     for dia in range(1, 31):
-        mommy.make(
+        baker.make(
             "DiaCalendario",
             escola=escola_com_logs_para_medicao,
             data=f"2023-09-{dia:02d}",
@@ -1567,7 +1567,7 @@ def solicitacao_medicao_inicial_teste_salvar_logs(
                 "sobremesa",
                 "repeticao_sobremesa",
             ]:
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     medicao=medicao_,
                     nome_campo=nome_campo,
@@ -1585,7 +1585,7 @@ def solicitacao_medicao_inicial_teste_salvar_logs(
             categoria_medicao_dieta_a,
             categoria_medicao_dieta_a_enteral_aminoacidos,
         ]:
-            mommy.make(
+            baker.make(
                 "ValorMedicao",
                 nome_campo=nome_campo,
                 medicao=medicao_manha,
@@ -1610,7 +1610,7 @@ def faixas_etarias_ativas():
         (48, 72),
     ]
     return [
-        mommy.make("FaixaEtaria", inicio=inicio, fim=fim, ativo=True)
+        baker.make("FaixaEtaria", inicio=inicio, fim=fim, ativo=True)
         for (inicio, fim) in faixas
     ]
 
@@ -1626,7 +1626,7 @@ def solicitacao_medicao_inicial_teste_salvar_logs_cei(
     categoria_medicao_dieta_a,
     categoria_medicao_dieta_a_enteral_aminoacidos,
 ):
-    solicitacao_medicao = mommy.make(
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial",
         uuid="7f7c79ec-bb92-11ee-ad73-5f84fbd2a2f0",
         mes="10",
@@ -1637,16 +1637,16 @@ def solicitacao_medicao_inicial_teste_salvar_logs_cei(
     solicitacao_medicao.ue_possui_alunos_periodo_parcial = True
     solicitacao_medicao.save()
 
-    periodo_integral = mommy.make("PeriodoEscolar", nome="INTEGRAL")
-    periodo_parcial = mommy.make("PeriodoEscolar", nome="PARCIAL")
-    periodo_tarde = mommy.make("PeriodoEscolar", nome="TARDE")
+    periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
+    periodo_parcial = baker.make("PeriodoEscolar", nome="PARCIAL")
+    periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
 
-    mommy.make("Aluno", serie="1", escola=escola_cei, periodo_escolar=periodo_integral)
-    mommy.make("Aluno", serie="2", escola=escola_cei, periodo_escolar=periodo_tarde)
+    baker.make("Aluno", serie="1", escola=escola_cei, periodo_escolar=periodo_integral)
+    baker.make("Aluno", serie="2", escola=escola_cei, periodo_escolar=periodo_tarde)
 
     for periodo in [periodo_integral, periodo_parcial, periodo_tarde]:
         for dia in range(1, 32):
-            log = mommy.make(
+            log = baker.make(
                 "LogAlunosMatriculadosFaixaEtariaDia",
                 escola=escola_cei,
                 periodo_escolar=periodo,
@@ -1659,7 +1659,7 @@ def solicitacao_medicao_inicial_teste_salvar_logs_cei(
                 classificacao_dieta_tipo_a,
                 classificacao_dieta_tipo_a_enteral,
             ]:
-                mommy.make(
+                baker.make(
                     "LogQuantidadeDietasAutorizadasCEI",
                     escola=escola_cei,
                     periodo_escolar=periodo,
@@ -1668,7 +1668,7 @@ def solicitacao_medicao_inicial_teste_salvar_logs_cei(
                     data=datetime.date(2023, 10, dia),
                     classificacao=classificacao,
                 )
-                mommy.make(
+                baker.make(
                     "LogQuantidadeDietasAutorizadasCEI",
                     escola=escola_cei,
                     periodo_escolar=periodo,
@@ -1682,10 +1682,10 @@ def solicitacao_medicao_inicial_teste_salvar_logs_cei(
 
 @pytest.fixture
 def solicitacao_medicao_inicial_com_grupo(escola, categoria_medicao_dieta_a):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    periodo_manha = mommy.make("PeriodoEscolar", nome="MANHA")
-    grupo = mommy.make("GrupoMedicao", nome="Programas e Projetos")
-    solicitacao_medicao = mommy.make(
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    grupo = baker.make("GrupoMedicao", nome="Programas e Projetos")
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial",
         uuid="bed4d779-2d57-4c5f-bf9c-9b93ddac54d9",
         mes=12,
@@ -1693,13 +1693,13 @@ def solicitacao_medicao_inicial_com_grupo(escola, categoria_medicao_dieta_a):
         escola=escola,
     )
     solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
-    medicao = mommy.make(
+    medicao = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_manha,
         grupo=grupo,
     )
-    mommy.make(
+    baker.make(
         "ValorMedicao",
         categoria_medicao=categoria_medicao_dieta_a,
         medicao=medicao,
@@ -1711,9 +1711,9 @@ def solicitacao_medicao_inicial_com_grupo(escola, categoria_medicao_dieta_a):
 
 @pytest.fixture
 def solicitacoes_medicao_inicial(escola):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    escola_2 = mommy.make("Escola")
-    s1 = mommy.make(
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    escola_2 = baker.make("Escola")
+    s1 = baker.make(
         "SolicitacaoMedicaoInicial",
         mes=6,
         ano=2022,
@@ -1722,7 +1722,7 @@ def solicitacoes_medicao_inicial(escola):
     )
     s1.tipos_contagem_alimentacao.set([tipo_contagem])
 
-    s2 = mommy.make(
+    s2 = baker.make(
         "SolicitacaoMedicaoInicial",
         mes=1,
         ano=2023,
@@ -1731,7 +1731,7 @@ def solicitacoes_medicao_inicial(escola):
     )
     s2.tipos_contagem_alimentacao.set([tipo_contagem])
 
-    s3 = mommy.make(
+    s3 = baker.make(
         "SolicitacaoMedicaoInicial",
         mes=2,
         ano=2023,
@@ -1740,7 +1740,7 @@ def solicitacoes_medicao_inicial(escola):
     )
     s3.tipos_contagem_alimentacao.set([tipo_contagem])
 
-    s4 = mommy.make(
+    s4 = baker.make(
         "SolicitacaoMedicaoInicial",
         mes=2,
         ano=2023,
@@ -1749,7 +1749,7 @@ def solicitacoes_medicao_inicial(escola):
     )
     s4.tipos_contagem_alimentacao.set([tipo_contagem])
 
-    s5 = mommy.make(
+    s5 = baker.make(
         "SolicitacaoMedicaoInicial",
         mes=3,
         ano=2023,
@@ -1758,31 +1758,31 @@ def solicitacoes_medicao_inicial(escola):
     )
     s5.tipos_contagem_alimentacao.set([tipo_contagem])
 
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=s1.uuid,
         status_evento=55,  # MEDICAO_ENVIADA_PELA_UE
         solicitacao_tipo=16,
     )  # MEDICAO_INICIAL
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=s2.uuid,
         status_evento=55,  # MEDICAO_ENVIADA_PELA_UE
         solicitacao_tipo=16,
     )  # MEDICAO_INICIAL
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=s3.uuid,
         status_evento=64,  # MEDICAO_CORRECAO_SOLICITADA
         solicitacao_tipo=16,
     )  # MEDICAO_INICIAL
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=s4.uuid,
         status_evento=64,  # MEDICAO_CORRECAO_SOLICITADA
         solicitacao_tipo=16,
     )  # MEDICAO_INICIAL
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=s5.uuid,
         status_evento=54,  # MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
@@ -1792,8 +1792,8 @@ def solicitacoes_medicao_inicial(escola):
 
 @pytest.fixture
 def solicitacoes_medicao_inicial_codae(escola):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    s1 = mommy.make(
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    s1 = baker.make(
         "SolicitacaoMedicaoInicial",
         mes=4,
         ano=2022,
@@ -1802,7 +1802,7 @@ def solicitacoes_medicao_inicial_codae(escola):
     )
     s1.tipos_contagem_alimentacao.set([tipo_contagem])
 
-    s2 = mommy.make(
+    s2 = baker.make(
         "SolicitacaoMedicaoInicial",
         mes=7,
         ano=2023,
@@ -1811,7 +1811,7 @@ def solicitacoes_medicao_inicial_codae(escola):
     )
     s2.tipos_contagem_alimentacao.set([tipo_contagem])
 
-    s3 = mommy.make(
+    s3 = baker.make(
         "SolicitacaoMedicaoInicial",
         mes=2,
         ano=2023,
@@ -1820,7 +1820,7 @@ def solicitacoes_medicao_inicial_codae(escola):
     )
     s3.tipos_contagem_alimentacao.set([tipo_contagem])
 
-    s4 = mommy.make(
+    s4 = baker.make(
         "SolicitacaoMedicaoInicial",
         mes=12,
         ano=2023,
@@ -1829,7 +1829,7 @@ def solicitacoes_medicao_inicial_codae(escola):
     )
     s4.tipos_contagem_alimentacao.set([tipo_contagem])
 
-    s5 = mommy.make(
+    s5 = baker.make(
         "SolicitacaoMedicaoInicial",
         mes=3,
         ano=2023,
@@ -1838,7 +1838,7 @@ def solicitacoes_medicao_inicial_codae(escola):
     )
     s5.tipos_contagem_alimentacao.set([tipo_contagem])
 
-    s6 = mommy.make(
+    s6 = baker.make(
         "SolicitacaoMedicaoInicial",
         mes=2,
         ano=2024,
@@ -1847,37 +1847,37 @@ def solicitacoes_medicao_inicial_codae(escola):
     )
     s6.tipos_contagem_alimentacao.set([tipo_contagem])
 
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=s1.uuid,
         status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_DRE,
         solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
     )
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=s2.uuid,
         status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_DRE,
         solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
     )
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=s3.uuid,
         status_evento=LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
         solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
     )
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=s4.uuid,
         status_evento=LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE,
         solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
     )
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=s5.uuid,
         status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
         solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
     )
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=s6.uuid,
         status_evento=LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
@@ -1887,8 +1887,8 @@ def solicitacoes_medicao_inicial_codae(escola):
 
 @pytest.fixture
 def solicitacao_medicao_inicial_sem_arquivo(escola):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas COloridas")
-    solicitacao_medicao = mommy.make(
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas COloridas")
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial",
         uuid="fb6d1870-a397-4e87-8218-13d316a0ffea",
         mes=6,
@@ -1915,7 +1915,7 @@ def parametrizacao_financeira_emef(
     tipo_alimentacao_lanche_emergencial,
     tipo_alimentacao_sobremesa,
 ):
-    parametrizacao_financeira = mommy.make(
+    parametrizacao_financeira = baker.make(
         "ParametrizacaoFinanceira",
         edital=edital,
         lote=escola.lote,
@@ -1929,12 +1929,12 @@ def parametrizacao_financeira_emef(
         legenda="Parametrização Financeira: Legenda Inicial",
     )
 
-    parametrizacao_financeira_tabela = mommy.make(
+    parametrizacao_financeira_tabela = baker.make(
         "ParametrizacaoFinanceiraTabela",
         parametrizacao_financeira=parametrizacao_financeira,
         nome="Preço das Alimentações",
     )
-    mommy.make(
+    baker.make(
         "ParametrizacaoFinanceiraTabelaValor",
         tabela=parametrizacao_financeira_tabela,
         tipo_alimentacao=tipo_alimentacao_refeicao,
@@ -1944,7 +1944,7 @@ def parametrizacao_financeira_emef(
             "valor_unitario_reajuste": 3,
         },
     )
-    mommy.make(
+    baker.make(
         "ParametrizacaoFinanceiraTabelaValor",
         tabela=parametrizacao_financeira_tabela,
         tipo_alimentacao=tipo_alimentacao_refeicao,
@@ -1954,7 +1954,7 @@ def parametrizacao_financeira_emef(
             "valor_unitario_reajuste": 5,
         },
     )
-    mommy.make(
+    baker.make(
         "ParametrizacaoFinanceiraTabelaValor",
         tabela=parametrizacao_financeira_tabela,
         tipo_alimentacao=tipo_alimentacao_almoco,
@@ -1963,7 +1963,7 @@ def parametrizacao_financeira_emef(
             "valor_unitario_reajuste": 2,
         },
     )
-    mommy.make(
+    baker.make(
         "ParametrizacaoFinanceiraTabelaValor",
         tabela=parametrizacao_financeira_tabela,
         tipo_alimentacao=tipo_alimentacao_lanche,
@@ -1972,7 +1972,7 @@ def parametrizacao_financeira_emef(
             "valor_unitario_reajuste": 5,
         },
     )
-    mommy.make(
+    baker.make(
         "ParametrizacaoFinanceiraTabelaValor",
         tabela=parametrizacao_financeira_tabela,
         tipo_alimentacao=tipo_alimentacao_lanche_4h,
@@ -1981,7 +1981,7 @@ def parametrizacao_financeira_emef(
             "valor_unitario_reajuste": 2,
         },
     )
-    mommy.make(
+    baker.make(
         "ParametrizacaoFinanceiraTabelaValor",
         tabela=parametrizacao_financeira_tabela,
         tipo_alimentacao=tipo_alimentacao_sobremesa,
@@ -1990,7 +1990,7 @@ def parametrizacao_financeira_emef(
             "valor_unitario_reajuste": 6,
         },
     )
-    mommy.make(
+    baker.make(
         "ParametrizacaoFinanceiraTabelaValor",
         tabela=parametrizacao_financeira_tabela,
         tipo_alimentacao=tipo_alimentacao_lanche_emergencial,
@@ -2000,12 +2000,12 @@ def parametrizacao_financeira_emef(
         },
     )
 
-    parametrizacao_financeira_tabela_dietas_a = mommy.make(
+    parametrizacao_financeira_tabela_dietas_a = baker.make(
         "ParametrizacaoFinanceiraTabela",
         parametrizacao_financeira=parametrizacao_financeira,
         nome="Dietas Tipo A e Tipo A Enteral",
     )
-    mommy.make(
+    baker.make(
         "ParametrizacaoFinanceiraTabelaValor",
         tabela=parametrizacao_financeira_tabela_dietas_a,
         grupo="Dieta Enteral",
@@ -2016,7 +2016,7 @@ def parametrizacao_financeira_emef(
             "valor_unitario_total": 7.21,
         },
     )
-    mommy.make(
+    baker.make(
         "ParametrizacaoFinanceiraTabelaValor",
         tabela=parametrizacao_financeira_tabela_dietas_a,
         grupo="Dieta Enteral",
@@ -2027,7 +2027,7 @@ def parametrizacao_financeira_emef(
             "valor_unitario_total": 8.48,
         },
     )
-    mommy.make(
+    baker.make(
         "ParametrizacaoFinanceiraTabelaValor",
         tabela=parametrizacao_financeira_tabela_dietas_a,
         grupo="Dieta Enteral",
@@ -2039,12 +2039,12 @@ def parametrizacao_financeira_emef(
         },
     )
 
-    parametrizacao_financeira_tabela_dietas_b = mommy.make(
+    parametrizacao_financeira_tabela_dietas_b = baker.make(
         "ParametrizacaoFinanceiraTabela",
         parametrizacao_financeira=parametrizacao_financeira,
         nome="Dietas Tipo B",
     )
-    mommy.make(
+    baker.make(
         "ParametrizacaoFinanceiraTabelaValor",
         tabela=parametrizacao_financeira_tabela_dietas_b,
         grupo="Dieta Enteral",
@@ -2055,7 +2055,7 @@ def parametrizacao_financeira_emef(
             "valor_unitario_total": 7.42,
         },
     )
-    mommy.make(
+    baker.make(
         "ParametrizacaoFinanceiraTabelaValor",
         tabela=parametrizacao_financeira_tabela_dietas_b,
         grupo="Dieta Enteral",
@@ -2075,7 +2075,7 @@ def anexo_ocorrencia_medicao_inicial(solicitacao_medicao_inicial):
     arquivo = SimpleUploadedFile(
         "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
     )
-    return mommy.make(
+    return baker.make(
         "OcorrenciaMedicaoInicial",
         uuid="1ace193a-6c2c-4686-b9ed-60a922ad0e1a",
         nome_ultimo_arquivo=nome,
@@ -2091,7 +2091,7 @@ def solicitacao_com_anexo_e_medicoes_aprovadas(solicitacao_medicao_inicial):
     arquivo = SimpleUploadedFile(
         "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
     )
-    mommy.make(
+    baker.make(
         "OcorrenciaMedicaoInicial",
         uuid="1ace193a-6c2c-4686-b9ed-60a922ad0e1a",
         nome_ultimo_arquivo=nome,
@@ -2102,12 +2102,12 @@ def solicitacao_com_anexo_e_medicoes_aprovadas(solicitacao_medicao_inicial):
     medicao = solicitacao_medicao_inicial.medicoes.get()
     medicao.status = "MEDICAO_APROVADA_PELA_CODAE"
     medicao.save()
-    usuario_escola = mommy.make(
+    usuario_escola = baker.make(
         "Usuario", nome="TESTE DA SILVA", cargo="DIRETOR DE ESCOLA"
     )
-    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario_escola,
         instituicao=solicitacao_medicao_inicial.escola,
@@ -2115,11 +2115,11 @@ def solicitacao_com_anexo_e_medicoes_aprovadas(solicitacao_medicao_inicial):
         data_inicial=hoje,
         ativo=True,
     )
-    usuario_dre = mommy.make(
+    usuario_dre = baker.make(
         "Usuario", nome="TESTE DA SILVA", cargo="DIRETOR DE ESCOLA"
     )
-    perfil_cogestor = mommy.make("Perfil", nome="COGESTOR_DRE", ativo=True)
-    mommy.make(
+    perfil_cogestor = baker.make("Perfil", nome="COGESTOR_DRE", ativo=True)
+    baker.make(
         "Vinculo",
         usuario=usuario_dre,
         instituicao=solicitacao_medicao_inicial.escola.lote.diretoria_regional,
@@ -2127,14 +2127,14 @@ def solicitacao_com_anexo_e_medicoes_aprovadas(solicitacao_medicao_inicial):
         data_inicial=hoje,
         ativo=True,
     )
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=solicitacao_medicao_inicial.uuid,
         status_evento=LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE,
         solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
         usuario=usuario_escola,
     )
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=solicitacao_medicao_inicial.uuid,
         status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_DRE,
@@ -2150,7 +2150,7 @@ def anexo_ocorrencia_medicao_inicial_status_aprovado_dre(solicitacao_medicao_ini
     arquivo = SimpleUploadedFile(
         "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
     )
-    return mommy.make(
+    return baker.make(
         "OcorrenciaMedicaoInicial",
         uuid="04fb4c1c-0e31-4936-93a7-f2760b968c3b",
         nome_ultimo_arquivo=nome,
@@ -2166,8 +2166,8 @@ def anexo_ocorrencia_medicao_inicial_status_inicial(escola):
     arquivo = SimpleUploadedFile(
         "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
     )
-    solicitacao_medicao = mommy.make("SolicitacaoMedicaoInicial", escola=escola)
-    return mommy.make(
+    solicitacao_medicao = baker.make("SolicitacaoMedicaoInicial", escola=escola)
+    return baker.make(
         "OcorrenciaMedicaoInicial",
         uuid="2bed204b-2c1c-4686-b5e3-60a922ad0e1a",
         nome_ultimo_arquivo=nome,
@@ -2183,8 +2183,8 @@ def anexo_ocorrencia_medicao_inicial_status_aprovado_pela_dre():
     arquivo = SimpleUploadedFile(
         "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
     )
-    solicitacao_medicao = mommy.make("SolicitacaoMedicaoInicial")
-    return mommy.make(
+    solicitacao_medicao = baker.make("SolicitacaoMedicaoInicial")
+    return baker.make(
         "OcorrenciaMedicaoInicial",
         uuid="2bed204b-2c1c-4686-b5e3-60a922ad0e1a",
         nome_ultimo_arquivo=nome,
@@ -2200,14 +2200,14 @@ def sol_med_inicial_devolvida_pela_dre_para_ue(escola):
     arquivo = SimpleUploadedFile(
         "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
     )
-    solicitacao = mommy.make(
+    solicitacao = baker.make(
         "SolicitacaoMedicaoInicial",
         escola=escola,
         status="MEDICAO_CORRECAO_SOLICITADA",
         uuid="d9de8653-4910-423e-9381-e391c2ae8ecb",
         com_ocorrencias=True,
     )
-    mommy.make(
+    baker.make(
         "OcorrenciaMedicaoInicial",
         uuid="ea7299a3-3eb6-4858-a7b4-387446c607a1",
         nome_ultimo_arquivo=nome,
@@ -2224,14 +2224,14 @@ def sol_med_inicial_devolvida_pela_codae_para_ue(escola):
     arquivo = SimpleUploadedFile(
         "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
     )
-    solicitacao = mommy.make(
+    solicitacao = baker.make(
         "SolicitacaoMedicaoInicial",
         escola=escola,
         status="MEDICAO_CORRECAO_SOLICITADA_CODAE",
         uuid="d9de8653-4910-423e-9381-e391c2ae8ecb",
         com_ocorrencias=True,
     )
-    mommy.make(
+    baker.make(
         "OcorrenciaMedicaoInicial",
         uuid="ea7299a3-3eb6-4858-a7b4-387446c607a1",
         nome_ultimo_arquivo=nome,
@@ -2246,7 +2246,7 @@ def sol_med_inicial_devolvida_pela_codae_para_ue(escola):
 def responsavel(solicitacao_medicao_inicial):
     nome = "tester"
     rf = "1234567"
-    return mommy.make(
+    return baker.make(
         "medicao_inicial.Responsavel",
         nome=nome,
         rf=rf,
@@ -2256,17 +2256,17 @@ def responsavel(solicitacao_medicao_inicial):
 
 @pytest.fixture
 def tipo_contagem_alimentacao():
-    return mommy.make("TipoContagemAlimentacao", nome="Fichas")
+    return baker.make("TipoContagemAlimentacao", nome="Fichas")
 
 
 @pytest.fixture
 def periodo_escolar():
-    return mommy.make("PeriodoEscolar", nome="INTEGRAL")
+    return baker.make("PeriodoEscolar", nome="INTEGRAL")
 
 
 @pytest.fixture
 def medicao(solicitacao_medicao_inicial, periodo_escolar):
-    return mommy.make(
+    return baker.make(
         "Medicao",
         periodo_escolar=periodo_escolar,
         uuid="5a3a3941-1b91-4b9f-b410-c3547e224eb5",
@@ -2278,7 +2278,7 @@ def medicao(solicitacao_medicao_inicial, periodo_escolar):
 def medicao_status_inicial(
     solicitacao_medicao_inicial, periodo_escolar, categoria_medicao
 ):
-    medicao = mommy.make(
+    medicao = baker.make(
         "Medicao",
         periodo_escolar=periodo_escolar,
         uuid="7041e451-43a7-4d2f-abc6-d0960121d2fb",
@@ -2287,10 +2287,10 @@ def medicao_status_inicial(
     )
     valor = 10
     nome_campo = "observacoes"
-    tipo_alimentacao = mommy.make(
+    tipo_alimentacao = baker.make(
         "TipoAlimentacao", nome="Lanche", uuid="0367af8d-26bd-40b5-83d2-9e337622ba50"
     )
-    mommy.make(
+    baker.make(
         "ValorMedicao",
         valor=valor,
         nome_campo=nome_campo,
@@ -2307,7 +2307,7 @@ def medicao_status_inicial(
 def medicao_status_enviada_pela_ue(
     solicitacao_medicao_inicial, periodo_escolar, categoria_medicao
 ):
-    medicao = mommy.make(
+    medicao = baker.make(
         "Medicao",
         periodo_escolar=periodo_escolar,
         uuid="cbe62cc7-55e9-435d-8c3f-845b6fa20c2e",
@@ -2316,10 +2316,10 @@ def medicao_status_enviada_pela_ue(
     )
     valor = 10
     nome_campo = "observacoes"
-    tipo_alimentacao = mommy.make(
+    tipo_alimentacao = baker.make(
         "TipoAlimentacao", nome="Lanche", uuid="837ed21a-d535-4df2-aa37-f186e4e51392"
     )
-    mommy.make(
+    baker.make(
         "ValorMedicao",
         valor=valor,
         nome_campo=nome_campo,
@@ -2336,7 +2336,7 @@ def medicao_status_enviada_pela_ue(
 def medicao_aprovada_pela_dre(
     solicitacao_medicao_inicial, periodo_escolar, categoria_medicao
 ):
-    medicao = mommy.make(
+    medicao = baker.make(
         "Medicao",
         periodo_escolar=periodo_escolar,
         uuid="65f112a5-8b4b-495b-a29e-1d75fb0b5eeb",
@@ -2345,10 +2345,10 @@ def medicao_aprovada_pela_dre(
     )
     valor = 20
     nome_campo = "observacoes"
-    tipo_alimentacao = mommy.make(
+    tipo_alimentacao = baker.make(
         "TipoAlimentacao", nome="Lanche", uuid="a5ea11b6-a043-47cd-ba69-d6b207312cbd"
     )
-    mommy.make(
+    baker.make(
         "ValorMedicao",
         valor=valor,
         nome_campo=nome_campo,
@@ -2363,19 +2363,19 @@ def medicao_aprovada_pela_dre(
 
 @pytest.fixture
 def categoria_medicao():
-    return mommy.make(
+    return baker.make(
         "CategoriaMedicao", nome="ALIMENTAÇÃO", id=random.randint(1, 1000000)
     )
 
 
 @pytest.fixture
 def categoria_medicao_dieta_a():
-    return mommy.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A")
+    return baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A")
 
 
 @pytest.fixture
 def categoria_medicao_dieta_a_enteral_aminoacidos():
-    return mommy.make(
+    return baker.make(
         "CategoriaMedicao",
         nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
     )
@@ -2383,22 +2383,22 @@ def categoria_medicao_dieta_a_enteral_aminoacidos():
 
 @pytest.fixture
 def categoria_medicao_dieta_b():
-    return mommy.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO B")
+    return baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO B")
 
 
 @pytest.fixture
 def categoria_medicao_solicitacoes_alimentacao():
-    return mommy.make("CategoriaMedicao", nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+    return baker.make("CategoriaMedicao", nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
 
 
 @pytest.fixture
 def valor_medicao(medicao, categoria_medicao):
     valor = 13
     nome_campo = "observacoes"
-    tipo_alimentacao = mommy.make(
+    tipo_alimentacao = baker.make(
         "TipoAlimentacao", nome="Lanche", uuid="b58b7946-67c4-416c-82cf-f26a470fb93e"
     )
-    return mommy.make(
+    return baker.make(
         "ValorMedicao",
         valor=valor,
         nome_campo=nome_campo,
@@ -2417,9 +2417,9 @@ def client_autenticado_diretoria_regional(client, django_user_model, escola):
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_cogestor = mommy.make("Perfil", nome="COGESTOR_DRE", ativo=True)
+    perfil_cogestor = baker.make("Perfil", nome="COGESTOR_DRE", ativo=True)
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola.diretoria_regional,
@@ -2435,12 +2435,12 @@ def client_autenticado_diretoria_regional(client, django_user_model, escola):
 def client_autenticado_da_escola(client, django_user_model, escola):
     email = "user@escola.com"
     password = "admin@123"
-    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="123456"
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=escola,
@@ -2456,12 +2456,12 @@ def client_autenticado_da_escola(client, django_user_model, escola):
 def client_autenticado_da_escola_cei(client, django_user_model, escola_cei):
     email = "user@escola_cei.com"
     password = "admin@123"
-    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="123456"
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=escola_cei,
@@ -2477,12 +2477,12 @@ def client_autenticado_da_escola_cei(client, django_user_model, escola_cei):
 def client_autenticado_da_escola_cemei(client, django_user_model, escola_cemei):
     email = "user@escola_cemei.com"
     password = "admin@123"
-    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="123456"
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=escola_cemei,
@@ -2500,12 +2500,12 @@ def client_autenticado_da_escola_ceu_gestao(
 ):
     email = "user@escola_ceu_gestao.com"
     password = "admin@123"
-    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="123456"
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=escola_ceu_gestao,
@@ -2521,12 +2521,12 @@ def client_autenticado_da_escola_ceu_gestao(
 def client_autenticado_da_escola_emebs(client, django_user_model, escola_emebs):
     email = "user@escola_emebs.com"
     password = "admin@123"
-    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="123456"
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=escola_emebs,
@@ -2542,12 +2542,12 @@ def client_autenticado_da_escola_emebs(client, django_user_model, escola_emebs):
 def client_autenticado_adm_da_escola(client, django_user_model, escola):
     email = "user@escola_adm.com"
     password = "admin@1234"
-    perfil_diretor = mommy.make("Perfil", nome="ADMINISTRADOR_UE", ativo=True)
+    perfil_diretor = baker.make("Perfil", nome="ADMINISTRADOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="1234567"
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=escola,
@@ -2563,13 +2563,13 @@ def client_autenticado_adm_da_escola(client, django_user_model, escola):
 def user_administrador_medicao(django_user_model):
     email = "codae@medicao.com"
     password = "admin@1234"
-    perfil_medicao = mommy.make("Perfil", nome="ADMINISTRADOR_MEDICAO", ativo=True)
+    perfil_medicao = baker.make("Perfil", nome="ADMINISTRADOR_MEDICAO", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="1234588"
     )
-    codae = mommy.make("Codae")
+    codae = baker.make("Codae")
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=codae,
@@ -2589,7 +2589,7 @@ def client_autenticado_codae_medicao(client, user_administrador_medicao):
 
 @pytest.fixture
 def dia_para_corrigir(categoria_medicao, medicao):
-    return mommy.make(
+    return baker.make(
         "DiaParaCorrigir",
         uuid="d5c33bdc-6c3e-4e70-a7f4-60603362f386",
         medicao=medicao,
@@ -2622,11 +2622,11 @@ def alimentacoes_lancamentos_especiais():
 def permissoes_lancamento_especial(
     escola, escola_emei, alimentacoes_lancamentos_especiais
 ):
-    usuario = mommy.make("Usuario", email="admin2@admin.com", is_superuser=True)
-    periodo_manha = mommy.make("PeriodoEscolar", nome="MANHA")
-    periodo_tarde = mommy.make("PeriodoEscolar", nome="TARDE")
+    usuario = baker.make("Usuario", email="admin2@admin.com", is_superuser=True)
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
     alimentacoes = alimentacoes_lancamentos_especiais
-    mommy.make(
+    baker.make(
         "PermissaoLancamentoEspecial",
         alimentacoes_lancamento_especial=[
             alimentacoes[0],
@@ -2641,7 +2641,7 @@ def permissoes_lancamento_especial(
         diretoria_regional=escola.diretoria_regional,
         periodo_escolar=periodo_manha,
     )
-    mommy.make(
+    baker.make(
         "PermissaoLancamentoEspecial",
         alimentacoes_lancamento_especial=[
             alimentacoes[1],
@@ -2655,7 +2655,7 @@ def permissoes_lancamento_especial(
         diretoria_regional=escola.diretoria_regional,
         periodo_escolar=periodo_tarde,
     )
-    mommy.make(
+    baker.make(
         "PermissaoLancamentoEspecial",
         alimentacoes_lancamento_especial=[
             alimentacoes[1],
@@ -2677,17 +2677,17 @@ def permissoes_lancamento_especial(
 @pytest.fixture
 def logs_alunos_matriculados_periodo_escola_cemei(escola_cemei):
     quantidades = [10, 20]
-    periodo_manha = mommy.make("PeriodoEscolar", nome="MANHA")
-    periodo_tarde = mommy.make("PeriodoEscolar", nome="TARDE")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
     for quantidade in quantidades:
-        mommy.make(
+        baker.make(
             LogAlunosMatriculadosPeriodoEscola,
             escola=escola_cemei,
             periodo_escolar=periodo_manha,
             quantidade_alunos=quantidade,
             tipo_turma=TipoTurma.REGULAR.name,
         )
-    mommy.make(
+    baker.make(
         LogAlunosMatriculadosPeriodoEscola,
         escola=escola_cemei,
         periodo_escolar=periodo_tarde,
@@ -2705,7 +2705,7 @@ def grupo_escolar(
     tipo_unidade_escolar_cieja,
     tipo_unidade_escolar_ceu_gestao,
 ):
-    grupo_escolar = mommy.make(
+    grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
         nome="Grupo 4",
         uuid="5bd9ad5c-e0ab-4812-b2b6-336fc8988960",
@@ -2722,7 +2722,7 @@ def grupo_escolar(
 
 @pytest.fixture
 def diretoria_regional():
-    diretoria_regional = mommy.make(
+    diretoria_regional = baker.make(
         "DiretoriaRegional",
         nome="DIRETORIA REGIONAL IPIRANGA",
         uuid="3972e0e9-2d8e-472a-9dfa-30cd219a6d9a",
@@ -2732,7 +2732,7 @@ def diretoria_regional():
 
 @pytest.fixture
 def edital():
-    edital = mommy.make(
+    edital = baker.make(
         "terceirizada.Edital",
         numero="Edital de Pregão nº 78/SME/2024",
         uuid="f76f367c-f9c4-463e-aefb-0ff434d93ae9",
@@ -2742,9 +2742,9 @@ def edital():
 
 @pytest.fixture
 def contrato(edital):
-    terceirizada = mommy.make("terceirizada.Terceirizada")
-    lote = mommy.make("escola.Lote", terceirizada=terceirizada)
-    contrato = mommy.make(
+    terceirizada = baker.make("terceirizada.Terceirizada")
+    lote = baker.make("escola.Lote", terceirizada=terceirizada)
+    contrato = baker.make(
         "terceirizada.Contrato",
         lotes=[lote],
         edital=edital,
@@ -2756,7 +2756,7 @@ def contrato(edital):
 
 @pytest.fixture
 def empenho(edital, contrato):
-    empenho = mommy.make(
+    empenho = baker.make(
         "Empenho",
         numero="123456",
         contrato=contrato,
@@ -2770,7 +2770,7 @@ def empenho(edital, contrato):
 
 @pytest.fixture
 def faixa_etaria():
-    return mommy.make(
+    return baker.make(
         "FaixaEtaria", inicio=1, fim=4, uuid="1d125c38-ce75-6974-b25d-a4874745b996"
     )
 
@@ -2784,7 +2784,7 @@ def make_log_matriculados_faixa_etaria_dia(faixa_etaria):
         periodo_escolar: PeriodoEscolar,
     ):
         data = datetime.datetime(int(solicitacao.ano), int(solicitacao.mes), dia).date()
-        mommy.make(
+        baker.make(
             "LogAlunosMatriculadosFaixaEtariaDia",
             escola=escola,
             data=data,
@@ -2798,8 +2798,8 @@ def make_log_matriculados_faixa_etaria_dia(faixa_etaria):
 
 @pytest.fixture
 def solicitacao_medicao_inicial_cemei_simples(escola_cemei):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    solicitacao_medicao = mommy.make(
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=4, ano=2023, escola=escola_cemei
     )
     solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
@@ -2811,7 +2811,7 @@ def solicitacao_medicao_inicial_cemei_simples(escola_cemei):
 def make_dia_letivo():
     def handle(dia: int, mes: int, ano: int, escola: Escola):
         data = datetime.datetime(ano, mes, dia).date()
-        return mommy.make(DiaCalendario, escola=escola, data=data, dia_letivo=True)
+        return baker.make(DiaCalendario, escola=escola, data=data, dia_letivo=True)
 
     return handle
 
@@ -2821,7 +2821,7 @@ def make_periodo_escolar():
     def handle(nome: str):
         if PeriodoEscolar.objects.filter(nome=nome).exists():
             return PeriodoEscolar.objects.get(nome=nome)
-        return mommy.make("PeriodoEscolar", nome=nome)
+        return baker.make("PeriodoEscolar", nome=nome)
 
     return handle
 
@@ -2829,7 +2829,7 @@ def make_periodo_escolar():
 @pytest.fixture
 def make_medicao():
     def handle(solicitacao: SolicitacaoMedicaoInicial, periodo_escolar: PeriodoEscolar):
-        return mommy.make(
+        return baker.make(
             "Medicao",
             solicitacao_medicao_inicial=solicitacao,
             periodo_escolar=periodo_escolar,
@@ -2841,7 +2841,7 @@ def make_medicao():
 @pytest.fixture
 def make_valor_medicao_faixa_etaria(categoria_medicao, faixa_etaria):
     def handle(medicao: Medicao, valor: str, dia: int):
-        return mommy.make(
+        return baker.make(
             "ValorMedicao",
             dia=str(dia).rjust(2, "0"),
             semana="1",
@@ -2858,24 +2858,24 @@ def make_valor_medicao_faixa_etaria(categoria_medicao, faixa_etaria):
 @pytest.fixture
 def make_valores_medicao():
     def handle(*args, **kwargs):
-        return mommy.make("ValorMedicao", **kwargs)
+        return baker.make("ValorMedicao", **kwargs)
 
     return handle
 
 
 @pytest.fixture
 def usuario(django_user_model):
-    return mommy.make(django_user_model)
+    return baker.make(django_user_model)
 
 
 @pytest.fixture
 def periodos_integral_parcial_e_logs(escola, faixas_etarias_ativas):
-    periodo_integral = mommy.make("PeriodoEscolar", nome="INTEGRAL")
-    periodo_parcial = mommy.make("PeriodoEscolar", nome="PARCIAL")
+    periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
+    periodo_parcial = baker.make("PeriodoEscolar", nome="PARCIAL")
 
     for periodo in [periodo_integral, periodo_parcial]:
         for dia in range(1, 5):
-            mommy.make(
+            baker.make(
                 "LogAlunosMatriculadosFaixaEtariaDia",
                 escola=escola,
                 periodo_escolar=periodo,
@@ -2887,7 +2887,7 @@ def periodos_integral_parcial_e_logs(escola, faixas_etarias_ativas):
 
 @pytest.fixture
 def solicitacao_escola_ceuemei(escola_ceu_emei):
-    return mommy.make(
+    return baker.make(
         "SolicitacaoMedicaoInicial",
         escola=escola_ceu_emei,
         mes="04",
@@ -2898,7 +2898,7 @@ def solicitacao_escola_ceuemei(escola_ceu_emei):
 
 @pytest.fixture
 def solicitacao_relatorio_consolidado_grupo_emef(escola):
-    return mommy.make(
+    return baker.make(
         "SolicitacaoMedicaoInicial",
         escola=escola,
         mes="04",
@@ -2909,7 +2909,7 @@ def solicitacao_relatorio_consolidado_grupo_emef(escola):
 
 @pytest.fixture
 def solicitacao_relatorio_consolidado_grupo_emei(escola_emei):
-    return mommy.make(
+    return baker.make(
         "SolicitacaoMedicaoInicial",
         escola=escola_emei,
         mes="04",
@@ -2924,7 +2924,7 @@ def medicao_grupo_solicitacao_alimentacao(
     solicitacao_relatorio_consolidado_grupo_emei,
     grupo_solicitacoes_alimentacao,
 ):
-    medicao_emef = mommy.make(
+    medicao_emef = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emef,
         periodo_escolar=None,
@@ -2932,7 +2932,7 @@ def medicao_grupo_solicitacao_alimentacao(
         grupo=grupo_solicitacoes_alimentacao,
     )
 
-    medicao_emei = mommy.make(
+    medicao_emei = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emei,
         periodo_escolar=None,
@@ -2949,7 +2949,7 @@ def medicao_grupo_alimentacao(
     solicitacao_relatorio_consolidado_grupo_emei,
     periodo_escolar_manha,
 ):
-    medicao_emef = mommy.make(
+    medicao_emef = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emef,
         periodo_escolar=periodo_escolar_manha,
@@ -2957,7 +2957,7 @@ def medicao_grupo_alimentacao(
         grupo=None,
     )
 
-    medicao_emei = mommy.make(
+    medicao_emei = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emei,
         periodo_escolar=periodo_escolar_manha,
@@ -2984,7 +2984,7 @@ def relatorio_consolidado_xlsx_emef(
 
     for dia in ["01", "02", "03", "04", "05"]:
         for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
-            mommy.make(
+            baker.make(
                 "ValorMedicao",
                 dia=dia,
                 nome_campo=campo,
@@ -2998,7 +2998,7 @@ def relatorio_consolidado_xlsx_emef(
                     categoria_medicao_dieta_b,
                     categoria_medicao_dieta_a_enteral_aminoacidos,
                 ]:
-                    mommy.make(
+                    baker.make(
                         "ValorMedicao",
                         dia=dia,
                         nome_campo=campo,
@@ -3007,7 +3007,7 @@ def relatorio_consolidado_xlsx_emef(
                         valor="2",
                     )
             elif campo == "refeicao":
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo=campo,
@@ -3017,7 +3017,7 @@ def relatorio_consolidado_xlsx_emef(
                 )
         if dia == "05":
             for campo in ["kit_lanche", "lanche_emergencial"]:
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo=campo,
@@ -3026,7 +3026,7 @@ def relatorio_consolidado_xlsx_emef(
                     valor="10",
                 )
 
-        mommy.make(
+        baker.make(
             "ValorMedicao",
             dia=dia,
             nome_campo="matriculados",
@@ -3034,7 +3034,7 @@ def relatorio_consolidado_xlsx_emef(
             categoria_medicao=categoria_medicao,
             valor="100",
         )
-        mommy.make(
+        baker.make(
             "ValorMedicao",
             dia=dia,
             nome_campo="frequencia",
@@ -3062,7 +3062,7 @@ def relatorio_consolidado_xlsx_emei(
 
     for dia in ["01", "02", "03", "04", "05"]:
         for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
-            mommy.make(
+            baker.make(
                 "ValorMedicao",
                 dia=dia,
                 nome_campo=campo,
@@ -3076,7 +3076,7 @@ def relatorio_consolidado_xlsx_emei(
                     categoria_medicao_dieta_b,
                     categoria_medicao_dieta_a_enteral_aminoacidos,
                 ]:
-                    mommy.make(
+                    baker.make(
                         "ValorMedicao",
                         dia=dia,
                         nome_campo=campo,
@@ -3085,7 +3085,7 @@ def relatorio_consolidado_xlsx_emei(
                         valor="4",
                     )
             elif campo == "refeicao":
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo=campo,
@@ -3095,7 +3095,7 @@ def relatorio_consolidado_xlsx_emei(
                 )
         if dia == "05":
             for campo in ["kit_lanche", "lanche_emergencial"]:
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo=campo,
@@ -3104,7 +3104,7 @@ def relatorio_consolidado_xlsx_emei(
                     valor="5",
                 )
 
-        mommy.make(
+        baker.make(
             "ValorMedicao",
             dia=dia,
             nome_campo="matriculados",
@@ -3112,7 +3112,7 @@ def relatorio_consolidado_xlsx_emei(
             categoria_medicao=categoria_medicao,
             valor="90",
         )
-        mommy.make(
+        baker.make(
             "ValorMedicao",
             dia=dia,
             nome_campo="frequencia",
@@ -3141,14 +3141,14 @@ def mock_query_params_excel_emef(
 
 @pytest.fixture
 def mock_query_params_excel_emei(solicitacao_relatorio_consolidado_grupo_emei):
-    grupo_escolar = mommy.make(
+    grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
         nome="Grupo 3",
         uuid="f573268f-e94b-4d4d-a92e-5ed5453b82e6",
         tipos_unidades=[
-            mommy.make("TipoUnidadeEscolar", iniciais="EMEI"),
-            mommy.make("TipoUnidadeEscolar", iniciais="CEU EMEI"),
-            mommy.make("TipoUnidadeEscolar", iniciais="EMEI P FOM"),
+            baker.make("TipoUnidadeEscolar", iniciais="EMEI"),
+            baker.make("TipoUnidadeEscolar", iniciais="CEU EMEI"),
+            baker.make("TipoUnidadeEscolar", iniciais="EMEI P FOM"),
         ],
     )
     return {
@@ -3267,7 +3267,7 @@ def informacoes_excel_writer_emei(
 
 @pytest.fixture
 def clausula_desconto(edital):
-    return mommy.make(
+    return baker.make(
         "ClausulaDeDesconto",
         numero_clausula="N485959",
         porcentagem_desconto=0.12,
@@ -3277,10 +3277,10 @@ def clausula_desconto(edital):
 
 @pytest.fixture
 def relatorio_financeiro():
-    return mommy.make(
+    return baker.make(
         "RelatorioFinanceiro",
-        grupo_unidade_escolar=mommy.make("GrupoUnidadeEscolar"),
-        lote=mommy.make("escola.Lote"),
+        grupo_unidade_escolar=baker.make("GrupoUnidadeEscolar"),
+        lote=baker.make("escola.Lote"),
         mes="10",
         ano="2025",
     )
@@ -3288,7 +3288,7 @@ def relatorio_financeiro():
 
 @pytest.fixture
 def solicitacao_relatorio_consolidado_grupo_cei(escola_cei):
-    return mommy.make(
+    return baker.make(
         "SolicitacaoMedicaoInicial",
         escola=escola_cei,
         mes="04",
@@ -3299,7 +3299,7 @@ def solicitacao_relatorio_consolidado_grupo_cei(escola_cei):
 
 @pytest.fixture
 def solicitacao_escola_cci(escola_cci):
-    return mommy.make(
+    return baker.make(
         "SolicitacaoMedicaoInicial",
         escola=escola_cci,
         mes="04",
@@ -3320,23 +3320,23 @@ def relatorio_consolidado_xlsx_cei(
     categoria_medicao_dieta_b,
     faixas_etarias_ativas,
 ):
-    medicao_integral = mommy.make(
+    medicao_integral = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cei,
         periodo_escolar=periodo_escolar_integral,
     )
-    medicao_parcial = mommy.make(
+    medicao_parcial = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cei,
         periodo_escolar=periodo_escolar_parcial,
     )
-    medicao_manha = mommy.make(
+    medicao_manha = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cei,
         periodo_escolar=periodo_escolar_manha,
     )
 
-    medicao_tarde = mommy.make(
+    medicao_tarde = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cei,
         periodo_escolar=periodo_escolar_tarde,
@@ -3351,7 +3351,7 @@ def relatorio_consolidado_xlsx_cei(
         ]:
             if medicao in [medicao_integral, medicao_parcial]:
                 for faixa in faixas_etarias_ativas:
-                    mommy.make(
+                    baker.make(
                         "ValorMedicao",
                         dia=dia,
                         nome_campo="frequencia",
@@ -3360,7 +3360,7 @@ def relatorio_consolidado_xlsx_cei(
                         valor=20,
                         faixa_etaria=faixa,
                     )
-                    mommy.make(
+                    baker.make(
                         "ValorMedicao",
                         dia=dia,
                         nome_campo="frequencia",
@@ -3369,7 +3369,7 @@ def relatorio_consolidado_xlsx_cei(
                         valor=2,
                         faixa_etaria=faixa,
                     )
-                    mommy.make(
+                    baker.make(
                         "ValorMedicao",
                         dia=dia,
                         nome_campo="frequencia",
@@ -3380,7 +3380,7 @@ def relatorio_consolidado_xlsx_cei(
                     )
 
             elif medicao == medicao_manha:
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo="frequencia",
@@ -3389,7 +3389,7 @@ def relatorio_consolidado_xlsx_cei(
                     valor=20,
                     faixa_etaria=faixas_etarias_ativas[2],
                 )
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo="frequencia",
@@ -3398,7 +3398,7 @@ def relatorio_consolidado_xlsx_cei(
                     valor=15,
                     faixa_etaria=faixas_etarias_ativas[4],
                 )
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo="frequencia",
@@ -3408,7 +3408,7 @@ def relatorio_consolidado_xlsx_cei(
                     faixa_etaria=faixas_etarias_ativas[2],
                 )
             elif medicao == medicao_tarde:
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo="frequencia",
@@ -3417,7 +3417,7 @@ def relatorio_consolidado_xlsx_cei(
                     valor=15,
                     faixa_etaria=faixas_etarias_ativas[3],
                 )
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo="frequencia",
@@ -3426,7 +3426,7 @@ def relatorio_consolidado_xlsx_cei(
                     valor=20,
                     faixa_etaria=faixas_etarias_ativas[6],
                 )
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo="frequencia",
@@ -3440,17 +3440,17 @@ def relatorio_consolidado_xlsx_cei(
 
 @pytest.fixture
 def mock_query_params_excel_cei(solicitacao_relatorio_consolidado_grupo_cei):
-    grupo_escolar = mommy.make(
+    grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
         nome="Grupo 1",
         uuid="782d1da2-bec0-4afb-b560-d63332a719f6",
         tipos_unidades=[
-            mommy.make("TipoUnidadeEscolar", iniciais="CEI DIRET"),
-            mommy.make("TipoUnidadeEscolar", iniciais="CEU CEI"),
-            mommy.make("TipoUnidadeEscolar", iniciais="CEI"),
-            mommy.make("TipoUnidadeEscolar", iniciais="CCI"),
-            mommy.make("TipoUnidadeEscolar", iniciais="CCI/CIPS"),
-            mommy.make("TipoUnidadeEscolar", iniciais="CEI CEU"),
+            baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET"),
+            baker.make("TipoUnidadeEscolar", iniciais="CEU CEI"),
+            baker.make("TipoUnidadeEscolar", iniciais="CEI"),
+            baker.make("TipoUnidadeEscolar", iniciais="CCI"),
+            baker.make("TipoUnidadeEscolar", iniciais="CCI/CIPS"),
+            baker.make("TipoUnidadeEscolar", iniciais="CEI CEU"),
         ],
     )
     return {
@@ -3574,7 +3574,7 @@ def informacoes_excel_writer_cei(
 
 @pytest.fixture
 def solicitacao_relatorio_consolidado_grupo_cemei(escola_cemei):
-    return mommy.make(
+    return baker.make(
         "SolicitacaoMedicaoInicial",
         escola=escola_cemei,
         mes="04",
@@ -3585,7 +3585,7 @@ def solicitacao_relatorio_consolidado_grupo_cemei(escola_cemei):
 
 @pytest.fixture
 def solicitacao_escola_ceu_cemei(escola_ceu_cemei):
-    return mommy.make(
+    return baker.make(
         "SolicitacaoMedicaoInicial",
         escola=escola_ceu_cemei,
         mes="04",
@@ -3610,34 +3610,34 @@ def relatorio_consolidado_xlsx_cemei(
     grupo_solicitacoes_alimentacao,
     categoria_medicao_solicitacoes_alimentacao,
 ):
-    medicao_integral = mommy.make(
+    medicao_integral = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
         periodo_escolar=periodo_escolar_integral,
     )
-    medicao_parcial = mommy.make(
+    medicao_parcial = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
         periodo_escolar=periodo_escolar_parcial,
     )
 
-    medicao_infantil_integral = mommy.make(
+    medicao_infantil_integral = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
         grupo=grupo_infantil_integral,
     )
-    medicao_infantil_manha = mommy.make(
+    medicao_infantil_manha = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
         grupo=grupo_infantil_manha,
     )
-    medicao_infantil_tarde = mommy.make(
+    medicao_infantil_tarde = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
         grupo=grupo_infantil_tarde,
     )
 
-    solicitacao_alimentacao = mommy.make(
+    solicitacao_alimentacao = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
         grupo=grupo_solicitacoes_alimentacao,
@@ -3646,7 +3646,7 @@ def relatorio_consolidado_xlsx_cemei(
     for dia in ["01", "02", "03", "04", "05"]:
         if dia == "05":
             for campo in ["kit_lanche", "lanche_emergencial"]:
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo=campo,
@@ -3656,7 +3656,7 @@ def relatorio_consolidado_xlsx_cemei(
                 )
         for medicao in [medicao_integral, medicao_parcial]:
             for faixa in faixas_etarias_ativas:
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo="frequencia",
@@ -3665,7 +3665,7 @@ def relatorio_consolidado_xlsx_cemei(
                     valor=20,
                     faixa_etaria=faixa,
                 )
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo="frequencia",
@@ -3674,7 +3674,7 @@ def relatorio_consolidado_xlsx_cemei(
                     valor=2,
                     faixa_etaria=faixa,
                 )
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo="frequencia",
@@ -3689,7 +3689,7 @@ def relatorio_consolidado_xlsx_cemei(
             medicao_infantil_tarde,
         ]:
             for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo=campo,
@@ -3703,7 +3703,7 @@ def relatorio_consolidado_xlsx_cemei(
                         categoria_medicao_dieta_b,
                         categoria_medicao_dieta_a_enteral_aminoacidos,
                     ]:
-                        mommy.make(
+                        baker.make(
                             "ValorMedicao",
                             dia=dia,
                             nome_campo=campo,
@@ -3712,7 +3712,7 @@ def relatorio_consolidado_xlsx_cemei(
                             valor=1,
                         )
                 elif campo == "refeicao":
-                    mommy.make(
+                    baker.make(
                         "ValorMedicao",
                         dia=dia,
                         nome_campo=campo,
@@ -3726,13 +3726,13 @@ def relatorio_consolidado_xlsx_cemei(
 
 @pytest.fixture
 def mock_query_params_excel_cemei(solicitacao_relatorio_consolidado_grupo_cemei):
-    grupo_escolar = mommy.make(
+    grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
         nome="Grupo 2",
         uuid="012dc7a2-eb11-4000-96b9-e3c5130dc64c",
         tipos_unidades=[
-            mommy.make("TipoUnidadeEscolar", iniciais="CEMEI"),
-            mommy.make("TipoUnidadeEscolar", iniciais="CEU CEMEI"),
+            baker.make("TipoUnidadeEscolar", iniciais="CEMEI"),
+            baker.make("TipoUnidadeEscolar", iniciais="CEU CEMEI"),
         ],
     )
     return {
@@ -3885,9 +3885,9 @@ def informacoes_excel_writer_cemei(
 
 @pytest.fixture
 def solicitacao_escola_emebs():
-    return mommy.make(
+    return baker.make(
         "SolicitacaoMedicaoInicial",
-        escola=mommy.make("Escola", nome="EMEBS PRIMEIRA"),
+        escola=baker.make("Escola", nome="EMEBS PRIMEIRA"),
         mes="04",
         ano="2025",
         status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
@@ -3896,7 +3896,7 @@ def solicitacao_escola_emebs():
 
 @pytest.fixture
 def solicitacao_relatorio_consolidado_grupo_emebs(escola_emebs):
-    return mommy.make(
+    return baker.make(
         "SolicitacaoMedicaoInicial",
         escola=escola_emebs,
         mes="04",
@@ -3920,35 +3920,35 @@ def relatorio_consolidado_xlsx_emebs(
     categoria_medicao_solicitacoes_alimentacao,
     grupo_programas_e_projetos,
 ):
-    medicao_manha = mommy.make(
+    medicao_manha = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
         periodo_escolar=periodo_escolar_manha,
     )
-    medicao_tarde = mommy.make(
+    medicao_tarde = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
         periodo_escolar=periodo_escolar_tarde,
     )
 
-    medicao_integral = mommy.make(
+    medicao_integral = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
         periodo_escolar=periodo_escolar_integral,
     )
 
-    medicao_noite = mommy.make(
+    medicao_noite = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
         periodo_escolar=periodo_escolar_noite,
     )
 
-    medicao_programas_e_projetos = mommy.make(
+    medicao_programas_e_projetos = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
         grupo=grupo_programas_e_projetos,
     )
-    solicitacao_alimentacao = mommy.make(
+    solicitacao_alimentacao = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emebs,
         grupo=grupo_solicitacoes_alimentacao,
@@ -3957,7 +3957,7 @@ def relatorio_consolidado_xlsx_emebs(
     for dia in ["01", "02", "03", "04", "05"]:
         if dia == "05":
             for campo in ["kit_lanche", "lanche_emergencial"]:
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo=campo,
@@ -3978,7 +3978,7 @@ def relatorio_consolidado_xlsx_emebs(
                 if medicao == medicao_noite and turma == "INFANTIL":
                     continue
                 if medicao == medicao_programas_e_projetos:
-                    mommy.make(
+                    baker.make(
                         "ValorMedicao",
                         dia=dia,
                         nome_campo="numero_de_alunos",
@@ -3988,7 +3988,7 @@ def relatorio_consolidado_xlsx_emebs(
                         infantil_ou_fundamental=turma,
                     )
                 else:
-                    mommy.make(
+                    baker.make(
                         "ValorMedicao",
                         dia=dia,
                         nome_campo="matriculados",
@@ -3997,7 +3997,7 @@ def relatorio_consolidado_xlsx_emebs(
                         valor="90",
                         infantil_ou_fundamental=turma,
                     )
-                mommy.make(
+                baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo="frequencia",
@@ -4008,7 +4008,7 @@ def relatorio_consolidado_xlsx_emebs(
                 )
 
                 for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
-                    mommy.make(
+                    baker.make(
                         "ValorMedicao",
                         dia=dia,
                         nome_campo=campo,
@@ -4023,7 +4023,7 @@ def relatorio_consolidado_xlsx_emebs(
                             categoria_medicao_dieta_b,
                             categoria_medicao_dieta_a_enteral_aminoacidos,
                         ]:
-                            mommy.make(
+                            baker.make(
                                 "ValorMedicao",
                                 dia=dia,
                                 nome_campo=campo,
@@ -4033,7 +4033,7 @@ def relatorio_consolidado_xlsx_emebs(
                                 infantil_ou_fundamental=turma,
                             )
                     elif campo == "refeicao":
-                        mommy.make(
+                        baker.make(
                             "ValorMedicao",
                             dia=dia,
                             nome_campo=campo,
@@ -4048,12 +4048,12 @@ def relatorio_consolidado_xlsx_emebs(
 
 @pytest.fixture
 def mock_query_params_excel_emebs(solicitacao_relatorio_consolidado_grupo_emebs):
-    grupo_escolar = mommy.make(
+    grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
         nome="Grupo 5",
         uuid="172a2ae6-c417-49d3-91d3-a2dae3d8a56b",
         tipos_unidades=[
-            mommy.make("TipoUnidadeEscolar", iniciais="EMEBS"),
+            baker.make("TipoUnidadeEscolar", iniciais="EMEBS"),
         ],
     )
     return {
@@ -4194,10 +4194,10 @@ def informacoes_excel_writer_emebs(
 
 @pytest.fixture
 def solicitacao_sem_lancamento(solicitacao_relatorio_consolidado_grupo_emef, usuario):
-    medicao = mommy.make(
+    medicao = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_emef,
-        periodo_escolar=mommy.make("PeriodoEscolar", nome="MANHA"),
+        periodo_escolar=baker.make("PeriodoEscolar", nome="MANHA"),
         status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_SEM_LANCAMENTOS,
         grupo=None,
     )
