@@ -8,7 +8,6 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 
 from ...dados_comuns.constants import FILTRO_PADRAO_PEDIDOS, SEM_FILTRO
-from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...dados_comuns.permissions import (
     PermissaoParaRecuperarDietaEspecial,
     UsuarioCODAEDietaEspecial,
@@ -19,10 +18,6 @@ from ...dados_comuns.permissions import (
     UsuarioGticCODAE,
     UsuarioNutricionista,
     UsuarioTerceirizada,
-)
-from ...dieta_especial.api.serializers import (
-    SolicitacaoDietaEspecialLogSerializer,
-    SolicitacaoDietaEspecialSerializer,
 )
 from ...dieta_especial.models import SolicitacaoDietaEspecial
 from ...paineis_consolidados.api.constants import (
@@ -1222,27 +1217,3 @@ class TerceirizadaSolicitacoesViewSet(SolicitacoesViewSet):
             )
         }
         return Response(response)
-
-
-class DietaEspecialSolicitacoesViewSet(viewsets.ReadOnlyModelViewSet):
-    lookup_field = "uuid"
-    queryset = SolicitacaoDietaEspecial.objects.all()
-    serializer_class = SolicitacaoDietaEspecialSerializer
-
-    @action(detail=False, methods=["GET"], url_path=f"{PENDENTES_AUTORIZACAO}")
-    def pendentes_autorizacao(self, request):
-        return self._retorno_base(DietaEspecialWorkflow.CODAE_A_AUTORIZAR)
-
-    @action(detail=False, methods=["GET"], url_path=f"{AUTORIZADOS}")
-    def autorizados(self, request):
-        return self._retorno_base(DietaEspecialWorkflow.CODAE_AUTORIZADO)
-
-    @action(detail=False, methods=["GET"], url_path=f"{NEGADOS}")
-    def negados(self, request):
-        return self._retorno_base(DietaEspecialWorkflow.CODAE_NEGOU_PEDIDO)
-
-    def _retorno_base(self, status):
-        query_set = self.queryset.filter(status=status)
-        page = self.paginate_queryset(query_set)
-        serializer = SolicitacaoDietaEspecialLogSerializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
