@@ -25,6 +25,7 @@ from ...dados_comuns.permissions import (
     PermissaoHistoricoDietasEspeciais,
     PermissaoParaRecuperarDietaEspecial,
     PermissaoRelatorioDietasEspeciais,
+    PermissaoRelatorioRecreioNasFerias,
     UsuarioCODAEDietaEspecial,
     UsuarioEscolaDiretaParceira,
     UsuarioEscolaTercTotal,
@@ -1404,6 +1405,28 @@ class SolicitacaoDietaEspecialViewSet(
                 dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
                 status=status.HTTP_200_OK,
             )
+        except ValidationError as e:
+            return Response(dict(detail=e.messages[0]), status=HTTP_400_BAD_REQUEST)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="relatorio-recreio-nas-ferias",
+        permission_classes=(PermissaoRelatorioRecreioNasFerias,),
+    )
+    def relatorio_recreio_nas_ferias(self, request):
+        try:
+            alunos_matriculados = SolicitacaoDietaEspecial.objects.filter(
+                status="CODAE_AUTORIZADO",
+                motivo_alteracao_ue__nome__icontains="recreio",
+            )
+            page = self.paginate_queryset(alunos_matriculados)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            serializer = self.get_serializer(alunos_matriculados, many=True)
+            return Response(serializer.data)
+
         except ValidationError as e:
             return Response(dict(detail=e.messages[0]), status=HTTP_400_BAD_REQUEST)
 
