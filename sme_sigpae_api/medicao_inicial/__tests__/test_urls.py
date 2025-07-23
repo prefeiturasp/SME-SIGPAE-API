@@ -1850,6 +1850,22 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx(
     assert response.status_code == status.HTTP_200_OK
 
 
+def test_url_endpoint_relatorio_adesao_exportar_xlsx_com_periodo_lancamento(
+    client_autenticado_coordenador_codae,
+):
+    # arrange
+    mes = "03"
+    ano = "2024"
+    periodo_lancamento_de = f"01/{mes}/{ano}"
+    periodo_lancamento_ate = f"03/{mes}/{ano}"
+
+    response = client_autenticado_coordenador_codae.get(
+        f"/medicao-inicial/relatorios/relatorio-adesao/exportar-xlsx/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+
 def test_url_endpoint_relatorio_adesao_exportar_xlsx_sem_mes_ano(
     client_autenticado_coordenador_codae,
 ):
@@ -1858,6 +1874,24 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx_sem_mes_ano(
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+def test_url_endpoint_relatorio_adesao_exportar_xlsx_sem_periodo_lancamento_ate(
+    client_autenticado_coordenador_codae,
+):
+    # arrange
+    mes = "03"
+    ano = "2024"
+    periodo_lancamento_de = f"01/{mes}/{ano}"
+
+    response = client_autenticado_coordenador_codae.get(
+        f"/medicao-inicial/relatorios/relatorio-adesao/exportar-xlsx/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}"
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == {
+        "detail": "Ambos 'periodo_lancamento_de' e 'periodo_lancamento_ate' devem ser informados juntos"
+    }
 
 
 def test_url_endpoint_relatorio_adesao_exportar_pdf(
@@ -1874,6 +1908,22 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf(
     assert response.status_code == status.HTTP_200_OK
 
 
+def test_url_endpoint_relatorio_adesao_exportar_pdf_com_periodo_lancamento(
+    client_autenticado_coordenador_codae,
+):
+    # arrange
+    mes = "03"
+    ano = "2024"
+    periodo_lancamento_de = f"01/{mes}/{ano}"
+    periodo_lancamento_ate = f"03/{mes}/{ano}"
+
+    response = client_autenticado_coordenador_codae.get(
+        f"/medicao-inicial/relatorios/relatorio-adesao/exportar-pdf/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+
 def test_url_endpoint_relatorio_adesao_exportar_pdf_sem_mes_ano(
     client_autenticado_coordenador_codae,
 ):
@@ -1882,6 +1932,24 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_sem_mes_ano(
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+def test_url_endpoint_relatorio_adesao_exportar_pdf_sem_periodo_lancamento_ate(
+    client_autenticado_coordenador_codae,
+):
+    # arrange
+    mes = "03"
+    ano = "2024"
+    periodo_lancamento_de = f"01/{mes}/{ano}"
+
+    response = client_autenticado_coordenador_codae.get(
+        f"/medicao-inicial/relatorios/relatorio-adesao/exportar-pdf/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}"
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == {
+        "detail": "Ambos 'periodo_lancamento_de' e 'periodo_lancamento_ate' devem ser informados juntos"
+    }
 
 
 def test_url_endpoint_parametrizacao_financeira(
