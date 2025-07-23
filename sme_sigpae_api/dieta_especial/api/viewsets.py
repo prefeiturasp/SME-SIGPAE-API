@@ -105,6 +105,7 @@ from .serializers import (
     ProtocoloPadraoDietaEspecialSimplesSerializer,
     RelatorioQuantitativoSolicDietaEspSerializer,
     SolicitacaoDietaEspecialAutorizarSerializer,
+    SolicitacaoDietaEspecialRecreioNasFeriasSerializer,
     SolicitacaoDietaEspecialRelatorioTercSerializer,
     SolicitacaoDietaEspecialSerializer,
     SolicitacaoDietaEspecialSimplesSerializer,
@@ -201,6 +202,8 @@ class SolicitacaoDietaEspecialViewSet(
             return AlteracaoUESerializer
         elif self.action == "relatorio-historico-dieta-especial":
             return UnidadeEducacionalSerializer
+        elif self.action == "relatorio_recreio_nas_ferias":
+            return SolicitacaoDietaEspecialRecreioNasFeriasSerializer
         return SolicitacaoDietaEspecialSerializer
 
     def atualiza_solicitacao(self, solicitacao, request):
