@@ -41,6 +41,12 @@ class AlteracaoCardapio(
     EhAlteracaoCardapio,
     TemTerceirizadaConferiuGestaoAlimentacao,
 ):
+    """
+    Modelo responsável por armazenar Solicitações de Alteração do Tipo de Alimentação genéricas.
+    Tipos de unidade contempladas: EMEF, EMEI, CIEJA, EMEBS.
+    Exceções não contempladas: CEI, CEMEI.
+    """
+
     DESCRICAO = "Alteração do Tipo de Alimentação"
 
     eh_alteracao_com_lanche_repetida = models.BooleanField(default=False)
