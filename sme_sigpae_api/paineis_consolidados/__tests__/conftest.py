@@ -1121,7 +1121,8 @@ def inclusao_alimentacao_cemei(escola):
 def kit_lanche_cei(escola):
     baker.make("escola.EscolaPeriodoEscolar", escola=escola, quantidade_alunos=500)
     kits = baker.make("KitLanche", _quantity=3)
-    baker.make("FaixaEtaria", _quantity=3, ativo=True)
+    for i in range (0, 3):
+        baker.make("FaixaEtaria", ativo=True, inicio=fake.random_int(min=1*i, max=10*i), fim=fake.random_int(min=11*i, max=20*i))
     solicitacao_kit_lanche = baker.make(
         "SolicitacaoKitLanche", kits=kits, data=datetime.date(2000, 1, 1)
     )
@@ -1146,6 +1147,10 @@ def kit_lanche_cemei():
         uuid="2fdb22fe-370c-4379-94f4-a52478c03e6e",
     )
 
+    faixa_etaria_1 = baker.make("FaixaEtaria", ativo=True, inicio=fake.random_int(min=1, max=10), fim=fake.random_int(min=11, max=20))
+    faixa_etaria_2 = baker.make("FaixaEtaria", ativo=True, inicio=fake.random_int(min=11, max=20), fim=fake.random_int(min=21, max=30))
+    faixa_etaria_3 = baker.make("FaixaEtaria", ativo=True, inicio=fake.random_int(min=21, max=30), fim=fake.random_int(min=31, max=40))
+
     baker.make("KitLanche", nome="KIT 1")
     baker.make("KitLanche", nome="KIT 2")
     baker.make("KitLanche", nome="KIT 3")
@@ -1161,18 +1166,21 @@ def kit_lanche_cemei():
         solicitacao_kit_lanche_cei_da_cemei=solicitacao_cei,
         quantidade_alunos=10,
         matriculados_quando_criado=20,
+        faixa_etaria = faixa_etaria_1,
     )
     baker.make(
         "FaixasQuantidadesKitLancheCEIdaCEMEI",
         solicitacao_kit_lanche_cei_da_cemei=solicitacao_cei,
         quantidade_alunos=10,
         matriculados_quando_criado=20,
+        faixa_etaria = faixa_etaria_2,
     )
     baker.make(
         "FaixasQuantidadesKitLancheCEIdaCEMEI",
         solicitacao_kit_lanche_cei_da_cemei=solicitacao_cei,
         quantidade_alunos=10,
         matriculados_quando_criado=20,
+        faixa_etaria = faixa_etaria_3,
     )
 
     baker.make(
