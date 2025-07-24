@@ -4248,7 +4248,7 @@ def medicao_sem_lancamento_com_correcao(
 
 @pytest.fixture
 def mock_exportacao_relatorio_adesao(diretoria_regional, escola):
-    lotes = [mommy.make("Lote", nome=f"Lote {i:02d}") for i in range(1, 4)]
+    lotes = [baker.make("Lote", nome=f"Lote {i:02d}") for i in range(1, 4)]
 
     resultados = {
         "MANHA": {
