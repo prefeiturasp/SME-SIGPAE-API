@@ -1418,6 +1418,7 @@ class SolicitacaoDietaEspecialViewSet(
         permission_classes=(PermissaoRelatorioRecreioNasFerias,),
     )
     def relatorio_recreio_nas_ferias(self, request):
+        self.pagination_class = RelatorioPagination
         try:
             alunos_matriculados = SolicitacaoDietaEspecial.objects.filter(
                 status="CODAE_AUTORIZADO",
