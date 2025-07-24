@@ -520,14 +520,14 @@ def solicitacao_medicao_inicial_cei(
     baker.make(
         LogAlunosMatriculadosPeriodoEscola,
         escola=escola_cei,
-        criado_em="01-04-2023",
+        criado_em="2023-04-01",
         quantidade_alunos=100,
         periodo_escolar=periodo_escolar_manha,
     )
     baker.make(
         LogAlunosMatriculadosPeriodoEscola,
         escola=escola_cei,
-        criado_em="01-04-2023",
+        criado_em="2023-04-01",
         quantidade_alunos=100,
         periodo_escolar=periodo_escolar_integral,
     )
