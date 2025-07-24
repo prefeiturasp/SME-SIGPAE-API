@@ -24,11 +24,6 @@ router.register(
     viewsets.NutrimanifestacaoSolicitacoesViewSet,
     "nutrimanifestacao_solicitacoes",
 )
-router.register(
-    "dieta-especial",
-    viewsets.DietaEspecialSolicitacoesViewSet,
-    "dieta_especial_solicitacoes",
-)
 router.register("escola-solicitacoes", EscolaSolicitacoesViewSet, "escola_solicitacoes")
 router.register(
     "diretoria-regional-solicitacoes",

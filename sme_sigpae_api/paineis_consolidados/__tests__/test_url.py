@@ -82,16 +82,6 @@ def test_url_endpoint_painel_codae_negados(client_autenticado_codae_gestao_alime
     base_codae(client_autenticado_codae_gestao_alimentacao, NEGADOS)
 
 
-def test_dieta_especial_solicitacoes_viewset_pendentes(
-    client_autenticado, solicitacoes_dieta_especial, status_and_endpoint
-):
-    wf_status, endpoint = status_and_endpoint
-    response = client_autenticado.get(f"/dieta-especial/{endpoint}/")
-    assert response.status_code == status.HTTP_200_OK
-    json = response.json()
-    assert json["count"] == 2
-
-
 @freeze_time("2019-10-11")
 def test_resumo_ano_dre(solicitacoes_ano_dre):
     client, email, password, rf, cpf, user = solicitacoes_ano_dre
