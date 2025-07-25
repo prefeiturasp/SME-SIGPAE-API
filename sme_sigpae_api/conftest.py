@@ -181,6 +181,7 @@ from .terceirizada.fixtures.factories.terceirizada_factory import (
     EditalFactory,
     EmpresaFactory,
 )
+from model_bakery.random_gen import gen_integer
 
 f = Faker(locale="pt-Br")
 
@@ -799,3 +800,13 @@ def client_autenticado_vinculo_coordenador_supervisao_nutricao(
     )
     client.login(username=email, password=password)
     return client, user
+
+
+def gen_capped_positive_small_int():
+    return gen_integer(1, 10000)
+
+
+baker.generators.add(
+    "django.db.models.PositiveSmallIntegerField",
+    gen_capped_positive_small_int
+)
