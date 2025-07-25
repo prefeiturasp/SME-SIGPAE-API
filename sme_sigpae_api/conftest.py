@@ -5,6 +5,7 @@ import json
 import pytest
 from faker import Faker
 from model_bakery import baker
+from model_bakery.random_gen import gen_integer
 from pytest_factoryboy import register
 
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory import (
@@ -181,7 +182,6 @@ from .terceirizada.fixtures.factories.terceirizada_factory import (
     EditalFactory,
     EmpresaFactory,
 )
-from model_bakery.random_gen import gen_integer
 
 f = Faker(locale="pt-Br")
 

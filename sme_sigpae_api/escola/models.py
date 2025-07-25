@@ -9,7 +9,11 @@ import redis
 import unidecode
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.core.validators import MinLengthValidator, MinValueValidator, MaxValueValidator
+from django.core.validators import (
+    MaxValueValidator,
+    MinLengthValidator,
+    MinValueValidator,
+)
 from django.db import models
 from django.db.models import F, Q, Sum
 from django_prometheus.models import ExportModelOperationsMixin
