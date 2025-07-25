@@ -1909,3 +1909,78 @@ def unidade_educacional():
     }
 
     return UnidadeEducacionalSerializer(resultado)
+
+
+@pytest.fixture
+def relatorio_recreio_nas_ferias(
+    escola,
+    escola_dre_guaianases,
+    escola_cemei,
+    escola_parceira,
+    escola_emebs,
+    motivo_alteracao_ue,
+    classificacao_tipo_a,
+    classificacao_tipo_b,
+):
+
+    alergia_a_chocolate = mommy.make(
+        AlergiaIntolerancia, descricao="Alergia a chocolate"
+    )
+    alergia_ao_trigo = mommy.make(
+        AlergiaIntolerancia, descricao="Alergia a derivados do trigo"
+    )
+
+    # Alunos Matriculados
+    mommy.make(
+        "SolicitacaoDietaEspecial",
+        status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
+        tipo_solicitacao="ALTERACAO_UE",
+        motivo_alteracao_ue=motivo_alteracao_ue,
+        rastro_escola=escola,
+        escola_destino=escola_dre_guaianases,
+        aluno=mommy.make("Aluno", nome=f"Aluno 1"),
+        alergias_intolerancias=[alergia_a_chocolate],
+        classificacao=classificacao_tipo_a,
+        data_inicio=datetime.date(2025, 5, 1),
+        data_termino=datetime.date(2025, 5, 10),
+    )
+    mommy.make(
+        "SolicitacaoDietaEspecial",
+        status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
+        tipo_solicitacao="ALTERACAO_UE",
+        motivo_alteracao_ue=motivo_alteracao_ue,
+        rastro_escola=escola_dre_guaianases,
+        escola_destino=escola_cemei,
+        aluno=mommy.make("Aluno", nome=f"Aluno 2"),
+        alergias_intolerancias=[alergia_ao_trigo],
+        classificacao=classificacao_tipo_b,
+        data_inicio=datetime.date(2025, 5, 5),
+        data_termino=datetime.date(2025, 5, 15),
+    )
+    # Alunos Não Matriculados
+    mommy.make(
+        "SolicitacaoDietaEspecial",
+        status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
+        tipo_solicitacao="COMUM",
+        dieta_para_recreio_ferias=True,
+        rastro_escola=escola_cemei,
+        escola_destino=escola_parceira,
+        aluno=mommy.make("Aluno", nome=f"Aluno 1"),
+        alergias_intolerancias=[alergia_a_chocolate],
+        classificacao=classificacao_tipo_a,
+        data_inicio=datetime.date(2025, 5, 2),
+        data_termino=datetime.date(2025, 5, 9),
+    )
+    mommy.make(
+        "SolicitacaoDietaEspecial",
+        status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
+        tipo_solicitacao="COMUM",
+        dieta_para_recreio_ferias=True,
+        rastro_escola=escola_parceira,
+        escola_destino=escola_emebs,
+        aluno=mommy.make("Aluno", nome=f"Aluno 1"),
+        alergias_intolerancias=[alergia_a_chocolate],
+        classificacao=classificacao_tipo_a,
+        data_inicio=datetime.date(2025, 5, 10),
+        data_termino=datetime.date(2025, 5, 20),
+    )
