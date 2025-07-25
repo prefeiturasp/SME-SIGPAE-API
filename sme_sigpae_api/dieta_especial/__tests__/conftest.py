@@ -51,7 +51,11 @@ def escola_dre_guaianases(dre_guaianases):
     lote = baker.make("Lote")
     tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
     return baker.make(
-        "Escola", lote=lote, diretoria_regional=dre_guaianases, tipo_gestao=tipo_gestao
+        "Escola",
+        lote=lote,
+        diretoria_regional=dre_guaianases,
+        tipo_gestao=tipo_gestao,
+        nome="Escola Guaianases",
     )
 
 
