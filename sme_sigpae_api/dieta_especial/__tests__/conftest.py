@@ -1916,6 +1916,16 @@ def unidade_educacional():
 
 
 @pytest.fixture
+def alergia_a_chocolate():
+    return mommy.make(AlergiaIntolerancia, descricao="Alergia a chocolate")
+
+
+@pytest.fixture
+def alergia_ao_trigo():
+    return mommy.make(AlergiaIntolerancia, descricao="Alergia a derivados do trigo")
+
+
+@pytest.fixture
 def relatorio_recreio_nas_ferias(
     escola,
     escola_dre_guaianases,
@@ -1925,14 +1935,9 @@ def relatorio_recreio_nas_ferias(
     motivo_alteracao_ue,
     classificacao_tipo_a,
     classificacao_tipo_b,
+    alergia_a_chocolate,
+    alergia_ao_trigo,
 ):
-
-    alergia_a_chocolate = mommy.make(
-        AlergiaIntolerancia, descricao="Alergia a chocolate"
-    )
-    alergia_ao_trigo = mommy.make(
-        AlergiaIntolerancia, descricao="Alergia a derivados do trigo"
-    )
 
     # Alunos Matriculados
     mommy.make(
