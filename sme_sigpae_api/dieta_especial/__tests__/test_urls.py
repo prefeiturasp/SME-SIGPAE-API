@@ -1148,3 +1148,59 @@ def test_relatorio_historico_dieta_especial_cliente_nao_autorizado(
     assert response.json() == {
         "detail": "Você não tem permissão para executar essa ação."
     }
+
+
+def test_relatorio_recreio_nas_ferias(
+    client_autenticado_vinculo_terceirizada_dieta, relatorio_recreio_nas_ferias
+):
+    response = client_autenticado_vinculo_terceirizada_dieta.get(
+        "/solicitacoes-dieta-especial/relatorio-recreio-nas-ferias/"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    json_resposta = response.json()
+    assert json_resposta["count"] == 4
+    resultado = json_resposta["results"]
+
+    assert resultado[0]["aluno"]["nome"] == "Maria"
+    assert resultado[0]["escola"]["nome"] == "Escola Guaianases"
+    assert resultado[0]["escola_destino"]["nome"] == "CEMEI"
+    assert (
+        resultado[0]["alergias_intolerancias"][0]["descricao"]
+        == "Alergia a derivados do trigo"
+    )
+    assert resultado[0]["classificacao"]["nome"] == "Tipo B"
+
+    assert resultado[1]["aluno"]["nome"] == "Carla"
+    assert resultado[1]["escola"]["nome"] == "PARCEIRA"
+    assert resultado[1]["escola_destino"]["nome"] == "EMEBS"
+    assert (
+        resultado[1]["alergias_intolerancias"][0]["descricao"]
+        == "Alergia a derivados do trigo"
+    )
+    assert resultado[1]["classificacao"]["nome"] == "Tipo B"
+
+    assert resultado[2]["aluno"]["nome"] == "Antonio"
+    assert resultado[2]["escola"]["nome"] == "EMEF JOAO MENDES"
+    assert resultado[2]["escola_destino"]["nome"] == "Escola Guaianases"
+    assert (
+        resultado[2]["alergias_intolerancias"][0]["descricao"] == "Alergia a chocolate"
+    )
+    assert resultado[2]["classificacao"]["nome"] == "Tipo A"
+
+    assert resultado[3]["aluno"]["nome"] == "Carlos"
+    assert resultado[3]["escola"]["nome"] == "CEMEI"
+    assert resultado[3]["escola_destino"]["nome"] == "PARCEIRA"
+    assert (
+        resultado[3]["alergias_intolerancias"][0]["descricao"] == "Alergia a chocolate"
+    )
+    assert resultado[3]["classificacao"]["nome"] == "Tipo A"
+
+
+def test_relatorio_recreio_nas_ferias_cliente_nao_autorizado(client_autenticado_dilog):
+    response = client_autenticado_dilog.get(
+        "/solicitacoes-dieta-especial/relatorio-recreio-nas-ferias/"
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == {
+        "detail": "Você não tem permissão para executar essa ação."
+    }

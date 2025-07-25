@@ -51,7 +51,11 @@ def escola_dre_guaianases(dre_guaianases):
     lote = mommy.make("Lote")
     tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
     return mommy.make(
-        "Escola", lote=lote, diretoria_regional=dre_guaianases, tipo_gestao=tipo_gestao
+        "Escola",
+        lote=lote,
+        diretoria_regional=dre_guaianases,
+        tipo_gestao=tipo_gestao,
+        nome="Escola Guaianases",
     )
 
 
@@ -1938,7 +1942,7 @@ def relatorio_recreio_nas_ferias(
         motivo_alteracao_ue=motivo_alteracao_ue,
         rastro_escola=escola,
         escola_destino=escola_dre_guaianases,
-        aluno=mommy.make("Aluno", nome=f"Aluno 1"),
+        aluno=mommy.make("Aluno", nome="Antonio", codigo_eol="923459"),
         alergias_intolerancias=[alergia_a_chocolate],
         classificacao=classificacao_tipo_a,
         data_inicio=datetime.date(2025, 5, 1),
@@ -1951,7 +1955,7 @@ def relatorio_recreio_nas_ferias(
         motivo_alteracao_ue=motivo_alteracao_ue,
         rastro_escola=escola_dre_guaianases,
         escola_destino=escola_cemei,
-        aluno=mommy.make("Aluno", nome=f"Aluno 2"),
+        aluno=mommy.make("Aluno", nome="Maria", codigo_eol="823458"),
         alergias_intolerancias=[alergia_ao_trigo],
         classificacao=classificacao_tipo_b,
         data_inicio=datetime.date(2025, 5, 5),
@@ -1965,11 +1969,11 @@ def relatorio_recreio_nas_ferias(
         dieta_para_recreio_ferias=True,
         rastro_escola=escola_cemei,
         escola_destino=escola_parceira,
-        aluno=mommy.make("Aluno", nome=f"Aluno 1"),
+        aluno=mommy.make("Aluno", nome=f"Carlos", codigo_eol="123456"),
         alergias_intolerancias=[alergia_a_chocolate],
         classificacao=classificacao_tipo_a,
-        data_inicio=datetime.date(2025, 5, 2),
-        data_termino=datetime.date(2025, 5, 9),
+        periodo_recreio_inicio=datetime.date(2025, 5, 2),
+        periodo_recreio_fim=datetime.date(2025, 5, 9),
     )
     mommy.make(
         "SolicitacaoDietaEspecial",
@@ -1978,9 +1982,9 @@ def relatorio_recreio_nas_ferias(
         dieta_para_recreio_ferias=True,
         rastro_escola=escola_parceira,
         escola_destino=escola_emebs,
-        aluno=mommy.make("Aluno", nome=f"Aluno 1"),
-        alergias_intolerancias=[alergia_a_chocolate],
-        classificacao=classificacao_tipo_a,
-        data_inicio=datetime.date(2025, 5, 10),
-        data_termino=datetime.date(2025, 5, 20),
+        aluno=mommy.make("Aluno", nome="Carla", codigo_eol="723457"),
+        alergias_intolerancias=[alergia_ao_trigo],
+        classificacao=classificacao_tipo_b,
+        periodo_recreio_inicio=datetime.date(2025, 5, 10),
+        periodo_recreio_fim=datetime.date(2025, 5, 20),
     )
