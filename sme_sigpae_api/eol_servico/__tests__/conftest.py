@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 from faker import Faker
-from model_mommy import mommy
+from model_bakery import baker
 
 fake = Faker("pt_BR")
 Faker.seed(420)
@@ -23,7 +23,7 @@ def datas_nascimento_api(request):
 def client_autenticado_da_escola(client, django_user_model):
     email = "user@escola.com"
     password = "admin@123"
-    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email,
         password=password,
@@ -31,10 +31,10 @@ def client_autenticado_da_escola(client, django_user_model):
         registro_funcional="123456",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
-        instituicao=mommy.make(
+        instituicao=baker.make(
             "Escola",
             nome=fake.name(),
         ),

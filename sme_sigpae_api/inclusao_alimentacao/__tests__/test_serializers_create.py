@@ -1,6 +1,6 @@
 import pytest
 from freezegun import freeze_time
-from model_mommy import mommy
+from model_bakery import baker
 
 from ..api.serializers.serializers_create import (
     GrupoInclusaoAlimentacaoNormalCreationSerializer,
@@ -21,13 +21,13 @@ def test_inclusao_continua_serializer_validators(
     inclusao_alimentacao_continua_parametros,
 ):
     class FakeObject(object):
-        user = mommy.make("perfil.Usuario")
+        user = baker.make("perfil.Usuario")
 
     data_inicial, data_final = inclusao_alimentacao_continua_parametros
     attrs = dict(data_inicial=data_inicial, data_final=data_final)
     quantidades_por_periodo = []
     for _ in range(4):
-        qtd = mommy.make("QuantidadePorPeriodo")
+        qtd = baker.make("QuantidadePorPeriodo")
         quantidades_por_periodo.append(
             dict(
                 numero_alunos=qtd.numero_alunos,
@@ -57,13 +57,13 @@ def test_inclusao_continua_serializer_creators(
     inclusao_alimentacao_continua_parametros, escola
 ):
     class FakeObject(object):
-        user = mommy.make("perfil.Usuario")
+        user = baker.make("perfil.Usuario")
 
-    motivo = mommy.make("MotivoInclusaoContinua")
+    motivo = baker.make("MotivoInclusaoContinua")
     data_inicial, data_final = inclusao_alimentacao_continua_parametros
     quantidades_por_periodo = []
     for _ in range(4):
-        qtd = mommy.make("QuantidadePorPeriodo")
+        qtd = baker.make("QuantidadePorPeriodo")
         quantidades_por_periodo.append(
             dict(
                 numero_alunos=qtd.numero_alunos,
@@ -111,12 +111,12 @@ def test_grupo_inclusao_normal_serializer_creators(
     inclusao_alimentacao_continua_parametros, escola
 ):
     class FakeObject(object):
-        user = mommy.make("perfil.Usuario")
+        user = baker.make("perfil.Usuario")
 
     data, _ = inclusao_alimentacao_continua_parametros
     quantidades_por_periodo = []
     for _ in range(4):
-        qtd = mommy.make("QuantidadePorPeriodo")
+        qtd = baker.make("QuantidadePorPeriodo")
         quantidades_por_periodo.append(
             dict(
                 numero_alunos=qtd.numero_alunos,
@@ -126,7 +126,7 @@ def test_grupo_inclusao_normal_serializer_creators(
         )
     inclusoes = []
     for _ in range(5):
-        inclusao_normal = mommy.make("InclusaoAlimentacaoNormal", data=data)
+        inclusao_normal = baker.make("InclusaoAlimentacaoNormal", data=data)
         inclusoes.append(
             dict(
                 motivo=inclusao_normal.motivo,
@@ -166,12 +166,12 @@ def test_grupo_inclusao_alimentacao_cei(
     inclusao_alimentacao_continua_parametros, escola
 ):
     class FakeObject(object):
-        user = mommy.make("perfil.Usuario")
+        user = baker.make("perfil.Usuario")
 
     data, _ = inclusao_alimentacao_continua_parametros
     quantidade_alunos_por_faixas_etarias = []
     for _ in range(5):
-        quantidade = mommy.make(
+        quantidade = baker.make(
             "QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEI"
         )
         quantidade_alunos_por_faixas_etarias.append(
@@ -181,8 +181,8 @@ def test_grupo_inclusao_alimentacao_cei(
             )
         )
 
-    periodo_escolar = mommy.make("escola.PeriodoEscolar")
-    motivo = mommy.make("MotivoInclusaoNormal")
+    periodo_escolar = baker.make("escola.PeriodoEscolar")
+    motivo = baker.make("MotivoInclusaoNormal")
 
     serializer_obj = InclusaoAlimentacaoDaCEICreateSerializer(
         context={"request": FakeObject}

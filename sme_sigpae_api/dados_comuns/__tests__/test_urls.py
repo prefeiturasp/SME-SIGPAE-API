@@ -3,7 +3,7 @@ import json
 
 from faker import Faker
 from freezegun import freeze_time
-from model_mommy import mommy
+from model_bakery import baker
 from rest_framework import status
 
 from ...escola.models import TipoUnidadeEscolar
@@ -19,7 +19,7 @@ Faker.seed(420)
 
 
 def test_url_cria_faq(client_autenticado_coordenador_codae):
-    categoria = mommy.make(CategoriaPerguntaFrequente)
+    categoria = baker.make(CategoriaPerguntaFrequente)
 
     payload = {
         "pergunta": fake.text(),
@@ -39,8 +39,8 @@ def test_url_cria_faq(client_autenticado_coordenador_codae):
 
 
 def test_url_atualiza_faq(client_autenticado_coordenador_codae):
-    pergunta = mommy.make(PerguntaFrequente)
-    categoria = mommy.make(CategoriaPerguntaFrequente)
+    pergunta = baker.make(PerguntaFrequente)
+    categoria = baker.make(CategoriaPerguntaFrequente)
     payload = {
         "pergunta": fake.text(),
         "resposta": fake.text(),

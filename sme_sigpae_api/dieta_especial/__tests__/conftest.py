@@ -6,7 +6,7 @@ from random import randint, sample
 import pytest
 from faker import Faker
 from freezegun import freeze_time
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.dieta_especial.api.serializers import UnidadeEducacionalSerializer
 
@@ -33,29 +33,25 @@ Faker.seed(420)
 
 @pytest.fixture
 def usuario_admin():
-    return mommy.make("Usuario", email="admin@admin.com", is_superuser=True)
+    return baker.make("Usuario", email="admin@admin.com", is_superuser=True)
 
 
 @pytest.fixture
 def codae():
-    return mommy.make("Codae")
+    return baker.make("Codae")
 
 
 @pytest.fixture
 def dre_guaianases():
-    return mommy.make("DiretoriaRegional", nome="DIRETORIA REGIONAL GUAIANASES")
+    return baker.make("DiretoriaRegional", nome="DIRETORIA REGIONAL GUAIANASES")
 
 
 @pytest.fixture
 def escola_dre_guaianases(dre_guaianases):
-    lote = mommy.make("Lote")
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    return mommy.make(
-        "Escola",
-        lote=lote,
-        diretoria_regional=dre_guaianases,
-        tipo_gestao=tipo_gestao,
-        nome="Escola Guaianases",
+    lote = baker.make("Lote")
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    return baker.make(
+        "Escola", lote=lote, diretoria_regional=dre_guaianases, tipo_gestao=tipo_gestao
     )
 
 
@@ -66,7 +62,7 @@ def arquivo_docx_base64():
 
 @pytest.fixture
 def aluno():
-    return mommy.make(
+    return baker.make(
         Aluno,
         nome="Roberto Alves da Silva",
         codigo_eol="123456",
@@ -76,26 +72,26 @@ def aluno():
 
 @pytest.fixture
 def solicitacao_dieta_especial(escola, aluno):
-    return mommy.make(SolicitacaoDietaEspecial, rastro_escola=escola, aluno=aluno)
+    return baker.make(SolicitacaoDietaEspecial, rastro_escola=escola, aluno=aluno)
 
 
 @pytest.fixture
 def solicitacao_dieta_especial_parceira(escola_parceira, aluno):
-    return mommy.make(
+    return baker.make(
         SolicitacaoDietaEspecial, rastro_escola=escola_parceira, aluno=aluno
     )
 
 
 @pytest.fixture
 def solicitacao_dieta_especial_outra_dre(escola_dre_guaianases, aluno):
-    return mommy.make(
+    return baker.make(
         SolicitacaoDietaEspecial, rastro_escola=escola_dre_guaianases, aluno=aluno
     )
 
 
 @pytest.fixture
 def anexo_docx(arquivo_docx_base64, solicitacao_dieta_especial):
-    return mommy.make(
+    return baker.make(
         Anexo,
         solicitacao_dieta_especial=solicitacao_dieta_especial,
         arquivo=convert_base64_to_contentfile(arquivo_docx_base64),
@@ -133,31 +129,31 @@ def nomes_arquivos_invalidos(request):
 
 @pytest.fixture
 def alergias_intolerancias():
-    mommy.make(AlergiaIntolerancia, _quantity=2)
+    baker.make(AlergiaIntolerancia, _quantity=2)
     return AlergiaIntolerancia.objects.all()
 
 
 @pytest.fixture
 def classificacoes_dieta():
-    mommy.make(ClassificacaoDieta, _quantity=3)
+    baker.make(ClassificacaoDieta, _quantity=3)
     return ClassificacaoDieta.objects.all()
 
 
 @pytest.fixture
 def motivos_negacao():
-    mommy.make(MotivoNegacao, _quantity=4)
+    baker.make(MotivoNegacao, _quantity=4)
     return MotivoNegacao.objects.all()
 
 
 @pytest.fixture
 def alimentos():
-    mommy.make(Alimento, _quantity=6)
+    baker.make(Alimento, _quantity=6)
     return Alimento.objects.all()
 
 
 @pytest.fixture
 def produtos():
-    mommy.make(Produto, _quantity=6)
+    baker.make(Produto, _quantity=6)
     return Produto.objects.all()
 
 
@@ -178,14 +174,14 @@ def substituicoes(alimentos, produtos):
 
 @pytest.fixture
 def edital():
-    return mommy.make(
+    return baker.make(
         "Edital", uuid="b7b6a0a7-b230-4783-94b6-8d3d22041ab3", numero="edital-teste-1"
     )
 
 
 @pytest.fixture
 def edital_parceira():
-    return mommy.make("Edital", numero="PARCEIRA")
+    return baker.make("Edital", numero="PARCEIRA")
 
 
 @pytest.fixture
@@ -219,9 +215,9 @@ def solicitacao_dieta_especial_a_autorizar(
     )
     client.login(username=email, password=password)
 
-    mommy.make(AlergiaIntolerancia, id=random.randint(1, 100000))
-    perfil_professor = mommy.make("perfil.Perfil", nome="ADMINISTRADOR_UE", ativo=False)
-    mommy.make(
+    baker.make(AlergiaIntolerancia, id=random.randint(1, 100000))
+    perfil_professor = baker.make("perfil.Perfil", nome="ADMINISTRADOR_UE", ativo=False)
+    baker.make(
         "perfil.Vinculo",
         usuario=user,
         instituicao=escola,
@@ -230,13 +226,13 @@ def solicitacao_dieta_especial_a_autorizar(
         ativo=True,
     )  # ativo
 
-    aluno = mommy.make(
+    aluno = baker.make(
         Aluno,
         nome="Roberto Alves da Silva",
         codigo_eol="123456",
         data_nascimento="2000-01-01",
     )
-    solic = mommy.make(
+    solic = baker.make(
         SolicitacaoDietaEspecial,
         rastro_escola=escola,
         escola_destino=escola,
@@ -261,8 +257,8 @@ def solicitacao_dieta_especial_autorizada(
     )
     client.login(username=email, password=password)
 
-    perfil = mommy.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
-    mommy.make(
+    perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+    baker.make(
         "perfil.Vinculo",
         usuario=user,
         instituicao=escola.lote.terceirizada,
@@ -280,7 +276,7 @@ def solicitacao_dieta_especial_autorizada(
 def solicitacao_dieta_especial_aprovada_alteracao_ue(
     client, escola, motivo_alteracao_ue
 ):
-    aluno = mommy.make(
+    aluno = baker.make(
         Aluno,
         nome="Isabella Pereira da Silva",
         codigo_eol="488226",
@@ -294,8 +290,8 @@ def solicitacao_dieta_especial_aprovada_alteracao_ue(
     )
     client.login(username=email, password=password)
 
-    perfil = mommy.make("perfil.Perfil", nome="DIRETOR_UE", ativo=False)
-    mommy.make(
+    perfil = baker.make("perfil.Perfil", nome="DIRETOR_UE", ativo=False)
+    baker.make(
         "perfil.Vinculo",
         usuario=user,
         instituicao=escola,
@@ -303,7 +299,7 @@ def solicitacao_dieta_especial_aprovada_alteracao_ue(
         data_inicial=datetime.date.today(),
         ativo=True,
     )
-    solicitacao_alterada = mommy.make(
+    solicitacao_alterada = baker.make(
         "SolicitacaoDietaEspecial",
         criado_por=user,
         rastro_escola=escola,
@@ -313,7 +309,7 @@ def solicitacao_dieta_especial_aprovada_alteracao_ue(
         data_termino=datetime.date.today(),
         status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
     )
-    solicitacao = mommy.make(
+    solicitacao = baker.make(
         "SolicitacaoDietaEspecial",
         criado_por=user,
         rastro_escola=escola,
@@ -331,7 +327,7 @@ def solicitacao_dieta_especial_aprovada_alteracao_ue(
 
 @pytest.fixture
 def motivo_alteracao_ue():
-    return mommy.make(
+    return baker.make(
         "MotivoAlteracaoUE",
         uuid="26e7367e-2ef8-49c4-ab2a-9aa9f68475cb",
         nome="Dieta Especial - Recreio nas Férias",
@@ -351,8 +347,8 @@ def solicitacao_dieta_especial_escola_solicitou_inativacao(
     )
     client.login(username=email, password=password)
 
-    perfil = mommy.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
-    mommy.make(
+    perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+    baker.make(
         "perfil.Vinculo",
         usuario=user,
         instituicao=escola.lote.terceirizada,
@@ -378,8 +374,8 @@ def solicitacao_dieta_especial_codae_autorizou_inativacao(
     )
     client.login(username=email, password=password)
 
-    perfil = mommy.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
-    mommy.make(
+    perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+    baker.make(
         "perfil.Vinculo",
         usuario=user,
         instituicao=escola.lote.terceirizada,
@@ -397,7 +393,7 @@ def solicitacao_dieta_especial_codae_autorizou_inativacao(
 
 @pytest.fixture
 def template_mensagem_dieta_especial():
-    return mommy.make(
+    return baker.make(
         TemplateMensagem,
         tipo=TemplateMensagem.DIETA_ESPECIAL,
         assunto="TESTE DIETA ESPECIAL",
@@ -407,23 +403,23 @@ def template_mensagem_dieta_especial():
 
 @pytest.fixture
 def escola():
-    terceirizada = mommy.make(
+    terceirizada = baker.make(
         "Terceirizada", uuid="a8fefdd3-b5ff-47e0-8338-ce5d7c6d8a52"
     )
-    diretoria_regional = mommy.make(
+    diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL IPIRANGA"
     )
-    lote = mommy.make(
+    lote = baker.make(
         "Lote",
         terceirizada=terceirizada,
         nome="LOTE 07",
         uuid="429446c2-5b17-4ada-96ae-cce369dd4ae1",
         diretoria_regional=diretoria_regional,
     )
-    tipo_gestao = mommy.make(
+    tipo_gestao = baker.make(
         "TipoGestao", nome="TERC TOTAL", uuid="8bd3931b-8636-44ba-9d8e-81b29067eed1"
     )
-    escola = mommy.make(
+    escola = baker.make(
         "Escola",
         lote=lote,
         nome="EMEF JOAO MENDES",
@@ -436,8 +432,8 @@ def escola():
 
 @pytest.fixture
 def escola_parceira():
-    tipo_gestao = mommy.make("TipoGestao", nome="PARCEIRA")
-    escola = mommy.make(
+    tipo_gestao = baker.make("TipoGestao", nome="PARCEIRA")
+    escola = baker.make(
         "Escola",
         nome="PARCEIRA",
         tipo_gestao=tipo_gestao,
@@ -447,14 +443,14 @@ def escola_parceira():
 
 @pytest.fixture
 def escola_cemei():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL CEMEI"
     )
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = mommy.make("TipoUnidadeEscolar", iniciais="CEMEI")
-    escola_cemei = mommy.make(
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    escola_cemei = baker.make(
         "Escola",
         nome="CEMEI",
         lote=lote,
@@ -467,14 +463,14 @@ def escola_cemei():
 
 @pytest.fixture
 def escola_emebs():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL EMEBS"
     )
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = mommy.make("TipoUnidadeEscolar", iniciais="EMEBS")
-    escola_emebs = mommy.make(
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="EMEBS")
+    escola_emebs = baker.make(
         "Escola",
         nome="EMEBS",
         lote=lote,
@@ -490,8 +486,8 @@ def massa_dados_protocolo_padrao_test(solicitacao_dieta_especial):
     lote = solicitacao_dieta_especial.escola.lote
     edital_1 = Edital.objects.get(uuid="b7b6a0a7-b230-4783-94b6-8d3d22041ab3")
     edital_2 = Edital.objects.get(uuid="60f5a64e-8652-422d-a6e9-0a36717829c9")
-    contrato_1 = mommy.make("Contrato", lotes=[lote], edital=edital_1)
-    contrato_2 = mommy.make("Contrato", lotes=[lote], edital=edital_2)
+    contrato_1 = baker.make("Contrato", lotes=[lote], edital=edital_1)
+    contrato_2 = baker.make("Contrato", lotes=[lote], edital=edital_2)
     return {
         "editais": [edital_1.uuid, edital_2.uuid],
         "dieta_uuid": solicitacao_dieta_especial.uuid,
@@ -508,9 +504,9 @@ def client_autenticado_vinculo_escola_dieta(
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola,
@@ -531,11 +527,11 @@ def client_autenticado_vinculo_codae_dieta(
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_admin_dieta_especial = mommy.make(
+    perfil_admin_dieta_especial = baker.make(
         "Perfil", nome=constants.ADMINISTRADOR_DIETA_ESPECIAL, ativo=True
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -556,13 +552,13 @@ def client_autenticado_vinculo_codae_gestao_alimentacao_dieta(
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_admin_gestao_alimentacao = mommy.make(
+    perfil_admin_gestao_alimentacao = baker.make(
         "Perfil",
         nome=constants.ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
         ativo=True,
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -583,11 +579,11 @@ def client_autenticado_vinculo_terceirizada_dieta(
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_nutri_admin = mommy.make(
+    perfil_nutri_admin = baker.make(
         "Perfil", nome=constants.ADMINISTRADOR_EMPRESA, ativo=True
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola.lote.terceirizada,
@@ -595,15 +591,15 @@ def client_autenticado_vinculo_terceirizada_dieta(
         data_inicial=hoje,
         ativo=True,
     )
-    classificacao = mommy.make(
+    classificacao = baker.make(
         "ClassificacaoDieta", id=random.randint(1, 100000), nome="Tipo A"
     )
-    protocolo_padrao = mommy.make(
+    protocolo_padrao = baker.make(
         "ProtocoloPadraoDietaEspecial",
         nome_protocolo="ALERGIA - OVO",
         uuid="5d7f80b8-7b62-441b-89da-4d5dd5c1e7e8",
     )
-    mommy.make(
+    baker.make(
         "SolicitacaoDietaEspecial",
         status="CODAE_AUTORIZADO",
         escola_destino=escola,
@@ -622,37 +618,37 @@ def solicitacoes_dieta_especial_nao_autorizadas_e_nao_ativas(escola, aluno):
     ontem = hoje - datetime.timedelta(days=1)
 
     return [
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             status=DietaEspecialWorkflow.CODAE_A_AUTORIZAR,
             aluno=aluno,
             rastro_escola=escola,
         ),
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             status=DietaEspecialWorkflow.CODAE_NEGOU_PEDIDO,
             rastro_escola=escola,
         ),
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             status=DietaEspecialWorkflow.CODAE_AUTORIZOU_INATIVACAO,
             aluno=aluno,
             rastro_escola=escola,
         ),
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             status=DietaEspecialWorkflow.CODAE_AUTORIZOU_INATIVACAO,
             rastro_escola=escola,
             aluno=aluno,
             data_termino=ontem,
         ),
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             rastro_escola=escola,
             aluno=aluno,
             status=DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA_INATIVACAO,
         ),
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             status=DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA_INATIVACAO,
             rastro_escola=escola,
@@ -671,7 +667,7 @@ def solicitacoes_dieta_especial_nao_autorizadas_e_nao_ativas(escola, aluno):
     ]
 )
 def solicitacao_dieta_especial_autorizada_ativa(request, aluno, escola):
-    return mommy.make(
+    return baker.make(
         SolicitacaoDietaEspecial,
         status=request.param,
         rastro_escola=escola,
@@ -681,7 +677,7 @@ def solicitacao_dieta_especial_autorizada_ativa(request, aluno, escola):
 
 @pytest.fixture
 def solicitacao_dieta_especial_cancelada_automaticamente(client, escola):
-    aluno = mommy.make(
+    aluno = baker.make(
         Aluno,
         nome="Isabella Pereira da Silva",
         codigo_eol="488226",
@@ -695,8 +691,8 @@ def solicitacao_dieta_especial_cancelada_automaticamente(client, escola):
     )
     client.login(username=email, password=password)
 
-    perfil = mommy.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
-    mommy.make(
+    perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+    baker.make(
         "perfil.Vinculo",
         usuario=user,
         instituicao=escola.lote.terceirizada,
@@ -704,7 +700,7 @@ def solicitacao_dieta_especial_cancelada_automaticamente(client, escola):
         data_inicial=datetime.date.today(),
         ativo=True,
     )
-    solicitacao = mommy.make(
+    solicitacao = baker.make(
         SolicitacaoDietaEspecial,
         rastro_escola=escola,
         escola_destino=escola,
@@ -722,42 +718,42 @@ def solicitacoes_dieta_especial_dt_termino_hoje_ou_posterior(aluno, escola):
     hoje = datetime.date.today()
     amanha = hoje + datetime.timedelta(days=1)
     return [
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
             aluno=aluno,
             rastro_escola=escola,
             data_termino=hoje,
         ),
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             status=DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
             aluno=aluno,
             rastro_escola=escola,
             data_termino=hoje,
         ),
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             status=DietaEspecialWorkflow.ESCOLA_SOLICITOU_INATIVACAO,
             aluno=aluno,
             rastro_escola=escola,
             data_termino=hoje,
         ),
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
             aluno=aluno,
             rastro_escola=escola,
             data_termino=amanha,
         ),
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             status=DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
             aluno=aluno,
             rastro_escola=escola,
             data_termino=amanha,
         ),
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             status=DietaEspecialWorkflow.ESCOLA_SOLICITOU_INATIVACAO,
             aluno=aluno,
@@ -771,7 +767,7 @@ def solicitacoes_dieta_especial_dt_termino_hoje_ou_posterior(aluno, escola):
 def solicitacoes_dieta_especial_dt_termino_ontem_ativas(aluno, escola):
     ontem = datetime.date.today() - datetime.timedelta(days=1)
     return [
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
             ativo=True,
@@ -779,7 +775,7 @@ def solicitacoes_dieta_especial_dt_termino_ontem_ativas(aluno, escola):
             rastro_escola=escola,
             data_termino=ontem,
         ),
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             status=DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
             ativo=True,
@@ -787,7 +783,7 @@ def solicitacoes_dieta_especial_dt_termino_ontem_ativas(aluno, escola):
             rastro_escola=escola,
             data_termino=ontem,
         ),
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             status=DietaEspecialWorkflow.ESCOLA_SOLICITOU_INATIVACAO,
             ativo=True,
@@ -802,7 +798,7 @@ def solicitacoes_dieta_especial_dt_termino_ontem_ativas(aluno, escola):
 def solicitacoes_dieta_especial_dt_termino_ontem_inativas(aluno, escola):
     ontem = datetime.date.today() - datetime.timedelta(days=1)
     return [
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
             ativo=False,
@@ -810,7 +806,7 @@ def solicitacoes_dieta_especial_dt_termino_ontem_inativas(aluno, escola):
             rastro_escola=escola,
             data_termino=ontem,
         ),
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             status=DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
             ativo=False,
@@ -818,7 +814,7 @@ def solicitacoes_dieta_especial_dt_termino_ontem_inativas(aluno, escola):
             rastro_escola=escola,
             data_termino=ontem,
         ),
-        mommy.make(
+        baker.make(
             SolicitacaoDietaEspecial,
             status=DietaEspecialWorkflow.ESCOLA_SOLICITOU_INATIVACAO,
             ativo=False,
@@ -854,14 +850,14 @@ def solicitacoes_dieta_especial_com_data_termino(
 
 @pytest.fixture
 def periodo_escolar_integral():
-    return mommy.make("PeriodoEscolar", nome="INTEGRAL")
+    return baker.make("PeriodoEscolar", nome="INTEGRAL")
 
 
 @pytest.fixture
 def log_dietas_ativas_canceladas_automaticamente(
     solicitacao_dieta_especial_autorizada_ativa,
 ):
-    return mommy.make(
+    return baker.make(
         "LogDietasAtivasCanceladasAutomaticamente",
         dieta=solicitacao_dieta_especial_autorizada_ativa,
         codigo_eol_aluno="6595803",
@@ -875,7 +871,7 @@ def log_dietas_ativas_canceladas_automaticamente(
 
 @pytest.fixture
 def protocolo_padrao_dieta_especial():
-    return mommy.make(
+    return baker.make(
         "ProtocoloPadraoDietaEspecial",
         nome_protocolo="ALERGIA A AVEIA",
         status="LIBERADO",
@@ -884,10 +880,10 @@ def protocolo_padrao_dieta_especial():
 
 @pytest.fixture
 def protocolo_padrao_dieta_especial_2():
-    edital = mommy.make(
+    edital = baker.make(
         "Edital", uuid="60f5a64e-8652-422d-a6e9-0a36717829c9", numero="edital-teste-2"
     )
-    return mommy.make(
+    return baker.make(
         "ProtocoloPadraoDietaEspecial",
         nome_protocolo="ALERGIA A ABACAXI",
         status="LIBERADO",
@@ -898,7 +894,7 @@ def protocolo_padrao_dieta_especial_2():
 
 @pytest.fixture
 def protocolo_padrao_edital_parceira(edital_parceira):
-    return mommy.make(
+    return baker.make(
         "ProtocoloPadraoDietaEspecial",
         status="LIBERADO",
         editais=[edital_parceira],
@@ -909,7 +905,7 @@ def protocolo_padrao_edital_parceira(edital_parceira):
 def substituicao_padrao_dieta_especial_2(
     alimentos, produtos, protocolo_padrao_dieta_especial_2
 ):
-    return mommy.make(
+    return baker.make(
         "SubstituicaoAlimentoProtocoloPadrao",
         protocolo_padrao=protocolo_padrao_dieta_especial_2,
         alimento=alimentos[0],
@@ -925,11 +921,11 @@ def client_autenticado_protocolo_dieta(client, django_user_model, escola, codae)
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_admin_dieta_especial = mommy.make(
+    perfil_admin_dieta_especial = baker.make(
         "Perfil", nome=constants.ADMINISTRADOR_DIETA_ESPECIAL, ativo=True
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -938,11 +934,11 @@ def client_autenticado_protocolo_dieta(client, django_user_model, escola, codae)
         ativo=True,
     )
     client.login(username=email, password=password)
-    mommy.make("Edital", uuid="b7b6a0a7-b230-4783-94b6-8d3d22041ab3")
-    mommy.make("Edital", uuid="60f5a64e-8652-422d-a6e9-0a36717829c9")
-    mommy.make("Edital", uuid="4f7287e5-da63-4b23-8bbc-48cc6722c91e")
-    mommy.make("dieta_especial.Alimento", id=random.randint(1, 100000))
-    mommy.make(
+    baker.make("Edital", uuid="b7b6a0a7-b230-4783-94b6-8d3d22041ab3")
+    baker.make("Edital", uuid="60f5a64e-8652-422d-a6e9-0a36717829c9")
+    baker.make("Edital", uuid="4f7287e5-da63-4b23-8bbc-48cc6722c91e")
+    baker.make("dieta_especial.Alimento", id=random.randint(1, 100000))
+    baker.make(
         "dieta_especial.Alimento",
         id=random.randint(1, 100000),
         uuid="e67b6e67-7501-4d6e-8fac-ce219df3ed2b",
@@ -953,17 +949,17 @@ def client_autenticado_protocolo_dieta(client, django_user_model, escola, codae)
 
 @pytest.fixture
 def escola_cei():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade = mommy.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
-    contato = mommy.make("dados_comuns.Contato", nome="FULANO", email="fake@email.com")
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
+    contato = baker.make("dados_comuns.Contato", nome="FULANO", email="fake@email.com")
+    diretoria_regional = baker.make(
         "DiretoriaRegional",
         nome="DIRETORIA REGIONAL IPIRANGA",
         uuid="012f7722-9ab4-4e21-b0f6-85e17b58b0d1",
     )
-    escola = mommy.make(
+    escola = baker.make(
         "Escola",
         lote=lote,
         nome="CEI DIRET JOAO MENDES",
@@ -979,7 +975,7 @@ def escola_cei():
 
 @pytest.fixture
 def log_aluno_integral_cei(escola_cei, periodo_escolar_integral):
-    log = mommy.make(
+    log = baker.make(
         "LogAlunosMatriculadosPeriodoEscola",
         escola=escola_cei,
         periodo_escolar=periodo_escolar_integral,
@@ -992,7 +988,7 @@ def log_aluno_integral_cei(escola_cei, periodo_escolar_integral):
 
 @pytest.fixture
 def log_alunos_matriculados_integral_cei(escola_cei, periodo_escolar_integral):
-    return mommy.make(
+    return baker.make(
         "AlunosMatriculadosPeriodoEscola",
         escola=escola_cei,
         periodo_escolar=periodo_escolar_integral,
@@ -1003,17 +999,17 @@ def log_alunos_matriculados_integral_cei(escola_cei, periodo_escolar_integral):
 @pytest.fixture
 def classificacoes_dietas():
     return [
-        mommy.make(ClassificacaoDieta, nome="Tipo A"),
-        mommy.make(ClassificacaoDieta, nome="Tipo A Enteral"),
-        mommy.make(ClassificacaoDieta, nome="Tipo B"),
+        baker.make(ClassificacaoDieta, nome="Tipo A"),
+        baker.make(ClassificacaoDieta, nome="Tipo A Enteral"),
+        baker.make(ClassificacaoDieta, nome="Tipo B"),
     ]
 
 
 @pytest.fixture
 def solicitacoes_dieta_especial_ativas(escola, classificacoes_dietas):
-    periodo_manha = mommy.make(PeriodoEscolar, nome="MANHA")
-    mommy.make(FaixaEtaria, inicio=1, fim=31)
-    aluno = mommy.make(
+    periodo_manha = baker.make(PeriodoEscolar, nome="MANHA")
+    baker.make(FaixaEtaria, inicio=1, fim=31)
+    aluno = baker.make(
         Aluno,
         nome="Roberto Alves da Silva",
         codigo_eol="123456",
@@ -1021,7 +1017,7 @@ def solicitacoes_dieta_especial_ativas(escola, classificacoes_dietas):
         escola=escola,
         periodo_escolar=periodo_manha,
     )
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
         aluno=aluno,
@@ -1029,7 +1025,7 @@ def solicitacoes_dieta_especial_ativas(escola, classificacoes_dietas):
         escola_destino=escola,
         classificacao=classificacoes_dietas[0],
     ),
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
         aluno=aluno,
@@ -1042,9 +1038,9 @@ def solicitacoes_dieta_especial_ativas(escola, classificacoes_dietas):
 
 @pytest.fixture
 def solicitacoes_dieta_especial_ativas_cei(escola_cei, classificacoes_dietas):
-    periodo_tarde = mommy.make(PeriodoEscolar, nome="TARDE")
-    mommy.make(FaixaEtaria, inicio=1, fim=31)
-    aluno = mommy.make(
+    periodo_tarde = baker.make(PeriodoEscolar, nome="TARDE")
+    baker.make(FaixaEtaria, inicio=1, fim=31)
+    aluno = baker.make(
         Aluno,
         nome="Roberto Alves da Silva",
         codigo_eol="123456",
@@ -1052,7 +1048,7 @@ def solicitacoes_dieta_especial_ativas_cei(escola_cei, classificacoes_dietas):
         escola=escola_cei,
         periodo_escolar=periodo_tarde,
     )
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
         aluno=aluno,
@@ -1060,7 +1056,7 @@ def solicitacoes_dieta_especial_ativas_cei(escola_cei, classificacoes_dietas):
         escola_destino=escola_cei,
         classificacao=classificacoes_dietas[0],
     ),
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
         aluno=aluno,
@@ -1068,7 +1064,7 @@ def solicitacoes_dieta_especial_ativas_cei(escola_cei, classificacoes_dietas):
         escola_destino=escola_cei,
         classificacao=classificacoes_dietas[1],
     ),
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.ESCOLA_SOLICITOU_INATIVACAO,
         aluno=aluno,
@@ -1083,9 +1079,9 @@ def solicitacoes_dieta_especial_ativas_cei(escola_cei, classificacoes_dietas):
 def solicitacoes_dieta_especial_ativas_cemei(
     escola_cemei, classificacoes_dietas, periodo_escolar_integral
 ):
-    mommy.make(FaixaEtaria, inicio=1, fim=31)
-    mommy.make(FaixaEtaria, inicio=32, fim=88)
-    aluno_a = mommy.make(
+    baker.make(FaixaEtaria, inicio=1, fim=31)
+    baker.make(FaixaEtaria, inicio=32, fim=88)
+    aluno_a = baker.make(
         Aluno,
         nome="Roberto Alves da Silva",
         codigo_eol="123456",
@@ -1094,7 +1090,7 @@ def solicitacoes_dieta_especial_ativas_cemei(
         periodo_escolar=periodo_escolar_integral,
         serie="3B",
     )
-    aluno_b = mommy.make(
+    aluno_b = baker.make(
         Aluno,
         nome="Aluno Teste",
         codigo_eol="456789",
@@ -1103,7 +1099,7 @@ def solicitacoes_dieta_especial_ativas_cemei(
         periodo_escolar=periodo_escolar_integral,
         serie="6C",
     )
-    aluno_c = mommy.make(
+    aluno_c = baker.make(
         Aluno,
         nome="Aluno Teste__2",
         codigo_eol="123025",
@@ -1112,7 +1108,7 @@ def solicitacoes_dieta_especial_ativas_cemei(
         periodo_escolar=periodo_escolar_integral,
         serie="1A",
     )
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
         aluno=aluno_a,
@@ -1120,7 +1116,7 @@ def solicitacoes_dieta_especial_ativas_cemei(
         escola_destino=escola_cemei,
         classificacao=classificacoes_dietas[0],
     ),
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
         aluno=aluno_b,
@@ -1128,7 +1124,7 @@ def solicitacoes_dieta_especial_ativas_cemei(
         escola_destino=escola_cemei,
         classificacao=classificacoes_dietas[0],
     ),
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
         aluno=aluno_c,
@@ -1136,7 +1132,7 @@ def solicitacoes_dieta_especial_ativas_cemei(
         escola_destino=escola_cemei,
         classificacao=classificacoes_dietas[0],
     ),
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
         aluno=aluno_a,
@@ -1144,7 +1140,7 @@ def solicitacoes_dieta_especial_ativas_cemei(
         escola_destino=escola_cemei,
         classificacao=classificacoes_dietas[1],
     ),
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
         aluno=aluno_b,
@@ -1157,9 +1153,9 @@ def solicitacoes_dieta_especial_ativas_cemei(
 
 @pytest.fixture
 def solicitacoes_dieta_especial_ativas_emebs(escola_emebs, classificacoes_dietas):
-    periodo_manha = mommy.make(PeriodoEscolar, nome="MANHA")
-    mommy.make(FaixaEtaria, inicio=1, fim=31)
-    aluno = mommy.make(
+    periodo_manha = baker.make(PeriodoEscolar, nome="MANHA")
+    baker.make(FaixaEtaria, inicio=1, fim=31)
+    aluno = baker.make(
         Aluno,
         nome="Roberto Alves da Silva",
         codigo_eol="123456",
@@ -1167,7 +1163,7 @@ def solicitacoes_dieta_especial_ativas_emebs(escola_emebs, classificacoes_dietas
         escola=escola_emebs,
         periodo_escolar=periodo_manha,
     )
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
         aluno=aluno,
@@ -1175,7 +1171,7 @@ def solicitacoes_dieta_especial_ativas_emebs(escola_emebs, classificacoes_dietas
         escola_destino=escola_emebs,
         classificacao=classificacoes_dietas[0],
     ),
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
         aluno=aluno,
@@ -1188,13 +1184,13 @@ def solicitacoes_dieta_especial_ativas_emebs(escola_emebs, classificacoes_dietas
 
 @pytest.fixture
 def categoria_medicao():
-    return mommy.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
+    return baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
 
 
 @pytest.fixture
 def solicitacao_medicao_inicial(escola_cei, categoria_medicao):
-    tipo_contagem = mommy.make("TipoContagemAlimentacao", nome="Fichas")
-    periodo_manha = mommy.make("PeriodoEscolar", nome="MANHA")
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
     historico = {
         "usuario": {
             "uuid": "a7f20675-50e1-46d2-a207-28543b93e19d",
@@ -1218,7 +1214,7 @@ def solicitacao_medicao_inicial(escola_cei, categoria_medicao):
     }
     hoje = datetime.date.today()
     ontem = hoje - datetime.timedelta(days=1)
-    solicitacao_medicao = mommy.make(
+    solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial",
         uuid="bed4d779-2d57-4c5f-bf9c-9b93ddac54d9",
         mes=f"{ontem.month:02d}",
@@ -1228,12 +1224,12 @@ def solicitacao_medicao_inicial(escola_cei, categoria_medicao):
         historico=json.dumps([historico]),
     )
     solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
-    medicao = mommy.make(
+    medicao = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_manha,
     )
-    mommy.make(
+    baker.make(
         "ValorMedicao",
         dia="01",
         semana="1",
@@ -1252,9 +1248,9 @@ def solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao(
     solicitacao_medicao_inicial,
     periodo_escolar_integral,
 ):
-    mommy.make(FaixaEtaria, inicio=1, fim=50)
-    mommy.make(ClassificacaoDieta, nome="Tipo C")
-    aluno = mommy.make(
+    baker.make(FaixaEtaria, inicio=1, fim=50)
+    baker.make(ClassificacaoDieta, nome="Tipo C")
+    aluno = baker.make(
         Aluno,
         nome="Roberto Alves da Silva",
         codigo_eol="123456",
@@ -1262,7 +1258,7 @@ def solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao(
         escola=escola_cei,
         periodo_escolar=periodo_escolar_integral,
     )
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
         aluno=aluno,
@@ -1270,7 +1266,7 @@ def solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao(
         escola_destino=escola_cei,
         classificacao=classificacoes_dietas[0],
     ),
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
         aluno=aluno,
@@ -1278,7 +1274,7 @@ def solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao(
         escola_destino=escola_cei,
         classificacao=classificacoes_dietas[1],
     ),
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.ESCOLA_SOLICITOU_INATIVACAO,
         aluno=aluno,
@@ -1286,7 +1282,7 @@ def solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao(
         escola_destino=escola_cei,
         classificacao=classificacoes_dietas[2],
     )
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
         aluno=aluno,
@@ -1315,7 +1311,7 @@ def usuario_com_pk():
 @freeze_time("2025-1-10")
 @pytest.fixture
 def solicitacoes_processa_dieta_especial(escola_cei, periodo_escolar_integral):
-    aluno = mommy.make(
+    aluno = baker.make(
         Aluno,
         nome="Roberto Alves da Silva",
         codigo_eol="123456",
@@ -1323,7 +1319,7 @@ def solicitacoes_processa_dieta_especial(escola_cei, periodo_escolar_integral):
         escola=escola_cei,
         periodo_escolar=periodo_escolar_integral,
     )
-    dieta_alterada = mommy.make(
+    dieta_alterada = baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
         ativo=True,
@@ -1334,7 +1330,7 @@ def solicitacoes_processa_dieta_especial(escola_cei, periodo_escolar_integral):
         rastro_escola=escola_cei,
     )
 
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
         ativo=False,
@@ -1345,7 +1341,7 @@ def solicitacoes_processa_dieta_especial(escola_cei, periodo_escolar_integral):
         aluno=aluno,
         rastro_escola=escola_cei,
     )
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
         ativo=False,
@@ -1356,7 +1352,7 @@ def solicitacoes_processa_dieta_especial(escola_cei, periodo_escolar_integral):
         aluno=aluno,
         rastro_escola=escola_cei,
     )
-    mommy.make(
+    baker.make(
         SolicitacaoDietaEspecial,
         status=DietaEspecialWorkflow.ESCOLA_SOLICITOU_INATIVACAO,
         ativo=False,
@@ -1374,7 +1370,7 @@ def make_periodo_escolar():
     def handle(nome: str):
         if PeriodoEscolar.objects.filter(nome=nome).exists():
             return PeriodoEscolar.objects.get(nome=nome)
-        return mommy.make("PeriodoEscolar", nome=nome)
+        return baker.make("PeriodoEscolar", nome=nome)
 
     return handle
 
@@ -1725,17 +1721,17 @@ def escolas_tipo_cemei_por_periodo():
 
 @pytest.fixture
 def classificacao_tipo_a():
-    return mommy.make("ClassificacaoDieta", nome="Tipo A")
+    return baker.make("ClassificacaoDieta", nome="Tipo A")
 
 
 @pytest.fixture
 def classificacao_tipo_b():
-    return mommy.make("ClassificacaoDieta", nome="Tipo B")
+    return baker.make("ClassificacaoDieta", nome="Tipo B")
 
 
 @pytest.fixture
 def periodo_escolar_manha():
-    return mommy.make(PeriodoEscolar, nome="MANHA")
+    return baker.make(PeriodoEscolar, nome="MANHA")
 
 
 @pytest.fixture
@@ -1749,7 +1745,7 @@ def log_dietas_autorizadas(
 ):
     data = datetime.date(2024, 3, 20)
 
-    mommy.make(
+    baker.make(
         "LogQuantidadeDietasAutorizadas",
         escola=escola_emebs,
         quantidade=5,
@@ -1759,7 +1755,7 @@ def log_dietas_autorizadas(
         infantil_ou_fundamental="INFANTIL",
         data=data,
     )
-    mommy.make(
+    baker.make(
         "LogQuantidadeDietasAutorizadas",
         escola=escola_emebs,
         quantidade=6,
@@ -1769,7 +1765,7 @@ def log_dietas_autorizadas(
         infantil_ou_fundamental="FUNDAMENTAL",
         data=data,
     )
-    mommy.make(
+    baker.make(
         "LogQuantidadeDietasAutorizadas",
         escola=escola_emebs,
         quantidade=11,
@@ -1780,7 +1776,7 @@ def log_dietas_autorizadas(
         data=data,
     )
 
-    mommy.make(
+    baker.make(
         "LogQuantidadeDietasAutorizadas",
         escola=escola_cemei,
         quantidade=7,
@@ -1790,7 +1786,7 @@ def log_dietas_autorizadas(
         infantil_ou_fundamental="N/A",
         data=data,
     )
-    mommy.make(
+    baker.make(
         "LogQuantidadeDietasAutorizadas",
         escola=escola_cemei,
         quantidade=8,
@@ -1800,7 +1796,7 @@ def log_dietas_autorizadas(
         infantil_ou_fundamental="N/A",
         data=data,
     )
-    mommy.make(
+    baker.make(
         "LogQuantidadeDietasAutorizadas",
         escola=escola_cemei,
         quantidade=15,
@@ -1822,9 +1818,9 @@ def log_dietas_autorizadas_cei(
     periodo_escolar_manha,
 ):
     data = data = datetime.date(2024, 3, 20)
-    faixa_um = mommy.make("FaixaEtaria", inicio=0, fim=6)
-    faixa_dois = mommy.make("FaixaEtaria", inicio=7, fim=12)
-    mommy.make(
+    faixa_um = baker.make("FaixaEtaria", inicio=0, fim=6)
+    faixa_dois = baker.make("FaixaEtaria", inicio=7, fim=12)
+    baker.make(
         "LogQuantidadeDietasAutorizadasCEI",
         escola=escola_cei,
         quantidade=10,
@@ -1833,7 +1829,7 @@ def log_dietas_autorizadas_cei(
         faixa_etaria=faixa_um,
         data=data,
     )
-    mommy.make(
+    baker.make(
         "LogQuantidadeDietasAutorizadasCEI",
         escola=escola_cei,
         quantidade=11,
@@ -1842,7 +1838,7 @@ def log_dietas_autorizadas_cei(
         faixa_etaria=faixa_dois,
         data=data,
     )
-    mommy.make(
+    baker.make(
         "LogQuantidadeDietasAutorizadasCEI",
         escola=escola_cei,
         quantidade=21,
@@ -1852,7 +1848,7 @@ def log_dietas_autorizadas_cei(
         data=data,
     )
 
-    mommy.make(
+    baker.make(
         "LogQuantidadeDietasAutorizadasCEI",
         escola=escola_cemei,
         quantidade=12,
@@ -1861,7 +1857,7 @@ def log_dietas_autorizadas_cei(
         faixa_etaria=faixa_um,
         data=data,
     )
-    mommy.make(
+    baker.make(
         "LogQuantidadeDietasAutorizadasCEI",
         escola=escola_cemei,
         quantidade=13,
@@ -1870,7 +1866,7 @@ def log_dietas_autorizadas_cei(
         faixa_etaria=faixa_dois,
         data=data,
     )
-    mommy.make(
+    baker.make(
         "LogQuantidadeDietasAutorizadasCEI",
         escola=escola_cemei,
         quantidade=25,

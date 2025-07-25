@@ -2,7 +2,7 @@ import pytest
 from django.conf import settings
 from django.utils import timezone
 from freezegun import freeze_time
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.pre_recebimento.base.api.serializers.serializer_create import (
     UnidadeMedidaCreateSerializer,
@@ -172,7 +172,7 @@ def test_etapas_do_cronograma_calendario_serializer(
 
 
 def test_doc_recebimento_serializer_pregao_chamada_publica(cronograma_chamada_publica):
-    doc_recebimento = mommy.make(
+    doc_recebimento = baker.make(
         "DocumentoDeRecebimento", cronograma=cronograma_chamada_publica
     )
 
@@ -189,7 +189,7 @@ def test_doc_recebimento_serializer_pregao_chamada_publica(cronograma_chamada_pu
 
 
 def test_doc_recebimento_serializer_pregao_eletronico(cronograma_recebido):
-    doc_recebimento = mommy.make(
+    doc_recebimento = baker.make(
         "DocumentoDeRecebimento", cronograma=cronograma_recebido
     )
 
@@ -203,7 +203,7 @@ def test_doc_recebimento_serializer_pregao_eletronico(cronograma_recebido):
 
 
 def test_doc_recebimento_serializer_qualquer_modalidade(cronograma_qualquer):
-    doc_recebimento = mommy.make(
+    doc_recebimento = baker.make(
         "DocumentoDeRecebimento", cronograma=cronograma_qualquer
     )
 

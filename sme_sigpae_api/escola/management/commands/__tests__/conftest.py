@@ -1,5 +1,5 @@
 import pytest
-from model_mommy import mommy
+from model_bakery import baker
 
 
 @pytest.fixture(
@@ -97,39 +97,39 @@ def escola_total_por_periodo_params(request):
 
 @pytest.fixture
 def escola_sheila_1():
-    return mommy.make("Escola", codigo_eol="094595")
+    return baker.make("Escola", codigo_eol="094595")
 
 
 @pytest.fixture
 def escola_sheila_2():
-    return mommy.make("Escola", codigo_eol="094641")
+    return baker.make("Escola", codigo_eol="094641")
 
 
 @pytest.fixture
 def escola_sheila_3():
-    return mommy.make("Escola", codigo_eol="094633")
+    return baker.make("Escola", codigo_eol="094633")
 
 
 @pytest.fixture
 def escola_sheila_4():
-    return mommy.make("Escola", codigo_eol="200069")
+    return baker.make("Escola", codigo_eol="200069")
 
 
 @pytest.fixture
 def escola_lorena_1():
-    return mommy.make("Escola", codigo_eol="091898")
+    return baker.make("Escola", codigo_eol="091898")
 
 
 @pytest.fixture
 def escola_lorena_2():
-    return mommy.make("Escola", codigo_eol="309040")
+    return baker.make("Escola", codigo_eol="309040")
 
 
 @pytest.fixture
 def escola_lorena_3():
-    return mommy.make("Escola", codigo_eol="092037")
+    return baker.make("Escola", codigo_eol="092037")
 
 
 @pytest.fixture
 def aluno_com_codigo_eol():
-    return mommy.make("Aluno", codigo_eol="1234567")
+    return baker.make("Aluno", codigo_eol="1234567")

@@ -20,7 +20,7 @@ pytest-django="==4.11.1"  # https://github.com/pytest-dev/pytest-django
 pytest-factoryboy="==2.7.0"
 factory-boy = "==3.3.3"
 faker = "==37.4.0"
-model-mommy = "==2.0.0"
+model-bakery = "==1.20.5"
 # Code quality
 # ------------------------------------------------------------------------------
 coverage="==7.9.1"             # https://github.com/nedbat/coveragepy
