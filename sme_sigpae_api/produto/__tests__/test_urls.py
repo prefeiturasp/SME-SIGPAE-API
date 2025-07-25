@@ -2,7 +2,7 @@ import datetime
 import json
 
 import pytest
-from model_mommy import mommy
+from model_bakery import baker
 from rest_framework import status
 
 from sme_sigpae_api.dados_comuns import constants
@@ -1060,13 +1060,13 @@ def test_url_endpoint_homologacao_produto_actions(
 def test_url_endpoint_produto_actions(
     client_autenticado_vinculo_codae_produto, produto, terceirizada
 ):
-    hom = mommy.make(
+    hom = baker.make(
         "HomologacaoProduto",
         produto=produto,
         rastro_terceirizada=terceirizada,
         status=HomologacaoProdutoWorkflow.TERCEIRIZADA_RESPONDEU_RECLAMACAO,
     )
-    mommy.make("LogSolicitacoesUsuario", uuid_original=hom.uuid)
+    baker.make("LogSolicitacoesUsuario", uuid_original=hom.uuid)
 
     client = client_autenticado_vinculo_codae_produto
 

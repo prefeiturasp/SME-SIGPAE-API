@@ -1,6 +1,6 @@
 import pytest
 from freezegun import freeze_time
-from model_mommy import mommy
+from model_bakery import baker
 
 from ..models import (
     GrupoInclusaoAlimentacaoNormal,
@@ -17,7 +17,7 @@ def test_manager_inclusao_continua_desta_semana(
 ):
     data_inicial, data_final = inclusao_alimentacao_continua_parametros_semana
 
-    inclusao_continua = mommy.make(
+    inclusao_continua = baker.make(
         InclusaoAlimentacaoContinua,
         data_inicial=data_inicial,
         data_final=data_final,
@@ -32,7 +32,7 @@ def test_manager_inclusao_continua_deste_mes(
 ):
     data_inicial, data_final = inclusao_alimentacao_continua_parametros_mes
 
-    inclusao_continua = mommy.make(
+    inclusao_continua = baker.make(
         InclusaoAlimentacaoContinua,
         data_inicial=data_inicial,
         escola=escola,
@@ -47,7 +47,7 @@ def test_manager_inclusao_continua_vencidos(
 ):
     data_inicial, data_final, status = inclusao_alimentacao_continua_parametros_vencidos
 
-    inclusao_continua = mommy.make(
+    inclusao_continua = baker.make(
         InclusaoAlimentacaoContinua,
         data_inicial=data_inicial,
         data_final=data_final,
@@ -63,8 +63,8 @@ def test_manager_inclusoes_normais_desta_semana(
 ):
     data_evento, _ = inclusao_alimentacao_continua_parametros_semana
 
-    grupo_inclusoes = mommy.make(GrupoInclusaoAlimentacaoNormal, escola=escola)
-    mommy.make(
+    grupo_inclusoes = baker.make(GrupoInclusaoAlimentacaoNormal, escola=escola)
+    baker.make(
         InclusaoAlimentacaoNormal, data=data_evento, grupo_inclusao=grupo_inclusoes
     )
     assert grupo_inclusoes in GrupoInclusaoAlimentacaoNormal.desta_semana.all()
@@ -76,8 +76,8 @@ def test_manager_inclusoes_normais_deste_mes(
 ):
     data_evento, _ = inclusao_alimentacao_continua_parametros_mes
 
-    grupo_inclusoes = mommy.make(GrupoInclusaoAlimentacaoNormal, escola=escola)
-    mommy.make(
+    grupo_inclusoes = baker.make(GrupoInclusaoAlimentacaoNormal, escola=escola)
+    baker.make(
         InclusaoAlimentacaoNormal, data=data_evento, grupo_inclusao=grupo_inclusoes
     )
     assert grupo_inclusoes in GrupoInclusaoAlimentacaoNormal.deste_mes.all()
@@ -89,10 +89,10 @@ def test_manager_inclusoes_normais_vencidos(
 ):
     data_evento, _, status = inclusao_alimentacao_continua_parametros_vencidos
 
-    grupo_inclusoes = mommy.make(
+    grupo_inclusoes = baker.make(
         GrupoInclusaoAlimentacaoNormal, status=status, escola=escola
     )
-    mommy.make(
+    baker.make(
         InclusaoAlimentacaoNormal, data=data_evento, grupo_inclusao=grupo_inclusoes
     )
     assert grupo_inclusoes in GrupoInclusaoAlimentacaoNormal.vencidos.all()

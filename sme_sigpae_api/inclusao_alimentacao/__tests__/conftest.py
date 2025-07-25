@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 from faker import Faker
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.escola.__tests__.conftest import mocked_response
 
@@ -18,21 +18,21 @@ Faker.seed(420)
 
 @pytest.fixture
 def codae():
-    return mommy.make("Codae")
+    return baker.make("Codae")
 
 
 @pytest.fixture
 def escola():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    contato = mommy.make("dados_comuns.Contato", nome="FULANO", email="fake@email.com")
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    contato = baker.make("dados_comuns.Contato", nome="FULANO", email="fake@email.com")
+    diretoria_regional = baker.make(
         "DiretoriaRegional",
         nome="DIRETORIA REGIONAL IPIRANGA",
         uuid="9640fef4-a068-474e-8979-2e1b2654357a",
     )
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    return mommy.make(
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    return baker.make(
         "Escola",
         codigo_eol="000086",
         lote=lote,
@@ -48,18 +48,18 @@ def make_escola():
     def handle(kwargs_escola=None):
         kwargs_escola = kwargs_escola or {}
 
-        terceirizada = mommy.make("Terceirizada")
-        lote = mommy.make("Lote", terceirizada=terceirizada)
-        contato = mommy.make(
+        terceirizada = baker.make("Terceirizada")
+        lote = baker.make("Lote", terceirizada=terceirizada)
+        contato = baker.make(
             "dados_comuns.Contato", nome="FULANO", email="fake@email.com"
         )
-        diretoria_regional = mommy.make(
+        diretoria_regional = baker.make(
             "DiretoriaRegional",
             nome="DIRETORIA REGIONAL IPIRANGA",
             uuid="4227ee4f-1da3-47b3-83bb-479adc81111c",
         )
-        tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-        return mommy.make(
+        tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+        return baker.make(
             "Escola",
             lote=lote,
             diretoria_regional=diretoria_regional,
@@ -73,14 +73,14 @@ def make_escola():
 
 @pytest.fixture
 def escola_cei():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
         "DiretoriaRegional",
         nome="DIRETORIA REGIONAL GUAIANASES",
         uuid="e5583462-d6d5-4580-afd4-de2fd94a3440",
     )
-    return mommy.make(
+    return baker.make(
         "Escola",
         lote=lote,
         diretoria_regional=diretoria_regional,
@@ -90,16 +90,16 @@ def escola_cei():
 
 @pytest.fixture
 def escola_cemei():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
         "DiretoriaRegional",
         nome="DIRETORIA REGIONAL GUAIANASES",
         uuid="e5583462-d6d5-4580-afd4-de2fd94a3440",
     )
-    tipo_unidade = mommy.make("TipoUnidadeEscolar", iniciais="CEMEI")
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    return mommy.make(
+    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    return baker.make(
         "Escola",
         nome="CEMEI PARQUE DO LAGO",
         lote=lote,
@@ -114,14 +114,14 @@ def make_escola_cei():
     def handle(kwargs_escola=None):
         kwargs_escola = kwargs_escola or {}
 
-        terceirizada = mommy.make("Terceirizada")
-        lote = mommy.make("Lote", terceirizada=terceirizada)
-        diretoria_regional = mommy.make(
+        terceirizada = baker.make("Terceirizada")
+        lote = baker.make("Lote", terceirizada=terceirizada)
+        diretoria_regional = baker.make(
             "DiretoriaRegional",
             nome="DIRETORIA REGIONAL GUAIANASES",
             uuid="7063d85d-a28f-4d62-a178-d56ae5a9776e",
         )
-        return mommy.make(
+        return baker.make(
             "Escola", lote=lote, diretoria_regional=diretoria_regional, **kwargs_escola
         )
 
@@ -130,41 +130,41 @@ def make_escola_cei():
 
 @pytest.fixture
 def dre_guaianases():
-    return mommy.make("DiretoriaRegional", nome="DIRETORIA REGIONAL GUAIANASES")
+    return baker.make("DiretoriaRegional", nome="DIRETORIA REGIONAL GUAIANASES")
 
 
 @pytest.fixture
 def escola_dre_guaianases(dre_guaianases):
-    lote = mommy.make("Lote")
-    return mommy.make("Escola", lote=lote, diretoria_regional=dre_guaianases)
+    lote = baker.make("Lote")
+    return baker.make("Escola", lote=lote, diretoria_regional=dre_guaianases)
 
 
 @pytest.fixture
 def motivo_inclusao_continua():
-    return mommy.make(models.MotivoInclusaoContinua, nome="teste nome")
+    return baker.make(models.MotivoInclusaoContinua, nome="teste nome")
 
 
 @pytest.fixture
 def motivo_inclusao_normal():
-    return mommy.make(models.MotivoInclusaoNormal, nome=fake.name())
+    return baker.make(models.MotivoInclusaoNormal, nome=fake.name())
 
 
 @pytest.fixture
 def make_motivo_inclusao_normal():
     def handle(nome):
-        return mommy.make(models.MotivoInclusaoNormal, nome=nome)
+        return baker.make(models.MotivoInclusaoNormal, nome=nome)
 
     return handle
 
 
 @pytest.fixture
 def quantidade_por_periodo():
-    periodo_escolar = mommy.make("escola.PeriodoEscolar")
-    tipos_alimentacao = mommy.make(
+    periodo_escolar = baker.make("escola.PeriodoEscolar")
+    tipos_alimentacao = baker.make(
         "cardapio.TipoAlimentacao", _quantity=5, make_m2m=True
     )
 
-    return mommy.make(
+    return baker.make(
         models.QuantidadePorPeriodo,
         numero_alunos=0,
         periodo_escolar=periodo_escolar,
@@ -174,7 +174,7 @@ def quantidade_por_periodo():
 
 @pytest.fixture
 def template_inclusao_normal():
-    return mommy.make(
+    return baker.make(
         TemplateMensagem,
         assunto="TESTE",
         tipo=TemplateMensagem.INCLUSAO_ALIMENTACAO,
@@ -184,7 +184,7 @@ def template_inclusao_normal():
 
 @pytest.fixture
 def template_inclusao_continua():
-    return mommy.make(
+    return baker.make(
         TemplateMensagem,
         assunto="TESTE",
         tipo=TemplateMensagem.INCLUSAO_ALIMENTACAO_CONTINUA,
@@ -211,7 +211,7 @@ def inclusao_alimentacao_continua_params(
     escola, motivo_inclusao_continua, request, template_inclusao_continua
 ):
     data_inicial, data_final, esperado = request.param
-    model = mommy.make(
+    model = baker.make(
         models.InclusaoAlimentacaoContinua,
         uuid="98dc7cb7-7a38-408d-907c-c0f073ca2d13",
         motivo=motivo_inclusao_continua,
@@ -242,7 +242,7 @@ def inclusao_alimentacao_continua(
     escola, motivo_inclusao_continua, request, template_inclusao_continua
 ):
     data_inicial, data_final, esperado = request.param
-    inc_continua = mommy.make(
+    inc_continua = baker.make(
         models.InclusaoAlimentacaoContinua,
         motivo=motivo_inclusao_continua,
         data_inicial=data_inicial,
@@ -253,12 +253,12 @@ def inclusao_alimentacao_continua(
         rastro_lote=escola.lote,
         rastro_dre=escola.diretoria_regional,
     )
-    mommy.make(
+    baker.make(
         "QuantidadePorPeriodo",
         uuid="6337d4a4-f2e0-475f-9400-24f2db660741",
         inclusao_alimentacao_continua=inc_continua,
     )
-    mommy.make(
+    baker.make(
         "QuantidadePorPeriodo",
         uuid="6f16b41d-151e-4f82-a0d0-43921a9edabe",
         inclusao_alimentacao_continua=inc_continua,
@@ -270,7 +270,7 @@ def inclusao_alimentacao_continua(
 def inclusao_alimentacao_cemei(
     escola, motivo_inclusao_normal, template_inclusao_normal
 ):
-    inclusao_cemei = mommy.make(
+    inclusao_cemei = baker.make(
         "InclusaoDeAlimentacaoCEMEI",
         escola=escola,
         rastro_lote=escola.lote,
@@ -300,7 +300,7 @@ def inclusao_alimentacao_continua_outra_dre(
     escola_dre_guaianases, motivo_inclusao_continua, request, template_inclusao_continua
 ):
     data_inicial, data_final, esperado = request.param
-    return mommy.make(
+    return baker.make(
         models.InclusaoAlimentacaoContinua,
         motivo=motivo_inclusao_continua,
         data_inicial=data_inicial,
@@ -346,7 +346,7 @@ def inclusao_alimentacao_continua_codae_questionado(inclusao_alimentacao_continu
 
 @pytest.fixture
 def inclusao_alimentacao_normal(motivo_inclusao_normal):
-    return mommy.make(
+    return baker.make(
         models.InclusaoAlimentacaoNormal,
         data=datetime.date(2019, 10, 1),
         motivo=motivo_inclusao_normal,
@@ -355,7 +355,7 @@ def inclusao_alimentacao_normal(motivo_inclusao_normal):
 
 @pytest.fixture
 def inclusao_alimentacao_cei(escola):
-    return mommy.make(
+    return baker.make(
         models.InclusaoAlimentacaoDaCEI,
         escola=escola,
         rastro_escola=escola,
@@ -370,7 +370,7 @@ def make_inclusao_alimentacao_cei(escola):
         kwargs_motivo = kwargs_motivo or {}
         _escola = kwargs_inclusao.pop("escola", escola)
 
-        inclusao = mommy.make(
+        inclusao = baker.make(
             models.InclusaoAlimentacaoDaCEI,
             escola=_escola,
             rastro_escola=_escola,
@@ -378,7 +378,7 @@ def make_inclusao_alimentacao_cei(escola):
             **kwargs_inclusao
         )
 
-        mommy.make(
+        baker.make(
             models.DiasMotivosInclusaoDeAlimentacaoCEI,
             inclusao_cei=inclusao,
             **kwargs_motivo
@@ -396,7 +396,7 @@ def make_inclusao_alimentacao_cemei(escola):
         kwargs_motivo = kwargs_motivo or {}
         _escola = kwargs_inclusao.pop("escola", escola)
 
-        inclusao = mommy.make(
+        inclusao = baker.make(
             models.InclusaoDeAlimentacaoCEMEI,
             escola=_escola,
             rastro_escola=_escola,
@@ -404,7 +404,7 @@ def make_inclusao_alimentacao_cemei(escola):
             **kwargs_inclusao
         )
 
-        mommy.make(
+        baker.make(
             models.DiasMotivosInclusaoDeAlimentacaoCEMEI,
             inclusao_alimentacao_cemei=inclusao,
             **kwargs_motivo
@@ -417,7 +417,7 @@ def make_inclusao_alimentacao_cemei(escola):
 
 @pytest.fixture
 def inclusao_alimentacao_normal_outro_motivo(motivo_inclusao_normal):
-    return mommy.make(
+    return baker.make(
         models.InclusaoAlimentacaoNormal,
         data=datetime.date(2019, 10, 1),
         motivo=motivo_inclusao_normal,
@@ -436,19 +436,19 @@ def grupo_inclusao_alimentacao_normal(
     escola, motivo_inclusao_normal, request, template_inclusao_normal
 ):
     data_1, data_2 = request.param
-    grupo_inclusao_normal = mommy.make(
+    grupo_inclusao_normal = baker.make(
         models.GrupoInclusaoAlimentacaoNormal,
         escola=escola,
         rastro_escola=escola,
         rastro_dre=escola.diretoria_regional,
     )
-    mommy.make(
+    baker.make(
         models.InclusaoAlimentacaoNormal,
         data=data_1,
         motivo=motivo_inclusao_normal,
         grupo_inclusao=grupo_inclusao_normal,
     )
-    mommy.make(
+    baker.make(
         models.InclusaoAlimentacaoNormal,
         data=data_2,
         motivo=motivo_inclusao_normal,
@@ -465,20 +465,20 @@ def make_grupo_inclusao_alimentacao_normal(escola, motivo_inclusao_normal):
         kwargs_inclusao2 = kwargs_inclusao2 or {}
         _escola = kwargs_grupo.pop("escola", escola)
 
-        grupo_inclusao_normal = mommy.make(
+        grupo_inclusao_normal = baker.make(
             models.GrupoInclusaoAlimentacaoNormal,
             escola=_escola,
             rastro_escola=_escola,
             rastro_dre=_escola.diretoria_regional,
             **kwargs_grupo
         )
-        mommy.make(
+        baker.make(
             models.InclusaoAlimentacaoNormal,
             motivo=kwargs_inclusao1.pop("motivo", motivo_inclusao_normal),
             grupo_inclusao=grupo_inclusao_normal,
             **kwargs_inclusao1
         )
-        mommy.make(
+        baker.make(
             models.InclusaoAlimentacaoNormal,
             motivo=kwargs_inclusao2.pop("motivo", motivo_inclusao_normal),
             grupo_inclusao=grupo_inclusao_normal,
@@ -500,19 +500,19 @@ def grupo_inclusao_alimentacao_normal_outra_dre(
     escola_dre_guaianases, motivo_inclusao_normal, request, template_inclusao_normal
 ):
     data_1, data_2 = request.param
-    grupo_inclusao_normal = mommy.make(
+    grupo_inclusao_normal = baker.make(
         models.GrupoInclusaoAlimentacaoNormal,
         escola=escola_dre_guaianases,
         rastro_escola=escola_dre_guaianases,
         rastro_dre=escola_dre_guaianases.diretoria_regional,
     )
-    mommy.make(
+    baker.make(
         models.InclusaoAlimentacaoNormal,
         data=data_1,
         motivo=motivo_inclusao_normal,
         grupo_inclusao=grupo_inclusao_normal,
     )
-    mommy.make(
+    baker.make(
         models.InclusaoAlimentacaoNormal,
         data=data_2,
         motivo=motivo_inclusao_normal,
@@ -639,7 +639,7 @@ def inclusao_alimentacao_continua_parametros(request):
 
 @pytest.fixture
 def motivo_inclusao_normal_nome():
-    return mommy.make(
+    return baker.make(
         models.MotivoInclusaoNormal,
         nome="Passeio 5h",
         uuid="803f0508-2abd-4874-ad05-95a4fb29947e",
@@ -648,17 +648,17 @@ def motivo_inclusao_normal_nome():
 
 @pytest.fixture
 def periodo_escolar():
-    return mommy.make(
+    return baker.make(
         "PeriodoEscolar", uuid="208f7cb4-b03a-4357-ab6d-bda078a37748", tipo_turno=1
     )
 
 
 @pytest.fixture
 def escola_periodo_escolar_cei(escola_cei):
-    periodo_escolar = mommy.make(
+    periodo_escolar = baker.make(
         "PeriodoEscolar", uuid="208f7cb4-b03a-4357-ab6d-bda078a37598", nome="INTEGRAL"
     )
-    return mommy.make(
+    return baker.make(
         "EscolaPeriodoEscolar",
         uuid="208f7cb4-b03a-4357-ab6d-bda078a37223",
         periodo_escolar=periodo_escolar,
@@ -668,17 +668,17 @@ def escola_periodo_escolar_cei(escola_cei):
 
 @pytest.fixture
 def grupo_inclusao_alimentacao_nome():
-    return mommy.make(models.GrupoInclusaoAlimentacaoNormal)
+    return baker.make(models.GrupoInclusaoAlimentacaoNormal)
 
 
 @pytest.fixture
 def faixa_etaria():
-    return mommy.make("FaixaEtaria", uuid="ee77f350-6af8-4928-86d6-684fbf423ff5")
+    return baker.make("FaixaEtaria", uuid="ee77f350-6af8-4928-86d6-684fbf423ff5")
 
 
 @pytest.fixture
 def tipo_alimentacao_refeicao():
-    return mommy.make("TipoAlimentacao", nome="Refeição")
+    return baker.make("TipoAlimentacao", nome="Refeição")
 
 
 @pytest.fixture
@@ -696,9 +696,9 @@ def client_autenticado_vinculo_escola_inclusao(
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_diretor = mommy.make("Perfil", nome=constants.DIRETOR_UE, ativo=True)
+    perfil_diretor = baker.make("Perfil", nome=constants.DIRETOR_UE, ativo=True)
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola,
@@ -719,9 +719,9 @@ def client_autenticado_vinculo_escola_cei_inclusao(
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888889"
     )
-    perfil_diretor = mommy.make("Perfil", nome=constants.DIRETOR_UE, ativo=True)
+    perfil_diretor = baker.make("Perfil", nome=constants.DIRETOR_UE, ativo=True)
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola_cei,
@@ -742,9 +742,9 @@ def client_autenticado_vinculo_dre_inclusao(
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888889"
     )
-    perfil_cogestor = mommy.make("Perfil", nome="COGESTOR_DRE", ativo=True)
+    perfil_cogestor = baker.make("Perfil", nome="COGESTOR_DRE", ativo=True)
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola.diretoria_regional,
@@ -763,14 +763,14 @@ def client_autenticado_vinculo_codae_inclusao(client, django_user_model, escola,
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_admin_gestao_alimentacao = mommy.make(
+    perfil_admin_gestao_alimentacao = baker.make(
         "Perfil",
         nome=constants.ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -778,7 +778,7 @@ def client_autenticado_vinculo_codae_inclusao(client, django_user_model, escola,
         data_inicial=hoje,
         ativo=True,
     )
-    mommy.make(
+    baker.make(
         TemplateMensagem,
         assunto="TESTE",
         tipo=TemplateMensagem.DIETA_ESPECIAL,
@@ -797,14 +797,14 @@ def client_autenticado_vinculo_terceirizada_inclusao(
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_nutri_admin = mommy.make(
+    perfil_nutri_admin = baker.make(
         "Perfil",
         nome=constants.ADMINISTRADOR_EMPRESA,
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola.lote.terceirizada,
@@ -812,7 +812,7 @@ def client_autenticado_vinculo_terceirizada_inclusao(
         data_inicial=hoje,
         ativo=True,
     )
-    mommy.make(
+    baker.make(
         TemplateMensagem,
         assunto="TESTE",
         tipo=TemplateMensagem.DIETA_ESPECIAL,

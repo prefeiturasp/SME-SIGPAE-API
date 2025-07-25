@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import pytest
 from django.core.management import call_command
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.perfil.models.perfil import Perfil, PerfisVinculados
 
@@ -28,39 +28,39 @@ class CargaPerfisVinculadosCommandTest(TestCase):
         )
 
     def setUp(self) -> None:
-        mommy.make(
+        baker.make(
             Perfil,
             nome=ADMINISTRADOR_DIETA_ESPECIAL,
         )
-        mommy.make(
+        baker.make(
             Perfil,
             nome=ADMINISTRADOR_GESTAO_PRODUTO,
         )
-        mommy.make(
+        baker.make(
             Perfil,
             nome=ADMINISTRADOR_SUPERVISAO_NUTRICAO,
         )
-        mommy.make(
+        baker.make(
             Perfil,
             nome=COORDENADOR_DIETA_ESPECIAL,
         )
-        mommy.make(
+        baker.make(
             Perfil,
             nome=COORDENADOR_GESTAO_PRODUTO,
         )
-        mommy.make(
+        baker.make(
             Perfil,
             nome=COORDENADOR_SUPERVISAO_NUTRICAO,
         )
-        mommy.make(
+        baker.make(
             Perfil,
             nome=COORDENADOR_CODAE_DILOG_LOGISTICA,
         )
-        mommy.make(
+        baker.make(
             Perfil,
             nome=ADMINISTRADOR_CONTRATOS,
         )
-        mommy.make(
+        baker.make(
             Perfil,
             nome=DILOG_ABASTECIMENTO,
         )

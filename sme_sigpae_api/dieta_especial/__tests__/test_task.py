@@ -4,7 +4,7 @@ from collections import Counter
 
 import pytest
 from freezegun import freeze_time
-from model_mommy import mommy
+from model_bakery import baker
 from openpyxl import load_workbook
 
 from sme_sigpae_api.dados_comuns.fluxo_status import DietaEspecialWorkflow
@@ -294,7 +294,7 @@ def test_gera_pdf_relatorio_dietas_especiais_terceirizadas(
 
 def test_gera_pdf_relatorio_dietas_especiais_terceirizadas_com_erro(usuario_com_pk):
     request_data = {"status_selecionado": "CANCELADAS"}
-    ultima_solicitacao = mommy.make(
+    ultima_solicitacao = baker.make(
         SolicitacaoDietaEspecial, status=DietaEspecialWorkflow.CODAE_AUTORIZADO
     )
     ids_dietas = [ultima_solicitacao.pk]
@@ -635,7 +635,7 @@ def test_gera_xlsx_relatorio_dietas_especiais_terceirizadas_erro(
     protocolo_padrao_dieta_especial_2,
 ):
     request_data = {"status_selecionado": "CANCELADAS"}
-    ultima_solicitacao = mommy.make(
+    ultima_solicitacao = baker.make(
         SolicitacaoDietaEspecial, status=DietaEspecialWorkflow.CODAE_AUTORIZADO
     )
     ids_dietas = [ultima_solicitacao.pk]

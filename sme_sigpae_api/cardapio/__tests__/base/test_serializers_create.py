@@ -1,5 +1,5 @@
 import pytest
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.cardapio.base.api.serializers_create import (
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate,
@@ -15,7 +15,7 @@ def test_horario_do_combo_tipo_alimentacao_serializer_validators(
     serializer_obj = (
         HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate()
     )
-    combo = mommy.make(
+    combo = baker.make(
         "ComboDoVinculoTipoAlimentacaoPeriodoTipoUE",
         uuid="9fe31f4a-716b-4677-9d7d-2868557cf954",
     )

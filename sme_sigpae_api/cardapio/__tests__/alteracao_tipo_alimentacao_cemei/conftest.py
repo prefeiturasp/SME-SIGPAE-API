@@ -1,7 +1,7 @@
 import datetime
 
 import pytest
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models import (
     AlteracaoCardapioCEMEI,
@@ -13,8 +13,8 @@ from sme_sigpae_api.dados_comuns import constants
 
 @pytest.fixture
 def alteracao_cemei(escola_cemei, tipo_alimentacao, faixas_etarias_ativas):
-    periodo_escolar = mommy.make("escola.PeriodoEscolar", nome="MANHA")
-    alteracao_cemei = mommy.make(
+    periodo_escolar = baker.make("escola.PeriodoEscolar", nome="MANHA")
+    alteracao_cemei = baker.make(
         AlteracaoCardapioCEMEI,
         escola=escola_cemei,
         alunos_cei_e_ou_emei=AlteracaoCardapioCEMEI.CEI,
@@ -23,7 +23,7 @@ def alteracao_cemei(escola_cemei, tipo_alimentacao, faixas_etarias_ativas):
         rastro_dre=escola_cemei.diretoria_regional,
         alterar_dia="2023-08-01",
     )
-    subs1 = mommy.make(
+    subs1 = baker.make(
         SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI,
         alteracao_cardapio=alteracao_cemei,
         periodo_escolar=periodo_escolar,
@@ -31,7 +31,7 @@ def alteracao_cemei(escola_cemei, tipo_alimentacao, faixas_etarias_ativas):
     subs1.tipos_alimentacao_de.set([tipo_alimentacao])
     subs1.tipos_alimentacao_para.set([tipo_alimentacao])
     subs1.save()
-    mommy.make(
+    baker.make(
         FaixaEtariaSubstituicaoAlimentacaoCEMEICEI,
         substituicao_alimentacao=subs1,
         matriculados_quando_criado=10,
@@ -64,9 +64,9 @@ def client_autenticado_vinculo_escola_cemei(
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888889"
     )
-    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola_cemei,
@@ -88,9 +88,9 @@ def client_autenticado_vinculo_dre_escola_cemei(
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888889"
     )
-    perfil_cogestor = mommy.make("Perfil", nome="COGESTOR_DRE", ativo=True)
+    perfil_cogestor = baker.make("Perfil", nome="COGESTOR_DRE", ativo=True)
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola_cemei.diretoria_regional,

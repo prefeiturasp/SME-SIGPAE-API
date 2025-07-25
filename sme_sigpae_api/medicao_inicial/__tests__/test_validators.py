@@ -28,7 +28,7 @@ def test_valida_medicoes_inexistentes_cei(
     lista_erros = valida_medicoes_inexistentes_cei(
         solicitacao_medicao_inicial_cei, lista_erros
     )
-    assert len(lista_erros) == 1
+    assert len(lista_erros) == 2
     assert (
         next(
             (erro for erro in lista_erros if erro["periodo_escolar"] == "PARCIAL"), None

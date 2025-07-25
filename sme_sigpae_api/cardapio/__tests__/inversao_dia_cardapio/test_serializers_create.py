@@ -1,6 +1,6 @@
 import pytest
 from freezegun import freeze_time
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create import (
     InversaoCardapioSerializerCreate,
@@ -14,15 +14,15 @@ pytestmark = pytest.mark.django_db
 def test_inversao_serializer_validators(inversao_card_params, tipo_alimentacao):
     data_de, data_para, _, _ = inversao_card_params
     serializer_obj = InversaoCardapioSerializerCreate()
-    cardapio_de = mommy.make("cardapio.Cardapio", data=data_de)
-    cardapio_para = mommy.make("cardapio.Cardapio", data=data_para)
-    tipo_ue = mommy.make(
+    cardapio_de = baker.make("cardapio.Cardapio", data=data_de)
+    cardapio_para = baker.make("cardapio.Cardapio", data=data_para)
+    tipo_ue = baker.make(
         "escola.TipoUnidadeEscolar", cardapios=[cardapio_de, cardapio_para]
     )
-    lote = mommy.make("Lote")
-    escola = mommy.make("escola.Escola", tipo_unidade=tipo_ue, lote=lote)
-    mommy.make("escola.DiaCalendario", escola=escola, data=data_de, dia_letivo=True)
-    mommy.make("escola.DiaCalendario", escola=escola, data=data_para, dia_letivo=True)
+    lote = baker.make("Lote")
+    escola = baker.make("escola.Escola", tipo_unidade=tipo_ue, lote=lote)
+    baker.make("escola.DiaCalendario", escola=escola, data=data_de, dia_letivo=True)
+    baker.make("escola.DiaCalendario", escola=escola, data=data_para, dia_letivo=True)
     attrs = dict(
         data_de=data_de,
         data_para=data_para,
@@ -41,23 +41,23 @@ def test_inversao_serializer_validators(inversao_card_params, tipo_alimentacao):
 @freeze_time("2019-10-15")
 def test_inversao_serializer_creators(inversao_card_params):
     class FakeObject(object):
-        user = mommy.make("perfil.Usuario")
+        user = baker.make("perfil.Usuario")
 
     data_de_cria, data_para, data_de_atualiza, data_para_atualiza = inversao_card_params
     serializer_obj = InversaoCardapioSerializerCreate(context={"request": FakeObject})
 
-    cardapio1 = mommy.make("cardapio.Cardapio", data=data_de_cria)
-    cardapio2 = mommy.make("cardapio.Cardapio", data=data_para)
-    cardapio3 = mommy.make("cardapio.Cardapio", data=data_de_atualiza)
-    cardapio4 = mommy.make("cardapio.Cardapio", data=data_para_atualiza)
+    cardapio1 = baker.make("cardapio.Cardapio", data=data_de_cria)
+    cardapio2 = baker.make("cardapio.Cardapio", data=data_para)
+    cardapio3 = baker.make("cardapio.Cardapio", data=data_de_atualiza)
+    cardapio4 = baker.make("cardapio.Cardapio", data=data_para_atualiza)
 
-    tipo_ue = mommy.make(
+    tipo_ue = baker.make(
         "escola.TipoUnidadeEscolar",
         cardapios=[cardapio1, cardapio2, cardapio3, cardapio4],
     )
-    lote = mommy.make("Lote")
-    escola1 = mommy.make("escola.Escola", tipo_unidade=tipo_ue, lote=lote)
-    escola2 = mommy.make("escola.Escola", tipo_unidade=tipo_ue, lote=lote)
+    lote = baker.make("Lote")
+    escola1 = baker.make("escola.Escola", tipo_unidade=tipo_ue, lote=lote)
+    escola2 = baker.make("escola.Escola", tipo_unidade=tipo_ue, lote=lote)
 
     validated_data_create = dict(
         data_de=data_de_cria, data_para=data_para, escola=escola1
