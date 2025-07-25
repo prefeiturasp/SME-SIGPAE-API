@@ -1913,12 +1913,12 @@ def unidade_educacional():
 
 @pytest.fixture
 def alergia_a_chocolate():
-    return mommy.make(AlergiaIntolerancia, descricao="Alergia a chocolate")
+    return baker.make(AlergiaIntolerancia, descricao="Alergia a chocolate")
 
 
 @pytest.fixture
 def alergia_ao_trigo():
-    return mommy.make(AlergiaIntolerancia, descricao="Alergia a derivados do trigo")
+    return baker.make(AlergiaIntolerancia, descricao="Alergia a derivados do trigo")
 
 
 @pytest.fixture
@@ -1936,54 +1936,54 @@ def relatorio_recreio_nas_ferias(
 ):
 
     # Alunos Matriculados
-    mommy.make(
+    baker.make(
         "SolicitacaoDietaEspecial",
         status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
         tipo_solicitacao="ALTERACAO_UE",
         motivo_alteracao_ue=motivo_alteracao_ue,
         rastro_escola=escola,
         escola_destino=escola_dre_guaianases,
-        aluno=mommy.make("Aluno", nome="Antonio", codigo_eol="923459"),
+        aluno=baker.make("Aluno", nome="Antonio", codigo_eol="923459"),
         alergias_intolerancias=[alergia_a_chocolate],
         classificacao=classificacao_tipo_a,
         data_inicio=datetime.date(2025, 5, 1),
         data_termino=datetime.date(2025, 5, 10),
     )
-    mommy.make(
+    baker.make(
         "SolicitacaoDietaEspecial",
         status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
         tipo_solicitacao="ALTERACAO_UE",
         motivo_alteracao_ue=motivo_alteracao_ue,
         rastro_escola=escola_dre_guaianases,
         escola_destino=escola_cemei,
-        aluno=mommy.make("Aluno", nome="Maria", codigo_eol="823458"),
+        aluno=baker.make("Aluno", nome="Maria", codigo_eol="823458"),
         alergias_intolerancias=[alergia_ao_trigo],
         classificacao=classificacao_tipo_b,
         data_inicio=datetime.date(2025, 5, 5),
         data_termino=datetime.date(2025, 5, 15),
     )
     # Alunos Não Matriculados
-    mommy.make(
+    baker.make(
         "SolicitacaoDietaEspecial",
         status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
         tipo_solicitacao="COMUM",
         dieta_para_recreio_ferias=True,
         rastro_escola=escola_cemei,
         escola_destino=escola_parceira,
-        aluno=mommy.make("Aluno", nome=f"Carlos", codigo_eol="123456"),
+        aluno=baker.make("Aluno", nome=f"Carlos", codigo_eol="123456"),
         alergias_intolerancias=[alergia_a_chocolate],
         classificacao=classificacao_tipo_a,
         periodo_recreio_inicio=datetime.date(2025, 5, 2),
         periodo_recreio_fim=datetime.date(2025, 5, 9),
     )
-    mommy.make(
+    baker.make(
         "SolicitacaoDietaEspecial",
         status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
         tipo_solicitacao="COMUM",
         dieta_para_recreio_ferias=True,
         rastro_escola=escola_parceira,
         escola_destino=escola_emebs,
-        aluno=mommy.make("Aluno", nome="Carla", codigo_eol="723457"),
+        aluno=baker.make("Aluno", nome="Carla", codigo_eol="723457"),
         alergias_intolerancias=[alergia_ao_trigo],
         classificacao=classificacao_tipo_b,
         periodo_recreio_inicio=datetime.date(2025, 5, 10),

@@ -807,6 +807,5 @@ def gen_capped_positive_small_int():
 
 
 baker.generators.add(
-    "django.db.models.PositiveSmallIntegerField",
-    gen_capped_positive_small_int
+    "django.db.models.PositiveSmallIntegerField", gen_capped_positive_small_int
 )

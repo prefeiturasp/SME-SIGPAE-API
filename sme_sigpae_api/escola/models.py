@@ -1975,12 +1975,8 @@ class Responsavel(Nomeavel, TemChaveExterna, CriadoEm):
 
 
 class FaixaEtaria(Ativavel, TemChaveExterna):
-    inicio = models.PositiveSmallIntegerField(
-        validators=[MaxValueValidator(100)]
-    )
-    fim = models.PositiveSmallIntegerField(
-        validators=[MaxValueValidator(100)]
-    )
+    inicio = models.PositiveSmallIntegerField(validators=[MaxValueValidator(100)])
+    fim = models.PositiveSmallIntegerField(validators=[MaxValueValidator(100)])
 
     def data_pertence_a_faixa(self, data_pesquisada, data_referencia_arg=None):
         data_referencia = (
