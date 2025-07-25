@@ -12,6 +12,8 @@ from ...dados_comuns.utils import update_instance_from_dict
 from ...dados_comuns.validators import nao_pode_ser_no_passado
 from ...escola.api.serializers import (
     AlunoSerializer,
+    AlunoSimplesSerializer,
+    EscolaNomeCodigoEOLSerializer,
     FaixaEtariaSerializer,
     LoteNomeSerializer,
     LoteSerializer,
@@ -798,3 +800,52 @@ class UnidadeEducacionalSerializer(serializers.Serializer):
     total = serializers.IntegerField()
     data = serializers.DateField()
     periodos = serializers.JSONField(required=False)
+
+
+class SolicitacaoDietaEspecialRecreioNasFeriasSerializer(serializers.ModelSerializer):
+    aluno = AlunoSimplesSerializer()
+    escola = EscolaNomeCodigoEOLSerializer()
+    escola_destino = EscolaNomeCodigoEOLSerializer()
+    alergias_intolerancias = AlergiaIntoleranciaSerializer(many=True)
+    classificacao = ClassificacaoDietaSerializer()
+    status_solicitacao = serializers.CharField(
+        source="status", required=False, read_only=True
+    )
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        if "aluno" in data:
+            aluno_data = data["aluno"]
+            aluno_data.pop("data_nascimento", None)
+            aluno_data.pop("escola", None)
+
+        if "escola" in data:
+            escola_data = data["escola"]
+            escola_data.pop("codigo_eol", None)
+            escola_data.pop("lote", None)
+
+        if "escola_destino" in data:
+            escola_destino_data = data["escola_destino"]
+            escola_destino_data.pop("codigo_eol", None)
+            escola_destino_data.pop("lote", None)
+
+        return data
+
+    class Meta:
+        model = SolicitacaoDietaEspecial
+        ordering = ("ativo", "-criado_em")
+        fields = (
+            "id",
+            "uuid",
+            "status_solicitacao",
+            "data_inicio",
+            "data_termino",
+            "tipo_solicitacao",
+            "aluno",
+            "escola",
+            "escola_destino",
+            "alergias_intolerancias",
+            "classificacao",
+            "dieta_alterada",
+        )
