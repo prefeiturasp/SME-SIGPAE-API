@@ -12,6 +12,7 @@ from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaVisualizarCronograma,
     PermissaoParaVisualizarRelatorioCronograma,
     PermissaoParaVisualizarSolicitacoesAlteracaoCronograma,
+    PermissaoRelatorioRecreioNasFerias,
     UsuarioAdministradorContratos,
     UsuarioDilogAbastecimento,
 )
@@ -121,7 +122,7 @@ def test_usuario_permissao_historico_dietas_especiais(usuario_da_dre):
     assert permissao.has_permission(request, None)
 
 
-def test_usuario_permissao_historico_dietas_especiais(
+def test_usuario_permissao_historico_dietas_especiais_sem_permissao(
     user_dilog_abastecimento, user_admin_contratos
 ):
     request = MagicMock()
@@ -131,4 +132,25 @@ def test_usuario_permissao_historico_dietas_especiais(
 
     request.user = user_admin_contratos
     permissao = PermissaoHistoricoDietasEspeciais()
+    assert not permissao.has_permission(request, None)
+
+
+def test_usuario_permissao_relatorio_recreio_nas_ferias(usuario_da_dre):
+    usuario, _ = usuario_da_dre
+    request = MagicMock()
+    request.user = usuario
+    permissao = PermissaoRelatorioRecreioNasFerias()
+    assert permissao.has_permission(request, None)
+
+
+def test_usuario_permissao_historico_dietas_especiais_sem_permissao(
+    user_dilog_abastecimento, user_admin_contratos
+):
+    request = MagicMock()
+    request.user = user_dilog_abastecimento
+    permissao = PermissaoRelatorioRecreioNasFerias()
+    assert not permissao.has_permission(request, None)
+
+    request.user = user_admin_contratos
+    permissao = PermissaoRelatorioRecreioNasFerias()
     assert not permissao.has_permission(request, None)

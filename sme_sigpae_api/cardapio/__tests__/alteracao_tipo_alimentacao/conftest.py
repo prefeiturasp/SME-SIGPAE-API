@@ -1,7 +1,7 @@
 import datetime
 
 import pytest
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers import (
     AlteracaoCardapioSerializer,
@@ -62,10 +62,10 @@ def datas_alteracao_mes(request):
 
 @pytest.fixture
 def substituicoes_alimentacao_periodo(escola):
-    alteracao_cardapio = mommy.make(
+    alteracao_cardapio = baker.make(
         AlteracaoCardapio, escola=escola, observacao="teste"
     )
-    return mommy.make(
+    return baker.make(
         SubstituicaoAlimentacaoNoPeriodoEscolar,
         uuid="59beb0ca-982a-49da-98b8-10a296f274ba",
         alteracao_cardapio=alteracao_cardapio,
@@ -74,13 +74,13 @@ def substituicoes_alimentacao_periodo(escola):
 
 @pytest.fixture
 def motivo_alteracao_cardapio_serializer():
-    motivo_alteracao_cardapio = mommy.make(MotivoAlteracaoCardapio)
+    motivo_alteracao_cardapio = baker.make(MotivoAlteracaoCardapio)
     return MotivoAlteracaoCardapioSerializer(motivo_alteracao_cardapio)
 
 
 @pytest.fixture
 def alteracao_cardapio_serializer(escola):
-    alteracao_cardapio = mommy.make(AlteracaoCardapio, escola=escola)
+    alteracao_cardapio = baker.make(AlteracaoCardapio, escola=escola)
     return AlteracaoCardapioSerializer(alteracao_cardapio)
 
 
@@ -88,17 +88,17 @@ def alteracao_cardapio_serializer(escola):
 def inclusao_normal_autorizada_periodo_manha(
     escola_com_dias_nao_letivos, periodo_manha
 ):
-    grupo_inclusao_normal = mommy.make(
+    grupo_inclusao_normal = baker.make(
         "GrupoInclusaoAlimentacaoNormal",
         escola=escola_com_dias_nao_letivos,
         status="CODAE_AUTORIZADO",
     )
-    mommy.make(
+    baker.make(
         "InclusaoAlimentacaoNormal",
         grupo_inclusao=grupo_inclusao_normal,
         data="2023-11-19",
     )
-    mommy.make(
+    baker.make(
         "QuantidadePorPeriodo",
         grupo_inclusao_normal=grupo_inclusao_normal,
         numero_alunos=100,
@@ -109,17 +109,17 @@ def inclusao_normal_autorizada_periodo_manha(
 
 @pytest.fixture
 def inclusao_normal_autorizada_periodo_tarde(escola_com_dias_letivos, periodo_tarde):
-    grupo_inclusao_normal = mommy.make(
+    grupo_inclusao_normal = baker.make(
         "GrupoInclusaoAlimentacaoNormal",
         escola=escola_com_dias_letivos,
         status="CODAE_AUTORIZADO",
     )
-    mommy.make(
+    baker.make(
         "InclusaoAlimentacaoNormal",
         grupo_inclusao=grupo_inclusao_normal,
         data="2023-11-19",
     )
-    mommy.make(
+    baker.make(
         "QuantidadePorPeriodo",
         grupo_inclusao_normal=grupo_inclusao_normal,
         numero_alunos=100,
@@ -132,14 +132,14 @@ def inclusao_normal_autorizada_periodo_tarde(escola_com_dias_letivos, periodo_ta
 def inclusao_continua_autorizada_periodo_manha(
     escola_com_dias_nao_letivos, periodo_manha
 ):
-    inclusao_continua = mommy.make(
+    inclusao_continua = baker.make(
         "InclusaoAlimentacaoContinua",
         escola=escola_com_dias_nao_letivos,
         status="CODAE_AUTORIZADO",
         data_inicial="2023-11-01",
         data_final="2023-11-30",
     )
-    mommy.make(
+    baker.make(
         "QuantidadePorPeriodo",
         inclusao_alimentacao_continua=inclusao_continua,
         numero_alunos=100,
@@ -153,14 +153,14 @@ def inclusao_continua_autorizada_periodo_manha(
 def inclusao_continua_autorizada_periodo_manha_dias_semana(
     escola_com_dias_letivos, periodo_manha
 ):
-    inclusao_continua = mommy.make(
+    inclusao_continua = baker.make(
         "InclusaoAlimentacaoContinua",
         escola=escola_com_dias_letivos,
         status="CODAE_AUTORIZADO",
         data_inicial="2023-11-01",
         data_final="2023-11-30",
     )
-    mommy.make(
+    baker.make(
         "QuantidadePorPeriodo",
         inclusao_alimentacao_continua=inclusao_continua,
         numero_alunos=100,
@@ -172,14 +172,14 @@ def inclusao_continua_autorizada_periodo_manha_dias_semana(
 
 @pytest.fixture
 def inclusao_continua_autorizada_periodo_tarde(escola_com_dias_letivos, periodo_tarde):
-    inclusao_continua = mommy.make(
+    inclusao_continua = baker.make(
         "InclusaoAlimentacaoContinua",
         escola=escola_com_dias_letivos,
         status="CODAE_AUTORIZADO",
         data_inicial="2023-11-01",
         data_final="2023-11-30",
     )
-    mommy.make(
+    baker.make(
         "QuantidadePorPeriodo",
         inclusao_alimentacao_continua=inclusao_continua,
         numero_alunos=100,
@@ -191,7 +191,7 @@ def inclusao_continua_autorizada_periodo_tarde(escola_com_dias_letivos, periodo_
 
 @pytest.fixture
 def alteracao_cardapio(escola, template_mensagem_alteracao_cardapio):
-    return mommy.make(
+    return baker.make(
         AlteracaoCardapio,
         escola=escola,
         observacao="teste",
@@ -206,7 +206,7 @@ def alteracao_cardapio(escola, template_mensagem_alteracao_cardapio):
 def alteracao_cardapio_com_datas_intervalo(
     escola, template_mensagem_alteracao_cardapio
 ):
-    alteracao = mommy.make(
+    alteracao = baker.make(
         AlteracaoCardapio,
         escola=escola,
         observacao="teste",
@@ -216,17 +216,17 @@ def alteracao_cardapio_com_datas_intervalo(
         rastro_dre=escola.diretoria_regional,
         status=AlteracaoCardapio.workflow_class.DRE_A_VALIDAR,
     )
-    mommy.make(
+    baker.make(
         "DataIntervaloAlteracaoCardapio",
         data="2019-10-04",
         alteracao_cardapio=alteracao,
     )
-    mommy.make(
+    baker.make(
         "DataIntervaloAlteracaoCardapio",
         data="2019-10-05",
         alteracao_cardapio=alteracao,
     )
-    mommy.make(
+    baker.make(
         "DataIntervaloAlteracaoCardapio",
         data="2019-10-06",
         alteracao_cardapio=alteracao,
@@ -238,7 +238,7 @@ def alteracao_cardapio_com_datas_intervalo(
 def alteracao_cardapio_outra_dre(
     escola_dre_guaianases, template_mensagem_alteracao_cardapio
 ):
-    return mommy.make(
+    return baker.make(
         AlteracaoCardapio,
         escola=escola_dre_guaianases,
         observacao="teste",
@@ -296,21 +296,21 @@ def daqui_dez_dias_ou_ultimo_dia_do_ano():
     ]
 )
 def alteracao_substituicoes_params(request, daqui_dez_dias_ou_ultimo_dia_do_ano):
-    alimentacao1 = mommy.make("cardapio.TipoAlimentacao", nome="tp_alimentacao1")
-    alimentacao2 = mommy.make("cardapio.TipoAlimentacao", nome="tp_alimentacao2")
-    alimentacao3 = mommy.make("cardapio.TipoAlimentacao", nome="tp_alimentacao3")
-    periodo_escolar = mommy.make("escola.PeriodoEscolar", nome="MANHA")
-    tipo_unidade_escolar = mommy.make("escola.TipoUnidadeEscolar", iniciais="EMEF")
-    escola = mommy.make(
+    alimentacao1 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao1")
+    alimentacao2 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao2")
+    alimentacao3 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao3")
+    periodo_escolar = baker.make("escola.PeriodoEscolar", nome="MANHA")
+    tipo_unidade_escolar = baker.make("escola.TipoUnidadeEscolar", iniciais="EMEF")
+    escola = baker.make(
         "escola.Escola", nome="PERICLIS", tipo_unidade=tipo_unidade_escolar
     )
-    mommy.make(
+    baker.make(
         "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
         periodo_escolar=periodo_escolar,
         tipo_unidade_escolar=tipo_unidade_escolar,
         tipos_alimentacao=[alimentacao1, alimentacao2, alimentacao3],
     )
-    motivo = mommy.make(
+    motivo = baker.make(
         "cardapio.MotivoAlteracaoCardapio",
         nome="outro",
         uuid="478b09e1-4c14-4e50-a446-fbc0af727a09",

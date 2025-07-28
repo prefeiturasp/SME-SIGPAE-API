@@ -1,7 +1,7 @@
 import datetime
 
 import pytest
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers import (
     SuspensaoAlimentacaoSerializer,
@@ -53,7 +53,7 @@ def suspensao_alimentacao_parametros_semana(request):
 
 @pytest.fixture
 def quantidade_por_periodo_suspensao_alimentacao():
-    return mommy.make(QuantidadePorPeriodoSuspensaoAlimentacao, numero_alunos=100)
+    return baker.make(QuantidadePorPeriodoSuspensaoAlimentacao, numero_alunos=100)
 
 
 @pytest.fixture
@@ -89,12 +89,12 @@ def grupo_suspensao_alimentacao_params(request):
 
 @pytest.fixture
 def suspensao_alimentacao(motivo_suspensao_alimentacao):
-    return mommy.make(SuspensaoAlimentacao, motivo=motivo_suspensao_alimentacao)
+    return baker.make(SuspensaoAlimentacao, motivo=motivo_suspensao_alimentacao)
 
 
 @pytest.fixture
 def suspensao_periodo_escolar(suspensao_alimentacao):
-    return mommy.make(
+    return baker.make(
         SuspensaoAlimentacaoNoPeriodoEscolar,
         suspensao_alimentacao=suspensao_alimentacao,
     )
@@ -102,30 +102,30 @@ def suspensao_periodo_escolar(suspensao_alimentacao):
 
 @pytest.fixture
 def template_mensagem_suspensao_alimentacao():
-    return mommy.make(TemplateMensagem, tipo=TemplateMensagem.SUSPENSAO_ALIMENTACAO)
+    return baker.make(TemplateMensagem, tipo=TemplateMensagem.SUSPENSAO_ALIMENTACAO)
 
 
 @pytest.fixture
 def grupo_suspensao_alimentacao(escola):
-    grupo_suspensao = mommy.make(
+    grupo_suspensao = baker.make(
         GrupoSuspensaoAlimentacao,
         observacao="lorem ipsum",
         escola=escola,
         rastro_escola=escola,
     )
-    mommy.make(
+    baker.make(
         SuspensaoAlimentacao,
         data=datetime.date(2022, 1, 29),
         grupo_suspensao=grupo_suspensao,
         cancelado=False,
     )
-    mommy.make(
+    baker.make(
         SuspensaoAlimentacao,
         data=datetime.date(2022, 1, 30),
         grupo_suspensao=grupo_suspensao,
         cancelado=False,
     )
-    mommy.make(
+    baker.make(
         SuspensaoAlimentacao,
         data=datetime.date(2022, 1, 31),
         grupo_suspensao=grupo_suspensao,
@@ -138,7 +138,7 @@ def grupo_suspensao_alimentacao(escola):
 def grupo_suspensao_alimentacao_outra_dre(
     escola_dre_guaianases, template_mensagem_suspensao_alimentacao
 ):
-    return mommy.make(
+    return baker.make(
         GrupoSuspensaoAlimentacao,
         observacao="lorem ipsum",
         escola=escola_dre_guaianases,
@@ -170,4 +170,4 @@ def grupo_suspensao_alimentacao_escola_cancelou(grupo_suspensao_alimentacao):
 
 @pytest.fixture
 def motivo_suspensao_alimentacao():
-    return mommy.make(MotivoSuspensao, nome="Não vai ter aula")
+    return baker.make(MotivoSuspensao, nome="Não vai ter aula")

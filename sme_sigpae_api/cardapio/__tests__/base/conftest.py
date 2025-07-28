@@ -1,14 +1,14 @@
 import datetime
 
 import pytest
-from model_mommy import mommy
+from model_bakery import baker
 
 
 @pytest.fixture
 def label_tipos_alimentacao():
-    model = mommy.make("SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE")
-    tipo_vegetariano = mommy.make("TipoAlimentacao", nome="Vegetariano")
-    tipo_vegano = mommy.make("TipoAlimentacao", nome="Vegano")
+    model = baker.make("SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE")
+    tipo_vegetariano = baker.make("TipoAlimentacao", nome="Vegetariano")
+    tipo_vegano = baker.make("TipoAlimentacao", nome="Vegano")
     return model, tipo_vegetariano, tipo_vegano
 
 
@@ -74,12 +74,12 @@ def horarios_combos_tipo_alimentacao_invalidos(request):
 
 @pytest.fixture()
 def alterar_tipos_alimentacao_data():
-    alimentacao1 = mommy.make("cardapio.TipoAlimentacao", nome="tp_alimentacao1")
-    alimentacao2 = mommy.make("cardapio.TipoAlimentacao", nome="tp_alimentacao2")
-    alimentacao3 = mommy.make("cardapio.TipoAlimentacao", nome="tp_alimentacao3")
-    periodo_escolar = mommy.make("escola.PeriodoEscolar", nome="MANHA")
-    tipo_unidade_escolar = mommy.make("escola.TipoUnidadeEscolar", iniciais="EMEF")
-    vinculo = mommy.make(
+    alimentacao1 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao1")
+    alimentacao2 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao2")
+    alimentacao3 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao3")
+    periodo_escolar = baker.make("escola.PeriodoEscolar", nome="MANHA")
+    tipo_unidade_escolar = baker.make("escola.TipoUnidadeEscolar", iniciais="EMEF")
+    vinculo = baker.make(
         "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
         periodo_escolar=periodo_escolar,
         tipo_unidade_escolar=tipo_unidade_escolar,
@@ -97,10 +97,10 @@ def alterar_tipos_alimentacao_data():
 )
 def vinculo_tipo_alimentacao(request):
     nome_periodo, nome_ue = request.param
-    tipos_alimentacao = mommy.make("TipoAlimentacao", _quantity=5)
-    tipo_unidade_escolar = mommy.make("TipoUnidadeEscolar", iniciais=nome_ue)
-    periodo_escolar = mommy.make("PeriodoEscolar", nome=nome_periodo)
-    return mommy.make(
+    tipos_alimentacao = baker.make("TipoAlimentacao", _quantity=5)
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais=nome_ue)
+    periodo_escolar = baker.make("PeriodoEscolar", nome=nome_periodo)
+    return baker.make(
         "VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
         tipos_alimentacao=tipos_alimentacao,
         uuid="3bdf8144-9b17-495a-8387-5ce0d2a6120a",
@@ -120,17 +120,17 @@ def horario_tipo_alimentacao(
 ):
     hora_inicio, hora_fim = request.param
     escola = escola_com_periodos_e_horarios_combos
-    tipo_alimentacao = mommy.make(
+    tipo_alimentacao = baker.make(
         "TipoAlimentacao",
         nome="Lanche",
         posicao=2,
         uuid="c42a24bb-14f8-4871-9ee8-05bc42cf3061",
     )
-    periodo_escolar = mommy.make(
+    periodo_escolar = baker.make(
         "PeriodoEscolar", nome="TARDE", uuid="22596464-271e-448d-bcb3-adaba43fffc8"
     )
 
-    return mommy.make(
+    return baker.make(
         "HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar",
         hora_inicial=hora_inicio,
         hora_final=hora_fim,

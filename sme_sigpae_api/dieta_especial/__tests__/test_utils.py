@@ -2,6 +2,7 @@ import datetime
 
 import pytest
 from django.core.exceptions import ValidationError
+from django.db.models import QuerySet
 from django.http import QueryDict
 from freezegun.api import freeze_time
 
@@ -13,15 +14,18 @@ from ..tasks.utils.logs import (
     gera_logs_dietas_escolas_comuns,
 )
 from ..utils import (
+    _parse_data,
     dados_dietas_escolas_cei,
     dados_dietas_escolas_comuns,
     dietas_especiais_a_terminar,
+    filtra_relatorio_recreio_nas_ferias,
     formatar_informacoes_historioco_dietas,
     formatar_periodos_cei,
     formatar_periodos_cemei,
     formatar_periodos_emebs,
     formatar_periodos_emei_emef_cieja,
     gera_dicionario_historico_dietas,
+    gera_filtros_relatorio_recreio_nas_ferias,
     gerar_filtros_relatorio_historico,
     termina_dietas_especiais,
     transformar_dados_escolas,
@@ -798,3 +802,124 @@ def test_formatar_informacoes_historioco_dietas(
     assert resultado["resultados"][2]["unidade_educacional"] == "Escola CEU GESTAO"
     assert resultado["resultados"][3]["unidade_educacional"] == "Escola CEI DIRET"
     assert resultado["resultados"][4]["unidade_educacional"] == "Escola CEMEI"
+
+
+def test_parse_data():
+    periodo_lancamento_de = f"01/05/2020"
+    data = _parse_data(periodo_lancamento_de, "data_inicio")
+    assert isinstance(data, datetime.date)
+    assert data.day == 1
+    assert data.month == 5
+    assert data.year == 2020
+
+
+def test_parse_data_formato_incorreto():
+    periodo_lancamento_de = f"01-05-2020"
+    with pytest.raises(
+        ValidationError,
+        match="Formato de data inválido para 'data_inicio'. Use o formato dd/mm/yyyy",
+    ):
+        _parse_data(periodo_lancamento_de, "data_inicio")
+
+
+def test_gera_filtros_relatorio_recreio_nas_ferias(
+    escola, escola_emebs, classificacoes_dietas, alergias_intolerancias
+):
+
+    escolas_destino = [str(escola.uuid), str(escola_emebs.uuid)]
+    classificacoes = [classificacao.id for classificacao in classificacoes_dietas]
+    alergias = [alergia.id for alergia in alergias_intolerancias]
+
+    query_params = QueryDict(mutable=True)
+    query_params["lote"] = str(escola_emebs.lote.uuid)
+    query_params.setlist("unidades_educacionais_selecionadas[]", escolas_destino)
+    query_params.setlist(
+        "classificacoes_selecionadas[]",
+        classificacoes,
+    )
+    query_params.setlist(
+        "alergias_intolerancias_selecionadas[]",
+        alergias,
+    )
+    query_params["data_inicio"] = "12/04/2025"
+    query_params["data_fim"] = "26/04/2025"
+
+    filtros = gera_filtros_relatorio_recreio_nas_ferias(query_params)
+    assert isinstance(filtros, dict)
+
+    assert "padrao" in filtros
+    padrao = filtros["padrao"]
+    assert padrao["escola_destino__lote__uuid"] == str(escola_emebs.lote.uuid)
+    assert padrao["escola_destino__uuid__in"] == escolas_destino
+    assert padrao["classificacao__id__in"] == classificacoes
+    assert padrao["alergias_intolerancias__id__in"] == alergias
+
+    assert "matriculado" in filtros
+    matriculado = filtros["matriculado"]
+    assert matriculado["data_inicio__gte"] == datetime.date(2025, 4, 12)
+    assert matriculado["data_termino__lte"] == datetime.date(2025, 4, 26)
+
+    assert "nao_matriculado" in filtros
+    nao_matriculado = filtros["nao_matriculado"]
+    assert nao_matriculado["periodo_recreio_inicio__gte"] == datetime.date(2025, 4, 12)
+    assert nao_matriculado["periodo_recreio_fim__lte"] == datetime.date(2025, 4, 26)
+
+
+def test_filtra_relatorio_recreio_nas_ferias_sem_parametos(
+    relatorio_recreio_nas_ferias,
+):
+    query_params = QueryDict(mutable=True)
+    queryset = filtra_relatorio_recreio_nas_ferias(query_params)
+    assert isinstance(queryset, QuerySet)
+    assert queryset.count() == 4
+
+
+def test_filtra_relatorio_recreio_nas_ferias_filtro_lote(
+    relatorio_recreio_nas_ferias, escola_emebs
+):
+    query_params = QueryDict(mutable=True)
+    query_params["lote"] = str(escola_emebs.lote.uuid)
+    queryset = filtra_relatorio_recreio_nas_ferias(query_params)
+    assert isinstance(queryset, QuerySet)
+    assert queryset.count() == 1
+
+
+def test_filtra_relatorio_recreio_nas_ferias_filtro_escola_destino(
+    relatorio_recreio_nas_ferias, escola_emebs
+):
+    query_params = QueryDict(mutable=True)
+    query_params.setlist("unidades_educacionais_selecionadas[]", [escola_emebs.uuid])
+    queryset = filtra_relatorio_recreio_nas_ferias(query_params)
+    assert isinstance(queryset, QuerySet)
+    assert queryset.count() == 1
+
+
+def test_filtra_relatorio_recreio_nas_ferias_filtro_classicicao(
+    relatorio_recreio_nas_ferias, classificacao_tipo_b
+):
+    query_params = QueryDict(mutable=True)
+    query_params.setlist("classificacoes_selecionadas[]", [classificacao_tipo_b.id])
+    queryset = filtra_relatorio_recreio_nas_ferias(query_params)
+    assert isinstance(queryset, QuerySet)
+    assert queryset.count() == 2
+
+
+def test_filtra_relatorio_recreio_nas_ferias_filtro_alergia(
+    relatorio_recreio_nas_ferias, alergia_a_chocolate
+):
+    query_params = QueryDict(mutable=True)
+    query_params.setlist(
+        "alergias_intolerancias_selecionadas[]", [alergia_a_chocolate.id]
+    )
+    queryset = filtra_relatorio_recreio_nas_ferias(query_params)
+    assert isinstance(queryset, QuerySet)
+    assert queryset.count() == 2
+
+
+def test_filtra_relatorio_recreio_nas_ferias_filtro_data(relatorio_recreio_nas_ferias):
+    query_params = QueryDict(mutable=True)
+    query_params["data_inicio"] = "02/05/2025"
+    query_params["data_fim"] = "15/05/2025"
+    queryset = filtra_relatorio_recreio_nas_ferias(query_params)
+    assert isinstance(queryset, QuerySet)
+    assert queryset.count() == 2

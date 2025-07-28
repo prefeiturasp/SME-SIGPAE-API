@@ -830,6 +830,12 @@ class SolicitacaoDietaEspecialRecreioNasFeriasSerializer(serializers.ModelSerial
             escola_destino_data.pop("codigo_eol", None)
             escola_destino_data.pop("lote", None)
 
+        if data.get("data_inicio") is None and instance.periodo_recreio_inicio:
+            data["data_inicio"] = instance.periodo_recreio_inicio.strftime("%d/%m/%Y")
+
+        if data.get("data_termino") is None and instance.periodo_recreio_fim:
+            data["data_termino"] = instance.periodo_recreio_fim.strftime("%d/%m/%Y")
+
         return data
 
     class Meta:

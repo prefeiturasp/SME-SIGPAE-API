@@ -9,7 +9,11 @@ import redis
 import unidecode
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.core.validators import MinLengthValidator, MinValueValidator
+from django.core.validators import (
+    MaxValueValidator,
+    MinLengthValidator,
+    MinValueValidator,
+)
 from django.db import models
 from django.db.models import F, Q, Sum
 from django_prometheus.models import ExportModelOperationsMixin
@@ -1971,8 +1975,8 @@ class Responsavel(Nomeavel, TemChaveExterna, CriadoEm):
 
 
 class FaixaEtaria(Ativavel, TemChaveExterna):
-    inicio = models.PositiveSmallIntegerField()
-    fim = models.PositiveSmallIntegerField()
+    inicio = models.PositiveSmallIntegerField(validators=[MaxValueValidator(100)])
+    fim = models.PositiveSmallIntegerField(validators=[MaxValueValidator(100)])
 
     def data_pertence_a_faixa(self, data_pesquisada, data_referencia_arg=None):
         data_referencia = (

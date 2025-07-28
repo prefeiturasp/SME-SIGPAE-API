@@ -1,7 +1,7 @@
 import datetime
 
 import pytest
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.cardapio.suspensao_alimentacao.models import MotivoSuspensao
 from sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models import (
@@ -16,7 +16,7 @@ from sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models import (
     ]
 )
 def suspensao_alimentacao_cei_params(request):
-    motivo = mommy.make(
+    motivo = baker.make(
         "cardapio.MotivoSuspensao",
         nome="outro",
         uuid="478b09e1-4c14-4e50-a446-fbc0af727a08",
@@ -28,9 +28,9 @@ def suspensao_alimentacao_cei_params(request):
 
 @pytest.fixture
 def suspensao_alimentacao_de_cei(escola):
-    motivo = mommy.make(MotivoSuspensao, nome="Suspensão de aula")
-    periodos_escolares = mommy.make("escola.PeriodoEscolar", _quantity=2)
-    return mommy.make(
+    motivo = baker.make(MotivoSuspensao, nome="Suspensão de aula")
+    periodos_escolares = baker.make("escola.PeriodoEscolar", _quantity=2)
+    return baker.make(
         SuspensaoAlimentacaoDaCEI,
         escola=escola,
         motivo=motivo,

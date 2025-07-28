@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from faker import Faker
-from model_mommy import mommy
+from model_bakery import baker
 from rest_framework.test import APIClient
 
 from sme_sigpae_api.dados_comuns.constants import ADMINISTRADOR_EMPRESA
@@ -42,19 +42,19 @@ def client():
 
 @pytest.fixture
 def client_autenticado_terceiro(client_autenticado):
-    terceirizada = mommy.make(
-        Terceirizada, contatos=[mommy.make("dados_comuns.Contato")], make_m2m=True
+    terceirizada = baker.make(
+        Terceirizada, contatos=[baker.make("dados_comuns.Contato")], make_m2m=True
     )
 
-    mommy.make(
+    baker.make(
         Nutricionista,
         terceirizada=terceirizada,
-        contatos=[mommy.make("dados_comuns.Contato")],
+        contatos=[baker.make("dados_comuns.Contato")],
     )
-    mommy.make(
+    baker.make(
         Contrato,
         terceirizada=terceirizada,
-        edital=mommy.make(Edital),
+        edital=baker.make(Edital),
         make_m2m=True,
         uuid="44d51e10-8999-48bb-889a-1540c9e8c895",
     )
@@ -63,7 +63,7 @@ def client_autenticado_terceiro(client_autenticado):
 
 @pytest.fixture
 def usuario_2():
-    return mommy.make(
+    return baker.make(
         Usuario,
         uuid="8344f23a-95c4-4871-8f20-3880529767c0",
         nome="Fulano da Silva",
@@ -106,40 +106,40 @@ def users_codae_gestao_alimentacao(client, django_user_model, request, usuario_2
     )
     client.login(username=email, password=password)
 
-    codae = mommy.make(
+    codae = baker.make(
         "Codae", nome="CODAE", uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd"
     )
 
-    perfil_administrador_codae = mommy.make(
+    perfil_administrador_codae = baker.make(
         "Perfil",
         nome="ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA",
         ativo=True,
         uuid="48330a6f-c444-4462-971e-476452b328b2",
     )
-    perfil_coordenador = mommy.make(
+    perfil_coordenador = baker.make(
         "Perfil",
         nome="COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA",
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
     )
-    mommy.make(
+    baker.make(
         "Perfil",
         nome="ADMINISTRADOR_EMPRESA",
         ativo=True,
         uuid="11c22490-e040-4b4a-903f-54d1b1e57b08",
     )
-    terceirizada = mommy.make(
+    terceirizada = baker.make(
         Terceirizada, uuid="66c1bdd1-9cec-4f1f-a2f6-008f27713e53", ativo=True
     )
-    lote1 = mommy.make("Lote", uuid="143c2550-8bf0-46b4-b001-27965cfcd107")
-    lote2 = mommy.make(
+    lote1 = baker.make("Lote", uuid="143c2550-8bf0-46b4-b001-27965cfcd107")
+    lote2 = baker.make(
         "Lote", uuid="42d3887a-517b-4a72-be78-95d96d857236", terceirizada=terceirizada
     )
-    mommy.make("DiretoriaRegional", uuid="9db1e5d8-dba3-4245-b937-a94c4ea44411")
+    baker.make("DiretoriaRegional", uuid="9db1e5d8-dba3-4245-b937-a94c4ea44411")
     ontem = datetime.date.today() - datetime.timedelta(days=1)
     hoje = datetime.date.today()
     amanha = datetime.date.today() + datetime.timedelta(days=1)
-    mommy.make(
+    baker.make(
         "InclusaoAlimentacaoContinua",
         data_inicial=ontem,
         data_final=hoje,
@@ -147,7 +147,7 @@ def users_codae_gestao_alimentacao(client, django_user_model, request, usuario_2
         rastro_terceirizada=terceirizada,
         terceirizada_conferiu_gestao=True,
     )
-    mommy.make(
+    baker.make(
         "InclusaoAlimentacaoContinua",
         data_inicial=hoje,
         data_final=amanha,
@@ -155,20 +155,20 @@ def users_codae_gestao_alimentacao(client, django_user_model, request, usuario_2
         rastro_terceirizada=terceirizada,
         terceirizada_conferiu_gestao=True,
     )
-    mommy.make(
+    baker.make(
         "SolicitacaoDietaEspecial",
         rastro_lote=lote1,
         rastro_terceirizada=terceirizada,
         status="CODAE_AUTORIZADO",
         conferido=True,
     )
-    mommy.make(
+    baker.make(
         "SolicitacaoDietaEspecial",
         rastro_lote=lote2,
         rastro_terceirizada=terceirizada,
         status="ESCOLA_CANCELOU",
     )
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -177,7 +177,7 @@ def users_codae_gestao_alimentacao(client, django_user_model, request, usuario_2
         data_inicial=hoje,
         data_final=hoje + datetime.timedelta(days=30),
     )  # finalizado
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -185,7 +185,7 @@ def users_codae_gestao_alimentacao(client, django_user_model, request, usuario_2
         data_inicial=hoje,
         ativo=True,
     )
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario_2,
         instituicao=codae,
@@ -199,17 +199,17 @@ def users_codae_gestao_alimentacao(client, django_user_model, request, usuario_2
 
 @pytest.fixture
 def edital():
-    return mommy.make(Edital, numero="1", objeto="lorem ipsum")
+    return baker.make(Edital, numero="1", objeto="lorem ipsum")
 
 
 @pytest.fixture
 def modulo():
-    return mommy.make(Modulo, nome="Dieta Especial")
+    return baker.make(Modulo, nome="Dieta Especial")
 
 
 @pytest.fixture
 def emailterceirizadapormodulo(terceirizada, modulo, usuario_2):
-    return mommy.make(
+    return baker.make(
         EmailTerceirizadaPorModulo,
         email="teste@teste.com",
         terceirizada=terceirizada,
@@ -220,14 +220,14 @@ def emailterceirizadapormodulo(terceirizada, modulo, usuario_2):
 
 @pytest.fixture
 def contrato():
-    return mommy.make(Contrato, numero="1", processo="12345")
+    return baker.make(Contrato, numero="1", processo="12345")
 
 
 @pytest.fixture
 def vigencia_contrato(contrato):
     data_inicial = datetime.date(2019, 1, 1)
     data_final = datetime.date(2019, 1, 31)
-    return mommy.make(
+    return baker.make(
         VigenciaContrato,
         contrato=contrato,
         data_inicial=data_inicial,
@@ -242,45 +242,45 @@ def vigencia_contrato_serializer(vigencia_contrato):
 
 @pytest.fixture
 def contrato_serializer():
-    contrato = mommy.make(Contrato)
+    contrato = baker.make(Contrato)
     return ContratoSerializer(contrato)
 
 
 @pytest.fixture
 def edital_contratos_serializer():
-    edital_contratos = mommy.make(Edital)
+    edital_contratos = baker.make(Edital)
     return EditalContratosSerializer(edital_contratos)
 
 
 @pytest.fixture
 def edital_serializer():
-    edital = mommy.make(Edital)
+    edital = baker.make(Edital)
     return EditalSerializer(edital)
 
 
 @pytest.fixture
 def edital_simples_serializer():
-    edital = mommy.make(Edital)
+    edital = baker.make(Edital)
     return EditalSimplesSerializer(edital)
 
 
 @pytest.fixture
 def terceirizada_simples_serializer():
-    terceirizada = mommy.make(Terceirizada)
+    terceirizada = baker.make(Terceirizada)
     return TerceirizadaSimplesSerializer(terceirizada)
 
 
 @pytest.fixture
 def modalidade_serializer():
-    modalidade = mommy.make(Modalidade)
+    modalidade = baker.make(Modalidade)
     return ModalidadeSerializer(modalidade)
 
 
 @pytest.fixture
 def terceirizada():
-    return mommy.make(
+    return baker.make(
         Terceirizada,
-        contatos=[mommy.make("dados_comuns.Contato")],
+        contatos=[baker.make("dados_comuns.Contato")],
         make_m2m=True,
         nome_fantasia="Alimentos SA",
     )
@@ -293,17 +293,17 @@ def email_terceirizada_por_modulo_serializer(emailterceirizadapormodulo):
 
 @pytest.fixture
 def nutricionista():
-    return mommy.make(Nutricionista, nome="nutri")
+    return baker.make(Nutricionista, nome="nutri")
 
 
 @pytest.fixture
 def perfil_distribuidor():
-    return mommy.make(Perfil, nome="ADMINISTRADOR_EMPRESA")
+    return baker.make(Perfil, nome="ADMINISTRADOR_EMPRESA")
 
 
 @pytest.fixture
 def modalidade():
-    return mommy.make(Modalidade, nome="Pregão Eletrônico")
+    return baker.make(Modalidade, nome="Pregão Eletrônico")
 
 
 @pytest.fixture

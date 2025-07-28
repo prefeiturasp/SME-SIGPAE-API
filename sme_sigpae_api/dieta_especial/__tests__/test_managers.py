@@ -1,5 +1,5 @@
 import pytest
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.terceirizada.models import Edital
 
@@ -7,10 +7,10 @@ pytestmark = pytest.mark.django_db
 
 
 def test_manager_edital_check_name_alrady_in_edital_ok():
-    edital_1 = mommy.make("terceirizada.Edital", numero="Edital Numero 1")
-    edital_2 = mommy.make("terceirizada.Edital", numero="Edital Numero 2")
+    edital_1 = baker.make("terceirizada.Edital", numero="Edital Numero 1")
+    edital_2 = baker.make("terceirizada.Edital", numero="Edital Numero 2")
     editais = [edital_1.uuid, edital_2.uuid]
-    mommy.make(
+    baker.make(
         "dieta_especial.ProtocoloPadraoDietaEspecial",
         nome_protocolo="ALERGIA - ABACATE",
         editais=[edital_1],
