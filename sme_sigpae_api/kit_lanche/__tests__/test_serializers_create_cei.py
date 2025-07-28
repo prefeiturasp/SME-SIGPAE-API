@@ -2,7 +2,7 @@ import datetime
 import random
 
 import pytest
-from model_mommy import mommy
+from model_bakery import baker
 
 from ..api.serializers.serializers_create_cei import (
     FaixaEtariaSolicitacaoKitLancheCEIAvulsaCreateSerializer,
@@ -12,8 +12,8 @@ from ..api.serializers.serializers_create_cei import (
 
 @pytest.mark.django_db
 def test_faixa_etaria_kit_lanche_cei_serializer():
-    faixa_etaria = mommy.make("escola.FaixaEtaria")
-    solic = mommy.make("kit_lanche.SolicitacaoKitLancheCEIAvulsa")
+    faixa_etaria = baker.make("escola.FaixaEtaria")
+    solic = baker.make("kit_lanche.SolicitacaoKitLancheCEIAvulsa")
     data = {
         "solicitacao_kit_lanche_avulsa": solic.uuid,
         "faixa_etaria": faixa_etaria.uuid,
@@ -27,7 +27,7 @@ def test_faixa_etaria_kit_lanche_cei_serializer():
 @pytest.mark.django_db
 def test_kit_lanche_cei_avulsa_serializer_create_create():
     class FakeObject(object):
-        user = mommy.make("perfil.Usuario")
+        user = baker.make("perfil.Usuario")
 
     hoje = datetime.date.today()
     # TODO: Achar uma forma de esse teste travar a data atual do sistema,
@@ -37,17 +37,17 @@ def test_kit_lanche_cei_avulsa_serializer_create_create():
     if data.year != hoje.year:
         return
 
-    alunos = mommy.make("escola.Aluno", _quantity=4)
+    alunos = baker.make("escola.Aluno", _quantity=4)
     alunos_com_dieta = [aluno.uuid for aluno in alunos]
 
-    escola = mommy.make("escola.Escola")
+    escola = baker.make("escola.Escola")
     local = "Tão-tão distante"
 
-    kits_lanche = mommy.make("kit_lanche.KitLanche", _quantity=2)
+    kits_lanche = baker.make("kit_lanche.KitLanche", _quantity=2)
     kits_escolhidos = [kit.uuid for kit in kits_lanche]
     tempo_passeio = 1
 
-    faixas_etarias = mommy.make("escola.FaixaEtaria", _quantity=5)
+    faixas_etarias = baker.make("escola.FaixaEtaria", _quantity=5)
     faixas_etarias = [
         {"quantidade": random.randint(1, 20), "faixa_etaria": i.uuid}
         for i in faixas_etarias
@@ -82,20 +82,20 @@ def test_kit_lanche_cei_avulsa_serializer_create_update():
     if data.year != hoje.year:
         return
 
-    solic = mommy.make("kit_lanche.SolicitacaoKitLancheCEIAvulsa")
+    solic = baker.make("kit_lanche.SolicitacaoKitLancheCEIAvulsa")
 
-    alunos = mommy.make("escola.Aluno", _quantity=4)
+    alunos = baker.make("escola.Aluno", _quantity=4)
     alunos_com_dieta = [aluno.uuid for aluno in alunos]
 
-    escola = mommy.make("escola.Escola")
+    escola = baker.make("escola.Escola")
     local = "Tão-tão distante"
     descricao = "Um texto aleatório"
 
-    kits_lanche = mommy.make("kit_lanche.KitLanche", _quantity=2)
+    kits_lanche = baker.make("kit_lanche.KitLanche", _quantity=2)
     kits_escolhidos = [kit.uuid for kit in kits_lanche]
     tempo_passeio = 1
 
-    faixas_etarias = mommy.make("escola.FaixaEtaria", _quantity=5)
+    faixas_etarias = baker.make("escola.FaixaEtaria", _quantity=5)
     faixas_etarias = [
         {"quantidade": random.randint(1, 20), "faixa_etaria": i.uuid}
         for i in faixas_etarias

@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 from faker import Faker
-from model_mommy import mommy
+from model_bakery import baker
 from rest_framework import status
 
 import sme_sigpae_api.escola.models as models
@@ -15,22 +15,22 @@ Faker.seed(420)
 
 @pytest.fixture
 def tipo_gestao():
-    return mommy.make(models.TipoGestao, nome=fake.name())
+    return baker.make(models.TipoGestao, nome=fake.name())
 
 
 @pytest.fixture
 def lote():
-    return mommy.make(models.Lote, nome="lote", iniciais="lt")
+    return baker.make(models.Lote, nome="lote", iniciais="lt")
 
 
 @pytest.fixture
 def periodo_escolar():
-    return mommy.make(models.PeriodoEscolar, nome="TARDE")
+    return baker.make(models.PeriodoEscolar, nome="TARDE")
 
 
 @pytest.fixture
 def escola(lote, tipo_gestao):
-    return mommy.make(
+    return baker.make(
         models.Escola,
         nome=fake.name(),
         codigo_eol=fake.name()[:6],
@@ -41,7 +41,7 @@ def escola(lote, tipo_gestao):
 
 @pytest.fixture
 def aluno(escola, periodo_escolar):
-    return mommy.make(
+    return baker.make(
         models.Aluno,
         nome="Fulano da Silva",
         codigo_eol="000001",

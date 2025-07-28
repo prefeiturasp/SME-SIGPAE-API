@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 from freezegun import freeze_time
-from model_mommy import mommy
+from model_bakery import baker
 from xworkflows import InvalidTransitionError
 
 from sme_sigpae_api.cardapio.base.models import Cardapio
@@ -25,7 +25,7 @@ def test_inversao_dia_cardapio(inversao_dia_cardapio):
 def test_inversao_dia_cardapio_fluxo_codae_em_cima_da_hora_error(inversao_dia_cardapio):
     # a data do evento é dia 15 de dez a solicitação foi pedida em 12 dez (ou seja em cima da hora)
     # e no mesmo dia 12 a codae tenta autorizar, ela nao deve ser capaz de autorizar, deve questionar
-    user = mommy.make("Usuario")
+    user = baker.make("Usuario")
     assert inversao_dia_cardapio.data == datetime.date(2019, 12, 15)
     assert inversao_dia_cardapio.prioridade == "PRIORITARIO"
     inversao_dia_cardapio.inicia_fluxo(user=user)
@@ -40,7 +40,7 @@ def test_inversao_dia_cardapio_fluxo_codae_em_cima_da_hora_error(inversao_dia_ca
 
 
 def test_inversao_dia_cardapio_fluxo(inversao_dia_cardapio):
-    fake_user = mommy.make("perfil.Usuario")
+    fake_user = baker.make("perfil.Usuario")
     inversao_dia_cardapio.inicia_fluxo(user=fake_user)
     assert (
         str(inversao_dia_cardapio.status) == PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR
@@ -54,7 +54,7 @@ def test_inversao_dia_cardapio_fluxo(inversao_dia_cardapio):
 @freeze_time("2012-01-14")
 def test_inversao_dia_cardapio_fluxo_cancelamento(inversao_dia_cardapio):
     justificativa = "este e um cancelamento"
-    fake_user = mommy.make("perfil.Usuario")
+    fake_user = baker.make("perfil.Usuario")
     inversao_dia_cardapio.inicia_fluxo(user=fake_user)
     assert (
         str(inversao_dia_cardapio.status) == PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR
@@ -68,7 +68,7 @@ def test_inversao_dia_cardapio_fluxo_cancelamento(inversao_dia_cardapio):
 
 def test_inversao_dia_cardapio_fluxo_cancelamento_erro(inversao_dia_cardapio2):
     justificativa = "este e um cancelamento"
-    fake_user = mommy.make("perfil.Usuario")
+    fake_user = baker.make("perfil.Usuario")
     with pytest.raises(
         InvalidTransitionError,
         match=r".*Só pode cancelar com no mínimo 2 dia\(s\) úteis de antecedência.*",

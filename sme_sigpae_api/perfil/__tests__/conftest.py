@@ -7,7 +7,7 @@ import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
-from model_mommy import mommy
+from model_bakery import baker
 from openpyxl import Workbook
 
 from ...dados_comuns.constants import (
@@ -23,7 +23,7 @@ f = Faker(locale="pt-Br")
 
 @pytest.fixture
 def perfil():
-    return mommy.make(
+    return baker.make(
         models.Perfil,
         nome="título do perfil",
         uuid="d38e10da-c5e3-4dd5-9916-010fc250595a",
@@ -32,7 +32,7 @@ def perfil():
 
 @pytest.fixture
 def perfil_distribuidor():
-    return mommy.make(
+    return baker.make(
         models.Perfil,
         nome="ADMINISTRADOR_EMPRESA",
         uuid="daf2c069-7cd9-4cd4-8fde-624c08f55ae7",
@@ -41,7 +41,7 @@ def perfil_distribuidor():
 
 @pytest.fixture
 def perfil_escola():
-    return mommy.make(
+    return baker.make(
         models.Perfil,
         nome="ADMINISTRADOR_UE",
         uuid="F38e10da-c5e3-4dd5-9916-010fc250595a",
@@ -50,7 +50,7 @@ def perfil_escola():
 
 @pytest.fixture
 def perfis_vinculados(perfil, perfil_distribuidor, perfil_escola):
-    return mommy.make(
+    return baker.make(
         models.PerfisVinculados,
         perfil_master=perfil_distribuidor,
         perfis_subordinados=(perfil_distribuidor, perfil),
@@ -59,8 +59,8 @@ def perfis_vinculados(perfil, perfil_distribuidor, perfil_escola):
 
 @pytest.fixture
 def escola(tipo_gestao):
-    dre = mommy.make("DiretoriaRegional")
-    return mommy.make(
+    dre = baker.make("DiretoriaRegional")
+    return baker.make(
         "Escola",
         diretoria_regional=dre,
         nome="EscolaTeste",
@@ -72,7 +72,7 @@ def escola(tipo_gestao):
 
 @pytest.fixture
 def diretoria_regional():
-    return mommy.make(
+    return baker.make(
         "DiretoriaRegional",
         nome="DIRETORIA REGIONAL DE EDUCACAO ITAQUERA",
         uuid="7bb20934-e740-4621-a906-bccb8ea98414",
@@ -81,9 +81,9 @@ def diretoria_regional():
 
 @pytest.fixture
 def terceirizada():
-    return mommy.make(
+    return baker.make(
         "Terceirizada",
-        contatos=[mommy.make("dados_comuns.Contato")],
+        contatos=[baker.make("dados_comuns.Contato")],
         make_m2m=True,
         nome_fantasia="Alimentos SA",
         cnpj="85786774000142",
@@ -92,12 +92,12 @@ def terceirizada():
 
 @pytest.fixture
 def codae(escola):
-    return mommy.make("Codae", make_m2m=True)
+    return baker.make("Codae", make_m2m=True)
 
 
 @pytest.fixture
 def usuario():
-    return mommy.make(
+    return baker.make(
         models.Usuario,
         nome="Fulano da Silva",
         email="fulano@teste.com",
@@ -108,7 +108,7 @@ def usuario():
 
 @pytest.fixture
 def usuario_2():
-    return mommy.make(
+    return baker.make(
         models.Usuario,
         uuid="8344f23a-95c4-4871-8f20-3880529767c0",
         nome="Fulano da Silva",
@@ -120,7 +120,7 @@ def usuario_2():
 
 @pytest.fixture
 def usuario_3():
-    user = mommy.make(
+    user = baker.make(
         models.Usuario,
         username="7654321",
         uuid="155743d3-b16d-4899-8224-efc694053055",
@@ -129,10 +129,10 @@ def usuario_3():
         cpf="22222222222",
         registro_funcional="7654321",
     )
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
-        perfil=mommy.make("Perfil"),
+        perfil=baker.make("Perfil"),
         ativo=True,
         data_inicial=datetime.date.today(),
         data_final=None,
@@ -143,14 +143,14 @@ def usuario_3():
 @pytest.fixture()
 def usuario_com_rf_de_diretor(escola):
     hoje = datetime.date.today()
-    perfil_diretor = mommy.make(
+    perfil_diretor = baker.make(
         "Perfil",
         nome="DIRETOR_UE",
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
     )
-    user = mommy.make(models.Usuario, registro_funcional="6580157")
-    mommy.make(
+    user = baker.make(models.Usuario, registro_funcional="6580157")
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola,
@@ -170,7 +170,7 @@ def usuario_serializer(usuario):
 @pytest.fixture
 def vinculo(perfil, usuario):
     hoje = datetime.date.today()
-    return mommy.make(
+    return baker.make(
         "Vinculo",
         perfil=perfil,
         usuario=usuario,
@@ -182,7 +182,7 @@ def vinculo(perfil, usuario):
 
 @pytest.fixture
 def vinculo_aguardando_ativacao(perfil, usuario):
-    return mommy.make(
+    return baker.make(
         "Vinculo",
         perfil=perfil,
         usuario=usuario,
@@ -210,7 +210,7 @@ def vinculo_aguardando_ativacao(perfil, usuario):
 )
 def vinculo_invalido(perfil, usuario, request):
     dataini, datafim, ativo = request.param
-    return mommy.make(
+    return baker.make(
         "Vinculo",
         perfil=perfil,
         usuario=usuario,
@@ -222,7 +222,7 @@ def vinculo_invalido(perfil, usuario, request):
 
 @pytest.fixture
 def vinculo_diretoria_regional(usuario):
-    return mommy.make(
+    return baker.make(
         "Vinculo",
         data_inicial=datetime.date.today(),
         ativo=True,
@@ -238,7 +238,7 @@ def usuario_update_serializer(usuario_2):
 
 @pytest.fixture
 def tipo_gestao():
-    return mommy.make("TipoGestao", nome="TERC TOTAL")
+    return baker.make("TipoGestao", nome="TERC TOTAL")
 
 
 @pytest.fixture(
@@ -256,21 +256,21 @@ def users_admin_escola(client, django_user_model, request, tipo_gestao):
     )
     client.login(username=email, password=password)
 
-    diretoria_regional = mommy.make(
+    diretoria_regional = baker.make(
         "DiretoriaRegional",
         nome="DIRETORIA REGIONAL IPIRANGA",
         uuid="7da9acec-48e1-430c-8a5c-1f1efc666fad",
         codigo_eol=987656,
     )
-    cardapio1 = mommy.make("cardapio.Cardapio", data=datetime.date(2019, 10, 11))
-    cardapio2 = mommy.make("cardapio.Cardapio", data=datetime.date(2019, 10, 15))
-    tipo_unidade_escolar = mommy.make(
+    cardapio1 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 11))
+    cardapio2 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 15))
+    tipo_unidade_escolar = baker.make(
         "escola.TipoUnidadeEscolar",
         iniciais=f.name()[:10],
         cardapios=[cardapio1, cardapio2],
         uuid="56725de5-89d3-4edf-8633-3e0b5c99e9d4",
     )
-    escola = mommy.make(
+    escola = baker.make(
         "Escola",
         nome="EMEI NOE AZEVEDO, PROF",
         uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd",
@@ -279,31 +279,31 @@ def users_admin_escola(client, django_user_model, request, tipo_gestao):
         tipo_unidade=tipo_unidade_escolar,
         tipo_gestao=tipo_gestao,
     )
-    periodo_escolar_tarde = mommy.make(
+    periodo_escolar_tarde = baker.make(
         "PeriodoEscolar", nome="TARDE", uuid="57af972c-938f-4f6f-9f4b-cf7b983a10b7"
     )
-    periodo_escolar_manha = mommy.make(
+    periodo_escolar_manha = baker.make(
         "PeriodoEscolar", nome="MANHA", uuid="d0c12dae-a215-41f6-af86-b7cd1838ba81"
     )
-    mommy.make(
+    baker.make(
         "AlunosMatriculadosPeriodoEscola",
         escola=escola,
         quantidade_alunos=230,
         periodo_escolar=periodo_escolar_tarde,
     )
-    mommy.make(
+    baker.make(
         "AlunosMatriculadosPeriodoEscola",
         escola=escola,
         quantidade_alunos=220,
         periodo_escolar=periodo_escolar_manha,
     )
-    perfil_professor = mommy.make("Perfil", nome="ADMINISTRADOR_UE", ativo=False)
-    perfil_admin = mommy.make(
+    perfil_professor = baker.make("Perfil", nome="ADMINISTRADOR_UE", ativo=False)
+    perfil_admin = baker.make(
         "Perfil", nome="Admin", ativo=True, uuid="d6fd15cc-52c6-4db4-b604-018d22eeb3dd"
     )
     hoje = datetime.date.today()
 
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola,
@@ -312,7 +312,7 @@ def users_admin_escola(client, django_user_model, request, tipo_gestao):
         data_final=hoje + datetime.timedelta(days=30),
         ativo=False,
     )  # finalizado
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola,
@@ -346,22 +346,22 @@ def users_diretor_escola(client, django_user_model, request, usuario_2, tipo_ges
     )
     client.login(username=email, password=password)
 
-    diretoria_regional = mommy.make(
+    diretoria_regional = baker.make(
         "DiretoriaRegional",
         nome="DIRETORIA REGIONAL IPIRANGA",
         iniciais="IP",
         uuid="7da9acec-48e1-430c-8a5c-1f1efc666fad",
         codigo_eol=987656,
     )
-    cardapio1 = mommy.make("cardapio.Cardapio", data=datetime.date(2019, 10, 11))
-    cardapio2 = mommy.make("cardapio.Cardapio", data=datetime.date(2019, 10, 15))
-    tipo_unidade_escolar = mommy.make(
+    cardapio1 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 11))
+    cardapio2 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 15))
+    tipo_unidade_escolar = baker.make(
         "escola.TipoUnidadeEscolar",
         iniciais="EMEF",
         cardapios=[cardapio1, cardapio2],
         uuid="56725de5-89d3-4edf-8633-3e0b5c99e9d4",
     )
-    escola = mommy.make(
+    escola = baker.make(
         "Escola",
         nome="EMEI NOE AZEVEDO, PROF",
         uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd",
@@ -370,31 +370,31 @@ def users_diretor_escola(client, django_user_model, request, usuario_2, tipo_ges
         tipo_unidade=tipo_unidade_escolar,
         tipo_gestao=tipo_gestao,
     )
-    periodo_escolar_tarde = mommy.make(
+    periodo_escolar_tarde = baker.make(
         "PeriodoEscolar", nome="TARDE", uuid="57af972c-938f-4f6f-9f4b-cf7b983a10b7"
     )
-    periodo_escolar_manha = mommy.make(
+    periodo_escolar_manha = baker.make(
         "PeriodoEscolar", nome="MANHA", uuid="d0c12dae-a215-41f6-af86-b7cd1838ba81"
     )
-    mommy.make(
+    baker.make(
         "AlunosMatriculadosPeriodoEscola",
         escola=escola,
         quantidade_alunos=230,
         periodo_escolar=periodo_escolar_tarde,
     )
-    mommy.make(
+    baker.make(
         "AlunosMatriculadosPeriodoEscola",
         escola=escola,
         quantidade_alunos=220,
         periodo_escolar=periodo_escolar_manha,
     )
-    perfil_professor = mommy.make(
+    perfil_professor = baker.make(
         "Perfil",
         nome="ADMINISTRADOR_UE",
         ativo=False,
         uuid="48330a6f-c444-4462-971e-476452b328b2",
     )
-    perfil_diretor = mommy.make(
+    perfil_diretor = baker.make(
         "Perfil",
         nome="DIRETOR_UE",
         ativo=True,
@@ -402,7 +402,7 @@ def users_diretor_escola(client, django_user_model, request, usuario_2, tipo_ges
     )
 
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola,
@@ -411,7 +411,7 @@ def users_diretor_escola(client, django_user_model, request, usuario_2, tipo_ges
         data_inicial=hoje,
         data_final=hoje + datetime.timedelta(days=30),
     )  # finalizado
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola,
@@ -419,7 +419,7 @@ def users_diretor_escola(client, django_user_model, request, usuario_2, tipo_ges
         data_inicial=hoje,
         ativo=True,
     )
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario_2,
         instituicao=escola,
@@ -462,14 +462,14 @@ def users_cogestor_diretoria_regional(client, django_user_model, request, usuari
     )
     client.login(username=email, password=password)
 
-    diretoria_regional = mommy.make(
+    diretoria_regional = baker.make(
         "DiretoriaRegional",
         nome="DIRETORIA REGIONAL DE EDUCACAO CAPELA DO SOCORRO",
         uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd",
         codigo_eol="0002",
     )
 
-    perfil_cogestor = mommy.make(
+    perfil_cogestor = baker.make(
         "Perfil",
         nome="COGESTOR_DRE",
         ativo=True,
@@ -477,7 +477,7 @@ def users_cogestor_diretoria_regional(client, django_user_model, request, usuari
     )
 
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=diretoria_regional,
@@ -485,7 +485,7 @@ def users_cogestor_diretoria_regional(client, django_user_model, request, usuari
         data_inicial=hoje,
         ativo=True,
     )
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario_2,
         instituicao=diretoria_regional,
@@ -529,24 +529,24 @@ def users_codae_gestao_alimentacao(client, django_user_model, request, usuario_2
     )
     client.login(username=email, password=password)
 
-    codae = mommy.make(
+    codae = baker.make(
         "Codae", nome="CODAE", uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd"
     )
 
-    perfil_administrador_codae = mommy.make(
+    perfil_administrador_codae = baker.make(
         "Perfil",
         nome="ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA",
         ativo=True,
         uuid="48330a6f-c444-4462-971e-476452b328b2",
     )
-    perfil_coordenador = mommy.make(
+    perfil_coordenador = baker.make(
         "Perfil",
         nome="COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA",
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -555,7 +555,7 @@ def users_codae_gestao_alimentacao(client, django_user_model, request, usuario_2
         data_inicial=hoje,
         data_final=hoje + datetime.timedelta(days=30),
     )  # finalizado
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -563,7 +563,7 @@ def users_codae_gestao_alimentacao(client, django_user_model, request, usuario_2
         data_inicial=hoje,
         ativo=True,
     )
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario_2,
         instituicao=codae,
@@ -606,27 +606,27 @@ def users_terceirizada(client, django_user_model, request, usuario_2):
         username=rf, password=password, email=email, registro_funcional=rf, cpf=cpf
     )
     client.login(username=rf, password=password)
-    mommy.make("Codae")
-    terceirizada = mommy.make(
+    baker.make("Codae")
+    terceirizada = baker.make(
         "Terceirizada",
         nome_fantasia="Alimentos LTDA",
         uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd",
     )
 
-    perfil_nutri_admin_responsavel = mommy.make(
+    perfil_nutri_admin_responsavel = baker.make(
         "Perfil",
         nome="ADMINISTRADOR_EMPRESA",
         ativo=True,
         uuid="48330a6f-c444-4462-971e-476452b328b2",
     )
-    perfil_administrador_terceirizada = mommy.make(
+    perfil_administrador_terceirizada = baker.make(
         "Perfil",
         nome="USUARIO_EMPRESA",
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=terceirizada,
@@ -635,7 +635,7 @@ def users_terceirizada(client, django_user_model, request, usuario_2):
         data_inicial=hoje,
         data_final=hoje + datetime.timedelta(days=30),
     )  # finalizado
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=terceirizada,
@@ -643,7 +643,7 @@ def users_terceirizada(client, django_user_model, request, usuario_2):
         data_inicial=hoje,
         ativo=True,
     )
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario_2,
         instituicao=terceirizada,
@@ -708,7 +708,7 @@ def mocked_request_api_eol_usuario_diretoria_regional():
 def usuarios_pendentes_confirmacao(request, perfil, tipo_gestao):
     nome = "Bruno da Conceição"
     uuid = "d36fa08e-e91e-4acb-9d54-b88115147e8e"
-    usuario = mommy.make(
+    usuario = baker.make(
         "Usuario",
         nome=nome,
         uuid=uuid,
@@ -719,22 +719,22 @@ def usuarios_pendentes_confirmacao(request, perfil, tipo_gestao):
     )
     hoje = datetime.date.today()
 
-    diretoria_regional = mommy.make(
+    diretoria_regional = baker.make(
         "DiretoriaRegional",
         nome="DIRETORIA REGIONAL IPIRANGA",
         iniciais="IP",
         uuid="7da9acec-48e1-430c-8a5c-1f1efc666fad",
         codigo_eol=987656,
     )
-    cardapio1 = mommy.make("cardapio.Cardapio", data=datetime.date(2019, 10, 11))
-    cardapio2 = mommy.make("cardapio.Cardapio", data=datetime.date(2019, 10, 15))
-    tipo_unidade_escolar = mommy.make(
+    cardapio1 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 11))
+    cardapio2 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 15))
+    tipo_unidade_escolar = baker.make(
         "escola.TipoUnidadeEscolar",
         iniciais="EMEF",
         cardapios=[cardapio1, cardapio2],
         uuid="56725de5-89d3-4edf-8633-3e0b5c99e9d4",
     )
-    escola = mommy.make(
+    escola = baker.make(
         "Escola",
         nome="EMEI NOE AZEVEDO, PROF",
         uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd",
@@ -744,7 +744,7 @@ def usuarios_pendentes_confirmacao(request, perfil, tipo_gestao):
         tipo_gestao=tipo_gestao,
     )
 
-    mommy.make(
+    baker.make(
         "Vinculo",
         perfil=perfil,
         usuario=usuario,
@@ -754,7 +754,7 @@ def usuarios_pendentes_confirmacao(request, perfil, tipo_gestao):
         instituicao=escola,
     )  # vinculo esperando ativacao
 
-    mommy.make(
+    baker.make(
         "Vinculo",
         perfil=perfil,
         usuario=usuario,
@@ -880,17 +880,17 @@ def arquivo_xls():
 
 @pytest.fixture
 def planilha_usuario_externo(arquivo_xls):
-    return mommy.make("ImportacaoPlanilhaUsuarioExternoCoreSSO", conteudo=arquivo_xls)
+    return baker.make("ImportacaoPlanilhaUsuarioExternoCoreSSO", conteudo=arquivo_xls)
 
 
 @pytest.fixture
 def planilha_usuario_servidor(arquivo_xls):
-    return mommy.make("ImportacaoPlanilhaUsuarioServidorCoreSSO", conteudo=arquivo_xls)
+    return baker.make("ImportacaoPlanilhaUsuarioServidorCoreSSO", conteudo=arquivo_xls)
 
 
 @pytest.fixture
 def escola_cei():
-    return mommy.make(
+    return baker.make(
         "Escola", nome="CEI DIRET - JOSE DE MOURA, VER.", codigo_eol="400158"
     )
 
@@ -900,8 +900,8 @@ def client_autenticado_da_escola(client, django_user_model, escola, escola_cei):
     email = "user@escola.com"
     rf = "1234567"
     password = DJANGO_ADMIN_PASSWORD
-    mommy.make("Perfil", nome="ADMINISTRADOR_UE", ativo=True)
-    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    baker.make("Perfil", nome="ADMINISTRADOR_UE", ativo=True)
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         nome="RONALDO DIRETOR",
         username=rf,
@@ -911,7 +911,7 @@ def client_autenticado_da_escola(client, django_user_model, escola, escola_cei):
         cpf="93697506064",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=escola,
@@ -930,8 +930,8 @@ def client_autenticado_da_escola_email_invalido(
     email = "invalido"
     rf = "1234567"
     password = DJANGO_ADMIN_PASSWORD
-    mommy.make("Perfil", nome="ADMINISTRADOR_UE", ativo=True)
-    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    baker.make("Perfil", nome="ADMINISTRADOR_UE", ativo=True)
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         nome="RONALDO DIRETOR",
         username=rf,
@@ -941,7 +941,7 @@ def client_autenticado_da_escola_email_invalido(
         cpf="93697506064",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=escola,
@@ -960,8 +960,8 @@ def client_autenticado_da_escola_sem_vinculo(
     email = "user@escola.com"
     rf = "1234567"
     password = DJANGO_ADMIN_PASSWORD
-    mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
-    mommy.make("Perfil", nome="ADMINISTRADOR_UE", ativo=True)
+    baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    baker.make("Perfil", nome="ADMINISTRADOR_UE", ativo=True)
     django_user_model.objects.create_user(
         nome="RONALDO DIRETOR",
         username=rf,
@@ -979,8 +979,8 @@ def client_autenticado_da_escola_adm(client, django_user_model, escola, escola_c
     email = "user@escola.com"
     rf = "1234567"
     password = DJANGO_ADMIN_PASSWORD
-    mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
-    perfil_adm = mommy.make("Perfil", nome="ADMINISTRADOR_UE", ativo=True)
+    baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    perfil_adm = baker.make("Perfil", nome="ADMINISTRADOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         nome="RONALDO DIRETOR",
         username=rf,
@@ -990,7 +990,7 @@ def client_autenticado_da_escola_adm(client, django_user_model, escola, escola_c
         cpf="93697506064",
     )
     ontem = datetime.date.today() - datetime.timedelta(days=1)
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=escola,
@@ -1007,7 +1007,7 @@ def client_autenticado_da_dre(client, django_user_model, escola, escola_cei):
     email = "user@escola.com"
     rf = "1234567"
     password = DJANGO_ADMIN_PASSWORD
-    perfil_dre = mommy.make("Perfil", nome="COGESTOR_DRE", ativo=True)
+    perfil_dre = baker.make("Perfil", nome="COGESTOR_DRE", ativo=True)
     usuario = django_user_model.objects.create_user(
         nome="RONALDO COGESTOR",
         username=rf,
@@ -1017,7 +1017,7 @@ def client_autenticado_da_dre(client, django_user_model, escola, escola_cei):
         cpf="93697506064",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=escola.diretoria_regional,
@@ -1031,7 +1031,7 @@ def client_autenticado_da_dre(client, django_user_model, escola, escola_cei):
 
 @pytest.fixture
 def setup_usuarios_command():
-    usuario1 = mommy.make(
+    usuario1 = baker.make(
         "Usuario",
         uuid="a9469d8f-6578-4ebb-8b90-6a98fa97c188",
         email="usuario1@test.com",
@@ -1040,7 +1040,7 @@ def setup_usuarios_command():
         cpf="12345678901",
         is_active=True,
     )
-    usuario2 = mommy.make(
+    usuario2 = baker.make(
         "Usuario",
         uuid="32d150bc-6241-4967-a21b-2f219b2d5317",
         email="usuario2@test.com",
@@ -1049,7 +1049,7 @@ def setup_usuarios_command():
         cpf="98765432109",
         is_active=True,
     )
-    usuario3 = mommy.make(
+    usuario3 = baker.make(
         "Usuario",
         uuid="cd0bc9f3-17f8-4fe6-9dac-38dd108d6223",
         email="usuario3@admin.com",
@@ -1058,7 +1058,7 @@ def setup_usuarios_command():
         cpf=None,
         is_active=True,
     )
-    usuario4 = mommy.make(
+    usuario4 = baker.make(
         "Usuario",
         uuid="79cc6d39-5d2b-4ed8-8b02-25558db82952",
         email="usuario4@test.com",
@@ -1075,25 +1075,25 @@ def setup_vinculos_e_usuarios(setup_usuarios_command):
     terceirizada_ct, created = ContentType.objects.get_or_create(
         app_label="terceirizada", model="terceirizada"
     )
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=setup_usuarios_command[0],
         ativo=True,
         content_type=terceirizada_ct,
     )
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=setup_usuarios_command[1],
         ativo=True,
         content_type=terceirizada_ct,
     )
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=setup_usuarios_command[2],
         ativo=True,
         content_type=terceirizada_ct,
     )  # Sem CPF
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=setup_usuarios_command[3],
         ativo=True,
@@ -1103,44 +1103,44 @@ def setup_vinculos_e_usuarios(setup_usuarios_command):
 
 @pytest.fixture
 def setup_vinculos_e_perfis(django_db_setup, django_db_blocker):
-    mommy.make("Perfil", nome="DIRETOR")
-    mommy.make("Perfil", nome="ADMINISTRADOR_EMPRESA")
-    mommy.make("Perfil", nome="ADMINISTRADOR_TERCEIRIZADA")
-    mommy.make("Perfil", nome="ADMINISTRADOR_UE")
-    mommy.make("Perfil", nome="USUARIO_EMPRESA")
+    baker.make("Perfil", nome="DIRETOR")
+    baker.make("Perfil", nome="ADMINISTRADOR_EMPRESA")
+    baker.make("Perfil", nome="ADMINISTRADOR_TERCEIRIZADA")
+    baker.make("Perfil", nome="ADMINISTRADOR_UE")
+    baker.make("Perfil", nome="USUARIO_EMPRESA")
 
-    mommy.make("Vinculo", perfil__nome="DIRETOR", ativo=True)
-    mommy.make("Vinculo", perfil__nome="ADMINISTRADOR_TERCEIRIZADA", ativo=True)
-    mommy.make("Vinculo", perfil__nome="NUTRI_ADMIN_RESPONSAVEL", ativo=True)
-    mommy.make("Vinculo", perfil__nome="ADMINISTRADOR_DISTRIBUIDORA", ativo=True)
-    mommy.make("Vinculo", perfil__nome="ADMINISTRADOR_FORNECEDOR", ativo=True)
+    baker.make("Vinculo", perfil__nome="DIRETOR", ativo=True)
+    baker.make("Vinculo", perfil__nome="ADMINISTRADOR_TERCEIRIZADA", ativo=True)
+    baker.make("Vinculo", perfil__nome="NUTRI_ADMIN_RESPONSAVEL", ativo=True)
+    baker.make("Vinculo", perfil__nome="ADMINISTRADOR_DISTRIBUIDORA", ativo=True)
+    baker.make("Vinculo", perfil__nome="ADMINISTRADOR_FORNECEDOR", ativo=True)
 
 
 @pytest.fixture
 def setup_normaliza_vinculos(django_db_setup, django_db_blocker):
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         ativo=True,
         data_inicial=hoje - datetime.timedelta(days=10),
         data_final=hoje - datetime.timedelta(days=5),
         _quantity=3,
     )
-    mommy.make(
+    baker.make(
         "Vinculo",
         ativo=True,
         data_inicial=None,
         data_final=None,
         _quantity=3,
     )
-    mommy.make(
+    baker.make(
         "Vinculo",
         ativo=False,
         data_inicial=hoje - datetime.timedelta(days=5),
         data_final=None,
         _quantity=3,
     )
-    mommy.make(
+    baker.make(
         "Vinculo",
         ativo=False,
         data_inicial=None,
@@ -1151,17 +1151,17 @@ def setup_normaliza_vinculos(django_db_setup, django_db_blocker):
 
 @pytest.fixture
 def setup_unificar_perfis():
-    suplente = mommy.make("Perfil", nome="SUPLENTE")
-    administrador_dre = mommy.make("Perfil", nome="ADMINISTRADOR_DRE")
-    cogestor = mommy.make("Perfil", nome="COGESTOR")
-    cogestor_dre = mommy.make("Perfil", nome="COGESTOR_DRE")
+    suplente = baker.make("Perfil", nome="SUPLENTE")
+    administrador_dre = baker.make("Perfil", nome="ADMINISTRADOR_DRE")
+    cogestor = baker.make("Perfil", nome="COGESTOR")
+    cogestor_dre = baker.make("Perfil", nome="COGESTOR_DRE")
 
-    mommy.make("Vinculo", perfil=suplente, _quantity=2)
-    mommy.make("Vinculo", perfil=administrador_dre, _quantity=2)
-    mommy.make("Vinculo", perfil=cogestor, _quantity=2)
+    baker.make("Vinculo", perfil=suplente, _quantity=2)
+    baker.make("Vinculo", perfil=administrador_dre, _quantity=2)
+    baker.make("Vinculo", perfil=cogestor, _quantity=2)
 
-    perfil_nao_alterado = mommy.make("Perfil", nome="NAO_ALTERADO")
-    mommy.make("Vinculo", perfil=perfil_nao_alterado, _quantity=2)
+    perfil_nao_alterado = baker.make("Perfil", nome="NAO_ALTERADO")
+    baker.make("Vinculo", perfil=perfil_nao_alterado, _quantity=2)
 
 
 def mocked_response_autentica_coresso_adm_ue():
@@ -1336,14 +1336,14 @@ def mocked_response_get_dados_usuario_coresso_sem_acesso_automatico():
 
 @pytest.fixture
 def usuario_administrador_contratos():
-    usuario = mommy.make("Usuario", username="testuser")
-    mommy.make("Cargo", usuario=usuario, ativo=False, nome="Gerente")
-    mommy.make("Cargo", usuario=usuario, ativo=True, nome="Analista")
-    codae = mommy.make("Codae", nome="Codae - Administrador Contratos")
-    mommy.make(
+    usuario = baker.make("Usuario", username="testuser")
+    baker.make("Cargo", usuario=usuario, ativo=False, nome="Gerente")
+    baker.make("Cargo", usuario=usuario, ativo=True, nome="Analista")
+    codae = baker.make("Codae", nome="Codae - Administrador Contratos")
+    baker.make(
         "Vinculo",
         usuario=usuario,
-        perfil=mommy.make("Perfil", nome=ADMINISTRADOR_CONTRATOS),
+        perfil=baker.make("Perfil", nome=ADMINISTRADOR_CONTRATOS),
         ativo=True,
         data_inicial=datetime.date.today(),
         data_final=None,
@@ -1356,14 +1356,14 @@ def usuario_administrador_contratos():
 
 @pytest.fixture
 def usuario_dilog_abastecimento(django_user_model):
-    usuario = mommy.make("Usuario", username="testuser")
-    mommy.make("Cargo", usuario=usuario, ativo=False, nome="Diretor")
-    mommy.make("Cargo", usuario=usuario, ativo=True, nome="Coordenador")
-    codae = mommy.make("Codae", nome="Codae - Dilog")
-    mommy.make(
+    usuario = baker.make("Usuario", username="testuser")
+    baker.make("Cargo", usuario=usuario, ativo=False, nome="Diretor")
+    baker.make("Cargo", usuario=usuario, ativo=True, nome="Coordenador")
+    codae = baker.make("Codae", nome="Codae - Dilog")
+    baker.make(
         "Vinculo",
         usuario=usuario,
-        perfil=mommy.make("Perfil", nome=DILOG_ABASTECIMENTO),
+        perfil=baker.make("Perfil", nome=DILOG_ABASTECIMENTO),
         ativo=True,
         data_inicial=datetime.date.today(),
         data_final=None,

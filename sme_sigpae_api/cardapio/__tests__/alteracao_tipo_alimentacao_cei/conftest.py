@@ -1,7 +1,7 @@
 import datetime
 
 import pytest
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.models import (
     AlteracaoCardapioCEI,
@@ -14,7 +14,7 @@ from sme_sigpae_api.dados_comuns import constants
 
 @pytest.fixture
 def alteracao_cardapio_cei(escola, template_mensagem_alteracao_cardapio):
-    return mommy.make(
+    return baker.make(
         AlteracaoCardapioCEI,
         escola=escola,
         observacao="teste",
@@ -35,9 +35,9 @@ def client_autenticado_vinculo_escola_cei_cardapio(
         username=rf, password=password, email=email, registro_funcional="8888888"
     )
     assert escola_cei.tipo_gestao.nome == "TERC TOTAL"
-    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola_cei,
@@ -45,7 +45,7 @@ def client_autenticado_vinculo_escola_cei_cardapio(
         data_inicial=hoje,
         ativo=True,
     )
-    mommy.make(
+    baker.make(
         GrupoSuspensaoAlimentacao,
         criado_por=user,
         escola=escola_cei,

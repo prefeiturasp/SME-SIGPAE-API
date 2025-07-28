@@ -2,7 +2,7 @@ import datetime
 import json
 
 from django.core.files.uploadedfile import SimpleUploadedFile
-from model_mommy import mommy
+from model_bakery import baker
 from rest_framework import status
 
 from ..models import DiaSuspensaoAtividades, FaixaEtaria, MudancaFaixasEtarias
@@ -389,7 +389,7 @@ def test_url_lotes_actions(client_autenticado_da_dre):
 
 
 def test_url_aluno_actions(client_autenticado_da_dre, escola):
-    aluno = mommy.make(
+    aluno = baker.make(
         "Aluno",
         nome="Fulano da Silva",
         codigo_eol="000001",
