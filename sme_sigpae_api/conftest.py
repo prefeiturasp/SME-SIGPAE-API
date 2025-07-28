@@ -21,6 +21,7 @@ from sme_sigpae_api.cardapio.base.fixtures.factories.base_factory import (
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.fixtures.factories.fabricante_ficha_tecnica_factory import (
     FabricanteFichaTecnicaFactory,
 )
+from sme_sigpae_api.recebimento.fixtures.factories.ocorrencia_ficha_recebimento_factory import OcorrenciaFichaRecebimentoFactory
 from sme_sigpae_api.recebimento.fixtures.factories.questao_ficha_recebimento_factory import (
     QuestaoFichaRecebimentoFactory,
 )
@@ -217,6 +218,7 @@ register(FaixaPontuacaoFactory)
 register(DataDeFabricaoEPrazoFactory)
 register(VeiculoFichaDeRecebimentoFactory)
 register(ArquivoFichaDeRecebimentoFactory)
+register(OcorrenciaFichaRecebimentoFactory)
 register(UtensilioMesaFactory)
 register(UtensilioCozinhaFactory)
 register(EquipamentoFactory)

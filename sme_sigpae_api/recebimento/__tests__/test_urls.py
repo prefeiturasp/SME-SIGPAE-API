@@ -162,7 +162,13 @@ def test_url_ficha_recebimento_rascunho_create_update(
     assert ficha.questoes_conferencia.count() == len(
         payload_ficha_recebimento_rascunho["questoes"]
     )
-    assert len(response_create.json()["questoes_conferencia"]) == 1
+    assert ficha.ocorrencias.count() == len(
+        payload_ficha_recebimento_rascunho["ocorrencias"]
+    )
+    response_data = response_create.json()
+    assert len(response_data["questoes_conferencia"]) == 1
+    assert "ocorrencias" in response_data
+    assert len(response_data["ocorrencias"]) == 2
 
     nova_data_entrega = date.today() + timedelta(days=11)
     payload_ficha_recebimento_rascunho["data_entrega"] = str(nova_data_entrega)
@@ -189,7 +195,13 @@ def test_url_ficha_recebimento_rascunho_create_update(
     assert ficha.questoes_conferencia.count() == len(
         payload_ficha_recebimento_rascunho["questoes"]
     )
-    assert len(response_update.json()["questoes_conferencia"]) == 1
+    assert ficha.ocorrencias.count() == len(
+        payload_ficha_recebimento_rascunho["ocorrencias"]
+    )
+    response_data = response_update.json()
+    assert len(response_data["questoes_conferencia"]) == 1
+    assert "ocorrencias" in response_data
+    assert len(response_data["ocorrencias"]) == 2
 
 
 def test_url_busca_questoes_cronograma(
