@@ -4,6 +4,7 @@ from sme_sigpae_api.recebimento.forms import QuestaoForm
 from sme_sigpae_api.recebimento.models import (
     ArquivoFichaRecebimento,
     FichaDeRecebimento,
+    OcorrenciaFichaRecebimento,
     QuestaoConferencia,
     QuestaoFichaRecebimento,
     QuestoesPorProduto,
@@ -55,6 +56,11 @@ class QuestaoFichaRecebimentoInline(admin.StackedInline):
     extra = 0
 
 
+class OcorrenciaFichaRecebimentoInline(admin.StackedInline):
+    model = OcorrenciaFichaRecebimento
+    extra = 0
+
+
 @admin.register(FichaDeRecebimento)
 class FichaDeRecebimentoAdmin(admin.ModelAdmin):
     list_display = ("__str__", "data_entrega")
@@ -62,4 +68,5 @@ class FichaDeRecebimentoAdmin(admin.ModelAdmin):
         VeiculoFichaDeRecebimentoInline,
         ArquivoFichaRecebimentoInline,
         QuestaoFichaRecebimentoInline,
+        OcorrenciaFichaRecebimentoInline,
     ]
