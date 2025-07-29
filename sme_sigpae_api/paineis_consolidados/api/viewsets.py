@@ -80,7 +80,7 @@ from .constants import (
 )
 
 
-class SolicitacoesViewSet(viewsets.ReadOnlyModelViewSet):
+class SolicitacoesViewSet(viewsets.GenericViewSet):
     permission_classes = (IsAuthenticated,)
 
     @classmethod
