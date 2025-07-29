@@ -767,7 +767,7 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
             if kit_lanche:
                 if kit_lanche.DESCRICAO == "Kit Lanche CEMEI":
                     dia = f"{kit_lanche.data.day:02d}"
-                    numero_alunos = kit_lanche.total_kits
+                    numero_alunos = kit_lanche.total_kits_medicao_inicial
                 else:
                     dia = f"{kit_lanche.solicitacao_kit_lanche.data.day:02d}"
                     numero_alunos = (
