@@ -68,68 +68,6 @@ from .utils import (
 env = environ.Env()
 
 
-def relatorio_filtro_periodo(
-    request, query_set_consolidado, escola_nome="", dre_nome=""
-):
-    # TODO: se query_set_consolidado tiver muitos resultados, pode demorar no front-end
-    # melhor mandar via celery pro email de quem solicitou
-    # ou por padrão manda tudo pro celery
-    request_params = request.GET
-
-    tipo_solicitacao = request_params.get("tipo_solicitacao", "INVALIDO")
-    status_solicitacao = request_params.get("status_solicitacao", "INVALIDO")
-    data_inicial = datetime.datetime.strptime(
-        request_params.get("data_inicial"), "%Y-%m-%d"
-    )
-    data_final = datetime.datetime.strptime(
-        request_params.get("data_final"), "%Y-%m-%d"
-    )
-    filtro = {
-        "tipo_solicitacao": tipo_solicitacao,
-        "status": status_solicitacao,
-        "data_inicial": data_inicial,
-        "data_final": data_final,
-    }
-
-    html_string = render_to_string(
-        "relatorio_filtro.html",
-        {
-            "diretoria_regional_nome": dre_nome,
-            "escola_nome": escola_nome,
-            "filtro": filtro,
-            "query_set_consolidado": query_set_consolidado,
-        },
-    )
-    return html_to_pdf_response(
-        html_string, f"relatorio_filtro_de_{data_inicial}_ate_{data_final}.pdf"
-    )
-
-
-def relatorio_resumo_anual_e_mensal(request, resumos_mes, resumo_ano):
-    meses = range(12)
-    escola_nome = "ESCOLA"
-    dre_nome = "DRE"
-    filtro = {
-        "tipo_solicitacao": "TODOS",
-        "status": "TODOS",
-        "data_inicial": "data_inicial",
-        "data_final": "data_final",
-    }
-
-    html_string = render_to_string(
-        "relatorio_resumo_mes_ano.html",
-        {
-            "diretoria_regional_nome": dre_nome,
-            "escola_nome": escola_nome,
-            "filtro": filtro,
-            "resumos_mes": resumos_mes,
-            "resumo_ano": resumo_ano,
-            "meses": meses,
-        },
-    )
-    return html_to_pdf_response(html_string, "relatorio_resumo_anual_e_mensal.pdf")
-
-
 def relatorio_kit_lanche_unificado(request, solicitacao):
     qtd_escolas = EscolaQuantidade.objects.filter(
         solicitacao_unificada=solicitacao
