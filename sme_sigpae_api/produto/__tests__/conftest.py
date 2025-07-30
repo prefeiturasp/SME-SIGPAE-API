@@ -700,6 +700,13 @@ def produto_logistica(user):
         criado_por=user,
     )
 
+@pytest.fixture
+def produto_edital_rascunho():
+    return {
+        "nome": "PRODUTO DE LOGISTICA",
+        "ativo": "Ativo",
+        "tipo_produto": "LOGISTICA",
+    }
 
 @pytest.fixture
 def arquivo():
