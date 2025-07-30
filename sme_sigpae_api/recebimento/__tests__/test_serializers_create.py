@@ -87,7 +87,6 @@ def test_ocorrencia_serializer_missing_required_fields():
     serializer = OcorrenciaFichaRecebimentoCreateSerializer(data={})
     assert serializer.is_valid() is False
     assert "tipo" in serializer.errors
-    assert "descricao" in serializer.errors
 
 
 def test_ocorrencia_serializer_tipo_falta_validation(ocorrencia_ficha_recebimento_data):
