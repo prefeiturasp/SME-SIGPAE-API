@@ -92,6 +92,10 @@ class ArquivoFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
 
 
 class OcorrenciaFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        self.rascunho = kwargs.pop('rascunho', False)
+        super().__init__(*args, **kwargs)
+
     class Meta:
         model = OcorrenciaFichaRecebimento
         exclude = ("id", "ficha_recebimento")
@@ -127,6 +131,9 @@ class OcorrenciaFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
             })
 
     def validate(self, data):
+        if getattr(self, 'rascunho', False):
+            return data
+
         tipo = data.get('tipo')
         relacao = data.get('relacao')
         numero_nota = data.get('numero_nota')
@@ -174,6 +181,7 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
     ocorrencias = OcorrenciaFichaRecebimentoCreateSerializer(
         many=True,
         required=False,
+        rascunho=True
     )
 
     def create(self, validated_data):
