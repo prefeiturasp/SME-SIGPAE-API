@@ -1411,14 +1411,14 @@ class SolicitacaoDietaEspecialViewSet(
 class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
     serializer_class = SolicitacoesAtivasInativasPorAlunoSerializer
 
-    def list(self, request, *args, **kwargs):
+    @staticmethod
+    def calcular_totais(queryset):
         status_dietas = [
             "CODAE_AUTORIZADO",
             "CODAE_AUTORIZOU_INATIVACAO",
             "TERMINADA_AUTOMATICAMENTE_SISTEMA",
             "CANCELADO_ALUNO_NAO_PERTENCE_REDE",
         ]
-        queryset = self.filter_queryset(self.get_queryset())
         total_ativas = (
             SolicitacaoDietaEspecial.objects.filter(
                 aluno__in=queryset, status__in=["CODAE_AUTORIZADO"], ativo=True
@@ -1433,6 +1433,11 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
             .distinct()
             .count()
         )
+        return total_ativas, total_inativas
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        total_ativas, total_inativas = self.calcular_totais(queryset)
 
         tem_parametro_page = request.GET.get("page", False)
 
