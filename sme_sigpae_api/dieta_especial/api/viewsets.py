@@ -1446,7 +1446,7 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
         queryset = self.filter_queryset(self.get_queryset())
         total_ativas = (
             SolicitacaoDietaEspecial.objects.filter(
-                aluno__in=queryset, status__in=status_dietas, ativo=True
+                aluno__in=queryset, status__in=["CODAE_AUTORIZADO"], ativo=True
             )
             .distinct()
             .count()
