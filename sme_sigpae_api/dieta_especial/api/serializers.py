@@ -394,7 +394,12 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
 
     def get_ativas(self, obj):
         return obj.dietas_especiais.filter(
-            status__in=["CODAE_AUTORIZADO"],
+            status__in=[
+                "CODAE_AUTORIZADO",
+                "CODAE_AUTORIZOU_INATIVACAO",
+                "TERMINADA_AUTOMATICAMENTE_SISTEMA",
+                "CANCELADO_ALUNO_NAO_PERTENCE_REDE",
+            ],
             ativo=True,
         ).count()
 
