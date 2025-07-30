@@ -40,3 +40,4 @@ def test_produto_erro_nome_duplicado_create(produto_logistica):
     with pytest.raises(serializers.ValidationError) as excinfo:
         serializer.save()
     assert "Item já cadastrado" in str(excinfo.value)
+    
