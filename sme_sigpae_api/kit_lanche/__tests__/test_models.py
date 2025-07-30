@@ -323,6 +323,7 @@ def test_kit_lanche_cemei(kit_lanche_cemei):
     assert kit_lanche_cemei.tem_solicitacao_cei is True
     assert kit_lanche_cemei.tem_solicitacao_emei is True
     assert kit_lanche_cemei.total_kits == 120
+    assert kit_lanche_cemei.total_kits_medicao_inicial == 30
 
     solicitacao_cei = kit_lanche_cemei.solicitacao_cei
     assert solicitacao_cei.nomes_kits == "KIT 1, KIT 2, KIT 3"

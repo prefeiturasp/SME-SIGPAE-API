@@ -370,9 +370,10 @@ NOMES_CAMPOS = {
 ORDEM_UNIDADES_GRUPO_EMEF = {
     "EMEF": 1,
     "EMEFM": 2,
-    "CIEJA": 3,
-    "CEU GESTAO": 4,
-    "CEU EMEF": 5,
+    "EMEF P FOM": 3,
+    "CIEJA": 4,
+    "CEU GESTAO": 5,
+    "CEU EMEF": 6,
 }
 
 ORDEM_UNIDADES_GRUPO_EMEI = {

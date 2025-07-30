@@ -768,6 +768,16 @@ class SolicitacaoKitLancheCEMEI(
         return total
 
     @property
+    def total_kits_medicao_inicial(self):
+        """
+        Para Medição Inicial, os kits CEI não são contabilizados e pagos.
+        """
+        total = 0
+        if self.tem_solicitacao_emei:
+            total += self.solicitacao_emei.quantidade_alimentacoes
+        return total
+
+    @property
     def quantidade_alimentacoes(self):
         return self.total_kits
 
