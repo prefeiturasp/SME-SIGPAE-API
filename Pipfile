@@ -51,7 +51,7 @@ pytz= "==2025.2"  # https://github.com/stub42/pytz
 python-slugify= "==8.0.4"  # https://github.com/un33k/python-slugify
 pillow= "==11.3.0"  # https://github.com/python-pillow/Pillow
 argon2-cffi= "==25.1.0"  # https://github.com/hynek/argon2_cffi
-redis= "==6.2.0"  # https://github.com/antirez/redis
+redis= "==5.2.1"  # https://github.com/antirez/redis
 django-xworkflows="==1.0.0" # https://github.com/rbarrois/django_xworkflows
 drf_base64="==2.0" # https://pypi.org/project/drf_base64/
 pandas="==2.3.1" # https://github.com/pandas-dev/pandas/
