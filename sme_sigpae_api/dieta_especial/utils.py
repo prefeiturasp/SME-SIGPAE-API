@@ -1228,3 +1228,128 @@ def _parse_data(valor: str, campo: str) -> datetime:
         raise ValidationError(
             f"Formato de data inválido para '{campo}'. Use o formato dd/mm/yyyy"
         )
+
+
+def update_de_teste(instance, dados_request):
+    dados_instancia = {
+        "alergias_intolerancias": list(
+            instance.alergias_intolerancias.values_list("id", flat=True)
+        ),
+        "classificacao": (
+            int(instance.classificacao.id) if instance.classificacao else None
+        ),
+        "protocolo_padrao": (
+            str(instance.protocolo_padrao.uuid) if instance.protocolo_padrao else None
+        ),
+        "orientacoes_gerais": instance.orientacoes_gerais,
+        "informacoes_adicionais": instance.informacoes_adicionais,
+        "registro_funcional_nutricionista": instance.registro_funcional_nutricionista,
+        "nome_protocolo": instance.nome_protocolo,
+        "substituicoes": list(
+            instance.substituicaoalimento_set.values(
+                "alimento", "tipo", "alimentos_substitutos__uuid"
+            )
+        ),
+    }
+
+    dados_request["classificacao"] = int(dados_request["classificacao"])
+    alteracoes = {}
+    texto = ""
+    campos_para_comparar = [
+        "classificacao",
+        "protocolo_padrao",
+        "orientacoes_gerais",
+        "informacoes_adicionais",
+        "registro_funcional_nutricionista",
+        "nome_protocolo",
+    ]
+
+    for campo in campos_para_comparar:
+        valor_atual = dados_instancia.get(campo)
+        valor_novo = dados_request.get(campo)
+
+        if valor_atual != valor_novo:
+            alteracoes[campo] = {"de": valor_atual, "para": valor_novo}
+
+    alergias_atuais = set(dados_instancia["alergias_intolerancias"])
+    alergias_novas = set(map(int, dados_request["alergias_intolerancias"]))
+
+    if alergias_atuais != alergias_novas:
+        alteracoes["alergias_intolerancias"] = {
+            "de": list(alergias_atuais),
+            "para": list(alergias_novas),
+        }
+
+    substituicoes_alteracoes = _comparar_substituicoes(
+        dados_instancia["substituicoes"], dados_request["substituicoes"]
+    )
+
+    if substituicoes_alteracoes:
+        alteracoes["substituicoes"] = substituicoes_alteracoes
+
+    if alteracoes:
+        texto = _registrar_log_alteracoes(alteracoes)
+
+    return texto
+
+
+def normalizar_substituicao(sub):
+    if "alimentos_substitutos__uuid" in sub:
+        substituto = str(sub["alimentos_substitutos__uuid"])
+    elif "substitutos" in sub:
+        substituto = sub["substitutos"][0]
+
+    return {
+        "alimento": str(sub["alimento"]),
+        "tipo": sub["tipo"],
+        "substitutos": substituto,
+    }
+
+
+def _comparar_substituicoes(substituicoes_atuais, substituicoes_novas):
+    atuais_normalizadas = [normalizar_substituicao(s) for s in substituicoes_atuais]
+    novas_normalizadas = [normalizar_substituicao(s) for s in substituicoes_novas]
+
+    alteracoes = []
+
+    for sub in atuais_normalizadas:
+        if sub not in novas_normalizadas:
+            alteracoes.append({"tipo": "ITEM EXCLUÍDO", "dados": sub})
+
+    for sub in novas_normalizadas:
+        if sub not in atuais_normalizadas:
+            alteracoes.append({"tipo": "ITEM INCLUÍDO", "dados": sub})
+
+    for sub_atual in atuais_normalizadas:
+        for sub_novo in novas_normalizadas:
+            if sub_atual["alimento"] == sub_novo["alimento"] and sub_atual != sub_novo:
+                alteracoes.append({"tipo": "ITEM ALTERADO DE", "dados": sub_atual})
+                alteracoes.append({"tipo": "ITEM ALTERADO PARA", "dados": sub_novo})
+
+    return alteracoes if alteracoes else None
+
+
+def _registrar_log_alteracoes(alteracoes):
+    processed_data = {}
+
+    for campo, mudanca in alteracoes.items():
+        if campo != "substituicoes":
+            processed_data[campo] = {"de": mudanca["de"], "para": mudanca["para"]}
+
+    if "substituicoes" in alteracoes:
+        processed_data["substituicoes"] = [
+            {
+                "tipo": sub["tipo"],
+                "dados": {
+                    "alimento": sub["dados"]["alimento"],
+                    "tipo": sub["dados"]["tipo"],
+                    "substitutos": sub["dados"]["substitutos"],
+                },
+            }
+            for sub in alteracoes["substituicoes"]
+        ]
+
+    return render_to_string(
+        "dieta_especial/historico_atualizacao_dieta.html",
+        {"alteracoes": processed_data},
+    )
