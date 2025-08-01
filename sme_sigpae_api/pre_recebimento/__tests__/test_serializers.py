@@ -2,28 +2,28 @@ import pytest
 from django.conf import settings
 from django.utils import timezone
 from freezegun import freeze_time
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.pre_recebimento.base.api.serializers.serializer_create import (
     UnidadeMedidaCreateSerializer,
 )
+from sme_sigpae_api.pre_recebimento.base.api.serializers.serializers import (
+    UnidadeMedidaSerialzer,
+)
+from sme_sigpae_api.pre_recebimento.base.models import UnidadeMedida
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializer_create import (
     CronogramaCreateSerializer,
     novo_numero_solicitacao,
-)
-from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
-    DocRecebimentoDetalharSerializer,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     EtapasDoCronogramaCalendarioSerializer,
     EtapasDoCronogramaSerializer,
     PainelCronogramaSerializer,
 )
-from sme_sigpae_api.pre_recebimento.base.api.serializers.serializers import (
-    UnidadeMedidaSerialzer,
-)
-from sme_sigpae_api.pre_recebimento.base.models import UnidadeMedida
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
+from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
+    DocRecebimentoDetalharSerializer,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -172,7 +172,7 @@ def test_etapas_do_cronograma_calendario_serializer(
 
 
 def test_doc_recebimento_serializer_pregao_chamada_publica(cronograma_chamada_publica):
-    doc_recebimento = mommy.make(
+    doc_recebimento = baker.make(
         "DocumentoDeRecebimento", cronograma=cronograma_chamada_publica
     )
 
@@ -189,7 +189,7 @@ def test_doc_recebimento_serializer_pregao_chamada_publica(cronograma_chamada_pu
 
 
 def test_doc_recebimento_serializer_pregao_eletronico(cronograma_recebido):
-    doc_recebimento = mommy.make(
+    doc_recebimento = baker.make(
         "DocumentoDeRecebimento", cronograma=cronograma_recebido
     )
 
@@ -203,7 +203,7 @@ def test_doc_recebimento_serializer_pregao_eletronico(cronograma_recebido):
 
 
 def test_doc_recebimento_serializer_qualquer_modalidade(cronograma_qualquer):
-    doc_recebimento = mommy.make(
+    doc_recebimento = baker.make(
         "DocumentoDeRecebimento", cronograma=cronograma_qualquer
     )
 

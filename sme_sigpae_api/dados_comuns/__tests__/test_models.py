@@ -1,6 +1,6 @@
 import pytest
 from django.contrib import admin
-from model_mommy import mommy
+from model_bakery import baker
 
 from ..models import CentralDeDownload, Notificacao
 
@@ -9,7 +9,7 @@ pytestmark = pytest.mark.django_db
 
 def test_template_mensagem(template_mensagem):
     params, esperado = template_mensagem
-    template = mommy.make(**params)
+    template = baker.make(**params)
     assert isinstance(template.assunto, str)
     assert isinstance(template.template_html, str)
 

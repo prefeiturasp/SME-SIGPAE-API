@@ -52,7 +52,8 @@ def test_atualiza_alunos_escolas(mock_call_command):
 
 def test_atualiza_codigo_codae_das_escolas_task(codigo_codae_das_escolas, tmp_path):
     escola1, escola2, planilha = codigo_codae_das_escolas
-    caminho_arquivo_escola = tmp_path / f"{uuid.uuid4()}.xlsx"
+    temp_file = tmp_path / f"{uuid.uuid4()}.xlsx"
+    caminho_arquivo_escola = str(temp_file)
     cria_arquivo_excel(
         caminho_arquivo_escola,
         [
@@ -73,7 +74,7 @@ def test_atualiza_codigo_codae_das_escolas_task(codigo_codae_das_escolas, tmp_pa
         os.remove(caminho_arquivo_escola)
 
 
-def test_atualiza_tipo_gestao_das_escolas_task(tipo_gestao_das_escolas):
+def test_atualiza_tipo_gestao_das_escolas_task(tipo_gestao_das_escolas, tmp_path):
     (
         escola1,
         escola2,

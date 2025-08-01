@@ -8,7 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.template.loader import render_to_string
 from django.test import RequestFactory
 from faker import Faker
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.api.paginations import HistoricoDietasPagination
@@ -194,7 +194,7 @@ def template_mensagem(request):
 
 @pytest.fixture
 def template_mensagem_obj():
-    return mommy.make(TemplateMensagem, tipo=TemplateMensagem.ALTERACAO_CARDAPIO)
+    return baker.make(TemplateMensagem, tipo=TemplateMensagem.ALTERACAO_CARDAPIO)
 
 
 @pytest.fixture(autouse=True)
@@ -204,7 +204,7 @@ def enable_db_access_for_all_tests(db):
 
 @pytest.fixture
 def validators_models_object():
-    return mommy.make("dados_comuns.TemplateMensagem", assunto="TESTE")
+    return baker.make("dados_comuns.TemplateMensagem", assunto="TESTE")
 
 
 @pytest.fixture
@@ -214,28 +214,28 @@ def validators_valor_str():
 
 @pytest.fixture
 def tipo_unidade():
-    return mommy.make("TipoUnidadeEscolar", iniciais="EMEF")
+    return baker.make("TipoUnidadeEscolar", iniciais="EMEF")
 
 
 @pytest.fixture
 def diretoria_regional():
-    return mommy.make("DiretoriaRegional", nome="DIRETORIA REGIONAL IPIRANGA")
+    return baker.make("DiretoriaRegional", nome="DIRETORIA REGIONAL IPIRANGA")
 
 
 @pytest.fixture
 def escola(tipo_unidade, diretoria_regional):
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make(
         "Lote",
         terceirizada=terceirizada,
         nome="LOTE 07",
         diretoria_regional=diretoria_regional,
     )
-    tipo_gestao = mommy.make(
+    tipo_gestao = baker.make(
         "TipoGestao",
         nome="TERC TOTAL",
     )
-    escola = mommy.make(
+    escola = baker.make(
         "Escola",
         lote=lote,
         nome="EMEF JOAO MENDES",
@@ -249,13 +249,13 @@ def escola(tipo_unidade, diretoria_regional):
 
 @pytest.fixture
 def dia_suspensao_atividades(escola):
-    edital = mommy.make("Edital", numero="78/SME/2023")
-    contrato = mommy.make(
+    edital = baker.make("Edital", numero="78/SME/2023")
+    contrato = baker.make(
         "Contrato", edital=edital, terceirizada=escola.lote.terceirizada
     )
     contrato.lotes.add(escola.lote)
     contrato.save()
-    return mommy.make(
+    return baker.make(
         "DiaSuspensaoAtividades",
         tipo_unidade=escola.tipo_unidade,
         edital=edital,
@@ -322,19 +322,19 @@ def client_autenticado_coordenador_codae(client, django_user_model):
     )
     client.login(username=email, password=password)
 
-    codae = mommy.make(
+    codae = baker.make(
         "Codae", nome="CODAE", uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd"
     )
 
-    perfil_coordenador = mommy.make(
+    perfil_coordenador = baker.make(
         "Perfil",
         nome="COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA",
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
     )
-    mommy.make("Lote", uuid="143c2550-8bf0-46b4-b001-27965cfcd107")
+    baker.make("Lote", uuid="143c2550-8bf0-46b4-b001-27965cfcd107")
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -350,7 +350,7 @@ def client_autenticado_coordenador_codae(client, django_user_model):
 def user_diretor_escola(django_user_model, escola):
     email = "user@escola.com"
     password = "admin@123"
-    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email,
         password=password,
@@ -358,7 +358,7 @@ def user_diretor_escola(django_user_model, escola):
         registro_funcional="123456",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=escola,
@@ -380,12 +380,12 @@ def client_autenticado_da_escola(client, user_diretor_escola):
 def usuario_da_dre(django_user_model, diretoria_regional):
     email = "user@dre.com"
     password = DJANGO_ADMIN_PASSWORD
-    perfil_cogestor_dre = mommy.make("Perfil", nome="COGESTOR_DRE", ativo=True)
+    perfil_cogestor_dre = baker.make("Perfil", nome="COGESTOR_DRE", ativo=True)
     usuario = django_user_model.objects.create_user(
         password=password, username=email, email=email, registro_funcional="123456"
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=diretoria_regional,
@@ -410,10 +410,10 @@ def usuario_teste_notificacao_autenticado(client, django_user_model):
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_admin_dilog = mommy.make("Perfil", nome=COORDENADOR_LOGISTICA, ativo=True)
-    codae = mommy.make("Codae")
+    perfil_admin_dilog = baker.make("Perfil", nome=COORDENADOR_LOGISTICA, ativo=True)
+    codae = baker.make("Codae")
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -430,7 +430,7 @@ def usuario_teste_notificacao_autenticado(client, django_user_model):
 def user_administrador_medicao(django_user_model, escola):
     email = "user@escola.com"
     password = "admin@123"
-    perfil_admin_medicao = mommy.make(
+    perfil_admin_medicao = baker.make(
         "Perfil", nome="ADMINISTRADOR_MEDICAO", ativo=True
     )
     usuario = django_user_model.objects.create_user(
@@ -440,7 +440,7 @@ def user_administrador_medicao(django_user_model, escola):
         registro_funcional="123456",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=escola,
@@ -461,7 +461,7 @@ def client_autenticado_medicao(client, user_administrador_medicao):
 @pytest.fixture
 def notificacao(usuario_teste_notificacao_autenticado):
     user, client = usuario_teste_notificacao_autenticado
-    return mommy.make(
+    return baker.make(
         "Notificacao",
         tipo=Notificacao.TIPO_NOTIFICACAO_ALERTA,
         categoria=Notificacao.CATEGORIA_NOTIFICACAO_REQUISICAO_DE_ENTREGA,
@@ -475,7 +475,7 @@ def notificacao(usuario_teste_notificacao_autenticado):
 @pytest.fixture
 def notificacao_de_pendencia(usuario_teste_notificacao_autenticado):
     user, client = usuario_teste_notificacao_autenticado
-    return mommy.make(
+    return baker.make(
         "Notificacao",
         tipo=Notificacao.TIPO_NOTIFICACAO_PENDENCIA,
         categoria=Notificacao.CATEGORIA_NOTIFICACAO_GUIA_DE_REMESSA,
@@ -487,13 +487,13 @@ def notificacao_de_pendencia(usuario_teste_notificacao_autenticado):
 
 @pytest.fixture
 def notificacao_de_pendencia_com_requisicao(usuario_teste_notificacao_autenticado):
-    distribuidor = mommy.make(
+    distribuidor = baker.make(
         "Terceirizada",
-        contatos=[mommy.make("dados_comuns.Contato")],
+        contatos=[baker.make("dados_comuns.Contato")],
         make_m2m=True,
         nome_fantasia="Alimentos SA",
     )
-    requisicao = mommy.make(
+    requisicao = baker.make(
         "SolicitacaoRemessa",
         cnpj="12345678901234",
         numero_solicitacao="559890",
@@ -502,7 +502,7 @@ def notificacao_de_pendencia_com_requisicao(usuario_teste_notificacao_autenticad
         distribuidor=distribuidor,
     )
     user, client = usuario_teste_notificacao_autenticado
-    return mommy.make(
+    return baker.make(
         "Notificacao",
         tipo=Notificacao.TIPO_NOTIFICACAO_PENDENCIA,
         categoria=Notificacao.CATEGORIA_NOTIFICACAO_GUIA_DE_REMESSA,
@@ -521,7 +521,7 @@ def arquivo():
 @pytest.fixture
 def download(usuario_teste_notificacao_autenticado, arquivo):
     user, client = usuario_teste_notificacao_autenticado
-    return mommy.make(
+    return baker.make(
         "CentralDeDownload",
         status=CentralDeDownload.STATUS_CONCLUIDO,
         identificador="teste.pdf",
@@ -564,14 +564,14 @@ def data_maior_que_hoje():
 
 @pytest.fixture
 def escola_cei():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = mommy.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
-    return mommy.make(
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
+    return baker.make(
         "Escola",
         nome="CEI DIRET TESTE",
         lote=lote,
@@ -583,7 +583,7 @@ def escola_cei():
 
 @pytest.fixture
 def periodo_escolar():
-    return mommy.make(models.PeriodoEscolar, nome="INTEGRAL")
+    return baker.make(models.PeriodoEscolar, nome="INTEGRAL")
 
 
 @pytest.fixture
@@ -593,14 +593,14 @@ def logs_alunos_matriculados_periodo_escola(escola, periodo_escolar):
     quatro_dias_atras = hoje - datetime.timedelta(days=4)
     quantidades = [10, 10]
     for quantidade in quantidades:
-        mommy.make(
+        baker.make(
             models.LogAlunosMatriculadosPeriodoEscola,
             escola=escola,
             periodo_escolar=periodo_escolar,
             quantidade_alunos=quantidade,
             tipo_turma=models.TipoTurma.REGULAR.name,
         )
-    mommy.make(
+    baker.make(
         models.LogAlunosMatriculadosPeriodoEscola,
         escola=escola,
         periodo_escolar=periodo_escolar,
@@ -620,9 +620,9 @@ def logs_quantidade_dietas_autorizadas_escola_comum(escola, periodo_escolar):
     ontem = hoje - datetime.timedelta(days=1)
     tres_dias_atras = hoje - datetime.timedelta(days=3)
     quantidades = [10, 10]
-    classificacao = mommy.make(ClassificacaoDieta, nome="Tipo A")
+    classificacao = baker.make(ClassificacaoDieta, nome="Tipo A")
     for quantidade in quantidades:
-        mommy.make(
+        baker.make(
             LogQuantidadeDietasAutorizadas,
             quantidade=quantidade,
             escola=escola,
@@ -630,7 +630,7 @@ def logs_quantidade_dietas_autorizadas_escola_comum(escola, periodo_escolar):
             classificacao=classificacao,
             periodo_escolar=periodo_escolar,
         )
-    mommy.make(
+    baker.make(
         LogQuantidadeDietasAutorizadas,
         quantidade=50,
         escola=escola,
@@ -643,14 +643,14 @@ def logs_quantidade_dietas_autorizadas_escola_comum(escola, periodo_escolar):
 
 @pytest.fixture
 def escola_cemei():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = mommy.make("TipoUnidadeEscolar", iniciais="CEMEI")
-    return mommy.make(
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    return baker.make(
         "Escola",
         nome="CEMEI TESTE",
         lote=lote,
@@ -673,7 +673,7 @@ def faixas_etarias_ativas():
         (48, 72),
     ]
     return [
-        mommy.make("FaixaEtaria", inicio=inicio, fim=fim, ativo=True)
+        baker.make("FaixaEtaria", inicio=inicio, fim=fim, ativo=True)
         for (inicio, fim) in faixas
     ]
 
@@ -686,9 +686,9 @@ def logs_quantidade_dietas_autorizadas_escola_cei(
     ontem = hoje - datetime.timedelta(days=1)
     quatro_dias_atras = hoje - datetime.timedelta(days=4)
     quantidades = [15, 15]
-    classificacao = mommy.make(ClassificacaoDieta, nome="Tipo B")
+    classificacao = baker.make(ClassificacaoDieta, nome="Tipo B")
     for quantidade in quantidades:
-        mommy.make(
+        baker.make(
             LogQuantidadeDietasAutorizadasCEI,
             quantidade=quantidade,
             escola=escola_cei,
@@ -697,7 +697,7 @@ def logs_quantidade_dietas_autorizadas_escola_cei(
             periodo_escolar=periodo_escolar,
             faixa_etaria=faixas_etarias_ativas[0],
         )
-    mommy.make(
+    baker.make(
         LogQuantidadeDietasAutorizadasCEI,
         quantidade=50,
         escola=escola_cei,
@@ -717,9 +717,9 @@ def logs_quantidade_dietas_autorizadas_escola_cemei(
     dois_dias_atras = hoje - datetime.timedelta(days=2)
     quatro_dias_atras = hoje - datetime.timedelta(days=5)
     quantidades = [25, 25]
-    classificacao = mommy.make(ClassificacaoDieta, nome="Tipo C")
+    classificacao = baker.make(ClassificacaoDieta, nome="Tipo C")
     for quantidade in quantidades:
-        mommy.make(
+        baker.make(
             LogQuantidadeDietasAutorizadasCEI,
             quantidade=quantidade,
             escola=escola_cemei,
@@ -728,7 +728,7 @@ def logs_quantidade_dietas_autorizadas_escola_cemei(
             periodo_escolar=periodo_escolar,
             faixa_etaria=faixas_etarias_ativas[2],
         )
-    mommy.make(
+    baker.make(
         LogQuantidadeDietasAutorizadasCEI,
         quantidade=50,
         escola=escola_cemei,
@@ -742,7 +742,7 @@ def logs_quantidade_dietas_autorizadas_escola_cemei(
 
 @pytest.fixture
 def obj_central_download():
-    return mommy.make("CentralDeDownload")
+    return baker.make("CentralDeDownload")
 
 
 @pytest.fixture
@@ -770,15 +770,15 @@ def user_codae_produto(django_user_model):
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_admin_gestao_produto = mommy.make(
+    perfil_admin_gestao_produto = baker.make(
         "Perfil",
         nome=constants.ADMINISTRADOR_GESTAO_PRODUTO,
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf2",
     )
     hoje = datetime.date.today()
-    codae = mommy.make("Codae")
-    mommy.make(
+    codae = baker.make("Codae")
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -796,7 +796,7 @@ def reclamacao_produto(django_user_model):
     usuario = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888881"
     )
-    return mommy.make(
+    return baker.make(
         "ReclamacaoDeProduto",
         criado_por=usuario,
         status=ReclamacaoProdutoWorkflow.RESPONDIDO_TERCEIRIZADA,
@@ -859,15 +859,15 @@ def parser_xml():
 
 @pytest.fixture
 def solicitacoes_abertas():
-    mommy.make(
+    baker.make(
         "SolicitacaoAberta",
         datetime_ultimo_acesso=datetime.datetime(2025, 2, 5, 12, 34, 54),
     )
-    mommy.make(
+    baker.make(
         "SolicitacaoAberta",
         datetime_ultimo_acesso=datetime.datetime(2025, 2, 10, 9, 18, 12),
     )
-    solictacao = mommy.make(
+    solictacao = baker.make(
         "SolicitacaoAberta",
         datetime_ultimo_acesso=datetime.datetime(2025, 2, 10, 16, 28, 50),
     )
@@ -881,15 +881,15 @@ def user_admin_contratos(django_user_model):
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="9888888"
     )
-    codae = mommy.make("Codae", nome="Codae - Administrador Contratos")
-    perfil_admin_contratos = mommy.make(
+    codae = baker.make("Codae", nome="Codae - Administrador Contratos")
+    perfil_admin_contratos = baker.make(
         "Perfil",
         nome=constants.ADMINISTRADOR_CONTRATOS,
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf2",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -909,15 +909,15 @@ def user_dilog_abastecimento(django_user_model):
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    codae = mommy.make("Codae", nome="Codae - Dilog")
-    perfil_dilog_abastecimento = mommy.make(
+    codae = baker.make("Codae", nome="Codae - Dilog")
+    perfil_dilog_abastecimento = baker.make(
         "Perfil",
         nome=constants.DILOG_ABASTECIMENTO,
         ativo=True,
         uuid="c204e9e2-5435-4b57-b0c5-c8fd0ea67b7b",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -940,18 +940,18 @@ def paginacao_historico_dietas():
 
 @pytest.fixture
 def solicitacao_substituicao_cardapio(escola):
-    motivo = mommy.make(
+    motivo = baker.make(
         "MotivoAlteracaoCardapio", nome="Aniversariantes do mês", uuid=fake.uuid4()
     )
-    periodo_escolar_integral = mommy.make(
+    periodo_escolar_integral = baker.make(
         models.PeriodoEscolar, nome="INTEGRAL", uuid=fake.uuid4()
     )
-    periodo_escolar_manha = mommy.make(
+    periodo_escolar_manha = baker.make(
         models.PeriodoEscolar, nome="MANHA", uuid=fake.uuid4()
     )
     data_inicial = datetime.date(2024, 3, 1)
     data_final = datetime.date(2024, 3, 31)
-    alteracao_cardapio = mommy.make(
+    alteracao_cardapio = baker.make(
         "AlteracaoCardapio",
         escola=escola,
         motivo=motivo,
@@ -960,7 +960,7 @@ def solicitacao_substituicao_cardapio(escola):
         status=PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR,
         uuid=fake.uuid4(),
     )
-    mommy.make(
+    baker.make(
         "SubstituicaoAlimentacaoNoPeriodoEscolar",
         alteracao_cardapio=alteracao_cardapio,
         periodo_escolar=periodo_escolar_integral,
@@ -979,17 +979,17 @@ def solicitacao_substituicao_cardapio(escola):
 
 @pytest.fixture
 def solicitacao_substituicao_cardapio_cei(escola):
-    motivo = mommy.make(
+    motivo = baker.make(
         "MotivoAlteracaoCardapio", nome="Aniversariantes do mês", uuid=fake.uuid4()
     )
-    periodo_escolar_integral = mommy.make(
+    periodo_escolar_integral = baker.make(
         models.PeriodoEscolar, nome="INTEGRAL", uuid=fake.uuid4()
     )
-    periodo_escolar_manha = mommy.make(
+    periodo_escolar_manha = baker.make(
         models.PeriodoEscolar, nome="MANHA", uuid=fake.uuid4()
     )
     data = datetime.date(2024, 3, 1)
-    alteracao_cardapio = mommy.make(
+    alteracao_cardapio = baker.make(
         "AlteracaoCardapioCEI",
         escola=escola,
         motivo=motivo,
@@ -997,7 +997,7 @@ def solicitacao_substituicao_cardapio_cei(escola):
         status=PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR,
         uuid=fake.uuid4(),
     )
-    mommy.make(
+    baker.make(
         "SubstituicaoAlimentacaoNoPeriodoEscolarCEI",
         alteracao_cardapio=alteracao_cardapio,
         periodo_escolar=periodo_escolar_integral,
@@ -1016,7 +1016,7 @@ def solicitacao_substituicao_cardapio_cei(escola):
 
 @pytest.fixture
 def motivo_alteracao_cardapio_lanche_emergencial():
-    return mommy.make(
+    return baker.make(
         "MotivoAlteracaoCardapio",
         nome="Lanche Emergencial",
         uuid="1ddec320-cd24-4cf4-9666-3e7b3a2b903c",
@@ -1025,7 +1025,7 @@ def motivo_alteracao_cardapio_lanche_emergencial():
 
 @pytest.fixture
 def escola_cemei_1():
-    return mommy.make(
+    return baker.make(
         "Escola",
         uuid="1fc5fca2-2694-4781-be65-8331716c74a0",
         tipo_gestao__nome="TERC TOTAL",
@@ -1034,22 +1034,22 @@ def escola_cemei_1():
 
 @pytest.fixture
 def tipo_alimentacao_refeicao():
-    return mommy.make("cardapio.TipoAlimentacao", nome="Refeição")
+    return baker.make("cardapio.TipoAlimentacao", nome="Refeição")
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche():
-    return mommy.make("cardapio.TipoAlimentacao", nome="Lanche")
+    return baker.make("cardapio.TipoAlimentacao", nome="Lanche")
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
-    return mommy.make("cardapio.TipoAlimentacao", nome="Lanche Emergencial")
+    return baker.make("cardapio.TipoAlimentacao", nome="Lanche Emergencial")
 
 
 @pytest.fixture
 def periodo_manha():
-    return mommy.make(
+    return baker.make(
         "escola.PeriodoEscolar",
         nome="MANHA",
         uuid="42325516-aebd-4a3d-97c0-2a77c317c6be",
@@ -1058,7 +1058,7 @@ def periodo_manha():
 
 @pytest.fixture
 def periodo_tarde():
-    return mommy.make(
+    return baker.make(
         "escola.PeriodoEscolar",
         nome="TARDE",
         uuid="88966d6a-f9d5-4986-9ffb-25b6f41b0795",
@@ -1073,7 +1073,7 @@ def alteracao_cemei(
     tipo_alimentacao_lanche_emergencial,
     periodo_manha,
 ):
-    alteracao_cemei = mommy.make(
+    alteracao_cemei = baker.make(
         "AlteracaoCardapioCEMEI",
         escola=escola_cemei_1,
         alunos_cei_e_ou_emei="EMEI",
@@ -1081,7 +1081,7 @@ def alteracao_cemei(
         motivo=motivo_alteracao_cardapio_lanche_emergencial,
         status="CODAE_AUTORIZADO",
     )
-    subs1 = mommy.make(
+    subs1 = baker.make(
         "SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI",
         alteracao_cardapio=alteracao_cemei,
         periodo_escolar=periodo_manha,
@@ -1089,7 +1089,7 @@ def alteracao_cemei(
     subs1.tipos_alimentacao_de.set([tipo_alimentacao_refeicao])
     subs1.tipos_alimentacao_para.set([tipo_alimentacao_lanche_emergencial])
     subs1.save()
-    mommy.make(
+    baker.make(
         "DataIntervaloAlteracaoCardapioCEMEI",
         data="2025-04-28",
         alteracao_cardapio_cemei=alteracao_cemei,
@@ -1104,9 +1104,9 @@ def client_autenticado_vinculo_escola_cemei(client, django_user_model, escola_ce
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888889"
     )
-    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola_cemei_1,
@@ -1129,7 +1129,7 @@ def lotes():
 
 @pytest.fixture
 def solicitacao_sem_lancamento(escola):
-    return mommy.make(
+    return baker.make(
         "SolicitacaoMedicaoInicial",
         escola=escola,
         mes="04",
@@ -1141,10 +1141,10 @@ def solicitacao_sem_lancamento(escola):
 @pytest.fixture
 def medicao_sem_lancamento(solicitacao_sem_lancamento):
 
-    return mommy.make(
+    return baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_sem_lancamento,
-        periodo_escolar=mommy.make("PeriodoEscolar", nome="MANHA"),
+        periodo_escolar=baker.make("PeriodoEscolar", nome="MANHA"),
         status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
         grupo=None,
     )

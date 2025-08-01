@@ -1,5 +1,5 @@
 import pytest
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create import (
     SuspensaoAlimentacaodeCEICreateSerializer,
@@ -13,7 +13,7 @@ pytestmark = pytest.mark.django_db
 
 def test_suspensao_alimentacao_cei_creators(suspensao_alimentacao_cei_params, escola):
     class FakeObject(object):
-        user = mommy.make("perfil.Usuario")
+        user = baker.make("perfil.Usuario")
 
     motivo, data_create, data_update = suspensao_alimentacao_cei_params
 
@@ -33,7 +33,7 @@ def test_suspensao_alimentacao_cei_creators(suspensao_alimentacao_cei_params, es
     assert resp_create.data == data_create
     assert resp_create.motivo.nome == "outro"
 
-    motivo = mommy.make("cardapio.MotivoSuspensao", nome="motivo")
+    motivo = baker.make("cardapio.MotivoSuspensao", nome="motivo")
 
     validated_data_update = dict(
         escola=escola, motivo=motivo, outro_motivo="", data=data_update

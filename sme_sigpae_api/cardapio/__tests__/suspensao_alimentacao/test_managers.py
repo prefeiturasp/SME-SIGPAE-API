@@ -1,6 +1,6 @@
 import pytest
 from freezegun import freeze_time
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
@@ -15,8 +15,8 @@ def test_manager_suspensao_alimentacao_deste_mes(
     suspensao_alimentacao_parametros_mes, escola
 ):
     data_evento, _ = suspensao_alimentacao_parametros_mes
-    grupo_suspensoes = mommy.make(GrupoSuspensaoAlimentacao, escola=escola)
-    mommy.make(SuspensaoAlimentacao, data=data_evento, grupo_suspensao=grupo_suspensoes)
+    grupo_suspensoes = baker.make(GrupoSuspensaoAlimentacao, escola=escola)
+    baker.make(SuspensaoAlimentacao, data=data_evento, grupo_suspensao=grupo_suspensoes)
     assert grupo_suspensoes in GrupoSuspensaoAlimentacao.deste_mes.all()
 
 
@@ -25,6 +25,6 @@ def test_manager_suspensao_alimentacao_desta_semana(
     suspensao_alimentacao_parametros_semana, escola
 ):
     data_evento, _ = suspensao_alimentacao_parametros_semana
-    grupo_suspensoes = mommy.make(GrupoSuspensaoAlimentacao, escola=escola)
-    mommy.make(SuspensaoAlimentacao, data=data_evento, grupo_suspensao=grupo_suspensoes)
+    grupo_suspensoes = baker.make(GrupoSuspensaoAlimentacao, escola=escola)
+    baker.make(SuspensaoAlimentacao, data=data_evento, grupo_suspensao=grupo_suspensoes)
     assert grupo_suspensoes in GrupoSuspensaoAlimentacao.desta_semana.all()

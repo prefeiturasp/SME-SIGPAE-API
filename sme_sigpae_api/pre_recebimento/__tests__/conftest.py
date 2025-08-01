@@ -3,7 +3,7 @@ import datetime
 import pytest
 from django.utils import timezone
 from faker import Faker
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.dados_comuns.constants import (
     DILOG_ABASTECIMENTO,
@@ -20,7 +20,7 @@ from sme_sigpae_api.dados_comuns.utils import convert_base64_to_contentfile
 from sme_sigpae_api.terceirizada.models import Terceirizada
 
 from ..base.models import UnidadeMedida
-from ..ficha_tecnica.models import FichaTecnicaDoProduto, AnaliseFichaTecnica
+from ..ficha_tecnica.models import AnaliseFichaTecnica, FichaTecnicaDoProduto
 from ..layout_embalagem.models import LayoutDeEmbalagem, TipoDeEmbalagemDeLayout
 
 fake = Faker("pt_BR")
@@ -28,28 +28,28 @@ fake = Faker("pt_BR")
 
 @pytest.fixture
 def codae():
-    return mommy.make("Codae")
+    return baker.make("Codae")
 
 
 @pytest.fixture
 def modalidade():
-    return mommy.make("Modalidade", nome="Pregão Eletrônico")
+    return baker.make("Modalidade", nome="Pregão Eletrônico")
 
 
 @pytest.fixture
 def modalidade_chamada_publica():
-    return mommy.make("Modalidade", nome="Chamada Pública")
+    return baker.make("Modalidade", nome="Chamada Pública")
 
 
 @pytest.fixture
 def modalidade_qualquer():
     # Representa qualquer modalidade diferente de "Pregão Eletrônico" e "Chamada Pública"
-    return mommy.make("Modalidade", nome="Qualquer")
+    return baker.make("Modalidade", nome="Qualquer")
 
 
 @pytest.fixture
 def contrato(modalidade):
-    return mommy.make(
+    return baker.make(
         "Contrato",
         numero="0003/2022",
         processo="123",
@@ -60,7 +60,7 @@ def contrato(modalidade):
 
 @pytest.fixture
 def contrato_chamada_publica(modalidade_chamada_publica):
-    return mommy.make(
+    return baker.make(
         "Contrato",
         numero="0004/2022",
         processo="124",
@@ -72,7 +72,7 @@ def contrato_chamada_publica(modalidade_chamada_publica):
 
 @pytest.fixture
 def contrato_qualquer(modalidade_qualquer):
-    return mommy.make(
+    return baker.make(
         "Contrato",
         numero="0002/2022",
         processo="222",
@@ -84,7 +84,7 @@ def contrato_qualquer(modalidade_qualquer):
 
 @pytest.fixture
 def empresa(contrato):
-    return mommy.make(
+    return baker.make(
         "Terceirizada",
         nome_fantasia="Alimentos SA",
         razao_social="Alimentos",
@@ -95,7 +95,7 @@ def empresa(contrato):
 
 @pytest.fixture
 def cronograma():
-    return mommy.make(
+    return baker.make(
         "Cronograma",
         numero="001/2022A",
     )
@@ -103,7 +103,7 @@ def cronograma():
 
 @pytest.fixture
 def cronograma_chamada_publica(contrato_chamada_publica):
-    return mommy.make(
+    return baker.make(
         "Cronograma",
         numero="003/2022A",
         contrato=contrato_chamada_publica,
@@ -112,7 +112,7 @@ def cronograma_chamada_publica(contrato_chamada_publica):
 
 @pytest.fixture
 def cronograma_rascunho(armazem, contrato, empresa):
-    return mommy.make(
+    return baker.make(
         "Cronograma",
         numero="002/2022A",
         contrato=contrato,
@@ -123,7 +123,7 @@ def cronograma_rascunho(armazem, contrato, empresa):
 
 @pytest.fixture
 def cronograma_recebido(armazem, contrato, empresa):
-    return mommy.make(
+    return baker.make(
         "Cronograma",
         numero="002/2022A",
         contrato=contrato,
@@ -135,7 +135,7 @@ def cronograma_recebido(armazem, contrato, empresa):
 
 @pytest.fixture
 def cronograma_qualquer(contrato_qualquer):
-    return mommy.make(
+    return baker.make(
         "Cronograma",
         numero="002/2022A",
         contrato=contrato_qualquer,
@@ -144,7 +144,7 @@ def cronograma_qualquer(contrato_qualquer):
 
 @pytest.fixture
 def etapa(cronograma):
-    return mommy.make(
+    return baker.make(
         "EtapasDoCronograma",
         cronograma=cronograma,
         etapa=1,
@@ -154,7 +154,7 @@ def etapa(cronograma):
 
 @pytest.fixture
 def etapa_com_quantidade_e_data(cronograma):
-    return mommy.make(
+    return baker.make(
         "EtapasDoCronograma",
         cronograma=cronograma,
         etapa=1,
@@ -166,7 +166,7 @@ def etapa_com_quantidade_e_data(cronograma):
 
 @pytest.fixture
 def programacao(cronograma):
-    return mommy.make(
+    return baker.make(
         "ProgramacaoDoRecebimentoDoCronograma",
         cronograma=cronograma,
         data_programada="01/01/2022",
@@ -175,7 +175,7 @@ def programacao(cronograma):
 
 @pytest.fixture
 def armazem():
-    return mommy.make(
+    return baker.make(
         Terceirizada,
         nome_fantasia="Alimentos SA",
         tipo_servico=Terceirizada.DISTRIBUIDOR_ARMAZEM,
@@ -184,17 +184,17 @@ def armazem():
 
 @pytest.fixture
 def laboratorio():
-    return mommy.make("Laboratorio", nome="Labo Test")
+    return baker.make("Laboratorio", nome="Labo Test")
 
 
 @pytest.fixture
 def tipo_emabalagem_qld():
-    return mommy.make("TipoEmbalagemQld", nome="CAIXA", abreviacao="CX")
+    return baker.make("TipoEmbalagemQld", nome="CAIXA", abreviacao="CX")
 
 
 @pytest.fixture
 def cronograma_solicitado_alteracao(armazem, contrato, empresa):
-    return mommy.make(
+    return baker.make(
         "Cronograma",
         numero="00222/2022A",
         contrato=contrato,
@@ -206,7 +206,7 @@ def cronograma_solicitado_alteracao(armazem, contrato, empresa):
 
 @pytest.fixture
 def solicitacao_cronograma_em_analise(cronograma):
-    return mommy.make(
+    return baker.make(
         "SolicitacaoAlteracaoCronograma",
         numero_solicitacao="00222/2022",
         cronograma=cronograma,
@@ -216,7 +216,7 @@ def solicitacao_cronograma_em_analise(cronograma):
 
 @pytest.fixture
 def solicitacao_cronograma_ciente(cronograma):
-    return mommy.make(
+    return baker.make(
         "SolicitacaoAlteracaoCronograma",
         numero_solicitacao="00222/2022",
         cronograma=cronograma,
@@ -228,7 +228,7 @@ def solicitacao_cronograma_ciente(cronograma):
 def solicitacao_cronograma_aprovado_dilog_abastecimento(
     cronograma_solicitado_alteracao,
 ):
-    return mommy.make(
+    return baker.make(
         "SolicitacaoAlteracaoCronograma",
         numero_solicitacao="00222/2022",
         cronograma=cronograma_solicitado_alteracao,
@@ -238,7 +238,7 @@ def solicitacao_cronograma_aprovado_dilog_abastecimento(
 
 @pytest.fixture
 def cronograma_assinado_fornecedor(armazem, contrato, empresa):
-    return mommy.make(
+    return baker.make(
         "Cronograma",
         numero="002/2022A",
         contrato=contrato,
@@ -250,7 +250,7 @@ def cronograma_assinado_fornecedor(armazem, contrato, empresa):
 
 @pytest.fixture
 def cronograma_assinado_perfil_cronograma(armazem, contrato, empresa):
-    return mommy.make(
+    return baker.make(
         "Cronograma",
         numero="002/2022A",
         contrato=contrato,
@@ -262,7 +262,7 @@ def cronograma_assinado_perfil_cronograma(armazem, contrato, empresa):
 
 @pytest.fixture
 def cronograma_assinado_perfil_dilog_abastecimento(armazem, contrato, empresa):
-    return mommy.make(
+    return baker.make(
         "Cronograma",
         numero="003/2022A",
         contrato=contrato,
@@ -279,7 +279,7 @@ def cronograma_assinado_perfil_dilog(
     empresa,
     ficha_tecnica_factory,
 ):
-    return mommy.make(
+    return baker.make(
         "Cronograma",
         numero="004/2022A",
         contrato=contrato,
@@ -292,29 +292,29 @@ def cronograma_assinado_perfil_dilog(
 
 @pytest.fixture
 def produto_arroz():
-    return mommy.make("NomeDeProdutoEdital", nome="Arroz")
+    return baker.make("NomeDeProdutoEdital", nome="Arroz")
 
 
 @pytest.fixture
 def produto_macarrao():
-    return mommy.make("NomeDeProdutoEdital", nome="Macarrão")
+    return baker.make("NomeDeProdutoEdital", nome="Macarrão")
 
 
 @pytest.fixture
 def produto_feijao():
-    return mommy.make("NomeDeProdutoEdital", nome="Feijão")
+    return baker.make("NomeDeProdutoEdital", nome="Feijão")
 
 
 @pytest.fixture
 def produto_acucar():
-    return mommy.make("NomeDeProdutoEdital", nome="Açucar")
+    return baker.make("NomeDeProdutoEdital", nome="Açucar")
 
 
 @pytest.fixture
 def cronogramas_multiplos_status_com_log(
     armazem, contrato, empresa, ficha_tecnica_factory
 ):
-    c1 = mommy.make(
+    c1 = baker.make(
         "Cronograma",
         numero="002/2023A",
         contrato=contrato,
@@ -323,7 +323,7 @@ def cronogramas_multiplos_status_com_log(
         status="ASSINADO_FORNECEDOR",
         ficha_tecnica=ficha_tecnica_factory(),
     )
-    c2 = mommy.make(
+    c2 = baker.make(
         "Cronograma",
         numero="003/2023A",
         contrato=contrato,
@@ -332,7 +332,7 @@ def cronogramas_multiplos_status_com_log(
         status="ASSINADO_FORNECEDOR",
         ficha_tecnica=ficha_tecnica_factory(),
     )
-    c3 = mommy.make(
+    c3 = baker.make(
         "Cronograma",
         numero="004/2023A",
         contrato=contrato,
@@ -341,7 +341,7 @@ def cronogramas_multiplos_status_com_log(
         status="ASSINADO_DILOG_ABASTECIMENTO",
         ficha_tecnica=ficha_tecnica_factory(),
     )
-    c4 = mommy.make(
+    c4 = baker.make(
         "Cronograma",
         numero="005/2023A",
         contrato=contrato,
@@ -350,7 +350,7 @@ def cronogramas_multiplos_status_com_log(
         status="ASSINADO_DILOG_ABASTECIMENTO",
         ficha_tecnica=ficha_tecnica_factory(),
     )
-    c5 = mommy.make(
+    c5 = baker.make(
         "Cronograma",
         numero="006/2023A",
         contrato=contrato,
@@ -359,7 +359,7 @@ def cronogramas_multiplos_status_com_log(
         status="ASSINADO_FORNECEDOR",
         ficha_tecnica=ficha_tecnica_factory(),
     )
-    c6 = mommy.make(
+    c6 = baker.make(
         "Cronograma",
         numero="007/2023A",
         contrato=contrato,
@@ -368,37 +368,37 @@ def cronogramas_multiplos_status_com_log(
         status="ASSINADO_CODAE",
         ficha_tecnica=ficha_tecnica_factory(),
     )
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=c1.uuid,
         status_evento=59,  # CRONOGRAMA_ASSINADO_PELO_USUARIO_CRONOGRAMA
         solicitacao_tipo=19,
     )  # CRONOGRAMA
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=c2.uuid,
         status_evento=59,  # CRONOGRAMA_ASSINADO_PELO_USUARIO_CRONOGRAMA
         solicitacao_tipo=19,
     )  # CRONOGRAMA
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=c3.uuid,
         status_evento=69,  # CRONOGRAMA_ASSINADO_PELA_DILOG_ABASTECIMENTO
         solicitacao_tipo=19,
     )  # CRONOGRAMA
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=c4.uuid,
         status_evento=69,  # CRONOGRAMA_ASSINADO_PELA_DILOG_ABASTECIMENTO
         solicitacao_tipo=19,
     )  # CRONOGRAMA
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=c5.uuid,
         status_evento=59,  # CRONOGRAMA_ASSINADO_PELO_USUARIO_CRONOGRAMA
         solicitacao_tipo=19,
     )  # CRONOGRAMA
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=c6.uuid,
         status_evento=70,  # CRONOGRAMA_ASSINADO_PELA_CODAE
@@ -408,7 +408,7 @@ def cronogramas_multiplos_status_com_log(
 
 @pytest.fixture
 def cronogramas_multiplos_status_com_log_cronograma_ciente(armazem, contrato, empresa):
-    c1 = mommy.make(
+    c1 = baker.make(
         "Cronograma",
         numero="002/2023A",
         contrato=contrato,
@@ -416,7 +416,7 @@ def cronogramas_multiplos_status_com_log_cronograma_ciente(armazem, contrato, em
         armazem=armazem,
         status="SOLICITADO_ALTERACAO",
     )
-    c2 = mommy.make(
+    c2 = baker.make(
         "Cronograma",
         numero="003/2023A",
         contrato=contrato,
@@ -424,37 +424,37 @@ def cronogramas_multiplos_status_com_log_cronograma_ciente(armazem, contrato, em
         armazem=armazem,
         status="SOLICITADO_ALTERACAO",
     )
-    s1 = mommy.make(
+    s1 = baker.make(
         "SolicitacaoAlteracaoCronograma",
         numero_solicitacao="00222/2022",
         cronograma=c1,
         status="CRONOGRAMA_CIENTE",
     )
-    s2 = mommy.make(
+    s2 = baker.make(
         "SolicitacaoAlteracaoCronograma",
         numero_solicitacao="00223/2022",
         cronograma=c2,
         status="CRONOGRAMA_CIENTE",
     )
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=s1.uuid,
         status_evento=71,  # CRONOGRAMA_CIENTE_SOLICITACAO_ALTERACAO
         solicitacao_tipo=20,
     )  # CRONOGRAMA
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=s2.uuid,
         status_evento=71,  # CRONOGRAMA_CIENTE_SOLICITACAO_ALTERACAO
         solicitacao_tipo=20,
     )  # CRONOGRAMA
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=c1.uuid,
         status_evento=71,  # CRONOGRAMA_CIENTE_SOLICITACAO_ALTERACAO
         solicitacao_tipo=19,
     )  # CRONOGRAMA
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=c2.uuid,
         status_evento=71,  # CRONOGRAMA_CIENTE_SOLICITACAO_ALTERACAO
@@ -464,7 +464,7 @@ def cronogramas_multiplos_status_com_log_cronograma_ciente(armazem, contrato, em
 
 @pytest.fixture
 def unidade_medida_logistica():
-    return mommy.make(UnidadeMedida, nome="UNIDADE TESTE", abreviacao="ut")
+    return baker.make(UnidadeMedida, nome="UNIDADE TESTE", abreviacao="ut")
 
 
 @pytest.fixture
@@ -472,7 +472,7 @@ def unidades_medida_logistica():
     data = [
         {"nome": f"UNIDADE TESTE {i}", "abreviacao": f"ut{i}"} for i in range(1, 21)
     ]
-    objects = [mommy.make(UnidadeMedida, **attrs) for attrs in data]
+    objects = [baker.make(UnidadeMedida, **attrs) for attrs in data]
     return objects
 
 
@@ -482,13 +482,13 @@ def unidades_medida_reais_logistica():
         {"nome": "KILOGRAMA", "abreviacao": "kg"},
         {"nome": "LITRO", "abreviacao": "l"},
     ]
-    objects = [mommy.make(UnidadeMedida, **attrs) for attrs in data]
+    objects = [baker.make(UnidadeMedida, **attrs) for attrs in data]
     return objects
 
 
 @pytest.fixture
 def layout_de_embalagem(ficha_tecnica_perecivel_enviada_para_analise):
-    return mommy.make(
+    return baker.make(
         "LayoutDeEmbalagem",
         ficha_tecnica=ficha_tecnica_perecivel_enviada_para_analise,
         observacoes="teste",
@@ -523,7 +523,7 @@ def payload_layout_embalagem(
 
 @pytest.fixture
 def tipo_de_embalagem_de_layout(layout_de_embalagem):
-    return mommy.make(
+    return baker.make(
         "TipoDeEmbalagemDeLayout",
         layout_de_embalagem=layout_de_embalagem,
         tipo_embalagem="PRIMARIA",
@@ -563,7 +563,7 @@ def lista_layouts_de_embalagem_enviados_para_analise(ficha_tecnica_factory, empr
         + layouts_cronograma_assinado_dilog_abastecimento
     )
 
-    objects = [mommy.make(LayoutDeEmbalagem, **attrs) for attrs in data]
+    objects = [baker.make(LayoutDeEmbalagem, **attrs) for attrs in data]
 
     return objects
 
@@ -599,7 +599,7 @@ def lista_layouts_de_embalagem_aprovados(ficha_tecnica_factory, empresa):
         + layouts_cronograma_assinado_dilog_abastecimento
     )
 
-    objects = [mommy.make(LayoutDeEmbalagem, **attrs) for attrs in data]
+    objects = [baker.make(LayoutDeEmbalagem, **attrs) for attrs in data]
 
     return objects
 
@@ -635,7 +635,7 @@ def lista_layouts_de_embalagem_solicitado_correcao(ficha_tecnica_factory, empres
         + layouts_cronograma_assinado_dilog_abastecimento
     )
 
-    objects = [mommy.make(LayoutDeEmbalagem, **attrs) for attrs in data]
+    objects = [baker.make(LayoutDeEmbalagem, **attrs) for attrs in data]
 
     return objects
 
@@ -654,30 +654,30 @@ def lista_layouts_de_embalagem_com_tipo_embalagem(ficha_tecnica_factory, empresa
         for i in range(1, 3)
     ]
 
-    layouts = [mommy.make(LayoutDeEmbalagem, **attrs) for attrs in dados_layouts]
+    layouts = [baker.make(LayoutDeEmbalagem, **attrs) for attrs in dados_layouts]
 
-    mommy.make(
+    baker.make(
         TipoDeEmbalagemDeLayout,
         layout_de_embalagem=layouts[0],
         tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_PRIMARIA,
     )
-    mommy.make(
+    baker.make(
         TipoDeEmbalagemDeLayout,
         layout_de_embalagem=layouts[0],
         tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_SECUNDARIA,
     )
-    mommy.make(
+    baker.make(
         TipoDeEmbalagemDeLayout,
         layout_de_embalagem=layouts[0],
         tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_TERCIARIA,
     )
 
-    mommy.make(
+    baker.make(
         TipoDeEmbalagemDeLayout,
         layout_de_embalagem=layouts[1],
         tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_PRIMARIA,
     )
-    mommy.make(
+    baker.make(
         TipoDeEmbalagemDeLayout,
         layout_de_embalagem=layouts[1],
         tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_SECUNDARIA,
@@ -701,7 +701,7 @@ def lista_layouts_de_embalagem(
 
 @pytest.fixture
 def layout_de_embalagem_para_correcao(ficha_tecnica_factory, empresa):
-    layout = mommy.make(
+    layout = baker.make(
         LayoutDeEmbalagem,
         ficha_tecnica=ficha_tecnica_factory(
             status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
@@ -710,13 +710,13 @@ def layout_de_embalagem_para_correcao(ficha_tecnica_factory, empresa):
         observacoes="Imagine uma observação aqui.",
         status=LayoutDeEmbalagemWorkflow.SOLICITADO_CORRECAO,
     )
-    mommy.make(
+    baker.make(
         TipoDeEmbalagemDeLayout,
         layout_de_embalagem=layout,
         tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_PRIMARIA,
         status=TipoDeEmbalagemDeLayout.STATUS_REPROVADO,
     )
-    mommy.make(
+    baker.make(
         TipoDeEmbalagemDeLayout,
         layout_de_embalagem=layout,
         tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_SECUNDARIA,
@@ -728,7 +728,7 @@ def layout_de_embalagem_para_correcao(ficha_tecnica_factory, empresa):
 
 @pytest.fixture
 def layout_de_embalagem_aprovado(ficha_tecnica_factory, empresa):
-    layout = mommy.make(
+    layout = baker.make(
         LayoutDeEmbalagem,
         ficha_tecnica=ficha_tecnica_factory(
             status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
@@ -737,19 +737,19 @@ def layout_de_embalagem_aprovado(ficha_tecnica_factory, empresa):
         observacoes="Imagine uma observação aqui.",
         status=LayoutDeEmbalagemWorkflow.APROVADO,
     )
-    mommy.make(
+    baker.make(
         TipoDeEmbalagemDeLayout,
         layout_de_embalagem=layout,
         tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_PRIMARIA,
         status=TipoDeEmbalagemDeLayout.STATUS_APROVADO,
     )
-    mommy.make(
+    baker.make(
         TipoDeEmbalagemDeLayout,
         layout_de_embalagem=layout,
         tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_SECUNDARIA,
         status=TipoDeEmbalagemDeLayout.STATUS_APROVADO,
     )
-    mommy.make(
+    baker.make(
         LogSolicitacoesUsuario,
         uuid_original=layout.uuid,
         status_evento=LogSolicitacoesUsuario.LAYOUT_CORRECAO_REALIZADA,
@@ -761,7 +761,7 @@ def layout_de_embalagem_aprovado(ficha_tecnica_factory, empresa):
 
 @pytest.fixture
 def layout_de_embalagem_em_analise_com_correcao(ficha_tecnica_factory, empresa):
-    layout = mommy.make(
+    layout = baker.make(
         LayoutDeEmbalagem,
         ficha_tecnica=ficha_tecnica_factory(
             status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
@@ -770,25 +770,25 @@ def layout_de_embalagem_em_analise_com_correcao(ficha_tecnica_factory, empresa):
         observacoes="Imagine uma observação aqui.",
         status=LayoutDeEmbalagemWorkflow.ENVIADO_PARA_ANALISE,
     )
-    mommy.make(
+    baker.make(
         TipoDeEmbalagemDeLayout,
         layout_de_embalagem=layout,
         tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_PRIMARIA,
         status=TipoDeEmbalagemDeLayout.STATUS_EM_ANALISE,
     )
-    mommy.make(
+    baker.make(
         TipoDeEmbalagemDeLayout,
         layout_de_embalagem=layout,
         tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_SECUNDARIA,
         status=TipoDeEmbalagemDeLayout.STATUS_APROVADO,
     )
-    mommy.make(
+    baker.make(
         TipoDeEmbalagemDeLayout,
         layout_de_embalagem=layout,
         tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_TERCIARIA,
         status=TipoDeEmbalagemDeLayout.STATUS_EM_ANALISE,
     )
-    mommy.make(
+    baker.make(
         LogSolicitacoesUsuario,
         uuid_original=layout.uuid,
         status_evento=LogSolicitacoesUsuario.LAYOUT_CORRECAO_REALIZADA,
@@ -1032,14 +1032,14 @@ def client_autenticado_vinculo_dilog_cronograma(client, django_user_model, codae
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_dilog_cronograma = mommy.make(
+    perfil_dilog_cronograma = baker.make(
         "Perfil",
         nome=DILOG_CRONOGRAMA,
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
     )
 
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -1058,14 +1058,14 @@ def client_autenticado_vinculo_dilog_qualidade(client, django_user_model, codae)
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_dilog_qualidade = mommy.make(
+    perfil_dilog_qualidade = baker.make(
         "Perfil",
         nome=DILOG_QUALIDADE,
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
     )
 
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -1087,12 +1087,12 @@ def client_autenticado_dilog_abastecimento(client, django_user_model):
         email=email,
         registro_funcional=str(fake.unique.random_int(min=100000, max=999999)),
     )
-    perfil_dilog_abastecimento = mommy.make(
+    perfil_dilog_abastecimento = baker.make(
         "Perfil", nome=DILOG_ABASTECIMENTO, ativo=True
     )
-    codae = mommy.make("Codae")
+    codae = baker.make("Codae")
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,

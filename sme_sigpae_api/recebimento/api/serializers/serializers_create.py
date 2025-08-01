@@ -5,16 +5,17 @@ from sme_sigpae_api.dados_comuns.utils import (
     convert_base64_to_contentfile,
     update_instance_from_dict,
 )
-from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
     EtapasDoCronograma,
 )
 from sme_sigpae_api.pre_recebimento.documento_recebimento.models import (
     DocumentoDeRecebimento,
 )
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from sme_sigpae_api.recebimento.models import (
     ArquivoFichaRecebimento,
     FichaDeRecebimento,
+    OcorrenciaFichaRecebimento,
     QuestaoConferencia,
     QuestaoFichaRecebimento,
     QuestoesPorProduto,
@@ -90,6 +91,67 @@ class ArquivoFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
         exclude = ("id", "ficha_recebimento")
 
 
+class OcorrenciaFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        self.rascunho = kwargs.pop('rascunho', False)
+        super().__init__(*args, **kwargs)
+
+    class Meta:
+        model = OcorrenciaFichaRecebimento
+        exclude = ("id", "ficha_recebimento")
+
+    def _validate_quantidade(self, tipo, quantidade):
+        if tipo != OcorrenciaFichaRecebimento.TIPO_OUTROS and not quantidade:
+            raise serializers.ValidationError({
+                'quantidade': 'Este campo é obrigatório para o tipo selecionado.'
+            })
+
+    def _validate_falta(self, relacao):
+        valid_relations = [
+            OcorrenciaFichaRecebimento.RELACAO_CRONOGRAMA,
+            OcorrenciaFichaRecebimento.RELACAO_NOTA_FISCAL
+        ]
+        if not relacao or relacao not in valid_relations:
+            raise serializers.ValidationError({
+                'relacao': 'Para o tipo FALTA, a relação deve ser CRONOGRAMA ou NOTA_FISCAL'
+            })
+
+    def _validate_recusa(self, relacao, numero_nota):
+        valid_relations = [
+            OcorrenciaFichaRecebimento.RELACAO_TOTAL,
+            OcorrenciaFichaRecebimento.RELACAO_PARCIAL
+        ]
+        if not relacao or relacao not in valid_relations:
+            raise serializers.ValidationError({
+                'relacao': 'Para o tipo RECUSA, a relação deve ser TOTAL ou PARCIAL'
+            })
+        if not numero_nota:
+            raise serializers.ValidationError({
+                'numero_nota': 'Para o tipo RECUSA, o número da nota é obrigatório'
+            })
+
+    def validate(self, data):
+        if getattr(self, 'rascunho', False):
+            return data
+
+        tipo = data.get('tipo')
+        relacao = data.get('relacao')
+        numero_nota = data.get('numero_nota')
+        quantidade = data.get('quantidade')
+
+        self._validate_quantidade(tipo, quantidade)
+
+        if tipo == OcorrenciaFichaRecebimento.TIPO_FALTA:
+            self._validate_falta(relacao)
+        elif tipo == OcorrenciaFichaRecebimento.TIPO_RECUSA:
+            self._validate_recusa(relacao, numero_nota)
+        else:  # OUTROS_MOTIVOS
+            data['relacao'] = None
+            data['numero_nota'] = None
+
+        return data
+
+
 class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
     etapa = serializers.SlugRelatedField(
         slug_field="uuid",
@@ -116,12 +178,18 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
         many=True,
         required=False,
     )
+    ocorrencias = OcorrenciaFichaRecebimentoCreateSerializer(
+        many=True,
+        required=False,
+        rascunho=True
+    )
 
     def create(self, validated_data):
         dados_veiculos = validated_data.pop("veiculos", [])
         documentos_recebimento = validated_data.pop("documentos_recebimento", [])
         dados_arquivos = validated_data.pop("arquivos", [])
         dados_questoes = validated_data.pop("questoes", [])
+        dados_ocorrencias = validated_data.pop("ocorrencias", [])
 
         instance = FichaDeRecebimento.objects.create(**validated_data)
 
@@ -129,7 +197,7 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
         self._criar_veiculos(instance, dados_veiculos)
         self._criar_arquivos(instance, dados_arquivos)
         self._criar_questoes(instance, dados_questoes)
-
+        self._criar_ocorrencias(instance, dados_ocorrencias)
         return instance
 
     def update(self, instance, validated_data):
@@ -139,11 +207,13 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
         instance.questoes_conferencia.through.objects.filter(
             ficha_recebimento=instance
         ).delete()
+        instance.ocorrencias.all().delete()
 
         dados_veiculos = validated_data.pop("veiculos", [])
         documentos_recebimento = validated_data.pop("documentos_recebimento", [])
         dados_arquivos = validated_data.pop("arquivos", [])
         dados_questoes = validated_data.pop("questoes", [])
+        dados_ocorrencias = validated_data.pop("ocorrencias", [])
 
         instance = update_instance_from_dict(instance, validated_data, save=True)
 
@@ -151,7 +221,7 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
         self._criar_veiculos(instance, dados_veiculos)
         self._criar_arquivos(instance, dados_arquivos)
         self._criar_questoes(instance, dados_questoes)
-
+        self._criar_ocorrencias(instance, dados_ocorrencias)
         return instance
 
     def _criar_veiculos(self, instance, dados_veiculos):
@@ -176,6 +246,30 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
                 ficha_recebimento=instance,
                 **dados_questao,
             )
+
+    def _criar_ocorrencias(self, instance, dados_ocorrencias):
+        recusa_count = sum(
+            1 for ocorrencia in dados_ocorrencias
+            if ocorrencia.get('tipo') == OcorrenciaFichaRecebimento.TIPO_RECUSA
+        )
+
+        if recusa_count > 1:
+            raise serializers.ValidationError({
+                'ocorrencias': 'Apenas uma ocorrência do tipo RECUSA é permitida por ficha de recebimento.'
+            })
+
+        for dados_ocorrencia in dados_ocorrencias:
+            OcorrenciaFichaRecebimento.objects.create(
+                ficha_recebimento=instance,
+                **dados_ocorrencia,
+            )
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['ocorrencias'] = OcorrenciaFichaRecebimentoCreateSerializer(
+            instance.ocorrencias.all(), many=True
+        ).data
+        return representation
 
     class Meta:
         model = FichaDeRecebimento

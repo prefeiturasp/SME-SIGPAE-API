@@ -1,4 +1,3 @@
-
 from django.contrib import admin
 from nested_inline.admin import NestedModelAdmin, NestedStackedInline
 

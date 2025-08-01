@@ -150,9 +150,7 @@ class SolicitacaoDietaEspecial(
     # TODO: Mover essa justificativa para o log de transição de status
     justificativa_negacao = models.TextField(blank=True)
 
-    data_termino = models.DateField(
-        null=True
-    )  # , validators=[nao_pode_ser_no_passado] # noqa
+    data_termino = models.DateField(null=True)
 
     motivo_alteracao_ue = models.ForeignKey(
         "MotivoAlteracaoUE", blank=True, null=True, on_delete=models.CASCADE

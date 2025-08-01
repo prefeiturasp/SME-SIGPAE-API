@@ -7,9 +7,9 @@ from sme_sigpae_api.dados_comuns.utils import (
 )
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
     AnaliseFichaTecnica,
+    FabricanteFichaTecnica,
     FichaTecnicaDoProduto,
     InformacoesNutricionaisFichaTecnica,
-    FabricanteFichaTecnica,
 )
 from sme_sigpae_api.produto.models import InformacaoNutricional
 

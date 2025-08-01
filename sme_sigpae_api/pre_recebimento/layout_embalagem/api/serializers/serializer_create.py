@@ -4,13 +4,11 @@ from xworkflows.base import InvalidTransitionError
 from sme_sigpae_api.dados_comuns.utils import (
     convert_base64_to_contentfile,
 )
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from sme_sigpae_api.pre_recebimento.layout_embalagem.models import (
     ImagemDoTipoDeEmbalagem,
     LayoutDeEmbalagem,
     TipoDeEmbalagemDeLayout,
-)
-from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
-    FichaTecnicaDoProduto
 )
 
 from ..helpers import (

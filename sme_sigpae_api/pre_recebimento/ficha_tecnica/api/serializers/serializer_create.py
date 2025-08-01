@@ -3,15 +3,14 @@ from rest_framework import serializers
 from sme_sigpae_api.dados_comuns.utils import (
     update_instance_from_dict,
 )
-from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
-    AnaliseFichaTecnica,
-    InformacoesNutricionaisFichaTecnica,
-    FabricanteFichaTecnica,
-    FichaTecnicaDoProduto
-)
-
 from sme_sigpae_api.pre_recebimento.base.models import (
     UnidadeMedida,
+)
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
+    AnaliseFichaTecnica,
+    FabricanteFichaTecnica,
+    FichaTecnicaDoProduto,
+    InformacoesNutricionaisFichaTecnica,
 )
 from sme_sigpae_api.produto.models import Fabricante, Marca, NomeDeProdutoEdital
 from sme_sigpae_api.terceirizada.models import Terceirizada
@@ -46,10 +45,10 @@ class InformacoesNutricionaisFichaTecnicaCreateSerializer(serializers.ModelSeria
 
 class FabricanteFichaTecnicaCreateSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
-        self.fabricante_opcional = kwargs.pop('fabricante_opcional', False)
+        self.fabricante_opcional = kwargs.pop("fabricante_opcional", False)
         super().__init__(*args, **kwargs)
 
-        self.fields['fabricante'] = serializers.SlugRelatedField(
+        self.fields["fabricante"] = serializers.SlugRelatedField(
             slug_field="uuid",
             required=not self.fabricante_opcional,
             allow_null=self.fabricante_opcional,
@@ -601,14 +600,10 @@ class CorrecaoFichaTecnicaSerializer(serializers.ModelSerializer):
         queryset=Terceirizada.objects.all(),
     )
     fabricante = FabricanteFichaTecnicaCreateSerializer(
-        required=False,
-        allow_null=True,
-        fabricante_opcional=True
+        required=False, allow_null=True, fabricante_opcional=True
     )
     envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(
-        required=False,
-        allow_null=True,
-        fabricante_opcional=True
+        required=False, allow_null=True, fabricante_opcional=True
     )
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnicaCreateSerializer(
         many=True,
@@ -685,14 +680,10 @@ class CorrecaoFichaTecnicaSerializer(serializers.ModelSerializer):
 
 class FichaTecnicaAtualizacaoSerializer(serializers.ModelSerializer):
     fabricante = FabricanteFichaTecnicaCreateSerializer(
-        required=False,
-        allow_null=True,
-        fabricante_opcional=True
+        required=False, allow_null=True, fabricante_opcional=True
     )
     envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(
-        required=False,
-        allow_null=True,
-        fabricante_opcional=True
+        required=False, allow_null=True, fabricante_opcional=True
     )
     componentes_produto = serializers.CharField(required=False, allow_blank=False)
     alergenicos = serializers.BooleanField(required=False)

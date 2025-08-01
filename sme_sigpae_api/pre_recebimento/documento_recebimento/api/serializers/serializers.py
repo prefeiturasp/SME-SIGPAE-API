@@ -2,6 +2,9 @@ import datetime
 
 from rest_framework import serializers
 
+from sme_sigpae_api.pre_recebimento.base.api.serializers.serializers import (
+    UnidadeMedidaSimplesSerializer,
+)
 from sme_sigpae_api.pre_recebimento.documento_recebimento.models import (
     ArquivoDoTipoDeDocumento,
     DataDeFabricaoEPrazo,
@@ -10,9 +13,6 @@ from sme_sigpae_api.pre_recebimento.documento_recebimento.models import (
 )
 from sme_sigpae_api.pre_recebimento.qualidade.api.serializers.serializers import (
     LaboratorioCredenciadoSimplesSerializer,
-)
-from sme_sigpae_api.pre_recebimento.base.api.serializers.serializers import (
-    UnidadeMedidaSimplesSerializer,
 )
 
 from .....dados_comuns.api.serializers import (

@@ -8,7 +8,6 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 
 from ...dados_comuns.constants import FILTRO_PADRAO_PEDIDOS, SEM_FILTRO
-from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...dados_comuns.permissions import (
     PermissaoParaRecuperarDietaEspecial,
     UsuarioCODAEDietaEspecial,
@@ -20,23 +19,14 @@ from ...dados_comuns.permissions import (
     UsuarioNutricionista,
     UsuarioTerceirizada,
 )
-from ...dieta_especial.api.serializers import (
-    SolicitacaoDietaEspecialLogSerializer,
-    SolicitacaoDietaEspecialSerializer,
-)
 from ...dieta_especial.models import SolicitacaoDietaEspecial
 from ...paineis_consolidados.api.constants import (
-    PESQUISA,
     TIPO_VISAO,
     TIPO_VISAO_LOTE,
     TIPO_VISAO_SOLICITACOES,
 )
 from ...paineis_consolidados.api.serializers import SolicitacoesSerializer
-from ...relatorios.relatorios import (
-    relatorio_filtro_periodo,
-    relatorio_resumo_anual_e_mensal,
-)
-from ..api.constants import PENDENTES_VALIDACAO_DRE, RELATORIO_PERIODO
+from ..api.constants import PENDENTES_VALIDACAO_DRE
 from ..models import (
     MoldeConsolidado,
     SolicitacoesCODAE,
@@ -69,7 +59,6 @@ from ..utils.totalizadores_relatorio import (
     totalizador_total,
     totalizador_unidade_educacional,
 )
-from ..validators import FiltroValidator
 from .constants import (
     AGUARDANDO_CODAE,
     AGUARDANDO_INICIO_VIGENCIA_DIETA_ESPECIAL,
@@ -79,7 +68,6 @@ from .constants import (
     CANCELADOS,
     CANCELADOS_DIETA_ESPECIAL,
     FILTRO_DRE_UUID,
-    FILTRO_ESCOLA_UUID,
     FILTRO_TERCEIRIZADA_UUID,
     INATIVAS_DIETA_ESPECIAL,
     INATIVAS_TEMPORARIAMENTE_DIETA_ESPECIAL,
@@ -89,13 +77,10 @@ from .constants import (
     PENDENTES_AUTORIZACAO_DIETA_ESPECIAL,
     PENDENTES_CIENCIA,
     QUESTIONAMENTOS,
-    RELATORIO_RESUMO_MES_ANO,
-    RESUMO_ANO,
-    RESUMO_MES,
 )
 
 
-class SolicitacoesViewSet(viewsets.ReadOnlyModelViewSet):
+class SolicitacoesViewSet(viewsets.GenericViewSet):
     permission_classes = (IsAuthenticated,)
 
     @classmethod
@@ -907,94 +892,6 @@ class DRESolicitacoesViewSet(SolicitacoesViewSet):
         query_set = SolicitacoesCODAE.busca_filtro(query_set, request.query_params)
         return self._retorno_base(query_set)
 
-    @action(detail=False, methods=["GET"], url_path=f"{RESUMO_MES}")
-    def resumo_mes(self, request):
-        usuario = request.user
-        dre_uuid = usuario.vinculo_atual.instituicao.uuid
-        totais_dict = SolicitacoesDRE.resumo_totais_mes(
-            dre_uuid=dre_uuid,
-        )
-        return Response(totais_dict)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=f"{RELATORIO_RESUMO_MES_ANO}",
-    )
-    def relatorio_resumo_anual_e_mensal(self, request):
-        usuario = request.user
-        dre_uuid = usuario.vinculo_atual.instituicao.uuid
-
-        query_set = SolicitacoesDRE.get_solicitacoes_ano_corrente(dre_uuid=dre_uuid)
-        resumo_do_ano = self._agrupa_por_mes_por_solicitacao(query_set=query_set)
-        resumo_do_mes = SolicitacoesDRE.resumo_totais_mes(
-            dre_uuid=dre_uuid,
-        )
-        return relatorio_resumo_anual_e_mensal(request, resumo_do_mes, resumo_do_ano)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path=f"{RELATORIO_PERIODO}/{FILTRO_ESCOLA_UUID}",
-    )
-    def relatorio_filtro_periodo(self, request, escola_uuid=None):
-        usuario = request.user
-        dre = usuario.vinculo_atual.instituicao
-        form = FiltroValidator(request.GET)
-        if form.is_valid():
-            cleaned_data = form.cleaned_data
-            query_set = SolicitacoesDRE.filtros_dre(
-                escola_uuid=escola_uuid,
-                dre_uuid=dre.uuid,
-                data_inicial=cleaned_data.get("data_inicial"),
-                data_final=cleaned_data.get("data_final"),
-                tipo_solicitacao=cleaned_data.get("tipo_solicitacao"),
-                status_solicitacao=cleaned_data.get("status_solicitacao"),
-            )
-            query_set = self.remove_duplicados_do_query_set(query_set)
-
-            return relatorio_filtro_periodo(request, query_set, dre.nome, escola_uuid)
-        else:
-            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, methods=["GET"], url_path=f"{RESUMO_ANO}")
-    def evolucao_solicitacoes(self, request):
-        usuario = request.user
-        dre_uuid = usuario.vinculo_atual.instituicao.uuid
-        query_set = SolicitacoesDRE.get_solicitacoes_ano_corrente(dre_uuid=dre_uuid)
-        response = {
-            "results": self._agrupa_por_mes_por_solicitacao(query_set=query_set)
-        }
-        return Response(response)
-
-    @action(detail=False, methods=["GET"], url_path=f"{PESQUISA}/{FILTRO_ESCOLA_UUID}")
-    def filtro_periodo_tipo_solicitacao(self, request, escola_uuid=None):
-        """Filtro de todas as solicitações da dre.
-
-        ---
-        tipo_solicitacao -- ALT_CARDAPIO|INV_CARDAPIO|INC_ALIMENTA|INC_ALIMENTA_CONTINUA|
-        KIT_LANCHE_AVULSA|SUSP_ALIMENTACAO|KIT_LANCHE_UNIFICADA|TODOS
-        status_solicitacao -- AUTORIZADOS|NEGADOS|CANCELADOS|RECEBIDAS|TODOS
-        data_inicial -- dd-mm-yyyy
-        data_final -- dd-mm-yyyy
-        """
-        usuario = request.user
-        dre_uuid = usuario.vinculo_atual.instituicao.uuid
-        form = FiltroValidator(request.GET)
-        if form.is_valid():
-            cleaned_data = form.cleaned_data
-            query_set = SolicitacoesDRE.filtros_dre(
-                escola_uuid=escola_uuid,
-                dre_uuid=dre_uuid,
-                data_inicial=cleaned_data.get("data_inicial"),
-                data_final=cleaned_data.get("data_final"),
-                tipo_solicitacao=cleaned_data.get("tipo_solicitacao"),
-                status_solicitacao=cleaned_data.get("status_solicitacao"),
-            )
-            return self._retorno_base(query_set)
-        else:
-            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class TerceirizadaSolicitacoesViewSet(SolicitacoesViewSet):
     lookup_field = "uuid"
@@ -1222,27 +1119,3 @@ class TerceirizadaSolicitacoesViewSet(SolicitacoesViewSet):
             )
         }
         return Response(response)
-
-
-class DietaEspecialSolicitacoesViewSet(viewsets.ReadOnlyModelViewSet):
-    lookup_field = "uuid"
-    queryset = SolicitacaoDietaEspecial.objects.all()
-    serializer_class = SolicitacaoDietaEspecialSerializer
-
-    @action(detail=False, methods=["GET"], url_path=f"{PENDENTES_AUTORIZACAO}")
-    def pendentes_autorizacao(self, request):
-        return self._retorno_base(DietaEspecialWorkflow.CODAE_A_AUTORIZAR)
-
-    @action(detail=False, methods=["GET"], url_path=f"{AUTORIZADOS}")
-    def autorizados(self, request):
-        return self._retorno_base(DietaEspecialWorkflow.CODAE_AUTORIZADO)
-
-    @action(detail=False, methods=["GET"], url_path=f"{NEGADOS}")
-    def negados(self, request):
-        return self._retorno_base(DietaEspecialWorkflow.CODAE_NEGOU_PEDIDO)
-
-    def _retorno_base(self, status):
-        query_set = self.queryset.filter(status=status)
-        page = self.paginate_queryset(query_set)
-        serializer = SolicitacaoDietaEspecialLogSerializer(page, many=True)
-        return self.get_paginated_response(serializer.data)

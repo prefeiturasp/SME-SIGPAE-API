@@ -1,5 +1,5 @@
 import pytest
-from model_mommy import mommy
+from model_bakery import baker
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -16,9 +16,9 @@ def test_nao_pode_existir_solicitacao_igual_para_mesma_escola_exception(
     datas_inversao_deste_mes, escola, tipo_alimentacao
 ):
     data_de, data_para, _ = datas_inversao_deste_mes
-    cardapio_de = mommy.make("Cardapio", data=data_de)
-    cardapio_para = mommy.make("Cardapio", data=data_para)
-    inversao = mommy.make(
+    cardapio_de = baker.make("Cardapio", data=data_de)
+    cardapio_para = baker.make("Cardapio", data=data_para)
+    inversao = baker.make(
         InversaoCardapio,
         cardapio_de=cardapio_de,
         cardapio_para=cardapio_para,

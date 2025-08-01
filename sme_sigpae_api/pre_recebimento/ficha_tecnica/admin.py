@@ -4,7 +4,7 @@ from .models import (
     AnaliseFichaTecnica,
     FabricanteFichaTecnica,
     FichaTecnicaDoProduto,
-    InformacoesNutricionaisFichaTecnica
+    InformacoesNutricionaisFichaTecnica,
 )
 
 

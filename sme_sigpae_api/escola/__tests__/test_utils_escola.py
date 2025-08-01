@@ -6,11 +6,11 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+from django.conf import settings
 
 from sme_sigpae_api.dados_comuns.constants import StatusProcessamentoArquivo
 from sme_sigpae_api.escola.utils import cria_arquivo_excel
 from sme_sigpae_api.escola.utils_escola import (
-    PATH,
     EOLException,
     ajustes_no_arquivo,
     atualiza_codigo_codae_das_escolas,
@@ -65,9 +65,11 @@ def test_gera_dict_codigos_escolas():
 
 @pytest.mark.parametrize("valor", ["12345", "67890"])
 def test_grava_codescola_nao_existentes(valor):
-    caminho_do_arquivo = Path(f"{PATH}/codescola_nao_existentes.txt")
+    os.makedirs(settings.MEDIA_ROOT, exist_ok=True)
+    caminho_do_arquivo = os.path.join(
+        settings.MEDIA_ROOT, "codescola_nao_existentes.txt"
+    )
     grava_codescola_nao_existentes(valor)
-    assert caminho_do_arquivo.exists()
     with open(caminho_do_arquivo, "r") as f:
         linhas = f.readlines()
     assert f"{valor}\n" in linhas
@@ -193,8 +195,12 @@ def test_get_informacoes_escola_turma_aluno_vazio():
 
 
 def test_get_informacoes_escola_turma_aluno_api_erro():
+    os.makedirs(settings.MEDIA_ROOT, exist_ok=True)
+
     caminho_do_arquivo = Path(f"/tmp/{uuid.uuid4()}.json")
-    caminho_arquiro_erro_api = f"{PATH}/codigo_eol_erro_da_api_eol.txt"
+    caminho_arquiro_erro_api = os.path.join(
+        settings.MEDIA_ROOT, "codigo_eol_erro_da_api_eol.txt"
+    )
     codigo_eol = "9999995991919"
 
     mock_response = MagicMock()

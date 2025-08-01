@@ -1,7 +1,7 @@
 import datetime
 
 import pytest
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.imr.models import PerfilDiretorSupervisao
@@ -9,23 +9,23 @@ from sme_sigpae_api.imr.models import PerfilDiretorSupervisao
 
 @pytest.fixture
 def codae():
-    return mommy.make("Codae")
+    return baker.make("Codae")
 
 
 @pytest.fixture
 def escola():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    tipo_gestao = mommy.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade = mommy.make("TipoUnidadeEscolar", iniciais="EMEF")
-    contato = mommy.make("dados_comuns.Contato", nome="FULANO", email="fake@email.com")
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="EMEF")
+    contato = baker.make("dados_comuns.Contato", nome="FULANO", email="fake@email.com")
+    diretoria_regional = baker.make(
         "DiretoriaRegional",
         nome="DIRETORIA REGIONAL IPIRANGA",
         uuid="012f7722-9ab4-4e21-b0f6-85e17b58b0d1",
     )
 
-    escola = mommy.make(
+    escola = baker.make(
         "Escola",
         lote=lote,
         nome="EMEF JOAO MENDES",
@@ -43,7 +43,7 @@ def escola():
 def client_autenticado_diretor_escola(client, django_user_model, escola):
     email = "user@escola.com"
     password = constants.DJANGO_ADMIN_PASSWORD
-    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email,
         password=password,
@@ -51,7 +51,7 @@ def client_autenticado_diretor_escola(client, django_user_model, escola):
         registro_funcional="123456",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=escola,
@@ -70,14 +70,14 @@ def client_autenticado_vinculo_nutrimanifestacao(client, django_user_model, coda
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_nutrimanifestacao = mommy.make(
+    perfil_nutrimanifestacao = baker.make(
         "Perfil",
         nome=constants.COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
         ativo=True,
         uuid="106f5a1a-627f-4b69-bf0b-6a44f6fa08bb",
     )
 
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,

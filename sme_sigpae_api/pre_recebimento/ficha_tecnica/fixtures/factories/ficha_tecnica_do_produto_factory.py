@@ -2,15 +2,11 @@ from factory import LazyFunction, SubFactory
 from factory.django import DjangoModelFactory
 from faker import Faker
 
-from sme_sigpae_api.pre_recebimento.ficha_tecnica.fixtures.factories.fabricante_ficha_tecnica_factory import (
-    FabricanteFichaTecnicaFactory,
-)
 from sme_sigpae_api.pre_recebimento.base.fixtures.factories.unidade_medida_factory import (
     UnidadeMedidaFactory,
 )
-from ...models import (
-    AnaliseFichaTecnica,
-    FichaTecnicaDoProduto,
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.fixtures.factories.fabricante_ficha_tecnica_factory import (
+    FabricanteFichaTecnicaFactory,
 )
 from sme_sigpae_api.produto.fixtures.factories.produto_factory import (
     MarcaFactory,
@@ -18,6 +14,11 @@ from sme_sigpae_api.produto.fixtures.factories.produto_factory import (
 )
 from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import (
     EmpresaFactory,
+)
+
+from ...models import (
+    AnaliseFichaTecnica,
+    FichaTecnicaDoProduto,
 )
 
 fake = Faker("pt_BR")

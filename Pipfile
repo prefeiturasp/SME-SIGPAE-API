@@ -20,7 +20,7 @@ pytest-django="==4.11.1"  # https://github.com/pytest-dev/pytest-django
 pytest-factoryboy="==2.7.0"
 factory-boy = "==3.3.3"
 faker = "==37.4.0"
-model-mommy = "==2.0.0"
+model-bakery = "==1.20.5"
 # Code quality
 # ------------------------------------------------------------------------------
 coverage="==7.9.1"             # https://github.com/nedbat/coveragepy
@@ -48,13 +48,13 @@ psycopg2="==2.9.10"  # https://github.com/psycopg/psycopg2
 requests="==2.32.4"
 celery = "==5.5.1"   # http://www.celeryproject.org
 pytz= "==2025.2"  # https://github.com/stub42/pytz
-python-slugify= "==8.0.1"  # https://github.com/un33k/python-slugify
-Pillow= "==10.4.0"  # https://github.com/python-pillow/Pillow
-argon2-cffi= "==23.1.0"  # https://github.com/hynek/argon2_cffi
+python-slugify= "==8.0.4"  # https://github.com/un33k/python-slugify
+pillow= "==11.3.0"  # https://github.com/python-pillow/Pillow
+argon2-cffi= "==25.1.0"  # https://github.com/hynek/argon2_cffi
 redis= "==5.0.1"  # https://github.com/antirez/redis
 django-xworkflows="==1.0.0" # https://github.com/rbarrois/django_xworkflows
 drf_base64="==2.0" # https://pypi.org/project/drf_base64/
-pandas="==2.2.3" # https://github.com/pandas-dev/pandas/
+pandas="==2.3.1" # https://github.com/pandas-dev/pandas/
 numpy="==1.26.4" # https://github.com/numpy/numpy/
 XlsxWriter="==3.0.3" # https://github.com/jmcnamara/XlsxWriter
 # Django
