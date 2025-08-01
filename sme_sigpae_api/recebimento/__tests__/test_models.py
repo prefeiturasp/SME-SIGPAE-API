@@ -73,11 +73,12 @@ def test_questao_ficha_recebimento_meta_modelo(questao_ficha_recebimento_factory
     )
 
 
-def test_ocorrencia_ficha_recebimento_str(ocorrencia_ficha_recebimento_factory, ficha_de_recebimento):
+def test_ocorrencia_ficha_recebimento_str(
+    ocorrencia_ficha_recebimento_factory, ficha_de_recebimento
+):
     """Testa a representação em string do modelo."""
     ocorrencia = ocorrencia_ficha_recebimento_factory.create(
-        ficha_recebimento=ficha_de_recebimento,
-        tipo="FALTA"
+        ficha_recebimento=ficha_de_recebimento, tipo="FALTA"
     )
     assert str(ocorrencia) == f"{ficha_de_recebimento} - Falta"
 
@@ -86,7 +87,9 @@ def test_ocorrencia_ficha_recebimento_meta(ocorrencia_ficha_recebimento_factory)
     """Testa os metadados do modelo."""
     ocorrencia = ocorrencia_ficha_recebimento_factory.create()
     assert ocorrencia._meta.verbose_name == "Ocorrência da Ficha de Recebimento"
-    assert ocorrencia._meta.verbose_name_plural == "Ocorrências das Fichas de Recebimento"
+    assert (
+        ocorrencia._meta.verbose_name_plural == "Ocorrências das Fichas de Recebimento"
+    )
     assert ocorrencia._meta.ordering == ["criado_em"]
 
 
@@ -97,9 +100,9 @@ def test_ocorrencia_ficha_recebimento_fields(ocorrencia_ficha_recebimento_factor
         relacao="TOTAL",
         numero_nota="NF12345",
         quantidade="10 unidades",
-        descricao="Produto recusado"
+        descricao="Produto recusado",
     )
-    
+
     assert ocorrencia.tipo == "RECUSA"
     assert ocorrencia.relacao == "TOTAL"
     assert ocorrencia.numero_nota == "NF12345"
