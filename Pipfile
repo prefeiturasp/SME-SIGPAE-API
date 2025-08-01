@@ -56,7 +56,7 @@ django-xworkflows="==1.0.0" # https://github.com/rbarrois/django_xworkflows
 drf_base64="==2.0" # https://pypi.org/project/drf_base64/
 pandas="==2.3.1" # https://github.com/pandas-dev/pandas/
 numpy="==2.3.1" # https://github.com/numpy/numpy/
-XlsxWriter="==3.0.3" # https://github.com/jmcnamara/XlsxWriter
+XlsxWriter="==3.2.5" # https://github.com/jmcnamara/XlsxWriter
 # Django
 # ------------------------------------------------------------------------------
 django="==5.2.2"          # https://www.djangoproject.com/

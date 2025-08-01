@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "508c67f8c40606a8796ec14ab227605cee828dab7414f80d784f2c4fe9922763"
+            "sha256": "701675ea953a28727c2b81994a347414e7416ae98bd7bf98a04c69a4e3ef16b6"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -2075,7 +2075,7 @@
                 "sha256:1a403fada01ff9221ca8044d701868fa132215d84beb92242d9acd2147f667a8",
                 "sha256:b60a638fcc0daffadf82fe0f57e53d06bdec2f36c4df66280ae79bce6bd6f2b9"
             ],
-            "markers": "platform_system == 'Windows'",
+            "markers": "python_version >= '2'",
             "version": "==2025.2"
         },
         "unidecode": {
@@ -2238,11 +2238,11 @@
         },
         "xlsxwriter": {
             "hashes": [
-                "sha256:df0aefe5137478d206847eccf9f114715e42aaea077e6a48d0e8a2152e983010",
-                "sha256:e89f4a1d2fa2c9ea15cde77de95cd3fd8b0345d0efb3964623f395c8c4988b7f"
+                "sha256:4f4824234e1eaf9d95df9a8fe974585ff91d0f5e3d3f12ace5b71e443c1c6abd",
+                "sha256:7e88469d607cdc920151c0ab3ce9cf1a83992d4b7bc730c5ffdd1a12115a7dbe"
             ],
-            "markers": "python_version >= '3.4'",
-            "version": "==3.0.3"
+            "markers": "python_version >= '3.8'",
+            "version": "==3.2.5"
         },
         "xworkflows": {
             "hashes": [
@@ -4489,7 +4489,7 @@
                 "sha256:1a403fada01ff9221ca8044d701868fa132215d84beb92242d9acd2147f667a8",
                 "sha256:b60a638fcc0daffadf82fe0f57e53d06bdec2f36c4df66280ae79bce6bd6f2b9"
             ],
-            "markers": "platform_system == 'Windows'",
+            "markers": "python_version >= '2'",
             "version": "==2025.2"
         },
         "uri-template": {
