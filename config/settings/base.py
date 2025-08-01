@@ -7,7 +7,6 @@ import os
 import environ
 import requests
 import sentry_sdk
-from kombu import Queue
 from sentry_sdk.integrations.django import DjangoIntegration
 
 # (sme_sigpae_api/config/settings/base.py - 3 = sme_sigpae_api/)
@@ -379,6 +378,11 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TIMEZONE = TIME_ZONE
 
+"""
+bloco comentado até discutir quando entrar duas filas
+"""
+
+"""
 CELERY_TASK_DEFAULT_QUEUE = "default"
 
 CELERY_QUEUES = (
@@ -437,6 +441,7 @@ CELERY_ROUTES = {
         "queue": "beat"
     },
 }
+"""
 
 # reset password
 PASSWORD_RESET_TIMEOUT_DAYS = 1
