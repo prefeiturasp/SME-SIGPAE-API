@@ -1,0 +1,34 @@
+<p><b>Alterações realizadas</b></p>
+{% for campo, mudanca in alteracoes.items %}
+  {% if campo != 'substituicoes' %}
+    <p><b>Campo: </b>{{ campo|title }}</p>
+    <ul>
+      <li>De: {{ mudanca.de }}</li>
+      <li>Para: {{ mudanca.para }}</li>
+    </ul>
+  {% endif %}
+{% endfor %}
+
+{% if 'substituicoes' in alteracoes %}
+  <p><b>Substituições de Alimentos</b></p>
+  <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
+    <thead>
+      <tr style="background-color: #f2f2f2;">
+        <th>Tipo de Alteração</th>
+        <th>Alimento</th>
+        <th>Tipo</th>
+        <th>Substitutos</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sub in alteracoes.substituicoes %}
+        <tr style="{% if sub.tipo == 'ITEM EXCLUÍDO' %}background-color: #ffeeee;{% elif sub.tipo == 'ITEM INCLUÍDO' %}background-color: #eeffee;{% else %}background-color: #ffffdd;{% endif %}">
+          <td><strong>{{ sub.tipo }}</strong></td>
+          <td>{{ sub.dados.alimento }}</td>
+          <td>{{ sub.dados.tipo }}</td>
+          <td>{{ sub.dados.substitutos}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
