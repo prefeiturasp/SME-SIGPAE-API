@@ -64,7 +64,7 @@ django-environ="==0.12.0"  # https://github.com/joke2k/django-environ
 django-model-utils="==4.5.1"  # https://github.com/jazzband/django-model-utils
 django-redis="==5.4.0"  # https://github.com/niwinz/django-redis
 django-des = {editable = true, ref = "3.0.0", git = "https://github.com/prefeiturasp/django-des-fork.git"}
-django-auditlog="==2.2.1"   # https://github.com/jazzband/django-auditlog/
+django-auditlog="==3.2.1"   # https://github.com/jazzband/django-auditlog/
 django-cors-headers="==3.10.1"   # https://pypi.org/project/django-cors-headers/
 django-sequences="==2.8"  # https://pypi.org/project/django-sequences/
 django-multiselectfield="==0.1.13" # https://github.com/goinnn/django-multiselectfield
