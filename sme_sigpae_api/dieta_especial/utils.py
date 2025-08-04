@@ -37,6 +37,7 @@ from .models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
     LogDietasAtivasCanceladasAutomaticamente,
+    ProtocoloPadraoDietaEspecial,
     SolicitacaoDietaEspecial,
 )
 
@@ -1238,20 +1239,22 @@ def _parse_data(valor: str, campo: str) -> datetime:
 def atualiza_log_protocolo(instance, dados_protocolo_novo):
     alteracoes = {}
     texto_html = ""
-    dados_protocolo_atual = {
-        "alergias_intolerancias": list(
-            instance.alergias_intolerancias.values_list("id", flat=True)
-        ),
-        "classificacao": instance.classificacao.id,
-    }
 
     alteracoes["Relação por Diagnóstico"] = _compara_alergias(
-        atuais=dados_protocolo_atual["alergias_intolerancias"],
+        instance=instance,
         novas=dados_protocolo_novo.get("alergias_intolerancias"),
     )
     alteracoes["Classificação da Dieta"] = _compara_classificacao(
-        atual=dados_protocolo_atual["classificacao"],
+        instance=instance,
         nova=dados_protocolo_novo.get("classificacao"),
+    )
+    alteracoes["Nome do Protocolo Padrão"] = _compara_protocolo(
+        instance=instance,
+        uuid_novo_procotolo=dados_protocolo_novo.get("protocolo_padrao"),
+    )
+    alteracoes["Orientações Gerais"] = _compara_orientacoes(
+        instance=instance,
+        nova_orientacao=dados_protocolo_novo.get("orientacoes_gerais"),
     )
 
     if alteracoes:
@@ -1316,37 +1319,63 @@ def update_de_teste(instance, dados_request):
     return texto
 
 
-def _compara_alergias(atuais, novas):
+def _compara_alergias(instance, novas):
     if novas:
-        ids_alergias_atuais = set(atuais)
+        alergias = instance.alergias_intolerancias.all().order_by("descricao")
+        ids_alergias_atuais = set(alergias.values_list("id", flat=True))
         ids_alergias_novas = set(map(int, novas))
         if ids_alergias_atuais != ids_alergias_novas:
-            nome_atuais = (
-                AlergiaIntolerancia.objects.filter(id__in=list(ids_alergias_atuais))
-                .values_list("descricao", flat=True)
-                .order_by("descricao")
-            )
-            nome_novas = (
+            nome_novas_alergias = (
                 AlergiaIntolerancia.objects.filter(id__in=list(ids_alergias_novas))
                 .values_list("descricao", flat=True)
                 .order_by("descricao")
             )
-            return {"de": ", ".join(nome_atuais), "para": ", ".join(nome_novas)}
+            return {
+                "de": ", ".join(alergia.descricao for alergia in alergias),
+                "para": ", ".join(nome_novas_alergias),
+            }
     return None
 
 
-def _compara_classificacao(atual, nova):
+def _compara_classificacao(instance, nova):
     if nova:
-        id_classificacao_atual = int(atual)
+        classificacao = instance.classificacao
         id_classificacao_nova = int(nova)
-        if id_classificacao_atual != id_classificacao_nova:
-            classificacao_atual = ClassificacaoDieta.objects.get(
-                id=id_classificacao_atual
-            )
+        if classificacao.id != id_classificacao_nova:
             classificacao_nova = ClassificacaoDieta.objects.get(
                 id=id_classificacao_nova
             )
-            return {"de": classificacao_atual.nome, "para": classificacao_nova.nome}
+            return {"de": classificacao.nome, "para": classificacao_nova.nome}
+    return None
+
+
+def _compara_protocolo(instance, uuid_novo_procotolo):
+    if uuid_novo_procotolo:
+        protocolo_padrao = instance.protocolo_padrao
+        if str(protocolo_padrao.uuid) != uuid_novo_procotolo:
+            protocolo_novo = ProtocoloPadraoDietaEspecial.objects.get(
+                uuid=uuid_novo_procotolo
+            )
+            return {
+                "de": protocolo_padrao.nome_protocolo,
+                "para": protocolo_novo.nome_protocolo,
+            }
+    return None
+
+
+def _compara_orientacoes(instance, nova_orientacao):
+    from bs4 import BeautifulSoup
+
+    if nova_orientacao:
+        protocolo_padrao = instance.protocolo_padrao
+        if str(protocolo_padrao.orientacoes_gerais) != nova_orientacao:
+            texto_instance = BeautifulSoup(
+                protocolo_padrao.orientacoes_gerais, "html.parser"
+            ).get_text(strip=True)
+            texto_novo = BeautifulSoup(nova_orientacao, "html.parser").get_text(
+                strip=True
+            )
+            return {"de": texto_instance, "para": texto_novo}
     return None
 
 
