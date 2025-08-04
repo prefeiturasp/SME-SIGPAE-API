@@ -174,9 +174,11 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
 
 
 def test_insere_tabela_periodos_na_planilha_unidade_emei(
-    informacoes_excel_writer_emei, mock_colunas, mock_linhas_emei
+    relatorio_consolidado_xlsx_emei, mock_colunas, mock_linhas_emei
 ):
-    aba, writer, _, _, _, _ = informacoes_excel_writer_emei
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {relatorio_consolidado_xlsx_emei.mes}-{ relatorio_consolidado_xlsx_emei.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
 
     df = insere_tabela_periodos_na_planilha(aba, mock_colunas, mock_linhas_emei, writer)
     assert isinstance(df, pd.DataFrame)
