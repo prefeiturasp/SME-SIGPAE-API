@@ -11,6 +11,7 @@ from django.http import QueryDict
 from django.template.loader import render_to_string
 from rest_framework.pagination import PageNumberPagination
 
+
 from sme_sigpae_api.dieta_especial.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
@@ -33,7 +34,7 @@ from .constants import (
     UNIDADES_EMEI_EMEF_CIEJA,
     UNIDADES_SEM_PERIODOS,
 )
-from .models import LogDietasAtivasCanceladasAutomaticamente, SolicitacaoDietaEspecial
+from .models import AlergiaIntolerancia, LogDietasAtivasCanceladasAutomaticamente, SolicitacaoDietaEspecial
 
 
 def dietas_especiais_a_terminar():
@@ -1230,6 +1231,28 @@ def _parse_data(valor: str, campo: str) -> datetime:
         )
 
 
+
+def atualiza_log_protocolo(instance, dados_protocolo_novo):
+    alteracoes = {}
+    texto_html = ""
+    dados_protocolo_atual = {
+        "alergias_intolerancias": list(
+            instance.alergias_intolerancias.values_list("id", flat=True)
+        ),
+    }
+
+    alteracoes["Relação por Diagnóstico"] = _comparar_alergias(
+        atuais=dados_protocolo_atual["alergias_intolerancias"],
+        novas=dados_protocolo_novo["alergias_intolerancias"]
+    )
+    
+    if alteracoes:
+        texto_html = _registrar_log_alteracoes(alteracoes)
+    return texto_html
+
+
+
+
 def update_de_teste(instance, dados_request):
     dados_instancia = {
         "alergias_intolerancias": list(
@@ -1273,19 +1296,11 @@ def update_de_teste(instance, dados_request):
 
     alergias_atuais = set(dados_instancia["alergias_intolerancias"])
     alergias_novas = set(map(int, dados_request["alergias_intolerancias"]))
+    alteracoes["alergias_intolerancias"] = _comparar_alergias(alergias_atuais, alergias_novas)
 
-    if alergias_atuais != alergias_novas:
-        alteracoes["alergias_intolerancias"] = {
-            "de": list(alergias_atuais),
-            "para": list(alergias_novas),
-        }
-
-    substituicoes_alteracoes = _comparar_substituicoes(
+    alteracoes["substituicoes"] = _comparar_substituicoes(
         dados_instancia["substituicoes"], dados_request["substituicoes"]
     )
-
-    if substituicoes_alteracoes:
-        alteracoes["substituicoes"] = substituicoes_alteracoes
 
     if alteracoes:
         texto = _registrar_log_alteracoes(alteracoes)
@@ -1304,6 +1319,19 @@ def normalizar_substituicao(sub):
         "tipo": sub["tipo"],
         "substitutos": substituto,
     }
+    
+    
+def  _comparar_alergias(atuais, novas):
+    ids_alergias_atuais = set(atuais)
+    ids_alergias_novas = set(map(int, novas))
+    if ids_alergias_atuais != ids_alergias_novas:
+        nome_atuais = AlergiaIntolerancia.objects.filter(id__in=list(ids_alergias_atuais)).values_list('descricao', flat=True).order_by("descricao")
+        nome_novas = AlergiaIntolerancia.objects.filter(id__in=list(ids_alergias_novas)).values_list('descricao', flat=True).order_by("descricao")
+        return {
+            "de": ", ".join(nome_atuais),
+            "para": ", ".join(nome_novas)
+        }
+    return None
 
 
 def _comparar_substituicoes(substituicoes_atuais, substituicoes_novas):
@@ -1349,7 +1377,10 @@ def _registrar_log_alteracoes(alteracoes):
             for sub in alteracoes["substituicoes"]
         ]
 
-    return render_to_string(
+    html_content  = render_to_string(
         "dieta_especial/historico_atualizacao_dieta.html",
         {"alteracoes": processed_data},
     )
+    with open('/home/priscyla/spassu/pmsp/repositorios/SME-SIGPAE-API/log_protocolo.html', 'w', encoding='utf-8') as f:
+        f.write(html_content)
+    return
