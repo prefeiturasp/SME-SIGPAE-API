@@ -1262,6 +1262,10 @@ def atualiza_log_protocolo(instance, dados_protocolo_novo):
         instance=instance,
         nova_data_termino=dados_protocolo_novo.get("data_termino"),
     )
+    alteracoes["Informações adicionais"] = _compara_informacoes_adicionais(
+        instance=instance,
+        nova_informacao=dados_protocolo_novo.get("informacoes_adicionais"),
+    )
     alteracoes_validas = {k: v for k, v in alteracoes.items() if v is not None}
     if alteracoes_validas:
         texto_html = _registrar_log_alteracoes(alteracoes_validas)
@@ -1371,11 +1375,11 @@ def _compara_protocolo(instance, uuid_novo_procotolo):
 
 def _compara_orientacoes(instance, nova_orientacao):
     if nova_orientacao:
-        protocolo_padrao = instance.protocolo_padrao
-        if str(protocolo_padrao.orientacoes_gerais) != nova_orientacao:
-            texto_instance = BeautifulSoup(
-                protocolo_padrao.orientacoes_gerais, "html.parser"
-            ).get_text(strip=True)
+        orientacoes_gerais = instance.orientacoes_gerais
+        if str(orientacoes_gerais) != nova_orientacao:
+            texto_instance = BeautifulSoup(orientacoes_gerais, "html.parser").get_text(
+                strip=True
+            )
             texto_novo = BeautifulSoup(nova_orientacao, "html.parser").get_text(
                 strip=True
             )
@@ -1402,6 +1406,20 @@ def _compara_data_de_termino(instance, nova_data_termino):
         else:
             para = f"Com data de término {nova_data_termino.strftime("%d/%m/%Y")}"
         return {"de": de, "para": para}
+    return None
+
+
+def _compara_informacoes_adicionais(instance, nova_informacao):
+    if nova_informacao:
+        informacoes_adicionais = instance.informacoes_adicionais
+        if str(informacoes_adicionais) != nova_informacao:
+            texto_instance = BeautifulSoup(
+                informacoes_adicionais, "html.parser"
+            ).get_text(strip=True)
+            texto_novo = BeautifulSoup(nova_informacao, "html.parser").get_text(
+                strip=True
+            )
+            return {"de": texto_instance, "para": texto_novo}
     return None
 
 
