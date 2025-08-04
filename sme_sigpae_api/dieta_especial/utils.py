@@ -4,6 +4,7 @@ from datetime import date, datetime
 from itertools import chain
 from typing import List
 
+from bs4 import BeautifulSoup
 from django.core.exceptions import ValidationError
 from django.db.models import CharField, F, IntegerField, Q, QuerySet, Sum, Value
 from django.db.models.functions import Coalesce
@@ -1256,9 +1257,14 @@ def atualiza_log_protocolo(instance, dados_protocolo_novo):
         instance=instance,
         nova_orientacao=dados_protocolo_novo.get("orientacoes_gerais"),
     )
-
-    if alteracoes:
-        texto_html = _registrar_log_alteracoes(alteracoes)
+    alteracoes["Substituições de Alimentos"] = {"de": "a", "para": "s"}
+    alteracoes["Data de término"] = _compara_data_de_termino(
+        instance=instance,
+        nova_data_termino=dados_protocolo_novo.get("data_termino"),
+    )
+    alteracoes_validas = {k: v for k, v in alteracoes.items() if v is not None}
+    if alteracoes_validas:
+        texto_html = _registrar_log_alteracoes(alteracoes_validas)
     return texto_html
 
 
@@ -1364,8 +1370,6 @@ def _compara_protocolo(instance, uuid_novo_procotolo):
 
 
 def _compara_orientacoes(instance, nova_orientacao):
-    from bs4 import BeautifulSoup
-
     if nova_orientacao:
         protocolo_padrao = instance.protocolo_padrao
         if str(protocolo_padrao.orientacoes_gerais) != nova_orientacao:
@@ -1376,6 +1380,28 @@ def _compara_orientacoes(instance, nova_orientacao):
                 strip=True
             )
             return {"de": texto_instance, "para": texto_novo}
+    return None
+
+
+def _compara_data_de_termino(instance, nova_data_termino):
+
+    data_termino_instance = instance.data_termino
+    nova_data_termino = (
+        datetime.strptime(nova_data_termino, "%Y-%m-%d").date()
+        if nova_data_termino
+        else None
+    )
+    if data_termino_instance != nova_data_termino:
+        if data_termino_instance is None:
+            de = "Sem data término"
+        else:
+            de = f"Com data de término {data_termino_instance.strftime("%d/%m/%Y")}"
+
+        if nova_data_termino is None:
+            para = "Sem data término"
+        else:
+            para = f"Com data de término {nova_data_termino.strftime("%d/%m/%Y")}"
+        return {"de": de, "para": para}
     return None
 
 
