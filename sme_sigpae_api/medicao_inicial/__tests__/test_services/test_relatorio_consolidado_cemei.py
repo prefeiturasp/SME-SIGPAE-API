@@ -1,3 +1,5 @@
+from io import BytesIO
+
 import openpyxl
 import pandas as pd
 import pytest
@@ -483,9 +485,11 @@ def test_processa_periodo_regular(
 
 
 def test_insere_tabela_periodos_na_planilha(
-    informacoes_excel_writer_cemei, mock_colunas_cemei, mock_linhas_cemei
+    relatorio_consolidado_xlsx_cemei, mock_colunas_cemei, mock_linhas_cemei
 ):
-    aba, writer, _, _, _, _ = informacoes_excel_writer_cemei
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {relatorio_consolidado_xlsx_cemei.mes}-{ relatorio_consolidado_xlsx_cemei.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
 
     df = insere_tabela_periodos_na_planilha(
         aba, mock_colunas_cemei, mock_linhas_cemei, writer
