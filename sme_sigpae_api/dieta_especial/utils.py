@@ -36,10 +36,12 @@ from .constants import (
 )
 from .models import (
     AlergiaIntolerancia,
+    Alimento,
     ClassificacaoDieta,
     LogDietasAtivasCanceladasAutomaticamente,
     ProtocoloPadraoDietaEspecial,
     SolicitacaoDietaEspecial,
+    SubstituicaoAlimento,
 )
 
 
@@ -1258,8 +1260,7 @@ def atualiza_log_protocolo(instance, dados_protocolo_novo):
         nova_orientacao=dados_protocolo_novo.get("orientacoes_gerais"),
     )
     alteracoes["Substituições de Alimentos"] = _compara_substituicoes(
-        instance=instance,
-        substituicoes_novas=dados_protocolo_novo.get("substituicoes")
+        instance=instance, substituicoes_novas=dados_protocolo_novo.get("substituicoes")
     )
     alteracoes["Data de término"] = _compara_data_de_termino(
         instance=instance,
@@ -1427,16 +1428,25 @@ def _compara_informacoes_adicionais(instance, nova_informacao):
 
 
 def normalizar_substituicao(sub):
-    if "alimentos_substitutos__uuid" in sub:
-        substituto = str(sub["alimentos_substitutos__uuid"])
+    if isinstance(sub, SubstituicaoAlimento):
+        info = {
+            "alimento": sub.alimento.nome,
+            "tipo": dict(SubstituicaoAlimento.TIPO_CHOICES).get(sub.tipo),
+            "alimentos_substitutos": [s.nome for s in sub.alimentos_substitutos.all()],
+        }
     elif "substitutos" in sub:
-        substituto = sorted([str(s) for s in sub['substitutos']])
-
-    return {
-        "alimento": str(sub["alimento"]),
-        "tipo": sub["tipo"],
-        "substitutos": substituto,
-    }
+        alimento = Alimento.objects.get(id=int(sub["alimento"]))
+        alimentos_substitutos = [
+            Alimento.objects.get(uuid=s) for s in sub["substitutos"]
+        ]
+        info = {
+            "alimento": alimento.nome,
+            "tipo": dict(SubstituicaoAlimento.TIPO_CHOICES).get(sub["tipo"]),
+            "alimentos_substitutos": [s.nome for s in alimentos_substitutos],
+        }
+    else:
+        info = {}
+    return info
 
 
 def _compara_substituicoes(instance, substituicoes_novas):
@@ -1467,21 +1477,31 @@ def _registrar_log_alteracoes(alteracoes):
     processed_data = {}
 
     for campo, mudanca in alteracoes.items():
-        if campo != "substituicoes":
+        if campo != "Substituições de Alimentos":
             processed_data[campo] = {"de": mudanca["de"], "para": mudanca["para"]}
-
-    if "substituicoes" in alteracoes:
-        processed_data["substituicoes"] = [
-            {
-                "tipo": sub["tipo"],
-                "dados": {
-                    "alimento": sub["dados"]["alimento"],
-                    "tipo": sub["dados"]["tipo"],
-                    "substitutos": sub["dados"]["substitutos"],
-                },
+        else:
+            informacoes_substituicao = {
+                "incluidos": [],
+                "excluidos": [],
+                "alterados": [],
             }
-            for sub in alteracoes["substituicoes"]
-        ]
+            for sub in alteracoes["Substituições de Alimentos"]:
+                informacao = {
+                    "tipo": sub["tipo"],
+                    "dados": {
+                        "alimento": sub["dados"]["alimento"],
+                        "tipo": sub["dados"]["tipo"],
+                        "substitutos": ", ".join(sub["dados"]["alimentos_substitutos"]),
+                    },
+                }
+                if sub["tipo"] == "ITEM INCLUÍDO":
+                    informacoes_substituicao["incluidos"].append(informacao)
+
+                elif sub["tipo"] == "ITEM EXCLUÍDO":
+                    informacoes_substituicao["excluidos"].append(informacao)
+                else:
+                    informacoes_substituicao["alterados"].append(informacao)
+            processed_data[campo] = informacoes_substituicao
 
     html_content = render_to_string(
         "dieta_especial/historico_atualizacao_dieta.html",
