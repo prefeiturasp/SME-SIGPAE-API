@@ -1257,7 +1257,10 @@ def atualiza_log_protocolo(instance, dados_protocolo_novo):
         instance=instance,
         nova_orientacao=dados_protocolo_novo.get("orientacoes_gerais"),
     )
-    alteracoes["Substituições de Alimentos"] = {"de": "a", "para": "s"}
+    alteracoes["Substituições de Alimentos"] = _compara_substituicoes(
+        instance=instance,
+        substituicoes_novas=dados_protocolo_novo.get("substituicoes")
+    )
     alteracoes["Data de término"] = _compara_data_de_termino(
         instance=instance,
         nova_data_termino=dados_protocolo_novo.get("data_termino"),
@@ -1319,7 +1322,7 @@ def update_de_teste(instance, dados_request):
         alergias_atuais, alergias_novas
     )
 
-    alteracoes["substituicoes"] = _comparar_substituicoes(
+    alteracoes["substituicoes"] = _compara_substituicoes(
         dados_instancia["substituicoes"], dados_request["substituicoes"]
     )
 
@@ -1427,7 +1430,7 @@ def normalizar_substituicao(sub):
     if "alimentos_substitutos__uuid" in sub:
         substituto = str(sub["alimentos_substitutos__uuid"])
     elif "substitutos" in sub:
-        substituto = sub["substitutos"][0]
+        substituto = sorted([str(s) for s in sub['substitutos']])
 
     return {
         "alimento": str(sub["alimento"]),
@@ -1436,7 +1439,8 @@ def normalizar_substituicao(sub):
     }
 
 
-def _comparar_substituicoes(substituicoes_atuais, substituicoes_novas):
+def _compara_substituicoes(instance, substituicoes_novas):
+    substituicoes_atuais = instance.substituicaoalimento_set.all()
     atuais_normalizadas = [normalizar_substituicao(s) for s in substituicoes_atuais]
     novas_normalizadas = [normalizar_substituicao(s) for s in substituicoes_novas]
 
