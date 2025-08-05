@@ -46,5 +46,36 @@
       </table>
     {% endif %}
 
+    {% if mudanca.alterados %}
+      <table style="width:100%; border-collapse: collapse; border: 1px solid #ccc; margin-bottom: 20px;">
+        {% for info in mudanca.alterados %}
+          <thead style="background-color: #e0e0e0;">
+            <tr>
+              <th colspan="3" style="border: 1px solid #ccc; padding: 8px; text-align: left;">ITEM ALTERADO DE</th>
+            </tr>
+          </thead>
+          <tbody>
+              <tr>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.de.alimento }}</td>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.de.tipo }}</td>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.de.substitutos }}</td>
+              </tr>
+          </tbody>
+          <thead style="background-color: #e0e0e0;">
+            <tr>
+              <th colspan="3" style="border: 1px solid #ccc; padding: 8px; text-align: left;">ITEM ALTERADO PARA</th>
+            </tr>
+          </thead>
+          <tbody>
+              <tr>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.para.alimento }}</td>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.para.tipo }}</td>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.para.substitutos }}</td>
+              </tr>
+          </tbody>
+        {% endfor %}
+      </table>
+    {% endif %}
+
   {% endif %}
 {% endfor %}

@@ -1457,18 +1457,25 @@ def _compara_substituicoes(instance, substituicoes_novas):
     alteracoes = []
 
     for sub in atuais_normalizadas:
-        if sub not in novas_normalizadas:
+        if not any(item["alimento"] == sub["alimento"] for item in novas_normalizadas):
             alteracoes.append({"tipo": "ITEM EXCLUÍDO", "dados": sub})
 
     for sub in novas_normalizadas:
-        if sub not in atuais_normalizadas:
+        if not any(item["alimento"] == sub["alimento"] for item in atuais_normalizadas):
             alteracoes.append({"tipo": "ITEM INCLUÍDO", "dados": sub})
 
     for sub_atual in atuais_normalizadas:
         for sub_novo in novas_normalizadas:
             if sub_atual["alimento"] == sub_novo["alimento"] and sub_atual != sub_novo:
-                alteracoes.append({"tipo": "ITEM ALTERADO DE", "dados": sub_atual})
-                alteracoes.append({"tipo": "ITEM ALTERADO PARA", "dados": sub_novo})
+                alteracoes.append(
+                    {
+                        "tipo": "ITEM ALTERADO",
+                        "dados": {
+                            "de": {"tipo": "ITEM ALTERADO DE", "dados": sub_atual},
+                            "para": {"tipo": "ITEM ALTERADO PARA", "dados": sub_novo},
+                        },
+                    }
+                )
 
     return alteracoes if alteracoes else None
 
@@ -1486,21 +1493,60 @@ def _registrar_log_alteracoes(alteracoes):
                 "alterados": [],
             }
             for sub in alteracoes["Substituições de Alimentos"]:
-                informacao = {
-                    "tipo": sub["tipo"],
-                    "dados": {
-                        "alimento": sub["dados"]["alimento"],
-                        "tipo": sub["dados"]["tipo"],
-                        "substitutos": ", ".join(sub["dados"]["alimentos_substitutos"]),
-                    },
-                }
                 if sub["tipo"] == "ITEM INCLUÍDO":
-                    informacoes_substituicao["incluidos"].append(informacao)
-
+                    informacoes_substituicao["incluidos"].append(
+                        {
+                            "tipo": sub["tipo"],
+                            "dados": {
+                                "alimento": sub["dados"]["alimento"],
+                                "tipo": sub["dados"]["tipo"],
+                                "substitutos": ", ".join(
+                                    sub["dados"]["alimentos_substitutos"]
+                                ),
+                            },
+                        }
+                    )
                 elif sub["tipo"] == "ITEM EXCLUÍDO":
-                    informacoes_substituicao["excluidos"].append(informacao)
-                else:
-                    informacoes_substituicao["alterados"].append(informacao)
+                    informacoes_substituicao["excluidos"].append(
+                        {
+                            "tipo": sub["tipo"],
+                            "dados": {
+                                "alimento": sub["dados"]["alimento"],
+                                "tipo": sub["dados"]["tipo"],
+                                "substitutos": ", ".join(
+                                    sub["dados"]["alimentos_substitutos"]
+                                ),
+                            },
+                        }
+                    )
+                elif sub["tipo"] == "ITEM ALTERADO":
+                    informacoes_substituicao["alterados"].append(
+                        {
+                            "tipo": sub["tipo"],
+                            "dados": {
+                                "de": {
+                                    "alimento": sub["dados"]["de"]["dados"]["alimento"],
+                                    "tipo": sub["dados"]["de"]["dados"]["tipo"],
+                                    "substitutos": ", ".join(
+                                        sub["dados"]["de"]["dados"][
+                                            "alimentos_substitutos"
+                                        ]
+                                    ),
+                                },
+                                "para": {
+                                    "alimento": sub["dados"]["para"]["dados"][
+                                        "alimento"
+                                    ],
+                                    "tipo": sub["dados"]["para"]["dados"]["tipo"],
+                                    "substitutos": ", ".join(
+                                        sub["dados"]["para"]["dados"][
+                                            "alimentos_substitutos"
+                                        ]
+                                    ),
+                                },
+                            },
+                        }
+                    )
             processed_data[campo] = informacoes_substituicao
 
     html_content = render_to_string(
@@ -1513,4 +1559,4 @@ def _registrar_log_alteracoes(alteracoes):
         encoding="utf-8",
     ) as f:
         f.write(html_content)
-    return
+    return html_content
