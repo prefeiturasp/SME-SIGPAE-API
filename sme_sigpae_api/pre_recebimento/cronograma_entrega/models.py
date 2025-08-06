@@ -91,23 +91,25 @@ class EtapasDoCronograma(ModeloBase):
         "Qtde. Total do Empenho", blank=True, null=True
     )
     etapa = models.IntegerField(blank=True, null=True, verbose_name="Etapa")
-    parte = models.CharField(blank=True, max_length=15)
+    parte = models.IntegerField(blank=True, null=True, verbose_name="Parte")
     data_programada = models.DateField("Data Programada", blank=True, null=True)
     quantidade = models.FloatField(blank=True, null=True)
     total_embalagens = models.FloatField("Total de Embalagens", blank=True, null=True)
 
     def __str__(self):
-        if self.etapa is not None and self.parte and self.cronograma:
-            return f"Etapa {self.etapa} - {self.parte} - Cronograma {self.cronograma.numero}"
+        etapa = f" {self.etapa}" if self.etapa is not None else ""
+        parte = f"Parte {self.parte} - " if self.parte is not None else ""
+        cronograma = f"Cronograma {self.cronograma.numero}" if self.cronograma is not None else "sem Cronograma"
 
-        if self.cronograma:
-            return f"Etapa do Cronograma {self.cronograma.numero}"
-
-        return "Etapa sem Cronograma"
+        return f"Etapa{etapa} - {parte}{cronograma}"
 
     class Meta:
         verbose_name = "Etapa do Cronograma"
         verbose_name_plural = "Etapas dos Cronogramas"
+        ordering = ['etapa', 'parte']
+        indexes = [
+            models.Index(fields=['etapa', 'parte']),
+        ]
 
     @classmethod
     def etapas_to_json(cls):
