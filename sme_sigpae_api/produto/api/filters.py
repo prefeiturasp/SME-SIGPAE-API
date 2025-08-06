@@ -54,7 +54,7 @@ class ProdutoFilter(filters.FilterSet):
 
 
 def filtros_produto_reclamacoes(request):
-    status_reclamacao = request.query_params.getlist("status_reclamacao")
+    status_reclamacao = request.query_params.getlist("status_reclamacao[]")
     data_inicial_reclamacao = request.query_params.get("data_inicial_reclamacao")
     data_final_reclamacao = request.query_params.get("data_final_reclamacao")
     filtro_homologacao = {}
