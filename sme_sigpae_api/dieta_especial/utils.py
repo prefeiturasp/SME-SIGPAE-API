@@ -1431,7 +1431,7 @@ def normalizar_substituicao(sub):
     if isinstance(sub, SubstituicaoAlimento):
         info = {
             "alimento": sub.alimento.nome,
-            "tipo": dict(SubstituicaoAlimento.TIPO_CHOICES).get(sub.tipo),
+            "tipo": dict(SubstituicaoAlimento.TIPO_CHOICES).get(sub.tipo).upper(),
             "alimentos_substitutos": [s.nome for s in sub.alimentos_substitutos.all()],
         }
     elif "substitutos" in sub:
@@ -1441,7 +1441,7 @@ def normalizar_substituicao(sub):
         ]
         info = {
             "alimento": alimento.nome,
-            "tipo": dict(SubstituicaoAlimento.TIPO_CHOICES).get(sub["tipo"]),
+            "tipo": dict(SubstituicaoAlimento.TIPO_CHOICES).get(sub["tipo"]).upper(),
             "alimentos_substitutos": [s.nome for s in alimentos_substitutos],
         }
     else:
