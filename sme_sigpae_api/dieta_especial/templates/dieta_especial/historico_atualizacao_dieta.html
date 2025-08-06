@@ -18,9 +18,15 @@
         <tbody>
           {% for info in mudanca.excluidos %}
             <tr>
-              <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.alimento }}</td>
-              <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.tipo }}</td>
-              <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.substitutos }}</td>
+              <td style="border: 1px solid #ccc; padding: 8px; width: 25%">{{ info.dados.alimento }}</td>
+              <td style="border: 1px solid #ccc; padding: 8px; width: 25%">{{ info.dados.tipo }}</td>
+              <td style="border: 1px solid #ccc; padding: 8px; width: 50%">
+                <ul>
+                {% for item in  info.dados.substitutos %}
+                  <li> {{ item }}</li>
+                {% endfor %}
+                </ul>
+              </td>
             </tr>
           {% endfor %}
         </tbody>
@@ -37,9 +43,15 @@
         <tbody>
           {% for info in mudanca.incluidos %}
             <tr>
-              <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.alimento }}</td>
-              <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.tipo }}</td>
-              <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.substitutos }}</td>
+              <td style="border: 1px solid #ccc; padding: 8px; width: 25%">{{ info.dados.alimento }}</td>
+              <td style="border: 1px solid #ccc; padding: 8px; width: 25%">{{ info.dados.tipo }}</td>
+              <td style="border: 1px solid #ccc; padding: 8px; width: 50%">
+                <ul>
+                {% for item in info.dados.substitutos  %}
+                  <li> {{ item }}</li>
+                {% endfor %}
+                </ul>
+              </td>
             </tr>
           {% endfor %}
         </tbody>
@@ -57,9 +69,15 @@
           </thead>
           <tbody>
               <tr>
-                <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.de.alimento }}</td>
-                <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.de.tipo }}</td>
-                <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.de.substitutos }}</td>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 25%">{{ info.de.dados.alimento }}</td>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 25%">{{ info.de.dados.tipo }}</td>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 50%">
+                  <ul>
+                  {% for item in info.de.dados.substitutos %}
+                    <li> {{ item }}</li>
+                  {% endfor %}
+                  </ul>
+                </td>
               </tr>
           </tbody>
           <thead style="background-color: #e0e0e0;">
@@ -69,9 +87,15 @@
           </thead>
           <tbody>
               <tr>
-                <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.para.alimento }}</td>
-                <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.para.tipo }}</td>
-                <td style="border: 1px solid #ccc; padding: 8px; width: 33%">{{ info.dados.para.substitutos }}</td>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 25%">{{ info.para.dados.alimento }}</td>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 25%">{{ info.para.dados.tipo }}</td>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 50%">
+                  <ul>
+                  {% for item in info.para.dados.substitutos %}
+                    <li> {{ item }}</li>
+                  {% endfor %}
+                  </ul>
+                </td>
               </tr>
           </tbody>
         </table>
