@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional, Union
 
 from bs4 import BeautifulSoup
 from django.core.exceptions import ValidationError
@@ -9,11 +10,28 @@ from .models import (
     Alimento,
     ClassificacaoDieta,
     ProtocoloPadraoDietaEspecial,
+    SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
 )
 
 
-def atualiza_historico_protocolo(instance, dados_protocolo_novo):
+def atualiza_historico_protocolo(
+    instance: SolicitacaoDietaEspecial, dados_protocolo_novo: dict
+) -> str:
+    """
+    Atualiza o histórico de alterações de um protocolo de dieta especial.
+    Compara os dados atuais do protocolo com os novos dados e gera um HTML com as diferenças.
+
+    Args:
+        instance (SolicitacaoDietaEspecial): Instância do modelo SolicitacaoDietaEspecial a ser comparada.
+        dados_protocolo_novo (dict): Dicionário com os novos dados do protocolo.
+
+    Raises:
+        ValidationError: Se ocorrer algum erro durante o processamento das alterações.
+
+    Returns:
+        str: HTML com as alterações identificadas ou string vazia se não houver alterações.
+    """
     try:
         alteracoes = {
             "Relação por Diagnóstico": _compara_alergias(
@@ -53,11 +71,32 @@ def atualiza_historico_protocolo(instance, dados_protocolo_novo):
         )
 
 
-def _extrair_texto_html(html):
+def _extrair_texto_html(html: str) -> str:
+    """
+    Extrai o texto puro de um conteúdo HTML.
+
+    Args:
+        html (str): String contendo HTML a ser processado.
+
+    Returns:
+        str: Texto extraído do HTML, sem tags ou marcações.
+    """
     return BeautifulSoup(html, "html.parser").get_text(strip=True)
 
 
-def _compara_alergias(instance, novas_alergias):
+def _compara_alergias(
+    instance: SolicitacaoDietaEspecial, novas_alergias: Optional[list[str]]
+) -> Optional[dict]:
+    """
+    Compara as alergias/intolerâncias atuais com as novas.
+
+    Args:
+        instance (SolicitacaoDietaEspecial): Instância do modelo SolicitacaoDietaEspecial com as alergias/intolerâncias atuais.
+        novas_alergias (list[str]): Lista de IDs das novas alergias/intolerâncias.
+
+    Returns:
+        Optional[dict]: Dicionário com as descrições antigas e novas se houver diferença, None caso contrário.
+    """
     if not novas_alergias:
         return None
     alergias = instance.alergias_intolerancias.all().order_by("descricao")
@@ -76,7 +115,19 @@ def _compara_alergias(instance, novas_alergias):
     return None
 
 
-def _compara_classificacao(instance, nova_classificacao):
+def _compara_classificacao(
+    instance: SolicitacaoDietaEspecial, nova_classificacao: Optional[str]
+) -> Optional[dict]:
+    """
+    Compara a classificação atual da dieta com a nova.
+
+    Args:
+        instance (SolicitacaoDietaEspecial): Instância do modelo SolicitacaoDietaEspecial com a classificação atual.
+        nova_classificacao (str): ID da nova classificação.
+
+    Returns:
+        Optional[dict]: Dicionário com os nomes antigo e novo se houver diferença, None caso contrário.ription_
+    """
     if not nova_classificacao:
         return None
 
@@ -88,7 +139,19 @@ def _compara_classificacao(instance, nova_classificacao):
     return None
 
 
-def _compara_protocolo(instance, uuid_novo_procotolo):
+def _compara_protocolo(
+    instance: SolicitacaoDietaEspecial, uuid_novo_procotolo: Optional[str]
+) -> Optional[dict]:
+    """
+    Compara o protocolo padrão atual com o novo.
+
+    Args:
+        instance (SolicitacaoDietaEspecial): Instância do modelo SolicitacaoDietaEspecial com o protocolo atual.
+        uuid_novo_procotolo (Optional[str]): UUID do novo protocolo.
+
+    Returns:
+        Optional[dict]:  Dicionário com os nomes antigo e novo se houver diferença,  None caso contrário.
+    """
     if not uuid_novo_procotolo:
         return None
 
@@ -104,7 +167,19 @@ def _compara_protocolo(instance, uuid_novo_procotolo):
     return None
 
 
-def _compara_orientacoes(instance, nova_orientacao):
+def _compara_orientacoes(
+    instance: SolicitacaoDietaEspecial, nova_orientacao: str
+) -> Optional[dict]:
+    """
+    Compara as orientações gerais atuais com as novas.
+
+    Args:
+        instance (SolicitacaoDietaEspecial): Instância do modelo SolicitacaoDietaEspecial com as orientações atuais.
+        nova_orientacao (str): Novas orientações em formato HTML
+
+    Returns:
+        Optional[dict]:  Dicionário com os textos antigo e novo se houver diferença, None caso contrário
+    """
     if not nova_orientacao:
         return None
     orientacoes_gerais = instance.orientacoes_gerais
@@ -115,7 +190,19 @@ def _compara_orientacoes(instance, nova_orientacao):
     return None
 
 
-def _compara_data_de_termino(instance, nova_data_termino):
+def _compara_data_de_termino(
+    instance: SolicitacaoDietaEspecial, nova_data_termino: Optional[str]
+) -> Optional[dict]:
+    """
+    Compara a data de término atual com a nova.
+
+    Args:
+        instance (SolicitacaoDietaEspecial): Instância do modelo SolicitacaoDietaEspecial com a data atual.
+        nova_data_termino (Optional[str]): Nova data de término no formato YYYY-MM-DD.
+
+    Returns:
+        Optional[dict]: Dicionário com as datas formatadas antiga e nova se houver diferença, None caso contrário
+    """
     data_termino_instance = instance.data_termino
     nova_data_termino = (
         datetime.strptime(nova_data_termino, "%Y-%m-%d").date()
@@ -130,7 +217,16 @@ def _compara_data_de_termino(instance, nova_data_termino):
     return None
 
 
-def _formata_data_termino(data_termino):
+def _formata_data_termino(data_termino: Optional[datetime.date]) -> str:
+    """
+    Formata a data de término para exibição.
+
+    Args:
+        data_termino (Optional[datetime.date]): Data a ser formatada.
+
+    Returns:
+        str: Texto formatado da data.
+    """
     if data_termino is None:
         texto = "Sem data término"
     else:
@@ -138,7 +234,19 @@ def _formata_data_termino(data_termino):
     return texto
 
 
-def _compara_informacoes_adicionais(instance, nova_informacao):
+def _compara_informacoes_adicionais(
+    instance: SolicitacaoDietaEspecial, nova_informacao: Optional[str]
+) -> Optional[dict]:
+    """
+    Compara as informações adicionais atuais com as novas.
+
+    Args:
+        instance (SolicitacaoDietaEspecial):  Instância do modelo SolicitacaoDietaEspecial com as informações atuais.
+        nova_informacao (Optional[str]): Novas informações adicionais em formato HTML.
+
+    Returns:
+        Optional[dict]: Dicionário com os textos antigo e novo se houver diferença, None caso contrário.
+    """
     if not nova_informacao:
         return None
     informacoes_adicionais = instance.informacoes_adicionais
@@ -149,7 +257,16 @@ def _compara_informacoes_adicionais(instance, nova_informacao):
     return None
 
 
-def normalizar_substituicao(sub):
+def normalizar_substituicao(sub: Union[SubstituicaoAlimento, dict]) -> dict:
+    """
+    Normaliza os dados de substituição de alimento para comparação.
+
+    Args:
+        sub (Union[SubstituicaoAlimento, dict]): Pode ser uma instância de SubstituicaoAlimento ou um dicionário com os dados da substituição.
+
+    Returns:
+        dict: Dicionário normalizado com alimento, tipo e substitutos.
+    """
     if isinstance(sub, SubstituicaoAlimento):
         info = {
             "alimento": sub.alimento.nome,
@@ -173,7 +290,19 @@ def normalizar_substituicao(sub):
     return info
 
 
-def _compara_substituicoes(instance, substituicoes_novas):
+def _compara_substituicoes(
+    instance: SolicitacaoDietaEspecial, substituicoes_novas: list[dict]
+) -> dict:
+    """
+    Compara as substituições de alimentos atuais com as novas.
+
+    Args:
+        instance (SolicitacaoDietaEspecial):  Instância do modelo SolicitacaoDietaEspecial com as substituições atuais..
+        substituicoes_novas (list[dict]): Lista de novas substituições.
+
+    Returns:
+        dict: Dicionário com itens incluídos, excluídos e alterados se houver diferença, None caso contrário.
+    """
     atuais = [
         normalizar_substituicao(s)
         for s in instance.substituicaoalimento_set.all().order_by("alimento__nome")
@@ -191,7 +320,17 @@ def _compara_substituicoes(instance, substituicoes_novas):
     return {"incluidos": incluidos, "excluidos": excluidos, "alterados": alterados}
 
 
-def _identifica_excluidos(atuais_dict, novos_dict):
+def _identifica_excluidos(atuais_dict: dict, novos_dict: dict) -> list[dict]:
+    """
+    Identifica itens que foram excluídos nas substituições.
+
+    Args:
+        atuais_dict (dict): Dicionário com substituições atuais.
+        novos_dict (dict): Dicionário com novas substituições.
+
+    Returns:
+        list[dict]: Lista de dicionários com os itens excluídos.
+    """
     return [
         {"tipo": "ITEM EXCLUÍDO", "dados": dados}
         for alimento, dados in atuais_dict.items()
@@ -199,7 +338,17 @@ def _identifica_excluidos(atuais_dict, novos_dict):
     ]
 
 
-def _identifica_incluidos(atuais_dict, novos_dict):
+def _identifica_incluidos(atuais_dict: dict, novos_dict: dict) -> list[dict]:
+    """
+    Identifica itens que foram incluídos nas substituições.
+
+    Args:
+        atuais_dict (dict): Dicionário com substituições atuais.
+        novos_dict (dict): Dicionário com novas substituições.
+
+    Returns:
+        list[dict]: Lista de dicionários com os itens incluídos.
+    """
     return [
         {"tipo": "ITEM INCLUÍDO", "dados": dados}
         for alimento, dados in novos_dict.items()
@@ -207,7 +356,17 @@ def _identifica_incluidos(atuais_dict, novos_dict):
     ]
 
 
-def _identifica_alterados(atuais_dict, novos_dict):
+def _identifica_alterados(atuais_dict: dict, novos_dict: dict) -> list[dict]:
+    """
+    Identifica itens que foram alterados nas substituições.
+
+    Args:
+        atuais_dict (dict): Dicionário com substituições atuais.
+        novos_dict (dict): Dicionário com novas substituições.
+
+    Returns:
+        list[dict]: Lista de dicionários com os itens alterados.
+    """
     return [
         {
             "tipo": "ITEM ALTERADO",
