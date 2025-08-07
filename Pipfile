@@ -55,16 +55,16 @@ redis= "==5.0.1"  # https://github.com/antirez/redis
 django-xworkflows="==1.0.0" # https://github.com/rbarrois/django_xworkflows
 drf_base64="==2.0" # https://pypi.org/project/drf_base64/
 pandas="==2.3.1" # https://github.com/pandas-dev/pandas/
-numpy="==1.26.4" # https://github.com/numpy/numpy/
-XlsxWriter="==3.0.3" # https://github.com/jmcnamara/XlsxWriter
+numpy="==2.3.1" # https://github.com/numpy/numpy/
+XlsxWriter="==3.2.5" # https://github.com/jmcnamara/XlsxWriter
 # Django
 # ------------------------------------------------------------------------------
 django="==5.2.2"          # https://www.djangoproject.com/
-django-environ="==0.4.5"  # https://github.com/joke2k/django-environ
-django-model-utils="==3.1.2"  # https://github.com/jazzband/django-model-utils
+django-environ="==0.12.0"  # https://github.com/joke2k/django-environ
+django-model-utils="==4.5.1"  # https://github.com/jazzband/django-model-utils
 django-redis="==5.4.0"  # https://github.com/niwinz/django-redis
 django-des = {editable = true, ref = "3.0.0", git = "https://github.com/prefeiturasp/django-des-fork.git"}
-django-auditlog="==2.2.1"   # https://github.com/jazzband/django-auditlog/
+django-auditlog="==3.2.1"   # https://github.com/jazzband/django-auditlog/
 django-cors-headers="==3.10.1"   # https://pypi.org/project/django-cors-headers/
 django-sequences="==2.8"  # https://pypi.org/project/django-sequences/
 django-multiselectfield="==0.1.13" # https://github.com/goinnn/django-multiselectfield

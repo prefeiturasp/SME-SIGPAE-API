@@ -1,3 +1,5 @@
+from io import BytesIO
+
 import openpyxl
 import pandas as pd
 import pytest
@@ -669,9 +671,11 @@ def test_get_total_pagamento_fundamental(relatorio_consolidado_xlsx_emebs):
 
 
 def test_insere_tabela_periodos_na_planilha(
-    informacoes_excel_writer_emebs, mock_colunas_emebs, mock_linhas_emebs
+    relatorio_consolidado_xlsx_emebs, mock_colunas_emebs, mock_linhas_emebs
 ):
-    aba, writer, _, _, _, _ = informacoes_excel_writer_emebs
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {relatorio_consolidado_xlsx_emebs.mes}-{ relatorio_consolidado_xlsx_emebs.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
 
     df = insere_tabela_periodos_na_planilha(
         aba, mock_colunas_emebs, mock_linhas_emebs, writer
