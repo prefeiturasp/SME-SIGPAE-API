@@ -413,6 +413,8 @@ class OcorrenciaFichaRecebimento(ModeloBase):
     )
     descricao = models.TextField(
         "Descrição",
+        blank=True,
+        null=True,
     )
 
     def __str__(self):

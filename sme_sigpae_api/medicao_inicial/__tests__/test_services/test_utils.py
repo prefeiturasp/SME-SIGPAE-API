@@ -1,3 +1,5 @@
+from io import BytesIO
+
 import pandas as pd
 import pytest
 
@@ -388,12 +390,14 @@ def test_get_valores_iniciais_emebs(relatorio_consolidado_xlsx_emebs):
 
 
 def test_gera_colunas_alimentacao_cemei(
-    informacoes_excel_writer_cemei,
+    relatorio_consolidado_xlsx_cemei,
     mock_colunas_cemei,
     mock_linhas_cemei,
     faixas_etarias_ativas,
 ):
-    aba, writer, _, _, _, _ = informacoes_excel_writer_cemei
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {relatorio_consolidado_xlsx_cemei.mes}-{ relatorio_consolidado_xlsx_cemei.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
     NOMES_CAMPOS.update({faixa.id: faixa.__str__() for faixa in faixas_etarias_ativas})
 
     df = gera_colunas_alimentacao(
@@ -639,9 +643,11 @@ def test_gera_colunas_alimentacao_cemei(
 
 
 def test_gera_colunas_alimentacao_emebs(
-    informacoes_excel_writer_emebs, mock_colunas_emebs, mock_linhas_emebs
+    relatorio_consolidado_xlsx_emebs, mock_colunas_emebs, mock_linhas_emebs
 ):
-    aba, writer, _, _, _, _ = informacoes_excel_writer_emebs
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {relatorio_consolidado_xlsx_emebs.mes}-{ relatorio_consolidado_xlsx_emebs.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
     colunas_fixas = [
         ("", "", "Tipo"),
         ("", "", "Cód. EOL"),
