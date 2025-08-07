@@ -542,7 +542,8 @@ class CadastroProdutosEditalCreateSerializer(serializers.Serializer):
         )
 
         if (nome.upper(), ativo) in (
-            (produto.nome.upper(), produto.ativo) for produto in lista_produtos.exclude(uuid=instance.uuid)
+            (produto.nome.upper(), produto.ativo)
+            for produto in lista_produtos.exclude(uuid=instance.uuid)
         ):
             raise serializers.ValidationError("Item já cadastrado.")
 
