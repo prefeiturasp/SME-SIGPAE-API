@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from bs4 import BeautifulSoup
+from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 
 from .models import (
@@ -13,38 +14,43 @@ from .models import (
 
 
 def atualiza_historico_protocolo(instance, dados_protocolo_novo):
-    alteracoes = {
-        "Relação por Diagnóstico": _compara_alergias(
-            instance, dados_protocolo_novo.get("alergias_intolerancias")
-        ),
-        "Classificação da Dieta": _compara_classificacao(
-            instance, dados_protocolo_novo.get("classificacao")
-        ),
-        "Nome do Protocolo Padrão": _compara_protocolo(
-            instance, dados_protocolo_novo.get("protocolo_padrao")
-        ),
-        "Orientações Gerais": _compara_orientacoes(
-            instance, dados_protocolo_novo.get("orientacoes_gerais")
-        ),
-        "Substituições de Alimentos": _compara_substituicoes(
-            instance, dados_protocolo_novo.get("substituicoes")
-        ),
-        "Data de término": _compara_data_de_termino(
-            instance, dados_protocolo_novo.get("data_termino")
-        ),
-        "Informações adicionais": _compara_informacoes_adicionais(
-            instance,
-            dados_protocolo_novo.get("informacoes_adicionais"),
-        ),
-    }
-    alteracoes_validas = {k: v for k, v in alteracoes.items() if v is not None}
-    if alteracoes_validas:
-        html_content = render_to_string(
-            "dieta_especial/historico_atualizacao_dieta.html",
-            {"alteracoes": alteracoes_validas},
+    try:
+        alteracoes = {
+            "Relação por Diagnóstico": _compara_alergias(
+                instance, dados_protocolo_novo.get("alergias_intolerancias")
+            ),
+            "Classificação da Dieta": _compara_classificacao(
+                instance, dados_protocolo_novo.get("classificacao")
+            ),
+            "Nome do Protocolo Padrão": _compara_protocolo(
+                instance, dados_protocolo_novo.get("protocolo_padrao")
+            ),
+            "Orientações Gerais": _compara_orientacoes(
+                instance, dados_protocolo_novo.get("orientacoes_gerais")
+            ),
+            "Substituições de Alimentos": _compara_substituicoes(
+                instance, dados_protocolo_novo.get("substituicoes")
+            ),
+            "Data de término": _compara_data_de_termino(
+                instance, dados_protocolo_novo.get("data_termino")
+            ),
+            "Informações adicionais": _compara_informacoes_adicionais(
+                instance,
+                dados_protocolo_novo.get("informacoes_adicionais"),
+            ),
+        }
+        alteracoes_validas = {k: v for k, v in alteracoes.items() if v is not None}
+        if alteracoes_validas:
+            html_content = render_to_string(
+                "dieta_especial/historico_atualizacao_dieta.html",
+                {"alteracoes": alteracoes_validas},
+            )
+            return html_content
+        return ""
+    except Exception as e:
+        raise ValidationError(
+            f"Occoreu um erro ao gerar as informações do histórico: {e}"
         )
-        return html_content
-    return ""
 
 
 def _extrair_texto_html(html):
