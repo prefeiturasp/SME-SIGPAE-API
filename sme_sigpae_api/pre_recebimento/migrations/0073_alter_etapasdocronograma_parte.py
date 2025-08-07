@@ -47,27 +47,28 @@ def migrate_parte_backward(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('pre_recebimento', '0072_analisefichatecnica_fabricante_envasador_conferido_and_more'),
+        (
+            "pre_recebimento",
+            "0072_analisefichatecnica_fabricante_envasador_conferido_and_more",
+        ),
     ]
 
     operations = [
         # Add the new integer field
         migrations.AddField(
-            model_name='etapasdocronograma',
-            name='parte_new',
-            field=models.IntegerField(blank=True, null=True, verbose_name='Parte'),
+            model_name="etapasdocronograma",
+            name="parte_new",
+            field=models.IntegerField(blank=True, null=True, verbose_name="Parte"),
         ),
-        
         # Run the data migration
         migrations.RunPython(
             code=migrate_parte_forward,
             reverse_code=migrate_parte_backward,
         ),
-        
         # Make the original field nullable
         migrations.AlterField(
-            model_name='etapasdocronograma',
-            name='parte',
+            model_name="etapasdocronograma",
+            name="parte",
             field=models.CharField(blank=True, max_length=15, null=True),
         ),
     ]

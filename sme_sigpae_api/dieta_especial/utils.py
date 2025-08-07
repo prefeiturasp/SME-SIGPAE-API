@@ -33,7 +33,10 @@ from .constants import (
     UNIDADES_EMEI_EMEF_CIEJA,
     UNIDADES_SEM_PERIODOS,
 )
-from .models import LogDietasAtivasCanceladasAutomaticamente, SolicitacaoDietaEspecial
+from .models import (
+    LogDietasAtivasCanceladasAutomaticamente,
+    SolicitacaoDietaEspecial,
+)
 
 
 def dietas_especiais_a_terminar():
