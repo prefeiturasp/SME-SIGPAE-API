@@ -179,30 +179,41 @@ def _compara_substituicoes(instance, substituicoes_novas):
         for s in instance.substituicaoalimento_set.all().order_by("alimento__nome")
     ]
     novas = [normalizar_substituicao(s) for s in substituicoes_novas]
-    inc, exc, alt = [], [], []
-
     alimentos_atuais = {s["alimento"]: s for s in atuais}
     alimentos_novos = {s["alimento"]: s for s in novas}
 
-    for alimento, dados in alimentos_atuais.items():
-        if alimento not in alimentos_novos:
-            exc.append({"tipo": "ITEM EXCLUÍDO", "dados": dados})
+    incluidos = _identifica_incluidos(alimentos_atuais, alimentos_novos)
+    excluidos = _identifica_excluidos(alimentos_atuais, alimentos_novos)
+    alterados = _identifica_alterados(alimentos_atuais, alimentos_novos)
 
-    for alimento, dados in alimentos_novos.items():
-        if alimento not in alimentos_atuais:
-            inc.append({"tipo": "ITEM INCLUÍDO", "dados": dados})
-        elif dados != alimentos_atuais[alimento]:
-            alt.append(
-                {
-                    "tipo": "ITEM ALTERADO",
-                    "de": {
-                        "tipo": "ITEM ALTERADO DE",
-                        "dados": alimentos_atuais[alimento],
-                    },
-                    "para": {"tipo": "ITEM ALTERADO PARA", "dados": dados},
-                }
-            )
-
-    if not (inc or exc or alt):
+    if not (incluidos or excluidos or alterados):
         return None
-    return {"incluidos": inc, "excluidos": exc, "alterados": alt}
+    return {"incluidos": incluidos, "excluidos": excluidos, "alterados": alterados}
+
+
+def _identifica_excluidos(atuais_dict, novos_dict):
+    return [
+        {"tipo": "ITEM EXCLUÍDO", "dados": dados}
+        for alimento, dados in atuais_dict.items()
+        if alimento not in novos_dict
+    ]
+
+
+def _identifica_incluidos(atuais_dict, novos_dict):
+    return [
+        {"tipo": "ITEM INCLUÍDO", "dados": dados}
+        for alimento, dados in novos_dict.items()
+        if alimento not in atuais_dict
+    ]
+
+
+def _identifica_alterados(atuais_dict, novos_dict):
+    return [
+        {
+            "tipo": "ITEM ALTERADO",
+            "de": {"tipo": "ITEM ALTERADO DE", "dados": atuais_dict[alimento]},
+            "para": {"tipo": "ITEM ALTERADO PARA", "dados": dados},
+        }
+        for alimento, dados in novos_dict.items()
+        if alimento in atuais_dict and dados != atuais_dict[alimento]
+    ]
