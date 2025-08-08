@@ -125,7 +125,7 @@ class ServiceValidacaoCorrecaoFichaTecnica:
             "obrigatorios": [
                 "modo_de_preparo",
             ]
-        }
+        },
     }
 
     CAMPOS_PERECIVEIS = {

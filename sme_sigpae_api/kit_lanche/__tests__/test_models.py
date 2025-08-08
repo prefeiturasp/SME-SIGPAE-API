@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 from freezegun import freeze_time
-from model_mommy import mommy
+from model_bakery import baker
 from xworkflows import InvalidTransitionError
 
 from ...dados_comuns.behaviors import TempoPasseio
@@ -60,7 +60,7 @@ def test_solicitacao(solicitacao):
 def test_solicitacao_avulsa_workflow_case_1_partindo_da_escola(solicitacao_avulsa):
     """RASCUNHO > DRE_A_VALIDAR > DRE_VALIDADO > CODAE_AUTORIZADO > TERCEIRIZADA_TOMOU_CIENCIA."""
     wc = solicitacao_avulsa.workflow_class
-    user = mommy.make("perfil.Usuario")
+    user = baker.make("perfil.Usuario")
     assert solicitacao_avulsa.status == wc.RASCUNHO
 
     solicitacao_avulsa.inicia_fluxo(user=user)
@@ -85,7 +85,7 @@ def test_solicitacao_avulsa_workflow_case_1_partindo_da_escola(solicitacao_avuls
 def test_solicitacao_avulsa_workflow_case_2_partindo_da_escola(solicitacao_avulsa):
     """RASCUNHO > DRE_A_VALIDAR > DRE_PEDIU_ESCOLA_REVISAR > DRE_A_VALIDAR."""
     wc = solicitacao_avulsa.workflow_class
-    user = mommy.make("perfil.Usuario")
+    user = baker.make("perfil.Usuario")
     assert solicitacao_avulsa.status == wc.RASCUNHO
 
     solicitacao_avulsa.inicia_fluxo(user=user)
@@ -105,7 +105,7 @@ def test_solicitacao_avulsa_workflow_case_2_partindo_da_escola(solicitacao_avuls
 def test_solicitacao_avulsa_workflow_case_3_partindo_da_escola(solicitacao_avulsa):
     """RASCUNHO > DRE_A_VALIDAR > DRE_NAO_VALIDOU_PEDIDO_ESCOLA."""
     wc = solicitacao_avulsa.workflow_class
-    user = mommy.make("perfil.Usuario")
+    user = baker.make("perfil.Usuario")
     assert solicitacao_avulsa.status == wc.RASCUNHO
 
     solicitacao_avulsa.inicia_fluxo(user=user)
@@ -118,7 +118,7 @@ def test_solicitacao_avulsa_workflow_case_3_partindo_da_escola(solicitacao_avuls
 def test_solicitacao_avulsa_workflow_case_4_partindo_da_escola(solicitacao_avulsa):
     """RASCUNHO > DRE_A_VALIDAR > DRE_VALIDADO > CODAE_NEGOU_PEDIDO."""
     wc = solicitacao_avulsa.workflow_class
-    user = mommy.make("perfil.Usuario")
+    user = baker.make("perfil.Usuario")
     assert solicitacao_avulsa.status == wc.RASCUNHO
 
     solicitacao_avulsa.inicia_fluxo(user=user)
@@ -135,7 +135,7 @@ def test_solicitacao_avulsa_workflow_case_4_partindo_da_escola(solicitacao_avuls
 
 def test_solicitacao_avulsa_workflow_partindo_da_escola_with_error(solicitacao_avulsa):
     wc = solicitacao_avulsa.workflow_class
-    user = mommy.make("perfil.Usuario")
+    user = baker.make("perfil.Usuario")
     assert solicitacao_avulsa.status == wc.RASCUNHO
 
     with pytest.raises(
@@ -187,10 +187,10 @@ def test_solicitacao_unificada_lista_igual_workflow_case_1_partindo_da_diretoria
 ):
     """RASCUNHO > CODAE_A_AUTORIZAR > CODAE_PEDIU_DRE_REVISAR > CODAE_A_AUTORIZAR."""
     wc = solicitacao_unificada_lista_igual.workflow_class
-    user = mommy.make("perfil.Usuario")
-    perfil_diretor = mommy.make("Perfil", nome="DIRETOR", ativo=True)
+    user = baker.make("perfil.Usuario")
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR", ativo=True)
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola,
@@ -219,7 +219,7 @@ def test_solicitacao_unificada_lista_igual_workflow_case_2_partindo_da_diretoria
 ):
     """RASCUNHO > CODAE_A_AUTORIZAR > CODAE_AUTORIZADO > TERCEIRIZADA_TOMOU_CIENCIA."""
     wc = solicitacao_unificada_lista_igual.workflow_class
-    user = mommy.make("perfil.Usuario")
+    user = baker.make("perfil.Usuario")
     assert solicitacao_unificada_lista_igual.status == wc.RASCUNHO
     assert solicitacao_unificada_lista_igual.ta_na_dre is True
 
@@ -238,7 +238,7 @@ def test_solicitacao_unificada_lista_igual_workflow_case_3_partindo_da_diretoria
 ):
     """RASCUNHO > CODAE_A_AUTORIZAR > CODAE_NEGOU_PEDIDO."""
     wc = solicitacao_unificada_lista_igual.workflow_class
-    user = mommy.make("perfil.Usuario")
+    user = baker.make("perfil.Usuario")
     assert solicitacao_unificada_lista_igual.status == wc.RASCUNHO
 
     solicitacao_unificada_lista_igual.inicia_fluxo(user=user)
@@ -252,7 +252,7 @@ def test_solicitacao_unificada_lista_igual_workflow_partindo_da_escola_with_erro
     solicitacao_unificada_lista_igual,
 ):
     wc = solicitacao_unificada_lista_igual.workflow_class
-    user = mommy.make("perfil.Usuario")
+    user = baker.make("perfil.Usuario")
     assert solicitacao_unificada_lista_igual.status == wc.RASCUNHO
 
     with pytest.raises(
@@ -289,8 +289,8 @@ def test_solicitacao_unificada_lista_igual_workflow_partindo_da_escola_with_erro
 @freeze_time("2019-10-02")
 def test_tageamento_prioridade(kits_avulsos_parametros, escola):
     data_tupla, esperado = kits_avulsos_parametros
-    kit_lanche_base = mommy.make("SolicitacaoKitLanche", data=data_tupla)
-    kit_lanche_avulso = mommy.make(
+    kit_lanche_base = baker.make("SolicitacaoKitLanche", data=data_tupla)
+    kit_lanche_avulso = baker.make(
         "SolicitacaoKitLancheAvulsa",
         escola=escola,
         solicitacao_kit_lanche=kit_lanche_base,
@@ -301,8 +301,8 @@ def test_tageamento_prioridade(kits_avulsos_parametros, escola):
 @freeze_time("2019-12-20")
 def test_tageamento_prioridade_caso2(kits_avulsos_parametros2, escola):
     data_tupla, esperado = kits_avulsos_parametros2
-    kit_lanche_base = mommy.make("SolicitacaoKitLanche", data=data_tupla)
-    kit_lanche_avulso = mommy.make(
+    kit_lanche_base = baker.make("SolicitacaoKitLanche", data=data_tupla)
+    kit_lanche_avulso = baker.make(
         "SolicitacaoKitLancheAvulsa",
         escola=escola,
         solicitacao_kit_lanche=kit_lanche_base,
@@ -323,6 +323,7 @@ def test_kit_lanche_cemei(kit_lanche_cemei):
     assert kit_lanche_cemei.tem_solicitacao_cei is True
     assert kit_lanche_cemei.tem_solicitacao_emei is True
     assert kit_lanche_cemei.total_kits == 120
+    assert kit_lanche_cemei.total_kits_medicao_inicial == 30
 
     solicitacao_cei = kit_lanche_cemei.solicitacao_cei
     assert solicitacao_cei.nomes_kits == "KIT 1, KIT 2, KIT 3"

@@ -5,7 +5,7 @@ import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Faker
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.produto.api.serializers.serializers import (
     HomologacaoProdutoPainelGerencialSerializer,
@@ -33,16 +33,16 @@ Faker.seed(420)
 
 @pytest.fixture
 def escola():
-    terceirizada = mommy.make("Terceirizada")
-    lote = mommy.make("Lote", terceirizada=terceirizada)
-    diretoria_regional = mommy.make(
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
         "DiretoriaRegional",
         nome="DIRETORIA REGIONAL IPIRANGA",
         uuid="9640fef4-a068-474e-8979-2e1b2654357a",
     )
-    contato = mommy.make("Contato", email="test@test2.com")
+    contato = baker.make("Contato", email="test@test2.com")
 
-    return mommy.make(
+    return baker.make(
         "Escola",
         uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd",
         lote=lote,
@@ -53,12 +53,12 @@ def escola():
 
 @pytest.fixture
 def codae():
-    return mommy.make("Codae")
+    return baker.make("Codae")
 
 
 @pytest.fixture
 def template_homologacao_produto():
-    return mommy.make(
+    return baker.make(
         TemplateMensagem,
         assunto="TESTE",
         tipo=TemplateMensagem.HOMOLOGACAO_PRODUTO,
@@ -68,7 +68,7 @@ def template_homologacao_produto():
 
 @pytest.fixture
 def perfil_gpcodae():
-    return mommy.make("Perfil", nome=constants.ADMINISTRADOR_GESTAO_PRODUTO, ativo=True)
+    return baker.make("Perfil", nome=constants.ADMINISTRADOR_GESTAO_PRODUTO, ativo=True)
 
 
 @pytest.fixture
@@ -80,14 +80,14 @@ def client_autenticado_vinculo_codae_produto(
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_admin_gestao_produto = mommy.make(
+    perfil_admin_gestao_produto = baker.make(
         "Perfil",
         nome=constants.ADMINISTRADOR_GESTAO_PRODUTO,
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf2",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -101,48 +101,48 @@ def client_autenticado_vinculo_codae_produto(
 
 @pytest.fixture
 def produtos_edital_41(escola):
-    edital = mommy.make(
+    edital = baker.make(
         "Edital",
         numero="Edital de Pregão nº 41/sme/2017",
         uuid="12288b47-9d27-4089-8c2e-48a6061d83ea",
     )
-    mommy.make(
+    baker.make(
         "Edital",
         numero="Edital de Pregão nº 78/sme/2016",
         uuid="b30a2102-2ae0-404d-8a56-8e5ecd73f868",
     )
-    edital_3 = mommy.make(
+    edital_3 = baker.make(
         "Edital",
         numero="Edital de Pregão nº 78/sme/2022",
         uuid="131f4000-3e31-44f1-9ba5-e7df001a8426",
     )
-    marca_1 = mommy.make("Marca", nome="NAMORADOS")
-    marca_2 = mommy.make("Marca", nome="TIO JOÃO")
-    fabricante_1 = mommy.make("Fabricante", nome="Fabricante 001")
-    fabricante_2 = mommy.make("Fabricante", nome="Fabricante 002")
-    produto_1 = mommy.make(
+    marca_1 = baker.make("Marca", nome="NAMORADOS")
+    marca_2 = baker.make("Marca", nome="TIO JOÃO")
+    fabricante_1 = baker.make("Fabricante", nome="Fabricante 001")
+    fabricante_2 = baker.make("Fabricante", nome="Fabricante 002")
+    produto_1 = baker.make(
         "Produto", nome="ARROZ", marca=marca_1, fabricante=fabricante_1
     )
-    produto_2 = mommy.make(
+    produto_2 = baker.make(
         "Produto",
         nome="ARROZ",
         marca=marca_2,
         fabricante=fabricante_2,
         aditivos="aditivoA, aditivoB, aditivoC",
     )
-    homologacao_p1 = mommy.make(
+    homologacao_p1 = baker.make(
         "HomologacaoProduto",
         produto=produto_1,
         rastro_terceirizada=escola.lote.terceirizada,
         status=HomologacaoProdutoWorkflow.CODAE_HOMOLOGADO,
     )
-    homologacao_p2 = mommy.make(
+    homologacao_p2 = baker.make(
         "HomologacaoProduto",
         produto=produto_2,
         rastro_terceirizada=escola.lote.terceirizada,
         status=HomologacaoProdutoWorkflow.CODAE_HOMOLOGADO,
     )
-    log = mommy.make(
+    log = baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=homologacao_p1.uuid,
         criado_em=datetime.date(2023, 1, 1),
@@ -151,7 +151,7 @@ def produtos_edital_41(escola):
     )  # HOMOLOGACAO_PRODUTO
     log.criado_em = datetime.date(2023, 1, 1)
     log.save()
-    log_2 = mommy.make(
+    log_2 = baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=homologacao_p2.uuid,
         criado_em=datetime.date(2023, 2, 1),
@@ -160,36 +160,36 @@ def produtos_edital_41(escola):
     )  # HOMOLOGACAO_PRODUTO
     log_2.criado_em = datetime.date(2023, 2, 1)
     log_2.save()
-    pe_1 = mommy.make(
+    pe_1 = baker.make(
         "ProdutoEdital",
         produto=produto_1,
         edital=edital,
         tipo_produto="Comum",
         uuid="0f81a49b-0836-42d5-af9e-12cbd7ca76a8",
     )
-    mommy.make(
+    baker.make(
         "ProdutoEdital",
         produto=produto_1,
         edital=edital_3,
         tipo_produto="Comum",
         uuid="e42e3b97-6853-4327-841d-34292c33963c",
     )
-    pe_2 = mommy.make(
+    pe_2 = baker.make(
         "ProdutoEdital",
         produto=produto_2,
         edital=edital,
         tipo_produto="Comum",
         uuid="38cdf4a8-6621-4248-8f5c-378d1bdbfb71",
     )
-    dh_1 = mommy.make(
+    dh_1 = baker.make(
         "DataHoraVinculoProdutoEdital", produto_edital=pe_1, suspenso=True
     )
     dh_1.criado_em = datetime.date(2023, 1, 1)
     dh_1.save()
-    dh_2 = mommy.make("DataHoraVinculoProdutoEdital", produto_edital=pe_2)
+    dh_2 = baker.make("DataHoraVinculoProdutoEdital", produto_edital=pe_2)
     dh_2.criado_em = datetime.date(2023, 2, 1)
     dh_2.save()
-    dh_3 = mommy.make("DataHoraVinculoProdutoEdital", produto_edital=pe_1)
+    dh_3 = baker.make("DataHoraVinculoProdutoEdital", produto_edital=pe_1)
     dh_3.criado_em = datetime.date(2023, 3, 1)
     dh_3.save()
 
@@ -204,14 +204,14 @@ def client_autenticado_vinculo_terceirizada(
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888887"
     )
-    perfil_admin_terceirizada = mommy.make(
+    perfil_admin_terceirizada = baker.make(
         "Perfil",
         nome=constants.ADMINISTRADOR_EMPRESA,
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb95e8afaf0",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=tecerizada,
@@ -242,14 +242,14 @@ def client_autenticado_vinculo_terceirizada_homologacao(
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_diretor = mommy.make(
+    perfil_diretor = baker.make(
         "Perfil",
         nome=constants.ADMINISTRADOR_EMPRESA,
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb95e8afaf0",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=tecerizada,
@@ -257,8 +257,8 @@ def client_autenticado_vinculo_terceirizada_homologacao(
         data_inicial=hoje,
         ativo=True,
     )
-    produto = mommy.make("Produto", criado_por=user)
-    homologacao_produto = mommy.make(
+    produto = baker.make("Produto", criado_por=user)
+    homologacao_produto = baker.make(
         "HomologacaoProduto",
         produto=produto,
         rastro_terceirizada=escola.lote.terceirizada,
@@ -276,49 +276,49 @@ def client_autenticado_vinculo_terceirizada_homologacao(
 
 @pytest.fixture
 def protocolo1():
-    return mommy.make("ProtocoloDeDietaEspecial", nome="Protocolo1")
+    return baker.make("ProtocoloDeDietaEspecial", nome="Protocolo1")
 
 
 @pytest.fixture
 def protocolo2():
-    return mommy.make("ProtocoloDeDietaEspecial", nome="Protocolo2")
+    return baker.make("ProtocoloDeDietaEspecial", nome="Protocolo2")
 
 
 @pytest.fixture
 def protocolo3():
-    return mommy.make("ProtocoloDeDietaEspecial", nome="Protocolo3")
+    return baker.make("ProtocoloDeDietaEspecial", nome="Protocolo3")
 
 
 @pytest.fixture
 def marca1():
-    return mommy.make("Marca", nome="Marca1")
+    return baker.make("Marca", nome="Marca1")
 
 
 @pytest.fixture
 def marca2():
-    return mommy.make("Marca", nome="Marca2")
+    return baker.make("Marca", nome="Marca2")
 
 
 @pytest.fixture
 def fabricante():
-    return mommy.make("Fabricante", nome="Fabricante1")
+    return baker.make("Fabricante", nome="Fabricante1")
 
 
 @pytest.fixture
 def unidade_medida():
-    return mommy.make("produto.UnidadeMedida", nome="Litros")
+    return baker.make("produto.UnidadeMedida", nome="Litros")
 
 
 @pytest.fixture
 def embalagem_produto():
-    return mommy.make("EmbalagemProduto", nome="Bag")
+    return baker.make("EmbalagemProduto", nome="Bag")
 
 
 @pytest.fixture
 def terceirizada():
-    return mommy.make(
+    return baker.make(
         "Terceirizada",
-        contatos=[mommy.make("dados_comuns.Contato")],
+        contatos=[baker.make("dados_comuns.Contato")],
         make_m2m=True,
         nome_fantasia="Alimentos SA",
     )
@@ -326,7 +326,7 @@ def terceirizada():
 
 @pytest.fixture
 def edital():
-    return mommy.make(
+    return baker.make(
         "Edital",
         uuid="617a8139-02a9-4801-a197-622aa20795b9",
         numero="Edital de Pregão nº 56/SME/2016",
@@ -338,7 +338,7 @@ def edital():
 
 @pytest.fixture
 def produto(user, protocolo1, protocolo2, marca1, fabricante):
-    produto = mommy.make(
+    produto = baker.make(
         "Produto",
         uuid="a37bcf3f-a288-44ae-87ae-dbec181a34d4",
         criado_por=user,
@@ -366,45 +366,45 @@ def produto(user, protocolo1, protocolo2, marca1, fabricante):
 
 @pytest.fixture
 def produto_com_editais(produto):
-    edital = mommy.make(
+    edital = baker.make(
         "Edital",
         numero="Edital de Pregão nº 41/sme/2017",
         uuid="12288b47-9d27-4089-8c2e-48a6061d83ea",
     )
-    edital_2 = mommy.make(
+    edital_2 = baker.make(
         "Edital",
         numero="Edital de Pregão nº 78/sme/2016",
         uuid="b30a2102-2ae0-404d-8a56-8e5ecd73f868",
     )
-    edital_3 = mommy.make(
+    edital_3 = baker.make(
         "Edital",
         numero="Edital de Pregão nº 78/sme/2022",
         uuid="131f4000-3e31-44f1-9ba5-e7df001a8426",
     )
-    pe1 = mommy.make(
+    pe1 = baker.make(
         "ProdutoEdital",
         produto=produto,
         edital=edital,
         tipo_produto="Comum",
         uuid="0f81a49b-0836-42d5-af9e-12cbd7ca76a8",
     )
-    pe2 = mommy.make(
+    pe2 = baker.make(
         "ProdutoEdital",
         produto=produto,
         edital=edital_2,
         tipo_produto="Comum",
         uuid="e42e3b97-6853-4327-841d-34292c33963c",
     )
-    pe3 = mommy.make(
+    pe3 = baker.make(
         "ProdutoEdital",
         produto=produto,
         edital=edital_3,
         tipo_produto="Comum",
         uuid="3b4f59eb-a686-49e9-beab-3514a93e3184",
     )
-    mommy.make("DataHoraVinculoProdutoEdital", produto_edital=pe1)
-    mommy.make("DataHoraVinculoProdutoEdital", produto_edital=pe2)
-    mommy.make("DataHoraVinculoProdutoEdital", produto_edital=pe3)
+    baker.make("DataHoraVinculoProdutoEdital", produto_edital=pe1)
+    baker.make("DataHoraVinculoProdutoEdital", produto_edital=pe2)
+    baker.make("DataHoraVinculoProdutoEdital", produto_edital=pe3)
 
     return produto
 
@@ -413,11 +413,11 @@ def produto_com_editais(produto):
 def hom_produto_com_editais(
     escola, template_homologacao_produto, user, produto_com_editais
 ):
-    perfil_admin_terceirizada = mommy.make(
+    perfil_admin_terceirizada = baker.make(
         "Perfil", nome=constants.ADMINISTRADOR_EMPRESA, ativo=True
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola.lote.terceirizada,
@@ -425,20 +425,20 @@ def hom_produto_com_editais(
         data_inicial=hoje,
         ativo=True,
     )
-    homologacao_produto = mommy.make(
+    homologacao_produto = baker.make(
         "HomologacaoProduto",
         produto=produto_com_editais,
         rastro_terceirizada=escola.lote.terceirizada,
         criado_por=user,
         criado_em=datetime.datetime.utcnow(),
     )
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=homologacao_produto.uuid,
         status_evento=LogSolicitacoesUsuario.CODAE_HOMOLOGADO,
         solicitacao_tipo=LogSolicitacoesUsuario.HOMOLOGACAO_PRODUTO,
     )
-    mommy.make(
+    baker.make(
         "ReclamacaoDeProduto",
         uuid="dd06d200-e2f9-4be7-a304-82831ce93ee1",
         criado_por=user,
@@ -479,17 +479,17 @@ def hom_copia(hom_produto_com_editais):
     homologacao_copia = hom_produto_com_editais.cria_copia_homologacao_produto(
         produto_copia
     )
-    mommy.make(
+    baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=homologacao_copia.uuid,
         status_evento=LogSolicitacoesUsuario.CODAE_PENDENTE_HOMOLOGACAO,
         solicitacao_tipo=LogSolicitacoesUsuario.HOMOLOGACAO_PRODUTO,
     )
-    mommy.make("AnaliseSensorial", homologacao_produto=homologacao_copia)
-    resposta_analise = mommy.make(
+    baker.make("AnaliseSensorial", homologacao_produto=homologacao_copia)
+    resposta_analise = baker.make(
         "RespostaAnaliseSensorial", homologacao_produto=homologacao_copia
     )
-    mommy.make(
+    baker.make(
         "AnexoRespostaAnaliseSensorial", resposta_analise_sensorial=resposta_analise
     )
     return homologacao_copia
@@ -504,19 +504,19 @@ def hom_copia_pendente_homologacao(hom_copia):
 
 @pytest.fixture
 def homologacoes_produto(produto, terceirizada):
-    hom = mommy.make(
+    hom = baker.make(
         "HomologacaoProduto",
         produto=produto,
         rastro_terceirizada=terceirizada,
         status=HomologacaoProdutoWorkflow.TERCEIRIZADA_RESPONDEU_RECLAMACAO,
     )
-    mommy.make("LogSolicitacoesUsuario", uuid_original=hom.uuid)
+    baker.make("LogSolicitacoesUsuario", uuid_original=hom.uuid)
     return hom
 
 
 @pytest.fixture
 def vinculo_produto_edital(produto, edital):
-    produto_edital = mommy.make(
+    produto_edital = baker.make(
         "ProdutoEdital",
         uuid="fae48de3-0d2f-4eb1-8b3e-0ddf7d45ee64",
         produto=produto,
@@ -532,12 +532,12 @@ def vinculo_produto_edital(produto, edital):
 def client_autenticado_da_terceirizada(client, django_user_model, terceirizada):
     email = "foo@codae.com"
     password = DJANGO_ADMIN_PASSWORD
-    perfil_adm_terc = mommy.make("Perfil", nome="TERCEIRIZADA", ativo=True)
+    perfil_adm_terc = baker.make("Perfil", nome="TERCEIRIZADA", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="123456"
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=terceirizada,
@@ -551,26 +551,26 @@ def client_autenticado_da_terceirizada(client, django_user_model, terceirizada):
 
 @pytest.fixture
 def tipo_gestao():
-    return mommy.make(TipoGestao, nome="TERC TOTAL")
+    return baker.make(TipoGestao, nome="TERC TOTAL")
 
 
 @pytest.fixture
 def diretoria_regional(tipo_gestao):
-    dre = mommy.make(
+    dre = baker.make(
         DiretoriaRegional,
         nome=fake.name(),
         uuid="d305add2-f070-4ad3-8c17-ba9664a7c655",
         make_m2m=True,
     )
-    mommy.make("Escola", diretoria_regional=dre, tipo_gestao=tipo_gestao)
-    mommy.make("Escola", diretoria_regional=dre, tipo_gestao=tipo_gestao)
-    mommy.make("Escola", diretoria_regional=dre, tipo_gestao=tipo_gestao)
+    baker.make("Escola", diretoria_regional=dre, tipo_gestao=tipo_gestao)
+    baker.make("Escola", diretoria_regional=dre, tipo_gestao=tipo_gestao)
+    baker.make("Escola", diretoria_regional=dre, tipo_gestao=tipo_gestao)
     return dre
 
 
 @pytest.fixture
 def contrato(diretoria_regional, edital):
-    return mommy.make(
+    return baker.make(
         Contrato,
         numero="1",
         processo="12345",
@@ -583,12 +583,12 @@ def contrato(diretoria_regional, edital):
 def client_autenticado_da_dre(client, django_user_model, diretoria_regional):
     email = "user@dre.com"
     password = "admin@123"
-    perfil_adm_dre = mommy.make("Perfil", nome="ADM_DRE", ativo=True)
+    perfil_adm_dre = baker.make("Perfil", nome="ADM_DRE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="123456"
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=diretoria_regional,
@@ -604,7 +604,7 @@ def client_autenticado_da_dre(client, django_user_model, diretoria_regional):
 def client_autenticado_da_escola(client, django_user_model, escola):
     email = "user@escola.com"
     password = DJANGO_ADMIN_PASSWORD
-    perfil_diretor = mommy.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email,
         password=password,
@@ -612,7 +612,7 @@ def client_autenticado_da_escola(client, django_user_model, escola):
         registro_funcional="123456",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=usuario,
         instituicao=escola,
@@ -626,22 +626,22 @@ def client_autenticado_da_escola(client, django_user_model, escola):
 
 @pytest.fixture
 def info_nutricional1():
-    return mommy.make("InformacaoNutricional", nome="CALORIAS")
+    return baker.make("InformacaoNutricional", nome="CALORIAS")
 
 
 @pytest.fixture
 def info_nutricional2():
-    return mommy.make("InformacaoNutricional", nome="LACTOSE")
+    return baker.make("InformacaoNutricional", nome="LACTOSE")
 
 
 @pytest.fixture
 def info_nutricional3():
-    return mommy.make("InformacaoNutricional", nome="COLESTEROL")
+    return baker.make("InformacaoNutricional", nome="COLESTEROL")
 
 
 @pytest.fixture
 def info_nutricional_produto1(produto, info_nutricional1):
-    return mommy.make(
+    return baker.make(
         "InformacoesNutricionaisDoProduto",
         produto=produto,
         informacao_nutricional=info_nutricional1,
@@ -652,7 +652,7 @@ def info_nutricional_produto1(produto, info_nutricional1):
 
 @pytest.fixture
 def info_nutricional_produto2(produto, info_nutricional2):
-    return mommy.make(
+    return baker.make(
         "InformacoesNutricionaisDoProduto",
         produto=produto,
         informacao_nutricional=info_nutricional2,
@@ -663,7 +663,7 @@ def info_nutricional_produto2(produto, info_nutricional2):
 
 @pytest.fixture
 def info_nutricional_produto3(produto, info_nutricional3):
-    return mommy.make(
+    return baker.make(
         "InformacoesNutricionaisDoProduto",
         produto=produto,
         informacao_nutricional=info_nutricional3,
@@ -674,7 +674,7 @@ def info_nutricional_produto3(produto, info_nutricional3):
 
 @pytest.fixture
 def especificacao_produto1(produto, unidade_medida, embalagem_produto):
-    return mommy.make(
+    return baker.make(
         "EspecificacaoProduto",
         volume=1.5,
         produto=produto,
@@ -685,14 +685,14 @@ def especificacao_produto1(produto, unidade_medida, embalagem_produto):
 
 @pytest.fixture
 def produto_edital(user):
-    return mommy.make(
+    return baker.make(
         "NomeDeProdutoEdital", nome="PRODUTO TESTE", ativo=True, criado_por=user
     )
 
 
 @pytest.fixture
 def produto_logistica(user):
-    return mommy.make(
+    return baker.make(
         "NomeDeProdutoEdital",
         nome="PRODUTO TESTE",
         tipo_produto="LOGISTICA",
@@ -700,6 +700,13 @@ def produto_logistica(user):
         criado_por=user,
     )
 
+@pytest.fixture
+def produto_edital_rascunho():
+    return {
+        "nome": "PRODUTO DE LOGISTICA",
+        "ativo": "Ativo",
+        "tipo_produto": "LOGISTICA",
+    }
 
 @pytest.fixture
 def arquivo():
@@ -710,14 +717,14 @@ def arquivo():
 
 @pytest.fixture
 def imagem_produto1(produto, arquivo):
-    return mommy.make(
+    return baker.make(
         "ImagemDoProduto", produto=produto, nome="Imagem1", arquivo=arquivo
     )
 
 
 @pytest.fixture
 def imagem_produto2(produto, arquivo):
-    return mommy.make(
+    return baker.make(
         "ImagemDoProduto", produto=produto, nome="Imagem2", arquivo=arquivo
     )
 
@@ -730,7 +737,7 @@ def client_autenticado_vinculo_escola_ue(client, django_user_model, escola):
         username=email, password=password, email=email, registro_funcional="8888888"
     )
 
-    perfil_diretor = mommy.make(
+    perfil_diretor = baker.make(
         "Perfil",
         nome="DIRETOR_UE",
         ativo=True,
@@ -738,7 +745,7 @@ def client_autenticado_vinculo_escola_ue(client, django_user_model, escola):
     )
 
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola,
@@ -746,7 +753,7 @@ def client_autenticado_vinculo_escola_ue(client, django_user_model, escola):
         data_inicial=hoje,
         ativo=True,
     )
-    mommy.make(
+    baker.make(
         TemplateMensagem,
         assunto="TESTE",
         tipo=TemplateMensagem.DIETA_ESPECIAL,
@@ -766,7 +773,7 @@ def client_autenticado_vinculo_escola_nutrisupervisor(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
 
-    perfil_nutri = mommy.make(
+    perfil_nutri = baker.make(
         "Perfil",
         nome="COORDENADOR_SUPERVISAO_NUTRICAO",
         ativo=True,
@@ -774,7 +781,7 @@ def client_autenticado_vinculo_escola_nutrisupervisor(
     )
 
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola,
@@ -782,7 +789,7 @@ def client_autenticado_vinculo_escola_nutrisupervisor(
         data_inicial=hoje,
         ativo=True,
     )
-    mommy.make(
+    baker.make(
         TemplateMensagem,
         assunto="TESTE",
         tipo=TemplateMensagem.DIETA_ESPECIAL,
@@ -800,7 +807,7 @@ def client_autenticado_vinculo_codae_nutrisupervisor(client, django_user_model, 
         username=email, password=password, email=email, registro_funcional="8888888"
     )
 
-    perfil_nutri = mommy.make(
+    perfil_nutri = baker.make(
         "Perfil",
         nome="COORDENADOR_SUPERVISAO_NUTRICAO",
         ativo=True,
@@ -808,7 +815,7 @@ def client_autenticado_vinculo_codae_nutrisupervisor(client, django_user_model, 
     )
 
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -817,7 +824,7 @@ def client_autenticado_vinculo_codae_nutrisupervisor(client, django_user_model, 
         ativo=True,
     )
     assert user.tipo_usuario == constants.TIPO_USUARIO_NUTRISUPERVISOR
-    mommy.make(
+    baker.make(
         TemplateMensagem,
         assunto="TESTE",
         tipo=TemplateMensagem.DIETA_ESPECIAL,
@@ -829,11 +836,11 @@ def client_autenticado_vinculo_codae_nutrisupervisor(client, django_user_model, 
 
 @pytest.fixture
 def homologacao_produto(escola, template_homologacao_produto, user, produto, edital):
-    perfil_admin_terceirizada = mommy.make(
+    perfil_admin_terceirizada = baker.make(
         "Perfil", nome=constants.ADMINISTRADOR_EMPRESA, ativo=True
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=escola.lote.terceirizada,
@@ -841,14 +848,14 @@ def homologacao_produto(escola, template_homologacao_produto, user, produto, edi
         data_inicial=hoje,
         ativo=True,
     )
-    homologacao_produto = mommy.make(
+    homologacao_produto = baker.make(
         "HomologacaoProduto",
         produto=produto,
         rastro_terceirizada=escola.lote.terceirizada,
         criado_por=user,
         criado_em=datetime.datetime.utcnow(),
     )
-    mommy.make("ProdutoEdital", edital=edital, produto=produto, suspenso=False)
+    baker.make("ProdutoEdital", edital=edital, produto=produto, suspenso=False)
     return homologacao_produto
 
 
@@ -883,7 +890,7 @@ def homologacao_produto_escola_ou_nutri_reclamou(homologacao_produto):
 
 @pytest.fixture
 def reclamacao(homologacao_produto_escola_ou_nutri_reclamou, escola, user):
-    reclamacao = mommy.make(
+    reclamacao = baker.make(
         "ReclamacaoDeProduto",
         homologacao_produto=homologacao_produto_escola_ou_nutri_reclamou,
         escola=escola,
@@ -921,7 +928,7 @@ def homologacao_produto_rascunho(homologacao_produto):
 
 @pytest.fixture
 def reclamacao_ue(homologacao_produto_gpcodae_questionou_escola, escola, user):
-    reclamacao = mommy.make(
+    reclamacao = baker.make(
         "ReclamacaoDeProduto",
         homologacao_produto=homologacao_produto_gpcodae_questionou_escola,
         escola=escola,
@@ -939,7 +946,7 @@ def reclamacao_ue(homologacao_produto_gpcodae_questionou_escola, escola, user):
 def reclamacao_nutrisupervisor(
     homologacao_produto_gpcodae_questionou_nutrisupervisor, escola, user
 ):
-    reclamacao = mommy.make(
+    reclamacao = baker.make(
         "ReclamacaoDeProduto",
         homologacao_produto=homologacao_produto_gpcodae_questionou_nutrisupervisor,
         escola=escola,
@@ -955,7 +962,7 @@ def reclamacao_nutrisupervisor(
 
 @pytest.fixture
 def item_cadastrado_1(marca1):
-    return mommy.make(
+    return baker.make(
         "ItemCadastro",
         tipo="MARCA",
         content_type=ContentType.objects.get(model="marca"),
@@ -965,7 +972,7 @@ def item_cadastrado_1(marca1):
 
 @pytest.fixture
 def item_cadastrado_2(fabricante):
-    return mommy.make(
+    return baker.make(
         "ItemCadastro",
         tipo="FABRICANTE",
         content_type=ContentType.objects.get(model="fabricante"),
@@ -975,7 +982,7 @@ def item_cadastrado_2(fabricante):
 
 @pytest.fixture
 def item_cadastrado_3(unidade_medida):
-    return mommy.make(
+    return baker.make(
         "ItemCadastro",
         tipo="UNIDADE_MEDIDA",
         content_type=ContentType.objects.get(
@@ -987,7 +994,7 @@ def item_cadastrado_3(unidade_medida):
 
 @pytest.fixture
 def item_cadastrado_4(embalagem_produto):
-    return mommy.make(
+    return baker.make(
         "ItemCadastro",
         tipo="EMBALAGEM",
         content_type=ContentType.objects.get(model="embalagemproduto"),
@@ -997,7 +1004,7 @@ def item_cadastrado_4(embalagem_produto):
 
 @pytest.fixture
 def usuario():
-    return mommy.make("perfil.Usuario")
+    return baker.make("perfil.Usuario")
 
 
 @pytest.fixture
@@ -1009,7 +1016,7 @@ def homologacao_produto_suspenso(homologacao_produto):
 
 @pytest.fixture
 def analise_sensorial(homologacao_produto_gpcodae_questionou_escola):
-    analise = mommy.make(
+    analise = baker.make(
         "AnaliseSensorial",
         status=AnaliseSensorial.STATUS_AGUARDANDO_RESPOSTA,
         homologacao_produto=homologacao_produto_gpcodae_questionou_escola,
@@ -1034,14 +1041,14 @@ def user_codae_produto(django_user_model, codae):
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_admin_gestao_produto = mommy.make(
+    perfil_admin_gestao_produto = baker.make(
         "Perfil",
         nome=constants.ADMINISTRADOR_GESTAO_PRODUTO,
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf2",
     )
     hoje = datetime.date.today()
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -1077,14 +1084,14 @@ def usuario_nutri_supervisao(django_user_model):
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
-    perfil_supervisao_nutricao = mommy.make(
+    perfil_supervisao_nutricao = baker.make(
         "Perfil",
         nome=constants.COORDENADOR_SUPERVISAO_NUTRICAO,
         ativo=True,
         uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
     )
 
-    mommy.make(
+    baker.make(
         "Vinculo",
         usuario=user,
         instituicao=codae,
@@ -1115,13 +1122,13 @@ def mock_view_de_homologacao_produto_painel_gerencial(
 
 @pytest.fixture
 def homologacao_e_copia(terceirizada):
-    produto_principal = mommy.make("produto.Produto", nome="Produto A")
-    produto_copia = mommy.make("produto.Produto", nome="Produto A")
+    produto_principal = baker.make("produto.Produto", nome="Produto A")
+    produto_copia = baker.make("produto.Produto", nome="Produto A")
 
-    homologacao_principal = mommy.make(
+    homologacao_principal = baker.make(
         "produto.HomologacaoProduto", produto=produto_principal, eh_copia=False
     )
-    homologacao_copia = mommy.make(
+    homologacao_copia = baker.make(
         "produto.HomologacaoProduto", produto=produto_copia, eh_copia=True
     )
 

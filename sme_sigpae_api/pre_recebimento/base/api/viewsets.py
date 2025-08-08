@@ -1,13 +1,12 @@
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.decorators import action
-
 from rest_framework.response import Response
 
+from sme_sigpae_api.dados_comuns.api.paginations import DefaultPagination
 from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaCadastrarVisualizarUnidadesMedida,
     PermissaoParaVisualizarUnidadesMedida,
-
 )
 from sme_sigpae_api.pre_recebimento.base.api.filters import (
     UnidadeMedidaFilter,
@@ -22,8 +21,6 @@ from sme_sigpae_api.pre_recebimento.base.api.serializers.serializers import (
 from sme_sigpae_api.pre_recebimento.base.models import (
     UnidadeMedida,
 )
-
-from sme_sigpae_api.dados_comuns.api.paginations import DefaultPagination
 
 
 class UnidadeMedidaViewset(viewsets.ModelViewSet):

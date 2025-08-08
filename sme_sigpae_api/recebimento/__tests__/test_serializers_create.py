@@ -4,6 +4,7 @@ import pytest
 
 from sme_sigpae_api.recebimento.api.serializers.serializers_create import (
     FichaDeRecebimentoRascunhoSerializer,
+    OcorrenciaFichaRecebimentoCreateSerializer,
     QuestaoFichaRecebimentoCreateSerializer,
 )
 from sme_sigpae_api.recebimento.models import QuestaoFichaRecebimento
@@ -48,6 +49,7 @@ def test_ficha_recebimento_rascunho_serializer(
     assert instancia.documentos_recebimento.count() == 1
     assert instancia.questoes_conferencia.count() == 1
     assert instancia.veiculos.count() == 1
+    assert instancia.ocorrencias.count() == 2  # Verifica se as ocorrências foram criadas
 
 
 def test_ficha_recebimento_rascunho_serializer_erro_sem_etapa(
@@ -70,3 +72,82 @@ def test_ficha_recebimento_rascunho_serializer_erro_etapa_invalida(
             f'O valor “{ficha_recebimento_rascunho["etapa"]}” não é um UUID válido'
         ]
     }
+
+
+def test_ocorrencia_serializer_valid_data(ocorrencia_ficha_recebimento_data):
+    """Testa o serializer com dados válidos."""
+    serializer = OcorrenciaFichaRecebimentoCreateSerializer(
+        data=ocorrencia_ficha_recebimento_data
+    )
+    assert serializer.is_valid() is True
+
+
+def test_ocorrencia_serializer_missing_required_fields():
+    """Testa o serializer com campos obrigatórios ausentes."""
+    serializer = OcorrenciaFichaRecebimentoCreateSerializer(data={})
+    assert serializer.is_valid() is False
+    assert "tipo" in serializer.errors
+
+
+def test_ocorrencia_serializer_tipo_falta_validation(ocorrencia_ficha_recebimento_data):
+    """Testa a validação para o tipo FALTA."""
+    data = ocorrencia_ficha_recebimento_data.copy()
+    data.update({
+        "tipo": "FALTA",
+        "relacao": "CRONOGRAMA",
+        "quantidade": "5 unidades"
+    })
+    serializer = OcorrenciaFichaRecebimentoCreateSerializer(data=data)
+    assert serializer.is_valid() is True
+
+    # Teste sem quantidade para FALTA
+    data["quantidade"] = ""
+    serializer = OcorrenciaFichaRecebimentoCreateSerializer(data=data)
+    assert serializer.is_valid() is False
+    assert "quantidade" in serializer.errors
+
+
+def test_ocorrencia_serializer_tipo_recusa_validation(ocorrencia_ficha_recebimento_data):
+    """Testa a validação para o tipo RECUSA."""
+    data = ocorrencia_ficha_recebimento_data.copy()
+    data.update({
+        "tipo": "RECUSA",
+        "relacao": "TOTAL",
+        "numero_nota": "NF12345",
+        "quantidade": "10 unidades"
+    })
+    serializer = OcorrenciaFichaRecebimentoCreateSerializer(data=data)
+    assert serializer.is_valid() is True
+
+    # Teste sem numero_nota para RECUSA
+    data.pop("numero_nota")
+    serializer = OcorrenciaFichaRecebimentoCreateSerializer(data=data)
+    assert serializer.is_valid() is False
+    assert "numero_nota" in serializer.errors
+
+
+def test_ocorrencia_serializer_tipo_outros_motivos(ocorrencia_ficha_recebimento_data):
+    """Testa a validação para o tipo OUTROS_MOTIVOS."""
+    data = ocorrencia_ficha_recebimento_data.copy()
+    data.update({
+        "tipo": "OUTROS_MOTIVOS",
+        "quantidade": ""  # Deve ser opcional
+    })
+    serializer = OcorrenciaFichaRecebimentoCreateSerializer(data=data)
+    assert serializer.is_valid() is True
+
+
+def test_ocorrencia_serializer_create(ocorrencia_ficha_recebimento_data, ficha_recebimento):
+    """Testa a criação de uma instância através do serializer."""
+    # Cria uma cópia dos dados para não modificar o fixture original
+    data = ocorrencia_ficha_recebimento_data.copy()
+    data["ficha_recebimento"] = ficha_recebimento.id
+    
+    serializer = OcorrenciaFichaRecebimentoCreateSerializer(
+        data=data
+    )
+    assert serializer.is_valid() is True, serializer.errors
+    instance = serializer.save(ficha_recebimento=ficha_recebimento)
+    assert instance.tipo == data["tipo"]
+    assert instance.descricao == data["descricao"]
+    assert instance.ficha_recebimento == ficha_recebimento

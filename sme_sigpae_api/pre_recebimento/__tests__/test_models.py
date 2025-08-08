@@ -3,20 +3,24 @@ from faker import Faker
 
 from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaAlteracaoWorkflow
 
+from ..base.models import UnidadeMedida
 from ..cronograma_entrega.models import (
     Cronograma,
-    SolicitacaoAlteracaoCronograma,
     EtapasDoCronograma,
     ProgramacaoDoRecebimentoDoCronograma,
+    SolicitacaoAlteracaoCronograma,
 )
-from ..documento_recebimento.models import DocumentoDeRecebimento, TipoDeDocumentoDeRecebimento
-from ..qualidade.models import Laboratorio, TipoEmbalagemQld
-from ..base.models import UnidadeMedida
+from ..documento_recebimento.models import (
+    DocumentoDeRecebimento,
+    TipoDeDocumentoDeRecebimento,
+)
 from ..layout_embalagem.models import LayoutDeEmbalagem, TipoDeEmbalagemDeLayout
+from ..qualidade.models import Laboratorio, TipoEmbalagemQld
 
 pytestmark = pytest.mark.django_db
 
 fake = Faker("pt_BR")
+
 
 def test_cronograma_instance_model(cronograma):
     assert isinstance(cronograma, Cronograma)

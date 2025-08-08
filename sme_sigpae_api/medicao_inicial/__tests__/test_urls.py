@@ -1645,7 +1645,7 @@ def test_url_endpoint_empenho(client_autenticado_coordenador_codae, edital, cont
     assert response.json()["results"][0]["valor_total"] == "1050.99"
 
 
-def test_url_endpoint_relatorio_adesao(
+def test_url_endpoint_relatorio_adesao_sem_periodo_lancamento(
     client_autenticado_coordenador_codae,
     categoria_medicao,
     tipo_alimentacao_refeicao,
@@ -1664,26 +1664,87 @@ def test_url_endpoint_relatorio_adesao(
     medicao = make_medicao(solicitacao, periodo_escolar)
 
     valores = range(1, 6)
+    dias = [str(x).rjust(2, "0") for x in range(1, 6)]
     total_servido = sum(valores)
     total_frequencia = sum(valores)
     total_adesao = round(total_servido / total_frequencia, 4)
 
-    for x in valores:
+    for dia, valor in zip(dias, valores):
         make_valores_medicao(
             medicao=medicao,
             categoria_medicao=categoria_medicao,
-            valor=str(x).rjust(2, "0"),
+            valor=str(valor).rjust(2, "0"),
             tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
         )
         make_valores_medicao(
             medicao=medicao,
             categoria_medicao=categoria_medicao,
-            valor=str(x).rjust(2, "0"),
+            valor=str(valor).rjust(2, "0"),
             nome_campo="frequencia",
+            dia=dia,
         )
 
     response = client_autenticado_coordenador_codae.get(
         f"/medicao-inicial/relatorios/relatorio-adesao/?mes_ano={mes}_{ano}"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data == {
+        medicao.nome_periodo_grupo: {
+            tipo_alimentacao_refeicao.nome.upper(): {
+                "total_servido": total_servido,
+                "total_frequencia": total_frequencia,
+                "total_adesao": total_adesao,
+            }
+        }
+    }
+
+
+def test_url_endpoint_relatorio_adesao_com_periodo_lancamento(
+    client_autenticado_coordenador_codae,
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    # arrange
+    mes = "03"
+    ano = "2024"
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    periodo_escolar = make_periodo_escolar("MANHA")
+    medicao = make_medicao(solicitacao, periodo_escolar)
+    periodo_lancamento_de = f"01/{mes}/{ano}"
+    periodo_lancamento_ate = f"03/{mes}/{ano}"
+
+    valores = range(1, 6)
+    dias = [str(x).rjust(2, "0") for x in range(1, 6)]
+    total_servido = sum(valores[:3])
+    total_frequencia = sum(valores[:3])
+    total_adesao = round(total_servido / total_frequencia, 4)
+
+    for dia, valor in zip(dias, valores):
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
+        )
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            nome_campo="frequencia",
+            dia=dia,
+        )
+
+    response = client_autenticado_coordenador_codae.get(
+        f"/medicao-inicial/relatorios/relatorio-adesao/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
     )
 
     assert response.status_code == status.HTTP_200_OK
@@ -1708,6 +1769,73 @@ def test_url_endpoint_relatorio_adesao_sem_mes_ano(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
+def test_url_endpoint_relatorio_adesao_sem_periodo_lancamento_ate(
+    client_autenticado_coordenador_codae,
+):
+    mes = "03"
+    ano = "2024"
+    periodo_lancamento_de = f"01/{mes}/{ano}"
+    response = client_autenticado_coordenador_codae.get(
+        f"/medicao-inicial/relatorios/relatorio-adesao/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}"
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == {
+        "detail": "Ambos 'periodo_lancamento_de' e 'periodo_lancamento_ate' devem ser informados juntos"
+    }
+
+
+def test_url_endpoint_relatorio_adesao_com_periodo_lancamento_no_formato_incorreto(
+    client_autenticado_coordenador_codae,
+):
+    mes = "03"
+    ano = "2024"
+    periodo_lancamento_de = f"01-{mes}-{ano}"
+    periodo_lancamento_ate = f"03/{mes}/{ano}"
+    response = client_autenticado_coordenador_codae.get(
+        f"/medicao-inicial/relatorios/relatorio-adesao/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == {
+        "detail": f"Formato de data inválido para 'periodo_lancamento_de'. Use o formato dd/mm/yyyy"
+    }
+
+
+def test_url_endpoint_relatorio_adesao_com_periodo_lancamento_data_invertida(
+    client_autenticado_coordenador_codae,
+):
+    mes = "03"
+    ano = "2024"
+    periodo_lancamento_de = f"01/{mes}/{ano}"
+    periodo_lancamento_ate = f"03/{mes}/{ano}"
+    response = client_autenticado_coordenador_codae.get(
+        f"/medicao-inicial/relatorios/relatorio-adesao/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_ate}&periodo_lancamento_ate={periodo_lancamento_de}"
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == {
+        "detail": "'periodo_lancamento_de' deve ser anterior a 'periodo_lancamento_ate'"
+    }
+
+
+def test_url_endpoint_relatorio_adesao_com_periodo_lancamento_com_mes_diferente_do_parametro_ano_mes(
+    client_autenticado_coordenador_codae,
+):
+    mes = "03"
+    ano = "2024"
+    periodo_lancamento_de = f"01/03/{ano}"
+    periodo_lancamento_ate = f"03/05/{ano}"
+    response = client_autenticado_coordenador_codae.get(
+        f"/medicao-inicial/relatorios/relatorio-adesao/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == {
+        "detail": "O mês/ano de 'periodo_lancamento_ate' (05/2024) não coincide com 'mes_ano' (03_2024)."
+    }
+
+
 def test_url_endpoint_relatorio_adesao_exportar_xlsx(
     client_autenticado_coordenador_codae,
 ):
@@ -1722,6 +1850,22 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx(
     assert response.status_code == status.HTTP_200_OK
 
 
+def test_url_endpoint_relatorio_adesao_exportar_xlsx_com_periodo_lancamento(
+    client_autenticado_coordenador_codae,
+):
+    # arrange
+    mes = "03"
+    ano = "2024"
+    periodo_lancamento_de = f"01/{mes}/{ano}"
+    periodo_lancamento_ate = f"03/{mes}/{ano}"
+
+    response = client_autenticado_coordenador_codae.get(
+        f"/medicao-inicial/relatorios/relatorio-adesao/exportar-xlsx/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+
 def test_url_endpoint_relatorio_adesao_exportar_xlsx_sem_mes_ano(
     client_autenticado_coordenador_codae,
 ):
@@ -1730,6 +1874,24 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx_sem_mes_ano(
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+def test_url_endpoint_relatorio_adesao_exportar_xlsx_sem_periodo_lancamento_ate(
+    client_autenticado_coordenador_codae,
+):
+    # arrange
+    mes = "03"
+    ano = "2024"
+    periodo_lancamento_de = f"01/{mes}/{ano}"
+
+    response = client_autenticado_coordenador_codae.get(
+        f"/medicao-inicial/relatorios/relatorio-adesao/exportar-xlsx/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}"
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == {
+        "detail": "Ambos 'periodo_lancamento_de' e 'periodo_lancamento_ate' devem ser informados juntos"
+    }
 
 
 def test_url_endpoint_relatorio_adesao_exportar_pdf(
@@ -1746,6 +1908,22 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf(
     assert response.status_code == status.HTTP_200_OK
 
 
+def test_url_endpoint_relatorio_adesao_exportar_pdf_com_periodo_lancamento(
+    client_autenticado_coordenador_codae,
+):
+    # arrange
+    mes = "03"
+    ano = "2024"
+    periodo_lancamento_de = f"01/{mes}/{ano}"
+    periodo_lancamento_ate = f"03/{mes}/{ano}"
+
+    response = client_autenticado_coordenador_codae.get(
+        f"/medicao-inicial/relatorios/relatorio-adesao/exportar-pdf/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+
 def test_url_endpoint_relatorio_adesao_exportar_pdf_sem_mes_ano(
     client_autenticado_coordenador_codae,
 ):
@@ -1754,6 +1932,24 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_sem_mes_ano(
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+def test_url_endpoint_relatorio_adesao_exportar_pdf_sem_periodo_lancamento_ate(
+    client_autenticado_coordenador_codae,
+):
+    # arrange
+    mes = "03"
+    ano = "2024"
+    periodo_lancamento_de = f"01/{mes}/{ano}"
+
+    response = client_autenticado_coordenador_codae.get(
+        f"/medicao-inicial/relatorios/relatorio-adesao/exportar-pdf/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}"
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == {
+        "detail": "Ambos 'periodo_lancamento_de' e 'periodo_lancamento_ate' devem ser informados juntos"
+    }
 
 
 def test_url_endpoint_parametrizacao_financeira(

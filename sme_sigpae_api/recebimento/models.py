@@ -9,9 +9,11 @@ from sme_sigpae_api.dados_comuns.behaviors import (
     TemChaveExterna,
 )
 from sme_sigpae_api.dados_comuns.validators import validate_file_size_10mb
-from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import EtapasDoCronograma
-from sme_sigpae_api.pre_recebimento.documento_recebimento.models import DocumentoDeRecebimento
+from sme_sigpae_api.pre_recebimento.documento_recebimento.models import (
+    DocumentoDeRecebimento,
+)
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
 
 class QuestaoConferencia(ModeloBase):
@@ -354,3 +356,71 @@ class QuestaoFichaRecebimento(ModeloBase):
 
     def __str__(self):
         return f"{self.questao_conferencia.questao} - {self.ficha_recebimento}"
+
+
+class OcorrenciaFichaRecebimento(ModeloBase):
+    TIPO_FALTA = "FALTA"
+    TIPO_RECUSA = "RECUSA"
+    TIPO_OUTROS = "OUTROS_MOTIVOS"
+
+    TIPO_CHOICES = (
+        (TIPO_FALTA, "Falta"),
+        (TIPO_RECUSA, "Recusa"),
+        (TIPO_OUTROS, "Outros Motivos"),
+    )
+
+    RELACAO_CRONOGRAMA = "CRONOGRAMA"
+    RELACAO_NOTA_FISCAL = "NOTA_FISCAL"
+    RELACAO_TOTAL = "TOTAL"
+    RELACAO_PARCIAL = "PARCIAL"
+
+    RELACAO_CHOICES = (
+        (RELACAO_CRONOGRAMA, "Cronograma"),
+        (RELACAO_NOTA_FISCAL, "Nota Fiscal"),
+        (RELACAO_TOTAL, "Total"),
+        (RELACAO_PARCIAL, "Parcial"),
+    )
+
+    ficha_recebimento = models.ForeignKey(
+        FichaDeRecebimento,
+        on_delete=models.CASCADE,
+        related_name="ocorrencias",
+        verbose_name="Ficha de Recebimento",
+    )
+    tipo = models.CharField(
+        "Tipo de Ocorrência",
+        max_length=20,
+        choices=TIPO_CHOICES,
+    )
+    relacao = models.CharField(
+        "Relação",
+        max_length=20,
+        choices=RELACAO_CHOICES,
+        blank=True,
+        null=True,
+    )
+    numero_nota = models.CharField(
+        "Número da Nota",
+        max_length=100,
+        blank=True,
+        null=True,
+    )
+    quantidade = models.CharField(
+        "Quantidade",
+        max_length=100,
+        blank=True,
+        null=True,
+    )
+    descricao = models.TextField(
+        "Descrição",
+        blank=True,
+        null=True,
+    )
+
+    def __str__(self):
+        return f"{self.ficha_recebimento} - {self.get_tipo_display()}"
+
+    class Meta:
+        verbose_name = "Ocorrência da Ficha de Recebimento"
+        verbose_name_plural = "Ocorrências das Fichas de Recebimento"
+        ordering = ["criado_em"]

@@ -1,8 +1,10 @@
 from django.core.validators import FileExtensionValidator, MinLengthValidator
 from django.db import models
-
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
+from sme_sigpae_api.pre_recebimento.base.models import UnidadeMedida
+
 from ...dados_comuns.behaviors import (
     CriadoPor,
     Logs,
@@ -22,7 +24,6 @@ from ...produto.models import (
     NomeDeProdutoEdital,
 )
 from ...terceirizada.models import Terceirizada
-from sme_sigpae_api.pre_recebimento.base.models import UnidadeMedida
 
 
 class FabricanteFichaTecnica(ModeloBase):

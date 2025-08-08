@@ -20,14 +20,12 @@ from sme_sigpae_api.dados_comuns.permissions import (
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.filters import (
     DocumentoDeRecebimentoFilter,
 )
-
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializer_create import (
     DocumentoDeRecebimentoAnalisarRascunhoSerializer,
     DocumentoDeRecebimentoAnalisarSerializer,
     DocumentoDeRecebimentoAtualizacaoSerializer,
     DocumentoDeRecebimentoCorrecaoSerializer,
     DocumentoDeRecebimentoCreateSerializer,
-
 )
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoDetalharCodaeSerializer,

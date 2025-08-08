@@ -1,6 +1,6 @@
 import pytest
 from freezegun import freeze_time
-from model_mommy import mommy
+from model_bakery import baker
 
 from ...dados_comuns.fluxo_status import (
     PedidoAPartirDaDiretoriaRegionalWorkflow,
@@ -22,10 +22,10 @@ pytestmark = pytest.mark.django_db
 def _monta_kit_lanche_avulso(
     kits_avulsos_datas, escola, status=PedidoAPartirDaEscolaWorkflow.RASCUNHO
 ):
-    solicitacao_kit_lanche_base = mommy.make(
+    solicitacao_kit_lanche_base = baker.make(
         "SolicitacaoKitLanche", data=kits_avulsos_datas
     )
-    solicitacao_kit_lanche_avulsa = mommy.make(
+    solicitacao_kit_lanche_avulsa = baker.make(
         "SolicitacaoKitLancheAvulsa",
         status=status,
         escola=escola,
@@ -71,10 +71,10 @@ def test_manager_kit_lanche_avulso_deste_mes(kits_avulsos_datas_mes, escola):
 def _monta_kit_lanche_unificado(
     kits_avulsos_datas, status=PedidoAPartirDaDiretoriaRegionalWorkflow.RASCUNHO
 ):
-    solicitacao_kit_lanche_base = mommy.make(
+    solicitacao_kit_lanche_base = baker.make(
         "SolicitacaoKitLanche", data=kits_avulsos_datas
     )
-    solicitacao_kit_lanche_unificada = mommy.make(
+    solicitacao_kit_lanche_unificada = baker.make(
         "SolicitacaoKitLancheUnificada",
         status=status,
         solicitacao_kit_lanche=solicitacao_kit_lanche_base,

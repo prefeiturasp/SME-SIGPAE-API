@@ -2,7 +2,7 @@ import datetime
 from uuid import UUID
 
 import pytest
-from model_mommy import mommy
+from model_bakery import baker
 from xworkflows.base import InvalidTransitionError
 
 from ...dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
@@ -54,7 +54,7 @@ def test_inclusao_alimentacao_continua_solicitacoes_similares(
 
 def test_inclusao_alimentacao_continua_fluxo(inclusao_alimentacao_continua_params):
     inclusao_alimentacao_continua, esperado = inclusao_alimentacao_continua_params
-    fake_user = mommy.make("perfil.Usuario")
+    fake_user = baker.make("perfil.Usuario")
     inclusao_alimentacao_continua.inicia_fluxo(user=fake_user)
     assert inclusao_alimentacao_continua.ta_na_dre
     inclusao_alimentacao_continua.dre_valida(user=fake_user)

@@ -3,7 +3,7 @@ from io import BytesIO
 
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
-from model_mommy import mommy
+from model_bakery import baker
 from openpyxl import Workbook
 from openpyxl.cell import Cell
 
@@ -23,54 +23,54 @@ from sme_sigpae_api.processamento_arquivos.dieta_especial.schemas import (
 
 @pytest.fixture
 def arquivo_carga_dieta_especial():
-    return mommy.make(ArquivoCargaDietaEspecial)
+    return baker.make(ArquivoCargaDietaEspecial)
 
 
 @pytest.fixture
 def arquivo_carga_alimentos_e_substitutos():
-    return mommy.make(ArquivoCargaAlimentosSubstitutos)
+    return baker.make(ArquivoCargaAlimentosSubstitutos)
 
 
 @pytest.fixture
 def arquivo_carga_usuarios_escola():
-    return mommy.make(ArquivoCargaUsuariosEscola)
+    return baker.make(ArquivoCargaUsuariosEscola)
 
 
 @pytest.fixture
 def aluno():
-    return mommy.make("escola.Aluno", codigo_eol="1234567", nome="TESTE ALUNO DIETA")
+    return baker.make("escola.Aluno", codigo_eol="1234567", nome="TESTE ALUNO DIETA")
 
 
 @pytest.fixture
 def perfil():
-    return mommy.make("Perfil", nome="DIRETOR_UE")
+    return baker.make("Perfil", nome="DIRETOR_UE")
 
 
 @pytest.fixture
 def escola():
-    return mommy.make(
+    return baker.make(
         "escola.Escola",
         codigo_codae="12345678",
         codigo_eol="654321",
-        lote=mommy.make("Lote", terceirizada=mommy.make("Terceirizada")),
+        lote=baker.make("Lote", terceirizada=baker.make("Terceirizada")),
     )
 
 
 @pytest.fixture
 def classificacao_dieta():
-    return mommy.make(ClassificacaoDieta, nome="Tipo A")
+    return baker.make(ClassificacaoDieta, nome="Tipo A")
 
 
 @pytest.fixture
 def edital(escola):
-    edital = mommy.make(
+    edital = baker.make(
         "Edital",
         numero="Edital MAIO/2025",
         uuid="12288b47-9d27-4089-8c2e-48a6061d83ea",
     )
-    contrato = mommy.make(
+    contrato = baker.make(
         "Contrato",
-        terceirizada=mommy.make("Terceirizada"),
+        terceirizada=baker.make("Terceirizada"),
         edital=edital,
         make_m2m=True,
         uuid="44d51e10-8999-48bb-889a-1540c9e8c895",
@@ -81,7 +81,7 @@ def edital(escola):
 
 @pytest.fixture
 def protocolo_padrao_dieta_especial(edital):
-    protocolo = mommy.make(
+    protocolo = baker.make(
         "ProtocoloPadraoDietaEspecial",
         nome_protocolo="ALERGIA - OVO",
         uuid="5d7f80b8-7b62-441b-89da-4d5dd5c1e7e8",
@@ -92,7 +92,7 @@ def protocolo_padrao_dieta_especial(edital):
 
 @pytest.fixture
 def substituicao_alimento(protocolo_padrao_dieta_especial):
-    return mommy.make(
+    return baker.make(
         "SubstituicaoAlimentoProtocoloPadrao",
         protocolo_padrao=protocolo_padrao_dieta_especial,
     )
@@ -101,15 +101,15 @@ def substituicao_alimento(protocolo_padrao_dieta_especial):
 @pytest.fixture
 def alergia_intolerancia():
     return [
-        mommy.make(AlergiaIntolerancia, descricao="Pão"),
-        mommy.make(AlergiaIntolerancia, descricao="Bolo"),
-        mommy.make(AlergiaIntolerancia, descricao="Biscoito"),
+        baker.make(AlergiaIntolerancia, descricao="Pão"),
+        baker.make(AlergiaIntolerancia, descricao="Bolo"),
+        baker.make(AlergiaIntolerancia, descricao="Biscoito"),
     ]
 
 
 @pytest.fixture
 def solicitacao_dieta_especial(aluno, escola, classificacao_dieta):
-    return mommy.make(
+    return baker.make(
         SolicitacaoDietaEspecial,
         aluno=aluno,
         ativo=True,
@@ -122,7 +122,7 @@ def solicitacao_dieta_especial(aluno, escola, classificacao_dieta):
 
 @pytest.fixture
 def dieta_especial_ativa(solicitacao_dieta_especial):
-    alergias_set = mommy.make(
+    alergias_set = baker.make(
         AlergiaIntolerancia, descricao="Aluno Alérgico", _quantity=1
     )
     solicitacao_dieta_especial.alergias_intolerancias.set(alergias_set)
@@ -132,17 +132,17 @@ def dieta_especial_ativa(solicitacao_dieta_especial):
 
 @pytest.fixture
 def usuario():
-    return mommy.make("perfil.Usuario")
+    return baker.make("perfil.Usuario")
 
 
 @pytest.fixture
 def usuario_diretor():
-    return mommy.make("perfil.Usuario")
+    return baker.make("perfil.Usuario")
 
 
 @pytest.fixture
 def perfil_diretor():
-    return mommy.make("perfil.perfil", nome="DIRETOR")
+    return baker.make("perfil.perfil", nome="DIRETOR")
 
 
 @pytest.fixture
@@ -254,17 +254,17 @@ def solicitacao_dieta_schema(mock_cabecalho_e_informacoes_excel):
 @pytest.fixture
 def alimentos():
     return [
-        mommy.make(
+        baker.make(
             "dieta_especial.Alimento",
             nome="ARROZ",
             tipo_listagem_protocolo=Alimento.SO_ALIMENTOS,
         ),
-        mommy.make(
+        baker.make(
             "dieta_especial.Alimento",
             nome="FEIJAO",
             tipo_listagem_protocolo=Alimento.SO_ALIMENTOS,
         ),
-        mommy.make(
+        baker.make(
             "dieta_especial.Alimento",
             nome="BATATA",
             tipo_listagem_protocolo=Alimento.SO_SUBSTITUTOS,
@@ -275,17 +275,17 @@ def alimentos():
 @pytest.fixture
 def alimentos_substitutivos():
     return [
-        mommy.make(
+        baker.make(
             "dieta_especial.Alimento",
             nome="AVEIA",
             tipo_listagem_protocolo=Alimento.SO_SUBSTITUTOS,
         ),
-        mommy.make(
+        baker.make(
             "dieta_especial.Alimento",
             nome="LENTILHA",
             tipo_listagem_protocolo=Alimento.SO_SUBSTITUTOS,
         ),
-        mommy.make(
+        baker.make(
             "dieta_especial.Alimento",
             nome="ERVILHA",
             tipo_listagem_protocolo=Alimento.SO_ALIMENTOS,

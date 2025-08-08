@@ -25,7 +25,6 @@ redis_connection = redis.StrictRedis(
     host=REDIS_HOST,
     port=REDIS_PORT,
     db=REDIS_DB,
-    charset="utf-8",
     decode_responses=True,
 )
 

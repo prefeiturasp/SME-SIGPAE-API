@@ -1469,3 +1469,29 @@ class PermissaoHistoricoDietasEspeciais(BasePermission):
                 ADMINISTRADOR_REPRESENTANTE_CODAE,
             ]
         return False
+
+
+class PermissaoRelatorioRecreioNasFerias(BasePermission):
+    """Permite acesso ao objeto se a dieta especial pertence ao usuário."""
+
+    def has_permission(self, request, view):
+        usuario = request.user
+
+        if isinstance(
+            usuario.vinculo_atual.instituicao, (DiretoriaRegional, Escola, Terceirizada)
+        ):
+            return True
+        elif isinstance(usuario.vinculo_atual.instituicao, Codae):
+            return usuario.vinculo_atual.perfil.nome in [
+                ADMINISTRADOR_DIETA_ESPECIAL,
+                COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+                ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+                COORDENADOR_DIETA_ESPECIAL,
+                ADMINISTRADOR_SUPERVISAO_NUTRICAO,
+                COORDENADOR_SUPERVISAO_NUTRICAO,
+                COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
+                DINUTRE_DIRETORIA,
+                ADMINISTRADOR_MEDICAO,
+                ADMINISTRADOR_CODAE_GABINETE,
+            ]
+        return False

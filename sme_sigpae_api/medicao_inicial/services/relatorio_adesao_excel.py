@@ -55,6 +55,11 @@ def _formata_filtros(query_params: dict):
         escola = Escola.objects.filter(codigo_eol=escola_codigo_eol.strip()).first()
         filtros += f" | {escola.nome}"
 
+    periodo_lancamento_de = query_params.get("periodo_lancamento_de")
+    periodo_lancamento_ate = query_params.get("periodo_lancamento_ate")
+    if periodo_lancamento_de and periodo_lancamento_ate:
+        filtros += f" | Período de lançamento: {periodo_lancamento_de} até {periodo_lancamento_ate}"
+
     return filtros
 
 

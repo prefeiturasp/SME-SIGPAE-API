@@ -1,5 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.db.models import QuerySet
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -14,6 +15,7 @@ from rest_framework.status import (
 )
 from xworkflows.base import InvalidTransitionError
 
+from sme_sigpae_api.dados_comuns.constants import ADMINISTRADOR_EMPRESA
 from sme_sigpae_api.dados_comuns.fluxo_status import (
     CronogramaWorkflow,
 )
@@ -34,34 +36,19 @@ from sme_sigpae_api.dados_comuns.permissions import (
     UsuarioDilogAbastecimento,
     ViewSetActionPermissionMixin,
 )
-from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.filters import (
-    SolicitacaoAlteracaoCronogramaFilter,
-)
 from sme_sigpae_api.pre_recebimento.base.api.paginations import (
     PreRecebimentoPagination,
 )
-from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializer_create import (
-    SolicitacaoDeAlteracaoCronogramaCreateSerializer,
-)
-
-from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.services import (
-
-    ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles,
-    ServiceQuerysetAlteracaoCronograma,
-)
-
-from django.db.models import QuerySet
-
-from sme_sigpae_api.relatorios.relatorios import get_pdf_cronograma
-
-from sme_sigpae_api.dados_comuns.constants import ADMINISTRADOR_EMPRESA
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.filters import (
     CronogramaFilter,
+    SolicitacaoAlteracaoCronogramaFilter,
 )
-from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.helpers import totalizador_relatorio_cronograma
-
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.helpers import (
+    totalizador_relatorio_cronograma,
+)
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializer_create import (
     CronogramaCreateSerializer,
+    SolicitacaoDeAlteracaoCronogramaCreateSerializer,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     CronogramaComLogSerializer,
@@ -71,25 +58,27 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serialize
     CronogramaSerializer,
     CronogramaSimplesSerializer,
     EtapasDoCronogramaCalendarioSerializer,
+    PainelCronogramaSerializer,
     PainelSolicitacaoAlteracaoCronogramaSerializer,
     SolicitacaoAlteracaoCronogramaCompletoSerializer,
     SolicitacaoAlteracaoCronogramaSerializer,
-    PainelCronogramaSerializer,
+)
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.services import (
+    ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles,
+    ServiceQuerysetAlteracaoCronograma,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
     Cronograma,
     EtapasDoCronograma,
     SolicitacaoAlteracaoCronograma,
 )
-
 from sme_sigpae_api.pre_recebimento.tasks import (
     gerar_relatorio_cronogramas_pdf_async,
     gerar_relatorio_cronogramas_xlsx_async,
 )
+from sme_sigpae_api.relatorios.relatorios import get_pdf_cronograma
 
 from ....dados_comuns.models import LogSolicitacoesUsuario
-
-
 from .validators import valida_parametros_calendario
 
 

@@ -3,7 +3,7 @@ from datetime import datetime
 
 import pytest
 from faker import Faker
-from model_mommy import mommy
+from model_bakery import baker
 from spyne.util.dictdoc import get_object_as_dict
 
 from sme_sigpae_api.dados_comuns.fluxo_status import SolicitacaoRemessaWorkFlow
@@ -27,16 +27,16 @@ Faker.seed(420)
 
 @pytest.fixture
 def distribuidor():
-    return mommy.make(
+    return baker.make(
         "Usuario", email="distribuidor@admin.com", cpf="12345678910", is_superuser=True
     )
 
 
 @pytest.fixture
 def terceirizada():
-    return mommy.make(
+    return baker.make(
         "Terceirizada",
-        contatos=[mommy.make("dados_comuns.Contato")],
+        contatos=[baker.make("dados_comuns.Contato")],
         make_m2m=True,
         nome_fantasia="Alimentos SA",
     )
@@ -44,7 +44,7 @@ def terceirizada():
 
 @pytest.fixture
 def solicitacao(terceirizada):
-    return mommy.make(
+    return baker.make(
         "SolicitacaoRemessa",
         cnpj="12345678901234",
         numero_solicitacao="559890",
@@ -56,12 +56,12 @@ def solicitacao(terceirizada):
 
 @pytest.fixture
 def lote():
-    return mommy.make(models.Lote, nome="lote", iniciais="lt")
+    return baker.make(models.Lote, nome="lote", iniciais="lt")
 
 
 @pytest.fixture
 def escola(lote):
-    return mommy.make(
+    return baker.make(
         models.Escola,
         nome="CEI DIRET ROBERTO ARANTES LANHOSO",
         codigo_eol="400221",
@@ -76,7 +76,7 @@ def escola_com_guia(lote, escola):
 
 @pytest.fixture
 def guia(solicitacao, escola):
-    return mommy.make(
+    return baker.make(
         "Guia",
         solicitacao=solicitacao,
         escola=escola,
@@ -97,7 +97,7 @@ def guia(solicitacao, escola):
 
 @pytest.fixture
 def guia_pendente_de_conferencia(solicitacao, escola):
-    return mommy.make(
+    return baker.make(
         "Guia",
         solicitacao=solicitacao,
         escola=escola,
@@ -119,7 +119,7 @@ def guia_pendente_de_conferencia(solicitacao, escola):
 
 @pytest.fixture
 def guia_com_escola_client_autenticado(solicitacao, escola_com_guia):
-    return mommy.make(
+    return baker.make(
         "Guia",
         solicitacao=solicitacao,
         escola=escola_com_guia,
@@ -141,7 +141,7 @@ def guia_com_escola_client_autenticado(solicitacao, escola_com_guia):
 
 @pytest.fixture
 def alimento(guia_com_escola_client_autenticado):
-    return mommy.make(
+    return baker.make(
         "logistica.Alimento",
         guia=guia_com_escola_client_autenticado,
         codigo_suprimento="123456",
@@ -152,7 +152,7 @@ def alimento(guia_com_escola_client_autenticado):
 
 @pytest.fixture
 def embalagem(alimento):
-    return mommy.make(
+    return baker.make(
         "Embalagem",
         alimento=alimento,
         descricao_embalagem="CX",
@@ -166,7 +166,7 @@ def embalagem(alimento):
 
 @pytest.fixture
 def solicitacao_de_alteracao_requisicao(solicitacao, distribuidor):
-    return mommy.make(
+    return baker.make(
         "SolicitacaoDeAlteracaoRequisicao",
         requisicao=solicitacao,
         motivo="OUTROS",
@@ -180,7 +180,7 @@ def solicitacao_de_alteracao_requisicao(solicitacao, distribuidor):
 
 @pytest.fixture
 def conferencia_guia(guia_com_escola_client_autenticado):
-    return mommy.make(
+    return baker.make(
         "ConferenciaGuia",
         guia=guia_com_escola_client_autenticado,
         data_recebimento=datetime.now(),
@@ -192,7 +192,7 @@ def conferencia_guia(guia_com_escola_client_autenticado):
 
 @pytest.fixture
 def conferencia_guia_normal(guia):
-    return mommy.make(
+    return baker.make(
         "ConferenciaGuia",
         guia=guia,
         data_recebimento=datetime.now(),
@@ -204,7 +204,7 @@ def conferencia_guia_normal(guia):
 
 @pytest.fixture
 def reposicao_guia(guia):
-    return mommy.make(
+    return baker.make(
         "ConferenciaGuia",
         guia=guia,
         data_recebimento=datetime.now(),
@@ -217,7 +217,7 @@ def reposicao_guia(guia):
 
 @pytest.fixture
 def conferencia_guia_individual(conferencia_guia_normal):
-    return mommy.make(
+    return baker.make(
         "ConferenciaIndividualPorAlimento",
         conferencia=conferencia_guia_normal,
         tipo_embalagem=ConferenciaIndividualPorAlimento.FECHADA,
@@ -230,7 +230,7 @@ def conferencia_guia_individual(conferencia_guia_normal):
 
 @pytest.fixture
 def insucesso_entrega_guia(guia):
-    return mommy.make(
+    return baker.make(
         "InsucessoEntregaGuia",
         guia=guia,
         hora_tentativa=datetime.now().time(),
@@ -243,7 +243,7 @@ def insucesso_entrega_guia(guia):
 
 @pytest.fixture
 def solicitacao_cancelamento_log(solicitacao):
-    return mommy.make(
+    return baker.make(
         "LogSolicitacaoDeCancelamentoPeloPapa",
         requisicao=solicitacao,
         guias=["21236", "235264"],
@@ -254,21 +254,21 @@ def solicitacao_cancelamento_log(solicitacao):
 
 @pytest.fixture
 def notificacao_ocorrencia(terceirizada):
-    notificacao = mommy.make(
+    notificacao = baker.make(
         "NotificacaoOcorrenciasGuia",
         numero="1234567890",
         processo_sei="9876543210",
         empresa=terceirizada,
     )
 
-    mommy.make(
+    baker.make(
         "PrevisaoContratualNotificacao",
         notificacao=notificacao,
         motivo_ocorrencia=ConferenciaIndividualPorAlimento.OCORRENCIA_ATRASO_ENTREGA,
         previsao_contratual="Previsao contratual teste 1",
     )
 
-    mommy.make(
+    baker.make(
         "PrevisaoContratualNotificacao",
         notificacao=notificacao,
         motivo_ocorrencia=ConferenciaIndividualPorAlimento.OCORRENCIA_EMBALAGEM_DANIFICADA,
@@ -284,13 +284,13 @@ def notificacoes_ocorrencia(terceirizada):
         {"numero": f"{i}", "processo_sei": f"{2*i}", "empresa": terceirizada}
         for i in range(1, 21)
     ]
-    objects = [mommy.make("NotificacaoOcorrenciasGuia", **attrs) for attrs in data]
+    objects = [baker.make("NotificacaoOcorrenciasGuia", **attrs) for attrs in data]
     return objects
 
 
 @pytest.fixture
 def previsao_contratual(notificacao_ocorrencia):
-    return mommy.make(
+    return baker.make(
         "PrevisaoContratualNotificacao",
         notificacao=notificacao_ocorrencia,
         motivo_ocorrencia=ConferenciaIndividualPorAlimento.OCORRENCIA_ATRASO_ENTREGA,
@@ -310,7 +310,7 @@ def previsoes_contratuais(notificacao_ocorrencia):
         }
         for i in range(len(ConferenciaIndividualPorAlimento.OCORRENCIA_CHOICES))
     ]
-    objects = [mommy.make("NotificacaoOcorrenciasGuia", **attrs) for attrs in data]
+    objects = [baker.make("NotificacaoOcorrenciasGuia", **attrs) for attrs in data]
     return objects
 
 
@@ -518,8 +518,8 @@ def setup_solicitacao_confirmar_cancelamentos_sem_guia(
 
 @pytest.fixture
 def token_valido():
-    usuario = mommy.make("Usuario", username="testuser", is_active=True)
-    token = mommy.make("Token", user=usuario, key="oWsAcessoModel")
+    usuario = baker.make("Usuario", username="testuser", is_active=True)
+    token = baker.make("Token", user=usuario, key="oWsAcessoModel")
     model = oWsAcessoModel(StrId="123456", StrToken="oWsAcessoModel")
 
     return usuario, token, model
@@ -612,7 +612,7 @@ def soup_arq_cancelamento(fake_arq_cancelamento):
 @pytest.fixture
 def terceirizada_soup():
     cnpj = fake.cnpj().replace(".", "").replace("/", "").replace("-", "")
-    return mommy.make(
+    return baker.make(
         "Terceirizada", cnpj=cnpj, tipo_servico=Terceirizada.DISTRIBUIDOR_ARMAZEM
     )
 
@@ -621,7 +621,7 @@ def terceirizada_soup():
 def arq_solicitacao_mod(fake_arq_solicitacao_mod, soup_guia, terceirizada_soup):
     codigo_codae = fake.random_int(min=1000, max=9999)
     soup_guia.StrCodUni = codigo_codae
-    mommy.make("Escola", codigo_codae=codigo_codae)
+    baker.make("Escola", codigo_codae=codigo_codae)
     arquivo_solicitacao = ArqSolicitacaoMOD(
         StrCnpj=terceirizada_soup.cnpj,
         StrNumSol=fake_arq_solicitacao_mod.get("StrNumSol"),

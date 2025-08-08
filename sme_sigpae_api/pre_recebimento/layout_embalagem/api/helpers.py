@@ -1,4 +1,3 @@
-
 from sme_sigpae_api.dados_comuns.utils import (
     convert_base64_to_contentfile,
 )

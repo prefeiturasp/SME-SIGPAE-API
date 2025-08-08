@@ -4,7 +4,7 @@ from unittest import TestCase, mock
 
 import pytest
 from django.core.management import call_command
-from model_mommy import mommy
+from model_bakery import baker
 
 from sme_sigpae_api.dados_comuns.models import Contato
 from sme_sigpae_api.perfil.models import Usuario
@@ -20,18 +20,18 @@ class SujaBaseCommandTest(TestCase):
         )
 
     def setUp(self) -> None:
-        mommy.make(
+        baker.make(
             Usuario,
             nome="Fulano da Silva",
             email="fulano@teste.com",
             cpf="".join([str(random.randint(0, 9)) for _ in range(11)]),
             registro_funcional="1234567",
         )
-        mommy.make(
+        baker.make(
             Contato,
             email="fulano_2@teste.com",
         )
-        mommy.make(
+        baker.make(
             Terceirizada,
             representante_email="fulano_3@teste.com",
             responsavel_email="fulano_4@teste.com",

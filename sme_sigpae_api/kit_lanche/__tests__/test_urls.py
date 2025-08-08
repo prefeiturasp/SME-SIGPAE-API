@@ -1,6 +1,6 @@
 import pytest
 from freezegun import freeze_time
-from model_mommy import mommy
+from model_bakery import baker
 from rest_framework import status
 
 from ...dados_comuns import constants
@@ -39,7 +39,7 @@ def test_url_endpoint_solicitacoes_kit_lanche_avulsa_inicio_fluxo(
     client_autenticado_da_escola, solicitacao_avulsa, periodo_escolar
 ):
     assert str(solicitacao_avulsa.status) == PedidoAPartirDaEscolaWorkflow.RASCUNHO
-    mommy.make(
+    baker.make(
         "escola.AlunosMatriculadosPeriodoEscola",
         escola=solicitacao_avulsa.escola,
         quantidade_alunos=800,
@@ -68,7 +68,7 @@ def test_url_endpoint_solicitacoes_kit_lanche_avulsa_inicio_fluxo_exception(
         str(solicitacao_avulsa_dre_a_validar.status)
         == PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR
     )
-    mommy.make(
+    baker.make(
         "escola.AlunosMatriculadosPeriodoEscola",
         escola=solicitacao_avulsa_dre_a_validar.escola,
         quantidade_alunos=800,
@@ -688,7 +688,7 @@ def test_create_kit_lanche(
     da escola
     """
     escola.save()
-    mommy.make(
+    baker.make(
         "escola.AlunosMatriculadosPeriodoEscola",
         escola=escola,
         quantidade_alunos=400,

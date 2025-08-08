@@ -25,6 +25,7 @@ from ...dados_comuns.permissions import (
     PermissaoHistoricoDietasEspeciais,
     PermissaoParaRecuperarDietaEspecial,
     PermissaoRelatorioDietasEspeciais,
+    PermissaoRelatorioRecreioNasFerias,
     UsuarioCODAEDietaEspecial,
     UsuarioEscolaDiretaParceira,
     UsuarioEscolaTercTotal,
@@ -80,6 +81,7 @@ from ..tasks import (
 from ..utils import (
     ProtocoloPadraoPagination,
     RelatorioPagination,
+    filtra_relatorio_recreio_nas_ferias,
     filtrar_alunos_com_dietas_nos_status_e_rastro_escola,
     gera_dicionario_historico_dietas,
     gerar_filtros_relatorio_historico,
@@ -104,6 +106,7 @@ from .serializers import (
     ProtocoloPadraoDietaEspecialSimplesSerializer,
     RelatorioQuantitativoSolicDietaEspSerializer,
     SolicitacaoDietaEspecialAutorizarSerializer,
+    SolicitacaoDietaEspecialRecreioNasFeriasSerializer,
     SolicitacaoDietaEspecialRelatorioTercSerializer,
     SolicitacaoDietaEspecialSerializer,
     SolicitacaoDietaEspecialSimplesSerializer,
@@ -200,6 +203,8 @@ class SolicitacaoDietaEspecialViewSet(
             return AlteracaoUESerializer
         elif self.action == "relatorio-historico-dieta-especial":
             return UnidadeEducacionalSerializer
+        elif self.action == "relatorio_recreio_nas_ferias":
+            return SolicitacaoDietaEspecialRecreioNasFeriasSerializer
         return SolicitacaoDietaEspecialSerializer
 
     def atualiza_solicitacao(self, solicitacao, request):
@@ -1407,21 +1412,41 @@ class SolicitacaoDietaEspecialViewSet(
         except ValidationError as e:
             return Response(dict(detail=e.messages[0]), status=HTTP_400_BAD_REQUEST)
 
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="relatorio-recreio-nas-ferias",
+        permission_classes=(PermissaoRelatorioRecreioNasFerias,),
+    )
+    def relatorio_recreio_nas_ferias(self, request):
+        self.pagination_class = RelatorioPagination
+        try:
+            queryset = filtra_relatorio_recreio_nas_ferias(request.query_params)
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+
+        except ValidationError as e:
+            return Response(dict(detail=e.messages[0]), status=HTTP_400_BAD_REQUEST)
+
 
 class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
     serializer_class = SolicitacoesAtivasInativasPorAlunoSerializer
 
-    def list(self, request, *args, **kwargs):
+    @staticmethod
+    def calcular_totais(queryset):
         status_dietas = [
             "CODAE_AUTORIZADO",
             "CODAE_AUTORIZOU_INATIVACAO",
             "TERMINADA_AUTOMATICAMENTE_SISTEMA",
             "CANCELADO_ALUNO_NAO_PERTENCE_REDE",
         ]
-        queryset = self.filter_queryset(self.get_queryset())
         total_ativas = (
             SolicitacaoDietaEspecial.objects.filter(
-                aluno__in=queryset, status__in=status_dietas, ativo=True
+                aluno__in=queryset, status__in=["CODAE_AUTORIZADO"], ativo=True
             )
             .distinct()
             .count()
@@ -1433,6 +1458,11 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
             .distinct()
             .count()
         )
+        return total_ativas, total_inativas
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        total_ativas, total_inativas = self.calcular_totais(queryset)
 
         tem_parametro_page = request.GET.get("page", False)
 

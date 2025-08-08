@@ -1,6 +1,6 @@
 import pytest
 from freezegun import freeze_time
-from model_mommy import mommy
+from model_bakery import baker
 from rest_framework import status
 
 from ...dados_comuns import constants
@@ -882,7 +882,7 @@ def test_url_endpoint_inclusao_cei_relatorio(
     escola_cei,
     periodo_escolar,
 ):
-    inclusao_alimentacao = mommy.make(
+    inclusao_alimentacao = baker.make(
         InclusaoAlimentacaoDaCEI,
         rastro_escola=escola_cei,
         periodo_escolar=periodo_escolar,

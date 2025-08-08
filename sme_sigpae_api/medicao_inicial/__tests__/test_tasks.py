@@ -202,6 +202,9 @@ def test_exporta_relatorio_adesao_para_xlsx(
     # arrange
     mes = "03"
     ano = "2024"
+    periodo_lancamento_de = f"01/{mes}/{ano}"
+    periodo_lancamento_ate = f"03/{mes}/{ano}"
+
     solicitacao = make_solicitacao_medicao_inicial(
         mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
     )
@@ -209,28 +212,41 @@ def test_exporta_relatorio_adesao_para_xlsx(
     medicao = make_medicao(solicitacao, periodo_escolar)
 
     valores = range(1, 6)
+    dias = [str(x).rjust(2, "0") for x in range(1, 6)]
 
-    for x in valores:
+    for dia, valor in zip(dias, valores):
         make_valores_medicao(
             medicao=medicao,
             categoria_medicao=categoria_medicao,
-            valor=str(x).rjust(2, "0"),
+            valor=str(valor).rjust(2, "0"),
             tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
         )
         make_valores_medicao(
             medicao=medicao,
             categoria_medicao=categoria_medicao,
-            valor=str(x).rjust(2, "0"),
+            valor=str(valor).rjust(2, "0"),
             nome_campo="frequencia",
+            dia=dia,
         )
 
     nome_arquivo = "relatorio-adesao.xlsx"
 
     # act
-    resultados = obtem_resultados(mes, ano, QueryDict())
+    query_params = QueryDict(
+        f"mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
+    )
+    resultados = obtem_resultados(query_params)
 
     exporta_relatorio_adesao_para_xlsx(
-        usuario, nome_arquivo, resultados, {"mes_ano": f"{mes}_{ano}"}
+        usuario,
+        nome_arquivo,
+        resultados,
+        {
+            "mes_ano": f"{mes}_{ano}",
+            "periodo_lancamento_de": periodo_lancamento_de,
+            "periodo_lancamento_ate": periodo_lancamento_ate,
+        },
     )
 
     assert CentralDeDownload.objects.count() == 1
@@ -275,6 +291,9 @@ def test_exporta_relatorio_adesao_para_pdf(
     # arrange
     mes = "03"
     ano = "2024"
+    periodo_lancamento_de = f"01/{mes}/{ano}"
+    periodo_lancamento_ate = f"03/{mes}/{ano}"
+
     solicitacao = make_solicitacao_medicao_inicial(
         mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
     )
@@ -282,28 +301,41 @@ def test_exporta_relatorio_adesao_para_pdf(
     medicao = make_medicao(solicitacao, periodo_escolar)
 
     valores = range(1, 6)
+    dias = [str(x).rjust(2, "0") for x in range(1, 6)]
 
-    for x in valores:
+    for dia, valor in zip(dias, valores):
         make_valores_medicao(
             medicao=medicao,
             categoria_medicao=categoria_medicao,
-            valor=str(x).rjust(2, "0"),
+            valor=str(valor).rjust(2, "0"),
             tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
         )
         make_valores_medicao(
             medicao=medicao,
             categoria_medicao=categoria_medicao,
-            valor=str(x).rjust(2, "0"),
+            valor=str(valor).rjust(2, "0"),
             nome_campo="frequencia",
+            dia=dia,
         )
 
     nome_arquivo = "relatorio-adesao.pdf"
 
     # act
-    resultados = obtem_resultados(mes, ano, QueryDict())
+    query_params = query_params = QueryDict(
+        f"mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
+    )
+    resultados = obtem_resultados(query_params)
 
     exporta_relatorio_adesao_para_pdf(
-        usuario, nome_arquivo, resultados, {"mes_ano": f"{mes}_{ano}"}
+        usuario,
+        nome_arquivo,
+        resultados,
+        {
+            "mes_ano": f"{mes}_{ano}",
+            "periodo_lancamento_de": periodo_lancamento_de,
+            "periodo_lancamento_ate": periodo_lancamento_ate,
+        },
     )
 
     assert CentralDeDownload.objects.count() == 1

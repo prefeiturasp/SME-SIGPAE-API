@@ -6,7 +6,6 @@ from ...models import (
     Laboratorio,
 )
 
-
 fake = Faker("pt_BR")
 
 
