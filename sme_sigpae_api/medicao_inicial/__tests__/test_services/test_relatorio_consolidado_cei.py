@@ -1,3 +1,5 @@
+from io import BytesIO
+
 import openpyxl
 import pandas as pd
 import pytest
@@ -431,11 +433,13 @@ def test_calcula_soma_medicao_dieta_especial(
 
 
 def test_insere_tabela_periodos_na_planilha(
-    informacoes_excel_writer_cei,
+    relatorio_consolidado_xlsx_cei,
     mock_colunas_cei,
     mock_linhas_cei,
 ):
-    aba, writer, _, _, _, _ = informacoes_excel_writer_cei
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {relatorio_consolidado_xlsx_cei.mes}-{ relatorio_consolidado_xlsx_cei.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
     df = insere_tabela_periodos_na_planilha(
         aba, mock_colunas_cei, mock_linhas_cei, writer
     )
