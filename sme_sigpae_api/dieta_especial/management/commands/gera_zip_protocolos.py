@@ -37,7 +37,7 @@ class Command(BaseCommand):
         buffer_zip = BytesIO()
 
         dietas = SolicitacaoDietaEspecial.objects.filter(
-            status="CODAE_AUTORIZADO", escola_destino__lote__nome=lote
+            status="CODAE_AUTORIZADO", ativo=True, escola_destino__lote__nome=lote
         ).order_by("escola_destino__nome", "aluno__nome")[inicio:fim]
 
         if not dietas.exists():
