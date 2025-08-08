@@ -2,6 +2,7 @@ import pytest
 
 from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
     _compara_alergias,
+    _compara_classificacao,
     atualiza_historico_protocolo,
 )
 
@@ -49,3 +50,50 @@ def test_atualiza_historico_protocolo_somente_alergia(
     assert "Relação por Diagnóstico" in html
     assert "Alergia a chocolate" in html
     assert "Alergia a derivados do trigo" in html
+
+
+def test_compara_classificacao(
+    solicitacao_historico_atualizacao_protocolo,
+    classificacao_tipo_b,
+    classificacao_tipo_a,
+):
+    nova_classificacao = str(classificacao_tipo_b.id)
+    comparacao = _compara_classificacao(
+        solicitacao_historico_atualizacao_protocolo, nova_classificacao
+    )
+
+    assert isinstance(comparacao, dict)
+    assert comparacao["de"] == classificacao_tipo_a.nome
+    assert comparacao["para"] == classificacao_tipo_b.nome
+
+
+def test_compara_classificacao(
+    solicitacao_historico_atualizacao_protocolo, classificacao_tipo_a
+):
+    nova_classificacao = str(classificacao_tipo_a.id)
+    comparacao = _compara_classificacao(
+        solicitacao_historico_atualizacao_protocolo, nova_classificacao
+    )
+
+    assert comparacao is None
+
+
+def test_compara_classificacao_nao_enviada(solicitacao_historico_atualizacao_protocolo):
+    comparacao = _compara_classificacao(
+        solicitacao_historico_atualizacao_protocolo, None
+    )
+
+    assert comparacao is None
+
+
+def test_atualiza_historico_protocolo_somente_classificacao(
+    solicitacao_historico_atualizacao_protocolo, mock_request_codae_atualiza_protocolo
+):
+    html = atualiza_historico_protocolo(
+        solicitacao_historico_atualizacao_protocolo,
+        mock_request_codae_atualiza_protocolo,
+    )
+    assert isinstance(html, str)
+    assert "Classificação da Dieta" in html
+    assert "Tipo A" in html
+    assert "Tipo B" in html

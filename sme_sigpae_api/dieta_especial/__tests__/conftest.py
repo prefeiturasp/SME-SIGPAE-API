@@ -2018,8 +2018,9 @@ def solicitacao_historico_atualizacao_protocolo(
 
 
 @pytest.fixture
-def mock_request_codae_atualiza_protocolo(alergia_ao_trigo):
+def mock_request_codae_atualiza_protocolo(alergia_ao_trigo, classificacao_tipo_b):
     return {
         "alergias_intolerancias": [str(alergia_ao_trigo.id)],
         "substituicoes": [],
+        "classificacao": str(classificacao_tipo_b.id),
     }
