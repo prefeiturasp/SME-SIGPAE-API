@@ -11,7 +11,7 @@ from sme_sigpae_api.relatorios.relatorios import relatorio_dieta_especial_protoc
 
 
 class Command(BaseCommand):
-    help = "Gera PDFs dos protocolos de dieta especial, salva um .zip em /tmp e envia por e-mail"
+    help = "Gera PDFs dos protocolos de dieta especial, salva o arquivo em memória e envia por e-mail"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -38,7 +38,7 @@ class Command(BaseCommand):
 
         dietas = SolicitacaoDietaEspecial.objects.filter(
             status="CODAE_AUTORIZADO", escola_destino__lote__nome=lote
-        ).order_by("id")[inicio:fim]
+        ).order_by("escola_destino__nome, aluno__nome")[inicio:fim]
 
         if not dietas.exists():
             raise CommandError("Nenhuma dieta encontrada com os filtros fornecidos.")
@@ -46,8 +46,9 @@ class Command(BaseCommand):
         with zipfile.ZipFile(buffer_zip, "w", zipfile.ZIP_DEFLATED) as zip_file:
             for dieta in dietas:
                 nome = dieta.aluno.nome.replace("/", "-")
+                nome_escola = dieta.escola_destino.nome
                 codigo = dieta.aluno.codigo_eol or "Nao matriculado"
-                filename = f"Protocolo - {nome} - {codigo}.pdf"
+                filename = f"Protocolo - {nome_escola} - {nome} - {codigo}.pdf"
 
                 html_string = relatorio_dieta_especial_protocolo(None, dieta)
                 pdf_buffer = BytesIO()
@@ -59,7 +60,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(f"Adicionado: {filename}"))
 
         envia_email_unico_com_anexo_inmemory(
-            assunto=f"Protocolos de Dieta Especial - {lote} - {inicio} a {fim}",
+            assunto=f"Protocolos de Dieta Especial - {lote} - {inicio + 1} a {fim}",
             corpo=f"""
                 <p>Olá,</p>
                 <p>Segue em anexo o arquivo ZIP com os protocolos do lote <strong>{lote}</strong>.</p>
