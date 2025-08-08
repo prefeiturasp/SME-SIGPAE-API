@@ -3,6 +3,7 @@ import pytest
 from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
     _compara_alergias,
     _compara_classificacao,
+    _compara_data_de_termino,
     _compara_informacoes_adicionais,
     _compara_orientacoes,
     _compara_protocolo,
@@ -187,17 +188,24 @@ def test_atualiza_historico_protocolo_somente_orientacoes_gerais(
 
 
 def test_compara_informacoes_adicionais(solicitacao_historico_atualizacao_protocolo):
-    orientacao = "<p>Caso a criança insira chocolate, levar imediatamente ao hospital.</p>"
+    orientacao = (
+        "<p>Caso a criança insira chocolate, levar imediatamente ao hospital.</p>"
+    )
     comparacao = _compara_informacoes_adicionais(
         solicitacao_historico_atualizacao_protocolo, orientacao
     )
 
     assert isinstance(comparacao, dict)
     assert comparacao["de"] == "Nenhuma informção a ser adicionada."
-    assert comparacao["para"] == "Caso a criança insira chocolate, levar imediatamente ao hospital."
+    assert (
+        comparacao["para"]
+        == "Caso a criança insira chocolate, levar imediatamente ao hospital."
+    )
 
 
-def test_compara_informacoes_adicionais_iguais(solicitacao_historico_atualizacao_protocolo):
+def test_compara_informacoes_adicionais_iguais(
+    solicitacao_historico_atualizacao_protocolo,
+):
     orientacao = solicitacao_historico_atualizacao_protocolo.informacoes_adicionais
     comparacao = _compara_informacoes_adicionais(
         solicitacao_historico_atualizacao_protocolo, orientacao
@@ -206,8 +214,12 @@ def test_compara_informacoes_adicionais_iguais(solicitacao_historico_atualizacao
     assert comparacao is None
 
 
-def test_compara_informacoes_adicionais_nao_enviada(solicitacao_historico_atualizacao_protocolo):
-    comparacao = _compara_informacoes_adicionais(solicitacao_historico_atualizacao_protocolo, None)
+def test_compara_informacoes_adicionais_nao_enviada(
+    solicitacao_historico_atualizacao_protocolo,
+):
+    comparacao = _compara_informacoes_adicionais(
+        solicitacao_historico_atualizacao_protocolo, None
+    )
 
     assert comparacao is None
 
@@ -223,3 +235,37 @@ def test_atualiza_historico_protocolo_somente_informacoes_adicionais(
     assert "Informações adicionais" in html
     assert "Nenhuma informção a ser adicionada." in html
     assert "Caso a criança insira chocolate, levar imediatamente ao hospital." in html
+
+
+def test_compara_data_de_termino(solicitacao_historico_atualizacao_protocolo):
+    data_termino = "2026-10-25"
+    comparacao = _compara_data_de_termino(
+        solicitacao_historico_atualizacao_protocolo, data_termino
+    )
+
+    assert isinstance(comparacao, dict)
+    assert comparacao["de"] == "Sem data término"
+    assert comparacao["para"] == "Com data de término 25/10/2026"
+
+
+def test_compara_data_de_termino_nao_enviada(
+    solicitacao_historico_atualizacao_protocolo,
+):
+    comparacao = _compara_data_de_termino(
+        solicitacao_historico_atualizacao_protocolo, None
+    )
+
+    assert comparacao is None
+
+
+def test_atualiza_historico_protocolo_somente_data_termino(
+    solicitacao_historico_atualizacao_protocolo, mock_request_codae_atualiza_protocolo
+):
+    html = atualiza_historico_protocolo(
+        solicitacao_historico_atualizacao_protocolo,
+        mock_request_codae_atualiza_protocolo,
+    )
+    assert isinstance(html, str)
+    assert "Data de término" in html
+    assert "Sem data término" in html
+    assert "Com data de término 25/10/2026" in html

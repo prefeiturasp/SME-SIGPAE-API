@@ -2017,7 +2017,7 @@ def solicitacao_historico_atualizacao_protocolo(
         data_termino=None,
         protocolo_padrao=protocolo_padrao_dieta_especial,
         orientacoes_gerais="<p>A criança tem alergia ao cacau</p>",
-        informacoes_adicionais="<p>Nenhuma informção a ser adicionada.</p>"
+        informacoes_adicionais="<p>Nenhuma informção a ser adicionada.</p>",
     )
 
 
@@ -2032,5 +2032,6 @@ def mock_request_codae_atualiza_protocolo(
         "protocolo_padrao": str(protocolo_padrao_dieta_especial_2.uuid),
         "nome_protocolo": protocolo_padrao_dieta_especial_2.nome_protocolo,
         "orientacoes_gerais": "<p>A criança tem alergia ao cacau 70%.</p>",
-        "informacoes_adicionais": "<p>Caso a criança insira chocolate, levar imediatamente ao hospital.</p>"
+        "informacoes_adicionais": "<p>Caso a criança insira chocolate, levar imediatamente ao hospital.</p>",
+        "data_termino": "2026-10-25",
     }
