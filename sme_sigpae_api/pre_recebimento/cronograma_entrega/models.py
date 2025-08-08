@@ -99,16 +99,20 @@ class EtapasDoCronograma(ModeloBase):
     def __str__(self):
         etapa = f" {self.etapa}" if self.etapa is not None else ""
         parte = f"Parte {self.parte} - " if self.parte is not None else ""
-        cronograma = f"Cronograma {self.cronograma.numero}" if self.cronograma is not None else "sem Cronograma"
+        cronograma = (
+            f"Cronograma {self.cronograma.numero}"
+            if self.cronograma is not None
+            else "sem Cronograma"
+        )
 
         return f"Etapa{etapa} - {parte}{cronograma}"
 
     class Meta:
         verbose_name = "Etapa do Cronograma"
         verbose_name_plural = "Etapas dos Cronogramas"
-        ordering = ['etapa', 'parte']
+        ordering = ["etapa", "parte"]
         indexes = [
-            models.Index(fields=['etapa', 'parte']),
+            models.Index(fields=["etapa", "parte"]),
         ]
 
     @classmethod
