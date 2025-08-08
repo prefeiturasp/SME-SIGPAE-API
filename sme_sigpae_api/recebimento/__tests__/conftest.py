@@ -33,7 +33,9 @@ from sme_sigpae_api.recebimento.models import (
     QuestaoConferencia,
     QuestaoFichaRecebimento,
 )
-from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import ModalidadeFactory
+from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import (
+    ModalidadeFactory,
+)
 
 fake = Faker("pt_BR")
 
@@ -168,15 +170,15 @@ def payload_ficha_recebimento_rascunho(
                 "tipo": "FALTA",
                 "relacao": "CRONOGRAMA",
                 "quantidade": "5 unidades",
-                "descricao": "Falta de produto no recebimento"
+                "descricao": "Falta de produto no recebimento",
             },
             {
                 "tipo": "RECUSA",
                 "relacao": "TOTAL",
                 "numero_nota": "12345",
                 "quantidade": "3 unidades",
-                "descricao": "Produto recusado por avaria"
-            }
+                "descricao": "Produto recusado por avaria",
+            },
         ],
     }
 
@@ -240,15 +242,15 @@ def ficha_recebimento_rascunho(etapa_cronograma):
                 "tipo": "FALTA",
                 "relacao": "CRONOGRAMA",
                 "quantidade": "5 unidades",
-                "descricao": "Falta de produto no recebimento"
+                "descricao": "Falta de produto no recebimento",
             },
             {
                 "tipo": "RECUSA",
                 "relacao": "TOTAL",
                 "numero_nota": "12345",
                 "quantidade": "3 unidades",
-                "descricao": "Produto recusado por avaria"
-            }
+                "descricao": "Produto recusado por avaria",
+            },
         ],
     }
 
@@ -264,9 +266,13 @@ def cronograma_completo(questoes_por_produto):
 
 
 @pytest.fixture
-def ocorrencia_ficha_recebimento(ficha_recebimento, ocorrencia_ficha_recebimento_factory):
+def ocorrencia_ficha_recebimento(
+    ficha_recebimento, ocorrencia_ficha_recebimento_factory
+):
     """Fixture para criar uma ocorrência de ficha de recebimento."""
-    return ocorrencia_ficha_recebimento_factory.create(ficha_recebimento=ficha_recebimento)
+    return ocorrencia_ficha_recebimento_factory.create(
+        ficha_recebimento=ficha_recebimento
+    )
 
 
 @pytest.fixture

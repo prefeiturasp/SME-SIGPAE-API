@@ -2123,6 +2123,13 @@ def get_lista_dias_solicitacoes(params, escola):
         data_evento__month=params["mes"], data_evento__year=params["ano"]
     )
     query_set = query_set.filter(data_evento__lt=datetime.date.today())
+    """
+    TODO: remover essa regra posteriormente quando definir calendário de Recreio Férias
+    """
+    if "tipo_solicitacao" in params and params["tipo_solicitacao"] == "Kit Lanche":
+        query_set = query_set.exclude(
+            data_evento__gte="2025-07-07", data_evento__lte="2025-07-18"
+        )
     if params.get("eh_lanche_emergencial", False):
         query_set = query_set.filter(motivo__icontains="Emergencial")
         query_set = remover_duplicados(query_set)
@@ -3098,10 +3105,9 @@ def _validate_medicao_emei_cemei(
     dias_nao_letivos,
 ):
     categorias_dieta = CategoriaMedicao.objects.exclude(nome__icontains="ALIMENTAÇÃO")
-
     logs_dietas_autorizadas = LogQuantidadeDietasAutorizadas.objects.filter(
-        escola=escola, data__month=mes, data__year=ano
-    ).exclude(cei_ou_emei="CEI")
+        escola=escola, data__month=mes, data__year=ano, cei_ou_emei="EMEI"
+    )
     logs_dietas_autorizadas_dict = list(
         set(
             logs_dietas_autorizadas.values_list(
@@ -3112,7 +3118,6 @@ def _validate_medicao_emei_cemei(
             ).distinct()
         )
     )
-
     lista_erros = validate_lancamento_alimentacoes_medicao_emei_cemei(
         solicitacao, lista_erros, escola, categoria_alimentacao, dias_letivos, medicao
     )
@@ -3138,7 +3143,6 @@ def _validate_medicao_emei_cemei(
         logs_dietas_autorizadas_dict,
         medicao,
     )
-
     return lista_erros
 
 
@@ -3147,9 +3151,7 @@ def validate_medicao_cemei(solicitacao):
     ano = solicitacao.ano
     mes = solicitacao.mes
     escola = solicitacao.escola
-
     categoria_alimentacao = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
-
     dias_letivos = list(
         DiaCalendario.objects.filter(
             escola=escola, data__month=mes, data__year=ano, dia_letivo=True
@@ -3160,7 +3162,6 @@ def validate_medicao_cemei(solicitacao):
             escola=escola, data__month=mes, data__year=ano, dia_letivo=False
         ).values_list("data__day", flat=True)
     )
-
     inclusoes = InclusaoDeAlimentacaoCEMEI.objects.filter(
         escola=escola,
         status=InclusaoDeAlimentacaoCEMEI.workflow_class.CODAE_AUTORIZADO,
@@ -3168,7 +3169,6 @@ def validate_medicao_cemei(solicitacao):
         dias_motivos_da_inclusao_cemei__data__year=ano,
         dias_motivos_da_inclusao_cemei__cancelado=False,
     ).order_by("dias_motivos_da_inclusao_cemei__data")
-
     lista_erros = []
 
     for medicao in solicitacao.medicoes.all():
