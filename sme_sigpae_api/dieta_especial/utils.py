@@ -33,7 +33,10 @@ from .constants import (
     UNIDADES_EMEI_EMEF_CIEJA,
     UNIDADES_SEM_PERIODOS,
 )
-from .models import LogDietasAtivasCanceladasAutomaticamente, SolicitacaoDietaEspecial
+from .models import (
+    LogDietasAtivasCanceladasAutomaticamente,
+    SolicitacaoDietaEspecial,
+)
 
 
 def dietas_especiais_a_terminar():
@@ -1143,7 +1146,6 @@ def filtra_relatorio_recreio_nas_ferias(query_params: QueryDict) -> QuerySet:
     padrao = filtros.get("padrao", {})
     matriculado = filtros.get("matriculado", {})
     nao_matriculado = filtros.get("nao_matriculado", {})
-
     filtro_matriculados = Q(
         status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
         tipo_solicitacao="ALTERACAO_UE",
@@ -1195,12 +1197,21 @@ def gera_filtros_relatorio_recreio_nas_ferias(query_params: QueryDict) -> dict:
 
     data_inicio = query_params.get("data_inicio")
     data_fim = query_params.get("data_fim")
+
     if data_inicio and data_fim:
         data_ini = _parse_data(data_inicio, "data_inicio")
         data_fim = _parse_data(data_fim, "data_fim")
+        filtros["matriculado"]["data_inicio__lte"] = data_fim
+        filtros["matriculado"]["data_termino__gte"] = data_ini
+        filtros["nao_matriculado"]["periodo_recreio_inicio__lte"] = data_fim
+        filtros["nao_matriculado"]["periodo_recreio_fim__gte"] = data_ini
+    elif data_inicio:
+        data_ini = _parse_data(data_inicio, "data_inicio")
         filtros["matriculado"]["data_inicio__gte"] = data_ini
-        filtros["matriculado"]["data_termino__lte"] = data_fim
         filtros["nao_matriculado"]["periodo_recreio_inicio__gte"] = data_ini
+    elif data_fim:
+        data_fim = _parse_data(data_fim, "data_fim")
+        filtros["matriculado"]["data_termino__lte"] = data_fim
         filtros["nao_matriculado"]["periodo_recreio_fim__lte"] = data_fim
 
     filtros["padrao"] = {
