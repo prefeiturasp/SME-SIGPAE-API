@@ -1201,10 +1201,10 @@ def gera_filtros_relatorio_recreio_nas_ferias(query_params: QueryDict) -> dict:
     if data_inicio and data_fim:
         data_ini = _parse_data(data_inicio, "data_inicio")
         data_fim = _parse_data(data_fim, "data_fim")
-        filtros["matriculado"]["data_inicio__lte"] = data_fim
-        filtros["matriculado"]["data_termino__gte"] = data_ini
-        filtros["nao_matriculado"]["periodo_recreio_inicio__lte"] = data_fim
-        filtros["nao_matriculado"]["periodo_recreio_fim__gte"] = data_ini
+        filtros["matriculado"]["data_inicio__gte"] = data_ini
+        filtros["matriculado"]["data_termino__gte"] = data_fim
+        filtros["nao_matriculado"]["periodo_recreio_inicio__gte"] = data_ini
+        filtros["nao_matriculado"]["periodo_recreio_fim__gte"] = data_fim
     elif data_inicio:
         data_ini = _parse_data(data_inicio, "data_inicio")
         filtros["matriculado"]["data_inicio__gte"] = data_ini
