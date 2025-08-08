@@ -3,6 +3,7 @@ import pytest
 from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
     _compara_alergias,
     _compara_classificacao,
+    _compara_informacoes_adicionais,
     _compara_orientacoes,
     _compara_protocolo,
     atualiza_historico_protocolo,
@@ -183,3 +184,42 @@ def test_atualiza_historico_protocolo_somente_orientacoes_gerais(
     assert "Orientações Gerais" in html
     assert "A criança tem alergia ao cacau" in html
     assert "A criança tem alergia ao cacau 70%." in html
+
+
+def test_compara_informacoes_adicionais(solicitacao_historico_atualizacao_protocolo):
+    orientacao = "<p>Caso a criança insira chocolate, levar imediatamente ao hospital.</p>"
+    comparacao = _compara_informacoes_adicionais(
+        solicitacao_historico_atualizacao_protocolo, orientacao
+    )
+
+    assert isinstance(comparacao, dict)
+    assert comparacao["de"] == "Nenhuma informção a ser adicionada."
+    assert comparacao["para"] == "Caso a criança insira chocolate, levar imediatamente ao hospital."
+
+
+def test_compara_informacoes_adicionais_iguais(solicitacao_historico_atualizacao_protocolo):
+    orientacao = solicitacao_historico_atualizacao_protocolo.informacoes_adicionais
+    comparacao = _compara_informacoes_adicionais(
+        solicitacao_historico_atualizacao_protocolo, orientacao
+    )
+
+    assert comparacao is None
+
+
+def test_compara_informacoes_adicionais_nao_enviada(solicitacao_historico_atualizacao_protocolo):
+    comparacao = _compara_informacoes_adicionais(solicitacao_historico_atualizacao_protocolo, None)
+
+    assert comparacao is None
+
+
+def test_atualiza_historico_protocolo_somente_informacoes_adicionais(
+    solicitacao_historico_atualizacao_protocolo, mock_request_codae_atualiza_protocolo
+):
+    html = atualiza_historico_protocolo(
+        solicitacao_historico_atualizacao_protocolo,
+        mock_request_codae_atualiza_protocolo,
+    )
+    assert isinstance(html, str)
+    assert "Informações adicionais" in html
+    assert "Nenhuma informção a ser adicionada." in html
+    assert "Caso a criança insira chocolate, levar imediatamente ao hospital." in html
