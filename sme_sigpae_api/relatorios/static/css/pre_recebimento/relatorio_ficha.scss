@@ -1,12 +1,12 @@
 @import "../variaveis";
 
 @page :nth(n+2) {
-  margin-top: 5.9cm !important;
-  padding-top: 0cm !important;
+  margin-top: 7.6cm !important;
+  padding-top: 0.6cm !important;
 }
 
 @page :nth(1) {
-  margin-top: 0.3cm !important;
+  margin-top: 1.8cm !important;
   padding-top: 6.4cm !important;
 }
 
@@ -24,6 +24,7 @@
   padding-right: 0em;
   padding-left: 0em;
   font-size: 13px;
+  height: 100%;
 }
 
 .content{
