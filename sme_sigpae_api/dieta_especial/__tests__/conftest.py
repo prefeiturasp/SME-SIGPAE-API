@@ -2001,6 +2001,7 @@ def solicitacao_historico_atualizacao_protocolo(
     escola_dre_guaianases,
     classificacao_tipo_a,
     alergia_a_chocolate,
+    protocolo_padrao_dieta_especial,
 ):
 
     return baker.make(
@@ -2014,13 +2015,18 @@ def solicitacao_historico_atualizacao_protocolo(
         classificacao=classificacao_tipo_a,
         data_inicio=datetime.date(2025, 5, 1),
         data_termino=None,
+        protocolo_padrao=protocolo_padrao_dieta_especial,
     )
 
 
 @pytest.fixture
-def mock_request_codae_atualiza_protocolo(alergia_ao_trigo, classificacao_tipo_b):
+def mock_request_codae_atualiza_protocolo(
+    alergia_ao_trigo, classificacao_tipo_b, protocolo_padrao_dieta_especial_2
+):
     return {
         "alergias_intolerancias": [str(alergia_ao_trigo.id)],
         "substituicoes": [],
         "classificacao": str(classificacao_tipo_b.id),
+        "protocolo_padrao": str(protocolo_padrao_dieta_especial_2.uuid),
+        "nome_protocolo": protocolo_padrao_dieta_especial_2.nome_protocolo,
     }
