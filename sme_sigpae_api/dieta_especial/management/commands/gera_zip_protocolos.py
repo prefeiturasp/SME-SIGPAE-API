@@ -38,7 +38,7 @@ class Command(BaseCommand):
 
         dietas = SolicitacaoDietaEspecial.objects.filter(
             status="CODAE_AUTORIZADO", escola_destino__lote__nome=lote
-        ).order_by("escola_destino__nome, aluno__nome")[inicio:fim]
+        ).order_by("escola_destino__nome", "aluno__nome")[inicio:fim]
 
         if not dietas.exists():
             raise CommandError("Nenhuma dieta encontrada com os filtros fornecidos.")
