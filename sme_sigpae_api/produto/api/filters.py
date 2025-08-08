@@ -53,30 +53,78 @@ class ProdutoFilter(filters.FilterSet):
         return qs.filter(filtro)
 
 
+def aplica_filtro_editais(editais, filtro_reclamacao, filtro_homologacao):
+    if editais:
+        filtro_reclamacao["escola__lote__contratos_do_lote__edital__numero__in"] = (
+            editais
+        )
+        filtro_reclamacao["escola__lote__contratos_do_lote__encerrado"] = False
+        filtro_homologacao[
+            "homologacao__reclamacoes__escola__lote__contratos_do_lote__edital__numero__in"
+        ] = editais
+        filtro_homologacao[
+            "homologacao__reclamacoes__escola__lote__contratos_do_lote__encerrado"
+        ] = False
+
+
+def aplica_filtro_lotes(lotes, filtro_reclamacao, filtro_homologacao):
+    if lotes:
+        filtro_reclamacao["escola__lote__uuid__in"] = lotes
+        filtro_homologacao["homologacao__reclamacoes__escola__lote__uuid__in"] = lotes
+
+
+def aplica_filtro_terceirizadas(terceirizadas, filtro_reclamacao, filtro_homologacao):
+    if terceirizadas:
+        filtro_reclamacao["escola__lote__terceirizada__uuid__in"] = terceirizadas
+        filtro_homologacao[
+            "homologacao__reclamacoes__escola__lote__terceirizada__uuid__in"
+        ] = terceirizadas
+
+
+def aplica_filtro_status(status_reclamacao, filtro_reclamacao, filtro_homologacao):
+    if status_reclamacao:
+        filtro_reclamacao["status__in"] = status_reclamacao
+        filtro_homologacao["homologacao__reclamacoes__status__in"] = status_reclamacao
+
+
+def aplica_filtro_datas(
+    data_inicial_reclamacao,
+    data_final_reclamacao,
+    filtro_reclamacao,
+    filtro_homologacao,
+):
+    if data_inicial_reclamacao:
+        data_inicial = converte_para_datetime(data_inicial_reclamacao)
+        filtro_reclamacao["criado_em__gte"] = data_inicial
+        filtro_homologacao["homologacao__reclamacoes__criado_em__gte"] = data_inicial
+    if data_final_reclamacao:
+        data_final = converte_para_datetime(data_final_reclamacao) + timedelta(days=1)
+        filtro_reclamacao["criado_em__lte"] = data_final
+        filtro_homologacao["homologacao__reclamacoes__criado_em__lte"] = data_final
+
+
 def filtros_produto_reclamacoes(request):
-    status_reclamacao = request.query_params.getlist("status_reclamacao")
+    editais = request.query_params.getlist("editais[]")
+    lotes = request.query_params.getlist("lotes[]")
+    terceirizadas = request.query_params.getlist("terceirizadas[]")
+    status_reclamacao = request.query_params.getlist("status_reclamacao[]")
     data_inicial_reclamacao = request.query_params.get("data_inicial_reclamacao")
     data_final_reclamacao = request.query_params.get("data_final_reclamacao")
-    filtro_homologacao = {}
-    filtro_reclamacao = {}
 
-    if status_reclamacao:
-        filtro_homologacao["homologacao__reclamacoes__status__in"] = status_reclamacao
-        filtro_reclamacao["status__in"] = status_reclamacao
-    if data_inicial_reclamacao:
-        data_inicial_reclamacao = converte_para_datetime(data_inicial_reclamacao)
-        filtro_homologacao["homologacao__reclamacoes__criado_em__gte"] = (
-            data_inicial_reclamacao
-        )
-        filtro_reclamacao["criado_em__gte"] = data_inicial_reclamacao
-    if data_final_reclamacao:
-        data_final_reclamacao = converte_para_datetime(
-            data_final_reclamacao
-        ) + timedelta(days=1)
-        filtro_homologacao["homologacao__reclamacoes__criado_em__lte"] = (
-            data_final_reclamacao
-        )
-        filtro_reclamacao["criado_em__lte"] = data_final_reclamacao
+    filtro_reclamacao = {}
+    filtro_homologacao = {}
+
+    aplica_filtro_editais(editais, filtro_reclamacao, filtro_homologacao)
+    aplica_filtro_lotes(lotes, filtro_reclamacao, filtro_homologacao)
+    aplica_filtro_terceirizadas(terceirizadas, filtro_reclamacao, filtro_homologacao)
+    aplica_filtro_status(status_reclamacao, filtro_reclamacao, filtro_homologacao)
+    aplica_filtro_datas(
+        data_inicial_reclamacao,
+        data_final_reclamacao,
+        filtro_reclamacao,
+        filtro_homologacao,
+    )
+
     return filtro_reclamacao, filtro_homologacao
 
 
