@@ -2123,6 +2123,13 @@ def get_lista_dias_solicitacoes(params, escola):
         data_evento__month=params["mes"], data_evento__year=params["ano"]
     )
     query_set = query_set.filter(data_evento__lt=datetime.date.today())
+    """
+    TODO: remover essa regra posteriormente quando definir calendário de Recreio Férias
+    """
+    if "tipo_solicitacao" in params and params["tipo_solicitacao"] == "Kit Lanche":
+        query_set = query_set.exclude(
+            data_evento__gte="2025-07-07", data_evento__lte="2025-07-18"
+        )
     if params.get("eh_lanche_emergencial", False):
         query_set = query_set.filter(motivo__icontains="Emergencial")
         query_set = remover_duplicados(query_set)
