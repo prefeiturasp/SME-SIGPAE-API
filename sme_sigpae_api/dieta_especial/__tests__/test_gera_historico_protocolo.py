@@ -3,6 +3,7 @@ import pytest
 from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
     _compara_alergias,
     _compara_classificacao,
+    _compara_orientacoes,
     _compara_protocolo,
     atualiza_historico_protocolo,
 )
@@ -143,3 +144,42 @@ def test_atualiza_historico_protocolo_somente_protocolo(
     assert "Nome do Protocolo Padrão" in html
     assert "ALERGIA A AVEIA" in html
     assert "ALERGIA A ABACAXI" in html
+
+
+def test_compara_orientacoes(solicitacao_historico_atualizacao_protocolo):
+    orientacao = "<p>A criança tem alergia ao cacau 70%.</p>"
+    comparacao = _compara_orientacoes(
+        solicitacao_historico_atualizacao_protocolo, orientacao
+    )
+
+    assert isinstance(comparacao, dict)
+    assert comparacao["de"] == "A criança tem alergia ao cacau"
+    assert comparacao["para"] == "A criança tem alergia ao cacau 70%."
+
+
+def test_compara_orientacoes_iguais(solicitacao_historico_atualizacao_protocolo):
+    orientacao = solicitacao_historico_atualizacao_protocolo.orientacoes_gerais
+    comparacao = _compara_orientacoes(
+        solicitacao_historico_atualizacao_protocolo, orientacao
+    )
+
+    assert comparacao is None
+
+
+def test_compara_orientacoes_nao_enviada(solicitacao_historico_atualizacao_protocolo):
+    comparacao = _compara_orientacoes(solicitacao_historico_atualizacao_protocolo, None)
+
+    assert comparacao is None
+
+
+def test_atualiza_historico_protocolo_somente_orientacoes_gerais(
+    solicitacao_historico_atualizacao_protocolo, mock_request_codae_atualiza_protocolo
+):
+    html = atualiza_historico_protocolo(
+        solicitacao_historico_atualizacao_protocolo,
+        mock_request_codae_atualiza_protocolo,
+    )
+    assert isinstance(html, str)
+    assert "Orientações Gerais" in html
+    assert "A criança tem alergia ao cacau" in html
+    assert "A criança tem alergia ao cacau 70%." in html
