@@ -22,6 +22,7 @@ from .serializers.serializers import (
     QuestoesPorProdutoSimplesSerializer,
 )
 from .serializers.serializers_create import (
+    FichaDeRecebimentoCreateSerializer,
     FichaDeRecebimentoRascunhoSerializer,
     QuestoesPorProdutoCreateSerializer,
 )
@@ -133,3 +134,24 @@ class FichaRecebimentoModelViewSet(mixins.ListModelMixin, viewsets.GenericViewSe
     pagination_class = DefaultPagination
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = FichaRecebimentoFilter
+
+    def get_serializer_class(self):
+        serializer_classes_map = {
+            "list": FichaDeRecebimentoSerializer,
+            "retrieve": FichaDeRecebimentoSerializer,
+            "create": FichaDeRecebimentoCreateSerializer,
+            "update": FichaDeRecebimentoCreateSerializer,
+        }
+
+        return serializer_classes_map.get(self.action, FichaDeRecebimentoRascunhoSerializer)
+
+    def get_permissions(self):
+        permission_classes_map = {
+            "list": (PermissaoParaVisualizarFichaRecebimento,),
+            "retrieve": (PermissaoParaVisualizarFichaRecebimento,),
+            "create": (PermissaoParaCadastrarFichaRecebimento,),
+            "update": (PermissaoParaCadastrarFichaRecebimento,),
+        }
+        action_permissions = permission_classes_map.get(self.action, [])
+        self.permission_classes = (*self.permission_classes, *action_permissions)
+        return super(FichaRecebimentoModelViewSet, self).get_permissions()
