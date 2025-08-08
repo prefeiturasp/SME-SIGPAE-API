@@ -2,7 +2,7 @@
 
 .flex{
   display: flex;
-  
+
   .telefone, .contato{
     width: 50%;
   }
@@ -34,6 +34,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-top: 8px;
 
   img {
     height: 48px;
@@ -59,6 +60,7 @@
   padding: 1em 1em 1em 1em;
   background: $cinza-claro;
   font-size: 14px;
+  height: 272px;
 }
 
 .header .info {
