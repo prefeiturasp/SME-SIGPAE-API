@@ -90,7 +90,7 @@ class ArquivoFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
 
 class OcorrenciaFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
-        self.rascunho = kwargs.pop('rascunho', False)
+        self.rascunho = kwargs.pop("rascunho", False)
         super().__init__(*args, **kwargs)
 
     class Meta:
@@ -99,42 +99,44 @@ class OcorrenciaFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
 
     def _validate_quantidade(self, tipo, quantidade):
         if tipo != OcorrenciaFichaRecebimento.TIPO_OUTROS and not quantidade:
-            raise serializers.ValidationError({
-                'quantidade': 'Este campo é obrigatório para o tipo selecionado.'
-            })
+            raise serializers.ValidationError(
+                {"quantidade": "Este campo é obrigatório para o tipo selecionado."}
+            )
 
     def _validate_falta(self, relacao):
         valid_relations = [
             OcorrenciaFichaRecebimento.RELACAO_CRONOGRAMA,
-            OcorrenciaFichaRecebimento.RELACAO_NOTA_FISCAL
+            OcorrenciaFichaRecebimento.RELACAO_NOTA_FISCAL,
         ]
         if not relacao or relacao not in valid_relations:
-            raise serializers.ValidationError({
-                'relacao': 'Para o tipo FALTA, a relação deve ser CRONOGRAMA ou NOTA_FISCAL'
-            })
+            raise serializers.ValidationError(
+                {
+                    "relacao": "Para o tipo FALTA, a relação deve ser CRONOGRAMA ou NOTA_FISCAL"
+                }
+            )
 
     def _validate_recusa(self, relacao, numero_nota):
         valid_relations = [
             OcorrenciaFichaRecebimento.RELACAO_TOTAL,
-            OcorrenciaFichaRecebimento.RELACAO_PARCIAL
+            OcorrenciaFichaRecebimento.RELACAO_PARCIAL,
         ]
         if not relacao or relacao not in valid_relations:
-            raise serializers.ValidationError({
-                'relacao': 'Para o tipo RECUSA, a relação deve ser TOTAL ou PARCIAL'
-            })
+            raise serializers.ValidationError(
+                {"relacao": "Para o tipo RECUSA, a relação deve ser TOTAL ou PARCIAL"}
+            )
         if not numero_nota:
-            raise serializers.ValidationError({
-                'numero_nota': 'Para o tipo RECUSA, o número da nota é obrigatório'
-            })
+            raise serializers.ValidationError(
+                {"numero_nota": "Para o tipo RECUSA, o número da nota é obrigatório"}
+            )
 
     def validate(self, data):
-        if getattr(self, 'rascunho', False):
+        if getattr(self, "rascunho", False):
             return data
 
-        tipo = data.get('tipo')
-        relacao = data.get('relacao')
-        numero_nota = data.get('numero_nota')
-        quantidade = data.get('quantidade')
+        tipo = data.get("tipo")
+        relacao = data.get("relacao")
+        numero_nota = data.get("numero_nota")
+        quantidade = data.get("quantidade")
 
         self._validate_quantidade(tipo, quantidade)
 
@@ -143,8 +145,8 @@ class OcorrenciaFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
         elif tipo == OcorrenciaFichaRecebimento.TIPO_RECUSA:
             self._validate_recusa(relacao, numero_nota)
         else:  # OUTROS_MOTIVOS
-            data['relacao'] = None
-            data['numero_nota'] = None
+            data["relacao"] = None
+            data["numero_nota"] = None
 
         return data
 
@@ -359,7 +361,7 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['ocorrencias'] = OcorrenciaFichaRecebimentoCreateSerializer(
+        representation["ocorrencias"] = OcorrenciaFichaRecebimentoCreateSerializer(
             instance.ocorrencias.all(), many=True
         ).data
         return representation

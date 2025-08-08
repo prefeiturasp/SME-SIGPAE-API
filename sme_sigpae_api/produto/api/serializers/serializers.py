@@ -905,6 +905,14 @@ class HomologacaoReclamacaoSerializer(serializers.ModelSerializer):
     reclamacoes = ReclamacaoDeProdutoRelatorioSerializer(many=True)
     status_titulo = serializers.CharField(source="status.state.title")
     rastro_terceirizada = TerceirizadaSimplesSerializer()
+    editais_reclamacoes = serializers.SerializerMethodField()
+
+    def get_editais_reclamacoes(self, obj):
+        qs = obj.reclamacoes.values_list(
+            "escola__lote__contratos_do_lote__edital__numero", flat=True
+        ).distinct()
+
+        return list(qs)
 
     class Meta:
         model = HomologacaoProduto
@@ -917,6 +925,7 @@ class HomologacaoReclamacaoSerializer(serializers.ModelSerializer):
             "reclamacoes",
             "status_titulo",
             "rastro_terceirizada",
+            "editais_reclamacoes",
         )
 
 
