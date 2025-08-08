@@ -58,7 +58,6 @@ class Command(BaseCommand):
                 zip_file.writestr(filename, pdf_buffer.getvalue())
                 self.stdout.write(self.style.SUCCESS(f"Adicionado: {filename}"))
 
-        # Envia o e-mail com anexo
         envia_email_unico_com_anexo_inmemory(
             assunto=f"Protocolos de Dieta Especial - {lote} - {inicio} a {fim}",
             corpo=f"""
