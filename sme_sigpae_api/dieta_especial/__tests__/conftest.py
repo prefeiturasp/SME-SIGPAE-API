@@ -1993,3 +1993,33 @@ def relatorio_recreio_nas_ferias(
         periodo_recreio_inicio=datetime.date(2025, 5, 10),
         periodo_recreio_fim=datetime.date(2025, 5, 20),
     )
+
+
+@pytest.fixture
+def solicitacao_historico_atualizacao_protocolo(
+    escola,
+    escola_dre_guaianases,
+    classificacao_tipo_a,
+    alergia_a_chocolate,
+):
+
+    return baker.make(
+        "SolicitacaoDietaEspecial",
+        status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
+        tipo_solicitacao="COMUM",
+        rastro_escola=escola,
+        escola_destino=escola_dre_guaianases,
+        aluno=baker.make("Aluno", nome="Antonio", codigo_eol="923459"),
+        alergias_intolerancias=[alergia_a_chocolate],
+        classificacao=classificacao_tipo_a,
+        data_inicio=datetime.date(2025, 5, 1),
+        data_termino=None,
+    )
+
+
+@pytest.fixture
+def mock_request_codae_atualiza_protocolo(alergia_ao_trigo):
+    return {
+        "alergias_intolerancias": [str(alergia_ao_trigo.id)],
+        "substituicoes": [],
+    }
