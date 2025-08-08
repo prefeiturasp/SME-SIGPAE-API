@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "1c9a91214d483376df1cbe635bf162f453da3b5b30b161e14a20c7447b68909e"
+            "sha256": "a30c98c4d1f10b653df23b6536cca863c2f114c2b56aae4877b691c434bdb2c7"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -105,6 +105,15 @@
             ],
             "markers": "python_version >= '3.9'",
             "version": "==25.4.16"
+        },
+        "beautifulsoup4": {
+            "hashes": [
+                "sha256:9bbbb14bfde9d79f38b8cd5f8c7c85f4b8f2523190ebed90e950a8dea4cb1c4b",
+                "sha256:dbb3c4e1ceae6aefebdaf2423247260cd062430a410e38c66f2baa50a8437195"
+            ],
+            "index": "pypi",
+            "markers": "python_full_version >= '3.7.0'",
+            "version": "==4.13.4"
         },
         "billiard": {
             "hashes": [
@@ -1998,6 +2007,14 @@
             ],
             "markers": "python_version >= '3.7'",
             "version": "==1.3.1"
+        },
+        "soupsieve": {
+            "hashes": [
+                "sha256:6e60cc5c1ffaf1cebcc12e8188320b72071e922c2e897f737cadce79ad5d30c4",
+                "sha256:ad282f9b6926286d2ead4750552c8a6142bc4c783fd66b0293547c8fe6ae126a"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==2.7"
         },
         "spyne": {
             "git": "https://github.com/prefeiturasp/spyne-fork.git",

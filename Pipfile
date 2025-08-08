@@ -112,6 +112,7 @@ daphne = "==4.1.0"
 drf-spectacular = "==0.28.0"
 cerberus = "*"
 coverage-badge = "==1.1.2"
+beautifulsoup4 = "==4.13.4"
 
 [requires]
 python_version = "3.13.3"
