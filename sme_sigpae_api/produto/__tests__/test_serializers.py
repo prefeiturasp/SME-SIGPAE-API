@@ -124,3 +124,26 @@ def test_homologacao_listagem_serializer_tem_copia(homologacao_e_copia):
     homologacao_e_copia.eh_copia = True
     serializer = HomologacaoListagemSerializer(homologacao_e_copia)
     assert serializer.data["tem_copia"] is False
+
+
+def test_homologacao_reclamacao_serializer(hom_produto_com_editais):
+    from sme_sigpae_api.produto.api.serializers.serializers import (
+        HomologacaoReclamacaoSerializer,
+    )
+
+    serializer = HomologacaoReclamacaoSerializer(hom_produto_com_editais)
+    data = serializer.data
+    data_formatada = hom_produto_com_editais.criado_em.strftime("%d/%m/%Y %H:%M:%S")
+
+    assert data["uuid"] == str(hom_produto_com_editais.uuid)
+    assert data["status"] == str(hom_produto_com_editais.status)
+    assert data["id_externo"] == str(hom_produto_com_editais.id_externo)
+    assert data["criado_em"] == data_formatada
+    assert data["status_titulo"] == "Rascunho"
+    assert "rastro_terceirizada" in data
+
+    assert "reclamacoes" in data
+    assert isinstance(data["reclamacoes"], list)
+
+    assert "editais_reclamacoes" in data
+    assert isinstance(data["editais_reclamacoes"], list)
