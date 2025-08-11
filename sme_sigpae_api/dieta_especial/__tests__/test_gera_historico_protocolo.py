@@ -9,6 +9,7 @@ from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
     _compara_protocolo,
     _compara_substituicoes,
     atualiza_historico_protocolo,
+    remove_tag_p,
 )
 
 pytestmark = pytest.mark.django_db
@@ -368,3 +369,36 @@ def test_atualiza_historico_protocolo_somente_substituicoes(
     assert html.count("<li> Bolo de Fubá</li>") == 2
     assert html.count("<li> Bolo de Laranja</li>") == 2
     assert html.count("<li> Bolo de Limão</li>") == 1
+
+
+def test_remove_tag_p():
+    html = "<p>A criança tem alergia ao cacau 70%.</p><p>Ao inserir esse alimento, a pele fica irritada.</p>"
+    novo_html = remove_tag_p(html)
+    assert (
+        novo_html
+        == "A criança tem alergia ao cacau 70%.<p>Ao inserir esse alimento, a pele fica irritada.</p>"
+    )
+
+
+def test_remove_tag_p_texto_sem_tag():
+    html = "A criança tem alergia ao cacau 70%."
+    novo_html = remove_tag_p(html)
+    assert novo_html == "A criança tem alergia ao cacau 70%."
+
+
+def test_remove_tag_p_texto_com_tag_de_lista():
+    html = "<p>A criança tem alergia ao cacau 70%.</p><p>Ao inserir esse alimento, a pele fica irritada.</p><ul><li>Não passar nenhuma pomada sem ser recomendada pelo médico</li></ul>"
+    novo_html = remove_tag_p(html)
+    assert (
+        novo_html
+        == "<p>A criança tem alergia ao cacau 70%.</p><p>Ao inserir esse alimento, a pele fica irritada.</p><ul><li>Não passar nenhuma pomada sem ser recomendada pelo médico</li></ul>"
+    )
+
+
+def test_remove_tag_p_texto_com_tag_de_tabela():
+    html = "<p>A criança tem alergia ao cacau 70%.</p><p>Ao inserir esse alimento, a pele fica irritada.</p><table><tr><td>Não passar nenhuma pomada sem ser recomendada pelo médico</td></tr></table>"
+    novo_html = remove_tag_p(html)
+    assert (
+        novo_html
+        == "<p>A criança tem alergia ao cacau 70%.</p><p>Ao inserir esse alimento, a pele fica irritada.</p><table><tr><td>Não passar nenhuma pomada sem ser recomendada pelo médico</td></tr></table>"
+    )
