@@ -9,6 +9,7 @@ from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
     _compara_protocolo,
     _compara_substituicoes,
     atualiza_historico_protocolo,
+    normalizar_substituicao,
     remove_tag_p,
 )
 
@@ -402,3 +403,40 @@ def test_remove_tag_p_texto_com_tag_de_tabela():
         novo_html
         == "<p>A criança tem alergia ao cacau 70%.</p><p>Ao inserir esse alimento, a pele fica irritada.</p><table><tr><td>Não passar nenhuma pomada sem ser recomendada pelo médico</td></tr></table>"
     )
+
+
+def test_normalizar_substituicao_objeto(
+    solicitacao_historico_atualizacao_protocolo, substituicao_alimento_dieta
+):
+    atuais = [
+        normalizar_substituicao(s)
+        for s in solicitacao_historico_atualizacao_protocolo.substituicaoalimento_set.all().order_by(
+            "alimento__nome"
+        )
+    ]
+    assert len(atuais) == 2
+    assert atuais[0] == {
+        "alimento": "Achocolatado",
+        "tipo": "SUBSTITUIR",
+        "substitutos": ["Suco de Laranja", "Suco de Morango", "Suco de Uva"],
+    }
+    assert atuais[1] == {
+        "alimento": "Bolo de Chocolate",
+        "tipo": "SUBSTITUIR",
+        "substitutos": ["Bolo de Fubá", "Bolo de Laranja"],
+    }
+
+
+def test_normalizar_substituicao_dicionario(substituicao_alimento_dieta):
+    atuais = [normalizar_substituicao(s) for s in substituicao_alimento_dieta]
+    assert len(atuais) == 2
+    assert atuais[0] == {
+        "alimento": "Bolo de Chocolate",
+        "tipo": "SUBSTITUIR",
+        "substitutos": ["Bolo de Fubá", "Bolo de Laranja"],
+    }
+    assert atuais[1] == {
+        "alimento": "Achocolatado",
+        "tipo": "SUBSTITUIR",
+        "substitutos": ["Suco de Laranja", "Suco de Morango", "Suco de Uva"],
+    }
