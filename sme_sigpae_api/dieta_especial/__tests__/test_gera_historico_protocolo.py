@@ -7,6 +7,7 @@ from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
     _compara_informacoes_adicionais,
     _compara_orientacoes,
     _compara_protocolo,
+    _compara_substituicoes,
     atualiza_historico_protocolo,
 )
 
@@ -269,3 +270,101 @@ def test_atualiza_historico_protocolo_somente_data_termino(
     assert "Data de término" in html
     assert "Sem data término" in html
     assert "Com data de término 25/10/2026" in html
+
+
+def test_compara_substituicoes(
+    solicitacao_historico_atualizacao_protocolo,
+    substituicao_alimento_dieta,
+    adiciona_biscoitos_na_substituicao,
+    altera_bolos_na_substituicao,
+):
+    substituicoes = [adiciona_biscoitos_na_substituicao, altera_bolos_na_substituicao]
+    comparacao = _compara_substituicoes(
+        solicitacao_historico_atualizacao_protocolo, substituicoes
+    )
+
+    assert isinstance(comparacao, dict)
+    assert comparacao["incluidos"] == [
+        {
+            "tipo": "ITEM INCLUÍDO",
+            "dados": {
+                "alimento": "Biscoito de Chocolate",
+                "substitutos": ["Biscoito de Leite com Coco", "Biscoito de Maizena"],
+                "tipo": "SUBSTITUIR",
+            },
+        }
+    ]
+    assert comparacao["excluidos"] == [
+        {
+            "tipo": "ITEM EXCLUÍDO",
+            "dados": {
+                "alimento": "Achocolatado",
+                "tipo": "SUBSTITUIR",
+                "substitutos": ["Suco de Laranja", "Suco de Morango", "Suco de Uva"],
+            },
+        }
+    ]
+    assert comparacao["alterados"] == [
+        {
+            "tipo": "ITEM ALTERADO",
+            "de": {
+                "tipo": "ITEM ALTERADO DE",
+                "dados": {
+                    "alimento": "Bolo de Chocolate",
+                    "tipo": "SUBSTITUIR",
+                    "substitutos": ["Bolo de Fubá", "Bolo de Laranja"],
+                },
+            },
+            "para": {
+                "tipo": "ITEM ALTERADO PARA",
+                "dados": {
+                    "alimento": "Bolo de Chocolate",
+                    "tipo": "SUBSTITUIR",
+                    "substitutos": ["Bolo de Fubá", "Bolo de Laranja", "Bolo de Limão"],
+                },
+            },
+        }
+    ]
+
+
+def test_compara_substituicoes_iguais(
+    solicitacao_historico_atualizacao_protocolo, substituicao_alimento_dieta
+):
+    comparacao = _compara_substituicoes(
+        solicitacao_historico_atualizacao_protocolo, substituicao_alimento_dieta
+    )
+    assert comparacao is None
+
+
+def test_atualiza_historico_protocolo_somente_substituicoes(
+    solicitacao_historico_atualizacao_protocolo,
+    substituicao_alimento_dieta,
+    mock_request_codae_atualiza_protocolo,
+):
+    html = atualiza_historico_protocolo(
+        solicitacao_historico_atualizacao_protocolo,
+        mock_request_codae_atualiza_protocolo,
+    )
+
+    assert isinstance(html, str)
+    assert "Substituições de Alimentos" in html
+    assert html.count("SUBSTITUIR") == 4
+    assert html.count("ISENTO") == 0
+
+    assert "ITEM EXCLUÍDO" in html
+    assert "Achocolatado" in html
+    assert "<li> Suco de Laranja</li>" in html
+    assert "<li> Suco de Morango</li>" in html
+    assert "<li> Suco de Uva</li>" in html
+
+    assert "ITEM INCLUIDO" in html
+    assert "Biscoito de Chocolate" in html
+    assert "<li> Biscoito de Leite com Coco</li>" in html
+    assert "<li> Biscoito de Maizena</li>" in html
+
+    assert "ITEM ALTERADO DE" in html
+    assert "ITEM ALTERADO PARA" in html
+    assert "Bolo de Chocolate" in html
+    assert html.count("<li> Bolo de Fubá</li>") == 2
+    assert html.count("<li> Bolo de Laranja</li>") == 2
+    assert html.count("<li> Bolo de Limão</li>") == 1
