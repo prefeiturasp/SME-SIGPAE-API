@@ -1643,7 +1643,7 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
 
     def transferir_dietas_especiais(self, terceirizada):
-        canceladas_ou_negadas = Q(
+        canceladas_ou_negadas_ou_inativas = Q(
             status__in=[
                 FluxoDietaEspecialPartindoDaEscola.workflow_class.CANCELADO_ALUNO_MUDOU_ESCOLA,
                 FluxoDietaEspecialPartindoDaEscola.workflow_class.CODAE_NEGOU_PEDIDO,
@@ -1652,10 +1652,11 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
                 FluxoDietaEspecialPartindoDaEscola.workflow_class.CANCELADO_ALUNO_NAO_PERTENCE_REDE,
                 FluxoDietaEspecialPartindoDaEscola.workflow_class.CODAE_AUTORIZOU_INATIVACAO,
                 FluxoDietaEspecialPartindoDaEscola.workflow_class.TERCEIRIZADA_TOMOU_CIENCIA_INATIVACAO,
-            ]
+            ],
+            ativo=False,
         )
         self.dieta_especial_solicitacaodietaespecial_rastro_lote.exclude(
-            canceladas_ou_negadas
+            canceladas_ou_negadas_ou_inativas
         ).update(rastro_terceirizada=terceirizada, conferido=False)
 
     def __str__(self):
