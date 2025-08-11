@@ -155,3 +155,25 @@ class FichaRecebimentoModelViewSet(mixins.ListModelMixin, viewsets.GenericViewSe
         action_permissions = permission_classes_map.get(self.action, [])
         self.permission_classes = (*self.permission_classes, *action_permissions)
         return super(FichaRecebimentoModelViewSet, self).get_permissions()
+
+    def create(self, request, *args, **kwargs):
+        return self._verificar_autenticidade_usuario(
+            request, *args, **kwargs
+        ) or super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return self._verificar_autenticidade_usuario(
+            request, *args, **kwargs
+        ) or super().update(request, *args, **kwargs)
+
+    def _verificar_autenticidade_usuario(self, request, *args, **kwargs):
+        usuario = request.user
+        password = request.data.pop("password", "")
+
+        if not usuario.verificar_autenticidade(password):
+            return Response(
+                {
+                    "Senha inválida": "em caso de esquecimento de senha, solicite a recuperação e tente novamente."
+                },
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
