@@ -8,6 +8,9 @@ from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
     _compara_orientacoes,
     _compara_protocolo,
     _compara_substituicoes,
+    _identifica_alterados,
+    _identifica_excluidos,
+    _identifica_incluidos,
     atualiza_historico_protocolo,
     normalizar_substituicao,
     remove_tag_p,
@@ -440,3 +443,134 @@ def test_normalizar_substituicao_dicionario(substituicao_alimento_dieta):
         "tipo": "SUBSTITUIR",
         "substitutos": ["Suco de Laranja", "Suco de Morango", "Suco de Uva"],
     }
+
+
+def test_identifica_excluidos():
+    alimentos_atuais = {
+        "Bolo de Chocolate": {
+            "alimento": "Bolo de Chocolate",
+            "tipo": "SUBSTITUIR",
+            "substitutos": ["Bolo de Fubá", "Bolo de Laranja"],
+        },
+        "Achocolatado": {
+            "alimento": "Achocolatado",
+            "tipo": "SUBSTITUIR",
+            "substitutos": ["Suco de Laranja", "Suco de Morango", "Suco de Uva"],
+        },
+    }
+    alimentos_novos = {
+        "Biscoito de Chocolate": {
+            "alimento": "Biscoito de Chocolate",
+            "substitutos": ["Biscoito de Leite com Coco", "Biscoito de Maizena"],
+            "tipo": "SUBSTITUIR",
+        },
+        "Bolo de Chocolate": {
+            "alimento": "Bolo de Chocolate",
+            "tipo": "SUBSTITUIR",
+            "substitutos": ["Bolo de Fubá", "Bolo de Laranja", "Bolo de Limão"],
+        },
+    }
+
+    excluido = _identifica_excluidos(alimentos_atuais, alimentos_novos)
+    assert len(excluido) == 1
+    assert excluido == [
+        {
+            "tipo": "ITEM EXCLUÍDO",
+            "dados": {
+                "alimento": "Achocolatado",
+                "tipo": "SUBSTITUIR",
+                "substitutos": ["Suco de Laranja", "Suco de Morango", "Suco de Uva"],
+            },
+        }
+    ]
+
+
+def test_identifica_incluidos():
+    alimentos_atuais = {
+        "Bolo de Chocolate": {
+            "alimento": "Bolo de Chocolate",
+            "tipo": "SUBSTITUIR",
+            "substitutos": ["Bolo de Fubá", "Bolo de Laranja"],
+        },
+        "Achocolatado": {
+            "alimento": "Achocolatado",
+            "tipo": "SUBSTITUIR",
+            "substitutos": ["Suco de Laranja", "Suco de Morango", "Suco de Uva"],
+        },
+    }
+    alimentos_novos = {
+        "Biscoito de Chocolate": {
+            "alimento": "Biscoito de Chocolate",
+            "substitutos": ["Biscoito de Leite com Coco", "Biscoito de Maizena"],
+            "tipo": "SUBSTITUIR",
+        },
+        "Bolo de Chocolate": {
+            "alimento": "Bolo de Chocolate",
+            "tipo": "SUBSTITUIR",
+            "substitutos": ["Bolo de Fubá", "Bolo de Laranja", "Bolo de Limão"],
+        },
+    }
+
+    incluido = _identifica_incluidos(alimentos_atuais, alimentos_novos)
+    assert len(incluido) == 1
+    assert incluido == [
+        {
+            "tipo": "ITEM INCLUÍDO",
+            "dados": {
+                "alimento": "Biscoito de Chocolate",
+                "substitutos": ["Biscoito de Leite com Coco", "Biscoito de Maizena"],
+                "tipo": "SUBSTITUIR",
+            },
+        }
+    ]
+
+
+def test_identifica_alterados():
+    alimentos_atuais = {
+        "Bolo de Chocolate": {
+            "alimento": "Bolo de Chocolate",
+            "tipo": "SUBSTITUIR",
+            "substitutos": ["Bolo de Fubá", "Bolo de Laranja"],
+        },
+        "Achocolatado": {
+            "alimento": "Achocolatado",
+            "tipo": "SUBSTITUIR",
+            "substitutos": ["Suco de Laranja", "Suco de Morango", "Suco de Uva"],
+        },
+    }
+    alimentos_novos = {
+        "Biscoito de Chocolate": {
+            "alimento": "Biscoito de Chocolate",
+            "substitutos": ["Biscoito de Leite com Coco", "Biscoito de Maizena"],
+            "tipo": "SUBSTITUIR",
+        },
+        "Bolo de Chocolate": {
+            "alimento": "Bolo de Chocolate",
+            "tipo": "SUBSTITUIR",
+            "substitutos": ["Bolo de Fubá", "Bolo de Laranja", "Bolo de Limão"],
+        },
+    }
+
+    alterado = _identifica_alterados(alimentos_atuais, alimentos_novos)
+    assert len(alterado) == 1
+    assert alterado == [
+        {
+            "tipo": "ITEM ALTERADO",
+            "de": {
+                "tipo": "ITEM ALTERADO DE",
+                "dados": {
+                    "alimento": "Bolo de Chocolate",
+                    "tipo": "SUBSTITUIR",
+                    "substitutos": ["Bolo de Fubá", "Bolo de Laranja"],
+                },
+            },
+            "para": {
+                "tipo": "ITEM ALTERADO PARA",
+                "dados": {
+                    "alimento": "Bolo de Chocolate",
+                    "tipo": "SUBSTITUIR",
+                    "substitutos": ["Bolo de Fubá", "Bolo de Laranja", "Bolo de Limão"],
+                },
+            },
+        }
+    ]

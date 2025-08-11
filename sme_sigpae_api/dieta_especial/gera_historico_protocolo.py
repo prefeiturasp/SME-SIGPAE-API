@@ -285,7 +285,7 @@ def normalizar_substituicao(sub: Union[SubstituicaoAlimento, dict]) -> dict:
         dict: Dicionário normalizado com alimento, tipo e substitutos.
     """
     if isinstance(sub, SubstituicaoAlimento):
-        info = {
+        return {
             "alimento": sub.alimento.nome,
             "tipo": dict(SubstituicaoAlimento.TIPO_CHOICES).get(sub.tipo).upper(),
             "substitutos": [
@@ -297,14 +297,12 @@ def normalizar_substituicao(sub: Union[SubstituicaoAlimento, dict]) -> dict:
         alimentos_substitutos = Alimento.objects.filter(
             uuid__in=sub["substitutos"]
         ).order_by("nome")
-        info = {
+        return {
             "alimento": alimento.nome,
             "tipo": dict(SubstituicaoAlimento.TIPO_CHOICES).get(sub["tipo"]).upper(),
             "substitutos": [s.nome for s in alimentos_substitutos],
         }
-    else:
-        info = {}
-    return info
+    return None
 
 
 def _compara_substituicoes(
@@ -325,8 +323,8 @@ def _compara_substituicoes(
         for s in instance.substituicaoalimento_set.all().order_by("alimento__nome")
     ]
     novas = [normalizar_substituicao(s) for s in substituicoes_novas]
-    alimentos_atuais = {s["alimento"]: s for s in atuais}
-    alimentos_novos = {s["alimento"]: s for s in novas}
+    alimentos_atuais = {s["alimento"]: s for s in atuais if s is not None}
+    alimentos_novos = {s["alimento"]: s for s in novas if s is not None}
 
     incluidos = _identifica_incluidos(alimentos_atuais, alimentos_novos)
     excluidos = _identifica_excluidos(alimentos_atuais, alimentos_novos)
