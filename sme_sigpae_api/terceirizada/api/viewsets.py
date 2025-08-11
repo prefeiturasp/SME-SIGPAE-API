@@ -88,7 +88,7 @@ class TerceirizadaViewSet(viewsets.ModelViewSet):
     def lista_nomes(self, request):
         response = {
             "results": TerceirizadaSimplesSerializer(
-                self.filter_queryset(self.get_queryset()), many=True
+                self.filter_queryset(self.get_queryset()).distinct(), many=True
             ).data
         }
         return Response(response)
