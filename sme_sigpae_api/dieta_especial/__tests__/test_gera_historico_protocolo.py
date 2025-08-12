@@ -1,4 +1,5 @@
 import pytest
+from django.core.exceptions import ValidationError
 
 from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
     _compara_alergias,
@@ -574,3 +575,56 @@ def test_identifica_alterados():
             },
         }
     ]
+
+
+def test_atualiza_historico_protocolo_dados_iguais(
+    solicitacao_historico_atualizacao_protocolo,
+    substituicao_alimento_dieta,
+    alergia_a_chocolate,
+    classificacao_tipo_a,
+    protocolo_padrao_dieta_especial,
+):
+    dados = {
+        "alergias_intolerancias": [str(alergia_a_chocolate.id)],
+        "substituicoes": substituicao_alimento_dieta,
+        "classificacao": str(classificacao_tipo_a.id),
+        "protocolo_padrao": str(protocolo_padrao_dieta_especial.uuid),
+        "nome_protocolo": protocolo_padrao_dieta_especial.nome_protocolo,
+        "orientacoes_gerais": solicitacao_historico_atualizacao_protocolo.orientacoes_gerais,
+        "informacoes_adicionais": solicitacao_historico_atualizacao_protocolo.informacoes_adicionais,
+        "registro_funcional_nutricionista": "Elaborado por NUTRI CODAE ADMIN - RF 8107807",
+    }
+
+    html = atualiza_historico_protocolo(
+        solicitacao_historico_atualizacao_protocolo,
+        dados,
+    )
+
+    assert html == ""
+
+
+def test_atualiza_historico_protocolo_exception(
+    solicitacao_historico_atualizacao_protocolo,
+    substituicao_alimento_dieta,
+    alergia_a_chocolate,
+    classificacao_tipo_a,
+    protocolo_padrao_dieta_especial,
+):
+    dados = {
+        "alergias_intolerancias": {"str": (alergia_a_chocolate.id)},
+        "substituicoes": substituicao_alimento_dieta,
+        "classificacao": str(classificacao_tipo_a.id),
+        "protocolo_padrao": str(protocolo_padrao_dieta_especial.uuid),
+        "nome_protocolo": protocolo_padrao_dieta_especial.nome_protocolo,
+        "orientacoes_gerais": solicitacao_historico_atualizacao_protocolo.orientacoes_gerais,
+        "informacoes_adicionais": solicitacao_historico_atualizacao_protocolo.informacoes_adicionais,
+        "registro_funcional_nutricionista": "Elaborado por NUTRI CODAE ADMIN - RF 8107807",
+    }
+
+    with pytest.raises(
+        ValidationError, match="Occoreu um erro ao gerar as informações do histórico"
+    ):
+        atualiza_historico_protocolo(
+            solicitacao_historico_atualizacao_protocolo,
+            dados,
+        )

@@ -3,6 +3,7 @@ import uuid as uuid_generator
 from copy import deepcopy
 from datetime import date, datetime
 
+from django.core.exceptions import ValidationError as coreValidation
 from django.db import transaction
 from django.db.models import Case, CharField, Count, F, Q, Value, When
 from django.forms import ValidationError
@@ -331,7 +332,7 @@ class SolicitacaoDietaEspecialViewSet(
             return Response(
                 {"detail": f"Dados inválidos {e}"}, status=HTTP_400_BAD_REQUEST
             )
-        except ValidationError as e:
+        except coreValidation as e:
             return Response(
                 dict(detail=e.messages[0]), status=status.HTTP_400_BAD_REQUEST
             )

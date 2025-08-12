@@ -67,7 +67,7 @@ def atualiza_historico_protocolo(
         return ""
     except Exception as e:
         raise ValidationError(
-            f"Occoreu um erro ao gerar as informações do histórico: {e}"
+            f"Ocorreu um erro ao gerar as informações do histórico: {e}"
         )
 
 

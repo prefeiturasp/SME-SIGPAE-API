@@ -2018,6 +2018,7 @@ def solicitacao_historico_atualizacao_protocolo(
         protocolo_padrao=protocolo_padrao_dieta_especial,
         orientacoes_gerais="<p>A criança tem alergia ao cacau</p>",
         informacoes_adicionais="<p>Nenhuma informção a ser adicionada.</p>",
+        registro_funcional_nutricionista="Elaborado por NUTRI CODAE ADMIN - RF 8107807",
     )
 
 
