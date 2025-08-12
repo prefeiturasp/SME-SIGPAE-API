@@ -173,7 +173,7 @@ class FichaRecebimentoModelViewSet(mixins.ListModelMixin, viewsets.GenericViewSe
         if not usuario.verificar_autenticidade(password):
             return Response(
                 {
-                    "Senha inválida": "em caso de esquecimento de senha, solicite a recuperação e tente novamente."
+                    "Senha inválida. Em caso de esquecimento de senha, solicite a recuperação e tente novamente."
                 },
                 status=status.HTTP_401_UNAUTHORIZED,
             )
