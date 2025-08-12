@@ -273,30 +273,26 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
     def _validar_questoes(self, data):
         """Valida as questões obrigatórias associadas ao produto da ficha"""
         from django.db.models import Q
-        
+
         questoes = data.get('questoes', [])
         if not questoes:
             raise serializers.ValidationError({
                 'questoes': 'É necessário responder a todas as questões obrigatórias.'
             })
 
-        # Obtém a ficha técnica da etapa
         ficha_tecnica = data['etapa'].cronograma.ficha_tecnica
 
-        # Busca as questões obrigatórias do produto
-        try:
-            qp = QuestoesPorProduto.objects.get(ficha_tecnica=ficha_tecnica)
-        except QuestoesPorProduto.DoesNotExist:
-            return  # Se não há questões configuradas, não há o que validar
+        qp = QuestoesPorProduto.objects.get(ficha_tecnica=ficha_tecnica)
 
-        # Obtém os IDs das questões respondidas
-        ids_respondidas = {str(q['questao_conferencia']) for q in questoes if q.get('resposta') is not None}
+        questoes_respondidas = [
+            q['questao_conferencia'] for q in questoes 
+            if q.get('resposta') is not None and 'questao_conferencia' in q
+        ]
 
-        # Verifica questões obrigatórias não respondidas
         questoes_obrigatorias = QuestaoConferencia.objects.filter(
             Q(questoes_primarias=qp) | Q(questoes_secundarias=qp),
             pergunta_obrigatoria=True
-        ).exclude(uuid__in=ids_respondidas)
+        ).exclude(uuid__in=questoes_respondidas)
 
         if questoes_obrigatorias.exists():
             faltantes = list(questoes_obrigatorias.values_list('questao', flat=True))
