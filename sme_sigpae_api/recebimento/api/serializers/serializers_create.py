@@ -271,7 +271,7 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
             })
 
     def _validar_questoes(self, data):
-        """Valida as questões obrigatórias"""
+        """Valida as questões obrigatórias associadas ao produto da ficha"""
         questoes = data.get('questoes', [])
 
         if not questoes:
@@ -279,9 +279,16 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
                 'questoes': 'É necessário responder a todas as questões obrigatórias.'
             })
 
-        questoes_obrigatorias = QuestaoConferencia.objects.filter(
-            pergunta_obrigatoria=True
+        ficha_tecnica = data['etapa'].cronograma.ficha_tecnica
+        questoes_por_produto = QuestoesPorProduto.objects.get(ficha_tecnica=ficha_tecnica)
+
+        questoes_obrigatorias = (
+            list(questoes_por_produto.questoes_primarias.filter(pergunta_obrigatoria=True)) +
+            list(questoes_por_produto.questoes_secundarias.filter(pergunta_obrigatoria=True))
         )
+
+        if not questoes_obrigatorias:
+            return
 
         faltantes = self._obter_questoes_faltantes(questoes, questoes_obrigatorias)
 
