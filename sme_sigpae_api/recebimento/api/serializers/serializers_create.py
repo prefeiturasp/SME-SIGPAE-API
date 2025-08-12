@@ -195,7 +195,7 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
     observacao = serializers.CharField(required=False, allow_blank=True)
     arquivos = ArquivoFichaRecebimentoCreateSerializer(
         many=True,
-        required=True,
+        required=False,
     )
     questoes = QuestaoFichaRecebimentoCreateSerializer(
         many=True,
