@@ -622,7 +622,7 @@ def test_atualiza_historico_protocolo_exception(
     }
 
     with pytest.raises(
-        ValidationError, match="Occoreu um erro ao gerar as informações do histórico"
+        ValidationError, match="Ocorreu um erro ao gerar as informações do histórico"
     ):
         atualiza_historico_protocolo(
             solicitacao_historico_atualizacao_protocolo,
