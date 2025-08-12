@@ -240,7 +240,6 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
 
         self._validar_campos_divergencia(data)
         self._validar_veiculos(data)
-        self._validar_arquivos(data)
         self._validar_questoes(data)
 
         return data
@@ -269,13 +268,6 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
         if not data.get('veiculos', []):
             raise serializers.ValidationError({
                 'veiculos': 'É necessário informar pelo menos um veículo.'
-            })
-
-    def _validar_arquivos(self, data):
-        """Valida se há pelo menos um arquivo"""
-        if not data.get('arquivos', []):
-            raise serializers.ValidationError({
-                'arquivos': 'É necessário anexar pelo menos um arquivo.'
             })
 
     def _validar_questoes(self, data):
