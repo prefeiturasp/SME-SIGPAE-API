@@ -279,23 +279,30 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
                 'questoes': 'É necessário responder a todas as questões obrigatórias.'
             })
 
-        ficha_tecnica = data['etapa'].cronograma.ficha_tecnica
-        questoes_por_produto = QuestoesPorProduto.objects.get(ficha_tecnica=ficha_tecnica)
+        try:
+            ficha_tecnica = data['etapa'].cronograma.ficha_tecnica
+            questoes_por_produto = QuestoesPorProduto.objects.get(ficha_tecnica=ficha_tecnica)
+            
+            # Get the actual question objects from the related managers
+            questoes_primarias = list(questoes_por_produto.questoes_primarias.filter(pergunta_obrigatoria=True).all())
+            questoes_secundarias = list(questoes_por_produto.questoes_secundarias.filter(pergunta_obrigatoria=True).all())
+            
+            # Combine all required questions
+            questoes_obrigatorias = questoes_primarias + questoes_secundarias
 
-        questoes_obrigatorias = (
-            list(questoes_por_produto.questoes_primarias.filter(pergunta_obrigatoria=True)) +
-            list(questoes_por_produto.questoes_secundarias.filter(pergunta_obrigatoria=True))
-        )
+            if not questoes_obrigatorias:
+                return
 
-        if not questoes_obrigatorias:
+            faltantes = self._obter_questoes_faltantes(questoes, questoes_obrigatorias)
+
+            if faltantes:
+                raise serializers.ValidationError({
+                    'questoes': f'Questões obrigatórias não respondidas: {", ".join(faltantes)}'
+                })
+                
+        except QuestoesPorProduto.DoesNotExist:
+            # Se não houver questões configuradas para este produto, não há o que validar
             return
-
-        faltantes = self._obter_questoes_faltantes(questoes, questoes_obrigatorias)
-
-        if faltantes:
-            raise serializers.ValidationError({
-                'questoes': f'Questões obrigatórias não respondidas: {", ".join(faltantes)}'
-            })
 
     def _obter_questoes_faltantes(self, questoes, questoes_obrigatorias):
         """Retorna a lista de questões obrigatórias não respondidas"""
