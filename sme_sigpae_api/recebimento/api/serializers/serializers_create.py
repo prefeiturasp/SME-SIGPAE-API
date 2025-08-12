@@ -272,53 +272,37 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
 
     def _validar_questoes(self, data):
         """Valida as questões obrigatórias associadas ao produto da ficha"""
+        from django.db.models import Q
+        
         questoes = data.get('questoes', [])
-
         if not questoes:
             raise serializers.ValidationError({
                 'questoes': 'É necessário responder a todas as questões obrigatórias.'
             })
 
+        # Obtém a ficha técnica da etapa
+        ficha_tecnica = data['etapa'].cronograma.ficha_tecnica
+
+        # Busca as questões obrigatórias do produto
         try:
-            ficha_tecnica = data['etapa'].cronograma.ficha_tecnica
-            questoes_por_produto = QuestoesPorProduto.objects.get(ficha_tecnica=ficha_tecnica)
-            
-            # Get the actual question objects from the related managers
-            questoes_primarias = list(questoes_por_produto.questoes_primarias.filter(pergunta_obrigatoria=True).all())
-            questoes_secundarias = list(questoes_por_produto.questoes_secundarias.filter(pergunta_obrigatoria=True).all())
-            
-            # Combine all required questions
-            questoes_obrigatorias = questoes_primarias + questoes_secundarias
-
-            if not questoes_obrigatorias:
-                return
-
-            faltantes = self._obter_questoes_faltantes(questoes, questoes_obrigatorias)
-
-            if faltantes:
-                raise serializers.ValidationError({
-                    'questoes': f'Questões obrigatórias não respondidas: {", ".join(faltantes)}'
-                })
-                
+            qp = QuestoesPorProduto.objects.get(ficha_tecnica=ficha_tecnica)
         except QuestoesPorProduto.DoesNotExist:
-            # Se não houver questões configuradas para este produto, não há o que validar
-            return
+            return  # Se não há questões configuradas, não há o que validar
 
-    def _obter_questoes_faltantes(self, questoes, questoes_obrigatorias):
-        """Retorna a lista de questões obrigatórias não respondidas"""
+        # Obtém os IDs das questões respondidas
+        ids_respondidas = {str(q['questao_conferencia']) for q in questoes if q.get('resposta') is not None}
 
-        ids_respondidos = {
-            q['questao_conferencia'].id
-            for q in questoes
-            if q.get('resposta') is not None
-        }
+        # Verifica questões obrigatórias não respondidas
+        questoes_obrigatorias = QuestaoConferencia.objects.filter(
+            Q(questoes_primarias=qp) | Q(questoes_secundarias=qp),
+            pergunta_obrigatoria=True
+        ).exclude(uuid__in=ids_respondidas)
 
-        faltantes = []
-        for questao in questoes_obrigatorias:
-            if questao.id not in ids_respondidos:
-                faltantes.append(questao.questao)
-
-        return faltantes
+        if questoes_obrigatorias.exists():
+            faltantes = list(questoes_obrigatorias.values_list('questao', flat=True))
+            raise serializers.ValidationError({
+                'questoes': f'Questões obrigatórias não respondidas: {", ".join(faltantes)}'
+            })
 
     def create(self, validated_data):
         return criar_ficha(validated_data)
