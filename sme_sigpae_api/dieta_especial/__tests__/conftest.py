@@ -1993,3 +1993,147 @@ def relatorio_recreio_nas_ferias(
         periodo_recreio_inicio=datetime.date(2025, 5, 10),
         periodo_recreio_fim=datetime.date(2025, 5, 20),
     )
+
+
+@pytest.fixture
+def solicitacao_historico_atualizacao_protocolo(
+    escola,
+    escola_dre_guaianases,
+    classificacao_tipo_a,
+    alergia_a_chocolate,
+    protocolo_padrao_dieta_especial,
+):
+
+    return baker.make(
+        "SolicitacaoDietaEspecial",
+        status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
+        tipo_solicitacao="COMUM",
+        rastro_escola=escola,
+        escola_destino=escola_dre_guaianases,
+        aluno=baker.make("Aluno", nome="Antonio", codigo_eol="923459"),
+        alergias_intolerancias=[alergia_a_chocolate],
+        classificacao=classificacao_tipo_a,
+        data_inicio=datetime.date(2025, 5, 1),
+        data_termino=None,
+        protocolo_padrao=protocolo_padrao_dieta_especial,
+        orientacoes_gerais="<p>A criança tem alergia ao cacau</p>",
+        informacoes_adicionais="<p>Nenhuma informção a ser adicionada.</p>",
+        registro_funcional_nutricionista="Elaborado por NUTRI CODAE ADMIN - RF 8107807",
+    )
+
+
+@pytest.fixture
+def bolos_para_substituicao():
+    return [
+        baker.make(Alimento, nome="Bolo de Chocolate"),
+        baker.make(Alimento, nome="Bolo de Laranja"),
+        baker.make(Alimento, nome="Bolo de Fubá"),
+    ]
+
+
+@pytest.fixture
+def liquidos_para_substituir():
+    return [
+        baker.make(Alimento, nome="Achocolatado"),
+        baker.make(Alimento, nome="Suco de Uva"),
+        baker.make(Alimento, nome="Suco de Laranja"),
+        baker.make(Alimento, nome="Suco de Morango"),
+    ]
+
+
+@pytest.fixture
+def substituicao_alimento_dieta(
+    solicitacao_historico_atualizacao_protocolo,
+    liquidos_para_substituir,
+    bolos_para_substituicao,
+):
+    substituir_achocolatado = baker.make(
+        "SubstituicaoAlimento",
+        make_m2m=True,
+        solicitacao_dieta_especial=solicitacao_historico_atualizacao_protocolo,
+        alimento=liquidos_para_substituir[0],
+        tipo="S",
+    )
+    substituir_achocolatado.alimentos_substitutos.add(liquidos_para_substituir[1])
+    substituir_achocolatado.alimentos_substitutos.add(liquidos_para_substituir[2])
+    substituir_achocolatado.alimentos_substitutos.add(liquidos_para_substituir[3])
+
+    substituir_bolo = baker.make(
+        "SubstituicaoAlimento",
+        solicitacao_dieta_especial=solicitacao_historico_atualizacao_protocolo,
+        alimento=bolos_para_substituicao[0],
+        tipo="S",
+    )
+    substituir_bolo.alimentos_substitutos.add(bolos_para_substituicao[1])
+    substituir_bolo.alimentos_substitutos.add(bolos_para_substituicao[2])
+
+    return [
+        {
+            "alimento": str(bolos_para_substituicao[0].id),
+            "tipo": "S",
+            "substitutos": [
+                str(bolos_para_substituicao[1].uuid),
+                str(bolos_para_substituicao[2].uuid),
+            ],
+        },
+        {
+            "alimento": str(liquidos_para_substituir[0].id),
+            "tipo": "S",
+            "substitutos": [
+                str(liquidos_para_substituir[1].uuid),
+                str(liquidos_para_substituir[2].uuid),
+                str(liquidos_para_substituir[3].uuid),
+            ],
+        },
+    ]
+
+
+@pytest.fixture
+def adiciona_biscoitos_na_substituicao():
+    alimento = baker.make(Alimento, nome="Biscoito de Chocolate")
+    maizena = baker.make(Alimento, nome="Biscoito de Maizena")
+    leite_com_coco = baker.make(Alimento, nome="Biscoito de Leite com Coco")
+    return {
+        "alimento": str(alimento.id),
+        "tipo": "S",
+        "substitutos": [str(maizena.uuid), str(leite_com_coco.uuid)],
+    }
+
+
+@pytest.fixture
+def altera_bolos_na_substituicao(bolos_para_substituicao):
+    bolo_limao = baker.make(Alimento, nome="Bolo de Limão")
+    return {
+        "alimento": str(bolos_para_substituicao[0].id),
+        "tipo": "S",
+        "substitutos": [
+            str(bolos_para_substituicao[1].uuid),
+            str(bolos_para_substituicao[2].uuid),
+            str(bolo_limao.uuid),
+        ],
+    }
+
+
+@pytest.fixture
+def mock_request_codae_atualiza_protocolo(
+    alergia_ao_trigo,
+    classificacao_tipo_b,
+    protocolo_padrao_dieta_especial_2,
+    adiciona_biscoitos_na_substituicao,
+    altera_bolos_na_substituicao,
+):
+
+    return {
+        "alergias_intolerancias": [str(alergia_ao_trigo.id)],
+        "substituicoes": [
+            adiciona_biscoitos_na_substituicao,
+            altera_bolos_na_substituicao,
+        ],
+        "classificacao": str(classificacao_tipo_b.id),
+        "protocolo_padrao": str(protocolo_padrao_dieta_especial_2.uuid),
+        "nome_protocolo": protocolo_padrao_dieta_especial_2.nome_protocolo,
+        "orientacoes_gerais": "<p>A criança tem alergia ao cacau 70%.</p>",
+        "informacoes_adicionais": "<p>Caso a criança insira chocolate, levar imediatamente ao hospital.</p>",
+        "data_termino": "2026-10-25",
+        "registro_funcional_nutricionista": "Elaborado por NUTRI CODAE ADMIN - RF 8107807",
+    }
