@@ -126,7 +126,7 @@ class FichaDeRecebimentoRascunhoViewSet(
     permission_classes = (PermissaoParaCadastrarFichaRecebimento,)
 
 
-class FichaRecebimentoModelViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class FichaRecebimentoModelViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
     lookup_field = "uuid"
     serializer_class = FichaDeRecebimentoSerializer
     queryset = FichaDeRecebimento.objects.all().order_by("-criado_em")
