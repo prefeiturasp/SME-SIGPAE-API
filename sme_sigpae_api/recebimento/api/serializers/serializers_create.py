@@ -192,7 +192,7 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
         required=True
     )
     sistema_vedacao_embalagem_secundaria = serializers.CharField(required=True)
-    observacao = serializers.CharField(required=True)
+    observacao = serializers.CharField(required=False, allow_blank=True)
     arquivos = ArquivoFichaRecebimentoCreateSerializer(
         many=True,
         required=True,
@@ -201,7 +201,7 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
         many=True,
         required=True,
     )
-    observacoes_conferencia = serializers.CharField(required=True)
+    observacoes_conferencia = serializers.CharField(required=False, allow_blank=True)
     ocorrencias = OcorrenciaFichaRecebimentoCreateSerializer(
         many=True,
         required=False,
