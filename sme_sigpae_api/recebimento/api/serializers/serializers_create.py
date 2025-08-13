@@ -285,7 +285,7 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
         qp = QuestoesPorProduto.objects.get(ficha_tecnica=ficha_tecnica)
 
         questoes_respondidas = [
-            q['questao_conferencia'] for q in questoes 
+            q['questao_conferencia'].uuid for q in questoes
             if q.get('resposta') is not None and 'questao_conferencia' in q
         ]
 

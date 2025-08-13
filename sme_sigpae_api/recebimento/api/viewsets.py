@@ -136,14 +136,9 @@ class FichaRecebimentoModelViewSet(mixins.ListModelMixin, mixins.CreateModelMixi
     filterset_class = FichaRecebimentoFilter
 
     def get_serializer_class(self):
-        serializer_classes_map = {
-            "list": FichaDeRecebimentoSerializer,
-            "retrieve": FichaDeRecebimentoSerializer,
-            "create": FichaDeRecebimentoCreateSerializer,
-            "update": FichaDeRecebimentoCreateSerializer,
-        }
-
-        return serializer_classes_map.get(self.action, FichaDeRecebimentoRascunhoSerializer)
+        if self.action in ['create', 'update']:
+            return FichaDeRecebimentoCreateSerializer
+        return FichaDeRecebimentoSerializer
 
     def get_permissions(self):
         permission_classes_map = {
@@ -157,14 +152,44 @@ class FichaRecebimentoModelViewSet(mixins.ListModelMixin, mixins.CreateModelMixi
         return super(FichaRecebimentoModelViewSet, self).get_permissions()
 
     def create(self, request, *args, **kwargs):
-        return self._verificar_autenticidade_usuario(
-            request, *args, **kwargs
-        ) or super().create(request, *args, **kwargs)
+        auth_response = self._verificar_autenticidade_usuario(request, *args, **kwargs)
+        if auth_response:
+            return auth_response
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+
+        instance = FichaDeRecebimento.objects.prefetch_related(
+            'documentos_recebimento',
+            'arquivos',
+            'questoes_conferencia',
+            'ocorrencias'
+        ).get(uuid=instance.uuid)
+
+        output_serializer = FichaDeRecebimentoSerializer(instance)
+        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
-        return self._verificar_autenticidade_usuario(
-            request, *args, **kwargs
-        ) or super().update(request, *args, **kwargs)
+        auth_response = self._verificar_autenticidade_usuario(request, *args, **kwargs)
+        if auth_response:
+            return auth_response
+
+        instance = self.get_object()
+
+        serializer = self.get_serializer(instance, data=request.data, partial=False)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+
+        instance = FichaDeRecebimento.objects.prefetch_related(
+            'documentos_recebimento',
+            'arquivos',
+            'questoes_conferencia',
+            'ocorrencias'
+        ).get(uuid=instance.uuid)
+
+        output_serializer = FichaDeRecebimentoSerializer(instance)
+        return Response(output_serializer.data, status=status.HTTP_200_OK)
 
     def _verificar_autenticidade_usuario(self, request, *args, **kwargs):
         usuario = request.user
