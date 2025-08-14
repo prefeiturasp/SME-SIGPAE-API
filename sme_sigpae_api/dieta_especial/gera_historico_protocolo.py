@@ -67,21 +67,38 @@ def atualiza_historico_protocolo(
         return ""
     except Exception as e:
         raise ValidationError(
-            f"Occoreu um erro ao gerar as informações do histórico: {e}"
+            f"Ocorreu um erro ao gerar as informações do histórico: {e}"
         )
 
 
-def _extrair_texto_html(html: str) -> str:
+def remove_tag_p(html_conteudo: str) -> str:
     """
-    Extrai o texto puro de um conteúdo HTML.
+    Remove a primeira tag <p> e seu fechamento </p> de um conteúdo HTML,
+    caso não existam listas (<ul>, <ol>) ou tabelas (<table>) em nenhuma parte do conteúdo.
+    Caso haja qualquer uma dessas tags, mantém o HTML original.
 
     Args:
-        html (str): String contendo HTML a ser processado.
+        html_conteudo (str): String contendo o HTML a ser processado.
 
     Returns:
-        str: Texto extraído do HTML, sem tags ou marcações.
+        str: HTML modificado, sem o primeiro <p> se aplicável, ou o HTML original.
     """
-    return BeautifulSoup(html, "html.parser").get_text(strip=True)
+    html_conteudo = html_conteudo.strip()
+    if not html_conteudo.lower().startswith("<p>"):
+        return html_conteudo
+
+    soup = BeautifulSoup(html_conteudo, "html.parser")
+    if soup.find(["ul", "ol", "table"]):
+        return html_conteudo
+
+    indice_fechamento = html_conteudo.lower().find("</p>")
+    if indice_fechamento != -1:
+        return (
+            html_conteudo[len("<p>") : indice_fechamento]
+            + html_conteudo[indice_fechamento + len("</p>") :]
+        )
+
+    return html_conteudo
 
 
 def _compara_alergias(
@@ -183,9 +200,9 @@ def _compara_orientacoes(
     if not nova_orientacao:
         return None
     orientacoes_gerais = instance.orientacoes_gerais
-    if str(orientacoes_gerais) != nova_orientacao:
-        texto_instance = _extrair_texto_html(orientacoes_gerais)
-        texto_novo = _extrair_texto_html(nova_orientacao)
+    if orientacoes_gerais != nova_orientacao:
+        texto_instance = remove_tag_p(orientacoes_gerais)
+        texto_novo = remove_tag_p(nova_orientacao)
         return {"de": texto_instance, "para": texto_novo}
     return None
 
@@ -250,9 +267,9 @@ def _compara_informacoes_adicionais(
     if not nova_informacao:
         return None
     informacoes_adicionais = instance.informacoes_adicionais
-    if str(informacoes_adicionais) != nova_informacao:
-        texto_instance = _extrair_texto_html(informacoes_adicionais)
-        texto_novo = _extrair_texto_html(nova_informacao)
+    if informacoes_adicionais != nova_informacao:
+        texto_instance = remove_tag_p(informacoes_adicionais)
+        texto_novo = remove_tag_p(nova_informacao)
         return {"de": texto_instance, "para": texto_novo}
     return None
 
@@ -268,7 +285,7 @@ def normalizar_substituicao(sub: Union[SubstituicaoAlimento, dict]) -> dict:
         dict: Dicionário normalizado com alimento, tipo e substitutos.
     """
     if isinstance(sub, SubstituicaoAlimento):
-        info = {
+        return {
             "alimento": sub.alimento.nome,
             "tipo": dict(SubstituicaoAlimento.TIPO_CHOICES).get(sub.tipo).upper(),
             "substitutos": [
@@ -280,14 +297,12 @@ def normalizar_substituicao(sub: Union[SubstituicaoAlimento, dict]) -> dict:
         alimentos_substitutos = Alimento.objects.filter(
             uuid__in=sub["substitutos"]
         ).order_by("nome")
-        info = {
+        return {
             "alimento": alimento.nome,
             "tipo": dict(SubstituicaoAlimento.TIPO_CHOICES).get(sub["tipo"]).upper(),
             "substitutos": [s.nome for s in alimentos_substitutos],
         }
-    else:
-        info = {}
-    return info
+    return None
 
 
 def _compara_substituicoes(
@@ -308,8 +323,8 @@ def _compara_substituicoes(
         for s in instance.substituicaoalimento_set.all().order_by("alimento__nome")
     ]
     novas = [normalizar_substituicao(s) for s in substituicoes_novas]
-    alimentos_atuais = {s["alimento"]: s for s in atuais}
-    alimentos_novos = {s["alimento"]: s for s in novas}
+    alimentos_atuais = {s["alimento"]: s for s in atuais if s is not None}
+    alimentos_novos = {s["alimento"]: s for s in novas if s is not None}
 
     incluidos = _identifica_incluidos(alimentos_atuais, alimentos_novos)
     excluidos = _identifica_excluidos(alimentos_atuais, alimentos_novos)
