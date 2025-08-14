@@ -1204,3 +1204,112 @@ def test_relatorio_recreio_nas_ferias_cliente_nao_autorizado(client_autenticado_
     assert response.json() == {
         "detail": "Você não tem permissão para executar essa ação."
     }
+
+
+def test_codae_atualiza_protocolo(
+    client_autenticado_vinculo_codae_dieta,
+    solicitacao_historico_atualizacao_protocolo,
+    substituicao_alimento_dieta,
+    mock_request_codae_atualiza_protocolo,
+):
+    response = client_autenticado_vinculo_codae_dieta.patch(
+        f"/solicitacoes-dieta-especial/{str(solicitacao_historico_atualizacao_protocolo.uuid)}/codae-atualiza-protocolo/",
+        content_type="application/json",
+        data=mock_request_codae_atualiza_protocolo,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {"detail": "Edição realizada com sucesso!"}
+
+    response = client_autenticado_vinculo_codae_dieta.get(
+        f"/solicitacoes-dieta-especial/{str(solicitacao_historico_atualizacao_protocolo.uuid)}/",
+        content_type="application/json",
+        data=mock_request_codae_atualiza_protocolo,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert "logs" in response.json()
+    log = response.json()["logs"][-1]
+    assert "justificativa" in log
+    justificativa = log["justificativa"]
+    assert justificativa is not None and justificativa != ""
+
+    assert "Relação por Diagnóstico" in justificativa
+    assert "Alergia a chocolate" in justificativa
+    assert "Alergia a derivados do trigo" in justificativa
+
+    assert "Classificação da Dieta" in justificativa
+    assert "Tipo A" in justificativa
+    assert "Tipo B" in justificativa
+
+    assert "Nome do Protocolo Padrão" in justificativa
+    assert "ALERGIA A AVEIA" in justificativa
+    assert "ALERGIA A ABACAXI" in justificativa
+
+    assert "Orientações Gerais" in justificativa
+    assert "A criança tem alergia ao cacau" in justificativa
+    assert "A criança tem alergia ao cacau 70%." in justificativa
+
+    assert "Informações adicionais" in justificativa
+    assert "Nenhuma informção a ser adicionada." in justificativa
+    assert (
+        "Caso a criança insira chocolate, levar imediatamente ao hospital."
+        in justificativa
+    )
+
+    assert "Data de término" in justificativa
+    assert "Sem data término" in justificativa
+    assert "Com data de término 25/10/2026" in justificativa
+
+    assert "Substituições de Alimentos" in justificativa
+    assert justificativa.count("SUBSTITUIR") == 4
+    assert justificativa.count("ISENTO") == 0
+
+    assert "ITEM EXCLUÍDO" in justificativa
+    assert "Achocolatado" in justificativa
+    assert "<li> Suco de Laranja</li>" in justificativa
+    assert "<li> Suco de Morango</li>" in justificativa
+    assert "<li> Suco de Uva</li>" in justificativa
+
+    assert "ITEM INCLUIDO" in justificativa
+    assert "Biscoito de Chocolate" in justificativa
+    assert "<li> Biscoito de Leite com Coco</li>" in justificativa
+    assert "<li> Biscoito de Maizena</li>" in justificativa
+
+    assert "ITEM ALTERADO DE" in justificativa
+    assert "ITEM ALTERADO PARA" in justificativa
+    assert "Bolo de Chocolate" in justificativa
+    assert justificativa.count("<li> Bolo de Fubá</li>") == 2
+    assert justificativa.count("<li> Bolo de Laranja</li>") == 2
+    assert justificativa.count("<li> Bolo de Limão</li>") == 1
+
+
+def test_codae_atualiza_protocolo_exception(
+    client_autenticado_vinculo_codae_dieta,
+    solicitacao_historico_atualizacao_protocolo,
+    substituicao_alimento_dieta,
+    mock_request_codae_atualiza_protocolo,
+):
+    mock_request_codae_atualiza_protocolo["alergias_intolerancias"] = {"str": 25}
+    response = client_autenticado_vinculo_codae_dieta.patch(
+        f"/solicitacoes-dieta-especial/{str(solicitacao_historico_atualizacao_protocolo.uuid)}/codae-atualiza-protocolo/",
+        content_type="application/json",
+        data=mock_request_codae_atualiza_protocolo,
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": "Ocorreu um erro ao gerar as informações do histórico: invalid literal for int() with base 10: 'str'"
+    }
+
+    mock_request_codae_atualiza_protocolo["alergias_intolerancias"] = []
+    response = client_autenticado_vinculo_codae_dieta.patch(
+        f"/solicitacoes-dieta-especial/{str(solicitacao_historico_atualizacao_protocolo.uuid)}/codae-atualiza-protocolo/",
+        content_type="application/json",
+        data=mock_request_codae_atualiza_protocolo,
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": "Dados inválidos [ErrorDetail(string='atributo alergias_intolerancias não pode ser vazio', code='invalid')]"
+    }

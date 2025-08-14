@@ -3,11 +3,11 @@
   {% if campo != 'Substituições de Alimentos' %}
     <p style="margin-bottom: 4px;">Campo: <b>{{ campo }}</b></p>
     <ul>
-      <li style="margin-bottom: 6px;">De: <b>{{ mudanca.de }}</b></li>
-      <li style="margin-bottom: 6px;">Para: <b>{{ mudanca.para }}</b></li>
+      <li style="margin-bottom: 6px;">De: <b>{{ mudanca.de|safe }}</b></li>
+      <li style="margin-bottom: 6px;">Para: <b>{{ mudanca.para|safe }}</b></li>
     </ul>
   {% else %}
-    <p>Campo: <b>{{ campo|title }}</b></p></br>
+    <p>Campo: <b>{{ campo }}</b></p></br>
 
     {% if mudanca.excluidos %}
       <table style="width:100%; border-collapse: collapse; border: 1px solid #ccc; margin-bottom: 20px;">
