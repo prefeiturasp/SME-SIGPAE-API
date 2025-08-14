@@ -6,8 +6,9 @@ from sme_sigpae_api.recebimento.api.serializers.serializers_create import (
     FichaDeRecebimentoRascunhoSerializer,
     OcorrenciaFichaRecebimentoCreateSerializer,
     QuestaoFichaRecebimentoCreateSerializer,
+    FichaDeRecebimentoCreateSerializer
 )
-from sme_sigpae_api.recebimento.models import QuestaoFichaRecebimento
+from sme_sigpae_api.recebimento.models import QuestaoFichaRecebimento, QuestaoConferencia
 
 pytestmark = pytest.mark.django_db
 
@@ -150,3 +151,65 @@ def test_ocorrencia_serializer_create(
     assert instance.tipo == data["tipo"]
     assert instance.descricao == data["descricao"]
     assert instance.ficha_recebimento == ficha_recebimento
+
+def test_ficha_recebimento_serializer_create(payload_ficha_recebimento):
+    """Testa a criação de uma ficha através do serializer."""
+    serializer = FichaDeRecebimentoCreateSerializer(data=payload_ficha_recebimento)
+    is_valid = serializer.is_valid()
+    if not is_valid:
+        print("\nErros de validação:", serializer.errors)
+    assert is_valid, f"O serializer não é válido. Erros: {serializer.errors}"
+    
+    ficha = serializer.save()
+    assert ficha.id is not None
+    assert ficha.veiculos.count() > 0
+    assert ficha.arquivos.count() > 0
+    assert ficha.questoes_conferencia.count() > 0
+
+
+def test_ficha_recebimento_serializer_update(ficha_recebimento, payload_ficha_recebimento):
+    """Testa a atualização de uma ficha existente através do serializer."""
+    payload_ficha_recebimento['observacao'] = 'Observação atualizada'
+    
+    serializer = FichaDeRecebimentoCreateSerializer(
+        instance=ficha_recebimento,
+        data=payload_ficha_recebimento
+    )
+    is_valid = serializer.is_valid()
+    if not is_valid:
+        print("\nErros de validação:", serializer.errors)
+    assert is_valid, f"O serializer não é válido. Erros: {serializer.errors}"
+    
+    ficha = serializer.save()
+    assert ficha.observacao == 'Observação atualizada'
+    assert ficha.veiculos.count() > 0
+    assert ficha.arquivos.count() > 0
+    assert ficha.questoes_conferencia.count() > 0
+
+
+def test_ficha_recebimento_serializer_validate_veiculos(payload_ficha_recebimento):
+    """Testa a validação de veículos obrigatórios."""
+    payload = payload_ficha_recebimento.copy()
+    payload['veiculos'] = []  # Lista vazia deve falhar
+    
+    serializer = FichaDeRecebimentoCreateSerializer(data=payload)
+    assert not serializer.is_valid()
+    assert 'veiculos' in serializer.errors
+
+
+def test_ficha_recebimento_serializer_validate_questoes(payload_ficha_recebimento, questao_conferencia):
+    """Testa a validação de questões obrigatórias."""
+    payload = payload_ficha_recebimento.copy()
+    
+    questoes_obrigatorias = set(
+        str(q.uuid) for q in QuestaoConferencia.objects.filter(pergunta_obrigatoria=True)
+    )
+    
+    payload['questoes'] = [
+        q for q in payload['questoes']
+        if q['questao_conferencia'] not in questoes_obrigatorias
+    ]
+    
+    serializer = FichaDeRecebimentoCreateSerializer(data=payload)
+    assert not serializer.is_valid()
+    assert 'questoes' in serializer.errors
