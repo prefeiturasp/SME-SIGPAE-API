@@ -8,6 +8,8 @@ from rest_framework.status import (
     HTTP_401_UNAUTHORIZED,
 )
 
+from sme_sigpae_api.dados_comuns.helpers_autenticidade import verificar_autenticidade_usuario
+
 from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaAnalisarFichaTecnica,
     PermissaoParaDashboardFichaTecnica,
@@ -87,14 +89,14 @@ class FichaTecnicaModelViewSet(
         return serializer_classes_map.get(self.action, FichaTecnicaRascunhoSerializer)
 
     def create(self, request, *args, **kwargs):
-        return self._verificar_autenticidade_usuario(
-            request, *args, **kwargs
-        ) or super().create(request, *args, **kwargs)
+        if auth_response := verificar_autenticidade_usuario(request):
+            return auth_response
+        return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        return self._verificar_autenticidade_usuario(
-            request, *args, **kwargs
-        ) or super().update(request, *args, **kwargs)
+        if auth_response := verificar_autenticidade_usuario(request):
+            return auth_response
+        return super().update(request, *args, **kwargs)
 
     @action(
         detail=False,
@@ -289,9 +291,9 @@ class FichaTecnicaModelViewSet(
         permission_classes=(UsuarioEhFornecedor,),
     )
     def correcao_fornecedor(self, request, *args, **kwargs):
-        return self._verificar_autenticidade_usuario(
-            request, *args, **kwargs
-        ) or self._processa_correcao(request, *args, **kwargs)
+        if auth_response := verificar_autenticidade_usuario(request):
+            return auth_response
+        return self._processa_correcao(request, *args, **kwargs)
 
     def _processa_correcao(self, request, *args, **kwargs):
         serializer = CorrecaoFichaTecnicaSerializer(
@@ -311,9 +313,9 @@ class FichaTecnicaModelViewSet(
         permission_classes=(UsuarioEhFornecedor,),
     )
     def atualizacao_fornecedor(self, request, *args, **kwargs):
-        return self._verificar_autenticidade_usuario(
-            request, *args, **kwargs
-        ) or self._processa_atualizacao(request, *args, **kwargs)
+        if auth_response := verificar_autenticidade_usuario(request):
+            return auth_response
+        return self._processa_atualizacao(request, *args, **kwargs)
 
     def _processa_atualizacao(self, request, *args, **kwargs):
         serializer = FichaTecnicaAtualizacaoSerializer(
@@ -325,18 +327,6 @@ class FichaTecnicaModelViewSet(
         serializer.save()
 
         return Response(HTTP_200_OK)
-
-    def _verificar_autenticidade_usuario(self, request, *args, **kwargs):
-        usuario = request.user
-        password = request.data.pop("password", "")
-
-        if not usuario.verificar_autenticidade(password):
-            return Response(
-                {
-                    "Senha inválida": "em caso de esquecimento de senha, solicite a recuperação e tente novamente."
-                },
-                status=HTTP_401_UNAUTHORIZED,
-            )
 
     @action(detail=True, methods=["GET"], url_path="gerar-pdf-ficha")
     def gerar_pdf_ficha(self, request, uuid=None):

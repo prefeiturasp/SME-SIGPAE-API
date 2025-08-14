@@ -4,6 +4,8 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from sme_sigpae_api.dados_comuns.helpers_autenticidade import verificar_autenticidade_usuario
+
 from ...dados_comuns.api.paginations import DefaultPagination
 from ...pre_recebimento.cronograma_entrega.models import Cronograma
 from ..models import FichaDeRecebimento, QuestaoConferencia, QuestoesPorProduto
@@ -152,10 +154,9 @@ class FichaRecebimentoModelViewSet(mixins.ListModelMixin, mixins.CreateModelMixi
         return super(FichaRecebimentoModelViewSet, self).get_permissions()
 
     def create(self, request, *args, **kwargs):
-        auth_response = self._verificar_autenticidade_usuario(request, *args, **kwargs)
-        if auth_response:
+        if auth_response := verificar_autenticidade_usuario(request):
             return auth_response
-
+            
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()
@@ -171,8 +172,7 @@ class FichaRecebimentoModelViewSet(mixins.ListModelMixin, mixins.CreateModelMixi
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
-        auth_response = self._verificar_autenticidade_usuario(request, *args, **kwargs)
-        if auth_response:
+        if auth_response := verificar_autenticidade_usuario(request):
             return auth_response
 
         instance = self.get_object()
@@ -190,15 +190,3 @@ class FichaRecebimentoModelViewSet(mixins.ListModelMixin, mixins.CreateModelMixi
 
         output_serializer = FichaDeRecebimentoSerializer(instance)
         return Response(output_serializer.data, status=status.HTTP_200_OK)
-
-    def _verificar_autenticidade_usuario(self, request, *args, **kwargs):
-        usuario = request.user
-        password = request.data.pop("password", "")
-
-        if not usuario.verificar_autenticidade(password):
-            return Response(
-                {
-                    "Senha inválida. Em caso de esquecimento de senha, solicite a recuperação e tente novamente."
-                },
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
