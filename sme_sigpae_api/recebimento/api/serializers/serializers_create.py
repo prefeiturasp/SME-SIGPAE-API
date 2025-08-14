@@ -90,7 +90,7 @@ class ArquivoFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
 
 class OcorrenciaFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
-        self.rascunho = kwargs.pop('rascunho', False)
+        self.rascunho = kwargs.pop("rascunho", False)
         super().__init__(*args, **kwargs)
 
     class Meta:
@@ -99,42 +99,44 @@ class OcorrenciaFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
 
     def _validate_quantidade(self, tipo, quantidade):
         if tipo != OcorrenciaFichaRecebimento.TIPO_OUTROS and not quantidade:
-            raise serializers.ValidationError({
-                'quantidade': 'Este campo é obrigatório para o tipo selecionado.'
-            })
+            raise serializers.ValidationError(
+                {"quantidade": "Este campo é obrigatório para o tipo selecionado."}
+            )
 
     def _validate_falta(self, relacao):
         valid_relations = [
             OcorrenciaFichaRecebimento.RELACAO_CRONOGRAMA,
-            OcorrenciaFichaRecebimento.RELACAO_NOTA_FISCAL
+            OcorrenciaFichaRecebimento.RELACAO_NOTA_FISCAL,
         ]
         if not relacao or relacao not in valid_relations:
-            raise serializers.ValidationError({
-                'relacao': 'Para o tipo FALTA, a relação deve ser CRONOGRAMA ou NOTA_FISCAL'
-            })
+            raise serializers.ValidationError(
+                {
+                    "relacao": "Para o tipo FALTA, a relação deve ser CRONOGRAMA ou NOTA_FISCAL"
+                }
+            )
 
     def _validate_recusa(self, relacao, numero_nota):
         valid_relations = [
             OcorrenciaFichaRecebimento.RELACAO_TOTAL,
-            OcorrenciaFichaRecebimento.RELACAO_PARCIAL
+            OcorrenciaFichaRecebimento.RELACAO_PARCIAL,
         ]
         if not relacao or relacao not in valid_relations:
-            raise serializers.ValidationError({
-                'relacao': 'Para o tipo RECUSA, a relação deve ser TOTAL ou PARCIAL'
-            })
+            raise serializers.ValidationError(
+                {"relacao": "Para o tipo RECUSA, a relação deve ser TOTAL ou PARCIAL"}
+            )
         if not numero_nota:
-            raise serializers.ValidationError({
-                'numero_nota': 'Para o tipo RECUSA, o número da nota é obrigatório'
-            })
+            raise serializers.ValidationError(
+                {"numero_nota": "Para o tipo RECUSA, o número da nota é obrigatório"}
+            )
 
     def validate(self, data):
-        if getattr(self, 'rascunho', False):
+        if getattr(self, "rascunho", False):
             return data
 
-        tipo = data.get('tipo')
-        relacao = data.get('relacao')
-        numero_nota = data.get('numero_nota')
-        quantidade = data.get('quantidade')
+        tipo = data.get("tipo")
+        relacao = data.get("relacao")
+        numero_nota = data.get("numero_nota")
+        quantidade = data.get("quantidade")
 
         self._validate_quantidade(tipo, quantidade)
 
@@ -143,8 +145,8 @@ class OcorrenciaFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
         elif tipo == OcorrenciaFichaRecebimento.TIPO_RECUSA:
             self._validate_recusa(relacao, numero_nota)
         else:  # OUTROS_MOTIVOS
-            data['relacao'] = None
-            data['numero_nota'] = None
+            data["relacao"] = None
+            data["numero_nota"] = None
 
         return data
 
@@ -190,16 +192,16 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
         required=True
     )
     sistema_vedacao_embalagem_secundaria = serializers.CharField(required=True)
-    observacao = serializers.CharField(required=True)
+    observacao = serializers.CharField(required=False, allow_blank=True)
     arquivos = ArquivoFichaRecebimentoCreateSerializer(
         many=True,
-        required=True,
+        required=False,
     )
     questoes = QuestaoFichaRecebimentoCreateSerializer(
         many=True,
         required=True,
     )
-    observacoes_conferencia = serializers.CharField(required=True)
+    observacoes_conferencia = serializers.CharField(required=False, allow_blank=True)
     ocorrencias = OcorrenciaFichaRecebimentoCreateSerializer(
         many=True,
         required=False,
@@ -238,7 +240,6 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
 
         self._validar_campos_divergencia(data)
         self._validar_veiculos(data)
-        self._validar_arquivos(data)
         self._validar_questoes(data)
 
         return data
@@ -269,48 +270,35 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
                 'veiculos': 'É necessário informar pelo menos um veículo.'
             })
 
-    def _validar_arquivos(self, data):
-        """Valida se há pelo menos um arquivo"""
-        if not data.get('arquivos', []):
-            raise serializers.ValidationError({
-                'arquivos': 'É necessário anexar pelo menos um arquivo.'
-            })
-
     def _validar_questoes(self, data):
-        """Valida as questões obrigatórias"""
-        questoes = data.get('questoes', [])
+        """Valida as questões obrigatórias associadas ao produto da ficha"""
+        from django.db.models import Q
 
+        questoes = data.get('questoes', [])
         if not questoes:
             raise serializers.ValidationError({
                 'questoes': 'É necessário responder a todas as questões obrigatórias.'
             })
 
+        ficha_tecnica = data['etapa'].cronograma.ficha_tecnica
+
+        qp = QuestoesPorProduto.objects.get(ficha_tecnica=ficha_tecnica)
+
+        questoes_respondidas = [
+            q['questao_conferencia'].uuid for q in questoes
+            if q.get('resposta') is not None and 'questao_conferencia' in q
+        ]
+
         questoes_obrigatorias = QuestaoConferencia.objects.filter(
+            Q(questoes_primarias=qp) | Q(questoes_secundarias=qp),
             pergunta_obrigatoria=True
-        )
+        ).exclude(uuid__in=questoes_respondidas)
 
-        faltantes = self._obter_questoes_faltantes(questoes, questoes_obrigatorias)
-
-        if faltantes:
+        if questoes_obrigatorias.exists():
+            faltantes = list(questoes_obrigatorias.values_list('questao', flat=True))
             raise serializers.ValidationError({
                 'questoes': f'Questões obrigatórias não respondidas: {", ".join(faltantes)}'
             })
-
-    def _obter_questoes_faltantes(self, questoes, questoes_obrigatorias):
-        """Retorna a lista de questões obrigatórias não respondidas"""
-
-        ids_respondidos = {
-            q['questao_conferencia'].id
-            for q in questoes
-            if q.get('resposta') is not None
-        }
-
-        faltantes = []
-        for questao in questoes_obrigatorias:
-            if questao.id not in ids_respondidos:
-                faltantes.append(questao.questao)
-
-        return faltantes
 
     def create(self, validated_data):
         return criar_ficha(validated_data)
@@ -359,7 +347,7 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['ocorrencias'] = OcorrenciaFichaRecebimentoCreateSerializer(
+        representation["ocorrencias"] = OcorrenciaFichaRecebimentoCreateSerializer(
             instance.ocorrencias.all(), many=True
         ).data
         return representation
