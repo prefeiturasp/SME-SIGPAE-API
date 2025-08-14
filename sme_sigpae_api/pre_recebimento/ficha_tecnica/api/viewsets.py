@@ -2,14 +2,11 @@ from django_filters import rest_framework as filters
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.status import (
-    HTTP_200_OK,
-    HTTP_201_CREATED,
-    HTTP_401_UNAUTHORIZED,
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
+
+from sme_sigpae_api.dados_comuns.helpers_autenticidade import (
+    verificar_autenticidade_usuario,
 )
-
-from sme_sigpae_api.dados_comuns.helpers_autenticidade import verificar_autenticidade_usuario
-
 from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaAnalisarFichaTecnica,
     PermissaoParaDashboardFichaTecnica,
@@ -17,9 +14,7 @@ from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaVisualizarFichaTecnica,
     UsuarioEhFornecedor,
 )
-from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.filters import (
-    FichaTecnicaFilter,
-)
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.filters import FichaTecnicaFilter
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializer_create import (
     AnaliseFichaTecnicaCreateSerializer,
     AnaliseFichaTecnicaRascunhoSerializer,

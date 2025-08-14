@@ -4,7 +4,9 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from sme_sigpae_api.dados_comuns.helpers_autenticidade import verificar_autenticidade_usuario
+from sme_sigpae_api.dados_comuns.helpers_autenticidade import (
+    verificar_autenticidade_usuario,
+)
 
 from ...dados_comuns.api.paginations import DefaultPagination
 from ...pre_recebimento.cronograma_entrega.models import Cronograma
@@ -128,7 +130,12 @@ class FichaDeRecebimentoRascunhoViewSet(
     permission_classes = (PermissaoParaCadastrarFichaRecebimento,)
 
 
-class FichaRecebimentoModelViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
+class FichaRecebimentoModelViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet,
+):
     lookup_field = "uuid"
     serializer_class = FichaDeRecebimentoSerializer
     queryset = FichaDeRecebimento.objects.all().order_by("-criado_em")
@@ -138,7 +145,7 @@ class FichaRecebimentoModelViewSet(mixins.ListModelMixin, mixins.CreateModelMixi
     filterset_class = FichaRecebimentoFilter
 
     def get_serializer_class(self):
-        if self.action in ['create', 'update']:
+        if self.action in ["create", "update"]:
             return FichaDeRecebimentoCreateSerializer
         return FichaDeRecebimentoSerializer
 
@@ -156,16 +163,13 @@ class FichaRecebimentoModelViewSet(mixins.ListModelMixin, mixins.CreateModelMixi
     def create(self, request, *args, **kwargs):
         if auth_response := verificar_autenticidade_usuario(request):
             return auth_response
-            
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()
 
         instance = FichaDeRecebimento.objects.prefetch_related(
-            'documentos_recebimento',
-            'arquivos',
-            'questoes_conferencia',
-            'ocorrencias'
+            "documentos_recebimento", "arquivos", "questoes_conferencia", "ocorrencias"
         ).get(uuid=instance.uuid)
 
         output_serializer = FichaDeRecebimentoSerializer(instance)
@@ -182,10 +186,7 @@ class FichaRecebimentoModelViewSet(mixins.ListModelMixin, mixins.CreateModelMixi
         instance = serializer.save()
 
         instance = FichaDeRecebimento.objects.prefetch_related(
-            'documentos_recebimento',
-            'arquivos',
-            'questoes_conferencia',
-            'ocorrencias'
+            "documentos_recebimento", "arquivos", "questoes_conferencia", "ocorrencias"
         ).get(uuid=instance.uuid)
 
         output_serializer = FichaDeRecebimentoSerializer(instance)
