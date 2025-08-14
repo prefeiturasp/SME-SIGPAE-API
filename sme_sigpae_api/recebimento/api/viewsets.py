@@ -4,6 +4,10 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from sme_sigpae_api.dados_comuns.helpers_autenticidade import (
+    verificar_autenticidade_usuario,
+)
+
 from ...dados_comuns.api.paginations import DefaultPagination
 from ...pre_recebimento.cronograma_entrega.models import Cronograma
 from ..models import FichaDeRecebimento, QuestaoConferencia, QuestoesPorProduto
@@ -126,7 +130,12 @@ class FichaDeRecebimentoRascunhoViewSet(
     permission_classes = (PermissaoParaCadastrarFichaRecebimento,)
 
 
-class FichaRecebimentoModelViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
+class FichaRecebimentoModelViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet,
+):
     lookup_field = "uuid"
     serializer_class = FichaDeRecebimentoSerializer
     queryset = FichaDeRecebimento.objects.all().order_by("-criado_em")
@@ -136,7 +145,7 @@ class FichaRecebimentoModelViewSet(mixins.ListModelMixin, mixins.CreateModelMixi
     filterset_class = FichaRecebimentoFilter
 
     def get_serializer_class(self):
-        if self.action in ['create', 'update']:
+        if self.action in ["create", "update"]:
             return FichaDeRecebimentoCreateSerializer
         return FichaDeRecebimentoSerializer
 
@@ -152,8 +161,7 @@ class FichaRecebimentoModelViewSet(mixins.ListModelMixin, mixins.CreateModelMixi
         return super(FichaRecebimentoModelViewSet, self).get_permissions()
 
     def create(self, request, *args, **kwargs):
-        auth_response = self._verificar_autenticidade_usuario(request, *args, **kwargs)
-        if auth_response:
+        if auth_response := verificar_autenticidade_usuario(request):
             return auth_response
 
         serializer = self.get_serializer(data=request.data)
@@ -161,18 +169,14 @@ class FichaRecebimentoModelViewSet(mixins.ListModelMixin, mixins.CreateModelMixi
         instance = serializer.save()
 
         instance = FichaDeRecebimento.objects.prefetch_related(
-            'documentos_recebimento',
-            'arquivos',
-            'questoes_conferencia',
-            'ocorrencias'
+            "documentos_recebimento", "arquivos", "questoes_conferencia", "ocorrencias"
         ).get(uuid=instance.uuid)
 
         output_serializer = FichaDeRecebimentoSerializer(instance)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
-        auth_response = self._verificar_autenticidade_usuario(request, *args, **kwargs)
-        if auth_response:
+        if auth_response := verificar_autenticidade_usuario(request):
             return auth_response
 
         instance = self.get_object()
@@ -182,23 +186,8 @@ class FichaRecebimentoModelViewSet(mixins.ListModelMixin, mixins.CreateModelMixi
         instance = serializer.save()
 
         instance = FichaDeRecebimento.objects.prefetch_related(
-            'documentos_recebimento',
-            'arquivos',
-            'questoes_conferencia',
-            'ocorrencias'
+            "documentos_recebimento", "arquivos", "questoes_conferencia", "ocorrencias"
         ).get(uuid=instance.uuid)
 
         output_serializer = FichaDeRecebimentoSerializer(instance)
         return Response(output_serializer.data, status=status.HTTP_200_OK)
-
-    def _verificar_autenticidade_usuario(self, request, *args, **kwargs):
-        usuario = request.user
-        password = request.data.pop("password", "")
-
-        if not usuario.verificar_autenticidade(password):
-            return Response(
-                {
-                    "Senha inválida. Em caso de esquecimento de senha, solicite a recuperação e tente novamente."
-                },
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
