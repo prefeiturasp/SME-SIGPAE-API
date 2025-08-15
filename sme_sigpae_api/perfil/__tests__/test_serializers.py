@@ -2,6 +2,7 @@ import pytest
 
 from sme_sigpae_api.escola.__tests__.conftest import mocked_response
 
+from ...dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from ..__tests__.conftest import mocked_request_api_eol
 from ..api.serializers import UsuarioUpdateSerializer
 from ..models import Usuario
@@ -17,8 +18,8 @@ def test_usuario_update_serializer_partial_update(
     monkeypatch, usuario_update_serializer, usuario_3
 ):
     dados_usuario = {
-        "password": "adminadmin",
-        "confirmar_password": "adminadmin",
+        "password": DJANGO_ADMIN_PASSWORD,
+        "confirmar_password": DJANGO_ADMIN_PASSWORD,
         "email": "nome.completo@sme.prefeitura.sp.gov.br",
         "registro_funcional": "7654321",
         "cpf": "22222222222",
