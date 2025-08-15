@@ -10,7 +10,10 @@ from freezegun import freeze_time
 from model_bakery import baker
 
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
-from sme_sigpae_api.dados_comuns.constants import StatusProcessamentoArquivo
+from sme_sigpae_api.dados_comuns.constants import (
+    DJANGO_ADMIN_PASSWORD,
+    StatusProcessamentoArquivo,
+)
 from sme_sigpae_api.dados_comuns.fluxo_status import (
     HomologacaoProdutoWorkflow,
     PedidoAPartirDaEscolaWorkflow,
@@ -322,7 +325,7 @@ def client_autenticado_coordenador_codae(client, usuario_coordenador_codae):
 @pytest.fixture
 def usuario_diretor_escola(django_user_model, escola):
     email = "user@escola.com"
-    password = "admin@123"
+    password = DJANGO_ADMIN_PASSWORD
 
     perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
 
@@ -353,7 +356,7 @@ def client_autenticado_da_escola(client, usuario_diretor_escola):
 @pytest.fixture
 def client_autenticado_da_dre(client, django_user_model, diretoria_regional):
     email = "user@dre.com"
-    password = "admin@123"
+    password = DJANGO_ADMIN_PASSWORD
     perfil_adm_dre = baker.make("Perfil", nome="ADM_DRE", ativo=True)
     usuario = django_user_model.objects.create_user(
         password=password, username=email, email=email, registro_funcional="123456"
