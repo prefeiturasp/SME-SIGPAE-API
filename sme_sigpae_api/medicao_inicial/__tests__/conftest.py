@@ -178,7 +178,7 @@ def dia_sobremesa_doce(tipo_unidade_escolar):
 def client_autenticado_coordenador_codae(client, django_user_model):
     email, password, rf, cpf = (
         "cogestor_1@sme.prefeitura.sp.gov.br",
-        "adminadmin",
+        DJANGO_ADMIN_PASSWORD,
         "0000001",
         "44426575052",
     )

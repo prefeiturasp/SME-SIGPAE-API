@@ -265,7 +265,7 @@ def aluno(escola, periodo_escolar):
 def usuario_coordenador_codae(django_user_model):
     email, password, rf, cpf = (
         "cogestor_1@sme.prefeitura.sp.gov.br",
-        "adminadmin",
+        DJANGO_ADMIN_PASSWORD,
         "0000001",
         "44426575052",
     )
