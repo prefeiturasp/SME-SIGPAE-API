@@ -1,8 +1,8 @@
 import asyncio
 import logging
-import subprocess  # nosec
 import time
 from datetime import date, datetime
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 import httpx
@@ -87,16 +87,26 @@ def escreve_escolas_json(arquivo, texto):
     return arquivo
 
 
-def ajustes_no_arquivo(arquivo):
-    # Troca aspas simples por aspas duplas (foi necessário dois replace).
-    subprocess.run(f'sed -i "s/\'/?/g" {arquivo}', shell=True)  # nosec
-    subprocess.run(f"sed -i 's/?/\"/g' {arquivo}", shell=True)  # nosec
+def ajustes_no_arquivo(arquivo: str):
+    arquivo_path = Path(arquivo)
 
-    # Insere uma vírgula em todas as linhas exceto na última
-    subprocess.run(f"sed -i '$ !s/$/,/' {arquivo}", shell=True)  # nosec
+    if not arquivo_path.exists():
+        arquivo_path.touch()
 
-    # remove virgula da primeira linha
-    subprocess.run(f"sed -i '1s/,//' {arquivo}", shell=True)  # nosec
+    with open(arquivo_path, "r", encoding="utf-8") as f:
+        linhas = f.readlines()
+
+    linhas = [linha.replace("'", '"') for linha in linhas]
+
+    for i in range(len(linhas) - 1):
+        if not linhas[i].rstrip().endswith(","):
+            linhas[i] = linhas[i].rstrip("\n") + ",\n"
+
+    if linhas:
+        linhas[0] = linhas[0].replace(",", "", 1)
+
+    with open(arquivo_path, "w", encoding="utf-8") as f:
+        f.writelines(linhas)
 
 
 async def get_informacoes_escola_turma_aluno(tempfile: str, codigo_eol: str):

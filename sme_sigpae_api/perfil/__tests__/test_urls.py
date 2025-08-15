@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 from rest_framework import status
 
+from ...dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from ..api.helpers import ofuscar_email
 from ..api.viewsets import UsuarioUpdateViewSet
 from ..models import (
@@ -158,8 +159,8 @@ def test_cadastro_erro(client):
         data={
             "email": "string",
             "registro_funcional": "string",
-            "password": "string",
-            "confirmar_password": "string",
+            "password": DJANGO_ADMIN_PASSWORD,
+            "confirmar_password": DJANGO_ADMIN_PASSWORD,
             "cpf": "string",
         },
     )
