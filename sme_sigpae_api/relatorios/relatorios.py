@@ -3,10 +3,11 @@ from calendar import monthrange
 
 import environ
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.db.models import F, FloatField, Sum
+from django.db.models import F, FloatField, Prefetch, Sum
 from django.template.loader import get_template, render_to_string
 
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
+from sme_sigpae_api.produto.models import Produto, ReclamacaoDeProduto
 
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
@@ -1117,23 +1118,22 @@ def relatorio_produtos_em_analise_sensorial(produtos, filtros):
     )
 
 
-def relatorio_reclamacao(produtos, filtros):
-    if (
-        filtros["cabecario_tipo"] == "CABECARIO_POR_DATA"
-        and "data_inicial_reclamacao" not in filtros
-    ):
-        data_inicial_reclamacao = datetime.datetime.today()
-        for produto in produtos:
-            reclamacao = produto.ultima_homologacao.reclamacoes.first()
-            if reclamacao.criado_em < data_inicial_reclamacao:
-                data_inicial_reclamacao = reclamacao.criado_em
-        filtros["data_inicial_reclamacao"] = data_inicial_reclamacao.strftime(
-            "%d/%m/%Y"
+def relatorio_reclamacao(filtro_reclamacao, filtro_homologacao, filtros):
+    produtos = (
+        Produto.objects.filter(**filtro_homologacao)
+        .prefetch_related(
+            Prefetch(
+                "homologacao__reclamacoes",
+                queryset=ReclamacaoDeProduto.objects.filter(**filtro_reclamacao),
+            )
         )
+        .order_by("nome")
+        .distinct()
+    )
     html_string = render_to_string(
         "relatorio_reclamacao.html", {"produtos": produtos, "config": filtros}
     )
-    return html_to_pdf_response(html_string, "relatorio_reclamacao.pdf")
+    return html_to_pdf_file(html_string, "relatorio_reclamacao_produtos.pdf", True)
 
 
 def relatorio_quantitativo_por_terceirizada(request, filtros, dados_relatorio):

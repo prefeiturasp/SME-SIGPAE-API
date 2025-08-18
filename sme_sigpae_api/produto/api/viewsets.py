@@ -64,7 +64,6 @@ from ...relatorios.relatorios import (
     relatorio_produto_homologacao,
     relatorio_produtos_em_analise_sensorial,
     relatorio_produtos_suspensos,
-    relatorio_reclamacao,
 )
 from ...relatorios.utils import html_to_pdf_response
 from ...terceirizada.api.serializers.serializers import EditalSimplesSerializer
@@ -97,6 +96,7 @@ from ..models import (
 )
 from ..tasks import (
     gera_pdf_relatorio_produtos_homologados_async,
+    gera_pdf_relatorio_reclamacao_produtos_async,
     gera_xls_relatorio_produtos_homologados_async,
     gera_xls_relatorio_produtos_suspensos_async,
 )
@@ -2348,20 +2348,19 @@ class ProdutoViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["GET"], url_path="relatorio-reclamacao")
     def relatorio_reclamacao(self, request):
         filtro_reclamacao, filtro_homologacao = filtros_produto_reclamacoes(request)
-        queryset = (
-            self.filter_queryset(self.get_queryset())
-            .filter(**filtro_homologacao)
-            .prefetch_related(
-                Prefetch(
-                    "homologacao__reclamacoes",
-                    queryset=ReclamacaoDeProduto.objects.filter(**filtro_reclamacao),
-                )
-            )
-            .order_by("nome")
-            .distinct()
-        )
         filtros = self.request.query_params.dict()
-        return relatorio_reclamacao(queryset, filtros)
+        user = request.user.get_username()
+        gera_pdf_relatorio_reclamacao_produtos_async.delay(
+            user=user,
+            nome_arquivo="relatorio_reclamacao_produtos.pdf",
+            filtro_reclamacao=filtro_reclamacao,
+            filtro_homologacao=filtro_homologacao,
+            filtros=filtros,
+        )
+        return Response(
+            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            status=status.HTTP_200_OK,
+        )
 
     @action(detail=False, methods=["GET"], url_path="ja-existe")
     def ja_existe(self, request):

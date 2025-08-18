@@ -14,6 +14,7 @@ from sme_sigpae_api.relatorios.relatorios import (
     produtos_suspensos_por_edital,
     relatorio_marcas_por_produto_homologacao,
     relatorio_produtos_agrupado_terceirizada,
+    relatorio_reclamacao,
 )
 
 logger = logging.getLogger(__name__)
@@ -227,6 +228,29 @@ def gera_xls_relatorio_produtos_suspensos_async(
         )
         atualiza_central_download(obj_central_download, nome_arquivo, arquivo)
     except Exception as e:
+        atualiza_central_download_com_erro(obj_central_download, str(e))
+
+    logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
+
+
+@shared_task(
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 8},
+    time_limit=3000,
+    soft_time_limit=3000,
+)
+def gera_pdf_relatorio_reclamacao_produtos_async(
+    user, nome_arquivo, filtro_reclamacao, filtro_homologacao, filtros
+):
+    logger.info(f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x")
+    obj_central_download = gera_objeto_na_central_download(
+        user=user, identificador=nome_arquivo
+    )
+    try:
+        arquivo = relatorio_reclamacao(filtro_reclamacao, filtro_homologacao, filtros)
+        atualiza_central_download(obj_central_download, nome_arquivo, arquivo)
+    except Exception as e:
+        print(e)
         atualiza_central_download_com_erro(obj_central_download, str(e))
 
     logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
