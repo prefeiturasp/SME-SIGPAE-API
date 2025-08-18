@@ -3,6 +3,7 @@ import uuid as uuid_generator
 from copy import deepcopy
 from datetime import date, datetime
 
+from django.core.exceptions import ValidationError as coreValidation
 from django.db import transaction
 from django.db.models import Case, CharField, Count, F, Q, Value, When
 from django.forms import ValidationError
@@ -17,6 +18,9 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from xworkflows import InvalidTransitionError
 
 from sme_sigpae_api.dados_comuns.api.paginations import HistoricoDietasPagination
+from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
+    atualiza_historico_protocolo,
+)
 
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
@@ -208,6 +212,7 @@ class SolicitacaoDietaEspecialViewSet(
         return SolicitacaoDietaEspecialSerializer
 
     def atualiza_solicitacao(self, solicitacao, request):
+        texto_html = atualiza_historico_protocolo(solicitacao, request.data)
         if (
             solicitacao.aluno.possui_dieta_especial_ativa
             and not solicitacao.tipo_solicitacao == "ALTERACAO_UE"
@@ -217,16 +222,18 @@ class SolicitacaoDietaEspecialViewSet(
             serializer = self.get_serializer()
             serializer.update(solicitacao, request.data)
             solicitacao.ativo = True
-        self.salva_log_transicao(solicitacao, request.user)
+        self.salva_log_transicao(solicitacao, request.user, texto_html)
         if solicitacao.aluno.escola:
             enviar_email_codae_atualiza_protocolo(solicitacao)
         if not solicitacao.data_inicio:
             solicitacao.data_inicio = datetime.now().strftime("%Y-%m-%d")
             solicitacao.save()
 
-    def salva_log_transicao(self, solicitacao, user):
+    def salva_log_transicao(self, solicitacao, user, justificativa):
         solicitacao.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.CODAE_ATUALIZOU_PROTOCOLO, usuario=user
+            status_evento=LogSolicitacoesUsuario.CODAE_ATUALIZOU_PROTOCOLO,
+            usuario=user,
+            justificativa=justificativa,
         )
 
     @action(
@@ -324,6 +331,10 @@ class SolicitacaoDietaEspecialViewSet(
         except serializers.ValidationError as e:
             return Response(
                 {"detail": f"Dados inválidos {e}"}, status=HTTP_400_BAD_REQUEST
+            )
+        except coreValidation as e:
+            return Response(
+                dict(detail=e.messages[0]), status=status.HTTP_400_BAD_REQUEST
             )
 
     @action(

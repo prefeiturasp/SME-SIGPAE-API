@@ -8,6 +8,7 @@ from sme_sigpae_api.dados_comuns.behaviors import (
     TemArquivosDeletaveis,
     TemChaveExterna,
 )
+from sme_sigpae_api.dados_comuns.fluxo_status import FluxoFichaDeRecebimento
 from sme_sigpae_api.dados_comuns.validators import validate_file_size_10mb
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import EtapasDoCronograma
 from sme_sigpae_api.pre_recebimento.documento_recebimento.models import (
@@ -86,7 +87,7 @@ class QuestoesPorProduto(ModeloBase):
         verbose_name_plural = "Questões por Produtos"
 
 
-class FichaDeRecebimento(ModeloBase):
+class FichaDeRecebimento(ModeloBase, FluxoFichaDeRecebimento):
     etapa = models.ForeignKey(
         EtapasDoCronograma,
         on_delete=models.PROTECT,

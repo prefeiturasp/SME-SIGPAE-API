@@ -857,12 +857,12 @@ def test_gera_filtros_relatorio_recreio_nas_ferias(
     assert "matriculado" in filtros
     matriculado = filtros["matriculado"]
     assert matriculado["data_inicio__gte"] == datetime.date(2025, 4, 12)
-    assert matriculado["data_termino__lte"] == datetime.date(2025, 4, 26)
+    assert matriculado["data_termino__gte"] == datetime.date(2025, 4, 26)
 
     assert "nao_matriculado" in filtros
     nao_matriculado = filtros["nao_matriculado"]
     assert nao_matriculado["periodo_recreio_inicio__gte"] == datetime.date(2025, 4, 12)
-    assert nao_matriculado["periodo_recreio_fim__lte"] == datetime.date(2025, 4, 26)
+    assert nao_matriculado["periodo_recreio_fim__gte"] == datetime.date(2025, 4, 26)
 
 
 def test_filtra_relatorio_recreio_nas_ferias_sem_parametos(

@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 from freezegun.api import freeze_time
 
+from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from sme_sigpae_api.eol_servico.utils import (
     EOLException,
     EOLServicoSGP,
@@ -113,7 +114,7 @@ def test_redefine_senha_coresso(client_autenticado_da_escola, monkeypatch):
         "chamada_externa_altera_senha",
         lambda p1: mocked_response({}, 200),
     )
-    response = EOLServicoSGP.redefine_senha("123456", "adminadmin")
+    response = EOLServicoSGP.redefine_senha("123456", DJANGO_ADMIN_PASSWORD)
     assert response == "OK"
 
 
@@ -126,7 +127,7 @@ def test_redefine_senha_coresso_eol_exception(
         lambda p1: mocked_response({"erro": "EOL fora do ar"}, 400),
     )
     with pytest.raises(EOLException):
-        EOLServicoSGP.redefine_senha("123456", "adminadmin")
+        EOLServicoSGP.redefine_senha("123456", DJANGO_ADMIN_PASSWORD)
 
 
 def test_redefine_email_coresso(client_autenticado_da_escola, monkeypatch):
@@ -135,7 +136,7 @@ def test_redefine_email_coresso(client_autenticado_da_escola, monkeypatch):
         "chamada_externa_altera_email_coresso",
         lambda p1: mocked_response({}, 200),
     )
-    response = EOLServicoSGP.redefine_email("123456", "adminadmin")
+    response = EOLServicoSGP.redefine_email("123456", DJANGO_ADMIN_PASSWORD)
     assert response == "OK"
 
 
@@ -148,7 +149,7 @@ def test_redefine_email_coresso_eol_exception(
         lambda p1: mocked_response({"erro": "EOL fora do ar"}, 400),
     )
     with pytest.raises(EOLException):
-        EOLServicoSGP.redefine_email("123456", "adminadmin")
+        EOLServicoSGP.redefine_email("123456", DJANGO_ADMIN_PASSWORD)
 
 
 def test_criar_usuario_coresso(client_autenticado_da_escola, monkeypatch):

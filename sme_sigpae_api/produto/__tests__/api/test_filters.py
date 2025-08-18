@@ -162,9 +162,12 @@ def test_filtros_produto_reclamacoes():
 
     query_params = QueryDict(mutable=True)
     query_params.setlist(
-        "status_reclamacao",
+        "status_reclamacao[]",
         ["APROVADO", "REPROVADO"],
     )
+    query_params.setlist("editais[]", ["Edital 1", "Edital 2"])
+    query_params.setlist("lotes[]", ["Lote 1", "Lote 2"])
+    query_params.setlist("terceirizadas[]", ["Terceirizada 1", "Terceirizada 2"])
     query_params["data_inicial_reclamacao"] = "01/04/2025"
     query_params["data_final_reclamacao"] = "12/04/2025"
 
@@ -177,12 +180,26 @@ def test_filtros_produto_reclamacoes():
 
     assert filtro_reclamacao == {
         "status__in": ["APROVADO", "REPROVADO"],
+        "escola__lote__contratos_do_lote__edital__numero__in": ["Edital 1", "Edital 2"],
+        "escola__lote__contratos_do_lote__encerrado": False,
+        "escola__lote__uuid__in": ["Lote 1", "Lote 2"],
+        "escola__lote__terceirizada__uuid__in": ["Terceirizada 1", "Terceirizada 2"],
         "criado_em__gte": data_inicial_reclamacao,
         "criado_em__lte": data_final_reclamacao,
     }
 
     assert filtro_homologacao == {
         "homologacao__reclamacoes__status__in": ["APROVADO", "REPROVADO"],
+        "homologacao__reclamacoes__escola__lote__contratos_do_lote__edital__numero__in": [
+            "Edital 1",
+            "Edital 2",
+        ],
+        "homologacao__reclamacoes__escola__lote__contratos_do_lote__encerrado": False,
+        "homologacao__reclamacoes__escola__lote__uuid__in": ["Lote 1", "Lote 2"],
+        "homologacao__reclamacoes__escola__lote__terceirizada__uuid__in": [
+            "Terceirizada 1",
+            "Terceirizada 2",
+        ],
         "homologacao__reclamacoes__criado_em__gte": data_inicial_reclamacao,
         "homologacao__reclamacoes__criado_em__lte": data_final_reclamacao,
     }

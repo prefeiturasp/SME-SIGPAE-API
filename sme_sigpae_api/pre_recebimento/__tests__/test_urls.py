@@ -213,14 +213,14 @@ def test_url_solicitacao_alteracao_fornecedor(
             {
                 "numero_empenho": "43532542",
                 "etapa": 4,
-                "parte": "Parte 2",
+                "parte": 2,
                 "data_programada": "2023-06-03",
                 "quantidade": 123,
                 "total_embalagens": 333,
             },
             {
                 "etapa": 1,
-                "parte": "Parte 1",
+                "parte": 1,
                 "data_programada": "2023-09-14",
                 "quantidade": "0",
                 "total_embalagens": 1,
@@ -248,14 +248,14 @@ def test_url_solicitacao_alteracao_dilog(
             {
                 "numero_empenho": "43532542",
                 "etapa": 4,
-                "parte": "Parte 2",
+                "parte": 2,
                 "data_programada": "2023-06-03",
                 "quantidade": 123,
                 "total_embalagens": 333,
             },
             {
                 "etapa": 1,
-                "parte": "Parte 1",
+                "parte": 1,
                 "data_programada": "2023-09-14",
                 "quantidade": 1,
                 "total_embalagens": 1,
@@ -753,7 +753,7 @@ def test_url_perfil_cronograma_assina_cronograma_erro_senha(
 ):
     data = {
         "empresa": str(empresa.uuid),
-        "password": "senha_errada",
+        "password": constants.DJANGO_ADMIN_TREINAMENTO_PASSWORD,
         "contrato": str(contrato.uuid),
         "cadastro_finalizado": True,
         "etapas": [
@@ -799,7 +799,7 @@ def test_url_dilog_abastecimento_assina_cronograma_authorized(
 def test_url_dilog_abastecimento_assina_cronograma_erro_senha(
     client_autenticado_dilog_abastecimento, cronograma_assinado_fornecedor
 ):
-    data = json.dumps({"password": "senha_errada"})
+    data = json.dumps({"password": constants.DJANGO_ADMIN_TREINAMENTO_PASSWORD})
     response = client_autenticado_dilog_abastecimento.patch(
         f"/cronogramas/{cronograma_assinado_fornecedor.uuid}/abastecimento-assina/",
         data,
@@ -860,7 +860,7 @@ def test_url_dilog_assina_cronograma_authorized(
 def test_url_dilog_assina_cronograma_erro_senha(
     client_autenticado_dilog_diretoria, cronograma_assinado_perfil_dilog_abastecimento
 ):
-    data = json.dumps({"password": "senha_errada"})
+    data = json.dumps({"password": constants.DJANGO_ADMIN_TREINAMENTO_PASSWORD})
     response = client_autenticado_dilog_diretoria.patch(
         f"/cronogramas/{cronograma_assinado_perfil_dilog_abastecimento.uuid}/codae-assina/",
         data,
