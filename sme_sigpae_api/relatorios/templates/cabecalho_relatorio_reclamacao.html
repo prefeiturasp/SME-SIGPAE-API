@@ -7,48 +7,35 @@
 <head>
   <link rel="stylesheet" href="{% sass_src 'css/cabecalho.scss' %}" type="text/css">
   <link rel="stylesheet" href="{% sass_src 'css/override_relatorio.scss' %}" type="text/css">
-   <link rel="stylesheet" href="{% sass_src 'css/relatorio_reclamacao.scss' %}" type="text/css">
+  <link rel="stylesheet" href="{% sass_src 'css/relatorio_reclamacao.scss' %}" type="text/css">
   {% block css %}{% endblock %}
 </head>
 <body>
 <header class="header">
   <figure class="logo-titulo">
     <img src="{% static 'images/LOGO_PB_POSITIVO.png' %}" alt=""/>
-    <h1>SIGPAE - RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÃO DE PRODUTO</h1>
+    <h1>SIGPAE - RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÃO DE PRODUTOS</h1>
   </figure>
+  <section class="cabecario-reclamacao">
+    <article class="info-line">
+      <div>
+        Total de Reclamações de Produtos: <b>123654</b> 
+      </div>
+      <div>
+        Período: <b>01/10/2020 até 31/12/2025</b> 
+      </div>
+      <div>
+        Data de extração do relatório: <b>20/04/2025</b> 
+      </div>
+    </article>
+    <article>
+      Para os editais: <b>Edital 2345, EDITAL FASC 3456, JNHU/987/ijk, Edital 22345, EDITAL FASC 13456, JNHU/987/ijk, Edital 2345, EDITAL FASC 3456, JNHU/987/ijk, Edital 22345, EDITAL FASC 13456, JNHU/987/ijk</b>
+    </article>
+    <article>
+      DREs - Lotes filtradas: <b>Lote AB/092, Lote NB/092, Lote dAB/092, Lote ArB/092, Lote aAB/092, Lote AB/092, Lote NB/092, Lote dAB/092, Lote ArB/092, Lote aAB/092, Lote AB/092, Lote NB/092, Lote dAB/092, Lote ArB/092, Lote aAB/092</b>
+    </article>
+  </section>
 
-  {% if config.cabecario_tipo == "CABECARIO_POR_NOME"%}
-  <section class="cabecario-reclamacao-reduzido">
-    <article>
-      VEJA OS RESULTADOS PARA "{{ config.nome_busca }}"
-    </article>
-  </section>
-  {% elif config.cabecario_tipo == "CABECARIO_REDUZIDO"%}
-  <section class="cabecario-reclamacao-reduzido">
-    <article>
-      VEJA OS RESULTADOS PARA A BUSCA
-    </article>
-  </section>
-  {% elif config.cabecario_tipo == "CABECARIO_POR_DATA" %}
-  <section class="cabecario-reclamacao-data">
-    <article>
-      RESULTADOS DO PERÍODO
-    </article>
-    <article>
-      <div>DE: {{ config.data_inicial_reclamacao|formata_data }}</div>
-      <div>ATÉ: {{ config.data_final_reclamacao|formata_data }}</div>
-    </article>
-  </section>
-  {% elif config.cabecario_tipo == "CABECARIO_POR_STATUS"%}
-  <section class="cabecario-reclamacao-status">
-    <article>
-      STATUS
-    </article>
-    <article>
-      {{ config.status_cabecario }}
-    </article>
-  </section>
-  {% endif %}
 </header>
 <p style="page-break-before: avoid;"></p>
 {% block conteudo %}
