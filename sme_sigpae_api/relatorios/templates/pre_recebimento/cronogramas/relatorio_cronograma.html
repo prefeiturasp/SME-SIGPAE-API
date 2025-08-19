@@ -72,7 +72,7 @@
               <td>{{etapa.numero_empenho}}</td>
               <td>{{etapa.qtd_total_empenho|agrupador_milhar_com_decimal}} {{cronograma.unidade_medida.abreviacao}}</td>
               <td>Etapa {{etapa.etapa}}</td>
-              <td>{{etapa.parte}}</td>
+              <td>{% if etapa.parte %}Parte {{etapa.parte}}{% endif %}</td>
               <td>{{etapa.data_programada|date:"d/m/Y"}}</td>
               <td>{{etapa.quantidade|agrupador_milhar_com_decimal}} {{cronograma.unidade_medida.abreviacao}}</td>
               <td>{{etapa.total_embalagens|agrupador_milhar_com_decimal}} {{cronograma.tipo_embalagem_secundaria.abreviacao}}</td>

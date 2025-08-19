@@ -108,9 +108,13 @@ def test_get_valores_tabela_unidade_emei(relatorio_consolidado_xlsx_emei, mock_c
 
 
 def test_insere_tabela_periodos_na_planilha_unidade_emef(
-    informacoes_excel_writer_emef, mock_colunas, mock_linhas_emef
+    mock_colunas,
+    mock_linhas_emef,
+    relatorio_consolidado_xlsx_emef,
 ):
-    aba, writer, _, _, _, _ = informacoes_excel_writer_emef
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {relatorio_consolidado_xlsx_emef.mes}-{ relatorio_consolidado_xlsx_emef.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
 
     df = insere_tabela_periodos_na_planilha(aba, mock_colunas, mock_linhas_emef, writer)
     assert isinstance(df, pd.DataFrame)
@@ -170,9 +174,11 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
 
 
 def test_insere_tabela_periodos_na_planilha_unidade_emei(
-    informacoes_excel_writer_emei, mock_colunas, mock_linhas_emei
+    relatorio_consolidado_xlsx_emei, mock_colunas, mock_linhas_emei
 ):
-    aba, writer, _, _, _, _ = informacoes_excel_writer_emei
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {relatorio_consolidado_xlsx_emei.mes}-{ relatorio_consolidado_xlsx_emei.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
 
     df = insere_tabela_periodos_na_planilha(aba, mock_colunas, mock_linhas_emei, writer)
     assert isinstance(df, pd.DataFrame)

@@ -4,6 +4,8 @@ import pytest
 from faker import Faker
 from model_bakery import baker
 
+from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+
 fake = Faker("pt_BR")
 Faker.seed(420)
 
@@ -22,7 +24,7 @@ def datas_nascimento_api(request):
 @pytest.fixture
 def client_autenticado_da_escola(client, django_user_model):
     email = "user@escola.com"
-    password = "admin@123"
+    password = DJANGO_ADMIN_PASSWORD
     perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email,

@@ -2317,7 +2317,11 @@ class ProdutoViewSet(viewsets.ModelViewSet):
                     queryset=ReclamacaoDeProduto.objects.filter(**filtro_reclamacao),
                 )
             )
-            .order_by("nome")
+            .annotate(num_reclamacoes=Count("homologacao__reclamacoes", distinct=True))
+            .order_by(
+                "homologacao__reclamacoes__escola__lote__contratos_do_lote__edital__numero",
+                "-num_reclamacoes",
+            )
             .select_related("marca", "fabricante")
             .distinct()
         )

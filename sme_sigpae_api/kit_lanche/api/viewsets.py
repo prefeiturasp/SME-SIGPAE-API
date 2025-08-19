@@ -770,7 +770,7 @@ class SolicitacaoKitLancheUnificadaViewSet(ModelViewSet):
             return Response(
                 dict(detail=f"Erro ao marcar solicitação como conferida: {e}"),
                 status=status.HTTP_400_BAD_REQUEST,
-            )  # noqa
+            )
 
 
 class SolicitacaoKitLancheCEIAvulsaViewSet(SolicitacaoKitLancheAvulsaViewSet):
@@ -882,7 +882,7 @@ class SolicitacaoKitLancheCEIAvulsaViewSet(SolicitacaoKitLancheAvulsaViewSet):
             return Response(
                 dict(detail=f"Erro ao marcar solicitação como conferida: {e}"),
                 status=status.HTTP_400_BAD_REQUEST,
-            )  # noqa
+            )
 
 
 class SolicitacaoKitLancheCEMEIViewSet(
