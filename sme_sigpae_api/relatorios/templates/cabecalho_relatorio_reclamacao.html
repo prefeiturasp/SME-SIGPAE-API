@@ -19,11 +19,13 @@
   <section class="cabecario-reclamacao">
     <article class="info-line">
       <div>
-        Total de Reclamações de Produtos: <b>123654</b> 
+        Total de Reclamações de Produtos: <b>{{ cabecalho.numero_reclamacoes }}</b> 
       </div>
+      {% if cabecalho.data%}
       <div>
-        Período: <b>01/10/2020 até 31/12/2025</b> 
+        Período: <b>{{ cabecalho.data }}</b> 
       </div>
+      {% endif %}
       <div>
         Data de extração do relatório: <b>20/04/2025</b> 
       </div>

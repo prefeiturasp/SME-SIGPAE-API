@@ -3,11 +3,10 @@ from calendar import monthrange
 
 import environ
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.db.models import F, FloatField, Prefetch, Sum
+from django.db.models import F, FloatField, Sum
 from django.template.loader import get_template, render_to_string
 
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
-from sme_sigpae_api.produto.models import Produto, ReclamacaoDeProduto
 
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
@@ -1118,20 +1117,12 @@ def relatorio_produtos_em_analise_sensorial(produtos, filtros):
     )
 
 
-def relatorio_reclamacao(filtro_reclamacao, filtro_homologacao, filtros):
-    produtos = (
-        Produto.objects.filter(**filtro_homologacao)
-        .prefetch_related(
-            Prefetch(
-                "homologacao__reclamacoes",
-                queryset=ReclamacaoDeProduto.objects.filter(**filtro_reclamacao),
-            )
-        )
-        .order_by("nome")
-        .distinct()
-    )
+def relatorio_reclamacao_produtos(produtos, quantidade_reclamacoes, filtros):
+
+    cabecalho = cabecalho_reclamacao_produto(filtros)
+    cabecalho["numero_reclamacoes"] = quantidade_reclamacoes
     html_string = render_to_string(
-        "relatorio_reclamacao.html", {"produtos": produtos, "config": filtros}
+        "relatorio_reclamacao.html", {"produtos": produtos, "cabecalho": cabecalho}
     )
     return html_to_pdf_file(html_string, "relatorio_reclamacao_produtos.pdf", True)
 
@@ -1798,3 +1789,16 @@ def formata_informacoes_ficha_tecnica(entidade):
         getattr(entidade, "telefone", getattr(entidade, "responsavel_telefone", None))
     )
     return cnpj, telefone
+
+
+def cabecalho_reclamacao_produto(filtro):
+    cabecalho = {}
+    data_inicial = filtro.get("data_inicial_reclamacao")
+    data_final = filtro.get("data_final_reclamacao")
+    if data_inicial and data_final:
+        cabecalho["data"] = f"{data_inicial} até {data_final}"
+    elif data_inicial and not data_final:
+        cabecalho["data"] = f"Apartir de {data_inicial}"
+    elif not data_inicial and data_final:
+        cabecalho["data"] = f"Até {data_final}"
+    return cabecalho

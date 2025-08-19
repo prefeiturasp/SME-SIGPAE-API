@@ -1636,6 +1636,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             "filtro_reclamacoes",
             "filtro_reclamacoes_terceirizada",
             "filtro_avaliar_reclamacoes",
+            "relatorio-reclamacao",
         ]:
             return ProdutoReclamacaoSerializer
         return ProdutoSerializer
@@ -2348,13 +2349,32 @@ class ProdutoViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["GET"], url_path="relatorio-reclamacao")
     def relatorio_reclamacao(self, request):
         filtro_reclamacao, filtro_homologacao = filtros_produto_reclamacoes(request)
+        queryset = (
+            self.filter_queryset(self.get_queryset())
+            .filter(**filtro_homologacao)
+            .prefetch_related(
+                Prefetch(
+                    "homologacao__reclamacoes",
+                    queryset=ReclamacaoDeProduto.objects.filter(**filtro_reclamacao),
+                )
+            )
+            .annotate(num_reclamacoes=Count("homologacao__reclamacoes", distinct=True))
+            .order_by(
+                "homologacao__reclamacoes__escola__lote__contratos_do_lote__edital__numero",
+                "-num_reclamacoes",
+            )
+            .select_related("marca", "fabricante")
+            .distinct()
+        )
+        serializer = self.serializer_class(queryset, many=True)
+        produtos = serializer.data
         filtros = self.request.query_params.dict()
         user = request.user.get_username()
         gera_pdf_relatorio_reclamacao_produtos_async.delay(
             user=user,
             nome_arquivo="relatorio_reclamacao_produtos.pdf",
-            filtro_reclamacao=filtro_reclamacao,
-            filtro_homologacao=filtro_homologacao,
+            produtos=produtos,
+            quantidade_reclamacoes=queryset.count(),
             filtros=filtros,
         )
         return Response(
