@@ -1307,24 +1307,21 @@ def get_total_por_periodo(tabelas, campo):
     for tabela in tabelas:
         periodos = tabela["periodos"]
         nomes_campos = tabela["nomes_campos"]
-
         if campo in nomes_campos:
             indices_campos = get_indices_campo(nomes_campos, campo)
-
             for indice_campo in indices_campos:
                 periodo = get_periodo(periodos, indice_campo, tabela["len_periodos"])
                 posicao_periodo = periodos.index(periodo)
                 indice_valor = _calcular_indice_valor(
-                    tabela, posicao_periodo, indice_campo
+                    tabela, posicao_periodo, indice_campo, nomes_campos, campo
                 )
                 valor = _obter_valor(tabela, indice_valor, indice_campo)
-
                 dict_periodos_total_campo[periodo] = valor
     return dict_periodos_total_campo
 
 
-def _calcular_indice_valor(tabela, posicao_periodo, indice_campo):
-    if posicao_periodo == 0:
+def _calcular_indice_valor(tabela, posicao_periodo, indice_campo, nomes_campos, campo):
+    if posicao_periodo == 0 or nomes_campos.count(campo) == 1:
         return indice_campo
     return sum(tabela["len_periodos"][:posicao_periodo]) + indice_campo
 
