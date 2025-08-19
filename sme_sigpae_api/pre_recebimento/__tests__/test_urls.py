@@ -1,6 +1,7 @@
 import datetime
 import json
 import uuid
+import copy
 
 import pytest
 from django.conf import settings
@@ -2883,6 +2884,26 @@ def test_ficha_tecnica_create_from_rascunho_ok(
     assert ficha_criada.status == FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE
     assert ficha_rascunho.numero == ficha_criada.numero
 
+
+@pytest.mark.django_db
+def test_ficha_tecnica_create_envasador_null(
+    client_autenticado_fornecedor,
+    payload_ficha_tecnica_pereciveis,
+):
+    payload = copy.deepcopy(payload_ficha_tecnica_pereciveis)
+    payload["envasador_distribuidor"] = None
+
+    response = client_autenticado_fornecedor.post(
+        "/ficha-tecnica/",
+        content_type="application/json",
+        data=json.dumps(payload),
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+    ficha = FichaTecnicaDoProduto.objects.last()
+    assert ficha.status == FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE
+    assert ficha.envasador_distribuidor is None
 
 def test_ficha_tecnica_validate_pereciveis(
     client_autenticado_fornecedor,
