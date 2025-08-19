@@ -22,20 +22,22 @@
         Total de Reclamações de Produtos: <b>{{ cabecalho.numero_reclamacoes }}</b> 
       </div>
       {% if cabecalho.data%}
-      <div>
-        Período: <b>{{ cabecalho.data }}</b> 
-      </div>
+        <div>
+          Período: <b>{{ cabecalho.periodo }}</b> 
+        </div>
       {% endif %}
       <div>
-        Data de extração do relatório: <b>20/04/2025</b> 
+        Data de extração do relatório: <b>{{ cabecalho.data_extracao }}</b> 
       </div>
     </article>
     <article>
-      Para os editais: <b>Edital 2345, EDITAL FASC 3456, JNHU/987/ijk, Edital 22345, EDITAL FASC 13456, JNHU/987/ijk, Edital 2345, EDITAL FASC 3456, JNHU/987/ijk, Edital 22345, EDITAL FASC 13456, JNHU/987/ijk</b>
+      Para os editais: <b>{{ cabecalho.editais }}</b>
     </article>
-    <article>
-      DREs - Lotes filtradas: <b>Lote AB/092, Lote NB/092, Lote dAB/092, Lote ArB/092, Lote aAB/092, Lote AB/092, Lote NB/092, Lote dAB/092, Lote ArB/092, Lote aAB/092, Lote AB/092, Lote NB/092, Lote dAB/092, Lote ArB/092, Lote aAB/092</b>
-    </article>
+    {% if cabecalho.lotes%}
+      <article>
+        DREs - Lotes filtradas: <b>{{ cabecalho.lotes }}</b>
+      </article>
+    {% endif %}
   </section>
 
 </header>

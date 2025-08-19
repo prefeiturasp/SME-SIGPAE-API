@@ -2366,14 +2366,19 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             .select_related("marca", "fabricante")
             .distinct()
         )
+        filtros = {
+            "editais": request.query_params.getlist("editais[]"),
+            "lotes": request.query_params.getlist("lotes[]"),
+            "data_inicial_reclamacao": request.query_params.get(
+                "data_inicial_reclamacao"
+            ),
+            "data_final_reclamacao": request.query_params.get("data_final_reclamacao"),
+        }
         serializer = self.serializer_class(queryset, many=True)
-        produtos = serializer.data
-        filtros = self.request.query_params.dict()
-        user = request.user.get_username()
         gera_pdf_relatorio_reclamacao_produtos_async.delay(
-            user=user,
+            user=request.user.get_username(),
             nome_arquivo="relatorio_reclamacao_produtos.pdf",
-            produtos=produtos,
+            produtos=serializer.data,
             quantidade_reclamacoes=queryset.count(),
             filtros=filtros,
         )
