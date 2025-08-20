@@ -224,10 +224,10 @@ def test_get_total_por_periodo_multiplos_periodos():
             ],
         }
     ]
-    total_refeicao = get_total_por_periodo(tabelas, "total_refeicoes_pagamento")
+    total_refeicao = get_total_por_periodo(tabelas, "total_refeicoes_pagamento", True)
     assert total_refeicao == {"Infantil INTEGRAL": 80}
 
-    total_sobremesa = get_total_por_periodo(tabelas, "total_sobremesas_pagamento")
+    total_sobremesa = get_total_por_periodo(tabelas, "total_sobremesas_pagamento", True)
     assert total_sobremesa == {"Infantil INTEGRAL": 110}
 
 
