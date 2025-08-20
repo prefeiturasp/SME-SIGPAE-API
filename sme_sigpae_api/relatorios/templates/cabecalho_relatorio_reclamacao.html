@@ -5,17 +5,15 @@
 
 <html>
 <head>
-  <link rel="stylesheet" href="{% sass_src 'css/cabecalho.scss' %}" type="text/css">
-  <link rel="stylesheet" href="{% sass_src 'css/override_relatorio.scss' %}" type="text/css">
   <link rel="stylesheet" href="{% sass_src 'css/relatorio_reclamacao.scss' %}" type="text/css">
   {% block css %}{% endblock %}
 </head>
 <body>
 <header class="header">
-  <figure class="logo-titulo">
+  <section class="logo-titulo">
     <img src="{% static 'images/LOGO_PB_POSITIVO.png' %}" alt=""/>
-    <h1>SIGPAE - RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÃO DE PRODUTOS</h1>
-  </figure>
+    <h1>SIGPAE - RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÃO DE PRODUTOS</h1> 
+  </section>
   <section class="cabecario-reclamacao">
     <article class="info-line">
       <div>
@@ -31,11 +29,11 @@
       </div>
     </article>
     <article>
-      Para os editais: <b>{{ cabecalho.editais }}</b>
+      Para os editais: <b>{{ cabecalho.editais }} {{ cabecalho.editais }} {{ cabecalho.editais }}</b>
     </article>
     {% if cabecalho.lotes%}
       <article>
-        DREs - Lotes filtradas: <b>{{ cabecalho.lotes }}</b>
+        DREs - Lotes filtradas: <b>{{ cabecalho.lotes }} {{ cabecalho.lotes }} {{ cabecalho.lotes }} {{ cabecalho.lotes }}</b>
       </article>
     {% endif %}
   </section>
