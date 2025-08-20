@@ -101,12 +101,13 @@
 
 .corpo-relatorio-produto-reclamacao {
 	padding: 0.5em 1em;
-    width: 100%;
+    width: calc(100% - 2cm);
+    margin: 0 auto; 
+    box-sizing: border-box;
 }
 
 .sessao-detalhes-reclamacao {
 	background: #fff;
-    width: 100% !important; /* Força ocupar toda a largura */
     max-width: 100%;
 }
 
@@ -121,9 +122,10 @@
 
 .item-prod, .item-prod-detalhe {
     padding: 3px 5px;
-    font-size: 10px;
+    font-size: 12px;
     display: flex;
     align-items: center;
+	border-left: 1px solid #c0c0c0;
 }
 
 .item-prod {
@@ -144,42 +146,24 @@
 	border: 1px solid #C0C0C0;
 }
 
-// .nome-produto {
-// 	width: 175px; text-align: left; padding-left: 5px;
-// }
-// .edital {
-// 	width: 145px; text-align: left; padding-left: 5px;
-// }
-
-// .status {
-// 	width: 120px; justify-content: center; text-align: center; 
-// }
-
-// .outros {
-// 	width: 100px; text-align: left; padding-left: 5px;
-// }
-// .reclamacoes {
-// 	width: 90px; justify-content: center; text-align: center;
-// }
-
 .edital {
-    width: 150px !important; /* Aumenta um pouco a largura */
+    width: 15% !important; text-align: left;
 }
 
 .nome-produto {
-    width: 200px !important; /* Mais espaço para nome do produto */
+    width: 20% !important; text-align: left;
 }
 
 .outros {
-    width: 120px !important; /* Mais espaço para marca/fabricante */
+    width: 17% !important; text-align: left;
 }
 
 .reclamacoes {
-    width: 80px !important;
+    width: 10% !important; justify-content: center; text-align: center;
 }
 
 .status {
-    width: 130px !important; /* Mais espaço para status */
+    width: 20% !important; justify-content: center; text-align: center;
 }
 
 .visao-geral-produto {
