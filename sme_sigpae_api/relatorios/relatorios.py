@@ -1839,7 +1839,7 @@ def cabecalho_reclamacao_produto(filtros: dict) -> dict:
     if data_inicial and data_final:
         cabecalho["periodo"] = f"{data_inicial} até {data_final}"
     elif data_inicial and not data_final:
-        cabecalho["periodo"] = f"Apartir de {data_inicial}"
+        cabecalho["periodo"] = f"A partir de {data_inicial}"
     elif not data_inicial and data_final:
         cabecalho["periodo"] = f"Até {data_final}"
     return cabecalho

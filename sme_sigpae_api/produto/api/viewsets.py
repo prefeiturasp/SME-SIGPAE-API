@@ -1636,7 +1636,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             "filtro_reclamacoes",
             "filtro_reclamacoes_terceirizada",
             "filtro_avaliar_reclamacoes",
-            "relatorio-reclamacao",
+            "relatorio_reclamacao",
         ]:
             return ProdutoReclamacaoSerializer
         return ProdutoSerializer
@@ -2374,7 +2374,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             ),
             "data_final_reclamacao": request.query_params.get("data_final_reclamacao"),
         }
-        serializer = self.serializer_class(queryset, many=True)
+        serializer = self.get_serializer(queryset, many=True)
         gera_pdf_relatorio_reclamacao_produtos_async.delay(
             user=request.user.get_username(),
             nome_arquivo="relatorio_reclamacao_produtos.pdf",

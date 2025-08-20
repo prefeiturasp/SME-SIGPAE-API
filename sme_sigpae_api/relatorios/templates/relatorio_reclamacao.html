@@ -25,10 +25,50 @@
       </div>
       {% for reclamacao in produto.ultima_homologacao.reclamacoes%}
         <div class="visao-geral-produto">
-          Apenas para teste
+          <div class="duas-informacoes-separadas">
+            <div class="informacao">
+              <label>Reclamação #{{reclamacao.id_externo}} </label>
+            </div>
+            <div class="informacao-dois">
+              <p>Status Reclamação: <label>{{reclamacao.status_titulo}}</label></p>
+            </div>
+          </div>
+          <div class="duas-informacoes-separadas">
+            <div class="informacao">
+              <p> DRE/LOTE: <label>{{ reclamacao.escola.diretoria_regional.iniciais }} - {{ reclamacao.escola.lote.nome }}</label></p> 
+            </div>
+            <div class="informacao-dois">
+              <p> Empresa: <label>{{ reclamacao.escola.lote.terceirizada.nome_fantasia }} </label></p>
+            </div>
+          </div>
+          <div class="duas-informacoes-separadas">
+            <div class="informacao">
+               <p> RF e Nome do Reclamante: <label>{{ reclamacao.reclamante_registro_funcional }} - {{ reclamacao.reclamante_nome }} </label> </p> 
+            </div>
+            <div class="informacao-dois">
+             <p> Cód EOL e Nome da Esola: <label>{{ reclamacao.escola.codigo_eol }} - {{ reclamacao.escola.nome }} </label></p>
+            </div>
+          </div>
+          <div class="duas-informacoes-separadas">
+            <div class="informacao">
+               <p> Data da reclamação: <label>{{ reclamacao.criado_em|formatar_data_solicitacoes_alimentacao }}<label></p>
+            </div>
+            <div class="informacao-dois">
+             <p> Justificativa da reclamação: <label>{{ reclamacao.reclamacao|safe }} </label></p>
+            </div>
+          </div>
+          {% for log in reclamacao.logs %} 
+          <div class="duas-informacoes-separadas">
+            <div class="informacao">
+               <p> {{log.status_evento_explicacao|obter_rotulo_data_log}}:  <label>{{log.criado_em|formatar_data_solicitacoes_alimentacao}}</label></p>
+            </div>
+            <div class="informacao-dois">
+             <p> {{log.status_evento_explicacao|obter_titulo_log_reclamacao}}: <label>{{log.justificativa|safe}}</label></p>
+            </div>
+          </div>
+          {% endfor%}
         </div>
       {% endfor %}
-
     {% endfor %}
   </div>
 </section>
