@@ -27,7 +27,6 @@
 }
 
 @page :nth(1) {
-  //WTF bug...
   margin-top: 0;
 }
 
@@ -36,7 +35,6 @@
   background: $cinza-claro;
     .logo-titulo{
     display: flex;
-    // justify-content: space-between;
     margin: 0;
     padding: 0;
     margin-top: 20px;
@@ -47,8 +45,6 @@
     }
 
     h1{
-	//   display: flex;
-    //   align-items: flex-end;
 	  margin-left: 70px;
 	  text-align: center;
       font-weight: normal;
@@ -60,14 +56,13 @@
 
 .cabecario-reclamacao {
   background-color: #fdfdfd;
-  border: 1px solid #ddd;
+  border: 2px solid #ddd;
   border-radius: 6px;
-//   padding: 12px 16px;
+  padding: 12px 16px;
   margin-top: 10px;
-  font-size: 10px;
+  font-size: 13px;
   color: #333;
   margin: 5px 0;
-  padding: 8px;
 }
 
 .cabecario-reclamacao article {
@@ -75,8 +70,7 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-//   margin-bottom: 6px;
-	margin-bottom: 4px;
+  margin-bottom: 4px;
 }
 
 .cabecario-reclamacao article:last-child {
