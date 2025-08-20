@@ -64,6 +64,7 @@ class Perfil(
     def cargos_diretor(cls):
         return [
             {"codigo": 3360, "cargo": "DIRETOR DE ESCOLA"},
+            {"codigo": 1, "cargo": "DIRETOR"},
             {"codigo": 3085, "cargo": "ASSISTENTE DE DIREÇÃO DE ESCOLA"},
             {"codigo": 43, "cargo": "COORDENADOR GERAL"},
             {"codigo": 515, "cargo": "GESTOR DE EQUIPAMENTO PÚBLICO II"},
