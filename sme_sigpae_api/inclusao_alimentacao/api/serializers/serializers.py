@@ -115,6 +115,7 @@ class InclusaoAlimentacaoDaCEIBaseSerializer(serializers.ModelSerializer):
 
 class InclusaoAlimentacaoDaCEISerializer(InclusaoAlimentacaoDaCEIBaseSerializer):
     solicitacoes_similares = InclusaoAlimentacaoDaCEIBaseSerializer(many=True)
+    rastro_terceirizada = TerceirizadaSimplesSerializer()
 
 
 class QuantidadePorPeriodoSerializer(serializers.ModelSerializer):
