@@ -1,0 +1,60 @@
+{% include 'relatorio_base.html' %}
+{% load static %}
+{% load index %}
+{% load sass_tags %}
+
+<html>
+<head>
+  <link rel="stylesheet" href="{% sass_src 'css/cabecalho.scss' %}" type="text/css">
+  <link rel="stylesheet" href="{% sass_src 'css/relatorio_recreio_nas_ferias.scss' %}" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,600,600i,700,700i,900,900i" rel="stylesheet" />
+</head>
+<header class="header">
+  <section class="titulo-e-logo titulo-centralizado">
+    <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt=""/>
+    <h1 class="center">SIGPAE - RELATÓRIO DE DIETAS AUTORIZADAS RECREIO NAS FÉRIAS</h1>
+  </section>
+  <table class="tabela-cabecalho top-cabecalho">
+    <td class="between texto-cabecalho">
+      <h4>Total de Dietas Autorizadas: <b>{{ total_dados }}</b></h4>
+      <h4>Para Unidades da DRE/LOTE: <b>{{ dre_lote }}</b></h4>
+      <h4>Data de extração do relatório: <b>{{ data_extracao }}</b></h4>
+    </td>
+  </table>
+</header>
+<body>
+  <div class="footer-date">
+    Documento gerado em {{ data_hora_geracao }}
+  </div>
+  <div class="container">
+    <table class="dietas-table">
+      <thead>
+        <tr>
+          <th>Cód. EOL e Nome do Aluno</th>
+          <th>Unidade de Origem</th>
+          <th>Unidade de Destino</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for solicitacao in dados %}
+          <tr>
+            <th>{{ solicitacao.codigo_eol_aluno }} - {{ solicitacao.nome_aluno }}</th>
+            <th>{{ solicitacao.nome_escola }}</th>
+            <th>{{ solicitacao.escola_destino }}</th>
+          </tr>
+          <tr>
+            <td class="texto-detalhe padding-grande" colspan="12">
+              <div class="between">
+                <div>Classificação da Dieta: <strong>{{ solicitacao.classificacao }}</strong></div>
+                <div>Vigência da Dieta: <strong>De {{ solicitacao.data_inicio }} até {{ solicitacao.data_fim }}</strong></div>
+              </div>
+              </br>
+              <div>Relação por Diagnóstico: <strong>{{ solicitacao.alergias_intolerancias }}</strong></div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
