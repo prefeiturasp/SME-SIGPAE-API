@@ -27,7 +27,7 @@
         <div class="visao-geral-produto">
           <div class="duas-informacoes-separadas">
             <div class="informacao">
-              <label>Reclamação #{{reclamacao.id_externo}} </label>
+              <label class="indicador-reclamacao">Reclamação #{{reclamacao.id_externo}} </label>
             </div>
             <div class="informacao-dois">
               <p>Status Reclamação: <label>{{reclamacao.status_titulo}}</label></p>
@@ -51,19 +51,19 @@
           </div>
           <div class="duas-informacoes-separadas">
             <div class="informacao">
-               <p> Data da reclamação: <label>{{ reclamacao.criado_em|formatar_data_solicitacoes_alimentacao }}<label></p>
+               <p> Data da reclamação: <label>{{ reclamacao.criado_em|formata_data }}<label></p>
             </div>
             <div class="informacao-dois">
-             <p> Justificativa da reclamação: <label>{{ reclamacao.reclamacao|safe }} </label></p>
+             <p> Justificativa da reclamação: <label>{{ reclamacao.reclamacao|striptags|safe }} </label></p>
             </div>
           </div>
           {% for log in reclamacao.logs %} 
           <div class="duas-informacoes-separadas">
             <div class="informacao">
-               <p> {{log.status_evento_explicacao|obter_rotulo_data_log}}:  <label>{{log.criado_em|formatar_data_solicitacoes_alimentacao}}</label></p>
+               <p> {{log.status_evento_explicacao|obter_rotulo_data_log}}:  <label>{{log.criado_em|formata_data}}</label></p>
             </div>
             <div class="informacao-dois">
-             <p> {{log.status_evento_explicacao|obter_titulo_log_reclamacao}}: <label>{{log.justificativa|safe}}</label></p>
+             <p> {{log.status_evento_explicacao|obter_titulo_log_reclamacao}}: <label>{{log.justificativa|striptags|safe}}</label></p>
             </div>
           </div>
           {% endfor%}
