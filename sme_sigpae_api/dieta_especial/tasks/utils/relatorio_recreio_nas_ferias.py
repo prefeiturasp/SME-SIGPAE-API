@@ -1,20 +1,8 @@
 
 from django.template.loader import render_to_string
 from sme_sigpae_api.relatorios.utils import html_to_pdf_file
-from django.http import QueryDict
 from datetime import datetime
 from sme_sigpae_api.escola.models import Lote
-
-
-def conveter_dict_to_querydict(data_json):
-    querydict = QueryDict(mutable=True)
-    for key, value in data_json.items():
-        if isinstance(value, list):
-            for item in value:
-                querydict.appendlist(key, item)
-        else:
-            querydict[key] = value
-    return querydict
 
 
 def gera_dicionario_relatorio_recreio(solicitacoes):
