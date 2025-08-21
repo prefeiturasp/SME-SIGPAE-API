@@ -237,8 +237,8 @@ class FichaTecnicaCreateSerializer(serializers.ModelSerializer):
         required=True,
         queryset=Terceirizada.objects.all(),
     )
-    fabricante = FabricanteFichaTecnicaCreateSerializer(required=False)
-    envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(required=False)
+    fabricante = FabricanteFichaTecnicaCreateSerializer(required=False, allow_null=True)
+    envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(required=False, allow_null=True)
     mecanismo_controle = serializers.ChoiceField(
         choices=FichaTecnicaDoProduto.MECANISMO_CONTROLE_CHOICES,
         required=False,
