@@ -24,7 +24,7 @@
         <div class="item-prod-detalhe status">{{ produto.ultima_homologacao.status_titulo }}</div>
       </div>
       {% for reclamacao in produto.ultima_homologacao.reclamacoes%}
-        <div class="visao-geral-produto">
+        <div class="visao-geral-produto {% if forloop.counter0|divisibleby:2 %}bg-gray{% else %}bg-white{% endif %}">
           <div class="duas-informacoes-separadas">
             <div class="informacao">
               <label class="indicador-reclamacao">Reclamação #{{reclamacao.id_externo}} </label>
