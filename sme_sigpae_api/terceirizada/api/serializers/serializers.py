@@ -75,9 +75,15 @@ class EditalSerializer(serializers.ModelSerializer):
 
 
 class ContratoEditalSerializer(serializers.ModelSerializer):
-    edital = serializers.CharField(source="edital.uuid")
-    edital_numero = serializers.CharField(source="edital.numero")
-    eh_imr = serializers.BooleanField(source="edital.eh_imr")
+    edital = serializers.CharField(
+        source="edital.uuid", allow_null=True, required=False
+    )
+    edital_numero = serializers.CharField(
+        source="edital.numero", allow_null=True, required=False
+    )
+    eh_imr = serializers.BooleanField(
+        source="edital.eh_imr", allow_null=True, required=False
+    )
 
     class Meta:
         model = Contrato
