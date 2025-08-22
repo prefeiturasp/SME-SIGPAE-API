@@ -97,9 +97,9 @@ def payload_ficha_recebimento(
 ):
     """Fixture que retorna um payload completo para criação de uma ficha de recebimento."""
     ficha_tecnica = FichaTecnicaFactory()
-    
+
     etapa = etapas_do_cronograma_factory(cronograma__ficha_tecnica=ficha_tecnica)
-    
+
     docs_recebimento = documento_de_recebimento_factory.create_batch(
         size=3,
         cronograma=etapa.cronograma,
@@ -107,14 +107,13 @@ def payload_ficha_recebimento(
     )
 
     questao_primaria = questao_conferencia_factory(
-        tipo_questao=QuestaoConferencia.TIPO_QUESTAO_PRIMARIA,
-        pergunta_obrigatoria=True
+        tipo_questao=QuestaoConferencia.TIPO_QUESTAO_PRIMARIA, pergunta_obrigatoria=True
     )
     questao_secundaria = questao_conferencia_factory(
         tipo_questao=QuestaoConferencia.TIPO_QUESTAO_SECUNDARIA,
-        pergunta_obrigatoria=False
+        pergunta_obrigatoria=False,
     )
-    
+
     questoes_por_produto = QuestoesPorProdutoFactory(ficha_tecnica=ficha_tecnica)
     questoes_por_produto.questoes_primarias.add(questao_primaria)
     questoes_por_produto.questoes_secundarias.add(questao_secundaria)
@@ -169,7 +168,7 @@ def payload_ficha_recebimento(
                 "questao_conferencia": str(questao_secundaria.uuid),
                 "resposta": False,
                 "tipo_questao": "SECUNDARIA",
-            }
+            },
         ],
         "ocorrencias": [
             {
