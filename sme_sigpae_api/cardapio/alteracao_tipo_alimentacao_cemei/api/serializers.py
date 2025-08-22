@@ -19,6 +19,9 @@ from sme_sigpae_api.escola.api.serializers import (
     PeriodoEscolarSerializer,
     TipoAlimentacaoSerializer,
 )
+from sme_sigpae_api.terceirizada.api.serializers.serializers import (
+    TerceirizadaSimplesSerializer,
+)
 
 
 class FaixaEtariaSubstituicaoAlimentacaoCEMEICEISerializer(serializers.ModelSerializer):
@@ -68,6 +71,7 @@ class AlteracaoCardapioCEMEISerializer(serializers.ModelSerializer):
         SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEISerializer(many=True)
     )
     datas_intervalo = DatasIntervaloAlteracaoCardapioCEMEICreateSerializer(many=True)
+    rastro_terceirizada = TerceirizadaSimplesSerializer()
 
     class Meta:
         model = AlteracaoCardapioCEMEI
