@@ -27,7 +27,7 @@
         <div class="visao-geral-produto {% if forloop.counter0|divisibleby:2 %}bg-gray{% else %}bg-white{% endif %}">
           <div class="duas-informacoes-separadas">
             <div class="informacao">
-              <label class="indicador-reclamacao">Reclamação #{{reclamacao.id_externo}} </label>
+              <p><label class="indicador-reclamacao">Reclamação #{{reclamacao.id_externo}} </label></p>
             </div>
             <div class="informacao-dois">
               <p>Status Reclamação: <label>{{reclamacao.status_titulo}}</label></p>
@@ -46,7 +46,7 @@
                <p> RF e Nome do Reclamante: <label>{{ reclamacao.reclamante_registro_funcional }} - {{ reclamacao.reclamante_nome }} </label> </p> 
             </div>
             <div class="informacao-dois">
-             <p> Cód EOL e Nome da Esola: <label>{{ reclamacao.escola.codigo_eol }} - {{ reclamacao.escola.nome }} </label></p>
+             <p> Cód EOL e Nome da Escola: <label>{{ reclamacao.escola.codigo_eol }} - {{ reclamacao.escola.nome }} </label></p>
             </div>
           </div>
           <div class="duas-informacoes-separadas">
