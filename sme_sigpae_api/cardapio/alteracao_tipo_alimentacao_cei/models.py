@@ -149,9 +149,7 @@ class AlteracaoCardapioCEI(
 
 
 class SubstituicaoAlimentacaoNoPeriodoEscolarCEI(
-    ExportModelOperationsMixin(
-        "substituicao_cei_alimentacao_periodo_escolar"
-    ),  # noqa E501
+    ExportModelOperationsMixin("substituicao_cei_alimentacao_periodo_escolar"),
     TemChaveExterna,
 ):
     alteracao_cardapio = models.ForeignKey(
