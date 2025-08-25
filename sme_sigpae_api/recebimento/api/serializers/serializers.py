@@ -122,6 +122,7 @@ class FichaDeRecebimentoSerializer(serializers.ModelSerializer):
     fornecedor = serializers.SerializerMethodField()
     pregao_chamada_publica = serializers.SerializerMethodField()
     data_recebimento = serializers.SerializerMethodField()
+    status = serializers.CharField(source="get_status_display")
 
     def get_numero_cronograma(self, obj):
         try:
@@ -162,4 +163,5 @@ class FichaDeRecebimentoSerializer(serializers.ModelSerializer):
             "fornecedor",
             "pregao_chamada_publica",
             "data_recebimento",
+            "status",
         )
