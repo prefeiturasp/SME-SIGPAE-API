@@ -9,8 +9,10 @@ from utility.carga_dados.cardapio.importa_dados import (
     cria_tipo_alimentacao,
     cria_vinculo_tipo_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar,
 )
-from utility.carga_dados.dados_comuns.importa_dados import cria_contatos  # noqa
-from utility.carga_dados.dados_comuns.importa_dados import cria_templatemensagem
+from utility.carga_dados.dados_comuns.importa_dados import (
+    cria_contatos,
+    cria_templatemensagem,
+)
 from utility.carga_dados.dieta_especial.importa_dados import (
     cria_alergia_intolerancias,
     cria_alimento,
@@ -35,8 +37,10 @@ from utility.carga_dados.inclusao_alimentacao.importa_dados import (
     cria_motivo_inclusao_continua,
     cria_motivo_inclusao_normal,
 )
-from utility.carga_dados.kit_lanche.importa_dados import cria_kit_lanche  # noqa
-from utility.carga_dados.kit_lanche.importa_dados import cria_kit_lanche_item
+from utility.carga_dados.kit_lanche.importa_dados import (
+    cria_kit_lanche,
+    cria_kit_lanche_item,
+)
 from utility.carga_dados.perfil.importa_dados import cria_perfis, cria_vinculos
 from utility.carga_dados.produto.importa_dados import (
     cria_diagnosticos,
@@ -112,7 +116,7 @@ class Command(BaseCommand):
         arquivo = "csv/escola_dre_codae_EMEF_EMEFM_EMEBS_CIEJA.csv"
         cria_tipo_unidade_escolar(arquivo)
         cria_contatos_escola(arquivo)
-        cria_escola(arquivo=arquivo, legenda="Escola EMEF, EMEFM, EMEBS, CIEJA")  # noqa
+        cria_escola(arquivo=arquivo, legenda="Escola EMEF, EMEFM, EMEBS, CIEJA")
 
         arquivo = "csv/escola_dre_codae_EMEI.csv"
         cria_tipo_unidade_escolar(arquivo)
@@ -129,9 +133,9 @@ class Command(BaseCommand):
         if settings.DEBUG:
             cria_periodo_escolar()
             cria_escola_com_periodo_escolar()
-            cria_vinculo_tipo_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar()  # noqa
+            cria_vinculo_tipo_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar()
             cria_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue()
-            cria_substituicao_do_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue()  # noqa
+            cria_substituicao_do_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue()
 
             cria_vinculos()
             cria_marca()

@@ -73,13 +73,6 @@ class AlteracaoCardapioCEI(
         template = TemplateMensagem.objects.get(
             tipo=TemplateMensagem.ALTERACAO_CARDAPIO
         )
-        template_troca = {  # noqa
-            "@id": self.id,
-            "@criado_em": str(self.criado_em),
-            "@status": str(self.status),
-            # TODO: verificar a url padrão do pedido
-            "@link": "http://teste.com",
-        }
         corpo = template.template_html
         return template.assunto, corpo
 
@@ -156,9 +149,7 @@ class AlteracaoCardapioCEI(
 
 
 class SubstituicaoAlimentacaoNoPeriodoEscolarCEI(
-    ExportModelOperationsMixin(
-        "substituicao_cei_alimentacao_periodo_escolar"
-    ),  # noqa E501
+    ExportModelOperationsMixin("substituicao_cei_alimentacao_periodo_escolar"),
     TemChaveExterna,
 ):
     alteracao_cardapio = models.ForeignKey(

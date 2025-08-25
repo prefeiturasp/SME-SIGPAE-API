@@ -31,32 +31,37 @@ def convert_boolean_field(value):
     return "Não"
 
 
-def export_as_xls(self, request, queryset, field_names):  # noqa
+def _format_export_value(self, obj, field):
+    is_admin_field = hasattr(self, field)
+    if is_admin_field:
+        return getattr(self, field)(obj)
+
+    value = getattr(obj, field)
+    if isinstance(value, (datetime, date)):
+        return convert_data_date(value)
+    if isinstance(value, bool):
+        return convert_boolean_field(value)
+    if value is None:
+        return "-"
+
+    return value
+
+
+def export_as_xls(self, request, queryset, field_names):
     opts = self.model._meta
     field_names = field_names if field_names else self.list_display
     file_name = unidecode(opts.verbose_name)
+
     wb = Workbook()
     ws = wb.active
     ws.append(ExportExcelAction.generate_header(self, self.model, field_names))
 
     for obj in queryset:
-        row = []
-        for field in field_names:
-            is_admin_field = hasattr(self, field)
-            if is_admin_field:
-                value = getattr(self, field)(obj)
-            else:
-                value = getattr(obj, field)
-                if isinstance(value, datetime) or isinstance(value, date):
-                    value = convert_data_date(value)
-                elif isinstance(value, bool):
-                    value = convert_boolean_field(value)
-                elif isinstance(value, type(None)):
-                    value = "-"
-            row.append(str(value))
+        row = [str(self._format_export_value(obj, field)) for field in field_names]
         ws.append(row)
 
     ws = style_output_file(ws)
+
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
