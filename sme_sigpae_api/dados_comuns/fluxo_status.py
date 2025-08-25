@@ -3115,7 +3115,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         # TODO: definir partes interessadas
         return []
 
-    @property  # noqa c901
+    @property
     def _partes_interessadas_codae_autoriza(self):
         escola = self.escola_destino
         try:
