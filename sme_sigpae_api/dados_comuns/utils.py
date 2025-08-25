@@ -74,9 +74,7 @@ def envia_email_unico(
     )
 
 
-def envia_email_unico_com_anexo(
-    assunto: str, corpo: str, email: str, anexo=[]
-):  # noqa B006
+def envia_email_unico_com_anexo(assunto: str, corpo: str, email: str, anexo=[]):
     # Anexa um arquivo no email.
     # Usado em enviar_email_para_diretor_da_escola_destino.
     config = DynamicEmailConfiguration.get_solo()
