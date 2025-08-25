@@ -1040,7 +1040,9 @@ class ProcessaPlanilhaUsuarioServidorCoreSSO:
             username=dados_usuario.rf,
             cpf=dados_usuario.cpf,
             defaults={
-                "registro_funcional": dados_usuario.rf,
+                "registro_funcional": (
+                    dados_usuario.rf if len(dados_usuario.rf) == 7 else ""
+                ),
                 "cargo": dados_usuario.cargo or "",
                 "nome": dados_usuario.nome,
                 "last_login": datetime.now() if existe_core_sso else None,
