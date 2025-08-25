@@ -3099,7 +3099,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
             email_lista = []
         return email_lista
 
-    @property  # noqa c901
+    @property
     def _partes_interessadas_codae_autoriza_ou_nega(self):
         try:
             email_escola_eol = self.escola.contato.email
