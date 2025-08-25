@@ -79,9 +79,9 @@ from ..models import (
 from ..tasks import (
     gera_pdf_relatorio_dietas_especiais_terceirizadas_async,
     gera_pdf_relatorio_historico_dietas_especiais_async,
+    gera_pdf_relatorio_recreio_nas_ferias_async,
     gera_xlsx_relatorio_dietas_especiais_terceirizadas_async,
     gera_xlsx_relatorio_historico_dietas_especiais_async,
-    gera_pdf_relatorio_recreio_nas_ferias_async,
 )
 from ..utils import (
     ProtocoloPadraoPagination,

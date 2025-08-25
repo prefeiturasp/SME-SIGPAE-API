@@ -104,9 +104,9 @@ def test_obter_rotulo_data_log():
     from ..templatetags.index import obter_rotulo_data_log
 
     rotulo_data_log = obter_rotulo_data_log(constants.TERCEIRIZADA_RESPONDEU_RECLAMACAO)
-    assert rotulo_data_log == "Data resposta terc."
+    assert rotulo_data_log == "Data resposta terceirizada"
     rotulo_data_log = obter_rotulo_data_log(constants.CODAE_QUESTIONOU_TERCEIRIZADA)
-    assert rotulo_data_log == "Data quest. CODAE"
+    assert rotulo_data_log == "Data questionamento CODAE"
     rotulo_data_log = obter_rotulo_data_log(constants.CODAE_AUTORIZOU_RECLAMACAO)
     assert rotulo_data_log == "Data avaliação CODAE"
     rotulo_data_log = obter_rotulo_data_log(constants.CODAE_RECUSOU_RECLAMACAO)
