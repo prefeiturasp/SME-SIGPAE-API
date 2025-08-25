@@ -151,7 +151,7 @@ class LogSolicitacoesUsuario(
         (
             TERCEIRIZADA_RESPONDEU_QUESTIONAMENTO,
             "Terceirizada respondeu questionamento",
-        ),  # noqa
+        ),
         (INICIO_FLUXO_INATIVACAO, "Escola solicitou cancelamento"),
         (CODAE_AUTORIZOU_INATIVACAO, "CODAE autorizou cancelamento"),
         (CODAE_NEGOU_INATIVACAO, "CODAE negou cancelamento"),
@@ -654,7 +654,7 @@ class Notificacao(models.Model):
         return self.titulo
 
     @classmethod
-    def notificar(  # noqa: C901
+    def notificar(
         cls,
         tipo,
         categoria,
@@ -682,8 +682,8 @@ class Notificacao(models.Model):
         if not usuario:
             raise NotificacaoException("É necessário definir o usuário destinatário.")
 
-        if not renotificar:
-            notificacao_existente = cls.objects.filter(
+        notificacao_existente = (
+            cls.objects.filter(
                 tipo=tipo,
                 categoria=categoria,
                 requisicao=requisicao,
@@ -691,6 +691,9 @@ class Notificacao(models.Model):
                 titulo=titulo,
                 usuario=usuario,
             )
+            if not renotificar
+            else None
+        )
 
         if renotificar or not notificacao_existente:
             cls.objects.create(
