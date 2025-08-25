@@ -1833,9 +1833,11 @@ def cabecalho_reclamacao_produto(filtros: dict) -> dict:
     data_final = filtros.get("data_final_reclamacao")
     lotes = filtros.get("lotes")
     cabecalho["data_extracao"] = datetime.datetime.now().date().strftime("%d/%m/%Y")
-    cabecalho["editais"] = ", ".join(filtros["editais"])
+    cabecalho["editais"] = ", ".join(sorted(filtros["editais"]))
     if lotes:
-        lotes = Lote.objects.filter(uuid__in=lotes)
+        lotes = Lote.objects.filter(uuid__in=lotes).order_by(
+            "diretoria_regional__iniciais"
+        )
         cabecalho["lotes"] = ", ".join(
             f"{lote.diretoria_regional.iniciais} - {lote.nome}" for lote in lotes
         )
