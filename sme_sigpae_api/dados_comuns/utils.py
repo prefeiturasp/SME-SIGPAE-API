@@ -93,7 +93,7 @@ def envia_email_unico_com_anexo(
 
 def envia_email_unico_com_anexo_inmemory(
     assunto: str, corpo: str, email: str, anexo_nome: str, mimetypes: str, anexo=[]
-):  # noqa E501
+):
     # Rever a obrigatoriedade de anexo_nome e mimetypes para implementações futuras, ou generalização.
     config = DynamicEmailConfiguration.get_solo()
 
