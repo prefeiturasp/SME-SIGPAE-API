@@ -5732,9 +5732,7 @@ class FichaDeRecebimentoWorkflow(xwf_models.Workflow):
         (ASSINADA, "Assinada"),
     )
 
-    transitions = (
-        ("inicia_fluxo", RASCUNHO, ASSINADA),
-    )
+    transitions = (("inicia_fluxo", RASCUNHO, ASSINADA),)
 
     initial_state = RASCUNHO
 

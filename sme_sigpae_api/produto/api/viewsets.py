@@ -64,7 +64,6 @@ from ...relatorios.relatorios import (
     relatorio_produto_homologacao,
     relatorio_produtos_em_analise_sensorial,
     relatorio_produtos_suspensos,
-    relatorio_reclamacao,
 )
 from ...relatorios.utils import html_to_pdf_response
 from ...terceirizada.api.serializers.serializers import EditalSimplesSerializer
@@ -97,6 +96,7 @@ from ..models import (
 )
 from ..tasks import (
     gera_pdf_relatorio_produtos_homologados_async,
+    gera_pdf_relatorio_reclamacao_produtos_async,
     gera_xls_relatorio_produtos_homologados_async,
     gera_xls_relatorio_produtos_suspensos_async,
 )
@@ -1636,6 +1636,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             "filtro_reclamacoes",
             "filtro_reclamacoes_terceirizada",
             "filtro_avaliar_reclamacoes",
+            "relatorio_reclamacao",
         ]:
             return ProdutoReclamacaoSerializer
         return ProdutoSerializer
@@ -2357,11 +2358,34 @@ class ProdutoViewSet(viewsets.ModelViewSet):
                     queryset=ReclamacaoDeProduto.objects.filter(**filtro_reclamacao),
                 )
             )
-            .order_by("nome")
+            .annotate(num_reclamacoes=Count("homologacao__reclamacoes", distinct=True))
+            .order_by(
+                "homologacao__reclamacoes__escola__lote__contratos_do_lote__edital__numero",
+                "-num_reclamacoes",
+            )
+            .select_related("marca", "fabricante")
             .distinct()
         )
-        filtros = self.request.query_params.dict()
-        return relatorio_reclamacao(queryset, filtros)
+        filtros = {
+            "editais": request.query_params.getlist("editais[]"),
+            "lotes": request.query_params.getlist("lotes[]"),
+            "data_inicial_reclamacao": request.query_params.get(
+                "data_inicial_reclamacao"
+            ),
+            "data_final_reclamacao": request.query_params.get("data_final_reclamacao"),
+        }
+        serializer = self.get_serializer(queryset, many=True)
+        gera_pdf_relatorio_reclamacao_produtos_async.delay(
+            user=request.user.get_username(),
+            nome_arquivo="relatorio_reclamacao_produtos.pdf",
+            produtos=serializer.data,
+            quantidade_reclamacoes=queryset.count(),
+            filtros=filtros,
+        )
+        return Response(
+            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            status=status.HTTP_200_OK,
+        )
 
     @action(detail=False, methods=["GET"], url_path="ja-existe")
     def ja_existe(self, request):

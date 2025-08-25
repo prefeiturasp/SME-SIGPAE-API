@@ -3,12 +3,15 @@ import uuid
 import pytest
 
 from sme_sigpae_api.recebimento.api.serializers.serializers_create import (
+    FichaDeRecebimentoCreateSerializer,
     FichaDeRecebimentoRascunhoSerializer,
     OcorrenciaFichaRecebimentoCreateSerializer,
     QuestaoFichaRecebimentoCreateSerializer,
-    FichaDeRecebimentoCreateSerializer
 )
-from sme_sigpae_api.recebimento.models import QuestaoFichaRecebimento, QuestaoConferencia
+from sme_sigpae_api.recebimento.models import (
+    QuestaoConferencia,
+    QuestaoFichaRecebimento,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -152,6 +155,7 @@ def test_ocorrencia_serializer_create(
     assert instance.descricao == data["descricao"]
     assert instance.ficha_recebimento == ficha_recebimento
 
+
 def test_ficha_recebimento_serializer_create(payload_ficha_recebimento):
     """Testa a criação de uma ficha através do serializer."""
     serializer = FichaDeRecebimentoCreateSerializer(data=payload_ficha_recebimento)
@@ -159,7 +163,7 @@ def test_ficha_recebimento_serializer_create(payload_ficha_recebimento):
     if not is_valid:
         print("\nErros de validação:", serializer.errors)
     assert is_valid, f"O serializer não é válido. Erros: {serializer.errors}"
-    
+
     ficha = serializer.save()
     assert ficha.id is not None
     assert ficha.veiculos.count() > 0
@@ -167,21 +171,22 @@ def test_ficha_recebimento_serializer_create(payload_ficha_recebimento):
     assert ficha.questoes_conferencia.count() > 0
 
 
-def test_ficha_recebimento_serializer_update(ficha_recebimento, payload_ficha_recebimento):
+def test_ficha_recebimento_serializer_update(
+    ficha_recebimento, payload_ficha_recebimento
+):
     """Testa a atualização de uma ficha existente através do serializer."""
-    payload_ficha_recebimento['observacao'] = 'Observação atualizada'
-    
+    payload_ficha_recebimento["observacao"] = "Observação atualizada"
+
     serializer = FichaDeRecebimentoCreateSerializer(
-        instance=ficha_recebimento,
-        data=payload_ficha_recebimento
+        instance=ficha_recebimento, data=payload_ficha_recebimento
     )
     is_valid = serializer.is_valid()
     if not is_valid:
         print("\nErros de validação:", serializer.errors)
     assert is_valid, f"O serializer não é válido. Erros: {serializer.errors}"
-    
+
     ficha = serializer.save()
-    assert ficha.observacao == 'Observação atualizada'
+    assert ficha.observacao == "Observação atualizada"
     assert ficha.veiculos.count() > 0
     assert ficha.arquivos.count() > 0
     assert ficha.questoes_conferencia.count() > 0
@@ -190,26 +195,30 @@ def test_ficha_recebimento_serializer_update(ficha_recebimento, payload_ficha_re
 def test_ficha_recebimento_serializer_validate_veiculos(payload_ficha_recebimento):
     """Testa a validação de veículos obrigatórios."""
     payload = payload_ficha_recebimento.copy()
-    payload['veiculos'] = []  # Lista vazia deve falhar
-    
+    payload["veiculos"] = []  # Lista vazia deve falhar
+
     serializer = FichaDeRecebimentoCreateSerializer(data=payload)
     assert not serializer.is_valid()
-    assert 'veiculos' in serializer.errors
+    assert "veiculos" in serializer.errors
 
 
-def test_ficha_recebimento_serializer_validate_questoes(payload_ficha_recebimento, questao_conferencia):
+def test_ficha_recebimento_serializer_validate_questoes(
+    payload_ficha_recebimento, questao_conferencia
+):
     """Testa a validação de questões obrigatórias."""
     payload = payload_ficha_recebimento.copy()
-    
+
     questoes_obrigatorias = set(
-        str(q.uuid) for q in QuestaoConferencia.objects.filter(pergunta_obrigatoria=True)
+        str(q.uuid)
+        for q in QuestaoConferencia.objects.filter(pergunta_obrigatoria=True)
     )
-    
-    payload['questoes'] = [
-        q for q in payload['questoes']
-        if q['questao_conferencia'] not in questoes_obrigatorias
+
+    payload["questoes"] = [
+        q
+        for q in payload["questoes"]
+        if q["questao_conferencia"] not in questoes_obrigatorias
     ]
-    
+
     serializer = FichaDeRecebimentoCreateSerializer(data=payload)
     assert not serializer.is_valid()
-    assert 'questoes' in serializer.errors
+    assert "questoes" in serializer.errors

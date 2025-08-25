@@ -801,7 +801,7 @@ class PermissaoParaVisualizarRelatorioCronograma(BasePermission):
                         USUARIO_GTIC_CODAE,
                         DILOG_ABASTECIMENTO,
                         DILOG_VISUALIZACAO,
-                        DILOG_QUALIDADE
+                        DILOG_QUALIDADE,
                     ]
                 )
                 or usuario.eh_fornecedor
@@ -900,7 +900,7 @@ class PermissaoParaDashboardCronograma(BasePermission):
         ADMINISTRADOR_CODAE_GABINETE,
         DILOG_ABASTECIMENTO,
         DILOG_VISUALIZACAO,
-        DILOG_QUALIDADE
+        DILOG_QUALIDADE,
     ]
 
     def has_permission(self, request, view):
@@ -1078,7 +1078,7 @@ class PermissaoParaVisualizarSolicitacoesAlteracaoCronograma(BasePermission):
         ADMINISTRADOR_CODAE_GABINETE,
         DILOG_ABASTECIMENTO,
         DILOG_VISUALIZACAO,
-        DILOG_QUALIDADE
+        DILOG_QUALIDADE,
     ]
 
     def has_permission(self, request, view):
@@ -1137,7 +1137,7 @@ class PermissaoParaListarDashboardSolicitacaoAlteracaoCronograma(BasePermission)
         ADMINISTRADOR_CODAE_GABINETE,
         DILOG_ABASTECIMENTO,
         DILOG_VISUALIZACAO,
-        DILOG_QUALIDADE
+        DILOG_QUALIDADE,
     ]
 
     def has_permission(self, request, view):
