@@ -7,6 +7,7 @@ from django.template import base as template_base
 from django.template.defaultfilters import title as django_title
 
 from sme_sigpae_api.dados_comuns.utils import numero_com_agrupador_de_milhar_e_decimal
+from sme_sigpae_api.produto.constants import RELATORIO_RECLAMACOES_PRODUTOS
 
 from ...cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
@@ -281,26 +282,14 @@ def verifica_se_tem_anexos(logs):
 
 @register.filter
 def obter_titulo_log_reclamacao(status_evento):
-    titulo_log = {
-        constants.TERCEIRIZADA_RESPONDEU_RECLAMACAO: "Resposta terceirizada",
-        constants.CODAE_QUESTIONOU_TERCEIRIZADA: "Questionamento CODAE",
-        constants.CODAE_AUTORIZOU_RECLAMACAO: "Justificativa avaliação CODAE",
-        constants.CODAE_RECUSOU_RECLAMACAO: "Justificativa avaliação CODAE",
-        constants.CODAE_RESPONDEU_RECLAMACAO: "Resposta CODAE",
-    }
-    return titulo_log.get(status_evento, "Justificativa")
+    titulo_log = RELATORIO_RECLAMACOES_PRODUTOS["titulo_log"]
+    return titulo_log.get(status_evento, status_evento)
 
 
 @register.filter
 def obter_rotulo_data_log(status_evento):
-    rotulo_data_log = {
-        constants.TERCEIRIZADA_RESPONDEU_RECLAMACAO: "Data resposta terc.",
-        constants.CODAE_QUESTIONOU_TERCEIRIZADA: "Data quest. CODAE",
-        constants.CODAE_AUTORIZOU_RECLAMACAO: "Data avaliação CODAE",
-        constants.CODAE_RECUSOU_RECLAMACAO: "Data avaliação CODAE",
-        constants.CODAE_RESPONDEU_RECLAMACAO: "Data resposta CODAE",
-    }
-    return rotulo_data_log.get(status_evento, "Data reclamação")
+    rotulo_data_log = RELATORIO_RECLAMACOES_PRODUTOS["rotulo_data_log"]
+    return rotulo_data_log.get(status_evento, "Data da reclamação")
 
 
 @register.filter
