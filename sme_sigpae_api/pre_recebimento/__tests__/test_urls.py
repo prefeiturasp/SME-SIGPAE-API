@@ -1,7 +1,7 @@
+import copy
 import datetime
 import json
 import uuid
-import copy
 
 import pytest
 from django.conf import settings
@@ -2904,6 +2904,7 @@ def test_ficha_tecnica_create_envasador_null(
     ficha = FichaTecnicaDoProduto.objects.last()
     assert ficha.status == FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE
     assert ficha.envasador_distribuidor is None
+
 
 def test_ficha_tecnica_validate_pereciveis(
     client_autenticado_fornecedor,

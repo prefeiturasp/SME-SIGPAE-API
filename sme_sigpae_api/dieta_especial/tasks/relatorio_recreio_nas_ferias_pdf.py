@@ -1,18 +1,20 @@
 import logging
+
 from celery import shared_task
+
 from sme_sigpae_api.dados_comuns.utils import (
     atualiza_central_download,
     atualiza_central_download_com_erro,
+    convert_dict_to_querydict,
     gera_objeto_na_central_download,
 )
 from sme_sigpae_api.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias import (
-    gera_pdf_relatorio_recreio_nas_ferias,
     gera_dicionario_relatorio_recreio,
+    gera_pdf_relatorio_recreio_nas_ferias,
 )
 from sme_sigpae_api.dieta_especial.utils import (
     filtra_relatorio_recreio_nas_ferias,
 )
-from sme_sigpae_api.dados_comuns.utils import convert_dict_to_querydict
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +34,9 @@ def gera_pdf_relatorio_recreio_nas_ferias_async(user, nome_arquivo, params):
         query_dict_params = convert_dict_to_querydict(params)
         solicitacoes = filtra_relatorio_recreio_nas_ferias(query_dict_params)
         dados = gera_dicionario_relatorio_recreio(solicitacoes)
-        arquivo = gera_pdf_relatorio_recreio_nas_ferias(dados, user, query_dict_params.get("lote", None))
+        arquivo = gera_pdf_relatorio_recreio_nas_ferias(
+            dados, user, query_dict_params.get("lote", None)
+        )
         atualiza_central_download(obj_central_download, nome_arquivo, arquivo)
     except Exception as e:
         atualiza_central_download_com_erro(obj_central_download, str(e))
