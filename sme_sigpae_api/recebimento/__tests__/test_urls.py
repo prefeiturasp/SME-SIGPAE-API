@@ -309,7 +309,7 @@ def test_ficha_recebimento_list_filter_status(client_autenticado_qualidade, fich
     results = response.json()["results"]
     assert len(results) == 1
     assert results[0]["uuid"] == str(ficha_assinada.uuid)
-    assert results[0]["status"] == "Assinada"
+    assert results[0]["status"] == "Assinado CODAE"
     
     response = client_autenticado_qualidade.get("/fichas-de-recebimento/")
     assert response.status_code == status.HTTP_200_OK
