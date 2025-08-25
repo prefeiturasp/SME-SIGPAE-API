@@ -103,7 +103,7 @@ class AlteracoesCardapioViewSet(viewsets.ModelViewSet):
         alteracoes_cardapio = dre.alteracoes_cardapio_das_minhas_escolas_a_validar(
             filtro_aplicado
         )
-        serializer = self.get_serializer(alteracoes_cardapio, many=True)
+        serializer = AlteracaoCardapioSimplesSerializer(alteracoes_cardapio, many=True)
         return Response({"results": serializer.data})
 
     @action(detail=True, methods=["GET"], url_path=f"{constants.RELATORIO}")
