@@ -286,7 +286,7 @@ def atualiza_central_download_com_erro(obj_central_download, msg_erro):
 
 
 class ExportExcelAction:
-    @classmethod  # noqa
+    @classmethod
     def generate_header(cls, admin, model, list_display):
         def default_format(value):
             return value.replace("_", " ").upper()
