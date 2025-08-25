@@ -58,9 +58,8 @@ class InversaoCardapioViewSet(viewsets.ModelViewSet):
         if request.query_params.get("lote"):
             lote_uuid = request.query_params.get("lote")
             inversoes_cardapio = inversoes_cardapio.filter(rastro_lote__uuid=lote_uuid)
-        page = self.paginate_queryset(inversoes_cardapio)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(inversoes_cardapio, many=True)
+        return Response({"results": serializer.data})
 
     @action(
         detail=False,
@@ -80,9 +79,8 @@ class InversaoCardapioViewSet(viewsets.ModelViewSet):
         if request.query_params.get("lote"):
             lote_uuid = request.query_params.get("lote")
             inversoes_cardapio = inversoes_cardapio.filter(rastro_lote__uuid=lote_uuid)
-        page = self.paginate_queryset(inversoes_cardapio)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(inversoes_cardapio, many=True)
+        return Response({"results": serializer.data})
 
     @action(
         detail=False,

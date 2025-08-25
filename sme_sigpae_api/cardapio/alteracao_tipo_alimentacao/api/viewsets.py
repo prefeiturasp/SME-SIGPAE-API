@@ -88,9 +88,8 @@ class AlteracoesCardapioViewSet(viewsets.ModelViewSet):
             alteracoes_cardapio = alteracoes_cardapio.filter(
                 rastro_lote__uuid=lote_uuid
             )
-        page = self.paginate_queryset(alteracoes_cardapio)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(alteracoes_cardapio, many=True)
+        return Response({"results": serializer.data})
 
     @action(
         detail=False,
@@ -104,10 +103,8 @@ class AlteracoesCardapioViewSet(viewsets.ModelViewSet):
         alteracoes_cardapio = dre.alteracoes_cardapio_das_minhas_escolas_a_validar(
             filtro_aplicado
         )
-
-        page = self.paginate_queryset(alteracoes_cardapio)
-        serializer = AlteracaoCardapioSimplesSerializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(alteracoes_cardapio, many=True)
+        return Response({"results": serializer.data})
 
     @action(detail=True, methods=["GET"], url_path=f"{constants.RELATORIO}")
     def relatorio(self, request, uuid=None):
@@ -365,9 +362,8 @@ class AlteracoesCardapioViewSet(viewsets.ModelViewSet):
             alteracoes_cardapio = alteracoes_cardapio.filter(
                 rastro_lote__uuid=lote_uuid
             )
-        page = self.paginate_queryset(alteracoes_cardapio)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(alteracoes_cardapio, many=True)
+        return Response({"results": serializer.data})
 
     def destroy(self, request, *args, **kwargs):
         alteracao_cardapio = self.get_object()

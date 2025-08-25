@@ -3,6 +3,11 @@ from rest_framework import status
 
 from sme_sigpae_api.escola.models import Lote, TipoUnidadeEscolar
 from sme_sigpae_api.perfil.models import Usuario
+from sme_sigpae_api.dados_comuns.constants import (
+    PEDIDOS_CODAE,
+    PEDIDOS_DRE,
+    SEM_FILTRO,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -34,10 +39,16 @@ def test_solicitacoes_diretoria_regional(
     )
 
     response = client_autenticado_da_dre.get(
-        f"/solicitacoes-kit-lanche-avulsa/pedidos-diretoria-regional/sem_filtro/?lote={escola.lote.uuid}"
+        f"/solicitacoes-kit-lanche-avulsa/{PEDIDOS_DRE}/{SEM_FILTRO}/?lote={escola.lote.uuid}"
     )
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.json()["results"]) == 1
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert len(data["results"]) == 1
+
 
 
 def test_solicitacoes_codae(
@@ -67,11 +78,16 @@ def test_solicitacoes_codae(
     )
 
     response = client_autenticado_da_codae.get(
-        f"/solicitacoes-kit-lanche-avulsa/pedidos-codae/sem_filtro/"
+        f"/solicitacoes-kit-lanche-avulsa/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
         f"?lote={escola.lote.uuid}&diretoria_regional={escola.diretoria_regional.uuid}"
     )
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.json()["results"]) == 1
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert len(data["results"]) == 1
 
 
 def test_minhas_solicitacoes(
@@ -106,3 +122,29 @@ def test_minhas_solicitacoes(
     )
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()["results"]) == 1
+
+def test_url_solicitacoes_kit_lanche_cei_avulsa_codae(
+    client_autenticado_da_codae
+):
+    response = client_autenticado_da_codae.get(
+        f"/solicitacoes-kit-lanche-cei-avulsa/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
+    )
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)   
+
+def test_url_solicitacoes_kit_lanche_cei_avulsa_dre(
+    client_autenticado_da_dre
+):
+    response = client_autenticado_da_dre.get(
+        f"/solicitacoes-kit-lanche-cei-avulsa/{PEDIDOS_DRE}/{SEM_FILTRO}/"
+    )
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)   

@@ -146,9 +146,8 @@ class SolicitacaoKitLancheAvulsaViewSet(ModelViewSet):
         if request.query_params.get("lote"):
             lote_uuid = request.query_params.get("lote")
             kit_lanches_avulso = kit_lanches_avulso.filter(rastro_lote__uuid=lote_uuid)
-        page = self.paginate_queryset(kit_lanches_avulso)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(kit_lanches_avulso, many=True)
+        return Response({"results": serializer.data})
 
     @action(
         detail=False,
@@ -167,9 +166,8 @@ class SolicitacaoKitLancheAvulsaViewSet(ModelViewSet):
         if request.query_params.get("lote"):
             lote_uuid = request.query_params.get("lote")
             kit_lanches_avulso = kit_lanches_avulso.filter(rastro_lote__uuid=lote_uuid)
-        page = self.paginate_queryset(kit_lanches_avulso)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(kit_lanches_avulso, many=True)
+        return Response({"results": serializer.data})
 
     @action(
         detail=False,
@@ -473,9 +471,8 @@ class SolicitacaoKitLancheUnificadaViewSet(ModelViewSet):
             solicitacoes_unificadas = solicitacoes_unificadas.filter(
                 rastro_lote__uuid=lote_uuid
             )
-        page = self.paginate_queryset(solicitacoes_unificadas)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(solicitacoes_unificadas, many=True)
+        return Response({"results": serializer.data})
 
     @action(
         detail=False,
@@ -800,9 +797,8 @@ class SolicitacaoKitLancheCEIAvulsaViewSet(SolicitacaoKitLancheAvulsaViewSet):
         if request.query_params.get("lote"):
             lote_uuid = request.query_params.get("lote")
             kit_lanches_avulso = kit_lanches_avulso.filter(rastro_lote__uuid=lote_uuid)
-        page = self.paginate_queryset(kit_lanches_avulso)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(kit_lanches_avulso, many=True)
+        return Response({"results": serializer.data})
 
     @action(
         detail=False,
@@ -823,9 +819,8 @@ class SolicitacaoKitLancheCEIAvulsaViewSet(SolicitacaoKitLancheAvulsaViewSet):
         if request.query_params.get("lote"):
             lote_uuid = request.query_params.get("lote")
             kit_lanches_avulso = kit_lanches_avulso.filter(rastro_lote__uuid=lote_uuid)
-        page = self.paginate_queryset(kit_lanches_avulso)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(kit_lanches_avulso, many=True)
+        return Response({"results": serializer.data})
 
     @action(
         detail=False,
@@ -949,12 +944,10 @@ class SolicitacaoKitLancheCEMEIViewSet(
         if request.query_params.get("lote"):
             lote_uuid = request.query_params.get("lote")
             kit_lanches_cemei = kit_lanches_cemei.filter(rastro_lote__uuid=lote_uuid)
-        page = self.paginate_queryset(kit_lanches_cemei)
-        page = self.paginate_queryset(kit_lanches_cemei)
         serializer = serializers.SolicitacaoKitLancheCEMEIRetrieveSerializer(
-            page, many=True
+            kit_lanches_cemei, many=True
         )
-        return self.get_paginated_response(serializer.data)
+        return Response({"results": serializer.data})
 
     @action(
         detail=False,
@@ -975,11 +968,10 @@ class SolicitacaoKitLancheCEMEIViewSet(
         if request.query_params.get("lote"):
             lote_uuid = request.query_params.get("lote")
             kit_lanches_cemei = kit_lanches_cemei.filter(rastro_lote__uuid=lote_uuid)
-        page = self.paginate_queryset(kit_lanches_cemei)
         serializer = serializers.SolicitacaoKitLancheCEMEIRetrieveSerializer(
-            page, many=True
+            kit_lanches_cemei, many=True
         )
-        return self.get_paginated_response(serializer.data)
+        return Response({"results": serializer.data})
 
     @action(detail=True, url_path=constants.RELATORIO, methods=["get"])
     def relatorio(self, request, uuid=None):
