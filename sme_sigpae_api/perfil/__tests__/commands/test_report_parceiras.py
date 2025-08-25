@@ -72,9 +72,10 @@ def test_usuarios_escola_diferente(command):
     command.stdout.write.assert_any_call("CEI TESTE - Maria - 12345678900")
 
 
-@patch("openpyxl.load_workbook")
+@patch("sme_sigpae_api.perfil.management.commands.report_parceiras.load_workbook")
 @patch.object(Command, "get_array_diretores")
-def test_handle_completo(mock_get_diretores, mock_wb, command):
+@patch("os.path.exists", return_value=True)
+def test_handle_completo(mock_exists, mock_get_diretores, mock_wb, command):
     mock_get_diretores.return_value = [
         {"unidade": "Unidade A", "nome": "João", "cpf": "12345678900"},
     ]
@@ -82,19 +83,40 @@ def test_handle_completo(mock_get_diretores, mock_wb, command):
     fake_ws = MagicMock()
     fake_ws.iter_rows.return_value = [
         # erro
-        ("erro", "12345678900", "email@dominio.com", '[{"codigoCargo": 1}]'),
+        (
+            "erro",
+            "12345678900",
+            "email@dominio.com",
+            '[{"codigoCargo": 1, "descricaoUnidade": "CEI DIRET X"}]',
+        ),
         # sem email
-        ("", "12345678900", "", '[{"codigoCargo": 1}]'),
+        (
+            "",
+            "12345678900",
+            "",
+            '[{"codigoCargo": 1,"descricaoUnidade": "CEI DIRET X"}]',
+        ),
         # email inválido
-        ("", "12345678900", "teste@", '[{"codigoCargo": 1}]'),
+        (
+            "",
+            "12345678900",
+            "teste@",
+            '[{"codigoCargo": 1,"descricaoUnidade": "CEI DIRET X"}]',
+        ),
         # sem cargo
         ("", "12345678900", "alguem@ok.com", ""),
         # cargo não é diretor
-        ("", "12345678900", "alguem@ok.com", '[{"codigoCargo": 2}]'),
+        (
+            "",
+            "12345678900",
+            "alguem@ok.com",
+            '[{"codigoCargo": 2, "descricaoUnidade": "CEI DIRET X"}]',
+        ),
     ]
 
     fake_wb = MagicMock()
     fake_wb.active = fake_ws
+    fake_wb.__iter__ = lambda self: iter([fake_ws])
     mock_wb.return_value = fake_wb
 
     command.handle()
