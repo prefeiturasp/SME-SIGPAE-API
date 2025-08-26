@@ -123,17 +123,17 @@ Fluxos: https://whimsical.com/fluxos-i7SkAADB94XRhRMd2afif
 
 # Sobre o Time
 
-| Papel                | Titular                       | Suplente                      |
-| -------------------- | ----------------------------- | ----------------------------- |
-| Product Owner        | Andrea Wang e Daniela Chichon | Elisete Pereira               |
-| Agente de Governança | Juliana Demay                 | Fernando Gonsales             |
-| Gerente de Projeto   | Aline Freitas                 |                               |
-| Scrum Master         |                               |                               |
-| Designer de Serviços | Caio Dib                      |                               |
-| Analista de negócios | Jaqueline Sargi               |                               |
-| Analista UX/UI       | Joilson Day                   |                               |
-| Analista Programador | Calvin Rossignoli             | Rodolpho Lima e João Mesquita |
-| Analista de teste    | Paula Pimentel                |                               |
+| Papel                | Titular                         | Suplente                      |
+| -------------------- | ------------------------------- | ----------------------------- |
+| Product Manager      | Carina Jakitas                  |                               |
+| Product Owner        | Daniela Chichon e Carolina Dias |                               |
+| Agente de Governança | Juliana Demay                   | Vitor Augusto Ferragini       |
+| Gerente de Projeto   | Ricardo Coda                    |                               |
+| Scrum Master         | Cristiane Tuji                  |                               |
+| Designer de Serviços | Rayanne Felicio                 |                               |
+| Analista UX/UI       | Caroline Casassola              |                               |
+| Analista Programador | Calvin Rossignoli<br>Luis Zimmerman<br>Guilherme Massini<br>Murilo Schirmer<br>Priscyla dos Santos | |
+| Analista de teste    | Leandro Sesconetti                |                               |
 
 ## Protótipos
 
