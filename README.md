@@ -151,20 +151,16 @@ https://www.figma.com/file/52MKvjiFFjoy7WLuvLLjAi/Spt_13-ALIMENTA%C3%87%C3%83O-T
 
 # Links Úteis
 
-**Homologação:**
-
+**Homologação:**  
 [https://hom-sigpae.sme.prefeitura.sp.gov.br/](https://hom-sigpae.sme.prefeitura.sp.gov.br/)
 
-**Produção:**
-
+**Produção:**  
 [https://sigpae.sme.prefeitura.sp.gov.br/](https://sigpae.sme.prefeitura.sp.gov.br/)
 
 **Manual SIGPAE - UEs**  
-
 [https://www.canva.com/design/DAF_30SjLFo/YeJsYGtwNMmt95V0oLDVcQ/edit](https://www.canva.com/design/DAF_30SjLFo/YeJsYGtwNMmt95V0oLDVcQ/edit)
 
 **Manual SIGPAE - Empresas Terceirizadas**  
-
 [https://educacao.sme.prefeitura.sp.gov.br/programa-de-alimentacao-escolar/para-empresas/prestadoras-de-servicos/](https://educacao.sme.prefeitura.sp.gov.br/programa-de-alimentacao-escolar/para-empresas/prestadoras-de-servicos/)
 
 **Tutoriais SIGPAE**  
