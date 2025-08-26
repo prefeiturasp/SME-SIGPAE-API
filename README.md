@@ -46,20 +46,17 @@ O Sistema de Gestão do Programa de Alimentação Escolar: **SIGPAE** foi desenv
 
 ## Personas
 
-**Quem:** Direção Escolar
-**Características e necessidades:** responsável pela gestão da escola, com necessidade de otimização de tempo. O sistema é essencial para melhor controle das solicitações realizadas pela UE e demandas de DRE e CODAE
+**UNIDADES EDUCACIONAIS** | Diretor, Assistente de Direção, Professor, Auxiliar Técnico de Educação, Gestor de Equipamento.  
+Características e necessidades: responsável pela gestão da escola, com necessidade de otimização de tempo. O sistema é essencial para melhor controle das solicitações realizadas pela UE e demandas de DRE e CODAE.
 
-**Quem:** Assistente Técnico de Educação e Nutricionista
-**Características e necessidades:** responsável pela gestão das solicitações de alimentação no núcleo de gestão de contratos na CODAE, com necessidade de organização do recebimento das diversas solicitações das UEs
+**CODAE** | Coordenador(a), Assessores, Diretores, Técnicos de Educação, Nutricionistas, Veterinários e Agrônomos.  
+Características e necessidades: responsável pela gestão das solicitações e produtos, cronogramas, encaminhamentos, fluxos, fornecimento, controle, entre outros relacionados ao Programa de Alimentação Escolar, com a necessidade de executar, monitorar e promover o Programa.
 
-**Quem:** Nutricionista de Dieta Especial
-**Características e necessidades:** responsável pela validação de solicitações e prescrição da Dieta Especial, tem necessidade de otimização do processo para revisão, encaminhamento e fornecimento da dieta nas escolas. Processos burocráticos, dolorosos e com decisões de alto impacto para os estudantes
+**DIRETORIA REGIONAL DE EDUCAÇÃO (DRE)** | Cogestores(as)  
+Características e necessidades: responsável pelo gerenciamento das solicitações realizadas pelas escolas que administra, com a necessidade de otimizar e controlar as diversas solicitações das unidades escolares, afim de contribuir com a fiscalização e controle das solicitações geradas.
 
-**Quem:** Nutricionista P&D
-**Características e necessidades:** responsável pela gestão de produtos (homologação, correção, suspensão e avaliação de reclamação e solicitação de análise sensorial) solicitados pelas empresas terceirizadas, com a necessidade de controle do que pode ser utilizados nas unidades escolares
-
-**Quem:** Diretoria Regional de Educação (DRE)
-**Características e necessidades:** responsável pelo gerenciamento das solicitações realizadas pelas escolas que administra, com a necessidade de otimizar e controlar as diversas solicitações das unidades escolares. Para fiscalização e controle das solicitações geradas
+**EMPRESAS** | Fornecedores, Distribuidores, Fornecedores e Distribuidores  
+Características e necessidades: responsável pelo atendimento das solicitações realizadas pelas Unidades Escolares, fornecimento de alimentos  provenientes da Agricultura Familiar solicitados pela CODAE e distribuição destes nas Unidades, com a necessidade de otimizar e controlar as diversas solicitações e entregas, afim de contribuir o controle de prazos execução das entregas.
   
 ## Funcionalidades
 
