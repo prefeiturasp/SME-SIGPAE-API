@@ -32,30 +32,17 @@ O [Ateliê do Software](http://forum.govit.prefeitura.sp.gov.br/uploads/default/
  
 # Sobre o Produto
 
-Para as **unidades escolares da rede municipal de educação da cidade de São Paulo** 
-
-Que **precisam acompanhar o fornecimento de alimentação escolar**
-
-O **SIGPAE (Sistema de Gestão  do Programa para Alimentação Escolar)**  
-
-É uma **plataforma** 
-
-Que **gerencia todas as etapas de solicitações de alimentação, cadastro de produtos e controles internos** 
-
-Diferentemente de **solicitações através de planilhas, e-mails e telefonemas**  
-
-Onosso produto **garante mais agilidade, confiabilidade e segurança para os processos.**
+O Sistema de Gestão do Programa de Alimentação Escolar: **SIGPAE** foi desenvolvido pela **Secretaria Municipal de Educação** juntamente com a equipe técnica da **Coordenadoria de Alimentação Escolar** para facilitar e auxiliar o gerenciamento de processos e informações do **Programa de Alimentação Escolar no Município de São Paulo**.
 
 ## Objetivos de Negócio
 
-O SIGPAE tem como objetivo automatizar os processos internos de fornecimento e distribuição de alimentação escolar. Atualmente, temos os seguintes módulos desenvolvidos ou em desenvolvimento:
-
-- Gestão de Produtos: gestão de produtos, marcas e fabricantes oferecidos para os estudantes da rede municipal
-- Dieta Especial: registro e análise de solicitações de Dieta Especial feitas pelas Unidades Educacionais (UEs) e criação de protocolos de Dieta Especial para os estudantes
-- Gestão de Alimentação: registro e análise de solicitações de alimentação enviadas pelas UEs
-- Medição Inicial: registro e análise das refeições servidas pelas UEs mensalmente
-
-No futuro, o sistema também contará com módulos que apoiarão o trabalho da criação do cardápio, das nutricionistas da Supervisão, do Faturamento, entre outras. Desta forma, pretende-se que todo o trabalho desenvolvido para fornecer alimentação para as mais de 1000 UEs beneficiadas seja realizado a partir de um sistema, com maior segurança e automatização de processos.
+- Promover transparência e agilidade nos processos, acesso de dados e geração de relatórios;
+- Desenvolver módulos do sistema adaptáveis e alinhados às necessidades reais dos usuários;
+- Fortalecer o controle das políticas educacionais e da aplicação de recursos por parte da gestão e da sociedade;
+- Integrar setores, melhorar a eficiência e o fluxo de trabalho;
+- Diminuir o fluxo de papéis e planilhas e agilizar o acesso às informações;
+- Permitir a integração com sistemas novos ou já existentes;
+- Automatizar os processos internos de fornecimento e distribuição da alimentação escolar.
 
 ## Personas
 
