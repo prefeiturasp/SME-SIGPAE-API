@@ -8,8 +8,8 @@ from sme_sigpae_api.dados_comuns.constants import (
     DILOG_ABASTECIMENTO,
     DILOG_CRONOGRAMA,
     DILOG_DIRETORIA,
-    DILOG_VISUALIZACAO,
     DILOG_QUALIDADE,
+    DILOG_VISUALIZACAO,
     USUARIO_EMPRESA,
 )
 from sme_sigpae_api.dados_comuns.fluxo_status import (
@@ -98,7 +98,7 @@ class ServiceQuerysetAlteracaoCronograma:
             CronogramaAlteracaoWorkflow.CRONOGRAMA_CIENTE,
         ],
         DILOG_VISUALIZACAO: [],
-        DILOG_QUALIDADE: []
+        DILOG_QUALIDADE: [],
     }
 
     def __init__(

@@ -151,18 +151,18 @@ class LogSolicitacoesUsuario(
         (
             TERCEIRIZADA_RESPONDEU_QUESTIONAMENTO,
             "Terceirizada respondeu questionamento",
-        ),  # noqa
+        ),
         (INICIO_FLUXO_INATIVACAO, "Escola solicitou cancelamento"),
         (CODAE_AUTORIZOU_INATIVACAO, "CODAE autorizou cancelamento"),
         (CODAE_NEGOU_INATIVACAO, "CODAE negou cancelamento"),
         (
             TERCEIRIZADA_TOMOU_CIENCIA_INATIVACAO,
             "Terceirizada tomou ciência do cancelamento",
-        ),  # noqa
+        ),
         (
             TERMINADA_AUTOMATICAMENTE_SISTEMA,
             "Cancelada por atingir data de término",
-        ),  # noqa
+        ),
         (CODAE_PENDENTE_HOMOLOGACAO, "Pendente homologação da CODAE"),
         (CODAE_HOMOLOGADO, "CODAE homologou"),
         (CODAE_NAO_HOMOLOGADO, "CODAE não homologou"),
@@ -178,15 +178,15 @@ class LogSolicitacoesUsuario(
         (
             ESCOLA_OU_NUTRICIONISTA_RECLAMOU,
             "Escola/Nutricionista reclamou do produto",
-        ),  # noqa
+        ),
         (CODAE_PEDIU_ANALISE_RECLAMACAO, "CODAE pediu análise da reclamação"),
         (CODAE_AUTORIZOU_RECLAMACAO, "CODAE autorizou reclamação"),
         (CODAE_RECUSOU_RECLAMACAO, "CODAE recusou reclamação"),
         (
             CODAE_QUESTIONOU_TERCEIRIZADA,
             "CODAE questionou terceirizada sobre reclamação",
-        ),  # noqa
-        (CODAE_QUESTIONOU_UE, "CODAE questionou U.E. sobre reclamação"),  # noqa
+        ),
+        (CODAE_QUESTIONOU_UE, "CODAE questionou U.E. sobre reclamação"),
         (CODAE_RESPONDEU_RECLAMACAO, "CODAE respondeu ao reclamante da reclamação"),
         (
             CODAE_QUESTIONOU_NUTRISUPERVISOR,
@@ -201,17 +201,17 @@ class LogSolicitacoesUsuario(
         (
             TERCEIRIZADA_RESPONDEU_ANALISE_SENSORIAL,
             "Terceirizada respondeu a análise",
-        ),  # noqa
+        ),
         (INICIO_FLUXO_SOLICITACAO, "Papa enviou a requisição"),
         (DILOG_ENVIA_SOLICITACAO, "Dilog Enviou a requisição"),
         (
             DISTRIBUIDOR_CONFIRMA_SOLICITACAO,
             "Distribuidor confirmou requisição",
-        ),  # noqa
+        ),
         (
             DISTRIBUIDOR_SOLICITA_ALTERACAO_SOLICITACAO,
             "Distribuidor pede alteração da requisição",
-        ),  # noqa
+        ),
         (PAPA_CANCELA_SOLICITACAO, "Papa cancelou a requisição"),
         (
             PAPA_AGUARDA_CONFIRMACAO_CANCELAMENTO_SOLICITACAO,
@@ -482,12 +482,10 @@ class CategoriaPerguntaFrequente(ExportModelOperationsMixin("cat_faq"), models.M
 class PerguntaFrequente(ExportModelOperationsMixin("faq"), models.Model):
     categoria = models.ForeignKey(
         "CategoriaPerguntaFrequente", on_delete=models.PROTECT
-    )  # noqa
+    )
     pergunta = models.TextField("Pergunta")
     resposta = models.TextField("Resposta")
-    criado_em = models.DateTimeField(
-        "Criado em", editable=False, auto_now_add=True
-    )  # noqa
+    criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     def __str__(self):
@@ -656,7 +654,7 @@ class Notificacao(models.Model):
         return self.titulo
 
     @classmethod
-    def notificar(  # noqa: C901
+    def notificar(
         cls,
         tipo,
         categoria,
@@ -684,8 +682,8 @@ class Notificacao(models.Model):
         if not usuario:
             raise NotificacaoException("É necessário definir o usuário destinatário.")
 
-        if not renotificar:
-            notificacao_existente = cls.objects.filter(
+        notificacao_existente = (
+            cls.objects.filter(
                 tipo=tipo,
                 categoria=categoria,
                 requisicao=requisicao,
@@ -693,6 +691,9 @@ class Notificacao(models.Model):
                 titulo=titulo,
                 usuario=usuario,
             )
+            if not renotificar
+            else None
+        )
 
         if renotificar or not notificacao_existente:
             cls.objects.create(

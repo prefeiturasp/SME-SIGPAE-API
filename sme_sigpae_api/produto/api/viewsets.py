@@ -6,7 +6,16 @@ from itertools import chain
 import environ
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db import transaction
-from django.db.models import CharField, Count, F, Prefetch, Q
+from django.db.models import (
+    CharField,
+    Count,
+    F,
+    OuterRef,
+    Prefetch,
+    Q,
+    QuerySet,
+    Subquery,
+)
 from django.db.models.functions import Cast, Substr
 from django.template.loader import render_to_string
 from django_filters import rest_framework as filters
@@ -64,7 +73,6 @@ from ...relatorios.relatorios import (
     relatorio_produto_homologacao,
     relatorio_produtos_em_analise_sensorial,
     relatorio_produtos_suspensos,
-    relatorio_reclamacao,
 )
 from ...relatorios.utils import html_to_pdf_response
 from ...terceirizada.api.serializers.serializers import EditalSimplesSerializer
@@ -97,6 +105,7 @@ from ..models import (
 )
 from ..tasks import (
     gera_pdf_relatorio_produtos_homologados_async,
+    gera_pdf_relatorio_reclamacao_produtos_async,
     gera_xls_relatorio_produtos_homologados_async,
     gera_xls_relatorio_produtos_suspensos_async,
 )
@@ -1636,6 +1645,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             "filtro_reclamacoes",
             "filtro_reclamacoes_terceirizada",
             "filtro_avaliar_reclamacoes",
+            "relatorio_reclamacao",
         ]:
             return ProdutoReclamacaoSerializer
         return ProdutoSerializer
@@ -2308,22 +2318,8 @@ class ProdutoViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["GET"], url_path="filtro-reclamacoes")
     def filtro_reclamacoes(self, request):
         filtro_reclamacao, filtro_homologacao = filtros_produto_reclamacoes(request)
-        queryset = (
-            self.filter_queryset(self.get_queryset())
-            .filter(**filtro_homologacao)
-            .prefetch_related(
-                Prefetch(
-                    "homologacao__reclamacoes",
-                    queryset=ReclamacaoDeProduto.objects.filter(**filtro_reclamacao),
-                )
-            )
-            .annotate(num_reclamacoes=Count("homologacao__reclamacoes", distinct=True))
-            .order_by(
-                "homologacao__reclamacoes__escola__lote__contratos_do_lote__edital__numero",
-                "-num_reclamacoes",
-            )
-            .select_related("marca", "fabricante")
-            .distinct()
+        queryset = self.obter_produtos_ordenados_por_edital_e_reclamacoes(
+            filtro_reclamacao, filtro_homologacao
         )
         return self.paginated_response(queryset)
 
@@ -2348,20 +2344,29 @@ class ProdutoViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["GET"], url_path="relatorio-reclamacao")
     def relatorio_reclamacao(self, request):
         filtro_reclamacao, filtro_homologacao = filtros_produto_reclamacoes(request)
-        queryset = (
-            self.filter_queryset(self.get_queryset())
-            .filter(**filtro_homologacao)
-            .prefetch_related(
-                Prefetch(
-                    "homologacao__reclamacoes",
-                    queryset=ReclamacaoDeProduto.objects.filter(**filtro_reclamacao),
-                )
-            )
-            .order_by("nome")
-            .distinct()
+        queryset = self.obter_produtos_ordenados_por_edital_e_reclamacoes(
+            filtro_reclamacao, filtro_homologacao
         )
-        filtros = self.request.query_params.dict()
-        return relatorio_reclamacao(queryset, filtros)
+        filtros = {
+            "editais": request.query_params.getlist("editais[]"),
+            "lotes": request.query_params.getlist("lotes[]"),
+            "data_inicial_reclamacao": request.query_params.get(
+                "data_inicial_reclamacao"
+            ),
+            "data_final_reclamacao": request.query_params.get("data_final_reclamacao"),
+        }
+        serializer = self.get_serializer(queryset, many=True)
+        gera_pdf_relatorio_reclamacao_produtos_async.delay(
+            user=request.user.get_username(),
+            nome_arquivo="relatorio_reclamacao_produtos.pdf",
+            produtos=serializer.data,
+            quantidade_reclamacoes=queryset.count(),
+            filtros=filtros,
+        )
+        return Response(
+            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            status=status.HTTP_200_OK,
+        )
 
     @action(detail=False, methods=["GET"], url_path="ja-existe")
     def ja_existe(self, request):
@@ -2387,6 +2392,52 @@ class ProdutoViewSet(viewsets.ModelViewSet):
                 "results": [value[0] for value in queryset.values_list("nome")],
             }
         )
+
+    def obter_produtos_ordenados_por_edital_e_reclamacoes(
+        self, filtro_reclamacao: dict, filtro_homologacao: dict
+    ) -> QuerySet:
+        """
+        Retorna um queryset de produtos ordenados pelo número do edital associado e pela quantidade de reclamações relacionadas.
+        A lógica utiliza uma subquery para determinar o primeiro edital associado a cada produto e uma anotação para contar o número de reclamações distintas.
+        Dessa forma, cada produto aparece apenas uma vez no resultado, evitando duplicações.
+
+        Args:
+            filtro_reclamacao (dict): Dicionário de filtros aplicados sobre o modelo ReclamacaoDeProduto.
+
+            filtro_homologacao (dict):  Dicionário de filtros aplicados sobre o modelo Produto/Homologação.
+
+        Returns:
+            QuerySet: Queryset de produtos ordenados pelo número do edital e pela quantidade de reclamações.
+        """
+
+        # Subquery para obter o menor número de edital associado a cada produto
+        edital_subquery = (
+            ReclamacaoDeProduto.objects.filter(
+                homologacao_produto__produto=OuterRef("pk"), **filtro_reclamacao
+            )
+            .order_by("escola__lote__contratos_do_lote__edital__numero")
+            .values("escola__lote__contratos_do_lote__edital__numero")[:1]
+        )
+
+        # Query principal de produtos
+        queryset = (
+            self.filter_queryset(self.get_queryset())
+            .filter(**filtro_homologacao)
+            .prefetch_related(
+                Prefetch(
+                    "homologacao__reclamacoes",
+                    queryset=ReclamacaoDeProduto.objects.filter(**filtro_reclamacao),
+                )
+            )
+            .annotate(
+                num_reclamacoes=Count("homologacao__reclamacoes", distinct=True),
+                primeiro_edital=Subquery(edital_subquery),
+            )
+            .order_by("primeiro_edital", "-num_reclamacoes")
+            .select_related("marca", "fabricante")
+            .distinct()
+        )
+        return queryset
 
 
 class ProdutosEditaisViewSet(viewsets.ModelViewSet):

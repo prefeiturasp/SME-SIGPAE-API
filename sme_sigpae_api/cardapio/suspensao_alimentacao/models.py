@@ -212,14 +212,6 @@ class GrupoSuspensaoAlimentacao(
         template = TemplateMensagem.objects.get(
             tipo=TemplateMensagem.SUSPENSAO_ALIMENTACAO
         )
-        template_troca = {  # noqa
-            "@id": self.id,
-            "@criado_em": str(self.criado_em),
-            "@criado_por": str(self.criado_por),
-            "@status": str(self.status),
-            # TODO: verificar a url padrão do pedido
-            "@link": "http://teste.com",
-        }
         corpo = template.template_html
         return template.assunto, corpo
 
