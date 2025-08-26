@@ -60,6 +60,14 @@ Características e necessidades: responsável pelo atendimento das solicitaçõe
   
 ## Funcionalidades
 
+**Dieta Especial**
+- Solicitação de Dieta
+- Cancelamento de Dieta
+- Autorização de Dieta
+- Criação de Protocolos de Dieta Especial
+- Alteração de UE
+- Relatórios
+
 **Gestão de Alimentação**
 - Inclusão de Alimentação
 - Solicitação de Kit Lanche
@@ -75,12 +83,26 @@ Características e necessidades: responsável pelo atendimento das solicitaçõe
 - Correção do produto
 - Relatórios
 
-**Dieta Especial**
-- Solicitação de Dieta
-- Cancelamento de Dieta
-- Autorização de Dieta
-- Criação de Protocolos de Dieta Especial
-- Alteração de UE
+**Gestão de Usuários**
+- Gestão de Acesso
+- Carga de Usuários
+- Atualização d E-mail do EOL
+
+**Medição**
+- Lançamentos
+- Acompanhamento de Lançamentos
+- Relatórios
+
+**Pré-Recebimento**
+- Cronograma de Entrega
+- Documentos de Recebimento
+- Layout de Embalagem
+- Fichas Técnicas
+- Relatórios
+
+**Recebimento**
+- Ficha de Recebimento
+- Questões por Produto
 - Relatórios
 
 ## Roadmap
