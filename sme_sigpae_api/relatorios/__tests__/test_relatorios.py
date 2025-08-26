@@ -1,6 +1,7 @@
 import re
 
 import pytest
+from freezegun import freeze_time
 
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.helpers import (
     formata_cnpj_ficha_tecnica,
@@ -9,11 +10,13 @@ from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.helpers import (
 from sme_sigpae_api.relatorios.utils import extrair_texto_de_pdf
 
 from ..relatorios import (
+    cabecalho_reclamacao_produto,
     formata_informacoes_ficha_tecnica,
     get_pdf_ficha_tecnica,
     get_total_por_periodo,
     obter_justificativa_dieta,
     relatorio_dieta_especial_protocolo,
+    relatorio_reclamacao_produtos,
     relatorio_suspensao_de_alimentacao,
 )
 
@@ -363,3 +366,173 @@ def test_get_pdf_ficha_tecnica_sem_envasador(ficha_tecnica_sem_envasador):
     assert f'filename="{nome_pdf}"' in response["Content-Disposition"]
 
     assert "Envasador/Distribuidor" not in texto
+
+
+@freeze_time("2024-12-27")
+def test_relatorio_reclamacao_produtos(
+    mock_produtos_relatorio_reclamacao, mock_filtros_relatorio_reclamacao
+):
+    relatorio = relatorio_reclamacao_produtos(
+        produtos=mock_produtos_relatorio_reclamacao,
+        quantidade_reclamacoes=1,
+        filtros=mock_filtros_relatorio_reclamacao,
+    )
+    texto = extrair_texto_de_pdf(relatorio)
+    assert "RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÃO DE PRODUTOS" in texto
+    assert "Total de Reclamações de Produtos:  1" in texto
+    assert "Período:  01/01/2022 até 19/08/2025" in texto
+    assert "Data de extração do relatório:  27/12/2024" in texto
+    assert (
+        "Para os editais:  303030A, 78/SME/2016, Edital 21.02.2025/1043, Edital de Pregão n.o 23/ sme/2018, Edital de Pregão n° 36/SME/2022"
+        in texto
+    )
+    assert "IP - 3567-3, LPSD - 1235-8" in texto
+    assert "Reclamação #93C77" in texto
+    assert "Status Reclamação: CODAE recusou" in texto
+    assert "DRE/LOTE: IP - 3567-3" in texto
+    assert "Empresa: ALIMENTAR GESTÃO DE SERVIÇOS LTDA" in texto
+    assert "RF e Nome do Reclamante: 8115257 - SUPER USUARIO ESCOLA EMEF" in texto
+    assert (
+        "Cód EOL e Nome da Escola: 017981 - EMEF PERICLES EUGENIO DA SILVA RAMOS"
+        in texto
+    )
+    assert " Data da reclamação: 15/07/2022" in texto
+    assert "Justicativa da reclamação: produto vencido" in texto
+    assert "Data avaliação CODAE: 05/08/2022" in texto
+    assert "Justicativa avaliação CODAE: deu certooo" in texto
+
+
+@freeze_time("2024-12-27")
+def test_relatorio_reclamacao_produtos_sem_dre_lote_selecionadas(
+    mock_produtos_relatorio_reclamacao, mock_filtros_relatorio_reclamacao
+):
+    mock_filtros_relatorio_reclamacao.pop("lotes")
+    relatorio = relatorio_reclamacao_produtos(
+        produtos=mock_produtos_relatorio_reclamacao,
+        quantidade_reclamacoes=1,
+        filtros=mock_filtros_relatorio_reclamacao,
+    )
+    texto = extrair_texto_de_pdf(relatorio)
+    assert "RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÃO DE PRODUTOS" in texto
+    assert "Total de Reclamações de Produtos:  1" in texto
+    assert "Período:  01/01/2022 até 19/08/2025" in texto
+    assert "Data de extração do relatório:  27/12/2024" in texto
+    assert (
+        "Para os editais:  303030A, 78/SME/2016, Edital 21.02.2025/1043, Edital de Pregão n.o 23/ sme/2018, Edital de Pregão n° 36/SME/2022"
+        in texto
+    )
+    assert "IP - 3567-3, LPSD - 1235-8" not in texto
+    assert "Reclamação #93C77" in texto
+    assert "Status Reclamação: CODAE recusou" in texto
+    assert "DRE/LOTE: IP - 3567-3" in texto
+    assert "Empresa: ALIMENTAR GESTÃO DE SERVIÇOS LTDA" in texto
+    assert "RF e Nome do Reclamante: 8115257 - SUPER USUARIO ESCOLA EMEF" in texto
+    assert (
+        "Cód EOL e Nome da Escola: 017981 - EMEF PERICLES EUGENIO DA SILVA RAMOS"
+        in texto
+    )
+    assert " Data da reclamação: 15/07/2022" in texto
+    assert "Justicativa da reclamação: produto vencido" in texto
+    assert "Data avaliação CODAE: 05/08/2022" in texto
+    assert "Justicativa avaliação CODAE: deu certooo" in texto
+
+
+@freeze_time("2024-12-27")
+def test_relatorio_reclamacao_produtos_sem_data_selecionadas(
+    mock_produtos_relatorio_reclamacao, mock_filtros_relatorio_reclamacao
+):
+    mock_filtros_relatorio_reclamacao.pop("data_inicial_reclamacao")
+    mock_filtros_relatorio_reclamacao.pop("data_final_reclamacao")
+    relatorio = relatorio_reclamacao_produtos(
+        produtos=mock_produtos_relatorio_reclamacao,
+        quantidade_reclamacoes=1,
+        filtros=mock_filtros_relatorio_reclamacao,
+    )
+    texto = extrair_texto_de_pdf(relatorio)
+    assert "RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÃO DE PRODUTOS" in texto
+    assert "Total de Reclamações de Produtos:  1" in texto
+    assert "Período:  01/01/2022 até 19/08/2025" not in texto
+    assert "Data de extração do relatório:  27/12/2024" in texto
+    assert (
+        "Para os editais:  303030A, 78/SME/2016, Edital 21.02.2025/1043, Edital de Pregão n.o 23/ sme/2018, Edital de Pregão n° 36/SME/2022"
+        in texto
+    )
+    assert "IP - 3567-3, LPSD - 1235-8" in texto
+    assert "Reclamação #93C77" in texto
+    assert "Status Reclamação: CODAE recusou" in texto
+    assert "DRE/LOTE: IP - 3567-3" in texto
+    assert "Empresa: ALIMENTAR GESTÃO DE SERVIÇOS LTDA" in texto
+    assert "RF e Nome do Reclamante: 8115257 - SUPER USUARIO ESCOLA EMEF" in texto
+    assert (
+        "Cód EOL e Nome da Escola: 017981 - EMEF PERICLES EUGENIO DA SILVA RAMOS"
+        in texto
+    )
+    assert " Data da reclamação: 15/07/2022" in texto
+    assert "Justicativa da reclamação: produto vencido" in texto
+    assert "Data avaliação CODAE: 05/08/2022" in texto
+    assert "Justicativa avaliação CODAE: deu certooo" in texto
+
+
+@freeze_time("2024-12-27")
+def test_cabecalho_reclamacao_produto(mock_filtros_relatorio_reclamacao):
+    cabecalho = cabecalho_reclamacao_produto(mock_filtros_relatorio_reclamacao)
+    assert isinstance(cabecalho, dict)
+    assert cabecalho == {
+        "data_extracao": "27/12/2024",
+        "editais": "303030A, 78/SME/2016, Edital 21.02.2025/1043, Edital de Pregão n.o 23/sme/2018, Edital de Pregão n° 36/SME/2022",
+        "lotes": "IP - 3567-3, LPSD - 1235-8",
+        "periodo": "01/01/2022 até 19/08/2025",
+    }
+
+
+@freeze_time("2024-12-27")
+def test_cabecalho_reclamacao_produto_sem_dre_lote(mock_filtros_relatorio_reclamacao):
+    mock_filtros_relatorio_reclamacao.pop("lotes")
+    cabecalho = cabecalho_reclamacao_produto(mock_filtros_relatorio_reclamacao)
+    assert isinstance(cabecalho, dict)
+    assert cabecalho == {
+        "data_extracao": "27/12/2024",
+        "editais": "303030A, 78/SME/2016, Edital 21.02.2025/1043, Edital de Pregão n.o 23/sme/2018, Edital de Pregão n° 36/SME/2022",
+        "periodo": "01/01/2022 até 19/08/2025",
+    }
+
+
+@freeze_time("2024-12-27")
+def test_cabecalho_reclamacao_produto_sem_data(mock_filtros_relatorio_reclamacao):
+    mock_filtros_relatorio_reclamacao.pop("data_inicial_reclamacao")
+    mock_filtros_relatorio_reclamacao.pop("data_final_reclamacao")
+    cabecalho = cabecalho_reclamacao_produto(mock_filtros_relatorio_reclamacao)
+    assert isinstance(cabecalho, dict)
+    assert cabecalho == {
+        "data_extracao": "27/12/2024",
+        "editais": "303030A, 78/SME/2016, Edital 21.02.2025/1043, Edital de Pregão n.o 23/sme/2018, Edital de Pregão n° 36/SME/2022",
+        "lotes": "IP - 3567-3, LPSD - 1235-8",
+    }
+
+
+@freeze_time("2024-12-27")
+def test_cabecalho_reclamacao_produto_sem_data_final(mock_filtros_relatorio_reclamacao):
+    mock_filtros_relatorio_reclamacao.pop("data_final_reclamacao")
+    cabecalho = cabecalho_reclamacao_produto(mock_filtros_relatorio_reclamacao)
+    assert isinstance(cabecalho, dict)
+    assert cabecalho == {
+        "data_extracao": "27/12/2024",
+        "editais": "303030A, 78/SME/2016, Edital 21.02.2025/1043, Edital de Pregão n.o 23/sme/2018, Edital de Pregão n° 36/SME/2022",
+        "lotes": "IP - 3567-3, LPSD - 1235-8",
+        "periodo": "A partir de 01/01/2022",
+    }
+
+
+@freeze_time("2024-12-27")
+def test_cabecalho_reclamacao_produto_sem_data_inicial(
+    mock_filtros_relatorio_reclamacao,
+):
+    mock_filtros_relatorio_reclamacao.pop("data_inicial_reclamacao")
+    cabecalho = cabecalho_reclamacao_produto(mock_filtros_relatorio_reclamacao)
+    assert isinstance(cabecalho, dict)
+    assert cabecalho == {
+        "data_extracao": "27/12/2024",
+        "editais": "303030A, 78/SME/2016, Edital 21.02.2025/1043, Edital de Pregão n.o 23/sme/2018, Edital de Pregão n° 36/SME/2022",
+        "lotes": "IP - 3567-3, LPSD - 1235-8",
+        "periodo": "Até 19/08/2025",
+    }

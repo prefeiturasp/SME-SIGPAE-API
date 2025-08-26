@@ -14,7 +14,7 @@ from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from sme_sigpae_api.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
 from sme_sigpae_api.dados_comuns.models import TemplateMensagem
 from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
-from sme_sigpae_api.escola.models import Aluno
+from sme_sigpae_api.escola.models import Aluno, Lote
 from sme_sigpae_api.perfil.models.usuario import Usuario
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.fixtures.factories.ficha_tecnica_do_produto_factory import (
     FichaTecnicaFactory,
@@ -326,3 +326,79 @@ def ficha_tecnica_sem_envasador(ficha_tecnica):
     ficha_tecnica.envasador_distribuidor = None
     ficha_tecnica.save()
     return ficha_tecnica
+
+
+@pytest.fixture
+def lote():
+    diretoria_regional = baker.make("DiretoriaRegional", iniciais="IP")
+    return baker.make(Lote, nome="3567-3", diretoria_regional=diretoria_regional)
+
+
+@pytest.fixture
+def mock_produtos_relatorio_reclamacao(lote):
+    return [
+        {
+            "nome": "ACHOCOLATADO EM PÓ",
+            "marca": {"nome": "TECNUTRI"},
+            "fabricante": {"nome": "TECNUTRI SA"},
+            "ultima_homologacao": {
+                "criado_em": "01/07/2022 16:21:04",
+                "reclamacoes": [
+                    {
+                        "reclamante_registro_funcional": "8115257",
+                        "logs": [
+                            {
+                                "status_evento_explicacao": "CODAE recusou reclamação",
+                                "criado_em": "05/08/2022 11:04:22",
+                                "justificativa": "<p>deu certooo</p>",
+                            }
+                        ],
+                        "reclamante_cargo": "ANALISTA DE SAUDE NIVEL I",
+                        "reclamante_nome": "SUPER USUARIO ESCOLA EMEF",
+                        "reclamacao": "<p>produto vencido</p>",
+                        "escola": {
+                            "nome": "EMEF PERICLES EUGENIO DA SILVA RAMOS",
+                            "codigo_eol": "017981",
+                            "diretoria_regional": {"iniciais": "IP"},
+                            "lote": {
+                                "nome": lote.nome,
+                                "terceirizada": {
+                                    "nome_fantasia": "ALIMENTAR GESTÃO DE SERVIÇOS LTDA"
+                                },
+                            },
+                        },
+                        "status": "CODAE_RECUSOU",
+                        "status_titulo": "CODAE recusou",
+                        "criado_em": "15/07/2022 13:11:33",
+                        "id_externo": "93C77",
+                    }
+                ],
+                "status_titulo": "Escola/Nutricionista reclamou do produto",
+                "editais_reclamacoes": ["303030A", "78/SME/2016"],
+            },
+        }
+    ]
+
+
+@pytest.fixture
+def mock_filtros_relatorio_reclamacao(lote):
+    lote_dois = baker.make(
+        Lote,
+        nome="1235-8",
+        diretoria_regional=baker.make("DiretoriaRegional", iniciais="LPSD"),
+    )
+    return {
+        "editais": [
+            "303030A",
+            "Edital de Pregão n° 36/SME/2022",
+            "Edital 21.02.2025/1043",
+            "Edital de Pregão n.o 23/sme/2018",
+            "78/SME/2016",
+        ],
+        "lotes": [
+            str(lote.uuid),
+            str(lote_dois.uuid),
+        ],
+        "data_inicial_reclamacao": "01/01/2022",
+        "data_final_reclamacao": "19/08/2025",
+    }
