@@ -3,6 +3,11 @@ from rest_framework import status
 
 from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
+from sme_sigpae_api.dados_comuns.constants import (
+    PEDIDOS_CODAE,
+    PEDIDOS_DRE,
+    SEM_FILTRO,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -52,3 +57,29 @@ def test_motivos_alteracao_cardapio_escola_cei_queryset(
     )
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()["results"]) == 1
+
+def test_url_alteracoes_cardapio_cei_codae(
+    client_autenticado_vinculo_codae_inclusao
+):
+    response = client_autenticado_vinculo_codae_inclusao.get(
+        f"/{ENDPOINT_ALTERACAO_CARD_CEI}/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
+    )
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)
+
+def test_url_alteracoes_cardapio_cei_dre(
+    client_autenticado_vinculo_dre_inclusao
+):
+    response = client_autenticado_vinculo_dre_inclusao.get(
+        f"/{ENDPOINT_ALTERACAO_CARD_CEI}/{PEDIDOS_DRE}/{SEM_FILTRO}/"
+    )
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)   

@@ -1,5 +1,6 @@
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.viewsets import (
     AlteracoesCardapioViewSet,
@@ -82,9 +83,8 @@ class AlteracoesCardapioCEMEIViewSet(
             alteracoes_cardapio = alteracoes_cardapio.filter(
                 rastro_lote__uuid=lote_uuid
             )
-        page = self.paginate_queryset(alteracoes_cardapio)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(alteracoes_cardapio, many=True)
+        return Response({"results": serializer.data})
 
     @action(
         detail=False,
@@ -105,9 +105,8 @@ class AlteracoesCardapioCEMEIViewSet(
             alteracoes_cardapio = alteracoes_cardapio.filter(
                 rastro_lote__uuid=lote_uuid
             )
-        page = self.paginate_queryset(alteracoes_cardapio)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(alteracoes_cardapio, many=True)
+        return Response({"results": serializer.data})
 
     @action(
         detail=True,
