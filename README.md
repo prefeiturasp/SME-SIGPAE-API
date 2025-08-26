@@ -123,17 +123,17 @@ Fluxos: https://whimsical.com/fluxos-i7SkAADB94XRhRMd2afif
 
 # Sobre o Time
 
-| Papel                | Titular                         | Suplente                      |
-| -------------------- | ------------------------------- | ----------------------------- |
-| Product Manager      | Carina Jakitas                  |                               |
-| Product Owner        | Daniela Chichon e Carolina Dias |                               |
-| Agente de Governança | Juliana Demay                   | Vitor Augusto Ferragini       |
-| Gerente de Projeto   | Ricardo Coda                    |                               |
-| Scrum Master         | Cristiane Tuji                  |                               |
-| Designer de Serviços | Rayanne Felicio                 |                               |
-| Analista UX/UI       | Caroline Casassola              |                               |
-| Analista Programador | Calvin Rossignoli<br>Luis Zimmerman<br>Guilherme Massini<br>Murilo Schirmer<br>Priscyla dos Santos | |
-| Analista de teste    | Leandro Sesconetti                |                               |
+| Papel                | Titular                                                                                            | Suplente                 |
+| -------------------- | -------------------------------------------------------------------------------------------------- | ------------------------ |
+| Product Manager      | Carina Jakitas                                                                                     |                          |
+| Product Owner        | Daniela Chichon e Carolina Dias                                                                    |                          |
+| Agente de Governança | Juliana Demay                                                                                      | Vitor Augusto Ferragini  |
+| Gerente de Projeto   | Ricardo Coda                                                                                       |                          |
+| Scrum Master         | Cristiane Tuji                                                                                     |                          |
+| Designer de Serviços | Rayanne Felicio                                                                                    |                          |
+| Analista UX/UI       | Caroline Casassola                                                                                 |                          |
+| Analista Programador | Calvin Rossinhole<br>Luis Zimmerman<br>Guilherme Massini<br>Murilo Schirmer<br>Priscyla dos Santos |                          |
+| Analista de teste    | Leandro Sesconetti                                                                                 |                          |
 
 ## Protótipos
 
@@ -158,6 +158,18 @@ https://www.figma.com/file/52MKvjiFFjoy7WLuvLLjAi/Spt_13-ALIMENTA%C3%87%C3%83O-T
 **Produção:**
 
 [https://sigpae.sme.prefeitura.sp.gov.br/](https://sigpae.sme.prefeitura.sp.gov.br/)
+
+**Manual SIGPAE - UEs**  
+
+[https://www.canva.com/design/DAF_30SjLFo/YeJsYGtwNMmt95V0oLDVcQ/edit](https://www.canva.com/design/DAF_30SjLFo/YeJsYGtwNMmt95V0oLDVcQ/edit)
+
+**Manual SIGPAE - Empresas Terceirizadas**  
+
+[https://educacao.sme.prefeitura.sp.gov.br/programa-de-alimentacao-escolar/para-empresas/prestadoras-de-servicos/](https://educacao.sme.prefeitura.sp.gov.br/programa-de-alimentacao-escolar/para-empresas/prestadoras-de-servicos/)
+
+**Tutoriais SIGPAE**  
+**Para Unidades**: [https://educacao.sme.prefeitura.sp.gov.br/programa-de-alimentacao-escolar/para-dres-e-ues/unidades-diretas/orientacoes-e-apoio-administrativo/](https://educacao.sme.prefeitura.sp.gov.br/programa-de-alimentacao-escolar/para-dres-e-ues/unidades-diretas/orientacoes-e-apoio-administrativo/)  
+**Para Empresas**: [https://educacao.sme.prefeitura.sp.gov.br/programa-de-alimentacao-escolar/para-empresas/](https://educacao.sme.prefeitura.sp.gov.br/programa-de-alimentacao-escolar/para-empresas/)
 
 # Comunicação:
 
