@@ -348,9 +348,8 @@ class InclusaoAlimentacaoDaCEIViewSet(InclusaoAlimentacaoViewSetBase):
                 inclusoes_alimentacao_cei = inclusoes_alimentacao_cei.filter(
                     rastro_lote__uuid=lote_uuid
                 )
-            page = self.paginate_queryset(inclusoes_alimentacao_cei)
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+            serializer = self.get_serializer(inclusoes_alimentacao_cei, many=True)
+            return Response({"results": serializer.data})
         except EOLException as error:
             return Response(
                 data={"detail": str(error)}, status=status.HTTP_400_BAD_REQUEST
@@ -379,9 +378,8 @@ class InclusaoAlimentacaoDaCEIViewSet(InclusaoAlimentacaoViewSetBase):
                 inclusoes_alimentacao_cei = inclusoes_alimentacao_cei.filter(
                     rastro_lote__uuid=lote_uuid
                 )
-            page = self.paginate_queryset(inclusoes_alimentacao_cei)
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+            serializer = self.get_serializer(inclusoes_alimentacao_cei, many=True)
+            return Response({"results": serializer.data})
         except EOLException as error:
             return Response(
                 data={"detail": str(error)}, status=status.HTTP_400_BAD_REQUEST
@@ -468,9 +466,8 @@ class GrupoInclusaoAlimentacaoNormalViewSet(InclusaoAlimentacaoViewSetBase):
             inclusoes_continuas = inclusoes_continuas.filter(
                 rastro_lote__uuid=lote_uuid
             )
-        page = self.paginate_queryset(inclusoes_continuas)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(inclusoes_continuas, many=True)
+        return Response({"results": serializer.data})
 
     # TODO rever os demais endpoints. Essa action consolida em uma única
     # pesquisa as pesquisas por prioridade.
@@ -494,9 +491,8 @@ class GrupoInclusaoAlimentacaoNormalViewSet(InclusaoAlimentacaoViewSetBase):
             inclusoes_alimentacao_normal = inclusoes_alimentacao_normal.filter(
                 rastro_lote__uuid=lote_uuid
             )
-        page = self.paginate_queryset(inclusoes_alimentacao_normal)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(inclusoes_alimentacao_normal, many=True)
+        return Response({"results": serializer.data})
 
     @action(
         detail=True,
@@ -627,9 +623,8 @@ class InclusaoAlimentacaoContinuaViewSet(
             inclusoes_continuas = inclusoes_continuas.filter(
                 rastro_lote__uuid=lote_uuid
             )
-        page = self.paginate_queryset(inclusoes_continuas)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(inclusoes_continuas, many=True)
+        return Response({"results": serializer.data})
 
     @action(
         detail=False,
@@ -651,9 +646,8 @@ class InclusaoAlimentacaoContinuaViewSet(
             inclusoes_alimentacao_continua = inclusoes_alimentacao_continua.filter(
                 rastro_lote__uuid=lote_uuid
             )
-        page = self.paginate_queryset(inclusoes_alimentacao_continua)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(inclusoes_alimentacao_continua, many=True)
+        return Response({"results": serializer.data})
 
     @action(
         detail=True,
@@ -752,9 +746,8 @@ class InclusaoAlimentacaoCEMEIViewSet(
             inclusoes_alimentacao = inclusoes_alimentacao.filter(
                 rastro_lote__uuid=lote_uuid
             )
-        page = self.paginate_queryset(inclusoes_alimentacao)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(inclusoes_alimentacao, many=True)
+        return Response({"results": serializer.data})
 
     @action(
         detail=False,
@@ -777,9 +770,8 @@ class InclusaoAlimentacaoCEMEIViewSet(
             inclusoes_alimentacao = inclusoes_alimentacao.filter(
                 rastro_lote__uuid=lote_uuid
             )
-        page = self.paginate_queryset(inclusoes_alimentacao)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(inclusoes_alimentacao, many=True)
+        return Response({"results": serializer.data})
 
     @action(
         detail=True,
