@@ -321,7 +321,8 @@ class LogSolicitacoesUsuario(
         DOCUMENTO_DE_RECEBIMENTO,
         FICHA_TECNICA_DO_PRODUTO,
         FORMULARIO_SUPERVISAO,
-    ) = range(25)
+        FICHA_RECEBIMENTO,
+    ) = range(26)
 
     TIPOS_SOLICITACOES = (
         (SOLICITACAO_KIT_LANCHE_AVULSA, "Solicitação de kit lanche avulsa"),
@@ -349,6 +350,7 @@ class LogSolicitacoesUsuario(
         (DOCUMENTO_DE_RECEBIMENTO, "Documento de recebimento"),
         (FICHA_TECNICA_DO_PRODUTO, "Ficha técnica do produto"),
         (FORMULARIO_SUPERVISAO, "Formulário Supervisão"),
+        (FICHA_RECEBIMENTO, "Ficha de Recebimento"),
     )
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
