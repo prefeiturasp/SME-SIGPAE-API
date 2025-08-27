@@ -841,7 +841,13 @@ def test_url_endpoint_inclusao_continua_solicitacoes_dre(
         f"?lote={escola.lote.uuid}"
     )
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.json()["results"]) == 1
+    data = response.json()
+    assert len(data["results"]) == 1
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)
 
 
 def test_url_endpoint_inclusao_continua_marca_conferencia(
@@ -1083,7 +1089,12 @@ def test_url_inclusao_cemei_dre(
     response = client_autenticado_vinculo_dre_inclusao.get(
         f"/inclusao-alimentacao-cemei/{PEDIDOS_DRE}/{SEM_FILTRO}/?lote={escola.lote.uuid}"
     )
-    assert response.json()["count"] == 1
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)
 
 
 def test_url_inclusao_cemei_codae(
@@ -1097,7 +1108,12 @@ def test_url_inclusao_cemei_codae(
         f"/inclusao-alimentacao-cemei/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
         f"?lote={escola.lote.uuid}&diretoria_regional={escola.diretoria_regional.uuid}"
     )
-    assert response.json()["count"] == 1
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)
 
 
 def test_url_inclusao_cemei_terceirizada(
@@ -1127,3 +1143,107 @@ def test_url_endpoint_inclusao_cemei_relatorio(
     )
     assert "PDF-1." in str(response.content)
     assert isinstance(response.content, bytes)
+
+def test_url_grupos_inclusao_alimentacao_normal_codae_sem_paginacao(
+    client_autenticado_vinculo_codae_inclusao, escola
+):
+    response = client_autenticado_vinculo_codae_inclusao.get(
+        f"/grupos-inclusao-alimentacao-normal/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
+    )
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)
+
+def test_url_inclusoes_alimentacao_continua_codae_sem_paginacao(
+    client_autenticado_vinculo_codae_inclusao, escola
+):
+    response = client_autenticado_vinculo_codae_inclusao.get(
+        f"/inclusoes-alimentacao-continua/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
+    )
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)
+
+def test_url_inclusoes_alimentacao_da_cei_codae_sem_paginacao(
+    client_autenticado_vinculo_codae_inclusao, escola
+):
+    response = client_autenticado_vinculo_codae_inclusao.get(
+        f"/inclusoes-alimentacao-da-cei/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
+    )
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)
+
+def test_url_inclusao_alimentacao_cemei_codae_sem_paginacao(
+    client_autenticado_vinculo_codae_inclusao, escola
+):
+    response = client_autenticado_vinculo_codae_inclusao.get(
+        f"/inclusao-alimentacao-cemei/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
+    )
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)
+
+def test_url_grupos_inclusao_alimentacao_normal_dre_sem_paginacao(
+    client_autenticado_vinculo_dre_inclusao, escola
+):
+    response = client_autenticado_vinculo_dre_inclusao.get(
+        f"/grupos-inclusao-alimentacao-normal/{PEDIDOS_DRE}/{SEM_FILTRO}/"
+    )
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)
+
+def test_url_inclusoes_alimentacao_continua_dre_sem_paginacao(
+    client_autenticado_vinculo_dre_inclusao, escola
+):
+    response = client_autenticado_vinculo_dre_inclusao.get(
+        f"/inclusoes-alimentacao-continua/{PEDIDOS_DRE}/{SEM_FILTRO}/"
+    )
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)
+
+def test_url_inclusoes_alimentacao_da_cei_dre_sem_paginacao(
+    client_autenticado_vinculo_dre_inclusao, escola
+):
+    response = client_autenticado_vinculo_dre_inclusao.get(
+        f"/inclusoes-alimentacao-da-cei/{PEDIDOS_DRE}/{SEM_FILTRO}/"
+    )
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)
+
+def test_url_inclusao_alimentacao_cemei_dre_sem_paginacao(
+    client_autenticado_vinculo_dre_inclusao, escola
+):
+    response = client_autenticado_vinculo_dre_inclusao.get(
+        f"/inclusao-alimentacao-cemei/{PEDIDOS_DRE}/{SEM_FILTRO}/"
+    )
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)

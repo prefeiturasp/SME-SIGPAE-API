@@ -5,6 +5,11 @@ from freezegun import freeze_time
 from rest_framework import status
 
 from sme_sigpae_api.dados_comuns import constants
+from sme_sigpae_api.dados_comuns.constants import (
+    PEDIDOS_CODAE,
+    PEDIDOS_DRE,
+    SEM_FILTRO,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -18,7 +23,13 @@ def test_alteracao_cemei_solicitacoes_dre(
         f"?lote={alteracao_cemei_dre_a_validar.rastro_lote.uuid}"
     )
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.json()["results"]) == 1
+    data = response.json()
+    assert len(data["results"]) == 1
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)   
 
 
 @freeze_time("2023-07-14")
@@ -31,7 +42,13 @@ def test_alteracao_cemei_solicitacoes_codae(
         f"&diretoria_regional={alteracao_cemei_dre_validado.rastro_dre.uuid}"
     )
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.json()["results"]) == 1
+    data = response.json()
+    assert len(data["results"]) == 1
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)   
 
 
 @freeze_time("2023-07-14")
@@ -116,3 +133,29 @@ def test_create_alteracao_cemei_emei(
     assert len(response.json()["substituicoes_cemei_emei_periodo_escolar"]) == 1
     assert response.json()["alterar_dia"] == "30/07/2023"
     assert response.json()["status"] == "RASCUNHO"
+
+def test_url_alteracoes_cardapio_cemei_codae(
+    client_autenticado_vinculo_codae_cardapio
+):
+    response = client_autenticado_vinculo_codae_cardapio.get(
+        f"/alteracoes-cardapio-cemei/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
+    )
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)   
+
+def test_url_alteracoes_cardapio_cemei_dre(
+    client_autenticado_vinculo_dre_escola_cemei
+):
+    response = client_autenticado_vinculo_dre_escola_cemei.get(
+        f"/alteracoes-cardapio-cemei/{PEDIDOS_DRE}/{SEM_FILTRO}/"
+    )
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)  
