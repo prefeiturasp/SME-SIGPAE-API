@@ -4,11 +4,14 @@ from django.db import models
 from multiselectfield import MultiSelectField
 
 from sme_sigpae_api.dados_comuns.behaviors import (
+    Logs,
     ModeloBase,
     TemArquivosDeletaveis,
     TemChaveExterna,
+    TemIdentificadorExternoAmigavel,
 )
 from sme_sigpae_api.dados_comuns.fluxo_status import FluxoFichaDeRecebimento
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.dados_comuns.validators import validate_file_size_10mb
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import EtapasDoCronograma
 from sme_sigpae_api.pre_recebimento.documento_recebimento.models import (
@@ -87,7 +90,9 @@ class QuestoesPorProduto(ModeloBase):
         verbose_name_plural = "Questões por Produtos"
 
 
-class FichaDeRecebimento(ModeloBase, FluxoFichaDeRecebimento):
+class FichaDeRecebimento(
+    ModeloBase, FluxoFichaDeRecebimento, TemIdentificadorExternoAmigavel, Logs
+):
     etapa = models.ForeignKey(
         EtapasDoCronograma,
         on_delete=models.PROTECT,
@@ -202,6 +207,18 @@ class FichaDeRecebimento(ModeloBase, FluxoFichaDeRecebimento):
 
         except AttributeError:
             return f"Ficha de Recebimento {self.id}"
+
+    def salvar_log_transicao(self, status_evento, usuario, **kwargs):
+        justificativa = kwargs.get("justificativa", "")
+        log_transicao = LogSolicitacoesUsuario.objects.create(
+            descricao=str(self),
+            status_evento=status_evento,
+            solicitacao_tipo=LogSolicitacoesUsuario.FICHA_RECEBIMENTO,
+            usuario=usuario,
+            uuid_original=self.uuid,
+            justificativa=justificativa,
+        )
+        return log_transicao
 
     class Meta:
         verbose_name = "Ficha de Recebimento"

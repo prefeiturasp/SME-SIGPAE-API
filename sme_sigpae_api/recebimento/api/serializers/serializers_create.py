@@ -299,10 +299,24 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
             )
 
     def create(self, validated_data):
-        return criar_ficha(validated_data)
+        ficha = criar_ficha(validated_data)
+        user = self.context["request"].user
+        ficha.inicia_fluxo(user=user)
+        return ficha
 
     def update(self, instance, validated_data):
-        return atualizar_ficha(instance, validated_data)
+        eh_rascunho = (
+            hasattr(instance, "status")
+            and instance.status == instance.workflow_class.RASCUNHO
+        )
+
+        ficha_atualizada = atualizar_ficha(instance, validated_data)
+
+        if eh_rascunho:
+            user = self.context["request"].user
+            ficha_atualizada.inicia_fluxo(user=user)
+
+        return ficha_atualizada
 
 
 class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):

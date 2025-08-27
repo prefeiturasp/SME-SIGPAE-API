@@ -1,7 +1,12 @@
 import uuid
 
 import pytest
+from model_bakery import baker
 
+from sme_sigpae_api.conftest import (
+    client_autenticado_qualidade,
+)
+from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.recebimento.api.serializers.serializers_create import (
     FichaDeRecebimentoCreateSerializer,
     FichaDeRecebimentoRascunhoSerializer,
@@ -158,7 +163,14 @@ def test_ocorrencia_serializer_create(
 
 def test_ficha_recebimento_serializer_create(payload_ficha_recebimento):
     """Testa a criação de uma ficha através do serializer."""
-    serializer = FichaDeRecebimentoCreateSerializer(data=payload_ficha_recebimento)
+
+    class FakeObject(object):
+        user = baker.make("perfil.Usuario")
+
+    context = {"request": FakeObject()}
+    serializer = FichaDeRecebimentoCreateSerializer(
+        data=payload_ficha_recebimento, context=context
+    )
     is_valid = serializer.is_valid()
     if not is_valid:
         print("\nErros de validação:", serializer.errors)
@@ -177,8 +189,13 @@ def test_ficha_recebimento_serializer_update(
     """Testa a atualização de uma ficha existente através do serializer."""
     payload_ficha_recebimento["observacao"] = "Observação atualizada"
 
+    class FakeObject(object):
+        user = baker.make("perfil.Usuario")
+
+    context = {"request": FakeObject()}
+
     serializer = FichaDeRecebimentoCreateSerializer(
-        instance=ficha_recebimento, data=payload_ficha_recebimento
+        instance=ficha_recebimento, data=payload_ficha_recebimento, context=context
     )
     is_valid = serializer.is_valid()
     if not is_valid:
