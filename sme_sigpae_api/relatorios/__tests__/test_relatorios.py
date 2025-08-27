@@ -382,7 +382,7 @@ def test_relatorio_reclamacao_produtos(
     assert "Total de Reclamações de Produtos:  1" in texto
     assert "Período:  01/01/2022 até 19/08/2025" in texto
     assert "Data de extração do relatório:  27/12/2024" in texto
-    assert "Para os editais:"   in texto
+    assert "Para os editais:" in texto
     assert texto.count("Edital de Pregão 001") == 2
     assert texto.count("Edital de Pregão 002") == 1
     assert texto.count("Edital de Pregão 003") == 1
@@ -418,7 +418,7 @@ def test_relatorio_reclamacao_produtos_sem_dre_lote_selecionadas(
     assert "Total de Reclamações de Produtos:  1" in texto
     assert "Período:  01/01/2022 até 19/08/2025" in texto
     assert "Data de extração do relatório:  27/12/2024" in texto
-    assert "Para os editais:"   in texto
+    assert "Para os editais:" in texto
     assert texto.count("Edital de Pregão 001") == 2
     assert texto.count("Edital de Pregão 002") == 1
     assert texto.count("Edital de Pregão 003") == 1
@@ -455,7 +455,7 @@ def test_relatorio_reclamacao_produtos_sem_data_selecionadas(
     assert "Total de Reclamações de Produtos:  1" in texto
     assert "Período:  01/01/2022 até 19/08/2025" not in texto
     assert "Data de extração do relatório:  27/12/2024" in texto
-    assert "Para os editais:"   in texto
+    assert "Para os editais:" in texto
     assert texto.count("Edital de Pregão 001") == 2
     assert texto.count("Edital de Pregão 002") == 1
     assert texto.count("Edital de Pregão 003") == 1
@@ -482,7 +482,7 @@ def test_cabecalho_reclamacao_produto(mock_filtros_relatorio_reclamacao):
     assert isinstance(cabecalho, dict)
     assert cabecalho == {
         "data_extracao": "27/12/2024",
-        'editais': 'Edital de Pregão 001, Edital de Pregão 002, Edital de Pregão 003, Edital de Pregão 004',
+        "editais": "Edital de Pregão 001, Edital de Pregão 002, Edital de Pregão 003, Edital de Pregão 004",
         "lotes": "IP - 3567-3, LPSD - 1235-8",
         "periodo": "01/01/2022 até 19/08/2025",
     }
@@ -495,7 +495,7 @@ def test_cabecalho_reclamacao_produto_sem_dre_lote(mock_filtros_relatorio_reclam
     assert isinstance(cabecalho, dict)
     assert cabecalho == {
         "data_extracao": "27/12/2024",
-        'editais': 'Edital de Pregão 001, Edital de Pregão 002, Edital de Pregão 003, Edital de Pregão 004',
+        "editais": "Edital de Pregão 001, Edital de Pregão 002, Edital de Pregão 003, Edital de Pregão 004",
         "periodo": "01/01/2022 até 19/08/2025",
     }
 
@@ -508,7 +508,7 @@ def test_cabecalho_reclamacao_produto_sem_data(mock_filtros_relatorio_reclamacao
     assert isinstance(cabecalho, dict)
     assert cabecalho == {
         "data_extracao": "27/12/2024",
-        'editais': 'Edital de Pregão 001, Edital de Pregão 002, Edital de Pregão 003, Edital de Pregão 004',
+        "editais": "Edital de Pregão 001, Edital de Pregão 002, Edital de Pregão 003, Edital de Pregão 004",
         "lotes": "IP - 3567-3, LPSD - 1235-8",
     }
 
@@ -520,7 +520,7 @@ def test_cabecalho_reclamacao_produto_sem_data_final(mock_filtros_relatorio_recl
     assert isinstance(cabecalho, dict)
     assert cabecalho == {
         "data_extracao": "27/12/2024",
-        'editais': 'Edital de Pregão 001, Edital de Pregão 002, Edital de Pregão 003, Edital de Pregão 004',
+        "editais": "Edital de Pregão 001, Edital de Pregão 002, Edital de Pregão 003, Edital de Pregão 004",
         "lotes": "IP - 3567-3, LPSD - 1235-8",
         "periodo": "A partir de 01/01/2022",
     }
@@ -535,7 +535,7 @@ def test_cabecalho_reclamacao_produto_sem_data_inicial(
     assert isinstance(cabecalho, dict)
     assert cabecalho == {
         "data_extracao": "27/12/2024",
-        'editais': 'Edital de Pregão 001, Edital de Pregão 002, Edital de Pregão 003, Edital de Pregão 004',
+        "editais": "Edital de Pregão 001, Edital de Pregão 002, Edital de Pregão 003, Edital de Pregão 004",
         "lotes": "IP - 3567-3, LPSD - 1235-8",
         "periodo": "Até 19/08/2025",
     }
