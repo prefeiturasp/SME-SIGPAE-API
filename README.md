@@ -23,12 +23,11 @@ O [Ateliê do Software](http://forum.govit.prefeitura.sp.gov.br/uploads/default/
 
 1. [Sobre o Produto](#sobre-o-produto) 
 2. [Sobre o Time](#sobre-o-time) 
-3. [Como surgiu](#como-surgiu)  
-4. [Links Úteis](#links-úteis)  
-5. [Comunicação](#comunicação)  
-6. [Como contribuir](#como-contribuir)  
-7. [Repositórios](#repositórios)  
-8. [Instalação e Configuração](#instalação-e-configuração)
+3. [Links Úteis](#links-úteis)  
+4. [Comunicação](#comunicação)  
+5. [Como contribuir](#como-contribuir)  
+6. [Repositórios](#repositórios)  
+7. [Instalação e Configuração](#instalação-e-configuração)
  
 # Sobre o Produto
 
