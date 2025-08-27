@@ -1,0 +1,108 @@
+<p style="margin-bottom: 4px;">Edições realizadas</p>
+{% for campo, mudanca in alteracoes.items %}
+  {% if campo != 'Substituições de Alimentos' %}
+    <p style="margin-bottom: 4px;">Campo: <b>{{ campo }}</b></p>
+    <ul>
+      <li style="margin-bottom: 6px;">De: <b>{{ mudanca.de|safe }}</b></li>
+      <li style="margin-bottom: 6px;">Para: <b>{{ mudanca.para|safe }}</b></li>
+    </ul>
+  {% else %}
+    <p>Campo: <b>{{ campo }}</b></p></br>
+
+    {% if mudanca.excluidos %}
+      <table style="width:100%; border-collapse: collapse; border: 1px solid #ccc; margin-bottom: 20px;">
+        <thead style="background-color: #e0e0e0;">
+          <tr>
+            <th colspan="3" style="border: 1px solid #ccc; padding: 8px; text-align: left;">ITEM EXCLUÍDO</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for info in mudanca.excluidos %}
+            <tr>
+              <td style="border: 1px solid #ccc; padding: 8px; width: 25%">{{ info.dados.alimento }}</td>
+              <td style="border: 1px solid #ccc; padding: 8px; width: 25%">{{ info.dados.tipo }}</td>
+              <td style="border: 1px solid #ccc; padding: 8px; width: 50%">
+                <ul>
+                {% for item in  info.dados.substitutos %}
+                  <li> {{ item }}</li>
+                {% endfor %}
+                </ul>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+
+    {% if mudanca.incluidos %}
+      <table style="width:100%; border-collapse: collapse; border: 1px solid #ccc; margin-bottom: 20px;">
+        <thead style="background-color: #e0e0e0;">
+          <tr>
+            <th colspan="3" style="border: 1px solid #ccc; padding: 8px; text-align: left;">ITEM INCLUIDO</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for info in mudanca.incluidos %}
+            <tr>
+              <td style="border: 1px solid #ccc; padding: 8px; width: 25%">{{ info.dados.alimento }}</td>
+              <td style="border: 1px solid #ccc; padding: 8px; width: 25%">{{ info.dados.tipo }}</td>
+              <td style="border: 1px solid #ccc; padding: 8px; width: 50%">
+                <ul>
+                {% for item in info.dados.substitutos  %}
+                  <li> {{ item }}</li>
+                {% endfor %}
+                </ul>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+
+    {% if mudanca.alterados %}
+      {% for info in mudanca.alterados %}
+        <table style="width:100%; border-collapse: collapse; border: 1px solid #ccc; margin-bottom: 20px;">
+       
+          <thead style="background-color: #e0e0e0;">
+            <tr>
+              <th colspan="3" style="border: 1px solid #ccc; padding: 8px; text-align: left;">ITEM ALTERADO DE</th>
+            </tr>
+          </thead>
+          <tbody>
+              <tr>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 25%">{{ info.de.dados.alimento }}</td>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 25%">{{ info.de.dados.tipo }}</td>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 50%">
+                  <ul>
+                  {% for item in info.de.dados.substitutos %}
+                    <li> {{ item }}</li>
+                  {% endfor %}
+                  </ul>
+                </td>
+              </tr>
+          </tbody>
+          <thead style="background-color: #e0e0e0;">
+            <tr>
+              <th colspan="3" style="border: 1px solid #ccc; padding: 8px; text-align: left;">ITEM ALTERADO PARA</th>
+            </tr>
+          </thead>
+          <tbody>
+              <tr>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 25%">{{ info.para.dados.alimento }}</td>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 25%">{{ info.para.dados.tipo }}</td>
+                <td style="border: 1px solid #ccc; padding: 8px; width: 50%">
+                  <ul>
+                  {% for item in info.para.dados.substitutos %}
+                    <li> {{ item }}</li>
+                  {% endfor %}
+                  </ul>
+                </td>
+              </tr>
+          </tbody>
+        </table>
+      {% endfor %}
+
+    {% endif %}
+
+  {% endif %}
+{% endfor %}

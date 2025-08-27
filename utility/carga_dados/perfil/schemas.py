@@ -263,8 +263,8 @@ class ImportacaoPlanilhaUsuarioServidorCoreSSOSchema(BaseModel):
     def formata_rf(cls, value):
         cls.checa_vazio(value, "RF do usuário")
         value = cls.formata_documentos(value)
-        if len(value) != TAMANHO_RF:
-            raise ValueError("RF deve ter 7 dígitos.")
+        if len(value) != TAMANHO_RF and len(value) != TAMANHO_CPF:
+            raise ValueError("RF deve ter 7 ou 11 dígitos (PARCEIRA).")
         return value
 
     @validator("perfil")

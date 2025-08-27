@@ -3099,7 +3099,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
             email_lista = []
         return email_lista
 
-    @property  # noqa c901
+    @property
     def _partes_interessadas_codae_autoriza_ou_nega(self):
         try:
             email_escola_eol = self.escola.contato.email
@@ -3115,7 +3115,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         # TODO: definir partes interessadas
         return []
 
-    @property  # noqa c901
+    @property
     def _partes_interessadas_codae_autoriza(self):
         escola = self.escola_destino
         try:
@@ -5716,6 +5716,39 @@ class RelatorioFinanceiroMedicaoInicialWorkflow(xwf_models.Workflow):
 class FluxoRelatorioFinanceiroMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
     workflow_class = RelatorioFinanceiroMedicaoInicialWorkflow
     status = xwf_models.StateField(workflow_class)
+
+    class Meta:
+        abstract = True
+
+
+class FichaDeRecebimentoWorkflow(xwf_models.Workflow):
+    log_model = ""  # Disable logging to database
+
+    RASCUNHO = "RASCUNHO"
+    ASSINADA = "ASSINADA"
+
+    states = (
+        (RASCUNHO, "Rascunho"),
+        (ASSINADA, "Assinado CODAE"),
+    )
+
+    transitions = (("inicia_fluxo", RASCUNHO, ASSINADA),)
+
+    initial_state = RASCUNHO
+
+
+class FluxoFichaDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
+    workflow_class = FichaDeRecebimentoWorkflow
+    status = xwf_models.StateField(workflow_class)
+
+    @xworkflows.after_transition("inicia_fluxo")
+    def _inicia_fluxo_hook(self, *args, **kwargs):
+        user = kwargs.get("user")
+        if user:
+            self.salvar_log_transicao(
+                status_evento=LogSolicitacoesUsuario.FICHA_RECEBIMENTO_ASSINADA,
+                usuario=user,
+            )
 
     class Meta:
         abstract = True

@@ -373,40 +373,55 @@ class UsuarioTerceirizadaProduto(BasePermission):
 class PermissaoParaRecuperarObjeto(BasePermission):
     """Permite acesso ao objeto se o objeto pertence ao usuário."""
 
-    def has_object_permission(self, request, view, obj):  # noqa
+    def has_object_permission(self, request, view, obj):
         usuario = request.user
-        if isinstance(usuario.vinculo_atual.instituicao, Escola):
-            return usuario.vinculo_atual.instituicao in [obj.escola, obj.rastro_escola]
-        elif isinstance(usuario.vinculo_atual.instituicao, DiretoriaRegional):
-            return usuario.vinculo_atual.instituicao in [
-                obj.escola.diretoria_regional,
-                obj.rastro_dre,
+        instituicao = usuario.vinculo_atual.instituicao
+
+        if isinstance(instituicao, Escola):
+            return self._permissao_escola(instituicao, obj)
+
+        if isinstance(instituicao, DiretoriaRegional):
+            return self._permissao_dre(instituicao, obj)
+
+        if isinstance(instituicao, Codae):
+            return self._permissao_codae(usuario)
+
+        if isinstance(instituicao, Terceirizada):
+            return self._permissao_terceirizada(instituicao, obj)
+
+        return False
+
+    def _permissao_escola(self, instituicao, obj):
+        return instituicao in [obj.escola, obj.rastro_escola]
+
+    def _permissao_dre(self, instituicao, obj):
+        return instituicao in [obj.escola.diretoria_regional, obj.rastro_dre]
+
+    def _permissao_codae(self, usuario):
+        return usuario.vinculo_atual.perfil.nome in [
+            COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+            ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+            COORDENADOR_SUPERVISAO_NUTRICAO,
+            COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
+            ADMINISTRADOR_MEDICAO,
+            ADMINISTRADOR_CODAE_GABINETE,
+            DINUTRE_DIRETORIA,
+        ]
+
+    def _permissao_terceirizada(self, instituicao, obj):
+        try:  # solicitações normais
+            return instituicao in [
+                obj.escola.lote.terceirizada,
+                obj.rastro_terceirizada,
             ]
-        elif isinstance(usuario.vinculo_atual.instituicao, Codae):
-            return usuario.vinculo_atual.perfil.nome in [
-                COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
-                ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
-                COORDENADOR_SUPERVISAO_NUTRICAO,
-                COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
-                ADMINISTRADOR_MEDICAO,
-                ADMINISTRADOR_CODAE_GABINETE,
-                DINUTRE_DIRETORIA,
-            ]
-        elif isinstance(usuario.vinculo_atual.instituicao, Terceirizada):
-            try:  # solicitacoes normais
-                retorno = usuario.vinculo_atual.instituicao in [
-                    obj.escola.lote.terceirizada,
-                    obj.rastro_terceirizada,
-                ]
-            except AttributeError:  # solicitacao unificada
-                retorno = usuario.vinculo_atual.instituicao == obj.rastro_terceirizada
-            return retorno
+        except AttributeError:  # solicitação unificada
+            return instituicao == obj.rastro_terceirizada
 
 
 class PermissaoParaRecuperarSolicitacaoUnificada(BasePermission):
     """Permite acesso ao objeto se a solicitação unificada pertence ao usuário."""
 
-    def has_object_permission(self, request, view, obj):  # noqa
+    def has_object_permission(self, request, view, obj):
         usuario = request.user
         if isinstance(usuario.vinculo_atual.instituicao, Escola):
             return (
@@ -438,7 +453,7 @@ class PermissaoParaRecuperarSolicitacaoUnificada(BasePermission):
 class PermissaoParaRecuperarDietaEspecial(BasePermission):
     """Permite acesso ao objeto se a dieta especial pertence ao usuário."""
 
-    def has_object_permission(self, request, view, obj):  # noqa
+    def has_object_permission(self, request, view, obj):
         usuario = request.user
         if isinstance(usuario.vinculo_atual.instituicao, Escola):
             return usuario.vinculo_atual.instituicao in [
@@ -801,6 +816,7 @@ class PermissaoParaVisualizarRelatorioCronograma(BasePermission):
                         USUARIO_GTIC_CODAE,
                         DILOG_ABASTECIMENTO,
                         DILOG_VISUALIZACAO,
+                        DILOG_QUALIDADE,
                     ]
                 )
                 or usuario.eh_fornecedor
@@ -899,6 +915,7 @@ class PermissaoParaDashboardCronograma(BasePermission):
         ADMINISTRADOR_CODAE_GABINETE,
         DILOG_ABASTECIMENTO,
         DILOG_VISUALIZACAO,
+        DILOG_QUALIDADE,
     ]
 
     def has_permission(self, request, view):
@@ -1076,6 +1093,7 @@ class PermissaoParaVisualizarSolicitacoesAlteracaoCronograma(BasePermission):
         ADMINISTRADOR_CODAE_GABINETE,
         DILOG_ABASTECIMENTO,
         DILOG_VISUALIZACAO,
+        DILOG_QUALIDADE,
     ]
 
     def has_permission(self, request, view):
@@ -1134,6 +1152,7 @@ class PermissaoParaListarDashboardSolicitacaoAlteracaoCronograma(BasePermission)
         ADMINISTRADOR_CODAE_GABINETE,
         DILOG_ABASTECIMENTO,
         DILOG_VISUALIZACAO,
+        DILOG_QUALIDADE,
     ]
 
     def has_permission(self, request, view):

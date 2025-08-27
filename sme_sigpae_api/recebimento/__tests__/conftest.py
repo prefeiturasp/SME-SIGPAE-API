@@ -3,6 +3,7 @@ from datetime import date, timedelta
 import pytest
 from faker import Faker
 
+from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.fluxo_status import (
     DocumentoDeRecebimentoWorkflow,
     FichaTecnicaDoProdutoWorkflow,
@@ -33,7 +34,9 @@ from sme_sigpae_api.recebimento.models import (
     QuestaoConferencia,
     QuestaoFichaRecebimento,
 )
-from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import ModalidadeFactory
+from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import (
+    ModalidadeFactory,
+)
 
 fake = Faker("pt_BR")
 
@@ -82,6 +85,101 @@ def payload_update_questoes_por_produto(questoes_conferencia):
     return {
         "questoes_primarias": questoes,
         "questoes_secundarias": questoes,
+    }
+
+
+@pytest.fixture
+def payload_ficha_recebimento(
+    etapas_do_cronograma_factory,
+    documento_de_recebimento_factory,
+    arquivo_pdf_base64,
+    questao_conferencia_factory,
+):
+    """Fixture que retorna um payload completo para criação de uma ficha de recebimento."""
+    ficha_tecnica = FichaTecnicaFactory()
+
+    etapa = etapas_do_cronograma_factory(cronograma__ficha_tecnica=ficha_tecnica)
+
+    docs_recebimento = documento_de_recebimento_factory.create_batch(
+        size=3,
+        cronograma=etapa.cronograma,
+        status=DocumentoDeRecebimentoWorkflow.APROVADO,
+    )
+
+    questao_primaria = questao_conferencia_factory(
+        tipo_questao=QuestaoConferencia.TIPO_QUESTAO_PRIMARIA, pergunta_obrigatoria=True
+    )
+    questao_secundaria = questao_conferencia_factory(
+        tipo_questao=QuestaoConferencia.TIPO_QUESTAO_SECUNDARIA,
+        pergunta_obrigatoria=False,
+    )
+
+    questoes_por_produto = QuestoesPorProdutoFactory(ficha_tecnica=ficha_tecnica)
+    questoes_por_produto.questoes_primarias.add(questao_primaria)
+    questoes_por_produto.questoes_secundarias.add(questao_secundaria)
+
+    return {
+        "etapa": str(etapa.uuid),
+        "data_entrega": str(date.today() + timedelta(days=10)),
+        "documentos_recebimento": [str(doc.uuid) for doc in docs_recebimento],
+        "lote_fabricante_de_acordo": True,
+        "lote_fabricante_divergencia": "",
+        "data_fabricacao_de_acordo": True,
+        "data_fabricacao_divergencia": "",
+        "data_validade_de_acordo": True,
+        "data_validade_divergencia": "",
+        "numero_lote_armazenagem": str(fake.random_number(digits=10)),
+        "numero_paletes": str(fake.random_number(digits=3)),
+        "peso_embalagem_primaria_1": str(fake.random_number(digits=3)),
+        "peso_embalagem_primaria_2": str(fake.random_number(digits=3)),
+        "peso_embalagem_primaria_3": str(fake.random_number(digits=3)),
+        "peso_embalagem_primaria_4": str(fake.random_number(digits=3)),
+        "veiculos": [
+            {
+                "numero": "Veiculo 1",
+                "temperatura_recebimento": "25.5",
+                "temperatura_produto": "24.0",
+                "placa": "ABC1234",
+                "lacre": "LCR123456",
+                "numero_sif_sisbi_sisp": "SIF12345678",
+                "numero_nota_fiscal": "NF1234567890123456789012345678901234567890",
+                "quantidade_nota_fiscal": "1000",
+                "embalagens_nota_fiscal": "50",
+                "quantidade_recebida": "1000",
+                "embalagens_recebidas": "50",
+                "estado_higienico_adequado": True,
+                "termografo": True,
+            }
+        ],
+        "sistema_vedacao_embalagem_secundaria": "Sistema de vedação em perfeito estado",
+        "observacao": "Recebimento realizado sem intercorrências",
+        "observacoes_conferencia": "Nenhuma observação adicional",
+        "arquivos": [
+            {"arquivo": arquivo_pdf_base64, "nome": "Termo_Recebimento.pdf"},
+            {"arquivo": arquivo_pdf_base64, "nome": "Fotos_Recebimento.pdf"},
+        ],
+        "questoes": [
+            {
+                "questao_conferencia": str(questao_primaria.uuid),
+                "resposta": True,
+                "tipo_questao": "PRIMARIA",
+            },
+            {
+                "questao_conferencia": str(questao_secundaria.uuid),
+                "resposta": False,
+                "tipo_questao": "SECUNDARIA",
+            },
+        ],
+        "ocorrencias": [
+            {
+                "tipo": "FALTA",
+                "relacao": "CRONOGRAMA",
+                "quantidade": "5",
+                "descricao": "Faltaram 5 unidades do produto",
+                "numero_nota": "NF123456",
+            }
+        ],
+        "password": constants.DJANGO_ADMIN_PASSWORD,
     }
 
 
@@ -168,15 +266,15 @@ def payload_ficha_recebimento_rascunho(
                 "tipo": "FALTA",
                 "relacao": "CRONOGRAMA",
                 "quantidade": "5 unidades",
-                "descricao": "Falta de produto no recebimento"
+                "descricao": "Falta de produto no recebimento",
             },
             {
                 "tipo": "RECUSA",
                 "relacao": "TOTAL",
                 "numero_nota": "12345",
                 "quantidade": "3 unidades",
-                "descricao": "Produto recusado por avaria"
-            }
+                "descricao": "Produto recusado por avaria",
+            },
         ],
     }
 
@@ -240,15 +338,15 @@ def ficha_recebimento_rascunho(etapa_cronograma):
                 "tipo": "FALTA",
                 "relacao": "CRONOGRAMA",
                 "quantidade": "5 unidades",
-                "descricao": "Falta de produto no recebimento"
+                "descricao": "Falta de produto no recebimento",
             },
             {
                 "tipo": "RECUSA",
                 "relacao": "TOTAL",
                 "numero_nota": "12345",
                 "quantidade": "3 unidades",
-                "descricao": "Produto recusado por avaria"
-            }
+                "descricao": "Produto recusado por avaria",
+            },
         ],
     }
 
@@ -264,9 +362,13 @@ def cronograma_completo(questoes_por_produto):
 
 
 @pytest.fixture
-def ocorrencia_ficha_recebimento(ficha_recebimento, ocorrencia_ficha_recebimento_factory):
+def ocorrencia_ficha_recebimento(
+    ficha_recebimento, ocorrencia_ficha_recebimento_factory
+):
     """Fixture para criar uma ocorrência de ficha de recebimento."""
-    return ocorrencia_ficha_recebimento_factory.create(ficha_recebimento=ficha_recebimento)
+    return ocorrencia_ficha_recebimento_factory.create(
+        ficha_recebimento=ficha_recebimento
+    )
 
 
 @pytest.fixture

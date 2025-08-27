@@ -9,6 +9,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
 
 from sme_sigpae_api.dados_comuns.behaviors import TempoPasseio
+from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from sme_sigpae_api.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.escola.models import (
@@ -177,7 +178,7 @@ def dia_sobremesa_doce(tipo_unidade_escolar):
 def client_autenticado_coordenador_codae(client, django_user_model):
     email, password, rf, cpf = (
         "cogestor_1@sme.prefeitura.sp.gov.br",
-        "adminadmin",
+        DJANGO_ADMIN_PASSWORD,
         "0000001",
         "44426575052",
     )
@@ -2413,7 +2414,7 @@ def valor_medicao(medicao, categoria_medicao):
 @pytest.fixture
 def client_autenticado_diretoria_regional(client, django_user_model, escola):
     email = "test@test.com"
-    password = "admin@123"
+    password = DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
@@ -2434,7 +2435,7 @@ def client_autenticado_diretoria_regional(client, django_user_model, escola):
 @pytest.fixture
 def client_autenticado_da_escola(client, django_user_model, escola):
     email = "user@escola.com"
-    password = "admin@123"
+    password = DJANGO_ADMIN_PASSWORD
     perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="123456"
@@ -2455,7 +2456,7 @@ def client_autenticado_da_escola(client, django_user_model, escola):
 @pytest.fixture
 def client_autenticado_da_escola_cei(client, django_user_model, escola_cei):
     email = "user@escola_cei.com"
-    password = "admin@123"
+    password = DJANGO_ADMIN_PASSWORD
     perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="123456"
@@ -2476,7 +2477,7 @@ def client_autenticado_da_escola_cei(client, django_user_model, escola_cei):
 @pytest.fixture
 def client_autenticado_da_escola_cemei(client, django_user_model, escola_cemei):
     email = "user@escola_cemei.com"
-    password = "admin@123"
+    password = DJANGO_ADMIN_PASSWORD
     perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="123456"
@@ -2499,7 +2500,7 @@ def client_autenticado_da_escola_ceu_gestao(
     client, django_user_model, escola_ceu_gestao
 ):
     email = "user@escola_ceu_gestao.com"
-    password = "admin@123"
+    password = DJANGO_ADMIN_PASSWORD
     perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="123456"
@@ -2520,7 +2521,7 @@ def client_autenticado_da_escola_ceu_gestao(
 @pytest.fixture
 def client_autenticado_da_escola_emebs(client, django_user_model, escola_emebs):
     email = "user@escola_emebs.com"
-    password = "admin@123"
+    password = DJANGO_ADMIN_PASSWORD
     perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="123456"
@@ -2541,7 +2542,7 @@ def client_autenticado_da_escola_emebs(client, django_user_model, escola_emebs):
 @pytest.fixture
 def client_autenticado_adm_da_escola(client, django_user_model, escola):
     email = "user@escola_adm.com"
-    password = "admin@1234"
+    password = DJANGO_ADMIN_PASSWORD
     perfil_diretor = baker.make("Perfil", nome="ADMINISTRADOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="1234567"
@@ -2562,7 +2563,7 @@ def client_autenticado_adm_da_escola(client, django_user_model, escola):
 @pytest.fixture
 def user_administrador_medicao(django_user_model):
     email = "codae@medicao.com"
-    password = "admin@1234"
+    password = DJANGO_ADMIN_PASSWORD
     perfil_medicao = baker.make("Perfil", nome="ADMINISTRADOR_MEDICAO", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="1234588"

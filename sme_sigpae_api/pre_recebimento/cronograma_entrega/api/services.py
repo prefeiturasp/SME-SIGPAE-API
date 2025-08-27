@@ -8,6 +8,7 @@ from sme_sigpae_api.dados_comuns.constants import (
     DILOG_ABASTECIMENTO,
     DILOG_CRONOGRAMA,
     DILOG_DIRETORIA,
+    DILOG_QUALIDADE,
     DILOG_VISUALIZACAO,
     USUARIO_EMPRESA,
 )
@@ -65,6 +66,13 @@ class ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles(BaseServiceDashboar
             CronogramaAlteracaoWorkflow.ALTERACAO_ENVIADA_FORNECEDOR,
             CronogramaAlteracaoWorkflow.FORNECEDOR_CIENTE,
         ],
+        DILOG_QUALIDADE: [
+            CronogramaAlteracaoWorkflow.EM_ANALISE,
+            CronogramaAlteracaoWorkflow.APROVADO_DILOG,
+            CronogramaAlteracaoWorkflow.REPROVADO_DILOG,
+            CronogramaAlteracaoWorkflow.ALTERACAO_ENVIADA_FORNECEDOR,
+            CronogramaAlteracaoWorkflow.FORNECEDOR_CIENTE,
+        ],
     }
 
 
@@ -90,6 +98,7 @@ class ServiceQuerysetAlteracaoCronograma:
             CronogramaAlteracaoWorkflow.CRONOGRAMA_CIENTE,
         ],
         DILOG_VISUALIZACAO: [],
+        DILOG_QUALIDADE: [],
     }
 
     def __init__(

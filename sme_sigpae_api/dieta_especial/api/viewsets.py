@@ -3,6 +3,7 @@ import uuid as uuid_generator
 from copy import deepcopy
 from datetime import date, datetime
 
+from django.core.exceptions import ValidationError as coreValidation
 from django.db import transaction
 from django.db.models import Case, CharField, Count, F, Q, Value, When
 from django.forms import ValidationError
@@ -17,6 +18,9 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from xworkflows import InvalidTransitionError
 
 from sme_sigpae_api.dados_comuns.api.paginations import HistoricoDietasPagination
+from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
+    atualiza_historico_protocolo,
+)
 
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
@@ -75,6 +79,7 @@ from ..models import (
 from ..tasks import (
     gera_pdf_relatorio_dietas_especiais_terceirizadas_async,
     gera_pdf_relatorio_historico_dietas_especiais_async,
+    gera_pdf_relatorio_recreio_nas_ferias_async,
     gera_xlsx_relatorio_dietas_especiais_terceirizadas_async,
     gera_xlsx_relatorio_historico_dietas_especiais_async,
 )
@@ -208,6 +213,7 @@ class SolicitacaoDietaEspecialViewSet(
         return SolicitacaoDietaEspecialSerializer
 
     def atualiza_solicitacao(self, solicitacao, request):
+        texto_html = atualiza_historico_protocolo(solicitacao, request.data)
         if (
             solicitacao.aluno.possui_dieta_especial_ativa
             and not solicitacao.tipo_solicitacao == "ALTERACAO_UE"
@@ -217,16 +223,18 @@ class SolicitacaoDietaEspecialViewSet(
             serializer = self.get_serializer()
             serializer.update(solicitacao, request.data)
             solicitacao.ativo = True
-        self.salva_log_transicao(solicitacao, request.user)
+        self.salva_log_transicao(solicitacao, request.user, texto_html)
         if solicitacao.aluno.escola:
             enviar_email_codae_atualiza_protocolo(solicitacao)
         if not solicitacao.data_inicio:
             solicitacao.data_inicio = datetime.now().strftime("%Y-%m-%d")
             solicitacao.save()
 
-    def salva_log_transicao(self, solicitacao, user):
+    def salva_log_transicao(self, solicitacao, user, justificativa):
         solicitacao.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.CODAE_ATUALIZOU_PROTOCOLO, usuario=user
+            status_evento=LogSolicitacoesUsuario.CODAE_ATUALIZOU_PROTOCOLO,
+            usuario=user,
+            justificativa=justificativa,
         )
 
     @action(
@@ -324,6 +332,10 @@ class SolicitacaoDietaEspecialViewSet(
         except serializers.ValidationError as e:
             return Response(
                 {"detail": f"Dados inválidos {e}"}, status=HTTP_400_BAD_REQUEST
+            )
+        except coreValidation as e:
+            return Response(
+                dict(detail=e.messages[0]), status=status.HTTP_400_BAD_REQUEST
             )
 
     @action(
@@ -1429,6 +1441,27 @@ class SolicitacaoDietaEspecialViewSet(
             serializer = self.get_serializer(queryset, many=True)
             return Response(serializer.data)
 
+        except ValidationError as e:
+            return Response(dict(detail=e.messages[0]), status=HTTP_400_BAD_REQUEST)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="relatorio-recreio-nas-ferias/exportar-pdf",
+        permission_classes=(PermissaoRelatorioRecreioNasFerias,),
+    )
+    def relatorio_recreio_nas_ferias_exportar_pdf(self, request):
+        try:
+            user = request.user.get_username()
+            gera_pdf_relatorio_recreio_nas_ferias_async.delay(
+                user=user,
+                nome_arquivo="relatorio_recreio_nas_ferias.pdf",
+                params=request.query_params,
+            )
+            return Response(
+                dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+                status=status.HTTP_200_OK,
+            )
         except ValidationError as e:
             return Response(dict(detail=e.messages[0]), status=HTTP_400_BAD_REQUEST)
 

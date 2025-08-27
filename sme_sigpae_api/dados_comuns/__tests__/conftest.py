@@ -349,7 +349,7 @@ def client_autenticado_coordenador_codae(client, django_user_model):
 @pytest.fixture
 def user_diretor_escola(django_user_model, escola):
     email = "user@escola.com"
-    password = "admin@123"
+    password = DJANGO_ADMIN_PASSWORD
     perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     usuario = django_user_model.objects.create_user(
         username=email,
@@ -429,7 +429,7 @@ def usuario_teste_notificacao_autenticado(client, django_user_model):
 @pytest.fixture
 def user_administrador_medicao(django_user_model, escola):
     email = "user@escola.com"
-    password = "admin@123"
+    password = DJANGO_ADMIN_PASSWORD
     perfil_admin_medicao = baker.make(
         "Perfil", nome="ADMINISTRADOR_MEDICAO", ativo=True
     )

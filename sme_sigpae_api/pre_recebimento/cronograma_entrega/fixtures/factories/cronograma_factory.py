@@ -50,7 +50,7 @@ class EtapasDoCronogramaFactory(DjangoModelFactory):
         lambda: fake.random_number(digits=5, fix_len=True) / 100
     )
     etapa = Sequence(lambda n: n + 1)
-    parte = Sequence(lambda n: f"Parte {n + 1}")
+    parte = Sequence(lambda n: n + 1)
     data_programada = LazyFunction(
         lambda: fake.date_time_between(
             start_date=date.today() + timedelta(days=10)

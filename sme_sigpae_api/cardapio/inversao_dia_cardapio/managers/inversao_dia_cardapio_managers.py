@@ -15,9 +15,7 @@ class InversaoCardapioDestaSemanaManager(models.Manager):
             .get_queryset()
             .filter(
                 Q(cardapio_de__data__range=(data_limite_inicial, data_limite_final))
-                | Q(  # noqa W504
-                    cardapio_para__data__range=(data_limite_inicial, data_limite_final)
-                )
+                | Q(cardapio_para__data__range=(data_limite_inicial, data_limite_final))
             )
             .filter(
                 cardapio_de__data__gte=data_limite_inicial,
@@ -35,9 +33,7 @@ class InversaoCardapioDesteMesManager(models.Manager):
             .get_queryset()
             .filter(
                 Q(cardapio_de__data__range=(data_limite_inicial, data_limite_final))
-                | Q(  # noqa W504
-                    cardapio_para__data__range=(data_limite_inicial, data_limite_final)
-                )
+                | Q(cardapio_para__data__range=(data_limite_inicial, data_limite_final))
             )
             .filter(
                 cardapio_de__data__gte=data_limite_inicial,
