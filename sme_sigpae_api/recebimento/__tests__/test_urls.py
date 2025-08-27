@@ -4,12 +4,12 @@ from datetime import date, timedelta
 from faker import Faker
 from rest_framework import status
 
+from sme_sigpae_api.dados_comuns.fluxo_status import FichaDeRecebimentoWorkflow
 from sme_sigpae_api.recebimento.models import (
     FichaDeRecebimento,
     QuestaoConferencia,
     QuestoesPorProduto,
 )
-from sme_sigpae_api.dados_comuns.fluxo_status import FichaDeRecebimentoWorkflow
 
 fake = Faker("pt_BR")
 
@@ -286,31 +286,35 @@ def test_ficha_recebimento_create_bad_request(
     assert "data_entrega" in response.data
 
 
-def test_ficha_recebimento_list_filter_status(client_autenticado_qualidade, ficha_de_recebimento_factory):
+def test_ficha_recebimento_list_filter_status(
+    client_autenticado_qualidade, ficha_de_recebimento_factory
+):
     """Testa o filtro de status na listagem de fichas de recebimento."""
-    ficha_rascunho = ficha_de_recebimento_factory(status=FichaDeRecebimentoWorkflow.RASCUNHO)
-    ficha_assinada = ficha_de_recebimento_factory(status=FichaDeRecebimentoWorkflow.ASSINADA)
-    
+    ficha_rascunho = ficha_de_recebimento_factory(
+        status=FichaDeRecebimentoWorkflow.RASCUNHO
+    )
+    ficha_assinada = ficha_de_recebimento_factory(
+        status=FichaDeRecebimentoWorkflow.ASSINADA
+    )
+
     response = client_autenticado_qualidade.get(
-        "/fichas-de-recebimento/",
-        {"status": FichaDeRecebimentoWorkflow.RASCUNHO}
+        "/fichas-de-recebimento/", {"status": FichaDeRecebimentoWorkflow.RASCUNHO}
     )
     assert response.status_code == status.HTTP_200_OK
     results = response.json()["results"]
     assert len(results) == 1
     assert results[0]["uuid"] == str(ficha_rascunho.uuid)
     assert results[0]["status"] == "Rascunho"
-    
+
     response = client_autenticado_qualidade.get(
-        "/fichas-de-recebimento/",
-        {"status": FichaDeRecebimentoWorkflow.ASSINADA}
+        "/fichas-de-recebimento/", {"status": FichaDeRecebimentoWorkflow.ASSINADA}
     )
     assert response.status_code == status.HTTP_200_OK
     results = response.json()["results"]
     assert len(results) == 1
     assert results[0]["uuid"] == str(ficha_assinada.uuid)
     assert results[0]["status"] == "Assinado CODAE"
-    
+
     response = client_autenticado_qualidade.get("/fichas-de-recebimento/")
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["count"] == 2

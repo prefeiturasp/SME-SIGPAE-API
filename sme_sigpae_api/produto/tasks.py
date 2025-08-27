@@ -252,7 +252,6 @@ def gera_pdf_relatorio_reclamacao_produtos_async(
         )
         atualiza_central_download(obj_central_download, nome_arquivo, arquivo)
     except Exception as e:
-        print(e)
         atualiza_central_download_com_erro(obj_central_download, str(e))
 
     logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
