@@ -18,6 +18,7 @@ from .permissions import (
     PermissaoParaVisualizarQuestoesConferencia,
 )
 from .serializers.serializers import (
+    FichaDeRecebimentoDetalharSerializer,
     FichaDeRecebimentoSerializer,
     QuestaoConferenciaSerializer,
     QuestaoConferenciaSimplesSerializer,
@@ -134,6 +135,7 @@ class FichaRecebimentoModelViewSet(
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
     mixins.UpdateModelMixin,
+    mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
     lookup_field = "uuid"
@@ -147,6 +149,8 @@ class FichaRecebimentoModelViewSet(
     def get_serializer_class(self):
         if self.action in ["create", "update"]:
             return FichaDeRecebimentoCreateSerializer
+        if self.action == "retrieve":
+            return FichaDeRecebimentoDetalharSerializer
         return FichaDeRecebimentoSerializer
 
     def get_permissions(self):
