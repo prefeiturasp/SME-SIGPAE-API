@@ -8,6 +8,11 @@ from sme_sigpae_api.cardapio.__tests__.utils import (
 from sme_sigpae_api.cardapio.inversao_dia_cardapio.models import InversaoCardapio
 from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
+from sme_sigpae_api.dados_comuns.constants import (
+    PEDIDOS_CODAE,
+    PEDIDOS_DRE,
+    SEM_FILTRO,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -395,3 +400,29 @@ def test_terceirizada_marca_conferencia_inversao_cardapio_viewset(
     _checa_se_terceirizada_marcou_conferencia_na_gestao_de_alimentacao(
         client_autenticado, InversaoCardapio, "inversoes-dia-cardapio"
     )
+
+def test_url_inversoes_dia_cardapio_codae(
+    client_autenticado_vinculo_codae_cardapio
+):
+    response = client_autenticado_vinculo_codae_cardapio.get(
+        f"/{ENDPOINT_INVERSOES}/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
+    )
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)   
+
+def test_url_inversoes_dia_cardapio_dre(
+    client_autenticado_vinculo_dre_cardapio
+):
+    response = client_autenticado_vinculo_dre_cardapio.get(
+        f"/{ENDPOINT_INVERSOES}/{PEDIDOS_DRE}/{SEM_FILTRO}/"
+    )
+    data = response.json()
+    assert "previous" not in data
+    assert "next" not in data
+    assert "count" not in data
+    assert "results" in data
+    assert isinstance(data["results"], list)  
