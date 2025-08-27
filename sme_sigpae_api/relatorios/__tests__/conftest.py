@@ -374,7 +374,7 @@ def mock_produtos_relatorio_reclamacao(lote):
                     }
                 ],
                 "status_titulo": "Escola/Nutricionista reclamou do produto",
-                "editais_reclamacoes": ["303030A", "78/SME/2016"],
+                "editais_reclamacoes": ["Edital de Pregão 001", "Edital de Pregão 004"],
             },
         }
     ]
@@ -389,11 +389,10 @@ def mock_filtros_relatorio_reclamacao(lote):
     )
     return {
         "editais": [
-            "303030A",
-            "Edital de Pregão n° 36/SME/2022",
-            "Edital 21.02.2025/1043",
-            "Edital de Pregão n.o 23/sme/2018",
-            "78/SME/2016",
+            "Edital de Pregão 001",
+            "Edital de Pregão 002",
+            "Edital de Pregão 003",
+            "Edital de Pregão 004",
         ],
         "lotes": [
             str(lote.uuid),
