@@ -4,15 +4,18 @@ from unittest.mock import Mock
 import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.http import QueryDict
 from faker import Faker
 from model_bakery import baker
 
 from sme_sigpae_api.produto.api.serializers.serializers import (
     HomologacaoProdutoPainelGerencialSerializer,
+    ProdutoReclamacaoSerializer,
     ReclamacaoDeProdutoSerializer,
 )
 from sme_sigpae_api.produto.api.viewsets import (
     HomologacaoProdutoPainelGerencialViewSet,
+    ProdutoViewSet,
     ReclamacaoProdutoViewSet,
 )
 
@@ -365,7 +368,7 @@ def produto(user, protocolo1, protocolo2, marca1, fabricante):
 
 
 @pytest.fixture
-def produto_com_editais(produto):
+def produto_com_editais(produto, escola):
     edital = baker.make(
         "Edital",
         numero="Edital de Pregão nº 41/sme/2017",
@@ -406,6 +409,30 @@ def produto_com_editais(produto):
     baker.make("DataHoraVinculoProdutoEdital", produto_edital=pe2)
     baker.make("DataHoraVinculoProdutoEdital", produto_edital=pe3)
 
+    baker.make(
+        Contrato,
+        numero="11",
+        processo="42345",
+        diretorias_regionais=[escola.diretoria_regional],
+        edital=edital,
+        lotes=[escola.lote],
+    )
+    baker.make(
+        Contrato,
+        numero="22",
+        processo="42344",
+        diretorias_regionais=[escola.diretoria_regional],
+        edital=edital_2,
+        lotes=[escola.lote],
+    )
+    baker.make(
+        Contrato,
+        numero="33",
+        processo="42445",
+        diretorias_regionais=[escola.diretoria_regional],
+        edital=edital_3,
+        lotes=[escola.lote],
+    )
     return produto
 
 
@@ -444,7 +471,10 @@ def hom_produto_com_editais(
         criado_por=user,
         homologacao_produto=homologacao_produto,
         escola=escola,
+        status=ReclamacaoProdutoWorkflow.AGUARDANDO_AVALIACAO,
+        reclamacao="Produto com aparência alterada",
     )
+
     return homologacao_produto
 
 
@@ -1135,3 +1165,47 @@ def homologacao_e_copia(terceirizada):
     )
 
     return homologacao_principal
+
+
+@pytest.fixture
+def numero_editais():
+    query_params = QueryDict(mutable=True)
+    query_params.setlist(
+        "editais[]",
+        [
+            "Edital de Pregão nº 78/sme/2022",
+            "Edital de Pregão nº 78/sme/2016",
+            "Edital de Pregão nº 41/sme/2017",
+        ],
+    )
+    return query_params
+
+
+@pytest.fixture
+def mock_view_de_produtos(client_autenticado_vinculo_terceirizada, numero_editais):
+    client, usuario = client_autenticado_vinculo_terceirizada
+    mock_request = Mock()
+    mock_request.data = {}
+    mock_request.user = usuario
+    mock_request.query_params = numero_editais
+
+    viewset = ProdutoViewSet()
+    viewset.request = mock_request
+    # viewset.kwargs = {"uuid": "uuid"}
+    viewset.get_serializer = ProdutoReclamacaoSerializer
+
+    return mock_request, viewset
+
+
+@pytest.fixture
+def reclamacao_produto_pdf(user, escola, hom_produto_com_editais):
+    baker.make(
+        "ReclamacaoDeProduto",
+        # uuid="dd06d200-e2f9-4be7-a304-82831ce93ee1",
+        criado_por=user,
+        homologacao_produto=hom_produto_com_editais,
+        escola=escola,
+        status=ReclamacaoProdutoWorkflow.AGUARDANDO_RESPOSTA_TERCEIRIZADA,
+        reclamacao="Produto com problema de qualidade.",
+    )
+    return hom_produto_com_editais

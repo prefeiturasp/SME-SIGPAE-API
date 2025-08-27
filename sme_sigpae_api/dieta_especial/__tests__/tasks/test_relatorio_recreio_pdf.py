@@ -1,27 +1,27 @@
 import pytest
 from freezegun.api import freeze_time
 from PyPDF4 import PdfFileReader
+
 from sme_sigpae_api.dados_comuns.models import CentralDeDownload
-from sme_sigpae_api.dieta_especial.tasks import (
-    gera_pdf_relatorio_recreio_nas_ferias_async,
-)
 from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
     SolicitacaoDietaEspecialFactory,
-
+)
+from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+from sme_sigpae_api.dieta_especial.tasks import (
+    gera_pdf_relatorio_recreio_nas_ferias_async,
 )
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
+    AlunoFactory,
     DiretoriaRegionalFactory,
     EscolaFactory,
     LoteFactory,
     PeriodoEscolarFactory,
     TipoUnidadeEscolarFactory,
-    AlunoFactory,
 )
 from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import (
     EmpresaFactory,
 )
-from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 
 pytestmark = pytest.mark.django_db
 
@@ -42,7 +42,7 @@ class BaseSetupRecreioNasFerias:
         self.lote = LoteFactory.create(
             nome="LOTE 01", diretoria_regional=self.dre, terceirizada=self.terceirizada
         )
-    
+
     def setup_escolas(self):
         self.tipo_unidade_emef = TipoUnidadeEscolarFactory.create(iniciais="EMEF")
         self.escola_emef = EscolaFactory.create(
@@ -129,7 +129,9 @@ class TestGeraPDFRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
     ):
         self.setup()
         client, user = client_autenticado_vinculo_codae_gestao_alimentacao_dieta
-        gera_pdf_relatorio_recreio_nas_ferias_async(user, "relatorio_recreio_nas_ferias.pdf", { "lote": self.lote.uuid })
+        gera_pdf_relatorio_recreio_nas_ferias_async(
+            user, "relatorio_recreio_nas_ferias.pdf", {"lote": self.lote.uuid}
+        )
         conteudo_pdf = resgata_conteudo_pdf()
 
         esperados_cabecalho = [
@@ -148,20 +150,21 @@ class TestGeraPDFRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
         ]
 
         for texto in esperados_cabecalho:
-            assert (texto in conteudo_pdf), f"Texto do cabeçalho não encontrado: {texto}"
+            assert texto in conteudo_pdf, f"Texto do cabeçalho não encontrado: {texto}"
 
         for texto in esperados_tabela:
-            assert (texto in conteudo_pdf), f"Texto da tabela não encontrado: {texto}"
+            assert texto in conteudo_pdf, f"Texto da tabela não encontrado: {texto}"
 
     def test_gera_pdf_historico_dietas_especiais_periodo_param(
         self, client_autenticado_vinculo_codae_gestao_alimentacao_dieta
     ):
         self.setup()
         client, user = client_autenticado_vinculo_codae_gestao_alimentacao_dieta
-        gera_pdf_relatorio_recreio_nas_ferias_async(user, "relatorio_recreio_nas_ferias.pdf", { 
-            "lote": self.lote.uuid, 
-            "data_inicio": "01/09/2025" 
-        })
+        gera_pdf_relatorio_recreio_nas_ferias_async(
+            user,
+            "relatorio_recreio_nas_ferias.pdf",
+            {"lote": self.lote.uuid, "data_inicio": "01/09/2025"},
+        )
         conteudo_pdf = resgata_conteudo_pdf()
         assert "LOTE 01" in conteudo_pdf
         assert "EMEF PERICLES" not in conteudo_pdf

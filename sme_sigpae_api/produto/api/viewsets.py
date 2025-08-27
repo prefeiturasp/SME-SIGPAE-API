@@ -2343,6 +2343,17 @@ class ProdutoViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["GET"], url_path="relatorio-reclamacao")
     def relatorio_reclamacao(self, request):
+        if (
+            request.query_params.getlist("editais[]") == []
+            or request.query_params.getlist("editais[]") is None
+        ):
+            return Response(
+                dict(
+                    detail="É obrigatório selecionar pelo menos um edital para gerar o relatório."
+                ),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         filtro_reclamacao, filtro_homologacao = filtros_produto_reclamacoes(request)
         queryset = self.obter_produtos_ordenados_por_edital_e_reclamacoes(
             filtro_reclamacao, filtro_homologacao

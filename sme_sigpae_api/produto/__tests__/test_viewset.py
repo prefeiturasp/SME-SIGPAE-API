@@ -2,7 +2,10 @@ import pytest
 from django.db.models.query import RawQuerySet
 from rest_framework import status
 
-from sme_sigpae_api.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
+from sme_sigpae_api.dados_comuns.fluxo_status import (
+    HomologacaoProdutoWorkflow,
+    ReclamacaoProdutoWorkflow,
+)
 from sme_sigpae_api.produto.api.serializers.serializers import (
     ReclamacaoDeProdutoSerializer,
 )
@@ -218,3 +221,59 @@ def test_trata_edital_com_dois_editais(
     assert (
         sql_gerado.count(f"AND produto_edital.edital_id_prod_edit IN ({editais})") == 1
     )
+
+
+def test_obter_produtos_ordenados_por_edital_e_reclamacoes_filtro_edital(
+    mock_view_de_produtos, hom_produto_com_editais
+):
+    mock_request, viewset = mock_view_de_produtos
+    editais = mock_request.query_params.getlist("editais[]")
+    filtro_reclamacao = {
+        "escola__lote__contratos_do_lote__edital__numero__in": editais,
+        "escola__lote__contratos_do_lote__encerrado": False,
+    }
+    filtro_homologacao = {
+        f"homologacao__reclamacoes__escola__lote__contratos_do_lote__edital__numero__in": editais,
+        f"homologacao__reclamacoes__escola__lote__contratos_do_lote__encerrado": False,
+    }
+    qs = viewset.obter_produtos_ordenados_por_edital_e_reclamacoes(
+        filtro_reclamacao, filtro_homologacao
+    )
+    assert qs.count() == 1
+
+
+def test_obter_produtos_ordenados_por_edital_e_reclamacoes_filtro_status_resposta_tercerizada(
+    mock_view_de_produtos, reclamacao_produto_pdf
+):
+    _, viewset = mock_view_de_produtos
+
+    filtro_reclamacao = {
+        "status__in": [ReclamacaoProdutoWorkflow.AGUARDANDO_RESPOSTA_TERCEIRIZADA]
+    }
+    filtro_homologacao = {
+        "homologacao__reclamacoes__status__in": [
+            ReclamacaoProdutoWorkflow.AGUARDANDO_RESPOSTA_TERCEIRIZADA
+        ]
+    }
+    qs = viewset.obter_produtos_ordenados_por_edital_e_reclamacoes(
+        filtro_reclamacao, filtro_homologacao
+    )
+    assert qs.count() == 1
+
+
+def test_obter_produtos_ordenados_por_edital_e_reclamacoes_filtro_status_analise_sensorial(
+    mock_view_de_produtos, reclamacao_produto_pdf
+):
+    _, viewset = mock_view_de_produtos
+    filtro_reclamacao = {
+        "status__in": [ReclamacaoProdutoWorkflow.ANALISE_SENSORIAL_RESPONDIDA]
+    }
+    filtro_homologacao = {
+        "homologacao__reclamacoes__status__in": [
+            ReclamacaoProdutoWorkflow.ANALISE_SENSORIAL_RESPONDIDA
+        ]
+    }
+    qs = viewset.obter_produtos_ordenados_por_edital_e_reclamacoes(
+        filtro_reclamacao, filtro_homologacao
+    )
+    assert qs.count() == 0
