@@ -202,11 +202,31 @@ class ArquivoFichaRecebimentoSerializer(serializers.ModelSerializer):
         exclude = ("id", "ficha_recebimento")
 
 
+class DadosCronogramaSerializer(serializers.Serializer):
+    uuid = serializers.CharField(source="cronograma.uuid")
+    numero = serializers.CharField(source="cronograma.numero")
+    embalagem_primaria = serializers.CharField(
+        source="cronograma.ficha_tecnica.embalagem_primaria"
+    )
+    embalagem_secundaria = serializers.CharField(
+        source="cronograma.ficha_tecnica.embalagem_secundaria"
+    )
+    peso_liquido_embalagem_primaria = serializers.FloatField(
+        source="cronograma.ficha_tecnica.peso_liquido_embalagem_primaria"
+    )
+    peso_liquido_embalagem_secundaria = serializers.FloatField(
+        source="cronograma.ficha_tecnica.peso_liquido_embalagem_secundaria"
+    )
+    sistema_vedacao_embalagem_secundaria = serializers.CharField(
+        source="cronograma.ficha_tecnica.sistema_vedacao_embalagem_secundaria"
+    )
+
+
 class FichaDeRecebimentoDetalharSerializer(serializers.ModelSerializer):
     data_recebimento = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
     etapa = EtapasDoCronogramaSerializer(read_only=True)
-    dados_cronograma = serializers.SerializerMethodField()
+    dados_cronograma = DadosCronogramaSerializer(source="etapa", read_only=True)
     documentos_recebimento = DocRecebimentoFichaDeRecebimentoSerializer(
         many=True, read_only=True
     )
@@ -221,38 +241,6 @@ class FichaDeRecebimentoDetalharSerializer(serializers.ModelSerializer):
     def get_data_recebimento(self, obj):
         try:
             return obj.data_entrega.strftime("%d/%m/%Y") if obj.data_entrega else None
-        except AttributeError:
-            return None
-
-    def get_dados_cronograma(self, obj):
-        try:
-            cronograma = obj.etapa.cronograma
-            ficha_tecnica = cronograma.ficha_tecnica
-            return {
-                "uuid": cronograma.uuid,
-                "numero": cronograma.numero,
-                "embalagem_primaria": (
-                    ficha_tecnica.embalagem_primaria if ficha_tecnica else None
-                ),
-                "embalagem_secundaria": (
-                    ficha_tecnica.embalagem_secundaria if ficha_tecnica else None
-                ),
-                "peso_liquido_embalagem_primaria": (
-                    ficha_tecnica.peso_liquido_embalagem_primaria
-                    if ficha_tecnica
-                    else None
-                ),
-                "peso_liquido_embalagem_secundaria": (
-                    ficha_tecnica.peso_liquido_embalagem_secundaria
-                    if ficha_tecnica
-                    else None
-                ),
-                "sistema_vedacao_embalagem_secundaria": (
-                    ficha_tecnica.sistema_vedacao_embalagem_secundaria
-                    if ficha_tecnica
-                    else None
-                ),
-            }
         except AttributeError:
             return None
 

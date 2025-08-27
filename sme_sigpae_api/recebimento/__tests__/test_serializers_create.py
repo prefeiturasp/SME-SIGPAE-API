@@ -189,8 +189,13 @@ def test_ficha_recebimento_serializer_update(
     """Testa a atualização de uma ficha existente através do serializer."""
     payload_ficha_recebimento["observacao"] = "Observação atualizada"
 
+    class FakeObject(object):
+        user = baker.make("perfil.Usuario")
+
+    context = {"request": FakeObject()}
+
     serializer = FichaDeRecebimentoCreateSerializer(
-        instance=ficha_recebimento, data=payload_ficha_recebimento
+        instance=ficha_recebimento, data=payload_ficha_recebimento, context=context
     )
     is_valid = serializer.is_valid()
     if not is_valid:
