@@ -85,7 +85,7 @@ Características e necessidades: responsável pelo atendimento das solicitaçõe
 **Gestão de Usuários**
 - Gestão de Acesso
 - Carga de Usuários
-- Atualização d E-mail do EOL
+- Atualização de E-mail do EOL
 
 **Medição**
 - Lançamentos
