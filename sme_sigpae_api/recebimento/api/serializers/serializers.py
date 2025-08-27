@@ -1,5 +1,8 @@
 from rest_framework import serializers
 
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
+    EtapasDoCronogramaSerializer,
+)
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
 )
@@ -8,10 +11,13 @@ from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializers im
 )
 
 from ...models import (
+    ArquivoFichaRecebimento,
     FichaDeRecebimento,
+    OcorrenciaFichaRecebimento,
     QuestaoConferencia,
     QuestaoFichaRecebimento,
     QuestoesPorProduto,
+    VeiculoFichaDeRecebimento,
 )
 
 
@@ -170,42 +176,53 @@ class FichaDeRecebimentoSerializer(serializers.ModelSerializer):
         )
 
 
+class VeiculoFichaDeRecebimentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VeiculoFichaDeRecebimento
+        exclude = ("id", "ficha_recebimento")
+
+
+class QuestaoFichaRecebimentoDetailSerializer(serializers.ModelSerializer):
+    questao_conferencia = QuestaoConferenciaSimplesSerializer(read_only=True)
+
+    class Meta:
+        model = QuestaoFichaRecebimento
+        exclude = ("id", "ficha_recebimento")
+
+
+class OcorrenciaFichaRecebimentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OcorrenciaFichaRecebimento
+        exclude = ("id", "ficha_recebimento")
+
+
+class ArquivoFichaRecebimentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArquivoFichaRecebimento
+        exclude = ("id", "ficha_recebimento")
+
+
 class FichaDeRecebimentoDetalharSerializer(serializers.ModelSerializer):
     data_recebimento = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
-    etapa = serializers.SerializerMethodField()
+    etapa = EtapasDoCronogramaSerializer(read_only=True)
     dados_cronograma = serializers.SerializerMethodField()
     documentos_recebimento = DocRecebimentoFichaDeRecebimentoSerializer(
         many=True, read_only=True
     )
-    veiculos = serializers.SerializerMethodField()
-    questoes = serializers.SerializerMethodField()
-    ocorrencias = serializers.SerializerMethodField()
-    arquivos = serializers.SerializerMethodField()
+    veiculos = VeiculoFichaDeRecebimentoSerializer(many=True, read_only=True)
+    questoes = QuestaoFichaRecebimentoDetailSerializer(
+        source="questaoficharecebimento_set", many=True, read_only=True
+    )
+
+    ocorrencias = OcorrenciaFichaRecebimentoSerializer(many=True, read_only=True)
+    arquivos = ArquivoFichaRecebimentoSerializer(many=True, read_only=True)
 
     def get_data_recebimento(self, obj):
         try:
             return obj.data_entrega.strftime("%d/%m/%Y") if obj.data_entrega else None
         except AttributeError:
             return None
-
-    def get_etapa(self, obj):
-        if obj.etapa:
-            return {
-                "uuid": obj.etapa.uuid,
-                "etapa": obj.etapa.etapa,
-                "data_programada": (
-                    obj.etapa.data_programada.strftime("%Y-%m-%d")
-                    if obj.etapa.data_programada
-                    else None
-                ),
-                "numero_empenho": obj.etapa.numero_empenho,
-                "parte": obj.etapa.parte,
-                "qtd_total_empenho": obj.etapa.qtd_total_empenho,
-                "quantidade": obj.etapa.quantidade,
-                "total_embalagens": obj.etapa.total_embalagens,
-            }
-        return None
 
     def get_dados_cronograma(self, obj):
         try:
@@ -238,77 +255,6 @@ class FichaDeRecebimentoDetalharSerializer(serializers.ModelSerializer):
             }
         except AttributeError:
             return None
-
-    def get_veiculos(self, obj):
-        return [
-            {
-                "uuid": veiculo.uuid if hasattr(veiculo, "uuid") else None,
-                "numero": veiculo.numero,
-                "temperatura_recebimento": veiculo.temperatura_recebimento,
-                "temperatura_produto": veiculo.temperatura_produto,
-                "placa": getattr(veiculo, "placa", None),
-                "lacre": getattr(veiculo, "lacre", None),
-                "numero_sif_sisbi_sisp": getattr(
-                    veiculo, "numero_sif_sisbi_sisp", None
-                ),
-                "numero_nota_fiscal": getattr(veiculo, "numero_nota_fiscal", None),
-                "quantidade_nota_fiscal": getattr(
-                    veiculo, "quantidade_nota_fiscal", None
-                ),
-                "embalagens_nota_fiscal": getattr(
-                    veiculo, "embalagens_nota_fiscal", None
-                ),
-                "quantidade_recebida": getattr(veiculo, "quantidade_recebida", None),
-                "embalagens_recebidas": getattr(veiculo, "embalagens_recebidas", None),
-                "estado_higienico_adequado": getattr(
-                    veiculo, "estado_higienico_adequado", None
-                ),
-                "termografo": getattr(veiculo, "termografo", None),
-            }
-            for veiculo in obj.veiculos.all()
-        ]
-
-    def get_questoes(self, obj):
-        return [
-            {
-                "uuid": questao.uuid if hasattr(questao, "uuid") else None,
-                "questao_conferencia": (
-                    questao.questao_conferencia.uuid
-                    if questao.questao_conferencia
-                    else None
-                ),
-                "tipo_questao": getattr(questao, "tipo_questao", None),
-                "resposta": questao.resposta,
-            }
-            for questao in obj.questaoficharecebimento_set.all()
-        ]
-
-    def get_ocorrencias(self, obj):
-        return [
-            {
-                "uuid": ocorrencia.uuid if hasattr(ocorrencia, "uuid") else None,
-                "tipo": ocorrencia.tipo,
-                "relacao": getattr(ocorrencia, "relacao", None),
-                "numero_nota": getattr(ocorrencia, "numero_nota", None),
-                "quantidade": getattr(ocorrencia, "quantidade", None),
-                "descricao": ocorrencia.descricao,
-            }
-            for ocorrencia in obj.ocorrencias.all()
-        ]
-
-    def get_arquivos(self, obj):
-        return [
-            {
-                "uuid": arquivo.uuid if hasattr(arquivo, "uuid") else None,
-                "nome": arquivo.nome if hasattr(arquivo, "nome") else None,
-                "arquivo": (
-                    arquivo.arquivo.url
-                    if hasattr(arquivo, "arquivo") and arquivo.arquivo
-                    else None
-                ),
-            }
-            for arquivo in obj.arquivos.all()
-        ]
 
     class Meta:
         model = FichaDeRecebimento
