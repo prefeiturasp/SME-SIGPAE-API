@@ -1,3 +1,4 @@
+import environ
 from rest_framework import serializers
 
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
@@ -197,9 +198,17 @@ class OcorrenciaFichaRecebimentoSerializer(serializers.ModelSerializer):
 
 
 class ArquivoFichaRecebimentoSerializer(serializers.ModelSerializer):
+    nome = serializers.CharField()
+    arquivo = serializers.SerializerMethodField()
+
+    def get_arquivo(self, instance):
+        env = environ.Env()
+        api_url = env.str("URL_ANEXO", default="http://localhost:8000")
+        return f"{api_url}{instance.arquivo.url}"
+
     class Meta:
         model = ArquivoFichaRecebimento
-        exclude = ("id", "ficha_recebimento")
+        exclude = ("id", "ficha_recebimento", "uuid")
 
 
 class DadosCronogramaSerializer(serializers.Serializer):
