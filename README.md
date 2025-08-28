@@ -116,9 +116,11 @@ Características e necessidades: responsável pelo atendimento das solicitaçõe
 - Release 8 - Cardápio
 - Release 9 - Supervisão
 
-Detalhamento do roadmap: https://whimsical.com/roadmap-geral-sigpae-C2tThx2G9GpuVviBeHZ5me@VsSo8s35X1aaSatHxnJFRV 
+Detalhamento do roadmap: [https://whimsical.com/roadmap-geral-sigpae-C2tThx2G9GpuVviBeHZ5me@VsSo8s35X1aaSatHxnJFRV](https://whimsical.com/roadmap-geral-sigpae-C2tThx2G9GpuVviBeHZ5me@VsSo8s35X1aaSatHxnJFRV)
 
-Fluxos: https://whimsical.com/fluxos-i7SkAADB94XRhRMd2afif
+Fluxos: [https://whimsical.com/fluxos-i7SkAADB94XRhRMd2afif](https://whimsical.com/fluxos-i7SkAADB94XRhRMd2afif)
+
+Link do roadmap: [https://miro.com/app/board/uXjVJYCIt1M=/?share_link_id=769082437083](https://miro.com/app/board/uXjVJYCIt1M=/?share_link_id=769082437083)
 
 # Sobre o Time
 
@@ -178,12 +180,9 @@ Contribuições são **super bem vindas**! Se você tem vontade de construir o S
 
 # Repositórios
 
-Informar os repositórios de código que envolvem a solução:
-
-[SME-SIGPAE-API] [https://github.com/prefeiturasp/SME-SIGPAE-API](https://github.com/prefeiturasp/SME-SIGPAE-API)
-
-[SME-SIGPAE-FRONTEND]
-[https://github.com/prefeiturasp/SME-SIGPAE-Frontend](https://github.com/prefeiturasp/SME-SIGPAE-Frontend)
+Repositórios de código que envolvem a solução:  
+- SME-SIGPAE-API: [https://github.com/prefeiturasp/SME-SIGPAE-API](https://github.com/prefeiturasp/SME-SIGPAE-API)
+- SME-SIGPAE-FRONTEND: [https://github.com/prefeiturasp/SME-SIGPAE-Frontend](https://github.com/prefeiturasp/SME-SIGPAE-Frontend)
  
 # Instalação e Configuração
 
