@@ -378,7 +378,7 @@ def test_relatorio_reclamacao_produtos(
         filtros=mock_filtros_relatorio_reclamacao,
     )
     texto = extrair_texto_de_pdf(relatorio)
-    assert "RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÃO DE PRODUTOS" in texto
+    assert "RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÕES DE PRODUTOS" in texto
     assert "Total de Reclamações de Produtos:  1" in texto
     assert "Período:  01/01/2022 até 19/08/2025" in texto
     assert "Data de extração do relatório:  27/12/2024" in texto
@@ -414,7 +414,7 @@ def test_relatorio_reclamacao_produtos_sem_dre_lote_selecionadas(
         filtros=mock_filtros_relatorio_reclamacao,
     )
     texto = extrair_texto_de_pdf(relatorio)
-    assert "RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÃO DE PRODUTOS" in texto
+    assert "RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÕES DE PRODUTOS" in texto
     assert "Total de Reclamações de Produtos:  1" in texto
     assert "Período:  01/01/2022 até 19/08/2025" in texto
     assert "Data de extração do relatório:  27/12/2024" in texto
@@ -451,7 +451,7 @@ def test_relatorio_reclamacao_produtos_sem_data_selecionadas(
         filtros=mock_filtros_relatorio_reclamacao,
     )
     texto = extrair_texto_de_pdf(relatorio)
-    assert "RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÃO DE PRODUTOS" in texto
+    assert "RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÕES DE PRODUTOS" in texto
     assert "Total de Reclamações de Produtos:  1" in texto
     assert "Período:  01/01/2022 até 19/08/2025" not in texto
     assert "Data de extração do relatório:  27/12/2024" in texto
