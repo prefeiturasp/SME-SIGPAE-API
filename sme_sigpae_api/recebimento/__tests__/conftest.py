@@ -381,3 +381,44 @@ def ocorrencia_ficha_recebimento_data(ficha_recebimento):
         "descricao": "Produto em falta",
         "ficha_recebimento": ficha_recebimento.id,
     }
+
+
+@pytest.fixture
+def veiculo_ficha_recebimento(ficha_recebimento):
+    """Fixture para criar um veículo de ficha de recebimento."""
+    from sme_sigpae_api.recebimento.models import VeiculoFichaDeRecebimento
+
+    return VeiculoFichaDeRecebimento.objects.create(
+        ficha_recebimento=ficha_recebimento,
+        numero="Veículo 001",
+        temperatura_recebimento="25",
+        temperatura_produto="24",
+        placa="ABC1234",
+        lacre="LCR123456",
+        numero_sif_sisbi_sisp="123",
+        numero_nota_fiscal="NF123",
+        quantidade_nota_fiscal=10,
+        embalagens_nota_fiscal=5,
+        quantidade_recebida=10,
+        embalagens_recebidas=5,
+        estado_higienico_adequado=True,
+        termografo=False,
+    )
+
+
+@pytest.fixture
+def arquivo_ficha_recebimento(ficha_recebimento):
+    """Fixture para criar um arquivo de ficha de recebimento."""
+    from django.core.files.uploadedfile import SimpleUploadedFile
+
+    from sme_sigpae_api.recebimento.models import ArquivoFichaRecebimento
+
+    arquivo_mock = SimpleUploadedFile(
+        "test.pdf", b"file_content", content_type="application/pdf"
+    )
+
+    return ArquivoFichaRecebimento.objects.create(
+        ficha_recebimento=ficha_recebimento,
+        nome="Arquivo Teste",
+        arquivo=arquivo_mock,
+    )
