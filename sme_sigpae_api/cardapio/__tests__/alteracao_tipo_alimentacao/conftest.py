@@ -343,3 +343,34 @@ def alteracao_substituicoes_params(request, daqui_dez_dias_ou_ultimo_dia_do_ano)
         "data_inicial": daqui_dez_dias_ou_ultimo_dia_do_ano.isoformat(),
         "data_final": daqui_dez_dias_ou_ultimo_dia_do_ano.isoformat(),
     }
+
+@pytest.fixture
+def client_autenticado_vinculo_codae_inclusao(client, django_user_model, escola, codae):
+    email = "test@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    perfil_admin_gestao_alimentacao = baker.make(
+        "Perfil",
+        nome=constants.ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
+    )
+    hoje = datetime.date.today()
+    baker.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_admin_gestao_alimentacao,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    baker.make(
+        TemplateMensagem,
+        assunto="TESTE",
+        tipo=TemplateMensagem.DIETA_ESPECIAL,
+        template_html="@id @criado_em @status @link",
+    )
+    client.login(username=email, password=password)
+    return client
