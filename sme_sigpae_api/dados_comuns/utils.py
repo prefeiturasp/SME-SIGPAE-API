@@ -74,9 +74,7 @@ def envia_email_unico(
     )
 
 
-def envia_email_unico_com_anexo(
-    assunto: str, corpo: str, email: str, anexo=[]
-):  # noqa B006
+def envia_email_unico_com_anexo(assunto: str, corpo: str, email: str, anexo=[]):
     # Anexa um arquivo no email.
     # Usado em enviar_email_para_diretor_da_escola_destino.
     config = DynamicEmailConfiguration.get_solo()
@@ -93,7 +91,7 @@ def envia_email_unico_com_anexo(
 
 def envia_email_unico_com_anexo_inmemory(
     assunto: str, corpo: str, email: str, anexo_nome: str, mimetypes: str, anexo=[]
-):  # noqa E501
+):
     # Rever a obrigatoriedade de anexo_nome e mimetypes para implementações futuras, ou generalização.
     config = DynamicEmailConfiguration.get_solo()
 
@@ -286,7 +284,7 @@ def atualiza_central_download_com_erro(obj_central_download, msg_erro):
 
 
 class ExportExcelAction:
-    @classmethod  # noqa
+    @classmethod
     def generate_header(cls, admin, model, list_display):
         def default_format(value):
             return value.replace("_", " ").upper()

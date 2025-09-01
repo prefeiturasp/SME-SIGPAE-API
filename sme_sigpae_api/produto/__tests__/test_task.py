@@ -5,9 +5,13 @@ import pytest
 
 from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.models import CentralDeDownload
+from sme_sigpae_api.produto.api.serializers.serializers import (
+    ProdutoReclamacaoSerializer,
+)
 from sme_sigpae_api.produto.models import HomologacaoProduto, Produto
 from sme_sigpae_api.produto.tasks import (
     gera_pdf_relatorio_produtos_homologados_async,
+    gera_pdf_relatorio_reclamacao_produtos_async,
     gera_xls_relatorio_produtos_homologados_async,
     gera_xls_relatorio_produtos_suspensos_async,
 )
@@ -146,5 +150,65 @@ def test_gera_pdf_relatorio_produtos_homologados(hom_produto_com_editais):
     assert central_download.identificador == nome_arquivo
     assert central_download.arquivo is not None
     assert central_download.msg_erro == ""
+    assert central_download.visto is False
+    assert central_download.usuario == user
+
+
+def test_gera_pdf_relatorio_reclamacao_produtos(produto, reclamacao_produto_pdf):
+
+    user = reclamacao_produto_pdf.criado_por
+    nome_arquivo = "relatorio_reclamacao_produtos.pdf"
+    produtos = [ProdutoReclamacaoSerializer(produto).data]
+    quantidade_reclamacoes = 1
+    filtros = {
+        "editais": [
+            "Edital de Pregão nº 78/sme/2022",
+            "Edital de Pregão nº 41/sme/2017",
+            "Edital de Pregão nº 78/sme/2016",
+        ]
+    }
+
+    gera_pdf_relatorio_reclamacao_produtos_async(
+        user, nome_arquivo, [produtos], quantidade_reclamacoes, filtros
+    )
+
+    central_download = CentralDeDownload.objects.filter(
+        identificador=nome_arquivo
+    ).first()
+    assert central_download.status == CentralDeDownload.STATUS_CONCLUIDO
+    assert central_download.identificador == nome_arquivo
+    assert central_download.arquivo is not None
+    assert central_download.msg_erro == ""
+    assert central_download.visto is False
+    assert central_download.usuario == user
+
+
+def test_gera_pdf_relatorio_reclamacao_produtos_erro(produto, reclamacao_produto_pdf):
+
+    user = reclamacao_produto_pdf.criado_por
+    nome_arquivo = "relatorio_reclamacao_produtos.pdf"
+    produtos = ProdutoReclamacaoSerializer(produto).data
+    quantidade_reclamacoes = 1
+    filtros = (
+        (
+            [
+                "Edital de Pregão nº 78/sme/2022",
+                "Edital de Pregão nº 41/sme/2017",
+                "Edital de Pregão nº 78/sme/2016",
+            ],
+        ),
+    )
+
+    gera_pdf_relatorio_reclamacao_produtos_async(
+        user, nome_arquivo, produtos, quantidade_reclamacoes, filtros
+    )
+
+    central_download = CentralDeDownload.objects.filter(
+        identificador=nome_arquivo
+    ).first()
+    assert central_download.status == CentralDeDownload.STATUS_ERRO
+    assert central_download.identificador == nome_arquivo
+    assert central_download.arquivo is not None
+    assert central_download.msg_erro == "'tuple' object has no attribute 'get'"
     assert central_download.visto is False
     assert central_download.usuario == user

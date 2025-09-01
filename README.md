@@ -23,58 +23,49 @@ O [Ateliê do Software](http://forum.govit.prefeitura.sp.gov.br/uploads/default/
 
 1. [Sobre o Produto](#sobre-o-produto) 
 2. [Sobre o Time](#sobre-o-time) 
-3. [Como surgiu](#como-surgiu)  
-4. [Links Úteis](#links-úteis)  
-5. [Comunicação](#comunicação)  
-6. [Como contribuir](#como-contribuir)  
-7. [Repositórios](#repositórios)  
-8. [Instalação e Configuração](#instalação-e-configuração)
+3. [Links Úteis](#links-úteis)  
+4. [Comunicação](#comunicação)  
+5. [Como contribuir](#como-contribuir)  
+6. [Repositórios](#repositórios)  
+7. [Instalação e Configuração](#instalação-e-configuração)
  
 # Sobre o Produto
 
-Para as **unidades escolares da rede municipal de educação da cidade de São Paulo** 
-
-Que **precisam acompanhar o fornecimento de alimentação escolar**
-
-O **SIGPAE (Sistema de Gestão  do Programa para Alimentação Escolar)**  
-
-É uma **plataforma** 
-
-Que **gerencia todas as etapas de solicitações de alimentação, cadastro de produtos e controles internos** 
-
-Diferentemente de **solicitações através de planilhas, e-mails e telefonemas**  
-
-Onosso produto **garante mais agilidade, confiabilidade e segurança para os processos.**
+O Sistema de Gestão do Programa de Alimentação Escolar: **SIGPAE** foi desenvolvido pela **Secretaria Municipal de Educação** juntamente com a equipe técnica da **Coordenadoria de Alimentação Escolar** para facilitar e auxiliar o gerenciamento de processos e informações do **Programa de Alimentação Escolar no Município de São Paulo**.
 
 ## Objetivos de Negócio
 
-O SIGPAE tem como objetivo automatizar os processos internos de fornecimento e distribuição de alimentação escolar. Atualmente, temos os seguintes módulos desenvolvidos ou em desenvolvimento:
-
-- Gestão de Produtos: gestão de produtos, marcas e fabricantes oferecidos para os estudantes da rede municipal
-- Dieta Especial: registro e análise de solicitações de Dieta Especial feitas pelas Unidades Educacionais (UEs) e criação de protocolos de Dieta Especial para os estudantes
-- Gestão de Alimentação: registro e análise de solicitações de alimentação enviadas pelas UEs
-- Medição Inicial: registro e análise das refeições servidas pelas UEs mensalmente
-
-No futuro, o sistema também contará com módulos que apoiarão o trabalho da criação do cardápio, das nutricionistas da Supervisão, do Faturamento, entre outras. Desta forma, pretende-se que todo o trabalho desenvolvido para fornecer alimentação para as mais de 1000 UEs beneficiadas seja realizado a partir de um sistema, com maior segurança e automatização de processos.
+- Promover transparência e agilidade nos processos, acesso de dados e geração de relatórios;
+- Desenvolver módulos do sistema adaptáveis e alinhados às necessidades reais dos usuários;
+- Fortalecer o controle das políticas educacionais e da aplicação de recursos por parte da gestão e da sociedade;
+- Integrar setores, melhorar a eficiência e o fluxo de trabalho;
+- Diminuir o fluxo de papéis e planilhas e agilizar o acesso às informações;
+- Permitir a integração com sistemas novos ou já existentes;
+- Automatizar os processos internos de fornecimento e distribuição da alimentação escolar.
 
 ## Personas
 
-**Quem:** Direção Escolar
-**Características e necessidades:** responsável pela gestão da escola, com necessidade de otimização de tempo. O sistema é essencial para melhor controle das solicitações realizadas pela UE e demandas de DRE e CODAE
+**UNIDADES EDUCACIONAIS** | Diretor, Assistente de Direção, Professor, Auxiliar Técnico de Educação, Gestor de Equipamento.  
+Características e necessidades: responsável pela gestão da escola, com necessidade de otimização de tempo. O sistema é essencial para melhor controle das solicitações realizadas pela UE e demandas de DRE e CODAE.
 
-**Quem:** Assistente Técnico de Educação e Nutricionista
-**Características e necessidades:** responsável pela gestão das solicitações de alimentação no núcleo de gestão de contratos na CODAE, com necessidade de organização do recebimento das diversas solicitações das UEs
+**CODAE** | Coordenador(a), Assessores, Diretores, Técnicos de Educação, Nutricionistas, Veterinários e Agrônomos.  
+Características e necessidades: responsável pela gestão das solicitações e produtos, cronogramas, encaminhamentos, fluxos, fornecimento, controle, entre outros relacionados ao Programa de Alimentação Escolar, com a necessidade de executar, monitorar e promover o Programa.
 
-**Quem:** Nutricionista de Dieta Especial
-**Características e necessidades:** responsável pela validação de solicitações e prescrição da Dieta Especial, tem necessidade de otimização do processo para revisão, encaminhamento e fornecimento da dieta nas escolas. Processos burocráticos, dolorosos e com decisões de alto impacto para os estudantes
+**DIRETORIA REGIONAL DE EDUCAÇÃO (DRE)** | Cogestores(as)  
+Características e necessidades: responsável pelo gerenciamento das solicitações realizadas pelas escolas que administra, com a necessidade de otimizar e controlar as diversas solicitações das unidades escolares, afim de contribuir com a fiscalização e controle das solicitações geradas.
 
-**Quem:** Nutricionista P&D
-**Características e necessidades:** responsável pela gestão de produtos (homologação, correção, suspensão e avaliação de reclamação e solicitação de análise sensorial) solicitados pelas empresas terceirizadas, com a necessidade de controle do que pode ser utilizados nas unidades escolares
-
-**Quem:** Diretoria Regional de Educação (DRE)
-**Características e necessidades:** responsável pelo gerenciamento das solicitações realizadas pelas escolas que administra, com a necessidade de otimizar e controlar as diversas solicitações das unidades escolares. Para fiscalização e controle das solicitações geradas
+**EMPRESAS** | Fornecedores, Distribuidores, Fornecedores e Distribuidores  
+Características e necessidades: responsável pelo atendimento das solicitações realizadas pelas Unidades Escolares, fornecimento de alimentos  provenientes da Agricultura Familiar solicitados pela CODAE e distribuição destes nas Unidades, com a necessidade de otimizar e controlar as diversas solicitações e entregas, afim de contribuir o controle de prazos execução das entregas.
   
 ## Funcionalidades
+
+**Dieta Especial**
+- Solicitação de Dieta
+- Cancelamento de Dieta
+- Autorização de Dieta
+- Criação de Protocolos de Dieta Especial
+- Alteração de UE
+- Relatórios
 
 **Gestão de Alimentação**
 - Inclusão de Alimentação
@@ -91,12 +82,26 @@ No futuro, o sistema também contará com módulos que apoiarão o trabalho da c
 - Correção do produto
 - Relatórios
 
-**Dieta Especial**
-- Solicitação de Dieta
-- Cancelamento de Dieta
-- Autorização de Dieta
-- Criação de Protocolos de Dieta Especial
-- Alteração de UE
+**Gestão de Usuários**
+- Gestão de Acesso
+- Carga de Usuários
+- Atualização de E-mail do EOL
+
+**Medição**
+- Lançamentos
+- Acompanhamento de Lançamentos
+- Relatórios
+
+**Pré-Recebimento**
+- Cronograma de Entrega
+- Documentos de Recebimento
+- Layout de Embalagem
+- Fichas Técnicas
+- Relatórios
+
+**Recebimento**
+- Ficha de Recebimento
+- Questões por Produto
 - Relatórios
 
 ## Roadmap
@@ -111,23 +116,25 @@ No futuro, o sistema também contará com módulos que apoiarão o trabalho da c
 - Release 8 - Cardápio
 - Release 9 - Supervisão
 
-Detalhamento do roadmap: https://whimsical.com/roadmap-geral-sigpae-C2tThx2G9GpuVviBeHZ5me@VsSo8s35X1aaSatHxnJFRV 
+Detalhamento do roadmap: [https://whimsical.com/roadmap-geral-sigpae-C2tThx2G9GpuVviBeHZ5me@VsSo8s35X1aaSatHxnJFRV](https://whimsical.com/roadmap-geral-sigpae-C2tThx2G9GpuVviBeHZ5me@VsSo8s35X1aaSatHxnJFRV)
 
-Fluxos: https://whimsical.com/fluxos-i7SkAADB94XRhRMd2afif
+Fluxos: [https://whimsical.com/fluxos-i7SkAADB94XRhRMd2afif](https://whimsical.com/fluxos-i7SkAADB94XRhRMd2afif)
+
+Link do roadmap: [https://miro.com/app/board/uXjVJYCIt1M=/?share_link_id=769082437083](https://miro.com/app/board/uXjVJYCIt1M=/?share_link_id=769082437083)
 
 # Sobre o Time
 
-| Papel                | Titular                       | Suplente                      |
-| -------------------- | ----------------------------- | ----------------------------- |
-| Product Owner        | Andrea Wang e Daniela Chichon | Elisete Pereira               |
-| Agente de Governança | Juliana Demay                 | Fernando Gonsales             |
-| Gerente de Projeto   | Aline Freitas                 |                               |
-| Scrum Master         |                               |                               |
-| Designer de Serviços | Caio Dib                      |                               |
-| Analista de negócios | Jaqueline Sargi               |                               |
-| Analista UX/UI       | Joilson Day                   |                               |
-| Analista Programador | Calvin Rossignoli             | Rodolpho Lima e João Mesquita |
-| Analista de teste    | Paula Pimentel                |                               |
+| Papel                | Titular                                                                                            | Suplente                 |
+| -------------------- | -------------------------------------------------------------------------------------------------- | ------------------------ |
+| Product Manager      | Carina Jakitas                                                                                     |                          |
+| Product Owner        | Daniela Chichon e Carolina Dias                                                                    |                          |
+| Agente de Governança | Juliana Demay                                                                                      | Vitor Augusto Ferragini  |
+| Gerente de Projeto   | Ricardo Coda                                                                                       |                          |
+| Scrum Master         | Cristiane Tuji                                                                                     |                          |
+| Designer de Serviços | Rayanne Felicio                                                                                    |                          |
+| Analista UX/UI       | Caroline Casassola                                                                                 |                          |
+| Analista Programador | Calvin Rossinhole<br>Luis Zimmerman<br>Guilherme Massini<br>Murilo Schirmer<br>Priscyla dos Santos |                          |
+| Analista de teste    | Leandro Sesconetti                                                                                 |                          |
 
 ## Protótipos
 
@@ -145,13 +152,21 @@ https://www.figma.com/file/52MKvjiFFjoy7WLuvLLjAi/Spt_13-ALIMENTA%C3%87%C3%83O-T
 
 # Links Úteis
 
-**Homologação:**
-
+**Homologação:**  
 [https://hom-sigpae.sme.prefeitura.sp.gov.br/](https://hom-sigpae.sme.prefeitura.sp.gov.br/)
 
-**Produção:**
-
+**Produção:**  
 [https://sigpae.sme.prefeitura.sp.gov.br/](https://sigpae.sme.prefeitura.sp.gov.br/)
+
+**Manual SIGPAE - UEs**  
+[https://www.canva.com/design/DAF_30SjLFo/YeJsYGtwNMmt95V0oLDVcQ/edit](https://www.canva.com/design/DAF_30SjLFo/YeJsYGtwNMmt95V0oLDVcQ/edit)
+
+**Manual SIGPAE - Empresas Terceirizadas**  
+[https://educacao.sme.prefeitura.sp.gov.br/programa-de-alimentacao-escolar/para-empresas/prestadoras-de-servicos/](https://educacao.sme.prefeitura.sp.gov.br/programa-de-alimentacao-escolar/para-empresas/prestadoras-de-servicos/)
+
+**Tutoriais SIGPAE**  
+**Para Unidades**: [https://educacao.sme.prefeitura.sp.gov.br/programa-de-alimentacao-escolar/para-dres-e-ues/unidades-diretas/orientacoes-e-apoio-administrativo/](https://educacao.sme.prefeitura.sp.gov.br/programa-de-alimentacao-escolar/para-dres-e-ues/unidades-diretas/orientacoes-e-apoio-administrativo/)  
+**Para Empresas**: [https://educacao.sme.prefeitura.sp.gov.br/programa-de-alimentacao-escolar/para-empresas/](https://educacao.sme.prefeitura.sp.gov.br/programa-de-alimentacao-escolar/para-empresas/)
 
 # Comunicação:
 
@@ -165,12 +180,9 @@ Contribuições são **super bem vindas**! Se você tem vontade de construir o S
 
 # Repositórios
 
-Informar os repositórios de código que envolvem a solução:
-
-[SME-SIGPAE-API] [https://github.com/prefeiturasp/SME-SIGPAE-API](https://github.com/prefeiturasp/SME-SIGPAE-API)
-
-[SME-SIGPAE-FRONTEND]
-[https://github.com/prefeiturasp/SME-SIGPAE-Frontend](https://github.com/prefeiturasp/SME-SIGPAE-Frontend)
+Repositórios de código que envolvem a solução:  
+- SME-SIGPAE-API: [https://github.com/prefeiturasp/SME-SIGPAE-API](https://github.com/prefeiturasp/SME-SIGPAE-API)
+- SME-SIGPAE-FRONTEND: [https://github.com/prefeiturasp/SME-SIGPAE-Frontend](https://github.com/prefeiturasp/SME-SIGPAE-Frontend)
  
 # Instalação e Configuração
 

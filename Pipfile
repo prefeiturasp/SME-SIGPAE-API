@@ -36,6 +36,7 @@ black = "==25.1.0"
 isort = "==6.0.1"
 flake8 = "==6.1.0"
 pip-audit = "==2.9.0"
+pdfplumber = "==0.11.7"
 
 [packages]
 # The psycopg2-binary package is meant for beginners to start playing with
@@ -65,22 +66,22 @@ django-model-utils="==4.5.1"  # https://github.com/jazzband/django-model-utils
 django-redis="==5.4.0"  # https://github.com/niwinz/django-redis
 django-des = {editable = true, ref = "3.0.0", git = "https://github.com/prefeiturasp/django-des-fork.git"}
 django-auditlog="==3.2.1"   # https://github.com/jazzband/django-auditlog/
-django-cors-headers="==3.10.1"   # https://pypi.org/project/django-cors-headers/
-django-sequences="==2.8"  # https://pypi.org/project/django-sequences/
+django-cors-headers="==4.7.0"   # https://pypi.org/project/django-cors-headers/
+django-sequences="==3.0"  # https://pypi.org/project/django-sequences/
 django-multiselectfield="==0.1.13" # https://github.com/goinnn/django-multiselectfield
 django-celery-beat="==2.8.0"  # https://github.com/celery/django-celery-beat
-django-admin-rangefilter="==0.13.2" # https://github.com/silentsokolov/django-admin-rangefilter
+django-admin-rangefilter="==0.13.3" # https://github.com/silentsokolov/django-admin-rangefilter
 django-nested-inline="==0.4.6"
 # Django REST Framework
 # ------------------------------------------------------------------------------
-djangorestframework="==3.16.0"  # https://github.com/encode/django-rest-framework
-djangorestframework-simplejwt="==5.5.0" # https://github.com/jazzband/djangorestframework-simplejwt
+djangorestframework="==3.16.1"  # https://github.com/encode/django-rest-framework
+djangorestframework-simplejwt="==5.5.1" # https://github.com/jazzband/djangorestframework-simplejwt
 workalendar="==17.0.0" # https://github.com/peopledoc/workalendar
 djangorestframework-xml = "==2.0.0"
 django-simple-email-confirmation = {editable = true, ref = "1.0", git = "https://github.com/kelwys/django-simple-email-confirmation.git"}
 # Produção
 gunicorn="==23.0.0"  # https://github.com/benoitc/gunicorn
-tornado="==6.5"    # http://www.tornadoweb.org/en/stable/
+tornado="==6.5.2"    # http://www.tornadoweb.org/en/stable/
 sentry-sdk = "==2.27.0"
 django-prometheus = "==2.3.1"
 # Relatórios

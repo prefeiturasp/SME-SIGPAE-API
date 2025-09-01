@@ -42,7 +42,7 @@ class FaixaEtariaSubstituicaoAlimentacaoCEISerializerCreate(
 
 class SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializerCreate(
     SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase
-):  # noqa E501
+):
     alteracao_cardapio = serializers.SlugRelatedField(
         slug_field="uuid", required=False, queryset=AlteracaoCardapioCEI.objects.all()
     )

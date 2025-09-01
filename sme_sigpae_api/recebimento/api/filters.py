@@ -1,6 +1,8 @@
 from django.db.models import Q
 from django_filters import rest_framework as filters
 
+from sme_sigpae_api.dados_comuns.fluxo_status import FichaDeRecebimentoWorkflow
+
 
 class QuestoesPorProdutoFilter(filters.FilterSet):
     ficha_tecnica = filters.CharFilter(
@@ -36,4 +38,8 @@ class FichaRecebimentoFilter(filters.FilterSet):
     data_final = filters.DateFilter(
         field_name="data_entrega",
         lookup_expr="lte",
+    )
+    status = filters.MultipleChoiceFilter(
+        field_name="status",
+        choices=[(str(state), state) for state in FichaDeRecebimentoWorkflow.states],
     )

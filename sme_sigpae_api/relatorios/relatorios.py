@@ -19,7 +19,7 @@ from ..escola.constants import (
     PERIODOS_CEMEI_EVENTO_ESPECIFICO,
     PERIODOS_ESPECIAIS_CEMEI,
 )
-from ..escola.models import Codae, DiretoriaRegional, Escola
+from ..escola.models import Codae, DiretoriaRegional, Escola, Lote
 from ..imr.models import TipoOcorrencia
 from ..kit_lanche.models import EscolaQuantidade
 from ..logistica.api.helpers import retorna_status_guia_remessa
@@ -1117,23 +1117,30 @@ def relatorio_produtos_em_analise_sensorial(produtos, filtros):
     )
 
 
-def relatorio_reclamacao(produtos, filtros):
-    if (
-        filtros["cabecario_tipo"] == "CABECARIO_POR_DATA"
-        and "data_inicial_reclamacao" not in filtros
-    ):
-        data_inicial_reclamacao = datetime.datetime.today()
-        for produto in produtos:
-            reclamacao = produto.ultima_homologacao.reclamacoes.first()
-            if reclamacao.criado_em < data_inicial_reclamacao:
-                data_inicial_reclamacao = reclamacao.criado_em
-        filtros["data_inicial_reclamacao"] = data_inicial_reclamacao.strftime(
-            "%d/%m/%Y"
-        )
+def relatorio_reclamacao_produtos(
+    produtos: list[dict], quantidade_reclamacoes: int, filtros: dict
+) -> bytes:
+    """
+    Gera um relatório em PDF com as reclamações de produtos processadas.
+
+    Args:
+        produtos (list[dict]): Lista de objetos/dicionários contendo informações dos produtos com reclamações
+        quantidade_reclamacoes (int): Número total de reclamações consideradas no relatório
+        filtros (dict): Dicionário contendo os parâmetros de filtragem aplicados:
+            - data_inicial_reclamacao (str, optional): Data inicial do período
+            - data_final_reclamacao (str, optional): Data final do período
+            - lotes (list, optional): Lista de UUIDs dos lotes filtrados
+            - editais (list): Lista de editais considerados
+
+    Returns:
+        bytes: Arquivo PDF gerado contendo o relatório de reclamações de produtos
+    """
+    cabecalho = cabecalho_reclamacao_produto(filtros)
+    cabecalho["numero_reclamacoes"] = quantidade_reclamacoes
     html_string = render_to_string(
-        "relatorio_reclamacao.html", {"produtos": produtos, "config": filtros}
+        "relatorio_reclamacao.html", {"produtos": produtos, "cabecalho": cabecalho}
     )
-    return html_to_pdf_response(html_string, "relatorio_reclamacao.pdf")
+    return html_to_pdf_file(html_string, "relatorio_reclamacao_produtos.pdf", True)
 
 
 def relatorio_quantitativo_por_terceirizada(request, filtros, dados_relatorio):
@@ -1801,3 +1808,43 @@ def formata_informacoes_ficha_tecnica(entidade):
         getattr(entidade, "telefone", getattr(entidade, "responsavel_telefone", None))
     )
     return cnpj, telefone
+
+
+def cabecalho_reclamacao_produto(filtros: dict) -> dict:
+    """
+    Monta o cabeçalho formatado para o relatório de reclamações de produtos.
+
+    Args:
+        filtros (dict): Dicionário contendo os parâmetros de filtragem:
+            - data_inicial_reclamacao (str, optional): Data inicial no formato string
+            - data_final_reclamacao (str, optional): Data final no formato string
+            - lotes (list, optional): Lista de UUIDs dos lotes
+            - editais (list): Lista obrigatória de nomes de editais
+
+    Returns:
+        dict: Dicionário contendo as informações formatadas para o cabeçalho:
+            - data_extracao (str): Data da extração no formato "dd/mm/aaaa"
+            - editais (str): String concatenada com os nomes dos editais
+            - lotes (str, optional): String com informações formatadas dos lotes
+            - periodo (str, optional): Período temporal formatado conforme filtros aplicados
+    """
+    cabecalho = {}
+    data_inicial = filtros.get("data_inicial_reclamacao")
+    data_final = filtros.get("data_final_reclamacao")
+    lotes = filtros.get("lotes")
+    cabecalho["data_extracao"] = datetime.datetime.now().date().strftime("%d/%m/%Y")
+    cabecalho["editais"] = ", ".join(sorted(filtros["editais"]))
+    if lotes:
+        lotes = Lote.objects.filter(uuid__in=lotes).order_by(
+            "diretoria_regional__iniciais"
+        )
+        cabecalho["lotes"] = ", ".join(
+            f"{lote.diretoria_regional.iniciais} - {lote.nome}" for lote in lotes
+        )
+    if data_inicial and data_final:
+        cabecalho["periodo"] = f"{data_inicial} até {data_final}"
+    elif data_inicial and not data_final:
+        cabecalho["periodo"] = f"A partir de {data_inicial}"
+    elif not data_inicial and data_final:
+        cabecalho["periodo"] = f"Até {data_final}"
+    return cabecalho

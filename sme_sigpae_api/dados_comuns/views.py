@@ -34,11 +34,9 @@ def send_test_email(request):
                 html_message=message_html,
             )
             response["detail"] = _(
-                "Test email sent. Please check '{}' for a "  # noqa Q003
+                "Test email sent. Please check '{}' for a "
                 "message with the subject '{}'"
-            ).format(  # noqa Q003
-                to_email, subject
-            )
+            ).format(to_email, subject)
         except Exception as e:
             response["error"] = _(f"Could not send email. {e}")
     else:

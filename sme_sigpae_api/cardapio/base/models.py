@@ -63,7 +63,7 @@ class ComboDoVinculoTipoAlimentacaoPeriodoTipoUE(
     ExportModelOperationsMixin("substituicoes_vinculo_alimentacao"),
     TemChaveExterna,
     TemLabelDeTiposDeAlimentacao,
-):  # noqa E125
+):
     tipos_alimentacao = models.ManyToManyField(
         "TipoAlimentacao",
         related_name="%(app_label)s_%(class)s_possibilidades",
@@ -85,7 +85,7 @@ class ComboDoVinculoTipoAlimentacaoPeriodoTipoUE(
     def __str__(self):
         tipos_alimentacao_nome = [
             nome for nome in self.tipos_alimentacao.values_list("nome", flat=True)
-        ]  # noqa
+        ]
         return f"TiposAlim.: {tipos_alimentacao_nome}"
 
     class Meta:
@@ -95,7 +95,7 @@ class ComboDoVinculoTipoAlimentacaoPeriodoTipoUE(
 
 class SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE(
     TemChaveExterna, TemLabelDeTiposDeAlimentacao
-):  # noqa E125
+):
     tipos_alimentacao = models.ManyToManyField(
         "TipoAlimentacao",
         related_name="%(app_label)s_%(class)s_possibilidades",
@@ -129,7 +129,7 @@ class VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar(
     ExportModelOperationsMixin("vinculo_alimentacao_periodo_escolar_tipo_ue"),
     Ativavel,
     TemChaveExterna,
-):  # noqa E125
+):
     """Vincular vários tipos de alimentação a um periodo e tipo de U.E.
 
     Dado o tipo_unidade_escolar (EMEI, EMEF...) e
