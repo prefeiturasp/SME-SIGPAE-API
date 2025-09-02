@@ -3,6 +3,7 @@
 {% load sass_tags %}
 {% load static %}
 
+
 {% block conteudo %}
 <link rel="stylesheet" href="{% sass_src 'css/dieta_especial_protocolo.scss' %}" type="text/css">
 <div class="conteudo dieta-especial-protocolo">
@@ -80,12 +81,12 @@
   <h5>
     {{ solicitacao.nome_protocolo | upper }}
   </h5>
-  <p><strong>1. Orientações Gerais</strong></p>
+  <p><strong>{% next_section %}. Orientações Gerais</strong></p>
   <p>{{ solicitacao.orientacoes_gerais|safe }}</p>
   {% if data_termino %}
   <p>- Esta dieta especial terá seu fornecimento encerrado em {{ data_termino }}</p>
   {% endif %}
-  <p><strong>2. Relação de Alimentos para Substituição</strong></p>
+  <p><strong>{% next_section %}. Relação de Alimentos para Substituição</strong></p>
   <p>A {{ referencia }} deverá compor o cardápio de acordo com a relação de alimentos substitutos.</p>
   <table class="table-dieta-especial">
     <thead>
@@ -115,19 +116,27 @@
     </tbody>
   </table>
   {% if solicitacao.informacoes_adicionais %}
-  <p><strong>3. Informações Adicionais</strong></p>
+  <p><strong>{% next_section %}. Informações Adicionais</strong></p>
   <div class="protocolo-dieta-informacoes-adicionais">
     {{ solicitacao.informacoes_adicionais|safe }}
   </div>
-  <p><strong>4. Termo de Ciência do Responsável</strong></p>
-  <p>
-    Solicitamos os préstimos para que este Protocolo seja apresentado aos responsáveis pelo aluno, para ciência.
-    Este Protocolo assinado pelo responsável deverá permanecer no arquivo da UE, anexado ao laudo médico.
-    <strong class="sublinhado">Não</strong> há necessidade de encaminhar cópia desse Protocolo assinado a CODAE.
-  </p>
+  {% endif %}
+
+    <p><strong>{% next_section %}. Termo de Ciência do Responsável{% if direito_imagem%} e Autorização de Uso de Imagem {% endif %}</strong></p>
+    <p>
+      Solicitamos os préstimos para que este Protocolo seja apresentado aos responsáveis pelo aluno, para ciência.
+      Este Protocolo assinado pelo responsável deverá permanecer no arquivo da UE, anexado ao laudo médico.
+      <strong class="sublinhado">Não</strong> há necessidade de encaminhar cópia desse Protocolo assinado a CODAE.
+    </p>
+    {% if direito_imagem%}
+      <p>
+        Autorizo a utilização da imagem do aluno, exclusivamente para fins de identificação, visando ao atendimento adequado 
+        das necessidades alimentares especiais, à prevenção de homônimos, à rápida identificação e possíveis equívocos que 
+        possam comprometer a saúde, em conformidade com os princípios da Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018).
+      </p>
+    {% endif %}
   <p class="campo-usuario">Nome do Responsável: ________________________________________________________________________</p>
   <p class="campo-usuario">Assinatura do Responsável: ___________________________________________________________________</p>
   <p class="campo-usuario">Data: ________/________/________</p>
-  {% endif %}
 </div>
 {% endblock %}
