@@ -37,6 +37,10 @@ class AlteracoesCardapioCEMEIViewSet(
     CodaeQuestionaTerceirizadaResponde,
     TerceirizadaTomaCiencia,
 ):
+    """
+    Modelo responsável pelas Solicitações de Alterações do Tipo de Alimentação para Escolas CEMEI e CEU CEMEI.
+    """
+
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:
             return AlteracaoCardapioCEMEISerializerCreate

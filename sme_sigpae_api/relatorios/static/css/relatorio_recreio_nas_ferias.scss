@@ -1,0 +1,98 @@
+body {
+  min-height: 100vh;
+  padding: 10px;
+  background-color: #fff;
+  font-family: "Roboto";
+}
+
+table {
+  width: 96%;
+  border-collapse: collapse;
+  border-radius: 0;
+  font-size: 14px;
+  margin: auto;
+  margin-top: 2%;
+}
+
+th {
+  border: 1px solid #ccc;
+  text-align: left;
+  padding: 10px !important;
+}
+
+td {
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+tr {
+  border: 1px solid #ccc;
+}
+
+th {
+  background-color: #f2f2f2;
+  font-weight: 600;
+  color: #4a4a4a;
+}
+
+b {
+  color: #252525 !important;
+}
+
+.between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.center {
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+}
+
+.padding-grande {
+  padding: 20px;
+}
+
+.texto-cabecalho {
+  font-weight: 400;
+  color: #808080 !important;
+  padding-left: 2% !important;
+  padding-right: 2% !important;
+}
+
+.footer-date {
+  position: running(footer-date);
+  font-size: 12px;
+  color: #252525;
+  padding-top: 2px;
+}
+
+.titulo-e-logo.titulo-centralizado {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+.titulo-e-logo.titulo-centralizado > h1 {
+  margin: 0 auto !important;
+  text-align: center !important;
+}
+
+@page {
+  size: A4 landscape;
+
+  @bottom-center {
+    align-items: center;
+    content: counter(page) "/" counter(pages);
+    font-size: 12px;
+    color: #252525;
+  }
+
+  @bottom-right {
+    content: element(footer-date);
+  }
+}

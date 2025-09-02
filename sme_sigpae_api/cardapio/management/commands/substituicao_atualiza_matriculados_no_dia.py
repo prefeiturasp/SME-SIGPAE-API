@@ -82,46 +82,61 @@ class Command(BaseCommand):
                         faixa.save()
         self.stdout.write("+++ FINALIZANDO SUBSTITUICOES CEMEI EMEI +++")
 
-    def popular_substituicao_cemei_cei(self):  # noqa C901
-        # esse condigo só vai rodar uma vez, por isso não tem problema se o bloco está muito complexo
+    def popular_substituicao_cemei_cei(self):
         self.stdout.write("+++ INICIANDO SUBSTITUICOES CEMEI CEI +++")
-        class_substituicao = FaixaEtariaSubstituicaoAlimentacaoCEMEICEI
-        solicitacoes_pks = class_substituicao.objects.filter(
-            matriculados_quando_criado=None
-        )
-        solicitacoes_pks = solicitacoes_pks.values_list(
-            "substituicao_alimentacao__alteracao_cardapio", flat=True
-        ).distinct()
-        solicitacoes = AlteracaoCardapioCEMEI.objects.filter(id__in=solicitacoes_pks)
+
+        solicitacoes = self._get_solicitacoes()
+
         for solicitacao in solicitacoes:
             faixa_alunos = solicitacao.escola.quantidade_alunos_por_cei_emei(False)
-            substituicoes_faixas_pks = (
-                solicitacao.substituicoes_cemei_cei_periodo_escolar
+            substituicoes_faixas = self._get_substituicoes_faixas(solicitacao)
+
+            for faixa in substituicoes_faixas:
+                self._atualizar_matriculados(faixa, faixa_alunos)
+
+        self.stdout.write("+++ FINALIZANDO SUBSTITUICOES CEMEI CEI +++")
+
+    def _get_solicitacoes(self):
+        """Retorna solicitações de alteração de cardápio sem matriculados registrados."""
+        substituicoes_sem_matricula = (
+            FaixaEtariaSubstituicaoAlimentacaoCEMEICEI.objects.filter(
+                matriculados_quando_criado=None
             )
-            substituicoes_faixas_pks = substituicoes_faixas_pks.values_list(
+            .values_list("substituicao_alimentacao__alteracao_cardapio", flat=True)
+            .distinct()
+        )
+        return AlteracaoCardapioCEMEI.objects.filter(id__in=substituicoes_sem_matricula)
+
+    def _get_substituicoes_faixas(self, solicitacao):
+        """Retorna faixas etárias vinculadas à substituição do cardápio."""
+        substituicoes_faixas_pks = (
+            solicitacao.substituicoes_cemei_cei_periodo_escolar.values_list(
                 "faixas_etarias", flat=True
             ).distinct()
-            substituicoes_faixas = FaixaEtariaSubstituicaoAlimentacaoCEMEICEI
-            substituicoes_faixas = substituicoes_faixas.objects.filter(
-                id__in=substituicoes_faixas_pks
-            )
-            for faixa in substituicoes_faixas:
-                for periodo_matriculas in faixa_alunos:
-                    if (
-                        periodo_matriculas["nome"]
-                        == faixa.substituicao_alimentacao.periodo_escolar.nome
-                    ):
-                        for faixa_matriculados in periodo_matriculas["CEI"]:
-                            if faixa_matriculados["uuid"] == str(
-                                faixa.faixa_etaria.uuid
-                            ):
-                                faixa.matriculados_quando_criado = faixa_matriculados[
-                                    "quantidade_alunos"
-                                ]
-                                uuid = faixa.faixa_etaria.uuid
-                                qtd = faixa_matriculados["quantidade_alunos"]
-                                self.stdout.write(
-                                    f"Faixa uuid: {uuid} - matriculados quando criado: {qtd}"
-                                )
-                                faixa.save()
-        self.stdout.write("+++ FINALIZANDO SUBSTITUICOES CEMEI CEI +++")
+        )
+        return FaixaEtariaSubstituicaoAlimentacaoCEMEICEI.objects.filter(
+            id__in=substituicoes_faixas_pks
+        )
+
+    def _atualizar_matriculados(self, faixa, faixa_alunos):
+        """Atualiza o campo matriculados_quando_criado se encontrar correspondência."""
+        for periodo_matriculas in faixa_alunos:
+            if (
+                periodo_matriculas["nome"]
+                != faixa.substituicao_alimentacao.periodo_escolar.nome
+            ):
+                continue
+
+            for faixa_matriculados in periodo_matriculas["CEI"]:
+                if faixa_matriculados["uuid"] != str(faixa.faixa_etaria.uuid):
+                    continue
+
+                faixa.matriculados_quando_criado = faixa_matriculados[
+                    "quantidade_alunos"
+                ]
+                faixa.save()
+
+                self.stdout.write(
+                    f"Faixa uuid: {faixa.faixa_etaria.uuid} - "
+                    f"matriculados quando criado: {faixa.matriculados_quando_criado}"
+                )

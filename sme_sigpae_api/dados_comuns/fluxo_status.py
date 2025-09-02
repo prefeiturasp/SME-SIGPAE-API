@@ -3099,7 +3099,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
             email_lista = []
         return email_lista
 
-    @property  # noqa c901
+    @property
     def _partes_interessadas_codae_autoriza_ou_nega(self):
         try:
             email_escola_eol = self.escola.contato.email
@@ -3115,7 +3115,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         # TODO: definir partes interessadas
         return []
 
-    @property  # noqa c901
+    @property
     def _partes_interessadas_codae_autoriza(self):
         escola = self.escola_destino
         try:
@@ -5729,12 +5729,10 @@ class FichaDeRecebimentoWorkflow(xwf_models.Workflow):
 
     states = (
         (RASCUNHO, "Rascunho"),
-        (ASSINADA, "Assinada"),
+        (ASSINADA, "Assinado CODAE"),
     )
 
-    transitions = (
-        ("inicia_fluxo", RASCUNHO, ASSINADA),
-    )
+    transitions = (("inicia_fluxo", RASCUNHO, ASSINADA),)
 
     initial_state = RASCUNHO
 

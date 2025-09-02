@@ -199,7 +199,7 @@ class VinculoTipoAlimentacaoViewSet(
         return self.get_paginated_response(serializer.data)
 
     @action(
-        detail=False,  # noqa C901
+        detail=False,
         url_path="atualizar_lista_de_vinculos",
         methods=["put"],
     )
