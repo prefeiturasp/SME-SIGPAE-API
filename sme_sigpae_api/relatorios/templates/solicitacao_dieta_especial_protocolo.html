@@ -119,12 +119,26 @@
   <div class="protocolo-dieta-informacoes-adicionais">
     {{ solicitacao.informacoes_adicionais|safe }}
   </div>
-  <p><strong>4. Termo de Ciência do Responsável</strong></p>
-  <p>
-    Solicitamos os préstimos para que este Protocolo seja apresentado aos responsáveis pelo aluno, para ciência.
-    Este Protocolo assinado pelo responsável deverá permanecer no arquivo da UE, anexado ao laudo médico.
-    <strong class="sublinhado">Não</strong> há necessidade de encaminhar cópia desse Protocolo assinado a CODAE.
-  </p>
+  {% if direito_imagem%}
+    <p><strong>4. Termo de Ciência do Responsável e Autorização de Uso de Imagem</strong></p>
+    <p>
+      Solicitamos os préstimos para que este Protocolo seja apresentado aos responsáveis pelo aluno, para ciência.
+      Este Protocolo assinado pelo responsável deverá permanecer no arquivo da UE, anexado ao laudo médico.
+      <strong class="sublinhado">Não</strong> há necessidade de encaminhar cópia desse Protocolo assinado a CODAE.
+    </p>
+    <p>
+      Autorizo a utilização da imagem do aluno, exclusivamente para fins de identificação, visando ao atendimento adequado 
+      das necessidades alimentares especiais, à prevenção de homônimos, à rápida identificação e possíveis equívocos que 
+      possam comprometer a saúde, em conformidade com os princípios da Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018).
+    </p>
+  {% else %}
+    <p><strong>4. Termo de Ciência do Responsável</strong></p>
+    <p>
+      Solicitamos os préstimos para que este Protocolo seja apresentado aos responsáveis pelo aluno, para ciência.
+      Este Protocolo assinado pelo responsável deverá permanecer no arquivo da UE, anexado ao laudo médico.
+      <strong class="sublinhado">Não</strong> há necessidade de encaminhar cópia desse Protocolo assinado a CODAE.
+    </p>
+  {% endif %}
   <p class="campo-usuario">Nome do Responsável: ________________________________________________________________________</p>
   <p class="campo-usuario">Assinatura do Responsável: ___________________________________________________________________</p>
   <p class="campo-usuario">Data: ________/________/________</p>

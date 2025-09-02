@@ -566,6 +566,17 @@ def relatorio_dieta_especial_protocolo(request, solicitacao):
 
     referencia = "unidade" if escola.eh_parceira else "empresa"
     justificativa = obter_justificativa_dieta(solicitacao)
+    eh_alteracao_ue = solicitacao.tipo_solicitacao == "ALTERACAO_UE"
+
+    autorizada = (
+        SolicitacoesCODAE.get_autorizados_dieta_especial()
+        .filter(uuid=solicitacao.uuid)
+        .exists()
+    )
+    incluir_autorizacao_imagem = False
+    if (justificativa and eh_alteracao_ue is False) or autorizada:
+        incluir_autorizacao_imagem = True
+    print(f"incluir_autorizacao_imagem = {incluir_autorizacao_imagem}")
     html_string = render_to_string(
         "solicitacao_dieta_especial_protocolo.html",
         {
@@ -579,14 +590,14 @@ def relatorio_dieta_especial_protocolo(request, solicitacao):
             ),
             "foto_aluno": solicitacao.aluno.foto_aluno_base64,
             "eh_dieta_especial": True,
-            "eh_protocolo_dieta_especial": solicitacao.tipo_solicitacao
-            == "ALTERACAO_UE",
+            "eh_protocolo_dieta_especial": eh_alteracao_ue,
             "motivo": (
                 solicitacao.motivo_alteracao_ue.nome.split(" - ")[1]
                 if solicitacao.motivo_alteracao_ue
                 else None
             ),
             "justificativa": justificativa,
+            "direito_imagem": incluir_autorizacao_imagem,
         },
     )
     if request:
