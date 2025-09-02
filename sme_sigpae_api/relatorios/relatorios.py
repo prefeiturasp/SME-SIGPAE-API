@@ -576,7 +576,7 @@ def relatorio_dieta_especial_protocolo(request, solicitacao):
     incluir_autorizacao_imagem = False
     if (justificativa and eh_alteracao_ue is False) or autorizada:
         incluir_autorizacao_imagem = True
-    print(f"incluir_autorizacao_imagem = {incluir_autorizacao_imagem}")
+
     html_string = render_to_string(
         "solicitacao_dieta_especial_protocolo.html",
         {
