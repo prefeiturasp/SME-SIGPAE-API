@@ -928,8 +928,8 @@ def next_section(context):
     """
     Incrementa o contador de seções e retorna o valor atualizado.
     """
-    if 'section_number' not in context:
-        context['section_number'] = 1
+    if "section_number" not in context:
+        context["section_number"] = 1
     else:
-        context['section_number'] += 1
-    return context['section_number']
+        context["section_number"] += 1
+    return context["section_number"]
