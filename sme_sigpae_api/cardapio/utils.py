@@ -28,8 +28,18 @@ def ordem_periodos(escola: Escola) -> dict[str, int]:
         "eh_emef": {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3, "NOITE": 4},
         "eh_ceu_gestao": {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3, "NOITE": 4},
         "eh_emei": {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3},
-        "eh_cemei": {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3},
-        "eh_cei": {"INTEGRAL": 1, "MANHA": 2, "TARDE": 3},
+        "eh_cemei": {
+            "CEI DIRET": {
+                "INTEGRAL": 1,
+                "PARCIAL": 2,
+            },
+            "EMEI": {
+                "MANHA": 1,
+                "TARDE": 2,
+                "INTEGRAL": 3,
+            },
+        },
+        "eh_cei": {"INTEGRAL": 1, "PARCIAL": 2, "MANHA": 3, "TARDE": 4},
         "eh_cieja": {"MANHA": 1, "INTERMEDIARIO": 2, "TARDE": 3, "VESPERINO": 4, "NOITE": 5},
         "eh_emebs": {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3, "NOITE": 4},
     }
