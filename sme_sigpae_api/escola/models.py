@@ -721,6 +721,18 @@ class Escola(
         ]
 
     @property
+    def eh_emef(self):
+        return self.tipo_unidade and self.tipo_unidade.iniciais in [
+            "EMEF",
+            "CEU EMEF",
+            "EMEFM",
+        ]
+
+    @property
+    def eh_cieja(self):
+        return self.tipo_unidade and self.tipo_unidade.iniciais in ["CIEJA"]
+
+    @property
     def modulo_gestao(self):
         if self.tipo_gestao and self.tipo_gestao.nome == "TERC TOTAL":
             return "TERCEIRIZADA"
