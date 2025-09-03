@@ -19,6 +19,7 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serialize
     EtapasDoCronogramaCalendarioSerializer,
     EtapasDoCronogramaSerializer,
     PainelCronogramaSerializer,
+    CronogramaFichaDeRecebimentoSerializer
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
@@ -214,3 +215,26 @@ def test_doc_recebimento_serializer_qualquer_modalidade(cronograma_qualquer):
         == cronograma_qualquer.contrato.numero_chamada_publica
     )
     assert serializer.data["pregao_chamada_publica"] == "CP-2022-02"
+
+
+def test_cronograma_ficha_recebimento_serializer_embalagens():
+    ficha_tecnica = baker.make(
+        "FichaTecnicaDoProduto",
+        material_embalagem_primaria="Vidro temperado",
+        sistema_vedacao_embalagem_secundaria="Lacre termossoldado",
+    )
+    cronograma = baker.make("Cronograma", ficha_tecnica=ficha_tecnica)
+
+    serializer = CronogramaFichaDeRecebimentoSerializer(cronograma)
+
+    assert serializer.data["embalagem_primaria"] == "Vidro temperado"
+    assert serializer.data["embalagem_secundaria"] == "Lacre termossoldado"
+
+
+def test_cronograma_ficha_recebimento_serializer_embalagens_sem_ficha_tecnica():
+    cronograma = baker.make("Cronograma", ficha_tecnica=None)
+
+    serializer = CronogramaFichaDeRecebimentoSerializer(cronograma)
+
+    assert serializer.data["embalagem_primaria"] is None
+    assert serializer.data["embalagem_secundaria"] is None
