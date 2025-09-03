@@ -193,6 +193,7 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
         many=True,
         required=True,
     )
+    houve_ocorrencia = serializers.BooleanField(required=True)
     observacoes_conferencia = serializers.CharField(required=False, allow_blank=True)
     ocorrencias = OcorrenciaFichaRecebimentoCreateSerializer(
         many=True, required=False, rascunho=False
@@ -222,6 +223,7 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
             "arquivos",
             "questoes",
             "observacoes_conferencia",
+            "houve_ocorrencia",
             "ocorrencias",
         ]
 
