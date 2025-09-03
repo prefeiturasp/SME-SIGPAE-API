@@ -182,17 +182,34 @@ class VinculoTipoAlimentacaoViewSet(
         periodos_para_filtrar = self.trata_inclusao_continua_medicao_inicial(
             request, escola, ano
         )
-        vinculos = (
-            VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
-                periodo_escolar__in=periodos_para_filtrar, ativo=True
-            ).order_by("periodo_escolar__posicao")
-        )
+        
+        from sme_sigpae_api.cardapio.utils import ordem_periodos
+        from django.db.models import Case, IntegerField, Value, When
+        ordem_personalizada = ordem_periodos(escola)
+        condicoes_ordenacao = [
+            When(periodo_escolar__nome=nome, then=Value(prioridade))
+            for nome, prioridade in ordem_personalizada.items()
+        ]
+        
         if escola.eh_cemei:
             vinculos = VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
                 periodo_escolar__nome__in=PERIODOS_ESPECIAIS_CEMEI,
                 tipo_unidade_escolar__iniciais__in=["CEI DIRET", "EMEI"],
             )
         else:
+            vinculos = (
+                VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
+                    periodo_escolar__in=periodos_para_filtrar, ativo=True
+                )
+                .annotate(
+                    ordem_personalizada=Case(
+                        *condicoes_ordenacao,
+                        default=Value(99),  # Valor alto para períodos não listados
+                        output_field=IntegerField(),
+                    )
+                )
+                .order_by("ordem_personalizada")
+            )
             vinculos = vinculos.filter(tipo_unidade_escolar=escola.tipo_unidade)
         page = self.paginate_queryset(vinculos)
         serializer = self.get_serializer(page, many=True)
