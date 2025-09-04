@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import date, datetime
 
 import environ
@@ -16,6 +17,7 @@ from ..dados_comuns.constants import (
 from ..perfil.services.autenticacao_service import AutenticacaoService
 
 env = environ.Env()
+logger = logging.getLogger(__name__)
 
 
 class EOLException(Exception):
@@ -292,16 +294,28 @@ class EOLServicoSGP:
         )
 
     @classmethod
-    def get_lista_alunos_por_escola_ano_corrente_ou_seguinte(cls, codigo_eol):
+    def _tenta_ano_corrente(cls, codigo_eol):
         try:
-            lista_alunos_eol = EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
-                codigo_eol
-            )
-            if len(lista_alunos_eol) == 0:
-                return cls.get_alunos_ano_seguinte(codigo_eol)
-            return lista_alunos_eol
-        except EOLException:
+            return EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(codigo_eol)
+        except EOLException as e:
+            logger.warning(f"EOL ano corrente falhou para escola {codigo_eol}: {e}")
+            return None
+
+    @classmethod
+    def _tenta_ano_seguinte(cls, codigo_eol):
+        try:
             return cls.get_alunos_ano_seguinte(codigo_eol)
+        except EOLException as e:
+            logger.warning(f"EOL ano seguinte falhou para escola {codigo_eol}: {e}")
+            return None
+
+    @classmethod
+    def get_lista_alunos_por_escola_ano_corrente_ou_seguinte(cls, codigo_eol):
+        lista = cls._tenta_ano_corrente(codigo_eol)
+        if lista is None or not lista:
+            lista = cls._tenta_ano_seguinte(codigo_eol)
+
+        return lista or []
 
 
 class EOLPapaService:
