@@ -2886,6 +2886,26 @@ def test_ficha_tecnica_create_from_rascunho_ok(
 
 
 @pytest.mark.django_db
+def test_ficha_tecnica_create_rascunho_envasador_null(
+    client_autenticado_fornecedor,
+    payload_ficha_tecnica_pereciveis,
+):
+    payload = copy.deepcopy(payload_ficha_tecnica_pereciveis)
+    payload["envasador_distribuidor"] = None
+
+    response = client_autenticado_fornecedor.post(
+        "/rascunho-ficha-tecnica/",
+        content_type="application/json",
+        data=json.dumps(payload),
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+    ficha = FichaTecnicaDoProduto.objects.last()
+    assert ficha.status == FichaTecnicaDoProdutoWorkflow.RASCUNHO
+    assert ficha.envasador_distribuidor is None
+
+@pytest.mark.django_db
 def test_ficha_tecnica_create_envasador_null(
     client_autenticado_fornecedor,
     payload_ficha_tecnica_pereciveis,
