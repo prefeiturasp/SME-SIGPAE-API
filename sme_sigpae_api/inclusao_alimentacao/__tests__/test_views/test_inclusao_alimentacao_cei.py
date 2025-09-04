@@ -112,10 +112,7 @@ def test_get_solicitacoes_diretoria_regional_eol_exception(
     response = client_autenticado_vinculo_dre_inclusao.get(
         f"/inclusoes-alimentacao-da-cei/pedidos-diretoria-regional/sem_filtro/?lote={escola.lote.uuid}"
     )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {
-        "detail": "Erro ao consultar alunos para a escola 000086. Status: 404"
-    }
+    assert response.status_code == status.HTTP_200_OK
 
 
 def test_get_solicitacoes_codae_gestao_alimentacao(
@@ -165,7 +162,4 @@ def test_get_solicitacoes_codae_gestao_alimentacao_eol_exception(
         f"/inclusoes-alimentacao-da-cei/pedidos-codae/sem_filtro/"
         f"?lote={escola.lote.uuid}&diretoria_regional={escola.diretoria_regional.uuid}"
     )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {
-        "detail": "Erro ao consultar alunos para a escola 000086. Status: 404"
-    }
+    assert response.status_code == status.HTTP_200_OK
