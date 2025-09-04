@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 TAMANHO_CODIGO_EOL_ALUNO = 7
 TAMANHO_CPF = 11
@@ -21,7 +21,7 @@ class ArquivoCargaDietaEspecialSchema(BaseModel):
     protocolo_dieta: str
     codigo_categoria_dieta: str
 
-    @validator("codigo_eol_aluno")
+    @field_validator("codigo_eol_aluno")
     def codigo_eol_aluno_deve_ter_7_digitos(cls, value):
         if len(value) != TAMANHO_CODIGO_EOL_ALUNO:
             raise ValueError("Codigo eol do aluno deve ter 7 dígitos.")
@@ -49,6 +49,16 @@ class ArquivoCargaUsuariosDiretorSchema(BaseModel):
     email_assistente: str
     telefone_assistente: Optional[str]
 
+    @field_validator(
+        "codigo_eol_escola",
+        "rf_diretor",
+        "telefone_diretor",
+        "telefone_assistente",
+        mode="before",
+    )
+    def converte_para_str(cls, v):
+        return str(v).strip() if v is not None else None
+
     @classmethod
     def formata_nome(cls, value):
         return value.upper()
@@ -65,25 +75,25 @@ class ArquivoCargaUsuariosDiretorSchema(BaseModel):
             raise ValueError("CPF deve conter 11 dígitos.")
         return value
 
-    @validator("codigo_eol_escola")
+    @field_validator("codigo_eol_escola")
     def formata_codigo_eol(cls, value):
         if not value:
             raise ValueError("Codigo eol da escola não pode ser vazio.")
         return f"{value:0>6}".strip()
 
-    @validator("nome_diretor")
+    @field_validator("nome_diretor")
     def formata_nome_diretor(cls, value):
         if not value:
             raise ValueError("Nome do diretor não pode ser vazio.")
         return cls.formata_nome(value)
 
-    @validator("rg_diretor")
+    @field_validator("rg_diretor")
     def formata_rg_diretor(cls, value):
         if not value:
             raise ValueError("RG do diretor não pode ser vazio.")
         return cls.formata_documentos(value)
 
-    @validator("rf_diretor")
+    @field_validator("rf_diretor")
     def formata_rf_diretor(cls, value):
         if not value:
             raise ValueError("RF do diretor não pode ser vazio.")
@@ -92,25 +102,25 @@ class ArquivoCargaUsuariosDiretorSchema(BaseModel):
             raise ValueError("RF deve ter 7 dígitos.")
         return value
 
-    @validator("cpf_diretor")
+    @field_validator("cpf_diretor")
     def validate_cpf_diretor(cls, value):
         if not value:
             raise ValueError("Cpf do diretor não pode ser vazio.")
         return cls.validate_cpf(value)
 
-    @validator("nome_assistente")
+    @field_validator("nome_assistente")
     def formata_nome_assistente(cls, value):
         if not value:
             raise ValueError("Nome do assistente não pode ser vazio.")
         return cls.formata_nome(value)
 
-    @validator("rg_assistente")
+    @field_validator("rg_assistente")
     def formata_rg_assistente(cls, value):
         if not value:
             raise ValueError("RG do assistente não pode ser vazio.")
         return cls.formata_documentos(value)
 
-    @validator("rf_assistente")
+    @field_validator("rf_assistente")
     def formata_rf_assistente(cls, value):
         if not value:
             raise ValueError("RF do assistente não pode ser vazio.")
@@ -120,7 +130,7 @@ class ArquivoCargaUsuariosDiretorSchema(BaseModel):
             raise ValueError("RF deve ter 7 dígitos.")
         return value
 
-    @validator("cpf_assistente")
+    @field_validator("cpf_assistente")
     def validate_cpf_assistente(cls, value):
         if not value:
             raise ValueError("CPF do assistente não pode ser vazio.")

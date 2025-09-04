@@ -80,6 +80,7 @@ from ..tasks import (
     gera_pdf_relatorio_dietas_especiais_terceirizadas_async,
     gera_pdf_relatorio_historico_dietas_especiais_async,
     gera_pdf_relatorio_recreio_nas_ferias_async,
+    gera_xlsx_relatorio_recreio_nas_ferias_async,
     gera_xlsx_relatorio_dietas_especiais_terceirizadas_async,
     gera_xlsx_relatorio_historico_dietas_especiais_async,
 )
@@ -1456,6 +1457,27 @@ class SolicitacaoDietaEspecialViewSet(
             gera_pdf_relatorio_recreio_nas_ferias_async.delay(
                 user=user,
                 nome_arquivo="relatorio_recreio_nas_ferias.pdf",
+                params=request.query_params,
+            )
+            return Response(
+                dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+                status=status.HTTP_200_OK,
+            )
+        except ValidationError as e:
+            return Response(dict(detail=e.messages[0]), status=HTTP_400_BAD_REQUEST)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="relatorio-recreio-nas-ferias/exportar-excel",
+        permission_classes=(PermissaoRelatorioRecreioNasFerias,),
+    )
+    def relatorio_recreio_nas_ferias_exportar_xlsx(self, request):
+        try:
+            user = request.user.get_username()
+            gera_xlsx_relatorio_recreio_nas_ferias_async.delay(
+                user=user,
+                nome_arquivo="relatorio_recreio_nas_ferias.xlsx",
                 params=request.query_params,
             )
             return Response(
