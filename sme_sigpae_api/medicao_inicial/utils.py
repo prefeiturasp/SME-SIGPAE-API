@@ -1186,17 +1186,15 @@ def popula_campo_total_refeicoes_pagamento(
                 tabela, periodo_corrente, categoria_corrente
             )
             dia = valores_dia[0]
-
             campos = tabela["nomes_campos"][indice_inicial:indice_final]
             valores = valores_dia[indice_inicial + 1 : indice_final + 1]
-
             tabela_anterior = tabelas[indice_tabela - 1]
             periodos_tabela_anterior = tabela_anterior["periodos"]
             campos_tabela_anterior = []
             valores_tabela_anterior = []
-
             if (
-                periodo_corrente in periodos_tabela_anterior
+                indice_tabela > 0
+                and periodo_corrente in periodos_tabela_anterior
                 and categoria_corrente in tabela_anterior["categorias"]
             ):
                 (
@@ -1211,7 +1209,6 @@ def popula_campo_total_refeicoes_pagamento(
                 valores_tabela_anterior = tabela_anterior["valores_campos"][
                     int(dia - 1)
                 ][indice_inicial_tabela_anterior + 1 : indice_final_tabela_anterior + 1]
-
             valor_refeicao = get_valor_campo(
                 campos,
                 campos_tabela_anterior,
@@ -1222,7 +1219,6 @@ def popula_campo_total_refeicoes_pagamento(
                 valores_tabela_anterior,
                 "refeicao",
             )
-
             valor_repeticao_refeicao = get_valor_campo(
                 campos,
                 campos_tabela_anterior,
@@ -1233,7 +1229,6 @@ def popula_campo_total_refeicoes_pagamento(
                 valores_tabela_anterior,
                 "repeticao_refeicao",
             )
-
             valor_segunda_refeicao = get_valor_campo(
                 campos,
                 campos_tabela_anterior,
@@ -1244,7 +1239,6 @@ def popula_campo_total_refeicoes_pagamento(
                 valores_tabela_anterior,
                 "2_refeicao_1_oferta",
             )
-
             valor_repeticao_segunda_refeicao = get_valor_campo(
                 campos,
                 campos_tabela_anterior,
@@ -1255,7 +1249,6 @@ def popula_campo_total_refeicoes_pagamento(
                 valores_tabela_anterior,
                 "repeticao_2_refeicao",
             )
-
             valor_matriculados = get_valor_campo(
                 campos,
                 campos_tabela_anterior,
@@ -1266,7 +1259,6 @@ def popula_campo_total_refeicoes_pagamento(
                 valores_tabela_anterior,
                 "matriculados",
             )
-
             valor_numero_de_alunos = get_valor_campo(
                 campos,
                 campos_tabela_anterior,
@@ -1277,12 +1269,10 @@ def popula_campo_total_refeicoes_pagamento(
                 valores_tabela_anterior,
                 "numero_de_alunos",
             )
-
             eh_emebs_infantil = (
                 solicitacao.escola.eh_emebs
                 and tabela["periodos"][indice_periodo].split(" - ")[1] == "INFANTIL"
             )
-
             if (
                 solicitacao.escola.eh_emei
                 or solicitacao.escola.eh_cemei
@@ -1304,7 +1294,6 @@ def popula_campo_total_refeicoes_pagamento(
                     if int(valor_matriculados) > 0
                     else valor_numero_de_alunos
                 )
-
                 total_refeicao = int(valor_refeicao) + int(valor_repeticao_refeicao)
                 total_refeicao = min(int(total_refeicao), int(valor_comparativo))
 
@@ -1314,7 +1303,6 @@ def popula_campo_total_refeicoes_pagamento(
                 total_refeicao_2a_oferta = min(
                     int(total_refeicao_2a_oferta), int(valor_comparativo)
                 )
-
                 valores_dia += [total_refeicao + total_refeicao_2a_oferta]
         except Exception:
             valores_dia += ["0"]
@@ -1418,17 +1406,15 @@ def popula_campo_total_sobremesas_pagamento(
                 tabela, periodo_corrente, categoria_corrente
             )
             dia = valores_dia[0]
-
             campos = tabela["nomes_campos"][indice_inicial:indice_final]
             valores = valores_dia[indice_inicial + 1 : indice_final + 1]
-
             tabela_anterior = tabelas[indice_tabela - 1]
             periodos_tabela_anterior = tabela_anterior["periodos"]
             campos_tabela_anterior = []
             valores_tabela_anterior = []
-
             if (
-                periodo_corrente in periodos_tabela_anterior
+                indice_tabela > 0
+                and periodo_corrente in periodos_tabela_anterior
                 and categoria_corrente in tabela_anterior["categorias"]
             ):
                 (
@@ -2535,7 +2521,6 @@ def popula_faixas_dias(
 def build_tabelas_relatorio_medicao(solicitacao):
     tabelas_com_headers = build_headers_tabelas(solicitacao)
     tabelas_populadas = popula_tabelas(solicitacao, tabelas_com_headers)
-
     return tabelas_populadas
 
 
