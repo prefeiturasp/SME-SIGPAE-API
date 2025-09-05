@@ -183,5 +183,71 @@ def solicitar_lanche_emergencial(escola, usuario, periodo_escolar):
     return solicitacao_lanche_emergencial
 
 
+def data_programas_e_projetos():
+    data_inicial = datetime.datetime.now() + relativedelta(months=1)
+    data_final = datetime.datetime.now() + relativedelta(months=1, days=5)
+    return data_inicial.date(), data_final.date()
+
+
+def incluir_programas_e_projetos(escola, usuario, periodo_escolar):
+    from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
+    from sme_sigpae_api.inclusao_alimentacao.models import MotivoInclusaoContinua
+    from sme_sigpae_api.inclusao_alimentacao.api.serializers.serializers_create import InclusaoAlimentacaoContinuaCreationSerializer
+
+    data_inicial, data_final = data_programas_e_projetos()
+    tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
+    motivo = MotivoInclusaoContinua.objects.get(nome="Programas/Projetos Específicos")    
+    
+    solicitacao_json = {
+        "escola": escola,
+        "status": "RASCUNHO",
+        "quantidades_periodo": [
+            {
+                "dias_semana": [
+                    "0",
+                    "1",
+                    "2",
+                    "3",
+                    "4"
+                ],
+                "periodo_escolar": periodo_escolar,
+                "tipos_alimentacao": [
+                    tipo_alimentacao
+                ],
+                "numero_alunos": "10",
+                "observacao": "<p>nenhuma</p>"
+            }
+        ],
+        "motivo": motivo,
+        "data_inicial": data_inicial,
+        "data_final": data_final
+    }
+    context = {
+        "request": type(
+            "Request", (), {"user": usuario}
+        )
+    }
+    programas_e_projetos = InclusaoAlimentacaoContinuaCreationSerializer(context=context).create(
+        solicitacao_json
+    )
+    programas_e_projetos.inicia_fluxo(user=usuario)
+    print(f"Solicitação cadastrada: InclusaoAlimentacaoContinua UUID={programas_e_projetos.uuid}")
+    
+    usuario_dre = obter_usuario(26755818011, "DRE ADMIN")
+    programas_e_projetos.dre_valida(user=usuario_dre)
+    print("Solicitação aprovado pela DRE")
+    
+    usuario_codae = obter_usuario("01341145409", "CODAE ADMIN")
+    programas_e_projetos.codae_autoriza(user=usuario_codae, justificativa="Sem observações por parte da CODAE")
+    print("Solicitação aprovado pela CODAE")
+    
+    nova_data_inicio = datetime.date(ANO, MES, 22)
+    nova_data_fim = datetime.date(ANO, MES, 22) + relativedelta(days=5)
+    programas_e_projetos.data_final = nova_data_fim
+    programas_e_projetos.data_inicial = nova_data_inicio
+    programas_e_projetos.save()
+    
+    print(f"Data da solicitação alterada para {nova_data_inicio.strftime('%d/%m/%Y')} até {nova_data_fim.strftime('%d/%m/%Y')}")
+
 if __name__ == "__main__":
     habilitar_dias_letivos()
