@@ -35,5 +35,15 @@ def incluir_log_alunos_matriculados(periodos, escola):
         print(f"Logs do Período {periodo} cadastrados")
 
 
+def obter_usuario(username, nome):
+    from sme_sigpae_api.perfil.models.usuario import Usuario
+    try:
+        return Usuario.objects.get(username=username, nome=nome)
+    except Exception:
+        print(f"Nenhum usuário encontrado com  username={username} e nome={nome}")
+        print("================== SCRIP CANCELADO ==================")
+        exit()
+
+
 if __name__ == "__main__":
     habilitar_dias_letivos()
