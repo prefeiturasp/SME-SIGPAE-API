@@ -170,6 +170,7 @@ def payload_ficha_recebimento(
                 "tipo_questao": "SECUNDARIA",
             },
         ],
+        "houve_ocorrencia": True,
         "ocorrencias": [
             {
                 "tipo": "FALTA",

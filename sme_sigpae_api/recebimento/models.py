@@ -191,6 +191,12 @@ class FichaDeRecebimento(
         related_name="fichas_vinculadas",
     )
 
+    houve_ocorrencia = models.BooleanField(
+        "Houve Ocorrência?",
+        null=True,
+        blank=True,
+    )
+
     observacoes_conferencia = models.TextField(
         null=True,
         blank=True,
