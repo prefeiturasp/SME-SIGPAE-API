@@ -45,5 +45,62 @@ def obter_usuario(username, nome):
         exit()
 
 
+def data_solicitacao_kit_lanche():
+    data = datetime.datetime.now() + relativedelta(months=1)
+    habilitar_dias_letivos(data.date())
+    return data.date()
+
+
+def solicitar_kit_lanche(escola, usuario):
+    "TIPOS DE UNIDADE: EMEI, EMEF"
+    from sme_sigpae_api.kit_lanche.models import KitLanche
+    from sme_sigpae_api.kit_lanche.api.serializers.serializers_create import SolicitacaoKitLancheAvulsaCreationSerializer
+    
+    queryset = KitLanche.objects.filter(edital__uuid__in=escola.editais, tipos_unidades=escola.tipo_unidade, status=KitLanche.ATIVO)
+    if not queryset.exists():
+        print(f"Nenhum kit encontrado para escola {escola.nome}")
+        print("================== SCRIP CANCELADO ==================")
+        exit()
+    kit = queryset.first()
+    solicitacao_json = {
+        "solicitacao_kit_lanche": {
+            "kits": [kit],
+            "data": data_solicitacao_kit_lanche(),
+            "tempo_passeio": "0"
+        },
+        "escola": escola,
+        "local": "Casa da História",
+        "evento": "Semana da História",
+        "quantidade_alunos": 10,
+        "alunos_com_dieta_especial_participantes": [],
+        "status": "RASCUNHO"
+    }
+    context = {
+        "request": type(
+            "Request", (), {"user": usuario}
+        )
+    }
+    solicitacao_kit_lanche_avulsa = SolicitacaoKitLancheAvulsaCreationSerializer(context=context).create(
+        solicitacao_json
+    )
+    solicitacao_kit_lanche_avulsa.inicia_fluxo(user=usuario)
+    print(f"Solicitação cadastrada: SolicitacaoKitLancheAvulsa UUID={solicitacao_kit_lanche_avulsa.uuid}")
+    
+    usuario_dre = obter_usuario(26755818011, "DRE ADMIN")
+    solicitacao_kit_lanche_avulsa.dre_valida(user=usuario_dre)
+    print("Solicitação aprovado pela DRE")
+    
+    usuario_codae = obter_usuario("01341145409", "CODAE ADMIN")
+    solicitacao_kit_lanche_avulsa.codae_autoriza(user=usuario_codae, justificativa="Sem observações por parte da CODAE")
+    print("Solicitação aprovado pela CODAE")
+    
+    dia_passeio = datetime.date(ANO, MES, 15)
+    solicitacao_kit_lanche = solicitacao_kit_lanche_avulsa.solicitacao_kit_lanche
+    solicitacao_kit_lanche.data = dia_passeio
+    solicitacao_kit_lanche.save()
+    print(f"Data da solicitação alterada para {dia_passeio.strftime('%d/%m/%Y')}")
+    
+    return solicitacao_kit_lanche
+
 if __name__ == "__main__":
     habilitar_dias_letivos()
