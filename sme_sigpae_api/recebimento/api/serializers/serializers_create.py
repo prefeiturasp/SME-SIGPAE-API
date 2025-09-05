@@ -355,7 +355,16 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
         return criar_ficha(validated_data)
 
     def update(self, instance, validated_data):
-        return atualizar_ficha(instance, validated_data)
+        ficha_atualizada = atualizar_ficha(instance, validated_data)
+
+        if (
+            hasattr(instance, "status")
+            and instance.status == instance.workflow_class.ASSINADA
+        ):
+            user = self.context["request"].user
+            ficha_atualizada.volta_para_rascunho(user=user)
+
+        return ficha_atualizada
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
