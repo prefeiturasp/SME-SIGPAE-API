@@ -13,10 +13,21 @@ DIAS_MES = 31
 QUANTIDADE_ALUNOS = 25
 
 
-def habilitar_dias_letivos():
+def habilitar_dias_letivos(data=None):
     from sme_sigpae_api.escola.utils import calendario_sgp
-    d = datetime.date(ANO, MES, 1)
-    calendario_sgp(d)
+    print("Habilitando dias letivos...")
+    if not data:
+        data = datetime.date(ANO, MES, 1)
+    calendario_sgp(data)
+    print(f"O mês referente a data {data.strftime("%d/%m%Y")} agora é letivo")
+
+    data_kit_lanche = data_solicitacao_kit_lanche()
+    calendario_sgp(data_kit_lanche)
+    print(f"A data do pedido de kit lanche {data_kit_lanche.strftime("%d/%m%Y")} agora é letivo")
+
+    data_lanche_emergencial = data_solicitacao_kit_lanche()
+    calendario_sgp(data_lanche_emergencial)
+    print(f"A data do pedido do lanche emergencial {data_kit_lanche.strftime("%d/%m%Y")} agora é letivo")
 
 
 def incluir_log_alunos_matriculados(periodos, escola):
@@ -47,7 +58,6 @@ def obter_usuario(username, nome):
 
 def data_solicitacao_kit_lanche():
     data = datetime.datetime.now() + relativedelta(months=1)
-    habilitar_dias_letivos(data.date())
     return data.date()
 
 
@@ -101,6 +111,77 @@ def solicitar_kit_lanche(escola, usuario):
     print(f"Data da solicitação alterada para {dia_passeio.strftime('%d/%m/%Y')}")
     
     return solicitacao_kit_lanche
+
+
+def data_solicitacao_kit_emergencial():
+    data = datetime.datetime.now() + relativedelta(months=1, days=5)
+    return data.date()
+
+
+def solicitar_lanche_emergencial(escola, usuario, periodo_escolar):
+    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import MotivoAlteracaoCardapio
+    from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
+    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create import AlteracaoCardapioSerializerCreate
+  
+    data = data_solicitacao_kit_emergencial()
+    motivo = MotivoAlteracaoCardapio.objects.get(nome="Lanche Emergencial")
+    tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
+    tipo_lanche_emergencial = TipoAlimentacao.objects.get(nome="Lanche Emergencial")
+    
+    solicitacao_json = {
+        "escola": escola,
+        "motivo": motivo,
+        "observacao": "<p>Devido as chuvas, haverá corte de energia elétrica para manutenção da rede</p>",
+        "data_inicial": data,
+        "data_final": data,
+        "datas_intervalo": [
+            {
+                "data": data
+            }
+        ],
+        "substituicoes": [
+            {
+                "qtd_alunos": "5",
+                "periodo_escolar": periodo_escolar,
+                "tipos_alimentacao_de": [tipo_alimentacao],
+                "tipos_alimentacao_para": [tipo_lanche_emergencial]
+            }
+        ],
+
+    }
+    context = {
+        "request": type(
+            "Request", (), {"user": usuario}
+        )
+    }
+    solicitacao_lanche_emergencial = AlteracaoCardapioSerializerCreate(context=context).create(
+        solicitacao_json
+    )
+
+    solicitacao_lanche_emergencial.inicia_fluxo(user=usuario)
+    print(f"Solicitação cadastrada: AlteracaoCardapio UUID={solicitacao_lanche_emergencial.uuid}")
+    
+    usuario_dre = obter_usuario(26755818011, "DRE ADMIN")
+    solicitacao_lanche_emergencial.dre_valida(user=usuario_dre)
+    print("Solicitação aprovado pela DRE")
+    
+    usuario_codae = obter_usuario("01341145409", "CODAE ADMIN")
+    solicitacao_lanche_emergencial.codae_autoriza(user=usuario_codae, justificativa="Sem observações por parte da CODAE")
+    print("Solicitação aprovado pela CODAE")
+    
+    dia_lanche_emergencial = datetime.date(ANO, MES, 22)
+    solicitacao_lanche_emergencial.data_final = dia_lanche_emergencial
+    solicitacao_lanche_emergencial.data_inicial = dia_lanche_emergencial
+    solicitacao_lanche_emergencial.save()
+    
+    data_intervalo = solicitacao_lanche_emergencial.datas_intervalo.get()
+    data_intervalo.data = dia_lanche_emergencial
+    data_intervalo.save()
+    
+    print(f"Data da solicitação alterada para {dia_lanche_emergencial.strftime('%d/%m/%Y')}")
+    
+    return solicitacao_lanche_emergencial
+
 
 if __name__ == "__main__":
     habilitar_dias_letivos()
