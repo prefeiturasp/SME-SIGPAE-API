@@ -1516,7 +1516,7 @@ class HomologacaoProdutoViewSet(viewsets.ModelViewSet):
     )
     def alteracao_produto_homologado(self, request, uuid=None):
         homologacao_produto = self.get_object()
-        copia_hom_produto = homologacao_produto.cria_copia()
+        copia_hom_produto = homologacao_produto.cria_copia(request.user.vinculo_atual.instituicao)
         serializer = ProdutoSerializerCreate(context={"request": request})
         request.data["uuid"] = copia_hom_produto.produto.uuid
         copia_atualizada = serializer.update(copia_hom_produto.produto, request.data)

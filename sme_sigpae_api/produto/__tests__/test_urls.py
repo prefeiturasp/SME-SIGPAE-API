@@ -1363,7 +1363,7 @@ def test_homologacao_produto_com_copia_com_analises(
     assert original.respostas_analise.exists() is True
     assert original.respostas_analise.get().anexos.exists() is True
     assert original.reclamacoes.exists() is True
-
+    assert original.rastro_terceirizada is not None
 
 def test_homologacao_produto_erro_sem_editais(
     client_autenticado_vinculo_codae_produto, hom_copia_pendente_homologacao
@@ -1387,6 +1387,7 @@ def test_homologacao_produto_erro_sem_editais(
 def test_fluxo_correcao_dados_produto_homologado(
     client_autenticado_vinculo_terceirizada,
     homologacao_produto,
+    reclamacao_respondido_terceirizada,
     marca1,
     fabricante,
     produto,
@@ -1400,6 +1401,8 @@ def test_fluxo_correcao_dados_produto_homologado(
     perfil_gpcodae,
 ):
     client, user_client = client_autenticado_vinculo_terceirizada
+
+    homologacao_produto.reclamacao = reclamacao_respondido_terceirizada
 
     # Terceirizada pede alteração dos dados do produto
     data = {
@@ -1469,6 +1472,108 @@ def test_fluxo_correcao_dados_produto_homologado(
     assert response_terc_corrige.status_code == status.HTTP_200_OK
     hom_copia.refresh_from_db()
     assert hom_copia.status == HomologacaoProdutoWorkflow.CODAE_PENDENTE_HOMOLOGACAO
+    assert hom_copia.rastro_terceirizada is not None
+    assert hom_copia.eh_copia is True
+    assert hom_copia.reclamacoes.count() > 0
+
+    # CODAE aceita alterações
+    homologacao_produto_original = hom_copia.equaliza_homologacoes_e_se_destroi()
+    homologacao_produto_original.codae_homologa(user=user, link_pdf="")
+    assert homologacao_produto_original.produto.aditivos == "altera alguma coisa"
+    assert homologacao_produto_original.tem_copia is False
+    assert homologacao_produto_original.eh_copia is False
+    assert homologacao_produto_original.logs.count() == 3
+
+def test_fluxo_correcao_dados_produto_nao_homologado(
+    client_autenticado_vinculo_terceirizada,
+    homologacao_produto_pendente_homologacao,
+    reclamacao_respondido_terceirizada,
+    marca1,
+    fabricante,
+    produto,
+    codae,
+    escola,
+    unidade_medida,
+    embalagem_produto,
+    info_nutricional1,
+    info_nutricional2,
+    user,
+    perfil_gpcodae,
+):
+    client, user_client = client_autenticado_vinculo_terceirizada
+
+    homologacao_produto_pendente_homologacao.reclamacao = reclamacao_respondido_terceirizada
+
+    data = {
+        "eh_para_alunos_com_dieta": True,
+        "tem_aditivos_alergenicos": True,
+        "tem_gluten": "0",
+        "aditivos": "dasdasdasd",
+        "nome": produto.nome,
+        "marca": str(marca1.uuid),
+        "fabricante": str(fabricante.uuid),
+        "componentes": "componente teste",
+        "porcao": "1 kg",
+        "unidade_caseira": "1 PRATO CHEIO",
+        "especificacoes": [
+            {
+                "volume": 500,
+                "unidade_de_medida": str(unidade_medida.uuid),
+                "embalagem_produto": str(embalagem_produto.uuid),
+            }
+        ],
+        "prazo_validade": "24 MESES",
+        "info_armazenamento": "O PRODUTO DEVE SER CONSERVADO EM AMABIENTE SECO E FRESCO",
+        "anexos": [],
+        "uuid": str(produto.uuid),
+        "cadastro_atualizado": True,
+        "cadastro_finalizado": False,
+        "imagens": [],
+        "informacoes_nutricionais": [
+            {
+                "informacao_nutricional": str(info_nutricional1.uuid),
+                "quantidade_porcao": "324",
+                "valor_diario": "16",
+            },
+            {
+                "informacao_nutricional": str(info_nutricional2.uuid),
+                "quantidade_porcao": "69",
+                "valor_diario": "23",
+            },
+        ],
+        "outras_informacoes": "daadsads",
+    }
+    response = client.patch(
+        f"/homologacoes-produtos/{homologacao_produto_pendente_homologacao.uuid}/alteracao-produto-homologado/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["uuid"] != produto.uuid
+    uuid_ = response.json()["uuid"]
+    hom_copia = HomologacaoProduto.objects.get(produto__uuid=uuid_)
+
+    # CODAE pede correção
+    hom_copia.status = HomologacaoProdutoWorkflow.CODAE_PENDENTE_HOMOLOGACAO
+    hom_copia.save()
+    hom_copia.codae_questiona(
+        user=user, justificativa="<p>Corrija o produto.</p>", link_pdf=""
+    )
+    assert hom_copia.status == HomologacaoProduto.workflow_class.CODAE_QUESTIONADO
+
+    # Terceirizada corrige
+    data["aditivos"] = "altera alguma coisa"
+    response_terc_corrige = client.patch(
+        f"/produtos/{hom_copia.produto.uuid}/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+    assert response_terc_corrige.status_code == status.HTTP_200_OK
+    hom_copia.refresh_from_db()
+    assert hom_copia.status == HomologacaoProdutoWorkflow.CODAE_PENDENTE_HOMOLOGACAO
+    assert hom_copia.rastro_terceirizada is not None
+    assert hom_copia.eh_copia is True
+    assert hom_copia.reclamacoes.count() > 0
 
     # CODAE aceita alterações
     homologacao_produto_original = hom_copia.equaliza_homologacoes_e_se_destroi()
