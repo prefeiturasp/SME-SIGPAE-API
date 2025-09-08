@@ -730,7 +730,6 @@ class HomologacaoProduto(
 
         for log in logs_copiados:
             anexos_count = log.anexos.count() if hasattr(log, 'anexos') else 0
-            print(f"  - Log {log.uuid}: {anexos_count} anexos")
         
         for anexo_original in reclamacao_original.anexos.all():
             anexo_copia = AnexoReclamacaoDeProduto()
