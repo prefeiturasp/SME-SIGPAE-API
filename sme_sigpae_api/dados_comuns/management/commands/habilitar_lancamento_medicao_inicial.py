@@ -33,19 +33,25 @@ class Command(BaseCommand):
         parser.add_argument("--ano", type=int, help="Ano obrigatório para a medição")
         parser.add_argument("--mes", type=int, help="Mês obrigatório para a medição")
         parser.add_argument(
-            "--data-kit-lanche", type=int, help="Dia para data_kit_lanche (padrão: 15)", default=15
+            "--data-kit-lanche",
+            type=int,
+            help="Dia para data_kit_lanche (padrão: 15)",
+            default=15,
         )
         parser.add_argument(
             "--data-lanche-emergencial",
             type=int,
-            help="Dia para data_lanche_emergencial (padrão: 12)", default=22
+            help="Dia para data_lanche_emergencial (padrão: 22)",
+            default=22,
         )
 
     def handle(self, *args, **options):
         if env("DJANGO_ENV") == "production":
             self.stdout.write(self.style.ERROR("SÓ PODE EXECUTAR EM DESENVOLVIMENTO"))
             return
-        ano, mes, dia_kit_lanche, dia_lanche_emergencial = self.parse_parametros(options)
+        ano, mes, dia_kit_lanche, dia_lanche_emergencial = self.parse_parametros(
+            options
+        )
         self.valida_parametros(ano, mes, dia_kit_lanche, dia_lanche_emergencial)
 
         self.stdout.write("================== INICIANDO O SCRIPT ==================")
@@ -100,7 +106,7 @@ class Command(BaseCommand):
             self.stdout.write()
 
         self.stdout.write("================== FINALIZADO ==================")
-        
+
     def parse_parametros(self, options):
         ano = options["ano"]
         mes = options["mes"]
@@ -111,13 +117,17 @@ class Command(BaseCommand):
     def valida_parametros(self, ano, mes, dia_kit, dia_emergencial):
         if mes < 1 or mes > 12:
             raise CommandError("Mês deve estar entre 1 e 12")
-        dias_no_mes = calendar.monthrange(ano, mes)[1] 
+        dias_no_mes = calendar.monthrange(ano, mes)[1]
 
         if not 1 <= dia_kit <= dias_no_mes:
-            raise CommandError(f"Dia do kit lanche deve estar entre 1 e {dias_no_mes} para {mes:02d}/{ano}")
+            raise CommandError(
+                f"Dia do kit lanche deve estar entre 1 e {dias_no_mes} para {mes:02d}/{ano}"
+            )
 
         if not 1 <= dia_emergencial <= dias_no_mes:
-            raise CommandError(f"Dia do lanche emergencial deve estar entre 1 e {dias_no_mes} para {mes:02d}/{ano}")
+            raise CommandError(
+                f"Dia do lanche emergencial deve estar entre 1 e {dias_no_mes} para {mes:02d}/{ano}"
+            )
 
     def escolas_periodos_normais(
         self,
