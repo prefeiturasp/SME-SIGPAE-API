@@ -2,6 +2,16 @@ import datetime
 
 from dateutil.relativedelta import relativedelta
 
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create import (
+    AlteracaoCardapioSerializerCreate,
+)
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
+    MotivoAlteracaoCardapio,
+)
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create import (
+    AlteracaoCardapioCEMEISerializerCreate,
+)
+from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
 from sme_sigpae_api.escola.models import (
     FaixaEtaria,
     LogAlunosMatriculadosFaixaEtariaDia,
@@ -10,6 +20,10 @@ from sme_sigpae_api.escola.models import (
     TipoTurma,
 )
 from sme_sigpae_api.escola.utils import calendario_sgp
+from sme_sigpae_api.inclusao_alimentacao.api.serializers.serializers_create import (
+    InclusaoAlimentacaoContinuaCreationSerializer,
+)
+from sme_sigpae_api.inclusao_alimentacao.models import MotivoInclusaoContinua
 from sme_sigpae_api.kit_lanche.api.serializers.serializers_create import (
     SolicitacaoKitLancheAvulsaCreationSerializer,
     SolicitacaoKitLancheCEMEICreateSerializer,
@@ -366,13 +380,6 @@ def data_solicitacao_lanche_emergencial():
 
 
 def solicitar_lanche_emergencial(escola, usuario, periodo_escolar):
-    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create import (
-        AlteracaoCardapioSerializerCreate,
-    )
-    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
-        MotivoAlteracaoCardapio,
-    )
-    from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
 
     data = data_solicitacao_lanche_emergencial()
     motivo = MotivoAlteracaoCardapio.objects.get(nome="Lanche Emergencial")
@@ -432,13 +439,6 @@ def solicitar_lanche_emergencial(escola, usuario, periodo_escolar):
 
 
 def solicitar_lanche_emergencial_cemei(escola, usuario, periodo_escolar):
-    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
-        MotivoAlteracaoCardapio,
-    )
-    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create import (
-        AlteracaoCardapioCEMEISerializerCreate,
-    )
-    from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
 
     data = data_solicitacao_lanche_emergencial()
     motivo = MotivoAlteracaoCardapio.objects.get(nome="Lanche Emergencial")
@@ -500,3 +500,59 @@ def solicitar_lanche_emergencial_cemei(escola, usuario, periodo_escolar):
 
 
 # **************************** **************************** PROGRAMAS E PROJETOS **************************** ****************************
+def data_programas_e_projetos_etec():
+    data_inicial = datetime.datetime.now() + relativedelta(months=1)
+    data_final = datetime.datetime.now() + relativedelta(months=1, days=5)
+    return data_inicial.date(), data_final.date()
+
+
+def incluir_programas_e_projetos(escola, usuario, periodo_escolar):
+
+    data_inicial, data_final = data_programas_e_projetos_etec()
+    tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
+    motivo = MotivoInclusaoContinua.objects.get(nome="Programas/Projetos Específicos")
+
+    solicitacao_json = {
+        "escola": escola,
+        "status": "RASCUNHO",
+        "quantidades_periodo": [
+            {
+                "dias_semana": ["0", "1", "2", "3", "4"],
+                "periodo_escolar": periodo_escolar,
+                "tipos_alimentacao": [tipo_alimentacao],
+                "numero_alunos": "10",
+                "observacao": "<p>nenhuma</p>",
+            }
+        ],
+        "motivo": motivo,
+        "data_inicial": data_inicial,
+        "data_final": data_final,
+    }
+    context = {"request": type("Request", (), {"user": usuario})}
+    programas_e_projetos = InclusaoAlimentacaoContinuaCreationSerializer(
+        context=context
+    ).create(solicitacao_json)
+    programas_e_projetos.inicia_fluxo(user=usuario)
+    print(
+        f"Solicitação cadastrada: InclusaoAlimentacaoContinua UUID={programas_e_projetos.uuid}"
+    )
+
+    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
+    programas_e_projetos.dre_valida(user=usuario_dre)
+    print("Solicitação aprovado pela DRE")
+
+    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
+    programas_e_projetos.codae_autoriza(
+        user=usuario_codae, justificativa="Sem observações por parte da CODAE"
+    )
+    print("Solicitação aprovado pela CODAE")
+
+    nova_data_inicio = datetime.date(ANO, MES, DATA_KIT_LANCHE)
+    nova_data_fim = datetime.date(ANO, MES, DATA_KIT_LANCHE) + relativedelta(days=5)
+    programas_e_projetos.data_final = nova_data_fim
+    programas_e_projetos.data_inicial = nova_data_inicio
+    programas_e_projetos.save()
+
+    print(
+        f"Data da solicitação alterada para {nova_data_inicio.strftime('%d/%m/%Y')} até {nova_data_fim.strftime('%d/%m/%Y')}"
+    )
