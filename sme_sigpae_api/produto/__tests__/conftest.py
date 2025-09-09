@@ -1,5 +1,5 @@
 import datetime
-from unittest.mock import Mock
+from unittest.mock import Mock, MagicMock
 
 import pytest
 from django.contrib.contenttypes.models import ContentType
@@ -29,6 +29,8 @@ from ...dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
 from ...escola.models import DiretoriaRegional, TipoGestao
 from ...terceirizada.models import Contrato
 from ..models import AnaliseSensorial, HomologacaoProduto, ProdutoEdital
+
+from sme_sigpae_api.dados_comuns.constants import ADMINISTRADOR_EMPRESA
 
 fake = Faker("pt-Br")
 Faker.seed(420)
@@ -72,6 +74,20 @@ def template_homologacao_produto():
 @pytest.fixture
 def perfil_gpcodae():
     return baker.make("Perfil", nome=constants.ADMINISTRADOR_GESTAO_PRODUTO, ativo=True)
+
+
+@pytest.fixture
+def mock_request():
+    request = MagicMock()
+    request.user = MagicMock()
+    return request
+
+
+@pytest.fixture
+def mock_vinculo_atual():
+    vinculo = MagicMock()
+    vinculo.perfil.nome = ADMINISTRADOR_EMPRESA
+    return vinculo
 
 
 @pytest.fixture
@@ -504,10 +520,14 @@ def hom_produto_com_editais_escola_ou_nutri_reclamou(hom_produto_com_editais):
 
 
 @pytest.fixture
-def hom_copia(hom_produto_com_editais):
+def hom_copia(hom_produto_com_editais, mock_request, mock_vinculo_atual, terceirizada):
     produto_copia = hom_produto_com_editais.cria_copia_produto()
+    mock_request.user.is_anonymous = False
+    mock_request.user.vinculo_atual = mock_vinculo_atual
+    mock_vinculo_atual.instituicao = terceirizada
     homologacao_copia = hom_produto_com_editais.cria_copia_homologacao_produto(
-        produto_copia
+        produto_copia,
+        mock_vinculo_atual.instituicao
     )
     baker.make(
         "LogSolicitacoesUsuario",
