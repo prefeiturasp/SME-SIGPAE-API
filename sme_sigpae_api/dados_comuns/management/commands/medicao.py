@@ -5,6 +5,7 @@ from sme_sigpae_api.escola.models import Escola
 from utility.carga_dados.medicao.constantes import ANO, MES
 from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
     habilitar_dias_letivos,
+    incluir_etec,
     incluir_log_alunos_matriculados,
     incluir_log_alunos_matriculados_cei,
     incluir_log_alunos_matriculados_cei_da_cemei,
@@ -76,6 +77,11 @@ class Command(BaseCommand):
         
         self.stdout.write("4. Criar PROGRAMAS E PROJETOS")
         incluir_programas_e_projetos(escola, usuario, periodo_escolar_solicitacoes)
+        
+        if escola.eh_emef or escola.eh_ceu_gestao:
+            self.stdout.write("5. Criar ETEC")
+            periodo_noturno = periodos_escolares.get(nome="NOITE")
+            incluir_etec(escola, usuario, periodo_noturno)
        
 
     def escolas_cemei(self, escola, username, usuario_escola, periodos_escolares):

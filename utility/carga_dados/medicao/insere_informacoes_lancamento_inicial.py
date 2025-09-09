@@ -571,6 +571,8 @@ def incluir_etec(escola, usuario, periodo_escolar):
     data_inicial, data_final = data_programas_e_projetos_etec()
     tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
     motivo = MotivoInclusaoContinua.objects.get(nome="ETEC")
+    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
+    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
 
     solicitacao_json = {
         "escola": escola,
@@ -596,11 +598,9 @@ def incluir_etec(escola, usuario, periodo_escolar):
     etec.inicia_fluxo(user=usuario)
     print(f"Solicitação cadastrada: InclusaoAlimentacaoContinua UUID={etec.uuid}")
 
-    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
     etec.dre_valida(user=usuario_dre)
     print("Solicitação aprovado pela DRE")
 
-    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
     etec.codae_autoriza(
         user=usuario_codae, justificativa="Sem observações por parte da CODAE"
     )
