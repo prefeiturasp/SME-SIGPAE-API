@@ -246,11 +246,12 @@ def calendario_sgp(data_inicio=date.today(), lista_escolas=None):
     from sme_sigpae_api.escola.models import Escola
     from sme_sigpae_api.escola.services import NovoSGPServico
 
-    if lista_escolas:
-        escolas = Escola.objects.filter(nome__in=lista_escolas)
-    else:
-        escolas = Escola.objects.all()
-        
+    escolas = (
+        Escola.objects.filter(nome__in=lista_escolas)
+        if lista_escolas
+        else Escola.objects.all()
+    )
+
     total = len(escolas)
     data_fim = None
     data_inicio_formatada = data_inicio.strftime("%Y-%m-%d")

@@ -10,10 +10,24 @@ from sme_sigpae_api.escola.models import (
     TipoTurma,
 )
 from sme_sigpae_api.escola.utils import calendario_sgp
-from sme_sigpae_api.perfil.models.usuario import Usuario
-from utility.carga_dados.medicao.constantes import ANO, DIAS_MES, MES, NOME_USUARIO_CODAE, NOME_USUARIO_DRE, QUANTIDADE_ALUNOS, USERNAME_USUARIO_CODAE, USERNAME_USUARIO_DRE
+from sme_sigpae_api.kit_lanche.api.serializers.serializers_create import (
+    SolicitacaoKitLancheAvulsaCreationSerializer,
+    SolicitacaoKitLancheCEMEICreateSerializer,
+)
 from sme_sigpae_api.kit_lanche.models import KitLanche
-from sme_sigpae_api.kit_lanche.api.serializers.serializers_create import SolicitacaoKitLancheAvulsaCreationSerializer, SolicitacaoKitLancheCEMEICreateSerializer
+from sme_sigpae_api.perfil.models.usuario import Usuario
+from utility.carga_dados.medicao.constantes import (
+    ANO,
+    DATA_KIT_LANCHE,
+    DATA_LANCHE_EMERGENCIAL,
+    DIAS_MES,
+    MES,
+    NOME_USUARIO_CODAE,
+    NOME_USUARIO_DRE,
+    QUANTIDADE_ALUNOS,
+    USERNAME_USUARIO_CODAE,
+    USERNAME_USUARIO_DRE,
+)
 
 
 def obter_escolas():
@@ -71,16 +85,6 @@ def habilitar_dias_letivos(escolas, data=None):
     print(
         f"A data do pedido do lanche emergencial {data_kit_lanche.strftime("%d/%m/%Y")} agora é letivo"
     )
-
-
-def data_solicitacao_kit_lanche():
-    data = datetime.datetime.now() + relativedelta(months=1)
-    return data.date()
-
-
-def data_solicitacao_lanche_emergencial():
-    data = datetime.datetime.now() + relativedelta(months=1, days=5)
-    return data.date()
 
 
 # **************************** **************************** LOG DE ALUNOS MATRICULADOS **************************** ****************************
@@ -220,88 +224,104 @@ def incluir_log_alunos_matriculados_emei_da_cemei(periodos, escola):
 
 # **************************** **************************** SOLICITAÇÃO DE KIT LANCHE **************************** ****************************
 
+
+def data_solicitacao_kit_lanche():
+    data = datetime.datetime.now() + relativedelta(months=1)
+    return data.date()
+
+
 def solicitar_kit_lanche(escola, usuario):
-    
-    queryset = KitLanche.objects.filter(edital__uuid__in=escola.editais, tipos_unidades=escola.tipo_unidade, status=KitLanche.ATIVO)
-    
+
+    queryset = KitLanche.objects.filter(
+        edital__uuid__in=escola.editais,
+        tipos_unidades=escola.tipo_unidade,
+        status=KitLanche.ATIVO,
+    )
+
     if not queryset.exists():
         print(f"Nenhum kit encontrado para escola {escola.nome}")
         print("================== SCRIP CANCELADO ==================")
         exit()
     kit = queryset.first()
-    
+
     solicitacao_json = {
         "solicitacao_kit_lanche": {
             "kits": [kit],
             "data": data_solicitacao_kit_lanche(),
-            "tempo_passeio": "0"
+            "tempo_passeio": "0",
         },
         "escola": escola,
         "local": "Casa da História",
         "evento": "Semana da História",
         "quantidade_alunos": 10,
         "alunos_com_dieta_especial_participantes": [],
-        "status": "RASCUNHO"
+        "status": "RASCUNHO",
     }
-    context = {
-        "request": type(
-            "Request", (), {"user": usuario}
-        )
-    }
-    solicitacao_kit_lanche_avulsa = SolicitacaoKitLancheAvulsaCreationSerializer(context=context).create(
-        solicitacao_json
-    )
+    context = {"request": type("Request", (), {"user": usuario})}
+    solicitacao_kit_lanche_avulsa = SolicitacaoKitLancheAvulsaCreationSerializer(
+        context=context
+    ).create(solicitacao_json)
     solicitacao_kit_lanche_avulsa.inicia_fluxo(user=usuario)
-    print(f"Solicitação cadastrada: SolicitacaoKitLancheAvulsa UUID={solicitacao_kit_lanche_avulsa.uuid}")
-    
+    print(
+        f"Solicitação cadastrada: SolicitacaoKitLancheAvulsa UUID={solicitacao_kit_lanche_avulsa.uuid}"
+    )
+
     usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
     solicitacao_kit_lanche_avulsa.dre_valida(user=usuario_dre)
     print("Solicitação aprovado pela DRE")
-    
+
     usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
-    solicitacao_kit_lanche_avulsa.codae_autoriza(user=usuario_codae, justificativa="Sem observações por parte da CODAE")
+    solicitacao_kit_lanche_avulsa.codae_autoriza(
+        user=usuario_codae, justificativa="Sem observações por parte da CODAE"
+    )
     print("Solicitação aprovado pela CODAE")
-    
-    dia_passeio = datetime.date(ANO, MES, 15)
+
+    dia_passeio = datetime.date(ANO, MES, DATA_KIT_LANCHE)
     solicitacao_kit_lanche = solicitacao_kit_lanche_avulsa.solicitacao_kit_lanche
     solicitacao_kit_lanche.data = dia_passeio
     solicitacao_kit_lanche.save()
     print(f"Data da solicitação alterada para {dia_passeio.strftime('%d/%m/%Y')}")
-    
+
     return solicitacao_kit_lanche
 
 
 def solicitar_kit_lanche_cemei(escola, usuario):
-    queryset = KitLanche.objects.filter(edital__uuid__in=escola.editais, tipos_unidades=escola.tipo_unidade, status=KitLanche.ATIVO)
+    queryset = KitLanche.objects.filter(
+        edital__uuid__in=escola.editais,
+        tipos_unidades=escola.tipo_unidade,
+        status=KitLanche.ATIVO,
+    )
     if not queryset.exists():
         print(f"Nenhum kit encontrado para escola {escola.nome}")
         print("================== SCRIP CANCELADO ==================")
         exit()
     kit = queryset.first()
     faixas = FaixaEtaria.objects.filter(ativo=True)
-    
+
     faixas_quantidades = []
     for faixa in faixas:
-        faixas_quantidades.append({
-            "faixa_etaria": faixa,
-            "matriculados_quando_criado": 5,
-            "quantidade_alunos": 1
-        })
-        
+        faixas_quantidades.append(
+            {
+                "faixa_etaria": faixa,
+                "matriculados_quando_criado": 5,
+                "quantidade_alunos": 1,
+            }
+        )
+
     solicitacao_json = {
         "escola": escola,
         "solicitacao_cei": {
             "kits": [kit],
             "alunos_com_dieta_especial_participantes": [],
             "faixas_quantidades": faixas_quantidades,
-            "tempo_passeio": 0
+            "tempo_passeio": 0,
         },
         "solicitacao_emei": {
             "kits": [kit],
             "alunos_com_dieta_especial_participantes": [],
             "tempo_passeio": 0,
             "matriculados_quando_criado": QUANTIDADE_ALUNOS,
-            "quantidade_alunos": 20
+            "quantidade_alunos": 20,
         },
         "observacao": "<p>Nenhuma</p>",
         "status": "RASCUNHO",
@@ -310,110 +330,121 @@ def solicitar_kit_lanche_cemei(escola, usuario):
         "data": data_solicitacao_kit_lanche(),
     }
 
-    context = {
-        "request": type(
-            "Request", (), {"user": usuario}
-        )
-    }
-    solicitacao_kit_lanche_cemei = SolicitacaoKitLancheCEMEICreateSerializer(context=context).create(
-        solicitacao_json
-    )
+    context = {"request": type("Request", (), {"user": usuario})}
+    solicitacao_kit_lanche_cemei = SolicitacaoKitLancheCEMEICreateSerializer(
+        context=context
+    ).create(solicitacao_json)
     solicitacao_kit_lanche_cemei.inicia_fluxo(user=usuario)
-    print(f"Solicitação cadastrada: SolicitacaoKitLancheAvulsa UUID={solicitacao_kit_lanche_cemei.uuid}")
-    
+    print(
+        f"Solicitação cadastrada: SolicitacaoKitLancheAvulsa UUID={solicitacao_kit_lanche_cemei.uuid}"
+    )
+
     usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
     solicitacao_kit_lanche_cemei.dre_valida(user=usuario_dre)
     print("Solicitação aprovado pela DRE")
-    
+
     usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
-    solicitacao_kit_lanche_cemei.codae_autoriza(user=usuario_codae, justificativa="Sem observações por parte da CODAE")
+    solicitacao_kit_lanche_cemei.codae_autoriza(
+        user=usuario_codae, justificativa="Sem observações por parte da CODAE"
+    )
     print("Solicitação aprovado pela CODAE")
-    
-    dia_passeio = datetime.date(ANO, MES, 15)
+
+    dia_passeio = datetime.date(ANO, MES, DATA_KIT_LANCHE)
     solicitacao_kit_lanche_cemei.data = dia_passeio
     solicitacao_kit_lanche_cemei.save()
     print(f"Data da solicitação alterada para {dia_passeio.strftime('%d/%m/%Y')}")
-    
+
     return solicitacao_kit_lanche_cemei
 
 
 # **************************** **************************** SOLICITAÇÃO DE LANCHE EMERGENCIAL **************************** ****************************
 
+
+def data_solicitacao_lanche_emergencial():
+    data = datetime.datetime.now() + relativedelta(months=1, days=5)
+    return data.date()
+
+
 def solicitar_lanche_emergencial(escola, usuario, periodo_escolar):
-    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import MotivoAlteracaoCardapio
+    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create import (
+        AlteracaoCardapioSerializerCreate,
+    )
+    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
+        MotivoAlteracaoCardapio,
+    )
     from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
-    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create import AlteracaoCardapioSerializerCreate
-  
+
     data = data_solicitacao_lanche_emergencial()
     motivo = MotivoAlteracaoCardapio.objects.get(nome="Lanche Emergencial")
     tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
     tipo_lanche_emergencial = TipoAlimentacao.objects.get(nome="Lanche Emergencial")
-    
+
     solicitacao_json = {
         "escola": escola,
         "motivo": motivo,
         "observacao": "<p>Devido as chuvas, haverá corte de energia elétrica para manutenção da rede</p>",
         "data_inicial": data,
         "data_final": data,
-        "datas_intervalo": [
-            {
-                "data": data
-            }
-        ],
+        "datas_intervalo": [{"data": data}],
         "substituicoes": [
             {
                 "qtd_alunos": "5",
                 "periodo_escolar": periodo_escolar,
                 "tipos_alimentacao_de": [tipo_alimentacao],
-                "tipos_alimentacao_para": [tipo_lanche_emergencial]
+                "tipos_alimentacao_para": [tipo_lanche_emergencial],
             }
         ],
-
     }
-    context = {
-        "request": type(
-            "Request", (), {"user": usuario}
-        )
-    }
-    solicitacao_lanche_emergencial = AlteracaoCardapioSerializerCreate(context=context).create(
-        solicitacao_json
-    )
+    context = {"request": type("Request", (), {"user": usuario})}
+    solicitacao_lanche_emergencial = AlteracaoCardapioSerializerCreate(
+        context=context
+    ).create(solicitacao_json)
 
     solicitacao_lanche_emergencial.inicia_fluxo(user=usuario)
-    print(f"Solicitação cadastrada: AlteracaoCardapio UUID={solicitacao_lanche_emergencial.uuid}")
-    
+    print(
+        f"Solicitação cadastrada: AlteracaoCardapio UUID={solicitacao_lanche_emergencial.uuid}"
+    )
+
     usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
     solicitacao_lanche_emergencial.dre_valida(user=usuario_dre)
     print("Solicitação aprovado pela DRE")
-    
+
     usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
-    solicitacao_lanche_emergencial.codae_autoriza(user=usuario_codae, justificativa="Sem observações por parte da CODAE")
+    solicitacao_lanche_emergencial.codae_autoriza(
+        user=usuario_codae, justificativa="Sem observações por parte da CODAE"
+    )
     print("Solicitação aprovado pela CODAE")
-    
-    dia_lanche_emergencial = datetime.date(ANO, MES, 22)
+
+    dia_lanche_emergencial = datetime.date(ANO, MES, DATA_LANCHE_EMERGENCIAL)
     solicitacao_lanche_emergencial.data_final = dia_lanche_emergencial
     solicitacao_lanche_emergencial.data_inicial = dia_lanche_emergencial
     solicitacao_lanche_emergencial.save()
-    
+
     data_intervalo = solicitacao_lanche_emergencial.datas_intervalo.get()
     data_intervalo.data = dia_lanche_emergencial
     data_intervalo.save()
-    
-    print(f"Data da solicitação alterada para {dia_lanche_emergencial.strftime('%d/%m/%Y')}")
-    
+
+    print(
+        f"Data da solicitação alterada para {dia_lanche_emergencial.strftime('%d/%m/%Y')}"
+    )
+
     return solicitacao_lanche_emergencial
 
 
 def solicitar_lanche_emergencial_cemei(escola, usuario, periodo_escolar):
-    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import MotivoAlteracaoCardapio
+    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
+        MotivoAlteracaoCardapio,
+    )
+    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create import (
+        AlteracaoCardapioCEMEISerializerCreate,
+    )
     from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
-    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create import AlteracaoCardapioCEMEISerializerCreate
 
     data = data_solicitacao_lanche_emergencial()
     motivo = MotivoAlteracaoCardapio.objects.get(nome="Lanche Emergencial")
     tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
     tipo_lanche_emergencial = TipoAlimentacao.objects.get(nome="Lanche Emergencial")
-    
+
     solicitacao_json = {
         "escola": escola,
         "motivo": motivo,
@@ -425,52 +456,47 @@ def solicitar_lanche_emergencial_cemei(escola, usuario, periodo_escolar):
                 "qtd_alunos": "10",
                 "matriculados_quando_criado": QUANTIDADE_ALUNOS,
                 "periodo_escolar": periodo_escolar,
-                "tipos_alimentacao_de": [
-                    tipo_alimentacao
-                ],
-                "tipos_alimentacao_para": [
-                    tipo_lanche_emergencial
-                ]
+                "tipos_alimentacao_de": [tipo_alimentacao],
+                "tipos_alimentacao_para": [tipo_lanche_emergencial],
             }
         ],
         "observacao": "<p>nenhuma</p>",
-        "datas_intervalo": [
-            {
-                "data": data
-            }
-        ]
+        "datas_intervalo": [{"data": data}],
     }
-    context = {
-        "request": type(
-            "Request", (), {"user": usuario}
-        )
-    }
-    solicitacao_lanche_emergencial = AlteracaoCardapioCEMEISerializerCreate(context=context).create(
-        solicitacao_json
-    )
+    context = {"request": type("Request", (), {"user": usuario})}
+    solicitacao_lanche_emergencial = AlteracaoCardapioCEMEISerializerCreate(
+        context=context
+    ).create(solicitacao_json)
 
     solicitacao_lanche_emergencial.inicia_fluxo(user=usuario)
-    print(f"Solicitação cadastrada: AlteracaoCardapioCEMEI UUID={solicitacao_lanche_emergencial.uuid}")
-    
+    print(
+        f"Solicitação cadastrada: AlteracaoCardapioCEMEI UUID={solicitacao_lanche_emergencial.uuid}"
+    )
+
     usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
     solicitacao_lanche_emergencial.dre_valida(user=usuario_dre)
     print("Solicitação aprovado pela DRE")
-    
+
     usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
-    solicitacao_lanche_emergencial.codae_autoriza(user=usuario_codae, justificativa="Sem observações por parte da CODAE")
+    solicitacao_lanche_emergencial.codae_autoriza(
+        user=usuario_codae, justificativa="Sem observações por parte da CODAE"
+    )
     print("Solicitação aprovado pela CODAE")
-    
-    dia_lanche_emergencial = datetime.date(ANO, MES, 22)
+
+    dia_lanche_emergencial = datetime.date(ANO, MES, DATA_LANCHE_EMERGENCIAL)
     solicitacao_lanche_emergencial.data_final = dia_lanche_emergencial
     solicitacao_lanche_emergencial.data_inicial = dia_lanche_emergencial
     solicitacao_lanche_emergencial.save()
-    
+
     data_intervalo = solicitacao_lanche_emergencial.datas_intervalo.get()
     data_intervalo.data = dia_lanche_emergencial
     data_intervalo.save()
-    
-    print(f"Data da solicitação alterada para {dia_lanche_emergencial.strftime('%d/%m/%Y')}")
-    
+
+    print(
+        f"Data da solicitação alterada para {dia_lanche_emergencial.strftime('%d/%m/%Y')}"
+    )
+
     return solicitacao_lanche_emergencial
 
 
+# **************************** **************************** PROGRAMAS E PROJETOS **************************** ****************************
