@@ -1260,21 +1260,11 @@ def get_inclusoes_filtradas_cei_cemei(inclusoes, dia, mes, ano, medicao):
     )
     if medicao.periodo_escolar.nome == "PARCIAL":
         inclusoes_ = inclusoes_.exclude(
-            Q(
-                quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__nome="INTEGRAL"
-            )
-            | Q(
-                quantidade_alunos_cei_da_inclusao_cemei__periodo_escolar__nome="INTEGRAL"
-            )
+            quantidade_alunos_cei_da_inclusao_cemei__periodo_escolar__nome="INTEGRAL"
         )
     else:
         inclusoes_ = inclusoes_.filter(
-            Q(
-                quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar=medicao.periodo_escolar
-            )
-            | Q(
-                quantidade_alunos_cei_da_inclusao_cemei__periodo_escolar=medicao.periodo_escolar
-            )
+            quantidade_alunos_cei_da_inclusao_cemei__periodo_escolar=medicao.periodo_escolar
         )
     return inclusoes_.distinct()
 
