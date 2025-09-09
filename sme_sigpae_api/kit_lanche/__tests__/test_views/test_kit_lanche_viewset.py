@@ -3,12 +3,12 @@ import uuid
 import pytest
 from rest_framework import status
 
-from sme_sigpae_api.escola.models import Lote, TipoUnidadeEscolar
 from sme_sigpae_api.dados_comuns.constants import (
     PEDIDOS_CODAE,
     PEDIDOS_DRE,
     SEM_FILTRO,
 )
+from sme_sigpae_api.escola.models import Lote, TipoUnidadeEscolar
 
 pytestmark = pytest.mark.django_db
 
@@ -152,9 +152,8 @@ def test_valida_nome_kit_lanche_404_kit_lanche_does_not_exist(
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {"detail": "Nome válido"}
 
-def test_url_solicitacao_kit_lanche_cemei_codae(
-    client_autenticado_da_codae
-):
+
+def test_url_solicitacao_kit_lanche_cemei_codae(client_autenticado_da_codae):
     response = client_autenticado_da_codae.get(
         f"/solicitacao-kit-lanche-cemei/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
     )
@@ -163,11 +162,10 @@ def test_url_solicitacao_kit_lanche_cemei_codae(
     assert "next" not in data
     assert "count" not in data
     assert "results" in data
-    assert isinstance(data["results"], list)   
+    assert isinstance(data["results"], list)
 
-def test_url_solicitacao_kit_lanche_cemei_dre(
-    client_autenticado_da_dre
-):
+
+def test_url_solicitacao_kit_lanche_cemei_dre(client_autenticado_da_dre):
     response = client_autenticado_da_dre.get(
         f"/solicitacao-kit-lanche-cemei/{PEDIDOS_DRE}/{SEM_FILTRO}/"
     )
@@ -176,4 +174,4 @@ def test_url_solicitacao_kit_lanche_cemei_dre(
     assert "next" not in data
     assert "count" not in data
     assert "results" in data
-    assert isinstance(data["results"], list)   
+    assert isinstance(data["results"], list)

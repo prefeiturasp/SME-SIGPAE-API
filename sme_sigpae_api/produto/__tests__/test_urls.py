@@ -1368,6 +1368,7 @@ def test_homologacao_produto_com_copia_com_analises(
     assert original.reclamacoes.exists() is True
     assert original.rastro_terceirizada is not None
 
+
 def test_homologacao_produto_erro_sem_editais(
     client_autenticado_vinculo_codae_produto, hom_copia_pendente_homologacao
 ):
@@ -1487,6 +1488,7 @@ def test_fluxo_correcao_dados_produto_homologado(
     assert homologacao_produto_original.eh_copia is False
     assert homologacao_produto_original.logs.count() == 3
 
+
 def test_fluxo_correcao_dados_produto_nao_homologado(
     client_autenticado_vinculo_terceirizada,
     homologacao_produto_pendente_homologacao,
@@ -1505,7 +1507,9 @@ def test_fluxo_correcao_dados_produto_nao_homologado(
 ):
     client, user_client = client_autenticado_vinculo_terceirizada
 
-    homologacao_produto_pendente_homologacao.reclamacao = reclamacao_respondido_terceirizada
+    homologacao_produto_pendente_homologacao.reclamacao = (
+        reclamacao_respondido_terceirizada
+    )
 
     data = {
         "eh_para_alunos_com_dieta": True,

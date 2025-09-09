@@ -75,19 +75,19 @@ class Command(BaseCommand):
         self.stdout.write("3.2 Criar solicitação de LANCHE EMERGENCIAL")
         periodo_escolar_solicitacoes = periodos_escolares.get(nome="MANHA")
         solicitar_lanche_emergencial(escola, usuario, periodo_escolar_solicitacoes)
-        
+
         self.stdout.write("4. Criar PROGRAMAS E PROJETOS")
         incluir_programas_e_projetos(escola, usuario, periodo_escolar_solicitacoes)
-        
+
         if escola.eh_emef or escola.eh_ceu_gestao:
             self.stdout.write("5. Criar ETEC")
             periodo_noturno = periodos_escolares.get(nome="NOITE")
             incluir_etec(escola, usuario, periodo_noturno)
-            
+
         if escola.eh_ceu_gestao:
             self.stdout.write("6. Cadastro específo para CEU GESTAO")
             incluir_solicitacoes_ceu_gestao(escola, usuario, periodos_escolares)
-       
+
     def escolas_cemei(self, escola, username, usuario_escola, periodos_escolares):
         self.stdout.write(
             "1. Inclui Log de Alunos Matriculados por período escolar e faixa etária"
@@ -109,7 +109,7 @@ class Command(BaseCommand):
         solicitar_lanche_emergencial_cemei(
             escola, usuario, periodo_escolar_solicitacoes
         )
-        
+
         self.stdout.write("4. Criar PROGRAMAS E PROJETOS")
         incluir_programas_e_projetos(escola, usuario, periodo_escolar_solicitacoes)
 

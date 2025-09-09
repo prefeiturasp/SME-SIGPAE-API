@@ -631,7 +631,7 @@ def incluir_solicitacoes_ceu_gestao(escola, usuario, periodos_escolares):
     motivo = MotivoInclusaoNormal.objects.get(nome="Evento Específico")
     usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
     usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
-    
+
     quantidades_periodo = []
 
     for periodo in periodos_escolares:
