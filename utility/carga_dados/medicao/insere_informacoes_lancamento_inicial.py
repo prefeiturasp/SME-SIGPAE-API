@@ -335,3 +335,142 @@ def solicitar_kit_lanche_cemei(escola, usuario):
     print(f"Data da solicitação alterada para {dia_passeio.strftime('%d/%m/%Y')}")
     
     return solicitacao_kit_lanche_cemei
+
+
+# **************************** **************************** SOLICITAÇÃO DE LANCHE EMERGENCIAL **************************** ****************************
+
+def solicitar_lanche_emergencial(escola, usuario, periodo_escolar):
+    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import MotivoAlteracaoCardapio
+    from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
+    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create import AlteracaoCardapioSerializerCreate
+  
+    data = data_solicitacao_lanche_emergencial()
+    motivo = MotivoAlteracaoCardapio.objects.get(nome="Lanche Emergencial")
+    tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
+    tipo_lanche_emergencial = TipoAlimentacao.objects.get(nome="Lanche Emergencial")
+    
+    solicitacao_json = {
+        "escola": escola,
+        "motivo": motivo,
+        "observacao": "<p>Devido as chuvas, haverá corte de energia elétrica para manutenção da rede</p>",
+        "data_inicial": data,
+        "data_final": data,
+        "datas_intervalo": [
+            {
+                "data": data
+            }
+        ],
+        "substituicoes": [
+            {
+                "qtd_alunos": "5",
+                "periodo_escolar": periodo_escolar,
+                "tipos_alimentacao_de": [tipo_alimentacao],
+                "tipos_alimentacao_para": [tipo_lanche_emergencial]
+            }
+        ],
+
+    }
+    context = {
+        "request": type(
+            "Request", (), {"user": usuario}
+        )
+    }
+    solicitacao_lanche_emergencial = AlteracaoCardapioSerializerCreate(context=context).create(
+        solicitacao_json
+    )
+
+    solicitacao_lanche_emergencial.inicia_fluxo(user=usuario)
+    print(f"Solicitação cadastrada: AlteracaoCardapio UUID={solicitacao_lanche_emergencial.uuid}")
+    
+    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
+    solicitacao_lanche_emergencial.dre_valida(user=usuario_dre)
+    print("Solicitação aprovado pela DRE")
+    
+    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
+    solicitacao_lanche_emergencial.codae_autoriza(user=usuario_codae, justificativa="Sem observações por parte da CODAE")
+    print("Solicitação aprovado pela CODAE")
+    
+    dia_lanche_emergencial = datetime.date(ANO, MES, 22)
+    solicitacao_lanche_emergencial.data_final = dia_lanche_emergencial
+    solicitacao_lanche_emergencial.data_inicial = dia_lanche_emergencial
+    solicitacao_lanche_emergencial.save()
+    
+    data_intervalo = solicitacao_lanche_emergencial.datas_intervalo.get()
+    data_intervalo.data = dia_lanche_emergencial
+    data_intervalo.save()
+    
+    print(f"Data da solicitação alterada para {dia_lanche_emergencial.strftime('%d/%m/%Y')}")
+    
+    return solicitacao_lanche_emergencial
+
+
+def solicitar_lanche_emergencial_cemei(escola, usuario, periodo_escolar):
+    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import MotivoAlteracaoCardapio
+    from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
+    from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create import AlteracaoCardapioCEMEISerializerCreate
+
+    data = data_solicitacao_lanche_emergencial()
+    motivo = MotivoAlteracaoCardapio.objects.get(nome="Lanche Emergencial")
+    tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
+    tipo_lanche_emergencial = TipoAlimentacao.objects.get(nome="Lanche Emergencial")
+    
+    solicitacao_json = {
+        "escola": escola,
+        "motivo": motivo,
+        "alunos_cei_e_ou_emei": "EMEI",
+        "alterar_dia": data,
+        "substituicoes_cemei_cei_periodo_escolar": [],
+        "substituicoes_cemei_emei_periodo_escolar": [
+            {
+                "qtd_alunos": "10",
+                "matriculados_quando_criado": QUANTIDADE_ALUNOS,
+                "periodo_escolar": periodo_escolar,
+                "tipos_alimentacao_de": [
+                    tipo_alimentacao
+                ],
+                "tipos_alimentacao_para": [
+                    tipo_lanche_emergencial
+                ]
+            }
+        ],
+        "observacao": "<p>nenhuma</p>",
+        "datas_intervalo": [
+            {
+                "data": data
+            }
+        ]
+    }
+    context = {
+        "request": type(
+            "Request", (), {"user": usuario}
+        )
+    }
+    solicitacao_lanche_emergencial = AlteracaoCardapioCEMEISerializerCreate(context=context).create(
+        solicitacao_json
+    )
+
+    solicitacao_lanche_emergencial.inicia_fluxo(user=usuario)
+    print(f"Solicitação cadastrada: AlteracaoCardapioCEMEI UUID={solicitacao_lanche_emergencial.uuid}")
+    
+    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
+    solicitacao_lanche_emergencial.dre_valida(user=usuario_dre)
+    print("Solicitação aprovado pela DRE")
+    
+    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
+    solicitacao_lanche_emergencial.codae_autoriza(user=usuario_codae, justificativa="Sem observações por parte da CODAE")
+    print("Solicitação aprovado pela CODAE")
+    
+    dia_lanche_emergencial = datetime.date(ANO, MES, 22)
+    solicitacao_lanche_emergencial.data_final = dia_lanche_emergencial
+    solicitacao_lanche_emergencial.data_inicial = dia_lanche_emergencial
+    solicitacao_lanche_emergencial.save()
+    
+    data_intervalo = solicitacao_lanche_emergencial.datas_intervalo.get()
+    data_intervalo.data = dia_lanche_emergencial
+    data_intervalo.save()
+    
+    print(f"Data da solicitação alterada para {dia_lanche_emergencial.strftime('%d/%m/%Y')}")
+    
+    return solicitacao_lanche_emergencial
+
+
