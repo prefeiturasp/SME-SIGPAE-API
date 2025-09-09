@@ -11,7 +11,9 @@ from sme_sigpae_api.escola.models import (
 )
 from sme_sigpae_api.escola.utils import calendario_sgp
 from sme_sigpae_api.perfil.models.usuario import Usuario
-from utility.carga_dados.medicao.constantes import ANO, DIAS_MES, MES, QUANTIDADE_ALUNOS
+from utility.carga_dados.medicao.constantes import ANO, DIAS_MES, MES, NOME_USUARIO_CODAE, NOME_USUARIO_DRE, QUANTIDADE_ALUNOS, USERNAME_USUARIO_CODAE, USERNAME_USUARIO_DRE
+from sme_sigpae_api.kit_lanche.models import KitLanche
+from sme_sigpae_api.kit_lanche.api.serializers.serializers_create import SolicitacaoKitLancheAvulsaCreationSerializer, SolicitacaoKitLancheCEMEICreateSerializer
 
 
 def obter_escolas():
@@ -214,3 +216,122 @@ def incluir_log_alunos_matriculados_emei_da_cemei(periodos, escola):
                 criado_em=data
             )
         print(f"Logs do Período INTANTIL {periodo} cadastrados")
+
+
+# **************************** **************************** SOLICITAÇÃO DE KIT LANCHE **************************** ****************************
+
+def solicitar_kit_lanche(escola, usuario):
+    
+    queryset = KitLanche.objects.filter(edital__uuid__in=escola.editais, tipos_unidades=escola.tipo_unidade, status=KitLanche.ATIVO)
+    
+    if not queryset.exists():
+        print(f"Nenhum kit encontrado para escola {escola.nome}")
+        print("================== SCRIP CANCELADO ==================")
+        exit()
+    kit = queryset.first()
+    
+    solicitacao_json = {
+        "solicitacao_kit_lanche": {
+            "kits": [kit],
+            "data": data_solicitacao_kit_lanche(),
+            "tempo_passeio": "0"
+        },
+        "escola": escola,
+        "local": "Casa da História",
+        "evento": "Semana da História",
+        "quantidade_alunos": 10,
+        "alunos_com_dieta_especial_participantes": [],
+        "status": "RASCUNHO"
+    }
+    context = {
+        "request": type(
+            "Request", (), {"user": usuario}
+        )
+    }
+    solicitacao_kit_lanche_avulsa = SolicitacaoKitLancheAvulsaCreationSerializer(context=context).create(
+        solicitacao_json
+    )
+    solicitacao_kit_lanche_avulsa.inicia_fluxo(user=usuario)
+    print(f"Solicitação cadastrada: SolicitacaoKitLancheAvulsa UUID={solicitacao_kit_lanche_avulsa.uuid}")
+    
+    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
+    solicitacao_kit_lanche_avulsa.dre_valida(user=usuario_dre)
+    print("Solicitação aprovado pela DRE")
+    
+    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
+    solicitacao_kit_lanche_avulsa.codae_autoriza(user=usuario_codae, justificativa="Sem observações por parte da CODAE")
+    print("Solicitação aprovado pela CODAE")
+    
+    dia_passeio = datetime.date(ANO, MES, 15)
+    solicitacao_kit_lanche = solicitacao_kit_lanche_avulsa.solicitacao_kit_lanche
+    solicitacao_kit_lanche.data = dia_passeio
+    solicitacao_kit_lanche.save()
+    print(f"Data da solicitação alterada para {dia_passeio.strftime('%d/%m/%Y')}")
+    
+    return solicitacao_kit_lanche
+
+
+def solicitar_kit_lanche_cemei(escola, usuario):
+    queryset = KitLanche.objects.filter(edital__uuid__in=escola.editais, tipos_unidades=escola.tipo_unidade, status=KitLanche.ATIVO)
+    if not queryset.exists():
+        print(f"Nenhum kit encontrado para escola {escola.nome}")
+        print("================== SCRIP CANCELADO ==================")
+        exit()
+    kit = queryset.first()
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    
+    faixas_quantidades = []
+    for faixa in faixas:
+        faixas_quantidades.append({
+            "faixa_etaria": faixa,
+            "matriculados_quando_criado": 5,
+            "quantidade_alunos": 1
+        })
+        
+    solicitacao_json = {
+        "escola": escola,
+        "solicitacao_cei": {
+            "kits": [kit],
+            "alunos_com_dieta_especial_participantes": [],
+            "faixas_quantidades": faixas_quantidades,
+            "tempo_passeio": 0
+        },
+        "solicitacao_emei": {
+            "kits": [kit],
+            "alunos_com_dieta_especial_participantes": [],
+            "tempo_passeio": 0,
+            "matriculados_quando_criado": QUANTIDADE_ALUNOS,
+            "quantidade_alunos": 20
+        },
+        "observacao": "<p>Nenhuma</p>",
+        "status": "RASCUNHO",
+        "local": "Casa Rural",
+        "evento": "Semana da Agropecuária",
+        "data": data_solicitacao_kit_lanche(),
+    }
+
+    context = {
+        "request": type(
+            "Request", (), {"user": usuario}
+        )
+    }
+    solicitacao_kit_lanche_cemei = SolicitacaoKitLancheCEMEICreateSerializer(context=context).create(
+        solicitacao_json
+    )
+    solicitacao_kit_lanche_cemei.inicia_fluxo(user=usuario)
+    print(f"Solicitação cadastrada: SolicitacaoKitLancheAvulsa UUID={solicitacao_kit_lanche_cemei.uuid}")
+    
+    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
+    solicitacao_kit_lanche_cemei.dre_valida(user=usuario_dre)
+    print("Solicitação aprovado pela DRE")
+    
+    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
+    solicitacao_kit_lanche_cemei.codae_autoriza(user=usuario_codae, justificativa="Sem observações por parte da CODAE")
+    print("Solicitação aprovado pela CODAE")
+    
+    dia_passeio = datetime.date(ANO, MES, 15)
+    solicitacao_kit_lanche_cemei.data = dia_passeio
+    solicitacao_kit_lanche_cemei.save()
+    print(f"Data da solicitação alterada para {dia_passeio.strftime('%d/%m/%Y')}")
+    
+    return solicitacao_kit_lanche_cemei
