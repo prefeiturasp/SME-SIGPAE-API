@@ -10,6 +10,7 @@ from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
     incluir_log_alunos_matriculados_cei_da_cemei,
     incluir_log_alunos_matriculados_emebs,
     incluir_log_alunos_matriculados_emei_da_cemei,
+    incluir_programas_e_projetos,
     obter_escolas,
     obter_usuario,
     solicitar_kit_lanche,
@@ -72,6 +73,10 @@ class Command(BaseCommand):
         self.stdout.write("3.2 Criar solicitação de LANCHE EMERGENCIAL")
         periodo_escolar_solicitacoes = periodos_escolares.get(nome="MANHA")
         solicitar_lanche_emergencial(escola, usuario, periodo_escolar_solicitacoes)
+        
+        self.stdout.write("4. Criar PROGRAMAS E PROJETOS")
+        incluir_programas_e_projetos(escola, usuario, periodo_escolar_solicitacoes)
+       
 
     def escolas_cemei(self, escola, username, usuario_escola, periodos_escolares):
         self.stdout.write(
@@ -94,6 +99,9 @@ class Command(BaseCommand):
         solicitar_lanche_emergencial_cemei(
             escola, usuario, periodo_escolar_solicitacoes
         )
+        
+        self.stdout.write("4. Criar PROGRAMAS E PROJETOS")
+        incluir_programas_e_projetos(escola, usuario, periodo_escolar_solicitacoes)
 
     def escolas_cei(self, escola, username, usuario_escola, periodos_escolares):
         self.stdout.write("1. Inclui Log de Alunos Matriculados por faixa etária")

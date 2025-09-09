@@ -517,7 +517,8 @@ def incluir_programas_e_projetos(escola, usuario, periodo_escolar):
     data_inicial, data_final = data_programas_e_projetos_etec()
     tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
     motivo = MotivoInclusaoContinua.objects.get(nome="Programas/Projetos Específicos")
-
+    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
+    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
     solicitacao_json = {
         "escola": escola,
         "status": "RASCUNHO",
@@ -542,12 +543,9 @@ def incluir_programas_e_projetos(escola, usuario, periodo_escolar):
     print(
         f"Solicitação cadastrada: InclusaoAlimentacaoContinua UUID={programas_e_projetos.uuid}"
     )
-
-    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
     programas_e_projetos.dre_valida(user=usuario_dre)
     print("Solicitação aprovado pela DRE")
 
-    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
     programas_e_projetos.codae_autoriza(
         user=usuario_codae, justificativa="Sem observações por parte da CODAE"
     )
