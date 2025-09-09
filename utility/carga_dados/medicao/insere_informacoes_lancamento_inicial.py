@@ -556,3 +556,62 @@ def incluir_programas_e_projetos(escola, usuario, periodo_escolar):
     print(
         f"Data da solicitação alterada para {nova_data_inicio.strftime('%d/%m/%Y')} até {nova_data_fim.strftime('%d/%m/%Y')}"
     )
+    return programas_e_projetos
+
+
+# **************************** **************************** ETEC **************************** ****************************
+
+
+def incluir_etec(escola, usuario, periodo_escolar):
+
+    data_inicial, data_final = data_programas_e_projetos_etec()
+    tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
+    motivo = MotivoInclusaoContinua.objects.get(nome="ETEC")
+
+    solicitacao_json = {
+        "escola": escola,
+        "status": "RASCUNHO",
+        "quantidades_periodo": [
+            {
+                "periodo_escolar": periodo_escolar,
+                "tipos_alimentacao": [tipo_alimentacao],
+                "numero_alunos": "10",
+                "observacao": "<p>nenhuma</p>",
+            }
+        ],
+        "motivo": motivo,
+        "data_inicial": data_inicial,
+        "data_final": data_final,
+    }
+
+    context = {"request": type("Request", (), {"user": usuario})}
+
+    etec = InclusaoAlimentacaoContinuaCreationSerializer(context=context).create(
+        solicitacao_json
+    )
+    etec.inicia_fluxo(user=usuario)
+    print(f"Solicitação cadastrada: InclusaoAlimentacaoContinua UUID={etec.uuid}")
+
+    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
+    etec.dre_valida(user=usuario_dre)
+    print("Solicitação aprovado pela DRE")
+
+    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
+    etec.codae_autoriza(
+        user=usuario_codae, justificativa="Sem observações por parte da CODAE"
+    )
+    print("Solicitação aprovado pela CODAE")
+
+    nova_data_inicio = datetime.date(ANO, MES, DATA_LANCHE_EMERGENCIAL)
+    nova_data_fim = datetime.date(ANO, MES, DATA_LANCHE_EMERGENCIAL) + relativedelta(
+        days=5
+    )
+    etec.data_final = nova_data_fim
+    etec.data_inicial = nova_data_inicio
+    etec.save()
+
+    print(
+        f"Data da solicitação alterada para {nova_data_inicio.strftime('%d/%m/%Y')} até {nova_data_fim.strftime('%d/%m/%Y')}"
+    )
+
+    return etec
