@@ -263,6 +263,8 @@ def solicitar_kit_lanche(escola, usuario):
         print("================== SCRIP CANCELADO ==================")
         exit()
     kit = queryset.first()
+    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
+    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
 
     solicitacao_json = {
         "solicitacao_kit_lanche": {
@@ -285,12 +287,10 @@ def solicitar_kit_lanche(escola, usuario):
     print(
         f"Solicitação cadastrada: SolicitacaoKitLancheAvulsa UUID={solicitacao_kit_lanche_avulsa.uuid}"
     )
-
-    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
+    
     solicitacao_kit_lanche_avulsa.dre_valida(user=usuario_dre)
     print("Solicitação aprovado pela DRE")
 
-    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
     solicitacao_kit_lanche_avulsa.codae_autoriza(
         user=usuario_codae, justificativa="Sem observações por parte da CODAE"
     )
@@ -317,6 +317,8 @@ def solicitar_kit_lanche_cemei(escola, usuario):
         exit()
     kit = queryset.first()
     faixas = FaixaEtaria.objects.filter(ativo=True)
+    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
+    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
 
     faixas_quantidades = []
     for faixa in faixas:
@@ -359,11 +361,9 @@ def solicitar_kit_lanche_cemei(escola, usuario):
         f"Solicitação cadastrada: SolicitacaoKitLancheAvulsa UUID={solicitacao_kit_lanche_cemei.uuid}"
     )
 
-    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
     solicitacao_kit_lanche_cemei.dre_valida(user=usuario_dre)
     print("Solicitação aprovado pela DRE")
 
-    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
     solicitacao_kit_lanche_cemei.codae_autoriza(
         user=usuario_codae, justificativa="Sem observações por parte da CODAE"
     )

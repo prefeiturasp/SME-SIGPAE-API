@@ -3,7 +3,7 @@ from django.core.management import BaseCommand
 
 from sme_sigpae_api.escola.models import Escola
 from utility.carga_dados.medicao.constantes import ANO, MES
-from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import habilitar_dias_letivos, incluir_log_alunos_matriculados, incluir_log_alunos_matriculados_cei, incluir_log_alunos_matriculados_cei_da_cemei, incluir_log_alunos_matriculados_emebs, incluir_log_alunos_matriculados_emei_da_cemei, obter_escolas
+from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import habilitar_dias_letivos, incluir_log_alunos_matriculados, incluir_log_alunos_matriculados_cei, incluir_log_alunos_matriculados_cei_da_cemei, incluir_log_alunos_matriculados_emebs, incluir_log_alunos_matriculados_emei_da_cemei, obter_escolas, obter_usuario, solicitar_kit_lanche, solicitar_kit_lanche_cemei
 
 class Command(BaseCommand):
     help = "Habilita a tela de lançamento de Medição Inicial"
@@ -31,6 +31,7 @@ class Command(BaseCommand):
                     self.escolas_cei(escola, username, usuario_escola, periodos)
                 else:
                     self.escolas_periodos_normais(escola, username, usuario_escola, periodos)
+                self.stdout.write()
           
     def escolas_periodos_normais(self, escola, username, usuario_escola, periodos_escolares):
         self.stdout.write("1. Inclui Log de Alunos Matriculados por período escolar")
@@ -38,6 +39,13 @@ class Command(BaseCommand):
             incluir_log_alunos_matriculados_emebs(periodos_escolares, escola)
         else:
             incluir_log_alunos_matriculados(periodos_escolares, escola)
+            
+        self.stdout.write(f"2. Obtém dados do usuário {usuario_escola}")
+        usuario = obter_usuario(username, usuario_escola)
+        
+        self.stdout.write("3. Incluindo as Solicitações de Alimentacao")
+        self.stdout.write("3.1. Criar solicitação de KIT LANCHE PASSEIO")
+        solicitar_kit_lanche(escola, usuario)
 
     def escolas_cemei(self, escola, username, usuario_escola, periodos_escolares):
         self.stdout.write("1. Inclui Log de Alunos Matriculados por período escolar e faixa etária")
@@ -45,8 +53,16 @@ class Command(BaseCommand):
         incluir_log_alunos_matriculados_cei_da_cemei(periodos_escolares, escola)
         self.stdout.write("1.2. Por período escolar")
         incluir_log_alunos_matriculados_emei_da_cemei(periodos_escolares, escola)
+        
+        self.stdout.write(f"2. Obtém dados do usuário {usuario_escola}")
+        usuario = obter_usuario(username, usuario_escola)
+        
+        print("3. Incluindo as solicitações de alimentacao")
+        self.stdout.write("3.1. Criar solicitação de KIT LANCHE PASSEIO")
+        solicitar_kit_lanche_cemei(escola, usuario)
 
     def escolas_cei(self, escola, username, usuario_escola, periodos_escolares):
         self.stdout.write("1. Inclui Log de Alunos Matriculados por faixa etária")
         incluir_log_alunos_matriculados_cei(periodos_escolares, escola)
+        
 
