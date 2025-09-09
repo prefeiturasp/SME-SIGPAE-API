@@ -1144,6 +1144,7 @@ def test_url_endpoint_inclusao_cemei_relatorio(
     assert "PDF-1." in str(response.content)
     assert isinstance(response.content, bytes)
 
+
 def test_url_grupos_inclusao_alimentacao_normal_codae_sem_paginacao(
     client_autenticado_vinculo_codae_inclusao, escola
 ):
@@ -1156,6 +1157,7 @@ def test_url_grupos_inclusao_alimentacao_normal_codae_sem_paginacao(
     assert "count" not in data
     assert "results" in data
     assert isinstance(data["results"], list)
+
 
 def test_url_inclusoes_alimentacao_continua_codae_sem_paginacao(
     client_autenticado_vinculo_codae_inclusao, escola
@@ -1170,6 +1172,7 @@ def test_url_inclusoes_alimentacao_continua_codae_sem_paginacao(
     assert "results" in data
     assert isinstance(data["results"], list)
 
+
 def test_url_inclusoes_alimentacao_da_cei_codae_sem_paginacao(
     client_autenticado_vinculo_codae_inclusao, escola
 ):
@@ -1182,6 +1185,7 @@ def test_url_inclusoes_alimentacao_da_cei_codae_sem_paginacao(
     assert "count" not in data
     assert "results" in data
     assert isinstance(data["results"], list)
+
 
 def test_url_inclusao_alimentacao_cemei_codae_sem_paginacao(
     client_autenticado_vinculo_codae_inclusao, escola
@@ -1196,6 +1200,7 @@ def test_url_inclusao_alimentacao_cemei_codae_sem_paginacao(
     assert "results" in data
     assert isinstance(data["results"], list)
 
+
 def test_url_grupos_inclusao_alimentacao_normal_dre_sem_paginacao(
     client_autenticado_vinculo_dre_inclusao, escola
 ):
@@ -1208,6 +1213,7 @@ def test_url_grupos_inclusao_alimentacao_normal_dre_sem_paginacao(
     assert "count" not in data
     assert "results" in data
     assert isinstance(data["results"], list)
+
 
 def test_url_inclusoes_alimentacao_continua_dre_sem_paginacao(
     client_autenticado_vinculo_dre_inclusao, escola
@@ -1222,6 +1228,7 @@ def test_url_inclusoes_alimentacao_continua_dre_sem_paginacao(
     assert "results" in data
     assert isinstance(data["results"], list)
 
+
 def test_url_inclusoes_alimentacao_da_cei_dre_sem_paginacao(
     client_autenticado_vinculo_dre_inclusao, escola
 ):
@@ -1234,6 +1241,7 @@ def test_url_inclusoes_alimentacao_da_cei_dre_sem_paginacao(
     assert "count" not in data
     assert "results" in data
     assert isinstance(data["results"], list)
+
 
 def test_url_inclusao_alimentacao_cemei_dre_sem_paginacao(
     client_autenticado_vinculo_dre_inclusao, escola

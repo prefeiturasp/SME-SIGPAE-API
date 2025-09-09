@@ -664,7 +664,9 @@ class HomologacaoProduto(
             reclamacao_original, homologacao_copia
         )
         HomologacaoProduto._copiar_logs(reclamacao_original, reclamacao_copia)
-        HomologacaoProduto._copiar_anexos_reclamacao(reclamacao_original, reclamacao_copia)
+        HomologacaoProduto._copiar_anexos_reclamacao(
+            reclamacao_original, reclamacao_copia
+        )
 
         return ReclamacaoDeProduto.objects.get(id=reclamacao_copia.id)
 
@@ -672,9 +674,14 @@ class HomologacaoProduto(
     def _criar_reclamacao_base(reclamacao_original, homologacao_copia):
         reclamacao_copia = ReclamacaoDeProduto()
         campos_para_copiar = [
-            'reclamante_registro_funcional', 'reclamante_cargo', 'reclamante_nome',
-            'reclamacao', 'produto_lote', 'produto_data_validade',
-            'produto_data_fabricacao', 'status'
+            "reclamante_registro_funcional",
+            "reclamante_cargo",
+            "reclamante_nome",
+            "reclamacao",
+            "produto_lote",
+            "produto_data_validade",
+            "produto_data_fabricacao",
+            "status",
         ]
 
         for campo in campos_para_copiar:
@@ -707,8 +714,13 @@ class HomologacaoProduto(
     def _criar_log_copia(log_original, reclamacao_copia):
         log_copia = LogSolicitacoesUsuario()
         campos_log = [
-            'descricao', 'status_evento', 'solicitacao_tipo', 'justificativa',
-            'resposta_sim_nao', 'usuario', 'uuid_original'
+            "descricao",
+            "status_evento",
+            "solicitacao_tipo",
+            "justificativa",
+            "resposta_sim_nao",
+            "usuario",
+            "uuid_original",
         ]
         for campo in campos_log:
             if hasattr(log_original, campo):
@@ -725,7 +737,9 @@ class HomologacaoProduto(
 
     @staticmethod
     def _copiar_anexos_log(log_original, log_copia):
-        if not (hasattr(log_original, 'anexos') and hasattr(log_original.anexos, 'all')):
+        if not (
+            hasattr(log_original, "anexos") and hasattr(log_original.anexos, "all")
+        ):
             return
 
         for anexo_original in log_original.anexos.all():
@@ -736,7 +750,7 @@ class HomologacaoProduto(
             anexo_copia.uuid = uuid_generator.uuid4()
             anexo_copia.save()
 
-            if hasattr(anexo_original, 'criado_em'):
+            if hasattr(anexo_original, "criado_em"):
                 AnexoLogSolicitacoesUsuario.objects.filter(id=anexo_copia.id).update(
                     criado_em=anexo_original.criado_em
                 )
@@ -751,7 +765,7 @@ class HomologacaoProduto(
             anexo_copia.uuid = uuid_generator.uuid4()
             anexo_copia.save()
 
-            if hasattr(anexo_original, 'criado_em'):
+            if hasattr(anexo_original, "criado_em"):
                 AnexoReclamacaoDeProduto.objects.filter(id=anexo_copia.id).update(
                     criado_em=anexo_original.criado_em
                 )

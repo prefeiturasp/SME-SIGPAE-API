@@ -404,10 +404,16 @@ class CronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer):
             return None
 
     def get_embalagem_primaria(self, obj):
-        return obj.ficha_tecnica.material_embalagem_primaria if obj.ficha_tecnica else None
+        return (
+            obj.ficha_tecnica.material_embalagem_primaria if obj.ficha_tecnica else None
+        )
 
     def get_embalagem_secundaria(self, obj):
-        return obj.ficha_tecnica.sistema_vedacao_embalagem_secundaria if obj.ficha_tecnica else None
+        return (
+            obj.ficha_tecnica.sistema_vedacao_embalagem_secundaria
+            if obj.ficha_tecnica
+            else None
+        )
 
     def get_categoria(self, obj):
         return obj.ficha_tecnica.categoria if obj.ficha_tecnica else None
