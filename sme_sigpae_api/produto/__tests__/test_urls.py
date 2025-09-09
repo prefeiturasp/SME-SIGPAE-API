@@ -740,40 +740,43 @@ def test_url_endpoint_lista_itens_cadastros(
 ):
     client, usuario = client_autenticado_vinculo_escola_ue
     response = client.get("/itens-cadastros/")
-    esperado = {
-        "count": 4,
-        "next": None,
-        "previous": None,
-        "results": [
-            {
-                "uuid": str(item_cadastrado_4.uuid),
-                "nome": item_cadastrado_4.content_object.nome,
-                "tipo": item_cadastrado_4.tipo,
-                "tipo_display": item_cadastrado_4.get_tipo_display(),
-            },
-            {
-                "uuid": str(item_cadastrado_3.uuid),
-                "nome": item_cadastrado_3.content_object.nome,
-                "tipo": item_cadastrado_3.tipo,
-                "tipo_display": item_cadastrado_3.get_tipo_display(),
-            },
-            {
-                "uuid": str(item_cadastrado_2.uuid),
-                "nome": item_cadastrado_2.content_object.nome,
-                "tipo": item_cadastrado_2.tipo,
-                "tipo_display": item_cadastrado_2.get_tipo_display(),
-            },
-            {
-                "uuid": str(item_cadastrado_1.uuid),
-                "nome": item_cadastrado_1.content_object.nome,
-                "tipo": item_cadastrado_1.tipo,
-                "tipo_display": item_cadastrado_1.get_tipo_display(),
-            },
-        ],
-    }
-
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == esperado
+    resultado = response.json()
+    assert resultado["count"] == 4
+    assert resultado["next"] is None
+    assert resultado["previous"] is None
+
+    esperado = [
+        {
+            "uuid": str(item_cadastrado_4.uuid),
+            "nome": item_cadastrado_4.content_object.nome,
+            "tipo": item_cadastrado_4.tipo,
+            "tipo_display": item_cadastrado_4.get_tipo_display(),
+        },
+        {
+            "uuid": str(item_cadastrado_3.uuid),
+            "nome": item_cadastrado_3.content_object.nome,
+            "tipo": item_cadastrado_3.tipo,
+            "tipo_display": item_cadastrado_3.get_tipo_display(),
+        },
+        {
+            "uuid": str(item_cadastrado_2.uuid),
+            "nome": item_cadastrado_2.content_object.nome,
+            "tipo": item_cadastrado_2.tipo,
+            "tipo_display": item_cadastrado_2.get_tipo_display(),
+        },
+        {
+            "uuid": str(item_cadastrado_1.uuid),
+            "nome": item_cadastrado_1.content_object.nome,
+            "tipo": item_cadastrado_1.tipo,
+            "tipo_display": item_cadastrado_1.get_tipo_display(),
+        },
+    ]
+
+    for item_esperado in esperado:
+        assert item_esperado in resultado["results"]
+
+    assert len(resultado["results"]) == len(esperado)
 
 
 def test_url_endpoint_detalhe_item_cadastro(

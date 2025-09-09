@@ -1,12 +1,11 @@
 body {
   min-height: 100vh;
-  padding: 10px;
   background-color: #fff;
   font-family: "Roboto";
 }
 
 table {
-  width: 96%;
+  width: 94%;
   border-collapse: collapse;
   border-radius: 0;
   font-size: 14px;
@@ -80,6 +79,11 @@ b {
 .titulo-e-logo.titulo-centralizado > h1 {
   margin: 0 auto !important;
   text-align: center !important;
+}
+
+.solicitacao {
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 @page {
