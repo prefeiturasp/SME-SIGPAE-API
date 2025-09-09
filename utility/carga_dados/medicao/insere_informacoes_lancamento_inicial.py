@@ -203,7 +203,7 @@ def incluir_log_alunos_matriculados_cei_da_cemei(periodos, escola):
                 criado_em=data
             )
         print(f"Logs do Período {periodo} cadastrados")
-            
+
         for faixa in faixas:
             for dia in range(1, DIAS_MES + 1):
                 log_faixa = LogAlunosMatriculadosFaixaEtariaDia(
@@ -287,7 +287,7 @@ def solicitar_kit_lanche(escola, usuario):
     print(
         f"Solicitação cadastrada: SolicitacaoKitLancheAvulsa UUID={solicitacao_kit_lanche_avulsa.uuid}"
     )
-    
+
     solicitacao_kit_lanche_avulsa.dre_valida(user=usuario_dre)
     print("Solicitação aprovado pela DRE")
 
@@ -358,7 +358,7 @@ def solicitar_kit_lanche_cemei(escola, usuario):
     ).create(solicitacao_json)
     solicitacao_kit_lanche_cemei.inicia_fluxo(user=usuario)
     print(
-        f"Solicitação cadastrada: SolicitacaoKitLancheAvulsa UUID={solicitacao_kit_lanche_cemei.uuid}"
+        f"Solicitação cadastrada: SolicitacaoKitLancheCEMEI UUID={solicitacao_kit_lanche_cemei.uuid}"
     )
 
     solicitacao_kit_lanche_cemei.dre_valida(user=usuario_dre)
@@ -391,6 +391,8 @@ def solicitar_lanche_emergencial(escola, usuario, periodo_escolar):
     motivo = MotivoAlteracaoCardapio.objects.get(nome="Lanche Emergencial")
     tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
     tipo_lanche_emergencial = TipoAlimentacao.objects.get(nome="Lanche Emergencial")
+    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
+    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
 
     solicitacao_json = {
         "escola": escola,
@@ -418,11 +420,9 @@ def solicitar_lanche_emergencial(escola, usuario, periodo_escolar):
         f"Solicitação cadastrada: AlteracaoCardapio UUID={solicitacao_lanche_emergencial.uuid}"
     )
 
-    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
     solicitacao_lanche_emergencial.dre_valida(user=usuario_dre)
     print("Solicitação aprovado pela DRE")
 
-    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
     solicitacao_lanche_emergencial.codae_autoriza(
         user=usuario_codae, justificativa="Sem observações por parte da CODAE"
     )
@@ -450,6 +450,8 @@ def solicitar_lanche_emergencial_cemei(escola, usuario, periodo_escolar):
     motivo = MotivoAlteracaoCardapio.objects.get(nome="Lanche Emergencial")
     tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
     tipo_lanche_emergencial = TipoAlimentacao.objects.get(nome="Lanche Emergencial")
+    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
+    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
 
     solicitacao_json = {
         "escola": escola,
@@ -479,11 +481,9 @@ def solicitar_lanche_emergencial_cemei(escola, usuario, periodo_escolar):
         f"Solicitação cadastrada: AlteracaoCardapioCEMEI UUID={solicitacao_lanche_emergencial.uuid}"
     )
 
-    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
     solicitacao_lanche_emergencial.dre_valida(user=usuario_dre)
     print("Solicitação aprovado pela DRE")
 
-    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
     solicitacao_lanche_emergencial.codae_autoriza(
         user=usuario_codae, justificativa="Sem observações por parte da CODAE"
     )
