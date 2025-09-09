@@ -22,6 +22,15 @@ def obter_escolas():
                 "FUNDAMENTAL": ["MANHA", "TARDE", "INTEGRAL", "NOITE"]
             }
         },
+        {
+            "nome_escola": "CEMEI NOME DA ESCOLA",
+            "username": 00000,
+            "usuario_escola": "USUARIO DA ESCOLA",
+            "periodos": {
+                "EMEI": ["MANHA", "TARDE", "INTEGRAL"],
+                "CEI": ["INTEGRAL"]
+            }
+        },
     ]
     
     
@@ -52,7 +61,7 @@ def data_solicitacao_lanche_emergencial():
     data = datetime.datetime.now() + relativedelta(months=1, days=5)
     return data.date()
 
-# **************************** INCLUINDO LOG DE ALUNOS MATRICULADOS ****************************
+# **************************** **************************** LOG DE ALUNOS MATRICULADOS **************************** ****************************
 
 def incluir_log_alunos_matriculados(periodos, escola):
     for periodo in periodos:
@@ -122,3 +131,53 @@ def incluir_log_alunos_matriculados_cei(periodos, escola):
                 LogAlunosMatriculadosFaixaEtariaDia.objects.filter(id=log_faixa.id).update(criado_em=data)
 
         print(f"Logs do Período {periodo} cadastrados")
+       
+
+def incluir_log_alunos_matriculados_cei_da_cemei(periodos, escola):
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    
+    for periodo in periodos["CEI"]:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for dia in range(1, DIAS_MES + 1):
+            log = LogAlunosMatriculadosPeriodoEscola(
+                escola=escola,
+                periodo_escolar=pe,
+                quantidade_alunos=QUANTIDADE_ALUNOS,
+                tipo_turma=TipoTurma.REGULAR.name,
+                cei_ou_emei="CEI"
+            )
+            log.save()
+            data = datetime.date(ANO, MES, dia)
+            LogAlunosMatriculadosPeriodoEscola.objects.filter(id=log.id).update(criado_em=data)
+            
+            for faixa in faixas:
+                log_faixa = LogAlunosMatriculadosFaixaEtariaDia(
+                    escola=escola,
+                    periodo_escolar=pe,
+                    quantidade=QUANTIDADE_ALUNOS,
+                    faixa_etaria=faixa,
+                    data=datetime.date(ANO, MES, dia)
+                )
+                log_faixa.save()
+                data = datetime.date(ANO, MES, dia)
+                LogAlunosMatriculadosFaixaEtariaDia.objects.filter(id=log_faixa.id).update(criado_em=data)
+
+        print(f"Logs do Período {periodo} cadastrados")
+        
+        
+def incluir_log_alunos_matriculados_emei_da_cemei(periodos, escola):
+    for periodo in periodos["EMEI"]:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        cei_ou_emei = "EMEI" if pe.nome == "INTEGRAL" else "N/A"
+        for dia in range(1, DIAS_MES + 1):
+            log = LogAlunosMatriculadosPeriodoEscola(
+                escola=escola,
+                periodo_escolar=pe,
+                quantidade_alunos=QUANTIDADE_ALUNOS,
+                tipo_turma=TipoTurma.REGULAR.name,
+                cei_ou_emei=cei_ou_emei
+            )
+            log.save()
+            data = datetime.date(ANO, MES, dia)
+            LogAlunosMatriculadosPeriodoEscola.objects.filter(id=log.id).update(criado_em=data)
+        print(f"Logs do Período INTANTIL {periodo} cadastrados")
