@@ -98,7 +98,7 @@ def gera_xlsx_relatorio_recreio_nas_ferias(output, dados, lote) -> None:
 
         worksheet.set_row(0, 30)
         worksheet.set_row(1, 30)
-        worksheet.set_column("B:H", 45)
+        worksheet.set_column("B:H", 40)
 
         len_cols = len(df.columns)
         worksheet.merge_range(
