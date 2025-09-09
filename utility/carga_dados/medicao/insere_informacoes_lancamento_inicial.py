@@ -2,7 +2,9 @@ import datetime
 from dateutil.relativedelta import relativedelta
 from sme_sigpae_api.escola.utils import calendario_sgp
 from utility.carga_dados.medicao.constantes import ANO, DIAS_MES, MES, QUANTIDADE_ALUNOS
-
+from sme_sigpae_api.escola.models import LogAlunosMatriculadosPeriodoEscola, PeriodoEscolar, TipoTurma
+    
+    
 def obter_escolas():
     return [
         {
@@ -10,6 +12,15 @@ def obter_escolas():
             "username": 0000000,
             "usuario_escola": "USUARIO DA ESCOLA",
             "periodos": ["MANHA", "TARDE", "INTEGRAL"]
+        },
+        {
+            "nome_escola": "EMEBS NOME DA ESCOLA ",
+            "username": 0000000,
+            "usuario_escola": "USUARIO DA ESCOLA",
+            "periodos": {
+                "INFANTIL": ["MANHA", "TARDE", "INTEGRAL"],
+                "FUNDAMENTAL": ["MANHA", "TARDE", "INTEGRAL", "NOITE"]
+            }
         },
     ]
     
@@ -41,9 +52,9 @@ def data_solicitacao_lanche_emergencial():
     data = datetime.datetime.now() + relativedelta(months=1, days=5)
     return data.date()
 
+# **************************** INCLUINDO LOG DE ALUNOS MATRICULADOS ****************************
 
 def incluir_log_alunos_matriculados(periodos, escola):
-    from sme_sigpae_api.escola.models import LogAlunosMatriculadosPeriodoEscola, PeriodoEscolar
     for periodo in periodos:
         pe = PeriodoEscolar.objects.get(nome=periodo)
         for dia in range(1, DIAS_MES + 1):
@@ -56,3 +67,38 @@ def incluir_log_alunos_matriculados(periodos, escola):
             data = datetime.date(ANO, MES, dia)
             LogAlunosMatriculadosPeriodoEscola.objects.filter(id=log.id).update(criado_em=data)
         print(f"Logs do Período {periodo} cadastrados")
+
+
+def incluir_log_alunos_emebs(periodos, escola):
+    periodo_infantil = periodos["INFANTIL"]
+    periodo_fundamental = periodos["FUNDAMENTAL"]
+    
+    for periodo in periodo_infantil:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for dia in range(1, DIAS_MES + 1):
+            log = LogAlunosMatriculadosPeriodoEscola(
+                escola=escola,
+                periodo_escolar=pe,
+                tipo_turma=TipoTurma.REGULAR.name,
+                infantil_ou_fundamental='INFANTIL',
+                quantidade_alunos=QUANTIDADE_ALUNOS
+            )
+            log.save()
+            data = datetime.date(ANO, MES, dia)
+            LogAlunosMatriculadosPeriodoEscola.objects.filter(id=log.id).update(criado_em=data)
+        print(f"Logs do INFANTIL para o Período {periodo} cadastrados")
+        
+    for periodo in periodo_fundamental:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for dia in range(1, DIAS_MES + 1):
+            log = LogAlunosMatriculadosPeriodoEscola(
+                escola=escola,
+                periodo_escolar=pe,
+                tipo_turma=TipoTurma.REGULAR.name,
+                infantil_ou_fundamental='FUNDAMENTAL',
+                quantidade_alunos=QUANTIDADE_ALUNOS
+            )
+            log.save()
+            data = datetime.date(ANO, MES, dia)
+            LogAlunosMatriculadosPeriodoEscola.objects.filter(id=log.id).update(criado_em=data)
+        print(f"Logs do FUNDAMENTAL para o Período {periodo} cadastrados")
