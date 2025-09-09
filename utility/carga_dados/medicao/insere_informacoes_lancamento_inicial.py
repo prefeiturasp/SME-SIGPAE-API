@@ -1,7 +1,7 @@
 import datetime
 from dateutil.relativedelta import relativedelta
 from sme_sigpae_api.escola.utils import calendario_sgp
-from utility.carga_dados.medicao.constantes import ANO, MES
+from utility.carga_dados.medicao.constantes import ANO, DIAS_MES, MES, QUANTIDADE_ALUNOS
 
 def obter_escolas():
     return [
@@ -36,6 +36,23 @@ def data_solicitacao_kit_lanche():
     data = datetime.datetime.now() + relativedelta(months=1)
     return data.date()
 
+
 def data_solicitacao_lanche_emergencial():
     data = datetime.datetime.now() + relativedelta(months=1, days=5)
     return data.date()
+
+
+def incluir_log_alunos_matriculados(periodos, escola):
+    from sme_sigpae_api.escola.models import LogAlunosMatriculadosPeriodoEscola, PeriodoEscolar
+    for periodo in periodos:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for dia in range(1, DIAS_MES + 1):
+            log = LogAlunosMatriculadosPeriodoEscola(
+                escola=escola,
+                periodo_escolar=pe,
+                quantidade_alunos=QUANTIDADE_ALUNOS
+            )
+            log.save()
+            data = datetime.date(ANO, MES, dia)
+            LogAlunosMatriculadosPeriodoEscola.objects.filter(id=log.id).update(criado_em=data)
+        print(f"Logs do Período {periodo} cadastrados")
