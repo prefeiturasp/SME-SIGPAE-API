@@ -235,6 +235,7 @@ class ProdutoSerializerCreate(serializers.ModelSerializer):
             "CODAE_SUSPENDEU",
             "TERCEIRIZADA_CANCELOU_SOLICITACAO_HOMOLOGACAO",
             "CODAE_QUESTIONADO",
+            "CODAE_AUTORIZOU_RECLAMACAO",
         ]
 
         usuario = self.context["request"].user
