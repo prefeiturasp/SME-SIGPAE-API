@@ -629,6 +629,9 @@ def incluir_solicitacoes_ceu_gestao(escola, usuario, periodos_escolares):
     data = data_solicitacao_kit_lanche()
     tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
     motivo = MotivoInclusaoNormal.objects.get(nome="Evento Específico")
+    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
+    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
+    
     quantidades_periodo = []
 
     for periodo in periodos_escolares:
@@ -663,11 +666,9 @@ def incluir_solicitacoes_ceu_gestao(escola, usuario, periodos_escolares):
         f"Solicitação cadastrada: GrupoInclusaoAlimentacaoNormal UUID={ceu_gestao.uuid}"
     )
 
-    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
     ceu_gestao.dre_valida(user=usuario_dre)
     print("Solicitação aprovado pela DRE")
 
-    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
     ceu_gestao.codae_autoriza(
         user=usuario_codae, justificativa="Sem observações por parte da CODAE"
     )

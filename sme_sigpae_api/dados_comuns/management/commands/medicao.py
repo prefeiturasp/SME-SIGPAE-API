@@ -12,6 +12,7 @@ from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
     incluir_log_alunos_matriculados_emebs,
     incluir_log_alunos_matriculados_emei_da_cemei,
     incluir_programas_e_projetos,
+    incluir_solicitacoes_ceu_gestao,
     obter_escolas,
     obter_usuario,
     solicitar_kit_lanche,
@@ -33,8 +34,8 @@ class Command(BaseCommand):
             dados_escolas = obter_escolas()
 
             self.stdout.write("Habilitando dias letivos")
-            # nome_escolas = [dado.get("nome_escola") for dado in dados_escolas]
-            # habilitar_dias_letivos(escolas=nome_escolas)
+            nome_escolas = [dado.get("nome_escola") for dado in dados_escolas]
+            habilitar_dias_letivos(escolas=nome_escolas)
 
             for dados in dados_escolas:
                 escola = Escola.objects.get(nome=dados["nome_escola"])
@@ -82,8 +83,11 @@ class Command(BaseCommand):
             self.stdout.write("5. Criar ETEC")
             periodo_noturno = periodos_escolares.get(nome="NOITE")
             incluir_etec(escola, usuario, periodo_noturno)
+            
+        if escola.eh_ceu_gestao:
+            self.stdout.write("6. Cadastro específo para CEU GESTAO")
+            incluir_solicitacoes_ceu_gestao(escola, usuario, periodos_escolares)
        
-
     def escolas_cemei(self, escola, username, usuario_escola, periodos_escolares):
         self.stdout.write(
             "1. Inclui Log de Alunos Matriculados por período escolar e faixa etária"

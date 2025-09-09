@@ -719,6 +719,14 @@ class Escola(
             "CEU EMEI",
             "CIEJA",
         ]
+    
+    @property
+    def eh_emef(self):
+        return self.tipo_unidade and self.tipo_unidade.iniciais in [
+            "EMEF",
+            "CEU EMEF",
+            "EMEFM",
+        ]
 
     @property
     def modulo_gestao(self):
