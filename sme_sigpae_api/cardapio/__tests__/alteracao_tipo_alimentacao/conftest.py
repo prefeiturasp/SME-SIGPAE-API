@@ -344,6 +344,7 @@ def alteracao_substituicoes_params(request, daqui_dez_dias_ou_ultimo_dia_do_ano)
         "data_final": daqui_dez_dias_ou_ultimo_dia_do_ano.isoformat(),
     }
 
+
 @pytest.fixture
 def client_autenticado_vinculo_codae_inclusao(client, django_user_model, escola, codae):
     email = "test@test.com"

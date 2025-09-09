@@ -1,5 +1,6 @@
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.viewsets import (
     AlteracoesCardapioViewSet,
 )

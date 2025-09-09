@@ -10,12 +10,12 @@ from sme_sigpae_api.cardapio.__tests__.utils import (
 )
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from sme_sigpae_api.dados_comuns import constants
-from sme_sigpae_api.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from sme_sigpae_api.dados_comuns.constants import (
     PEDIDOS_CODAE,
     PEDIDOS_DRE,
     SEM_FILTRO,
 )
+from sme_sigpae_api.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 
 pytestmark = pytest.mark.django_db
 
@@ -788,9 +788,8 @@ def test_motivos_alteracao_cardapio_queryset(
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()["results"]) == 2
 
-def test_url_alteracoes_cardapio_codae(
-    client_autenticado_vinculo_codae_cardapio
-):
+
+def test_url_alteracoes_cardapio_codae(client_autenticado_vinculo_codae_cardapio):
     response = client_autenticado_vinculo_codae_cardapio.get(
         f"/{ENDPOINT_ALTERACAO_CARD}/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
     )
@@ -801,9 +800,8 @@ def test_url_alteracoes_cardapio_codae(
     assert "results" in data
     assert isinstance(data["results"], list)
 
-def test_url_alteracoes_cardapio_dre(
-    client_autenticado_vinculo_dre_cardapio
-):
+
+def test_url_alteracoes_cardapio_dre(client_autenticado_vinculo_dre_cardapio):
     response = client_autenticado_vinculo_dre_cardapio.get(
         f"/{ENDPOINT_ALTERACAO_CARD}/{PEDIDOS_DRE}/{SEM_FILTRO}/"
     )
@@ -812,4 +810,4 @@ def test_url_alteracoes_cardapio_dre(
     assert "next" not in data
     assert "count" not in data
     assert "results" in data
-    assert isinstance(data["results"], list)        
+    assert isinstance(data["results"], list)
