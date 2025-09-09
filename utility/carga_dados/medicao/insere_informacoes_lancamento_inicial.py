@@ -2,7 +2,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 from sme_sigpae_api.escola.utils import calendario_sgp
 from utility.carga_dados.medicao.constantes import ANO, DIAS_MES, MES, QUANTIDADE_ALUNOS
-from sme_sigpae_api.escola.models import LogAlunosMatriculadosPeriodoEscola, PeriodoEscolar, TipoTurma
+from sme_sigpae_api.escola.models import LogAlunosMatriculadosPeriodoEscola, PeriodoEscolar, TipoTurma, FaixaEtaria, LogAlunosMatriculadosFaixaEtariaDia
     
     
 def obter_escolas():
@@ -69,7 +69,7 @@ def incluir_log_alunos_matriculados(periodos, escola):
         print(f"Logs do Período {periodo} cadastrados")
 
 
-def incluir_log_alunos_emebs(periodos, escola):
+def incluir_log_alunos_matriculados_emebs(periodos, escola):
     periodo_infantil = periodos["INFANTIL"]
     periodo_fundamental = periodos["FUNDAMENTAL"]
     
@@ -102,3 +102,23 @@ def incluir_log_alunos_emebs(periodos, escola):
             data = datetime.date(ANO, MES, dia)
             LogAlunosMatriculadosPeriodoEscola.objects.filter(id=log.id).update(criado_em=data)
         print(f"Logs do FUNDAMENTAL para o Período {periodo} cadastrados")
+
+
+def incluir_log_alunos_matriculados_cei(periodos, escola):
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    for periodo in periodos:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for dia in range(1, DIAS_MES + 1):
+            data = datetime.date(ANO, MES, dia)
+            for faixa in faixas:
+                log_faixa = LogAlunosMatriculadosFaixaEtariaDia(
+                    escola=escola,
+                    periodo_escolar=pe,
+                    quantidade=QUANTIDADE_ALUNOS,
+                    faixa_etaria=faixa,
+                    data=data
+                )
+                log_faixa.save()
+                LogAlunosMatriculadosFaixaEtariaDia.objects.filter(id=log_faixa.id).update(criado_em=data)
+
+        print(f"Logs do Período {periodo} cadastrados")
