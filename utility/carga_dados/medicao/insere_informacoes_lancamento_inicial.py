@@ -21,9 +21,13 @@ from sme_sigpae_api.escola.models import (
 )
 from sme_sigpae_api.escola.utils import calendario_sgp
 from sme_sigpae_api.inclusao_alimentacao.api.serializers.serializers_create import (
+    GrupoInclusaoAlimentacaoNormalCreationSerializer,
     InclusaoAlimentacaoContinuaCreationSerializer,
 )
-from sme_sigpae_api.inclusao_alimentacao.models import MotivoInclusaoContinua
+from sme_sigpae_api.inclusao_alimentacao.models import (
+    MotivoInclusaoContinua,
+    MotivoInclusaoNormal,
+)
 from sme_sigpae_api.kit_lanche.api.serializers.serializers_create import (
     SolicitacaoKitLancheAvulsaCreationSerializer,
     SolicitacaoKitLancheCEMEICreateSerializer,
@@ -615,3 +619,66 @@ def incluir_etec(escola, usuario, periodo_escolar):
     )
 
     return etec
+
+
+# **************************** **************************** SOLICITAÇÕES CEU GESTÃO **************************** ****************************
+
+
+def incluir_solicitacoes_ceu_gestao(escola, usuario, periodos_escolares):
+
+    data = data_solicitacao_kit_lanche()
+    tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
+    motivo = MotivoInclusaoNormal.objects.get(nome="Evento Específico")
+    quantidades_periodo = []
+
+    for periodo in periodos_escolares:
+        quantidades_periodo.append(
+            {
+                "periodo_escolar": periodo,
+                "tipos_alimentacao": [tipo_alimentacao],
+                "numero_alunos": "10",
+            }
+        )
+    solicitacao_json = {
+        "escola": escola,
+        "inclusoes": [
+            {
+                "motivo": motivo,
+                "data": data,
+                "evento": "Evento para conscientização de higiene bucal",
+            }
+        ],
+        "quantidades_periodo": quantidades_periodo,
+        "status": "RASCUNHO",
+    }
+
+    context = {"request": type("Request", (), {"user": usuario})}
+
+    ceu_gestao = GrupoInclusaoAlimentacaoNormalCreationSerializer(
+        context=context
+    ).create(solicitacao_json)
+
+    ceu_gestao.inicia_fluxo(user=usuario)
+    print(
+        f"Solicitação cadastrada: GrupoInclusaoAlimentacaoNormal UUID={ceu_gestao.uuid}"
+    )
+
+    usuario_dre = obter_usuario(USERNAME_USUARIO_DRE, NOME_USUARIO_DRE)
+    ceu_gestao.dre_valida(user=usuario_dre)
+    print("Solicitação aprovado pela DRE")
+
+    usuario_codae = obter_usuario(USERNAME_USUARIO_CODAE, NOME_USUARIO_CODAE)
+    ceu_gestao.codae_autoriza(
+        user=usuario_codae, justificativa="Sem observações por parte da CODAE"
+    )
+    print("Solicitação aprovado pela CODAE")
+
+    nova_data = datetime.date(ANO, MES, DATA_KIT_LANCHE)
+    periodo = ceu_gestao.inclusoes_normais.all()[0]
+    periodo.data = nova_data
+    periodo.save()
+    ceu_gestao.save()
+
+    print(f"Data da solicitação alterada para {nova_data.strftime('%d/%m/%Y')}")
+
+    return ceu_gestao
