@@ -933,3 +933,17 @@ def next_section(context):
     else:
         context["section_number"] += 1
     return context["section_number"]
+
+@register.filter
+def replace(value, arg):
+    """
+    Filtro de replace
+    Use da seguinte forma: `{{ "aaa"|replace:"a|b" }}`
+    a = valor original
+    b = valor que será substituído
+    """
+    if len(arg.split('|')) != 2:
+        return value
+
+    what, to = arg.split('|')
+    return value.replace(what, to)

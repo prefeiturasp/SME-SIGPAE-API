@@ -1,0 +1,533 @@
+{% include 'relatorio_base.html' %}
+{% load index %}
+{% load static %}
+{% load sass_tags %}
+
+<html>
+<body>
+  <div class="page-container">
+
+    <div class="d-flex content">
+      <div id="fornecedor">
+        <div class="title">
+          FORNECEDOR:
+          <span class="title titulo-secao">
+            {{ cronograma.empresa.nome_fantasia }} - {{ cronograma.empresa.razao_social }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div id="dados_produto_cronograma">
+      <h5 class="title titulo-secao separator">DADOS DO PRODUTO E CRONOGRAMA: </h5>
+
+      <div class="content">
+        <div class="row pb-3">
+          <div class="col-12">Produto: <span class="font-weight-bold"> {{cronograma.ficha_tecnica.produto.nome}}</span> </div>
+        </div>
+        <div class="row pb-3">
+          <div class="col-12">Marca: <span class="font-weight-bold"> {{cronograma.ficha_tecnica.marca.nome}}</span> </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="dados_etapa">
+      <h5 class="title titulo-secao separator">ETAPAS, PARTES E DATAS DO RECEBIMENTO</h5>
+
+      <div class="content">
+
+        <div class="row pb-3">
+          <div class="col-12">
+            Etapa/Parte do Recebimento: 
+            <span class="font-weight-bold"> 
+              Etapa {{etapa.etapa}}
+              {% if etapa.parte %} - Parte {{etapa.parte}} {% endif %}
+            </span> 
+          </div>
+        </div>
+
+        <div class="row pb-3">
+          <div class="col-6">
+            Data Programada:
+            <span class="font-weight-bold"> {{etapa.data_programada |date:"d/m/Y"}}</span>
+          </div>
+          <div class="col-6">
+            Data da Entrega:
+            <span class="font-weight-bold"> {{ficha.criado_em |date:"d/m/Y"}}</span> 
+          </div>
+        </div>
+
+        <div class="row pb-3">
+          <div class="col-6">
+            Quantidade Programada:
+            <span class="font-weight-bold"> {{etapa.quantidade}}</span>
+          </div>
+          <div class="col-6">
+            Embalagens Programadas:
+            <span class="font-weight-bold"> {{etapa.total_embalagens}}</span>
+          </div>
+        </div>
+
+        <div class="row pb-3">
+          <div class="col-6">
+            Peso Embalagem Primária:
+            <span class="font-weight-bold">
+              {{ficha_tecnica.peso_liquido_embalagem_primaria}} {{ficha_tecnica.unidade_medida_primaria.abreviacao}}
+            </span>
+          </div>
+          <div class="col-6">
+            Peso Embalagem Secundária:
+            <span class="font-weight-bold">
+              {{ficha_tecnica.peso_liquido_embalagem_secundaria}} {{ficha_tecnica.unidade_medida_secundaria.abreviacao}}
+            </span>
+          </div>
+        </div>
+
+        <div class="row pb-3">
+          <div class="col-12">
+            Embalagem Primária:
+            <span class="font-weight-bold">
+              {{ficha_tecnica.material_embalagem_primaria}}
+            </span> 
+          </div>
+        </div>
+
+        <div class="row pb-3">
+          <div class="col-12">
+            Embalagem Secundária:
+            <span class="font-weight-bold">
+              {{ficha_tecnica.sistema_vedacao_embalagem_secundaria}}
+            </span> 
+          </div>
+        </div>
+
+      
+
+      </div>
+
+    </div>
+
+    <div id="dados_laudos">
+      <h5 class="title titulo-secao separator">LAUDOS</h5>
+
+      <div class="content">
+
+        <div class="table-responsive-sm">
+          <table class="table table-lg table-bordered table-cronograma">
+            <thead>
+              <tr>
+                <th scope="col">Nº do Laudo</th>
+                <th scope="col">Lote(s) do Laudo</th>
+                <th scope="col">Data(s) Fabricação</th>
+                <th scope="col">Data(s) Validade</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for laudo in documentos %}
+              <tr>
+
+                <td>
+                  {{laudo.numero_laudo}}
+                </td>
+                <td>{{laudo.numero_lote_laudo}}</td>
+                <td>
+                  {{laudo.datas_fabricacao}}
+                </td>
+                <td>{{laudo.datas_validade}}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <hr/>
+
+        <div class="row pb-3">
+          <div class="col-12">
+            Lote(s) do Fabricante Observado(s):
+            <span class="font-weight-bold">
+              {{ ficha.lote_fabricante_de_acordo|yesno:"DE ACORDO COM O LAUDO,DIVERGENTE"}}
+            </span>
+          </div>
+        </div>
+
+        {% if not ficha.lote_fabricante_de_acordo %}
+          <div class="row pb-3">
+            <div class="col-12">
+              Descrição da Divergência Observada:
+              <span class="font-weight-bold"> {{ ficha.lote_fabricante_divergencia }}</span>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="row pb-3">
+          <div class="col-12">
+            Data(s) de Fabricação Observada(s):
+            <span class="font-weight-bold">
+              {{ ficha.data_fabricacao_de_acordo|yesno:"DE ACORDO COM O LAUDO,DIVERGENTE"}}
+            </span>
+          </div>
+        </div>
+
+        {% if not ficha.data_fabricacao_de_acordo %}
+          <div class="row pb-3">
+            <div class="col-12">
+              Descrição da Divergência Observada:
+              <span class="font-weight-bold"> {{ ficha.data_fabricacao_divergencia }}</span>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="row pb-3">
+          <div class="col-12">
+            Data(s) de Validade Observada(s):
+            <span class="font-weight-bold">
+              {{ ficha.data_validade_de_acordo|yesno:"DE ACORDO COM O LAUDO,DIVERGENTE"}}
+            </span>
+          </div>
+        </div>
+
+        {% if not ficha.data_validade_de_acordo %}
+          <div class="row pb-3">
+            <div class="col-12">
+              Descrição da Divergência Observada:
+              <span class="font-weight-bold"> {{ ficha.data_validade_divergencia }}</span>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="row pb-3">
+          <div class="col-6">
+            Nº Lote Armazenagem:
+            <span class="font-weight-bold">
+              {{ficha.numero_lote_armazenagem}}
+            </span>
+          </div>
+          <div class="col-6">
+            Nº de Paletes:
+            <span class="font-weight-bold">
+              {{ficha.numero_paletes}}
+            </span>
+          </div>
+        </div>
+
+        <div class="row pb-3">
+          <div class="col-12">
+            Peso da Embalagem Primária:
+            <span class="font-weight-bold">
+              {{ficha.peso_embalagem_primaria_1}} Kg
+            </span>
+            <span class="font-weight-bold">
+              {{ficha.peso_embalagem_primaria_2}} Kg
+            </span>
+            <span class="font-weight-bold">
+              {{ficha.peso_embalagem_primaria_3}} Kg
+            </span>
+            <span class="font-weight-bold">
+              {{ficha.peso_embalagem_primaria_4}} Kg
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="dados_veiculos">
+      <h5 class="title titulo-secao separator">VEÍCULOS E QUANTIDADES DO RECEBIMENTO</h5>
+
+      <div class="content">
+        {% for veiculo in veiculos %}
+          <div class="row pb-3">
+            <div class="col-6">
+              Nº do Veículo:
+              <span class="font-weight-bold">
+                {{veiculo.numero}}
+              </span>
+            </div>
+            <div class="col-6">
+              Placa do Veículo:
+              <span class="font-weight-bold">
+                {{veiculo.placa}}
+              </span>
+            </div>
+          </div>
+          <div class="row pb-3">
+            <div class="col-6">
+              T °C(Área do Recebimento):
+              <span class="font-weight-bold">
+                {{veiculo.temperatura_recebimento}}
+              </span>
+            </div>
+            <div class="col-6">
+              T °C(Produto):
+              <span class="font-weight-bold">
+                {{veiculo.temperatura_produto}}
+              </span>
+            </div>
+          </div>
+          <div class="row pb-3">
+            <div class="col-6">
+              Lacre:
+              <span class="font-weight-bold">
+                {{veiculo.lacre}}
+              </span>
+            </div>
+            <div class="col-6">
+              Nº SIF, SISBI ou SISP:
+              <span class="font-weight-bold">
+                {{veiculo.numero_sif_sisbi_sisp}}
+              </span>
+            </div>
+          </div>
+          <div class="row pb-3">
+            <div class="col-6">
+              Nº Nota Fiscal:
+              <span class="font-weight-bold">
+                {{veiculo.numero_nota_fiscal}}
+              </span>
+            </div>
+            <div class="col-6">
+              Quantidade da Nota Fiscal:
+              <span class="font-weight-bold">
+                {{veiculo.quantidade_nota_fiscal}}
+              </span>
+            </div>
+          </div>
+          <div class="row pb-3">
+            <div class="col-6">
+              Embalagens da Nota Fiscal:
+              <span class="font-weight-bold">
+                {{veiculo.embalagens_nota_fiscal}}
+              </span>
+            </div>
+            <div class="col-6">
+              Quantidade Recebida:
+              <span class="font-weight-bold">
+                {{veiculo.quantidade_recebida}}
+              </span>
+            </div>
+          </div>
+          <div class="row pb-3">
+            <div class="col-6">
+              Embalagens Recebidas:
+              <span class="font-weight-bold">
+                {{veiculo.embalagens_recebidas}}
+              </span>
+            </div>
+            <div class="col-6">
+              Estado Higiênico-Sanitário:
+              <span class="font-weight-bold">
+                {{veiculo.estado_higienico_adequado|yesno:"ADEQUADO,INADEQUADO"}}
+              </span>
+            </div>
+          </div>
+          <div class="row pb-3">
+            <div class="col-12">
+              Termógrafo:
+              <span class="font-weight-bold">
+                {{veiculo.termografo|yesno:"SIM,NAO"}}
+              </span>
+            </div>
+          </div>
+          <hr/>
+        {% endfor %}
+        
+        <div class="row pb-3">
+          <div class="col-12">
+            Sistema de Vedação da Embalagem Secundária:
+            <span class="font-weight-bold">
+              {{ficha.sistema_vedacao_embalagem_secundaria}}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="dados_conferencia">
+      <h5 class="title titulo-secao separator">CONFERÊNCIA DAS ROTULAGENS</h5>
+
+      <div class="content">
+        <div class="row pt-1">
+          <div class="col-6">
+            <div class="font-weight-bold pb-3">
+              Conferência Embalagem Secundária
+            </div>
+            {% for questao in questoes_secundarias %}
+              <div class="row pb-3">
+                <div class="col-12">
+                  {{questao.questao_conferencia.questao}}: 
+                  <span class="font-weight-bold">
+                    {{questao.resposta|yesno:"SIM,NAO"}}
+                  </span>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          <div class="col-6">
+            <div class="font-weight-bold pb-3">
+              Conferência Embalagem Primária
+            </div>
+            {% for questao in questoes_primarias %}
+              <div class="row pb-3">
+                <div class="col-12">
+                  {{questao.questao_conferencia.questao}}: 
+                  <span class="font-weight-bold">
+                    {{questao.resposta|yesno:"SIM,NAO"}}
+                  </span>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        <hr/>
+        <div class="row pb-3">
+          <div class="col-12">
+            Observações da Conferência:
+            <span class="font-weight-bold">
+              {{ficha.observacoes_conferencia}}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="dados_ocorrencia">
+      <h5 class="title titulo-secao separator">OCORRENCIAS</h5>
+
+      <div class="content">
+        <div class="row pb-3">
+          <div class="col-12">
+            HOUVE OCORRÊNCIA(S) NO RECEBIMENTO:
+            <span class="font-weight-bold">
+              {{ocorrencias.length|yesno:"SIM,NAO"}}
+            </span>
+          </div>
+        </div>
+
+        {% for ocorrencia in ocorrencias %}
+
+          <hr/>
+
+          <div class="row pb-3">
+            <div class="col-12">
+              Tipo de Ocorrência:
+              <span class="font-weight-bold">
+                {{ocorrencia.tipo|replace:"_| "}}
+              </span>
+            </div>
+          </div>
+
+          {% if ocorrencia.tipo == 'FALTA' %}
+            <div class="row pb-3">
+              <div class="col-12">
+                Ocorrência em relação a:
+                <span class="font-weight-bold">
+                  {{ocorrencia.relacao}}
+                </span>
+              </div>
+            </div>
+            <div class="row pb-3">
+              <div class="col-12">
+                Quantidade Faltante:
+                <span class="font-weight-bold">
+                  {{ocorrencia.quantidade}}
+                </span>
+              </div>
+            </div>
+          {% endif %}
+
+          {% if ocorrencia.tipo == 'RECUSA' %}
+            <div class="row pb-3">
+              <div class="col-12">
+                Ocorrência em relação a:
+                <span class="font-weight-bold">
+                  {{ocorrencia.relacao}}
+                </span>
+              </div>
+            </div>
+            <div class="row pb-3">
+              <div class="col-12">
+                Nº das Notas Fiscais Sujeitas a Pagamento Parcial:
+                <span class="font-weight-bold">
+                  {{ocorrencia.numero_nota}}
+                </span>
+              </div>
+            </div>
+            <div class="row pb-3">
+              <div class="col-12">
+                Quantidade Recusada:
+                <span class="font-weight-bold">
+                  {{ocorrencia.quantidade}}
+                </span>
+              </div>
+            </div>
+          {% endif %}
+
+          <div class="row pb-3">
+            <div class="col-12">
+              Descrever a ocorrência:
+              <span class="font-weight-bold">
+                {{ocorrencia.descricao}}
+              </span>
+            </div>
+          </div>
+
+        {% endfor %}
+
+      </div>
+    </div>
+
+    <div id="dados_observacoes">
+      <h5 class="title titulo-secao separator">OBSERVAÇÕES</h5>
+
+      <div class="content">
+        <div class="row pb-3">
+          <div class="col-12">
+            Descreva as observações necessárias:
+            <span class="font-weight-bold">
+              {{ficha.observacao}}
+            </span>
+          </div>
+        </div>
+        <div class="row pb-3">
+          <div class="col-12">
+            Documentos anexados:
+            <span class="font-weight-bold">
+              {{arquivos}}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="assinaturas content">
+
+
+      <div class="assinatura">
+        <div class="title titulo-assinatura">
+          Assinatura Eletrônica
+        </div>
+        <div class="assinatura-container">
+          {% if assinatura %}
+            <div class="col-2 logo-sigpae">
+              <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
+            </div>
+            <div class="col-10 ml-3">
+              <span class="texto-assinatura">
+                Ficha de Recebimento conferida e assinada por
+                <strong>{{ assinatura.usuario.nome }}</strong>, {{ assinatura.usuario.cargo }}, {{ assinatura.usuario.username|formatar_cpf }},
+                em {{ assinatura.criado_em|date:"d/m/Y" }}, às {{ assinatura.criado_em|time:"H:i" }}.
+              </span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+
+    </div>
+
+  </div>
+</body>
+</html>

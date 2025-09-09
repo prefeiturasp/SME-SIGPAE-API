@@ -1,0 +1,98 @@
+@import "../variaveis";
+
+@import "../variaveis";
+
+.flex{
+  display: flex;
+
+
+}
+
+.paginacao{
+  p{
+    padding: 0;
+    margin: 0;
+  }
+  font-weight: bold;
+  padding-bottom: 12px;
+
+  .paginador{
+    content: counter(page) "/" counter(pages);
+    text-align: center;
+  }
+}
+
+.titulo-e-logo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+
+  img {
+    height: 48px;
+    width: 137px;
+  }
+
+  h1 {
+    font-style: normal;
+    font-size: 12px;
+    line-height: 18px;
+    text-transform: uppercase;
+    color: $preto;
+    margin: 0;
+  }
+
+  .titulo{
+    color: $preto;
+    font-weight: normal;
+  }
+}
+
+.subtitulo{
+  margin-top: 0;
+  font-size: 16px;
+  text-align: center;
+}
+
+.header {
+  background: $cinza-claro;
+  height: 150px;
+  padding: 1em 2em;
+  font-size: 13px;
+}
+
+.header .info {
+  background: $branco;
+  border-collapse: collapse;
+  border-radius: 3px !important;
+  width: 100%;
+  overflow: hidden;
+}
+
+.header .info .row {
+  margin-right: 0!important;
+  margin-left: 0 !important;
+}
+
+.header .info .col {
+  font-style: normal;
+  line-height: 16px;
+  letter-spacing: 0.01em;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.green-important-text{
+  font-weight: bold;
+  color: $verde-escuro;
+  font-size: 16px;
+}
+
+.grow-2{
+  flex-grow: 2 !important;
+}
+
+.grow-5{
+  flex-grow: 5 !important;
+}
+
