@@ -166,9 +166,9 @@ def incluir_log_alunos_matriculados_cei(periodos, escola):
     faixas = FaixaEtaria.objects.filter(ativo=True)
     for periodo in periodos:
         pe = PeriodoEscolar.objects.get(nome=periodo)
-        for dia in range(1, DIAS_MES + 1):
-            data = datetime.date(ANO, MES, dia)
-            for faixa in faixas:
+        for faixa in faixas:
+            for dia in range(1, DIAS_MES + 1):
+                data = datetime.date(ANO, MES, dia)
                 log_faixa = LogAlunosMatriculadosFaixaEtariaDia(
                     escola=escola,
                     periodo_escolar=pe,
@@ -181,7 +181,7 @@ def incluir_log_alunos_matriculados_cei(periodos, escola):
                     id=log_faixa.id
                 ).update(criado_em=data)
 
-        print(f"Logs do Período {periodo} cadastrados")
+            print(f"Logs do Período {periodo} para faixa {faixa.__str__()} cadastrados")
 
 
 def incluir_log_alunos_matriculados_cei_da_cemei(periodos, escola):
@@ -202,8 +202,10 @@ def incluir_log_alunos_matriculados_cei_da_cemei(periodos, escola):
             LogAlunosMatriculadosPeriodoEscola.objects.filter(id=log.id).update(
                 criado_em=data
             )
-
-            for faixa in faixas:
+        print(f"Logs do Período {periodo} cadastrados")
+            
+        for faixa in faixas:
+            for dia in range(1, DIAS_MES + 1):
                 log_faixa = LogAlunosMatriculadosFaixaEtariaDia(
                     escola=escola,
                     periodo_escolar=pe,
@@ -217,7 +219,7 @@ def incluir_log_alunos_matriculados_cei_da_cemei(periodos, escola):
                     id=log_faixa.id
                 ).update(criado_em=data)
 
-        print(f"Logs do Período {periodo} cadastrados")
+            print(f"Logs do Período {periodo} para faixa {faixa.__str__()} cadastrados")
 
 
 def incluir_log_alunos_matriculados_emei_da_cemei(periodos, escola):
