@@ -38,7 +38,6 @@ from sme_sigpae_api.perfil.models.usuario import Usuario
 QUANTIDADE_ALUNOS = 100
 
 
-
 def obter_escolas():
     return [
         {
