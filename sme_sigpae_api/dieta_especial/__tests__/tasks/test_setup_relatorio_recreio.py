@@ -1,5 +1,10 @@
 import datetime
 
+from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
+    ClassificacaoDietaFactory,
+    SolicitacaoDietaEspecialFactory,
+)
+from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
     AlunoFactory,
     DiretoriaRegionalFactory,
@@ -11,11 +16,6 @@ from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
 from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import (
     EmpresaFactory,
 )
-from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
-    ClassificacaoDietaFactory,
-    SolicitacaoDietaEspecialFactory,
-)
-from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 
 
 class BaseSetupRecreioNasFerias:
