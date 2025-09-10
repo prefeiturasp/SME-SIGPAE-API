@@ -1827,53 +1827,18 @@ def get_pdf_ficha_recebimento(request, ficha):
     """
     Gera o PDF da Ficha de Recebimento.
     
-    Args:
+    Parametros:
         request: Objeto de requisição HTTP
         ficha: Instância de FichaDeRecebimento
         
-    Returns:
+    Retorno:
         HttpResponse: Resposta HTTP com o PDF da Ficha de Recebimento
     """
-    # Formata as informações da empresa
-    # empresa = ficha.empresa
-    # cnpj_empresa, telefone_empresa = formata_informacoes_ficha_tecnica(empresa)
-
-    # # Formata as informações do fornecedor
-    # fornecedor = ficha.fornecedor
-    # cnpj_fornecedor, telefone_fornecedor = formata_informacoes_ficha_tecnica(fornecedor)
-
-    # # Formata as informações do responsável técnico se existir
-    # responsavel_tecnico = getattr(ficha, 'responsavel_tecnico', None)
-    # cpf_responsavel = None
-    # if responsavel_tecnico:
-    #     cpf_responsavel = formata_cnpj_ficha_tecnica(responsavel_tecnico.cpf)
-
-    # # Formata a data de recebimento
-    # data_recebimento = ficha.data_recebimento.strftime("%d/%m/%Y") if ficha.data_recebimento else ""
-
-    # # Prepara o contexto para o template
-    # context = {
-    #     "ficha": ficha,
-    #     "empresa": empresa,
-    #     "cnpj_empresa": cnpj_empresa,
-    #     "telefone_empresa": telefone_empresa,
-    #     "fornecedor": fornecedor,
-    #     "cnpj_fornecedor": cnpj_fornecedor,
-    #     "telefone_fornecedor": telefone_fornecedor,
-    #     "responsavel_tecnico": responsavel_tecnico,
-    #     "cpf_responsavel": cpf_responsavel,
-    #     "data_recebimento": data_recebimento,
-    #     "documentos_recebimento": ficha.documentos_recebimento.all() if hasattr(ficha, 'documentos_recebimento') else [],
-    #     "questoes_conferencia": ficha.questoes_conferencia.all() if hasattr(ficha, 'questoes_conferencia') else [],
-    #     "ocorrencias": ficha.ocorrencias.all() if hasattr(ficha, 'ocorrencias') else [],
-    # }
 
     documentos_serializer = DocRecebimentoFichaDeRecebimentoSerializer(
         ficha.documentos_recebimento.all(),
         many=True
     )
-
-    print(documentos_serializer.data)
 
     html_string = render_to_string(
         "recebimento/relatorio_ficha_recebimento.html",
@@ -1887,16 +1852,8 @@ def get_pdf_ficha_recebimento(request, ficha):
             "questoes_primarias": ficha.questaoficharecebimento_set.filter(tipo_questao="PRIMARIA"),
             "questoes_secundarias": ficha.questaoficharecebimento_set.filter(tipo_questao="SECUNDARIA"),
             "ocorrencias": ficha.ocorrencias.all(),
-            "arquivos": ", ".join([objeto.nome for objeto in ficha.arquivos.all()]),
-            # "status_ficha": retorna_status_ficha_tecnica(ficha.status),
-            # "tabela": list(informacoes_nutricionais),
+            "arquivos": ", ".join([str(objeto.nome) for objeto in ficha.arquivos.all() if objeto.nome]),
             "assinatura": ficha.logs.last(),
-            # "fabricante": fabricante,
-            # "cnpj_fabricante": cnpj_fabricante,
-            # "telefone_fabricante": telefone_fabricante,
-            # "envasador_distribuidor": envasador_distribuidor,
-            # "cnpj_distribuidor": cnpj_distribuidor,
-            # "telefone_distribuidor": telefone_distribuidor,
         },
     )
     data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
