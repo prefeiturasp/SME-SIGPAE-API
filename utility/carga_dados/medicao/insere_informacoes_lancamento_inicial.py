@@ -38,6 +38,7 @@ from sme_sigpae_api.perfil.models.usuario import Usuario
 QUANTIDADE_ALUNOS = 100
 
 
+
 def obter_escolas():
     return [
         {
@@ -46,12 +47,12 @@ def obter_escolas():
             "periodos": ["MANHA", "TARDE", "NOITE", "INTEGRAL"],
         },
         {
-            "nome_escola": "EMEI CIDADE DO SOL",
+            "nome_escola": "EMEI ANTONIO RUBBO MULLER, PROF.",
             "email": "escolaemei@admin.com",
             "periodos": ["MANHA", "TARDE", "INTEGRAL"],
         },
         {
-            "nome_escola": "CIEJA CLOVIS CAITANO MIQUELAZZO - IPIRANGA",
+            "nome_escola": "CIEJA PAULO EMILIO VANZOLINI,CIEJA",
             "email": "escolacieja@admin.com",
             "periodos": ["MANHA", "TARDE", "NOITE", "INTERMEDIARIO", "VESPERTINO"],
         },
@@ -61,7 +62,7 @@ def obter_escolas():
             "periodos": ["MANHA", "TARDE", "NOITE", "INTEGRAL"],
         },
         {
-            "nome_escola": "EMEBS NEUSA BASSETTO, PROFA.",
+            "nome_escola": "EMEBS HELEN KELLER",
             "email": "escolaemebs@admin.com",
             "periodos": {
                 "INFANTIL": ["MANHA", "TARDE", "INTEGRAL"],
@@ -74,7 +75,7 @@ def obter_escolas():
             "periodos": {"EMEI": ["MANHA", "TARDE", "INTEGRAL"], "CEI": ["INTEGRAL"]},
         },
         {
-            "nome_escola": "CEI DIRET JOAQUIM GOUVEIA FRANCO JR., VER.",
+            "nome_escola": "CEI DIRET JOSE DE MOURA, VER.",
             "email": "escolacei@admin.com",
             "periodos": ["MANHA", "TARDE", "INTEGRAL"],
         },
