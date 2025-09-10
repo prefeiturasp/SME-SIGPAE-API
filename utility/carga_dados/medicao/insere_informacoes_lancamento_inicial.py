@@ -39,6 +39,7 @@ QUANTIDADE_ALUNOS = 100
 
 
 def obter_escolas():
+    "Escolas da mesma DRE"
     return [
         {
             "nome_escola": "EMEF PERICLES EUGENIO DA SILVA RAMOS",
