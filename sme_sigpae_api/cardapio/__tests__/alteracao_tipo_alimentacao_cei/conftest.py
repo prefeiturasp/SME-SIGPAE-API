@@ -55,6 +55,7 @@ def client_autenticado_vinculo_escola_cei_cardapio(
     client.login(username=rf, password=password)
     return client
 
+
 @pytest.fixture
 def client_autenticado_vinculo_codae_inclusao(client, django_user_model, escola, codae):
     email = "test@test.com"
@@ -86,6 +87,7 @@ def client_autenticado_vinculo_codae_inclusao(client, django_user_model, escola,
     client.login(username=email, password=password)
     return client
 
+
 @pytest.fixture
 def template_inclusao_normal():
     return baker.make(
@@ -94,6 +96,7 @@ def template_inclusao_normal():
         tipo=TemplateMensagem.INCLUSAO_ALIMENTACAO,
         template_html="@id @criado_em @status @link",
     )
+
 
 @pytest.fixture
 def client_autenticado_vinculo_dre_inclusao(

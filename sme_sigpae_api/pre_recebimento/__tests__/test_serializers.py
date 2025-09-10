@@ -16,10 +16,10 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serialize
     novo_numero_solicitacao,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
+    CronogramaFichaDeRecebimentoSerializer,
     EtapasDoCronogramaCalendarioSerializer,
     EtapasDoCronogramaSerializer,
     PainelCronogramaSerializer,
-    CronogramaFichaDeRecebimentoSerializer
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
