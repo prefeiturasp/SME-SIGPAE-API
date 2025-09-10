@@ -205,6 +205,33 @@ def test_url_ficha_recebimento_rascunho_create_update(
     assert len(response_data["ocorrencias"]) == 2
 
 
+def test_url_ficha_recebimento_assinada_create_update(
+    client_autenticado_qualidade,
+    payload_ficha_recebimento,
+):
+    """Testa a criação e atualização de uma ficha assinada via endpoint principal."""
+    response_create = client_autenticado_qualidade.post(
+        "/fichas-de-recebimento/",
+        content_type="application/json",
+        data=json.dumps(payload_ficha_recebimento),
+    )
+
+    ficha = FichaDeRecebimento.objects.last()
+
+    assert response_create.status_code == status.HTTP_201_CREATED
+    assert ficha is not None
+    assert ficha.status == FichaDeRecebimentoWorkflow.ASSINADA
+    assert ficha.veiculos.count() == len(payload_ficha_recebimento["veiculos"])
+    assert ficha.documentos_recebimento.count() == len(
+        payload_ficha_recebimento["documentos_recebimento"]
+    )
+    assert ficha.arquivos.count() == len(payload_ficha_recebimento["arquivos"])
+    assert ficha.questoes_conferencia.count() == len(
+        payload_ficha_recebimento["questoes"]
+    )
+    assert ficha.ocorrencias.count() == len(payload_ficha_recebimento["ocorrencias"])
+
+
 def test_url_busca_questoes_cronograma(
     client_autenticado_qualidade, cronograma_completo
 ):
