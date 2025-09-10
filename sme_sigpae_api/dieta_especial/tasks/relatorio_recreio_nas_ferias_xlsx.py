@@ -1,6 +1,8 @@
-import logging
 import io
+import logging
+
 from celery import shared_task
+
 from sme_sigpae_api.dados_comuns.utils import (
     atualiza_central_download,
     atualiza_central_download_com_erro,
@@ -34,7 +36,9 @@ def gera_xlsx_relatorio_recreio_nas_ferias_async(user, nome_arquivo, params):
         solicitacoes = filtra_relatorio_recreio_nas_ferias(query_dict_params)
         dados = gera_dicionario_relatorio_recreio(solicitacoes)
         output = io.BytesIO()
-        gera_xlsx_relatorio_recreio_nas_ferias(output, dados, query_dict_params.get("lote", None))
+        gera_xlsx_relatorio_recreio_nas_ferias(
+            output, dados, query_dict_params.get("lote", None)
+        )
         atualiza_central_download(obj_central_download, nome_arquivo, output.read())
     except Exception as e:
         atualiza_central_download_com_erro(obj_central_download, str(e))

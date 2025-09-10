@@ -1,5 +1,5 @@
 import datetime
-from unittest.mock import Mock, MagicMock
+from unittest.mock import MagicMock, Mock
 
 import pytest
 from django.contrib.contenttypes.models import ContentType
@@ -8,6 +8,7 @@ from django.http import QueryDict
 from faker import Faker
 from model_bakery import baker
 
+from sme_sigpae_api.dados_comuns.constants import ADMINISTRADOR_EMPRESA
 from sme_sigpae_api.produto.api.serializers.serializers import (
     HomologacaoProdutoPainelGerencialSerializer,
     ProdutoReclamacaoSerializer,
@@ -29,8 +30,6 @@ from ...dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
 from ...escola.models import DiretoriaRegional, TipoGestao
 from ...terceirizada.models import Contrato
 from ..models import AnaliseSensorial, HomologacaoProduto, ProdutoEdital
-
-from sme_sigpae_api.dados_comuns.constants import ADMINISTRADOR_EMPRESA
 
 fake = Faker("pt-Br")
 Faker.seed(420)
@@ -526,8 +525,7 @@ def hom_copia(hom_produto_com_editais, mock_request, mock_vinculo_atual, terceir
     mock_request.user.vinculo_atual = mock_vinculo_atual
     mock_vinculo_atual.instituicao = terceirizada
     homologacao_copia = hom_produto_com_editais.cria_copia_homologacao_produto(
-        produto_copia,
-        mock_vinculo_atual.instituicao
+        produto_copia, mock_vinculo_atual.instituicao
     )
     baker.make(
         "LogSolicitacoesUsuario",
