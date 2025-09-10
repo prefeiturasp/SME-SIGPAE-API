@@ -811,10 +811,11 @@ class SolicitacaoMedicaoInicialViewSet(
                 list(set([f"Infantil {log.periodo_escolar.nome}" for log in logs]))
             )
             from sme_sigpae_api.cardapio.utils import ordem_periodos
+
             ordem_personalizada = ordem_periodos(escola).get("EMEI", {})
             retorno = sorted(
                 periodos,
-                key=lambda p: ordem_personalizada.get(p.replace("Infantil ", ""), 99)
+                key=lambda p: ordem_personalizada.get(p.replace("Infantil ", ""), 99),
             )
         return Response({"results": retorno}, status=status.HTTP_200_OK)
 

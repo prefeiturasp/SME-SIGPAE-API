@@ -257,9 +257,11 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
             quantidadeporperiodo__grupo_inclusao_normal__uuid__in=uuids_inclusoes_normais
         ).distinct()
         escola = Escola.objects.get(uuid=escola_uuid)
-        
-        from sme_sigpae_api.cardapio.utils import ordem_periodos
+
         from django.db.models import Case, IntegerField, Value, When
+
+        from sme_sigpae_api.cardapio.utils import ordem_periodos
+
         ordem_personalizada = ordem_periodos(escola)
         condicoes_ordenacao = [
             When(periodo_escolar__nome=nome, then=Value(prioridade))
@@ -270,13 +272,15 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                 periodo_escolar__in=periodos_escolares_inclusoes,
                 ativo=True,
                 tipo_unidade_escolar=escola.tipo_unidade,
-            ).annotate(
+            )
+            .annotate(
                 ordem_personalizada=Case(
                     *condicoes_ordenacao,
                     default=Value(99),  # Valor alto para períodos não listados
                     output_field=IntegerField(),
                 )
-            ).order_by("ordem_personalizada")
+            )
+            .order_by("ordem_personalizada")
         )
 
         return Response(

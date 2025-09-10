@@ -182,18 +182,20 @@ class VinculoTipoAlimentacaoViewSet(
         periodos_para_filtrar = self.trata_inclusao_continua_medicao_inicial(
             request, escola, ano
         )
-        
-        from sme_sigpae_api.cardapio.utils import ordem_periodos
+
         from django.db.models import Case, IntegerField, Value, When
+
+        from sme_sigpae_api.cardapio.utils import ordem_periodos
+
         ordem_personalizada = ordem_periodos(escola)
-        
+
         if escola.eh_cemei:
             ordem_das_unidades = {"CEI DIRET": 1, "EMEI": 2}
             unidades = [
                 When(tipo_unidade_escolar__iniciais=key, then=Value(val))
                 for key, val in ordem_das_unidades.items()
             ]
-            
+
             periodo_cases = []
             for unidade, periodos in ordem_personalizada.items():
                 for periodo, ordem in periodos.items():
@@ -204,14 +206,22 @@ class VinculoTipoAlimentacaoViewSet(
                             then=Value(ordem),
                         )
                     )
-            vinculos = VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
-                periodo_escolar__nome__in=PERIODOS_ESPECIAIS_CEMEI,
-                tipo_unidade_escolar__iniciais__in=ordem_das_unidades.keys(),
-            ).annotate(
-                unidade_order=Case(*unidades, default=Value(99), output_field=IntegerField()),
-                periodo_order=Case(*periodo_cases, default=Value(99), output_field=IntegerField()),
-            ).order_by("unidade_order", "periodo_order")
-            
+            vinculos = (
+                VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
+                    periodo_escolar__nome__in=PERIODOS_ESPECIAIS_CEMEI,
+                    tipo_unidade_escolar__iniciais__in=ordem_das_unidades.keys(),
+                )
+                .annotate(
+                    unidade_order=Case(
+                        *unidades, default=Value(99), output_field=IntegerField()
+                    ),
+                    periodo_order=Case(
+                        *periodo_cases, default=Value(99), output_field=IntegerField()
+                    ),
+                )
+                .order_by("unidade_order", "periodo_order")
+            )
+
         else:
             condicoes_ordenacao = [
                 When(periodo_escolar__nome=nome, then=Value(prioridade))
