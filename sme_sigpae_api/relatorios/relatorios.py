@@ -7,7 +7,9 @@ from django.db.models import F, FloatField, Sum
 from django.template.loader import get_template, render_to_string
 
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
-from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import DocRecebimentoFichaDeRecebimentoSerializer
+from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
+    DocRecebimentoFichaDeRecebimentoSerializer,
+)
 
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
@@ -42,7 +44,6 @@ from ..pre_recebimento.ficha_tecnica.api.helpers import (
     retorna_status_ficha_tecnica,
 )
 from ..pre_recebimento.ficha_tecnica.models import InformacoesNutricionaisFichaTecnica
-from ..recebimento.models import FichaDeRecebimento
 from ..relatorios.utils import (
     html_to_pdf_cancelada,
     html_to_pdf_file,
@@ -1826,18 +1827,17 @@ def formata_informacoes_ficha_tecnica(entidade):
 def get_pdf_ficha_recebimento(request, ficha):
     """
     Gera o PDF da Ficha de Recebimento.
-    
+
     Parametros:
         request: Objeto de requisição HTTP
         ficha: Instância de FichaDeRecebimento
-        
+
     Retorno:
         HttpResponse: Resposta HTTP com o PDF da Ficha de Recebimento
     """
 
     documentos_serializer = DocRecebimentoFichaDeRecebimentoSerializer(
-        ficha.documentos_recebimento.all(),
-        many=True
+        ficha.documentos_recebimento.all(), many=True
     )
 
     html_string = render_to_string(
@@ -1849,10 +1849,16 @@ def get_pdf_ficha_recebimento(request, ficha):
             "ficha_tecnica": ficha.etapa.cronograma.ficha_tecnica,
             "documentos": documentos_serializer.data,
             "veiculos": ficha.veiculos.all(),
-            "questoes_primarias": ficha.questaoficharecebimento_set.filter(tipo_questao="PRIMARIA"),
-            "questoes_secundarias": ficha.questaoficharecebimento_set.filter(tipo_questao="SECUNDARIA"),
+            "questoes_primarias": ficha.questaoficharecebimento_set.filter(
+                tipo_questao="PRIMARIA"
+            ),
+            "questoes_secundarias": ficha.questaoficharecebimento_set.filter(
+                tipo_questao="SECUNDARIA"
+            ),
             "ocorrencias": ficha.ocorrencias.all(),
-            "arquivos": ", ".join([str(objeto.nome) for objeto in ficha.arquivos.all() if objeto.nome]),
+            "arquivos": ", ".join(
+                [str(objeto.nome) for objeto in ficha.arquivos.all() if objeto.nome]
+            ),
             "assinatura": ficha.logs.last(),
         },
     )
