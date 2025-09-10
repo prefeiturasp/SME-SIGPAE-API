@@ -240,13 +240,18 @@ def processa_dias_letivos(lista_dias_letivos, escola):
             dia_calendario.save()
 
 
-def calendario_sgp(data_inicio=date.today()):
+def calendario_sgp(data_inicio=date.today(), lista_escolas=None):
     import pandas as pd
 
     from sme_sigpae_api.escola.models import Escola
     from sme_sigpae_api.escola.services import NovoSGPServico
 
-    escolas = Escola.objects.all()
+    escolas = (
+        Escola.objects.filter(nome__in=lista_escolas)
+        if lista_escolas
+        else Escola.objects.all()
+    )
+
     total = len(escolas)
     data_fim = None
     data_inicio_formatada = data_inicio.strftime("%Y-%m-%d")
