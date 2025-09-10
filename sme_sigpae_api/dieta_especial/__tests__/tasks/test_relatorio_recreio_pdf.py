@@ -7,6 +7,7 @@ from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 from sme_sigpae_api.dieta_especial.tasks import (
     gera_pdf_relatorio_recreio_nas_ferias_async,
 )
+
 from .test_setup_relatorio_recreio import BaseSetupRecreioNasFerias
 
 pytestmark = pytest.mark.django_db
@@ -18,6 +19,7 @@ def resgata_conteudo_pdf():
     reader = PdfFileReader(central_download.arquivo.path)
     page = reader.pages[0]
     return page.extractText()
+
 
 @pytest.mark.usefixtures("client_autenticado_vinculo_codae_gestao_alimentacao_dieta")
 @freeze_time("2025-08-25")
@@ -47,7 +49,7 @@ class TestGeraPDFRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
                 "data_fim": "29/09/2025",
                 "classificacao": "Tipo B",
                 "alergias_intolerancias": "--",
-            }
+            },
         ]
 
         from sme_sigpae_api.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias import (
@@ -63,7 +65,7 @@ class TestGeraPDFRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
         self.setup()
         client, user = client_autenticado_vinculo_codae_gestao_alimentacao_dieta
         gera_pdf_relatorio_recreio_nas_ferias_async(
-            user, "relatorio_recreio_nas_ferias.pdf", { "lote": self.lote.uuid }
+            user, "relatorio_recreio_nas_ferias.pdf", {"lote": self.lote.uuid}
         )
         conteudo_pdf = resgata_conteudo_pdf()
 
