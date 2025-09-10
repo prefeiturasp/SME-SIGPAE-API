@@ -189,6 +189,8 @@ def test_ficha_recebimento_serializer_update(
     """Testa a atualização de uma ficha existente através do serializer."""
     payload_ficha_recebimento["observacao"] = "Observação atualizada"
 
+    assert ficha_recebimento.status == "RASCUNHO"
+
     class FakeObject(object):
         user = baker.make("perfil.Usuario")
 
@@ -207,6 +209,45 @@ def test_ficha_recebimento_serializer_update(
     assert ficha.veiculos.count() > 0
     assert ficha.arquivos.count() > 0
     assert ficha.questoes_conferencia.count() > 0
+    assert ficha.status == "ASSINADA"
+
+
+def test_ficha_recebimento_assinada_para_rascunho(
+    ficha_recebimento, payload_ficha_recebimento
+):
+    """Testa a volta de ASSINADA para RASCUNHO usando FichaDeRecebimentoRascunhoSerializer."""
+
+    class FakeObject(object):
+        user = baker.make("perfil.Usuario")
+
+    context = {"request": FakeObject()}
+
+    serializer = FichaDeRecebimentoCreateSerializer(
+        instance=ficha_recebimento, data=payload_ficha_recebimento, context=context
+    )
+    assert serializer.is_valid()
+    ficha = serializer.save()
+    assert ficha.status == "ASSINADA"
+
+    payload_rascunho = {
+        "etapa": str(ficha.etapa.uuid),
+        "observacao": "Editado via serializer de rascunho",
+        "houve_ocorrencia": False,
+        "data_entrega": payload_ficha_recebimento.get("data_entrega"),
+    }
+
+    serializer_rascunho = FichaDeRecebimentoRascunhoSerializer(
+        instance=ficha, data=payload_rascunho, context=context
+    )
+    is_valid = serializer_rascunho.is_valid()
+    if not is_valid:
+        print("\nErros de validação:", serializer_rascunho.errors)
+    assert is_valid, f"O serializer não é válido. Erros: {serializer_rascunho.errors}"
+
+    ficha_editada = serializer_rascunho.save()
+
+    assert ficha_editada.status == "RASCUNHO"
+    assert ficha_editada.observacao == "Editado via serializer de rascunho"
 
 
 def test_ficha_recebimento_serializer_validate_veiculos(payload_ficha_recebimento):

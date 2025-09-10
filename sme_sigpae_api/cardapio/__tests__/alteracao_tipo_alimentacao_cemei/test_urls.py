@@ -29,7 +29,7 @@ def test_alteracao_cemei_solicitacoes_dre(
     assert "next" not in data
     assert "count" not in data
     assert "results" in data
-    assert isinstance(data["results"], list)   
+    assert isinstance(data["results"], list)
 
 
 @freeze_time("2023-07-14")
@@ -48,7 +48,7 @@ def test_alteracao_cemei_solicitacoes_codae(
     assert "next" not in data
     assert "count" not in data
     assert "results" in data
-    assert isinstance(data["results"], list)   
+    assert isinstance(data["results"], list)
 
 
 @freeze_time("2023-07-14")
@@ -134,9 +134,8 @@ def test_create_alteracao_cemei_emei(
     assert response.json()["alterar_dia"] == "30/07/2023"
     assert response.json()["status"] == "RASCUNHO"
 
-def test_url_alteracoes_cardapio_cemei_codae(
-    client_autenticado_vinculo_codae_cardapio
-):
+
+def test_url_alteracoes_cardapio_cemei_codae(client_autenticado_vinculo_codae_cardapio):
     response = client_autenticado_vinculo_codae_cardapio.get(
         f"/alteracoes-cardapio-cemei/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
     )
@@ -145,11 +144,10 @@ def test_url_alteracoes_cardapio_cemei_codae(
     assert "next" not in data
     assert "count" not in data
     assert "results" in data
-    assert isinstance(data["results"], list)   
+    assert isinstance(data["results"], list)
 
-def test_url_alteracoes_cardapio_cemei_dre(
-    client_autenticado_vinculo_dre_escola_cemei
-):
+
+def test_url_alteracoes_cardapio_cemei_dre(client_autenticado_vinculo_dre_escola_cemei):
     response = client_autenticado_vinculo_dre_escola_cemei.get(
         f"/alteracoes-cardapio-cemei/{PEDIDOS_DRE}/{SEM_FILTRO}/"
     )
@@ -158,4 +156,4 @@ def test_url_alteracoes_cardapio_cemei_dre(
     assert "next" not in data
     assert "count" not in data
     assert "results" in data
-    assert isinstance(data["results"], list)  
+    assert isinstance(data["results"], list)

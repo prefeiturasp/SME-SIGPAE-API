@@ -2905,6 +2905,7 @@ def test_ficha_tecnica_create_rascunho_envasador_null(
     assert ficha.status == FichaTecnicaDoProdutoWorkflow.RASCUNHO
     assert ficha.envasador_distribuidor is None
 
+
 @pytest.mark.django_db
 def test_ficha_tecnica_create_envasador_null(
     client_autenticado_fornecedor,
