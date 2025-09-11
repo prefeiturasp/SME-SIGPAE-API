@@ -17,6 +17,9 @@ from sme_sigpae_api.dieta_especial.tasks.relatorio_pdf import (
 from sme_sigpae_api.dieta_especial.tasks.relatorio_recreio_nas_ferias_pdf import (
     gera_pdf_relatorio_recreio_nas_ferias_async,
 )
+from sme_sigpae_api.dieta_especial.tasks.relatorio_recreio_nas_ferias_xlsx import (
+    gera_xlsx_relatorio_recreio_nas_ferias_async,
+)
 from sme_sigpae_api.dieta_especial.tasks.relatorio_terceirizadas_pdf import (
     gera_pdf_relatorio_dietas_especiais_terceirizadas_async,
 )
@@ -34,4 +37,5 @@ __all__ = [
     "gera_pdf_relatorio_dietas_especiais_terceirizadas_async",
     "gera_xlsx_relatorio_dietas_especiais_terceirizadas_async",
     "gera_pdf_relatorio_recreio_nas_ferias_async",
+    "gera_xlsx_relatorio_recreio_nas_ferias_async",
 ]

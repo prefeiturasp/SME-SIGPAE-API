@@ -1313,3 +1313,18 @@ def test_codae_atualiza_protocolo_exception(
     assert response.json() == {
         "detail": "Dados inválidos [ErrorDetail(string='atributo alergias_intolerancias não pode ser vazio', code='invalid')]"
     }
+
+
+def test_relatorio_recreio_exportar_xlsx(
+    client_autenticado_vinculo_codae_gestao_alimentacao_dieta,
+):
+    client, user = client_autenticado_vinculo_codae_gestao_alimentacao_dieta
+    response = client.get(
+        "/solicitacoes-dieta-especial/relatorio-recreio-nas-ferias/exportar-excel/"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert (
+        response.json()["detail"]
+        == "Solicitação de geração de arquivo recebida com sucesso."
+    )

@@ -7,6 +7,9 @@ from django.db.models import F, FloatField, Sum
 from django.template.loader import get_template, render_to_string
 
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
+from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
+    DocRecebimentoFichaDeRecebimentoSerializer,
+)
 
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
@@ -566,6 +569,17 @@ def relatorio_dieta_especial_protocolo(request, solicitacao):
 
     referencia = "unidade" if escola.eh_parceira else "empresa"
     justificativa = obter_justificativa_dieta(solicitacao)
+    eh_alteracao_ue = solicitacao.tipo_solicitacao == "ALTERACAO_UE"
+
+    autorizada = (
+        SolicitacoesCODAE.get_autorizados_dieta_especial()
+        .filter(uuid=solicitacao.uuid)
+        .exists()
+    )
+    incluir_autorizacao_imagem = False
+    if (justificativa and eh_alteracao_ue is False) or autorizada:
+        incluir_autorizacao_imagem = True
+
     html_string = render_to_string(
         "solicitacao_dieta_especial_protocolo.html",
         {
@@ -579,14 +593,14 @@ def relatorio_dieta_especial_protocolo(request, solicitacao):
             ),
             "foto_aluno": solicitacao.aluno.foto_aluno_base64,
             "eh_dieta_especial": True,
-            "eh_protocolo_dieta_especial": solicitacao.tipo_solicitacao
-            == "ALTERACAO_UE",
+            "eh_protocolo_dieta_especial": eh_alteracao_ue,
             "motivo": (
                 solicitacao.motivo_alteracao_ue.nome.split(" - ")[1]
                 if solicitacao.motivo_alteracao_ue
                 else None
             ),
             "justificativa": justificativa,
+            "direito_imagem": incluir_autorizacao_imagem,
         },
     )
     if request:
@@ -1808,6 +1822,51 @@ def formata_informacoes_ficha_tecnica(entidade):
         getattr(entidade, "telefone", getattr(entidade, "responsavel_telefone", None))
     )
     return cnpj, telefone
+
+
+def get_pdf_ficha_recebimento(request, ficha):
+    """
+    Gera o PDF da Ficha de Recebimento.
+
+    Parametros:
+        request: Objeto de requisição HTTP
+        ficha: Instância de FichaDeRecebimento
+
+    Retorno:
+        HttpResponse: Resposta HTTP com o PDF da Ficha de Recebimento
+    """
+
+    documentos_serializer = DocRecebimentoFichaDeRecebimentoSerializer(
+        ficha.documentos_recebimento.all(), many=True
+    )
+
+    html_string = render_to_string(
+        "recebimento/relatorio_ficha_recebimento.html",
+        {
+            "ficha": ficha,
+            "etapa": ficha.etapa,
+            "cronograma": ficha.etapa.cronograma,
+            "ficha_tecnica": ficha.etapa.cronograma.ficha_tecnica,
+            "documentos": documentos_serializer.data,
+            "veiculos": ficha.veiculos.all(),
+            "questoes_primarias": ficha.questaoficharecebimento_set.filter(
+                tipo_questao="PRIMARIA"
+            ),
+            "questoes_secundarias": ficha.questaoficharecebimento_set.filter(
+                tipo_questao="SECUNDARIA"
+            ),
+            "ocorrencias": ficha.ocorrencias.all(),
+            "arquivos": ", ".join(
+                [str(objeto.nome) for objeto in ficha.arquivos.all() if objeto.nome]
+            ),
+            "assinatura": ficha.logs.last(),
+        },
+    )
+    data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
+    return html_to_pdf_response(
+        html_string.replace("dt_file", data_arquivo),
+        f"ficha_recebimento_{ficha.etapa.cronograma.numero}.pdf",
+    )
 
 
 def cabecalho_reclamacao_produto(filtros: dict) -> dict:

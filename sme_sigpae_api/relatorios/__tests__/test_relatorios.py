@@ -35,6 +35,13 @@ def test_relatorio_dieta_especial_protocolo(solicitacao_dieta_especial_autorizad
     assert "PROTOCOLO PADRÃO DE DIETA ESPECIAL" in html_string
     assert "Dieta cancelada em" not in html_string
     assert "Justificativa" not in html_string
+    assert "1. Orientações Gerais" in html_string
+    assert "2. Relação de Alimentos para Substituição" in html_string
+    assert (
+        "3. Termo de Ciência do Responsável e Autorização de Uso de Imagem"
+        in html_string
+    )
+    assert "Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018)" in html_string
 
 
 def test_relatorio_suspensao_de_alimentacao(grupo_suspensao_alimentacao):
@@ -145,6 +152,13 @@ def test_relatorio_dieta_especial_protocolo_cancelada(
     assert "PROTOCOLO PADRÃO DE DIETA ESPECIAL" in html_string
     assert "Dieta cancelada em" in html_string
     assert "Justificativa" in html_string
+    assert "1. Orientações Gerais" in html_string
+    assert "2. Relação de Alimentos para Substituição" in html_string
+    assert (
+        "3. Termo de Ciência do Responsável e Autorização de Uso de Imagem"
+        in html_string
+    )
+    assert "Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018)" in html_string
 
 
 def test_get_total_por_periodo_unico_periodo():
@@ -255,6 +269,14 @@ def test_relatorio_dieta_especial_protocolo_alteracao_ue(
     assert "Relação de Alimentos para Substituição" in html_string
     assert "Dieta cancelada em" not in html_string
     assert "Justificativa" not in html_string
+    assert "1. Orientações Gerais" in html_string
+    assert "2. Relação de Alimentos para Substituição" in html_string
+    assert "3. Termo de Ciência do Responsável" in html_string
+    assert "e Autorização de Uso de Imagem" not in html_string
+    assert (
+        "Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018)"
+        not in html_string
+    )
 
 
 def test_relatorio_dieta_especial_protocolo_inativa(
@@ -274,6 +296,13 @@ def test_relatorio_dieta_especial_protocolo_inativa(
         "Justificativa: Autorização de novo protocolo de dieta especial" in html_string
     )
     assert "Dieta cancelada em" not in html_string
+    assert "1. Orientações Gerais" in html_string
+    assert "2. Relação de Alimentos para Substituição" in html_string
+    assert (
+        "3. Termo de Ciência do Responsável e Autorização de Uso de Imagem"
+        in html_string
+    )
+    assert "Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018)" in html_string
 
 
 def test_obter_justificativa_dieta_dieta_autorizada(

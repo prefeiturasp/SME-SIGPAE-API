@@ -658,13 +658,126 @@ class HomologacaoProduto(
 
         return produto_copia
 
-    def cria_copia_homologacao_produto(self, produto_copia):
+    @staticmethod
+    def cria_copia_reclamacao(reclamacao_original, homologacao_copia):
+        reclamacao_copia = HomologacaoProduto._criar_reclamacao_base(
+            reclamacao_original, homologacao_copia
+        )
+        HomologacaoProduto._copiar_logs(reclamacao_original, reclamacao_copia)
+        HomologacaoProduto._copiar_anexos_reclamacao(
+            reclamacao_original, reclamacao_copia
+        )
+
+        return ReclamacaoDeProduto.objects.get(id=reclamacao_copia.id)
+
+    @staticmethod
+    def _criar_reclamacao_base(reclamacao_original, homologacao_copia):
+        reclamacao_copia = ReclamacaoDeProduto()
+        campos_para_copiar = [
+            "reclamante_registro_funcional",
+            "reclamante_cargo",
+            "reclamante_nome",
+            "reclamacao",
+            "produto_lote",
+            "produto_data_validade",
+            "produto_data_fabricacao",
+            "status",
+        ]
+
+        for campo in campos_para_copiar:
+            if hasattr(reclamacao_original, campo):
+                setattr(reclamacao_copia, campo, getattr(reclamacao_original, campo))
+
+        if reclamacao_original.escola:
+            reclamacao_copia.escola = reclamacao_original.escola
+        if reclamacao_original.criado_por:
+            reclamacao_copia.criado_por = reclamacao_original.criado_por
+
+        reclamacao_copia.homologacao_produto = homologacao_copia
+        reclamacao_copia.uuid = uuid_generator.uuid4()
+        reclamacao_copia.save()
+
+        ReclamacaoDeProduto.objects.filter(id=reclamacao_copia.id).update(
+            criado_em=reclamacao_original.criado_em
+        )
+        return reclamacao_copia
+
+    @staticmethod
+    def _copiar_logs(reclamacao_original, reclamacao_copia):
+        for log_original in reclamacao_original.logs.all():
+            log_copia = HomologacaoProduto._criar_log_copia(
+                log_original, reclamacao_copia
+            )
+            HomologacaoProduto._copiar_anexos_log(log_original, log_copia)
+
+    @staticmethod
+    def _criar_log_copia(log_original, reclamacao_copia):
+        log_copia = LogSolicitacoesUsuario()
+        campos_log = [
+            "descricao",
+            "status_evento",
+            "solicitacao_tipo",
+            "justificativa",
+            "resposta_sim_nao",
+            "usuario",
+            "uuid_original",
+        ]
+        for campo in campos_log:
+            if hasattr(log_original, campo):
+                setattr(log_copia, campo, getattr(log_original, campo))
+
+        log_copia.uuid_original = reclamacao_copia.uuid
+        log_copia.uuid = uuid_generator.uuid4()
+        log_copia.save()
+
+        LogSolicitacoesUsuario.objects.filter(id=log_copia.id).update(
+            criado_em=log_original.criado_em
+        )
+        return log_copia
+
+    @staticmethod
+    def _copiar_anexos_log(log_original, log_copia):
+        if not (
+            hasattr(log_original, "anexos") and hasattr(log_original.anexos, "all")
+        ):
+            return
+
+        for anexo_original in log_original.anexos.all():
+            anexo_copia = AnexoLogSolicitacoesUsuario()
+            anexo_copia.nome = anexo_original.nome
+            anexo_copia.arquivo = anexo_original.arquivo
+            anexo_copia.log = log_copia
+            anexo_copia.uuid = uuid_generator.uuid4()
+            anexo_copia.save()
+
+            if hasattr(anexo_original, "criado_em"):
+                AnexoLogSolicitacoesUsuario.objects.filter(id=anexo_copia.id).update(
+                    criado_em=anexo_original.criado_em
+                )
+
+    @staticmethod
+    def _copiar_anexos_reclamacao(reclamacao_original, reclamacao_copia):
+        for anexo_original in reclamacao_original.anexos.all():
+            anexo_copia = AnexoReclamacaoDeProduto()
+            anexo_copia.nome = anexo_original.nome
+            anexo_copia.arquivo = anexo_original.arquivo
+            anexo_copia.reclamacao_de_produto = reclamacao_copia
+            anexo_copia.uuid = uuid_generator.uuid4()
+            anexo_copia.save()
+
+            if hasattr(anexo_original, "criado_em"):
+                AnexoReclamacaoDeProduto.objects.filter(id=anexo_copia.id).update(
+                    criado_em=anexo_original.criado_em
+                )
+
+    def cria_copia_homologacao_produto(self, produto_copia, terceirizada):
         hom_copia = deepcopy(self)
         hom_copia.id = None
         hom_copia.status = None
         hom_copia.uuid = uuid_generator.uuid4()
         hom_copia.produto = produto_copia
         hom_copia.eh_copia = True
+        hom_copia.rastro_terceirizada = terceirizada
         hom_copia.save()
         hom_copia.status = self.status
         hom_copia.save()
@@ -679,11 +792,14 @@ class HomologacaoProduto(
                 criado_em=log.criado_em
             )
 
+        for reclamacao in self.reclamacoes.all():
+            self.cria_copia_reclamacao(reclamacao, hom_copia)
+
         return hom_copia
 
-    def cria_copia(self):
+    def cria_copia(self, terceirizada):
         produto_copia = self.cria_copia_produto()
-        hom_copia = self.cria_copia_homologacao_produto(produto_copia)
+        hom_copia = self.cria_copia_homologacao_produto(produto_copia, terceirizada)
         return hom_copia
 
     def cria_log_editais_suspensos(
