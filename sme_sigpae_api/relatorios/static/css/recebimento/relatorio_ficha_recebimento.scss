@@ -1,0 +1,230 @@
+@import "../variaveis";
+
+@page {
+  padding-top: 6.1cm;
+  @top-center {
+    content: element(cabecalho);
+    width: 100%;
+  }
+ }
+
+
+ @page :nth(n+2) {
+  margin-top: 4.8cm;
+  padding-top: 1cm;
+}
+
+@page :nth(1) {
+  margin-top: -0.5cm;
+  padding-top: 5.8cm;
+}
+
+html{
+  -webkit-font-smoothing: antialiased;
+}
+
+header {
+ position: running(cabecalho);
+ margin-top: 5.6cm;
+}
+
+.table {
+  border: 1px solid $cinza-quase-claro;
+  background: $branco;
+}
+
+.obj {
+  background: #F3F3F3;
+}
+
+.page-content {
+  margin: 0 0.5em;
+}
+
+.page-container {
+  padding-right: 0em;
+  padding-left: 0em;
+  font-size: 13px;
+  font-style: normal;
+  line-height: 16px;
+  color: #42474A;
+}
+
+.page-container .title {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 18px;
+  letter-spacing: 0.01em;
+  text-align: left;
+}
+
+.page-container .main-title{
+  color: $verde-escuro;
+  font-size: 14px;
+}
+
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 2px solid #C0C0C0;
+  margin: 2em 0;
+  padding: 0;
+}
+
+.logo-sigpae{
+  display: flex;
+  align-content: center;
+  align-items: center;
+  img {
+    max-width:80px;
+    max-height:70px;
+    width: auto;
+    height: auto;
+  }
+}
+
+.insucesso-container {
+  font-size: 14px;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 19px;
+  text-align: justify;
+  img {
+    float: left;
+    max-width:400px;
+    max-height:200px;
+    width: auto;
+    height: auto;
+    margin-right: 16px;
+  }
+}
+
+.container-imagem {
+  height: 200px;
+}
+
+.text-footer-insucesso {
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 14px;
+  text-align: justify;
+  display: block;
+  padding-top: 12px;
+}
+
+table{
+  font-size: 12px;
+  border-collapse: collapse;
+
+  .nome-alimento{
+    font-weight: normal;
+    margin-top: 8px;
+  }
+}
+
+.imagem{
+  text-align: center;
+}
+
+.imagem-ocorrencia{
+  max-width: 9cm;
+  max-height: 9cm;
+  padding: 3px;
+}
+
+.tabela-imagem{
+  width: 100%;
+
+  td{
+    padding-bottom: 30px;
+  }
+}
+
+.titulo{
+  color: $verde-escuro;
+  font-size: 11px;
+  font-weight: bold;
+  padding-bottom: 0.5em;
+}
+
+.campo{
+  border-bottom: 1px solid #dddddd;
+  font-size: 11px;
+}
+
+
+
+.titulo-secao{
+  font-size: 15px;
+  color: $verde-escuro;
+}
+
+.separator{
+  background: #F5F5F5;
+  padding: 1em 1.6em;
+}
+
+
+.content{
+  padding-right: 2em;
+  padding-left: 2em;
+}
+
+.rodape-tabela{
+  font-size: 11px;
+}
+
+.checkbox-preenchido{
+  padding: 16px;
+  border: 1px $verde-escuro solid;
+  border-radius: 5px;
+
+  .check-verde{
+    color: $verde-escuro;
+    font-weight: bold;
+  }
+}
+
+.assinaturas{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  padding-top: 16px;
+
+  .logo-sigpae{
+    img {
+      max-width:60px;
+      max-height:60px;
+      width: auto;
+      height: auto;
+    }
+  }
+
+  .assinatura{
+    flex-basis: 49%;
+    padding-bottom: 16px;
+
+    .titulo-assinatura{
+      font-size: 12px;
+      color: $verde-escuro;
+      padding-bottom: 4px;
+    }
+
+    .assinatura-container{
+      height: 2.6cm;
+      border: 1px solid #A4A4A4;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      padding: 4px;
+    }
+
+    .texto-assinatura{
+      font-size: 11px;
+      font-weight: normal;
+      line-height: 13px;
+    }
+  }
+}
