@@ -7,6 +7,9 @@ from django.db.models import F, FloatField, Sum
 from django.template.loader import get_template, render_to_string
 
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
+from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
+    DocRecebimentoFichaDeRecebimentoSerializer,
+)
 
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
@@ -1819,6 +1822,51 @@ def formata_informacoes_ficha_tecnica(entidade):
         getattr(entidade, "telefone", getattr(entidade, "responsavel_telefone", None))
     )
     return cnpj, telefone
+
+
+def get_pdf_ficha_recebimento(request, ficha):
+    """
+    Gera o PDF da Ficha de Recebimento.
+
+    Parametros:
+        request: Objeto de requisição HTTP
+        ficha: Instância de FichaDeRecebimento
+
+    Retorno:
+        HttpResponse: Resposta HTTP com o PDF da Ficha de Recebimento
+    """
+
+    documentos_serializer = DocRecebimentoFichaDeRecebimentoSerializer(
+        ficha.documentos_recebimento.all(), many=True
+    )
+
+    html_string = render_to_string(
+        "recebimento/relatorio_ficha_recebimento.html",
+        {
+            "ficha": ficha,
+            "etapa": ficha.etapa,
+            "cronograma": ficha.etapa.cronograma,
+            "ficha_tecnica": ficha.etapa.cronograma.ficha_tecnica,
+            "documentos": documentos_serializer.data,
+            "veiculos": ficha.veiculos.all(),
+            "questoes_primarias": ficha.questaoficharecebimento_set.filter(
+                tipo_questao="PRIMARIA"
+            ),
+            "questoes_secundarias": ficha.questaoficharecebimento_set.filter(
+                tipo_questao="SECUNDARIA"
+            ),
+            "ocorrencias": ficha.ocorrencias.all(),
+            "arquivos": ", ".join(
+                [str(objeto.nome) for objeto in ficha.arquivos.all() if objeto.nome]
+            ),
+            "assinatura": ficha.logs.last(),
+        },
+    )
+    data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
+    return html_to_pdf_response(
+        html_string.replace("dt_file", data_arquivo),
+        f"ficha_recebimento_{ficha.etapa.cronograma.numero}.pdf",
+    )
 
 
 def cabecalho_reclamacao_produto(filtros: dict) -> dict:
