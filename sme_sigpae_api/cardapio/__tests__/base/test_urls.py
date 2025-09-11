@@ -99,3 +99,116 @@ def test_endpoint_horario_do_combo_tipo_alimentacao_unidade_escolar(
         "codigo_eol": "000546",
         "quantidade_alunos": 0,
     }
+
+
+def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_emef(
+    client_autenticado_vinculo_escola, vinculo_alimentacao_periodo_escolar_emef
+):
+    response = client_autenticado_vinculo_escola.get(
+        f"/{ENDPOINT_VINCULOS_ALIMENTACAO}/escola/{vinculo_alimentacao_periodo_escolar_emef.uuid}/?ano=2025"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()["results"]
+    assert len(json) == 4
+    assert json[0]["periodo_escolar"]["nome"] == "MANHA"
+    assert json[1]["periodo_escolar"]["nome"] == "TARDE"
+    assert json[2]["periodo_escolar"]["nome"] == "INTEGRAL"
+    assert json[3]["periodo_escolar"]["nome"] == "NOITE"
+
+
+def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_emei(
+    client_autenticado_vinculo_escola, vinculo_alimentacao_periodo_escolar_emei
+):
+    response = client_autenticado_vinculo_escola.get(
+        f"/{ENDPOINT_VINCULOS_ALIMENTACAO}/escola/{vinculo_alimentacao_periodo_escolar_emei.uuid}/?ano=2025"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()["results"]
+    assert len(json) == 3
+    assert json[0]["periodo_escolar"]["nome"] == "MANHA"
+    assert json[1]["periodo_escolar"]["nome"] == "TARDE"
+    assert json[2]["periodo_escolar"]["nome"] == "INTEGRAL"
+
+
+def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_cei(
+    client_autenticado_vinculo_escola, vinculo_alimentacao_periodo_escolar_cei
+):
+    response = client_autenticado_vinculo_escola.get(
+        f"/{ENDPOINT_VINCULOS_ALIMENTACAO}/escola/{vinculo_alimentacao_periodo_escolar_cei.uuid}/?ano=2025"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()["results"]
+    assert len(json) == 4
+    assert json[0]["periodo_escolar"]["nome"] == "INTEGRAL"
+    assert json[1]["periodo_escolar"]["nome"] == "PARCIAL"
+    assert json[2]["periodo_escolar"]["nome"] == "MANHA"
+    assert json[3]["periodo_escolar"]["nome"] == "TARDE"
+
+
+def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_cieja(
+    client_autenticado_vinculo_escola, vinculo_alimentacao_periodo_escolar_cieja
+):
+    response = client_autenticado_vinculo_escola.get(
+        f"/{ENDPOINT_VINCULOS_ALIMENTACAO}/escola/{vinculo_alimentacao_periodo_escolar_cieja.uuid}/?ano=2025"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()["results"]
+    assert len(json) == 5
+    assert json[0]["periodo_escolar"]["nome"] == "MANHA"
+    assert json[1]["periodo_escolar"]["nome"] == "INTERMEDIARIO"
+    assert json[2]["periodo_escolar"]["nome"] == "TARDE"
+    assert json[3]["periodo_escolar"]["nome"] == "VESPERINO"
+    assert json[4]["periodo_escolar"]["nome"] == "NOITE"
+
+
+def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_ceu_gestao(
+    client_autenticado_vinculo_escola, vinculo_alimentacao_periodo_escolar_ceu_gestao
+):
+    response = client_autenticado_vinculo_escola.get(
+        f"/{ENDPOINT_VINCULOS_ALIMENTACAO}/escola/{vinculo_alimentacao_periodo_escolar_ceu_gestao.uuid}/?ano=2025"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()["results"]
+    assert len(json) == 4
+    assert json[0]["periodo_escolar"]["nome"] == "MANHA"
+    assert json[1]["periodo_escolar"]["nome"] == "TARDE"
+    assert json[2]["periodo_escolar"]["nome"] == "INTEGRAL"
+    assert json[3]["periodo_escolar"]["nome"] == "NOITE"
+
+
+def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_emebs(
+    client_autenticado_vinculo_escola, vinculo_alimentacao_periodo_escolar_emebs
+):
+    response = client_autenticado_vinculo_escola.get(
+        f"/{ENDPOINT_VINCULOS_ALIMENTACAO}/escola/{vinculo_alimentacao_periodo_escolar_emebs.uuid}/?ano=2025"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()["results"]
+    assert len(json) == 4
+    assert json[0]["periodo_escolar"]["nome"] == "MANHA"
+    assert json[1]["periodo_escolar"]["nome"] == "TARDE"
+    assert json[2]["periodo_escolar"]["nome"] == "INTEGRAL"
+    assert json[3]["periodo_escolar"]["nome"] == "NOITE"
+
+
+def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_cemei(
+    client_autenticado_vinculo_escola, vinculo_alimentacao_periodo_escolar_cemei
+):
+    response = client_autenticado_vinculo_escola.get(
+        f"/{ENDPOINT_VINCULOS_ALIMENTACAO}/escola/{vinculo_alimentacao_periodo_escolar_cemei.uuid}/?ano=2025"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()["results"]
+    assert len(json) == 4
+
+    assert json[0]["tipo_unidade_escolar"]["iniciais"] == "CEI DIRET"
+    assert json[0]["periodo_escolar"]["nome"] == "INTEGRAL"
+
+    assert json[1]["tipo_unidade_escolar"]["iniciais"] == "EMEI"
+    assert json[1]["periodo_escolar"]["nome"] == "MANHA"
+
+    assert json[1]["tipo_unidade_escolar"]["iniciais"] == "EMEI"
+    assert json[2]["periodo_escolar"]["nome"] == "TARDE"
+
+    assert json[1]["tipo_unidade_escolar"]["iniciais"] == "EMEI"
+    assert json[3]["periodo_escolar"]["nome"] == "INTEGRAL"
