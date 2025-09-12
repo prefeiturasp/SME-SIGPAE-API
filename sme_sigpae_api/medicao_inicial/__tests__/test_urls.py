@@ -1577,8 +1577,11 @@ def test_periodos_escola_cemei_com_alunos_emei(
         f"?mes={hoje.month}&ano={hoje.year}"
     )
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 2
-    assert set(response.data["results"]) == set(["Infantil TARDE", "Infantil MANHA"])
+    assert len(response.data["results"]) == 3
+    dados = response.data["results"]
+    assert dados[0] == "Infantil MANHA"
+    assert dados[1] == "Infantil TARDE"
+    assert dados[2] == "Infantil INTEGRAL"
 
 
 def test_periodos_permissoes_lancamentos_especiais_mes_ano(
