@@ -1,7 +1,10 @@
 import json
 from datetime import date, timedelta
+from io import BytesIO
 
 from faker import Faker
+from freezegun import freeze_time
+from PyPDF4 import PdfFileReader
 from rest_framework import status
 
 from sme_sigpae_api.dados_comuns.fluxo_status import FichaDeRecebimentoWorkflow
@@ -10,10 +13,6 @@ from sme_sigpae_api.recebimento.models import (
     QuestaoConferencia,
     QuestoesPorProduto,
 )
-
-from PyPDF4 import PdfFileReader
-from io import BytesIO
-from freezegun import freeze_time
 
 fake = Faker("pt_BR")
 
@@ -352,7 +351,9 @@ def test_ficha_recebimento_list_filter_status(
 
 
 @freeze_time("2025-09-09")
-def test_gerar_pdf_ficha_recebimento(client_autenticado_qualidade, ficha_de_recebimento_factory):
+def test_gerar_pdf_ficha_recebimento(
+    client_autenticado_qualidade, ficha_de_recebimento_factory
+):
     """Testa a geração de PDF para uma ficha de recebimento existente."""
 
     ficha_completa = ficha_de_recebimento_factory(
@@ -360,43 +361,45 @@ def test_gerar_pdf_ficha_recebimento(client_autenticado_qualidade, ficha_de_rece
     )
 
     response = client_autenticado_qualidade.get(
-        f'/fichas-de-recebimento/{ficha_completa.uuid}/gerar-pdf-ficha/'
+        f"/fichas-de-recebimento/{ficha_completa.uuid}/gerar-pdf-ficha/"
     )
 
     cronograma = ficha_completa.etapa.cronograma
     empresa = cronograma.empresa
     ficha_tecnica = cronograma.ficha_tecnica
     etapa = ficha_completa.etapa
-    
+
     assert response.status_code == status.HTTP_200_OK
-    assert response['Content-Type'] == 'application/pdf'
-    assert f'filename="ficha_recebimento_{cronograma.numero}.pdf"' in response['Content-Disposition']
-    
+    assert response["Content-Type"] == "application/pdf"
+    assert (
+        f'filename="ficha_recebimento_{cronograma.numero}.pdf"'
+        in response["Content-Disposition"]
+    )
+
     pdf_reader = PdfFileReader(BytesIO(response.content))
     page = pdf_reader.pages[0]
     pdf_text = page.extractText()
-    
+
     assert "FICHA DE RECEBIMENTO" in pdf_text
 
     assert cronograma.numero in pdf_text
     assert cronograma.contrato.numero in pdf_text
     assert cronograma.contrato.ata in pdf_text
-    
+
     assert f"{empresa.nome_fantasia} - {empresa.razao_social}" in pdf_text
-    
+
     assert ficha_tecnica.produto.nome in pdf_text
     assert ficha_tecnica.marca.nome in pdf_text
-    
+
     assert f"Etapa {etapa.etapa} - Parte {etapa.parte}" in pdf_text
     assert ficha_tecnica.material_embalagem_primaria in pdf_text
-    assert ficha_tecnica.sistema_vedacao_embalagem_secundaria in pdf_text    
-    
+    assert ficha_tecnica.sistema_vedacao_embalagem_secundaria in pdf_text
 
 
 def test_gerar_pdf_ficha_nao_encontrada(client_autenticado_qualidade):
     """Testa a tentativa de gerar PDF para uma ficha que não existe."""
     response = client_autenticado_qualidade.get(
-        '/api/v1/fichas-de-recebimento/00000000-0000-0000-0000-000000000000/gerar-pdf-ficha/'
+        "/api/v1/fichas-de-recebimento/00000000-0000-0000-0000-000000000000/gerar-pdf-ficha/"
     )
-    
+
     assert response.status_code == status.HTTP_404_NOT_FOUND
