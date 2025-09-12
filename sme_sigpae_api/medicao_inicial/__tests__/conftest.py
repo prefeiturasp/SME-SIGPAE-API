@@ -2705,6 +2705,7 @@ def logs_alunos_matriculados_periodo_escola_cemei(escola_cemei):
     quantidades = [10, 20]
     periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
     periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
+    periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
     for quantidade in quantidades:
         baker.make(
             LogAlunosMatriculadosPeriodoEscola,
@@ -2717,6 +2718,13 @@ def logs_alunos_matriculados_periodo_escola_cemei(escola_cemei):
         LogAlunosMatriculadosPeriodoEscola,
         escola=escola_cemei,
         periodo_escolar=periodo_tarde,
+        quantidade_alunos=50,
+        tipo_turma=TipoTurma.REGULAR.name,
+    )
+    baker.make(
+        LogAlunosMatriculadosPeriodoEscola,
+        escola=escola_cemei,
+        periodo_escolar=periodo_integral,
         quantidade_alunos=50,
         tipo_turma=TipoTurma.REGULAR.name,
     )

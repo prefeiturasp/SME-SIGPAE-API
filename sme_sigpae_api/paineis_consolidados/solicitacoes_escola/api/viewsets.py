@@ -2,7 +2,7 @@ import datetime
 import unicodedata
 
 from dateutil.relativedelta import relativedelta
-from django.db.models import Q
+from django.db.models import Case, IntegerField, Q, Value, When
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -14,6 +14,7 @@ from sme_sigpae_api.cardapio.base.api.serializers import (
 from sme_sigpae_api.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from sme_sigpae_api.cardapio.utils import ordem_periodos
 from sme_sigpae_api.dados_comuns.permissions import PermissaoParaRecuperarDietaEspecial
 from sme_sigpae_api.escola.models import Escola, PeriodoEscolar
 from sme_sigpae_api.inclusao_alimentacao.models import GrupoInclusaoAlimentacaoNormal
@@ -257,10 +258,6 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
             quantidadeporperiodo__grupo_inclusao_normal__uuid__in=uuids_inclusoes_normais
         ).distinct()
         escola = Escola.objects.get(uuid=escola_uuid)
-
-        from django.db.models import Case, IntegerField, Value, When
-
-        from sme_sigpae_api.cardapio.utils import ordem_periodos
 
         ordem_personalizada = ordem_periodos(escola)
         condicoes_ordenacao = [
