@@ -186,6 +186,19 @@ def incluir_log_alunos_matriculados_cei(
     quantidade_alunos = int(QUANTIDADE_ALUNOS / faixas.count())
     for periodo in periodos:
         pe = PeriodoEscolar.objects.get(nome=periodo)
+        for dia in range(1, quantidade_dias_mes + 1):
+            log = LogAlunosMatriculadosPeriodoEscola(
+                escola=escola,
+                periodo_escolar=pe,
+                quantidade_alunos=quantidade_alunos * faixas.count(),
+                tipo_turma=TipoTurma.REGULAR.name
+            )
+            log.save()
+            data = datetime.date(ano, mes, dia)
+            LogAlunosMatriculadosPeriodoEscola.objects.filter(id=log.id).update(
+                criado_em=data
+            )
+        print(f"Logs do Período {periodo} cadastrados")
         for faixa in faixas:
             for dia in range(1, quantidade_dias_mes + 1):
                 data = datetime.date(ano, mes, dia)
