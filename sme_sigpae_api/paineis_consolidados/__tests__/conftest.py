@@ -778,6 +778,9 @@ def inclusoes_normais(
     escola,
     motivo_inclusao_normal,
     periodo_escolar_manha,
+    periodo_escolar_integral,
+    periodo_escolar_noite,
+    periodo_escolar_tarde,
     tipo_alimentacao_refeicao,
     tipo_alimentacao_lanche,
 ):
@@ -807,15 +810,45 @@ def inclusoes_normais(
         motivo=motivo_inclusao_normal,
         grupo_inclusao=grupo_inclusao_normal,
     )
-    qp = baker.make(
+    qp_manha = baker.make(
         "QuantidadePorPeriodo",
         numero_alunos=100,
         periodo_escolar=periodo_escolar_manha,
         grupo_inclusao_normal=grupo_inclusao_normal,
     )
-    qp.tipos_alimentacao.add(tipo_alimentacao_lanche)
-    qp.tipos_alimentacao.add(tipo_alimentacao_refeicao)
-    qp.save()
+    qp_manha.tipos_alimentacao.add(tipo_alimentacao_lanche)
+    qp_manha.tipos_alimentacao.add(tipo_alimentacao_refeicao)
+    qp_manha.save()
+
+    qp_tarde = baker.make(
+        "QuantidadePorPeriodo",
+        numero_alunos=100,
+        periodo_escolar=periodo_escolar_tarde,
+        grupo_inclusao_normal=grupo_inclusao_normal,
+    )
+    qp_tarde.tipos_alimentacao.add(tipo_alimentacao_lanche)
+    qp_tarde.tipos_alimentacao.add(tipo_alimentacao_refeicao)
+    qp_tarde.save()
+
+    qp_noite = baker.make(
+        "QuantidadePorPeriodo",
+        numero_alunos=100,
+        periodo_escolar=periodo_escolar_noite,
+        grupo_inclusao_normal=grupo_inclusao_normal,
+    )
+    qp_noite.tipos_alimentacao.add(tipo_alimentacao_lanche)
+    qp_noite.tipos_alimentacao.add(tipo_alimentacao_refeicao)
+    qp_noite.save()
+
+    qp_integral = baker.make(
+        "QuantidadePorPeriodo",
+        numero_alunos=100,
+        periodo_escolar=periodo_escolar_integral,
+        grupo_inclusao_normal=grupo_inclusao_normal,
+    )
+    qp_integral.tipos_alimentacao.add(tipo_alimentacao_lanche)
+    qp_integral.tipos_alimentacao.add(tipo_alimentacao_refeicao)
+    qp_integral.save()
 
 
 @pytest.fixture
@@ -962,6 +995,16 @@ def periodo_escolar_integral():
     return baker.make("PeriodoEscolar", nome="INTEGRAL")
 
 
+@pytest.fixture
+def periodo_escolar_tarde():
+    return baker.make("PeriodoEscolar", nome="TARDE")
+
+
+@pytest.fixture
+def periodo_escolar_noite():
+    return baker.make("PeriodoEscolar", nome="NOITE")
+
+
 @pytest.fixture()
 def inclusao_alimentacao_cei(
     motivo_inclusao_normal, escola, periodo_escolar_manha, periodo_escolar_integral
@@ -1009,6 +1052,8 @@ def suspensoes_alimentacao_cei(
     escola,
     periodo_escolar_manha,
     periodo_escolar_integral,
+    periodo_escolar_noite,
+    periodo_escolar_tarde,
     tipo_alimentacao_lanche,
     tipo_alimentacao_refeicao,
 ):
@@ -1186,16 +1231,33 @@ def kit_lanche_cemei():
     return kit_lanche_cemei
 
 
-@pytest.fixture
-def vinculo_periodo_alimentacao(escola, periodo_escolar_manha):
-    vinculo_alimentacao = baker.make(
+def cria_vinculo(escola, periodo, tipo_alimentacao):
+    vinculo = baker.make(
         "VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
         tipo_unidade_escolar=escola.tipo_unidade,
-        periodo_escolar=periodo_escolar_manha,
+        periodo_escolar=periodo,
     )
+    vinculo.tipos_alimentacao.add(tipo_alimentacao)
+    vinculo.save()
+    return vinculo
+
+
+@pytest.fixture
+def vinculo_periodo_alimentacao(
+    escola,
+    periodo_escolar_manha,
+    periodo_escolar_integral,
+    periodo_escolar_noite,
+    periodo_escolar_tarde,
+):
     tipo_alimentacao_refeicao = baker.make("TipoAlimentacao", nome="Refeição")
-    vinculo_alimentacao.tipos_alimentacao.add(tipo_alimentacao_refeicao)
-    vinculo_alimentacao.save()
+    for pe in [
+        periodo_escolar_manha,
+        periodo_escolar_integral,
+        periodo_escolar_noite,
+        periodo_escolar_tarde,
+    ]:
+        cria_vinculo(escola, pe, tipo_alimentacao_refeicao)
 
 
 @pytest.fixture

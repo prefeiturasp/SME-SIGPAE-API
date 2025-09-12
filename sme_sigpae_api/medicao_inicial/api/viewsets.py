@@ -17,6 +17,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet, ViewSet
 from workalendar.america import BrazilSaoPauloCity
 from xworkflows import InvalidTransitionError
 
+from sme_sigpae_api.cardapio.utils import ordem_periodos
 from sme_sigpae_api.medicao_inicial.services.relatorio_adesao import (
     obtem_resultados,
     valida_parametros_periodo_lancamento,
@@ -810,8 +811,6 @@ class SolicitacaoMedicaoInicialViewSet(
             periodos = sorted(
                 list(set([f"Infantil {log.periodo_escolar.nome}" for log in logs]))
             )
-            from sme_sigpae_api.cardapio.utils import ordem_periodos
-
             ordem_personalizada = ordem_periodos(escola).get("EMEI", {})
             retorno = sorted(
                 periodos,
