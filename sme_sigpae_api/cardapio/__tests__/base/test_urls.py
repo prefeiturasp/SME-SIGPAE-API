@@ -157,7 +157,7 @@ def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_cieja(
     assert json[0]["periodo_escolar"]["nome"] == "MANHA"
     assert json[1]["periodo_escolar"]["nome"] == "INTERMEDIARIO"
     assert json[2]["periodo_escolar"]["nome"] == "TARDE"
-    assert json[3]["periodo_escolar"]["nome"] == "VESPERINO"
+    assert json[3]["periodo_escolar"]["nome"] == "VESPERTINO"
     assert json[4]["periodo_escolar"]["nome"] == "NOITE"
 
 

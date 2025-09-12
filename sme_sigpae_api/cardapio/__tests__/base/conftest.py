@@ -157,7 +157,7 @@ def periodos_escolares():
         "NOITE",
         "PARCIAL",
         "INTERMEDIARIO",
-        "VESPERINO",
+        "VESPERTINO",
     ]:
         baker.make("PeriodoEscolar", nome=nome_periodo)
 
@@ -233,7 +233,7 @@ def vinculo_alimentacao_periodo_escolar_cemei(escolas, periodos_escolares):
 @pytest.fixture
 def vinculo_alimentacao_periodo_escolar_cieja(escolas, periodos_escolares):
     return _cria_vinculos(
-        "CIEJA", ["VESPERINO", "MANHA", "INTERMEDIARIO", "TARDE", "NOITE"]
+        "CIEJA", ["VESPERTINO", "MANHA", "INTERMEDIARIO", "TARDE", "NOITE"]
     )
 
 
