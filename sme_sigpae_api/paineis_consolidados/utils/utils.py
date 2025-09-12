@@ -51,25 +51,19 @@ def tratar_dias_duplicados(return_dict):
         obj_dias_iguais = [r for r in return_dict if r["dia"] == dia]
         if obj["dia"] not in dias_tratados:
             if len(obj_dias_iguais) > 1:
-                if any(
-                    "lanche_emergencial" in obj["alimentacoes"]
-                    for obj in obj_dias_iguais
-                ):
-                    numero_de_alunos = max(
-                        obj_dias_iguais, key=lambda obj: obj["numero_alunos"]
-                    )["numero_alunos"]
-                    novo_objeto = {
-                        "dia": dia,
-                        "periodo": obj["periodo"],
-                        "alimentacoes": ", ".join(
-                            [obj["alimentacoes"] for obj in obj_dias_iguais]
-                        ),
-                        "numero_alunos": numero_de_alunos,
-                        "inclusao_id_externo": None,
-                    }
-                    dict_tratado.append(novo_objeto)
-            else:
-                dict_tratado.append(obj)
+                numero_de_alunos = max(
+                    obj_dias_iguais, key=lambda obj: obj["numero_alunos"]
+                )["numero_alunos"]
+                novo_objeto = {
+                    "dia": dia,
+                    "periodo": obj["periodo"],
+                    "alimentacoes": ", ".join(
+                        [obj["alimentacoes"] for obj in obj_dias_iguais]
+                    ),
+                    "numero_alunos": numero_de_alunos,
+                    "inclusao_id_externo": None,
+                }
+            dict_tratado.append(novo_objeto)
             dias_tratados.append(obj["dia"])
     return dict_tratado
 
