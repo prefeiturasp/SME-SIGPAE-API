@@ -861,7 +861,7 @@ def dicionario_de_alunos_matriculados():
     tarde = baker.make(models.PeriodoEscolar, nome="TARDE")
     integral = baker.make(models.PeriodoEscolar, nome="INTEGRAL")
 
-    escola = baker.make(models.Escola, codigo_eol=fake.name()[:6])
+    escola = baker.make(models.Escola, codigo_eol=fake.random_number(digits=6))
     alunos_matriculados_integral = baker.make(
         models.AlunosMatriculadosPeriodoEscola,
         escola=escola,

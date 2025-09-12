@@ -91,8 +91,13 @@ def test_ceu_gestao_periodos_com_solicitacoes_autorizadas(
         f"?escola_uuid={escola.uuid}&mes=07&ano=2023"
     )
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.json()) == 1
-    assert response.json()[0]["nome"] == "MANHA"
+
+    dados = response.json()
+    assert len(dados) == 4
+    assert dados[0]["nome"] == "MANHA"
+    assert dados[1]["nome"] == "TARDE"
+    assert dados[2]["nome"] == "INTEGRAL"
+    assert dados[3]["nome"] == "NOITE"
 
 
 def test_inclusoes_normais_autorizadas(

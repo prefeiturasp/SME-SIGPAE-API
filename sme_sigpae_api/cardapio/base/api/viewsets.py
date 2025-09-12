@@ -1,6 +1,7 @@
 import datetime
 
 from django.core.exceptions import ValidationError
+from django.db.models import Case, IntegerField, Value, When
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -31,6 +32,7 @@ from sme_sigpae_api.cardapio.base.models import (
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from sme_sigpae_api.cardapio.utils import ordem_periodos
 from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.escola.api.viewsets import PeriodoEscolarViewSet
 from sme_sigpae_api.escola.constants import PERIODOS_ESPECIAIS_CEMEI
@@ -169,6 +171,7 @@ class VinculoTipoAlimentacaoViewSet(
                     uuid__in=list(response.data["periodos"].values())
                 )
         periodos_para_filtrar = escola.periodos_escolares(ano)
+
         if periodos_escolares_inclusao_continua:
             periodos_para_filtrar = (
                 periodos_para_filtrar | periodos_escolares_inclusao_continua
@@ -182,10 +185,6 @@ class VinculoTipoAlimentacaoViewSet(
         periodos_para_filtrar = self.trata_inclusao_continua_medicao_inicial(
             request, escola, ano
         )
-
-        from django.db.models import Case, IntegerField, Value, When
-
-        from sme_sigpae_api.cardapio.utils import ordem_periodos
 
         ordem_personalizada = ordem_periodos(escola)
 
