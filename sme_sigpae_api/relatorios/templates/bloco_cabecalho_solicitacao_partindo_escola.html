@@ -27,6 +27,10 @@
       <div>Tipo de gestão</div>
       <div>{{ escola.tipo_gestao.nome }}</div>
     </div>
+    <div class="info w-25">
+      <div>Empresa</div>
+      <div><strong>{{ solicitacao.rastro_terceirizada.nome_fantasia }}</strong></div>
+    </div>
   </div>
   {% if solicitacao.tipo_solicitacao != 'COMUM'%}
   <div class="row id-pedido">
