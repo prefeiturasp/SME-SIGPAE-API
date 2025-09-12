@@ -73,7 +73,7 @@ def test_ordem_periodos_cieja(escola_cieja):
         "MANHA": 1,
         "INTERMEDIARIO": 2,
         "TARDE": 3,
-        "VESPERINO": 4,
+        "VESPERTINO": 4,
         "NOITE": 5,
     }
     periodos = ordem_periodos(escola_cieja)
@@ -81,7 +81,7 @@ def test_ordem_periodos_cieja(escola_cieja):
 
 
 def test_ordem_periodos_emebs(escola_emebs):
-    esperado = {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3, "VESPERINO": 4, "NOITE": 5}
+    esperado = {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3, "VESPERTINO": 4, "NOITE": 5}
     periodos = ordem_periodos(escola_emebs)
     assert periodos == esperado
 
@@ -91,7 +91,7 @@ def test_ordem_periodos_cca(escola_cca):
         "MANHA": 1,
         "INTERMEDIARIO": 2,
         "TARDE": 3,
-        "VESPERINO": 4,
+        "VESPERTINO": 4,
         "INTEGRAL": 5,
         "NOITE": 6,
     }
