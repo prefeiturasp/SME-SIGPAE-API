@@ -47,7 +47,7 @@ def ordem_periodos(escola: Escola) -> dict[str, int]:
             "VESPERINO": 4,
             "NOITE": 5,
         },
-        "eh_emebs": {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3, "NOITE": 4},
+        "eh_emebs": {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3, "VESPERINO": 4, "NOITE": 5},
     }
 
     for attr, turnos in periodos_por_escola.items():
