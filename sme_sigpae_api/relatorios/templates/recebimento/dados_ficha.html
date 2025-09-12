@@ -251,34 +251,36 @@
               </span>
             </div>
           </div>
-          <div class="row pb-3">
-            <div class="col-6">
-              T °C(Área do Recebimento):
-              <span class="font-weight-bold">
-                {{veiculo.temperatura_recebimento}}
-              </span>
+          {% if ficha_tecnica.categoria == 'PERECIVEIS' %}
+            <div class="row pb-3">
+              <div class="col-6">
+                T °C(Área do Recebimento):
+                <span class="font-weight-bold">
+                  {{veiculo.temperatura_recebimento}}
+                </span>
+              </div>
+              <div class="col-6">
+                T °C(Produto):
+                <span class="font-weight-bold">
+                  {{veiculo.temperatura_produto}}
+                </span>
+              </div>
             </div>
-            <div class="col-6">
-              T °C(Produto):
-              <span class="font-weight-bold">
-                {{veiculo.temperatura_produto}}
-              </span>
+            <div class="row pb-3">
+              <div class="col-6">
+                Lacre:
+                <span class="font-weight-bold">
+                  {{veiculo.lacre}}
+                </span>
+              </div>
+              <div class="col-6">
+                Nº SIF, SISBI ou SISP:
+                <span class="font-weight-bold">
+                  {{veiculo.numero_sif_sisbi_sisp}}
+                </span>
+              </div>
             </div>
-          </div>
-          <div class="row pb-3">
-            <div class="col-6">
-              Lacre:
-              <span class="font-weight-bold">
-                {{veiculo.lacre}}
-              </span>
-            </div>
-            <div class="col-6">
-              Nº SIF, SISBI ou SISP:
-              <span class="font-weight-bold">
-                {{veiculo.numero_sif_sisbi_sisp}}
-              </span>
-            </div>
-          </div>
+          {% endif %}
           <div class="row pb-3">
             <div class="col-6">
               Nº Nota Fiscal:
@@ -321,14 +323,16 @@
               </span>
             </div>
           </div>
-          <div class="row pb-3">
-            <div class="col-12">
-              Termógrafo:
-              <span class="font-weight-bold">
-                {{veiculo.termografo|yesno:"SIM,NAO"}}
-              </span>
-            </div>
-          </div>
+          {% if ficha_tecnica.categoria == 'PERECIVEIS' %}
+            <div class="row pb-3">
+              <div class="col-12">
+                Termógrafo:
+                <span class="font-weight-bold">
+                  {{veiculo.termografo|yesno:"SIM,NAO"}}
+                </span>
+              </div>
+            </div>  
+          {% endif %}
           <hr/>
         {% endfor %}
         
@@ -385,7 +389,9 @@
           <div class="col-12">
             Observações da Conferência:
             <span class="font-weight-bold">
-              {{ficha.observacoes_conferencia}}
+              {% if ficha.observacoes_conferencia %}
+                {{ficha.observacoes_conferencia}}
+              {% endif %}
             </span>
           </div>
         </div>
