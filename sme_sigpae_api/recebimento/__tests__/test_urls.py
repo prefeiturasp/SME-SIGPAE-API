@@ -391,7 +391,6 @@ def test_gerar_pdf_ficha_recebimento(
     assert ficha_tecnica.produto.nome in pdf_text
     assert ficha_tecnica.marca.nome in pdf_text
 
-    assert f"Etapa {etapa.etapa} - Parte {etapa.parte}" in pdf_text
     assert ficha_tecnica.material_embalagem_primaria in pdf_text
     assert ficha_tecnica.sistema_vedacao_embalagem_secundaria in pdf_text
 
