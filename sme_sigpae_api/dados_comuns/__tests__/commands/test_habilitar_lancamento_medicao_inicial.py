@@ -1,3 +1,5 @@
+import io
+import os
 from unittest import mock
 
 import pytest
@@ -78,3 +80,23 @@ def test_executa_com_sucesso(
     mock_solicitar_lanche_emergencial.assert_called_once()
     mock_programas_e_projetos.assert_called_once()
     mock_etec.assert_called_once()
+
+
+@override_settings(DJANGO_ENV="production")
+@mock.patch(
+    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.obter_escolas"
+)
+def test_nao_executa_em_producao(mock_obter_escolas):
+    out = io.StringIO()
+    with mock.patch.dict(os.environ, {"DJANGO_ENV": "production"}):
+        call_command(
+            "habilitar_lancamento_medicao_inicial",
+            "--ano",
+            "2024",
+            "--mes",
+            "5",
+            stdout=out,
+        )
+
+    assert "SÓ PODE EXECUTAR EM DESENVOLVIMENTO" in out.getvalue()
+    mock_obter_escolas.assert_not_called()
