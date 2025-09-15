@@ -30,8 +30,12 @@ class Command(BaseCommand):
     help = "Habilita a tela de lançamento de Medição Inicial"
 
     def add_arguments(self, parser):
-        parser.add_argument("--ano", type=int, help="Ano obrigatório para a medição")
-        parser.add_argument("--mes", type=int, help="Mês obrigatório para a medição")
+        parser.add_argument(
+            "--ano", type=int, help="Ano obrigatório para a medição", required=True
+        )
+        parser.add_argument(
+            "--mes", type=int, help="Mês obrigatório para a medição", required=True
+        )
         parser.add_argument(
             "--data-kit-lanche",
             type=int,

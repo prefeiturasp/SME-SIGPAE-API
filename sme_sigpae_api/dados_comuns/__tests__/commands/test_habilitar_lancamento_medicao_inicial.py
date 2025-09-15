@@ -1,9 +1,10 @@
 import io
 import os
+from contextlib import redirect_stderr, redirect_stdout
 from unittest import mock
 
 import pytest
-from django.core.management import call_command
+from django.core.management import CommandError, call_command
 from django.test import override_settings
 
 pytestmark = pytest.mark.django_db
@@ -69,7 +70,11 @@ def test_executa_com_sucesso(
     mock_programas_e_projetos.return_value = "OK"
     mock_etec.return_value = "OK"
 
-    call_command("habilitar_lancamento_medicao_inicial", "--ano", "2024", "--mes", "5")
+    with open(os.devnull, "w") as devnull:
+        with redirect_stdout(devnull), redirect_stderr(devnull):
+            call_command(
+                "habilitar_lancamento_medicao_inicial", "--ano", "2024", "--mes", "5"
+            )
 
     mock_get_escola.assert_called_once()
     mock_obter_usuario.assert_called_once()
@@ -100,3 +105,61 @@ def test_nao_executa_em_producao(mock_obter_escolas):
 
     assert "SÓ PODE EXECUTAR EM DESENVOLVIMENTO" in out.getvalue()
     mock_obter_escolas.assert_not_called()
+
+
+@override_settings(DJANGO_ENV="development")
+def test_parametros_obrigatorios_nao_enviados_lanca_erro():
+    with pytest.raises(
+        CommandError, match="Error: the following arguments are required: --ano"
+    ):
+        call_command("habilitar_lancamento_medicao_inicial")
+
+    with pytest.raises(
+        CommandError, match="Error: the following arguments are required: --mes"
+    ):
+        call_command("habilitar_lancamento_medicao_inicial", "--ano", "2024")
+
+
+@override_settings(DJANGO_ENV="development")
+def test_mes_invalido_lanca_erro():
+    with pytest.raises(CommandError, match="Mês deve estar entre 1 e 12"):
+        call_command(
+            "habilitar_lancamento_medicao_inicial",
+            "--ano",
+            "2024",
+            "--mes",
+            "13",
+        )
+
+
+@override_settings(DJANGO_ENV="development")
+def test_data_kit_lanche_invalido_lanca_erro():
+    with pytest.raises(
+        CommandError, match="Dia do kit lanche deve estar entre 1 e 31 para 05/2024"
+    ):
+        call_command(
+            "habilitar_lancamento_medicao_inicial",
+            "--ano",
+            "2024",
+            "--mes",
+            "5",
+            "--data-kit-lanche",
+            "123",
+        )
+
+
+@override_settings(DJANGO_ENV="development")
+def test_data_lanche_emergencial_invalido_lanca_erro():
+    with pytest.raises(
+        CommandError,
+        match="Dia do lanche emergencial deve estar entre 1 e 31 para 05/2024",
+    ):
+        call_command(
+            "habilitar_lancamento_medicao_inicial",
+            "--ano",
+            "2024",
+            "--mes",
+            "5",
+            "--data-lanche-emergencial",
+            "123",
+        )
