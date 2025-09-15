@@ -921,3 +921,30 @@ def title_personalizado(value):
     if titled_value == "Manha":
         return "Manhã"
     return titled_value
+
+
+@register.simple_tag(takes_context=True)
+def next_section(context):
+    """
+    Incrementa o contador de seções e retorna o valor atualizado.
+    """
+    if "section_number" not in context:
+        context["section_number"] = 1
+    else:
+        context["section_number"] += 1
+    return context["section_number"]
+
+
+@register.filter
+def replace(value, arg):
+    """
+    Filtro de replace
+    Use da seguinte forma: `{{ "aaa"|replace:"a|b" }}`
+    a = valor original
+    b = valor que será substituído
+    """
+    if len(arg.split("|")) != 2:
+        return value
+
+    what, to = arg.split("|")
+    return value.replace(what, to)

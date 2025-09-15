@@ -1,13 +1,13 @@
 import pytest
 from rest_framework import status
 
-from sme_sigpae_api.escola.models import Lote, TipoUnidadeEscolar
-from sme_sigpae_api.perfil.models import Usuario
 from sme_sigpae_api.dados_comuns.constants import (
     PEDIDOS_CODAE,
     PEDIDOS_DRE,
     SEM_FILTRO,
 )
+from sme_sigpae_api.escola.models import Lote, TipoUnidadeEscolar
+from sme_sigpae_api.perfil.models import Usuario
 
 pytestmark = pytest.mark.django_db
 
@@ -48,7 +48,6 @@ def test_solicitacoes_diretoria_regional(
     assert "count" not in data
     assert "results" in data
     assert len(data["results"]) == 1
-
 
 
 def test_solicitacoes_codae(
@@ -123,9 +122,8 @@ def test_minhas_solicitacoes(
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()["results"]) == 1
 
-def test_url_solicitacoes_kit_lanche_cei_avulsa_codae(
-    client_autenticado_da_codae
-):
+
+def test_url_solicitacoes_kit_lanche_cei_avulsa_codae(client_autenticado_da_codae):
     response = client_autenticado_da_codae.get(
         f"/solicitacoes-kit-lanche-cei-avulsa/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
     )
@@ -134,11 +132,10 @@ def test_url_solicitacoes_kit_lanche_cei_avulsa_codae(
     assert "next" not in data
     assert "count" not in data
     assert "results" in data
-    assert isinstance(data["results"], list)   
+    assert isinstance(data["results"], list)
 
-def test_url_solicitacoes_kit_lanche_cei_avulsa_dre(
-    client_autenticado_da_dre
-):
+
+def test_url_solicitacoes_kit_lanche_cei_avulsa_dre(client_autenticado_da_dre):
     response = client_autenticado_da_dre.get(
         f"/solicitacoes-kit-lanche-cei-avulsa/{PEDIDOS_DRE}/{SEM_FILTRO}/"
     )
@@ -147,4 +144,4 @@ def test_url_solicitacoes_kit_lanche_cei_avulsa_dre(
     assert "next" not in data
     assert "count" not in data
     assert "results" in data
-    assert isinstance(data["results"], list)   
+    assert isinstance(data["results"], list)

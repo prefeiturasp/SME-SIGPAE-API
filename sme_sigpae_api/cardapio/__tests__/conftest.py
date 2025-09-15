@@ -539,3 +539,58 @@ def escola_com_horario_vinculo_alimentacao(
         tipo_alimentacao=tipo_alimentacao,
     )
     return escola
+
+
+@pytest.fixture
+def escola_emei():
+    escola = baker.make(
+        "Escola",
+        nome="EMEI JOAO MENDES",
+        codigo_eol="001546",
+        tipo_unidade=baker.make("TipoUnidadeEscolar", iniciais="EMEI"),
+    )
+    return escola
+
+
+@pytest.fixture
+def escola_ceu_gestao():
+    escola = baker.make(
+        "Escola",
+        nome="CEU GESTAO JOAO MENDES",
+        codigo_eol="011546",
+        tipo_unidade=baker.make("TipoUnidadeEscolar", iniciais="CEU GESTAO"),
+    )
+    return escola
+
+
+@pytest.fixture
+def escola_cieja():
+    escola = baker.make(
+        "Escola",
+        nome="CIEJA JOAO MENDES",
+        codigo_eol="111546",
+        tipo_unidade=baker.make("TipoUnidadeEscolar", iniciais="CIEJA"),
+    )
+    return escola
+
+
+@pytest.fixture
+def escola_emebs():
+    escola = baker.make(
+        "Escola",
+        nome="EMEBS JOAO MENDES",
+        codigo_eol="211546",
+        tipo_unidade=baker.make("TipoUnidadeEscolar", iniciais="EMEBS"),
+    )
+    return escola
+
+
+@pytest.fixture
+def escola_cca():
+    escola = baker.make(
+        "Escola",
+        nome="CCA JOAO MENDES",
+        codigo_eol="121546",
+        tipo_unidade=baker.make("TipoUnidadeEscolar", iniciais="CCA"),
+    )
+    return escola

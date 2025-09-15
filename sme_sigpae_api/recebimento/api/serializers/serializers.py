@@ -280,6 +280,7 @@ class FichaDeRecebimentoDetalharSerializer(serializers.ModelSerializer):
             "observacoes_conferencia",
             "veiculos",
             "questoes",
+            "houve_ocorrencia",
             "ocorrencias",
             "arquivos",
         )
