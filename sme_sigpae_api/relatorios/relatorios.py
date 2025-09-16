@@ -1907,3 +1907,10 @@ def cabecalho_reclamacao_produto(filtros: dict) -> dict:
     elif not data_inicial and data_final:
         cabecalho["periodo"] = f"Até {data_final}"
     return cabecalho
+
+
+def relatorio_reclamacao_produtos_excel(
+    produtos: list[dict], quantidade_reclamacoes: int, filtros: dict
+) -> bytes:
+
+    return None
