@@ -3,14 +3,15 @@ from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework import status
 
+from sme_sigpae_api.dados_comuns.constants import (
+    PEDIDOS_CODAE,
+    SEM_FILTRO,
+)
+
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import (
     PedidoAPartirDaDiretoriaRegionalWorkflow,
     PedidoAPartirDaEscolaWorkflow,
-)
-from sme_sigpae_api.dados_comuns.constants import (
-    PEDIDOS_CODAE,
-    SEM_FILTRO,
 )
 from ..models import SolicitacaoKitLancheAvulsa, SolicitacaoKitLancheUnificada
 
@@ -976,9 +977,8 @@ def test_url_endpoint_solicitacoes_kit_lanche_avulsa_inicio_fluxo_erro_transicao
         == "Erro de transição de estado: Transition 'inicia_fluxo' isn't available from state 'DRE_A_VALIDAR'."
     )
 
-def test_url_solicitacoes_kit_lanche_unificada_codae(
-    client_autenticado_da_codae
-):
+
+def test_url_solicitacoes_kit_lanche_unificada_codae(client_autenticado_da_codae):
     response = client_autenticado_da_codae.get(
         f"/{ENDPOINT_UNIFICADO}/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
     )
@@ -987,4 +987,4 @@ def test_url_solicitacoes_kit_lanche_unificada_codae(
     assert "next" not in data
     assert "count" not in data
     assert "results" in data
-    assert isinstance(data["results"], list)   
+    assert isinstance(data["results"], list)

@@ -2,7 +2,7 @@ import datetime
 import unicodedata
 
 from dateutil.relativedelta import relativedelta
-from django.db.models import Q
+from django.db.models import Case, IntegerField, Q, Value, When
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -14,6 +14,7 @@ from sme_sigpae_api.cardapio.base.api.serializers import (
 from sme_sigpae_api.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from sme_sigpae_api.cardapio.utils import ordem_periodos
 from sme_sigpae_api.dados_comuns.permissions import PermissaoParaRecuperarDietaEspecial
 from sme_sigpae_api.escola.models import Escola, PeriodoEscolar
 from sme_sigpae_api.inclusao_alimentacao.models import GrupoInclusaoAlimentacaoNormal
@@ -257,12 +258,26 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
             quantidadeporperiodo__grupo_inclusao_normal__uuid__in=uuids_inclusoes_normais
         ).distinct()
         escola = Escola.objects.get(uuid=escola_uuid)
+
+        ordem_personalizada = ordem_periodos(escola)
+        condicoes_ordenacao = [
+            When(periodo_escolar__nome=nome, then=Value(prioridade))
+            for nome, prioridade in ordem_personalizada.items()
+        ]
         vinculos = (
             VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
                 periodo_escolar__in=periodos_escolares_inclusoes,
                 ativo=True,
                 tipo_unidade_escolar=escola.tipo_unidade,
-            ).order_by("periodo_escolar__posicao")
+            )
+            .annotate(
+                ordem_personalizada=Case(
+                    *condicoes_ordenacao,
+                    default=Value(99),  # Valor alto para períodos não listados
+                    output_field=IntegerField(),
+                )
+            )
+            .order_by("ordem_personalizada")
         )
 
         return Response(

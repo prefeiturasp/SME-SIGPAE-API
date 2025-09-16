@@ -105,7 +105,9 @@ class FichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
         queryset=Terceirizada.objects.all(),
     )
     fabricante = FabricanteFichaTecnicaCreateSerializer(required=False, allow_null=True)
-    envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(required=False, allow_null=True)
+    envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(
+        required=False, allow_null=True
+    )
     prazo_validade = serializers.CharField(required=True, allow_blank=True)
     numero_registro = serializers.CharField(required=False, allow_blank=True)
     agroecologico = serializers.BooleanField(required=False)

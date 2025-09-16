@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from sme_sigpae_api.dados_comuns.helpers_autenticidade import (
     verificar_autenticidade_usuario,
 )
+from sme_sigpae_api.relatorios.relatorios import get_pdf_ficha_recebimento
 
 from ...dados_comuns.api.paginations import DefaultPagination
 from ...pre_recebimento.cronograma_entrega.models import Cronograma
@@ -195,3 +196,8 @@ class FichaRecebimentoModelViewSet(
 
         output_serializer = FichaDeRecebimentoSerializer(instance)
         return Response(output_serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["GET"], url_path="gerar-pdf-ficha")
+    def gerar_pdf_ficha(self, request, uuid=None):
+        ficha = self.get_object()
+        return get_pdf_ficha_recebimento(request, ficha)

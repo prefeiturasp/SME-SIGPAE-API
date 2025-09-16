@@ -39,7 +39,7 @@
   </div>
   <div class="col-3">
     <p>Empresa:</p>
-    <p><b>{{ escola.lote.terceirizada.nome }}</b></p>
+    <p><b>{{ solicitacao.rastro_terceirizada.nome_fantasia }}</b></p>
   </div>
 </div>
 <div class="conteudo tabela-sem-borda">
@@ -66,7 +66,11 @@
           <td></td>
           <td>Referência:</td>
           <td>Aplicar em:</td>
-          <td></td>
+          <td>
+            {% if solicitacao.rastro_escola.eh_cemei %}
+            Alunos
+            {% endif %}
+          </td>
         </tr>
         </thead>
         <tbody>
@@ -75,7 +79,11 @@
           <td></td>
           <td>{{ data_de|date:"d/m/Y" }}</td>
           <td>{{ data_para|date:"d/m/Y" }}</td>
-          <td></td>
+          <td>
+            {% if solicitacao.rastro_escola.eh_cemei %}
+            {{ solicitacao.alunos_da_cemei }}
+            {% endif %}
+          </td>
         </tr>
         {% if solicitacao.data_de_inversao_2 %}
         <tr>
@@ -83,7 +91,11 @@
           <td></td>
           <td>{{ solicitacao.data_de_inversao_2|date:"d/m/Y" }}</td>
           <td>{{ solicitacao.data_para_inversao_2|date:"d/m/Y" }}</td>
-          <td></td>
+          <td>
+            {% if solicitacao.rastro_escola.eh_cemei %}
+            {{ solicitacao.alunos_da_cemei_2 }}
+            {% endif %}
+          </td>
         </tr>
         {% endif %}
         </tbody>
