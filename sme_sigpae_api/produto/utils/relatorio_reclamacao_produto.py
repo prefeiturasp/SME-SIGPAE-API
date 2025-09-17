@@ -90,6 +90,13 @@ def _gerar_subtitulo(filtros, quantidade_reclamacoes):
 
 
 def build_xlsx_reclamacao(output, dados, titulo, subtitulo, colunas):
+    LINHA_0 = 0
+    LINHA_1 = 1
+    LINHA_2 = 2
+    LINHA_3 = 3
+
+    ALTURA_COLUNA_30 = 30
+    ALTURA_COLUNA_50 = 50
 
     nome_aba = "Relatório Reclamação Produto"
     with pd.ExcelWriter(output, engine="xlsxwriter") as xlwriter:
@@ -97,5 +104,16 @@ def build_xlsx_reclamacao(output, dados, titulo, subtitulo, colunas):
         df.to_excel(xlwriter, nome_aba, index=False)
         workbook = xlwriter.book
         worksheet = xlwriter.sheets[nome_aba]
-
+        
+        numero_colunas = len(df.columns)
+        worksheet.set_row(LINHA_0, ALTURA_COLUNA_50)
+        worksheet.set_row(LINHA_1, ALTURA_COLUNA_30)
+        worksheet.set_column("A:N", ALTURA_COLUNA_30)
+        worksheet.merge_range(0, 0, 0, numero_colunas, titulo)
+        worksheet.merge_range(LINHA_1, 0, LINHA_2, numero_colunas, subtitulo)
+        worksheet.insert_image(
+            "A1", "sme_sigpae_api/static/images/logo-sigpae-light.png"
+        )
+            
+        df.reset_index(drop=True, inplace=True)
     return output.seek(0)
