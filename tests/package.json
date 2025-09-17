@@ -1,0 +1,27 @@
+{
+	"scripts": {
+		"lint": "eslint .",
+		"lint:fix": "eslint cypress/**/**/*.js --fix",
+		"lint:debug": "eslint --debug cypress/**/**/*.js",
+		"format": "prettier --write .",
+		"e2e": "cypress run --reporter mocha-allure-reporter",
+		"report:allure": "allure generate allure-results --clean -o allure-report && allure open  allure-report",
+		"test:allure": "npm run e2e && npm run report:allure"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9.16.0",
+		"@shelex/cypress-allure-plugin": "^2.40.2",
+		"cucumber": "^6.0.7",
+		"cypress": "^13.16.1",
+		"cypress-cucumber-preprocessor": "^4.3.1",
+		"cypress-postgres": "^1.1.1",
+		"cypress-postgresql": "^1.0.8",
+		"dayjs": "^1.11.13",
+		"dotenv": "^16.4.7",
+		"eslint": "^9.16.0",
+		"eslint-plugin-cypress": "^4.1.0",
+		"globals": "^15.13.0",
+		"mocha-allure-reporter": "^1.4.0",
+		"prettier": "^3.4.1"
+	}
+}
