@@ -1144,9 +1144,26 @@ class RelatorioProdutosSuspensosSerializer(serializers.ModelSerializer):
         fields = ("uuid", "nome", "marca", "fabricante", "edital", "data_cadastro")
 
 
+class ProdutoReclamacaoExcelSerializer(serializers.ModelSerializer):
+    marca = MarcaSimplesSerializer()
+    fabricante = FabricanteSimplesSerializer()
+    id_externo = serializers.CharField()
+
+    class Meta:
+        model = Produto
+        fields = (
+            "uuid",
+            "nome",
+            "marca",
+            "fabricante",
+            "id_externo",
+            "criado_em",
+        )
+
+
 class HomologacaoReclamacaoExcelSerializer(serializers.ModelSerializer):
     status_titulo = serializers.CharField(source="status.state.title")
-    rastro_terceirizada = TerceirizadaSimplesSerializer()
+    produto = ProdutoReclamacaoExcelSerializer()
 
     class Meta:
         model = HomologacaoProduto
@@ -1156,9 +1173,8 @@ class HomologacaoReclamacaoExcelSerializer(serializers.ModelSerializer):
             "status",
             "id_externo",
             "criado_em",
-            "reclamacoes",
             "status_titulo",
-            "rastro_terceirizada",
+            "produto",
         )
 
 
