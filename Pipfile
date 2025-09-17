@@ -83,7 +83,7 @@ django-simple-email-confirmation = {editable = true, ref = "1.0", git = "https:/
 gunicorn="==23.0.0"  # https://github.com/benoitc/gunicorn
 tornado="==6.5.2"    # http://www.tornadoweb.org/en/stable/
 sentry-sdk = "==2.38.0"
-django-prometheus = "==2.3.1"
+django-prometheus = "==2.4.1"
 # Relatórios
 weasyprint = "==52"
 django-sass-processor = "==1.4.1"
