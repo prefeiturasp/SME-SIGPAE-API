@@ -1,6 +1,7 @@
 import datetime
 import io
 
+import numpy as np
 import pandas as pd
 
 
@@ -83,7 +84,7 @@ def _gerar_subtitulo(filtros, quantidade_reclamacoes):
 
     subtitulo = f"Total de Reclamações de produtos para os editais selecionados: {quantidade_reclamacoes} | "
     if periodo:
-        subtitulo += f"Período: {periodo} |"
+        subtitulo += f"Período: {periodo} | "
     subtitulo += f"Data de Extração do Relatório: {datetime.datetime.now().date().strftime("%d/%m/%Y")}"
 
     return subtitulo
@@ -101,19 +102,36 @@ def build_xlsx_reclamacao(output, dados, titulo, subtitulo, colunas):
     nome_aba = "Relatório Reclamação Produto"
     with pd.ExcelWriter(output, engine="xlsxwriter") as xlwriter:
         df = pd.DataFrame(dados)
+        df_auxiliar = pd.DataFrame([[np.nan] * len(df.columns)], columns=df.columns)
+        df = pd.concat([df_auxiliar, df], ignore_index=True)
+        df = pd.concat([df_auxiliar, df], ignore_index=True)
+        df = pd.concat([df_auxiliar, df], ignore_index=True)
         df.to_excel(xlwriter, nome_aba, index=False)
         workbook = xlwriter.book
         worksheet = xlwriter.sheets[nome_aba]
-        
+
         numero_colunas = len(df.columns)
         worksheet.set_row(LINHA_0, ALTURA_COLUNA_50)
         worksheet.set_row(LINHA_1, ALTURA_COLUNA_30)
         worksheet.set_column("A:N", ALTURA_COLUNA_30)
-        worksheet.merge_range(0, 0, 0, numero_colunas, titulo)
-        worksheet.merge_range(LINHA_1, 0, LINHA_2, numero_colunas, subtitulo)
+        merge_format = workbook.add_format(
+            {"align": "center", "bg_color": "#a9d18e", "border_color": "#198459"}
+        )
+        merge_format.set_align("vcenter")
+        merge_format.set_bold()
+        worksheet.merge_range(0, 0, 0, numero_colunas, titulo, merge_format)
+
+        cell_format = workbook.add_format()
+        cell_format.set_text_wrap()
+        cell_format.set_align("vcenter")
+        cell_format.set_bold()
+        v_center_format = workbook.add_format()
+        v_center_format.set_align("vcenter")
+        worksheet.merge_range(
+            LINHA_1, 0, LINHA_2, numero_colunas, subtitulo, cell_format
+        )
         worksheet.insert_image(
             "A1", "sme_sigpae_api/static/images/logo-sigpae-light.png"
         )
-            
         df.reset_index(drop=True, inplace=True)
     return output.seek(0)
