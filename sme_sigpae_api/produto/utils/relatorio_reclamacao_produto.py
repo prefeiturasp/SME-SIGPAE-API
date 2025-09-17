@@ -110,16 +110,19 @@ def build_xlsx_reclamacao(output, dados, titulo, subtitulo, colunas):
         workbook = xlwriter.book
         worksheet = xlwriter.sheets[nome_aba]
 
-        numero_colunas = len(df.columns)
+        numero_colunas = len(df.columns) - 1
         worksheet.set_row(LINHA_0, ALTURA_COLUNA_50)
         worksheet.set_row(LINHA_1, ALTURA_COLUNA_30)
-        worksheet.set_column("A:N", ALTURA_COLUNA_30)
+        worksheet.set_column("A:M", ALTURA_COLUNA_30)
         merge_format = workbook.add_format(
             {"align": "center", "bg_color": "#a9d18e", "border_color": "#198459"}
         )
         merge_format.set_align("vcenter")
         merge_format.set_bold()
         worksheet.merge_range(0, 0, 0, numero_colunas, titulo, merge_format)
+        worksheet.insert_image(
+            "A1", "sme_sigpae_api/static/images/logo-sigpae-light.png"
+        )
 
         cell_format = workbook.add_format()
         cell_format.set_text_wrap()
@@ -130,8 +133,18 @@ def build_xlsx_reclamacao(output, dados, titulo, subtitulo, colunas):
         worksheet.merge_range(
             LINHA_1, 0, LINHA_2, numero_colunas, subtitulo, cell_format
         )
-        worksheet.insert_image(
-            "A1", "sme_sigpae_api/static/images/logo-sigpae-light.png"
-        )
+       
+        # single_cell_format = workbook.add_format({"bg_color": "#a9d18e", "align": "center"})
+        # single_cell_format.set_bold()
+        single_cell_format = workbook.add_format({
+            "bg_color": "#a9d18e", 
+            "align": "center",      # Centralização horizontal
+            "valign": "vcenter",    # Centralização vertical
+            "bold": True            # Negrito diretamente na criação
+        })
+                
+        worksheet.set_row(LINHA_3, 20)
+        for index, titulo_coluna in enumerate(colunas):
+            worksheet.write(LINHA_3, index, titulo_coluna, single_cell_format)
         df.reset_index(drop=True, inplace=True)
     return output.seek(0)
