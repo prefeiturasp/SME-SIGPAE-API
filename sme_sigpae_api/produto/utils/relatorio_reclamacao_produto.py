@@ -1,0 +1,101 @@
+import datetime
+import io
+
+import pandas as pd
+
+
+def gerar_relatorio_reclamacao_produto_excel(
+    reclamacoes: list[dict], quantidade_reclamacoes: int, filtros: dict
+):
+    output = io.BytesIO()
+    dados_reclamacao = [
+        _extrair_dados_reclamacao(reclamacao, index)
+        for index, reclamacao in enumerate(reclamacoes, start=1)
+    ]
+
+    colunas = [
+        "Nº",
+        "Edital",
+        "DRE/LOTE",
+        "Empresa",
+        "Nome do Produto",
+        "Marca",
+        "Fabricante",
+        "Status do Produto",
+        "Nº da Reclamação",
+        "RF e Nome do Reclamante",
+        "Cód EOL e Nome da Escola",
+        "Status da Reclamação",
+        "Data da Reclamação",
+    ]
+    subtitulo = _gerar_subtitulo(filtros, quantidade_reclamacoes)
+
+    build_xlsx_reclamacao(
+        output,
+        dados=dados_reclamacao,
+        titulo="Relatório de Acompanhamento de Reclamação de Produtos",
+        subtitulo=subtitulo,
+        # titulo_sheet='Produtos',
+        colunas=colunas,
+    )
+    return output
+
+
+def _extrair_dados_reclamacao(reclamacao: dict[str, str], index: int) -> dict[str, str]:
+    escola = reclamacao.get("escola", {})
+    codigo_eol = escola.get("codigo_eol")
+    nome_escola = escola.get("nome")
+    diretoria_regional = escola.get("diretoria_regional", {})
+    lote = escola.get("lote", {})
+    terceirizada = lote.get("terceirizada", {})
+    homologacao_produto = reclamacao.get("homologacao_produto", {})
+    produto = homologacao_produto.get("produto", {})
+    rf = reclamacao.get("reclamante_registro_funcional")
+    nome = reclamacao.get("reclamante_nome")
+
+    return {
+        "Nº": index,
+        "Edital": reclamacao.get("numero_edital"),
+        "DRE/LOTE": f'{diretoria_regional.get("iniciais")} - {lote.get("nome")}',
+        "Empresa": terceirizada.get("nome_fantasia"),
+        "Nome do Produto": produto.get("nome"),
+        "Marca": produto.get("marca", {}).get("nome"),
+        "Fabricante": produto.get("fabricante", {}).get("nome"),
+        "Status do Produto": homologacao_produto.get("status_titulo").upper(),
+        "Nº da Reclamação": f"#{reclamacao.get('id_externo', 'N/A')}",
+        "RF e Nome do Reclamante": f"{rf} - {nome}",
+        "Cód EOL e Nome da Escola": f"{codigo_eol} - {nome_escola}",
+        "Status da Reclamação": reclamacao.get("status_titulo"),
+        "Data da Reclamação": reclamacao.get("criado_em")[:10],
+    }
+
+
+def _gerar_subtitulo(filtros, quantidade_reclamacoes):
+    periodo = None
+    data_inicial = filtros.get("data_inicial_reclamacao")
+    data_final = filtros.get("data_final_reclamacao")
+    if data_inicial and data_final:
+        periodo = f"{data_inicial} a {data_final}"
+    elif data_inicial and not data_final:
+        periodo = f"A partir de {data_inicial}"
+    elif not data_inicial and data_final:
+        periodo = f"Até {data_final}"
+
+    subtitulo = f"Total de Reclamações de produtos para os editais selecionados: {quantidade_reclamacoes} | "
+    if periodo:
+        subtitulo += f"Período: {periodo} |"
+    subtitulo += f"Data de Extração do Relatório: {datetime.datetime.now().date().strftime("%d/%m/%Y")}"
+
+    return subtitulo
+
+
+def build_xlsx_reclamacao(output, dados, titulo, subtitulo, colunas):
+
+    nome_aba = "Relatório Reclamação Produto"
+    with pd.ExcelWriter(output, engine="xlsxwriter") as xlwriter:
+        df = pd.DataFrame(dados)
+        df.to_excel(xlwriter, nome_aba, index=False)
+        workbook = xlwriter.book
+        worksheet = xlwriter.sheets[nome_aba]
+
+    return output.seek(0)
