@@ -38,6 +38,7 @@ from ...dados_comuns.permissions import (
     UsuarioEscolaTercTotal,
     UsuarioMedicao,
     ViewSetActionPermissionMixin,
+    UsuarioEmpresaTerceirizada,
 )
 from ...dados_comuns.utils import get_ultimo_dia_mes
 from ...escola.api.permissions import (
@@ -468,6 +469,7 @@ class SolicitacaoMedicaoInicialViewSet(
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGabinete
             | UsuarioDinutreDiretoria
+            | UsuarioEmpresaTerceirizada
         ],
     )
     def meses_anos(self, request):
