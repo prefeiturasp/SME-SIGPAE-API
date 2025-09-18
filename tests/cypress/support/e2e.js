@@ -26,6 +26,7 @@ import './commands_ui/commands_login'
 import './commands_ui/commands_globais'
 
 import '@shelex/cypress-allure-plugin'
+import "cypress-cloud/support";
 
 Cypress.on('uncaught:exception', (err, runnable) => {
 	if (err.message.includes('zygote_host_impl_linux')) {
