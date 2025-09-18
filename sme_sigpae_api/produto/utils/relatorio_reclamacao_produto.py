@@ -98,6 +98,7 @@ def build_xlsx_reclamacao(output, dados, titulo, subtitulo, colunas):
 
     ALTURA_COLUNA_30 = 30
     ALTURA_COLUNA_50 = 50
+    MAX_WIDTH = 25
 
     nome_aba = "Relatório Reclamação Produto"
     with pd.ExcelWriter(output, engine="xlsxwriter") as xlwriter:
@@ -133,18 +134,30 @@ def build_xlsx_reclamacao(output, dados, titulo, subtitulo, colunas):
         worksheet.merge_range(
             LINHA_1, 0, LINHA_2, numero_colunas, subtitulo, cell_format
         )
-       
-        # single_cell_format = workbook.add_format({"bg_color": "#a9d18e", "align": "center"})
-        # single_cell_format.set_bold()
+
         single_cell_format = workbook.add_format({
             "bg_color": "#a9d18e", 
             "align": "center",      # Centralização horizontal
             "valign": "vcenter",    # Centralização vertical
             "bold": True            # Negrito diretamente na criação
-        })
-                
+        })    
         worksheet.set_row(LINHA_3, 20)
+        
         for index, titulo_coluna in enumerate(colunas):
             worksheet.write(LINHA_3, index, titulo_coluna, single_cell_format)
+            
+        left_align_format = workbook.add_format({"align": "left", "valign": "vcenter"})
+        center_align_format = workbook.add_format({"align": "center", "valign": "vcenter"})
+        for i, col in enumerate(df.columns):
+            # col_data = df[col].astype(str).fillna("")
+            # max_len = max(
+            #     [len(str(col))] + [len(x) for x in col_data]
+            # )
+            # worksheet.set_column(i, i, max_len + 2, left_align_format)
+            if i == 0:
+                worksheet.set_column(i, i, 5, center_align_format)
+            else:
+                worksheet.set_column(i, i, MAX_WIDTH, left_align_format)
+                
         df.reset_index(drop=True, inplace=True)
     return output.seek(0)
