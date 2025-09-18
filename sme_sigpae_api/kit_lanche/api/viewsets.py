@@ -17,7 +17,7 @@ from ...dados_comuns.permissions import (
     UsuarioCODAEGestaoAlimentacao,
     UsuarioDiretoriaRegional,
     UsuarioEscolaTercTotal,
-    UsuarioTerceirizada,
+    UsuarioEmpresaGenerico,
 )
 from ...inclusao_alimentacao.api.viewsets import (
     CodaeAutoriza,
@@ -340,7 +340,7 @@ class SolicitacaoKitLancheAvulsaViewSet(ModelViewSet):
         detail=True,
         methods=["patch"],
         url_path=constants.TERCEIRIZADA_RESPONDE_QUESTIONAMENTO,
-        permission_classes=(UsuarioTerceirizada,),
+        permission_classes=(UsuarioEmpresaGenerico,),
     )
     def terceirizada_responde_questionamento(self, request, uuid=None):
         solicitacao_kit_lanche_avulsa = self.get_object()
@@ -364,7 +364,7 @@ class SolicitacaoKitLancheAvulsaViewSet(ModelViewSet):
         detail=True,
         methods=["patch"],
         url_path=constants.TERCEIRIZADA_TOMOU_CIENCIA,
-        permission_classes=(UsuarioTerceirizada,),
+        permission_classes=(UsuarioEmpresaGenerico,),
     )
     def terceirizada_toma_ciencia(self, request, uuid=None):
         solicitacao_kit_lanche_avulsa = self.get_object()
@@ -477,7 +477,7 @@ class SolicitacaoKitLancheUnificadaViewSet(ModelViewSet):
     @action(
         detail=False,
         url_path=f"{constants.PEDIDOS_TERCEIRIZADA}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioTerceirizada,),
+        permission_classes=(UsuarioEmpresaGenerico,),
     )
     def solicitacoes_terceirizada(self, request, filtro_aplicado=constants.SEM_FILTRO):
         # TODO: colocar regras de Terceirizada aqui...
@@ -615,7 +615,7 @@ class SolicitacaoKitLancheUnificadaViewSet(ModelViewSet):
         detail=True,
         url_path=constants.TERCEIRIZADA_TOMOU_CIENCIA,
         methods=["patch"],
-        permission_classes=(UsuarioTerceirizada,),
+        permission_classes=(UsuarioEmpresaGenerico,),
     )
     def terceirizada_toma_ciencia(self, request, uuid=None):
         solicitacao_unificada = self.get_object()
@@ -635,7 +635,7 @@ class SolicitacaoKitLancheUnificadaViewSet(ModelViewSet):
         detail=True,
         methods=["patch"],
         url_path=constants.TERCEIRIZADA_RESPONDE_QUESTIONAMENTO,
-        permission_classes=(UsuarioTerceirizada,),
+        permission_classes=(UsuarioEmpresaGenerico,),
     )
     def terceirizada_responde_questionamento(self, request, uuid=None):
         solicitacao_unificada = self.get_object()
@@ -825,7 +825,7 @@ class SolicitacaoKitLancheCEIAvulsaViewSet(SolicitacaoKitLancheAvulsaViewSet):
     @action(
         detail=False,
         url_path=f"{constants.PEDIDOS_TERCEIRIZADA}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioTerceirizada,),
+        permission_classes=(UsuarioEmpresaGenerico,),
     )
     def solicitacoes_terceirizadas(self, request, filtro_aplicado="sem_filtro"):
         usuario = request.user

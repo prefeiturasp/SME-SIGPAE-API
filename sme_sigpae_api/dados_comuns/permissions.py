@@ -332,7 +332,7 @@ class UsuarioCODAEGestaoProduto(BasePermission):
         )
 
 
-class UsuarioTerceirizada(BasePermission):
+class UsuarioEmpresaGenerico(BasePermission):
     """Permite acesso a usuários com vinculo a uma Terceirizada."""
 
     def has_permission(self, request, view):
