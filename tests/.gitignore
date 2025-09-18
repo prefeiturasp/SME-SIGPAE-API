@@ -3,7 +3,6 @@ allure-results/
 screenshots/
 videos/
 node_modules/
-Jenkinsfile
 package-lock.json
 .env
 
