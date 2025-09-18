@@ -13,7 +13,7 @@ pipeline {
  
     environment {
         JOB_DISPLAY_NAME = "SIGPAE-Testes-HML"
-        TEST_DIR = 'tests/cypress'
+        TEST_DIR = 'tests'
         ALLURE_PATH = 'tests/cypress/allure-results'
         WORKSPACE_DIR = "${env.WORKSPACE}"
     }
