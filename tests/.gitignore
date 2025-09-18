@@ -1,0 +1,11 @@
+.DS_Store
+allure-results/
+screenshots/
+videos/
+node_modules/
+package-lock.json
+.env
+
+# Others
+tmp
+.idea
