@@ -2449,7 +2449,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
                 num_reclamacoes=Count("homologacao__reclamacoes", distinct=True),
                 primeiro_edital=Subquery(edital_subquery),
             )
-            .order_by("primeiro_edital", "-num_reclamacoes", "nome", "marca_nome")
+            .order_by("primeiro_edital", "-num_reclamacoes", "nome", "marca__nome")
             .select_related("marca", "fabricante")
             .distinct()
         )
