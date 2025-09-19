@@ -1217,13 +1217,11 @@ def mock_view_de_produtos(client_autenticado_vinculo_terceirizada, numero_editai
 
 @pytest.fixture
 def reclamacao_produto_pdf(user, escola, hom_produto_com_editais):
-    baker.make(
+    return baker.make(
         "ReclamacaoDeProduto",
-        # uuid="dd06d200-e2f9-4be7-a304-82831ce93ee1",
         criado_por=user,
         homologacao_produto=hom_produto_com_editais,
         escola=escola,
         status=ReclamacaoProdutoWorkflow.AGUARDANDO_RESPOSTA_TERCEIRIZADA,
         reclamacao="Produto com problema de qualidade.",
     )
-    return hom_produto_com_editais
