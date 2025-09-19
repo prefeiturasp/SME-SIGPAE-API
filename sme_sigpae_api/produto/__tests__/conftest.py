@@ -1225,3 +1225,20 @@ def reclamacao_produto_pdf(user, escola, hom_produto_com_editais):
         status=ReclamacaoProdutoWorkflow.AGUARDANDO_RESPOSTA_TERCEIRIZADA,
         reclamacao="Produto com problema de qualidade.",
     )
+
+
+@pytest.fixture
+def reclamacao_produto_query_excel(mock_view_de_produtos, reclamacao_produto_pdf):
+    _, viewset = mock_view_de_produtos
+
+    filtro_reclamacao = {
+        "status__in": [ReclamacaoProdutoWorkflow.AGUARDANDO_RESPOSTA_TERCEIRIZADA]
+    }
+    filtro_homologacao = {
+        "homologacao__reclamacoes__status__in": [
+            ReclamacaoProdutoWorkflow.AGUARDANDO_RESPOSTA_TERCEIRIZADA
+        ]
+    }
+    return viewset.obter_produtos_ordenados_por_edital_e_reclamacoes_excel(
+        filtro_reclamacao, filtro_homologacao
+    )
