@@ -10,6 +10,9 @@ from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
 )
+from sme_sigpae_api.produto.utils.relatorio_reclamacao_produto import (
+    gerar_relatorio_reclamacao_produto_excel,
+)
 
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
@@ -1907,3 +1910,12 @@ def cabecalho_reclamacao_produto(filtros: dict) -> dict:
     elif not data_inicial and data_final:
         cabecalho["periodo"] = f"Até {data_final}"
     return cabecalho
+
+
+def relatorio_reclamacao_produtos_excel(
+    reclamacoes: list[dict], quantidade_reclamacoes: int, filtros: dict
+) -> bytes:
+    output = gerar_relatorio_reclamacao_produto_excel(
+        reclamacoes, quantidade_reclamacoes, filtros
+    )
+    return output.read()
