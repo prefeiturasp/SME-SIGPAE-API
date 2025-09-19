@@ -24,6 +24,26 @@
 }
 
 .header {
+  .row {
+    display: block !important;
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+    font-size: 0;
+  }
+
+  [class*="col-"] {
+    display: inline-block !important;
+    vertical-align: top;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+
+  .col-1  { width: 8.3333%; }
+  .col-2  { width: 16.6667%; }
+  .col-8  { width: 66.6667%; }
+
   padding-top: 10px;
   padding-bottom: 10px;
   background: $verde;
@@ -109,6 +129,7 @@
     background: $verde-escuro;
     border: solid 1px $verde-escuro;
     border-radius: 4px 0px 0px 4px;
+    margin-left: -10px !important;
   }
   .value-contagem {
     height: 30px;
@@ -122,6 +143,23 @@
 }
 
 .tipo-avaliacao {
+  .row {
+    display: block !important;
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+  }
+
+  [class*="col-"] {
+    display: inline-block !important;
+    vertical-align: top;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    box-sizing: border-box;
+  }
+
+  .col-3  { width: 25%; }
+  .col-6  { width: 50%; }
+
   font-family: "Roboto";
   font-style: normal;
   font-weight: 700;
@@ -199,28 +237,59 @@
   color: $cinza-meio-escuro;
 }
 
-.assinatura {
-  height: 100px;
-  border: solid 1px $cinza-assinatura;
-  border-radius: 4px 4px 4px 4px;
-  img {
-    padding-top: 25px;
-    margin-left: -15px;
-    width: 55px;
-    height: 45px;
+.bloco-assinaturas {
+  margin-top: auto;
+
+  .row {
+    display: block !important;
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
   }
-  .texto {
-    padding-top: 5px;
-    padding-bottom: 5px;
-    text-align: justify;
-    padding-left: 0;
-    padding-right: 0;
-    span {
+
+  [class*="col-"] {
+    display: inline-block !important;
+    vertical-align: top;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    box-sizing: border-box;
+  }
+
+  .col-1  { width: 8.3333%; }
+  .col-2  { width: 16.3667%; }
+  .col-3  { width: 25%; }
+  .col-4  { width: 33.3333%; }
+  .col-5  { width: 41.6667%; }
+  .col-6  { width: 49%; }
+  .col-7  { width: 58.3333%; }
+  .col-8  { width: 66.6667%; }
+  .col-9  { width: 75%; }
+  .col-10 { width: 82.3333%; }
+  .col-11 { width: 91.6667%; }
+  .col-12 { width: 100%; }
+
+  .assinatura {
+    height: 100px;
+    border: solid 1px $cinza-assinatura;
+    border-radius: 4px 4px 4px 4px;
+    img {
+      padding-top: 25px;
+      margin-left: -15px;
+      width: 55px;
+      height: 45px;
+    }
+    .texto {
+      padding-top: 5px;
+      padding-bottom: 5px;
       text-align: justify;
-      font-family: "Roboto";
-      font-style: normal;
-      font-weight: 400;
-      font-size: 9px;
+      padding-left: 0;
+      padding-right: 0;
+      span {
+        text-align: justify;
+        font-family: "Roboto";
+        font-style: normal;
+        font-weight: 400;
+        font-size: 9px;
+      }
     }
   }
 }
@@ -535,11 +604,6 @@ table.tabela-valores-medicao {
       }
     }
   }
-}
-
-.bloco-assinatura {
-  position: absolute;
-  bottom: 35px;
 }
 
 .info-abaixo-tabela {

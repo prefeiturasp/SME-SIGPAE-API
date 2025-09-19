@@ -21,8 +21,7 @@
           MEDIÇÃO INICIAL DO SERVIÇO DE NUTRIÇÃO E ALIMENTAÇÃO ESCOLAR
         </h1>
       </div>
-      <div class="col-1"></div>
-      <div class="col-1">
+      <div class="offset-1 col-1">
         <h1 class="text-right">Página</h1>
         <h1 class="page-number text-right"></h1>
       </div>
@@ -45,12 +44,9 @@
       </div>
     </div>
   </header>
-  <div class="row p-0 mx-4 my-5">
-    <div class="col-12">
-      <h1 class="text-center titulo-body-p1">INFORMAÇÕES BÁSICAS DA MEDIÇÃO</h1>
-    </div>
+  <div class="mx-4 my-5">
+    <h1 class="text-center titulo-body-p1">INFORMAÇÕES BÁSICAS DA MEDIÇÃO</h1>
   </div>
-
   <div class="row p-0 mx-4 tipo-contagem">
     <div class="col-2"></div>
     <div class="col-4 label-contagem">
@@ -61,7 +57,6 @@
     </div>
     <div class="col-2"></div>
   </div>
-
   <div class="row p-0 mx-4 mt-5 tipo-avaliacao">
     <div class="col-3 avaliacao-left">
       Avaliação do Serviço
@@ -89,7 +84,7 @@
     </div>
     {% endfor %}
   </div>
-  <div class="mt-5"></div>
+  <div class="mt-4"></div>
   <div class="row p-0 mx-4 mt-5">
     <div class="col-6 mr-3 titulo-assinatura">
       <b>ASSINATURA UNIDADE EDUCACIONAL</b>
@@ -98,34 +93,36 @@
       <b>RESPONSÁVEL PELA CONFERÊNCIA NA DRE</b>
     </div>
   </div>
-  <div class="row p-0 mx-4 mt-3">
-    <div class="col-6 mr-3 assinatura">
-      {% if assinatura_escola %}
-      <div class="row p-0 mx-1">
-        <div class="col-2">
-          <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+  <div class="bloco-assinaturas">
+    <div class="row p-0 mx-4 mt-3">
+      <div class="col-6 mr-3 assinatura">
+        {% if assinatura_escola %}
+        <div class="row p-0 mx-1">
+          <div class="col-2">
+            <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+          </div>
+          <div class="col-10 texto">
+            <span>
+              {{assinatura_escola}}
+            </span>
+          </div>
         </div>
-        <div class="col-10 texto">
-          <span>
-            {{assinatura_escola}}
-          </span>
-        </div>
+        {% endif %}
       </div>
-      {% endif %}
-    </div>
-    <div class="col-6 assinatura">
-      {% if assinatura_dre %}
-      <div class="row p-0 mx-1">
-        <div class="col-2">
-          <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+      <div class="col-6 assinatura">
+        {% if assinatura_dre %}
+        <div class="row p-0 mx-1">
+          <div class="col-2">
+            <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+          </div>
+          <div class="col-10 texto">
+            <span>
+              {{assinatura_dre}}
+            </span>
+          </div>
         </div>
-        <div class="col-10 texto">
-          <span>
-            {{assinatura_dre}}
-          </span>
-        </div>
+        {% endif %}
       </div>
-      {% endif %}
     </div>
   </div>
   {% for tabela in tabelas %}
@@ -498,16 +495,16 @@
       {% endif %}
     </div>
   {% endif %}
-
-  <div class="bloco-assinatura">
-    <div class="row p-0 mx-4 mt-5">
-      <div class="col-6 mr-3 titulo-assinatura">
-        <b>ASSINATURA UNIDADE EDUCACIONAL</b>
-      </div>
-      <div class="col-5 titulo-assinatura">
-        <b>RESPONSÁVEL PELA CONFERÊNCIA NA DRE</b>
-      </div>
+  <div class="mt-4"></div>
+  <div class="row p-0 mx-4 mt-5">
+    <div class="col-6 mr-3 titulo-assinatura">
+      <b>ASSINATURA UNIDADE EDUCACIONAL</b>
     </div>
+    <div class="col-5 titulo-assinatura">
+      <b>RESPONSÁVEL PELA CONFERÊNCIA NA DRE</b>
+    </div>
+  </div>
+  <div class="bloco-assinaturas">
     <div class="row p-0 mx-4 mt-3">
       <div class="col-6 mr-3 assinatura">
         {% if assinatura_escola %}
