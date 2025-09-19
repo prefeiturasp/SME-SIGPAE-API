@@ -23,6 +23,13 @@
   }
 }
 
+.footer-assinaturas {
+  margin-top: 30%;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+}
+
 .header {
   .row {
     display: block !important;

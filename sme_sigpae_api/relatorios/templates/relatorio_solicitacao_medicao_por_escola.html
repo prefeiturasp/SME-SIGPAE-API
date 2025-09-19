@@ -385,156 +385,161 @@
         </div>
       </div>
     </header>
-    <h1 class="titulo-tabela-somatorio text-center mt-4 mb-4">SOMATÓRIO DE DIETAS OFERTADAS NOS PERÍODOS</h1>
-    <div class="tabelas-somatorio-dietas mb-2">
-      {% if primeira_tabela_somatorio_dietas_tipo_a.body %}
-        <div>
-          <table class="mr-1">
-            <thead class="head-tabelas-somatorio">
-              <tr class="texto-branco">
-                {% for periodo in primeira_tabela_somatorio_dietas_tipo_a.header %}
-                  <th class="col-{{ periodo|get_colspan }}">{{periodo|get_nome_header}}</th>
-                {% endfor %}
-              </tr>
-            </thead>
-            <tbody class="body-tabelas-somatorio">
-              {% for row in primeira_tabela_somatorio_dietas_tipo_a.body %}
-                <tr>
-                  {% for periodo in primeira_tabela_somatorio_dietas_tipo_a.header %}
-                    <td class="col-{{ periodo|get_colspan }}">{{ row|get_element_by_index:forloop.counter0 }}</td>
-                  {% endfor %}
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          <div class="info-abaixo-tabela">
-            * A tabela acima representa a soma das dietas lançadas em todos os períodos da UE
-          </div>
-        </div>
-      {% endif %}
+    <div class="container-pdf">
+      <div class="conteudo">
+        <h1 class="titulo-tabela-somatorio text-center mt-4 mb-4">SOMATÓRIO DE DIETAS OFERTADAS NOS PERÍODOS</h1>
+          <div class="tabelas-somatorio-dietas mb-2">
+            {% if primeira_tabela_somatorio_dietas_tipo_a.body %}
+              <div>
+                <table class="mr-1">
+                  <thead class="head-tabelas-somatorio">
+                    <tr class="texto-branco">
+                      {% for periodo in primeira_tabela_somatorio_dietas_tipo_a.header %}
+                        <th class="col-{{ periodo|get_colspan }}">{{periodo|get_nome_header}}</th>
+                      {% endfor %}
+                    </tr>
+                  </thead>
+                  <tbody class="body-tabelas-somatorio">
+                    {% for row in primeira_tabela_somatorio_dietas_tipo_a.body %}
+                      <tr>
+                        {% for periodo in primeira_tabela_somatorio_dietas_tipo_a.header %}
+                          <td class="col-{{ periodo|get_colspan }}">{{ row|get_element_by_index:forloop.counter0 }}</td>
+                        {% endfor %}
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <div class="info-abaixo-tabela">
+                  * A tabela acima representa a soma das dietas lançadas em todos os períodos da UE
+                </div>
+              </div>
+            {% endif %}
 
-      {% if segunda_tabela_somatorio_dietas_tipo_a.header %}
-        <div>
-          <table class="mr-1">
-            <thead class="head-tabelas-somatorio">
-              <tr class="texto-branco">
-                {% for periodo in segunda_tabela_somatorio_dietas_tipo_a.header %}
-                  <th class="col-{{ periodo|get_colspan }}">{{periodo|get_nome_header}}</th>
-                {% endfor %}
-              </tr>
-            </thead>
-            <tbody class="body-tabelas-somatorio">
-              {% for row in segunda_tabela_somatorio_dietas_tipo_a.body %}
-                <tr>
-                  {% for periodo in segunda_tabela_somatorio_dietas_tipo_a.header %}
-                    <td class="col-{{ periodo|get_colspan }}">{{ row|get_element_by_index:forloop.counter0 }}</td>
-                  {% endfor %}
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          <div class="info-abaixo-tabela">
-            * A tabela acima representa a soma das dietas lançadas em todos os períodos da UE
+            {% if segunda_tabela_somatorio_dietas_tipo_a.header %}
+              <div>
+                <table class="mr-1">
+                  <thead class="head-tabelas-somatorio">
+                    <tr class="texto-branco">
+                      {% for periodo in segunda_tabela_somatorio_dietas_tipo_a.header %}
+                        <th class="col-{{ periodo|get_colspan }}">{{periodo|get_nome_header}}</th>
+                      {% endfor %}
+                    </tr>
+                  </thead>
+                  <tbody class="body-tabelas-somatorio">
+                    {% for row in segunda_tabela_somatorio_dietas_tipo_a.body %}
+                      <tr>
+                        {% for periodo in segunda_tabela_somatorio_dietas_tipo_a.header %}
+                          <td class="col-{{ periodo|get_colspan }}">{{ row|get_element_by_index:forloop.counter0 }}</td>
+                        {% endfor %}
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <div class="info-abaixo-tabela">
+                  * A tabela acima representa a soma das dietas lançadas em todos os períodos da UE
+                </div>
+              </div>
+            {% endif %}
           </div>
-        </div>
-      {% endif %}
-    </div>
 
 
-    <div class="tabelas-somatorio-dietas">
-      {% if primeira_tabela_somatorio_dietas_tipo_b.body %}
-        <div>
-          <table class="mr-1">
-            <thead class="head-tabelas-somatorio">
-              <tr class="texto-branco">
-                {% for periodo in primeira_tabela_somatorio_dietas_tipo_b.header %}
-                  <th class="col-{{ periodo|get_colspan }}">{{periodo|get_nome_header}}</th>
-                {% endfor %}
-              </tr>
-            </thead>
-            <tbody class="body-tabelas-somatorio">
-              {% for row in primeira_tabela_somatorio_dietas_tipo_b.body %}
-                <tr>
-                  {% for periodo in primeira_tabela_somatorio_dietas_tipo_b.header %}
-                    <td class="col-{{ periodo|get_colspan }}">{{ row|get_element_by_index:forloop.counter0 }}</td>
-                  {% endfor %}
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          <div class="info-abaixo-tabela">
-            * A tabela acima representa a soma das dietas lançadas em todos os períodos da UE
-          </div>
-        </div>
-      {% endif %}
+          <div class="tabelas-somatorio-dietas">
+            {% if primeira_tabela_somatorio_dietas_tipo_b.body %}
+              <div>
+                <table class="mr-1">
+                  <thead class="head-tabelas-somatorio">
+                    <tr class="texto-branco">
+                      {% for periodo in primeira_tabela_somatorio_dietas_tipo_b.header %}
+                        <th class="col-{{ periodo|get_colspan }}">{{periodo|get_nome_header}}</th>
+                      {% endfor %}
+                    </tr>
+                  </thead>
+                  <tbody class="body-tabelas-somatorio">
+                    {% for row in primeira_tabela_somatorio_dietas_tipo_b.body %}
+                      <tr>
+                        {% for periodo in primeira_tabela_somatorio_dietas_tipo_b.header %}
+                          <td class="col-{{ periodo|get_colspan }}">{{ row|get_element_by_index:forloop.counter0 }}</td>
+                        {% endfor %}
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <div class="info-abaixo-tabela">
+                  * A tabela acima representa a soma das dietas lançadas em todos os períodos da UE
+                </div>
+              </div>
+            {% endif %}
 
-      {% if segunda_tabela_somatorio_dietas_tipo_b.header %}
-        <div>
-          <table class="mr-1">
-            <thead class="head-tabelas-somatorio">
-              <tr class="texto-branco">
-                {% for periodo in segunda_tabela_somatorio_dietas_tipo_b.header %}
-                  <th class="col-{{ periodo|get_colspan }}">{{periodo|get_nome_header}}</th>
-                {% endfor %}
-              </tr>
-            </thead>
-            <tbody class="body-tabelas-somatorio">
-              {% for row in segunda_tabela_somatorio_dietas_tipo_b.body %}
-                <tr>
-                  {% for periodo in segunda_tabela_somatorio_dietas_tipo_b.header %}
-                    <td class="col-{{ periodo|get_colspan }}">{{ row|get_element_by_index:forloop.counter0 }}</td>
-                  {% endfor %}
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          <div class="info-abaixo-tabela">
-            * A tabela acima representa a soma das dietas lançadas em todos os períodos da UE
+            {% if segunda_tabela_somatorio_dietas_tipo_b.header %}
+              <div>
+                <table class="mr-1">
+                  <thead class="head-tabelas-somatorio">
+                    <tr class="texto-branco">
+                      {% for periodo in segunda_tabela_somatorio_dietas_tipo_b.header %}
+                        <th class="col-{{ periodo|get_colspan }}">{{periodo|get_nome_header}}</th>
+                      {% endfor %}
+                    </tr>
+                  </thead>
+                  <tbody class="body-tabelas-somatorio">
+                    {% for row in segunda_tabela_somatorio_dietas_tipo_b.body %}
+                      <tr>
+                        {% for periodo in segunda_tabela_somatorio_dietas_tipo_b.header %}
+                          <td class="col-{{ periodo|get_colspan }}">{{ row|get_element_by_index:forloop.counter0 }}</td>
+                        {% endfor %}
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <div class="info-abaixo-tabela">
+                  * A tabela acima representa a soma das dietas lançadas em todos os períodos da UE
+                </div>
+              </div>
+            {% endif %}
           </div>
-        </div>
-      {% endif %}
-    </div>
-  {% endif %}
-  <div class="mt-4"></div>
-  <div class="row p-0 mx-4 mt-5">
-    <div class="col-6 mr-3 titulo-assinatura">
-      <b>ASSINATURA UNIDADE EDUCACIONAL</b>
-    </div>
-    <div class="col-5 titulo-assinatura">
-      <b>RESPONSÁVEL PELA CONFERÊNCIA NA DRE</b>
-    </div>
-  </div>
-  <div class="bloco-assinaturas">
-    <div class="row p-0 mx-4 mt-3">
-      <div class="col-6 mr-3 assinatura">
-        {% if assinatura_escola %}
-        <div class="row p-0 mx-1">
-          <div class="col-2">
-            <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
-          </div>
-          <div class="col-10 texto">
-            <span>
-              {{assinatura_escola}}
-            </span>
-          </div>
-        </div>
-        {% endif %}
-      </div>
-      <div class="col-6 assinatura">
-        {% if assinatura_dre %}
-        <div class="row p-0 mx-1">
-          <div class="col-2">
-            <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
-          </div>
-          <div class="col-10 texto">
-            <span>
-              {{assinatura_dre}}
-            </span>
-          </div>
-        </div>
         {% endif %}
       </div>
     </div>
-  </div>
+    <div class="footer-assinaturas">
+      <div class="row p-0 mx-4 mt-5">
+        <div class="col-6 mr-3 titulo-assinatura">
+          <b>ASSINATURA UNIDADE EDUCACIONAL</b>
+        </div>
+        <div class="col-5 titulo-assinatura">
+          <b>RESPONSÁVEL PELA CONFERÊNCIA NA DRE</b>
+        </div>
+      </div>
+      <div class="bloco-assinaturas mt-auto">
+        <div class="row p-0 mx-4 mt-3">
+          <div class="col-6 mr-3 assinatura">
+            {% if assinatura_escola %}
+            <div class="row p-0 mx-1">
+              <div class="col-2">
+                <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+              </div>
+              <div class="col-10 texto">
+                <span>
+                  {{assinatura_escola}}
+                </span>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+          <div class="col-6 assinatura">
+            {% if assinatura_dre %}
+            <div class="row p-0 mx-1">
+              <div class="col-2">
+                <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+              </div>
+              <div class="col-10 texto">
+                <span>
+                  {{assinatura_dre}}
+                </span>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
 </body>
 </html>
