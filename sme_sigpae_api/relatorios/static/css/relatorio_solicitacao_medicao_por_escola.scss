@@ -23,12 +23,17 @@
   }
 }
 
-.footer-assinaturas {
-  margin-top: 30%;
-  break-inside: avoid;
-  page-break-inside: avoid;
-  -webkit-column-break-inside: avoid;
+@page {
+ @bottom-center {
+   content: element(last-page-footer);
+   }
+ }
+
+#last-page-footer {
+    margin-top: -280px;
+    position: running(last-page-footer);
 }
+
 
 .header {
   .row {

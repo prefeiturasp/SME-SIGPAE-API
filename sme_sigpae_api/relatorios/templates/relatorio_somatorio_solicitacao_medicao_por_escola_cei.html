@@ -49,7 +49,7 @@
       </tbody>
     </table>
 
-  <div class="bloco-assinatura">
+  <div id="last-page-footer">
     <div class="row p-0 mx-4 mt-5">
       <div class="col-6 mr-3 titulo-assinatura">
         <b>ASSINATURA UNIDADE EDUCACIONAL</b>
@@ -58,34 +58,36 @@
         <b>RESPONSÁVEL PELA CONFERÊNCIA NA DRE</b>
       </div>
     </div>
-    <div class="row p-0 mx-4 mt-3">
-      <div class="col-6 mr-3 assinatura">
-        {% if assinatura_escola %}
-        <div class="row p-0 mx-1">
-          <div class="col-2">
-            <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+    <div class="bloco-assinaturas mt-auto">
+      <div class="row p-0 mx-4 mt-3">
+        <div class="col-6 mr-3 assinatura">
+          {% if assinatura_escola %}
+          <div class="row p-0 mx-1">
+            <div class="col-2">
+              <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+            </div>
+            <div class="col-10 texto">
+              <span>
+                {{assinatura_escola}}
+              </span>
+            </div>
           </div>
-          <div class="col-10 texto">
-            <span>
-              {{assinatura_escola}}
-            </span>
-          </div>
+          {% endif %}
         </div>
-        {% endif %}
-      </div>
-      <div class="col-6 assinatura titulo-assinatura">
-        {% if assinatura_dre %}
-        <div class="row p-0 mx-1">
-          <div class="col-2">
-            <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+        <div class="col-6 assinatura">
+          {% if assinatura_dre %}
+          <div class="row p-0 mx-1">
+            <div class="col-2">
+              <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+            </div>
+            <div class="col-10 texto">
+              <span>
+                {{assinatura_dre}}
+              </span>
+            </div>
           </div>
-          <div class="col-10 texto titulo-assinatura">
-            <span>
-              {{assinatura_dre}}
-            </span>
-          </div>
+          {% endif %}
         </div>
-        {% endif %}
       </div>
     </div>
   </div>
