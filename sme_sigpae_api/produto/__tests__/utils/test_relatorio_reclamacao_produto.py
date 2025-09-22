@@ -126,7 +126,7 @@ def test_gerar_relatorio_reclamacao_produto_excel(reclamacao_produto_query_excel
         None,
     )
     assert rows[1] == (
-        "Total de Reclamações de produtos para os editais selecionados: 3 | Período das Reclamações: De 01/01/2022 a 01/09/2025 | Data de Extração do Relatório: 19/09/2025",
+        f"Total de Reclamações de produtos para os editais selecionados: 3 | Período das Reclamações: De 01/01/2022 a 01/09/2025 | Data de Extração do Relatório: {datetime.now().date().strftime('%d/%m/%Y')}",
         None,
         None,
         None,
