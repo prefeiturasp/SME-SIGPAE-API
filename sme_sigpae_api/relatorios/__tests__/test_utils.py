@@ -122,7 +122,7 @@ def test_html_to_pdf_watermark():
     html_string = "<h1>PDF Cancelado</h1><p>Conteúdo para testar marca d'água</p>"
     nome_pdf = "cancelado.pdf"
 
-    pdf = html_to_pdf_watermark(html_string, nome_pdf, is_async=True)
+    pdf = html_to_pdf_watermark(html_string, nome_pdf, 'preliminar.pdf', is_async=True)
     assert isinstance(pdf, bytes)
 
     texto = extrair_texto_de_pdf(pdf)
@@ -134,7 +134,7 @@ def test_html_to_pdf_watermark_async_false():
     html_string = "<h1>PDF Cancelado</h1><p>Conteúdo para testar marca d'água</p>"
     nome_pdf = "cancelado.pdf"
 
-    response = html_to_pdf_watermark(html_string, nome_pdf, is_async=False)
+    response = html_to_pdf_watermark(html_string, nome_pdf, 'preliminar.pdf', is_async=False)
 
     assert response.status_code == 200
     assert response.headers["Content-Type"] == "application/pdf"
