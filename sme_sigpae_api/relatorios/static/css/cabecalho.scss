@@ -1,7 +1,35 @@
 @import "variaveis";
 
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: url("../fonts/Roboto/Roboto-Regular.ttf") format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  src: url("../fonts/Roboto/Roboto-Bold.ttf") format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 400;
+  src: url("../fonts/Roboto/Roboto-Italic.ttf") format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 700;
+  src: url("../fonts/Roboto/Roboto-BoldItalic.ttf") format('truetype');
+}
 
 @page {
+  font-family: "Roboto";
   margin-bottom: 3em;
   @bottom-left {
     background: $cinza-claro;
@@ -30,6 +58,10 @@
 @page :nth(1) {
   //WTF bug...
   margin-top: 0;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
 }
 
 .titulo-e-logo {
@@ -65,6 +97,37 @@ h2.subtitulo {
 }
 .subtitulo-centralizado {
   text-align: center;
+}
+
+div.header-solicitacao {
+  font-size: 14px;
+
+  .row {
+    display: block !important;
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+  }
+
+  [class*="col-"] {
+    display: inline-block !important;
+    vertical-align: top;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    box-sizing: border-box;
+  }
+
+  .col-1  { width: 8.3333%; }
+  .col-2  { width: 16.6667%; }
+  .col-3  { width: 24%; }
+  .col-4  { width: 33.3333%; }
+  .col-5  { width: 41.6667%; }
+  .col-6  { width: 50%; }
+  .col-7  { width: 58.3333%; }
+  .col-8  { width: 66.6667%; }
+  .col-9  { width: 75%; }
+  .col-10 { width: 83.3333%; }
+  .col-11 { width: 91.6667%; }
+  .col-12 { width: 100%; }
 }
 
 

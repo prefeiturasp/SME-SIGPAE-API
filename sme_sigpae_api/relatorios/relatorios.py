@@ -357,7 +357,9 @@ def relatorio_alteracao_alimentacao_cemei(request, solicitacao):  # noqa C901
         },
     )
     return html_to_pdf_response(
-        html_string, f"alteracao_tipo_alimentacao_cemei_{solicitacao.id_externo}.pdf"
+        html_string,
+        f"alteracao_tipo_alimentacao_cemei_{solicitacao.id_externo}.pdf",
+        request,
     )
 
 

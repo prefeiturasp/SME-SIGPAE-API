@@ -48,9 +48,11 @@ def get_diretorias_regionais(lotes):
     return diretorias_regionais
 
 
-def html_to_pdf_response(html_string, pdf_filename):
+def html_to_pdf_response(html_string, pdf_filename, request=None):
     pdf_file = HTML(
-        string=html_string, url_fetcher=django_url_fetcher, base_url="file://abobrinha"
+        string=html_string,
+        url_fetcher=django_url_fetcher,
+        base_url=request.build_absolute_uri("/") if request else "file://abobrinha",
     ).write_pdf()
     response = HttpResponse(pdf_file, content_type="application/pdf")
     response["Content-Disposition"] = f'filename="{pdf_filename}"'
