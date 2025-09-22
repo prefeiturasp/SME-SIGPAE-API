@@ -17,7 +17,7 @@ from sme_sigpae_api.produto.utils.relatorio_reclamacao_produto import (
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
-from ..dados_comuns.fluxo_status import DietaEspecialWorkflow
+from ..dados_comuns.fluxo_status import DietaEspecialWorkflow, SolicitacaoMedicaoInicialWorkflow
 from ..dados_comuns.fluxo_status import GuiaRemessaWorkFlow as GuiaStatus
 from ..dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from ..dados_comuns.models import LogSolicitacoesUsuario
@@ -48,7 +48,7 @@ from ..pre_recebimento.ficha_tecnica.api.helpers import (
 )
 from ..pre_recebimento.ficha_tecnica.models import InformacoesNutricionaisFichaTecnica
 from ..relatorios.utils import (
-    html_to_pdf_cancelada,
+    html_to_pdf_watermark,
     html_to_pdf_file,
     html_to_pdf_multiple,
     html_to_pdf_response,
@@ -535,8 +535,8 @@ def relatorio_guia_de_remessa(guias, is_async=False):  # noqa C901
 
     if len(lista_pdfs) == 1:
         if guia.status == GuiaStatus.CANCELADA:
-            return html_to_pdf_cancelada(
-                lista_pdfs[0], f"guia_{guia.numero_guia}.pdf", is_async
+            return html_to_pdf_watermark(
+                lista_pdfs[0], f"guia_{guia.numero_guia}.pdf", "cancel-1.pdf", is_async
             )
         else:
             return html_to_pdf_file(
@@ -1417,7 +1417,10 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
         },
     )
 
-    return html_to_pdf_file(html_string, "relatorio_dieta_especial.pdf", is_async=True)
+    if solicitacao.status == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE:
+        return html_to_pdf_file(html_string, "relatorio_dieta_especial.pdf", is_async=True)
+    else:
+        return html_to_pdf_watermark(html_string, "relatorio_dieta_especial.pdf", "preliminar.pdf", is_async=True)
 
 
 def relatorio_solicitacao_medicao_por_escola_cei(solicitacao):
@@ -1445,7 +1448,10 @@ def relatorio_solicitacao_medicao_por_escola_cei(solicitacao):
             "tabelas_somatorios": tabelas_somatorios,
         },
     )
-    return html_to_pdf_file(html_string, "relatorio_dieta_especial.pdf", is_async=True)
+    if solicitacao.status == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE:
+        return html_to_pdf_file(html_string, "relatorio_dieta_especial.pdf", is_async=True)
+    else:
+        return html_to_pdf_watermark(html_string, "relatorio_dieta_especial.pdf", "preliminar.pdf", is_async=True)
 
 
 def relatorio_solicitacao_medicao_por_escola_cemei(solicitacao):
@@ -1491,8 +1497,10 @@ def relatorio_solicitacao_medicao_por_escola_cemei(solicitacao):
             "tabelas_somatorios_infantil": tabelas_somatorios_infantil,
         },
     )
-
-    return html_to_pdf_file(html_string, "relatorio_dieta_especial.pdf", is_async=True)
+    if solicitacao.status == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE:
+        return html_to_pdf_file(html_string, "relatorio_dieta_especial.pdf", is_async=True)
+    else:
+        return html_to_pdf_watermark(html_string, "relatorio_dieta_especial.pdf", "preliminar.pdf", is_async=True)
 
 
 def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
@@ -1598,7 +1606,10 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
             "segunda_tabela_somatorio_dietas_tipo_b_fundamental": segunda_tabela_somatorio_dietas_tipo_b_fundamental,
         },
     )
-    return html_to_pdf_file(html_string, "relatorio_dieta_especial.pdf", is_async=True)
+    if solicitacao.status == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE:
+        return html_to_pdf_file(html_string, "relatorio_dieta_especial.pdf", is_async=True)
+    else:
+        return html_to_pdf_watermark(html_string, "relatorio_dieta_especial.pdf", "preliminar.pdf", is_async=True)
 
 
 def relatorio_consolidado_medicoes_iniciais_emef(
