@@ -9,7 +9,7 @@ from ..utils import (
     PDFMergeService,
     extrair_texto_de_pdf,
     get_config_cabecario_relatorio_analise,
-    html_to_pdf_cancelada,
+    html_to_pdf_watermark,
     html_to_pdf_email_anexo,
     html_to_pdf_file,
     html_to_pdf_multiple,
@@ -118,11 +118,11 @@ def test_html_to_pdf_file_async_false():
     assert texto.count("PDF") == 2
 
 
-def test_html_to_pdf_cancelada():
+def test_html_to_pdf_watermark():
     html_string = "<h1>PDF Cancelado</h1><p>Conteúdo para testar marca d'água</p>"
     nome_pdf = "cancelado.pdf"
 
-    pdf = html_to_pdf_cancelada(html_string, nome_pdf, is_async=True)
+    pdf = html_to_pdf_watermark(html_string, nome_pdf, is_async=True)
     assert isinstance(pdf, bytes)
 
     texto = extrair_texto_de_pdf(pdf)
@@ -130,11 +130,11 @@ def test_html_to_pdf_cancelada():
     assert "Conteúdo para testar marca d'água" in texto
 
 
-def test_html_to_pdf_cancelada_async_false():
+def test_html_to_pdf_watermark_async_false():
     html_string = "<h1>PDF Cancelado</h1><p>Conteúdo para testar marca d'água</p>"
     nome_pdf = "cancelado.pdf"
 
-    response = html_to_pdf_cancelada(html_string, nome_pdf, is_async=False)
+    response = html_to_pdf_watermark(html_string, nome_pdf, is_async=False)
 
     assert response.status_code == 200
     assert response.headers["Content-Type"] == "application/pdf"
