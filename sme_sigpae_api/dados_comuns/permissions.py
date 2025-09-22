@@ -370,7 +370,7 @@ class UsuarioTerceirizadaProduto(BasePermission):
         )
 
 
-class UsuarioEmpresaTerceirizada(BasePermission): # Confirmar se os 2 tipos de empresa são: Logistica e Alimentar
+class UsuarioEmpresaTerceirizada(BasePermission):
     """Permite acesso a usuários com vinculo a uma Terceirizada."""
 
     def has_permission(self, request, view):
@@ -386,6 +386,23 @@ class UsuarioEmpresaTerceirizada(BasePermission): # Confirmar se os 2 tipos de e
             ]
         )
 
+
+class UsuarioSupervisaoNutricao(BasePermission):
+    """Permite acesso a usuários com SupervisaoNutricao."""
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and isinstance(usuario.vinculo_atual.instituicao, Codae)
+            and usuario.vinculo_atual.perfil.nome
+            in [
+                COORDENADOR_SUPERVISAO_NUTRICAO,
+                ADMINISTRADOR_SUPERVISAO_NUTRICAO,
+                COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
+            ]
+        )
 
 class PermissaoParaRecuperarObjeto(BasePermission):
     """Permite acesso ao objeto se o objeto pertence ao usuário."""
