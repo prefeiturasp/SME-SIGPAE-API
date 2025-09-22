@@ -70,14 +70,14 @@ def html_to_pdf_file(html_string, pdf_filename, is_async=False):
         return response
 
 
-def html_to_pdf_cancelada(html_string, pdf_filename, is_async=False):
+def html_to_pdf_watermark(html_string, pdf_filename, watermark, is_async=False):
     arquivo_final = io.BytesIO()
     pdf_file = HTML(
         string=html_string, base_url=staticfiles_storage.location
     ).write_pdf()
 
     watermark_instance = PdfFileReader(
-        "sme_sigpae_api/relatorios/static/images/cancel-1.pdf"
+        f"sme_sigpae_api/relatorios/static/images/{watermark}"
     )
     watermark_page = watermark_instance.getPage(0)
     pdf_reader = PdfFileReader(io.BytesIO(pdf_file))
