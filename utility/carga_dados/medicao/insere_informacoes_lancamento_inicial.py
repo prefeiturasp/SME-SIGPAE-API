@@ -191,7 +191,7 @@ def incluir_log_alunos_matriculados_cei(
                 escola=escola,
                 periodo_escolar=pe,
                 quantidade_alunos=quantidade_alunos * faixas.count(),
-                tipo_turma=TipoTurma.REGULAR.name
+                tipo_turma=TipoTurma.REGULAR.name,
             )
             log.save()
             data = datetime.date(ano, mes, dia)

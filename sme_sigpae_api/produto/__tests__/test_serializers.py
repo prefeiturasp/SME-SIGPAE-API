@@ -1,6 +1,9 @@
 import pytest
 
 from sme_sigpae_api.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
+from sme_sigpae_api.produto.api.serializers.serializers import (
+    ReclamacaoDeProdutoExcelSerializer,
+)
 from sme_sigpae_api.produto.models import AnaliseSensorial
 
 pytestmark = pytest.mark.django_db
@@ -147,3 +150,19 @@ def test_homologacao_reclamacao_serializer(hom_produto_com_editais):
 
     assert "editais_reclamacoes" in data
     assert isinstance(data["editais_reclamacoes"], list)
+
+
+def test_reclamacao_produto_excel_serializer(reclamacao_produto_pdf):
+    serializer = ReclamacaoDeProdutoExcelSerializer(reclamacao_produto_pdf)
+    data = serializer.data
+    assert data["uuid"] == str(reclamacao_produto_pdf.uuid)
+    assert data["reclamacao"] == str(reclamacao_produto_pdf.reclamacao)
+    assert data["status"] == "AGUARDANDO_RESPOSTA_TERCEIRIZADA"
+    assert data["status_titulo"] == "Aguardando resposta da terceirizada"
+
+    assert "id_externo" in data
+    assert "escola" in data
+    assert "homologacao_produto" in data
+    assert "produto" in data["homologacao_produto"]
+    assert "marca" in data["homologacao_produto"]["produto"]
+    assert "fabricante" in data["homologacao_produto"]["produto"]

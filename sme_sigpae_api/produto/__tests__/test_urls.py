@@ -2078,3 +2078,52 @@ def test_url_endpoint_produtos_relatorio_reclamacoes_pdf_edital_nao_enviado(
     assert response.json() == {
         "detail": "É obrigatório selecionar pelo menos um edital para gerar o relatório."
     }
+
+
+def test_url_endpoint_produtos_relatorio_reclamacoes_excel(
+    client_autenticado_vinculo_terceirizada, hom_produto_com_editais
+):
+    client = client_autenticado_vinculo_terceirizada[0]
+    response = client.get(
+        "/produtos/relatorio-reclamacao-excel/",
+        {
+            "editais[]": [
+                "Edital de Pregão nº 78/sme/2022",
+                "Edital de Pregão nº 41/sme/2017",
+                "Edital de Pregão nº 78/sme/2016",
+            ]
+        },
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "detail": "Solicitação de geração de arquivo recebida com sucesso."
+    }
+
+
+def test_url_endpoint_produtos_relatorio_reclamacoes_excel_edital_vazio(
+    client_autenticado_vinculo_terceirizada, hom_produto_com_editais
+):
+    client = client_autenticado_vinculo_terceirizada[0]
+    response = client.get(
+        "/produtos/relatorio-reclamacao-excel/",
+        {"editais[]": []},
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": "É obrigatório selecionar pelo menos um edital para gerar o relatório."
+    }
+
+
+def test_url_endpoint_produtos_relatorio_reclamacoes_excel_edital_nao_enviado(
+    client_autenticado_vinculo_terceirizada, hom_produto_com_editais
+):
+    client = client_autenticado_vinculo_terceirizada[0]
+    response = client.get(
+        "/produtos/relatorio-reclamacao-excel/", content_type="application/json"
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": "É obrigatório selecionar pelo menos um edital para gerar o relatório."
+    }
