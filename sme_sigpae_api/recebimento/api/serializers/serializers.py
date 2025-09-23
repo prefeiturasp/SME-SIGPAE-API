@@ -298,4 +298,5 @@ class FichaDeRecebimentoDetalharSerializer(serializers.ModelSerializer):
             "houve_ocorrencia",
             "ocorrencias",
             "arquivos",
+            "alterado_em",
         )
