@@ -400,7 +400,6 @@ class UsuarioSupervisaoNutricao(BasePermission):
             in [
                 COORDENADOR_SUPERVISAO_NUTRICAO,
                 ADMINISTRADOR_SUPERVISAO_NUTRICAO,
-                COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
             ]
         )
 
