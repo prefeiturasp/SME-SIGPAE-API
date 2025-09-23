@@ -64,8 +64,8 @@
 
   .col-1  { width: 8.3333%; }
   .col-2  { width: 16.6667%; }
-  .col-3  { width: 25%; }
-  .col-4  { width: 33.3333%; }
+  .col-3  { width: 24%; }
+  .col-4  { width: 32.3333%; }
   .col-5  { width: 41.6667%; }
   .col-6  { width: 50%; }
   .col-7  { width: 58.3333%; }
@@ -84,14 +84,16 @@
   }
 
   table {
+    border-collapse: separate !important;
+    border-spacing: 0;
     margin-top: 2%;
-    width: 100%;
+    width: 100% !important;
+    table-layout: fixed;
     border: 1px solid $cinza-borda-tabela;
     font-size: 10px;
     line-height: 12px;
     color: $cinza-meio-escuro;
     margin-bottom: 0.5em;
-    border-collapse: collapse;
 
     thead {
       background-color: #F1F1F1;

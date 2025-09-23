@@ -15,20 +15,20 @@
         </div>
         <div class="col-3">
           <p>Data {{solicitacao.label_data}}:</p>
-          <p>{{solicitacao.data_log}}</p>
+          <p><b>{{solicitacao.data_log}}</b></p>
         </div>
       </div>
       {% for data_intervalo in solicitacao.datas_intervalo.all %}
-        <div class="row">
+        <div class="row mx-2">
           <div class="col-3"></div>
-          <div class="col-3" style="margin-left: 2em;">
+          <div class="col-3">
             <p>
               <b class="{% if data_intervalo.cancelado or solicitacao.status == 'ESCOLA_CANCELOU' %} dia-cancelado{% endif %}">
                 {{solicitacao.motivo}}
               </b>
             </p>
           </div>
-          <div class="col-3 pl-2" style="margin-left: 2em;">
+          <div class="col-3">
             <p>
               <b class="{% if data_intervalo.cancelado or solicitacao.status == 'ESCOLA_CANCELOU' %} dia-cancelado{% endif %}">
                 {{data_intervalo.data|date:'d/m/Y'}}
