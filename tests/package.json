@@ -7,7 +7,13 @@
 		"e2e": "cypress run --reporter mocha-allure-reporter",
 		"report:allure": "allure generate allure-results --clean -o allure-report && allure open  allure-report",
 		"test:allure": "npm run e2e && npm run report:allure"
-	},
+  },
+  "supportFile": "./support/e2e.js",
+  "dependencies": {
+      "cypress-cloud": "^2.0.0-beta.1",
+      "cypress-real-events": "^1.7.4",
+      "cypress-xpath": "^2.0.1"
+  },
 	"devDependencies": {
 		"@eslint/js": "^9.16.0",
 		"@shelex/cypress-allure-plugin": "^2.40.2",

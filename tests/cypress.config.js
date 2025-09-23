@@ -1,6 +1,7 @@
 const { defineConfig } = require('cypress')
 const allureWriter = require('@shelex/cypress-allure-plugin/writer')
-const { cloudPlugin } = require('cypress-cloud/plugin');
+const { cloudPlugin } = require('cypress-cloud/plugin')
+require('dotenv').config()
 
 module.exports = defineConfig({
 	e2e: {
@@ -14,23 +15,26 @@ module.exports = defineConfig({
 				}
 				return launchOptions
 			})
-			return cloudPlugin(on, config);
+			return cloudPlugin(on, config)
 		},
-		baseUrl: 'https://hom-sigpae.sme.prefeitura.sp.gov.br/',
-		usuario_coordenador_logistica: '07206148808',
-		usuario_coordenador_codae_dilog_logistica: '53666852220',
-		usuario_coordenador_supervisao_nutricao: '26088238070',
-		usuario_dilog_cronograma: '10840346034',
-		usuario_abastecimento: '45849486747',
-		usuario_diretor_ue: '44331733637',
-		usuario_codae: '01341145409',
-		usuario_gpcodae: '63133486802',
-		usuario_dre: '26755818011',
-		senha: 'adminadmin',
+		baseUrl: 'https://qa-sigpae.sme.prefeitura.sp.gov.br/',
+
+		usuario_coordenador_logistica: process.env.COORDENADOR_LOGISTICA,
+		usuario_coordenador_codae_dilog_logistica:
+			process.env.COORDENADOR_CODAE_DILOG_LOGISTICA,
+		usuario_coordenador_supervisao_nutricao:
+			process.env.COORDENADOR_SUPERVISAO_NUTRICAO,
+		usuario_dilog_cronograma: process.env.DILOG_CRONOGRAMA,
+		usuario_abastecimento: process.env.ABASTECIMENTO,
+		usuario_diretor_ue: process.env.DIRETOR_UE,
+		usuario_codae: process.env.CODAE,
+		usuario_gpcodae: process.env.GPCODAE,
+		usuario_dre: process.env.DRE,
+		senha: process.env.SENHA,
 		video: false,
 		timeout: 60000,
 		videoCompression: 0,
-		retries: 2,
+		retries: 1,
 		screenshotOnRunFailure: true,
 		chromeWebSecurity: false,
 		experimentalRunAllSpecs: true,
