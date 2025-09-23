@@ -4,12 +4,15 @@ import uuid
 import pytest
 
 from sme_sigpae_api.dados_comuns import constants
+from sme_sigpae_api.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from sme_sigpae_api.dados_comuns.models import CentralDeDownload
 from sme_sigpae_api.produto.api.serializers.serializers import (
     ProdutoReclamacaoSerializer,
+    ReclamacaoDeProdutoExcelSerializer,
 )
 from sme_sigpae_api.produto.models import HomologacaoProduto, Produto
 from sme_sigpae_api.produto.tasks import (
+    gera_excel_relatorio_reclamacao_produtos_async,
     gera_pdf_relatorio_produtos_homologados_async,
     gera_pdf_relatorio_reclamacao_produtos_async,
     gera_xls_relatorio_produtos_homologados_async,
@@ -201,6 +204,70 @@ def test_gera_pdf_relatorio_reclamacao_produtos_erro(produto, reclamacao_produto
 
     gera_pdf_relatorio_reclamacao_produtos_async(
         user, nome_arquivo, produtos, quantidade_reclamacoes, filtros
+    )
+
+    central_download = CentralDeDownload.objects.filter(
+        identificador=nome_arquivo
+    ).first()
+    assert central_download.status == CentralDeDownload.STATUS_ERRO
+    assert central_download.identificador == nome_arquivo
+    assert central_download.arquivo is not None
+    assert central_download.msg_erro == "'tuple' object has no attribute 'get'"
+    assert central_download.visto is False
+    assert central_download.usuario == user
+
+
+def test_gera_excel_relatorio_reclamacao_produtos(
+    reclamacao_produto_query_excel, reclamacao_produto_pdf
+):
+
+    user = reclamacao_produto_pdf.criado_por
+    nome_arquivo = "relatorio_reclamacao_produtos.xlsx"
+    reclamacoes = ReclamacaoDeProdutoExcelSerializer(
+        reclamacao_produto_query_excel, many=True
+    ).data
+    quantidade_reclamacoes = reclamacao_produto_query_excel.query
+    filtros = {
+        "data_inicial_reclamacao": "01/01/2022",
+        "data_final_reclamacao": "01/09/2025",
+    }
+
+    gera_excel_relatorio_reclamacao_produtos_async(
+        user, nome_arquivo, reclamacoes, quantidade_reclamacoes, filtros
+    )
+
+    central_download = CentralDeDownload.objects.filter(
+        identificador=nome_arquivo
+    ).first()
+    assert central_download.status == CentralDeDownload.STATUS_CONCLUIDO
+    assert central_download.identificador == nome_arquivo
+    assert central_download.arquivo is not None
+    assert central_download.msg_erro == ""
+    assert central_download.visto is False
+    assert central_download.usuario == user
+
+
+def test_gera_excel_relatorio_reclamacao_produtos_erro(
+    reclamacao_produto_query_excel, reclamacao_produto_pdf
+):
+
+    user = reclamacao_produto_pdf.criado_por
+    nome_arquivo = "relatorio_reclamacao_produtos.xlsx"
+    reclamacoes = ReclamacaoDeProdutoExcelSerializer(
+        reclamacao_produto_query_excel, many=True
+    ).data
+    quantidade_reclamacoes = reclamacao_produto_query_excel.query
+    filtros = (
+        (
+            {
+                "data_inicial_reclamacao": "01/01/2022",
+                "data_final_reclamacao": "01/09/2025",
+            }
+        ),
+    )
+
+    gera_excel_relatorio_reclamacao_produtos_async(
+        user, nome_arquivo, reclamacoes, quantidade_reclamacoes, filtros
     )
 
     central_download = CentralDeDownload.objects.filter(
