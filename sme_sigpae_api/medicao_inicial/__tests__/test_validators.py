@@ -152,7 +152,7 @@ def test_validate_medicao_cei_cemei_periodo_integral_dia_letivo_nao_preenchido(
     categoria_medicao,
 ):
     # arrange
-    dia = 1
+    dia = 3
     periodo_integral = make_periodo_escolar("INTEGRAL")
     make_medicao(solicitacao_medicao_inicial_cemei_simples, periodo_integral)
     make_dia_letivo(
