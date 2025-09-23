@@ -177,11 +177,11 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
     data_validade_de_acordo = serializers.BooleanField(required=True)
     data_validade_divergencia = serializers.CharField(required=False, allow_blank=True)
     numero_lote_armazenagem = serializers.CharField(required=True)
-    numero_paletes = serializers.CharField(required=True)
-    peso_embalagem_primaria_1 = serializers.CharField(required=True)
-    peso_embalagem_primaria_2 = serializers.CharField(required=True)
-    peso_embalagem_primaria_3 = serializers.CharField(required=True)
-    peso_embalagem_primaria_4 = serializers.CharField(required=True)
+    numero_paletes = serializers.IntegerField(required=True)
+    peso_embalagem_primaria_1 = serializers.FloatField(required=True)
+    peso_embalagem_primaria_2 = serializers.FloatField(required=True)
+    peso_embalagem_primaria_3 = serializers.FloatField(required=True)
+    peso_embalagem_primaria_4 = serializers.FloatField(required=True)
     veiculos = serializers.ListField(child=serializers.DictField(), required=True)
     sistema_vedacao_embalagem_secundaria = serializers.CharField(required=True)
     observacao = serializers.CharField(required=False, allow_blank=True)
@@ -320,6 +320,21 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
 
         return ficha_atualizada
 
+    def to_internal_value(self, data):
+        peso_fields = [
+            "numero_paletes",
+            "peso_embalagem_primaria_1",
+            "peso_embalagem_primaria_2",
+            "peso_embalagem_primaria_3",
+            "peso_embalagem_primaria_4",
+        ]
+
+        for field in peso_fields:
+            if field in data and isinstance(data[field], str):
+                data[field] = data[field].replace(".", "").replace(",", ".")
+
+        return super().to_internal_value(data)
+
 
 class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
     etapa = serializers.SlugRelatedField(
@@ -372,6 +387,21 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
             instance.ocorrencias.all(), many=True
         ).data
         return representation
+
+    def to_internal_value(self, data):
+        peso_fields = [
+            "numero_paletes",
+            "peso_embalagem_primaria_1",
+            "peso_embalagem_primaria_2",
+            "peso_embalagem_primaria_3",
+            "peso_embalagem_primaria_4",
+        ]
+
+        for field in peso_fields:
+            if field in data and isinstance(data[field], str):
+                data[field] = data[field].replace(".", "").replace(",", ".")
+
+        return super().to_internal_value(data)
 
     class Meta:
         model = FichaDeRecebimento
