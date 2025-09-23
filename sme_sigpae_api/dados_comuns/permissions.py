@@ -403,6 +403,7 @@ class UsuarioSupervisaoNutricao(BasePermission):
             ]
         )
 
+
 class PermissaoParaRecuperarObjeto(BasePermission):
     """Permite acesso ao objeto se o objeto pertence ao usuário."""
 
