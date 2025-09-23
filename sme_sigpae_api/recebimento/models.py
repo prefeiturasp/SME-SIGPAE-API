@@ -153,33 +153,17 @@ class FichaDeRecebimento(
         null=True,
         blank=True,
     )
-    peso_embalagem_primaria_1 = models.DecimalField(
-        "Peso da Embalagem Primária (1)",
-        max_digits=25,
-        null=True,
-        blank=True,
-        decimal_places=2
+    peso_embalagem_primaria_1 = models.FloatField(
+        "Peso da Embalagem Primária (1)", null=True, blank=True
     )
-    peso_embalagem_primaria_2 = models.DecimalField(
-        "Peso da Embalagem Primária (2)",
-        max_digits=25,
-        null=True,
-        blank=True,
-        decimal_places=2
+    peso_embalagem_primaria_2 = models.FloatField(
+        "Peso da Embalagem Primária (2)", null=True, blank=True
     )
-    peso_embalagem_primaria_3 = models.DecimalField(
-        "Peso da Embalagem Primária (3)",
-        max_digits=25,
-        null=True,
-        blank=True,
-        decimal_places=2
+    peso_embalagem_primaria_3 = models.FloatField(
+        "Peso da Embalagem Primária (3)", null=True, blank=True
     )
-    peso_embalagem_primaria_4 = models.DecimalField(
-        "Peso da Embalagem Primária (4)",
-        max_digits=25,
-        null=True,
-        blank=True,
-        decimal_places=2
+    peso_embalagem_primaria_4 = models.FloatField(
+        "Peso da Embalagem Primária (4)", null=True, blank=True
     )
 
     sistema_vedacao_embalagem_secundaria = models.TextField(
