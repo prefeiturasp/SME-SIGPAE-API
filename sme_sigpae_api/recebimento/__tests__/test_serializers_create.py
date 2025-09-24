@@ -171,17 +171,20 @@ def test_ficha_recebimento_serializer_create(payload_ficha_recebimento):
     serializer = FichaDeRecebimentoCreateSerializer(
         data=payload_ficha_recebimento, context=context
     )
-    is_valid = serializer.is_valid()
-    if not is_valid:
-        print("\nErros de validação:", serializer.errors)
-    assert is_valid, f"O serializer não é válido. Erros: {serializer.errors}"
-
+    serializer.is_valid()
+    
     ficha = serializer.save()
     assert ficha.id is not None
     assert ficha.veiculos.count() > 0
     assert ficha.arquivos.count() > 0
     assert ficha.questoes_conferencia.count() > 0
 
+    internal_data  = serializer.validated_data
+    assert internal_data['numero_paletes'] == ficha.numero_paletes
+    assert internal_data['peso_embalagem_primaria_1'] == ficha.peso_embalagem_primaria_1
+    assert internal_data['peso_embalagem_primaria_2'] == ficha.peso_embalagem_primaria_2
+    assert internal_data['peso_embalagem_primaria_3'] == ficha.peso_embalagem_primaria_3
+    assert internal_data['peso_embalagem_primaria_4'] == ficha.peso_embalagem_primaria_4
 
 def test_ficha_recebimento_serializer_update(
     ficha_recebimento, payload_ficha_recebimento
@@ -199,17 +202,21 @@ def test_ficha_recebimento_serializer_update(
     serializer = FichaDeRecebimentoCreateSerializer(
         instance=ficha_recebimento, data=payload_ficha_recebimento, context=context
     )
-    is_valid = serializer.is_valid()
-    if not is_valid:
-        print("\nErros de validação:", serializer.errors)
-    assert is_valid, f"O serializer não é válido. Erros: {serializer.errors}"
-
+    serializer.is_valid()
+    
     ficha = serializer.save()
     assert ficha.observacao == "Observação atualizada"
     assert ficha.veiculos.count() > 0
     assert ficha.arquivos.count() > 0
     assert ficha.questoes_conferencia.count() > 0
     assert ficha.status == "ASSINADA"
+  
+    internal_data  = serializer.validated_data
+    assert internal_data['numero_paletes'] == ficha.numero_paletes
+    assert internal_data['peso_embalagem_primaria_1'] == ficha.peso_embalagem_primaria_1
+    assert internal_data['peso_embalagem_primaria_2'] == ficha.peso_embalagem_primaria_2
+    assert internal_data['peso_embalagem_primaria_3'] == ficha.peso_embalagem_primaria_3
+    assert internal_data['peso_embalagem_primaria_4'] == ficha.peso_embalagem_primaria_4
 
 
 def test_ficha_recebimento_assinada_para_rascunho(
@@ -239,15 +246,19 @@ def test_ficha_recebimento_assinada_para_rascunho(
     serializer_rascunho = FichaDeRecebimentoRascunhoSerializer(
         instance=ficha, data=payload_rascunho, context=context
     )
-    is_valid = serializer_rascunho.is_valid()
-    if not is_valid:
-        print("\nErros de validação:", serializer_rascunho.errors)
-    assert is_valid, f"O serializer não é válido. Erros: {serializer_rascunho.errors}"
-
+    serializer_rascunho.is_valid()
+    
     ficha_editada = serializer_rascunho.save()
 
     assert ficha_editada.status == "RASCUNHO"
     assert ficha_editada.observacao == "Editado via serializer de rascunho"
+      
+    internal_data  = serializer.validated_data
+    assert internal_data['numero_paletes'] == ficha.numero_paletes
+    assert internal_data['peso_embalagem_primaria_1'] == ficha.peso_embalagem_primaria_1
+    assert internal_data['peso_embalagem_primaria_2'] == ficha.peso_embalagem_primaria_2
+    assert internal_data['peso_embalagem_primaria_3'] == ficha.peso_embalagem_primaria_3
+    assert internal_data['peso_embalagem_primaria_4'] == ficha.peso_embalagem_primaria_4
 
 
 def test_ficha_recebimento_serializer_validate_veiculos(payload_ficha_recebimento):
