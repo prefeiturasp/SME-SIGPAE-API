@@ -1,6 +1,7 @@
 {% load index %}
 
 {% block cabecalho_solicitacao_partindo_escola %}
+<div class="header-solicitacao">
   <hr style="color: #EEEEEE; opacity: 0.3">
   <h5 style="text-align: center">Relatório SIGPAE - {{ solicitacao.DESCRICAO }}</h5>
   <div class="row id-pedido">
@@ -46,5 +47,6 @@
     {%endif%}
   </div>
   {% endif%}
-   <hr style="color: #EEEEEE; opacity: 0.3">
+  <hr style="color: #EEEEEE; opacity: 0.3">
+  </div>
 {% endblock %}

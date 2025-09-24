@@ -90,46 +90,39 @@
     </div>
     {% endfor %}
   </div>
-  <div class="mt-5"></div>
-  <div class="row p-0 mx-4 mt-5">
-    <div class="col-6 mr-3 titulo-assinatura">
-      <b>ASSINATURA UNIDADE EDUCACIONAL</b>
-    </div>
-    <div class="col-5 titulo-assinatura">
-      <b>RESPONSÁVEL PELA CONFERÊNCIA NA DRE</b>
+  <div class="bloco-assinaturas">
+    <div class="row p-0 mx-4 mt-3">
+      <div class="col-6 mr-3 assinatura">
+        {% if assinatura_escola %}
+        <div class="row p-0 mx-1">
+          <div class="col-2">
+            <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+          </div>
+          <div class="col-10 texto">
+            <span>
+              {{assinatura_escola}}
+            </span>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      <div class="col-6 assinatura">
+        {% if assinatura_dre %}
+        <div class="row p-0 mx-1">
+          <div class="col-2">
+            <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+          </div>
+          <div class="col-10 texto">
+            <span>
+              {{assinatura_dre}}
+            </span>
+          </div>
+        </div>
+        {% endif %}
+      </div>
     </div>
   </div>
-  <div class="row p-0 mx-4 mt-3">
-    <div class="col-6 mr-3 assinatura">
-      {% if assinatura_escola %}
-      <div class="row p-0 mx-1">
-        <div class="col-2">
-          <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
-        </div>
-        <div class="col-10 texto">
-          <span>
-            {{assinatura_escola}}
-          </span>
-        </div>
-      </div>
-      {% endif %}
-    </div>
-    <div class="col-6 assinatura">
-      {% if assinatura_dre %}
-      <div class="row p-0 mx-1">
-        <div class="col-2">
-          <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
-        </div>
-        <div class="col-10 texto">
-          <span>
-            {{assinatura_dre}}
-          </span>
-        </div>
-      </div>
-      {% endif %}
-    </div>
-  </div>
-  
+
   {% for tabela in tabelas %}
     <header class="header" style="page-break-before: always;">
       <div class="row p-0 mx-4">
@@ -184,7 +177,7 @@
           {% endfor %}
         </tr>
 
-        
+
         <tr>
           {{tabela|build_headers_faixas_etarias|safe}}
         </tr>
@@ -474,45 +467,47 @@
     </table>
   {% endif %}
 
-  <div class="bloco-assinatura">
-    <div class="row p-0 mx-4 mt-5">
-      <div class="col-6 mr-3 titulo-assinatura">
-        <b>ASSINATURA UNIDADE EDUCACIONAL</b>
+  <div id="last-page-footer">
+      <div class="row p-0 mx-4 mt-5">
+        <div class="col-6 mr-3 titulo-assinatura">
+          <b>ASSINATURA UNIDADE EDUCACIONAL</b>
+        </div>
+        <div class="col-5 titulo-assinatura">
+          <b>RESPONSÁVEL PELA CONFERÊNCIA NA DRE</b>
+        </div>
       </div>
-      <div class="col-5 titulo-assinatura">
-        <b>RESPONSÁVEL PELA CONFERÊNCIA NA DRE</b>
-      </div>
-    </div>
-    <div class="row p-0 mx-4 mt-3">
-      <div class="col-6 mr-3 assinatura">
-        {% if assinatura_escola %}
-        <div class="row p-0 mx-1">
-          <div class="col-2">
-            <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+      <div class="bloco-assinaturas mt-auto">
+        <div class="row p-0 mx-4 mt-3">
+          <div class="col-6 mr-3 assinatura">
+            {% if assinatura_escola %}
+            <div class="row p-0 mx-1">
+              <div class="col-2">
+                <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+              </div>
+              <div class="col-10 texto">
+                <span>
+                  {{assinatura_escola}}
+                </span>
+              </div>
+            </div>
+            {% endif %}
           </div>
-          <div class="col-10 texto">
-            <span>
-              {{assinatura_escola}}
-            </span>
+          <div class="col-6 assinatura">
+            {% if assinatura_dre %}
+            <div class="row p-0 mx-1">
+              <div class="col-2">
+                <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+              </div>
+              <div class="col-10 texto">
+                <span>
+                  {{assinatura_dre}}
+                </span>
+              </div>
+            </div>
+            {% endif %}
           </div>
         </div>
-        {% endif %}
-      </div>
-      <div class="col-6 assinatura">
-        {% if assinatura_dre %}
-        <div class="row p-0 mx-1">
-          <div class="col-2">
-            <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
-          </div>
-          <div class="col-10 texto">
-            <span>
-              {{assinatura_dre}}
-            </span>
-          </div>
-        </div>
-        {% endif %}
       </div>
     </div>
-  </div>
 </body>
 </html>

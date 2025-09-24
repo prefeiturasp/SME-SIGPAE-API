@@ -65,7 +65,7 @@
                 {% endif %}
             {% endif %}
           {% endfor %}
-        </table> 
+        </table>
       {% endif %}
 
       <div class="row green-text">
@@ -88,7 +88,7 @@
         <div class="col-1 logo-sigpae">
           <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
         </div>
-        <div class="col-11 ml-3">
+        <div class="col-10 ml-4">
           <span class="text-footer-insucesso">
             Este documento foi registrado eletronicamente por <strong>{{ page.reposicao.criado_por.nome|upper }}</strong>, <strong>{{ page.reposicao.criado_por.cargo|default:" "|upper }}</strong>, <strong>{{page.reposicao.criado_por.registro_funcional|default:page.reposicao.criado_por.cpf}}</strong>, <strong>{{ page.reposicao.criado_por.vinculo_atual.instituicao.nome|upper }}</strong> em {{ page.reposicao.criado_em|date:"d/m/Y" }}, às {{ page.reposicao.criado_em|time:"H:i" }}. O registro eletrônico da Guia de Remessa é comprovação e ateste do serviço prestado à Unidade Educacional, conforme previsão contratual.
           </span>

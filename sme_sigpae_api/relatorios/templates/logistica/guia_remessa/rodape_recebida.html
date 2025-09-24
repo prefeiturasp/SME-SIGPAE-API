@@ -15,7 +15,7 @@
         <div class="col-1 logo-sigpae">
           <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
         </div>
-        <div class="col-11 ml-3">
+        <div class="col-10 ml-4">
           <span class="text-footer-insucesso">
             Este documento foi registrado eletronicamente por <strong>{{ page.insucesso.criado_por.nome|upper }}</strong>, <strong>{{ page.insucesso.criado_por.cargo|default:" "|upper }}</strong>, <strong>{{ page.insucesso.criado_por.cpf|default:"     " }}</strong>, <strong>{{ page.solicitacao.distribuidor.nome_fantasia|upper }}</strong> em {{ page.insucesso.criado_em|date:"d/m/Y" }}, às {{ page.insucesso.criado_em|time:"H:i" }}. O registro eletrônico da Guia de Remessa é comprovação e ateste do serviço prestado à Unidade Educacional, conforme previsão contratual.
           </span>
@@ -26,7 +26,7 @@
       <div class="col-1 logo-sigpae">
         <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
       </div>
-      <div class="col-11 ml-3">
+      <div class="col-10 ml-4">
         <span class="text-footer-insucesso">
           Este documento foi registrado eletronicamente por <strong>{{ page.conferencia.criado_por.nome|upper }}</strong>, <strong>{{ page.conferencia.criado_por.cargo|default:" "|upper }}</strong>, <strong>{{page.conferencia.criado_por.registro_funcional|default:page.conferencia.criado_por.cpf}}</strong>, <strong>{{ page.conferencia.criado_por.vinculo_atual.instituicao.nome|upper }}</strong> em {{ page.conferencia.criado_em|date:"d/m/Y" }}, às {{ page.conferencia.criado_em|time:"H:i" }}. O registro eletrônico da Guia de Remessa é comprovação e ateste do serviço prestado à Unidade Educacional, conforme previsão contratual.
         </span>

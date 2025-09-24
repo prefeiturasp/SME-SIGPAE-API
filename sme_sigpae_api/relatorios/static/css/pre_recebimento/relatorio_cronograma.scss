@@ -1,12 +1,7 @@
 @import "../variaveis";
 
-@page :nth(n+2) {
-  margin-top: 6.7cm !important;
-  padding-top: 1cm !important;
-}
-
-@page :nth(1) {
-  margin-top: 1cm !important;
+@page {
+  margin-top: 1.5cm !important;
   padding-top: 6.6cm !important;
 }
 

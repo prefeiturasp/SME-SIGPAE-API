@@ -5,42 +5,41 @@
 {% block conteudo %}
 
 <div class="row mx-5 my-2">
-  {% if solicitacao.foi_solicitado_fora_do_prazo%}
-    <div class="col-12" style="color: #42474A; font-weight: 700; font-size: 14px">Solicitação fora do prazo regular</div>
-  {% else %}
-    <div class="col-12" style="color: #42474A; font-weight: 700; font-size: 14px">Solicitação no prazo regular</div>
-  {% endif %}
   <div class="col-12 my-3" style="color: #42474A; font-weight: 700; font-size: 14px; text-align: center">Relatório SIGPAE - Inclusão de Alimentação</div>
 </div>
 
-<div class="row mx-5 my-2" style="font-weight: 400; font-size: 14px; color: #42474A;">
-  <div class="col-4" style="padding: 1%; font-family: 'Roboto'; font-style: normal; font-weight: 700; background: #F3F3F3; border: 1px solid #E3E6F0; border-radius: 4px; text-align: center; color: #42474A;">
-    <p style="font-size: 24px; margin: 0;"># {{ solicitacao.id_externo }}</p>
-    <p style="font-size: 14px; margin: 0;">Nº DA SOLICITAÇÃO</p>
+<div class="header-solicitacao">
+  <div class="row mx-5 my-2">
+    <div class="col-4" style="padding: 1%; font-family: 'Roboto'; font-style: bold; font-weight: 700; background: #F3F3F3; border: 1px solid #E3E6F0; border-radius: 4px; text-align: center; color: #42474A;">
+      <p style="font-size: 24px; margin: 0;"># {{ solicitacao.id_externo }}</p>
+      <p style="font-size: 14px; margin: 0;">Nº DA SOLICITAÇÃO</p>
+    </div>
+    <div class="col-5">
+      <p>Escola Solicitante:</p>
+      <p><b>{{ escola.nome }}</b></p>
+    </div>
+    <div class="col-2">
+      <p>EOL:</p>
+      <p><b>{{ escola.codigo_eol }}</b></p>
+    </div>
   </div>
-  <div class="col-6">
-    <p>Escola Solicitante:</p>
-    <p><b>{{ escola.nome }}</b></p>
-  </div>
-  <div class="col-2">
-    <p>EOL:</p>
-    <p><b>{{ escola.codigo_eol }}</b></p>
-  </div>
-  <div class="col-3">
-    <p>DRE:</p>
-    <p><b>{{ escola.diretoria_regional.nome }}</b></p>
-  </div>
-  <div class="col-3">
-    <p>Lote:</p>
-    <p><b>{{ escola.lote.nome|retorna_lote }}</b></p>
-  </div>
-  <div class="col-3">
-    <p>Tipo de Gestão:</p>
-    <p><b>{{ escola.tipo_gestao.nome }}</b></p>
-  </div>
-  <div class="col-3">
-    <p>Empresa:</p>
-    <p><b>{{ solicitacao.rastro_terceirizada.nome_fantasia }}</b></p>
+  <div class="row mx-5 my-2">
+    <div class="col-3">
+      <p>DRE:</p>
+      <p><b>{{ escola.diretoria_regional.nome }}</b></p>
+    </div>
+    <div class="col-3">
+      <p>Lote:</p>
+      <p><b>{{ escola.lote.nome }}</b></p>
+    </div>
+    <div class="col-3">
+      <p>Tipo de Gestão:</p>
+      <p><b>{{ escola.tipo_gestao.nome }}</b></p>
+    </div>
+    <div class="col-3">
+      <p>Empresa:</p>
+      <p><b>{{ solicitacao.rastro_terceirizada.nome_fantasia }}</b></p>
+    </div>
   </div>
 </div>
 

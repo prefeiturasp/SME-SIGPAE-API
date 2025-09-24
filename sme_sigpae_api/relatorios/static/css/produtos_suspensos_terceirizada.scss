@@ -72,7 +72,9 @@
     line-height: 12px;
     color: $cinza-meio-escuro;
     margin-bottom: 0.5em;
-    border-collapse: collapse;
+    border-collapse: separate !important;
+    border-spacing: 0;
+    table-layout: fixed;
 
     thead {
       background-color: #F1F1F1;
