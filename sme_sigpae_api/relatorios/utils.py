@@ -6,6 +6,7 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django_weasyprint.utils import django_url_fetcher
+from pdfminer.high_level import extract_text
 from pikepdf import Pdf
 from PyPDF4 import PdfFileMerger, PdfFileReader, PdfFileWriter
 from weasyprint import CSS, HTML
@@ -367,15 +368,17 @@ def todas_escolas_sol_kit_lanche_unificado_cancelado(solicitacao):
 
 def extrair_texto_de_pdf(conteudo: bytes) -> str:
     """
-    Extrai o texto de um PDF a partir de uma resposta HTTP.
-    Remove quebras de linha desnecessárias e trata a codificação.
+    Extrai o texto de um PDF a partir de bytes.
+    Remove quebras de linha desnecessárias e normaliza espaços.
+    Usa pdfminer.six (mais confiável que PyPDF).
     """
-    pdf_reader = PdfFileReader(io.BytesIO(conteudo))
-    texto = ""
-    for page_num in range(pdf_reader.getNumPages()):
-        texto_bruto = pdf_reader.getPage(page_num).extractText()
-        texto_codificado = texto_bruto.encode().decode("utf-8", errors="ignore")
-        texto += texto_codificado.replace("\n\n", "").replace("\n", " ")
+    with io.BytesIO(conteudo) as pdf_buffer:
+        texto_bruto = extract_text(pdf_buffer)
+
+    texto = (
+        texto_bruto.replace("\n\n", " ").replace("\n", " ").replace("\t", " ").strip()
+    )
+    texto = " ".join(texto.split())
     return texto
 
 
