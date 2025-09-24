@@ -1,5 +1,33 @@
 @import "../variaveis";
 
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: url("../../fonts/Roboto/Roboto-Regular.ttf") format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  src: url("../../fonts/Roboto/Roboto-Bold.ttf") format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 400;
+  src: url("../../fonts/Roboto/Roboto-Italic.ttf") format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 700;
+  src: url("../../fonts/Roboto/Roboto-BoldItalic.ttf") format('truetype');
+}
+
 .flex{
   display: flex;
 
@@ -57,10 +85,11 @@
 }
 
 .header {
-  padding: 1em 1em 1em 1em;
+  padding: 1em;
+  padding-top: 5em;
   background: $cinza-claro;
   font-size: 14px;
-  height: 272px;
+  height: 230px;
 }
 
 .header .info {
