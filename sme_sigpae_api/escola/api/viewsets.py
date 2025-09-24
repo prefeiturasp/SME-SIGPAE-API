@@ -392,6 +392,7 @@ class PeriodoEscolarViewSet(ReadOnlyModelViewSet):
             if (
                 isinstance(instituicao, DiretoriaRegional)
                 or isinstance(instituicao, Codae)
+                or isinstance(instituicao, Terceirizada)
             ) and escola:
                 instituicao = Escola.objects.get(uuid=escola)
             periodos = dict(
