@@ -8,11 +8,10 @@
 .page-container {
   .row {
     display: block !important;
-    margin-left: -0.75rem;  /* mesmo gutter do Bootstrap */
+    margin-left: -0.75rem;
     margin-right: -0.75rem;
   }
 
-  /* Reseta as colunas */
   [class*="col-"] {
     display: inline-block !important;
     vertical-align: top;
@@ -21,7 +20,6 @@
     box-sizing: border-box;
   }
 
-  /* Define larguras (12 colunas = 100%) */
   .col-1  { width: 8.3333%; }
   .col-2  { width: 16.6667%; }
   .col-3  { width: 25%; }

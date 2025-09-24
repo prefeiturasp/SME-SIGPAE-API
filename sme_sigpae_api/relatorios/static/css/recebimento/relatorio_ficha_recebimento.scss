@@ -1,7 +1,6 @@
 @import "../variaveis";
 
 @page {
-  padding-top: 6.1cm;
   @top-center {
     content: element(cabecalho);
     width: 100%;
@@ -9,14 +8,9 @@
  }
 
 
- @page :nth(n+2) {
-  margin-top: 4.8cm;
-  padding-top: 1cm;
-}
-
-@page :nth(1) {
-  margin-top: -0.5cm;
-  padding-top: 5.8cm;
+ @page {
+  margin-top: -1cm;
+  padding-top: 5cm;
 }
 
 html{
@@ -25,7 +19,7 @@ html{
 
 header {
  position: running(cabecalho);
- margin-top: 5.6cm;
+ margin-top: 4.3cm;
 }
 
 .table {
