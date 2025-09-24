@@ -62,6 +62,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-top: 8px;
 
   img {
     height: 48px;
@@ -84,11 +85,10 @@
 }
 
 .header {
-  padding: 1em;
-  padding-top: -15px;
+  padding: 1em 1em 1em 1em;
   background: $cinza-claro;
   font-size: 14px;
-  height: 180px;
+  height: 272px;
 }
 
 .header .info {
