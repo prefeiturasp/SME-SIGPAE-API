@@ -86,7 +86,7 @@ sentry-sdk = "==2.38.0"
 django-prometheus = "==2.4.1"
 # Relatórios
 weasyprint = "==66"
-django-sass-processor = "==1.4.1"
+django-sass-processor = "==1.4.2"
 django-compressor = "==4.5.1"
 libsass = "==0.23.0"
 django-crispy-forms = "*"
