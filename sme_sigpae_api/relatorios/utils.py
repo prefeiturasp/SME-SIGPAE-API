@@ -77,10 +77,11 @@ def html_to_pdf_watermark(html_string, pdf_filename, watermark, is_async=False):
     ).write_pdf()
 
     watermark_instance = PdfFileReader(
-        f"sme_sigpae_api/relatorios/static/images/{watermark}"
+        f"sme_sigpae_api/relatorios/static/images/{watermark}",
+        strict=False
     )
     watermark_page = watermark_instance.getPage(0)
-    pdf_reader = PdfFileReader(io.BytesIO(pdf_file))
+    pdf_reader = PdfFileReader(io.BytesIO(pdf_file), strict=False)
     pdf_writer = PdfFileWriter()
 
     for page in range(pdf_reader.getNumPages()):
