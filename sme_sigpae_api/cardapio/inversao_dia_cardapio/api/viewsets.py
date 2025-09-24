@@ -16,8 +16,8 @@ from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaRecuperarObjeto,
     UsuarioCODAEGestaoAlimentacao,
     UsuarioDiretoriaRegional,
-    UsuarioEscolaTercTotal,
     UsuarioEmpresaGenerico,
+    UsuarioEscolaTercTotal,
 )
 from sme_sigpae_api.relatorios.relatorios import relatorio_inversao_dia_de_cardapio
 

@@ -31,9 +31,9 @@ from ...dados_comuns.permissions import (
     PermissaoRelatorioDietasEspeciais,
     PermissaoRelatorioRecreioNasFerias,
     UsuarioCODAEDietaEspecial,
+    UsuarioEmpresaGenerico,
     UsuarioEscolaDiretaParceira,
     UsuarioEscolaTercTotal,
-    UsuarioEmpresaGenerico,
 )
 from ...dados_comuns.services import enviar_email_codae_atualiza_protocolo
 from ...dieta_especial.tasks import gera_pdf_relatorio_dieta_especial_async

@@ -23,8 +23,8 @@ from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaRecuperarObjeto,
     UsuarioCODAEGestaoAlimentacao,
-    UsuarioEscolaTercTotal,
     UsuarioEmpresaGenerico,
+    UsuarioEscolaTercTotal,
 )
 from sme_sigpae_api.dados_comuns.services import (
     enviar_email_ue_cancelar_pedido_parcialmente,

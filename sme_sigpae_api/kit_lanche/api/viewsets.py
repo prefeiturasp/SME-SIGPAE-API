@@ -16,8 +16,8 @@ from ...dados_comuns.permissions import (
     PermissaoParaRecuperarSolicitacaoUnificada,
     UsuarioCODAEGestaoAlimentacao,
     UsuarioDiretoriaRegional,
-    UsuarioEscolaTercTotal,
     UsuarioEmpresaGenerico,
+    UsuarioEscolaTercTotal,
 )
 from ...inclusao_alimentacao.api.viewsets import (
     CodaeAutoriza,
