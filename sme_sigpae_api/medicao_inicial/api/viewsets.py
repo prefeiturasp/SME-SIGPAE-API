@@ -416,20 +416,24 @@ class SolicitacaoMedicaoInicialViewSet(
 
     def formatar_filtros(self, query_params):
         kwargs = {}
-        if query_params.get("mes_ano"):
-            data_splitted = query_params.get("mes_ano").split("_")
-            kwargs["mes"] = data_splitted[0]
-            kwargs["ano"] = data_splitted[1]
-        if query_params.getlist("lotes_selecionados[]"):
-            kwargs["escola__lote__uuid__in"] = query_params.getlist(
-                "lotes_selecionados[]"
-            )
-        if query_params.get("tipo_unidade"):
-            kwargs["escola__tipo_unidade__uuid"] = query_params.get("tipo_unidade")
-        if query_params.get("escola"):
-            kwargs["escola__codigo_eol"] = query_params.get("escola").split(" - ")[0]
-        if query_params.get("dre"):
-            kwargs["escola__diretoria_regional__uuid"] = query_params.get("dre")
+
+        mapping = {
+            "tipo_unidade": lambda params: {"escola__tipo_unidade__uuid": params.get("tipo_unidade")},
+            "dre": lambda params: {"escola__diretoria_regional__uuid": params.get("dre")},
+            "ocorrencias": lambda params: {"com_ocorrencias": params.get("ocorrencias").lower() == "true"},
+            "mes_ano": lambda params: dict(zip(["mes", "ano"], params["mes_ano"].split("_"))),
+            "lotes_selecionados[]": lambda params: {
+                "escola__lote__uuid__in": params.getlist("lotes_selecionados[]")
+            },
+            "escola": lambda params: {
+                "escola__codigo_eol": params.get("escola").split(" - ")[0]
+            },
+        }
+
+        for param, parser in mapping.items():
+            if query_params.get(param) or query_params.getlist(param):
+                kwargs.update(parser(query_params))
+
         return kwargs
 
     @action(
