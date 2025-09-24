@@ -212,11 +212,11 @@ def payload_ficha_recebimento_rascunho(
         "data_validade_de_acordo": True,
         "data_validade_divergencia": "",
         "numero_lote_armazenagem": str(fake.random_number(digits=10)),
-        "numero_paletes": str(fake.random_number(digits=3)),
-        "peso_embalagem_primaria_1": str(fake.random_number(digits=3)),
-        "peso_embalagem_primaria_2": str(fake.random_number(digits=3)),
-        "peso_embalagem_primaria_3": str(fake.random_number(digits=3)),
-        "peso_embalagem_primaria_4": str(fake.random_number(digits=3)),
+        "numero_paletes": "1.000",
+        "peso_embalagem_primaria_1": "1.110,56",
+        "peso_embalagem_primaria_2": "5,89",
+        "peso_embalagem_primaria_3": "14",
+        "peso_embalagem_primaria_4": "69,6",
         "veiculos": [
             {
                 "numero": "Veiculo 1",
