@@ -231,6 +231,8 @@ class SolicitacaoMedicaoInicialViewSet(
         | UsuarioCODAENutriManifestacao
         | UsuarioCODAEGabinete
         | UsuarioDinutreDiretoria
+        | UsuarioEmpresaTerceirizada
+        | UsuarioSupervisaoNutricao
     ]
     queryset = SolicitacaoMedicaoInicial.objects.all()
 
@@ -686,6 +688,8 @@ class SolicitacaoMedicaoInicialViewSet(
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGabinete
             | UsuarioDinutreDiretoria
+            | UsuarioEmpresaTerceirizada
+            | UsuarioSupervisaoNutricao
         ],
     )
     def periodos_grupos_medicao(self, request):
@@ -1496,6 +1500,8 @@ class MedicaoViewSet(
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGabinete
             | UsuarioDinutreDiretoria
+            | UsuarioEmpresaTerceirizada
+            | UsuarioSupervisaoNutricao
         ],
     )
     def feriados_no_mes_com_nome(self, request, uuid=None):
@@ -1674,6 +1680,8 @@ class PermissaoLancamentoEspecialViewSet(ModelViewSet):
             | UsuarioCODAEGestaoAlimentacao
             | UsuarioCODAEGabinete
             | UsuarioDinutreDiretoria
+            | UsuarioEmpresaTerceirizada
+            | UsuarioSupervisaoNutricao
         ],
     )
     def permissoes_lancamentos_especiais_mes_ano_por_periodo(self, request):
@@ -1820,6 +1828,7 @@ class RelatoriosViewSet(ViewSet):
         | UsuarioCODAEGabinete
         | UsuarioDinutreDiretoria
         | UsuarioEmpresaTerceirizada
+        | UsuarioSupervisaoNutricao
     ]
 
     @action(detail=False, url_name="relatorio-adesao", url_path="relatorio-adesao")
