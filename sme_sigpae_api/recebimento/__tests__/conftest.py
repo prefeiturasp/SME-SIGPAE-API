@@ -349,6 +349,11 @@ def ficha_recebimento_rascunho(etapa_cronograma):
                 "descricao": "Produto recusado por avaria",
             },
         ],
+        "numero_paletes": str(fake.random_number(digits=3)),
+        "peso_embalagem_primaria_1": str(fake.random_number(digits=3)),
+        "peso_embalagem_primaria_2": str(fake.random_number(digits=3)),
+        "peso_embalagem_primaria_3": str(fake.random_number(digits=3)),
+        "peso_embalagem_primaria_4": str(fake.random_number(digits=3)),
     }
 
 

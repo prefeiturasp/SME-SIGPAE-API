@@ -62,6 +62,13 @@ def test_ficha_recebimento_rascunho_serializer(
         instancia.ocorrencias.count() == 2
     )  # Verifica se as ocorrências foram criadas
 
+    internal_data  = serializer.validated_data
+    assert internal_data['numero_paletes'] == instancia.numero_paletes
+    assert internal_data['peso_embalagem_primaria_1'] == instancia.peso_embalagem_primaria_1
+    assert internal_data['peso_embalagem_primaria_2'] == instancia.peso_embalagem_primaria_2
+    assert internal_data['peso_embalagem_primaria_3'] == instancia.peso_embalagem_primaria_3
+    assert internal_data['peso_embalagem_primaria_4'] == instancia.peso_embalagem_primaria_4
+
 
 def test_ficha_recebimento_rascunho_serializer_erro_sem_etapa(
     ficha_recebimento_rascunho,
