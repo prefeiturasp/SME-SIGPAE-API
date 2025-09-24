@@ -24,6 +24,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelV
 from sme_sigpae_api.medicao_inicial.tasks import (
     exporta_relatorio_controle_frequencia_para_pdf,
 )
+from sme_sigpae_api.terceirizada.models import Terceirizada
 
 from ...dados_comuns.permissions import (
     UsuarioCODAEDietaEspecial,
@@ -121,7 +122,6 @@ from .serializers import (
     TipoUnidadeEscolarSerializer,
 )
 from .serializers_create import DiaSuspensaoAtividadesCreateManySerializer
-from sme_sigpae_api.terceirizada.models import Terceirizada
 
 
 class EscolaSimplesViewSet(
@@ -448,9 +448,8 @@ class DiretoriaRegionalSimplissimaViewSet(ReadOnlyModelViewSet):
         usuario = self.request.user
         print(usuario.vinculo_atual.instituicao)
 
-        if (
-            usuario.vinculo_atual
-            and isinstance(usuario.vinculo_atual.instituicao, Terceirizada)
+        if usuario.vinculo_atual and isinstance(
+            usuario.vinculo_atual.instituicao, Terceirizada
         ):
             terceirizada = usuario.vinculo_atual.instituicao
 

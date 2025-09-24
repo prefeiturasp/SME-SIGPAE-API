@@ -15,9 +15,9 @@ from ...dados_comuns.permissions import (
     UsuarioCODAERelatorios,
     UsuarioDinutreDiretoria,
     UsuarioDiretoriaRegional,
+    UsuarioEmpresaGenerico,
     UsuarioGticCODAE,
     UsuarioNutricionista,
-    UsuarioEmpresaGenerico,
 )
 from ...dieta_especial.models import SolicitacaoDietaEspecial
 from ...paineis_consolidados.api.constants import (

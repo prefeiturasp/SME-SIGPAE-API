@@ -12,8 +12,8 @@ from ...dados_comuns.permissions import (
     PermissaoParaRecuperarObjeto,
     UsuarioCODAEGestaoAlimentacao,
     UsuarioDiretoriaRegional,
-    UsuarioEscolaTercTotal,
     UsuarioEmpresaGenerico,
+    UsuarioEscolaTercTotal,
 )
 from ...eol_servico.utils import EOLException
 from ...relatorios.relatorios import (

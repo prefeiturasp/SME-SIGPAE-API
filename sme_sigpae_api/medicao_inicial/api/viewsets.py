@@ -35,11 +35,11 @@ from ...dados_comuns.permissions import (
     UsuarioDinutreDiretoria,
     UsuarioDiretorEscolaTercTotal,
     UsuarioDiretoriaRegional,
+    UsuarioEmpresaTerceirizada,
     UsuarioEscolaTercTotal,
     UsuarioMedicao,
-    ViewSetActionPermissionMixin,
-    UsuarioEmpresaTerceirizada,
     UsuarioSupervisaoNutricao,
+    ViewSetActionPermissionMixin,
 )
 from ...dados_comuns.utils import get_ultimo_dia_mes
 from ...escola.api.permissions import (
@@ -275,7 +275,10 @@ class SolicitacaoMedicaoInicialViewSet(
             return STATUS_RELACAO_DRE_MEDICAO + ["TODOS_OS_LANCAMENTOS"]
         elif usuario.tipo_usuario == "diretoriaregional":
             return STATUS_RELACAO_DRE + ["TODOS_OS_LANCAMENTOS"]
-        elif usuario.tipo_usuario in USUARIOS_VISAO_CODAE + ["terceirizada", "supervisao_nutricao"]:
+        elif usuario.tipo_usuario in USUARIOS_VISAO_CODAE + [
+            "terceirizada",
+            "supervisao_nutricao",
+        ]:
             return STATUS_RELACAO_DRE_CODAE + ["TODOS_OS_LANCAMENTOS"]
         else:
             return (
@@ -295,7 +298,10 @@ class SolicitacaoMedicaoInicialViewSet(
     def condicao_por_usuario(self, queryset):
         usuario = self.request.user
 
-        if usuario.tipo_usuario in USUARIOS_VISAO_CODAE + ["terceirizada", "supervisao_nutricao"]:
+        if usuario.tipo_usuario in USUARIOS_VISAO_CODAE + [
+            "terceirizada",
+            "supervisao_nutricao",
+        ]:
             return queryset.filter(status__in=STATUS_RELACAO_DRE_CODAE)
         if not (
             usuario.tipo_usuario == "diretoriaregional"
@@ -484,7 +490,8 @@ class SolicitacaoMedicaoInicialViewSet(
 
         if (
             isinstance(request.user.vinculo_atual.instituicao, DiretoriaRegional)
-            or request.user.tipo_usuario in USUARIOS_VISAO_CODAE + ["terceirizada", "supervisao_nutricao"]
+            or request.user.tipo_usuario
+            in USUARIOS_VISAO_CODAE + ["terceirizada", "supervisao_nutricao"]
             or (
                 request.query_params.get("eh_relatorio_adesao")
                 and request.user.tipo_usuario == constants.TIPO_USUARIO_ESCOLA

@@ -17,8 +17,8 @@ from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.permissions import (
     UsuarioCODAEGestaoAlimentacao,
     UsuarioDiretoriaRegional,
-    UsuarioEscolaTercTotal,
     UsuarioEmpresaGenerico,
+    UsuarioEscolaTercTotal,
 )
 from sme_sigpae_api.relatorios.relatorios import relatorio_alteracao_cardapio_cei
 
