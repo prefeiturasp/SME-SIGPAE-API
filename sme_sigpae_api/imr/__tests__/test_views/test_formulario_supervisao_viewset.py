@@ -1,7 +1,7 @@
 import uuid
 
 import pytest
-from pdfminer.high_level import extract_text
+from pypdf import PdfReader
 from rest_framework import status
 
 from config.celery import app
@@ -586,9 +586,9 @@ def test_get_pdf_formulario_supervisao(
     central_download = CentralDeDownload.objects.get()
     assert central_download.status == CentralDeDownload.STATUS_CONCLUIDO
 
-    conteudo_pdf_pagina_1 = extract_text(
-        central_download.arquivo.path, page_numbers=[0]
-    )
+    reader = PdfReader(central_download.arquivo.path)
+    page = reader.pages[0]
+    conteudo_pdf_pagina_1 = page.extract_text()
 
     assert "Data da visita" in conteudo_pdf_pagina_1
     assert "26/06/2024" in conteudo_pdf_pagina_1
