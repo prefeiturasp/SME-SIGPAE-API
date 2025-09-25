@@ -21,6 +21,7 @@ from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
     solicitar_kit_lanche_cemei,
     solicitar_lanche_emergencial,
     solicitar_lanche_emergencial_cemei,
+    verifica_dados_iniciais,
 )
 
 env = environ.Env()
@@ -62,10 +63,13 @@ class Command(BaseCommand):
         self.stdout.write("Obtendo a lista de escolas")
         dados_escolas = obter_escolas()
 
+        self.stdout.write("Verificando os dados iniciais")
+        verifica_dados_iniciais()
+
+        # call_command("migrate", interactive=False)
         self.stdout.write("Habilitando dias letivos")
         nome_escolas = [dado.get("nome_escola") for dado in dados_escolas]
         data = datetime.date(ano, mes, 1)
-
         habilitar_dias_letivos(nome_escolas, data)
 
         quantidade_dias_mes = calendar.monthrange(int(ano), int(mes))[1]
