@@ -389,7 +389,7 @@ def test_build_pdf():
     assert isinstance(pdf_cancelados, bytes)
 
     texto = extrair_texto_de_pdf(pdf_cancelados).lower()
-    assert "Total de Solicitações Cancelados:  0".lower() in texto
+    assert "Total de Solicitações Cancelados: 0".lower() in texto
     assert "SIGPAE - RELATÓRIO DE solicitações de alimentação".lower() in texto
     assert datetime.now().strftime("%d/%m/%Y") in texto
     assert texto.count("cancelados") == 2
@@ -398,7 +398,7 @@ def test_build_pdf():
     assert isinstance(pdf_autorizados, bytes)
 
     texto = extrair_texto_de_pdf(pdf_autorizados).lower()
-    assert "Total de Solicitações autorizados:  0".lower() in texto
+    assert "Total de Solicitações autorizados: 0".lower() in texto
     assert "SIGPAE - RELATÓRIO DE solicitações de alimentação".lower() in texto
     assert datetime.now().strftime("%d/%m/%Y") in texto
     assert texto.count("autorizados") == 2
