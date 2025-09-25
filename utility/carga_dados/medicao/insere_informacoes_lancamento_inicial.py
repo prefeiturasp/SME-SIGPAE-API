@@ -1,6 +1,7 @@
 import datetime
 
 from dateutil.relativedelta import relativedelta
+from django.contrib.contenttypes.models import ContentType
 
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create import (
     AlteracaoCardapioSerializerCreate,
@@ -33,9 +34,11 @@ from sme_sigpae_api.kit_lanche.api.serializers.serializers_create import (
     SolicitacaoKitLancheCEMEICreateSerializer,
 )
 from sme_sigpae_api.kit_lanche.models import KitLanche
+from sme_sigpae_api.perfil.models.perfil import Perfil, Vinculo
 from sme_sigpae_api.perfil.models.usuario import Usuario
 
 QUANTIDADE_ALUNOS = 100
+
 
 def dados_usuario_periodos():
 
@@ -88,27 +91,51 @@ def dados_usuario_periodos():
     ]
 
 
+def obter_usuario_dre(diretoria_regional):
+    try:
+        content_type = ContentType.objects.get(
+            app_label="escola", model="diretoriaregional"
+        )
+        perfil = Perfil.objects.get(nome="COGESTOR_DRE")
+        vinculo = Vinculo.objects.filter(
+            content_type=content_type, object_id=diretoria_regional.id, perfil=perfil
+        ).first()
+        usuario = vinculo.usuario.email
+        print(f"Usuário DRE: {usuario}")
+    except Exception as e:
+        print(f"----> Erro ao buscar usuário DRE:\n{e}")
+        raise
+
+    return usuario
+
+
 def obter_escolas():
     "Escolas da mesma DRE"
-    erro = []
+    erro = False
     dados = dados_usuario_periodos()
     for informacao in dados:
-        usuario = obter_usuario(informacao['email'])
+        usuario = obter_usuario(informacao["email"])
         try:
-            informacao["nome_escola"] = usuario.vinculo_atual.instituicao.nome
-            print(f"{informacao["email"]} está vinculado a escola {informacao["nome_escola"]}")
+            instituicao = usuario.vinculo_atual.instituicao
+            informacao["nome_escola"] = instituicao.nome
+            print(
+                f"{informacao["email"]} está vinculado a escola {informacao["nome_escola"]}"
+            )
+            informacao["usuario_dre"] = obter_usuario_dre(
+                instituicao.diretoria_regional
+            )
         except Exception as e:
-            erro.append(f"Erro ao buscar vinculo para {informacao["email"]}:\n{e}")
-            
-    if len(erro) > 0:
-        print("\n -> Erros encontrados")
-        for e in erro:
-            print(e)
+            erro = True
+            print(f"----> Erro ao buscar vinculo para {informacao["email"]}:\n{e}")
+        print("")
+
+    if erro:
         print("================== SCRIP CANCELADO ==================")
         exit()
-    
+
     return dados
-    
+
+
 def obter_usuario(email):
     try:
         return Usuario.objects.get(email=email)
@@ -116,10 +143,6 @@ def obter_usuario(email):
         print(f"Nenhum usuário encontrado com  email {email}")
         print("================== SCRIP CANCELADO ==================")
         exit()
-
-
-def obter_usuario_dre():
-    return obter_usuario(email="dre@admin.com")
 
 
 def obter_usuario_codae():
