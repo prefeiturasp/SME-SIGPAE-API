@@ -2,7 +2,8 @@ import json
 
 import pytest
 from freezegun.api import freeze_time
-from pdfminer.high_level import extract_text
+from openpyxl import load_workbook
+from PyPDF4 import PdfFileReader
 
 from sme_sigpae_api.dados_comuns.models import CentralDeDownload
 from sme_sigpae_api.dieta_especial.tasks import (
@@ -45,9 +46,9 @@ class TestGeraPDFRelatorioHistoricoDietasEspeciaisAsync(BaseSetupHistoricoDietas
         central_download = CentralDeDownload.objects.get()
         assert central_download.status == CentralDeDownload.STATUS_CONCLUIDO
 
-        conteudo_pdf_pagina_1 = extract_text(
-            central_download.arquivo.path, page_numbers=[0]
-        )
+        reader = PdfFileReader(central_download.arquivo.path)
+        page = reader.pages[0]
+        conteudo_pdf_pagina_1 = page.extractText()
 
         esperados_cabecalho = [
             "Total de Dietas Autorizadas em",
@@ -96,9 +97,9 @@ class TestGeraPDFRelatorioHistoricoDietasEspeciaisAsync(BaseSetupHistoricoDietas
         central_download = CentralDeDownload.objects.get()
         assert central_download.status == CentralDeDownload.STATUS_CONCLUIDO
 
-        conteudo_pdf_pagina_1 = extract_text(
-            central_download.arquivo.path, page_numbers=[0]
-        )
+        reader = PdfFileReader(central_download.arquivo.path)
+        page = reader.pages[0]
+        conteudo_pdf_pagina_1 = page.extractText()
 
         assert "Manhã" not in conteudo_pdf_pagina_1
         assert "Tarde" not in conteudo_pdf_pagina_1

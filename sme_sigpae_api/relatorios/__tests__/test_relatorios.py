@@ -408,9 +408,9 @@ def test_relatorio_reclamacao_produtos(
     )
     texto = extrair_texto_de_pdf(relatorio)
     assert "RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÕES DE PRODUTOS" in texto
-    assert "Total de Reclamações de Produtos: 1" in texto
-    assert "Período: 01/01/2022 até 19/08/2025" in texto
-    assert "Data de extração do relatório: 27/12/2024" in texto
+    assert "Total de Reclamações de Produtos:  1" in texto
+    assert "Período:  01/01/2022 até 19/08/2025" in texto
+    assert "Data de extração do relatório:  27/12/2024" in texto
     assert "Para os editais:" in texto
     assert texto.count("Edital de Pregão 001") == 2
     assert texto.count("Edital de Pregão 002") == 1
@@ -427,9 +427,9 @@ def test_relatorio_reclamacao_produtos(
         in texto
     )
     assert " Data da reclamação: 15/07/2022" in texto
-    assert "Justificativa da reclamação: produto vencido" in texto
+    assert "Justicativa da reclamação: produto vencido" in texto
     assert "Data avaliação CODAE: 05/08/2022" in texto
-    assert "Justificativa avaliação CODAE: deu certooo" in texto
+    assert "Justicativa avaliação CODAE: deu certooo" in texto
 
 
 @freeze_time("2024-12-27")
@@ -444,9 +444,9 @@ def test_relatorio_reclamacao_produtos_sem_dre_lote_selecionadas(
     )
     texto = extrair_texto_de_pdf(relatorio)
     assert "RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÕES DE PRODUTOS" in texto
-    assert "Total de Reclamações de Produtos: 1" in texto
-    assert "Período: 01/01/2022 até 19/08/2025" in texto
-    assert "Data de extração do relatório: 27/12/2024" in texto
+    assert "Total de Reclamações de Produtos:  1" in texto
+    assert "Período:  01/01/2022 até 19/08/2025" in texto
+    assert "Data de extração do relatório:  27/12/2024" in texto
     assert "Para os editais:" in texto
     assert texto.count("Edital de Pregão 001") == 2
     assert texto.count("Edital de Pregão 002") == 1
@@ -463,9 +463,9 @@ def test_relatorio_reclamacao_produtos_sem_dre_lote_selecionadas(
         in texto
     )
     assert " Data da reclamação: 15/07/2022" in texto
-    assert "Justificativa da reclamação: produto vencido" in texto
+    assert "Justicativa da reclamação: produto vencido" in texto
     assert "Data avaliação CODAE: 05/08/2022" in texto
-    assert "Justificativa avaliação CODAE: deu certooo" in texto
+    assert "Justicativa avaliação CODAE: deu certooo" in texto
 
 
 @freeze_time("2024-12-27")
@@ -481,9 +481,9 @@ def test_relatorio_reclamacao_produtos_sem_data_selecionadas(
     )
     texto = extrair_texto_de_pdf(relatorio)
     assert "RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÕES DE PRODUTOS" in texto
-    assert "Total de Reclamações de Produtos: 1" in texto
-    assert "Período: 01/01/2022 até 19/08/2025" not in texto
-    assert "Data de extração do relatório: 27/12/2024" in texto
+    assert "Total de Reclamações de Produtos:  1" in texto
+    assert "Período:  01/01/2022 até 19/08/2025" not in texto
+    assert "Data de extração do relatório:  27/12/2024" in texto
     assert "Para os editais:" in texto
     assert texto.count("Edital de Pregão 001") == 2
     assert texto.count("Edital de Pregão 002") == 1
@@ -500,9 +500,9 @@ def test_relatorio_reclamacao_produtos_sem_data_selecionadas(
         in texto
     )
     assert " Data da reclamação: 15/07/2022" in texto
-    assert "Justificativa da reclamação: produto vencido" in texto
+    assert "Justicativa da reclamação: produto vencido" in texto
     assert "Data avaliação CODAE: 05/08/2022" in texto
-    assert "Justificativa avaliação CODAE: deu certooo" in texto
+    assert "Justicativa avaliação CODAE: deu certooo" in texto
 
 
 @freeze_time("2024-12-27")
