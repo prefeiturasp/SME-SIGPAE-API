@@ -114,6 +114,7 @@ drf-spectacular = "==0.28.0"
 cerberus = "*"
 coverage-badge = "==1.1.2"
 beautifulsoup4 = "==4.13.4"
+pdfminer.six = "==20250506"
 
 [requires]
 python_version = "3.13.3"
