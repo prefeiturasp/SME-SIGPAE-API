@@ -37,51 +37,78 @@ from sme_sigpae_api.perfil.models.usuario import Usuario
 
 QUANTIDADE_ALUNOS = 100
 
+def dados_usuario_periodos():
 
-def obter_escolas():
-    "Escolas da mesma DRE"
     return [
+        # ESCOLA EMEF
         {
-            "nome_escola": "EMEF PERICLES EUGENIO DA SILVA RAMOS",
+            "nome_escola": "",
             "email": "escolaemef@admin.com",
             "periodos": ["MANHA", "TARDE", "NOITE", "INTEGRAL"],
         },
+        # ESCOLA EMEI
         {
-            "nome_escola": "EMEI ANTONIO RUBBO MULLER, PROF.",
+            "nome_escola": "",
             "email": "escolaemei@admin.com",
             "periodos": ["MANHA", "TARDE", "INTEGRAL"],
         },
+        # ESCOLA CIEJA
         {
-            "nome_escola": "CIEJA PAULO EMILIO VANZOLINI,CIEJA",
+            "nome_escola": "",
             "email": "escolacieja@admin.com",
             "periodos": ["MANHA", "TARDE", "NOITE", "INTERMEDIARIO", "VESPERTINO"],
         },
+        # ESCOLA CEU GESTÃO
         {
-            "nome_escola": "CEU GESTAO MENINOS - ARTUR ALBERTO DE MOTA GONCALVES, PROF. PR.",
+            "nome_escola": "",
             "email": "ceugestao@admin.com",
             "periodos": ["MANHA", "TARDE", "NOITE", "INTEGRAL"],
         },
+        # ESCOLA EMEBS
         {
-            "nome_escola": "EMEBS HELEN KELLER",
+            "nome_escola": "",
             "email": "escolaemebs@admin.com",
             "periodos": {
                 "INFANTIL": ["MANHA", "TARDE", "INTEGRAL"],
                 "FUNDAMENTAL": ["MANHA", "TARDE", "INTEGRAL", "NOITE"],
             },
         },
+        # ESCOLA CEMEI
         {
-            "nome_escola": "CEMEI SUZANA CAMPOS TAUIL",
+            "nome_escola": "",
             "email": "escolacemei@admin.com",
             "periodos": {"EMEI": ["MANHA", "TARDE", "INTEGRAL"], "CEI": ["INTEGRAL"]},
         },
+        # ESCOLA CEI
         {
-            "nome_escola": "CEI DIRET JOSE DE MOURA, VER.",
+            "nome_escola": "",
             "email": "escolacei@admin.com",
             "periodos": ["MANHA", "TARDE", "INTEGRAL"],
         },
     ]
 
 
+def obter_escolas():
+    "Escolas da mesma DRE"
+    erro = []
+    dados = dados_usuario_periodos()
+    for informacao in dados:
+        usuario = obter_usuario(informacao['email'])
+        try:
+            informacao["nome_escola"] = usuario.vinculo_atual.instituicao.nome
+            print(f"{informacao["email"]} está vinculado a escola {informacao["nome_escola"]}")
+        except Exception as e:
+            erro.append(f"Erro ao buscar vinculo para {informacao["email"]}:\n{e}")
+            
+    if len(erro) > 0:
+        print("\n -> Erros encontrados")
+        for e in erro:
+            print(e)
+        print("================== SCRIP CANCELADO ==================")
+        exit()
+    
+    return dados
+    
 def obter_usuario(email):
     try:
         return Usuario.objects.get(email=email)
