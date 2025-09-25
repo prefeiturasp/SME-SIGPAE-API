@@ -1,6 +1,6 @@
 import pytest
 from freezegun.api import freeze_time
-from pdfminer.high_level import extract_text
+from pypdf import PdfReader
 
 from sme_sigpae_api.dados_comuns.models import CentralDeDownload
 from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
@@ -16,7 +16,9 @@ pytestmark = pytest.mark.django_db
 def resgata_conteudo_pdf():
     central_download = CentralDeDownload.objects.get()
     assert central_download.status == CentralDeDownload.STATUS_CONCLUIDO
-    return extract_text(central_download.arquivo.path, page_numbers=[0])
+    reader = PdfReader(central_download.arquivo.path)
+    page = reader.pages[0]
+    return page.extract_text()
 
 
 @pytest.mark.usefixtures("client_autenticado_vinculo_codae_gestao_alimentacao_dieta")

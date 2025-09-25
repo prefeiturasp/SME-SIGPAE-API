@@ -4,7 +4,7 @@ from io import BytesIO
 
 from faker import Faker
 from freezegun import freeze_time
-from pdfminer.high_level import extract_text
+from pypdf import PdfReader
 from rest_framework import status
 
 from sme_sigpae_api.dados_comuns.fluxo_status import FichaDeRecebimentoWorkflow
@@ -382,7 +382,9 @@ def test_gerar_pdf_ficha_recebimento(
         in response["Content-Disposition"]
     )
 
-    pdf_text = extract_text(BytesIO(response.content), page_numbers=[0])
+    pdf_reader = PdfReader(BytesIO(response.content))
+    page = pdf_reader.pages[0]
+    pdf_text = page.extract_text()
 
     assert "FICHA DE RECEBIMENTO" in pdf_text
 

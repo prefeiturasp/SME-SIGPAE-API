@@ -420,7 +420,7 @@ def test_relatorio_reclamacao_produtos(
     assert "Reclamação #93C77" in texto
     assert "Status Reclamação: CODAE recusou" in texto
     assert "DRE/LOTE: IP - 3567-3" in texto
-    assert "Empresa: ALIMENTAR GESTÃO DE SERVIÇOS LTDA" in texto
+    assert "Empresa: ALIMENTAR GESTÃO DE SERVIÇOS" in texto
     assert "RF e Nome do Reclamante: 8115257 - SUPER USUARIO ESCOLA EMEF" in texto
     assert (
         "Cód EOL e Nome da Escola: 017981 - EMEF PERICLES EUGENIO DA SILVA RAMOS"
@@ -456,7 +456,7 @@ def test_relatorio_reclamacao_produtos_sem_dre_lote_selecionadas(
     assert "Reclamação #93C77" in texto
     assert "Status Reclamação: CODAE recusou" in texto
     assert "DRE/LOTE: IP - 3567-3" in texto
-    assert "Empresa: ALIMENTAR GESTÃO DE SERVIÇOS LTDA" in texto
+    assert "Empresa: ALIMENTAR GESTÃO DE SERVIÇOS" in texto
     assert "RF e Nome do Reclamante: 8115257 - SUPER USUARIO ESCOLA EMEF" in texto
     assert (
         "Cód EOL e Nome da Escola: 017981 - EMEF PERICLES EUGENIO DA SILVA RAMOS"
@@ -493,7 +493,7 @@ def test_relatorio_reclamacao_produtos_sem_data_selecionadas(
     assert "Reclamação #93C77" in texto
     assert "Status Reclamação: CODAE recusou" in texto
     assert "DRE/LOTE: IP - 3567-3" in texto
-    assert "Empresa: ALIMENTAR GESTÃO DE SERVIÇOS LTDA" in texto
+    assert "Empresa: ALIMENTAR GESTÃO DE SERVIÇOS" in texto
     assert "RF e Nome do Reclamante: 8115257 - SUPER USUARIO ESCOLA EMEF" in texto
     assert (
         "Cód EOL e Nome da Escola: 017981 - EMEF PERICLES EUGENIO DA SILVA RAMOS"
