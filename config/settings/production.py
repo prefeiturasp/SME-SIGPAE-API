@@ -138,4 +138,6 @@ CSRF_TRUSTED_ORIGINS = [
     "https://www.fia-sigpae.sme.prefeitura.sp.gov.br",
     "https://sigpae.sme.prefeitura.sp.gov.br",
     "https://www.sigpae.sme.prefeitura.sp.gov.br",
+    "https://qa-sigpae.sme.prefeitura.sp.gov.br",
+    "https://www.qa-sigpae.sme.prefeitura.sp.gov.br",
 ]

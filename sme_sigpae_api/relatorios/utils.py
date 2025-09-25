@@ -6,6 +6,7 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django_weasyprint.utils import django_url_fetcher
+from pdfminer.high_level import extract_text
 from pikepdf import Pdf
 from PyPDF4 import PdfFileMerger, PdfFileReader, PdfFileWriter
 from weasyprint import CSS, HTML
@@ -48,9 +49,11 @@ def get_diretorias_regionais(lotes):
     return diretorias_regionais
 
 
-def html_to_pdf_response(html_string, pdf_filename):
+def html_to_pdf_response(html_string, pdf_filename, request=None):
     pdf_file = HTML(
-        string=html_string, url_fetcher=django_url_fetcher, base_url="file://abobrinha"
+        string=html_string,
+        url_fetcher=django_url_fetcher,
+        base_url=request.build_absolute_uri("/") if request else "file://abobrinha",
     ).write_pdf()
     response = HttpResponse(pdf_file, content_type="application/pdf")
     response["Content-Disposition"] = f'filename="{pdf_filename}"'
@@ -70,17 +73,17 @@ def html_to_pdf_file(html_string, pdf_filename, is_async=False):
         return response
 
 
-def html_to_pdf_cancelada(html_string, pdf_filename, is_async=False):
+def html_to_pdf_watermark(html_string, pdf_filename, watermark, is_async=False):
     arquivo_final = io.BytesIO()
     pdf_file = HTML(
         string=html_string, base_url=staticfiles_storage.location
     ).write_pdf()
 
     watermark_instance = PdfFileReader(
-        "sme_sigpae_api/relatorios/static/images/cancel-1.pdf"
+        f"sme_sigpae_api/relatorios/static/images/{watermark}", strict=False
     )
     watermark_page = watermark_instance.getPage(0)
-    pdf_reader = PdfFileReader(io.BytesIO(pdf_file))
+    pdf_reader = PdfFileReader(io.BytesIO(pdf_file), strict=False)
     pdf_writer = PdfFileWriter()
 
     for page in range(pdf_reader.getNumPages()):
@@ -365,15 +368,17 @@ def todas_escolas_sol_kit_lanche_unificado_cancelado(solicitacao):
 
 def extrair_texto_de_pdf(conteudo: bytes) -> str:
     """
-    Extrai o texto de um PDF a partir de uma resposta HTTP.
-    Remove quebras de linha desnecessárias e trata a codificação.
+    Extrai o texto de um PDF a partir de bytes.
+    Remove quebras de linha desnecessárias e normaliza espaços.
+    Usa pdfminer.six (mais confiável que PyPDF).
     """
-    pdf_reader = PdfFileReader(io.BytesIO(conteudo))
-    texto = ""
-    for page_num in range(pdf_reader.getNumPages()):
-        texto_bruto = pdf_reader.getPage(page_num).extractText()
-        texto_codificado = texto_bruto.encode().decode("utf-8", errors="ignore")
-        texto += texto_codificado.replace("\n\n", "").replace("\n", " ")
+    with io.BytesIO(conteudo) as pdf_buffer:
+        texto_bruto = extract_text(pdf_buffer)
+
+    texto = (
+        texto_bruto.replace("\n\n", " ").replace("\n", " ").replace("\t", " ").strip()
+    )
+    texto = " ".join(texto.split())
     return texto
 
 

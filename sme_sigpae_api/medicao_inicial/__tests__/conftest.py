@@ -619,12 +619,13 @@ def make_solicitacao_medicao_inicial(escola):
 
     return handle
 
+
 @pytest.fixture
 def solicitacao_medicao_inicial_sem_valores(escola):
     periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
     solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial",
-        uuid="0c914b27-c7cd-4682-a439-a4874745b005",   # agora válido
+        uuid="0c914b27-c7cd-4682-a439-a4874745b005",  # agora válido
         mes=12,
         ano=2022,
         escola=escola,
@@ -637,6 +638,7 @@ def solicitacao_medicao_inicial_sem_valores(escola):
         periodo_escolar=periodo_manha,
     )
     return solicitacao_medicao
+
 
 @pytest.fixture
 def solicitacao_medicao_inicial(escola, categoria_medicao, aluno):
@@ -791,13 +793,16 @@ def solicitacao_medicao_inicial_medicao_enviada_pela_ue_nok__2(
     solicitacao_medicao_inicial.save()
     return solicitacao_medicao_inicial
 
+
 @pytest.fixture
 def categoria_dieta_a():
     return baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A")
 
+
 @pytest.fixture
 def categoria_dieta_b():
     return baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO B")
+
 
 @pytest.fixture
 def solicitacao_medicao_inicial_varios_valores(escola, categoria_medicao):

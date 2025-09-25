@@ -1,13 +1,37 @@
 @import "../variaveis";
 
-@page :nth(n+2) {
-  margin-top: 7.6cm !important;
-  padding-top: 0.6cm !important;
-}
-
-@page :nth(1) {
+@page {
   margin-top: 1.8cm !important;
   padding-top: 6.4cm !important;
+}
+
+.page-container {
+  .row {
+    display: block !important;
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+  }
+
+  [class*="col-"] {
+    display: inline-block !important;
+    vertical-align: top;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    box-sizing: border-box;
+  }
+
+  .col-1  { width: 8.3333%; }
+  .col-2  { width: 16.6667%; }
+  .col-3  { width: 25%; }
+  .col-4  { width: 32.3333%; }
+  .col-5  { width: 41.6667%; }
+  .col-6  { width: 49%; }
+  .col-7  { width: 58.3333%; }
+  .col-8  { width: 65.6667%; }
+  .col-9  { width: 75%; }
+  .col-10 { width: 83.3333%; }
+  .col-11 { width: 91.6667%; }
+  .col-12 { width: 100%; }
 }
 
 .titulo-secao{

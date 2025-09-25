@@ -277,3 +277,40 @@ def test_obter_produtos_ordenados_por_edital_e_reclamacoes_filtro_status_analise
         filtro_reclamacao, filtro_homologacao
     )
     assert qs.count() == 0
+
+
+def test_obter_produtos_ordenados_por_edital_e_reclamacoes_excel_filtro_status_resposta_tercerizada(
+    mock_view_de_produtos, reclamacao_produto_pdf
+):
+    _, viewset = mock_view_de_produtos
+
+    filtro_reclamacao = {
+        "status__in": [ReclamacaoProdutoWorkflow.AGUARDANDO_RESPOSTA_TERCEIRIZADA]
+    }
+    filtro_homologacao = {
+        "homologacao__reclamacoes__status__in": [
+            ReclamacaoProdutoWorkflow.AGUARDANDO_RESPOSTA_TERCEIRIZADA
+        ]
+    }
+    qs = viewset.obter_produtos_ordenados_por_edital_e_reclamacoes_excel(
+        filtro_reclamacao, filtro_homologacao
+    )
+    assert qs.count() == 3
+
+
+def test_obter_produtos_ordenados_por_edital_e_reclamacoes_excel_filtro_status_analise_sensorial(
+    mock_view_de_produtos, reclamacao_produto_pdf
+):
+    _, viewset = mock_view_de_produtos
+    filtro_reclamacao = {
+        "status__in": [ReclamacaoProdutoWorkflow.ANALISE_SENSORIAL_RESPONDIDA]
+    }
+    filtro_homologacao = {
+        "homologacao__reclamacoes__status__in": [
+            ReclamacaoProdutoWorkflow.ANALISE_SENSORIAL_RESPONDIDA
+        ]
+    }
+    qs = viewset.obter_produtos_ordenados_por_edital_e_reclamacoes_excel(
+        filtro_reclamacao, filtro_homologacao
+    )
+    assert qs.count() == 0

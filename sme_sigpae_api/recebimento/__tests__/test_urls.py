@@ -4,7 +4,7 @@ from io import BytesIO
 
 from faker import Faker
 from freezegun import freeze_time
-from PyPDF4 import PdfFileReader
+from pdfminer.high_level import extract_text
 from rest_framework import status
 
 from sme_sigpae_api.dados_comuns.fluxo_status import FichaDeRecebimentoWorkflow
@@ -173,6 +173,12 @@ def test_url_ficha_recebimento_rascunho_create_update(
     assert len(response_data["questoes_conferencia"]) == 1
     assert "ocorrencias" in response_data
     assert len(response_data["ocorrencias"]) == 2
+
+    assert response_data["numero_paletes"] == ficha.numero_paletes
+    assert response_data["peso_embalagem_primaria_1"] == ficha.peso_embalagem_primaria_1
+    assert response_data["peso_embalagem_primaria_2"] == ficha.peso_embalagem_primaria_2
+    assert response_data["peso_embalagem_primaria_3"] == ficha.peso_embalagem_primaria_3
+    assert response_data["peso_embalagem_primaria_4"] == ficha.peso_embalagem_primaria_4
 
     nova_data_entrega = date.today() + timedelta(days=11)
     payload_ficha_recebimento_rascunho["data_entrega"] = str(nova_data_entrega)
@@ -376,9 +382,7 @@ def test_gerar_pdf_ficha_recebimento(
         in response["Content-Disposition"]
     )
 
-    pdf_reader = PdfFileReader(BytesIO(response.content))
-    page = pdf_reader.pages[0]
-    pdf_text = page.extractText()
+    pdf_text = extract_text(BytesIO(response.content), page_numbers=[0])
 
     assert "FICHA DE RECEBIMENTO" in pdf_text
 

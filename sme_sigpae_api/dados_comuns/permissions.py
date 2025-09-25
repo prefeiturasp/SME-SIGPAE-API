@@ -332,7 +332,7 @@ class UsuarioCODAEGestaoProduto(BasePermission):
         )
 
 
-class UsuarioTerceirizada(BasePermission):
+class UsuarioEmpresaGenerico(BasePermission):
     """Permite acesso a usuários com vinculo a uma Terceirizada."""
 
     def has_permission(self, request, view):
@@ -367,6 +367,40 @@ class UsuarioTerceirizadaProduto(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and isinstance(usuario.vinculo_atual.instituicao, Terceirizada)
+        )
+
+
+class UsuarioEmpresaTerceirizada(BasePermission):
+    """Permite acesso a usuários com vinculo a uma Terceirizada."""
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and isinstance(usuario.vinculo_atual.instituicao, Terceirizada)
+            and usuario.vinculo_atual.perfil.nome
+            in [
+                ADMINISTRADOR_EMPRESA,
+                USUARIO_EMPRESA,
+            ]
+        )
+
+
+class UsuarioSupervisaoNutricao(BasePermission):
+    """Permite acesso a usuários com SupervisaoNutricao."""
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and isinstance(usuario.vinculo_atual.instituicao, Codae)
+            and usuario.vinculo_atual.perfil.nome
+            in [
+                COORDENADOR_SUPERVISAO_NUTRICAO,
+                ADMINISTRADOR_SUPERVISAO_NUTRICAO,
+            ]
         )
 
 

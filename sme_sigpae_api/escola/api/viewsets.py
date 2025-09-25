@@ -24,6 +24,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelV
 from sme_sigpae_api.medicao_inicial.tasks import (
     exporta_relatorio_controle_frequencia_para_pdf,
 )
+from sme_sigpae_api.terceirizada.models import Terceirizada
 
 from ...dados_comuns.permissions import (
     UsuarioCODAEDietaEspecial,
@@ -391,6 +392,7 @@ class PeriodoEscolarViewSet(ReadOnlyModelViewSet):
             if (
                 isinstance(instituicao, DiretoriaRegional)
                 or isinstance(instituicao, Codae)
+                or isinstance(instituicao, Terceirizada)
             ) and escola:
                 instituicao = Escola.objects.get(uuid=escola)
             periodos = dict(
@@ -441,6 +443,23 @@ class DiretoriaRegionalSimplissimaViewSet(ReadOnlyModelViewSet):
     lookup_field = "uuid"
     queryset = DiretoriaRegional.objects.all()
     serializer_class = DiretoriaRegionalSimplissimaSerializer
+
+    def get_queryset(self):
+        usuario = self.request.user
+        print(usuario.vinculo_atual.instituicao)
+
+        if usuario.vinculo_atual and isinstance(
+            usuario.vinculo_atual.instituicao, Terceirizada
+        ):
+            terceirizada = usuario.vinculo_atual.instituicao
+
+            return DiretoriaRegional.objects.filter(
+                lotes__terceirizada=terceirizada,
+                lotes__contratos_do_lote__encerrado=False,
+                lotes__contratos_do_lote__edital__uuid__in=terceirizada.editais,
+            ).distinct()
+
+        return DiretoriaRegional.objects.all()
 
     @action(detail=False, methods=["GET"], url_path="lista-completa")
     def lista_completa(self, request):

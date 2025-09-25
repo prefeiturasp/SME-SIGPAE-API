@@ -15,9 +15,9 @@ from ...dados_comuns.permissions import (
     UsuarioCODAERelatorios,
     UsuarioDinutreDiretoria,
     UsuarioDiretoriaRegional,
+    UsuarioEmpresaGenerico,
     UsuarioGticCODAE,
     UsuarioNutricionista,
-    UsuarioTerceirizada,
 )
 from ...dieta_especial.models import SolicitacaoDietaEspecial
 from ...paineis_consolidados.api.constants import (
@@ -896,7 +896,7 @@ class DRESolicitacoesViewSet(SolicitacoesViewSet):
 class TerceirizadaSolicitacoesViewSet(SolicitacoesViewSet):
     lookup_field = "uuid"
     queryset = SolicitacoesTerceirizada.objects.all()
-    permission_classes = (UsuarioTerceirizada,)
+    permission_classes = (UsuarioEmpresaGenerico,)
     serializer_class = SolicitacoesSerializer
 
     @action(

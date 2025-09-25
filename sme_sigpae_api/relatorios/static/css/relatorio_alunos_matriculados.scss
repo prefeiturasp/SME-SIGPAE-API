@@ -1,0 +1,121 @@
+@import "variaveis";
+
+@page {
+  size: A4 landscape;
+  margin: 2cm -2mm 1cm -2mm;
+  padding: 0;
+}
+
+@media print {
+  body, page {
+    margin: 0;
+  }
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.custom-filtros {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: normal;
+  color: $cinza-meio-escuro;
+}
+
+.custom-title {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 14px;
+  text-align: right;
+  color: #000000;
+}
+
+.custom-logo {
+  width: 97.22px;
+  height: 35px;
+}
+
+.tabela-filtro {
+  border-radius: 50px;
+  padding: 0 2em 0 2em;
+
+  h5 {
+    font-size: 16px;
+    line-height: 19px;
+    align-items: center;
+    letter-spacing: 0.25px;
+    color: $preto;
+  }
+
+  table {
+    margin-top: 2%;
+    width: 100%;
+    border: 1px solid $cinza-borda-tabela;
+    font-size: 10px;
+    line-height: 12px;
+    color: $cinza-meio-escuro;
+    margin-bottom: 0.5em;
+    border-collapse: collapse;
+
+    thead {
+      background-color: #F1F1F1;
+      th {
+        font-weight: bold;
+      }
+    }
+
+    th, td {
+      border: 1px solid $cinza-borda-tabela;
+      padding: 0.75em;
+    }
+  }
+}
+
+.detalhes-cei {
+  background: #f1f1f1;
+  border: 1px solid #dadada;
+  border-radius: 5px;
+  height: 18px;
+  margin: 1% 0px;
+  width: 100%;
+  padding: 8px 15px;
+
+}
+
+.style-total-table {
+  background-color: #F1F1F1;
+  td {
+    border: 1px solid $cinza-borda-tabela;
+    padding: 0.75em;
+  }
+}
+
+.dia-cancelado {
+  text-decoration: line-through;
+}
+
+.cancelado_justificativa {
+  width: 1000px !important;
+  word-wrap: break-word;
+}
+
+.custom-offset {
+    margin-left: 25%;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+.linha-divisoria {
+  background: #858796;
+  height: 1px;
+  margin-bottom: 0.5rem;
+}

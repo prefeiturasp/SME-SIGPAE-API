@@ -12,8 +12,8 @@ from ...dados_comuns.permissions import (
     PermissaoParaRecuperarObjeto,
     UsuarioCODAEGestaoAlimentacao,
     UsuarioDiretoriaRegional,
+    UsuarioEmpresaGenerico,
     UsuarioEscolaTercTotal,
-    UsuarioTerceirizada,
 )
 from ...eol_servico.utils import EOLException
 from ...relatorios.relatorios import (
@@ -213,7 +213,7 @@ class CodaeQuestionaTerceirizadaResponde:
 
     @action(
         detail=True,
-        permission_classes=(UsuarioTerceirizada,),
+        permission_classes=(UsuarioEmpresaGenerico,),
         methods=["patch"],
         url_path=constants.TERCEIRIZADA_RESPONDE_QUESTIONAMENTO,
     )
@@ -239,7 +239,7 @@ class CodaeQuestionaTerceirizadaResponde:
 class TerceirizadaTomaCiencia:
     @action(
         detail=True,
-        permission_classes=(UsuarioTerceirizada,),
+        permission_classes=(UsuarioEmpresaGenerico,),
         methods=["patch"],
         url_path=constants.TERCEIRIZADA_TOMOU_CIENCIA,
     )

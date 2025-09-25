@@ -16,8 +16,8 @@ from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaRecuperarObjeto,
     UsuarioCODAEGestaoAlimentacao,
     UsuarioDiretoriaRegional,
+    UsuarioEmpresaGenerico,
     UsuarioEscolaTercTotal,
-    UsuarioTerceirizada,
 )
 from sme_sigpae_api.relatorios.relatorios import relatorio_inversao_dia_de_cardapio
 
@@ -85,7 +85,7 @@ class InversaoCardapioViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         url_path=f"{constants.PEDIDOS_TERCEIRIZADA}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioTerceirizada,),
+        permission_classes=(UsuarioEmpresaGenerico,),
     )
     def solicitacoes_terceirizada(self, request, filtro_aplicado=constants.SEM_FILTRO):
         # TODO: colocar regras de Terceirizada aqui...
@@ -254,7 +254,7 @@ class InversaoCardapioViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        permission_classes=(UsuarioTerceirizada,),
+        permission_classes=(UsuarioEmpresaGenerico,),
         methods=["patch"],
         url_path=constants.TERCEIRIZADA_RESPONDE_QUESTIONAMENTO,
     )
@@ -278,7 +278,7 @@ class InversaoCardapioViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        permission_classes=(UsuarioTerceirizada,),
+        permission_classes=(UsuarioEmpresaGenerico,),
         methods=["patch"],
         url_path=constants.TERCEIRIZADA_TOMOU_CIENCIA,
     )

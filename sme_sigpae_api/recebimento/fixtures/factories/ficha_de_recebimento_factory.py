@@ -28,6 +28,11 @@ class FichaDeRecebimentoFactory(DjangoModelFactory):
             start_date=date.today() + timedelta(days=10)
         ).date()
     )
+    numero_paletes = fake.random_int(1, 1000)
+    peso_embalagem_primaria_1 = fake.pyfloat(min_value=0, max_value=100, right_digits=2)
+    peso_embalagem_primaria_2 = fake.pyfloat(min_value=0, max_value=100, right_digits=2)
+    peso_embalagem_primaria_3 = fake.pyfloat(min_value=0, max_value=100, right_digits=2)
+    peso_embalagem_primaria_4 = fake.pyfloat(min_value=0, max_value=100, right_digits=2)
 
 
 class VeiculoFichaDeRecebimentoFactory(DjangoModelFactory):

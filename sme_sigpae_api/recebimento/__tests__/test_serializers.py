@@ -190,3 +190,18 @@ def test_ficha_recebimento_detalhar_serializer(ficha_recebimento):
     assert "numero_paletes" in data
     assert "observacao" in data
     assert "observacoes_conferencia" in data
+
+    assert "numero_paletes" in data
+    assert isinstance(data["numero_paletes"], int)
+
+    assert "peso_embalagem_primaria_1" in data
+    assert isinstance(data["peso_embalagem_primaria_1"], float)
+
+    assert "peso_embalagem_primaria_2" in data
+    assert isinstance(data["peso_embalagem_primaria_2"], float)
+
+    assert "peso_embalagem_primaria_3" in data
+    assert isinstance(data["peso_embalagem_primaria_3"], float)
+
+    assert "peso_embalagem_primaria_4" in data
+    assert isinstance(data["peso_embalagem_primaria_4"], float)

@@ -31,9 +31,9 @@ from ...dados_comuns.permissions import (
     PermissaoRelatorioDietasEspeciais,
     PermissaoRelatorioRecreioNasFerias,
     UsuarioCODAEDietaEspecial,
+    UsuarioEmpresaGenerico,
     UsuarioEscolaDiretaParceira,
     UsuarioEscolaTercTotal,
-    UsuarioTerceirizada,
 )
 from ...dados_comuns.services import enviar_email_codae_atualiza_protocolo
 from ...dieta_especial.tasks import gera_pdf_relatorio_dieta_especial_async
@@ -447,7 +447,7 @@ class SolicitacaoDietaEspecialViewSet(
         detail=True,
         methods=["patch"],
         url_path=constants.TERCEIRIZADA_TOMOU_CIENCIA_INATIVACAO,
-        permission_classes=(UsuarioTerceirizada,),
+        permission_classes=(UsuarioEmpresaGenerico,),
     )
     def terceirizada_toma_ciencia_inativacao(self, request, uuid=None):
         solicitacao_dieta_especial = self.get_object()
@@ -477,7 +477,7 @@ class SolicitacaoDietaEspecialViewSet(
 
         return Response({"mensagem": "Solicitação de Dieta Especial Negada"})
 
-    @action(detail=True, methods=["post"], permission_classes=(UsuarioTerceirizada,))
+    @action(detail=True, methods=["post"], permission_classes=(UsuarioEmpresaGenerico,))
     def tomar_ciencia(self, request, uuid=None):
         solicitacao = self.get_object()
         try:
@@ -568,7 +568,7 @@ class SolicitacaoDietaEspecialViewSet(
         detail=True,
         methods=["patch"],
         url_path=constants.MARCAR_CONFERIDA,
-        permission_classes=(UsuarioTerceirizada,),
+        permission_classes=(UsuarioEmpresaGenerico,),
     )
     def terceirizada_marca_solicitacao_como_conferida(self, request, uuid=None):
         solicitacao_dieta_especial: SolicitacaoDietaEspecial = self.get_object()

@@ -23,8 +23,8 @@ from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaRecuperarObjeto,
     UsuarioCODAEGestaoAlimentacao,
+    UsuarioEmpresaGenerico,
     UsuarioEscolaTercTotal,
-    UsuarioTerceirizada,
 )
 from sme_sigpae_api.dados_comuns.services import (
     enviar_email_ue_cancelar_pedido_parcialmente,
@@ -81,7 +81,7 @@ class GrupoSuspensaoAlimentacaoSerializerViewSet(viewsets.ModelViewSet):
         detail=False,
         methods=["GET"],
         url_path=f"{constants.PEDIDOS_TERCEIRIZADA}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioTerceirizada,),
+        permission_classes=(UsuarioEmpresaGenerico,),
     )
     def solicitacoes_terceirizada(self, request, filtro_aplicado="sem_filtro"):
         # TODO: colocar regras de Terceirizada aqui...
@@ -136,7 +136,7 @@ class GrupoSuspensaoAlimentacaoSerializerViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        permission_classes=(UsuarioTerceirizada,),
+        permission_classes=(UsuarioEmpresaGenerico,),
         methods=["patch"],
         url_path=constants.TERCEIRIZADA_TOMOU_CIENCIA,
     )
