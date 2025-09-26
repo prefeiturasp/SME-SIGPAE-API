@@ -7,6 +7,9 @@ from django.core.management import BaseCommand, CommandError
 from sme_sigpae_api.escola.models import Escola
 from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
     habilitar_dias_letivos,
+    incluir_dietas_especiais,
+    incluir_dietas_especiais_ceu_gestao,
+    incluir_dietas_especiais_emebs,
     incluir_etec,
     incluir_log_alunos_matriculados,
     incluir_log_alunos_matriculados_cei,
@@ -162,16 +165,29 @@ class Command(BaseCommand):
                 periodos_escolares, escola, ano, mes, quantidade_dias_mes
             )
 
-        periodos_escolares = escola.periodos_escolares(ano=ano)
-        self.stdout.write("2. Obtém dados do usuário")
+        periodos_escolares_db = escola.periodos_escolares(ano=ano)
+
+        self.stdout.write("2. Cadastro de dietas especiais")
+        if escola.eh_ceu_gestao:
+            incluir_dietas_especiais_ceu_gestao(escola, ano, mes, quantidade_dias_mes)
+        elif escola.eh_emebs:
+            incluir_dietas_especiais_emebs(
+                escola, ano, mes, quantidade_dias_mes, periodos_escolares
+            )
+        else:
+            incluir_dietas_especiais(
+                escola, periodos_escolares_db, ano, mes, quantidade_dias_mes
+            )
+
+        self.stdout.write("3. Obtém dados do usuário")
         usuario = obter_usuario(email_escola)
         usuario_dre = obter_usuario(email_dre)
 
-        self.stdout.write("3. Incluindo as Solicitações de Alimentacao")
-        self.stdout.write("3.1. Criar solicitação de KIT LANCHE PASSEIO")
+        self.stdout.write("4. Incluindo as Solicitações de Alimentacao")
+        self.stdout.write("4.1. Criar solicitação de KIT LANCHE PASSEIO")
         solicitar_kit_lanche(escola, usuario, ano, mes, dia_kit_lanche, usuario_dre)
-        self.stdout.write("3.2 Criar solicitação de LANCHE EMERGENCIAL")
-        periodo_escolar_solicitacoes = periodos_escolares.get(nome="MANHA")
+        self.stdout.write("4.2 Criar solicitação de LANCHE EMERGENCIAL")
+        periodo_escolar_solicitacoes = periodos_escolares_db.get(nome="MANHA")
         solicitar_lanche_emergencial(
             escola,
             usuario,
@@ -182,7 +198,7 @@ class Command(BaseCommand):
             usuario_dre,
         )
 
-        self.stdout.write("4. Criar PROGRAMAS E PROJETOS")
+        self.stdout.write("5. Criar PROGRAMAS E PROJETOS")
         incluir_programas_e_projetos(
             escola,
             usuario,
@@ -194,8 +210,8 @@ class Command(BaseCommand):
         )
 
         if escola.eh_emef or escola.eh_ceu_gestao:
-            self.stdout.write("5. Criar ETEC")
-            periodo_noturno = periodos_escolares.get(nome="NOITE")
+            self.stdout.write("6. Criar ETEC")
+            periodo_noturno = periodos_escolares_db.get(nome="NOITE")
             incluir_etec(
                 escola,
                 usuario,
@@ -207,11 +223,11 @@ class Command(BaseCommand):
             )
 
         if escola.eh_ceu_gestao:
-            self.stdout.write("6. Cadastro específo para CEU GESTAO")
+            self.stdout.write("7. Cadastro específo para CEU GESTAO")
             incluir_solicitacoes_ceu_gestao(
                 escola,
                 usuario,
-                periodos_escolares,
+                periodos_escolares_db,
                 ano,
                 mes,
                 dia_kit_lanche,

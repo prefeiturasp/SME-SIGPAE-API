@@ -13,6 +13,10 @@ from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_cr
     AlteracaoCardapioCEMEISerializerCreate,
 )
 from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
+from sme_sigpae_api.dieta_especial.models import (
+    ClassificacaoDieta,
+    LogQuantidadeDietasAutorizadas,
+)
 from sme_sigpae_api.escola.models import (
     FaixaEtaria,
     LogAlunosMatriculadosFaixaEtariaDia,
@@ -166,7 +170,7 @@ def verifica_dados_iniciais():
         FaixaEtaria.objects.bulk_create(faixas_etarias)
         print("2.2. Faixas cadastradas.")
 
-    print("3. Verificando Motivo Alteracao Cardapio")
+    print("3. Verificando MotivoAlteracaoCardapio")
     lanche_emergencial = MotivoAlteracaoCardapio.objects.filter(
         nome="Lanche Emergencial"
     )
@@ -179,7 +183,7 @@ def verifica_dados_iniciais():
         ).save()
         print("3.2. MotivoAlteracaoCardapio Lanche Emergencial cadastrado.")
 
-    print("4. Verificando Tipo Alimentacao")
+    print("4. Verificando TipoAlimentacao")
     lanche_quatro_horas = TipoAlimentacao.objects.filter(nome="Lanche 4h")
     if not lanche_quatro_horas.exists():
         print("4.1. Nenhum TipoAlimentacao para Lanche 4h encontrado. Cadastrando...")
@@ -194,7 +198,7 @@ def verifica_dados_iniciais():
         TipoAlimentacao.objects.create(nome="Lanche Emergencial").save()
         print("4.4. TipoAlimentacao Lanche Emergencial cadastrado.")
 
-    print("5. Verificando Motivo Inclusao Continua")
+    print("5. Verificando MotivoInclusaoContinua")
     programa_projetos = MotivoInclusaoContinua.objects.filter(
         nome="Programas/Projetos Específicos"
     )
@@ -213,7 +217,7 @@ def verifica_dados_iniciais():
         MotivoInclusaoContinua.objects.create(nome="ETEC").save()
         print("5.4 MotivoInclusaoContinua ETEC cadastrado.")
 
-    print("6. Verificando Motivo Inclusao Normal")
+    print("6. Verificando MotivoInclusaoNormal")
     evento = MotivoInclusaoNormal.objects.filter(nome="Evento Específico")
     if not evento.exists():
         print(
@@ -221,6 +225,20 @@ def verifica_dados_iniciais():
         )
         MotivoInclusaoNormal.objects.create(nome="Evento Específico").save()
         print("6.2 MotivoInclusaoNormal Evento Específico cadastrado.")
+
+    print("7. Verificando ClassificacaoDieta")
+    classificacao = ClassificacaoDieta.objects.all()
+    if not evento.exists():
+        print("7.1. Nenhuma ClassificacaoDieta encontrada. Cadastrando ...")
+        classificacao = [
+            ClassificacaoDieta(nome="Tipo A"),
+            ClassificacaoDieta(nome="Tipo A RESTRIÇÃO DE AMINOÁCIDOS"),
+            ClassificacaoDieta(nome="Tipo A ENTERAL"),
+            ClassificacaoDieta(nome="Tipo B"),
+            ClassificacaoDieta(nome="Tipo C"),
+        ]
+        ClassificacaoDieta.objects.bulk_create(classificacao)
+        print("7.2. ClassificacaoDieta cadastradas.")
 
 
 def obter_usuario(email):
@@ -680,6 +698,8 @@ def solicitar_lanche_emergencial_cemei(
 
 
 # **************************** **************************** PROGRAMAS E PROJETOS **************************** ****************************
+
+
 def data_programas_e_projetos_etec():
     data_inicial = datetime.datetime.now() + relativedelta(months=1)
     data_final = datetime.datetime.now() + relativedelta(months=1, days=5)
@@ -860,3 +880,84 @@ def incluir_solicitacoes_ceu_gestao(
     print(f"Data da solicitação alterada para {nova_data.strftime('%d/%m/%Y')}")
 
     return ceu_gestao
+
+
+# **************************** **************************** DIETAS ESPECIAIS **************************** ****************************
+
+
+def incluir_dietas_especiais(escola, periodos_escolares, ano, mes, quantidade_dias_mes):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    quantidade = 2
+    for periodo in periodos_escolares:
+        for classificacao in classificacoes_dieta:
+            for dia in range(1, quantidade_dias_mes + 1):
+                log = LogQuantidadeDietasAutorizadas(
+                    escola=escola,
+                    periodo_escolar=periodo,
+                    quantidade=quantidade,
+                    data=datetime.date(ano, mes, dia),
+                    classificacao=classificacao,
+                )
+                log.save()
+            print(
+                f"Logs da dieta {classificacao.nome} para o Período {periodo} cadastrados"
+            )
+
+
+def incluir_dietas_especiais_ceu_gestao(escola, ano, mes, quantidade_dias_mes):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    quantidade = 2
+
+    for classificacao in classificacoes_dieta:
+        for dia in range(1, quantidade_dias_mes + 1):
+            log = LogQuantidadeDietasAutorizadas(
+                escola=escola,
+                periodo_escolar=None,
+                quantidade=quantidade,
+                data=datetime.date(ano, mes, dia),
+                classificacao=classificacao,
+            )
+            log.save()
+        print(f"Logs da dieta {classificacao.nome} cadastrados")
+
+
+def incluir_dietas_especiais_emebs(escola, ano, mes, quantidade_dias_mes, periodos):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    quantidade = 2
+
+    periodo_infantil = periodos["INFANTIL"]
+    periodo_fundamental = periodos["FUNDAMENTAL"]
+
+    for periodo in periodo_infantil:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for classificacao in classificacoes_dieta:
+            for dia in range(1, quantidade_dias_mes + 1):
+                log = LogQuantidadeDietasAutorizadas(
+                    escola=escola,
+                    periodo_escolar=pe,
+                    quantidade=quantidade,
+                    data=datetime.date(ano, mes, dia),
+                    classificacao=classificacao,
+                    infantil_ou_fundamental="INFANTIL",
+                )
+                log.save()
+            print(
+                f"Logs da dieta {classificacao.nome} do INFANTIL para o Período {periodo}  cadastrados"
+            )
+
+    for periodo in periodo_fundamental:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for classificacao in classificacoes_dieta:
+            for dia in range(1, quantidade_dias_mes + 1):
+                log = LogQuantidadeDietasAutorizadas(
+                    escola=escola,
+                    periodo_escolar=pe,
+                    quantidade=quantidade,
+                    data=datetime.date(ano, mes, dia),
+                    classificacao=classificacao,
+                    infantil_ou_fundamental="FUNDAMENTAL",
+                )
+                log.save()
+            print(
+                f"Logs da dieta {classificacao.nome} do FUNDAMENTAL para o Período {periodo}  cadastrados"
+            )
