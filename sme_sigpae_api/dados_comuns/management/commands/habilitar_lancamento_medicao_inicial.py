@@ -162,7 +162,7 @@ class Command(BaseCommand):
             incluir_log_alunos_matriculados_emebs(
                 periodos_escolares, escola, ano, mes, quantidade_dias_mes
             )
-        else:
+        elif not escola.eh_ceu_gestao:
             incluir_log_alunos_matriculados(
                 periodos_escolares, escola, ano, mes, quantidade_dias_mes
             )
@@ -171,7 +171,7 @@ class Command(BaseCommand):
 
         self.stdout.write("2. Cadastro de dietas especiais")
         if escola.eh_ceu_gestao:
-            incluir_dietas_especiais_ceu_gestao(escola, ano, mes, quantidade_dias_mes)
+            incluir_dietas_especiais_ceu_gestao(escola, ano, mes, dia_kit_lanche)
         elif escola.eh_emebs:
             incluir_dietas_especiais_emebs(
                 escola, ano, mes, quantidade_dias_mes, periodos_escolares

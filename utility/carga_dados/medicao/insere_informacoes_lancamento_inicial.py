@@ -837,9 +837,10 @@ def incluir_solicitacoes_ceu_gestao(
             {
                 "periodo_escolar": periodo,
                 "tipos_alimentacao": [tipo_alimentacao],
-                "numero_alunos": "10",
+                "numero_alunos": "50",
             }
         )
+
     solicitacao_json = {
         "escola": escola,
         "inclusoes": [
@@ -905,20 +906,19 @@ def incluir_dietas_especiais(escola, periodos_escolares, ano, mes, quantidade_di
             )
 
 
-def incluir_dietas_especiais_ceu_gestao(escola, ano, mes, quantidade_dias_mes):
+def incluir_dietas_especiais_ceu_gestao(escola, ano, mes, dia_kit_lanche):
     classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
     quantidade = 2
 
     for classificacao in classificacoes_dieta:
-        for dia in range(1, quantidade_dias_mes + 1):
-            log = LogQuantidadeDietasAutorizadas(
-                escola=escola,
-                periodo_escolar=None,
-                quantidade=quantidade,
-                data=datetime.date(ano, mes, dia),
-                classificacao=classificacao,
-            )
-            log.save()
+        log = LogQuantidadeDietasAutorizadas(
+            escola=escola,
+            periodo_escolar=None,
+            quantidade=quantidade,
+            data=datetime.date(ano, mes, dia_kit_lanche),
+            classificacao=classificacao,
+        )
+        log.save()
         print(f"Logs da dieta {classificacao.nome} cadastrados")
 
 
