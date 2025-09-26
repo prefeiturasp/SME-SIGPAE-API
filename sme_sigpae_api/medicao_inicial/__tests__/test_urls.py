@@ -2255,3 +2255,15 @@ def test_codae_solicita_correcao_sem_lancamento_erro_transicao(
     assert response.json() == {
         "detail": "['Solicitação Medição Inicial não pode voltar para ser preenchida novamente, pois possui lançamentos.']"
     }
+
+
+def test_url_endpoint_medicao_dashboard_dre_com_ocorrencias(
+    client_autenticado_diretoria_regional, solicitacoes_medicao_inicial
+):
+    response = client_autenticado_diretoria_regional.get(
+        "/medicao-inicial/solicitacao-medicao-inicial/dashboard/?ocorrencias=true",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json()["results"]) == 9
+    
