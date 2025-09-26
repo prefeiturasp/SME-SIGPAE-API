@@ -16,6 +16,7 @@ from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
 from sme_sigpae_api.dieta_especial.models import (
     ClassificacaoDieta,
     LogQuantidadeDietasAutorizadas,
+    LogQuantidadeDietasAutorizadasCEI,
 )
 from sme_sigpae_api.escola.models import (
     FaixaEtaria,
@@ -961,3 +962,28 @@ def incluir_dietas_especiais_emebs(escola, ano, mes, quantidade_dias_mes, period
             print(
                 f"Logs da dieta {classificacao.nome} do FUNDAMENTAL para o Período {periodo}  cadastrados"
             )
+
+
+def incluir_dietas_especias_cei(
+    escola, ano, mes, quantidade_dias_mes, periodos_escolares
+):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    quantidade = 2
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    for periodo in periodos_escolares:
+        for classificacao in classificacoes_dieta:
+            quantidade = 1 if "Tipo A" in classificacao.nome else 2
+            for faixa in faixas:
+                for dia in range(1, quantidade_dias_mes + 1):
+                    log = LogQuantidadeDietasAutorizadasCEI(
+                        escola=escola,
+                        periodo_escolar=periodo,
+                        quantidade=quantidade,
+                        data=datetime.date(ano, mes, dia),
+                        classificacao=classificacao,
+                        faixa_etaria=faixa,
+                    )
+                    log.save()
+                print(
+                    f"Logs dieta {classificacao.nome} para faixa {faixa.__str__()} no Período {periodo} cadastrados"
+                )

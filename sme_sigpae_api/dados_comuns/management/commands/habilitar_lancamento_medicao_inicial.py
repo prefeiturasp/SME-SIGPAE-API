@@ -10,6 +10,7 @@ from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
     incluir_dietas_especiais,
     incluir_dietas_especiais_ceu_gestao,
     incluir_dietas_especiais_emebs,
+    incluir_dietas_especias_cei,
     incluir_etec,
     incluir_log_alunos_matriculados,
     incluir_log_alunos_matriculados_cei,
@@ -302,4 +303,9 @@ class Command(BaseCommand):
         self.stdout.write("1. Inclui Log de Alunos Matriculados por faixa etária")
         incluir_log_alunos_matriculados_cei(
             periodos_escolares, escola, ano, mes, quantidade_dias_mes
+        )
+        periodos_escolares_db = escola.periodos_escolares(ano=ano)
+        self.stdout.write("2. Cadastro de dietas especiais")
+        incluir_dietas_especias_cei(
+            escola, ano, mes, quantidade_dias_mes, periodos_escolares_db
         )
