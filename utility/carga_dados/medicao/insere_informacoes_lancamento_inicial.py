@@ -91,7 +91,7 @@ def dados_usuario_periodos():
     ]
 
 
-def obter_usuario_dre(diretoria_regional):
+def obter_usuario_dre(diretoria_regional, index):
     try:
         content_type = ContentType.objects.get(
             app_label="escola", model="diretoriaregional"
@@ -101,7 +101,7 @@ def obter_usuario_dre(diretoria_regional):
             content_type=content_type, object_id=diretoria_regional.id, perfil=perfil
         ).first()
         usuario = vinculo.usuario.email
-        print(f"Usuário DRE: {usuario}")
+        print(f"{index}.1 Usuário DRE: {usuario}")
     except Exception as e:
         print(f"----> Erro ao buscar usuário DRE:\n{e}")
         raise
@@ -113,21 +113,20 @@ def obter_escolas():
     "Escolas da mesma DRE"
     erro = False
     dados = dados_usuario_periodos()
-    for informacao in dados:
+    for index, informacao in enumerate(dados, start=1):
         usuario = obter_usuario(informacao["email"])
         try:
             instituicao = usuario.vinculo_atual.instituicao
             informacao["nome_escola"] = instituicao.nome
             print(
-                f"{informacao["email"]} está vinculado a escola {informacao["nome_escola"]}"
+                f"{index}. {informacao["email"]} está vinculado a escola {informacao["nome_escola"]}"
             )
             informacao["usuario_dre"] = obter_usuario_dre(
-                instituicao.diretoria_regional
+                instituicao.diretoria_regional, index
             )
         except Exception as e:
             erro = True
             print(f"----> Erro ao buscar vinculo para {informacao["email"]}:\n{e}")
-        print("")
 
     if erro:
         print("================== SCRIP CANCELADO ==================")
@@ -142,18 +141,18 @@ def verifica_dados_iniciais():
         status=KitLanche.ATIVO,
     )
     if not kit.exists():
-        print(" 1.1 Nenhum kit encontrado. Cadastrando ...")
+        print("1.1 Nenhum kit encontrado. Cadastrando ...")
         KitLanche.objects.create(
             nome="Kit - Medicao Inicial",
             status=KitLanche.ATIVO,
             descricao="<p>Suco e Bolo</p>",
         ).save()
-        print(" 1.2 Kit cadastrado.")
+        print("1.2 Kit cadastrado.")
 
     print("2. Verificando Faixa Etaria")
     faixas = FaixaEtaria.objects.filter(ativo=True)
     if not faixas.exists():
-        print(" 2.1. Nenhuma faixa encontrada. Cadastrando ...")
+        print("2.1. Nenhuma faixa encontrada. Cadastrando ...")
 
         faixas_etarias = [
             FaixaEtaria(inicio=0, fim=1, ativo=True),
@@ -161,9 +160,11 @@ def verifica_dados_iniciais():
             FaixaEtaria(inicio=4, fim=6, ativo=True),
             FaixaEtaria(inicio=6, fim=7, ativo=True),
             FaixaEtaria(inicio=7, fim=12, ativo=True),
+            FaixaEtaria(inicio=12, fim=48, ativo=True),
+            FaixaEtaria(inicio=48, fim=73, ativo=True),
         ]
         FaixaEtaria.objects.bulk_create(faixas_etarias)
-        print(" 2.2. Faixas cadastradas.")
+        print("2.2. Faixas cadastradas.")
 
     print("3. Verificando Motivo Alteracao Cardapio")
     lanche_emergencial = MotivoAlteracaoCardapio.objects.filter(
@@ -176,14 +177,14 @@ def verifica_dados_iniciais():
         MotivoAlteracaoCardapio.objects.create(
             nome="Lanche Emergencial", ativo=True
         ).save()
-        print(" 3.2. MotivoAlteracaoCardapio Lanche Emergencial cadastrado.")
+        print("3.2. MotivoAlteracaoCardapio Lanche Emergencial cadastrado.")
 
     print("4. Verificando Tipo Alimentacao")
     lanche_quatro_horas = TipoAlimentacao.objects.filter(nome="Lanche 4h")
     if not lanche_quatro_horas.exists():
-        print(" 4.1. Nenhum TipoAlimentacao para Lanche 4h encontrado. Cadastrando...")
+        print("4.1. Nenhum TipoAlimentacao para Lanche 4h encontrado. Cadastrando...")
         TipoAlimentacao.objects.create(nome="Lanche 4h").save()
-        print(" 4.2. TipoAlimentacao Lanche 4h cadastrado.")
+        print("4.2. TipoAlimentacao Lanche 4h cadastrado.")
 
     lanche_emergencial = TipoAlimentacao.objects.filter(nome="Lanche Emergencial")
     if not lanche_emergencial.exists():
@@ -191,7 +192,7 @@ def verifica_dados_iniciais():
             " 4.3. Nenhum TipoAlimentacao para Lanche emergencial encontrado. Cadastrando..."
         )
         TipoAlimentacao.objects.create(nome="Lanche Emergencial").save()
-        print(" 4.4. TipoAlimentacao Lanche Emergencial cadastrado.")
+        print("4.4. TipoAlimentacao Lanche Emergencial cadastrado.")
 
     print("5. Verificando Motivo Inclusao Continua")
     programa_projetos = MotivoInclusaoContinua.objects.filter(
@@ -204,13 +205,13 @@ def verifica_dados_iniciais():
         MotivoInclusaoContinua.objects.create(
             nome="Programas/Projetos Específicos"
         ).save()
-        print(" 5.2. MotivoInclusaoContinua Programas/Projetos Específicos cadastrado.")
+        print("5.2. MotivoInclusaoContinua Programas/Projetos Específicos cadastrado.")
 
     etec = MotivoInclusaoContinua.objects.filter(nome="ETEC")
     if not etec.exists():
-        print(" 5.3 Nenhum MotivoInclusaoContinua para ETEC encontrado. Cadastrando...")
+        print("5.3 Nenhum MotivoInclusaoContinua para ETEC encontrado. Cadastrando...")
         MotivoInclusaoContinua.objects.create(nome="ETEC").save()
-        print(" 5.4 MotivoInclusaoContinua ETEC cadastrado.")
+        print("5.4 MotivoInclusaoContinua ETEC cadastrado.")
 
     print("6. Verificando Motivo Inclusao Normal")
     evento = MotivoInclusaoNormal.objects.filter(nome="Evento Específico")
@@ -219,7 +220,7 @@ def verifica_dados_iniciais():
             " 6.1 Nenhum MotivoInclusaoNormal para Evento Específico encontrado. Cadastrando..."
         )
         MotivoInclusaoNormal.objects.create(nome="Evento Específico").save()
-        print(" 6.2 MotivoInclusaoNormal Evento Específico cadastrado.")
+        print("6.2 MotivoInclusaoNormal Evento Específico cadastrado.")
 
 
 def obter_usuario(email):
@@ -237,22 +238,21 @@ def obter_usuario_codae():
 
 def habilitar_dias_letivos(escolas, data):
 
-    print(f"Data: {data.strftime("%d/%m/%Y")}")
-    print(f"Escolas: {", ".join(escolas)}")
-
+    print(f"1.Habilitando a data {data.strftime("%d/%m/%Y")} para as escolas: ")
+    print(f"{"\n".join(escolas)}")
     calendario_sgp(data, escolas)
-    print(f"O mês referente a data {data.strftime("%d/%m/%Y")} agora é letivo")
+    print(f"1.1 O mês referente a data {data.strftime("%d/%m/%Y")} agora é letivo")
 
     data_kit_lanche = data_solicitacao_kit_lanche()
     calendario_sgp(data_kit_lanche, escolas)
     print(
-        f"A data do pedido de kit lanche {data_kit_lanche.strftime("%d/%m/%Y")} agora é letivo"
+        f"2. A data do pedido de kit lanche {data_kit_lanche.strftime("%d/%m/%Y")} agora é letivo"
     )
 
     data_lanche_emergencial = data_solicitacao_lanche_emergencial()
     calendario_sgp(data_lanche_emergencial, escolas)
     print(
-        f"A data do pedido do lanche emergencial {data_kit_lanche.strftime("%d/%m/%Y")} agora é letivo"
+        f"3. A data do pedido do lanche emergencial {data_kit_lanche.strftime("%d/%m/%Y")} agora é letivo"
     )
 
 
@@ -424,7 +424,7 @@ def data_solicitacao_kit_lanche():
     return data.date()
 
 
-def solicitar_kit_lanche(escola, usuario, ano, mes, data_kit_lanche):
+def solicitar_kit_lanche(escola, usuario, ano, mes, data_kit_lanche, usuario_dre):
 
     queryset = KitLanche.objects.filter(
         edital__uuid__in=escola.editais,
@@ -437,7 +437,6 @@ def solicitar_kit_lanche(escola, usuario, ano, mes, data_kit_lanche):
         print("================== SCRIP CANCELADO ==================")
         exit()
     kit = queryset.first()
-    usuario_dre = obter_usuario_dre()
     usuario_codae = obter_usuario_codae()
 
     solicitacao_json = {
@@ -479,7 +478,7 @@ def solicitar_kit_lanche(escola, usuario, ano, mes, data_kit_lanche):
     return solicitacao_kit_lanche
 
 
-def solicitar_kit_lanche_cemei(escola, usuario, ano, mes, data_kit_lanche):
+def solicitar_kit_lanche_cemei(escola, usuario, ano, mes, data_kit_lanche, usuario_dre):
     queryset = KitLanche.objects.filter(
         edital__uuid__in=escola.editais,
         tipos_unidades=escola.tipo_unidade,
@@ -491,7 +490,6 @@ def solicitar_kit_lanche_cemei(escola, usuario, ano, mes, data_kit_lanche):
         exit()
     kit = queryset.first()
     faixas = FaixaEtaria.objects.filter(ativo=True)
-    usuario_dre = obter_usuario_dre()
     usuario_codae = obter_usuario_codae()
 
     faixas_quantidades = []
@@ -560,14 +558,13 @@ def data_solicitacao_lanche_emergencial():
 
 
 def solicitar_lanche_emergencial(
-    escola, usuario, periodo_escolar, ano, mes, data_lanche_emercencial
+    escola, usuario, periodo_escolar, ano, mes, data_lanche_emercencial, usuario_dre
 ):
 
     data = data_solicitacao_lanche_emergencial()
     motivo = MotivoAlteracaoCardapio.objects.get(nome="Lanche Emergencial")
     tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
     tipo_lanche_emergencial = TipoAlimentacao.objects.get(nome="Lanche Emergencial")
-    usuario_dre = obter_usuario_dre()
     usuario_codae = obter_usuario_codae()
 
     solicitacao_json = {
@@ -621,14 +618,13 @@ def solicitar_lanche_emergencial(
 
 
 def solicitar_lanche_emergencial_cemei(
-    escola, usuario, periodo_escolar, ano, mes, data_lanche_emercencial
+    escola, usuario, periodo_escolar, ano, mes, data_lanche_emercencial, usuario_dre
 ):
 
     data = data_solicitacao_lanche_emergencial()
     motivo = MotivoAlteracaoCardapio.objects.get(nome="Lanche Emergencial")
     tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
     tipo_lanche_emergencial = TipoAlimentacao.objects.get(nome="Lanche Emergencial")
-    usuario_dre = obter_usuario_dre()
     usuario_codae = obter_usuario_codae()
 
     solicitacao_json = {
@@ -691,13 +687,12 @@ def data_programas_e_projetos_etec():
 
 
 def incluir_programas_e_projetos(
-    escola, usuario, periodo_escolar, ano, mes, data_kit_lanche
+    escola, usuario, periodo_escolar, ano, mes, data_kit_lanche, usuario_dre
 ):
 
     data_inicial, data_final = data_programas_e_projetos_etec()
     tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
     motivo = MotivoInclusaoContinua.objects.get(nome="Programas/Projetos Específicos")
-    usuario_dre = obter_usuario_dre()
     usuario_codae = obter_usuario_codae()
     solicitacao_json = {
         "escola": escola,
@@ -746,12 +741,13 @@ def incluir_programas_e_projetos(
 # **************************** **************************** ETEC **************************** ****************************
 
 
-def incluir_etec(escola, usuario, periodo_escolar, ano, mes, data_lanche_emergencial):
+def incluir_etec(
+    escola, usuario, periodo_escolar, ano, mes, data_lanche_emergencial, usuario_dre
+):
 
     data_inicial, data_final = data_programas_e_projetos_etec()
     tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
     motivo = MotivoInclusaoContinua.objects.get(nome="ETEC")
-    usuario_dre = obter_usuario_dre()
     usuario_codae = obter_usuario_codae()
 
     solicitacao_json = {
@@ -805,13 +801,12 @@ def incluir_etec(escola, usuario, periodo_escolar, ano, mes, data_lanche_emergen
 
 
 def incluir_solicitacoes_ceu_gestao(
-    escola, usuario, periodos_escolares, ano, mes, data_kit_lanche
+    escola, usuario, periodos_escolares, ano, mes, data_kit_lanche, usuario_dre
 ):
 
     data = data_solicitacao_kit_lanche()
     tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
     motivo = MotivoInclusaoNormal.objects.get(nome="Evento Específico")
-    usuario_dre = obter_usuario_dre()
     usuario_codae = obter_usuario_codae()
 
     quantidades_periodo = []

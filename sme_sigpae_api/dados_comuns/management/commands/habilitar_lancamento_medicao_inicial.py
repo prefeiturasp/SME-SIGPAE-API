@@ -63,11 +63,12 @@ class Command(BaseCommand):
         self.stdout.write("Obtendo a lista de escolas")
         dados_escolas = obter_escolas()
 
-        self.stdout.write("Verificando os dados iniciais")
+        self.stdout.write("\nVerificando os dados iniciais")
         verifica_dados_iniciais()
 
         # call_command("migrate", interactive=False)
-        self.stdout.write("Habilitando dias letivos")
+
+        self.stdout.write("\nHabilitando dias letivos")
         nome_escolas = [dado.get("nome_escola") for dado in dados_escolas]
         data = datetime.date(ano, mes, 1)
         habilitar_dias_letivos(nome_escolas, data)
@@ -77,9 +78,9 @@ class Command(BaseCommand):
             escola = Escola.objects.get(nome=dados["nome_escola"])
             email_escola = dados["email"]
             periodos = dados["periodos"]
-
+            email_dre = dados["usuario_dre"]
             self.stdout.write(
-                f"Incluindo dados para a escola {escola.nome} em {mes}/{ano}"
+                f"\nIncluindo dados para a escola {escola.nome} em {mes}/{ano}"
             )
             if escola.eh_cemei:
                 self.escolas_cemei(
@@ -91,6 +92,7 @@ class Command(BaseCommand):
                     quantidade_dias_mes,
                     dia_kit_lanche,
                     dia_lanche_emergencial,
+                    email_dre,
                 )
             elif escola.eh_cei:
                 self.escolas_cei(
@@ -110,6 +112,7 @@ class Command(BaseCommand):
                     quantidade_dias_mes,
                     dia_kit_lanche,
                     dia_lanche_emergencial,
+                    email_dre,
                 )
             self.stdout.write()
 
@@ -147,6 +150,7 @@ class Command(BaseCommand):
         quantidade_dias_mes,
         dia_kit_lanche,
         dia_lanche_emergencial,
+        email_dre,
     ):
         self.stdout.write("1. Inclui Log de Alunos Matriculados por período escolar")
         if escola.eh_emebs:
@@ -161,10 +165,11 @@ class Command(BaseCommand):
         periodos_escolares = escola.periodos_escolares(ano=ano)
         self.stdout.write("2. Obtém dados do usuário")
         usuario = obter_usuario(email_escola)
+        usuario_dre = obter_usuario(email_dre)
 
         self.stdout.write("3. Incluindo as Solicitações de Alimentacao")
         self.stdout.write("3.1. Criar solicitação de KIT LANCHE PASSEIO")
-        solicitar_kit_lanche(escola, usuario, ano, mes, dia_kit_lanche)
+        solicitar_kit_lanche(escola, usuario, ano, mes, dia_kit_lanche, usuario_dre)
         self.stdout.write("3.2 Criar solicitação de LANCHE EMERGENCIAL")
         periodo_escolar_solicitacoes = periodos_escolares.get(nome="MANHA")
         solicitar_lanche_emergencial(
@@ -174,24 +179,43 @@ class Command(BaseCommand):
             ano,
             mes,
             dia_lanche_emergencial,
+            usuario_dre,
         )
 
         self.stdout.write("4. Criar PROGRAMAS E PROJETOS")
         incluir_programas_e_projetos(
-            escola, usuario, periodo_escolar_solicitacoes, ano, mes, dia_kit_lanche
+            escola,
+            usuario,
+            periodo_escolar_solicitacoes,
+            ano,
+            mes,
+            dia_kit_lanche,
+            usuario_dre,
         )
 
         if escola.eh_emef or escola.eh_ceu_gestao:
             self.stdout.write("5. Criar ETEC")
             periodo_noturno = periodos_escolares.get(nome="NOITE")
             incluir_etec(
-                escola, usuario, periodo_noturno, ano, mes, dia_lanche_emergencial
+                escola,
+                usuario,
+                periodo_noturno,
+                ano,
+                mes,
+                dia_lanche_emergencial,
+                usuario_dre,
             )
 
         if escola.eh_ceu_gestao:
             self.stdout.write("6. Cadastro específo para CEU GESTAO")
             incluir_solicitacoes_ceu_gestao(
-                escola, usuario, periodos_escolares, ano, mes, dia_kit_lanche
+                escola,
+                usuario,
+                periodos_escolares,
+                ano,
+                mes,
+                dia_kit_lanche,
+                usuario_dre,
             )
 
     def escolas_cemei(
@@ -204,6 +228,7 @@ class Command(BaseCommand):
         quantidade_dias_mes,
         dia_kit_lanche,
         dia_lanche_emergencial,
+        email_dre,
     ):
         self.stdout.write(
             "1. Inclui Log de Alunos Matriculados por período escolar e faixa etária"
@@ -220,10 +245,13 @@ class Command(BaseCommand):
 
         self.stdout.write("2. Obtém dados do usuário")
         usuario = obter_usuario(email_escola)
+        usuario_dre = obter_usuario(email_dre)
 
         print("3. Incluindo as solicitações de alimentacao")
         self.stdout.write("3.1. Criar solicitação de KIT LANCHE PASSEIO")
-        solicitar_kit_lanche_cemei(escola, usuario, ano, mes, dia_kit_lanche)
+        solicitar_kit_lanche_cemei(
+            escola, usuario, ano, mes, dia_kit_lanche, usuario_dre
+        )
         self.stdout.write("3.2 Criar solicitação de LANCHE EMERGENCIAL")
         periodo_escolar_solicitacoes = periodos_escolares.get(nome="INTEGRAL")
         solicitar_lanche_emergencial_cemei(
@@ -233,11 +261,18 @@ class Command(BaseCommand):
             ano,
             mes,
             dia_lanche_emergencial,
+            usuario_dre,
         )
 
         self.stdout.write("4. Criar PROGRAMAS E PROJETOS")
         incluir_programas_e_projetos(
-            escola, usuario, periodo_escolar_solicitacoes, ano, mes, dia_kit_lanche
+            escola,
+            usuario,
+            periodo_escolar_solicitacoes,
+            ano,
+            mes,
+            dia_kit_lanche,
+            usuario_dre,
         )
 
     def escolas_cei(
