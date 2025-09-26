@@ -968,7 +968,6 @@ def incluir_dietas_especias_cei(
     escola, ano, mes, quantidade_dias_mes, periodos_escolares
 ):
     classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
-    quantidade = 2
     faixas = FaixaEtaria.objects.filter(ativo=True)
     for periodo in periodos_escolares:
         for classificacao in classificacoes_dieta:
@@ -987,3 +986,49 @@ def incluir_dietas_especias_cei(
                 print(
                     f"Logs dieta {classificacao.nome} para faixa {faixa.__str__()} no Período {periodo} cadastrados"
                 )
+
+
+def incluir_dietas_especias_cemei(
+    escola, ano, mes, quantidade_dias_mes, periodos_escolares
+):
+
+    cei_cemei = periodos_escolares["CEI"]
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    for periodo in cei_cemei:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for classificacao in classificacoes_dieta:
+            quantidade = 1 if "Tipo A" in classificacao.nome else 2
+            for faixa in faixas:
+                for dia in range(1, quantidade_dias_mes + 1):
+                    log = LogQuantidadeDietasAutorizadasCEI(
+                        escola=escola,
+                        periodo_escolar=pe,
+                        quantidade=quantidade,
+                        data=datetime.date(ano, mes, dia),
+                        classificacao=classificacao,
+                        faixa_etaria=faixa,
+                    )
+                    log.save()
+                print(
+                    f"Logs dieta {classificacao.nome} para faixa {faixa.__str__()} no Período {periodo} cadastrados"
+                )
+
+    emei_cemei = periodos_escolares["EMEI"]
+    for periodo in emei_cemei:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for classificacao in classificacoes_dieta:
+            quantidade = 1 if "Tipo A" in classificacao.nome else 2
+            for dia in range(1, quantidade_dias_mes + 1):
+                log = LogQuantidadeDietasAutorizadas(
+                    escola=escola,
+                    periodo_escolar=pe,
+                    quantidade=quantidade,
+                    data=datetime.date(ano, mes, dia),
+                    classificacao=classificacao,
+                    cei_ou_emei="EMEI",
+                )
+                log.save()
+            print(
+                f"Logs da dieta {classificacao.nome} para o Período {periodo} cadastrados"
+            )

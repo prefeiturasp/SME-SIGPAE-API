@@ -11,6 +11,7 @@ from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
     incluir_dietas_especiais_ceu_gestao,
     incluir_dietas_especiais_emebs,
     incluir_dietas_especias_cei,
+    incluir_dietas_especias_cemei,
     incluir_etec,
     incluir_log_alunos_matriculados,
     incluir_log_alunos_matriculados_cei,
@@ -258,19 +259,24 @@ class Command(BaseCommand):
         incluir_log_alunos_matriculados_emei_da_cemei(
             periodos_escolares, escola, ano, mes, quantidade_dias_mes
         )
-        periodos_escolares = escola.periodos_escolares(ano=ano)
+        periodos_escolares_db = escola.periodos_escolares(ano=ano)
 
-        self.stdout.write("2. Obtém dados do usuário")
+        self.stdout.write("2. Cadastro de dietas especiais")
+        incluir_dietas_especias_cemei(
+            escola, ano, mes, quantidade_dias_mes, periodos_escolares
+        )
+
+        self.stdout.write("3. Obtém dados do usuário")
         usuario = obter_usuario(email_escola)
         usuario_dre = obter_usuario(email_dre)
 
-        print("3. Incluindo as solicitações de alimentacao")
-        self.stdout.write("3.1. Criar solicitação de KIT LANCHE PASSEIO")
+        print("4. Incluindo as solicitações de alimentacao")
+        self.stdout.write("4.1. Criar solicitação de KIT LANCHE PASSEIO")
         solicitar_kit_lanche_cemei(
             escola, usuario, ano, mes, dia_kit_lanche, usuario_dre
         )
-        self.stdout.write("3.2 Criar solicitação de LANCHE EMERGENCIAL")
-        periodo_escolar_solicitacoes = periodos_escolares.get(nome="INTEGRAL")
+        self.stdout.write("4.2 Criar solicitação de LANCHE EMERGENCIAL")
+        periodo_escolar_solicitacoes = periodos_escolares_db.get(nome="INTEGRAL")
         solicitar_lanche_emergencial_cemei(
             escola,
             usuario,
@@ -281,7 +287,7 @@ class Command(BaseCommand):
             usuario_dre,
         )
 
-        self.stdout.write("4. Criar PROGRAMAS E PROJETOS")
+        self.stdout.write("5. Criar PROGRAMAS E PROJETOS")
         incluir_programas_e_projetos(
             escola,
             usuario,
