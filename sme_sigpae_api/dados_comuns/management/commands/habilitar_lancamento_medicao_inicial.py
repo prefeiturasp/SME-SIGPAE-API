@@ -2,9 +2,10 @@ import calendar
 import datetime
 
 import environ
-from django.core.management import BaseCommand, CommandError
+from django.core.management import BaseCommand, CommandError, call_command
 
 from sme_sigpae_api.escola.models import Escola
+from sme_sigpae_api.escola.tasks import matriculados_por_escola_e_periodo_regulares
 from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
     habilitar_dias_letivos,
     incluir_dietas_especiais,
@@ -54,14 +55,20 @@ class Command(BaseCommand):
             help="Dia para data_lanche_emergencial (padrão: 22)",
             default=22,
         )
+        parser.add_argument(
+            "--atualizar-escolas",
+            action="store_true",
+            help="Atualizar os dados das escolas"
+        )
 
     def handle(self, *args, **options):
         if env("DJANGO_ENV") == "production":
             self.stdout.write(self.style.ERROR("SÓ PODE EXECUTAR EM DESENVOLVIMENTO"))
             return
-        ano, mes, dia_kit_lanche, dia_lanche_emergencial = self.parse_parametros(
+        ano, mes, dia_kit_lanche, dia_lanche_emergencial, atualizar_escolas = self.parse_parametros(
             options
         )
+        print(options)
         self.valida_parametros(ano, mes, dia_kit_lanche, dia_lanche_emergencial)
 
         self.stdout.write("================== INICIANDO O SCRIPT ==================")
@@ -71,7 +78,12 @@ class Command(BaseCommand):
         self.stdout.write("\nVerificando os dados iniciais")
         verifica_dados_iniciais()
 
-        # call_command("migrate", interactive=False)
+        if atualizar_escolas:
+            self.stdout.write("\nAtualizando dados da escola")
+            call_command("atualiza_dados_escolas")
+            
+            self.stdout.write("\nAtualizando quantidade de alunos por período")
+            matriculados_por_escola_e_periodo_regulares()
 
         self.stdout.write("\nHabilitando dias letivos")
         nome_escolas = [dado.get("nome_escola") for dado in dados_escolas]
@@ -128,7 +140,8 @@ class Command(BaseCommand):
         mes = options["mes"]
         dia_kit = options.get("data_kit_lanche")
         dia_emergencial = options.get("data_lanche_emergencial")
-        return ano, mes, dia_kit, dia_emergencial
+        atualizar_escolas = options.get("data_lanche_emergencial")
+        return ano, mes, dia_kit, dia_emergencial, atualizar_escolas
 
     def valida_parametros(self, ano, mes, dia_kit, dia_emergencial):
         if mes < 1 or mes > 12:
