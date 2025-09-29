@@ -1024,11 +1024,30 @@ def incluir_dietas_especias_cei(
 def incluir_dietas_especias_cemei(
     escola, ano, mes, quantidade_dias_mes, periodos_escolares
 ):
-
-    cei_cemei = periodos_escolares["CEI"]
     classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    cadastra_cei_da_cemei(
+        escola,
+        ano,
+        mes,
+        quantidade_dias_mes,
+        classificacoes_dieta,
+        periodos_escolares["CEI"],
+    )
+    cadastra_emei_da_cemei(
+        escola,
+        ano,
+        mes,
+        quantidade_dias_mes,
+        classificacoes_dieta,
+        periodos_escolares["EMEI"],
+    )
+
+
+def cadastra_cei_da_cemei(
+    escola, ano, mes, quantidade_dias_mes, classificacoes_dieta, periodos_cei_cemei
+):
     faixas = FaixaEtaria.objects.filter(ativo=True)
-    for periodo in cei_cemei:
+    for periodo in periodos_cei_cemei:
         pe = PeriodoEscolar.objects.get(nome=periodo)
         for classificacao in classificacoes_dieta:
             quantidade = 1 if "Tipo A" in classificacao.nome else 2
@@ -1047,8 +1066,11 @@ def incluir_dietas_especias_cemei(
                     f"Logs dieta {classificacao.nome} para faixa {faixa.__str__()} no Período {periodo} cadastrados"
                 )
 
-    emei_cemei = periodos_escolares["EMEI"]
-    for periodo in emei_cemei:
+
+def cadastra_emei_da_cemei(
+    escola, ano, mes, quantidade_dias_mes, classificacoes_dieta, periodos_emei_cemei
+):
+    for periodo in periodos_emei_cemei:
         pe = PeriodoEscolar.objects.get(nome=periodo)
         for classificacao in classificacoes_dieta:
             quantidade = 1 if "Tipo A" in classificacao.nome else 2
