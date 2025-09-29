@@ -58,17 +58,16 @@ class Command(BaseCommand):
         parser.add_argument(
             "--atualizar-escolas",
             action="store_true",
-            help="Atualizar os dados das escolas"
+            help="Atualizar os dados das escolas",
         )
 
     def handle(self, *args, **options):
         if env("DJANGO_ENV") == "production":
             self.stdout.write(self.style.ERROR("SÓ PODE EXECUTAR EM DESENVOLVIMENTO"))
             return
-        ano, mes, dia_kit_lanche, dia_lanche_emergencial, atualizar_escolas = self.parse_parametros(
-            options
+        ano, mes, dia_kit_lanche, dia_lanche_emergencial, atualizar_escolas = (
+            self.parse_parametros(options)
         )
-        print(options)
         self.valida_parametros(ano, mes, dia_kit_lanche, dia_lanche_emergencial)
 
         self.stdout.write("================== INICIANDO O SCRIPT ==================")
@@ -81,7 +80,7 @@ class Command(BaseCommand):
         if atualizar_escolas:
             self.stdout.write("\nAtualizando dados da escola")
             call_command("atualiza_dados_escolas")
-            
+
             self.stdout.write("\nAtualizando quantidade de alunos por período")
             matriculados_por_escola_e_periodo_regulares()
 
@@ -140,7 +139,7 @@ class Command(BaseCommand):
         mes = options["mes"]
         dia_kit = options.get("data_kit_lanche")
         dia_emergencial = options.get("data_lanche_emergencial")
-        atualizar_escolas = options.get("data_lanche_emergencial")
+        atualizar_escolas = options.get("atualizar_escolas")
         return ano, mes, dia_kit, dia_emergencial, atualizar_escolas
 
     def valida_parametros(self, ano, mes, dia_kit, dia_emergencial):
