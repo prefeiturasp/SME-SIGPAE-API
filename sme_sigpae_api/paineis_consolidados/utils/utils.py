@@ -63,7 +63,9 @@ def tratar_dias_duplicados(return_dict):
                     "numero_alunos": numero_de_alunos,
                     "inclusao_id_externo": None,
                 }
-            dict_tratado.append(novo_objeto)
+                dict_tratado.append(novo_objeto)
+            else:
+                dict_tratado.append(obj)
             dias_tratados.append(obj["dia"])
     return dict_tratado
 
