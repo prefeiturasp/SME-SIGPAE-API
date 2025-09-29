@@ -771,7 +771,7 @@ def incluir_programas_e_projetos(
     print("Solicitação aprovado pela CODAE")
 
     nova_data_inicio = datetime.date(ano, mes, data_kit_lanche)
-    nova_data_fim = datetime.date(ano, mes, data_kit_lanche) + relativedelta(days=5)
+    nova_data_fim = datetime.date(ano, mes, data_kit_lanche) + relativedelta(days=2)
     programas_e_projetos.data_final = nova_data_fim
     programas_e_projetos.data_inicial = nova_data_inicio
     programas_e_projetos.save()
@@ -828,7 +828,7 @@ def incluir_etec(
 
     nova_data_inicio = datetime.date(ano, mes, data_lanche_emergencial)
     nova_data_fim = datetime.date(ano, mes, data_lanche_emergencial) + relativedelta(
-        days=5
+        days=2
     )
     etec.data_final = nova_data_fim
     etec.data_inicial = nova_data_inicio
@@ -856,9 +856,10 @@ def incluir_solicitacoes_ceu_gestao(
     quantidades_periodo = []
 
     for periodo in periodos_escolares:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
         quantidades_periodo.append(
             {
-                "periodo_escolar": periodo,
+                "periodo_escolar": pe,
                 "tipos_alimentacao": [tipo_alimentacao],
                 "numero_alunos": "50",
             }
@@ -897,9 +898,9 @@ def incluir_solicitacoes_ceu_gestao(
     print("Solicitação aprovado pela CODAE")
 
     nova_data = datetime.date(ano, mes, data_kit_lanche)
-    periodo = ceu_gestao.inclusoes_normais.all()[0]
-    periodo.data = nova_data
-    periodo.save()
+    periodo_inclusao = ceu_gestao.inclusoes_normais.all()[0]
+    periodo_inclusao.data = nova_data
+    periodo_inclusao.save()
     ceu_gestao.save()
 
     print(f"Data da solicitação alterada para {nova_data.strftime('%d/%m/%Y')}")
