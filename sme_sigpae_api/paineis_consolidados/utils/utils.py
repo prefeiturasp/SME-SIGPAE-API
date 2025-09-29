@@ -51,9 +51,8 @@ def tratar_dias_duplicados(return_dict):
         obj_dias_iguais = [r for r in return_dict if r["dia"] == dia]
         if obj["dia"] not in dias_tratados:
             if len(obj_dias_iguais) > 1:
-                numero_de_alunos = max(
-                    obj_dias_iguais, key=lambda obj: obj["numero_alunos"]
-                )["numero_alunos"]
+                # Realiza a somas dos alunos por evento no mesmo dia
+                numero_de_alunos = sum(obj["numero_alunos"] for obj in obj_dias_iguais)
                 novo_objeto = {
                     "dia": dia,
                     "periodo": obj["periodo"],
