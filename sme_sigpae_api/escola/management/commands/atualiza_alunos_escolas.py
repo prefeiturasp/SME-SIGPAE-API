@@ -279,6 +279,16 @@ class Command(BaseCommand):
             in self.status_matricula_ativa
         )
 
+    def _trata_alunos_ativos_mais_de_um_resultado(self, registro, dados_alunos_escola):
+        numero_registros = len(
+            [
+                registro_
+                for registro_ in dados_alunos_escola
+                if registro["codigoAluno"] == registro_["codigoAluno"]
+            ]
+        )
+        print(numero_registros)
+
     def _atualiza_alunos_da_escola(
         self, escola, dados_alunos_escola, dados_alunos_escola_prox_ano
     ):
@@ -297,6 +307,9 @@ class Command(BaseCommand):
                 )
             if registro["codigoTipoTurma"] != self.codigo_turma_regular:
                 continue
+            self._trata_alunos_ativos_mais_de_um_resultado(
+                registro, dados_alunos_escola
+            )
             self._trata_aluno_status_ativo(
                 registro,
                 escola,
