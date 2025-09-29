@@ -998,7 +998,7 @@ def cadastra_periodo_emebs(
             )
 
 
-def incluir_dietas_especias_cei(
+def incluir_dietas_especiais_cei(
     escola, ano, mes, quantidade_dias_mes, periodos_escolares
 ):
     classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
@@ -1022,7 +1022,7 @@ def incluir_dietas_especias_cei(
                 )
 
 
-def incluir_dietas_especias_cemei(
+def incluir_dietas_especiais_cemei(
     escola, ano, mes, quantidade_dias_mes, periodos_escolares
 ):
     classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")

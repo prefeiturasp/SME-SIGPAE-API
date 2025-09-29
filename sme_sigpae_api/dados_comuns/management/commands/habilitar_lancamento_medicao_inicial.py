@@ -9,10 +9,10 @@ from sme_sigpae_api.escola.tasks import matriculados_por_escola_e_periodo_regula
 from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
     habilitar_dias_letivos,
     incluir_dietas_especiais,
+    incluir_dietas_especiais_cei,
+    incluir_dietas_especiais_cemei,
     incluir_dietas_especiais_ceu_gestao,
     incluir_dietas_especiais_emebs,
-    incluir_dietas_especias_cei,
-    incluir_dietas_especias_cemei,
     incluir_etec,
     incluir_log_alunos_matriculados,
     incluir_log_alunos_matriculados_cei,
@@ -289,7 +289,7 @@ class Command(BaseCommand):
         periodos_escolares_db = escola.periodos_escolares(ano=ano)
 
         self.stdout.write("2. Cadastro de dietas especiais")
-        incluir_dietas_especias_cemei(
+        incluir_dietas_especiais_cemei(
             escola, ano, mes, quantidade_dias_mes, periodos_escolares
         )
 
@@ -297,7 +297,7 @@ class Command(BaseCommand):
         usuario = obter_usuario(email_escola)
         usuario_dre = obter_usuario(email_dre)
 
-        print("4. Incluindo as solicitações de alimentacao")
+        self.stdout.write("4. Incluindo as solicitações de alimentacao")
         self.stdout.write("4.1. Criar solicitação de KIT LANCHE PASSEIO")
         solicitar_kit_lanche_cemei(
             escola, usuario, ano, mes, dia_kit_lanche, usuario_dre
@@ -339,7 +339,7 @@ class Command(BaseCommand):
         )
         periodos_escolares_db = escola.periodos_escolares(ano=ano)
         self.stdout.write("2. Cadastro de dietas especiais")
-        incluir_dietas_especias_cei(
+        incluir_dietas_especiais_cei(
             escola, ano, mes, quantidade_dias_mes, periodos_escolares_db
         )
 
