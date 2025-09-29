@@ -947,12 +947,39 @@ def incluir_dietas_especiais_ceu_gestao(escola, ano, mes, dia_kit_lanche):
 
 def incluir_dietas_especiais_emebs(escola, ano, mes, quantidade_dias_mes, periodos):
     classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+
+    cadastra_periodo_emebs(
+        escola,
+        classificacoes_dieta,
+        periodos["INFANTIL"],
+        quantidade_dias_mes,
+        ano,
+        mes,
+        "INFANTIL",
+    )
+
+    cadastra_periodo_emebs(
+        escola,
+        classificacoes_dieta,
+        periodos["FUNDAMENTAL"],
+        quantidade_dias_mes,
+        ano,
+        mes,
+        "FUNDAMENTAL",
+    )
+
+
+def cadastra_periodo_emebs(
+    escola,
+    classificacoes_dieta,
+    periodos,
+    quantidade_dias_mes,
+    ano,
+    mes,
+    infantil_ou_fundamental,
+):
     quantidade = 2
-
-    periodo_infantil = periodos["INFANTIL"]
-    periodo_fundamental = periodos["FUNDAMENTAL"]
-
-    for periodo in periodo_infantil:
+    for periodo in periodos:
         pe = PeriodoEscolar.objects.get(nome=periodo)
         for classificacao in classificacoes_dieta:
             for dia in range(1, quantidade_dias_mes + 1):
@@ -962,28 +989,11 @@ def incluir_dietas_especiais_emebs(escola, ano, mes, quantidade_dias_mes, period
                     quantidade=quantidade,
                     data=datetime.date(ano, mes, dia),
                     classificacao=classificacao,
-                    infantil_ou_fundamental="INFANTIL",
+                    infantil_ou_fundamental=infantil_ou_fundamental,
                 )
                 log.save()
             print(
-                f"Logs da dieta {classificacao.nome} do INFANTIL para o Período {periodo}  cadastrados"
-            )
-
-    for periodo in periodo_fundamental:
-        pe = PeriodoEscolar.objects.get(nome=periodo)
-        for classificacao in classificacoes_dieta:
-            for dia in range(1, quantidade_dias_mes + 1):
-                log = LogQuantidadeDietasAutorizadas(
-                    escola=escola,
-                    periodo_escolar=pe,
-                    quantidade=quantidade,
-                    data=datetime.date(ano, mes, dia),
-                    classificacao=classificacao,
-                    infantil_ou_fundamental="FUNDAMENTAL",
-                )
-                log.save()
-            print(
-                f"Logs da dieta {classificacao.nome} do FUNDAMENTAL para o Período {periodo}  cadastrados"
+                f"Logs da dieta {classificacao.nome} do {infantil_ou_fundamental} para o Período {periodo}  cadastrados"
             )
 
 
