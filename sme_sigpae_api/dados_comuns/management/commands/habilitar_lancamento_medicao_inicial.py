@@ -69,80 +69,22 @@ class Command(BaseCommand):
             self.parse_parametros(options)
         )
         self.valida_parametros(ano, mes, dia_kit_lanche, dia_lanche_emergencial)
+        quantidade_dias_mes = calendar.monthrange(int(ano), int(mes))[1]
 
         self.stdout.write("================== INICIANDO O SCRIPT ==================")
         self.stdout.write("Obtendo a lista de escolas")
         dados_escolas = obter_escolas()
-
-        self.stdout.write("\nVerificando os dados iniciais")
-        verifica_dados_iniciais()
-
-        if atualizar_escolas:
-            self.stdout.write("\nAtualizando dados da escola")
-            call_command("atualiza_dados_escolas")
-
-            self.stdout.write("\nAtualizando quantidade de alunos por período")
-            matriculados_por_escola_e_periodo_regulares()
-
-        self.stdout.write("\nHabilitando dias letivos")
-        nome_escolas = [dado.get("nome_escola") for dado in dados_escolas]
-        data = datetime.date(ano, mes, 1)
-        habilitar_dias_letivos(nome_escolas, data)
-
-        quantidade_dias_mes = calendar.monthrange(int(ano), int(mes))[1]
+        self.processa_dados_iniciais(ano, mes, atualizar_escolas, dados_escolas)
         for dados in dados_escolas:
-            escola = Escola.objects.get(nome=dados["nome_escola"])
-            email_escola = dados["email"]
-            periodos = dados["periodos"]
-            email_dre = dados["usuario_dre"]
-            self.stdout.write(
-                f"\nIncluindo dados para a escola {escola.nome} em {mes}/{ano}"
+            self.processar_escola(
+                dados,
+                ano,
+                mes,
+                quantidade_dias_mes,
+                dia_kit_lanche,
+                dia_lanche_emergencial,
             )
-            if escola.eh_cemei:
-                self.escolas_cemei(
-                    escola,
-                    email_escola,
-                    periodos,
-                    ano,
-                    mes,
-                    quantidade_dias_mes,
-                    dia_kit_lanche,
-                    dia_lanche_emergencial,
-                    email_dre,
-                )
-            elif escola.eh_cei:
-                self.escolas_cei(
-                    escola,
-                    periodos,
-                    ano,
-                    mes,
-                    quantidade_dias_mes,
-                )
-            elif escola.eh_ceu_gestao:
-                self.escolas_ceu_gestao(
-                    escola,
-                    email_escola,
-                    periodos,
-                    ano,
-                    mes,
-                    dia_kit_lanche,
-                    dia_lanche_emergencial,
-                    email_dre,
-                )
-            else:
-                self.escolas_periodos_normais(
-                    escola,
-                    email_escola,
-                    periodos,
-                    ano,
-                    mes,
-                    quantidade_dias_mes,
-                    dia_kit_lanche,
-                    dia_lanche_emergencial,
-                    email_dre,
-                )
             self.stdout.write()
-
         self.stdout.write("================== FINALIZADO ==================")
 
     def parse_parametros(self, options):
@@ -166,6 +108,82 @@ class Command(BaseCommand):
         if not 1 <= dia_emergencial <= dias_no_mes:
             raise CommandError(
                 f"Dia do lanche emergencial deve estar entre 1 e {dias_no_mes} para {mes:02d}/{ano}"
+            )
+
+    def processa_dados_iniciais(self, ano, mes, atualizar_escolas, dados_escolas):
+        self.stdout.write("\nVerificando os dados iniciais")
+        verifica_dados_iniciais()
+
+        if atualizar_escolas:
+            self.stdout.write("\nAtualizando dados da escola")
+            call_command("atualiza_dados_escolas")
+
+            self.stdout.write("\nAtualizando quantidade de alunos por período")
+            matriculados_por_escola_e_periodo_regulares()
+
+        self.stdout.write("\nHabilitando dias letivos")
+        nome_escolas = [dado.get("nome_escola") for dado in dados_escolas]
+        data = datetime.date(ano, mes, 1)
+        habilitar_dias_letivos(nome_escolas, data)
+
+    def processar_escola(
+        self,
+        dados,
+        ano,
+        mes,
+        quantidade_dias_mes,
+        dia_kit_lanche,
+        dia_lanche_emergencial,
+    ):
+        escola = Escola.objects.get(nome=dados["nome_escola"])
+        email_escola = dados["email"]
+        periodos = dados["periodos"]
+        email_dre = dados["usuario_dre"]
+        self.stdout.write(
+            f"\nIncluindo dados para a escola {escola.nome} em {mes}/{ano}"
+        )
+        if escola.eh_cemei:
+            self.escolas_cemei(
+                escola,
+                email_escola,
+                periodos,
+                ano,
+                mes,
+                quantidade_dias_mes,
+                dia_kit_lanche,
+                dia_lanche_emergencial,
+                email_dre,
+            )
+        elif escola.eh_cei:
+            self.escolas_cei(
+                escola,
+                periodos,
+                ano,
+                mes,
+                quantidade_dias_mes,
+            )
+        elif escola.eh_ceu_gestao:
+            self.escolas_ceu_gestao(
+                escola,
+                email_escola,
+                periodos,
+                ano,
+                mes,
+                dia_kit_lanche,
+                dia_lanche_emergencial,
+                email_dre,
+            )
+        else:
+            self.escolas_periodos_normais(
+                escola,
+                email_escola,
+                periodos,
+                ano,
+                mes,
+                quantidade_dias_mes,
+                dia_kit_lanche,
+                dia_lanche_emergencial,
+                email_dre,
             )
 
     def escolas_periodos_normais(
@@ -352,7 +370,7 @@ class Command(BaseCommand):
         )
 
         periodos_escolares_db = escola.periodos_escolares(ano=ano)
-        print(periodos_escolares_db)
+
         self.stdout.write("3. Cadastro de dietas especiais")
         incluir_dietas_especiais_ceu_gestao(escola, ano, mes, dia_kit_lanche)
 
