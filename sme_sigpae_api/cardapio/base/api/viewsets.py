@@ -14,6 +14,7 @@ from sme_sigpae_api.cardapio.base.api.serializers import (
     MotivoDRENaoValidaSerializer,
     SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer,
     TipoAlimentacaoSerializer,
+    TipoUnidadeEscolarAgrupadoSerializer,
     VinculoTipoAlimentoSimplesSerializer,
 )
 from sme_sigpae_api.cardapio.base.api.serializers_create import (
@@ -361,3 +362,24 @@ class MotivosDRENaoValidaViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "uuid"
     queryset = MotivoDRENaoValida.objects.all()
     serializer_class = MotivoDRENaoValidaSerializer
+
+
+class VinculosPorTipoUnidadeEscolarViewSet(mixins.ListModelMixin, GenericViewSet):
+    def list(self, request):
+        """
+        Lista todos os tipos de UE com seus períodos e tipos de alimentação
+        """
+        vinculos = (
+            VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
+                ativo=True, tipo_unidade_escolar__ativo=True
+            )
+            .select_related("tipo_unidade_escolar", "periodo_escolar")
+            .prefetch_related("tipos_alimentacao")
+        )
+
+        dados_agrupados = (
+            TipoUnidadeEscolarAgrupadoSerializer.agrupar_vinculos_por_tipo_ue(vinculos)
+        )
+        serializer = TipoUnidadeEscolarAgrupadoSerializer(dados_agrupados, many=True)
+
+        return Response({"results": serializer.data})

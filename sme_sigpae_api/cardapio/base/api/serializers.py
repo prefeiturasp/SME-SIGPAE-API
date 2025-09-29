@@ -172,3 +172,55 @@ class MotivoDRENaoValidaSerializer(serializers.ModelSerializer):
     class Meta:
         model = MotivoDRENaoValida
         exclude = ("id",)
+
+
+class TipoUnidadeEscolarAgrupadoSerializer(serializers.Serializer):
+    uuid = serializers.UUIDField()
+    iniciais = serializers.CharField()
+    ativo = serializers.BooleanField()
+    tem_somente_integral_e_parcial = serializers.BooleanField()
+    pertence_relatorio_solicitacoes_alimentacao = serializers.BooleanField()
+    periodos_escolares = serializers.SerializerMethodField()
+
+    def get_periodos_escolares(self, obj):
+        vinculos = obj.get("vinculos", [])
+        periodos_data = []
+
+        for vinculo in vinculos:
+            periodo_data = {
+                "uuid": vinculo.periodo_escolar.uuid,
+                "nome": vinculo.periodo_escolar.nome,
+                "tipos_alimentacao": TipoAlimentacaoSimplesSerializer(
+                    vinculo.tipos_alimentacao.all(), many=True
+                ).data,
+            }
+            periodos_data.append(periodo_data)
+
+        return periodos_data
+
+    @staticmethod
+    def agrupar_vinculos_por_tipo_ue(vinculos):
+        from collections import defaultdict
+
+        agrupados = defaultdict(list)
+
+        for vinculo in vinculos:
+            if vinculo.tipo_unidade_escolar:
+                key = vinculo.tipo_unidade_escolar.uuid
+                agrupados[key].append(vinculo)
+
+        resultado = []
+        for _, vinculos_do_tipo in agrupados.items():
+            tipo_ue = vinculos_do_tipo[0].tipo_unidade_escolar
+
+            dados_tipo_ue = {
+                "uuid": tipo_ue.uuid,
+                "iniciais": tipo_ue.iniciais,
+                "ativo": tipo_ue.ativo,
+                "tem_somente_integral_e_parcial": tipo_ue.tem_somente_integral_e_parcial,
+                "pertence_relatorio_solicitacoes_alimentacao": tipo_ue.pertence_relatorio_solicitacoes_alimentacao,
+                "vinculos": vinculos_do_tipo,
+            }
+            resultado.append(dados_tipo_ue)
+
+        return sorted(resultado, key=lambda x: x["iniciais"])
