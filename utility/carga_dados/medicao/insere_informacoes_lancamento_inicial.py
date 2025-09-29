@@ -140,108 +140,6 @@ def obter_escolas():
     return dados
 
 
-def verifica_dados_iniciais():
-    print("1. Verificando Kit")
-    kit = KitLanche.objects.filter(
-        status=KitLanche.ATIVO,
-    )
-    if not kit.exists():
-        print("1.1 Nenhum kit encontrado. Cadastrando ...")
-        KitLanche.objects.create(
-            nome="Kit - Medicao Inicial",
-            status=KitLanche.ATIVO,
-            descricao="<p>Suco e Bolo</p>",
-        ).save()
-        print("1.2 Kit cadastrado.")
-
-    print("2. Verificando Faixa Etaria")
-    faixas = FaixaEtaria.objects.filter(ativo=True)
-    if not faixas.exists():
-        print("2.1. Nenhuma faixa encontrada. Cadastrando ...")
-
-        faixas_etarias = [
-            FaixaEtaria(inicio=0, fim=1, ativo=True),
-            FaixaEtaria(inicio=1, fim=4, ativo=True),
-            FaixaEtaria(inicio=4, fim=6, ativo=True),
-            FaixaEtaria(inicio=6, fim=7, ativo=True),
-            FaixaEtaria(inicio=7, fim=12, ativo=True),
-            FaixaEtaria(inicio=12, fim=48, ativo=True),
-            FaixaEtaria(inicio=48, fim=73, ativo=True),
-        ]
-        FaixaEtaria.objects.bulk_create(faixas_etarias)
-        print("2.2. Faixas cadastradas.")
-
-    print("3. Verificando MotivoAlteracaoCardapio")
-    lanche_emergencial = MotivoAlteracaoCardapio.objects.filter(
-        nome="Lanche Emergencial"
-    )
-    if not lanche_emergencial.exists():
-        print(
-            " 3.1. Nenhum MotivoAlteracaoCardapio para Lanche Emergencial encontrado. Cadastrando..."
-        )
-        MotivoAlteracaoCardapio.objects.create(
-            nome="Lanche Emergencial", ativo=True
-        ).save()
-        print("3.2. MotivoAlteracaoCardapio Lanche Emergencial cadastrado.")
-
-    print("4. Verificando TipoAlimentacao")
-    lanche_quatro_horas = TipoAlimentacao.objects.filter(nome="Lanche 4h")
-    if not lanche_quatro_horas.exists():
-        print("4.1. Nenhum TipoAlimentacao para Lanche 4h encontrado. Cadastrando...")
-        TipoAlimentacao.objects.create(nome="Lanche 4h").save()
-        print("4.2. TipoAlimentacao Lanche 4h cadastrado.")
-
-    lanche_emergencial = TipoAlimentacao.objects.filter(nome="Lanche Emergencial")
-    if not lanche_emergencial.exists():
-        print(
-            " 4.3. Nenhum TipoAlimentacao para Lanche emergencial encontrado. Cadastrando..."
-        )
-        TipoAlimentacao.objects.create(nome="Lanche Emergencial").save()
-        print("4.4. TipoAlimentacao Lanche Emergencial cadastrado.")
-
-    print("5. Verificando MotivoInclusaoContinua")
-    programa_projetos = MotivoInclusaoContinua.objects.filter(
-        nome="Programas/Projetos Específicos"
-    )
-    if not programa_projetos.exists():
-        print(
-            " 5.1. Nenhum MotivoInclusaoContinua para Programas/Projetos Específicos encontrado. Cadastrando..."
-        )
-        MotivoInclusaoContinua.objects.create(
-            nome="Programas/Projetos Específicos"
-        ).save()
-        print("5.2. MotivoInclusaoContinua Programas/Projetos Específicos cadastrado.")
-
-    etec = MotivoInclusaoContinua.objects.filter(nome="ETEC")
-    if not etec.exists():
-        print("5.3 Nenhum MotivoInclusaoContinua para ETEC encontrado. Cadastrando...")
-        MotivoInclusaoContinua.objects.create(nome="ETEC").save()
-        print("5.4 MotivoInclusaoContinua ETEC cadastrado.")
-
-    print("6. Verificando MotivoInclusaoNormal")
-    evento = MotivoInclusaoNormal.objects.filter(nome="Evento Específico")
-    if not evento.exists():
-        print(
-            " 6.1 Nenhum MotivoInclusaoNormal para Evento Específico encontrado. Cadastrando..."
-        )
-        MotivoInclusaoNormal.objects.create(nome="Evento Específico").save()
-        print("6.2 MotivoInclusaoNormal Evento Específico cadastrado.")
-
-    print("7. Verificando ClassificacaoDieta")
-    classificacao = ClassificacaoDieta.objects.all()
-    if not evento.exists():
-        print("7.1. Nenhuma ClassificacaoDieta encontrada. Cadastrando ...")
-        classificacao = [
-            ClassificacaoDieta(nome="Tipo A"),
-            ClassificacaoDieta(nome="Tipo A RESTRIÇÃO DE AMINOÁCIDOS"),
-            ClassificacaoDieta(nome="Tipo A ENTERAL"),
-            ClassificacaoDieta(nome="Tipo B"),
-            ClassificacaoDieta(nome="Tipo C"),
-        ]
-        ClassificacaoDieta.objects.bulk_create(classificacao)
-        print("7.2. ClassificacaoDieta cadastradas.")
-
-
 def obter_usuario(email):
     try:
         return Usuario.objects.get(email=email)
@@ -273,6 +171,131 @@ def habilitar_dias_letivos(escolas, data):
     print(
         f"3. A data do pedido do lanche emergencial {data_kit_lanche.strftime("%d/%m/%Y")} agora é letivo"
     )
+
+
+# **************************** **************************** VERIFICANDO DADOS INICIAIS **************************** ****************************
+def verifica_dados_iniciais():
+    print("1. Verificando Kit")
+    kit_lanche()
+    print("2. Verificando Faixa Etaria")
+    faixas_etarias()
+    print("3. Verificando MotivoAlteracaoCardapio")
+    motivo_alteracao_cardapio()
+    print("4. Verificando TipoAlimentacao")
+    tipo_alimentacao()
+    print("5. Verificando MotivoInclusaoContinua")
+    motivo_inclusao_continua()
+    print("6. Verificando MotivoInclusaoNormal")
+    motivo_inclusao_normal()
+    print("7. Verificando ClassificacaoDieta")
+    classificacao_dieta()
+
+
+def kit_lanche():
+    kit = KitLanche.objects.filter(
+        status=KitLanche.ATIVO,
+    )
+    if not kit.exists():
+        print("1.1 Nenhum kit encontrado. Cadastrando ...")
+        KitLanche.objects.create(
+            nome="Kit - Medicao Inicial",
+            status=KitLanche.ATIVO,
+            descricao="<p>Suco e Bolo</p>",
+        ).save()
+        print("1.2 Kit cadastrado.")
+
+
+def faixas_etarias():
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    if not faixas.exists():
+        print("2.1. Nenhuma faixa encontrada. Cadastrando ...")
+
+        faixas_etarias = [
+            FaixaEtaria(inicio=0, fim=1, ativo=True),
+            FaixaEtaria(inicio=1, fim=4, ativo=True),
+            FaixaEtaria(inicio=4, fim=6, ativo=True),
+            FaixaEtaria(inicio=6, fim=7, ativo=True),
+            FaixaEtaria(inicio=7, fim=12, ativo=True),
+            FaixaEtaria(inicio=12, fim=48, ativo=True),
+            FaixaEtaria(inicio=48, fim=73, ativo=True),
+        ]
+        FaixaEtaria.objects.bulk_create(faixas_etarias)
+        print("2.2. Faixas cadastradas.")
+
+
+def motivo_alteracao_cardapio():
+    lanche_emergencial = MotivoAlteracaoCardapio.objects.filter(
+        nome="Lanche Emergencial"
+    )
+    if not lanche_emergencial.exists():
+        print(
+            " 3.1. Nenhum MotivoAlteracaoCardapio para Lanche Emergencial encontrado. Cadastrando..."
+        )
+        MotivoAlteracaoCardapio.objects.create(
+            nome="Lanche Emergencial", ativo=True
+        ).save()
+        print("3.2. MotivoAlteracaoCardapio Lanche Emergencial cadastrado.")
+
+
+def tipo_alimentacao():
+    lanche_quatro_horas = TipoAlimentacao.objects.filter(nome="Lanche 4h")
+    if not lanche_quatro_horas.exists():
+        print("4.1. Nenhum TipoAlimentacao para Lanche 4h encontrado. Cadastrando...")
+        TipoAlimentacao.objects.create(nome="Lanche 4h").save()
+        print("4.2. TipoAlimentacao Lanche 4h cadastrado.")
+
+    lanche_emergencial = TipoAlimentacao.objects.filter(nome="Lanche Emergencial")
+    if not lanche_emergencial.exists():
+        print(
+            " 4.3. Nenhum TipoAlimentacao para Lanche emergencial encontrado. Cadastrando..."
+        )
+        TipoAlimentacao.objects.create(nome="Lanche Emergencial").save()
+        print("4.4. TipoAlimentacao Lanche Emergencial cadastrado.")
+
+
+def motivo_inclusao_continua():
+    programa_projetos = MotivoInclusaoContinua.objects.filter(
+        nome="Programas/Projetos Específicos"
+    )
+    if not programa_projetos.exists():
+        print(
+            " 5.1. Nenhum MotivoInclusaoContinua para Programas/Projetos Específicos encontrado. Cadastrando..."
+        )
+        MotivoInclusaoContinua.objects.create(
+            nome="Programas/Projetos Específicos"
+        ).save()
+        print("5.2. MotivoInclusaoContinua Programas/Projetos Específicos cadastrado.")
+
+    etec = MotivoInclusaoContinua.objects.filter(nome="ETEC")
+    if not etec.exists():
+        print("5.3 Nenhum MotivoInclusaoContinua para ETEC encontrado. Cadastrando...")
+        MotivoInclusaoContinua.objects.create(nome="ETEC").save()
+        print("5.4 MotivoInclusaoContinua ETEC cadastrado.")
+
+
+def motivo_inclusao_normal():
+    evento = MotivoInclusaoNormal.objects.filter(nome="Evento Específico")
+    if not evento.exists():
+        print(
+            " 6.1 Nenhum MotivoInclusaoNormal para Evento Específico encontrado. Cadastrando..."
+        )
+        MotivoInclusaoNormal.objects.create(nome="Evento Específico").save()
+        print("6.2 MotivoInclusaoNormal Evento Específico cadastrado.")
+
+
+def classificacao_dieta():
+    classificacao = ClassificacaoDieta.objects.all()
+    if not classificacao.exists():
+        print("7.1. Nenhuma ClassificacaoDieta encontrada. Cadastrando ...")
+        classificacao = [
+            ClassificacaoDieta(nome="Tipo A"),
+            ClassificacaoDieta(nome="Tipo A RESTRIÇÃO DE AMINOÁCIDOS"),
+            ClassificacaoDieta(nome="Tipo A ENTERAL"),
+            ClassificacaoDieta(nome="Tipo B"),
+            ClassificacaoDieta(nome="Tipo C"),
+        ]
+        ClassificacaoDieta.objects.bulk_create(classificacao)
+        print("7.2. ClassificacaoDieta cadastradas.")
 
 
 # **************************** **************************** LOG DE ALUNOS MATRICULADOS **************************** ****************************
