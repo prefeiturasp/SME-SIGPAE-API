@@ -24,6 +24,9 @@ pytestmark = pytest.mark.django_db
     "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.solicitar_kit_lanche"
 )
 @mock.patch(
+    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.incluir_dietas_especiais"
+)
+@mock.patch(
     "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.incluir_log_alunos_matriculados"
 )
 @mock.patch(
@@ -42,14 +45,17 @@ def test_executa_com_sucesso(
     mock_obter_escolas,
     mock_habilitar_dias_letivos,
     mock_incluir_logs,
+    mock_dietas_especiais,
     mock_solicitar_kit_lache,
     mock_solicitar_lanche_emergencial,
     mock_programas_e_projetos,
     mock_etec,
     user_diretor_escola,
+    usuario_da_dre,
     escola,
 ):
     usuario, _ = user_diretor_escola
+    usuario_dre, _ = usuario_da_dre
 
     escola_fake = mock.Mock()
     escola_fake.nome = escola.nome
@@ -62,13 +68,14 @@ def test_executa_com_sucesso(
 
     mock_get_escola.return_value = escola_fake
     mock_obter_escolas.return_value = [
-        {"nome_escola": escola.nome, "email": usuario.email, "periodos": ["MANHA"]}
+        {"nome_escola": escola.nome, "email": usuario.email, "periodos": ["MANHA"], "usuario_dre": usuario_dre.email}
     ]
     mock_obter_usuario.return_value = usuario
     mock_solicitar_kit_lache.return_value = "OK"
     mock_solicitar_lanche_emergencial.return_value = "OK"
     mock_programas_e_projetos.return_value = "OK"
     mock_etec.return_value = "OK"
+
 
     with open(os.devnull, "w") as devnull:
         with redirect_stdout(devnull), redirect_stderr(devnull):
@@ -77,14 +84,20 @@ def test_executa_com_sucesso(
             )
 
     mock_get_escola.assert_called_once()
-    mock_obter_usuario.assert_called_once()
+    
+    assert mock_obter_usuario.call_count == 2
+    mock_obter_usuario.assert_any_call(usuario.email)
+    mock_obter_usuario.assert_any_call(usuario_dre.email)
+
     mock_obter_escolas.assert_called_once()
     mock_habilitar_dias_letivos.assert_called_once()
     mock_incluir_logs.assert_called_once()
+    mock_dietas_especiais.assert_called_once()
     mock_solicitar_kit_lache.assert_called_once()
     mock_solicitar_lanche_emergencial.assert_called_once()
     mock_programas_e_projetos.assert_called_once()
     mock_etec.assert_called_once()
+    
 
 
 @override_settings(DJANGO_ENV="production")
@@ -163,3 +176,4 @@ def test_data_lanche_emergencial_invalido_lanca_erro():
             "--data-lanche-emergencial",
             "123",
         )
+  
