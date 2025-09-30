@@ -469,8 +469,6 @@ def data_solicitacao_kit_lanche():
 def solicitar_kit_lanche(escola, usuario, ano, mes, data_kit_lanche, usuario_dre):
 
     queryset = KitLanche.objects.filter(
-        edital__uuid__in=escola.editais,
-        tipos_unidades=escola.tipo_unidade,
         status=KitLanche.ATIVO,
     )
 
@@ -522,8 +520,6 @@ def solicitar_kit_lanche(escola, usuario, ano, mes, data_kit_lanche, usuario_dre
 
 def solicitar_kit_lanche_cemei(escola, usuario, ano, mes, data_kit_lanche, usuario_dre):
     queryset = KitLanche.objects.filter(
-        edital__uuid__in=escola.editais,
-        tipos_unidades=escola.tipo_unidade,
         status=KitLanche.ATIVO,
     )
     if not queryset.exists():
