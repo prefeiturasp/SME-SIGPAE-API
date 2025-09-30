@@ -1,6 +1,7 @@
 import datetime
 
 from dateutil.relativedelta import relativedelta
+from django.contrib.contenttypes.models import ContentType
 
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create import (
     AlteracaoCardapioSerializerCreate,
@@ -12,6 +13,11 @@ from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_cr
     AlteracaoCardapioCEMEISerializerCreate,
 )
 from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
+from sme_sigpae_api.dieta_especial.models import (
+    ClassificacaoDieta,
+    LogQuantidadeDietasAutorizadas,
+    LogQuantidadeDietasAutorizadasCEI,
+)
 from sme_sigpae_api.escola.models import (
     FaixaEtaria,
     LogAlunosMatriculadosFaixaEtariaDia,
@@ -33,53 +39,105 @@ from sme_sigpae_api.kit_lanche.api.serializers.serializers_create import (
     SolicitacaoKitLancheCEMEICreateSerializer,
 )
 from sme_sigpae_api.kit_lanche.models import KitLanche
+from sme_sigpae_api.perfil.models.perfil import Perfil, Vinculo
 from sme_sigpae_api.perfil.models.usuario import Usuario
 
 QUANTIDADE_ALUNOS = 100
 
 
-def obter_escolas():
-    "Escolas da mesma DRE"
+def dados_usuario_periodos():
+
     return [
+        # ESCOLA EMEF
         {
-            "nome_escola": "EMEF PERICLES EUGENIO DA SILVA RAMOS",
+            "nome_escola": "",
             "email": "escolaemef@admin.com",
             "periodos": ["MANHA", "TARDE", "NOITE", "INTEGRAL"],
         },
+        # ESCOLA EMEI
         {
-            "nome_escola": "EMEI ANTONIO RUBBO MULLER, PROF.",
+            "nome_escola": "",
             "email": "escolaemei@admin.com",
             "periodos": ["MANHA", "TARDE", "INTEGRAL"],
         },
+        # ESCOLA CIEJA
         {
-            "nome_escola": "CIEJA PAULO EMILIO VANZOLINI,CIEJA",
+            "nome_escola": "",
             "email": "escolacieja@admin.com",
             "periodos": ["MANHA", "TARDE", "NOITE", "INTERMEDIARIO", "VESPERTINO"],
         },
+        # ESCOLA CEU GESTÃO
         {
-            "nome_escola": "CEU GESTAO MENINOS - ARTUR ALBERTO DE MOTA GONCALVES, PROF. PR.",
+            "nome_escola": "",
             "email": "ceugestao@admin.com",
             "periodos": ["MANHA", "TARDE", "NOITE", "INTEGRAL"],
         },
+        # ESCOLA EMEBS
         {
-            "nome_escola": "EMEBS HELEN KELLER",
+            "nome_escola": "",
             "email": "escolaemebs@admin.com",
             "periodos": {
                 "INFANTIL": ["MANHA", "TARDE", "INTEGRAL"],
                 "FUNDAMENTAL": ["MANHA", "TARDE", "INTEGRAL", "NOITE"],
             },
         },
+        # ESCOLA CEMEI
         {
-            "nome_escola": "CEMEI SUZANA CAMPOS TAUIL",
+            "nome_escola": "",
             "email": "escolacemei@admin.com",
             "periodos": {"EMEI": ["MANHA", "TARDE", "INTEGRAL"], "CEI": ["INTEGRAL"]},
         },
+        # ESCOLA CEI
         {
-            "nome_escola": "CEI DIRET JOSE DE MOURA, VER.",
+            "nome_escola": "",
             "email": "escolacei@admin.com",
             "periodos": ["MANHA", "TARDE", "INTEGRAL"],
         },
     ]
+
+
+def obter_usuario_dre(diretoria_regional, index):
+    try:
+        content_type = ContentType.objects.get(
+            app_label="escola", model="diretoriaregional"
+        )
+        perfil = Perfil.objects.get(nome="COGESTOR_DRE")
+        vinculo = Vinculo.objects.filter(
+            content_type=content_type, object_id=diretoria_regional.id, perfil=perfil
+        ).first()
+        usuario = vinculo.usuario.email
+        print(f"{index}.1 Usuário DRE: {usuario}")
+    except Exception as e:
+        print(f"----> Erro ao buscar usuário DRE:\n{e}")
+        raise
+
+    return usuario
+
+
+def obter_escolas():
+    "Escolas da mesma DRE"
+    erro = False
+    dados = dados_usuario_periodos()
+    for index, informacao in enumerate(dados, start=1):
+        usuario = obter_usuario(informacao["email"])
+        try:
+            instituicao = usuario.vinculo_atual.instituicao
+            informacao["nome_escola"] = instituicao.nome
+            print(
+                f"{index}. {informacao["email"]} está vinculado a escola {informacao["nome_escola"]}"
+            )
+            informacao["usuario_dre"] = obter_usuario_dre(
+                instituicao.diretoria_regional, index
+            )
+        except Exception as e:
+            erro = True
+            print(f"----> Erro ao buscar vinculo para {informacao["email"]}:\n{e}")
+
+    if erro:
+        print("================== SCRIP CANCELADO ==================")
+        exit()
+
+    return dados
 
 
 def obter_usuario(email):
@@ -91,33 +149,153 @@ def obter_usuario(email):
         exit()
 
 
-def obter_usuario_dre():
-    return obter_usuario(email="dre@admin.com")
-
-
 def obter_usuario_codae():
     return obter_usuario(email="codae@admin.com")
 
 
 def habilitar_dias_letivos(escolas, data):
 
-    print(f"Data: {data.strftime("%d/%m/%Y")}")
-    print(f"Escolas: {", ".join(escolas)}")
-
+    print(f"1.Habilitando a data {data.strftime("%d/%m/%Y")} para as escolas: ")
+    print(f"{"\n".join(escolas)}")
     calendario_sgp(data, escolas)
-    print(f"O mês referente a data {data.strftime("%d/%m/%Y")} agora é letivo")
+    print(f"1.1 O mês referente a data {data.strftime("%d/%m/%Y")} agora é letivo")
 
     data_kit_lanche = data_solicitacao_kit_lanche()
     calendario_sgp(data_kit_lanche, escolas)
     print(
-        f"A data do pedido de kit lanche {data_kit_lanche.strftime("%d/%m/%Y")} agora é letivo"
+        f"2. A data do pedido de kit lanche {data_kit_lanche.strftime("%d/%m/%Y")} agora é letivo"
     )
 
     data_lanche_emergencial = data_solicitacao_lanche_emergencial()
     calendario_sgp(data_lanche_emergencial, escolas)
     print(
-        f"A data do pedido do lanche emergencial {data_kit_lanche.strftime("%d/%m/%Y")} agora é letivo"
+        f"3. A data do pedido do lanche emergencial {data_kit_lanche.strftime("%d/%m/%Y")} agora é letivo"
     )
+
+
+# **************************** **************************** VERIFICANDO DADOS INICIAIS **************************** ****************************
+def verifica_dados_iniciais():
+    print("1. Verificando Kit")
+    kit_lanche()
+    print("2. Verificando Faixa Etaria")
+    faixas_etarias()
+    print("3. Verificando MotivoAlteracaoCardapio")
+    motivo_alteracao_cardapio()
+    print("4. Verificando TipoAlimentacao")
+    tipo_alimentacao()
+    print("5. Verificando MotivoInclusaoContinua")
+    motivo_inclusao_continua()
+    print("6. Verificando MotivoInclusaoNormal")
+    motivo_inclusao_normal()
+    print("7. Verificando ClassificacaoDieta")
+    classificacao_dieta()
+
+
+def kit_lanche():
+    kit = KitLanche.objects.filter(
+        status=KitLanche.ATIVO,
+    )
+    if not kit.exists():
+        print("1.1 Nenhum kit encontrado. Cadastrando ...")
+        KitLanche.objects.create(
+            nome="Kit - Medicao Inicial",
+            status=KitLanche.ATIVO,
+            descricao="<p>Suco e Bolo</p>",
+        ).save()
+        print("1.2 Kit cadastrado.")
+
+
+def faixas_etarias():
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    if not faixas.exists():
+        print("2.1. Nenhuma faixa encontrada. Cadastrando ...")
+
+        faixas_etarias = [
+            FaixaEtaria(inicio=0, fim=1, ativo=True),
+            FaixaEtaria(inicio=1, fim=4, ativo=True),
+            FaixaEtaria(inicio=4, fim=6, ativo=True),
+            FaixaEtaria(inicio=6, fim=7, ativo=True),
+            FaixaEtaria(inicio=7, fim=12, ativo=True),
+            FaixaEtaria(inicio=12, fim=48, ativo=True),
+            FaixaEtaria(inicio=48, fim=73, ativo=True),
+        ]
+        FaixaEtaria.objects.bulk_create(faixas_etarias)
+        print("2.2. Faixas cadastradas.")
+
+
+def motivo_alteracao_cardapio():
+    lanche_emergencial = MotivoAlteracaoCardapio.objects.filter(
+        nome="Lanche Emergencial"
+    )
+    if not lanche_emergencial.exists():
+        print(
+            " 3.1. Nenhum MotivoAlteracaoCardapio para Lanche Emergencial encontrado. Cadastrando..."
+        )
+        MotivoAlteracaoCardapio.objects.create(
+            nome="Lanche Emergencial", ativo=True
+        ).save()
+        print("3.2. MotivoAlteracaoCardapio Lanche Emergencial cadastrado.")
+
+
+def tipo_alimentacao():
+    lanche_quatro_horas = TipoAlimentacao.objects.filter(nome="Lanche 4h")
+    if not lanche_quatro_horas.exists():
+        print("4.1. Nenhum TipoAlimentacao para Lanche 4h encontrado. Cadastrando...")
+        TipoAlimentacao.objects.create(nome="Lanche 4h").save()
+        print("4.2. TipoAlimentacao Lanche 4h cadastrado.")
+
+    lanche_emergencial = TipoAlimentacao.objects.filter(nome="Lanche Emergencial")
+    if not lanche_emergencial.exists():
+        print(
+            " 4.3. Nenhum TipoAlimentacao para Lanche emergencial encontrado. Cadastrando..."
+        )
+        TipoAlimentacao.objects.create(nome="Lanche Emergencial").save()
+        print("4.4. TipoAlimentacao Lanche Emergencial cadastrado.")
+
+
+def motivo_inclusao_continua():
+    programa_projetos = MotivoInclusaoContinua.objects.filter(
+        nome="Programas/Projetos Específicos"
+    )
+    if not programa_projetos.exists():
+        print(
+            " 5.1. Nenhum MotivoInclusaoContinua para Programas/Projetos Específicos encontrado. Cadastrando..."
+        )
+        MotivoInclusaoContinua.objects.create(
+            nome="Programas/Projetos Específicos"
+        ).save()
+        print("5.2. MotivoInclusaoContinua Programas/Projetos Específicos cadastrado.")
+
+    etec = MotivoInclusaoContinua.objects.filter(nome="ETEC")
+    if not etec.exists():
+        print("5.3 Nenhum MotivoInclusaoContinua para ETEC encontrado. Cadastrando...")
+        MotivoInclusaoContinua.objects.create(nome="ETEC").save()
+        print("5.4 MotivoInclusaoContinua ETEC cadastrado.")
+
+
+def motivo_inclusao_normal():
+    evento = MotivoInclusaoNormal.objects.filter(nome="Evento Específico")
+    if not evento.exists():
+        print(
+            " 6.1 Nenhum MotivoInclusaoNormal para Evento Específico encontrado. Cadastrando..."
+        )
+        MotivoInclusaoNormal.objects.create(nome="Evento Específico").save()
+        print("6.2 MotivoInclusaoNormal Evento Específico cadastrado.")
+
+
+def classificacao_dieta():
+    classificacao = ClassificacaoDieta.objects.all()
+    if not classificacao.exists():
+        print("7.1. Nenhuma ClassificacaoDieta encontrada. Cadastrando ...")
+        classificacao = [
+            ClassificacaoDieta(nome="Tipo A"),
+            ClassificacaoDieta(nome="Tipo A RESTRIÇÃO DE AMINOÁCIDOS"),
+            ClassificacaoDieta(nome="Tipo A ENTERAL"),
+            ClassificacaoDieta(nome="Tipo B"),
+            ClassificacaoDieta(nome="Tipo C"),
+        ]
+        ClassificacaoDieta.objects.bulk_create(classificacao)
+        print("7.2. ClassificacaoDieta cadastradas.")
 
 
 # **************************** **************************** LOG DE ALUNOS MATRICULADOS **************************** ****************************
@@ -288,11 +466,9 @@ def data_solicitacao_kit_lanche():
     return data.date()
 
 
-def solicitar_kit_lanche(escola, usuario, ano, mes, data_kit_lanche):
+def solicitar_kit_lanche(escola, usuario, ano, mes, data_kit_lanche, usuario_dre):
 
     queryset = KitLanche.objects.filter(
-        edital__uuid__in=escola.editais,
-        tipos_unidades=escola.tipo_unidade,
         status=KitLanche.ATIVO,
     )
 
@@ -301,7 +477,6 @@ def solicitar_kit_lanche(escola, usuario, ano, mes, data_kit_lanche):
         print("================== SCRIP CANCELADO ==================")
         exit()
     kit = queryset.first()
-    usuario_dre = obter_usuario_dre()
     usuario_codae = obter_usuario_codae()
 
     solicitacao_json = {
@@ -343,10 +518,8 @@ def solicitar_kit_lanche(escola, usuario, ano, mes, data_kit_lanche):
     return solicitacao_kit_lanche
 
 
-def solicitar_kit_lanche_cemei(escola, usuario, ano, mes, data_kit_lanche):
+def solicitar_kit_lanche_cemei(escola, usuario, ano, mes, data_kit_lanche, usuario_dre):
     queryset = KitLanche.objects.filter(
-        edital__uuid__in=escola.editais,
-        tipos_unidades=escola.tipo_unidade,
         status=KitLanche.ATIVO,
     )
     if not queryset.exists():
@@ -355,7 +528,6 @@ def solicitar_kit_lanche_cemei(escola, usuario, ano, mes, data_kit_lanche):
         exit()
     kit = queryset.first()
     faixas = FaixaEtaria.objects.filter(ativo=True)
-    usuario_dre = obter_usuario_dre()
     usuario_codae = obter_usuario_codae()
 
     faixas_quantidades = []
@@ -424,14 +596,13 @@ def data_solicitacao_lanche_emergencial():
 
 
 def solicitar_lanche_emergencial(
-    escola, usuario, periodo_escolar, ano, mes, data_lanche_emercencial
+    escola, usuario, periodo_escolar, ano, mes, data_lanche_emercencial, usuario_dre
 ):
 
     data = data_solicitacao_lanche_emergencial()
     motivo = MotivoAlteracaoCardapio.objects.get(nome="Lanche Emergencial")
     tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
     tipo_lanche_emergencial = TipoAlimentacao.objects.get(nome="Lanche Emergencial")
-    usuario_dre = obter_usuario_dre()
     usuario_codae = obter_usuario_codae()
 
     solicitacao_json = {
@@ -485,14 +656,13 @@ def solicitar_lanche_emergencial(
 
 
 def solicitar_lanche_emergencial_cemei(
-    escola, usuario, periodo_escolar, ano, mes, data_lanche_emercencial
+    escola, usuario, periodo_escolar, ano, mes, data_lanche_emercencial, usuario_dre
 ):
 
     data = data_solicitacao_lanche_emergencial()
     motivo = MotivoAlteracaoCardapio.objects.get(nome="Lanche Emergencial")
     tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
     tipo_lanche_emergencial = TipoAlimentacao.objects.get(nome="Lanche Emergencial")
-    usuario_dre = obter_usuario_dre()
     usuario_codae = obter_usuario_codae()
 
     solicitacao_json = {
@@ -548,6 +718,8 @@ def solicitar_lanche_emergencial_cemei(
 
 
 # **************************** **************************** PROGRAMAS E PROJETOS **************************** ****************************
+
+
 def data_programas_e_projetos_etec():
     data_inicial = datetime.datetime.now() + relativedelta(months=1)
     data_final = datetime.datetime.now() + relativedelta(months=1, days=5)
@@ -555,13 +727,12 @@ def data_programas_e_projetos_etec():
 
 
 def incluir_programas_e_projetos(
-    escola, usuario, periodo_escolar, ano, mes, data_kit_lanche
+    escola, usuario, periodo_escolar, ano, mes, data_kit_lanche, usuario_dre
 ):
 
     data_inicial, data_final = data_programas_e_projetos_etec()
     tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
     motivo = MotivoInclusaoContinua.objects.get(nome="Programas/Projetos Específicos")
-    usuario_dre = obter_usuario_dre()
     usuario_codae = obter_usuario_codae()
     solicitacao_json = {
         "escola": escola,
@@ -596,7 +767,7 @@ def incluir_programas_e_projetos(
     print("Solicitação aprovado pela CODAE")
 
     nova_data_inicio = datetime.date(ano, mes, data_kit_lanche)
-    nova_data_fim = datetime.date(ano, mes, data_kit_lanche) + relativedelta(days=5)
+    nova_data_fim = datetime.date(ano, mes, data_kit_lanche) + relativedelta(days=2)
     programas_e_projetos.data_final = nova_data_fim
     programas_e_projetos.data_inicial = nova_data_inicio
     programas_e_projetos.save()
@@ -610,12 +781,13 @@ def incluir_programas_e_projetos(
 # **************************** **************************** ETEC **************************** ****************************
 
 
-def incluir_etec(escola, usuario, periodo_escolar, ano, mes, data_lanche_emergencial):
+def incluir_etec(
+    escola, usuario, periodo_escolar, ano, mes, data_lanche_emergencial, usuario_dre
+):
 
     data_inicial, data_final = data_programas_e_projetos_etec()
     tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
     motivo = MotivoInclusaoContinua.objects.get(nome="ETEC")
-    usuario_dre = obter_usuario_dre()
     usuario_codae = obter_usuario_codae()
 
     solicitacao_json = {
@@ -652,7 +824,7 @@ def incluir_etec(escola, usuario, periodo_escolar, ano, mes, data_lanche_emergen
 
     nova_data_inicio = datetime.date(ano, mes, data_lanche_emergencial)
     nova_data_fim = datetime.date(ano, mes, data_lanche_emergencial) + relativedelta(
-        days=5
+        days=2
     )
     etec.data_final = nova_data_fim
     etec.data_inicial = nova_data_inicio
@@ -669,25 +841,26 @@ def incluir_etec(escola, usuario, periodo_escolar, ano, mes, data_lanche_emergen
 
 
 def incluir_solicitacoes_ceu_gestao(
-    escola, usuario, periodos_escolares, ano, mes, data_kit_lanche
+    escola, usuario, periodos_escolares, ano, mes, data_kit_lanche, usuario_dre
 ):
 
     data = data_solicitacao_kit_lanche()
     tipo_alimentacao = TipoAlimentacao.objects.get(nome="Lanche 4h")
     motivo = MotivoInclusaoNormal.objects.get(nome="Evento Específico")
-    usuario_dre = obter_usuario_dre()
     usuario_codae = obter_usuario_codae()
 
     quantidades_periodo = []
 
     for periodo in periodos_escolares:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
         quantidades_periodo.append(
             {
-                "periodo_escolar": periodo,
+                "periodo_escolar": pe,
                 "tipos_alimentacao": [tipo_alimentacao],
-                "numero_alunos": "10",
+                "numero_alunos": "50",
             }
         )
+
     solicitacao_json = {
         "escola": escola,
         "inclusoes": [
@@ -721,11 +894,193 @@ def incluir_solicitacoes_ceu_gestao(
     print("Solicitação aprovado pela CODAE")
 
     nova_data = datetime.date(ano, mes, data_kit_lanche)
-    periodo = ceu_gestao.inclusoes_normais.all()[0]
-    periodo.data = nova_data
-    periodo.save()
+    periodo_inclusao = ceu_gestao.inclusoes_normais.all()[0]
+    periodo_inclusao.data = nova_data
+    periodo_inclusao.save()
     ceu_gestao.save()
 
     print(f"Data da solicitação alterada para {nova_data.strftime('%d/%m/%Y')}")
 
     return ceu_gestao
+
+
+# **************************** **************************** DIETAS ESPECIAIS **************************** ****************************
+
+
+def incluir_dietas_especiais(escola, periodos_escolares, ano, mes, quantidade_dias_mes):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    quantidade = 2
+    for periodo in periodos_escolares:
+        for classificacao in classificacoes_dieta:
+            for dia in range(1, quantidade_dias_mes + 1):
+                log = LogQuantidadeDietasAutorizadas(
+                    escola=escola,
+                    periodo_escolar=periodo,
+                    quantidade=quantidade,
+                    data=datetime.date(ano, mes, dia),
+                    classificacao=classificacao,
+                )
+                log.save()
+            print(
+                f"Logs da dieta {classificacao.nome} para o Período {periodo} cadastrados"
+            )
+
+
+def incluir_dietas_especiais_ceu_gestao(escola, ano, mes, dia_kit_lanche):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    quantidade = 2
+
+    for classificacao in classificacoes_dieta:
+        log = LogQuantidadeDietasAutorizadas(
+            escola=escola,
+            periodo_escolar=None,
+            quantidade=quantidade,
+            data=datetime.date(ano, mes, dia_kit_lanche),
+            classificacao=classificacao,
+        )
+        log.save()
+        print(f"Logs da dieta {classificacao.nome} cadastrados")
+
+
+def incluir_dietas_especiais_emebs(escola, ano, mes, quantidade_dias_mes, periodos):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+
+    cadastra_periodo_emebs(
+        escola,
+        classificacoes_dieta,
+        periodos["INFANTIL"],
+        quantidade_dias_mes,
+        ano,
+        mes,
+        "INFANTIL",
+    )
+
+    cadastra_periodo_emebs(
+        escola,
+        classificacoes_dieta,
+        periodos["FUNDAMENTAL"],
+        quantidade_dias_mes,
+        ano,
+        mes,
+        "FUNDAMENTAL",
+    )
+
+
+def cadastra_periodo_emebs(
+    escola,
+    classificacoes_dieta,
+    periodos,
+    quantidade_dias_mes,
+    ano,
+    mes,
+    infantil_ou_fundamental,
+):
+    quantidade = 2
+    for periodo in periodos:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for classificacao in classificacoes_dieta:
+            for dia in range(1, quantidade_dias_mes + 1):
+                log = LogQuantidadeDietasAutorizadas(
+                    escola=escola,
+                    periodo_escolar=pe,
+                    quantidade=quantidade,
+                    data=datetime.date(ano, mes, dia),
+                    classificacao=classificacao,
+                    infantil_ou_fundamental=infantil_ou_fundamental,
+                )
+                log.save()
+            print(
+                f"Logs da dieta {classificacao.nome} do {infantil_ou_fundamental} para o Período {periodo}  cadastrados"
+            )
+
+
+def incluir_dietas_especiais_cei(
+    escola, ano, mes, quantidade_dias_mes, periodos_escolares
+):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    for periodo in periodos_escolares:
+        for classificacao in classificacoes_dieta:
+            quantidade = 1 if "Tipo A" in classificacao.nome else 2
+            for faixa in faixas:
+                for dia in range(1, quantidade_dias_mes + 1):
+                    log = LogQuantidadeDietasAutorizadasCEI(
+                        escola=escola,
+                        periodo_escolar=periodo,
+                        quantidade=quantidade,
+                        data=datetime.date(ano, mes, dia),
+                        classificacao=classificacao,
+                        faixa_etaria=faixa,
+                    )
+                    log.save()
+                print(
+                    f"Logs dieta {classificacao.nome} para faixa {faixa.__str__()} no Período {periodo} cadastrados"
+                )
+
+
+def incluir_dietas_especiais_cemei(
+    escola, ano, mes, quantidade_dias_mes, periodos_escolares
+):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    cadastra_cei_da_cemei(
+        escola,
+        ano,
+        mes,
+        quantidade_dias_mes,
+        classificacoes_dieta,
+        periodos_escolares["CEI"],
+    )
+    cadastra_emei_da_cemei(
+        escola,
+        ano,
+        mes,
+        quantidade_dias_mes,
+        classificacoes_dieta,
+        periodos_escolares["EMEI"],
+    )
+
+
+def cadastra_cei_da_cemei(
+    escola, ano, mes, quantidade_dias_mes, classificacoes_dieta, periodos_cei_cemei
+):
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    for periodo in periodos_cei_cemei:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for classificacao in classificacoes_dieta:
+            quantidade = 1 if "Tipo A" in classificacao.nome else 2
+            for faixa in faixas:
+                for dia in range(1, quantidade_dias_mes + 1):
+                    log = LogQuantidadeDietasAutorizadasCEI(
+                        escola=escola,
+                        periodo_escolar=pe,
+                        quantidade=quantidade,
+                        data=datetime.date(ano, mes, dia),
+                        classificacao=classificacao,
+                        faixa_etaria=faixa,
+                    )
+                    log.save()
+                print(
+                    f"Logs dieta {classificacao.nome} para faixa {faixa.__str__()} no Período {periodo} cadastrados"
+                )
+
+
+def cadastra_emei_da_cemei(
+    escola, ano, mes, quantidade_dias_mes, classificacoes_dieta, periodos_emei_cemei
+):
+    for periodo in periodos_emei_cemei:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for classificacao in classificacoes_dieta:
+            quantidade = 1 if "Tipo A" in classificacao.nome else 2
+            for dia in range(1, quantidade_dias_mes + 1):
+                log = LogQuantidadeDietasAutorizadas(
+                    escola=escola,
+                    periodo_escolar=pe,
+                    quantidade=quantidade,
+                    data=datetime.date(ano, mes, dia),
+                    classificacao=classificacao,
+                    cei_ou_emei="EMEI",
+                )
+                log.save()
+            print(
+                f"Logs da dieta {classificacao.nome} para o Período {periodo} cadastrados"
+            )
