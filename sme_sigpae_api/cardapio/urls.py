@@ -94,7 +94,6 @@ router.register(
     base_viewsets.MotivosDRENaoValidaViewSet,
     "Motivos de não validação da DRE",
 )
-# Endpoint para dados agrupados por tipo de UE baseado nos vínculos
 router.register(
     "tipos-unidade-escolar-agrupados",
     VinculosPorTipoUnidadeEscolarViewSet,
