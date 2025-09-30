@@ -2093,6 +2093,9 @@ class Aluno(TemChaveExterna):
             data_inicio=datetime.date.today(),
             codigo_situacao=codigo_situacao,
             situacao=situacao,
+            data_fim=(
+                datetime.date.today() if codigo_situacao not in [1, 6, 10, 13] else None
+            ),
         )
         historico.save()
         return historico

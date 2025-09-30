@@ -402,6 +402,10 @@ def cria_copias_fk(obj, attr, attr_fk, obj_copia):
         copia.uuid = uuid.uuid4()
         setattr(copia, attr_fk, obj_copia)
         copia.save()
+        for m2m_field in copia._meta.many_to_many:
+            related_manager_original = getattr(original, m2m_field.name)
+            related_manager_copia = getattr(copia, m2m_field.name)
+            related_manager_copia.set(related_manager_original.all())
 
 
 def cria_copias_m2m(obj, attr, obj_copia):

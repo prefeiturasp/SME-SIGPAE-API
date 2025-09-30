@@ -224,7 +224,6 @@ class Command(BaseCommand):
                 continue
             if registro["codigoTipoTurma"] != self.codigo_turma_regular:
                 continue
-
             self._trata_alunos_status_ativo_d_menos_2(
                 registro,
                 alunos_ativos,
@@ -279,6 +278,38 @@ class Command(BaseCommand):
             in self.status_matricula_ativa
         )
 
+    def _trata_alunos_ativos_mais_de_um_resultado(
+        self, registro, escola, dados_alunos_escola
+    ) -> bool:
+        aluno = Aluno.objects.filter(codigo_eol=registro["codigoAluno"]).first()
+        if not aluno:
+            return False
+        registros_aluno = [
+            registro_
+            for registro_ in dados_alunos_escola
+            if registro["codigoAluno"] == registro_["codigoAluno"]
+        ]
+        if len(registros_aluno) == 1:
+            return False
+        tem_registro_ativo = [
+            registro_
+            for registro_ in registros_aluno
+            if registro_["codigoSituacaoMatricula"] in self.status_matricula_ativa
+        ]
+        if not tem_registro_ativo:
+            return False
+        for registro_ in registros_aluno:
+            codigo_situacao = registro_["codigoSituacaoMatricula"]
+            situacao = registro_["situacaoMatricula"]
+            if not aluno.historico.filter(
+                escola=escola, codigo_situacao=codigo_situacao
+            ).exists():
+                aluno.cria_historico(codigo_situacao, situacao, escola)
+        aluno.escola = escola
+        aluno.nao_matriculado = False
+        aluno.save()
+        return True
+
     def _atualiza_alunos_da_escola(
         self, escola, dados_alunos_escola, dados_alunos_escola_prox_ano
     ):
@@ -296,6 +327,12 @@ class Command(BaseCommand):
                     )
                 )
             if registro["codigoTipoTurma"] != self.codigo_turma_regular:
+                continue
+            tem_mais_de_um_registro = self._trata_alunos_ativos_mais_de_um_resultado(
+                registro, escola, dados_alunos_escola
+            )
+            if tem_mais_de_um_registro:
+                codigos_consultados.append(registro["codigoAluno"])
                 continue
             self._trata_aluno_status_ativo(
                 registro,

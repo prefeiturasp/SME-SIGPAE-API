@@ -102,7 +102,7 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         AlunoFactory.create(
             codigo_eol="8888888",
             periodo_escolar=self.periodo_escolar_manha,
-            escola=self.escola,
+            escola=self.escola2,
         )
 
         mock_get_response_alunos_por_escola.side_effect = [
@@ -112,7 +112,7 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
             mocked_response({}, 404),
         ]
         self.call_command()
-        assert Aluno.objects.count() == 3
+        assert Aluno.objects.count() == 4
 
         aluno_davi = Aluno.objects.get(nome="DAVI ALUNO TESTE")
         assert aluno_davi.nao_matriculado is False
@@ -194,6 +194,13 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
             escola=self.escola,
         )
 
+        AlunoFactory.create(
+            codigo_eol="6666666",
+            nome="MELISSA ALUNO TESTE",
+            periodo_escolar=self.periodo_escolar_manha,
+            escola=self.escola,
+        )
+
         mock_get_response_alunos_por_escola.side_effect = [
             self.mocked_response_dados_alunos,
             mocked_response({}, 404),
@@ -201,7 +208,7 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
             mocked_response({}, 404),
         ]
         self.call_command()
-        assert Aluno.objects.count() == 3
+        assert Aluno.objects.count() == 4
 
         aluno_davi = Aluno.objects.get(nome="DAVI ALUNO TESTE")
         assert aluno_davi.nao_matriculado is False
