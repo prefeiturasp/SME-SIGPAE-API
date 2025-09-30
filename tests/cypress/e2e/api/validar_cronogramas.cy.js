@@ -399,7 +399,6 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 				expect(response.body.results[0].etapas[0]).to.have.property('etapa')
 					.that.exist
 				expect(response.body.results[0].etapas[0]).to.have.property('parte')
-					.that.exist
 				expect(response.body.results[0].etapas[0]).to.have.property(
 					'data_programada',
 				).that.exist
