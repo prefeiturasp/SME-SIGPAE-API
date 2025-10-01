@@ -24,6 +24,9 @@ pytestmark = pytest.mark.django_db
     "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.solicitar_kit_lanche"
 )
 @mock.patch(
+    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.incluir_dietas_especiais"
+)
+@mock.patch(
     "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.incluir_log_alunos_matriculados"
 )
 @mock.patch(
@@ -42,14 +45,17 @@ def test_executa_com_sucesso(
     mock_obter_escolas,
     mock_habilitar_dias_letivos,
     mock_incluir_logs,
+    mock_dietas_especiais,
     mock_solicitar_kit_lache,
     mock_solicitar_lanche_emergencial,
     mock_programas_e_projetos,
     mock_etec,
     user_diretor_escola,
+    usuario_da_dre,
     escola,
 ):
     usuario, _ = user_diretor_escola
+    usuario_dre, _ = usuario_da_dre
 
     escola_fake = mock.Mock()
     escola_fake.nome = escola.nome
@@ -62,7 +68,12 @@ def test_executa_com_sucesso(
 
     mock_get_escola.return_value = escola_fake
     mock_obter_escolas.return_value = [
-        {"nome_escola": escola.nome, "email": usuario.email, "periodos": ["MANHA"]}
+        {
+            "nome_escola": escola.nome,
+            "email": usuario.email,
+            "periodos": ["MANHA"],
+            "usuario_dre": usuario_dre.email,
+        }
     ]
     mock_obter_usuario.return_value = usuario
     mock_solicitar_kit_lache.return_value = "OK"
@@ -77,10 +88,15 @@ def test_executa_com_sucesso(
             )
 
     mock_get_escola.assert_called_once()
-    mock_obter_usuario.assert_called_once()
+
+    assert mock_obter_usuario.call_count == 2
+    mock_obter_usuario.assert_any_call(usuario.email)
+    mock_obter_usuario.assert_any_call(usuario_dre.email)
+
     mock_obter_escolas.assert_called_once()
     mock_habilitar_dias_letivos.assert_called_once()
     mock_incluir_logs.assert_called_once()
+    mock_dietas_especiais.assert_called_once()
     mock_solicitar_kit_lache.assert_called_once()
     mock_solicitar_lanche_emergencial.assert_called_once()
     mock_programas_e_projetos.assert_called_once()
@@ -163,3 +179,68 @@ def test_data_lanche_emergencial_invalido_lanca_erro():
             "--data-lanche-emergencial",
             "123",
         )
+
+
+@override_settings(DJANGO_ENV="development")
+@mock.patch(
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.matriculados_por_escola_e_periodo_regulares"
+)
+@mock.patch(
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.call_command"
+)
+@mock.patch(
+    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.obter_escolas"
+)
+@mock.patch(
+    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.obter_usuario"
+)
+@mock.patch("sme_sigpae_api.escola.models.Escola.objects.get")
+def test_executa_com_atualizar_escolas(
+    mock_get_escola,
+    mock_obter_usuario,
+    mock_obter_escolas,
+    mock_call_command,
+    mock_matriculados_task,
+    user_diretor_escola,
+    usuario_da_dre,
+    escola,
+):
+    usuario, _ = user_diretor_escola
+    usuario_dre, _ = usuario_da_dre
+
+    escola_fake = mock.Mock()
+    escola_fake.nome = escola.nome
+    escola_fake.eh_cemei = False
+    escola_fake.eh_cei = False
+    escola_fake.eh_emebs = False
+    escola_fake.eh_emef = True
+    escola_fake.eh_ceu_gestao = False
+    escola_fake.periodos_escolares.return_value.get.return_value = mock.Mock()
+
+    mock_get_escola.return_value = escola_fake
+    mock_obter_escolas.return_value = [
+        {
+            "nome_escola": escola.nome,
+            "email": usuario.email,
+            "periodos": ["MANHA"],
+            "usuario_dre": usuario_dre.email,
+        }
+    ]
+    mock_obter_usuario.return_value = usuario
+
+    mock_call_command.reset_mock()
+    mock_matriculados_task.reset_mock()
+
+    with open(os.devnull, "w") as devnull:
+        with redirect_stdout(devnull), redirect_stderr(devnull):
+            call_command(
+                "habilitar_lancamento_medicao_inicial",
+                "--ano",
+                "2024",
+                "--mes",
+                "5",
+                "--atualizar-escolas",
+            )
+
+    mock_call_command.assert_called_once_with("atualiza_dados_escolas")
+    mock_matriculados_task.assert_called_once()

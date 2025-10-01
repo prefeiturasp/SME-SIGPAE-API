@@ -253,6 +253,21 @@ class FichaDeRecebimentoDetalharSerializer(serializers.ModelSerializer):
         except AttributeError:
             return None
 
+    def to_internal_value(self, data):
+        peso_fields = [
+            "numero_paletes",
+            "peso_embalagem_primaria_1",
+            "peso_embalagem_primaria_2",
+            "peso_embalagem_primaria_3",
+            "peso_embalagem_primaria_4",
+        ]
+
+        for field in peso_fields:
+            if field in data and isinstance(data[field], str):
+                data[field] = data[field].replacereplace(".", "").replace(",", ".")
+
+        return super().to_internal_value(data)
+
     class Meta:
         model = FichaDeRecebimento
         fields = (
@@ -283,4 +298,5 @@ class FichaDeRecebimentoDetalharSerializer(serializers.ModelSerializer):
             "houve_ocorrencia",
             "ocorrencias",
             "arquivos",
+            "alterado_em",
         )

@@ -382,7 +382,7 @@ def usuario_da_dre(django_user_model, diretoria_regional):
     password = DJANGO_ADMIN_PASSWORD
     perfil_cogestor_dre = baker.make("Perfil", nome="COGESTOR_DRE", ativo=True)
     usuario = django_user_model.objects.create_user(
-        password=password, username=email, email=email, registro_funcional="123456"
+        password=password, username=email, email=email, registro_funcional="623451"
     )
     hoje = datetime.date.today()
     baker.make(

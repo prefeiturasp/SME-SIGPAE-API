@@ -17,8 +17,8 @@ from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.permissions import (
     UsuarioCODAEGestaoAlimentacao,
     UsuarioDiretoriaRegional,
+    UsuarioEmpresaGenerico,
     UsuarioEscolaTercTotal,
-    UsuarioTerceirizada,
 )
 from sme_sigpae_api.relatorios.relatorios import relatorio_alteracao_cardapio_cei
 
@@ -91,7 +91,7 @@ class AlteracoesCardapioCEIViewSet(AlteracoesCardapioViewSet):
     @action(
         detail=False,
         url_path=f"{constants.PEDIDOS_TERCEIRIZADA}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=[UsuarioTerceirizada],
+        permission_classes=[UsuarioEmpresaGenerico],
     )
     def solicitacoes_terceirizada(self, request, filtro_aplicado=constants.SEM_FILTRO):
         # TODO: colocar regras de Terceirizada aqui...

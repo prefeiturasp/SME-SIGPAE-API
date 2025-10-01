@@ -661,7 +661,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         escola = instance.escola
         valores_medicao_a_criar = []
         logs_do_mes = escola.logs_dietas_autorizadas_cei.filter(
-            data__month=instance.mes, data__year=instance.ano, faixa_etaria__isnull=False
+            data__month=instance.mes,
+            data__year=instance.ano,
+            faixa_etaria__isnull=False,
         )
         categorias = CategoriaMedicao.objects.filter(
             nome__in=["DIETA ESPECIAL - TIPO A", "DIETA ESPECIAL - TIPO B"]

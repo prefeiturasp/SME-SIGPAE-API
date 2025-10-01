@@ -5,7 +5,7 @@
 <html>
 <head>
   <link rel="stylesheet" href="{% sass_src 'css/cabecalho.scss' %}" type="text/css">
-  <link rel="stylesheet" href="{% sass_src 'css/relatorio_solicitacoes_alimentacao.scss' %}" type="text/css">
+  <link rel="stylesheet" href="{% sass_src 'css/relatorio_alunos_matriculados.scss' %}" type="text/css">
   <link rel="stylesheet" href="{% sass_src 'css/custom_bootstrap.scss' %}" type="text/css">
   <style>
     @page {
@@ -48,13 +48,13 @@
     <table>
       <thead>
         <tr>
-          <th class="col-3">DRE</th>
-          <th class="col-1">Lote</th>
-          <th class="col-1">Tipo de unid.</th>
-          <th class="col-3">Unid. educacional</th>
-          <th class="col-2 text-center">Tipo de turma</th>
-          <th class="col-1 text-center">Período</th>
-          <th class="col-1 text-center">Matriculados</th>
+          <th>DRE</th>
+          <th>Lote</th>
+          <th>Tipo de unid.</th>
+          <th>Unid. educacional</th>
+          <th class="text-center">Tipo de turma</th>
+          <th class="text-center">Período</th>
+          <th class="text-center">Matriculados</th>
         </tr>
       </thead>
       <tbody style="page-break-inside: avoid">
@@ -74,22 +74,22 @@
                 <table>
                   <thead>
                     <tr>
-                      <th class="col-6">Faixa Etária</th>
-                      <th class="col-6 text-center">Alunos matriculados</th>
+                      <th>Faixa Etária</th>
+                      <th class="text-center">Alunos matriculados</th>
                     </tr>
                   </thead>
                   <tbody>
                     {% for faixa in faixas_etarias %}
                       <tr>
-                        <td class="col-6">{{faixa.nome}}</td>
-                        <td class="col-6 text-center">
+                        <td>{{faixa.nome}}</td>
+                        <td class="text-center">
                           {{ faixa.uuid|get_matriculados:alunos_matriculados}}
                         </td>
                       </tr>
                     {% endfor%}
                     <tr>
-                      <th class="col-6">Total</th>
-                      <th class="col-6 text-center">{{alunos_matriculados.matriculados}}</th>
+                      <th>Total</th>
+                      <th class="text-center">{{alunos_matriculados.matriculados}}</th>
                     </tr>
                   </tbody>
                 </table>

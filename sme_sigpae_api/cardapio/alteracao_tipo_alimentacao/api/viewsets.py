@@ -23,8 +23,8 @@ from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaRecuperarObjeto,
     UsuarioCODAEGestaoAlimentacao,
     UsuarioDiretoriaRegional,
+    UsuarioEmpresaGenerico,
     UsuarioEscolaTercTotal,
-    UsuarioTerceirizada,
 )
 from sme_sigpae_api.dados_comuns.services import (
     enviar_email_ue_cancelar_pedido_parcialmente,
@@ -258,7 +258,7 @@ class AlteracoesCardapioViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        permission_classes=[UsuarioTerceirizada],
+        permission_classes=[UsuarioEmpresaGenerico],
         methods=["patch"],
         url_path=constants.TERCEIRIZADA_TOMOU_CIENCIA,
     )
@@ -278,7 +278,7 @@ class AlteracoesCardapioViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        permission_classes=[UsuarioTerceirizada],
+        permission_classes=[UsuarioEmpresaGenerico],
         methods=["patch"],
         url_path=constants.TERCEIRIZADA_RESPONDE_QUESTIONAMENTO,
     )

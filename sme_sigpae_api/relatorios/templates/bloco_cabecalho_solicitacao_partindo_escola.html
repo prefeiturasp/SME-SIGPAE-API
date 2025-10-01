@@ -7,29 +7,38 @@
     <h5 style="text-align: center">Dieta Especial Destina-se à Aluno Não Matriculado na Rede Municipal de Ensino</h5>
   {% endif %}
 
-  <div class="row id-pedido">
-    <div class="retangulo-id w-25">
-      # {{ solicitacao.id_externo }} <br/> <span>Nº DA SOLICITAÇÃO</span>
+  <div class="header-solicitacao">
+    <div class="row my-2">
+      <div class="col-4" style="padding: 1%; font-family: 'Roboto'; font-style: bold; font-weight: 700; background: #F3F3F3; border: 1px solid #E3E6F0; border-radius: 4px; text-align: center; color: #42474A;">
+        <p style="font-size: 24px; margin: 0;"># {{ solicitacao.id_externo }}</p>
+        <p style="font-size: 14px; margin: 0;">Nº DA SOLICITAÇÃO</p>
+      </div>
+      <div class="col-5">
+        <p>Escola Solicitante:</p>
+        <p><b>{{ escola.nome }}</b></p>
+      </div>
+      <div class="col-2">
+        <p>EOL:</p>
+        <p><b>{{ escola.codigo_eol }}</b></p>
+      </div>
     </div>
-    <div class="info w-40">
-      {% if solicitacao.tipo_solicitacao == 'ALTERACAO_UE'%}
-        <div>Escola onde será realizado o programa</div>
-      {% else %}
-        <div>Solicitante</div>
-      {% endif %}
-      <div>{{ escola.nome }}</div>
-    </div>
-    <div class="info w-10">
-      <div>Lote</div>
-      <div>{{ escola.lote.nome|retorna_lote }}</div>
-    </div>
-    <div class="info w-15">
-      <div>Tipo de gestão</div>
-      <div>{{ escola.tipo_gestao.nome }}</div>
-    </div>
-    <div class="info w-25">
-      <div>Empresa</div>
-      <div><strong>{{ solicitacao.rastro_terceirizada.nome_fantasia }}</strong></div>
+    <div class="row my-2">
+      <div class="col-3">
+        <p>DRE:</p>
+        <p><b>{{ escola.diretoria_regional.nome }}</b></p>
+      </div>
+      <div class="col-3">
+        <p>Lote:</p>
+        <p><b>{{ escola.lote.nome }}</b></p>
+      </div>
+      <div class="col-3">
+        <p>Tipo de Gestão:</p>
+        <p><b>{{ escola.tipo_gestao.nome }}</b></p>
+      </div>
+      <div class="col-3">
+        <p>Empresa:</p>
+        <p><b>{{ solicitacao.rastro_terceirizada.nome_fantasia }}</b></p>
+      </div>
     </div>
   </div>
   {% if solicitacao.tipo_solicitacao != 'COMUM'%}

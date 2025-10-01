@@ -35,8 +35,10 @@ from ...dados_comuns.permissions import (
     UsuarioDinutreDiretoria,
     UsuarioDiretorEscolaTercTotal,
     UsuarioDiretoriaRegional,
+    UsuarioEmpresaTerceirizada,
     UsuarioEscolaTercTotal,
     UsuarioMedicao,
+    UsuarioSupervisaoNutricao,
     ViewSetActionPermissionMixin,
 )
 from ...dados_comuns.utils import get_ultimo_dia_mes
@@ -229,6 +231,8 @@ class SolicitacaoMedicaoInicialViewSet(
         | UsuarioCODAENutriManifestacao
         | UsuarioCODAEGabinete
         | UsuarioDinutreDiretoria
+        | UsuarioEmpresaTerceirizada
+        | UsuarioSupervisaoNutricao
     ]
     queryset = SolicitacaoMedicaoInicial.objects.all()
 
@@ -271,7 +275,10 @@ class SolicitacaoMedicaoInicialViewSet(
             return STATUS_RELACAO_DRE_MEDICAO + ["TODOS_OS_LANCAMENTOS"]
         elif usuario.tipo_usuario == "diretoriaregional":
             return STATUS_RELACAO_DRE + ["TODOS_OS_LANCAMENTOS"]
-        elif usuario.tipo_usuario in USUARIOS_VISAO_CODAE:
+        elif usuario.tipo_usuario in USUARIOS_VISAO_CODAE + [
+            "terceirizada",
+            "supervisao_nutricao",
+        ]:
             return STATUS_RELACAO_DRE_CODAE + ["TODOS_OS_LANCAMENTOS"]
         else:
             return (
@@ -291,7 +298,10 @@ class SolicitacaoMedicaoInicialViewSet(
     def condicao_por_usuario(self, queryset):
         usuario = self.request.user
 
-        if usuario.tipo_usuario in USUARIOS_VISAO_CODAE:
+        if usuario.tipo_usuario in USUARIOS_VISAO_CODAE + [
+            "terceirizada",
+            "supervisao_nutricao",
+        ]:
             return queryset.filter(status__in=STATUS_RELACAO_DRE_CODAE)
         if not (
             usuario.tipo_usuario == "diretoriaregional"
@@ -414,20 +424,24 @@ class SolicitacaoMedicaoInicialViewSet(
 
     def formatar_filtros(self, query_params):
         kwargs = {}
-        if query_params.get("mes_ano"):
-            data_splitted = query_params.get("mes_ano").split("_")
-            kwargs["mes"] = data_splitted[0]
-            kwargs["ano"] = data_splitted[1]
-        if query_params.getlist("lotes_selecionados[]"):
-            kwargs["escola__lote__uuid__in"] = query_params.getlist(
-                "lotes_selecionados[]"
-            )
-        if query_params.get("tipo_unidade"):
-            kwargs["escola__tipo_unidade__uuid"] = query_params.get("tipo_unidade")
-        if query_params.get("escola"):
-            kwargs["escola__codigo_eol"] = query_params.get("escola").split(" - ")[0]
-        if query_params.get("dre"):
-            kwargs["escola__diretoria_regional__uuid"] = query_params.get("dre")
+
+        mapping = {
+            "tipo_unidade": lambda params: {"escola__tipo_unidade__uuid": params.get("tipo_unidade")},
+            "dre": lambda params: {"escola__diretoria_regional__uuid": params.get("dre")},
+            "ocorrencias": lambda params: {"com_ocorrencias": params.get("ocorrencias").lower() == "true"},
+            "mes_ano": lambda params: dict(zip(["mes", "ano"], params["mes_ano"].split("_"))),
+            "lotes_selecionados[]": lambda params: {
+                "escola__lote__uuid__in": params.getlist("lotes_selecionados[]")
+            },
+            "escola": lambda params: {
+                "escola__codigo_eol": params.get("escola").split(" - ")[0]
+            },
+        }
+
+        for param, parser in mapping.items():
+            if query_params.get(param) or query_params.getlist(param):
+                kwargs.update(parser(query_params))
+
         return kwargs
 
     @action(
@@ -441,6 +455,8 @@ class SolicitacaoMedicaoInicialViewSet(
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGabinete
             | UsuarioDinutreDiretoria
+            | UsuarioEmpresaTerceirizada
+            | UsuarioSupervisaoNutricao
         ],
     )
     def dashboard(self, request):
@@ -468,6 +484,8 @@ class SolicitacaoMedicaoInicialViewSet(
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGabinete
             | UsuarioDinutreDiretoria
+            | UsuarioEmpresaTerceirizada
+            | UsuarioSupervisaoNutricao
         ],
     )
     def meses_anos(self, request):
@@ -476,7 +494,8 @@ class SolicitacaoMedicaoInicialViewSet(
 
         if (
             isinstance(request.user.vinculo_atual.instituicao, DiretoriaRegional)
-            or request.user.tipo_usuario in USUARIOS_VISAO_CODAE
+            or request.user.tipo_usuario
+            in USUARIOS_VISAO_CODAE + ["terceirizada", "supervisao_nutricao"]
             or (
                 request.query_params.get("eh_relatorio_adesao")
                 and request.user.tipo_usuario == constants.TIPO_USUARIO_ESCOLA
@@ -680,6 +699,8 @@ class SolicitacaoMedicaoInicialViewSet(
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGabinete
             | UsuarioDinutreDiretoria
+            | UsuarioEmpresaTerceirizada
+            | UsuarioSupervisaoNutricao
         ],
     )
     def periodos_grupos_medicao(self, request):
@@ -1490,6 +1511,8 @@ class MedicaoViewSet(
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGabinete
             | UsuarioDinutreDiretoria
+            | UsuarioEmpresaTerceirizada
+            | UsuarioSupervisaoNutricao
         ],
     )
     def feriados_no_mes_com_nome(self, request, uuid=None):
@@ -1668,6 +1691,8 @@ class PermissaoLancamentoEspecialViewSet(ModelViewSet):
             | UsuarioCODAEGestaoAlimentacao
             | UsuarioCODAEGabinete
             | UsuarioDinutreDiretoria
+            | UsuarioEmpresaTerceirizada
+            | UsuarioSupervisaoNutricao
         ],
     )
     def permissoes_lancamentos_especiais_mes_ano_por_periodo(self, request):
@@ -1813,6 +1838,8 @@ class RelatoriosViewSet(ViewSet):
         | UsuarioCODAENutriManifestacao
         | UsuarioCODAEGabinete
         | UsuarioDinutreDiretoria
+        | UsuarioEmpresaTerceirizada
+        | UsuarioSupervisaoNutricao
     ]
 
     @action(detail=False, url_name="relatorio-adesao", url_path="relatorio-adesao")

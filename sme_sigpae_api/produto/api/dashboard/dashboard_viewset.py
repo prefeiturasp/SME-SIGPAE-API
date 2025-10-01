@@ -3,7 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from sme_sigpae_api.dados_comuns.permissions import (
     UsuarioCODAEGestaoProduto,
-    UsuarioTerceirizada,
+    UsuarioEmpresaGenerico,
 )
 from sme_sigpae_api.produto.api.serializers.serializers import (
     HomologacaoProdutoPainelGerencialSerializer,
@@ -89,7 +89,7 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
         methods=["GET"],
         url_path="pendente-homologacao",
         pagination_class=DashboardPagination,
-        permission_classes=[UsuarioTerceirizada | UsuarioCODAEGestaoProduto],
+        permission_classes=[UsuarioEmpresaGenerico | UsuarioCODAEGestaoProduto],
     )
     def dashboard_pendente_homologacao(self, request):
         lista = produtos_pendente_homologacao(request)
@@ -104,7 +104,7 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
         methods=["GET"],
         url_path="correcao-de-produtos",
         pagination_class=DashboardPagination,
-        permission_classes=[UsuarioTerceirizada | UsuarioCODAEGestaoProduto],
+        permission_classes=[UsuarioEmpresaGenerico | UsuarioCODAEGestaoProduto],
     )
     def dashboard_correcao_de_produtos(self, request):
         lista = produtos_correcao_de_produto(request)
@@ -119,7 +119,7 @@ class HomologacaoProdutoDashboardViewSet(ModelViewSet):
         methods=["GET"],
         url_path="aguardando-amostra-analise-sensorial",
         pagination_class=DashboardPagination,
-        permission_classes=[UsuarioTerceirizada | UsuarioCODAEGestaoProduto],
+        permission_classes=[UsuarioEmpresaGenerico | UsuarioCODAEGestaoProduto],
     )
     def dashboard_aguardando_amostra_analise_sensorial(self, request):
         lista = produtos_aguardando_amostra_analise_sensorial(request)

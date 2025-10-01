@@ -1,6 +1,6 @@
 import pytest
+from django.http import QueryDict
 from django.core.exceptions import ValidationError
-
 from sme_sigpae_api.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from sme_sigpae_api.medicao_inicial.api.viewsets import SolicitacaoMedicaoInicialViewSet
 
@@ -58,3 +58,53 @@ def test_solicita_correcao_em_medicoes(
         solicitacao_sem_lancamento.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     )
+
+
+@pytest.mark.parametrize(
+    "query_dict,expected",
+    [
+        (QueryDict("tipo_unidade=550e8400-e29b-41d4-a716-446655440000"),
+         {"escola__tipo_unidade__uuid": "550e8400-e29b-41d4-a716-446655440000"}),
+        (QueryDict("dre=6fa459ea-ee8a-3ca4-894e-db77e160355e"),
+         {"escola__diretoria_regional__uuid": "6fa459ea-ee8a-3ca4-894e-db77e160355e"}),
+        (QueryDict("ocorrencias=true"), {"com_ocorrencias": True}),
+        (QueryDict("ocorrencias=false"), {"com_ocorrencias": False}),
+        (QueryDict("mes_ano=09_2025"), {"mes": "09", "ano": "2025"}),
+        (
+            QueryDict("lotes_selecionados[]=123e4567-e89b-12d3-a456-426614174000&lotes_selecionados[]=123e4567-e89b-12d3-a456-426614174111"),
+            {"escola__lote__uuid__in": [
+                "123e4567-e89b-12d3-a456-426614174000",
+                "123e4567-e89b-12d3-a456-426614174111",
+            ]},
+        ),
+        (QueryDict("escola=765432 - ESCOLA MUNICIPAL EMEF"),
+         {"escola__codigo_eol": "765432"}),
+        (
+            QueryDict(
+                "tipo_unidade=550e8400-e29b-41d4-a716-446655440000"
+                "&dre=6fa459ea-ee8a-3ca4-894e-db77e160355e"
+                "&ocorrencias=true"
+                "&mes_ano=09_2025"
+                "&escola=123456 - ESCOLA TESTE CEU"
+                "&lotes_selecionados[]=123e4567-e89b-12d3-a456-426614174000"
+                "&lotes_selecionados[]=123e4567-e89b-12d3-a456-426614174222"
+            ),
+            {
+                "escola__tipo_unidade__uuid": "550e8400-e29b-41d4-a716-446655440000",
+                "escola__diretoria_regional__uuid": "6fa459ea-ee8a-3ca4-894e-db77e160355e",
+                "com_ocorrencias": True,
+                "mes": "09",
+                "ano": "2025",
+                "escola__lote__uuid__in": [
+                    "123e4567-e89b-12d3-a456-426614174000",
+                    "123e4567-e89b-12d3-a456-426614174222",
+                ],
+                "escola__codigo_eol": "123456",
+            },
+        ),
+    ],
+)
+def test_solicitacao_medicao_formatar_filtros(query_dict, expected):
+    viewset = SolicitacaoMedicaoInicialViewSet()
+    result = viewset.formatar_filtros(query_dict)
+    assert result == expected

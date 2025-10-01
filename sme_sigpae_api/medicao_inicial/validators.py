@@ -5,7 +5,7 @@ import unicodedata
 from django.db.models import Q
 from workalendar.america import BrazilSaoPauloCity
 
-from sme_sigpae_api.dados_comuns.utils import get_ultimo_dia_mes
+from sme_sigpae_api.dados_comuns.utils import filtrar_dias_letivos, get_ultimo_dia_mes
 
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
@@ -49,8 +49,12 @@ def get_lista_dias_letivos(solicitacao, escola):
         dia_letivo=True,
     )
     dias_letivos = list(set(dias_letivos.values_list("data__day", flat=True)))
+    dias_letivos_uteis = filtrar_dias_letivos(
+        dias_letivos, int(solicitacao.mes), int(solicitacao.ano)
+    )
     return [
-        str(dia) if not len(str(dia)) == 1 else ("0" + str(dia)) for dia in dias_letivos
+        str(dia) if not len(str(dia)) == 1 else ("0" + str(dia))
+        for dia in dias_letivos_uteis
     ]
 
 
@@ -803,7 +807,7 @@ def validate_lancamento_alimentacoes_medicao_cei(solicitacao, lista_erros):
             escola=escola, data__month=mes, data__year=ano, dia_letivo=True
         ).values_list("data__day", flat=True)
     )
-
+    dias_letivos_uteis = filtrar_dias_letivos(dias_letivos, int(mes), int(ano))
     logs_ = list(
         set(
             logs.values_list(
@@ -812,7 +816,7 @@ def validate_lancamento_alimentacoes_medicao_cei(solicitacao, lista_erros):
         )
     )
 
-    for dia in dias_letivos:
+    for dia in dias_letivos_uteis:
         for medicao in solicitacao.medicoes.all():
             valores_medicao_ = list(
                 set(
@@ -1883,9 +1887,12 @@ def validate_lancamento_dietas_emef(solicitacao, lista_erros):
             escola=escola, data__month=mes, data__year=ano, dia_letivo=True
         ).values_list("data__day", flat=True)
     )
+    dias_letivos_uteis = filtrar_dias_letivos(
+        dias_letivos, int(solicitacao.mes), int(solicitacao.ano)
+    )
     for categoria in categorias:
         classificacoes = get_classificacoes_dietas(categoria)
-        for dia in dias_letivos:
+        for dia in dias_letivos_uteis:
             for medicao in solicitacao.medicoes.all():
                 valores_medicao_ = list(
                     set(
@@ -1993,9 +2000,12 @@ def validate_lancamento_dietas_cei(solicitacao, lista_erros):
             escola=escola, data__month=mes, data__year=ano, dia_letivo=True
         ).values_list("data__day", flat=True)
     )
+    dias_letivos_uteis = filtrar_dias_letivos(
+        dias_letivos, int(solicitacao.mes), int(solicitacao.ano)
+    )
     for categoria in categorias:
         classificacoes = get_classificacoes_dietas_cei(categoria)
-        for dia in dias_letivos:
+        for dia in dias_letivos_uteis:
             for medicao in solicitacao.medicoes.all():
                 valores_medicao_ = list(
                     set(
@@ -3147,6 +3157,7 @@ def validate_medicao_cemei(solicitacao):
             escola=escola, data__month=mes, data__year=ano, dia_letivo=True
         ).values_list("data__day", flat=True)
     )
+    dias_letivos_uteis = filtrar_dias_letivos(dias_letivos, int(mes), int(ano))
     dias_nao_letivos = list(
         DiaCalendario.objects.filter(
             escola=escola, data__month=mes, data__year=ano, dia_letivo=False
@@ -3170,7 +3181,7 @@ def validate_medicao_cemei(solicitacao):
                 escola,
                 mes,
                 ano,
-                dias_letivos,
+                dias_letivos_uteis,
                 categoria_alimentacao,
                 dias_nao_letivos,
                 inclusoes,
@@ -3188,7 +3199,7 @@ def validate_medicao_cemei(solicitacao):
                 solicitacao,
                 escola,
                 categoria_alimentacao,
-                dias_letivos,
+                dias_letivos_uteis,
                 inclusoes,
                 medicao,
                 mes,
@@ -3372,9 +3383,10 @@ def validate_lancamento_dietas_emebs(solicitacao, lista_erros):
             escola=escola, data__month=mes, data__year=ano, dia_letivo=True
         ).values_list("data__day", flat=True)
     )
+    dias_letivos_uteis = filtrar_dias_letivos(dias_letivos, int(mes), int(ano))
     for categoria in categorias:
         classificacoes = get_classificacoes_dietas(categoria)
-        for dia in dias_letivos:
+        for dia in dias_letivos_uteis:
             for medicao in solicitacao.medicoes.all():
                 valores_medicao_ = list(
                     set(

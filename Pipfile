@@ -82,15 +82,15 @@ django-simple-email-confirmation = {editable = true, ref = "1.0", git = "https:/
 # Produção
 gunicorn="==23.0.0"  # https://github.com/benoitc/gunicorn
 tornado="==6.5.2"    # http://www.tornadoweb.org/en/stable/
-sentry-sdk = "==2.27.0"
-django-prometheus = "==2.3.1"
+sentry-sdk = "==2.38.0"
+django-prometheus = "==2.4.1"
 # Relatórios
-weasyprint = "==52"
-django-sass-processor = "==1.4.1"
+weasyprint = "==66"
+django-sass-processor = "==1.4.2"
 django-compressor = "==4.5.1"
 libsass = "==0.23.0"
 django-crispy-forms = "*"
-django-weasyprint = "==1.1.0"
+django-weasyprint = "==2.4.0"
 django-filter = "==24.2"
 importlib-metadata = "==8.7.0"
 attrs = "==25.3.0"
@@ -114,6 +114,7 @@ drf-spectacular = "==0.28.0"
 cerberus = "*"
 coverage-badge = "==1.1.2"
 beautifulsoup4 = "==4.13.4"
+pypdf = "==6.1.0"
 
 [requires]
 python_version = "3.13.3"

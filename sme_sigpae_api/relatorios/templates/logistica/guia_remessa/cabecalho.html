@@ -3,6 +3,9 @@
 {% load sass_tags %}
 
 <html>
+<head>
+  <link rel="stylesheet" href="{% sass_src 'css/logistica/cabecalho_logistica.scss' %}" type="text/css">
+</head>
 <body>
 <header class="header">
 		<section class="titulo-e-logo flex-between">
@@ -36,8 +39,8 @@
       <div class="telefone">
         <b>Telefone da unidade:</b> {{page.telefone_unidade}}
       </div>
-      <div class="contato"> 
-        <b>Contato de entrega:</b> {{page.contato_unidade}} 
+      <div class="contato">
+        <b>Contato de entrega:</b> {{page.contato_unidade}}
       </div>
     </section>
 	</header>

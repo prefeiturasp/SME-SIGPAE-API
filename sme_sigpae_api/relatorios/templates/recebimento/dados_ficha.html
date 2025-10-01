@@ -38,11 +38,11 @@
 
         <div class="row pb-3">
           <div class="col-12">
-            Etapa/Parte do Recebimento: 
-            <span class="font-weight-bold"> 
+            Etapa/Parte do Recebimento:
+            <span class="font-weight-bold">
               Etapa {{etapa.etapa}}
               {% if etapa.parte %} - Parte {{etapa.parte}} {% endif %}
-            </span> 
+            </span>
           </div>
         </div>
 
@@ -53,7 +53,7 @@
           </div>
           <div class="col-6">
             Data da Entrega:
-            <span class="font-weight-bold"> {{ficha.criado_em |date:"d/m/Y"}}</span> 
+            <span class="font-weight-bold"> {{ficha.criado_em |date:"d/m/Y"}}</span>
           </div>
         </div>
 
@@ -88,7 +88,7 @@
             Embalagem Primária:
             <span class="font-weight-bold">
               {{ficha_tecnica.material_embalagem_primaria}}
-            </span> 
+            </span>
           </div>
         </div>
 
@@ -97,11 +97,11 @@
             Embalagem Secundária:
             <span class="font-weight-bold">
               {{ficha_tecnica.sistema_vedacao_embalagem_secundaria}}
-            </span> 
+            </span>
           </div>
         </div>
 
-      
+
 
       </div>
 
@@ -331,11 +331,11 @@
                   {{veiculo.termografo|yesno:"SIM,NAO"}}
                 </span>
               </div>
-            </div>  
+            </div>
           {% endif %}
           <hr/>
         {% endfor %}
-        
+
         <div class="row pb-3">
           <div class="col-12">
             Sistema de Vedação da Embalagem Secundária:
@@ -353,21 +353,23 @@
 
       <div class="content">
         <div class="row pt-1">
-          <div class="col-6">
-            <div class="font-weight-bold pb-3">
-              Conferência Embalagem Secundária
-            </div>
-            {% for questao in questoes_secundarias %}
-              <div class="row pb-3">
-                <div class="col-12">
-                  {{questao.questao_conferencia.questao}}: 
-                  <span class="font-weight-bold">
-                    {{questao.resposta|yesno:"SIM,NAO"}}
-                  </span>
-                </div>
+          {% if questoes_secundarias %}
+            <div class="col-6">
+              <div class="font-weight-bold pb-3">
+                Conferência Embalagem Secundária
               </div>
-            {% endfor %}
-          </div>
+              {% for questao in questoes_secundarias %}
+                <div class="row pb-3">
+                  <div class="col-12">
+                    {{questao.questao_conferencia.questao}}:
+                    <span class="font-weight-bold">
+                      {{questao.resposta|yesno:"SIM,NAO"}}
+                    </span>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
           <div class="col-6">
             <div class="font-weight-bold pb-3">
               Conferência Embalagem Primária
@@ -375,7 +377,7 @@
             {% for questao in questoes_primarias %}
               <div class="row pb-3">
                 <div class="col-12">
-                  {{questao.questao_conferencia.questao}}: 
+                  {{questao.questao_conferencia.questao}}:
                   <span class="font-weight-bold">
                     {{questao.resposta|yesno:"SIM,NAO"}}
                   </span>
@@ -520,7 +522,7 @@
             <div class="col-2 logo-sigpae">
               <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
             </div>
-            <div class="col-10 ml-3">
+            <div class="col-10 ml-2">
               <span class="texto-assinatura">
                 Ficha de Recebimento conferida e assinada por
                 <strong>{{ assinatura.usuario.nome }}</strong>, {{ assinatura.usuario.cargo }}, {{ assinatura.usuario.username|formatar_cpf }},

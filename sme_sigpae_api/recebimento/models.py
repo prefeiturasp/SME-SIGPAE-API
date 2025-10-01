@@ -148,35 +148,22 @@ class FichaDeRecebimento(
         null=True,
         blank=True,
     )
-    numero_paletes = models.CharField(
+    numero_paletes = models.IntegerField(
         "Nº de Paletes",
-        max_length=50,
         null=True,
         blank=True,
     )
-    peso_embalagem_primaria_1 = models.CharField(
-        "Peso da Embalagem Primária (1)",
-        max_length=25,
-        null=True,
-        blank=True,
+    peso_embalagem_primaria_1 = models.FloatField(
+        "Peso da Embalagem Primária (1)", null=True, blank=True
     )
-    peso_embalagem_primaria_2 = models.CharField(
-        "Peso da Embalagem Primária (2)",
-        max_length=25,
-        null=True,
-        blank=True,
+    peso_embalagem_primaria_2 = models.FloatField(
+        "Peso da Embalagem Primária (2)", null=True, blank=True
     )
-    peso_embalagem_primaria_3 = models.CharField(
-        "Peso da Embalagem Primária (3)",
-        max_length=25,
-        null=True,
-        blank=True,
+    peso_embalagem_primaria_3 = models.FloatField(
+        "Peso da Embalagem Primária (3)", null=True, blank=True
     )
-    peso_embalagem_primaria_4 = models.CharField(
-        "Peso da Embalagem Primária (4)",
-        max_length=25,
-        null=True,
-        blank=True,
+    peso_embalagem_primaria_4 = models.FloatField(
+        "Peso da Embalagem Primária (4)", null=True, blank=True
     )
 
     sistema_vedacao_embalagem_secundaria = models.TextField(

@@ -11,6 +11,9 @@ from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api import (
     viewsets as alteracao_tipo_alimentacao_cemei_viewsets,
 )
 from sme_sigpae_api.cardapio.base.api import viewsets as base_viewsets
+from sme_sigpae_api.cardapio.base.api.viewsets import (
+    VinculosPorTipoUnidadeEscolarViewSet,
+)
 from sme_sigpae_api.cardapio.inversao_dia_cardapio.api import (
     viewsets as inversao_dia_cardapio_viewsets,
 )
@@ -90,6 +93,11 @@ router.register(
     "motivos-dre-nao-valida",
     base_viewsets.MotivosDRENaoValidaViewSet,
     "Motivos de não validação da DRE",
+)
+router.register(
+    "tipos-unidade-escolar-agrupados",
+    VinculosPorTipoUnidadeEscolarViewSet,
+    basename="tipos-unidade-escolar-agrupados",
 )
 urlpatterns = [
     path("", include(router.urls)),

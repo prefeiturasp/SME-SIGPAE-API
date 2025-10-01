@@ -59,8 +59,8 @@
           <div class="col-12">Envasador/Distribuidor: <span class="font-weight-bold"> {{envasador_distribuidor.fabricante.nome}}</span> </div>
         </div>
         <div class="row pb-3">
-          <div class="col-12">Endereço: <span class="font-weight-bold"> 
-            {{envasador_distribuidor.endereco}}, {{envasador_distribuidor.numero}} - {{envasador_distribuidor.bairro}} - {{envasador_distribuidor.cidade}} - {{envasador_distribuidor.estado}} 
+          <div class="col-12">Endereço: <span class="font-weight-bold">
+            {{envasador_distribuidor.endereco}}, {{envasador_distribuidor.numero}} - {{envasador_distribuidor.bairro}} - {{envasador_distribuidor.cidade}} - {{envasador_distribuidor.estado}}
             - CEP: {{envasador_distribuidor.cep}}
             </span> </div>
         </div>
@@ -489,7 +489,7 @@
             <div class="col-2 logo-sigpae">
               <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
             </div>
-            <div class="col-10 ml-3">
+            <div class="col-8">
               <span class="texto-assinatura">
                 Ficha Técnica cadastrada e enviada por
                 <strong>{{ log_fornecedor.usuario.nome }}</strong>, {{ log_fornecedor.usuario.cargo }}, {{ log_fornecedor.usuario.username|formatar_cpf }},
@@ -511,7 +511,7 @@
               <div class="col-2 logo-sigpae">
                 <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
               </div>
-              <div class="col-10 ml-3">
+              <div class="col-8">
                 <span class="texto-assinatura">
                   Ficha Técnica aprovada por
                   <strong>{{ log_codae.usuario.nome }}</strong>, <strong>{{ log_codae.usuario.cargo }}</strong>, <strong>{{ log_codae.usuario.username }}</strong>,

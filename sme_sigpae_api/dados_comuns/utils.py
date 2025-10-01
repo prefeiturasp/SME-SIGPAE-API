@@ -402,6 +402,10 @@ def cria_copias_fk(obj, attr, attr_fk, obj_copia):
         copia.uuid = uuid.uuid4()
         setattr(copia, attr_fk, obj_copia)
         copia.save()
+        for m2m_field in copia._meta.many_to_many:
+            related_manager_original = getattr(original, m2m_field.name)
+            related_manager_copia = getattr(copia, m2m_field.name)
+            related_manager_copia.set(related_manager_original.all())
 
 
 def cria_copias_m2m(obj, attr, obj_copia):
@@ -782,6 +786,26 @@ class NaiveDatabaseScheduler(DatabaseScheduler):
     def get_excluded_hours_for_crontab_tasks(self):
         from datetime import datetime
 
-        # Example: exclude current hour and next hour
         current_hour = datetime.now().hour
         return {current_hour, (current_hour + 1) % 24}
+
+
+def filtrar_dias_letivos(dias_letivos: list[int], mes: int, ano: int):
+    calendar = BrazilSaoPauloCity()
+    feriados = [
+        datetime.date.strftime(data[0], "%d")
+        for data in calendar.holidays(int(ano))
+        if data[0].month == int(mes) and data[0].year == int(ano)
+    ]
+    dias_filtrados = []
+    for dia in dias_letivos:
+        data = datetime.date(ano, mes, dia)
+        dia_semana = data.weekday()  # 0=Segunda, 6=Domingo
+
+        eh_fim_de_semana = dia_semana >= 5  # 5=Sábado, 6=Domingo
+        eh_feriado = dia in feriados
+
+        if not eh_fim_de_semana and not eh_feriado:
+            dias_filtrados.append(dia)
+
+    return dias_filtrados

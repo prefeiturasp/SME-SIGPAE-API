@@ -1,11 +1,12 @@
 import datetime
 import io
 import logging
+import environ
 
 from celery import shared_task
 from django.core import management
 from django.template.loader import render_to_string
-from requests import ConnectionError
+from requests.exceptions import ConnectionError, Timeout
 
 from sme_sigpae_api.dados_comuns.utils import (
     atualiza_central_download,
@@ -48,9 +49,11 @@ from .utils import (
     registro_quantidade_alunos_matriculados_por_escola_periodo,
 )
 from .utils_montar_planilha_matriculados import build_xlsx_alunos_matriculados
+from sme_sigpae_api.dados_comuns.utils import envia_email_unico
 
 # https://docs.celeryproject.org/en/latest/userguide/tasks.html
 logger = logging.getLogger("sigpae.taskEscola")
+env = environ.Env()
 
 
 @shared_task(
@@ -76,13 +79,50 @@ def atualiza_dados_escolas():
 
 
 @shared_task(
-    autoretry_for=(ConnectionError,),
-    retry_backoff=5,
+    bind=True,
+    autoretry_for=(ConnectionError, Timeout),
     retry_kwargs={"max_retries": 2},
+    default_retry_delay=60 * 60,  # 1 hora
 )
-def atualiza_alunos_escolas():
-    logger.debug(f"Iniciando task atualiza_alunos_escolas às {datetime.datetime.now()}")
+def atualiza_alunos_escolas(self):
+    logger.debug(f"Iniciando task às {datetime.datetime.now()}")
     management.call_command("atualiza_alunos_escolas", verbosity=0)
+
+
+def task_on_failure(self, exc, task_id, args, kwargs, einfo):
+    assunto = "[CRÍTICO] Falha na task de atualização de alunos"
+
+    html_message = render_to_string(
+        "email_task_atualiza_alunos_escolas_falha.html",
+        {
+            "titulo": "Falha na atualização de alunos 🚨",
+            "erro": str(exc),
+            "task_id": task_id,
+            "horario": datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+            "hidden_email": False,
+        },
+    )
+
+    # corpo texto puro para fallback
+    corpo = f"""
+    A task `atualiza_alunos_escolas` falhou definitivamente.
+
+    Erro: {str(exc)}
+    Task ID: {task_id}
+    Horário: {datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")}
+    """
+
+    envia_email_unico(
+        assunto,
+        corpo,
+        env("EMAIL_NOTIFICACAO_FALHA_TASK"),
+        template="",
+        dados_template=None,
+        html=html_message,
+    )
+
+
+atualiza_alunos_escolas.on_failure = task_on_failure.__get__(atualiza_alunos_escolas, type(atualiza_alunos_escolas))
 
 
 @shared_task(
