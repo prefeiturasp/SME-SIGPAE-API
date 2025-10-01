@@ -3930,7 +3930,11 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
 
         user = kwargs["user"]
         if user:
-            if not user.vinculo_atual.perfil.nome == DIRETOR_UE:
+            escola_possui_alunos_regulares = (
+                user.vinculo_atual.instituicao.possui_alunos_regulares
+            )
+            eh_diretor = user.vinculo_atual.perfil.nome == DIRETOR_UE
+            if not eh_diretor and escola_possui_alunos_regulares:
                 raise PermissionDenied(
                     "Você não tem permissão para executar essa ação."
                 )
