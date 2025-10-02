@@ -263,6 +263,17 @@ def escola(tipo_unidade_escolar, diretoria_regional):
 
 
 @pytest.fixture
+def log_alunos_regulares(escola, periodo_escolar_manha):
+    return baker.make(
+        "AlunosMatriculadosPeriodoEscola",
+        escola=escola,
+        tipo_turma="REGULAR",
+        quantidade_alunos=1,
+        periodo_escolar=periodo_escolar_manha,
+    )
+
+
+@pytest.fixture
 def escola_emefm(diretoria_regional):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make(
