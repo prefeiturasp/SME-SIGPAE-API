@@ -1486,7 +1486,9 @@ class ParametrizacaoFinanceiraWriteModelSerializer(serializers.ModelSerializer):
         return instance
 
 
-class InformacoesBasicasMedicaoInicialUpdateSerializer(SolicitacaoMedicaoInicialCreateSerializer):
+class InformacoesBasicasMedicaoInicialUpdateSerializer(
+    SolicitacaoMedicaoInicialCreateSerializer
+):
     """
     Serializer para atualização básica (responsáveis, alunos, tipos de contagem).
     Reutiliza métodos privados do CreateSerializer.

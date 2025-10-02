@@ -127,11 +127,11 @@ from .serializers_create import (
     ClausulaDeDescontoCreateUpdateSerializer,
     DiaSobremesaDoceCreateManySerializer,
     EmpenhoCreateUpdateSerializer,
+    InformacoesBasicasMedicaoInicialUpdateSerializer,
     MedicaoCreateUpdateSerializer,
     ParametrizacaoFinanceiraWriteModelSerializer,
     PermissaoLancamentoEspecialCreateUpdateSerializer,
     SolicitacaoMedicaoInicialCreateSerializer,
-    InformacoesBasicasMedicaoInicialUpdateSerializer,
 )
 
 calendario = BrazilSaoPauloCity()
@@ -427,10 +427,18 @@ class SolicitacaoMedicaoInicialViewSet(
         kwargs = {}
 
         mapping = {
-            "tipo_unidade": lambda params: {"escola__tipo_unidade__uuid": params.get("tipo_unidade")},
-            "dre": lambda params: {"escola__diretoria_regional__uuid": params.get("dre")},
-            "ocorrencias": lambda params: {"com_ocorrencias": params.get("ocorrencias").lower() == "true"},
-            "mes_ano": lambda params: dict(zip(["mes", "ano"], params["mes_ano"].split("_"))),
+            "tipo_unidade": lambda params: {
+                "escola__tipo_unidade__uuid": params.get("tipo_unidade")
+            },
+            "dre": lambda params: {
+                "escola__diretoria_regional__uuid": params.get("dre")
+            },
+            "ocorrencias": lambda params: {
+                "com_ocorrencias": params.get("ocorrencias").lower() == "true"
+            },
+            "mes_ano": lambda params: dict(
+                zip(["mes", "ano"], params["mes_ano"].split("_"))
+            ),
             "lotes_selecionados[]": lambda params: {
                 "escola__lote__uuid__in": params.getlist("lotes_selecionados[]")
             },
@@ -1220,18 +1228,15 @@ class SolicitacaoMedicaoInicialViewSet(
             serializer = InformacoesBasicasMedicaoInicialUpdateSerializer(
                 solicitacao_medicao_inicial,
                 data=request.data,
-                context={'request': request},
-                partial=True
+                context={"request": request},
+                partial=True,
             )
-            
+
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
-                return Response(
-                    serializer.errors,
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except SolicitacaoMedicaoInicial.DoesNotExist:
             return Response(
                 {
@@ -1244,6 +1249,7 @@ class SolicitacaoMedicaoInicialViewSet(
                 dict(detail=str(e)),
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
 
 class TipoContagemAlimentacaoViewSet(mixins.ListModelMixin, GenericViewSet):
     queryset = TipoContagemAlimentacao.objects.filter(ativo=True)

@@ -1,8 +1,8 @@
 import datetime
 import io
 import logging
-import environ
 
+import environ
 from celery import shared_task
 from django.core import management
 from django.template.loader import render_to_string
@@ -11,6 +11,7 @@ from requests.exceptions import ConnectionError, Timeout
 from sme_sigpae_api.dados_comuns.utils import (
     atualiza_central_download,
     atualiza_central_download_com_erro,
+    envia_email_unico,
     gera_objeto_na_central_download,
 )
 from sme_sigpae_api.escola.utils_escola import (
@@ -49,7 +50,6 @@ from .utils import (
     registro_quantidade_alunos_matriculados_por_escola_periodo,
 )
 from .utils_montar_planilha_matriculados import build_xlsx_alunos_matriculados
-from sme_sigpae_api.dados_comuns.utils import envia_email_unico
 
 # https://docs.celeryproject.org/en/latest/userguide/tasks.html
 logger = logging.getLogger("sigpae.taskEscola")
@@ -122,7 +122,9 @@ def task_on_failure(self, exc, task_id, args, kwargs, einfo):
     )
 
 
-atualiza_alunos_escolas.on_failure = task_on_failure.__get__(atualiza_alunos_escolas, type(atualiza_alunos_escolas))
+atualiza_alunos_escolas.on_failure = task_on_failure.__get__(
+    atualiza_alunos_escolas, type(atualiza_alunos_escolas)
+)
 
 
 @shared_task(
