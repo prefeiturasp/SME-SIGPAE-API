@@ -148,7 +148,7 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
         DietaEspecialWorkflow.TERMINADA_AUTOMATICAMENTE_SISTEMA,
     ]
     CANCELADOS_EVENTO_DIETA_ESPECIAL = [
-        LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+        LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
         LogSolicitacoesUsuario.CANCELADO_ALUNO_MUDOU_ESCOLA,
         LogSolicitacoesUsuario.CANCELADO_ALUNO_NAO_PERTENCE_REDE,
         LogSolicitacoesUsuario.TERMINADA_AUTOMATICAMENTE_SISTEMA,
@@ -177,7 +177,7 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
         LogSolicitacoesUsuario.CODAE_AUTORIZOU_INATIVACAO,
         LogSolicitacoesUsuario.TERMINADA_AUTOMATICAMENTE_SISTEMA,
         LogSolicitacoesUsuario.TERCEIRIZADA_TOMOU_CIENCIA,
-        LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+        LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
     ]
 
     TP_SOL_TODOS = "TODOS"
@@ -1231,7 +1231,7 @@ class SolicitacoesEscola(MoldeConsolidado):
                 | Q(
                     tipo_solicitacao_dieta="CANCELAMENTO_DIETA",
                     status_atual=DietaEspecialWorkflow.ESCOLA_CANCELOU,
-                    status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+                    status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
                     escola_uuid=escola_uuid,
                 ),
                 tipo_doc=cls.TP_SOL_DIETA_ESPECIAL,

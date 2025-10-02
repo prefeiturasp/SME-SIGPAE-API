@@ -1000,7 +1000,7 @@ class SolicitacaoDietaEspecialViewSet(
                 "criado_em__gte": data_inicial,
                 "criado_em__lte": data_final,
                 "status_evento__in": [
-                    LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+                    LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
                     LogSolicitacoesUsuario.CODAE_AUTORIZOU_INATIVACAO,
                     LogSolicitacoesUsuario.CANCELADO_ALUNO_MUDOU_ESCOLA,
                     LogSolicitacoesUsuario.CANCELADO_ALUNO_NAO_PERTENCE_REDE,
