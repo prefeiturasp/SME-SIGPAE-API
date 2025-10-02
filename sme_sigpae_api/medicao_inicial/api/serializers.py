@@ -122,6 +122,9 @@ class SolicitacaoMedicaoInicialSerializer(serializers.ModelSerializer):
     historico = serializers.SerializerMethodField()
     escola_eh_emebs = serializers.SerializerMethodField()
     escola_cei_com_inclusao_parcial_autorizada = serializers.BooleanField()
+    escola_possui_alunos_regulares = serializers.BooleanField(
+        source="escola.possui_alunos_regulares"
+    )
     sem_lancamentos = serializers.BooleanField()
     justificativa_sem_lancamentos = serializers.CharField()
     justificativa_codae_correcao_sem_lancamentos = serializers.CharField()
