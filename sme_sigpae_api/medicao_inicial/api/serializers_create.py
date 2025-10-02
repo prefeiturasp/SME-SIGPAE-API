@@ -1484,3 +1484,21 @@ class ParametrizacaoFinanceiraWriteModelSerializer(serializers.ModelSerializer):
                 )
 
         return instance
+
+
+class InformacoesBasicasMedicaoInicialUpdateSerializer(SolicitacaoMedicaoInicialCreateSerializer):
+    """
+    Serializer para atualização básica (responsáveis, alunos, tipos de contagem).
+    Reutiliza métodos privados do CreateSerializer.
+    """
+
+    class Meta:
+        model = SolicitacaoMedicaoInicial
+        exclude = ("id", "criado_por")
+
+    def update(self, instance, validated_data):
+        self._update_instance_fields(instance, validated_data)
+        self._update_responsaveis(instance)
+        self._update_alunos(instance, validated_data)
+        self._update_tipos_contagem_alimentacao(instance)
+        return instance
