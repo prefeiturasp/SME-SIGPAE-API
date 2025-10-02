@@ -923,7 +923,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         eh_escola = isinstance(vinculo_usuario.instituicao, Escola)
         eh_diretor = vinculo_usuario.perfil.nome == DIRETOR_UE
         escola_possui_alunos_regulares = (
-            vinculo_usuario.instituicao.possui_alunos_regulares
+            eh_escola and vinculo_usuario.instituicao.possui_alunos_regulares
         )
         if eh_escola and not eh_diretor and escola_possui_alunos_regulares:
             raise PermissionDenied("Você não tem permissão para executar essa ação.")

@@ -140,6 +140,7 @@ def test_url_endpoint_nao_tem_permissao_para_encerrar_medicao(
     solicitacao_medicao_inicial_sem_arquivo,
     responsavel,
     tipo_contagem_alimentacao,
+    log_alunos_regulares,
 ):
     data_update = {
         "escola": str(escola.uuid),
@@ -2266,4 +2267,3 @@ def test_url_endpoint_medicao_dashboard_dre_com_ocorrencias(
     )
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()["results"]) == 9
-    
