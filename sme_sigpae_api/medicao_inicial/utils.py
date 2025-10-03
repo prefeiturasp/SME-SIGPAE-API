@@ -4522,7 +4522,7 @@ def get_periodos_escolares_comuns_com_inclusoes_normais(solicitacao):
     return periodos_escolares_inclusoes
 
 
-def get_lista_dias_inclusoes_ceu_gestao(solicitacao):
+def get_lista_dias_inclusoes_escola_sem_alunos_regulares(solicitacao):
     escola = solicitacao.escola
     lista_inclusoes = []
 

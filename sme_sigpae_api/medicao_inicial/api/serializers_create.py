@@ -57,16 +57,16 @@ from ..utils import (
 )
 from ..validators import (
     valida_medicoes_inexistentes_cei,
-    valida_medicoes_inexistentes_ceu_gestao,
     valida_medicoes_inexistentes_emebs,
-    validate_lancamento_alimentacoes_inclusoes_ceu_gestao,
+    valida_medicoes_inexistentes_escola_sem_alunos_regulares,
+    validate_lancamento_alimentacoes_inclusoes_escola_sem_alunos_regulares,
     validate_lancamento_alimentacoes_medicao,
     validate_lancamento_alimentacoes_medicao_cei,
     validate_lancamento_alimentacoes_medicao_emebs,
     validate_lancamento_dietas_cei,
     validate_lancamento_dietas_emebs,
     validate_lancamento_dietas_emef,
-    validate_lancamento_dietas_inclusoes_ceu_gestao,
+    validate_lancamento_dietas_inclusoes_escola_sem_alunos_regulares,
     validate_lancamento_inclusoes,
     validate_lancamento_inclusoes_cei,
     validate_lancamento_inclusoes_dietas_cei,
@@ -75,10 +75,10 @@ from ..validators import (
     validate_lanche_emergencial,
     validate_medicao_cemei,
     validate_solicitacoes_etec,
-    validate_solicitacoes_etec_ceu_gestao,
+    validate_solicitacoes_etec_escola_sem_alunos_regulares,
     validate_solicitacoes_programas_e_projetos,
-    validate_solicitacoes_programas_e_projetos_ceu_gestao,
     validate_solicitacoes_programas_e_projetos_emebs,
+    validate_solicitacoes_programas_e_projetos_escola_sem_alunos_regulares,
 )
 
 
@@ -288,28 +288,37 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         if lista_erros:
             raise ValidationError(lista_erros)
 
-    def valida_finalizar_medicao_ceu_gestao(
+    def valida_finalizar_medicao_escola_sem_alunos_regulares(
         self, instance: SolicitacaoMedicaoInicial
     ) -> None:
+        escola_possui_alunos_regulares = instance.escola.possui_alunos_regulares
         if (
-            not instance.escola.eh_ceu_gestao
+            escola_possui_alunos_regulares
             or instance.status
             != SolicitacaoMedicaoInicial.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
         ):
             return
 
         lista_erros = []
-        lista_erros = valida_medicoes_inexistentes_ceu_gestao(instance, lista_erros)
-        lista_erros = validate_lancamento_alimentacoes_inclusoes_ceu_gestao(
+        lista_erros = valida_medicoes_inexistentes_escola_sem_alunos_regulares(
             instance, lista_erros
         )
-        lista_erros = validate_lancamento_dietas_inclusoes_ceu_gestao(
+        lista_erros = (
+            validate_lancamento_alimentacoes_inclusoes_escola_sem_alunos_regulares(
+                instance, lista_erros
+            )
+        )
+        lista_erros = validate_lancamento_dietas_inclusoes_escola_sem_alunos_regulares(
             instance, lista_erros
         )
-        lista_erros = validate_solicitacoes_programas_e_projetos_ceu_gestao(
+        lista_erros = (
+            validate_solicitacoes_programas_e_projetos_escola_sem_alunos_regulares(
+                instance, lista_erros
+            )
+        )
+        lista_erros = validate_solicitacoes_etec_escola_sem_alunos_regulares(
             instance, lista_erros
         )
-        lista_erros = validate_solicitacoes_etec_ceu_gestao(instance, lista_erros)
         lista_erros = validate_lancamento_kit_lanche(instance, lista_erros)
         lista_erros = validate_lanche_emergencial(instance, lista_erros)
 
@@ -805,7 +814,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             instance
         )
 
-    def cria_valores_medicao_kit_lanches_emef_emei_ceu_gestao(
+    def cria_valores_medicao_kit_lanches_emef_emei_escola_sem_alunos_regulares(
         self, instance, kits_lanche, kits_lanche_unificado
     ):
         valores_medicao_a_criar = []
@@ -870,7 +879,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         ):
             return
 
-        self.cria_valores_medicao_kit_lanches_emef_emei_ceu_gestao(
+        self.cria_valores_medicao_kit_lanches_emef_emei_escola_sem_alunos_regulares(
             instance, kits_lanche, kits_lanche_unificado
         )
 
@@ -1020,7 +1029,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             self.valida_finalizar_medicao_emef_emei(instance)
             self.valida_finalizar_medicao_cemei(instance)
             self.valida_finalizar_medicao_cei(instance)
-            self.valida_finalizar_medicao_ceu_gestao(instance)
+            self.valida_finalizar_medicao_escola_sem_alunos_regulares(instance)
             self.valida_finalizar_medicao_emebs(instance)
             instance.ue_envia(user=self.context["request"].user)
             if hasattr(instance, "ocorrencia"):
