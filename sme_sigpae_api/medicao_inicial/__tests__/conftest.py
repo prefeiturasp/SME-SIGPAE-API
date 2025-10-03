@@ -4372,12 +4372,10 @@ def solicitacao_medicao_informacoes_basicas(escola):
         escola=escola,
     )
     contagem = baker.make("TipoContagemAlimentacao", nome="Catraca")
-    responsavel= baker.make(
-        "medicao_inicial.Responsavel",
-        nome="REsponsavel 1",
-        rf="1256387"
+    responsavel = baker.make(
+        "medicao_inicial.Responsavel", nome="REsponsavel 1", rf="1256387"
     )
     solicitacao_medicao_inicial.tipos_contagem_alimentacao.set([contagem])
     solicitacao_medicao_inicial.responsaveis.set([responsavel])
-    
+
     return solicitacao_medicao_inicial

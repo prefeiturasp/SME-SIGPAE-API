@@ -1502,12 +1502,12 @@ class InformacoesBasicasMedicaoInicialUpdateSerializer(
 
     def update(self, instance, validated_data):
         self._update_responsaveis(instance)
-        validated_data.pop('responsaveis', None)
-        
+        validated_data.pop("responsaveis", None)
+
         self._update_tipos_contagem_alimentacao(instance)
-        validated_data.pop('tipos_contagem_alimentacao', None)
-        
+        validated_data.pop("tipos_contagem_alimentacao", None)
+
         self._update_instance_fields(instance, validated_data)
         self._update_alunos(instance, validated_data)
-        
+
         return instance
