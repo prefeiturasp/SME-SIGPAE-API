@@ -2321,3 +2321,32 @@ def test_url_endpoint_atualiza_informacoes_basicas_medicao_usuario_nao_autrizado
     
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert response.json() == {'detail': 'Você não tem permissão para executar essa ação.'}
+    
+
+def test_url_endpoint_atualiza_informacoes_basicas(
+    client_autenticado_da_escola, solicitacao_medicao_informacoes_basicas, tipo_contagem_alimentacao
+):
+    payload = {
+        "escola": str(solicitacao_medicao_informacoes_basicas.escola.uuid),
+        "responsaveis": [
+                {"nome": "Responsável 1", "rf": "1234566"},
+                {"nome": "Responsável 2", "rf": "7890126"}
+        ],
+        "tipos_contagem_alimentacao": [str(tipo_contagem_alimentacao.uuid)]
+    }
+    response = client_autenticado_da_escola.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_medicao_informacoes_basicas.uuid}/informacoes-basicas/",
+        data=payload,
+        content_type="application/json", 
+    )
+
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+
+
+    nomes = [resp["nome"] for resp in data["responsaveis"]]
+    assert "Responsável 1" in nomes
+    assert "Responsável 2" in nomes
+    assert data['tipos_contagem_alimentacao'] == [str(tipo_contagem_alimentacao.uuid)]
+    assert data['escola'] == str(solicitacao_medicao_informacoes_basicas.escola.uuid)
