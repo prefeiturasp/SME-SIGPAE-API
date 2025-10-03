@@ -2288,7 +2288,7 @@ def test_url_endpoint_atualiza_informacoes_basicas_medicao_nao_existe(
         content_type="application/json",
     )
 
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {"detail": "Não encontrado."}
 
 
