@@ -127,6 +127,7 @@ from .serializers_create import (
     ClausulaDeDescontoCreateUpdateSerializer,
     DiaSobremesaDoceCreateManySerializer,
     EmpenhoCreateUpdateSerializer,
+    InformacoesBasicasMedicaoInicialUpdateSerializer,
     MedicaoCreateUpdateSerializer,
     ParametrizacaoFinanceiraWriteModelSerializer,
     PermissaoLancamentoEspecialCreateUpdateSerializer,
@@ -426,10 +427,18 @@ class SolicitacaoMedicaoInicialViewSet(
         kwargs = {}
 
         mapping = {
-            "tipo_unidade": lambda params: {"escola__tipo_unidade__uuid": params.get("tipo_unidade")},
-            "dre": lambda params: {"escola__diretoria_regional__uuid": params.get("dre")},
-            "ocorrencias": lambda params: {"com_ocorrencias": params.get("ocorrencias").lower() == "true"},
-            "mes_ano": lambda params: dict(zip(["mes", "ano"], params["mes_ano"].split("_"))),
+            "tipo_unidade": lambda params: {
+                "escola__tipo_unidade__uuid": params.get("tipo_unidade")
+            },
+            "dre": lambda params: {
+                "escola__diretoria_regional__uuid": params.get("dre")
+            },
+            "ocorrencias": lambda params: {
+                "com_ocorrencias": params.get("ocorrencias").lower() == "true"
+            },
+            "mes_ano": lambda params: dict(
+                zip(["mes", "ano"], params["mes_ano"].split("_"))
+            ),
             "lotes_selecionados[]": lambda params: {
                 "escola__lote__uuid__in": params.getlist("lotes_selecionados[]")
             },
@@ -1194,6 +1203,40 @@ class SolicitacaoMedicaoInicialViewSet(
             )
             serializer = self.get_serializer(solicitacao_medicao_inicial)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        except SolicitacaoMedicaoInicial.DoesNotExist:
+            return Response(
+                {
+                    "detail": "Solicitação Medição Inicial com o UUID informado não foi encontrado."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except (ValidationError, InvalidTransitionError) as e:
+            return Response(
+                dict(detail=str(e)),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    @action(
+        detail=True,
+        methods=["PATCH"],
+        url_path="informacoes-basicas",
+        permission_classes=[UsuarioEscolaTercTotal],
+    )
+    def atualiza_informacoes_basicas(self, request, uuid=None):
+        solicitacao_medicao_inicial = self.get_object()
+        try:
+            serializer = InformacoesBasicasMedicaoInicialUpdateSerializer(
+                solicitacao_medicao_inicial,
+                data=request.data,
+                context={"request": request},
+                partial=True,
+            )
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except SolicitacaoMedicaoInicial.DoesNotExist:
             return Response(
                 {
