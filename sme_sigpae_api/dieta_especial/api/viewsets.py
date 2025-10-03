@@ -505,8 +505,9 @@ class SolicitacaoDietaEspecialViewSet(
         permission_classes=(IsAuthenticated,),
     )
     def protocolo(self, request, uuid=None):
+        sem_foto = request.query_params.get('sem_foto', 'false').lower() in ['true', '1', 'yes']
         return relatorio_dieta_especial_protocolo(
-            request, solicitacao=self.get_object()
+            request, solicitacao=self.get_object(), sem_foto=sem_foto
         )
 
     @action(
@@ -1517,8 +1518,21 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        total_ativas, total_inativas = self.calcular_totais(queryset)
 
+        codigo_eol_escola = request.GET.get("codigo_eol_escola")
+        if codigo_eol_escola:
+            queryset = queryset.filter(
+                dietas_especiais__rastro_escola__codigo_eol=codigo_eol_escola
+            ).distinct()
+
+        series = request.GET.getlist("serie")
+        if series:
+            from django.db.models import Q
+            queryset = queryset.filter(
+                Q(*[Q(serie__icontains=s) for s in series], _connector=Q.OR)
+            )
+
+        total_ativas, total_inativas = self.calcular_totais(queryset)
         tem_parametro_page = request.GET.get("page", False)
 
         if tem_parametro_page:
@@ -1528,7 +1542,6 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
             serializer = SolicitacoesAtivasInativasPorAlunoSerializer(
                 page, context={"novo_sgp_service": novo_sgp_service}, many=True
             )
-
             return self.get_paginated_response(
                 {
                     "total_ativas": total_ativas,
