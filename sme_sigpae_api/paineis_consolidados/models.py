@@ -112,6 +112,7 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
     ]
     PENDENTES_EVENTO_DIETA_ESPECIAL = [
         LogSolicitacoesUsuario.INICIO_FLUXO,
+        LogSolicitacoesUsuario.INICIO_FLUXO_ALTERACAO_UE_DIETA_ESPECIAL,
         LogSolicitacoesUsuario.INICIO_FLUXO_INATIVACAO,
     ]
 
@@ -128,6 +129,7 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
         LogSolicitacoesUsuario.CODAE_AUTORIZOU_INATIVACAO,
         LogSolicitacoesUsuario.TERCEIRIZADA_TOMOU_CIENCIA_INATIVACAO,
         LogSolicitacoesUsuario.INICIO_FLUXO,
+        LogSolicitacoesUsuario.INICIO_FLUXO_ALTERACAO_UE_DIETA_ESPECIAL,
     ]
 
     NEGADOS_STATUS_DIETA_ESPECIAL = [

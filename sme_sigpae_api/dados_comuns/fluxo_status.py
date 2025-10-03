@@ -3229,9 +3229,10 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
     def _inicia_fluxo_hook(self, *args, **kwargs):
         self._salva_rastro_solicitacao()
         user = kwargs["user"]
-        self.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.INICIO_FLUXO, usuario=user
-        )
+        logInicial = LogSolicitacoesUsuario.INICIO_FLUXO
+        if self.tipo_solicitacao == "ALTERACAO_UE":
+            logInicial = LogSolicitacoesUsuario.INICIO_FLUXO_ALTERACAO_UE_DIETA_ESPECIAL
+        self.salvar_log_transicao(status_evento=logInicial, usuario=user)
 
     @xworkflows.after_transition("cancelar_pedido")
     def _cancelar_pedido_hook(self, *args, **kwargs):
