@@ -61,6 +61,7 @@ from ...dados_comuns.permissions import (
     UsuarioCODAEGestaoProduto,
     UsuarioDinutreDiretoria,
     UsuarioDiretoriaRegional,
+    UsuarioEscolaTercTotal,
     UsuarioNutricionista,
     UsuarioOrgaoFiscalizador,
     UsuarioTerceirizadaProduto,
@@ -2970,6 +2971,7 @@ class MarcaViewSet(viewsets.ModelViewSet, ListaNomesUnicos):
     @action(
         detail=False,
         methods=["GET"],
+        permission_classes=(UsuarioEscolaTercTotal,),
         url_path="lista-nomes-responder-reclamacao-escola",
     )
     def lista_marcas_responder_reclamacao_escola(self, request):
