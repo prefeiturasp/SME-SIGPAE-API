@@ -1237,13 +1237,6 @@ class SolicitacaoMedicaoInicialViewSet(
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except SolicitacaoMedicaoInicial.DoesNotExist:
-            return Response(
-                {
-                    "detail": "Solicitação Medição Inicial com o UUID informado não foi encontrado."
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
         except (ValidationError, InvalidTransitionError) as e:
             return Response(
                 dict(detail=str(e)),
