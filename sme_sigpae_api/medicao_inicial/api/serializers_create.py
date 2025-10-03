@@ -939,7 +939,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         responsaveis_dict = self.context["request"].data.get("responsaveis")
         if responsaveis_dict:
             instance.responsaveis.all().delete()
-            for responsavel_data in json.loads(responsaveis_dict):
+            if isinstance(responsaveis_dict, str):
+                responsaveis_dict = json.loads(responsaveis_dict)
+            for responsavel_data in responsaveis_dict:
                 Responsavel.objects.create(
                     solicitacao_medicao_inicial=instance, **responsavel_data
                 )
@@ -1499,8 +1501,13 @@ class InformacoesBasicasMedicaoInicialUpdateSerializer(
         exclude = ("id", "criado_por")
 
     def update(self, instance, validated_data):
-        self._update_instance_fields(instance, validated_data)
         self._update_responsaveis(instance)
-        self._update_alunos(instance, validated_data)
+        validated_data.pop('responsaveis', None)
+        
         self._update_tipos_contagem_alimentacao(instance)
+        validated_data.pop('tipos_contagem_alimentacao', None)
+        
+        self._update_instance_fields(instance, validated_data)
+        self._update_alunos(instance, validated_data)
+        
         return instance
