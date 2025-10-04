@@ -51,6 +51,7 @@ def escola():
         uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd",
         lote=lote,
         diretoria_regional=diretoria_regional,
+        tipo_gestao__nome="TERC TOTAL",
         contato=contato,
     )
 

@@ -61,6 +61,7 @@ from ...dados_comuns.permissions import (
     UsuarioCODAEGestaoProduto,
     UsuarioDinutreDiretoria,
     UsuarioDiretoriaRegional,
+    UsuarioEscolaTercTotal,
     UsuarioNutricionista,
     UsuarioOrgaoFiscalizador,
     UsuarioTerceirizadaProduto,
@@ -2838,7 +2839,6 @@ class FabricanteViewSet(viewsets.ModelViewSet, ListaNomesUnicos):
         query_set = Fabricante.objects.filter(
             produto__homologacao__status__in=RESPONDER_RECLAMACAO_HOMOLOGACOES_STATUS,
             produto__homologacao__reclamacoes__status__in=RESPONDER_RECLAMACAO_RECLAMACOES_STATUS,
-            produto__homologacao__rastro_terceirizada=user.vinculo_atual.instituicao,
         ).distinct()
         if user.tipo_usuario == "terceirizada":
             query_set = query_set.filter(
@@ -2960,14 +2960,18 @@ class MarcaViewSet(viewsets.ModelViewSet, ListaNomesUnicos):
         query_set = Marca.objects.filter(
             produto__homologacao__status__in=RESPONDER_RECLAMACAO_HOMOLOGACOES_STATUS,
             produto__homologacao__reclamacoes__status__in=RESPONDER_RECLAMACAO_RECLAMACOES_STATUS,
-            produto__homologacao__rastro_terceirizada=user.vinculo_atual.instituicao,
         ).distinct()
+        if user.tipo_usuario == "terceirizada":
+            query_set = query_set.filter(
+                produto__homologacao__rastro_terceirizada=user.vinculo_atual.instituicao
+            )
         response = {"results": MarcaSimplesSerializer(query_set, many=True).data}
         return Response(response)
 
     @action(
         detail=False,
         methods=["GET"],
+        permission_classes=(UsuarioEscolaTercTotal,),
         url_path="lista-nomes-responder-reclamacao-escola",
     )
     def lista_marcas_responder_reclamacao_escola(self, request):
