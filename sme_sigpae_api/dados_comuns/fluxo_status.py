@@ -3306,7 +3306,8 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         user = kwargs["user"]
         eh_importacao = kwargs.get("eh_importacao", None)
         self.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU, usuario=user
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL,
+            usuario=user,
         )
         if not eh_importacao:
             if self.tipo_solicitacao == "ALTERACAO_UE":
