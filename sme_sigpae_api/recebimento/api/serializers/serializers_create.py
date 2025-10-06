@@ -432,19 +432,32 @@ class FichaDeRecebimentoReposicaoSerializer(serializers.ModelSerializer):
         required=True,
         queryset=ReposicaoCronogramaFichaRecebimento.objects.all(),
     )
+    documentos_recebimento = serializers.SlugRelatedField(
+        slug_field="uuid",
+        queryset=DocumentoDeRecebimento.objects.filter(
+            status=DocumentoDeRecebimentoWorkflow.APROVADO
+        ),
+        many=True,
+        required=False,
+    )
 
     def create(self, validated_data):
-        return criar_ficha(validated_data)
+        ficha = criar_ficha(validated_data)
+        user = self.context["request"].user
+        ficha.inicia_fluxo(user=user)
+        return ficha
 
     def update(self, instance, validated_data):
+        eh_rascunho = (
+            hasattr(instance, "status")
+            and instance.status == instance.workflow_class.RASCUNHO
+        )
+
         ficha_atualizada = atualizar_ficha(instance, validated_data)
 
-        if (
-            hasattr(instance, "status")
-            and instance.status == instance.workflow_class.ASSINADA
-        ):
+        if eh_rascunho:
             user = self.context["request"].user
-            ficha_atualizada.volta_para_rascunho(user=user)
+            ficha_atualizada.inicia_fluxo(user=user)
 
         return ficha_atualizada
 
