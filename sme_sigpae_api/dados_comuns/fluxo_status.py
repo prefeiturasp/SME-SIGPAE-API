@@ -3291,7 +3291,8 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
             f'Status de Solicitação - "{self.aluno.codigo_eol} - {self.aluno.nome}"'
         )
         self.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.CODAE_NEGOU, usuario=user
+            status_evento=LogSolicitacoesUsuario.CODAE_NEGOU_ALTERACAO_UE_DIETA_ESPECIAL,
+            usuario=user,
         )
         self._preenche_template_e_envia_email(
             assunto,
