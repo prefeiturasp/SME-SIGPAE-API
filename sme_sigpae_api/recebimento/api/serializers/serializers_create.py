@@ -17,6 +17,7 @@ from sme_sigpae_api.recebimento.models import (
     QuestaoFichaRecebimento,
     QuestoesPorProduto,
     VeiculoFichaDeRecebimento,
+    ReposicaoCronogramaFichaRecebimento,
 )
 
 
@@ -367,7 +368,10 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
     )
 
     def create(self, validated_data):
-        return criar_ficha(validated_data)
+        ficha = criar_ficha(validated_data)
+        user = self.context["request"].user
+        ficha.inicia_fluxo(user=user)
+        return ficha
 
     def update(self, instance, validated_data):
         ficha_atualizada = atualizar_ficha(instance, validated_data)
@@ -402,6 +406,51 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
                 data[field] = data[field].replace(".", "").replace(",", ".")
 
         return super().to_internal_value(data)
+
+    class Meta:
+        model = FichaDeRecebimento
+        exclude = ("id",)
+
+
+class FichaDeRecebimentoReposicaoSerializer(serializers.ModelSerializer):
+    etapa = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=True,
+        queryset=EtapasDoCronograma.objects.all(),
+    )
+    data_entrega = serializers.DateField(required=True)
+    ocorrencias = OcorrenciaFichaRecebimentoCreateSerializer(
+        many=True, required=False, rascunho=True
+    )
+    observacao = serializers.CharField(required=True, allow_blank=True)
+    arquivos = ArquivoFichaRecebimentoCreateSerializer(
+        many=True,
+        required=False,
+    )
+    reposicao_cronograma = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=True,
+        queryset=ReposicaoCronogramaFichaRecebimento.objects.all(),
+    )
+
+    def create(self, validated_data):
+        return criar_ficha(validated_data)
+
+    def update(self, instance, validated_data):
+        ficha_atualizada = atualizar_ficha(instance, validated_data)
+
+        if (
+            hasattr(instance, "status")
+            and instance.status == instance.workflow_class.ASSINADA
+        ):
+            user = self.context["request"].user
+            ficha_atualizada.volta_para_rascunho(user=user)
+
+        return ficha_atualizada
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        return representation
 
     class Meta:
         model = FichaDeRecebimento
