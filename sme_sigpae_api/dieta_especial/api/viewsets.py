@@ -1519,19 +1519,6 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
-        codigo_eol_escola = request.GET.get("codigo_eol_escola")
-        if codigo_eol_escola:
-            queryset = queryset.filter(
-                dietas_especiais__rastro_escola__codigo_eol=codigo_eol_escola
-            ).distinct()
-
-        series = request.GET.getlist("serie")
-        if series:
-            from django.db.models import Q
-            queryset = queryset.filter(
-                Q(*[Q(serie__icontains=s) for s in series], _connector=Q.OR)
-            )
-
         total_ativas, total_inativas = self.calcular_totais(queryset)
         tem_parametro_page = request.GET.get("page", False)
 
@@ -1597,76 +1584,100 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
                 qs = qs.filter(
                     dietas_especiais__rastro_escola=user.vinculo_atual.instituicao
                 )
-        elif form.cleaned_data["escola"]:
-            if incluir_alteracao_ue:
-                qs = qs.filter(
-                    Q(
-                        dietas_especiais__rastro_escola=form.cleaned_data["escola"],
-                        dietas_especiais__status__in=["CODAE_AUTORIZADO"],
-                        dietas_especiais__ativo=True,
-                        dietas_especiais__tipo_solicitacao="COMUM",
+        else:
+            if form.cleaned_data["escola"]:
+                if incluir_alteracao_ue:
+                    qs = qs.filter(
+                        Q(
+                            dietas_especiais__rastro_escola=form.cleaned_data["escola"],
+                            dietas_especiais__status__in=["CODAE_AUTORIZADO"],
+                            dietas_especiais__ativo=True,
+                            dietas_especiais__tipo_solicitacao="COMUM",
+                        )
+                        | Q(
+                            dietas_especiais__escola_destino=form.cleaned_data["escola"],
+                            dietas_especiais__status__in=["CODAE_AUTORIZADO"],
+                            dietas_especiais__ativo=True,
+                            dietas_especiais__tipo_solicitacao="ALTERACAO_UE",
+                        )
                     )
-                    | Q(
-                        dietas_especiais__escola_destino=form.cleaned_data["escola"],
-                        dietas_especiais__status__in=["CODAE_AUTORIZADO"],
-                        dietas_especiais__ativo=True,
-                        dietas_especiais__tipo_solicitacao="ALTERACAO_UE",
+                else:
+                    qs = qs.filter(
+                        dietas_especiais__rastro_escola=form.cleaned_data["escola"]
                     )
-                )
-            else:
-                qs = qs.filter(
-                    dietas_especiais__rastro_escola=form.cleaned_data["escola"]
-                )
-                qs = filtrar_alunos_com_dietas_nos_status_e_rastro_escola(
-                    qs, STATUS_DIETA_ESPECIAL, form.cleaned_data["escola"]
-                )
-        elif user.tipo_usuario == "diretoriaregional":
-            if incluir_alteracao_ue:
-                qs = qs.filter(
-                    Q(
-                        dietas_especiais__rastro_escola__diretoria_regional=user.vinculo_atual.instituicao,
-                        dietas_especiais__status__in=["CODAE_AUTORIZADO"],
-                        dietas_especiais__ativo=True,
-                        dietas_especiais__tipo_solicitacao="COMUM",
+                    qs = filtrar_alunos_com_dietas_nos_status_e_rastro_escola(
+                        qs, STATUS_DIETA_ESPECIAL, form.cleaned_data["escola"]
                     )
-                    | Q(
-                        dietas_especiais__escola_destino__diretoria_regional=user.vinculo_atual.instituicao,
-                        dietas_especiais__status__in=["CODAE_AUTORIZADO"],
-                        dietas_especiais__ativo=True,
-                        dietas_especiais__tipo_solicitacao="ALTERACAO_UE",
+            elif user.tipo_usuario == "diretoriaregional":
+                if incluir_alteracao_ue:
+                    qs = qs.filter(
+                        Q(
+                            dietas_especiais__rastro_escola__diretoria_regional=user.vinculo_atual.instituicao,
+                            dietas_especiais__status__in=["CODAE_AUTORIZADO"],
+                            dietas_especiais__ativo=True,
+                            dietas_especiais__tipo_solicitacao="COMUM",
+                        )
+                        | Q(
+                            dietas_especiais__escola_destino__diretoria_regional=user.vinculo_atual.instituicao,
+                            dietas_especiais__status__in=["CODAE_AUTORIZADO"],
+                            dietas_especiais__ativo=True,
+                            dietas_especiais__tipo_solicitacao="ALTERACAO_UE",
+                        )
                     )
-                )
-            else:
-                qs = qs.filter(
-                    dietas_especiais__rastro_escola__diretoria_regional=user.vinculo_atual.instituicao
-                )
+                else:
+                    qs = qs.filter(
+                        dietas_especiais__rastro_escola__diretoria_regional=user.vinculo_atual.instituicao
+                    )
 
-        elif form.cleaned_data["dre"]:
-            if incluir_alteracao_ue:
-                qs = qs.filter(
-                    Q(
+            elif form.cleaned_data["dre"]:
+                if incluir_alteracao_ue:
+                    qs = qs.filter(
+                        Q(
+                            dietas_especiais__rastro_escola__diretoria_regional=form.cleaned_data[
+                                "dre"
+                            ],
+                            dietas_especiais__status__in=["CODAE_AUTORIZADO"],
+                            dietas_especiais__ativo=True,
+                            dietas_especiais__tipo_solicitacao="COMUM",
+                        )
+                        | Q(
+                            dietas_especiais__escola_destino__diretoria_regional=form.cleaned_data[
+                                "dre"
+                            ],
+                            dietas_especiais__status__in=["CODAE_AUTORIZADO"],
+                            dietas_especiais__ativo=True,
+                            dietas_especiais__tipo_solicitacao="ALTERACAO_UE",
+                        )
+                    )
+                else:
+                    qs = qs.filter(
                         dietas_especiais__rastro_escola__diretoria_regional=form.cleaned_data[
                             "dre"
-                        ],
-                        dietas_especiais__status__in=["CODAE_AUTORIZADO"],
-                        dietas_especiais__ativo=True,
-                        dietas_especiais__tipo_solicitacao="COMUM",
+                        ]
                     )
-                    | Q(
-                        dietas_especiais__escola_destino__diretoria_regional=form.cleaned_data[
-                            "dre"
-                        ],
-                        dietas_especiais__status__in=["CODAE_AUTORIZADO"],
-                        dietas_especiais__ativo=True,
-                        dietas_especiais__tipo_solicitacao="ALTERACAO_UE",
-                    )
-                )
+
             else:
-                qs = qs.filter(
-                    dietas_especiais__rastro_escola__diretoria_regional=form.cleaned_data[
-                        "dre"
-                    ]
-                )
+                codigo_eol_escola = self.request.query_params.get("codigo_eol_escola")
+                if codigo_eol_escola:
+                    if incluir_alteracao_ue:
+                        qs = qs.filter(
+                            Q(
+                                dietas_especiais__rastro_escola__codigo_eol=codigo_eol_escola,
+                                dietas_especiais__status__in=["CODAE_AUTORIZADO"],
+                                dietas_especiais__ativo=True,
+                                dietas_especiais__tipo_solicitacao="COMUM",
+                            )
+                            | Q(
+                                dietas_especiais__escola_destino__codigo_eol=codigo_eol_escola,
+                                dietas_especiais__status__in=["CODAE_AUTORIZADO"],
+                                dietas_especiais__ativo=True,
+                                dietas_especiais__tipo_solicitacao="ALTERACAO_UE",
+                            )
+                        )
+                    else:
+                        qs = qs.filter(
+                            dietas_especiais__rastro_escola__codigo_eol=codigo_eol_escola
+                        )
 
         if form.cleaned_data["codigo_eol"]:
             codigo_eol = f"{int(form.cleaned_data['codigo_eol']):06d}"
@@ -1674,6 +1685,11 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
         elif form.cleaned_data["nome_aluno"]:
             qs = qs.filter(nome__icontains=form.cleaned_data["nome_aluno"])
 
+        series = self.request.query_params.getlist("serie")
+        if series:
+            qs = qs.filter(
+                Q(*[Q(serie__icontains=s) for s in series], _connector=Q.OR)
+            )
         if self.request.user.tipo_usuario == "dieta_especial":
             return qs.distinct().order_by(
                 "escola__diretoria_regional__nome", "escola__nome", "nome"
