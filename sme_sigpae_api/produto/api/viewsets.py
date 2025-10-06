@@ -1735,6 +1735,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=["GET"],
+        permission_classes=(UsuarioEscolaTercTotal,),
         url_path="lista-nomes-responder-reclamacao-escola",
     )
     def lista_produtos_responder_reclamacao_escola(self, request):
@@ -1971,7 +1972,12 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             )
         return self.paginated_response(queryset)
 
-    @action(detail=False, methods=["GET"], url_path="filtro-reclamacoes-escola")
+    @action(
+        detail=False,
+        methods=["GET"],
+        permission_classes=(UsuarioEscolaTercTotal,),
+        url_path="filtro-reclamacoes-escola",
+    )
     def filtro_reclamacoes_escola(self, request):
         user = self.request.user
         filtro_homologacao = {
@@ -2850,6 +2856,7 @@ class FabricanteViewSet(viewsets.ModelViewSet, ListaNomesUnicos):
     @action(
         detail=False,
         methods=["GET"],
+        permission_classes=(UsuarioEscolaTercTotal,),
         url_path="lista-nomes-responder-reclamacao-escola",
     )
     def lista_fabricantes_responder_reclamacao_escola(self, request):
