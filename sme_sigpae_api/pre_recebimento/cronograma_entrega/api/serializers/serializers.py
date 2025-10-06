@@ -291,6 +291,7 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
     desvinculada_recebimento = serializers.SerializerMethodField()
     etapa = serializers.SerializerMethodField()
     parte = serializers.SerializerMethodField()
+    houve_ocorrencia = serializers.SerializerMethodField()
 
     def get_etapa(self, obj):
         return f"Etapa {obj.etapa}" if obj.etapa is not None else None
@@ -328,6 +329,11 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
     def get_desvinculada_recebimento(self, obj):
         return not obj.ficha_recebimento.exists()
 
+    def get_houve_ocorrencia(self, obj):
+        if obj.ficha_recebimento.exists():
+            return obj.ficha_recebimento.houve_ocorrencia
+        return False
+
     class Meta:
         model = EtapasDoCronograma
         fields = (
@@ -340,6 +346,7 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
             "quantidade",
             "total_embalagens",
             "desvinculada_recebimento",
+            "houve_ocorrencia",
         )
 
 
