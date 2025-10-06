@@ -58,6 +58,37 @@ Cypress.Commands.add(
 	},
 )
 
+Cypress.Commands.add('consultar_lista_nomes_responder_reclamacao', () => {
+	cy.request({
+		method: 'GET',
+		url:
+			Cypress.config('baseUrl') +
+			'api/fabricantes/lista-nomes-responder-reclamacao/',
+		timeout: 60000,
+		headers: {
+			Authorization: 'JWT ' + globalThis.token,
+		},
+		failOnStatusCode: false,
+	})
+})
+
+Cypress.Commands.add(
+	'consultar_lista_nomes_responder_reclamacao_escola',
+	() => {
+		cy.request({
+			method: 'GET',
+			url:
+				Cypress.config('baseUrl') +
+				'api/fabricantes/lista-nomes-responder-reclamacao-escola/',
+			timeout: 60000,
+			headers: {
+				Authorization: 'JWT ' + globalThis.token,
+			},
+			failOnStatusCode: false,
+		})
+	},
+)
+
 Cypress.Commands.add(
 	'consultar_nomes_responder_reclamacao_nutrisupervisao',
 	() => {
