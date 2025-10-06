@@ -1,6 +1,10 @@
+import datetime
+
 import pytest
 from freezegun.api import freeze_time
 
+from sme_sigpae_api.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.medicao_inicial.validators import (
     valida_medicoes_inexistentes_cei,
     valida_medicoes_inexistentes_emebs,
@@ -8,6 +12,7 @@ from sme_sigpae_api.medicao_inicial.validators import (
     validate_lancamento_alimentacoes_inclusoes_escola_sem_alunos_regulares,
     validate_lancamento_alimentacoes_medicao_cei,
     validate_lancamento_alimentacoes_medicao_emebs,
+    validate_lancamento_dietas_inclusoes_escola_sem_alunos_regulares,
     validate_lancamento_inclusoes_cei,
     validate_lancamento_inclusoes_dietas_emef_emebs,
     validate_medicao_cemei,

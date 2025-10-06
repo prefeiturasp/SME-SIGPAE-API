@@ -129,7 +129,11 @@ from .medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_factor
     SolicitacaoMedicaoInicialFactory,
     ValorMedicaoFactory,
 )
-from .perfil.fixtures.factories.perfil_base_factories import UsuarioFactory
+from .perfil.fixtures.factories.perfil_base_factories import (
+    PerfilFactory,
+    UsuarioFactory,
+    VinculoFactory,
+)
 from .pre_recebimento.base.fixtures.factories.unidade_medida_factory import (
     UnidadeMedidaFactory,
 )
@@ -303,6 +307,8 @@ register(MotivoInclusaoContinuaFactory)
 register(SolicitacaoKitLancheCEIAvulsaFactory)
 register(FaixaEtariaSolicitacaoKitLancheCEIAvulsaFactory)
 register(AlunosMatriculadosPeriodoEscolaFactory)
+register(PerfilFactory)
+register(VinculoFactory)
 
 
 @pytest.fixture
