@@ -130,6 +130,7 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
         LogSolicitacoesUsuario.TERCEIRIZADA_TOMOU_CIENCIA_INATIVACAO,
         LogSolicitacoesUsuario.INICIO_FLUXO,
         LogSolicitacoesUsuario.INICIO_FLUXO_ALTERACAO_UE_DIETA_ESPECIAL,
+        LogSolicitacoesUsuario.CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL,
     ]
 
     NEGADOS_STATUS_DIETA_ESPECIAL = [
@@ -141,6 +142,7 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
         LogSolicitacoesUsuario.CODAE_NEGOU,
         LogSolicitacoesUsuario.CODAE_NEGOU_INATIVACAO,
         LogSolicitacoesUsuario.CODAE_NEGOU_CANCELAMENTO,
+        LogSolicitacoesUsuario.CODAE_NEGOU_ALTERACAO_UE_DIETA_ESPECIAL,
     ]
 
     CANCELADOS_STATUS_DIETA_ESPECIAL = [
