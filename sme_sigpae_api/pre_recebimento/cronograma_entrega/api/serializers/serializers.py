@@ -330,9 +330,7 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
         return not obj.ficha_recebimento.exists()
 
     def get_houve_ocorrencia(self, obj):
-        if obj.ficha_recebimento.exists():
-            return obj.ficha_recebimento.houve_ocorrencia
-        return False
+        return obj.ficha_recebimento.filter(houve_ocorrencia=True).exists()
 
     class Meta:
         model = EtapasDoCronograma
