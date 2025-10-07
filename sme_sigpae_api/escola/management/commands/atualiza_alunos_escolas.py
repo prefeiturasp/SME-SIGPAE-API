@@ -339,6 +339,7 @@ class Command(BaseCommand):
             registro_
             for registro_ in dados_alunos_escola
             if registro["codigoAluno"] == registro_["codigoAluno"]
+            and registro["codigoTipoTurma"] == self.codigo_turma_regular
         ]
         if len(registros_aluno) == 1:
             return False
@@ -346,6 +347,7 @@ class Command(BaseCommand):
             registro_
             for registro_ in registros_aluno
             if registro_["codigoSituacaoMatricula"] in self.status_matricula_ativa
+            and registro["codigoTipoTurma"] == self.codigo_turma_regular
         ]
         if not tem_registro_ativo:
             return False
