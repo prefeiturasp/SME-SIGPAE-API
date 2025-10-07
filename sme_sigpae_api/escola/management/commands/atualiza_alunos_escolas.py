@@ -1,6 +1,7 @@
 import datetime
 import logging
 import timeit
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import environ
 import requests
@@ -8,8 +9,12 @@ from django.core.management.base import BaseCommand
 from requests import ConnectionError
 from rest_framework import status
 
-from ....dados_comuns.constants import DJANGO_EOL_SGP_API_TOKEN, DJANGO_EOL_SGP_API_URL
-from ...models import (
+from sme_sigpae_api.dados_comuns.constants import (
+    DJANGO_EOL_SGP_API_TOKEN,
+    DJANGO_EOL_SGP_API_URL,
+)
+from sme_sigpae_api.dados_comuns.utils import bulk_create_safe, bulk_update_safe
+from sme_sigpae_api.escola.models import (
     Aluno,
     Escola,
     LogAtualizaDadosAluno,
@@ -172,27 +177,64 @@ class Command(BaseCommand):
         aluno.desc_etapa = registro.get("descEtapaEnsino", "")
         aluno.desc_ciclo = registro.get("descCicloEnsino", "")
 
+    def _fetch_dados_escola(self, codigo_eol, proximo_ano, index, total):
+        """Busca os dados da escola na API e adiciona o código EOL."""
+        try:
+            logger.debug(f"{index + 1}/{total} - Escola EOL {codigo_eol}")
+
+            dados = self._obtem_alunos_escola(codigo_eol)
+            dados_prox = self._obtem_alunos_escola(codigo_eol, proximo_ano)
+
+            registros = []
+            for d in dados or []:
+                d["codigoEolEscola"] = codigo_eol
+                registros.append(d)
+            for d in dados_prox or []:
+                d["codigoEolEscola"] = codigo_eol
+                registros.append(d)
+
+            return registros
+        except Exception as e:
+            logger.error(f"Erro ao buscar dados da escola {codigo_eol}: {e}")
+            return []
+
+    def _coleta_dados_em_paralelo(self, escolas, proximo_ano):
+        """Coleta os dados das escolas em paralelo usando threads."""
+        todos_os_registros = []
+        total = len(escolas)
+        logger.debug(f"Iniciando coleta de dados de {total} escolas...")
+
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            futures = [
+                executor.submit(
+                    self._fetch_dados_escola, codigo_eol, proximo_ano, i, total
+                )
+                for i, codigo_eol in enumerate(escolas)
+            ]
+            for future in as_completed(futures):
+                try:
+                    registros = future.result()
+                    todos_os_registros.extend(registros)
+                except Exception as e:
+                    logger.exception(f"Erro ao processar futuro: {e}")
+
+        return todos_os_registros
+
     def get_todos_os_registros(self):
-        escolas = Escola.objects.prefetch_related("aluno_set")
+        """Busca e consolida registros de alunos de todas as escolas."""
+        escolas = list(Escola.objects.values_list("codigo_eol", flat=True))
         proximo_ano = datetime.date.today().year + 1
 
-        todos_os_registros = []
-        total = escolas.count()
-        for i, escola in enumerate(escolas):
-            if (i + 1) % 10 == 0:
-                logger.debug(f"{i + 1}/{total} - {escola}")
-            dados_alunos_escola = self._processa_dados_alunos(
-                self._obtem_alunos_escola(escola.codigo_eol), escola
-            )
-            dados_alunos_escola_prox_ano = self._processa_dados_alunos(
-                self._obtem_alunos_escola(escola.codigo_eol, proximo_ano), escola
-            )
-            todos_os_registros.extend(dados_alunos_escola)
-            todos_os_registros.extend(dados_alunos_escola_prox_ano)
-
+        todos_os_registros = self._coleta_dados_em_paralelo(escolas, proximo_ano)
         todos_os_registros.sort(
-            key=lambda x: (x["codigoAluno"], x["anoLetivo"], x["dataSituacao"])
+            key=lambda x: (
+                x["codigoAluno"],
+                x.get("anoLetivo"),
+                x.get("dataSituacao"),
+            )
         )
+
+        logger.debug(f"Finalizada coleta: {len(todos_os_registros)} registros obtidos.")
         return todos_os_registros
 
     def _processa_dados_alunos(self, dados_alunos, escola):
@@ -210,6 +252,13 @@ class Command(BaseCommand):
         alunos_para_atualizar = []
         registros_alunos_novos = {}
 
+        logger.debug("iniciando... dict escolas")
+        escolas = {e.codigo_eol: e for e in Escola.objects.all()}
+        logger.debug(f"finalizando dict escolas: {len(escolas)} escolas")
+        logger.debug("iniciando... dict alunos")
+        alunos = {a.codigo_eol: a for a in Aluno.objects.all()}
+        logger.debug(f"finalizando dict alunos: {len(alunos)} alunos")
+
         for registro in todos_os_registros:
             self.contador_alunos += 1
             if self.contador_alunos % 10 == 0:
@@ -218,7 +267,7 @@ class Command(BaseCommand):
                         f"{self.contador_alunos} DE UM TOTAL DE {self.total_alunos} MATRICULAS"
                     )
                 )
-            escola = Escola.objects.get(codigo_eol=registro["codigoEolEscola"])
+            escola = escolas.get(registro["codigoEolEscola"])
             self._lida_com_matricula_aluno_existente_d_menos_2(registro, escola)
             if registro["codigoAluno"] in alunos_ativos:
                 continue
@@ -231,10 +280,11 @@ class Command(BaseCommand):
                 novos_alunos,
                 registros_alunos_novos,
                 escola,
+                alunos,
             )
 
         self.stdout.write(self.style.SUCCESS("criando alunos... aguarde..."))
-        Aluno.objects.bulk_create(novos_alunos.values())
+        bulk_create_safe(Aluno, list(novos_alunos.values()))
         self.stdout.write(self.style.SUCCESS("atualizando alunos... aguarde..."))
         self._atualiza_alunos(alunos_para_atualizar)
         self.stdout.write(self.style.SUCCESS("desvinculando alunos... aguarde..."))
@@ -251,10 +301,11 @@ class Command(BaseCommand):
         novos_alunos,
         registros_alunos_novos,
         escola,
+        alunos,
     ):
         if registro["codigoSituacaoMatricula"] in self.status_matricula_ativa:
             alunos_ativos.add(registro["codigoAluno"])
-            aluno = Aluno.objects.filter(codigo_eol=registro["codigoAluno"]).first()
+            aluno = alunos.get(str(registro["codigoAluno"]))
             data_nascimento = registro["dataNascimento"].split("T")[0]
             if aluno:
                 self._atualiza_aluno(aluno, registro, data_nascimento, escola)
@@ -288,6 +339,7 @@ class Command(BaseCommand):
             registro_
             for registro_ in dados_alunos_escola
             if registro["codigoAluno"] == registro_["codigoAluno"]
+            and registro["codigoTipoTurma"] == self.codigo_turma_regular
         ]
         if len(registros_aluno) == 1:
             return False
@@ -295,6 +347,7 @@ class Command(BaseCommand):
             registro_
             for registro_ in registros_aluno
             if registro_["codigoSituacaoMatricula"] in self.status_matricula_ativa
+            and registro["codigoTipoTurma"] == self.codigo_turma_regular
         ]
         if not tem_registro_ativo:
             return False
@@ -351,7 +404,7 @@ class Command(BaseCommand):
             codigo_eol__in=codigos_consultados
         )
         self._desvincular_matriculas(alunos_nao_consultados)
-        Aluno.objects.bulk_create(novos_alunos.values())
+        bulk_create_safe(Aluno, list(novos_alunos.values()))
         self.stdout.write(self.style.SUCCESS("atualizando alunos... aguarde..."))
         self._atualiza_alunos(alunos_para_atualizar)
         self.stdout.write(
@@ -516,7 +569,7 @@ class Command(BaseCommand):
             "desc_etapa",
             "desc_ciclo",
         ]
-        Aluno.objects.bulk_update(lista_alunos, fields=fields_to_update)
+        bulk_update_safe(Aluno, lista_alunos, fields=fields_to_update)
 
 
 class MaxRetriesExceeded(Exception):
