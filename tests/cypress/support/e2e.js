@@ -25,6 +25,8 @@ import './commands_api/commands_escola_simplissima_dre'
 import './commands_api/commands_escola_simplissima_dre_unpaginated'
 import './commands_api/commands_escola_simplissima_eol'
 import './commands_api/commands_fabricantes'
+import './commands_api/commands_faixas_etarias'
+import './commands_api/commands_feriados_ano'
 
 import './commands_ui/commands_login'
 import './commands_ui/commands_globais'

@@ -607,9 +607,10 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                     periodo_escolar__nome=nome_periodo_escolar
                 )
                 for s_quant_periodo in s_quant_por_periodo:
-                    for suspensao in susp.suspensoes_alimentacao.filter(
-                        cancelado=False
-                    ):
+                    suspensoes_alimentacao = self.filtar_suspensoes_alimentacao(
+                        susp, ano, mes
+                    )
+                    for suspensao in suspensoes_alimentacao:
                         tipos_alimentacao = s_quant_periodo.tipos_alimentacao.all()
                         alimentacoes = [
                             unicodedata.normalize(
@@ -633,6 +634,17 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         data = {"results": return_dict}
 
         return Response(data)
+
+    def filtar_suspensoes_alimentacao(self, grupo_suspensao, ano, mes):
+        suspensoes_alimentacao = grupo_suspensao.suspensoes_alimentacao.filter(
+            cancelado=False
+        )
+        if mes is not None:
+            suspensoes_alimentacao = suspensoes_alimentacao.filter(data__month=mes)
+        if ano is not None:
+            suspensoes_alimentacao = suspensoes_alimentacao.filter(data__year=ano)
+
+        return suspensoes_alimentacao
 
     def trata_lanche_emergencial_queryset(self, eh_lanche_emergencial, query_set):
         if eh_lanche_emergencial == "true":
