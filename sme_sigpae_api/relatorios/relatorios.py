@@ -569,7 +569,7 @@ def relatorio_dietas_especiais_terceirizada(dados):
     )
 
 
-def relatorio_dieta_especial_protocolo(request, solicitacao):
+def relatorio_dieta_especial_protocolo(request, solicitacao, sem_foto=False):
     if solicitacao.tipo_solicitacao == "COMUM":
         escola = solicitacao.rastro_escola
     else:

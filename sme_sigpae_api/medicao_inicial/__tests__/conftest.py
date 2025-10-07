@@ -263,6 +263,17 @@ def escola(tipo_unidade_escolar, diretoria_regional):
 
 
 @pytest.fixture
+def log_alunos_regulares(escola, periodo_escolar_manha):
+    return baker.make(
+        "AlunosMatriculadosPeriodoEscola",
+        escola=escola,
+        tipo_turma="REGULAR",
+        quantidade_alunos=1,
+        periodo_escolar=periodo_escolar_manha,
+    )
+
+
+@pytest.fixture
 def escola_emefm(diretoria_regional):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make(
@@ -4349,3 +4360,22 @@ def mock_exportacao_informacoes_excel_writer():
     finally:
         workbook.close()
         writer.close()
+
+
+@pytest.fixture
+def solicitacao_medicao_informacoes_basicas(escola):
+    solicitacao_medicao_inicial = baker.make(
+        "SolicitacaoMedicaoInicial",
+        uuid="7f7c79ec-bb92-11ee-ad73-5f84fbd2a2f0",
+        mes="10",
+        ano=2023,
+        escola=escola,
+    )
+    contagem = baker.make("TipoContagemAlimentacao", nome="Catraca")
+    responsavel = baker.make(
+        "medicao_inicial.Responsavel", nome="REsponsavel 1", rf="1256387"
+    )
+    solicitacao_medicao_inicial.tipos_contagem_alimentacao.set([contagem])
+    solicitacao_medicao_inicial.responsaveis.set([responsavel])
+
+    return solicitacao_medicao_inicial

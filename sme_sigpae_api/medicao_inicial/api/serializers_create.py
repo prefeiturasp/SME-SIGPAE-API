@@ -919,10 +919,13 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         return instance
 
     def _check_user_permission(self):
-        if (
-            isinstance(self.context["request"].user.vinculo_atual.instituicao, Escola)
-            and self.context["request"].user.vinculo_atual.perfil.nome != DIRETOR_UE
-        ):
+        vinculo_usuario = self.context["request"].user.vinculo_atual
+        eh_escola = isinstance(vinculo_usuario.instituicao, Escola)
+        eh_diretor = vinculo_usuario.perfil.nome == DIRETOR_UE
+        escola_possui_alunos_regulares = (
+            eh_escola and vinculo_usuario.instituicao.possui_alunos_regulares
+        )
+        if eh_escola and not eh_diretor and escola_possui_alunos_regulares:
             raise PermissionDenied("Você não tem permissão para executar essa ação.")
 
     def _update_instance_fields(self, instance, validated_data):
@@ -936,7 +939,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         responsaveis_dict = self.context["request"].data.get("responsaveis")
         if responsaveis_dict:
             instance.responsaveis.all().delete()
-            for responsavel_data in json.loads(responsaveis_dict):
+            if isinstance(responsaveis_dict, str):
+                responsaveis_dict = json.loads(responsaveis_dict)
+            for responsavel_data in responsaveis_dict:
                 Responsavel.objects.create(
                     solicitacao_medicao_inicial=instance, **responsavel_data
                 )
@@ -1479,5 +1484,30 @@ class ParametrizacaoFinanceiraWriteModelSerializer(serializers.ModelSerializer):
                     faixa_etaria_id=faixa_etaria_id,
                     defaults=valor,
                 )
+
+        return instance
+
+
+class InformacoesBasicasMedicaoInicialUpdateSerializer(
+    SolicitacaoMedicaoInicialCreateSerializer
+):
+    """
+    Serializer para atualização básica (responsáveis, alunos, tipos de contagem).
+    Reutiliza métodos privados do CreateSerializer.
+    """
+
+    class Meta:
+        model = SolicitacaoMedicaoInicial
+        exclude = ("id", "criado_por")
+
+    def update(self, instance, validated_data):
+        self._update_responsaveis(instance)
+        validated_data.pop("responsaveis", None)
+
+        self._update_tipos_contagem_alimentacao(instance)
+        validated_data.pop("tipos_contagem_alimentacao", None)
+
+        self._update_instance_fields(instance, validated_data)
+        self._update_alunos(instance, validated_data)
 
         return instance
