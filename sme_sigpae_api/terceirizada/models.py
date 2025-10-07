@@ -22,7 +22,7 @@ from ..dados_comuns.behaviors import (
 )
 from ..dados_comuns.constants import ADMINISTRADOR_EMPRESA
 from ..dados_comuns.utils import queryset_por_data
-from ..escola.models import DiretoriaRegional, Lote
+from ..escola.models import DiretoriaRegional, Escola, Lote
 from ..inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoAlimentacaoContinua,
@@ -278,6 +278,12 @@ class Terceirizada(
             escola__lote__in=self.lotes.all(),
             status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_NEGOU_PEDIDO,
         )
+
+    @property
+    def possui_escolas_com_acesso_ao_medicao_inicial(self):
+        return Escola.objects.filter(
+            lote__in=self.lotes.all(), acesso_modulo_medicao_inicial=True
+        ).exists()
 
     # TODO: talvez fazer um manager genérico pra fazer esse filtro
 
