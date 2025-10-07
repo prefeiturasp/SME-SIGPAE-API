@@ -84,7 +84,6 @@ class PedidoAPartirDaEscolaWorkflow(xwf_models.Workflow):
         ),
         (TERCEIRIZADA_TOMOU_CIENCIA, "Terceirizada tomou"),
         (ESCOLA_CANCELOU, "Escola cancelou"),
-        # MEXER AQUI
         (CANCELADO_AUTOMATICAMENTE, "Cancelamento automático"),
     )
 
@@ -2933,7 +2932,6 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
                 f"Só pode cancelar com no mínimo {self.DIAS_UTEIS_PARA_CANCELAR} dia(s) úteis de antecedência"
             )
 
-    # MEXER AQUI?
     def cancelar_pedido(self, user, justificativa):
         self.checa_se_pode_cancelar()
         self.escola_cancela(user=user, justificativa=justificativa)
