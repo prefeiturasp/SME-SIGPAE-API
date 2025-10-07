@@ -678,3 +678,20 @@ def test_url_aceitar_termos(client_autenticado_codae_dilog, django_user_model):
 
     assert response.status_code == status.HTTP_200_OK
     assert usuario.aceitou_termos is True
+
+
+def test_get_meus_dados_tercerizada(client_tercerizada_com_acesso_medicao):
+
+    response = client_tercerizada_com_acesso_medicao.get("/usuarios/meus-dados/")
+    assert response.status_code == status.HTTP_200_OK
+    assert isinstance(response.json(), dict)
+    json = response.json()
+    assert json["tipo_usuario"] == "terceirizada"
+    vinculo_atual = json["vinculo_atual"]
+    instituicao = vinculo_atual["instituicao"]
+    perfil = vinculo_atual["perfil"]
+
+    assert instituicao["nome"] == "Alimentos SA"
+    assert perfil["nome"] == "USUARIO_EMPRESA"
+    assert instituicao["tipo_servico"] == "TERCEIRIZADA"
+    assert instituicao["possui_escolas_com_acesso_ao_medicao_inicial"] is True
