@@ -315,6 +315,7 @@ def test_ficha_recebimento_serializer_validate_questoes(
 
 
 def test_ficha_recebimento_reposicao_serializer_create(payload_ficha_recebimento_reposicao):
+    """Testa a criação de uma ficha de recebimento através do serializer para reposição de cronograma."""
     class FakeObject(object):
         user = baker.make("perfil.Usuario")
 
@@ -342,6 +343,7 @@ def test_ficha_recebimento_reposicao_serializer_create(payload_ficha_recebimento
 
 
 def test_ficha_recebimento_reposicao_serializer_update(ficha_recebimento):
+    """Testa a atualização de uma ficha de recebimento através do serializer para reposição de cronograma."""
     class FakeObject(object):
         user = baker.make("perfil.Usuario")
 
