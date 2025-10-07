@@ -809,3 +809,13 @@ def filtrar_dias_letivos(dias_letivos: list[int], mes: int, ano: int):
             dias_filtrados.append(dia)
 
     return dias_filtrados
+
+
+def bulk_create_safe(model, objs, batch_size=5000):
+    for i in range(0, len(objs), batch_size):
+        model.objects.bulk_create(objs[i : i + batch_size])
+
+
+def bulk_update_safe(model, objs, fields, batch_size=5000):
+    for i in range(0, len(objs), batch_size):
+        model.objects.bulk_update(objs[i : i + batch_size], fields)

@@ -9,8 +9,12 @@ from django.core.management.base import BaseCommand
 from requests import ConnectionError
 from rest_framework import status
 
-from ....dados_comuns.constants import DJANGO_EOL_SGP_API_TOKEN, DJANGO_EOL_SGP_API_URL
-from ...models import (
+from sme_sigpae_api.dados_comuns.constants import (
+    DJANGO_EOL_SGP_API_TOKEN,
+    DJANGO_EOL_SGP_API_URL,
+)
+from sme_sigpae_api.dados_comuns.utils import bulk_create_safe, bulk_update_safe
+from sme_sigpae_api.escola.models import (
     Aluno,
     Escola,
     LogAtualizaDadosAluno,
@@ -248,6 +252,13 @@ class Command(BaseCommand):
         alunos_para_atualizar = []
         registros_alunos_novos = {}
 
+        logger.debug("iniciando... dict escolas")
+        escolas = {e.codigo_eol: e for e in Escola.objects.all()}
+        logger.debug(f"finalizando dict escolas: {len(escolas)} escolas")
+        logger.debug("iniciando... dict alunos")
+        alunos = {a.codigo_eol: a for a in Aluno.objects.all()}
+        logger.debug(f"finalizando dict alunos: {len(alunos)} alunos")
+
         for registro in todos_os_registros:
             self.contador_alunos += 1
             if self.contador_alunos % 10 == 0:
@@ -256,7 +267,7 @@ class Command(BaseCommand):
                         f"{self.contador_alunos} DE UM TOTAL DE {self.total_alunos} MATRICULAS"
                     )
                 )
-            escola = Escola.objects.get(codigo_eol=registro["codigoEolEscola"])
+            escola = escolas.get(registro["codigoEolEscola"])
             self._lida_com_matricula_aluno_existente_d_menos_2(registro, escola)
             if registro["codigoAluno"] in alunos_ativos:
                 continue
@@ -269,10 +280,11 @@ class Command(BaseCommand):
                 novos_alunos,
                 registros_alunos_novos,
                 escola,
+                alunos,
             )
 
         self.stdout.write(self.style.SUCCESS("criando alunos... aguarde..."))
-        Aluno.objects.bulk_create(novos_alunos.values())
+        bulk_create_safe(Aluno, list(novos_alunos.values()))
         self.stdout.write(self.style.SUCCESS("atualizando alunos... aguarde..."))
         self._atualiza_alunos(alunos_para_atualizar)
         self.stdout.write(self.style.SUCCESS("desvinculando alunos... aguarde..."))
@@ -289,10 +301,11 @@ class Command(BaseCommand):
         novos_alunos,
         registros_alunos_novos,
         escola,
+        alunos,
     ):
         if registro["codigoSituacaoMatricula"] in self.status_matricula_ativa:
             alunos_ativos.add(registro["codigoAluno"])
-            aluno = Aluno.objects.filter(codigo_eol=registro["codigoAluno"]).first()
+            aluno = alunos.get(str(registro["codigoAluno"]))
             data_nascimento = registro["dataNascimento"].split("T")[0]
             if aluno:
                 self._atualiza_aluno(aluno, registro, data_nascimento, escola)
@@ -389,7 +402,7 @@ class Command(BaseCommand):
             codigo_eol__in=codigos_consultados
         )
         self._desvincular_matriculas(alunos_nao_consultados)
-        Aluno.objects.bulk_create(novos_alunos.values())
+        bulk_create_safe(Aluno, list(novos_alunos.values()))
         self.stdout.write(self.style.SUCCESS("atualizando alunos... aguarde..."))
         self._atualiza_alunos(alunos_para_atualizar)
         self.stdout.write(
@@ -554,7 +567,7 @@ class Command(BaseCommand):
             "desc_etapa",
             "desc_ciclo",
         ]
-        Aluno.objects.bulk_update(lista_alunos, fields=fields_to_update)
+        bulk_update_safe(Aluno, lista_alunos, fields=fields_to_update)
 
 
 class MaxRetriesExceeded(Exception):
