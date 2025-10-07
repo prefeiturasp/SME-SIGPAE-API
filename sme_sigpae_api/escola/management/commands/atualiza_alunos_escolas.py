@@ -1,6 +1,7 @@
 import datetime
 import logging
 import timeit
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import environ
 import requests
@@ -172,28 +173,76 @@ class Command(BaseCommand):
         aluno.desc_etapa = registro.get("descEtapaEnsino", "")
         aluno.desc_ciclo = registro.get("descCicloEnsino", "")
 
-    def get_todos_os_registros(self):
-        escolas = Escola.objects.prefetch_related("aluno_set")
-        proximo_ano = datetime.date.today().year + 1
+    import datetime
+    import logging
+    from concurrent.futures import ThreadPoolExecutor, as_completed
 
-        todos_os_registros = []
-        total = escolas.count()
-        for i, escola in enumerate(escolas):
-            if (i + 1) % 10 == 0:
-                logger.debug(f"{i + 1}/{total} - {escola}")
-            dados_alunos_escola = self._processa_dados_alunos(
-                self._obtem_alunos_escola(escola.codigo_eol), escola
-            )
-            dados_alunos_escola_prox_ano = self._processa_dados_alunos(
-                self._obtem_alunos_escola(escola.codigo_eol, proximo_ano), escola
-            )
-            todos_os_registros.extend(dados_alunos_escola)
-            todos_os_registros.extend(dados_alunos_escola_prox_ano)
+    logger = logging.getLogger("sigpae.cmd_atualiza_alunos_escolas")
 
-        todos_os_registros.sort(
-            key=lambda x: (x["codigoAluno"], x["anoLetivo"], x["dataSituacao"])
-        )
-        return todos_os_registros
+    class Command(BaseCommand):
+        # ...
+
+        def _fetch_dados_escola(self, codigo_eol, proximo_ano, index, total):
+            """Busca os dados da escola na API e adiciona o código EOL."""
+            try:
+                logger.debug(f"{index + 1}/{total} - Escola EOL {codigo_eol}")
+
+                dados = self._obtem_alunos_escola(codigo_eol)
+                dados_prox = self._obtem_alunos_escola(codigo_eol, proximo_ano)
+
+                registros = []
+                for d in dados or []:
+                    d["codigoEolEscola"] = codigo_eol
+                    registros.append(d)
+                for d in dados_prox or []:
+                    d["codigoEolEscola"] = codigo_eol
+                    registros.append(d)
+
+                return registros
+            except Exception as e:
+                logger.error(f"Erro ao buscar dados da escola {codigo_eol}: {e}")
+                return []
+
+        def _coleta_dados_em_paralelo(self, escolas, proximo_ano):
+            """Coleta os dados das escolas em paralelo usando threads."""
+            todos_os_registros = []
+            total = len(escolas)
+            logger.debug(f"Iniciando coleta de dados de {total} escolas...")
+
+            with ThreadPoolExecutor(max_workers=10) as executor:
+                futures = [
+                    executor.submit(
+                        self._fetch_dados_escola, codigo_eol, proximo_ano, i, total
+                    )
+                    for i, codigo_eol in enumerate(escolas)
+                ]
+                for future in as_completed(futures):
+                    try:
+                        registros = future.result()
+                        todos_os_registros.extend(registros)
+                    except Exception as e:
+                        logger.exception(f"Erro ao processar futuro: {e}")
+
+            return todos_os_registros
+
+        def get_todos_os_registros(self):
+            """Busca e consolida registros de alunos de todas as escolas."""
+            escolas = list(Escola.objects.values_list("codigo_eol", flat=True))
+            proximo_ano = datetime.date.today().year + 1
+
+            todos_os_registros = self._coleta_dados_em_paralelo(escolas, proximo_ano)
+            todos_os_registros.sort(
+                key=lambda x: (
+                    x["codigoAluno"],
+                    x.get("anoLetivo"),
+                    x.get("dataSituacao"),
+                )
+            )
+
+            logger.debug(
+                f"Finalizada coleta: {len(todos_os_registros)} registros obtidos."
+            )
+            return todos_os_registros
 
     def _processa_dados_alunos(self, dados_alunos, escola):
         if dados_alunos and isinstance(dados_alunos, list):
