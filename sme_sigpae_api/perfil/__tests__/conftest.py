@@ -1372,3 +1372,47 @@ def usuario_dilog_abastecimento(django_user_model):
     )
 
     return usuario
+
+
+@pytest.fixture
+def client_tercerizada_com_acesso_medicao(client, django_user_model, terceirizada):
+    username = "9874563"
+    password = "785269"
+    usuario = django_user_model.objects.create_user(
+        nome="ANTONIO",
+        username=username,
+        password=password,
+        email="t@email",
+        registro_funcional="8275318",
+        cpf="83697506164",
+    )
+
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
+        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+    )
+    baker.make(
+        "Escola",
+        nome="EMEF TESTE",
+        lote=lote,
+        diretoria_regional=diretoria_regional,
+        acesso_modulo_medicao_inicial=True,
+    )
+    perfil_administrador_terceirizada = baker.make(
+        "Perfil",
+        nome="USUARIO_EMPRESA",
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
+    )
+    hoje = datetime.date.today()
+    baker.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=terceirizada,
+        perfil=perfil_administrador_terceirizada,
+        data_inicial=hoje,
+        ativo=True,
+    )
+
+    client.login(username=username, password=password)
+    return client

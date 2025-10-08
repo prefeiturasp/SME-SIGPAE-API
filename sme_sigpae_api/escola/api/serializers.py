@@ -624,6 +624,9 @@ class VinculoInstituicaoSerializer(serializers.ModelSerializer):
                 )
         if isinstance(obj.instituicao, Terceirizada):
             instituicao_dict["tipo_servico"] = self.get_tipo_servico(obj)
+            instituicao_dict["possui_escolas_com_acesso_ao_medicao_inicial"] = (
+                obj.instituicao.possui_escolas_com_acesso_ao_medicao_inicial
+            )
         return instituicao_dict
 
     class Meta:
