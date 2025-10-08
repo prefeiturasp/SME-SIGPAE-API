@@ -90,6 +90,33 @@ class QuestoesPorProduto(ModeloBase):
         verbose_name_plural = "Questões por Produtos"
 
 
+class ReposicaoCronogramaFichaRecebimento(ModeloBase):
+    TIPO_CHOICES = (
+        ("Repor", "Repor os produtos faltantes/recusados"),
+        ("Credito", "Fazer uma carta de crédito do valor pago"),
+        ("Outros", "Outros"),
+    )
+
+    tipo = models.CharField(
+        "Tipo",
+        max_length=7,
+        choices=TIPO_CHOICES,
+    )
+    descricao = models.TextField(
+        "Descrição",
+        blank=True,
+        null=True,
+    )
+
+    def __str__(self):
+        return f"{self.tipo} - {self.descricao}"
+
+    class Meta:
+        verbose_name = "Reposição Cronograma da Ficha de Recebimento"
+        verbose_name_plural = "Reposições Cronogramas das Fichas de Recebimento"
+        ordering = ["criado_em"]
+
+
 class FichaDeRecebimento(
     ModeloBase, FluxoFichaDeRecebimento, TemIdentificadorExternoAmigavel, Logs
 ):
@@ -190,6 +217,14 @@ class FichaDeRecebimento(
     )
 
     observacao = models.TextField(
+        null=True,
+        blank=True,
+    )
+
+    reposicao_cronograma = models.ForeignKey(
+        ReposicaoCronogramaFichaRecebimento,
+        on_delete=models.PROTECT,
+        related_name="reposicao_cronograma",
         null=True,
         blank=True,
     )

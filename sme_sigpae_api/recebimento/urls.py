@@ -23,5 +23,16 @@ router.register(
     viewsets.FichaRecebimentoModelViewSet,
     basename="fichas-de-recebimento",
 )
+router.register(
+    "reposicao-ficha-de-recebimento",
+    viewsets.FichaDeRecebimentoReposicaoViewSet,
+    basename="reposicao-ficha-de-recebimento",
+)
+router.register(
+    "reposicao-cronograma-ficha-recebimento",
+    viewsets.ReposicaoCronogramaFichaRecebimentoViewSet,
+    basename="reposicao-cronograma-ficha-recebimento",
+)
+
 
 urlpatterns = [path("", include(router.urls))]

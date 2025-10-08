@@ -9,6 +9,7 @@ from sme_sigpae_api.recebimento.models import (
     QuestaoFichaRecebimento,
     QuestoesPorProduto,
     VeiculoFichaDeRecebimento,
+    ReposicaoCronogramaFichaRecebimento,
 )
 
 
@@ -70,3 +71,6 @@ class FichaDeRecebimentoAdmin(admin.ModelAdmin):
         QuestaoFichaRecebimentoInline,
         OcorrenciaFichaRecebimentoInline,
     ]
+
+
+admin.site.register(ReposicaoCronogramaFichaRecebimento)
