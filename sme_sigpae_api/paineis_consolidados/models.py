@@ -152,6 +152,7 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
         DietaEspecialWorkflow.TERMINADA_AUTOMATICAMENTE_SISTEMA,
     ]
     CANCELADOS_EVENTO_DIETA_ESPECIAL = [
+        LogSolicitacoesUsuario.ESCOLA_CANCELOU,
         LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
         LogSolicitacoesUsuario.CANCELADO_ALUNO_MUDOU_ESCOLA,
         LogSolicitacoesUsuario.CANCELADO_ALUNO_NAO_PERTENCE_REDE,

@@ -27,6 +27,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("dados_comuns", "0119_alter_logsolicitacoesusuario_solicitacao_tipo"),
+        ("dieta_especial", "0017_auto_20201019_0935"),
     ]
 
     operations = [
