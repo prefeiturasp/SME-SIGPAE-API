@@ -2937,6 +2937,8 @@ def validate_lancamento_dietas_inclusoes_escola_sem_alunos_regulares(
             nomes_campos = incluir_lanche(
                 nomes_campos, "lanche_4h", lista_inclusoes, inclusao
             )
+            if nomes_campos == ["frequencia"]:
+                continue
             lista_erros = buscar_valores_lancamento_dietas_inclusoes(
                 inclusao, solicitacao, categoria, lista_erros, list(set(nomes_campos))
             )
