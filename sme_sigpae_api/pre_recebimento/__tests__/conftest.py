@@ -1103,6 +1103,7 @@ def client_autenticado_dilog_abastecimento(client, django_user_model):
     client.login(username=email, password=password)
     return client
 
+
 @pytest.fixture
 def payload_base(produto_arroz, empresa, unidade_medida_logistica):
     marca = baker.make("Marca")
@@ -1143,6 +1144,5 @@ def payload_base(produto_arroz, empresa, unidade_medida_logistica):
         "agroecologico": True,
         "organico": False,
         "volume_embalagem_primaria": 5,
-        "unidade_medida_volume_primaria" : unidade_medida_logistica.uuid,
-        
+        "unidade_medida_volume_primaria": unidade_medida_logistica.uuid,
     }
