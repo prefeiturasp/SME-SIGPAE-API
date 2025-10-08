@@ -20,6 +20,7 @@ class TestUseCaseFinalizaMedicaoEscolaSemAlunosRegulares:
         periodo_escolar_factory,
         classificacao_dieta_factory,
         categoria_medicao_factory,
+        tipo_alimentacao_factory,
     ):
         self.periodo_manha = periodo_escolar_factory.create(nome="MANHA")
         self.classificacao_tipo_a = classificacao_dieta_factory.create(nome="Tipo A")
@@ -32,6 +33,7 @@ class TestUseCaseFinalizaMedicaoEscolaSemAlunosRegulares:
         self.categoria_alimentacao = categoria_medicao_factory.create(
             nome="ALIMENTAÇÃO"
         )
+        self.tipo_alimentacao_lanche = tipo_alimentacao_factory.create(nome="Lanche")
 
     def _setup_escola_cmct(
         self, diretoria_regional_factory, lote_factory, escola_factory
@@ -90,6 +92,7 @@ class TestUseCaseFinalizaMedicaoEscolaSemAlunosRegulares:
             inclusao_alimentacao_continua=None,
             periodo_escolar=self.periodo_manha,
             numero_alunos=100,
+            tipos_alimentacao=[self.tipo_alimentacao_lanche],
         )
         log_solicitacoes_usuario_factory.create(
             uuid_original=self.grupo_inclusao_alimentacao_normal.uuid,
@@ -204,11 +207,13 @@ class TestUseCaseFinalizaMedicaoEscolaSemAlunosRegulares:
         log_solicitacoes_usuario_factory,
         usuario_factory,
         vinculo_factory,
+        tipo_alimentacao_factory,
     ):
         self._setup_core(
             periodo_escolar_factory,
             classificacao_dieta_factory,
             categoria_medicao_factory,
+            tipo_alimentacao_factory,
         )
         self._setup_escola_cmct(
             diretoria_regional_factory, lote_factory, escola_factory
@@ -256,11 +261,13 @@ class TestUseCaseFinalizaMedicaoEscolaSemAlunosRegulares:
         vinculo_factory,
         log_solicitacoes_usuario_factory,
         dia_calendario_factory,
+        tipo_alimentacao_factory,
     ):
         self._setup_core(
             periodo_escolar_factory,
             classificacao_dieta_factory,
             categoria_medicao_factory,
+            tipo_alimentacao_factory,
         )
         self._setup_escola_cmct(
             diretoria_regional_factory, lote_factory, escola_factory
