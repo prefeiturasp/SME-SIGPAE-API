@@ -6,7 +6,7 @@ from utility.carga_dados.helper import ja_existe, progressbar
 def cria_reposicao_cronograma_ficha_recebimento():
     for item in progressbar(
         data_reposicao_cronograma, "Reposicao Cronograma Ficha Recebimento"
-    ):  # noqa
+    ):
         _, created = ReposicaoCronogramaFichaRecebimento.objects.get_or_create(
             tipo=item["tipo"],
             descricao=item["descricao"],
