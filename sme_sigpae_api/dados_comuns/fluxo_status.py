@@ -3289,8 +3289,11 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         titulo = (
             f'Status de Solicitação - "{self.aluno.codigo_eol} - {self.aluno.nome}"'
         )
+        log_evento = LogSolicitacoesUsuario.CODAE_NEGOU
+        if self.tipo_solicitacao == "ALTERACAO_UE":
+            log_evento = LogSolicitacoesUsuario.CODAE_NEGOU_ALTERACAO_UE_DIETA_ESPECIAL
         self.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.CODAE_NEGOU_ALTERACAO_UE_DIETA_ESPECIAL,
+            status_evento=log_evento,
             usuario=user,
             justificativa=justificativa,
         )
@@ -3306,8 +3309,13 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
     def _codae_autoriza_hook(self, *args, **kwargs):
         user = kwargs["user"]
         eh_importacao = kwargs.get("eh_importacao", None)
+        log_evento = LogSolicitacoesUsuario.CODAE_AUTORIZOU
+        if self.tipo_solicitacao == "ALTERACAO_UE":
+            log_evento = (
+                LogSolicitacoesUsuario.CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL
+            )
         self.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL,
+            status_evento=log_evento,
             usuario=user,
         )
         if not eh_importacao:
