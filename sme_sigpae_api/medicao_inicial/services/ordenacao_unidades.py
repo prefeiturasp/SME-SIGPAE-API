@@ -10,16 +10,17 @@ def prioridade_por_tipo(tipo_unidade: str) -> tuple[int, int]:
 
     tipo = tipo_unidade.strip() if isinstance(tipo_unidade, str) else str(tipo_unidade)
 
-    if tipo in constants.ORDEM_UNIDADES_GRUPO_CEI:
-        return (1, constants.ORDEM_UNIDADES_GRUPO_CEI[tipo])
-    if tipo in constants.ORDEM_UNIDADES_GRUPO_CEMEI:
-        return (2, constants.ORDEM_UNIDADES_GRUPO_CEMEI[tipo])
-    if tipo in constants.ORDEM_UNIDADES_GRUPO_EMEI:
-        return (3, constants.ORDEM_UNIDADES_GRUPO_EMEI[tipo])
-    if tipo in constants.ORDEM_UNIDADES_GRUPO_EMEF:
-        return (4, constants.ORDEM_UNIDADES_GRUPO_EMEF[tipo])
-    if tipo in constants.ORDEM_UNIDADES_GRUPO_EMEBS:
-        return (5, constants.ORDEM_UNIDADES_GRUPO_EMEBS[tipo])
+    grupos = [
+        (1, constants.ORDEM_UNIDADES_GRUPO_CEI),
+        (2, constants.ORDEM_UNIDADES_GRUPO_CEMEI),
+        (3, constants.ORDEM_UNIDADES_GRUPO_EMEI),
+        (4, constants.ORDEM_UNIDADES_GRUPO_EMEF),
+        (5, constants.ORDEM_UNIDADES_GRUPO_EMEBS),
+    ]
+
+    for grupo_id, ordem_dict in grupos:
+        if tipo in ordem_dict:
+            return (grupo_id, ordem_dict[tipo])
 
     return (999, 999)
 
