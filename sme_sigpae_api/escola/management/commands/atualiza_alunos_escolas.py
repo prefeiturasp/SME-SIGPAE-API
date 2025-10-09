@@ -259,6 +259,7 @@ class Command(BaseCommand):
         alunos = {a.codigo_eol: a for a in Aluno.objects.all()}
         logger.debug(f"finalizando dict alunos: {len(alunos)} alunos")
 
+        atualizados = []
         for registro in todos_os_registros:
             self.contador_alunos += 1
             if self.contador_alunos % 10 == 0:
@@ -282,16 +283,32 @@ class Command(BaseCommand):
                 escola,
                 alunos,
             )
+            self._atualiza_alunos_se_quantidade_1000(alunos_para_atualizar, atualizados)
 
         self.stdout.write(self.style.SUCCESS("criando alunos... aguarde..."))
         bulk_create_safe(Aluno, list(novos_alunos.values()))
         self.stdout.write(self.style.SUCCESS("atualizando alunos... aguarde..."))
-        self._atualiza_alunos(alunos_para_atualizar)
+        if alunos_para_atualizar:
+            logger.info(
+                f"Atualizando batch de {len(alunos_para_atualizar)} novos alunos..."
+            )
+            atualizados.extend(alunos_para_atualizar)
+            self._atualiza_alunos(alunos_para_atualizar)
         self.stdout.write(self.style.SUCCESS("desvinculando alunos... aguarde..."))
         self.stdout.write(
             self.style.SUCCESS("Criando histórico de matrículas... aguarde...")
         )
         self._lida_com_matricula_alunos_novos(novos_alunos, registros_alunos_novos)
+
+    def _atualiza_alunos_se_quantidade_1000(self, alunos_para_atualizar, atualizados):
+        if len(alunos_para_atualizar) < 1000:
+            return
+        atualizados.extend(alunos_para_atualizar)
+        logger.info(
+            f"Atualizando batch de {len(alunos_para_atualizar)} novos alunos..."
+        )
+        self._atualiza_alunos(alunos_para_atualizar)
+        alunos_para_atualizar.clear()
 
     def _trata_alunos_status_ativo_d_menos_2(
         self,
