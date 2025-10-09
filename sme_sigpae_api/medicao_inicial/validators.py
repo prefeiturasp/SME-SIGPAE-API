@@ -2432,10 +2432,12 @@ def valida_alimentacoes_solicitacoes_continuas_emei_cemei(
     return periodo_com_erro
 
 
-def get_nomes_campos_categoria(nomes_campos, classificacao, categorias):
+def get_nomes_campos_categoria(nomes_campos, classificacao, categorias, inclusao=None):
     if "ENTERAL" in classificacao.nome or "AMINOÁCIDOS" in classificacao.nome:
         categoria = categorias.get(nome__icontains="enteral")
-        if "refeicao" not in nomes_campos:
+        if "refeicao" not in nomes_campos and (
+            not inclusao or "refeicao" in inclusao["linhas_da_tabela"]
+        ):
             nomes_campos.append("refeicao")
     else:
         categoria = categorias.exclude(nome__icontains="enteral").get(
@@ -2929,7 +2931,7 @@ def validate_lancamento_dietas_inclusoes_escola_sem_alunos_regulares(
         for inclusao in lista_inclusoes:
             nomes_campos = ["frequencia"]
             nomes_campos, categoria = get_nomes_campos_categoria(
-                nomes_campos, classificacao, categorias_dietas
+                nomes_campos, classificacao, categorias_dietas, inclusao
             )
             nomes_campos = incluir_lanche(
                 nomes_campos, "lanche", lista_inclusoes, inclusao
