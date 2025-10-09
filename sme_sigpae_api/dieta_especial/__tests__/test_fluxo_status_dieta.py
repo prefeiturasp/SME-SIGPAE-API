@@ -52,5 +52,4 @@ def test_inicio_fluxo_comum_usa_status_normal(
     solicitacao._codae_autoriza_hook(user=solicitacao.criado_por)
 
     logs = LogSolicitacoesUsuario.objects.filter(uuid_original=solicitacao.uuid)
-    print(logs)
     assert logs[0].status_evento == LogSolicitacoesUsuario.CODAE_AUTORIZOU
