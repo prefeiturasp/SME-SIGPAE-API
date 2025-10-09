@@ -231,14 +231,14 @@ def test_dashboard_dados_ordenados(api_client_usuario_codae, dre, tipo_gestao, s
         ("EMEI", "EMEI JARDIM"),
         ("CEU EMEI", "CEU EMEI NORTE"),
 
-        # Grupo 4 (EMEF=1, EMEFM=2, EMEF P FOM=3, CIEJA=4, CEU GESTAO=5, CEU EMEF=6)
+        # Grupo 4 (EMEF=1, CEU EMEF=2, EMEFM=3, EMEF P FOM=4, CIEJA=5, CEU GESTAO=6)
         ("EMEF", "EMEF JOAO CARLOS DA SILVA BORGES, PROF."),
         ("EMEF", "EMEF PERICLES EUGENIO DA SILVA RAMOS"),
+        ("CEU EMEF", "CEU EMEF ROSA PARKS"),
         ("EMEFM", "EMEFM TESTE ALPHA"),
         ("CIEJA", "CIEJA CAMPO LIMPO"),
         ("CEU GESTAO", "CEU GESTAO CENTRO"),
         ("CEU GESTAO", "CEU GESTAO LESTE"),
-        ("CEU EMEF", "CEU EMEF ROSA PARKS"),
 
         # Grupo 5
         ("EMEBS", "EMEBS ESPECIAL"),
