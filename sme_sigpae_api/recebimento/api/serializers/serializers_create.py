@@ -17,6 +17,7 @@ from sme_sigpae_api.recebimento.models import (
     QuestaoFichaRecebimento,
     QuestoesPorProduto,
     VeiculoFichaDeRecebimento,
+    ReposicaoCronogramaFichaRecebimento,
 )
 
 
@@ -402,6 +403,64 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
                 data[field] = data[field].replace(".", "").replace(",", ".")
 
         return super().to_internal_value(data)
+
+    class Meta:
+        model = FichaDeRecebimento
+        exclude = ("id",)
+
+
+class FichaDeRecebimentoReposicaoSerializer(serializers.ModelSerializer):
+    etapa = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=True,
+        queryset=EtapasDoCronograma.objects.all(),
+    )
+    data_entrega = serializers.DateField(required=True)
+    ocorrencias = OcorrenciaFichaRecebimentoCreateSerializer(
+        many=True, required=False, rascunho=True
+    )
+    observacao = serializers.CharField(required=True, allow_blank=True)
+    arquivos = ArquivoFichaRecebimentoCreateSerializer(
+        many=True,
+        required=False,
+    )
+    reposicao_cronograma = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=True,
+        queryset=ReposicaoCronogramaFichaRecebimento.objects.all(),
+    )
+    documentos_recebimento = serializers.SlugRelatedField(
+        slug_field="uuid",
+        queryset=DocumentoDeRecebimento.objects.filter(
+            status=DocumentoDeRecebimentoWorkflow.APROVADO
+        ),
+        many=True,
+        required=False,
+    )
+
+    def create(self, validated_data):
+        ficha = criar_ficha(validated_data)
+        user = self.context["request"].user
+        ficha.inicia_fluxo(user=user)
+        return ficha
+
+    def update(self, instance, validated_data):
+        eh_rascunho = (
+            hasattr(instance, "status")
+            and instance.status == instance.workflow_class.RASCUNHO
+        )
+
+        ficha_atualizada = atualizar_ficha(instance, validated_data)
+
+        if eh_rascunho:
+            user = self.context["request"].user
+            ficha_atualizada.inicia_fluxo(user=user)
+
+        return ficha_atualizada
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        return representation
 
     class Meta:
         model = FichaDeRecebimento

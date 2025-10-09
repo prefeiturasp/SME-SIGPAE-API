@@ -58,6 +58,7 @@ from utility.carga_dados.terceirizada.importa_dados import (
     cria_terceirizadas,
 )
 from utility.carga_dados.usuarios import cria_usuarios
+from utility.carga_dados.recebimento.importa_dados import cria_reposicao_cronograma_ficha_recebimento
 
 
 class Command(BaseCommand):
@@ -145,3 +146,6 @@ class Command(BaseCommand):
             adiciona_contato_em_terceirizada()
 
             cria_alimento_proprio()
+
+        # Recebimento
+        cria_reposicao_cronograma_ficha_recebimento()

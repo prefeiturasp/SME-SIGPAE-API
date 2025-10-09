@@ -345,7 +345,7 @@ class TestEndpointsPainelGerencialDietaEspecialEscola:
             usuario,
             escola,
             status=SolicitacaoDietaEspecial.workflow_class.ESCOLA_CANCELOU,
-            status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
         )
 
         response = client.get(
@@ -364,7 +364,7 @@ class TestEndpointsPainelGerencialDietaEspecialEscola:
             usuario,
             escola,
             status=SolicitacaoDietaEspecial.workflow_class.ESCOLA_CANCELOU,
-            status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
         )
 
         response = client.get(

@@ -569,7 +569,7 @@ def relatorio_dietas_especiais_terceirizada(dados):
     )
 
 
-def relatorio_dieta_especial_protocolo(request, solicitacao):
+def relatorio_dieta_especial_protocolo(request, solicitacao, sem_foto=False):
     if solicitacao.tipo_solicitacao == "COMUM":
         escola = solicitacao.rastro_escola
     else:
@@ -598,9 +598,7 @@ def relatorio_dieta_especial_protocolo(request, solicitacao):
             "solicitacao": solicitacao,
             "substituicoes": substituicao_ordenada,
             "data_termino": solicitacao.data_termino,
-            "log_autorizacao": solicitacao.logs.get(
-                status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU
-            ),
+            "log_autorizacao": solicitacao.get_log_autorizado,
             "foto_aluno": solicitacao.aluno.foto_aluno_base64,
             "eh_dieta_especial": True,
             "eh_protocolo_dieta_especial": eh_alteracao_ue,

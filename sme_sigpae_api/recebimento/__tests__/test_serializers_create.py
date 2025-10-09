@@ -12,6 +12,7 @@ from sme_sigpae_api.recebimento.api.serializers.serializers_create import (
     FichaDeRecebimentoRascunhoSerializer,
     OcorrenciaFichaRecebimentoCreateSerializer,
     QuestaoFichaRecebimentoCreateSerializer,
+    FichaDeRecebimentoReposicaoSerializer,
 )
 from sme_sigpae_api.recebimento.models import (
     QuestaoConferencia,
@@ -311,3 +312,51 @@ def test_ficha_recebimento_serializer_validate_questoes(
     serializer = FichaDeRecebimentoCreateSerializer(data=payload)
     assert not serializer.is_valid()
     assert "questoes" in serializer.errors
+
+
+def test_ficha_recebimento_reposicao_serializer_create(payload_ficha_recebimento_reposicao):
+    """Testa a criação de uma ficha de recebimento através do serializer para reposição de cronograma."""
+    class FakeObject(object):
+        user = baker.make("perfil.Usuario")
+
+    context = {"request": FakeObject()}
+
+    serializer = FichaDeRecebimentoReposicaoSerializer(
+        data=payload_ficha_recebimento_reposicao, context=context
+    )
+    
+    assert serializer.is_valid()
+
+    instancia = serializer.save()
+
+    payload = payload_ficha_recebimento_reposicao
+    etapa_uuid = payload["etapa"]
+    data_entrega = payload["data_entrega"]
+    observacao_original = payload["observacao"]
+    arquivos = payload["arquivos"]
+
+    assert str(instancia.etapa.uuid) == etapa_uuid
+    assert str(instancia.data_entrega) == data_entrega
+    assert instancia.observacao == observacao_original
+    assert instancia.arquivos.count() == len(arquivos)
+    assert instancia.status == "ASSINADA"
+
+
+def test_ficha_recebimento_reposicao_serializer_update(ficha_recebimento):
+    """Testa a atualização de uma ficha de recebimento através do serializer para reposição de cronograma."""
+    class FakeObject(object):
+        user = baker.make("perfil.Usuario")
+
+    context = {"request": FakeObject()}
+
+    nova_observacao = "Nova observação reposição."
+    serializer = FichaDeRecebimentoReposicaoSerializer(
+        instance=ficha_recebimento, data={"observacao": nova_observacao}, context=context, partial=True
+    )
+    
+    assert serializer.is_valid(), serializer.errors
+    instancia = serializer.save()
+
+    assert instancia.observacao == nova_observacao
+    assert instancia.status == "ASSINADA"
+    

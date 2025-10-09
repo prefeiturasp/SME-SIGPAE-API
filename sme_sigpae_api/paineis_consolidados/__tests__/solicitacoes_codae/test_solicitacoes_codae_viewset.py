@@ -294,7 +294,7 @@ class TestEndpointsPainelGerencialDietaEspecial:
         self.setup_solicitacoes(
             usuario,
             status=SolicitacaoDietaEspecial.workflow_class.ESCOLA_CANCELOU,
-            status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
         )
 
         response = client.get("/codae-solicitacoes/cancelados-dieta/?limit=6&offset=0")
@@ -309,7 +309,7 @@ class TestEndpointsPainelGerencialDietaEspecial:
         self.setup_solicitacoes(
             usuario,
             status=SolicitacaoDietaEspecial.workflow_class.ESCOLA_CANCELOU,
-            status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
         )
 
         response = client.get(

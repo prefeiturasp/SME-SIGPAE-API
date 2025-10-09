@@ -19,6 +19,7 @@ from ...models import (
     QuestaoFichaRecebimento,
     QuestoesPorProduto,
     VeiculoFichaDeRecebimento,
+    ReposicaoCronogramaFichaRecebimento,
 )
 
 
@@ -231,6 +232,12 @@ class DadosCronogramaSerializer(serializers.Serializer):
     )
 
 
+class ReposicaoCronogramaFichaRecebimentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReposicaoCronogramaFichaRecebimento
+        exclude = ("id",)
+
+
 class FichaDeRecebimentoDetalharSerializer(serializers.ModelSerializer):
     data_recebimento = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
@@ -243,9 +250,9 @@ class FichaDeRecebimentoDetalharSerializer(serializers.ModelSerializer):
     questoes = QuestaoFichaRecebimentoDetailSerializer(
         source="questaoficharecebimento_set", many=True, read_only=True
     )
-
     ocorrencias = OcorrenciaFichaRecebimentoSerializer(many=True, read_only=True)
     arquivos = ArquivoFichaRecebimentoSerializer(many=True, read_only=True)
+    reposicao_cronograma = ReposicaoCronogramaFichaRecebimentoSerializer(read_only=True)
 
     def get_data_recebimento(self, obj):
         try:
@@ -299,4 +306,5 @@ class FichaDeRecebimentoDetalharSerializer(serializers.ModelSerializer):
             "ocorrencias",
             "arquivos",
             "alterado_em",
+            "reposicao_cronograma",
         )
