@@ -599,7 +599,7 @@ def relatorio_dieta_especial_protocolo(request, solicitacao, sem_foto=False):
             "substituicoes": substituicao_ordenada,
             "data_termino": solicitacao.data_termino,
             "log_autorizacao": solicitacao.get_log_autorizado,
-            "foto_aluno": solicitacao.aluno.foto_aluno_base64,
+            "foto_aluno": None if sem_foto else solicitacao.aluno.foto_aluno_base64,
             "eh_dieta_especial": True,
             "eh_protocolo_dieta_especial": eh_alteracao_ue,
             "motivo": (
