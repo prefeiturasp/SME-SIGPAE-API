@@ -199,6 +199,11 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
     ocorrencias = OcorrenciaFichaRecebimentoCreateSerializer(
         many=True, required=False, rascunho=False
     )
+    reposicao_cronograma = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=False,
+        queryset=ReposicaoCronogramaFichaRecebimento.objects.all(),
+    )
 
     class Meta:
         model = FichaDeRecebimento
@@ -226,6 +231,7 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
             "observacoes_conferencia",
             "houve_ocorrencia",
             "ocorrencias",
+            "reposicao_cronograma",
         ]
 
     def validate(self, data):
@@ -366,6 +372,11 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
     ocorrencias = OcorrenciaFichaRecebimentoCreateSerializer(
         many=True, required=False, rascunho=True
     )
+    reposicao_cronograma = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=False,
+        queryset=ReposicaoCronogramaFichaRecebimento.objects.all(),
+    )
 
     def create(self, validated_data):
         return criar_ficha(validated_data)
@@ -461,6 +472,21 @@ class FichaDeRecebimentoReposicaoSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         return representation
+
+    def to_internal_value(self, data):
+        peso_fields = [
+            "numero_paletes",
+            "peso_embalagem_primaria_1",
+            "peso_embalagem_primaria_2",
+            "peso_embalagem_primaria_3",
+            "peso_embalagem_primaria_4",
+        ]
+
+        for field in peso_fields:
+            if field in data and isinstance(data[field], str):
+                data[field] = data[field].replace(".", "").replace(",", ".")
+
+        return super().to_internal_value(data)
 
     class Meta:
         model = FichaDeRecebimento
