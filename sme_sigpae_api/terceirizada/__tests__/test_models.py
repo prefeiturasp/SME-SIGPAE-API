@@ -199,3 +199,14 @@ def test_modelo_modalidade(modalidade):
     assert modalidade.__str__() == "Pregão Eletrônico"
     assert modalidade.uuid is not None
     assert modalidade.nome is not None
+
+
+def test_acesso_medicao_inicial_retorna_true(tercerizada_com_acesso_medicao):
+    assert (
+        tercerizada_com_acesso_medicao.possui_escolas_com_acesso_ao_medicao_inicial
+        == True
+    )
+
+
+def test_acesso_medicao_inicial_retorna_false(terceirizada):
+    assert terceirizada.possui_escolas_com_acesso_ao_medicao_inicial == False

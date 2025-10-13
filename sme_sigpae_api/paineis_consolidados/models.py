@@ -112,6 +112,7 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
     ]
     PENDENTES_EVENTO_DIETA_ESPECIAL = [
         LogSolicitacoesUsuario.INICIO_FLUXO,
+        LogSolicitacoesUsuario.INICIO_FLUXO_ALTERACAO_UE_DIETA_ESPECIAL,
         LogSolicitacoesUsuario.INICIO_FLUXO_INATIVACAO,
     ]
 
@@ -128,6 +129,8 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
         LogSolicitacoesUsuario.CODAE_AUTORIZOU_INATIVACAO,
         LogSolicitacoesUsuario.TERCEIRIZADA_TOMOU_CIENCIA_INATIVACAO,
         LogSolicitacoesUsuario.INICIO_FLUXO,
+        LogSolicitacoesUsuario.INICIO_FLUXO_ALTERACAO_UE_DIETA_ESPECIAL,
+        LogSolicitacoesUsuario.CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL,
     ]
 
     NEGADOS_STATUS_DIETA_ESPECIAL = [
@@ -139,6 +142,7 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
         LogSolicitacoesUsuario.CODAE_NEGOU,
         LogSolicitacoesUsuario.CODAE_NEGOU_INATIVACAO,
         LogSolicitacoesUsuario.CODAE_NEGOU_CANCELAMENTO,
+        LogSolicitacoesUsuario.CODAE_NEGOU_ALTERACAO_UE_DIETA_ESPECIAL,
     ]
 
     CANCELADOS_STATUS_DIETA_ESPECIAL = [
@@ -149,6 +153,7 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
     ]
     CANCELADOS_EVENTO_DIETA_ESPECIAL = [
         LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+        LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
         LogSolicitacoesUsuario.CANCELADO_ALUNO_MUDOU_ESCOLA,
         LogSolicitacoesUsuario.CANCELADO_ALUNO_NAO_PERTENCE_REDE,
         LogSolicitacoesUsuario.TERMINADA_AUTOMATICAMENTE_SISTEMA,
@@ -177,7 +182,7 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
         LogSolicitacoesUsuario.CODAE_AUTORIZOU_INATIVACAO,
         LogSolicitacoesUsuario.TERMINADA_AUTOMATICAMENTE_SISTEMA,
         LogSolicitacoesUsuario.TERCEIRIZADA_TOMOU_CIENCIA,
-        LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+        LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
     ]
 
     TP_SOL_TODOS = "TODOS"
@@ -1231,7 +1236,7 @@ class SolicitacoesEscola(MoldeConsolidado):
                 | Q(
                     tipo_solicitacao_dieta="CANCELAMENTO_DIETA",
                     status_atual=DietaEspecialWorkflow.ESCOLA_CANCELOU,
-                    status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+                    status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
                     escola_uuid=escola_uuid,
                 ),
                 tipo_doc=cls.TP_SOL_DIETA_ESPECIAL,

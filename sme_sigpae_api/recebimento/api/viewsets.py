@@ -11,7 +11,7 @@ from sme_sigpae_api.relatorios.relatorios import get_pdf_ficha_recebimento
 
 from ...dados_comuns.api.paginations import DefaultPagination
 from ...pre_recebimento.cronograma_entrega.models import Cronograma
-from ..models import FichaDeRecebimento, QuestaoConferencia, QuestoesPorProduto
+from ..models import FichaDeRecebimento, QuestaoConferencia, QuestoesPorProduto, ReposicaoCronogramaFichaRecebimento
 from .filters import FichaRecebimentoFilter, QuestoesPorProdutoFilter
 from .permissions import (
     PermissaoParaCadastrarFichaRecebimento,
@@ -26,11 +26,13 @@ from .serializers.serializers import (
     QuestoesPorProdutoDetalheSerializer,
     QuestoesPorProdutoSerializer,
     QuestoesPorProdutoSimplesSerializer,
+    ReposicaoCronogramaFichaRecebimentoSerializer,
 )
 from .serializers.serializers_create import (
     FichaDeRecebimentoCreateSerializer,
     FichaDeRecebimentoRascunhoSerializer,
     QuestoesPorProdutoCreateSerializer,
+    FichaDeRecebimentoReposicaoSerializer,
 )
 
 
@@ -201,3 +203,19 @@ class FichaRecebimentoModelViewSet(
     def gerar_pdf_ficha(self, request, uuid=None):
         ficha = self.get_object()
         return get_pdf_ficha_recebimento(request, ficha)
+
+
+class FichaDeRecebimentoReposicaoViewSet(
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet,
+):
+    lookup_field = "uuid"
+    serializer_class = FichaDeRecebimentoReposicaoSerializer
+    queryset = FichaDeRecebimento.objects.all().order_by("-criado_em")
+    permission_classes = (PermissaoParaCadastrarFichaRecebimento,)
+
+
+class ReposicaoCronogramaFichaRecebimentoViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = ReposicaoCronogramaFichaRecebimentoSerializer
+    queryset = ReposicaoCronogramaFichaRecebimento.objects.all().order_by("-criado_em")

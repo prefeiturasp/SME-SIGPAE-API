@@ -9,6 +9,11 @@ from faker import Faker
 from freezegun import freeze_time
 from model_bakery import baker
 
+from sme_sigpae_api.cardapio.suspensao_alimentacao.models import (
+    GrupoSuspensaoAlimentacao,
+    QuantidadePorPeriodoSuspensaoAlimentacao,
+    SuspensaoAlimentacao,
+)
 from sme_sigpae_api.paineis_consolidados.api import constants as consts_pc
 from sme_sigpae_api.paineis_consolidados.api.serializers import (
     SolicitacoesExportXLSXSerializer,
@@ -18,7 +23,10 @@ from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 from ...cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from ...cardapio.suspensao_alimentacao_cei.models import SuspensaoAlimentacaoDaCEI
 from ...dados_comuns import constants
-from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
+from ...dados_comuns.fluxo_status import (
+    DietaEspecialWorkflow,
+    InformativoPartindoDaEscolaWorkflow,
+)
 from ...dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
 from ...dieta_especial.models import SolicitacaoDietaEspecial
 from ...inclusao_alimentacao.models import (
@@ -1413,3 +1421,90 @@ def client_autenticado_vinculo_escola_cemei(client, django_user_model, escola_ce
     )
     client.login(username=email, password=password)
     return client, user
+
+
+@pytest.fixture
+def grupo_suspensao_alimentacao(
+    escola,
+    periodo_escolar_manha,
+    tipo_alimentacao_lanche,
+    client_autenticado_escola_paineis_consolidados,
+):
+    _, usuario = client_autenticado_escola_paineis_consolidados
+    grupo_suspensao = baker.make(
+        GrupoSuspensaoAlimentacao,
+        observacao="lorem ipsum",
+        escola=escola,
+        rastro_escola=escola,
+        status=InformativoPartindoDaEscolaWorkflow.INFORMADO,
+    )
+    baker.make(
+        LogSolicitacoesUsuario,
+        uuid_original=grupo_suspensao.uuid,
+        status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        usuario=usuario,
+        solicitacao_tipo=LogSolicitacoesUsuario.SUSPENSAO_DE_CARDAPIO,
+    )
+    quantidade_periodo = baker.make(
+        QuantidadePorPeriodoSuspensaoAlimentacao,
+        grupo_suspensao=grupo_suspensao,
+        numero_alunos=100,
+        periodo_escolar=periodo_escolar_manha,
+    )
+    quantidade_periodo.tipos_alimentacao.set([tipo_alimentacao_lanche])
+
+    baker.make(
+        SuspensaoAlimentacao,
+        data=datetime.date(2025, 5, 10),
+        grupo_suspensao=grupo_suspensao,
+        cancelado=False,
+    )
+    baker.make(
+        SuspensaoAlimentacao,
+        data=datetime.date(2025, 5, 20),
+        grupo_suspensao=grupo_suspensao,
+        cancelado=False,
+    )
+    baker.make(
+        SuspensaoAlimentacao,
+        data=datetime.date(2025, 6, 5),
+        grupo_suspensao=grupo_suspensao,
+        cancelado=False,
+    )
+    baker.make(
+        SuspensaoAlimentacao,
+        data=datetime.date(2025, 8, 14),
+        grupo_suspensao=grupo_suspensao,
+        cancelado=False,
+    )
+
+    grupo_suspensao_2 = baker.make(
+        GrupoSuspensaoAlimentacao,
+        observacao="lorem ipsum",
+        escola=escola,
+        rastro_escola=escola,
+        status=InformativoPartindoDaEscolaWorkflow.INFORMADO,
+    )
+    baker.make(
+        LogSolicitacoesUsuario,
+        uuid_original=grupo_suspensao_2.uuid,
+        status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        usuario=usuario,
+        solicitacao_tipo=LogSolicitacoesUsuario.SUSPENSAO_DE_CARDAPIO,
+    )
+    quantidade_periodo_2 = baker.make(
+        QuantidadePorPeriodoSuspensaoAlimentacao,
+        grupo_suspensao=grupo_suspensao_2,
+        numero_alunos=100,
+        periodo_escolar=periodo_escolar_manha,
+    )
+    quantidade_periodo_2.tipos_alimentacao.set([tipo_alimentacao_lanche])
+
+    baker.make(
+        SuspensaoAlimentacao,
+        data=datetime.date(2025, 5, 15),
+        grupo_suspensao=grupo_suspensao_2,
+        cancelado=False,
+    )
+
+    return grupo_suspensao

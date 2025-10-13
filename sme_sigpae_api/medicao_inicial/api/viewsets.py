@@ -22,6 +22,7 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_adesao import (
     obtem_resultados,
     valida_parametros_periodo_lancamento,
 )
+from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 
 from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns import constants
@@ -127,6 +128,7 @@ from .serializers_create import (
     ClausulaDeDescontoCreateUpdateSerializer,
     DiaSobremesaDoceCreateManySerializer,
     EmpenhoCreateUpdateSerializer,
+    InformacoesBasicasMedicaoInicialUpdateSerializer,
     MedicaoCreateUpdateSerializer,
     ParametrizacaoFinanceiraWriteModelSerializer,
     PermissaoLancamentoEspecialCreateUpdateSerializer,
@@ -320,25 +322,6 @@ class SolicitacaoMedicaoInicialViewSet(
             return queryset.filter(status__in=STATUS_RELACAO_DRE_MEDICAO)
         return queryset
 
-    def ordena_qs(self, qs, workflow, request):
-        if not request.query_params.get("status"):
-            return qs
-        if request.query_params.get("status") == "TODOS_OS_LANCAMENTOS":
-            qs = sorted(
-                qs.distinct().all(),
-                key=lambda x: (x.criado_em),
-                reverse=True,
-            )
-        elif request.query_params.get("status") == workflow:
-            qs = sorted(
-                qs.distinct().all(),
-                key=lambda x: (
-                    x.log_mais_recente.criado_em if x.log_mais_recente else "-criado_em"
-                ),
-                reverse=True,
-            )
-        return qs
-
     def dados_dashboard(
         self, request, query_set: QuerySet, kwargs: dict, use_raw=True
     ) -> list:
@@ -385,12 +368,13 @@ class SolicitacaoMedicaoInicialViewSet(
                 qs = qs.filter(**kwargs)
                 qs = self.condicao_por_usuario(qs)
 
-            qs = self.ordena_qs(qs, workflow, request)
+            qs_ordenado = ordenar_unidades(qs)
+            paginated = qs_ordenado[offset: offset + limit]
             result = {
                 "status": workflow,
-                "total": len(qs),
+                "total": len(qs_ordenado),
                 "dados": SolicitacaoMedicaoInicialDashboardSerializer(
-                    qs[offset : limit + offset],
+                    paginated,
                     context={"request": self.request, "workflow": workflow},
                     many=True,
                 ).data,
@@ -426,10 +410,18 @@ class SolicitacaoMedicaoInicialViewSet(
         kwargs = {}
 
         mapping = {
-            "tipo_unidade": lambda params: {"escola__tipo_unidade__uuid": params.get("tipo_unidade")},
-            "dre": lambda params: {"escola__diretoria_regional__uuid": params.get("dre")},
-            "ocorrencias": lambda params: {"com_ocorrencias": params.get("ocorrencias").lower() == "true"},
-            "mes_ano": lambda params: dict(zip(["mes", "ano"], params["mes_ano"].split("_"))),
+            "tipo_unidade": lambda params: {
+                "escola__tipo_unidade__uuid": params.get("tipo_unidade")
+            },
+            "dre": lambda params: {
+                "escola__diretoria_regional__uuid": params.get("dre")
+            },
+            "ocorrencias": lambda params: {
+                "com_ocorrencias": params.get("ocorrencias").lower() == "true"
+            },
+            "mes_ano": lambda params: dict(
+                zip(["mes", "ano"], params["mes_ano"].split("_"))
+            ),
             "lotes_selecionados[]": lambda params: {
                 "escola__lote__uuid__in": params.getlist("lotes_selecionados[]")
             },
@@ -1201,6 +1193,33 @@ class SolicitacaoMedicaoInicialViewSet(
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        except (ValidationError, InvalidTransitionError) as e:
+            return Response(
+                dict(detail=str(e)),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    @action(
+        detail=True,
+        methods=["PATCH"],
+        url_path="informacoes-basicas",
+        permission_classes=[UsuarioEscolaTercTotal],
+    )
+    def atualiza_informacoes_basicas(self, request, uuid=None):
+        solicitacao_medicao_inicial = self.get_object()
+        try:
+            serializer = InformacoesBasicasMedicaoInicialUpdateSerializer(
+                solicitacao_medicao_inicial,
+                data=request.data,
+                context={"request": request},
+                partial=True,
+            )
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except (ValidationError, InvalidTransitionError) as e:
             return Response(
                 dict(detail=str(e)),
