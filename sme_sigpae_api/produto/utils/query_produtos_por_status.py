@@ -53,6 +53,7 @@ def produtos_suspensos(request: Request, query_set: QuerySet = None) -> list:
     query_set = query_set.exclude(
         status=HomologacaoProduto.workflow_class.CODAE_NAO_HOMOLOGADO
     )
+    query_set = query_set.filter(eh_copia=False)
     query_set = filtrar_query_params(request, query_set, filtra_por_edital=True)
     query_set = trata_parcialmente_homologados_ou_suspensos(
         request, query_set, vinculo_suspenso=True
