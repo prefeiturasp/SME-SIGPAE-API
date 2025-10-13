@@ -1519,7 +1519,7 @@ def popula_campo_total_sobremesas_pagamento(
             else:
                 valor_comparativo = (
                     valor_matriculados
-                    if valor_matriculados > 0
+                    if int(valor_matriculados) > 0
                     else valor_numero_de_alunos
                 )
 
@@ -4298,7 +4298,9 @@ def get_total_refeicoes_sobremesas_pagamento_por_periodo(solicitacao, periodo, c
                 medicao, "numero_de_alunos", dia
             )
             valor_comparativo = (
-                valor_matriculados if valor_matriculados > 0 else valor_numero_de_alunos
+                valor_matriculados
+                if int(valor_matriculados) > 0
+                else valor_numero_de_alunos
             )
 
             total_alimentacao = min(total_alimentacao, valor_comparativo)
@@ -4373,7 +4375,9 @@ def get_total_refeicoes_sobremesas_pagamento_por_grupo(solicitacao, grupo, campo
                 medicao, "numero_de_alunos", dia
             )
             valor_comparativo = (
-                valor_matriculados if valor_matriculados > 0 else valor_numero_de_alunos
+                valor_matriculados
+                if int(valor_matriculados) > 0
+                else valor_numero_de_alunos
             )
 
             total_alimentacao = min(total_alimentacao, valor_comparativo)
@@ -4522,7 +4526,7 @@ def get_periodos_escolares_comuns_com_inclusoes_normais(solicitacao):
     return periodos_escolares_inclusoes
 
 
-def get_lista_dias_inclusoes_ceu_gestao(solicitacao):
+def get_lista_dias_inclusoes_escola_sem_alunos_regulares(solicitacao):
     escola = solicitacao.escola
     lista_inclusoes = []
 

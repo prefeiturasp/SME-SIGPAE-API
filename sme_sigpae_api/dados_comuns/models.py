@@ -130,7 +130,11 @@ class LogSolicitacoesUsuario(
         RELATORIO_ENVIADO_PARA_CODAE,
         MEDICAO_SEM_LANCAMENTOS,
         FICHA_RECEBIMENTO_ASSINADA,
-    ) = range(103)
+        CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
+        INICIO_FLUXO_ALTERACAO_UE_DIETA_ESPECIAL,
+        CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL,
+        CODAE_NEGOU_ALTERACAO_UE_DIETA_ESPECIAL,
+    ) = range(107)
 
     STATUS_POSSIVEIS = (
         (INICIO_FLUXO, "Solicitação Realizada"),
@@ -290,6 +294,19 @@ class LogSolicitacoesUsuario(
         (RELATORIO_ENVIADO_PARA_CODAE, "Relatório enviado para CODAE"),
         (MEDICAO_SEM_LANCAMENTOS, "Medição sem lançamentos"),
         (FICHA_RECEBIMENTO_ASSINADA, "Ficha de Recebimento assinada"),
+        (CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL, "CODAE autorizou o cancelamento"),
+        (
+            INICIO_FLUXO_ALTERACAO_UE_DIETA_ESPECIAL,
+            "Solicitação de Alteração de UE Realizada",
+        ),
+        (
+            CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL,
+            "CODAE autorizou a Alteração de UE",
+        ),
+        (
+            CODAE_NEGOU_ALTERACAO_UE_DIETA_ESPECIAL,
+            "CODAE negou a Alteração de UE",
+        ),
     )
     (  # DA ESCOLA
         SOLICITACAO_KIT_LANCHE_AVULSA,

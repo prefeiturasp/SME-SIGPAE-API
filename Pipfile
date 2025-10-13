@@ -104,17 +104,17 @@ PyPDF4 = "*"
 pydantic = "==2.11.7"
 python-magic = {version = "*", markers = "sys_platform == 'linux'"}
 python-magic-bin = {version = "==0.4.14", markers = "sys_platform == 'win32'"}
-Unidecode="==1.3.4"
 brazilnum="==0.8.8"
 munch="==4.0.0"
-channels = "==4.0.0"
-channels-redis = "==4.0.0"
-daphne = "==4.1.0"
+channels = "==4.3.1"
+channels-redis = "==4.3.0"
+daphne = "==4.2.1"
 drf-spectacular = "==0.28.0"
 cerberus = "*"
 coverage-badge = "==1.1.2"
 beautifulsoup4 = "==4.13.4"
 pypdf = "==6.1.0"
+unidecode = "==1.4.0"
 
 [requires]
 python_version = "3.13.3"

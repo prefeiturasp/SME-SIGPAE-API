@@ -11,6 +11,7 @@ from sme_sigpae_api.escola.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
 from sme_sigpae_api.escola.models import (
     Aluno,
     AlunosMatriculadosPeriodoEscola,
+    DiaCalendario,
     DiretoriaRegional,
     Escola,
     FaixaEtaria,
@@ -145,3 +146,10 @@ class LogAlunosMatriculadosFaixaEtariaDiaFactory(DjangoModelFactory):
 
     class Meta:
         model = LogAlunosMatriculadosFaixaEtariaDia
+
+
+class DiaCalendarioFactory(DjangoModelFactory):
+    escola = SubFactory(EscolaFactory)
+
+    class Meta:
+        model = DiaCalendario

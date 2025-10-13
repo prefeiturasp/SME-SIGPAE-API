@@ -26,6 +26,7 @@ from django.core.mail import (
     get_connection,
     send_mail,
 )
+from django.db import DatabaseError, transaction
 from django.db.models import QuerySet
 from django.http import QueryDict
 from django.template.loader import render_to_string
@@ -809,3 +810,24 @@ def filtrar_dias_letivos(dias_letivos: list[int], mes: int, ano: int):
             dias_filtrados.append(dia)
 
     return dias_filtrados
+
+
+def bulk_create_safe(model, objs, batch_size=5000):
+    for i in range(0, len(objs), batch_size):
+        model.objects.bulk_create(objs[i : i + batch_size])
+
+
+def bulk_update_safe(model, objs, fields, batch_size=5000):
+    total = len(objs)
+    for i in range(0, total, batch_size):
+        batch = objs[i : i + batch_size]
+        try:
+            with transaction.atomic():
+                model.objects.bulk_update(batch, fields)
+                print(f"[bulk_update_safe] Atualizados {len(batch)} registros")
+        except DatabaseError as e:
+            print(f"[bulk_update_safe] ERRO no batch {i}-{i + len(batch)}: {e}")
+        except Exception as e:
+            print(
+                f"[bulk_update_safe] ERRO inesperado no batch {i}-{i + len(batch)}: {type(e).__name__}: {e}"
+            )

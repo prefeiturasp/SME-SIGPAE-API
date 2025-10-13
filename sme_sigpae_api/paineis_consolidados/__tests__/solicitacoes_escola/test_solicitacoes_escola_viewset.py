@@ -345,7 +345,7 @@ class TestEndpointsPainelGerencialDietaEspecialEscola:
             usuario,
             escola,
             status=SolicitacaoDietaEspecial.workflow_class.ESCOLA_CANCELOU,
-            status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
         )
 
         response = client.get(
@@ -364,7 +364,7 @@ class TestEndpointsPainelGerencialDietaEspecialEscola:
             usuario,
             escola,
             status=SolicitacaoDietaEspecial.workflow_class.ESCOLA_CANCELOU,
-            status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
         )
 
         response = client.get(
@@ -855,3 +855,46 @@ class TestEndpointAlteracoesAutorizadas:
                 },
             ]
         }
+
+
+@freeze_time("2025-06-30")
+def test_url_endpoint_suspensoes_autorizadas_maio(
+    client_autenticado_escola_paineis_consolidados, grupo_suspensao_alimentacao
+):
+    client, _ = client_autenticado_escola_paineis_consolidados
+    params = {
+        "escola_uuid": grupo_suspensao_alimentacao.escola.uuid,
+        "tipo_solicitacao": "Suspensão",
+        "mes": "05",
+        "ano": "2025",
+        "nome_periodo_escolar": "MANHA",
+    }
+
+    response = client.get("/escola-solicitacoes/suspensoes-autorizadas/", params)
+    assert response.status_code == status.HTTP_200_OK
+    resultados = response.json()["results"]
+
+    assert len(resultados) == 3
+    dias_resultado = {item["dia"] for item in resultados}
+    assert {"10", "15", "20"}.issubset(dias_resultado)
+
+
+@freeze_time("2025-06-30")
+def test_url_endpoint_suspensoes_autorizadas_junho(
+    client_autenticado_escola_paineis_consolidados, grupo_suspensao_alimentacao
+):
+    client, _ = client_autenticado_escola_paineis_consolidados
+    params = {
+        "escola_uuid": grupo_suspensao_alimentacao.escola.uuid,
+        "tipo_solicitacao": "Suspensão",
+        "mes": "06",
+        "ano": "2025",
+        "nome_periodo_escolar": "MANHA",
+    }
+
+    response = client.get("/escola-solicitacoes/suspensoes-autorizadas/", params)
+    assert response.status_code == status.HTTP_200_OK
+    resultados = response.json()["results"]
+
+    assert len(resultados) == 1
+    assert resultados[0]["dia"] == "05"

@@ -345,3 +345,20 @@ def mock_connection(mock_cursor):
     with patch("sme_sigpae_api.terceirizada.utils.connection.cursor") as mock_conn:
         mock_conn.return_value.__enter__.return_value = mock_cursor
         yield mock_conn
+
+
+@pytest.fixture
+def tercerizada_com_acesso_medicao():
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
+        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+    )
+    baker.make(
+        "Escola",
+        nome="EMEF TESTE",
+        lote=lote,
+        diretoria_regional=diretoria_regional,
+        acesso_modulo_medicao_inicial=True,
+    )
+    return terceirizada

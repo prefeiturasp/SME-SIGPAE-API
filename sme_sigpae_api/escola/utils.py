@@ -363,6 +363,10 @@ def analise_alunos_dietas_somente_uma_data(
             (dieta.logs.last().status_evento == LogSolicitacoesUsuario.CODAE_AUTORIZOU)
             or (
                 dieta.logs.last().status_evento
+                == LogSolicitacoesUsuario.CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL
+            )
+            or (
+                dieta.logs.last().status_evento
                 != LogSolicitacoesUsuario.CODAE_AUTORIZOU
                 and dieta.logs.last().criado_em
                 > datetime.strptime(data_inicial, "%Y-%m-%d")
