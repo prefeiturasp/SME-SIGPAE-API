@@ -331,7 +331,7 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
         return not obj.ficha_recebimento.exists()
 
     def get_houve_ocorrencia(self, obj):
-        return obj.ficha_recebimento.filter(houve_ocorrencia=True).exists()
+        return obj.ficha_recebimento.filter(houve_ocorrencia=True, status="ASSINADA").exists()
 
     def get_houve_reposicao(self, obj):
         return obj.ficha_recebimento.filter(
