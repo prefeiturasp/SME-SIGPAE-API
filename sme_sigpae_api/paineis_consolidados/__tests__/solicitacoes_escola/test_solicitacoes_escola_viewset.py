@@ -41,8 +41,6 @@ from sme_sigpae_api.inclusao_alimentacao.fixtures.factories.base_factory import 
 )
 from sme_sigpae_api.inclusao_alimentacao.models import GrupoInclusaoAlimentacaoNormal
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesEscola
-import sme_sigpae_api.kit_lanche.models as kl_models
-from sme_sigpae_api.paineis_consolidados.solicitacoes_escola.api.viewsets import EscolaSolicitacoesViewSet
 
 pytestmark = pytest.mark.django_db
 
