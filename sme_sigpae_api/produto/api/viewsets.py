@@ -61,6 +61,7 @@ from ...dados_comuns.permissions import (
     UsuarioCODAEGestaoProduto,
     UsuarioDinutreDiretoria,
     UsuarioDiretoriaRegional,
+    UsuarioEscolaTercTotal,
     UsuarioNutricionista,
     UsuarioOrgaoFiscalizador,
     UsuarioTerceirizadaProduto,
@@ -1519,6 +1520,12 @@ class HomologacaoProdutoViewSet(viewsets.ModelViewSet):
     )
     def alteracao_produto_homologado(self, request, uuid=None):
         homologacao_produto = self.get_object()
+        if homologacao_produto.tem_copia or homologacao_produto.produto.eh_copia:
+            return Response(
+                dict(detail="Produto já possui alteração de dados em andamento."),
+                status=status.HTTP_409_CONFLICT,
+            )
+
         copia_hom_produto = homologacao_produto.cria_copia(
             request.user.vinculo_atual.instituicao
         )
@@ -1734,6 +1741,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=["GET"],
+        permission_classes=(UsuarioEscolaTercTotal,),
         url_path="lista-nomes-responder-reclamacao-escola",
     )
     def lista_produtos_responder_reclamacao_escola(self, request):
@@ -1970,7 +1978,12 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             )
         return self.paginated_response(queryset)
 
-    @action(detail=False, methods=["GET"], url_path="filtro-reclamacoes-escola")
+    @action(
+        detail=False,
+        methods=["GET"],
+        permission_classes=(UsuarioEscolaTercTotal,),
+        url_path="filtro-reclamacoes-escola",
+    )
     def filtro_reclamacoes_escola(self, request):
         user = self.request.user
         filtro_homologacao = {
@@ -2838,7 +2851,6 @@ class FabricanteViewSet(viewsets.ModelViewSet, ListaNomesUnicos):
         query_set = Fabricante.objects.filter(
             produto__homologacao__status__in=RESPONDER_RECLAMACAO_HOMOLOGACOES_STATUS,
             produto__homologacao__reclamacoes__status__in=RESPONDER_RECLAMACAO_RECLAMACOES_STATUS,
-            produto__homologacao__rastro_terceirizada=user.vinculo_atual.instituicao,
         ).distinct()
         if user.tipo_usuario == "terceirizada":
             query_set = query_set.filter(
@@ -2850,6 +2862,7 @@ class FabricanteViewSet(viewsets.ModelViewSet, ListaNomesUnicos):
     @action(
         detail=False,
         methods=["GET"],
+        permission_classes=(UsuarioEscolaTercTotal,),
         url_path="lista-nomes-responder-reclamacao-escola",
     )
     def lista_fabricantes_responder_reclamacao_escola(self, request):
@@ -2960,14 +2973,18 @@ class MarcaViewSet(viewsets.ModelViewSet, ListaNomesUnicos):
         query_set = Marca.objects.filter(
             produto__homologacao__status__in=RESPONDER_RECLAMACAO_HOMOLOGACOES_STATUS,
             produto__homologacao__reclamacoes__status__in=RESPONDER_RECLAMACAO_RECLAMACOES_STATUS,
-            produto__homologacao__rastro_terceirizada=user.vinculo_atual.instituicao,
         ).distinct()
+        if user.tipo_usuario == "terceirizada":
+            query_set = query_set.filter(
+                produto__homologacao__rastro_terceirizada=user.vinculo_atual.instituicao
+            )
         response = {"results": MarcaSimplesSerializer(query_set, many=True).data}
         return Response(response)
 
     @action(
         detail=False,
         methods=["GET"],
+        permission_classes=(UsuarioEscolaTercTotal,),
         url_path="lista-nomes-responder-reclamacao-escola",
     )
     def lista_marcas_responder_reclamacao_escola(self, request):

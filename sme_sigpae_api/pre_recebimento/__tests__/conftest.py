@@ -1117,3 +1117,47 @@ def ficha_tecnica_com_erro(ficha_tecnica_perecivel_enviada_para_analise):
     )
     informacoes_nutricionais.save()
     return ficha_tecnica_perecivel_enviada_para_analise
+
+
+@pytest.fixture
+def payload_base(produto_arroz, empresa, unidade_medida_logistica):
+    marca = baker.make("Marca")
+    return {
+        "produto": produto_arroz.uuid,
+        "marca": marca.uuid,
+        "categoria": FichaTecnicaDoProduto.CATEGORIA_NAO_PERECIVEIS,
+        "pregao_chamada_publica": "123",
+        "empresa": empresa.uuid,
+        "componentes_produto": "farinha, açúcar",
+        "alergenicos": False,
+        "gluten": False,
+        "lactose": False,
+        "porcao": "100g",
+        "unidade_medida_porcao": unidade_medida_logistica.uuid,
+        "valor_unidade_caseira": "1 unidade",
+        "unidade_medida_caseira": "g",
+        "informacoes_nutricionais": [],
+        "condicoes_de_conservacao": "em local seco",
+        "embalagem_primaria": "saco plástico",
+        "embalagem_secundaria": "caixa",
+        "embalagens_de_acordo_com_anexo": True,
+        "material_embalagem_primaria": "plástico",
+        "peso_liquido_embalagem_primaria": 1.0,
+        "unidade_medida_primaria": unidade_medida_logistica.uuid,
+        "peso_liquido_embalagem_secundaria": 10.0,
+        "unidade_medida_secundaria": unidade_medida_logistica.uuid,
+        "peso_embalagem_primaria_vazia": 0.1,
+        "unidade_medida_primaria_vazia": unidade_medida_logistica.uuid,
+        "peso_embalagem_secundaria_vazia": 0.2,
+        "unidade_medida_secundaria_vazia": unidade_medida_logistica.uuid,
+        "sistema_vedacao_embalagem_secundaria": "termo",
+        "rotulo_legivel": True,
+        "nome_responsavel_tecnico": "João",
+        "habilitacao": "CRN123",
+        "numero_registro_orgao": "456",
+        "arquivo": "file.pdf",
+        "agroecologico": True,
+        "organico": False,
+        "volume_embalagem_primaria": 5,
+        "unidade_medida_volume_primaria": unidade_medida_logistica.uuid,
+    }

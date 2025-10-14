@@ -5,7 +5,7 @@ from auditlog.registry import auditlog
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator, MinLengthValidator
 from django.db import models
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from django_prometheus.models import ExportModelOperationsMixin
 
 from ..dados_comuns.behaviors import (
@@ -32,6 +32,7 @@ from .managers import AlimentoProprioManager
 PENDENTES_EVENTO_DIETA_ESPECIAL = [
     LogSolicitacoesUsuario.INICIO_FLUXO,
     LogSolicitacoesUsuario.INICIO_FLUXO_INATIVACAO,
+    LogSolicitacoesUsuario.INICIO_FLUXO_ALTERACAO_UE_DIETA_ESPECIAL,
 ]
 
 AUTORIZADO_EVENTO_DIETA_ESPECIAL = [
@@ -40,16 +41,18 @@ AUTORIZADO_EVENTO_DIETA_ESPECIAL = [
     LogSolicitacoesUsuario.CODAE_AUTORIZOU_INATIVACAO,
     LogSolicitacoesUsuario.TERCEIRIZADA_TOMOU_CIENCIA_INATIVACAO,
     LogSolicitacoesUsuario.INICIO_FLUXO,
+    LogSolicitacoesUsuario.CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL,
 ]
 
 NEGADOS_EVENTO_DIETA_ESPECIAL = [
     LogSolicitacoesUsuario.CODAE_NEGOU,
     LogSolicitacoesUsuario.CODAE_NEGOU_INATIVACAO,
     LogSolicitacoesUsuario.CODAE_NEGOU_CANCELAMENTO,
+    LogSolicitacoesUsuario.CODAE_NEGOU_ALTERACAO_UE_DIETA_ESPECIAL,
 ]
 
 CANCELADOS_EVENTO_DIETA_ESPECIAL = [
-    LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+    LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
     LogSolicitacoesUsuario.CANCELADO_ALUNO_MUDOU_ESCOLA,
     LogSolicitacoesUsuario.CANCELADO_ALUNO_NAO_PERTENCE_REDE,
     LogSolicitacoesUsuario.TERMINADA_AUTOMATICAMENTE_SISTEMA,
@@ -59,7 +62,7 @@ CANCELADOS_EVENTO_DIETA_ESPECIAL_TEMP = [
     LogSolicitacoesUsuario.CODAE_AUTORIZOU_INATIVACAO,
     LogSolicitacoesUsuario.TERMINADA_AUTOMATICAMENTE_SISTEMA,
     LogSolicitacoesUsuario.TERCEIRIZADA_TOMOU_CIENCIA,
-    LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+    LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
 ]
 
 
@@ -383,6 +386,18 @@ class SolicitacaoDietaEspecial(
             if self.logs
             else None
         )
+
+    @property
+    def get_log_autorizado(self):
+        try:
+            return self.logs.get(
+                Q(status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU)
+                | Q(
+                    status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL
+                )
+            )
+        except LogSolicitacoesUsuario.DoesNotExist:
+            return None
 
     def clean(self):
         super().clean()
