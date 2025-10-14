@@ -1,9 +1,11 @@
 import datetime
 import random
-
+import uuid
+import types
 import pytest
 from freezegun.api import freeze_time
 from rest_framework import status
+from collections import namedtuple
 
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory import (
     AlteracaoCardapioFactory,
@@ -38,6 +40,9 @@ from sme_sigpae_api.inclusao_alimentacao.fixtures.factories.base_factory import 
     QuantidadePorPeriodoFactory,
 )
 from sme_sigpae_api.inclusao_alimentacao.models import GrupoInclusaoAlimentacaoNormal
+from sme_sigpae_api.paineis_consolidados.models import SolicitacoesEscola
+import sme_sigpae_api.kit_lanche.models as kl_models
+from sme_sigpae_api.paineis_consolidados.solicitacoes_escola.api.viewsets import EscolaSolicitacoesViewSet
 
 pytestmark = pytest.mark.django_db
 
@@ -898,3 +903,115 @@ def test_url_endpoint_suspensoes_autorizadas_junho(
 
     assert len(resultados) == 1
     assert resultados[0]["dia"] == "05"
+
+
+def test_busca_filtro_tipo_solicitacao_kit_lanche_isolado(monkeypatch, escola):
+    """
+    Isola busca_filtro para validar o comportamento quando tipo_solicitacao='Kit Lanche':
+    - Patch dos métodos auxiliares para que apenas busca_por_tipo_solicitacao aplique o filtro.
+    - Valida que o resultado final contém somente UNIFICADA e CEMEI.
+    """
+    Linha = namedtuple(
+        "Linha",
+        ["uuid", "escola_uuid", "data_evento", "tipo_doc", "desc_doc", "status_evento", "status_atual"],
+    )
+
+    linhas = [
+        Linha(
+            uuid="uuid-unificada",
+            escola_uuid=escola.uuid,
+            data_evento=datetime.date(2024, 12, 16),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_UNIFICADA,
+            desc_doc="Kit Lanche Unificado",
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            status_atual="CODAE_AUTORIZADO",
+        ),
+        Linha(
+            uuid="uuid-cemei",
+            escola_uuid=escola.uuid,
+            data_evento=datetime.date(2024, 12, 15),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_CEMEI,
+            desc_doc="Kit Lanche CEMEI",
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            status_atual="CODAE_AUTORIZADO",
+        ),
+        Linha(
+            uuid="uuid-alteracao-cardapio",
+            escola_uuid=escola.uuid,
+            data_evento=datetime.date(2024, 12, 14),
+            tipo_doc="ALT_CARDAPIO",
+            desc_doc="Alteração de Cardápio",
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            status_atual="CODAE_AUTORIZADO",
+        ),
+        Linha(
+            uuid="uuid-inclusao-alimentacao",
+            escola_uuid=escola.uuid,
+            data_evento=datetime.date(2024, 12, 13),
+            tipo_doc="INC_ALIMENTA",
+            desc_doc="Inclusão de Alimentação",
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            status_atual="CODAE_AUTORIZADO",
+        ),
+    ]
+
+    class FakeQS:
+        def __init__(self, items):
+            self.items = list(items)
+        def filter(self, **kwargs):
+            # Suporta filtro por tipo_doc__in se aplicado pelo patch
+            if "tipo_doc__in" in kwargs:
+                tipos = set(kwargs["tipo_doc__in"])
+                return FakeQS([x for x in self.items if x.tipo_doc in tipos])
+            return FakeQS(self.items)
+        def __iter__(self):
+            return iter(self.items)
+        def __len__(self):
+            return len(self.items)
+        def __getitem__(self, idx):
+            return self.items[idx]
+
+    qs = FakeQS(linhas)
+
+    # Patches: só busca_por_tipo_solicitacao aplica filtro de Kit Lanche
+    monkeypatch.setattr(
+        SolicitacoesEscola,
+        "excluir_inclusoes_continuas",
+        classmethod(lambda cls, qs, params: qs),
+    )
+    monkeypatch.setattr(
+        SolicitacoesEscola,
+        "filtrar_tipo_doc",
+        classmethod(lambda cls, qs, params: qs),
+    )
+
+    def fake_busca_por_tipo_solicitacao(cls, qs_arg, params):
+        if params.get("tipo_solicitacao") == "Kit Lanche":
+            return qs_arg.filter(
+                tipo_doc__in=[
+                    SolicitacoesEscola.TP_SOL_KIT_LANCHE_UNIFICADA,
+                    SolicitacoesEscola.TP_SOL_KIT_LANCHE_CEMEI,
+                ]
+            )
+        return qs_arg
+
+    monkeypatch.setattr(
+        SolicitacoesEscola,
+        "busca_por_tipo_solicitacao",
+        classmethod(fake_busca_por_tipo_solicitacao),
+    )
+    monkeypatch.setattr(
+        SolicitacoesEscola,
+        "busca_data_evento",
+        classmethod(lambda cls, qs, params: qs),
+    )
+
+    resultado = SolicitacoesEscola.busca_filtro(qs, {"tipo_solicitacao": "Kit Lanche"})
+    resultado_lista = list(resultado)
+
+    tipos_validos = {
+        SolicitacoesEscola.TP_SOL_KIT_LANCHE_UNIFICADA,
+        SolicitacoesEscola.TP_SOL_KIT_LANCHE_CEMEI,
+    }
+    assert len(resultado_lista) == 2
+    assert {item.tipo_doc for item in resultado_lista} == tipos_validos
