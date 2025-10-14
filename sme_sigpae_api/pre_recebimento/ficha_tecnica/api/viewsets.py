@@ -2,7 +2,7 @@ from django_filters import rest_framework as filters
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 
 from sme_sigpae_api.dados_comuns.helpers_autenticidade import (
     verificar_autenticidade_usuario,
@@ -326,4 +326,10 @@ class FichaTecnicaModelViewSet(
     @action(detail=True, methods=["GET"], url_path="gerar-pdf-ficha")
     def gerar_pdf_ficha(self, request, uuid=None):
         ficha = self.get_object()
-        return get_pdf_ficha_tecnica(request, ficha)
+        try:
+            return get_pdf_ficha_tecnica(request, ficha)
+        except Exception:
+            return Response(
+                dict(detail="Ocorreu um erro durante a geração do pdf de Ficha Técnica"),
+                status=HTTP_400_BAD_REQUEST,
+            )
