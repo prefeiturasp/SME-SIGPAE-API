@@ -48,6 +48,7 @@ from ...escola.services import NovoSGPServicoLogado
 from ...paineis_consolidados.api.constants import FILTRO_CODIGO_EOL_ALUNO
 from ...relatorios.relatorios import (
     relatorio_dieta_especial,
+    relatorio_dieta_especial_historico,
     relatorio_dieta_especial_protocolo,
     relatorio_quantitativo_classificacao_dieta_especial,
     relatorio_quantitativo_diag_dieta_especial,
@@ -500,12 +501,27 @@ class SolicitacaoDietaEspecialViewSet(
 
     @action(
         detail=True,
+        url_path=constants.RELATORIO_HISTORICO_DIETA,
+        methods=["get"],
+        permission_classes=(IsAuthenticated,),
+    )
+    def relatorio_historico(self, request, uuid=None):
+        return relatorio_dieta_especial_historico(
+            request, solicitacao=self.get_object()
+        )
+
+    @action(
+        detail=True,
         url_path=constants.PROTOCOLO,
         methods=["get"],
         permission_classes=(IsAuthenticated,),
     )
     def protocolo(self, request, uuid=None):
-        sem_foto = request.query_params.get('sem_foto', 'false').lower() in ['true', '1', 'yes']
+        sem_foto = request.query_params.get("sem_foto", "false").lower() in [
+            "true",
+            "1",
+            "yes",
+        ]
         return relatorio_dieta_especial_protocolo(
             request, solicitacao=self.get_object(), sem_foto=sem_foto
         )
@@ -1595,7 +1611,9 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
                             dietas_especiais__tipo_solicitacao="COMUM",
                         )
                         | Q(
-                            dietas_especiais__escola_destino=form.cleaned_data["escola"],
+                            dietas_especiais__escola_destino=form.cleaned_data[
+                                "escola"
+                            ],
                             dietas_especiais__status__in=["CODAE_AUTORIZADO"],
                             dietas_especiais__ativo=True,
                             dietas_especiais__tipo_solicitacao="ALTERACAO_UE",
@@ -1687,9 +1705,7 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
 
         series = self.request.query_params.getlist("serie")
         if series:
-            qs = qs.filter(
-                Q(*[Q(serie__icontains=s) for s in series], _connector=Q.OR)
-            )
+            qs = qs.filter(Q(*[Q(serie__icontains=s) for s in series], _connector=Q.OR))
         if self.request.user.tipo_usuario == "dieta_especial":
             return qs.distinct().order_by(
                 "escola__diretoria_regional__nome", "escola__nome", "nome"
