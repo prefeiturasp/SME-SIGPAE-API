@@ -442,6 +442,7 @@ ORDEM_HEADERS_CEMEI = {
     "Infantil TARDE": 10,
     "DIETA ESPECIAL - TIPO A - INFANTIL": 11,
     "DIETA ESPECIAL - TIPO B - INFANTIL": 12,
+    "Programas e Projetos": 13,
 }
 
 ORDEM_HEADERS_EMEBS = {
