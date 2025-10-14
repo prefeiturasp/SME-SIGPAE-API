@@ -11,7 +11,7 @@ class Command(BaseCommand):
     help = "Detecta alunos com mais de uma dieta especial autorizada e exporta para Excel."
 
     def handle(self, *args, **options):
-        self.stdout.write("🔍 Buscando solicitações de dieta especial autorizadas...")
+        self.stdout.write("Buscando solicitações de dieta especial autorizadas...")
 
         solicitacoes = (
             SolicitacaoDietaEspecial.objects.filter(
@@ -25,7 +25,7 @@ class Command(BaseCommand):
         duplicadas = self._detectar_duplicidades(solicitacoes)
 
         if not duplicadas:
-            self.stdout.write(self.style.SUCCESS("✅ Nenhuma duplicidade encontrada."))
+            self.stdout.write(self.style.SUCCESS("Nenhuma duplicidade encontrada."))
             return
 
         self._exportar_para_excel(duplicadas)
@@ -61,6 +61,7 @@ class Command(BaseCommand):
         ws.title = "Duplicidades"
 
         ws.append([
+            "UUID Solicitação",
             "Código EOL",
             "Aluno",
             "DRE",
@@ -111,6 +112,7 @@ class Command(BaseCommand):
                 )
 
                 ws.append([
+                    str(s.uuid),
                     codigo_eol,
                     aluno_nome,
                     dre_nome,
@@ -129,6 +131,6 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"📄 Planilha gerada com sucesso em: {filename} ({total} solicitações duplicadas encontradas)"
+                f"Planilha gerada com sucesso em: {filename} ({total} solicitações duplicadas encontradas)"
             )
         )
