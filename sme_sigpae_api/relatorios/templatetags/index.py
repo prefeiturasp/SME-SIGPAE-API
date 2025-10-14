@@ -707,7 +707,9 @@ def check_tipo_usuario(tipo_usuario):
 
 @register.filter
 def multiply(valor, multiplicador):
-    return round(int(valor) * multiplicador)
+    if isinstance(valor, str):
+        valor = valor.replace(",", ".")
+    return round(float(valor) * multiplicador)
 
 
 @register.filter

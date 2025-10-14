@@ -35,7 +35,6 @@ def get_alimentacoes_por_periodo(
 ) -> list[tuple]:
     periodos_alimentacoes = {}
     dietas_alimentacoes = {}
-
     for solicitacao in solicitacoes:
         for medicao in solicitacao.medicoes.all():
             nome_periodo = get_nome_periodo(medicao)
@@ -55,7 +54,6 @@ def get_alimentacoes_por_periodo(
                 dietas_alimentacoes = update_dietas_alimentacoes(
                     dietas_alimentacoes, nome_categoria, lista_alimentacoes_dietas
                 )
-
     dietas_alimentacoes = _unificar_dietas(dietas_alimentacoes)
     dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
     columns = generate_columns(dict_periodos_dietas)
@@ -91,13 +89,11 @@ def _get_lista_alimentacoes(medicao: Medicao, nome_periodo: str) -> list[int | s
             .values_list("nome_campo", flat=True)
             .distinct()
         )
-
         if nome_periodo != "Solicitações de Alimentação":
             lista_alimentacoes += [
                 "total_refeicoes_pagamento",
                 "total_sobremesas_pagamento",
             ]
-
         return lista_alimentacoes
 
 
@@ -135,7 +131,6 @@ def _unificar_dietas(dietas_alimentacoes: dict) -> dict:
     dieta_alternativa = (
         "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS - INFANTIL"
     )
-
     valor_principal = dietas_alimentacoes.get(dieta_principal, [])
     valor_alternativo = dietas_alimentacoes.get(dieta_alternativa, [])
     if valor_alternativo:
@@ -148,14 +143,12 @@ def _sort_and_merge(periodos_alimentacoes: dict, dietas_alimentacoes: dict) -> d
     ORDEM_CAMPOS_CEMEI = [
         faixa.id for faixa in FaixaEtaria.objects.filter(ativo=True).order_by("inicio")
     ] + ORDEM_CAMPOS
-
     periodos_alimentacoes = {
         chave: sorted(
             list(set(valores)), key=lambda valor: ORDEM_CAMPOS_CEMEI.index(valor)
         )
         for chave, valores in periodos_alimentacoes.items()
     }
-
     dietas_alimentacoes = {
         chave: sorted(
             list(set(valores)), key=lambda valor: ORDEM_CAMPOS_CEMEI.index(valor)
@@ -163,13 +156,11 @@ def _sort_and_merge(periodos_alimentacoes: dict, dietas_alimentacoes: dict) -> d
         for chave, valores in dietas_alimentacoes.items()
     }
     dict_periodos_dietas = {**periodos_alimentacoes, **dietas_alimentacoes}
-
     dict_periodos_dietas = dict(
         sorted(
             dict_periodos_dietas.items(), key=lambda item: ORDEM_HEADERS_CEMEI[item[0]]
         )
     )
-
     return dict_periodos_dietas
 
 
@@ -305,6 +296,9 @@ def ajusta_layout_tabela(
         {**formatacao_base, "bg_color": "#B40C02"}
     )
     formatacao_tarde = workbook.add_format({**formatacao_base, "bg_color": "#2F80ED"})
+    formatacao_programas = workbook.add_format(
+        {**formatacao_base, "bg_color": "#72BC17"}
+    )
     formatacao_dieta_a = workbook.add_format({**formatacao_base, "bg_color": "#20AA73"})
     formatacao_dieta_b = workbook.add_format({**formatacao_base, "bg_color": "#198459"})
 
@@ -361,6 +355,18 @@ def ajusta_layout_tabela(
         },
         "DIETA ESPECIAL - TIPO B - INFANTIL": {
             "formatacao": formatacao_dieta_b,
+            "nome": "DIETA ESPECIAL - TIPO B",
+        },
+        "PROGRAMAS E PROJETOS": {
+            "formatacao": formatacao_programas,
+            "nome": "PROGRAMAS E PROJETOS",
+        },
+        "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS": {
+            "formatacao": formatacao_programas,
+            "nome": "DIETA ESPECIAL - TIPO A",
+        },
+        "DIETA ESPECIAL - TIPO B - PROGRAMAS E PROJETOS": {
+            "formatacao": formatacao_programas,
             "nome": "DIETA ESPECIAL - TIPO B",
         },
     }
