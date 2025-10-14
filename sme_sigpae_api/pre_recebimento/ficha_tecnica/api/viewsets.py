@@ -330,6 +330,8 @@ class FichaTecnicaModelViewSet(
             return get_pdf_ficha_tecnica(request, ficha)
         except Exception:
             return Response(
-                dict(detail="Ocorreu um erro durante a geração do pdf de Ficha Técnica"),
+                dict(
+                    detail="Ocorreu um erro durante a geração do pdf de Ficha Técnica"
+                ),
                 status=HTTP_400_BAD_REQUEST,
             )
