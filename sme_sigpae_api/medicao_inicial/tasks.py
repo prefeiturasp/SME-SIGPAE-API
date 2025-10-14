@@ -4,7 +4,7 @@ from io import BytesIO
 
 from celery import shared_task
 from dateutil.relativedelta import relativedelta
-from PyPDF4 import PdfFileMerger
+from pypdf import PdfWriter
 
 from sme_sigpae_api.medicao_inicial.services.relatorio_adesao_excel import (
     gera_relatorio_adesao_xlsx,
@@ -173,8 +173,8 @@ def gera_pdf_relatorio_unificado_async(
         user=user, identificador=nome_arquivo
     )
     try:
-        merger_lancamentos = PdfFileMerger(strict=False)
-        merger_arquivo_final = PdfFileMerger(strict=False)
+        merger_lancamentos = PdfWriter()
+        merger_arquivo_final = PdfWriter()
 
         processa_relatorio_lançamentos(
             ids_solicitacoes, merger_lancamentos, obj_central_download
