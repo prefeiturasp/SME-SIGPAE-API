@@ -957,7 +957,6 @@ def test_busca_filtro_tipo_solicitacao_kit_lanche_isolado(monkeypatch, escola):
         def __init__(self, items):
             self.items = list(items)
         def filter(self, **kwargs):
-            # Suporta filtro por tipo_doc__in se aplicado pelo patch
             if "tipo_doc__in" in kwargs:
                 tipos = set(kwargs["tipo_doc__in"])
                 return FakeQS([x for x in self.items if x.tipo_doc in tipos])
@@ -971,7 +970,6 @@ def test_busca_filtro_tipo_solicitacao_kit_lanche_isolado(monkeypatch, escola):
 
     qs = FakeQS(linhas)
 
-    # Patches: só busca_por_tipo_solicitacao aplica filtro de Kit Lanche
     monkeypatch.setattr(
         SolicitacoesEscola,
         "excluir_inclusoes_continuas",
