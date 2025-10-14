@@ -1102,3 +1102,18 @@ def client_autenticado_dilog_abastecimento(client, django_user_model):
     )
     client.login(username=email, password=password)
     return client
+
+
+@pytest.fixture
+def ficha_tecnica_com_erro(ficha_tecnica_perecivel_enviada_para_analise):
+    informacoes_nutricionais = baker.make(
+        "InformacoesNutricionaisFichaTecnica",
+        quantidade_porcao="abc",
+        ficha_tecnica=ficha_tecnica_perecivel_enviada_para_analise,
+        informacao_nutricional=baker.make(
+            "InformacaoNutricional",
+            tipo_nutricional=baker.make("TipoDeInformacaoNutricional", nome="CALORIA"),
+        ),
+    )
+    informacoes_nutricionais.save()
+    return ficha_tecnica_perecivel_enviada_para_analise
