@@ -92,6 +92,7 @@ RELATORIO = "relatorio"
 RELATORIO_ANALISE = "relatorio-analise-sensorial"
 RELATORIO_SUSPENSOS = "relatorio-produtos-suspensos"
 RELATORIO_RECEBIMENTO = "relatorio-analise-sensorial-recebimento"
+RELATORIO_HISTORICO_DIETA = "relatorio-historico-dieta"
 PROTOCOLO = "protocolo"
 
 #
