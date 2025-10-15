@@ -432,7 +432,11 @@ def relatorio_dieta_especial_historico_conteudo(solicitacao, request=None):
 
     logs = solicitacao.logs
 
-    data_inicio = solicitacao.data_inicio.strftime("%d/%m/%Y")
+    data_inicio = (
+        solicitacao.data_inicio.strftime("%d/%m/%Y")
+        if solicitacao.data_termino
+        else None
+    )
     data_termino = (
         solicitacao.data_termino.strftime("%d/%m/%Y")
         if solicitacao.data_termino
@@ -441,6 +445,10 @@ def relatorio_dieta_especial_historico_conteudo(solicitacao, request=None):
     periodo_vigencia = data_inicio
     if data_termino:
         periodo_vigencia = f"{data_inicio} - {data_termino}"
+
+    justificativa_negacao = (
+        solicitacao.justificativa_negacao if solicitacao.justificativa_negacao else None
+    )
     html_string = render_to_string(
         "historico_dieta_especial.html",
         {
@@ -451,6 +459,7 @@ def relatorio_dieta_especial_historico_conteudo(solicitacao, request=None):
             "subtitulo": "RELATÓRIO DE HISTÓRICO DE DIETA ESPECIAL",
             "escola_origem": escola_origem,
             "escola_destino": escola_destino,
+            "justificativa_negacao": justificativa_negacao,
         },
     )
     return html_string
