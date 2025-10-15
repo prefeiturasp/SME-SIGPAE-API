@@ -1520,6 +1520,12 @@ class HomologacaoProdutoViewSet(viewsets.ModelViewSet):
     )
     def alteracao_produto_homologado(self, request, uuid=None):
         homologacao_produto = self.get_object()
+        if homologacao_produto.tem_copia or homologacao_produto.produto.eh_copia:
+            return Response(
+                dict(detail="Produto já possui alteração de dados em andamento."),
+                status=status.HTTP_409_CONFLICT,
+            )
+
         copia_hom_produto = homologacao_produto.cria_copia(
             request.user.vinculo_atual.instituicao
         )

@@ -1,0 +1,12 @@
+- model: recebimento.reposicaocronogramaficharecebimento
+  fields:
+    tipo: Repor
+    descricao: REPOR OS PRODUTOS FALTANTES/RECUSADOS
+    criado_em: "2025-10-14T10:00:00Z"
+    alterado_em: "2025-10-14T10:00:00Z"
+- model: recebimento.reposicaocronogramaficharecebimento
+  fields:
+    tipo: Credito
+    descricao: FAZER UMA CARTA DE CRÉDITO DO VALOR PAGO
+    criado_em: "2025-10-14T10:00:00Z"
+    alterado_em: "2025-10-14T10:00:00Z"

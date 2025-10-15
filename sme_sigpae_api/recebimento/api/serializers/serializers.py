@@ -2,7 +2,7 @@ import environ
 from rest_framework import serializers
 
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
-    EtapasDoCronogramaSerializer,
+    EtapasDoCronogramaFichaDeRecebimentoSerializer,
 )
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
@@ -241,7 +241,7 @@ class ReposicaoCronogramaFichaRecebimentoSerializer(serializers.ModelSerializer)
 class FichaDeRecebimentoDetalharSerializer(serializers.ModelSerializer):
     data_recebimento = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
-    etapa = EtapasDoCronogramaSerializer(read_only=True)
+    etapa = EtapasDoCronogramaFichaDeRecebimentoSerializer(read_only=True)
     dados_cronograma = DadosCronogramaSerializer(source="etapa", read_only=True)
     documentos_recebimento = DocRecebimentoFichaDeRecebimentoSerializer(
         many=True, read_only=True

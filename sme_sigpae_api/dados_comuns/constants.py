@@ -92,6 +92,7 @@ RELATORIO = "relatorio"
 RELATORIO_ANALISE = "relatorio-analise-sensorial"
 RELATORIO_SUSPENSOS = "relatorio-produtos-suspensos"
 RELATORIO_RECEBIMENTO = "relatorio-analise-sensorial-recebimento"
+RELATORIO_HISTORICO_DIETA = "relatorio-historico-dieta"
 PROTOCOLO = "protocolo"
 
 #
@@ -442,6 +443,9 @@ ORDEM_HEADERS_CEMEI = {
     "Infantil TARDE": 10,
     "DIETA ESPECIAL - TIPO A - INFANTIL": 11,
     "DIETA ESPECIAL - TIPO B - INFANTIL": 12,
+    "Programas e Projetos": 13,
+    "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS": 14,
+    "DIETA ESPECIAL - TIPO B - PROGRAMAS E PROJETOS": 15,
 }
 
 ORDEM_HEADERS_EMEBS = {

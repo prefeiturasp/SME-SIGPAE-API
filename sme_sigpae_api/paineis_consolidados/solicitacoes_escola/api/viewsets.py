@@ -787,32 +787,38 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         query_set = query_set.filter(data_evento__month=mes, data_evento__year=ano)
         query_set = query_set.filter(data_evento__lt=datetime.date.today())
         query_set = self.remove_duplicados_do_query_set(query_set)
-        return_dict = []
 
-        for kit_lanche in query_set:
-            kit_lanche = kit_lanche.get_raw_model.objects.get(uuid=kit_lanche.uuid)
-            if kit_lanche:
-                if kit_lanche.DESCRICAO == "Kit Lanche CEMEI":
-                    dia = f"{kit_lanche.data.day:02d}"
-                    numero_alunos = kit_lanche.total_kits_medicao_inicial
-                else:
-                    dia = f"{kit_lanche.solicitacao_kit_lanche.data.day:02d}"
-                    numero_alunos = (
-                        kit_lanche.total_kit_lanche_escola(escola_uuid)
-                        if isinstance(kit_lanche, SolicitacaoKitLancheUnificada)
-                        else kit_lanche.quantidade_alimentacoes
-                    )
-                return_dict.append(
-                    {
-                        "dia": dia,
-                        "numero_alunos": numero_alunos,
-                        "kit_lanche_id_externo": kit_lanche.id_externo,
-                    }
+        results = self._build_results_kit_lanches(query_set, escola_uuid)
+        return Response({"results": results})
+
+    def _build_results_kit_lanches(self, query_set, escola_uuid):
+        results = []
+
+        for item in query_set:
+            kit = item.get_raw_model.objects.get(uuid=item.uuid)
+            if not kit:
+                continue
+
+            if getattr(kit, "DESCRICAO", "") == "Kit Lanche CEMEI":
+                dia = f"{kit.data.day:02d}"
+                numero_alunos = kit.total_kits_medicao_inicial
+            else:
+                dia = f"{kit.solicitacao_kit_lanche.data.day:02d}"
+                numero_alunos = (
+                    kit.total_kit_lanche_escola(escola_uuid)
+                    if isinstance(kit, SolicitacaoKitLancheUnificada)
+                    else kit.quantidade_alimentacoes
                 )
 
-        data = {"results": return_dict}
+            results.append(
+                {
+                    "dia": dia,
+                    "numero_alunos": numero_alunos,
+                    "kit_lanche_id_externo": kit.id_externo,
+                }
+            )
 
-        return Response(data)
+        return results
 
     @action(detail=False, methods=["GET"], url_path=f"{INCLUSOES_ETEC_AUTORIZADAS}")
     def inclusoes_etec_autorizadas(self, request):

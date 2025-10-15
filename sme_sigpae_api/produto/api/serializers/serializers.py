@@ -492,6 +492,7 @@ class HomologacaoProdutoPainelGerencialSerializer(HomologacaoProdutoBase):
     data_edital_suspenso_mais_recente = serializers.SerializerMethodField()
     editais = serializers.SerializerMethodField()
     produto_editais = serializers.SerializerMethodField()
+    produto_eh_copia = serializers.SerializerMethodField()
 
     def get_log_mais_recente(self, obj):
         data = obj.log_mais_recente.criado_em if obj.log_mais_recente else obj.criado_em
@@ -559,6 +560,9 @@ class HomologacaoProdutoPainelGerencialSerializer(HomologacaoProdutoBase):
     def get_produto_editais(self, obj):
         return obj.produto.vinculos.all().values_list("edital__numero", flat=True)
 
+    def get_produto_eh_copia(self, obj):
+        return obj.produto.eh_copia
+
     class Meta:
         model = HomologacaoProduto
         fields = (
@@ -577,6 +581,7 @@ class HomologacaoProdutoPainelGerencialSerializer(HomologacaoProdutoBase):
             "editais",
             "produto_editais",
             "tem_copia",
+            "produto_eh_copia",
         )
 
 
