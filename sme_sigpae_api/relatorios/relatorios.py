@@ -434,7 +434,7 @@ def relatorio_dieta_especial_historico_conteudo(solicitacao, request=None):
 
     data_inicio = (
         solicitacao.data_inicio.strftime("%d/%m/%Y")
-        if solicitacao.data_termino
+        if solicitacao.data_inicio
         else None
     )
     data_termino = (
