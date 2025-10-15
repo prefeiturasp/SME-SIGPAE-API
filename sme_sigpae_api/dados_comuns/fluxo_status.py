@@ -3243,8 +3243,12 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         )
         if alta_medica:
             titulo = self.str_dre_lote_escola
+        log = LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL
+        eh_usuario_escola = user.tipo_usuario == constants.TIPO_USUARIO_ESCOLA
+        if eh_usuario_escola:
+            log = LogSolicitacoesUsuario.ESCOLA_CANCELOU
         self.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
+            status_evento=log,
             usuario=user,
             justificativa=justificativa,
         )
