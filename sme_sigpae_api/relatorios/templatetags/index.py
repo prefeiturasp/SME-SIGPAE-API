@@ -957,3 +957,10 @@ def get_tipo_display(value):
         "S": "Substituir",
     }
     return tipo_dict.get(value, "Tipo Desconhecido")
+
+
+@register.filter
+def remove_none(value):
+    if value is None:
+        return ""
+    return value
