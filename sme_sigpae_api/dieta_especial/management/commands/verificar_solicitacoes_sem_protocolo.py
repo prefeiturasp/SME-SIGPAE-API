@@ -10,7 +10,7 @@ class Command(BaseCommand):
     help = "Verifica solicitações de dieta especial autorizadas sem protocolo e exporta para Excel."
 
     def handle(self, *args, **options):
-        self.stdout.write("🔍 Buscando solicitações autorizadas sem protocolo...")
+        self.stdout.write("Buscando solicitações autorizadas sem protocolo...")
 
         solicitacoes = (
             SolicitacaoDietaEspecial.objects.filter(
@@ -25,7 +25,7 @@ class Command(BaseCommand):
         total = solicitacoes.count()
 
         if total == 0:
-            self.stdout.write(self.style.SUCCESS("✅ Nenhuma solicitação sem protocolo encontrada."))
+            self.stdout.write(self.style.SUCCESS("Nenhuma solicitação sem protocolo encontrada."))
             return
 
         output_dir = os.path.join(settings.MEDIA_ROOT, "exportacao_solicitacoes")
@@ -39,7 +39,7 @@ class Command(BaseCommand):
         ws.title = "Sem Protocolo"
 
         ws.append([
-            "ID Solicitação",
+            "UUID Solicitação",
             "Código EOL",
             "Aluno",
             "DRE",
@@ -66,7 +66,7 @@ class Command(BaseCommand):
             )
 
             ws.append([
-                solicitacao.id,
+                str(solicitacao.uuid),
                 codigo_eol,
                 aluno_nome,
                 dre_nome,
@@ -80,6 +80,6 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"📄 Planilha gerada com sucesso em: {filename} ({total} solicitações encontradas)"
+                f"Planilha gerada com sucesso em: {filename} ({total} solicitações encontradas)"
             )
         )

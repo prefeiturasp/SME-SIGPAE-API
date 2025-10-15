@@ -60,4 +60,3 @@ def test_handle_com_duplicidades(monkeypatch, capsys):
     captured = capsys.readouterr()
     assert "Planilha gerada com sucesso" in captured.out
     assert "solicitacoes_duplicadas" in captured.out
-    assert "📄" in captured.out
