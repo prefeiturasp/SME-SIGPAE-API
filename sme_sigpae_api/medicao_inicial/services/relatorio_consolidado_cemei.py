@@ -217,7 +217,7 @@ def _processa_periodo_campo(
 
 def _define_filtro(periodo: str, grupos_medicao: list[str]) -> dict:
     filtros = {}
-    if periodo in ["Solicitações de Alimentação"] + list(grupos_medicao):
+    if periodo in ["Solicitações de Alimentação", "Programas e Projetos"] + list(grupos_medicao):
         filtros["grupo__nome"] = periodo
     elif "DIETA ESPECIAL" in periodo:
         if "INFANTIL" in periodo:
@@ -361,14 +361,6 @@ def ajusta_layout_tabela(
         "PROGRAMAS E PROJETOS": {
             "formatacao": formatacao_programas,
             "nome": "PROGRAMAS E PROJETOS",
-        },
-        "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS": {
-            "formatacao": formatacao_programas,
-            "nome": "DIETA ESPECIAL - TIPO A",
-        },
-        "DIETA ESPECIAL - TIPO B - PROGRAMAS E PROJETOS": {
-            "formatacao": formatacao_programas,
-            "nome": "DIETA ESPECIAL - TIPO B",
         },
     }
 
