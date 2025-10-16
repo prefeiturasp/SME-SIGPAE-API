@@ -20,6 +20,7 @@ from sme_sigpae_api.medicao_inicial.services.utils import (
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
 )
+from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 
 
 def get_alimentacoes_por_periodo(
@@ -118,7 +119,7 @@ def get_valores_tabela(
     tipos_de_unidade: list[str],
 ) -> list[list[str | float]]:
     valores = []
-    for solicitacao in get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade):
+    for solicitacao in ordenar_unidades(solicitacoes):
         valores_solicitacao_atual = []
         valores_solicitacao_atual += get_valores_iniciais(solicitacao)
         for periodo, faixa_etaria in colunas:

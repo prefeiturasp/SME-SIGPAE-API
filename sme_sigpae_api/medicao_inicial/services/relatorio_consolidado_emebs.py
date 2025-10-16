@@ -16,6 +16,7 @@ from sme_sigpae_api.medicao_inicial.services.utils import (
     get_nome_periodo,
     get_valores_iniciais,
 )
+from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 
 logger = logging.getLogger(__name__)
 
@@ -264,7 +265,7 @@ def get_valores_tabela(solicitacoes, colunas):
     ).values_list("nome", flat=True)
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     valores = []
-    for solicitacao in get_solicitacoes_ordenadas(solicitacoes):
+    for solicitacao in ordenar_unidades(solicitacoes):
         valores_solicitacao_atual = []
         valores_solicitacao_atual += get_valores_iniciais(solicitacao)
         for turma, periodo, campo in colunas:
