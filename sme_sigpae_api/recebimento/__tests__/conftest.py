@@ -37,6 +37,9 @@ from sme_sigpae_api.recebimento.models import (
 from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import (
     ModalidadeFactory,
 )
+from sme_sigpae_api.recebimento.fixtures.factories.reposicao_cronograma_factory import (
+    ReposicaoCronogramaFichaRecebimentoFactory,
+)
 
 fake = Faker("pt_BR")
 
@@ -428,3 +431,24 @@ def arquivo_ficha_recebimento(ficha_recebimento):
         nome="Arquivo Teste",
         arquivo=arquivo_mock,
     )
+
+
+@pytest.fixture
+def payload_ficha_recebimento_reposicao(
+    etapas_do_cronograma_factory,
+    arquivo_pdf_base64,
+):
+    etapa = etapas_do_cronograma_factory()
+    reposicao_cronograma = ReposicaoCronogramaFichaRecebimentoFactory()
+
+    return {
+        "etapa": str(etapa.uuid),
+        "data_entrega": str(date.today() + timedelta(days=10)),
+        "numero_lote_armazenagem": str(fake.random_number(digits=10)),
+        "observacao": "Teste observação.",
+        "arquivos": [
+            {"arquivo": arquivo_pdf_base64, "nome": "Arquivo1.pdf"},
+            {"arquivo": arquivo_pdf_base64, "nome": "Arquivo2.pdf"},
+        ],
+        "reposicao_cronograma": reposicao_cronograma.uuid
+    }

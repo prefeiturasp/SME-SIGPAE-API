@@ -1,0 +1,266 @@
+{% extends 'cabecalho_rodape_historico_dieta.html' %}
+{% load index %}
+{% load static %}
+{% load sass_tags %}
+
+{% block conteudo %}
+
+  <style>
+    span > p {
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+
+    .conteudo.tabela-sem-borda {
+      font-family: Arial, sans-serif;
+    }
+
+    .log-item {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #9e9c9c;
+    }
+
+    .secao-log > h4 {
+      background-color: #DDDDDD;
+      border-radius: 8px;
+      padding: 8px 8px;
+    }
+
+    .secao-log > div {
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+
+    .secao-log > p {
+      font-size: 13px !important;
+    }
+
+    .secao-log > ul > li {
+      font-size: 13px !important;
+    }
+
+    .highlight {
+      color: #42474A;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* Estilo da tabela */
+    .secao-log table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .secao-log table th {
+      background-color: #DDDDDD;
+      padding: 10px;
+      text-align: left;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1px solid #ddd;
+    }
+
+    .secao-log table td {
+      padding: 10px;
+      font-size: 13px;
+      border: 1px solid #ddd;
+      vertical-align: top;
+    }
+
+    .secao-log table th:nth-child(1),
+    .secao-log table td:nth-child(1) {
+      width: 30%;
+    }
+
+    .secao-log table th:nth-child(2),
+    .secao-log table td:nth-child(2) {
+      width: 20%;
+    }
+
+    .secao-log table th:nth-child(3),
+    .secao-log table td:nth-child(3) {
+      width: 50%;
+    }
+
+  </style>
+
+  <div class="conteudo tabela-sem-borda">
+    {% for log in logs %}
+      <div class="log-item">
+        {% if log.status_evento_explicacao == "Solicitação de Alteração de UE Realizada" %}
+          <div class="secao-log">
+            <h4>SOLICITAÇÃO DE ALTERAÇÃO DE U.E.</h4>
+            <div>RF: <span class="highlight">{{ log.usuario.registro_funcional }}</span></div>
+            <div>Data: <span class="highlight">{{ log.criado_em|date:"d/m/Y - H:i" }}</span></div>
+            <div>
+              <span>Solicitação de Alteração de Unidade Educacional</span>
+              <ul>
+                <li>Unidade de Origem: <span class="highlight">{{ escola_origem.nome }}</span></li>
+                <li>Unidade de Destino: <span class="highlight">{{ escola_destino.nome }}</span></li>
+              </ul>
+            </div>
+          </div>
+        {% elif log.status_evento_explicacao == "CODAE autorizou a Alteração de UE" %}
+          <div class="secao-log">
+            <h4>CODAE AUTORIZOU - SOLICITAÇÃO DE ALTERAÇÃO DE U.E.</h4>
+            <div>RF: <span class="highlight">{{ log.usuario.registro_funcional }}</span></div>
+            <div>Data: <span class="highlight">{{ log.criado_em|date:"d/m/Y - H:i" }}</span></div>
+            <div>
+              <span>CODAE autorizou alteração de U.E.</span>
+              <ul>
+                <li>Unidade de Destino: <span class="highlight">{{ escola_destino.nome }}</span></li>
+              </ul>
+            </div>
+          </div>
+        {% elif log.status_evento_explicacao == "CODAE autorizou o cancelamento" %}
+          <div class="secao-log">
+            <h4>CODAE AUTORIZOU O CANCELAMENTO</h4>
+            <div>RF: <span class="highlight">{{ log.usuario.registro_funcional }}</span></div>
+            <div>Data: <span class="highlight">{{ log.criado_em|date:"d/m/Y - H:i" }}</span></div>
+          </div>
+        {% elif log.status_evento_explicacao == "Solicitação Realizada" %}
+          <div class="secao-log">
+            <h4>SOLICITAÇÃO REALIZADA</h4>
+            <div>Data: <span class="highlight">{{ log.criado_em|date:"d/m/Y - H:i" }}</span></div>
+            <div style="display: flex; justify-content: space-between;">
+              <span>Unidade Educacional: <span class="highlight">{{ escola_origem.nome }}</span></span>
+              <span>DRE: <span class="highlight">{{ escola_origem.diretoria_regional.nome }}</span></span>
+            </div>
+            <div>Aluno: <span class="highlight">{{ aluno.codigo_eol }} - {{ aluno.nome }}</span></div>
+          </div>
+        {% elif log.status_evento_explicacao == "CODAE autorizou" %}
+          <div class="secao-log">
+            <h4>CODAE AUTORIZOU</h4>
+            <div>Data: <span class="highlight">{{ log.criado_em|date:"d/m/Y - H:i" }}</span></div>
+            <div>
+              Relação Por Diagnóstico: 
+              {% for alergia in solicitacao.alergias_intolerancias.all %}
+                <span class="highlight">{{ alergia.descricao }};</span>
+              {% endfor %}
+            </div>
+            <div>
+              Classificação da Dieta: 
+              <span class="highlight">{{ solicitacao.classificacao.nome }}</span>
+            </div>
+            <div>
+              Nome do Protocolo Padrão: 
+              <span class="highlight">{{ solicitacao.nome_protocolo }}</span>
+            </div>
+            <div>
+              Orientações Gerais: 
+              <span class="highlight">{{ solicitacao.orientacoes_gerais | striptags }}</span>
+            </div>
+            <div>
+              Lista de Substituições:
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome do Alimento</th>
+                  <th>Tipo</th>
+                  <th>Isenções/Substituições</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in solicitacao.substituicoes.all %}
+                  <tr>
+                    <td>{{ item.alimento.nome }}</td>
+                    <td>{{ item.tipo | get_tipo_display }}</td>
+                    <td>
+                      {% for substituto in item.alimentos_substitutos.all %}
+                        {{ substituto.nome }}{% if not forloop.last %}, {% endif %}
+                      {% endfor %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <br>
+            <div>
+              Período de Vigência: 
+              <span class="highlight">{{ periodo_vigencia | remove_none }}</span>
+            </div>
+            <div>
+              Informações Adicionais: 
+              <span class="highlight">{{ solicitacao.informacoes_adicionais | striptags }}</span>
+            </div>
+            <div>
+              Identificacao do Nutricionista: 
+              <span class="highlight">{{ solicitacao.registro_funcional_nutricionista }}</span>
+            </div>
+          </div>
+        {% elif log.status_evento_explicacao == "CODAE Atualizou o protocolo" %}
+          <div class="secao-log">
+            <h4>CODAE ATUALIZOU PROTOCOLO</h4>
+            <div>RF: <span class="highlight">{{ log.usuario.registro_funcional }}</span></div>
+            <div>Data: <span class="highlight">{{ log.criado_em|date:"d/m/Y - H:i" }}</span></div>
+            {{ log.justificativa | safe }}
+          </div>
+        {% elif log.status_evento_explicacao == "Cancelada por atingir data de término" %}
+          <div class="secao-log">
+            <h4>CANCELADA POR ATINGIR DATA DE TÉRMINO</h4>
+            <div>RF: <span class="highlight">SYSTEM ADMIN</span></div>
+            <div>Data: <span class="highlight">{{ log.criado_em|date:"d/m/Y - H:i" }}</span></div>
+            <div>Justificativa: <p class="highlight">Cancelamento automático por atingir data término</p></div>
+          </div>
+        {% elif log.status_evento_explicacao == "CODAE negou cancelamento" %}
+          <div class="secao-log">
+            <h4>CODAE NEGOU O CANCELAMENTO</h4>
+            <div>RF: <span class="highlight">{{ log.usuario.registro_funcional }}</span></div>
+            <div>Data: <span class="highlight">{{ log.criado_em|date:"d/m/Y - H:i" }}</span></div>
+            <div>Motivo: <span class="highlight">{{ solicitacao.motivo_negacao.descricao }}</span></div>
+            {% if log.justificativa != "" %}
+              <div>Justificativa: <p class="highlight">{{ log.justificativa | striptags }}</p></div>
+            {% else %}
+              <div>Justificativa: <p class="highlight">{{ justificativa_negacao | striptags }}</p></div>
+            {% endif %}
+          </div>
+        {% elif log.status_evento_explicacao == "CODAE negou" %}
+          <div class="secao-log">
+            <h4>CODAE NEGOU</h4>
+            <div>Data: <span class="highlight">{{ log.criado_em|date:"d/m/Y - H:i" }}</span></div>
+            <div>Motivo: <span class="highlight">{{ solicitacao.motivo_negacao.descricao }}</span></div>
+            {% if log.justificativa != "" %}
+              <div>Justificativa: <p class="highlight">{{ log.justificativa | striptags }}</p></div>
+            {% else %}
+              <div>Justificativa: <p class="highlight">{{ justificativa_negacao | striptags }}</p></div>
+            {% endif %}
+          </div>
+        {% elif log.status_evento_explicacao == "Escola solicitou cancelamento" %}
+          <div class="secao-log">
+            <h4>ESCOLA SOLICITOU CANCELAMENTO</h4>
+            <div>RF: <span class="highlight">{{ log.usuario.registro_funcional }}</span></div>
+            <div>Data: <span class="highlight">{{ log.criado_em|date:"d/m/Y - H:i" }}</span></div>
+            <div>Justificativa: <p class="highlight">{{ log.justificativa | striptags }}</p></div>
+          </div>
+        {% elif log.status_evento_explicacao == "Cancelamento por alteração de unidade educacional" %}
+          <div class="secao-log">
+            <h4>CANCELAMENTO POR ALTERAÇÃO DE UNIDADE EDUCACIONAL</h4>
+            <div>RF: <span class="highlight">SYSTEM ADMIN</span></div>
+            <div>Data: <span class="highlight">{{ log.criado_em|date:"d/m/Y - H:i" }}</span></div>
+            <div>Justificativa: <p class="highlight">
+              Cancelamento automático por aluno não matriculado na Unidade Educacional
+            </p></div>
+          </div>
+        {% elif log.status_evento_explicacao == "Cancelamento para aluno não matriculado na rede municipal" %}
+          <div class="secao-log">
+            <h4>CANCELAMENTO POR ALUNO NÃO MATRICULADO NA REDE MUNICIPAL</h4>
+            <div>RF: <span class="highlight">SYSTEM ADMIN</span></div>
+            <div>Data: <span class="highlight">{{ log.criado_em|date:"d/m/Y - H:i" }}</span></div>
+            <div>Justificativa: <p class="highlight">
+              Cancelamento automático por aluno não matriculado na rede municipal
+            </p></div>
+          </div>
+        {% elif log.status_evento_explicacao == "CODAE negou a Alteração de UE" %}
+          <div class="secao-log">
+            <h4>CODAE NEGOU - SOLICITAÇÃO DE ALTERAÇÃO DE U.E</h4>
+            <div>Data: <span class="highlight">{{ log.criado_em|date:"d/m/Y - H:i" }}</span></div>
+            <div>Motivo: <span class="highlight">{{ solicitacao.motivo_negacao.descricao }}</span></div>
+            <div>CODAE negou a alteração de U.E</div>
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

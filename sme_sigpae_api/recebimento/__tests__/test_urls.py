@@ -2,6 +2,7 @@ import json
 from datetime import date, timedelta
 from io import BytesIO
 
+import pytest
 from faker import Faker
 from freezegun import freeze_time
 from pypdf import PdfReader
@@ -15,6 +16,8 @@ from sme_sigpae_api.recebimento.models import (
 )
 
 fake = Faker("pt_BR")
+
+pytestmark = pytest.mark.django_db
 
 
 def test_url_questoes_conferencia_list(

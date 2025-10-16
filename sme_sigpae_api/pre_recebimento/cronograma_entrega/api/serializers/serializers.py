@@ -1,6 +1,5 @@
 import datetime
 from collections import OrderedDict
-
 from rest_framework import serializers
 
 from sme_sigpae_api.dados_comuns.fluxo_status import DocumentoDeRecebimentoWorkflow
@@ -31,6 +30,7 @@ from sme_sigpae_api.terceirizada.api.serializers.serializers import (
 from .....dados_comuns.api.serializers import (
     LogSolicitacoesUsuarioSerializer,
 )
+from django.db.models import Q
 
 
 class ProgramacaoDoRecebimentoDoCronogramaSerializer(serializers.ModelSerializer):
@@ -291,6 +291,8 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
     desvinculada_recebimento = serializers.SerializerMethodField()
     etapa = serializers.SerializerMethodField()
     parte = serializers.SerializerMethodField()
+    houve_ocorrencia = serializers.SerializerMethodField()
+    houve_reposicao = serializers.SerializerMethodField()
 
     def get_etapa(self, obj):
         return f"Etapa {obj.etapa}" if obj.etapa is not None else None
@@ -328,6 +330,15 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
     def get_desvinculada_recebimento(self, obj):
         return not obj.ficha_recebimento.exists()
 
+    def get_houve_ocorrencia(self, obj):
+        return obj.ficha_recebimento.filter(houve_ocorrencia=True, status="ASSINADA").exists()
+
+    def get_houve_reposicao(self, obj):
+        return obj.ficha_recebimento.filter(
+            Q(houve_ocorrencia=False) | Q(houve_ocorrencia__isnull=True),
+            reposicao_cronograma__isnull=False
+        ).exists()
+
     class Meta:
         model = EtapasDoCronograma
         fields = (
@@ -340,6 +351,8 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
             "quantidade",
             "total_embalagens",
             "desvinculada_recebimento",
+            "houve_ocorrencia",
+            "houve_reposicao",
         )
 
 

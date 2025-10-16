@@ -2,6 +2,7 @@ import pytest
 
 from sme_sigpae_api.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from sme_sigpae_api.produto.api.serializers.serializers import (
+    HomologacaoProdutoPainelGerencialSerializer,
     ReclamacaoDeProdutoExcelSerializer,
 )
 from sme_sigpae_api.produto.models import AnaliseSensorial
@@ -166,3 +167,9 @@ def test_reclamacao_produto_excel_serializer(reclamacao_produto_pdf):
     assert "produto" in data["homologacao_produto"]
     assert "marca" in data["homologacao_produto"]["produto"]
     assert "fabricante" in data["homologacao_produto"]["produto"]
+
+
+def test_alteracao_produto_homologado(alteracao_produto_homologado):
+    serializer = HomologacaoProdutoPainelGerencialSerializer(alteracao_produto_homologado)
+    data = serializer.data
+    assert data["produto_eh_copia"] == True

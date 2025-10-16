@@ -312,7 +312,7 @@ def test_obter_justificativa_dieta_dieta_autorizada(
     assert justificativa is None
 
 
-def test_obter_justificativa_dieta_dieta_cancelada(
+def test_obter_justificativa_dieta_cancelada(
     solicitacao_dieta_especial_cancelada,
 ):
     log_recente = solicitacao_dieta_especial_cancelada.logs.last()

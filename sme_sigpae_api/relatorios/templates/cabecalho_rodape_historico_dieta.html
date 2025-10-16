@@ -1,0 +1,65 @@
+{% include 'relatorio_base.html' %}
+{% load static %}
+{% load sass_tags %}
+
+<html>
+<head>
+  <link rel="stylesheet" href="{% sass_src 'css/cabecalho.scss' %}" type="text/css">
+  <link rel="stylesheet" href="{% sass_src 'css/override_relatorio.scss' %}" type="text/css">
+  <link rel="stylesheet" href="{% sass_src 'css/custom_bootstrap.scss' %}" type="text/css">
+  <link rel="stylesheet" href="{% sass_src 'css/kit_lanche_cemei.scss' %}" type="text/css">
+  <style>
+    @page {
+      margin-bottom: 4em;
+      @bottom-left {
+        background: #EEEEEE;
+        color: #000000;
+        content: "Documento gerado em {% now 'd/m/Y' %} às {% now 'H:i' %}" ;
+        font-size: 11px;
+        width: 100%;
+        padding: 1em 2em 4em 2em;
+        margin-top: 2em;
+      }
+      @bottom-right {
+        color: #000000;
+        content: "Página " counter(page) " de " counter(pages);
+        font-size: 11px;
+        width: 45%;
+        padding: 1em 2em 4em 2em;
+        margin-top: 2em;
+      }
+    }
+
+    .titulo-e-logo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .titulo-e-logo h1 {
+      font-style: normal;
+      font-weight: normal;
+      font-size: 17px;
+      line-height: 21px;
+      text-transform: uppercase;
+      color: #000000;
+    }
+  </style>
+  <link rel="stylesheet" href="{% sass_src 'css/fluxo_status.scss' %}" type="text/css">
+</head>
+<header class="header">
+  <section class="titulo-e-logo">
+    <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt=""/>
+    <h1>Sistema de gestão do programa de alimentação escolar</h1>
+  </section>
+  <table class="tabela-cabecalho tabela-arredondada" style="margin-top: 10px !important; min-height: 100px !important;">
+    <tr class="title-cabecalho" style="height: 30px;">
+      <td>{{ subtitulo }}</td>
+    </tr>
+  </table>
+</header>
+<body>
+{% block conteudo %}
+{% endblock %}
+</body>
+</html>

@@ -17,6 +17,7 @@ from sme_sigpae_api.recebimento.models import (
     QuestaoFichaRecebimento,
     QuestoesPorProduto,
     VeiculoFichaDeRecebimento,
+    ReposicaoCronogramaFichaRecebimento,
 )
 
 
@@ -198,6 +199,11 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
     ocorrencias = OcorrenciaFichaRecebimentoCreateSerializer(
         many=True, required=False, rascunho=False
     )
+    reposicao_cronograma = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=False,
+        queryset=ReposicaoCronogramaFichaRecebimento.objects.all(),
+    )
 
     class Meta:
         model = FichaDeRecebimento
@@ -225,6 +231,7 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
             "observacoes_conferencia",
             "houve_ocorrencia",
             "ocorrencias",
+            "reposicao_cronograma",
         ]
 
     def validate(self, data):
@@ -365,6 +372,11 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
     ocorrencias = OcorrenciaFichaRecebimentoCreateSerializer(
         many=True, required=False, rascunho=True
     )
+    reposicao_cronograma = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=False,
+        queryset=ReposicaoCronogramaFichaRecebimento.objects.all(),
+    )
 
     def create(self, validated_data):
         return criar_ficha(validated_data)
@@ -386,6 +398,79 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
         representation["ocorrencias"] = OcorrenciaFichaRecebimentoCreateSerializer(
             instance.ocorrencias.all(), many=True
         ).data
+        return representation
+
+    def to_internal_value(self, data):
+        peso_fields = [
+            "numero_paletes",
+            "peso_embalagem_primaria_1",
+            "peso_embalagem_primaria_2",
+            "peso_embalagem_primaria_3",
+            "peso_embalagem_primaria_4",
+        ]
+
+        for field in peso_fields:
+            if field in data and isinstance(data[field], str):
+                data[field] = data[field].replace(".", "").replace(",", ".")
+
+        return super().to_internal_value(data)
+
+    class Meta:
+        model = FichaDeRecebimento
+        exclude = ("id",)
+
+
+class FichaDeRecebimentoReposicaoSerializer(serializers.ModelSerializer):
+    etapa = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=True,
+        queryset=EtapasDoCronograma.objects.all(),
+    )
+    data_entrega = serializers.DateField(required=True)
+    ocorrencias = OcorrenciaFichaRecebimentoCreateSerializer(
+        many=True, required=False, rascunho=True
+    )
+    observacao = serializers.CharField(required=True, allow_blank=True)
+    arquivos = ArquivoFichaRecebimentoCreateSerializer(
+        many=True,
+        required=False,
+    )
+    reposicao_cronograma = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=True,
+        queryset=ReposicaoCronogramaFichaRecebimento.objects.all(),
+    )
+    documentos_recebimento = serializers.SlugRelatedField(
+        slug_field="uuid",
+        queryset=DocumentoDeRecebimento.objects.filter(
+            status=DocumentoDeRecebimentoWorkflow.APROVADO
+        ),
+        many=True,
+        required=False,
+    )
+
+    def create(self, validated_data):
+        ficha = criar_ficha(validated_data)
+        user = self.context["request"].user
+        ficha.inicia_fluxo(user=user)
+        return ficha
+
+    def update(self, instance, validated_data):
+        eh_rascunho = (
+            hasattr(instance, "status")
+            and instance.status == instance.workflow_class.RASCUNHO
+        )
+
+        ficha_atualizada = atualizar_ficha(instance, validated_data)
+
+        if eh_rascunho:
+            user = self.context["request"].user
+            ficha_atualizada.inicia_fluxo(user=user)
+
+        return ficha_atualizada
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
         return representation
 
     def to_internal_value(self, data):

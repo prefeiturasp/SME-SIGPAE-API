@@ -3227,9 +3227,10 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
     def _inicia_fluxo_hook(self, *args, **kwargs):
         self._salva_rastro_solicitacao()
         user = kwargs["user"]
-        self.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.INICIO_FLUXO, usuario=user
-        )
+        logInicial = LogSolicitacoesUsuario.INICIO_FLUXO
+        if self.tipo_solicitacao == "ALTERACAO_UE":
+            logInicial = LogSolicitacoesUsuario.INICIO_FLUXO_ALTERACAO_UE_DIETA_ESPECIAL
+        self.salvar_log_transicao(status_evento=logInicial, usuario=user)
 
     @xworkflows.after_transition("cancelar_pedido")
     def _cancelar_pedido_hook(self, *args, **kwargs):
@@ -3242,8 +3243,12 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         )
         if alta_medica:
             titulo = self.str_dre_lote_escola
+        log = LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL
+        eh_usuario_escola = user.tipo_usuario == constants.TIPO_USUARIO_ESCOLA
+        if eh_usuario_escola:
+            log = LogSolicitacoesUsuario.ESCOLA_CANCELOU
         self.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+            status_evento=log,
             usuario=user,
             justificativa=justificativa,
         )
@@ -3283,12 +3288,18 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
     @xworkflows.after_transition("codae_nega")
     def _codae_nega_hook(self, *args, **kwargs):
         user = kwargs["user"]
+        justificativa = self.justificativa_negacao
         assunto = "[SIGPAE] Status de Solicitação - #" + self.id_externo
         titulo = (
             f'Status de Solicitação - "{self.aluno.codigo_eol} - {self.aluno.nome}"'
         )
+        log_evento = LogSolicitacoesUsuario.CODAE_NEGOU
+        if self.tipo_solicitacao == "ALTERACAO_UE":
+            log_evento = LogSolicitacoesUsuario.CODAE_NEGOU_ALTERACAO_UE_DIETA_ESPECIAL
         self.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.CODAE_NEGOU, usuario=user
+            status_evento=log_evento,
+            usuario=user,
+            justificativa=justificativa,
         )
         self._preenche_template_e_envia_email(
             assunto,
@@ -3302,8 +3313,14 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
     def _codae_autoriza_hook(self, *args, **kwargs):
         user = kwargs["user"]
         eh_importacao = kwargs.get("eh_importacao", None)
+        log_evento = LogSolicitacoesUsuario.CODAE_AUTORIZOU
+        if self.tipo_solicitacao == "ALTERACAO_UE":
+            log_evento = (
+                LogSolicitacoesUsuario.CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL
+            )
         self.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU, usuario=user
+            status_evento=log_evento,
+            usuario=user,
         )
         if not eh_importacao:
             if self.tipo_solicitacao == "ALTERACAO_UE":

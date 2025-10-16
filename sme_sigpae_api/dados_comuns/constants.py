@@ -92,6 +92,7 @@ RELATORIO = "relatorio"
 RELATORIO_ANALISE = "relatorio-analise-sensorial"
 RELATORIO_SUSPENSOS = "relatorio-produtos-suspensos"
 RELATORIO_RECEBIMENTO = "relatorio-analise-sensorial-recebimento"
+RELATORIO_HISTORICO_DIETA = "relatorio-historico-dieta"
 PROTOCOLO = "protocolo"
 
 #
@@ -369,11 +370,11 @@ NOMES_CAMPOS = {
 
 ORDEM_UNIDADES_GRUPO_EMEF = {
     "EMEF": 1,
-    "EMEFM": 2,
-    "EMEF P FOM": 3,
-    "CIEJA": 4,
-    "CEU GESTAO": 5,
-    "CEU EMEF": 6,
+    "CEU EMEF": 2,
+    "EMEFM": 3,
+    "EMEF P FOM": 4,
+    "CIEJA": 5,
+    "CEU GESTAO": 6,
 }
 
 ORDEM_UNIDADES_GRUPO_EMEI = {

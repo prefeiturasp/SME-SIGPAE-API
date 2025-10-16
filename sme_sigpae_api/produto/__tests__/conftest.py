@@ -34,7 +34,6 @@ from ..models import AnaliseSensorial, HomologacaoProduto, ProdutoEdital
 fake = Faker("pt-Br")
 Faker.seed(420)
 
-
 @pytest.fixture
 def escola():
     terceirizada = baker.make("Terceirizada")
@@ -51,6 +50,7 @@ def escola():
         uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd",
         lote=lote,
         diretoria_regional=diretoria_regional,
+        tipo_gestao__nome="TERC TOTAL",
         contato=contato,
     )
 
@@ -1242,3 +1242,14 @@ def reclamacao_produto_query_excel(mock_view_de_produtos, reclamacao_produto_pdf
     return viewset.obter_produtos_ordenados_por_edital_e_reclamacoes_excel(
         filtro_reclamacao, filtro_homologacao
     )
+
+@pytest.fixture
+def alteracao_produto_homologado(homologacao_produto, client_autenticado_vinculo_terceirizada):
+    homologacao_produto.status = HomologacaoProdutoWorkflow.CODAE_SUSPENDEU
+    _, usuario = client_autenticado_vinculo_terceirizada
+    
+    copia_hom_produto = homologacao_produto.cria_copia(
+        usuario.vinculo_atual.instituicao
+    )
+    homologacao_produto.save()
+    return copia_hom_produto
