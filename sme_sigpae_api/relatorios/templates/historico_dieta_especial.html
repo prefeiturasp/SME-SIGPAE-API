@@ -179,7 +179,7 @@
             <br>
             <div>
               Período de Vigência: 
-              <span class="highlight">{{ periodo_vigencia }}</span>
+              <span class="highlight">{{ periodo_vigencia | remove_none }}</span>
             </div>
             <div>
               Informações Adicionais: 
@@ -202,11 +202,12 @@
             <h4>CANCELADA POR ATINGIR DATA DE TÉRMINO</h4>
             <div>RF: <span class="highlight">SYSTEM ADMIN</span></div>
             <div>Data: <span class="highlight">{{ log.criado_em|date:"d/m/Y - H:i" }}</span></div>
-            <div>Justificativa: <p class="highlight">{{ log.justificativa }}</p></div>
+            <div>Justificativa: <p class="highlight">Cancelamento automático por atingir data término</p></div>
           </div>
         {% elif log.status_evento_explicacao == "CODAE negou cancelamento" %}
           <div class="secao-log">
             <h4>CODAE NEGOU O CANCELAMENTO</h4>
+            <div>RF: <span class="highlight">{{ log.usuario.registro_funcional }}</span></div>
             <div>Data: <span class="highlight">{{ log.criado_em|date:"d/m/Y - H:i" }}</span></div>
             <div>Motivo: <span class="highlight">{{ solicitacao.motivo_negacao.descricao }}</span></div>
             {% if log.justificativa != "" %}

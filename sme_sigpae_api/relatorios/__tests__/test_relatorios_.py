@@ -319,7 +319,7 @@ def test_obter_justificativa_dieta_cancelada(
     justificativa = obter_justificativa_dieta(solicitacao_dieta_especial_cancelada)
     assert (
         justificativa
-        == f'Dieta cancelada em: {log_recente.criado_em.strftime("%d/%m/%Y")} | Justificativa: CODAE autorizou o cancelamento'
+        == f'Dieta cancelada em: {log_recente.criado_em.strftime("%d/%m/%Y")} | Justificativa: Escola cancelou'
     )
 
 
