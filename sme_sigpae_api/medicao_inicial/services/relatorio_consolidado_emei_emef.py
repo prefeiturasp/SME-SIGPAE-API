@@ -22,6 +22,7 @@ from sme_sigpae_api.medicao_inicial.services.utils import (
 )
 
 from ..models import CategoriaMedicao
+from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 
 
 def get_alimentacoes_por_periodo(solicitacoes):
@@ -137,7 +138,7 @@ def get_valores_tabela(solicitacoes, colunas, tipos_de_unidade):
     ).values_list("nome", flat=True)
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     valores = []
-    for solicitacao in get_solicitacoes_ordenadas(solicitacoes, tipos_de_unidade):
+    for solicitacao in ordenar_unidades(solicitacoes):
         valores_solicitacao_atual = []
         valores_solicitacao_atual += get_valores_iniciais(solicitacao)
         for periodo, campo in colunas:
