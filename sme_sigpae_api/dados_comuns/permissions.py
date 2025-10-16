@@ -387,6 +387,19 @@ class UsuarioEmpresaTerceirizada(BasePermission):
         )
 
 
+class UsuarioAdministradorEmpresaTerceirizada(BasePermission):
+    """Permite acesso a usuários com vinculo a uma Terceirizada."""
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and isinstance(usuario.vinculo_atual.instituicao, Terceirizada)
+            and usuario.vinculo_atual.perfil.nome in [ADMINISTRADOR_EMPRESA]
+        )
+
+
 class UsuarioSupervisaoNutricao(BasePermission):
     """Permite acesso a usuários com SupervisaoNutricao."""
 
