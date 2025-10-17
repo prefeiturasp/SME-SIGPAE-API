@@ -3658,6 +3658,7 @@ def relatorio_consolidado_xlsx_cemei(
     grupo_infantil_manha,
     grupo_infantil_tarde,
     grupo_solicitacoes_alimentacao,
+    grupo_programas_e_projetos,
     categoria_medicao_solicitacoes_alimentacao,
 ):
     medicao_integral = baker.make(
@@ -3692,6 +3693,11 @@ def relatorio_consolidado_xlsx_cemei(
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
         grupo=grupo_solicitacoes_alimentacao,
     )
+    medicao_programas_e_projetos = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
+        grupo=grupo_programas_e_projetos,
+    )
 
     for dia in ["01", "02", "03", "04", "05"]:
         if dia == "05":
@@ -3704,6 +3710,35 @@ def relatorio_consolidado_xlsx_cemei(
                     categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
                     valor="5",
                 )
+            for campo in ["numero_de_alunos", "frequencia", "dietas_autorizadas", "lanche", "lanche_4h", "refeicao", "sobremesa"]:
+                if campo not in ["numero_de_alunos", "refeicao", "sobremesa"]:
+                    baker.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao_programas_e_projetos,
+                        categoria_medicao=categoria_medicao_dieta_a,
+                        valor=1,
+                    )
+                    baker.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao_programas_e_projetos,
+                        categoria_medicao=categoria_medicao_dieta_b,
+                        valor=1,
+                    )
+                if campo != "dietas_autorizadas":
+                    baker.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao_programas_e_projetos,
+                        categoria_medicao=categoria_medicao,
+                        valor=1,
+                        faixa_etaria=faixa,
+                    )
+            
         for medicao in [medicao_integral, medicao_parcial]:
             for faixa in faixas_etarias_ativas:
                 baker.make(
