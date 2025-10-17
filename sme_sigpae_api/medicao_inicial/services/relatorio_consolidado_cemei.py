@@ -367,11 +367,11 @@ def ajusta_layout_tabela(
         },
         "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS": {
             "formatacao": formatacao_programas,
-            "nome": "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS",
+            "nome": "DIETA ESPECIAL - TIPO A",
         },
         "DIETA ESPECIAL - TIPO B - PROGRAMAS E PROJETOS": {
             "formatacao": formatacao_programas,
-            "nome": "DIETA ESPECIAL - TIPO B - PROGRAMAS E PROJETOS",
+            "nome": "DIETA ESPECIAL - TIPO B",
         },
     }
 
