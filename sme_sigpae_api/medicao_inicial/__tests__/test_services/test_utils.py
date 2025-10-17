@@ -56,7 +56,7 @@ def test_get_nome_periodo_cemei(relatorio_consolidado_xlsx_cemei):
     medicoes = relatorio_consolidado_xlsx_cemei.medicoes.all().order_by(
         "periodo_escolar__nome", "grupo__nome"
     )
-    assert medicoes.count() == 6
+    assert medicoes.count() == 7
 
     integral_cei = get_nome_periodo(medicoes[0])
     assert isinstance(integral_cei, str)
@@ -78,7 +78,11 @@ def test_get_nome_periodo_cemei(relatorio_consolidado_xlsx_cemei):
     assert isinstance(tarde, str)
     assert tarde == "Infantil TARDE"
 
-    solicitacao = get_nome_periodo(medicoes[5])
+    programas_e_projetos = get_nome_periodo(medicoes[5])
+    assert isinstance(programas_e_projetos, str)
+    assert programas_e_projetos == "Programas e Projetos"
+
+    solicitacao = get_nome_periodo(medicoes[6])
     assert isinstance(solicitacao, str)
     assert solicitacao == "Solicitações de Alimentação"
 
