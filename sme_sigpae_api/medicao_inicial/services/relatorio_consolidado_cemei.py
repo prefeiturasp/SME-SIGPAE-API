@@ -222,6 +222,8 @@ def _define_filtro(periodo: str, grupos_medicao: list[str]) -> dict:
     elif "DIETA ESPECIAL" in periodo:
         if "INFANTIL" in periodo:
             filtros["grupo__nome__in"] = grupos_medicao
+        elif "PROGRAMAS E PROJETOS" in periodo:
+            filtros["grupo__nome"] = "Programas e Projetos"
         else:
             filtros["periodo_escolar__nome"] = periodo.split(" - ")[-1]
     else:
@@ -236,6 +238,7 @@ def _processa_dieta_especial(
         periodo.replace(" - INFANTIL", "")
         .replace(" - INTEGRAL", "")
         .replace(" - PARCIAL", "")
+        .replace(" - PROGRAMAS E PROJETOS", "")
     )
     soma = "-"
     if any("periodo_escolar" in chave for chave in filtros.keys()):
@@ -361,6 +364,14 @@ def ajusta_layout_tabela(
         "PROGRAMAS E PROJETOS": {
             "formatacao": formatacao_programas,
             "nome": "PROGRAMAS E PROJETOS",
+        },
+        "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS": {
+            "formatacao": formatacao_programas,
+            "nome": "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS",
+        },
+        "DIETA ESPECIAL - TIPO B - PROGRAMAS E PROJETOS": {
+            "formatacao": formatacao_programas,
+            "nome": "DIETA ESPECIAL - TIPO B - PROGRAMAS E PROJETOS",
         },
     }
 
