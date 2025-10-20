@@ -482,6 +482,27 @@ def escola_ceu_gestao():
 
 
 @pytest.fixture
+def escola_cmct():
+    terceirizada = baker.make("Terceirizada")
+    diretoria_regional = baker.make(
+        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+    )
+    lote = baker.make(
+        "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
+    )
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CMCT")
+    return baker.make(
+        "Escola",
+        nome="CMCT TESTE",
+        lote=lote,
+        diretoria_regional=diretoria_regional,
+        tipo_gestao=tipo_gestao,
+        tipo_unidade=tipo_unidade_escolar,
+    )
+
+
+@pytest.fixture
 def aluno():
     return baker.make(
         "Aluno",
@@ -2486,6 +2507,27 @@ def client_autenticado_da_escola(client, django_user_model, escola):
         "Vinculo",
         usuario=usuario,
         instituicao=escola,
+        perfil=perfil_diretor,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client
+
+
+@pytest.fixture
+def client_autenticado_da_escola_cmct(client, django_user_model, escola_cmct):
+    email = "user@escola.com"
+    password = DJANGO_ADMIN_PASSWORD
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    usuario = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="123456"
+    )
+    hoje = datetime.date.today()
+    baker.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=escola_cmct,
         perfil=perfil_diretor,
         data_inicial=hoje,
         ativo=True,
