@@ -95,6 +95,20 @@ def update_dietas_alimentacoes(
 
 
 def generate_columns(dict_periodos_dietas: dict) -> list:
+    """
+    Gera lista de colunas a partir de dicionário de períodos e dietas.
+    Transforma um dicionário hierárquico em uma lista plana de tuplas, onde cada tupla representa uma coluna no formato (categoria, alimentação).
+
+    Args:
+        dict_periodos_dietas (dict):  Dicionário onde as chaves são categorias (períodos ou dietas) e os valores são listas de alimentações
+
+    Returns:
+        list: Lista de tuplas no formato [(categoria, alimentação), ...], contendo todas as combinações possíveis de categorias e suas respectivas alimentações.
+        
+    Examples:
+        >>> generate_columns({"MANHA": ["lanche", "refeicao"],)
+        [('MANHA', 'lanche'), ('MANHA', 'refeicao')]
+    """
     columns = [
         (chave, valor)
         for chave, valores in dict_periodos_dietas.items()
