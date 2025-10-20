@@ -1,4 +1,5 @@
-from django.db.models import Q
+from django.db.models import FloatField, Q, Sum
+from django.db.models.functions import Cast
 
 from sme_sigpae_api.dados_comuns.constants import ORDEM_CAMPOS, ORDEM_HEADERS_CIEJA_CMCT
 from sme_sigpae_api.escola.models import PeriodoEscolar
@@ -242,6 +243,8 @@ def get_valores_tabela(
                 periodos_escolares,
             )
         valores.append(valores_solicitacao_atual)
+
+    print(valores)
     return valores
 
 
@@ -255,6 +258,13 @@ def _processa_periodo_campo(
 ):
     filtros = _define_filtro(periodo, dietas_especiais, periodos_escolares)
 
+    try:
+        if periodo in dietas_especiais:
+            total = processa_dieta_especial(solicitacao, filtros, campo, periodo)
+
+        valores.append(total)
+    except Exception:
+        valores.append("-")
     return valores
 
 
@@ -290,3 +300,67 @@ def _define_filtro(
     else:
         filtros["periodo_escolar__nome"] = periodo
     return filtros
+
+
+def processa_dieta_especial(
+    solicitacao: SolicitacaoMedicaoInicial, filtros: dict, campo: str, periodo: str
+) -> float | str:
+    """
+    Processa e calcula totais para dietas especiais em solicitações de medição.
+    Calcula o somatório de valores para um campo específico em medições que atendem aos filtros fornecidos, com tratamento especial para a dieta do
+    Tipo A que consolida múltiplas categorias.
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Solicitação contendo as medições a serem processadas.
+        filtros (dict): Dicionário de filtros para selecionar medições específicas.
+        campo (str): Nome do campo a ser somado nas medições.
+        periodo (str): Período/dieta sendo processado. Para "DIETA ESPECIAL - TIPO A", consolida múltiplas categorias relacionadas.
+
+    Returns:
+        float | str: Total somado dos valores do campo especificado, ou "-" se não houver medições que atendam aos filtros ou se o total for zero.
+    """
+    condicoes = Q()
+    for filtro, valor in filtros.items():
+        condicoes = condicoes | Q(**{filtro: valor})
+
+    medicoes = solicitacao.medicoes.filter(condicoes)
+    if not medicoes.exists():
+        return "-"
+
+    categorias = (
+        [
+            "DIETA ESPECIAL - TIPO A",
+            "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        ]
+        if periodo == "DIETA ESPECIAL - TIPO A"
+        else [periodo]
+    )
+    total = 0.0
+    for medicao in medicoes:
+        soma = _calcula_soma_medicao(medicao, campo, categorias)
+        if soma is not None:
+            total += soma
+
+    return "-" if total == 0.0 else total
+
+
+def _calcula_soma_medicao(medicao: Medicao, campo: str, categorias: list[str]) -> float:
+    """
+    Calcula a soma de valores de um campo específico em uma medição.
+    Agrega os valores numéricos de um campo específico dentro de uma medição, filtrando por categorias de medição especificadas.
+
+    Args:
+        medicao (Medicao): Objeto de medição contendo os valores a serem somados.
+        campo (str): Nome do campo a ser agregado.
+        categorias (list[str]): Lista de categorias de medição para filtrar.
+
+    Returns:
+        float: Soma total dos valores do campo especificado, ou None se não houver valores que atendam aos critérios.
+    """
+    return (
+        medicao.valores_medicao.filter(
+            nome_campo=campo, categoria_medicao__nome__in=categorias
+        )
+        .annotate(valor_float=Cast("valor", output_field=FloatField()))
+        .aggregate(total=Sum("valor_float"))["total"]
+    )
