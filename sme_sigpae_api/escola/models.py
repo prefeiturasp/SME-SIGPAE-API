@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 import logging
 from collections import Counter
@@ -1653,6 +1655,32 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         self.cardapio_suspensaoalimentacaodacei_rastro_lote.exclude(
             data__lt=hoje
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
+
+    def _transferir_lote_lida_com_inclusoes_continuas(
+        self, data: datetime.date, terceirizada_pre_transferencia
+    ):
+        inclusoes_continuas = InclusaoAlimentacaoContinua.objects.filter(
+            status=InclusaoAlimentacaoContinua.workflow_class.CODAE_AUTORIZADO,
+            rastro_terceirizada=terceirizada_pre_transferencia,
+            data_final__gte=data,
+        )
+        if not inclusoes_continuas:
+            return
+
+    def transferir_solicitacoes_gestao_alimentacao_com_datas_no_passado_e_no_presente(
+        self, data: datetime.date
+    ):
+        """
+        Esta função realiza a transferência de solicitações autorizadas que possuem datas
+        antes E após a data de transferência.
+        De modo que:
+            - as solicitações originais ficam com datas até um dia antes da transferência
+            - as solicitações cópias ficam com datas do dia de transferência para frente
+        """
+        terceirizada_pre_transferencia = self.terceirizada
+        self._transferir_lote_lida_com_inclusoes_continuas(
+            data, terceirizada_pre_transferencia
+        )
 
     def transferir_dietas_especiais(self, terceirizada):
         canceladas_ou_negadas_ou_inativas = Q(
