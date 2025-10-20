@@ -118,6 +118,21 @@ def generate_columns(dict_periodos_dietas: dict) -> list:
 
 
 def get_valores_iniciais(solicitacao: SolicitacaoMedicaoInicial) -> list[str]:
+    """
+    Extrai informações iniciais básicas da escola da solicitação.
+    
+    Obtém um conjunto de dados fundamentais da escola associada à solicitação
+    de medição inicial, incluindo sigla do tipo de unidade, código EOL e nome.
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Objeto de solicitação de medição inicial contendo a escola associada
+
+    Returns:
+        list[str]: Lista com três elementos na ordem:
+            [0] (str): Iniciais do tipo de unidade escolar (ex: "EMEF", "CEI")
+            [1] (str): Código EOL da escola
+            [2] (str): Nome completo da escola
+    """
     return [
         solicitacao.escola.tipo_unidade.iniciais,
         solicitacao.escola.codigo_eol,

@@ -1,11 +1,18 @@
 from django.db.models import Q
 
 from sme_sigpae_api.dados_comuns.constants import ORDEM_CAMPOS, ORDEM_HEADERS_CIEJA_CMCT
-from sme_sigpae_api.medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
+from sme_sigpae_api.escola.models import PeriodoEscolar
+from sme_sigpae_api.medicao_inicial.models import (
+    CategoriaMedicao,
+    Medicao,
+    SolicitacaoMedicaoInicial,
+)
+from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from sme_sigpae_api.medicao_inicial.services.utils import (
     generate_columns,
     get_categorias_dietas,
     get_nome_periodo,
+    get_valores_iniciais,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
 )
@@ -209,3 +216,77 @@ def _sort_and_merge(periodos_alimentacoes: dict, dietas_alimentacoes: dict) -> d
     )
 
     return dict_periodos_dietas
+
+
+def get_valores_tabela(
+    solicitacoes: list[SolicitacaoMedicaoInicial],
+    colunas: list[tuple],
+    tipos_de_unidade: list[str],
+):
+    dietas_especiais = CategoriaMedicao.objects.filter(
+        nome__icontains="DIETA ESPECIAL"
+    ).values_list("nome", flat=True)
+    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
+    valores = []
+    for solicitacao in ordenar_unidades(solicitacoes):
+        valores_solicitacao_atual = []
+        valores_solicitacao_atual += get_valores_iniciais(solicitacao)
+
+        for periodo, campo in colunas:
+            valores_solicitacao_atual = _processa_periodo_campo(
+                solicitacao,
+                periodo,
+                campo,
+                valores_solicitacao_atual,
+                dietas_especiais,
+                periodos_escolares,
+            )
+        valores.append(valores_solicitacao_atual)
+    return valores
+
+
+def _processa_periodo_campo(
+    solicitacao: SolicitacaoMedicaoInicial,
+    periodo: str,
+    campo: str,
+    valores: list[str],
+    dietas_especiais: list[str],
+    periodos_escolares: list[str],
+):
+    filtros = _define_filtro(periodo, dietas_especiais, periodos_escolares)
+
+    return valores
+
+
+def _define_filtro(
+    periodo: str, dietas_especiais: list[str], periodos_escolares: list[str]
+) -> dict:
+    """
+    Define os filtros de consulta baseados no tipo de período especificado.
+
+    A lógica de filtragem segue a seguinte hierarquia:
+    1. Períodos de Programas/Projetos: filtram por nome do grupo
+    2. Dietas Especiais: filtram por períodos escolares e grupos específicos
+    3. Períodos Regulares: filtram por nome do período escolar
+
+    Args:
+        periodo (str): Nome do período para o qual definir os filtros.
+        dietas_especiais (list[str]): Lista de nomes de categorias de dieta especial.
+        periodos_escolares (list[str]): Lista de nomes de períodos escolares válidos.
+
+    Returns:
+        dict: Dicionário contendo os filtros a serem aplicados na consulta, com chaves sendo campos do modelo e valores sendo critérios
+    """
+    filtros = {}
+    if periodo in [
+        "Programas e Projetos",
+        "ETEC",
+        "Solicitações de Alimentação",
+    ]:
+        filtros["grupo__nome"] = periodo
+    elif periodo in dietas_especiais:
+        filtros["periodo_escolar__nome__in"] = periodos_escolares
+        filtros["grupo__nome__in"] = ["Programas e Projetos", "ETEC"]
+    else:
+        filtros["periodo_escolar__nome"] = periodo
+    return filtros
