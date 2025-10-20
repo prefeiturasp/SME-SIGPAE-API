@@ -8,6 +8,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_CEI,
     ORDEM_UNIDADES_GRUPO_CEMEI,
+    ORDEM_UNIDADES_GRUPO_CIEJA_CMCT,
     ORDEM_UNIDADES_GRUPO_EMEBS,
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
@@ -17,6 +18,7 @@ from sme_sigpae_api.escola.models import DiretoriaRegional, Lote
 from sme_sigpae_api.medicao_inicial.services import (
     relatorio_consolidado_cei,
     relatorio_consolidado_cemei,
+    relatorio_consolidado_cieja_cmct,
     relatorio_consolidado_emebs,
     relatorio_consolidado_emei_emef,
 )
@@ -63,6 +65,11 @@ def _obter_modulo_da_unidade(tipos_de_unidade: list[str]) -> tuple:
             "unidades": ORDEM_UNIDADES_GRUPO_EMEBS,
             "modulo": relatorio_consolidado_emebs,
             "parametros": [],
+        },
+        {
+            "unidades": ORDEM_UNIDADES_GRUPO_CIEJA_CMCT,
+            "modulo": relatorio_consolidado_cieja_cmct,
+            "parametros": [tipos_de_unidade],
         },
     ]
     for estrategia in estrategias:
