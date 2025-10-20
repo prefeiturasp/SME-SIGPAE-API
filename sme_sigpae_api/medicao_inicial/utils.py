@@ -1874,12 +1874,18 @@ def get_kit_lanche(solicitacao):
             else kit_lanche.solicitacao_kit_lanche
         )
         if kit_lanche:
-            kits_lanches.append(
-                {
-                    "dia": f"{solicitacao_kit_lanche.data.day:02d}",
-                    "numero_alunos": kit_lanche.solicitacao_emei.quantidade_alimentacoes if solicitacao.escola.eh_cemei else kit_lanche.quantidade_alimentacoes,
-                }
-            )
+            if solicitacao.escola.eh_cemei:
+                if kit_lanche.tem_solicitacao_emei:
+                    numero_alunos = kit_lanche.solicitacao_emei.quantidade_alimentacoes
+                else:
+                    numero_alunos = 0
+            else:
+                numero_alunos = kit_lanche.quantidade_alimentacoes
+
+            kits_lanches.append({
+                "dia": f"{solicitacao_kit_lanche.data.day:02d}",
+                "numero_alunos": numero_alunos,
+            })
 
     return kits_lanches
 
