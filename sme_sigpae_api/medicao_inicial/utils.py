@@ -1877,7 +1877,7 @@ def get_kit_lanche(solicitacao):
             kits_lanches.append(
                 {
                     "dia": f"{solicitacao_kit_lanche.data.day:02d}",
-                    "numero_alunos": kit_lanche.quantidade_alimentacoes,
+                    "numero_alunos": kit_lanche.solicitacao_emei.quantidade_alimentacoes if solicitacao.escola.eh_cemei else kit_lanche.quantidade_alimentacoes,
                 }
             )
 
