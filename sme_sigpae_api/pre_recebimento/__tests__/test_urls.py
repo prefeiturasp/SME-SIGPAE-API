@@ -3740,3 +3740,30 @@ def test_url_ficha_tecnica_atualizacao_fornecedor(
 
     assert response.status_code == status.HTTP_200_OK
     assert ficha.status == FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE
+
+
+def test_url_pdf_ficha_tecnica(
+    client_autenticado_fornecedor, ficha_tecnica_perecivel_enviada_para_analise
+):
+    response = client_autenticado_fornecedor.get(
+        f"/ficha-tecnica/{str(ficha_tecnica_perecivel_enviada_para_analise.uuid)}/gerar-pdf-ficha/"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    headers = response.headers
+    assert headers["Content-Type"] == "application/pdf"
+    assert (
+        headers["Content-Disposition"]
+        == f'filename="ficha_tecnica_{ficha_tecnica_perecivel_enviada_para_analise.numero}.pdf"'
+    )
+
+
+def test_url_pdf_ficha_tecnica_erro(
+    client_autenticado_fornecedor, ficha_tecnica_com_erro
+):
+    response = client_autenticado_fornecedor.get(
+        f"/ficha-tecnica/{str(ficha_tecnica_com_erro.uuid)}/gerar-pdf-ficha/"
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": "Ocorreu um erro durante a geração do pdf de Ficha Técnica"
+    }

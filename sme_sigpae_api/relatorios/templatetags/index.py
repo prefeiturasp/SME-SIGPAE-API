@@ -707,7 +707,9 @@ def check_tipo_usuario(tipo_usuario):
 
 @register.filter
 def multiply(valor, multiplicador):
-    return round(int(valor) * multiplicador)
+    if isinstance(valor, str):
+        valor = valor.replace(",", ".")
+    return round(float(valor) * multiplicador)
 
 
 @register.filter
@@ -948,3 +950,19 @@ def replace(value, arg):
 
     what, to = arg.split("|")
     return value.replace(what, to)
+
+
+@register.filter
+def get_tipo_display(value):
+    tipo_dict = {
+        "I": "Isento",
+        "S": "Substituir",
+    }
+    return tipo_dict.get(value, "Tipo Desconhecido")
+
+
+@register.filter
+def remove_none(value):
+    if value is None:
+        return ""
+    return value

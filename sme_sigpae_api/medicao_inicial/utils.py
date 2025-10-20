@@ -1850,6 +1850,16 @@ def get_alteracoes_lanche_emergencial(solicitacao):
     return alteracoes_lanche_emergencial
 
 
+def remover_duplicados(query_set):
+    aux = []
+    sem_uuid_repetido = []
+    for resultado in query_set:
+        if resultado.uuid not in aux:
+            aux.append(resultado.uuid)
+            sem_uuid_repetido.append(resultado)
+    return sem_uuid_repetido
+
+
 def get_kit_lanche(solicitacao):
     escola_uuid = solicitacao.escola.uuid
     mes = solicitacao.mes
@@ -1858,13 +1868,8 @@ def get_kit_lanche(solicitacao):
     query_set = query_set.filter(data_evento__month=mes, data_evento__year=ano)
     query_set = query_set.filter(data_evento__lt=datetime.date.today())
     query_set = query_set.filter(desc_doc__icontains="Kit Lanche")
-    aux = []
-    sem_uuid_repetido = []
-    for resultado in query_set:
-        if resultado.uuid not in aux:
-            aux.append(resultado.uuid)
-            sem_uuid_repetido.append(resultado)
-    query_set = sem_uuid_repetido
+    query_set = remover_duplicados(query_set)
+
     kits_lanches = []
     for kit_lanche in query_set:
         kit_lanche = kit_lanche.get_raw_model.objects.get(uuid=kit_lanche.uuid)
@@ -1874,12 +1879,17 @@ def get_kit_lanche(solicitacao):
             else kit_lanche.solicitacao_kit_lanche
         )
         if kit_lanche:
-            kits_lanches.append(
-                {
-                    "dia": f"{solicitacao_kit_lanche.data.day:02d}",
-                    "numero_alunos": kit_lanche.quantidade_alimentacoes,
-                }
-            )
+            numero_alunos = kit_lanche.quantidade_alimentacoes
+            if solicitacao.escola.eh_cemei:
+                if kit_lanche.tem_solicitacao_emei:
+                    numero_alunos = kit_lanche.solicitacao_emei.quantidade_alimentacoes
+                else:
+                    numero_alunos = 0
+
+            kits_lanches.append({
+                "dia": f"{solicitacao_kit_lanche.data.day:02d}",
+                "numero_alunos": numero_alunos,
+            })
 
     return kits_lanches
 

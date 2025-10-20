@@ -383,7 +383,10 @@ def relatorio_dieta_especial_conteudo(solicitacao, request=None):
         ).exists():
             fluxo = constants.FLUXO_DIETA_ESPECIAL_INATIVACAO
         elif solicitacao.logs.filter(
-            status_evento=LogSolicitacoesUsuario.ESCOLA_CANCELOU
+            status_evento__in=[
+                LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+                LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
+            ]
         ).exists():
             fluxo = constants.FLUXO_DIETA_ESPECIAL_INATIVACAO_CANCELADO
         else:
@@ -394,7 +397,11 @@ def relatorio_dieta_especial_conteudo(solicitacao, request=None):
     log_cancelamento = [
         log
         for log in logs
-        if log.status_evento == LogSolicitacoesUsuario.ESCOLA_CANCELOU
+        if log.status_evento
+        in [
+            LogSolicitacoesUsuario.ESCOLA_CANCELOU,
+            LogSolicitacoesUsuario.CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL,
+        ]
     ]
     usuario = request.user
     html_string = render_to_string(
@@ -413,6 +420,46 @@ def relatorio_dieta_especial_conteudo(solicitacao, request=None):
                 log_cancelamento[0].justificativa if log_cancelamento else None
             ),
             "tipo_usuario": usuario.tipo_usuario if usuario else None,
+        },
+    )
+    return html_string
+
+
+def relatorio_dieta_especial_historico_conteudo(solicitacao, request=None):
+    aluno = solicitacao.aluno
+    escola_origem = solicitacao.escola
+    escola_destino = solicitacao.escola_destino
+
+    logs = solicitacao.logs
+
+    data_inicio = (
+        solicitacao.data_inicio.strftime("%d/%m/%Y")
+        if solicitacao.data_inicio
+        else None
+    )
+    data_termino = (
+        solicitacao.data_termino.strftime("%d/%m/%Y")
+        if solicitacao.data_termino
+        else None
+    )
+    periodo_vigencia = data_inicio
+    if data_termino:
+        periodo_vigencia = f"{data_inicio} - {data_termino}"
+
+    justificativa_negacao = (
+        solicitacao.justificativa_negacao if solicitacao.justificativa_negacao else None
+    )
+    html_string = render_to_string(
+        "historico_dieta_especial.html",
+        {
+            "aluno": aluno,
+            "periodo_vigencia": periodo_vigencia,
+            "logs": formata_logs(logs),
+            "solicitacao": solicitacao,
+            "subtitulo": "RELATÓRIO DE HISTÓRICO DE DIETA ESPECIAL",
+            "escola_origem": escola_origem,
+            "escola_destino": escola_destino,
+            "justificativa_negacao": justificativa_negacao,
         },
     )
     return html_string
@@ -557,6 +604,13 @@ def relatorio_dieta_especial(request, solicitacao):
     html_string = relatorio_dieta_especial_conteudo(solicitacao, request)
     return html_to_pdf_response(
         html_string, f"dieta_especial_{solicitacao.id_externo}.pdf"
+    )
+
+
+def relatorio_dieta_especial_historico(request, solicitacao):
+    html_string = relatorio_dieta_especial_historico_conteudo(solicitacao, request)
+    return html_to_pdf_response(
+        html_string, f"dieta_especial_historico_{solicitacao.id_externo}.pdf"
     )
 
 

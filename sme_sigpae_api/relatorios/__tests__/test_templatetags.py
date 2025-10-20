@@ -7,6 +7,7 @@ from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.relatorios.templatetags.index import (
     existe_suspensoes_cancelada,
+    multiply,
     suspensoes_canceladas,
 )
 
@@ -174,3 +175,37 @@ def test_suspensoes_canceladas_com_justificativa(
 def test_suspensoes_canceladas_sem_cancelamentos(grupo_suspensao_alimentacao):
     resultado = suspensoes_canceladas(grupo_suspensao_alimentacao)
     assert len(resultado) == 0
+
+
+def test_multiplicacao_inteiros():
+    assert multiply(2, 3) == 6
+
+
+def test_multiplicacao_floats():
+    assert multiply(2.5, 2) == 5.0
+
+
+def test_multiplicacao_string_com_virgula():
+    assert multiply("2,5", 2) == 5.0
+
+
+def test_multiplicacao_string_com_ponto():
+    assert multiply("2.5", 2) == 5.0
+
+
+def test_multiplicacao_string_invalida():
+    with pytest.raises(ValueError):
+        multiply("abc", 2)
+
+
+def test_multiplicador_negativo():
+    assert multiply(4, -2) == -8
+
+
+def test_multiplicador_zero():
+    assert multiply(10, 0) == 0
+
+
+def test_valor_none():
+    with pytest.raises(TypeError):
+        multiply(None, 2)
