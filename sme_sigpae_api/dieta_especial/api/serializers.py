@@ -392,14 +392,24 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
     ativas = serializers.SerializerMethodField()
     inativas = serializers.SerializerMethodField()
 
+    def get_escola_context(self, obj):
+        if hasattr(obj, '_escola_contexto_id'):
+            return obj._escola_contexto_id
+        return None
+
     def get_ativas(self, obj):
-        return obj.dietas_especiais.filter(
+        escola_id = self.get_escola_context(obj)
+        qs = obj.dietas_especiais.filter(
             status__in=["CODAE_AUTORIZADO"],
             ativo=True,
-        ).count()
+        )
+        if escola_id:
+            qs = qs.filter(rastro_escola_id=escola_id)
+        return qs.count()
 
     def get_inativas(self, obj):
-        return obj.dietas_especiais.filter(
+        escola_id = self.get_escola_context(obj)
+        qs = obj.dietas_especiais.filter(
             status__in=[
                 "CODAE_AUTORIZADO",
                 "CODAE_AUTORIZOU_INATIVACAO",
@@ -407,7 +417,10 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
                 "CANCELADO_ALUNO_NAO_PERTENCE_REDE",
             ],
             ativo=False,
-        ).count()
+        )
+        if escola_id:
+            qs = qs.filter(rastro_escola_id=escola_id)
+        return qs.count()
 
     def get_dre(self, obj):
         if obj.dietas_especiais.filter(ativo=True).exists():
