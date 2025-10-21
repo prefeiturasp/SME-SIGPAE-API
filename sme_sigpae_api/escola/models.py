@@ -1659,11 +1659,13 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             data__lt=hoje
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
 
-    def _atualiza_inclusao_original(self, inclusao_original, data_pre_virada):
+    def _atualiza_inclusao_continua_original(self, inclusao_original, data_pre_virada):
         inclusao_original.data_final = data_pre_virada
         inclusao_original.save()
 
-    def _cria_objetos_fk_inclusao_copia(self, inclusao_copia, inclusao_original):
+    def _cria_objetos_fk_inclusao_continua_copia(
+        self, inclusao_copia, inclusao_original
+    ):
         campos_fk = [
             "quantidades_por_periodo",
         ]
@@ -1676,7 +1678,7 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             )
         copiar_logs(inclusao_original, inclusao_copia)
 
-    def _atualiza_inclusao_copia_para_nova_terceirizada(
+    def _atualiza_inclusao_continua_copia_para_nova_terceirizada(
         self, inclusao_copia, data_virada, terceirizada_nova
     ):
         inclusao_copia.data_inicial = data_virada
@@ -1699,7 +1701,7 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
                 status=InclusaoAlimentacaoContinua.workflow_class.CODAE_AUTORIZADO,
                 rastro_terceirizada=terceirizada_pre_transferencia,
                 data_final__gte=data_virada,
-            )
+            ).distinct()
         )
         if not inclusoes_continuas:
             return
@@ -1714,14 +1716,79 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
                 uuid=uuid_original
             )
 
-            self._cria_objetos_fk_inclusao_copia(inclusao_copia, inclusao_original)
-            self._atualiza_inclusao_original(inclusao_original, data_pre_virada)
-            self._atualiza_inclusao_copia_para_nova_terceirizada(
+            self._cria_objetos_fk_inclusao_continua_copia(
+                inclusao_copia, inclusao_original
+            )
+            self._atualiza_inclusao_continua_original(
+                inclusao_original, data_pre_virada
+            )
+            self._atualiza_inclusao_continua_copia_para_nova_terceirizada(
+                inclusao_copia, data_virada, terceirizada_nova
+            )
+
+    def _cria_objetos_fk_inclusao_normal_copia(self, inclusao_copia, inclusao_original):
+        campos_fk = [
+            "quantidades_por_periodo",
+        ]
+        for campo_fk in campos_fk:
+            cria_copias_fk(
+                inclusao_original, campo_fk, "grupo_inclusao_normal", inclusao_copia
+            )
+        campos_fk = [
+            "inclusoes_normais",
+        ]
+        for campo_fk in campos_fk:
+            cria_copias_fk(
+                inclusao_original, campo_fk, "grupo_inclusao", inclusao_copia
+            )
+        copiar_logs(inclusao_original, inclusao_copia)
+
+    def _atualiza_inclusao_normal_original(self, inclusao_original, data_virada):
+        inclusao_original.inclusoes_normais.filter(data__gte=data_virada).delete()
+
+    def _atualiza_inclusao_normal_copia_para_nova_terceirizada(
+        self, inclusao_copia, data_virada, terceirizada_nova
+    ):
+        inclusao_copia.inclusoes_normais.filter(data__lt=data_virada).delete()
+        inclusao_copia.rastro_terceirizada = terceirizada_nova
+        inclusao_copia.terceirizada_conferiu_gestao = False
+        inclusao_copia.save()
+
+    def _transferir_lote_lida_com_inclusoes_normais(
+        self,
+        data_virada: datetime.date,
+        terceirizada_pre_transferencia,
+        terceirizada_nova,
+    ):
+        inclusoes_normais = (
+            self.inclusao_alimentacao_grupoinclusaoalimentacaonormal_rastro_lote.filter(
+                status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+                rastro_terceirizada=terceirizada_pre_transferencia,
+                inclusoes_normais__data__gte=data_virada,
+                inclusoes_normais__cancelado=False,
+            ).distinct()
+        )
+        if not inclusoes_normais:
+            return
+
+        for inclusao_original in inclusoes_normais:
+            uuid_original = inclusao_original.uuid
+            inclusao_copia = clonar_objeto(inclusao_original)
+
+            inclusao_original = GrupoInclusaoAlimentacaoNormal.objects.get(
+                uuid=uuid_original
+            )
+
+            self._cria_objetos_fk_inclusao_normal_copia(
+                inclusao_copia, inclusao_original
+            )
+            self._atualiza_inclusao_normal_original(inclusao_original, data_virada)
+            self._atualiza_inclusao_normal_copia_para_nova_terceirizada(
                 inclusao_copia, data_virada, terceirizada_nova
             )
 
     def transferir_solicitacoes_gestao_alimentacao_com_datas_no_passado_e_no_presente(
-        self, data: datetime.date, terceirizada_nova
+        self, data_virada: datetime.date, terceirizada_nova
     ):
         """
         Esta função realiza a transferência de solicitações autorizadas que possuem datas
@@ -1732,7 +1799,12 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         """
         terceirizada_pre_transferencia = self.terceirizada
         self._transferir_lote_lida_com_inclusoes_continuas(
-            data, terceirizada_pre_transferencia, terceirizada_nova
+            data_virada, terceirizada_pre_transferencia, terceirizada_nova
+        )
+        self._transferir_lote_lida_com_inclusoes_normais(
+            data_virada,
+            terceirizada_pre_transferencia,
+            terceirizada_nova,
         )
 
     def transferir_dietas_especiais(self, terceirizada):
