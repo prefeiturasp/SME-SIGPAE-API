@@ -20,10 +20,13 @@ from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
     TipoUnidadeEscolarFactory,
 )
 from sme_sigpae_api.inclusao_alimentacao.fixtures.factories.base_factory import (
+    GrupoInclusaoAlimentacaoNormalFactory,
     InclusaoAlimentacaoContinuaFactory,
+    InclusaoAlimentacaoNormalFactory,
     MotivoInclusaoContinuaFactory,
     QuantidadePorPeriodoFactory,
 )
+from sme_sigpae_api.inclusao_alimentacao.models import GrupoInclusaoAlimentacaoNormal
 from sme_sigpae_api.perfil.fixtures.factories.perfil_base_factories import (
     UsuarioFactory,
 )
@@ -36,7 +39,7 @@ pytestmark = pytest.mark.django_db
 
 @freeze_time("2025-05-09")
 class TestUseCaseTransferenciaLotes:
-    def setup_escola(self):
+    def _setup_escola(self):
         self.dre = DiretoriaRegionalFactory.create(nome="IPIRANGA", iniciais="IP")
         self.terceirizada = EmpresaFactory.create(nome_fantasia="ORIGINAL LTDA")
         self.lote = LoteFactory.create(
@@ -51,13 +54,13 @@ class TestUseCaseTransferenciaLotes:
             diretoria_regional=self.dre,
         )
 
-    def setup_terceirizada_nova(self):
+    def _setup_terceirizada_nova(self):
         self.terceirizada_nova = EmpresaFactory.create(nome_fantasia="NOVA LTDA")
 
-    def setup_usuario(self):
+    def _setup_usuario(self):
         self.usuario = UsuarioFactory.create(email="system@admin.com")
 
-    def setup_periodos_escolares(self):
+    def _setup_periodos_escolares(self):
         self.periodo_integral = PeriodoEscolarFactory.create(nome="INTEGRAL")
         LogAlunosMatriculadosPeriodoEscolaFactory.create(
             escola=self.escola_emef,
@@ -81,16 +84,16 @@ class TestUseCaseTransferenciaLotes:
         )
         assert self.escola_emef.periodos_escolares().count() == 2
 
-    def setup_tipos_alimentacao(self):
+    def _setup_tipos_alimentacao(self):
         self.tipo_alimentacao_refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
         self.tipo_alimentacao_lanche = TipoAlimentacaoFactory.create(nome="Lanche")
 
-    def setup_motivos_inclusao_continua(self):
+    def _setup_motivos_inclusao_continua(self):
         self.motivo_programas_projetos = MotivoInclusaoContinuaFactory.create(
             nome="Programas e Projetos"
         )
 
-    def setup_inclusao_continua_programas_projetos(self):
+    def _setup_inclusao_continua_programas_projetos(self):
         self.inclusao_continua = InclusaoAlimentacaoContinuaFactory.create(
             escola=self.escola_emef,
             rastro_escola=self.escola_emef,
@@ -130,22 +133,70 @@ class TestUseCaseTransferenciaLotes:
             usuario=self.usuario,
         )
 
-    def setup_testes(self):
-        self.setup_escola()
-        self.setup_terceirizada_nova()
-        self.setup_usuario()
-        self.setup_periodos_escolares()
-        self.setup_tipos_alimentacao()
+    def _setup_testes(self):
+        self._setup_escola()
+        self._setup_terceirizada_nova()
+        self._setup_usuario()
+        self._setup_periodos_escolares()
+        self._setup_tipos_alimentacao()
 
-    def setup_inclusao_continua(self):
-        self.setup_motivos_inclusao_continua()
-        self.setup_inclusao_continua_programas_projetos()
+    def _setup_inclusao_continua(self):
+        self._setup_motivos_inclusao_continua()
+        self._setup_inclusao_continua_programas_projetos()
+
+    def _setup_inclusao_normal(
+        self,
+    ):
+        self.grupo_inclusao_alimentacao_normal = (
+            GrupoInclusaoAlimentacaoNormalFactory.create(
+                escola=self.escola_emef,
+                rastro_lote=self.lote,
+                rastro_dre=self.dre,
+                rastro_escola=self.escola_emef,
+                rastro_terceirizada=self.terceirizada,
+                status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            )
+        )
+        InclusaoAlimentacaoNormalFactory.create(
+            data="2025-05-03",
+            grupo_inclusao=self.grupo_inclusao_alimentacao_normal,
+        )
+        InclusaoAlimentacaoNormalFactory.create(
+            data="2025-05-13",
+            grupo_inclusao=self.grupo_inclusao_alimentacao_normal,
+        )
+        InclusaoAlimentacaoNormalFactory.create(
+            data="2025-05-23",
+            grupo_inclusao=self.grupo_inclusao_alimentacao_normal,
+        )
+        QuantidadePorPeriodoFactory.create(
+            grupo_inclusao_normal=self.grupo_inclusao_alimentacao_normal,
+            inclusao_alimentacao_continua=None,
+            periodo_escolar=self.periodo_manha,
+            numero_alunos=100,
+            tipos_alimentacao=[self.tipo_alimentacao_lanche],
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.grupo_inclusao_alimentacao_normal.uuid,
+            status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+            usuario=self.usuario,
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.grupo_inclusao_alimentacao_normal.uuid,
+            status_evento=LogSolicitacoesUsuario.DRE_VALIDOU,
+            usuario=self.usuario,
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.grupo_inclusao_alimentacao_normal.uuid,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            usuario=self.usuario,
+        )
 
     def test_transferir_lote_inclusao_continua_data_aprovada_pos_transferencia(self):
-        self.setup_testes()
-        self.setup_inclusao_continua()
+        self._setup_testes()
+        self._setup_inclusao_continua()
 
-        data_virada = datetime.date(2025, 5, 15)
+        data_virada = datetime.date(2025, 5, 13)
         terceirizada_pre_transferencia = self.terceirizada
         terceirizada_nova = self.terceirizada_nova
 
@@ -153,7 +204,7 @@ class TestUseCaseTransferenciaLotes:
             data_virada, terceirizada_pre_transferencia, terceirizada_nova
         )
 
-        ultimo_dia_terceirizada_antiga = datetime.date(2025, 5, 14)
+        ultimo_dia_terceirizada_antiga = datetime.date(2025, 5, 12)
 
         inclusoes_continuas = (
             self.lote.inclusao_alimentacao_inclusaoalimentacaocontinua_rastro_lote.all()
@@ -173,4 +224,43 @@ class TestUseCaseTransferenciaLotes:
         assert inclusao_copia.motivo == self.motivo_programas_projetos
         assert inclusao_copia.data_inicial == data_virada
         assert inclusao_copia.data_final == datetime.date(2025, 5, 31)
+        assert inclusao_copia.logs.count() == 3
+
+    def test_transferir_lote_inclusao_normal_data_aprovada_pos_transferencia(self):
+        self._setup_testes()
+        self._setup_inclusao_normal()
+
+        data_virada = datetime.date(2025, 5, 13)
+        terceirizada_pre_transferencia = self.terceirizada
+        terceirizada_nova = self.terceirizada_nova
+
+        self.lote._transferir_lote_lida_com_inclusoes_normais(
+            data_virada, terceirizada_pre_transferencia, terceirizada_nova
+        )
+
+        inclusoes_normais = (
+            self.lote.inclusao_alimentacao_grupoinclusaoalimentacaonormal_rastro_lote.all()
+        )
+        assert inclusoes_normais.count() == 2
+
+        inclusao_original = inclusoes_normais.get(
+            uuid=self.grupo_inclusao_alimentacao_normal.uuid
+        )
+        assert inclusao_original.inclusoes.count() == 1
+        datas_original = list(
+            inclusao_original.inclusoes.values_list("data", flat=True)
+        )
+        assert datetime.date(2025, 5, 3) in datas_original
+        assert datetime.date(2025, 5, 13) not in datas_original
+
+        inclusao_copia = inclusoes_normais.exclude(
+            uuid=self.grupo_inclusao_alimentacao_normal.uuid
+        ).get()
+        assert inclusao_copia.rastro_terceirizada == self.terceirizada_nova
+        assert inclusao_copia.quantidades_periodo.count() == 1
+        assert inclusao_copia.quantidades_periodo.get().tipos_alimentacao.count() == 1
+        assert inclusao_copia.inclusoes.count() == 2
+        datas_copia = list(inclusao_copia.inclusoes.values_list("data", flat=True))
+        assert datetime.date(2025, 5, 13) in datas_copia
+        assert datetime.date(2025, 5, 23) in datas_copia
         assert inclusao_copia.logs.count() == 3
