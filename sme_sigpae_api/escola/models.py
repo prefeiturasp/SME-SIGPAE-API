@@ -1849,6 +1849,69 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
                 inclusao_copia, data_virada, terceirizada_nova
             )
 
+    def _cria_objetos_fk_inclusao_cemei_copia(self, inclusao_copia, inclusao_original):
+        campos_fk = [
+            "dias_motivos_da_inclusao_cemei",
+            "quantidade_alunos_cei_da_inclusao_cemei",
+            "quantidade_alunos_emei_da_inclusao_cemei",
+        ]
+        for campo_fk in campos_fk:
+            cria_copias_fk(
+                inclusao_original,
+                campo_fk,
+                "inclusao_alimentacao_cemei",
+                inclusao_copia,
+            )
+        copiar_logs(inclusao_original, inclusao_copia)
+
+    def _atualiza_inclusao_cemei_original(self, inclusao_original, data_virada):
+        inclusao_original.dias_motivos_da_inclusao_cemei.filter(
+            data__gte=data_virada
+        ).delete()
+
+    def _atualiza_inclusao_cemei_copia_para_nova_terceirizada(
+        self, inclusao_copia, data_virada, terceirizada_nova
+    ):
+        inclusao_copia.dias_motivos_da_inclusao_cemei.filter(
+            data__lt=data_virada
+        ).delete()
+        inclusao_copia.rastro_terceirizada = terceirizada_nova
+        inclusao_copia.terceirizada_conferiu_gestao = False
+        inclusao_copia.save()
+
+    def _transferir_lote_lida_com_inclusoes_cemei(
+        self,
+        data_virada: datetime.date,
+        terceirizada_pre_transferencia,
+        terceirizada_nova,
+    ):
+        inclusoes_cemei = (
+            self.inclusao_alimentacao_inclusaodealimentacaocemei_rastro_lote.filter(
+                status=InclusaoDeAlimentacaoCEMEI.workflow_class.CODAE_AUTORIZADO,
+                rastro_terceirizada=terceirizada_pre_transferencia,
+                dias_motivos_da_inclusao_cemei_data__gte=data_virada,
+                dias_motivos_da_inclusao_cemei__cancelado=False,
+            ).distinct()
+        )
+        if not inclusoes_cemei:
+            return
+
+        for inclusao_original in inclusoes_cemei:
+            uuid_original = inclusao_original.uuid
+            inclusao_copia = clonar_objeto(inclusao_original)
+
+            inclusao_original = InclusaoDeAlimentacaoCEMEI.objects.get(
+                uuid=uuid_original
+            )
+
+            self._cria_objetos_fk_inclusao_cemei_copia(
+                inclusao_copia, inclusao_original
+            )
+            self._atualiza_inclusao_cemei_original(inclusao_original, data_virada)
+            self._atualiza_inclusao_cemei_copia_para_nova_terceirizada(
+                inclusao_copia, data_virada, terceirizada_nova
+            )
+
     def transferir_solicitacoes_gestao_alimentacao_com_datas_no_passado_e_no_presente(
         self, data_virada: datetime.date, terceirizada_nova
     ):
@@ -1869,6 +1932,11 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             terceirizada_nova,
         )
         self._transferir_lote_lida_com_inclusoes_cei(
+            data_virada,
+            terceirizada_pre_transferencia,
+            terceirizada_nova,
+        )
+        self._transferir_lote_lida_com_inclusoes_cemei(
             data_virada,
             terceirizada_pre_transferencia,
             terceirizada_nova,
