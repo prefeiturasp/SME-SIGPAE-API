@@ -57,6 +57,9 @@ from ..dados_comuns.fluxo_status import (
     SolicitacaoMedicaoInicialWorkflow,
 )
 from ..dados_comuns.utils import (
+    clonar_objeto,
+    copiar_logs,
+    cria_copias_fk,
     datetime_range,
     eh_fim_de_semana,
     get_ultimo_dia_mes,
@@ -1656,19 +1659,61 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             data__lt=hoje
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
 
-    def _transferir_lote_lida_com_inclusoes_continuas(
-        self, data: datetime.date, terceirizada_pre_transferencia
+    def _atualiza_inclusao_original(
+        self, uuid_original, inclusao_copia, data_pre_virada
     ):
-        inclusoes_continuas = InclusaoAlimentacaoContinua.objects.filter(
-            status=InclusaoAlimentacaoContinua.workflow_class.CODAE_AUTORIZADO,
-            rastro_terceirizada=terceirizada_pre_transferencia,
-            data_final__gte=data,
+        inclusao_original = InclusaoAlimentacaoContinua.objects.get(uuid=uuid_original)
+        campos_fk = [
+            "quantidades_por_periodo",
+        ]
+        for campo_fk in campos_fk:
+            cria_copias_fk(
+                inclusao_original,
+                campo_fk,
+                "inclusao_alimentacao_continua",
+                inclusao_copia,
+            )
+        copiar_logs(inclusao_original, inclusao_copia)
+        inclusao_original.data_final = data_pre_virada
+        inclusao_original.save()
+
+    def _atualiza_inclusao_copia(self, inclusao_copia, data_virada, terceirizada_nova):
+        inclusao_copia.data_inicial = data_virada
+        inclusao_copia.rastro_terceirizada = terceirizada_nova
+        inclusao_copia.terceirizada_conferiu_gestao = False
+        inclusao_copia.save()
+
+    def _transferir_lote_lida_com_inclusoes_continuas(
+        self,
+        data_virada: datetime.date,
+        terceirizada_pre_transferencia,
+        terceirizada_nova,
+    ):
+        inclusoes_continuas = (
+            self.inclusao_alimentacao_inclusaoalimentacaocontinua_rastro_lote.filter(
+                status=InclusaoAlimentacaoContinua.workflow_class.CODAE_AUTORIZADO,
+                rastro_terceirizada=terceirizada_pre_transferencia,
+                data_final__gte=data_virada,
+            )
         )
         if not inclusoes_continuas:
             return
 
+        data_pre_virada = data_virada - datetime.timedelta(days=1)
+
+        for inclusao_original in inclusoes_continuas:
+            uuid_original = inclusao_original.uuid
+            inclusao_copia = clonar_objeto(inclusao_original)
+
+            self._atualiza_inclusao_original(
+                uuid_original, inclusao_copia, data_pre_virada
+            )
+            self._atualiza_inclusao_copia(
+                inclusao_copia, data_virada, terceirizada_nova
+            )
+
     def transferir_solicitacoes_gestao_alimentacao_com_datas_no_passado_e_no_presente(
-        self, data: datetime.date
+        self, data: datetime.date, terceirizada_nova
     ):
         """
         Esta função realiza a transferência de solicitações autorizadas que possuem datas
@@ -1679,7 +1724,7 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         """
         terceirizada_pre_transferencia = self.terceirizada
         self._transferir_lote_lida_com_inclusoes_continuas(
-            data, terceirizada_pre_transferencia
+            data, terceirizada_pre_transferencia, terceirizada_nova
         )
 
     def transferir_dietas_especiais(self, terceirizada):

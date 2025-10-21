@@ -27,7 +27,7 @@ from django.core.mail import (
     send_mail,
 )
 from django.db import DatabaseError, transaction
-from django.db.models import QuerySet
+from django.db.models import Model, QuerySet
 from django.http import QueryDict
 from django.template.loader import render_to_string
 from django_celery_beat.schedulers import DatabaseScheduler
@@ -831,3 +831,48 @@ def bulk_update_safe(model, objs, fields, batch_size=5000):
             print(
                 f"[bulk_update_safe] ERRO inesperado no batch {i}-{i + len(batch)}: {type(e).__name__}: {e}"
             )
+
+
+def clonar_objeto(obj: Model):
+    """
+    Clona uma instância de model do Django, gerando um novo UUID
+    e copiando campos + relações ManyToMany.
+    """
+    # cria cópia "rasa" do objeto
+    obj.pk = None  # força novo INSERT
+    if hasattr(obj, "uuid"):
+        obj.uuid = uuid.uuid4()
+    obj.save()
+    # copiar relações ManyToMany
+    for m2m_field in obj._meta.many_to_many:
+        related_manager = getattr(obj, m2m_field.name)
+        getattr(obj, m2m_field.name).set(related_manager.all())
+    return obj
+
+
+def criar_log_copia(log_original, obj_copia):
+    log_copia = LogSolicitacoesUsuario()
+    campos_log = [
+        "descricao",
+        "status_evento",
+        "solicitacao_tipo",
+        "justificativa",
+        "resposta_sim_nao",
+        "usuario",
+        "uuid_original",
+    ]
+    for campo in campos_log:
+        if hasattr(log_original, campo):
+            setattr(log_copia, campo, getattr(log_original, campo))
+    log_copia.uuid_original = obj_copia.uuid
+    log_copia.uuid = uuid.uuid4()
+    log_copia.save()
+    LogSolicitacoesUsuario.objects.filter(id=log_copia.id).update(
+        criado_em=log_original.criado_em
+    )
+    return log_copia
+
+
+def copiar_logs(obj_original, obj_copia):
+    for log_original in obj_original.logs.all():
+        criar_log_copia(log_original, obj_copia)
