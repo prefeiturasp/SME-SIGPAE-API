@@ -1659,10 +1659,11 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             data__lt=hoje
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
 
-    def _atualiza_inclusao_original(
-        self, uuid_original, inclusao_copia, data_pre_virada
-    ):
-        inclusao_original = InclusaoAlimentacaoContinua.objects.get(uuid=uuid_original)
+    def _atualiza_inclusao_original(self, inclusao_original, data_pre_virada):
+        inclusao_original.data_final = data_pre_virada
+        inclusao_original.save()
+
+    def _cria_objetos_fk_inclusao_copia(self, inclusao_copia, inclusao_original):
         campos_fk = [
             "quantidades_por_periodo",
         ]
@@ -1674,10 +1675,10 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
                 inclusao_copia,
             )
         copiar_logs(inclusao_original, inclusao_copia)
-        inclusao_original.data_final = data_pre_virada
-        inclusao_original.save()
 
-    def _atualiza_inclusao_copia(self, inclusao_copia, data_virada, terceirizada_nova):
+    def _atualiza_inclusao_copia_para_nova_terceirizada(
+        self, inclusao_copia, data_virada, terceirizada_nova
+    ):
         inclusao_copia.data_inicial = data_virada
         inclusao_copia.rastro_terceirizada = terceirizada_nova
         inclusao_copia.terceirizada_conferiu_gestao = False
@@ -1689,6 +1690,10 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         terceirizada_pre_transferencia,
         terceirizada_nova,
     ):
+        """
+        Encerra a inclusão de alimentação contínua original até um dia antes da transferência de lote.
+        Cria cópia da inclusão de alimentação contínua apenas com a data da transferência de lote para frente.
+        """
         inclusoes_continuas = (
             self.inclusao_alimentacao_inclusaoalimentacaocontinua_rastro_lote.filter(
                 status=InclusaoAlimentacaoContinua.workflow_class.CODAE_AUTORIZADO,
@@ -1705,10 +1710,13 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             uuid_original = inclusao_original.uuid
             inclusao_copia = clonar_objeto(inclusao_original)
 
-            self._atualiza_inclusao_original(
-                uuid_original, inclusao_copia, data_pre_virada
+            inclusao_original = InclusaoAlimentacaoContinua.objects.get(
+                uuid=uuid_original
             )
-            self._atualiza_inclusao_copia(
+
+            self._cria_objetos_fk_inclusao_copia(inclusao_copia, inclusao_original)
+            self._atualiza_inclusao_original(inclusao_original, data_pre_virada)
+            self._atualiza_inclusao_copia_para_nova_terceirizada(
                 inclusao_copia, data_virada, terceirizada_nova
             )
 
