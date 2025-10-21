@@ -1536,32 +1536,96 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
-        total_ativas, total_inativas = self.calcular_totais(queryset)
+        alunos_ids = queryset.values_list('id', flat=True).distinct()
+        queryset_distinct = Aluno.objects.filter(id__in=alunos_ids)
+
+        total_ativas, total_inativas = self.calcular_totais(queryset_distinct)
+
+        # Verificar filtros aplicados
+        form = SolicitacoesAtivasInativasPorAlunoForm(self.request.GET)
+        form.is_valid()
+
+        codigo_eol_aluno = form.cleaned_data.get('codigo_eol')
+        escola_filtrada = form.cleaned_data.get('escola')
+        dre_filtrada = form.cleaned_data.get('dre')
+        codigo_eol_escola = self.request.query_params.get('codigo_eol_escola')
+        user = self.request.user
+
+        # Expandir alunos por escola
+        alunos_por_escola = []
+
+        for aluno in queryset_distinct:
+            escolas_dict = {}
+
+            # Começar com todas as dietas do aluno nos status válidos
+            dietas_qs = aluno.dietas_especiais.filter(
+                status__in=[
+                    "CODAE_AUTORIZADO",
+                    "CODAE_AUTORIZOU_INATIVACAO",
+                    "TERMINADA_AUTOMATICAMENTE_SISTEMA",
+                    "CANCELADO_ALUNO_NAO_PERTENCE_REDE",
+                ]
+            )
+
+            # 1. Código EOL do Aluno (já aplicado no get_queryset, não precisa filtrar aqui)
+            # 2. Filtro por Escola (mais específico)
+            if escola_filtrada:
+                dietas_qs = dietas_qs.filter(rastro_escola=escola_filtrada)
+            elif codigo_eol_escola:
+                dietas_qs = dietas_qs.filter(rastro_escola__codigo_eol=codigo_eol_escola)
+            elif user.tipo_usuario == "escola":
+                dietas_qs = dietas_qs.filter(rastro_escola=user.vinculo_atual.instituicao)
+            # 3. Filtro por DRE (menos específico que escola)
+            elif dre_filtrada:
+                dietas_qs = dietas_qs.filter(rastro_escola__diretoria_regional=dre_filtrada)
+            elif user.tipo_usuario == "diretoriaregional":
+                dietas_qs = dietas_qs.filter(
+                    rastro_escola__diretoria_regional=user.vinculo_atual.instituicao
+                )
+
+            # Buscar dietas com os filtros aplicados
+            dietas = dietas_qs.select_related('rastro_escola', 'rastro_escola__diretoria_regional')
+
+            for dieta in dietas:
+                escola_id = dieta.rastro_escola_id
+                if escola_id not in escolas_dict:
+                    escolas_dict[escola_id] = {
+                        'rastro_escola_id': escola_id,
+                        'rastro_escola__nome': dieta.rastro_escola.nome,
+                        'rastro_escola__codigo_eol': dieta.rastro_escola.codigo_eol,
+                        'rastro_escola__diretoria_regional__nome': dieta.rastro_escola.diretoria_regional.nome
+                    }
+
+            # Criar um registro para cada escola única
+            for escola_id, escola_data in escolas_dict.items():
+                from copy import copy
+                aluno_copia = copy(aluno)
+                aluno_copia._escola_contexto_id = escola_data['rastro_escola_id']
+                aluno_copia._escola_nome = escola_data['rastro_escola__nome']
+                aluno_copia._escola_codigo_eol = escola_data['rastro_escola__codigo_eol']
+                aluno_copia._escola_dre = escola_data['rastro_escola__diretoria_regional__nome']
+                alunos_por_escola.append(aluno_copia)
+
         tem_parametro_page = request.GET.get("page", False)
 
         if tem_parametro_page:
-            novo_sgp_service = NovoSGPServicoLogado()
             self.pagination_class = RelatorioPagination
-            page = self.paginate_queryset(queryset)
+            page = self.paginate_queryset(alunos_por_escola)
             serializer = SolicitacoesAtivasInativasPorAlunoSerializer(
-                page, context={"novo_sgp_service": novo_sgp_service}, many=True
+                page, many=True, context={'request': request}
             )
-            return self.get_paginated_response(
-                {
-                    "total_ativas": total_ativas,
-                    "total_inativas": total_inativas,
-                    "solicitacoes": serializer.data,
-                }
-            )
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(
-            {
+            return self.get_paginated_response({
                 "total_ativas": total_ativas,
                 "total_inativas": total_inativas,
                 "solicitacoes": serializer.data,
-            }
-        )
+            })
+
+        serializer = self.get_serializer(alunos_por_escola, many=True)
+        return Response({
+            "total_ativas": total_ativas,
+            "total_inativas": total_inativas,
+            "solicitacoes": serializer.data,
+        })
 
     def get_queryset(self):  # noqa C901
         form = SolicitacoesAtivasInativasPorAlunoForm(self.request.GET)
