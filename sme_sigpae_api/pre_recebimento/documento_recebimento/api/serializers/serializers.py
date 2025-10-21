@@ -54,8 +54,6 @@ class DocRecebimentoFichaDeRecebimentoSerializer(serializers.ModelSerializer):
             return None
 
     def get_quantidade_recebida(self, obj):
-        # Este método será usado quando o serializer for usado em contexto de ficha de recebimento
-        # Para obter a quantidade específica dessa ficha
         if hasattr(self, 'context') and 'ficha_recebimento' in self.context:
             ficha = self.context['ficha_recebimento']
             try:
