@@ -23,6 +23,7 @@ from .....dados_comuns.api.serializers import (
 class DocRecebimentoFichaDeRecebimentoSerializer(serializers.ModelSerializer):
     datas_fabricacao = serializers.SerializerMethodField()
     datas_validade = serializers.SerializerMethodField()
+    quantidade_recebida = serializers.SerializerMethodField()
 
     def get_datas_fabricacao(self, obj):
         try:
@@ -52,6 +53,16 @@ class DocRecebimentoFichaDeRecebimentoSerializer(serializers.ModelSerializer):
         except AttributeError:
             return None
 
+    def get_quantidade_recebida(self, obj):
+        if hasattr(self, 'context') and 'ficha_recebimento' in self.context:
+            ficha = self.context['ficha_recebimento']
+            try:
+                documento_ficha = obj.fichas_documentos.get(ficha_recebimento=ficha)
+                return documento_ficha.quantidade_recebida
+            except Exception as e:
+                return e
+        return None
+
     class Meta:
         model = DocumentoDeRecebimento
         fields = (
@@ -60,6 +71,8 @@ class DocRecebimentoFichaDeRecebimentoSerializer(serializers.ModelSerializer):
             "numero_lote_laudo",
             "datas_fabricacao",
             "datas_validade",
+            "saldo_laudo",
+            "quantidade_recebida"
         )
 
 

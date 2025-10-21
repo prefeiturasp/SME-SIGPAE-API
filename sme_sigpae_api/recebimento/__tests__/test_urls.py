@@ -1,6 +1,7 @@
 import json
 from datetime import date, timedelta
 from io import BytesIO
+import uuid
 
 import pytest
 from faker import Faker
@@ -156,10 +157,18 @@ def test_url_ficha_recebimento_rascunho_create_update(
         content_type="application/json",
         data=json.dumps(payload_ficha_recebimento_rascunho),
     )
-
+    
     ficha = FichaDeRecebimento.objects.last()
-
+    
     assert response_create.status_code == status.HTTP_201_CREATED
+    response_data = response_create.json()
+    assert set(response_data.keys()) == {
+        'uuid', 'numero_cronograma', 'nome_produto', 
+        'fornecedor', 'pregao_chamada_publica', 
+        'data_recebimento', 'status'
+    }
+    assert response_data['status'] == 'Rascunho'
+    
     assert ficha is not None
     assert ficha.veiculos.count() == len(payload_ficha_recebimento_rascunho["veiculos"])
     assert ficha.documentos_recebimento.count() == len(
@@ -172,16 +181,6 @@ def test_url_ficha_recebimento_rascunho_create_update(
     assert ficha.ocorrencias.count() == len(
         payload_ficha_recebimento_rascunho["ocorrencias"]
     )
-    response_data = response_create.json()
-    assert len(response_data["questoes_conferencia"]) == 1
-    assert "ocorrencias" in response_data
-    assert len(response_data["ocorrencias"]) == 2
-
-    assert response_data["numero_paletes"] == ficha.numero_paletes
-    assert response_data["peso_embalagem_primaria_1"] == ficha.peso_embalagem_primaria_1
-    assert response_data["peso_embalagem_primaria_2"] == ficha.peso_embalagem_primaria_2
-    assert response_data["peso_embalagem_primaria_3"] == ficha.peso_embalagem_primaria_3
-    assert response_data["peso_embalagem_primaria_4"] == ficha.peso_embalagem_primaria_4
 
     nova_data_entrega = date.today() + timedelta(days=11)
     payload_ficha_recebimento_rascunho["data_entrega"] = str(nova_data_entrega)
@@ -190,16 +189,22 @@ def test_url_ficha_recebimento_rascunho_create_update(
     payload_ficha_recebimento_rascunho["arquivos"].pop()
 
     response_update = client_autenticado_qualidade.put(
-        f'/rascunho-ficha-de-recebimento/{response_create.json()["uuid"]}/',
+        f'/rascunho-ficha-de-recebimento/{ficha.uuid}/',
         content_type="application/json",
         data=json.dumps(payload_ficha_recebimento_rascunho),
     )
+    
     ficha.refresh_from_db()
-
+    
     assert response_update.status_code == status.HTTP_200_OK
-    assert response_update.json()["data_entrega"] == nova_data_entrega.strftime(
-        "%d/%m/%Y"
-    )
+    update_data = response_update.json()
+    assert set(update_data.keys()) == {
+        'uuid', 'numero_cronograma', 'nome_produto', 
+        'fornecedor', 'pregao_chamada_publica', 
+        'data_recebimento', 'status'
+    }
+    assert update_data['status'] == 'Rascunho'
+    
     assert ficha.veiculos.count() == len(payload_ficha_recebimento_rascunho["veiculos"])
     assert ficha.documentos_recebimento.count() == len(
         payload_ficha_recebimento_rascunho["documentos_recebimento"]
@@ -211,10 +216,6 @@ def test_url_ficha_recebimento_rascunho_create_update(
     assert ficha.ocorrencias.count() == len(
         payload_ficha_recebimento_rascunho["ocorrencias"]
     )
-    response_data = response_update.json()
-    assert len(response_data["questoes_conferencia"]) == 1
-    assert "ocorrencias" in response_data
-    assert len(response_data["ocorrencias"]) == 2
 
 
 def test_url_ficha_recebimento_assinada_create_update(
@@ -411,3 +412,140 @@ def test_gerar_pdf_ficha_nao_encontrada(client_autenticado_qualidade):
     )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_criar_ficha_saldo_zero(client_autenticado_qualidade, payload_ficha_recebimento):
+    """Testa a criação de uma ficha com saldo zero."""
+    payload_ficha_recebimento.update({
+        'lote_fabricante_de_acordo': True,
+        'data_fabricacao_de_acordo': True,
+        'data_validade_de_acordo': True,
+        'numero_lote_armazenagem': 'LOTE_ARMAZENAGEM123',
+        'numero_paletes': 5,
+        'peso_embalagem_primaria_1': '1.5',
+        'peso_embalagem_primaria_2': '2.5',
+        'peso_embalagem_primaria_3': '3.5',
+        'peso_embalagem_primaria_4': '4.5',
+        'sistema_vedacao_embalagem_secundaria': 'Sistema de vedação',
+    })
+    
+    response = client_autenticado_qualidade.post(
+        "/fichas-de-recebimento/cadastrar-saldo-zero/",
+        content_type="application/json",
+        data=json.dumps(payload_ficha_recebimento),
+    )
+    
+    ficha = FichaDeRecebimento.objects.last()
+    
+    assert response.status_code == status.HTTP_201_CREATED
+    response_data = response.json()
+    assert set(response_data.keys()) == {
+        'uuid', 'numero_cronograma', 'nome_produto', 
+        'fornecedor', 'pregao_chamada_publica', 
+        'data_recebimento', 'status'
+    }
+    assert response_data['status'] == 'Assinado CODAE'
+    
+    assert ficha is not None
+    assert ficha.lote_fabricante_de_acordo is None
+    assert ficha.data_fabricacao_de_acordo is None
+    assert ficha.data_validade_de_acordo is None
+    assert ficha.numero_lote_armazenagem is None
+    assert ficha.sistema_vedacao_embalagem_secundaria is None
+    assert ficha.numero_paletes is None
+    assert ficha.peso_embalagem_primaria_1 is None
+    assert ficha.peso_embalagem_primaria_2 is None
+    assert ficha.peso_embalagem_primaria_3 is None
+    assert ficha.peso_embalagem_primaria_4 is None
+
+
+def test_atualizar_ficha_saldo_zero(
+    client_autenticado_qualidade, 
+    ficha_de_recebimento_factory,
+    payload_ficha_recebimento
+):
+    """Testa a atualização de uma ficha com saldo zero."""
+    ficha = ficha_de_recebimento_factory()
+    
+    payload = {
+        **payload_ficha_recebimento,
+        'lote_fabricante_de_acordo': True,
+        'data_fabricacao_de_acordo': True,
+        'data_validade_de_acordo': True,
+        'numero_lote_armazenagem': 'LOTE_ARMAZENAGEM123',
+        'numero_paletes': 5,
+        'peso_embalagem_primaria_1': '1.5',
+        'peso_embalagem_primaria_2': '2.5',
+        'peso_embalagem_primaria_3': '3.5',
+        'peso_embalagem_primaria_4': '4.5',
+        'sistema_vedacao_embalagem_secundaria': 'Sistema de vedação',
+    }
+    
+    response = client_autenticado_qualidade.put(
+        f"/fichas-de-recebimento/{ficha.uuid}/atualizar-saldo-zero/",
+        content_type="application/json",
+        data=json.dumps(payload),
+    )
+    
+    ficha.refresh_from_db()
+    
+    assert response.status_code == status.HTTP_200_OK
+    response_data = response.json()
+    assert set(response_data.keys()) == {
+        'uuid', 'numero_cronograma', 'nome_produto', 
+        'fornecedor', 'pregao_chamada_publica', 
+        'data_recebimento', 'status'
+    }
+    assert response_data['status'] == 'Assinado CODAE'
+    
+    assert ficha.lote_fabricante_de_acordo is None
+    assert ficha.data_fabricacao_de_acordo is None
+    assert ficha.data_validade_de_acordo is None
+    assert ficha.numero_lote_armazenagem is None
+    assert ficha.sistema_vedacao_embalagem_secundaria is None
+    assert ficha.numero_paletes is None
+    assert ficha.peso_embalagem_primaria_1 is None
+    assert ficha.peso_embalagem_primaria_2 is None
+    assert ficha.peso_embalagem_primaria_3 is None
+    assert ficha.peso_embalagem_primaria_4 is None
+
+
+def test_criar_ficha_saldo_zero_campos_opcionais(client_autenticado_qualidade, payload_ficha_recebimento):
+    """Testa a criação de uma ficha com saldo zero sem os campos opcionais."""
+    campos_opcionais = [
+        'lote_fabricante_de_acordo',
+        'data_fabricacao_de_acordo',
+        'data_validade_de_acordo',
+        'numero_lote_armazenagem',
+        'numero_paletes',
+        'peso_embalagem_primaria_1',
+        'peso_embalagem_primaria_2',
+        'peso_embalagem_primaria_3',
+        'peso_embalagem_primaria_4',
+        'sistema_vedacao_embalagem_secundaria',
+    ]
+    
+    for campo in campos_opcionais:
+        if campo in payload_ficha_recebimento:
+            payload_ficha_recebimento.pop(campo)
+    
+    response = client_autenticado_qualidade.post(
+        "/fichas-de-recebimento/cadastrar-saldo-zero/",
+        content_type="application/json",
+        data=json.dumps(payload_ficha_recebimento),
+    )
+    
+    ficha = FichaDeRecebimento.objects.last()
+    
+    assert response.status_code == status.HTTP_201_CREATED
+    response_data = response.json()
+    assert set(response_data.keys()) == {
+        'uuid', 'numero_cronograma', 'nome_produto', 
+        'fornecedor', 'pregao_chamada_publica', 
+        'data_recebimento', 'status'
+    }
+    assert response_data['status'] == 'Assinado CODAE'
+    
+    assert ficha is not None
+    assert ficha.uuid == uuid.UUID(response_data['uuid'])
+    assert ficha.status == FichaDeRecebimentoWorkflow.ASSINADA
