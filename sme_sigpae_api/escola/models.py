@@ -1889,7 +1889,7 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             self.inclusao_alimentacao_inclusaodealimentacaocemei_rastro_lote.filter(
                 status=InclusaoDeAlimentacaoCEMEI.workflow_class.CODAE_AUTORIZADO,
                 rastro_terceirizada=terceirizada_pre_transferencia,
-                dias_motivos_da_inclusao_cemei_data__gte=data_virada,
+                dias_motivos_da_inclusao_cemei__data__gte=data_virada,
                 dias_motivos_da_inclusao_cemei__cancelado=False,
             ).distinct()
         )

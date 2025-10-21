@@ -22,17 +22,22 @@ from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
 )
 from sme_sigpae_api.inclusao_alimentacao.fixtures.factories.base_factory import (
     DiasMotivosInclusaoDeAlimentacaoCEIFactory,
+    DiasMotivosInclusaoDeAlimentacaoCEMEIFactory,
     GrupoInclusaoAlimentacaoNormalFactory,
     InclusaoAlimentacaoContinuaFactory,
     InclusaoAlimentacaoDaCEIFactory,
     InclusaoAlimentacaoNormalFactory,
+    InclusaoDeAlimentacaoCEMEIFactory,
     MotivoInclusaoContinuaFactory,
+    QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEIFactory,
+    QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEIFactory,
     QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEIFactory,
     QuantidadePorPeriodoFactory,
 )
 from sme_sigpae_api.inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoAlimentacaoDaCEI,
+    InclusaoDeAlimentacaoCEMEI,
 )
 from sme_sigpae_api.perfil.fixtures.factories.perfil_base_factories import (
     UsuarioFactory,
@@ -71,6 +76,16 @@ class TestUseCaseTransferenciaLotes:
             nome="CEI DIRET GERALDA",
             tipo_gestao__nome="TERC TOTAL",
             tipo_unidade=self.tipo_unidade_cei_diret,
+            lote=self.lote,
+            diretoria_regional=self.dre,
+        )
+
+    def _setup_escola_cemei(self):
+        self.tipo_unidade_cemei = TipoUnidadeEscolarFactory.create(iniciais="CEMEI")
+        self.escola_cemei = EscolaFactory.create(
+            nome="CEMEI PELEGRINI",
+            tipo_gestao__nome="TERC TOTAL",
+            tipo_unidade=self.tipo_unidade_cemei,
             lote=self.lote,
             diretoria_regional=self.dre,
         )
@@ -158,6 +173,7 @@ class TestUseCaseTransferenciaLotes:
         self._setup_dre_terc_lote()
         self._setup_escola()
         self._setup_escola_cei()
+        self._setup_escola_cemei()
         self._setup_terceirizada_nova()
         self._setup_usuario()
         self._setup_periodos_escolares()
@@ -260,6 +276,57 @@ class TestUseCaseTransferenciaLotes:
         )
         LogSolicitacoesUsuarioFactory.create(
             uuid_original=self.inclusao_alimentacao_da_cei.uuid,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            usuario=self.usuario,
+        )
+
+    def _setup_inclusao_cemei(self):
+        self.inclusao_alimentacao_cemei = InclusaoDeAlimentacaoCEMEIFactory.create(
+            escola=self.escola_cemei,
+            rastro_escola=self.escola_cemei,
+            rastro_lote=self.escola_cemei.lote,
+            rastro_dre=self.escola_cemei.diretoria_regional,
+            rastro_terceirizada=self.terceirizada,
+            status=InclusaoDeAlimentacaoCEMEI.workflow_class.CODAE_AUTORIZADO,
+        )
+        QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEIFactory.create(
+            inclusao_alimentacao_cemei=self.inclusao_alimentacao_cemei,
+            faixa_etaria=self.faixa_etaria_1,
+            matriculados_quando_criado=10,
+            quantidade_alunos=10,
+            periodo_escolar=self.periodo_integral,
+        )
+        QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEIFactory.create(
+            inclusao_alimentacao_cemei=self.inclusao_alimentacao_cemei,
+            matriculados_quando_criado=20,
+            quantidade_alunos=20,
+            periodo_escolar=self.periodo_manha,
+            tipos_alimentacao=[self.tipo_alimentacao_refeicao],
+        )
+        DiasMotivosInclusaoDeAlimentacaoCEMEIFactory.create(
+            inclusao_alimentacao_cemei=self.inclusao_alimentacao_cemei,
+            data="2025-05-03",
+        )
+        DiasMotivosInclusaoDeAlimentacaoCEMEIFactory.create(
+            inclusao_alimentacao_cemei=self.inclusao_alimentacao_cemei,
+            data="2025-05-13",
+        )
+        DiasMotivosInclusaoDeAlimentacaoCEMEIFactory.create(
+            inclusao_alimentacao_cemei=self.inclusao_alimentacao_cemei,
+            data="2025-05-23",
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.inclusao_alimentacao_cemei.uuid,
+            status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+            usuario=self.usuario,
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.inclusao_alimentacao_cemei.uuid,
+            status_evento=LogSolicitacoesUsuario.DRE_VALIDOU,
+            usuario=self.usuario,
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.inclusao_alimentacao_cemei.uuid,
             status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
             usuario=self.usuario,
         )
@@ -379,6 +446,58 @@ class TestUseCaseTransferenciaLotes:
         assert inclusao_copia.dias_motivos_da_inclusao_cei.count() == 2
         datas_copia = list(
             inclusao_copia.dias_motivos_da_inclusao_cei.values_list("data", flat=True)
+        )
+        assert datetime.date(2025, 5, 13) in datas_copia
+        assert datetime.date(2025, 5, 23) in datas_copia
+        assert inclusao_copia.logs.count() == 3
+
+    def test_transferir_lote_inclusao_cemei_data_aprovada_pos_transferencia(self):
+        self._setup_testes()
+        self._setup_faixas_etarias()
+        self._setup_inclusao_cemei()
+
+        data_virada = datetime.date(2025, 5, 13)
+        terceirizada_pre_transferencia = self.terceirizada
+        terceirizada_nova = self.terceirizada_nova
+
+        self.lote._transferir_lote_lida_com_inclusoes_cemei(
+            data_virada, terceirizada_pre_transferencia, terceirizada_nova
+        )
+
+        inclusoes_cemei = (
+            self.lote.inclusao_alimentacao_inclusaodealimentacaocemei_rastro_lote.all()
+        )
+        assert inclusoes_cemei.count() == 2
+
+        inclusao_original = inclusoes_cemei.get(
+            uuid=self.inclusao_alimentacao_cemei.uuid
+        )
+        assert inclusao_original.dias_motivos_da_inclusao_cemei.count() == 1
+        datas_original = list(
+            inclusao_original.dias_motivos_da_inclusao_cemei.values_list(
+                "data", flat=True
+            )
+        )
+        assert datetime.date(2025, 5, 3) in datas_original
+        assert datetime.date(2025, 5, 13) not in datas_original
+
+        inclusao_copia = inclusoes_cemei.exclude(
+            uuid=self.inclusao_alimentacao_cemei.uuid
+        ).get()
+        assert inclusao_copia.rastro_terceirizada == self.terceirizada_nova
+        assert inclusao_copia.quantidade_alunos_cei_da_inclusao_cemei.count() == 1
+        assert (
+            inclusao_copia.quantidade_alunos_cei_da_inclusao_cemei.get().faixa_etaria
+            is not None
+        )
+        assert inclusao_copia.quantidade_alunos_emei_da_inclusao_cemei.count() == 1
+        assert (
+            inclusao_copia.quantidade_alunos_emei_da_inclusao_cemei.get().tipos_alimentacao.count()
+            == 1
+        )
+        assert inclusao_copia.dias_motivos_da_inclusao_cemei.count() == 2
+        datas_copia = list(
+            inclusao_copia.dias_motivos_da_inclusao_cemei.values_list("data", flat=True)
         )
         assert datetime.date(2025, 5, 13) in datas_copia
         assert datetime.date(2025, 5, 23) in datas_copia
