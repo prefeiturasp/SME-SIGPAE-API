@@ -45,6 +45,24 @@ def gera_relatorio_consolidado_xlsx(
 
 
 def _obter_modulo_da_unidade(tipos_de_unidade: list[str]) -> tuple:
+    """
+    Identifica o módulo de relatório consolidado apropriado para os tipos de unidade.
+
+    Determina qual módulo de geração de relatório consolidado deve ser utilizado baseado nos tipos de unidade fornecidos, 
+    seguindo uma estratégia de prioridade definida por grupos pré-estabelecidos
+
+    Args:
+        tipos_de_unidade (list[str]): Lista de tipos de unidade (siglas) para as quais identificar o módulo apropriado.
+
+    Raises:
+        ValueError: Se nenhum módulo for encontrado para os tipos de unidade fornecidos, indicando que os tipos não estão mapeados 
+        em nenhum grupo conhecido.
+
+    Returns:
+        tuple: Tupla contendo:
+            - modulo: Módulo de relatório consolidado a ser utilizado
+            - parametros (list): Lista de parâmetros a serem passados para o módulo
+    """
     estrategias = [
         {
             "unidades": ORDEM_UNIDADES_GRUPO_EMEF | ORDEM_UNIDADES_GRUPO_EMEI,

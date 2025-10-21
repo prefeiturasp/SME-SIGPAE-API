@@ -8,6 +8,7 @@ from sme_sigpae_api.medicao_inicial.models import (
     Medicao,
     SolicitacaoMedicaoInicial,
 )
+from sme_sigpae_api.medicao_inicial.services import relatorio_consolidado_emei_emef
 from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from sme_sigpae_api.medicao_inicial.services.utils import (
     generate_columns,
@@ -191,11 +192,11 @@ def _sort_and_merge(periodos_alimentacoes: dict, dietas_alimentacoes: dict) -> d
         dict: Dicionário com os períodos e dietas
 
     Example:
-    >>> _sort_and_merge({'MANHA': ['lanche_4h', 'total_refeicoes_pagamento']}, {'DIETA ESPECIAL - TIPO B': ['lanche', 'lanche_4h', 'lanche', 'lanche_4h']})
-    {
-        'MANHA': ['lanche_4h', 'total_refeicoes_pagamento'],
-        'DIETA ESPECIAL - TIPO B': ['lanche', 'lanche_4h']
-    }
+        >>> _sort_and_merge({'MANHA': ['lanche_4h', 'total_refeicoes_pagamento']}, {'DIETA ESPECIAL - TIPO B': ['lanche', 'lanche_4h', 'lanche', 'lanche_4h']})
+        {
+            'MANHA': ['lanche_4h', 'total_refeicoes_pagamento'],
+            'DIETA ESPECIAL - TIPO B': ['lanche', 'lanche_4h']
+        }
     """
     periodos_alimentacoes = {
         chave: sorted(list(set(valores)), key=lambda valor: ORDEM_CAMPOS.index(valor))
@@ -222,8 +223,22 @@ def _sort_and_merge(periodos_alimentacoes: dict, dietas_alimentacoes: dict) -> d
 def get_valores_tabela(
     solicitacoes: list[SolicitacaoMedicaoInicial],
     colunas: list[tuple],
-    tipos_de_unidade: list[str],
-):
+) -> list:
+    """
+    Gera a matriz de valores para preenchimento da tabela de relatório consolidado.
+    Processa uma lista de solicitações de medição inicial e constrói uma matriz de valores correspondente às colunas especificadas,
+    aplicando ordenação personalizada e processamento individual por período e campo.
+
+    Args:
+        solicitacoes (list[SolicitacaoMedicaoInicial]): Lista de solicitações de medição inicial a serem processadas.
+        colunas (list[tuple]): Lista de tuplas no formato (período, campo) definindo a estrutura das colunas da tabela.
+
+    Returns:
+        list: Matriz (lista de listas) contendo os valores da tabela, onde:
+            - Cada lista interna representa uma linha (solicitação)
+            - Cada elemento na lista interna representa uma célula (período/campo)
+            - As primeiras colunas contêm valores iniciais da escola
+    """
     dietas_especiais = CategoriaMedicao.objects.filter(
         nome__icontains="DIETA ESPECIAL"
     ).values_list("nome", flat=True)
@@ -243,8 +258,6 @@ def get_valores_tabela(
                 periodos_escolares,
             )
         valores.append(valores_solicitacao_atual)
-
-    print(valores)
     return valores
 
 
@@ -256,12 +269,30 @@ def _processa_periodo_campo(
     dietas_especiais: list[str],
     periodos_escolares: list[str],
 ):
+    """
+    Processa um campo específico para um período em uma solicitação de medição.
+
+    Coordena o processamento de valores para um campo específico baseado no tipo de período (regular ou dieta especial),
+    aplicando os filtros apropriados e tratando exceções.
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Solicitação contendo as medições a serem processadas.
+        periodo (str): Período para o qual processar o campo.
+        campo (str): Nome do campo a ser processado.
+        valores (list[str]): Lista de valores onde o resultado será adicionado.
+        dietas_especiais (list[str]): Lista de categorias consideradas como dietas especiais.
+        periodos_escolares (list[str]): Lista de períodos escolares válidos para filtros.
+
+    Returns:
+        _type_: Lista de valores atualizada com o resultado do processamento.
+    """
     filtros = _define_filtro(periodo, dietas_especiais, periodos_escolares)
 
     try:
         if periodo in dietas_especiais:
             total = processa_dieta_especial(solicitacao, filtros, campo, periodo)
-
+        else:
+            total = processa_periodo_regular(solicitacao, filtros, campo, periodo)
         valores.append(total)
     except Exception:
         valores.append("-")
@@ -342,6 +373,38 @@ def processa_dieta_especial(
             total += soma
 
     return "-" if total == 0.0 else total
+
+
+def processa_periodo_regular(
+    solicitacao: SolicitacaoMedicaoInicial, filtros: dict, campo: str, periodo: str
+) -> float | str:
+    """
+    Processa e calcula valores para períodos regulares em solicitações de medição.
+
+    Obtém o valor de um campo específico para uma medição que atende aos filtros, com tratamentos especiais para campos de pagamento
+    e para o período de "Solicitações de Alimentação".
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Solicitação contendo as medições a serem processadas.
+        filtros (dict): Dicionário de filtros para selecionar a medição específica.
+        campo (str): Nome do campo a ser calculado ou obtido.
+        periodo (str): Período sendo processado. Comportamento especial para "Solicitações de Alimentação".
+
+    Returns:
+        float | str: Valor calculado do campo especificado, ou "-" se o valor for None ou não existir.
+    """
+    medicao = solicitacao.medicoes.get(**filtros)
+
+    if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
+        return relatorio_consolidado_emei_emef._total_pagamento_emef(medicao, campo)
+
+    categorias = (
+        [periodo.upper()]
+        if periodo == "Solicitações de Alimentação"
+        else ["ALIMENTAÇÃO"]
+    )
+    soma = _calcula_soma_medicao(medicao, campo, categorias)
+    return soma if soma is not None else "-"
 
 
 def _calcula_soma_medicao(medicao: Medicao, campo: str, categorias: list[str]) -> float:
