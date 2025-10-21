@@ -366,6 +366,7 @@ NOMES_CAMPOS = {
     "total_sobremesas_pagamento": "Sobremesas p/ Pagamento",
     "lanche_emergencial": "Lanche Emerg.",
     "colacao": "Colação",
+    "desjejum": "Desjejum",
 }
 
 ORDEM_UNIDADES_GRUPO_EMEF = {

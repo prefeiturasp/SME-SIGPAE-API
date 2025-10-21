@@ -1,7 +1,14 @@
+import pandas as pd
 from django.db.models import FloatField, Q, Sum
 from django.db.models.functions import Cast
+from openpyxl.workbook import Workbook
+from openpyxl.worksheet.worksheet import Worksheet
 
-from sme_sigpae_api.dados_comuns.constants import ORDEM_CAMPOS, ORDEM_HEADERS_CIEJA_CMCT
+from sme_sigpae_api.dados_comuns.constants import (
+    NOMES_CAMPOS,
+    ORDEM_CAMPOS,
+    ORDEM_HEADERS_CIEJA_CMCT,
+)
 from sme_sigpae_api.escola.models import PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.models import (
     CategoriaMedicao,
@@ -12,6 +19,7 @@ from sme_sigpae_api.medicao_inicial.services import relatorio_consolidado_emei_e
 from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from sme_sigpae_api.medicao_inicial.services.utils import (
     generate_columns,
+    gera_colunas_alimentacao,
     get_categorias_dietas,
     get_nome_periodo,
     get_valores_iniciais,
@@ -427,3 +435,111 @@ def _calcula_soma_medicao(medicao: Medicao, campo: str, categorias: list[str]) -
         .annotate(valor_float=Cast("valor", output_field=FloatField()))
         .aggregate(total=Sum("valor_float"))["total"]
     )
+
+
+def insere_tabela_periodos_na_planilha(
+    aba: str,
+    colunas: list[tuple],
+    linhas: list[list[str | float]],
+    writer: pd.ExcelWriter,
+) -> pd.DataFrame:
+    """
+    Insere tabela de períodos formatada em uma planilha Excel.
+
+    Args:
+        aba (str): Nome da aba/planilha onde a tabela será inserida.
+        colunas (list[tuple]): Lista de tuplas no formato (período, campo) definindo a estrutura das colunas da tabela.
+        linhas (list[list[str | float]]): Matriz de dados onde cada lista interna representa uma linha da tabela.
+        writer (pd.ExcelWriter): Objeto ExcelWriter para exportação do DataFrame para o arquivo Excel.
+
+    Returns:
+        pd.DataFrame: DataFrame formatado com a tabela de períodos, incluindo headers com MultiIndex e linha de total.
+    """
+    df = gera_colunas_alimentacao(aba, colunas, linhas, writer, NOMES_CAMPOS)
+    return df
+
+
+def ajusta_layout_tabela(
+    workbook: Workbook, worksheet: Worksheet, df: pd.DataFrame
+) -> None:
+    """
+    Aplica formatação visual personalizada à tabela no arquivo Excel.
+
+    Configura cores, alinhamento, bordas e dimensões para os headers e células da tabela baseando-se no tipo de período/dieta,
+    criando uma aparência visual consistente e informativa.
+
+    Args:
+        workbook (Workbook): Objeto Workbook do openpyxl/xlsxwriter para criação de formatos personalizados.
+        worksheet (Worksheet): Objeto Worksheet onde a formatação será aplicada.
+        df (pd.DataFrame): DataFrame com os dados da tabela, usado para iterar sobre as colunas e determinar a formatação.
+
+    Returns:
+        None: A função modifica o worksheet in-place e não retorna valores.
+    """
+    formatacao_base = {
+        "align": "center",
+        "valign": "vcenter",
+        "font_color": "#FFFFFF",
+        "bold": True,
+        "border": 1,
+        "border_color": "#999999",
+    }
+    formatacao_manha = workbook.add_format({**formatacao_base, "bg_color": "#198459"})
+    formatacao_tarde = workbook.add_format({**formatacao_base, "bg_color": "#D06D12"})
+    formatacao_integral = workbook.add_format(
+        {**formatacao_base, "bg_color": "#2F80ED"}
+    )
+    formatacao_noite = workbook.add_format({**formatacao_base, "bg_color": "#B40C02"})
+    formatacao_vespertino = workbook.add_format(
+        {**formatacao_base, "bg_color": "#C13FD6"}
+    )
+    formatacao_intermediario = workbook.add_format(
+        {**formatacao_base, "bg_color": "#2F80ED"}
+    )
+    formatacao_programas = workbook.add_format(
+        {**formatacao_base, "bg_color": "#72BC17"}
+    )
+    formatacao_etec = workbook.add_format({**formatacao_base, "bg_color": "#DE9524"})
+    formatacao_dieta_a = workbook.add_format({**formatacao_base, "bg_color": "#198459"})
+    formatacao_dieta_b = workbook.add_format({**formatacao_base, "bg_color": "#20AA73"})
+
+    formatacao_level2 = workbook.add_format(
+        {
+            **formatacao_base,
+            "bg_color": "#F7FBF9",
+            "font_color": "#000000",
+            "text_wrap": True,
+        }
+    )
+
+    formatacao_level1 = {
+        "": formatacao_level2,
+        "MANHA": formatacao_manha,
+        "TARDE": formatacao_tarde,
+        "INTEGRAL": formatacao_integral,
+        "NOITE": formatacao_noite,
+        "VESPERTINO": formatacao_vespertino,
+        "INTERMEDIARIO": formatacao_intermediario,
+        "PROGRAMAS E PROJETOS": formatacao_programas,
+        "ETEC": formatacao_etec,
+        "DIETA ESPECIAL - TIPO A": formatacao_dieta_a,
+        "DIETA ESPECIAL - TIPO B": formatacao_dieta_b,
+    }
+
+    for col_num, value in enumerate(df.columns.values):
+        worksheet.write(2, col_num, value[0], formatacao_level1[value[0]])
+        worksheet.write(3, col_num, value[1], formatacao_level2)
+
+    formatacao = workbook.add_format(
+        {
+            "align": "center",
+            "valign": "vcenter",
+        }
+    )
+
+    worksheet.set_column(0, len(df.columns) - 1, 15, formatacao)
+    worksheet.set_column(2, 2, 30)
+
+    worksheet.set_row(4, None, None, {"hidden": True})
+    worksheet.set_row(2, 25)
+    worksheet.set_row(3, 40)

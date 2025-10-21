@@ -33,7 +33,7 @@ def update_periodos_alimentacoes(
 ) -> dict:
     """
     Atualiza o dicionário de períodos com suas respectivas alimentações.
-    
+
     Args:
         periodos_alimentacoes (dict): Dicionário onde as chaves são nomes de períodos e os valores são listas de alimentações.
         nome_periodo (str): Nome do período a ser atualizado ou criado.
@@ -58,7 +58,7 @@ def get_categorias_dietas(medicao: Medicao) -> list:
 
     Returns:
         list: Lista de strings com os nomes distintos das categorias de dietas especiais.
-        
+
     Examples:
         >>> get_categorias_dietas(medicao)
         ['DIETA ESPECIAL - TIPO B', 'DIETA ESPECIAL - TIPO A - ENTERAL]
@@ -104,7 +104,7 @@ def generate_columns(dict_periodos_dietas: dict) -> list:
 
     Returns:
         list: Lista de tuplas no formato [(categoria, alimentação), ...], contendo todas as combinações possíveis de categorias e suas respectivas alimentações.
-        
+
     Examples:
         >>> generate_columns({"MANHA": ["lanche", "refeicao"],)
         [('MANHA', 'lanche'), ('MANHA', 'refeicao')]
@@ -120,7 +120,7 @@ def generate_columns(dict_periodos_dietas: dict) -> list:
 def get_valores_iniciais(solicitacao: SolicitacaoMedicaoInicial) -> list[str]:
     """
     Extrai informações iniciais básicas da escola da solicitação.
-    
+
     Obtém um conjunto de dados fundamentais da escola associada à solicitação
     de medição inicial, incluindo sigla do tipo de unidade, código EOL e nome.
 
@@ -149,6 +149,24 @@ def gera_colunas_alimentacao(
     colunas_fixas: list[tuple] | None = None,
     headers: list[tuple] | None = None,
 ) -> pd.DataFrame:
+    """
+    Gera e exporta DataFrame com colunas de alimentação para relatório Excel.
+
+    Cria um DataFrame estruturado com MultiIndex para headers, adiciona linha de total e exporta para uma aba específica do arquivo
+    Excel usando o ExcelWriter fornecido.
+
+    Args:
+        aba (str): Nome da aba/planilha onde os dados serão exportados.
+        colunas (list[tuple]): Lista de tuplas no formato (período, campo) que define a estrutura das colunas dinâmicas.
+        linhas (list[list[str | float]]): Matriz de dados onde cada lista interna representa uma linha do relatório
+        writer (pd.ExcelWriter): Objeto ExcelWriter para exportação do DataFrame.
+        nomes_campos (dict): Dicionário de mapeamento de campos para seus nomes exibíveis no header
+        colunas_fixas (list[tuple] | None, optional): Colunas fixas iniciais do relatório. Defaults to [("", "Tipo"), ("", "Cód. EOL"), ("", "Unidade Escolar")].
+        headers (list[tuple] | None, optional): Headers customizados. Se None, gera automaticamente baseado nas colunas e nomes_campos.
+
+    Returns:
+        pd.DataFrame: DataFrame processado com MultiIndex e linha de total.
+    """
     if colunas_fixas is None:
         colunas_fixas = [
             ("", "Tipo"),
