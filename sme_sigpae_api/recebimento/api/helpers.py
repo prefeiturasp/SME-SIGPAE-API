@@ -6,6 +6,7 @@ from sme_sigpae_api.dados_comuns.utils import (
 )
 from sme_sigpae_api.recebimento.models import (
     ArquivoFichaRecebimento,
+    DocumentoFichaDeRecebimento,
     FichaDeRecebimento,
     OcorrenciaFichaRecebimento,
     QuestaoFichaRecebimento,
@@ -41,6 +42,18 @@ def criar_questoes(instance, dados_questoes):
         )
 
 
+def criar_documentos_ficha(instance, dados_documentos):
+    for dados_documento in dados_documentos:
+        documento_obj = dados_documento["documento_recebimento"]
+        quantidade = dados_documento["quantidade_recebida"]
+
+        DocumentoFichaDeRecebimento.objects.create(
+            ficha_recebimento=instance,
+            documento_recebimento=documento_obj,
+            quantidade_recebida=quantidade
+        )
+
+
 def criar_ocorrencias(instance, dados_ocorrencias):
     recusa_count = sum(
         1
@@ -72,10 +85,10 @@ def criar_ficha(validated_data):
 
     # Cria a ficha de recebimento
     ficha = FichaDeRecebimento.objects.create(**validated_data)
-    ficha.documentos_recebimento.set(documentos_recebimento)
 
     # Cria os relacionamentos
     criar_veiculos(ficha, dados_veiculos)
+    criar_documentos_ficha(ficha, documentos_recebimento)
     criar_arquivos(ficha, dados_arquivos)
     criar_questoes(ficha, dados_questoes)
     criar_ocorrencias(ficha, dados_ocorrencias)
@@ -93,7 +106,7 @@ def atualizar_ficha(instance, validated_data):
 
     # Remove relacionamentos existentes
     instance.veiculos.all().delete()
-    instance.documentos_recebimento.clear()
+    instance.documentos_ficha.all().delete()
     instance.arquivos.all().delete()
     instance.questoes_conferencia.through.objects.filter(
         ficha_recebimento=instance
@@ -103,11 +116,9 @@ def atualizar_ficha(instance, validated_data):
     # Atualiza os campos da ficha
     instance = update_instance_from_dict(instance, validated_data, save=True)
 
-    # Atualiza os documentos de recebimento
-    instance.documentos_recebimento.set(documentos_recebimento)
-
     # Recria os relacionamentos
     criar_veiculos(instance, dados_veiculos)
+    criar_documentos_ficha(instance, documentos_recebimento)
     criar_arquivos(instance, dados_arquivos)
     criar_questoes(instance, dados_questoes)
     criar_ocorrencias(instance, dados_ocorrencias)

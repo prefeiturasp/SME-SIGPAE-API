@@ -13,6 +13,7 @@ from sme_sigpae_api.recebimento.api.serializers.serializers_create import (
     OcorrenciaFichaRecebimentoCreateSerializer,
     QuestaoFichaRecebimentoCreateSerializer,
     FichaDeRecebimentoReposicaoSerializer,
+    FichaDeRecebimentoCreateSerializerSaldoZero,
 )
 from sme_sigpae_api.recebimento.models import (
     QuestaoConferencia,

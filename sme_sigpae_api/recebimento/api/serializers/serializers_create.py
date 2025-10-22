@@ -11,6 +11,7 @@ from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoPr
 from sme_sigpae_api.recebimento.api.helpers import atualizar_ficha, criar_ficha
 from sme_sigpae_api.recebimento.models import (
     ArquivoFichaRecebimento,
+    DocumentoFichaDeRecebimento,
     FichaDeRecebimento,
     OcorrenciaFichaRecebimento,
     QuestaoConferencia,
@@ -89,6 +90,24 @@ class ArquivoFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
         exclude = ("id", "ficha_recebimento")
 
 
+class DocumentoFichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
+    documento_recebimento = serializers.SlugRelatedField(
+        slug_field="uuid",
+        queryset=DocumentoDeRecebimento.objects.filter(
+            status=DocumentoDeRecebimentoWorkflow.APROVADO
+        ),
+    )
+    quantidade_recebida = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text="Quantidade recebida deve ser maior que zero"
+    )
+
+    class Meta:
+        model = DocumentoFichaDeRecebimento
+        fields = ("documento_recebimento", "quantidade_recebida")
+
+
 class OcorrenciaFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         self.rascunho = kwargs.pop("rascunho", False)
@@ -159,11 +178,7 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
         queryset=EtapasDoCronograma.objects.all(),
     )
     data_entrega = serializers.DateField(required=True)
-    documentos_recebimento = serializers.SlugRelatedField(
-        slug_field="uuid",
-        queryset=DocumentoDeRecebimento.objects.filter(
-            status=DocumentoDeRecebimentoWorkflow.APROVADO
-        ),
+    documentos_recebimento = DocumentoFichaDeRecebimentoCreateSerializer(
         many=True,
         required=True,
     )
@@ -343,17 +358,63 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
         return super().to_internal_value(data)
 
 
+class FichaDeRecebimentoCreateSerializerSaldoZero(FichaDeRecebimentoCreateSerializer):
+    """
+    Serializer para criação de Ficha de Recebimento que ignora os campos
+    que no frontend são validados com requiredSaldoTotalZero.
+    Herda de FichaDeRecebimentoCreateSerializer mas remove os campos específicos.
+    """
+
+    class Meta:
+        model = FichaDeRecebimento
+        fields = [
+            "etapa",
+            "data_entrega",
+            "documentos_recebimento",
+            "observacao",
+            "arquivos",
+            "observacoes_conferencia",
+            "houve_ocorrencia",
+            "ocorrencias",
+            "reposicao_cronograma",
+        ]
+
+    def to_internal_value(self, data):
+        result = super().to_internal_value(data)
+
+        if self.instance is not None:
+            campos_para_limpar = [
+                'lote_fabricante_de_acordo',
+                'data_fabricacao_de_acordo',
+                'data_validade_de_acordo',
+                'numero_lote_armazenagem',
+                'numero_paletes',
+                'peso_embalagem_primaria_1',
+                'peso_embalagem_primaria_2',
+                'peso_embalagem_primaria_3',
+                'peso_embalagem_primaria_4',
+                'sistema_vedacao_embalagem_secundaria',
+            ]
+
+            for campo in campos_para_limpar:
+                if campo not in result:
+                    result[campo] = None
+
+        return result
+
+    def validate(self, data):
+        data = super(FichaDeRecebimentoCreateSerializer, self).validate(data)
+
+        return data
+
+
 class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
     etapa = serializers.SlugRelatedField(
         slug_field="uuid",
         required=True,
         queryset=EtapasDoCronograma.objects.all(),
     )
-    documentos_recebimento = serializers.SlugRelatedField(
-        slug_field="uuid",
-        queryset=DocumentoDeRecebimento.objects.filter(
-            status=DocumentoDeRecebimentoWorkflow.APROVADO
-        ),
+    documentos_recebimento = DocumentoFichaDeRecebimentoCreateSerializer(
         many=True,
         required=False,
     )
@@ -392,13 +453,6 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
             ficha_atualizada.volta_para_rascunho(user=user)
 
         return ficha_atualizada
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation["ocorrencias"] = OcorrenciaFichaRecebimentoCreateSerializer(
-            instance.ocorrencias.all(), many=True
-        ).data
-        return representation
 
     def to_internal_value(self, data):
         peso_fields = [

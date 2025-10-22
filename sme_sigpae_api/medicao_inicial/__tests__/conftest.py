@@ -482,6 +482,27 @@ def escola_ceu_gestao():
 
 
 @pytest.fixture
+def escola_cmct():
+    terceirizada = baker.make("Terceirizada")
+    diretoria_regional = baker.make(
+        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+    )
+    lote = baker.make(
+        "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
+    )
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CMCT")
+    return baker.make(
+        "Escola",
+        nome="CMCT TESTE",
+        lote=lote,
+        diretoria_regional=diretoria_regional,
+        tipo_gestao=tipo_gestao,
+        tipo_unidade=tipo_unidade_escolar,
+    )
+
+
+@pytest.fixture
 def aluno():
     return baker.make(
         "Aluno",
@@ -2495,6 +2516,27 @@ def client_autenticado_da_escola(client, django_user_model, escola):
 
 
 @pytest.fixture
+def client_autenticado_da_escola_cmct(client, django_user_model, escola_cmct):
+    email = "user@escola.com"
+    password = DJANGO_ADMIN_PASSWORD
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    usuario = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="123456"
+    )
+    hoje = datetime.date.today()
+    baker.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=escola_cmct,
+        perfil=perfil_diretor,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client
+
+
+@pytest.fixture
 def client_autenticado_da_escola_cei(client, django_user_model, escola_cei):
     email = "user@escola_cei.com"
     password = DJANGO_ADMIN_PASSWORD
@@ -3658,6 +3700,7 @@ def relatorio_consolidado_xlsx_cemei(
     grupo_infantil_manha,
     grupo_infantil_tarde,
     grupo_solicitacoes_alimentacao,
+    grupo_programas_e_projetos,
     categoria_medicao_solicitacoes_alimentacao,
 ):
     medicao_integral = baker.make(
@@ -3692,6 +3735,11 @@ def relatorio_consolidado_xlsx_cemei(
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
         grupo=grupo_solicitacoes_alimentacao,
     )
+    medicao_programas_e_projetos = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
+        grupo=grupo_programas_e_projetos,
+    )
 
     for dia in ["01", "02", "03", "04", "05"]:
         if dia == "05":
@@ -3704,6 +3752,35 @@ def relatorio_consolidado_xlsx_cemei(
                     categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
                     valor="5",
                 )
+            for campo in ["numero_de_alunos", "frequencia", "dietas_autorizadas", "lanche", "lanche_4h", "refeicao", "sobremesa"]:
+                if campo not in ["numero_de_alunos", "refeicao", "sobremesa"]:
+                    baker.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao_programas_e_projetos,
+                        categoria_medicao=categoria_medicao_dieta_a,
+                        valor=1,
+                    )
+                    baker.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao_programas_e_projetos,
+                        categoria_medicao=categoria_medicao_dieta_b,
+                        valor=1,
+                    )
+                if campo != "dietas_autorizadas":
+                    baker.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao_programas_e_projetos,
+                        categoria_medicao=categoria_medicao,
+                        valor=1,
+                        faixa_etaria=faixa,
+                    )
+            
         for medicao in [medicao_integral, medicao_parcial]:
             for faixa in faixas_etarias_ativas:
                 baker.make(

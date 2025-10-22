@@ -5,7 +5,10 @@ from unittest.mock import patch
 import pytest
 from rest_framework import status
 
+from sme_sigpae_api.escola.__tests__.conftest import mocked_response
+
 from ...dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+from ...eol_servico.utils import EOLServicoSGP
 from ..api.helpers import ofuscar_email
 from ..api.viewsets import UsuarioUpdateViewSet
 from ..models import (
@@ -421,8 +424,13 @@ def test_url_visoes(client_autenticado):
 
 
 def test_criar_usuario_nao_servidor_coresso(
-    client_autenticado, terceirizada, perfil_distribuidor
+    client_autenticado, terceirizada, perfil_distribuidor, monkeypatch
 ):
+    monkeypatch.setattr(
+        EOLServicoSGP,
+        "chamada_externa_usuario_existe_core_sso",
+        lambda p1: mocked_response({}, 200),
+    )
     payload = {
         "username": "52898325139",
         "email": "teste_silva@teste.com",

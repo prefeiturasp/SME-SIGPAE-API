@@ -124,7 +124,10 @@ def payload_ficha_recebimento(
     return {
         "etapa": str(etapa.uuid),
         "data_entrega": str(date.today() + timedelta(days=10)),
-        "documentos_recebimento": [str(doc.uuid) for doc in docs_recebimento],
+        "documentos_recebimento": [
+            {"documento_recebimento": str(doc.uuid), "quantidade_recebida": fake.random_number(digits=3)}
+            for doc in docs_recebimento
+        ],
         "lote_fabricante_de_acordo": True,
         "lote_fabricante_divergencia": "",
         "data_fabricacao_de_acordo": True,
@@ -207,7 +210,10 @@ def payload_ficha_recebimento_rascunho(
     return {
         "etapa": str(etapa.uuid),
         "data_entrega": str(date.today() + timedelta(days=10)),
-        "documentos_recebimento": [str(doc.uuid) for doc in docs_recebimento],
+        "documentos_recebimento": [
+            {"documento_recebimento": str(doc.uuid), "quantidade_recebida": fake.random_number(digits=3)}
+            for doc in docs_recebimento
+        ],
         "lote_fabricante_de_acordo": True,
         "lote_fabricante_divergencia": "",
         "data_fabricacao_de_acordo": True,
@@ -328,7 +334,12 @@ def ficha_recebimento_rascunho(etapa_cronograma):
     return {
         "etapa": str(etapa_cronograma.uuid),
         "data_entrega": "2025-04-10",
-        "documentos_recebimento": [str(documento.uuid)],
+        "documentos_recebimento": [
+            {
+                "documento_recebimento": str(documento.uuid),
+                "quantidade_recebida": fake.random_number(digits=3),
+            }
+        ],
         "veiculos": [{"numero": "ABC1D23"}],
         "questoes": [
             {
