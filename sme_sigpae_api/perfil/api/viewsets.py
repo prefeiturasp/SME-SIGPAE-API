@@ -32,11 +32,11 @@ from ...dados_comuns.permissions import (
     PermissaoParaCriarUsuarioComCoresso,
     PermissaoParaListarVinculosAtivos,
     UsuarioAdministradorContratos,
+    UsuarioDiretoriaRegionalCogestor,
     UsuarioGticCODAE,
     UsuarioPodeAlterarVinculo,
     UsuarioPodeFinalizarVinculo,
     UsuarioSuperCodae,
-    UsuarioDiretoriaRegionalCogestor
 )
 from ...escola.api.serializers import UsuarioDetalheSerializer
 from ...escola.models import Codae
@@ -682,7 +682,10 @@ class UsuarioComCoreSSOViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet)
     @action(
         detail=True,
         permission_classes=[
-            UsuarioSuperCodae | UsuarioGticCODAE | UsuarioAdministradorContratos | UsuarioDiretoriaRegionalCogestor
+            UsuarioSuperCodae
+            | UsuarioGticCODAE
+            | UsuarioAdministradorContratos
+            | UsuarioDiretoriaRegionalCogestor
         ],
         url_path="alterar-email",
         methods=["patch"],

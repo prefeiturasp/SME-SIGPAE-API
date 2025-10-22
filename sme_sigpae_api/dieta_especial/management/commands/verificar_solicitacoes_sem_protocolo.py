@@ -1,9 +1,11 @@
-from django.core.management.base import BaseCommand
-from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
-from openpyxl import Workbook
-from datetime import datetime
-from django.conf import settings
 import os
+from datetime import datetime
+
+from django.conf import settings
+from django.core.management.base import BaseCommand
+from openpyxl import Workbook
+
+from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 
 
 class Command(BaseCommand):
@@ -25,29 +27,35 @@ class Command(BaseCommand):
         total = solicitacoes.count()
 
         if total == 0:
-            self.stdout.write(self.style.SUCCESS("Nenhuma solicitação sem protocolo encontrada."))
+            self.stdout.write(
+                self.style.SUCCESS("Nenhuma solicitação sem protocolo encontrada.")
+            )
             return
 
         output_dir = os.path.join(settings.MEDIA_ROOT, "exportacao_solicitacoes")
         os.makedirs(output_dir, exist_ok=True)
 
         data_atual = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = os.path.join(output_dir, f"solicitacoes_sem_protocolo_{data_atual}.xlsx")
+        filename = os.path.join(
+            output_dir, f"solicitacoes_sem_protocolo_{data_atual}.xlsx"
+        )
 
         wb = Workbook()
         ws = wb.active
         ws.title = "Sem Protocolo"
 
-        ws.append([
-            "UUID Solicitação",
-            "Código EOL",
-            "Aluno",
-            "DRE",
-            "Unidade Escolar",
-            "Classificação da Dieta",
-            "Data Criação",
-            "Data Último Log"
-        ])
+        ws.append(
+            [
+                "UUID Solicitação",
+                "Código EOL",
+                "Aluno",
+                "DRE",
+                "Unidade Escolar",
+                "Classificação da Dieta",
+                "Data Criação",
+                "Data Último Log",
+            ]
+        )
 
         for solicitacao in solicitacoes:
             aluno = solicitacao.aluno
@@ -57,24 +65,29 @@ class Command(BaseCommand):
             dre_nome = getattr(solicitacao.rastro_dre, "nome", "-")
             ue_nome = getattr(solicitacao.rastro_escola, "nome", "-")
 
-            classificacao = getattr(solicitacao.classificacao, "nome", "Sem classificação")
+            classificacao = getattr(
+                solicitacao.classificacao, "nome", "Sem classificação"
+            )
 
             criado_em = (
                 solicitacao.criado_em.strftime("%d/%m/%Y %H:%M")
-                if hasattr(solicitacao, "criado_em") and hasattr(solicitacao.criado_em, "strftime")
+                if hasattr(solicitacao, "criado_em")
+                and hasattr(solicitacao.criado_em, "strftime")
                 else str(getattr(solicitacao, "criado_em", "-"))
             )
 
-            ws.append([
-                str(solicitacao.uuid),
-                codigo_eol,
-                aluno_nome,
-                dre_nome,
-                ue_nome,
-                classificacao,
-                criado_em,
-                solicitacao.data_ultimo_log
-            ])
+            ws.append(
+                [
+                    str(solicitacao.uuid),
+                    codigo_eol,
+                    aluno_nome,
+                    dre_nome,
+                    ue_nome,
+                    classificacao,
+                    criado_em,
+                    solicitacao.data_ultimo_log,
+                ]
+            )
 
         wb.save(filename)
 

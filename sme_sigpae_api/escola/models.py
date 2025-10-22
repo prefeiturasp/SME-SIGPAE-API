@@ -740,6 +740,10 @@ class Escola(
         return self.tipo_unidade and self.tipo_unidade.iniciais in ["CIEJA"]
 
     @property
+    def eh_cmct(self):
+        return self.tipo_unidade and self.tipo_unidade.iniciais in ["CMCT"]
+
+    @property
     def modulo_gestao(self):
         if self.tipo_gestao and self.tipo_gestao.nome == "TERC TOTAL":
             return "TERCEIRIZADA"

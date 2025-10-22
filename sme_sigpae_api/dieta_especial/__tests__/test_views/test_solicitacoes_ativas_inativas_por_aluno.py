@@ -74,14 +74,18 @@ def test_calculo_totais_solicitacoes(aluno_factory, solicitacao_dieta_especial_f
 
 
 def test_filtro_por_serie_exata_7a(
-    client_autenticado_vinculo_codae_dieta, aluno_factory, solicitacao_dieta_especial_factory
+    client_autenticado_vinculo_codae_dieta,
+    aluno_factory,
+    solicitacao_dieta_especial_factory,
 ):
     aluno_7a = aluno_factory.create(codigo_eol="1001", serie="7A")
     aluno_7b = aluno_factory.create(codigo_eol="1002", serie="7B")
     aluno_7c = aluno_factory.create(codigo_eol="1003", serie="7C")
 
     for aluno in [aluno_7a, aluno_7b, aluno_7c]:
-        solicitacao_dieta_especial_factory.create(aluno=aluno, status="CODAE_AUTORIZADO", ativo=True)
+        solicitacao_dieta_especial_factory.create(
+            aluno=aluno, status="CODAE_AUTORIZADO", ativo=True
+        )
 
     response = client_autenticado_vinculo_codae_dieta.get(
         "/solicitacoes-dieta-especial-ativas-inativas/?serie=7A"
@@ -92,14 +96,18 @@ def test_filtro_por_serie_exata_7a(
 
 
 def test_filtro_por_numero_7(
-    client_autenticado_vinculo_codae_dieta, aluno_factory, solicitacao_dieta_especial_factory
+    client_autenticado_vinculo_codae_dieta,
+    aluno_factory,
+    solicitacao_dieta_especial_factory,
 ):
     aluno_7a = aluno_factory.create(codigo_eol="1001", serie="7A")
     aluno_7b = aluno_factory.create(codigo_eol="1002", serie="7B")
     aluno_8c = aluno_factory.create(codigo_eol="1003", serie="8C")
 
     for aluno in [aluno_7a, aluno_7b, aluno_8c]:
-        solicitacao_dieta_especial_factory.create(aluno=aluno, status="CODAE_AUTORIZADO", ativo=True)
+        solicitacao_dieta_especial_factory.create(
+            aluno=aluno, status="CODAE_AUTORIZADO", ativo=True
+        )
 
     response = client_autenticado_vinculo_codae_dieta.get(
         "/solicitacoes-dieta-especial-ativas-inativas/?serie=7"
@@ -110,7 +118,9 @@ def test_filtro_por_numero_7(
 
 
 def test_filtro_por_letra_a(
-    client_autenticado_vinculo_codae_dieta, aluno_factory, solicitacao_dieta_especial_factory
+    client_autenticado_vinculo_codae_dieta,
+    aluno_factory,
+    solicitacao_dieta_especial_factory,
 ):
     aluno_6a = aluno_factory.create(codigo_eol="1001", serie="6A")
     aluno_7a = aluno_factory.create(codigo_eol="1002", serie="7A")
@@ -118,7 +128,9 @@ def test_filtro_por_letra_a(
     aluno_7b = aluno_factory.create(codigo_eol="1004", serie="7B")
 
     for aluno in [aluno_6a, aluno_7a, aluno_8a, aluno_7b]:
-        solicitacao_dieta_especial_factory.create(aluno=aluno, status="CODAE_AUTORIZADO", ativo=True)
+        solicitacao_dieta_especial_factory.create(
+            aluno=aluno, status="CODAE_AUTORIZADO", ativo=True
+        )
 
     response = client_autenticado_vinculo_codae_dieta.get(
         "/solicitacoes-dieta-especial-ativas-inativas/?serie=A"
@@ -129,14 +141,18 @@ def test_filtro_por_letra_a(
 
 
 def test_filtro_por_multiplas_series(
-    client_autenticado_vinculo_codae_dieta, aluno_factory, solicitacao_dieta_especial_factory
+    client_autenticado_vinculo_codae_dieta,
+    aluno_factory,
+    solicitacao_dieta_especial_factory,
 ):
     aluno_6a = aluno_factory.create(codigo_eol="1001", serie="6A")
     aluno_7b = aluno_factory.create(codigo_eol="1002", serie="7B")
     aluno_7c = aluno_factory.create(codigo_eol="1003", serie="7C")
 
     for aluno in [aluno_6a, aluno_7b, aluno_7c]:
-        solicitacao_dieta_especial_factory.create(aluno=aluno, status="CODAE_AUTORIZADO", ativo=True)
+        solicitacao_dieta_especial_factory.create(
+            aluno=aluno, status="CODAE_AUTORIZADO", ativo=True
+        )
 
     response = client_autenticado_vinculo_codae_dieta.get(
         "/solicitacoes-dieta-especial-ativas-inativas/?serie=6A&serie=7B"
@@ -226,7 +242,9 @@ def test_get_queryset_filtra_por_codigo_eol_escola_quando_nao_escola(
         "/solicitacoes-dieta-especial-ativas-inativas/"
     )
     assert resp_sem_filtro.status_code == 200
-    series_sem_filtro = sorted(r["serie"] for r in resp_sem_filtro.json()["solicitacoes"])
+    series_sem_filtro = sorted(
+        r["serie"] for r in resp_sem_filtro.json()["solicitacoes"]
+    )
     assert "6A" in series_sem_filtro
     assert "7A" in series_sem_filtro
 

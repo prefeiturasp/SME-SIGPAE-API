@@ -54,8 +54,8 @@ class DocRecebimentoFichaDeRecebimentoSerializer(serializers.ModelSerializer):
             return None
 
     def get_quantidade_recebida(self, obj):
-        if hasattr(self, 'context') and 'ficha_recebimento' in self.context:
-            ficha = self.context['ficha_recebimento']
+        if hasattr(self, "context") and "ficha_recebimento" in self.context:
+            ficha = self.context["ficha_recebimento"]
             try:
                 documento_ficha = obj.fichas_documentos.get(ficha_recebimento=ficha)
                 return documento_ficha.quantidade_recebida
@@ -72,7 +72,7 @@ class DocRecebimentoFichaDeRecebimentoSerializer(serializers.ModelSerializer):
             "datas_fabricacao",
             "datas_validade",
             "saldo_laudo",
-            "quantidade_recebida"
+            "quantidade_recebida",
         )
 
 

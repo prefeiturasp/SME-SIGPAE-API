@@ -1,14 +1,18 @@
-from django.core.management.base import BaseCommand
-from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
-from openpyxl import Workbook
-from datetime import datetime
-from collections import defaultdict
-from django.conf import settings
 import os
+from collections import defaultdict
+from datetime import datetime
+
+from django.conf import settings
+from django.core.management.base import BaseCommand
+from openpyxl import Workbook
+
+from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 
 
 class Command(BaseCommand):
-    help = "Detecta alunos com mais de uma dieta especial autorizada e exporta para Excel."
+    help = (
+        "Detecta alunos com mais de uma dieta especial autorizada e exporta para Excel."
+    )
 
     def handle(self, *args, **options):
         self.stdout.write("Buscando solicitações de dieta especial autorizadas...")
@@ -35,9 +39,7 @@ class Command(BaseCommand):
         Retorna considerando apenas alunos que possuem pelo menos duas solicitações ativas autorizadas.
         """
         por_eol = self._agrupa_aluno_eol(solicitacoes)
-        duplicadas = {
-            eol: lista for eol, lista in por_eol.items() if len(lista) > 1
-        }
+        duplicadas = {eol: lista for eol, lista in por_eol.items() if len(lista) > 1}
         return duplicadas
 
     def _agrupa_aluno_eol(self, solicitacoes):
@@ -54,33 +56,35 @@ class Command(BaseCommand):
         os.makedirs(output_dir, exist_ok=True)
 
         data_atual = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = os.path.join(output_dir, f"solicitacoes_duplicadas_{data_atual}.xlsx")
+        filename = os.path.join(
+            output_dir, f"solicitacoes_duplicadas_{data_atual}.xlsx"
+        )
 
         wb = Workbook()
         ws = wb.active
         ws.title = "Duplicidades"
 
-        ws.append([
-            "UUID Solicitação",
-            "Código EOL",
-            "Aluno",
-            "DRE",
-            "Unidade Escolar",
-            "Classificação da Dieta",
-            "Data Início",
-            "Data Término",
-            "Data Criação",
-            "Data Último Log"
-        ])
+        ws.append(
+            [
+                "UUID Solicitação",
+                "Código EOL",
+                "Aluno",
+                "DRE",
+                "Unidade Escolar",
+                "Classificação da Dieta",
+                "Data Início",
+                "Data Término",
+                "Data Criação",
+                "Data Último Log",
+            ]
+        )
 
         total = 0
 
         for eol in sorted(duplicadas.keys()):
             solicitacoes = duplicadas[eol]
 
-            solicitacoes.sort(
-                key=lambda s: s.data_ultimo_log or datetime.min
-            )
+            solicitacoes.sort(key=lambda s: s.data_ultimo_log or datetime.min)
 
             for s in solicitacoes:
                 aluno = s.aluno
@@ -102,27 +106,31 @@ class Command(BaseCommand):
                 )
                 data_termino = (
                     s.data_termino.strftime("%d/%m/%Y")
-                    if hasattr(s, "data_termino") and hasattr(s.data_termino, "strftime")
+                    if hasattr(s, "data_termino")
+                    and hasattr(s.data_termino, "strftime")
                     else str(getattr(s, "data_termino", "-"))
                 )
                 data_ultimo_log = (
                     s.data_ultimo_log.strftime("%d/%m/%Y %H:%M")
-                    if hasattr(s, "data_ultimo_log") and hasattr(s.data_ultimo_log, "strftime")
+                    if hasattr(s, "data_ultimo_log")
+                    and hasattr(s.data_ultimo_log, "strftime")
                     else str(getattr(s, "data_ultimo_log", "-"))
                 )
 
-                ws.append([
-                    str(s.uuid),
-                    codigo_eol,
-                    aluno_nome,
-                    dre_nome,
-                    ue_nome,
-                    classificacao,
-                    data_inicio,
-                    data_termino,
-                    criado_em,
-                    data_ultimo_log,
-                ])
+                ws.append(
+                    [
+                        str(s.uuid),
+                        codigo_eol,
+                        aluno_nome,
+                        dre_nome,
+                        ue_nome,
+                        classificacao,
+                        data_inicio,
+                        data_termino,
+                        criado_em,
+                        data_ultimo_log,
+                    ]
+                )
                 total += 1
 
             ws.append([])
