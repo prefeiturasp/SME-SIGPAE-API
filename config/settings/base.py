@@ -386,6 +386,11 @@ CELERY_QUEUES = (
     Queue("beat"),
 )
 
+broker_transport_options = {
+    "priority_steps": list(range(10)),
+    "queue_order_strategy": "lifo",
+}
+
 # reset password
 PASSWORD_RESET_TIMEOUT_DAYS = 1
 
