@@ -423,6 +423,13 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
         return qs.count()
 
     def get_dre(self, obj):
+        if hasattr(obj, '_escola_dre'):
+            return obj._escola_dre
+        escola_id = self.get_escola_context(obj)
+        if escola_id:
+            dieta = obj.dietas_especiais.filter(rastro_escola_id=escola_id).first()
+            if dieta:
+                return dieta.rastro_escola.diretoria_regional.nome
         if obj.dietas_especiais.filter(ativo=True).exists():
             return (
                 obj.dietas_especiais.filter(ativo=True)
@@ -432,18 +439,32 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
         return obj.dietas_especiais.first().rastro_escola.diretoria_regional.nome
 
     def get_escola(self, obj):
+        if hasattr(obj, '_escola_nome'):
+            return obj._escola_nome
+        escola_id = self.get_escola_context(obj)
+        if escola_id:
+            dieta = obj.dietas_especiais.filter(rastro_escola_id=escola_id).first()
+            if dieta:
+                return dieta.rastro_escola.nome
         if obj.dietas_especiais.filter(ativo=True).exists():
             return obj.dietas_especiais.filter(ativo=True).first().rastro_escola.nome
         return obj.dietas_especiais.first().rastro_escola.nome
 
     def get_codigo_eol_escola(self, obj):
+        if hasattr(obj, '_escola_codigo_eol'):
+            return obj._escola_codigo_eol
+        escola_id = self.get_escola_context(obj)
+        if escola_id:
+            dieta = obj.dietas_especiais.filter(rastro_escola_id=escola_id).first()
+            if dieta:
+                return dieta.rastro_escola.codigo_eol
         if obj.dietas_especiais.filter(ativo=True).exists():
             return (
                 obj.dietas_especiais.filter(ativo=True).first().rastro_escola.codigo_eol
             )
         return obj.dietas_especiais.first().rastro_escola.codigo_eol
 
-    def get_foto_aluno(self, obj):  # noqa C901
+    def get_foto_aluno(self, obj):
         novo_sgp_service = self.context.get("novo_sgp_service", "")
         codigo_eol = obj.codigo_eol
         if novo_sgp_service and codigo_eol is not None:
@@ -462,7 +483,10 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
         return None
 
     def get_classificacao_dieta_ativa(self, obj):
+        escola_id = self.get_escola_context(obj)
         qs_dieta_ativa = obj.dietas_especiais.filter(ativo=True)
+        if escola_id:
+            qs_dieta_ativa = qs_dieta_ativa.filter(rastro_escola_id=escola_id)
         if qs_dieta_ativa.exists():
             return qs_dieta_ativa.first().classificacao.nome
         return None
