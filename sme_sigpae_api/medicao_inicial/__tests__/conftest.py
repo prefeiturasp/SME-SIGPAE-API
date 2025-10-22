@@ -503,6 +503,26 @@ def escola_cmct():
 
 
 @pytest.fixture
+def escola_cieja():
+    terceirizada = baker.make("Terceirizada")
+    diretoria_regional = baker.make(
+        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+    )
+    lote = baker.make(
+        "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
+    )
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CIEJA")
+    return baker.make(
+        "Escola",
+        nome="CIEJA TESTE",
+        lote=lote,
+        diretoria_regional=diretoria_regional,
+        tipo_gestao=tipo_gestao,
+        tipo_unidade=tipo_unidade_escolar,
+    )
+
+@pytest.fixture
 def aluno():
     return baker.make(
         "Aluno",
@@ -4462,3 +4482,157 @@ def solicitacao_medicao_informacoes_basicas(escola):
     solicitacao_medicao_inicial.responsaveis.set([responsavel])
 
     return solicitacao_medicao_inicial
+
+
+@pytest.fixture
+def solicitacao_relatorio_consolidado_escola_cieja(escola_cieja):
+    return baker.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola_cieja,
+        mes="04",
+        ano="2025",
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+    )
+    
+
+@pytest.fixture
+def relatorio_consolidado_xlsx_cieja(
+    solicitacao_relatorio_consolidado_escola_cieja,
+    periodo_escolar_manha,
+    periodo_escolar_tarde,
+    grupo_solicitacoes_alimentacao,
+    grupo_programas_e_projetos,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_b,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+    categoria_medicao_solicitacoes_alimentacao
+
+):
+    medicao_manha = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_escola_cieja,
+        periodo_escolar=periodo_escolar_manha,
+    )
+
+    medicao_tarde = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_escola_cieja,
+        periodo_escolar=periodo_escolar_tarde,
+    )
+
+    medicao_programas_projetos = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_escola_cieja,
+        grupo=grupo_programas_e_projetos
+    )
+    
+    medicao_solicitacao_alimentacao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_escola_cieja,
+        grupo=grupo_solicitacoes_alimentacao
+    )
+    
+    for dia in ["01", "02", "03", "04", "05"]:
+        for medicao in [medicao_manha, medicao_tarde]:
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo="matriculados",
+                medicao=medicao,
+                categoria_medicao=categoria_medicao,
+                valor="40",
+            )
+            for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
+           
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao,
+                    categoria_medicao=categoria_medicao,
+                    valor="30",
+                )
+                if campo in ["lanche", "lanche_4h"]:
+                    for categoria in [
+                        categoria_medicao_dieta_a,
+                        categoria_medicao_dieta_b,
+                        categoria_medicao_dieta_a_enteral_aminoacidos,
+                    ]:
+                        baker.make(
+                            "ValorMedicao",
+                            dia=dia,
+                            nome_campo=campo,
+                            medicao=medicao,
+                            categoria_medicao=categoria,
+                            valor="4",
+                        )
+                elif campo == "refeicao":
+                    baker.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao,
+                        categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                        valor="4",
+                    )
+        
+        if dia in ["02", "03"]:
+            for campo in ["numero_de_alunos", "frequencia", "lanche_4h"]:
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao_programas_projetos,
+                    categoria_medicao=categoria_medicao,
+                    valor="10",
+                )
+        
+        if dia == "05":
+            for campo in ["kit_lanche", "lanche_emergencial"]:
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao_solicitacao_alimentacao,
+                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
+                    valor="5",
+                )
+        
+    return solicitacao_relatorio_consolidado_escola_cieja
+    
+@pytest.fixture
+def mock_query_params_cieja_cmct(
+    solicitacao_relatorio_consolidado_escola_cieja
+):
+    
+    grupo_escolar = baker.make(
+        "GrupoUnidadeEscolar",
+        nome="Grupo 6",
+        uuid="ee9abe61-e1c4-48fb-8b53-ffd2cef00458",
+        tipos_unidades=[
+            baker.make("TipoUnidadeEscolar", iniciais="CIEJA"),
+            baker.make("TipoUnidadeEscolar", iniciais="CMCT"),
+        ],
+    )
+    return {
+        "dre": solicitacao_relatorio_consolidado_escola_cieja.escola.diretoria_regional.uuid,
+        "status": "MEDICAO_APROVADA_PELA_CODAE",
+        "grupo_escolar": grupo_escolar,
+        "mes": solicitacao_relatorio_consolidado_escola_cieja.mes,
+        "ano": solicitacao_relatorio_consolidado_escola_cieja.ano,
+        "lotes[]": solicitacao_relatorio_consolidado_escola_cieja.escola.lote.uuid,
+        "lotes": [solicitacao_relatorio_consolidado_escola_cieja.escola.lote.uuid],
+    }
+    
+@pytest.fixture
+def solicitacao_escola_cmct(escola_cmct):
+    return baker.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola_cmct,
+        mes="04",
+        ano="2025",
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+    )
+    
+
