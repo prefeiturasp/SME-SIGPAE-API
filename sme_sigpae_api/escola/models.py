@@ -2016,6 +2016,58 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             )
         copiar_logs(alteracao_original, alteracao_copia)
 
+    def _cria_objetos_fk_suspensao_normal_copia(
+        self, suspensao_copia, suspensao_original
+    ):
+        campos_fk = ["quantidades_por_periodo", "suspensoes_alimentacao"]
+        for campo_fk in campos_fk:
+            cria_copias_fk(
+                suspensao_original, campo_fk, "grupo_suspensao", suspensao_copia
+            )
+        copiar_logs(suspensao_original, suspensao_copia)
+
+    def _atualiza_suspensao_normal_original(self, suspensao_original, data_virada):
+        suspensao_original.suspensoes_alimentacao.filter(data__gte=data_virada).delete()
+
+    def _atualiza_suspensao_normal_copia_para_nova_terceirizada(
+        self, suspensao_copia, data_virada, terceirizada_nova
+    ):
+        suspensao_copia.suspensoes_alimentacao.filter(data__lt=data_virada).delete()
+        suspensao_copia.rastro_terceirizada = terceirizada_nova
+        suspensao_copia.terceirizada_conferiu_gestao = False
+        suspensao_copia.save()
+
+    def _transferir_lote_lida_com_suspensoes_normais(
+        self,
+        data_virada: datetime.date,
+        terceirizada_pre_transferencia,
+        terceirizada_nova,
+    ):
+        suspensoes_normais = self.cardapio_gruposuspensaoalimentacao_rastro_lote.filter(
+            status=GrupoSuspensaoAlimentacao.workflow_class.CODAE_AUTORIZADO,
+            rastro_terceirizada=terceirizada_pre_transferencia,
+            suspensoes_alimentacao__data__gte=data_virada,
+            suspensoes_alimentacao__cancelado=False,
+        ).distinct()
+        if not suspensoes_normais:
+            return
+
+        for suspensao_original in suspensoes_normais:
+            uuid_original = suspensao_original.uuid
+            suspensao_copia = clonar_objeto(suspensao_original)
+
+            suspensao_original = GrupoSuspensaoAlimentacao.objects.get(
+                uuid=uuid_original
+            )
+
+            self._cria_objetos_fk_suspensao_normal_copia(
+                suspensao_copia, suspensao_original
+            )
+            self._atualiza_suspensao_normal_original(suspensao_original, data_virada)
+            self._atualiza_suspensao_normal_copia_para_nova_terceirizada(
+                suspensao_copia, data_virada, terceirizada_nova
+            )
+
     def _transferir_lote_lida_com_alteracoes_cemei(
         self,
         data_virada: datetime.date,
@@ -2080,6 +2132,11 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             terceirizada_nova,
         )
         self._transferir_lote_lida_com_alteracoes_cemei(
+            data_virada,
+            terceirizada_pre_transferencia,
+            terceirizada_nova,
+        )
+        self._transferir_lote_lida_com_suspensoes_normais(
             data_virada,
             terceirizada_pre_transferencia,
             terceirizada_nova,
