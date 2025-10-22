@@ -244,6 +244,20 @@ class Command(BaseCommand):
             return dados_alunos
         return []
 
+    def _atualiza_alunos_nao_matriculados(self, todos_os_registros):
+        alunos_ativos = {
+            r["codigoAluno"]
+            for r in todos_os_registros
+            if r["codigoSituacaoMatricula"] in self.status_matricula_ativa
+            and r["codigoTipoTurma"] == self.codigo_turma_regular
+        }
+        todos_alunos = {r["codigoAluno"] for r in todos_os_registros}
+        alunos_nao_matriculados = todos_alunos - alunos_ativos
+        Aluno.objects.filter(codigo_eol__in=alunos_nao_matriculados).update(
+            nao_matriculado=True,
+            escola=None,
+        )
+
     def _atualiza_todas_as_escolas_d_menos_2(self):
         todos_os_registros = self.get_todos_os_registros()
         self.total_alunos += len(todos_os_registros)
@@ -284,7 +298,10 @@ class Command(BaseCommand):
                 alunos,
             )
             self._atualiza_alunos_se_quantidade_1000(alunos_para_atualizar, atualizados)
-
+        self.stdout.write(
+            self.style.SUCCESS("desmatriculando alunos sem escola... aguarde...")
+        )
+        self._atualiza_alunos_nao_matriculados(todos_os_registros)
         self.stdout.write(self.style.SUCCESS("criando alunos... aguarde..."))
         bulk_create_safe(Aluno, list(novos_alunos.values()))
         self.stdout.write(self.style.SUCCESS("atualizando alunos... aguarde..."))
