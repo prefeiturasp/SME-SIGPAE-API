@@ -3,6 +3,12 @@ import datetime
 import pytest
 from freezegun import freeze_time
 
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory import (
+    AlteracaoCardapioFactory,
+    DataIntervaloAlteracaoCardapioFactory,
+    SubstituicaoAlimentacaoNoPeriodoEscolarFactory,
+)
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from sme_sigpae_api.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
 )
@@ -123,6 +129,9 @@ class TestUseCaseTransferenciaLotes:
     def _setup_tipos_alimentacao(self):
         self.tipo_alimentacao_refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
         self.tipo_alimentacao_lanche = TipoAlimentacaoFactory.create(nome="Lanche")
+        self.tipo_alimentacao_lanche_emergencial = TipoAlimentacaoFactory.create(
+            nome="Lanche Emergencial"
+        )
 
     def _setup_motivos_inclusao_continua(self):
         self.motivo_programas_projetos = MotivoInclusaoContinuaFactory.create(
@@ -331,6 +340,48 @@ class TestUseCaseTransferenciaLotes:
             usuario=self.usuario,
         )
 
+    def _setup_alteracao_normal(self):
+        self.alteracao_normal = AlteracaoCardapioFactory.create(
+            escola=self.escola_emef,
+            rastro_escola=self.escola_emef,
+            rastro_dre=self.escola_emef.diretoria_regional,
+            rastro_lote=self.escola_emef.lote,
+            rastro_terceirizada=self.terceirizada,
+            motivo__nome="Lanche Emergencial",
+            data_inicial="2025-05-10",
+            data_final="2025-05-17",
+            status=AlteracaoCardapio.workflow_class.CODAE_AUTORIZADO,
+        )
+        for dia in ["10", "11", "12", "13", "14", "15", "16", "17"]:
+            DataIntervaloAlteracaoCardapioFactory.create(
+                alteracao_cardapio=self.alteracao_normal,
+                data=f"2025-05-{dia}",
+            )
+        SubstituicaoAlimentacaoNoPeriodoEscolarFactory.create(
+            alteracao_cardapio=self.alteracao_normal,
+            periodo_escolar=self.periodo_manha,
+            tipos_alimentacao_de=[
+                self.tipo_alimentacao_lanche,
+                self.tipo_alimentacao_refeicao,
+            ],
+            tipos_alimentacao_para=[self.tipo_alimentacao_lanche_emergencial],
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.alteracao_normal.uuid,
+            status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+            usuario=self.usuario,
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.alteracao_normal.uuid,
+            status_evento=LogSolicitacoesUsuario.DRE_VALIDOU,
+            usuario=self.usuario,
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.alteracao_normal.uuid,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            usuario=self.usuario,
+        )
+
     def test_transferir_lote_inclusao_continua_data_aprovada_pos_transferencia(self):
         self._setup_testes()
         self._setup_inclusao_continua()
@@ -502,3 +553,51 @@ class TestUseCaseTransferenciaLotes:
         assert datetime.date(2025, 5, 13) in datas_copia
         assert datetime.date(2025, 5, 23) in datas_copia
         assert inclusao_copia.logs.count() == 3
+
+    def test_transferir_lote_alteracao_normal_data_aprovada_pos_transferencia(self):
+        self._setup_testes()
+        self._setup_alteracao_normal()
+
+        data_virada = datetime.date(2025, 5, 13)
+        terceirizada_pre_transferencia = self.terceirizada
+        terceirizada_nova = self.terceirizada_nova
+
+        self.lote._transferir_lote_lida_com_alteracoes_normais(
+            data_virada, terceirizada_pre_transferencia, terceirizada_nova
+        )
+
+        alteracoes_normais = self.lote.cardapio_alteracaocardapio_rastro_lote.all()
+        assert alteracoes_normais.count() == 2
+
+        alteracao_original = alteracoes_normais.get(uuid=self.alteracao_normal.uuid)
+        assert alteracao_original.datas_intervalo.count() == 3  # 10, 11, 12
+        datas_original = list(
+            alteracao_original.datas_intervalo.values_list("data", flat=True)
+        )
+        assert datetime.date(2025, 5, 10) in datas_original
+        assert datetime.date(2025, 5, 13) not in datas_original
+
+        ultimo_dia_terceirizada_antiga = datetime.date(2025, 5, 12)
+        assert alteracao_original.data_final == ultimo_dia_terceirizada_antiga
+        assert alteracao_original.rastro_terceirizada == self.terceirizada
+
+        alteracao_copia = alteracoes_normais.exclude(
+            uuid=self.alteracao_normal.uuid
+        ).get()
+        assert alteracao_copia.rastro_terceirizada == self.terceirizada_nova
+        assert alteracao_copia.substituicoes_periodo_escolar.count() == 1
+        assert (
+            alteracao_copia.substituicoes_periodo_escolar.get().tipos_alimentacao_de.count()
+            == 2
+        )
+        assert (
+            alteracao_copia.substituicoes_periodo_escolar.get().tipos_alimentacao_para.count()
+            == 1
+        )
+        assert alteracao_copia.datas_intervalo.count() == 5  # 13 pra frente
+        datas_copia = list(
+            alteracao_copia.datas_intervalo.values_list("data", flat=True)
+        )
+        assert datetime.date(2025, 5, 13) in datas_copia
+        assert datetime.date(2025, 5, 17) in datas_copia
+        assert alteracao_copia.logs.count() == 3
