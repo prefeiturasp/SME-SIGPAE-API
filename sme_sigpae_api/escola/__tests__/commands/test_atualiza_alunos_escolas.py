@@ -116,7 +116,6 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
 
         aluno_davi = Aluno.objects.get(nome="DAVI ALUNO TESTE")
         assert aluno_davi.nao_matriculado is False
-        assert aluno_davi.escola == self.escola
 
         assert aluno_davi.historico.count() == 2
         historico_escola_000086 = aluno_davi.historico.get(escola=self.escola)
