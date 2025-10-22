@@ -56,6 +56,7 @@ from ..dados_comuns.constants import (
 from ..dados_comuns.fluxo_status import (
     FluxoAprovacaoPartindoDaEscola,
     FluxoDietaEspecialPartindoDaEscola,
+    FluxoInformativoPartindoDaEscola,
     SolicitacaoMedicaoInicialWorkflow,
 )
 from ..dados_comuns.utils import (
@@ -1623,6 +1624,9 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
                 FluxoAprovacaoPartindoDaEscola.workflow_class.ESCOLA_CANCELOU,
             ]
         )
+        canceladas_suspensao = Q(
+            status__in=[FluxoInformativoPartindoDaEscola.workflow_class.ESCOLA_CANCELOU]
+        )
         self.inclusao_alimentacao_inclusaoalimentacaocontinua_rastro_lote.exclude(
             canceladas_ou_negadas | Q(data_inicial__lt=hoje)
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
@@ -1659,10 +1663,10 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             | Q(data_para_inversao__lt=hoje)
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
         self.cardapio_gruposuspensaoalimentacao_rastro_lote.exclude(
-            suspensoes_alimentacao__data__lt=hoje
+            canceladas_suspensao | Q(suspensoes_alimentacao__data__lt=hoje)
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
         self.cardapio_suspensaoalimentacaodacei_rastro_lote.exclude(
-            data__lt=hoje
+            canceladas_suspensao | Q(data__lt=hoje)
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
 
     def _atualiza_inclusao_continua_original(self, inclusao_original, data_pre_virada):
@@ -2048,7 +2052,7 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         terceirizada_nova,
     ):
         suspensoes_normais = self.cardapio_gruposuspensaoalimentacao_rastro_lote.filter(
-            status=GrupoSuspensaoAlimentacao.workflow_class.CODAE_AUTORIZADO,
+            status=GrupoSuspensaoAlimentacao.workflow_class.INFORMADO,
             rastro_terceirizada=terceirizada_pre_transferencia,
             suspensoes_alimentacao__data__gte=data_virada,
             suspensoes_alimentacao__cancelado=False,

@@ -22,6 +22,14 @@ from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models import (
 from sme_sigpae_api.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
 )
+from sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory import (
+    GrupoSuspensaoAlimentacaoFactory,
+    QuantidadePorPeriodoSuspensaoAlimentacaoFactory,
+    SuspensaoAlimentacaoFactory,
+)
+from sme_sigpae_api.cardapio.suspensao_alimentacao.models import (
+    GrupoSuspensaoAlimentacao,
+)
 from sme_sigpae_api.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
@@ -451,6 +459,41 @@ class TestUseCaseTransferenciaLotes:
             usuario=self.usuario,
         )
 
+    def _setup_suspensao_normal(
+        self,
+    ):
+        self.grupo_suspensao = GrupoSuspensaoAlimentacaoFactory.create(
+            escola=self.escola_emef,
+            rastro_lote=self.lote,
+            rastro_dre=self.dre,
+            rastro_escola=self.escola_emef,
+            rastro_terceirizada=self.terceirizada,
+            status=GrupoSuspensaoAlimentacao.workflow_class.INFORMADO,
+        )
+        SuspensaoAlimentacaoFactory.create(
+            data="2025-05-03",
+            grupo_suspensao=self.grupo_suspensao,
+        )
+        SuspensaoAlimentacaoFactory.create(
+            data="2025-05-13",
+            grupo_suspensao=self.grupo_suspensao,
+        )
+        SuspensaoAlimentacaoFactory.create(
+            data="2025-05-23",
+            grupo_suspensao=self.grupo_suspensao,
+        )
+        QuantidadePorPeriodoSuspensaoAlimentacaoFactory.create(
+            grupo_suspensao=self.grupo_suspensao,
+            periodo_escolar=self.periodo_manha,
+            numero_alunos=100,
+            tipos_alimentacao=[self.tipo_alimentacao_lanche],
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.grupo_suspensao.uuid,
+            status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+            usuario=self.usuario,
+        )
+
     def test_transferir_lote_inclusao_continua_data_aprovada_pos_transferencia(self):
         self._setup_testes()
         self._setup_inclusao_continua()
@@ -732,3 +775,44 @@ class TestUseCaseTransferenciaLotes:
         assert datetime.date(2025, 5, 13) in datas_copia
         assert datetime.date(2025, 5, 17) in datas_copia
         assert alteracao_copia.logs.count() == 3
+
+    def test_transferir_lote_suspensao_normal_data_aprovada_pos_transferencia(self):
+        self._setup_testes()
+        self._setup_suspensao_normal()
+
+        data_virada = datetime.date(2025, 5, 13)
+        terceirizada_pre_transferencia = self.terceirizada
+        terceirizada_nova = self.terceirizada_nova
+
+        self.lote._transferir_lote_lida_com_suspensoes_normais(
+            data_virada, terceirizada_pre_transferencia, terceirizada_nova
+        )
+
+        suspensoes_normais = (
+            self.lote.cardapio_gruposuspensaoalimentacao_rastro_lote.all()
+        )
+        assert suspensoes_normais.count() == 2
+
+        suspensao_original = suspensoes_normais.get(uuid=self.grupo_suspensao.uuid)
+        assert suspensao_original.suspensoes_alimentacao.count() == 1
+        datas_original = list(
+            suspensao_original.suspensoes_alimentacao.values_list("data", flat=True)
+        )
+        assert datetime.date(2025, 5, 3) in datas_original
+        assert datetime.date(2025, 5, 13) not in datas_original
+
+        suspensao_copia = suspensoes_normais.exclude(
+            uuid=self.grupo_suspensao.uuid
+        ).get()
+        assert suspensao_copia.rastro_terceirizada == self.terceirizada_nova
+        assert suspensao_copia.quantidades_por_periodo.count() == 1
+        assert (
+            suspensao_copia.quantidades_por_periodo.get().tipos_alimentacao.count() == 1
+        )
+        assert suspensao_copia.suspensoes_alimentacao.count() == 2
+        datas_copia = list(
+            suspensao_copia.suspensoes_alimentacao.values_list("data", flat=True)
+        )
+        assert datetime.date(2025, 5, 13) in datas_copia
+        assert datetime.date(2025, 5, 23) in datas_copia
+        assert suspensao_copia.logs.count() == 1
