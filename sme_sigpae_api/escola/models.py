@@ -1912,6 +1912,66 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
                 inclusao_copia, data_virada, terceirizada_nova
             )
 
+    def _cria_objetos_fk_alteracao_normal_copia(
+        self, alteracao_copia, alteracao_original
+    ):
+        campos_fk = [
+            "datas_intervalo",
+            "substituicoes_periodo_escolar",
+        ]
+        for campo_fk in campos_fk:
+            cria_copias_fk(
+                alteracao_original,
+                campo_fk,
+                "alteracao_cardapio",
+                alteracao_copia,
+            )
+        copiar_logs(alteracao_original, alteracao_copia)
+
+    def _atualiza_alteracao_normal_original(self, alteracao_original, data_virada):
+        alteracao_original.datas_intervalo.filter(data__gte=data_virada).delete()
+        data_pre_virada = data_virada - datetime.timedelta(days=1)
+        alteracao_original.data_final = data_pre_virada
+        alteracao_original.save()
+
+    def _atualiza_alteracao_normal_copia_para_nova_terceirizada(
+        self, alteracao_copia, data_virada, terceirizada_nova
+    ):
+        alteracao_copia.datas_intervalo.filter(data__lt=data_virada).delete()
+        alteracao_copia.data_inicial = data_virada
+        alteracao_copia.rastro_terceirizada = terceirizada_nova
+        alteracao_copia.terceirizada_conferiu_gestao = False
+        alteracao_copia.save()
+
+    def _transferir_lote_lida_com_alteracoes_normais(
+        self,
+        data_virada: datetime.date,
+        terceirizada_pre_transferencia,
+        terceirizada_nova,
+    ):
+        alteracoes_normais = self.cardapio_alteracaocardapio_rastro_lote.filter(
+            status=AlteracaoCardapio.workflow_class.CODAE_AUTORIZADO,
+            rastro_terceirizada=terceirizada_pre_transferencia,
+            datas_intervalo__data__gte=data_virada,
+            datas_intervalo__cancelado=False,
+        ).distinct()
+        if not alteracoes_normais:
+            return
+
+        for alteracao_original in alteracoes_normais:
+            uuid_original = alteracao_original.uuid
+            alteracao_copia = clonar_objeto(alteracao_original)
+
+            alteracao_original = AlteracaoCardapio.objects.get(uuid=uuid_original)
+
+            self._cria_objetos_fk_alteracao_normal_copia(
+                alteracao_copia, alteracao_original
+            )
+            self._atualiza_alteracao_normal_original(alteracao_original, data_virada)
+            self._atualiza_alteracao_normal_copia_para_nova_terceirizada(
+                alteracao_copia, data_virada, terceirizada_nova
+            )
+
     def transferir_solicitacoes_gestao_alimentacao_com_datas_no_passado_e_no_presente(
         self, data_virada: datetime.date, terceirizada_nova
     ):
@@ -1937,6 +1997,11 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             terceirizada_nova,
         )
         self._transferir_lote_lida_com_inclusoes_cemei(
+            data_virada,
+            terceirizada_pre_transferencia,
+            terceirizada_nova,
+        )
+        self._transferir_lote_lida_com_alteracoes_normais(
             data_virada,
             terceirizada_pre_transferencia,
             terceirizada_nova,
