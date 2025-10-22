@@ -11,7 +11,12 @@ from sme_sigpae_api.relatorios.relatorios import get_pdf_ficha_recebimento
 
 from ...dados_comuns.api.paginations import DefaultPagination
 from ...pre_recebimento.cronograma_entrega.models import Cronograma
-from ..models import FichaDeRecebimento, QuestaoConferencia, QuestoesPorProduto, ReposicaoCronogramaFichaRecebimento
+from ..models import (
+    FichaDeRecebimento,
+    QuestaoConferencia,
+    QuestoesPorProduto,
+    ReposicaoCronogramaFichaRecebimento,
+)
 from .filters import FichaRecebimentoFilter, QuestoesPorProdutoFilter
 from .permissions import (
     PermissaoParaCadastrarFichaRecebimento,
@@ -32,8 +37,8 @@ from .serializers.serializers_create import (
     FichaDeRecebimentoCreateSerializer,
     FichaDeRecebimentoCreateSerializerSaldoZero,
     FichaDeRecebimentoRascunhoSerializer,
-    QuestoesPorProdutoCreateSerializer,
     FichaDeRecebimentoReposicaoSerializer,
+    QuestoesPorProdutoCreateSerializer,
 )
 
 
@@ -208,11 +213,11 @@ class FichaRecebimentoModelViewSet(
         instance = self.get_object()
         return self._process_ficha_request(request, instance=instance, create=False)
 
-    @action(detail=False, methods=['POST'], url_path='cadastrar-saldo-zero')
+    @action(detail=False, methods=["POST"], url_path="cadastrar-saldo-zero")
     def create_saldo_zero(self, request):
         return self._process_ficha_request(request, create=True)
 
-    @action(detail=True, methods=['PUT'], url_path='atualizar-saldo-zero')
+    @action(detail=True, methods=["PUT"], url_path="atualizar-saldo-zero")
     def update_saldo_zero(self, request, uuid=None):
         instance = self.get_object()
         return self._process_ficha_request(request, instance=instance, create=False)

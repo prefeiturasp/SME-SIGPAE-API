@@ -2794,7 +2794,6 @@ def grupo_escolar(
     tipo_unidade_escolar,
     tipo_unidade_escolar_ceu_emef,
     tipo_unidade_escolar_emefm,
-    tipo_unidade_escolar_cieja,
     tipo_unidade_escolar_ceu_gestao,
 ):
     grupo_escolar = baker.make(
@@ -2805,7 +2804,6 @@ def grupo_escolar(
             tipo_unidade_escolar,
             tipo_unidade_escolar_ceu_emef,
             tipo_unidade_escolar_emefm,
-            tipo_unidade_escolar_cieja,
             tipo_unidade_escolar_ceu_gestao,
         ],
     )
@@ -3752,7 +3750,15 @@ def relatorio_consolidado_xlsx_cemei(
                     categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
                     valor="5",
                 )
-            for campo in ["numero_de_alunos", "frequencia", "dietas_autorizadas", "lanche", "lanche_4h", "refeicao", "sobremesa"]:
+            for campo in [
+                "numero_de_alunos",
+                "frequencia",
+                "dietas_autorizadas",
+                "lanche",
+                "lanche_4h",
+                "refeicao",
+                "sobremesa",
+            ]:
                 if campo not in ["numero_de_alunos", "refeicao", "sobremesa"]:
                     baker.make(
                         "ValorMedicao",
@@ -3780,7 +3786,7 @@ def relatorio_consolidado_xlsx_cemei(
                         valor=1,
                         faixa_etaria=faixa,
                     )
-            
+
         for medicao in [medicao_integral, medicao_parcial]:
             for faixa in faixas_etarias_ativas:
                 baker.make(

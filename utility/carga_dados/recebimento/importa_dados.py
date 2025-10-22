@@ -1,4 +1,6 @@
-from sme_sigpae_api.recebimento.data.reposicao_cronograma import data_reposicao_cronograma
+from sme_sigpae_api.recebimento.data.reposicao_cronograma import (
+    data_reposicao_cronograma,
+)
 from sme_sigpae_api.recebimento.models import ReposicaoCronogramaFichaRecebimento
 from utility.carga_dados.helper import ja_existe, progressbar
 

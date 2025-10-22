@@ -427,17 +427,19 @@ def test_define_filtro(relatorio_consolidado_xlsx_cemei):
     assert "periodo_escolar__nome__in" not in dieta_especial_emei
     assert dieta_especial_emei["grupo__nome__in"] == grupos_medicao
 
-    dieta_especial_programas_projetos = _define_filtro("Programas e Projetos", grupos_medicao)
+    dieta_especial_programas_projetos = _define_filtro(
+        "Programas e Projetos", grupos_medicao
+    )
     assert isinstance(dieta_especial_programas_projetos, dict)
     assert "grupo__nome" in dieta_especial_programas_projetos
-    assert dieta_especial_programas_projetos["grupo__nome"] == 'Programas e Projetos'
+    assert dieta_especial_programas_projetos["grupo__nome"] == "Programas e Projetos"
 
     dieta_especial_programas_projetos = _define_filtro(
         "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS", grupos_medicao
     )
     assert isinstance(dieta_especial_programas_projetos, dict)
     assert "grupo__nome" in dieta_especial_programas_projetos
-    assert dieta_especial_programas_projetos["grupo__nome"] == 'Programas e Projetos'
+    assert dieta_especial_programas_projetos["grupo__nome"] == "Programas e Projetos"
 
 
 def test_processa_dieta_especial(

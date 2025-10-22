@@ -50,7 +50,7 @@ def criar_documentos_ficha(instance, dados_documentos):
         DocumentoFichaDeRecebimento.objects.create(
             ficha_recebimento=instance,
             documento_recebimento=documento_obj,
-            quantidade_recebida=quantidade
+            quantidade_recebida=quantidade,
         )
 
 

@@ -11,6 +11,7 @@ from sme_sigpae_api.dados_comuns.constants import (
 )
 from sme_sigpae_api.escola.models import FaixaEtaria
 from sme_sigpae_api.medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
+from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from sme_sigpae_api.medicao_inicial.services.utils import (
     generate_columns,
     gera_colunas_alimentacao,
@@ -20,7 +21,6 @@ from sme_sigpae_api.medicao_inicial.services.utils import (
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
 )
-from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 
 
 def get_alimentacoes_por_periodo(

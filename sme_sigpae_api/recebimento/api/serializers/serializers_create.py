@@ -17,8 +17,8 @@ from sme_sigpae_api.recebimento.models import (
     QuestaoConferencia,
     QuestaoFichaRecebimento,
     QuestoesPorProduto,
-    VeiculoFichaDeRecebimento,
     ReposicaoCronogramaFichaRecebimento,
+    VeiculoFichaDeRecebimento,
 )
 
 
@@ -100,7 +100,7 @@ class DocumentoFichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
     quantidade_recebida = serializers.DecimalField(
         max_digits=10,
         decimal_places=2,
-        help_text="Quantidade recebida deve ser maior que zero"
+        help_text="Quantidade recebida deve ser maior que zero",
     )
 
     class Meta:
@@ -384,16 +384,16 @@ class FichaDeRecebimentoCreateSerializerSaldoZero(FichaDeRecebimentoCreateSerial
 
         if self.instance is not None:
             campos_para_limpar = [
-                'lote_fabricante_de_acordo',
-                'data_fabricacao_de_acordo',
-                'data_validade_de_acordo',
-                'numero_lote_armazenagem',
-                'numero_paletes',
-                'peso_embalagem_primaria_1',
-                'peso_embalagem_primaria_2',
-                'peso_embalagem_primaria_3',
-                'peso_embalagem_primaria_4',
-                'sistema_vedacao_embalagem_secundaria',
+                "lote_fabricante_de_acordo",
+                "data_fabricacao_de_acordo",
+                "data_validade_de_acordo",
+                "numero_lote_armazenagem",
+                "numero_paletes",
+                "peso_embalagem_primaria_1",
+                "peso_embalagem_primaria_2",
+                "peso_embalagem_primaria_3",
+                "peso_embalagem_primaria_4",
+                "sistema_vedacao_embalagem_secundaria",
             ]
 
             for campo in campos_para_limpar:

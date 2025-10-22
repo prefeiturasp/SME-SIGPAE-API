@@ -11,12 +11,12 @@ from sme_sigpae_api.dados_comuns.constants import (
 )
 from sme_sigpae_api.escola.models import PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
+from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from sme_sigpae_api.medicao_inicial.services.utils import (
     gera_colunas_alimentacao,
     get_nome_periodo,
     get_valores_iniciais,
 )
-from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 
 logger = logging.getLogger(__name__)
 
@@ -479,9 +479,13 @@ def calcula_totais_pagamento_emebs_fundamental(
     ).first()
 
     valor_segunda_refeicao = segunda_refeicao.valor if segunda_refeicao else 0
-    valor_repeticao_segunda_refeicao = repeticao_segunda_refeicao.valor if repeticao_segunda_refeicao else 0
+    valor_repeticao_segunda_refeicao = (
+        repeticao_segunda_refeicao.valor if repeticao_segunda_refeicao else 0
+    )
 
-    total_segunda_refeicao = int(valor_segunda_refeicao) + int(valor_repeticao_segunda_refeicao)
+    total_segunda_refeicao = int(valor_segunda_refeicao) + int(
+        valor_repeticao_segunda_refeicao
+    )
     total_segunda_refeicao = min(int(total_segunda_refeicao), int(valor_comparativo))
 
     return total_refeicao + total_segunda_refeicao
