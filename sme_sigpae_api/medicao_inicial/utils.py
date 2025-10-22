@@ -4753,14 +4753,15 @@ def atualiza_logs_remocao(solicitacao, aluno_periodo_parcial, aluno):
         aluno=aluno, data_removido=datetime.date(ano, mes, dia)
     ).exists():
         for periodo in ["PARCIAL", "INTEGRAL"]:
+            cont_dia = dia
             periodo_escolar = PeriodoEscolar.objects.get(nome=periodo)
             quantidade_dias = monthrange(int(solicitacao.ano), int(solicitacao.mes))[1]
             ultimo_dia_do_mes = datetime.date(
                 int(solicitacao.ano), int(solicitacao.mes), quantidade_dias
             )
-            while dia <= ultimo_dia_do_mes.day:
+            while cont_dia <= ultimo_dia_do_mes.day:
                 data = datetime.date(
-                    int(solicitacao.ano), int(solicitacao.mes), int(dia)
+                    int(solicitacao.ano), int(solicitacao.mes), int(cont_dia)
                 )
                 faixa_etaria = aluno.faixa_etaria(data)
                 logs = LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
@@ -4768,11 +4769,11 @@ def atualiza_logs_remocao(solicitacao, aluno_periodo_parcial, aluno):
                     periodo_escolar=periodo_escolar,
                     data__year=int(solicitacao.ano),
                     data__month=int(solicitacao.mes),
-                    data__day=dia,
+                    data__day=cont_dia,
                     faixa_etaria=faixa_etaria,
                 )
                 atualiza_quantidade_logs_remocao(logs, periodo)
-                dia += 1
+                cont_dia += 1
 
 
 def atualiza_alunos_periodo_parcial(solicitacao, alunos_periodo_parcial):
