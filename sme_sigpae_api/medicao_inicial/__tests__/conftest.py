@@ -2794,7 +2794,6 @@ def grupo_escolar(
     tipo_unidade_escolar,
     tipo_unidade_escolar_ceu_emef,
     tipo_unidade_escolar_emefm,
-    tipo_unidade_escolar_cieja,
     tipo_unidade_escolar_ceu_gestao,
 ):
     grupo_escolar = baker.make(
@@ -2805,7 +2804,6 @@ def grupo_escolar(
             tipo_unidade_escolar,
             tipo_unidade_escolar_ceu_emef,
             tipo_unidade_escolar_emefm,
-            tipo_unidade_escolar_cieja,
             tipo_unidade_escolar_ceu_gestao,
         ],
     )

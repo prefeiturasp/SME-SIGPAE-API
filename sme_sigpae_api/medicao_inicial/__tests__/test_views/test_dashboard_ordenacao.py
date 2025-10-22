@@ -168,7 +168,7 @@ def test_dashboard_dados_ordenados(api_client_usuario_codae, dre, tipo_gestao, s
 
     # Grupo 4 - adicionais
     emefm_1 = cria_escola("EMEFM TESTE ALPHA", "EMEFM", dre, "500001", tipo_gestao)
-    cieja_1 = cria_escola("CIEJA CAMPO LIMPO", "CIEJA", dre, "500002", tipo_gestao)
+   
     # Incluímos CEU GESTAO (duas escolas para validar alfabético) ANTES de CEU EMEF (por constants)
     ceu_gestao_1 = cria_escola("CEU GESTAO LESTE", "CEU GESTAO", dre, "500004", tipo_gestao)
     ceu_gestao_2 = cria_escola("CEU GESTAO CENTRO", "CEU GESTAO", dre, "500005", tipo_gestao)
@@ -176,6 +176,10 @@ def test_dashboard_dados_ordenados(api_client_usuario_codae, dre, tipo_gestao, s
 
     # Grupo 5 - EMEBS
     emebs_1 = cria_escola("EMEBS ESPECIAL", "EMEBS", dre, "600001", tipo_gestao)
+    
+    # Grupo 6 -  CIEJA e CMCT
+    cieja_1 = cria_escola("CIEJA CAMPO LIMPO", "CIEJA", dre, "700001", tipo_gestao)
+    cmct_1 = cria_escola("CMCT CAMPO BELO", "CMCT", dre, "700002", tipo_gestao)
 
     escolas = [
         emef_1, emef_2,
@@ -188,6 +192,7 @@ def test_dashboard_dados_ordenados(api_client_usuario_codae, dre, tipo_gestao, s
         ceu_gestao_1, ceu_gestao_2,
         ceu_emef_1,
         emebs_1,
+        cmct_1
     ]
     for esc in escolas:
         cria_solicitacao_com_log(esc, usuario=user, status_workflow=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE)
@@ -236,12 +241,15 @@ def test_dashboard_dados_ordenados(api_client_usuario_codae, dre, tipo_gestao, s
         ("EMEF", "EMEF PERICLES EUGENIO DA SILVA RAMOS"),
         ("CEU EMEF", "CEU EMEF ROSA PARKS"),
         ("EMEFM", "EMEFM TESTE ALPHA"),
-        ("CIEJA", "CIEJA CAMPO LIMPO"),
         ("CEU GESTAO", "CEU GESTAO CENTRO"),
         ("CEU GESTAO", "CEU GESTAO LESTE"),
 
         # Grupo 5
         ("EMEBS", "EMEBS ESPECIAL"),
+        
+        # Grupo 6
+        ("CIEJA", "CIEJA CAMPO LIMPO"),
+        ("CMCT", "CMCT CAMPO BELO"),
     ]
 
     for i, (tipo_esp, nome_esp) in enumerate(ordem_esperada):
