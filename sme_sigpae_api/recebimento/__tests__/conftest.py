@@ -30,15 +30,15 @@ from sme_sigpae_api.recebimento.fixtures.factories.questao_ficha_recebimento_fac
 from sme_sigpae_api.recebimento.fixtures.factories.questoes_por_produto_factory import (
     QuestoesPorProdutoFactory,
 )
+from sme_sigpae_api.recebimento.fixtures.factories.reposicao_cronograma_factory import (
+    ReposicaoCronogramaFichaRecebimentoFactory,
+)
 from sme_sigpae_api.recebimento.models import (
     QuestaoConferencia,
     QuestaoFichaRecebimento,
 )
 from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import (
     ModalidadeFactory,
-)
-from sme_sigpae_api.recebimento.fixtures.factories.reposicao_cronograma_factory import (
-    ReposicaoCronogramaFichaRecebimentoFactory,
 )
 
 fake = Faker("pt_BR")
@@ -125,7 +125,10 @@ def payload_ficha_recebimento(
         "etapa": str(etapa.uuid),
         "data_entrega": str(date.today() + timedelta(days=10)),
         "documentos_recebimento": [
-            {"documento_recebimento": str(doc.uuid), "quantidade_recebida": fake.random_number(digits=3)}
+            {
+                "documento_recebimento": str(doc.uuid),
+                "quantidade_recebida": fake.random_number(digits=3),
+            }
             for doc in docs_recebimento
         ],
         "lote_fabricante_de_acordo": True,
@@ -211,7 +214,10 @@ def payload_ficha_recebimento_rascunho(
         "etapa": str(etapa.uuid),
         "data_entrega": str(date.today() + timedelta(days=10)),
         "documentos_recebimento": [
-            {"documento_recebimento": str(doc.uuid), "quantidade_recebida": fake.random_number(digits=3)}
+            {
+                "documento_recebimento": str(doc.uuid),
+                "quantidade_recebida": fake.random_number(digits=3),
+            }
             for doc in docs_recebimento
         ],
         "lote_fabricante_de_acordo": True,
@@ -461,5 +467,5 @@ def payload_ficha_recebimento_reposicao(
             {"arquivo": arquivo_pdf_base64, "nome": "Arquivo1.pdf"},
             {"arquivo": arquivo_pdf_base64, "nome": "Arquivo2.pdf"},
         ],
-        "reposicao_cronograma": reposicao_cronograma.uuid
+        "reposicao_cronograma": reposicao_cronograma.uuid,
     }

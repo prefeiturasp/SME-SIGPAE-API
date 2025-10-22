@@ -9,11 +9,11 @@ from sme_sigpae_api.conftest import (
 from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.recebimento.api.serializers.serializers_create import (
     FichaDeRecebimentoCreateSerializer,
+    FichaDeRecebimentoCreateSerializerSaldoZero,
     FichaDeRecebimentoRascunhoSerializer,
+    FichaDeRecebimentoReposicaoSerializer,
     OcorrenciaFichaRecebimentoCreateSerializer,
     QuestaoFichaRecebimentoCreateSerializer,
-    FichaDeRecebimentoReposicaoSerializer,
-    FichaDeRecebimentoCreateSerializerSaldoZero,
 )
 from sme_sigpae_api.recebimento.models import (
     QuestaoConferencia,
@@ -315,8 +315,11 @@ def test_ficha_recebimento_serializer_validate_questoes(
     assert "questoes" in serializer.errors
 
 
-def test_ficha_recebimento_reposicao_serializer_create(payload_ficha_recebimento_reposicao):
+def test_ficha_recebimento_reposicao_serializer_create(
+    payload_ficha_recebimento_reposicao,
+):
     """Testa a criação de uma ficha de recebimento através do serializer para reposição de cronograma."""
+
     class FakeObject(object):
         user = baker.make("perfil.Usuario")
 
@@ -325,7 +328,7 @@ def test_ficha_recebimento_reposicao_serializer_create(payload_ficha_recebimento
     serializer = FichaDeRecebimentoReposicaoSerializer(
         data=payload_ficha_recebimento_reposicao, context=context
     )
-    
+
     assert serializer.is_valid()
 
     instancia = serializer.save()
@@ -345,6 +348,7 @@ def test_ficha_recebimento_reposicao_serializer_create(payload_ficha_recebimento
 
 def test_ficha_recebimento_reposicao_serializer_update(ficha_recebimento):
     """Testa a atualização de uma ficha de recebimento através do serializer para reposição de cronograma."""
+
     class FakeObject(object):
         user = baker.make("perfil.Usuario")
 
@@ -352,12 +356,14 @@ def test_ficha_recebimento_reposicao_serializer_update(ficha_recebimento):
 
     nova_observacao = "Nova observação reposição."
     serializer = FichaDeRecebimentoReposicaoSerializer(
-        instance=ficha_recebimento, data={"observacao": nova_observacao}, context=context, partial=True
+        instance=ficha_recebimento,
+        data={"observacao": nova_observacao},
+        context=context,
+        partial=True,
     )
-    
+
     assert serializer.is_valid(), serializer.errors
     instancia = serializer.save()
 
     assert instancia.observacao == nova_observacao
     assert instancia.status == "ASSINADA"
-    

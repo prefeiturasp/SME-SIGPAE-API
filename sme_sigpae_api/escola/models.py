@@ -731,7 +731,7 @@ class Escola(
     @property
     def eh_cieja(self):
         return self.tipo_unidade and self.tipo_unidade.iniciais in ["CIEJA"]
-    
+
     @property
     def eh_cmct(self):
         return self.tipo_unidade and self.tipo_unidade.iniciais in ["CMCT"]

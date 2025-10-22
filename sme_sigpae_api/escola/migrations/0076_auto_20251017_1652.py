@@ -5,8 +5,8 @@ from django.db import migrations
 
 def criar_grupo_seis_com_tipos_unidade(apps, schema_editor):
     # Obtém os modelos usando o histórico
-    GrupoUnidadeEscolar = apps.get_model('escola', 'GrupoUnidadeEscolar')
-    TipoUnidadeEscolar = apps.get_model('escola', 'TipoUnidadeEscolar')
+    GrupoUnidadeEscolar = apps.get_model("escola", "GrupoUnidadeEscolar")
+    TipoUnidadeEscolar = apps.get_model("escola", "TipoUnidadeEscolar")
     try:
         cieja = TipoUnidadeEscolar.objects.get(iniciais="CIEJA")
         cmct = TipoUnidadeEscolar.objects.get(iniciais="CMCT")
@@ -16,8 +16,7 @@ def criar_grupo_seis_com_tipos_unidade(apps, schema_editor):
             grupo_quatro.tipos_unidades.remove(cieja)
         # Cria o Grupo 6 e Adiciona CIEJA e CMCT ao grupo
         grupo_seis, created = GrupoUnidadeEscolar.objects.get_or_create(
-            nome="Grupo 6",
-            defaults={'nome': "Grupo 6"}
+            nome="Grupo 6", defaults={"nome": "Grupo 6"}
         )
         grupo_seis.tipos_unidades.add(cieja, cmct)
     except Exception as e:
@@ -26,8 +25,8 @@ def criar_grupo_seis_com_tipos_unidade(apps, schema_editor):
 
 def remover_grupo_seis_restaurar_estado_anterior(apps, schema_editor):
     # Obtém os modelos usando o histórico
-    GrupoUnidadeEscolar = apps.get_model('escola', 'GrupoUnidadeEscolar')
-    TipoUnidadeEscolar = apps.get_model('escola', 'TipoUnidadeEscolar')
+    GrupoUnidadeEscolar = apps.get_model("escola", "GrupoUnidadeEscolar")
+    TipoUnidadeEscolar = apps.get_model("escola", "TipoUnidadeEscolar")
     try:
         cieja = TipoUnidadeEscolar.objects.get(iniciais="CIEJA")
         cmct = TipoUnidadeEscolar.objects.get(iniciais="CMCT")
@@ -53,6 +52,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(
             criar_grupo_seis_com_tipos_unidade,
-            remover_grupo_seis_restaurar_estado_anterior
+            remover_grupo_seis_restaurar_estado_anterior,
         ),
     ]

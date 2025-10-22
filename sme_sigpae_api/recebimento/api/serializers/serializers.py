@@ -18,8 +18,8 @@ from ...models import (
     QuestaoConferencia,
     QuestaoFichaRecebimento,
     QuestoesPorProduto,
-    VeiculoFichaDeRecebimento,
     ReposicaoCronogramaFichaRecebimento,
+    VeiculoFichaDeRecebimento,
 )
 
 
@@ -261,7 +261,7 @@ class FichaDeRecebimentoDetalharSerializer(serializers.ModelSerializer):
     def get_documentos_recebimento(self, obj):
         documentos = obj.documentos_recebimento.all()
         serializer = DocRecebimentoFichaDeRecebimentoSerializer(
-            documentos, many=True, context={'ficha_recebimento': obj}
+            documentos, many=True, context={"ficha_recebimento": obj}
         )
         return serializer.data
 

@@ -134,8 +134,8 @@ class FichaDeRecebimento(
 
     documentos_recebimento = models.ManyToManyField(
         DocumentoDeRecebimento,
-        through='DocumentoFichaDeRecebimento',
-        through_fields=('ficha_recebimento', 'documento_recebimento'),
+        through="DocumentoFichaDeRecebimento",
+        through_fields=("ficha_recebimento", "documento_recebimento"),
         related_name="fichas_recebimentos",
     )
     lote_fabricante_de_acordo = models.BooleanField(

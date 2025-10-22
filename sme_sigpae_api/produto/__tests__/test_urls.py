@@ -2133,7 +2133,7 @@ def test_alteracao_dados_produto_homologado_erro_copia(
     client_autenticado_vinculo_terceirizada,
     alteracao_produto_homologado,
 ):
-    
+
     data = {}
     response = client_autenticado_vinculo_terceirizada[0].patch(
         f"/homologacoes-produtos/{alteracao_produto_homologado.uuid}/alteracao-produto-homologado/",
@@ -2141,9 +2141,11 @@ def test_alteracao_dados_produto_homologado_erro_copia(
         data=json.dumps(data),
     )
     assert response.status_code == status.HTTP_409_CONFLICT
-    assert response.json() == {'detail': 'Produto já possui alteração de dados em andamento.'}
-    
-    
+    assert response.json() == {
+        "detail": "Produto já possui alteração de dados em andamento."
+    }
+
+
 def test_url_endpoint_homologacao_produto_codae_suspendeu(
     client_autenticado_vinculo_codae_produto,
     alteracao_produto_homologado,

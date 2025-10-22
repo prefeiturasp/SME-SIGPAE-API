@@ -2981,7 +2981,7 @@ def validate_solicitacoes_programas_e_projetos_escola_sem_alunos_regulares(
         "Programas e Projetos",
         valida_dietas=True,
         escola_sem_alunos_regulares=True,
-        eh_emebs=False
+        eh_emebs=False,
     )
 
 

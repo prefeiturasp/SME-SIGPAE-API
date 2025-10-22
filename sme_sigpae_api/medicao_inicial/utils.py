@@ -1886,10 +1886,12 @@ def get_kit_lanche(solicitacao):
                 else:
                     numero_alunos = 0
 
-            kits_lanches.append({
-                "dia": f"{solicitacao_kit_lanche.data.day:02d}",
-                "numero_alunos": numero_alunos,
-            })
+            kits_lanches.append(
+                {
+                    "dia": f"{solicitacao_kit_lanche.data.day:02d}",
+                    "numero_alunos": numero_alunos,
+                }
+            )
 
     return kits_lanches
 
