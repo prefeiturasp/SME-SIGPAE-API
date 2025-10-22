@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import datetime
 import logging
+import uuid
 from collections import Counter
+from copy import deepcopy
 from datetime import date
 from enum import Enum
 
@@ -1986,6 +1988,22 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
                 "alteracao_cardapio",
                 alteracao_copia,
             )
+        for index, substituicao_cemei_cei in enumerate(
+            alteracao_original.substituicoes_cemei_cei_periodo_escolar.all().order_by(
+                "id"
+            )
+        ):
+            for faixa_etaria in substituicao_cemei_cei.faixas_etarias.all():
+                faixa_etaria_copia = deepcopy(faixa_etaria)
+                faixa_etaria_copia.id = None
+                faixa_etaria_copia.uuid = uuid.uuid4()
+                faixa_etaria_copia.substituicao_alimentacao = alteracao_copia.substituicoes_cemei_cei_periodo_escolar.all().order_by(
+                    "id"
+                )[
+                    index
+                ]
+                faixa_etaria_copia.save()
+
         campos_fk = [
             "datas_intervalo",
         ]
@@ -2004,7 +2022,7 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         terceirizada_pre_transferencia,
         terceirizada_nova,
     ):
-        alteracoes_cemei = self.cardapio_alteracaocardapio_rastro_lote.filter(
+        alteracoes_cemei = self.cardapio_alteracaocardapiocemei_rastro_lote.filter(
             status=AlteracaoCardapioCEMEI.workflow_class.CODAE_AUTORIZADO,
             rastro_terceirizada=terceirizada_pre_transferencia,
             datas_intervalo__data__gte=data_virada,
@@ -2057,6 +2075,11 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             terceirizada_nova,
         )
         self._transferir_lote_lida_com_alteracoes_normais(
+            data_virada,
+            terceirizada_pre_transferencia,
+            terceirizada_nova,
+        )
+        self._transferir_lote_lida_com_alteracoes_cemei(
             data_virada,
             terceirizada_pre_transferencia,
             terceirizada_nova,

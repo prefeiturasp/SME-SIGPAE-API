@@ -9,6 +9,16 @@ from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alter
     SubstituicaoAlimentacaoNoPeriodoEscolarFactory,
 )
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.fixtures.factories.alteracao_tipo_alimentacao_cemei_factory import (
+    AlteracaoCardapioCEMEIFactory,
+    DataIntervaloAlteracaoCardapioCEMEIFactory,
+    FaixaEtariaSubstituicaoAlimentacaoCEMEICEIFactory,
+    SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEIFactory,
+    SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEIFactory,
+)
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models import (
+    AlteracaoCardapioCEMEI,
+)
 from sme_sigpae_api.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
 )
@@ -382,6 +392,65 @@ class TestUseCaseTransferenciaLotes:
             usuario=self.usuario,
         )
 
+    def _setup_alteracao_cemei(self):
+        self.alteracao_cemei = AlteracaoCardapioCEMEIFactory.create(
+            escola=self.escola_cemei,
+            rastro_escola=self.escola_cemei,
+            rastro_dre=self.escola_cemei.diretoria_regional,
+            rastro_lote=self.escola_cemei.lote,
+            rastro_terceirizada=self.terceirizada,
+            motivo__nome="Lanche Emergencial",
+            data_inicial="2025-05-10",
+            data_final="2025-05-17",
+            status=AlteracaoCardapioCEMEI.workflow_class.CODAE_AUTORIZADO,
+        )
+        for dia in ["10", "11", "12", "13", "14", "15", "16", "17"]:
+            DataIntervaloAlteracaoCardapioCEMEIFactory.create(
+                alteracao_cardapio_cemei=self.alteracao_cemei,
+                data=f"2025-05-{dia}",
+            )
+        self.substituicao_cemei_cei = (
+            SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEIFactory.create(
+                alteracao_cardapio=self.alteracao_cemei,
+                periodo_escolar=self.periodo_manha,
+                tipos_alimentacao_de=[
+                    self.tipo_alimentacao_lanche,
+                    self.tipo_alimentacao_refeicao,
+                ],
+                tipos_alimentacao_para=[self.tipo_alimentacao_lanche_emergencial],
+            )
+        )
+        FaixaEtariaSubstituicaoAlimentacaoCEMEICEIFactory.create(
+            substituicao_alimentacao=self.substituicao_cemei_cei,
+            faixa_etaria=self.faixa_etaria_1,
+            quantidade=100,
+            matriculados_quando_criado=100,
+        )
+        SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEIFactory.create(
+            alteracao_cardapio=self.alteracao_cemei,
+            periodo_escolar=self.periodo_manha,
+            tipos_alimentacao_de=[
+                self.tipo_alimentacao_lanche,
+                self.tipo_alimentacao_refeicao,
+            ],
+            tipos_alimentacao_para=[self.tipo_alimentacao_lanche_emergencial],
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.alteracao_cemei.uuid,
+            status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+            usuario=self.usuario,
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.alteracao_cemei.uuid,
+            status_evento=LogSolicitacoesUsuario.DRE_VALIDOU,
+            usuario=self.usuario,
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.alteracao_cemei.uuid,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            usuario=self.usuario,
+        )
+
     def test_transferir_lote_inclusao_continua_data_aprovada_pos_transferencia(self):
         self._setup_testes()
         self._setup_inclusao_continua()
@@ -594,6 +663,68 @@ class TestUseCaseTransferenciaLotes:
             alteracao_copia.substituicoes_periodo_escolar.get().tipos_alimentacao_para.count()
             == 1
         )
+        assert alteracao_copia.datas_intervalo.count() == 5  # 13 pra frente
+        datas_copia = list(
+            alteracao_copia.datas_intervalo.values_list("data", flat=True)
+        )
+        assert datetime.date(2025, 5, 13) in datas_copia
+        assert datetime.date(2025, 5, 17) in datas_copia
+        assert alteracao_copia.logs.count() == 3
+
+    def test_transferir_lote_alteracao_cemei_data_aprovada_pos_transferencia(self):
+        self._setup_testes()
+        self._setup_faixas_etarias()
+        self._setup_alteracao_cemei()
+
+        data_virada = datetime.date(2025, 5, 13)
+        terceirizada_pre_transferencia = self.terceirizada
+        terceirizada_nova = self.terceirizada_nova
+
+        self.lote._transferir_lote_lida_com_alteracoes_cemei(
+            data_virada, terceirizada_pre_transferencia, terceirizada_nova
+        )
+
+        alteracoes_cemei = self.lote.cardapio_alteracaocardapiocemei_rastro_lote.all()
+        assert alteracoes_cemei.count() == 2
+
+        alteracao_original = alteracoes_cemei.get(uuid=self.alteracao_cemei.uuid)
+        assert alteracao_original.datas_intervalo.count() == 3  # 10, 11, 12
+        datas_original = list(
+            alteracao_original.datas_intervalo.values_list("data", flat=True)
+        )
+        assert datetime.date(2025, 5, 10) in datas_original
+        assert datetime.date(2025, 5, 13) not in datas_original
+
+        ultimo_dia_terceirizada_antiga = datetime.date(2025, 5, 12)
+        assert alteracao_original.data_final == ultimo_dia_terceirizada_antiga
+        assert alteracao_original.rastro_terceirizada == self.terceirizada
+
+        alteracao_copia = alteracoes_cemei.exclude(uuid=self.alteracao_cemei.uuid).get()
+        assert alteracao_copia.rastro_terceirizada == self.terceirizada_nova
+
+        assert alteracao_copia.substituicoes_cemei_cei_periodo_escolar.count() == 1
+        substituicao_cemei_cei = (
+            alteracao_copia.substituicoes_cemei_cei_periodo_escolar.get()
+        )
+        assert substituicao_cemei_cei.faixas_etarias.count() == 1
+        assert substituicao_cemei_cei.faixas_etarias.get().faixa_etaria is not None
+        assert (
+            substituicao_cemei_cei.faixas_etarias.get().matriculados_quando_criado
+            == 100
+        )
+        assert substituicao_cemei_cei.tipos_alimentacao_de.count() == 2
+        assert substituicao_cemei_cei.tipos_alimentacao_para.count() == 1
+
+        assert alteracao_copia.substituicoes_cemei_emei_periodo_escolar.count() == 1
+        assert (
+            alteracao_copia.substituicoes_cemei_emei_periodo_escolar.get().tipos_alimentacao_de.count()
+            == 2
+        )
+        assert (
+            alteracao_copia.substituicoes_cemei_emei_periodo_escolar.get().tipos_alimentacao_para.count()
+            == 1
+        )
+
         assert alteracao_copia.datas_intervalo.count() == 5  # 13 pra frente
         datas_copia = list(
             alteracao_copia.datas_intervalo.values_list("data", flat=True)

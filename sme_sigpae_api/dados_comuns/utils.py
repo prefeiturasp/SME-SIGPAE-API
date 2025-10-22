@@ -397,7 +397,7 @@ def converte_numero_em_mes(mes):
 
 
 def cria_copias_fk(obj, attr, attr_fk, obj_copia):
-    for original in getattr(obj, attr).all():
+    for original in getattr(obj, attr).all().order_by("id"):
         copia = deepcopy(original)
         copia.id = None
         copia.uuid = uuid.uuid4()
