@@ -28,6 +28,13 @@ from sme_sigpae_api.recebimento.fixtures.factories.questao_ficha_recebimento_fac
     QuestaoFichaRecebimentoFactory,
 )
 
+from .cardapio.alteracao_tipo_alimentacao_cemei.fixtures.factories.alteracao_tipo_alimentacao_cemei_factory import (
+    AlteracaoCardapioCEMEIFactory,
+    DataIntervaloAlteracaoCardapioCEMEIFactory,
+    FaixaEtariaSubstituicaoAlimentacaoCEMEICEIFactory,
+    SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEIFactory,
+    SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEIFactory,
+)
 from .dados_comuns import constants
 from .dados_comuns.fixtures.factories.dados_comuns_factories import (
     ContatoFactory,
@@ -311,6 +318,11 @@ register(AlunosMatriculadosPeriodoEscolaFactory)
 register(PerfilFactory)
 register(VinculoFactory)
 register(DiaCalendarioFactory)
+register(AlteracaoCardapioCEMEIFactory)
+register(SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEIFactory)
+register(SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEIFactory)
+register(FaixaEtariaSubstituicaoAlimentacaoCEMEICEIFactory)
+register(DataIntervaloAlteracaoCardapioCEMEIFactory)
 
 
 @pytest.fixture
