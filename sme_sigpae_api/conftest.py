@@ -35,6 +35,13 @@ from .cardapio.alteracao_tipo_alimentacao_cemei.fixtures.factories.alteracao_tip
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEIFactory,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEIFactory,
 )
+from .cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory import (
+    GrupoSuspensaoAlimentacaoFactory,
+    MotivoSuspensaoFactory,
+    QuantidadePorPeriodoSuspensaoAlimentacaoFactory,
+    SuspensaoAlimentacaoFactory,
+    SuspensaoAlimentacaoNoPeriodoEscolarFactory,
+)
 from .dados_comuns import constants
 from .dados_comuns.fixtures.factories.dados_comuns_factories import (
     ContatoFactory,
@@ -323,6 +330,11 @@ register(SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEIFactory)
 register(SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEIFactory)
 register(FaixaEtariaSubstituicaoAlimentacaoCEMEICEIFactory)
 register(DataIntervaloAlteracaoCardapioCEMEIFactory)
+register(GrupoSuspensaoAlimentacaoFactory)
+register(MotivoSuspensaoFactory)
+register(SuspensaoAlimentacaoFactory)
+register(QuantidadePorPeriodoSuspensaoAlimentacaoFactory)
+register(SuspensaoAlimentacaoNoPeriodoEscolarFactory)
 
 
 @pytest.fixture
