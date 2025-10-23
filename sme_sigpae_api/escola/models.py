@@ -1807,36 +1807,14 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         self, tipo, data_virada, terceirizada_pre_transferencia, terceirizada_nova
     ):
         cfg = self.TRANSFERENCIAS_CONFIG[tipo]
-        model_class = globals()[cfg["model"]]
+
+        model_class = self._get_model_class(cfg)
         status_value = cfg["status_value"](model_class)
 
-        filtros_extra = cfg.get("filtros_extra", {})
-
-        queryset_base = getattr(self, cfg["query_attr"]).filter(
-            **{
-                cfg["status_field"]: status_value,
-                "rastro_terceirizada": terceirizada_pre_transferencia,
-            }
+        queryset = self._get_queryset_base(
+            cfg, terceirizada_pre_transferencia, status_value
         )
-
-        # Se for lista, combina com OR
-        if isinstance(filtros_extra, list):
-            q_obj = Q()
-            for f in filtros_extra:
-                resolved = {
-                    campo: (data_virada if valor == "data_virada" else valor)
-                    for campo, valor in f.items()
-                }
-                q_obj |= Q(**resolved)
-            queryset = queryset_base.filter(q_obj)
-        else:
-            # Caso normal: dict (AND)
-            resolved = {
-                campo: (data_virada if valor == "data_virada" else valor)
-                for campo, valor in filtros_extra.items()
-            }
-            queryset = queryset_base.filter(**resolved)
-
+        queryset = self._aplicar_filtros_extra(queryset, cfg, data_virada)
         queryset = queryset.distinct()
 
         if not queryset.exists():
@@ -1847,13 +1825,71 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         atualiza_copia_func = getattr(self, cfg["atualiza_copia"])
 
         for original in queryset:
-            uuid_original = original.uuid
-            copia = clonar_objeto(original)
-            original = model_class.objects.get(uuid=uuid_original)
+            self._transferir_objeto_individual(
+                original,
+                model_class,
+                data_virada,
+                terceirizada_nova,
+                cria_fk_func,
+                atualiza_original_func,
+                atualiza_copia_func,
+            )
 
-            cria_fk_func(copia, original)
-            atualiza_original_func(original, data_virada)
-            atualiza_copia_func(copia, data_virada, terceirizada_nova)
+    def _get_model_class(self, cfg):
+        """Obtém a classe de modelo a partir do nome definido na config."""
+        return globals()[cfg["model"]]
+
+    def _get_queryset_base(self, cfg, terceirizada_pre_transferencia, status_value):
+        """Retorna o queryset base filtrando por status e terceirizada."""
+        return getattr(self, cfg["query_attr"]).filter(
+            **{
+                cfg["status_field"]: status_value,
+                "rastro_terceirizada": terceirizada_pre_transferencia,
+            }
+        )
+
+    def _aplicar_filtros_extra(self, queryset_base, cfg, data_virada):
+        """Aplica filtros extras definidos na config.
+        - Se for uma lista, aplica OR (com Q)
+        - Se for dict, aplica AND normalmente
+        """
+        filtros_extra = cfg.get("filtros_extra", {})
+
+        if isinstance(filtros_extra, list):
+            q_obj = Q()
+            for filtro in filtros_extra:
+                resolved = self._resolver_filtros(filtro, data_virada)
+                q_obj |= Q(**resolved)
+            return queryset_base.filter(q_obj)
+
+        resolved = self._resolver_filtros(filtros_extra, data_virada)
+        return queryset_base.filter(**resolved)
+
+    def _resolver_filtros(self, filtro_dict, data_virada):
+        """Substitui valores simbólicos ('data_virada') por valores reais."""
+        return {
+            campo: (data_virada if valor == "data_virada" else valor)
+            for campo, valor in filtro_dict.items()
+        }
+
+    def _transferir_objeto_individual(
+        self,
+        original,
+        model_class,
+        data_virada,
+        terceirizada_nova,
+        cria_fk_func,
+        atualiza_original_func,
+        atualiza_copia_func,
+    ):
+        """Duplica o objeto, cria relacionamentos e atualiza campos."""
+        uuid_original = original.uuid
+        copia = clonar_objeto(original)
+        original = model_class.objects.get(uuid=uuid_original)
+
+        cria_fk_func(copia, original)
+        atualiza_original_func(original, data_virada)
+        atualiza_copia_func(copia, data_virada, terceirizada_nova)
 
     def _criar_copias_fk(self, original, copia, campos_fk, relacao):
         for campo_fk in campos_fk:
@@ -2034,7 +2070,7 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         return
 
     def _atualiza_inversao_copia_para_nova_terceirizada(
-        self, copia, data_virada, terceirizada_nova
+        self, copia, _, terceirizada_nova
     ):
         copia.rastro_terceirizada = terceirizada_nova
         copia.terceirizada_conferiu_gestao = False
