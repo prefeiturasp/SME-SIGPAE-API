@@ -1684,7 +1684,7 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
     ) -> None:
         """
         Realiza a transferência de todas as solicitações de Gestão de Alimentação autorizadas
-        com datas no passado/presente e futuro.
+        com datas remanescentes no passado/presente e futuro.
         """
         terceirizada_pre_transferencia = self.terceirizada
 
