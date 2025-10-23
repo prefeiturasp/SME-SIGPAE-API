@@ -538,11 +538,10 @@ class TestUseCaseTransferenciaLotes:
         self._setup_inclusao_continua()
 
         data_virada = datetime.date(2025, 5, 13)
-        terceirizada_pre_transferencia = self.terceirizada
         terceirizada_nova = self.terceirizada_nova
 
-        self.lote._transferir_lote_lida_com_inclusoes_continuas(
-            data_virada, terceirizada_pre_transferencia, terceirizada_nova
+        self.lote._transferir_solicitacoes_gestao_alimentacao_com_datas_no_passado_e_no_presente(
+            terceirizada_nova, data_virada
         )
 
         ultimo_dia_terceirizada_antiga = datetime.date(2025, 5, 12)
@@ -572,11 +571,10 @@ class TestUseCaseTransferenciaLotes:
         self._setup_inclusao_normal()
 
         data_virada = datetime.date(2025, 5, 13)
-        terceirizada_pre_transferencia = self.terceirizada
         terceirizada_nova = self.terceirizada_nova
 
-        self.lote._transferir_lote_lida_com_inclusoes_normais(
-            data_virada, terceirizada_pre_transferencia, terceirizada_nova
+        self.lote._transferir_solicitacoes_gestao_alimentacao_com_datas_no_passado_e_no_presente(
+            terceirizada_nova, data_virada
         )
 
         inclusoes_normais = (
@@ -612,11 +610,10 @@ class TestUseCaseTransferenciaLotes:
         self._setup_inclusao_cei()
 
         data_virada = datetime.date(2025, 5, 13)
-        terceirizada_pre_transferencia = self.terceirizada
         terceirizada_nova = self.terceirizada_nova
 
-        self.lote._transferir_lote_lida_com_inclusoes_cei(
-            data_virada, terceirizada_pre_transferencia, terceirizada_nova
+        self.lote._transferir_solicitacoes_gestao_alimentacao_com_datas_no_passado_e_no_presente(
+            terceirizada_nova, data_virada
         )
 
         inclusoes_cei = (
@@ -659,11 +656,10 @@ class TestUseCaseTransferenciaLotes:
         self._setup_inclusao_cemei()
 
         data_virada = datetime.date(2025, 5, 13)
-        terceirizada_pre_transferencia = self.terceirizada
         terceirizada_nova = self.terceirizada_nova
 
-        self.lote._transferir_lote_lida_com_inclusoes_cemei(
-            data_virada, terceirizada_pre_transferencia, terceirizada_nova
+        self.lote._transferir_solicitacoes_gestao_alimentacao_com_datas_no_passado_e_no_presente(
+            terceirizada_nova, data_virada
         )
 
         inclusoes_cemei = (
@@ -710,11 +706,10 @@ class TestUseCaseTransferenciaLotes:
         self._setup_alteracao_normal()
 
         data_virada = datetime.date(2025, 5, 13)
-        terceirizada_pre_transferencia = self.terceirizada
         terceirizada_nova = self.terceirizada_nova
 
-        self.lote._transferir_lote_lida_com_alteracoes_normais(
-            data_virada, terceirizada_pre_transferencia, terceirizada_nova
+        self.lote._transferir_solicitacoes_gestao_alimentacao_com_datas_no_passado_e_no_presente(
+            terceirizada_nova, data_virada
         )
 
         alteracoes_normais = self.lote.cardapio_alteracaocardapio_rastro_lote.all()
@@ -759,11 +754,10 @@ class TestUseCaseTransferenciaLotes:
         self._setup_alteracao_cemei()
 
         data_virada = datetime.date(2025, 5, 13)
-        terceirizada_pre_transferencia = self.terceirizada
         terceirizada_nova = self.terceirizada_nova
 
-        self.lote._transferir_lote_lida_com_alteracoes_cemei(
-            data_virada, terceirizada_pre_transferencia, terceirizada_nova
+        self.lote._transferir_solicitacoes_gestao_alimentacao_com_datas_no_passado_e_no_presente(
+            terceirizada_nova, data_virada
         )
 
         alteracoes_cemei = self.lote.cardapio_alteracaocardapiocemei_rastro_lote.all()
@@ -820,11 +814,10 @@ class TestUseCaseTransferenciaLotes:
         self._setup_suspensao_normal()
 
         data_virada = datetime.date(2025, 5, 13)
-        terceirizada_pre_transferencia = self.terceirizada
         terceirizada_nova = self.terceirizada_nova
 
-        self.lote._transferir_lote_lida_com_suspensoes_normais(
-            data_virada, terceirizada_pre_transferencia, terceirizada_nova
+        self.lote._transferir_solicitacoes_gestao_alimentacao_com_datas_no_passado_e_no_presente(
+            terceirizada_nova, data_virada
         )
 
         suspensoes_normais = (
@@ -861,11 +854,10 @@ class TestUseCaseTransferenciaLotes:
         self._setup_inversao()
 
         data_virada = datetime.date(2025, 5, 13)
-        terceirizada_pre_transferencia = self.terceirizada
         terceirizada_nova = self.terceirizada_nova
 
-        self.lote._transferir_lote_lida_com_inversoes(
-            data_virada, terceirizada_pre_transferencia, terceirizada_nova
+        self.lote._transferir_solicitacoes_gestao_alimentacao_com_datas_no_passado_e_no_presente(
+            terceirizada_nova, data_virada
         )
 
         inversoes = self.lote.cardapio_inversaocardapio_rastro_lote.all()
