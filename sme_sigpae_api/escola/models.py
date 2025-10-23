@@ -63,6 +63,7 @@ from ..dados_comuns.utils import (
     clonar_objeto,
     copiar_logs,
     cria_copias_fk,
+    cria_copias_m2m,
     datetime_range,
     eh_fim_de_semana,
     get_ultimo_dia_mes,
@@ -2105,6 +2106,12 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
                 suspensao_copia, data_virada, terceirizada_nova
             )
 
+    def _cria_objetos_fk_m2m_inversao_copia(self, inversao_copia, inversao_original):
+        campos_m2m = ["tipos_alimentacao"]
+        for campo_m2m in campos_m2m:
+            cria_copias_m2m(inversao_original, campo_m2m, inversao_copia)
+        copiar_logs(inversao_original, inversao_copia)
+
     def _atualiza_inversao_copia_para_nova_terceirizada(
         self, inversao_copia, terceirizada_nova
     ):
@@ -2135,8 +2142,12 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             return
 
         for inversao_original in inversoes:
+            uuid_original = inversao_original.uuid
             inversao_copia = clonar_objeto(inversao_original)
 
+            inversao_original = InversaoCardapio.objects.get(uuid=uuid_original)
+
+            self._cria_objetos_fk_m2m_inversao_copia(inversao_copia, inversao_original)
             self._atualiza_inversao_copia_para_nova_terceirizada(
                 inversao_copia, terceirizada_nova
             )

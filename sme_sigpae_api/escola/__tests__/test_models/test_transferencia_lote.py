@@ -22,6 +22,10 @@ from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models import (
 from sme_sigpae_api.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
 )
+from sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory import (
+    InversaoCardapioFactory,
+)
+from sme_sigpae_api.cardapio.inversao_dia_cardapio.models import InversaoCardapio
 from sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory import (
     GrupoSuspensaoAlimentacaoFactory,
     QuantidadePorPeriodoSuspensaoAlimentacaoFactory,
@@ -494,6 +498,41 @@ class TestUseCaseTransferenciaLotes:
             usuario=self.usuario,
         )
 
+    def _setup_inversao(
+        self,
+    ):
+        self.inversao = InversaoCardapioFactory.create(
+            escola=self.escola_emef,
+            rastro_lote=self.lote,
+            rastro_dre=self.dre,
+            rastro_escola=self.escola_emef,
+            rastro_terceirizada=self.terceirizada,
+            status=InversaoCardapio.workflow_class.CODAE_AUTORIZADO,
+            tipos_alimentacao=[
+                self.tipo_alimentacao_lanche,
+                self.tipo_alimentacao_refeicao,
+            ],
+            data_de_inversao="2025-05-10",
+            data_para_inversao="2025-05-17",
+            data_de_inversao_2="2025-05-01",
+            data_para_inversao_2="2025-05-03",
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.inversao.uuid,
+            status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+            usuario=self.usuario,
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.inversao.uuid,
+            status_evento=LogSolicitacoesUsuario.DRE_VALIDOU,
+            usuario=self.usuario,
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=self.inversao.uuid,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            usuario=self.usuario,
+        )
+
     def test_transferir_lote_inclusao_continua_data_aprovada_pos_transferencia(self):
         self._setup_testes()
         self._setup_inclusao_continua()
@@ -816,3 +855,25 @@ class TestUseCaseTransferenciaLotes:
         assert datetime.date(2025, 5, 13) in datas_copia
         assert datetime.date(2025, 5, 23) in datas_copia
         assert suspensao_copia.logs.count() == 1
+
+    def test_transferir_lote_inversao_data_aprovada_pos_transferencia(self):
+        self._setup_testes()
+        self._setup_inversao()
+
+        data_virada = datetime.date(2025, 5, 13)
+        terceirizada_pre_transferencia = self.terceirizada
+        terceirizada_nova = self.terceirizada_nova
+
+        self.lote._transferir_lote_lida_com_inversoes(
+            data_virada, terceirizada_pre_transferencia, terceirizada_nova
+        )
+
+        inversoes = self.lote.cardapio_inversaocardapio_rastro_lote.all()
+        assert inversoes.count() == 2
+
+        inversao_copia = inversoes.exclude(uuid=self.inversao.uuid).get()
+        assert inversao_copia.rastro_terceirizada == self.terceirizada_nova
+        assert inversao_copia.tipos_alimentacao.count() == 2
+        assert inversao_copia.data_de_inversao is not None
+        assert inversao_copia.data_para_inversao is not None
+        assert inversao_copia.logs.count() == 3
