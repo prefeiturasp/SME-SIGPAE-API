@@ -35,6 +35,9 @@ from .cardapio.alteracao_tipo_alimentacao_cemei.fixtures.factories.alteracao_tip
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEIFactory,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEIFactory,
 )
+from .cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory import (
+    InversaoCardapioFactory,
+)
 from .cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory import (
     GrupoSuspensaoAlimentacaoFactory,
     MotivoSuspensaoFactory,
@@ -335,6 +338,7 @@ register(MotivoSuspensaoFactory)
 register(SuspensaoAlimentacaoFactory)
 register(QuantidadePorPeriodoSuspensaoAlimentacaoFactory)
 register(SuspensaoAlimentacaoNoPeriodoEscolarFactory)
+register(InversaoCardapioFactory)
 
 
 @pytest.fixture
