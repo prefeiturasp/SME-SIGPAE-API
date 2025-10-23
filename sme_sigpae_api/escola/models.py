@@ -2024,6 +2024,35 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             )
         copiar_logs(alteracao_original, alteracao_copia)
 
+    def _transferir_lote_lida_com_alteracoes_cemei(
+        self,
+        data_virada: datetime.date,
+        terceirizada_pre_transferencia,
+        terceirizada_nova,
+    ):
+        alteracoes_cemei = self.cardapio_alteracaocardapiocemei_rastro_lote.filter(
+            status=AlteracaoCardapioCEMEI.workflow_class.CODAE_AUTORIZADO,
+            rastro_terceirizada=terceirizada_pre_transferencia,
+            datas_intervalo__data__gte=data_virada,
+            datas_intervalo__cancelado=False,
+        ).distinct()
+        if not alteracoes_cemei:
+            return
+
+        for alteracao_original in alteracoes_cemei:
+            uuid_original = alteracao_original.uuid
+            alteracao_copia = clonar_objeto(alteracao_original)
+
+            alteracao_original = AlteracaoCardapioCEMEI.objects.get(uuid=uuid_original)
+
+            self._cria_objetos_fk_alteracao_cemei_copia(
+                alteracao_copia, alteracao_original
+            )
+            self._atualiza_alteracao_original(alteracao_original, data_virada)
+            self._atualiza_alteracao_copia_para_nova_terceirizada(
+                alteracao_copia, data_virada, terceirizada_nova
+            )
+
     def _cria_objetos_fk_suspensao_normal_copia(
         self, suspensao_copia, suspensao_original
     ):
@@ -2076,33 +2105,40 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
                 suspensao_copia, data_virada, terceirizada_nova
             )
 
-    def _transferir_lote_lida_com_alteracoes_cemei(
+    def _atualiza_inversao_copia_para_nova_terceirizada(
+        self, inversao_copia, terceirizada_nova
+    ):
+        inversao_copia.rastro_terceirizada = terceirizada_nova
+        inversao_copia.terceirizada_conferiu_gestao = False
+        inversao_copia.save()
+
+    def _transferir_lote_lida_com_inversoes(
         self,
         data_virada: datetime.date,
         terceirizada_pre_transferencia,
         terceirizada_nova,
     ):
-        alteracoes_cemei = self.cardapio_alteracaocardapiocemei_rastro_lote.filter(
-            status=AlteracaoCardapioCEMEI.workflow_class.CODAE_AUTORIZADO,
-            rastro_terceirizada=terceirizada_pre_transferencia,
-            datas_intervalo__data__gte=data_virada,
-            datas_intervalo__cancelado=False,
-        ).distinct()
-        if not alteracoes_cemei:
+        inversoes = (
+            self.cardapio_inversaocardapio_rastro_lote.filter(
+                status=InversaoCardapio.workflow_class.CODAE_AUTORIZADO,
+                rastro_terceirizada=terceirizada_pre_transferencia,
+            )
+            .filter(
+                Q(data_de_inversao__gte=data_virada)
+                | Q(data_para_inversao__gte=data_virada)
+                | Q(data_de_inversao_2__gte=data_virada)
+                | Q(data_para_inversao_2__gte=data_virada)
+            )
+            .distinct()
+        )
+        if not inversoes:
             return
 
-        for alteracao_original in alteracoes_cemei:
-            uuid_original = alteracao_original.uuid
-            alteracao_copia = clonar_objeto(alteracao_original)
+        for inversao_original in inversoes:
+            inversao_copia = clonar_objeto(inversao_original)
 
-            alteracao_original = AlteracaoCardapioCEMEI.objects.get(uuid=uuid_original)
-
-            self._cria_objetos_fk_alteracao_cemei_copia(
-                alteracao_copia, alteracao_original
-            )
-            self._atualiza_alteracao_original(alteracao_original, data_virada)
-            self._atualiza_alteracao_copia_para_nova_terceirizada(
-                alteracao_copia, data_virada, terceirizada_nova
+            self._atualiza_inversao_copia_para_nova_terceirizada(
+                inversao_copia, terceirizada_nova
             )
 
     def transferir_solicitacoes_gestao_alimentacao_com_datas_no_passado_e_no_presente(
@@ -2145,6 +2181,11 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             terceirizada_nova,
         )
         self._transferir_lote_lida_com_suspensoes_normais(
+            data_virada,
+            terceirizada_pre_transferencia,
+            terceirizada_nova,
+        )
+        self._transferir_lote_lida_com_inversoes(
             data_virada,
             terceirizada_pre_transferencia,
             terceirizada_nova,
