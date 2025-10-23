@@ -250,6 +250,11 @@ class SolicitacaoDietaEspecialViewSet(
             .exclude(status=SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR)
             .order_by("-criado_em")
         )
+
+        codigo_eol_escola = request.query_params.get('codigo_eol_escola')
+        if codigo_eol_escola:
+            solicitacoes = solicitacoes.filter(rastro_escola__codigo_eol=codigo_eol_escola)
+
         page = self.paginate_queryset(solicitacoes)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
@@ -1606,6 +1611,7 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
                 aluno_copia._escola_dre = escola_data['rastro_escola__diretoria_regional__nome']
                 alunos_por_escola.append(aluno_copia)
 
+        alunos_por_escola.sort(key=lambda x: (x._escola_nome.upper(), x.nome.upper()))
         tem_parametro_page = request.GET.get("page", False)
 
         if tem_parametro_page:
