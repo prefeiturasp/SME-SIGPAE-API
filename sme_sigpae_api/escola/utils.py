@@ -299,6 +299,8 @@ class EscolaSimplissimaPagination(PageNumberPagination):
 def lotes_endpoint_filtrar_relatorio_alunos_matriculados(instituicao, Codae, Lote):
     if isinstance(instituicao, Codae):
         lotes = Lote.objects.all()
+    elif isinstance(instituicao, models.Escola):
+        lotes = Lote.objects.filter(escolas=instituicao)
     else:
         lotes = instituicao.lotes.filter(escolas__isnull=False)
     return lotes
