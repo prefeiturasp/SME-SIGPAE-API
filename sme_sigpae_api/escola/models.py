@@ -18,7 +18,7 @@ from django.core.validators import (
     MinLengthValidator,
     MinValueValidator,
 )
-from django.db import models
+from django.db import models, transaction
 from django.db.models import F, Q, Sum
 from django_prometheus.models import ExportModelOperationsMixin
 from rest_framework import status
@@ -1615,8 +1615,13 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         ).aggregate(Sum("quantidade_alunos"))
         return quantidade_result.get("quantidade_alunos__sum") or 0
 
-    def transferir_solicitacoes_gestao_alimentacao(self, terceirizada):
-        hoje = date.today()
+    def _transferir_solicitacoes_gestao_alimentacao(
+        self, terceirizada, data_da_virada: datetime.date
+    ) -> None:
+        """
+        Transfere Solicitações de Gestão de Alimentação pendentes de autorização ou autorizadas à serem atendidadas,
+        ou seja, com datas futuras à transferência do lote para a empresa nova.
+        """
         canceladas_ou_negadas = Q(
             status__in=[
                 FluxoAprovacaoPartindoDaEscola.workflow_class.CODAE_NEGOU_PEDIDO,
@@ -1629,45 +1634,49 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             status__in=[FluxoInformativoPartindoDaEscola.workflow_class.ESCOLA_CANCELOU]
         )
         self.inclusao_alimentacao_inclusaoalimentacaocontinua_rastro_lote.exclude(
-            canceladas_ou_negadas | Q(data_inicial__lt=hoje)
+            canceladas_ou_negadas | Q(data_inicial__lt=data_da_virada)
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
         self.inclusao_alimentacao_grupoinclusaoalimentacaonormal_rastro_lote.exclude(
-            canceladas_ou_negadas | Q(inclusoes_normais__data__lt=hoje)
+            canceladas_ou_negadas | Q(inclusoes_normais__data__lt=data_da_virada)
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
         self.inclusao_alimentacao_inclusaoalimentacaodacei_rastro_lote.exclude(
-            canceladas_ou_negadas | Q(dias_motivos_da_inclusao_cei__data__lt=hoje)
+            canceladas_ou_negadas
+            | Q(dias_motivos_da_inclusao_cei__data__lt=data_da_virada)
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
         self.inclusao_alimentacao_inclusaodealimentacaocemei_rastro_lote.exclude(
-            canceladas_ou_negadas | Q(dias_motivos_da_inclusao_cemei__data__lt=hoje)
+            canceladas_ou_negadas
+            | Q(dias_motivos_da_inclusao_cemei__data__lt=data_da_virada)
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
         self.cardapio_alteracaocardapio_rastro_lote.exclude(
-            canceladas_ou_negadas | Q(data_inicial__lt=hoje)
+            canceladas_ou_negadas | Q(data_inicial__lt=data_da_virada)
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
         self.cardapio_alteracaocardapiocei_rastro_lote.exclude(
-            canceladas_ou_negadas | Q(data__lt=hoje)
+            canceladas_ou_negadas | Q(data__lt=data_da_virada)
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
         self.cardapio_alteracaocardapiocemei_rastro_lote.exclude(
-            canceladas_ou_negadas | Q(alterar_dia__lt=hoje) | Q(data_inicial__lt=hoje)
+            canceladas_ou_negadas
+            | Q(alterar_dia__lt=data_da_virada)
+            | Q(data_inicial__lt=data_da_virada)
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
         self.kit_lanche_solicitacaokitlancheavulsa_rastro_lote.exclude(
-            canceladas_ou_negadas | Q(solicitacao_kit_lanche__data__lt=hoje)
+            canceladas_ou_negadas | Q(solicitacao_kit_lanche__data__lt=data_da_virada)
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
         self.kit_lanche_solicitacaokitlancheceiavulsa_rastro_lote.exclude(
-            canceladas_ou_negadas | Q(solicitacao_kit_lanche__data__lt=hoje)
+            canceladas_ou_negadas | Q(solicitacao_kit_lanche__data__lt=data_da_virada)
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
         self.kit_lanche_solicitacaokitlanchecemei_rastro_lote.exclude(
-            canceladas_ou_negadas | Q(data__lt=hoje)
+            canceladas_ou_negadas | Q(data__lt=data_da_virada)
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
         self.cardapio_inversaocardapio_rastro_lote.exclude(
             canceladas_ou_negadas
-            | Q(data_de_inversao__lt=hoje)
-            | Q(data_para_inversao__lt=hoje)
+            | Q(data_de_inversao__lt=data_da_virada)
+            | Q(data_para_inversao__lt=data_da_virada)
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
         self.cardapio_gruposuspensaoalimentacao_rastro_lote.exclude(
-            canceladas_suspensao | Q(suspensoes_alimentacao__data__lt=hoje)
+            canceladas_suspensao | Q(suspensoes_alimentacao__data__lt=data_da_virada)
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
         self.cardapio_suspensaoalimentacaodacei_rastro_lote.exclude(
-            canceladas_suspensao | Q(data__lt=hoje)
+            canceladas_suspensao | Q(data__lt=data_da_virada)
         ).update(rastro_terceirizada=terceirizada, terceirizada_conferiu_gestao=False)
 
     def _atualiza_inclusao_continua_original(self, inclusao_original, data_pre_virada):
@@ -2152,11 +2161,11 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
                 inversao_copia, terceirizada_nova
             )
 
-    def transferir_solicitacoes_gestao_alimentacao_com_datas_no_passado_e_no_presente(
-        self, data_virada: datetime.date, terceirizada_nova
-    ):
+    def _transferir_solicitacoes_gestao_alimentacao_com_datas_no_passado_e_no_presente(
+        self, terceirizada_nova, data_virada: datetime.date
+    ) -> None:
         """
-        Esta função realiza a transferência de solicitações autorizadas que possuem datas
+        Realiza a transferência de solicitações de Gestão de Alimentação autorizadas que possuem datas
         antes E após a data de transferência.
         De modo que:
             - as solicitações originais ficam com datas até um dia antes da transferência
@@ -2202,7 +2211,10 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             terceirizada_nova,
         )
 
-    def transferir_dietas_especiais(self, terceirizada):
+    def _transferir_dietas_especiais(self, terceirizada_nova) -> None:
+        """
+        Transfere dietas especiais ativas e autorizadas para a nova empresa do lote
+        """
         canceladas_ou_negadas_ou_inativas = Q(
             status__in=[
                 FluxoDietaEspecialPartindoDaEscola.workflow_class.CANCELADO_ALUNO_MUDOU_ESCOLA,
@@ -2220,8 +2232,24 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
             status=FluxoDietaEspecialPartindoDaEscola.workflow_class.CODAE_AUTORIZADO,
             ativo=False,
         ).update(
-            rastro_terceirizada=terceirizada, conferido=False
+            rastro_terceirizada=terceirizada_nova, conferido=False
         )
+
+    @transaction.atomic
+    def transferir_lote(
+        self, terceirizada_nova, data_da_virada=datetime.date.today()
+    ) -> None:
+        """
+        Realiza a transferência das solicitações de Gestão de Alimentação e Dieta Especial para a nova
+        empresa a assumir o fornecimento do lote.
+        """
+        self._transferir_solicitacoes_gestao_alimentacao(
+            terceirizada_nova, data_da_virada
+        )
+        self._transferir_solicitacoes_gestao_alimentacao_com_datas_no_passado_e_no_presente(
+            terceirizada_nova, data_da_virada
+        )
+        self._transferir_dietas_especiais(terceirizada_nova)
 
     def __str__(self):
         nome_dre = (
