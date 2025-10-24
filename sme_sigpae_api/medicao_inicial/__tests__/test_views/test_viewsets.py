@@ -4,6 +4,10 @@ from django.http import QueryDict
 
 from sme_sigpae_api.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from sme_sigpae_api.medicao_inicial.api.viewsets import SolicitacaoMedicaoInicialViewSet
+from sme_sigpae_api.escola.models import LogAlunosMatriculadosPeriodoEscola, TipoTurma
+
+from rest_framework import  status
+from model_bakery import baker
 
 pytestmark = pytest.mark.django_db
 
@@ -121,3 +125,88 @@ def test_solicitacao_medicao_formatar_filtros(query_dict, expected):
     viewset = SolicitacaoMedicaoInicialViewSet()
     result = viewset.formatar_filtros(query_dict)
     assert result == expected
+
+
+@pytest.mark.django_db
+def test_periodos_escola_cemei_com_alunos_emei(mock_request, escola_cemei):
+    mock_request.query_params = {"mes": "10", "ano": "2025"}
+    mock_request.user.vinculo_atual.instituicao = escola_cemei
+
+    view = SolicitacaoMedicaoInicialViewSet()
+    view.request = mock_request
+    
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHÃ")
+    periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
+    periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
+
+    baker.make(
+        LogAlunosMatriculadosPeriodoEscola,
+        escola=escola_cemei,
+        periodo_escolar=periodo_manha,
+        tipo_turma=TipoTurma.REGULAR.name,
+        criado_em="2025-10-10",
+        quantidade_alunos=10,
+        cei_ou_emei="EMEI",
+    )
+
+    baker.make(
+        LogAlunosMatriculadosPeriodoEscola,
+        escola=escola_cemei,
+        periodo_escolar=periodo_tarde,
+        tipo_turma=TipoTurma.REGULAR.name,
+        criado_em="2025-10-11",
+        quantidade_alunos=8,
+        cei_ou_emei="EMEI",
+    )
+
+    response = view.periodos_escola_cemei_com_alunos_emei(mock_request)
+
+    resposta_sem_integral = {
+        "results": ["Infantil TARDE", "Infantil MANHÃ"]
+    } 
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data == resposta_sem_integral
+
+    baker.make(
+        LogAlunosMatriculadosPeriodoEscola,
+        escola=escola_cemei,
+        periodo_escolar=periodo_integral,
+        tipo_turma=TipoTurma.REGULAR.name,
+        criado_em="2025-10-12",
+        quantidade_alunos=10,
+        cei_ou_emei="CEI",
+    )
+
+    baker.make(
+        LogAlunosMatriculadosPeriodoEscola,
+        escola=escola_cemei,
+        periodo_escolar=periodo_integral,
+        tipo_turma=TipoTurma.REGULAR.name,
+        criado_em="2025-10-13",
+        quantidade_alunos=0,
+        cei_ou_emei="EMEI",
+    )
+
+
+    response = view.periodos_escola_cemei_com_alunos_emei(mock_request)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data == resposta_sem_integral
+
+    baker.make(
+        LogAlunosMatriculadosPeriodoEscola,
+        escola=escola_cemei,
+        periodo_escolar=periodo_integral,
+        tipo_turma=TipoTurma.REGULAR.name,
+        criado_em="2025-10-14",
+        quantidade_alunos=15,
+        cei_ou_emei="EMEI",
+    )
+
+    response = view.periodos_escola_cemei_com_alunos_emei(mock_request)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data == {
+        "results": ['Infantil TARDE', 'Infantil INTEGRAL', 'Infantil MANHÃ']
+    }

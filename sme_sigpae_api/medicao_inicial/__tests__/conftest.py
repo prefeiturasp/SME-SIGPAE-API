@@ -7,6 +7,7 @@ import pandas as pd
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
+from unittest.mock import MagicMock
 
 from sme_sigpae_api.dados_comuns.behaviors import TempoPasseio
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
@@ -2785,6 +2786,7 @@ def logs_alunos_matriculados_periodo_escola_cemei(escola_cemei):
         periodo_escolar=periodo_integral,
         quantidade_alunos=50,
         tipo_turma=TipoTurma.REGULAR.name,
+        cei_ou_emei="EMEI",
     )
     return LogAlunosMatriculadosPeriodoEscola.objects.all()
 
@@ -4462,3 +4464,12 @@ def solicitacao_medicao_informacoes_basicas(escola):
     solicitacao_medicao_inicial.responsaveis.set([responsavel])
 
     return solicitacao_medicao_inicial
+
+
+@pytest.fixture
+def mock_request():
+    request = MagicMock()
+    request.user = MagicMock()
+    request.user.vinculo_atual.perfil.nome = None
+    request.user.vinculo_atual.content_type.model = None
+    return request
