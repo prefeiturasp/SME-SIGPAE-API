@@ -2744,6 +2744,7 @@ def logs_alunos_matriculados_periodo_escola_cemei(escola_cemei):
         periodo_escolar=periodo_integral,
         quantidade_alunos=50,
         tipo_turma=TipoTurma.REGULAR.name,
+        cei_ou_emei="EMEI",
     )
     return LogAlunosMatriculadosPeriodoEscola.objects.all()
 
