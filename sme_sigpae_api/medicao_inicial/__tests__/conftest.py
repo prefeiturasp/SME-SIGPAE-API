@@ -31,6 +31,9 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
 from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cemei import (
     insere_tabela_periodos_na_planilha as cemei_insere_tabela,
 )
+from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cieja_cmct import (
+    insere_tabela_periodos_na_planilha as cieja_cmct_insere_tabela,
+)
 from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emebs import (
     insere_tabela_periodos_na_planilha as emebs_insere_tabela,
 )
@@ -520,7 +523,9 @@ def escola_cieja():
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
         tipo_unidade=tipo_unidade_escolar,
+        codigo_eol="111329",
     )
+
 
 @pytest.fixture
 def aluno():
@@ -4493,7 +4498,7 @@ def solicitacao_relatorio_consolidado_escola_cieja(escola_cieja):
         ano="2025",
         status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
     )
-    
+
 
 @pytest.fixture
 def relatorio_consolidado_xlsx_cieja(
@@ -4506,8 +4511,7 @@ def relatorio_consolidado_xlsx_cieja(
     categoria_medicao_dieta_a,
     categoria_medicao_dieta_b,
     categoria_medicao_dieta_a_enteral_aminoacidos,
-    categoria_medicao_solicitacoes_alimentacao
-
+    categoria_medicao_solicitacoes_alimentacao,
 ):
     medicao_manha = baker.make(
         "Medicao",
@@ -4524,15 +4528,15 @@ def relatorio_consolidado_xlsx_cieja(
     medicao_programas_projetos = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_escola_cieja,
-        grupo=grupo_programas_e_projetos
+        grupo=grupo_programas_e_projetos,
     )
-    
+
     medicao_solicitacao_alimentacao = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_escola_cieja,
-        grupo=grupo_solicitacoes_alimentacao
+        grupo=grupo_solicitacoes_alimentacao,
     )
-    
+
     for dia in ["01", "02", "03", "04", "05"]:
         for medicao in [medicao_manha, medicao_tarde]:
             baker.make(
@@ -4544,7 +4548,7 @@ def relatorio_consolidado_xlsx_cieja(
                 valor="40",
             )
             for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
-           
+
                 baker.make(
                     "ValorMedicao",
                     dia=dia,
@@ -4576,7 +4580,7 @@ def relatorio_consolidado_xlsx_cieja(
                         categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
                         valor="4",
                     )
-        
+
         if dia in ["02", "03"]:
             for campo in ["numero_de_alunos", "frequencia", "lanche_4h"]:
                 baker.make(
@@ -4587,7 +4591,7 @@ def relatorio_consolidado_xlsx_cieja(
                     categoria_medicao=categoria_medicao,
                     valor="10",
                 )
-        
+
         if dia == "05":
             for campo in ["kit_lanche", "lanche_emergencial"]:
                 baker.make(
@@ -4598,14 +4602,13 @@ def relatorio_consolidado_xlsx_cieja(
                     categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
                     valor="5",
                 )
-        
+
     return solicitacao_relatorio_consolidado_escola_cieja
-    
+
+
 @pytest.fixture
-def mock_query_params_cieja_cmct(
-    solicitacao_relatorio_consolidado_escola_cieja
-):
-    
+def mock_query_params_excel_cieja_cmct(solicitacao_relatorio_consolidado_escola_cieja):
+
     grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
         nome="Grupo 6",
@@ -4624,15 +4627,87 @@ def mock_query_params_cieja_cmct(
         "lotes[]": solicitacao_relatorio_consolidado_escola_cieja.escola.lote.uuid,
         "lotes": [solicitacao_relatorio_consolidado_escola_cieja.escola.lote.uuid],
     }
-    
-@pytest.fixture
-def solicitacao_escola_cmct(escola_cmct):
-    return baker.make(
-        "SolicitacaoMedicaoInicial",
-        escola=escola_cmct,
-        mes="04",
-        ano="2025",
-        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
-    )
-    
 
+
+@pytest.fixture
+def mock_colunas_cieja():
+
+    colunas = [
+        ("Solicitações de Alimentação", "kit_lanche"),
+        ("Solicitações de Alimentação", "lanche_emergencial"),
+    ]
+    for periodo in [
+        "MANHA",
+        "TARDE",
+    ]:
+        for campo in [
+            "lanche",
+            "lanche_4h",
+            "refeicao",
+            "total_refeicoes_pagamento",
+            "sobremesa",
+            "total_sobremesas_pagamento",
+        ]:
+            colunas.append((periodo, campo))
+
+    colunas.append(("PROGRAMAS E PROJETOS", "lanche_4h"))
+    colunas.append(("PROGRAMAS E PROJETOS", "total_refeicoes_pagamento"))
+    colunas.append(("PROGRAMAS E PROJETOS", "total_sobremesas_pagamento"))
+    colunas.append(("DIETA ESPECIAL - TIPO A", "lanche"))
+    colunas.append(("DIETA ESPECIAL - TIPO A", "lanche_4h"))
+    colunas.append(("DIETA ESPECIAL - TIPO A", "refeicao"))
+    colunas.append(("DIETA ESPECIAL - TIPO B", "lanche"))
+    colunas.append(("DIETA ESPECIAL - TIPO B", "lanche_4h"))
+
+    return colunas
+
+
+@pytest.fixture
+def mock_linhas_cieja():
+    return [
+        [
+            "CIEJA",
+            "111329",
+            "CIEJA TESTE",
+            5,
+            5,
+            150,
+            150,
+            150,
+            150,
+            150,
+            150,
+            150,
+            150,
+            150,
+            150,
+            150,
+            150,
+            20,
+            0,
+            0,
+            80,
+            80,
+            40,
+            40,
+            40,
+        ]
+    ]
+
+
+@pytest.fixture
+def informacoes_excel_writer_cieja_cmct(
+    relatorio_consolidado_xlsx_cieja, mock_colunas_cieja, mock_linhas_cieja
+):
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {relatorio_consolidado_xlsx_cieja.mes}-{ relatorio_consolidado_xlsx_cieja.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+    workbook = writer.book
+    worksheet = workbook.add_worksheet(aba)
+    worksheet.set_default_row(20)
+    df = cieja_cmct_insere_tabela(aba, mock_colunas_cieja, mock_linhas_cieja, writer)
+    try:
+        yield aba, writer, workbook, worksheet, df, arquivo
+    finally:
+        workbook.close()
+        writer.close()
