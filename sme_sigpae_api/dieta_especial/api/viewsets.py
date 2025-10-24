@@ -3,6 +3,7 @@ import uuid as uuid_generator
 from copy import deepcopy
 from datetime import date, datetime
 
+from django.db.models import OuterRef, Subquery
 from django.core.exceptions import ValidationError as coreValidation
 from django.db import transaction
 from django.db.models import Case, CharField, Count, F, Q, Value, When
@@ -245,10 +246,15 @@ class SolicitacaoDietaEspecialViewSet(
         url_path=f"solicitacoes-aluno/{FILTRO_CODIGO_EOL_ALUNO}",
     )
     def solicitacoes_vigentes(self, request, codigo_eol_aluno=None):
+        log_mais_recente_subquery = LogSolicitacoesUsuario.objects.filter(
+            uuid_original=OuterRef('uuid')
+        ).order_by('-criado_em').values('criado_em')[:1]
+
         solicitacoes = (
             SolicitacaoDietaEspecial.objects.filter(aluno__codigo_eol=codigo_eol_aluno)
             .exclude(status=SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR)
-            .order_by("-criado_em")
+            .annotate(data_log_mais_recente=Subquery(log_mais_recente_subquery))
+            .order_by('-data_log_mais_recente', '-criado_em')
         )
 
         codigo_eol_escola = request.query_params.get('codigo_eol_escola')
