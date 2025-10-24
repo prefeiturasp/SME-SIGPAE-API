@@ -820,13 +820,17 @@ class SolicitacaoMedicaoInicialViewSet(
                 criado_em__year=ano,
                 criado_em__month=mes,
                 tipo_turma=TipoTurma.REGULAR.name,
+                quantidade_alunos__gt=0,
             )
-            periodos = sorted(
-                list(set([f"Infantil {log.periodo_escolar.nome}" for log in logs]))
-            )
+            existe_emei = logs.filter(cei_ou_emei="EMEI", periodo_escolar__nome="INTEGRAL").exists()
+            lista_periodos = list(set(logs.values_list('periodo_escolar__nome', flat=True)))
+            if not existe_emei and "INTEGRAL" in lista_periodos:
+                lista_periodos.remove("INTEGRAL")
+            lista_periodos = sorted(f'Infantil {periodo}' for periodo in lista_periodos)
+
             ordem_personalizada = ordem_periodos(escola).get("EMEI", {})
             retorno = sorted(
-                periodos,
+                lista_periodos,
                 key=lambda p: ordem_personalizada.get(p.replace("Infantil ", ""), 99),
             )
         return Response({"results": retorno}, status=status.HTTP_200_OK)
