@@ -16,8 +16,21 @@ from sme_sigpae_api.dados_comuns.models import TemplateMensagem
 from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 from sme_sigpae_api.escola.models import Aluno, Lote
 from sme_sigpae_api.perfil.models.usuario import Usuario
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (
+    CronogramaFactory,
+    EtapasDoCronogramaFactory,
+)
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.fixtures.factories.ficha_tecnica_do_produto_factory import (
     FichaTecnicaFactory,
+)
+from sme_sigpae_api.recebimento.fixtures.factories.ficha_de_recebimento_factory import (
+    FichaDeRecebimentoFactory,
+)
+from sme_sigpae_api.recebimento.fixtures.factories.reposicao_cronograma_factory import (
+    ReposicaoCronogramaFichaRecebimentoFactory,
+)
+from sme_sigpae_api.recebimento.models import (
+    OcorrenciaFichaRecebimento,
 )
 
 
@@ -401,3 +414,72 @@ def mock_filtros_relatorio_reclamacao(lote):
         "data_inicial_reclamacao": "01/01/2022",
         "data_final_reclamacao": "19/08/2025",
     }
+
+
+@pytest.fixture
+def ficha_recebimento_com_ocorrencia():
+    """Ficha de recebimento com ocorrência criada usando factories."""
+
+    cronograma = CronogramaFactory()
+    etapa = EtapasDoCronogramaFactory(cronograma=cronograma)
+
+    ficha = FichaDeRecebimentoFactory(
+        etapa=etapa,
+        observacao="Recebimento com problemas detectados",
+        houve_ocorrencia=True,
+    )
+
+    OcorrenciaFichaRecebimento.objects.create(
+        ficha_recebimento=ficha,
+        tipo="FALTA",
+        relacao="CRONOGRAMA",
+        quantidade="5",
+        descricao="Faltaram 5 unidades do produto",
+        numero_nota="NF123456",
+    )
+
+    return ficha
+
+
+@pytest.fixture
+def ficha_recebimento_reposicao():
+    """Ficha de recebimento de reposição."""
+
+    cronograma = CronogramaFactory()
+    etapa = EtapasDoCronogramaFactory(cronograma=cronograma)
+
+    reposicao_cronograma = ReposicaoCronogramaFichaRecebimentoFactory()
+    reposicao_cronograma.tipo = "Repor"
+    reposicao_cronograma.descricao = "REPOR OS PRODUTOS FALTANTES/RECUSADOS"
+    reposicao_cronograma.save()
+
+    ficha = FichaDeRecebimentoFactory(
+        etapa=etapa,
+        observacao="Ficha de recebimento de reposição",
+        reposicao_cronograma=reposicao_cronograma,
+        houve_ocorrencia=False,
+    )
+
+    return ficha
+
+
+@pytest.fixture
+def ficha_recebimento_carta_credito():
+    """Ficha de recebimento com carta de crédito."""
+
+    cronograma = CronogramaFactory()
+    etapa = EtapasDoCronogramaFactory(cronograma=cronograma)
+
+    reposicao_cronograma = ReposicaoCronogramaFichaRecebimentoFactory()
+    reposicao_cronograma.tipo = "Credito"
+    reposicao_cronograma.descricao = "FAZER UMA CARTA DE CRÉDITO DO VALOR PAGO"
+    reposicao_cronograma.save()
+
+    ficha = FichaDeRecebimentoFactory(
+        etapa=etapa,
+        observacao="Ficha de recebimento com carta de crédito",
+        reposicao_cronograma=reposicao_cronograma,
+        houve_ocorrencia=False,
+    )
+
+    return ficha

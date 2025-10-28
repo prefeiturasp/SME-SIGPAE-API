@@ -1947,6 +1947,7 @@ def get_pdf_ficha_recebimento(request, ficha):
             "ficha": ficha,
             "etapa": ficha.etapa,
             "cronograma": ficha.etapa.cronograma,
+            "reposicao_cronograma": ficha.reposicao_cronograma,
             "ficha_tecnica": ficha.etapa.cronograma.ficha_tecnica,
             "documentos": documentos_serializer.data,
             "veiculos": ficha.veiculos.all(),
