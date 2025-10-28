@@ -28,6 +28,7 @@ import './commands_api/commands_fabricantes'
 import './commands_api/commands_faixas_etarias'
 import './commands_api/commands_feriados_ano'
 import './commands_api/commands_imr'
+import './commands_api/commands_informacoes_nutricionais'
 
 import './commands_ui/commands_login'
 import './commands_ui/commands_globais'

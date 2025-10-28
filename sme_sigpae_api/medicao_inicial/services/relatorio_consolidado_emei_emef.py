@@ -11,6 +11,7 @@ from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEI,
 )
 from sme_sigpae_api.escola.models import PeriodoEscolar
+from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from sme_sigpae_api.medicao_inicial.services.utils import (
     generate_columns,
     gera_colunas_alimentacao,
@@ -22,7 +23,6 @@ from sme_sigpae_api.medicao_inicial.services.utils import (
 )
 
 from ..models import CategoriaMedicao
-from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 
 
 def get_alimentacoes_por_periodo(solicitacoes):
@@ -261,56 +261,88 @@ def _get_total_pagamento(medicao, nome_campo, tipo_unidade):
         return _total_pagamento_emei(medicao, nome_campo)
 
 
+def calcula_totais_pagamento_emef(
+    primeira_oferta, repeticao_primeira, segunda_oferta, repeticao_segunda, medicao, dia
+):
+    categoria = "ALIMENTAÇÃO"
+    matriculados = medicao.valores_medicao.filter(
+        nome_campo="matriculados", dia=f"{dia:02d}"
+    ).first()
+    numero_de_alunos = medicao.valores_medicao.filter(
+        nome_campo="numero_de_alunos", dia=f"{dia:02d}"
+    ).first()
+
+    valor_comparativo = (
+        matriculados.valor
+        if matriculados
+        else numero_de_alunos.valor if numero_de_alunos else 0
+    )
+
+    refeicao = medicao.valores_medicao.filter(
+        nome_campo=primeira_oferta, dia=f"{dia:02d}", categoria_medicao__nome=categoria
+    ).first()
+    repeticao_refeicao = medicao.valores_medicao.filter(
+        nome_campo=repeticao_primeira,
+        dia=f"{dia:02d}",
+        categoria_medicao__nome=categoria,
+    ).first()
+
+    valor_refeicao = refeicao.valor if refeicao else 0
+    valor_repeticao_refeicao = repeticao_refeicao.valor if repeticao_refeicao else 0
+
+    total_refeicao = int(valor_refeicao) + int(valor_repeticao_refeicao)
+    total_refeicao = min(int(total_refeicao), int(valor_comparativo))
+
+    segunda_refeicao = medicao.valores_medicao.filter(
+        nome_campo=segunda_oferta, dia=f"{dia:02d}", categoria_medicao__nome=categoria
+    ).first()
+    repeticao_segunda_refeicao = medicao.valores_medicao.filter(
+        nome_campo=repeticao_segunda,
+        dia=f"{dia:02d}",
+        categoria_medicao__nome=categoria,
+    ).first()
+
+    valor_segunda_refeicao = segunda_refeicao.valor if segunda_refeicao else 0
+    valor_repeticao_segunda_refeicao = (
+        repeticao_segunda_refeicao.valor if repeticao_segunda_refeicao else 0
+    )
+
+    total_segunda_refeicao = int(valor_segunda_refeicao) + int(
+        valor_repeticao_segunda_refeicao
+    )
+    total_segunda_refeicao = min(int(total_segunda_refeicao), int(valor_comparativo))
+
+    return total_refeicao + total_segunda_refeicao
+
+
 def _total_pagamento_emef(medicao, nome_campo):
     """
     Para EMEF: O total é sempre menor valor entre os matriculados e o que foi servido.
     """
-    campos_refeicoes = [
-        "refeicao",
-        "repeticao_refeicao",
-        "2_refeicao_1_oferta",
-        "repeticao_2_refeicao",
-    ]
-    campos_sobremesas = [
-        "sobremesa",
-        "repeticao_sobremesa",
-        "2_sobremesa_1_oferta",
-        "repeticao_2_sobremesa",
-    ]
-    lista_campos = (
-        campos_refeicoes
-        if nome_campo == "total_refeicoes_pagamento"
-        else campos_sobremesas
-    )
     mes = medicao.solicitacao_medicao_inicial.mes
     ano = medicao.solicitacao_medicao_inicial.ano
     total_dias_no_mes = calendar.monthrange(int(ano), int(mes))[1]
     total_pagamento = 0
 
     for dia in range(1, total_dias_no_mes + 1):
-        matriculados = medicao.valores_medicao.filter(
-            nome_campo="matriculados", dia=f"{dia:02d}"
-        ).first()
-        numero_de_alunos = medicao.valores_medicao.filter(
-            nome_campo="numero_de_alunos", dia=f"{dia:02d}"
-        ).first()
-
-        totais = []
-        for campo in lista_campos:
-            valor_campo_obj = medicao.valores_medicao.filter(
-                nome_campo=campo, dia=f"{dia:02d}"
-            ).first()
-            if valor_campo_obj:
-                valor_campo = valor_campo_obj.valor
-                totais.append(int(valor_campo))
-
-        total_dia = sum(totais)
-        valor_comparativo = (
-            matriculados.valor
-            if matriculados
-            else numero_de_alunos.valor if numero_de_alunos else 0
-        )
-        total_pagamento += min(int(total_dia), int(valor_comparativo))
+        if nome_campo == "total_refeicoes_pagamento":
+            total_pagamento += calcula_totais_pagamento_emef(
+                "refeicao",
+                "repeticao_refeicao",
+                "2_refeicao_1_oferta",
+                "repeticao_2_refeicao",
+                medicao,
+                dia,
+            )
+        elif nome_campo == "total_sobremesas_pagamento":
+            total_pagamento += calcula_totais_pagamento_emef(
+                "sobremesa",
+                "repeticao_sobremesa",
+                "2_sobremesa_1_oferta",
+                "repeticao_2_sobremesa",
+                medicao,
+                dia,
+            )
 
     return total_pagamento
 

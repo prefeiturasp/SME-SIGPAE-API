@@ -29,7 +29,7 @@ def test_get_alimentacoes_por_periodo(
 ):
     colunas = get_alimentacoes_por_periodo([relatorio_consolidado_xlsx_cemei])
     assert isinstance(colunas, list)
-    assert len(colunas) == 73
+    assert len(colunas) == 83
     assert sum(1 for tupla in colunas if tupla[0] == "Solicitações de Alimentação") == 2
     assert sum(1 for tupla in colunas if tupla[0] == "INTEGRAL") == 8
     assert sum(1 for tupla in colunas if tupla[0] == "PARCIAL") == 8
@@ -71,12 +71,12 @@ def test_get_alimentacoes_por_periodo(
     assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[5].id) == 6
     assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[6].id) == 6
     assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[7].id) == 6
-    assert sum(1 for tupla in colunas if tupla[1] == "lanche") == 5
-    assert sum(1 for tupla in colunas if tupla[1] == "lanche_4h") == 5
-    assert sum(1 for tupla in colunas if tupla[1] == "refeicao") == 4
-    assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 3
-    assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 3
-    assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 3
+    assert sum(1 for tupla in colunas if tupla[1] == "lanche") == 8
+    assert sum(1 for tupla in colunas if tupla[1] == "lanche_4h") == 8
+    assert sum(1 for tupla in colunas if tupla[1] == "refeicao") == 5
+    assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 4
+    assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 4
+    assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 4
 
 
 def test_get_lista_alimentacoes(
@@ -95,7 +95,7 @@ def test_get_lista_alimentacoes(
     medicoes = relatorio_consolidado_xlsx_cemei.medicoes.all().order_by(
         "periodo_escolar__nome", "grupo__nome"
     )
-    assert medicoes.count() == 6
+    assert medicoes.count() == 7
 
     integral_cei = _get_lista_alimentacoes(medicoes[0], "INTEGRAL")
     assert isinstance(integral_cei, list)
@@ -117,7 +117,11 @@ def test_get_lista_alimentacoes(
     assert isinstance(tarde, list)
     assert tarde == retorno_emei
 
-    solicitacao = _get_lista_alimentacoes(medicoes[5], "Solicitações de Alimentação")
+    programas_e_projetos = _get_lista_alimentacoes(medicoes[5], "Programas e Projetos")
+    assert isinstance(programas_e_projetos, list)
+    assert programas_e_projetos == retorno_emei
+
+    solicitacao = _get_lista_alimentacoes(medicoes[6], "Solicitações de Alimentação")
     assert isinstance(solicitacao, list)
     assert solicitacao == ["kit_lanche", "lanche_emergencial"]
 
@@ -423,6 +427,20 @@ def test_define_filtro(relatorio_consolidado_xlsx_cemei):
     assert "periodo_escolar__nome__in" not in dieta_especial_emei
     assert dieta_especial_emei["grupo__nome__in"] == grupos_medicao
 
+    dieta_especial_programas_projetos = _define_filtro(
+        "Programas e Projetos", grupos_medicao
+    )
+    assert isinstance(dieta_especial_programas_projetos, dict)
+    assert "grupo__nome" in dieta_especial_programas_projetos
+    assert dieta_especial_programas_projetos["grupo__nome"] == "Programas e Projetos"
+
+    dieta_especial_programas_projetos = _define_filtro(
+        "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS", grupos_medicao
+    )
+    assert isinstance(dieta_especial_programas_projetos, dict)
+    assert "grupo__nome" in dieta_especial_programas_projetos
+    assert dieta_especial_programas_projetos["grupo__nome"] == "Programas e Projetos"
+
 
 def test_processa_dieta_especial(
     relatorio_consolidado_xlsx_cemei, faixas_etarias_ativas
@@ -454,6 +472,14 @@ def test_processa_dieta_especial(
         relatorio_consolidado_xlsx_cemei, filtros, campo, periodo
     )
     assert total == 30.0
+
+    filtros = {"grupo__nome": "Programas e Projetos"}
+    periodo = "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS"
+    campo = "lanche"
+    total = _processa_dieta_especial(
+        relatorio_consolidado_xlsx_cemei, filtros, campo, periodo
+    )
+    assert total == 1.0
 
 
 def test_processa_periodo_regular(

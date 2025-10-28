@@ -829,9 +829,29 @@ def test_gera_relatorio_consolidado_xlsx_cemei(
         None,
         None,
         None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
     )
     assert rows[1] == (
         "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - CEMEI",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
         None,
         None,
         None,
@@ -985,6 +1005,16 @@ def test_gera_relatorio_consolidado_xlsx_cemei(
         None,
         "DIETA ESPECIAL - TIPO B",
         None,
+        "PROGRAMAS E PROJETOS",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "DIETA ESPECIAL - TIPO A",
+        None,
+        "DIETA ESPECIAL - TIPO B",
+        None,
     )
     assert rows[3] == (
         "Tipo",
@@ -1063,8 +1093,28 @@ def test_gera_relatorio_consolidado_xlsx_cemei(
         "Refeição",
         "Lanche",
         "Lanche 4h",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Refeições p/ Pagamento",
+        "Sobremesa",
+        "Sobremesas p/ Pagamento",
+        "Lanche",
+        "Lanche 4h",
+        "Lanche",
+        "Lanche 4h",
     )
     assert rows[4] == (
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
         None,
         None,
         None,
@@ -1219,6 +1269,16 @@ def test_gera_relatorio_consolidado_xlsx_cemei(
         15,
         15,
         15,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
     )
     assert rows[6] == (
         "TOTAL",
@@ -1297,6 +1357,16 @@ def test_gera_relatorio_consolidado_xlsx_cemei(
         15,
         15,
         15,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
     )
 
 
@@ -1887,6 +1957,214 @@ def test_gera_relatorio_consolidado_xlsx_emebs(
     )
 
 
+def test_gera_relatorio_consolidado_xlsx_cieja_cmct(
+    relatorio_consolidado_xlsx_cieja, mock_query_params_excel_cieja_cmct
+):
+    solicitacoes = [relatorio_consolidado_xlsx_cieja.uuid]
+    tipos_unidade = ["CIEJA"]
+    arquivo = gera_relatorio_consolidado_xlsx(
+        solicitacoes, tipos_unidade, mock_query_params_excel_cieja_cmct
+    )
+    assert isinstance(arquivo, bytes)
+    excel_buffer = BytesIO(arquivo)
+
+    workbook = load_workbook(filename=excel_buffer)
+    nome_aba = f"Relatório Consolidado { relatorio_consolidado_xlsx_cieja.mes}-{ relatorio_consolidado_xlsx_cieja.ano}"
+    assert nome_aba in workbook.sheetnames
+    sheet = workbook[nome_aba]
+    rows = list(sheet.iter_rows(values_only=True))
+
+    assert rows[0] == (
+        "Relatório de Totalização da Medição Inicial do Serviço de Fornecimento da Alimentação Escolar",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[1] == (
+        "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - CIEJA",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[2] == (
+        None,
+        None,
+        None,
+        None,
+        None,
+        "MANHA",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "TARDE",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "PROGRAMAS E PROJETOS",
+        None,
+        None,
+        "DIETA ESPECIAL - TIPO A",
+        None,
+        None,
+        "DIETA ESPECIAL - TIPO B",
+        None,
+    )
+    assert rows[3] == (
+        "Tipo",
+        "Cód. EOL",
+        "Unidade Escolar",
+        "Kit Lanche",
+        "Lanche Emerg.",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Refeições p/ Pagamento",
+        "Sobremesa",
+        "Sobremesas p/ Pagamento",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Refeições p/ Pagamento",
+        "Sobremesa",
+        "Sobremesas p/ Pagamento",
+        "Lanche 4h",
+        "Refeições p/ Pagamento",
+        "Sobremesas p/ Pagamento",
+        "Lanche",
+        "Lanche 4h",
+        "Refeição",
+        "Lanche",
+        "Lanche 4h",
+    )
+    assert rows[4] == (
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[5] == (
+        "CIEJA",
+        "111329",
+        "CIEJA TESTE",
+        5,
+        5,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        20,
+        0,
+        0,
+        80,
+        80,
+        40,
+        40,
+        40,
+    )
+    assert rows[6] == (
+        "TOTAL",
+        None,
+        None,
+        5,
+        5,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        150,
+        20,
+        0,
+        0,
+        80,
+        80,
+        40,
+        40,
+        40,
+    )
+
+
 def test_preenche_titulo(informacoes_excel_writer_emef):
     aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emef
     _preenche_titulo(workbook, worksheet, df.columns)
@@ -2094,6 +2372,45 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_emebs(
     workbook_openpyxl.close()
 
 
+def test_preenche_linha_dos_filtros_selecionados_unidade_cieja_cmct(
+    mock_query_params_excel_cieja_cmct, informacoes_excel_writer_cieja_cmct
+):
+    tipos_unidades = ["CIEJA"]
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_cieja_cmct
+    _preenche_linha_dos_filtros_selecionados(
+        workbook,
+        worksheet,
+        mock_query_params_excel_cieja_cmct,
+        df.columns,
+        tipos_unidades,
+    )
+    writer.close()
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
+    sheet = workbook_openpyxl[aba]
+
+    merged_ranges = sheet.merged_cells.ranges
+    assert len(merged_ranges) == 7
+
+    assert "A2:Y2" in str(merged_ranges)
+    assert "R3:T3" in str(merged_ranges)
+    assert "L3:Q3" in str(merged_ranges)
+    assert "U3:W3" in str(merged_ranges)
+    assert "X3:Y3" in str(merged_ranges)
+    assert "F3:K3" in str(merged_ranges)
+    assert "A3:E3" in str(merged_ranges)
+
+    assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - CIEJA"
+    assert sheet["A2"].alignment.horizontal == "center"
+    assert sheet["A2"].alignment.vertical == "center"
+    assert sheet["A2"].font.bold is True
+    assert sheet["A2"].font.color.rgb == "FF0C6B45"
+    assert sheet["A2"].fill.fgColor.rgb == "FFEAFFF6"
+
+    rows = list(sheet.iter_rows(values_only=True))
+    assert tipos_unidades[0] in rows[1][0]
+    workbook_openpyxl.close()
+
+
 def test_formata_total_geral(informacoes_excel_writer_emef):
     aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emef
     _formata_total_geral(workbook, worksheet, df)
@@ -2145,6 +2462,13 @@ def test_formata_filtros_unidade_emebs(mock_query_params_excel_emebs):
     filtros = _formata_filtros(mock_query_params_excel_emebs, tipos_unidades)
     assert isinstance(filtros, str)
     assert filtros == "Abril/2025 - DIRETORIA REGIONAL TESTE -  - EMEBS"
+
+
+def test_formata_filtros_unidade_cieja_cmct(mock_query_params_excel_cieja_cmct):
+    tipos_unidades = ["CIEJA", "CMCT"]
+    filtros = _formata_filtros(mock_query_params_excel_cieja_cmct, tipos_unidades)
+    assert isinstance(filtros, str)
+    assert filtros == "Abril/2025 - DIRETORIA REGIONAL TESTE -  - CIEJA, CMCT"
 
 
 def test_gera_relatorio_consolidado_xlsx_tipo_unidade_invalida():

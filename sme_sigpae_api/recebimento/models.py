@@ -134,6 +134,8 @@ class FichaDeRecebimento(
 
     documentos_recebimento = models.ManyToManyField(
         DocumentoDeRecebimento,
+        through="DocumentoFichaDeRecebimento",
+        through_fields=("ficha_recebimento", "documento_recebimento"),
         related_name="fichas_recebimentos",
     )
     lote_fabricante_de_acordo = models.BooleanField(
@@ -402,6 +404,37 @@ class QuestaoFichaRecebimento(ModeloBase):
 
     def __str__(self):
         return f"{self.questao_conferencia.questao} - {self.ficha_recebimento}"
+
+
+class DocumentoFichaDeRecebimento(ModeloBase):
+    ficha_recebimento = models.ForeignKey(
+        FichaDeRecebimento,
+        on_delete=models.CASCADE,
+        related_name="documentos_ficha",
+        verbose_name="Ficha de Recebimento",
+    )
+    documento_recebimento = models.ForeignKey(
+        DocumentoDeRecebimento,
+        on_delete=models.CASCADE,
+        related_name="fichas_documentos",
+        verbose_name="Documento de Recebimento",
+    )
+    quantidade_recebida = models.DecimalField(
+        "Quantidade Recebida",
+        max_digits=10,
+        decimal_places=2,
+        help_text="Quantidade recebida do documento",
+        null=True,
+        blank=True,
+    )
+
+    def __str__(self):
+        return f"{self.documento_recebimento} - {self.ficha_recebimento} ({self.quantidade_recebida})"
+
+    class Meta:
+        verbose_name = "Documento Ficha de Recebimento"
+        verbose_name_plural = "Documentos Fichas de Recebimento"
+        unique_together = ("ficha_recebimento", "documento_recebimento")
 
 
 class OcorrenciaFichaRecebimento(ModeloBase):

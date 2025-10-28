@@ -4,6 +4,19 @@ from sme_sigpae_api.medicao_inicial.models import Medicao, SolicitacaoMedicaoIni
 
 
 def get_nome_periodo(medicao: Medicao) -> str:
+    """
+    Obtém o nome formatado do período com base na medição.
+    A formatação segue a seguinte lógica:
+    - Se não há grupo associado: retorna apenas o nome do período escolar.
+    - Se há grupo e período escolar: retorna "Nome do Grupo - Nome do Período".
+    - Se há grupo mas não há período escolar: retorna apenas o nome do grupo.
+
+    Args:
+        medicao (Medicao): Objeto de medição contendo informações do período escolar e grupo associado.
+
+    Returns:
+        str: _Nome do período formatado de acordo com as regras descritas.
+    """
     return (
         medicao.periodo_escolar.nome
         if not medicao.grupo
@@ -18,6 +31,17 @@ def get_nome_periodo(medicao: Medicao) -> str:
 def update_periodos_alimentacoes(
     periodos_alimentacoes: dict, nome_periodo: str, lista_alimentacoes: list
 ) -> dict:
+    """
+    Atualiza o dicionário de períodos com suas respectivas alimentações.
+
+    Args:
+        periodos_alimentacoes (dict): Dicionário onde as chaves são nomes de períodos e os valores são listas de alimentações.
+        nome_periodo (str): Nome do período a ser atualizado ou criado.
+        lista_alimentacoes (list): Lista de alimentações a ser adicionada ao período.
+
+    Returns:
+        dict: Dicionário atualizado com as alimentações do período.
+    """
     if nome_periodo in periodos_alimentacoes:
         periodos_alimentacoes[nome_periodo] += lista_alimentacoes
     else:
@@ -26,6 +50,19 @@ def update_periodos_alimentacoes(
 
 
 def get_categorias_dietas(medicao: Medicao) -> list:
+    """
+    Obtém lista de categorias de dietas especiais da medição.
+
+    Args:
+        medicao (Medicao):  Objeto de medição contendo os valores_medicao a serem consultados.
+
+    Returns:
+        list: Lista de strings com os nomes distintos das categorias de dietas especiais.
+
+    Examples:
+        >>> get_categorias_dietas(medicao)
+        ['DIETA ESPECIAL - TIPO B', 'DIETA ESPECIAL - TIPO A - ENTERAL]
+    """
     return list(
         medicao.valores_medicao.exclude(
             categoria_medicao__nome__icontains="ALIMENTAÇÃO"
@@ -38,6 +75,17 @@ def get_categorias_dietas(medicao: Medicao) -> list:
 def update_dietas_alimentacoes(
     dietas_alimentacoes: dict, categoria: str, lista_alimentacoes_dietas: list
 ):
+    """
+    Atualiza o dicionário de dietas com alimentações específicas da categoria.
+
+    Args:
+        dietas_alimentacoes (dict): Dicionário onde as chaves são nomes de categorias de dieta e os valores são listas de alimentações específicas.
+        categoria (str): Nome da categoria de dieta a ser atualizada ou criada.
+        lista_alimentacoes_dietas (list): Lista de alimentações específicas da categoria a ser adicionada.
+
+    Returns:
+        _type_: Dicionário atualizado com as alimentações da categoria, ou o dicionário original inalterado se a lista estiver vazia.
+    """
     if lista_alimentacoes_dietas:
         if categoria in dietas_alimentacoes:
             dietas_alimentacoes[categoria] += lista_alimentacoes_dietas
@@ -47,6 +95,20 @@ def update_dietas_alimentacoes(
 
 
 def generate_columns(dict_periodos_dietas: dict) -> list:
+    """
+    Gera lista de colunas a partir de dicionário de períodos e dietas.
+    Transforma um dicionário hierárquico em uma lista plana de tuplas, onde cada tupla representa uma coluna no formato (categoria, alimentação).
+
+    Args:
+        dict_periodos_dietas (dict):  Dicionário onde as chaves são categorias (períodos ou dietas) e os valores são listas de alimentações
+
+    Returns:
+        list: Lista de tuplas no formato [(categoria, alimentação), ...], contendo todas as combinações possíveis de categorias e suas respectivas alimentações.
+
+    Examples:
+        >>> generate_columns({"MANHA": ["lanche", "refeicao"],)
+        [('MANHA', 'lanche'), ('MANHA', 'refeicao')]
+    """
     columns = [
         (chave, valor)
         for chave, valores in dict_periodos_dietas.items()
@@ -56,6 +118,21 @@ def generate_columns(dict_periodos_dietas: dict) -> list:
 
 
 def get_valores_iniciais(solicitacao: SolicitacaoMedicaoInicial) -> list[str]:
+    """
+    Extrai informações iniciais básicas da escola da solicitação.
+
+    Obtém um conjunto de dados fundamentais da escola associada à solicitação
+    de medição inicial, incluindo sigla do tipo de unidade, código EOL e nome.
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Objeto de solicitação de medição inicial contendo a escola associada
+
+    Returns:
+        list[str]: Lista com três elementos na ordem:
+            [0] (str): Iniciais do tipo de unidade escolar (ex: "EMEF", "CEI")
+            [1] (str): Código EOL da escola
+            [2] (str): Nome completo da escola
+    """
     return [
         solicitacao.escola.tipo_unidade.iniciais,
         solicitacao.escola.codigo_eol,
@@ -72,6 +149,24 @@ def gera_colunas_alimentacao(
     colunas_fixas: list[tuple] | None = None,
     headers: list[tuple] | None = None,
 ) -> pd.DataFrame:
+    """
+    Gera e exporta DataFrame com colunas de alimentação para relatório Excel.
+
+    Cria um DataFrame estruturado com MultiIndex para headers, adiciona linha de total e exporta para uma aba específica do arquivo
+    Excel usando o ExcelWriter fornecido.
+
+    Args:
+        aba (str): Nome da aba/planilha onde os dados serão exportados.
+        colunas (list[tuple]): Lista de tuplas no formato (período, campo) que define a estrutura das colunas dinâmicas.
+        linhas (list[list[str | float]]): Matriz de dados onde cada lista interna representa uma linha do relatório
+        writer (pd.ExcelWriter): Objeto ExcelWriter para exportação do DataFrame.
+        nomes_campos (dict): Dicionário de mapeamento de campos para seus nomes exibíveis no header
+        colunas_fixas (list[tuple] | None, optional): Colunas fixas iniciais do relatório. Defaults to [("", "Tipo"), ("", "Cód. EOL"), ("", "Unidade Escolar")].
+        headers (list[tuple] | None, optional): Headers customizados. Se None, gera automaticamente baseado nas colunas e nomes_campos.
+
+    Returns:
+        pd.DataFrame: DataFrame processado com MultiIndex e linha de total.
+    """
     if colunas_fixas is None:
         colunas_fixas = [
             ("", "Tipo"),

@@ -93,6 +93,12 @@ def dados_usuario_periodos():
             "email": "escolacei@admin.com",
             "periodos": ["MANHA", "TARDE", "INTEGRAL"],
         },
+        # ESCOLA CMCT
+        {
+            "nome_escola": "",
+            "email": "escolacmct@admin.com",
+            "periodos": ["MANHA", "TARDE", "NOITE"],
+        },
     ]
 
 

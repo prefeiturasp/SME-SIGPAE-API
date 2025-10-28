@@ -162,8 +162,8 @@ class Command(BaseCommand):
                 mes,
                 quantidade_dias_mes,
             )
-        elif escola.eh_ceu_gestao:
-            self.escolas_ceu_gestao(
+        elif escola.eh_ceu_gestao or escola.eh_cmct:
+            self.escolar_sem_alunos_regulares(
                 escola,
                 email_escola,
                 periodos,
@@ -343,7 +343,7 @@ class Command(BaseCommand):
             escola, ano, mes, quantidade_dias_mes, periodos_escolares_db
         )
 
-    def escolas_ceu_gestao(
+    def escolar_sem_alunos_regulares(
         self,
         escola,
         email_escola,
@@ -366,6 +366,15 @@ class Command(BaseCommand):
             ano,
             mes,
             dia_kit_lanche,
+            usuario_dre,
+        )
+        incluir_solicitacoes_ceu_gestao(
+            escola,
+            usuario,
+            periodos_escolares,
+            ano,
+            mes,
+            dia_lanche_emergencial,
             usuario_dre,
         )
 
@@ -400,14 +409,15 @@ class Command(BaseCommand):
             usuario_dre,
         )
 
-        self.stdout.write("6. Criar ETEC")
-        periodo_noturno = periodos_escolares_db.get(nome="NOITE")
-        incluir_etec(
-            escola,
-            usuario,
-            periodo_noturno,
-            ano,
-            mes,
-            dia_lanche_emergencial,
-            usuario_dre,
-        )
+        if escola.eh_ceu_gestao:
+            self.stdout.write("6. Criar ETEC")
+            periodo_noturno = periodos_escolares_db.get(nome="NOITE")
+            incluir_etec(
+                escola,
+                usuario,
+                periodo_noturno,
+                ano,
+                mes,
+                dia_lanche_emergencial,
+                usuario_dre,
+            )

@@ -366,6 +366,7 @@ NOMES_CAMPOS = {
     "total_sobremesas_pagamento": "Sobremesas p/ Pagamento",
     "lanche_emergencial": "Lanche Emerg.",
     "colacao": "Colação",
+    "desjejum": "Desjejum",
 }
 
 ORDEM_UNIDADES_GRUPO_EMEF = {
@@ -373,8 +374,7 @@ ORDEM_UNIDADES_GRUPO_EMEF = {
     "CEU EMEF": 2,
     "EMEFM": 3,
     "EMEF P FOM": 4,
-    "CIEJA": 5,
-    "CEU GESTAO": 6,
+    "CEU GESTAO": 5,
 }
 
 ORDEM_UNIDADES_GRUPO_EMEI = {
@@ -400,6 +400,8 @@ ORDEM_UNIDADES_GRUPO_CEMEI = {
 ORDEM_UNIDADES_GRUPO_EMEBS = {
     "EMEBS": 1,
 }
+
+ORDEM_UNIDADES_GRUPO_CIEJA_CMCT = {"CIEJA": 1, "CMCT": 2}
 
 
 ORDEM_HEADERS_EMEI_EMEF = {
@@ -457,6 +459,20 @@ ORDEM_HEADERS_EMEBS = {
     "Programas e Projetos": 6,
     "DIETA ESPECIAL - TIPO A": 7,
     "DIETA ESPECIAL - TIPO B": 8,
+}
+
+ORDEM_HEADERS_CIEJA_CMCT = {
+    "Solicitações de Alimentação": 1,
+    "MANHA": 2,
+    "TARDE": 3,
+    "INTEGRAL": 4,
+    "NOITE": 5,
+    "INTERMEDIARIO": 6,
+    "VESPERTINO": 7,
+    "Programas e Projetos": 8,
+    "ETEC": 9,
+    "DIETA ESPECIAL - TIPO A": 10,
+    "DIETA ESPECIAL - TIPO B": 11,
 }
 
 
