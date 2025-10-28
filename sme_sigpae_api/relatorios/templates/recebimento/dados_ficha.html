@@ -42,6 +42,7 @@
             <span class="font-weight-bold">
               Etapa {{etapa.etapa}}
               {% if etapa.parte %} - Parte {{etapa.parte}} {% endif %}
+              {% if reposicao_cronograma %} - REPOSIÇÃO / PAGAMENTO DE NOTIFICAÇÃO {% endif %}
             </span>
           </div>
         </div>
@@ -101,11 +102,43 @@
           </div>
         </div>
 
+        {% if reposicao_cronograma %}
+        <div class="row pb-3">
+          <div class="col-12">
+            Referente a ocorrência registrada nesta etapa, o Fornecedor optou por:
+            <span class="font-weight-bold">
+              {{ reposicao_cronograma.descricao }}
+            </span>
+          </div>
+        </div>
+        {% endif %}
 
+        {% if reposicao_cronograma.tipo == "Credito" %}
+        <div class="row pb-3">
+          <div class="col-12">
+            Observações:
+            <span class="font-weight-bold">
+              {{ ficha.observacao }}
+            </span>
+          </div>
+        </div>
+        <div class="row pb-3">
+          <div class="col-12">
+            Documentos anexados:
+            <span class="font-weight-bold">
+              {% for arquivo in ficha.arquivos.all %}
+                {{ arquivo.nome }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </span>
+          </div>
+        </div>
+        {% endif %}
 
       </div>
 
     </div>
+
+    {% if reposicao_cronograma == null or reposicao_cronograma.tipo != "Credito" %}
 
     <div id="dados_laudos">
       <h5 class="title titulo-secao separator">LAUDOS</h5>
@@ -408,7 +441,7 @@
           <div class="col-12">
             HOUVE OCORRÊNCIA(S) NO RECEBIMENTO:
             <span class="font-weight-bold">
-              {{ocorrencias.length|yesno:"SIM,NAO"}}
+              {{ ficha.houve_ocorrencia|yesno:"SIM,NÃO" }}
             </span>
           </div>
         </div>
@@ -509,10 +542,9 @@
       </div>
     </div>
 
+    {% endif %}
 
     <div class="assinaturas content">
-
-
       <div class="assinatura">
         <div class="title titulo-assinatura">
           Assinatura Eletrônica
@@ -532,7 +564,6 @@
           {% endif %}
         </div>
       </div>
-
 
     </div>
 

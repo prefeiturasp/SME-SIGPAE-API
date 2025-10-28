@@ -1025,6 +1025,9 @@ class RelatorioAlunosMatriculadosViewSet(ModelViewSet):
         if isinstance(instituicao, Codae):
             lotes = Lote.objects.all()
             diretorias_regionais = DiretoriaRegional.objects.all()
+        elif isinstance(instituicao, Escola):
+            lotes = Lote.objects.filter(escolas=instituicao)
+            diretorias_regionais = DiretoriaRegional.objects.filter(escolas=instituicao)
         else:
             lotes = instituicao.lotes.filter(escolas__isnull=False).distinct()
             diretorias_regionais_uuids = lotes.values_list(
