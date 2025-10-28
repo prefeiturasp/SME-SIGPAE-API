@@ -45,7 +45,6 @@ from ...escola.models import (
     Lote,
     TipoGestao,
 )
-from ...escola.services import NovoSGPServicoLogado
 from ...paineis_consolidados.api.constants import FILTRO_CODIGO_EOL_ALUNO
 from ...relatorios.relatorios import (
     relatorio_dieta_especial,
@@ -128,7 +127,7 @@ from .serializers_create import (
     ProtocoloPadraoDietaEspecialSerializerCreate,
     SolicitacaoDietaEspecialCreateSerializer,
 )
-
+from sme_sigpae_api.paineis_consolidados.models import MoldeConsolidado
 
 class SolicitacaoDietaEspecialViewSet(
     mixins.RetrieveModelMixin,
@@ -1522,26 +1521,48 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
 
     @staticmethod
     def calcular_totais(queryset):
-        status_dietas = [
-            "CODAE_AUTORIZADO",
-            "CODAE_AUTORIZOU_INATIVACAO",
-            "TERMINADA_AUTOMATICAMENTE_SISTEMA",
-            "CANCELADO_ALUNO_NAO_PERTENCE_REDE",
-        ]
         total_ativas = (
             SolicitacaoDietaEspecial.objects.filter(
-                aluno__in=queryset, status__in=["CODAE_AUTORIZADO"], ativo=True
+                aluno__in=queryset,
+                status__in=MoldeConsolidado.AUTORIZADO_STATUS_DIETA_ESPECIAL,
+                ativo=True,
             )
             .distinct()
             .count()
         )
-        total_inativas = (
+
+        qs_alterados = (
             SolicitacaoDietaEspecial.objects.filter(
-                aluno__in=queryset, status__in=status_dietas, ativo=False
+                dieta_alterada__isnull=False, tipo_solicitacao="ALTERACAO_UE"
             )
-            .distinct()
-            .count()
+            .only("dieta_alterada_id")
+            .values("dieta_alterada_id")
         )
+        ids_alterados = [s["dieta_alterada_id"] for s in qs_alterados]
+
+        cancelados_qs = SolicitacaoDietaEspecial.objects.filter(
+            Q(
+                tipo_solicitacao="ALTERACAO_UE",
+                status__in=MoldeConsolidado.CANCELADOS_STATUS_DIETA_ESPECIAL_TEMP,
+            )
+            | Q(
+                tipo_solicitacao="COMUM",
+                status__in=MoldeConsolidado.CANCELADOS_STATUS_DIETA_ESPECIAL,
+            ),
+            aluno__in=queryset,
+            ativo=False,
+        )
+
+        inativas_qs = SolicitacaoDietaEspecial.objects.filter(
+            ~Q(id__in=ids_alterados),
+            status__in=MoldeConsolidado.INATIVOS_STATUS_DIETA_ESPECIAL,
+            tipo_solicitacao="COMUM",
+            aluno__in=queryset,
+            ativo=False,
+        )
+
+        total_inativas = (cancelados_qs | inativas_qs).distinct().count()
+
         return total_ativas, total_inativas
 
     def list(self, request, *args, **kwargs):
@@ -1552,7 +1573,6 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
 
         total_ativas, total_inativas = self.calcular_totais(queryset_distinct)
 
-        # Verificar filtros aplicados
         form = SolicitacoesAtivasInativasPorAlunoForm(self.request.GET)
         form.is_valid()
 
@@ -1562,13 +1582,11 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
         codigo_eol_escola = self.request.query_params.get('codigo_eol_escola')
         user = self.request.user
 
-        # Expandir alunos por escola
         alunos_por_escola = []
 
         for aluno in queryset_distinct:
             escolas_dict = {}
 
-            # Começar com todas as dietas do aluno nos status válidos
             dietas_qs = aluno.dietas_especiais.filter(
                 status__in=[
                     "CODAE_AUTORIZADO",
@@ -1578,15 +1596,12 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
                 ]
             )
 
-            # 1. Código EOL do Aluno (já aplicado no get_queryset, não precisa filtrar aqui)
-            # 2. Filtro por Escola (mais específico)
             if escola_filtrada:
                 dietas_qs = dietas_qs.filter(rastro_escola=escola_filtrada)
             elif codigo_eol_escola:
                 dietas_qs = dietas_qs.filter(rastro_escola__codigo_eol=codigo_eol_escola)
             elif user.tipo_usuario == "escola":
                 dietas_qs = dietas_qs.filter(rastro_escola=user.vinculo_atual.instituicao)
-            # 3. Filtro por DRE (menos específico que escola)
             elif dre_filtrada:
                 dietas_qs = dietas_qs.filter(rastro_escola__diretoria_regional=dre_filtrada)
             elif user.tipo_usuario == "diretoriaregional":
@@ -1594,7 +1609,6 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
                     rastro_escola__diretoria_regional=user.vinculo_atual.instituicao
                 )
 
-            # Buscar dietas com os filtros aplicados
             dietas = dietas_qs.select_related('rastro_escola', 'rastro_escola__diretoria_regional')
 
             for dieta in dietas:
@@ -1607,7 +1621,6 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
                         'rastro_escola__diretoria_regional__nome': dieta.rastro_escola.diretoria_regional.nome
                     }
 
-            # Criar um registro para cada escola única
             for escola_id, escola_data in escolas_dict.items():
                 from copy import copy
                 aluno_copia = copy(aluno)
