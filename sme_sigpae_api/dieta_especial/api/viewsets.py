@@ -249,16 +249,44 @@ class SolicitacaoDietaEspecialViewSet(
             uuid_original=OuterRef('uuid')
         ).order_by('-criado_em').values('criado_em')[:1]
 
-        solicitacoes = (
-            SolicitacaoDietaEspecial.objects.filter(aluno__codigo_eol=codigo_eol_aluno)
-            .exclude(status=SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR)
-            .annotate(data_log_mais_recente=Subquery(log_mais_recente_subquery))
-            .order_by('-data_log_mais_recente', '-criado_em')
-        )
-
+        base_qs = SolicitacaoDietaEspecial.objects.filter(aluno__codigo_eol=codigo_eol_aluno)
         codigo_eol_escola = request.query_params.get('codigo_eol_escola')
         if codigo_eol_escola:
-            solicitacoes = solicitacoes.filter(rastro_escola__codigo_eol=codigo_eol_escola)
+            base_qs = base_qs.filter(rastro_escola__codigo_eol=codigo_eol_escola)
+
+        ids_alterados = list(
+            base_qs.filter(
+                dieta_alterada__isnull=False, tipo_solicitacao="ALTERACAO_UE"
+            ).values_list("dieta_alterada_id", flat=True)
+        )
+
+        solicitacoes = base_qs.filter(
+            Q(
+                status__in=MoldeConsolidado.AUTORIZADO_STATUS_DIETA_ESPECIAL,
+                ativo=True,
+            )
+            | Q(
+                Q(
+                    tipo_solicitacao="ALTERACAO_UE",
+                    status__in=MoldeConsolidado.CANCELADOS_STATUS_DIETA_ESPECIAL_TEMP,
+                )
+                | Q(
+                    tipo_solicitacao="COMUM",
+                    status__in=MoldeConsolidado.CANCELADOS_STATUS_DIETA_ESPECIAL,
+                ),
+                ativo=False,
+            )
+            | Q(
+                ~Q(id__in=ids_alterados),
+                status__in=MoldeConsolidado.INATIVOS_STATUS_DIETA_ESPECIAL,
+                tipo_solicitacao="COMUM",
+                ativo=False,
+            )
+        )
+
+        solicitacoes = solicitacoes.annotate(
+            data_log_mais_recente=Subquery(log_mais_recente_subquery)
+        ).order_by('-data_log_mais_recente', '-criado_em')
 
         page = self.paginate_queryset(solicitacoes)
         serializer = self.get_serializer(page, many=True)
