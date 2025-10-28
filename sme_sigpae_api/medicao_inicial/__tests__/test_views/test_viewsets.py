@@ -1,13 +1,12 @@
 import pytest
 from django.core.exceptions import ValidationError
 from django.http import QueryDict
+from model_bakery import baker
+from rest_framework import status
 
 from sme_sigpae_api.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
-from sme_sigpae_api.medicao_inicial.api.viewsets import SolicitacaoMedicaoInicialViewSet
 from sme_sigpae_api.escola.models import LogAlunosMatriculadosPeriodoEscola, TipoTurma
-
-from rest_framework import  status
-from model_bakery import baker
+from sme_sigpae_api.medicao_inicial.api.viewsets import SolicitacaoMedicaoInicialViewSet
 
 pytestmark = pytest.mark.django_db
 
@@ -134,7 +133,7 @@ def test_periodos_escola_cemei_com_alunos_emei(mock_request, escola_cemei):
 
     view = SolicitacaoMedicaoInicialViewSet()
     view.request = mock_request
-    
+
     periodo_manha = baker.make("PeriodoEscolar", nome="MANHÃ")
     periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
     periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
@@ -161,9 +160,7 @@ def test_periodos_escola_cemei_com_alunos_emei(mock_request, escola_cemei):
 
     response = view.periodos_escola_cemei_com_alunos_emei(mock_request)
 
-    resposta_sem_integral = {
-        "results": ["Infantil TARDE", "Infantil MANHÃ"]
-    } 
+    resposta_sem_integral = {"results": ["Infantil TARDE", "Infantil MANHÃ"]}
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data == resposta_sem_integral
@@ -188,7 +185,6 @@ def test_periodos_escola_cemei_com_alunos_emei(mock_request, escola_cemei):
         cei_ou_emei="EMEI",
     )
 
-
     response = view.periodos_escola_cemei_com_alunos_emei(mock_request)
 
     assert response.status_code == status.HTTP_200_OK
@@ -208,5 +204,5 @@ def test_periodos_escola_cemei_com_alunos_emei(mock_request, escola_cemei):
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data == {
-        "results": ['Infantil TARDE', 'Infantil INTEGRAL', 'Infantil MANHÃ']
+        "results": ["Infantil TARDE", "Infantil INTEGRAL", "Infantil MANHÃ"]
     }

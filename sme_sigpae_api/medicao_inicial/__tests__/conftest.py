@@ -2,12 +2,12 @@ import datetime
 import json
 import random
 from io import BytesIO
+from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
-from unittest.mock import MagicMock
 
 from sme_sigpae_api.dados_comuns.behaviors import TempoPasseio
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
