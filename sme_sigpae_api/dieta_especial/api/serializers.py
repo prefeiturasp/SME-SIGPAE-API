@@ -52,6 +52,8 @@ from .validators import (
     atributos_string_nao_vazios,
     deve_ter_atributos,
 )
+from sme_sigpae_api.paineis_consolidados.models import MoldeConsolidado
+from django.db.models import Q
 
 
 class AlergiaIntoleranciaSerializer(serializers.ModelSerializer):
@@ -400,7 +402,7 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
     def get_ativas(self, obj):
         escola_id = self.get_escola_context(obj)
         qs = obj.dietas_especiais.filter(
-            status__in=["CODAE_AUTORIZADO"],
+            status__in=MoldeConsolidado.AUTORIZADO_STATUS_DIETA_ESPECIAL,
             ativo=True,
         )
         if escola_id:
@@ -409,18 +411,36 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
 
     def get_inativas(self, obj):
         escola_id = self.get_escola_context(obj)
-        qs = obj.dietas_especiais.filter(
-            status__in=[
-                "CODAE_AUTORIZADO",
-                "CODAE_AUTORIZOU_INATIVACAO",
-                "TERMINADA_AUTOMATICAMENTE_SISTEMA",
-                "CANCELADO_ALUNO_NAO_PERTENCE_REDE",
-            ],
+        qs_alterados = obj.dietas_especiais.filter(
+            dieta_alterada__isnull=False, tipo_solicitacao="ALTERACAO_UE"
+        ).only("dieta_alterada_id").values("dieta_alterada_id")
+        ids_alterados = [s["dieta_alterada_id"] for s in qs_alterados]
+
+        cancelados_qs = obj.dietas_especiais.filter(
+            Q(
+                tipo_solicitacao="ALTERACAO_UE",
+                status__in=MoldeConsolidado.CANCELADOS_STATUS_DIETA_ESPECIAL_TEMP,
+            )
+            | Q(
+                tipo_solicitacao="COMUM",
+                status__in=MoldeConsolidado.CANCELADOS_STATUS_DIETA_ESPECIAL,
+            ),
             ativo=False,
         )
+
+        inativas_qs = obj.dietas_especiais.filter(
+            ~Q(id__in=ids_alterados),
+            status__in=MoldeConsolidado.INATIVOS_STATUS_DIETA_ESPECIAL,
+            tipo_solicitacao="COMUM",
+            ativo=False,
+        )
+
         if escola_id:
-            qs = qs.filter(rastro_escola_id=escola_id)
-        return qs.count()
+            cancelados_qs = cancelados_qs.filter(rastro_escola_id=escola_id)
+            inativas_qs = inativas_qs.filter(rastro_escola_id=escola_id)
+
+        total_inativas = (cancelados_qs | inativas_qs).distinct().count()
+        return total_inativas
 
     def get_dre(self, obj):
         if hasattr(obj, '_escola_dre'):
