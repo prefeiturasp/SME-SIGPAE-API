@@ -1547,26 +1547,21 @@ class SolicitacaoDietaEspecialViewSet(
 class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
     serializer_class = SolicitacoesAtivasInativasPorAlunoSerializer
 
-    @staticmethod
-    def calcular_totais(queryset):
-        total_ativas = (
-            SolicitacaoDietaEspecial.objects.filter(
-                aluno__in=queryset,
-                status__in=MoldeConsolidado.AUTORIZADO_STATUS_DIETA_ESPECIAL,
-                ativo=True,
-            )
-            .distinct()
-            .count()
+    def calcular_totais(self, queryset, **filtros):
+        dietas_ativas_qs = SolicitacaoDietaEspecial.objects.filter(
+            aluno__in=queryset,
+            status__in=MoldeConsolidado.AUTORIZADO_STATUS_DIETA_ESPECIAL,
+            ativo=True,
         )
+        dietas_ativas_qs = self.aplicar_filtros_escola(dietas_ativas_qs, **filtros)
+        total_ativas = dietas_ativas_qs.distinct().count()
 
-        qs_alterados = (
+        ids_alterados = list(
             SolicitacaoDietaEspecial.objects.filter(
-                dieta_alterada__isnull=False, tipo_solicitacao="ALTERACAO_UE"
-            )
-            .only("dieta_alterada_id")
-            .values("dieta_alterada_id")
+                dieta_alterada__isnull=False,
+                tipo_solicitacao="ALTERACAO_UE"
+            ).values_list("dieta_alterada_id", flat=True)
         )
-        ids_alterados = [s["dieta_alterada_id"] for s in qs_alterados]
 
         cancelados_qs = SolicitacaoDietaEspecial.objects.filter(
             Q(
@@ -1580,6 +1575,7 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
             aluno__in=queryset,
             ativo=False,
         )
+        cancelados_qs = self.aplicar_filtros_escola(cancelados_qs, **filtros)
 
         inativas_qs = SolicitacaoDietaEspecial.objects.filter(
             ~Q(id__in=ids_alterados),
@@ -1588,27 +1584,44 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
             aluno__in=queryset,
             ativo=False,
         )
+        inativas_qs = self.aplicar_filtros_escola(inativas_qs, **filtros)
 
         total_inativas = (cancelados_qs | inativas_qs).distinct().count()
 
         return total_ativas, total_inativas
 
+    def aplicar_filtros_escola(self, queryset, escola_filtrada=None, codigo_eol_escola=None,
+                               dre_filtrada=None, user=None):
+        if escola_filtrada:
+            return queryset.filter(rastro_escola=escola_filtrada)
+        elif codigo_eol_escola:
+            return queryset.filter(rastro_escola__codigo_eol=codigo_eol_escola)
+        elif user and user.tipo_usuario == "escola":
+            return queryset.filter(rastro_escola=user.vinculo_atual.instituicao)
+        elif dre_filtrada:
+            return queryset.filter(rastro_escola__diretoria_regional=dre_filtrada)
+        elif user and user.tipo_usuario == "diretoriaregional":
+            return queryset.filter(
+                rastro_escola__diretoria_regional=user.vinculo_atual.instituicao
+            )
+        return queryset
+
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-
         alunos_ids = queryset.values_list('id', flat=True).distinct()
         queryset_distinct = Aluno.objects.filter(id__in=alunos_ids)
-
-        total_ativas, total_inativas = self.calcular_totais(queryset_distinct)
 
         form = SolicitacoesAtivasInativasPorAlunoForm(self.request.GET)
         form.is_valid()
 
-        codigo_eol_aluno = form.cleaned_data.get('codigo_eol')
-        escola_filtrada = form.cleaned_data.get('escola')
-        dre_filtrada = form.cleaned_data.get('dre')
-        codigo_eol_escola = self.request.query_params.get('codigo_eol_escola')
-        user = self.request.user
+        filtros = {
+            'escola_filtrada': form.cleaned_data.get('escola'),
+            'dre_filtrada': form.cleaned_data.get('dre'),
+            'codigo_eol_escola': self.request.query_params.get('codigo_eol_escola'),
+            'user': self.request.user
+        }
+
+        total_ativas, total_inativas = self.calcular_totais(queryset_distinct, **filtros)
 
         alunos_por_escola = []
 
@@ -1624,19 +1637,7 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
                 ]
             )
 
-            if escola_filtrada:
-                dietas_qs = dietas_qs.filter(rastro_escola=escola_filtrada)
-            elif codigo_eol_escola:
-                dietas_qs = dietas_qs.filter(rastro_escola__codigo_eol=codigo_eol_escola)
-            elif user.tipo_usuario == "escola":
-                dietas_qs = dietas_qs.filter(rastro_escola=user.vinculo_atual.instituicao)
-            elif dre_filtrada:
-                dietas_qs = dietas_qs.filter(rastro_escola__diretoria_regional=dre_filtrada)
-            elif user.tipo_usuario == "diretoriaregional":
-                dietas_qs = dietas_qs.filter(
-                    rastro_escola__diretoria_regional=user.vinculo_atual.instituicao
-                )
-
+            dietas_qs = self.aplicar_filtros_escola(dietas_qs, **filtros)
             dietas = dietas_qs.select_related('rastro_escola', 'rastro_escola__diretoria_regional')
 
             for dieta in dietas:
