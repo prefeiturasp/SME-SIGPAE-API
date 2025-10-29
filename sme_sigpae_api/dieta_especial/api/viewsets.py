@@ -129,6 +129,7 @@ from .serializers_create import (
 )
 from sme_sigpae_api.paineis_consolidados.models import MoldeConsolidado
 
+
 class SolicitacaoDietaEspecialViewSet(
     mixins.RetrieveModelMixin,
     mixins.ListModelMixin,
