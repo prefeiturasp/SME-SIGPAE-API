@@ -5,6 +5,7 @@ from django.utils import timezone
 from model_bakery import baker
 from rest_framework.test import APIClient
 
+from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_TREINAMENTO_PASSWORD
 from sme_sigpae_api.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.escola.models import (
@@ -38,7 +39,10 @@ def api_client_usuario_codae(django_user_model, dre):
     client = APIClient()
     email = "usuario_codae@teste.com"
     user = django_user_model.objects.create_user(
-        username=email, email=email, password="senha123", registro_funcional="999999"
+        username=email,
+        email=email,
+        password=DJANGO_ADMIN_TREINAMENTO_PASSWORD,
+        registro_funcional="999999",
     )
 
     perfil_codae = baker.make("Perfil", nome="CODAE_GESTAO_ALIMENTACAO", ativo=True)

@@ -5,6 +5,7 @@ import environ
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import F, FloatField, Sum
 from django.template.loader import get_template, render_to_string
+from django.views.decorators.http import require_http_methods
 
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
@@ -79,6 +80,7 @@ from .utils import (
 env = environ.Env()
 
 
+@require_http_methods(["GET"])
 def relatorio_kit_lanche_unificado(request, solicitacao):
     qtd_escolas = EscolaQuantidade.objects.filter(
         solicitacao_unificada=solicitacao
@@ -177,6 +179,7 @@ def relatorio_kit_lanche_unificado(request, solicitacao):
     )
 
 
+@require_http_methods(["GET"])
 def relatorio_alteracao_cardapio(request, solicitacao):  # noqa C901
     substituicoes = solicitacao.substituicoes_periodo_escolar
     formata_substituicoes = []
@@ -600,6 +603,7 @@ def relatorio_guia_de_remessa(guias, is_async=False):  # noqa C901
         return html_to_pdf_multiple(lista_pdfs, "guias_de_remessa.pdf", is_async)
 
 
+@require_http_methods(["GET"])
 def relatorio_dieta_especial(request, solicitacao):
     html_string = relatorio_dieta_especial_conteudo(solicitacao, request)
     return html_to_pdf_response(
@@ -623,6 +627,7 @@ def relatorio_dietas_especiais_terceirizada(dados):
     )
 
 
+@require_http_methods(["GET"])
 def relatorio_dieta_especial_protocolo(request, solicitacao, sem_foto=False):
     if solicitacao.tipo_solicitacao == "COMUM":
         escola = solicitacao.rastro_escola
@@ -692,6 +697,7 @@ def relatorio_inclusao_alimentacao_continua(request, solicitacao):
     )
 
 
+@require_http_methods(["GET"])
 def relatorio_inclusao_alimentacao_normal(request, solicitacao):
     escola = solicitacao.rastro_escola
     logs = solicitacao.logs
@@ -1092,6 +1098,7 @@ def relatorio_suspensao_de_alimentacao_cei(request, solicitacao):
     )
 
 
+@require_http_methods(["GET"])
 def relatorio_produto_homologacao(request, produto):
     homologacao = produto.homologacao
     terceirizada = homologacao.rastro_terceirizada

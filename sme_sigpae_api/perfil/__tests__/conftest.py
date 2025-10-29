@@ -1377,7 +1377,7 @@ def usuario_dilog_abastecimento(django_user_model):
 @pytest.fixture
 def client_tercerizada_com_acesso_medicao(client, django_user_model, terceirizada):
     username = "9874563"
-    password = "785269"
+    password = DJANGO_ADMIN_PASSWORD
     usuario = django_user_model.objects.create_user(
         nome="ANTONIO",
         username=username,
