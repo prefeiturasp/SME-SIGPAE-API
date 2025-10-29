@@ -1,6 +1,8 @@
 import datetime
 import json
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models import F, Max, Sum
 from django.http import HttpResponse
@@ -26,6 +28,7 @@ from sme_sigpae_api.medicao_inicial.tasks import (
 )
 from sme_sigpae_api.terceirizada.models import Terceirizada
 
+from sme_sigpae_api.dados_comuns.constants import TEMPO_CACHE_6H
 from ...dados_comuns.permissions import (
     UsuarioCODAEDietaEspecial,
     UsuarioCODAEGabinete,
@@ -233,6 +236,7 @@ class EscolaSimplissimaComDREUnpaginatedViewSet(EscolaSimplissimaComDREViewSet):
     pagination_class = None
     filterset_class = DiretoriaRegionalFilter
 
+    @method_decorator(cache_page(TEMPO_CACHE_6H))
     @action(detail=False, methods=["GET"], url_path="terc-total")
     def terc_total(self, request):
         escolas = self.get_queryset().filter(tipo_gestao__nome="TERC TOTAL")
