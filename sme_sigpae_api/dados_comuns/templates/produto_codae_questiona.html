@@ -1,5 +1,6 @@
 {% extends 'email_base.html' %}
-{% load email_templatetags %}
+{% load safe_html_tags %}
+
 
 {% block style_override %}
 <style>
@@ -12,7 +13,7 @@
 {% block conteudo %}
   <p>Produto {{ produto.nome }} - {{ produto.marca }}.</p>
   <p><b>Justificativa: </b></p>
-  {{ log_transicao.justificativa|safe }}
+  {{ log_transicao.justificativa|safe_content }}
   <p><a href="{{ link_pdf }}">Clique para acessar detalhes do cadastro</a></p>
   <br/>
 {% endblock %}
