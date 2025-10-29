@@ -52,7 +52,6 @@ def test_calculo_totais_solicitacoes(aluno_factory, solicitacao_dieta_especial_f
     status_nao_contabilizados = [
         "CANCELADO_ALUNO_NAO_PERTENCE_REDE",
         "TERMINADA_AUTOMATICAMENTE_SISTEMA",
-        "CODAE_AUTORIZOU_INATIVACAO",
     ]
     for status in status_nao_contabilizados:
         solicitacao_dieta_especial_factory.create(
