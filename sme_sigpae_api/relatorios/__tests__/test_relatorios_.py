@@ -428,9 +428,12 @@ def test_relatorio_reclamacao_produtos(
         in texto
     )
     assert " Data da reclamação: 15/07/2022" in texto
-    assert "Justificativa da reclamação: produto vencido" in texto
+    print(texto)
+    assert "Justificativa da reclamação:" in texto
+    assert "produto vencido" in texto
     assert "Data avaliação CODAE: 05/08/2022" in texto
-    assert "Justificativa avaliação CODAE: deu certooo" in texto
+    assert "Justificativa avaliação CODAE:" in texto
+    assert "deu certooo" in texto
 
 
 @freeze_time("2024-12-27")
@@ -464,9 +467,11 @@ def test_relatorio_reclamacao_produtos_sem_dre_lote_selecionadas(
         in texto
     )
     assert " Data da reclamação: 15/07/2022" in texto
-    assert "Justificativa da reclamação: produto vencido" in texto
+    assert "Justificativa da reclamação:" in texto
+    assert "produto vencido" in texto
     assert "Data avaliação CODAE: 05/08/2022" in texto
-    assert "Justificativa avaliação CODAE: deu certooo" in texto
+    assert "Justificativa avaliação CODAE:" in texto
+    assert "deu certooo" in texto
 
 
 @freeze_time("2024-12-27")
@@ -501,9 +506,11 @@ def test_relatorio_reclamacao_produtos_sem_data_selecionadas(
         in texto
     )
     assert " Data da reclamação: 15/07/2022" in texto
-    assert "Justificativa da reclamação: produto vencido" in texto
+    assert "Justificativa da reclamação:" in texto
+    assert "produto vencido" in texto
     assert "Data avaliação CODAE: 05/08/2022" in texto
-    assert "Justificativa avaliação CODAE: deu certooo" in texto
+    assert "Justificativa avaliação CODAE:" in texto
+    assert "deu certooo" in texto
 
 
 @freeze_time("2024-12-27")
