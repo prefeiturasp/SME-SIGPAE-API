@@ -51,9 +51,12 @@ class SolicitacoesSerializer(serializers.ModelSerializer):
         return descricao
 
     def get_data_log(self, obj):
-        if obj.data_log.date() == datetime.date.today():
+        if obj.data_log and obj.data_log.date() == datetime.date.today():
             return obj.data_log.strftime("%d/%m/%Y %H:%M")
-        return obj.data_log.strftime("%d/%m/%Y")
+        elif obj.data_log:
+            return obj.data_log.strftime("%d/%m/%Y")
+        else:
+            return None
 
     def get_tipo_unidade_escolar(self, obj):
         tipo_unidade = TipoUnidadeEscolar.objects.filter(
