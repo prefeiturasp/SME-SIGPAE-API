@@ -1368,10 +1368,12 @@ class SolicitacoesEscola(MoldeConsolidado):
         from sme_sigpae_api.kit_lanche.models import SolicitacaoKitLancheUnificada
 
         escola_uuid = kwargs.get("escola_uuid")
-        uuids_solicitacao_unificadas = SolicitacaoKitLancheUnificada.objects.filter(
-            escolas_quantidades__escola__uuid=escola_uuid,
-            escolas_quantidades__cancelado=False,
-        ).values_list("uuid", flat=True)
+        uuids_solicitacao_unificadas = list(
+            SolicitacaoKitLancheUnificada.objects.filter(
+                escolas_quantidades__escola__uuid=escola_uuid,
+                escolas_quantidades__cancelado=False,
+            ).values_list("uuid", flat=True)
+        )
         return (
             cls.objects.filter(
                 Q(escola_uuid=escola_uuid) | Q(uuid__in=uuids_solicitacao_unificadas),
