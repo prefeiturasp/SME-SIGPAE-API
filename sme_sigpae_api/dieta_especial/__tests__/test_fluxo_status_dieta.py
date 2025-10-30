@@ -23,6 +23,24 @@ def test_inicio_fluxo_alteracao_ue_usa_status_correto(
     )
 
 
+def test_codae_autorizou_alteracao_ue_usa_status_normal(
+    solicitacao_dieta_especial_aprovada_alteracao_ue,
+    usuario_admin,
+):
+    """Testa se a transição codae_autorizou usa INICIO_FLUXO para alteração UE."""
+
+    usuario = usuario_admin
+
+    solicitacao = solicitacao_dieta_especial_aprovada_alteracao_ue
+    solicitacao._codae_autoriza_hook(user=usuario)
+
+    log = LogSolicitacoesUsuario.objects.get(uuid_original=solicitacao.uuid)
+    assert (
+        log.status_evento
+        == LogSolicitacoesUsuario.CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL
+    )
+
+
 def test_inicio_fluxo_comum_usa_status_normal(
     solicitacao_dieta_especial_a_autorizar,
 ):
