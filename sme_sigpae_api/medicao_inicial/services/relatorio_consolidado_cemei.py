@@ -19,6 +19,7 @@ from sme_sigpae_api.medicao_inicial.services import (
     relatorio_consolidado_cei,
     relatorio_consolidado_emei_emef,
 )
+from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from sme_sigpae_api.medicao_inicial.services.utils import (
     generate_columns,
     gera_colunas_alimentacao,
@@ -28,7 +29,6 @@ from sme_sigpae_api.medicao_inicial.services.utils import (
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
 )
-from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 
 
 def get_alimentacoes_por_periodo(
@@ -217,11 +217,15 @@ def _processa_periodo_campo(
 
 def _define_filtro(periodo: str, grupos_medicao: list[str]) -> dict:
     filtros = {}
-    if periodo in ["Solicitações de Alimentação"] + list(grupos_medicao):
+    if periodo in ["Solicitações de Alimentação", "Programas e Projetos"] + list(
+        grupos_medicao
+    ):
         filtros["grupo__nome"] = periodo
     elif "DIETA ESPECIAL" in periodo:
         if "INFANTIL" in periodo:
             filtros["grupo__nome__in"] = grupos_medicao
+        elif "PROGRAMAS E PROJETOS" in periodo:
+            filtros["grupo__nome"] = "Programas e Projetos"
         else:
             filtros["periodo_escolar__nome"] = periodo.split(" - ")[-1]
     else:
@@ -236,6 +240,7 @@ def _processa_dieta_especial(
         periodo.replace(" - INFANTIL", "")
         .replace(" - INTEGRAL", "")
         .replace(" - PARCIAL", "")
+        .replace(" - PROGRAMAS E PROJETOS", "")
     )
     soma = "-"
     if any("periodo_escolar" in chave for chave in filtros.keys()):

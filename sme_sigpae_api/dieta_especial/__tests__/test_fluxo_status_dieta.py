@@ -28,6 +28,7 @@ def test_codae_autorizou_alteracao_ue_usa_status_normal(
     usuario_admin,
 ):
     """Testa se a transição codae_autorizou usa INICIO_FLUXO para alteração UE."""
+
     usuario = usuario_admin
 
     solicitacao = solicitacao_dieta_especial_aprovada_alteracao_ue

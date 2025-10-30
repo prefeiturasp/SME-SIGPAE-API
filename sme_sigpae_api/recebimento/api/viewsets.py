@@ -11,7 +11,12 @@ from sme_sigpae_api.relatorios.relatorios import get_pdf_ficha_recebimento
 
 from ...dados_comuns.api.paginations import DefaultPagination
 from ...pre_recebimento.cronograma_entrega.models import Cronograma
-from ..models import FichaDeRecebimento, QuestaoConferencia, QuestoesPorProduto, ReposicaoCronogramaFichaRecebimento
+from ..models import (
+    FichaDeRecebimento,
+    QuestaoConferencia,
+    QuestoesPorProduto,
+    ReposicaoCronogramaFichaRecebimento,
+)
 from .filters import FichaRecebimentoFilter, QuestoesPorProdutoFilter
 from .permissions import (
     PermissaoParaCadastrarFichaRecebimento,
@@ -30,9 +35,10 @@ from .serializers.serializers import (
 )
 from .serializers.serializers_create import (
     FichaDeRecebimentoCreateSerializer,
+    FichaDeRecebimentoCreateSerializerSaldoZero,
     FichaDeRecebimentoRascunhoSerializer,
-    QuestoesPorProdutoCreateSerializer,
     FichaDeRecebimentoReposicaoSerializer,
+    QuestoesPorProdutoCreateSerializer,
 )
 
 
@@ -133,6 +139,23 @@ class FichaDeRecebimentoRascunhoViewSet(
     queryset = FichaDeRecebimento.objects.all().order_by("-criado_em")
     permission_classes = (PermissaoParaCadastrarFichaRecebimento,)
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+
+        output_serializer = FichaDeRecebimentoSerializer(instance)
+        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=False)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+
+        output_serializer = FichaDeRecebimentoSerializer(instance)
+        return Response(output_serializer.data, status=status.HTTP_200_OK)
+
 
 class FichaRecebimentoModelViewSet(
     mixins.ListModelMixin,
@@ -152,6 +175,8 @@ class FichaRecebimentoModelViewSet(
     def get_serializer_class(self):
         if self.action in ["create", "update"]:
             return FichaDeRecebimentoCreateSerializer
+        if self.action in ["create_saldo_zero", "update_saldo_zero"]:
+            return FichaDeRecebimentoCreateSerializerSaldoZero
         if self.action == "retrieve":
             return FichaDeRecebimentoDetalharSerializer
         return FichaDeRecebimentoSerializer
@@ -162,42 +187,40 @@ class FichaRecebimentoModelViewSet(
             "retrieve": (PermissaoParaVisualizarFichaRecebimento,),
             "create": (PermissaoParaCadastrarFichaRecebimento,),
             "update": (PermissaoParaCadastrarFichaRecebimento,),
+            "create_saldo_zero": (PermissaoParaCadastrarFichaRecebimento,),
+            "update_saldo_zero": (PermissaoParaCadastrarFichaRecebimento,),
         }
         action_permissions = permission_classes_map.get(self.action, [])
         self.permission_classes = (*self.permission_classes, *action_permissions)
         return super(FichaRecebimentoModelViewSet, self).get_permissions()
 
-    def create(self, request, *args, **kwargs):
+    def _process_ficha_request(self, request, instance=None, create=False):
         if auth_response := verificar_autenticidade_usuario(request):
             return auth_response
-
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        instance = serializer.save()
-
-        instance = FichaDeRecebimento.objects.prefetch_related(
-            "documentos_recebimento", "arquivos", "questoes_conferencia", "ocorrencias"
-        ).get(uuid=instance.uuid)
-
-        output_serializer = FichaDeRecebimentoSerializer(instance)
-        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
-
-    def update(self, request, *args, **kwargs):
-        if auth_response := verificar_autenticidade_usuario(request):
-            return auth_response
-
-        instance = self.get_object()
 
         serializer = self.get_serializer(instance, data=request.data, partial=False)
         serializer.is_valid(raise_exception=True)
-        instance = serializer.save()
+        saved_instance = serializer.save()
 
-        instance = FichaDeRecebimento.objects.prefetch_related(
-            "documentos_recebimento", "arquivos", "questoes_conferencia", "ocorrencias"
-        ).get(uuid=instance.uuid)
+        output_serializer = FichaDeRecebimentoSerializer(saved_instance)
+        status_code = status.HTTP_201_CREATED if create else status.HTTP_200_OK
+        return Response(output_serializer.data, status=status_code)
 
-        output_serializer = FichaDeRecebimentoSerializer(instance)
-        return Response(output_serializer.data, status=status.HTTP_200_OK)
+    def create(self, request, *args, **kwargs):
+        return self._process_ficha_request(request, create=True)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        return self._process_ficha_request(request, instance=instance, create=False)
+
+    @action(detail=False, methods=["POST"], url_path="cadastrar-saldo-zero")
+    def create_saldo_zero(self, request):
+        return self._process_ficha_request(request, create=True)
+
+    @action(detail=True, methods=["PUT"], url_path="atualizar-saldo-zero")
+    def update_saldo_zero(self, request, uuid=None):
+        instance = self.get_object()
+        return self._process_ficha_request(request, instance=instance, create=False)
 
     @action(detail=True, methods=["GET"], url_path="gerar-pdf-ficha")
     def gerar_pdf_ficha(self, request, uuid=None):

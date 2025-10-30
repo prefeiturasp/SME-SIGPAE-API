@@ -1,9 +1,13 @@
+from datetime import datetime
+from unittest import mock
+
 import pytest
 from django.core.management import call_command
+
+from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
+    SolicitacaoDietaEspecialFactory,
+)
 from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
-from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factory import SolicitacaoDietaEspecialFactory
-from unittest import mock
-from datetime import datetime
 
 
 @pytest.mark.django_db

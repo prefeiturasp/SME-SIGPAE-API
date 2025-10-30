@@ -8,8 +8,8 @@ from sme_sigpae_api.recebimento.models import (
     QuestaoConferencia,
     QuestaoFichaRecebimento,
     QuestoesPorProduto,
-    VeiculoFichaDeRecebimento,
     ReposicaoCronogramaFichaRecebimento,
+    VeiculoFichaDeRecebimento,
 )
 
 

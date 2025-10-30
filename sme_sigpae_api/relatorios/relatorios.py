@@ -4,6 +4,7 @@ from calendar import monthrange
 import environ
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import F, FloatField, Sum
+from django.http import HttpResponseNotAllowed
 from django.template.loader import get_template, render_to_string
 
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
@@ -79,7 +80,14 @@ from .utils import (
 env = environ.Env()
 
 
+def valida_request_method_get(request):
+    if request and request.method != "GET":
+        return HttpResponseNotAllowed()
+
+
 def relatorio_kit_lanche_unificado(request, solicitacao):
+    valida_request_method_get(request)
+
     qtd_escolas = EscolaQuantidade.objects.filter(
         solicitacao_unificada=solicitacao
     ).count()
@@ -178,6 +186,9 @@ def relatorio_kit_lanche_unificado(request, solicitacao):
 
 
 def relatorio_alteracao_cardapio(request, solicitacao):  # noqa C901
+    if request and request.method != "GET":
+        return HttpResponseNotAllowed()
+
     substituicoes = solicitacao.substituicoes_periodo_escolar
     formata_substituicoes = []
 
@@ -601,6 +612,9 @@ def relatorio_guia_de_remessa(guias, is_async=False):  # noqa C901
 
 
 def relatorio_dieta_especial(request, solicitacao):
+    if request and request.method != "GET":
+        return HttpResponseNotAllowed()
+
     html_string = relatorio_dieta_especial_conteudo(solicitacao, request)
     return html_to_pdf_response(
         html_string, f"dieta_especial_{solicitacao.id_externo}.pdf"
@@ -624,6 +638,9 @@ def relatorio_dietas_especiais_terceirizada(dados):
 
 
 def relatorio_dieta_especial_protocolo(request, solicitacao, sem_foto=False):
+    if request and request.method != "GET":
+        return HttpResponseNotAllowed()
+
     if solicitacao.tipo_solicitacao == "COMUM":
         escola = solicitacao.rastro_escola
     else:
@@ -693,6 +710,9 @@ def relatorio_inclusao_alimentacao_continua(request, solicitacao):
 
 
 def relatorio_inclusao_alimentacao_normal(request, solicitacao):
+    if request and request.method != "GET":
+        return HttpResponseNotAllowed()
+
     escola = solicitacao.rastro_escola
     logs = solicitacao.logs
     html_string = render_to_string(
@@ -1093,6 +1113,9 @@ def relatorio_suspensao_de_alimentacao_cei(request, solicitacao):
 
 
 def relatorio_produto_homologacao(request, produto):
+    if request and request.method != "GET":
+        return HttpResponseNotAllowed()
+
     homologacao = produto.homologacao
     terceirizada = homologacao.rastro_terceirizada
     reclamacao = homologacao.reclamacoes.filter(
@@ -1947,6 +1970,7 @@ def get_pdf_ficha_recebimento(request, ficha):
             "ficha": ficha,
             "etapa": ficha.etapa,
             "cronograma": ficha.etapa.cronograma,
+            "reposicao_cronograma": ficha.reposicao_cronograma,
             "ficha_tecnica": ficha.etapa.cronograma.ficha_tecnica,
             "documentos": documentos_serializer.data,
             "veiculos": ficha.veiculos.all(),

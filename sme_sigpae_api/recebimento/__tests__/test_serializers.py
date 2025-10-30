@@ -1,4 +1,5 @@
 import pytest
+from model_bakery import baker
 
 from sme_sigpae_api.recebimento.api.serializers.serializers import (
     ArquivoFichaRecebimentoSerializer,
@@ -8,11 +9,13 @@ from sme_sigpae_api.recebimento.api.serializers.serializers import (
     QuestaoFichaRecebimentoDetailSerializer,
     QuestaoFichaRecebimentoSerializer,
     QuestoesPorProdutoDetalheSerializer,
-    VeiculoFichaDeRecebimentoSerializer,
     ReposicaoCronogramaFichaRecebimentoSerializer,
+    VeiculoFichaDeRecebimentoSerializer,
 )
-from sme_sigpae_api.recebimento.models import QuestaoFichaRecebimento, ReposicaoCronogramaFichaRecebimento
-from model_bakery import baker
+from sme_sigpae_api.recebimento.models import (
+    QuestaoFichaRecebimento,
+    ReposicaoCronogramaFichaRecebimento,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -208,11 +211,12 @@ def test_ficha_recebimento_detalhar_serializer(ficha_recebimento):
     assert "peso_embalagem_primaria_4" in data
     assert isinstance(data["peso_embalagem_primaria_4"], float)
 
+
 def test_reposicao_cronograma_ficha_recebimento_serializer():
     reposicao = baker.make(
         ReposicaoCronogramaFichaRecebimento,
         tipo="Repor",
-        descricao="Repor os produtos faltantes/recusados"
+        descricao="Repor os produtos faltantes/recusados",
     )
 
     serializer = ReposicaoCronogramaFichaRecebimentoSerializer(reposicao)

@@ -3,10 +3,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
+from sme_sigpae_api.escola.api.serializers import UsuarioDetalheSerializer
 from sme_sigpae_api.escola.models import Aluno
 
 from ..utils import EOLException, EOLServicoSGP
-from sme_sigpae_api.escola.api.serializers import UsuarioDetalheSerializer
 
 
 class DadosUsuarioEOLCompletoViewSet(ViewSet):
@@ -22,15 +22,23 @@ class DadosUsuarioEOLCompletoViewSet(ViewSet):
             dados_usuario = response_dados_usuario.json()
             usuario = request.user
             serializer_usuario_logado = UsuarioDetalheSerializer(usuario)
-            usuario_eh_codae = serializer_usuario_logado.data["vinculo_atual"]["perfil"]["visao"] == "CODAE"
+            usuario_eh_codae = (
+                serializer_usuario_logado.data["vinculo_atual"]["perfil"]["visao"]
+                == "CODAE"
+            )
 
-            codigo_dre_usuario_logado = serializer_usuario_logado.data["vinculo_atual"]["instituicao"]["codigo_eol"]
+            codigo_dre_usuario_logado = serializer_usuario_logado.data["vinculo_atual"][
+                "instituicao"
+            ]["codigo_eol"]
             codigo_dre_rf_buscado = dados_usuario["cargos"][0]["codigoDre"]
 
-            if not usuario_eh_codae and codigo_dre_usuario_logado != codigo_dre_rf_buscado:
+            if (
+                not usuario_eh_codae
+                and codigo_dre_usuario_logado != codigo_dre_rf_buscado
+            ):
                 return Response(
                     {"detail": "RF não pertence a uma unidade de sua DRE."},
-                    status=status.HTTP_403_FORBIDDEN
+                    status=status.HTTP_403_FORBIDDEN,
                 )
 
             dados_usuario = {

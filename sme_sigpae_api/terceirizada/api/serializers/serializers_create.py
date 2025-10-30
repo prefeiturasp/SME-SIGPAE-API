@@ -1,10 +1,12 @@
+import datetime
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from ....dados_comuns.api.serializers import ContatoSerializer
-from ....dados_comuns.utils import update_instance_from_dict
-from ....escola.models import DiretoriaRegional, Lote
-from ...models import (
+from sme_sigpae_api.dados_comuns.api.serializers import ContatoSerializer
+from sme_sigpae_api.dados_comuns.utils import update_instance_from_dict
+from sme_sigpae_api.escola.models import DiretoriaRegional, Lote
+from sme_sigpae_api.terceirizada.models import (
     Contrato,
     Edital,
     EmailTerceirizadaPorModulo,
@@ -216,8 +218,9 @@ class TerceirizadaCreateSerializer(serializers.ModelSerializer):
             if lote not in terceirizada.lotes.all() and lote.terceirizada
         ]:
             checar_terceirizadas_inativacao.append(lote.terceirizada.uuid)
-            lote.transferir_solicitacoes_gestao_alimentacao(terceirizada)
-            lote.transferir_dietas_especiais(terceirizada)
+            lote.transferir_lote(
+                terceirizada_nova=terceirizada, data_da_virada=datetime.date.today()
+            )
 
         return checar_terceirizadas_inativacao
 

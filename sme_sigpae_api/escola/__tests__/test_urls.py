@@ -412,6 +412,35 @@ def test_url_relatorios_alunos_matriculados_actions(client_autenticado_da_dre):
     assert response.status_code == status.HTTP_200_OK
 
 
+def test_url_relatorios_alunos_matriculados_actions(client_autenticado_da_escola):
+    client = client_autenticado_da_escola
+
+    response = client.get("/relatorio-alunos-matriculados/filtros/")
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()
+
+    assert (
+        len(response_data["lotes"]) == 1
+    ), f"Esperado 1 lote, mas encontrou {len(response_data['lotes'])}"
+
+    assert (
+        len(response_data["diretorias_regionais"]) == 1
+    ), f"Esperado 1 DRE, mas encontrou {len(response_data['diretorias_regionais'])}"
+
+    assert (
+        len(response_data["tipos_unidade_escolar"]) == 1
+    ), f"Esperado 1 tipo unidade escolar, mas encontrou {len(response_data['tipos_unidade_escolar'])}"
+
+    assert (
+        len(response_data["escolas"]) == 1
+    ), f"Esperado 1 escola, mas encontrou {len(response_data['escolas'])}"
+
+    response = client.get("/relatorio-alunos-matriculados/filtrar/")
+    assert response.status_code == status.HTTP_200_OK
+
+
 def test_escolas_simplissimas_com_paginacao(client_autenticado_da_escola):
     response = client_autenticado_da_escola.get("/escolas-simplissima/?page=1")
     assert response.status_code == status.HTTP_200_OK

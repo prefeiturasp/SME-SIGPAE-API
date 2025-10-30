@@ -2,6 +2,7 @@ import datetime
 import json
 import random
 from io import BytesIO
+from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
@@ -30,6 +31,9 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
 )
 from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cemei import (
     insere_tabela_periodos_na_planilha as cemei_insere_tabela,
+)
+from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cieja_cmct import (
+    insere_tabela_periodos_na_planilha as cieja_cmct_insere_tabela,
 )
 from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emebs import (
     insere_tabela_periodos_na_planilha as emebs_insere_tabela,
@@ -478,6 +482,49 @@ def escola_ceu_gestao():
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
         tipo_unidade=tipo_unidade_escolar,
+    )
+
+
+@pytest.fixture
+def escola_cmct():
+    terceirizada = baker.make("Terceirizada")
+    diretoria_regional = baker.make(
+        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+    )
+    lote = baker.make(
+        "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
+    )
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CMCT")
+    return baker.make(
+        "Escola",
+        nome="CMCT TESTE",
+        lote=lote,
+        diretoria_regional=diretoria_regional,
+        tipo_gestao=tipo_gestao,
+        tipo_unidade=tipo_unidade_escolar,
+    )
+
+
+@pytest.fixture
+def escola_cieja():
+    terceirizada = baker.make("Terceirizada")
+    diretoria_regional = baker.make(
+        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+    )
+    lote = baker.make(
+        "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
+    )
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CIEJA")
+    return baker.make(
+        "Escola",
+        nome="CIEJA TESTE",
+        lote=lote,
+        diretoria_regional=diretoria_regional,
+        tipo_gestao=tipo_gestao,
+        tipo_unidade=tipo_unidade_escolar,
+        codigo_eol="111329",
     )
 
 
@@ -2495,6 +2542,27 @@ def client_autenticado_da_escola(client, django_user_model, escola):
 
 
 @pytest.fixture
+def client_autenticado_da_escola_cmct(client, django_user_model, escola_cmct):
+    email = "user@escola.com"
+    password = DJANGO_ADMIN_PASSWORD
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    usuario = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="123456"
+    )
+    hoje = datetime.date.today()
+    baker.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=escola_cmct,
+        perfil=perfil_diretor,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client
+
+
+@pytest.fixture
 def client_autenticado_da_escola_cei(client, django_user_model, escola_cei):
     email = "user@escola_cei.com"
     password = DJANGO_ADMIN_PASSWORD
@@ -2743,6 +2811,7 @@ def logs_alunos_matriculados_periodo_escola_cemei(escola_cemei):
         periodo_escolar=periodo_integral,
         quantidade_alunos=50,
         tipo_turma=TipoTurma.REGULAR.name,
+        cei_ou_emei="EMEI",
     )
     return LogAlunosMatriculadosPeriodoEscola.objects.all()
 
@@ -2752,7 +2821,6 @@ def grupo_escolar(
     tipo_unidade_escolar,
     tipo_unidade_escolar_ceu_emef,
     tipo_unidade_escolar_emefm,
-    tipo_unidade_escolar_cieja,
     tipo_unidade_escolar_ceu_gestao,
 ):
     grupo_escolar = baker.make(
@@ -2763,7 +2831,6 @@ def grupo_escolar(
             tipo_unidade_escolar,
             tipo_unidade_escolar_ceu_emef,
             tipo_unidade_escolar_emefm,
-            tipo_unidade_escolar_cieja,
             tipo_unidade_escolar_ceu_gestao,
         ],
     )
@@ -3658,6 +3725,7 @@ def relatorio_consolidado_xlsx_cemei(
     grupo_infantil_manha,
     grupo_infantil_tarde,
     grupo_solicitacoes_alimentacao,
+    grupo_programas_e_projetos,
     categoria_medicao_solicitacoes_alimentacao,
 ):
     medicao_integral = baker.make(
@@ -3692,6 +3760,11 @@ def relatorio_consolidado_xlsx_cemei(
         solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
         grupo=grupo_solicitacoes_alimentacao,
     )
+    medicao_programas_e_projetos = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_grupo_cemei,
+        grupo=grupo_programas_e_projetos,
+    )
 
     for dia in ["01", "02", "03", "04", "05"]:
         if dia == "05":
@@ -3704,6 +3777,43 @@ def relatorio_consolidado_xlsx_cemei(
                     categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
                     valor="5",
                 )
+            for campo in [
+                "numero_de_alunos",
+                "frequencia",
+                "dietas_autorizadas",
+                "lanche",
+                "lanche_4h",
+                "refeicao",
+                "sobremesa",
+            ]:
+                if campo not in ["numero_de_alunos", "refeicao", "sobremesa"]:
+                    baker.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao_programas_e_projetos,
+                        categoria_medicao=categoria_medicao_dieta_a,
+                        valor=1,
+                    )
+                    baker.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao_programas_e_projetos,
+                        categoria_medicao=categoria_medicao_dieta_b,
+                        valor=1,
+                    )
+                if campo != "dietas_autorizadas":
+                    baker.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao_programas_e_projetos,
+                        categoria_medicao=categoria_medicao,
+                        valor=1,
+                        faixa_etaria=faixa,
+                    )
+
         for medicao in [medicao_integral, medicao_parcial]:
             for faixa in faixas_etarias_ativas:
                 baker.make(
@@ -4379,3 +4489,236 @@ def solicitacao_medicao_informacoes_basicas(escola):
     solicitacao_medicao_inicial.responsaveis.set([responsavel])
 
     return solicitacao_medicao_inicial
+
+
+@pytest.fixture
+def mock_request():
+    request = MagicMock()
+    request.user = MagicMock()
+    request.user.vinculo_atual.perfil.nome = None
+    request.user.vinculo_atual.content_type.model = None
+    return request
+
+
+@pytest.fixture
+def solicitacao_relatorio_consolidado_escola_cieja(escola_cieja):
+    return baker.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola_cieja,
+        mes="04",
+        ano="2025",
+        status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+    )
+
+
+@pytest.fixture
+def relatorio_consolidado_xlsx_cieja(
+    solicitacao_relatorio_consolidado_escola_cieja,
+    periodo_escolar_manha,
+    periodo_escolar_tarde,
+    grupo_solicitacoes_alimentacao,
+    grupo_programas_e_projetos,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_b,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    medicao_manha = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_escola_cieja,
+        periodo_escolar=periodo_escolar_manha,
+    )
+
+    medicao_tarde = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_escola_cieja,
+        periodo_escolar=periodo_escolar_tarde,
+    )
+
+    medicao_programas_projetos = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_escola_cieja,
+        grupo=grupo_programas_e_projetos,
+    )
+
+    medicao_solicitacao_alimentacao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_relatorio_consolidado_escola_cieja,
+        grupo=grupo_solicitacoes_alimentacao,
+    )
+
+    for dia in ["01", "02", "03", "04", "05"]:
+        for medicao in [medicao_manha, medicao_tarde]:
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo="matriculados",
+                medicao=medicao,
+                categoria_medicao=categoria_medicao,
+                valor="40",
+            )
+            for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
+
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao,
+                    categoria_medicao=categoria_medicao,
+                    valor="30",
+                )
+                if campo in ["lanche", "lanche_4h"]:
+                    for categoria in [
+                        categoria_medicao_dieta_a,
+                        categoria_medicao_dieta_b,
+                        categoria_medicao_dieta_a_enteral_aminoacidos,
+                    ]:
+                        baker.make(
+                            "ValorMedicao",
+                            dia=dia,
+                            nome_campo=campo,
+                            medicao=medicao,
+                            categoria_medicao=categoria,
+                            valor="4",
+                        )
+                elif campo == "refeicao":
+                    baker.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao,
+                        categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                        valor="4",
+                    )
+
+        if dia in ["02", "03"]:
+            for campo in ["numero_de_alunos", "frequencia", "lanche_4h"]:
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao_programas_projetos,
+                    categoria_medicao=categoria_medicao,
+                    valor="10",
+                )
+
+        if dia == "05":
+            for campo in ["kit_lanche", "lanche_emergencial"]:
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao_solicitacao_alimentacao,
+                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
+                    valor="5",
+                )
+
+    return solicitacao_relatorio_consolidado_escola_cieja
+
+
+@pytest.fixture
+def mock_query_params_excel_cieja_cmct(solicitacao_relatorio_consolidado_escola_cieja):
+
+    grupo_escolar = baker.make(
+        "GrupoUnidadeEscolar",
+        nome="Grupo 6",
+        uuid="ee9abe61-e1c4-48fb-8b53-ffd2cef00458",
+        tipos_unidades=[
+            baker.make("TipoUnidadeEscolar", iniciais="CIEJA"),
+            baker.make("TipoUnidadeEscolar", iniciais="CMCT"),
+        ],
+    )
+    return {
+        "dre": solicitacao_relatorio_consolidado_escola_cieja.escola.diretoria_regional.uuid,
+        "status": "MEDICAO_APROVADA_PELA_CODAE",
+        "grupo_escolar": grupo_escolar,
+        "mes": solicitacao_relatorio_consolidado_escola_cieja.mes,
+        "ano": solicitacao_relatorio_consolidado_escola_cieja.ano,
+        "lotes[]": solicitacao_relatorio_consolidado_escola_cieja.escola.lote.uuid,
+        "lotes": [solicitacao_relatorio_consolidado_escola_cieja.escola.lote.uuid],
+    }
+
+
+@pytest.fixture
+def mock_colunas_cieja():
+
+    colunas = [
+        ("Solicitações de Alimentação", "kit_lanche"),
+        ("Solicitações de Alimentação", "lanche_emergencial"),
+    ]
+    for periodo in [
+        "MANHA",
+        "TARDE",
+    ]:
+        for campo in [
+            "lanche",
+            "lanche_4h",
+            "refeicao",
+            "total_refeicoes_pagamento",
+            "sobremesa",
+            "total_sobremesas_pagamento",
+        ]:
+            colunas.append((periodo, campo))
+
+    colunas.append(("PROGRAMAS E PROJETOS", "lanche_4h"))
+    colunas.append(("PROGRAMAS E PROJETOS", "total_refeicoes_pagamento"))
+    colunas.append(("PROGRAMAS E PROJETOS", "total_sobremesas_pagamento"))
+    colunas.append(("DIETA ESPECIAL - TIPO A", "lanche"))
+    colunas.append(("DIETA ESPECIAL - TIPO A", "lanche_4h"))
+    colunas.append(("DIETA ESPECIAL - TIPO A", "refeicao"))
+    colunas.append(("DIETA ESPECIAL - TIPO B", "lanche"))
+    colunas.append(("DIETA ESPECIAL - TIPO B", "lanche_4h"))
+
+    return colunas
+
+
+@pytest.fixture
+def mock_linhas_cieja():
+    return [
+        [
+            "CIEJA",
+            "111329",
+            "CIEJA TESTE",
+            5,
+            5,
+            150,
+            150,
+            150,
+            150,
+            150,
+            150,
+            150,
+            150,
+            150,
+            150,
+            150,
+            150,
+            20,
+            0,
+            0,
+            80,
+            80,
+            40,
+            40,
+            40,
+        ]
+    ]
+
+
+@pytest.fixture
+def informacoes_excel_writer_cieja_cmct(
+    relatorio_consolidado_xlsx_cieja, mock_colunas_cieja, mock_linhas_cieja
+):
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {relatorio_consolidado_xlsx_cieja.mes}-{ relatorio_consolidado_xlsx_cieja.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+    workbook = writer.book
+    worksheet = workbook.add_worksheet(aba)
+    worksheet.set_default_row(20)
+    df = cieja_cmct_insere_tabela(aba, mock_colunas_cieja, mock_linhas_cieja, writer)
+    try:
+        yield aba, writer, workbook, worksheet, df, arquivo
+    finally:
+        workbook.close()
+        writer.close()

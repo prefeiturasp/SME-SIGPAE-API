@@ -2725,7 +2725,7 @@ def validate_solicitacoes_continuas(
                 quantidade_dias_mes,
                 inclusoes,
                 medicao,
-                False,
+                escola_sem_alunos_regulares,
                 ValorMedicao.NA,
             )
 
@@ -2737,7 +2737,7 @@ def validate_solicitacoes_continuas(
                 quantidade_dias_mes,
                 inclusoes,
                 medicao,
-                False,
+                escola_sem_alunos_regulares,
                 ValorMedicao.INFANTIL,
             ) or valida_dietas_solicitacoes_continuas(
                 solicitacao.escola,
@@ -2746,7 +2746,7 @@ def validate_solicitacoes_continuas(
                 quantidade_dias_mes,
                 inclusoes,
                 medicao,
-                False,
+                escola_sem_alunos_regulares,
                 ValorMedicao.FUNDAMENTAL,
             )
 
@@ -2979,8 +2979,9 @@ def validate_solicitacoes_programas_e_projetos_escola_sem_alunos_regulares(
         inclusoes,
         medicao_programas_projetos,
         "Programas e Projetos",
-        True,
-        True,
+        valida_dietas=True,
+        escola_sem_alunos_regulares=True,
+        eh_emebs=False,
     )
 
 

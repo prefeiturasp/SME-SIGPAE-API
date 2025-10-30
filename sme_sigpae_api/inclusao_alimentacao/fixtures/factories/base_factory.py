@@ -135,6 +135,7 @@ class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEIFactory(
 
 class DiasMotivosInclusaoDeAlimentacaoCEIFactory(DjangoModelFactory):
     inclusao_cei = SubFactory(InclusaoAlimentacaoDaCEIFactory)
+    motivo = SubFactory(MotivoInclusaoNormalFactory)
 
     class Meta:
         model = DiasMotivosInclusaoDeAlimentacaoCEI
