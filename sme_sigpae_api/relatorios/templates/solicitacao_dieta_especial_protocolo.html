@@ -2,6 +2,7 @@
 {% load index %}
 {% load sass_tags %}
 {% load static %}
+{% load safe_html_tags %}
 
 
 {% block conteudo %}
@@ -82,7 +83,7 @@
     {{ solicitacao.nome_protocolo | upper }}
   </h5>
   <p><strong>{% next_section %}. Orientações Gerais</strong></p>
-  <p>{{ solicitacao.orientacoes_gerais|safe }}</p>
+  <p>{{ solicitacao.orientacoes_gerais|safe_content }}</p>
   {% if data_termino %}
   <p>- Esta dieta especial terá seu fornecimento encerrado em {{ data_termino }}</p>
   {% endif %}
@@ -118,7 +119,7 @@
   {% if solicitacao.informacoes_adicionais %}
   <p><strong>{% next_section %}. Informações Adicionais</strong></p>
   <div class="protocolo-dieta-informacoes-adicionais">
-    {{ solicitacao.informacoes_adicionais|safe }}
+    {{ solicitacao.informacoes_adicionais|safe_content }}
   </div>
   {% endif %}
 

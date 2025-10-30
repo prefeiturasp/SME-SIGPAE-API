@@ -1,10 +1,12 @@
+{% load safe_html_tags %}
+
 <p style="margin-bottom: 4px;">Edições realizadas</p>
 {% for campo, mudanca in alteracoes.items %}
   {% if campo != 'Substituições de Alimentos' %}
     <p style="margin-bottom: 4px;">Campo: <b>{{ campo }}</b></p>
     <ul>
-      <li style="margin-bottom: 6px;">De: <b>{{ mudanca.de|safe }}</b></li>
-      <li style="margin-bottom: 6px;">Para: <b>{{ mudanca.para|safe }}</b></li>
+      <li style="margin-bottom: 6px;">De: <b>{{ mudanca.de|safe_content }}</b></li>
+      <li style="margin-bottom: 6px;">Para: <b>{{ mudanca.para|safe_content }}</b></li>
     </ul>
   {% else %}
     <p>Campo: <b>{{ campo }}</b></p></br>
