@@ -1,12 +1,12 @@
 import datetime
 import json
 
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models import F, Max, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django_filters import rest_framework as filters
 from openpyxl import Workbook, styles
 from openpyxl.worksheet.datavalidation import DataValidation
@@ -23,12 +23,12 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
 
+from sme_sigpae_api.dados_comuns.constants import TEMPO_CACHE_6H
 from sme_sigpae_api.medicao_inicial.tasks import (
     exporta_relatorio_controle_frequencia_para_pdf,
 )
 from sme_sigpae_api.terceirizada.models import Terceirizada
 
-from sme_sigpae_api.dados_comuns.constants import TEMPO_CACHE_6H
 from ...dados_comuns.permissions import (
     UsuarioCODAEDietaEspecial,
     UsuarioCODAEGabinete,
@@ -450,7 +450,6 @@ class DiretoriaRegionalSimplissimaViewSet(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         usuario = self.request.user
-        print(usuario.vinculo_atual.instituicao)
 
         if usuario.vinculo_atual and isinstance(
             usuario.vinculo_atual.instituicao, Terceirizada
