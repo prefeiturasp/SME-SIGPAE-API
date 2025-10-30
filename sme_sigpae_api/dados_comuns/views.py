@@ -3,7 +3,7 @@ import json
 from des.models import DynamicEmailConfiguration
 from django.conf import settings
 from django.core.mail import send_mail
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotAllowed
 from django.shortcuts import render
 from django.template import loader
 from django.utils.translation import gettext as _
@@ -45,4 +45,7 @@ def send_test_email(request):
 
 
 def test_visualiza_email(request):
+    if request and request.method != "GET":
+        return HttpResponseNotAllowed()
+
     return render(request, "fluxo_autorizar_negar_cancelar.html")

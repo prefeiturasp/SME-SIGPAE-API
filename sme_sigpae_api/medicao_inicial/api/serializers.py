@@ -19,7 +19,6 @@ from sme_sigpae_api.escola.api.serializers import (
     LoteParaFiltroSerializer,
     PeriodoEscolarSerializer,
     TipoAlimentacaoSerializer,
-    TipoUnidadeEscolarSerializer,
     TipoUnidadeEscolarSimplesSerializer,
 )
 from sme_sigpae_api.medicao_inicial.models import (
@@ -41,7 +40,6 @@ from sme_sigpae_api.medicao_inicial.models import (
     TipoContagemAlimentacao,
     ValorMedicao,
 )
-from sme_sigpae_api.perfil.api.serializers import UsuarioSerializer
 from sme_sigpae_api.terceirizada.api.serializers.serializers import (
     EditalSimplesSerializer,
     LoteSimplesSerializer,
@@ -50,12 +48,15 @@ from sme_sigpae_api.terceirizada.models import Edital
 
 
 class DiaSobremesaDoceSerializer(serializers.ModelSerializer):
-    tipo_unidade = TipoUnidadeEscolarSerializer()
-    criado_por = UsuarioSerializer()
+    tipo_unidade = TipoUnidadeEscolarSimplesSerializer()
+    criado_por = serializers.SerializerMethodField()
     edital = serializers.SlugRelatedField(
         slug_field="uuid", queryset=Edital.objects.all()
     )
     edital_numero = serializers.CharField(source="edital.numero")
+
+    def get_criado_por(self, obj):
+        return {"nome": obj.criado_por.nome}
 
     class Meta:
         model = DiaSobremesaDoce

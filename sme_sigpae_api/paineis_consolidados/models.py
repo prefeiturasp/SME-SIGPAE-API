@@ -121,7 +121,6 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
         DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
         DietaEspecialWorkflow.CODAE_AUTORIZOU_INATIVACAO,
         DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA_INATIVACAO,
-        InformativoPartindoDaEscolaWorkflow.INFORMADO,
     ]
     AUTORIZADO_EVENTO_DIETA_ESPECIAL = [
         LogSolicitacoesUsuario.CODAE_AUTORIZOU,
@@ -1369,10 +1368,12 @@ class SolicitacoesEscola(MoldeConsolidado):
         from sme_sigpae_api.kit_lanche.models import SolicitacaoKitLancheUnificada
 
         escola_uuid = kwargs.get("escola_uuid")
-        uuids_solicitacao_unificadas = SolicitacaoKitLancheUnificada.objects.filter(
-            escolas_quantidades__escola__uuid=escola_uuid,
-            escolas_quantidades__cancelado=False,
-        ).values_list("uuid", flat=True)
+        uuids_solicitacao_unificadas = list(
+            SolicitacaoKitLancheUnificada.objects.filter(
+                escolas_quantidades__escola__uuid=escola_uuid,
+                escolas_quantidades__cancelado=False,
+            ).values_list("uuid", flat=True)
+        )
         return (
             cls.objects.filter(
                 Q(escola_uuid=escola_uuid) | Q(uuid__in=uuids_solicitacao_unificadas),
@@ -1405,9 +1406,11 @@ class SolicitacoesEscola(MoldeConsolidado):
         from sme_sigpae_api.kit_lanche.models import SolicitacaoKitLancheUnificada
 
         escola_uuid = kwargs.get("escola_uuid")
-        uuids_solicitacao_unificadas = SolicitacaoKitLancheUnificada.objects.filter(
-            escolas_quantidades__escola__uuid=escola_uuid
-        ).values_list("uuid", flat=True)
+        uuids_solicitacao_unificadas = list(
+            SolicitacaoKitLancheUnificada.objects.filter(
+                escolas_quantidades__escola__uuid=escola_uuid
+            ).values_list("uuid", flat=True)
+        )
         cancelados = (
             cls.objects.filter(
                 Q(escola_uuid=escola_uuid) | Q(uuid__in=uuids_solicitacao_unificadas),
@@ -1418,7 +1421,7 @@ class SolicitacoesEscola(MoldeConsolidado):
             .distinct()
             .order_by("-data_log")
         )
-        uuids_solicitacao_unificadas_canceladas_parcialmente = (
+        uuids_solicitacao_unificadas_canceladas_parcialmente = list(
             SolicitacaoKitLancheUnificada.objects.filter(
                 escolas_quantidades__escola__uuid=escola_uuid,
                 escolas_quantidades__cancelado=True,
@@ -1452,7 +1455,7 @@ class SolicitacoesEscola(MoldeConsolidado):
             .values("criado_em__month", "desc_doc")
         )
 
-    @classmethod  # noqa C901
+    @classmethod
     def filtros_escola(cls, **kwargs):
         # TODO: melhorar esse código, está complexo.
         escola_uuid = kwargs.get("escola_uuid")
