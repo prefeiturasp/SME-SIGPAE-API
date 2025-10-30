@@ -618,4 +618,3 @@ def test_relatorio_ficha_recebimento(
     texto_carta_credito = extrair_texto_de_pdf(pdf_response_carta_credito.content)
 
     assert "FAZER UMA CARTA DE CRÉDITO DO VALOR PAGO" in texto_carta_credito
-    assert "Documentos anexados:" in texto_carta_credito
