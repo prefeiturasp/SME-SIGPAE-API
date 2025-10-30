@@ -122,16 +122,18 @@
             </span>
           </div>
         </div>
-        <div class="row pb-3">
-          <div class="col-12">
-            Documentos anexados:
-            <span class="font-weight-bold">
-              {% for arquivo in ficha.arquivos.all %}
-                {{ arquivo.nome }}{% if not forloop.last %}, {% endif %}
-              {% endfor %}
-            </span>
+          {% if ficha.arquivos.all %}
+          <div class="row pb-3">
+            <div class="col-12">
+              Documentos anexados:
+              <span class="font-weight-bold">
+                {% for arquivo in ficha.arquivos.all %}
+                  {{ arquivo.nome }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              </span>
+            </div>
           </div>
-        </div>
+          {% endif %}
         {% endif %}
 
       </div>

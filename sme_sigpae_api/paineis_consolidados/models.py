@@ -121,7 +121,6 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
         DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
         DietaEspecialWorkflow.CODAE_AUTORIZOU_INATIVACAO,
         DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA_INATIVACAO,
-        InformativoPartindoDaEscolaWorkflow.INFORMADO,
     ]
     AUTORIZADO_EVENTO_DIETA_ESPECIAL = [
         LogSolicitacoesUsuario.CODAE_AUTORIZOU,
