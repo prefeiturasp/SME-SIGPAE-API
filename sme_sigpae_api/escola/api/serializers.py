@@ -8,7 +8,7 @@ from rest_framework.exceptions import ValidationError
 from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns.api.serializers import ContatoSerializer, EnderecoSerializer
 from ...paineis_consolidados import models
-from ...perfil.api.serializers import PerfilSimplesSerializer, UsuarioSerializer
+from ...perfil.api.serializers import PerfilSimplesSerializer
 from ...perfil.models import Usuario, Vinculo
 from ...terceirizada.api.serializers.serializers import (
     ContratoEditalSerializer,
@@ -900,23 +900,26 @@ class LogAlunosMatriculadosFaixaEtariaDiaSerializer(serializers.ModelSerializer)
         exclude = ("id", "uuid", "criado_em")
 
 
+class TipoUnidadeEscolarSimplesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TipoUnidadeEscolar
+        fields = ("uuid", "iniciais")
+
+
 class DiaSuspensaoAtividadesSerializer(serializers.ModelSerializer):
-    tipo_unidade = TipoUnidadeEscolarSerializer()
-    criado_por = UsuarioSerializer()
+    tipo_unidade = TipoUnidadeEscolarSimplesSerializer()
+    criado_por = serializers.SerializerMethodField()
     edital = serializers.SlugRelatedField(
         slug_field="uuid", queryset=Edital.objects.all()
     )
     edital_numero = serializers.CharField(read_only=True)
 
+    def get_criado_por(self, obj):
+        return {"nome": obj.criado_por.nome}
+
     class Meta:
         model = DiaSuspensaoAtividades
         exclude = ("id",)
-
-
-class TipoUnidadeEscolarSimplesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TipoUnidadeEscolar
-        fields = ("uuid", "iniciais")
 
 
 class GrupoUnidadeEscolarSerializer(serializers.ModelSerializer):
