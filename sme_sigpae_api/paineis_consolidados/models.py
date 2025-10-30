@@ -1455,7 +1455,7 @@ class SolicitacoesEscola(MoldeConsolidado):
             .values("criado_em__month", "desc_doc")
         )
 
-    @classmethod  # noqa C901
+    @classmethod
     def filtros_escola(cls, **kwargs):
         # TODO: melhorar esse código, está complexo.
         escola_uuid = kwargs.get("escola_uuid")
