@@ -1,6 +1,7 @@
 {% extends 'cabecalho_relatorio_produtos_em_analise_sensorial.html' %}
 {% load index %}
 {% load static %}
+{% load safe_html_tags %}
 
 {% block conteudo %}
 
@@ -27,7 +28,7 @@
       <div class="tres-informacoes">
         <div class="informacao-dois">
           <label>Justificativa </label>
-          <p>{{produto.ultima_homologacao.log_solicitacao_analise.justificativa| safe}}</p>
+          <p>{{produto.ultima_homologacao.log_solicitacao_analise.justificativa| safe_content}}</p>
         </div>
         <div class="informacao">
           <label>Amostra(s) recebidas por:</label>
