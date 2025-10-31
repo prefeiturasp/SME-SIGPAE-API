@@ -1,6 +1,7 @@
 {% load index %}
 {% load static %}
 {% load sass_tags %}
+{% load safe_html_tags %}
 
 <html>
 <head>
@@ -246,10 +247,10 @@
       <tbody class="body-tabela-observacoes">
         {% for row in tabela %}
           <tr>
-            <td class="tabela-observacoes-dia">{{ row.0|safe }}</td>
-            <td class="tabela-observacoes-periodo">{{ row.4|safe }}</td>
-            <td class="tabela-observacoes-tipo">{{ row.2|safe }}</td>
-            <td class="tabela-observacoes-observacoes text-left">{{ row.3|safe }}</td>
+            <td class="tabela-observacoes-dia">{{ row.0|safe_content }}</td>
+            <td class="tabela-observacoes-periodo">{{ row.4|safe_content }}</td>
+            <td class="tabela-observacoes-tipo">{{ row.2|safe_content }}</td>
+            <td class="tabela-observacoes-observacoes text-left">{{ row.3|safe_content }}</td>
           </tr>
         {% endfor %}
       </tbody>

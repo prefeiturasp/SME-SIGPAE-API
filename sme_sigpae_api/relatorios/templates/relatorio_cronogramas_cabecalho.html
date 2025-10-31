@@ -1,6 +1,7 @@
 {% load index %}
 {% load static %}
 {% load sass_tags %}
+{% load safe_html_tags %}
 
 <html>
   <body>
@@ -10,7 +11,7 @@
         <span>SIGPAE - Relatório de Cronogramas</span>
       </div>
       <div class="subtitulo">
-        {{ subtitulo|safe }}
+        {{ subtitulo|safe_content }}
       </div>
     </header>
   </body>

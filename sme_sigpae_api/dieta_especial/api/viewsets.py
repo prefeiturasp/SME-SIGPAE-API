@@ -2,11 +2,11 @@ import json
 import uuid as uuid_generator
 from copy import deepcopy
 from datetime import date, datetime
+from collections import defaultdict
 
-from django.db.models import OuterRef, Subquery
 from django.core.exceptions import ValidationError as coreValidation
 from django.db import transaction
-from django.db.models import Case, CharField, Count, F, Q, Value, When
+from django.db.models import Case, CharField, Count, F, Q, Value, When, OuterRef, Subquery
 from django.forms import ValidationError
 from django_filters import rest_framework as filters
 from django_filters.rest_framework import DjangoFilterBackend
@@ -127,7 +127,8 @@ from .serializers_create import (
     ProtocoloPadraoDietaEspecialSerializerCreate,
     SolicitacaoDietaEspecialCreateSerializer,
 )
-from sme_sigpae_api.paineis_consolidados.models import MoldeConsolidado
+from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
+from sme_sigpae_api.escola.models import Escola
 
 
 class SolicitacaoDietaEspecialViewSet(
@@ -246,50 +247,53 @@ class SolicitacaoDietaEspecialViewSet(
         url_path=f"solicitacoes-aluno/{FILTRO_CODIGO_EOL_ALUNO}",
     )
     def solicitacoes_vigentes(self, request, codigo_eol_aluno=None):
+        codigo_eol_escola = request.query_params.get('codigo_eol_escola')
+
+        ativas_view = (
+            SolicitacoesCODAE.get_autorizados_dieta_especial()
+            | SolicitacoesCODAE.get_autorizadas_temporariamente_dieta_especial()
+        ).filter(codigo_eol_aluno=codigo_eol_aluno).distinct()
+
+        inativas_view = (
+            SolicitacoesCODAE.get_cancelados_dieta_especial()
+            | SolicitacoesCODAE.get_inativas_dieta_especial()
+            | SolicitacoesCODAE.get_inativas_temporariamente_dieta_especial()
+        ).filter(codigo_eol_aluno=codigo_eol_aluno).distinct()
+
+        dietas_view = (ativas_view | inativas_view).distinct()
+
+        if codigo_eol_escola:
+            escola_uuid = Escola.objects.filter(
+                codigo_eol=codigo_eol_escola
+            ).values_list('uuid', flat=True).first()
+
+            if escola_uuid:
+                escola_uuid_str = str(escola_uuid)
+                dietas_view = dietas_view.filter(
+                    Q(escola_destino_uuid=escola_uuid_str)
+                )
+            else:
+                dietas_view = dietas_view.none()
+
+        uuids_inativas = set(str(uuid) for uuid in inativas_view.values_list('uuid', flat=True))
+        uuids_dietas = list(dietas_view.values_list('uuid', flat=True).distinct())
+
         log_mais_recente_subquery = LogSolicitacoesUsuario.objects.filter(
             uuid_original=OuterRef('uuid')
         ).order_by('-criado_em').values('criado_em')[:1]
 
-        base_qs = SolicitacaoDietaEspecial.objects.filter(aluno__codigo_eol=codigo_eol_aluno)
-        codigo_eol_escola = request.query_params.get('codigo_eol_escola')
-        if codigo_eol_escola:
-            base_qs = base_qs.filter(rastro_escola__codigo_eol=codigo_eol_escola)
-
-        ids_alterados = list(
-            base_qs.filter(
-                dieta_alterada__isnull=False, tipo_solicitacao="ALTERACAO_UE"
-            ).values_list("dieta_alterada_id", flat=True)
-        )
-
-        solicitacoes = base_qs.filter(
-            Q(
-                status__in=MoldeConsolidado.AUTORIZADO_STATUS_DIETA_ESPECIAL,
-                ativo=True,
-            )
-            | Q(
-                Q(
-                    tipo_solicitacao="ALTERACAO_UE",
-                    status__in=MoldeConsolidado.CANCELADOS_STATUS_DIETA_ESPECIAL_TEMP,
-                )
-                | Q(
-                    tipo_solicitacao="COMUM",
-                    status__in=MoldeConsolidado.CANCELADOS_STATUS_DIETA_ESPECIAL,
-                ),
-                ativo=False,
-            )
-            | Q(
-                ~Q(id__in=ids_alterados),
-                status__in=MoldeConsolidado.INATIVOS_STATUS_DIETA_ESPECIAL,
-                tipo_solicitacao="COMUM",
-                ativo=False,
-            )
-        )
-
-        solicitacoes = solicitacoes.annotate(
+        solicitacoes = SolicitacaoDietaEspecial.objects.filter(
+            uuid__in=uuids_dietas
+        ).annotate(
             data_log_mais_recente=Subquery(log_mais_recente_subquery)
         ).order_by('-data_log_mais_recente', '-criado_em')
 
         page = self.paginate_queryset(solicitacoes)
+
+        for solicitacao in page:
+            if str(solicitacao.uuid) in uuids_inativas:
+                solicitacao.ativo = False
+
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
@@ -1548,135 +1552,269 @@ class SolicitacaoDietaEspecialViewSet(
 class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
     serializer_class = SolicitacoesAtivasInativasPorAlunoSerializer
 
-    def calcular_totais(self, queryset, **filtros):
-        dietas_ativas_qs = SolicitacaoDietaEspecial.objects.filter(
-            aluno__in=queryset,
-            status__in=MoldeConsolidado.AUTORIZADO_STATUS_DIETA_ESPECIAL,
-            ativo=True,
-        )
-        dietas_ativas_qs = self.aplicar_filtros_escola(dietas_ativas_qs, **filtros)
-        total_ativas = dietas_ativas_qs.distinct().count()
+    def _qs_ativas_view(self):
+        return (
+            SolicitacoesCODAE.get_autorizados_dieta_especial()
+            | SolicitacoesCODAE.get_autorizadas_temporariamente_dieta_especial()
+        ).distinct()
 
-        ids_alterados = list(
-            SolicitacaoDietaEspecial.objects.filter(
-                dieta_alterada__isnull=False,
-                tipo_solicitacao="ALTERACAO_UE"
-            ).values_list("dieta_alterada_id", flat=True)
-        )
+    def _qs_inativas_view(self):
+        return (
+            SolicitacoesCODAE.get_cancelados_dieta_especial()
+            | SolicitacoesCODAE.get_inativas_dieta_especial()
+            | SolicitacoesCODAE.get_inativas_temporariamente_dieta_especial()
+        ).distinct()
 
-        cancelados_qs = SolicitacaoDietaEspecial.objects.filter(
-            Q(
-                tipo_solicitacao="ALTERACAO_UE",
-                status__in=MoldeConsolidado.CANCELADOS_STATUS_DIETA_ESPECIAL_TEMP,
-            )
-            | Q(
-                tipo_solicitacao="COMUM",
-                status__in=MoldeConsolidado.CANCELADOS_STATUS_DIETA_ESPECIAL,
-            ),
-            aluno__in=queryset,
-            ativo=False,
-        )
-        cancelados_qs = self.aplicar_filtros_escola(cancelados_qs, **filtros)
+    def aplicar_filtros_escola_view(
+        self, qs, escola_filtrada=None, codigo_eol_escola=None, dre_filtrada=None, user=None
+    ):
+        if escola_filtrada:
+            return self._filtrar_por_escola(qs, escola_filtrada)
 
-        inativas_qs = SolicitacaoDietaEspecial.objects.filter(
-            ~Q(id__in=ids_alterados),
-            status__in=MoldeConsolidado.INATIVOS_STATUS_DIETA_ESPECIAL,
-            tipo_solicitacao="COMUM",
-            aluno__in=queryset,
-            ativo=False,
-        )
-        inativas_qs = self.aplicar_filtros_escola(inativas_qs, **filtros)
+        if codigo_eol_escola:
+            escola_uuid = Escola.objects.filter(
+                codigo_eol=codigo_eol_escola
+            ).values_list('uuid', flat=True).first()
 
-        total_inativas = (cancelados_qs | inativas_qs).distinct().count()
+            if escola_uuid:
+                escola_uuid_str = str(escola_uuid)
+                return qs.filter(
+                    Q(escola_uuid=escola_uuid_str) | Q(escola_destino_uuid=escola_uuid_str)
+                )
+            return qs.none()
+
+        if user:
+            return self._filtrar_por_usuario(qs, user)
+
+        if dre_filtrada:
+            return self._filtrar_por_dre(qs, dre_filtrada)
+
+        return qs
+
+    def _filtrar_por_escola(self, qs, escola):
+        escola_uuid = getattr(escola, "uuid", escola)
+        return qs.filter(escola_uuid=escola_uuid)
+
+    def _filtrar_por_dre(self, qs, dre):
+        dre_uuid = getattr(dre, "uuid", dre)
+        return qs.filter(dre_uuid=dre_uuid)
+
+    def _filtrar_por_usuario(self, qs, user):
+        tipo_usuario = getattr(user, "tipo_usuario", None)
+        if tipo_usuario == "escola":
+            return self._filtrar_por_escola_usuario(qs, user)
+        if tipo_usuario == "diretoriaregional":
+            return self._filtrar_por_dre_usuario(qs, user)
+        return qs
+
+    def _filtrar_por_escola_usuario(self, qs, user):
+        instituicao = getattr(user.vinculo_atual, "instituicao", None)
+        escola_uuid = getattr(instituicao, "uuid", None)
+        if escola_uuid:
+            return qs.filter(escola_uuid=escola_uuid)
+        return qs
+
+    def _filtrar_por_dre_usuario(self, qs, user):
+        instituicao = getattr(user.vinculo_atual, "instituicao", None)
+        dre_uuid = getattr(instituicao, "uuid", None)
+        if dre_uuid:
+            return qs.filter(dre_uuid=dre_uuid)
+        return qs
+
+    def calcular_totais(self, alunos_qs, **filtros):
+        codigos_eol = alunos_qs.values_list("codigo_eol", flat=True).distinct()
+
+        ativas_qs = self._qs_ativas_view().filter(codigo_eol_aluno__in=codigos_eol)
+        ativas_qs = self.aplicar_filtros_escola_view(ativas_qs, **filtros)
+        total_ativas = ativas_qs.values("uuid").distinct().count()
+
+        inativas_qs = self._qs_inativas_view().filter(codigo_eol_aluno__in=codigos_eol)
+        inativas_qs = self.aplicar_filtros_escola_view(inativas_qs, **filtros)
+        total_inativas = inativas_qs.values("uuid").distinct().count()
 
         return total_ativas, total_inativas
 
-    def aplicar_filtros_escola(self, queryset, escola_filtrada=None, codigo_eol_escola=None,
-                               dre_filtrada=None, user=None):
-        if escola_filtrada:
-            return queryset.filter(rastro_escola=escola_filtrada)
-        elif codigo_eol_escola:
-            return queryset.filter(rastro_escola__codigo_eol=codigo_eol_escola)
-        elif user and user.tipo_usuario == "escola":
-            return queryset.filter(rastro_escola=user.vinculo_atual.instituicao)
-        elif dre_filtrada:
-            return queryset.filter(rastro_escola__diretoria_regional=dre_filtrada)
-        elif user and user.tipo_usuario == "diretoriaregional":
-            return queryset.filter(
-                rastro_escola__diretoria_regional=user.vinculo_atual.instituicao
-            )
-        return queryset
-
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        alunos_ids = queryset.values_list('id', flat=True).distinct()
-        queryset_distinct = Aluno.objects.filter(id__in=alunos_ids)
+        alunos_ids = queryset.values_list("id", flat=True).distinct()
+        alunos_qs = Aluno.objects.filter(id__in=alunos_ids)
 
-        form = SolicitacoesAtivasInativasPorAlunoForm(self.request.GET)
+        filtros = self._obter_filtros(request)
+        total_ativas, total_inativas = self.calcular_totais(alunos_qs, **filtros)
+
+        escolas_por_aluno = self._obter_escolas_por_aluno(alunos_qs, filtros)
+        alunos_por_escola = self._criar_alunos_por_escola(alunos_qs, escolas_por_aluno)
+
+        return self._criar_resposta(request, alunos_por_escola, total_ativas, total_inativas)
+
+    def _obter_filtros(self, request):
+        form = SolicitacoesAtivasInativasPorAlunoForm(request.GET)
         form.is_valid()
 
-        filtros = {
-            'escola_filtrada': form.cleaned_data.get('escola'),
-            'dre_filtrada': form.cleaned_data.get('dre'),
-            'codigo_eol_escola': self.request.query_params.get('codigo_eol_escola'),
-            'user': self.request.user
+        return {
+            "escola_filtrada": form.cleaned_data.get("escola"),
+            "dre_filtrada": form.cleaned_data.get("dre"),
+            "codigo_eol_escola": request.query_params.get("codigo_eol_escola"),
+            "user": request.user,
         }
 
-        total_ativas, total_inativas = self.calcular_totais(queryset_distinct, **filtros)
+    def _obter_escolas_por_aluno(self, alunos_qs, filtros):
+        codigos_eol = alunos_qs.values_list("codigo_eol", flat=True).distinct()
 
+        dietas_relevantes = (
+            self._qs_ativas_view() | self._qs_inativas_view()
+        ).filter(codigo_eol_aluno__in=codigos_eol)
+
+        dietas_relevantes = self.aplicar_filtros_escola_view(dietas_relevantes, **filtros)
+
+        dietas_data = list(dietas_relevantes.values(
+            "codigo_eol_aluno",
+            "escola_uuid",
+            "escola_nome",
+            "dre_nome",
+            "tipo_solicitacao_dieta",
+            "escola_destino_uuid",
+        ).distinct())
+
+        escolas_map = self._criar_mapa_escolas(dietas_data)
+        return self._agrupar_escolas_por_aluno(dietas_data, escolas_map)
+
+    def _criar_mapa_escolas(self, dietas_data):
+        todas_escolas_uuids = set()
+
+        for row in dietas_data:
+            escola_uuid = row.get("escola_uuid")
+            if escola_uuid:
+                todas_escolas_uuids.add(str(escola_uuid))
+
+            destino_uuid = row.get("escola_destino_uuid")
+            if destino_uuid:
+                todas_escolas_uuids.add(str(destino_uuid))
+
+        escolas_map = {}
+        if todas_escolas_uuids:
+            escolas = Escola.objects.filter(
+                uuid__in=todas_escolas_uuids
+            ).select_related('diretoria_regional')
+
+            for escola in escolas:
+                escolas_map[str(escola.uuid)] = {
+                    'nome': escola.nome,
+                    'dre': escola.diretoria_regional.nome if escola.diretoria_regional else "(DRE não informada)",
+                    'codigo_eol': escola.codigo_eol
+                }
+
+        return escolas_map
+
+    def _agrupar_escolas_por_aluno(self, dietas_data, escolas_map):
+        escolas_por_aluno = defaultdict(set)
+
+        for row in dietas_data:
+            eol = row.get("codigo_eol_aluno")
+            if not eol:
+                continue
+
+            self._adicionar_escola_origem(escolas_por_aluno, row, escolas_map, eol)
+            self._adicionar_escola_destino(escolas_por_aluno, row, escolas_map, eol)
+
+        return escolas_por_aluno
+
+    def _adicionar_escola_origem(self, escolas_por_aluno, row, escolas_map, eol):
+        escola_uuid = row.get("escola_uuid")
+        if not escola_uuid:
+            return
+
+        escola_uuid_str = str(escola_uuid)
+        escola_info = escolas_map.get(escola_uuid_str, {
+            'nome': row.get("escola_nome") or "(Escola não encontrada)",
+            'dre': row.get("dre_nome") or "(DRE não informada)",
+            'codigo_eol': None
+        })
+
+        escolas_por_aluno[eol].add((
+            escola_uuid_str,
+            escola_info['nome'],
+            escola_info['dre'],
+            escola_info['codigo_eol']
+        ))
+
+    def _adicionar_escola_destino(self, escolas_por_aluno, row, escolas_map, eol):
+        if row.get("tipo_solicitacao_dieta") != "ALTERACAO_UE":
+            return
+
+        escola_destino_uuid = row.get("escola_destino_uuid")
+        if not escola_destino_uuid:
+            return
+
+        escola_destino_uuid_str = str(escola_destino_uuid)
+        escola_info = escolas_map.get(escola_destino_uuid_str, {
+            'nome': "(Escola não encontrada)",
+            'dre': "(DRE não informada)",
+            'codigo_eol': None
+        })
+
+        escolas_por_aluno[eol].add((
+            escola_destino_uuid_str,
+            escola_info['nome'],
+            escola_info['dre'],
+            escola_info['codigo_eol']
+        ))
+
+    def _criar_alunos_por_escola(self, alunos_qs, escolas_por_aluno):
         alunos_por_escola = []
+        for aluno in alunos_qs:
+            escolas_aluno = escolas_por_aluno.get(aluno.codigo_eol, set())
 
-        for aluno in queryset_distinct:
-            escolas_dict = {}
+            if not escolas_aluno:
+                alunos_por_escola.append(self._criar_copia_aluno_sem_escola(aluno))
+            else:
+                for escola_uuid, escola_nome, dre_nome, codigo_eol in escolas_aluno:
+                    alunos_por_escola.append(
+                        self._criar_copia_aluno_com_escola(aluno, escola_uuid, escola_nome, dre_nome, codigo_eol)
+                    )
 
-            dietas_qs = aluno.dietas_especiais.filter(
-                status__in=[
-                    "CODAE_AUTORIZADO",
-                    "CODAE_AUTORIZOU_INATIVACAO",
-                    "TERMINADA_AUTOMATICAMENTE_SISTEMA",
-                    "CANCELADO_ALUNO_NAO_PERTENCE_REDE",
-                ]
-            )
+        alunos_por_escola.sort(key=lambda x: ((x._escola_nome or "").upper(), x.nome.upper()))
+        return alunos_por_escola
 
-            dietas_qs = self.aplicar_filtros_escola(dietas_qs, **filtros)
-            dietas = dietas_qs.select_related('rastro_escola', 'rastro_escola__diretoria_regional')
+    def _criar_copia_aluno_sem_escola(self, aluno):
+        from copy import copy
 
-            for dieta in dietas:
-                escola_id = dieta.rastro_escola_id
-                if escola_id not in escolas_dict:
-                    escolas_dict[escola_id] = {
-                        'rastro_escola_id': escola_id,
-                        'rastro_escola__nome': dieta.rastro_escola.nome,
-                        'rastro_escola__codigo_eol': dieta.rastro_escola.codigo_eol,
-                        'rastro_escola__diretoria_regional__nome': dieta.rastro_escola.diretoria_regional.nome
-                    }
+        copia = copy(aluno)
+        copia._escola_contexto_id = None
+        copia._escola_nome = "(Sem escola vinculada)"
+        copia._escola_dre = "(DRE não informada)"
+        copia._escola_codigo_eol = None
+        return copia
 
-            for escola_id, escola_data in escolas_dict.items():
-                from copy import copy
-                aluno_copia = copy(aluno)
-                aluno_copia._escola_contexto_id = escola_data['rastro_escola_id']
-                aluno_copia._escola_nome = escola_data['rastro_escola__nome']
-                aluno_copia._escola_codigo_eol = escola_data['rastro_escola__codigo_eol']
-                aluno_copia._escola_dre = escola_data['rastro_escola__diretoria_regional__nome']
-                alunos_por_escola.append(aluno_copia)
+    def _criar_copia_aluno_com_escola(self, aluno, escola_uuid, escola_nome, dre_nome, codigo_eol):
+        from copy import copy
 
-        alunos_por_escola.sort(key=lambda x: (x._escola_nome.upper(), x.nome.upper()))
-        tem_parametro_page = request.GET.get("page", False)
+        copia = copy(aluno)
+        copia._escola_contexto_id = escola_uuid
+        copia._escola_nome = escola_nome
+        copia._escola_dre = dre_nome
+        copia._escola_codigo_eol = codigo_eol
+        return copia
 
-        if tem_parametro_page:
-            self.pagination_class = RelatorioPagination
-            page = self.paginate_queryset(alunos_por_escola)
-            serializer = SolicitacoesAtivasInativasPorAlunoSerializer(
-                page, many=True, context={'request': request}
-            )
-            return self.get_paginated_response({
-                "total_ativas": total_ativas,
-                "total_inativas": total_inativas,
-                "solicitacoes": serializer.data,
-            })
+    def _criar_resposta(self, request, alunos_por_escola, total_ativas, total_inativas):
+        paginar = request.GET.get("page", False)
+
+        if paginar:
+            return self._criar_resposta_paginada(request, alunos_por_escola, total_ativas, total_inativas)
 
         serializer = self.get_serializer(alunos_por_escola, many=True)
         return Response({
+            "total_ativas": total_ativas,
+            "total_inativas": total_inativas,
+            "solicitacoes": serializer.data,
+        })
+
+    def _criar_resposta_paginada(self, request, alunos_por_escola, total_ativas, total_inativas):
+        self.pagination_class = RelatorioPagination
+        page = self.paginate_queryset(alunos_por_escola)
+        serializer = self.get_serializer(page, many=True, context={"request": request})
+
+        return self.get_paginated_response({
             "total_ativas": total_ativas,
             "total_inativas": total_inativas,
             "solicitacoes": serializer.data,

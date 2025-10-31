@@ -42,28 +42,35 @@ def test_solicitacoes_ativas_inativas_por_aluno_viewset(
     assert response.json()["results"]["total_inativas"] == 1
 
 
-def test_calculo_totais_solicitacoes_sem_filtros(aluno_factory, solicitacao_dieta_especial_factory):
+def test_calculo_totais_solicitacoes_sem_filtros(aluno_factory):
+    from sme_sigpae_api.escola.models import Aluno
+
     aluno = aluno_factory.create(codigo_eol="1234567")
-
-    solicitacao_dieta_especial_factory.create(
-        aluno=aluno, status="CODAE_AUTORIZADO", ativo=True
-    )
-
-    for status in ["CANCELADO_ALUNO_NAO_PERTENCE_REDE", "TERMINADA_AUTOMATICAMENTE_SISTEMA"]:
-        solicitacao_dieta_especial_factory.create(
-            aluno=aluno, status=status, ativo=True
-        )
-
-    solicitacao_dieta_especial_factory.create(
-        aluno=aluno, status="CANCELADO_ALUNO_NAO_PERTENCE_REDE", ativo=False
-    )
 
     view = SolicitacoesAtivasInativasPorAlunoView()
 
-    total_ativas, total_inativas = view.calcular_totais(queryset=[aluno])
+    mock_ativas = MagicMock()
+    mock_ativas.filter.return_value = mock_ativas
+    mock_ativas.values.return_value = mock_ativas
+    mock_ativas.distinct.return_value = mock_ativas
+    mock_ativas.count.return_value = 1
+
+    mock_inativas = MagicMock()
+    mock_inativas.filter.return_value = mock_inativas
+    mock_inativas.values.return_value = mock_inativas
+    mock_inativas.distinct.return_value = mock_inativas
+    mock_inativas.count.return_value = 3
+
+    view._qs_ativas_view = MagicMock(return_value=mock_ativas)
+    view._qs_inativas_view = MagicMock(return_value=mock_inativas)
+    view.aplicar_filtros_escola_view = MagicMock(side_effect=lambda qs, **kwargs: qs)
+
+    alunos_qs = Aluno.objects.filter(codigo_eol="1234567")
+
+    total_ativas, total_inativas = view.calcular_totais(alunos_qs=alunos_qs)
 
     assert total_ativas == 1
-    assert total_inativas == 1
+    assert total_inativas == 3
 
 
 def test_filtro_por_serie_exata_7a(

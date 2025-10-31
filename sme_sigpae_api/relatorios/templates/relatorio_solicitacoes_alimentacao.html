@@ -1,6 +1,7 @@
 {% load index %}
 {% load static %}
 {% load sass_tags %}
+{% load safe_html_tags %}
 
 <html>
 <head>
@@ -52,7 +53,7 @@
             {% elif solicitacao.tipo_doc == 'Alteração do tipo de Alimentação' and solicitacao.data_inicial == solicitacao.data_final %}
               <td class="text-center">{{solicitacao.data_evento|formatar_data_solicitacoes_alimentacao}}</td>
             {% elif solicitacao.datas %}
-              <td class="text-center">{{solicitacao.datas|safe}}</td>
+              <td class="text-center">{{solicitacao.datas|safe_content}}</td>
             {% elif solicitacao.tipo_doc == 'Inversão de dia de Cardápio' or solicitacao.tipo_doc == 'Suspensão de Alimentação' %}
               <td class="text-center">{{solicitacao.data_evento}}</td>
             {% else %}
@@ -111,7 +112,7 @@
               <td colspan="6">
                 <div class="row mt-4 mb-2 mx-2">
                   <div class="col-12">Observação:</div>
-                  <div class="col-12"><b><span>{{ solicitacao.observacao|safe }}</span><b></div>
+                  <div class="col-12"><b><span>{{ solicitacao.observacao|safe_content }}</span><b></div>
                 </div>
               </td>
             </tr>
