@@ -1,6 +1,7 @@
 {% extends 'cabecalho_rodape_solicitacao.html' %}
 {% load index %}
 {% load static %}
+{% load safe_html_tags %}
 
 {% block conteudo %}
 <div class="row mx-4 my-2">
@@ -102,7 +103,7 @@
     <div class="observacoes">
       <div>
         <p class="cabecalho">Motivo:</p>
-        <p class="resultado">{{ solicitacao.motivo | safe }}</p>
+        <p class="resultado">{{ solicitacao.motivo | safe_content }}</p>
       </div>
     </div>
     {% include "bloco_observacoes.html" %}

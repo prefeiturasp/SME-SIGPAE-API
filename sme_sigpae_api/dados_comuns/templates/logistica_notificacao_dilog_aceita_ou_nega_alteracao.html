@@ -1,7 +1,9 @@
+{% load safe_html_tags %}
+
 <p>A Solicitação de Alteração <span style="color: #0C6B45">N° {{ solicitacao.numero_solicitacao }}</span>
   foi {{ situacao }} pela CODAE com a seguinte justificativa:</p>
 <br/>
 <div style="border: 2px solid #0C6B45; border-radius: 5px; padding: 10px">
-  {{ log_transicao.justificativa | safe }}
+  {{ log_transicao.justificativa | safe_content }}
 </div>
 <br/>

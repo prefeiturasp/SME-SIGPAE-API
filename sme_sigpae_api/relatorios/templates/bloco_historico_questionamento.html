@@ -1,4 +1,5 @@
 {% load index %}
+{% load safe_html_tags %}
 
 {% block historico_questionamento %}
     {% if solicitacao.logs.all|tem_questionamentos %}
@@ -13,7 +14,7 @@
                       previstos no contrato?
                     </div>
                     <div class="obs mb-3">
-                      Observação da CODAE: {{ log.justificativa | observacao_padrao:"CODAE" | safe }}
+                      Observação da CODAE: {{ log.justificativa | observacao_padrao:"CODAE" | safe_content }}
                     </div>
                   </div>
                 {% endif %}
@@ -23,7 +24,7 @@
                         {{ log.resposta_sim_nao |aceita_nao_aceita_str }}
                     </div>
                     <div class="obs mb-3">
-                      Observação da Terceirizada: {{ log.justificativa |observacao_padrao:"Terceirizada" | safe }}
+                      Observação da Terceirizada: {{ log.justificativa |observacao_padrao:"Terceirizada" | safe_content }}
                     </div>
                   </div>
                 {% endif %}
@@ -32,7 +33,7 @@
                     <div class="title">Autorizou</div>
                       {% if log.justificativa %}
                         <div class="obs">
-                          Observação da CODAE: {{ log.justificativa | safe }}
+                          Observação da CODAE: {{ log.justificativa | safe_content }}
                         </div>
                       {% endif %}
                   </div>
@@ -42,7 +43,7 @@
                     <div class="title">Negou</div>
                       {% if log.justificativa %}
                         <div class="obs">
-                          Observação da CODAE: {{ log.justificativa | safe }}
+                          Observação da CODAE: {{ log.justificativa | safe_content }}
                         </div>
                       {% endif %}
                   </div>
