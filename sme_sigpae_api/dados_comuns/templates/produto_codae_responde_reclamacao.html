@@ -1,5 +1,6 @@
 {% extends 'email_base.html' %}
 {% load email_templatetags %}
+{% load safe_html_tags %}
 
 {% block conteudo %}
   <div>Caros,</div>
@@ -7,10 +8,10 @@
   <div>Sua reclamação no produto {{ reclamacao.homologacao_produto.produto.nome }} - {{ reclamacao.homologacao_produto.produto.marca.nome}} foi respondida pela CODAE.</div>
   <br/>
   <p><b>Reclamação:</b></p>
-  <div>{{ reclamacao.reclamacao | safe }}</div>
+  <div>{{ reclamacao.reclamacao | safe_content }}</div>
   <br/>
   <p><b>Resposta da CODAE:</b></p>
-  <div>{{ log_resposta.justificativa | safe }}</div>
+  <div>{{ log_resposta.justificativa | safe_content }}</div>
   <div>Atenciosamente,</div>
   <div>Coordenadoria de Alimentação Escolar - CODAE.</div>
 {% endblock %}

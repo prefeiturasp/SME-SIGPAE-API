@@ -1,11 +1,12 @@
 {% load index %}
+{% load safe_html_tags %}
 
 {% block observacoes %}
     {% if solicitacao.observacao and solicitacao.observacao != "<p></p>" %}
       <div class="observacoes">
         <div>
           <p class="cabecalho">Observações:</p>
-          <p class="resultado">{{ solicitacao.observacao | safe }}</p>
+          <p class="resultado">{{ solicitacao.observacao | safe_content }}</p>
         </div>
       </div>
       <div>
@@ -17,7 +18,7 @@
       <div class="observacoes">
         <div>
           <p class="cabecalho">Observações:</p>
-          <p class="resultado">{{ solicitacao.descricao | safe }}</p>
+          <p class="resultado">{{ solicitacao.descricao | safe_content }}</p>
         </div>
       </div>
       <div>
