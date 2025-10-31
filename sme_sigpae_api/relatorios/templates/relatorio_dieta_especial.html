@@ -2,6 +2,7 @@
 {% load static %}
 {% load index %}
 {% load sass_tags %}
+{% load safe_html_tags %}
 
 <html>
 <head>
@@ -90,7 +91,7 @@
         </div>
         <div class="informacao-tres">
           <label>Justificativa</label>
-          {{dieta.justificativa_negacao|safe|default:""}}
+          {{dieta.justificativa_negacao|safe_content|default:""}}
         </div>
         <div class="informacao">
           <label>Data da Negação</label>
@@ -117,11 +118,11 @@
       <div class="quatro-informacoes">
         <div class="informacao-tres">
           <label>Observação da Dieta</label>
-          {{dieta.observacoes|striptags|safe}}
+          {{dieta.observacoes|safe_content}}
         </div>
         <div class="informacao-tres">
           <label>Informações Adicionais</label>
-          {{dieta.informacoes_adicionais|striptags|safe}}
+          {{dieta.informacoes_adicionais|safe_content}}
         </div>
       </div>
     </div>

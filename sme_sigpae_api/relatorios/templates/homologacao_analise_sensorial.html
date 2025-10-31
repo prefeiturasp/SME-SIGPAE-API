@@ -1,6 +1,7 @@
 {% extends 'cabecalho_relatorio_analise_sensorial.html' %}
 {% load index %}
 {% load static %}
+{% load safe_html_tags %}
 
 {% block conteudo %}
 <section class="corpo-relatorio-produto">
@@ -10,7 +11,7 @@
   </div>
   <article class="detalhes-empresa" style="height: auto">
     <div style="width: 100%; display: flex; justify-content: space-between; padding: 0 10px">
-      <div class="value" style="height: auto"><div>{{ ultimo_log.justificativa|safe }}</div></div>
+      <div class="value" style="height: auto"><div>{{ ultimo_log.justificativa|safe_content }}</div></div>
     </div>
   </article>
   <br>

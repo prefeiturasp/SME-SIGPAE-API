@@ -1,6 +1,7 @@
 {% extends 'cabecalho_relatorio_reclamacao.html' %}
 {% load index %}
 {% load static %}
+{% load safe_html_tags %}
 
 {% block conteudo %}
 
@@ -54,7 +55,7 @@
                <p> Data da reclamação: <label>{{ reclamacao.criado_em|formata_data }}<label></p>
             </div>
             <div class="informacao-dois">
-             <p> Justificativa da reclamação: <label>{{ reclamacao.reclamacao|striptags|safe }} </label></p>
+             <p> Justificativa da reclamação: <label>{{ reclamacao.reclamacao|safe_content }} </label></p>
             </div>
           </div>
           {% for log in reclamacao.logs %} 
@@ -63,10 +64,10 @@
                <p> {{log.status_evento_explicacao|obter_rotulo_data_log}}:  <label>{{log.criado_em|formata_data}}</label></p>
             </div>
             <div class="informacao-dois">
-             <p> {{log.status_evento_explicacao|obter_titulo_log_reclamacao}}: <label>{{log.justificativa|striptags|safe}}</label></p>
+             <p> {{log.status_evento_explicacao|obter_titulo_log_reclamacao}}: <label>{{log.justificativa|safe_content}}</label></p>
             </div>
           </div>
-          {% endfor%}
+          {% endfor %}
         </div>
       {% endfor %}
     {% endfor %}

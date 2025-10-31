@@ -2,6 +2,7 @@
 {% load index %}
 {% load static %}
 {% load sass_tags %}
+{% load safe_html_tags %}
 
 {% block conteudo %}
 
@@ -16,7 +17,7 @@
     {% if justificativa_cancelamento %}
     <div class="bloco-pescritor-dieta-especial">
       <h5>Justificativa do Cancelamento</h5>
-      {{justificativa_cancelamento|safe}}
+      {{justificativa_cancelamento|safe_content}}
       <hr/>
     </div>
     {% endif %}
@@ -120,7 +121,7 @@
       <hr>
       {% if solicitacao.observacoes %}
           <h5 style="margin: 0;">Observações</h5>
-          <span>{{ solicitacao.observacoes|safe }}</span>
+          <span>{{ solicitacao.observacoes|safe_content }}</span>
           <hr>
       {% endif %}
 
@@ -131,7 +132,7 @@
         {% endif %}
         {% if solicitacao.justificativa_negacao %}
           <h5 style="margin: 0;">Justificativa da negação</h5>
-          <span>{{ solicitacao.justificativa_negacao|safe }}</span>
+          <span>{{ solicitacao.justificativa_negacao|safe_content }}</span>
         {% endif %}
         <hr>
       {% endif %}
@@ -152,7 +153,7 @@
               <td>{{ solicitacao.motivo_alteracao_ue.nome }}</td>
             {% endif %}
             {% if solicitacao.observacoes_alteracao %}
-              <td>{{ solicitacao.observacoes_alteracao|striptags|safe|default:'' }}</td>
+              <td>{{ solicitacao.observacoes_alteracao|safe_content|default:'' }}</td>
             {% endif %}
           </tr>
         </table>

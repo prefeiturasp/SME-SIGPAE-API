@@ -1,6 +1,7 @@
 {% extends 'cabecalho_relatorio_analise_sensorial_recebimento.html' %}
 {% load index %}
 {% load static %}
+{% load safe_html_tags %}
 
 {% block conteudo %}
 <section class="corpo-relatorio-produto">
@@ -38,7 +39,7 @@
         <p>Solicitação de análise sensorial</p>
       </header>
       <main>
-        <p>{{ ultimo_log.justificativa|striptags|safe }}</p>
+        <p>{{ ultimo_log.justificativa|safe_content }}</p>
       </main>
     </article>
 

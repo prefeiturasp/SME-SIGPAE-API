@@ -1,5 +1,7 @@
 {% load index %}
 {% block inversao_dia_cardapio %}
+{% load safe_html_tags %}
+
   <tr>
     <td colspan="6" style="border-bottom: none">
       <div class="row mt-2 mb-2 mx-2">
@@ -51,7 +53,7 @@
       </div>
       <div class="row my-2 mx-2">
         <div class="col-6"><b>{{solicitacao.tipos_alimentacao}}</b></div>
-        <div class="col-3"><b>{{solicitacao.motivo|safe}}</b></div>
+        <div class="col-3"><b>{{solicitacao.motivo|safe_content}}</b></div>
         <div class="col-3"></div>
       </div>
     </td>
