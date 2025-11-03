@@ -4,14 +4,22 @@ from django.db import migrations, models
 
 
 def cria_reposicao(apps, schema_editor):
-    ReposicaoCronogramaFichaRecebimento = apps.get_model("recebimento", "ReposicaoCronogramaFichaRecebimento")
+    ReposicaoCronogramaFichaRecebimento = apps.get_model(
+        "recebimento", "ReposicaoCronogramaFichaRecebimento"
+    )
 
-    ReposicaoCronogramaFichaRecebimento.objects.get_or_create(tipo="Repor", descricao="REPOR OS PRODUTOS FALTANTES/RECUSADOS")
-    ReposicaoCronogramaFichaRecebimento.objects.get_or_create(tipo="Credito", descricao="FAZER UMA CARTA DE CRÉDITO DO VALOR PAGO")
+    ReposicaoCronogramaFichaRecebimento.objects.get_or_create(
+        tipo="Repor", descricao="REPOR OS PRODUTOS FALTANTES/RECUSADOS"
+    )
+    ReposicaoCronogramaFichaRecebimento.objects.get_or_create(
+        tipo="Credito", descricao="FAZER UMA CARTA DE CRÉDITO DO VALOR PAGO"
+    )
 
 
 def remove_reposicao(apps, schema_editor):
-    ReposicaoCronogramaFichaRecebimento = apps.get_model("recebimento", "ReposicaoCronogramaFichaRecebimento")
+    ReposicaoCronogramaFichaRecebimento = apps.get_model(
+        "recebimento", "ReposicaoCronogramaFichaRecebimento"
+    )
     ReposicaoCronogramaFichaRecebimento.objects.all().delete()
 
 

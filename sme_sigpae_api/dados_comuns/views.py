@@ -44,5 +44,6 @@ def send_test_email(request):
     return HttpResponse(json.dumps(response))
 
 
+@require_http_methods(["GET"])
 def test_visualiza_email(request):
     return render(request, "fluxo_autorizar_negar_cancelar.html")

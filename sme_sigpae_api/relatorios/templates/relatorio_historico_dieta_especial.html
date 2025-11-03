@@ -2,6 +2,7 @@
 {% load static %}
 {% load index %}
 {% load sass_tags %}
+{% load safe_html_tags %}
 
 <html>
 <head>
@@ -16,7 +17,7 @@
     <h1>SIGPAE - RELATÓRIO HISTÓRICO DE DIETAS AUTORIZADAS</h1>
   </section>
   <div class="filtros-box">
-    {{ titulo_filtros|safe }}
+    {{ titulo_filtros|safe_content }}
   </div>
 </header>
 <body>

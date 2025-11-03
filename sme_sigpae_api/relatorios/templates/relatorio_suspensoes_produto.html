@@ -1,6 +1,7 @@
 {% extends 'cabecalho_relatorio_suspensoes_produto.html' %}
 {% load index %}
 {% load static %}
+{% load safe_html_tags %}
 
 
 {% block conteudo %}
@@ -34,7 +35,7 @@
         </div>
         <div class="informacao">
           <label>Justificativa de suspensão de produto</label>
-          <p>{{produto.ultima_homologacao.ultimo_log.justificativa|safe}}</p>
+          <p>{{produto.ultima_homologacao.ultimo_log.justificativa|safe_content}}</p>
         </div>
       </div>
 

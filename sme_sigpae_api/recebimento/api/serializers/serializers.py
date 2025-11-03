@@ -18,8 +18,8 @@ from ...models import (
     QuestaoConferencia,
     QuestaoFichaRecebimento,
     QuestoesPorProduto,
-    VeiculoFichaDeRecebimento,
     ReposicaoCronogramaFichaRecebimento,
+    VeiculoFichaDeRecebimento,
 )
 
 
@@ -243,9 +243,7 @@ class FichaDeRecebimentoDetalharSerializer(serializers.ModelSerializer):
     status = serializers.CharField(source="get_status_display")
     etapa = EtapasDoCronogramaFichaDeRecebimentoSerializer(read_only=True)
     dados_cronograma = DadosCronogramaSerializer(source="etapa", read_only=True)
-    documentos_recebimento = DocRecebimentoFichaDeRecebimentoSerializer(
-        many=True, read_only=True
-    )
+    documentos_recebimento = serializers.SerializerMethodField()
     veiculos = VeiculoFichaDeRecebimentoSerializer(many=True, read_only=True)
     questoes = QuestaoFichaRecebimentoDetailSerializer(
         source="questaoficharecebimento_set", many=True, read_only=True
@@ -259,6 +257,13 @@ class FichaDeRecebimentoDetalharSerializer(serializers.ModelSerializer):
             return obj.data_entrega.strftime("%d/%m/%Y") if obj.data_entrega else None
         except AttributeError:
             return None
+
+    def get_documentos_recebimento(self, obj):
+        documentos = obj.documentos_recebimento.all()
+        serializer = DocRecebimentoFichaDeRecebimentoSerializer(
+            documentos, many=True, context={"ficha_recebimento": obj}
+        )
+        return serializer.data
 
     def to_internal_value(self, data):
         peso_fields = [

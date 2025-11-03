@@ -151,6 +151,19 @@ class UsuarioDiretoriaRegional(BasePermission):
         return retorno
 
 
+class UsuarioDiretoriaRegionalCogestor(BasePermission):
+    """Permite acesso a usuários com vinculo a uma Cogestor."""
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and isinstance(usuario.vinculo_atual.instituicao, DiretoriaRegional)
+            and usuario.vinculo_atual.perfil.nome in [COGESTOR_DRE]
+        )
+
+
 class UsuarioCODAEGestaoAlimentacao(BasePermission):
     """Permite acesso a usuários com vinculo a CODAE - Gestão de Alimentação."""
 
@@ -384,6 +397,19 @@ class UsuarioEmpresaTerceirizada(BasePermission):
                 ADMINISTRADOR_EMPRESA,
                 USUARIO_EMPRESA,
             ]
+        )
+
+
+class UsuarioAdministradorEmpresaTerceirizada(BasePermission):
+    """Permite acesso a usuários com vinculo a uma Terceirizada."""
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and isinstance(usuario.vinculo_atual.instituicao, Terceirizada)
+            and usuario.vinculo_atual.perfil.nome in [ADMINISTRADOR_EMPRESA]
         )
 
 

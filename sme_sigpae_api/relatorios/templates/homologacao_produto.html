@@ -1,6 +1,7 @@
 {% extends 'cabecalho_relatorio_produto.html' %}
 {% load index %}
 {% load static %}
+{% load safe_html_tags %}
 
 {% block css %}
 <style>
@@ -56,20 +57,20 @@
   {% if homologacao.status == 'CODAE_NAO_HOMOLOGADO' %}
   <div class="label">Motivo da recusa de homologação (Data: {{ homologacao.logs.last.criado_em|date:'d/m/Y' }})</div>
   <article class="justificativa-motivo">
-    {{ homologacao.logs.last.justificativa|safe }}
+    {{ homologacao.logs.last.justificativa|safe_content }}
   </article>
   {% endif %}
   {% if homologacao.status == 'CODAE_SUSPENDEU' %}
   <div class="label">Motivo da suspensão (Data: {{ homologacao.logs.last.criado_em|date:'d/m/Y' }})</div>
   <article class="justificativa-motivo">
-    {{ homologacao.logs.last.justificativa|safe }}
+    {{ homologacao.logs.last.justificativa|safe_content }}
   </article>
   {% endif %}
   {% if homologacao.status == 'CODAE_QUESTIONADO' %}
   <div class="label">Motivo da solicitação de correção do produto (Data: {{ homologacao.logs.last.criado_em|date:'d/m/Y'
     }})</div>
   <article class="justificativa-motivo">
-    {{ homologacao.logs.last.justificativa|safe }}
+    {{ homologacao.logs.last.justificativa|safe_content }}
   </article>
   {% endif %}
 
@@ -89,7 +90,7 @@
   <article class="detalhes-empresa" style="height: auto">
     <div style="width: 100%; display: flex; justify-content: space-between; padding: 0 10px">
       <div class="value" style="height: auto">
-        <div>{{ justificativa_analise_sensorial|safe }}</div>
+        <div>{{ justificativa_analise_sensorial|safe_content }}</div>
       </div>
     </div>
   </article>

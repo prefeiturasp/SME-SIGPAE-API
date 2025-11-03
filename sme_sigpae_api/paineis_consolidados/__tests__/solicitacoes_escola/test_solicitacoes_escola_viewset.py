@@ -1,11 +1,12 @@
 import datetime
 import random
-import uuid
 import types
+import uuid
+from collections import namedtuple
+
 import pytest
 from freezegun.api import freeze_time
 from rest_framework import status
-from collections import namedtuple
 
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory import (
     AlteracaoCardapioFactory,
@@ -911,7 +912,15 @@ def test_busca_filtro_tipo_solicitacao_kit_lanche_isolado(monkeypatch, escola):
     """
     Linha = namedtuple(
         "Linha",
-        ["uuid", "escola_uuid", "data_evento", "tipo_doc", "desc_doc", "status_evento", "status_atual"],
+        [
+            "uuid",
+            "escola_uuid",
+            "data_evento",
+            "tipo_doc",
+            "desc_doc",
+            "status_evento",
+            "status_atual",
+        ],
     )
 
     linhas = [
@@ -956,15 +965,19 @@ def test_busca_filtro_tipo_solicitacao_kit_lanche_isolado(monkeypatch, escola):
     class FakeQS:
         def __init__(self, items):
             self.items = list(items)
+
         def filter(self, **kwargs):
             if "tipo_doc__in" in kwargs:
                 tipos = set(kwargs["tipo_doc__in"])
                 return FakeQS([x for x in self.items if x.tipo_doc in tipos])
             return FakeQS(self.items)
+
         def __iter__(self):
             return iter(self.items)
+
         def __len__(self):
             return len(self.items)
+
         def __getitem__(self, idx):
             return self.items[idx]
 

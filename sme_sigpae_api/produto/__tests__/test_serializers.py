@@ -170,6 +170,8 @@ def test_reclamacao_produto_excel_serializer(reclamacao_produto_pdf):
 
 
 def test_alteracao_produto_homologado(alteracao_produto_homologado):
-    serializer = HomologacaoProdutoPainelGerencialSerializer(alteracao_produto_homologado)
+    serializer = HomologacaoProdutoPainelGerencialSerializer(
+        alteracao_produto_homologado
+    )
     data = serializer.data
     assert data["produto_eh_copia"] == True

@@ -18,11 +18,11 @@ from workalendar.america import BrazilSaoPauloCity
 from xworkflows import InvalidTransitionError
 
 from sme_sigpae_api.cardapio.utils import ordem_periodos
+from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from sme_sigpae_api.medicao_inicial.services.relatorio_adesao import (
     obtem_resultados,
     valida_parametros_periodo_lancamento,
 )
-from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 
 from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns import constants
@@ -30,6 +30,7 @@ from ...dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
 from ...dados_comuns.constants import TRADUCOES_FERIADOS
 from ...dados_comuns.models import LogSolicitacoesUsuario
 from ...dados_comuns.permissions import (
+    UsuarioAdministradorEmpresaTerceirizada,
     UsuarioCODAEGabinete,
     UsuarioCODAEGestaoAlimentacao,
     UsuarioCODAENutriManifestacao,
@@ -369,7 +370,7 @@ class SolicitacaoMedicaoInicialViewSet(
                 qs = self.condicao_por_usuario(qs)
 
             qs_ordenado = ordenar_unidades(qs)
-            paginated = qs_ordenado[offset: offset + limit]
+            paginated = qs_ordenado[offset : offset + limit]
             result = {
                 "status": workflow,
                 "total": len(qs_ordenado),
@@ -607,6 +608,15 @@ class SolicitacaoMedicaoInicialViewSet(
         methods=["GET"],
         url_name="relatorio-consolidado_exportar-xlsx",
         url_path="relatorio-consolidado/exportar-xlsx",
+        permission_classes=[
+            UsuarioMedicao
+            | UsuarioDiretoriaRegional
+            | UsuarioCODAEGestaoAlimentacao
+            | UsuarioAdministradorEmpresaTerceirizada
+            | UsuarioCODAENutriManifestacao
+            | UsuarioDinutreDiretoria
+            | UsuarioCODAEGabinete
+        ],
     )
     def relatorio_consolidado_exportar_xlsx(self, request: Request):
         mes = request.query_params.get("mes")
@@ -822,11 +832,15 @@ class SolicitacaoMedicaoInicialViewSet(
                 tipo_turma=TipoTurma.REGULAR.name,
                 quantidade_alunos__gt=0,
             )
-            existe_emei = logs.filter(cei_ou_emei="EMEI", periodo_escolar__nome="INTEGRAL").exists()
-            lista_periodos = list(set(logs.values_list('periodo_escolar__nome', flat=True)))
+            existe_emei = logs.filter(
+                cei_ou_emei="EMEI", periodo_escolar__nome="INTEGRAL"
+            ).exists()
+            lista_periodos = list(
+                set(logs.values_list("periodo_escolar__nome", flat=True))
+            )
             if not existe_emei and "INTEGRAL" in lista_periodos:
                 lista_periodos.remove("INTEGRAL")
-            lista_periodos = sorted(f'Infantil {periodo}' for periodo in lista_periodos)
+            lista_periodos = sorted(f"Infantil {periodo}" for periodo in lista_periodos)
 
             ordem_personalizada = ordem_periodos(escola).get("EMEI", {})
             retorno = sorted(

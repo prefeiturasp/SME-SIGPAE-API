@@ -51,6 +51,9 @@ from utility.carga_dados.produto.importa_dados import (
     cria_produto_marca,
     cria_tipo_informacao_nutricional,
 )
+from utility.carga_dados.recebimento.importa_dados import (
+    cria_reposicao_cronograma_ficha_recebimento,
+)
 from utility.carga_dados.terceirizada.importa_dados import (
     adiciona_contato_em_terceirizada,
     cria_contratos,
@@ -58,7 +61,6 @@ from utility.carga_dados.terceirizada.importa_dados import (
     cria_terceirizadas,
 )
 from utility.carga_dados.usuarios import cria_usuarios
-from utility.carga_dados.recebimento.importa_dados import cria_reposicao_cronograma_ficha_recebimento
 
 
 class Command(BaseCommand):

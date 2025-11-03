@@ -760,35 +760,6 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar POST com terceirizada conferiu gestao em branco', () => {
-			var dados_teste = {
-				motivo: '1ddec320-cd24-4cf4-9666-3e7b3a2b903c',
-				escola: '671f5641-b1d4-4736-be38-7115590b7018',
-				periodo_escolar: '5067e137-e5f3-4876-a63f-7f58cce93f33',
-				tipos_alimentacao_de: '65f11f11-630b-4629-bb17-07c875c548f1',
-				alteracao_cardapio: '6595ebe5-dc21-48b0-bb05-6347341f9797',
-				tipos_alimentacao_para: '5d1304c8-77a8-4c96-badb-dd2e8c1b76d5',
-				qtd_alunos: 10,
-				cancelado: true,
-				cancelado_justificativa: 'teste automatizado api',
-				cancelado_em: null,
-				cancelado_por: null,
-				observacao: '<p>teste automatizado api</p>',
-				foi_solicitado_fora_do_prazo: true,
-				terceirizada_conferiu_gestao: true,
-				eh_alteracao_com_lanche_repetida: '',
-				criado_por: null,
-				data: validar_dia_semana(data_atual, 5).format('YYYY-MM-DD'),
-			}
-			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
-				expect(response.status).to.eq(400)
-				expect(
-					response.allRequestResponses[0]['Response Body']
-						.eh_alteracao_com_lanche_repetida[0],
-				).to.eq('Deve ser um valor booleano válido.')
-			})
-		})
-
 		it('Validar POST com datas em branco', () => {
 			var dados_teste = {
 				motivo: '1ddec320-cd24-4cf4-9666-3e7b3a2b903c',

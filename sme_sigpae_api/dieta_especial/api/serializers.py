@@ -52,6 +52,8 @@ from .validators import (
     atributos_string_nao_vazios,
     deve_ter_atributos,
 )
+from django.db.models import Q
+from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 
 
 class AlergiaIntoleranciaSerializer(serializers.ModelSerializer):
@@ -392,24 +394,75 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
     ativas = serializers.SerializerMethodField()
     inativas = serializers.SerializerMethodField()
 
+    def get_escola_context(self, obj):
+        if hasattr(obj, '_escola_contexto_id'):
+            return obj._escola_contexto_id
+        return None
+
     def get_ativas(self, obj):
-        return obj.dietas_especiais.filter(
-            status__in=["CODAE_AUTORIZADO"],
-            ativo=True,
-        ).count()
+        escola_uuid = self.get_escola_context(obj)
+        codigo_eol = obj.codigo_eol
+
+        if not escola_uuid:
+            return 0
+
+        ativas_qs = (
+            SolicitacoesCODAE.get_autorizados_dieta_especial()
+            | SolicitacoesCODAE.get_autorizadas_temporariamente_dieta_especial()
+        ).filter(
+            codigo_eol_aluno=codigo_eol,
+            escola_uuid=escola_uuid
+        )
+
+        count = ativas_qs.values('uuid').distinct().count()
+
+        return count
 
     def get_inativas(self, obj):
-        return obj.dietas_especiais.filter(
-            status__in=[
-                "CODAE_AUTORIZADO",
-                "CODAE_AUTORIZOU_INATIVACAO",
-                "TERMINADA_AUTOMATICAMENTE_SISTEMA",
-                "CANCELADO_ALUNO_NAO_PERTENCE_REDE",
-            ],
-            ativo=False,
-        ).count()
+        escola_uuid = self.get_escola_context(obj)
+        codigo_eol = obj.codigo_eol
+
+        if not escola_uuid:
+            return 0
+
+        cancelados_qs = SolicitacoesCODAE.get_cancelados_dieta_especial().filter(
+            codigo_eol_aluno=codigo_eol
+        )
+        inativas_qs = SolicitacoesCODAE.get_inativas_dieta_especial().filter(
+            codigo_eol_aluno=codigo_eol
+        )
+        inativas_temp_qs = SolicitacoesCODAE.get_inativas_temporariamente_dieta_especial().filter(
+            codigo_eol_aluno=codigo_eol
+        )
+
+        cancelados_qs = cancelados_qs.filter(
+            Q(tipo_solicitacao_dieta="ALTERACAO_UE", escola_destino_uuid=escola_uuid)
+            | Q(~Q(tipo_solicitacao_dieta="ALTERACAO_UE"), escola_uuid=escola_uuid)
+        )
+        inativas_qs = inativas_qs.filter(
+            Q(tipo_solicitacao_dieta="ALTERACAO_UE", escola_destino_uuid=escola_uuid)
+            | Q(~Q(tipo_solicitacao_dieta="ALTERACAO_UE"), escola_uuid=escola_uuid)
+        )
+        inativas_temp_qs = inativas_temp_qs.filter(
+            Q(tipo_solicitacao_dieta="ALTERACAO_UE", escola_destino_uuid=escola_uuid)
+            | Q(~Q(tipo_solicitacao_dieta="ALTERACAO_UE"), escola_uuid=escola_uuid)
+        )
+
+        ids_inativas = set()
+        ids_inativas.update(cancelados_qs.values_list('uuid', flat=True))
+        ids_inativas.update(inativas_qs.values_list('uuid', flat=True))
+        ids_inativas.update(inativas_temp_qs.values_list('uuid', flat=True))
+
+        return len(ids_inativas)
 
     def get_dre(self, obj):
+        if hasattr(obj, '_escola_dre'):
+            return obj._escola_dre
+        escola_id = self.get_escola_context(obj)
+        if escola_id:
+            dieta = obj.dietas_especiais.filter(rastro_escola_id=escola_id).first()
+            if dieta:
+                return dieta.rastro_escola.diretoria_regional.nome
         if obj.dietas_especiais.filter(ativo=True).exists():
             return (
                 obj.dietas_especiais.filter(ativo=True)
@@ -419,18 +472,30 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
         return obj.dietas_especiais.first().rastro_escola.diretoria_regional.nome
 
     def get_escola(self, obj):
+        if hasattr(obj, '_escola_nome'):
+            return obj._escola_nome
+        escola_uuid = self.get_escola_context(obj)
+        if escola_uuid:
+            dieta = obj.dietas_especiais.filter(rastro_escola__uuid=escola_uuid).first()
+            if dieta:
+                return dieta.rastro_escola.nome
         if obj.dietas_especiais.filter(ativo=True).exists():
             return obj.dietas_especiais.filter(ativo=True).first().rastro_escola.nome
         return obj.dietas_especiais.first().rastro_escola.nome
 
     def get_codigo_eol_escola(self, obj):
+        if hasattr(obj, '_escola_codigo_eol'):
+            return obj._escola_codigo_eol
+        escola_uuid = self.get_escola_context(obj)
+        if escola_uuid:
+            dieta = obj.dietas_especiais.filter(rastro_escola__uuid=escola_uuid).first()
+            if dieta:
+                return dieta.rastro_escola.codigo_eol
         if obj.dietas_especiais.filter(ativo=True).exists():
-            return (
-                obj.dietas_especiais.filter(ativo=True).first().rastro_escola.codigo_eol
-            )
+            return obj.dietas_especiais.filter(ativo=True).first().rastro_escola.codigo_eol
         return obj.dietas_especiais.first().rastro_escola.codigo_eol
 
-    def get_foto_aluno(self, obj):  # noqa C901
+    def get_foto_aluno(self, obj):
         novo_sgp_service = self.context.get("novo_sgp_service", "")
         codigo_eol = obj.codigo_eol
         if novo_sgp_service and codigo_eol is not None:
@@ -449,7 +514,10 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
         return None
 
     def get_classificacao_dieta_ativa(self, obj):
+        escola_uuid = self.get_escola_context(obj)
         qs_dieta_ativa = obj.dietas_especiais.filter(ativo=True)
+        if escola_uuid:
+            qs_dieta_ativa = qs_dieta_ativa.filter(rastro_escola__uuid=escola_uuid)
         if qs_dieta_ativa.exists():
             return qs_dieta_ativa.first().classificacao.nome
         return None

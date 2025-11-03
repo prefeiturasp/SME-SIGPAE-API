@@ -11,6 +11,7 @@ from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEI,
 )
 from sme_sigpae_api.escola.models import PeriodoEscolar
+from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from sme_sigpae_api.medicao_inicial.services.utils import (
     generate_columns,
     gera_colunas_alimentacao,
@@ -22,7 +23,6 @@ from sme_sigpae_api.medicao_inicial.services.utils import (
 )
 
 from ..models import CategoriaMedicao
-from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 
 
 def get_alimentacoes_por_periodo(solicitacoes):
@@ -264,6 +264,7 @@ def _get_total_pagamento(medicao, nome_campo, tipo_unidade):
 def calcula_totais_pagamento_emef(
     primeira_oferta, repeticao_primeira, segunda_oferta, repeticao_segunda, medicao, dia
 ):
+    categoria = "ALIMENTAÇÃO"
     matriculados = medicao.valores_medicao.filter(
         nome_campo="matriculados", dia=f"{dia:02d}"
     ).first()
@@ -278,10 +279,12 @@ def calcula_totais_pagamento_emef(
     )
 
     refeicao = medicao.valores_medicao.filter(
-        nome_campo=primeira_oferta, dia=f"{dia:02d}"
+        nome_campo=primeira_oferta, dia=f"{dia:02d}", categoria_medicao__nome=categoria
     ).first()
     repeticao_refeicao = medicao.valores_medicao.filter(
-        nome_campo=repeticao_primeira, dia=f"{dia:02d}"
+        nome_campo=repeticao_primeira,
+        dia=f"{dia:02d}",
+        categoria_medicao__nome=categoria,
     ).first()
 
     valor_refeicao = refeicao.valor if refeicao else 0
@@ -291,16 +294,22 @@ def calcula_totais_pagamento_emef(
     total_refeicao = min(int(total_refeicao), int(valor_comparativo))
 
     segunda_refeicao = medicao.valores_medicao.filter(
-        nome_campo=segunda_oferta, dia=f"{dia:02d}"
+        nome_campo=segunda_oferta, dia=f"{dia:02d}", categoria_medicao__nome=categoria
     ).first()
     repeticao_segunda_refeicao = medicao.valores_medicao.filter(
-        nome_campo=repeticao_segunda, dia=f"{dia:02d}"
+        nome_campo=repeticao_segunda,
+        dia=f"{dia:02d}",
+        categoria_medicao__nome=categoria,
     ).first()
 
     valor_segunda_refeicao = segunda_refeicao.valor if segunda_refeicao else 0
-    valor_repeticao_segunda_refeicao = repeticao_segunda_refeicao.valor if repeticao_segunda_refeicao else 0
+    valor_repeticao_segunda_refeicao = (
+        repeticao_segunda_refeicao.valor if repeticao_segunda_refeicao else 0
+    )
 
-    total_segunda_refeicao = int(valor_segunda_refeicao) + int(valor_repeticao_segunda_refeicao)
+    total_segunda_refeicao = int(valor_segunda_refeicao) + int(
+        valor_repeticao_segunda_refeicao
+    )
     total_segunda_refeicao = min(int(total_segunda_refeicao), int(valor_comparativo))
 
     return total_refeicao + total_segunda_refeicao

@@ -1,5 +1,6 @@
 {% extends 'email_base.html' %}
 {% load email_templatetags %}
+{% load safe_html_tags %}
 
 {% block conteudo %}
   <p>Produto {{ produto.nome }} - {{ produto.marca }}</p>
@@ -7,7 +8,7 @@
   <div style="text-align: left">
     <p><b>Protocolo:</b> {{ protocolo }}</p>
     <p><b>Justificativa:</b></p>
-    <div>{{ log_transicao.justificativa | safe }}</div>
+    <div>{{ log_transicao.justificativa | safe_content }}</div>
   </div>
   <br/>
 {% endblock %}

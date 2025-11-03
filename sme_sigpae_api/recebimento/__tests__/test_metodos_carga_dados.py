@@ -1,6 +1,9 @@
 import pytest
+
 from sme_sigpae_api.recebimento.models import ReposicaoCronogramaFichaRecebimento
-from utility.carga_dados.recebimento.importa_dados import cria_reposicao_cronograma_ficha_recebimento
+from utility.carga_dados.recebimento.importa_dados import (
+    cria_reposicao_cronograma_ficha_recebimento,
+)
 
 
 @pytest.mark.django_db

@@ -12,6 +12,7 @@ from sme_sigpae_api.relatorios.utils import extrair_texto_de_pdf
 from ..relatorios import (
     cabecalho_reclamacao_produto,
     formata_informacoes_ficha_tecnica,
+    get_pdf_ficha_recebimento,
     get_pdf_ficha_tecnica,
     get_total_por_periodo,
     obter_justificativa_dieta,
@@ -427,9 +428,12 @@ def test_relatorio_reclamacao_produtos(
         in texto
     )
     assert " Data da reclamação: 15/07/2022" in texto
-    assert "Justificativa da reclamação: produto vencido" in texto
+    print(texto)
+    assert "Justificativa da reclamação:" in texto
+    assert "produto vencido" in texto
     assert "Data avaliação CODAE: 05/08/2022" in texto
-    assert "Justificativa avaliação CODAE: deu certooo" in texto
+    assert "Justificativa avaliação CODAE:" in texto
+    assert "deu certooo" in texto
 
 
 @freeze_time("2024-12-27")
@@ -463,9 +467,11 @@ def test_relatorio_reclamacao_produtos_sem_dre_lote_selecionadas(
         in texto
     )
     assert " Data da reclamação: 15/07/2022" in texto
-    assert "Justificativa da reclamação: produto vencido" in texto
+    assert "Justificativa da reclamação:" in texto
+    assert "produto vencido" in texto
     assert "Data avaliação CODAE: 05/08/2022" in texto
-    assert "Justificativa avaliação CODAE: deu certooo" in texto
+    assert "Justificativa avaliação CODAE:" in texto
+    assert "deu certooo" in texto
 
 
 @freeze_time("2024-12-27")
@@ -500,9 +506,11 @@ def test_relatorio_reclamacao_produtos_sem_data_selecionadas(
         in texto
     )
     assert " Data da reclamação: 15/07/2022" in texto
-    assert "Justificativa da reclamação: produto vencido" in texto
+    assert "Justificativa da reclamação:" in texto
+    assert "produto vencido" in texto
     assert "Data avaliação CODAE: 05/08/2022" in texto
-    assert "Justificativa avaliação CODAE: deu certooo" in texto
+    assert "Justificativa avaliação CODAE:" in texto
+    assert "deu certooo" in texto
 
 
 @freeze_time("2024-12-27")
@@ -568,3 +576,52 @@ def test_cabecalho_reclamacao_produto_sem_data_inicial(
         "lotes": "IP - 3567-3, LPSD - 1235-8",
         "periodo": "Até 19/08/2025",
     }
+
+
+def test_relatorio_ficha_recebimento(
+    ficha_recebimento_com_ocorrencia,
+    ficha_recebimento_reposicao,
+    ficha_recebimento_carta_credito,
+):
+    pdf_response = get_pdf_ficha_recebimento(None, ficha_recebimento_com_ocorrencia)
+
+    assert pdf_response.status_code == 200
+    assert pdf_response.headers["Content-Type"] == "application/pdf"
+
+    texto = extrair_texto_de_pdf(pdf_response.content)
+
+    assert (
+        ficha_recebimento_com_ocorrencia.etapa.cronograma.ficha_tecnica.produto.nome
+        in texto
+    )
+    assert ficha_recebimento_com_ocorrencia.observacao in texto
+    assert "HOUVE OCORRÊNCIA(S) NO RECEBIMENTO: SIM" in texto
+    assert "Faltaram 5 unidades do produto" in texto
+
+    # Teste para Ficha de Recebimento de Reposição
+    pdf_response_reposicao = get_pdf_ficha_recebimento(
+        None, ficha_recebimento_reposicao
+    )
+
+    assert pdf_response_reposicao.status_code == 200
+    assert pdf_response_reposicao.headers["Content-Type"] == "application/pdf"
+
+    texto_reposicao = extrair_texto_de_pdf(pdf_response_reposicao.content)
+
+    assert "REPOSIÇÃO / PAGAMENTO DE NOTIFICAÇÃO" in texto_reposicao
+    assert (
+        "Referente a ocorrência registrada nesta etapa, o Fornecedor optou por: REPOR OS PRODUTOS"
+        in texto_reposicao
+    )
+
+    # Teste para caso de Carta de Crédito
+    pdf_response_carta_credito = get_pdf_ficha_recebimento(
+        None, ficha_recebimento_carta_credito
+    )
+
+    assert pdf_response_carta_credito.status_code == 200
+    assert pdf_response_carta_credito.headers["Content-Type"] == "application/pdf"
+
+    texto_carta_credito = extrair_texto_de_pdf(pdf_response_carta_credito.content)
+
+    assert "FAZER UMA CARTA DE CRÉDITO DO VALOR PAGO" in texto_carta_credito

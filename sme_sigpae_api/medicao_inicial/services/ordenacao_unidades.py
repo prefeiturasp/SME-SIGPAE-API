@@ -16,6 +16,7 @@ def prioridade_por_tipo(tipo_unidade: str) -> tuple[int, int]:
         (3, constants.ORDEM_UNIDADES_GRUPO_EMEI),
         (4, constants.ORDEM_UNIDADES_GRUPO_EMEF),
         (5, constants.ORDEM_UNIDADES_GRUPO_EMEBS),
+        (6, constants.ORDEM_UNIDADES_GRUPO_CIEJA_CMCT),
     ]
 
     for grupo_id, ordem_dict in grupos:

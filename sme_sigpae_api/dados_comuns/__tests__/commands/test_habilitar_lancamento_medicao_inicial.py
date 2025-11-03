@@ -64,6 +64,7 @@ def test_executa_com_sucesso(
     escola_fake.eh_emebs = False
     escola_fake.eh_emef = True
     escola_fake.eh_ceu_gestao = False
+    escola_fake.eh_cmct = False
     escola_fake.periodos_escolares.return_value.get.return_value = mock.Mock()
 
     mock_get_escola.return_value = escola_fake
@@ -215,6 +216,7 @@ def test_executa_com_atualizar_escolas(
     escola_fake.eh_emebs = False
     escola_fake.eh_emef = True
     escola_fake.eh_ceu_gestao = False
+    escola_fake.eh_cmct = False
     escola_fake.periodos_escolares.return_value.get.return_value = mock.Mock()
 
     mock_get_escola.return_value = escola_fake

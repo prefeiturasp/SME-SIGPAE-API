@@ -1,4 +1,5 @@
 {% load index %}
+{% load safe_html_tags %}
 
 {% block historico_cancelamento %}
     {% if solicitacao.logs.all|tem_cancelamento %}
@@ -21,13 +22,13 @@
             {% if log.status_evento_explicacao == "CODAE negou" %}
               <div>{{ log.criado_em }} - CODAE NEGOU</div>
               <div class="justificativa-cancelamento-escola-dre">
-                {{ log.justificativa | safe }}
+                {{ log.justificativa | safe_content }}
               </div>
             {% endif %}
             {% if log.status_evento_explicacao == "DRE não validou" %}
               <div>{{ log.criado_em }} - DRE não validou</div>
               <div class="justificativa-cancelamento-escola-dre">
-                {{ log.justificativa | safe }}
+                {{ log.justificativa | safe_content }}
               </div>
             {% endif %}
           {% endfor %}

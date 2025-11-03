@@ -4,6 +4,7 @@ from calendar import monthrange
 import environ
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db.models import F, FloatField, Sum
+from django.http import HttpResponseNotAllowed
 from django.template.loader import get_template, render_to_string
 
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
@@ -79,7 +80,19 @@ from .utils import (
 env = environ.Env()
 
 
+def valida_request_method_get(request):
+    if request and request.method != "GET":
+        return HttpResponseNotAllowed()
+
+
 def relatorio_kit_lanche_unificado(request, solicitacao):
+    """
+    Esta é uma função interna (não exposta via URL) chamada para gerar PDF.
+    Segura contra métodos HTTP inseguros.
+    """
+
+    valida_request_method_get(request)
+
     qtd_escolas = EscolaQuantidade.objects.filter(
         solicitacao_unificada=solicitacao
     ).count()
@@ -177,36 +190,45 @@ def relatorio_kit_lanche_unificado(request, solicitacao):
     )
 
 
-def relatorio_alteracao_cardapio(request, solicitacao):  # noqa C901
+def _processa_substituicao(subs):
+    tipos_alimentacao_de = subs.tipos_alimentacao_de.all()
+    tipos_alimentacao_para = subs.tipos_alimentacao_para.all()
+
+    tad_formatado = _formata_tipos_alimentacao(tipos_alimentacao_de)
+    tap_formatado = _formata_tipos_alimentacao(tipos_alimentacao_para)
+
+    return {
+        "periodo": subs.periodo_escolar.nome,
+        "qtd_alunos": subs.qtd_alunos,
+        "tipos_alimentacao_de": tad_formatado,
+        "tipos_alimentacao_para": tap_formatado,
+    }
+
+
+def _formata_tipos_alimentacao(tipos_alimentacao):
+    formatado = ""
+    for tipo in tipos_alimentacao:
+        if formatado:
+            formatado = f"{formatado}, {tipo.nome}"
+        else:
+            formatado = tipo.nome
+    return formatado
+
+
+def relatorio_alteracao_cardapio(request, solicitacao):
+    """
+    Esta é uma função interna (não exposta via URL) chamada para gerar PDF.
+    Segura contra métodos HTTP inseguros.
+
+    """
+
+    valida_request_method_get(request)
+
     substituicoes = solicitacao.substituicoes_periodo_escolar
     formata_substituicoes = []
 
     for subs in substituicoes.all():
-        tipos_alimentacao_de = subs.tipos_alimentacao_de.all()
-        tipos_alimentacao_para = subs.tipos_alimentacao_para.all()
-
-        tad_formatado = ""
-        tap_formatado = ""
-
-        for tad in tipos_alimentacao_de:
-            if len(tad_formatado) > 0:
-                tad_formatado = f"{tad_formatado}, {tad.nome}"
-            else:
-                tad_formatado = tad.nome
-
-        for tap in tipos_alimentacao_para:
-            if len(tap_formatado) > 0:
-                tap_formatado = f"{tap_formatado}, {tap.nome}"
-            else:
-                tap_formatado = tap.nome
-
-        resultado = {
-            "periodo": subs.periodo_escolar.nome,
-            "qtd_alunos": subs.qtd_alunos,
-            "tipos_alimentacao_de": tad_formatado,
-            "tipos_alimentacao_para": tap_formatado,
-        }
-
+        resultado = _processa_substituicao(subs)
         formata_substituicoes.append(resultado)
 
     escola = solicitacao.rastro_escola
@@ -601,6 +623,14 @@ def relatorio_guia_de_remessa(guias, is_async=False):  # noqa C901
 
 
 def relatorio_dieta_especial(request, solicitacao):
+    """
+    Esta é uma função interna (não exposta via URL) chamada para gerar PDF.
+    Segura contra métodos HTTP inseguros.
+
+    """
+
+    valida_request_method_get(request)
+
     html_string = relatorio_dieta_especial_conteudo(solicitacao, request)
     return html_to_pdf_response(
         html_string, f"dieta_especial_{solicitacao.id_externo}.pdf"
@@ -624,6 +654,14 @@ def relatorio_dietas_especiais_terceirizada(dados):
 
 
 def relatorio_dieta_especial_protocolo(request, solicitacao, sem_foto=False):
+    """
+    Esta é uma função interna (não exposta via URL) chamada para gerar PDF.
+    Segura contra métodos HTTP inseguros.
+
+    """
+
+    valida_request_method_get(request)
+
     if solicitacao.tipo_solicitacao == "COMUM":
         escola = solicitacao.rastro_escola
     else:
@@ -693,6 +731,14 @@ def relatorio_inclusao_alimentacao_continua(request, solicitacao):
 
 
 def relatorio_inclusao_alimentacao_normal(request, solicitacao):
+    """
+    Esta é uma função interna (não exposta via URL) chamada para gerar PDF.
+    Segura contra métodos HTTP inseguros.
+
+    """
+
+    valida_request_method_get(request)
+
     escola = solicitacao.rastro_escola
     logs = solicitacao.logs
     html_string = render_to_string(
@@ -1093,6 +1139,14 @@ def relatorio_suspensao_de_alimentacao_cei(request, solicitacao):
 
 
 def relatorio_produto_homologacao(request, produto):
+    """
+    Esta é uma função interna (não exposta via URL) chamada para gerar PDF.
+    Segura contra métodos HTTP inseguros.
+
+    """
+
+    valida_request_method_get(request)
+
     homologacao = produto.homologacao
     terceirizada = homologacao.rastro_terceirizada
     reclamacao = homologacao.reclamacoes.filter(
@@ -1947,6 +2001,7 @@ def get_pdf_ficha_recebimento(request, ficha):
             "ficha": ficha,
             "etapa": ficha.etapa,
             "cronograma": ficha.etapa.cronograma,
+            "reposicao_cronograma": ficha.reposicao_cronograma,
             "ficha_tecnica": ficha.etapa.cronograma.ficha_tecnica,
             "documentos": documentos_serializer.data,
             "veiculos": ficha.veiculos.all(),

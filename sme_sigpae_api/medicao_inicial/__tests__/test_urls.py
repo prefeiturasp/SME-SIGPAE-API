@@ -2363,3 +2363,69 @@ def test_url_endpoint_atualiza_informacoes_basicas(
     assert "Responsável 2" in nomes
     assert data["tipos_contagem_alimentacao"] == [str(tipo_contagem_alimentacao.uuid)]
     assert data["escola"] == str(solicitacao_medicao_informacoes_basicas.escola.uuid)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "client_fixture, status_experado, detail_experado",
+    [
+        (
+            "client_autenticado_coordenador_codae",
+            status.HTTP_200_OK,
+            "Solicitação de geração de arquivo recebida com sucesso.",
+        ),
+        (
+            "client_autenticado_diretoria_regional",
+            status.HTTP_200_OK,
+            "Solicitação de geração de arquivo recebida com sucesso.",
+        ),
+        (
+            "client_autenticado_da_escola",
+            status.HTTP_403_FORBIDDEN,
+            "Você não tem permissão para executar essa ação.",
+        ),
+        (
+            "client_autenticado_da_escola_cei",
+            status.HTTP_403_FORBIDDEN,
+            "Você não tem permissão para executar essa ação.",
+        ),
+        (
+            "client_autenticado_da_escola_cemei",
+            status.HTTP_403_FORBIDDEN,
+            "Você não tem permissão para executar essa ação.",
+        ),
+        (
+            "client_autenticado_da_escola_ceu_gestao",
+            status.HTTP_403_FORBIDDEN,
+            "Você não tem permissão para executar essa ação.",
+        ),
+        (
+            "client_autenticado_da_escola_emebs",
+            status.HTTP_403_FORBIDDEN,
+            "Você não tem permissão para executar essa ação.",
+        ),
+        (
+            "client_autenticado_adm_da_escola",
+            status.HTTP_403_FORBIDDEN,
+            "Você não tem permissão para executar essa ação.",
+        ),
+        (
+            "client_autenticado_codae_medicao",
+            status.HTTP_200_OK,
+            "Solicitação de geração de arquivo recebida com sucesso.",
+        ),
+    ],
+)
+def test_url_endpoint_relatorio_consolidado_verifica_permissao(
+    request, client_fixture, status_experado, detail_experado, grupo_escolar, escola
+):
+    client = request.getfixturevalue(client_fixture)
+
+    response = client.get(
+        "/medicao-inicial/solicitacao-medicao-inicial/relatorio-consolidado/exportar-xlsx/"
+        f"?grupo_escolar={grupo_escolar}&status=MEDICAO_APROVADA_PELA_CODAE&dre={escola.diretoria_regional.uuid}&ano=2025&mes=6",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status_experado
+    assert response.json() == {"detail": detail_experado}

@@ -1,6 +1,7 @@
 {% extends 'cabecalho_rodape_solicitacao.html' %}
 {% load index %}
 {% load static %}
+{% load safe_html_tags %}
 
 {% block conteudo %}
   <div class="conteudo tabela-sem-borda">
@@ -55,11 +56,11 @@
           <tr class="{% if quantidade_periodo.cancelado_justificativa or solicitacao.status == 'ESCOLA_CANCELOU' %}cancelado{% endif %}">
             <td colspan="2">
               <p>Observações:</p>
-              <p>{{ quantidade_periodo.observacao | safe }}</p>
+              <p>{{ quantidade_periodo.observacao | safe_content }}</p>
             </td>
             {% if quantidade_periodo.cancelado_justificativa or solicitacao.status == 'ESCOLA_CANCELOU' %}
               <td colspan="2" style="text-decoration: none">
-                <p>Justificativa: {{ quantidade_periodo.cancelado_justificativa | safe }}</p>
+                <p>Justificativa: {{ quantidade_periodo.cancelado_justificativa | safe_content }}</p>
               </td>
             {% endif %}
           </tr>

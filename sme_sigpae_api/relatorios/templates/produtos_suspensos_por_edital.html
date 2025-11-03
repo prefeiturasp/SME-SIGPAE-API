@@ -1,5 +1,6 @@
 {% load static %}
 {% load sass_tags %}
+{% load safe_html_tags %}
 
 <html>
   <head>
@@ -53,7 +54,7 @@
               <td>{{ produto.suspensao }}</td>
             </tr>
             <tr>
-              <td colspan="6"><b>Justificativa: </b>{{ produto.justificativa|safe }}</td>
+              <td colspan="6"><b>Justificativa: </b>{{ produto.justificativa|safe_content }}</td>
             </tr>
           </tbody>
           {% endfor %}
