@@ -89,7 +89,6 @@ from ..utils import (
     get_valor_total,
     log_alteracoes_escola_corrige_periodo,
     tratar_valores,
-    tratar_workflow_todos_lancamentos,
 )
 from .constants import (
     ORDEM_NAME_LANCAMENTOS_ESPECIAIS,
@@ -291,15 +290,7 @@ class SolicitacaoMedicaoInicialViewSet(
                 + ["TODOS_OS_LANCAMENTOS"]
             )
 
-    def condicao_raw_query_por_usuario(self):
-        usuario = self.request.user
-        if usuario.tipo_usuario == "diretoriaregional":
-            return f"AND diretoria_regional_id = {self.request.user.vinculo_atual.object_id} "
-        elif usuario.tipo_usuario == "escola":
-            return f"AND %(solicitacao_medicao_inicial)s.escola_id = {self.request.user.vinculo_atual.object_id} "
-        return ""
-
-    def condicao_por_usuario(self, queryset):
+    def _condicao_por_usuario(self, queryset):
         usuario = self.request.user
 
         if usuario.tipo_usuario in USUARIOS_VISAO_CODAE + [
@@ -324,7 +315,7 @@ class SolicitacaoMedicaoInicialViewSet(
             return queryset.filter(status__in=STATUS_RELACAO_DRE_MEDICAO)
         return queryset
 
-    def get_label(self, workflow: str) -> str:
+    def _get_label(self, workflow: str) -> str:
         try:
             return SolicitacaoMedicaoInicial.workflow_class.states[workflow].title
         except (ValidationError, KeyError):
@@ -340,12 +331,12 @@ class SolicitacaoMedicaoInicialViewSet(
                 if not todos_lancamentos
                 else query_set
             )
-            qs = self.condicao_por_usuario(qs)
+            qs = self._condicao_por_usuario(qs)
             qs = qs.filter(**kwargs)
             sumario.append(
                 {
                     "status": workflow,
-                    "label": self.get_label(workflow),
+                    "label": self._get_label(workflow),
                     "total": len(qs),
                 }
             )
@@ -357,7 +348,7 @@ class SolicitacaoMedicaoInicialViewSet(
         limit = int(request.query_params.get("limit", 10))
         offset = int(request.query_params.get("offset", 0))
         workflow = request.query_params.get("status")
-        qs = self.condicao_por_usuario(query_set)
+        qs = self._condicao_por_usuario(query_set)
         qs = qs.filter(**kwargs)
         qs_ordenado = ordenar_unidades(qs)
         total = len(qs_ordenado)
@@ -371,91 +362,7 @@ class SolicitacaoMedicaoInicialViewSet(
             ).data,
         }
 
-    def dados_dashboard(
-        self, request, query_set: QuerySet, kwargs: dict, use_raw=True
-    ) -> list:
-        limit = int(request.query_params.get("limit", 10))
-        offset = int(request.query_params.get("offset", 0))
-
-        sumario = []
-        usuario = self.request.user
-
-        for workflow in self._get_lista_status():
-            todos_lancamentos = workflow == "TODOS_OS_LANCAMENTOS"
-            if use_raw:
-                data = {
-                    "escola": Escola._meta.db_table,
-                    "logs": LogSolicitacoesUsuario._meta.db_table,
-                    "solicitacao_medicao_inicial": SolicitacaoMedicaoInicial._meta.db_table,
-                    "status": workflow,
-                }
-                raw_sql = (
-                    "SELECT %(solicitacao_medicao_inicial)s.* FROM %(solicitacao_medicao_inicial)s "
-                    "JOIN (SELECT uuid_original, MAX(criado_em) AS log_criado_em FROM %(logs)s "
-                    "GROUP BY uuid_original) "
-                    "AS most_recent_log "
-                    "ON %(solicitacao_medicao_inicial)s.uuid = most_recent_log.uuid_original "
-                    "LEFT JOIN (SELECT id AS escola_id, diretoria_regional_id FROM %(escola)s) "
-                    "AS escola_solicitacao_medicao "
-                    "ON escola_solicitacao_medicao.escola_id = %(solicitacao_medicao_inicial)s.escola_id "
-                )
-                if todos_lancamentos:
-                    raw_sql = tratar_workflow_todos_lancamentos(usuario, raw_sql)
-                else:
-                    raw_sql += (
-                        "WHERE %(solicitacao_medicao_inicial)s.status = '%(status)s' "
-                    )
-                raw_sql += self.condicao_raw_query_por_usuario()
-                raw_sql += "ORDER BY log_criado_em DESC"
-                qs = query_set.raw(raw_sql % data)
-            else:
-                qs = (
-                    query_set.filter(status=workflow)
-                    if not todos_lancamentos
-                    else query_set
-                )
-                qs = qs.filter(**kwargs)
-                qs = self.condicao_por_usuario(qs)
-
-            qs_ordenado = ordenar_unidades(qs)
-            paginated = qs_ordenado[offset : offset + limit]
-            result = {
-                "status": workflow,
-                "total": len(qs_ordenado),
-                "dados": SolicitacaoMedicaoInicialDashboardSerializer(
-                    paginated,
-                    context={"request": self.request, "workflow": workflow},
-                    many=True,
-                ).data,
-            }
-            sumario.append(result)
-        if request.user.tipo_usuario == constants.TIPO_USUARIO_ESCOLA:
-            status_medicao_corrigida = [
-                "MEDICAO_CORRIGIDA_PELA_UE",
-                "MEDICAO_CORRIGIDA_PARA_CODAE",
-            ]
-            sumario_medicoes_corrigidas = [
-                s for s in sumario if s["status"] in status_medicao_corrigida
-            ]
-            total_medicao_corrigida = 0
-            total_dados = []
-            for s in sumario_medicoes_corrigidas:
-                total_medicao_corrigida += s["total"]
-                total_dados += s["dados"]
-            sumario.insert(
-                2,
-                {
-                    "status": "MEDICAO_CORRIGIDA",
-                    "total": total_medicao_corrigida,
-                    "dados": total_dados,
-                },
-            )
-            sumario = [
-                s for s in sumario if s["status"] not in status_medicao_corrigida
-            ]
-        return sumario
-
-    def formatar_filtros(self, query_params):
+    def _formatar_filtros(self, query_params):
         kwargs = {}
 
         mapping = {
@@ -505,7 +412,7 @@ class SolicitacaoMedicaoInicialViewSet(
     )
     def dashboard_totalizadores(self, request):
         query_set = self.get_queryset()
-        kwargs = self.formatar_filtros(request.query_params)
+        kwargs = self._formatar_filtros(request.query_params)
         response = {
             "results": self._get_totalizadores(query_set=query_set, kwargs=kwargs)
         }
@@ -528,39 +435,10 @@ class SolicitacaoMedicaoInicialViewSet(
     )
     def dashboard_resultados(self, request):
         query_set = self.get_queryset()
-        kwargs = self.formatar_filtros(request.query_params)
+        kwargs = self._formatar_filtros(request.query_params)
         response = {
             "results": self._get_resultados(
                 request=request, query_set=query_set, kwargs=kwargs
-            )
-        }
-        return Response(response)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path="dashboard",
-        permission_classes=[
-            UsuarioEscolaTercTotal
-            | UsuarioDiretoriaRegional
-            | UsuarioCODAEGestaoAlimentacao
-            | UsuarioCODAENutriManifestacao
-            | UsuarioCODAEGabinete
-            | UsuarioDinutreDiretoria
-            | UsuarioEmpresaTerceirizada
-            | UsuarioSupervisaoNutricao
-        ],
-    )
-    def dashboard(self, request):
-        query_set = self.get_queryset()
-        possui_filtros = len(request.query_params)
-        kwargs = self.formatar_filtros(request.query_params)
-        response = {
-            "results": self.dados_dashboard(
-                query_set=query_set,
-                request=request,
-                kwargs=kwargs,
-                use_raw=not possui_filtros,
             )
         }
         return Response(response)
@@ -582,7 +460,7 @@ class SolicitacaoMedicaoInicialViewSet(
     )
     def meses_anos(self, request):
         qs_solicitacao_medicao = SolicitacaoMedicaoInicial.objects.all()
-        query_set = self.condicao_por_usuario(self.get_queryset())
+        query_set = self._condicao_por_usuario(self.get_queryset())
 
         if (
             isinstance(request.user.vinculo_atual.instituicao, DiretoriaRegional)

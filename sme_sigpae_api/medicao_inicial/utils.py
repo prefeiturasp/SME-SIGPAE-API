@@ -4121,26 +4121,6 @@ def log_alteracoes_escola_corrige_periodo(user, medicao, acao, data):
         )
 
 
-def tratar_workflow_todos_lancamentos(usuario, raw_sql):
-    if usuario.tipo_usuario == "medicao":
-        raw_sql += (
-            "WHERE %(solicitacao_medicao_inicial)s.status IN ("
-            "'MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE', "
-            "'MEDICAO_APROVADA_PELA_DRE', "
-            "'MEDICAO_CORRECAO_SOLICITADA_CODAE', "
-            "'MEDICAO_CORRIGIDA_PARA_CODAE', "
-            "'MEDICAO_APROVADA_PELA_CODAE') "
-        )
-    elif usuario.tipo_usuario == "diretoriaregional":
-        raw_sql += "WHERE NOT %(solicitacao_medicao_inicial)s.status = " "'' "
-    else:
-        raw_sql += (
-            "WHERE NOT %(solicitacao_medicao_inicial)s.status = "
-            "'MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE' "
-        )
-    return raw_sql
-
-
 def get_valor_total(escola, total_por_nome_campo, medicao):
     valor_total = sum(total_por_nome_campo.values())
     if escola.eh_cei or (
