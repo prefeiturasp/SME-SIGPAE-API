@@ -272,8 +272,9 @@ class SolicitacaoMedicaoInicialViewSet(
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @staticmethod
-    def get_lista_status(usuario):
+    def _get_lista_status(self):
+        usuario = self.request.user
+
         if usuario.tipo_usuario == "medicao":
             return STATUS_RELACAO_DRE_MEDICAO + ["TODOS_OS_LANCAMENTOS"]
         elif usuario.tipo_usuario == "diretoriaregional":
@@ -323,6 +324,53 @@ class SolicitacaoMedicaoInicialViewSet(
             return queryset.filter(status__in=STATUS_RELACAO_DRE_MEDICAO)
         return queryset
 
+    def get_label(self, workflow: str) -> str:
+        try:
+            return SolicitacaoMedicaoInicial.workflow_class.states[workflow].title
+        except (ValidationError, KeyError):
+            return "TODOS_OS_LANCAMENTOS"
+
+    def _get_totalizadores(self, query_set: QuerySet, kwargs: dict) -> list:
+        sumario = []
+
+        for workflow in self._get_lista_status():
+            todos_lancamentos = workflow == "TODOS_OS_LANCAMENTOS"
+            qs = (
+                query_set.filter(status=workflow)
+                if not todos_lancamentos
+                else query_set
+            )
+            qs = self.condicao_por_usuario(qs)
+            qs = qs.filter(**kwargs)
+            sumario.append(
+                {
+                    "status": workflow,
+                    "label": self.get_label(workflow),
+                    "total": len(qs),
+                }
+            )
+        return sumario
+
+    def _get_resultados(
+        self, request: Request, query_set: QuerySet, kwargs: dict
+    ) -> dict:
+        limit = int(request.query_params.get("limit", 10))
+        offset = int(request.query_params.get("offset", 0))
+        workflow = request.query_params.get("status")
+        qs = self.condicao_por_usuario(query_set)
+        qs = qs.filter(**kwargs)
+        qs_ordenado = ordenar_unidades(qs)
+        total = len(qs_ordenado)
+        paginated = qs_ordenado[offset : offset + limit]
+        return {
+            "total": total,
+            "dados": SolicitacaoMedicaoInicialDashboardSerializer(
+                paginated,
+                context={"request": self.request, "workflow": workflow},
+                many=True,
+            ).data,
+        }
+
     def dados_dashboard(
         self, request, query_set: QuerySet, kwargs: dict, use_raw=True
     ) -> list:
@@ -332,7 +380,7 @@ class SolicitacaoMedicaoInicialViewSet(
         sumario = []
         usuario = self.request.user
 
-        for workflow in self.get_lista_status(usuario):
+        for workflow in self._get_lista_status():
             todos_lancamentos = workflow == "TODOS_OS_LANCAMENTOS"
             if use_raw:
                 data = {
@@ -431,11 +479,62 @@ class SolicitacaoMedicaoInicialViewSet(
             },
         }
 
+        if query_params.get("status") != "TODOS_OS_LANCAMENTOS":
+            mapping["status"] = lambda params: {"status": params.get("status")}
+
         for param, parser in mapping.items():
             if query_params.get(param) or query_params.getlist(param):
                 kwargs.update(parser(query_params))
 
         return kwargs
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="dashboard-totalizadores",
+        permission_classes=[
+            UsuarioEscolaTercTotal
+            | UsuarioDiretoriaRegional
+            | UsuarioCODAEGestaoAlimentacao
+            | UsuarioCODAENutriManifestacao
+            | UsuarioCODAEGabinete
+            | UsuarioDinutreDiretoria
+            | UsuarioEmpresaTerceirizada
+            | UsuarioSupervisaoNutricao
+        ],
+    )
+    def dashboard_totalizadores(self, request):
+        query_set = self.get_queryset()
+        kwargs = self.formatar_filtros(request.query_params)
+        response = {
+            "results": self._get_totalizadores(query_set=query_set, kwargs=kwargs)
+        }
+        return Response(response)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="dashboard-resultados",
+        permission_classes=[
+            UsuarioEscolaTercTotal
+            | UsuarioDiretoriaRegional
+            | UsuarioCODAEGestaoAlimentacao
+            | UsuarioCODAENutriManifestacao
+            | UsuarioCODAEGabinete
+            | UsuarioDinutreDiretoria
+            | UsuarioEmpresaTerceirizada
+            | UsuarioSupervisaoNutricao
+        ],
+    )
+    def dashboard_resultados(self, request):
+        query_set = self.get_queryset()
+        kwargs = self.formatar_filtros(request.query_params)
+        response = {
+            "results": self._get_resultados(
+                request=request, query_set=query_set, kwargs=kwargs
+            )
+        }
+        return Response(response)
 
     @action(
         detail=False,
