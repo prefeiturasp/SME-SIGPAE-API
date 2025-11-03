@@ -73,6 +73,47 @@ def test_calculo_totais_solicitacoes_sem_filtros(aluno_factory):
     assert total_inativas == 3
 
 
+def test_calculo_totais_solicitacoes_aluno_especifico(aluno_factory):
+    from sme_sigpae_api.escola.models import Aluno
+
+    aluno1 = aluno_factory.create(codigo_eol="1234567")
+    aluno2 = aluno_factory.create(codigo_eol="7654321")
+
+    view = SolicitacoesAtivasInativasPorAlunoView()
+
+    mock_ativas = MagicMock()
+    mock_ativas_filtered = MagicMock()
+    mock_ativas_filtered.values.return_value = mock_ativas_filtered
+    mock_ativas_filtered.distinct.return_value = mock_ativas_filtered
+    mock_ativas_filtered.count.return_value = 1
+
+    mock_ativas.filter.return_value = mock_ativas_filtered
+
+    mock_inativas = MagicMock()
+    mock_inativas_filtered = MagicMock()
+    mock_inativas_filtered.values.return_value = mock_inativas_filtered
+    mock_inativas_filtered.distinct.return_value = mock_inativas_filtered
+    mock_inativas_filtered.count.return_value = 2
+
+    mock_inativas.filter.return_value = mock_inativas_filtered
+
+    view._qs_ativas_view = MagicMock(return_value=mock_ativas)
+    view._qs_inativas_view = MagicMock(return_value=mock_inativas)
+    view.aplicar_filtros_escola_view = MagicMock(side_effect=lambda qs, **kwargs: qs)
+
+    alunos_qs = Aluno.objects.filter(codigo_eol="1234567")
+
+    total_ativas, total_inativas = view.calcular_totais(alunos_qs=alunos_qs)
+
+    assert total_ativas == 1
+    assert total_inativas == 2
+
+    mock_ativas.filter.assert_called_once()
+    call_args = mock_ativas.filter.call_args
+    assert "codigo_eol_aluno__in" in call_args[1]
+    assert list(call_args[1]["codigo_eol_aluno__in"]) == ["1234567"]
+
+
 def test_filtro_por_serie_exata_7a(
     client_autenticado_vinculo_codae_dieta,
     aluno_factory,
