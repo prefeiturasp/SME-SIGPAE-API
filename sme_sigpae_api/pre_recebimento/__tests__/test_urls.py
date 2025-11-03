@@ -2403,11 +2403,10 @@ def test_url_documentos_de_recebimento_analisar_documento(
     # Teste salvar rascunho (todos os campos não são obrigatórios)
     dados_atualizados = {
         "laboratorio": str(laboratorio.uuid),
-        "quantidade_laudo": 10.5,
+        "quantidade_laudo": 10,
         "unidade_medida": str(unidade_medida.uuid),
         "numero_lote_laudo": "001",
         "data_final_lote": str(datetime.date.today()),
-        "saldo_laudo": 5.5,
     }
 
     response_rascunho = client_autenticado_qualidade.patch(
@@ -2422,11 +2421,10 @@ def test_url_documentos_de_recebimento_analisar_documento(
         documento.status == DocumentoDeRecebimento.workflow_class.ENVIADO_PARA_ANALISE
     )
     assert documento.laboratorio == laboratorio
-    assert documento.quantidade_laudo == 10.5
+    assert documento.quantidade_laudo == 10
     assert documento.unidade_medida == unidade_medida
     assert documento.numero_lote_laudo == "001"
     assert documento.data_final_lote == datetime.date.today()
-    assert documento.saldo_laudo == 5.5
 
     # Teste analise ação aprovar (Todos os campos são obrigatórios)
     dados_atualizados["quantidade_laudo"] = 20
