@@ -122,7 +122,7 @@ def test_solicita_correcao_em_medicoes(
 )
 def test_solicitacao_medicao_formatar_filtros(query_dict, expected):
     viewset = SolicitacaoMedicaoInicialViewSet()
-    result = viewset.formatar_filtros(query_dict)
+    result = viewset._formatar_filtros(query_dict)
     assert result == expected
 
 

@@ -241,26 +241,13 @@ def test_dashboard_dados_ordenados(
 
     # Chama o endpoint com mês/ano atual e paginação ampla
     hoje = datetime.date.today()
-    url = f"/medicao-inicial/solicitacao-medicao-inicial/dashboard/?limit=200&mes={str(hoje.month).zfill(2)}&ano={hoje.year}"
+    url = f"/medicao-inicial/solicitacao-medicao-inicial/dashboard-resultados/?limit=200&mes={str(hoje.month).zfill(2)}&ano={hoje.year}"
     resp = api_client_usuario_codae.get(url)
     assert resp.status_code == 200, resp.content
 
     data = resp.json()
     assert "results" in data
-    bloco = extrai_bloco(data["results"], status_bloco)
-    assert (
-        bloco is not None
-    ), f"Bloco {status_bloco} não encontrado. Disponíveis: {[b.get('status') for b in data['results']]}"
-
-    dados = bloco.get("dados", [])
-    total = bloco.get("total")
-    assert total >= len(
-        escolas
-    ), f"Esperava total >= {len(escolas)}, veio {total}. Payload: {data['results']}"
-    assert len(dados) >= len(
-        escolas
-    ), f"Esperava pelo menos {len(escolas)} itens em dados, obteve {len(dados)}. Payload bloco: {bloco}"
-
+    dados = data["results"]["dados"]
     # Ordem esperada seguindo os constants atuais:
     # Grupo 1 (CEI DIRET=1, CEI CEU=2, CEU CEI=3, CCI=4, CCI/CIPS=5, CEI=6)
     # - CEI DIRET: alfabético
