@@ -59,6 +59,11 @@ pipeline {
                     }
 
                     echo "FIM DOS TESTES!"
+                    def logText = currentBuild.rawBuild.getLog(20).join('\n')
+                    def match = logText =~ /Recorded Run:\s*(https?:\/\/\S+)/
+                    if (match) {
+                        env.CYPRESS_RUN_URL = match[0][1]
+                    }
                 }
             }
         }
@@ -121,37 +126,31 @@ pipeline {
             }
         }
 
-        success {
-            sendTelegram("☑️ Job Name: ${JOB_NAME} \nBuild: ${BUILD_DISPLAY_NAME} \nStatus: Success \nLog: \n${env.BUILD_URL}allure")
-        }
-
-        unstable {
-            sendTelegram("💣 Job Name: ${JOB_NAME} \nBuild: ${BUILD_DISPLAY_NAME} \nStatus: Unstable \nLog: \n${env.BUILD_URL}allure")
-        }
-
-        failure {
-            sendTelegram("💥 Job Name: ${JOB_NAME} \nBuild: ${BUILD_DISPLAY_NAME} \nStatus: Failure \nLog: \n${env.BUILD_URL}allure")
-        }
-
-        aborted {
-            sendTelegram("😥 Job Name: ${JOB_NAME} \nBuild: ${BUILD_DISPLAY_NAME} \nStatus: Aborted \nLog: \n${env.BUILD_URL}console")
-        }
+        success { sendTelegram("<b>SUCESSO! ✅</b>") }
+        unstable { sendTelegram("<b>INSTÁVEL! ⚠️</b>") }
+        failure { sendTelegram("<b>FALHA! ❌</b>\n") }
+        aborted { sendTelegram("<b>CANCELADO! ✖️</b>\n") }
     }
 }
 
 def sendTelegram(message) {
-    def encodedMessage = URLEncoder.encode(message, "UTF-8")
-    withCredentials([
-        string(credentialsId: 'telegramTokensigpae', variable: 'TOKEN'),
-        string(credentialsId: 'telegramChatIdsigpae', variable: 'CHAT_ID')
-    ]) {
-        response = httpRequest (
-            consoleLogResponseBody: true,
+    def messageTemplate = (
+        "<b>Job Name:</b> <a href='${JOB_URL}'>${JOB_NAME}</a>\n\n" +
+        "<b>Status:</b> ${message}\n" +
+        "<b>Build Number:</b> ${BUILD_DISPLAY_NAME}\n" +
+        "<b>Dashboard Link:</b> <a href='${env.CYPRESS_RUN_URL}'>Resultados no dashboard</a>\n" +
+        "<b>Log:</b> <a href='${env.BUILD_URL}console'>Ver console output</a>"
+    )
+    
+    def encodedMessage = URLEncoder.encode(messageTemplate, "UTF-8")
+
+    withCredentials([string(credentialsId: 'telegramTokensigpae', variable: 'TOKEN'),
+    string(credentialsId: 'telegramChatIdsigpae', variable: 'CHAT_ID')]) {
+        response = httpRequest (consoleLogResponseBody: true,
             contentType: 'APPLICATION_JSON',
             httpMode: 'GET',
-            url: "https://api.telegram.org/bot${TOKEN}/sendMessage?text=${encodedMessage}&chat_id=${CHAT_ID}&disable_web_page_preview=true",
-            validResponseCodes: '200'
-        )
+            url: 'https://api.telegram.org/bot'+"$TOKEN"+'/sendMessage?text='+encodedMessage+'&chat_id='+"$CHAT_ID"+'&parse_mode='+"HTML"+'&disable_web_page_preview=true',
+            validResponseCodes: '200')
         return response
     }
 }
