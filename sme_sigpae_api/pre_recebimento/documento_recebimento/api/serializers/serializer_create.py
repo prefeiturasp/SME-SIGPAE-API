@@ -142,7 +142,6 @@ class DocumentoDeRecebimentoAnalisarRascunhoSerializer(serializers.ModelSerializ
         allow_null=True,
     )
     quantidade_laudo = serializers.FloatField(required=False, allow_null=True)
-    saldo_laudo = serializers.FloatField(required=False, allow_null=True)
     numero_lote_laudo = serializers.CharField(required=False, allow_null=True)
     data_final_lote = serializers.DateField(required=False, allow_null=True)
     datas_fabricacao_e_prazos = DataDeFabricaoEPrazoAnalisarRascunhoSerializer(
@@ -165,7 +164,6 @@ class DocumentoDeRecebimentoAnalisarRascunhoSerializer(serializers.ModelSerializ
             "unidade_medida",
             "numero_lote_laudo",
             "data_final_lote",
-            "saldo_laudo",
             "datas_fabricacao_e_prazos",
         )
 
