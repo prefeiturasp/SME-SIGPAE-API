@@ -318,6 +318,7 @@ def test_cria_edital_contrato(users_codae_gestao_alimentacao):
                 "modalidade": "",
                 "numero_pregao": "",
                 "numero_chamada_publica": "",
+                "programa": "LEVE_LEITE",
             }
         ],
         "numero": "938373",

@@ -25,7 +25,6 @@ def test_patch_analise_documentos_aprovar(
         "unidade_medida": f"{documento_de_recebimento.unidade_medida.uuid}",
         "data_final_lote": "30/05/2024",
         "numero_lote_laudo": "123456",
-        "saldo_laudo": "50",
         "datas_fabricacao_e_prazos": [
             {
                 "data_fabricacao": "05/03/2024",
@@ -60,7 +59,6 @@ def test_patch_analise_documentos_enviar_para_correcao(
         "unidade_medida": f"{documento_de_recebimento.unidade_medida.uuid}",
         "data_final_lote": "30/05/2024",
         "numero_lote_laudo": "123456",
-        "saldo_laudo": "50",
         "datas_fabricacao_e_prazos": [
             {
                 "data_fabricacao": "05/03/2024",

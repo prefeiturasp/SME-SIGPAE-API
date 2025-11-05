@@ -220,7 +220,7 @@ def emailterceirizadapormodulo(terceirizada, modulo, usuario_2):
 
 @pytest.fixture
 def contrato():
-    return baker.make(Contrato, numero="1", processo="12345")
+    return baker.make(Contrato, numero="1", processo="12345", programa=Contrato.ALIMENTACAO_ESCOLAR)
 
 
 @pytest.fixture
