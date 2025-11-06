@@ -8,7 +8,7 @@ import datetime
 import environ
 import xworkflows
 from django.contrib.contenttypes.models import ContentType
-from django.db import models
+from django.db import IntegrityError, models
 from django.template.loader import render_to_string
 from django_xworkflows import models as xwf_models
 from rest_framework.exceptions import PermissionDenied, ValidationError
@@ -3771,6 +3771,7 @@ class SolicitacaoMedicaoInicialWorkflow(xwf_models.Workflow):
     MEDICAO_APROVADA_PELA_DRE = "MEDICAO_APROVADA_PELA_DRE"
     MEDICAO_APROVADA_PELA_CODAE = "MEDICAO_APROVADA_PELA_CODAE"
     MEDICAO_SEM_LANCAMENTOS = "MEDICAO_SEM_LANCAMENTOS"
+    OCORRENCIA_EXCLUIDA_PELA_ESCOLA = "OCORRENCIA_EXCLUIDA_PELA_ESCOLA"
 
     states = (
         (
@@ -3785,6 +3786,7 @@ class SolicitacaoMedicaoInicialWorkflow(xwf_models.Workflow):
         (MEDICAO_APROVADA_PELA_DRE, "Aprovado pela DRE"),
         (MEDICAO_APROVADA_PELA_CODAE, "Aprovado por CODAE"),
         (MEDICAO_SEM_LANCAMENTOS, "Sem Lançamentos"),
+        (OCORRENCIA_EXCLUIDA_PELA_ESCOLA, "Ocorrência excluída pela Escola"),
     )
 
     transitions = (
@@ -3899,6 +3901,11 @@ class SolicitacaoMedicaoInicialWorkflow(xwf_models.Workflow):
             "codae_pede_correcao_sem_lancamentos",
             [MEDICAO_APROVADA_PELA_CODAE, MEDICAO_SEM_LANCAMENTOS],
             MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+        ),
+        (
+            "escola_exclui_ocorrencia",
+            [MEDICAO_CORRECAO_SOLICITADA, MEDICAO_CORRECAO_SOLICITADA_CODAE],
+            OCORRENCIA_EXCLUIDA_PELA_ESCOLA,
         ),
     )
 
@@ -4361,6 +4368,21 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             raise PermissionDenied("Você não tem permissão para executar essa ação.")
         self.salvar_log_transicao(
             status_evento=LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+            usuario=user,
+            justificativa=justificativa,
+        )
+
+    @xworkflows.after_transition("escola_exclui_ocorrencia")
+    def _escola_exclui_ocorrencia_hook(self, *args, **kwargs):
+        """
+        Cria objeto LogSolicitacoesUsuario quando o fluxo `escola_exclui_ocorrencia` acontece.
+        """
+        user = kwargs["user"]
+        justificativa = kwargs["justificativa"]
+        if self.__class__.__name__ != "OcorrenciaMedicaoInicial":
+            raise IntegrityError("Transição para Ocorrência de Medição.")
+        self.salvar_log_transicao(
+            status_evento=LogSolicitacoesUsuario.OCORRENCIA_EXCLUIDA_PELA_ESCOLA,
             usuario=user,
             justificativa=justificativa,
         )
