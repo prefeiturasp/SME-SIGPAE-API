@@ -254,7 +254,7 @@ class EscolaSimplissimaComDREUnpaginatedViewSet(EscolaSimplissimaComDREViewSet):
             escolas = escolas.filter(
                 lote__contratos_do_lote__edital__numero=nome_edital
             )
-        return Response(self.get_serializer(escolas, many=True).data)
+        return Response(self.get_serializer(escolas.distinct(), many=True).data)
 
 
 class EscolaQuantidadeAlunosPorPeriodoEFaixaViewSet(GenericViewSet):
