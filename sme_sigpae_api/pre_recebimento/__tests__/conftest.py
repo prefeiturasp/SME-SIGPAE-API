@@ -1161,3 +1161,70 @@ def payload_base(produto_arroz, empresa, unidade_medida_logistica):
         "volume_embalagem_primaria": 5,
         "unidade_medida_volume_primaria": unidade_medida_logistica.uuid,
     }
+
+
+@pytest.fixture
+def etapa_com_fichas_recebimento(unidade_medida_logistica, tipo_emabalagem_qld):
+    """Fixture para etapa com fichas de recebimento para teste do serializer"""
+    cronograma = baker.make(
+        "Cronograma",
+        numero="001/2023A",
+        qtd_total_programada=1000,
+        unidade_medida=unidade_medida_logistica,
+        tipo_embalagem_secundaria=tipo_emabalagem_qld,
+        empresa__nome_fantasia="Fornecedor Teste",
+        ficha_tecnica__produto__nome="Produto Teste",
+        ficha_tecnica__marca__nome="Marca Teste",
+    )
+
+    etapa = baker.make(
+        "EtapasDoCronograma",
+        cronograma=cronograma,
+        numero_empenho="EMP001",
+        etapa=1,
+        parte=2,
+        qtd_total_empenho=500,
+        quantidade=300,
+        total_embalagens=10,
+        data_programada=timezone.now().date(),
+    )
+
+    # Ficha com ocorrência
+    baker.make(
+        "FichaDeRecebimento", etapa=etapa, houve_ocorrencia=True, status="ASSINADA"
+    )
+
+    # Ficha sem ocorrência
+    baker.make(
+        "FichaDeRecebimento", etapa=etapa, houve_ocorrencia=False, status="ASSINADA"
+    )
+
+    # Ficha de reposição
+    baker.make(
+        "FichaDeRecebimento",
+        etapa=etapa,
+        houve_ocorrencia=False,
+        reposicao_cronograma=baker.make("ReposicaoCronogramaFichaRecebimento"),
+    )
+
+    return etapa
+
+
+@pytest.fixture
+def etapa_sem_fichas_recebimento(unidade_medida_logistica, tipo_emabalagem_qld):
+    """Fixture para etapa sem fichas de recebimento"""
+    cronograma = baker.make(
+        "Cronograma",
+        unidade_medida=unidade_medida_logistica,
+        tipo_embalagem_secundaria=tipo_emabalagem_qld,
+    )
+
+    return baker.make(
+        "EtapasDoCronograma",
+        cronograma=cronograma,
+        etapa=None,
+        parte=None,
+        qtd_total_empenho=1000,
+        quantidade=800,
+        total_embalagens=5,
+    )
