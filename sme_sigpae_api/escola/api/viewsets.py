@@ -242,12 +242,15 @@ class EscolaSimplissimaComDREUnpaginatedViewSet(EscolaSimplissimaComDREViewSet):
         escolas = self.get_queryset().filter(tipo_gestao__nome="TERC TOTAL")
         escola = request.query_params.get("escola", None)
         dre = request.query_params.get("dre", None)
+        tipo_unidade = request.query_params.get("tipo_unidade", None)
         terceirizada = request.query_params.get("terceirizada", None)
         nome_edital = request.query_params.get("nome_edital", None)
         if escola:
             escolas = escolas.filter(uuid=escola)
         if dre:
             escolas = escolas.filter(diretoria_regional__uuid=dre)
+        if tipo_unidade:
+            escolas = escolas.filter(tipo_unidade__uuid=tipo_unidade)
         if terceirizada:
             escolas = escolas.filter(lote__terceirizada__uuid=terceirizada)
         if nome_edital:
