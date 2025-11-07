@@ -3846,12 +3846,20 @@ class SolicitacaoMedicaoInicialWorkflow(xwf_models.Workflow):
         ),
         (
             "ue_corrige",
-            [MEDICAO_CORRECAO_SOLICITADA, MEDICAO_CORRIGIDA_PELA_UE],
+            [
+                MEDICAO_CORRECAO_SOLICITADA,
+                MEDICAO_CORRIGIDA_PELA_UE,
+                OCORRENCIA_EXCLUIDA_PELA_ESCOLA,
+            ],
             MEDICAO_CORRIGIDA_PELA_UE,
         ),
         (
             "ue_corrige_ocorrencia_para_codae",
-            [MEDICAO_CORRECAO_SOLICITADA_CODAE, MEDICAO_CORRIGIDA_PARA_CODAE],
+            [
+                MEDICAO_CORRECAO_SOLICITADA_CODAE,
+                MEDICAO_CORRIGIDA_PARA_CODAE,
+                OCORRENCIA_EXCLUIDA_PELA_ESCOLA,
+            ],
             MEDICAO_CORRIGIDA_PARA_CODAE,
         ),
         (

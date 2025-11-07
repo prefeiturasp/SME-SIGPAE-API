@@ -786,7 +786,7 @@ def test_url_ue_atualiza_ocorrencia_para_dre(
     assert len(response.data["ocorrencia"]["logs"][-1]["anexos"]) == 0
     assert (
         response.data["ocorrencia"]["logs"][-1]["status_evento_explicacao"]
-        == "Corrigido para DRE"
+        == "Ocorrência excluída pela Escola"
     )
 
     anexos = [
@@ -844,7 +844,7 @@ def test_url_ue_atualiza_ocorrencia_para_codae(
     assert len(response.data["ocorrencia"]["logs"][-1]["anexos"]) == 0
     assert (
         response.data["ocorrencia"]["logs"][-1]["status_evento_explicacao"]
-        == "Corrigido para CODAE"
+        == "Ocorrência excluída pela Escola"
     )
 
     anexos = [
