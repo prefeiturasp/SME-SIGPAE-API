@@ -966,3 +966,16 @@ def remove_none(value):
     if value is None:
         return ""
     return value
+
+
+@register.filter
+def cnpj_mask(value):
+    if not value:
+        return value
+
+    cnpj = "".join(filter(str.isdigit, str(value)))
+
+    if len(cnpj) != 14:
+        return value
+
+    return f"{cnpj[:2]}.{cnpj[2:5]}.{cnpj[5:8]}/{cnpj[8:12]}-{cnpj[12:]}"
