@@ -678,9 +678,6 @@ class ParametrizacaoFinanceira(TemChaveExterna, CriadoEm, TemAlteradoEm):
         related_name="parametrizacoes_financeiras",
         on_delete=models.PROTECT,
     )
-    tipos_unidades = models.ManyToManyField(
-        "escola.TipoUnidadeEscolar", related_name="parametrizacoes_financeiras"
-    )
     grupo_unidade_escolar = models.ForeignKey(
         "escola.GrupoUnidadeEscolar",
         on_delete=models.PROTECT,

@@ -114,7 +114,7 @@ def test_parametrizacao_financeira_filter_tipos_unidades(
 ):
     uuid_unidades = [
         str(unidade.uuid)
-        for unidade in parametrizacao_financeira_emef.tipos_unidades.all()
+        for unidade in parametrizacao_financeira_emef.grupo_unidade_escolar.tipos_unidades.all()
     ]
 
     filtro = ParametrizacaoFinanceiraFilter(
