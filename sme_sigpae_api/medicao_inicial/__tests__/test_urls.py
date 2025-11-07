@@ -1921,18 +1921,8 @@ def test_url_endpoint_parametrizacao_financeira(
     client_autenticado_codae_medicao,
     edital,
     escola_ceu_gestao,
-    tipo_unidade_escolar,
-    tipo_unidade_escolar_ceu_emef,
-    tipo_unidade_escolar_emefm,
-    tipo_unidade_escolar_cieja,
-    tipo_unidade_escolar_ceu_gestao,
-    tipo_alimentacao_refeicao,
-    tipo_alimentacao_lanche,
-    tipo_alimentacao_lanche_4h,
-    tipo_alimentacao_sobremesa,
-    tipo_alimentacao_almoco,
-    tipo_alimentacao_lanche_emergencial,
     parametrizacao_financeira_emef,
+    grupo_escolar,
 ):
     response = client_autenticado_codae_medicao.get(
         "/medicao-inicial/parametrizacao-financeira/", content_type="application/json"
@@ -1944,131 +1934,9 @@ def test_url_endpoint_parametrizacao_financeira(
         "edital": edital.uuid,
         "legenda": "Legenda teste",
         "lote": escola_ceu_gestao.lote.uuid,
-        "tipos_unidades": [
-            tipo_unidade_escolar.uuid,
-            tipo_unidade_escolar_ceu_emef.uuid,
-            tipo_unidade_escolar_emefm.uuid,
-            tipo_unidade_escolar_cieja.uuid,
-            tipo_unidade_escolar_ceu_gestao.uuid,
-        ],
-        "tabelas": [
-            {
-                "nome": "Preço das Alimentações",
-                "valores": [
-                    {
-                        "grupo": "EMEF / CEUEMEF / EMEFM",
-                        "tipo_alimentacao": tipo_alimentacao_refeicao.uuid,
-                        "valor_colunas": {
-                            "valor_unitario": 10,
-                            "valor_unitario_reajuste": 2,
-                        },
-                    },
-                    {
-                        "grupo": "CIEJA / EJA",
-                        "tipo_alimentacao": tipo_alimentacao_refeicao.uuid,
-                        "valor_colunas": {
-                            "valor_unitario": 8,
-                            "valor_unitario_reajuste": 3,
-                        },
-                    },
-                    {
-                        "grupo": None,
-                        "tipo_alimentacao": tipo_alimentacao_lanche.uuid,
-                        "valor_colunas": {
-                            "valor_unitario": 5,
-                            "valor_unitario_reajuste": 3,
-                        },
-                    },
-                    {
-                        "grupo": None,
-                        "tipo_alimentacao": tipo_alimentacao_lanche_4h.uuid,
-                        "valor_colunas": {
-                            "valor_unitario": 4,
-                            "valor_unitario_reajuste": 2,
-                        },
-                    },
-                    {
-                        "grupo": None,
-                        "tipo_alimentacao": tipo_alimentacao_sobremesa.uuid,
-                        "valor_colunas": {
-                            "valor_unitario": 6,
-                            "valor_unitario_reajuste": 4,
-                        },
-                    },
-                    {
-                        "grupo": None,
-                        "tipo_alimentacao": tipo_alimentacao_almoco.uuid,
-                        "valor_colunas": {
-                            "valor_unitario": 8,
-                            "valor_unitario_reajuste": 5,
-                        },
-                    },
-                    {
-                        "grupo": None,
-                        "tipo_alimentacao": tipo_alimentacao_lanche_emergencial.uuid,
-                        "valor_colunas": {
-                            "valor_unitario": 10,
-                            "valor_unitario_reajuste": 8,
-                        },
-                    },
-                ],
-            },
-            {
-                "nome": "Dietas Tipo A e Tipo A Enteral",
-                "valores": [
-                    {
-                        "grupo": "Dieta Enteral",
-                        "tipo_alimentacao": tipo_alimentacao_refeicao.uuid,
-                        "valor_colunas": {
-                            "percentual_acrescimo": 2,
-                            "valor_unitario": 10,
-                            "valor_unitario_total": 10.2,
-                        },
-                    },
-                    {
-                        "grupo": None,
-                        "tipo_alimentacao": tipo_alimentacao_lanche_4h.uuid,
-                        "valor_colunas": {
-                            "percentual_acrescimo": 20,
-                            "valor_unitario": 11,
-                            "valor_unitario_total": 13.2,
-                        },
-                    },
-                    {
-                        "grupo": None,
-                        "tipo_alimentacao": tipo_alimentacao_lanche.uuid,
-                        "valor_colunas": {
-                            "percentual_acrescimo": 3,
-                            "valor_unitario": 12,
-                            "valor_unitario_total": 12.36,
-                        },
-                    },
-                ],
-            },
-            {
-                "nome": "Dietas Tipo B",
-                "valores": [
-                    {
-                        "grupo": None,
-                        "tipo_alimentacao": tipo_alimentacao_lanche_4h.uuid,
-                        "valor_colunas": {
-                            "percentual_acrescimo": 2,
-                            "valor_unitario": 12,
-                            "valor_unitario_total": 12.24,
-                        },
-                    },
-                    {
-                        "grupo": None,
-                        "tipo_alimentacao": tipo_alimentacao_lanche.uuid,
-                        "valor_colunas": {
-                            "percentual_acrescimo": 10,
-                            "valor_unitario": 10,
-                            "valor_unitario_total": 11,
-                        },
-                    },
-                ],
-            },
-        ],
+        "grupo_unidade_escolar": grupo_escolar,
+        "data_inicial": "2025-10-01",
+        "data_final": "2025-10-30",
     }
     response = client_autenticado_codae_medicao.post(
         "/medicao-inicial/parametrizacao-financeira/",
@@ -2084,31 +1952,6 @@ def test_url_endpoint_parametrizacao_financeira(
 
     data_update = {
         "legenda": "Fonte: Relatório de Medição Inicial do Serviço de Alimentação e Nutrição Escolar realizada pela direção das unidades educacionais.",
-        "tabelas": [
-            {
-                "nome": "Dietas Tipo B",
-                "valores": [
-                    {
-                        "grupo": None,
-                        "tipo_alimentacao": tipo_alimentacao_lanche_4h.uuid,
-                        "valor_colunas": {
-                            "percentual_acrescimo": 6,
-                            "valor_unitario": 8,
-                            "valor_unitario_total": 8.48,
-                        },
-                    },
-                    {
-                        "grupo": None,
-                        "tipo_alimentacao": tipo_alimentacao_lanche.uuid,
-                        "valor_colunas": {
-                            "percentual_acrescimo": 6,
-                            "valor_unitario": 12,
-                            "valor_unitario_total": 12.72,
-                        },
-                    },
-                ],
-            },
-        ],
     }
     response = client_autenticado_codae_medicao.patch(
         f"/medicao-inicial/parametrizacao-financeira/{parametrizacao_financeira_emef.uuid}/",

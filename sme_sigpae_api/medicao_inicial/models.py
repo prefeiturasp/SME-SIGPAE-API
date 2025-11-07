@@ -678,13 +678,17 @@ class ParametrizacaoFinanceira(TemChaveExterna, CriadoEm, TemAlteradoEm):
         related_name="parametrizacoes_financeiras",
         on_delete=models.PROTECT,
     )
-    tipos_unidades = models.ManyToManyField(
-        "escola.TipoUnidadeEscolar", related_name="parametrizacoes_financeiras"
+    grupo_unidade_escolar = models.ForeignKey(
+        "escola.GrupoUnidadeEscolar",
+        on_delete=models.PROTECT,
+        related_name="parametrizacao_financeira_grupo_unidade_escolar",
     )
+    data_inicial = models.DateField("Data inicial", null=True, blank=True)
+    data_final = models.DateField("Data final", null=True, blank=True)
     legenda = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f"Edital {self.edital} | Lote {self.lote} | DRE {self.lote.diretoria_regional} | Tipos de Unidades {', '.join(self.tipos_unidades.values_list('iniciais', flat=True))}"
+        return f"Edital {self.edital} | Lote {self.lote} | DRE {self.lote.diretoria_regional} | Tipos de Unidades {', '.join(self.grupo_unidade_escolar.tipos_unidades.values_list('iniciais', flat=True))}"
 
     class Meta:
         verbose_name = "Parametrização Financeira"
@@ -708,13 +712,6 @@ class ParametrizacaoFinanceiraTabela(TemChaveExterna, CriadoEm, TemAlteradoEm):
 
 
 class ParametrizacaoFinanceiraTabelaValor(TemChaveExterna, CriadoEm, TemAlteradoEm):
-    """
-    Ex.: valor_colunas: {
-        "tipo_alimentacao": "REFEICAO - EJA",
-        "valor_unitario": 10,
-        "valor_reajuste": 15
-    }
-    """
 
     tabela = models.ForeignKey(
         ParametrizacaoFinanceiraTabela, on_delete=models.CASCADE, related_name="valores"
