@@ -12,6 +12,7 @@ from sme_sigpae_api.relatorios.utils import extrair_texto_de_pdf
 from ..relatorios import (
     cabecalho_reclamacao_produto,
     formata_informacoes_ficha_tecnica,
+    get_pdf_cronograma,
     get_pdf_ficha_recebimento,
     get_pdf_ficha_tecnica,
     get_total_por_periodo,
@@ -625,3 +626,37 @@ def test_relatorio_ficha_recebimento(
     texto_carta_credito = extrair_texto_de_pdf(pdf_response_carta_credito.content)
 
     assert "FAZER UMA CARTA DE CRÉDITO DO VALOR PAGO" in texto_carta_credito
+
+
+def test_relatorio_cronograma_entrega(cronograma):
+    pdf_response_cronograma = get_pdf_cronograma(None, cronograma)
+
+    assert pdf_response_cronograma.status_code == 200
+    assert pdf_response_cronograma.headers["Content-Type"] == "application/pdf"
+
+    texto_pdf = extrair_texto_de_pdf(pdf_response_cronograma.content)
+
+    assert cronograma.ficha_tecnica.produto.nome in texto_pdf
+    assert cronograma.ficha_tecnica.marca.nome in texto_pdf
+    assert cronograma.numero in texto_pdf
+    assert cronograma.contrato.numero in texto_pdf
+
+    assert cronograma.unidade_medida.abreviacao in texto_pdf
+
+    assert "Produto:" in texto_pdf
+    assert "Marca:" in texto_pdf
+    assert "Quantidade Total Programada:" in texto_pdf
+
+    # CNPJ formatado
+    cnpj_regex = r"\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}"
+    assert re.search(cnpj_regex, texto_pdf), "CNPJ deve estar formatado corretamente"
+
+    etapas = cronograma.etapas.all()
+    if etapas.exists():
+        for etapa in etapas:
+            if etapa.numero_empenho:
+                assert etapa.numero_empenho in texto_pdf
+
+    if cronograma.armazem and cronograma.armazem.nome_fantasia:
+        nome_armazem = cronograma.armazem.nome_fantasia
+        assert nome_armazem in texto_pdf or nome_armazem.upper() in texto_pdf
