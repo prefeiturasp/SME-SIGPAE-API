@@ -698,6 +698,13 @@ class ParametrizacaoFinanceira(TemChaveExterna, CriadoEm, TemAlteradoEm):
 
 class ParametrizacaoFinanceiraTabela(TemChaveExterna, CriadoEm, TemAlteradoEm):
     nome = models.CharField()
+    periodo_escolar = models.ForeignKey(
+        "escola.PeriodoEscolar",
+        on_delete=models.PROTECT,
+        related_name="parametrizacao_financeira_tabela_periodo_escolar",
+        null=True,
+        blank=True,
+    )
     parametrizacao_financeira = models.ForeignKey(
         ParametrizacaoFinanceira, on_delete=models.CASCADE, related_name="tabelas"
     )
@@ -708,43 +715,50 @@ class ParametrizacaoFinanceiraTabela(TemChaveExterna, CriadoEm, TemAlteradoEm):
     class Meta:
         verbose_name = "Parametrização Financeira Tabela"
         verbose_name_plural = "Parametrizações Financeiras Tabelas"
-        unique_together = ("nome", "parametrizacao_financeira")
+        unique_together = ("nome", "parametrizacao_financeira", "periodo_escolar")
+
+
+class TipoValorParametrizacaoFinanceira(Nomeavel, TemChaveExterna):
+    def __str__(self):
+        return self.nome
 
 
 class ParametrizacaoFinanceiraTabelaValor(TemChaveExterna, CriadoEm, TemAlteradoEm):
-
     tabela = models.ForeignKey(
         ParametrizacaoFinanceiraTabela, on_delete=models.CASCADE, related_name="valores"
     )
+    nome_campo = models.CharField(max_length=100, null=True, blank=True)
     faixa_etaria = models.ForeignKey(
         "escola.FaixaEtaria",
         on_delete=models.PROTECT,
-        related_name="parametrizacoes_valores",
+        related_name="parametrizacao_valor_faixa_etaria",
         null=True,
         blank=True,
     )
     tipo_alimentacao = models.ForeignKey(
         "cardapio.TipoAlimentacao",
         on_delete=models.PROTECT,
-        related_name="parametrizacoes_valores",
+        related_name="parametrizacao_valor_tipo_alimentacao",
         null=True,
         blank=True,
     )
-    grupo = models.CharField(null=True, blank=True)
-    valor_colunas = models.JSONField()
+    tipo_valor = models.ForeignKey(
+        TipoValorParametrizacaoFinanceira, on_delete=models.PROTECT, related_name="parametrizacao_tipo_valor"
+    )
+    valor = models.CharField(max_length=10, default="0")
 
     def __str__(self):
         descricao = (
-            f"{self.tipo_alimentacao} {self.grupo}"
+            f"{self.tipo_alimentacao} - {self.nome_campo}"
             if self.faixa_etaria is None
-            else f"{self.faixa_etaria}"
+            else f"{self.faixa_etaria} - {self.nome_campo}"
         )
         return f"Tabela {self.tabela} | {descricao}"
 
     class Meta:
         verbose_name = "Parametrização Financeira Tabela Valor"
         verbose_name_plural = "Parametrizações Financeiras Tabelas Valores"
-        unique_together = ("tabela", "tipo_alimentacao", "grupo")
+        unique_together = ("tabela", "nome_campo", "tipo_valor")
 
 
 class RelatorioFinanceiro(
