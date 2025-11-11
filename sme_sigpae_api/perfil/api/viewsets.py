@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import Q
@@ -327,11 +328,13 @@ class VinculoViewSet(viewsets.ReadOnlyModelViewSet):
                 )
             ),
             ADMINISTRADOR_CONTRATOS: lambda: queryset.filter(
-                instituicao__instance_of=Terceirizada,
-                instituicao__tipo_servico__in=[
-                    Terceirizada.FORNECEDOR,
-                    Terceirizada.FORNECEDOR_E_DISTRIBUIDOR,
-                ],
+                content_type=ContentType.objects.get_for_model(Terceirizada),
+                object_id__in=Terceirizada.objects.filter(
+                    tipo_servico__in=[
+                        Terceirizada.FORNECEDOR,
+                        Terceirizada.FORNECEDOR_E_DISTRIBUIDOR,
+                    ]
+                ).values_list("id", flat=True),
             ),
         }
 
