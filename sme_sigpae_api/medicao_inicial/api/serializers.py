@@ -336,8 +336,7 @@ class ParametrizacaoFinanceiraSerializer(serializers.ModelSerializer):
     edital = EditalSimplesSerializer()
     dre = serializers.CharField(source="lote.diretoria_regional.nome")
     lote = LoteSimplesSerializer()
-    tipos_unidades = TipoUnidadeEscolarSimplesSerializer(many=True)
-    tabelas = ParametrizacaoFinanceiraTabelaSerializer(many=True)
+    grupo_unidade_escolar = GrupoUnidadeEscolarSerializer()
 
     class Meta:
         model = ParametrizacaoFinanceira

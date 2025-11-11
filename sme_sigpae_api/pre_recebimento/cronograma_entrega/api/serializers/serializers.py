@@ -1,7 +1,7 @@
 import datetime
 from collections import OrderedDict
 
-from django.db.models import Q
+from django.db.models import Case, CharField, Q, Value, When
 from rest_framework import serializers
 
 from sme_sigpae_api.dados_comuns.fluxo_status import DocumentoDeRecebimentoWorkflow
@@ -294,6 +294,7 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
     parte = serializers.SerializerMethodField()
     houve_ocorrencia = serializers.SerializerMethodField()
     houve_reposicao = serializers.SerializerMethodField()
+    fichas_recebimento = serializers.SerializerMethodField()
 
     def get_etapa(self, obj):
         return f"Etapa {obj.etapa}" if obj.etapa is not None else None
@@ -342,6 +343,21 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
             reposicao_cronograma__isnull=False,
         ).exists()
 
+    def get_fichas_recebimento(self, obj):
+        return list(
+            obj.ficha_recebimento.values(
+                "uuid",
+                "houve_ocorrencia",
+            ).annotate(
+                houve_reposicao=Q(reposicao_cronograma__isnull=False),
+                situacao=Case(
+                    When(houve_ocorrencia=True, then=Value("Ocorrência")),
+                    default=Value("Recebido"),
+                    output_field=CharField(),
+                ),
+            )
+        )
+
     class Meta:
         model = EtapasDoCronograma
         fields = (
@@ -356,6 +372,7 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
             "desvinculada_recebimento",
             "houve_ocorrencia",
             "houve_reposicao",
+            "fichas_recebimento",
         )
 
 

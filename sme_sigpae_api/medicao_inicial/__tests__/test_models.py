@@ -103,7 +103,7 @@ def test_empenho_model(empenho):
 def test_parametrizacao_financeira(parametrizacao_financeira_emef):
     assert (
         parametrizacao_financeira_emef.__str__()
-        == "Edital Edital de Pregão nº 78/SME/2024 | Lote 1 - DIRETORIA REGIONAL IPIRANGA | DRE DIRETORIA REGIONAL IPIRANGA | Tipos de Unidades CEU EMEF, CEU GESTAO, CIEJA, EMEF, EMEFM"
+        == "Edital Edital de Pregão nº 78/SME/2024 | Lote 1 - DIRETORIA REGIONAL IPIRANGA | DRE DIRETORIA REGIONAL IPIRANGA | Tipos de Unidades CEU EMEF, CEU GESTAO, EMEF, EMEFM"
     )
 
 

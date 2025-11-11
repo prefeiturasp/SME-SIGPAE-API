@@ -39,6 +39,7 @@ from ...dados_comuns.permissions import (
     UsuarioDiretoriaRegional,
     UsuarioEmpresaTerceirizada,
     UsuarioEscolaTercTotal,
+    UsuarioEscolaTercTotalSemAlunosRegulares,
     UsuarioMedicao,
     UsuarioSupervisaoNutricao,
     ViewSetActionPermissionMixin,
@@ -81,7 +82,6 @@ from ..tasks import (
 )
 from ..utils import (
     atualizar_anexos_ocorrencia,
-    atualizar_status_ocorrencia,
     criar_log_aprovar_periodos_corrigidos,
     criar_log_solicitar_correcao_periodos,
     get_campos_a_desconsiderar,
@@ -89,7 +89,6 @@ from ..utils import (
     get_valor_total,
     log_alteracoes_escola_corrige_periodo,
     tratar_valores,
-    tratar_workflow_todos_lancamentos,
 )
 from .constants import (
     ORDEM_NAME_LANCAMENTOS_ESPECIAIS,
@@ -272,8 +271,9 @@ class SolicitacaoMedicaoInicialViewSet(
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @staticmethod
-    def get_lista_status(usuario):
+    def _get_lista_status(self):
+        usuario = self.request.user
+
         if usuario.tipo_usuario == "medicao":
             return STATUS_RELACAO_DRE_MEDICAO + ["TODOS_OS_LANCAMENTOS"]
         elif usuario.tipo_usuario == "diretoriaregional":
@@ -290,15 +290,7 @@ class SolicitacaoMedicaoInicialViewSet(
                 + ["TODOS_OS_LANCAMENTOS"]
             )
 
-    def condicao_raw_query_por_usuario(self):
-        usuario = self.request.user
-        if usuario.tipo_usuario == "diretoriaregional":
-            return f"AND diretoria_regional_id = {self.request.user.vinculo_atual.object_id} "
-        elif usuario.tipo_usuario == "escola":
-            return f"AND %(solicitacao_medicao_inicial)s.escola_id = {self.request.user.vinculo_atual.object_id} "
-        return ""
-
-    def condicao_por_usuario(self, queryset):
+    def _condicao_por_usuario(self, queryset):
         usuario = self.request.user
 
         if usuario.tipo_usuario in USUARIOS_VISAO_CODAE + [
@@ -323,91 +315,54 @@ class SolicitacaoMedicaoInicialViewSet(
             return queryset.filter(status__in=STATUS_RELACAO_DRE_MEDICAO)
         return queryset
 
-    def dados_dashboard(
-        self, request, query_set: QuerySet, kwargs: dict, use_raw=True
-    ) -> list:
-        limit = int(request.query_params.get("limit", 10))
-        offset = int(request.query_params.get("offset", 0))
+    def _get_label(self, workflow: str) -> str:
+        try:
+            return SolicitacaoMedicaoInicial.workflow_class.states[workflow].title
+        except (ValidationError, KeyError):
+            return "TODOS_OS_LANCAMENTOS"
 
+    def _get_totalizadores(self, query_set: QuerySet, kwargs: dict) -> list:
         sumario = []
-        usuario = self.request.user
 
-        for workflow in self.get_lista_status(usuario):
+        for workflow in self._get_lista_status():
             todos_lancamentos = workflow == "TODOS_OS_LANCAMENTOS"
-            if use_raw:
-                data = {
-                    "escola": Escola._meta.db_table,
-                    "logs": LogSolicitacoesUsuario._meta.db_table,
-                    "solicitacao_medicao_inicial": SolicitacaoMedicaoInicial._meta.db_table,
-                    "status": workflow,
-                }
-                raw_sql = (
-                    "SELECT %(solicitacao_medicao_inicial)s.* FROM %(solicitacao_medicao_inicial)s "
-                    "JOIN (SELECT uuid_original, MAX(criado_em) AS log_criado_em FROM %(logs)s "
-                    "GROUP BY uuid_original) "
-                    "AS most_recent_log "
-                    "ON %(solicitacao_medicao_inicial)s.uuid = most_recent_log.uuid_original "
-                    "LEFT JOIN (SELECT id AS escola_id, diretoria_regional_id FROM %(escola)s) "
-                    "AS escola_solicitacao_medicao "
-                    "ON escola_solicitacao_medicao.escola_id = %(solicitacao_medicao_inicial)s.escola_id "
-                )
-                if todos_lancamentos:
-                    raw_sql = tratar_workflow_todos_lancamentos(usuario, raw_sql)
-                else:
-                    raw_sql += (
-                        "WHERE %(solicitacao_medicao_inicial)s.status = '%(status)s' "
-                    )
-                raw_sql += self.condicao_raw_query_por_usuario()
-                raw_sql += "ORDER BY log_criado_em DESC"
-                qs = query_set.raw(raw_sql % data)
-            else:
-                qs = (
-                    query_set.filter(status=workflow)
-                    if not todos_lancamentos
-                    else query_set
-                )
-                qs = qs.filter(**kwargs)
-                qs = self.condicao_por_usuario(qs)
-
-            qs_ordenado = ordenar_unidades(qs)
-            paginated = qs_ordenado[offset : offset + limit]
-            result = {
-                "status": workflow,
-                "total": len(qs_ordenado),
-                "dados": SolicitacaoMedicaoInicialDashboardSerializer(
-                    paginated,
-                    context={"request": self.request, "workflow": workflow},
-                    many=True,
-                ).data,
-            }
-            sumario.append(result)
-        if request.user.tipo_usuario == constants.TIPO_USUARIO_ESCOLA:
-            status_medicao_corrigida = [
-                "MEDICAO_CORRIGIDA_PELA_UE",
-                "MEDICAO_CORRIGIDA_PARA_CODAE",
-            ]
-            sumario_medicoes_corrigidas = [
-                s for s in sumario if s["status"] in status_medicao_corrigida
-            ]
-            total_medicao_corrigida = 0
-            total_dados = []
-            for s in sumario_medicoes_corrigidas:
-                total_medicao_corrigida += s["total"]
-                total_dados += s["dados"]
-            sumario.insert(
-                2,
-                {
-                    "status": "MEDICAO_CORRIGIDA",
-                    "total": total_medicao_corrigida,
-                    "dados": total_dados,
-                },
+            qs = (
+                query_set.filter(status=workflow)
+                if not todos_lancamentos
+                else query_set
             )
-            sumario = [
-                s for s in sumario if s["status"] not in status_medicao_corrigida
-            ]
+            qs = self._condicao_por_usuario(qs)
+            qs = qs.filter(**kwargs)
+            sumario.append(
+                {
+                    "status": workflow,
+                    "label": self._get_label(workflow),
+                    "total": len(qs),
+                }
+            )
         return sumario
 
-    def formatar_filtros(self, query_params):
+    def _get_resultados(
+        self, request: Request, query_set: QuerySet, kwargs: dict
+    ) -> dict:
+        limit = int(request.query_params.get("limit", 10))
+        offset = int(request.query_params.get("offset", 0))
+        workflow = request.query_params.get("status")
+        qs = self._condicao_por_usuario(query_set)
+        qs = qs.filter(**kwargs)
+        qs_ordenado = ordenar_unidades(qs)
+        total = len(qs_ordenado)
+        paginated = qs_ordenado[offset : offset + limit]
+        return {
+            "total": total,
+            "dados": SolicitacaoMedicaoInicialDashboardSerializer(
+                paginated,
+                context={"request": self.request, "workflow": workflow},
+                many=True,
+            ).data,
+        }
+
+    def _formatar_filtros(self, query_params):
         kwargs = {}
 
         mapping = {
@@ -431,6 +386,9 @@ class SolicitacaoMedicaoInicialViewSet(
             },
         }
 
+        if query_params.get("status") != "TODOS_OS_LANCAMENTOS":
+            mapping["status"] = lambda params: {"status": params.get("status")}
+
         for param, parser in mapping.items():
             if query_params.get(param) or query_params.getlist(param):
                 kwargs.update(parser(query_params))
@@ -440,7 +398,7 @@ class SolicitacaoMedicaoInicialViewSet(
     @action(
         detail=False,
         methods=["GET"],
-        url_path="dashboard",
+        url_path="dashboard-totalizadores",
         permission_classes=[
             UsuarioEscolaTercTotal
             | UsuarioDiretoriaRegional
@@ -452,16 +410,35 @@ class SolicitacaoMedicaoInicialViewSet(
             | UsuarioSupervisaoNutricao
         ],
     )
-    def dashboard(self, request):
+    def dashboard_totalizadores(self, request):
         query_set = self.get_queryset()
-        possui_filtros = len(request.query_params)
-        kwargs = self.formatar_filtros(request.query_params)
+        kwargs = self._formatar_filtros(request.query_params)
         response = {
-            "results": self.dados_dashboard(
-                query_set=query_set,
-                request=request,
-                kwargs=kwargs,
-                use_raw=not possui_filtros,
+            "results": self._get_totalizadores(query_set=query_set, kwargs=kwargs)
+        }
+        return Response(response)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="dashboard-resultados",
+        permission_classes=[
+            UsuarioEscolaTercTotal
+            | UsuarioDiretoriaRegional
+            | UsuarioCODAEGestaoAlimentacao
+            | UsuarioCODAENutriManifestacao
+            | UsuarioCODAEGabinete
+            | UsuarioDinutreDiretoria
+            | UsuarioEmpresaTerceirizada
+            | UsuarioSupervisaoNutricao
+        ],
+    )
+    def dashboard_resultados(self, request):
+        query_set = self.get_queryset()
+        kwargs = self._formatar_filtros(request.query_params)
+        response = {
+            "results": self._get_resultados(
+                request=request, query_set=query_set, kwargs=kwargs
             )
         }
         return Response(response)
@@ -483,7 +460,7 @@ class SolicitacaoMedicaoInicialViewSet(
     )
     def meses_anos(self, request):
         qs_solicitacao_medicao = SolicitacaoMedicaoInicial.objects.all()
-        query_set = self.condicao_por_usuario(self.get_queryset())
+        query_set = self._condicao_por_usuario(self.get_queryset())
 
         if (
             isinstance(request.user.vinculo_atual.instituicao, DiretoriaRegional)
@@ -859,11 +836,15 @@ class SolicitacaoMedicaoInicialViewSet(
         solicitacao_medicao_inicial = self.get_object()
         try:
             medicoes = solicitacao_medicao_inicial.medicoes.all()
-            status_medicao_aprovada = "MEDICAO_APROVADA_PELA_DRE"
-            if medicoes.exclude(status=status_medicao_aprovada).exists() or (
+            if medicoes.exclude(
+                status=OcorrenciaMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_DRE
+            ).exists() or (
                 solicitacao_medicao_inicial.tem_ocorrencia
                 and solicitacao_medicao_inicial.ocorrencia.status
-                != status_medicao_aprovada
+                not in [
+                    OcorrenciaMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_DRE,
+                    OcorrenciaMedicaoInicial.workflow_class.OCORRENCIA_EXCLUIDA_PELA_ESCOLA,
+                ]
             ):
                 mensagem = "Erro: existe(m) pendência(s) de análise"
                 return Response(
@@ -932,11 +913,15 @@ class SolicitacaoMedicaoInicialViewSet(
         solicitacao_medicao_inicial = self.get_object()
         try:
             medicoes = solicitacao_medicao_inicial.medicoes.all()
-            status_medicao_aprovada = "MEDICAO_APROVADA_PELA_CODAE"
-            if medicoes.exclude(status=status_medicao_aprovada).exists() or (
+            if medicoes.exclude(
+                status=OcorrenciaMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_CODAE
+            ).exists() or (
                 solicitacao_medicao_inicial.tem_ocorrencia
                 and solicitacao_medicao_inicial.ocorrencia.status
-                != status_medicao_aprovada
+                not in [
+                    OcorrenciaMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_CODAE,
+                    OcorrenciaMedicaoInicial.workflow_class.OCORRENCIA_EXCLUIDA_PELA_ESCOLA,
+                ]
             ):
                 mensagem = "Erro: existe(m) pendência(s) de análise"
                 return Response(
@@ -1001,7 +986,9 @@ class SolicitacaoMedicaoInicialViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="escola-corrige-medicao-para-dre",
-        permission_classes=[UsuarioDiretorEscolaTercTotal],
+        permission_classes=[
+            UsuarioDiretorEscolaTercTotal | UsuarioEscolaTercTotalSemAlunosRegulares
+        ],
     )
     def escola_corrige_medicao_para_dre(self, request, uuid=None):
         solicitacao_medicao_inicial = self.get_object()
@@ -1032,7 +1019,9 @@ class SolicitacaoMedicaoInicialViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="escola-corrige-medicao-para-codae",
-        permission_classes=[UsuarioDiretorEscolaTercTotal],
+        permission_classes=[
+            UsuarioDiretorEscolaTercTotal | UsuarioEscolaTercTotalSemAlunosRegulares
+        ],
     )
     def escola_corrige_medicao_para_codae(self, request, uuid=None):
         solicitacao_medicao_inicial = self.get_object()
@@ -1063,6 +1052,9 @@ class SolicitacaoMedicaoInicialViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="ue-atualiza-ocorrencia",
+        permission_classes=[
+            UsuarioDiretorEscolaTercTotal | UsuarioEscolaTercTotalSemAlunosRegulares
+        ],
     )
     def ue_atualiza_ocorrencia(self, request, uuid=None):
         solicitacao_medicao_inicial = self.get_object()
@@ -1088,12 +1080,8 @@ class SolicitacaoMedicaoInicialViewSet(
                     )
             else:
                 solicitacao_medicao_inicial.com_ocorrencias = False
-                atualizar_status_ocorrencia(
-                    status_ocorrencia,
-                    status_correcao_solicitada_codae,
-                    solicitacao_medicao_inicial,
-                    request,
-                    justificativa,
+                solicitacao_medicao_inicial.ocorrencia.escola_exclui_ocorrencia(
+                    user=request.user, justificativa=justificativa
                 )
             solicitacao_medicao_inicial.save()
             serializer = self.get_serializer(solicitacao_medicao_inicial)

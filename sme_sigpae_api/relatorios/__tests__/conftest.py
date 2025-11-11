@@ -483,3 +483,68 @@ def ficha_recebimento_carta_credito():
     )
 
     return ficha
+
+
+@pytest.fixture
+def cronograma():
+    unidade_medida = baker.make(
+        "pre_recebimento.UnidadeMedida", nome="QUILOGRAMA", abreviacao="kg"
+    )
+
+    tipo_embalagem = baker.make(
+        "pre_recebimento.TipoEmbalagemQld", nome="CAIXA", abreviacao="cx"
+    )
+
+    empresa = baker.make(
+        "terceirizada.Terceirizada",
+        nome_fantasia="Alimentos LTDA",
+        cnpj="12345678000190",
+        endereco="Rua das Flores, 123 - São Paulo/SP",
+    )
+
+    armazem = baker.make(
+        "terceirizada.Terceirizada",
+        nome_fantasia="Armazém Central",
+        cnpj="98765432000110",
+        endereco="Avenida Industrial, 456 - São Paulo/SP",
+    )
+
+    contrato = baker.make(
+        "terceirizada.Contrato", numero="001/2024", numero_pregao="PE-2024-001"
+    )
+
+    cronograma = CronogramaFactory(
+        numero="001/2024A",
+        contrato=contrato,
+        empresa=empresa,
+        qtd_total_programada=1000.0,
+        unidade_medida=unidade_medida,
+        armazem=armazem,
+        tipo_embalagem_secundaria=tipo_embalagem,
+        custo_unitario_produto=15.50,
+        observacoes="Cronograma de teste com observações específicas",
+    )
+
+    EtapasDoCronogramaFactory(
+        cronograma=cronograma,
+        numero_empenho="2024NE000123",
+        qtd_total_empenho=500.0,
+        etapa=1,
+        parte=1,
+        data_programada=datetime.date(2024, 6, 15),
+        quantidade=300.0,
+        total_embalagens=20.0,
+    )
+
+    EtapasDoCronogramaFactory(
+        cronograma=cronograma,
+        numero_empenho="2024NE000124",
+        qtd_total_empenho=500.0,
+        etapa=1,
+        parte=2,
+        data_programada=datetime.date(2024, 6, 20),
+        quantidade=200.0,
+        total_embalagens=15.0,
+    )
+
+    return cronograma

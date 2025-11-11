@@ -1995,165 +1995,28 @@ def parametrizacao_financeira_emef(
     tipo_unidade_escolar,
     tipo_unidade_escolar_ceu_emef,
     tipo_unidade_escolar_emefm,
-    tipo_unidade_escolar_cieja,
     tipo_unidade_escolar_ceu_gestao,
-    tipo_alimentacao_refeicao,
-    tipo_alimentacao_almoco,
-    tipo_alimentacao_lanche,
-    tipo_alimentacao_lanche_4h,
-    tipo_alimentacao_lanche_emergencial,
-    tipo_alimentacao_sobremesa,
 ):
-    parametrizacao_financeira = baker.make(
-        "ParametrizacaoFinanceira",
-        edital=edital,
-        lote=escola.lote,
+    grupo_unidade_escolar = baker.make(
+        "GrupoUnidadeEscolar",
+        nome="Grupo 4",
+        uuid="2a7f9d61-8e7b-44a3-9e7e-8ac22a92f1c4",
         tipos_unidades=[
             tipo_unidade_escolar,
             tipo_unidade_escolar_ceu_emef,
             tipo_unidade_escolar_emefm,
-            tipo_unidade_escolar_cieja,
             tipo_unidade_escolar_ceu_gestao,
         ],
+    )
+
+    parametrizacao_financeira = baker.make(
+        "ParametrizacaoFinanceira",
+        edital=edital,
+        lote=escola.lote,
+        grupo_unidade_escolar=grupo_unidade_escolar,
+        data_inicial="2025-10-01",
+        data_final="2025-10-30",
         legenda="Parametrização Financeira: Legenda Inicial",
-    )
-
-    parametrizacao_financeira_tabela = baker.make(
-        "ParametrizacaoFinanceiraTabela",
-        parametrizacao_financeira=parametrizacao_financeira,
-        nome="Preço das Alimentações",
-    )
-    baker.make(
-        "ParametrizacaoFinanceiraTabelaValor",
-        tabela=parametrizacao_financeira_tabela,
-        tipo_alimentacao=tipo_alimentacao_refeicao,
-        grupo="EMEF / CEUEMEF / EMEFM",
-        valor_colunas={
-            "valor_unitario": 2,
-            "valor_unitario_reajuste": 3,
-        },
-    )
-    baker.make(
-        "ParametrizacaoFinanceiraTabelaValor",
-        tabela=parametrizacao_financeira_tabela,
-        tipo_alimentacao=tipo_alimentacao_refeicao,
-        grupo="CIEJA / EJA",
-        valor_colunas={
-            "valor_unitario": 8,
-            "valor_unitario_reajuste": 5,
-        },
-    )
-    baker.make(
-        "ParametrizacaoFinanceiraTabelaValor",
-        tabela=parametrizacao_financeira_tabela,
-        tipo_alimentacao=tipo_alimentacao_almoco,
-        valor_colunas={
-            "valor_unitario": 5,
-            "valor_unitario_reajuste": 2,
-        },
-    )
-    baker.make(
-        "ParametrizacaoFinanceiraTabelaValor",
-        tabela=parametrizacao_financeira_tabela,
-        tipo_alimentacao=tipo_alimentacao_lanche,
-        valor_colunas={
-            "valor_unitario": 7,
-            "valor_unitario_reajuste": 5,
-        },
-    )
-    baker.make(
-        "ParametrizacaoFinanceiraTabelaValor",
-        tabela=parametrizacao_financeira_tabela,
-        tipo_alimentacao=tipo_alimentacao_lanche_4h,
-        valor_colunas={
-            "valor_unitario": 4,
-            "valor_unitario_reajuste": 2,
-        },
-    )
-    baker.make(
-        "ParametrizacaoFinanceiraTabelaValor",
-        tabela=parametrizacao_financeira_tabela,
-        tipo_alimentacao=tipo_alimentacao_sobremesa,
-        valor_colunas={
-            "valor_unitario": 8,
-            "valor_unitario_reajuste": 6,
-        },
-    )
-    baker.make(
-        "ParametrizacaoFinanceiraTabelaValor",
-        tabela=parametrizacao_financeira_tabela,
-        tipo_alimentacao=tipo_alimentacao_lanche_emergencial,
-        valor_colunas={
-            "valor_unitario": 12,
-            "valor_unitario_reajuste": 10,
-        },
-    )
-
-    parametrizacao_financeira_tabela_dietas_a = baker.make(
-        "ParametrizacaoFinanceiraTabela",
-        parametrizacao_financeira=parametrizacao_financeira,
-        nome="Dietas Tipo A e Tipo A Enteral",
-    )
-    baker.make(
-        "ParametrizacaoFinanceiraTabelaValor",
-        tabela=parametrizacao_financeira_tabela_dietas_a,
-        grupo="Dieta Enteral",
-        tipo_alimentacao=tipo_alimentacao_refeicao,
-        valor_colunas={
-            "percentual_acrescimo": 3,
-            "valor_unitario": 7,
-            "valor_unitario_total": 7.21,
-        },
-    )
-    baker.make(
-        "ParametrizacaoFinanceiraTabelaValor",
-        tabela=parametrizacao_financeira_tabela_dietas_a,
-        grupo="Dieta Enteral",
-        tipo_alimentacao=tipo_alimentacao_lanche,
-        valor_colunas={
-            "percentual_acrescimo": 6,
-            "valor_unitario": 8,
-            "valor_unitario_total": 8.48,
-        },
-    )
-    baker.make(
-        "ParametrizacaoFinanceiraTabelaValor",
-        tabela=parametrizacao_financeira_tabela_dietas_a,
-        grupo="Dieta Enteral",
-        tipo_alimentacao=tipo_alimentacao_lanche_4h,
-        valor_colunas={
-            "percentual_acrescimo": 6,
-            "valor_unitario": 7,
-            "valor_unitario_total": 7.42,
-        },
-    )
-
-    parametrizacao_financeira_tabela_dietas_b = baker.make(
-        "ParametrizacaoFinanceiraTabela",
-        parametrizacao_financeira=parametrizacao_financeira,
-        nome="Dietas Tipo B",
-    )
-    baker.make(
-        "ParametrizacaoFinanceiraTabelaValor",
-        tabela=parametrizacao_financeira_tabela_dietas_b,
-        grupo="Dieta Enteral",
-        tipo_alimentacao=tipo_alimentacao_lanche,
-        valor_colunas={
-            "percentual_acrescimo": 6,
-            "valor_unitario": 7,
-            "valor_unitario_total": 7.42,
-        },
-    )
-    baker.make(
-        "ParametrizacaoFinanceiraTabelaValor",
-        tabela=parametrizacao_financeira_tabela_dietas_b,
-        grupo="Dieta Enteral",
-        tipo_alimentacao=tipo_alimentacao_lanche_4h,
-        valor_colunas={
-            "percentual_acrescimo": 6,
-            "valor_unitario": 7,
-            "valor_unitario_total": 7.42,
-        },
     )
     return parametrizacao_financeira
 

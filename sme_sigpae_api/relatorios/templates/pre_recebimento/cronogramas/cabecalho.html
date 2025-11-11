@@ -1,6 +1,7 @@
 {% include 'relatorio_base.html' %}
 {% load static %}
 {% load sass_tags %}
+{% load index %}
 
 <html>
 <body>
@@ -44,7 +45,7 @@
       </div>
 
       <div class="dados-empresa">
-        <b>CNPJ: </b> {{empresa.cnpj}}
+        <b>CNPJ: </b> {{empresa.cnpj | cnpj_mask}}
       </div>
     </section>
 

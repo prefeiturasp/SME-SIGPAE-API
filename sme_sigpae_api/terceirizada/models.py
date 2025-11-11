@@ -564,6 +564,13 @@ class Modalidade(ExportModelOperationsMixin("modalidade"), TemChaveExterna, Nome
 
 
 class Contrato(ExportModelOperationsMixin("contato"), TemChaveExterna):
+    LEVE_LEITE = "LEVE_LEITE"
+    ALIMENTACAO_ESCOLAR = "ALIMENTACAO_ESCOLAR"
+    PROGRAMA_CHOICES = (
+        (LEVE_LEITE, "Leve Leite"),
+        (ALIMENTACAO_ESCOLAR, "Alimentação Escolar"),
+    )
+
     numero = models.CharField("No do contrato", max_length=100, unique=True)
     processo = models.CharField(
         "Processo Administrativo",
@@ -606,6 +613,12 @@ class Contrato(ExportModelOperationsMixin("contato"), TemChaveExterna):
     )
     numero_chamada_publica = models.CharField(
         "Nº da Chamada Pública", max_length=100, blank=True
+    )
+    programa = models.CharField(
+        "Programa",
+        max_length=20,
+        choices=PROGRAMA_CHOICES,
+        default=ALIMENTACAO_ESCOLAR
     )
 
     def __str__(self):
