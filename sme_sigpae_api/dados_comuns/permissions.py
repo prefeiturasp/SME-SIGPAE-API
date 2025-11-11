@@ -84,6 +84,32 @@ class UsuarioEscolaTercTotal(BasePermission):
             return False
 
 
+class UsuarioEscolaTercTotalSemAlunosRegulares(UsuarioEscolaTercTotal):
+    """Permite acesso a usuários com vinculo a uma Escola sem alunos regulares."""
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and isinstance(usuario.vinculo_atual.instituicao, Escola)
+            and usuario.vinculo_atual.instituicao.modulo_gestao == "TERCEIRIZADA"
+            and usuario.vinculo_atual.instituicao.possui_alunos_regulares is False
+        )
+
+    def has_object_permission(self, request, view, obj):
+        usuario = request.user
+        escola = usuario.vinculo_atual.instituicao
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and isinstance(escola, Escola)
+            and escola.modulo_gestao == "TERCEIRIZADA"
+            and escola.possui_alunos_regulares is False
+            and obj.escola == escola
+        )
+
+
 class UsuarioDiretorEscolaTercTotal(UsuarioEscolaTercTotal):
     """Permite acesso a usuários com vinculo a uma Escola."""
 
