@@ -326,11 +326,40 @@ class ParametrizacaoFinanceiraTabelaValorSerializer(serializers.ModelSerializer)
 
 
 class ParametrizacaoFinanceiraTabelaSerializer(serializers.ModelSerializer):
-    valores = ParametrizacaoFinanceiraTabelaValorSerializer(many=True)
+    valores = ParametrizacaoFinanceiraTabelaValorSerializer(many=True, read_only=True)
+    periodo_escolar = serializers.CharField(source="periodo_escolar.nome")
 
     class Meta:
         model = ParametrizacaoFinanceiraTabela
         fields = ["nome", "periodo_escolar", "valores"]
+
+
+class DadosParametrizacaoFinanceiraSerializer(serializers.ModelSerializer):
+    edital = EditalSimplesSerializer()
+    lote = LoteSimplesSerializer()
+    grupo_unidade_escolar = GrupoUnidadeEscolarSerializer()
+    tabelas = ParametrizacaoFinanceiraTabelaSerializer(many=True, read_only=True)
+    data_inicial = serializers.SerializerMethodField()
+    data_final = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ParametrizacaoFinanceira
+        fields = [
+            "uuid",
+            "edital",
+            "lote",
+            "grupo_unidade_escolar",
+            "data_inicial",
+            "data_final",
+            "legenda",
+            "tabelas",
+        ]
+
+    def get_data_inicial(self, obj):
+        return obj.data_inicial.strftime("%d/%m/%Y") if obj.data_inicial else None
+
+    def get_data_final(self, obj):
+        return obj.data_final.strftime("%d/%m/%Y") if obj.data_final else None
 
 
 class ParametrizacaoFinanceiraSerializer(serializers.ModelSerializer):

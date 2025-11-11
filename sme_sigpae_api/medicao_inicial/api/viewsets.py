@@ -2,6 +2,7 @@ import calendar
 import datetime
 import json
 
+from django.shortcuts import get_object_or_404
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.db.models import F, IntegerField, Q, QuerySet
@@ -124,6 +125,7 @@ from .serializers import (
     SolicitacaoMedicaoInicialSerializer,
     TipoContagemAlimentacaoSerializer,
     ValorMedicaoSerializer,
+    DadosParametrizacaoFinanceiraSerializer,
 )
 from .serializers_create import (
     ClausulaDeDescontoCreateUpdateSerializer,
@@ -2002,6 +2004,17 @@ class ParametrizacaoFinanceiraViewSet(ModelViewSet):
         if self.action in ["create", "update", "partial_update"]:
             return ParametrizacaoFinanceiraWriteModelSerializer
         return ParametrizacaoFinanceiraSerializer
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="dados-parametrizacao-financeira/(?P<uuid_parametrizacao_financeira>[^/.]+)",
+        permission_classes=[UsuarioMedicao],
+    )
+    def dados_parametrizacao(self, request, uuid_parametrizacao_financeira):
+        parametrizacao = get_object_or_404(ParametrizacaoFinanceira, uuid=uuid_parametrizacao_financeira)
+        serializer = DadosParametrizacaoFinanceiraSerializer(parametrizacao)
+        return Response(serializer.data)
 
 
 class RelatorioFinanceiroViewSet(ModelViewSet):
