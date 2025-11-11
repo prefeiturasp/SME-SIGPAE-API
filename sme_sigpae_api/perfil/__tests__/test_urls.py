@@ -398,11 +398,51 @@ def test_busca_sem_vinculos_ativos(
     assert response.json()["count"] == 0
 
 
-def test_busca_vinculos_ativos_dre(client_autenticado_diretoria_regional):
+def _setup_usuario_escola(usuario_factory, vinculo_factory, escola_um):
+    usuario_escola = usuario_factory.create(
+        email="escola@admin.com", registro_funcional="1234568"
+    )
+    vinculo_factory.create(
+        usuario=usuario_escola,
+        object_id=escola_um.id,
+        instituicao=escola_um,
+        perfil__nome="DIRETOR_UE",
+        data_inicial="2025-09-01",
+        data_final=None,
+        ativo=True,
+    )
+
+
+def _setup_usuario_dre(usuario_factory, vinculo_factory, diretoria_regional_ip):
+    usuario_dre = usuario_factory.create(
+        email="dre@admin.com", registro_funcional="1234567"
+    )
+    vinculo_factory.create(
+        usuario=usuario_dre,
+        object_id=diretoria_regional_ip.id,
+        instituicao=diretoria_regional_ip,
+        perfil__nome="COGESTOR_DRE",
+        data_inicial="2025-09-01",
+        data_final=None,
+        ativo=True,
+    )
+
+
+def test_busca_vinculos_ativos_dre(
+    client_autenticado_diretoria_regional,
+    usuario_factory,
+    vinculo_factory,
+    escola_um,
+    diretoria_regional_ip,
+):
     """Teste para verificar se o perfil DRE tem acesso aos vinculos ativos."""
+
+    _setup_usuario_escola(usuario_factory, vinculo_factory, escola_um)
+    _setup_usuario_dre(usuario_factory, vinculo_factory, diretoria_regional_ip)
+
     response = client_autenticado_diretoria_regional.get("/vinculos/vinculos-ativos/")
     assert response.status_code == status.HTTP_200_OK
-    assert response.json()["count"] == 0
+    assert response.json()["count"] == 2
 
 
 def test_busca_vinculos_ativos_com_filtro(
