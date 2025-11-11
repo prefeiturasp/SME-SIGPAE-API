@@ -4229,8 +4229,11 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         justificativa = kwargs.get("justificativa", "")
         nao_possui_permissao = (
-            user.vinculo_atual.perfil.nome != DIRETOR_UE
-            and user.vinculo_atual.instituicao.possui_alunos_regulares
+            user.vinculo_atual.instituicao.__class__.__name__ != "Escola"
+            or (
+                user.vinculo_atual.perfil.nome != DIRETOR_UE
+                and user.vinculo_atual.instituicao.possui_alunos_regulares
+            )
         )
         if user:
             if nao_possui_permissao:
@@ -4268,8 +4271,11 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         justificativa = kwargs.get("justificativa", "")
         nao_possui_permissao = (
-            user.vinculo_atual.perfil.nome != DIRETOR_UE
-            and user.vinculo_atual.instituicao.possui_alunos_regulares
+            user.vinculo_atual.instituicao.__class__.__name__ != "Escola"
+            or (
+                user.vinculo_atual.perfil.nome != DIRETOR_UE
+                and user.vinculo_atual.instituicao.possui_alunos_regulares
+            )
         )
 
         if user and isinstance(self, OcorrenciaMedicaoInicial):
@@ -4337,8 +4343,11 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         justificativa_sem_lancamentos = kwargs["justificativa_sem_lancamentos"]
         nao_possui_permissao = (
-            user.vinculo_atual.perfil.nome != DIRETOR_UE
-            and user.vinculo_atual.instituicao.possui_alunos_regulares
+            user.vinculo_atual.instituicao.__class__.__name__ != "Escola"
+            or (
+                user.vinculo_atual.perfil.nome != DIRETOR_UE
+                and user.vinculo_atual.instituicao.possui_alunos_regulares
+            )
         )
 
         if not user or nao_possui_permissao:
@@ -4360,8 +4369,11 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         justificativa_sem_lancamentos = kwargs["justificativa_sem_lancamentos"]
         nao_possui_permissao = (
-            user.vinculo_atual.perfil.nome != DIRETOR_UE
-            and user.vinculo_atual.instituicao.possui_alunos_regulares
+            user.vinculo_atual.instituicao.__class__.__name__ != "Escola"
+            or (
+                user.vinculo_atual.perfil.nome != DIRETOR_UE
+                and user.vinculo_atual.instituicao.possui_alunos_regulares
+            )
         )
 
         if not user or nao_possui_permissao:
