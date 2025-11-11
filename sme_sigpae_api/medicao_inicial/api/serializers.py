@@ -317,11 +317,12 @@ class ClausulaDeDescontoSerializer(serializers.ModelSerializer):
 
 class ParametrizacaoFinanceiraTabelaValorSerializer(serializers.ModelSerializer):
     faixa_etaria = FaixaEtariaSerializer()
+    tipo_valor = serializers.CharField(source="tipo_valor.nome")
     tipo_alimentacao = TipoAlimentacaoSerializer()
 
     class Meta:
         model = ParametrizacaoFinanceiraTabelaValor
-        fields = ["faixa_etaria", "tipo_alimentacao", "grupo", "valor_colunas"]
+        fields = ["faixa_etaria", "nome_campo", "tipo_valor", "valor", "tipo_alimentacao"]
 
 
 class ParametrizacaoFinanceiraTabelaSerializer(serializers.ModelSerializer):
@@ -329,7 +330,7 @@ class ParametrizacaoFinanceiraTabelaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ParametrizacaoFinanceiraTabela
-        fields = ["nome", "valores"]
+        fields = ["nome", "periodo_escolar", "valores"]
 
 
 class ParametrizacaoFinanceiraSerializer(serializers.ModelSerializer):
