@@ -3,6 +3,7 @@ import logging
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.db.models import Q
 from django.http import HttpResponse
 from django_filters import rest_framework as filters
 from openpyxl import Workbook, styles
@@ -301,13 +302,29 @@ class VinculoViewSet(viewsets.ReadOnlyModelViewSet):
             DIRETOR_UE,
             ADMINISTRADOR_EMPRESA,
             USUARIO_EMPRESA,
-            COGESTOR_DRE,
         ]:
             queryset = (
                 self.get_queryset()
                 .filter(
                     content_type=usuario.vinculo_atual.content_type,
                     object_id=usuario.vinculo_atual.object_id,
+                )
+                .order_by("-data_inicial")
+            )
+        elif usuario.vinculo_atual.perfil.nome == COGESTOR_DRE:
+            ids_escolas_da_dre = usuario.vinculo_atual.instituicao.escolas.values_list(
+                "id", flat=True
+            )
+            queryset = (
+                self.get_queryset()
+                .filter(
+                    Q(
+                        content_type=usuario.vinculo_atual.content_type,
+                        object_id=usuario.vinculo_atual.object_id,
+                    )
+                    | Q(
+                        content_type__model="escola", object_id__in=[ids_escolas_da_dre]
+                    )
                 )
                 .order_by("-data_inicial")
             )
