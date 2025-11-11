@@ -4228,8 +4228,12 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
 
         user = kwargs["user"]
         justificativa = kwargs.get("justificativa", "")
+        nao_possui_permissao = (
+            user.vinculo_atual.perfil.nome != DIRETOR_UE
+            and user.vinculo_atual.instituicao.possui_alunos_regulares
+        )
         if user:
-            if not user.vinculo_atual.perfil.nome == DIRETOR_UE:
+            if nao_possui_permissao:
                 raise PermissionDenied(
                     "Você não tem permissão para executar essa ação."
                 )
@@ -4263,8 +4267,13 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
 
         user = kwargs["user"]
         justificativa = kwargs.get("justificativa", "")
+        nao_possui_permissao = (
+            user.vinculo_atual.perfil.nome != DIRETOR_UE
+            and user.vinculo_atual.instituicao.possui_alunos_regulares
+        )
+
         if user and isinstance(self, OcorrenciaMedicaoInicial):
-            if not user.vinculo_atual.perfil.nome == DIRETOR_UE:
+            if nao_possui_permissao:
                 raise PermissionDenied(
                     "Você não tem permissão para executar essa ação."
                 )
@@ -4291,7 +4300,11 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
     def _ue_corrige_periodo_grupo_para_codae_hook(self, *args, **kwargs):
         user = kwargs["user"]
         if user:
-            if not user.vinculo_atual.perfil.nome == DIRETOR_UE:
+            nao_possui_permissao = (
+                user.vinculo_atual.perfil.nome != DIRETOR_UE
+                and user.vinculo_atual.instituicao.possui_alunos_regulares
+            )
+            if nao_possui_permissao:
                 raise PermissionDenied(
                     "Você não tem permissão para executar essa ação."
                 )
@@ -4304,7 +4317,11 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
     def _ue_corrige_medicao_para_codae_hook(self, *args, **kwargs):
         user = kwargs["user"]
         if user:
-            if user.vinculo_atual.perfil.nome not in [DIRETOR_UE]:
+            nao_possui_permissao = (
+                user.vinculo_atual.perfil.nome != DIRETOR_UE
+                and user.vinculo_atual.instituicao.possui_alunos_regulares
+            )
+            if nao_possui_permissao:
                 raise PermissionDenied(
                     "Você não tem permissão para executar essa ação."
                 )
@@ -4319,8 +4336,12 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
 
         user = kwargs["user"]
         justificativa_sem_lancamentos = kwargs["justificativa_sem_lancamentos"]
+        nao_possui_permissao = (
+            user.vinculo_atual.perfil.nome != DIRETOR_UE
+            and user.vinculo_atual.instituicao.possui_alunos_regulares
+        )
 
-        if not user or user.vinculo_atual.perfil.nome != DIRETOR_UE:
+        if not user or nao_possui_permissao:
             raise PermissionDenied("Você não tem permissão para executar essa ação.")
         if isinstance(self, Medicao):
             raise ValidationError(
@@ -4338,7 +4359,12 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
 
         user = kwargs["user"]
         justificativa_sem_lancamentos = kwargs["justificativa_sem_lancamentos"]
-        if not user or user.vinculo_atual.perfil.nome != DIRETOR_UE:
+        nao_possui_permissao = (
+            user.vinculo_atual.perfil.nome != DIRETOR_UE
+            and user.vinculo_atual.instituicao.possui_alunos_regulares
+        )
+
+        if not user or nao_possui_permissao:
             raise PermissionDenied("Você não tem permissão para executar essa ação.")
         if isinstance(self, SolicitacaoMedicaoInicial):
             raise ValidationError(

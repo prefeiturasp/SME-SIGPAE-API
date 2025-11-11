@@ -39,6 +39,7 @@ from ...dados_comuns.permissions import (
     UsuarioDiretoriaRegional,
     UsuarioEmpresaTerceirizada,
     UsuarioEscolaTercTotal,
+    UsuarioEscolaTercTotalSemAlunosRegulares,
     UsuarioMedicao,
     UsuarioSupervisaoNutricao,
     ViewSetActionPermissionMixin,
@@ -978,7 +979,9 @@ class SolicitacaoMedicaoInicialViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="escola-corrige-medicao-para-dre",
-        permission_classes=[UsuarioDiretorEscolaTercTotal],
+        permission_classes=[
+            UsuarioDiretorEscolaTercTotal | UsuarioEscolaTercTotalSemAlunosRegulares
+        ],
     )
     def escola_corrige_medicao_para_dre(self, request, uuid=None):
         solicitacao_medicao_inicial = self.get_object()
@@ -1009,7 +1012,9 @@ class SolicitacaoMedicaoInicialViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="escola-corrige-medicao-para-codae",
-        permission_classes=[UsuarioDiretorEscolaTercTotal],
+        permission_classes=[
+            UsuarioDiretorEscolaTercTotal | UsuarioEscolaTercTotalSemAlunosRegulares
+        ],
     )
     def escola_corrige_medicao_para_codae(self, request, uuid=None):
         solicitacao_medicao_inicial = self.get_object()
@@ -1040,6 +1045,9 @@ class SolicitacaoMedicaoInicialViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="ue-atualiza-ocorrencia",
+        permission_classes=[
+            UsuarioDiretorEscolaTercTotal | UsuarioEscolaTercTotalSemAlunosRegulares
+        ],
     )
     def ue_atualiza_ocorrencia(self, request, uuid=None):
         solicitacao_medicao_inicial = self.get_object()
