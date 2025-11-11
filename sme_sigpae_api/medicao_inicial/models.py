@@ -727,7 +727,7 @@ class ParametrizacaoFinanceiraTabelaValor(TemChaveExterna, CriadoEm, TemAlterado
     tabela = models.ForeignKey(
         ParametrizacaoFinanceiraTabela, on_delete=models.CASCADE, related_name="valores"
     )
-    nome_campo = models.CharField(max_length=100, null=True, blank=True)
+    nome_campo = models.CharField(max_length=255, null=True, blank=True)
     faixa_etaria = models.ForeignKey(
         "escola.FaixaEtaria",
         on_delete=models.PROTECT,
