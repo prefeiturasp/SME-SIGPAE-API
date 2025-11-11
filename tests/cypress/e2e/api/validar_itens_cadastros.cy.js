@@ -286,7 +286,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)]
 
-			var nome_teste = 'Testes Automação'
+			var nome_teste = 'Testes Automação PUT'
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -323,7 +323,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)]
 
-			var nome_teste = 'Testes Automação'
+			var nome_teste = 'Testes Automação PUT - Tipo Inválido'
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -338,7 +338,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 					var uuid_response = response.body.results[0].uuid
 
 					var dados_teste = {
-						nome: 'Testes Automatizados Alterado via PUT',
+						nome: 'Testes Automatizados - Tipo Inválido via PUT',
 						tipo: 'TIPO_INVALIDO',
 					}
 
@@ -432,7 +432,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)]
 
-			var nome_teste = 'Testes Automação'
+			var nome_teste = 'Testes Automação PATCH'
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -469,7 +469,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)]
 
-			var nome_teste = 'Testes Automação'
+			var nome_teste = 'Testes Automação PATCH'
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
