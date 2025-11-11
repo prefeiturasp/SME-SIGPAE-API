@@ -340,7 +340,11 @@ class VinculoViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = queryset.filtrar_por_usernames_validos().exclude(
             usuario=request.user
         )
-        queryset = queryset.filter(status=Vinculo.STATUS_ATIVO)
+        queryset = [
+            vinc
+            for vinc in self.filter_queryset(queryset)
+            if vinc.status is Vinculo.STATUS_ATIVO
+        ]
 
         page = self.paginate_queryset(queryset)
         serializer_class = VinculoSimplesSerializer
