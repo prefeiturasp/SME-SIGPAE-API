@@ -8,6 +8,7 @@ from sme_sigpae_api.dados_comuns.behaviors import (
     TemAlteradoEm,
 )
 
+
 class RecreioNasFerias(TemChaveExterna, CriadoEm, TemAlteradoEm):
     titulo = models.CharField(max_length=200)
     data_inicio = models.DateField()

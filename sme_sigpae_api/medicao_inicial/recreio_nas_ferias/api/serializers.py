@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from django.db import transaction
+
 from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.models import (
     RecreioNasFerias,
     RecreioNasFeriasUnidadeParticipante,
@@ -52,7 +54,7 @@ class RecreioNasFeriasUnidadeParticipanteSerializer(serializers.ModelSerializer)
             'num_inscritos',
             'num_colaboradores',
             'liberar_medicao',
-            'cei_ou_emei',  # ← ADICIONAR AQUI
+            'cei_ou_emei',
             'tipos_alimentacao_inscritos',
             'tipos_alimentacao_colaboradores',
             'tipos_alimentacao_infantil'
@@ -80,49 +82,84 @@ class RecreioNasFeriasSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'uuid', 'criado_em', 'alterado_em']
 
+    def _fetch_categorias(self):
+        """
+        Busca as categorias necessárias e retorna um dict com chaves:
+        'inscritos', 'colaboradores', 'infantil'.
+        """
+        required = {
+            'Inscritos': 'inscritos',
+            'Colaboradores': 'colaboradores',
+            'Infantil': 'infantil'
+        }
+        categorias = CategoriaAlimentacao.objects.filter(nome__in=required.keys())
+        if categorias.count() != len(required):
+            found = {c.nome for c in categorias}
+            missing = [name for name in required.keys() if name not in found]
+            raise serializers.ValidationError(
+                f"Categorias de alimentação não encontradas: {', '.join(missing)}. "
+                "Execute as migrations."
+            )
+        return {required[c.nome]: c for c in categorias}
+
+    def _build_unidade_tipos_instances(self, unidade, tipos_por_categoria, categorias_map):
+        instances = []
+        if tipos_por_categoria.get('inscritos'):
+            instances.extend(
+                RecreioNasFeriasUnidadeTipoAlimentacao(
+                    recreio_ferias_unidade=unidade,
+                    tipo_alimentacao=tipo,
+                    categoria=categorias_map['inscritos']
+                ) for tipo in tipos_por_categoria['inscritos']
+            )
+        if tipos_por_categoria.get('colaboradores'):
+            instances.extend(
+                RecreioNasFeriasUnidadeTipoAlimentacao(
+                    recreio_ferias_unidade=unidade,
+                    tipo_alimentacao=tipo,
+                    categoria=categorias_map['colaboradores']
+                ) for tipo in tipos_por_categoria['colaboradores']
+            )
+        if tipos_por_categoria.get('infantil'):
+            instances.extend(
+                RecreioNasFeriasUnidadeTipoAlimentacao(
+                    recreio_ferias_unidade=unidade,
+                    tipo_alimentacao=tipo,
+                    categoria=categorias_map['infantil']
+                ) for tipo in tipos_por_categoria['infantil']
+            )
+        return instances
+
+    @transaction.atomic
     def create(self, validated_data):
-        unidades_data = validated_data.pop('unidades_participantes')
+        unidades_data = validated_data.pop('unidades_participantes', [])
 
         recreio = RecreioNasFerias.objects.create(**validated_data)
 
-        try:
-            cat_inscritos = CategoriaAlimentacao.objects.get(nome='Inscritos')
-            cat_colaboradores = CategoriaAlimentacao.objects.get(nome='Colaboradores')
-            cat_infantil = CategoriaAlimentacao.objects.get(nome='Infantil')
-        except CategoriaAlimentacao.DoesNotExist:
-            raise serializers.ValidationError(
-                "Categorias de alimentação não encontradas. Execute as migrations."
-            )
+        categorias_map = self._fetch_categorias()
 
+        tipo_alimentacao_instances_to_create = []
         for unidade_data in unidades_data:
-            tipos_inscritos = unidade_data.pop('tipos_alimentacao_inscritos', [])
-            tipos_colaboradores = unidade_data.pop('tipos_alimentacao_colaboradores', [])
-            tipos_infantil = unidade_data.pop('tipos_alimentacao_infantil', [])
+            tipos_inscritos = unidade_data.pop('tipos_alimentacao_inscritos', []) or []
+            tipos_colaboradores = unidade_data.pop('tipos_alimentacao_colaboradores', []) or []
+            tipos_infantil = unidade_data.pop('tipos_alimentacao_infantil', []) or []
 
             unidade = RecreioNasFeriasUnidadeParticipante.objects.create(
                 recreio_nas_ferias=recreio,
                 **unidade_data
             )
 
-            for tipo in tipos_inscritos:
-                RecreioNasFeriasUnidadeTipoAlimentacao.objects.create(
-                    recreio_ferias_unidade=unidade,
-                    tipo_alimentacao=tipo,
-                    categoria=cat_inscritos
-                )
+            tipos_por_categoria = {
+                'inscritos': tipos_inscritos,
+                'colaboradores': tipos_colaboradores,
+                'infantil': tipos_infantil
+            }
 
-            for tipo in tipos_colaboradores:
-                RecreioNasFeriasUnidadeTipoAlimentacao.objects.create(
-                    recreio_ferias_unidade=unidade,
-                    tipo_alimentacao=tipo,
-                    categoria=cat_colaboradores
-                )
+            tipo_alimentacao_instances_to_create.extend(
+                self._build_unidade_tipos_instances(unidade, tipos_por_categoria, categorias_map)
+            )
 
-            for tipo in tipos_infantil:
-                RecreioNasFeriasUnidadeTipoAlimentacao.objects.create(
-                    recreio_ferias_unidade=unidade,
-                    tipo_alimentacao=tipo,
-                    categoria=cat_infantil
-                )
+        if tipo_alimentacao_instances_to_create:
+            RecreioNasFeriasUnidadeTipoAlimentacao.objects.bulk_create(tipo_alimentacao_instances_to_create)
 
         return recreio
