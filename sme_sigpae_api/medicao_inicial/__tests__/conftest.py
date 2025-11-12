@@ -4585,3 +4585,200 @@ def informacoes_excel_writer_cieja_cmct(
     finally:
         workbook.close()
         writer.close()
+
+@pytest.fixture
+def payload_create_parametrizacao_financeira_cei(
+    edital,
+    escola_ceu_gestao,
+    faixas_etarias_ativas,
+):
+    return {
+        "edital": edital.uuid,
+        "legenda": "Legenda teste",
+        "lote": escola_ceu_gestao.lote.uuid,
+        "grupo_unidade_escolar": grupo_escolar,
+        "data_inicial": "2025-10-01",
+        "data_final": "2025-10-30",
+        "tabelas": [
+            {
+                "nome": "Preço das Alimentações",
+                "valores": [
+                    {
+                        "faixa_etaria": "d7d42aa8-245c-4c55-9aa6-d5c2a6967613",
+                        "nome_campo": "0_meses_a_01_ano_e_02_meses",
+                        "tipo_valor": "REAJUSTE",
+                        "valor": 1
+                    },
+                    {
+                        "faixa_etaria": "d7d42aa8-245c-4c55-9aa6-d5c2a6967613",
+                        "nome_campo": "0_meses_a_01_ano_e_02_meses",
+                        "tipo_valor": "UNITARIO",
+                        "valor": 10
+                    },
+                    {
+                        "faixa_etaria": "54e63bff-9537-435f-905a-e875dd609386",
+                        "nome_campo": "01_ano_e_03_meses_a_02_anos_e_05_meses",
+                        "tipo_valor": "REAJUSTE",
+                        "valor": 1
+                    },
+                    {
+                        "faixa_etaria": "54e63bff-9537-435f-905a-e875dd609386",
+                        "nome_campo": "01_ano_e_03_meses_a_02_anos_e_05_meses",
+                        "tipo_valor": "UNITARIO",
+                        "valor": 10
+                    },
+                ],
+                "periodo_escolar": "INTEGRAL"
+            },
+            {
+                "nome": "Preço das Alimentações",
+                "valores": [
+                    {
+                        "faixa_etaria": "d7d42aa8-245c-4c55-9aa6-d5c2a6967613",
+                        "nome_campo": "0_meses_a_01_ano_e_02_meses",
+                        "tipo_valor": "REAJUSTE",
+                        "valor": 1
+                    },
+                    {
+                        "faixa_etaria": "d7d42aa8-245c-4c55-9aa6-d5c2a6967613",
+                        "nome_campo": "0_meses_a_01_ano_e_02_meses",
+                        "tipo_valor": "UNITARIO",
+                        "valor": 11
+                    },
+                    {
+                        "faixa_etaria": "54e63bff-9537-435f-905a-e875dd609386",
+                        "nome_campo": "01_ano_e_03_meses_a_02_anos_e_05_meses",
+                        "tipo_valor": "REAJUSTE",
+                        "valor": 1
+                    },
+                    {
+                        "faixa_etaria": "54e63bff-9537-435f-905a-e875dd609386",
+                        "nome_campo": "01_ano_e_03_meses_a_02_anos_e_05_meses",
+                        "tipo_valor": "UNITARIO",
+                        "valor": 11
+                    },
+                ],
+                "periodo_escolar": "PARCIAL"
+            },
+            {
+                "nome": "Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos",
+                "valores": [
+                    {
+                        "faixa_etaria": "d7d42aa8-245c-4c55-9aa6-d5c2a6967613",
+                        "nome_campo": "0_meses_a_01_ano_e_02_meses",
+                        "tipo_valor": "UNITARIO",
+                        "valor": 1
+                    },
+                    {
+                        "faixa_etaria": "d7d42aa8-245c-4c55-9aa6-d5c2a6967613",
+                        "nome_campo": "0_meses_a_01_ano_e_02_meses",
+                        "tipo_valor": "ACRESCIMO",
+                        "valor": 1
+                    },
+                    {
+                        "faixa_etaria": "54e63bff-9537-435f-905a-e875dd609386",
+                        "nome_campo": "01_ano_e_03_meses_a_02_anos_e_05_meses",
+                        "tipo_valor": "UNITARIO",
+                        "valor": 1
+                    },
+                    {
+                        "faixa_etaria": "54e63bff-9537-435f-905a-e875dd609386",
+                        "nome_campo": "01_ano_e_03_meses_a_02_anos_e_05_meses",
+                        "tipo_valor": "ACRESCIMO",
+                        "valor": 1
+                    },
+                ],
+                "periodo_escolar": "INTEGRAL"
+            },
+            {
+                "nome": "Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos",
+                "valores": [
+                    {
+                        "faixa_etaria": "d7d42aa8-245c-4c55-9aa6-d5c2a6967613",
+                        "nome_campo": "0_meses_a_01_ano_e_02_meses",
+                        "tipo_valor": "UNITARIO",
+                        "valor": 1
+                    },
+                    {
+                        "faixa_etaria": "d7d42aa8-245c-4c55-9aa6-d5c2a6967613",
+                        "nome_campo": "0_meses_a_01_ano_e_02_meses",
+                        "tipo_valor": "ACRESCIMO",
+                        "valor": 1
+                    },
+                    {
+                        "faixa_etaria": "54e63bff-9537-435f-905a-e875dd609386",
+                        "nome_campo": "01_ano_e_03_meses_a_02_anos_e_05_meses",
+                        "tipo_valor": "UNITARIO",
+                        "valor": 1
+                    },
+                    {
+                        "faixa_etaria": "54e63bff-9537-435f-905a-e875dd609386",
+                        "nome_campo": "01_ano_e_03_meses_a_02_anos_e_05_meses",
+                        "tipo_valor": "ACRESCIMO",
+                        "valor": 1
+                    },
+                ],
+                "periodo_escolar": "PARCIAL"
+            },
+            {
+                "nome": "Dietas Tipo B",
+                "valores": [
+                {
+                    "faixa_etaria": "d7d42aa8-245c-4c55-9aa6-d5c2a6967613",
+                    "nome_campo": "0_meses_a_01_ano_e_02_meses",
+                    "tipo_valor": "UNITARIO",
+                    "valor": 1
+                },
+                {
+                    "faixa_etaria": "d7d42aa8-245c-4c55-9aa6-d5c2a6967613",
+                    "nome_campo": "0_meses_a_01_ano_e_02_meses",
+                    "tipo_valor": "ACRESCIMO",
+                    "valor": 1
+                },
+                {
+                    "faixa_etaria": "54e63bff-9537-435f-905a-e875dd609386",
+                    "nome_campo": "01_ano_e_03_meses_a_02_anos_e_05_meses",
+                    "tipo_valor": "UNITARIO",
+                    "valor": 1
+                },
+                {
+                    "faixa_etaria": "54e63bff-9537-435f-905a-e875dd609386",
+                    "nome_campo": "01_ano_e_03_meses_a_02_anos_e_05_meses",
+                    "tipo_valor": "ACRESCIMO",
+                    "valor": 1
+                },
+                ],
+                "periodo_escolar": "INTEGRAL"
+            },
+            {
+                "nome": "Dietas Tipo B",
+                "valores": [
+                    {
+                        "faixa_etaria": "d7d42aa8-245c-4c55-9aa6-d5c2a6967613",
+                        "nome_campo": "0_meses_a_01_ano_e_02_meses",
+                        "tipo_valor": "UNITARIO",
+                        "valor": 1
+                    },
+                    {
+                        "faixa_etaria": "d7d42aa8-245c-4c55-9aa6-d5c2a6967613",
+                        "nome_campo": "0_meses_a_01_ano_e_02_meses",
+                        "tipo_valor": "ACRESCIMO",
+                        "valor": 1
+                    },
+                    {
+                        "faixa_etaria": "54e63bff-9537-435f-905a-e875dd609386",
+                        "nome_campo": "01_ano_e_03_meses_a_02_anos_e_05_meses",
+                        "tipo_valor": "UNITARIO",
+                        "valor": 1
+                    },
+                    {
+                        "faixa_etaria": "54e63bff-9537-435f-905a-e875dd609386",
+                        "nome_campo": "01_ano_e_03_meses_a_02_anos_e_05_meses",
+                        "tipo_valor": "ACRESCIMO",
+                        "valor": 1
+                    },
+                ],
+                "periodo_escolar": "PARCIAL"
+            }
+        ]
+    }
