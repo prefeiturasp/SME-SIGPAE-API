@@ -150,27 +150,22 @@ class SolicitacaoMedicaoInicial(
 
     @property
     def assinatura_ue(self):
-        try:
-            log_enviado_ue = self.logs.get(
-                status_evento=LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE
-            )
-            assinatura_escola = None
-            if log_enviado_ue:
-                razao_social = (
-                    self.rastro_terceirizada.razao_social
-                    if self.rastro_terceirizada
-                    else ""
-                )
-                usuario_escola = log_enviado_ue.usuario
-                data_enviado_ue = log_enviado_ue.criado_em.strftime("%d/%m/%Y às %H:%M")
-                assinatura_escola = f"""Documento conferido e registrado eletronicamente por {usuario_escola.nome},
-                                        {usuario_escola.cargo}, {usuario_escola.registro_funcional},
-                                        {self.escola.nome} em {data_enviado_ue}. O registro eletrônico da Medição
-                                        Inicial é comprovação e ateste do serviço prestado à Unidade Educacional,
-                                        pela empresa {razao_social}."""
-            return assinatura_escola
-        except LogSolicitacoesUsuario.DoesNotExist:
-            return None
+        log_enviado_ue = self.logs.filter(
+            status_evento=LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE
+        ).first()
+        if not log_enviado_ue:
+            return ""
+        razao_social = (
+            self.rastro_terceirizada.razao_social if self.rastro_terceirizada else ""
+        )
+        usuario_escola = log_enviado_ue.usuario
+        data_enviado_ue = log_enviado_ue.criado_em.strftime("%d/%m/%Y às %H:%M")
+        assinatura_escola = f"""Documento conferido e registrado eletronicamente por {usuario_escola.nome},
+                                {usuario_escola.cargo}, {usuario_escola.registro_funcional},
+                                {self.escola.nome} em {data_enviado_ue}. O registro eletrônico da Medição
+                                Inicial é comprovação e ateste do serviço prestado à Unidade Educacional,
+                                pela empresa {razao_social}."""
+        return assinatura_escola
 
     @property
     def assinatura_dre(self):
@@ -178,7 +173,7 @@ class SolicitacaoMedicaoInicial(
             status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_DRE
         ).last()
         if not log_aprovado_dre:
-            return None
+            return ""
         usuario_dre = self.dre_ciencia_correcao_usuario or log_aprovado_dre.usuario
         data_aprovado_dre = (
             self.dre_ciencia_correcao_data or log_aprovado_dre.criado_em
@@ -743,7 +738,9 @@ class ParametrizacaoFinanceiraTabelaValor(TemChaveExterna, CriadoEm, TemAlterado
         blank=True,
     )
     tipo_valor = models.ForeignKey(
-        TipoValorParametrizacaoFinanceira, on_delete=models.PROTECT, related_name="parametrizacao_tipo_valor"
+        TipoValorParametrizacaoFinanceira,
+        on_delete=models.PROTECT,
+        related_name="parametrizacao_tipo_valor",
     )
     valor = models.CharField(max_length=10, default="0")
 
