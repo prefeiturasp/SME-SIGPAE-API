@@ -2,7 +2,7 @@ import datetime
 import json
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db.models import F, Max, Sum
+from django.db.models import F, Max, Sum, Count, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
@@ -548,6 +548,26 @@ class TipoUnidadeEscolarViewSet(ReadOnlyModelViewSet):
     queryset = TipoUnidadeEscolar.objects.all()
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_fields = ("pertence_relatorio_solicitacoes_alimentacao",)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        dre = self.request.query_params.get("dre")
+        if dre:
+            qs = (
+                qs
+                .annotate(
+                    escolas_na_dre=Count(
+                        "escola",
+                        filter=Q(
+                            escola__diretoria_regional__uuid=dre,
+                            escola__tipo_gestao__nome='TERC TOTAL',
+                        ),
+                    )
+                )
+                .filter(escolas_na_dre__gt=0)
+                .distinct()
+            )
+        return qs
 
 
 class LogAlunosMatriculadosPeriodoEscolaViewSet(ModelViewSet):
