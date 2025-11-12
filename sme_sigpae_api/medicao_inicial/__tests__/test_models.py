@@ -75,7 +75,7 @@ def test_solicitacao_medicao_todas_medicoes_e_ocorrencia_aprovados_por_medicao_t
 
 
 def test_solicitacao_medicao_assinatura_escola_exception(solicitacao_medicao_inicial):
-    assert solicitacao_medicao_inicial.assinatura_ue is None
+    assert solicitacao_medicao_inicial.assinatura_ue == ""
 
 
 def test_solicitacao_medicao_assinatura_escola_sucesso(
