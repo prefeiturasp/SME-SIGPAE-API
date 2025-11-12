@@ -1,8 +1,10 @@
 import datetime
 import logging
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.db.models import Q
 from django.http import HttpResponse
 from django_filters import rest_framework as filters
 from openpyxl import Workbook, styles
@@ -297,50 +299,63 @@ class VinculoViewSet(viewsets.ReadOnlyModelViewSet):
     )
     def lista_vinculos_ativos(self, request):
         usuario = request.user
-        if usuario.vinculo_atual.perfil.nome in [
-            DIRETOR_UE,
-            ADMINISTRADOR_EMPRESA,
-            USUARIO_EMPRESA,
-            COGESTOR_DRE,
-        ]:
-            queryset = (
-                self.get_queryset()
-                .filter(
+        perfil_nome = usuario.vinculo_atual.perfil.nome
+        queryset = self.get_queryset()
+
+        filtros_por_perfil = {
+            DIRETOR_UE: lambda: queryset.filter(
+                content_type=usuario.vinculo_atual.content_type,
+                object_id=usuario.vinculo_atual.object_id,
+            ),
+            ADMINISTRADOR_EMPRESA: lambda: queryset.filter(
+                content_type=usuario.vinculo_atual.content_type,
+                object_id=usuario.vinculo_atual.object_id,
+            ),
+            USUARIO_EMPRESA: lambda: queryset.filter(
+                content_type=usuario.vinculo_atual.content_type,
+                object_id=usuario.vinculo_atual.object_id,
+            ),
+            COGESTOR_DRE: lambda: queryset.filter(
+                Q(
                     content_type=usuario.vinculo_atual.content_type,
                     object_id=usuario.vinculo_atual.object_id,
                 )
-                .order_by("-data_inicial")
-            )
-        elif usuario.vinculo_atual.perfil.nome == ADMINISTRADOR_CONTRATOS:
-            # TODO: Precisa otimar essa parte!
-            vinculos = self.get_queryset()
-            lista_vinculo = [
-                vinc.uuid
-                for vinc in vinculos
-                if isinstance(vinc.instituicao, Terceirizada)
-                and vinc.instituicao.tipo_servico
-                in [Terceirizada.FORNECEDOR, Terceirizada.FORNECEDOR_E_DISTRIBUIDOR]
-            ]
-            queryset = vinculos.filter(uuid__in=lista_vinculo).order_by("-data_inicial")
-        else:
-            queryset = self.get_queryset().order_by("-data_inicial")
+                | Q(
+                    content_type__model="escola",
+                    object_id__in=usuario.vinculo_atual.instituicao.escolas.values_list(
+                        "id", flat=True
+                    ),
+                )
+            ),
+            ADMINISTRADOR_CONTRATOS: lambda: queryset.filter(
+                content_type=ContentType.objects.get_for_model(Terceirizada),
+                object_id__in=Terceirizada.objects.filter(
+                    tipo_servico__in=[
+                        Terceirizada.FORNECEDOR,
+                        Terceirizada.FORNECEDOR_E_DISTRIBUIDOR,
+                    ]
+                ).values_list("id", flat=True),
+            ),
+        }
 
+        queryset = filtros_por_perfil.get(perfil_nome, lambda: queryset)()
+        queryset = queryset.order_by("-data_inicial")
         queryset = queryset.filtrar_por_usernames_validos().exclude(
             usuario=request.user
         )
-
         queryset = [
             vinc
             for vinc in self.filter_queryset(queryset)
             if vinc.status is Vinculo.STATUS_ATIVO
         ]
+
         page = self.paginate_queryset(queryset)
+        serializer_class = VinculoSimplesSerializer
+
         if page is not None:
-            serializer = VinculoSimplesSerializer(page, many=True)
-            response = self.get_paginated_response(serializer.data)
-            return response
-        response = VinculoSimplesSerializer(queryset, many=True).data
-        return Response(response)
+            return self.get_paginated_response(serializer_class(page, many=True).data)
+
+        return Response(serializer_class(queryset, many=True).data)
 
     @action(
         detail=False,
