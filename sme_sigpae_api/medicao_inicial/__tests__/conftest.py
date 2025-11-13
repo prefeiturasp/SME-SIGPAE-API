@@ -2315,9 +2315,7 @@ def medicao_aprovada_pela_dre(
 
 @pytest.fixture
 def categoria_medicao():
-    return baker.make(
-        "CategoriaMedicao", nome="ALIMENTAÇÃO", id=random.randint(1, 1000000)
-    )
+    return baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
 
 
 @pytest.fixture
