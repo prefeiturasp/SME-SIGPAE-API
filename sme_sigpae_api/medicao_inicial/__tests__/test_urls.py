@@ -1973,19 +1973,17 @@ def test_url_endpoint_parametrizacao_financeira(
         data=payload_create_parametrizacao_financeira_cei,
     )
     assert response.status_code == status.HTTP_201_CREATED
-
+    
     response = client_autenticado_codae_medicao.get(
         "/medicao-inicial/parametrizacao-financeira/", content_type="application/json"
     )
     assert len(response.data["results"]) == 2
 
-    data_update = {
-        "legenda": "Fonte: Relatório de Medição Inicial do Serviço de Alimentação e Nutrição Escolar realizada pela direção das unidades educacionais.",
-    }
+    payload_create_parametrizacao_financeira_cei['legenda'] = "teste 123"
     response = client_autenticado_codae_medicao.patch(
         f"/medicao-inicial/parametrizacao-financeira/{parametrizacao_financeira_emef.uuid}/",
         content_type="application/json",
-        data=data_update,
+        data=payload_create_parametrizacao_financeira_cei,
     )
     assert response.status_code == status.HTTP_200_OK
 
