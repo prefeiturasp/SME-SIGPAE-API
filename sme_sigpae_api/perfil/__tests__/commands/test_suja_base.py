@@ -1,5 +1,4 @@
 import os
-import random
 from unittest import TestCase, mock
 
 import pytest
@@ -24,7 +23,7 @@ class SujaBaseCommandTest(TestCase):
             Usuario,
             nome="Fulano da Silva",
             email="fulano@teste.com",
-            cpf="".join([str(random.randint(0, 9)) for _ in range(11)]),
+            cpf="12345678901",
             registro_funcional="1234567",
         )
         baker.make(

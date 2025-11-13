@@ -3,7 +3,6 @@ Antes de rodar isso vc deve ter rodado as escolas e as fixtures
 """
 
 import datetime
-import random
 
 import numpy as np
 from faker import Faker
@@ -38,6 +37,20 @@ from sme_sigpae_api.kit_lanche.models import (
     SolicitacaoKitLancheUnificada,
 )
 from sme_sigpae_api.perfil.models import Usuario
+
+# Valores fixos para substituir random
+# Caso queira variar os dados de carga, altere esses valores
+RANDOM_FLOAT = 0.5
+RANDOM_INT_2_5 = 3
+RANDOM_INT_1_180 = 90
+RANDOM_INT_100_200 = 150
+RANDOM_INT_10_200 = 100
+RANDOM_INT_10_100 = 50
+RANDOM_INT_20_200 = 110
+RANDOM_INT_100_420 = 250
+RANDOM_INT_2_5_SUSPENSOES = 4
+RANDOM_INT_1_15 = 8
+RANDOM_INT_16_30 = 23
 
 f = Faker("pt-br")
 f.seed(420)
@@ -85,7 +98,7 @@ def _get_random_periodo_escolar():
 
 
 def _get_random_tipos_alimentacao():
-    num_alimentacoes = random.randint(2, 5)
+    num_alimentacoes = RANDOM_INT_2_5
     alimentacoes = []
     for i in range(num_alimentacoes):
         alim = TipoAlimentacao.objects.order_by("?").first()
@@ -96,25 +109,25 @@ def _get_random_tipos_alimentacao():
 def fluxo_escola_felix(obj, user):  # noqa: C901
     # print(f'aplicando fluxo ESCOLA feliz em {obj}')
     obj.inicia_fluxo(user=user, notificar=True)
-    if random.random() < 0.3:
+    if RANDOM_FLOAT < 0.3:
         return
 
-    if random.random() >= 0.1:
+    if RANDOM_FLOAT >= 0.1:
         obj.dre_valida(user=user, notificar=True)
-        if random.random() >= 0.2:
+        if RANDOM_FLOAT >= 0.2:
             obj.codae_autoriza(user=user, notificar=True)
-            if random.random() >= 0.3:
+            if RANDOM_FLOAT >= 0.3:
                 obj.terceirizada_toma_ciencia(user=user, notificar=True)
-                if random.random() >= 0.8:
+                if RANDOM_FLOAT >= 0.8:
                     try:
                         obj.cancelar_pedido(user=user)
                     except InvalidTransitionError:
                         return
         else:
-            if random.random() <= 0.2:
+            if RANDOM_FLOAT <= 0.2:
                 obj.codae_nega(user=user, notificar=True)
     else:
-        if random.random() >= 0.1:
+        if RANDOM_FLOAT >= 0.1:
             obj.dre_pede_revisao(user=user, notificar=True)
         else:
             obj.dre_nao_valida(user=user, notificar=True)
@@ -122,18 +135,18 @@ def fluxo_escola_felix(obj, user):  # noqa: C901
 
 def fluxo_informativo_felix(obj, user):
     obj.informa(user=user)
-    if random.random() >= 0.5:
+    if RANDOM_FLOAT >= 0.5:
         obj.terceirizada_toma_ciencia(user=user)
 
 
 def fluxo_dre_felix(obj, user):
     # print(f'aplicando fluxo DRE feliz em {obj}')
     obj.inicia_fluxo(user=user)
-    if random.random() >= 0.1:
+    if RANDOM_FLOAT >= 0.1:
         obj.codae_autoriza(user=user, notificar=True)
-        if random.random() >= 0.3:
+        if RANDOM_FLOAT >= 0.3:
             obj.terceirizada_toma_ciencia(user=user, notificar=True)
-            if random.random() >= 0.8:
+            if RANDOM_FLOAT >= 0.8:
                 try:
                     obj.cancelar_pedido(user=user)
                 except InvalidTransitionError:
@@ -160,13 +173,13 @@ def cria_inclusoes_continuas(qtd=50):
                 descricao=f.text()[:160],
                 criado_por=user,
                 dias_semana=list(np.random.randint(6, size=4)),
-                data_inicial=hoje + datetime.timedelta(days=random.randint(1, 180)),
-                data_final=hoje + datetime.timedelta(days=random.randint(100, 200)),
+                data_inicial=hoje + datetime.timedelta(days=RANDOM_INT_1_180),
+                data_final=hoje + datetime.timedelta(days=RANDOM_INT_100_200),
             )
 
             QuantidadePorPeriodo.objects.create(
                 periodo_escolar=_get_random_periodo_escolar(),
-                numero_alunos=random.randint(10, 200),
+                numero_alunos=RANDOM_INT_10_200,
                 inclusao_alimentacao_continua=inclusao_continua,
             )
             # q.tipos_alimentacao.set(_get_random_tipos_alimentacao())
@@ -185,7 +198,7 @@ def cria_inclusoes_normais(qtd=50):
             )
             QuantidadePorPeriodo.objects.create(
                 periodo_escolar=_get_random_periodo_escolar(),
-                numero_alunos=random.randint(10, 200),
+                numero_alunos=RANDOM_INT_10_200,
                 grupo_inclusao_normal=grupo_inclusao_normal,
             )
             # q.tipos_alimentacao.set(_get_random_tipos_alimentacao())
@@ -193,7 +206,7 @@ def cria_inclusoes_normais(qtd=50):
                 motivo=_get_random_motivo_normal(),
                 outro_motivo=f.text()[:40],
                 grupo_inclusao=grupo_inclusao_normal,
-                data=hoje + datetime.timedelta(days=random.randint(1, 180)),
+                data=hoje + datetime.timedelta(days=RANDOM_INT_1_180),
             )
             fluxo_escola_felix(grupo_inclusao_normal, user)
         except InvalidTransitionError:
@@ -205,7 +218,7 @@ def cria_solicitacoes_kit_lanche_unificada(qtd=50):
     for i in range(qtd):
         try:
             base = SolicitacaoKitLanche.objects.create(
-                data=hoje + datetime.timedelta(days=random.randint(1, 180)),
+                data=hoje + datetime.timedelta(days=RANDOM_INT_1_180),
                 motivo=f.text()[:40],
                 descricao=f.text()[:160],
                 tempo_passeio=SolicitacaoKitLanche.QUATRO,
@@ -223,7 +236,7 @@ def cria_solicitacoes_kit_lanche_unificada(qtd=50):
             )
             for _ in range(2, 5):
                 EscolaQuantidade.objects.create(
-                    quantidade_alunos=random.randint(10, 100),
+                    quantidade_alunos=RANDOM_INT_10_100,
                     solicitacao_unificada=unificada,
                     escola=_get_random_escola(),
                 )
@@ -238,7 +251,7 @@ def cria_solicitacoes_kit_lanche_avulsa(qtd=50):
     for i in range(qtd):
         try:
             base = SolicitacaoKitLanche.objects.create(
-                data=hoje + datetime.timedelta(days=random.randint(1, 180)),
+                data=hoje + datetime.timedelta(days=RANDOM_INT_1_180),
                 motivo=f.text()[:40],
                 descricao=f.text()[:160],
                 tempo_passeio=SolicitacaoKitLanche.QUATRO,
@@ -247,7 +260,7 @@ def cria_solicitacoes_kit_lanche_avulsa(qtd=50):
             base.kits.set(kits)
             avulsa = SolicitacaoKitLancheAvulsa.objects.create(
                 criado_por=user,
-                quantidade_alunos=random.randint(20, 200),
+                quantidade_alunos=RANDOM_INT_20_200,
                 local=f.text()[:150],
                 escola=_get_random_escola(),
                 solicitacao_kit_lanche=base,
@@ -281,15 +294,15 @@ def cria_suspensoes_alimentacao(qtd=50):
             criado_por=user,
             escola=_get_random_escola(),
         )
-        for _ in range(random.randint(2, 5)):
+        for _ in range(RANDOM_INT_2_5_SUSPENSOES):
             SuspensaoAlimentacao.objects.create(
                 outro_motivo=f.text()[:50],
                 grupo_suspensao=suspensao_grupo,
-                data=hoje + datetime.timedelta(days=random.randint(1, 180)),
+                data=hoje + datetime.timedelta(days=RANDOM_INT_1_180),
                 motivo=_get_random_motivo_suspensao(),
             )
             QuantidadePorPeriodoSuspensaoAlimentacao.objects.create(
-                numero_alunos=random.randint(100, 420),
+                numero_alunos=RANDOM_INT_100_420,
                 periodo_escolar=_get_random_periodo_escolar(),
                 grupo_suspensao=suspensao_grupo,
             )
@@ -302,8 +315,8 @@ def cria_alteracoes_cardapio(qtd=50):
     user = Usuario.objects.get(email="escola@admin.com")
     for i in range(qtd):
         alteracao_cardapio = AlteracaoCardapio(
-            data_inicial=hoje + datetime.timedelta(random.randint(1, 15)),
-            data_final=hoje + datetime.timedelta(random.randint(16, 30)),
+            data_inicial=hoje + datetime.timedelta(RANDOM_INT_1_15),
+            data_final=hoje + datetime.timedelta(RANDOM_INT_16_30),
             criado_por=user,
             escola=_get_random_escola(),
             motivo=_get_random_motivo_altercao_cardapio(),
