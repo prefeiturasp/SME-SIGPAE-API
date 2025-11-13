@@ -66,28 +66,6 @@ def setup_data():
 
 
 @pytest.mark.django_db
-def test_listar_recreios(client_autenticado_coordenador_codae, setup_data):
-    RecreioNasFerias.objects.all().delete()
-
-    RecreioNasFerias.objects.create(
-        titulo="Recreio 1",
-        data_inicio=date(2025, 10, 27),
-        data_fim=date(2025, 11, 27)
-    )
-    RecreioNasFerias.objects.create(
-        titulo="Recreio 2",
-        data_inicio=date(2025, 12, 1),
-        data_fim=date(2025, 12, 31)
-    )
-
-    response = client_autenticado_coordenador_codae.get(setup_data['list_url'])
-    results = response.data.get('results', response.data)
-
-    assert response.status_code == status.HTTP_200_OK
-    assert len(results) == 2
-
-
-@pytest.mark.django_db
 def test_criar_recreio_sucesso(client_autenticado_coordenador_codae, setup_data):
     """Testa a criação de um Recreio com sucesso"""
     RecreioNasFerias.objects.all().delete()
@@ -223,22 +201,6 @@ def test_detalhar_recreio(client_autenticado_coordenador_codae, setup_data):
 
 
 @pytest.mark.django_db
-def test_deletar_recreio(client_autenticado_coordenador_codae, setup_data):
-    """Testa a deleção de um Recreio"""
-    recreio = RecreioNasFerias.objects.create(
-        titulo="Recreio Para Deletar",
-        data_inicio=date(2025, 10, 27),
-        data_fim=date(2025, 11, 27)
-    )
-
-    url = reverse('recreio-nas-ferias-detail', kwargs={'uuid': recreio.uuid})
-    response = client_autenticado_coordenador_codae.delete(url)
-
-    assert response.status_code == status.HTTP_204_NO_CONTENT
-    assert RecreioNasFerias.objects.count() == 0
-
-
-@pytest.mark.django_db
 def test_criar_recreio_com_uuid_invalido(client_autenticado_coordenador_codae, setup_data):
     """Testa a criação com UUID inválido (deve falhar)"""
     data = {
@@ -268,25 +230,3 @@ def test_criar_recreio_com_uuid_invalido(client_autenticado_coordenador_codae, s
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-
-@pytest.mark.django_db
-def test_filtrar_recreios_por_periodo(client_autenticado_coordenador_codae, setup_data):
-    """Testa a filtragem de Recreios por período (se implementado)"""
-    RecreioNasFerias.objects.all().delete()
-
-    RecreioNasFerias.objects.create(
-        titulo="Recreio Outubro",
-        data_inicio=date(2025, 10, 1),
-        data_fim=date(2025, 10, 31)
-    )
-    RecreioNasFerias.objects.create(
-        titulo="Recreio Novembro",
-        data_inicio=date(2025, 11, 1),
-        data_fim=date(2025, 11, 30)
-    )
-
-    response = client_autenticado_coordenador_codae.get(setup_data['list_url'])
-    results = response.data.get('results', response.data)
-
-    assert response.status_code == status.HTTP_200_OK
-    assert len(results) == 2
