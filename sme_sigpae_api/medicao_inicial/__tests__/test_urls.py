@@ -1917,12 +1917,10 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_sem_periodo_lancamento_ate(
     }
 
 
-'''def test_url_endpoint_parametrizacao_financeira(
+def test_url_endpoint_parametrizacao_financeira(
     client_autenticado_codae_medicao,
-    edital,
-    escola_ceu_gestao,
     parametrizacao_financeira_emef,
-    grupo_escolar,
+    payload_create_parametrizacao_financeira_cei,
 ):
     response = client_autenticado_codae_medicao.get(
         "/medicao-inicial/parametrizacao-financeira/", content_type="application/json"
@@ -1930,35 +1928,25 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_sem_periodo_lancamento_ate(
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 1
 
-    data_create = {
-        "edital": edital.uuid,
-        "legenda": "Legenda teste",
-        "lote": escola_ceu_gestao.lote.uuid,
-        "grupo_unidade_escolar": grupo_escolar,
-        "data_inicial": "2025-10-01",
-        "data_final": "2025-10-30",
-    }
     response = client_autenticado_codae_medicao.post(
         "/medicao-inicial/parametrizacao-financeira/",
         content_type="application/json",
-        data=data_create,
+        data=payload_create_parametrizacao_financeira_cei,
     )
     assert response.status_code == status.HTTP_201_CREATED
-
+    
     response = client_autenticado_codae_medicao.get(
         "/medicao-inicial/parametrizacao-financeira/", content_type="application/json"
     )
     assert len(response.data["results"]) == 2
 
-    data_update = {
-        "legenda": "Fonte: Relatório de Medição Inicial do Serviço de Alimentação e Nutrição Escolar realizada pela direção das unidades educacionais.",
-    }
+    payload_create_parametrizacao_financeira_cei['legenda'] = "teste 123"
     response = client_autenticado_codae_medicao.patch(
         f"/medicao-inicial/parametrizacao-financeira/{parametrizacao_financeira_emef.uuid}/",
         content_type="application/json",
-        data=data_update,
+        data=payload_create_parametrizacao_financeira_cei,
     )
-    assert response.status_code == status.HTTP_200_OK'''
+    assert response.status_code == status.HTTP_200_OK
 
 
 def test_url_endpoint_relatorio_consolidado_xlsx_sem_mes_refencia(
