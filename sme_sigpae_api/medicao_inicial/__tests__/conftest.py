@@ -167,6 +167,7 @@ def tipo_unidade_escolar_ceu_gestao():
 def tipo_unidade_escolar_cei():
     return baker.make("TipoUnidadeEscolar", iniciais="CEI")
 
+
 @pytest.fixture
 def tipo_unidade_escolar_cci():
     return baker.make("TipoUnidadeEscolar", iniciais="CCI")
