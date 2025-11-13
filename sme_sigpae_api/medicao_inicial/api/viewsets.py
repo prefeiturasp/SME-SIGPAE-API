@@ -2,11 +2,11 @@ import calendar
 import datetime
 import json
 
-from django.shortcuts import get_object_or_404
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.db.models import F, IntegerField, Q, QuerySet
 from django.db.models.functions import Cast
+from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from rest_framework import mixins, status
 from rest_framework.decorators import action
@@ -111,6 +111,7 @@ from .serializers import (
     AlimentacaoLancamentoEspecialSerializer,
     CategoriaMedicaoSerializer,
     ClausulaDeDescontoSerializer,
+    DadosParametrizacaoFinanceiraSerializer,
     DiaParaCorrigirSerializer,
     DiaSobremesaDoceSerializer,
     EmpenhoSerializer,
@@ -124,7 +125,6 @@ from .serializers import (
     SolicitacaoMedicaoInicialSerializer,
     TipoContagemAlimentacaoSerializer,
     ValorMedicaoSerializer,
-    DadosParametrizacaoFinanceiraSerializer,
 )
 from .serializers_create import (
     ClausulaDeDescontoCreateUpdateSerializer,
@@ -1434,7 +1434,9 @@ class MedicaoViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="escola-corrige-medicao",
-        permission_classes=[UsuarioDiretorEscolaTercTotal],
+        permission_classes=[
+            UsuarioDiretorEscolaTercTotal | UsuarioEscolaTercTotalSemAlunosRegulares
+        ],
     )
     def escola_corrige_medicao(self, request, uuid=None):
         medicao = self.get_object()
@@ -2000,7 +2002,9 @@ class ParametrizacaoFinanceiraViewSet(ModelViewSet):
         permission_classes=[UsuarioMedicao],
     )
     def dados_parametrizacao(self, request, uuid_parametrizacao_financeira):
-        parametrizacao = get_object_or_404(ParametrizacaoFinanceira, uuid=uuid_parametrizacao_financeira)
+        parametrizacao = get_object_or_404(
+            ParametrizacaoFinanceira, uuid=uuid_parametrizacao_financeira
+        )
         serializer = DadosParametrizacaoFinanceiraSerializer(parametrizacao)
         return Response(serializer.data)
 
