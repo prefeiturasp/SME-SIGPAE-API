@@ -82,6 +82,17 @@ class RecreioNasFeriasSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'uuid', 'criado_em', 'alterado_em']
 
+    def validate(self, attrs):
+        data_inicio = attrs.get('data_inicio')
+        data_fim = attrs.get('data_fim')
+
+        if data_inicio and data_fim and data_fim < data_inicio:
+            raise serializers.ValidationError({
+                'data_fim': 'A data de fim não pode ser anterior à data de início.'
+            })
+
+        return attrs
+
     def _fetch_categorias(self):
         """
         Busca as categorias necessárias e retorna um dict com chaves:
