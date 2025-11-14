@@ -164,6 +164,21 @@ def tipo_unidade_escolar_ceu_gestao():
 
 
 @pytest.fixture
+def tipo_unidade_escolar_cei():
+    return baker.make("TipoUnidadeEscolar", iniciais="CEI")
+
+
+@pytest.fixture
+def tipo_unidade_escolar_cci():
+    return baker.make("TipoUnidadeEscolar", iniciais="CCI")
+
+
+@pytest.fixture
+def tipo_unidade_escolar_cei_ceu():
+    return baker.make("TipoUnidadeEscolar", iniciais="CEI CEU")
+
+
+@pytest.fixture
 def dia_sobremesa_doce(tipo_unidade_escolar):
     edital = baker.make(
         "Edital",
@@ -2315,9 +2330,7 @@ def medicao_aprovada_pela_dre(
 
 @pytest.fixture
 def categoria_medicao():
-    return baker.make(
-        "CategoriaMedicao", nome="ALIMENTAÇÃO", id=random.randint(1, 1000000)
-    )
+    return baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
 
 
 @pytest.fixture
@@ -4585,3 +4598,121 @@ def informacoes_excel_writer_cieja_cmct(
     finally:
         workbook.close()
         writer.close()
+
+
+@pytest.fixture
+def payload_create_parametrizacao_financeira_cei(
+    edital,
+    escola_ceu_gestao,
+    faixas_etarias_ativas,
+    tipo_unidade_escolar_cei,
+    tipo_unidade_escolar_cci,
+    tipo_unidade_escolar_cei_ceu,
+    periodo_escolar_integral,
+    periodo_escolar_parcial,
+):
+    grupo_escolar_cei = baker.make(
+        "GrupoUnidadeEscolar",
+        nome="Grupo 1",
+        uuid="5bd9ad5c-e0ab-4812-b2b6-336fc8988960",
+        tipos_unidades=[
+            tipo_unidade_escolar_cei,
+            tipo_unidade_escolar_cci,
+            tipo_unidade_escolar_cei_ceu,
+        ],
+     )
+
+    return {
+        "edital": edital.uuid,
+        "legenda": "Legenda teste",
+        "lote": escola_ceu_gestao.lote.uuid,
+        "grupo_unidade_escolar": grupo_escolar_cei.uuid,
+        "data_inicial": "2025-10-01",
+        "data_final": "2025-10-30",
+        "tabelas": [
+            {
+                "nome": "Preço das Alimentações",
+                "valores": [
+                    {
+                        "faixa_etaria": faixa.uuid,
+                        "nome_campo": str(faixa).lower().replace(" ", "_"),
+                        "tipo_valor": tipo,
+                        "valor": 1
+                    }
+                    for faixa in faixas_etarias_ativas
+                    for tipo in ["REAJUSTE", "UNITARIO"]
+                ],
+                "periodo_escolar": periodo_escolar_integral.nome
+            },
+            {
+                "nome": "Preço das Alimentações",
+                "valores":[
+                    {
+                        "faixa_etaria": faixa.uuid,
+                        "nome_campo": str(faixa).lower().replace(" ", "_"),
+                        "tipo_valor": tipo,
+                        "valor": 1
+                    }
+                    for faixa in faixas_etarias_ativas
+                    for tipo in ["REAJUSTE", "UNITARIO"]
+                ],
+                "periodo_escolar": periodo_escolar_parcial.nome
+            },
+            {
+                "nome": "Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos",
+                "valores": [
+                    {
+                        "faixa_etaria": faixa.uuid,
+                        "nome_campo": str(faixa).lower().replace(" ", "_"),
+                        "tipo_valor": tipo,
+                        "valor": 1
+                    }
+                    for faixa in faixas_etarias_ativas
+                    for tipo in ["REAJUSTE", "UNITARIO"]
+                ],
+                "periodo_escolar": periodo_escolar_integral.nome
+            },
+            {
+                "nome": "Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos",
+                "valores": [
+                    {
+                        "faixa_etaria": faixa.uuid,
+                        "nome_campo": str(faixa).lower().replace(" ", "_"),
+                        "tipo_valor": tipo,
+                        "valor": 1
+                    }
+                    for faixa in faixas_etarias_ativas
+                    for tipo in ["REAJUSTE", "UNITARIO"]
+                ],
+                "periodo_escolar": periodo_escolar_parcial.nome
+            },
+            {
+                "nome": "Dietas Tipo B",
+                "valores": [
+                    {
+                        "faixa_etaria": faixa.uuid,
+                        "nome_campo": str(faixa).lower().replace(" ", "_"),
+                        "tipo_valor": tipo,
+                        "valor": 1
+                    }
+                    for faixa in faixas_etarias_ativas
+                    for tipo in ["REAJUSTE", "UNITARIO"]
+                ],
+                "periodo_escolar": periodo_escolar_integral.nome
+            },
+            {
+                "nome": "Dietas Tipo B",
+                "valores": [
+                    {
+                        "faixa_etaria": faixa.uuid,
+                        "nome_campo": str(faixa).lower().replace(" ", "_"),
+                        "tipo_valor": tipo,
+                        "valor": 1
+                    }
+                    for faixa in faixas_etarias_ativas
+                    for tipo in ["REAJUSTE", "UNITARIO"]
+                ],
+                "periodo_escolar": periodo_escolar_parcial.nome
+            }
+        ]
+    }

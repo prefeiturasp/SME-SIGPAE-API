@@ -1,5 +1,4 @@
 import datetime
-import random
 
 import pytest
 from model_bakery import baker
@@ -49,8 +48,7 @@ def test_kit_lanche_cei_avulsa_serializer_create_create():
 
     faixas_etarias = baker.make("escola.FaixaEtaria", _quantity=5)
     faixas_etarias = [
-        {"quantidade": random.randint(1, 20), "faixa_etaria": i.uuid}
-        for i in faixas_etarias
+        {"quantidade": 10, "faixa_etaria": i.uuid} for i in faixas_etarias
     ]
 
     data = {
@@ -97,8 +95,7 @@ def test_kit_lanche_cei_avulsa_serializer_create_update():
 
     faixas_etarias = baker.make("escola.FaixaEtaria", _quantity=5)
     faixas_etarias = [
-        {"quantidade": random.randint(1, 20), "faixa_etaria": i.uuid}
-        for i in faixas_etarias
+        {"quantidade": 15, "faixa_etaria": i.uuid} for i in faixas_etarias
     ]
 
     validated_data = {

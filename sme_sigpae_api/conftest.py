@@ -426,21 +426,20 @@ def client_autenticado_vinculo_escola(client, django_user_model):
 
 
 @pytest.fixture
-def client_autenticado_diretoria_regional(client, django_user_model):
+def client_autenticado_diretoria_regional(
+    client, django_user_model, diretoria_regional_ip
+):
     email = "test@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
     )
     perfil_cogestor = baker.make("Perfil", nome=constants.COGESTOR_DRE, ativo=True)
-    diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL IPIRANGA"
-    )
     hoje = datetime.date.today()
     baker.make(
         "Vinculo",
         usuario=user,
-        instituicao=diretoria_regional,
+        instituicao=diretoria_regional_ip,
         perfil=perfil_cogestor,
         data_inicial=hoje,
         ativo=True,

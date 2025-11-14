@@ -150,27 +150,22 @@ class SolicitacaoMedicaoInicial(
 
     @property
     def assinatura_ue(self):
-        try:
-            log_enviado_ue = self.logs.get(
-                status_evento=LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE
-            )
-            assinatura_escola = None
-            if log_enviado_ue:
-                razao_social = (
-                    self.rastro_terceirizada.razao_social
-                    if self.rastro_terceirizada
-                    else ""
-                )
-                usuario_escola = log_enviado_ue.usuario
-                data_enviado_ue = log_enviado_ue.criado_em.strftime("%d/%m/%Y às %H:%M")
-                assinatura_escola = f"""Documento conferido e registrado eletronicamente por {usuario_escola.nome},
-                                        {usuario_escola.cargo}, {usuario_escola.registro_funcional},
-                                        {self.escola.nome} em {data_enviado_ue}. O registro eletrônico da Medição
-                                        Inicial é comprovação e ateste do serviço prestado à Unidade Educacional,
-                                        pela empresa {razao_social}."""
-            return assinatura_escola
-        except LogSolicitacoesUsuario.DoesNotExist:
-            return None
+        log_enviado_ue = self.logs.filter(
+            status_evento=LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE
+        ).first()
+        if not log_enviado_ue:
+            return ""
+        razao_social = (
+            self.rastro_terceirizada.razao_social if self.rastro_terceirizada else ""
+        )
+        usuario_escola = log_enviado_ue.usuario
+        data_enviado_ue = log_enviado_ue.criado_em.strftime("%d/%m/%Y às %H:%M")
+        assinatura_escola = f"""Documento conferido e registrado eletronicamente por {usuario_escola.nome},
+                                {usuario_escola.cargo}, {usuario_escola.registro_funcional},
+                                {self.escola.nome} em {data_enviado_ue}. O registro eletrônico da Medição
+                                Inicial é comprovação e ateste do serviço prestado à Unidade Educacional,
+                                pela empresa {razao_social}."""
+        return assinatura_escola
 
     @property
     def assinatura_dre(self):
@@ -178,7 +173,7 @@ class SolicitacaoMedicaoInicial(
             status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_DRE
         ).last()
         if not log_aprovado_dre:
-            return None
+            return ""
         usuario_dre = self.dre_ciencia_correcao_usuario or log_aprovado_dre.usuario
         data_aprovado_dre = (
             self.dre_ciencia_correcao_data or log_aprovado_dre.criado_em
@@ -698,6 +693,13 @@ class ParametrizacaoFinanceira(TemChaveExterna, CriadoEm, TemAlteradoEm):
 
 class ParametrizacaoFinanceiraTabela(TemChaveExterna, CriadoEm, TemAlteradoEm):
     nome = models.CharField()
+    periodo_escolar = models.ForeignKey(
+        "escola.PeriodoEscolar",
+        on_delete=models.PROTECT,
+        related_name="parametrizacao_financeira_tabela_periodo_escolar",
+        null=True,
+        blank=True,
+    )
     parametrizacao_financeira = models.ForeignKey(
         ParametrizacaoFinanceira, on_delete=models.CASCADE, related_name="tabelas"
     )
@@ -708,43 +710,52 @@ class ParametrizacaoFinanceiraTabela(TemChaveExterna, CriadoEm, TemAlteradoEm):
     class Meta:
         verbose_name = "Parametrização Financeira Tabela"
         verbose_name_plural = "Parametrizações Financeiras Tabelas"
-        unique_together = ("nome", "parametrizacao_financeira")
+        unique_together = ("nome", "parametrizacao_financeira", "periodo_escolar")
+
+
+class TipoValorParametrizacaoFinanceira(Nomeavel, TemChaveExterna):
+    def __str__(self):
+        return self.nome
 
 
 class ParametrizacaoFinanceiraTabelaValor(TemChaveExterna, CriadoEm, TemAlteradoEm):
-
     tabela = models.ForeignKey(
         ParametrizacaoFinanceiraTabela, on_delete=models.CASCADE, related_name="valores"
     )
+    nome_campo = models.CharField(max_length=255, null=True, blank=True)
     faixa_etaria = models.ForeignKey(
         "escola.FaixaEtaria",
         on_delete=models.PROTECT,
-        related_name="parametrizacoes_valores",
+        related_name="parametrizacao_valor_faixa_etaria",
         null=True,
         blank=True,
     )
     tipo_alimentacao = models.ForeignKey(
         "cardapio.TipoAlimentacao",
         on_delete=models.PROTECT,
-        related_name="parametrizacoes_valores",
+        related_name="parametrizacao_valor_tipo_alimentacao",
         null=True,
         blank=True,
     )
-    grupo = models.CharField(null=True, blank=True)
-    valor_colunas = models.JSONField()
+    tipo_valor = models.ForeignKey(
+        TipoValorParametrizacaoFinanceira,
+        on_delete=models.PROTECT,
+        related_name="parametrizacao_tipo_valor",
+    )
+    valor = models.CharField(max_length=10, default="0")
 
     def __str__(self):
         descricao = (
-            f"{self.tipo_alimentacao} {self.grupo}"
+            f"{self.tipo_alimentacao} - {self.nome_campo}"
             if self.faixa_etaria is None
-            else f"{self.faixa_etaria}"
+            else f"{self.faixa_etaria} - {self.nome_campo}"
         )
         return f"Tabela {self.tabela} | {descricao}"
 
     class Meta:
         verbose_name = "Parametrização Financeira Tabela Valor"
         verbose_name_plural = "Parametrizações Financeiras Tabelas Valores"
-        unique_together = ("tabela", "tipo_alimentacao", "grupo")
+        unique_together = ("tabela", "nome_campo", "tipo_valor")
 
 
 class RelatorioFinanceiro(

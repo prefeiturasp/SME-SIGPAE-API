@@ -1,0 +1,9 @@
+- model: medicao_inicial.tipovalorparametrizacaofinanceira
+  fields:
+    nome: REAJUSTE
+- model: medicao_inicial.tipovalorparametrizacaofinanceira
+  fields:
+    nome: UNITARIO
+- model: medicao_inicial.tipovalorparametrizacaofinanceira
+  fields:
+    nome: ACRESCIMO
