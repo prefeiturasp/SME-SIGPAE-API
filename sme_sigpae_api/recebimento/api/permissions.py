@@ -1,6 +1,10 @@
 from rest_framework.permissions import BasePermission
 
-from sme_sigpae_api.dados_comuns.constants import DILOG_QUALIDADE
+from sme_sigpae_api.dados_comuns.constants import (
+    COORDENADOR_CODAE_DILOG_LOGISTICA,
+    DILOG_CRONOGRAMA,
+    DILOG_QUALIDADE,
+)
 
 
 class PermissaoParaVisualizarQuestoesConferencia(BasePermission):
@@ -28,7 +32,11 @@ class PermissaoParaCadastrarFichaRecebimento(BasePermission):
 
 
 class PermissaoParaVisualizarFichaRecebimento(BasePermission):
-    PERFIS_PERMITIDOS = [DILOG_QUALIDADE]
+    PERFIS_PERMITIDOS = [
+        DILOG_QUALIDADE,
+        COORDENADOR_CODAE_DILOG_LOGISTICA,
+        DILOG_CRONOGRAMA,
+    ]
 
     def has_permission(self, request, view):
         usuario = request.user

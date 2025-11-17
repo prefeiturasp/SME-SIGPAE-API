@@ -1,5 +1,4 @@
 import datetime
-import random
 
 import pytest
 from freezegun import freeze_time
@@ -147,7 +146,7 @@ def test_kit_lanche_unificado_serializer_validators_lista_nao_igual(
     escola = baker.make("Escola")
     escola_quantidades = []
     for _ in range(3):
-        kits = baker.make("KitLanche", _quantity=random.randint(1, 3))
+        kits = baker.make("KitLanche", _quantity=2)
         eq = baker.make("EscolaQuantidade", quantidade_alunos=quantidade_alunos_pedido)
         escola_quantidades.append(
             dict(quantidade_alunos=eq.quantidade_alunos, kits=kits, escola=escola)

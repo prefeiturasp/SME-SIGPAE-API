@@ -317,27 +317,56 @@ class ClausulaDeDescontoSerializer(serializers.ModelSerializer):
 
 class ParametrizacaoFinanceiraTabelaValorSerializer(serializers.ModelSerializer):
     faixa_etaria = FaixaEtariaSerializer()
+    tipo_valor = serializers.CharField(source="tipo_valor.nome")
     tipo_alimentacao = TipoAlimentacaoSerializer()
 
     class Meta:
         model = ParametrizacaoFinanceiraTabelaValor
-        fields = ["faixa_etaria", "tipo_alimentacao", "grupo", "valor_colunas"]
+        fields = ["faixa_etaria", "nome_campo", "tipo_valor", "valor", "tipo_alimentacao"]
 
 
 class ParametrizacaoFinanceiraTabelaSerializer(serializers.ModelSerializer):
-    valores = ParametrizacaoFinanceiraTabelaValorSerializer(many=True)
+    valores = ParametrizacaoFinanceiraTabelaValorSerializer(many=True, read_only=True)
+    periodo_escolar = serializers.CharField(source="periodo_escolar.nome")
 
     class Meta:
         model = ParametrizacaoFinanceiraTabela
-        fields = ["nome", "valores"]
+        fields = ["nome", "periodo_escolar", "valores"]
+
+
+class DadosParametrizacaoFinanceiraSerializer(serializers.ModelSerializer):
+    edital = EditalSimplesSerializer()
+    lote = LoteSimplesSerializer()
+    grupo_unidade_escolar = GrupoUnidadeEscolarSerializer()
+    tabelas = ParametrizacaoFinanceiraTabelaSerializer(many=True, read_only=True)
+    data_inicial = serializers.SerializerMethodField()
+    data_final = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ParametrizacaoFinanceira
+        fields = [
+            "uuid",
+            "edital",
+            "lote",
+            "grupo_unidade_escolar",
+            "data_inicial",
+            "data_final",
+            "legenda",
+            "tabelas",
+        ]
+
+    def get_data_inicial(self, obj):
+        return obj.data_inicial.strftime("%d/%m/%Y") if obj.data_inicial else None
+
+    def get_data_final(self, obj):
+        return obj.data_final.strftime("%d/%m/%Y") if obj.data_final else None
 
 
 class ParametrizacaoFinanceiraSerializer(serializers.ModelSerializer):
     edital = EditalSimplesSerializer()
     dre = serializers.CharField(source="lote.diretoria_regional.nome")
     lote = LoteSimplesSerializer()
-    tipos_unidades = TipoUnidadeEscolarSimplesSerializer(many=True)
-    tabelas = ParametrizacaoFinanceiraTabelaSerializer(many=True)
+    grupo_unidade_escolar = GrupoUnidadeEscolarSerializer()
 
     class Meta:
         model = ParametrizacaoFinanceira

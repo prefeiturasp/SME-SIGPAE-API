@@ -3647,23 +3647,6 @@ def atualizar_anexos_ocorrencia(anexos, solicitacao_medicao_inicial):
             solicitacao_medicao_inicial.ocorrencia.save()
 
 
-def atualizar_status_ocorrencia(
-    status_ocorrencia,
-    status_correcao_solicitada_codae,
-    solicitacao_medicao_inicial,
-    request,
-    justificativa,
-):
-    if status_ocorrencia == status_correcao_solicitada_codae:
-        solicitacao_medicao_inicial.ocorrencia.ue_corrige_ocorrencia_para_codae(
-            user=request.user, justificativa=justificativa
-        )
-    else:
-        solicitacao_medicao_inicial.ocorrencia.ue_corrige(
-            user=request.user, justificativa=justificativa
-        )
-
-
 def dict_informacoes_iniciais(user, acao):
     return {
         "usuario": {

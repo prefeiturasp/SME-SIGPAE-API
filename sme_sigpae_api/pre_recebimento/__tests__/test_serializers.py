@@ -18,6 +18,7 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serialize
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     CronogramaFichaDeRecebimentoSerializer,
     EtapasDoCronogramaCalendarioSerializer,
+    EtapasDoCronogramaFichaDeRecebimentoSerializer,
     EtapasDoCronogramaSerializer,
     PainelCronogramaSerializer,
 )
@@ -238,3 +239,60 @@ def test_cronograma_ficha_recebimento_serializer_embalagens_sem_ficha_tecnica():
 
     assert serializer.data["embalagem_primaria"] is None
     assert serializer.data["embalagem_secundaria"] is None
+
+
+def test_etapas_cronograma_ficha_recebimento_serializer(etapa_com_fichas_recebimento):
+    etapa = etapa_com_fichas_recebimento
+    serializer = EtapasDoCronogramaFichaDeRecebimentoSerializer(etapa)
+    data = serializer.data
+
+    assert data["uuid"] == str(etapa.uuid)
+    assert data["numero_empenho"] == "EMP001"
+    assert data["etapa"] == "Etapa 1"
+    assert data["parte"] == "Parte 2"
+    assert data["data_programada"] == etapa.data_programada.strftime("%d/%m/%Y")
+
+    assert "500" in data["qtd_total_empenho"]
+    assert "ut" in data["qtd_total_empenho"]
+    assert "300" in data["quantidade"]
+    assert "ut" in data["quantidade"]
+    assert "10" in data["total_embalagens"]
+    assert "CX" in data["total_embalagens"]
+
+    assert data["houve_ocorrencia"] is True
+    assert data["houve_reposicao"] is True
+
+    fichas = data["fichas_recebimento"]
+    assert len(fichas) == 3
+
+    for ficha in fichas:
+        assert "uuid" in ficha
+        assert "houve_ocorrencia" in ficha
+        assert "houve_reposicao" in ficha
+        assert "situacao" in ficha
+        assert ficha["situacao"] in ["Ocorrência", "Recebido"]
+
+    fichas_com_ocorrencia = [f for f in fichas if f["houve_ocorrencia"]]
+    assert len(fichas_com_ocorrencia) == 1
+    assert fichas_com_ocorrencia[0]["situacao"] == "Ocorrência"
+
+    fichas_sem_ocorrencia = [f for f in fichas if not f["houve_ocorrencia"]]
+    assert len(fichas_sem_ocorrencia) == 2
+    for ficha in fichas_sem_ocorrencia:
+        assert ficha["situacao"] == "Recebido"
+
+
+def test_etapas_cronograma_ficha_recebimento_serializer_sem_fichas(
+    etapa_sem_fichas_recebimento,
+):
+    etapa = etapa_sem_fichas_recebimento
+    serializer = EtapasDoCronogramaFichaDeRecebimentoSerializer(etapa)
+    data = serializer.data
+
+    assert data["etapa"] is None
+    assert data["parte"] is None
+
+    assert data["desvinculada_recebimento"] is True
+    assert data["houve_ocorrencia"] is False
+    assert data["houve_reposicao"] is False
+    assert data["fichas_recebimento"] == []

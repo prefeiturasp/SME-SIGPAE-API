@@ -160,34 +160,35 @@ class ClausulaDeDescontoAdmin(admin.ModelAdmin):
 @admin.register(ParametrizacaoFinanceira)
 class ParametrizacaoFinanceiraAdmin(admin.ModelAdmin):
     list_display = ("edital", "lote", "get_tipos_unidades")
-    search_fields = ("edital__numero", "lote__nome", "tipos_unidades__iniciais")
-    list_filter = ("edital__numero", "lote__nome", "tipos_unidades__iniciais")
+    search_fields = ("edital__numero", "lote__nome", "grupo_unidade_escolar__tipos_unidades__iniciais")
+    list_filter = ("edital__numero", "lote__nome", "grupo_unidade_escolar__tipos_unidades__iniciais")
 
     @admin.display(description="Tipo Unidade")
     def get_tipos_unidades(self, obj):
         return ", ".join(
-            [tipo_unidade.iniciais for tipo_unidade in obj.tipos_unidades.all()]
+            [tipo_unidade.iniciais for tipo_unidade in obj.grupo_unidade_escolar.tipos_unidades.all()]
         )
 
 
 @admin.register(ParametrizacaoFinanceiraTabela)
 class ParametrizacaoFinanceiraTabelaAdmin(admin.ModelAdmin):
-    list_display = ("nome", "parametrizacao_financeira")
-    search_fields = ("nome",)
-    list_filter = ("nome",)
+    list_display = ("nome", "periodo_escolar", "parametrizacao_financeira")
+    search_fields = ("nome", "periodo_escolar")
+    list_filter = ("nome", "periodo_escolar")
 
 
 @admin.register(ParametrizacaoFinanceiraTabelaValor)
 class ParametrizacaoFinanceiraTabelaValorAdmin(admin.ModelAdmin):
     list_display = (
         "tabela",
+        "nome_campo",
         "tipo_alimentacao",
-        "grupo",
         "faixa_etaria",
-        "valor_colunas",
+        "tipo_valor",
+        "valor",
     )
-    search_fields = ("tabela", "tipo_alimentacao__nome", "grupo")
-    list_filter = ("tabela", "tipo_alimentacao__nome", "grupo", "faixa_etaria")
+    search_fields = ("tabela", "tipo_alimentacao__nome", "tipo_valor")
+    list_filter = ("tabela", "tipo_alimentacao__nome", "tipo_valor", "faixa_etaria")
 
 
 @admin.register(RelatorioFinanceiro)

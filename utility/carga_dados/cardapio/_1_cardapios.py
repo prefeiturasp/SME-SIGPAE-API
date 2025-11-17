@@ -3,7 +3,6 @@ Antes de rodar isso vc deve ter rodado as escolas e as fixtures
 """
 
 import datetime
-import random
 
 from faker import Faker
 
@@ -20,12 +19,13 @@ edital = Edital.objects.first()
 
 
 def gera_muitos_cardapios(qtd=360):
-    tipos_alimentacao = TipoAlimentacao.objects.all()
+    tipos_alimentacao = list(TipoAlimentacao.objects.all())
     cont = 0
     alimentacoes_selecionadas = []
     for i in range(qtd):
-        for _ in range(5):
-            x = random.choice(tipos_alimentacao)
+        for j in range(5):
+            index = (i + j) % len(tipos_alimentacao)
+            x = tipos_alimentacao[index]
             alimentacoes_selecionadas.append(x)
 
         novodia = hoje + datetime.timedelta(days=i)

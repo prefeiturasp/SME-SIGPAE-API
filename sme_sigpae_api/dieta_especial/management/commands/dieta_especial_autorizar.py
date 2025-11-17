@@ -1,5 +1,3 @@
-from random import choice, sample
-
 from django.core.management.base import BaseCommand
 from faker import Faker
 
@@ -18,8 +16,8 @@ fake = Faker("pt-br")
 
 def autorizar_dieta(dieta_uuid):
     usuario = Usuario.objects.get(email="nutricodae@admin.com")
-    alergias_intolerancias = choice(AlergiaIntolerancia.objects.all())
-    classificacao = choice(ClassificacaoDieta.objects.all())
+    alergias_intolerancias = AlergiaIntolerancia.objects.first()
+    classificacao = ClassificacaoDieta.objects.first()
 
     dieta = SolicitacaoDietaEspecial.objects.get(uuid__startswith=dieta_uuid)
     dieta.ativo = True
@@ -34,9 +32,9 @@ def autorizar_dieta(dieta_uuid):
     dieta.save()
 
     # SubstituicaoAlimento
-    alimento = choice(Alimento.objects.all())
-    # Escolhe 3 alimentos substitutos (diferente do alimento escolhido acima).
-    alimentos_substitutos = sample(list(Alimento.objects.exclude(pk=alimento.pk)), 3)
+    alimento = Alimento.objects.first()
+    # Escolhe os 3 primeiros alimentos (diferentes do alimento escolhido acima).
+    alimentos_substitutos = Alimento.objects.exclude(pk=alimento.pk)[:3]
 
     substituicao_alimento = SubstituicaoAlimento.objects.create(
         solicitacao_dieta_especial=dieta,

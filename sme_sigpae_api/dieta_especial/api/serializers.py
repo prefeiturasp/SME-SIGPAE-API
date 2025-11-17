@@ -1,8 +1,11 @@
 from datetime import datetime
 
 import environ
+from django.db.models import Q
 from drf_base64.serializers import ModelSerializer
 from rest_framework import serializers, status
+
+from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 
 from ...dados_comuns.api.serializers import (
     ContatoSerializer,
@@ -52,8 +55,6 @@ from .validators import (
     atributos_string_nao_vazios,
     deve_ter_atributos,
 )
-from django.db.models import Q
-from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 
 
 class AlergiaIntoleranciaSerializer(serializers.ModelSerializer):
@@ -395,7 +396,7 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
     inativas = serializers.SerializerMethodField()
 
     def get_escola_context(self, obj):
-        if hasattr(obj, '_escola_contexto_id'):
+        if hasattr(obj, "_escola_contexto_id"):
             return obj._escola_contexto_id
         return None
 
@@ -409,12 +410,9 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
         ativas_qs = (
             SolicitacoesCODAE.get_autorizados_dieta_especial()
             | SolicitacoesCODAE.get_autorizadas_temporariamente_dieta_especial()
-        ).filter(
-            codigo_eol_aluno=codigo_eol,
-            escola_uuid=escola_uuid
-        )
+        ).filter(codigo_eol_aluno=codigo_eol, escola_uuid=escola_uuid)
 
-        count = ativas_qs.values('uuid').distinct().count()
+        count = ativas_qs.values("uuid").distinct().count()
 
         return count
 
@@ -431,8 +429,10 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
         inativas_qs = SolicitacoesCODAE.get_inativas_dieta_especial().filter(
             codigo_eol_aluno=codigo_eol
         )
-        inativas_temp_qs = SolicitacoesCODAE.get_inativas_temporariamente_dieta_especial().filter(
-            codigo_eol_aluno=codigo_eol
+        inativas_temp_qs = (
+            SolicitacoesCODAE.get_inativas_temporariamente_dieta_especial().filter(
+                codigo_eol_aluno=codigo_eol
+            )
         )
 
         cancelados_qs = cancelados_qs.filter(
@@ -449,14 +449,14 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
         )
 
         ids_inativas = set()
-        ids_inativas.update(cancelados_qs.values_list('uuid', flat=True))
-        ids_inativas.update(inativas_qs.values_list('uuid', flat=True))
-        ids_inativas.update(inativas_temp_qs.values_list('uuid', flat=True))
+        ids_inativas.update(cancelados_qs.values_list("uuid", flat=True))
+        ids_inativas.update(inativas_qs.values_list("uuid", flat=True))
+        ids_inativas.update(inativas_temp_qs.values_list("uuid", flat=True))
 
         return len(ids_inativas)
 
     def get_dre(self, obj):
-        if hasattr(obj, '_escola_dre'):
+        if hasattr(obj, "_escola_dre"):
             return obj._escola_dre
         escola_id = self.get_escola_context(obj)
         if escola_id:
@@ -472,7 +472,7 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
         return obj.dietas_especiais.first().rastro_escola.diretoria_regional.nome
 
     def get_escola(self, obj):
-        if hasattr(obj, '_escola_nome'):
+        if hasattr(obj, "_escola_nome"):
             return obj._escola_nome
         escola_uuid = self.get_escola_context(obj)
         if escola_uuid:
@@ -484,7 +484,7 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
         return obj.dietas_especiais.first().rastro_escola.nome
 
     def get_codigo_eol_escola(self, obj):
-        if hasattr(obj, '_escola_codigo_eol'):
+        if hasattr(obj, "_escola_codigo_eol"):
             return obj._escola_codigo_eol
         escola_uuid = self.get_escola_context(obj)
         if escola_uuid:
@@ -492,7 +492,9 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
             if dieta:
                 return dieta.rastro_escola.codigo_eol
         if obj.dietas_especiais.filter(ativo=True).exists():
-            return obj.dietas_especiais.filter(ativo=True).first().rastro_escola.codigo_eol
+            return (
+                obj.dietas_especiais.filter(ativo=True).first().rastro_escola.codigo_eol
+            )
         return obj.dietas_especiais.first().rastro_escola.codigo_eol
 
     def get_foto_aluno(self, obj):
@@ -750,6 +752,7 @@ class SolicitacaoDietaEspecialRelatorioTercSerializer(serializers.ModelSerialize
     nome_aluno = serializers.SerializerMethodField()
     nome_escola = serializers.SerializerMethodField()
     codigo_eol_escola = serializers.SerializerMethodField()
+    serie_aluno = serializers.CharField(source="aluno.serie")
     status_solicitacao = serializers.CharField(
         source="status", required=False, read_only=True
     )
@@ -813,6 +816,7 @@ class SolicitacaoDietaEspecialRelatorioTercSerializer(serializers.ModelSerialize
             "alergias_intolerancias",
             "tipo_gestao",
             "dre",
+            "serie_aluno",
         )
 
 

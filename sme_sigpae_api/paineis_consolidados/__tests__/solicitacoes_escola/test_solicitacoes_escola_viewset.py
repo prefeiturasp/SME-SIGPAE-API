@@ -1,5 +1,4 @@
 import datetime
-import random
 import types
 import uuid
 from collections import namedtuple
@@ -155,8 +154,8 @@ class TestEndpointsPainelGerencialAlimentacaoEscola:
 class TestEndpointsPainelGerencialDietaEspecialEscola:
     def setup_dieta_alterada_id(self, dieta_alterada_id):
         if dieta_alterada_id:
-            SolicitacaoDietaEspecialFactory.create(id=dieta_alterada_id)
-            self.solicitacao_dieta_especial.dieta_alterada_id = dieta_alterada_id
+            dieta_alterada = SolicitacaoDietaEspecialFactory.create()
+            self.solicitacao_dieta_especial.dieta_alterada_id = dieta_alterada.id
 
     def setup_em_vigencia(self, em_vigencia):
         if em_vigencia is True:
@@ -389,7 +388,7 @@ class TestEndpointsPainelGerencialDietaEspecialEscola:
             escola,
             status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
             status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
-            dieta_alterada_id=random.randint(1, 100000),
+            dieta_alterada_id=True,
             em_vigencia=True,
         )
 
@@ -410,7 +409,7 @@ class TestEndpointsPainelGerencialDietaEspecialEscola:
             escola,
             status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
             status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
-            dieta_alterada_id=random.randint(1, 100000),
+            dieta_alterada_id=True,
             em_vigencia=True,
         )
 
@@ -432,7 +431,7 @@ class TestEndpointsPainelGerencialDietaEspecialEscola:
             escola,
             status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
             status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
-            dieta_alterada_id=random.randint(1, 100000),
+            dieta_alterada_id=True,
             em_vigencia=False,
         )
 
@@ -453,7 +452,7 @@ class TestEndpointsPainelGerencialDietaEspecialEscola:
             escola,
             status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
             status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
-            dieta_alterada_id=random.randint(1, 100000),
+            dieta_alterada_id=True,
             em_vigencia=False,
         )
 

@@ -1,5 +1,5 @@
 import datetime
-
+from django.db.models import Sum
 from rest_framework import serializers
 
 from sme_sigpae_api.pre_recebimento.base.api.serializers.serializers import (
@@ -19,11 +19,26 @@ from .....dados_comuns.api.serializers import (
     LogSolicitacoesUsuarioSimplesSerializer,
 )
 
+from sme_sigpae_api.recebimento.models import DocumentoFichaDeRecebimento
+
+
+def calcular_saldo_laudo(documento_recebimento):
+
+    total_recebido = DocumentoFichaDeRecebimento.objects.filter(
+        documento_recebimento=documento_recebimento,
+        ficha_recebimento__status='ASSINADA'
+    ).aggregate(total=Sum('quantidade_recebida'))['total'] or 0
+
+    quantidade_laudo = documento_recebimento.quantidade_laudo or 0
+
+    return quantidade_laudo - total_recebido
+
 
 class DocRecebimentoFichaDeRecebimentoSerializer(serializers.ModelSerializer):
     datas_fabricacao = serializers.SerializerMethodField()
     datas_validade = serializers.SerializerMethodField()
     quantidade_recebida = serializers.SerializerMethodField()
+    saldo_laudo = serializers.SerializerMethodField()
 
     def get_datas_fabricacao(self, obj):
         try:
@@ -62,6 +77,9 @@ class DocRecebimentoFichaDeRecebimentoSerializer(serializers.ModelSerializer):
             except Exception as e:
                 return e
         return None
+
+    def get_saldo_laudo(self, obj):
+        return calcular_saldo_laudo(obj)
 
     class Meta:
         model = DocumentoDeRecebimento
@@ -228,12 +246,16 @@ class DocRecebimentoDetalharCodaeSerializer(DocRecebimentoDetalharSerializer):
     datas_fabricacao_e_prazos = DataDeFabricacaoEPrazoLookupSerializer(many=True)
     numero_sei = serializers.SerializerMethodField()
     fornecedor = serializers.SerializerMethodField()
+    saldo_laudo = serializers.SerializerMethodField()
 
     def get_numero_sei(self, obj):
         return obj.cronograma.contrato.processo if obj.cronograma.contrato else None
 
     def get_fornecedor(self, obj):
         return obj.cronograma.empresa.nome_fantasia if obj.cronograma.empresa else None
+
+    def get_saldo_laudo(self, obj):
+        return calcular_saldo_laudo(obj)
 
     class Meta(DocRecebimentoDetalharSerializer.Meta):
         fields = DocRecebimentoDetalharSerializer.Meta.fields + (

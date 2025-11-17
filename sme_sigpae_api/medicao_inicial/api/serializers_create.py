@@ -26,6 +26,7 @@ from sme_sigpae_api.escola.models import (
     Lote,
     PeriodoEscolar,
     TipoUnidadeEscolar,
+    GrupoUnidadeEscolar,
 )
 from sme_sigpae_api.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
@@ -44,6 +45,7 @@ from sme_sigpae_api.medicao_inicial.models import (
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
     ValorMedicao,
+    TipoValorParametrizacaoFinanceira,
 )
 from sme_sigpae_api.perfil.models import Usuario
 from sme_sigpae_api.terceirizada.models import Contrato, Edital
@@ -1393,24 +1395,26 @@ class ParametrizacaoFinanceiraTabelaValorWriteModelSerializer(
         allow_null=True,
         queryset=FaixaEtaria.objects.all(),
     )
+    tipo_valor = serializers.SlugRelatedField(
+        slug_field="nome",
+        queryset=TipoValorParametrizacaoFinanceira.objects.all()
+    )
 
     class Meta:
         model = ParametrizacaoFinanceiraTabelaValor
-        fields = ["faixa_etaria", "tipo_alimentacao", "grupo", "valor_colunas"]
-
-    def validate_valor_colunas(self, valor_colunas):
-        valores = list(valor_colunas.values())
-        if not (valores and all(valores)):
-            raise serializers.ValidationError("Todos os campos devem ser preenchidos")
-        return valor_colunas
+        fields = ["nome_campo", "faixa_etaria", "tipo_alimentacao", "tipo_valor", "valor"]
 
 
 class ParametrizacaoFinanceiraTabelaWriteModelSerializer(serializers.ModelSerializer):
+    periodo_escolar = serializers.SlugRelatedField(
+        slug_field="nome",
+        queryset=PeriodoEscolar.objects.all()
+    )
     valores = ParametrizacaoFinanceiraTabelaValorWriteModelSerializer(many=True)
 
     class Meta:
         model = ParametrizacaoFinanceiraTabela
-        fields = ["nome", "valores"]
+        fields = ["nome", "periodo_escolar", "valores"]
 
 
 class ParametrizacaoFinanceiraWriteModelSerializer(serializers.ModelSerializer):
@@ -1418,14 +1422,14 @@ class ParametrizacaoFinanceiraWriteModelSerializer(serializers.ModelSerializer):
         slug_field="uuid", queryset=Edital.objects.all()
     )
     lote = serializers.SlugRelatedField(slug_field="uuid", queryset=Lote.objects.all())
-    tipos_unidades = serializers.SlugRelatedField(
-        slug_field="uuid", queryset=TipoUnidadeEscolar.objects.all(), many=True
+    grupo_unidade_escolar = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=GrupoUnidadeEscolar.objects.all()
     )
     tabelas = ParametrizacaoFinanceiraTabelaWriteModelSerializer(many=True)
 
     class Meta:
         model = ParametrizacaoFinanceira
-        fields = ["edital", "lote", "tipos_unidades", "legenda", "tabelas"]
+        fields = ["edital", "lote", "grupo_unidade_escolar", "data_inicial", "data_final", "legenda", "tabelas"]
 
     def validate(self, attrs):
         if self.instance:
@@ -1434,7 +1438,7 @@ class ParametrizacaoFinanceiraWriteModelSerializer(serializers.ModelSerializer):
         if ParametrizacaoFinanceira.objects.filter(
             edital=attrs["edital"],
             lote=attrs["lote"],
-            tipos_unidades__in=attrs["tipos_unidades"],
+            grupo_unidade_escolar=attrs["grupo_unidade_escolar"],
         ).exists():
             raise ValidationError(
                 "Já existe uma parametrização financeira para este edital, lote e tipos de unidades"
@@ -1454,7 +1458,6 @@ class ParametrizacaoFinanceiraWriteModelSerializer(serializers.ModelSerializer):
                 **tabela,
                 parametrizacao_financeira=parametrizacao_financeira,
             )
-
             ParametrizacaoFinanceiraTabelaValor.objects.bulk_create(
                 [
                     ParametrizacaoFinanceiraTabelaValor(**valor, tabela=_tabela)
@@ -1473,7 +1476,7 @@ class ParametrizacaoFinanceiraWriteModelSerializer(serializers.ModelSerializer):
             valores = tabela.pop("valores")
 
             _tabela, created = ParametrizacaoFinanceiraTabela.objects.get_or_create(
-                **tabela, parametrizacao_financeira=instance
+                **tabela, parametrizacao_financeira=instance,
             )
 
             for valor in valores:
@@ -1488,9 +1491,10 @@ class ParametrizacaoFinanceiraWriteModelSerializer(serializers.ModelSerializer):
 
                 ParametrizacaoFinanceiraTabelaValor.objects.update_or_create(
                     tabela=_tabela,
-                    grupo=valor.get("grupo"),
+                    nome_campo=valor.get("nome_campo"),
                     tipo_alimentacao_id=tipo_alimentacao_id,
                     faixa_etaria_id=faixa_etaria_id,
+                    tipo_valor=valor.get("tipo_valor"),
                     defaults=valor,
                 )
 

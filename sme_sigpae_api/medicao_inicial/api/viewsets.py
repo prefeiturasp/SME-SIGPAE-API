@@ -6,6 +6,7 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.db.models import F, IntegerField, Q, QuerySet
 from django.db.models.functions import Cast
+from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from rest_framework import mixins, status
 from rest_framework.decorators import action
@@ -82,7 +83,6 @@ from ..tasks import (
 )
 from ..utils import (
     atualizar_anexos_ocorrencia,
-    atualizar_status_ocorrencia,
     criar_log_aprovar_periodos_corrigidos,
     criar_log_solicitar_correcao_periodos,
     get_campos_a_desconsiderar,
@@ -111,6 +111,7 @@ from .serializers import (
     AlimentacaoLancamentoEspecialSerializer,
     CategoriaMedicaoSerializer,
     ClausulaDeDescontoSerializer,
+    DadosParametrizacaoFinanceiraSerializer,
     DiaParaCorrigirSerializer,
     DiaSobremesaDoceSerializer,
     EmpenhoSerializer,
@@ -837,11 +838,15 @@ class SolicitacaoMedicaoInicialViewSet(
         solicitacao_medicao_inicial = self.get_object()
         try:
             medicoes = solicitacao_medicao_inicial.medicoes.all()
-            status_medicao_aprovada = "MEDICAO_APROVADA_PELA_DRE"
-            if medicoes.exclude(status=status_medicao_aprovada).exists() or (
+            if medicoes.exclude(
+                status=OcorrenciaMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_DRE
+            ).exists() or (
                 solicitacao_medicao_inicial.tem_ocorrencia
                 and solicitacao_medicao_inicial.ocorrencia.status
-                != status_medicao_aprovada
+                not in [
+                    OcorrenciaMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_DRE,
+                    OcorrenciaMedicaoInicial.workflow_class.OCORRENCIA_EXCLUIDA_PELA_ESCOLA,
+                ]
             ):
                 mensagem = "Erro: existe(m) pendência(s) de análise"
                 return Response(
@@ -910,11 +915,15 @@ class SolicitacaoMedicaoInicialViewSet(
         solicitacao_medicao_inicial = self.get_object()
         try:
             medicoes = solicitacao_medicao_inicial.medicoes.all()
-            status_medicao_aprovada = "MEDICAO_APROVADA_PELA_CODAE"
-            if medicoes.exclude(status=status_medicao_aprovada).exists() or (
+            if medicoes.exclude(
+                status=OcorrenciaMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_CODAE
+            ).exists() or (
                 solicitacao_medicao_inicial.tem_ocorrencia
                 and solicitacao_medicao_inicial.ocorrencia.status
-                != status_medicao_aprovada
+                not in [
+                    OcorrenciaMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_CODAE,
+                    OcorrenciaMedicaoInicial.workflow_class.OCORRENCIA_EXCLUIDA_PELA_ESCOLA,
+                ]
             ):
                 mensagem = "Erro: existe(m) pendência(s) de análise"
                 return Response(
@@ -1073,12 +1082,8 @@ class SolicitacaoMedicaoInicialViewSet(
                     )
             else:
                 solicitacao_medicao_inicial.com_ocorrencias = False
-                atualizar_status_ocorrencia(
-                    status_ocorrencia,
-                    status_correcao_solicitada_codae,
-                    solicitacao_medicao_inicial,
-                    request,
-                    justificativa,
+                solicitacao_medicao_inicial.ocorrencia.escola_exclui_ocorrencia(
+                    user=request.user, justificativa=justificativa
                 )
             solicitacao_medicao_inicial.save()
             serializer = self.get_serializer(solicitacao_medicao_inicial)
@@ -1429,7 +1434,9 @@ class MedicaoViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="escola-corrige-medicao",
-        permission_classes=[UsuarioDiretorEscolaTercTotal],
+        permission_classes=[
+            UsuarioDiretorEscolaTercTotal | UsuarioEscolaTercTotalSemAlunosRegulares
+        ],
     )
     def escola_corrige_medicao(self, request, uuid=None):
         medicao = self.get_object()
@@ -1987,6 +1994,19 @@ class ParametrizacaoFinanceiraViewSet(ModelViewSet):
         if self.action in ["create", "update", "partial_update"]:
             return ParametrizacaoFinanceiraWriteModelSerializer
         return ParametrizacaoFinanceiraSerializer
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="dados-parametrizacao-financeira/(?P<uuid_parametrizacao_financeira>[^/.]+)",
+        permission_classes=[UsuarioMedicao],
+    )
+    def dados_parametrizacao(self, request, uuid_parametrizacao_financeira):
+        parametrizacao = get_object_or_404(
+            ParametrizacaoFinanceira, uuid=uuid_parametrizacao_financeira
+        )
+        serializer = DadosParametrizacaoFinanceiraSerializer(parametrizacao)
+        return Response(serializer.data)
 
 
 class RelatorioFinanceiroViewSet(ModelViewSet):

@@ -165,12 +165,12 @@ def produtos():
 def substituicoes(alimentos, produtos):
     substituicoes = []
     ids_produtos = [p.uuid for p in produtos]
-    for _ in range(randint(3, 5)):
+    for i in range(4):
         substituicoes.append(
             {
-                "alimento": alimentos[randint(0, len(alimentos) - 1)].id,
-                "tipo": "I" if randint(0, 1) == 1 else "S",
-                "substitutos": sample(ids_produtos, randint(1, 4)),
+                "alimento": alimentos[i % len(alimentos)].id,
+                "tipo": "I" if i % 2 == 0 else "S",
+                "substitutos": ids_produtos[: min(3, len(ids_produtos))],
             }
         )
     return substituicoes
@@ -219,7 +219,7 @@ def solicitacao_dieta_especial_a_autorizar(
     )
     client.login(username=email, password=password)
 
-    baker.make(AlergiaIntolerancia, id=random.randint(1, 100000))
+    baker.make("AlergiaIntolerancia", descricao="Alergia teste fixture")
     perfil_professor = baker.make("perfil.Perfil", nome="ADMINISTRADOR_UE", ativo=False)
     baker.make(
         "perfil.Vinculo",
@@ -595,9 +595,7 @@ def client_autenticado_vinculo_terceirizada_dieta(
         data_inicial=hoje,
         ativo=True,
     )
-    classificacao = baker.make(
-        "ClassificacaoDieta", id=random.randint(1, 100000), nome="Tipo A"
-    )
+    classificacao = baker.make("ClassificacaoDieta", nome="Tipo A")
     protocolo_padrao = baker.make(
         "ProtocoloPadraoDietaEspecial",
         nome_protocolo="ALERGIA - OVO",
@@ -941,10 +939,9 @@ def client_autenticado_protocolo_dieta(client, django_user_model, escola, codae)
     baker.make("Edital", uuid="b7b6a0a7-b230-4783-94b6-8d3d22041ab3")
     baker.make("Edital", uuid="60f5a64e-8652-422d-a6e9-0a36717829c9")
     baker.make("Edital", uuid="4f7287e5-da63-4b23-8bbc-48cc6722c91e")
-    baker.make("dieta_especial.Alimento", id=random.randint(1, 100000))
+    baker.make("dieta_especial.Alimento", uuid="467b6e67-7501-4d6e-8fac-ce219df3ea52")
     baker.make(
         "dieta_especial.Alimento",
-        id=random.randint(1, 100000),
         uuid="e67b6e67-7501-4d6e-8fac-ce219df3ed2b",
         tipo_listagem_protocolo="AMBOS",
     )

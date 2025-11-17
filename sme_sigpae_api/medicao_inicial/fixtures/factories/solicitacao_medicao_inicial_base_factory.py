@@ -1,5 +1,3 @@
-from random import randint
-
 import factory
 from factory import Sequence, SubFactory
 from factory.django import DjangoModelFactory
@@ -27,8 +25,8 @@ fake = Faker("pt_BR")
 
 
 class SolicitacaoMedicaoInicialFactory(DjangoModelFactory):
-    mes = "%02d" % randint(1, 12)
-    ano = str(randint(2023, 2024))
+    mes = factory.Iterator([f"{i:02d}" for i in range(1, 13)])
+    ano = factory.Iterator(["2023", "2024"])
     escola = SubFactory(EscolaFactory)
 
     @factory.post_generation
@@ -51,7 +49,7 @@ class MedicaoFactory(DjangoModelFactory):
 
 
 class ValorMedicaoFactory(DjangoModelFactory):
-    valor = str(randint(1, 100))
+    valor = factory.Faker("random_int", min=1, max=100)
     nome_campo = Sequence(lambda n: f"{fake.word()}")
     medicao = SubFactory(MedicaoFactory)
     categoria_medicao = SubFactory(CategoriaMedicaoFactory)
