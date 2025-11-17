@@ -1,0 +1,12 @@
+{% extends 'email_base.html' %}
+{% load email_templatetags %}
+
+{% block conteudo%}
+  <p>Olá!</p>
+
+  <p>A avaliação do Núcleo de Cronogramas da solicitação de alteração do Fornecedor <strong>{{ nome_empresa }}</strong> Cronograma <strong>Nº {{ numero_cronograma }}</strong> foi realizada em {{ data_envio }}.</p>
+
+  <br/><br/>
+
+  <p><a href="{{ url_detalhar_solicitacao_alteracao_cronograma_entrega }}">Clique para acessar os detalhes da <strong>Avaliação da Alteração</strong></a></p>
+{% endblock %}
