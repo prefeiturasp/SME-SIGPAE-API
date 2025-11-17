@@ -4940,7 +4940,11 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
             )
 
             numero_cronograma = self.cronograma.numero
-            data_envio = self.log_mais_recente.criado_em.strftime("%d/%m/%Y")
+            data_envio = (
+                self.log_mais_recente.criado_em.strftime("%d/%m/%Y")
+                if self.log_mais_recente
+                else "(Não há data de envio)"
+            )
             url_detalhar_solicitacao_alteracao_cronograma_entrega = (
                 f"/pre-recebimento/detalhe-alteracao-cronograma?uuid={self.uuid}"
             )
