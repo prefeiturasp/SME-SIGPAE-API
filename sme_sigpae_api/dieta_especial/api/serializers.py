@@ -901,28 +901,48 @@ class SolicitacaoDietaEspecialRecreioNasFeriasSerializer(serializers.ModelSerial
     def to_representation(self, instance):
         data = super().to_representation(instance)
 
-        if "aluno" in data:
-            aluno_data = data["aluno"]
-            aluno_data.pop("data_nascimento", None)
-            aluno_data.pop("escola", None)
+        self._processar_aluno(data, instance)
+        self._processar_escola(data, instance)
+        self._processar_escola_destino(data)
+        self._preencher_datas(data, instance)
 
-        if "escola" in data:
-            escola_data = data["escola"]
-            escola_data.pop("codigo_eol", None)
-            escola_data.pop("lote", None)
+        return data
 
-        if "escola_destino" in data:
-            escola_destino_data = data["escola_destino"]
-            escola_destino_data.pop("codigo_eol", None)
-            escola_destino_data.pop("lote", None)
+    def _processar_aluno(self, data, instance):
+        aluno = data.get("aluno")
+        if not aluno:
+            return
 
+        if instance.tipo_solicitacao == instance.ALUNO_NAO_MATRICULADO:
+            aluno["codigo_eol"] = "Aluno não matriculado"
+
+        aluno.pop("data_nascimento", None)
+        aluno.pop("escola", None)
+
+    def _processar_escola(self, data, instance):
+        escola = data.get("escola")
+        if not escola:
+            return
+
+        if instance.tipo_solicitacao == instance.ALUNO_NAO_MATRICULADO:
+            data["escola"] = {"nome": "-", "codigo_eol": "-"}
+            return
+
+        escola.pop("codigo_eol", None)
+        escola.pop("lote", None)
+
+    def _processar_escola_destino(self, data):
+        escola_destino = data.get("escola_destino")
+        if escola_destino:
+            escola_destino.pop("codigo_eol", None)
+            escola_destino.pop("lote", None)
+
+    def _preencher_datas(self, data, instance):
         if data.get("data_inicio") is None and instance.periodo_recreio_inicio:
             data["data_inicio"] = instance.periodo_recreio_inicio.strftime("%d/%m/%Y")
 
         if data.get("data_termino") is None and instance.periodo_recreio_fim:
             data["data_termino"] = instance.periodo_recreio_fim.strftime("%d/%m/%Y")
-
-        return data
 
     class Meta:
         model = SolicitacaoDietaEspecial

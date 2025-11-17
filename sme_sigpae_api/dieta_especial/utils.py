@@ -1156,7 +1156,10 @@ def filtra_relatorio_recreio_nas_ferias(query_params: QueryDict) -> QuerySet:
 
     filtro_nao_matriculados = Q(
         status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
-        tipo_solicitacao="COMUM",
+        tipo_solicitacao__in=[
+            SolicitacaoDietaEspecial.COMUM,
+            SolicitacaoDietaEspecial.ALUNO_NAO_MATRICULADO,
+        ],
         dieta_para_recreio_ferias=True,
         **padrao,
         **nao_matriculado,
