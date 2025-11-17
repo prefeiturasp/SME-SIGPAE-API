@@ -4947,6 +4947,11 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
             perfis_interessados = [
                 constants.DILOG_ABASTECIMENTO,
             ]
+            nome_empresa = (
+                self.cronograma.empresa.nome_fantasia
+                if self.cronograma.empresa
+                else "(Não há fornecedor)"
+            )
 
             EmailENotificacaoService.enviar_email(
                 titulo=f"Solicitação de Alteração do Cronograma {numero_cronograma}",
@@ -4954,10 +4959,11 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 template="pre_recebimento_email_solicitacao_cronograma_ciente.html",
                 contexto_template={
                     "numero_cronograma": numero_cronograma,
-                    "nome_empresa": self.cronograma.empresa.nome_fantasia,
+                    "nome_empresa": nome_empresa,
                     "data_envio": data_envio,
-                    "url_detalhar_solicitacao_alteracao_cronograma_entrega": base_url
-                    + url_detalhar_solicitacao_alteracao_cronograma_entrega,
+                    "url_detalhar_solicitacao_alteracao_cronograma_entrega": (
+                        base_url + url_detalhar_solicitacao_alteracao_cronograma_entrega
+                    ),
                 },
                 destinatarios=PartesInteressadasService.usuarios_por_perfis(
                     perfis_interessados, somente_email=True
