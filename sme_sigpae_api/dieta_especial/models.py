@@ -79,6 +79,11 @@ class SolicitacaoDietaEspecial(
     TemIdentificadorExternoAmigavel,
     Ativavel,
 ):
+    COMUM = "COMUM"
+    ALUNO_NAO_MATRICULADO = "ALUNO_NAO_MATRICULADO"
+    ALTERACAO_UE = "ALTERACAO_UE"
+    CANCELAMENTO_DIETA = "CANCELAMENTO_DIETA"
+
     DESCRICAO_SOLICITACAO = {
         "CODAE_A_AUTORIZAR": "Solicitação de Inclusão",
         "CODAE_NEGOU_PEDIDO": "Negada a Inclusão",
@@ -90,10 +95,10 @@ class SolicitacaoDietaEspecial(
     }
 
     TIPO_SOLICITACAO_CHOICES = [
-        ("COMUM", "Comum"),
-        ("ALUNO_NAO_MATRICULADO", "Aluno não matriculado"),
-        ("ALTERACAO_UE", "Alteração U.E"),
-        ("CANCELAMENTO_DIETA", "Cancelamento de dieta especial"),
+        (COMUM, "Comum"),
+        (ALUNO_NAO_MATRICULADO, "Aluno não matriculado"),
+        (ALTERACAO_UE, "Alteração U.E"),
+        (CANCELAMENTO_DIETA, "Cancelamento de dieta especial"),
     ]
 
     aluno = models.ForeignKey(
