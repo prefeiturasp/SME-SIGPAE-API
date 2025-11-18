@@ -50,6 +50,16 @@ class TestGeraPDFRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
                 "classificacao": "Tipo B",
                 "alergias_intolerancias": "-",
             },
+            {
+                "codigo_eol_aluno": "Aluno não matriculado",
+                "nome_aluno": "GOHAN MENESES",
+                "nome_escola": "-",
+                "escola_destino": "EMEF PERICLES",
+                "data_inicio": "01/08/2025",
+                "data_fim": "31/08/2025",
+                "classificacao": "Tipo A",
+                "alergias_intolerancias": "-",
+            },
         ]
 
         from sme_sigpae_api.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias import (

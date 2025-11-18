@@ -36,7 +36,7 @@ class TestGeraXlsxRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
             )
             assert (
                 sheet["A2"].value
-                == "Total de Dietas Autorizadas: 2 | Para as Unidades da DRE/LOTE: IP - LOTE 01 | Data de extração do relatório: 04/09/2025"
+                == "Total de Dietas Autorizadas: 3 | Para as Unidades da DRE/LOTE: IP - LOTE 01 | Data de extração do relatório: 04/09/2025"
             )
 
             assert sheet["A5"].value == 1
@@ -52,6 +52,13 @@ class TestGeraXlsxRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
             assert sheet["D6"].value == "EMEF PERICLES"
             assert sheet["E6"].value == "Tipo A"
             assert sheet["G6"].value == "DE 01/08/2025 ATÉ 31/08/2025"
+
+            assert sheet["A7"].value == 3
+            assert sheet["B7"].value == "Aluno não matriculado - GOHAN MENESES"
+            assert sheet["C7"].value == "-"
+            assert sheet["D7"].value == "EMEF PERICLES"
+            assert sheet["E7"].value == "Tipo A"
+            assert sheet["G7"].value == "DE 01/08/2025 ATÉ 31/08/2025"
 
     def test_gera_pdf_historico_dietas_especiais_periodo_param(
         self, client_autenticado_vinculo_codae_gestao_alimentacao_dieta

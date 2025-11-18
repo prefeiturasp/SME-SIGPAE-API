@@ -16,6 +16,9 @@ from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
 from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import (
     EmpresaFactory,
 )
+from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
+    tipo_alimentacao,
+)
 
 
 class BaseSetupRecreioNasFerias:
@@ -65,6 +68,13 @@ class BaseSetupRecreioNasFerias:
             escola=self.escola_emef,
             nome="JOÃO COSTA",
         )
+        self.aluno_3 = AlunoFactory.create(
+            codigo_eol=None,
+            periodo_escolar=None,
+            escola=None,
+            nome="GOHAN MENESES",
+            nao_matriculado=True,
+        )
 
     def criar_solicitacao_dieta(
         self,
@@ -74,6 +84,7 @@ class BaseSetupRecreioNasFerias:
         classificacao,
         data_inicio,
         data_termino,
+        tipo_solicitacao=SolicitacaoDietaEspecial.COMUM,
     ):
         SolicitacaoDietaEspecialFactory.create(
             aluno=aluno,
@@ -86,6 +97,7 @@ class BaseSetupRecreioNasFerias:
             dieta_para_recreio_ferias=True,
             data_inicio=data_inicio,
             data_termino=data_termino,
+            tipo_solicitacao=tipo_solicitacao,
         )
 
     def setup_solicitacoes_dieta(self):
@@ -106,9 +118,21 @@ class BaseSetupRecreioNasFerias:
             data_termino=datetime.date(2025, 9, 29),
         )
 
+    def setup_solicitacao_dieta_aluno_nao_matriculado(self):
+        self.criar_solicitacao_dieta(
+            aluno=self.aluno_3,
+            escola_destino=self.escola_emef,
+            rastro_escola=self.escola_emebs,
+            classificacao=self.classificacao_tipo_a,
+            data_inicio=datetime.date(2025, 8, 1),
+            data_termino=datetime.date(2025, 8, 31),
+            tipo_solicitacao=SolicitacaoDietaEspecial.ALUNO_NAO_MATRICULADO,
+        )
+
     def setup(self):
         self.setup_generico()
         self.setup_classificacao_dieta()
         self.setup_escolas()
         self.setup_alunos()
         self.setup_solicitacoes_dieta()
+        self.setup_solicitacao_dieta_aluno_nao_matriculado()
