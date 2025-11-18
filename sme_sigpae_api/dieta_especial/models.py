@@ -196,14 +196,6 @@ class SolicitacaoDietaEspecial(
         "Dieta para Recreio nas Férias", default=False
     )
 
-    periodo_recreio_inicio = models.DateField(
-        "Período do Recreio - De", null=True, blank=True
-    )
-
-    periodo_recreio_fim = models.DateField(
-        "Período do Recreio - Até", null=True, blank=True
-    )
-
     @classmethod
     def _get_quantidade_solicitacoes_que_ja_estiveram_nos_status(
         cls, solicitacoes: QuerySet, status: list
@@ -409,11 +401,11 @@ class SolicitacaoDietaEspecial(
     def clean(self):
         super().clean()
         if self.dieta_para_recreio_ferias:
-            if not self.periodo_recreio_inicio or not self.periodo_recreio_fim:
+            if not self.data_inicio or not self.data_termino:
                 raise ValidationError(
                     "Os campos de período são obrigatórios quando dieta para recreio nas férias está selecionada."
                 )
-            if self.periodo_recreio_fim < self.periodo_recreio_inicio:
+            if self.data_termino < self.data_inicio:
                 raise ValidationError(
                     "A data final não pode ser anterior à data inicial."
                 )

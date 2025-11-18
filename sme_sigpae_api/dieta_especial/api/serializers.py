@@ -885,7 +885,6 @@ class SolicitacaoDietaEspecialRecreioNasFeriasSerializer(serializers.ModelSerial
         self._processar_aluno(data, instance)
         self._processar_escola(data, instance)
         self._processar_escola_destino(data)
-        self._preencher_datas(data, instance)
 
         return data
 
@@ -917,13 +916,6 @@ class SolicitacaoDietaEspecialRecreioNasFeriasSerializer(serializers.ModelSerial
         if escola_destino:
             escola_destino.pop("codigo_eol", None)
             escola_destino.pop("lote", None)
-
-    def _preencher_datas(self, data, instance):
-        if data.get("data_inicio") is None and instance.periodo_recreio_inicio:
-            data["data_inicio"] = instance.periodo_recreio_inicio.strftime("%d/%m/%Y")
-
-        if data.get("data_termino") is None and instance.periodo_recreio_fim:
-            data["data_termino"] = instance.periodo_recreio_fim.strftime("%d/%m/%Y")
 
     class Meta:
         model = SolicitacaoDietaEspecial

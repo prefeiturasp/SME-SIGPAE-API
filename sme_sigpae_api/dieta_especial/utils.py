@@ -1142,7 +1142,6 @@ def filtra_relatorio_recreio_nas_ferias(query_params: QueryDict) -> QuerySet:
         QuerySet: Conjunto de solicitações filtradas e ordenadas por escola de destino.
     """
     filtros = gera_filtros_relatorio_recreio_nas_ferias(query_params)
-
     padrao = filtros.get("padrao", {})
     matriculado = filtros.get("matriculado", {})
     nao_matriculado = filtros.get("nao_matriculado", {})
@@ -1201,21 +1200,12 @@ def gera_filtros_relatorio_recreio_nas_ferias(query_params: QueryDict) -> dict:
     data_inicio = query_params.get("data_inicio")
     data_fim = query_params.get("data_fim")
 
-    if data_inicio and data_fim:
+    if data_inicio:
         data_ini = _parse_data(data_inicio, "data_inicio")
+        filtros["padrao"]["data_termino__gte"] = data_ini
+    if data_fim:
         data_fim = _parse_data(data_fim, "data_fim")
-        filtros["matriculado"]["data_inicio__gte"] = data_ini
-        filtros["matriculado"]["data_termino__gte"] = data_fim
-        filtros["nao_matriculado"]["periodo_recreio_inicio__gte"] = data_ini
-        filtros["nao_matriculado"]["periodo_recreio_fim__gte"] = data_fim
-    elif data_inicio:
-        data_ini = _parse_data(data_inicio, "data_inicio")
-        filtros["matriculado"]["data_inicio__gte"] = data_ini
-        filtros["nao_matriculado"]["periodo_recreio_inicio__gte"] = data_ini
-    elif data_fim:
-        data_fim = _parse_data(data_fim, "data_fim")
-        filtros["matriculado"]["data_termino__lte"] = data_fim
-        filtros["nao_matriculado"]["periodo_recreio_fim__lte"] = data_fim
+        filtros["padrao"]["data_inicio__lte"] = data_fim
 
     filtros["padrao"] = {
         key: value
