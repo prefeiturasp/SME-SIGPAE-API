@@ -86,8 +86,6 @@ class BaseSetupRecreioNasFerias:
             dieta_para_recreio_ferias=True,
             data_inicio=data_inicio,
             data_termino=data_termino,
-            periodo_recreio_inicio=data_inicio,
-            periodo_recreio_fim=data_termino,
         )
 
     def setup_solicitacoes_dieta(self):
