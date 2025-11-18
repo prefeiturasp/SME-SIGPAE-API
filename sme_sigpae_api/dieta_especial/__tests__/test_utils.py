@@ -853,16 +853,11 @@ def test_gera_filtros_relatorio_recreio_nas_ferias(
     assert padrao["escola_destino__uuid__in"] == escolas_destino
     assert padrao["classificacao__id__in"] == classificacoes
     assert padrao["alergias_intolerancias__id__in"] == alergias
+    assert padrao["data_termino__gte"] == datetime.date(2025, 4, 12)
+    assert padrao["data_inicio__lte"] == datetime.date(2025, 4, 26)
 
     assert "matriculado" in filtros
-    matriculado = filtros["matriculado"]
-    assert matriculado["data_inicio__gte"] == datetime.date(2025, 4, 12)
-    assert matriculado["data_termino__gte"] == datetime.date(2025, 4, 26)
-
     assert "nao_matriculado" in filtros
-    nao_matriculado = filtros["nao_matriculado"]
-    assert nao_matriculado["data_inicio__gte"] == datetime.date(2025, 4, 12)
-    assert nao_matriculado["data_termino__gte"] == datetime.date(2025, 4, 26)
 
 
 def test_filtra_relatorio_recreio_nas_ferias_sem_parametos(
@@ -922,4 +917,4 @@ def test_filtra_relatorio_recreio_nas_ferias_filtro_data(relatorio_recreio_nas_f
     query_params["data_fim"] = "15/05/2025"
     queryset = filtra_relatorio_recreio_nas_ferias(query_params)
     assert isinstance(queryset, QuerySet)
-    assert queryset.count() == 2
+    assert queryset.count() == 4
