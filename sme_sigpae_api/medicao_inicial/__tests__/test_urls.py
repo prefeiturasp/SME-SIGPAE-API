@@ -10,6 +10,7 @@ from sme_sigpae_api.medicao_inicial.models import (
     DiaSobremesaDoce,
     Empenho,
     Medicao,
+    TipoValorParametrizacaoFinanceira,
 )
 
 
@@ -1922,6 +1923,10 @@ def test_url_endpoint_parametrizacao_financeira(
     parametrizacao_financeira_emef,
     payload_create_parametrizacao_financeira_cei,
 ):
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="UNITARIO")
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="REAJUSTE")
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="ACRESCIMO")
+
     response = client_autenticado_codae_medicao.get(
         "/medicao-inicial/parametrizacao-financeira/", content_type="application/json"
     )
