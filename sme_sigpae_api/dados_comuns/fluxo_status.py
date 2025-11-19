@@ -3799,10 +3799,12 @@ class SolicitacaoMedicaoInicialWorkflow(xwf_models.Workflow):
         (
             "dre_pede_correcao",
             [
+                OCORRENCIA_EXCLUIDA_PELA_ESCOLA,
                 MEDICAO_CORRECAO_SOLICITADA,
                 MEDICAO_ENVIADA_PELA_UE,
                 MEDICAO_APROVADA_PELA_DRE,
                 MEDICAO_CORRIGIDA_PELA_UE,
+                MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
             ],
             MEDICAO_CORRECAO_SOLICITADA,
         ),
@@ -3812,7 +3814,7 @@ class SolicitacaoMedicaoInicialWorkflow(xwf_models.Workflow):
                 MEDICAO_CORRECAO_SOLICITADA_CODAE,
                 MEDICAO_APROVADA_PELA_CODAE,
                 MEDICAO_APROVADA_PELA_DRE,
-                MEDICAO_CORRIGIDA_PARA_CODAE,
+                MEDICAO_CORRIGIDA_PARA_CODAE,                
             ],
             MEDICAO_CORRECAO_SOLICITADA_CODAE,
         ),
@@ -3828,10 +3830,12 @@ class SolicitacaoMedicaoInicialWorkflow(xwf_models.Workflow):
         (
             "codae_pede_correcao_ocorrencia",
             [
+                OCORRENCIA_EXCLUIDA_PELA_ESCOLA,
                 MEDICAO_CORRECAO_SOLICITADA_CODAE,
                 MEDICAO_APROVADA_PELA_CODAE,
                 MEDICAO_APROVADA_PELA_DRE,
                 MEDICAO_CORRIGIDA_PARA_CODAE,
+                MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
             ],
             MEDICAO_CORRECAO_SOLICITADA_CODAE,
         ),

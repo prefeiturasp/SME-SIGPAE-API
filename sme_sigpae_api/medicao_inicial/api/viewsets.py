@@ -3,7 +3,8 @@ import datetime
 import json
 
 from dateutil.relativedelta import relativedelta
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.db import transaction
 from django.db.models import F, IntegerField, Q, QuerySet
 from django.db.models.functions import Cast
 from django.shortcuts import get_object_or_404
@@ -1664,6 +1665,59 @@ class OcorrenciaViewSet(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+    @action(
+        detail=False,
+        methods=["POST"],
+        url_path="gera-ocorrencia-para-correcao",
+        permission_classes = [           
+            UsuarioDiretoriaRegional
+            | UsuarioCODAEGestaoAlimentacao
+            | UsuarioCODAENutriManifestacao
+            | UsuarioCODAEGabinete
+            | UsuarioDinutreDiretoria
+            | UsuarioEmpresaTerceirizada
+            | UsuarioSupervisaoNutricao
+        ]
+    )
+    @transaction.atomic
+    def gera_ocorrencia_para_correcao(self, request):
+
+        try:
+            solicitacao_medicao_uuid = request.data.get("solicitacao_medicao_uuid")
+            solicitacao_medicao_inicial = SolicitacaoMedicaoInicial.objects.get(uuid=solicitacao_medicao_uuid)
+        except Exception as error:
+            return Response(data={"solicitacao_medicao_uuid": "Medição não encontrada"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            ocorrencia = solicitacao_medicao_inicial.ocorrencia
+        except ObjectDoesNotExist:
+            ocorrencia = None
+
+        if ocorrencia:
+            return Response(data={"medicao": "Já possui ocorrência associada"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Gera ocorrência
+        ocorrencia = OcorrenciaMedicaoInicial.objects.create(
+            solicitacao_medicao_inicial=solicitacao_medicao_inicial,
+        )
+
+        try:
+            usuario = request.user
+            tipo_usuario = usuario.tipo_usuario
+            justificativa = request.data.get("justificativa", None)
+
+            if tipo_usuario == "diretoriaregional":
+                ocorrencia.dre_pede_correcao(user=request.user, justificativa=justificativa)
+            else:
+                ocorrencia.codae_pede_correcao_ocorrencia(user=request.user, justificativa=justificativa)
+
+            serializer = self.get_serializer(ocorrencia)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except InvalidTransitionError as e:
+            return Response(
+                dict(detail=f"Erro de transição de estado: {e}"),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 class AlimentacaoLancamentoEspecialViewSet(mixins.ListModelMixin, GenericViewSet):
     queryset = AlimentacaoLancamentoEspecial.objects.filter(ativo=True)
