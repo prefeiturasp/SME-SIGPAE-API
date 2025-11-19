@@ -1,3 +1,6 @@
+from datetime import datetime
+from math import ceil
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import QuerySet
@@ -244,6 +247,179 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    def filtrar_etapas(self, serialized_data, request):
+        data_inicial = request.query_params.get("data_inicial")
+        data_final = request.query_params.get("data_final")
+        situacoes = request.query_params.getlist("situacao", [])
+
+        if not any([data_inicial, data_final, situacoes]) or len(situacoes) == 3:
+            return serialized_data
+
+        data_inicio_obj = self.parse_date(data_inicial) if data_inicial else None
+        data_fim_obj = self.parse_date(data_final) if data_final else None
+        tem_filtro_situacao = situacoes and len(situacoes) < 3
+
+        for i in range(len(serialized_data) - 1, -1, -1):
+            cronograma_data = serialized_data[i]
+            etapas = cronograma_data.get("etapas", [])
+
+            for j in range(len(etapas) - 1, -1, -1):
+                etapa_data = etapas[j]
+                deve_manter_etapa = self.aplicar_filtros_etapa(
+                    etapa_data,
+                    data_inicio_obj,
+                    data_fim_obj,
+                    situacoes,
+                    tem_filtro_situacao,
+                )
+
+                if not deve_manter_etapa:
+                    etapas.pop(j)
+
+            if not etapas:
+                serialized_data.pop(i)
+
+        return serialized_data
+
+    def parse_date(self, date_str):
+        try:
+            return datetime.strptime(date_str, "%d/%m/%Y").date()
+        except (ValueError, AttributeError):
+            return None
+
+    def aplicar_filtros_etapa(
+        self, etapa_data, data_inicio_obj, data_fim_obj, situacoes, tem_filtro_situacao
+    ):
+        if data_inicio_obj or data_fim_obj:
+            if not self._passa_filtro_data_etapa(
+                etapa_data, data_inicio_obj, data_fim_obj
+            ):
+                return False
+
+        if tem_filtro_situacao:
+            return self.passa_filtro_situacao(etapa_data, situacoes)
+
+        return True
+
+    def _passa_filtro_data_etapa(self, etapa_data, data_inicio_obj, data_fim_obj):
+        """Helper para verificar se etapa passa no filtro de data"""
+        data_programada = etapa_data.get("data_programada")
+        if not data_programada:
+            return False
+
+        try:
+            data_etapa = datetime.strptime(data_programada, "%d/%m/%Y").date()
+            if data_inicio_obj and data_etapa < data_inicio_obj:
+                return False
+            if data_fim_obj and data_etapa > data_fim_obj:
+                return False
+
+            return True
+        except (ValueError, AttributeError):
+            return False
+
+    def passa_filtro_situacao(self, etapa_data, situacoes):
+        if not situacoes or len(situacoes) == 3:
+            return True
+
+        fichas_recebimento = etapa_data.get("fichas_recebimento", [])
+
+        tem_fichas_com_ocorrencia = any(
+            f.get("houve_ocorrencia") is True for f in fichas_recebimento
+        )
+        tem_fichas_sem_ocorrencia = any(
+            f.get("houve_ocorrencia") in (None, False) for f in fichas_recebimento
+        )
+
+        incluir_etapa = False
+        fichas_finais = []
+
+        incluir_etapa, fichas_finais = self._processar_situacao_recebido(
+            situacoes,
+            tem_fichas_sem_ocorrencia,
+            fichas_recebimento,
+            incluir_etapa,
+            fichas_finais,
+        )
+
+        incluir_etapa, fichas_finais = self._processar_situacao_ocorrencia(
+            situacoes,
+            tem_fichas_com_ocorrencia,
+            tem_fichas_sem_ocorrencia,
+            fichas_recebimento,
+            incluir_etapa,
+            fichas_finais,
+        )
+
+        incluir_etapa, fichas_finais = self._processar_situacao_a_receber(
+            situacoes,
+            fichas_recebimento,
+            tem_fichas_com_ocorrencia,
+            tem_fichas_sem_ocorrencia,
+            incluir_etapa,
+            fichas_finais,
+        )
+
+        if incluir_etapa:
+            etapa_data["fichas_recebimento"] = fichas_finais
+
+        return incluir_etapa
+
+    def _processar_situacao_recebido(
+        self,
+        situacoes,
+        tem_fichas_sem_ocorrencia,
+        fichas_recebimento,
+        incluir_etapa,
+        fichas_finais,
+    ):
+        if "Recebido" in situacoes and tem_fichas_sem_ocorrencia:
+            incluir_etapa = True
+            fichas_finais = [
+                f
+                for f in fichas_recebimento
+                if f.get("houve_ocorrencia") in (None, False)
+            ]
+        return incluir_etapa, fichas_finais
+
+    def _processar_situacao_ocorrencia(
+        self,
+        situacoes,
+        tem_fichas_com_ocorrencia,
+        tem_fichas_sem_ocorrencia,
+        fichas_recebimento,
+        incluir_etapa,
+        fichas_finais,
+    ):
+        if "Ocorrência" in situacoes and tem_fichas_com_ocorrencia:
+            incluir_etapa = True
+            fichas_com_ocorrencia = [
+                f for f in fichas_recebimento if f.get("houve_ocorrencia") is True
+            ]
+            if "Recebido" in situacoes and tem_fichas_sem_ocorrencia:
+                fichas_finais = fichas_finais + fichas_com_ocorrencia
+            else:
+                fichas_finais = fichas_com_ocorrencia
+        return incluir_etapa, fichas_finais
+
+    def _processar_situacao_a_receber(
+        self,
+        situacoes,
+        fichas_recebimento,
+        tem_fichas_com_ocorrencia,
+        tem_fichas_sem_ocorrencia,
+        incluir_etapa,
+        fichas_finais,
+    ):
+        if "A Receber" in situacoes:
+            if not fichas_recebimento or (
+                tem_fichas_com_ocorrencia and not tem_fichas_sem_ocorrencia
+            ):
+                incluir_etapa = True
+                if "Ocorrência" not in situacoes:
+                    fichas_finais = []
+        return incluir_etapa, fichas_finais
+
     @action(
         detail=False,
         permission_classes=(PermissaoParaVisualizarRelatorioCronograma,),
@@ -257,15 +433,56 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
             .distinct()
         )
 
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = CronogramaRelatorioSerializer(page, many=True)
-            response = self.get_paginated_response(serializer.data)
-            response.data["totalizadores"] = totalizador_relatorio_cronograma(queryset)
-            return response
+        situacoes = request.query_params.getlist("situacao", [])
+        data_inicial = request.query_params.get("data_inicial")
+        data_final = request.query_params.get("data_final")
 
-        serializer = CronogramaRelatorioSerializer(queryset, many=True)
-        return Response(serializer.data)
+        tem_filtro_pos_serializacao = (
+            (bool(situacoes) and len(situacoes) < 3)
+            or bool(data_inicial)
+            or bool(data_final)
+        )
+
+        if tem_filtro_pos_serializacao:
+            serializer = CronogramaRelatorioSerializer(queryset, many=True)
+
+            dados_filtrados = self.filtrar_etapas(serializer.data, request)
+
+            page_size = self.pagination_class().page_size
+            page_number = int(request.query_params.get("page", 1))
+
+            start_index = (page_number - 1) * page_size
+            end_index = start_index + page_size
+            dados_paginados = dados_filtrados[start_index:end_index]
+
+            total_items = len(dados_filtrados)
+            total_pages = ceil(total_items / page_size) if page_size > 0 else 1
+            has_next = page_number < total_pages
+            has_previous = page_number > 1
+
+            response_data = {
+                "count": total_items,
+                "next": f"?page={page_number + 1}" if has_next else None,
+                "previous": f"?page={page_number - 1}" if has_previous else None,
+                "results": dados_paginados,
+                "totalizadores": totalizador_relatorio_cronograma(queryset),
+            }
+
+            return Response(response_data)
+
+        else:
+            page = self.paginate_queryset(queryset)
+
+            if page is not None:
+                serializer = CronogramaRelatorioSerializer(page, many=True)
+                response = self.get_paginated_response(serializer.data)
+                response.data["totalizadores"] = totalizador_relatorio_cronograma(
+                    queryset
+                )
+                return response
+            else:
+                serializer = CronogramaRelatorioSerializer(queryset, many=True)
+                return Response(serializer.data)
 
     @action(detail=False, url_path="opcoes-etapas")
     def etapas(self, _):
