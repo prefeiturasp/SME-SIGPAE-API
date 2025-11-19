@@ -79,6 +79,11 @@ class SolicitacaoDietaEspecial(
     TemIdentificadorExternoAmigavel,
     Ativavel,
 ):
+    COMUM = "COMUM"
+    ALUNO_NAO_MATRICULADO = "ALUNO_NAO_MATRICULADO"
+    ALTERACAO_UE = "ALTERACAO_UE"
+    CANCELAMENTO_DIETA = "CANCELAMENTO_DIETA"
+
     DESCRICAO_SOLICITACAO = {
         "CODAE_A_AUTORIZAR": "Solicitação de Inclusão",
         "CODAE_NEGOU_PEDIDO": "Negada a Inclusão",
@@ -90,10 +95,10 @@ class SolicitacaoDietaEspecial(
     }
 
     TIPO_SOLICITACAO_CHOICES = [
-        ("COMUM", "Comum"),
-        ("ALUNO_NAO_MATRICULADO", "Aluno não matriculado"),
-        ("ALTERACAO_UE", "Alteração U.E"),
-        ("CANCELAMENTO_DIETA", "Cancelamento de dieta especial"),
+        (COMUM, "Comum"),
+        (ALUNO_NAO_MATRICULADO, "Aluno não matriculado"),
+        (ALTERACAO_UE, "Alteração U.E"),
+        (CANCELAMENTO_DIETA, "Cancelamento de dieta especial"),
     ]
 
     aluno = models.ForeignKey(
@@ -189,14 +194,6 @@ class SolicitacaoDietaEspecial(
 
     dieta_para_recreio_ferias = models.BooleanField(
         "Dieta para Recreio nas Férias", default=False
-    )
-
-    periodo_recreio_inicio = models.DateField(
-        "Período do Recreio - De", null=True, blank=True
-    )
-
-    periodo_recreio_fim = models.DateField(
-        "Período do Recreio - Até", null=True, blank=True
     )
 
     @classmethod
@@ -404,11 +401,11 @@ class SolicitacaoDietaEspecial(
     def clean(self):
         super().clean()
         if self.dieta_para_recreio_ferias:
-            if not self.periodo_recreio_inicio or not self.periodo_recreio_fim:
+            if not self.data_inicio or not self.data_termino:
                 raise ValidationError(
                     "Os campos de período são obrigatórios quando dieta para recreio nas férias está selecionada."
                 )
-            if self.periodo_recreio_fim < self.periodo_recreio_inicio:
+            if self.data_termino < self.data_inicio:
                 raise ValidationError(
                     "A data final não pode ser anterior à data inicial."
                 )

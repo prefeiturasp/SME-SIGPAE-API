@@ -1974,8 +1974,8 @@ def relatorio_recreio_nas_ferias(
         aluno=baker.make("Aluno", nome=f"Carlos", codigo_eol="123456"),
         alergias_intolerancias=[alergia_a_chocolate],
         classificacao=classificacao_tipo_a,
-        periodo_recreio_inicio=datetime.date(2025, 5, 2),
-        periodo_recreio_fim=datetime.date(2025, 5, 9),
+        data_inicio=datetime.date(2025, 5, 2),
+        data_termino=datetime.date(2025, 5, 9),
     )
     baker.make(
         "SolicitacaoDietaEspecial",
@@ -1987,8 +1987,8 @@ def relatorio_recreio_nas_ferias(
         aluno=baker.make("Aluno", nome="Carla", codigo_eol="723457"),
         alergias_intolerancias=[alergia_ao_trigo],
         classificacao=classificacao_tipo_b,
-        periodo_recreio_inicio=datetime.date(2025, 5, 10),
-        periodo_recreio_fim=datetime.date(2025, 5, 20),
+        data_inicio=datetime.date(2025, 5, 10),
+        data_termino=datetime.date(2025, 5, 20),
     )
 
 

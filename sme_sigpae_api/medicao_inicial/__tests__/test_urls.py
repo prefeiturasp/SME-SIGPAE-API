@@ -5,12 +5,12 @@ import pytest
 from freezegun import freeze_time
 from rest_framework import status
 
-from sme_sigpae_api.dados_comuns.models import CentralDeDownload
 from sme_sigpae_api.medicao_inicial.models import (
     DiaParaCorrigir,
     DiaSobremesaDoce,
     Empenho,
     Medicao,
+    TipoValorParametrizacaoFinanceira,
 )
 
 
@@ -1917,11 +1917,16 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_sem_periodo_lancamento_ate(
     }
 
 
+@freeze_time("2025-09-30")
 def test_url_endpoint_parametrizacao_financeira(
     client_autenticado_codae_medicao,
     parametrizacao_financeira_emef,
     payload_create_parametrizacao_financeira_cei,
 ):
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="UNITARIO")
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="REAJUSTE")
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="ACRESCIMO")
+
     response = client_autenticado_codae_medicao.get(
         "/medicao-inicial/parametrizacao-financeira/", content_type="application/json"
     )
@@ -1934,13 +1939,13 @@ def test_url_endpoint_parametrizacao_financeira(
         data=payload_create_parametrizacao_financeira_cei,
     )
     assert response.status_code == status.HTTP_201_CREATED
-    
+
     response = client_autenticado_codae_medicao.get(
         "/medicao-inicial/parametrizacao-financeira/", content_type="application/json"
     )
     assert len(response.data["results"]) == 2
 
-    payload_create_parametrizacao_financeira_cei['legenda'] = "teste 123"
+    payload_create_parametrizacao_financeira_cei["legenda"] = "teste 123"
     response = client_autenticado_codae_medicao.patch(
         f"/medicao-inicial/parametrizacao-financeira/{parametrizacao_financeira_emef.uuid}/",
         content_type="application/json",
