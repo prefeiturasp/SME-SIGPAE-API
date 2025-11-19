@@ -339,6 +339,7 @@ class SolicitacaoDietaEspecialViewSet(
                     aluno__nao_matriculado=True,
                     escola_destino__codigo_eol=codigo_eol_escola,
                     aluno__nome=nome_aluno,
+                    tipo_solicitacao="ALUNO_NAO_MATRICULADO",
                 )
                 .exclude(
                     status=SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR
@@ -607,7 +608,6 @@ class SolicitacaoDietaEspecialViewSet(
                 if request.user.tipo_usuario == "escola":
                     solicitacao.dieta_alterada.ativo = True
                 else:
-                    solicitacao.dieta_alterada.ativo = False
                     solicitacao.dieta_alterada.cancelar_pedido(
                         user=request.user,
                         justificativa=solicitacao.logs.first().justificativa,
@@ -1666,12 +1666,19 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
 
     def calcular_totais(self, alunos_qs, **filtros):
         codigos_eol = alunos_qs.values_list("codigo_eol", flat=True).distinct()
+        nomes_alunos = alunos_qs.values_list("nome", flat=True).distinct()
 
-        ativas_qs = self._qs_ativas_view().filter(codigo_eol_aluno__in=codigos_eol)
+        ativas_qs = self._qs_ativas_view().filter(
+            Q(codigo_eol_aluno__in=codigos_eol)
+            | Q(nome_aluno__in=nomes_alunos, codigo_eol_aluno__isnull=True)
+        )
         ativas_qs = self.aplicar_filtros_escola_view(ativas_qs, **filtros)
         total_ativas = ativas_qs.values("uuid").distinct().count()
 
-        inativas_qs = self._qs_inativas_view().filter(codigo_eol_aluno__in=codigos_eol)
+        inativas_qs = self._qs_inativas_view().filter(
+            Q(codigo_eol_aluno__in=codigos_eol)
+            | Q(nome_aluno__in=nomes_alunos, codigo_eol_aluno__isnull=True)
+        )
         inativas_qs = self.aplicar_filtros_escola_view(inativas_qs, **filtros)
         total_inativas = inativas_qs.values("uuid").distinct().count()
 
@@ -1705,9 +1712,11 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
 
     def _obter_escolas_por_aluno(self, alunos_qs, filtros):
         codigos_eol = alunos_qs.values_list("codigo_eol", flat=True).distinct()
+        nomes_alunos = alunos_qs.values_list("nome", flat=True).distinct()
 
         dietas_relevantes = (self._qs_ativas_view() | self._qs_inativas_view()).filter(
-            codigo_eol_aluno__in=codigos_eol
+            Q(codigo_eol_aluno__in=codigos_eol)
+            | Q(nome_aluno__in=nomes_alunos, codigo_eol_aluno__isnull=True)
         )
 
         dietas_relevantes = self.aplicar_filtros_escola_view(
@@ -1717,6 +1726,7 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
         dietas_data = list(
             dietas_relevantes.values(
                 "codigo_eol_aluno",
+                "nome_aluno",
                 "escola_uuid",
                 "escola_nome",
                 "dre_nome",
@@ -1764,11 +1774,19 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
 
         for row in dietas_data:
             eol = row.get("codigo_eol_aluno")
-            if not eol:
+            nome_aluno = row.get("nome_aluno")
+
+            chave_aluno = eol if eol else f"nome_{nome_aluno}"
+
+            if not chave_aluno:
                 continue
 
-            self._adicionar_escola_origem(escolas_por_aluno, row, escolas_map, eol)
-            self._adicionar_escola_destino(escolas_por_aluno, row, escolas_map, eol)
+            self._adicionar_escola_origem(
+                escolas_por_aluno, row, escolas_map, chave_aluno
+            )
+            self._adicionar_escola_destino(
+                escolas_por_aluno, row, escolas_map, chave_aluno
+            )
 
         return escolas_por_aluno
 
@@ -1826,7 +1844,8 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
     def _criar_alunos_por_escola(self, alunos_qs, escolas_por_aluno):
         alunos_por_escola = []
         for aluno in alunos_qs:
-            escolas_aluno = escolas_por_aluno.get(aluno.codigo_eol, set())
+            chave_aluno = aluno.codigo_eol if aluno.codigo_eol else f"nome_{aluno.nome}"
+            escolas_aluno = escolas_por_aluno.get(chave_aluno, set())
 
             if not escolas_aluno:
                 alunos_por_escola.append(self._criar_copia_aluno_sem_escola(aluno))
@@ -1908,6 +1927,7 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
             "CODAE_AUTORIZADO",
             "CODAE_AUTORIZOU_INATIVACAO",
             "TERMINADA_AUTOMATICAMENTE_SISTEMA",
+            "ESCOLA_CANCELOU",
             "CANCELADO_ALUNO_NAO_PERTENCE_REDE",
         ]
 
