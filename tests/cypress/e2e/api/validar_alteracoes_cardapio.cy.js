@@ -823,7 +823,7 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 		})
 
 		// Substitui o it por it.only para pular em Jan, Jul ou Dez Conforme a regra de negócio
-		const currentMonth = dayjs().month() + 1 // dayjs().month() retorna 0-11
+		const currentMonth = dayjs().month() + 1
 		const conditionalIt = [1, 7, 12].includes(currentMonth) ? it.skip : it
 		conditionalIt(
 			'Validar POST com datas em dia nao letivo de lanche emergencial',
