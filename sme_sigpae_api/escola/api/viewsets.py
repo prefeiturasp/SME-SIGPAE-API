@@ -2,7 +2,7 @@ import datetime
 import json
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db.models import F, Max, Sum, Count, Q
+from django.db.models import Count, F, Max, Q, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
@@ -554,13 +554,12 @@ class TipoUnidadeEscolarViewSet(ReadOnlyModelViewSet):
         dre = self.request.query_params.get("dre")
         if dre:
             qs = (
-                qs
-                .annotate(
+                qs.annotate(
                     escolas_na_dre=Count(
                         "escola",
                         filter=Q(
                             escola__diretoria_regional__uuid=dre,
-                            escola__tipo_gestao__nome='TERC TOTAL',
+                            escola__tipo_gestao__nome="TERC TOTAL",
                         ),
                     )
                 )
@@ -917,7 +916,7 @@ class AlunoViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
                 raise ValidationError("`nome_aluno` como query_param é obrigatório")
             aluno = Aluno.objects.filter(
                 nao_matriculado=True,
-                escola__codigo_eol=codigo_eol_escola,
+                dietas_especiais__escola_destino__codigo_eol=codigo_eol_escola,
                 nome=nome_aluno,
             ).first()
             return Response(self.get_serializer(aluno).data, status=status.HTTP_200_OK)
