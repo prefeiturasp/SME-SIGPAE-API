@@ -6,8 +6,11 @@ from .serializers import RecreioNasFeriasSerializer
 
 class RecreioNasFeriasViewSet(viewsets.ModelViewSet):
     queryset = RecreioNasFerias.objects.all().prefetch_related(
-        'unidades_participantes',
-        'unidades_participantes__tipos_alimentacao'
+        'unidades_participantes__lote__diretoria_regional',
+        'unidades_participantes__lote',
+        'unidades_participantes__unidade_educacional',
+        'unidades_participantes__tipos_alimentacao__tipo_alimentacao',
+        'unidades_participantes__tipos_alimentacao__categoria'
     )
     serializer_class = RecreioNasFeriasSerializer
     lookup_field = 'uuid'
