@@ -242,7 +242,6 @@ class RecreioNasFeriasSerializer(serializers.ModelSerializer):
             instance.data_fim = validated_data.get('data_fim', instance.data_fim)
             instance.save()
 
-            # Se unidades_data foi fornecido, atualiza as unidades participantes
             if unidades_data is not None:
                 categorias_map = self._fetch_categorias()
 
