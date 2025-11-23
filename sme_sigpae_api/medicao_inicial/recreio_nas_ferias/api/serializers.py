@@ -232,3 +232,46 @@ class RecreioNasFeriasSerializer(serializers.ModelSerializer):
             RecreioNasFeriasUnidadeTipoAlimentacao.objects.bulk_create(tipo_alimentacao_instances_to_create)
 
         return recreio
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+            unidades_data = validated_data.pop('unidades_participantes', None)
+
+            instance.titulo = validated_data.get('titulo', instance.titulo)
+            instance.data_inicio = validated_data.get('data_inicio', instance.data_inicio)
+            instance.data_fim = validated_data.get('data_fim', instance.data_fim)
+            instance.save()
+
+            # Se unidades_data foi fornecido, atualiza as unidades participantes
+            if unidades_data is not None:
+                categorias_map = self._fetch_categorias()
+
+                # Remove todas as unidades existentes e seus tipos de alimentação
+                instance.unidades_participantes.all().delete()
+
+                # Cria as novas unidades
+                tipo_alimentacao_instances_to_create = []
+                for unidade_data in unidades_data:
+                    tipos_inscritos = unidade_data.pop('tipos_alimentacao_inscritos', []) or []
+                    tipos_colaboradores = unidade_data.pop('tipos_alimentacao_colaboradores', []) or []
+                    tipos_infantil = unidade_data.pop('tipos_alimentacao_infantil', []) or []
+
+                    unidade = RecreioNasFeriasUnidadeParticipante.objects.create(
+                        recreio_nas_ferias=instance,
+                        **unidade_data
+                    )
+
+                    tipos_por_categoria = {
+                        'inscritos': tipos_inscritos,
+                        'colaboradores': tipos_colaboradores,
+                        'infantil': tipos_infantil
+                    }
+
+                    tipo_alimentacao_instances_to_create.extend(
+                        self._build_unidade_tipos_instances(unidade, tipos_por_categoria, categorias_map)
+                    )
+
+                if tipo_alimentacao_instances_to_create:
+                    RecreioNasFeriasUnidadeTipoAlimentacao.objects.bulk_create(tipo_alimentacao_instances_to_create)
+
+            return instance
