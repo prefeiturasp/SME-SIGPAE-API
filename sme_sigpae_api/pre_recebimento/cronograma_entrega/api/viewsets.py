@@ -1,3 +1,5 @@
+from math import ceil
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import QuerySet
@@ -44,6 +46,7 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.filters import (
     SolicitacaoAlteracaoCronogramaFilter,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.helpers import (
+    filtrar_etapas,
     totalizador_relatorio_cronograma,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializer_create import (
@@ -257,15 +260,56 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
             .distinct()
         )
 
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = CronogramaRelatorioSerializer(page, many=True)
-            response = self.get_paginated_response(serializer.data)
-            response.data["totalizadores"] = totalizador_relatorio_cronograma(queryset)
-            return response
+        situacoes = request.query_params.getlist("situacao", [])
+        data_inicial = request.query_params.get("data_inicial")
+        data_final = request.query_params.get("data_final")
 
-        serializer = CronogramaRelatorioSerializer(queryset, many=True)
-        return Response(serializer.data)
+        tem_filtro_pos_serializacao = (
+            (bool(situacoes) and len(situacoes) < 3)
+            or bool(data_inicial)
+            or bool(data_final)
+        )
+
+        if tem_filtro_pos_serializacao:
+            serializer = CronogramaRelatorioSerializer(queryset, many=True)
+
+            dados_filtrados = filtrar_etapas(serializer.data, request)
+
+            page_size = self.pagination_class().page_size
+            page_number = int(request.query_params.get("page", 1))
+
+            start_index = (page_number - 1) * page_size
+            end_index = start_index + page_size
+            dados_paginados = dados_filtrados[start_index:end_index]
+
+            total_items = len(dados_filtrados)
+            total_pages = ceil(total_items / page_size) if page_size > 0 else 1
+            has_next = page_number < total_pages
+            has_previous = page_number > 1
+
+            response_data = {
+                "count": total_items,
+                "next": f"?page={page_number + 1}" if has_next else None,
+                "previous": f"?page={page_number - 1}" if has_previous else None,
+                "results": dados_paginados,
+                "totalizadores": totalizador_relatorio_cronograma(queryset),
+            }
+
+            return Response(response_data)
+
+        else:
+            page = self.paginate_queryset(queryset)
+
+            if page is not None:
+                serializer = CronogramaRelatorioSerializer(page, many=True)
+                response = self.get_paginated_response(serializer.data)
+                response.data["totalizadores"] = totalizador_relatorio_cronograma(
+                    queryset
+                )
+                return response
+            else:
+                serializer = CronogramaRelatorioSerializer(queryset, many=True)
+                return Response(serializer.data)
 
     @action(detail=False, url_path="opcoes-etapas")
     def etapas(self, _):
