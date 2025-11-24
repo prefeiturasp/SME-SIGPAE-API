@@ -1408,6 +1408,8 @@ class ParametrizacaoFinanceiraTabelaValorWriteModelSerializer(
 class ParametrizacaoFinanceiraTabelaWriteModelSerializer(serializers.ModelSerializer):
     periodo_escolar = serializers.SlugRelatedField(
         slug_field="nome",
+        required=False,
+        allow_null=True,
         queryset=PeriodoEscolar.objects.all()
     )
     valores = ParametrizacaoFinanceiraTabelaValorWriteModelSerializer(many=True)
