@@ -327,11 +327,14 @@ class ParametrizacaoFinanceiraTabelaValorSerializer(serializers.ModelSerializer)
 
 class ParametrizacaoFinanceiraTabelaSerializer(serializers.ModelSerializer):
     valores = ParametrizacaoFinanceiraTabelaValorSerializer(many=True, read_only=True)
-    periodo_escolar = serializers.CharField(source="periodo_escolar.nome")
+    periodo_escolar = serializers.SerializerMethodField()
 
     class Meta:
         model = ParametrizacaoFinanceiraTabela
         fields = ["nome", "periodo_escolar", "valores"]
+
+    def get_periodo_escolar(self, obj):
+        return obj.periodo_escolar.nome if obj.periodo_escolar else None
 
 
 class DadosParametrizacaoFinanceiraSerializer(serializers.ModelSerializer):
