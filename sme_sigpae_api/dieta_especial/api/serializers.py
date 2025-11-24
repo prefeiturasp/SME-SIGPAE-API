@@ -412,6 +412,16 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
             | SolicitacoesCODAE.get_autorizadas_temporariamente_dieta_especial()
         ).filter(codigo_eol_aluno=codigo_eol, escola_uuid=escola_uuid)
 
+        if not codigo_eol:
+            return (
+                SolicitacaoDietaEspecial.objects.filter(
+                    uuid__in=ativas_qs.values_list("uuid", flat=True),
+                    aluno__nome=obj.nome,
+                )
+                .distinct()
+                .count()
+            )
+
         count = ativas_qs.values("uuid").distinct().count()
 
         return count
@@ -452,6 +462,15 @@ class SolicitacoesAtivasInativasPorAlunoSerializer(serializers.Serializer):
         ids_inativas.update(cancelados_qs.values_list("uuid", flat=True))
         ids_inativas.update(inativas_qs.values_list("uuid", flat=True))
         ids_inativas.update(inativas_temp_qs.values_list("uuid", flat=True))
+
+        if not codigo_eol:
+            return (
+                SolicitacaoDietaEspecial.objects.filter(
+                    uuid__in=ids_inativas, aluno__nome=obj.nome
+                )
+                .distinct()
+                .count()
+            )
 
         return len(ids_inativas)
 
