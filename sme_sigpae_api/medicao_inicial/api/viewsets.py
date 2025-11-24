@@ -3,7 +3,7 @@ import datetime
 import json
 
 from dateutil.relativedelta import relativedelta
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import F, IntegerField, Q, QuerySet
 from django.db.models.functions import Cast
@@ -1669,7 +1669,7 @@ class OcorrenciaViewSet(
         detail=False,
         methods=["POST"],
         url_path="gera-ocorrencia-para-correcao",
-        permission_classes = [           
+        permission_classes=[
             UsuarioDiretoriaRegional
             | UsuarioCODAEGestaoAlimentacao
             | UsuarioCODAENutriManifestacao
@@ -1677,47 +1677,49 @@ class OcorrenciaViewSet(
             | UsuarioDinutreDiretoria
             | UsuarioEmpresaTerceirizada
             | UsuarioSupervisaoNutricao
-        ]
+        ],
     )
     @transaction.atomic
     def gera_ocorrencia_para_correcao(self, request):
+        solicitacao_uuid = request.data.get("solicitacao_medicao_uuid")
 
         try:
-            solicitacao_medicao_uuid = request.data.get("solicitacao_medicao_uuid")
-            solicitacao_medicao_inicial = SolicitacaoMedicaoInicial.objects.get(uuid=solicitacao_medicao_uuid)
-        except Exception as error:
-            return Response(data={"solicitacao_medicao_uuid": "Medição não encontrada"}, status=status.HTTP_400_BAD_REQUEST)
+            solicitacao_medicao_inicial = SolicitacaoMedicaoInicial.objects.get(uuid=solicitacao_uuid)
 
-        try:
-            ocorrencia = solicitacao_medicao_inicial.ocorrencia
-        except ObjectDoesNotExist:
-            ocorrencia = None
+            ocorrencia = getattr(solicitacao_medicao_inicial, "ocorrencia", None)
+            if ocorrencia:
+                return Response(
+                    {"medicao": "Já possui ocorrência associada"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-        if ocorrencia:
-            return Response(data={"medicao": "Já possui ocorrência associada"}, status=status.HTTP_400_BAD_REQUEST)
+            ocorrencia = OcorrenciaMedicaoInicial.objects.create(
+                solicitacao_medicao_inicial=solicitacao_medicao_inicial
+            )
 
-        # Gera ocorrência
-        ocorrencia = OcorrenciaMedicaoInicial.objects.create(
-            solicitacao_medicao_inicial=solicitacao_medicao_inicial,
-        )
-
-        try:
             usuario = request.user
-            tipo_usuario = usuario.tipo_usuario
-            justificativa = request.data.get("justificativa", None)
+            justificativa = request.data.get("justificativa")
 
-            if tipo_usuario == "diretoriaregional":
-                ocorrencia.dre_pede_correcao(user=request.user, justificativa=justificativa)
+            if usuario.tipo_usuario == "diretoriaregional":
+                ocorrencia.dre_pede_correcao(user=usuario, justificativa=justificativa)
             else:
-                ocorrencia.codae_pede_correcao_ocorrencia(user=request.user, justificativa=justificativa)
+                ocorrencia.codae_pede_correcao_ocorrencia(user=usuario, justificativa=justificativa)
 
-            serializer = self.get_serializer(ocorrencia)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        except SolicitacaoMedicaoInicial.DoesNotExist:
+            return Response(
+                {"solicitacao_medicao_uuid": "Medição não encontrada"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         except InvalidTransitionError as e:
             return Response(
-                dict(detail=f"Erro de transição de estado: {e}"),
-                status=status.HTTP_400_BAD_REQUEST,
+                {"detail": f"Erro de transição de estado: {e}"},
+                status=status.HTTP_400_BAD_REQUEST
             )
+
+        serializer = self.get_serializer(ocorrencia)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class AlimentacaoLancamentoEspecialViewSet(mixins.ListModelMixin, GenericViewSet):
     queryset = AlimentacaoLancamentoEspecial.objects.filter(ativo=True)

@@ -75,7 +75,6 @@ class OcorrenciaMedicaoInicialSerializer(serializers.ModelSerializer):
 
         if not obj.ultimo_arquivo:
             return ""
-        
         return f"{api_url}{obj.ultimo_arquivo.url}"
 
     def get_ultimo_arquivo_excel(self, obj):
