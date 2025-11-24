@@ -2,7 +2,6 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
 from .serializers import RecreioNasFeriasSerializer
-from django.db import transaction
 
 
 class RecreioNasFeriasViewSet(viewsets.ModelViewSet):
