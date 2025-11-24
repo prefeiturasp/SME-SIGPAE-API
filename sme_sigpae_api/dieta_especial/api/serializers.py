@@ -312,6 +312,7 @@ class SolicitacaoDietaEspecialSerializer(serializers.ModelSerializer):
             "conferido",
             "eh_importado",
             "dieta_alterada",
+            "dieta_para_recreio_ferias",
         )
 
 
@@ -592,6 +593,7 @@ class SolicitacaoDietaEspecialSimplesSerializer(serializers.ModelSerializer):
             "logs",
             "anexos",
             "ativo",
+            "data_inicio",
             "data_termino",
             "status_titulo",
             "nome_completo_pescritor",
@@ -599,6 +601,7 @@ class SolicitacaoDietaEspecialSimplesSerializer(serializers.ModelSerializer):
             "observacoes",
             "informacoes_adicionais",
             "tipo_solicitacao",
+            "dieta_para_recreio_ferias",
         )
 
 
