@@ -144,9 +144,9 @@ from .medicao_inicial.fixtures.factories.base_factory import (
 )
 from .medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_factory import (
     MedicaoFactory,
+    OcorrenciaMedicaoInicialFactory,
     SolicitacaoMedicaoInicialFactory,
     ValorMedicaoFactory,
-    OcorrenciaMedicaoInicialFactory,
 )
 from .perfil.fixtures.factories.perfil_base_factories import (
     PerfilFactory,

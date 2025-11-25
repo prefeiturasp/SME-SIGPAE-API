@@ -60,17 +60,17 @@ class DocumentoDeRecebimentoModelViewSet(
     def get_queryset(self):
         user = self.request.user
 
-        queryset = DocumentoDeRecebimento.objects.select_related(
-            'cronograma',
-            'cronograma__empresa',
-        ).prefetch_related(
-            'fichas_documentos__ficha_recebimento'
-        ).order_by("-criado_em")
+        queryset = (
+            DocumentoDeRecebimento.objects.select_related(
+                "cronograma",
+                "cronograma__empresa",
+            )
+            .prefetch_related("fichas_documentos__ficha_recebimento")
+            .order_by("-criado_em")
+        )
 
         if user.eh_fornecedor:
-            return queryset.filter(
-                cronograma__empresa=user.vinculo_atual.instituicao
-            )
+            return queryset.filter(cronograma__empresa=user.vinculo_atual.instituicao)
         return queryset
 
     def get_serializer_class(self):

@@ -552,7 +552,6 @@ class SolicitacaoMedicaoInicialViewSet(
             tipo_unidade.iniciais
             for tipo_unidade in grupo_unidade_escolar.tipos_unidades.all()
         ]
-        tipos_de_unidade_do_grupo_str = ", ".join(tipos_de_unidade_do_grupo)
 
         if query_set.exists():
             solicitacoes = []
@@ -568,7 +567,7 @@ class SolicitacaoMedicaoInicialViewSet(
                     user=user,
                     nome_arquivo=nome_arquivo,
                     ids_solicitacoes=solicitacoes,
-                    tipos_de_unidade=tipos_de_unidade_do_grupo_str,
+                    tipos_de_unidade=tipos_de_unidade_do_grupo,
                 )
                 return Response(
                     dict(
