@@ -622,14 +622,15 @@ def test_url_dre_solicita_correcao_periodo(
         "128f36e2-ea93-4e05-9641-50b0c79ddb5e"
     ]
     uuid = medicao_status_inicial.uuid
+
     response = client_autenticado_diretoria_regional.patch(
         f"{viewset_url}{uuid}/dre-pede-correcao-medicao/",
         content_type="application/json",
         data=data,
     )
 
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "Erro de transição de estado:" in response.data["detail"]
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["status"] == "MEDICAO_CORRECAO_SOLICITADA"
 
 
 def test_url_escola_corrige_medicao_para_dre_sucesso(
