@@ -752,8 +752,8 @@ def test_url_dre_aprova_ocorrencia(
         f"/dre-pede-correcao-ocorrencia/",
         content_type="application/json",
     )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "Erro de transição de estado:" in response.data["detail"]
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["status"] == "MEDICAO_CORRECAO_SOLICITADA"
 
 
 def test_url_ue_atualiza_ocorrencia_para_dre(
@@ -1040,8 +1040,7 @@ def test_url_codae_solicita_correcao_ocorrencia(
         content_type="application/json",
         data=data,
     )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "Erro de transição de estado:" in response.data["detail"]
+    assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 def test_url_codae_solicita_correcao_periodo(
@@ -1151,8 +1150,8 @@ def test_url_codae_aprova_ocorrencia(
         f"/medicao-inicial/ocorrencia/{uuid}" f"/codae-pede-correcao-ocorrencia/",
         content_type="application/json",
     )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "Erro de transição de estado:" in response.data["detail"]
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["status"] == "MEDICAO_CORRECAO_SOLICITADA_CODAE"
 
 
 def test_url_codae_aprova_periodo(
