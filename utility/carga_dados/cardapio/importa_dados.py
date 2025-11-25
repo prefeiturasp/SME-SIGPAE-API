@@ -1,4 +1,4 @@
-from random import randint, sample
+from secrets import randbelow
 
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
     MotivoAlteracaoCardapio,
@@ -10,6 +10,7 @@ from sme_sigpae_api.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from sme_sigpae_api.cardapio.suspensao_alimentacao.models import MotivoSuspensao
+from sme_sigpae_api.dados_comuns.utils import secure_sample
 from sme_sigpae_api.escola.models import PeriodoEscolar, TipoUnidadeEscolar
 from utility.carga_dados.cardapio.data.motivos_alteracao_cardapio import (
     data_motivoalteracaocardapio,
@@ -71,11 +72,11 @@ def cria_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue():
     tipos_alimentacoes = list(TipoAlimentacao.objects.all())
     for vinculo in progressbar(vinculos, "ComboDoVinculoTipoAlimentacaoPeriodoTipoUE"):
         # Cria vários combos para cada vinculo.
-        for _ in range(randint(5, 10)):
+        for _ in range(randbelow(6) + 5):
             obj = ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.create(
                 vinculo=vinculo
             )
-            tipos_amostra = sample(tipos_alimentacoes, randint(1, 3))
+            tipos_amostra = secure_sample(tipos_alimentacoes, randbelow(3) + 1)
             for item in tipos_amostra:
                 obj.tipos_alimentacao.add(item)
         # Cria um combo específico para lanche e outro para refeição.
@@ -101,7 +102,7 @@ def cria_substituicao_do_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue():
         obj = SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.create(
             combo=combo
         )
-        tipos_amostra = sample(tipos_alimentacoes, randint(1, 3))
+        tipos_amostra = secure_sample(tipos_alimentacoes, randbelow(3) + 1)
         tipos_alimentacao_list = [
             item[1] for item in combo.tipos_alimentacao.values_list()
         ]

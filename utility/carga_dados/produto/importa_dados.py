@@ -1,4 +1,4 @@
-from random import choice, randint, random
+from secrets import choice, randbelow
 
 from faker import Faker
 
@@ -159,10 +159,13 @@ def cria_produto():
         info_armazenamento = fake.sentence(nb_words=5)
         outras_informacoes = fake.sentence(nb_words=10)
         numero_registro = faker.bothify(letters="ABCDEFGHIJ")
-        porcao = str(randint(50, 300)) + str(choice([" g", " ml"]))
+        porcao = str(randbelow(251) + 50) + str(choice([" g", " ml"]))
         unidade_caseira = (
-            str(round(randint(1, 5) * random(), 2)).replace(".", ",") + " unidade"
-        )  # noqa
+            str(
+                round((randbelow(5) + 1) * (randbelow(10_000_000) / 10_000_000), 2)
+            ).replace(".", ",")
+            + " unidade"
+        )
 
         produto = Produto.objects.create(
             nome=item,
@@ -200,10 +203,13 @@ def cria_produto_marca():
         info_armazenamento = fake.sentence(nb_words=5)
         outras_informacoes = fake.sentence(nb_words=10)
         numero_registro = faker.bothify(letters="ABCDEFGHIJ")
-        porcao = str(randint(50, 300)) + str(choice([" g", " ml"]))
+        porcao = str(randbelow(251) + 50) + str(choice([" g", " ml"]))
         unidade_caseira = (
-            str(round(randint(1, 5) * random(), 2)).replace(".", ",") + " unidade"
-        )  # noqa
+            str(
+                round((randbelow(5) + 1) * (randbelow(10_000_000) / 10_000_000), 2)
+            ).replace(".", ",")
+            + " unidade"
+        )
 
         if not Produto.objects.filter(nome=item[0], marca=marca).first():
             produto = Produto.objects.create(
