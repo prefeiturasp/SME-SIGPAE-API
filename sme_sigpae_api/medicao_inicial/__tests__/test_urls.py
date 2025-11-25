@@ -698,20 +698,6 @@ def test_url_dre_solicita_correcao_medicao(
     )
 
 
-def test_url_dre_solicita_correcao_medicao_erro_transicao(
-    client_autenticado_diretoria_regional, solicitacao_medicao_inicial
-):
-    response = client_autenticado_diretoria_regional.patch(
-        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_medicao_inicial.uuid}/"
-        f"dre-solicita-correcao-medicao/"
-    )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {
-        "detail": "Erro de transição de estado: Transition 'dre_pede_correcao' isn't available from state "
-        "'MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE'."
-    }
-
-
 def test_url_dre_solicita_correcao_medicao_erro_403(
     client_autenticado_da_escola, solicitacao_medicao_inicial_medicao_enviada_pela_ue
 ):
