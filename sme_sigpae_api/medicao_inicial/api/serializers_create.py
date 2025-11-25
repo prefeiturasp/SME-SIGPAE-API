@@ -1400,6 +1400,13 @@ class ParametrizacaoFinanceiraTabelaValorWriteModelSerializer(
         queryset=TipoValorParametrizacaoFinanceira.objects.all()
     )
 
+    def to_internal_value(self, data):
+        if data.get("tipo_alimentacao") == "Kit Lanche":
+            data = data.copy()
+            data["tipo_alimentacao"] = None
+
+        return super().to_internal_value(data)
+
     class Meta:
         model = ParametrizacaoFinanceiraTabelaValor
         fields = ["nome_campo", "faixa_etaria", "tipo_alimentacao", "tipo_valor", "valor"]
