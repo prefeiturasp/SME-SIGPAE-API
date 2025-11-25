@@ -731,8 +731,8 @@ def test_url_dre_solicita_correcao_ocorrencia(
         content_type="application/json",
         data=data,
     )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "Erro de transição de estado:" in response.data["detail"]
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["status"] == "MEDICAO_CORRECAO_SOLICITADA"
 
 
 def test_url_dre_aprova_ocorrencia(
