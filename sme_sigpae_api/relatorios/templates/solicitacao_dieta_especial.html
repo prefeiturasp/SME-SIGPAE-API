@@ -91,7 +91,7 @@
       <table>
         {% if solicitacao.eh_importado == False %}
           <tr>
-            <th class="w-50">Nome do Pescritor</th>
+            <th class="w-50">Nome do Prescritor</th>
             <th class="w-50">Registro Funcional</th>
           </tr>
           <tr>
@@ -101,7 +101,8 @@
         {% endif %}
       </table>
 
-      {% if solicitacao.status != 'CODAE_A_AUTORIZAR' and solicitacao.status != 'CODAE_NEGOU_PEDIDO' and solicitacao.status != 'ESCOLA_CANCELOU' %}
+      {% if solicitacao.dieta_para_recreio_ferias or
+            solicitacao.status != 'CODAE_A_AUTORIZAR' and solicitacao.status != 'CODAE_NEGOU_PEDIDO' and solicitacao.status != 'ESCOLA_CANCELOU' %}
         <hr />
          <table>
           <tr>
@@ -114,6 +115,18 @@
           <tr>
             <td>{{ solicitacao.data_inicio|date:"SHORT_DATE_FORMAT"|default:'Sem data de início' }}</td>
             <td>{{ solicitacao.data_termino|date:"SHORT_DATE_FORMAT"|default:'Sem data de término' }}</td>
+          </tr>
+        </table>
+      {% endif %}
+
+      {% if solicitacao.dieta_para_recreio_ferias %}
+        <hr />
+        <table>
+          <tr>
+            <th>Motivo da alteração</th>
+          </tr>
+          <tr>
+            <td>Dieta Especial - Recreio nas Férias</td>
           </tr>
         </table>
       {% endif %}
