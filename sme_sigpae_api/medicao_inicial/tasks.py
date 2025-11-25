@@ -1,11 +1,14 @@
 import datetime
 import logging
 from io import BytesIO
+from uuid import UUID
 
 from celery import shared_task
 from dateutil.relativedelta import relativedelta
 from pypdf import PdfWriter
 
+from sme_sigpae_api.dados_comuns.models import CentralDeDownload
+from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from sme_sigpae_api.medicao_inicial.services.relatorio_adesao_excel import (
     gera_relatorio_adesao_xlsx,
 )
@@ -26,6 +29,7 @@ from ..dados_comuns.utils import (
 )
 from ..escola.models import AlunoPeriodoParcial, Escola
 from ..relatorios.relatorios import (
+    obter_relatorio_da_unidade,
     relatorio_solicitacao_medicao_por_escola,
     relatorio_solicitacao_medicao_por_escola_cei,
     relatorio_solicitacao_medicao_por_escola_cemei,
@@ -166,8 +170,26 @@ def gera_pdf_relatorio_solicitacao_medicao_por_escola_async(
     soft_time_limit=3000,
 )
 def gera_pdf_relatorio_unificado_async(
-    user, nome_arquivo, ids_solicitacoes, tipos_de_unidade
-):
+    user: str, nome_arquivo: str, ids_solicitacoes: list[UUID], tipos_de_unidade: list[str]
+) -> None:
+    """
+    Gera um PDF unificado contendo os relatórios das solicitações informadas.
+
+    A função cria um registro na Central de Download, processa cada solicitação
+    gerando seus respectivos PDFs e, ao final, unifica todos os arquivos em um
+    único PDF final.
+
+    Args:
+        user (str): Usuário responsável pela solicitação de geração.
+        nome_arquivo (str): Nome do arquivo final a ser gerado.
+        ids_solicitacoes (list[UUID]): Lista de UUIDs das solicitações.
+        tipos_de_unidade (list[str]): Tipos de unidade utilizados para selecionar
+            o módulo gerador do relatório.
+            
+    Raises:
+        Exception: Qualquer erro interno durante o processo de merge ou geração
+            é capturado e registrado na Central de Download.
+    """
     logger.info(f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x")
     obj_central_download = gera_objeto_na_central_download(
         user=user, identificador=nome_arquivo
@@ -177,7 +199,7 @@ def gera_pdf_relatorio_unificado_async(
         merger_arquivo_final = PdfWriter()
 
         processa_relatorio_lançamentos(
-            ids_solicitacoes, merger_lancamentos, obj_central_download
+            ids_solicitacoes, tipos_de_unidade, merger_lancamentos, obj_central_download
         )
 
         output_final = cria_merge_pdfs(merger_lancamentos, merger_arquivo_final)
@@ -192,22 +214,53 @@ def gera_pdf_relatorio_unificado_async(
 
 
 def processa_relatorio_lançamentos(
-    ids_solicitacoes, merger_lancamentos, obj_central_download
-):
-    for id_solicitacao in ids_solicitacoes:
+    ids_solicitacoes: list[UUID], tipos_de_unidade: list[str], merger_lancamentos: PdfWriter, obj_central_download: CentralDeDownload
+) -> None:
+    """
+    Processa cada solicitação gerando seu PDF individual e adicionando ao merger.
+
+    Args:
+        ids_solicitacoes (list[UUID]): Lista de UUIDs das solicitações.
+        tipos_de_unidade (list[str]): Tipos de unidade para definir o módulo
+            gerador de relatórios.
+        merger_lancamentos (PdfWriter): Instância usada para acumular os PDFs.
+        obj_central_download (CentralDeDownload): Objeto de controle na Central
+            de Download para registrar erros e status.
+
+    Raises:
+        Exception: Erros individuais de processamento são capturados e
+            registrados, sem interromper o processamento das demais solicitações.
+    """
+
+    solicitacoes = SolicitacaoMedicaoInicial.objects.filter(uuid__in=ids_solicitacoes)
+    modulo_da_unidade = obter_relatorio_da_unidade(tipos_de_unidade)
+    for solicitacao in ordenar_unidades(solicitacoes):
         try:
-            solicitacao = SolicitacaoMedicaoInicial.objects.get(uuid=id_solicitacao)
-            arquivo_lancamentos = relatorio_solicitacao_medicao_por_escola(solicitacao)
+            arquivo_lancamentos = modulo_da_unidade(solicitacao)
             arquivo_lancamentos_io = BytesIO(arquivo_lancamentos)
             merger_lancamentos.append(arquivo_lancamentos_io)
         except Exception as e:
             atualiza_central_download_com_erro(obj_central_download, str(e))
             logger.error(
-                f"Erro ao mesclar arquivo para a solicitação {id_solicitacao}: {e}"
+                f"Erro ao mesclar arquivo para a solicitação {solicitacao.id}: {e}"
             )
 
 
-def cria_merge_pdfs(merger_lancamentos, merger_arquivo_final):
+def cria_merge_pdfs(merger_lancamentos: PdfWriter, merger_arquivo_final: PdfWriter) -> bytes:
+    """
+    Realiza o merge dos PDFs individuais em um único arquivo final.
+
+    Args:
+        merger_lancamentos (PdfWriter): Writer contendo os PDFs das solicitações.
+        merger_arquivo_final (PdfWriter): Writer responsável por gerar o PDF final.
+
+    Returns:
+        bytes: Conteúdo final do PDF unificado.
+
+    Raises:
+        Exception: Caso ocorra falha ao gerar ou escrever os arquivos PDF.
+    """
+
     output_lancamentos = BytesIO()
     merger_lancamentos.write(output_lancamentos)
     output_lancamentos.seek(0)
