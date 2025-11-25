@@ -861,7 +861,9 @@ class SolicitacoesCODAE(MoldeConsolidado):
     def get_autorizados_dieta_especial(cls, **kwargs):
         return (
             cls.objects.filter(
-                Q(em_vigencia=True) | Q(em_vigencia__isnull=True),
+                Q(em_vigencia=True)
+                | Q(em_vigencia__isnull=True)
+                | Q(tipo_solicitacao_dieta="ALUNO_NAO_MATRICULADO"),
                 status_atual__in=cls.AUTORIZADO_STATUS_DIETA_ESPECIAL,
                 status_evento__in=cls.AUTORIZADO_EVENTO_DIETA_ESPECIAL,
                 tipo_doc=cls.TP_SOL_DIETA_ESPECIAL,
@@ -1177,7 +1179,9 @@ class SolicitacoesEscola(MoldeConsolidado):
         # Mantive o comportamento normal para as solicitações
         # que não são de alteração de UE.
         solicitacoes_em_vigencia_e_ativas = cls.objects.filter(
-            Q(em_vigencia=True) | Q(em_vigencia__isnull=True),
+            Q(em_vigencia=True)
+            | Q(em_vigencia__isnull=True)
+            | Q(tipo_solicitacao_dieta="ALUNO_NAO_MATRICULADO"),
             escola_destino_id=escola_destino.id,
             escola_uuid=escola_uuid,
             status_atual__in=cls.AUTORIZADO_STATUS_DIETA_ESPECIAL,
@@ -1587,7 +1591,9 @@ class SolicitacoesDRE(MoldeConsolidado):
         dre_uuid = kwargs.get("dre_uuid")
         eh_relatorio_dietas_autorizadas = kwargs.get("eh_relatorio_dietas_autorizadas")
         objects_filtrados = cls.objects.filter(
-            Q(em_vigencia=True) | Q(em_vigencia__isnull=True),
+            Q(em_vigencia=True)
+            | Q(em_vigencia__isnull=True)
+            | Q(tipo_solicitacao_dieta="ALUNO_NAO_MATRICULADO"),
             status_atual__in=cls.AUTORIZADO_STATUS_DIETA_ESPECIAL,
             status_evento__in=cls.AUTORIZADO_EVENTO_DIETA_ESPECIAL,
             tipo_doc=cls.TP_SOL_DIETA_ESPECIAL,
@@ -1893,7 +1899,9 @@ class SolicitacoesTerceirizada(MoldeConsolidado):
         terceirizada_uuid = kwargs.get("terceirizada_uuid")
         return (
             cls.objects.filter(
-                Q(em_vigencia=True) | Q(em_vigencia__isnull=True),
+                Q(em_vigencia=True)
+                | Q(em_vigencia__isnull=True)
+                | Q(tipo_solicitacao_dieta="ALUNO_NAO_MATRICULADO"),
                 terceirizada_uuid=terceirizada_uuid,
                 status_atual__in=cls.AUTORIZADO_STATUS_DIETA_ESPECIAL,
                 status_evento__in=cls.AUTORIZADO_EVENTO_DIETA_ESPECIAL,
