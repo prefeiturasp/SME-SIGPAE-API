@@ -72,6 +72,9 @@ class OcorrenciaMedicaoInicialSerializer(serializers.ModelSerializer):
     def get_ultimo_arquivo(self, obj):
         env = environ.Env()
         api_url = env.str("URL_ANEXO", default="http://localhost:8000")
+
+        if not obj.ultimo_arquivo:
+            return ""
         return f"{api_url}{obj.ultimo_arquivo.url}"
 
     def get_ultimo_arquivo_excel(self, obj):
