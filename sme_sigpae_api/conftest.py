@@ -146,6 +146,7 @@ from .medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_factor
     MedicaoFactory,
     SolicitacaoMedicaoInicialFactory,
     ValorMedicaoFactory,
+    OcorrenciaMedicaoInicialFactory,
 )
 from .perfil.fixtures.factories.perfil_base_factories import (
     PerfilFactory,
@@ -259,6 +260,7 @@ register(LogAlunosMatriculadosPeriodoEscolaFactory)
 register(DiretoriaRegionalFactory)
 register(TipoUnidadeEscolarFactory)
 register(SolicitacaoMedicaoInicialFactory)
+register(OcorrenciaMedicaoInicialFactory)
 register(ImportacaoPlanilhaTipoPenalidadeFactory)
 register(ImportacaoPlanilhaTipoOcorrenciaFactory)
 register(PeriodoVisitaFactory)
