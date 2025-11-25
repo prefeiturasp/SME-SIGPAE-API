@@ -170,7 +170,10 @@ def gera_pdf_relatorio_solicitacao_medicao_por_escola_async(
     soft_time_limit=3000,
 )
 def gera_pdf_relatorio_unificado_async(
-    user: str, nome_arquivo: str, ids_solicitacoes: list[UUID], tipos_de_unidade: list[str]
+    user: str,
+    nome_arquivo: str,
+    ids_solicitacoes: list[UUID],
+    tipos_de_unidade: list[str],
 ) -> None:
     """
     Gera um PDF unificado contendo os relatórios das solicitações informadas.
@@ -185,7 +188,7 @@ def gera_pdf_relatorio_unificado_async(
         ids_solicitacoes (list[UUID]): Lista de UUIDs das solicitações.
         tipos_de_unidade (list[str]): Tipos de unidade utilizados para selecionar
             o módulo gerador do relatório.
-            
+
     Raises:
         Exception: Qualquer erro interno durante o processo de merge ou geração
             é capturado e registrado na Central de Download.
@@ -214,7 +217,10 @@ def gera_pdf_relatorio_unificado_async(
 
 
 def processa_relatorio_lançamentos(
-    ids_solicitacoes: list[UUID], tipos_de_unidade: list[str], merger_lancamentos: PdfWriter, obj_central_download: CentralDeDownload
+    ids_solicitacoes: list[UUID],
+    tipos_de_unidade: list[str],
+    merger_lancamentos: PdfWriter,
+    obj_central_download: CentralDeDownload,
 ) -> None:
     """
     Processa cada solicitação gerando seu PDF individual e adicionando ao merger.
@@ -246,7 +252,9 @@ def processa_relatorio_lançamentos(
             )
 
 
-def cria_merge_pdfs(merger_lancamentos: PdfWriter, merger_arquivo_final: PdfWriter) -> bytes:
+def cria_merge_pdfs(
+    merger_lancamentos: PdfWriter, merger_arquivo_final: PdfWriter
+) -> bytes:
     """
     Realiza o merge dos PDFs individuais em um único arquivo final.
 

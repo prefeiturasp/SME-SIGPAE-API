@@ -8,7 +8,11 @@ from django.db.models import F, FloatField, Sum
 from django.http import HttpResponseNotAllowed
 from django.template.loader import get_template, render_to_string
 
-from sme_sigpae_api.dados_comuns.constants import ORDEM_UNIDADES_GRUPO_CEI, ORDEM_UNIDADES_GRUPO_EMEF, ORDEM_UNIDADES_GRUPO_EMEI
+from sme_sigpae_api.dados_comuns.constants import (
+    ORDEM_UNIDADES_GRUPO_CEI,
+    ORDEM_UNIDADES_GRUPO_EMEF,
+    ORDEM_UNIDADES_GRUPO_EMEI,
+)
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,

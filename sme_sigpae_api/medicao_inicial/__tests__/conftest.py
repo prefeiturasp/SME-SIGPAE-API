@@ -4620,7 +4620,7 @@ def payload_create_parametrizacao_financeira_cei(
             tipo_unidade_escolar_cci,
             tipo_unidade_escolar_cei_ceu,
         ],
-     )
+    )
 
     return {
         "edital": edital.uuid,
@@ -4637,26 +4637,26 @@ def payload_create_parametrizacao_financeira_cei(
                         "faixa_etaria": faixa.uuid,
                         "nome_campo": str(faixa).lower().replace(" ", "_"),
                         "tipo_valor": tipo,
-                        "valor": 1
+                        "valor": 1,
                     }
                     for faixa in faixas_etarias_ativas
                     for tipo in ["REAJUSTE", "UNITARIO"]
                 ],
-                "periodo_escolar": periodo_escolar_integral.nome
+                "periodo_escolar": periodo_escolar_integral.nome,
             },
             {
                 "nome": "Preço das Alimentações",
-                "valores":[
+                "valores": [
                     {
                         "faixa_etaria": faixa.uuid,
                         "nome_campo": str(faixa).lower().replace(" ", "_"),
                         "tipo_valor": tipo,
-                        "valor": 1
+                        "valor": 1,
                     }
                     for faixa in faixas_etarias_ativas
                     for tipo in ["REAJUSTE", "UNITARIO"]
                 ],
-                "periodo_escolar": periodo_escolar_parcial.nome
+                "periodo_escolar": periodo_escolar_parcial.nome,
             },
             {
                 "nome": "Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos",
@@ -4665,12 +4665,12 @@ def payload_create_parametrizacao_financeira_cei(
                         "faixa_etaria": faixa.uuid,
                         "nome_campo": str(faixa).lower().replace(" ", "_"),
                         "tipo_valor": tipo,
-                        "valor": 1
+                        "valor": 1,
                     }
                     for faixa in faixas_etarias_ativas
                     for tipo in ["REAJUSTE", "UNITARIO"]
                 ],
-                "periodo_escolar": periodo_escolar_integral.nome
+                "periodo_escolar": periodo_escolar_integral.nome,
             },
             {
                 "nome": "Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos",
@@ -4679,12 +4679,12 @@ def payload_create_parametrizacao_financeira_cei(
                         "faixa_etaria": faixa.uuid,
                         "nome_campo": str(faixa).lower().replace(" ", "_"),
                         "tipo_valor": tipo,
-                        "valor": 1
+                        "valor": 1,
                     }
                     for faixa in faixas_etarias_ativas
                     for tipo in ["REAJUSTE", "UNITARIO"]
                 ],
-                "periodo_escolar": periodo_escolar_parcial.nome
+                "periodo_escolar": periodo_escolar_parcial.nome,
             },
             {
                 "nome": "Dietas Tipo B",
@@ -4693,12 +4693,12 @@ def payload_create_parametrizacao_financeira_cei(
                         "faixa_etaria": faixa.uuid,
                         "nome_campo": str(faixa).lower().replace(" ", "_"),
                         "tipo_valor": tipo,
-                        "valor": 1
+                        "valor": 1,
                     }
                     for faixa in faixas_etarias_ativas
                     for tipo in ["REAJUSTE", "UNITARIO"]
                 ],
-                "periodo_escolar": periodo_escolar_integral.nome
+                "periodo_escolar": periodo_escolar_integral.nome,
             },
             {
                 "nome": "Dietas Tipo B",
@@ -4707,18 +4707,25 @@ def payload_create_parametrizacao_financeira_cei(
                         "faixa_etaria": faixa.uuid,
                         "nome_campo": str(faixa).lower().replace(" ", "_"),
                         "tipo_valor": tipo,
-                        "valor": 1
+                        "valor": 1,
                     }
                     for faixa in faixas_etarias_ativas
                     for tipo in ["REAJUSTE", "UNITARIO"]
                 ],
-                "periodo_escolar": periodo_escolar_parcial.nome
-            }
-        ]
+                "periodo_escolar": periodo_escolar_parcial.nome,
+            },
+        ],
     }
 
+
 @pytest.fixture
-def solicitacoes_cei_relatorio_unificado(escola_cci, escola_cei, periodo_escolar_manha, categoria_medicao, faixas_etarias_ativas):
+def solicitacoes_cei_relatorio_unificado(
+    escola_cci,
+    escola_cei,
+    periodo_escolar_manha,
+    categoria_medicao,
+    faixas_etarias_ativas,
+):
     solicitacao_cci = baker.make(
         "SolicitacaoMedicaoInicial",
         escola=escola_cci,
@@ -4730,8 +4737,8 @@ def solicitacoes_cei_relatorio_unificado(escola_cci, escola_cei, periodo_escolar
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_cci,
         periodo_escolar=periodo_escolar_manha,
-        grupo=None
-    )                
+        grupo=None,
+    )
     solicitacao_cei = baker.make(
         "SolicitacaoMedicaoInicial",
         escola=escola_cei,
@@ -4743,7 +4750,7 @@ def solicitacoes_cei_relatorio_unificado(escola_cci, escola_cei, periodo_escolar
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_cei,
         periodo_escolar=periodo_escolar_manha,
-        grupo=None
+        grupo=None,
     )
     for dia in range(1, 31):
         for faixa in faixas_etarias_ativas:
@@ -4766,14 +4773,16 @@ def solicitacoes_cei_relatorio_unificado(escola_cci, escola_cei, periodo_escolar
                     valor=10,
                     faixa_etaria=faixa,
                 )
-    
-    return[solicitacao_cci, solicitacao_cei]
+
+    return [solicitacao_cci, solicitacao_cei]
+
 
 @pytest.fixture()
 def pdf_real_monkeypatch(monkeypatch):
     """Substitui os módulos reais por um gerador de PDF válido para testes."""
-    from pypdf import PdfWriter
     from io import BytesIO
+
+    from pypdf import PdfWriter
 
     def gerar_pdf_fake(_):
         buffer = BytesIO()
@@ -4784,9 +4793,9 @@ def pdf_real_monkeypatch(monkeypatch):
 
     monkeypatch.setattr(
         "sme_sigpae_api.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola",
-        gerar_pdf_fake
+        gerar_pdf_fake,
     )
     monkeypatch.setattr(
         "sme_sigpae_api.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_cei",
-        gerar_pdf_fake
+        gerar_pdf_fake,
     )

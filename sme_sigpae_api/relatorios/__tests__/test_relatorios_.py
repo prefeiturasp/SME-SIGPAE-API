@@ -665,47 +665,77 @@ def test_relatorio_cronograma_entrega(cronograma):
 
 
 def test_obter_relatorio_da_unidade_emef():
-    with patch('sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF', {'EMEF', 'EMEFM'}), \
-            patch('sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI', {'EMEI'}), \
-            patch('sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI', {'CEI', 'CEI CEU'}), \
-            patch('sme_sigpae_api.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola') as mock_modulo_emef:
-        
-        tipos_unidade = ['EMEF']
+    with patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
+        {"EMEF", "EMEFM"},
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
+        {"CEI", "CEI CEU"},
+    ), patch(
+        "sme_sigpae_api.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola"
+    ) as mock_modulo_emef:
+
+        tipos_unidade = ["EMEF"]
         resultado = obter_relatorio_da_unidade(tipos_unidade)
-        
+
         assert resultado == mock_modulo_emef
-        
+
+
 def test_obter_relatorio_da_unidade_emei():
-    with patch('sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF', {'EMEF', 'EMEFM'}), \
-            patch('sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI', {'EMEI'}), \
-            patch('sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI', {'CEI', 'CEI CEU'}), \
-            patch('sme_sigpae_api.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola') as mock_modulo_emei:
-        
-        tipos_unidade = ['EMEI']
+    with patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
+        {"EMEF", "EMEFM"},
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
+        {"CEI", "CEI CEU"},
+    ), patch(
+        "sme_sigpae_api.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola"
+    ) as mock_modulo_emei:
+
+        tipos_unidade = ["EMEI"]
         resultado = obter_relatorio_da_unidade(tipos_unidade)
-        
+
         assert resultado == mock_modulo_emei
-        
+
+
 def test_obter_relatorio_da_unidade_cei():
-    with patch('sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF', {'EMEF', 'EMEFM'}), \
-            patch('sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI', {'EMEI'}), \
-            patch('sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI', {'CEI', 'CEI CEU'}), \
-            patch('sme_sigpae_api.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_cei') as mock_modulo_cei:
-        
-        tipos_unidade = ['CEI']
+    with patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
+        {"EMEF", "EMEFM"},
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
+        {"CEI", "CEI CEU"},
+    ), patch(
+        "sme_sigpae_api.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_cei"
+    ) as mock_modulo_cei:
+
+        tipos_unidade = ["CEI"]
         resultado = obter_relatorio_da_unidade(tipos_unidade)
-        
+
         assert resultado == mock_modulo_cei
-        
+
+
 def test_obter_relatorio_da_unidade_pertencem_a_nenhum_grupo():
-    with patch('sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF', {'EMEF', 'EMEFM'}), \
-            patch('sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI', {'EMEI'}), \
-            patch('sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI', {'CEI', 'CEI CEU'}):
-        
-        tipos_unidade = ['TIPO_INEXISTENTE', 'OUTRO_TIPO']
-        
+    with patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
+        {"EMEF", "EMEFM"},
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
+        {"CEI", "CEI CEU"},
+    ):
+
+        tipos_unidade = ["TIPO_INEXISTENTE", "OUTRO_TIPO"]
+
         with pytest.raises(ValueError) as exc_info:
             obter_relatorio_da_unidade(tipos_unidade)
-        
+
         assert "Unidades inválidas:" in str(exc_info.value)
         assert "TIPO_INEXISTENTE" in str(exc_info.value)

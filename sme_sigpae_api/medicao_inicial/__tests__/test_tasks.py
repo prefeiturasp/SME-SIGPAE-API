@@ -2,11 +2,11 @@ import datetime
 import json
 from unittest.mock import Mock, patch
 
-from pypdf import PdfReader, PdfWriter
 import pytest
 from dateutil.relativedelta import relativedelta
 from django.http import QueryDict
 from django.test import TestCase
+from pypdf import PdfReader, PdfWriter
 
 from sme_sigpae_api.dados_comuns.models import CentralDeDownload
 from sme_sigpae_api.escola.models import AlunoPeriodoParcial, GrupoUnidadeEscolar
@@ -483,10 +483,13 @@ def test_exporta_relatorio_controle_frequencia_para_pdf(
     assert arquivo is not None and arquivo.identificador == nome_arquivo
     assert arquivo is not None and arquivo.status == CentralDeDownload.STATUS_CONCLUIDO
 
+
 @pytest.mark.django_db
-def test_gera_pdf_relatorio_unificado_async_cei(solicitacoes_cei_relatorio_unificado, usuario):
+def test_gera_pdf_relatorio_unificado_async_cei(
+    solicitacoes_cei_relatorio_unificado, usuario
+):
     ids = [s.uuid for s in solicitacoes_cei_relatorio_unificado]
-    tipos = ['CCI', 'CCI/CIPS', 'CEI', 'CEI CEU', 'CEI DIRET', 'CEU CEI']
+    tipos = ["CCI", "CCI/CIPS", "CEI", "CEI CEU", "CEI DIRET", "CEU CEI"]
 
     nome_arquivo = "relatorio_teste.pdf"
     usuario = usuario.get_username()
@@ -501,45 +504,56 @@ def test_gera_pdf_relatorio_unificado_async_cei(solicitacoes_cei_relatorio_unifi
     registro = CentralDeDownload.objects.get(identificador=nome_arquivo)
     assert registro.status == CentralDeDownload.STATUS_CONCLUIDO
     assert registro.arquivo is not None
-    
+
+
 @pytest.mark.django_db
-def test_gera_pdf_relatorio_unificado_async_cei_exception(solicitacoes_cei_relatorio_unificado, usuario):
+def test_gera_pdf_relatorio_unificado_async_cei_exception(
+    solicitacoes_cei_relatorio_unificado, usuario
+):
     ids = [s.uuid for s in solicitacoes_cei_relatorio_unificado]
-    tipos = ['Não', 'Existe']
+    tipos = ["Não", "Existe"]
 
     nome_arquivo = "relatorio_teste.pdf"
     usuario = usuario.get_username()
     gera_pdf_relatorio_unificado_async(
-            user=usuario,
-            nome_arquivo=nome_arquivo,
-            ids_solicitacoes=ids,
-            tipos_de_unidade=tipos,
-        )
+        user=usuario,
+        nome_arquivo=nome_arquivo,
+        ids_solicitacoes=ids,
+        tipos_de_unidade=tipos,
+    )
 
     registro = CentralDeDownload.objects.get(identificador=nome_arquivo)
     assert registro.status == CentralDeDownload.STATUS_ERRO
     assert registro.arquivo is not None
-    
-@pytest.mark.django_db    
-def test_processa_relatorio_lancamentos(solicitacoes_cei_relatorio_unificado, pdf_real_monkeypatch):
+
+
+@pytest.mark.django_db
+def test_processa_relatorio_lancamentos(
+    solicitacoes_cei_relatorio_unificado, pdf_real_monkeypatch
+):
     from model_bakery import baker
+
     merger = PdfWriter()
     central = baker.make(CentralDeDownload)
 
     ids = [s.uuid for s in solicitacoes_cei_relatorio_unificado]
-    tipos = ['CCI', 'CCI/CIPS', 'CEI', 'CEI CEU', 'CEI DIRET', 'CEU CEI']
+    tipos = ["CCI", "CCI/CIPS", "CEI", "CEI CEU", "CEI DIRET", "CEU CEI"]
 
     processa_relatorio_lançamentos(ids, tipos, merger, central)
 
     assert len(merger.pages) == len(solicitacoes_cei_relatorio_unificado)
-    
-@pytest.mark.django_db    
-def test_processa_relatorio_lancamentos_exception(solicitacoes_cei_relatorio_unificado, pdf_real_monkeypatch):
+
+
+@pytest.mark.django_db
+def test_processa_relatorio_lancamentos_exception(
+    solicitacoes_cei_relatorio_unificado, pdf_real_monkeypatch
+):
     from model_bakery import baker
+
     merger = PdfWriter()
     central = baker.make(CentralDeDownload)
 
     ids = [s.uuid for s in solicitacoes_cei_relatorio_unificado]
-    tipos = ['Não', 'Existe']
+    tipos = ["Não", "Existe"]
     with pytest.raises(ValueError, match="Unidades inválidas"):
         processa_relatorio_lançamentos(ids, tipos, merger, central)

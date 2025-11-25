@@ -101,7 +101,9 @@ class ContratoSimplesSerializer(serializers.ModelSerializer):
     edital = EditalSerializer()
     vigencias = VigenciaContratoSimplesSerializer(many=True)
     modalidade = ModalidadeSerializer()
-    programa_display = serializers.CharField(source='get_programa_display', read_only=True)
+    programa_display = serializers.CharField(
+        source="get_programa_display", read_only=True
+    )
 
     class Meta:
         model = Contrato
