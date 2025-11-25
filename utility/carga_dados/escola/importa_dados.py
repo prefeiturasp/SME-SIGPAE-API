@@ -1,4 +1,4 @@
-from random import choice, randint
+from secrets import choice, randbelow
 
 import environ
 from django.db.models import Q
@@ -522,7 +522,7 @@ def cria_escola_com_periodo_escolar():
             obj = EscolaPeriodoEscolar(
                 escola=escola,
                 periodo_escolar=periodo_escolar,
-                quantidade_alunos=randint(100, 500),
+                quantidade_alunos=randbelow(401) + 100,
                 horas_atendimento=choice([4, 8, 12]),
             )
             aux.append(obj)

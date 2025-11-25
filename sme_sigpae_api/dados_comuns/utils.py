@@ -3,6 +3,7 @@ import datetime
 import logging
 import os
 import re
+import secrets
 import uuid
 from calendar import monthrange
 from collections import defaultdict
@@ -876,3 +877,13 @@ def criar_log_copia(log_original, obj_copia):
 def copiar_logs(obj_original, obj_copia):
     for log_original in obj_original.logs.all():
         criar_log_copia(log_original, obj_copia)
+
+
+def secure_sample(seq, k):
+    seq = list(seq)
+    result = []
+    for _ in range(k):
+        choice = secrets.choice(seq)
+        result.append(choice)
+        seq.remove(choice)
+    return result

@@ -1,4 +1,4 @@
-from random import choice
+from secrets import choice
 
 from sme_sigpae_api.dieta_especial.data.alergia_intolerancia import (
     data_alergia_intolerancias,

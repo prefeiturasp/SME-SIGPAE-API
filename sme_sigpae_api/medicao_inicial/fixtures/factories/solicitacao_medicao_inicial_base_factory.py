@@ -19,6 +19,7 @@ from sme_sigpae_api.medicao_inicial.models import (
     Medicao,
     SolicitacaoMedicaoInicial,
     ValorMedicao,
+    OcorrenciaMedicaoInicial
 )
 
 fake = Faker("pt_BR")
@@ -58,3 +59,15 @@ class ValorMedicaoFactory(DjangoModelFactory):
 
     class Meta:
         model = ValorMedicao
+
+
+class OcorrenciaMedicaoInicialFactory(DjangoModelFactory):
+    solicitacao_medicao_inicial = SubFactory(SolicitacaoMedicaoInicialFactory)
+
+    nome_ultimo_arquivo = factory.Faker(
+        "file_name",
+        category="text"
+    )
+
+    class Meta:
+        model = OcorrenciaMedicaoInicial
