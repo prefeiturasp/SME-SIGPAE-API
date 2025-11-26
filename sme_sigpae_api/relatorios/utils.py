@@ -1,3 +1,4 @@
+import base64
 import io
 import math
 from datetime import date
@@ -47,6 +48,34 @@ def get_diretorias_regionais(lotes):
         if lote.diretoria_regional not in diretorias_regionais:
             diretorias_regionais.append(lote.diretoria_regional)
     return diretorias_regionais
+
+
+def merge_pdf_com_rodape_assinatura(arquivo_usuario, string_pdf_rodape):
+    arquivo_final = io.BytesIO()
+    pdf_rodape_assinatura = HTML(
+        string=string_pdf_rodape,
+        base_url=staticfiles_storage.location
+    ).write_pdf()
+
+    pdf_usuario = PdfFileReader(arquivo_usuario)
+    pdf_rodape = PdfFileReader(io.BytesIO(pdf_rodape_assinatura))
+    pdf_writer = PdfFileWriter()
+
+    total_paginas = pdf_usuario.getNumPages()
+
+    for idx in range(total_paginas):
+        page = pdf_usuario.getPage(idx)
+
+        if idx == total_paginas - 1:
+            page.mergePage(pdf_rodape.getPage(0))
+
+        pdf_writer.addPage(page)
+
+    pdf_writer.write(arquivo_final)
+    arquivo_final.seek(0)
+
+    encoded_string = base64.b64encode(arquivo_final.read())
+    return "data:application/pdf;base64,%s" % (encoded_string.decode("utf-8"))
 
 
 def html_to_pdf_response(html_string, pdf_filename, request=None):
