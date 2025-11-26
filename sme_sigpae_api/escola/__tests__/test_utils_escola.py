@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import tempfile
 import uuid
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -76,6 +77,7 @@ def test_grava_codescola_nao_existentes(valor):
 
     if os.path.exists(caminho_do_arquivo):
         os.remove(caminho_do_arquivo)
+    Path(caminho_do_arquivo).unlink(missing_ok=True)
 
 
 def test_gera_dict_codigo_aluno_por_codigo_escola(variaveis_globais_escola):
@@ -112,24 +114,27 @@ def test_get_escolas_unicas():
 
 
 def test_escreve_escolas_json():
-    caminho_do_arquivo = Path(f"/tmp/{uuid.uuid4()}.json")
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        caminho_do_arquivo = tmp.name
     escolas_data = {
         "escolas": [{"id": 1, "nome": "Escola A"}, {"id": 2, "nome": "Escola B"}]
     }
     texto = json.dumps(escolas_data, ensure_ascii=False)
 
     escreve_escolas_json(caminho_do_arquivo, texto)
-    assert caminho_do_arquivo.exists()
+
     with open(caminho_do_arquivo, "r") as f:
         conteudo = f.read()
     assert conteudo == texto
 
     if os.path.exists(caminho_do_arquivo):
         os.remove(caminho_do_arquivo)
+    Path(caminho_do_arquivo).unlink(missing_ok=True)
 
 
 def test_ajustes_no_arquivo():
-    caminho_do_arquivo = Path(f"/tmp/{uuid.uuid4()}.json")
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        caminho_do_arquivo = tmp.name
     conteudo_inicial = (
         """{'nome': "Escola A"}\n{'codigo_EOL': '454353464'}\n{'id': '6'}"""
     )
@@ -149,10 +154,12 @@ def test_ajustes_no_arquivo():
     assert conteudo_modificado == conteudo_esperado
     if os.path.exists(caminho_do_arquivo):
         os.remove(caminho_do_arquivo)
+    Path(caminho_do_arquivo).unlink(missing_ok=True)
 
 
 def test_get_informacoes_escola_turma_aluno():
-    caminho_do_arquivo = Path(f"/tmp/{uuid.uuid4()}.json")
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        caminho_do_arquivo = tmp.name
     codigo_eol = "123456"
 
     mock_response = MagicMock()
@@ -172,10 +179,12 @@ def test_get_informacoes_escola_turma_aluno():
 
     if os.path.exists(caminho_do_arquivo):
         os.remove(caminho_do_arquivo)
+    Path(caminho_do_arquivo).unlink(missing_ok=True)
 
 
 def test_get_informacoes_escola_turma_aluno_vazio():
-    caminho_do_arquivo = Path(f"/tmp/{uuid.uuid4()}.json")
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        caminho_do_arquivo = tmp.name
     codigo_eol = "654321"
 
     mock_response = MagicMock()
@@ -192,12 +201,14 @@ def test_get_informacoes_escola_turma_aluno_vazio():
 
     if os.path.exists(caminho_do_arquivo):
         os.remove(caminho_do_arquivo)
+    Path(caminho_do_arquivo).unlink(missing_ok=True)
 
 
 def test_get_informacoes_escola_turma_aluno_api_erro():
     os.makedirs(settings.MEDIA_ROOT, exist_ok=True)
 
-    caminho_do_arquivo = Path(f"/tmp/{uuid.uuid4()}.json")
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        caminho_do_arquivo = tmp.name
     caminho_arquiro_erro_api = os.path.join(
         settings.MEDIA_ROOT, "codigo_eol_erro_da_api_eol.txt"
     )

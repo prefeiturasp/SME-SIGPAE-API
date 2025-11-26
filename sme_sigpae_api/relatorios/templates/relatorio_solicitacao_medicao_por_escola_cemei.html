@@ -180,11 +180,11 @@
 
 
         <tr>
-          {{tabela|build_headers_faixas_etarias|safe}} {# nosec #}
+          {{ tabela|build_headers_faixas_etarias | safe }}
         </tr>
 
         <tr>
-          {{tabela|build_rows_faixas_etarias|safe}} {# nosec #}
+          {{ tabela|build_rows_faixas_etarias | safe }}
 
           {% for campo in tabela.nomes_campos %}
             <th>{{ campo|get_nome_campo }}</th>
