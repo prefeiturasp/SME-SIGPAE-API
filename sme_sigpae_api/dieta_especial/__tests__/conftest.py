@@ -1090,6 +1090,7 @@ def solicitacoes_dieta_especial_ativas_cemei(
         escola=escola_cemei,
         periodo_escolar=periodo_escolar_integral,
         serie="3B",
+        ciclo=Aluno.CICLO_ALUNO_CEI,
     )
     aluno_b = baker.make(
         Aluno,
@@ -1099,6 +1100,7 @@ def solicitacoes_dieta_especial_ativas_cemei(
         escola=escola_cemei,
         periodo_escolar=periodo_escolar_integral,
         serie="6C",
+        ciclo=Aluno.CICLO_ALUNO_EMEI,
     )
     aluno_c = baker.make(
         Aluno,
@@ -1108,6 +1110,7 @@ def solicitacoes_dieta_especial_ativas_cemei(
         escola=escola_cemei,
         periodo_escolar=periodo_escolar_integral,
         serie="1A",
+        ciclo=Aluno.CICLO_ALUNO_CEI,
     )
     baker.make(
         SolicitacaoDietaEspecial,
