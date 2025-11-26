@@ -112,16 +112,13 @@ def logs_periodo_integral_cei_ou_emei_escola_cemei(
         Q(aluno__periodo_escolar__nome=periodo_escolar_nome)
         | Q(tipo_solicitacao="ALUNO_NAO_MATRICULADO")
     )
-    series_cei = ["1", "2", "3", "4"]
     quantidade_cei = 0
     quantidade_emei = 0
     for dieta in dietas:
         if not dieta.aluno.serie:
             quantidade_cei += 1
             quantidade_emei += 1
-        elif any(
-            serie in dieta.aluno.serie for serie in series_cei if dieta.aluno.serie
-        ):
+        elif dieta.aluno.ciclo == dieta.aluno.CICLO_ALUNO_CEI:
             quantidade_cei += 1
         else:
             quantidade_emei += 1
@@ -205,7 +202,6 @@ def append_periodo_parcial(periodos, solicitacao_medicao):
 
 def append_faixas_dietas(dietas, escola):
     faixas = []
-    series_cei = ["1", "2", "3", "4"]
     for dieta_periodo in dietas:
         data_nascimento = dieta_periodo.aluno.data_nascimento
         meses = quantidade_meses(datetime.date.today(), data_nascimento)
@@ -216,10 +212,9 @@ def append_faixas_dietas(dietas, escola):
             faixa = FaixaEtaria.objects.get(
                 ativo=True, inicio__lte=meses, fim__gt=meses
             )
-        if escola.eh_cemei and not any(
-            serie in dieta_periodo.aluno.serie
-            for serie in series_cei
-            if dieta_periodo.aluno.serie
+        if (
+            escola.eh_cemei
+            and dieta_periodo.aluno.ciclo != dieta_periodo.aluno.CICLO_ALUNO_CEI
         ):
             continue
         faixas.append(faixa)
