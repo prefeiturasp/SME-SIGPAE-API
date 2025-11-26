@@ -3,7 +3,9 @@ from django.db import migrations, models
 
 
 def apagar_parametrizacoes(apps, _):
-    ParametrizacaoFinanceira = apps.get_model("medicao_inicial", "ParametrizacaoFinanceira")
+    ParametrizacaoFinanceira = apps.get_model(
+        "medicao_inicial", "ParametrizacaoFinanceira"
+    )
     ParametrizacaoFinanceira.objects.all().delete()
 
 

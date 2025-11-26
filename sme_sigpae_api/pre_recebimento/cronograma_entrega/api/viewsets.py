@@ -273,7 +273,13 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         if tem_filtro_pos_serializacao:
             serializer = CronogramaRelatorioSerializer(queryset, many=True)
 
-            dados_filtrados = filtrar_etapas(serializer.data, request)
+            filtros = {
+                "situacao": situacoes,
+                "data_inicial": data_inicial,
+                "data_final": data_final,
+            }
+
+            dados_filtrados = filtrar_etapas(serializer.data, filtros)
 
             page_size = self.pagination_class().page_size
             page_number = int(request.query_params.get("page", 1))
@@ -489,9 +495,16 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
             ).values_list("id", flat=True)
         )
 
+        filtros = {
+            "situacao": request.query_params.getlist("situacao", []),
+            "data_inicial": request.query_params.get("data_inicial"),
+            "data_final": request.query_params.get("data_final"),
+        }
+
         gerar_relatorio_cronogramas_xlsx_async.delay(
             request.user.username,
             ids_cronogramas,
+            filtros,
         )
 
         return Response(
@@ -514,9 +527,16 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
             ).values_list("id", flat=True)
         )
 
+        filtros = {
+            "situacao": request.query_params.getlist("situacao", []),
+            "data_inicial": request.query_params.get("data_inicial"),
+            "data_final": request.query_params.get("data_final"),
+        }
+
         gerar_relatorio_cronogramas_pdf_async.delay(
             request.user.username,
             ids_cronogramas,
+            filtros,
         )
 
         return Response(

@@ -325,7 +325,13 @@ class ParametrizacaoFinanceiraTabelaValorSerializer(serializers.ModelSerializer)
 
     class Meta:
         model = ParametrizacaoFinanceiraTabelaValor
-        fields = ["faixa_etaria", "nome_campo", "tipo_valor", "valor", "tipo_alimentacao"]
+        fields = [
+            "faixa_etaria",
+            "nome_campo",
+            "tipo_valor",
+            "valor",
+            "tipo_alimentacao",
+        ]
 
 
 class ParametrizacaoFinanceiraTabelaSerializer(serializers.ModelSerializer):
