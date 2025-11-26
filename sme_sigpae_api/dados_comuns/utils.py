@@ -156,18 +156,14 @@ def update_instance_from_dict(instance, attrs, save=False):
 
 
 def url_configs(variable, content):
-    base = env("REACT_APP_URL")
-
-    if base.startswith("http"):
-        return base + URL_CONFIGS[variable].format(**content)
-
-    # Porta → provavelmente ambiente local → use http
-    if ":" in base:
-        http_ou_https = "http://"
-    else:
-        http_ou_https = "https://"
-
-    return http_ou_https + base + URL_CONFIGS[variable].format(**content)
+    if "http" in env("REACT_APP_URL"):
+        return env("REACT_APP_URL") + URL_CONFIGS[variable].format(**content)
+    http_ou_https = "https://"
+    if ":" in env("REACT_APP_URL"):
+        http_ou_https = http_ou_https.replace("s", "")
+    return (
+        http_ou_https + env("REACT_APP_URL") + URL_CONFIGS[variable].format(**content)
+    )
 
 
 def convert_base64_to_contentfile(base64_str: str):
