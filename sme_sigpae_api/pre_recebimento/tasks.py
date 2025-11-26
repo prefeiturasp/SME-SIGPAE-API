@@ -1,6 +1,5 @@
 import io
 import logging
-import re
 from datetime import date
 
 import pandas as pd
@@ -14,6 +13,7 @@ from sme_sigpae_api.dados_comuns.utils import (
     numero_com_agrupador_de_milhar_e_decimal,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.helpers import (
+    extrair_numero_quantidade,
     filtrar_etapas,
     totalizador_relatorio_cronograma,
 )
@@ -26,18 +26,6 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
 from sme_sigpae_api.relatorios.utils import html_to_pdf_file
 
 logger = logging.getLogger(__name__)
-
-
-def _extrair_numero_quantidade(quantidade_str):
-    """
-    Extrai apenas os números da string de quantidade, removendo unidades.
-    Exemplo: "10.000,00 kg" -> "10.000,00"
-    """
-    if not quantidade_str:
-        return ""
-
-    match = re.match(r"([0-9.,]+)", str(quantidade_str).strip())
-    return match.group(1) if match else str(quantidade_str)
 
 
 @shared_task(
@@ -194,7 +182,7 @@ def _criar_linha_base_excel(cronograma, etapa):
         "etapa": etapa.get("etapa"),
         "parte": etapa.get("parte"),
         "data_programada": etapa.get("data_programada"),
-        "quantidade": _extrair_numero_quantidade(etapa.get("quantidade")),
+        "quantidade": extrair_numero_quantidade(etapa.get("quantidade")),
         "total_embalagens": etapa.get("total_embalagens"),
     }
 

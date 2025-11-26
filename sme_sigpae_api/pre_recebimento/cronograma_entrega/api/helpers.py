@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 
 from sme_sigpae_api.dados_comuns.fluxo_status import (
@@ -212,3 +213,15 @@ def filtrar_etapas(serialized_data, filtros):
             serialized_data.pop(i)
 
     return serialized_data
+
+
+def extrair_numero_quantidade(quantidade_str):
+    """
+    Extrai apenas os números da string de quantidade, removendo unidades.
+    Exemplo: "10.000,00 kg" -> "10.000,00"
+    """
+    if not quantidade_str:
+        return ""
+
+    match = re.match(r"([0-9.,]+)", str(quantidade_str).strip())
+    return match.group(1) if match else str(quantidade_str)
