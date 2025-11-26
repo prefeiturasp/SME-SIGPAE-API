@@ -419,8 +419,10 @@ class DocumentoFichaDeRecebimento(ModeloBase):
         related_name="fichas_documentos",
         verbose_name="Documento de Recebimento",
     )
-    quantidade_recebida = models.IntegerField(
+    quantidade_recebida = models.DecimalField(
         "Quantidade Recebida",
+        max_digits=15,
+        decimal_places=2,
         help_text="Quantidade recebida do documento",
         null=True,
         blank=True,
