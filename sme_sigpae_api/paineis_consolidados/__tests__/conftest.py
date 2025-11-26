@@ -1,6 +1,7 @@
 import datetime
 import os
-import uuid
+import tempfile
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -1345,7 +1346,8 @@ def dados_para_montar_excel():
         consts_pc.COL_IDX_OBSERVACOES,
         consts_pc.COL_IDX_DATA_LOG,
     ]
-    output_file = f"/tmp/{uuid.uuid4()}.xlsx"
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        output_file = tmp.name
     nome_aba = "Relatório"
 
     xlwriter = pd.ExcelWriter(output_file, engine="xlsxwriter")
@@ -1379,6 +1381,7 @@ def dados_para_montar_excel():
         xlwriter.close()
         if os.path.exists(output_file):
             os.remove(output_file)
+        Path(output_file).unlink(missing_ok=True)
 
 
 @pytest.fixture
