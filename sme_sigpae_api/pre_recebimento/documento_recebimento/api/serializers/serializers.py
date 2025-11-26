@@ -23,6 +23,7 @@ from .....dados_comuns.api.serializers import (
 
 
 def calcular_saldo_laudo(documento_recebimento):
+    from decimal import Decimal
 
     total_recebido = (
         DocumentoFichaDeRecebimento.objects.filter(
@@ -31,8 +32,22 @@ def calcular_saldo_laudo(documento_recebimento):
         ).aggregate(total=Sum("quantidade_recebida"))["total"]
         or 0
     )
+    total_recebido = DocumentoFichaDeRecebimento.objects.filter(
+        documento_recebimento=documento_recebimento,
+        ficha_recebimento__status='ASSINADA',
+        quantidade_recebida__isnull=False
+    ).aggregate(total=Sum('quantidade_recebida'))['total']
 
-    quantidade_laudo = documento_recebimento.quantidade_laudo or 0
+    if total_recebido is None:
+        total_recebido = Decimal('0.00')
+    else:
+        total_recebido = Decimal(str(total_recebido))
+
+    quantidade_laudo = documento_recebimento.quantidade_laudo
+    if quantidade_laudo is None:
+        quantidade_laudo = Decimal('0.00')
+    else:
+        quantidade_laudo = Decimal(str(quantidade_laudo))
 
     return quantidade_laudo - total_recebido
 
