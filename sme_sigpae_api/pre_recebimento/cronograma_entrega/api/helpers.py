@@ -178,12 +178,13 @@ def passa_filtro_situacao(etapa_data, situacoes):
     return incluir_etapa
 
 
-def filtrar_etapas(serialized_data, request):
-    data_inicial = request.query_params.get("data_inicial")
-    data_final = request.query_params.get("data_final")
-    situacoes = request.query_params.getlist("situacao", [])
+def filtrar_etapas(serialized_data, filtros):
+    data_inicial = filtros.get("data_inicial")
+    data_final = filtros.get("data_final")
+    situacoes = filtros.get("situacao", [])
 
-    if not any([data_inicial, data_final, situacoes]) or len(situacoes) == 3:
+    sem_datas = not data_inicial and not data_final
+    if (sem_datas and not situacoes) or (sem_datas and len(situacoes) == 3):
         return serialized_data
 
     data_inicio_obj = parse_date(data_inicial) if data_inicial else None
