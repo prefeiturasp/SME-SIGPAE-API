@@ -615,10 +615,7 @@ class Contrato(ExportModelOperationsMixin("contato"), TemChaveExterna):
         "Nº da Chamada Pública", max_length=100, blank=True
     )
     programa = models.CharField(
-        "Programa",
-        max_length=20,
-        choices=PROGRAMA_CHOICES,
-        default=ALIMENTACAO_ESCOLAR
+        "Programa", max_length=20, choices=PROGRAMA_CHOICES, default=ALIMENTACAO_ESCOLAR
     )
 
     def __str__(self):

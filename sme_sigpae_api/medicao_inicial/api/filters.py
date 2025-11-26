@@ -45,7 +45,9 @@ class ParametrizacaoFinanceiraFilter(filters.FilterSet):
 
     def filtra_tipos_unidades(self, queryset, _, value):
         tipos_unidades_uuids = value.split(",")
-        return queryset.filter(grupo_unidade_escolar__tipos_unidades__uuid__in=tipos_unidades_uuids).distinct()
+        return queryset.filter(
+            grupo_unidade_escolar__tipos_unidades__uuid__in=tipos_unidades_uuids
+        ).distinct()
 
 
 class RelatorioFinanceiroFilter(filters.FilterSet):

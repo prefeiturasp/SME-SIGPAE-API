@@ -4,6 +4,7 @@ import json
 
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import F, IntegerField, Q, QuerySet
 from django.db.models.functions import Cast
 from django.shortcuts import get_object_or_404
@@ -551,7 +552,6 @@ class SolicitacaoMedicaoInicialViewSet(
             tipo_unidade.iniciais
             for tipo_unidade in grupo_unidade_escolar.tipos_unidades.all()
         ]
-        tipos_de_unidade_do_grupo_str = ", ".join(tipos_de_unidade_do_grupo)
 
         if query_set.exists():
             solicitacoes = []
@@ -567,7 +567,7 @@ class SolicitacaoMedicaoInicialViewSet(
                     user=user,
                     nome_arquivo=nome_arquivo,
                     ids_solicitacoes=solicitacoes,
-                    tipos_de_unidade=tipos_de_unidade_do_grupo_str,
+                    tipos_de_unidade=tipos_de_unidade_do_grupo,
                 )
                 return Response(
                     dict(
@@ -1185,7 +1185,7 @@ class SolicitacaoMedicaoInicialViewSet(
         try:
             solicitacao_medicao_inicial = self.get_object()
             self._valida_sem_lancamentos(solicitacao_medicao_inicial)
-            justificativa = request.data.get("justificativa", None)
+            justificativa = request.data.get("justificativa", "")
             self._solicita_correcao_em_solicitacao(
                 solicitacao_medicao_inicial, request.user, justificativa
             )
@@ -1383,7 +1383,7 @@ class MedicaoViewSet(
     )
     def codae_pede_correcao_periodo(self, request, uuid=None):
         medicao = self.get_object()
-        justificativa = request.data.get("justificativa", None)
+        justificativa = request.data.get("justificativa", "")
         uuids_valores_medicao_para_correcao = request.data.get(
             "uuids_valores_medicao_para_correcao", None
         )
@@ -1587,7 +1587,7 @@ class OcorrenciaViewSet(
     def dre_pede_correcao_ocorrencia(self, request, uuid=None):
         object = self.get_object()
         ocorrencia = object.solicitacao_medicao_inicial.ocorrencia
-        justificativa = request.data.get("justificativa", None)
+        justificativa = request.data.get("justificativa", "")
         try:
             ocorrencia.dre_pede_correcao(user=request.user, justificativa=justificativa)
             serializer = self.get_serializer(
@@ -1608,7 +1608,7 @@ class OcorrenciaViewSet(
     def codae_pede_correcao_ocorrencia(self, request, uuid=None):
         object = self.get_object()
         ocorrencia = object.solicitacao_medicao_inicial.ocorrencia
-        justificativa = request.data.get("justificativa", None)
+        justificativa = request.data.get("justificativa", "")
         try:
             ocorrencia.codae_pede_correcao_ocorrencia(
                 user=request.user, justificativa=justificativa
@@ -1663,6 +1663,65 @@ class OcorrenciaViewSet(
                 dict(detail=f"Erro de transição de estado: {e}"),
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    @action(
+        detail=False,
+        methods=["POST"],
+        url_path="gera-ocorrencia-para-correcao",
+        permission_classes=[
+            UsuarioDiretoriaRegional
+            | UsuarioCODAEGestaoAlimentacao
+            | UsuarioCODAENutriManifestacao
+            | UsuarioCODAEGabinete
+            | UsuarioDinutreDiretoria
+            | UsuarioEmpresaTerceirizada
+            | UsuarioSupervisaoNutricao
+        ],
+    )
+    @transaction.atomic
+    def gera_ocorrencia_para_correcao(self, request):
+        solicitacao_uuid = request.data.get("solicitacao_medicao_uuid")
+
+        try:
+            solicitacao_medicao_inicial = SolicitacaoMedicaoInicial.objects.get(
+                uuid=solicitacao_uuid
+            )
+
+            ocorrencia = getattr(solicitacao_medicao_inicial, "ocorrencia", None)
+            if ocorrencia:
+                return Response(
+                    {"medicao": "Já possui ocorrência associada"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            ocorrencia = OcorrenciaMedicaoInicial.objects.create(
+                solicitacao_medicao_inicial=solicitacao_medicao_inicial
+            )
+
+            usuario = request.user
+            justificativa = request.data.get("justificativa", "")
+
+            if usuario.tipo_usuario == "diretoriaregional":
+                ocorrencia.dre_pede_correcao(user=usuario, justificativa=justificativa)
+            else:
+                ocorrencia.codae_pede_correcao_ocorrencia(
+                    user=usuario, justificativa=justificativa
+                )
+
+        except SolicitacaoMedicaoInicial.DoesNotExist:
+            return Response(
+                {"solicitacao_medicao_uuid": "Medição não encontrada"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        except InvalidTransitionError as e:
+            return Response(
+                {"detail": f"Erro de transição de estado: {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = self.get_serializer(ocorrencia)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class AlimentacaoLancamentoEspecialViewSet(mixins.ListModelMixin, GenericViewSet):

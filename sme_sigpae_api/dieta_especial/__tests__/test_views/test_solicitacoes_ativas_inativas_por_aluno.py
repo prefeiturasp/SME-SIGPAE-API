@@ -74,10 +74,12 @@ def test_calculo_totais_solicitacoes_sem_filtros(aluno_factory):
 
 
 def test_calculo_totais_solicitacoes_aluno_especifico(aluno_factory):
+    from django.db.models import Q
+
     from sme_sigpae_api.escola.models import Aluno
 
-    aluno1 = aluno_factory.create(codigo_eol="1234567")
-    aluno2 = aluno_factory.create(codigo_eol="7654321")
+    aluno_factory.create(codigo_eol="1234567", nome="João Silva")
+    aluno_factory.create(codigo_eol=None, nome="Maria Santos")
 
     view = SolicitacoesAtivasInativasPorAlunoView()
 
@@ -101,17 +103,37 @@ def test_calculo_totais_solicitacoes_aluno_especifico(aluno_factory):
     view._qs_inativas_view = MagicMock(return_value=mock_inativas)
     view.aplicar_filtros_escola_view = MagicMock(side_effect=lambda qs, **kwargs: qs)
 
-    alunos_qs = Aluno.objects.filter(codigo_eol="1234567")
+    alunos_query = Aluno.objects.filter(
+        Q(codigo_eol="1234567") | Q(codigo_eol__isnull=True)
+    )
 
-    total_ativas, total_inativas = view.calcular_totais(alunos_qs=alunos_qs)
+    total_ativas, total_inativas = view.calcular_totais(alunos_qs=alunos_query)
 
     assert total_ativas == 1
     assert total_inativas == 2
 
-    mock_ativas.filter.assert_called_once()
-    call_args = mock_ativas.filter.call_args
-    assert "codigo_eol_aluno__in" in call_args[1]
-    assert list(call_args[1]["codigo_eol_aluno__in"]) == ["1234567"]
+    for mock_query, nome_query in [
+        (mock_ativas, "ativas"),
+        (mock_inativas, "inativas"),
+    ]:
+        mock_query.filter.assert_called_once()
+
+        objeto_q = mock_query.filter.call_args[0][0]
+
+        assert isinstance(objeto_q, Q)
+        assert objeto_q.connector == Q.OR
+
+        condicoes = objeto_q.children
+
+        chave_primeira_condicao, valor_primeira_condicao = condicoes[0]
+        assert chave_primeira_condicao == "codigo_eol_aluno__in"
+
+        segunda_condicao = condicoes[1]
+        assert isinstance(segunda_condicao, Q)
+        assert segunda_condicao.connector == Q.AND
+
+        dict_segunda_condicao = dict(segunda_condicao.children)
+        assert dict_segunda_condicao["codigo_eol_aluno__isnull"] == True
 
 
 def test_filtro_por_serie_exata_7a(

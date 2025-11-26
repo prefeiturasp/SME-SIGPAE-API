@@ -17,7 +17,6 @@ def cancelar_dieta(dieta_uuid):
     justificativa = f"<p>{fake.paragraph(nb_sentences=10)}</p>"
     dieta.inicia_fluxo_inativacao(user=usuario, justificativa=justificativa)
 
-    dieta.ativo = False
     dieta.cancelar_pedido(user=usuario_nutricodae, justificativa=justificativa)
     dieta.save()
 

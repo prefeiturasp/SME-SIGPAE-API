@@ -1,12 +1,13 @@
 from django.db import models
-from sme_sigpae_api.escola.models import Lote, Escola
+
 from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
 from sme_sigpae_api.dados_comuns.behaviors import (
     CriadoEm,
     Nomeavel,
-    TemChaveExterna,
     TemAlteradoEm,
+    TemChaveExterna,
 )
+from sme_sigpae_api.escola.models import Escola, Lote
 
 
 class RecreioNasFerias(TemChaveExterna, CriadoEm, TemAlteradoEm):
@@ -19,16 +20,12 @@ class RecreioNasFerias(TemChaveExterna, CriadoEm, TemAlteradoEm):
 
 
 class RecreioNasFeriasUnidadeParticipante(TemChaveExterna, CriadoEm, TemAlteradoEm):
-    CEI_OU_EMEI = (
-        ("N/A", "N/A"),
-        ("CEI", "CEI"),
-        ("EMEI", "EMEI")
-    )
+    CEI_OU_EMEI = (("N/A", "N/A"), ("CEI", "CEI"), ("EMEI", "EMEI"))
 
     recreio_nas_ferias = models.ForeignKey(
         RecreioNasFerias,
         on_delete=models.CASCADE,
-        related_name='unidades_participantes'
+        related_name="unidades_participantes",
     )
     lote = models.ForeignKey(Lote, on_delete=models.PROTECT)
     unidade_educacional = models.ForeignKey(Escola, on_delete=models.PROTECT)
@@ -46,10 +43,11 @@ class CategoriaAlimentacao(TemChaveExterna, CriadoEm, TemAlteradoEm, Nomeavel):
     Categorias de alimentação para Recreio nas Férias
     Ex: Inscritos, Colaboradores, Infantil
     """
+
     class Meta:
-        verbose_name = 'Categoria de Alimentação'
-        verbose_name_plural = 'Categorias de Alimentação'
-        ordering = ['nome']
+        verbose_name = "Categoria de Alimentação"
+        verbose_name_plural = "Categorias de Alimentação"
+        ordering = ["nome"]
 
     def __str__(self):
         return self.nome
@@ -59,15 +57,15 @@ class RecreioNasFeriasUnidadeTipoAlimentacao(TemChaveExterna, CriadoEm, TemAlter
     recreio_ferias_unidade = models.ForeignKey(
         RecreioNasFeriasUnidadeParticipante,
         on_delete=models.CASCADE,
-        related_name='tipos_alimentacao'
+        related_name="tipos_alimentacao",
     )
     tipo_alimentacao = models.ForeignKey(TipoAlimentacao, on_delete=models.PROTECT)
     categoria = models.ForeignKey(CategoriaAlimentacao, on_delete=models.PROTECT)
 
     class Meta:
-        unique_together = ['recreio_ferias_unidade', 'tipo_alimentacao', 'categoria']
-        verbose_name = 'Tipo de Alimentação da Unidade'
-        verbose_name_plural = 'Tipos de Alimentação das Unidades'
+        unique_together = ["recreio_ferias_unidade", "tipo_alimentacao", "categoria"]
+        verbose_name = "Tipo de Alimentação da Unidade"
+        verbose_name_plural = "Tipos de Alimentação das Unidades"
 
     def __str__(self):
         return f"{self.categoria} - {self.tipo_alimentacao}"

@@ -303,8 +303,8 @@ class SolicitacaoMedicaoInicial(
 class OcorrenciaMedicaoInicial(TemChaveExterna, Logs, FluxoSolicitacaoMedicaoInicial):
     """Modelo para mapear a tabela Ocorrência e salvar objetos ocorrêcia da medição inicial."""
 
-    nome_ultimo_arquivo = models.CharField(max_length=100)
-    ultimo_arquivo = models.FileField()
+    nome_ultimo_arquivo = models.CharField(max_length=100, null=True, blank=True)
+    ultimo_arquivo = models.FileField(null=True)
     solicitacao_medicao_inicial = models.OneToOneField(
         SolicitacaoMedicaoInicial,
         on_delete=models.CASCADE,

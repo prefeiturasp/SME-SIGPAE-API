@@ -84,7 +84,7 @@ class SuspensaoAlimentacaoDaCEIViewSet(viewsets.ModelViewSet):
     def cancela_suspensao_cei(self, request, uuid=None):
         suspensao_de_alimentacao = self.get_object()
         try:
-            justificativa = request.data.get("justificativa")
+            justificativa = request.data.get("justificativa", "")
             suspensao_de_alimentacao.escola_cancela(
                 user=request.user, justificativa=justificativa
             )

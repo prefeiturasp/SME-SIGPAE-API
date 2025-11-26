@@ -160,13 +160,24 @@ class ClausulaDeDescontoAdmin(admin.ModelAdmin):
 @admin.register(ParametrizacaoFinanceira)
 class ParametrizacaoFinanceiraAdmin(admin.ModelAdmin):
     list_display = ("edital", "lote", "get_tipos_unidades")
-    search_fields = ("edital__numero", "lote__nome", "grupo_unidade_escolar__tipos_unidades__iniciais")
-    list_filter = ("edital__numero", "lote__nome", "grupo_unidade_escolar__tipos_unidades__iniciais")
+    search_fields = (
+        "edital__numero",
+        "lote__nome",
+        "grupo_unidade_escolar__tipos_unidades__iniciais",
+    )
+    list_filter = (
+        "edital__numero",
+        "lote__nome",
+        "grupo_unidade_escolar__tipos_unidades__iniciais",
+    )
 
     @admin.display(description="Tipo Unidade")
     def get_tipos_unidades(self, obj):
         return ", ".join(
-            [tipo_unidade.iniciais for tipo_unidade in obj.grupo_unidade_escolar.tipos_unidades.all()]
+            [
+                tipo_unidade.iniciais
+                for tipo_unidade in obj.grupo_unidade_escolar.tipos_unidades.all()
+            ]
         )
 
 

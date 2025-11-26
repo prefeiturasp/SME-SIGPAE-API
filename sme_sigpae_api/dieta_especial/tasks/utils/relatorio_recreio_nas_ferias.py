@@ -12,26 +12,30 @@ def gera_dicionario_relatorio_recreio(solicitacoes):
     dados = []
     for solicitacao in solicitacoes:
         alergias = solicitacao.alergias_intolerancias.all()
-        alergias_lista = [a.descricao for a in alergias] if alergias else ["--"]
+        alergias_lista = [a.descricao for a in alergias] if alergias else ["-"]
         dados_solicitacoes = {
-            "codigo_eol_aluno": solicitacao.aluno.codigo_eol,
+            "codigo_eol_aluno": solicitacao.aluno.codigo_eol or "Aluno não matriculado",
             "nome_aluno": solicitacao.aluno.nome,
-            "nome_escola": solicitacao.escola.nome,
+            "nome_escola": (
+                solicitacao.escola.nome
+                if not solicitacao.tipo_solicitacao == solicitacao.ALUNO_NAO_MATRICULADO
+                else "-"
+            ),
             "escola_destino": (
-                solicitacao.escola_destino.nome if solicitacao.escola_destino else "--"
+                solicitacao.escola_destino.nome if solicitacao.escola_destino else "-"
             ),
             "data_inicio": (
                 solicitacao.data_inicio.strftime("%d/%m/%Y")
                 if solicitacao.data_inicio
-                else "--"
+                else "-"
             ),
             "data_fim": (
                 solicitacao.data_termino.strftime("%d/%m/%Y")
                 if solicitacao.data_termino
-                else "--"
+                else "-"
             ),
             "classificacao": (
-                solicitacao.classificacao.nome if solicitacao.classificacao else "--"
+                solicitacao.classificacao.nome if solicitacao.classificacao else "-"
             ),
             "alergias_intolerancias": ", ".join(alergias_lista),
         }

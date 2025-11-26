@@ -1,5 +1,3 @@
-import random
-
 from factory import LazyAttribute, Sequence, SubFactory
 from factory.django import DjangoModelFactory
 from faker import Faker
@@ -119,7 +117,7 @@ class AlunoFactory(DjangoModelFactory):
     nome = Sequence(lambda n: f"{fake.word()}")
     escola = SubFactory(EscolaFactory)
     periodo_escolar = SubFactory(PeriodoEscolarFactory)
-    codigo_eol = LazyAttribute(lambda _: random.randint(1000000, 9999999))
+    codigo_eol = Sequence(lambda n: 1000000 + (n % 9000000))
     data_nascimento = LazyAttribute(
         lambda _: fake.date_of_birth(minimum_age=1, maximum_age=6)
     )
@@ -132,7 +130,7 @@ class HistoricoMatriculaAlunoFactory(DjangoModelFactory):
     aluno = SubFactory(AlunoFactory)
     escola = SubFactory(EscolaFactory)
     data_inicio = LazyAttribute(lambda _: fake.date())
-    codigo_situacao = LazyAttribute(lambda _: random.randint(1, 13))
+    codigo_situacao = Sequence(lambda n: 1 + (n % 13))
 
     class Meta:
         model = HistoricoMatriculaAluno

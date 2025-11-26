@@ -1,4 +1,5 @@
 import datetime
+
 from django.db.models import Sum
 from rest_framework import serializers
 
@@ -14,20 +15,22 @@ from sme_sigpae_api.pre_recebimento.documento_recebimento.models import (
 from sme_sigpae_api.pre_recebimento.qualidade.api.serializers.serializers import (
     LaboratorioCredenciadoSimplesSerializer,
 )
+from sme_sigpae_api.recebimento.models import DocumentoFichaDeRecebimento
 
 from .....dados_comuns.api.serializers import (
     LogSolicitacoesUsuarioSimplesSerializer,
 )
 
-from sme_sigpae_api.recebimento.models import DocumentoFichaDeRecebimento
-
 
 def calcular_saldo_laudo(documento_recebimento):
 
-    total_recebido = DocumentoFichaDeRecebimento.objects.filter(
-        documento_recebimento=documento_recebimento,
-        ficha_recebimento__status='ASSINADA'
-    ).aggregate(total=Sum('quantidade_recebida'))['total'] or 0
+    total_recebido = (
+        DocumentoFichaDeRecebimento.objects.filter(
+            documento_recebimento=documento_recebimento,
+            ficha_recebimento__status="ASSINADA",
+        ).aggregate(total=Sum("quantidade_recebida"))["total"]
+        or 0
+    )
 
     quantidade_laudo = documento_recebimento.quantidade_laudo or 0
 

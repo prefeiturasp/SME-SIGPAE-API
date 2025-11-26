@@ -25,6 +25,7 @@ module.exports = defineConfig({
 		usuario_coordenador_supervisao_nutricao:
 			process.env.COORDENADOR_SUPERVISAO_NUTRICAO,
 		usuario_dilog_cronograma: process.env.DILOG_CRONOGRAMA,
+		usuario_dilog_qualidade: process.env.DILOG_QUALIDADE,
 		usuario_abastecimento: process.env.ABASTECIMENTO,
 		usuario_diretor_ue: process.env.DIRETOR_UE,
 		usuario_codae: process.env.CODAE,

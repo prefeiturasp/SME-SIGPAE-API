@@ -1,5 +1,6 @@
 import datetime
 from calendar import monthrange
+from typing import Callable
 
 import environ
 from django.contrib.staticfiles.storage import staticfiles_storage
@@ -7,6 +8,11 @@ from django.db.models import F, FloatField, Sum
 from django.http import HttpResponseNotAllowed
 from django.template.loader import get_template, render_to_string
 
+from sme_sigpae_api.dados_comuns.constants import (
+    ORDEM_UNIDADES_GRUPO_CEI,
+    ORDEM_UNIDADES_GRUPO_EMEF,
+    ORDEM_UNIDADES_GRUPO_EMEI,
+)
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
@@ -2072,3 +2078,36 @@ def relatorio_reclamacao_produtos_excel(
         reclamacoes, quantidade_reclamacoes, filtros
     )
     return output.read()
+
+
+def obter_relatorio_da_unidade(tipos_de_unidade: list[str]) -> Callable:
+    """
+    Identifica o módulo de relatório unificado apropriado para os tipos de unidade.
+
+    Determina qual módulo de geração de relatório unificado deve ser utilizado baseado nos tipos de unidade fornecidos,
+    seguindo uma estratégia de prioridade definida por grupos pré-estabelecidos
+
+    Args:
+        tipos_de_unidade (list[str]): Lista de tipos de unidade (siglas) para as quais identificar o módulo apropriado.
+
+    Raises:
+        ValueError: Se nenhum módulo for encontrado para os tipos de unidade fornecidos, indicando que os tipos não estão mapeados
+        em nenhum grupo conhecido.
+
+    Returns:
+        Callable: Módulo de relatório unificado a ser utilizado
+    """
+    estrategias = [
+        {
+            "unidades": ORDEM_UNIDADES_GRUPO_EMEF | ORDEM_UNIDADES_GRUPO_EMEI,
+            "modulo": relatorio_solicitacao_medicao_por_escola,
+        },
+        {
+            "unidades": ORDEM_UNIDADES_GRUPO_CEI,
+            "modulo": relatorio_solicitacao_medicao_por_escola_cei,
+        },
+    ]
+    for estrategia in estrategias:
+        if set(tipos_de_unidade).issubset(estrategia["unidades"]):
+            return estrategia["modulo"]
+    raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
