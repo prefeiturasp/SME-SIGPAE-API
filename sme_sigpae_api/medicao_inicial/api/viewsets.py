@@ -20,7 +20,6 @@ from workalendar.america import BrazilSaoPauloCity
 from xworkflows import InvalidTransitionError
 
 from sme_sigpae_api.cardapio.utils import ordem_periodos
-from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from sme_sigpae_api.medicao_inicial.services.relatorio_adesao import (
     obtem_resultados,
     valida_parametros_periodo_lancamento,
@@ -353,7 +352,10 @@ class SolicitacaoMedicaoInicialViewSet(
         workflow = request.query_params.get("status")
         qs = self._condicao_por_usuario(query_set)
         qs = qs.filter(**kwargs)
-        qs_ordenado = ordenar_unidades(qs)
+        qs_ordenado = sorted(
+            list(qs),
+            key=lambda obj: (obj.log_mais_recente.criado_em or datetime.min)
+        )
         total = len(qs_ordenado)
         paginated = qs_ordenado[offset : offset + limit]
         return {
