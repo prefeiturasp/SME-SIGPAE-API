@@ -10,17 +10,18 @@ from sme_sigpae_api.dados_comuns.utils import (
     atualiza_central_download,
     atualiza_central_download_com_erro,
     gera_objeto_na_central_download,
+    numero_com_agrupador_de_milhar_e_decimal,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.helpers import (
+    extrair_numero_quantidade,
+    filtrar_etapas,
     totalizador_relatorio_cronograma,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     CronogramaRelatorioSerializer,
-    EtapaCronogramaRelatorioSerializer,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
     Cronograma,
-    EtapasDoCronograma,
 )
 from sme_sigpae_api.relatorios.utils import html_to_pdf_file
 
@@ -33,7 +34,7 @@ logger = logging.getLogger(__name__)
     time_limit=3000,
     soft_time_limit=3000,
 )
-def gerar_relatorio_cronogramas_xlsx_async(user, ids_cronogramas):
+def gerar_relatorio_cronogramas_xlsx_async(user, ids_cronogramas, filtros=None):
     logger.info(
         "x-x-x-x Iniciando a geração do arquivo relatorio_cronogramas.xlsx x-x-x-x"
     )
@@ -71,7 +72,7 @@ def gerar_relatorio_cronogramas_xlsx_async(user, ids_cronogramas):
     xlsxwriter = pd.ExcelWriter(output, engine="xlsxwriter")
 
     try:
-        dados, subtitulo = _dados_relatorio_cronograma_xlsx(ids_cronogramas)
+        dados, subtitulo = _dados_relatorio_cronograma_xlsx(ids_cronogramas, filtros)
 
         if dados:
             df = pd.DataFrame(dados)
@@ -119,9 +120,9 @@ def gerar_relatorio_cronogramas_xlsx_async(user, ids_cronogramas):
     time_limit=3000,
     soft_time_limit=3000,
 )
-def gerar_relatorio_cronogramas_pdf_async(user, ids_cronogramas):
+def gerar_relatorio_cronogramas_pdf_async(user, ids_cronogramas, filtros=None):
     logger.info(
-        "x-x-x-x Iniciando a geração do arquivo relatorio_cronogramas.xlsx x-x-x-x"
+        "x-x-x-x Iniciando a geração do arquivo relatorio_cronogramas.pdf x-x-x-x"
     )
 
     TEMPLATE_HTML = "relatorio_cronogramas.html"
@@ -133,12 +134,14 @@ def gerar_relatorio_cronogramas_pdf_async(user, ids_cronogramas):
     )
 
     try:
-        paginas, subtitulo = _dados_relatorio_cronograma_pdf(ids_cronogramas)
+        paginas, subtitulo = _dados_relatorio_cronograma_pdf(ids_cronogramas, filtros)
+        print(filtros["situacao"])
         html_string = render_to_string(
             TEMPLATE_HTML,
             {
                 "paginas": paginas,
                 "subtitulo": subtitulo,
+                "filtros": filtros,
             },
         )
         arquivo_relatorio = html_to_pdf_file(
@@ -162,24 +165,86 @@ def gerar_relatorio_cronogramas_pdf_async(user, ids_cronogramas):
         )
 
 
-def _dados_relatorio_cronograma_xlsx(ids_cronogramas):
+def _criar_linha_base_excel(cronograma, etapa):
+    """Cria a linha base com dados do cronograma e etapa para o Excel."""
+    return {
+        "cronograma_numero": cronograma.get("numero"),
+        "produto_nome": cronograma.get("produto", ""),
+        "empresa_razao_social": cronograma.get("empresa", ""),
+        "marca": cronograma.get("marca", ""),
+        "qtd_total_programada": numero_com_agrupador_de_milhar_e_decimal(
+            cronograma.get("qtd_total_programada")
+        ),
+        "produto_unidade": etapa.get("unidade_medida"),
+        "custo_unitario": cronograma.get("custo_unitario_produto"),
+        "armazem": cronograma.get("armazem", ""),
+        "cronograma_status": cronograma.get("status"),
+        "etapa": etapa.get("etapa"),
+        "parte": etapa.get("parte"),
+        "data_programada": etapa.get("data_programada"),
+        "quantidade": extrair_numero_quantidade(etapa.get("quantidade")),
+        "total_embalagens": etapa.get("total_embalagens"),
+    }
+
+
+def _processar_fichas_recebimento(linha_base, etapa, fichas_recebimento):
+    linhas = []
+    for ficha in fichas_recebimento:
+        linha = linha_base.copy()
+
+        if ficha.get("houve_reposicao"):
+            linha["etapa"] = (
+                f"{etapa.get('etapa')} - {etapa.get('parte')} - Reposição / Pagamento de Notificação"
+            )
+            linha["parte"] = ""
+
+        linha["situacao"] = ficha.get("situacao")
+        linhas.append(linha)
+
+    return linhas
+
+
+def _deve_mostrar_linha_a_receber(etapa, fichas_recebimento, filtros):
+    situacoes_filtro = filtros.get("situacao", []) if filtros else []
+    return (not fichas_recebimento or not etapa.get("foi_recebida")) and (
+        not situacoes_filtro or "A Receber" in situacoes_filtro
+    )
+
+
+def _dados_relatorio_cronograma_xlsx(ids_cronogramas, filtros=None):
     cronogramas = (
         Cronograma.objects.filter(id__in=ids_cronogramas)
         .order_by("-alterado_em")
         .distinct()
     )
-    etapas = EtapasDoCronograma.objects.filter(cronograma__in=cronogramas).order_by(
-        "-cronograma__alterado_em",
-        "etapa",
-        "parte",
-    )
-    dados = EtapaCronogramaRelatorioSerializer(etapas, many=True).data
-    subtitulo = _subtitulo_relatorio_cronogramas_xlsx(cronogramas)
 
+    dados_cronogramas = CronogramaRelatorioSerializer(cronogramas, many=True).data
+
+    if filtros:
+        dados_cronogramas = filtrar_etapas(dados_cronogramas, filtros)
+
+    dados = []
+    for cronograma in dados_cronogramas:
+        for etapa in cronograma.get("etapas", []):
+            linha_base = _criar_linha_base_excel(cronograma, etapa)
+            fichas_recebimento = etapa.get("fichas_recebimento", [])
+
+            if fichas_recebimento:
+                linhas_fichas = _processar_fichas_recebimento(
+                    linha_base, etapa, fichas_recebimento
+                )
+                dados.extend(linhas_fichas)
+
+            if _deve_mostrar_linha_a_receber(etapa, fichas_recebimento, filtros):
+                linha = linha_base.copy()
+                linha["situacao"] = "A receber"
+                dados.append(linha)
+
+    subtitulo = _subtitulo_relatorio_cronogramas_xlsx(cronogramas)
     return dados, subtitulo
 
 
-def _dados_relatorio_cronograma_pdf(ids_cronogramas):
+def _dados_relatorio_cronograma_pdf(ids_cronogramas, filtros=None):
     cronogramas = (
         Cronograma.objects.prefetch_related("etapas")
         .filter(id__in=ids_cronogramas)
@@ -187,6 +252,10 @@ def _dados_relatorio_cronograma_pdf(ids_cronogramas):
         .distinct()
     )
     dados = CronogramaRelatorioSerializer(cronogramas, many=True).data
+
+    if filtros:
+        dados = filtrar_etapas(dados, filtros)
+
     dados_paginados = _paginar_dados_relatorio_pdf(dados)
     subtitulo = _subtitulo_relatorio_cronogramas_pdf(cronogramas)
 

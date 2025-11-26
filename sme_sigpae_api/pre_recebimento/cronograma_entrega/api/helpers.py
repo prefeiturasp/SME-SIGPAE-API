@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 
 from sme_sigpae_api.dados_comuns.fluxo_status import (
@@ -178,12 +179,13 @@ def passa_filtro_situacao(etapa_data, situacoes):
     return incluir_etapa
 
 
-def filtrar_etapas(serialized_data, request):
-    data_inicial = request.query_params.get("data_inicial")
-    data_final = request.query_params.get("data_final")
-    situacoes = request.query_params.getlist("situacao", [])
+def filtrar_etapas(serialized_data, filtros):
+    data_inicial = filtros.get("data_inicial")
+    data_final = filtros.get("data_final")
+    situacoes = filtros.get("situacao", [])
 
-    if not any([data_inicial, data_final, situacoes]) or len(situacoes) == 3:
+    sem_datas = not data_inicial and not data_final
+    if (sem_datas and not situacoes) or (sem_datas and len(situacoes) == 3):
         return serialized_data
 
     data_inicio_obj = parse_date(data_inicial) if data_inicial else None
@@ -211,3 +213,15 @@ def filtrar_etapas(serialized_data, request):
             serialized_data.pop(i)
 
     return serialized_data
+
+
+def extrair_numero_quantidade(quantidade_str):
+    """
+    Extrai apenas os números da string de quantidade, removendo unidades.
+    Exemplo: "10.000,00 kg" -> "10.000,00"
+    """
+    if not quantidade_str:
+        return ""
+
+    match = re.match(r"([0-9.,]+)", str(quantidade_str).strip())
+    return match.group(1) if match else str(quantidade_str)

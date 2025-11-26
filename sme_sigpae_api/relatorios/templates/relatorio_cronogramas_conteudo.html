@@ -54,14 +54,41 @@
 
                     <tbody>
                       {% for etapa in cronograma.etapas %}
-                        <tr>
-                          <td>{{ etapa.etapa|default:"-" }}</td>
-                          <td>{{ etapa.parte|default:"-" }}</td>
-                          <td>{{ etapa.data_programada|default:"-" }}</td>
-                          <td>{{ etapa.quantidade|default:"-" }}</td>
-                          <td>{{ etapa.total_embalagens|default:"-" }}</td>
-                          <td>{{ etapa.situacao|default:"-" }}</td>
-                        </tr>
+                        {% if etapa.fichas_recebimento %}
+                          {% for ficha in etapa.fichas_recebimento %}
+                            <tr>
+                              <td>
+                                {% if ficha.houve_reposicao %}
+                                  {{ etapa.etapa }} - {{ etapa.parte }} - Reposição / Pagamento de Notificação
+                                {% else %}
+                                  {{ etapa.etapa|default:"-" }}
+                                {% endif %}
+                              </td>
+                              <td>
+                                {% if not ficha.houve_reposicao %}
+                                  {{ etapa.parte|default:"-" }}
+                                {% endif %}
+                              </td>
+                              <td>{{ etapa.data_programada|default:"-" }}</td>
+                              <td>{{ etapa.quantidade|default:"-" }}</td>
+                              <td>{{ etapa.total_embalagens|default:"-" }}</td>
+                              <td>{{ ficha.situacao|default:"-" }}</td>
+                            </tr>
+                          {% endfor %}
+                        {% endif %}
+
+                        {% if not etapa.fichas_recebimento or not etapa.foi_recebida %}
+                          {% if not filtros.situacao or "A Receber" in filtros.situacao %}
+                            <tr>
+                              <td>{{ etapa.etapa|default:"-" }}</td>
+                              <td>{{ etapa.parte|default:"-" }}</td>
+                              <td>{{ etapa.data_programada|default:"-" }}</td>
+                              <td>{{ etapa.quantidade|default:"-" }}</td>
+                              <td>{{ etapa.total_embalagens|default:"-" }}</td>
+                              <td>A receber</td>
+                            </tr>
+                          {% endif %}
+                        {% endif %}
                       {% endfor %}
                     </tbody>
                   </table>
