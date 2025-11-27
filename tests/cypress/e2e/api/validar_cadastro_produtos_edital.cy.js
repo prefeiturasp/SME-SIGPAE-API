@@ -81,7 +81,7 @@ describe('Validar rotas de cadastro de produtos edital da aplicação SIGPAE', (
 		})
 
 		it('Validar GET de produtos edital por status', () => {
-			var status = Math.random() < 0.5 ? 'Ativo' : 'Inativo'
+			var status = Math.random() < 0.5 ? 'Ativo' : 'Inativo' // NOSONAR
 			var parametros = '?status=' + status
 			cy.consultar_produtos_edital(parametros).then((response) => {
 				expect(response.status).to.eq(200)

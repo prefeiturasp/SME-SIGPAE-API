@@ -1,4 +1,4 @@
-import random
+from secrets import randbelow
 
 from faker import Faker
 
@@ -10,9 +10,9 @@ from sme_sigpae_api.dados_comuns.models import (
 f = Faker("pt-br")
 f.seed(420)
 
-for i in range(random.randint(3, 7)):
+for i in range(randbelow(4) + 3):
     cat = CategoriaPerguntaFrequente.objects.create(nome=f.name())
-    for j in range(random.randint(5, 10)):
+    for j in range(randbelow(6) + 5):
         PerguntaFrequente.objects.create(
             categoria=cat, pergunta=f.text()[:100], resposta=f.text()
         )

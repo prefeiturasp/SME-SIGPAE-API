@@ -82,6 +82,16 @@
       color: $cinza;
       font-weight: 400;
       padding: 16px 16px 0px 16px;
+
+      div.tag-recreio-nas-ferias {
+        font-weight: bold;
+        color: $preto;
+        text-align: center;
+        border: 1px solid $preto;
+        padding: 5px;
+        border-radius: 5px;
+        font-size: 13px;
+      }
     }
     td {
       background-color: $branco;

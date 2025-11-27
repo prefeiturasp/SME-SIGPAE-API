@@ -3799,10 +3799,12 @@ class SolicitacaoMedicaoInicialWorkflow(xwf_models.Workflow):
         (
             "dre_pede_correcao",
             [
+                OCORRENCIA_EXCLUIDA_PELA_ESCOLA,
                 MEDICAO_CORRECAO_SOLICITADA,
                 MEDICAO_ENVIADA_PELA_UE,
                 MEDICAO_APROVADA_PELA_DRE,
                 MEDICAO_CORRIGIDA_PELA_UE,
+                MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
             ],
             MEDICAO_CORRECAO_SOLICITADA,
         ),
@@ -3828,10 +3830,12 @@ class SolicitacaoMedicaoInicialWorkflow(xwf_models.Workflow):
         (
             "codae_pede_correcao_ocorrencia",
             [
+                OCORRENCIA_EXCLUIDA_PELA_ESCOLA,
                 MEDICAO_CORRECAO_SOLICITADA_CODAE,
                 MEDICAO_APROVADA_PELA_CODAE,
                 MEDICAO_APROVADA_PELA_DRE,
                 MEDICAO_CORRIGIDA_PARA_CODAE,
+                MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
             ],
             MEDICAO_CORRECAO_SOLICITADA_CODAE,
         ),
@@ -4937,6 +4941,41 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 tipo,
                 categoria_notificacao,
                 log_transicao,
+            )
+
+            numero_cronograma = self.cronograma.numero
+            data_envio = (
+                self.log_mais_recente.criado_em.strftime("%d/%m/%Y")
+                if self.log_mais_recente
+                else "(Não há data de envio)"
+            )
+            url_detalhar_solicitacao_alteracao_cronograma_entrega = (
+                f"/pre-recebimento/detalhe-alteracao-cronograma?uuid={self.uuid}"
+            )
+            perfis_interessados = [
+                constants.DILOG_ABASTECIMENTO,
+            ]
+            nome_empresa = (
+                self.cronograma.empresa.nome_fantasia
+                if self.cronograma.empresa
+                else "(Não há fornecedor)"
+            )
+
+            EmailENotificacaoService.enviar_email(
+                titulo=f"Solicitação de Alteração do Cronograma {numero_cronograma}",
+                assunto=f"[SIGPAE] Solicitação de Alteração do Cronograma {numero_cronograma}",
+                template="pre_recebimento_email_solicitacao_cronograma_ciente.html",
+                contexto_template={
+                    "numero_cronograma": numero_cronograma,
+                    "nome_empresa": nome_empresa,
+                    "data_envio": data_envio,
+                    "url_detalhar_solicitacao_alteracao_cronograma_entrega": (
+                        base_url + url_detalhar_solicitacao_alteracao_cronograma_entrega
+                    ),
+                },
+                destinatarios=PartesInteressadasService.usuarios_por_perfis(
+                    perfis_interessados, somente_email=True
+                ),
             )
 
     @xworkflows.after_transition("fornecedor_ciente")

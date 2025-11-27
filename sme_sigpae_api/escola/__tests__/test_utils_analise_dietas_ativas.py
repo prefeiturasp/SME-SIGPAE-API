@@ -3,6 +3,7 @@ import os
 import tempfile
 import uuid
 from datetime import date
+from pathlib import Path
 
 import openpyxl
 import pytest
@@ -127,7 +128,9 @@ def test_escreve_xlsx():
 
 
 def test_escreve_xlsx_primeira_aba():
-    arquivo_saida = f"/tmp/{uuid.uuid4()}.xlsx"
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        arquivo_saida = tmp.name
+
     wb = openpyxl.Workbook()
     wb.save(arquivo_saida)
 
@@ -149,6 +152,7 @@ def test_escreve_xlsx_primeira_aba():
     workbook.close()
     if os.path.exists(arquivo_saida):
         os.remove(arquivo_saida)
+    Path(arquivo_saida).unlink(missing_ok=True)
 
 
 def test_escreve_xlsx_alunos_nao_matriculados_na_escola():
@@ -157,7 +161,8 @@ def test_escreve_xlsx_alunos_nao_matriculados_na_escola():
         ("12344", "Pedro", "789654"),
         ("12346", "Ana", "789664"),
     }
-    arquivo_saida = f"/tmp/{uuid.uuid4()}.xlsx"
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        arquivo_saida = tmp.name
     wb = openpyxl.Workbook()
     wb.save(arquivo_saida)
 
@@ -182,11 +187,13 @@ def test_escreve_xlsx_alunos_nao_matriculados_na_escola():
     workbook.close()
     if os.path.exists(arquivo_saida):
         os.remove(arquivo_saida)
+    Path(arquivo_saida).unlink(missing_ok=True)
 
 
 def test_escreve_xlsx_codescola_nao_existentes():
     codigo = set([111, 215, 433])
-    arquivo_saida = f"/tmp/{uuid.uuid4()}.xlsx"
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        arquivo_saida = tmp.name
     wb = openpyxl.Workbook()
     wb.save(arquivo_saida)
 
@@ -207,6 +214,7 @@ def test_escreve_xlsx_codescola_nao_existentes():
     workbook.close()
     if os.path.exists(arquivo_saida):
         os.remove(arquivo_saida)
+    Path(arquivo_saida).unlink(missing_ok=True)
 
 
 def test_retorna_codigo_eol_escolas_nao_identificadas(variaveis_globais_dieta):
@@ -276,7 +284,8 @@ def test_retorna_alunos_nao_matriculados_na_escola(variaveis_globais_dieta):
         "Escola B": [{"cd_aluno": "99999"}],
     }
 
-    arquivo_saida = f"/tmp/{uuid.uuid4()}.xlsx"
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        arquivo_saida = tmp.name
     wb = openpyxl.Workbook()
     wb.save(arquivo_saida)
     retorna_alunos_nao_matriculados_na_escola(items, escolas, arquivo_saida)
@@ -299,11 +308,13 @@ def test_retorna_alunos_nao_matriculados_na_escola(variaveis_globais_dieta):
     workbook.close()
     if os.path.exists(arquivo_saida):
         os.remove(arquivo_saida)
+    Path(arquivo_saida).unlink(missing_ok=True)
 
 
 def test_escreve_xlsx_dados_sigpae(escola, escola_cei):
     codigo = [escola.codigo_eol, escola_cei.codigo_eol]
-    arquivo_saida = f"/tmp/{uuid.uuid4()}.xlsx"
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        arquivo_saida = tmp.name
     wb = openpyxl.Workbook()
     wb.save(arquivo_saida)
 
@@ -351,6 +362,7 @@ def test_escreve_xlsx_dados_sigpae(escola, escola_cei):
     workbook.close()
     if os.path.exists(arquivo_saida):
         os.remove(arquivo_saida)
+    Path(arquivo_saida).unlink(missing_ok=True)
 
 
 def test_retorna_dados_sigpae(variaveis_globais_dieta, escola):
@@ -360,7 +372,8 @@ def test_retorna_dados_sigpae(variaveis_globais_dieta, escola):
         {"CodEscola": escola.codigo_eol, "CodEOLAluno": "20002"},
     ]
 
-    arquivo_saida = f"/tmp/{uuid.uuid4()}.xlsx"
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        arquivo_saida = tmp.name
     wb = openpyxl.Workbook()
     wb.save(arquivo_saida)
 
@@ -387,6 +400,7 @@ def test_retorna_dados_sigpae(variaveis_globais_dieta, escola):
     workbook.close()
     if os.path.exists(arquivo_saida):
         os.remove(arquivo_saida)
+    Path(arquivo_saida).unlink(missing_ok=True)
 
 
 def test_retorna_dados_sigpae_exception(escola):
@@ -396,7 +410,8 @@ def test_retorna_dados_sigpae_exception(escola):
         {"CodEscola": escola.codigo_eol, "CodEOLAluno": "20002"},
     ]
 
-    arquivo_saida = f"/tmp/{uuid.uuid4()}.xlsx"
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        arquivo_saida = tmp.name
     wb = openpyxl.Workbook()
     wb.save(arquivo_saida)
 
@@ -405,11 +420,13 @@ def test_retorna_dados_sigpae_exception(escola):
 
     if os.path.exists(arquivo_saida):
         os.remove(arquivo_saida)
+    Path(arquivo_saida).unlink(missing_ok=True)
 
 
 def test_escreve_xlsx_cod_diagnostico_inexistentes():
     codigo = [1254, 7869]
-    arquivo_saida = f"/tmp/{uuid.uuid4()}.xlsx"
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        arquivo_saida = tmp.name
     wb = openpyxl.Workbook()
     wb.save(arquivo_saida)
 
@@ -427,11 +444,13 @@ def test_escreve_xlsx_cod_diagnostico_inexistentes():
     workbook.close()
     if os.path.exists(arquivo_saida):
         os.remove(arquivo_saida)
+    Path(arquivo_saida).unlink(missing_ok=True)
 
 
 def test_escreve_xlsx_protocolo_dieta_inexistentes():
     codigo = [1254, 7869]
-    arquivo_saida = f"/tmp/{uuid.uuid4()}.xlsx"
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        arquivo_saida = tmp.name
     wb = openpyxl.Workbook()
     wb.save(arquivo_saida)
 
@@ -449,6 +468,7 @@ def test_escreve_xlsx_protocolo_dieta_inexistentes():
     workbook.close()
     if os.path.exists(arquivo_saida):
         os.remove(arquivo_saida)
+    Path(arquivo_saida).unlink(missing_ok=True)
 
 
 def test_retorna_cod_diagnostico_inexistentes(protocolos):
@@ -457,7 +477,8 @@ def test_retorna_cod_diagnostico_inexistentes(protocolos):
         {"CodDiagnostico": "Protocolo2", "CODIGO EOL": 101112},
         {"CodDiagnostico": "Protocolo4", "CODIGO EOL": 6789},
     ]
-    arquivo_saida = f"/tmp/{uuid.uuid4()}.xlsx"
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        arquivo_saida = tmp.name
     wb = openpyxl.Workbook()
     wb.save(arquivo_saida)
 
@@ -475,6 +496,7 @@ def test_retorna_cod_diagnostico_inexistentes(protocolos):
     workbook.close()
     if os.path.exists(arquivo_saida):
         os.remove(arquivo_saida)
+    Path(arquivo_saida).unlink(missing_ok=True)
 
 
 def test_retorna_protocolo_dieta_inexistentes(protocolos):
@@ -483,7 +505,8 @@ def test_retorna_protocolo_dieta_inexistentes(protocolos):
         {"ProtocoloDieta": "Protocolo2", "CODIGO EOL": 101112},
         {"ProtocoloDieta": "Protocolo4", "CODIGO EOL": 6789},
     ]
-    arquivo_saida = f"/tmp/{uuid.uuid4()}.xlsx"
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        arquivo_saida = tmp.name
     wb = openpyxl.Workbook()
     wb.save(arquivo_saida)
 
@@ -502,6 +525,7 @@ def test_retorna_protocolo_dieta_inexistentes(protocolos):
     workbook.close()
     if os.path.exists(arquivo_saida):
         os.remove(arquivo_saida)
+    Path(arquivo_saida).unlink(missing_ok=True)
 
 
 def test_string_to_date():
@@ -525,7 +549,8 @@ def test_escreve_xlsx_alunos_com_nome_diferente():
         ("Joao Antonio", "João Antônio"),
         ("Maria A. Lopes", "Maria Almeida Lopes"),
     }
-    arquivo_saida = f"/tmp/{uuid.uuid4()}.xlsx"
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        arquivo_saida = tmp.name
     wb = openpyxl.Workbook()
     wb.save(arquivo_saida)
 
@@ -549,6 +574,7 @@ def test_escreve_xlsx_alunos_com_nome_diferente():
     workbook.close()
     if os.path.exists(arquivo_saida):
         os.remove(arquivo_saida)
+    Path(arquivo_saida).unlink(missing_ok=True)
 
 
 def test_escreve_xlsx_alunos_com_nascimento_diferente():
@@ -556,7 +582,8 @@ def test_escreve_xlsx_alunos_com_nascimento_diferente():
         ("2022-05-01", "01/05/2022"),
         ("01/05/2022", "2021-05-01"),
     }
-    arquivo_saida = f"/tmp/{uuid.uuid4()}.xlsx"
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        arquivo_saida = tmp.name
     wb = openpyxl.Workbook()
     wb.save(arquivo_saida)
 
@@ -580,6 +607,7 @@ def test_escreve_xlsx_alunos_com_nascimento_diferente():
     workbook.close()
     if os.path.exists(arquivo_saida):
         os.remove(arquivo_saida)
+    Path(arquivo_saida).unlink(missing_ok=True)
 
 
 def test_retorna_alunos_com_nome_diferente(variaveis_globais_dieta):
@@ -594,7 +622,8 @@ def test_retorna_alunos_com_nome_diferente(variaveis_globais_dieta):
         {"CodEOLAluno": "20003", "NomeAluno": "Carlos Silva"},
     ]
 
-    arquivo_saida = f"/tmp/{uuid.uuid4()}.xlsx"
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        arquivo_saida = tmp.name
     wb = openpyxl.Workbook()
     wb.save(arquivo_saida)
 
@@ -613,6 +642,7 @@ def test_retorna_alunos_com_nome_diferente(variaveis_globais_dieta):
     workbook.close()
     if os.path.exists(arquivo_saida):
         os.remove(arquivo_saida)
+    Path(arquivo_saida).unlink(missing_ok=True)
 
 
 def test_retorna_alunos_com_nascimento_diferente(variaveis_globais_dieta):
@@ -651,7 +681,8 @@ def test_retorna_alunos_com_nascimento_diferente(variaveis_globais_dieta):
         },
     ]
 
-    arquivo_saida = f"/tmp/{uuid.uuid4()}.xlsx"
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        arquivo_saida = tmp.name
     wb = openpyxl.Workbook()
     wb.save(arquivo_saida)
 
@@ -670,3 +701,4 @@ def test_retorna_alunos_com_nascimento_diferente(variaveis_globais_dieta):
     workbook.close()
     if os.path.exists(arquivo_saida):
         os.remove(arquivo_saida)
+    Path(arquivo_saida).unlink(missing_ok=True)

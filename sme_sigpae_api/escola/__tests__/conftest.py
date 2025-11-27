@@ -1,4 +1,5 @@
 import datetime
+import tempfile
 import uuid
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -796,7 +797,9 @@ def codigo_codae_das_escolas():
 
 @pytest.fixture
 def tipo_gestao_das_escolas():
-    caminho_arquivo_escola = Path(f"/tmp/{uuid.uuid4()}.xlsx")
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        caminho_arquivo_escola = tmp.name
+
     cria_arquivo_excel(
         caminho_arquivo_escola,
         [
@@ -814,8 +817,8 @@ def tipo_gestao_das_escolas():
 
     parceira = baker.make("TipoGestao", nome="PARCEIRA")
     direta = baker.make("TipoGestao", nome="DIRETA")
-    mista = baker.make("TipoGestao", nome="MISTA")
-    tercerizada = baker.make("TipoGestao", nome="TERC TOTAL")
+    baker.make("TipoGestao", nome="MISTA")
+    baker.make("TipoGestao", nome="TERC TOTAL")
 
     escola1 = baker.make("Escola", codigo_eol="123456", tipo_gestao=None)
     escola2 = baker.make("Escola", codigo_eol="789012", tipo_gestao=None)
@@ -826,7 +829,7 @@ def tipo_gestao_das_escolas():
         criado_em=datetime.date.today(),
         status=StatusProcessamentoArquivo.PENDENTE.value,
     )
-    return (
+    yield (
         escola1,
         escola2,
         planilha_atualizacao_tipo_gestao,
@@ -834,6 +837,8 @@ def tipo_gestao_das_escolas():
         parceira,
         direta,
     )
+
+    Path(caminho_arquivo_escola).unlink(missing_ok=True)
 
 
 @pytest.fixture

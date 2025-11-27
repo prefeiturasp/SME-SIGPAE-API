@@ -186,7 +186,7 @@ class InclusaoAlimentacaoContinua(
             "@criado_por": str(self.criado_por),
             "@status": str(self.status),
             # TODO: verificar a url padrão do pedido
-            "@link": "http://teste.com",
+            "@link": "https://teste.com",
         }
         corpo = template.template_html
         for chave, valor in template_troca.items():
@@ -362,7 +362,7 @@ class GrupoInclusaoAlimentacaoNormal(
             "@criado_por": str(self.criado_por),
             "@status": str(self.status),
             # TODO: verificar a url padrão do pedido
-            "@link": "http://teste.com",
+            "@link": "https://teste.com",
         }
         corpo = template.template_html
         for chave, valor in template_troca.items():

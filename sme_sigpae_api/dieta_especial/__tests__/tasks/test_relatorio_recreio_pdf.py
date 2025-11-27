@@ -38,7 +38,7 @@ class TestGeraPDFRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
                 "data_inicio": "01/08/2025",
                 "data_fim": "31/08/2025",
                 "classificacao": "Tipo A",
-                "alergias_intolerancias": "--",
+                "alergias_intolerancias": "-",
             },
             {
                 "codigo_eol_aluno": "7654321",
@@ -48,7 +48,17 @@ class TestGeraPDFRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
                 "data_inicio": "01/09/2025",
                 "data_fim": "29/09/2025",
                 "classificacao": "Tipo B",
-                "alergias_intolerancias": "--",
+                "alergias_intolerancias": "-",
+            },
+            {
+                "codigo_eol_aluno": "Aluno não matriculado",
+                "nome_aluno": "GOHAN MENESES",
+                "nome_escola": "-",
+                "escola_destino": "EMEF PERICLES",
+                "data_inicio": "01/08/2025",
+                "data_fim": "31/08/2025",
+                "classificacao": "Tipo A",
+                "alergias_intolerancias": "-",
             },
         ]
 

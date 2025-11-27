@@ -4,19 +4,20 @@ from django.db import migrations
 
 
 def criar_categorias(apps, schema_editor):
-    CategoriaAlimentacao = apps.get_model('medicao_inicial', 'CategoriaAlimentacao')
+    CategoriaAlimentacao = apps.get_model("medicao_inicial", "CategoriaAlimentacao")
 
-    categorias = ['Inscritos', 'Colaboradores', 'Infantil']
+    categorias = ["Inscritos", "Colaboradores", "Infantil"]
 
     for nome in categorias:
         CategoriaAlimentacao.objects.get_or_create(nome=nome)
 
 
 def reverter_categorias(apps, schema_editor):
-    CategoriaAlimentacao = apps.get_model('medicao_inicial', 'CategoriaAlimentacao')
+    CategoriaAlimentacao = apps.get_model("medicao_inicial", "CategoriaAlimentacao")
     CategoriaAlimentacao.objects.filter(
-        nome__in=['Inscritos', 'Colaboradores', 'Infantil']
+        nome__in=["Inscritos", "Colaboradores", "Infantil"]
     ).delete()
+
 
 class Migration(migrations.Migration):
 

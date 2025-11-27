@@ -9,6 +9,13 @@
   <link rel="stylesheet" href="{% sass_src 'css/relatorio_solicitacao_medicao_por_escola_cemei.scss' %}" type="text/css">
 </head>
 <body>
+  {% if solicitacao.status == 'MEDICAO_APROVADA_PELA_CODAE' %}
+  <div class="first-footer-approved mr-2">
+    Aprovado por CODAE em {{
+    solicitacao.log_mais_recente.criado_em|date:"d/m/Y - H:i" }} - {{
+    solicitacao.log_mais_recente.usuario.nome }}
+  </div>
+  {% endif %}
   <header class="header">
     <div class="row p-0 mx-4">
       <div class="col-2">
@@ -180,11 +187,11 @@
 
 
         <tr>
-          {{tabela|build_headers_faixas_etarias|safe_content}}
+          {{ tabela|build_headers_faixas_etarias | safe }}
         </tr>
 
         <tr>
-          {{tabela|build_rows_faixas_etarias|safe_content}}
+          {{ tabela|build_rows_faixas_etarias | safe }}
 
           {% for campo in tabela.nomes_campos %}
             <th>{{ campo|get_nome_campo }}</th>

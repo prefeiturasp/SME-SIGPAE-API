@@ -5,12 +5,12 @@ import pytest
 from freezegun import freeze_time
 from rest_framework import status
 
-from sme_sigpae_api.dados_comuns.models import CentralDeDownload
 from sme_sigpae_api.medicao_inicial.models import (
     DiaParaCorrigir,
     DiaSobremesaDoce,
     Empenho,
     Medicao,
+    TipoValorParametrizacaoFinanceira,
 )
 
 
@@ -622,14 +622,15 @@ def test_url_dre_solicita_correcao_periodo(
         "128f36e2-ea93-4e05-9641-50b0c79ddb5e"
     ]
     uuid = medicao_status_inicial.uuid
+
     response = client_autenticado_diretoria_regional.patch(
         f"{viewset_url}{uuid}/dre-pede-correcao-medicao/",
         content_type="application/json",
         data=data,
     )
 
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "Erro de transição de estado:" in response.data["detail"]
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["status"] == "MEDICAO_CORRECAO_SOLICITADA"
 
 
 def test_url_escola_corrige_medicao_para_dre_sucesso(
@@ -697,20 +698,6 @@ def test_url_dre_solicita_correcao_medicao(
     )
 
 
-def test_url_dre_solicita_correcao_medicao_erro_transicao(
-    client_autenticado_diretoria_regional, solicitacao_medicao_inicial
-):
-    response = client_autenticado_diretoria_regional.patch(
-        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_medicao_inicial.uuid}/"
-        f"dre-solicita-correcao-medicao/"
-    )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {
-        "detail": "Erro de transição de estado: Transition 'dre_pede_correcao' isn't available from state "
-        "'MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE'."
-    }
-
-
 def test_url_dre_solicita_correcao_medicao_erro_403(
     client_autenticado_da_escola, solicitacao_medicao_inicial_medicao_enviada_pela_ue
 ):
@@ -744,8 +731,8 @@ def test_url_dre_solicita_correcao_ocorrencia(
         content_type="application/json",
         data=data,
     )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "Erro de transição de estado:" in response.data["detail"]
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["status"] == "MEDICAO_CORRECAO_SOLICITADA"
 
 
 def test_url_dre_aprova_ocorrencia(
@@ -765,8 +752,8 @@ def test_url_dre_aprova_ocorrencia(
         f"/dre-pede-correcao-ocorrencia/",
         content_type="application/json",
     )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "Erro de transição de estado:" in response.data["detail"]
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["status"] == "MEDICAO_CORRECAO_SOLICITADA"
 
 
 def test_url_ue_atualiza_ocorrencia_para_dre(
@@ -1053,8 +1040,7 @@ def test_url_codae_solicita_correcao_ocorrencia(
         content_type="application/json",
         data=data,
     )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "Erro de transição de estado:" in response.data["detail"]
+    assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 def test_url_codae_solicita_correcao_periodo(
@@ -1164,8 +1150,8 @@ def test_url_codae_aprova_ocorrencia(
         f"/medicao-inicial/ocorrencia/{uuid}" f"/codae-pede-correcao-ocorrencia/",
         content_type="application/json",
     )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "Erro de transição de estado:" in response.data["detail"]
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["status"] == "MEDICAO_CORRECAO_SOLICITADA_CODAE"
 
 
 def test_url_codae_aprova_periodo(
@@ -1917,11 +1903,16 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_sem_periodo_lancamento_ate(
     }
 
 
+@freeze_time("2025-09-30")
 def test_url_endpoint_parametrizacao_financeira(
     client_autenticado_codae_medicao,
     parametrizacao_financeira_emef,
     payload_create_parametrizacao_financeira_cei,
 ):
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="UNITARIO")
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="REAJUSTE")
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="ACRESCIMO")
+
     response = client_autenticado_codae_medicao.get(
         "/medicao-inicial/parametrizacao-financeira/", content_type="application/json"
     )
@@ -1934,13 +1925,13 @@ def test_url_endpoint_parametrizacao_financeira(
         data=payload_create_parametrizacao_financeira_cei,
     )
     assert response.status_code == status.HTTP_201_CREATED
-    
+
     response = client_autenticado_codae_medicao.get(
         "/medicao-inicial/parametrizacao-financeira/", content_type="application/json"
     )
     assert len(response.data["results"]) == 2
 
-    payload_create_parametrizacao_financeira_cei['legenda'] = "teste 123"
+    payload_create_parametrizacao_financeira_cei["legenda"] = "teste 123"
     response = client_autenticado_codae_medicao.patch(
         f"/medicao-inicial/parametrizacao-financeira/{parametrizacao_financeira_emef.uuid}/",
         content_type="application/json",

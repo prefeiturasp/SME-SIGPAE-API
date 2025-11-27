@@ -719,6 +719,9 @@ class AlunoSerializer(serializers.ModelSerializer):
             dietas_inativas = models.SolicitacoesEscola.get_inativas_dieta_especial(
                 escola_uuid=instituicao.uuid
             )
+            dietas_canceladas = models.SolicitacoesEscola.get_cancelados_dieta_especial(
+                escola_uuid=instituicao.uuid
+            )
         elif user.tipo_usuario == "diretoriaregional":
             dietas_autorizadas = models.SolicitacoesDRE.get_autorizados_dieta_especial(
                 dre_uuid=instituicao.uuid
@@ -726,16 +729,23 @@ class AlunoSerializer(serializers.ModelSerializer):
             dietas_inativas = models.SolicitacoesDRE.get_inativas_dieta_especial(
                 dre_uuid=instituicao.uuid
             )
+            dietas_canceladas = models.SolicitacoesDRE.get_cancelados_dieta_especial(
+                dre_uuid=instituicao.uuid
+            )
         else:
             dietas_autorizadas = (
                 models.SolicitacoesCODAE.get_autorizados_dieta_especial()
             )
             dietas_inativas = models.SolicitacoesCODAE.get_inativas_dieta_especial()
+            dietas_canceladas = models.SolicitacoesCODAE.get_cancelados_dieta_especial()
 
         ids_dietas_autorizadas = dietas_autorizadas.values_list("id", flat=True)
         ids_dietas_inativas = dietas_inativas.values_list("id", flat=True)
+        ids_dietas_canceladas = dietas_canceladas.values_list("id", flat=True)
         # Juntas as duas querysets.
-        dietas_especiais = ids_dietas_autorizadas | ids_dietas_inativas
+        dietas_especiais = (
+            ids_dietas_autorizadas | ids_dietas_inativas | ids_dietas_canceladas
+        )
 
         return obj.dietas_especiais.filter(id__in=dietas_especiais).exists()
 

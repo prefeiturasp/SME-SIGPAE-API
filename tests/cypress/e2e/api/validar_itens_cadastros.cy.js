@@ -157,7 +157,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 
 		it('Validar POST com sucesso de Itens Cadastros', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
-			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)]
+			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
 			var nome_teste = 'Testes Automação'
 			var dados_teste = {
@@ -182,7 +182,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 
 		it('Validar POST de Itens Cadastros já existente', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
-			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)]
+			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
 			var nome_teste = 'Testes Automação Item Existente'
 			var dados_teste = {
@@ -212,7 +212,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 
 		it('Validar POST de Itens Cadastros com Tipo Inválido', () => {
 			const opcoes = ['MARCAS', 'FABRICANTES', 'UNIDADES_MEDIDAS', 'EMBALAGENS']
-			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)]
+			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
 			var nome_teste = 'Testes Automação'
 			var dados_teste = {
@@ -252,7 +252,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 
 		it('Validar DELETE de Itens Cadastros com sucesso', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
-			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)]
+			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
 			var nome_teste = 'Testes Automação DELETE'
 			var dados_teste = {
@@ -284,7 +284,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 
 		it('Validar PUT com sucesso de Itens Cadastros', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
-			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)]
+			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
 			var nome_teste = 'Testes Automação PUT'
 			var dados_teste = {
@@ -321,7 +321,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 
 		it('Validar PUT de Itens Cadastros com Tipo inválido', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
-			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)]
+			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
 			var nome_teste = 'Testes Automação PUT - Tipo Inválido'
 			var dados_teste = {
@@ -361,7 +361,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 
 		it('Validar PUT de Itens Cadastros  já existente', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
-			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)]
+			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
 			var nome_teste = 'Testes Automatizados via PUT - Item Existente'
 			var dados_teste = {
@@ -430,7 +430,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 
 		it('Validar PACTH com sucesso de Itens Cadastros', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
-			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)]
+			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
 			var nome_teste = 'Testes Automação PATCH'
 			var dados_teste = {
@@ -467,7 +467,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 
 		it('Validar PACTH de Itens Cadastros com Tipo inválido', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
-			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)]
+			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
 			var nome_teste = 'Testes Automação PATCH'
 			var dados_teste = {
@@ -507,7 +507,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 
 		it('Validar PACTH de Itens Cadastros  já existente', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
-			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)]
+			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
 			var nome_teste = 'Testes Automatizados via PATCH - Item Existente'
 			var dados_teste = {

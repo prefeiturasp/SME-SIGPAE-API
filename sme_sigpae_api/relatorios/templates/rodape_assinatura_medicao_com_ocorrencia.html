@@ -1,0 +1,20 @@
+{% include 'relatorio_base.html' %}
+{% load static %}
+{% load sass_tags %}
+
+<html>
+<head>
+  <link rel="stylesheet" href="{% sass_src 'css/override_relatorio.scss' %}" type="text/css">
+  <link rel="stylesheet" href="{% sass_src 'css/custom_bootstrap.scss' %}" type="text/css">
+  <div style="background: #EEEEEE; position: absolute; bottom: 0; height: 60px; width: 100%;">
+  </div>
+  <div style="background: #EEEEEE;">
+    <img style="z-index: 99; width: 40px; height: 35px; position: absolute; bottom: 0; padding-bottom: 13px; left: 15px;" src="{{ imagem_convertida }}" alt="" />
+  </div>
+  <div style="z-index: 99; position: absolute; bottom: 10px; font-size: 12px; padding-left: 70px; padding-right: 15px; text-align: justify; height: 40px;">
+    Este documento foi registrado eletronicamente por <strong>{{ usuario.nome|upper }}</strong>, {{ usuario.cargo|default:" "|upper }}, vinculado à
+    <strong>{{ usuario.vinculo_atual.instituicao.nome }}</strong> em {{ time|date:"d/m/Y" }}, às {{ time|time:"H:i" }}.
+    O registro eletrônico de Ocorrências é comprovação e ateste das ocorrências acontecidas no período.
+  </div>
+</head>
+</html>

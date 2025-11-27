@@ -121,7 +121,13 @@ class DocumentoDeRecebimento(
         default=None,
         related_name="documentos_de_recebimento",
     )
-    quantidade_laudo = models.IntegerField(blank=True, null=True)
+    quantidade_laudo = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text="Quantidade do laudo com 2 casas decimais"
+    )
     numero_lote_laudo = models.CharField("Número do Laudo", blank=True, max_length=200)
     unidade_medida = models.ForeignKey(
         UnidadeMedida, on_delete=models.PROTECT, blank=True, null=True, default=None

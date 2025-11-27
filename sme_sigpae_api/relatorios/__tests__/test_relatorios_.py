@@ -1,4 +1,5 @@
 import re
+from unittest.mock import patch
 
 import pytest
 from freezegun import freeze_time
@@ -17,9 +18,11 @@ from ..relatorios import (
     get_pdf_ficha_tecnica,
     get_total_por_periodo,
     obter_justificativa_dieta,
+    obter_relatorio_da_unidade,
     relatorio_dieta_especial_protocolo,
     relatorio_reclamacao_produtos,
     relatorio_suspensao_de_alimentacao,
+    relatorio_solicitacao_medicao_por_escola,
 )
 
 pytestmark = pytest.mark.django_db
@@ -429,7 +432,6 @@ def test_relatorio_reclamacao_produtos(
         in texto
     )
     assert " Data da reclamação: 15/07/2022" in texto
-    print(texto)
     assert "Justificativa da reclamação:" in texto
     assert "produto vencido" in texto
     assert "Data avaliação CODAE: 05/08/2022" in texto
@@ -660,3 +662,96 @@ def test_relatorio_cronograma_entrega(cronograma):
     if cronograma.armazem and cronograma.armazem.nome_fantasia:
         nome_armazem = cronograma.armazem.nome_fantasia
         assert nome_armazem in texto_pdf or nome_armazem.upper() in texto_pdf
+
+
+def test_obter_relatorio_da_unidade_emef():
+    with patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
+        {"EMEF", "EMEFM"},
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
+        {"CEI", "CEI CEU"},
+    ), patch(
+        "sme_sigpae_api.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola"
+    ) as mock_modulo_emef:
+
+        tipos_unidade = ["EMEF"]
+        resultado = obter_relatorio_da_unidade(tipos_unidade)
+
+        assert resultado == mock_modulo_emef
+
+
+def test_obter_relatorio_da_unidade_emei():
+    with patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
+        {"EMEF", "EMEFM"},
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
+        {"CEI", "CEI CEU"},
+    ), patch(
+        "sme_sigpae_api.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola"
+    ) as mock_modulo_emei:
+
+        tipos_unidade = ["EMEI"]
+        resultado = obter_relatorio_da_unidade(tipos_unidade)
+
+        assert resultado == mock_modulo_emei
+
+
+def test_obter_relatorio_da_unidade_cei():
+    with patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
+        {"EMEF", "EMEFM"},
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
+        {"CEI", "CEI CEU"},
+    ), patch(
+        "sme_sigpae_api.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_cei"
+    ) as mock_modulo_cei:
+
+        tipos_unidade = ["CEI"]
+        resultado = obter_relatorio_da_unidade(tipos_unidade)
+
+        assert resultado == mock_modulo_cei
+
+
+def test_obter_relatorio_da_unidade_pertencem_a_nenhum_grupo():
+    with patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
+        {"EMEF", "EMEFM"},
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
+        {"CEI", "CEI CEU"},
+    ):
+
+        tipos_unidade = ["TIPO_INEXISTENTE", "OUTRO_TIPO"]
+
+        with pytest.raises(ValueError) as exc_info:
+            obter_relatorio_da_unidade(tipos_unidade)
+
+        assert "Unidades inválidas:" in str(exc_info.value)
+        assert "TIPO_INEXISTENTE" in str(exc_info.value)
+
+
+def test_relatorio_solicitacao_medicao_rodape_aprovacao(
+    solicitacao_medicao_inicial_aprovada_codae,
+):
+    relatorio = relatorio_solicitacao_medicao_por_escola(
+        solicitacao_medicao_inicial_aprovada_codae
+    )
+    texto = extrair_texto_de_pdf(relatorio)
+    
+    assert "INFORMAÇÕES BÁSICAS DA MEDIÇÃO" in texto
+    assert "EMEF JOAO MENDES" in texto
+
+    assert "Aprovado por CODAE em" in texto
+    assert "27/11/2025" in texto
+    assert "Usuário TESTE" in texto

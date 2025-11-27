@@ -5,6 +5,7 @@ from datetime import date, datetime
 import environ
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
+from django.template.loader import render_to_string
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
@@ -12,7 +13,10 @@ from sme_sigpae_api.dados_comuns.api.serializers import LogSolicitacoesUsuarioSe
 from sme_sigpae_api.dados_comuns.utils import (
     convert_base64_to_contentfile,
     update_instance_from_dict,
+    convert_image_to_base64
 )
+from sme_sigpae_api.relatorios.utils import merge_pdf_com_rodape_assinatura
+from django.utils import timezone
 from sme_sigpae_api.dados_comuns.validators import deve_ter_extensao_xls_xlsx_pdf
 from sme_sigpae_api.escola.api.serializers_create import (
     AlunoPeriodoParcialCreateSerializer,
@@ -23,10 +27,10 @@ from sme_sigpae_api.escola.models import (
     DiretoriaRegional,
     Escola,
     FaixaEtaria,
+    GrupoUnidadeEscolar,
     Lote,
     PeriodoEscolar,
     TipoUnidadeEscolar,
-    GrupoUnidadeEscolar,
 )
 from sme_sigpae_api.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
@@ -44,8 +48,8 @@ from sme_sigpae_api.medicao_inicial.models import (
     Responsavel,
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
-    ValorMedicao,
     TipoValorParametrizacaoFinanceira,
+    ValorMedicao,
 )
 from sme_sigpae_api.perfil.models import Usuario
 from sme_sigpae_api.terceirizada.models import Contrato, Edital
@@ -1007,17 +1011,44 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         anexos_string = self.context["request"].data.get("anexos")
         if anexos_string:
             anexos = json.loads(anexos_string)
+            anexos_processados = []
+
             for anexo in anexos:
-                if ".pdf" in anexo["nome"]:
-                    arquivo = convert_base64_to_contentfile(anexo["base64"])
+                anexo_proc = dict(anexo)
+
+                if ".pdf" in anexo_proc["nome"]:
+                    arquivo = convert_base64_to_contentfile(anexo_proc["base64"])
+
+                    usuario = self.context["request"].user
+                    data_hoje = timezone.now()
+                    logo_sipae = convert_image_to_base64(
+                        "sme_sigpae_api/relatorios/static/images/logo-sigpae.png", "png"
+                    )
+                    string_pdf_rodape = render_to_string(
+                        "rodape_assinatura_medicao_com_ocorrencia.html",
+                        {
+                            "imagem_convertida": logo_sipae,
+                            "usuario": usuario,
+                            "time": data_hoje,
+                        },
+                    )
+
+                    arquivo_com_assinatura_base64 = merge_pdf_com_rodape_assinatura(
+                        arquivo, string_pdf_rodape
+                    )
+                    arquivo_final = convert_base64_to_contentfile(
+                        arquivo_com_assinatura_base64
+                    )
                     OcorrenciaMedicaoInicial.objects.update_or_create(
                         solicitacao_medicao_inicial=instance,
                         defaults={
-                            "ultimo_arquivo": arquivo,
-                            "nome_ultimo_arquivo": anexo.get("nome"),
+                            "ultimo_arquivo": arquivo_final,
+                            "nome_ultimo_arquivo": anexo_proc.get("nome"),
                         },
                     )
-            return anexos
+                    anexo_proc["base64"] = arquivo_com_assinatura_base64
+                anexos_processados.append(anexo_proc)
+            return anexos_processados
 
     def _finaliza_medicao_se_necessario(
         self, instance, validated_data, anexos, justificativa_sem_lancamentos
@@ -1396,19 +1427,33 @@ class ParametrizacaoFinanceiraTabelaValorWriteModelSerializer(
         queryset=FaixaEtaria.objects.all(),
     )
     tipo_valor = serializers.SlugRelatedField(
-        slug_field="nome",
-        queryset=TipoValorParametrizacaoFinanceira.objects.all()
+        slug_field="nome", queryset=TipoValorParametrizacaoFinanceira.objects.all()
     )
+
+    def to_internal_value(self, data):
+        if data.get("tipo_alimentacao") == "Kit Lanche":
+            data = data.copy()
+            data["tipo_alimentacao"] = None
+
+        return super().to_internal_value(data)
 
     class Meta:
         model = ParametrizacaoFinanceiraTabelaValor
-        fields = ["nome_campo", "faixa_etaria", "tipo_alimentacao", "tipo_valor", "valor"]
+        fields = [
+            "nome_campo",
+            "faixa_etaria",
+            "tipo_alimentacao",
+            "tipo_valor",
+            "valor",
+        ]
 
 
 class ParametrizacaoFinanceiraTabelaWriteModelSerializer(serializers.ModelSerializer):
     periodo_escolar = serializers.SlugRelatedField(
         slug_field="nome",
-        queryset=PeriodoEscolar.objects.all()
+        required=False,
+        allow_null=True,
+        queryset=PeriodoEscolar.objects.all(),
     )
     valores = ParametrizacaoFinanceiraTabelaValorWriteModelSerializer(many=True)
 
@@ -1429,7 +1474,15 @@ class ParametrizacaoFinanceiraWriteModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ParametrizacaoFinanceira
-        fields = ["edital", "lote", "grupo_unidade_escolar", "data_inicial", "data_final", "legenda", "tabelas"]
+        fields = [
+            "edital",
+            "lote",
+            "grupo_unidade_escolar",
+            "data_inicial",
+            "data_final",
+            "legenda",
+            "tabelas",
+        ]
 
     def validate(self, attrs):
         if self.instance:
@@ -1476,7 +1529,8 @@ class ParametrizacaoFinanceiraWriteModelSerializer(serializers.ModelSerializer):
             valores = tabela.pop("valores")
 
             _tabela, created = ParametrizacaoFinanceiraTabela.objects.get_or_create(
-                **tabela, parametrizacao_financeira=instance,
+                **tabela,
+                parametrizacao_financeira=instance,
             )
 
             for valor in valores:
