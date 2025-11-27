@@ -22,6 +22,7 @@ from ..relatorios import (
     relatorio_dieta_especial_protocolo,
     relatorio_reclamacao_produtos,
     relatorio_suspensao_de_alimentacao,
+    relatorio_solicitacao_medicao_por_escola,
 )
 
 pytestmark = pytest.mark.django_db
@@ -431,7 +432,6 @@ def test_relatorio_reclamacao_produtos(
         in texto
     )
     assert " Data da reclamação: 15/07/2022" in texto
-    print(texto)
     assert "Justificativa da reclamação:" in texto
     assert "produto vencido" in texto
     assert "Data avaliação CODAE: 05/08/2022" in texto
@@ -739,3 +739,19 @@ def test_obter_relatorio_da_unidade_pertencem_a_nenhum_grupo():
 
         assert "Unidades inválidas:" in str(exc_info.value)
         assert "TIPO_INEXISTENTE" in str(exc_info.value)
+
+
+def test_relatorio_solicitacao_medicao_rodape_aprovacao(
+    solicitacao_medicao_inicial_aprovada_codae,
+):
+    relatorio = relatorio_solicitacao_medicao_por_escola(
+        solicitacao_medicao_inicial_aprovada_codae
+    )
+    texto = extrair_texto_de_pdf(relatorio)
+    
+    assert "INFORMAÇÕES BÁSICAS DA MEDIÇÃO" in texto
+    assert "EMEF JOAO MENDES" in texto
+
+    assert "Aprovado por CODAE em" in texto
+    assert "27/11/2025" in texto
+    assert "Usuário TESTE" in texto

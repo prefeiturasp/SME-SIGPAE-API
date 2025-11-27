@@ -12,7 +12,10 @@ from sme_sigpae_api.cardapio.suspensao_alimentacao.models import (
 )
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from sme_sigpae_api.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
-from sme_sigpae_api.dados_comuns.models import TemplateMensagem
+from sme_sigpae_api.dados_comuns.models import (
+    TemplateMensagem,
+    LogSolicitacoesUsuario,
+)
 from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 from sme_sigpae_api.escola.models import Aluno, Lote
 from sme_sigpae_api.perfil.models.usuario import Usuario
@@ -548,3 +551,76 @@ def cronograma():
     )
 
     return cronograma
+
+
+@pytest.fixture
+def categoria_dieta_a():
+    return baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A")
+
+
+@pytest.fixture
+def solicitacoes_medicao_inicial_emef(
+    escola,
+    categoria_dieta_a,
+):
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
+    solicitacao_medicao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=10,
+        ano=2025,
+        escola=escola,
+        ue_possui_alunos_periodo_parcial=True,
+        rastro_lote=escola.lote,
+    )
+    solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
+    medicao_integral = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_medicao,
+        periodo_escolar=periodo_integral,
+    )
+    faixa_etaria = baker.make(
+        "FaixaEtaria", inicio=1, fim=10, uuid="0c914b27-c7cd-4682-a439-a4874745b005"
+    )
+    baker.make("Aluno", periodo_escolar=periodo_integral, escola=escola)
+    baker.make(
+        "ValorMedicao",
+        dia="01",
+        semana="1",
+        nome_campo="frequencia",
+        medicao=medicao_integral,
+        categoria_medicao=categoria_dieta_a,
+        valor="10",
+        faixa_etaria=faixa_etaria,
+    )
+    return solicitacao_medicao
+
+
+@pytest.fixture
+def solicitacao_medicao_inicial_aprovada_codae(
+    solicitacoes_medicao_inicial_emef,
+    django_user_model,
+):
+    usuario = django_user_model.objects.create_user(
+        nome="Usuário TESTE", username="medicao_teste", password=DJANGO_ADMIN_PASSWORD, email="medicao@escola.com", registro_funcional="123456"
+    )
+
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacoes_medicao_inicial_emef.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+        criado_em=datetime.datetime(2025, 11, 27, 14, 9, 11, tzinfo=datetime.timezone.utc),
+        usuario=usuario,
+    )
+
+    for medicao in solicitacoes_medicao_inicial_emef.medicoes.all():
+        medicao.status = (
+            solicitacoes_medicao_inicial_emef.workflow_class.MEDICAO_APROVADA_PELA_CODAE   
+        )
+        medicao.save()
+    solicitacoes_medicao_inicial_emef.status = (
+        solicitacoes_medicao_inicial_emef.workflow_class.MEDICAO_APROVADA_PELA_CODAE
+    )
+    solicitacoes_medicao_inicial_emef.save()
+    return solicitacoes_medicao_inicial_emef
