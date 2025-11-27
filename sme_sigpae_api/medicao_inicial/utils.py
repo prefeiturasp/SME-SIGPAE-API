@@ -5,6 +5,8 @@ import logging
 from calendar import monthrange
 from collections import defaultdict
 from functools import reduce
+from django.template.loader import render_to_string
+from django.utils import timezone
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import IntegerField, Sum
@@ -20,7 +22,8 @@ from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_PERIODOS_GRUPOS_EMEBS,
     TIPOS_TURMAS_EMEBS,
 )
-from sme_sigpae_api.dados_comuns.utils import convert_base64_to_contentfile
+from sme_sigpae_api.dados_comuns.utils import convert_base64_to_contentfile, convert_image_to_base64
+from sme_sigpae_api.relatorios.utils import merge_pdf_com_rodape_assinatura
 from sme_sigpae_api.dieta_especial.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
@@ -46,11 +49,60 @@ from sme_sigpae_api.medicao_inicial.models import (
     RelatorioFinanceiro,
     SolicitacaoMedicaoInicial,
     ValorMedicao,
+    OcorrenciaMedicaoInicial,
 )
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesEscola
 from sme_sigpae_api.terceirizada.models import Edital
 
 logger = logging.getLogger(__name__)
+
+
+def process_anexos_from_request(instance, request):
+    anexos_string = request.data.get("anexos")
+    if not anexos_string:
+        return []
+
+    anexos = json.loads(anexos_string)
+    anexos_processados = []
+
+    for anexo in anexos:
+        anexo_proc = dict(anexo)
+
+        if ".pdf" in anexo_proc.get("nome", ""):
+            arquivo = convert_base64_to_contentfile(anexo_proc["base64"])
+
+            usuario = request.user
+            data_hoje = timezone.now()
+            logo_sipae = convert_image_to_base64(
+                "sme_sigpae_api/relatorios/static/images/logo-sigpae.png", "png"
+            )
+            string_pdf_rodape = render_to_string(
+                "rodape_assinatura_medicao_com_ocorrencia.html",
+                {
+                    "imagem_convertida": logo_sipae,
+                    "usuario": usuario,
+                    "time": data_hoje,
+                },
+            )
+
+            arquivo_com_assinatura_base64 = merge_pdf_com_rodape_assinatura(
+                arquivo, string_pdf_rodape
+            )
+            arquivo_final = convert_base64_to_contentfile(
+                arquivo_com_assinatura_base64
+            )
+            OcorrenciaMedicaoInicial.objects.update_or_create(
+                solicitacao_medicao_inicial=instance,
+                defaults={
+                    "ultimo_arquivo": arquivo_final,
+                    "nome_ultimo_arquivo": anexo_proc.get("nome"),
+                },
+            )
+            anexo_proc["base64"] = arquivo_com_assinatura_base64
+
+        anexos_processados.append(anexo_proc)
+
+    return anexos_processados
 
 
 def get_lista_categorias_campos(medicao, tipo_turma=None):

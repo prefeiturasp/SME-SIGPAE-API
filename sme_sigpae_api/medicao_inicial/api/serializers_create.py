@@ -86,6 +86,7 @@ from ..validators import (
     validate_solicitacoes_programas_e_projetos_emebs,
     validate_solicitacoes_programas_e_projetos_escola_sem_alunos_regulares,
 )
+from sme_sigpae_api.medicao_inicial.utils import process_anexos_from_request
 
 
 class DiaSobremesaDoceCreateSerializer(serializers.ModelSerializer):
@@ -1008,47 +1009,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         return self.context["request"].data.get("tipos_contagem_alimentacao")
 
     def _process_anexos(self, instance):
-        anexos_string = self.context["request"].data.get("anexos")
-        if anexos_string:
-            anexos = json.loads(anexos_string)
-            anexos_processados = []
-
-            for anexo in anexos:
-                anexo_proc = dict(anexo)
-
-                if ".pdf" in anexo_proc["nome"]:
-                    arquivo = convert_base64_to_contentfile(anexo_proc["base64"])
-
-                    usuario = self.context["request"].user
-                    data_hoje = timezone.now()
-                    logo_sipae = convert_image_to_base64(
-                        "sme_sigpae_api/relatorios/static/images/logo-sigpae.png", "png"
-                    )
-                    string_pdf_rodape = render_to_string(
-                        "rodape_assinatura_medicao_com_ocorrencia.html",
-                        {
-                            "imagem_convertida": logo_sipae,
-                            "usuario": usuario,
-                            "time": data_hoje,
-                        },
-                    )
-
-                    arquivo_com_assinatura_base64 = merge_pdf_com_rodape_assinatura(
-                        arquivo, string_pdf_rodape
-                    )
-                    arquivo_final = convert_base64_to_contentfile(
-                        arquivo_com_assinatura_base64
-                    )
-                    OcorrenciaMedicaoInicial.objects.update_or_create(
-                        solicitacao_medicao_inicial=instance,
-                        defaults={
-                            "ultimo_arquivo": arquivo_final,
-                            "nome_ultimo_arquivo": anexo_proc.get("nome"),
-                        },
-                    )
-                    anexo_proc["base64"] = arquivo_com_assinatura_base64
-                anexos_processados.append(anexo_proc)
-            return anexos_processados
+        return process_anexos_from_request(instance, self.context["request"])
 
     def _finaliza_medicao_se_necessario(
         self, instance, validated_data, anexos, justificativa_sem_lancamentos
