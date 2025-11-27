@@ -251,6 +251,7 @@ def test_etapas_cronograma_ficha_recebimento_serializer(etapa_com_fichas_recebim
     assert data["etapa"] == "Etapa 1"
     assert data["parte"] == "Parte 2"
     assert data["data_programada"] == etapa.data_programada.strftime("%d/%m/%Y")
+    assert data["unidade_medida"] == etapa.cronograma.unidade_medida.abreviacao
 
     assert "500" in data["qtd_total_empenho"]
     assert "ut" in data["qtd_total_empenho"]
