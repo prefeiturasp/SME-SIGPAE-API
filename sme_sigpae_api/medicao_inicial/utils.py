@@ -56,51 +56,57 @@ from sme_sigpae_api.terceirizada.models import Edital
 logger = logging.getLogger(__name__)
 
 
+def process_single_anexo(anexo, usuario):
+    anexo_proc = dict(anexo)
+    nome = anexo_proc.get("nome", "")
+    base64_str = anexo_proc.get("base64", "")
+
+    if not should_process_pdf(nome, base64_str):
+        return anexo_proc
+
+    try:
+        arquivo = convert_base64_to_contentfile(base64_str)
+        logo_sipae = convert_image_to_base64(
+            "sme_sigpae_api/relatorios/static/images/logo-sigpae.png", "png"
+        )
+        string_pdf_rodape = render_to_string(
+            "rodape_assinatura_medicao_com_ocorrencia.html",
+            {
+                "imagem_convertida": logo_sipae,
+                "usuario": usuario,
+                "time": timezone.now(),
+            },
+        )
+        arquivo_com_assinatura_base64 = merge_pdf_com_rodape_assinatura(
+            arquivo, string_pdf_rodape
+        )
+        anexo_proc["base64"] = arquivo_com_assinatura_base64
+    except Exception:
+        # mantém o anexo original para que a lógica de negócio prossiga
+        pass
+
+    return anexo_proc
+
+
+def should_process_pdf(nome, base64_str):
+    if ".pdf" not in nome.lower() or not base64_str:
+        return False
+
+    parts = base64_str.split(",", 1)
+    has_payload = len(parts) == 2 and parts[1].strip() != ""
+    return has_payload
+
+
 def process_anexos_from_request(request):
     anexos_string = request.data.get("anexos")
     if not anexos_string:
         return []
 
     anexos = json.loads(anexos_string)
-    anexos_processados = []
-
-    for anexo in anexos:
-        anexo_proc = dict(anexo)
-
-        nome = anexo_proc.get("nome", "")
-        base64_str = anexo_proc.get("base64", "")
-        try:
-            if ".pdf" in nome.lower() and base64_str:
-                parts = base64_str.split(",", 1)
-                has_payload = len(parts) == 2 and parts[1].strip() != ""
-
-                if has_payload:
-                    arquivo = convert_base64_to_contentfile(base64_str)
-
-                    usuario = request.user
-                    data_hoje = timezone.now()
-                    logo_sipae = convert_image_to_base64(
-                        "sme_sigpae_api/relatorios/static/images/logo-sigpae.png", "png"
-                    )
-                    string_pdf_rodape = render_to_string(
-                        "rodape_assinatura_medicao_com_ocorrencia.html",
-                        {
-                            "imagem_convertida": logo_sipae,
-                            "usuario": usuario,
-                            "time": data_hoje,
-                        },
-                    )
-
-                    arquivo_com_assinatura_base64 = merge_pdf_com_rodape_assinatura(
-                        arquivo, string_pdf_rodape
-                    )
-
-                    anexo_proc["base64"] = arquivo_com_assinatura_base64
-        except Exception:
-            # mantém o anexo original para que a lógica de negócio prossiga
-            pass
-
-        anexos_processados.append(anexo_proc)
+    usuario = request.user
+    anexos_processados = [
+        process_single_anexo(anexo, usuario) for anexo in anexos
+    ]
     return anexos_processados
 
 
