@@ -5,18 +5,13 @@ from datetime import date, datetime
 import environ
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
-from django.template.loader import render_to_string
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
 from sme_sigpae_api.dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
 from sme_sigpae_api.dados_comuns.utils import (
-    convert_base64_to_contentfile,
     update_instance_from_dict,
-    convert_image_to_base64
 )
-from sme_sigpae_api.relatorios.utils import merge_pdf_com_rodape_assinatura
-from django.utils import timezone
 from sme_sigpae_api.dados_comuns.validators import deve_ter_extensao_xls_xlsx_pdf
 from sme_sigpae_api.escola.api.serializers_create import (
     AlunoPeriodoParcialCreateSerializer,
