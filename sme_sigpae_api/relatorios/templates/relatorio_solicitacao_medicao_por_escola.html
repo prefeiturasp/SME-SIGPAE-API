@@ -1,140 +1,160 @@
-{% load index %}
-{% load static %}
-{% load sass_tags %}
-{% load safe_html_tags %}
+{% load index %} {% load static %} {% load sass_tags %} {% load safe_html_tags
+%}
 
 <html>
-<head>
-  <link rel="stylesheet" href="{% sass_src 'css/custom_bootstrap.scss' %}" type="text/css">
-  <link rel="stylesheet" href="{% sass_src 'css/relatorio_solicitacao_medicao_por_escola.scss' %}" type="text/css">
-</head>
-<body>
-  <header class="header">
-    <div class="row p-0 mx-4">
-      <div class="col-2">
-        <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt=""/>
-      </div>
-      <div class="col-8">
-        <h1 class="text-center">
-          SECRETARIA MUNICIPAL DE EDUCAÇÃO - SME | COORDENADORIA DE ALIMENTAÇÃO ESCOLAR - CODAE
-        </h1>
-        <h1 class="text-center">
-          MEDIÇÃO INICIAL DO SERVIÇO DE NUTRIÇÃO E ALIMENTAÇÃO ESCOLAR
-        </h1>
-      </div>
-      <div class="offset-1 col-1">
-        <h1 class="text-right">Página</h1>
-        <h1 class="page-number text-right"></h1>
-      </div>
+  <head>
+    <link
+      rel="stylesheet"
+      href="{% sass_src 'css/custom_bootstrap.scss' %}"
+      type="text/css"
+    />
+    <link
+      rel="stylesheet"
+      href="{% sass_src 'css/relatorio_solicitacao_medicao_por_escola.scss' %}"
+      type="text/css"
+    />
+  </head>
+  <body>
+    {% if solicitacao.status == 'MEDICAO_APROVADA_PELA_CODAE' %}
+    <div class="first-footer-approved mr-2">
+      Aprovado por CODAE em {{
+      solicitacao.log_mais_recente.criado_em|date:"d/m/Y - H:i" }} - {{
+      solicitacao.log_mais_recente.usuario.nome }}
     </div>
-    <div class="row p-0 mx-2">
-      <div class="col-12">
-        <table class="tabela-cabecalho">
-          <tr class="custom-filtros">
-            <td><b>Cód. EOL: </b>{{ solicitacao.escola.codigo_eol }}</td>
-            <td><b>U.E: </b>{{ solicitacao.escola.nome }}</td>
-            <td><b>Telefone da UE: </b>{{ solicitacao.escola.contato.telefone }}</td>
-            <td><b>DRE: </b>{{ solicitacao.escola.diretoria_regional.nome }}</td>
-          </tr>
-          <tr class="custom-filtros">
-            <td><b>Lote: </b>{{ solicitacao.rastro_lote.nome }}</td>
-            <td colspan="2"><b>Empresa Prestadora do Serviço: </b>{{ solicitacao.rastro_terceirizada.razao_social }}</td>
-            <td><b>REFERÊNCIA: </b>{{ solicitacao.mes }}/{{ solicitacao.ano }}</td>
-          </tr>
-        </table>
-      </div>
-    </div>
-  </header>
-  <div class="mx-4 my-5">
-    <h1 class="text-center titulo-body-p1">INFORMAÇÕES BÁSICAS DA MEDIÇÃO</h1>
-  </div>
-  <div class="row p-0 mx-4 tipo-contagem">
-    <div class="col-2"></div>
-    <div class="col-4 label-contagem">
-      Método de Contagem das Alimentações Servidas
-    </div>
-    <div class="col-4 value-contagem">
-      {{tipos_contagem_alimentacao}}
-    </div>
-    <div class="col-2"></div>
-  </div>
-  <div class="row p-0 mx-4 mt-5 tipo-avaliacao">
-    <div class="col-3 avaliacao-left">
-      Avaliação do Serviço
-    </div>
-    <div class="col-6 avaliacao-center">
-      Neste mês, a direção da Unidade Educacional considera que o serviço foi realizado a contento?
-    </div>
-    <div class="col-3 avaliacao-right">
-      {% if solicitacao.com_ocorrencias %}
-      Não, com ocorrências
-      {% else %}
-      Sim, sem ocorrências
-      {% endif %}
-    </div>
-  </div>
-  <div class="mt-5"></div>
-  <div class="row p-0 mx-4 mt-5">
-    <div class="col-12 usuario-title"><span><b>Responsáveis por acompanhar a prestação de serviços</b></span></div>
-  </div>
-  <div class="bloco-usuarios">
-    {% for responsavel in responsaveis %}
-    <div class="row p-0 mx-4 mt-2 usuarios">
-      <div class="usuario-label mr-2"><span><b>Nome: {{responsavel.nome}}</b></span></div>
-      <div class="usuario-values"><span><b>RF: {{responsavel.rf}}</b></span></div>
-    </div>
-    {% endfor %}
-  </div>
-  <div class="mt-4"></div>
-  <div class="row p-0 mx-4 mt-5">
-    <div class="col-6 mr-3 titulo-assinatura">
-      <b>ASSINATURA UNIDADE EDUCACIONAL</b>
-    </div>
-    <div class="col-5 titulo-assinatura">
-      <b>RESPONSÁVEL PELA CONFERÊNCIA NA DRE</b>
-    </div>
-  </div>
-  <div class="bloco-assinaturas">
-    <div class="row p-0 mx-4 mt-3">
-      <div class="col-6 mr-3 assinatura">
-        {% if assinatura_escola %}
-        <div class="row p-0 mx-1">
-          <div class="col-2">
-            <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
-          </div>
-          <div class="col-10 texto">
-            <span>
-              {{assinatura_escola}}
-            </span>
-          </div>
-        </div>
-        {% endif %}
-      </div>
-      <div class="col-6 assinatura">
-        {% if assinatura_dre %}
-        <div class="row p-0 mx-1">
-          <div class="col-2">
-            <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
-          </div>
-          <div class="col-10 texto">
-            <span>
-              {{assinatura_dre}}
-            </span>
-          </div>
-        </div>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-  {% for tabela in tabelas %}
-    <header class="header" style="page-break-before: always;">
+    {% endif %}
+    <header class="header">
       <div class="row p-0 mx-4">
         <div class="col-2">
-          <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt=""/>
+          <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt="" />
         </div>
         <div class="col-8">
           <h1 class="text-center">
-            SECRETARIA MUNICIPAL DE EDUCAÇÃO - SME | COORDENADORIA DE ALIMENTAÇÃO ESCOLAR - CODAE
+            SECRETARIA MUNICIPAL DE EDUCAÇÃO - SME | COORDENADORIA DE
+            ALIMENTAÇÃO ESCOLAR - CODAE
+          </h1>
+          <h1 class="text-center">
+            MEDIÇÃO INICIAL DO SERVIÇO DE NUTRIÇÃO E ALIMENTAÇÃO ESCOLAR
+          </h1>
+        </div>
+        <div class="offset-1 col-1">
+          <h1 class="text-right">Página</h1>
+          <h1 class="page-number text-right"></h1>
+        </div>
+      </div>
+      <div class="row p-0 mx-2">
+        <div class="col-12">
+          <table class="tabela-cabecalho">
+            <tr class="custom-filtros">
+              <td><b>Cód. EOL: </b>{{ solicitacao.escola.codigo_eol }}</td>
+              <td><b>U.E: </b>{{ solicitacao.escola.nome }}</td>
+              <td>
+                <b>Telefone da UE: </b>{{ solicitacao.escola.contato.telefone }}
+              </td>
+              <td>
+                <b>DRE: </b>{{ solicitacao.escola.diretoria_regional.nome }}
+              </td>
+            </tr>
+            <tr class="custom-filtros">
+              <td><b>Lote: </b>{{ solicitacao.rastro_lote.nome }}</td>
+              <td colspan="2">
+                <b>Empresa Prestadora do Serviço: </b>{{
+                solicitacao.rastro_terceirizada.razao_social }}
+              </td>
+              <td>
+                <b>REFERÊNCIA: </b>{{ solicitacao.mes }}/{{ solicitacao.ano }}
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </header>
+    <div class="mx-4 my-5">
+      <h1 class="text-center titulo-body-p1">INFORMAÇÕES BÁSICAS DA MEDIÇÃO</h1>
+    </div>
+    <div class="row p-0 mx-4 tipo-contagem">
+      <div class="col-2"></div>
+      <div class="col-4 label-contagem">
+        Método de Contagem das Alimentações Servidas
+      </div>
+      <div class="col-4 value-contagem">{{tipos_contagem_alimentacao}}</div>
+      <div class="col-2"></div>
+    </div>
+    <div class="row p-0 mx-4 mt-5 tipo-avaliacao">
+      <div class="col-3 avaliacao-left">Avaliação do Serviço</div>
+      <div class="col-6 avaliacao-center">
+        Neste mês, a direção da Unidade Educacional considera que o serviço foi
+        realizado a contento?
+      </div>
+      <div class="col-3 avaliacao-right">
+        {% if solicitacao.com_ocorrencias %} Não, com ocorrências {% else %}
+        Sim, sem ocorrências {% endif %}
+      </div>
+    </div>
+    <div class="mt-5"></div>
+    <div class="row p-0 mx-4 mt-5">
+      <div class="col-12 usuario-title">
+        <span><b>Responsáveis por acompanhar a prestação de serviços</b></span>
+      </div>
+    </div>
+    <div class="bloco-usuarios">
+      {% for responsavel in responsaveis %}
+      <div class="row p-0 mx-4 mt-2 usuarios">
+        <div class="usuario-label mr-2">
+          <span><b>Nome: {{responsavel.nome}}</b></span>
+        </div>
+        <div class="usuario-values">
+          <span><b>RF: {{responsavel.rf}}</b></span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="mt-4"></div>
+    <div class="row p-0 mx-4 mt-5">
+      <div class="col-6 mr-3 titulo-assinatura">
+        <b>ASSINATURA UNIDADE EDUCACIONAL</b>
+      </div>
+      <div class="col-5 titulo-assinatura">
+        <b>RESPONSÁVEL PELA CONFERÊNCIA NA DRE</b>
+      </div>
+    </div>
+    <div class="bloco-assinaturas">
+      <div class="row p-0 mx-4 mt-3">
+        <div class="col-6 mr-3 assinatura">
+          {% if assinatura_escola %}
+          <div class="row p-0 mx-1">
+            <div class="col-2">
+              <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
+            </div>
+            <div class="col-10 texto">
+              <span> {{assinatura_escola}} </span>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+        <div class="col-6 assinatura">
+          {% if assinatura_dre %}
+          <div class="row p-0 mx-1">
+            <div class="col-2">
+              <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
+            </div>
+            <div class="col-10 texto">
+              <span> {{assinatura_dre}} </span>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% for tabela in tabelas %}
+    <header class="header" style="page-break-before: always">
+      <div class="row p-0 mx-4">
+        <div class="col-2">
+          <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt="" />
+        </div>
+        <div class="col-8">
+          <h1 class="text-center">
+            SECRETARIA MUNICIPAL DE EDUCAÇÃO - SME | COORDENADORIA DE
+            ALIMENTAÇÃO ESCOLAR - CODAE
           </h1>
           <h1 class="text-center">
             MEDIÇÃO INICIAL DO SERVIÇO DE NUTRIÇÃO E ALIMENTAÇÃO ESCOLAR
@@ -152,13 +172,22 @@
             <tr class="custom-filtros">
               <td><b>Cód. EOL: </b>{{ solicitacao.escola.codigo_eol }}</td>
               <td><b>U.E: </b>{{ solicitacao.escola.nome }}</td>
-              <td><b>Telefone da UE: </b>{{ solicitacao.escola.contato.telefone }}</td>
-              <td><b>DRE: </b>{{ solicitacao.escola.diretoria_regional.nome }}</td>
+              <td>
+                <b>Telefone da UE: </b>{{ solicitacao.escola.contato.telefone }}
+              </td>
+              <td>
+                <b>DRE: </b>{{ solicitacao.escola.diretoria_regional.nome }}
+              </td>
             </tr>
             <tr class="custom-filtros">
               <td><b>Lote: </b>{{ solicitacao.rastro_lote.nome }}</td>
-              <td colspan="2"><b>Empresa Prestadora do Serviço: </b>{{ solicitacao.rastro_terceirizada.razao_social }}</td>
-              <td><b>REFERÊNCIA: </b>{{ solicitacao.mes }}/{{ solicitacao.ano }}</td>
+              <td colspan="2">
+                <b>Empresa Prestadora do Serviço: </b>{{
+                solicitacao.rastro_terceirizada.razao_social }}
+              </td>
+              <td>
+                <b>REFERÊNCIA: </b>{{ solicitacao.mes }}/{{ solicitacao.ano }}
+              </td>
             </tr>
           </table>
         </div>
@@ -169,42 +198,52 @@
         <tr>
           <th rowspan="3">Dias</th>
           {% for periodo in tabela.periodos %}
-            <th class="periodo-grupo cor-periodo-grupo-{{ tabela.ordem_periodos_grupos|get_element_by_index:forloop.counter0 }}" colspan="{{ tabela.len_periodos|get_element_by_index:forloop.counter0 }}">
-              {{ periodo|upper }}
-            </th>
+          <th
+            class="periodo-grupo cor-periodo-grupo-{{ tabela.ordem_periodos_grupos|get_element_by_index:forloop.counter0 }}"
+            colspan="{{ tabela.len_periodos|get_element_by_index:forloop.counter0 }}"
+          >
+            {{ periodo|upper }}
+          </th>
           {% endfor %}
         </tr>
         <tr>
           {% for categoria in tabela.categorias %}
-            <th class="categoria" colspan="{{ tabela.len_categorias|get_element_by_index:forloop.counter0 }}">{{ categoria|upper }}</th>
+          <th
+            class="categoria"
+            colspan="{{ tabela.len_categorias|get_element_by_index:forloop.counter0 }}"
+          >
+            {{ categoria|upper }}
+          </th>
           {% endfor %}
         </tr>
         <tr>
           {% for campo in tabela.nomes_campos %}
-            <th>{{ campo|get_nome_campo }}</th>
+          <th>{{ campo|get_nome_campo }}</th>
           {% endfor %}
         </tr>
       </thead>
       <tbody>
         {% for valores in tabela.valores_campos %}
-          <tr class="{% if tabela.dias_letivos|get_nao_eh_dia_letivo:forloop.counter0 %} nao-dia-letivo {% endif %}">
-            {% for valor in valores %}
-              <td>{{ valor }}</td>
-            {% endfor %}
-          </tr>
+        <tr
+          class="{% if tabela.dias_letivos|get_nao_eh_dia_letivo:forloop.counter0 %} nao-dia-letivo {% endif %}"
+        >
+          {% for valor in valores %}
+          <td>{{ valor }}</td>
+          {% endfor %}
+        </tr>
         {% endfor %}
       </tbody>
     </table>
-  {% endfor %}
-  {% for tabela in tabela_observacoes|formatar_observacoes %}
-    <header class="header" style="page-break-before: always;">
+    {% endfor %} {% for tabela in tabela_observacoes|formatar_observacoes %}
+    <header class="header" style="page-break-before: always">
       <div class="row p-0 mx-4">
         <div class="col-2">
-          <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt=""/>
+          <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt="" />
         </div>
         <div class="col-8">
           <h1 class="text-center">
-            SECRETARIA MUNICIPAL DE EDUCAÇÃO - SME | COORDENADORIA DE ALIMENTAÇÃO ESCOLAR - CODAE
+            SECRETARIA MUNICIPAL DE EDUCAÇÃO - SME | COORDENADORIA DE
+            ALIMENTAÇÃO ESCOLAR - CODAE
           </h1>
           <h1 class="text-center">
             MEDIÇÃO INICIAL DO SERVIÇO DE NUTRIÇÃO E ALIMENTAÇÃO ESCOLAR
@@ -222,19 +261,30 @@
             <tr class="custom-filtros">
               <td><b>Cód. EOL: </b>{{ solicitacao.escola.codigo_eol }}</td>
               <td><b>U.E: </b>{{ solicitacao.escola.nome }}</td>
-              <td><b>Telefone da UE: </b>{{ solicitacao.escola.contato.telefone }}</td>
-              <td><b>DRE: </b>{{ solicitacao.escola.diretoria_regional.nome }}</td>
+              <td>
+                <b>Telefone da UE: </b>{{ solicitacao.escola.contato.telefone }}
+              </td>
+              <td>
+                <b>DRE: </b>{{ solicitacao.escola.diretoria_regional.nome }}
+              </td>
             </tr>
             <tr class="custom-filtros">
               <td><b>Lote: </b>{{ solicitacao.rastro_lote.nome }}</td>
-              <td colspan="2"><b>Empresa Prestadora do Serviço: </b>{{ solicitacao.rastro_terceirizada.razao_social }}</td>
-              <td><b>REFERÊNCIA: </b>{{ solicitacao.mes }}/{{ solicitacao.ano }}</td>
+              <td colspan="2">
+                <b>Empresa Prestadora do Serviço: </b>{{
+                solicitacao.rastro_terceirizada.razao_social }}
+              </td>
+              <td>
+                <b>REFERÊNCIA: </b>{{ solicitacao.mes }}/{{ solicitacao.ano }}
+              </td>
             </tr>
           </table>
         </div>
       </div>
     </header>
-    <h1 class="titulo-tabela-observacoes text-center mt-3 mb-3">OBSERVAÇÕES DIÁRIAS DOS LANÇAMENTOS</h1>
+    <h1 class="titulo-tabela-observacoes text-center mt-3 mb-3">
+      OBSERVAÇÕES DIÁRIAS DOS LANÇAMENTOS
+    </h1>
     <table class="tabela-valores-medicao mt-1">
       <thead class="head-tabela-observacoes">
         <tr class="texto-branco">
@@ -246,26 +296,28 @@
       </thead>
       <tbody class="body-tabela-observacoes">
         {% for row in tabela %}
-          <tr>
-            <td class="tabela-observacoes-dia">{{ row.0|safe_content }}</td>
-            <td class="tabela-observacoes-periodo">{{ row.4|safe_content }}</td>
-            <td class="tabela-observacoes-tipo">{{ row.2|safe_content }}</td>
-            <td class="tabela-observacoes-observacoes text-left">{{ row.3|safe_content }}</td>
-          </tr>
+        <tr>
+          <td class="tabela-observacoes-dia">{{ row.0|safe_content }}</td>
+          <td class="tabela-observacoes-periodo">{{ row.4|safe_content }}</td>
+          <td class="tabela-observacoes-tipo">{{ row.2|safe_content }}</td>
+          <td class="tabela-observacoes-observacoes text-left">
+            {{ row.3|safe_content }}
+          </td>
+        </tr>
         {% endfor %}
       </tbody>
     </table>
-  {% endfor %}
-
-  {% if primeira_tabela_somatorio.body or segunda_tabela_somatorio.body %}
-    <header class="header" style="page-break-before: always;">
+    {% endfor %} {% if primeira_tabela_somatorio.body or
+    segunda_tabela_somatorio.body %}
+    <header class="header" style="page-break-before: always">
       <div class="row p-0 mx-4">
         <div class="col-2">
-          <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt=""/>
+          <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt="" />
         </div>
         <div class="col-8">
           <h1 class="text-center">
-            SECRETARIA MUNICIPAL DE EDUCAÇÃO - SME | COORDENADORIA DE ALIMENTAÇÃO ESCOLAR - CODAE
+            SECRETARIA MUNICIPAL DE EDUCAÇÃO - SME | COORDENADORIA DE
+            ALIMENTAÇÃO ESCOLAR - CODAE
           </h1>
           <h1 class="text-center">
             MEDIÇÃO INICIAL DO SERVIÇO DE NUTRIÇÃO E ALIMENTAÇÃO ESCOLAR
@@ -283,80 +335,100 @@
             <tr class="custom-filtros">
               <td><b>Cód. EOL: </b>{{ solicitacao.escola.codigo_eol }}</td>
               <td><b>U.E: </b>{{ solicitacao.escola.nome }}</td>
-              <td><b>Telefone da UE: </b>{{ solicitacao.escola.contato.telefone }}</td>
-              <td><b>DRE: </b>{{ solicitacao.escola.diretoria_regional.nome }}</td>
+              <td>
+                <b>Telefone da UE: </b>{{ solicitacao.escola.contato.telefone }}
+              </td>
+              <td>
+                <b>DRE: </b>{{ solicitacao.escola.diretoria_regional.nome }}
+              </td>
             </tr>
             <tr class="custom-filtros">
               <td><b>Lote: </b>{{ solicitacao.rastro_lote.nome }}</td>
-              <td colspan="2"><b>Empresa Prestadora do Serviço: </b>{{ solicitacao.rastro_terceirizada.razao_social }}</td>
-              <td><b>REFERÊNCIA: </b>{{ solicitacao.mes }}/{{ solicitacao.ano }}</td>
+              <td colspan="2">
+                <b>Empresa Prestadora do Serviço: </b>{{
+                solicitacao.rastro_terceirizada.razao_social }}
+              </td>
+              <td>
+                <b>REFERÊNCIA: </b>{{ solicitacao.mes }}/{{ solicitacao.ano }}
+              </td>
             </tr>
           </table>
         </div>
       </div>
     </header>
-    <h1 class="titulo-tabela-somatorio text-center mt-4 mb-4">SOMATÓRIO DE ALIMENTAÇÕES OFERTADAS NO PERÍODO</h1>
+    <h1 class="titulo-tabela-somatorio text-center mt-4 mb-4">
+      SOMATÓRIO DE ALIMENTAÇÕES OFERTADAS NO PERÍODO
+    </h1>
     <div class="tabelas-somatorio">
       {% if primeira_tabela_somatorio.body %}
-        <div>
-          <table class="mr-1">
-            <thead class="head-tabelas-somatorio">
-              <tr class="texto-branco">
-                {% for periodo in primeira_tabela_somatorio.header %}
-                  <th class="col-{{ periodo|get_colspan }}">{{periodo|get_nome_header}}</th>
-                {% endfor %}
-              </tr>
-            </thead>
-            <tbody class="body-tabelas-somatorio">
-              {% for row in primeira_tabela_somatorio.body %}
-                <tr>
-                  {% for periodo in primeira_tabela_somatorio.header %}
-                    <td class="col-{{ periodo|get_colspan }}">{{ row|get_element_by_index:forloop.counter0 }}</td>
-                  {% endfor %}
-                </tr>
+      <div>
+        <table class="mr-1">
+          <thead class="head-tabelas-somatorio">
+            <tr class="texto-branco">
+              {% for periodo in primeira_tabela_somatorio.header %}
+              <th class="col-{{ periodo|get_colspan }}">
+                {{periodo|get_nome_header}}
+              </th>
               {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      {% endif %}
-
-      {% if segunda_tabela_somatorio.body %}
-        <div>
-          <table>
-            <thead class="head-tabelas-somatorio">
-              <tr class="texto-branco">
-                {% for periodo in segunda_tabela_somatorio.header %}
-                  <th class="col-{{ periodo|get_colspan }}">{{periodo|get_nome_header}}</th>
-                {% endfor %}
-              </tr>
-            </thead>
-            <tbody class="body-tabelas-somatorio">
-              {% for row in segunda_tabela_somatorio.body %}
-                <tr>
-                  {% for periodo in segunda_tabela_somatorio.header %}
-                    <td class="col-{{ periodo|get_colspan }}">{{ row|get_element_by_index:forloop.counter0 }}</td>
-                  {% endfor %}
-                </tr>
+            </tr>
+          </thead>
+          <tbody class="body-tabelas-somatorio">
+            {% for row in primeira_tabela_somatorio.body %}
+            <tr>
+              {% for periodo in primeira_tabela_somatorio.header %}
+              <td class="col-{{ periodo|get_colspan }}">
+                {{ row|get_element_by_index:forloop.counter0 }}
+              </td>
               {% endfor %}
-            </tbody>
-          </table>
-        </div>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %} {% if segunda_tabela_somatorio.body %}
+      <div>
+        <table>
+          <thead class="head-tabelas-somatorio">
+            <tr class="texto-branco">
+              {% for periodo in segunda_tabela_somatorio.header %}
+              <th class="col-{{ periodo|get_colspan }}">
+                {{periodo|get_nome_header}}
+              </th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody class="body-tabelas-somatorio">
+            {% for row in segunda_tabela_somatorio.body %}
+            <tr>
+              {% for periodo in segunda_tabela_somatorio.header %}
+              <td class="col-{{ periodo|get_colspan }}">
+                {{ row|get_element_by_index:forloop.counter0 }}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
       {% endif %}
     </div>
     <div class="info-abaixo-tabela">
-      * A tabela acima representa a soma das alimentações lançadas em todos os períodos da UE
+      * A tabela acima representa a soma das alimentações lançadas em todos os
+      períodos da UE
     </div>
-  {% endif %}
-
-  {% if primeira_tabela_somatorio_dietas_tipo_a.body or segunda_tabela_somatorio_dietas_tipo_a.header or primeira_tabela_somatorio_dietas_tipo_b.body or segunda_tabela_somatorio_dietas_tipo_b.header %}
-    <header class="header" style="page-break-before: always;">
+    {% endif %} {% if primeira_tabela_somatorio_dietas_tipo_a.body or
+    segunda_tabela_somatorio_dietas_tipo_a.header or
+    primeira_tabela_somatorio_dietas_tipo_b.body or
+    segunda_tabela_somatorio_dietas_tipo_b.header %}
+    <header class="header" style="page-break-before: always">
       <div class="row p-0 mx-4">
         <div class="col-2">
-          <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt=""/>
+          <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt="" />
         </div>
         <div class="col-8">
           <h1 class="text-center">
-            SECRETARIA MUNICIPAL DE EDUCAÇÃO - SME | COORDENADORIA DE ALIMENTAÇÃO ESCOLAR - CODAE
+            SECRETARIA MUNICIPAL DE EDUCAÇÃO - SME | COORDENADORIA DE
+            ALIMENTAÇÃO ESCOLAR - CODAE
           </h1>
           <h1 class="text-center">
             MEDIÇÃO INICIAL DO SERVIÇO DE NUTRIÇÃO E ALIMENTAÇÃO ESCOLAR
@@ -374,13 +446,22 @@
             <tr class="custom-filtros">
               <td><b>Cód. EOL: </b>{{ solicitacao.escola.codigo_eol }}</td>
               <td><b>U.E: </b>{{ solicitacao.escola.nome }}</td>
-              <td><b>Telefone da UE: </b>{{ solicitacao.escola.contato.telefone }}</td>
-              <td><b>DRE: </b>{{ solicitacao.escola.diretoria_regional.nome }}</td>
+              <td>
+                <b>Telefone da UE: </b>{{ solicitacao.escola.contato.telefone }}
+              </td>
+              <td>
+                <b>DRE: </b>{{ solicitacao.escola.diretoria_regional.nome }}
+              </td>
             </tr>
             <tr class="custom-filtros">
               <td><b>Lote: </b>{{ solicitacao.rastro_lote.nome }}</td>
-              <td colspan="2"><b>Empresa Prestadora do Serviço: </b>{{ solicitacao.rastro_terceirizada.razao_social }}</td>
-              <td><b>REFERÊNCIA: </b>{{ solicitacao.mes }}/{{ solicitacao.ano }}</td>
+              <td colspan="2">
+                <b>Empresa Prestadora do Serviço: </b>{{
+                solicitacao.rastro_terceirizada.razao_social }}
+              </td>
+              <td>
+                <b>REFERÊNCIA: </b>{{ solicitacao.mes }}/{{ solicitacao.ano }}
+              </td>
             </tr>
           </table>
         </div>
@@ -388,115 +469,140 @@
     </header>
     <div class="container-pdf">
       <div class="conteudo">
-        <h1 class="titulo-tabela-somatorio text-center mt-4 mb-4">SOMATÓRIO DE DIETAS OFERTADAS NOS PERÍODOS</h1>
-          <div class="tabelas-somatorio-dietas mb-2">
-            {% if primeira_tabela_somatorio_dietas_tipo_a.body %}
-              <div>
-                <table class="mr-1">
-                  <thead class="head-tabelas-somatorio">
-                    <tr class="texto-branco">
-                      {% for periodo in primeira_tabela_somatorio_dietas_tipo_a.header %}
-                        <th class="col-{{ periodo|get_colspan }}">{{periodo|get_nome_header}}</th>
-                      {% endfor %}
-                    </tr>
-                  </thead>
-                  <tbody class="body-tabelas-somatorio">
-                    {% for row in primeira_tabela_somatorio_dietas_tipo_a.body %}
-                      <tr>
-                        {% for periodo in primeira_tabela_somatorio_dietas_tipo_a.header %}
-                          <td class="col-{{ periodo|get_colspan }}">{{ row|get_element_by_index:forloop.counter0 }}</td>
-                        {% endfor %}
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-                <div class="info-abaixo-tabela">
-                  * A tabela acima representa a soma das dietas lançadas em todos os períodos da UE
-                </div>
-              </div>
-            {% endif %}
-
-            {% if segunda_tabela_somatorio_dietas_tipo_a.header %}
-              <div>
-                <table class="mr-1">
-                  <thead class="head-tabelas-somatorio">
-                    <tr class="texto-branco">
-                      {% for periodo in segunda_tabela_somatorio_dietas_tipo_a.header %}
-                        <th class="col-{{ periodo|get_colspan }}">{{periodo|get_nome_header}}</th>
-                      {% endfor %}
-                    </tr>
-                  </thead>
-                  <tbody class="body-tabelas-somatorio">
-                    {% for row in segunda_tabela_somatorio_dietas_tipo_a.body %}
-                      <tr>
-                        {% for periodo in segunda_tabela_somatorio_dietas_tipo_a.header %}
-                          <td class="col-{{ periodo|get_colspan }}">{{ row|get_element_by_index:forloop.counter0 }}</td>
-                        {% endfor %}
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-                <div class="info-abaixo-tabela">
-                  * A tabela acima representa a soma das dietas lançadas em todos os períodos da UE
-                </div>
-              </div>
-            {% endif %}
+        <h1 class="titulo-tabela-somatorio text-center mt-4 mb-4">
+          SOMATÓRIO DE DIETAS OFERTADAS NOS PERÍODOS
+        </h1>
+        <div class="tabelas-somatorio-dietas mb-2">
+          {% if primeira_tabela_somatorio_dietas_tipo_a.body %}
+          <div>
+            <table class="mr-1">
+              <thead class="head-tabelas-somatorio">
+                <tr class="texto-branco">
+                  {% for periodo in
+                  primeira_tabela_somatorio_dietas_tipo_a.header %}
+                  <th class="col-{{ periodo|get_colspan }}">
+                    {{periodo|get_nome_header}}
+                  </th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody class="body-tabelas-somatorio">
+                {% for row in primeira_tabela_somatorio_dietas_tipo_a.body %}
+                <tr>
+                  {% for periodo in
+                  primeira_tabela_somatorio_dietas_tipo_a.header %}
+                  <td class="col-{{ periodo|get_colspan }}">
+                    {{ row|get_element_by_index:forloop.counter0 }}
+                  </td>
+                  {% endfor %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <div class="info-abaixo-tabela">
+              * A tabela acima representa a soma das dietas lançadas em todos os
+              períodos da UE
+            </div>
           </div>
-
-
-          <div class="tabelas-somatorio-dietas">
-            {% if primeira_tabela_somatorio_dietas_tipo_b.body %}
-              <div>
-                <table class="mr-1">
-                  <thead class="head-tabelas-somatorio">
-                    <tr class="texto-branco">
-                      {% for periodo in primeira_tabela_somatorio_dietas_tipo_b.header %}
-                        <th class="col-{{ periodo|get_colspan }}">{{periodo|get_nome_header}}</th>
-                      {% endfor %}
-                    </tr>
-                  </thead>
-                  <tbody class="body-tabelas-somatorio">
-                    {% for row in primeira_tabela_somatorio_dietas_tipo_b.body %}
-                      <tr>
-                        {% for periodo in primeira_tabela_somatorio_dietas_tipo_b.header %}
-                          <td class="col-{{ periodo|get_colspan }}">{{ row|get_element_by_index:forloop.counter0 }}</td>
-                        {% endfor %}
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-                <div class="info-abaixo-tabela">
-                  * A tabela acima representa a soma das dietas lançadas em todos os períodos da UE
-                </div>
-              </div>
-            {% endif %}
-
-            {% if segunda_tabela_somatorio_dietas_tipo_b.header %}
-              <div>
-                <table class="mr-1">
-                  <thead class="head-tabelas-somatorio">
-                    <tr class="texto-branco">
-                      {% for periodo in segunda_tabela_somatorio_dietas_tipo_b.header %}
-                        <th class="col-{{ periodo|get_colspan }}">{{periodo|get_nome_header}}</th>
-                      {% endfor %}
-                    </tr>
-                  </thead>
-                  <tbody class="body-tabelas-somatorio">
-                    {% for row in segunda_tabela_somatorio_dietas_tipo_b.body %}
-                      <tr>
-                        {% for periodo in segunda_tabela_somatorio_dietas_tipo_b.header %}
-                          <td class="col-{{ periodo|get_colspan }}">{{ row|get_element_by_index:forloop.counter0 }}</td>
-                        {% endfor %}
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-                <div class="info-abaixo-tabela">
-                  * A tabela acima representa a soma das dietas lançadas em todos os períodos da UE
-                </div>
-              </div>
-            {% endif %}
+          {% endif %} {% if segunda_tabela_somatorio_dietas_tipo_a.header %}
+          <div>
+            <table class="mr-1">
+              <thead class="head-tabelas-somatorio">
+                <tr class="texto-branco">
+                  {% for periodo in
+                  segunda_tabela_somatorio_dietas_tipo_a.header %}
+                  <th class="col-{{ periodo|get_colspan }}">
+                    {{periodo|get_nome_header}}
+                  </th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody class="body-tabelas-somatorio">
+                {% for row in segunda_tabela_somatorio_dietas_tipo_a.body %}
+                <tr>
+                  {% for periodo in
+                  segunda_tabela_somatorio_dietas_tipo_a.header %}
+                  <td class="col-{{ periodo|get_colspan }}">
+                    {{ row|get_element_by_index:forloop.counter0 }}
+                  </td>
+                  {% endfor %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <div class="info-abaixo-tabela">
+              * A tabela acima representa a soma das dietas lançadas em todos os
+              períodos da UE
+            </div>
           </div>
+          {% endif %}
+        </div>
+
+        <div class="tabelas-somatorio-dietas">
+          {% if primeira_tabela_somatorio_dietas_tipo_b.body %}
+          <div>
+            <table class="mr-1">
+              <thead class="head-tabelas-somatorio">
+                <tr class="texto-branco">
+                  {% for periodo in
+                  primeira_tabela_somatorio_dietas_tipo_b.header %}
+                  <th class="col-{{ periodo|get_colspan }}">
+                    {{periodo|get_nome_header}}
+                  </th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody class="body-tabelas-somatorio">
+                {% for row in primeira_tabela_somatorio_dietas_tipo_b.body %}
+                <tr>
+                  {% for periodo in
+                  primeira_tabela_somatorio_dietas_tipo_b.header %}
+                  <td class="col-{{ periodo|get_colspan }}">
+                    {{ row|get_element_by_index:forloop.counter0 }}
+                  </td>
+                  {% endfor %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <div class="info-abaixo-tabela">
+              * A tabela acima representa a soma das dietas lançadas em todos os
+              períodos da UE
+            </div>
+          </div>
+          {% endif %} {% if segunda_tabela_somatorio_dietas_tipo_b.header %}
+          <div>
+            <table class="mr-1">
+              <thead class="head-tabelas-somatorio">
+                <tr class="texto-branco">
+                  {% for periodo in
+                  segunda_tabela_somatorio_dietas_tipo_b.header %}
+                  <th class="col-{{ periodo|get_colspan }}">
+                    {{periodo|get_nome_header}}
+                  </th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody class="body-tabelas-somatorio">
+                {% for row in segunda_tabela_somatorio_dietas_tipo_b.body %}
+                <tr>
+                  {% for periodo in
+                  segunda_tabela_somatorio_dietas_tipo_b.header %}
+                  <td class="col-{{ periodo|get_colspan }}">
+                    {{ row|get_element_by_index:forloop.counter0 }}
+                  </td>
+                  {% endfor %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <div class="info-abaixo-tabela">
+              * A tabela acima representa a soma das dietas lançadas em todos os
+              períodos da UE
+            </div>
+          </div>
+          {% endif %}
+        </div>
         {% endif %}
       </div>
     </div>
@@ -515,12 +621,10 @@
             {% if assinatura_escola %}
             <div class="row p-0 mx-1">
               <div class="col-2">
-                <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+                <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
               </div>
               <div class="col-10 texto">
-                <span>
-                  {{assinatura_escola}}
-                </span>
+                <span> {{assinatura_escola}} </span>
               </div>
             </div>
             {% endif %}
@@ -529,12 +633,10 @@
             {% if assinatura_dre %}
             <div class="row p-0 mx-1">
               <div class="col-2">
-                <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+                <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
               </div>
               <div class="col-10 texto">
-                <span>
-                  {{assinatura_dre}}
-                </span>
+                <span> {{assinatura_dre}} </span>
               </div>
             </div>
             {% endif %}
@@ -542,5 +644,5 @@
         </div>
       </div>
     </div>
-</body>
+  </body>
 </html>
