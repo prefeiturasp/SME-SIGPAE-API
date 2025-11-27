@@ -1,95 +1,106 @@
-{% load index %}
-{% load static %}
-{% load sass_tags %}
+{% load index %} {% load static %} {% load sass_tags %}
 
 <html>
-<head>
-  <link rel="stylesheet" href="{% sass_src 'css/custom_bootstrap.scss' %}" type="text/css">
-  <link rel="stylesheet" href="{% sass_src 'css/relatorio_solicitacao_medicao_por_escola.scss' %}" type="text/css">
-</head>
-<body>
-  {% include "relatorio_cabecalho_solicitacao_medicao_por_escola_cei.html" with solicitacoes=solicitacoes %}
-
-  <div class="row p-0 mx-4 my-5">
-    <div class="col-12">
-      <h1 class="text-center titulo-body-p1">INFORMAÇÕES BÁSICAS DA MEDIÇÃO</h1>
+  <head>
+    <link
+      rel="stylesheet"
+      href="{% sass_src 'css/custom_bootstrap.scss' %}"
+      type="text/css"
+    />
+    <link
+      rel="stylesheet"
+      href="{% sass_src 'css/relatorio_solicitacao_medicao_por_escola.scss' %}"
+      type="text/css"
+    />
+  </head>
+  <body>
+    {% if solicitacao.status == 'MEDICAO_APROVADA_PELA_CODAE' %}
+    <div class="first-footer-approved mr-2">
+      Aprovado por CODAE em {{
+      solicitacao.log_mais_recente.criado_em|date:"d/m/Y - H:i" }} - {{
+      solicitacao.log_mais_recente.usuario.nome }}
     </div>
-  </div>
+    {% endif %}
+    {% include "relatorio_cabecalho_solicitacao_medicao_por_escola_cei.html" with solicitacoes=solicitacoes %}
 
-  <div class="row p-0 mx-4 mt-5 tipo-avaliacao align-items-center">
-      <div class="col-3 avaliacao-left text-center">
-          Avaliação do Serviço
+    <div class="row p-0 mx-4 my-5">
+      <div class="col-12">
+        <h1 class="text-center titulo-body-p1">
+          INFORMAÇÕES BÁSICAS DA MEDIÇÃO
+        </h1>
       </div>
+    </div>
+
+    <div class="row p-0 mx-4 mt-5 tipo-avaliacao align-items-center">
+      <div class="col-3 avaliacao-left text-center">Avaliação do Serviço</div>
       <div class="col-6 avaliacao-center text-center">
-          Neste mês, a direção da Unidade Educacional considera que o serviço foi realizado a contento?
+        Neste mês, a direção da Unidade Educacional considera que o serviço foi
+        realizado a contento?
       </div>
       <div class="col-3 avaliacao-right text-center">
-          {% if solicitacao.com_ocorrencias %}
-          Não, com ocorrências
-          {% else %}
-          Sim, sem ocorrências
+        {% if solicitacao.com_ocorrencias %} Não, com ocorrências {% else %}
+        Sim, sem ocorrências {% endif %}
+      </div>
+    </div>
+
+    <div class="mt-5"></div>
+    <div class="row p-0 mx-4 mt-5">
+      <div class="col-12 usuario-title">
+        <span><b>Responsáveis por acompanhar a prestação de serviços</b></span>
+      </div>
+    </div>
+    <div class="bloco-usuarios">
+      {% for responsavel in responsaveis %}
+      <div class="row p-0 mx-4 mt-2 usuarios">
+        <div class="usuario-label mr-2">
+          <span><b>Nome: {{responsavel.nome}}</b></span>
+        </div>
+        <div class="usuario-values">
+          <span><b>RF: {{responsavel.rf}}</b></span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="mt-5"></div>
+    <div class="row p-0 mx-4 mt-5">
+      <div class="col-6 mr-3 titulo-assinatura">
+        <b>ASSINATURA UNIDADE EDUCACIONAL</b>
+      </div>
+      <div class="col-5 titulo-assinatura">
+        <b>RESPONSÁVEL PELA CONFERÊNCIA NA DRE</b>
+      </div>
+    </div>
+    <div class="bloco-assinaturas">
+      <div class="row p-0 mx-4 mt-3">
+        <div class="col-6 mr-3 assinatura">
+          {% if assinatura_escola %}
+          <div class="row p-0 mx-1">
+            <div class="col-2">
+              <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
+            </div>
+            <div class="col-10 texto">
+              <span> {{assinatura_escola}} </span>
+            </div>
+          </div>
           {% endif %}
-      </div>
-  </div>
-
-  <div class="mt-5"></div>
-  <div class="row p-0 mx-4 mt-5">
-    <div class="col-12 usuario-title"><span><b>Responsáveis por acompanhar a prestação de serviços</b></span></div>
-  </div>
-  <div class="bloco-usuarios">
-    {% for responsavel in responsaveis %}
-    <div class="row p-0 mx-4 mt-2 usuarios">
-      <div class="usuario-label mr-2"><span><b>Nome: {{responsavel.nome}}</b></span></div>
-      <div class="usuario-values"><span><b>RF: {{responsavel.rf}}</b></span></div>
-    </div>
-    {% endfor %}
-  </div>
-  <div class="mt-5"></div>
-  <div class="row p-0 mx-4 mt-5">
-    <div class="col-6 mr-3 titulo-assinatura">
-      <b>ASSINATURA UNIDADE EDUCACIONAL</b>
-    </div>
-    <div class="col-5 titulo-assinatura">
-      <b>RESPONSÁVEL PELA CONFERÊNCIA NA DRE</b>
-    </div>
-  </div>
-  <div class="bloco-assinaturas">
-    <div class="row p-0 mx-4 mt-3">
-      <div class="col-6 mr-3 assinatura">
-        {% if assinatura_escola %}
-        <div class="row p-0 mx-1">
-          <div class="col-2">
-            <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
-          </div>
-          <div class="col-10 texto">
-            <span>
-              {{assinatura_escola}}
-            </span>
-          </div>
         </div>
-        {% endif %}
-      </div>
-      <div class="col-6 assinatura">
-        {% if assinatura_dre %}
-        <div class="row p-0 mx-1">
-          <div class="col-2">
-            <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+        <div class="col-6 assinatura">
+          {% if assinatura_dre %}
+          <div class="row p-0 mx-1">
+            <div class="col-2">
+              <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
+            </div>
+            <div class="col-10 texto">
+              <span> {{assinatura_dre}} </span>
+            </div>
           </div>
-          <div class="col-10 texto">
-            <span>
-              {{assinatura_dre}}
-            </span>
-          </div>
+          {% endif %}
         </div>
-        {% endif %}
       </div>
     </div>
-  </div>
 
-  {% block tabelas %}{% endblock %}
-
-  {% include "relatorio_observacoes_solicitacao_medicao_por_escola_cei.html" with observacoes=observacoes %}
-  {% include "relatorio_somatorio_solicitacao_medicao_por_escola_cei.html" with tabelas_somatorios=tabelas_somatorios %}
-
-</body>
+    {% block tabelas %}{% endblock %} 
+    {% include "relatorio_observacoes_solicitacao_medicao_por_escola_cei.html" with observacoes=observacoes %}
+    {% include "relatorio_somatorio_solicitacao_medicao_por_escola_cei.html" with tabelas_somatorios=tabelas_somatorios %}
+  </body>
 </html>
