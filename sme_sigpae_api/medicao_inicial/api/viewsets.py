@@ -1066,12 +1066,11 @@ class SolicitacaoMedicaoInicialViewSet(
             SolicitacaoMedicaoInicial.workflow_class.MEDICAO_CORRECAO_SOLICITADA_CODAE
         )
         try:
-            anexos_string = request.data.get("anexos", None)
+            anexos_processados = process_anexos_from_request(request)
             com_ocorrencias = request.data.get("com_ocorrencias", None)
             justificativa = request.data.get("justificativa", "")
-            if com_ocorrencias == "true" and anexos_string:
+            if com_ocorrencias == "true" and anexos_processados:
                 solicitacao_medicao_inicial.com_ocorrencias = True
-                anexos_processados = process_anexos_from_request(solicitacao_medicao_inicial, request)
                 atualizar_anexos_ocorrencia(anexos_processados, solicitacao_medicao_inicial)
                 if status_ocorrencia == status_correcao_solicitada_codae:
                     solicitacao_medicao_inicial.ocorrencia.ue_corrige_ocorrencia_para_codae(

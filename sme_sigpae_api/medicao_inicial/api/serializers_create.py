@@ -11,6 +11,7 @@ from rest_framework.exceptions import PermissionDenied
 from sme_sigpae_api.dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
 from sme_sigpae_api.dados_comuns.utils import (
     update_instance_from_dict,
+    convert_base64_to_contentfile
 )
 from sme_sigpae_api.dados_comuns.validators import deve_ter_extensao_xls_xlsx_pdf
 from sme_sigpae_api.escola.api.serializers_create import (
@@ -1004,7 +1005,18 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         return self.context["request"].data.get("tipos_contagem_alimentacao")
 
     def _process_anexos(self, instance):
-        return process_anexos_from_request(instance, self.context["request"])
+        anexos_processados = process_anexos_from_request(self.context["request"])
+        for anexo in anexos_processados:
+            if ".pdf" in anexo.get("nome", "").lower():
+                arquivo_final = convert_base64_to_contentfile(anexo["base64"])
+                OcorrenciaMedicaoInicial.objects.update_or_create(
+                    solicitacao_medicao_inicial=instance,
+                    defaults={
+                        "ultimo_arquivo": arquivo_final,
+                        "nome_ultimo_arquivo": anexo.get("nome"),
+                    },
+                )
+        return anexos_processados
 
     def _finaliza_medicao_se_necessario(
         self, instance, validated_data, anexos, justificativa_sem_lancamentos

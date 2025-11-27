@@ -49,7 +49,6 @@ from sme_sigpae_api.medicao_inicial.models import (
     RelatorioFinanceiro,
     SolicitacaoMedicaoInicial,
     ValorMedicao,
-    OcorrenciaMedicaoInicial,
 )
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesEscola
 from sme_sigpae_api.terceirizada.models import Edital
@@ -57,7 +56,7 @@ from sme_sigpae_api.terceirizada.models import Edital
 logger = logging.getLogger(__name__)
 
 
-def process_anexos_from_request(instance, request):
+def process_anexos_from_request(request):
     anexos_string = request.data.get("anexos")
     if not anexos_string:
         return []
@@ -68,40 +67,40 @@ def process_anexos_from_request(instance, request):
     for anexo in anexos:
         anexo_proc = dict(anexo)
 
-        if ".pdf" in anexo_proc.get("nome", ""):
-            arquivo = convert_base64_to_contentfile(anexo_proc["base64"])
+        nome = anexo_proc.get("nome", "")
+        base64_str = anexo_proc.get("base64", "")
+        try:
+            if ".pdf" in nome.lower() and base64_str:
+                parts = base64_str.split(",", 1)
+                has_payload = len(parts) == 2 and parts[1].strip() != ""
 
-            usuario = request.user
-            data_hoje = timezone.now()
-            logo_sipae = convert_image_to_base64(
-                "sme_sigpae_api/relatorios/static/images/logo-sigpae.png", "png"
-            )
-            string_pdf_rodape = render_to_string(
-                "rodape_assinatura_medicao_com_ocorrencia.html",
-                {
-                    "imagem_convertida": logo_sipae,
-                    "usuario": usuario,
-                    "time": data_hoje,
-                },
-            )
+                if has_payload:
+                    arquivo = convert_base64_to_contentfile(base64_str)
 
-            arquivo_com_assinatura_base64 = merge_pdf_com_rodape_assinatura(
-                arquivo, string_pdf_rodape
-            )
-            arquivo_final = convert_base64_to_contentfile(
-                arquivo_com_assinatura_base64
-            )
-            OcorrenciaMedicaoInicial.objects.update_or_create(
-                solicitacao_medicao_inicial=instance,
-                defaults={
-                    "ultimo_arquivo": arquivo_final,
-                    "nome_ultimo_arquivo": anexo_proc.get("nome"),
-                },
-            )
-            anexo_proc["base64"] = arquivo_com_assinatura_base64
+                    usuario = request.user
+                    data_hoje = timezone.now()
+                    logo_sipae = convert_image_to_base64(
+                        "sme_sigpae_api/relatorios/static/images/logo-sigpae.png", "png"
+                    )
+                    string_pdf_rodape = render_to_string(
+                        "rodape_assinatura_medicao_com_ocorrencia.html",
+                        {
+                            "imagem_convertida": logo_sipae,
+                            "usuario": usuario,
+                            "time": data_hoje,
+                        },
+                    )
+
+                    arquivo_com_assinatura_base64 = merge_pdf_com_rodape_assinatura(
+                        arquivo, string_pdf_rodape
+                    )
+
+                    anexo_proc["base64"] = arquivo_com_assinatura_base64
+        except Exception:
+            # mantém o anexo original para que a lógica de negócio prossiga
+            pass
 
         anexos_processados.append(anexo_proc)
-
     return anexos_processados
 
 
