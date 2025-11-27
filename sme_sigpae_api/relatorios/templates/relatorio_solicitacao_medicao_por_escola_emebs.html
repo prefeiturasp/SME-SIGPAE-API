@@ -9,6 +9,13 @@
   <link rel="stylesheet" href="{% sass_src 'css/relatorio_solicitacao_medicao_por_escola.scss' %}" type="text/css">
 </head>
 <body>
+  {% if solicitacao.status == 'MEDICAO_APROVADA_PELA_CODAE' %}
+  <div class="first-footer-approved mr-2">
+    Aprovado por CODAE em {{
+    solicitacao.log_mais_recente.criado_em|date:"d/m/Y - H:i" }} - {{
+    solicitacao.log_mais_recente.usuario.nome }}
+  </div>
+  {% endif %}
   <header class="header">
     <div class="row p-0 mx-4">
       <div class="col-2">
