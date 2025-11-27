@@ -20,9 +20,8 @@
       solicitacao.log_mais_recente.criado_em|date:"d/m/Y - H:i" }} - {{
       solicitacao.log_mais_recente.usuario.nome }}
     </div>
-    {% endif %} {% include
-    "relatorio_cabecalho_solicitacao_medicao_por_escola_cei.html" with
-    solicitacoes=solicitacoes %}
+    {% endif %}
+    {% include "relatorio_cabecalho_solicitacao_medicao_por_escola_cei.html" with solicitacoes=solicitacoes %}
 
     <div class="row p-0 mx-4 my-5">
       <div class="col-12">
@@ -100,10 +99,8 @@
       </div>
     </div>
 
-    {% block tabelas %}{% endblock %} {% include
-    "relatorio_observacoes_solicitacao_medicao_por_escola_cei.html" with
-    observacoes=observacoes %} {% include
-    "relatorio_somatorio_solicitacao_medicao_por_escola_cei.html" with
-    tabelas_somatorios=tabelas_somatorios %}
+    {% block tabelas %}{% endblock %} 
+    {% include "relatorio_observacoes_solicitacao_medicao_por_escola_cei.html" with observacoes=observacoes %}
+    {% include "relatorio_somatorio_solicitacao_medicao_por_escola_cei.html" with tabelas_somatorios=tabelas_somatorios %}
   </body>
 </html>

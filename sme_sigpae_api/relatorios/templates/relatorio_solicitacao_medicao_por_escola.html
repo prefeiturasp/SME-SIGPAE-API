@@ -1,5 +1,4 @@
-{% load index %} {% load static %} {% load sass_tags %} {% load safe_html_tags
-%}
+{% load index %} {% load static %} {% load sass_tags %} {% load safe_html_tags %}
 
 <html>
   <head>
@@ -234,7 +233,8 @@
         {% endfor %}
       </tbody>
     </table>
-    {% endfor %} {% for tabela in tabela_observacoes|formatar_observacoes %}
+    {% endfor %} 
+    {% for tabela in tabela_observacoes|formatar_observacoes %}
     <header class="header" style="page-break-before: always">
       <div class="row p-0 mx-4">
         <div class="col-2">
@@ -307,8 +307,8 @@
         {% endfor %}
       </tbody>
     </table>
-    {% endfor %} {% if primeira_tabela_somatorio.body or
-    segunda_tabela_somatorio.body %}
+    {% endfor %} 
+    {% if primeira_tabela_somatorio.body or segunda_tabela_somatorio.body %}
     <header class="header" style="page-break-before: always">
       <div class="row p-0 mx-4">
         <div class="col-2">
@@ -385,7 +385,8 @@
           </tbody>
         </table>
       </div>
-      {% endif %} {% if segunda_tabela_somatorio.body %}
+      {% endif %} 
+      {% if segunda_tabela_somatorio.body %}
       <div>
         <table>
           <thead class="head-tabelas-somatorio">
@@ -416,7 +417,8 @@
       * A tabela acima representa a soma das alimentações lançadas em todos os
       períodos da UE
     </div>
-    {% endif %} {% if primeira_tabela_somatorio_dietas_tipo_a.body or
+    {% endif %} 
+    {% if primeira_tabela_somatorio_dietas_tipo_a.body or
     segunda_tabela_somatorio_dietas_tipo_a.header or
     primeira_tabela_somatorio_dietas_tipo_b.body or
     segunda_tabela_somatorio_dietas_tipo_b.header %}
@@ -504,7 +506,8 @@
               períodos da UE
             </div>
           </div>
-          {% endif %} {% if segunda_tabela_somatorio_dietas_tipo_a.header %}
+          {% endif %}
+          {% if segunda_tabela_somatorio_dietas_tipo_a.header %}
           <div>
             <table class="mr-1">
               <thead class="head-tabelas-somatorio">
