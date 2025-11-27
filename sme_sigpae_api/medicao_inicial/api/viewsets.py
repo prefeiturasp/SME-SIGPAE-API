@@ -19,6 +19,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet, ViewSet
 from workalendar.america import BrazilSaoPauloCity
 from xworkflows import InvalidTransitionError
 
+from sme_sigpae_api.medicao_inicial.utils import process_anexos_from_request
 from sme_sigpae_api.cardapio.utils import ordem_periodos
 from sme_sigpae_api.medicao_inicial.services.relatorio_adesao import (
     obtem_resultados,
@@ -1067,20 +1068,19 @@ class SolicitacaoMedicaoInicialViewSet(
             SolicitacaoMedicaoInicial.workflow_class.MEDICAO_CORRECAO_SOLICITADA_CODAE
         )
         try:
-            anexos_string = request.data.get("anexos", None)
+            anexos_processados = process_anexos_from_request(request)
             com_ocorrencias = request.data.get("com_ocorrencias", None)
             justificativa = request.data.get("justificativa", "")
-            if com_ocorrencias == "true" and anexos_string:
+            if com_ocorrencias == "true" and anexos_processados:
                 solicitacao_medicao_inicial.com_ocorrencias = True
-                anexos = json.loads(anexos_string)
-                atualizar_anexos_ocorrencia(anexos, solicitacao_medicao_inicial)
+                atualizar_anexos_ocorrencia(anexos_processados, solicitacao_medicao_inicial)
                 if status_ocorrencia == status_correcao_solicitada_codae:
                     solicitacao_medicao_inicial.ocorrencia.ue_corrige_ocorrencia_para_codae(
-                        user=request.user, anexos=anexos, justificativa=justificativa
+                        user=request.user, anexos=anexos_processados, justificativa=justificativa
                     )
                 else:
                     solicitacao_medicao_inicial.ocorrencia.ue_corrige(
-                        user=request.user, anexos=anexos, justificativa=justificativa
+                        user=request.user, anexos=anexos_processados, justificativa=justificativa
                     )
             else:
                 solicitacao_medicao_inicial.com_ocorrencias = False

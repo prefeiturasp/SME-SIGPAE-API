@@ -5,6 +5,8 @@ import logging
 from calendar import monthrange
 from collections import defaultdict
 from functools import reduce
+from django.template.loader import render_to_string
+from django.utils import timezone
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import IntegerField, Sum
@@ -20,7 +22,8 @@ from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_PERIODOS_GRUPOS_EMEBS,
     TIPOS_TURMAS_EMEBS,
 )
-from sme_sigpae_api.dados_comuns.utils import convert_base64_to_contentfile
+from sme_sigpae_api.dados_comuns.utils import convert_base64_to_contentfile, convert_image_to_base64
+from sme_sigpae_api.relatorios.utils import merge_pdf_com_rodape_assinatura
 from sme_sigpae_api.dieta_especial.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
@@ -51,6 +54,60 @@ from sme_sigpae_api.paineis_consolidados.models import SolicitacoesEscola
 from sme_sigpae_api.terceirizada.models import Edital
 
 logger = logging.getLogger(__name__)
+
+
+def process_single_anexo(anexo, usuario):
+    anexo_proc = dict(anexo)
+    nome = anexo_proc.get("nome", "")
+    base64_str = anexo_proc.get("base64", "")
+
+    if not should_process_pdf(nome, base64_str):
+        return anexo_proc
+
+    try:
+        arquivo = convert_base64_to_contentfile(base64_str)
+        logo_sipae = convert_image_to_base64(
+            "sme_sigpae_api/relatorios/static/images/logo-sigpae.png", "png"
+        )
+        string_pdf_rodape = render_to_string(
+            "rodape_assinatura_medicao_com_ocorrencia.html",
+            {
+                "imagem_convertida": logo_sipae,
+                "usuario": usuario,
+                "time": timezone.now(),
+            },
+        )
+        arquivo_com_assinatura_base64 = merge_pdf_com_rodape_assinatura(
+            arquivo, string_pdf_rodape
+        )
+        anexo_proc["base64"] = arquivo_com_assinatura_base64
+    except Exception:
+        # mantém o anexo original para que a lógica de negócio prossiga
+        pass
+
+    return anexo_proc
+
+
+def should_process_pdf(nome, base64_str):
+    if ".pdf" not in nome.lower() or not base64_str:
+        return False
+
+    parts = base64_str.split(",", 1)
+    has_payload = len(parts) == 2 and parts[1].strip() != ""
+    return has_payload
+
+
+def process_anexos_from_request(request):
+    anexos_string = request.data.get("anexos")
+    if not anexos_string:
+        return []
+
+    anexos = json.loads(anexos_string)
+    usuario = request.user
+    anexos_processados = [
+        process_single_anexo(anexo, usuario) for anexo in anexos
+    ]
+    return anexos_processados
 
 
 def get_lista_categorias_campos(medicao, tipo_turma=None):
