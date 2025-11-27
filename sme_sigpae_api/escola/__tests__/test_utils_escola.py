@@ -235,14 +235,19 @@ def test_get_informacoes_escola_turma_aluno_api_erro():
 
 def test_create_tempfile():
     arquivo = create_tempfile()
-    assert arquivo.startswith("/tmp/")
+    assert os.path.commonpath([arquivo, tempfile.gettempdir()]) == tempfile.gettempdir()
     assert arquivo.endswith(".json")
 
 
 def test_get_escolas(variaveis_globais_escola):
-    caminho_arquivo_escola = Path(f"/tmp/{uuid.uuid4()}.xlsx")
-    caminho_arquivo_codigos = Path(f"/tmp/{uuid.uuid4()}.xlsx")
-    caminho_arquivo_final = Path(f"/tmp/{uuid.uuid4()}.json")
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        caminho_arquivo_escola = tmp.name
+
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp2:
+        caminho_arquivo_codigos = tmp2.name
+
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tmp3:
+        caminho_arquivo_final = tmp3.name
 
     cria_arquivo_excel(
         caminho_arquivo_escola,
@@ -277,12 +282,18 @@ def test_get_escolas(variaveis_globais_escola):
     ]:
         if os.path.exists(caminho):
             os.remove(caminho)
+        Path(caminho).unlink(missing_ok=True)
 
 
 def test_get_escolas_erro_cod_escola(variaveis_globais_escola):
-    caminho_arquivo_escola = Path(f"/tmp/{uuid.uuid4()}.xlsx")
-    caminho_arquivo_codigos = Path(f"/tmp/{uuid.uuid4()}.xlsx")
-    caminho_arquivo_final = Path(f"/tmp/{uuid.uuid4()}.json")
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        caminho_arquivo_escola = tmp.name
+
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp2:
+        caminho_arquivo_codigos = tmp2.name
+
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tmp3:
+        caminho_arquivo_final = tmp3.name
 
     cod_escola = "22345"
     cria_arquivo_excel(
@@ -313,11 +324,15 @@ def test_get_escolas_erro_cod_escola(variaveis_globais_escola):
     ]:
         if os.path.exists(caminho):
             os.remove(caminho)
+        Path(caminho).unlink(missing_ok=True)
 
 
 def test_atualiza_codigo_codae_das_escolas(codigo_codae_das_escolas):
     escola1, escola2, planilha = codigo_codae_das_escolas
-    caminho_arquivo_escola = Path(f"/tmp/{uuid.uuid4()}.xlsx")
+
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        caminho_arquivo_escola = tmp.name
+
     cria_arquivo_excel(
         caminho_arquivo_escola,
         [
@@ -337,11 +352,14 @@ def test_atualiza_codigo_codae_das_escolas(codigo_codae_das_escolas):
 
     if os.path.exists(caminho_arquivo_escola):
         os.remove(caminho_arquivo_escola)
+    Path(caminho_arquivo_escola).unlink(missing_ok=True)
 
 
 def test_atualiza_codigo_codae_das_escolas_erro(codigo_codae_das_escolas, tmp_path):
     escola1, escola2, planilha = codigo_codae_das_escolas
-    caminho_arquivo_escola = tmp_path / f"{uuid.uuid4()}.xlsx"
+
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        caminho_arquivo_escola = tmp.name
 
     cria_arquivo_excel(
         caminho_arquivo_escola,
@@ -362,6 +380,7 @@ def test_atualiza_codigo_codae_das_escolas_erro(codigo_codae_das_escolas, tmp_pa
 
     if os.path.exists(caminho_arquivo_escola):
         os.remove(caminho_arquivo_escola)
+    Path(caminho_arquivo_escola).unlink(missing_ok=True)
 
 
 def test_atualiza_tipo_gestao_das_escolas(tipo_gestao_das_escolas):

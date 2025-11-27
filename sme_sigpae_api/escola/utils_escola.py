@@ -1,9 +1,9 @@
 import asyncio
 import logging
+import tempfile
 import time
 from datetime import date, datetime
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 
 import httpx
 from django.conf import settings
@@ -128,9 +128,8 @@ async def get_informacoes_escola_turma_aluno(tempfile: str, codigo_eol: str):
 
 
 def create_tempfile():
-    tmp = NamedTemporaryFile()
-    filename = f"{tmp.name}.json"
-    return filename
+    tmp = tempfile.NamedTemporaryFile(suffix=".json", delete=False)
+    return tmp.name
 
 
 async def main(tempfile, escolas_da_planilha):
