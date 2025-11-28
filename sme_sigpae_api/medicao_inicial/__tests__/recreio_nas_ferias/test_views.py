@@ -12,9 +12,10 @@ from sme_sigpae_api.escola.models import (
     TipoUnidadeEscolar,
 )
 from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.models import (
-    CategoriaAlimentacao,
     RecreioNasFerias,
     RecreioNasFeriasUnidadeParticipante,
+    CategoriaAlimentacao,
+    RecreioNasFeriasUnidadeTipoAlimentacao
 )
 
 
@@ -230,3 +231,202 @@ def test_criar_recreio_com_uuid_invalido(
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db
+def test_listar_recreios(client_autenticado_coordenador_codae, setup_data):
+    recreio1 = RecreioNasFerias.objects.create(
+        titulo="Recreio 1",
+        data_inicio=date(2025, 10, 1),
+        data_fim=date(2025, 10, 10)
+    )
+    recreio2 = RecreioNasFerias.objects.create(
+        titulo="Recreio 2",
+        data_inicio=date(2025, 11, 1),
+        data_fim=date(2025, 11, 10)
+    )
+
+    unidade1 = RecreioNasFeriasUnidadeParticipante.objects.create(
+        recreio_nas_ferias=recreio1,
+        lote=setup_data['lote'],
+        unidade_educacional=setup_data['escola'],
+        num_inscritos=30,
+        num_colaboradores=5,
+        liberar_medicao=True,
+        cei_ou_emei='CEI'
+    )
+    RecreioNasFeriasUnidadeTipoAlimentacao.objects.create(
+        recreio_ferias_unidade=unidade1,
+        tipo_alimentacao=setup_data['tipo_alim_1'],
+        categoria=setup_data['cat_inscritos']
+    )
+
+    unidade2 = RecreioNasFeriasUnidadeParticipante.objects.create(
+        recreio_nas_ferias=recreio2,
+        lote=setup_data['lote'],
+        unidade_educacional=setup_data['escola'],
+        num_inscritos=40,
+        num_colaboradores=8,
+        liberar_medicao=False,
+        cei_ou_emei='EMEI'
+    )
+    RecreioNasFeriasUnidadeTipoAlimentacao.objects.create(
+        recreio_ferias_unidade=unidade2,
+        tipo_alimentacao=setup_data['tipo_alim_2'],
+        categoria=setup_data['cat_inscritos']
+    )
+
+    response = client_autenticado_coordenador_codae.get(setup_data['list_url'])
+    assert response.status_code == status.HTTP_200_OK
+
+    results = response.data.get('results') if isinstance(response.data, dict) and 'results' in response.data else response.data
+
+    assert (response.data.get('count') if isinstance(response.data, dict) else len(results)) == 2
+    assert len(results) == 2
+
+    titulos = [item['titulo'] for item in results]
+    assert 'Recreio 1' in titulos
+    assert 'Recreio 2' in titulos
+
+    primeiro_item = results[0]
+    assert 'uuid' in primeiro_item
+    assert 'titulo' in primeiro_item
+    assert 'data_inicio' in primeiro_item
+    assert 'data_fim' in primeiro_item
+    assert 'unidades_participantes' in primeiro_item
+
+
+@pytest.mark.django_db
+def test_atualizar_recreio_completo(client_autenticado_coordenador_codae, setup_data):
+    recreio = RecreioNasFerias.objects.create(
+        titulo="Antigo Título",
+        data_inicio=date(2025, 10, 1),
+        data_fim=date(2025, 10, 10)
+    )
+
+    unidade_antiga = RecreioNasFeriasUnidadeParticipante.objects.create(
+        recreio_nas_ferias=recreio,
+        lote=setup_data['lote'],
+        unidade_educacional=setup_data['escola'],
+        num_inscritos=20,
+        num_colaboradores=3,
+        liberar_medicao=True,
+        cei_ou_emei='CEI'
+    )
+    RecreioNasFeriasUnidadeTipoAlimentacao.objects.create(
+        recreio_ferias_unidade=unidade_antiga,
+        tipo_alimentacao=setup_data['tipo_alim_1'],
+        categoria=setup_data['cat_inscritos']
+    )
+
+    nova_escola = Escola.objects.create(
+        nome="Nova Escola",
+        codigo_eol="987654",
+        diretoria_regional=setup_data['diretoria_regional'],
+        tipo_unidade=setup_data['tipo_unidade']
+    )
+
+    data = {
+        'titulo': 'Novo Título',
+        'data_inicio': '2025-11-01',
+        'data_fim': '2025-11-10',
+        'unidades_participantes': [
+            {
+                'lote': str(setup_data['lote'].uuid),
+                'unidade_educacional': str(nova_escola.uuid),
+                'num_inscritos': 60,
+                'num_colaboradores': 12,
+                'liberar_medicao': False,
+                'cei_ou_emei': 'EMEI',
+                'tipos_alimentacao_inscritos': [str(setup_data['tipo_alim_2'].uuid)],
+                'tipos_alimentacao_colaboradores': [],
+                'tipos_alimentacao_infantil': []
+            }
+        ]
+    }
+
+    url = reverse('recreio-nas-ferias-detail', kwargs={'uuid': recreio.uuid})
+    response = client_autenticado_coordenador_codae.put(
+        url,
+        data,
+        content_type='application/json'
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    recreio.refresh_from_db()
+    assert recreio.titulo == 'Novo Título'
+    assert str(recreio.data_inicio) == '2025-11-01'
+    assert str(recreio.data_fim) == '2025-11-10'
+
+    assert recreio.unidades_participantes.count() == 1
+    unidade_atualizada = recreio.unidades_participantes.first()
+    assert unidade_atualizada.unidade_educacional == nova_escola
+    assert unidade_atualizada.num_inscritos == 60
+    assert unidade_atualizada.liberar_medicao is False
+    assert unidade_atualizada.cei_ou_emei == 'EMEI'
+
+    exists = RecreioNasFeriasUnidadeTipoAlimentacao.objects.filter(
+        recreio_ferias_unidade=unidade_atualizada,
+        tipo_alimentacao=setup_data['tipo_alim_2'],
+        categoria=setup_data['cat_inscritos']
+    ).exists()
+    assert exists
+
+
+@pytest.mark.django_db
+def test_atualizar_recreio_parcial_mantem_unidades(
+    client_autenticado_coordenador_codae, setup_data
+):
+    recreio = RecreioNasFerias.objects.create(
+        titulo="Título Antigo",
+        data_inicio=date(2025, 10, 1),
+        data_fim=date(2025, 10, 10),
+    )
+
+    # Criar unidade + relação de tipo de alimentação
+    unidade = RecreioNasFeriasUnidadeParticipante.objects.create(
+        recreio_nas_ferias=recreio,
+        lote=setup_data["lote"],
+        unidade_educacional=setup_data["escola"],
+        num_inscritos=25,
+        num_colaboradores=4,
+        liberar_medicao=True,
+        cei_ou_emei="CEI",
+    )
+    RecreioNasFeriasUnidadeTipoAlimentacao.objects.create(
+        recreio_ferias_unidade=unidade,
+        tipo_alimentacao=setup_data["tipo_alim_1"],
+        categoria=setup_data["cat_inscritos"],
+    )
+
+    data = {
+        "titulo": "Título Atualizado",
+    }
+
+    url = reverse("recreio-nas-ferias-detail", kwargs={"uuid": recreio.uuid})
+    response = client_autenticado_coordenador_codae.patch(
+        url, data, content_type="application/json"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    recreio.refresh_from_db()
+    assert recreio.titulo == "Título Atualizado"
+
+    # As unidades devem ter sido mantidas
+    assert recreio.unidades_participantes.count() == 1
+    unidade_atual = recreio.unidades_participantes.first()
+    assert unidade_atual.num_inscritos == 25
+    assert unidade_atual.num_colaboradores == 4
+    assert unidade_atual.liberar_medicao is True
+    assert unidade_atual.cei_ou_emei == "CEI"
+
+    # A relação de tipos de alimentação também deve permanecer
+    relacoes = RecreioNasFeriasUnidadeTipoAlimentacao.objects.filter(
+        recreio_ferias_unidade=unidade_atual
+    )
+    assert relacoes.count() == 1
+    rel = relacoes.first()
+    assert rel.tipo_alimentacao == setup_data["tipo_alim_1"]
+    assert rel.categoria == setup_data["cat_inscritos"]
