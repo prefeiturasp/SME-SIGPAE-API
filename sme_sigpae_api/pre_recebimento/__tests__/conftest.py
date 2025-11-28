@@ -1228,3 +1228,131 @@ def etapa_sem_fichas_recebimento(unidade_medida_logistica, tipo_emabalagem_qld):
         quantidade=800,
         total_embalagens=5,
     )
+
+
+@pytest.fixture
+def cronograma_com_etapas_multiplas_situacoes(cronograma_factory):
+    """Fixture com cronograma que tem etapas com diferentes situações de fichas."""
+    cronograma = cronograma_factory.create()
+
+    # Etapa com ficha "Recebido" (sem ocorrência)
+    etapa_recebida = baker.make(
+        "EtapasDoCronograma",
+        cronograma=cronograma,
+        etapa=1,
+        parte=1,
+    )
+    baker.make(
+        "FichaDeRecebimento",
+        etapa=etapa_recebida,
+        houve_ocorrencia=False,
+        status="ASSINADA",
+    )
+
+    # Etapa com ficha "Ocorrência" (com ocorrência)
+    etapa_ocorrencia = baker.make(
+        "EtapasDoCronograma",
+        cronograma=cronograma,
+        etapa=2,
+        parte=1,
+    )
+    baker.make(
+        "FichaDeRecebimento",
+        etapa=etapa_ocorrencia,
+        houve_ocorrencia=True,
+        status="ASSINADA",
+    )
+
+    # Etapa sem fichas (A receber)
+    baker.make(
+        "EtapasDoCronograma",
+        cronograma=cronograma,
+        etapa=3,
+        parte=1,
+    )
+
+    return cronograma
+
+
+@pytest.fixture
+def cronogramas_serialized_data():
+    """Dados serializados simulando cronogramas para testes."""
+    return [
+        {
+            "uuid": "123e4567-e89b-12d3-a456-426614174000",
+            "numero": "CR-001",
+            "etapas": [
+                {
+                    "uuid": "223e4567-e89b-12d3-a456-426614174000",
+                    "etapa": 1,
+                    "parte": 1,
+                    "data_programada": "15/01/2024",
+                    "quantidade": "1.000,00 kg",
+                    "foi_recebida": False,
+                    "fichas_recebimento": [],
+                },
+                {
+                    "uuid": "323e4567-e89b-12d3-a456-426614174000",
+                    "etapa": 2,
+                    "parte": 1,
+                    "data_programada": "15/02/2024",
+                    "quantidade": "500,50 L",
+                    "foi_recebida": True,
+                    "fichas_recebimento": [
+                        {"houve_ocorrencia": False}
+                    ],  # Method field determinará "Recebido"
+                },
+            ],
+        }
+    ]
+
+
+@pytest.fixture
+def cronogramas_com_fichas_data():
+    """Dados serializados com fichas de recebimento para teste de filtros."""
+    return [
+        {
+            "uuid": "123e4567-e89b-12d3-a456-426614174000",
+            "numero": "CR-001",
+            "etapas": [
+                {
+                    "uuid": "223e4567-e89b-12d3-a456-426614174000",
+                    "etapa": 1,
+                    "parte": 1,
+                    "data_programada": "15/01/2024",
+                    "foi_recebida": True,
+                    "fichas_recebimento": [
+                        {"houve_ocorrencia": False}  # Será "Recebido" no method field
+                    ],
+                },
+                {
+                    "uuid": "323e4567-e89b-12d3-a456-426614174000",
+                    "etapa": 2,
+                    "parte": 1,
+                    "data_programada": "15/02/2024",
+                    "foi_recebida": False,
+                    "fichas_recebimento": [],
+                },
+            ],
+        }
+    ]
+
+
+@pytest.fixture(
+    params=[
+        ([], False, [], True),
+        ([], False, ["A Receber"], True),
+        ([], False, ["Recebido"], False),
+        ([{"situacao": "Recebido"}], True, [], False),
+        ([{"situacao": "Recebido"}], True, ["A Receber"], False),
+    ]
+)
+def parametros_deve_mostrar_linha_a_receber(request):
+    """Fixture com parâmetros para teste de deve_mostrar_linha_a_receber."""
+    fichas_recebimento, foi_recebida, filtros_situacao, expected = request.param
+    return {
+        "fichas_recebimento": fichas_recebimento,
+        "foi_recebida": foi_recebida,
+        "filtros_situacao": filtros_situacao,
+        "expected": expected,
+    }

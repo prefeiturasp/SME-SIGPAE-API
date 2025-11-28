@@ -7,6 +7,7 @@ import pytest
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from faker import Faker
+from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -156,6 +157,34 @@ def test_url_list_cronogramas_relatorio(
     assert "count" in json
     assert "next" in json
     assert "previous" in json
+
+
+def test_url_list_cronogramas_relatorio_filtros_situacao(
+    client_autenticado_codae_dilog, cronograma_com_etapas_multiplas_situacoes
+):
+    # Teste com filtro "Recebido"
+    response_recebido = client_autenticado_codae_dilog.get(
+        "/cronogramas/listagem-relatorio/?situacao=Recebido"
+    )
+    assert response_recebido.status_code == status.HTTP_200_OK
+    dados_recebido = response_recebido.json()["results"]
+
+    assert len(dados_recebido) > 0
+
+    # Teste com filtro "A Receber"
+    response_a_receber = client_autenticado_codae_dilog.get(
+        "/cronogramas/listagem-relatorio/?situacao=A+Receber"
+    )
+    assert response_a_receber.status_code == status.HTTP_200_OK
+    dados_a_receber = response_a_receber.json()["results"]
+
+    assert len(dados_a_receber) > 0
+
+    # Teste com múltiplos filtros
+    response_multiplo = client_autenticado_codae_dilog.get(
+        "/cronogramas/listagem-relatorio/?situacao=Recebido&situacao=A+Receber"
+    )
+    assert response_multiplo.status_code == status.HTTP_200_OK
 
 
 def test_url_list_cronogramas_relatorio_filtros(
