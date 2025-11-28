@@ -372,3 +372,61 @@ def test_atualizar_recreio_completo(client_autenticado_coordenador_codae, setup_
         categoria=setup_data['cat_inscritos']
     ).exists()
     assert exists
+
+
+@pytest.mark.django_db
+def test_atualizar_recreio_parcial_mantem_unidades(
+    client_autenticado_coordenador_codae, setup_data
+):
+    recreio = RecreioNasFerias.objects.create(
+        titulo="Título Antigo",
+        data_inicio=date(2025, 10, 1),
+        data_fim=date(2025, 10, 10),
+    )
+
+    # Criar unidade + relação de tipo de alimentação
+    unidade = RecreioNasFeriasUnidadeParticipante.objects.create(
+        recreio_nas_ferias=recreio,
+        lote=setup_data["lote"],
+        unidade_educacional=setup_data["escola"],
+        num_inscritos=25,
+        num_colaboradores=4,
+        liberar_medicao=True,
+        cei_ou_emei="CEI",
+    )
+    RecreioNasFeriasUnidadeTipoAlimentacao.objects.create(
+        recreio_ferias_unidade=unidade,
+        tipo_alimentacao=setup_data["tipo_alim_1"],
+        categoria=setup_data["cat_inscritos"],
+    )
+
+    data = {
+        "titulo": "Título Atualizado",
+    }
+
+    url = reverse("recreio-nas-ferias-detail", kwargs={"uuid": recreio.uuid})
+    response = client_autenticado_coordenador_codae.patch(
+        url, data, content_type="application/json"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    recreio.refresh_from_db()
+    assert recreio.titulo == "Título Atualizado"
+
+    # As unidades devem ter sido mantidas
+    assert recreio.unidades_participantes.count() == 1
+    unidade_atual = recreio.unidades_participantes.first()
+    assert unidade_atual.num_inscritos == 25
+    assert unidade_atual.num_colaboradores == 4
+    assert unidade_atual.liberar_medicao is True
+    assert unidade_atual.cei_ou_emei == "CEI"
+
+    # A relação de tipos de alimentação também deve permanecer
+    relacoes = RecreioNasFeriasUnidadeTipoAlimentacao.objects.filter(
+        recreio_ferias_unidade=unidade_atual
+    )
+    assert relacoes.count() == 1
+    rel = relacoes.first()
+    assert rel.tipo_alimentacao == setup_data["tipo_alim_1"]
+    assert rel.categoria == setup_data["cat_inscritos"]
