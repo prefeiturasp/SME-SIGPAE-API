@@ -595,3 +595,20 @@ def test_periodos_escolares_escola_cmct(escola_cmct):
     for periodo, (nome_esperado, tipo_esperado) in zip(periodos, esperado):
         assert isinstance(periodo, tipo_esperado)
         assert periodo.nome == nome_esperado
+
+
+def test_formata_para_relatorio_verifica_periodo(log_alunos_matriculados_cei):
+    alunos_matriculados_manha = AlunosMatriculadosPeriodoEscola.objects.get(periodo_escolar__nome="MANHA", escola__tipo_unidade__iniciais="CEI DIRET")
+    data = alunos_matriculados_manha.formata_para_relatorio()
+    assert data["periodo_escolar"] == "Infantil Manhã"
+    assert data["eh_cei"] is True
+    
+    alunos_matriculados_tarde = AlunosMatriculadosPeriodoEscola.objects.get(periodo_escolar__nome="TARDE", escola__tipo_unidade__iniciais="CEI DIRET")
+    data = alunos_matriculados_tarde.formata_para_relatorio()
+    assert data["periodo_escolar"] == "Infantil Tarde"
+    assert data["eh_cei"] is True
+    
+    alunos_matriculados_integral = AlunosMatriculadosPeriodoEscola.objects.get(periodo_escolar__nome="INTEGRAL", escola__tipo_unidade__iniciais="CEI DIRET")
+    data = alunos_matriculados_integral.formata_para_relatorio()
+    assert data["periodo_escolar"] == "INTEGRAL"
+    assert data["eh_cei"] is True
