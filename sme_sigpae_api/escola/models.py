@@ -2637,12 +2637,9 @@ class AlunosMatriculadosPeriodoEscola(CriadoEm, TemAlteradoEm, TemChaveExterna):
     def formata_para_relatorio(self):
         periodo_escolar = self.periodo_escolar.nome
         if self.escola.eh_cei:
-            periodos_cei = {
-                "MANHA": "Infantil Manhã",
-                "TARDE": "Infantil Tarde"
-            }
+            periodos_cei = {"MANHA": "Infantil Manhã", "TARDE": "Infantil Tarde"}
             periodo_escolar = periodos_cei.get(periodo_escolar, periodo_escolar)
-        
+
         return {
             "dre": self.escola.diretoria_regional.nome,
             "lote": self.escola.lote.nome if self.escola.lote else " - ",

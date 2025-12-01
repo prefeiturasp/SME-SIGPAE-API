@@ -13,8 +13,8 @@ from sme_sigpae_api.cardapio.suspensao_alimentacao.models import (
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from sme_sigpae_api.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
 from sme_sigpae_api.dados_comuns.models import (
-    TemplateMensagem,
     LogSolicitacoesUsuario,
+    TemplateMensagem,
 )
 from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 from sme_sigpae_api.escola.models import Aluno, Lote
@@ -602,7 +602,11 @@ def solicitacao_medicao_inicial_aprovada_codae(
     django_user_model,
 ):
     usuario = django_user_model.objects.create_user(
-        nome="Usuário TESTE", username="medicao_teste", password=DJANGO_ADMIN_PASSWORD, email="medicao@escola.com", registro_funcional="123456"
+        nome="Usuário TESTE",
+        username="medicao_teste",
+        password=DJANGO_ADMIN_PASSWORD,
+        email="medicao@escola.com",
+        registro_funcional="123456",
     )
 
     baker.make(
@@ -610,13 +614,15 @@ def solicitacao_medicao_inicial_aprovada_codae(
         uuid_original=solicitacoes_medicao_inicial_emef.uuid,
         status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
         solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
-        criado_em=datetime.datetime(2025, 11, 27, 14, 9, 11, tzinfo=datetime.timezone.utc),
+        criado_em=datetime.datetime(
+            2025, 11, 27, 14, 9, 11, tzinfo=datetime.timezone.utc
+        ),
         usuario=usuario,
     )
 
     for medicao in solicitacoes_medicao_inicial_emef.medicoes.all():
         medicao.status = (
-            solicitacoes_medicao_inicial_emef.workflow_class.MEDICAO_APROVADA_PELA_CODAE   
+            solicitacoes_medicao_inicial_emef.workflow_class.MEDICAO_APROVADA_PELA_CODAE
         )
         medicao.save()
     solicitacoes_medicao_inicial_emef.status = (
