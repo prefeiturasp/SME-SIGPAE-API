@@ -1208,7 +1208,7 @@ class GrupoUnidadeEscolarViewSet(ModelViewSet):
                 {"detail": "DRE não encontrada."}, status=status.HTTP_404_NOT_FOUND
             )
         grupos = []
-        for grupo in GrupoUnidadeEscolar.objects.all():
+        for grupo in GrupoUnidadeEscolar.objects.all().order_by("nome"):
             tipos_unidade = grupo.tipos_unidades.all().values_list(
                 "iniciais", flat=True
             )
