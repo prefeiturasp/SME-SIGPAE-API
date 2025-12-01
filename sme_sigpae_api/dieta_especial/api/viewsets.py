@@ -996,28 +996,25 @@ class SolicitacaoDietaEspecialViewSet(
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
     def filtrar_queryset_polo_recreio_ferias(self, query_set, query_params):
-        if query_params.get("cei_polo") == "true" and (
-            query_params.get("recreio_nas_ferias") == "false"
-            or not query_params.get("recreio_nas_ferias")
-        ):
-            query_set = query_set.filter(
-                motivo_alteracao_ue__nome__icontains="polo",
-            )
-        if query_params.get("recreio_nas_ferias") == "true" and (
-            query_params.get("cei_polo") == "false" or not query_params.get("cei_polo")
-        ):
-            query_set = query_set.filter(
-                motivo_alteracao_ue__nome__icontains="recreio",
-            )
-        if (
-            query_params.get("cei_polo") == "true"
-            and query_params.get("recreio_nas_ferias") == "true"
-        ):
-            query_set = query_set.filter(
-                Q(motivo_alteracao_ue__nome__icontains="polo")
-                | Q(motivo_alteracao_ue__nome__icontains="recreio"),
-            )
-        return query_set.order_by("motivo_alteracao_ue__nome")
+        motivos = []
+
+        if query_params.get("cei_polo") == "true":
+            motivos.append("polo")
+
+        if query_params.get("recreio_nas_ferias") == "true":
+            motivos.append("recreio")
+
+        if query_params.get("outro") == "true":
+            motivos.append("outro")
+
+        if not motivos:
+            return query_set.order_by("motivo_alteracao_ue__nome")
+
+        filtro = Q()
+        for motivo in motivos:
+            filtro |= Q(motivo_alteracao_ue__nome__icontains=motivo)
+
+        return query_set.filter(filtro).order_by("motivo_alteracao_ue__nome")
 
     def filtra_por_serie(self, request, query_set):
         series = request.query_params.getlist("serie")
