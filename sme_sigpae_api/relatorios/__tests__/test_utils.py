@@ -1,4 +1,10 @@
 from datetime import date
+import io
+import base64
+
+import pytest
+import pikepdf
+from PyPDF4 import PdfFileReader
 
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
@@ -16,6 +22,58 @@ from ..utils import (
     html_to_pdf_watermark,
     merge_pdf_com_string_template,
 )
+from sme_sigpae_api.relatorios.utils import merge_pdf_com_rodape_assinatura
+
+
+RODAPE_TEXTO_ESPERADO = "Este documento foi registrado eletronicamente"
+def criar_pdf_com_texto(texto: str) -> bytes:
+    buf = io.BytesIO()
+    with pikepdf.new() as pdf:
+        page = pdf.add_blank_page(page_size=(612, 792))
+        page.Contents = pikepdf.Stream(pdf, f"BT /F1 12 Tf 72 720 Td ({texto}) Tj ET".encode())
+        page.Resources = pikepdf.Dictionary(
+            Font=pikepdf.Dictionary(
+                F1=pdf.make_indirect(
+                    pikepdf.Dictionary(
+                        Type=pikepdf.Name.Font,
+                        Subtype=pikepdf.Name.Type1,
+                        BaseFont=pikepdf.Name.Helvetica,
+                    )
+                )
+            )
+        )
+        pdf.save(buf)
+    buf.seek(0)
+    return buf.read()
+
+def test_merge_pdf_com_rodape_assinatura_integration(monkeypatch):
+    user_pdf_bytes = criar_pdf_com_texto("conteúdo do usuário")
+    rodape_pdf_bytes = criar_pdf_com_texto(RODAPE_TEXTO_ESPERADO)
+
+    class FakeHTML:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        @staticmethod
+        def write_pdf():
+            return rodape_pdf_bytes
+
+    monkeypatch.setattr(
+        "sme_sigpae_api.relatorios.utils.HTML",
+        FakeHTML,
+    )
+
+    result_data_url = merge_pdf_com_rodape_assinatura(io.BytesIO(user_pdf_bytes), "<html>rodape</html>")
+
+    assert result_data_url.startswith("data:application/pdf;base64,")
+    b64 = result_data_url.split(",", 1)[1]
+    merged_bytes = base64.b64decode(b64)
+
+    reader = PdfFileReader(io.BytesIO(merged_bytes))
+    num_pages = reader.getNumPages()
+    last_page_text = reader.getPage(num_pages - 1).extractText()
+
+    assert RODAPE_TEXTO_ESPERADO in last_page_text
 
 
 def test_config_cabecario_obter_cabecario_reduzido():

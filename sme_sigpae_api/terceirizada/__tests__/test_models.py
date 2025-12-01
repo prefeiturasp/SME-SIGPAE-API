@@ -1,4 +1,5 @@
 import pytest
+
 from sme_sigpae_api.terceirizada.models import Contrato
 
 pytestmark = pytest.mark.django_db
@@ -201,9 +202,11 @@ def test_modelo_modalidade(modalidade):
     assert modalidade.uuid is not None
     assert modalidade.nome is not None
 
+
 def test_contrato_programa(contrato):
-    assert hasattr(contrato, 'programa')
+    assert hasattr(contrato, "programa")
     assert contrato.programa in [Contrato.LEVE_LEITE, Contrato.ALIMENTACAO_ESCOLAR]
+
 
 def test_acesso_medicao_inicial_retorna_true(tercerizada_com_acesso_medicao):
     assert (

@@ -1,7 +1,9 @@
 import io
 import os
+import tempfile
 import uuid
 from datetime import datetime
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -188,7 +190,8 @@ def test_novas_linhas_inc_continua_e_kit_lanche(dados_para_geracao_excel_e_pdf):
 
 
 def test_get_formats():
-    output_file = "/tmp/test.xlsx"
+    with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+        output_file = tmp.name
     xlwriter = pd.ExcelWriter(output_file, engine="xlsxwriter")
     workbook = xlwriter.book
 
@@ -202,6 +205,7 @@ def test_get_formats():
     xlwriter.close()
     if os.path.exists(output_file):
         os.remove(output_file)
+    Path(output_file).unlink(missing_ok=True)
 
 
 @freeze_time("2025-01-22")

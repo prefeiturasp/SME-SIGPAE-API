@@ -295,6 +295,8 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
     houve_ocorrencia = serializers.SerializerMethodField()
     houve_reposicao = serializers.SerializerMethodField()
     fichas_recebimento = serializers.SerializerMethodField()
+    foi_recebida = serializers.SerializerMethodField()
+    unidade_medida = serializers.SerializerMethodField()
 
     def get_etapa(self, obj):
         return f"Etapa {obj.etapa}" if obj.etapa is not None else None
@@ -343,6 +345,11 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
             reposicao_cronograma__isnull=False,
         ).exists()
 
+    def get_foi_recebida(self, obj):
+        return obj.ficha_recebimento.filter(
+            Q(houve_ocorrencia=False) | Q(houve_ocorrencia__isnull=True)
+        ).exists()
+
     def get_fichas_recebimento(self, obj):
         return list(
             obj.ficha_recebimento.values(
@@ -357,6 +364,12 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
                 ),
             )
         )
+
+    def get_unidade_medida(self, obj):
+        try:
+            return obj.cronograma.unidade_medida.abreviacao
+        except AttributeError:
+            return "-"
 
     class Meta:
         model = EtapasDoCronograma
@@ -373,6 +386,8 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
             "houve_ocorrencia",
             "houve_reposicao",
             "fichas_recebimento",
+            "foi_recebida",
+            "unidade_medida",
         )
 
 

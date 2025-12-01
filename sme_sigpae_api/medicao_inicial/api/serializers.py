@@ -72,6 +72,9 @@ class OcorrenciaMedicaoInicialSerializer(serializers.ModelSerializer):
     def get_ultimo_arquivo(self, obj):
         env = environ.Env()
         api_url = env.str("URL_ANEXO", default="http://localhost:8000")
+
+        if not obj.ultimo_arquivo:
+            return ""
         return f"{api_url}{obj.ultimo_arquivo.url}"
 
     def get_ultimo_arquivo_excel(self, obj):
@@ -322,16 +325,25 @@ class ParametrizacaoFinanceiraTabelaValorSerializer(serializers.ModelSerializer)
 
     class Meta:
         model = ParametrizacaoFinanceiraTabelaValor
-        fields = ["faixa_etaria", "nome_campo", "tipo_valor", "valor", "tipo_alimentacao"]
+        fields = [
+            "faixa_etaria",
+            "nome_campo",
+            "tipo_valor",
+            "valor",
+            "tipo_alimentacao",
+        ]
 
 
 class ParametrizacaoFinanceiraTabelaSerializer(serializers.ModelSerializer):
     valores = ParametrizacaoFinanceiraTabelaValorSerializer(many=True, read_only=True)
-    periodo_escolar = serializers.CharField(source="periodo_escolar.nome")
+    periodo_escolar = serializers.SerializerMethodField()
 
     class Meta:
         model = ParametrizacaoFinanceiraTabela
         fields = ["nome", "periodo_escolar", "valores"]
+
+    def get_periodo_escolar(self, obj):
+        return obj.periodo_escolar.nome if obj.periodo_escolar else None
 
 
 class DadosParametrizacaoFinanceiraSerializer(serializers.ModelSerializer):

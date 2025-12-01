@@ -1,0 +1,50 @@
+# -----------------------------
+# Node / NPM
+# -----------------------------
+node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# -----------------------------
+# Cypress outputs
+# -----------------------------
+cypress/videos/
+cypress/screenshots/
+cypress/downloads/
+
+# -----------------------------
+# Git metadata
+# -----------------------------
+.git
+.gitignore
+
+# -----------------------------
+# Docker files
+# -----------------------------
+Dockerfile
+.dockerignore
+
+# -----------------------------
+# CI/CD
+# -----------------------------
+Jenkinsfile
+
+# -----------------------------
+# Ambiente / segredos
+# -----------------------------
+.env
+.env.*
+*.pem
+*.key
+*.crt
+
+# -----------------------------
+# Sistema e editor
+# -----------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo

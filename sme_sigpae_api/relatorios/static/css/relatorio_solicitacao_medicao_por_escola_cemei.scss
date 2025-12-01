@@ -23,14 +23,14 @@
 }
 
 @page {
- @bottom-center {
-   content: element(last-page-footer);
-   }
- }
+  @bottom-center {
+    content: element(last-page-footer);
+  }
+}
 
 #last-page-footer {
-    margin-top: -280px;
-    position: running(last-page-footer);
+  margin-top: -280px;
+  position: running(last-page-footer);
 }
 
 .header {
@@ -50,9 +50,15 @@
     box-sizing: border-box;
   }
 
-  .col-1  { width: 8.3333%; }
-  .col-2  { width: 16.6667%; }
-  .col-8  { width: 66.6667%; }
+  .col-1 {
+    width: 8.3333%;
+  }
+  .col-2 {
+    width: 16.6667%;
+  }
+  .col-8 {
+    width: 66.6667%;
+  }
 
   padding-top: 10px;
   padding-bottom: 10px;
@@ -166,8 +172,12 @@
     box-sizing: border-box;
   }
 
-  .col-3  { width: 25%; }
-  .col-6  { width: 50%; }
+  .col-3 {
+    width: 25%;
+  }
+  .col-6 {
+    width: 50%;
+  }
 
   font-family: "Roboto";
   font-style: normal;
@@ -264,18 +274,42 @@
     box-sizing: border-box;
   }
 
-  .col-1  { width: 8.3333%; }
-  .col-2  { width: 16.3667%; }
-  .col-3  { width: 25%; }
-  .col-4  { width: 33.3333%; }
-  .col-5  { width: 41.6667%; }
-  .col-6  { width: 49%; }
-  .col-7  { width: 58.3333%; }
-  .col-8  { width: 66.6667%; }
-  .col-9  { width: 75%; }
-  .col-10 { width: 82.3333%; }
-  .col-11 { width: 91.6667%; }
-  .col-12 { width: 100%; }
+  .col-1 {
+    width: 8.3333%;
+  }
+  .col-2 {
+    width: 16.3667%;
+  }
+  .col-3 {
+    width: 25%;
+  }
+  .col-4 {
+    width: 33.3333%;
+  }
+  .col-5 {
+    width: 41.6667%;
+  }
+  .col-6 {
+    width: 49%;
+  }
+  .col-7 {
+    width: 58.3333%;
+  }
+  .col-8 {
+    width: 66.6667%;
+  }
+  .col-9 {
+    width: 75%;
+  }
+  .col-10 {
+    width: 82.3333%;
+  }
+  .col-11 {
+    width: 91.6667%;
+  }
+  .col-12 {
+    width: 100%;
+  }
 
   .assinatura {
     height: 100px;
@@ -474,4 +508,17 @@ table.tabela-valores-medicao {
 
 .text-left {
   text-align: left;
+}
+
+.first-footer-approved {
+  position: running(firstFooter);
+  font-size: 10px;
+  color: #252525;
+}
+
+@page:first {
+  margin-bottom: 8mm;
+  @bottom-right {
+    content: element(firstFooter);
+  }
 }

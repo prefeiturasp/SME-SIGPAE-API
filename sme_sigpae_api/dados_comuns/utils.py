@@ -3,6 +3,7 @@ import datetime
 import logging
 import os
 import re
+import secrets
 import uuid
 from calendar import monthrange
 from collections import defaultdict
@@ -155,10 +156,11 @@ def update_instance_from_dict(instance, attrs, save=False):
 
 
 def url_configs(variable, content):
-    # TODO: rever essa logica de link para trabalhar no front, tá dando voltas
     if "http" in env("REACT_APP_URL"):
         return env("REACT_APP_URL") + URL_CONFIGS[variable].format(**content)
-    http_ou_https = "http://" if ":" in env("REACT_APP_URL") else "https://"
+    http_ou_https = "https://"
+    if ":" in env("REACT_APP_URL"):
+        http_ou_https = http_ou_https.replace("s", "")
     return (
         http_ou_https + env("REACT_APP_URL") + URL_CONFIGS[variable].format(**content)
     )
@@ -876,3 +878,13 @@ def criar_log_copia(log_original, obj_copia):
 def copiar_logs(obj_original, obj_copia):
     for log_original in obj_original.logs.all():
         criar_log_copia(log_original, obj_copia)
+
+
+def secure_sample(seq, k):
+    seq = list(seq)
+    result = []
+    for _ in range(k):
+        choice = secrets.choice(seq)
+        result.append(choice)
+        seq.remove(choice)
+    return result

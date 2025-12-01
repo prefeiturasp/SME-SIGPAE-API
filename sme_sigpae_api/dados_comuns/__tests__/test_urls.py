@@ -5,6 +5,7 @@ from faker import Faker
 from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework import status
+from rest_framework.test import APIRequestFactory
 
 from ...escola.models import TipoUnidadeEscolar
 from ..models import (
@@ -269,6 +270,9 @@ def test_get_downloads(usuario_teste_notificacao_autenticado, download):
     user, client = usuario_teste_notificacao_autenticado
     response = client.get("/downloads/", content_type="application/json")
     result = json.loads(response.content)
+
+    factory = APIRequestFactory()
+    request = factory.get("/")
     esperado = {
         "count": 1,
         "next": None,
@@ -279,7 +283,7 @@ def test_get_downloads(usuario_teste_notificacao_autenticado, download):
                 "identificador": download.identificador,
                 "data_criacao": download.criado_em.strftime("%d/%m/%Y ás %H:%M"),
                 "status": CentralDeDownload.STATUS_NOMES[download.status],
-                "arquivo": f"http://testserver{download.arquivo.url}",
+                "arquivo": request.build_absolute_uri(download.arquivo.url),
                 "visto": download.visto,
                 "msg_erro": download.msg_erro,
             }
@@ -331,6 +335,9 @@ def test_get_download_filters(usuario_teste_notificacao_autenticado, download):
     url = rota.replace("\n", "").replace(" ", "")
     response = client.get(url, content_type="application/json")
     result = json.loads(response.content)
+
+    factory = APIRequestFactory()
+    request = factory.get("/")
     esperado = {
         "count": 1,
         "next": None,
@@ -341,7 +348,7 @@ def test_get_download_filters(usuario_teste_notificacao_autenticado, download):
                 "identificador": download.identificador,
                 "data_criacao": download.criado_em.strftime("%d/%m/%Y ás %H:%M"),
                 "status": CentralDeDownload.STATUS_NOMES[download.status],
-                "arquivo": f"http://testserver{download.arquivo.url}",
+                "arquivo": request.build_absolute_uri(download.arquivo.url),
                 "visto": download.visto,
                 "msg_erro": download.msg_erro,
             }

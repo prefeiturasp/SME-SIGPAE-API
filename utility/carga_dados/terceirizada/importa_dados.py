@@ -1,6 +1,5 @@
-from random import sample
-
 from sme_sigpae_api.dados_comuns.models import Contato
+from sme_sigpae_api.dados_comuns.utils import secure_sample
 from sme_sigpae_api.escola.models import DiretoriaRegional
 from sme_sigpae_api.terceirizada.data.contratos import data_contratos
 from sme_sigpae_api.terceirizada.data.editais import data_editais
@@ -31,8 +30,8 @@ def cria_contratos():
     edital = Edital.objects.first()
     for item in progressbar(data_contratos, "Contrato"):
         terceirizada = Terceirizada.objects.get(cnpj=item["terceirizada_cnpj"])
-        lote_amostra = sample(lotes, 2)
-        dre_amostra = sample(dres, 2)
+        lote_amostra = secure_sample(lotes, 2)
+        dre_amostra = secure_sample(dres, 2)
         contrato = Contrato.objects.create(
             numero=item["numero"],
             processo=item["processo"],
@@ -64,6 +63,6 @@ def adiciona_contato_em_terceirizada():
     contatos = list(Contato.objects.all())
     terceirizadas = Terceirizada.objects.all()
     for terceirizada in terceirizadas:
-        contato_amostra = sample(contatos, 2)
+        contato_amostra = secure_sample(contatos, 2)
         for item in contato_amostra:
             terceirizada.contatos.add(item)

@@ -1,24 +1,62 @@
-.codeclimate.yml
-CODEOFCONDUCT.md
-CONTRIBUTING.md
-CONTRIBUTORS.txt
-COPYING
-docker-compose-dev.yml
-docker-compose.yml
-Dockerfile
-Dockerfile2
-.dockerignore
-docs
-.editorconfig
-env.sample
-.git
-.gitattributes
-.github
+# ──────────────────────────────
+#   VIRTUALENV (evita copiar libs)
+# ──────────────────────────────
+venv/
+.env/
+.venv/
+
+# ──────────────────────────────
+#   PYTHON CACHE
+# ──────────────────────────────
+__pycache__/
+*.pyc
+
+# ──────────────────────────────
+#   DJANGO (arquivos grandes e uploads)
+# ──────────────────────────────
+media/           # uploads de usuários — nunca vão para dentro da imagem
+staticfiles/     # coletados em runtime (collectstatic)
+*.sqlite3        # não usa, mas previne acidente
+
+# ──────────────────────────────
+#   LOGS E ARQUIVOS GERADOS
+# ──────────────────────────────
+*.log
+pytest.cache/
+coverage/
+htmlcov/
+
+# ──────────────────────────────
+#   FRONT-END (caso exista pasta)
+# ──────────────────────────────
+node_modules/
+dist/
+build/
+
+# ──────────────────────────────
+#   GIT, CI E DOCUMENTAÇÃO
+# ──────────────────────────────
+.git/
 .gitignore
-Jenkinsfile
-Jenkinsfile.new
-LICENSE
-README-ABASTECIMENTO.md
-README.md
-relatorio_base.html
+.gitattributes
+.github/
 .travis.yml
+Jenkinsfile*
+.editorconfig
+.codeclimate.yml
+docs/
+CONTRIBUTING.md
+CODEOFCONDUCT.md
+CONTRIBUTORS.txt
+LICENSE
+README*
+env.sample
+Dockerfile*
+docker-compose.yml
+docker-compose-dev.yml
+
+# ──────────────────────────────
+#   OUTROS SECRETS POSSÍVEIS
+# ──────────────────────────────
+*.key
+*.pem
