@@ -1193,28 +1193,36 @@ class GrupoUnidadeEscolarViewSet(ModelViewSet):
     serializer_class = GrupoUnidadeEscolarSerializer
     queryset = GrupoUnidadeEscolar.objects.all()
 
-    @action(detail=True, methods=["GET"], url_path="grupos-existentes-na-dre")
-    def grupos_existentes(self, request, uuid=None):
+    @action(detail=False, methods=["GET"], url_path="por-dre")
+    def grupos_por_dre(self, request):
+        dre_uuid = request.query_params.get("dre")
+        if not dre_uuid:
+            return Response(
+                {"detail": "Parâmetro 'dre' é obrigatório."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         try:
-            dre = self.get_object()
+            dre = DiretoriaRegional.objects.get(uuid=dre_uuid)
         except DiretoriaRegional.DoesNotExist:
             return Response(
-                {"detail": "Diretoria Regional não encontrada."},
-                status=status.HTTP_404_NOT_FOUND,
+                {"detail": "DRE não encontrada."}, status=status.HTTP_404_NOT_FOUND
             )
-
-        info = {}
-        grupos = GrupoUnidadeEscolar.objects.all()
-
-        for grupo in grupos:
-            tipos_inidade = grupo.tipos_unidades.all().values_list(
+        grupos = []
+        for grupo in GrupoUnidadeEscolar.objects.all():
+            tipos_unidade = grupo.tipos_unidades.all().values_list(
                 "iniciais", flat=True
             )
-            info[grupo.nome] = dre.escolas.filter(
-                tipo_unidade__iniciais__in=tipos_inidade
+            habilitado = dre.escolas.filter(
+                tipo_unidade__iniciais__in=tipos_unidade
             ).exists()
 
-        return Response(info, status=status.HTTP_200_OK)
+            grupos.append(
+                {
+                    "nome": grupo.nome,
+                    "habilitado": habilitado,
+                }
+            )
+        return Response({"grupos": grupos}, status=status.HTTP_200_OK)
 
 
 class RelatorioControleDeFrequenciaViewSet(ModelViewSet):
