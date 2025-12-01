@@ -1295,3 +1295,19 @@ def mock_request():
     request.user.vinculo_atual.perfil.nome = None
     request.user.vinculo_atual.content_type.model = None
     return request
+
+
+@pytest.fixture
+def log_alunos_matriculados_cei(escola_cei, log_alunos_matriculados_integral_cei):
+    baker.make(
+        "AlunosMatriculadosPeriodoEscola",
+        escola=escola_cei,
+        periodo_escolar=baker.make(models.PeriodoEscolar, nome="MANHA"),
+        quantidade_alunos=100,
+    )
+    baker.make(
+        "AlunosMatriculadosPeriodoEscola",
+        escola=escola_cei,
+        periodo_escolar=baker.make(models.PeriodoEscolar, nome="TARDE"),
+        quantidade_alunos=100,
+    )

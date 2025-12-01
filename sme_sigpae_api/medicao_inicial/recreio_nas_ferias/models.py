@@ -16,7 +16,7 @@ class RecreioNasFerias(TemChaveExterna, CriadoEm, TemAlteradoEm):
     data_fim = models.DateField()
 
     class Meta:
-        ordering = ['-alterado_em']
+        ordering = ["-alterado_em"]
 
     def __str__(self):
         return self.titulo
