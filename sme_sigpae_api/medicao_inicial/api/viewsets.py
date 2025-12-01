@@ -19,12 +19,12 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet, ViewSet
 from workalendar.america import BrazilSaoPauloCity
 from xworkflows import InvalidTransitionError
 
-from sme_sigpae_api.medicao_inicial.utils import process_anexos_from_request
 from sme_sigpae_api.cardapio.utils import ordem_periodos
 from sme_sigpae_api.medicao_inicial.services.relatorio_adesao import (
     obtem_resultados,
     valida_parametros_periodo_lancamento,
 )
+from sme_sigpae_api.medicao_inicial.utils import process_anexos_from_request
 
 from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns import constants
@@ -353,9 +353,23 @@ class SolicitacaoMedicaoInicialViewSet(
         workflow = request.query_params.get("status")
         qs = self._condicao_por_usuario(query_set)
         qs = qs.filter(**kwargs)
+
+        logs_map = {}
+        for log in LogSolicitacoesUsuario.objects.filter(
+            uuid_original__in=qs.values_list("uuid", flat=True)
+        ).order_by("uuid_original", "-criado_em"):
+            logs_map.setdefault(log.uuid_original, []).append(log)
+
+        def log_mais_recente(obj):
+            return logs_map[obj.uuid][0] if logs_map[obj.uuid] else None
+
         qs_ordenado = sorted(
-            list(qs),
-            key=lambda obj: (obj.log_mais_recente.criado_em or datetime.min)
+            qs,
+            key=lambda obj: (
+                log_mais_recente(obj).criado_em
+                if log_mais_recente(obj)
+                else datetime.min
+            ),
         )
         total = len(qs_ordenado)
         paginated = qs_ordenado[offset : offset + limit]
@@ -1073,14 +1087,20 @@ class SolicitacaoMedicaoInicialViewSet(
             justificativa = request.data.get("justificativa", "")
             if com_ocorrencias == "true" and anexos_processados:
                 solicitacao_medicao_inicial.com_ocorrencias = True
-                atualizar_anexos_ocorrencia(anexos_processados, solicitacao_medicao_inicial)
+                atualizar_anexos_ocorrencia(
+                    anexos_processados, solicitacao_medicao_inicial
+                )
                 if status_ocorrencia == status_correcao_solicitada_codae:
                     solicitacao_medicao_inicial.ocorrencia.ue_corrige_ocorrencia_para_codae(
-                        user=request.user, anexos=anexos_processados, justificativa=justificativa
+                        user=request.user,
+                        anexos=anexos_processados,
+                        justificativa=justificativa,
                     )
                 else:
                     solicitacao_medicao_inicial.ocorrencia.ue_corrige(
-                        user=request.user, anexos=anexos_processados, justificativa=justificativa
+                        user=request.user,
+                        anexos=anexos_processados,
+                        justificativa=justificativa,
                     )
             else:
                 solicitacao_medicao_inicial.com_ocorrencias = False
