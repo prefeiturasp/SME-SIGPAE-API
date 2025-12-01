@@ -84,9 +84,9 @@ def process_single_anexo(anexo, usuario):
             arquivo, string_pdf_rodape
         )
         anexo_proc["base64"] = arquivo_com_assinatura_base64
-    except Exception:
+    except Exception as e:
         # mantém o anexo original para que a lógica de negócio prossiga
-        pass
+        logger.warning(f"Falha ao processar assinatura do anexo: {e}", exc_info=True)
 
     return anexo_proc
 
