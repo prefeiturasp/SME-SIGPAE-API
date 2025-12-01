@@ -10,8 +10,8 @@ from rest_framework.exceptions import PermissionDenied
 
 from sme_sigpae_api.dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
 from sme_sigpae_api.dados_comuns.utils import (
+    convert_base64_to_contentfile,
     update_instance_from_dict,
-    convert_base64_to_contentfile
 )
 from sme_sigpae_api.dados_comuns.validators import deve_ter_extensao_xls_xlsx_pdf
 from sme_sigpae_api.escola.api.serializers_create import (
@@ -47,6 +47,7 @@ from sme_sigpae_api.medicao_inicial.models import (
     TipoValorParametrizacaoFinanceira,
     ValorMedicao,
 )
+from sme_sigpae_api.medicao_inicial.utils import process_anexos_from_request
 from sme_sigpae_api.perfil.models import Usuario
 from sme_sigpae_api.terceirizada.models import Contrato, Edital
 
@@ -82,7 +83,6 @@ from ..validators import (
     validate_solicitacoes_programas_e_projetos_emebs,
     validate_solicitacoes_programas_e_projetos_escola_sem_alunos_regulares,
 )
-from sme_sigpae_api.medicao_inicial.utils import process_anexos_from_request
 
 
 class DiaSobremesaDoceCreateSerializer(serializers.ModelSerializer):

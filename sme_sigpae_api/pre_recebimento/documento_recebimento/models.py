@@ -126,7 +126,7 @@ class DocumentoDeRecebimento(
         decimal_places=2,
         blank=True,
         null=True,
-        help_text="Quantidade do laudo com 2 casas decimais"
+        help_text="Quantidade do laudo com 2 casas decimais",
     )
     numero_lote_laudo = models.CharField("Número do Laudo", blank=True, max_length=200)
     unidade_medida = models.ForeignKey(

@@ -53,8 +53,7 @@ def get_diretorias_regionais(lotes):
 def merge_pdf_com_rodape_assinatura(arquivo_usuario, string_pdf_rodape):
     arquivo_final = io.BytesIO()
     pdf_rodape_assinatura = HTML(
-        string=string_pdf_rodape,
-        base_url=staticfiles_storage.location
+        string=string_pdf_rodape, base_url=staticfiles_storage.location
     ).write_pdf()
 
     pdf_usuario = PdfFileReader(arquivo_usuario)

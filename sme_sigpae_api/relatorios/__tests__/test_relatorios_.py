@@ -21,8 +21,8 @@ from ..relatorios import (
     obter_relatorio_da_unidade,
     relatorio_dieta_especial_protocolo,
     relatorio_reclamacao_produtos,
-    relatorio_suspensao_de_alimentacao,
     relatorio_solicitacao_medicao_por_escola,
+    relatorio_suspensao_de_alimentacao,
 )
 
 pytestmark = pytest.mark.django_db
@@ -748,7 +748,7 @@ def test_relatorio_solicitacao_medicao_rodape_aprovacao(
         solicitacao_medicao_inicial_aprovada_codae
     )
     texto = extrair_texto_de_pdf(relatorio)
-    
+
     assert "INFORMAÇÕES BÁSICAS DA MEDIÇÃO" in texto
     assert "EMEF JOAO MENDES" in texto
 

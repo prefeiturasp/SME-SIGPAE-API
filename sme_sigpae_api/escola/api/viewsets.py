@@ -1193,6 +1193,29 @@ class GrupoUnidadeEscolarViewSet(ModelViewSet):
     serializer_class = GrupoUnidadeEscolarSerializer
     queryset = GrupoUnidadeEscolar.objects.all()
 
+    @action(detail=True, methods=["GET"], url_path="grupos-existentes-na-dre")
+    def grupos_existentes(self, request, uuid=None):
+        try:
+            dre = self.get_object()
+        except DiretoriaRegional.DoesNotExist:
+            return Response(
+                {"detail": "Diretoria Regional não encontrada."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        info = {}
+        grupos = GrupoUnidadeEscolar.objects.all()
+
+        for grupo in grupos:
+            tipos_inidade = grupo.tipos_unidades.all().values_list(
+                "iniciais", flat=True
+            )
+            info[grupo.nome] = dre.escolas.filter(
+                tipo_unidade__iniciais__in=tipos_inidade
+            ).exists()
+
+        return Response(info, status=status.HTTP_200_OK)
+
 
 class RelatorioControleDeFrequenciaViewSet(ModelViewSet):
     def get_queryset(self):

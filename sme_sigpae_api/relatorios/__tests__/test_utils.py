@@ -1,15 +1,16 @@
-from datetime import date
-import io
 import base64
+import io
+from datetime import date
 
-import pytest
 import pikepdf
-from PyPDF4 import PdfFileReader
-
+import pytest
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django_weasyprint.utils import django_url_fetcher
+from PyPDF4 import PdfFileReader
 from weasyprint import HTML
+
+from sme_sigpae_api.relatorios.utils import merge_pdf_com_rodape_assinatura
 
 from ..utils import (
     PDFMergeService,
@@ -22,15 +23,17 @@ from ..utils import (
     html_to_pdf_watermark,
     merge_pdf_com_string_template,
 )
-from sme_sigpae_api.relatorios.utils import merge_pdf_com_rodape_assinatura
-
 
 RODAPE_TEXTO_ESPERADO = "Este documento foi registrado eletronicamente"
+
+
 def criar_pdf_com_texto(texto: str) -> bytes:
     buf = io.BytesIO()
     with pikepdf.new() as pdf:
         page = pdf.add_blank_page(page_size=(612, 792))
-        page.Contents = pikepdf.Stream(pdf, f"BT /F1 12 Tf 72 720 Td ({texto}) Tj ET".encode())
+        page.Contents = pikepdf.Stream(
+            pdf, f"BT /F1 12 Tf 72 720 Td ({texto}) Tj ET".encode()
+        )
         page.Resources = pikepdf.Dictionary(
             Font=pikepdf.Dictionary(
                 F1=pdf.make_indirect(
@@ -45,6 +48,7 @@ def criar_pdf_com_texto(texto: str) -> bytes:
         pdf.save(buf)
     buf.seek(0)
     return buf.read()
+
 
 def test_merge_pdf_com_rodape_assinatura_integration(monkeypatch):
     user_pdf_bytes = criar_pdf_com_texto("conteúdo do usuário")
@@ -63,7 +67,9 @@ def test_merge_pdf_com_rodape_assinatura_integration(monkeypatch):
         FakeHTML,
     )
 
-    result_data_url = merge_pdf_com_rodape_assinatura(io.BytesIO(user_pdf_bytes), "<html>rodape</html>")
+    result_data_url = merge_pdf_com_rodape_assinatura(
+        io.BytesIO(user_pdf_bytes), "<html>rodape</html>"
+    )
 
     assert result_data_url.startswith("data:application/pdf;base64,")
     b64 = result_data_url.split(",", 1)[1]
