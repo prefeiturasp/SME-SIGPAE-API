@@ -2114,7 +2114,7 @@ class TipoContagemViewSet(mixins.ListModelMixin, GenericViewSet):
 
 
 class MotivoAlteracaoUEViewSet(mixins.ListModelMixin, GenericViewSet):
-    queryset = MotivoAlteracaoUE.objects.order_by("nome")
+    queryset = MotivoAlteracaoUE.objects.filter(ativo=True).order_by("nome")
     serializer_class = MotivoAlteracaoUESerializer
 
 

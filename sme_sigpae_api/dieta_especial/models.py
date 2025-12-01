@@ -443,7 +443,7 @@ class ClassificacaoDieta(Descritivel, Nomeavel):
         return self.nome
 
 
-class MotivoAlteracaoUE(Descritivel, Nomeavel, TemChaveExterna):
+class MotivoAlteracaoUE(Descritivel, Nomeavel, TemChaveExterna, Ativavel):
     def __str__(self):
         return self.nome
 
