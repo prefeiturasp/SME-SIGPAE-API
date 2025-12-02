@@ -109,7 +109,7 @@ def test_deve_ser_deste_tipo_valor_valido(validators_valor_str):
 def test_nao_pode_ser_feriado_raise_error(dias_nao_uteis):
     dia, _ = dias_nao_uteis
     with pytest.raises(ValidationError, match="Não pode ser no feriado"):
-        assert nao_pode_ser_feriado(dia)
+        nao_pode_ser_feriado(dia)
 
 
 def test_nao_pode_ser_feriado_valor_valido(dias_uteis):
@@ -122,7 +122,7 @@ def test_nao_existe_cardapio(dias_sem_cardapio, escola):
         ValidationError,
         match=f'Escola não possui cardápio para esse dia: {dias_sem_cardapio.strftime("%d-%m-%Y")}',
     ):
-        assert deve_existir_cardapio(escola, dias_sem_cardapio)
+        deve_existir_cardapio(escola, dias_sem_cardapio)
 
 
 @freeze_time("2019-07-10")
