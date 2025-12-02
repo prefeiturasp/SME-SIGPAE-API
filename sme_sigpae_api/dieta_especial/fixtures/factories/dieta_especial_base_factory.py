@@ -6,6 +6,7 @@ from sme_sigpae_api.dieta_especial.models import (
     ClassificacaoDieta,
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+    MotivoAlteracaoUE,
     SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
@@ -28,6 +29,7 @@ class ClassificacaoDietaFactory(DjangoModelFactory):
 class SolicitacaoDietaEspecialFactory(DjangoModelFactory):
     aluno = SubFactory(AlunoFactory)
     rastro_escola = SubFactory(EscolaFactory)
+    escola_destino = SubFactory(EscolaFactory)
     classificacao = SubFactory(ClassificacaoDietaFactory)
 
     class Meta:
@@ -53,3 +55,10 @@ class LogQuantidadeDietasAutorizadasCEIFactory(DjangoModelFactory):
 
     class Meta:
         model = LogQuantidadeDietasAutorizadasCEI
+
+
+class MotivoAlteracaoUEFactory(DjangoModelFactory):
+    nome = Sequence(lambda n: f"Escola {n} - {fake.unique.name()}")
+
+    class Meta:
+        model = MotivoAlteracaoUE

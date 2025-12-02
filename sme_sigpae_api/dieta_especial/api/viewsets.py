@@ -1013,7 +1013,6 @@ class SolicitacaoDietaEspecialViewSet(
         filtro = Q()
         for motivo in motivos:
             filtro |= Q(motivo_alteracao_ue__nome__icontains=motivo)
-
         return query_set.filter(filtro).order_by("motivo_alteracao_ue__nome")
 
     def filtra_por_serie(self, request, query_set):
@@ -1030,10 +1029,9 @@ class SolicitacaoDietaEspecialViewSet(
 
         lotes_filtro = request.query_params.getlist("lotes_selecionados[]", None)
         instituicao = request.user.vinculo_atual.instituicao
-        if not lotes_filtro:
-            if isinstance(instituicao, DiretoriaRegional):
-                lotes_list = list(instituicao.lotes.all().values_list("uuid"))
-                lotes_filtro = [str(u[0]) for u in lotes_list]
+        if not lotes_filtro and isinstance(instituicao, DiretoriaRegional):
+            lotes_list = list(instituicao.lotes.all().values_list("uuid"))
+            lotes_filtro = [str(u[0]) for u in lotes_list]
         campo_escola_destino = (
             "escola_destino__uuid__in"
             if eh_relatorio
@@ -1109,7 +1107,6 @@ class SolicitacaoDietaEspecialViewSet(
 
             solicitacoes_uuids = [log.uuid_original for log in logs]
             query_set = query_set.filter(uuid__in=solicitacoes_uuids)
-
         return query_set
 
     @action(detail=False, methods=("get",), url_path="filtros-relatorio-dieta-especial")
@@ -1223,7 +1220,7 @@ class SolicitacaoDietaEspecialViewSet(
     @action(
         detail=False, methods=("get",), url_path="relatorio-dieta-especial-terceirizada"
     )
-    def relatorio_dieta_especial_terceirizada(self, request):  # noqa C901
+    def relatorio_dieta_especial_terceirizada(self, request):
         query_set = self.filtrar_queryset_relatorio_dieta_especial(
             request, True
         ).distinct()
