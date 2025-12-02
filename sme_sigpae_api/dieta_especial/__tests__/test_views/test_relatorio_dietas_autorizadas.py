@@ -100,6 +100,90 @@ class TestUseCaseRelatorioDietasAutorizadas:
             usuario=self.usuario_escola,
         )
 
+    def setup_dieta_recreio_nas_ferias(
+        self,
+        solicitacao_dieta_especial_factory,
+        log_solicitacoes_usuario_factory,
+        escola,
+    ):
+        self.dieta_autorizada_2 = solicitacao_dieta_especial_factory.create(
+            aluno=self.aluno_2,
+            tipo_solicitacao=SolicitacaoDietaEspecial.COMUM,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+            rastro_escola=escola,
+            escola_destino=escola,
+            classificacao=self.classificacao_tipo_a,
+            ativo=False,
+        )
+        log_solicitacoes_usuario_factory.create(
+            uuid_original=self.dieta_autorizada_2.uuid,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            solicitacao_tipo=LogSolicitacoesUsuario.DIETA_ESPECIAL,
+            usuario=self.usuario_escola,
+        )
+
+        self.solicitacao_recreio_nas_ferias = solicitacao_dieta_especial_factory.create(
+            rastro_escola=escola,
+            aluno=self.aluno_2,
+            escola_destino__lote=escola.lote,
+            escola_destino__diretoria_regional=escola.diretoria_regional,
+            tipo_solicitacao=SolicitacaoDietaEspecial.ALTERACAO_UE,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+            data_inicio="2025-12-01",
+            data_termino="2025-12-10",
+            dieta_alterada=self.dieta_autorizada_2,
+            motivo_alteracao_ue=self.recreio_nas_ferias,
+            ativo=True,
+        )
+        log_solicitacoes_usuario_factory.create(
+            uuid_original=self.solicitacao_recreio_nas_ferias.uuid,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            solicitacao_tipo=LogSolicitacoesUsuario.DIETA_ESPECIAL,
+            usuario=self.usuario_escola,
+        )
+
+    def setup_dieta_outro(
+        self,
+        solicitacao_dieta_especial_factory,
+        log_solicitacoes_usuario_factory,
+        escola,
+    ):
+        self.dieta_autorizada_3 = solicitacao_dieta_especial_factory.create(
+            aluno=self.aluno_3,
+            tipo_solicitacao=SolicitacaoDietaEspecial.COMUM,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+            rastro_escola=escola,
+            escola_destino=escola,
+            classificacao=self.classificacao_tipo_a,
+            ativo=False,
+        )
+        log_solicitacoes_usuario_factory.create(
+            uuid_original=self.dieta_autorizada_3.uuid,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            solicitacao_tipo=LogSolicitacoesUsuario.DIETA_ESPECIAL,
+            usuario=self.usuario_escola,
+        )
+
+        self.solicitacao_outro = solicitacao_dieta_especial_factory.create(
+            rastro_escola=escola,
+            aluno=self.aluno_3,
+            escola_destino__lote=escola.lote,
+            escola_destino__diretoria_regional=escola.diretoria_regional,
+            tipo_solicitacao=SolicitacaoDietaEspecial.ALTERACAO_UE,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+            data_inicio="2025-12-01",
+            data_termino="2025-12-10",
+            dieta_alterada=self.dieta_autorizada_2,
+            motivo_alteracao_ue=self.outro,
+            ativo=True,
+        )
+        log_solicitacoes_usuario_factory.create(
+            uuid_original=self.solicitacao_outro.uuid,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            solicitacao_tipo=LogSolicitacoesUsuario.DIETA_ESPECIAL,
+            usuario=self.usuario_escola,
+        )
+
     def _setup_dietas_autorizadas(
         self,
         solicitacao_dieta_especial_factory,
@@ -107,6 +191,12 @@ class TestUseCaseRelatorioDietasAutorizadas:
         escola,
     ):
         self.setup_dieta_cei_polo(
+            solicitacao_dieta_especial_factory, log_solicitacoes_usuario_factory, escola
+        )
+        self.setup_dieta_recreio_nas_ferias(
+            solicitacao_dieta_especial_factory, log_solicitacoes_usuario_factory, escola
+        )
+        self.setup_dieta_outro(
             solicitacao_dieta_especial_factory, log_solicitacoes_usuario_factory, escola
         )
 
@@ -157,8 +247,15 @@ class TestUseCaseRelatorioDietasAutorizadas:
         )
         client, _ = client_autenticado_vinculo_dre_dieta
         response = client.get(
-            "/solicitacoes-dieta-especial/relatorio-dieta-especial-terceirizada/?limit=10&offset=0&recreio_nas_ferias=true&cei_polo=true&status_selecionado=AUTORIZADAS",
+            "/solicitacoes-dieta-especial/relatorio-dieta-especial-terceirizada/?limit=10&offset=0&recreio_nas_ferias=true&cei_polo=true&outro=true&status_selecionado=AUTORIZADAS",
             content_type="application/json",
         )
         assert response.status_code == status.HTTP_200_OK
-        assert response.json()["count"] == 1
+        assert response.json()["count"] == 3
+        uuid_solicitacoes = [s["uuid"] for s in response.json()["results"]]
+        for uuid_ in [
+            self.solicitacao_cei_polo.uuid,
+            self.solicitacao_recreio_nas_ferias.uuid,
+            self.solicitacao_outro.uuid,
+        ]:
+            assert str(uuid_) in uuid_solicitacoes
