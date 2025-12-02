@@ -1311,3 +1311,14 @@ def log_alunos_matriculados_cei(escola_cei, log_alunos_matriculados_integral_cei
         periodo_escolar=baker.make(models.PeriodoEscolar, nome="TARDE"),
         quantidade_alunos=100,
     )
+
+
+@pytest.fixture
+def grupos_da_dre(tipo_unidade_escolar):
+    dre = baker.make("DiretoriaRegional", nome="DRE ADMIN")
+    baker.make("Escola", diretoria_regional=dre, tipo_unidade=tipo_unidade_escolar)
+    grupo = baker.make("GrupoUnidadeEscolar", nome="Grupo 1")
+    grupo.tipos_unidades.add(tipo_unidade_escolar)
+    grupo = baker.make("GrupoUnidadeEscolar", nome="Grupo 2")
+    grupo = baker.make("GrupoUnidadeEscolar", nome="Grupo 3")
+    return dre
