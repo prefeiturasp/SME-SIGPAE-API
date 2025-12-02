@@ -649,3 +649,38 @@ def test_escola_simplissima_dre_unpaginated_nome_edital(
     escola = response.json()[0]
     assert escola_edital_41.nome == escola["nome"]
     assert nome_edital == escola["lote_obj"]["contratos_do_lote"][0]["edital_numero"]
+
+
+def test_grupos_por_dre_quando_parametro_dre_nao_enviado(
+    client_autenticado_da_dre, grupos_da_dre
+):
+    response = client_autenticado_da_dre.get(f"/grupos-unidade-escolar/por-dre/")
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {"detail": "Parâmetro 'dre' é obrigatório."}
+
+
+def test_grupos_por_dre_quando_parametro_dre_nao_existe(
+    client_autenticado_da_dre, grupos_da_dre
+):
+    response = client_autenticado_da_dre.get(
+        f"/grupos-unidade-escolar/por-dre/?dre={grupos_da_dre.escolas.first().uuid}"
+    )
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "DRE não encontrada."}
+
+
+def test_grupos_por_dre_quando_parametro_dre_existe(
+    client_autenticado_da_dre, grupos_da_dre
+):
+    response = client_autenticado_da_dre.get(
+        f"/grupos-unidade-escolar/por-dre/?dre={grupos_da_dre.uuid}"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "grupos": [
+            {"habilitado": True, "nome": "Grupo 1"},
+            {"habilitado": False, "nome": "Grupo 2"},
+            {"habilitado": False, "nome": "Grupo 3"},
+        ]
+    }
