@@ -1954,7 +1954,7 @@ def test_url_endpoint_relatorio_consolidado_xlsx_sem_mes_refencia(
     assert response.json() == "É necessário informar o mês/ano de referência"
 
 
-def test_url_endpoint_relatorio_consolidado_xlsx_com_filtros(
+def test_url_endpoint_relatorio_consolidado_xlsx_com_erros(
     client_autenticado_diretoria_regional,
     grupo_escolar,
     escola,
@@ -1964,9 +1964,9 @@ def test_url_endpoint_relatorio_consolidado_xlsx_com_filtros(
         f"?mes=05&ano=2023&grupo_escolar={grupo_escolar}&status=MEDICAO_APROVADA_PELA_CODAE&dre={escola.diretoria_regional.uuid}",
         content_type="application/json",
     )
-    assert response.status_code == status.HTTP_200_OK
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
+        "erro": "Não foram encontradas Medições Iniciais. Verifique os parâmetros e tente novamente"
     }
 
 
