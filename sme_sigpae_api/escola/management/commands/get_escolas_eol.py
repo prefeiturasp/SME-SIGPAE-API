@@ -1,5 +1,6 @@
-from django.core.management.base import BaseCommand
 import tempfile
+
+from django.core.management.base import BaseCommand
 
 from sme_sigpae_api.escola.utils_escola import get_escolas
 
@@ -30,5 +31,5 @@ class Command(BaseCommand):
 
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
             temp_filename = temp_file.name
-            
+
         get_escolas(arquivo, arquivo_codigos_escolas, temp_filename, in_memory=False)
