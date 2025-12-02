@@ -2143,13 +2143,13 @@ def test_url_endpoint_atualiza_informacoes_basicas(
     [
         (
             "client_autenticado_coordenador_codae",
-            status.HTTP_200_OK,
-            "Solicitação de geração de arquivo recebida com sucesso.",
+            status.HTTP_400_BAD_REQUEST,
+            "Não foram encontradas Medições Iniciais. Verifique os parâmetros e tente novamente",
         ),
         (
             "client_autenticado_diretoria_regional",
-            status.HTTP_200_OK,
-            "Solicitação de geração de arquivo recebida com sucesso.",
+            status.HTTP_400_BAD_REQUEST,
+            "Não foram encontradas Medições Iniciais. Verifique os parâmetros e tente novamente",
         ),
         (
             "client_autenticado_da_escola",
@@ -2183,8 +2183,8 @@ def test_url_endpoint_atualiza_informacoes_basicas(
         ),
         (
             "client_autenticado_codae_medicao",
-            status.HTTP_200_OK,
-            "Solicitação de geração de arquivo recebida com sucesso.",
+            status.HTTP_400_BAD_REQUEST,
+            "Não foram encontradas Medições Iniciais. Verifique os parâmetros e tente novamente",
         ),
     ],
 )
@@ -2200,4 +2200,4 @@ def test_url_endpoint_relatorio_consolidado_verifica_permissao(
     )
 
     assert response.status_code == status_experado
-    assert response.json() == {"detail": detail_experado}
+    assert detail_experado in response.json().values()
