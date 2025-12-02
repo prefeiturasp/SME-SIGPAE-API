@@ -555,7 +555,7 @@ def test_mes_atual_com_mes_errado():
 def test_mes_atual_com_mes_ausente():
     query_params = {}
     with pytest.raises(AttributeError):
-        assert eh_mes_atual(query_params) is False
+        eh_mes_atual(query_params)
 
 
 def test_alunos_por_faixa():
