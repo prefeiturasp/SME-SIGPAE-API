@@ -353,8 +353,23 @@ class SolicitacaoMedicaoInicialViewSet(
         workflow = request.query_params.get("status")
         qs = self._condicao_por_usuario(query_set)
         qs = qs.filter(**kwargs)
+
+        logs_map = {}
+        for log in LogSolicitacoesUsuario.objects.filter(
+            uuid_original__in=qs.values_list("uuid", flat=True)
+        ).order_by("uuid_original", "-criado_em"):
+            logs_map.setdefault(log.uuid_original, []).append(log)
+
+        def log_mais_recente(obj):
+            return logs_map[obj.uuid][0] if logs_map[obj.uuid] else None
+
         qs_ordenado = sorted(
-            list(qs), key=lambda obj: (obj.log_mais_recente.criado_em or datetime.min)
+            qs,
+            key=lambda obj: (
+                log_mais_recente(obj).criado_em
+                if log_mais_recente(obj)
+                else datetime.min
+            ),
         )
         total = len(qs_ordenado)
         paginated = qs_ordenado[offset : offset + limit]
