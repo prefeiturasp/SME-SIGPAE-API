@@ -145,7 +145,6 @@ def test_url_criar_dieta_duplicada_alteracao_ue_recreio_ferias(
 ):
     client, user = client_autenticado_vinculo_escola_dieta
     dieta_aprovada = solicitacao_dieta_especial_aprovada_alteracao_ue
-    motivo_alteracao_ue = motivo_alteracao_ue
 
     # Prepare payload using real data from fixture
     payload = {
