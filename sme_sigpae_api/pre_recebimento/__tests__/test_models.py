@@ -16,6 +16,7 @@ from ..documento_recebimento.models import (
 )
 from ..layout_embalagem.models import LayoutDeEmbalagem, TipoDeEmbalagemDeLayout
 from ..qualidade.models import Laboratorio, TipoEmbalagemQld
+from ..ficha_tecnica.models import FichaTecnicaDoProduto
 
 pytestmark = pytest.mark.django_db
 
@@ -297,3 +298,12 @@ def test_tipo_de_documento_de_recebimento_meta_modelo(
     obj = tipo_de_documento_de_recebimento_factory.create()
     assert obj._meta.verbose_name == "Tipo de Documento de Recebimento"
     assert obj._meta.verbose_name_plural == "Tipos de Documentos de Recebimento"
+
+
+def test_ficha_tecnica_programa(ficha_tecnica_factory):
+    ficha = ficha_tecnica_factory.create()
+    assert hasattr(ficha, 'programa')
+    assert ficha.programa in [
+        FichaTecnicaDoProduto.LEVE_LEITE, 
+        FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR
+    ]

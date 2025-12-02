@@ -860,6 +860,7 @@ def payload_ficha_tecnica_pereciveis(
 ):
     payload = {
         **payload_ficha_tecnica_rascunho,
+        "programa": FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR,
         "prazo_validade": fake.pystr(max_chars=150),
         "numero_registro": fake.pystr(max_chars=150),
         "agroecologico": True,
@@ -1126,6 +1127,7 @@ def payload_base(produto_arroz, empresa, unidade_medida_logistica):
         "produto": produto_arroz.uuid,
         "marca": marca.uuid,
         "categoria": FichaTecnicaDoProduto.CATEGORIA_NAO_PERECIVEIS,
+        "programa": FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR,
         "pregao_chamada_publica": "123",
         "empresa": empresa.uuid,
         "componentes_produto": "farinha, açúcar",
