@@ -39,6 +39,14 @@ class FichaTecnicaFactory(DjangoModelFactory):
             ]
         )
     )
+    programa = LazyFunction(
+        lambda: fake.random.choice(
+            [
+                FichaTecnicaDoProduto.LEVE_LEITE,
+                FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR,
+            ]
+        )
+    )
     peso_liquido_embalagem_primaria = LazyFunction(
         lambda: fake.random_number(digits=5, fix_len=True) / 100
     )
