@@ -385,7 +385,7 @@ def client_autenticado_vinculo_escola_cardapio(
 
 
 @pytest.fixture
-def usuario_dre_vinculo_escola_cardapio(django_user_model, escola):
+def usuario_dre_vinculo_escola_cardapio(django_user_model, escola, template_mensagem_alteracao_cardapio):
     email = "test@test1.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
@@ -445,7 +445,7 @@ def client_autenticado_vinculo_codae_cardapio(client, django_user_model, codae):
 
 
 @pytest.fixture
-def usuario_vinculo_codae_dieta_cardapio(django_user_model, escola, codae):
+def usuario_vinculo_codae_dieta_cardapio(django_user_model, escola, codae, template_mensagem_alteracao_cardapio):
     email = "testc@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
