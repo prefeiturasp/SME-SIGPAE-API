@@ -134,7 +134,9 @@ class FichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
         queryset=UnidadeMedida.objects.all(),
         allow_null=True,
     )
-    valor_unidade_caseira = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    valor_unidade_caseira = serializers.CharField(
+        required=False, allow_blank=True, allow_null=True
+    )
     unidade_medida_caseira = serializers.CharField(required=True, allow_blank=True)
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnicaCreateSerializer(
         many=True
@@ -708,7 +710,9 @@ class FichaTecnicaAtualizacaoSerializer(serializers.ModelSerializer):
         required=False,
         queryset=UnidadeMedida.objects.all(),
     )
-    valor_unidade_caseira = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    valor_unidade_caseira = serializers.CharField(
+        required=False, allow_blank=True, allow_null=True
+    )
     unidade_medida_caseira = serializers.CharField(required=False, allow_blank=False)
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnicaCreateSerializer(
         many=True,
