@@ -93,7 +93,7 @@ def escola():
 
 @pytest.fixture
 def escola_com_vinculo_alimentacao(
-    escola, periodo_manha, tipo_alimentacao, tipo_alimentacao_lanche_emergencial
+    escola, periodo_manha, tipo_alimentacao, tipo_alimentacao_lanche_emergencial, periodo_tarde
 ):
     baker.make(
         "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
@@ -101,7 +101,26 @@ def escola_com_vinculo_alimentacao(
         tipo_unidade_escolar=escola.tipo_unidade,
         tipos_alimentacao=[tipo_alimentacao, tipo_alimentacao_lanche_emergencial],
     )
+    baker.make(
+        "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
+        periodo_escolar=periodo_tarde,
+        tipo_unidade_escolar=escola.tipo_unidade,
+        tipos_alimentacao=[tipo_alimentacao, tipo_alimentacao_lanche_emergencial],
+    )
     return escola
+
+# @pytest.fixture
+# def escola_com_vinculo_alimentacao_tarde(
+#     escola, periodo_tarde, tipo_alimentacao, tipo_alimentacao_lanche_emergencial
+# ):
+#     baker.make(
+#         "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
+#         periodo_escolar=periodo_tarde,
+#         tipo_unidade_escolar=escola.tipo_unidade,
+#         tipos_alimentacao=[tipo_alimentacao, tipo_alimentacao_lanche_emergencial],
+#     )
+#     return escola
+
 
 
 @pytest.fixture
@@ -304,21 +323,18 @@ def motivo_alteracao_cardapio_lanche_emergencial():
 def motivo_alteracao_cardapio_inativo():
     return baker.make(MotivoAlteracaoCardapio, nome="Motivo Inativo", ativo=False)
 
-
 @pytest.fixture
-def client_autenticado_vinculo_escola_cardapio(
-    client,
+def usuario_vinculo_escola_cardapio(
     django_user_model,
     escola,
     template_mensagem_alteracao_cardapio,
     cardapio_valido2,
-    cardapio_valido3,
-):
+    cardapio_valido3,):
     email = "test@test.com"
-    rf = "8888888"
+    rf = "1888888"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
-        username=rf, password=password, email=email, registro_funcional="8888888"
+        username=rf, password=password, email=email, registro_funcional=rf
     )
     assert escola.tipo_gestao.nome == "TERC TOTAL"
     perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
@@ -354,18 +370,26 @@ def client_autenticado_vinculo_escola_cardapio(
     baker.make(
         GrupoSuspensaoAlimentacao, criado_por=user, escola=escola, rastro_escola=escola
     )
-    client.login(username=rf, password=password)
+    
+    return user, password
+    
+
+@pytest.fixture
+def client_autenticado_vinculo_escola_cardapio(
+    client, usuario_vinculo_escola_cardapio
+
+):    
+    user, password = usuario_vinculo_escola_cardapio
+    client.login(username=user.username, password=password)
     return client
 
 
 @pytest.fixture
-def client_autenticado_vinculo_dre_cardapio(
-    client, django_user_model, escola, template_mensagem_alteracao_cardapio
-):
+def usuario_dre_vinculo_escola_cardapio(django_user_model, escola):
     email = "test@test1.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
-        username=email, password=password, email=email, registro_funcional="8888889"
+        username=email, password=password, email=email, registro_funcional="2888889"
     )
     perfil_cogestor = baker.make("Perfil", nome="COGESTOR_DRE", ativo=True)
     hoje = datetime.date.today()
@@ -377,17 +401,23 @@ def client_autenticado_vinculo_dre_cardapio(
         data_inicial=hoje,
         ativo=True,
     )
+    return user, password
 
-    client.login(username=email, password=password)
+@pytest.fixture
+def client_autenticado_vinculo_dre_cardapio(
+    client, usuario_dre_vinculo_escola_cardapio
+):
+    user, password = usuario_dre_vinculo_escola_cardapio
+    client.login(username=user.username, password=password)
     return client
 
 
 @pytest.fixture
 def client_autenticado_vinculo_codae_cardapio(client, django_user_model, codae):
-    email = "test@test.com"
+    email = "test@test2.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
-        username=email, password=password, email=email, registro_funcional="8888888"
+        username=email, password=password, email=email, registro_funcional="3888888"
     )
     perfil_admin_gestao_alimentacao = baker.make(
         "Perfil",
@@ -415,10 +445,8 @@ def client_autenticado_vinculo_codae_cardapio(client, django_user_model, codae):
 
 
 @pytest.fixture
-def client_autenticado_vinculo_codae_dieta_cardapio(
-    client, django_user_model, escola, codae
-):
-    email = "test@test.com"
+def usuario_vinculo_codae_dieta_cardapio(django_user_model, escola, codae):
+    email = "testc@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -444,15 +472,23 @@ def client_autenticado_vinculo_codae_dieta_cardapio(
         tipo=TemplateMensagem.DIETA_ESPECIAL,
         template_html="@id @criado_em @status @link",
     )
-    client.login(username=email, password=password)
-    return client
+    
+    return user, password
 
+@pytest.fixture
+def client_autenticado_vinculo_codae_dieta_cardapio(
+    client, usuario_vinculo_codae_dieta_cardapio
+):
+   
+    user, password = usuario_vinculo_codae_dieta_cardapio
+    client.login(username=user.username, password=password)
+    return client
 
 @pytest.fixture
 def client_autenticado_vinculo_terceirizada_cardapio(
     client, django_user_model, escola, codae
 ):
-    email = "test@test.com"
+    email = "testt@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
