@@ -35,5 +35,4 @@ class Command(BaseCommand):
         ) as temp_file:
             temp_file.write("{}")  # JSON vazio válido
             temp_filename = temp_file.name
-
         main(arquivo, arquivo_codigos_escolas, temp_filename)

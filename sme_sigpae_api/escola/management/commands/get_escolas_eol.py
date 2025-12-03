@@ -31,5 +31,4 @@ class Command(BaseCommand):
 
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
             temp_filename = temp_file.name
-
         get_escolas(arquivo, arquivo_codigos_escolas, temp_filename, in_memory=False)

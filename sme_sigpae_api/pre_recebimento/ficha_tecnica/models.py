@@ -83,6 +83,13 @@ class FichaTecnicaDoProduto(
         (MECANISMO_OCS, "OCS"),
     )
 
+    LEVE_LEITE = "LEVE_LEITE"
+    ALIMENTACAO_ESCOLAR = "ALIMENTACAO_ESCOLAR"
+    PROGRAMA_CHOICES = (
+        (LEVE_LEITE, "Leve Leite"),
+        (ALIMENTACAO_ESCOLAR, "Alimentação Escolar"),
+    )
+
     numero = models.CharField(
         "Número da Ficha Técnica", blank=True, max_length=250, unique=True
     )
@@ -93,6 +100,12 @@ class FichaTecnicaDoProduto(
     )
     marca = models.ForeignKey(Marca, on_delete=models.PROTECT, blank=True, null=True)
     categoria = models.CharField(choices=CATEGORIA_CHOICES, max_length=14, blank=True)
+    programa = models.CharField(
+        "Programa",
+        max_length=20,
+        choices=PROGRAMA_CHOICES,
+        default=ALIMENTACAO_ESCOLAR,
+    )
     pregao_chamada_publica = models.CharField(
         "Nº do Pregão Eletrônico", max_length=100, blank=True
     )

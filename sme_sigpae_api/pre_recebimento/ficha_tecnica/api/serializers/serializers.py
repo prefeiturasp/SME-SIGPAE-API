@@ -126,6 +126,7 @@ class FichaTecnicaDetalharSerializer(serializers.ModelSerializer):
     envasador_distribuidor = FabricanteFichaTecnicaSerializer()
     unidade_medida_porcao = UnidadeMedidaSimplesSerializer()
     status = serializers.CharField(source="get_status_display", read_only=True)
+    programa_display = serializers.CharField(source='get_programa_display', read_only=True)
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnicaSerializer(many=True)
     unidade_medida_primaria = UnidadeMedidaSimplesSerializer()
     unidade_medida_secundaria = UnidadeMedidaSimplesSerializer()
@@ -145,6 +146,8 @@ class FichaTecnicaDetalharSerializer(serializers.ModelSerializer):
             "pregao_chamada_publica",
             "marca",
             "categoria",
+            "programa",
+            "programa_display",
             "status",
             "criado_em",
             "empresa",

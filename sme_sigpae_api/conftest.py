@@ -55,6 +55,7 @@ from .dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
     LogQuantidadeDietasAutorizadasCEIFactory,
     LogQuantidadeDietasAutorizadasFactory,
+    MotivoAlteracaoUEFactory,
     SolicitacaoDietaEspecialFactory,
 )
 from .eol_servico.utils import EOLServicoSGP
@@ -341,6 +342,7 @@ register(SuspensaoAlimentacaoFactory)
 register(QuantidadePorPeriodoSuspensaoAlimentacaoFactory)
 register(SuspensaoAlimentacaoNoPeriodoEscolarFactory)
 register(InversaoCardapioFactory)
+register(MotivoAlteracaoUEFactory)
 
 
 @pytest.fixture

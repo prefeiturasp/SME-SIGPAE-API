@@ -98,6 +98,10 @@ class FichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
         choices=FichaTecnicaDoProduto.CATEGORIA_CHOICES,
         required=True,
     )
+    programa = serializers.ChoiceField(
+        choices=FichaTecnicaDoProduto.PROGRAMA_CHOICES,
+        required=False,
+    )
     pregao_chamada_publica = serializers.CharField(required=True)
     empresa = serializers.SlugRelatedField(
         slug_field="uuid",
@@ -123,14 +127,14 @@ class FichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
     gluten = serializers.BooleanField(required=False)
     lactose = serializers.BooleanField(required=False)
     lactose_detalhe = serializers.CharField(required=True, allow_blank=True)
-    porcao = serializers.CharField(required=False, allow_blank=True)
+    porcao = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     unidade_medida_porcao = serializers.SlugRelatedField(
         slug_field="uuid",
         required=False,
         queryset=UnidadeMedida.objects.all(),
         allow_null=True,
     )
-    valor_unidade_caseira = serializers.CharField(required=False, allow_blank=True)
+    valor_unidade_caseira = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     unidade_medida_caseira = serializers.CharField(required=True, allow_blank=True)
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnicaCreateSerializer(
         many=True
@@ -231,6 +235,10 @@ class FichaTecnicaCreateSerializer(serializers.ModelSerializer):
     )
     categoria = serializers.ChoiceField(
         choices=FichaTecnicaDoProduto.CATEGORIA_CHOICES,
+        required=True,
+    )
+    programa = serializers.ChoiceField(
+        choices=FichaTecnicaDoProduto.PROGRAMA_CHOICES,
         required=True,
     )
     pregao_chamada_publica = serializers.CharField(required=True)
@@ -694,13 +702,13 @@ class FichaTecnicaAtualizacaoSerializer(serializers.ModelSerializer):
     ingredientes_alergenicos = serializers.CharField(required=False, allow_blank=False)
     gluten = serializers.BooleanField(required=False)
 
-    porcao = serializers.CharField(required=False, allow_blank=False)
+    porcao = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     unidade_medida_porcao = serializers.SlugRelatedField(
         slug_field="uuid",
         required=False,
         queryset=UnidadeMedida.objects.all(),
     )
-    valor_unidade_caseira = serializers.CharField(required=False, allow_blank=False)
+    valor_unidade_caseira = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     unidade_medida_caseira = serializers.CharField(required=False, allow_blank=False)
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnicaCreateSerializer(
         many=True,

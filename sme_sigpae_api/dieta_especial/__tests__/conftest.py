@@ -523,6 +523,29 @@ def client_autenticado_vinculo_escola_dieta(
 
 
 @pytest.fixture
+def client_autenticado_vinculo_dre_dieta(
+    client, django_user_model, escola, template_mensagem_dieta_especial
+):
+    email = "test@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    perfil_cogestor = baker.make("Perfil", nome="COGESTOR_DRE", ativo=True)
+    hoje = datetime.date.today()
+    baker.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=escola.diretoria_regional,
+        perfil=perfil_cogestor,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client, user
+
+
+@pytest.fixture
 def client_autenticado_vinculo_codae_dieta(
     client, django_user_model, escola, codae, template_mensagem_dieta_especial
 ):
