@@ -101,6 +101,7 @@ class SolicitacaoMedicaoInicial(
         blank=True,
         null=True,
     )
+    eh_recreio_nas_ferias = models.BooleanField(default=False)
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         justificativa = kwargs.get("justificativa", "")
