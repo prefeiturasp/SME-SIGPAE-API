@@ -820,39 +820,17 @@ def test_url_endpoint_fluxo_periodos_autoriza_pedido_manha_e_cadastra_outro_a_ta
     usuario_vinculo_escola_cardapio,
     usuario_dre_vinculo_escola_cardapio,
     usuario_vinculo_codae_dieta_cardapio,
-    motivo_alteracao_cardapio_lanche_emergencial,
-    escola_com_dias_letivos,
-    periodo_manha,
     periodo_tarde,
-    tipo_alimentacao,
-    tipo_alimentacao_lanche_emergencial,
+    requisicao_alteracao_cardapio_periodo_manha
 ):
     usuario_diretor, _ = usuario_vinculo_escola_cardapio
     usuario_dre, _ = usuario_dre_vinculo_escola_cardapio
     usuario_codae, _= usuario_vinculo_codae_dieta_cardapio
-    requisicao_manha = {
-        "motivo": f"{str(motivo_alteracao_cardapio_lanche_emergencial.uuid)}",
-        "data_inicial": "18/11/2023",
-        "data_final": "19/11/2023",
-        "observacao": "<p>cozinha em reforma</p>",
-        "eh_alteracao_com_lanche_repetida": False,
-        "escola": f"{str(escola_com_dias_letivos.uuid)}",
-        "substituicoes": [
-            {
-                "periodo_escolar": f"{str(periodo_manha.uuid)}",
-                "tipos_alimentacao_de": [f"{str(tipo_alimentacao.uuid)}"],
-                "tipos_alimentacao_para": [
-                    f"{str(tipo_alimentacao_lanche_emergencial.uuid)}"
-                ],
-                "qtd_alunos": "100",
-            }
-        ],
-        "datas_intervalo": [{"data": "2023-11-18"}, {"data": "2023-11-19"}],
-    }
+   
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
         content_type="application/json",
-        data=json.dumps(requisicao_manha),
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
     )
     assert response.status_code == status.HTTP_201_CREATED
     alteracao_cardapio = AlteracaoCardapio.objects.get(uuid=response.json()["uuid"])
@@ -864,7 +842,7 @@ def test_url_endpoint_fluxo_periodos_autoriza_pedido_manha_e_cadastra_outro_a_ta
     alteracao_cardapio.codae_autoriza(user=usuario_codae, justificativa="Aceito")
     assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.CODAE_AUTORIZADO
     
-    requisicao_tarde = copy.deepcopy(requisicao_manha)
+    requisicao_tarde = copy.deepcopy(requisicao_alteracao_cardapio_periodo_manha)
     requisicao_tarde["substituicoes"][0]["periodo_escolar"] = str(periodo_tarde.uuid)
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
@@ -888,39 +866,17 @@ def test_mesmo_periodo_mesma_data_codae_autorizado_deve_retornar_erro(
     usuario_vinculo_escola_cardapio,
     usuario_dre_vinculo_escola_cardapio,
     usuario_vinculo_codae_dieta_cardapio,
-    motivo_alteracao_cardapio_lanche_emergencial,
-    escola_com_dias_letivos,
-    periodo_manha,
-    tipo_alimentacao,
-    tipo_alimentacao_lanche_emergencial,
+    requisicao_alteracao_cardapio_periodo_manha
 ):
     usuario_diretor, _ = usuario_vinculo_escola_cardapio
     usuario_dre, _ = usuario_dre_vinculo_escola_cardapio
     usuario_codae, _ = usuario_vinculo_codae_dieta_cardapio
 
-    requisicao_manha = {
-        "motivo": str(motivo_alteracao_cardapio_lanche_emergencial.uuid),
-        "data_inicial": "18/11/2023",
-        "data_final": "18/11/2023",
-        "observacao": "<p>cozinha em reforma</p>",
-        "eh_alteracao_com_lanche_repetida": False,
-        "escola": str(escola_com_dias_letivos.uuid),
-        "substituicoes": [
-            {
-                "periodo_escolar": str(periodo_manha.uuid),
-                "tipos_alimentacao_de": [str(tipo_alimentacao.uuid)],
-                "tipos_alimentacao_para": [str(tipo_alimentacao_lanche_emergencial.uuid)],
-                "qtd_alunos": "100",
-            }
-        ],
-        "datas_intervalo": [{"data": "2023-11-18"}],
-    }
-
     # --- PRIMEIRO CADASTRO (AUTORIZADO) ---
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
         content_type="application/json",
-        data=json.dumps(requisicao_manha),
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
     )
 
     assert response.status_code == status.HTTP_201_CREATED
@@ -931,71 +887,49 @@ def test_mesmo_periodo_mesma_data_codae_autorizado_deve_retornar_erro(
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
         content_type="application/json",
-        data=json.dumps(requisicao_manha),
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {'non_field_errors': ['1 Já existe uma solicitação de lanche emergencial para o dia e período selecionado!']}
+    assert response.json() == {'non_field_errors': ['Já existe uma solicitação de lanche emergencial para o dia e período selecionado!']}
     
     alteracao_cardapio.dre_valida(user=usuario_dre)
      # --- TERCEIRO CADASTRO (MESMO PERÍODO + MESMA DATA) ---
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
         content_type="application/json",
-        data=json.dumps(requisicao_manha),
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {'non_field_errors': ['1 Já existe uma solicitação de lanche emergencial para o dia e período selecionado!']}
+    assert response.json() == {'non_field_errors': ['Já existe uma solicitação de lanche emergencial para o dia e período selecionado!']}
     
     alteracao_cardapio.codae_autoriza(user=usuario_codae, justificativa="OK")
      # --- QUARTO CADASTRO (MESMO PERÍODO + MESMA DATA) ---
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
         content_type="application/json",
-        data=json.dumps(requisicao_manha),
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {'non_field_errors': ['1 Já existe uma solicitação de lanche emergencial para o dia e período selecionado!']}
+    assert response.json() == {'non_field_errors': ['Já existe uma solicitação de lanche emergencial para o dia e período selecionado!']}
     
 @freeze_time("2023-11-09")
 def test_mesmo_periodo_mesma_data_dre_nao_valida_deve_permitir_novo_cadastro(
     client_autenticado_vinculo_escola_cardapio,
     usuario_vinculo_escola_cardapio,
     usuario_dre_vinculo_escola_cardapio,
-    motivo_alteracao_cardapio_lanche_emergencial,
-    escola_com_dias_letivos,
-    periodo_manha,
-    tipo_alimentacao,
-    tipo_alimentacao_lanche_emergencial,
+    requisicao_alteracao_cardapio_periodo_manha
 ):
     usuario_diretor, _ = usuario_vinculo_escola_cardapio
     usuario_dre, _ = usuario_dre_vinculo_escola_cardapio
-
-    requisicao_manha = {
-        "motivo": str(motivo_alteracao_cardapio_lanche_emergencial.uuid),
-        "data_inicial": "18/11/2023",
-        "data_final": "18/11/2023",
-        "observacao": "<p>cozinha em reforma</p>",
-        "eh_alteracao_com_lanche_repetida": False,
-        "escola": str(escola_com_dias_letivos.uuid),
-        "substituicoes": [
-            {
-                "periodo_escolar": str(periodo_manha.uuid),
-                "tipos_alimentacao_de": [str(tipo_alimentacao.uuid)],
-                "tipos_alimentacao_para": [str(tipo_alimentacao_lanche_emergencial.uuid)],
-                "qtd_alunos": "100",
-            }
-        ],
-        "datas_intervalo": [{"data": "2023-11-18"}],
-    }
 
     # --- PRIMEIRO CADASTRO ---
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
         content_type="application/json",
-        data=json.dumps(requisicao_manha),
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
     )
     assert response.status_code == status.HTTP_201_CREATED
 
@@ -1009,7 +943,7 @@ def test_mesmo_periodo_mesma_data_dre_nao_valida_deve_permitir_novo_cadastro(
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
         content_type="application/json",
-        data=json.dumps(requisicao_manha),
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
     )
 
     assert response.status_code == status.HTTP_201_CREATED
@@ -1021,39 +955,19 @@ def test_mesmo_periodo_mesma_data_codae_nega_deve_permitir_novo_cadastro(
     usuario_vinculo_escola_cardapio,
     usuario_dre_vinculo_escola_cardapio,
     usuario_vinculo_codae_dieta_cardapio,
-    motivo_alteracao_cardapio_lanche_emergencial,
-    escola_com_dias_letivos,
-    periodo_manha,
-    tipo_alimentacao,
-    tipo_alimentacao_lanche_emergencial,
+    requisicao_alteracao_cardapio_periodo_manha
 ):
     usuario_diretor, _ = usuario_vinculo_escola_cardapio
     usuario_dre, _ = usuario_dre_vinculo_escola_cardapio
     usuario_codae, _ = usuario_vinculo_codae_dieta_cardapio
 
-    requisicao_manha = {
-        "motivo": str(motivo_alteracao_cardapio_lanche_emergencial.uuid),
-        "data_inicial": "18/11/2023",
-        "data_final": "18/11/2023",
-        "observacao": "<p>cozinha em reforma</p>",
-        "eh_alteracao_com_lanche_repetida": False,
-        "escola": str(escola_com_dias_letivos.uuid),
-        "substituicoes": [
-            {
-                "periodo_escolar": str(periodo_manha.uuid),
-                "tipos_alimentacao_de": [str(tipo_alimentacao.uuid)],
-                "tipos_alimentacao_para": [str(tipo_alimentacao_lanche_emergencial.uuid)],
-                "qtd_alunos": "100",
-            }
-        ],
-        "datas_intervalo": [{"data": "2023-11-18"}],
-    }
+   
 
     # --- PRIMEIRO CADASTRO ---
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
         content_type="application/json",
-        data=json.dumps(requisicao_manha),
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
     )
     assert response.status_code == status.HTTP_201_CREATED
 
@@ -1067,7 +981,7 @@ def test_mesmo_periodo_mesma_data_codae_nega_deve_permitir_novo_cadastro(
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
         content_type="application/json",
-        data=json.dumps(requisicao_manha),
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
     )
 
     assert response.status_code == status.HTTP_201_CREATED
@@ -1077,36 +991,15 @@ def test_mesmo_periodo_mesma_data_codae_nega_deve_permitir_novo_cadastro(
 def test_mesmo_periodo_mesma_data_escola_cancela_deve_permitir_novo_cadastro(
     client_autenticado_vinculo_escola_cardapio,
     usuario_vinculo_escola_cardapio,
-    motivo_alteracao_cardapio_lanche_emergencial,
-    escola_com_dias_letivos,
-    periodo_manha,
-    tipo_alimentacao,
-    tipo_alimentacao_lanche_emergencial,
+    requisicao_alteracao_cardapio_periodo_manha
 ):
     usuario_diretor, _ = usuario_vinculo_escola_cardapio
-    requisicao_manha = {
-        "motivo": str(motivo_alteracao_cardapio_lanche_emergencial.uuid),
-        "data_inicial": "18/11/2023",
-        "data_final": "18/11/2023",
-        "observacao": "<p>cozinha em reforma</p>",
-        "eh_alteracao_com_lanche_repetida": False,
-        "escola": str(escola_com_dias_letivos.uuid),
-        "substituicoes": [
-            {
-                "periodo_escolar": str(periodo_manha.uuid),
-                "tipos_alimentacao_de": [str(tipo_alimentacao.uuid)],
-                "tipos_alimentacao_para": [str(tipo_alimentacao_lanche_emergencial.uuid)],
-                "qtd_alunos": "100",
-            }
-        ],
-        "datas_intervalo": [{"data": "2023-11-18"}],
-    }
 
     # --- PRIMEIRO CADASTRO ---
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
         content_type="application/json",
-        data=json.dumps(requisicao_manha),
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
     )
     assert response.status_code == status.HTTP_201_CREATED
 
@@ -1132,7 +1025,7 @@ def test_mesmo_periodo_mesma_data_escola_cancela_deve_permitir_novo_cadastro(
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
         content_type="application/json",
-        data=json.dumps(requisicao_manha),
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
     )
 
     assert response.status_code == status.HTTP_201_CREATED
@@ -1141,36 +1034,14 @@ def test_mesmo_periodo_mesma_data_escola_cancela_deve_permitir_novo_cadastro(
 @freeze_time("2023-11-09")
 def test_mesmo_periodo_mesma_data_escola_cadastra_rascunho_deve_permitir_novo_cadastro(
     client_autenticado_vinculo_escola_cardapio,
-    motivo_alteracao_cardapio_lanche_emergencial,
-    escola_com_dias_letivos,
-    periodo_manha,
-    tipo_alimentacao,
-    tipo_alimentacao_lanche_emergencial,
+    requisicao_alteracao_cardapio_periodo_manha
 ):
-
-    requisicao_manha = {
-        "motivo": str(motivo_alteracao_cardapio_lanche_emergencial.uuid),
-        "data_inicial": "18/11/2023",
-        "data_final": "18/11/2023",
-        "observacao": "<p>cozinha em reforma</p>",
-        "eh_alteracao_com_lanche_repetida": False,
-        "escola": str(escola_com_dias_letivos.uuid),
-        "substituicoes": [
-            {
-                "periodo_escolar": str(periodo_manha.uuid),
-                "tipos_alimentacao_de": [str(tipo_alimentacao.uuid)],
-                "tipos_alimentacao_para": [str(tipo_alimentacao_lanche_emergencial.uuid)],
-                "qtd_alunos": "100",
-            }
-        ],
-        "datas_intervalo": [{"data": "2023-11-18"}],
-    }
 
     # --- PRIMEIRO CADASTRO ---
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
         content_type="application/json",
-        data=json.dumps(requisicao_manha),
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
     )
     assert response.status_code == status.HTTP_201_CREATED
 
@@ -1181,7 +1052,7 @@ def test_mesmo_periodo_mesma_data_escola_cadastra_rascunho_deve_permitir_novo_ca
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
         content_type="application/json",
-        data=json.dumps(requisicao_manha),
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
     )
 
     assert response.status_code == status.HTTP_201_CREATED

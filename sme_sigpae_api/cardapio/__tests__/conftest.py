@@ -630,3 +630,31 @@ def escola_cca():
         tipo_unidade=baker.make("TipoUnidadeEscolar", iniciais="CCA"),
     )
     return escola
+
+@pytest.fixture
+def requisicao_alteracao_cardapio_periodo_manha(    
+    motivo_alteracao_cardapio_lanche_emergencial,
+    escola_com_dias_letivos,
+    periodo_manha,
+    tipo_alimentacao,
+    tipo_alimentacao_lanche_emergencial
+):
+    
+    requisicao_manha = {
+        "motivo": str(motivo_alteracao_cardapio_lanche_emergencial.uuid),
+        "data_inicial": "18/11/2023",
+        "data_final": "18/11/2023",
+        "observacao": "<p>cozinha em reforma</p>",
+        "eh_alteracao_com_lanche_repetida": False,
+        "escola": str(escola_com_dias_letivos.uuid),
+        "substituicoes": [
+            {
+                "periodo_escolar": str(periodo_manha.uuid),
+                "tipos_alimentacao_de": [str(tipo_alimentacao.uuid)],
+                "tipos_alimentacao_para": [str(tipo_alimentacao_lanche_emergencial.uuid)],
+                "qtd_alunos": "100",
+            }
+        ],
+        "datas_intervalo": [{"data": "2023-11-18"}],
+    }
+    return requisicao_manha
