@@ -821,12 +821,12 @@ def test_url_endpoint_fluxo_periodos_autoriza_pedido_manha_e_cadastra_outro_a_ta
     usuario_dre_vinculo_escola_cardapio,
     usuario_vinculo_codae_dieta_cardapio,
     periodo_tarde,
-    requisicao_alteracao_cardapio_periodo_manha
+    requisicao_alteracao_cardapio_periodo_manha,
 ):
     usuario_diretor, _ = usuario_vinculo_escola_cardapio
     usuario_dre, _ = usuario_dre_vinculo_escola_cardapio
-    usuario_codae, _= usuario_vinculo_codae_dieta_cardapio
-   
+    usuario_codae, _ = usuario_vinculo_codae_dieta_cardapio
+
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
         content_type="application/json",
@@ -840,8 +840,10 @@ def test_url_endpoint_fluxo_periodos_autoriza_pedido_manha_e_cadastra_outro_a_ta
     alteracao_cardapio.dre_valida(user=usuario_dre)
     assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.DRE_VALIDADO
     alteracao_cardapio.codae_autoriza(user=usuario_codae, justificativa="Aceito")
-    assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.CODAE_AUTORIZADO
-    
+    assert (
+        alteracao_cardapio.status == AlteracaoCardapio.workflow_class.CODAE_AUTORIZADO
+    )
+
     requisicao_tarde = copy.deepcopy(requisicao_alteracao_cardapio_periodo_manha)
     requisicao_tarde["substituicoes"][0]["periodo_escolar"] = str(periodo_tarde.uuid)
     response = client_autenticado_vinculo_escola_cardapio.post(
@@ -857,16 +859,18 @@ def test_url_endpoint_fluxo_periodos_autoriza_pedido_manha_e_cadastra_outro_a_ta
     alteracao_cardapio.dre_valida(user=usuario_dre)
     assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.DRE_VALIDADO
     alteracao_cardapio.codae_autoriza(user=usuario_codae, justificativa="Aceito")
-    assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.CODAE_AUTORIZADO
-    
-    
+    assert (
+        alteracao_cardapio.status == AlteracaoCardapio.workflow_class.CODAE_AUTORIZADO
+    )
+
+
 @freeze_time("2023-11-09")
 def test_mesmo_periodo_mesma_data_codae_autorizado_deve_retornar_erro(
     client_autenticado_vinculo_escola_cardapio,
     usuario_vinculo_escola_cardapio,
     usuario_dre_vinculo_escola_cardapio,
     usuario_vinculo_codae_dieta_cardapio,
-    requisicao_alteracao_cardapio_periodo_manha
+    requisicao_alteracao_cardapio_periodo_manha,
 ):
     usuario_diretor, _ = usuario_vinculo_escola_cardapio
     usuario_dre, _ = usuario_dre_vinculo_escola_cardapio
@@ -891,10 +895,14 @@ def test_mesmo_periodo_mesma_data_codae_autorizado_deve_retornar_erro(
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {'non_field_errors': ['Já existe uma solicitação de lanche emergencial para o dia e período selecionado!']}
-    
+    assert response.json() == {
+        "non_field_errors": [
+            "Já existe uma solicitação de lanche emergencial para o dia e período selecionado!"
+        ]
+    }
+
     alteracao_cardapio.dre_valida(user=usuario_dre)
-     # --- TERCEIRO CADASTRO (MESMO PERÍODO + MESMA DATA) ---
+    # --- TERCEIRO CADASTRO (MESMO PERÍODO + MESMA DATA) ---
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
         content_type="application/json",
@@ -902,10 +910,14 @@ def test_mesmo_periodo_mesma_data_codae_autorizado_deve_retornar_erro(
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {'non_field_errors': ['Já existe uma solicitação de lanche emergencial para o dia e período selecionado!']}
-    
+    assert response.json() == {
+        "non_field_errors": [
+            "Já existe uma solicitação de lanche emergencial para o dia e período selecionado!"
+        ]
+    }
+
     alteracao_cardapio.codae_autoriza(user=usuario_codae, justificativa="OK")
-     # --- QUARTO CADASTRO (MESMO PERÍODO + MESMA DATA) ---
+    # --- QUARTO CADASTRO (MESMO PERÍODO + MESMA DATA) ---
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
         content_type="application/json",
@@ -913,14 +925,19 @@ def test_mesmo_periodo_mesma_data_codae_autorizado_deve_retornar_erro(
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {'non_field_errors': ['Já existe uma solicitação de lanche emergencial para o dia e período selecionado!']}
-    
+    assert response.json() == {
+        "non_field_errors": [
+            "Já existe uma solicitação de lanche emergencial para o dia e período selecionado!"
+        ]
+    }
+
+
 @freeze_time("2023-11-09")
 def test_mesmo_periodo_mesma_data_dre_nao_valida_deve_permitir_novo_cadastro(
     client_autenticado_vinculo_escola_cardapio,
     usuario_vinculo_escola_cardapio,
     usuario_dre_vinculo_escola_cardapio,
-    requisicao_alteracao_cardapio_periodo_manha
+    requisicao_alteracao_cardapio_periodo_manha,
 ):
     usuario_diretor, _ = usuario_vinculo_escola_cardapio
     usuario_dre, _ = usuario_dre_vinculo_escola_cardapio
@@ -936,8 +953,10 @@ def test_mesmo_periodo_mesma_data_dre_nao_valida_deve_permitir_novo_cadastro(
     alteracao_cardapio = AlteracaoCardapio.objects.get(uuid=response.json()["uuid"])
     alteracao_cardapio.inicia_fluxo(user=usuario_diretor)
     alteracao_cardapio.dre_nao_valida(user=usuario_dre, justificativa="Motivo inválido")
-    assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.DRE_NAO_VALIDOU_PEDIDO_ESCOLA
-    
+    assert (
+        alteracao_cardapio.status
+        == AlteracaoCardapio.workflow_class.DRE_NAO_VALIDOU_PEDIDO_ESCOLA
+    )
 
     # --- SEGUNDO CADASTRO (DEVE PERMITIR) ---
     response = client_autenticado_vinculo_escola_cardapio.post(
@@ -947,7 +966,7 @@ def test_mesmo_periodo_mesma_data_dre_nao_valida_deve_permitir_novo_cadastro(
     )
 
     assert response.status_code == status.HTTP_201_CREATED
-    
+
 
 @freeze_time("2023-11-09")
 def test_mesmo_periodo_mesma_data_codae_nega_deve_permitir_novo_cadastro(
@@ -955,13 +974,11 @@ def test_mesmo_periodo_mesma_data_codae_nega_deve_permitir_novo_cadastro(
     usuario_vinculo_escola_cardapio,
     usuario_dre_vinculo_escola_cardapio,
     usuario_vinculo_codae_dieta_cardapio,
-    requisicao_alteracao_cardapio_periodo_manha
+    requisicao_alteracao_cardapio_periodo_manha,
 ):
     usuario_diretor, _ = usuario_vinculo_escola_cardapio
     usuario_dre, _ = usuario_dre_vinculo_escola_cardapio
     usuario_codae, _ = usuario_vinculo_codae_dieta_cardapio
-
-   
 
     # --- PRIMEIRO CADASTRO ---
     response = client_autenticado_vinculo_escola_cardapio.post(
@@ -975,7 +992,9 @@ def test_mesmo_periodo_mesma_data_codae_nega_deve_permitir_novo_cadastro(
     alteracao_cardapio.inicia_fluxo(user=usuario_diretor)
     alteracao_cardapio.dre_valida(user=usuario_dre)
     alteracao_cardapio.codae_nega(user=usuario_codae, justificativa="Recusado")
-    assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.CODAE_NEGOU_PEDIDO
+    assert (
+        alteracao_cardapio.status == AlteracaoCardapio.workflow_class.CODAE_NEGOU_PEDIDO
+    )
 
     # --- SEGUNDO CADASTRO (DEVE PERMITIR) ---
     response = client_autenticado_vinculo_escola_cardapio.post(
@@ -985,13 +1004,13 @@ def test_mesmo_periodo_mesma_data_codae_nega_deve_permitir_novo_cadastro(
     )
 
     assert response.status_code == status.HTTP_201_CREATED
-    
-    
+
+
 @freeze_time("2023-11-09")
 def test_mesmo_periodo_mesma_data_escola_cancela_deve_permitir_novo_cadastro(
     client_autenticado_vinculo_escola_cardapio,
     usuario_vinculo_escola_cardapio,
-    requisicao_alteracao_cardapio_periodo_manha
+    requisicao_alteracao_cardapio_periodo_manha,
 ):
     usuario_diretor, _ = usuario_vinculo_escola_cardapio
 
@@ -1007,12 +1026,9 @@ def test_mesmo_periodo_mesma_data_escola_cancela_deve_permitir_novo_cadastro(
     assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.RASCUNHO
     alteracao_cardapio.inicia_fluxo(user=usuario_diretor)
     assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.DRE_A_VALIDAR
-    
+
     # Escola cancela
-    cancelamento = {
-        "datas": ["2023-11-18"],
-        "justificativa": "Dia errado"
-    }
+    cancelamento = {"datas": ["2023-11-18"], "justificativa": "Dia errado"}
     response = client_autenticado_vinculo_escola_cardapio.patch(
         f"/alteracoes-cardapio/{alteracao_cardapio.uuid}/escola-cancela-pedido-48h-antes/",
         content_type="application/json",
@@ -1020,7 +1036,7 @@ def test_mesmo_periodo_mesma_data_escola_cancela_deve_permitir_novo_cadastro(
     )
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["status"] == "ESCOLA_CANCELOU"
-   
+
     # --- SEGUNDO CADASTRO (DEVE PERMITIR) ---
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",
@@ -1029,12 +1045,12 @@ def test_mesmo_periodo_mesma_data_escola_cancela_deve_permitir_novo_cadastro(
     )
 
     assert response.status_code == status.HTTP_201_CREATED
-    
-    
+
+
 @freeze_time("2023-11-09")
 def test_mesmo_periodo_mesma_data_escola_cadastra_rascunho_deve_permitir_novo_cadastro(
     client_autenticado_vinculo_escola_cardapio,
-    requisicao_alteracao_cardapio_periodo_manha
+    requisicao_alteracao_cardapio_periodo_manha,
 ):
 
     # --- PRIMEIRO CADASTRO ---
@@ -1047,7 +1063,7 @@ def test_mesmo_periodo_mesma_data_escola_cadastra_rascunho_deve_permitir_novo_ca
 
     alteracao_cardapio = AlteracaoCardapio.objects.get(uuid=response.json()["uuid"])
     assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.RASCUNHO
-   
+
     # --- SEGUNDO CADASTRO (DEVE PERMITIR) ---
     response = client_autenticado_vinculo_escola_cardapio.post(
         f"/{ENDPOINT_ALTERACAO_CARD}/",

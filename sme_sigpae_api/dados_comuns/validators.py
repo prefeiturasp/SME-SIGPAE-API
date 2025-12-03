@@ -263,6 +263,7 @@ def valida_datas_alteracao_cardapio(attrs):
                     "Já existe uma solicitação de lanche emergencial para o dia e período selecionado!"
                 )
 
+
 def validate_file_size_10mb(value):
     """max_size: valor em megabytes."""
     filesize = value.size
