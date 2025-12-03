@@ -1,3 +1,4 @@
+import copy
 import datetime
 import json
 
@@ -811,3 +812,263 @@ def test_url_alteracoes_cardapio_dre(client_autenticado_vinculo_dre_cardapio):
     assert "count" not in data
     assert "results" in data
     assert isinstance(data["results"], list)
+
+
+@freeze_time("2023-11-09")
+def test_url_endpoint_fluxo_periodos_autoriza_pedido_manha_e_cadastra_outro_a_tarde_na_mesma_data(
+    client_autenticado_vinculo_escola_cardapio,
+    usuario_vinculo_escola_cardapio,
+    usuario_dre_vinculo_escola_cardapio,
+    usuario_vinculo_codae_dieta_cardapio,
+    periodo_tarde,
+    requisicao_alteracao_cardapio_periodo_manha,
+):
+    usuario_diretor, _ = usuario_vinculo_escola_cardapio
+    usuario_dre, _ = usuario_dre_vinculo_escola_cardapio
+    usuario_codae, _ = usuario_vinculo_codae_dieta_cardapio
+
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+    alteracao_cardapio = AlteracaoCardapio.objects.get(uuid=response.json()["uuid"])
+    assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.RASCUNHO
+    alteracao_cardapio.inicia_fluxo(user=usuario_diretor)
+    assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.DRE_A_VALIDAR
+    alteracao_cardapio.dre_valida(user=usuario_dre)
+    assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.DRE_VALIDADO
+    alteracao_cardapio.codae_autoriza(user=usuario_codae, justificativa="Aceito")
+    assert (
+        alteracao_cardapio.status == AlteracaoCardapio.workflow_class.CODAE_AUTORIZADO
+    )
+
+    requisicao_tarde = copy.deepcopy(requisicao_alteracao_cardapio_periodo_manha)
+    requisicao_tarde["substituicoes"][0]["periodo_escolar"] = str(periodo_tarde.uuid)
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(requisicao_tarde),
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+    alteracao_cardapio = AlteracaoCardapio.objects.get(uuid=response.json()["uuid"])
+    assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.RASCUNHO
+    alteracao_cardapio.inicia_fluxo(user=usuario_diretor)
+    assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.DRE_A_VALIDAR
+    alteracao_cardapio.dre_valida(user=usuario_dre)
+    assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.DRE_VALIDADO
+    alteracao_cardapio.codae_autoriza(user=usuario_codae, justificativa="Aceito")
+    assert (
+        alteracao_cardapio.status == AlteracaoCardapio.workflow_class.CODAE_AUTORIZADO
+    )
+
+
+@freeze_time("2023-11-09")
+def test_mesmo_periodo_mesma_data_codae_autorizado_deve_retornar_erro(
+    client_autenticado_vinculo_escola_cardapio,
+    usuario_vinculo_escola_cardapio,
+    usuario_dre_vinculo_escola_cardapio,
+    usuario_vinculo_codae_dieta_cardapio,
+    requisicao_alteracao_cardapio_periodo_manha,
+):
+    usuario_diretor, _ = usuario_vinculo_escola_cardapio
+    usuario_dre, _ = usuario_dre_vinculo_escola_cardapio
+    usuario_codae, _ = usuario_vinculo_codae_dieta_cardapio
+
+    # --- PRIMEIRO CADASTRO (AUTORIZADO) ---
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+    alteracao_cardapio = AlteracaoCardapio.objects.get(uuid=response.json()["uuid"])
+    alteracao_cardapio.inicia_fluxo(user=usuario_diretor)
+    # --- SEGUNDO CADASTRO (MESMO PERÍODO + MESMA DATA) ---
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "non_field_errors": [
+            "Já existe uma solicitação de lanche emergencial para o dia e período selecionado!"
+        ]
+    }
+
+    alteracao_cardapio.dre_valida(user=usuario_dre)
+    # --- TERCEIRO CADASTRO (MESMO PERÍODO + MESMA DATA) ---
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "non_field_errors": [
+            "Já existe uma solicitação de lanche emergencial para o dia e período selecionado!"
+        ]
+    }
+
+    alteracao_cardapio.codae_autoriza(user=usuario_codae, justificativa="OK")
+    # --- QUARTO CADASTRO (MESMO PERÍODO + MESMA DATA) ---
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "non_field_errors": [
+            "Já existe uma solicitação de lanche emergencial para o dia e período selecionado!"
+        ]
+    }
+
+
+@freeze_time("2023-11-09")
+def test_mesmo_periodo_mesma_data_dre_nao_valida_deve_permitir_novo_cadastro(
+    client_autenticado_vinculo_escola_cardapio,
+    usuario_vinculo_escola_cardapio,
+    usuario_dre_vinculo_escola_cardapio,
+    requisicao_alteracao_cardapio_periodo_manha,
+):
+    usuario_diretor, _ = usuario_vinculo_escola_cardapio
+    usuario_dre, _ = usuario_dre_vinculo_escola_cardapio
+
+    # --- PRIMEIRO CADASTRO ---
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+
+    alteracao_cardapio = AlteracaoCardapio.objects.get(uuid=response.json()["uuid"])
+    alteracao_cardapio.inicia_fluxo(user=usuario_diretor)
+    alteracao_cardapio.dre_nao_valida(user=usuario_dre, justificativa="Motivo inválido")
+    assert (
+        alteracao_cardapio.status
+        == AlteracaoCardapio.workflow_class.DRE_NAO_VALIDOU_PEDIDO_ESCOLA
+    )
+
+    # --- SEGUNDO CADASTRO (DEVE PERMITIR) ---
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+
+@freeze_time("2023-11-09")
+def test_mesmo_periodo_mesma_data_codae_nega_deve_permitir_novo_cadastro(
+    client_autenticado_vinculo_escola_cardapio,
+    usuario_vinculo_escola_cardapio,
+    usuario_dre_vinculo_escola_cardapio,
+    usuario_vinculo_codae_dieta_cardapio,
+    requisicao_alteracao_cardapio_periodo_manha,
+):
+    usuario_diretor, _ = usuario_vinculo_escola_cardapio
+    usuario_dre, _ = usuario_dre_vinculo_escola_cardapio
+    usuario_codae, _ = usuario_vinculo_codae_dieta_cardapio
+
+    # --- PRIMEIRO CADASTRO ---
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+
+    alteracao_cardapio = AlteracaoCardapio.objects.get(uuid=response.json()["uuid"])
+    alteracao_cardapio.inicia_fluxo(user=usuario_diretor)
+    alteracao_cardapio.dre_valida(user=usuario_dre)
+    alteracao_cardapio.codae_nega(user=usuario_codae, justificativa="Recusado")
+    assert (
+        alteracao_cardapio.status == AlteracaoCardapio.workflow_class.CODAE_NEGOU_PEDIDO
+    )
+
+    # --- SEGUNDO CADASTRO (DEVE PERMITIR) ---
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+
+@freeze_time("2023-11-09")
+def test_mesmo_periodo_mesma_data_escola_cancela_deve_permitir_novo_cadastro(
+    client_autenticado_vinculo_escola_cardapio,
+    usuario_vinculo_escola_cardapio,
+    requisicao_alteracao_cardapio_periodo_manha,
+):
+    usuario_diretor, _ = usuario_vinculo_escola_cardapio
+
+    # --- PRIMEIRO CADASTRO ---
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+
+    alteracao_cardapio = AlteracaoCardapio.objects.get(uuid=response.json()["uuid"])
+    assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.RASCUNHO
+    alteracao_cardapio.inicia_fluxo(user=usuario_diretor)
+    assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.DRE_A_VALIDAR
+
+    # Escola cancela
+    cancelamento = {"datas": ["2023-11-18"], "justificativa": "Dia errado"}
+    response = client_autenticado_vinculo_escola_cardapio.patch(
+        f"/alteracoes-cardapio/{alteracao_cardapio.uuid}/escola-cancela-pedido-48h-antes/",
+        content_type="application/json",
+        data=json.dumps(cancelamento),
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["status"] == "ESCOLA_CANCELOU"
+
+    # --- SEGUNDO CADASTRO (DEVE PERMITIR) ---
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+
+@freeze_time("2023-11-09")
+def test_mesmo_periodo_mesma_data_escola_cadastra_rascunho_deve_permitir_novo_cadastro(
+    client_autenticado_vinculo_escola_cardapio,
+    requisicao_alteracao_cardapio_periodo_manha,
+):
+
+    # --- PRIMEIRO CADASTRO ---
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+
+    alteracao_cardapio = AlteracaoCardapio.objects.get(uuid=response.json()["uuid"])
+    assert alteracao_cardapio.status == AlteracaoCardapio.workflow_class.RASCUNHO
+
+    # --- SEGUNDO CADASTRO (DEVE PERMITIR) ---
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(requisicao_alteracao_cardapio_periodo_manha),
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
