@@ -66,18 +66,17 @@ class AtualizaCacheMatriculadosPorFaixaCommandTest(TestCase):
 
     @freeze_time("2024-12-26")
     @pytest.mark.django_db(transaction=True)
-    @patch("redis.StrictRedis")
+    @patch(
+        "sme_sigpae_api.escola.management.commands.atualiza_cache_matriculados_por_faixa.redis_connection"
+    )
     @patch(
         "sme_sigpae_api.eol_servico.utils.EOLServicoSGP.get_alunos_por_escola_por_ano_letivo"
     )
     def test_command_atualiza_cache_matriculados_por_faixa(
         self,
         mock_get_alunos_por_escola_por_ano_letivo,
-        mock_redis,
+        mock_redis_connection,
     ) -> None:
-        mock_redis_instance = MagicMock()
-        mock_redis.return_value = mock_redis_instance
-
         mock_get_alunos_por_escola_por_ano_letivo.side_effect = [
             self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_1,
             self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_1,
@@ -91,8 +90,8 @@ class AtualizaCacheMatriculadosPorFaixaCommandTest(TestCase):
 
         self.call_command()
 
-        mock_redis_instance.delete.assert_called()
-        mock_redis_instance.hset.assert_called()
+        mock_redis_connection.delete.assert_called()
+        mock_redis_connection.hset.assert_called()
 
         assert LogAlunosMatriculadosFaixaEtariaDia.objects.count() == 3
         assert (
