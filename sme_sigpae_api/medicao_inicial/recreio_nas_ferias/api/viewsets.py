@@ -1,9 +1,14 @@
+from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
+from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.api.filters import (
+    RecreioNasFeriasFilter,
+)
+from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.api.serializers import (
+    RecreioNasFeriasSerializer,
+)
 from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
-
-from .serializers import RecreioNasFeriasSerializer
 
 
 class RecreioNasFeriasViewSet(viewsets.ModelViewSet):
@@ -15,7 +20,18 @@ class RecreioNasFeriasViewSet(viewsets.ModelViewSet):
         "unidades_participantes__tipos_alimentacao__categoria",
     )
     serializer_class = RecreioNasFeriasSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = RecreioNasFeriasFilter
     lookup_field = "uuid"
+
+    def get_queryset(self):
+        if self.request.user.tipo_usuario == "escola":
+            escola = self.request.user.vinculo_atual.instituicao
+            queryset = self.queryset.filter(
+                unidades_participantes__unidade_educacional__uuid=escola.uuid
+            )
+            return self.filter_queryset(queryset)
+        return self.filter_queryset(self.queryset)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
