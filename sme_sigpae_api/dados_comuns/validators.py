@@ -243,10 +243,9 @@ def deve_ter_extensao_xls_xlsx_pdf(nome: str):
 
 
 def valida_datas_alteracao_cardapio(attrs):
-    mensagens = []
     for data in datetime_range(attrs["data_inicial"], attrs["data_final"]):
         for substituicao in attrs["substituicoes"]:
-            p = DataIntervaloAlteracaoCardapio.objects.filter(
+            datas = DataIntervaloAlteracaoCardapio.objects.filter(
                 data=data,
                 cancelado=False,
                 alteracao_cardapio__status__in=[
@@ -259,14 +258,10 @@ def valida_datas_alteracao_cardapio(attrs):
                     "periodo_escolar"
                 ],
             )
-            if p.exists():
-                mensagens.append(
-                    {"data": data.strftime("%d/%m/%Y"), "periodo": substituicao["periodo_escolar"].nome}
+            if datas.exists():
+                raise serializers.ValidationError(
+                    "Já existe uma solicitação de lanche emergencial para o dia e período selecionado!"
                 )
-    if mensagens:
-        result = ", ".join([f"{msg['data']} no período {msg['periodo']}" for msg in mensagens])        
-        raise serializers.ValidationError(f"Já existe uma solicitação de lanche emergencial para o(s) dia(s): {result}")
-
 
 def validate_file_size_10mb(value):
     """max_size: valor em megabytes."""
