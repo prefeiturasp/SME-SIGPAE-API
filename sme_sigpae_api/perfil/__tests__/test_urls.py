@@ -428,6 +428,7 @@ def _setup_usuario_dre(usuario_factory, vinculo_factory, diretoria_regional_ip):
     )
 
 
+@pytest.mark.django_db(transaction=True)
 def test_busca_vinculos_ativos_dre(
     client_autenticado_diretoria_regional,
     usuario_factory,
