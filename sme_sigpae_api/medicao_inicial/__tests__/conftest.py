@@ -41,6 +41,7 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emebs import 
 from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef import (
     insere_tabela_periodos_na_planilha as emei_emef_insere_tabela,
 )
+from sme_sigpae_api.perfil.models.usuario import Usuario
 
 
 @pytest.fixture
@@ -2375,8 +2376,8 @@ def valor_medicao(medicao, categoria_medicao):
     )
 
 
-@pytest.fixture
-def client_autenticado_diretoria_regional(client, django_user_model, escola):
+@pytest.fixture()
+def usuario_diretoria_regional(django_user_model, escola):
     email = "test@test.com"
     password = DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
@@ -2392,7 +2393,13 @@ def client_autenticado_diretoria_regional(client, django_user_model, escola):
         data_inicial=hoje,
         ativo=True,
     )
-    client.login(username=email, password=password)
+    return user, password
+
+
+@pytest.fixture
+def client_autenticado_diretoria_regional(client, usuario_diretoria_regional):
+    usuario, password = usuario_diretoria_regional
+    client.login(username=usuario.email, password=password)
     return client
 
 
@@ -4799,3 +4806,38 @@ def pdf_real_monkeypatch(monkeypatch):
         "sme_sigpae_api.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_cei",
         gerar_pdf_fake,
     )
+
+
+@pytest.fixture()
+def usuario_admin(django_user_model):
+    return django_user_model.objects.create_user(
+        username="system@admin.com",
+        password="password",
+        email="system@admin.com",
+        registro_funcional="147852",
+    )
+
+
+@pytest.fixture()
+def solicitacao_log_medicao_usuario_system(usuario_admin):
+    solicitacao = baker.make(SolicitacaoMedicaoInicial)
+    baker.make(
+        LogSolicitacoesUsuario,
+        usuario=usuario_admin,
+        uuid_original=solicitacao.uuid,
+        criado_em=datetime.datetime(2024, 3, 1, 0, 0, 45),
+    )
+    return solicitacao
+
+
+@pytest.fixture()
+def solicitacao_logs_medicao_outro_usuario(usuario_diretoria_regional):
+    usuario, _ = usuario_diretoria_regional
+    solicitacao = baker.make(SolicitacaoMedicaoInicial)
+    baker.make(
+        LogSolicitacoesUsuario,
+        usuario=usuario,
+        uuid_original=solicitacao.uuid,
+        criado_em=datetime.datetime(2024, 3, 10, 20, 50, 12),
+    )
+    return solicitacao
