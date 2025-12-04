@@ -57,6 +57,7 @@ from ...inclusao_alimentacao.models import InclusaoAlimentacaoContinua
 from ..utils import (
     atualiza_alunos_periodo_parcial,
     log_alteracoes_escola_corrige_periodo,
+    substitui_criador_system_por_usuario_real,
 )
 from ..validators import (
     valida_medicoes_inexistentes_cei,
@@ -916,6 +917,8 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         self._check_user_permission()
+        usuario = self.context["request"].user
+        substitui_criador_system_por_usuario_real(instance, usuario)
         justificativa_sem_lancamentos = validated_data.pop(
             "justificativa_sem_lancamentos", None
         )
@@ -1108,15 +1111,16 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
     ):
         if not justificativa_sem_lancamentos:
             return
+        usuario = self.context["request"].user
         self._checa_se_pode_finalizar_sem_lancamentos(instance)
         instance.cria_medicoes_dos_periodos()
         instance.ue_envia_sem_lancamentos(
-            user=self.context["request"].user,
+            user=usuario,
             justificativa_sem_lancamentos=justificativa_sem_lancamentos,
         )
         for medicao in instance.medicoes.all():
             medicao.medicao_sem_lancamentos(
-                user=self.context["request"].user,
+                user=usuario,
                 justificativa_sem_lancamentos=justificativa_sem_lancamentos,
             )
 
@@ -1186,7 +1190,8 @@ class MedicaoCreateUpdateSerializer(serializers.ModelSerializer):
     infantil_ou_fundamental = serializers.CharField(required=False)
 
     def create(self, validated_data):
-        validated_data["criado_por"] = self.context["request"].user
+        usuario = self.context["request"].user
+        validated_data["criado_por"] = usuario
         valores_medicao_dict = validated_data.pop("valores_medicao", None)
 
         if validated_data.get("periodo_escolar", "") and validated_data.get(
@@ -1218,6 +1223,10 @@ class MedicaoCreateUpdateSerializer(serializers.ModelSerializer):
                 periodo_escolar=None,
             )
         medicao.save()
+        substitui_criador_system_por_usuario_real(
+            medicao.solicitacao_medicao_inicial, usuario
+        )
+
         infantil_ou_fundamental = validated_data.pop("infantil_ou_fundamental", "N/A")
 
         for valor_medicao in valores_medicao_dict:
@@ -1544,5 +1553,8 @@ class InformacoesBasicasMedicaoInicialUpdateSerializer(
 
         self._update_instance_fields(instance, validated_data)
         self._update_alunos(instance, validated_data)
+
+        usuario = self.context["request"].user
+        substitui_criador_system_por_usuario_real(instance, usuario)
 
         return instance
