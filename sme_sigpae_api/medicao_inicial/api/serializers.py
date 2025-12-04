@@ -40,6 +40,9 @@ from sme_sigpae_api.medicao_inicial.models import (
     TipoContagemAlimentacao,
     ValorMedicao,
 )
+from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.api.serializers import (
+    RecreioNasFeriasSerializer,
+)
 from sme_sigpae_api.terceirizada.api.serializers.serializers import (
     EditalSimplesSerializer,
     LoteSimplesSerializer,
@@ -132,6 +135,7 @@ class SolicitacaoMedicaoInicialSerializer(serializers.ModelSerializer):
     sem_lancamentos = serializers.BooleanField()
     justificativa_sem_lancamentos = serializers.CharField()
     justificativa_codae_correcao_sem_lancamentos = serializers.CharField()
+    recreio_nas_ferias = RecreioNasFeriasSerializer()
 
     def get_historico(self, obj):
         if not obj.historico:

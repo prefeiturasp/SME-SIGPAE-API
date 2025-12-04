@@ -30,6 +30,7 @@ from ..escola.constants import INFANTIL_OU_FUNDAMENTAL
 from ..escola.models import PeriodoEscolar, TipoUnidadeEscolar
 from ..perfil.models import Usuario
 from ..terceirizada.models import Edital
+from .recreio_nas_ferias.models import RecreioNasFerias
 
 
 class DiaSobremesaDoce(TemData, TemChaveExterna, CriadoEm, CriadoPor):
@@ -101,7 +102,13 @@ class SolicitacaoMedicaoInicial(
         blank=True,
         null=True,
     )
-    eh_recreio_nas_ferias = models.BooleanField(default=False)
+    recreio_nas_ferias = models.ForeignKey(
+        RecreioNasFerias,
+        on_delete=models.PROTECT,
+        related_name="solicitacoes_medicao_inicial",
+        blank=True,
+        null=True,
+    )
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         justificativa = kwargs.get("justificativa", "")
