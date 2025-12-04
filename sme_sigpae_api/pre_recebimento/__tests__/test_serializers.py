@@ -25,6 +25,13 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serialize
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoDetalharSerializer,
+    PainelDocumentoDeRecebimentoSerializer,
+)
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
+    PainelFichaTecnicaSerializer,
+)
+from sme_sigpae_api.pre_recebimento.layout_embalagem.api.serializers.serializers import (
+    PainelLayoutEmbalagemSerializer,
 )
 
 pytestmark = pytest.mark.django_db
@@ -89,6 +96,7 @@ def test_unidade_medida_create_serializer_updating(unidade_medida_logistica):
 
 def test_painel_cronograma_serializer(cronograma, cronogramas_multiplos_status_com_log):
     cronograma_completo = Cronograma.objects.filter(numero="002/2023A").first()
+    cronograma_completo.ficha_tecnica.programa = "LEVE_LEITE"
     serializer = PainelCronogramaSerializer(cronograma_completo)
 
     assert cronograma_completo.empresa is not None
@@ -101,6 +109,8 @@ def test_painel_cronograma_serializer(cronograma, cronogramas_multiplos_status_c
     assert serializer.data["log_mais_recente"].split(" ")[
         0
     ] == cronograma_completo.criado_em.strftime("%d/%m/%Y")
+    
+    assert serializer.data["programa_leve_leite"] == True
 
     cronograma_incompleto = cronograma
     serializer = PainelCronogramaSerializer(cronograma_incompleto)
@@ -111,6 +121,9 @@ def test_painel_cronograma_serializer(cronograma, cronogramas_multiplos_status_c
     assert serializer.data[
         "log_mais_recente"
     ] == cronograma_incompleto.criado_em.strftime("%d/%m/%Y")
+    
+    assert "programa_leve_leite" in serializer.data
+    assert serializer.data["programa_leve_leite"] is None
 
 
 @freeze_time((timezone.now() + timezone.timedelta(2)))
@@ -252,6 +265,7 @@ def test_etapas_cronograma_ficha_recebimento_serializer(etapa_com_fichas_recebim
     assert data["parte"] == "Parte 2"
     assert data["data_programada"] == etapa.data_programada.strftime("%d/%m/%Y")
     assert data["unidade_medida"] == etapa.cronograma.unidade_medida.abreviacao
+    assert data["unidade_medida"] == etapa.cronograma.unidade_medida.abreviacao
 
     assert "500" in data["qtd_total_empenho"]
     assert "ut" in data["qtd_total_empenho"]
@@ -297,3 +311,93 @@ def test_etapas_cronograma_ficha_recebimento_serializer_sem_fichas(
     assert data["houve_ocorrencia"] is False
     assert data["houve_reposicao"] is False
     assert data["fichas_recebimento"] == []
+
+
+def test_painel_documento_recebimento_serializer(documento_recebimento_leve_leite):
+    """Testa se o PainelDocumentoDeRecebimentoSerializer retorna programa_leve_leite=True."""
+    serializer = PainelDocumentoDeRecebimentoSerializer(documento_recebimento_leve_leite)
+    data = serializer.data
+    
+    assert "programa_leve_leite" in data
+    assert data["programa_leve_leite"] is True
+    
+    assert "numero_cronograma" in data
+    assert data["numero_cronograma"] == documento_recebimento_leve_leite.cronograma.numero
+    
+    assert "nome_produto" in data
+    if documento_recebimento_leve_leite.cronograma.ficha_tecnica:
+        assert data["nome_produto"] == documento_recebimento_leve_leite.cronograma.ficha_tecnica.produto.nome
+    
+    assert "nome_empresa" in data
+    if documento_recebimento_leve_leite.cronograma.empresa:
+        assert data["nome_empresa"] == documento_recebimento_leve_leite.cronograma.empresa.nome_fantasia
+    
+    assert "status" in data
+    assert data["status"] == documento_recebimento_leve_leite.get_status_display()
+    
+    assert "log_mais_recente" in data
+
+
+def test_painel_ficha_tecnica_serializer(ficha_tecnica_leve_leite):
+    serializer = PainelFichaTecnicaSerializer(ficha_tecnica_leve_leite)
+    data = serializer.data
+    
+    assert "programa_leve_leite" in data
+    assert data["programa_leve_leite"] is True
+    
+    assert "uuid" in data
+    assert data["uuid"] == str(ficha_tecnica_leve_leite.uuid)
+    
+    assert "numero_ficha" in data
+    assert data["numero_ficha"] == ficha_tecnica_leve_leite.numero
+    
+    assert "nome_produto" in data
+    assert data["nome_produto"] == ficha_tecnica_leve_leite.produto.nome
+    
+    assert "nome_empresa" in data
+    assert data["nome_empresa"] == ficha_tecnica_leve_leite.empresa.nome_fantasia
+    
+    assert "status" in data
+    assert data["status"] == ficha_tecnica_leve_leite.get_status_display()
+    
+    assert "log_mais_recente" in data
+    log_recente = data["log_mais_recente"]
+    assert isinstance(log_recente, str)
+
+
+def test_painel_ficha_tecnica_serializer_alimentacao_escolar(ficha_tecnica_leve_leite):
+    nova_ficha = ficha_tecnica_leve_leite
+    nova_ficha.programa = "ALIMENTACAO_ESCOLAR"
+    nova_ficha.save()
+    serializer = PainelFichaTecnicaSerializer(nova_ficha)
+    data = serializer.data
+    
+    assert "programa_leve_leite" in data
+    assert data["programa_leve_leite"] is False
+
+
+def test_painel_layout_embalagem_serializer(layout_embalagem_leve_leite):
+    serializer = PainelLayoutEmbalagemSerializer(layout_embalagem_leve_leite)
+    data = serializer.data
+    
+    assert "programa_leve_leite" in data
+    assert data["programa_leve_leite"] is True
+    
+    assert "uuid" in data
+    assert data["uuid"] == str(layout_embalagem_leve_leite.uuid)
+    
+    assert "numero_ficha_tecnica" in data
+    assert data["numero_ficha_tecnica"] == layout_embalagem_leve_leite.ficha_tecnica.numero
+    
+    assert "nome_produto" in data
+    assert data["nome_produto"] == layout_embalagem_leve_leite.ficha_tecnica.produto.nome
+    
+    assert "nome_empresa" in data
+    assert data["nome_empresa"] == layout_embalagem_leve_leite.ficha_tecnica.empresa.nome_fantasia
+    
+    assert "status" in data
+    assert data["status"] == layout_embalagem_leve_leite.get_status_display()
+    
+    assert "log_mais_recente" in data
+    log_recente = data["log_mais_recente"]
+    assert isinstance(log_recente, str)
