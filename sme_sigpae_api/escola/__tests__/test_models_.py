@@ -653,3 +653,70 @@ def test_periodos_escolares_pega_atualmente_retorna_apenas_periodos_com_alunos(
     assert periodos.count() == 1
     assert periodos[0].nome == "MANHA"
     assert isinstance(periodos[0], PeriodoEscolar)
+
+
+@freeze_time("2025-05-05")
+def test_periodos_escolares_pega_atualmente_false_retorna_periodos_com_logs_antigos(
+    escola,
+):
+    escola.tipo_unidade.tem_somente_integral_e_parcial = False
+    escola.tipo_unidade.save()
+
+    ano_atual = datetime.date.today().year
+
+    manha = PeriodoEscolar.objects.create(nome="MANHA")
+    tarde = PeriodoEscolar.objects.create(nome="TARDE")
+
+    AlunosMatriculadosPeriodoEscola.objects.create(
+        escola=escola,
+        periodo_escolar=manha,
+        quantidade_alunos=1,
+        tipo_turma="REGULAR",
+    )
+
+    LogAlunosMatriculadosPeriodoEscola.objects.create(
+        escola=escola,
+        periodo_escolar=manha,
+        quantidade_alunos=30,
+        tipo_turma="REGULAR",
+        criado_em=datetime.date(ano_atual, 3, 15),
+    )
+
+    LogAlunosMatriculadosPeriodoEscola.objects.create(
+        escola=escola,
+        periodo_escolar=tarde,
+        quantidade_alunos=25,
+        tipo_turma="REGULAR",
+        criado_em=datetime.date(ano_atual, 3, 20),
+    )
+
+    EscolaPeriodoEscolar.objects.create(
+        escola=escola,
+        periodo_escolar=manha,
+        quantidade_alunos=28,
+    )
+    EscolaPeriodoEscolar.objects.create(
+        escola=escola,
+        periodo_escolar=tarde,
+        quantidade_alunos=0,
+    )
+
+    # ===== COMPORTAMENTO BUG =====
+    # Sem a flag, retorna AMBOS os períodos
+    # porque ambos têm logs do ano atual, mesmo que TARDE tenha 0 alunos agora
+    periodos_com_bug = escola.periodos_escolares(
+        ano=ano_atual,
+        pega_atualmente=False
+    ).order_by("nome")
+
+    assert periodos_com_bug.count() == 2  # BUG: retorna MANHA e TARDE
+    assert set(periodos_com_bug.values_list("nome", flat=True)) == {"MANHA", "TARDE"}
+
+    # ===== COMPORTAMENTO CORRETO (COM A FLAG) =====
+    # Com pega_atualmente=True, retorna apenas períodos com alunos AGORA
+    periodos_correto = escola.periodos_escolares(
+        pega_atualmente=True
+    ).order_by("nome")
+
+    assert periodos_correto.count() == 1  # Retorna apenas MANHA
+    assert periodos_correto[0].nome == "MANHA"
