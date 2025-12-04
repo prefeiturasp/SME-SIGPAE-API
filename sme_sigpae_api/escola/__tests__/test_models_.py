@@ -23,6 +23,7 @@ from ..models import (
     PlanilhaEscolaDeParaCodigoEolCodigoCoade,
     TipoGestao,
     TipoUnidadeEscolar,
+    EscolaPeriodoEscolar
 )
 from .conftest import mocked_informacoes_escola_turma_aluno
 
@@ -618,3 +619,37 @@ def test_formata_para_relatorio_verifica_periodo(log_alunos_matriculados_cei):
     data = alunos_matriculados_integral.formata_para_relatorio()
     assert data["periodo_escolar"] == "INTEGRAL"
     assert data["eh_cei"] is True
+
+
+def test_periodos_escolares_pega_atualmente_retorna_apenas_periodos_com_alunos(
+    escola,
+):
+    escola.tipo_unidade.tem_somente_integral_e_parcial = False
+    escola.tipo_unidade.save()
+
+    manha = PeriodoEscolar.objects.create(nome="MANHA")
+    tarde = PeriodoEscolar.objects.create(nome="TARDE")
+
+    AlunosMatriculadosPeriodoEscola.objects.create(
+        escola=escola,
+        periodo_escolar=manha,
+        quantidade_alunos=1,
+        tipo_turma="REGULAR",
+    )
+
+    EscolaPeriodoEscolar.objects.create(
+        escola=escola,
+        periodo_escolar=manha,
+        quantidade_alunos=10,
+    )
+    EscolaPeriodoEscolar.objects.create(
+        escola=escola,
+        periodo_escolar=tarde,
+        quantidade_alunos=0,
+    )
+
+    periodos = escola.periodos_escolares(pega_atualmente=True).order_by("nome")
+
+    assert periodos.count() == 1
+    assert periodos[0].nome == "MANHA"
+    assert isinstance(periodos[0], PeriodoEscolar)
