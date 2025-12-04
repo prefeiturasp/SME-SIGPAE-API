@@ -67,9 +67,7 @@ def cria_solicitacao_medicao_inicial_mes_atual():
                         solicitacao_mes_anterior, solicitacao_atual
                     )
                 usuario_admin = Usuario.objects.get(email="system@admin.com")
-                solicitacao_atual.inicia_fluxo(
-                    user=usuario_admin
-                )
+                solicitacao_atual.inicia_fluxo(user=usuario_admin)
 
             except SolicitacaoMedicaoInicial.DoesNotExist:
                 message = (
