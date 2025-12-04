@@ -482,8 +482,10 @@ class VinculoInstituicaoSerializer(serializers.ModelSerializer):
 
     def get_periodos_escolares(self, obj):
         if isinstance(obj.instituicao, Escola):
+            request = self.context.get('request')
+            pega_atualmente = request.query_params.get('pega_atualmente', 'false').lower() == 'true'
             return PeriodoEscolarSerializer(
-                obj.instituicao.periodos_escolares().all(),
+                obj.instituicao.periodos_escolares(pega_atualmente=pega_atualmente).all(),
                 many=True,
                 context={"escola": obj.instituicao},
             ).data
