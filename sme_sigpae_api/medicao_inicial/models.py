@@ -301,6 +301,7 @@ class SolicitacaoMedicaoInicial(
             "escola",
             "mes",
             "ano",
+            "recreio_nas_ferias",
         )
         ordering = ("-ano", "-mes")
 
