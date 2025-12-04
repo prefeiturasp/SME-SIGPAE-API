@@ -6,6 +6,7 @@ from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.api.filters import (
     RecreioNasFeriasFilter,
 )
 from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.api.serializers import (
+    RecreioNasFeriasCreateSerializer,
     RecreioNasFeriasSerializer,
 )
 from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
@@ -23,6 +24,11 @@ class RecreioNasFeriasViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = RecreioNasFeriasFilter
     lookup_field = "uuid"
+
+    def get_serializer_class(self):
+        if self.action in ["create", "update", "partial_update"]:
+            return RecreioNasFeriasCreateSerializer
+        return RecreioNasFeriasSerializer
 
     def get_queryset(self):
         if self.request.user.tipo_usuario == "escola":

@@ -119,24 +119,10 @@ class RecreioNasFeriasUnidadeParticipanteSerializer(serializers.ModelSerializer)
         return rep
 
 
-class RecreioNasFeriasSerializer(serializers.ModelSerializer):
+class RecreioNasFeriasCreateSerializer(serializers.ModelSerializer):
     unidades_participantes = RecreioNasFeriasUnidadeParticipanteSerializer(
         many=True, required=True
     )
-
-    class Meta:
-        model = RecreioNasFerias
-        fields = [
-            "uuid",
-            "id",
-            "titulo",
-            "data_inicio",
-            "data_fim",
-            "unidades_participantes",
-            "criado_em",
-            "alterado_em",
-        ]
-        read_only_fields = ["id", "uuid", "criado_em", "alterado_em"]
 
     def validate(self, attrs):
         data_inicio = attrs.get("data_inicio")
@@ -291,3 +277,32 @@ class RecreioNasFeriasSerializer(serializers.ModelSerializer):
                 )
 
         return instance
+
+    class Meta:
+        model = RecreioNasFerias
+        fields = [
+            "uuid",
+            "id",
+            "titulo",
+            "data_inicio",
+            "data_fim",
+            "unidades_participantes",
+            "criado_em",
+            "alterado_em",
+        ]
+        read_only_fields = ["id", "uuid", "criado_em", "alterado_em"]
+
+
+class RecreioNasFeriasSerializer(RecreioNasFeriasCreateSerializer):
+    unidades_participantes = serializers.SerializerMethodField()
+
+    def get_unidades_participantes(self, obj):
+        request = self.context.get("request")
+
+        qs = obj.unidades_participantes.all()
+
+        if request and request.user.tipo_usuario == "escola":
+            escola = request.user.vinculo_atual.instituicao
+            qs = qs.filter(unidade_educacional__uuid=escola.uuid, liberar_medicao=True)
+
+        return RecreioNasFeriasUnidadeParticipanteSerializer(qs, many=True).data
