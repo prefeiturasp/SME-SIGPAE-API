@@ -137,6 +137,7 @@ class PainelLayoutEmbalagemSerializer(serializers.ModelSerializer):
     nome_empresa = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
     log_mais_recente = serializers.SerializerMethodField()
+    programa_leve_leite = serializers.SerializerMethodField()
 
     def get_numero_ficha_tecnica(self, obj):
         try:
@@ -167,6 +168,12 @@ class PainelLayoutEmbalagemSerializer(serializers.ModelSerializer):
             )
         else:
             return datetime.datetime.strftime(obj.criado_em, "%d/%m/%Y")
+        
+    def get_programa_leve_leite(self, obj):
+        try:
+            return obj.ficha_tecnica.programa == 'LEVE_LEITE'
+        except AttributeError:
+            return None
 
     class Meta:
         model = LayoutDeEmbalagem
@@ -177,4 +184,5 @@ class PainelLayoutEmbalagemSerializer(serializers.ModelSerializer):
             "nome_empresa",
             "status",
             "log_mais_recente",
+            "programa_leve_leite",
         )

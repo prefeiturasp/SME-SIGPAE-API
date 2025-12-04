@@ -157,6 +157,7 @@ class PainelDocumentoDeRecebimentoSerializer(serializers.ModelSerializer):
     nome_empresa = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
     log_mais_recente = serializers.SerializerMethodField()
+    programa_leve_leite = serializers.SerializerMethodField()
 
     def get_nome_produto(self, obj):
         try:
@@ -181,6 +182,12 @@ class PainelDocumentoDeRecebimentoSerializer(serializers.ModelSerializer):
             )
         else:
             return datetime.datetime.strftime(obj.criado_em, "%d/%m/%Y")
+        
+    def get_programa_leve_leite(self, obj):
+        try:
+            return obj.cronograma.ficha_tecnica.programa == 'LEVE_LEITE'
+        except AttributeError:
+            return None
 
     class Meta:
         model = DocumentoDeRecebimento
@@ -191,6 +198,7 @@ class PainelDocumentoDeRecebimentoSerializer(serializers.ModelSerializer):
             "nome_empresa",
             "status",
             "log_mais_recente",
+            "programa_leve_leite",
         )
 
 
