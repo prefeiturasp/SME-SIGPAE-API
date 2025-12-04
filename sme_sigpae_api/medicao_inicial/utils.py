@@ -4848,5 +4848,5 @@ def substitui_criador_system_por_usuario_real(
     log = instance.logs.first()
     if len(instance.logs) == 1 and log.usuario == usuario_admin:
         log.usuario = usuario
-        log.data = datetime.datetime.now()
+        log.criado_em = datetime.datetime.now()
         log.save()
