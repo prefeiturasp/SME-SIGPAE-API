@@ -53,6 +53,7 @@ from sme_sigpae_api.medicao_inicial.models import (
     ValorMedicao,
 )
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesEscola
+from sme_sigpae_api.perfil.models.usuario import Usuario
 from sme_sigpae_api.relatorios.utils import merge_pdf_com_rodape_assinatura
 from sme_sigpae_api.terceirizada.models import Edital
 
@@ -4820,3 +4821,32 @@ def atualiza_alunos_periodo_parcial(solicitacao, alunos_periodo_parcial):
         medicao.valores_medicao.filter(
             nome_campo__in=["frequencia", "observacoes"]
         ).delete()
+
+
+def substitui_criador_system_por_usuario_real(
+    instance: SolicitacaoMedicaoInicial, usuario: Usuario
+) -> None:
+    """
+    Substitui o usuário 'system@admin.com' pelo usuário real no log de criação
+    da solicitação de medição, quando aplicável.
+
+    Esta função corrige o log de criação de solicitações que foram registradas
+    automaticamente pelo sistema. Quando uma solicitação tem apenas um log
+    (log de criação) e este está associado ao usuário administrativo padrão
+    (system@admin.com), o log é atualizado para refletir o usuário real que
+    realizou a ação, ajustando também a data para o momento atual.
+
+    Condições para substituição:
+    1. A instância deve ter exatamente um log registrado
+    2. O log existente deve estar associado ao usuário 'system@admin.com'
+
+    Args:
+        instance (SolicitacaoMedicaoInicial): Instância da solicitação de medição
+        usuario (Usuario): Usuário da requisição atual
+    """
+    usuario_admin = Usuario.objects.get(email="system@admin.com")
+    log = instance.logs.first()
+    if len(instance.logs) == 1 and log.usuario == usuario_admin:
+        log.usuario = usuario
+        log.criado_em = datetime.datetime.now()
+        log.save()
