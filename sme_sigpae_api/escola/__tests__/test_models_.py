@@ -720,3 +720,37 @@ def test_periodos_escolares_pega_atualmente_false_retorna_periodos_com_logs_anti
 
     assert periodos_correto.count() == 1  # Retorna apenas MANHA
     assert periodos_correto[0].nome == "MANHA"
+
+
+@freeze_time("2025-05-05")
+def test_periodos_escolares_pega_atualmente_false_mantem_comportamento_legado(
+    escola,
+):
+    escola.tipo_unidade.tem_somente_integral_e_parcial = False
+    escola.tipo_unidade.save()
+
+    ano_atual = datetime.date.today().year
+
+    manha = PeriodoEscolar.objects.create(nome="MANHA")
+
+    AlunosMatriculadosPeriodoEscola.objects.create(
+        escola=escola,
+        periodo_escolar=manha,
+        quantidade_alunos=1,
+        tipo_turma="REGULAR",
+    )
+
+    # Log de janeiro
+    LogAlunosMatriculadosPeriodoEscola.objects.create(
+        escola=escola,
+        periodo_escolar=manha,
+        quantidade_alunos=30,
+        tipo_turma="REGULAR",
+        criado_em=datetime.date(ano_atual, 1, 15),
+    )
+
+    # Comportamento legado: busca por logs do ano
+    periodos = escola.periodos_escolares(ano=ano_atual, pega_atualmente=False)
+
+    assert periodos.count() == 1
+    assert periodos[0].nome == "MANHA"
