@@ -2402,6 +2402,7 @@ def client_autenticado_diretoria_regional(client, usuario_diretoria_regional):
     client.login(username=usuario.email, password=password)
     return client
 
+
 @pytest.fixture
 def usuario_escola(django_user_model, escola):
     email = "user@escola.com"
@@ -2419,8 +2420,9 @@ def usuario_escola(django_user_model, escola):
         data_inicial=hoje,
         ativo=True,
     )
-    
+
     return usuario, password
+
 
 @pytest.fixture
 def client_autenticado_da_escola(client, usuario_escola):
@@ -4825,7 +4827,9 @@ def usuario_admin(django_user_model):
 
 @pytest.fixture
 def solicitacao_log_medicao_usuario_system(usuario_admin, escola):
-    solicitacao = baker.make(SolicitacaoMedicaoInicial, mes="03",ano="2024", escola=escola)
+    solicitacao = baker.make(
+        SolicitacaoMedicaoInicial, mes="03", ano="2024", escola=escola
+    )
     baker.make(
         LogSolicitacoesUsuario,
         usuario=usuario_admin,
