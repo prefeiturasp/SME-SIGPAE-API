@@ -220,7 +220,31 @@ def registro_quantidade_alunos_matriculados_por_escola_periodo(tipo_turma):
         cont += 1
 
 
-def processa_dias_letivos(lista_dias_letivos, escola, periodo_escola=None):
+def processa_dias_letivos(
+    lista_dias_letivos: list[dict], escola, periodo_escolar=None
+) -> None:
+    """
+    Cria ou atualiza registros de `DiaCalendario` a partir da lista de dias letivos
+    retornados pelo SGP.
+
+    Para cada item da lista, a função:
+      1. Converte a data (string) para `datetime`.
+      2. Verifica se já existe um `DiaCalendario` correspondente à escola,
+         data e período escolar.
+      3. Se existir, atualiza o campo `dia_letivo`.
+      4. Se não existir, cria um novo registro.
+
+    O parâmetro `periodo_escolar` permite diferenciar dias letivos por turno
+    (ex.: NOITE). Quando `None`, os dias são tratados como período geral.
+
+    Args:
+        lista_dias_letivos (list[dict]): Lista de dicionários retornada pelo SGP contendo no mínimo:
+                - "data"     : str (ex.: "2025-05-12T00:00:00")
+                - "ehLetivo" : bool
+        escola (models.Escola):  Instância da escola para a qual os dias estão sendo processados.
+        periodo_escolar (models.PeriodoEscolar, optional): Período escolar ao qual os dias pertencem.
+            Quando None, representa período geral. Default: None.
+    """
     from sme_sigpae_api.escola.models import DiaCalendario
 
     for dia_dict in lista_dias_letivos:
@@ -230,10 +254,14 @@ def processa_dias_letivos(lista_dias_letivos, escola, periodo_escola=None):
             data__year=data.year,
             data__month=data.month,
             data__day=data.day,
+            periodo_escolar=periodo_escolar,
         ).first()
         if not dia_calendario:
             dia_calendario = DiaCalendario.objects.create(
-                escola=escola, data=data, dia_letivo=dia_dict["ehLetivo"]
+                escola=escola,
+                data=data,
+                dia_letivo=dia_dict["ehLetivo"],
+                periodo_escolar=periodo_escolar,
             )
         else:
             dia_calendario.dia_letivo = dia_dict["ehLetivo"]
@@ -300,7 +328,7 @@ def dias_letivos_noturno(escola, inicio: str, fim: str, periodo_noite):
         )
 
         logger.debug(f"Dias letivos noturno: {periodo}")
-        processa_dias_letivos(periodo, escola, periodo_escola=periodo_noite)
+        processa_dias_letivos(periodo, escola, periodo_escolar=periodo_noite)
 
     except AlunosMatriculadosPeriodoEscola.DoesNotExist:
         logger.debug("Escola sem período NOITE cadastrado.")
