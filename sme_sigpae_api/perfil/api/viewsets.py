@@ -117,7 +117,7 @@ class UsuarioViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, url_path="meus-dados")
     def meus_dados(self, request):
         usuario = request.user
-        serializer = self.get_serializer(usuario)
+        serializer = self.get_serializer(usuario, context={'request': request})
         return Response(serializer.data)
 
     @action(detail=True, url_path="aceitar-termos", methods=["patch"])
