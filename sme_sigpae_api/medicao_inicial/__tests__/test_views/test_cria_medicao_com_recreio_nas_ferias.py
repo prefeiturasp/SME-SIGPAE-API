@@ -1,10 +1,18 @@
 import pytest
 from freezegun import freeze_time
+from rest_framework import status
+
+from sme_sigpae_api.medicao_inicial.models import SolicitacaoMedicaoInicial
 
 
 @freeze_time("2025-12-08")
 @pytest.mark.usefixtures("client_autenticado_da_escola", "escola")
 class TestUseCaseCriaMedicaoInicialComRecreioNasFerias:
+    def _setup_tipos_contagem_alimentacao(self, tipo_contagem_alimentacao_factory):
+        self.tipo_contagem_alimentacao_catraca = (
+            tipo_contagem_alimentacao_factory.create(nome="Catraca")
+        )
+
     def _setup_tipos_alimentacao(self, tipo_alimentacao_factory):
         self.tipo_alimentacao_refeicao = tipo_alimentacao_factory.create(
             nome="Refeição"
@@ -59,3 +67,62 @@ class TestUseCaseCriaMedicaoInicialComRecreioNasFerias:
                     tipo_alimentacao=tipo_alimentacao,
                     categoria=categoria,
                 )
+
+    def _setup(
+        self,
+        escola,
+        tipo_contagem_alimentacao_factory,
+        tipo_alimentacao_factory,
+        categoria_alimentacao_factory,
+        recreio_nas_ferias_factory,
+        recreio_nas_ferias_unidade_participante_factory,
+        recreio_nas_ferias_unidade_tipo_alimentacao_factory,
+    ):
+        self._setup_tipos_contagem_alimentacao(tipo_contagem_alimentacao_factory)
+        self._setup_tipos_alimentacao(tipo_alimentacao_factory)
+        self._setup_categorias_alimentacao(categoria_alimentacao_factory)
+        self._setup_recreio_nas_ferias_jan_26(
+            escola,
+            recreio_nas_ferias_factory,
+            recreio_nas_ferias_unidade_participante_factory,
+            recreio_nas_ferias_unidade_tipo_alimentacao_factory,
+        )
+
+    def test_cria_medicao_com_recreio_nas_ferias(
+        self,
+        client_autenticado_da_escola,
+        escola,
+        tipo_contagem_alimentacao_factory,
+        tipo_alimentacao_factory,
+        categoria_alimentacao_factory,
+        recreio_nas_ferias_factory,
+        recreio_nas_ferias_unidade_participante_factory,
+        recreio_nas_ferias_unidade_tipo_alimentacao_factory,
+    ):
+        self._setup(
+            escola,
+            tipo_contagem_alimentacao_factory,
+            tipo_alimentacao_factory,
+            categoria_alimentacao_factory,
+            recreio_nas_ferias_factory,
+            recreio_nas_ferias_unidade_participante_factory,
+            recreio_nas_ferias_unidade_tipo_alimentacao_factory,
+        )
+        data_create = {
+            "ano": "2026",
+            "mes": "01",
+            "escola": str(escola.uuid),
+            "responsaveis": [{"nome": "Fulano da Silva", "rf": "1234567"}],
+            "tipo_contagem_alimentacoes": [
+                str(self.tipo_contagem_alimentacao_catraca.uuid)
+            ],
+            "recreio_nas_ferias": str(self.recreio_nas_ferias.uuid),
+        }
+        response = client_autenticado_da_escola.post(
+            "/medicao-inicial/solicitacao-medicao-inicial/",
+            content_type="application/json",
+            data=data_create,
+        )
+        assert response.status_code == status.HTTP_201_CREATED
+        solicitacao_medicao_inicial = SolicitacaoMedicaoInicial.objects.get()
+        assert solicitacao_medicao_inicial.recreio_nas_ferias == self.recreio_nas_ferias
