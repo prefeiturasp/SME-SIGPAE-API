@@ -240,14 +240,76 @@ def processa_dias_letivos(lista_dias_letivos, escola, periodo_escola=None):
             dia_calendario.save()
 
 
+def dias_letivos_gerais(escola, inicio: str, fim: str) -> None:
+    """
+    Consulta e processa os dias letivos gerais (turno da manhã como padrão) para uma escola.
+
+    Esta função consulta o NovoSGPServico para obter os dias letivos no intervalo
+    fornecido, considerando período específico (uso padrão 1 - MANHA). Em seguida,
+    envia o resultado para o processador de dias letivos.
+
+    Args:
+        escola (models.Escola): Instância da escola para a qual os dias letivos serão consultados.
+        inicio (str): Data inicial do intervalo no formato "YYYY-MM-DD".
+        fim (str): Data final do intervalo no formato "YYYY-MM-DD".
+    """
+    from sme_sigpae_api.escola.services import NovoSGPServico
+
+    geral = NovoSGPServico.dias_letivos(
+        codigo_eol=escola.codigo_eol,
+        data_inicio=inicio,
+        data_fim=fim,
+    )
+    logger.debug(f"Dias letivos geral: {geral}")
+    processa_dias_letivos(geral, escola)
+
+
+def dias_letivos_noturno(escola, inicio: str, fim: str, periodo_noite):
+    """
+    Consulta e processa os dias letivos do período NOTURNO (turno 5) de uma escola.
+
+    A consulta do período noturno só é realizada se:
+    1. A escola possuir o período "NOITE" cadastrado.
+    2. A escola tiver alunos matriculados nesse período.
+
+    Caso contrário, a função apenas registra logs informativos.
+
+    Args:
+        escola (models.Escola): Instância da escola que será consultada.
+        inicio (str): Data inicial do intervalo no formato "YYYY-MM-DD".
+        fim (str):  Data final do intervalo no formato "YYYY-MM-DD".
+        periodo_noite (models.PeriodoEscolar): Objeto do período "NOITE" previamente consultado.
+    """
+    from sme_sigpae_api.escola.models import AlunosMatriculadosPeriodoEscola
+    from sme_sigpae_api.escola.services import NovoSGPServico
+
+    try:
+        aluno_noite = AlunosMatriculadosPeriodoEscola.objects.get(
+            escola=escola, periodo_escolar=periodo_noite, tipo_turma="REGULAR"
+        )
+
+        if aluno_noite.quantidade_alunos == 0:
+            logger.debug("Escola possui período NOITE, mas sem alunos.")
+            return
+
+        periodo = NovoSGPServico.dias_letivos(
+            codigo_eol=escola.codigo_eol,
+            data_inicio=inicio,
+            data_fim=fim,
+            tipo_turno=5,
+        )
+
+        logger.debug(f"Dias letivos noturno: {periodo}")
+        processa_dias_letivos(periodo, escola, periodo_escola=periodo_noite)
+
+    except AlunosMatriculadosPeriodoEscola.DoesNotExist:
+        logger.debug("Escola sem período NOITE cadastrado.")
+
+
 def calendario_sgp(data_inicio=date.today(), lista_escolas=None):
     import pandas as pd
 
-    from sme_sigpae_api.escola.models import (
-        AlunosMatriculadosPeriodoEscola,
-        Escola,
-        PeriodoEscolar,
-    )
+    from sme_sigpae_api.escola.models import Escola, PeriodoEscolar
     from sme_sigpae_api.escola.services import NovoSGPServico
 
     escolas = (
@@ -270,31 +332,8 @@ def calendario_sgp(data_inicio=date.today(), lista_escolas=None):
             data_final = (data_inicio + pd.DateOffset(months=3)).date()
             data_fim = data_final.strftime("%Y-%m-%d")
 
-            geral = NovoSGPServico.dias_letivos(
-                codigo_eol=escola.codigo_eol,
-                data_inicio=data_inicio_formatada,
-                data_fim=data_fim,
-            )
-            logger.debug(f"Dias letivos geral: {geral}")
-            processa_dias_letivos(geral, escola)
-
-            try:
-                aluno_noite = AlunosMatriculadosPeriodoEscola.objects.get(
-                    escola=escola, periodo_escolar=periodo_noite
-                )
-                if aluno_noite.quantidade_alunos != 0:
-                    periodo_noturno = NovoSGPServico.dias_letivos(
-                        codigo_eol=escola.codigo_eol,
-                        data_inicio=data_inicio_formatada,
-                        data_fim=data_fim,
-                        tipo_turno=5,
-                    )
-                    processa_dias_letivos(geral, escola, periodo_escola=periodo_noite)
-                    logger.debug(f"Dias letivos noturno: {periodo_noturno}")
-                else:
-                    logger.debug("Escola possui período NOITE, mas sem alunos.")
-            except AlunosMatriculadosPeriodoEscola.DoesNotExist:
-                logger.debug("Escola sem período NOITE cadastrado.")
+            dias_letivos_gerais(escola, data_inicio_formatada, data_fim)
+            dias_letivos_noturno(escola, data_inicio_formatada, data_fim, periodo_noite)
 
         except Exception as e:
             logger.error(f"Dados não encontrados para escola {escola} : {str(e)}")
@@ -306,7 +345,6 @@ def calendario_sgp(data_inicio=date.today(), lista_escolas=None):
                     data_fim=data_fim,
                     tipo_turno=3,
                 )
-
                 processa_dias_letivos(resposta, escola)
             except Exception as e:
                 logger.error(
