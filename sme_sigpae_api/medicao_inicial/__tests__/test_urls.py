@@ -121,6 +121,7 @@ def test_url_endpoint_solicitacao_medicao_inicial(
         data=data_create,
     )
     assert response.status_code == status.HTTP_201_CREATED
+    assert response.json()['logs'][0]['usuario']['email'] != usuario_admin.email
     data_update = {
         "escola": str(escola.uuid),
         "tipo_contagem_alimentacoes[]": [tipo_contagem_alimentacao.uuid],
@@ -132,6 +133,7 @@ def test_url_endpoint_solicitacao_medicao_inicial(
         data=data_update,
     )
     assert response.status_code == status.HTTP_200_OK
+    
 
 
 def test_url_endpoint_nao_tem_permissao_para_encerrar_medicao(
@@ -2213,3 +2215,91 @@ def test_url_endpoint_relatorio_consolidado_verifica_permissao(
 
     assert response.status_code == status_experado
     assert detail_experado in response.json().values()
+
+
+def test_url_endpoint_solicitacao_medicao_inicial_com_criacao_da_medicao_por_task(
+    client_autenticado_da_escola,
+    usuario_escola,
+    solicitacao_log_medicao_usuario_system,
+    periodo_escolar_tarde,
+    categoria_medicao_solicitacoes_alimentacao,
+    usuario_admin
+):    
+    usuario, _  = usuario_escola
+    assert solicitacao_log_medicao_usuario_system.logs.count() == 1
+    log = solicitacao_log_medicao_usuario_system.logs.first()
+    assert log.usuario == usuario_admin
+    
+    data_create = {
+        "week": 1,
+        "mes_lancamento": "Março / 2024",
+        "periodo_escolar": "TARDE",
+        "semanaSelecionada": 1,
+        "solicitacao_medicao_inicial": f"{solicitacao_log_medicao_usuario_system.uuid}",
+        "valores_medicao": [
+            {
+                "dia": "01",
+                "valor": "100",
+                "nome_campo": "matriculados",
+                "categoria_medicao": f"{categoria_medicao_solicitacoes_alimentacao.pk}",
+                "tipo_alimentacao": ""
+            },
+            {
+                "dia": "01",
+                "valor": "2",
+                "nome_campo": "frequencia",
+                "categoria_medicao": f"{categoria_medicao_solicitacoes_alimentacao.pk}",
+                "tipo_alimentacao": ""
+            }
+        ]
+    }
+    response = client_autenticado_da_escola.post(
+        "/medicao-inicial/medicao/",
+        content_type="application/json",
+        data=data_create,
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+    
+    assert solicitacao_log_medicao_usuario_system.logs.count() == 1
+    log = solicitacao_log_medicao_usuario_system.logs.first()
+    assert log.usuario == usuario
+
+
+def test_url_endpoint_atualiza_informacoes_basicas_com_criacao_da_medicao_por_task(
+    client_autenticado_da_escola,
+    usuario_escola,
+    solicitacao_log_medicao_usuario_system,
+    tipo_contagem_alimentacao,
+    usuario_admin
+):
+    usuario, _  = usuario_escola
+    assert solicitacao_log_medicao_usuario_system.logs.count() == 1
+    log = solicitacao_log_medicao_usuario_system.logs.first()
+    assert log.usuario == usuario_admin
+    
+    payload = {
+        "escola": str(solicitacao_log_medicao_usuario_system.escola.uuid),
+        "responsaveis": [
+            {"nome": "Responsável 1", "rf": "1234566"},
+            {"nome": "Responsável 2", "rf": "7890126"},
+        ],
+        "tipos_contagem_alimentacao": [str(tipo_contagem_alimentacao.uuid)],
+    }
+    response = client_autenticado_da_escola.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_log_medicao_usuario_system.uuid}/informacoes-basicas/",
+        data=payload,
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+
+    nomes = [resp["nome"] for resp in data["responsaveis"]]
+    assert "Responsável 1" in nomes
+    assert "Responsável 2" in nomes
+    assert data["tipos_contagem_alimentacao"] == [str(tipo_contagem_alimentacao.uuid)]
+    assert data["escola"] == str(solicitacao_log_medicao_usuario_system.escola.uuid)
+    
+    assert solicitacao_log_medicao_usuario_system.logs.count() == 1
+    log = solicitacao_log_medicao_usuario_system.logs.first()
+    assert log.usuario == usuario

@@ -2402,9 +2402,8 @@ def client_autenticado_diretoria_regional(client, usuario_diretoria_regional):
     client.login(username=usuario.email, password=password)
     return client
 
-
 @pytest.fixture
-def client_autenticado_da_escola(client, django_user_model, escola):
+def usuario_escola(django_user_model, escola):
     email = "user@escola.com"
     password = DJANGO_ADMIN_PASSWORD
     perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
@@ -2420,7 +2419,13 @@ def client_autenticado_da_escola(client, django_user_model, escola):
         data_inicial=hoje,
         ativo=True,
     )
-    client.login(username=email, password=password)
+    
+    return usuario, password
+
+@pytest.fixture
+def client_autenticado_da_escola(client, usuario_escola):
+    usuario, password = usuario_escola
+    client.login(username=usuario.email, password=password)
     return client
 
 
@@ -4784,7 +4789,7 @@ def solicitacoes_cei_relatorio_unificado(
     return [solicitacao_cci, solicitacao_cei]
 
 
-@pytest.fixture()
+@pytest.fixture
 def pdf_real_monkeypatch(monkeypatch):
     """Substitui os módulos reais por um gerador de PDF válido para testes."""
     from io import BytesIO
@@ -4808,7 +4813,7 @@ def pdf_real_monkeypatch(monkeypatch):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def usuario_admin(django_user_model):
     return django_user_model.objects.create_user(
         username="system@admin.com",
@@ -4818,19 +4823,25 @@ def usuario_admin(django_user_model):
     )
 
 
-@pytest.fixture()
-def solicitacao_log_medicao_usuario_system(usuario_admin):
-    solicitacao = baker.make(SolicitacaoMedicaoInicial)
+@pytest.fixture
+def solicitacao_log_medicao_usuario_system(usuario_admin, escola):
+    solicitacao = baker.make(SolicitacaoMedicaoInicial, mes="03",ano="2024", escola=escola)
     baker.make(
         LogSolicitacoesUsuario,
         usuario=usuario_admin,
         uuid_original=solicitacao.uuid,
         criado_em=datetime.datetime(2024, 3, 1, 0, 0, 45),
     )
+    contagem = baker.make("TipoContagemAlimentacao", nome="Catraca")
+    responsavel = baker.make(
+        "medicao_inicial.Responsavel", nome="REsponsavel 1", rf="1256387"
+    )
+    solicitacao.tipos_contagem_alimentacao.set([contagem])
+    solicitacao.responsaveis.set([responsavel])
     return solicitacao
 
 
-@pytest.fixture()
+@pytest.fixture
 def solicitacao_logs_medicao_outro_usuario(usuario_diretoria_regional):
     usuario, _ = usuario_diretoria_regional
     solicitacao = baker.make(SolicitacaoMedicaoInicial)
