@@ -208,6 +208,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         required=False,
         queryset=RecreioNasFerias.objects.all(),
         allow_null=True,
+        default=None,
     )
 
     def create(self, validated_data):
