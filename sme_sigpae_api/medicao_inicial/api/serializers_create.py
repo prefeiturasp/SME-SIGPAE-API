@@ -212,6 +212,24 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         default=None,
     )
 
+    def validate(self, attrs):
+        escola = attrs.get("escola")
+        recreio = attrs.get("recreio_nas_ferias")
+
+        if recreio and escola:
+            participacao = recreio.unidades_participantes.filter(
+                unidade_educacional=escola
+            ).first()
+
+            if not participacao or not participacao.liberar_medicao:
+                raise serializers.ValidationError(
+                    {
+                        "recreio_nas_ferias": "A medição não está liberada para esta escola"
+                    }
+                )
+
+        return attrs
+
     def create(self, validated_data):
         validated_data["criado_por"] = self.context["request"].user
         responsaveis_dict = validated_data.pop("responsaveis", [])

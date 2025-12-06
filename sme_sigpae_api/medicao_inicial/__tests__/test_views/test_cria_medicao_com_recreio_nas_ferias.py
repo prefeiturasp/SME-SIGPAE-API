@@ -103,3 +103,62 @@ class TestUseCaseCriaMedicaoInicialComRecreioNasFerias:
         assert response.status_code == status.HTTP_201_CREATED
         smi = SolicitacaoMedicaoInicial.objects.get()
         assert smi.recreio_nas_ferias == contexto.recreio
+
+    def test_erro_medicao_com_recreio_nas_ferias_nao_esta_liberada(
+        self,
+        client_autenticado_da_escola,
+        escola,
+        setup_medicao_com_recreio,
+    ):
+        contexto = setup_medicao_com_recreio
+        contexto.recreio_ue.liberar_medicao = False
+        contexto.recreio_ue.save()
+
+        data_create = {
+            "ano": "2026",
+            "mes": "01",
+            "escola": str(escola.uuid),
+            "responsaveis": [{"nome": "Fulano da Silva", "rf": "1234567"}],
+            "tipo_contagem_alimentacoes": [str(contexto.tipo_contagem.uuid)],
+            "recreio_nas_ferias": str(contexto.recreio.uuid),
+        }
+
+        response = client_autenticado_da_escola.post(
+            "/medicao-inicial/solicitacao-medicao-inicial/",
+            content_type="application/json",
+            data=data_create,
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.json() == {
+            "recreio_nas_ferias": ["A medição não está liberada para esta escola"]
+        }
+
+    def test_erro_medicao_com_recreio_nas_ferias_escola_nao_e_participante(
+        self,
+        client_autenticado_da_escola,
+        escola,
+        setup_medicao_com_recreio,
+    ):
+        contexto = setup_medicao_com_recreio
+        contexto.recreio_ue.delete()
+
+        data_create = {
+            "ano": "2026",
+            "mes": "01",
+            "escola": str(escola.uuid),
+            "responsaveis": [{"nome": "Fulano da Silva", "rf": "1234567"}],
+            "tipo_contagem_alimentacoes": [str(contexto.tipo_contagem.uuid)],
+            "recreio_nas_ferias": str(contexto.recreio.uuid),
+        }
+
+        response = client_autenticado_da_escola.post(
+            "/medicao-inicial/solicitacao-medicao-inicial/",
+            content_type="application/json",
+            data=data_create,
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.json() == {
+            "recreio_nas_ferias": ["A medição não está liberada para esta escola"]
+        }
