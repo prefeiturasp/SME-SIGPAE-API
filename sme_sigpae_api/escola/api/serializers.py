@@ -167,9 +167,15 @@ class LogAlunosMatriculadosPeriodoEscolaSerializer(serializers.ModelSerializer):
         exclude = ("id", "uuid", "observacao")
 
 
+class PeriodoEscolarParaFiltroSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PeriodoEscolar
+        fields = ("uuid", "nome")
+        
 class DiaCalendarioSerializer(serializers.ModelSerializer):
     escola = serializers.CharField(source="escola.nome")
     dia = serializers.SerializerMethodField()
+    periodo_escolar = PeriodoEscolarParaFiltroSerializer()
 
     def get_dia(self, obj):
         return obj.data.strftime("%d")
@@ -828,11 +834,6 @@ class EscolaParaFiltroSerializer(serializers.ModelSerializer):
         model = Escola
         fields = ("uuid", "nome", "diretoria_regional", "tipo_unidade", "lote")
 
-
-class PeriodoEscolarParaFiltroSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PeriodoEscolar
-        fields = ("uuid", "nome")
 
 
 class EscolaAlunoPeriodoSerializer(serializers.ModelSerializer):
