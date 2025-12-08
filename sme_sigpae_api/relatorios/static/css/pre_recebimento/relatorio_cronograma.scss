@@ -75,3 +75,18 @@
     vertical-align: middle;
   }
 }
+
+.tag-leve-leite {
+  display: inline-block;
+  background-color: #90cefd;
+  color: #333333;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  line-height: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-left: 8px;
+  position: relative;
+  top: -2px;
+}
