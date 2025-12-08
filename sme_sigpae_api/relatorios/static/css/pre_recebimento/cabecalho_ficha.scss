@@ -1,5 +1,24 @@
 @import "../variaveis";
 
+.tag-leve-leite {
+  display: inline-block;
+  background-color: #90CEFD;
+  color: #333333;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  line-height: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+header.header {
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+}
+
 .flex{
   .endereco{
     width: 100%;
@@ -16,4 +35,5 @@
 .header {
   padding: 1em 2em;
   font-size: 13px;
+  height: auto !important;
 }

@@ -63,6 +63,7 @@ class FichaTecnicaListagemSerializer(serializers.ModelSerializer):
     nome_produto = serializers.SerializerMethodField()
     criado_em = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
+    programa = serializers.CharField()
 
     def get_nome_produto(self, obj):
         return obj.produto.nome if obj.produto else None
@@ -79,6 +80,7 @@ class FichaTecnicaListagemSerializer(serializers.ModelSerializer):
             "pregao_chamada_publica",
             "criado_em",
             "status",
+            "programa",
         )
 
 
