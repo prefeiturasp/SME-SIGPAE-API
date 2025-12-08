@@ -646,6 +646,7 @@ def test_relatorio_cronograma_entrega(cronograma):
     assert cronograma.unidade_medida.abreviacao in texto_pdf
 
     assert "Produto:" in texto_pdf
+    assert "LEVE LEITE - PLL" in texto_pdf
     assert "Marca:" in texto_pdf
     assert "Quantidade Total Programada:" in texto_pdf
 
