@@ -30,6 +30,7 @@ from ..escola.constants import INFANTIL_OU_FUNDAMENTAL
 from ..escola.models import PeriodoEscolar, TipoUnidadeEscolar
 from ..perfil.models import Usuario
 from ..terceirizada.models import Edital
+from .recreio_nas_ferias.models import RecreioNasFerias
 
 
 class DiaSobremesaDoce(TemData, TemChaveExterna, CriadoEm, CriadoPor):
@@ -97,6 +98,13 @@ class SolicitacaoMedicaoInicial(
     relatorio_financeiro = models.ForeignKey(
         "RelatorioFinanceiro",
         on_delete=models.SET_NULL,
+        related_name="solicitacoes_medicao_inicial",
+        blank=True,
+        null=True,
+    )
+    recreio_nas_ferias = models.ForeignKey(
+        RecreioNasFerias,
+        on_delete=models.PROTECT,
         related_name="solicitacoes_medicao_inicial",
         blank=True,
         null=True,
@@ -293,6 +301,7 @@ class SolicitacaoMedicaoInicial(
             "escola",
             "mes",
             "ano",
+            "recreio_nas_ferias",
         )
         ordering = ("-ano", "-mes")
 

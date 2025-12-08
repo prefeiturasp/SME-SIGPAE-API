@@ -80,13 +80,13 @@ def cria_solicitacao_medicao_inicial_mes_atual():
 
 def solicitacao_medicao_atual_existe(escola, data):
     return SolicitacaoMedicaoInicial.objects.filter(
-        escola=escola, ano=data.year, mes=f"{data.month:02d}"
+        escola=escola, ano=data.year, mes=f"{data.month:02d}", recreio_nas_ferias=None
     ).exists()
 
 
 def buscar_solicitacao_mes_anterior(escola, data):
     return SolicitacaoMedicaoInicial.objects.get(
-        escola=escola, ano=data.year, mes=f"{data.month:02d}"
+        escola=escola, ano=data.year, mes=f"{data.month:02d}", recreio_nas_ferias=None
     )
 
 

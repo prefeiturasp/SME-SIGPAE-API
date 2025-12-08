@@ -106,6 +106,7 @@ from .filters import (
     EmpenhoFilter,
     ParametrizacaoFinanceiraFilter,
     RelatorioFinanceiroFilter,
+    SolicitacaoMedicaoInicialFilter,
 )
 from .permissions import EhAdministradorMedicaoInicialOuGestaoAlimentacao
 from .serializers import (
@@ -240,6 +241,11 @@ class SolicitacaoMedicaoInicialViewSet(
         | UsuarioSupervisaoNutricao
     ]
     queryset = SolicitacaoMedicaoInicial.objects.all()
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = SolicitacaoMedicaoInicialFilter
+
+    def get_queryset(self):
+        return self.filter_queryset(self.queryset)
 
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:
@@ -263,14 +269,7 @@ class SolicitacaoMedicaoInicialViewSet(
             return Response(list_response, status=status.HTTP_400_BAD_REQUEST)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        escola_uuid = request.query_params.get("escola")
-        mes = request.query_params.get("mes")
-        ano = request.query_params.get("ano")
-
-        queryset = queryset.filter(escola__uuid=escola_uuid, mes=mes, ano=ano)
-
+        queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 

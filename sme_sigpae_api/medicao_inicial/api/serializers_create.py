@@ -54,6 +54,7 @@ from sme_sigpae_api.terceirizada.models import Contrato, Edital
 from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns.constants import DIRETOR_UE
 from ...inclusao_alimentacao.models import InclusaoAlimentacaoContinua
+from ..recreio_nas_ferias.models import RecreioNasFerias
 from ..utils import (
     atualiza_alunos_periodo_parcial,
     log_alteracoes_escola_corrige_periodo,
@@ -203,6 +204,31 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
     ocorrencia = OcorrenciaMedicaoInicialCreateSerializer(required=False)
     logs = LogSolicitacoesUsuarioSerializer(many=True, required=False)
     justificativa_sem_lancamentos = serializers.CharField(required=False)
+    recreio_nas_ferias = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=False,
+        queryset=RecreioNasFerias.objects.all(),
+        allow_null=True,
+        default=None,
+    )
+
+    def validate(self, attrs):
+        escola = attrs.get("escola")
+        recreio = attrs.get("recreio_nas_ferias")
+
+        if recreio and escola:
+            participacao = recreio.unidades_participantes.filter(
+                unidade_educacional=escola
+            ).first()
+
+            if not participacao or not participacao.liberar_medicao:
+                raise serializers.ValidationError(
+                    {
+                        "recreio_nas_ferias": "A medição não está liberada para esta escola"
+                    }
+                )
+
+        return attrs
 
     def create(self, validated_data):
         validated_data["criado_por"] = self.context["request"].user
