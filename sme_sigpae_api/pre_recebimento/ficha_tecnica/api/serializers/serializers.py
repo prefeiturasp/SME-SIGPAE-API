@@ -37,6 +37,7 @@ class FichaTecnicaSimplesSerializer(serializers.ModelSerializer):
             "produto",
             "uuid_empresa",
             "pregao_chamada_publica",
+            "programa",
         )
 
 
