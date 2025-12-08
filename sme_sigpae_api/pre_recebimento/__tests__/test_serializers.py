@@ -297,3 +297,33 @@ def test_etapas_cronograma_ficha_recebimento_serializer_sem_fichas(
     assert data["houve_ocorrencia"] is False
     assert data["houve_reposicao"] is False
     assert data["fichas_recebimento"] == []
+
+
+def test_ficha_tecnica_listagem_serializer_campo_programa(ficha_tecnica_factory):
+    """Testa que o campo programa é serializado corretamente no FichaTecnicaListagemSerializer."""
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
+        FichaTecnicaListagemSerializer,
+    )
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+
+    ficha = ficha_tecnica_factory(programa=FichaTecnicaDoProduto.LEVE_LEITE)
+    serializer = FichaTecnicaListagemSerializer(ficha)
+
+    assert "programa" in serializer.data
+    assert serializer.data["programa"] == FichaTecnicaDoProduto.LEVE_LEITE
+
+
+def test_ficha_tecnica_detalhar_serializer_campo_programa(ficha_tecnica_factory):
+    """Testa que os campos programa e programa_display estão presentes no FichaTecnicaDetalharSerializer."""
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
+        FichaTecnicaDetalharSerializer,
+    )
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+
+    ficha = ficha_tecnica_factory(programa=FichaTecnicaDoProduto.LEVE_LEITE)
+    serializer = FichaTecnicaDetalharSerializer(ficha)
+
+    assert "programa" in serializer.data
+    assert "programa_display" in serializer.data
+    assert serializer.data["programa"] == FichaTecnicaDoProduto.LEVE_LEITE
+    assert serializer.data["programa_display"] == "Leve Leite"
