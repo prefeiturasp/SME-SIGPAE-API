@@ -182,7 +182,7 @@ class PainelDocumentoDeRecebimentoSerializer(serializers.ModelSerializer):
             )
         else:
             return datetime.datetime.strftime(obj.criado_em, "%d/%m/%Y")
-        
+
     def get_programa_leve_leite(self, obj):
         try:
             return obj.cronograma.ficha_tecnica.programa == 'LEVE_LEITE'

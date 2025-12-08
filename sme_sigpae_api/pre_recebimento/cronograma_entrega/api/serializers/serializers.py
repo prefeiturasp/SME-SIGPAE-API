@@ -734,7 +734,7 @@ class PainelSolicitacaoAlteracaoCronogramaSerializerItem(serializers.ModelSerial
             return datetime.datetime.strftime(obj.log_criado_em, "%d/%m/%Y")
         else:
             return datetime.datetime.strftime(obj.log_criado_em, "%d/%m/%Y")
-        
+
     def get_programa_leve_leite(self, obj):
         try:
             return obj.cronograma.ficha_tecnica.programa == 'LEVE_LEITE'
