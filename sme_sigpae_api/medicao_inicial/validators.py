@@ -41,12 +41,13 @@ from .utils import (
 calendario = BrazilSaoPauloCity()
 
 
-def get_lista_dias_letivos(solicitacao, escola):
+def get_lista_dias_letivos(solicitacao, escola, periodo_escolar=None):
     dias_letivos = DiaCalendario.objects.filter(
         data__month=int(solicitacao.mes),
         data__year=int(solicitacao.ano),
         escola=escola,
         dia_letivo=True,
+        periodo_escolar=periodo_escolar
     )
     dias_letivos = list(set(dias_letivos.values_list("data__day", flat=True)))
     dias_letivos_uteis = filtrar_dias_letivos(
@@ -191,6 +192,9 @@ def validate_lancamento_alimentacoes_medicao(solicitacao, lista_erros):
         )
         alimentacoes = alimentacoes_vinculadas + alimentacoes_permitidas
         linhas_da_tabela = get_linhas_da_tabela(alimentacoes)
+        
+        if periodo_escolar.nome == 'NOITE':
+            dias_letivos = get_lista_dias_letivos(solicitacao, escola, periodo_escolar)
         lista_erros = buscar_valores_lancamento_alimentacoes(
             linhas_da_tabela,
             solicitacao,
@@ -1882,18 +1886,16 @@ def validate_lancamento_dietas_emef(solicitacao, lista_erros):
             ).distinct()
         )
     )
-    dias_letivos = list(
-        DiaCalendario.objects.filter(
-            escola=escola, data__month=mes, data__year=ano, dia_letivo=True
-        ).values_list("data__day", flat=True)
-    )
-    dias_letivos_uteis = filtrar_dias_letivos(
-        dias_letivos, int(solicitacao.mes), int(solicitacao.ano)
-    )
+    dias_letivos_uteis = [int(dia) for dia in get_lista_dias_letivos(solicitacao, escola)]
+
     for categoria in categorias:
         classificacoes = get_classificacoes_dietas(categoria)
-        for dia in dias_letivos_uteis:
-            for medicao in solicitacao.medicoes.all():
+        for medicao in solicitacao.medicoes.all():
+            periodo_escolar = medicao.periodo_escolar
+            if periodo_escolar and periodo_escolar.nome == "NOITE":
+                dias_letivos_uteis = [int(dia) for dia in get_lista_dias_letivos(solicitacao, escola, periodo_escolar)]
+                
+            for dia in dias_letivos_uteis:
                 valores_medicao_ = list(
                     set(
                         medicao.valores_medicao.values_list(
@@ -2345,8 +2347,8 @@ def valida_alimentacoes_solicitacoes_continuas(
         if (
             periodo_com_erro
             or not inclusoes_filtradas.exists()
-            or not escola.calendario.filter(data=data).exists()
-            or not escola.calendario.get(data=data).dia_letivo
+            or not escola.calendario.filter(data=data, periodo_escolar__isnull=True).exists()
+            or not escola.calendario.get(data=data, periodo_escolar__isnull=True).dia_letivo
         ):
             continue
         periodo_com_erro = valida_campo_a_campo_alimentacao_continua(
