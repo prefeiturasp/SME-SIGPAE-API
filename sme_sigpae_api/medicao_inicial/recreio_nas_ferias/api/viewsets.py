@@ -36,7 +36,7 @@ class RecreioNasFeriasViewSet(viewsets.ModelViewSet):
             queryset = self.queryset.filter(
                 unidades_participantes__unidade_educacional__uuid=escola.uuid
             )
-            return self.filter_queryset(queryset)
+            return self.filter_queryset(queryset).distinct()
         return self.filter_queryset(self.queryset)
 
     def create(self, request, *args, **kwargs):
