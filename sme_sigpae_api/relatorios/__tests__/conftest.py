@@ -35,6 +35,7 @@ from sme_sigpae_api.recebimento.fixtures.factories.reposicao_cronograma_factory 
 from sme_sigpae_api.recebimento.models import (
     OcorrenciaFichaRecebimento,
 )
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
 
 def criar_suspensoes(grupo_suspensao, datas_cancelamentos):
@@ -489,7 +490,11 @@ def ficha_recebimento_carta_credito():
 
 
 @pytest.fixture
-def cronograma():
+def cronograma(
+    fabricante_ficha_tecnica_factory,
+    produto_logistica_factory,
+    marca_factory,
+):
     unidade_medida = baker.make(
         "pre_recebimento.UnidadeMedida", nome="QUILOGRAMA", abreviacao="kg"
     )
@@ -519,6 +524,23 @@ def cronograma():
         programa="LEVE_LEITE",
     )
 
+    ficha_tecnica = baker.make(
+        "pre_recebimento.FichaTecnicaDoProduto",
+        produto=produto_logistica_factory(),
+        empresa=empresa,
+        fabricante=fabricante_ficha_tecnica_factory(),
+        marca=marca_factory(),
+        envasador_distribuidor=fabricante_ficha_tecnica_factory(),
+        categoria=FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS,
+        unidade_medida_porcao=unidade_medida,
+        unidade_medida_primaria=unidade_medida,
+        unidade_medida_secundaria=unidade_medida,
+        unidade_medida_primaria_vazia=unidade_medida,
+        unidade_medida_secundaria_vazia=unidade_medida,
+        status=FichaTecnicaDoProduto.workflow_class.ENVIADA_PARA_ANALISE,
+        programa=FichaTecnicaDoProduto.LEVE_LEITE,
+    )
+
     cronograma = CronogramaFactory(
         numero="001/2024A",
         contrato=contrato,
@@ -529,6 +551,7 @@ def cronograma():
         tipo_embalagem_secundaria=tipo_embalagem,
         custo_unitario_produto=15.50,
         observacoes="Cronograma de teste com observações específicas",
+        ficha_tecnica=ficha_tecnica,
     )
 
     EtapasDoCronogramaFactory(
