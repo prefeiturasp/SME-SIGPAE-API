@@ -513,7 +513,10 @@ def cronograma():
     )
 
     contrato = baker.make(
-        "terceirizada.Contrato", numero="001/2024", numero_pregao="PE-2024-001"
+        "terceirizada.Contrato",
+        numero="001/2024",
+        numero_pregao="PE-2024-001",
+        programa="LEVE_LEITE",
     )
 
     cronograma = CronogramaFactory(
