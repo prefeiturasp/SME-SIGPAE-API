@@ -25,6 +25,13 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serialize
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoDetalharSerializer,
+    PainelDocumentoDeRecebimentoSerializer,
+)
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
+    PainelFichaTecnicaSerializer,
+)
+from sme_sigpae_api.pre_recebimento.layout_embalagem.api.serializers.serializers import (
+    PainelLayoutEmbalagemSerializer,
 )
 
 pytestmark = pytest.mark.django_db
@@ -89,6 +96,7 @@ def test_unidade_medida_create_serializer_updating(unidade_medida_logistica):
 
 def test_painel_cronograma_serializer(cronograma, cronogramas_multiplos_status_com_log):
     cronograma_completo = Cronograma.objects.filter(numero="002/2023A").first()
+    cronograma_completo.ficha_tecnica.programa = "LEVE_LEITE"
     serializer = PainelCronogramaSerializer(cronograma_completo)
 
     assert cronograma_completo.empresa is not None
@@ -101,6 +109,8 @@ def test_painel_cronograma_serializer(cronograma, cronogramas_multiplos_status_c
     assert serializer.data["log_mais_recente"].split(" ")[
         0
     ] == cronograma_completo.criado_em.strftime("%d/%m/%Y")
+    
+    assert serializer.data["programa_leve_leite"] == True
 
     cronograma_incompleto = cronograma
     serializer = PainelCronogramaSerializer(cronograma_incompleto)
@@ -111,6 +121,9 @@ def test_painel_cronograma_serializer(cronograma, cronogramas_multiplos_status_c
     assert serializer.data[
         "log_mais_recente"
     ] == cronograma_incompleto.criado_em.strftime("%d/%m/%Y")
+    
+    assert "programa_leve_leite" in serializer.data
+    assert serializer.data["programa_leve_leite"] is None
 
 
 @freeze_time((timezone.now() + timezone.timedelta(2)))
@@ -251,6 +264,7 @@ def test_etapas_cronograma_ficha_recebimento_serializer(etapa_com_fichas_recebim
     assert data["etapa"] == "Etapa 1"
     assert data["parte"] == "Parte 2"
     assert data["data_programada"] == etapa.data_programada.strftime("%d/%m/%Y")
+    assert data["unidade_medida"] == etapa.cronograma.unidade_medida.abreviacao
     assert data["unidade_medida"] == etapa.cronograma.unidade_medida.abreviacao
 
     assert "500" in data["qtd_total_empenho"]
