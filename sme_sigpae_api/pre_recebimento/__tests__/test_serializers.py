@@ -109,7 +109,7 @@ def test_painel_cronograma_serializer(cronograma, cronogramas_multiplos_status_c
     assert serializer.data["log_mais_recente"].split(" ")[
         0
     ] == cronograma_completo.criado_em.strftime("%d/%m/%Y")
-    
+
     assert serializer.data["programa_leve_leite"] == True
 
     cronograma_incompleto = cronograma
@@ -121,7 +121,7 @@ def test_painel_cronograma_serializer(cronograma, cronogramas_multiplos_status_c
     assert serializer.data[
         "log_mais_recente"
     ] == cronograma_incompleto.criado_em.strftime("%d/%m/%Y")
-    
+
     assert "programa_leve_leite" in serializer.data
     assert serializer.data["programa_leve_leite"] is None
 
@@ -316,51 +316,61 @@ def test_etapas_cronograma_ficha_recebimento_serializer_sem_fichas(
 
 def test_painel_documento_recebimento_serializer(documento_recebimento_leve_leite):
     """Testa se o PainelDocumentoDeRecebimentoSerializer retorna programa_leve_leite=True."""
-    serializer = PainelDocumentoDeRecebimentoSerializer(documento_recebimento_leve_leite)
+    serializer = PainelDocumentoDeRecebimentoSerializer(
+        documento_recebimento_leve_leite
+    )
     data = serializer.data
-    
+
     assert "programa_leve_leite" in data
     assert data["programa_leve_leite"] is True
-    
+
     assert "numero_cronograma" in data
-    assert data["numero_cronograma"] == documento_recebimento_leve_leite.cronograma.numero
-    
+    assert (
+        data["numero_cronograma"] == documento_recebimento_leve_leite.cronograma.numero
+    )
+
     assert "nome_produto" in data
     if documento_recebimento_leve_leite.cronograma.ficha_tecnica:
-        assert data["nome_produto"] == documento_recebimento_leve_leite.cronograma.ficha_tecnica.produto.nome
-    
+        assert (
+            data["nome_produto"]
+            == documento_recebimento_leve_leite.cronograma.ficha_tecnica.produto.nome
+        )
+
     assert "nome_empresa" in data
     if documento_recebimento_leve_leite.cronograma.empresa:
-        assert data["nome_empresa"] == documento_recebimento_leve_leite.cronograma.empresa.nome_fantasia
-    
+        assert (
+            data["nome_empresa"]
+            == documento_recebimento_leve_leite.cronograma.empresa.nome_fantasia
+        )
+
     assert "status" in data
     assert data["status"] == documento_recebimento_leve_leite.get_status_display()
-    
+
     assert "log_mais_recente" in data
 
 
 def test_painel_ficha_tecnica_serializer(ficha_tecnica_leve_leite):
     serializer = PainelFichaTecnicaSerializer(ficha_tecnica_leve_leite)
     data = serializer.data
-    
+
     assert "programa_leve_leite" in data
     assert data["programa_leve_leite"] is True
-    
+
     assert "uuid" in data
     assert data["uuid"] == str(ficha_tecnica_leve_leite.uuid)
-    
+
     assert "numero_ficha" in data
     assert data["numero_ficha"] == ficha_tecnica_leve_leite.numero
-    
+
     assert "nome_produto" in data
     assert data["nome_produto"] == ficha_tecnica_leve_leite.produto.nome
-    
+
     assert "nome_empresa" in data
     assert data["nome_empresa"] == ficha_tecnica_leve_leite.empresa.nome_fantasia
-    
+
     assert "status" in data
     assert data["status"] == ficha_tecnica_leve_leite.get_status_display()
-    
+
     assert "log_mais_recente" in data
     log_recente = data["log_mais_recente"]
     assert isinstance(log_recente, str)
@@ -372,7 +382,7 @@ def test_painel_ficha_tecnica_serializer_alimentacao_escolar(ficha_tecnica_leve_
     nova_ficha.save()
     serializer = PainelFichaTecnicaSerializer(nova_ficha)
     data = serializer.data
-    
+
     assert "programa_leve_leite" in data
     assert data["programa_leve_leite"] is False
 
@@ -380,35 +390,45 @@ def test_painel_ficha_tecnica_serializer_alimentacao_escolar(ficha_tecnica_leve_
 def test_painel_layout_embalagem_serializer(layout_embalagem_leve_leite):
     serializer = PainelLayoutEmbalagemSerializer(layout_embalagem_leve_leite)
     data = serializer.data
-    
+
     assert "programa_leve_leite" in data
     assert data["programa_leve_leite"] is True
-    
+
     assert "uuid" in data
     assert data["uuid"] == str(layout_embalagem_leve_leite.uuid)
-    
+
     assert "numero_ficha_tecnica" in data
-    assert data["numero_ficha_tecnica"] == layout_embalagem_leve_leite.ficha_tecnica.numero
-    
+    assert (
+        data["numero_ficha_tecnica"] == layout_embalagem_leve_leite.ficha_tecnica.numero
+    )
+
     assert "nome_produto" in data
-    assert data["nome_produto"] == layout_embalagem_leve_leite.ficha_tecnica.produto.nome
-    
+    assert (
+        data["nome_produto"] == layout_embalagem_leve_leite.ficha_tecnica.produto.nome
+    )
+
     assert "nome_empresa" in data
-    assert data["nome_empresa"] == layout_embalagem_leve_leite.ficha_tecnica.empresa.nome_fantasia
-    
+    assert (
+        data["nome_empresa"]
+        == layout_embalagem_leve_leite.ficha_tecnica.empresa.nome_fantasia
+    )
+
     assert "status" in data
     assert data["status"] == layout_embalagem_leve_leite.get_status_display()
-    
+
     assert "log_mais_recente" in data
     log_recente = data["log_mais_recente"]
     assert isinstance(log_recente, str)
+
 
 def test_ficha_tecnica_listagem_serializer_campo_programa(ficha_tecnica_factory):
     """Testa que o campo programa é serializado corretamente no FichaTecnicaListagemSerializer."""
     from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
         FichaTecnicaListagemSerializer,
     )
-    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
+        FichaTecnicaDoProduto,
+    )
 
     ficha = ficha_tecnica_factory(programa=FichaTecnicaDoProduto.LEVE_LEITE)
     serializer = FichaTecnicaListagemSerializer(ficha)
@@ -422,7 +442,9 @@ def test_ficha_tecnica_detalhar_serializer_campo_programa(ficha_tecnica_factory)
     from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
         FichaTecnicaDetalharSerializer,
     )
-    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
+        FichaTecnicaDoProduto,
+    )
 
     ficha = ficha_tecnica_factory(programa=FichaTecnicaDoProduto.LEVE_LEITE)
     serializer = FichaTecnicaDetalharSerializer(ficha)

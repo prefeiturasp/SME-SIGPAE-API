@@ -944,10 +944,15 @@ class DiaCalendarioViewSet(ModelViewSet):
         escola_uuid = self.request.query_params.get("escola_uuid", "")
         mes = self.request.query_params.get("mes", "")
         ano = self.request.query_params.get("ano", "")
-        periodo_escolar_uuid = self.request.query_params.get("periodo_escolar_uuid", None)
+        periodo_escolar_uuid = self.request.query_params.get(
+            "periodo_escolar_uuid", None
+        )
 
         queryset = queryset.filter(
-            escola__uuid=escola_uuid, data__month=mes, data__year=ano, periodo_escolar__uuid=periodo_escolar_uuid
+            escola__uuid=escola_uuid,
+            data__month=mes,
+            data__year=ano,
+            periodo_escolar__uuid=periodo_escolar_uuid,
         )
 
         return queryset

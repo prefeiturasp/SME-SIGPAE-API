@@ -2877,7 +2877,9 @@ class DiaCalendario(CriadoEm, TemAlteradoEm, TemData, TemChaveExterna):
             datas_nao_letivas = [
                 data
                 for data in datas
-                if not escola.calendario.get(data=data, periodo_escolar__isnull=True).dia_letivo
+                if not escola.calendario.get(
+                    data=data, periodo_escolar__isnull=True
+                ).dia_letivo
             ]
         except DiaCalendario.DoesNotExist:
             datas_nao_letivas = datas

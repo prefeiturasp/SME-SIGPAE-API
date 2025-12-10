@@ -171,7 +171,7 @@ class PainelLayoutEmbalagemSerializer(serializers.ModelSerializer):
 
     def get_programa_leve_leite(self, obj):
         try:
-            return obj.ficha_tecnica.programa == 'LEVE_LEITE'
+            return obj.ficha_tecnica.programa == "LEVE_LEITE"
         except AttributeError:
             return None
 

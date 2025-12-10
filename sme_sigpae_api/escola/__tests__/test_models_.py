@@ -12,6 +12,7 @@ from ..models import (
     AlunosMatriculadosPeriodoEscola,
     DiaCalendario,
     DiretoriaRegional,
+    EscolaPeriodoEscolar,
     FaixaEtaria,
     LogAlteracaoQuantidadeAlunosPorEscolaEPeriodoEscolar,
     LogAlunosMatriculadosFaixaEtariaDia,
@@ -23,7 +24,6 @@ from ..models import (
     PlanilhaEscolaDeParaCodigoEolCodigoCoade,
     TipoGestao,
     TipoUnidadeEscolar,
-    EscolaPeriodoEscolar
 )
 from .conftest import mocked_informacoes_escola_turma_aluno
 
@@ -705,8 +705,7 @@ def test_periodos_escolares_pega_atualmente_false_retorna_periodos_com_logs_anti
     # Sem a flag, retorna AMBOS os períodos
     # porque ambos têm logs do ano atual, mesmo que TARDE tenha 0 alunos agora
     periodos_com_bug = escola.periodos_escolares(
-        ano=ano_atual,
-        pega_atualmente=False
+        ano=ano_atual, pega_atualmente=False
     ).order_by("nome")
 
     assert periodos_com_bug.count() == 2  # BUG: retorna MANHA e TARDE
@@ -714,9 +713,7 @@ def test_periodos_escolares_pega_atualmente_false_retorna_periodos_com_logs_anti
 
     # ===== COMPORTAMENTO CORRETO (COM A FLAG) =====
     # Com pega_atualmente=True, retorna apenas períodos com alunos AGORA
-    periodos_correto = escola.periodos_escolares(
-        pega_atualmente=True
-    ).order_by("nome")
+    periodos_correto = escola.periodos_escolares(pega_atualmente=True).order_by("nome")
 
     assert periodos_correto.count() == 1  # Retorna apenas MANHA
     assert periodos_correto[0].nome == "MANHA"

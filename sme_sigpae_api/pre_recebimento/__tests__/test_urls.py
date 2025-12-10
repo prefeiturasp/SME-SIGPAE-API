@@ -3804,7 +3804,9 @@ def test_url_pdf_ficha_tecnica_nao_perecivel(
 
     from pypdf import PdfReader
 
-    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
+        FichaTecnicaDoProduto,
+    )
 
     ficha_tecnica = ficha_tecnica_factory(
         categoria=FichaTecnicaDoProduto.CATEGORIA_NAO_PERECIVEIS,
@@ -3829,6 +3831,7 @@ def test_url_pdf_ficha_tecnica_nao_perecivel(
     assert ficha_tecnica.produto.nome in pdf_text
     assert ficha_tecnica.marca.nome in pdf_text
 
+
 def test_url_pdf_ficha_tecnica_tag_leve_leite(
     client_autenticado_fornecedor, ficha_tecnica_factory, empresa
 ):
@@ -3837,7 +3840,9 @@ def test_url_pdf_ficha_tecnica_tag_leve_leite(
 
     from pypdf import PdfReader
 
-    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
+        FichaTecnicaDoProduto,
+    )
 
     # Teste com programa LEVE_LEITE - tag deve aparecer
     ficha_leve_leite = ficha_tecnica_factory(

@@ -161,7 +161,9 @@ class VinculoTipoAlimentacaoViewSet(
         serializer = self.get_serializer(vinculos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def trata_inclusao_continua_medicao_inicial(self, request, escola, ano, pega_atualmente):
+    def trata_inclusao_continua_medicao_inicial(
+        self, request, escola, ano, pega_atualmente
+    ):
         mes = request.query_params.get("mes", None)
         periodos_escolares_inclusao_continua = None
         if mes:

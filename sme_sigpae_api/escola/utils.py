@@ -409,7 +409,9 @@ def eh_dia_sem_atividade_escolar(escola, data, alteracao):
     from sme_sigpae_api.escola.models import DiaCalendario, DiaSuspensaoAtividades
 
     try:
-        dia_calendario = DiaCalendario.objects.get(escola=escola, data=data, periodo_escolar__isnull=True)
+        dia_calendario = DiaCalendario.objects.get(
+            escola=escola, data=data, periodo_escolar__isnull=True
+        )
         eh_dia_letivo = dia_calendario.dia_letivo
     except DiaCalendario.DoesNotExist:
         eh_dia_letivo = True
