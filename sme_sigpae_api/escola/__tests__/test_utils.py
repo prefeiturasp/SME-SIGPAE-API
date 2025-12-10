@@ -360,14 +360,16 @@ def test_calendario_sgp_exception(mock_escolas):
             ) as mock_processa_dias_letivos:
                 calendario_sgp()
                 mock_dias_letivos.assert_any_call(
-                    codigo_eol="12345", data_inicio=mock.ANY, data_fim=mock.ANY
+                    codigo_eol=mock_escolas[0].codigo_eol,
+                    data_inicio=mock.ANY,
+                    data_fim=mock.ANY,
                 )
                 mock_dias_letivos.side_effect = Exception(
                     "Erro ao buscar dias letivos no turno da noite"
                 )
                 calendario_sgp()
                 mock_dias_letivos.assert_any_call(
-                    codigo_eol="12345",
+                    codigo_eol=mock_escolas[0].codigo_eol,
                     data_inicio=mock.ANY,
                     data_fim=mock.ANY,
                     tipo_turno=3,

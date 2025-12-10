@@ -2833,6 +2833,13 @@ class DiaCalendario(CriadoEm, TemAlteradoEm, TemData, TemChaveExterna):
     escola = models.ForeignKey(
         Escola, related_name="calendario", on_delete=models.DO_NOTHING, null=True
     )
+    periodo_escolar = models.ForeignKey(
+        PeriodoEscolar,
+        related_name="dias_calendario",
+        on_delete=models.SET_NULL,  # mantém o DiaCalendario mesmo se o período for apagado
+        null=True,
+        blank=True,
+    )
     dia_letivo = models.BooleanField("É dia Letivo?", default=True)
 
     @classmethod
@@ -2870,7 +2877,9 @@ class DiaCalendario(CriadoEm, TemAlteradoEm, TemData, TemChaveExterna):
             datas_nao_letivas = [
                 data
                 for data in datas
-                if not escola.calendario.get(data=data).dia_letivo
+                if not escola.calendario.get(
+                    data=data, periodo_escolar__isnull=True
+                ).dia_letivo
             ]
         except DiaCalendario.DoesNotExist:
             datas_nao_letivas = datas

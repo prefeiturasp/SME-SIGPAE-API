@@ -1300,9 +1300,7 @@ def cronogramas_serialized_data():
                     "data_programada": "15/02/2024",
                     "quantidade": "500,50 L",
                     "foi_recebida": True,
-                    "fichas_recebimento": [
-                        {"houve_ocorrencia": False}
-                    ],
+                    "fichas_recebimento": [{"houve_ocorrencia": False}],
                 },
             ],
         }
@@ -1323,9 +1321,7 @@ def cronogramas_com_fichas_data():
                     "parte": 1,
                     "data_programada": "15/01/2024",
                     "foi_recebida": True,
-                    "fichas_recebimento": [
-                        {"houve_ocorrencia": False}
-                    ],
+                    "fichas_recebimento": [{"houve_ocorrencia": False}],
                 },
                 {
                     "uuid": "323e4567-e89b-12d3-a456-426614174000",
@@ -1361,7 +1357,9 @@ def parametros_deve_mostrar_linha_a_receber(request):
 
 @pytest.fixture
 def ficha_tecnica_leve_leite(ficha_tecnica_perecivel_enviada_para_analise):
-    ficha_tecnica_perecivel_enviada_para_analise.programa = FichaTecnicaDoProduto.LEVE_LEITE
+    ficha_tecnica_perecivel_enviada_para_analise.programa = (
+        FichaTecnicaDoProduto.LEVE_LEITE
+    )
     ficha_tecnica_perecivel_enviada_para_analise.save()
     return ficha_tecnica_perecivel_enviada_para_analise
 

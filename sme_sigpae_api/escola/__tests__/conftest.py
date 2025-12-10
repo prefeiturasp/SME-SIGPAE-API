@@ -1062,10 +1062,8 @@ def mock_tipo_turma():
 
 @pytest.fixture
 def mock_escolas(escola):
-    escola_mock = MagicMock()
-    escola_mock.nome = escola.nome
-    escola_mock.codigo_eol = "12345"
-    return [escola_mock]
+    baker.make(models.PeriodoEscolar, nome="NOITE")
+    return [escola]
 
 
 @pytest.fixture

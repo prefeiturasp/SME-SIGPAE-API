@@ -26,6 +26,7 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.fixtures.factories.cronog
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.fixtures.factories.ficha_tecnica_do_produto_factory import (
     FichaTecnicaFactory,
 )
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from sme_sigpae_api.recebimento.fixtures.factories.ficha_de_recebimento_factory import (
     FichaDeRecebimentoFactory,
 )
@@ -35,7 +36,6 @@ from sme_sigpae_api.recebimento.fixtures.factories.reposicao_cronograma_factory 
 from sme_sigpae_api.recebimento.models import (
     OcorrenciaFichaRecebimento,
 )
-from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
 
 def criar_suspensoes(grupo_suspensao, datas_cancelamentos):

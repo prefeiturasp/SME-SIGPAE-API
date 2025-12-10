@@ -167,9 +167,16 @@ class LogAlunosMatriculadosPeriodoEscolaSerializer(serializers.ModelSerializer):
         exclude = ("id", "uuid", "observacao")
 
 
+class PeriodoEscolarParaFiltroSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PeriodoEscolar
+        fields = ("uuid", "nome")
+
+
 class DiaCalendarioSerializer(serializers.ModelSerializer):
     escola = serializers.CharField(source="escola.nome")
     dia = serializers.SerializerMethodField()
+    periodo_escolar = PeriodoEscolarParaFiltroSerializer()
 
     def get_dia(self, obj):
         return obj.data.strftime("%d")
@@ -482,12 +489,17 @@ class VinculoInstituicaoSerializer(serializers.ModelSerializer):
 
     def get_periodos_escolares(self, obj):
         if isinstance(obj.instituicao, Escola):
-            request = self.context.get('request')
+            request = self.context.get("request")
             pega_atualmente = False
             if request is not None:
-                pega_atualmente = request.query_params.get('pega_atualmente', 'false').lower() == 'true'
+                pega_atualmente = (
+                    request.query_params.get("pega_atualmente", "false").lower()
+                    == "true"
+                )
             return PeriodoEscolarSerializer(
-                obj.instituicao.periodos_escolares(pega_atualmente=pega_atualmente).all(),
+                obj.instituicao.periodos_escolares(
+                    pega_atualmente=pega_atualmente
+                ).all(),
                 many=True,
                 context={"escola": obj.instituicao},
             ).data
@@ -829,12 +841,6 @@ class EscolaParaFiltroSerializer(serializers.ModelSerializer):
     class Meta:
         model = Escola
         fields = ("uuid", "nome", "diretoria_regional", "tipo_unidade", "lote")
-
-
-class PeriodoEscolarParaFiltroSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PeriodoEscolar
-        fields = ("uuid", "nome")
 
 
 class EscolaAlunoPeriodoSerializer(serializers.ModelSerializer):

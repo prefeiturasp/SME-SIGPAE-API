@@ -267,7 +267,7 @@ class PainelFichaTecnicaSerializer(serializers.ModelSerializer):
 
     def get_programa_leve_leite(self, obj):
         try:
-            return obj.programa == 'LEVE_LEITE'
+            return obj.programa == "LEVE_LEITE"
         except AttributeError:
             return None
 
