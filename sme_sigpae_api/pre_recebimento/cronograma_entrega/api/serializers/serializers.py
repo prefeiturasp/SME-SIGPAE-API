@@ -82,6 +82,7 @@ class EtapasDoCronogramaCalendarioSerializer(serializers.ModelSerializer):
     unidade_medida = serializers.SerializerMethodField()
     etapa = serializers.SerializerMethodField()
     parte = serializers.SerializerMethodField()
+    programa_leve_leite = serializers.SerializerMethodField()
 
     def get_etapa(self, obj):
         return f"Etapa {obj.etapa}" if obj.etapa is not None else None
@@ -113,6 +114,12 @@ class EtapasDoCronogramaCalendarioSerializer(serializers.ModelSerializer):
     def get_unidade_medida(self, obj):
         return obj.cronograma.unidade_medida.abreviacao if obj.cronograma else None
 
+    def get_programa_leve_leite(self, obj):
+        try:
+            return obj.cronograma.ficha_tecnica.programa == "LEVE_LEITE"
+        except AttributeError:
+            return False
+
     class Meta:
         model = EtapasDoCronograma
         fields = (
@@ -128,6 +135,7 @@ class EtapasDoCronogramaCalendarioSerializer(serializers.ModelSerializer):
             "quantidade",
             "status",
             "unidade_medida",
+            "programa_leve_leite",
         )
 
 
@@ -696,7 +704,7 @@ class PainelCronogramaSerializer(serializers.ModelSerializer):
 
     def get_programa_leve_leite(self, obj):
         try:
-            return obj.ficha_tecnica.programa == 'LEVE_LEITE'
+            return obj.ficha_tecnica.programa == "LEVE_LEITE"
         except AttributeError:
             return None
 
@@ -737,7 +745,7 @@ class PainelSolicitacaoAlteracaoCronogramaSerializerItem(serializers.ModelSerial
 
     def get_programa_leve_leite(self, obj):
         try:
-            return obj.cronograma.ficha_tecnica.programa == 'LEVE_LEITE'
+            return obj.cronograma.ficha_tecnica.programa == "LEVE_LEITE"
         except AttributeError:
             return None
 

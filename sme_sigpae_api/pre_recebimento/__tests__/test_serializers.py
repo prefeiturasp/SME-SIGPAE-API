@@ -184,6 +184,7 @@ def test_etapas_do_cronograma_calendario_serializer(
     assert serializer.data["quantidade"] == etapa.quantidade
     assert serializer.data["status"] == cronograma.get_status_display()
     assert serializer.data["unidade_medida"] == cronograma.unidade_medida.abreviacao
+    assert serializer.data["programa_leve_leite"] is not None
 
 
 def test_doc_recebimento_serializer_pregao_chamada_publica(cronograma_chamada_publica):
