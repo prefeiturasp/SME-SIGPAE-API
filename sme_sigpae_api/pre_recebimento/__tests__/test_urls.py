@@ -3794,3 +3794,83 @@ def test_url_pdf_ficha_tecnica_erro(
     assert response.json() == {
         "detail": "Ocorreu um erro durante a geração do pdf de Ficha Técnica"
     }
+
+
+def test_url_pdf_ficha_tecnica_nao_perecivel(
+    client_autenticado_fornecedor, ficha_tecnica_factory, empresa
+):
+    """Testa a geração de PDF para ficha técnica de produtos não perecíveis."""
+    from io import BytesIO
+
+    from pypdf import PdfReader
+
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+
+    ficha_tecnica = ficha_tecnica_factory(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_NAO_PERECIVEIS,
+        empresa=empresa,
+    )
+
+    response = client_autenticado_fornecedor.get(
+        f"/ficha-tecnica/{str(ficha_tecnica.uuid)}/gerar-pdf-ficha/"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.headers["Content-Type"] == "application/pdf"
+    assert (
+        response.headers["Content-Disposition"]
+        == f'filename="ficha_tecnica_{ficha_tecnica.numero}.pdf"'
+    )
+
+    pdf_reader = PdfReader(BytesIO(response.content))
+    page = pdf_reader.pages[0]
+    pdf_text = page.extract_text()
+
+    assert ficha_tecnica.produto.nome in pdf_text
+    assert ficha_tecnica.marca.nome in pdf_text
+
+def test_url_pdf_ficha_tecnica_tag_leve_leite(
+    client_autenticado_fornecedor, ficha_tecnica_factory, empresa
+):
+    """Testa que a tag 'LEVE LEITE - PLL' aparece apenas para fichas do programa LEVE_LEITE."""
+    from io import BytesIO
+
+    from pypdf import PdfReader
+
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+
+    # Teste com programa LEVE_LEITE - tag deve aparecer
+    ficha_leve_leite = ficha_tecnica_factory(
+        programa=FichaTecnicaDoProduto.LEVE_LEITE,
+        empresa=empresa,
+    )
+
+    response_leve_leite = client_autenticado_fornecedor.get(
+        f"/ficha-tecnica/{str(ficha_leve_leite.uuid)}/gerar-pdf-ficha/"
+    )
+
+    assert response_leve_leite.status_code == status.HTTP_200_OK
+
+    pdf_reader = PdfReader(BytesIO(response_leve_leite.content))
+    page = pdf_reader.pages[0]
+    pdf_text_leve_leite = page.extract_text()
+
+    assert "LEVE LEITE" in pdf_text_leve_leite or "PLL" in pdf_text_leve_leite
+
+    # Teste com programa ALIMENTACAO_ESCOLAR - tag NÃO deve aparecer
+    ficha_alimentacao = ficha_tecnica_factory(
+        programa=FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR,
+        empresa=empresa,
+    )
+
+    response_alimentacao = client_autenticado_fornecedor.get(
+        f"/ficha-tecnica/{str(ficha_alimentacao.uuid)}/gerar-pdf-ficha/"
+    )
+
+    assert response_alimentacao.status_code == status.HTTP_200_OK
+
+    pdf_reader_alimentacao = PdfReader(BytesIO(response_alimentacao.content))
+    page_alimentacao = pdf_reader_alimentacao.pages[0]
+    pdf_text_alimentacao = page_alimentacao.extract_text()
+
+    assert "LEVE LEITE - PLL" not in pdf_text_alimentacao

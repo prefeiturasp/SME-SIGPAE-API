@@ -320,6 +320,7 @@ def logs_a_criar_existe_solicitacao_medicao(escola, dietas_autorizadas, ontem):
         escola__codigo_eol=escola.codigo_eol,
         mes=f"{datetime.date.today().month:02d}",
         ano=datetime.date.today().year,
+        recreio_nas_ferias=None,
     )
     dict_periodos = PeriodoEscolar.dict_periodos()
     logs_a_criar = []

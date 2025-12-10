@@ -149,6 +149,12 @@ from .medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_factor
     SolicitacaoMedicaoInicialFactory,
     ValorMedicaoFactory,
 )
+from .medicao_inicial.recreio_nas_ferias.fixtures.factories.base_factory import (
+    CategoriaAlimentacaoFactory,
+    RecreioNasFeriasFactory,
+    RecreioNasFeriasUnidadeParticipanteFactory,
+    RecreioNasFeriasUnidadeTipoAlimentacaoFactory,
+)
 from .perfil.fixtures.factories.perfil_base_factories import (
     PerfilFactory,
     UsuarioFactory,
@@ -343,6 +349,10 @@ register(QuantidadePorPeriodoSuspensaoAlimentacaoFactory)
 register(SuspensaoAlimentacaoNoPeriodoEscolarFactory)
 register(InversaoCardapioFactory)
 register(MotivoAlteracaoUEFactory)
+register(RecreioNasFeriasFactory)
+register(RecreioNasFeriasUnidadeParticipanteFactory)
+register(CategoriaAlimentacaoFactory)
+register(RecreioNasFeriasUnidadeTipoAlimentacaoFactory)
 
 
 @pytest.fixture

@@ -1,229 +1,253 @@
-{% include 'relatorio_base.html' %}
-{% load index static sass_tags %}
+{% include 'relatorio_base.html' %} {% load index static sass_tags %}
 
 <html>
-<body>
-  <div class="page-container">
-
-    <div class="produto">
-      <div class="title">
-        Produto:
+  <body>
+    <div class="page-container">
+      <div class="produto">
+        <div class="title">Produto:</div>
+        <h4 class="title titulo-secao">
+          {{ cronograma.ficha_tecnica.produto.nome }} {% if
+          cronograma.ficha_tecnica.programa == 'LEVE_LEITE' %}
+          <span class="tag-leve-leite">LEVE LEITE - PLL</span>
+          {% endif %}
+        </h4>
       </div>
-      <h4 class="title titulo-secao">
-        {{ cronograma.ficha_tecnica.produto.nome }}
-      </h4>
-    </div>
-    <hr>
+      <hr />
 
-    <div class="dados_cronograma">
-      <h5 class="title titulo-secao">Dados do Produto e Datas de Entrega</h5>
+      <div class="dados_cronograma">
+        <h5 class="title titulo-secao">Dados do Produto e Datas de Entrega</h5>
 
-      <div class="dados font-weight-bold">
-        <div>Marca: </div>
-        <div>Quantidade Total Programada: </div>
+        <div class="dados font-weight-bold">
+          <div>Marca:</div>
+          <div>Quantidade Total Programada:</div>
+        </div>
+
+        <div class="dados pb-3">
+          <div>{{cronograma.ficha_tecnica.marca.nome}}</div>
+          <div>
+            {{cronograma.qtd_total_programada|agrupador_milhar_com_decimal}}
+            {{cronograma.unidade_medida.abreviacao}}
+          </div>
+        </div>
+
+        <div class="dados font-weight-bold">
+          <div>Embalagem Primária:</div>
+          <div>Embalagem Secundária:</div>
+        </div>
+
+        <div class="dados pb-3">
+          <div>
+            {{cronograma.ficha_tecnica.peso_liquido_embalagem_primaria}}
+            {{cronograma.ficha_tecnica.unidade_medida_primaria.abreviacao}}
+          </div>
+          <div>
+            {{cronograma.ficha_tecnica.peso_liquido_embalagem_secundaria}}
+            {{cronograma.ficha_tecnica.unidade_medida_secundaria.abreviacao}}
+          </div>
+        </div>
+
+        <div class="dados font-weight-bold">
+          <div>Custo Unitário do Produto:</div>
+          {% if cronograma.ficha_tecnica.volume_embalagem_primaria %}
+          <div>Volume da Embalagem Primária:</div>
+          {% endif %}
+        </div>
+
+        <div class="dados pb-3">
+          <div>R$ {{cronograma.custo_unitario_produto|floatformat:2}}</div>
+          {% if cronograma.ficha_tecnica.volume_embalagem_primaria %}
+          <div>
+            {{cronograma.ficha_tecnica.volume_embalagem_primaria}}
+            {{cronograma.ficha_tecnica.unidade_medida_volume_primaria.abreviacao}}
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="table-responsive-sm">
+          <table class="table table-lg table-bordered table-cronograma">
+            <thead>
+              <tr>
+                <th scope="col">Nº do Empenho</th>
+                <th scope="col">Qtde. Total do Empenho</th>
+                <th scope="col">Etapa</th>
+                <th scope="col">Parte</th>
+                <th scope="col">Data Programada</th>
+                <th scope="col">Quantidade</th>
+                <th scope="col">Total de Embalagens</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for etapa in etapas %}
+              <tr>
+                <td>{{etapa.numero_empenho}}</td>
+                <td>
+                  {{etapa.qtd_total_empenho|agrupador_milhar_com_decimal}}
+                  {{cronograma.unidade_medida.abreviacao}}
+                </td>
+                <td>Etapa {{etapa.etapa}}</td>
+                <td>{% if etapa.parte %}Parte {{etapa.parte}}{% endif %}</td>
+                <td>{{etapa.data_programada|date:"d/m/Y"}}</td>
+                <td>
+                  {{etapa.quantidade|agrupador_milhar_com_decimal}}
+                  {{cronograma.unidade_medida.abreviacao}}
+                </td>
+                <td>
+                  {{etapa.total_embalagens|agrupador_milhar_com_decimal}}
+                  {{cronograma.tipo_embalagem_secundaria.abreviacao}}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
+      <hr />
 
-      <div class="dados pb-3">
-        <div>{{cronograma.ficha_tecnica.marca.nome}} </div>
-        <div>{{cronograma.qtd_total_programada|agrupador_milhar_com_decimal}} {{cronograma.unidade_medida.abreviacao}}</div>
-      </div>
-
-
-    <div class="dados font-weight-bold">
-        <div>Embalagem Primária: </div>
-        <div>Embalagem Secundária: </div>
-      </div>
-
-      <div class="dados pb-3">
-        <div>{{cronograma.ficha_tecnica.peso_liquido_embalagem_primaria}} {{cronograma.ficha_tecnica.unidade_medida_primaria.abreviacao}}</div>
-        <div>{{cronograma.ficha_tecnica.peso_liquido_embalagem_secundaria}} {{cronograma.ficha_tecnica.unidade_medida_secundaria.abreviacao}}</div>
-      </div>
-
-      <div class="dados font-weight-bold">
-        <div>Custo Unitário do Produto: </div>
-        {% if cronograma.ficha_tecnica.volume_embalagem_primaria %}
-          <div>Volume da Embalagem Primária: </div>
-        {% endif %}
-      </div>
-
-      <div class="dados pb-3">
-        <div>R$ {{cronograma.custo_unitario_produto|floatformat:2}}</div>
-        {% if cronograma.ficha_tecnica.volume_embalagem_primaria %}
-          <div>{{cronograma.ficha_tecnica.volume_embalagem_primaria}} {{cronograma.ficha_tecnica.unidade_medida_volume_primaria.abreviacao}}</div>
-        {% endif %}
-      </div>
-
-      <div class="table-responsive-sm">
-	  		<table class="table table-lg table-bordered table-cronograma">
-          <thead>
-            <tr>
-              <th scope="col">Nº do Empenho</th>
-              <th scope="col">Qtde. Total do Empenho</th>
-              <th scope="col">Etapa</th>
-              <th scope="col">Parte</th>
-              <th scope="col">Data Programada</th>
-              <th scope="col">Quantidade</th>
-              <th scope="col">Total de Embalagens</th>
-            </tr>
-          </thead>
-          <tbody>
-          {% for etapa in etapas %}
-            <tr>
-              <td>{{etapa.numero_empenho}}</td>
-              <td>{{etapa.qtd_total_empenho|agrupador_milhar_com_decimal}} {{cronograma.unidade_medida.abreviacao}}</td>
-              <td>Etapa {{etapa.etapa}}</td>
-              <td>{% if etapa.parte %}Parte {{etapa.parte}}{% endif %}</td>
-              <td>{{etapa.data_programada|date:"d/m/Y"}}</td>
-              <td>{{etapa.quantidade|agrupador_milhar_com_decimal}} {{cronograma.unidade_medida.abreviacao}}</td>
-              <td>{{etapa.total_embalagens|agrupador_milhar_com_decimal}} {{cronograma.tipo_embalagem_secundaria.abreviacao}}</td>
-            </tr>
-          {% endfor %}
-          </tbody>
-	  		</table>
-	  	</div>
-    </div>
-    <hr>
-
-    <div class="armazem">
-      <h5 class="title titulo-secao">Armazém</h5>
-      <span class="nome-armazem">
-        <strong>{{ cronograma.armazem.nome_fantasia|upper }}</strong> | {{ cronograma.armazem.endereco }} {{ cronograma.armazem.numero }}, {{ cronograma.armazem.bairro }} - {{ cronograma.armazem.estado }} - CEP: {{ cronograma.armazem.cep }}
-      </span>
-      <div class="dados pt-4">
-        <span class="pb-3">
-          Programação de descarga: até as 09:00 hs. Veículos que se apresentarem após esse horário estarão sujeitos a ser descarregados somente no dia útil seguinte, o que caracterizará atraso na entrega.
+      <div class="armazem">
+        <h5 class="title titulo-secao">Armazém</h5>
+        <span class="nome-armazem">
+          <strong>{{ cronograma.armazem.nome_fantasia|upper }}</strong> | {{
+          cronograma.armazem.endereco }} {{ cronograma.armazem.numero }}, {{
+          cronograma.armazem.bairro }} - {{ cronograma.armazem.estado }} - CEP:
+          {{ cronograma.armazem.cep }}
         </span>
-        <span>
-          Ressaltamos que caso haja diferença no quantitativo programado para ser entregue em relação ao contratado, se refere a um ajuste de embalagem para a entrega de caixas fechadas, sendo descontado automaticamente da nota de empenho.
-        </span>
-      </div>
-    </div>
-
-    <div class="observacoes pb-4">
-      <h5 class="title titulo-secao">Observações</h5>
-
-      {% if cronograma.observacoes %}
-        <div class="dados">
+        <div class="dados pt-4">
           <span class="pb-3">
-            {{ cronograma.observacoes }}
+            Programação de descarga: até as 09:00 hs. Veículos que se
+            apresentarem após esse horário estarão sujeitos a ser descarregados
+            somente no dia útil seguinte, o que caracterizará atraso na entrega.
+          </span>
+          <span>
+            Ressaltamos que caso haja diferença no quantitativo programado para
+            ser entregue em relação ao contratado, se refere a um ajuste de
+            embalagem para a entrega de caixas fechadas, sendo descontado
+            automaticamente da nota de empenho.
           </span>
         </div>
-      {% endif %}
-      <div class="dados">
-        <span class="pb-3">
-          Os laudos laboratoriais deverão ser disponibilizados ao núcleo de qualidade da DILOG, via <span style="color: black;">SIGPAE</span>, atendendo o prazo máximo de até 24hs úteis de antecedência à data de entrega.
-        </span>
-        <span class="pb-3">
-          As datas e/ou quantidades previstas neste cronograma poderão ser alteradas, via <span style="color: black;">SIGPAE</span>, em comum acordo entre as partes, desde que não haja prejuízo ao atendimento das unidades educacionais, conforme contrato.
-        </span>
-        <span>
-          Telefone DILOG: (11) 3111-8652
-        </span>
+      </div>
+
+      <div class="observacoes pb-4">
+        <h5 class="title titulo-secao">Observações</h5>
+
+        {% if cronograma.observacoes %}
+        <div class="dados">
+          <span class="pb-3"> {{ cronograma.observacoes }} </span>
+        </div>
+        {% endif %}
+        <div class="dados">
+          <span class="pb-3">
+            Os laudos laboratoriais deverão ser disponibilizados ao núcleo de
+            qualidade da DILOG, via <span style="color: black">SIGPAE</span>,
+            atendendo o prazo máximo de até 24hs úteis de antecedência à data de
+            entrega.
+          </span>
+          <span class="pb-3">
+            As datas e/ou quantidades previstas neste cronograma poderão ser
+            alteradas, via <span style="color: black">SIGPAE</span>, em comum
+            acordo entre as partes, desde que não haja prejuízo ao atendimento
+            das unidades educacionais, conforme contrato.
+          </span>
+          <span> Telefone DILOG: (11) 3111-8652 </span>
+        </div>
+      </div>
+
+      <div class="assinaturas">
+        {% get_assinatura_fornecedor logs as log_fornecedor %} {% if
+        log_fornecedor %}
+
+        <div class="assinatura">
+          <div class="title titulo-assinatura">
+            Assinatura Eletrônica Fornecedor
+          </div>
+          <div class="assinatura-container">
+            <div class="col-2 logo-sigpae">
+              <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
+            </div>
+            <div class="col-8">
+              <span class="texto-assinatura">
+                Cronograma de Entrega aceito, validado e assinado
+                eletronicamente por
+                <strong>{{ log_fornecedor.usuario.nome }}</strong>, {{
+                log_fornecedor.usuario.username|formatar_cpf }}, em {{
+                log_fornecedor.criado_em|date:"d/m/Y" }}, às {{
+                log_fornecedor.criado_em|time:"H:i" }}.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {% endif %} {% get_assinatura_cronograma logs as log_cronograma %} {% if
+        log_cronograma %}
+
+        <div class="assinatura">
+          <div class="title titulo-assinatura">
+            Assinatura Eletrônica Cronograma
+          </div>
+          <div class="assinatura-container">
+            <div class="col-2 logo-sigpae">
+              <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
+            </div>
+            <div class="col-8">
+              <span class="texto-assinatura">
+                Cronograma de Entrega assinado eletronicamente por
+                <strong>{{ log_cronograma.usuario.nome }}</strong>,
+                <strong>{{ log_cronograma.usuario.cargo }}</strong>,
+                <strong>{{ log_cronograma.usuario.username }}</strong>, em {{
+                log_cronograma.criado_em|date:"d/m/Y" }}, às {{
+                log_cronograma.criado_em|time:"H:i" }}.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {% endif %} {% get_assinatura_dilog_abastecimento logs as
+        log_dilog_abastecimento %} {% if log_dilog_abastecimento %}
+
+        <div class="assinatura">
+          <div class="title titulo-assinatura">
+            Assinatura Eletrônica Abastecimento
+          </div>
+          <div class="assinatura-container">
+            <div class="col-2 logo-sigpae">
+              <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
+            </div>
+            <div class="col-8">
+              <span class="texto-assinatura">
+                Cronograma de Entrega assinado eletronicamente por
+                <strong>{{ log_dilog_abastecimento.usuario.nome }}</strong>,
+                <strong>{{ log_dilog_abastecimento.usuario.cargo }}</strong>,
+                <strong>{{ log_dilog_abastecimento.usuario.username }}</strong>,
+                em {{ log_dilog_abastecimento.criado_em|date:"d/m/Y" }}, às {{
+                log_dilog_abastecimento.criado_em|time:"H:i" }}.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {% endif %} {% get_assinatura_codae logs as log_codae %} {% if log_codae
+        %}
+
+        <div class="assinatura">
+          <div class="title titulo-assinatura">Assinatura Eletrônica DILOG</div>
+          <div class="assinatura-container">
+            <div class="col-2 logo-sigpae">
+              <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
+            </div>
+            <div class="col-8">
+              <span class="texto-assinatura">
+                Cronograma de Entrega assinado eletronicamente por
+                <strong>{{ log_codae.usuario.nome }}</strong>,
+                <strong>{{ log_codae.usuario.cargo }}</strong>,
+                <strong>{{ log_codae.usuario.username }}</strong>, em {{
+                log_codae.criado_em|date:"d/m/Y" }}, às {{
+                log_codae.criado_em|time:"H:i" }}.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {% endif %}
       </div>
     </div>
-
-    <div class="assinaturas">
-
-      {% get_assinatura_fornecedor logs as log_fornecedor %}
-
-      {% if log_fornecedor %}
-
-      <div class="assinatura">
-        <div class="title titulo-assinatura">
-          Assinatura Eletrônica Fornecedor
-        </div>
-        <div class="assinatura-container">
-          <div class="col-2 logo-sigpae">
-            <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
-          </div>
-          <div class="col-8">
-            <span class="texto-assinatura">
-              Cronograma de Entrega aceito, validado e assinado eletronicamente por
-              <strong>{{ log_fornecedor.usuario.nome }}</strong>, {{ log_fornecedor.usuario.username|formatar_cpf }},
-              em {{ log_fornecedor.criado_em|date:"d/m/Y" }}, às {{ log_fornecedor.criado_em|time:"H:i" }}.
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {% endif %}
-
-      {% get_assinatura_cronograma logs as log_cronograma %}
-
-      {% if log_cronograma %}
-
-      <div class="assinatura">
-        <div class="title titulo-assinatura">
-          Assinatura Eletrônica Cronograma
-        </div>
-        <div class="assinatura-container">
-          <div class="col-2 logo-sigpae">
-            <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
-          </div>
-          <div class="col-8">
-            <span class="texto-assinatura">
-              Cronograma de Entrega assinado eletronicamente por
-              <strong>{{ log_cronograma.usuario.nome }}</strong>, <strong>{{ log_cronograma.usuario.cargo }}</strong>, <strong>{{ log_cronograma.usuario.username }}</strong>,
-              em {{ log_cronograma.criado_em|date:"d/m/Y" }}, às {{ log_cronograma.criado_em|time:"H:i" }}.
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {% endif %}
-
-
-
-      {% get_assinatura_dilog_abastecimento logs as log_dilog_abastecimento %}
-
-      {% if log_dilog_abastecimento %}
-
-      <div class="assinatura">
-        <div class="title titulo-assinatura">
-          Assinatura Eletrônica Abastecimento
-        </div>
-        <div class="assinatura-container">
-
-          <div class="col-2 logo-sigpae">
-            <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
-          </div>
-          <div class="col-8">
-            <span class="texto-assinatura">
-              Cronograma de Entrega assinado eletronicamente por
-              <strong>{{ log_dilog_abastecimento.usuario.nome }}</strong>, <strong>{{ log_dilog_abastecimento.usuario.cargo }}</strong>, <strong>{{ log_dilog_abastecimento.usuario.username }}</strong>,
-              em {{ log_dilog_abastecimento.criado_em|date:"d/m/Y" }}, às {{ log_dilog_abastecimento.criado_em|time:"H:i" }}.
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {% endif %}
-
-      {% get_assinatura_codae logs as log_codae %}
-
-      {% if log_codae %}
-
-      <div class="assinatura">
-        <div class="title titulo-assinatura">
-          Assinatura Eletrônica DILOG
-        </div>
-        <div class="assinatura-container">
-          <div class="col-2 logo-sigpae">
-            <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
-          </div>
-          <div class="col-8">
-            <span class="texto-assinatura">
-              Cronograma de Entrega assinado eletronicamente por
-              <strong>{{ log_codae.usuario.nome }}</strong>, <strong>{{ log_codae.usuario.cargo }}</strong>, <strong>{{ log_codae.usuario.username }}</strong>,
-              em {{ log_codae.criado_em|date:"d/m/Y" }}, às {{ log_codae.criado_em|time:"H:i" }}.
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {% endif %}
-    </div>
-
-  </div>
-</body>
+  </body>
 </html>
