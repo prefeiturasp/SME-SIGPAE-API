@@ -17,11 +17,11 @@ from ..dieta_especial.models import (
 )
 from ..escola.models import (
     DiaCalendario,
+    Escola,
     FaixaEtaria,
     LogAlunosMatriculadosFaixaEtariaDia,
     LogAlunosMatriculadosPeriodoEscola,
     PeriodoEscolar,
-    Escola
 )
 from ..inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
@@ -30,7 +30,12 @@ from ..inclusao_alimentacao.models import (
 )
 from ..paineis_consolidados.models import SolicitacoesEscola
 from .api.constants import ALIMENTACOES_LANCAMENTOS_ESPECIAIS
-from .models import CategoriaMedicao, PermissaoLancamentoEspecial, ValorMedicao, SolicitacaoMedicaoInicial
+from .models import (
+    CategoriaMedicao,
+    PermissaoLancamentoEspecial,
+    SolicitacaoMedicaoInicial,
+    ValorMedicao,
+)
 from .utils import (
     agrupa_permissoes_especiais_por_dia,
     get_linhas_da_tabela,
@@ -48,7 +53,7 @@ def get_lista_dias_letivos(solicitacao, escola, periodo_escolar=None):
         data__year=int(solicitacao.ano),
         escola=escola,
         dia_letivo=True,
-        periodo_escolar=periodo_escolar
+        periodo_escolar=periodo_escolar,
     )
     dias_letivos = list(set(dias_letivos.values_list("data__day", flat=True)))
     dias_letivos_uteis = filtrar_dias_letivos(
@@ -176,9 +181,13 @@ def validate_lancamento_alimentacoes_medicao(solicitacao, lista_erros):
     tipo_unidade = escola.tipo_unidade
     categoria_medicao = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
     dias_letivos_geral = obter_periodos_corretos(solicitacao, escola)
-    
+
     for periodo_escolar in escola.periodos_escolares(solicitacao.ano):
-        dias_letivos = dias_letivos_geral['noite'] if periodo_escolar.nome == 'NOITE' else dias_letivos_geral['default']
+        dias_letivos = (
+            dias_letivos_geral["noite"]
+            if periodo_escolar.nome == "NOITE"
+            else dias_letivos_geral["default"]
+        )
         alimentacoes_permitidas = get_alimentacoes_permitidas(
             solicitacao, escola, periodo_escolar
         )
@@ -815,13 +824,17 @@ def validate_lancamento_alimentacoes_medicao_cei(solicitacao, lista_erros):
             ).distinct()
         )
     )
-    
+
     for medicao in solicitacao.medicoes.all():
-        dias_letivos = dias_letivos_geral['default']
+        dias_letivos = dias_letivos_geral["default"]
         if medicao.periodo_escolar:
-            dias_letivos = dias_letivos_geral['noite'] if medicao.periodo_escolar.nome == "NOITE" else dias_letivos_geral['default']
+            dias_letivos = (
+                dias_letivos_geral["noite"]
+                if medicao.periodo_escolar.nome == "NOITE"
+                else dias_letivos_geral["default"]
+            )
         dias_letivos_uteis = [int(dia) for dia in dias_letivos]
-        
+
         for dia in dias_letivos_uteis:
             valores_medicao_ = list(
                 set(
@@ -1689,7 +1702,11 @@ def validate_lancamento_inclusoes_cei(solicitacao, lista_erros):
     )
     dias_nao_letivos = list(
         DiaCalendario.objects.filter(
-            escola=escola, data__month=mes, data__year=ano, dia_letivo=False, periodo_escolar__isnull=True
+            escola=escola,
+            data__month=mes,
+            data__year=ano,
+            dia_letivo=False,
+            periodo_escolar__isnull=True,
         ).values_list("data__day", flat=True)
     )
 
@@ -1794,7 +1811,11 @@ def validate_lancamento_inclusoes_dietas_cei(solicitacao, lista_erros):
     )
     dias_nao_letivos = list(
         DiaCalendario.objects.filter(
-            escola=escola, data__month=mes, data__year=ano, dia_letivo=False, periodo_escolar__isnull=True
+            escola=escola,
+            data__month=mes,
+            data__year=ano,
+            dia_letivo=False,
+            periodo_escolar__isnull=True,
         ).values_list("data__day", flat=True)
     )
     categorias = CategoriaMedicao.objects.exclude(
@@ -1892,12 +1913,16 @@ def validate_lancamento_dietas_emef(solicitacao, lista_erros):
     for categoria in categorias:
         classificacoes = get_classificacoes_dietas(categoria)
         for medicao in solicitacao.medicoes.all():
-            
-            dias_letivos = dias_letivos_geral['default']
-            if medicao.periodo_escolar:
-                dias_letivos = dias_letivos_geral['noite'] if medicao.periodo_escolar.nome == "NOITE" else dias_letivos_geral['default']
+            eh_noite = (
+                medicao.periodo_escolar and medicao.periodo_escolar.nome == "NOITE"
+            )
+            dias_letivos = (
+                dias_letivos_geral["noite"]
+                if eh_noite
+                else dias_letivos_geral["default"]
+            )
             dias_letivos_uteis = [int(dia) for dia in dias_letivos]
-                
+
             for dia in dias_letivos_uteis:
                 valores_medicao_ = list(
                     set(
@@ -2002,7 +2027,11 @@ def validate_lancamento_dietas_cei(solicitacao, lista_erros):
     )
     dias_letivos = list(
         DiaCalendario.objects.filter(
-            escola=escola, data__month=mes, data__year=ano, dia_letivo=True, periodo_escolar__isnull=True
+            escola=escola,
+            data__month=mes,
+            data__year=ano,
+            dia_letivo=True,
+            periodo_escolar__isnull=True,
         ).values_list("data__day", flat=True)
     )
     dias_letivos_uteis = filtrar_dias_letivos(
@@ -2350,8 +2379,12 @@ def valida_alimentacoes_solicitacoes_continuas(
         if (
             periodo_com_erro
             or not inclusoes_filtradas.exists()
-            or not escola.calendario.filter(data=data, periodo_escolar__isnull=True).exists()
-            or not escola.calendario.get(data=data, periodo_escolar__isnull=True).dia_letivo
+            or not escola.calendario.filter(
+                data=data, periodo_escolar__isnull=True
+            ).exists()
+            or not escola.calendario.get(
+                data=data, periodo_escolar__isnull=True
+            ).dia_letivo
         ):
             continue
         periodo_com_erro = valida_campo_a_campo_alimentacao_continua(
@@ -3189,13 +3222,21 @@ def validate_medicao_cemei(solicitacao):
     categoria_alimentacao = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
     dias_letivos = list(
         DiaCalendario.objects.filter(
-            escola=escola, data__month=mes, data__year=ano, dia_letivo=True, periodo_escolar__isnull=True
+            escola=escola,
+            data__month=mes,
+            data__year=ano,
+            dia_letivo=True,
+            periodo_escolar__isnull=True,
         ).values_list("data__day", flat=True)
     )
     dias_letivos_uteis = filtrar_dias_letivos(dias_letivos, int(mes), int(ano))
     dias_nao_letivos = list(
         DiaCalendario.objects.filter(
-            escola=escola, data__month=mes, data__year=ano, dia_letivo=False, periodo_escolar__isnull=True
+            escola=escola,
+            data__month=mes,
+            data__year=ano,
+            dia_letivo=False,
+            periodo_escolar__isnull=True,
         ).values_list("data__day", flat=True)
     )
     inclusoes = InclusaoDeAlimentacaoCEMEI.objects.filter(
@@ -3263,8 +3304,12 @@ def validate_lancamento_alimentacoes_medicao_emebs(solicitacao, lista_erros):
     categoria_medicao = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
     dias_letivos_geral = obter_periodos_corretos(solicitacao, escola)
     for periodo_escolar in escola.periodos_escolares(solicitacao.ano):
-        dias_letivos = dias_letivos_geral['noite'] if periodo_escolar.nome == 'NOITE' else dias_letivos_geral['default']
-        
+        dias_letivos = (
+            dias_letivos_geral["noite"]
+            if periodo_escolar.nome == "NOITE"
+            else dias_letivos_geral["default"]
+        )
+
         alimentacoes_permitidas = get_alimentacoes_permitidas(
             solicitacao, escola, periodo_escolar
         )
@@ -3415,19 +3460,22 @@ def validate_lancamento_dietas_emebs(solicitacao, lista_erros):
             ).distinct()
         )
     )
-    
+
     dias_letivos_geral = obter_periodos_corretos(solicitacao, escola)
     for categoria in categorias:
         classificacoes = get_classificacoes_dietas(categoria)
         for medicao in solicitacao.medicoes.all():
-            
-            dias_letivos = dias_letivos_geral['default']
-            if medicao.periodo_escolar:
-                dias_letivos = dias_letivos_geral['noite'] if medicao.periodo_escolar.nome == "NOITE" else dias_letivos_geral['default']
+            eh_noite = (
+                medicao.periodo_escolar and medicao.periodo_escolar.nome == "NOITE"
+            )
+            dias_letivos = (
+                dias_letivos_geral["noite"]
+                if eh_noite
+                else dias_letivos_geral["default"]
+            )
             dias_letivos_uteis = [int(dia) for dia in dias_letivos]
-            
             for dia in dias_letivos_uteis:
-            
+
                 valores_medicao_ = list(
                     set(
                         medicao.valores_medicao.values_list(
@@ -3557,10 +3605,12 @@ def checa_valor_medicao(valor_medicao, periodo_com_erro):
     return periodo_com_erro
 
 
-def obter_periodos_corretos(solicitacao: SolicitacaoMedicaoInicial, escola: Escola) -> dict:
+def obter_periodos_corretos(
+    solicitacao: SolicitacaoMedicaoInicial, escola: Escola
+) -> dict:
     """
     Obtém os dias letivos organizados por período escolar para uma solicitação de medição inicial.
-    
+
     Esta função calcula e retorna os dias letivos considerando diferentes períodos escolares,
     com tratamento especial para o período noturno quando existente. Para o período noturno,
     são calculados dias letivos específicos, enquanto para outros períodos são usados os dias padrão.
@@ -3578,9 +3628,13 @@ def obter_periodos_corretos(solicitacao: SolicitacaoMedicaoInicial, escola: Esco
                      caso contrário, retorna os dias letivos padrão.
     """
     dias_letivos_padrao = get_lista_dias_letivos(solicitacao, escola)
-    periodo_noite = escola.periodos_escolares(solicitacao.ano).filter(nome='NOITE')
+    periodo_noite = escola.periodos_escolares(solicitacao.ano).filter(nome="NOITE")
     dias_letivos_geral = {
         "default": dias_letivos_padrao,
-        "noite": get_lista_dias_letivos(solicitacao, escola, periodo_noite.first()) if periodo_noite.exists() else dias_letivos_padrao
+        "noite": (
+            get_lista_dias_letivos(solicitacao, escola, periodo_noite.first())
+            if periodo_noite.exists()
+            else dias_letivos_padrao
+        ),
     }
     return dias_letivos_geral
