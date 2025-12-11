@@ -621,6 +621,19 @@ class VinculoInstituicaoSerializer(serializers.ModelSerializer):
             instituicao_dict["possui_escolas_com_acesso_ao_medicao_inicial"] = (
                 obj.instituicao.possui_escolas_com_acesso_ao_medicao_inicial
             )
+            instituicao_dict["quantidade_alunos_terceirizada"] = (
+                obj.instituicao.quantidade_alunos_terceirizada
+            )
+            instituicao_dict["quantidade_alunos_parceira"] = (
+                obj.instituicao.quantidade_alunos_parceira
+            )
+        if isinstance(obj.instituicao, Codae):
+            instituicao_dict["quantidade_alunos_terceirizada"] = (
+                obj.instituicao.quantidade_alunos_terceirizada
+            )
+            instituicao_dict["quantidade_alunos_parceira"] = (
+                obj.instituicao.quantidade_alunos_parceira
+            )
         if isinstance(obj.instituicao, Escola):
             instituicao_dict["possui_alunos_regulares"] = (
                 obj.instituicao.possui_alunos_regulares
@@ -640,6 +653,9 @@ class VinculoInstituicaoSerializer(serializers.ModelSerializer):
             instituicao_dict["tipo_servico"] = self.get_tipo_servico(obj)
             instituicao_dict["possui_escolas_com_acesso_ao_medicao_inicial"] = (
                 obj.instituicao.possui_escolas_com_acesso_ao_medicao_inicial
+            )
+            instituicao_dict["quantidade_alunos_terceirizada"] = (
+                obj.instituicao.quantidade_alunos_terceirizada
             )
         return instituicao_dict
 
