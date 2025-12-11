@@ -4856,3 +4856,49 @@ def solicitacao_logs_medicao_outro_usuario(usuario_diretoria_regional):
         criado_em=datetime.datetime(2024, 3, 10, 20, 50, 12),
     )
     return solicitacao
+
+
+@pytest.fixture
+def solicitacao_dias_letivos_escola(
+    escola, periodo_escolar_noite, periodo_escolar_integral
+):
+    solicitacao = baker.make(
+        SolicitacaoMedicaoInicial, mes="11", ano="2025", escola=escola
+    )
+    for dia in range(1, 31):
+        baker.make(
+            "DiaCalendario",
+            escola=escola,
+            periodo_escolar=None,
+            data=datetime.date(2025, 11, dia),
+            dia_letivo=True,
+        )
+        dia_letivo = False if dia in [11, 12] else True
+        baker.make(
+            "DiaCalendario",
+            escola=escola,
+            periodo_escolar=periodo_escolar_noite,
+            data=datetime.date(2025, 11, dia),
+            dia_letivo=dia_letivo,
+        )
+    return solicitacao
+
+
+@pytest.fixture
+def vinculo_alimentacao_noturno(escola, periodo_escolar_noite):
+    baker.make(
+        "VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
+        tipo_unidade_escolar=escola.tipo_unidade,
+        periodo_escolar=periodo_escolar_noite,
+        ativo=True,
+    )
+
+
+@pytest.fixture
+def vinculo_alimentacao_integral(escola, periodo_escolar_integral):
+    baker.make(
+        "VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
+        tipo_unidade_escolar=escola.tipo_unidade,
+        periodo_escolar=periodo_escolar_integral,
+        ativo=True,
+    )

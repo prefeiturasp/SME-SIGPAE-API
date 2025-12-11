@@ -29,6 +29,8 @@ from ..utils import (
     cria_arquivo_excel,
     deletar_alunos_periodo_parcial_outras_escolas,
     dias_append,
+    dias_letivos_gerais,
+    dias_letivos_noturno,
     duplica_dia_anterior,
     eh_dia_sem_atividade_escolar,
     eh_mes_atual,
@@ -328,7 +330,9 @@ def test_calendario_sgp(mock_escolas):
         "sme_sigpae_api.escola.models.Escola.objects.all", return_value=mock_escolas
     ):
         with patch.object(
-            NovoSGPServico, "dias_letivos", return_value={"dias": 180}
+            NovoSGPServico,
+            "dias_letivos",
+            return_value={"data": "2025-01-01T00:00:00", "ehLetivo": True},
         ) as mock_dias_letivos:
             with patch(
                 "sme_sigpae_api.escola.utils.processa_dias_letivos"
@@ -345,7 +349,7 @@ def test_calendario_sgp(mock_escolas):
                     data_fim=data_fim,
                 )
                 mock_processa_dias_letivos.assert_called_once_with(
-                    {"dias": 180}, escola_mock
+                    {"data": "2025-01-01T00:00:00", "ehLetivo": True}, escola_mock
                 )
 
 
@@ -655,3 +659,69 @@ def test_cria_arquivo_excel(tmp_path):
 
     if os.path.exists(caminho_arquivo):
         os.remove(caminho_arquivo)
+
+
+@patch("sme_sigpae_api.escola.services.NovoSGPServico.dias_letivos")
+@patch("sme_sigpae_api.escola.utils.processa_dias_letivos")
+def test_dias_letivos_gerais_sucesso(
+    mock_processa, mock_sgp, escola, dias_letivos_mock
+):
+    mock_sgp.return_value = dias_letivos_mock
+    dias_letivos_gerais(escola, "2025-01-01", "2025-01-31")
+    mock_sgp.assert_called_once_with(
+        codigo_eol=escola.codigo_eol,
+        data_inicio="2025-01-01",
+        data_fim="2025-01-31",
+    )
+    mock_processa.assert_called_once_with(dias_letivos_mock, escola)
+
+
+@patch("sme_sigpae_api.escola.services.NovoSGPServico.dias_letivos")
+@patch("sme_sigpae_api.escola.utils.processa_dias_letivos")
+def test_dias_letivos_noturno_sem_alunos(
+    mock_processa,
+    mock_sgp,
+    escola,
+    periodo_escolar_noite,
+    sem_alunos_matriculados_noite,
+):
+    dias_letivos_noturno(escola, "2025-02-01", "2025-02-28", periodo_escolar_noite)
+    mock_sgp.assert_not_called()
+    mock_processa.assert_not_called()
+
+
+@patch("sme_sigpae_api.escola.services.NovoSGPServico.dias_letivos")
+@patch("sme_sigpae_api.escola.utils.processa_dias_letivos")
+def test_dias_letivos_noturno_com_alunos(
+    mock_processa,
+    mock_sgp,
+    escola,
+    periodo_escolar_noite,
+    dias_letivos_mock,
+    com_alunos_matriculados_noite,
+):
+    mock_sgp.return_value = dias_letivos_mock
+
+    dias_letivos_noturno(escola, "2025-02-01", "2025-02-28", periodo_escolar_noite)
+
+    mock_sgp.assert_called_once_with(
+        codigo_eol=escola.codigo_eol,
+        data_inicio="2025-02-01",
+        data_fim="2025-02-28",
+        tipo_turno=5,
+    )
+
+    mock_processa.assert_called_once_with(
+        dias_letivos_mock, escola, periodo_escolar=periodo_escolar_noite
+    )
+
+
+@patch("sme_sigpae_api.escola.services.NovoSGPServico.dias_letivos")
+@patch("sme_sigpae_api.escola.utils.processa_dias_letivos")
+def test_dias_letivos_noturno_sem_periodo_cadastrado(
+    mock_processa, mock_sgp, escola, periodo_escolar_noite
+):
+    dias_letivos_noturno(escola, "2025-02-01", "2025-02-28", periodo_escolar_noite)
+
+    mock_sgp.assert_not_called()
+    mock_processa.assert_not_called()
