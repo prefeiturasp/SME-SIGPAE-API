@@ -167,9 +167,16 @@ class LogAlunosMatriculadosPeriodoEscolaSerializer(serializers.ModelSerializer):
         exclude = ("id", "uuid", "observacao")
 
 
+class PeriodoEscolarParaFiltroSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PeriodoEscolar
+        fields = ("uuid", "nome")
+
+
 class DiaCalendarioSerializer(serializers.ModelSerializer):
     escola = serializers.CharField(source="escola.nome")
     dia = serializers.SerializerMethodField()
+    periodo_escolar = PeriodoEscolarParaFiltroSerializer()
 
     def get_dia(self, obj):
         return obj.data.strftime("%d")
@@ -482,13 +489,20 @@ class VinculoInstituicaoSerializer(serializers.ModelSerializer):
 
     def get_periodos_escolares(self, obj):
         if isinstance(obj.instituicao, Escola):
+            request = self.context.get("request")
+            pega_atualmente = False
+            if request is not None:
+                pega_atualmente = (
+                    request.query_params.get("pega_atualmente", "false").lower()
+                    == "true"
+                )
             return PeriodoEscolarSerializer(
-                obj.instituicao.periodos_escolares().all(),
+                obj.instituicao.periodos_escolares(
+                    pega_atualmente=pega_atualmente
+                ).all(),
                 many=True,
                 context={"escola": obj.instituicao},
             ).data
-        else:
-            return []
 
     def get_lotes(self, obj):
         if isinstance(obj.instituicao, (Terceirizada, DiretoriaRegional)):
@@ -580,6 +594,50 @@ class VinculoInstituicaoSerializer(serializers.ModelSerializer):
             return None
         return obj.instituicao.tipo_servico
 
+    def _add_diretoria_regional_data(self, instituicao_dict, obj):
+        instituicao_dict["possui_escolas_com_acesso_ao_medicao_inicial"] = (
+            obj.instituicao.possui_escolas_com_acesso_ao_medicao_inicial
+        )
+        instituicao_dict["quantidade_alunos_terceirizada"] = (
+            obj.instituicao.quantidade_alunos_terceirizada
+        )
+        instituicao_dict["quantidade_alunos_parceira"] = (
+            obj.instituicao.quantidade_alunos_parceira
+        )
+
+    def _add_codae_data(self, instituicao_dict, obj):
+        instituicao_dict["quantidade_alunos_terceirizada"] = (
+            obj.instituicao.quantidade_alunos_terceirizada
+        )
+        instituicao_dict["quantidade_alunos_parceira"] = (
+            obj.instituicao.quantidade_alunos_parceira
+        )
+
+    def _add_escola_data(self, instituicao_dict, obj):
+        instituicao_dict["possui_alunos_regulares"] = (
+            obj.instituicao.possui_alunos_regulares
+        )
+        instituicao_dict["eh_cei"] = self.get_eh_cei(obj)
+        instituicao_dict["eh_cemei"] = self.get_eh_cemei(obj)
+        instituicao_dict["eh_emebs"] = self.get_eh_emebs(obj)
+        instituicao_dict["modulo_gestao"] = self.get_modulo_gestao(obj)
+        if obj.instituicao.eh_cemei:
+            instituicao_dict["quantidade_alunos_cei_da_cemei"] = (
+                obj.instituicao.quantidade_alunos_cei_da_cemei
+            )
+            instituicao_dict["quantidade_alunos_emei_da_cemei"] = (
+                obj.instituicao.quantidade_alunos_emei_da_cemei
+            )
+
+    def _add_terceirizada_data(self, instituicao_dict, obj):
+        instituicao_dict["tipo_servico"] = self.get_tipo_servico(obj)
+        instituicao_dict["possui_escolas_com_acesso_ao_medicao_inicial"] = (
+            obj.instituicao.possui_escolas_com_acesso_ao_medicao_inicial
+        )
+        instituicao_dict["quantidade_alunos_terceirizada"] = (
+            obj.instituicao.quantidade_alunos_terceirizada
+        )
+
     def get_instituicao(self, obj):
         instituicao_dict = {
             "nome": obj.instituicao.nome,
@@ -604,29 +662,13 @@ class VinculoInstituicaoSerializer(serializers.ModelSerializer):
                 obj.instituicao.acesso_modulo_medicao_inicial
             )
         if isinstance(obj.instituicao, DiretoriaRegional):
-            instituicao_dict["possui_escolas_com_acesso_ao_medicao_inicial"] = (
-                obj.instituicao.possui_escolas_com_acesso_ao_medicao_inicial
-            )
+            self._add_diretoria_regional_data(instituicao_dict, obj)
+        if isinstance(obj.instituicao, Codae):
+            self._add_codae_data(instituicao_dict, obj)
         if isinstance(obj.instituicao, Escola):
-            instituicao_dict["possui_alunos_regulares"] = (
-                obj.instituicao.possui_alunos_regulares
-            )
-            instituicao_dict["eh_cei"] = self.get_eh_cei(obj)
-            instituicao_dict["eh_cemei"] = self.get_eh_cemei(obj)
-            instituicao_dict["eh_emebs"] = self.get_eh_emebs(obj)
-            instituicao_dict["modulo_gestao"] = self.get_modulo_gestao(obj)
-            if obj.instituicao.eh_cemei:
-                instituicao_dict["quantidade_alunos_cei_da_cemei"] = (
-                    obj.instituicao.quantidade_alunos_cei_da_cemei
-                )
-                instituicao_dict["quantidade_alunos_emei_da_cemei"] = (
-                    obj.instituicao.quantidade_alunos_emei_da_cemei
-                )
+            self._add_escola_data(instituicao_dict, obj)
         if isinstance(obj.instituicao, Terceirizada):
-            instituicao_dict["tipo_servico"] = self.get_tipo_servico(obj)
-            instituicao_dict["possui_escolas_com_acesso_ao_medicao_inicial"] = (
-                obj.instituicao.possui_escolas_com_acesso_ao_medicao_inicial
-            )
+            self._add_terceirizada_data(instituicao_dict, obj)
         return instituicao_dict
 
     class Meta:
@@ -827,12 +869,6 @@ class EscolaParaFiltroSerializer(serializers.ModelSerializer):
     class Meta:
         model = Escola
         fields = ("uuid", "nome", "diretoria_regional", "tipo_unidade", "lote")
-
-
-class PeriodoEscolarParaFiltroSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PeriodoEscolar
-        fields = ("uuid", "nome")
 
 
 class EscolaAlunoPeriodoSerializer(serializers.ModelSerializer):

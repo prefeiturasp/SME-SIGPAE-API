@@ -149,6 +149,24 @@ class DiretoriaRegional(
         ).aggregate(Sum("quantidade_alunos"))
         return quantidade_result.get("quantidade_alunos__sum") or 0
 
+    @property
+    def quantidade_alunos_terceirizada(self):
+        quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
+            escola__in=self.escolas.all(),
+            tipo_turma="REGULAR",
+            escola__tipo_gestao__nome="TERC TOTAL"
+        ).aggregate(Sum("quantidade_alunos"))
+        return quantidade_result.get("quantidade_alunos__sum") or 0
+
+    @property
+    def quantidade_alunos_parceira(self):
+        quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
+            escola__in=self.escolas.all(),
+            tipo_turma="REGULAR",
+            escola__tipo_gestao__nome="PARCEIRA"
+        ).aggregate(Sum("quantidade_alunos"))
+        return quantidade_result.get("quantidade_alunos__sum") or 0
+
     #
     # Inclusões continuas e normais
     #
@@ -654,7 +672,7 @@ class Escola(
             escola__uuid=self.uuid, tipo_turma="REGULAR", quantidade_alunos__gte=1
         ).exists()
 
-    def periodos_escolares(self, ano=datetime.date.today().year):
+    def periodos_escolares(self, ano=datetime.date.today().year, pega_atualmente=False):
         """Recupera periodos escolares da escola, desde que haja pelomenos um aluno para este período."""
 
         if self.tipo_unidade.tem_somente_integral_e_parcial:
@@ -667,15 +685,21 @@ class Escola(
                 vinculotipoalimentacaocomperiodoescolaretipounidadeescolar__ativo=True,
             )
         else:
-            periodos = PeriodoEscolar.objects.filter(
-                id__in=self.logs_alunos_matriculados_por_periodo.filter(
-                    tipo_turma="REGULAR",
-                    quantidade_alunos__gte=1,
-                    criado_em__year=ano,
+            if pega_atualmente:
+                periodos = PeriodoEscolar.objects.filter(
+                    escolas_periodos__escola=self,
+                    escolas_periodos__quantidade_alunos__gt=0,
+                ).distinct()
+            else:
+                periodos = PeriodoEscolar.objects.filter(
+                    id__in=self.logs_alunos_matriculados_por_periodo.filter(
+                        tipo_turma="REGULAR",
+                        quantidade_alunos__gte=1,
+                        criado_em__year=ano,
+                    )
+                    .values_list("periodo_escolar", flat=True)
+                    .distinct()
                 )
-                .values_list("periodo_escolar", flat=True)
-                .distinct()
-            )
         return periodos
 
     @property
@@ -1615,6 +1639,15 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         ).aggregate(Sum("quantidade_alunos"))
         return quantidade_result.get("quantidade_alunos__sum") or 0
 
+    @property
+    def quantidade_alunos_terceirizada(self):
+        quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
+            escola__in=self.escolas.all(),
+            tipo_turma="REGULAR",
+            escola__tipo_gestao__nome="TERC TOTAL"
+        ).aggregate(Sum("quantidade_alunos"))
+        return quantidade_result.get("quantidade_alunos__sum") or 0
+
     def _transferir_solicitacoes_gestao_alimentacao(
         self, terceirizada, data_da_virada: datetime.date
     ) -> None:
@@ -2192,6 +2225,24 @@ class Codae(
         ).aggregate(Sum("quantidade_alunos"))
         return quantidade_result.get("quantidade_alunos__sum") or 0
 
+    @property
+    def quantidade_alunos_terceirizada(self):
+        quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
+            escola__in=Escola.objects.all(),
+            tipo_turma="REGULAR",
+            escola__tipo_gestao__nome="TERC TOTAL"
+        ).aggregate(Sum("quantidade_alunos"))
+        return quantidade_result.get("quantidade_alunos__sum") or 0
+
+    @property
+    def quantidade_alunos_parceira(self):
+        quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
+            escola__in=Escola.objects.all(),
+            tipo_turma="REGULAR",
+            escola__tipo_gestao__nome="PARCEIRA"
+        ).aggregate(Sum("quantidade_alunos"))
+        return quantidade_result.get("quantidade_alunos__sum") or 0
+
     def inversoes_cardapio_das_minhas_escolas(self, filtro_aplicado):
         queryset = queryset_por_data(filtro_aplicado, InversaoCardapio)
         return queryset.filter(
@@ -2635,12 +2686,17 @@ class AlunosMatriculadosPeriodoEscola(CriadoEm, TemAlteradoEm, TemChaveExterna):
         tem {self.quantidade_alunos} alunos"""
 
     def formata_para_relatorio(self):
+        periodo_escolar = self.periodo_escolar.nome
+        if self.escola.eh_cei:
+            periodos_cei = {"MANHA": "Infantil Manhã", "TARDE": "Infantil Tarde"}
+            periodo_escolar = periodos_cei.get(periodo_escolar, periodo_escolar)
+
         return {
             "dre": self.escola.diretoria_regional.nome,
             "lote": self.escola.lote.nome if self.escola.lote else " - ",
             "tipo_unidade": self.escola.tipo_unidade.iniciais,
             "escola": self.escola.nome,
-            "periodo_escolar": self.periodo_escolar.nome,
+            "periodo_escolar": periodo_escolar,
             "tipo_turma": self.tipo_turma,
             "eh_cei": self.escola.eh_cei,
             "eh_cemei": self.escola.eh_cemei,
@@ -2822,6 +2878,13 @@ class DiaCalendario(CriadoEm, TemAlteradoEm, TemData, TemChaveExterna):
     escola = models.ForeignKey(
         Escola, related_name="calendario", on_delete=models.DO_NOTHING, null=True
     )
+    periodo_escolar = models.ForeignKey(
+        PeriodoEscolar,
+        related_name="dias_calendario",
+        on_delete=models.SET_NULL,  # mantém o DiaCalendario mesmo se o período for apagado
+        null=True,
+        blank=True,
+    )
     dia_letivo = models.BooleanField("É dia Letivo?", default=True)
 
     @classmethod
@@ -2859,7 +2922,9 @@ class DiaCalendario(CriadoEm, TemAlteradoEm, TemData, TemChaveExterna):
             datas_nao_letivas = [
                 data
                 for data in datas
-                if not escola.calendario.get(data=data).dia_letivo
+                if not escola.calendario.get(
+                    data=data, periodo_escolar__isnull=True
+                ).dia_letivo
             ]
         except DiaCalendario.DoesNotExist:
             datas_nao_letivas = datas

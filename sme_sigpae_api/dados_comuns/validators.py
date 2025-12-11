@@ -244,16 +244,24 @@ def deve_ter_extensao_xls_xlsx_pdf(nome: str):
 
 def valida_datas_alteracao_cardapio(attrs):
     for data in datetime_range(attrs["data_inicial"], attrs["data_final"]):
-        if DataIntervaloAlteracaoCardapio.objects.filter(
-            data=data,
-            cancelado=False,
-            alteracao_cardapio__status=AlteracaoCardapio.workflow_class.CODAE_AUTORIZADO,
-            alteracao_cardapio__escola=attrs["escola"],
-        ).exists():
-            raise serializers.ValidationError(
-                "Já existe uma solicitação autorizada para o "
-                f'dia {data.strftime("%d/%m/%Y")}'
+        for substituicao in attrs["substituicoes"]:
+            datas = DataIntervaloAlteracaoCardapio.objects.filter(
+                data=data,
+                cancelado=False,
+                alteracao_cardapio__status__in=[
+                    AlteracaoCardapio.workflow_class.DRE_A_VALIDAR,
+                    AlteracaoCardapio.workflow_class.DRE_VALIDADO,
+                    AlteracaoCardapio.workflow_class.CODAE_AUTORIZADO,
+                ],
+                alteracao_cardapio__escola=attrs["escola"],
+                alteracao_cardapio__substituicoes_periodo_escolar__periodo_escolar=substituicao[
+                    "periodo_escolar"
+                ],
             )
+            if datas.exists():
+                raise serializers.ValidationError(
+                    "Já existe uma solicitação de lanche emergencial para o dia e período selecionado!"
+                )
 
 
 def validate_file_size_10mb(value):

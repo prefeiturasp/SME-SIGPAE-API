@@ -1,7 +1,9 @@
+import datetime
 from calendar import monthrange
 from collections import defaultdict
 
 import pytest
+from freezegun import freeze_time
 
 from sme_sigpae_api.medicao_inicial.utils import (
     avalia_soma_total_com_dados_tabela_anterior,
@@ -30,6 +32,7 @@ from sme_sigpae_api.medicao_inicial.utils import (
     get_somatorio_solicitacoes_de_alimentacao,
     get_somatorio_tarde,
     get_somatorio_total_tabela,
+    substitui_criador_system_por_usuario_real,
     tratar_valores,
 )
 
@@ -1531,3 +1534,56 @@ def test_avalia_soma_total_com_dados_tabela_anterior():
 
     soma = sum(int(item) for item in valor_de_retorno if str(item).isdigit())
     assert soma == 164
+
+
+@freeze_time("2024-03-15 10:00:45")
+def test_substitui_log_quando_unico_e_do_system(
+    solicitacao_log_medicao_usuario_system, usuario, usuario_admin
+):
+    log = solicitacao_log_medicao_usuario_system.logs.first()
+    assert log.usuario == usuario_admin
+    assert log.criado_em == datetime.datetime(2024, 3, 1, 0, 0, 45)
+
+    substitui_criador_system_por_usuario_real(
+        solicitacao_log_medicao_usuario_system, usuario
+    )
+    solicitacao_log_medicao_usuario_system.refresh_from_db()
+
+    log = solicitacao_log_medicao_usuario_system.logs.first()
+    assert log.usuario == usuario
+    assert log.criado_em == datetime.datetime(2024, 3, 15, 10, 0, 45)
+    assert solicitacao_log_medicao_usuario_system.logs.count() == 1
+
+
+@freeze_time("2024-03-15 10:00:45")
+def test_nao_substitui_quando_unico_log_nao_for_do_system(
+    solicitacao_logs_medicao_outro_usuario, usuario_diretoria_regional, usuario_admin
+):
+    usuario, _ = usuario_diretoria_regional
+
+    log = solicitacao_logs_medicao_outro_usuario.logs.first()
+    assert log.usuario == usuario
+    assert log.criado_em == datetime.datetime(2024, 3, 10, 20, 50, 12)
+
+    substitui_criador_system_por_usuario_real(
+        solicitacao_logs_medicao_outro_usuario, usuario
+    )
+    solicitacao_logs_medicao_outro_usuario.refresh_from_db()
+
+    log = solicitacao_logs_medicao_outro_usuario.logs.first()
+    assert log.usuario == usuario
+    assert log.criado_em == datetime.datetime(2024, 3, 10, 20, 50, 12)
+
+
+def test_sem_logs_nada_e_modificado(
+    solicitacao_medicao_inicial_cemei, usuario_diretoria_regional, usuario_admin
+):
+    usuario, _ = usuario_diretoria_regional
+    log = solicitacao_medicao_inicial_cemei.logs.first()
+    assert log is None
+
+    substitui_criador_system_por_usuario_real(
+        solicitacao_medicao_inicial_cemei, usuario
+    )
+    log = solicitacao_medicao_inicial_cemei.logs.first()
+    assert log is None

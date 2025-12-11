@@ -110,11 +110,12 @@ class Command(BaseCommand):
     def trata_cemei_ao_gerar_logs(self, escola, periodo, faixa_obj, quantidade):
         pula_gerar_logs = False
         if escola.eh_cemei:
-            if periodo != "INTEGRAL":
+            if periodo not in ["INTEGRAL", "PARCIAL"]:
                 pula_gerar_logs = True
-            quantidade = escola.quantidade_alunos_cei_por_periodo_por_faixa(
-                "INTEGRAL", faixa_obj
-            )
+            if periodo == "INTEGRAL":
+                quantidade = escola.quantidade_alunos_cei_por_periodo_por_faixa(
+                    periodo, faixa_obj
+                )
             if quantidade == 0:
                 pula_gerar_logs = True
         return pula_gerar_logs, quantidade

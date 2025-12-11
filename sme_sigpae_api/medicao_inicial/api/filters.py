@@ -62,3 +62,23 @@ class RelatorioFinanceiroFilter(filters.FilterSet):
     def filtra_lotes(self, queryset, _, value):
         uuids = value.split(",")
         return queryset.filter(lote__uuid__in=uuids)
+
+
+class SolicitacaoMedicaoInicialFilter(filters.FilterSet):
+    escola = filters.CharFilter(field_name="escola__uuid", lookup_expr="iexact")
+    mes = filters.CharFilter(field_name="mes", lookup_expr="iexact")
+    ano = filters.CharFilter(field_name="ano", lookup_expr="iexact")
+    recreio_nas_ferias = filters.CharFilter(
+        field_name="recreio_nas_ferias__uuid", lookup_expr="iexact"
+    )
+
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+
+        if not self.data:
+            return queryset
+
+        if "recreio_nas_ferias" not in self.data:
+            queryset = queryset.filter(recreio_nas_ferias__isnull=True)
+
+        return queryset

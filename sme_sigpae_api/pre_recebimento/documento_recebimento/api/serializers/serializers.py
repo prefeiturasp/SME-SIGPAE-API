@@ -34,18 +34,18 @@ def calcular_saldo_laudo(documento_recebimento):
     )
     total_recebido = DocumentoFichaDeRecebimento.objects.filter(
         documento_recebimento=documento_recebimento,
-        ficha_recebimento__status='ASSINADA',
-        quantidade_recebida__isnull=False
-    ).aggregate(total=Sum('quantidade_recebida'))['total']
+        ficha_recebimento__status="ASSINADA",
+        quantidade_recebida__isnull=False,
+    ).aggregate(total=Sum("quantidade_recebida"))["total"]
 
     if total_recebido is None:
-        total_recebido = Decimal('0.00')
+        total_recebido = Decimal("0.00")
     else:
         total_recebido = Decimal(str(total_recebido))
 
     quantidade_laudo = documento_recebimento.quantidade_laudo
     if quantidade_laudo is None:
-        quantidade_laudo = Decimal('0.00')
+        quantidade_laudo = Decimal("0.00")
     else:
         quantidade_laudo = Decimal(str(quantidade_laudo))
 
@@ -157,6 +157,7 @@ class PainelDocumentoDeRecebimentoSerializer(serializers.ModelSerializer):
     nome_empresa = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
     log_mais_recente = serializers.SerializerMethodField()
+    programa_leve_leite = serializers.SerializerMethodField()
 
     def get_nome_produto(self, obj):
         try:
@@ -182,6 +183,12 @@ class PainelDocumentoDeRecebimentoSerializer(serializers.ModelSerializer):
         else:
             return datetime.datetime.strftime(obj.criado_em, "%d/%m/%Y")
 
+    def get_programa_leve_leite(self, obj):
+        try:
+            return obj.cronograma.ficha_tecnica.programa == "LEVE_LEITE"
+        except AttributeError:
+            return None
+
     class Meta:
         model = DocumentoDeRecebimento
         fields = (
@@ -191,6 +198,7 @@ class PainelDocumentoDeRecebimentoSerializer(serializers.ModelSerializer):
             "nome_empresa",
             "status",
             "log_mais_recente",
+            "programa_leve_leite",
         )
 
 

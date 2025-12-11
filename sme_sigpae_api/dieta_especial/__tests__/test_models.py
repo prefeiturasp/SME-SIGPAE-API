@@ -15,10 +15,6 @@ def test_solicitacao_dieta_especial_obj(solicitacao_dieta_especial):
     assert solicitacao_dieta_especial.escola == solicitacao_dieta_especial.rastro_escola
 
 
-def test_anexo_obj(anexo_docx):
-    assert anexo_docx.nome == anexo_docx.nome
-
-
 def test_termina_dieta_especial_erro_status_invalido(
     solicitacoes_dieta_especial_nao_autorizadas_e_nao_ativas, usuario_admin
 ):

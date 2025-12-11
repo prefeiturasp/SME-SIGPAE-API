@@ -55,6 +55,7 @@ from .dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
     LogQuantidadeDietasAutorizadasCEIFactory,
     LogQuantidadeDietasAutorizadasFactory,
+    MotivoAlteracaoUEFactory,
     SolicitacaoDietaEspecialFactory,
 )
 from .eol_servico.utils import EOLServicoSGP
@@ -147,6 +148,12 @@ from .medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_factor
     OcorrenciaMedicaoInicialFactory,
     SolicitacaoMedicaoInicialFactory,
     ValorMedicaoFactory,
+)
+from .medicao_inicial.recreio_nas_ferias.fixtures.factories.base_factory import (
+    CategoriaAlimentacaoFactory,
+    RecreioNasFeriasFactory,
+    RecreioNasFeriasUnidadeParticipanteFactory,
+    RecreioNasFeriasUnidadeTipoAlimentacaoFactory,
 )
 from .perfil.fixtures.factories.perfil_base_factories import (
     PerfilFactory,
@@ -341,6 +348,11 @@ register(SuspensaoAlimentacaoFactory)
 register(QuantidadePorPeriodoSuspensaoAlimentacaoFactory)
 register(SuspensaoAlimentacaoNoPeriodoEscolarFactory)
 register(InversaoCardapioFactory)
+register(MotivoAlteracaoUEFactory)
+register(RecreioNasFeriasFactory)
+register(RecreioNasFeriasUnidadeParticipanteFactory)
+register(CategoriaAlimentacaoFactory)
+register(RecreioNasFeriasUnidadeTipoAlimentacaoFactory)
 
 
 @pytest.fixture

@@ -944,9 +944,15 @@ class DiaCalendarioViewSet(ModelViewSet):
         escola_uuid = self.request.query_params.get("escola_uuid", "")
         mes = self.request.query_params.get("mes", "")
         ano = self.request.query_params.get("ano", "")
+        periodo_escolar_uuid = self.request.query_params.get(
+            "periodo_escolar_uuid", None
+        )
 
         queryset = queryset.filter(
-            escola__uuid=escola_uuid, data__month=mes, data__year=ano
+            escola__uuid=escola_uuid,
+            data__month=mes,
+            data__year=ano,
+            periodo_escolar__uuid=periodo_escolar_uuid,
         )
 
         return queryset
@@ -1192,6 +1198,37 @@ class GrupoUnidadeEscolarViewSet(ModelViewSet):
     lookup_field = "uuid"
     serializer_class = GrupoUnidadeEscolarSerializer
     queryset = GrupoUnidadeEscolar.objects.all()
+
+    @action(detail=False, methods=["GET"], url_path="por-dre")
+    def grupos_por_dre(self, request):
+        dre_uuid = request.query_params.get("dre")
+        if not dre_uuid:
+            return Response(
+                {"detail": "Parâmetro 'dre' é obrigatório."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            dre = DiretoriaRegional.objects.get(uuid=dre_uuid)
+        except DiretoriaRegional.DoesNotExist:
+            return Response(
+                {"detail": "DRE não encontrada."}, status=status.HTTP_404_NOT_FOUND
+            )
+        grupos = []
+        for grupo in GrupoUnidadeEscolar.objects.all().order_by("nome"):
+            tipos_unidade = grupo.tipos_unidades.all().values_list(
+                "iniciais", flat=True
+            )
+            habilitado = dre.escolas.filter(
+                tipo_unidade__iniciais__in=tipos_unidade
+            ).exists()
+
+            grupos.append(
+                {
+                    "nome": grupo.nome,
+                    "habilitado": habilitado,
+                }
+            )
+        return Response({"grupos": grupos}, status=status.HTTP_200_OK)
 
 
 class RelatorioControleDeFrequenciaViewSet(ModelViewSet):

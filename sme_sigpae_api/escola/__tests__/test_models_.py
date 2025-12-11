@@ -12,6 +12,7 @@ from ..models import (
     AlunosMatriculadosPeriodoEscola,
     DiaCalendario,
     DiretoriaRegional,
+    EscolaPeriodoEscolar,
     FaixaEtaria,
     LogAlteracaoQuantidadeAlunosPorEscolaEPeriodoEscolar,
     LogAlunosMatriculadosFaixaEtariaDia,
@@ -595,3 +596,176 @@ def test_periodos_escolares_escola_cmct(escola_cmct):
     for periodo, (nome_esperado, tipo_esperado) in zip(periodos, esperado):
         assert isinstance(periodo, tipo_esperado)
         assert periodo.nome == nome_esperado
+
+
+def test_formata_para_relatorio_verifica_periodo(log_alunos_matriculados_cei):
+    alunos_matriculados_manha = AlunosMatriculadosPeriodoEscola.objects.get(
+        periodo_escolar__nome="MANHA", escola__tipo_unidade__iniciais="CEI DIRET"
+    )
+    data = alunos_matriculados_manha.formata_para_relatorio()
+    assert data["periodo_escolar"] == "Infantil Manhã"
+    assert data["eh_cei"] is True
+
+    alunos_matriculados_tarde = AlunosMatriculadosPeriodoEscola.objects.get(
+        periodo_escolar__nome="TARDE", escola__tipo_unidade__iniciais="CEI DIRET"
+    )
+    data = alunos_matriculados_tarde.formata_para_relatorio()
+    assert data["periodo_escolar"] == "Infantil Tarde"
+    assert data["eh_cei"] is True
+
+    alunos_matriculados_integral = AlunosMatriculadosPeriodoEscola.objects.get(
+        periodo_escolar__nome="INTEGRAL", escola__tipo_unidade__iniciais="CEI DIRET"
+    )
+    data = alunos_matriculados_integral.formata_para_relatorio()
+    assert data["periodo_escolar"] == "INTEGRAL"
+    assert data["eh_cei"] is True
+
+
+def test_periodos_escolares_pega_atualmente_retorna_apenas_periodos_com_alunos(
+    escola,
+):
+    escola.tipo_unidade.tem_somente_integral_e_parcial = False
+    escola.tipo_unidade.save()
+
+    manha = PeriodoEscolar.objects.create(nome="MANHA")
+    tarde = PeriodoEscolar.objects.create(nome="TARDE")
+
+    AlunosMatriculadosPeriodoEscola.objects.create(
+        escola=escola,
+        periodo_escolar=manha,
+        quantidade_alunos=1,
+        tipo_turma="REGULAR",
+    )
+
+    EscolaPeriodoEscolar.objects.create(
+        escola=escola,
+        periodo_escolar=manha,
+        quantidade_alunos=10,
+    )
+    EscolaPeriodoEscolar.objects.create(
+        escola=escola,
+        periodo_escolar=tarde,
+        quantidade_alunos=0,
+    )
+
+    periodos = escola.periodos_escolares(pega_atualmente=True).order_by("nome")
+
+    assert periodos.count() == 1
+    assert periodos[0].nome == "MANHA"
+    assert isinstance(periodos[0], PeriodoEscolar)
+
+
+@freeze_time("2025-05-05")
+def test_periodos_escolares_pega_atualmente_false_retorna_periodos_com_logs_antigos(
+    escola,
+):
+    escola.tipo_unidade.tem_somente_integral_e_parcial = False
+    escola.tipo_unidade.save()
+
+    ano_atual = datetime.date.today().year
+
+    manha = PeriodoEscolar.objects.create(nome="MANHA")
+    tarde = PeriodoEscolar.objects.create(nome="TARDE")
+
+    AlunosMatriculadosPeriodoEscola.objects.create(
+        escola=escola,
+        periodo_escolar=manha,
+        quantidade_alunos=1,
+        tipo_turma="REGULAR",
+    )
+
+    LogAlunosMatriculadosPeriodoEscola.objects.create(
+        escola=escola,
+        periodo_escolar=manha,
+        quantidade_alunos=30,
+        tipo_turma="REGULAR",
+        criado_em=datetime.date(ano_atual, 3, 15),
+    )
+
+    LogAlunosMatriculadosPeriodoEscola.objects.create(
+        escola=escola,
+        periodo_escolar=tarde,
+        quantidade_alunos=25,
+        tipo_turma="REGULAR",
+        criado_em=datetime.date(ano_atual, 3, 20),
+    )
+
+    EscolaPeriodoEscolar.objects.create(
+        escola=escola,
+        periodo_escolar=manha,
+        quantidade_alunos=28,
+    )
+    EscolaPeriodoEscolar.objects.create(
+        escola=escola,
+        periodo_escolar=tarde,
+        quantidade_alunos=0,
+    )
+
+    # ===== COMPORTAMENTO BUG =====
+    # Sem a flag, retorna AMBOS os períodos
+    # porque ambos têm logs do ano atual, mesmo que TARDE tenha 0 alunos agora
+    periodos_com_bug = escola.periodos_escolares(
+        ano=ano_atual, pega_atualmente=False
+    ).order_by("nome")
+
+    assert periodos_com_bug.count() == 2  # BUG: retorna MANHA e TARDE
+    assert set(periodos_com_bug.values_list("nome", flat=True)) == {"MANHA", "TARDE"}
+
+    # ===== COMPORTAMENTO CORRETO (COM A FLAG) =====
+    # Com pega_atualmente=True, retorna apenas períodos com alunos AGORA
+    periodos_correto = escola.periodos_escolares(pega_atualmente=True).order_by("nome")
+
+    assert periodos_correto.count() == 1  # Retorna apenas MANHA
+    assert periodos_correto[0].nome == "MANHA"
+
+
+@freeze_time("2025-05-05")
+def test_periodos_escolares_pega_atualmente_false_mantem_comportamento_legado(
+    escola,
+):
+    escola.tipo_unidade.tem_somente_integral_e_parcial = False
+    escola.tipo_unidade.save()
+
+    ano_atual = datetime.date.today().year
+
+    manha = PeriodoEscolar.objects.create(nome="MANHA")
+
+    AlunosMatriculadosPeriodoEscola.objects.create(
+        escola=escola,
+        periodo_escolar=manha,
+        quantidade_alunos=1,
+        tipo_turma="REGULAR",
+    )
+
+    # Log de janeiro
+    LogAlunosMatriculadosPeriodoEscola.objects.create(
+        escola=escola,
+        periodo_escolar=manha,
+        quantidade_alunos=30,
+        tipo_turma="REGULAR",
+        criado_em=datetime.date(ano_atual, 1, 15),
+    )
+
+    # Comportamento legado: busca por logs do ano
+    periodos = escola.periodos_escolares(ano=ano_atual, pega_atualmente=False)
+
+    assert periodos.count() == 1
+    assert periodos[0].nome == "MANHA"
+
+
+def test_dia_calendario_com_perido(
+    dia_calendario_noturno, escola, periodo_escolar_noite
+):
+    assert dia_calendario_noturno.pk is not None
+    assert dia_calendario_noturno.dia_letivo is False
+    assert dia_calendario_noturno.escola == escola
+    assert dia_calendario_noturno.periodo_escolar == periodo_escolar_noite
+    assert dia_calendario_noturno.data == datetime.date(2024, 5, 15)
+
+
+def test_dia_calendario_sem_perido(dia_calendario_diurno, escola):
+    assert dia_calendario_diurno.pk is not None
+    assert dia_calendario_diurno.dia_letivo is True
+    assert dia_calendario_diurno.escola == escola
+    assert dia_calendario_diurno.periodo_escolar is None
+    assert dia_calendario_diurno.data == datetime.date(2024, 5, 15)

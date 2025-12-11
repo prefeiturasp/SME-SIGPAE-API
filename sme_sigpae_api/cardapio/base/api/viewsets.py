@@ -161,7 +161,9 @@ class VinculoTipoAlimentacaoViewSet(
         serializer = self.get_serializer(vinculos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def trata_inclusao_continua_medicao_inicial(self, request, escola, ano):
+    def trata_inclusao_continua_medicao_inicial(
+        self, request, escola, ano, pega_atualmente
+    ):
         mes = request.query_params.get("mes", None)
         periodos_escolares_inclusao_continua = None
         if mes:
@@ -171,7 +173,7 @@ class VinculoTipoAlimentacaoViewSet(
                 periodos_escolares_inclusao_continua = PeriodoEscolar.objects.filter(
                     uuid__in=list(response.data["periodos"].values())
                 )
-        periodos_para_filtrar = escola.periodos_escolares(ano)
+        periodos_para_filtrar = escola.periodos_escolares(ano, pega_atualmente)
 
         if periodos_escolares_inclusao_continua:
             periodos_para_filtrar = (
@@ -183,8 +185,9 @@ class VinculoTipoAlimentacaoViewSet(
     def filtro_por_escola(self, request, escola_uuid=None):
         escola = Escola.objects.get(uuid=escola_uuid)
         ano = request.query_params.get("ano", datetime.date.today().year)
+        pega_atualmente = request.query_params.get("pega_atualmente", False)
         periodos_para_filtrar = self.trata_inclusao_continua_medicao_inicial(
-            request, escola, ano
+            request, escola, ano, pega_atualmente
         )
 
         ordem_personalizada = ordem_periodos(escola)

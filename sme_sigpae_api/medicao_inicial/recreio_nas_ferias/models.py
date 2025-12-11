@@ -16,10 +16,12 @@ class RecreioNasFerias(TemChaveExterna, CriadoEm, TemAlteradoEm):
     data_fim = models.DateField()
 
     class Meta:
-        ordering = ['-alterado_em']
+        ordering = ["-alterado_em"]
+        verbose_name = "Recreio nas Férias"
+        verbose_name_plural = "Recreios nas Férias"
 
     def __str__(self):
-        return self.titulo
+        return f"{self.titulo} - (de {self.data_inicio.strftime('%d/%m/%Y')} à {self.data_fim.strftime('%d/%m/%Y')}) - {self.unidades_participantes.count()} unidades participantes"
 
 
 class RecreioNasFeriasUnidadeParticipante(TemChaveExterna, CriadoEm, TemAlteradoEm):
@@ -38,7 +40,11 @@ class RecreioNasFeriasUnidadeParticipante(TemChaveExterna, CriadoEm, TemAlterado
     cei_ou_emei = models.CharField(max_length=4, choices=CEI_OU_EMEI, default="N/A")
 
     def __str__(self):
-        return f"{self.unidade_educacional} - {self.recreio_nas_ferias}"
+        return f"{self.unidade_educacional} - {self.recreio_nas_ferias.titulo}"
+
+    class Meta:
+        verbose_name = "Recreio nas Férias - Unidade Participante"
+        verbose_name_plural = "Recreios nas Férias - Unidades Participantes"
 
 
 class CategoriaAlimentacao(TemChaveExterna, CriadoEm, TemAlteradoEm, Nomeavel):

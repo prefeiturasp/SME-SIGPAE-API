@@ -1,4 +1,5 @@
 import datetime
+import importlib
 
 from django.contrib import admin
 
@@ -205,3 +206,6 @@ class ParametrizacaoFinanceiraTabelaValorAdmin(admin.ModelAdmin):
 @admin.register(RelatorioFinanceiro)
 class RelatorioFinanceiroAdmin(admin.ModelAdmin):
     list_display = ("__str__", "grupo_unidade_escolar")
+
+
+importlib.import_module("sme_sigpae_api.medicao_inicial.recreio_nas_ferias.admin")

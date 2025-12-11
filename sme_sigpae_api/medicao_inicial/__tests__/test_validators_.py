@@ -6,6 +6,8 @@ from freezegun.api import freeze_time
 from sme_sigpae_api.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.medicao_inicial.validators import (
+    get_lista_dias_letivos,
+    obter_periodos_corretos,
     valida_medicoes_inexistentes_cei,
     valida_medicoes_inexistentes_emebs,
     valida_medicoes_inexistentes_escola_sem_alunos_regulares,
@@ -197,3 +199,153 @@ def test_validate_lancamento_alimentacoes_medicao_emebs(
         solicitacao_medicao_inicial_varios_valores_emebs, lista_erros
     )
     assert len(lista_erros) == 0
+
+
+def test_get_lista_dias_letivos_diurno(solicitacao_dias_letivos_escola, escola):
+    dias_letivos = get_lista_dias_letivos(
+        solicitacao_dias_letivos_escola, escola, periodo_escolar=None
+    )
+    assert len(dias_letivos) == 20
+    assert dias_letivos == [
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+    ]
+
+
+def test_get_lista_dias_letivos_noturno(
+    solicitacao_dias_letivos_escola, escola, periodo_escolar_noite
+):
+    dias_letivos = get_lista_dias_letivos(
+        solicitacao_dias_letivos_escola, escola, periodo_escolar=periodo_escolar_noite
+    )
+    assert len(dias_letivos) == 18
+    assert dias_letivos == [
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "10",
+        "13",
+        "14",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+    ]
+
+
+def test_obter_periodos_corretos_com_periodo_notuno(
+    solicitacao_dias_letivos_escola,
+    escola,
+    vinculo_alimentacao_noturno,
+    vinculo_alimentacao_integral,
+):
+    periodos = obter_periodos_corretos(solicitacao_dias_letivos_escola, escola)
+    assert isinstance(periodos, dict)
+    assert len(periodos) == 2
+
+    assert "default" in periodos
+    assert periodos["default"] == [
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+    ]
+
+    assert "noite" in periodos
+    assert periodos["noite"] == [
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "10",
+        "13",
+        "14",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+    ]
+
+
+def test_obter_periodos_corretos_sem_periodo_notuno(
+    solicitacao_dias_letivos_escola, escola, vinculo_alimentacao_integral
+):
+    periodos = obter_periodos_corretos(solicitacao_dias_letivos_escola, escola)
+    assert isinstance(periodos, dict)
+    assert len(periodos) == 2
+
+    assert "default" in periodos
+    assert periodos["default"] == [
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+    ]
+
+    assert "noite" in periodos
+    assert periodos["noite"] == periodos["default"]

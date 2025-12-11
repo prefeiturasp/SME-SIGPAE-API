@@ -21,8 +21,8 @@ from ..relatorios import (
     obter_relatorio_da_unidade,
     relatorio_dieta_especial_protocolo,
     relatorio_reclamacao_produtos,
-    relatorio_suspensao_de_alimentacao,
     relatorio_solicitacao_medicao_por_escola,
+    relatorio_suspensao_de_alimentacao,
 )
 
 pytestmark = pytest.mark.django_db
@@ -646,6 +646,7 @@ def test_relatorio_cronograma_entrega(cronograma):
     assert cronograma.unidade_medida.abreviacao in texto_pdf
 
     assert "Produto:" in texto_pdf
+    assert "LEVE LEITE - PLL" in texto_pdf
     assert "Marca:" in texto_pdf
     assert "Quantidade Total Programada:" in texto_pdf
 
@@ -748,10 +749,57 @@ def test_relatorio_solicitacao_medicao_rodape_aprovacao(
         solicitacao_medicao_inicial_aprovada_codae
     )
     texto = extrair_texto_de_pdf(relatorio)
-    
+
     assert "INFORMAÇÕES BÁSICAS DA MEDIÇÃO" in texto
     assert "EMEF JOAO MENDES" in texto
 
     assert "Aprovado por CODAE em" in texto
     assert "27/11/2025" in texto
     assert "Usuário TESTE" in texto
+
+
+def test_obter_relatorio_da_unidade_cemei():
+    with patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
+        {"EMEF", "EMEFM"},
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
+        {"CEI", "CEI CEU"},
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEMEI",
+        {"CEMEI", "CEU CEMEI"},
+    ), patch(
+        "sme_sigpae_api.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_cemei"
+    ) as mock_modulo_cemei:
+
+        tipos_unidade = ["CEMEI"]
+        resultado = obter_relatorio_da_unidade(tipos_unidade)
+
+        assert resultado == mock_modulo_cemei
+
+
+def test_obter_relatorio_da_unidade_emebs():
+    with patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
+        {"EMEF", "EMEFM"},
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
+        {"CEI", "CEI CEU"},
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEMEI",
+        {"CEMEI", "CEU CEMEI"},
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEBS",
+        {"EMEBS"},
+    ), patch(
+        "sme_sigpae_api.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_emebs"
+    ) as mock_modulo_emebs:
+
+        tipos_unidade = ["EMEBS"]
+        resultado = obter_relatorio_da_unidade(tipos_unidade)
+
+        assert resultado == mock_modulo_emebs
