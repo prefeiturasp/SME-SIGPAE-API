@@ -4,7 +4,6 @@ from io import BytesIO
 import openpyxl
 import pandas as pd
 import pytest
-from openpyxl import load_workbook
 
 from sme_sigpae_api.escola.models import PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao

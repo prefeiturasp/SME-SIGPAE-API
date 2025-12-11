@@ -1,3 +1,4 @@
+import math
 from io import BytesIO
 
 import openpyxl
@@ -463,7 +464,7 @@ def test_processa_dieta_especial(
     total = _processa_dieta_especial(
         relatorio_consolidado_xlsx_cemei, filtros, faixa_etaria, periodo
     )
-    assert total == 10.0
+    assert math.isclose(total, 10.0, rel_tol=1e-9)
 
     filtros = {"grupo__nome__in": grupos_medicao}
     periodo = "DIETA ESPECIAL - TIPO A - INFANTIL"
@@ -471,7 +472,7 @@ def test_processa_dieta_especial(
     total = _processa_dieta_especial(
         relatorio_consolidado_xlsx_cemei, filtros, campo, periodo
     )
-    assert total == 30.0
+    assert math.isclose(total, 30.0, rel_tol=1e-9)
 
     filtros = {"grupo__nome": "Programas e Projetos"}
     periodo = "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS"
@@ -479,7 +480,7 @@ def test_processa_dieta_especial(
     total = _processa_dieta_especial(
         relatorio_consolidado_xlsx_cemei, filtros, campo, periodo
     )
-    assert total == 1.0
+    assert math.isclose(total, 1.0, rel_tol=1e-9)
 
 
 def test_processa_periodo_regular(
@@ -491,7 +492,7 @@ def test_processa_periodo_regular(
     total = _processa_periodo_regular(
         relatorio_consolidado_xlsx_cemei, filtros, faixa_etaria, periodo
     )
-    assert total == 100.0
+    assert math.isclose(total, 100.0, rel_tol=1e-9)
 
     periodo = "Infantil INTEGRAL"
     filtros = {"grupo__nome": periodo}
@@ -499,7 +500,7 @@ def test_processa_periodo_regular(
     total = _processa_periodo_regular(
         relatorio_consolidado_xlsx_cemei, filtros, campo, periodo
     )
-    assert total == 150.0
+    assert math.isclose(total, 150.0, rel_tol=1e-9)
 
     filtros = {"nome": "INTEGRAL"}
     periodo = "DIETA ESPECIAL - TIPO A - INTEGRAL"
