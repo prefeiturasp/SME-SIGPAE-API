@@ -44,7 +44,6 @@ from ..models import (
 from ..utils import (
     KitLanchePagination,
     cancela_solicitacao_kit_lanche_unificada,
-    valida_dia_cancelamento,
 )
 from .serializers import serializers, serializers_create, serializers_create_cei
 
@@ -663,19 +662,11 @@ class SolicitacaoKitLancheUnificadaViewSet(ModelViewSet):
     )
     def diretoria_regional_cancela(self, request, uuid=None):
         try:
-            DIAS_PARA_CANCELAR = 2
             usuario = request.user
             justificativa = request.data.get("justificativa", "")
             escolas_selecionadas = request.data.get("escolas_selecionadas", "")
             solicitacao_unificada = self.get_object()
-            dia_antecedencia = datetime.date.today() + datetime.timedelta(
-                days=DIAS_PARA_CANCELAR
-            )
-            data_do_evento = solicitacao_unificada.data
-
-            valida_dia_cancelamento(
-                dia_antecedencia, data_do_evento, DIAS_PARA_CANCELAR
-            )
+            solicitacao_unificada.checa_se_pode_cancelar(solicitacao_unificada.data)
             for escola_quantidade in solicitacao_unificada.escolas_quantidades.all():
                 if (
                     str(escola_quantidade.escola.uuid) in escolas_selecionadas
