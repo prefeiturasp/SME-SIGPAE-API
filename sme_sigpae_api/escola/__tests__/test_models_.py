@@ -751,3 +751,21 @@ def test_periodos_escolares_pega_atualmente_false_mantem_comportamento_legado(
 
     assert periodos.count() == 1
     assert periodos[0].nome == "MANHA"
+
+
+def test_dia_calendario_com_perido(
+    dia_calendario_noturno, escola, periodo_escolar_noite
+):
+    assert dia_calendario_noturno.pk is not None
+    assert dia_calendario_noturno.dia_letivo is False
+    assert dia_calendario_noturno.escola == escola
+    assert dia_calendario_noturno.periodo_escolar == periodo_escolar_noite
+    assert dia_calendario_noturno.data == datetime.date(2024, 5, 15)
+
+
+def test_dia_calendario_sem_perido(dia_calendario_diurno, escola):
+    assert dia_calendario_diurno.pk is not None
+    assert dia_calendario_diurno.dia_letivo is True
+    assert dia_calendario_diurno.escola == escola
+    assert dia_calendario_diurno.periodo_escolar is None
+    assert dia_calendario_diurno.data == datetime.date(2024, 5, 15)
