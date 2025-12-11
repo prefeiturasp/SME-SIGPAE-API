@@ -1,9 +1,9 @@
+import math
 from io import BytesIO
 
 import openpyxl
 import pandas as pd
 import pytest
-from openpyxl import load_workbook
 
 from sme_sigpae_api.escola.models import PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
@@ -581,7 +581,7 @@ def test_processa_dieta_especial(relatorio_consolidado_xlsx_emef):
     total = processa_dieta_especial(
         relatorio_consolidado_xlsx_emef, filtros, campo, periodo
     )
-    assert total == 20.0
+    assert math.isclose(total, 20.0, rel_tol=1e-9)
 
 
 def test_pocessa_dieta_especial_etc_programas_e_projetos(
@@ -596,17 +596,17 @@ def test_pocessa_dieta_especial_etc_programas_e_projetos(
     total = processa_dieta_especial(
         solicitacao_medicao_inicial_dietas, filtros, campo, "DIETA ESPECIAL - TIPO A"
     )
-    assert total == 80.0
+    assert math.isclose(total, 80.0, rel_tol=1e-9)
     total = processa_dieta_especial(
         solicitacao_medicao_inicial_dietas, filtros, campo, "DIETA ESPECIAL - TIPO B"
     )
-    assert total == 80.0
+    assert math.isclose(total, 80.0, rel_tol=1e-9)
 
     campo = "refeicao"
     total = processa_dieta_especial(
         solicitacao_medicao_inicial_dietas, filtros, campo, "DIETA ESPECIAL - TIPO A"
     )
-    assert total == 80.0
+    assert math.isclose(total, 80.0, rel_tol=1e-9)
     total = processa_dieta_especial(
         solicitacao_medicao_inicial_dietas, filtros, campo, "DIETA ESPECIAL - TIPO B"
     )
@@ -620,7 +620,7 @@ def test_processa_periodo_regular(relatorio_consolidado_xlsx_emef):
     total = processa_periodo_regular(
         relatorio_consolidado_xlsx_emef, filtros, campo, periodo
     )
-    assert total == 125.0
+    assert math.isclose(total, 125.0, rel_tol=1e-9)
 
     periodo = "Solicitações de Alimentação"
     filtros = {"grupo__nome": periodo}
@@ -641,12 +641,12 @@ def test_calcula_soma_medicao(relatorio_consolidado_xlsx_emef):
     campo = "refeicao"
     categoria = ["ALIMENTAÇÃO"]
     total = _calcula_soma_medicao(medicao_manha, campo, categoria)
-    assert total == 125.0
+    assert math.isclose(total, 125.0, rel_tol=1e-9)
 
     campo = "kit_lanche"
     categoria = ["SOLICITAÇÕES DE ALIMENTAÇÃO"]
     total = _calcula_soma_medicao(medicao_solicitacao, campo, categoria)
-    assert total == 10.0
+    assert math.isclose(total, 10.0, rel_tol=1e-9)
 
     campo = "lanche_4h"
     categoria = [
@@ -654,7 +654,7 @@ def test_calcula_soma_medicao(relatorio_consolidado_xlsx_emef):
         "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
     ]
     total = _calcula_soma_medicao(medicao_manha, campo, categoria)
-    assert total == 20.0
+    assert math.isclose(total, 20.0, rel_tol=1e-9)
 
 
 def test_total_pagamento_emef(relatorio_consolidado_xlsx_emef):

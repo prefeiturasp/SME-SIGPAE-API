@@ -1,3 +1,4 @@
+import math
 from io import BytesIO
 
 import openpyxl
@@ -347,7 +348,7 @@ def test_processa_dieta_especial(relatorio_consolidado_xlsx_cei, faixas_etarias_
     total = processa_dieta_especial(
         relatorio_consolidado_xlsx_cei, filtros, faixa_etaria, periodo
     )
-    assert total == 8.0
+    assert math.isclose(total, 8.0, rel_tol=1e-9)
 
     filtros = {"periodo_escolar__nome": "PARCIAL"}
     periodo = "DIETA ESPECIAL - TIPO A - PARCIAL"
@@ -355,7 +356,7 @@ def test_processa_dieta_especial(relatorio_consolidado_xlsx_cei, faixas_etarias_
     total = processa_dieta_especial(
         relatorio_consolidado_xlsx_cei, filtros, faixa_etaria, periodo
     )
-    assert total == 8.0
+    assert math.isclose(total, 8.0, rel_tol=1e-9)
 
 
 def test_processa_periodo_regular(
@@ -375,7 +376,7 @@ def test_processa_periodo_regular(
     total = processa_periodo_regular(
         relatorio_consolidado_xlsx_cei, filtros, faixa_etaria, periodo
     )
-    assert total == 80.0
+    assert math.isclose(total, 80.0, rel_tol=1e-9)
 
     periodo = "NOITE"
     filtros = {"periodo_escolar__nome": periodo}
@@ -397,13 +398,13 @@ def test_calcula_soma_medicao_alimentacao(
     categoria = "ALIMENTAÇÃO"
 
     integral = _calcula_soma_medicao(medicoes[0], faixa_etaria, categoria)
-    assert integral == 80.0
+    assert math.isclose(integral, 80.0, rel_tol=1e-9)
 
     manha = _calcula_soma_medicao(medicoes[1], faixa_etaria, categoria)
     assert manha is None
 
     parcial = _calcula_soma_medicao(medicoes[2], faixa_etaria, categoria)
-    assert parcial == 80.0
+    assert math.isclose(parcial, 80.0, rel_tol=1e-9)
 
     tarde = _calcula_soma_medicao(medicoes[3], faixa_etaria, categoria)
     assert tarde is None
@@ -420,13 +421,13 @@ def test_calcula_soma_medicao_dieta_especial(
     categoria = "DIETA ESPECIAL - TIPO A"
 
     integral = _calcula_soma_medicao(medicoes[0], faixa_etaria, categoria)
-    assert integral == 8.0
+    assert math.isclose(integral, 8.0, rel_tol=1e-9)
 
     manha = _calcula_soma_medicao(medicoes[1], faixa_etaria, categoria)
-    assert manha == 8.0
+    assert math.isclose(manha, 8.0, rel_tol=1e-9)
 
     parcial = _calcula_soma_medicao(medicoes[2], faixa_etaria, categoria)
-    assert parcial == 8.0
+    assert math.isclose(parcial, 8.0, rel_tol=1e-9)
 
     tarde = _calcula_soma_medicao(medicoes[3], faixa_etaria, categoria)
     assert tarde is None

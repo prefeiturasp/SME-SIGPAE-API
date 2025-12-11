@@ -1,3 +1,5 @@
+import math
+
 import pandas as pd
 from django.db.models import FloatField, Q, Sum
 from django.db.models.functions import Cast
@@ -380,7 +382,7 @@ def processa_dieta_especial(
         if soma is not None:
             total += soma
 
-    return "-" if total == 0.0 else total
+    return "-" if math.isclose(total, 0.0, rel_tol=1e-9) else total
 
 
 def processa_periodo_regular(

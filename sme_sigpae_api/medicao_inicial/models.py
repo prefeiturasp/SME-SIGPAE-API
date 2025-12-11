@@ -392,6 +392,10 @@ class Medicao(
     alterado_em = models.DateTimeField("Alterado em", null=True, blank=True)
 
     @property
+    def escola(self):
+        return self.solicitacao_medicao_inicial.escola
+
+    @property
     def nome_periodo_grupo(self):
         if self.grupo and self.periodo_escolar:
             nome_periodo_grupo = (
