@@ -283,13 +283,28 @@ def dias_letivos_gerais(escola, inicio: str, fim: str) -> None:
     """
     from sme_sigpae_api.escola.services import NovoSGPServico
 
-    geral = NovoSGPServico.dias_letivos(
-        codigo_eol=escola.codigo_eol,
-        data_inicio=inicio,
-        data_fim=fim,
-    )
-    logger.debug(f"Dias letivos geral: {geral}")
-    processa_dias_letivos(geral, escola)
+    try:
+        geral = NovoSGPServico.dias_letivos(
+            codigo_eol=escola.codigo_eol,
+            data_inicio=inicio,
+            data_fim=fim,
+        )
+        processa_dias_letivos(geral, escola)
+    except Exception as e:
+        logger.error(f"Erro ao buscar por turno MANHA para escola {escola} : {str(e)}")
+        logger.debug("Tentando buscar dias letivos no novo sgp para turno da tarde")
+        try:
+            resposta = NovoSGPServico.dias_letivos(
+                codigo_eol=escola.codigo_eol,
+                data_inicio=inicio,
+                data_fim=fim,
+                tipo_turno=3,
+            )
+            processa_dias_letivos(resposta, escola)
+        except Exception as e:
+            logger.error(
+                f"Erro ao buscar por turno TARDE para escola {escola} : {str(e)}"
+            )
 
 
 def dias_letivos_noturno(escola, inicio: str, fim: str, periodo_noite):
@@ -326,19 +341,19 @@ def dias_letivos_noturno(escola, inicio: str, fim: str, periodo_noite):
             data_fim=fim,
             tipo_turno=5,
         )
-
-        logger.debug(f"Dias letivos noturno: {periodo}")
         processa_dias_letivos(periodo, escola, periodo_escolar=periodo_noite)
 
     except AlunosMatriculadosPeriodoEscola.DoesNotExist:
         logger.debug("Escola sem período NOITE cadastrado.")
+    except Exception as e:
+        logger.error(f"Erro ao buscar por turno NOITE para escola {escola} : {str(e)}")
 
 
 def calendario_sgp(data_inicio=date.today(), lista_escolas=None):
+
     import pandas as pd
 
     from sme_sigpae_api.escola.models import Escola, PeriodoEscolar
-    from sme_sigpae_api.escola.services import NovoSGPServico
 
     escolas = (
         Escola.objects.filter(nome__in=lista_escolas)
@@ -364,20 +379,7 @@ def calendario_sgp(data_inicio=date.today(), lista_escolas=None):
             dias_letivos_noturno(escola, data_inicio_formatada, data_fim, periodo_noite)
 
         except Exception as e:
-            logger.error(f"Dados não encontrados para escola {escola} : {str(e)}")
-            logger.debug("Tentando buscar dias letivos no novo sgp para turno da tarde")
-            try:
-                resposta = NovoSGPServico.dias_letivos(
-                    codigo_eol=escola.codigo_eol,
-                    data_inicio=data_inicio_formatada,
-                    data_fim=data_fim,
-                    tipo_turno=3,
-                )
-                processa_dias_letivos(resposta, escola)
-            except Exception as e:
-                logger.error(
-                    f"Erro ao buscar por turno tarde para escola {escola} : {str(e)}"
-                )
+            logger.error(f"Erro ao buscar dados para escola {escola} : {str(e)}")
 
 
 class EscolaSimplissimaPagination(PageNumberPagination):
