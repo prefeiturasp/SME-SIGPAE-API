@@ -1,6 +1,5 @@
 import datetime
 
-from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 
 
@@ -25,10 +24,3 @@ def cancela_solicitacao_kit_lanche_unificada(
 ):
     if not solicitacao_unificada.escolas_quantidades.filter(cancelado=False):
         solicitacao_unificada.cancelar_pedido(user=usuario, justificativa=justificativa)
-
-
-def valida_dia_cancelamento(dia_antecedencia, data_do_evento, dias_para_cancelar):
-    if data_do_evento <= dia_antecedencia:
-        raise ValidationError(
-            f"Só pode cancelar com no mínimo {dias_para_cancelar} dia(s) de antecedência"
-        )

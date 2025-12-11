@@ -149,6 +149,24 @@ class DiretoriaRegional(
         ).aggregate(Sum("quantidade_alunos"))
         return quantidade_result.get("quantidade_alunos__sum") or 0
 
+    @property
+    def quantidade_alunos_terceirizada(self):
+        quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
+            escola__in=self.escolas.all(),
+            tipo_turma="REGULAR",
+            escola__tipo_gestao__nome="TERC TOTAL"
+        ).aggregate(Sum("quantidade_alunos"))
+        return quantidade_result.get("quantidade_alunos__sum") or 0
+
+    @property
+    def quantidade_alunos_parceira(self):
+        quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
+            escola__in=self.escolas.all(),
+            tipo_turma="REGULAR",
+            escola__tipo_gestao__nome="PARCEIRA"
+        ).aggregate(Sum("quantidade_alunos"))
+        return quantidade_result.get("quantidade_alunos__sum") or 0
+
     #
     # Inclusões continuas e normais
     #
@@ -1621,6 +1639,15 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         ).aggregate(Sum("quantidade_alunos"))
         return quantidade_result.get("quantidade_alunos__sum") or 0
 
+    @property
+    def quantidade_alunos_terceirizada(self):
+        quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
+            escola__in=self.escolas.all(),
+            tipo_turma="REGULAR",
+            escola__tipo_gestao__nome="TERC TOTAL"
+        ).aggregate(Sum("quantidade_alunos"))
+        return quantidade_result.get("quantidade_alunos__sum") or 0
+
     def _transferir_solicitacoes_gestao_alimentacao(
         self, terceirizada, data_da_virada: datetime.date
     ) -> None:
@@ -2195,6 +2222,24 @@ class Codae(
     def quantidade_alunos(self):
         quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
             escola__in=Escola.objects.all(), tipo_turma="REGULAR"
+        ).aggregate(Sum("quantidade_alunos"))
+        return quantidade_result.get("quantidade_alunos__sum") or 0
+
+    @property
+    def quantidade_alunos_terceirizada(self):
+        quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
+            escola__in=Escola.objects.all(),
+            tipo_turma="REGULAR",
+            escola__tipo_gestao__nome="TERC TOTAL"
+        ).aggregate(Sum("quantidade_alunos"))
+        return quantidade_result.get("quantidade_alunos__sum") or 0
+
+    @property
+    def quantidade_alunos_parceira(self):
+        quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
+            escola__in=Escola.objects.all(),
+            tipo_turma="REGULAR",
+            escola__tipo_gestao__nome="PARCEIRA"
         ).aggregate(Sum("quantidade_alunos"))
         return quantidade_result.get("quantidade_alunos__sum") or 0
 
