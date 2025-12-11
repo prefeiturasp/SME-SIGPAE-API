@@ -54,6 +54,11 @@ def periodo_escolar():
 
 
 @pytest.fixture
+def periodo_escolar_noite():
+    return baker.make(models.PeriodoEscolar, nome="NOITE", tipo_turno=5)
+
+
+@pytest.fixture
 def tipo_unidade_escolar():
     cardapio1 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 11))
     cardapio2 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 15))
@@ -1061,8 +1066,7 @@ def mock_tipo_turma():
 
 
 @pytest.fixture
-def mock_escolas(escola):
-    baker.make(models.PeriodoEscolar, nome="NOITE")
+def mock_escolas(escola, periodo_escolar_noite):
     return [escola]
 
 
@@ -1320,3 +1324,62 @@ def grupos_da_dre(tipo_unidade_escolar):
     grupo = baker.make("GrupoUnidadeEscolar", nome="Grupo 2")
     grupo = baker.make("GrupoUnidadeEscolar", nome="Grupo 3")
     return dre
+
+
+@pytest.fixture
+def dias_letivos_mock():
+    return [
+        {"data": "2025-01-01T00:00:00", "ehLetivo": True},
+        {"data": "2025-01-02T00:00:00", "ehLetivo": False},
+        {"data": "2025-01-03T00:00:00", "ehLetivo": True},
+        {"data": "2025-01-04T00:00:00", "ehLetivo": True},
+        {"data": "2025-01-05T00:00:00", "ehLetivo": True},
+        {"data": "2025-01-06T00:00:00", "ehLetivo": True},
+        {"data": "2025-01-07T00:00:00", "ehLetivo": True},
+        {"data": "2025-01-08T00:00:00", "ehLetivo": True},
+        {"data": "2025-01-09T00:00:00", "ehLetivo": False},
+    ]
+
+
+@pytest.fixture
+def sem_alunos_matriculados_noite(escola, periodo_escolar_noite):
+    baker.make(
+        "AlunosMatriculadosPeriodoEscola",
+        escola=escola,
+        periodo_escolar=periodo_escolar_noite,
+        tipo_turma="REGULAR",
+        quantidade_alunos=0,
+    )
+
+
+@pytest.fixture
+def com_alunos_matriculados_noite(escola, periodo_escolar_noite):
+    baker.make(
+        "AlunosMatriculadosPeriodoEscola",
+        escola=escola,
+        periodo_escolar=periodo_escolar_noite,
+        tipo_turma="REGULAR",
+        quantidade_alunos=10,
+    )
+
+
+@pytest.fixture
+def dia_calendario_diurno(escola):
+    return baker.make(
+        "DiaCalendario",
+        escola=escola,
+        periodo_escolar=None,
+        data=datetime.date(2024, 5, 15),
+        dia_letivo=True,
+    )
+
+
+@pytest.fixture
+def dia_calendario_noturno(escola, periodo_escolar_noite):
+    return baker.make(
+        "DiaCalendario",
+        escola=escola,
+        periodo_escolar=periodo_escolar_noite,
+        data=datetime.date(2024, 5, 15),
+        dia_letivo=False,
+    )

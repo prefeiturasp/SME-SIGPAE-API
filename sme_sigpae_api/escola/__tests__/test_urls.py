@@ -684,3 +684,69 @@ def test_grupos_por_dre_quando_parametro_dre_existe(
             {"habilitado": False, "nome": "Grupo 3"},
         ]
     }
+
+
+def test_dia_calendario_sem_perido_escolar(
+    client_autenticado_da_dre, dia_calendario_diurno, dia_calendario_noturno, escola
+):
+    response = client_autenticado_da_dre.get(
+        f"/dias-calendario/?escola_uuid={escola.uuid}&mes=5&ano=2024"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    resposta = response.json()
+    assert isinstance(resposta, list)
+    assert len(resposta) == 1
+    esperado = {
+        "escola": escola.nome,
+        "dia": "15",
+        "periodo_escolar": None,
+        "data": "15/05/2024",
+        "dia_letivo": True,
+        "criado_em": dia_calendario_diurno.criado_em.strftime("%d/%m/%Y %H:%M:%S"),
+        "alterado_em": dia_calendario_diurno.alterado_em.strftime("%d/%m/%Y %H:%M:%S"),
+    }
+    for campo, valor in esperado.items():
+        assert resposta[0][campo] == valor
+
+
+def test_dia_calendario_com_perido_escolar(
+    client_autenticado_da_dre,
+    dia_calendario_diurno,
+    dia_calendario_noturno,
+    escola,
+    periodo_escolar_noite,
+):
+    response = client_autenticado_da_dre.get(
+        f"/dias-calendario/?escola_uuid={escola.uuid}&mes=5&ano=2024&periodo_escolar_uuid={periodo_escolar_noite.uuid}"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    resposta = response.json()
+    assert isinstance(resposta, list)
+    assert len(resposta) == 1
+    esperado = {
+        "escola": escola.nome,
+        "dia": "15",
+        "data": "15/05/2024",
+        "dia_letivo": False,
+        "criado_em": dia_calendario_noturno.criado_em.strftime("%d/%m/%Y %H:%M:%S"),
+        "alterado_em": dia_calendario_noturno.alterado_em.strftime("%d/%m/%Y %H:%M:%S"),
+    }
+    for campo, valor in esperado.items():
+        assert resposta[0][campo] == valor
+
+    assert resposta[0]["periodo_escolar"]["uuid"] == str(periodo_escolar_noite.uuid)
+    assert resposta[0]["periodo_escolar"]["nome"] == "NOITE"
+
+
+def test_dia_calendario_mes_nao_cadastrado(
+    client_autenticado_da_dre, escola, periodo_escolar_noite
+):
+    response = client_autenticado_da_dre.get(
+        f"/dias-calendario/?escola_uuid={escola.uuid}&mes=6&ano=2024&periodo_escolar_uuid={periodo_escolar_noite.uuid}"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    resposta = response.json()
+    assert isinstance(resposta, list)
+    assert len(resposta) == 0
