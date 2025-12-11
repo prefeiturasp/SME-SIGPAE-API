@@ -594,6 +594,50 @@ class VinculoInstituicaoSerializer(serializers.ModelSerializer):
             return None
         return obj.instituicao.tipo_servico
 
+    def _add_diretoria_regional_data(self, instituicao_dict, obj):
+        instituicao_dict["possui_escolas_com_acesso_ao_medicao_inicial"] = (
+            obj.instituicao.possui_escolas_com_acesso_ao_medicao_inicial
+        )
+        instituicao_dict["quantidade_alunos_terceirizada"] = (
+            obj.instituicao.quantidade_alunos_terceirizada
+        )
+        instituicao_dict["quantidade_alunos_parceira"] = (
+            obj.instituicao.quantidade_alunos_parceira
+        )
+
+    def _add_codae_data(self, instituicao_dict, obj):
+        instituicao_dict["quantidade_alunos_terceirizada"] = (
+            obj.instituicao.quantidade_alunos_terceirizada
+        )
+        instituicao_dict["quantidade_alunos_parceira"] = (
+            obj.instituicao.quantidade_alunos_parceira
+        )
+
+    def _add_escola_data(self, instituicao_dict, obj):
+        instituicao_dict["possui_alunos_regulares"] = (
+            obj.instituicao.possui_alunos_regulares
+        )
+        instituicao_dict["eh_cei"] = self.get_eh_cei(obj)
+        instituicao_dict["eh_cemei"] = self.get_eh_cemei(obj)
+        instituicao_dict["eh_emebs"] = self.get_eh_emebs(obj)
+        instituicao_dict["modulo_gestao"] = self.get_modulo_gestao(obj)
+        if obj.instituicao.eh_cemei:
+            instituicao_dict["quantidade_alunos_cei_da_cemei"] = (
+                obj.instituicao.quantidade_alunos_cei_da_cemei
+            )
+            instituicao_dict["quantidade_alunos_emei_da_cemei"] = (
+                obj.instituicao.quantidade_alunos_emei_da_cemei
+            )
+
+    def _add_terceirizada_data(self, instituicao_dict, obj):
+        instituicao_dict["tipo_servico"] = self.get_tipo_servico(obj)
+        instituicao_dict["possui_escolas_com_acesso_ao_medicao_inicial"] = (
+            obj.instituicao.possui_escolas_com_acesso_ao_medicao_inicial
+        )
+        instituicao_dict["quantidade_alunos_terceirizada"] = (
+            obj.instituicao.quantidade_alunos_terceirizada
+        )
+
     def get_instituicao(self, obj):
         instituicao_dict = {
             "nome": obj.instituicao.nome,
@@ -618,45 +662,13 @@ class VinculoInstituicaoSerializer(serializers.ModelSerializer):
                 obj.instituicao.acesso_modulo_medicao_inicial
             )
         if isinstance(obj.instituicao, DiretoriaRegional):
-            instituicao_dict["possui_escolas_com_acesso_ao_medicao_inicial"] = (
-                obj.instituicao.possui_escolas_com_acesso_ao_medicao_inicial
-            )
-            instituicao_dict["quantidade_alunos_terceirizada"] = (
-                obj.instituicao.quantidade_alunos_terceirizada
-            )
-            instituicao_dict["quantidade_alunos_parceira"] = (
-                obj.instituicao.quantidade_alunos_parceira
-            )
+            self._add_diretoria_regional_data(instituicao_dict, obj)
         if isinstance(obj.instituicao, Codae):
-            instituicao_dict["quantidade_alunos_terceirizada"] = (
-                obj.instituicao.quantidade_alunos_terceirizada
-            )
-            instituicao_dict["quantidade_alunos_parceira"] = (
-                obj.instituicao.quantidade_alunos_parceira
-            )
+            self._add_codae_data(instituicao_dict, obj)
         if isinstance(obj.instituicao, Escola):
-            instituicao_dict["possui_alunos_regulares"] = (
-                obj.instituicao.possui_alunos_regulares
-            )
-            instituicao_dict["eh_cei"] = self.get_eh_cei(obj)
-            instituicao_dict["eh_cemei"] = self.get_eh_cemei(obj)
-            instituicao_dict["eh_emebs"] = self.get_eh_emebs(obj)
-            instituicao_dict["modulo_gestao"] = self.get_modulo_gestao(obj)
-            if obj.instituicao.eh_cemei:
-                instituicao_dict["quantidade_alunos_cei_da_cemei"] = (
-                    obj.instituicao.quantidade_alunos_cei_da_cemei
-                )
-                instituicao_dict["quantidade_alunos_emei_da_cemei"] = (
-                    obj.instituicao.quantidade_alunos_emei_da_cemei
-                )
+            self._add_escola_data(instituicao_dict, obj)
         if isinstance(obj.instituicao, Terceirizada):
-            instituicao_dict["tipo_servico"] = self.get_tipo_servico(obj)
-            instituicao_dict["possui_escolas_com_acesso_ao_medicao_inicial"] = (
-                obj.instituicao.possui_escolas_com_acesso_ao_medicao_inicial
-            )
-            instituicao_dict["quantidade_alunos_terceirizada"] = (
-                obj.instituicao.quantidade_alunos_terceirizada
-            )
+            self._add_terceirizada_data(instituicao_dict, obj)
         return instituicao_dict
 
     class Meta:
