@@ -1248,22 +1248,18 @@ class RequisicoesExcelService(object):
         wb = Workbook()
         ws_conferencia = wb.active
         if perfil == "DISTRIBUIDOR":
-            conferencia = cls.cria_aba_conferencia_distribuidor(
-                ws_conferencia, requisicoes
-            )
+            cls.cria_aba_conferencia_distribuidor(ws_conferencia, requisicoes)
         elif perfil == "DRE":
-            conferencia = cls.cria_aba_conferencia_dre(ws_conferencia, requisicoes)
+            cls.cria_aba_conferencia_dre(ws_conferencia, requisicoes)
         else:
-            conferencia = cls.cria_aba_conferencia_dilog(ws_conferencia, requisicoes)
+            cls.cria_aba_conferencia_dilog(ws_conferencia, requisicoes)
 
         if tem_conferencia and not tem_insucesso:
-            conferencia
+            pass
         elif tem_insucesso and not tem_conferencia:
             ws_insucesso = wb.active
             cls.cria_aba_insucesso(ws_insucesso, requisicoes_insucesso, perfil)
         else:
-            conferencia
-
             ws_insucesso = wb.create_sheet("Relatório de Insucesso")
             cls.cria_aba_insucesso(ws_insucesso, requisicoes_insucesso, perfil)
 

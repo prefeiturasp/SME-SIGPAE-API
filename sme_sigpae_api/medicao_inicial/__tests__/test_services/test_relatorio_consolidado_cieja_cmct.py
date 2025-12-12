@@ -1,3 +1,4 @@
+import math
 from io import BytesIO
 
 import openpyxl
@@ -426,7 +427,7 @@ def test_processa_dieta_especial(relatorio_consolidado_xlsx_cieja):
     total = processa_dieta_especial(
         relatorio_consolidado_xlsx_cieja, filtros, campo, periodo
     )
-    assert total == 80.0
+    assert math.isclose(total, 80.0, rel_tol=1e-9)
 
 
 def test_processa_periodo_regular(relatorio_consolidado_xlsx_cieja):
@@ -436,7 +437,7 @@ def test_processa_periodo_regular(relatorio_consolidado_xlsx_cieja):
     total = processa_periodo_regular(
         relatorio_consolidado_xlsx_cieja, filtros, campo, periodo
     )
-    assert total == 150.0
+    assert math.isclose(total, 150.0, rel_tol=1e-9)
 
     periodo = "Solicitações de Alimentação"
     filtros = {"grupo__nome": periodo}
@@ -457,12 +458,12 @@ def test_calcula_soma_medicao(relatorio_consolidado_xlsx_cieja):
     campo = "refeicao"
     categoria = ["ALIMENTAÇÃO"]
     total = _calcula_soma_medicao(medicao_manha, campo, categoria)
-    assert total == 150.0
+    assert math.isclose(total, 150.0, rel_tol=1e-9)
 
     campo = "kit_lanche"
     categoria = ["SOLICITAÇÕES DE ALIMENTAÇÃO"]
     total = _calcula_soma_medicao(medicao_solicitacao, campo, categoria)
-    assert total == 5.0
+    assert math.isclose(total, 5.0, rel_tol=1e-9)
 
     campo = "lanche_4h"
     categoria = [
@@ -470,7 +471,7 @@ def test_calcula_soma_medicao(relatorio_consolidado_xlsx_cieja):
         "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
     ]
     total = _calcula_soma_medicao(medicao_manha, campo, categoria)
-    assert total == 40.0
+    assert math.isclose(total, 40.0, rel_tol=1e-9)
 
 
 def test_unificar_dietas_tipo_a():

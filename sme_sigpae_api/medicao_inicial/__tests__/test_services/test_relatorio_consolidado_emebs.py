@@ -1,3 +1,4 @@
+import math
 from io import BytesIO
 
 import openpyxl
@@ -552,7 +553,7 @@ def test_processa_dieta_especial(relatorio_consolidado_xlsx_emebs):
     total = processa_dieta_especial(
         relatorio_consolidado_xlsx_emebs, filtros, campo, periodo, turma
     )
-    assert total == 20.0
+    assert math.isclose(total, 20.0, rel_tol=1e-9)
 
 
 def test_processa_periodo_regular(relatorio_consolidado_xlsx_emebs):
@@ -569,7 +570,7 @@ def test_processa_periodo_regular(relatorio_consolidado_xlsx_emebs):
     total = processa_periodo_regular(
         relatorio_consolidado_xlsx_emebs, filtros, campo, periodo, turma
     )
-    assert total == 350.0
+    assert math.isclose(total, 350.0, rel_tol=1e-9)
 
 
 def test_calcula_soma_medicao_alimentacao(relatorio_consolidado_xlsx_emebs):
@@ -581,22 +582,22 @@ def test_calcula_soma_medicao_alimentacao(relatorio_consolidado_xlsx_emebs):
 
     turma = ["INFANTIL"]
     manha = _calcula_soma_medicao(medicoes[1], campo, categoria, turma)
-    assert manha == 350.0
+    assert math.isclose(manha, 350.0, rel_tol=1e-9)
 
     noite = _calcula_soma_medicao(medicoes[2], campo, categoria, turma)
     assert noite is None
 
     turma = ["FUNDAMENTAL"]
     manha = _calcula_soma_medicao(medicoes[1], campo, categoria, turma)
-    assert manha == 350.0
+    assert math.isclose(manha, 350.0, rel_tol=1e-9)
 
     noite = _calcula_soma_medicao(medicoes[2], campo, categoria, turma)
-    assert noite == 350.0
+    assert math.isclose(noite, 350.0, rel_tol=1e-9)
 
     categoria = ["Solicitações de Alimentação".upper()]
     turma = ["INFANTIL", "FUNDAMENTAL"]
     solicitacao = _calcula_soma_medicao(medicoes[5], "kit_lanche", categoria, turma)
-    assert solicitacao == 5.0
+    assert math.isclose(solicitacao, 5.0, rel_tol=1e-9)
 
 
 def test_get_total_pagamento(relatorio_consolidado_xlsx_emebs):
@@ -607,21 +608,21 @@ def test_get_total_pagamento(relatorio_consolidado_xlsx_emebs):
     turma = "INFANTIL"
 
     integral = _get_total_pagamento(medicoes[0], campo, turma)
-    assert integral == 350.0
+    assert math.isclose(integral, 350.0, rel_tol=1e-9)
 
     manha = _get_total_pagamento(medicoes[1], campo, turma)
-    assert manha == 350.0
+    assert math.isclose(manha, 350.0, rel_tol=1e-9)
 
     noite = _get_total_pagamento(medicoes[2], campo, turma)
     assert noite == "-"
 
     tarde = _get_total_pagamento(medicoes[3], campo, turma)
-    assert tarde == 350.0
+    assert math.isclose(tarde, 350.0, rel_tol=1e-9)
 
     campo = "total_sobremesas_pagamento"
     turma = "INFANTIL"
     programas_projetos = _get_total_pagamento(medicoes[4], campo, turma)
-    assert programas_projetos == 350.0
+    assert math.isclose(programas_projetos, 350.0, rel_tol=1e-9)
 
 
 def test_get_total_pagamento_infantil(relatorio_consolidado_xlsx_emebs):
@@ -631,20 +632,20 @@ def test_get_total_pagamento_infantil(relatorio_consolidado_xlsx_emebs):
     campo = "total_refeicoes_pagamento"
 
     integral = _total_pagamento_infantil(medicoes[0], campo, 0)
-    assert integral == 350.0
+    assert math.isclose(integral, 350.0, rel_tol=1e-9)
 
     manha = _total_pagamento_infantil(medicoes[1], campo, 0)
-    assert manha == 350.0
+    assert math.isclose(manha, 350.0, rel_tol=1e-9)
 
     noite = _total_pagamento_infantil(medicoes[2], campo, "-")
     assert noite == "-"
 
     tarde = _total_pagamento_infantil(medicoes[3], campo, 0)
-    assert tarde == 350.0
+    assert math.isclose(tarde, 350.0, rel_tol=1e-9)
 
     campo = "total_sobremesas_pagamento"
     programas_projetos = _total_pagamento_infantil(medicoes[4], campo, 0)
-    assert programas_projetos == 350.0
+    assert math.isclose(programas_projetos, 350.0, rel_tol=1e-9)
 
 
 def test_get_total_pagamento_fundamental(relatorio_consolidado_xlsx_emebs):
@@ -654,20 +655,20 @@ def test_get_total_pagamento_fundamental(relatorio_consolidado_xlsx_emebs):
     campo = "total_refeicoes_pagamento"
 
     integral = _total_pagamento_fundamental(medicoes[0], campo)
-    assert integral == 350.0
+    assert math.isclose(integral, 350.0, rel_tol=1e-9)
 
     manha = _total_pagamento_fundamental(medicoes[1], campo)
-    assert manha == 350.0
+    assert math.isclose(manha, 350.0, rel_tol=1e-9)
 
     noite = _total_pagamento_fundamental(medicoes[2], campo)
-    assert noite == 350.0
+    assert math.isclose(noite, 350.0, rel_tol=1e-9)
 
     tarde = _total_pagamento_fundamental(medicoes[3], campo)
-    assert tarde == 350.0
+    assert math.isclose(tarde, 350.0, rel_tol=1e-9)
 
     campo = "total_sobremesas_pagamento"
     programas_projetos = _total_pagamento_fundamental(medicoes[4], campo)
-    assert programas_projetos == 350.0
+    assert math.isclose(programas_projetos, 350.0, rel_tol=1e-9)
 
 
 def test_insere_tabela_periodos_na_planilha(

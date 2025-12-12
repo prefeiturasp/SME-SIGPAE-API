@@ -161,15 +161,15 @@ def test_insere_tabela_periodo_na_planilha(
     assert isinstance(df, pd.DataFrame)
     colunas_df = df.columns.tolist()
     assert len(colunas_df) == 4
-    colunas_df == [
+    assert colunas_df == [
         "Tipo de Alimentação",
         "Total de Alimentações Servidas",
         "Número Total de Frequência",
         "% de Adesão",
     ]
-    df.iloc[0].tolist() == ["LANCHE", 140, 755, 0.1854]
-    df.iloc[1].tolist() == ["SOBREMESA", 140, 755, 0.1854]
-    df.iloc[2].tolist() == ["TOTAL", 280, 1510, 0.1854]
+    assert df.iloc[0].tolist() == ["LANCHE", 140, 755, 0.1854]
+    assert df.iloc[1].tolist() == ["SOBREMESA", 140, 755, 0.1854]
+    assert df.iloc[2].tolist() == ["TOTAL", 280, 1510, 0.1854]
 
 
 def test_preenche_linha_do_periodo(mock_exportacao_informacoes_excel_writer):

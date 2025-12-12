@@ -323,9 +323,10 @@ class LogAlunoPorDiaAdmin(admin.ModelAdmin):
 
 @admin.register(DiaCalendario)
 class DiaCalendarioAdmin(admin.ModelAdmin):
-    list_display = ("escola", "data", "dia_letivo", "__str__")
+    list_display = ("escola", "data", "dia_letivo", "periodo_escolar", "__str__")
     search_fields = ("escola__nome", "escola__codigo_eol")
-    list_filter = (("data", DateRangeFilter),)
+    search_help_text = "Pesquise por: nome da escola, código eol da escola"
+    list_filter = (("data", DateRangeFilter), "periodo_escolar", "dia_letivo")
     ordering = ("-data",)
 
 
