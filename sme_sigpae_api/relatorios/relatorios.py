@@ -1516,6 +1516,49 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
         segunda_tabela_somatorio_dietas_tipo_b,
     ) = build_tabela_somatorio_dietas_body(solicitacao, "TIPO B")
 
+    def get_body_len(tabela):
+        if not tabela:
+            return 0
+        body = tabela.get("body") or []
+        return len(body)
+
+    alimentacao_rows = (get_body_len(primeira_tabela_somatorio))
+    dietas_a_rows = (get_body_len(primeira_tabela_somatorio_dietas_tipo_a))
+    dietas_b_rows = (get_body_len(primeira_tabela_somatorio_dietas_tipo_b))
+
+    LIMITE_TUDO_JUNTO = 7
+    LIMITE_ALIM_MAIS_A = 10
+
+    render_dieta_a_bloco_1 = False
+    render_dieta_b_bloco_1 = False
+    render_dieta_a_bloco_2 = False
+    render_dieta_b_bloco_2 = False
+
+    tem_dietas = (dietas_a_rows + dietas_b_rows) > 0
+
+    print("alimentacao_rows =", alimentacao_rows)
+    print("dietas_a_rows =", dietas_a_rows)
+    print("dietas_b_rows =", dietas_b_rows)
+
+    if tem_dietas:
+        # 1) Tenta colocar Alimentação + A + B juntos
+        if (alimentacao_rows + dietas_a_rows + dietas_b_rows) <= LIMITE_TUDO_JUNTO:
+            render_dieta_a_bloco_1 = dietas_a_rows > 0
+            render_dieta_b_bloco_1 = dietas_b_rows > 0
+
+        # 2) Senão, tenta colocar Alimentação + A na mesma página
+        elif (alimentacao_rows + dietas_a_rows) <= LIMITE_ALIM_MAIS_A:
+            render_dieta_a_bloco_1 = dietas_a_rows > 0
+            render_dieta_b_bloco_2 = dietas_b_rows > 0
+
+        # 3) Senão, Alimentação sozinha; Dietas vão para a página seguinte
+        else:
+            render_dieta_a_bloco_2 = dietas_a_rows > 0
+            render_dieta_b_bloco_2 = dietas_b_rows > 0
+
+    tem_dietas_bloco_1 = render_dieta_a_bloco_1 or render_dieta_b_bloco_1
+    tem_dietas_bloco_2 = render_dieta_a_bloco_2 or render_dieta_b_bloco_2
+
     html_string = render_to_string(
         "relatorio_solicitacao_medicao_por_escola.html",
         {
@@ -1535,6 +1578,16 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
             "segunda_tabela_somatorio_dietas_tipo_a": segunda_tabela_somatorio_dietas_tipo_a,
             "primeira_tabela_somatorio_dietas_tipo_b": primeira_tabela_somatorio_dietas_tipo_b,
             "segunda_tabela_somatorio_dietas_tipo_b": segunda_tabela_somatorio_dietas_tipo_b,
+            "alimentacao_rows": alimentacao_rows,
+            "dietas_a_rows": dietas_a_rows,
+            "dietas_b_rows": dietas_b_rows,
+            "tem_dietas": tem_dietas,
+            "render_dieta_a_bloco_1": render_dieta_a_bloco_1,
+            "render_dieta_b_bloco_1": render_dieta_b_bloco_1,
+            "render_dieta_a_bloco_2": render_dieta_a_bloco_2,
+            "render_dieta_b_bloco_2": render_dieta_b_bloco_2,
+            "tem_dietas_bloco_1": tem_dietas_bloco_1,
+            "tem_dietas_bloco_2": tem_dietas_bloco_2,
         },
     )
 
