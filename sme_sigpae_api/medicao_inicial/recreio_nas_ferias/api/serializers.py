@@ -93,7 +93,7 @@ class RecreioNasFeriasUnidadeParticipanteSerializer(serializers.ModelSerializer)
 
     def get_tipos_alimentacao(self, obj):
         categorias = {}
-        qs = obj.tipos_alimentacao.select_related("tipo_alimentacao", "categoria")
+        qs = obj.tipos_alimentacao.select_related("tipo_alimentacao", "categoria").order_by("tipo_alimentacao__posicao")
         for ta in qs:
             nome_cat = (
                 ta.categoria.nome if ta.categoria and ta.categoria.nome else "outros"
