@@ -1,5 +1,7 @@
-from model_bakery import baker
 import datetime
+
+from model_bakery import baker
+
 from sme_sigpae_api.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 
@@ -23,7 +25,7 @@ def cria_solicitacao_com_log(escola, log_criado_em, status_solicitacao):
 
 def test_dashboard_resultados_ordenados(
     client_autenticado_diretoria_regional,
-    diretoria_regional, 
+    diretoria_regional,
     tipo_unidade_escolar,
     tipo_unidade_escolar_ceu_emei,
     tipo_unidade_escolar_cei,
@@ -33,11 +35,14 @@ def test_dashboard_resultados_ordenados(
     """
 
     escolas = []
-    for i, tipo in enumerate([
-        tipo_unidade_escolar,
-        tipo_unidade_escolar_ceu_emei,
-        tipo_unidade_escolar_cei,
-    ], start=1):
+    for i, tipo in enumerate(
+        [
+            tipo_unidade_escolar,
+            tipo_unidade_escolar_ceu_emei,
+            tipo_unidade_escolar_cei,
+        ],
+        start=1,
+    ):
         escola = baker.make(
             "Escola",
             nome=f"{tipo.iniciais} TESTE",
@@ -49,17 +54,23 @@ def test_dashboard_resultados_ordenados(
 
     cria_solicitacao_com_log(
         escolas[0],
-        log_criado_em=datetime.datetime(2025, 10, 9, 14, 9, 11, tzinfo=datetime.timezone.utc),
+        log_criado_em=datetime.datetime(
+            2025, 10, 9, 14, 9, 11, tzinfo=datetime.timezone.utc
+        ),
         status_solicitacao=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_DRE,
     )
     cria_solicitacao_com_log(
         escolas[1],
-        log_criado_em=datetime.datetime(2025, 10, 20, 11, 30, 23, tzinfo=datetime.timezone.utc),
+        log_criado_em=datetime.datetime(
+            2025, 10, 20, 11, 30, 23, tzinfo=datetime.timezone.utc
+        ),
         status_solicitacao=SolicitacaoMedicaoInicialWorkflow.MEDICAO_CORRECAO_SOLICITADA,
     )
     cria_solicitacao_com_log(
         escolas[2],
-        log_criado_em=datetime.datetime(2025, 10, 23, 10, 15, 33, tzinfo=datetime.timezone.utc),
+        log_criado_em=datetime.datetime(
+            2025, 10, 23, 10, 15, 33, tzinfo=datetime.timezone.utc
+        ),
         status_solicitacao=SolicitacaoMedicaoInicialWorkflow.MEDICAO_ENVIADA_PELA_UE,
     )
 

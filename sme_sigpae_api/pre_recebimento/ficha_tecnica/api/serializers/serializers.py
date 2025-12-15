@@ -37,6 +37,7 @@ class FichaTecnicaSimplesSerializer(serializers.ModelSerializer):
             "produto",
             "uuid_empresa",
             "pregao_chamada_publica",
+            "programa",
         )
 
 
@@ -62,6 +63,7 @@ class FichaTecnicaListagemSerializer(serializers.ModelSerializer):
     nome_produto = serializers.SerializerMethodField()
     criado_em = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
+    programa = serializers.CharField()
 
     def get_nome_produto(self, obj):
         return obj.produto.nome if obj.produto else None
@@ -78,6 +80,7 @@ class FichaTecnicaListagemSerializer(serializers.ModelSerializer):
             "pregao_chamada_publica",
             "criado_em",
             "status",
+            "programa",
         )
 
 
@@ -126,6 +129,9 @@ class FichaTecnicaDetalharSerializer(serializers.ModelSerializer):
     envasador_distribuidor = FabricanteFichaTecnicaSerializer()
     unidade_medida_porcao = UnidadeMedidaSimplesSerializer()
     status = serializers.CharField(source="get_status_display", read_only=True)
+    programa_display = serializers.CharField(
+        source="get_programa_display", read_only=True
+    )
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnicaSerializer(many=True)
     unidade_medida_primaria = UnidadeMedidaSimplesSerializer()
     unidade_medida_secundaria = UnidadeMedidaSimplesSerializer()
@@ -145,6 +151,8 @@ class FichaTecnicaDetalharSerializer(serializers.ModelSerializer):
             "pregao_chamada_publica",
             "marca",
             "categoria",
+            "programa",
+            "programa_display",
             "status",
             "criado_em",
             "empresa",
@@ -243,6 +251,7 @@ class PainelFichaTecnicaSerializer(serializers.ModelSerializer):
     nome_empresa = serializers.CharField(source="empresa.nome_fantasia")
     status = serializers.CharField(source="get_status_display")
     log_mais_recente = serializers.SerializerMethodField()
+    programa_leve_leite = serializers.SerializerMethodField()
 
     def get_log_mais_recente(self, obj):
         if obj.log_mais_recente:
@@ -256,6 +265,12 @@ class PainelFichaTecnicaSerializer(serializers.ModelSerializer):
         else:
             return datetime.datetime.strftime(obj.criado_em, "%d/%m/%Y")
 
+    def get_programa_leve_leite(self, obj):
+        try:
+            return obj.programa == "LEVE_LEITE"
+        except AttributeError:
+            return None
+
     class Meta:
         model = FichaTecnicaDoProduto
         fields = (
@@ -265,4 +280,5 @@ class PainelFichaTecnicaSerializer(serializers.ModelSerializer):
             "nome_empresa",
             "status",
             "log_mais_recente",
+            "programa_leve_leite",
         )

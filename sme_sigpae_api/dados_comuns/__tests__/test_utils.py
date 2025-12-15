@@ -193,7 +193,7 @@ def test_atualiza_central_download_com_erro(obj_central_download):
 
 
 def test_gera_objeto_na_central_download(
-    usuario_teste_notificacao_autenticado, obj_central_download
+    usuario_teste_notificacao_autenticado,
 ):
     identificador_arquivo_excel = "relatorio.xlsx"
     usuario = usuario_teste_notificacao_autenticado[0]

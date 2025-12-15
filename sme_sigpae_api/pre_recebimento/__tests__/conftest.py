@@ -860,6 +860,7 @@ def payload_ficha_tecnica_pereciveis(
 ):
     payload = {
         **payload_ficha_tecnica_rascunho,
+        "programa": FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR,
         "prazo_validade": fake.pystr(max_chars=150),
         "numero_registro": fake.pystr(max_chars=150),
         "agroecologico": True,
@@ -1126,6 +1127,7 @@ def payload_base(produto_arroz, empresa, unidade_medida_logistica):
         "produto": produto_arroz.uuid,
         "marca": marca.uuid,
         "categoria": FichaTecnicaDoProduto.CATEGORIA_NAO_PERECIVEIS,
+        "programa": FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR,
         "pregao_chamada_publica": "123",
         "empresa": empresa.uuid,
         "componentes_produto": "farinha, açúcar",
@@ -1298,9 +1300,7 @@ def cronogramas_serialized_data():
                     "data_programada": "15/02/2024",
                     "quantidade": "500,50 L",
                     "foi_recebida": True,
-                    "fichas_recebimento": [
-                        {"houve_ocorrencia": False}
-                    ],  # Method field determinará "Recebido"
+                    "fichas_recebimento": [{"houve_ocorrencia": False}],
                 },
             ],
         }
@@ -1321,9 +1321,7 @@ def cronogramas_com_fichas_data():
                     "parte": 1,
                     "data_programada": "15/01/2024",
                     "foi_recebida": True,
-                    "fichas_recebimento": [
-                        {"houve_ocorrencia": False}  # Será "Recebido" no method field
-                    ],
+                    "fichas_recebimento": [{"houve_ocorrencia": False}],
                 },
                 {
                     "uuid": "323e4567-e89b-12d3-a456-426614174000",
@@ -1348,7 +1346,6 @@ def cronogramas_com_fichas_data():
     ]
 )
 def parametros_deve_mostrar_linha_a_receber(request):
-    """Fixture com parâmetros para teste de deve_mostrar_linha_a_receber."""
     fichas_recebimento, foi_recebida, filtros_situacao, expected = request.param
     return {
         "fichas_recebimento": fichas_recebimento,
@@ -1356,3 +1353,54 @@ def parametros_deve_mostrar_linha_a_receber(request):
         "filtros_situacao": filtros_situacao,
         "expected": expected,
     }
+
+
+@pytest.fixture
+def ficha_tecnica_leve_leite(ficha_tecnica_perecivel_enviada_para_analise):
+    ficha_tecnica_perecivel_enviada_para_analise.programa = (
+        FichaTecnicaDoProduto.LEVE_LEITE
+    )
+    ficha_tecnica_perecivel_enviada_para_analise.save()
+    return ficha_tecnica_perecivel_enviada_para_analise
+
+
+@pytest.fixture
+def cronograma_leve_leite(contrato, empresa, ficha_tecnica_leve_leite):
+    return baker.make(
+        "Cronograma",
+        numero="005/2023A",
+        contrato=contrato,
+        empresa=empresa,
+        ficha_tecnica=ficha_tecnica_leve_leite,
+        status="ASSINADO_CODAE",
+    )
+
+
+@pytest.fixture
+def documento_recebimento_leve_leite(cronograma_leve_leite):
+    return baker.make(
+        "DocumentoDeRecebimento",
+        cronograma=cronograma_leve_leite,
+        numero_laudo="LAU-2024-001-LEVE-LEITE",
+        status="ENVIADO_PARA_ANALISE",
+    )
+
+
+@pytest.fixture
+def documento_recebimento_alimentacao_escolar(cronograma_recebido):
+    return baker.make(
+        "DocumentoDeRecebimento",
+        cronograma=cronograma_recebido,
+        numero_laudo="LAU-2024-002-ALIMENTACAO",
+        status="ENVIADO_PARA_ANALISE",
+    )
+
+
+@pytest.fixture
+def layout_embalagem_leve_leite(ficha_tecnica_leve_leite):
+    return baker.make(
+        "LayoutDeEmbalagem",
+        ficha_tecnica=ficha_tecnica_leve_leite,
+        observacoes="Layout para programa Leve Leite",
+        status=LayoutDeEmbalagemWorkflow.ENVIADO_PARA_ANALISE,
+    )

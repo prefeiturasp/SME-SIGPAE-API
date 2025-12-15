@@ -220,7 +220,31 @@ def registro_quantidade_alunos_matriculados_por_escola_periodo(tipo_turma):
         cont += 1
 
 
-def processa_dias_letivos(lista_dias_letivos, escola):
+def processa_dias_letivos(
+    lista_dias_letivos: list[dict], escola, periodo_escolar=None
+) -> None:
+    """
+    Cria ou atualiza registros de `DiaCalendario` a partir da lista de dias letivos
+    retornados pelo SGP.
+
+    Para cada item da lista, a função:
+      1. Converte a data (string) para `datetime`.
+      2. Verifica se já existe um `DiaCalendario` correspondente à escola,
+         data e período escolar.
+      3. Se existir, atualiza o campo `dia_letivo`.
+      4. Se não existir, cria um novo registro.
+
+    O parâmetro `periodo_escolar` permite diferenciar dias letivos por turno
+    (ex.: NOITE). Quando `None`, os dias são tratados como período geral.
+
+    Args:
+        lista_dias_letivos (list[dict]): Lista de dicionários retornada pelo SGP contendo no mínimo:
+                - "data"     : str (ex.: "2025-05-12T00:00:00")
+                - "ehLetivo" : bool
+        escola (models.Escola):  Instância da escola para a qual os dias estão sendo processados.
+        periodo_escolar (models.PeriodoEscolar, optional): Período escolar ao qual os dias pertencem.
+            Quando None, representa período geral. Default: None.
+    """
     from sme_sigpae_api.escola.models import DiaCalendario
 
     for dia_dict in lista_dias_letivos:
@@ -230,21 +254,106 @@ def processa_dias_letivos(lista_dias_letivos, escola):
             data__year=data.year,
             data__month=data.month,
             data__day=data.day,
+            periodo_escolar=periodo_escolar,
         ).first()
         if not dia_calendario:
             dia_calendario = DiaCalendario.objects.create(
-                escola=escola, data=data, dia_letivo=dia_dict["ehLetivo"]
+                escola=escola,
+                data=data,
+                dia_letivo=dia_dict["ehLetivo"],
+                periodo_escolar=periodo_escolar,
             )
         else:
             dia_calendario.dia_letivo = dia_dict["ehLetivo"]
             dia_calendario.save()
 
 
+def dias_letivos_gerais(escola, inicio: str, fim: str) -> None:
+    """
+    Consulta e processa os dias letivos gerais (turno da manhã como padrão) para uma escola.
+
+    Esta função consulta o NovoSGPServico para obter os dias letivos no intervalo
+    fornecido, considerando período específico (uso padrão 1 - MANHA). Em seguida,
+    envia o resultado para o processador de dias letivos.
+
+    Args:
+        escola (models.Escola): Instância da escola para a qual os dias letivos serão consultados.
+        inicio (str): Data inicial do intervalo no formato "YYYY-MM-DD".
+        fim (str): Data final do intervalo no formato "YYYY-MM-DD".
+    """
+    from sme_sigpae_api.escola.services import NovoSGPServico
+
+    try:
+        geral = NovoSGPServico.dias_letivos(
+            codigo_eol=escola.codigo_eol,
+            data_inicio=inicio,
+            data_fim=fim,
+        )
+        processa_dias_letivos(geral, escola)
+    except Exception as e:
+        logger.error(f"Erro ao buscar por turno MANHA para escola {escola} : {str(e)}")
+        logger.debug("Tentando buscar dias letivos no novo sgp para turno da tarde")
+        try:
+            resposta = NovoSGPServico.dias_letivos(
+                codigo_eol=escola.codigo_eol,
+                data_inicio=inicio,
+                data_fim=fim,
+                tipo_turno=3,
+            )
+            processa_dias_letivos(resposta, escola)
+        except Exception as e:
+            logger.error(
+                f"Erro ao buscar por turno TARDE para escola {escola} : {str(e)}"
+            )
+
+
+def dias_letivos_noturno(escola, inicio: str, fim: str, periodo_noite):
+    """
+    Consulta e processa os dias letivos do período NOTURNO (turno 5) de uma escola.
+
+    A consulta do período noturno só é realizada se:
+    1. A escola possuir o período "NOITE" cadastrado.
+    2. A escola tiver alunos matriculados nesse período.
+
+    Caso contrário, a função apenas registra logs informativos.
+
+    Args:
+        escola (models.Escola): Instância da escola que será consultada.
+        inicio (str): Data inicial do intervalo no formato "YYYY-MM-DD".
+        fim (str):  Data final do intervalo no formato "YYYY-MM-DD".
+        periodo_noite (models.PeriodoEscolar): Objeto do período "NOITE" previamente consultado.
+    """
+    from sme_sigpae_api.escola.models import AlunosMatriculadosPeriodoEscola
+    from sme_sigpae_api.escola.services import NovoSGPServico
+
+    try:
+        aluno_noite = AlunosMatriculadosPeriodoEscola.objects.get(
+            escola=escola, periodo_escolar=periodo_noite, tipo_turma="REGULAR"
+        )
+
+        if aluno_noite.quantidade_alunos == 0:
+            logger.debug("Escola possui período NOITE, mas sem alunos.")
+            return
+
+        periodo = NovoSGPServico.dias_letivos(
+            codigo_eol=escola.codigo_eol,
+            data_inicio=inicio,
+            data_fim=fim,
+            tipo_turno=5,
+        )
+        processa_dias_letivos(periodo, escola, periodo_escolar=periodo_noite)
+
+    except AlunosMatriculadosPeriodoEscola.DoesNotExist:
+        logger.debug("Escola sem período NOITE cadastrado.")
+    except Exception as e:
+        logger.error(f"Erro ao buscar por turno NOITE para escola {escola} : {str(e)}")
+
+
 def calendario_sgp(data_inicio=date.today(), lista_escolas=None):
+
     import pandas as pd
 
-    from sme_sigpae_api.escola.models import Escola
-    from sme_sigpae_api.escola.services import NovoSGPServico
+    from sme_sigpae_api.escola.models import Escola, PeriodoEscolar
 
     escolas = (
         Escola.objects.filter(nome__in=lista_escolas)
@@ -255,6 +364,7 @@ def calendario_sgp(data_inicio=date.today(), lista_escolas=None):
     total = len(escolas)
     data_fim = None
     data_inicio_formatada = data_inicio.strftime("%Y-%m-%d")
+    periodo_noite = PeriodoEscolar.objects.get(nome="NOITE")
     for cont, escola in enumerate(escolas, 1):
         logger.debug(f"Processando {cont} de {total}")
         logger.debug(
@@ -265,30 +375,11 @@ def calendario_sgp(data_inicio=date.today(), lista_escolas=None):
             data_final = (data_inicio + pd.DateOffset(months=3)).date()
             data_fim = data_final.strftime("%Y-%m-%d")
 
-            resposta = NovoSGPServico.dias_letivos(
-                codigo_eol=escola.codigo_eol,
-                data_inicio=data_inicio_formatada,
-                data_fim=data_fim,
-            )
-            logger.debug(resposta)
+            dias_letivos_gerais(escola, data_inicio_formatada, data_fim)
+            dias_letivos_noturno(escola, data_inicio_formatada, data_fim, periodo_noite)
 
-            processa_dias_letivos(resposta, escola)
         except Exception as e:
-            logger.error(f"Dados não encontrados para escola {escola} : {str(e)}")
-            logger.debug("Tentando buscar dias letivos no novo sgp para turno da noite")
-            try:
-                resposta = NovoSGPServico.dias_letivos(
-                    codigo_eol=escola.codigo_eol,
-                    data_inicio=data_inicio_formatada,
-                    data_fim=data_fim,
-                    tipo_turno=3,
-                )
-
-                processa_dias_letivos(resposta, escola)
-            except Exception as e:
-                logger.error(
-                    f"Erro ao buscar por turno noite para escola {escola} : {str(e)}"
-                )
+            logger.error(f"Erro ao buscar dados para escola {escola} : {str(e)}")
 
 
 class EscolaSimplissimaPagination(PageNumberPagination):
@@ -320,7 +411,9 @@ def eh_dia_sem_atividade_escolar(escola, data, alteracao):
     from sme_sigpae_api.escola.models import DiaCalendario, DiaSuspensaoAtividades
 
     try:
-        dia_calendario = DiaCalendario.objects.get(escola=escola, data=data)
+        dia_calendario = DiaCalendario.objects.get(
+            escola=escola, data=data, periodo_escolar__isnull=True
+        )
         eh_dia_letivo = dia_calendario.dia_letivo
     except DiaCalendario.DoesNotExist:
         eh_dia_letivo = True

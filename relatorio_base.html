@@ -1,6 +1,11 @@
 {% load static %}
 <html>
 <head>
+  {% if title %}
+    <title>{{ title }}</title>
+  {% else %}
+    <title>Relatório</title>
+  {% endif %}
   <link rel="stylesheet" href="https://hom-sigpae.sme.prefeitura.sp.gov.br/django_static/css/relatorio_base.css">
   <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
   {% block css %}{% endblock css %}

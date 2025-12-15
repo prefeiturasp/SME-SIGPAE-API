@@ -45,7 +45,7 @@ def test_solicitacoes_ativas_inativas_por_aluno_viewset(
 def test_calculo_totais_solicitacoes_sem_filtros(aluno_factory):
     from sme_sigpae_api.escola.models import Aluno
 
-    aluno = aluno_factory.create(codigo_eol="1234567")
+    aluno_factory.create(codigo_eol="1234567")
 
     view = SolicitacoesAtivasInativasPorAlunoView()
 

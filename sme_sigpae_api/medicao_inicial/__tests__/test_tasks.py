@@ -6,10 +6,17 @@ import pytest
 from dateutil.relativedelta import relativedelta
 from django.http import QueryDict
 from django.test import TestCase
-from pypdf import PdfReader, PdfWriter
+from freezegun import freeze_time
+from model_bakery import baker
+from pypdf import PdfWriter
 
-from sme_sigpae_api.dados_comuns.models import CentralDeDownload
-from sme_sigpae_api.escola.models import AlunoPeriodoParcial, GrupoUnidadeEscolar
+from sme_sigpae_api.dados_comuns.models import CentralDeDownload, LogSolicitacoesUsuario
+from sme_sigpae_api.escola.models import (
+    AlunoPeriodoParcial,
+    Escola,
+    GrupoUnidadeEscolar,
+    Lote,
+)
 from sme_sigpae_api.medicao_inicial.models import Responsavel, SolicitacaoMedicaoInicial
 from sme_sigpae_api.medicao_inicial.services.relatorio_adesao import obtem_resultados
 from sme_sigpae_api.medicao_inicial.tasks import (
@@ -27,6 +34,8 @@ from sme_sigpae_api.medicao_inicial.tasks import (
     processa_relatorio_lançamentos,
     solicitacao_medicao_atual_existe,
 )
+from sme_sigpae_api.perfil.models.usuario import Usuario
+from sme_sigpae_api.terceirizada.models import Terceirizada
 
 
 class CriaSolicitacaoMedicaoInicialMesAtualTest(TestCase):
@@ -557,3 +566,244 @@ def test_processa_relatorio_lancamentos_exception(
     tipos = ["Não", "Existe"]
     with pytest.raises(ValueError, match="Unidades inválidas"):
         processa_relatorio_lançamentos(ids, tipos, merger, central)
+
+
+class CriaSolicitacaoMedicaoInicialMesAtualUsuarioAdmin(TestCase):
+    def setUp(self):
+
+        self.terceirizada = baker.make(Terceirizada)
+        self.lote = baker.make(Lote, terceirizada=self.terceirizada)
+        self.escola = baker.make(Escola, nome="Escola Teste", lote=self.lote)
+
+        self.usuario_admin = baker.make(
+            Usuario, email="system@admin.com", nome="System Admin", is_active=True
+        )
+
+    @freeze_time("2024-03-15")
+    def test_cria_solicitacao_medicao_inicial_com_log(self):
+        """
+        Testa a criação completa de uma solicitação de medição inicial
+        e verifica se o log é criado corretamente com o usuário admin
+        """
+
+        data_atual = datetime.date(2024, 3, 15)
+        data_mes_anterior = data_atual + relativedelta(months=-1)
+
+        solicitacao_mes_anterior = baker.make(
+            SolicitacaoMedicaoInicial,
+            escola=self.escola,
+            ano=data_mes_anterior.year,
+            mes=f"{data_mes_anterior.month:02d}",
+            criado_por=self.usuario_admin,
+            ue_possui_alunos_periodo_parcial=True,
+            status=SolicitacaoMedicaoInicial.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+        )
+
+        tipos_contagem = baker.make(
+            "medicao_inicial.TipoContagemAlimentacao", _quantity=3
+        )
+        solicitacao_mes_anterior.tipos_contagem_alimentacao.set(tipos_contagem)
+
+        responsaveis = baker.make(
+            Responsavel,
+            solicitacao_medicao_inicial=solicitacao_mes_anterior,
+            _quantity=2,
+            nome=lambda: f"Responsavel {Responsavel.objects.count() + 1}",
+            rf=lambda: f"RF{Responsavel.objects.count() + 1000}",
+        )
+
+        alunos = baker.make(
+            AlunoPeriodoParcial,
+            solicitacao_medicao_inicial=solicitacao_mes_anterior,
+            escola=self.escola,
+            data=datetime.date(data_mes_anterior.year, data_mes_anterior.month, 1),
+            data_removido=None,
+            _quantity=2,
+        )
+
+        self.assertEqual(SolicitacaoMedicaoInicial.objects.count(), 1)
+        self.assertEqual(LogSolicitacoesUsuario.objects.count(), 0)
+
+        cria_solicitacao_medicao_inicial_mes_atual()
+
+        self.assertEqual(SolicitacaoMedicaoInicial.objects.count(), 2)
+
+        nova_solicitacao = SolicitacaoMedicaoInicial.objects.filter(
+            escola=self.escola, ano=data_atual.year, mes=f"{data_atual.month:02d}"
+        ).first()
+
+        self.assertIsNotNone(nova_solicitacao)
+
+        self.assertEqual(nova_solicitacao.criado_por, self.usuario_admin)
+        self.assertEqual(nova_solicitacao.ue_possui_alunos_periodo_parcial, True)
+
+        self.assertEqual(
+            nova_solicitacao.tipos_contagem_alimentacao.count(),
+            solicitacao_mes_anterior.tipos_contagem_alimentacao.count(),
+        )
+
+        self.assertEqual(nova_solicitacao.responsaveis.count(), 2)
+
+        self.assertEqual(
+            nova_solicitacao.alunos_periodo_parcial.filter(
+                data_removido__isnull=True
+            ).count(),
+            2,
+        )
+
+        logs = LogSolicitacoesUsuario.objects.all()
+        self.assertEqual(logs.count(), 1)
+
+        log = logs.first()
+
+        self.assertEqual(log.usuario, self.usuario_admin)
+        self.assertEqual(
+            log.status_evento,
+            LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+        )
+        self.assertEqual(log.solicitacao_tipo, LogSolicitacoesUsuario.MEDICAO_INICIAL)
+        self.assertEqual(log.uuid_original, nova_solicitacao.uuid)
+
+        self.assertEqual(
+            nova_solicitacao.status,
+            SolicitacaoMedicaoInicial.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+        )
+
+    @freeze_time("2024-03-15")
+    def test_cria_solicitacao_sem_solicitacao_anterior(self):
+        """
+        Testa o cenário onde não existe solicitação do mês anterior
+        """
+        cria_solicitacao_medicao_inicial_mes_atual()
+
+        self.assertEqual(SolicitacaoMedicaoInicial.objects.count(), 0)
+        self.assertEqual(LogSolicitacoesUsuario.objects.count(), 0)
+
+    @freeze_time("2024-03-15")
+    def test_cria_solicitacao_sem_alunos_periodo_parcial(self):
+        data_atual = datetime.date(2024, 3, 15)
+        data_mes_anterior = data_atual + relativedelta(months=-1)
+
+        solicitacao_mes_anterior = baker.make(
+            SolicitacaoMedicaoInicial,
+            escola=self.escola,
+            ano=data_mes_anterior.year,
+            mes=f"{data_mes_anterior.month:02d}",
+            criado_por=self.usuario_admin,
+            ue_possui_alunos_periodo_parcial=False,  # Importante: False
+        )
+
+        tipos_contagem = baker.make(
+            "medicao_inicial.TipoContagemAlimentacao", _quantity=2
+        )
+        solicitacao_mes_anterior.tipos_contagem_alimentacao.set(tipos_contagem)
+
+        cria_solicitacao_medicao_inicial_mes_atual()
+
+        nova_solicitacao = SolicitacaoMedicaoInicial.objects.filter(
+            escola=self.escola, ano=data_atual.year, mes=f"{data_atual.month:02d}"
+        ).first()
+
+        self.assertIsNotNone(nova_solicitacao)
+        self.assertEqual(nova_solicitacao.ue_possui_alunos_periodo_parcial, False)
+        self.assertEqual(nova_solicitacao.alunos_periodo_parcial.count(), 0)
+        self.assertEqual(LogSolicitacoesUsuario.objects.count(), 1)
+        log = LogSolicitacoesUsuario.objects.first()
+        self.assertEqual(log.usuario, self.usuario_admin)
+
+    @freeze_time("2024-03-15")
+    def test_cria_solicitacao_para_multiplas_escolas(self):
+        """
+        Testa criação de solicitações para múltiplas escolas
+        """
+        data_atual = datetime.date(2024, 3, 15)
+        data_mes_anterior = data_atual + relativedelta(months=-1)
+
+        escolas = []
+        for i in range(3):
+            escola = baker.make(Escola, nome=f"Escola {i}", lote=self.lote)
+            escolas.append(escola)
+
+            solicitacao = baker.make(
+                SolicitacaoMedicaoInicial,
+                escola=escola,
+                ano=data_mes_anterior.year,
+                mes=f"{data_mes_anterior.month:02d}",
+                criado_por=self.usuario_admin,
+                ue_possui_alunos_periodo_parcial=False,
+            )
+
+            tipos = baker.make("medicao_inicial.TipoContagemAlimentacao", _quantity=2)
+            solicitacao.tipos_contagem_alimentacao.set(tipos)
+
+        cria_solicitacao_medicao_inicial_mes_atual()
+
+        self.assertEqual(SolicitacaoMedicaoInicial.objects.count(), 6)
+
+        logs = LogSolicitacoesUsuario.objects.all()
+        self.assertEqual(logs.count(), 3)
+
+        for log in logs:
+            self.assertEqual(log.usuario, self.usuario_admin)
+            self.assertEqual(
+                log.status_evento,
+                LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+            )
+
+    @freeze_time("2024-03-15")
+    def test_cria_solicitacao_com_solicitacao_atual_existente(self):
+        """
+        Testa que não cria nova solicitação se já existe uma para o mês atual
+        """
+        data_atual = datetime.date(2024, 3, 15)
+        data_mes_anterior = data_atual + relativedelta(months=-1)
+
+        solicitacao_mes_anterior = baker.make(
+            SolicitacaoMedicaoInicial,
+            escola=self.escola,
+            ano=data_mes_anterior.year,
+            mes=f"{data_mes_anterior.month:02d}",
+            criado_por=self.usuario_admin,
+        )
+
+        baker.make(
+            SolicitacaoMedicaoInicial,
+            escola=self.escola,
+            ano=data_atual.year,
+            mes=f"{data_atual.month:02d}",
+            criado_por=self.usuario_admin,
+        )
+
+        count_inicial = SolicitacaoMedicaoInicial.objects.count()
+        cria_solicitacao_medicao_inicial_mes_atual()
+        self.assertEqual(SolicitacaoMedicaoInicial.objects.count(), count_inicial)
+        self.assertEqual(LogSolicitacoesUsuario.objects.count(), 0)
+
+    @freeze_time("2024-03-15")
+    def test_cria_solicitacao_com_rastro(self):
+        """
+        Testa se o rastro (lote e terceirizada) é salvo corretamente
+        """
+        data_atual = datetime.date(2024, 3, 15)
+        data_mes_anterior = data_atual + relativedelta(months=-1)
+
+        solicitacao_mes_anterior = baker.make(
+            SolicitacaoMedicaoInicial,
+            escola=self.escola,
+            ano=data_mes_anterior.year,
+            mes=f"{data_mes_anterior.month:02d}",
+            criado_por=self.usuario_admin,
+        )
+
+        cria_solicitacao_medicao_inicial_mes_atual()
+
+        nova_solicitacao = SolicitacaoMedicaoInicial.objects.filter(
+            escola=self.escola, ano=data_atual.year, mes=f"{data_atual.month:02d}"
+        ).first()
+
+        self.assertIsNotNone(nova_solicitacao)
+
+        self.assertEqual(nova_solicitacao.rastro_lote, self.escola.lote)
+        self.assertEqual(
+            nova_solicitacao.rastro_terceirizada, self.escola.lote.terceirizada
+        )

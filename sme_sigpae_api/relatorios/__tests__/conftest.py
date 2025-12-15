@@ -13,8 +13,8 @@ from sme_sigpae_api.cardapio.suspensao_alimentacao.models import (
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from sme_sigpae_api.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
 from sme_sigpae_api.dados_comuns.models import (
-    TemplateMensagem,
     LogSolicitacoesUsuario,
+    TemplateMensagem,
 )
 from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 from sme_sigpae_api.escola.models import Aluno, Lote
@@ -26,6 +26,7 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.fixtures.factories.cronog
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.fixtures.factories.ficha_tecnica_do_produto_factory import (
     FichaTecnicaFactory,
 )
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from sme_sigpae_api.recebimento.fixtures.factories.ficha_de_recebimento_factory import (
     FichaDeRecebimentoFactory,
 )
@@ -489,7 +490,11 @@ def ficha_recebimento_carta_credito():
 
 
 @pytest.fixture
-def cronograma():
+def cronograma(
+    fabricante_ficha_tecnica_factory,
+    produto_logistica_factory,
+    marca_factory,
+):
     unidade_medida = baker.make(
         "pre_recebimento.UnidadeMedida", nome="QUILOGRAMA", abreviacao="kg"
     )
@@ -513,7 +518,27 @@ def cronograma():
     )
 
     contrato = baker.make(
-        "terceirizada.Contrato", numero="001/2024", numero_pregao="PE-2024-001"
+        "terceirizada.Contrato",
+        numero="001/2024",
+        numero_pregao="PE-2024-001",
+        programa="LEVE_LEITE",
+    )
+
+    ficha_tecnica = baker.make(
+        "pre_recebimento.FichaTecnicaDoProduto",
+        produto=produto_logistica_factory(),
+        empresa=empresa,
+        fabricante=fabricante_ficha_tecnica_factory(),
+        marca=marca_factory(),
+        envasador_distribuidor=fabricante_ficha_tecnica_factory(),
+        categoria=FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS,
+        unidade_medida_porcao=unidade_medida,
+        unidade_medida_primaria=unidade_medida,
+        unidade_medida_secundaria=unidade_medida,
+        unidade_medida_primaria_vazia=unidade_medida,
+        unidade_medida_secundaria_vazia=unidade_medida,
+        status=FichaTecnicaDoProduto.workflow_class.ENVIADA_PARA_ANALISE,
+        programa=FichaTecnicaDoProduto.LEVE_LEITE,
     )
 
     cronograma = CronogramaFactory(
@@ -526,6 +551,7 @@ def cronograma():
         tipo_embalagem_secundaria=tipo_embalagem,
         custo_unitario_produto=15.50,
         observacoes="Cronograma de teste com observações específicas",
+        ficha_tecnica=ficha_tecnica,
     )
 
     EtapasDoCronogramaFactory(
@@ -602,7 +628,11 @@ def solicitacao_medicao_inicial_aprovada_codae(
     django_user_model,
 ):
     usuario = django_user_model.objects.create_user(
-        nome="Usuário TESTE", username="medicao_teste", password=DJANGO_ADMIN_PASSWORD, email="medicao@escola.com", registro_funcional="123456"
+        nome="Usuário TESTE",
+        username="medicao_teste",
+        password=DJANGO_ADMIN_PASSWORD,
+        email="medicao@escola.com",
+        registro_funcional="123456",
     )
 
     baker.make(
@@ -610,13 +640,15 @@ def solicitacao_medicao_inicial_aprovada_codae(
         uuid_original=solicitacoes_medicao_inicial_emef.uuid,
         status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
         solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
-        criado_em=datetime.datetime(2025, 11, 27, 14, 9, 11, tzinfo=datetime.timezone.utc),
+        criado_em=datetime.datetime(
+            2025, 11, 27, 14, 9, 11, tzinfo=datetime.timezone.utc
+        ),
         usuario=usuario,
     )
 
     for medicao in solicitacoes_medicao_inicial_emef.medicoes.all():
         medicao.status = (
-            solicitacoes_medicao_inicial_emef.workflow_class.MEDICAO_APROVADA_PELA_CODAE   
+            solicitacoes_medicao_inicial_emef.workflow_class.MEDICAO_APROVADA_PELA_CODAE
         )
         medicao.save()
     solicitacoes_medicao_inicial_emef.status = (

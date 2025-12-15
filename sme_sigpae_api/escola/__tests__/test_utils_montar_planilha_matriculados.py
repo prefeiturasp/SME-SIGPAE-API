@@ -140,7 +140,7 @@ def test_montar_cabecalho_padrao():
         "Matriculados",
     )
     with pytest.raises(IndexError):
-        assert rows[2] == (None, None, None, None, None, None, None)
+        _ = rows[2]
 
 
 def test_montar_faixas_etarias(dados_planilha_alunos_matriculados):
@@ -181,7 +181,7 @@ def test_monta_celulas_faixas_periodos(dados_planilha_alunos_matriculados):
     assert rows[0] == (None, None, None, None, None, None)
     assert rows[1] == (faixas_etarias[0]["nome"], None, None, None, None, 0)
     with pytest.raises(IndexError):
-        assert rows[2] == (None, None, None, None, None, None, None)
+        _ = rows[2]
 
 
 def test_style_range():

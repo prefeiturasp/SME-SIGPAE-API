@@ -106,6 +106,7 @@ from .filters import (
     EmpenhoFilter,
     ParametrizacaoFinanceiraFilter,
     RelatorioFinanceiroFilter,
+    SolicitacaoMedicaoInicialFilter,
 )
 from .permissions import EhAdministradorMedicaoInicialOuGestaoAlimentacao
 from .serializers import (
@@ -240,6 +241,11 @@ class SolicitacaoMedicaoInicialViewSet(
         | UsuarioSupervisaoNutricao
     ]
     queryset = SolicitacaoMedicaoInicial.objects.all()
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = SolicitacaoMedicaoInicialFilter
+
+    def get_queryset(self):
+        return self.filter_queryset(self.queryset)
 
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:
@@ -263,14 +269,7 @@ class SolicitacaoMedicaoInicialViewSet(
             return Response(list_response, status=status.HTTP_400_BAD_REQUEST)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        escola_uuid = request.query_params.get("escola")
-        mes = request.query_params.get("mes")
-        ano = request.query_params.get("ano")
-
-        queryset = queryset.filter(escola__uuid=escola_uuid, mes=mes, ano=ano)
-
+        queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -651,38 +650,41 @@ class SolicitacaoMedicaoInicialViewSet(
             tipos_unidades = grupo_unidade_escolar.tipos_unidades.all()
             filtros["escola__tipo_unidade__in"] = tipos_unidades
 
-            solicitacoes = list(
-                SolicitacaoMedicaoInicial.objects.filter(**filtros).values_list(
-                    "uuid", flat=True
+            solicitacoes_com_filtro = SolicitacaoMedicaoInicial.objects.filter(
+                **filtros
+            ).values_list("uuid", flat=True)
+            if solicitacoes_com_filtro.exists():
+                solicitacoes = list(solicitacoes_com_filtro)
+
+                tipos_de_unidade_do_grupo = list(
+                    tipos_unidades.values_list("iniciais", flat=True)
                 )
-            )
 
-            tipos_de_unidade_do_grupo = list(
-                tipos_unidades.values_list("iniciais", flat=True)
-            )
+                nome_arquivo = f"Relatório Consolidado das Medições Inicias - {diretoria_regional.nome} - {grupo_unidade_escolar.nome} - {mes}/{ano}.xlsx"
 
-            nome_arquivo = f"Relatório Consolidado das Medições Inicias - {diretoria_regional.nome} - {grupo_unidade_escolar.nome} - {mes}/{ano}.xlsx"
+                exporta_relatorio_consolidado_xlsx.delay(
+                    user=request.user.get_username(),
+                    nome_arquivo=nome_arquivo,
+                    solicitacoes=solicitacoes,
+                    tipos_de_unidade=tipos_de_unidade_do_grupo,
+                    query_params=query_params,
+                )
 
-            exporta_relatorio_consolidado_xlsx.delay(
-                user=request.user.get_username(),
-                nome_arquivo=nome_arquivo,
-                solicitacoes=solicitacoes,
-                tipos_de_unidade=tipos_de_unidade_do_grupo,
-                query_params=query_params,
-            )
-
-            return Response(
-                data={
-                    "detail": "Solicitação de geração de arquivo recebida com sucesso."
-                },
-                status=status.HTTP_200_OK,
-            )
-
-        except Exception:
+                return Response(
+                    data={
+                        "detail": "Solicitação de geração de arquivo recebida com sucesso."
+                    },
+                    status=status.HTTP_200_OK,
+                )
             return Response(
                 data={
                     "erro": "Não foram encontradas Medições Iniciais. Verifique os parâmetros e tente novamente"
                 },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception:
+            return Response(
+                data={"erro": "Verifique os parâmetros e tente novamente"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

@@ -1,3 +1,5 @@
+import tempfile
+
 from django.core.management.base import BaseCommand
 
 from sme_sigpae_api.escola.utils_analise_dietas_ativas import main
@@ -26,4 +28,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         arquivo = options["arquivo"]
         arquivo_codigos_escolas = options["arquivo_codigos_escolas"]
-        main(arquivo, arquivo_codigos_escolas)
+
+        # Cria um arquivo temporário com JSON vazio válido
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".json"
+        ) as temp_file:
+            temp_file.write("{}")  # JSON vazio válido
+            temp_filename = temp_file.name
+        main(arquivo, arquivo_codigos_escolas, temp_filename)

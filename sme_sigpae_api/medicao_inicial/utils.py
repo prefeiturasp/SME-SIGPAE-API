@@ -5,13 +5,13 @@ import logging
 from calendar import monthrange
 from collections import defaultdict
 from functools import reduce
-from django.template.loader import render_to_string
-from django.utils import timezone
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import IntegerField, Sum
 from django.db.models.functions import Cast
 from django.db.utils import IntegrityError
+from django.template.loader import render_to_string
+from django.utils import timezone
 
 from sme_sigpae_api.dados_comuns.constants import (
     MAX_COLUNAS,
@@ -22,8 +22,10 @@ from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_PERIODOS_GRUPOS_EMEBS,
     TIPOS_TURMAS_EMEBS,
 )
-from sme_sigpae_api.dados_comuns.utils import convert_base64_to_contentfile, convert_image_to_base64
-from sme_sigpae_api.relatorios.utils import merge_pdf_com_rodape_assinatura
+from sme_sigpae_api.dados_comuns.utils import (
+    convert_base64_to_contentfile,
+    convert_image_to_base64,
+)
 from sme_sigpae_api.dieta_especial.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
@@ -51,6 +53,8 @@ from sme_sigpae_api.medicao_inicial.models import (
     ValorMedicao,
 )
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesEscola
+from sme_sigpae_api.perfil.models.usuario import Usuario
+from sme_sigpae_api.relatorios.utils import merge_pdf_com_rodape_assinatura
 from sme_sigpae_api.terceirizada.models import Edital
 
 logger = logging.getLogger(__name__)
@@ -81,9 +85,9 @@ def process_single_anexo(anexo, usuario):
             arquivo, string_pdf_rodape
         )
         anexo_proc["base64"] = arquivo_com_assinatura_base64
-    except Exception:
+    except Exception as e:
         # mantém o anexo original para que a lógica de negócio prossiga
-        pass
+        logger.warning(f"Falha ao processar assinatura do anexo: {e}", exc_info=True)
 
     return anexo_proc
 
@@ -104,9 +108,7 @@ def process_anexos_from_request(request):
 
     anexos = json.loads(anexos_string)
     usuario = request.user
-    anexos_processados = [
-        process_single_anexo(anexo, usuario) for anexo in anexos
-    ]
+    anexos_processados = [process_single_anexo(anexo, usuario) for anexo in anexos]
     return anexos_processados
 
 
@@ -4819,3 +4821,32 @@ def atualiza_alunos_periodo_parcial(solicitacao, alunos_periodo_parcial):
         medicao.valores_medicao.filter(
             nome_campo__in=["frequencia", "observacoes"]
         ).delete()
+
+
+def substitui_criador_system_por_usuario_real(
+    instance: SolicitacaoMedicaoInicial, usuario: Usuario
+) -> None:
+    """
+    Substitui o usuário 'system@admin.com' pelo usuário real no log de criação
+    da solicitação de medição, quando aplicável.
+
+    Esta função corrige o log de criação de solicitações que foram registradas
+    automaticamente pelo sistema. Quando uma solicitação tem apenas um log
+    (log de criação) e este está associado ao usuário administrativo padrão
+    (system@admin.com), o log é atualizado para refletir o usuário real que
+    realizou a ação, ajustando também a data para o momento atual.
+
+    Condições para substituição:
+    1. A instância deve ter exatamente um log registrado
+    2. O log existente deve estar associado ao usuário 'system@admin.com'
+
+    Args:
+        instance (SolicitacaoMedicaoInicial): Instância da solicitação de medição
+        usuario (Usuario): Usuário da requisição atual
+    """
+    usuario_admin = Usuario.objects.get(email="system@admin.com")
+    log = instance.logs.first()
+    if len(instance.logs) == 1 and log.usuario == usuario_admin:
+        log.usuario = usuario
+        log.criado_em = datetime.datetime.now()
+        log.save()

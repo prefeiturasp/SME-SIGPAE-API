@@ -43,7 +43,9 @@ class NovoSGPServico:
             resultado = response.json()
             return resultado
         else:
-            raise Exception(f"Erro: {str(response)}, Status: {response.status_code}")
+            raise Exception(
+                f"Erro: {str(response.text)}, Status: {response.status_code}"
+            )
 
 
 class NovoSGPServicoLogadoException(Exception):

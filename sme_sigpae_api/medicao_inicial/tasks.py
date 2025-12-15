@@ -21,6 +21,7 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_excel import 
 from sme_sigpae_api.medicao_inicial.services.relatorio_controle_frequencia_pdf import (
     gera_relatorio_controle_frequencia_pdf,
 )
+from sme_sigpae_api.perfil.models.usuario import Usuario
 
 from ..dados_comuns.utils import (
     atualiza_central_download,
@@ -65,10 +66,8 @@ def cria_solicitacao_medicao_inicial_mes_atual():
                     copiar_alunos_periodo_parcial(
                         solicitacao_mes_anterior, solicitacao_atual
                     )
-
-                solicitacao_atual.inicia_fluxo(
-                    user=solicitacao_mes_anterior.logs.first().usuario
-                )
+                usuario_admin = Usuario.objects.get(email="system@admin.com")
+                solicitacao_atual.inicia_fluxo(user=usuario_admin)
 
             except SolicitacaoMedicaoInicial.DoesNotExist:
                 message = (
@@ -81,13 +80,13 @@ def cria_solicitacao_medicao_inicial_mes_atual():
 
 def solicitacao_medicao_atual_existe(escola, data):
     return SolicitacaoMedicaoInicial.objects.filter(
-        escola=escola, ano=data.year, mes=f"{data.month:02d}"
+        escola=escola, ano=data.year, mes=f"{data.month:02d}", recreio_nas_ferias=None
     ).exists()
 
 
 def buscar_solicitacao_mes_anterior(escola, data):
     return SolicitacaoMedicaoInicial.objects.get(
-        escola=escola, ano=data.year, mes=f"{data.month:02d}"
+        escola=escola, ano=data.year, mes=f"{data.month:02d}", recreio_nas_ferias=None
     )
 
 

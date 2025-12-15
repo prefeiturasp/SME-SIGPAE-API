@@ -96,6 +96,7 @@ def test_url_endpoint_solicitacao_medicao_inicial(
     aluno,
     faixas_etarias_ativas,
     periodos_integral_parcial_e_logs,
+    usuario_admin,
 ):
     assert escola.modulo_gestao == "TERCEIRIZADA"
     response = client_autenticado_da_escola.get(
@@ -120,6 +121,7 @@ def test_url_endpoint_solicitacao_medicao_inicial(
         data=data_create,
     )
     assert response.status_code == status.HTTP_201_CREATED
+    assert response.json()["logs"][0]["usuario"]["email"] != usuario_admin.email
     data_update = {
         "escola": str(escola.uuid),
         "tipo_contagem_alimentacoes[]": [tipo_contagem_alimentacao.uuid],
@@ -141,6 +143,7 @@ def test_url_endpoint_nao_tem_permissao_para_encerrar_medicao(
     responsavel,
     tipo_contagem_alimentacao,
     log_alunos_regulares,
+    usuario_admin,
 ):
     data_update = {
         "escola": str(escola.uuid),
@@ -184,6 +187,7 @@ def test_url_endpoint_medicao(
     periodo_escolar,
     categoria_medicao,
     medicao,
+    usuario_admin,
 ):
     data = {
         "periodo_escolar": periodo_escolar.nome,
@@ -760,6 +764,7 @@ def test_url_ue_atualiza_ocorrencia_para_dre(
     client_autenticado_da_escola,
     sol_med_inicial_devolvida_pela_dre_para_ue,
     anexo_ocorrencia_medicao_inicial_status_inicial,
+    usuario_admin,
 ):
     solicitacao = sol_med_inicial_devolvida_pela_dre_para_ue
     data = {"com_ocorrencias": "false", "justificativa": "TESTE 1"}
@@ -1194,6 +1199,7 @@ def test_finaliza_medicao_inicial_salva_logs(
     periodo_escolar_manha,
     periodo_escolar_tarde,
     periodo_escolar_noite,
+    usuario_admin,
 ):
     tipos_contagem = (
         solicitacao_medicao_inicial_teste_salvar_logs.tipos_contagem_alimentacao.all()
@@ -1310,6 +1316,7 @@ def test_finaliza_medicao_inicial_salva_logs(
 def test_finaliza_medicao_inicial_salva_logs_cei(
     client_autenticado_da_escola_cei,
     solicitacao_medicao_inicial_teste_salvar_logs_cei,
+    usuario_admin,
 ):
     tipos_contagem = (
         solicitacao_medicao_inicial_teste_salvar_logs_cei.tipos_contagem_alimentacao.all()
@@ -1375,6 +1382,7 @@ def test_finaliza_medicao_inicial_salva_logs_cei(
 def test_finaliza_medicao_inicial_salva_logs_ceu_gestao(
     client_autenticado_da_escola_ceu_gestao,
     solicitacao_medicao_inicial_varios_valores_ceu_gestao,
+    usuario_admin,
 ):
     tipos_contagem = (
         solicitacao_medicao_inicial_varios_valores_ceu_gestao.tipos_contagem_alimentacao.all()
@@ -1406,6 +1414,7 @@ def test_finaliza_medicao_inicial_salva_logs_ceu_gestao(
 def test_finaliza_medicao_inicial_salva_logs_emebs(
     client_autenticado_da_escola_emebs,
     solicitacao_medicao_inicial_varios_valores_emebs,
+    usuario_admin,
 ):
     tipos_contagem = (
         solicitacao_medicao_inicial_varios_valores_emebs.tipos_contagem_alimentacao.all()
@@ -1431,6 +1440,7 @@ def test_salva_valores_medicao_inicial_cemei(
     escola_cemei,
     solicitacao_medicao_inicial_cemei,
     categoria_medicao,
+    usuario_admin,
 ):
     data = {
         "valores_medicao": [
@@ -1954,7 +1964,7 @@ def test_url_endpoint_relatorio_consolidado_xlsx_sem_mes_refencia(
     assert response.json() == "É necessário informar o mês/ano de referência"
 
 
-def test_url_endpoint_relatorio_consolidado_xlsx_com_filtros(
+def test_url_endpoint_relatorio_consolidado_xlsx_com_erros(
     client_autenticado_diretoria_regional,
     grupo_escolar,
     escola,
@@ -1964,9 +1974,9 @@ def test_url_endpoint_relatorio_consolidado_xlsx_com_filtros(
         f"?mes=05&ano=2023&grupo_escolar={grupo_escolar}&status=MEDICAO_APROVADA_PELA_CODAE&dre={escola.diretoria_regional.uuid}",
         content_type="application/json",
     )
-    assert response.status_code == status.HTTP_200_OK
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
+        "erro": "Não foram encontradas Medições Iniciais. Verifique os parâmetros e tente novamente"
     }
 
 
@@ -2045,6 +2055,7 @@ def test_url_endpoint_atualiza_informacoes_basicas_medicao_nao_existe(
     client_autenticado_da_escola,
     solicitacao_medicao_informacoes_basicas,
     tipo_contagem_alimentacao,
+    usuario_admin,
 ):
     payload = {
         "escola": str(solicitacao_medicao_informacoes_basicas.escola.uuid),
@@ -2068,6 +2079,7 @@ def test_url_endpoint_atualiza_informacoes_basicas_medicao_erro_serializer(
     client_autenticado_da_escola,
     solicitacao_medicao_informacoes_basicas,
     tipo_contagem_alimentacao,
+    usuario_admin,
 ):
     payload = {
         "escola": str(solicitacao_medicao_informacoes_basicas.escola.uuid),
@@ -2112,6 +2124,7 @@ def test_url_endpoint_atualiza_informacoes_basicas(
     client_autenticado_da_escola,
     solicitacao_medicao_informacoes_basicas,
     tipo_contagem_alimentacao,
+    usuario_admin,
 ):
     payload = {
         "escola": str(solicitacao_medicao_informacoes_basicas.escola.uuid),
@@ -2143,13 +2156,13 @@ def test_url_endpoint_atualiza_informacoes_basicas(
     [
         (
             "client_autenticado_coordenador_codae",
-            status.HTTP_200_OK,
-            "Solicitação de geração de arquivo recebida com sucesso.",
+            status.HTTP_400_BAD_REQUEST,
+            "Não foram encontradas Medições Iniciais. Verifique os parâmetros e tente novamente",
         ),
         (
             "client_autenticado_diretoria_regional",
-            status.HTTP_200_OK,
-            "Solicitação de geração de arquivo recebida com sucesso.",
+            status.HTTP_400_BAD_REQUEST,
+            "Não foram encontradas Medições Iniciais. Verifique os parâmetros e tente novamente",
         ),
         (
             "client_autenticado_da_escola",
@@ -2183,8 +2196,8 @@ def test_url_endpoint_atualiza_informacoes_basicas(
         ),
         (
             "client_autenticado_codae_medicao",
-            status.HTTP_200_OK,
-            "Solicitação de geração de arquivo recebida com sucesso.",
+            status.HTTP_400_BAD_REQUEST,
+            "Não foram encontradas Medições Iniciais. Verifique os parâmetros e tente novamente",
         ),
     ],
 )
@@ -2200,4 +2213,92 @@ def test_url_endpoint_relatorio_consolidado_verifica_permissao(
     )
 
     assert response.status_code == status_experado
-    assert response.json() == {"detail": detail_experado}
+    assert detail_experado in response.json().values()
+
+
+def test_url_endpoint_solicitacao_medicao_inicial_com_criacao_da_medicao_por_task(
+    client_autenticado_da_escola,
+    usuario_escola,
+    solicitacao_log_medicao_usuario_system,
+    periodo_escolar_tarde,
+    categoria_medicao_solicitacoes_alimentacao,
+    usuario_admin,
+):
+    usuario, _ = usuario_escola
+    assert solicitacao_log_medicao_usuario_system.logs.count() == 1
+    log = solicitacao_log_medicao_usuario_system.logs.first()
+    assert log.usuario == usuario_admin
+
+    data_create = {
+        "week": 1,
+        "mes_lancamento": "Março / 2024",
+        "periodo_escolar": "TARDE",
+        "semanaSelecionada": 1,
+        "solicitacao_medicao_inicial": f"{solicitacao_log_medicao_usuario_system.uuid}",
+        "valores_medicao": [
+            {
+                "dia": "01",
+                "valor": "100",
+                "nome_campo": "matriculados",
+                "categoria_medicao": f"{categoria_medicao_solicitacoes_alimentacao.pk}",
+                "tipo_alimentacao": "",
+            },
+            {
+                "dia": "01",
+                "valor": "2",
+                "nome_campo": "frequencia",
+                "categoria_medicao": f"{categoria_medicao_solicitacoes_alimentacao.pk}",
+                "tipo_alimentacao": "",
+            },
+        ],
+    }
+    response = client_autenticado_da_escola.post(
+        "/medicao-inicial/medicao/",
+        content_type="application/json",
+        data=data_create,
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+
+    assert solicitacao_log_medicao_usuario_system.logs.count() == 1
+    log = solicitacao_log_medicao_usuario_system.logs.first()
+    assert log.usuario == usuario
+
+
+def test_url_endpoint_atualiza_informacoes_basicas_com_criacao_da_medicao_por_task(
+    client_autenticado_da_escola,
+    usuario_escola,
+    solicitacao_log_medicao_usuario_system,
+    tipo_contagem_alimentacao,
+    usuario_admin,
+):
+    usuario, _ = usuario_escola
+    assert solicitacao_log_medicao_usuario_system.logs.count() == 1
+    log = solicitacao_log_medicao_usuario_system.logs.first()
+    assert log.usuario == usuario_admin
+
+    payload = {
+        "escola": str(solicitacao_log_medicao_usuario_system.escola.uuid),
+        "responsaveis": [
+            {"nome": "Responsável 1", "rf": "1234566"},
+            {"nome": "Responsável 2", "rf": "7890126"},
+        ],
+        "tipos_contagem_alimentacao": [str(tipo_contagem_alimentacao.uuid)],
+    }
+    response = client_autenticado_da_escola.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_log_medicao_usuario_system.uuid}/informacoes-basicas/",
+        data=payload,
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+
+    nomes = [resp["nome"] for resp in data["responsaveis"]]
+    assert "Responsável 1" in nomes
+    assert "Responsável 2" in nomes
+    assert data["tipos_contagem_alimentacao"] == [str(tipo_contagem_alimentacao.uuid)]
+    assert data["escola"] == str(solicitacao_log_medicao_usuario_system.escola.uuid)
+
+    assert solicitacao_log_medicao_usuario_system.logs.count() == 1
+    log = solicitacao_log_medicao_usuario_system.logs.first()
+    assert log.usuario == usuario

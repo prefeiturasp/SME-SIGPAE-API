@@ -1,3 +1,5 @@
+import math
+
 import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import FloatField, Sum
@@ -194,7 +196,7 @@ def processa_dieta_especial(
         if soma is not None:
             total += soma
 
-    return "-" if total == 0.0 else total
+    return "-" if math.isclose(total, 0.0, rel_tol=1e-9) else total
 
 
 def processa_periodo_regular(

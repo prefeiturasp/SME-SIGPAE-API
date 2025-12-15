@@ -6,6 +6,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 import httpx
+from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
@@ -109,22 +110,28 @@ def ajustes_no_arquivo(arquivo: str):
         f.writelines(linhas)
 
 
+def escrever_erro_codigo_eol(codigo: str):
+    with open(f"{PATH}/codigo_eol_erro_da_api_eol.txt", "a") as f:
+        f.write(f"{codigo}\n")
+
+
 async def get_informacoes_escola_turma_aluno(tempfile: str, codigo_eol: str):
     headers = DEFAULT_HEADERS
     async with httpx.AsyncClient(headers=headers, timeout=120) as client:
         url = f"{DJANGO_EOL_API_URL}/escola_turma_aluno/{codigo_eol}"
         response = await client.get(url)
+
         if response.status_code == status.HTTP_200_OK:
             results = response.json()["results"]
+
             if len(results) == 0:
                 raise EOLException(f"Resultados para o código: {codigo_eol} vazios")
 
             escreve_escolas_json(tempfile, f'"{codigo_eol}": {results}\n')
-
             return results
+
         else:
-            with open(f"{PATH}/codigo_eol_erro_da_api_eol.txt", "a") as f:
-                f.write(f"{codigo_eol}\n")
+            await sync_to_async(escrever_erro_codigo_eol)(codigo_eol)
 
 
 def create_tempfile():

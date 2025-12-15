@@ -649,3 +649,104 @@ def test_escola_simplissima_dre_unpaginated_nome_edital(
     escola = response.json()[0]
     assert escola_edital_41.nome == escola["nome"]
     assert nome_edital == escola["lote_obj"]["contratos_do_lote"][0]["edital_numero"]
+
+
+def test_grupos_por_dre_quando_parametro_dre_nao_enviado(
+    client_autenticado_da_dre, grupos_da_dre
+):
+    response = client_autenticado_da_dre.get(f"/grupos-unidade-escolar/por-dre/")
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {"detail": "Parâmetro 'dre' é obrigatório."}
+
+
+def test_grupos_por_dre_quando_parametro_dre_nao_existe(
+    client_autenticado_da_dre, grupos_da_dre
+):
+    response = client_autenticado_da_dre.get(
+        f"/grupos-unidade-escolar/por-dre/?dre={grupos_da_dre.escolas.first().uuid}"
+    )
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "DRE não encontrada."}
+
+
+def test_grupos_por_dre_quando_parametro_dre_existe(
+    client_autenticado_da_dre, grupos_da_dre
+):
+    response = client_autenticado_da_dre.get(
+        f"/grupos-unidade-escolar/por-dre/?dre={grupos_da_dre.uuid}"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "grupos": [
+            {"habilitado": True, "nome": "Grupo 1"},
+            {"habilitado": False, "nome": "Grupo 2"},
+            {"habilitado": False, "nome": "Grupo 3"},
+        ]
+    }
+
+
+def test_dia_calendario_sem_perido_escolar(
+    client_autenticado_da_dre, dia_calendario_diurno, dia_calendario_noturno, escola
+):
+    response = client_autenticado_da_dre.get(
+        f"/dias-calendario/?escola_uuid={escola.uuid}&mes=5&ano=2024"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    resposta = response.json()
+    assert isinstance(resposta, list)
+    assert len(resposta) == 1
+    esperado = {
+        "escola": escola.nome,
+        "dia": "15",
+        "periodo_escolar": None,
+        "data": "15/05/2024",
+        "dia_letivo": True,
+        "criado_em": dia_calendario_diurno.criado_em.strftime("%d/%m/%Y %H:%M:%S"),
+        "alterado_em": dia_calendario_diurno.alterado_em.strftime("%d/%m/%Y %H:%M:%S"),
+    }
+    for campo, valor in esperado.items():
+        assert resposta[0][campo] == valor
+
+
+def test_dia_calendario_com_perido_escolar(
+    client_autenticado_da_dre,
+    dia_calendario_diurno,
+    dia_calendario_noturno,
+    escola,
+    periodo_escolar_noite,
+):
+    response = client_autenticado_da_dre.get(
+        f"/dias-calendario/?escola_uuid={escola.uuid}&mes=5&ano=2024&periodo_escolar_uuid={periodo_escolar_noite.uuid}"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    resposta = response.json()
+    assert isinstance(resposta, list)
+    assert len(resposta) == 1
+    esperado = {
+        "escola": escola.nome,
+        "dia": "15",
+        "data": "15/05/2024",
+        "dia_letivo": False,
+        "criado_em": dia_calendario_noturno.criado_em.strftime("%d/%m/%Y %H:%M:%S"),
+        "alterado_em": dia_calendario_noturno.alterado_em.strftime("%d/%m/%Y %H:%M:%S"),
+    }
+    for campo, valor in esperado.items():
+        assert resposta[0][campo] == valor
+
+    assert resposta[0]["periodo_escolar"]["uuid"] == str(periodo_escolar_noite.uuid)
+    assert resposta[0]["periodo_escolar"]["nome"] == "NOITE"
+
+
+def test_dia_calendario_mes_nao_cadastrado(
+    client_autenticado_da_dre, escola, periodo_escolar_noite
+):
+    response = client_autenticado_da_dre.get(
+        f"/dias-calendario/?escola_uuid={escola.uuid}&mes=6&ano=2024&periodo_escolar_uuid={periodo_escolar_noite.uuid}"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    resposta = response.json()
+    assert isinstance(resposta, list)
+    assert len(resposta) == 0

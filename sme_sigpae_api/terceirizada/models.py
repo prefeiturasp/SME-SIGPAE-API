@@ -217,6 +217,13 @@ class Terceirizada(
         return quantidade_total
 
     @property
+    def quantidade_alunos_terceirizada(self):
+        quantidade_total = 0
+        for lote in self.lotes.all():
+            quantidade_total += lote.quantidade_alunos_terceirizada
+        return quantidade_total
+
+    @property
     def nome(self):
         return self.nome_fantasia
 
