@@ -1492,10 +1492,68 @@ def get_periodo(periodos, indice_campo, len_periodos):
     return periodos[0]
 
 
+def _get_body_len(tabela):
+    if not tabela:
+        return 0
+    body = tabela.get("body") or []
+    return len(body)
+
+
+def calcular_flags_dietas(
+    alimentacao_rows,
+    dietas_a_rows,
+    dietas_b_rows,
+    limite_tudo_junto=7,
+    limite_alim_mais_a=10,
+):
+    tem_dietas = (dietas_a_rows + dietas_b_rows) > 0
+
+    flags = {
+        "tem_dietas": tem_dietas,
+        "render_dieta_a_bloco_1": False,
+        "render_dieta_b_bloco_1": False,
+        "render_dieta_a_bloco_2": False,
+        "render_dieta_b_bloco_2": False,
+        "tem_dietas_bloco_1": False,
+        "tem_dietas_bloco_2": False,
+    }
+
+    if not tem_dietas:
+        return flags
+
+    total_tudo = alimentacao_rows + dietas_a_rows + dietas_b_rows
+    total_alim_a = alimentacao_rows + dietas_a_rows
+
+    # 1) Tenta colocar Alimentação + A + B juntos
+    if total_tudo <= limite_tudo_junto:
+        flags["render_dieta_a_bloco_1"] = dietas_a_rows > 0
+        flags["render_dieta_b_bloco_1"] = dietas_b_rows > 0
+
+    # 2) Senão, tenta colocar Alimentação + A na mesma página
+    elif total_alim_a <= limite_alim_mais_a:
+        flags["render_dieta_a_bloco_1"] = dietas_a_rows > 0
+        flags["render_dieta_b_bloco_2"] = dietas_b_rows > 0
+
+    # 3) Senão, Alimentação sozinha; Dietas vão para a página seguinte
+    else:
+        flags["render_dieta_a_bloco_2"] = dietas_a_rows > 0
+        flags["render_dieta_b_bloco_2"] = dietas_b_rows > 0
+
+    flags["tem_dietas_bloco_1"] = (
+        flags["render_dieta_a_bloco_1"] or flags["render_dieta_b_bloco_1"]
+    )
+    flags["tem_dietas_bloco_2"] = (
+        flags["render_dieta_a_bloco_2"] or flags["render_dieta_b_bloco_2"]
+    )
+
+    return flags
+
+
 def relatorio_solicitacao_medicao_por_escola(solicitacao):
     tabelas = build_tabelas_relatorio_medicao(solicitacao)
     dict_total_refeicoes = get_total_por_periodo(tabelas, "total_refeicoes_pagamento")
     dict_total_sobremesas = get_total_por_periodo(tabelas, "total_sobremesas_pagamento")
+
     tipos_contagem_alimentacao = solicitacao.tipos_contagem_alimentacao.values_list(
         "nome", flat=True
     )
@@ -1516,48 +1574,21 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
         segunda_tabela_somatorio_dietas_tipo_b,
     ) = build_tabela_somatorio_dietas_body(solicitacao, "TIPO B")
 
-    def get_body_len(tabela):
-        if not tabela:
-            return 0
-        body = tabela.get("body") or []
-        return len(body)
-
-    alimentacao_rows = (get_body_len(primeira_tabela_somatorio))
-    dietas_a_rows = (get_body_len(primeira_tabela_somatorio_dietas_tipo_a))
-    dietas_b_rows = (get_body_len(primeira_tabela_somatorio_dietas_tipo_b))
-
-    LIMITE_TUDO_JUNTO = 7
-    LIMITE_ALIM_MAIS_A = 10
-
-    render_dieta_a_bloco_1 = False
-    render_dieta_b_bloco_1 = False
-    render_dieta_a_bloco_2 = False
-    render_dieta_b_bloco_2 = False
-
-    tem_dietas = (dietas_a_rows + dietas_b_rows) > 0
+    alimentacao_rows = _get_body_len(primeira_tabela_somatorio)
+    dietas_a_rows = _get_body_len(primeira_tabela_somatorio_dietas_tipo_a)
+    dietas_b_rows = _get_body_len(primeira_tabela_somatorio_dietas_tipo_b)
 
     print("alimentacao_rows =", alimentacao_rows)
     print("dietas_a_rows =", dietas_a_rows)
     print("dietas_b_rows =", dietas_b_rows)
 
-    if tem_dietas:
-        # 1) Tenta colocar Alimentação + A + B juntos
-        if (alimentacao_rows + dietas_a_rows + dietas_b_rows) <= LIMITE_TUDO_JUNTO:
-            render_dieta_a_bloco_1 = dietas_a_rows > 0
-            render_dieta_b_bloco_1 = dietas_b_rows > 0
-
-        # 2) Senão, tenta colocar Alimentação + A na mesma página
-        elif (alimentacao_rows + dietas_a_rows) <= LIMITE_ALIM_MAIS_A:
-            render_dieta_a_bloco_1 = dietas_a_rows > 0
-            render_dieta_b_bloco_2 = dietas_b_rows > 0
-
-        # 3) Senão, Alimentação sozinha; Dietas vão para a página seguinte
-        else:
-            render_dieta_a_bloco_2 = dietas_a_rows > 0
-            render_dieta_b_bloco_2 = dietas_b_rows > 0
-
-    tem_dietas_bloco_1 = render_dieta_a_bloco_1 or render_dieta_b_bloco_1
-    tem_dietas_bloco_2 = render_dieta_a_bloco_2 or render_dieta_b_bloco_2
+    flags_dietas = calcular_flags_dietas(
+        alimentacao_rows=alimentacao_rows,
+        dietas_a_rows=dietas_a_rows,
+        dietas_b_rows=dietas_b_rows,
+        limite_tudo_junto=7,
+        limite_alim_mais_a=10,
+    )
 
     html_string = render_to_string(
         "relatorio_solicitacao_medicao_por_escola.html",
@@ -1581,13 +1612,7 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
             "alimentacao_rows": alimentacao_rows,
             "dietas_a_rows": dietas_a_rows,
             "dietas_b_rows": dietas_b_rows,
-            "tem_dietas": tem_dietas,
-            "render_dieta_a_bloco_1": render_dieta_a_bloco_1,
-            "render_dieta_b_bloco_1": render_dieta_b_bloco_1,
-            "render_dieta_a_bloco_2": render_dieta_a_bloco_2,
-            "render_dieta_b_bloco_2": render_dieta_b_bloco_2,
-            "tem_dietas_bloco_1": tem_dietas_bloco_1,
-            "tem_dietas_bloco_2": tem_dietas_bloco_2,
+            **flags_dietas,
         },
     )
 
@@ -1598,10 +1623,9 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
         return html_to_pdf_file(
             html_string, "relatorio_dieta_especial.pdf", is_async=True
         )
-    else:
-        return html_to_pdf_watermark(
-            html_string, "relatorio_dieta_especial.pdf", "preliminar.pdf", is_async=True
-        )
+    return html_to_pdf_watermark(
+        html_string, "relatorio_dieta_especial.pdf", "preliminar.pdf", is_async=True
+    )
 
 
 def relatorio_solicitacao_medicao_por_escola_cei(solicitacao):
