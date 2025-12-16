@@ -154,7 +154,7 @@ class DiretoriaRegional(
         quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
             escola__in=self.escolas.all(),
             tipo_turma="REGULAR",
-            escola__tipo_gestao__nome="TERC TOTAL"
+            escola__tipo_gestao__nome="TERC TOTAL",
         ).aggregate(Sum("quantidade_alunos"))
         return quantidade_result.get("quantidade_alunos__sum") or 0
 
@@ -163,7 +163,7 @@ class DiretoriaRegional(
         quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
             escola__in=self.escolas.all(),
             tipo_turma="REGULAR",
-            escola__tipo_gestao__nome="PARCEIRA"
+            escola__tipo_gestao__nome="PARCEIRA",
         ).aggregate(Sum("quantidade_alunos"))
         return quantidade_result.get("quantidade_alunos__sum") or 0
 
@@ -1644,7 +1644,7 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
             escola__in=self.escolas.all(),
             tipo_turma="REGULAR",
-            escola__tipo_gestao__nome="TERC TOTAL"
+            escola__tipo_gestao__nome="TERC TOTAL",
         ).aggregate(Sum("quantidade_alunos"))
         return quantidade_result.get("quantidade_alunos__sum") or 0
 
@@ -2230,7 +2230,7 @@ class Codae(
         quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
             escola__in=Escola.objects.all(),
             tipo_turma="REGULAR",
-            escola__tipo_gestao__nome="TERC TOTAL"
+            escola__tipo_gestao__nome="TERC TOTAL",
         ).aggregate(Sum("quantidade_alunos"))
         return quantidade_result.get("quantidade_alunos__sum") or 0
 
@@ -2239,7 +2239,7 @@ class Codae(
         quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
             escola__in=Escola.objects.all(),
             tipo_turma="REGULAR",
-            escola__tipo_gestao__nome="PARCEIRA"
+            escola__tipo_gestao__nome="PARCEIRA",
         ).aggregate(Sum("quantidade_alunos"))
         return quantidade_result.get("quantidade_alunos__sum") or 0
 
