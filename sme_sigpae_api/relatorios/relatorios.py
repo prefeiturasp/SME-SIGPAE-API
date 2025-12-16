@@ -1824,8 +1824,8 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
     dietas_b_fund_rows = get_body_len(primeira_tabela_somatorio_dietas_tipo_b_fundamental)
     tem_dietas_fundamental = (dietas_a_fund_rows + dietas_b_fund_rows) > 0
 
-    LIM_FUND_TUDO_JUNTO = 8      # Alimentação + A + B
-    LIM_FUND_ALIM_MAIS_A = 10    # Alimentação + A
+    LIM_FUND_TUDO_JUNTO = 8
+    LIM_FUND_ALIM_MAIS_A = 10
 
     render_dieta_a_fund_bloco_1 = False
     render_dieta_b_fund_bloco_1 = False
@@ -1833,15 +1833,23 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
     render_dieta_b_fund_bloco_2 = False
 
     if tem_dietas_fundamental:
-        if (alimentacao_fundamental_rows + dietas_a_fund_rows + dietas_b_fund_rows) <= LIM_FUND_TUDO_JUNTO:
-            render_dieta_a_fund_bloco_1 = dietas_a_fund_rows > 0
-            render_dieta_b_fund_bloco_1 = dietas_b_fund_rows > 0
-        elif (alimentacao_fundamental_rows + dietas_a_fund_rows) <= LIM_FUND_ALIM_MAIS_A:
-            render_dieta_a_fund_bloco_1 = dietas_a_fund_rows > 0
-            render_dieta_b_fund_bloco_2 = dietas_b_fund_rows > 0
-        else:
+        if not tem_dietas_infantil:
             render_dieta_a_fund_bloco_2 = dietas_a_fund_rows > 0
             render_dieta_b_fund_bloco_2 = dietas_b_fund_rows > 0
+        else:
+            if (alimentacao_fundamental_rows
+                + dietas_a_fund_rows
+                + dietas_b_fund_rows) <= LIM_FUND_TUDO_JUNTO:
+                render_dieta_a_fund_bloco_1 = dietas_a_fund_rows > 0
+                render_dieta_b_fund_bloco_1 = dietas_b_fund_rows > 0
+
+            elif (alimentacao_fundamental_rows
+                  + dietas_a_fund_rows) <= LIM_FUND_ALIM_MAIS_A:
+                render_dieta_a_fund_bloco_1 = dietas_a_fund_rows > 0
+                render_dieta_b_fund_bloco_2 = dietas_b_fund_rows > 0
+            else:
+                render_dieta_a_fund_bloco_2 = dietas_a_fund_rows > 0
+                render_dieta_b_fund_bloco_2 = dietas_b_fund_rows > 0
 
     tem_dietas_fund_bloco_1 = render_dieta_a_fund_bloco_1 or render_dieta_b_fund_bloco_1
     tem_dietas_fund_bloco_2 = render_dieta_a_fund_bloco_2 or render_dieta_b_fund_bloco_2
@@ -1877,7 +1885,6 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
             "alimentacao_infantil_rows": alimentacao_infantil_rows,
             "dietas_infantil_rows": dietas_infantil_rows,
             "alimentacao_fundamental_rows": alimentacao_fundamental_rows,
-            # novas flags FUNDAMENTAL
             "render_dieta_a_fund_bloco_1": render_dieta_a_fund_bloco_1,
             "render_dieta_b_fund_bloco_1": render_dieta_b_fund_bloco_1,
             "render_dieta_a_fund_bloco_2": render_dieta_a_fund_bloco_2,
