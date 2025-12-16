@@ -816,3 +816,20 @@ def cria_arquivo_excel(caminho_arquivo: Path, dados: List[Dict[str, str]]):
     for row in dados:
         ws.append(list(row.values()))
     wb.save(caminho_arquivo)
+
+
+def datas_para_gerar_logs(escola, hoje: date | None = None) -> list[date]:
+    """
+    Retorna a lista de datas para as quais os logs devem ser gerados.
+    Normalmente: [ontem]
+    No último dia letivo do ano: [ontem, hoje]
+    """
+    hoje = hoje or date.today()
+    ontem = hoje - timedelta(days=1)
+
+    datas = [ontem]
+
+    if hoje == escola.ultimo_dia_letivo:
+        datas.append(hoje)
+
+    return datas
