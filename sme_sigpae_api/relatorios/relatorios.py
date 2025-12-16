@@ -1733,7 +1733,6 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
     tabela_observacoes_infantil = build_lista_campos_observacoes(
         solicitacao, ValorMedicao.INFANTIL
     )
-
     tabela_observacoes_fundamental = build_lista_campos_observacoes(
         solicitacao, ValorMedicao.FUNDAMENTAL
     )
@@ -1797,6 +1796,35 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
         ValorMedicao.FUNDAMENTAL,
     )
 
+    def get_body_len(tabela):
+        if not tabela:
+            return 0
+        body = tabela.get("body") or []
+        return len(body)
+
+    # Alimentação INFANTIL
+    alimentacao_infantil_rows = (get_body_len(primeira_tabela_somatorio_infantil))
+
+    dietas_infantil_rows = (
+        get_body_len(primeira_tabela_somatorio_dietas_tipo_a_infantil)
+        + get_body_len(primeira_tabela_somatorio_dietas_tipo_b_infantil)
+    )
+    print("Primeira tabela somatório dietas tipo A infantil:",
+          get_body_len(primeira_tabela_somatorio_dietas_tipo_a_infantil))
+    print("Primeira tabela somatório dietas tipo B infantil:",
+          get_body_len(primeira_tabela_somatorio_dietas_tipo_b_infantil))
+    print("dietas_infantil_rows =", dietas_infantil_rows)
+
+    alimentacao_fundamental_rows = (get_body_len(primeira_tabela_somatorio_fundamental))
+
+    tem_dietas_infantil = dietas_infantil_rows > 0
+
+    if ((alimentacao_infantil_rows + dietas_infantil_rows) <= 7
+            and alimentacao_fundamental_rows <= 4) or not tem_dietas_infantil:
+        mostrar_header_fundamental = False
+    else:
+        mostrar_header_fundamental = True
+
     html_string = render_to_string(
         "relatorio_solicitacao_medicao_por_escola_emebs.html",
         {
@@ -1823,6 +1851,11 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
             "segunda_tabela_somatorio_dietas_tipo_a_fundamental": segunda_tabela_somatorio_dietas_tipo_a_fundamental,
             "primeira_tabela_somatorio_dietas_tipo_b_fundamental": primeira_tabela_somatorio_dietas_tipo_b_fundamental,
             "segunda_tabela_somatorio_dietas_tipo_b_fundamental": segunda_tabela_somatorio_dietas_tipo_b_fundamental,
+            "mostrar_header_fundamental": mostrar_header_fundamental,
+            "tem_dietas_infantil": tem_dietas_infantil,
+            "alimentacao_infantil_rows": alimentacao_infantil_rows,
+            "dietas_infantil_rows": dietas_infantil_rows,
+            "alimentacao_fundamental_rows": alimentacao_fundamental_rows,
         },
     )
     if (
