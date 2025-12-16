@@ -65,7 +65,7 @@ class RelatorioFinanceiroFilter(filters.FilterSet):
 
 
 class SolicitacaoMedicaoInicialFilter(filters.FilterSet):
-    escola = filters.CharFilter(field_name="escola__uuid", lookup_expr="iexact")
+    escola_uuid = filters.CharFilter(field_name="escola__uuid", lookup_expr="iexact")
     mes = filters.CharFilter(field_name="mes", lookup_expr="iexact")
     ano = filters.CharFilter(field_name="ano", lookup_expr="iexact")
     recreio_nas_ferias = filters.CharFilter(
