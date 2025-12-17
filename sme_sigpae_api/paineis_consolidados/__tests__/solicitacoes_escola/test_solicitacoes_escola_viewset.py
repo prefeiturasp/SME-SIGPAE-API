@@ -1,6 +1,4 @@
 import datetime
-import types
-import uuid
 from collections import namedtuple
 
 import pytest
