@@ -143,6 +143,14 @@ class SolicitacaoAlteracaoCronogramaSerializer(serializers.ModelSerializer):
     fornecedor = serializers.CharField(source="cronograma.empresa")
     cronograma = serializers.CharField(source="cronograma.numero")
     status = serializers.CharField(source="get_status_display")
+    programa_leve_leite = serializers.SerializerMethodField()
+
+    def get_programa_leve_leite(self, obj):
+        try:
+            print(obj.cronograma.ficha_tecnica)
+            return obj.cronograma.ficha_tecnica.programa == "LEVE_LEITE"
+        except AttributeError:
+            return False
 
     class Meta:
         model = SolicitacaoAlteracaoCronograma
@@ -153,6 +161,7 @@ class SolicitacaoAlteracaoCronogramaSerializer(serializers.ModelSerializer):
             "status",
             "criado_em",
             "cronograma",
+            "programa_leve_leite",
         )
 
 
