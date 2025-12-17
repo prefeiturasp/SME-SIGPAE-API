@@ -233,7 +233,7 @@
         {% endfor %}
       </tbody>
     </table>
-    {% endfor %} 
+    {% endfor %}
     {% for tabela in tabela_observacoes|formatar_observacoes %}
     <header class="header" style="page-break-before: always">
       <div class="row p-0 mx-4">
@@ -307,7 +307,7 @@
         {% endfor %}
       </tbody>
     </table>
-    {% endfor %} 
+    {% endfor %}
     {% if primeira_tabela_somatorio.body or segunda_tabela_somatorio.body %}
     <header class="header" style="page-break-before: always">
       <div class="row p-0 mx-4">
@@ -385,7 +385,7 @@
           </tbody>
         </table>
       </div>
-      {% endif %} 
+      {% endif %}
       {% if segunda_tabela_somatorio.body %}
       <div>
         <table>
@@ -417,11 +417,145 @@
       * A tabela acima representa a soma das alimentações lançadas em todos os
       períodos da UE
     </div>
-    {% endif %} 
-    {% if primeira_tabela_somatorio_dietas_tipo_a.body or
-    segunda_tabela_somatorio_dietas_tipo_a.header or
-    primeira_tabela_somatorio_dietas_tipo_b.body or
-    segunda_tabela_somatorio_dietas_tipo_b.header %}
+    {% endif %}
+
+    {% if tem_dietas_bloco_1 %}
+    <h1 class="titulo-tabela-somatorio text-center mt-4 mb-4">
+      SOMATÓRIO DE DIETAS OFERTADAS NOS PERÍODOS
+    </h1>
+
+    {% if render_dieta_a_bloco_1 %}
+    <div class="tabelas-somatorio-dietas mb-2">
+      {% if primeira_tabela_somatorio_dietas_tipo_a.body %}
+      <div>
+        <table class="mr-1">
+          <thead class="head-tabelas-somatorio">
+            <tr class="texto-branco">
+              {% for periodo in primeira_tabela_somatorio_dietas_tipo_a.header %}
+              <th class="col-{{ periodo|get_colspan }}">
+                {{periodo|get_nome_header}}
+              </th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody class="body-tabelas-somatorio">
+            {% for row in primeira_tabela_somatorio_dietas_tipo_a.body %}
+            <tr>
+              {% for periodo in primeira_tabela_somatorio_dietas_tipo_a.header %}
+              <td class="col-{{ periodo|get_colspan }}">
+                {{ row|get_element_by_index:forloop.counter0 }}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="info-abaixo-tabela">
+          * A tabela acima representa a soma das dietas lançadas em todos os
+          períodos da UE
+        </div>
+      </div>
+      {% endif %}
+      {% if segunda_tabela_somatorio_dietas_tipo_a.header %}
+      <div>
+        <table class="mr-1">
+          <thead class="head-tabelas-somatorio">
+            <tr class="texto-branco">
+              {% for periodo in segunda_tabela_somatorio_dietas_tipo_a.header %}
+              <th class="col-{{ periodo|get_colspan }}">
+                {{periodo|get_nome_header}}
+              </th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody class="body-tabelas-somatorio">
+            {% for row in segunda_tabela_somatorio_dietas_tipo_a.body %}
+            <tr>
+              {% for periodo in segunda_tabela_somatorio_dietas_tipo_a.header %}
+              <td class="col-{{ periodo|get_colspan }}">
+                {{ row|get_element_by_index:forloop.counter0 }}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="info-abaixo-tabela">
+          * A tabela acima representa a soma das dietas lançadas em todos os
+          períodos da UE
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if render_dieta_b_bloco_1 %}
+    <div class="tabelas-somatorio-dietas">
+      {% if primeira_tabela_somatorio_dietas_tipo_b.body %}
+      <div>
+        <table class="mr-1">
+          <thead class="head-tabelas-somatorio">
+            <tr class="texto-branco">
+              {% for periodo in primeira_tabela_somatorio_dietas_tipo_b.header %}
+              <th class="col-{{ periodo|get_colspan }}">
+                {{periodo|get_nome_header}}
+              </th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody class="body-tabelas-somatorio">
+            {% for row in primeira_tabela_somatorio_dietas_tipo_b.body %}
+            <tr>
+              {% for periodo in primeira_tabela_somatorio_dietas_tipo_b.header %}
+              <td class="col-{{ periodo|get_colspan }}">
+                {{ row|get_element_by_index:forloop.counter0 }}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="info-abaixo-tabela">
+          * A tabela acima representa a soma das dietas lançadas em todos os
+          períodos da UE
+        </div>
+      </div>
+      {% endif %}
+      {% if segunda_tabela_somatorio_dietas_tipo_b.header %}
+      <div>
+        <table class="mr-1">
+          <thead class="head-tabelas-somatorio">
+            <tr class="texto-branco">
+              {% for periodo in segunda_tabela_somatorio_dietas_tipo_b.header %}
+              <th class="col-{{ periodo|get_colspan }}">
+                {{periodo|get_nome_header}}
+              </th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody class="body-tabelas-somatorio">
+            {% for row in segunda_tabela_somatorio_dietas_tipo_b.body %}
+            <tr>
+              {% for periodo in segunda_tabela_somatorio_dietas_tipo_b.header %}
+              <td class="col-{{ periodo|get_colspan }}">
+                {{ row|get_element_by_index:forloop.counter0 }}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="info-abaixo-tabela">
+          * A tabela acima representa a soma das dietas lançadas em todos os
+          períodos da UE
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {% if tem_dietas_bloco_2 %}
     <header class="header" style="page-break-before: always">
       <div class="row p-0 mx-4">
         <div class="col-2">
@@ -474,14 +608,15 @@
         <h1 class="titulo-tabela-somatorio text-center mt-4 mb-4">
           SOMATÓRIO DE DIETAS OFERTADAS NOS PERÍODOS
         </h1>
+
+        {% if render_dieta_a_bloco_2 %}
         <div class="tabelas-somatorio-dietas mb-2">
           {% if primeira_tabela_somatorio_dietas_tipo_a.body %}
           <div>
             <table class="mr-1">
               <thead class="head-tabelas-somatorio">
                 <tr class="texto-branco">
-                  {% for periodo in
-                  primeira_tabela_somatorio_dietas_tipo_a.header %}
+                  {% for periodo in primeira_tabela_somatorio_dietas_tipo_a.header %}
                   <th class="col-{{ periodo|get_colspan }}">
                     {{periodo|get_nome_header}}
                   </th>
@@ -491,8 +626,7 @@
               <tbody class="body-tabelas-somatorio">
                 {% for row in primeira_tabela_somatorio_dietas_tipo_a.body %}
                 <tr>
-                  {% for periodo in
-                  primeira_tabela_somatorio_dietas_tipo_a.header %}
+                  {% for periodo in primeira_tabela_somatorio_dietas_tipo_a.header %}
                   <td class="col-{{ periodo|get_colspan }}">
                     {{ row|get_element_by_index:forloop.counter0 }}
                   </td>
@@ -512,8 +646,7 @@
             <table class="mr-1">
               <thead class="head-tabelas-somatorio">
                 <tr class="texto-branco">
-                  {% for periodo in
-                  segunda_tabela_somatorio_dietas_tipo_a.header %}
+                  {% for periodo in segunda_tabela_somatorio_dietas_tipo_a.header %}
                   <th class="col-{{ periodo|get_colspan }}">
                     {{periodo|get_nome_header}}
                   </th>
@@ -523,8 +656,7 @@
               <tbody class="body-tabelas-somatorio">
                 {% for row in segunda_tabela_somatorio_dietas_tipo_a.body %}
                 <tr>
-                  {% for periodo in
-                  segunda_tabela_somatorio_dietas_tipo_a.header %}
+                  {% for periodo in segunda_tabela_somatorio_dietas_tipo_a.header %}
                   <td class="col-{{ periodo|get_colspan }}">
                     {{ row|get_element_by_index:forloop.counter0 }}
                   </td>
@@ -540,15 +672,16 @@
           </div>
           {% endif %}
         </div>
+        {% endif %}
 
+        {% if render_dieta_b_bloco_2 %}
         <div class="tabelas-somatorio-dietas">
           {% if primeira_tabela_somatorio_dietas_tipo_b.body %}
           <div>
             <table class="mr-1">
               <thead class="head-tabelas-somatorio">
                 <tr class="texto-branco">
-                  {% for periodo in
-                  primeira_tabela_somatorio_dietas_tipo_b.header %}
+                  {% for periodo in primeira_tabela_somatorio_dietas_tipo_b.header %}
                   <th class="col-{{ periodo|get_colspan }}">
                     {{periodo|get_nome_header}}
                   </th>
@@ -558,8 +691,7 @@
               <tbody class="body-tabelas-somatorio">
                 {% for row in primeira_tabela_somatorio_dietas_tipo_b.body %}
                 <tr>
-                  {% for periodo in
-                  primeira_tabela_somatorio_dietas_tipo_b.header %}
+                  {% for periodo in primeira_tabela_somatorio_dietas_tipo_b.header %}
                   <td class="col-{{ periodo|get_colspan }}">
                     {{ row|get_element_by_index:forloop.counter0 }}
                   </td>
@@ -573,13 +705,13 @@
               períodos da UE
             </div>
           </div>
-          {% endif %} {% if segunda_tabela_somatorio_dietas_tipo_b.header %}
+          {% endif %}
+          {% if segunda_tabela_somatorio_dietas_tipo_b.header %}
           <div>
             <table class="mr-1">
               <thead class="head-tabelas-somatorio">
                 <tr class="texto-branco">
-                  {% for periodo in
-                  segunda_tabela_somatorio_dietas_tipo_b.header %}
+                  {% for periodo in segunda_tabela_somatorio_dietas_tipo_b.header %}
                   <th class="col-{{ periodo|get_colspan }}">
                     {{periodo|get_nome_header}}
                   </th>
@@ -589,8 +721,7 @@
               <tbody class="body-tabelas-somatorio">
                 {% for row in segunda_tabela_somatorio_dietas_tipo_b.body %}
                 <tr>
-                  {% for periodo in
-                  segunda_tabela_somatorio_dietas_tipo_b.header %}
+                  {% for periodo in segunda_tabela_somatorio_dietas_tipo_b.header %}
                   <td class="col-{{ periodo|get_colspan }}">
                     {{ row|get_element_by_index:forloop.counter0 }}
                   </td>
@@ -609,6 +740,7 @@
         {% endif %}
       </div>
     </div>
+    {% endif %}
     <div id="last-page-footer">
       <div class="row p-0 mx-4 mt-5">
         <div class="col-6 mr-3 titulo-assinatura">
