@@ -1578,10 +1578,6 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
     dietas_a_rows = _get_body_len(primeira_tabela_somatorio_dietas_tipo_a)
     dietas_b_rows = _get_body_len(primeira_tabela_somatorio_dietas_tipo_b)
 
-    print("alimentacao_rows =", alimentacao_rows)
-    print("dietas_a_rows =", dietas_a_rows)
-    print("dietas_b_rows =", dietas_b_rows)
-
     flags_dietas = calcular_flags_dietas(
         alimentacao_rows=alimentacao_rows,
         dietas_a_rows=dietas_a_rows,
@@ -1720,13 +1716,6 @@ def relatorio_solicitacao_medicao_por_escola_cemei(solicitacao):
         return html_to_pdf_watermark(
             html_string, "relatorio_dieta_especial.pdf", "preliminar.pdf", is_async=True
         )
-
-
-def get_body_len_emebs(tabela):
-    if not tabela:
-        return 0
-    body = tabela.get("body") or []
-    return len(body)
 
 
 def calcula_mostrar_header_fundamental_emebs(
@@ -1871,14 +1860,14 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
         ValorMedicao.FUNDAMENTAL,
     )
 
-    alimentacao_infantil_rows = get_body_len_emebs(primeira_tabela_somatorio_infantil)
+    alimentacao_infantil_rows = _get_body_len(primeira_tabela_somatorio_infantil)
 
     dietas_infantil_rows = (
-        get_body_len_emebs(primeira_tabela_somatorio_dietas_tipo_a_infantil)
-        + get_body_len_emebs(primeira_tabela_somatorio_dietas_tipo_b_infantil)
+        _get_body_len(primeira_tabela_somatorio_dietas_tipo_a_infantil)
+        + _get_body_len(primeira_tabela_somatorio_dietas_tipo_b_infantil)
     )
 
-    alimentacao_fundamental_rows = get_body_len_emebs(primeira_tabela_somatorio_fundamental)
+    alimentacao_fundamental_rows = _get_body_len(primeira_tabela_somatorio_fundamental)
 
     tem_dietas_infantil = dietas_infantil_rows > 0
 
@@ -1889,8 +1878,8 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
         tem_dietas_infantil,
     )
 
-    dietas_a_fund_rows = get_body_len_emebs(primeira_tabela_somatorio_dietas_tipo_a_fundamental)
-    dietas_b_fund_rows = get_body_len_emebs(primeira_tabela_somatorio_dietas_tipo_b_fundamental)
+    dietas_a_fund_rows = _get_body_len(primeira_tabela_somatorio_dietas_tipo_a_fundamental)
+    dietas_b_fund_rows = _get_body_len(primeira_tabela_somatorio_dietas_tipo_b_fundamental)
 
     (
         render_dieta_a_fund_bloco_1,
