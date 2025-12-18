@@ -1725,6 +1725,13 @@ def calcula_mostrar_header_fundamental_emebs(
     tem_dietas_infantil,
     tem_dietas_fundamental,
 ):
+    if (
+        alimentacao_infantil_rows == 0
+        and dietas_infantil_rows == 0
+        and not tem_dietas_fundamental
+    ):
+        return True
+
     if not tem_dietas_infantil and not tem_dietas_fundamental:
         if (alimentacao_infantil_rows + alimentacao_fundamental_rows) > 10:
             return True
