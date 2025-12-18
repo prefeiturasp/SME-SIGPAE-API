@@ -1725,32 +1725,21 @@ def calcula_mostrar_header_fundamental_emebs(
     tem_dietas_infantil,
     tem_dietas_fundamental,
 ):
-    if (
-        alimentacao_infantil_rows == 0
-        and dietas_infantil_rows == 0
-        and not tem_dietas_fundamental
-    ):
+    if alimentacao_infantil_rows == 0 and dietas_infantil_rows == 0:
         return True
 
     if not tem_dietas_infantil and not tem_dietas_fundamental:
-        if (alimentacao_infantil_rows + alimentacao_fundamental_rows) > 10:
-            return True
-        return False
+        return (alimentacao_infantil_rows + alimentacao_fundamental_rows) > 10
 
     if tem_dietas_infantil and not tem_dietas_fundamental:
-        if (
-            (alimentacao_infantil_rows + dietas_infantil_rows) >= 4
-            and alimentacao_fundamental_rows >= 2
-        ):
-            return True
+        total_infantil = alimentacao_infantil_rows + dietas_infantil_rows
+        return total_infantil >= 4 and alimentacao_fundamental_rows >= 2
+
+    if not tem_dietas_infantil:
         return False
 
-    if (
-        (alimentacao_infantil_rows + dietas_infantil_rows) <= 6
-        and alimentacao_fundamental_rows <= 4
-    ) or not tem_dietas_infantil:
-        return False
-    return True
+    total_infantil = alimentacao_infantil_rows + dietas_infantil_rows
+    return total_infantil > 6 or alimentacao_fundamental_rows > 4
 
 
 def calcula_flags_dietas_fundamental_emebs(
