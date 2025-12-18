@@ -1725,7 +1725,7 @@ def calcula_mostrar_header_fundamental_emebs(
     tem_dietas_infantil,
 ):
     if (
-        (alimentacao_infantil_rows + dietas_infantil_rows) <= 7
+        (alimentacao_infantil_rows + dietas_infantil_rows) <= 6
         and alimentacao_fundamental_rows <= 4
     ) or not tem_dietas_infantil:
         return False
@@ -1737,7 +1737,11 @@ def calcula_flags_dietas_fundamental_emebs(
     dietas_b_fund_rows,
     alimentacao_fundamental_rows,
     tem_dietas_infantil,
+    mostrar_header_fundamental,
 ):
+    tem_dietas_fundamental = (dietas_a_fund_rows + dietas_b_fund_rows) > 0
+
+    LIM_FUND_ALIM_MAIS_A_COM_INFANTIL = 8
     LIM_FUND_TUDO_JUNTO = 8
     LIM_FUND_ALIM_MAIS_A = 10
 
@@ -1746,35 +1750,40 @@ def calcula_flags_dietas_fundamental_emebs(
     render_dieta_a_fund_bloco_2 = False
     render_dieta_b_fund_bloco_2 = False
 
-    tem_dietas_fundamental = (dietas_a_fund_rows + dietas_b_fund_rows) > 0
-
     if tem_dietas_fundamental:
-        if not tem_dietas_infantil:
-            render_dieta_a_fund_bloco_2 = dietas_a_fund_rows > 0
-            render_dieta_b_fund_bloco_2 = dietas_b_fund_rows > 0
-        else:
-            if (
-                alimentacao_fundamental_rows
-                + dietas_a_fund_rows
-                + dietas_b_fund_rows
-            ) <= LIM_FUND_TUDO_JUNTO:
-                render_dieta_a_fund_bloco_1 = dietas_a_fund_rows > 0
-                render_dieta_b_fund_bloco_1 = dietas_b_fund_rows > 0
-            elif (
-                alimentacao_fundamental_rows + dietas_a_fund_rows
-            ) <= LIM_FUND_ALIM_MAIS_A:
+        if not mostrar_header_fundamental:
+            if (alimentacao_fundamental_rows + dietas_a_fund_rows) <= 5:
                 render_dieta_a_fund_bloco_1 = dietas_a_fund_rows > 0
                 render_dieta_b_fund_bloco_2 = dietas_b_fund_rows > 0
             else:
                 render_dieta_a_fund_bloco_2 = dietas_a_fund_rows > 0
                 render_dieta_b_fund_bloco_2 = dietas_b_fund_rows > 0
 
-    tem_dietas_fund_bloco_1 = (
-        render_dieta_a_fund_bloco_1 or render_dieta_b_fund_bloco_1
-    )
-    tem_dietas_fund_bloco_2 = (
-        render_dieta_a_fund_bloco_2 or render_dieta_b_fund_bloco_2
-    )
+        elif tem_dietas_infantil:
+            if (alimentacao_fundamental_rows + dietas_a_fund_rows) <= LIM_FUND_ALIM_MAIS_A_COM_INFANTIL:
+                render_dieta_a_fund_bloco_1 = dietas_a_fund_rows > 0
+                render_dieta_b_fund_bloco_2 = dietas_b_fund_rows > 0
+            else:
+                render_dieta_a_fund_bloco_2 = dietas_a_fund_rows > 0
+                render_dieta_b_fund_bloco_2 = dietas_b_fund_rows > 0
+
+        else:
+            if (alimentacao_fundamental_rows
+                + dietas_a_fund_rows
+                + dietas_b_fund_rows) <= LIM_FUND_TUDO_JUNTO:
+                render_dieta_a_fund_bloco_1 = dietas_a_fund_rows > 0
+                render_dieta_b_fund_bloco_1 = dietas_b_fund_rows > 0
+
+            elif (alimentacao_fundamental_rows
+                  + dietas_a_fund_rows) <= LIM_FUND_ALIM_MAIS_A:
+                render_dieta_a_fund_bloco_1 = dietas_a_fund_rows > 0
+                render_dieta_b_fund_bloco_2 = dietas_b_fund_rows > 0
+            else:
+                render_dieta_a_fund_bloco_2 = dietas_a_fund_rows > 0
+                render_dieta_b_fund_bloco_2 = dietas_b_fund_rows > 0
+
+    tem_dietas_fund_bloco_1 = render_dieta_a_fund_bloco_1 or render_dieta_b_fund_bloco_1
+    tem_dietas_fund_bloco_2 = render_dieta_a_fund_bloco_2 or render_dieta_b_fund_bloco_2
 
     return (
         render_dieta_a_fund_bloco_1,
@@ -1893,6 +1902,7 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
         dietas_b_fund_rows,
         alimentacao_fundamental_rows,
         tem_dietas_infantil,
+        mostrar_header_fundamental,
     )
 
     html_string = render_to_string(
