@@ -139,11 +139,13 @@ def test_gerar_calendario_recreio_estrutura_dados():
     assert dia_info["data"][5] == "/"
 
 
-def test_integracao_entre_funcoes():
-    inicio = datetime.date(2025, 11, 1)
-    fim = datetime.date(2025, 11, 30)
-    dias_letivos = gerar_dias_letivos_recreio(inicio, fim)
-    calendario = gerar_calendario_recreio(inicio, fim, dias_letivos)
+def test_integracao_entre_funcoes(recreio_nas_ferias):
+    dias_letivos = gerar_dias_letivos_recreio(
+        recreio_nas_ferias.data_inicio, recreio_nas_ferias.data_fim
+    )
+    calendario = gerar_calendario_recreio(
+        recreio_nas_ferias.data_inicio, recreio_nas_ferias.data_fim, dias_letivos
+    )
 
     for dia_info in calendario:
         dia_numero = int(dia_info["dia"])

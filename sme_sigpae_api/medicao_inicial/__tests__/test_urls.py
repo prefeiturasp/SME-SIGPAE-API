@@ -2302,3 +2302,66 @@ def test_url_endpoint_atualiza_informacoes_basicas_com_criacao_da_medicao_por_ta
     assert solicitacao_log_medicao_usuario_system.logs.count() == 1
     log = solicitacao_log_medicao_usuario_system.logs.first()
     assert log.usuario == usuario
+
+
+def test_url_dias_letivos_recreio(
+    client_autenticado_da_escola, solicitacao_recreio_nas_ferias
+):
+    response = client_autenticado_da_escola.get(
+        f"/medicao-inicial/recreio-nas-ferias/dias-letivos/?solictacao_uuid={solicitacao_recreio_nas_ferias.uuid}",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    dias_nao_letivos = {
+        "13": False,  # sábado
+        "14": False,  # domingo
+        "20": False,  # sábado
+        "21": False,  # domingo
+        "25": False,  # Natal (feriado)
+        "27": False,  # sábado
+        "28": False,  # domingo
+    }
+
+    for item in data:
+        dia = item["dia"]
+        if dia in dias_nao_letivos:
+            assert item["dia_letivo"] == dias_nao_letivos[dia]
+        else:
+            assert item["dia_letivo"] == True
+
+
+def test_url_dias_letivos_recreio_sem_parametro(client_autenticado_da_escola):
+    response = client_autenticado_da_escola.get(
+        "/medicao-inicial/recreio-nas-ferias/dias-letivos/",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": "É necessário informar o UUID da solicitação da medição de recreio nas férias"
+    }
+
+
+def test_url_dias_letivos_recreio_medicao_sem_recreio(
+    client_autenticado_da_escola, solicitacao_dias_letivos_escola
+):
+    response = client_autenticado_da_escola.get(
+        f"/medicao-inicial/recreio-nas-ferias/dias-letivos/?solictacao_uuid={solicitacao_dias_letivos_escola.uuid}",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "Essa medição não contém recreio nas férias"}
+
+
+def test_url_dias_letivos_recreio_datas_em_meses_diferentes(
+    client_autenticado_da_escola, solicitacao_recreio_incorreto
+):
+    response = client_autenticado_da_escola.get(
+        f"/medicao-inicial/recreio-nas-ferias/dias-letivos/?solictacao_uuid={solicitacao_recreio_incorreto.uuid}",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": "O início e o fim do recreio devem estar no mesmo mês."
+    }
