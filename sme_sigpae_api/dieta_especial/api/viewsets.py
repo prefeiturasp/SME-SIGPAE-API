@@ -82,6 +82,8 @@ from ..models import (
     ClassificacaoDieta,
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+    LogQuantidadeDietasAutorizadasRecreioNasFerias,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
     MotivoAlteracaoUE,
     MotivoNegacao,
     ProtocoloPadraoDietaEspecial,
@@ -110,6 +112,7 @@ from .filters import (
     AlimentoFilter,
     DietaEspecialFilter,
     LogQuantidadeDietasEspeciaisFilter,
+    LogQuantidadeDietasRecreioNasFeriasFilter,
     MotivoNegacaoFilter,
 )
 from .serializers import (
@@ -118,6 +121,8 @@ from .serializers import (
     ClassificacaoDietaSerializer,
     LogQuantidadeDietasAutorizadasCEISerializer,
     LogQuantidadeDietasAutorizadasSerializer,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer,
     MotivoAlteracaoUESerializer,
     MotivoNegacaoSerializer,
     PanoramaSerializer,
@@ -2299,4 +2304,24 @@ class LogQuantidadeDietasAutorizadasCEIViewSet(mixins.ListModelMixin, GenericVie
     )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = LogQuantidadeDietasEspeciaisFilter
+    pagination_class = None
+
+
+class LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet(
+    mixins.ListModelMixin, GenericViewSet
+):
+    serializer_class = LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer
+    queryset = LogQuantidadeDietasAutorizadasRecreioNasFerias.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = LogQuantidadeDietasRecreioNasFeriasFilter
+    pagination_class = None
+
+
+class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet(
+    mixins.ListModelMixin, GenericViewSet
+):
+    serializer_class = LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer
+    queryset = LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = LogQuantidadeDietasRecreioNasFeriasFilter
     pagination_class = None

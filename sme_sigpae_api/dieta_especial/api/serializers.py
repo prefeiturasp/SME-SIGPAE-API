@@ -37,6 +37,8 @@ from ..models import (
     ClassificacaoDieta,
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+    LogQuantidadeDietasAutorizadasRecreioNasFerias,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
     MotivoAlteracaoUE,
     MotivoNegacao,
     ProtocoloPadraoDietaEspecial,
@@ -879,6 +881,46 @@ class LogQuantidadeDietasAutorizadasCEISerializer(serializers.ModelSerializer):
     class Meta:
         model = LogQuantidadeDietasAutorizadasCEI
         exclude = ("id", "uuid")
+
+
+class LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer(serializers.ModelSerializer):
+    escola_uuid = serializers.UUIDField(source="escola.uuid", read_only=True)
+    escola_nome = serializers.CharField(source="escola.nome", read_only=True)
+    classificacao_nome = serializers.CharField(source="classificacao.nome", read_only=True)
+
+    class Meta:
+        model = LogQuantidadeDietasAutorizadasRecreioNasFerias
+        fields = (
+            "uuid",
+            "data",
+            "escola_uuid",
+            "escola_nome",
+            "classificacao",
+            "classificacao_nome",
+            "quantidade",
+        )
+
+
+class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer(serializers.ModelSerializer):
+    escola_uuid = serializers.UUIDField(source="escola.uuid", read_only=True)
+    escola_nome = serializers.CharField(source="escola.nome", read_only=True)
+    classificacao_nome = serializers.CharField(source="classificacao.nome", read_only=True)
+    faixa_etaria_uuid = serializers.UUIDField(source="faixa_etaria.uuid", read_only=True)
+    faixa_etaria_descricao = serializers.CharField(source="faixa_etaria.descricao", read_only=True)
+
+    class Meta:
+        model = LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI
+        fields = (
+            "uuid",
+            "data",
+            "escola_uuid",
+            "escola_nome",
+            "classificacao",
+            "classificacao_nome",
+            "faixa_etaria_uuid",
+            "faixa_etaria_descricao",
+            "quantidade",
+        )
 
 
 class UnidadeEducacionalSerializer(serializers.Serializer):
