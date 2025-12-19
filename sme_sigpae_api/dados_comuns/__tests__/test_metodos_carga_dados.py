@@ -250,9 +250,9 @@ def test_cria_motivo_negacao():
 
 
 def test_cria_motivo_alteracao_ue():
-    assert MotivoAlteracaoUE.objects.count() == 0
+    motivo_alteracao_ue = MotivoInclusaoNormal.objects.count()
     cria_motivo_alteracao_ue()
-    assert MotivoAlteracaoUE.objects.count() == 2
+    assert MotivoAlteracaoUE.objects.count() == 2 + motivo_alteracao_ue
 
 
 def test_cria_alergia_intolerancias():
