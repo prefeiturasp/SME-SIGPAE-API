@@ -101,13 +101,13 @@ def gera_logs_dietas_recreio_ferias_diariamente():
             tipo_solicitacao__in=["COMUM", "ALTERACAO_UE"],
             motivo_alteracao_ue__nome="Dieta Especial - Recreio nas Férias",
             ativo=True,
-            status="CODAE_AUTORIZADO",
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
         )
         | Q(
             tipo_solicitacao="ALUNO_NAO_MATRICULADO",
             ativo=True,
             dieta_para_recreio_ferias=True,
-            status="CODAE_AUTORIZADO",
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
         )
     )
 
