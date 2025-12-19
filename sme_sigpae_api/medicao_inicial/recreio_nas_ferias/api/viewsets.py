@@ -1,5 +1,6 @@
 from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.api.filters import (
@@ -10,6 +11,10 @@ from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.api.serializers import (
     RecreioNasFeriasSerializer,
 )
 from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
+from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.utils import (
+    gerar_calendario_recreio,
+    gerar_dias_letivos_recreio,
+)
 
 
 class RecreioNasFeriasViewSet(viewsets.ModelViewSet):
@@ -63,3 +68,31 @@ class RecreioNasFeriasViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         kwargs["partial"] = True
         return self.update(request, *args, **kwargs)
+
+    @action(detail=False, url_path="dias-letivos", methods=["get"])
+    def dias_letivos(self, request):
+        solictacao_uuid = request.query_params.get("solictacao_uuid")
+        if not solictacao_uuid:
+            return Response(
+                dict(
+                    detail="É necessário informar o UUID da solicitação da medição de recreio nas férias"
+                ),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            recreio = RecreioNasFerias.objects.get(
+                solicitacoes_medicao_inicial__uuid=solictacao_uuid
+            )
+        except RecreioNasFerias.DoesNotExist:
+            return Response(
+                dict(detail="Essa medição não contém recreio nas férias"),
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        inicio_recreio = recreio.data_inicio
+        fim_recreio = recreio.data_fim
+        dias_letivos_filtrados = gerar_dias_letivos_recreio(inicio_recreio, fim_recreio)
+        calendario = gerar_calendario_recreio(
+            inicio_recreio, fim_recreio, dias_letivos_filtrados
+        )
+
+        return Response(calendario, status=status.HTTP_200_OK)

@@ -1771,8 +1771,12 @@ def calcula_flags_dietas_fundamental_emebs(
             LIM_FUND_TUDO_JUNTO,
             LIM_FUND_ALIM_MAIS_A,
         )
-        (render_dieta_a_fund_bloco_1, render_dieta_b_fund_bloco_1,
-         render_dieta_a_fund_bloco_2, render_dieta_b_fund_bloco_2) = flags
+        (
+            render_dieta_a_fund_bloco_1,
+            render_dieta_b_fund_bloco_1,
+            render_dieta_a_fund_bloco_2,
+            render_dieta_b_fund_bloco_2,
+        ) = flags
 
     tem_dietas_fund_bloco_1 = render_dieta_a_fund_bloco_1 or render_dieta_b_fund_bloco_1
     tem_dietas_fund_bloco_2 = render_dieta_a_fund_bloco_2 or render_dieta_b_fund_bloco_2
@@ -1818,7 +1822,9 @@ def _calcular_flags_por_cenario(
         )
 
 
-def _calcular_flags_sem_header(alimentacao_fundamental_rows, dietas_a_fund_rows, dietas_b_fund_rows):
+def _calcular_flags_sem_header(
+    alimentacao_fundamental_rows, dietas_a_fund_rows, dietas_b_fund_rows
+):
     if (alimentacao_fundamental_rows + dietas_a_fund_rows) <= 5:
         return (dietas_a_fund_rows > 0, False, False, dietas_b_fund_rows > 0)
     else:
@@ -1841,9 +1847,7 @@ def _calcular_flags_sem_infantil(
     lim_tudo_junto,
     lim_alim_mais_a,
 ):
-    total_tudo = (
-        alimentacao_fundamental_rows + dietas_a_fund_rows + dietas_b_fund_rows
-    )
+    total_tudo = alimentacao_fundamental_rows + dietas_a_fund_rows + dietas_b_fund_rows
     total_alim_mais_a = alimentacao_fundamental_rows + dietas_a_fund_rows
 
     if total_tudo <= lim_tudo_junto:
@@ -1930,17 +1934,20 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
 
     alimentacao_infantil_rows = _get_body_len(primeira_tabela_somatorio_infantil)
 
-    dietas_infantil_rows = (
-        _get_body_len(primeira_tabela_somatorio_dietas_tipo_a_infantil)
-        + _get_body_len(primeira_tabela_somatorio_dietas_tipo_b_infantil)
-    )
+    dietas_infantil_rows = _get_body_len(
+        primeira_tabela_somatorio_dietas_tipo_a_infantil
+    ) + _get_body_len(primeira_tabela_somatorio_dietas_tipo_b_infantil)
 
     alimentacao_fundamental_rows = _get_body_len(primeira_tabela_somatorio_fundamental)
 
     tem_dietas_infantil = dietas_infantil_rows > 0
 
-    dietas_a_fund_rows = _get_body_len(primeira_tabela_somatorio_dietas_tipo_a_fundamental)
-    dietas_b_fund_rows = _get_body_len(primeira_tabela_somatorio_dietas_tipo_b_fundamental)
+    dietas_a_fund_rows = _get_body_len(
+        primeira_tabela_somatorio_dietas_tipo_a_fundamental
+    )
+    dietas_b_fund_rows = _get_body_len(
+        primeira_tabela_somatorio_dietas_tipo_b_fundamental
+    )
     tem_dietas_fundamental = (dietas_a_fund_rows + dietas_b_fund_rows) > 0
 
     mostrar_header_fundamental = calcula_mostrar_header_fundamental_emebs(
