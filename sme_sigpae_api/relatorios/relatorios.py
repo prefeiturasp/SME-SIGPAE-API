@@ -1492,10 +1492,68 @@ def get_periodo(periodos, indice_campo, len_periodos):
     return periodos[0]
 
 
+def _get_body_len(tabela):
+    if not tabela:
+        return 0
+    body = tabela.get("body") or []
+    return len(body)
+
+
+def calcular_flags_dietas(
+    alimentacao_rows,
+    dietas_a_rows,
+    dietas_b_rows,
+    limite_tudo_junto=7,
+    limite_alim_mais_a=10,
+):
+    tem_dietas = (dietas_a_rows + dietas_b_rows) > 0
+
+    flags = {
+        "tem_dietas": tem_dietas,
+        "render_dieta_a_bloco_1": False,
+        "render_dieta_b_bloco_1": False,
+        "render_dieta_a_bloco_2": False,
+        "render_dieta_b_bloco_2": False,
+        "tem_dietas_bloco_1": False,
+        "tem_dietas_bloco_2": False,
+    }
+
+    if not tem_dietas:
+        return flags
+
+    total_tudo = alimentacao_rows + dietas_a_rows + dietas_b_rows
+    total_alim_a = alimentacao_rows + dietas_a_rows
+
+    # 1) Tenta colocar Alimentação + A + B juntos
+    if total_tudo <= limite_tudo_junto:
+        flags["render_dieta_a_bloco_1"] = dietas_a_rows > 0
+        flags["render_dieta_b_bloco_1"] = dietas_b_rows > 0
+
+    # 2) Senão, tenta colocar Alimentação + A na mesma página
+    elif total_alim_a <= limite_alim_mais_a:
+        flags["render_dieta_a_bloco_1"] = dietas_a_rows > 0
+        flags["render_dieta_b_bloco_2"] = dietas_b_rows > 0
+
+    # 3) Senão, Alimentação sozinha; Dietas vão para a página seguinte
+    else:
+        flags["render_dieta_a_bloco_2"] = dietas_a_rows > 0
+        flags["render_dieta_b_bloco_2"] = dietas_b_rows > 0
+
+    flags["tem_dietas_bloco_1"] = (
+        flags["render_dieta_a_bloco_1"] or flags["render_dieta_b_bloco_1"]
+    )
+    flags["tem_dietas_bloco_2"] = (
+        flags["render_dieta_a_bloco_2"] or flags["render_dieta_b_bloco_2"]
+    )
+
+    return flags
+
+
 def relatorio_solicitacao_medicao_por_escola(solicitacao):
     tabelas = build_tabelas_relatorio_medicao(solicitacao)
     dict_total_refeicoes = get_total_por_periodo(tabelas, "total_refeicoes_pagamento")
     dict_total_sobremesas = get_total_por_periodo(tabelas, "total_sobremesas_pagamento")
+
     tipos_contagem_alimentacao = solicitacao.tipos_contagem_alimentacao.values_list(
         "nome", flat=True
     )
@@ -1516,6 +1574,18 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
         segunda_tabela_somatorio_dietas_tipo_b,
     ) = build_tabela_somatorio_dietas_body(solicitacao, "TIPO B")
 
+    alimentacao_rows = _get_body_len(primeira_tabela_somatorio)
+    dietas_a_rows = _get_body_len(primeira_tabela_somatorio_dietas_tipo_a)
+    dietas_b_rows = _get_body_len(primeira_tabela_somatorio_dietas_tipo_b)
+
+    flags_dietas = calcular_flags_dietas(
+        alimentacao_rows=alimentacao_rows,
+        dietas_a_rows=dietas_a_rows,
+        dietas_b_rows=dietas_b_rows,
+        limite_tudo_junto=7,
+        limite_alim_mais_a=10,
+    )
+
     html_string = render_to_string(
         "relatorio_solicitacao_medicao_por_escola.html",
         {
@@ -1535,6 +1605,10 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
             "segunda_tabela_somatorio_dietas_tipo_a": segunda_tabela_somatorio_dietas_tipo_a,
             "primeira_tabela_somatorio_dietas_tipo_b": primeira_tabela_somatorio_dietas_tipo_b,
             "segunda_tabela_somatorio_dietas_tipo_b": segunda_tabela_somatorio_dietas_tipo_b,
+            "alimentacao_rows": alimentacao_rows,
+            "dietas_a_rows": dietas_a_rows,
+            "dietas_b_rows": dietas_b_rows,
+            **flags_dietas,
         },
     )
 
@@ -1545,10 +1619,9 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
         return html_to_pdf_file(
             html_string, "relatorio_dieta_especial.pdf", is_async=True
         )
-    else:
-        return html_to_pdf_watermark(
-            html_string, "relatorio_dieta_especial.pdf", "preliminar.pdf", is_async=True
-        )
+    return html_to_pdf_watermark(
+        html_string, "relatorio_dieta_especial.pdf", "preliminar.pdf", is_async=True
+    )
 
 
 def relatorio_solicitacao_medicao_por_escola_cei(solicitacao):
@@ -1645,6 +1718,142 @@ def relatorio_solicitacao_medicao_por_escola_cemei(solicitacao):
         )
 
 
+def calcula_mostrar_header_fundamental_emebs(
+    alimentacao_infantil_rows,
+    dietas_infantil_rows,
+    alimentacao_fundamental_rows,
+    tem_dietas_infantil,
+    tem_dietas_fundamental,
+):
+    if alimentacao_infantil_rows == 0 and dietas_infantil_rows == 0:
+        return True
+
+    if not tem_dietas_infantil and not tem_dietas_fundamental:
+        return (alimentacao_infantil_rows + alimentacao_fundamental_rows) > 10
+
+    if tem_dietas_infantil and not tem_dietas_fundamental:
+        total_infantil = alimentacao_infantil_rows + dietas_infantil_rows
+        return total_infantil >= 4 and alimentacao_fundamental_rows >= 2
+
+    if not tem_dietas_infantil:
+        return False
+
+    total_infantil = alimentacao_infantil_rows + dietas_infantil_rows
+    return total_infantil > 6 or alimentacao_fundamental_rows > 4
+
+
+def calcula_flags_dietas_fundamental_emebs(
+    dietas_a_fund_rows,
+    dietas_b_fund_rows,
+    alimentacao_fundamental_rows,
+    tem_dietas_infantil,
+    mostrar_header_fundamental,
+):
+    tem_dietas_fundamental = (dietas_a_fund_rows + dietas_b_fund_rows) > 0
+
+    LIM_FUND_ALIM_MAIS_A_COM_INFANTIL = 8
+    LIM_FUND_TUDO_JUNTO = 8
+    LIM_FUND_ALIM_MAIS_A = 10
+
+    render_dieta_a_fund_bloco_1 = False
+    render_dieta_b_fund_bloco_1 = False
+    render_dieta_a_fund_bloco_2 = False
+    render_dieta_b_fund_bloco_2 = False
+
+    if tem_dietas_fundamental:
+        flags = _calcular_flags_por_cenario(
+            alimentacao_fundamental_rows,
+            dietas_a_fund_rows,
+            dietas_b_fund_rows,
+            mostrar_header_fundamental,
+            tem_dietas_infantil,
+            LIM_FUND_ALIM_MAIS_A_COM_INFANTIL,
+            LIM_FUND_TUDO_JUNTO,
+            LIM_FUND_ALIM_MAIS_A,
+        )
+        (render_dieta_a_fund_bloco_1, render_dieta_b_fund_bloco_1,
+         render_dieta_a_fund_bloco_2, render_dieta_b_fund_bloco_2) = flags
+
+    tem_dietas_fund_bloco_1 = render_dieta_a_fund_bloco_1 or render_dieta_b_fund_bloco_1
+    tem_dietas_fund_bloco_2 = render_dieta_a_fund_bloco_2 or render_dieta_b_fund_bloco_2
+
+    return (
+        render_dieta_a_fund_bloco_1,
+        render_dieta_b_fund_bloco_1,
+        render_dieta_a_fund_bloco_2,
+        render_dieta_b_fund_bloco_2,
+        tem_dietas_fund_bloco_1,
+        tem_dietas_fund_bloco_2,
+    )
+
+
+def _calcular_flags_por_cenario(
+    alimentacao_fundamental_rows,
+    dietas_a_fund_rows,
+    dietas_b_fund_rows,
+    mostrar_header_fundamental,
+    tem_dietas_infantil,
+    lim_alim_mais_a_com_infantil,
+    lim_tudo_junto,
+    lim_alim_mais_a,
+):
+    if not mostrar_header_fundamental:
+        return _calcular_flags_sem_header(
+            alimentacao_fundamental_rows, dietas_a_fund_rows, dietas_b_fund_rows
+        )
+    elif tem_dietas_infantil:
+        return _calcular_flags_com_infantil(
+            alimentacao_fundamental_rows,
+            dietas_a_fund_rows,
+            dietas_b_fund_rows,
+            lim_alim_mais_a_com_infantil,
+        )
+    else:
+        return _calcular_flags_sem_infantil(
+            alimentacao_fundamental_rows,
+            dietas_a_fund_rows,
+            dietas_b_fund_rows,
+            lim_tudo_junto,
+            lim_alim_mais_a,
+        )
+
+
+def _calcular_flags_sem_header(alimentacao_fundamental_rows, dietas_a_fund_rows, dietas_b_fund_rows):
+    if (alimentacao_fundamental_rows + dietas_a_fund_rows) <= 5:
+        return (dietas_a_fund_rows > 0, False, False, dietas_b_fund_rows > 0)
+    else:
+        return (False, False, dietas_a_fund_rows > 0, dietas_b_fund_rows > 0)
+
+
+def _calcular_flags_com_infantil(
+    alimentacao_fundamental_rows, dietas_a_fund_rows, dietas_b_fund_rows, limite
+):
+    if (alimentacao_fundamental_rows + dietas_a_fund_rows) <= limite:
+        return (dietas_a_fund_rows > 0, False, False, dietas_b_fund_rows > 0)
+    else:
+        return (False, False, dietas_a_fund_rows > 0, dietas_b_fund_rows > 0)
+
+
+def _calcular_flags_sem_infantil(
+    alimentacao_fundamental_rows,
+    dietas_a_fund_rows,
+    dietas_b_fund_rows,
+    lim_tudo_junto,
+    lim_alim_mais_a,
+):
+    total_tudo = (
+        alimentacao_fundamental_rows + dietas_a_fund_rows + dietas_b_fund_rows
+    )
+    total_alim_mais_a = alimentacao_fundamental_rows + dietas_a_fund_rows
+
+    if total_tudo <= lim_tudo_junto:
+        return (dietas_a_fund_rows > 0, dietas_b_fund_rows > 0, False, False)
+    elif total_alim_mais_a <= lim_alim_mais_a:
+        return (dietas_a_fund_rows > 0, False, False, dietas_b_fund_rows > 0)
+    else:
+        return (False, False, dietas_a_fund_rows > 0, dietas_b_fund_rows > 0)
+
+
 def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
     tabelas = build_tabelas_relatorio_medicao_emebs(solicitacao)
 
@@ -1656,7 +1865,6 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
     tabela_observacoes_infantil = build_lista_campos_observacoes(
         solicitacao, ValorMedicao.INFANTIL
     )
-
     tabela_observacoes_fundamental = build_lista_campos_observacoes(
         solicitacao, ValorMedicao.FUNDAMENTAL
     )
@@ -1720,6 +1928,44 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
         ValorMedicao.FUNDAMENTAL,
     )
 
+    alimentacao_infantil_rows = _get_body_len(primeira_tabela_somatorio_infantil)
+
+    dietas_infantil_rows = (
+        _get_body_len(primeira_tabela_somatorio_dietas_tipo_a_infantil)
+        + _get_body_len(primeira_tabela_somatorio_dietas_tipo_b_infantil)
+    )
+
+    alimentacao_fundamental_rows = _get_body_len(primeira_tabela_somatorio_fundamental)
+
+    tem_dietas_infantil = dietas_infantil_rows > 0
+
+    dietas_a_fund_rows = _get_body_len(primeira_tabela_somatorio_dietas_tipo_a_fundamental)
+    dietas_b_fund_rows = _get_body_len(primeira_tabela_somatorio_dietas_tipo_b_fundamental)
+    tem_dietas_fundamental = (dietas_a_fund_rows + dietas_b_fund_rows) > 0
+
+    mostrar_header_fundamental = calcula_mostrar_header_fundamental_emebs(
+        alimentacao_infantil_rows,
+        dietas_infantil_rows,
+        alimentacao_fundamental_rows,
+        tem_dietas_infantil,
+        tem_dietas_fundamental,
+    )
+
+    (
+        render_dieta_a_fund_bloco_1,
+        render_dieta_b_fund_bloco_1,
+        render_dieta_a_fund_bloco_2,
+        render_dieta_b_fund_bloco_2,
+        tem_dietas_fund_bloco_1,
+        tem_dietas_fund_bloco_2,
+    ) = calcula_flags_dietas_fundamental_emebs(
+        dietas_a_fund_rows,
+        dietas_b_fund_rows,
+        alimentacao_fundamental_rows,
+        tem_dietas_infantil,
+        mostrar_header_fundamental,
+    )
+
     html_string = render_to_string(
         "relatorio_solicitacao_medicao_por_escola_emebs.html",
         {
@@ -1746,6 +1992,17 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
             "segunda_tabela_somatorio_dietas_tipo_a_fundamental": segunda_tabela_somatorio_dietas_tipo_a_fundamental,
             "primeira_tabela_somatorio_dietas_tipo_b_fundamental": primeira_tabela_somatorio_dietas_tipo_b_fundamental,
             "segunda_tabela_somatorio_dietas_tipo_b_fundamental": segunda_tabela_somatorio_dietas_tipo_b_fundamental,
+            "mostrar_header_fundamental": mostrar_header_fundamental,
+            "tem_dietas_infantil": tem_dietas_infantil,
+            "alimentacao_infantil_rows": alimentacao_infantil_rows,
+            "dietas_infantil_rows": dietas_infantil_rows,
+            "alimentacao_fundamental_rows": alimentacao_fundamental_rows,
+            "render_dieta_a_fund_bloco_1": render_dieta_a_fund_bloco_1,
+            "render_dieta_b_fund_bloco_1": render_dieta_b_fund_bloco_1,
+            "render_dieta_a_fund_bloco_2": render_dieta_a_fund_bloco_2,
+            "render_dieta_b_fund_bloco_2": render_dieta_b_fund_bloco_2,
+            "tem_dietas_fund_bloco_1": tem_dietas_fund_bloco_1,
+            "tem_dietas_fund_bloco_2": tem_dietas_fund_bloco_2,
         },
     )
     if (

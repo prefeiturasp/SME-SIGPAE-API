@@ -1,18 +1,20 @@
 import json
 from unittest import TestCase
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 from django.core.management import call_command
 from freezegun.api import freeze_time
 
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
+    DiaCalendarioFactory,
     DiretoriaRegionalFactory,
     EscolaFactory,
     FaixaEtariaFactory,
     PeriodoEscolarFactory,
 )
 from sme_sigpae_api.escola.models import LogAlunosMatriculadosFaixaEtariaDia
+from sme_sigpae_api.escola.utils import datas_para_gerar_logs
 
 
 class AtualizaCacheMatriculadosPorFaixaCommandTest(TestCase):
@@ -64,7 +66,14 @@ class AtualizaCacheMatriculadosPorFaixaCommandTest(TestCase):
                 file
             )
 
-    @freeze_time("2024-12-26")
+    def _setup_dias_letivos(self):
+        for dia in ["18", "19"]:
+            for escola in [self.cei_diret, self.cci]:
+                DiaCalendarioFactory.create(
+                    data=f"2024-12-{dia}", escola=escola, dia_letivo=True
+                )
+
+    @freeze_time("2024-11-30")
     @pytest.mark.django_db(transaction=True)
     @patch(
         "sme_sigpae_api.escola.management.commands.atualiza_cache_matriculados_por_faixa.redis_connection"
@@ -93,6 +102,9 @@ class AtualizaCacheMatriculadosPorFaixaCommandTest(TestCase):
         mock_redis_connection.delete.assert_called()
         mock_redis_connection.hset.assert_called()
 
+        assert len(datas_para_gerar_logs(self.cei_diret)) == 1
+        assert len(datas_para_gerar_logs(self.cci)) == 1
+
         assert LogAlunosMatriculadosFaixaEtariaDia.objects.count() == 3
         assert (
             LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
@@ -103,4 +115,86 @@ class AtualizaCacheMatriculadosPorFaixaCommandTest(TestCase):
         assert (
             LogAlunosMatriculadosFaixaEtariaDia.objects.filter(escola=self.cci).count()
             == 1
+        )
+
+    @freeze_time("2024-12-19")
+    @pytest.mark.django_db(transaction=True)
+    @patch(
+        "sme_sigpae_api.escola.management.commands.atualiza_cache_matriculados_por_faixa.redis_connection"
+    )
+    @patch(
+        "sme_sigpae_api.eol_servico.utils.EOLServicoSGP.get_alunos_por_escola_por_ano_letivo"
+    )
+    def test_command_atualiza_cache_matriculados_por_faixa_ultimo_dia_letivo(
+        self,
+        mock_get_alunos_por_escola_por_ano_letivo,
+        mock_redis_connection,
+    ) -> None:
+        mock_get_alunos_por_escola_por_ano_letivo.side_effect = [
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_1,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_1,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_1,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_1,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_1,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_1,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_1,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_1,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_1,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_2,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_2,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_2,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_2,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_2,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_2,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_2,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_2,
+            self.mock_chamada_externa_alunos_por_escola_por_ano_letivo_2,
+        ]
+
+        self._setup_dias_letivos()
+
+        self.call_command()
+
+        mock_redis_connection.delete.assert_called()
+        mock_redis_connection.hset.assert_called()
+
+        assert len(datas_para_gerar_logs(self.cei_diret)) == 2
+        assert len(datas_para_gerar_logs(self.cci)) == 2
+
+        assert LogAlunosMatriculadosFaixaEtariaDia.objects.count() == 8
+
+        assert (
+            LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
+                escola=self.cei_diret
+            ).count()
+            == 4
+        )
+        assert (
+            LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
+                escola=self.cei_diret, data="2024-12-18"
+            ).count()
+            == 2
+        )
+        assert (
+            LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
+                escola=self.cei_diret, data="2024-12-19"
+            ).count()
+            == 2
+        )
+
+        assert (
+            LogAlunosMatriculadosFaixaEtariaDia.objects.filter(escola=self.cci).count()
+            == 4
+        )
+        assert (
+            LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
+                escola=self.cci, data="2024-12-18"
+            ).count()
+            == 2
+        )
+        assert (
+            LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
+                escola=self.cci, data="2024-12-19"
+            ).count()
+            == 2
         )

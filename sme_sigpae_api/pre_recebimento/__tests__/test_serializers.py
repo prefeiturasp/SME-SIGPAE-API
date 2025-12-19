@@ -21,6 +21,7 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serialize
     EtapasDoCronogramaFichaDeRecebimentoSerializer,
     EtapasDoCronogramaSerializer,
     PainelCronogramaSerializer,
+    SolicitacaoAlteracaoCronogramaSerializer,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
@@ -453,3 +454,52 @@ def test_ficha_tecnica_detalhar_serializer_campo_programa(ficha_tecnica_factory)
     assert "programa_display" in serializer.data
     assert serializer.data["programa"] == FichaTecnicaDoProduto.LEVE_LEITE
     assert serializer.data["programa_display"] == "Leve Leite"
+
+
+def test_solicitacao_alteracao_cronograma_serializer_leve_leite(
+        cronograma_leve_leite,
+        cronograma_assinado_perfil_dilog
+):
+    solicitacao = baker.make(
+        "SolicitacaoAlteracaoCronograma",
+        cronograma=cronograma_leve_leite,
+        status="EM_ANALISE",
+    )
+    
+    serializer = SolicitacaoAlteracaoCronogramaSerializer(solicitacao)
+    data = serializer.data
+    
+    assert "programa_leve_leite" in data
+    assert data["programa_leve_leite"] is True
+    
+    assert "uuid" in data
+    assert data["uuid"] == str(solicitacao.uuid)
+    
+    assert "numero_solicitacao" in data
+    
+    assert "fornecedor" in data
+    assert data["fornecedor"] == str(cronograma_leve_leite.empresa)
+    
+    assert "cronograma" in data
+    assert data["cronograma"] == cronograma_leve_leite.numero
+    
+    assert "status" in data
+    assert data["status"] == solicitacao.get_status_display()
+    
+    assert "criado_em" in data
+
+    if cronograma_assinado_perfil_dilog.ficha_tecnica:
+        cronograma_assinado_perfil_dilog.ficha_tecnica.programa = "ALIMENTACAO_ESCOLAR"
+        cronograma_assinado_perfil_dilog.ficha_tecnica.save()
+    
+    solicitacao2 = baker.make(
+        "SolicitacaoAlteracaoCronograma",
+        cronograma=cronograma_assinado_perfil_dilog,
+        status="EM_ANALISE",
+    )
+
+    serializer2 = SolicitacaoAlteracaoCronogramaSerializer(solicitacao2)
+    data2 = serializer2.data
+
+    assert "programa_leve_leite" in data2
+    assert data2["programa_leve_leite"] is False

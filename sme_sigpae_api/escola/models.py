@@ -542,6 +542,26 @@ class Escola(
     )
 
     @property
+    def ultimo_dia_letivo(self):
+        DEZEMBRO = 12
+
+        hoje = datetime.date.today()
+        if hoje.month != DEZEMBRO:
+            return None
+
+        ultimo_dia = (
+            self.calendario.filter(
+                data__month=DEZEMBRO,
+                data__year=hoje.year,
+                dia_letivo=True,
+            )
+            .order_by("data")
+            .last()
+        )
+
+        return ultimo_dia.data if ultimo_dia else None
+
+    @property
     def tipos_alimentacao(self):
         return TipoAlimentacao.objects.filter(
             uuid__in=self.tipo_unidade.vinculotipoalimentacaocomperiodoescolaretipounidadeescolar_set.values_list(
