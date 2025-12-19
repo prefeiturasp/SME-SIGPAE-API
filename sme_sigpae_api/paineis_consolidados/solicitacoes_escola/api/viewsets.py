@@ -534,7 +534,9 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                     continue
 
                 if inclusao.tipo_doc == "INC_ALIMENTA_CONTINUA":
-                    tratar_inclusao_continua(mes, ano, periodo, inclusao, return_dict)
+                    tratar_inclusao_continua(
+                        inc.escola, mes, ano, periodo, inclusao, return_dict
+                    )
                 else:
                     return_dict = self.tratar_inclusoes_normais(
                         inc, mes, ano, periodo, inclusao, return_dict
