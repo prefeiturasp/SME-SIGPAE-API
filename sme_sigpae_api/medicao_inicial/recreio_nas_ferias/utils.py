@@ -20,6 +20,8 @@ def gerar_dias_letivos_recreio(
     Returns:
         list[int]: Lista de dias do mês que são considerados letivos dentro do período informado.
     """
+    if inicio_recreio.month != fim_recreio.month:
+        raise ValueError("O início e o fim do recreio devem estar no mesmo mês.")
     dias_periodo = []
     data_atual = inicio_recreio
     while data_atual <= fim_recreio:

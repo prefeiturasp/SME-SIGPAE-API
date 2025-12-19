@@ -4902,3 +4902,25 @@ def vinculo_alimentacao_integral(escola, periodo_escolar_integral):
         periodo_escolar=periodo_escolar_integral,
         ativo=True,
     )
+
+
+@pytest.fixture
+def recreio_nas_ferias():
+    return baker.make(
+        "RecreioNasFerias",
+        titulo="Recreio nas Férias - DEZ/2025",
+        data_inicio=datetime.date(2025, 12, 10),
+        data_fim=datetime.date(2025, 12, 30),
+    )
+
+
+@pytest.fixture
+def solicitacao_recreio_nas_ferias(escola, recreio_nas_ferias):
+
+    return baker.make(
+        SolicitacaoMedicaoInicial,
+        mes="12",
+        ano="2025",
+        escola=escola,
+        recreio_nas_ferias=recreio_nas_ferias,
+    )
