@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+from django.db.models import Q
 from celery import shared_task
 
 from sme_sigpae_api.dieta_especial.models import (
