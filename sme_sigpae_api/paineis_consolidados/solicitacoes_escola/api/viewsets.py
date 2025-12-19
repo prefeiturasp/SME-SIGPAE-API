@@ -457,6 +457,7 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                 ),
                 inclusao,
                 return_dict,
+                inc.escola,
             )
         return return_dict
 
@@ -510,7 +511,13 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
             data__month=mes, data__year=ano, cancelado=False
         ):
             tratar_append_return_dict(
-                inclusao_normal.data.day, mes, ano, periodo, inclusao, return_dict
+                inclusao_normal.data.day,
+                mes,
+                ano,
+                periodo,
+                inclusao,
+                return_dict,
+                inc.escola,
             )
         return return_dict
 
