@@ -428,9 +428,6 @@ def gera_logs_dietas_escolas_cei(escola, dietas_autorizadas, ontem):
 
 
 def gera_logs_dietas_recreio_ferias_escolas_comuns(escola, dietas_recreio, data_log):
-    """
-    Gera logs de Recreio nas Férias para escolas que NÃO usam faixa etária
-    """
     logs_a_criar = []
 
     for classificacao in ClassificacaoDieta.objects.all():
@@ -439,26 +436,14 @@ def gera_logs_dietas_recreio_ferias_escolas_comuns(escola, dietas_recreio, data_
             escola_destino=escola,
         )
 
-        if escola.eh_emebs:
-            for each in ["INFANTIL", "FUNDAMENTAL", "N/A"]:
-                quantidade = get_quantidade_dietas_emebs(each, dietas_filtradas)
-                log = LogQuantidadeDietasAutorizadasRecreioNasFerias(
-                    quantidade=quantidade,
-                    escola=escola,
-                    data=data_log,
-                    classificacao=classificacao,
-                    infantil_ou_fundamental=each,
-                )
-                logs_a_criar.append(log)
-        else:
-            quantidade = dietas_filtradas.count()
-            log = LogQuantidadeDietasAutorizadasRecreioNasFerias(
-                quantidade=quantidade,
-                escola=escola,
-                data=data_log,
-                classificacao=classificacao,
-            )
-            logs_a_criar.append(log)
+        quantidade = dietas_filtradas.count()
+        log = LogQuantidadeDietasAutorizadasRecreioNasFerias(
+            quantidade=quantidade,
+            escola=escola,
+            data=data_log,
+            classificacao=classificacao,
+        )
+        logs_a_criar.append(log)
 
     return logs_a_criar
 
