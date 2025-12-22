@@ -112,10 +112,37 @@ class TipoDeInformacaoNutricionalModelAdmin(admin.ModelAdmin):
     ordering = ("nome",)
 
 
+class EstaHomologadoFilter(admin.SimpleListFilter):
+    title = "Homologado"
+    parameter_name = "esta_homologado"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("sim", "Sim"),
+            ("nao", "Não"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "sim":
+            ids = [p.id for p in queryset.all() if p.esta_homologado()]
+            return queryset.filter(id__in=ids)
+        if self.value() == "nao":
+            ids = [p.id for p in queryset.all() if not p.esta_homologado()]
+            return queryset.filter(id__in=ids)
+        return queryset
+
+
 @admin.register(HomologacaoProduto)
 class HomologacaoProdutoModelAdmin(admin.ModelAdmin):
-    list_display = ("__str__", "produto", "status", "uuid")
+
+    @admin.display(description="Homologado")
+    def esta_homologado(self, obj):
+        return "Sim" if obj.esta_homologado() else "Não"
+
+    list_display = ("__str__", "produto", "status", "uuid", "esta_homologado")
+    list_filter = (EstaHomologadoFilter,)
     search_fields = ("produto__nome",)
+    search_help_text = "Pesquise por: nome do produto"
 
 
 @admin.register(InformacaoNutricional)
