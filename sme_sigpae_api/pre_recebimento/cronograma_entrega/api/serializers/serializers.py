@@ -289,6 +289,7 @@ class CronogramaRascunhosSerializer(serializers.ModelSerializer):
 class CronogramaSimplesSerializer(serializers.ModelSerializer):
     pregao_chamada_publica = serializers.SerializerMethodField()
     nome_produto = serializers.SerializerMethodField()
+    programa_leve_leite = serializers.SerializerMethodField()
 
     def get_pregao_chamada_publica(self, obj):
         return obj.contrato.pregao_chamada_publica if obj.contrato else None
@@ -296,9 +297,21 @@ class CronogramaSimplesSerializer(serializers.ModelSerializer):
     def get_nome_produto(self, obj):
         return obj.ficha_tecnica.produto.nome if obj.ficha_tecnica else None
 
+    def get_programa_leve_leite(self, obj):
+        try:
+            return obj.ficha_tecnica.programa == "LEVE_LEITE"
+        except AttributeError:
+            return False
+
     class Meta:
         model = Cronograma
-        fields = ("uuid", "numero", "pregao_chamada_publica", "nome_produto")
+        fields = (
+            "uuid",
+            "numero",
+            "pregao_chamada_publica",
+            "nome_produto",
+            "programa_leve_leite",
+        )
 
 
 class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer):

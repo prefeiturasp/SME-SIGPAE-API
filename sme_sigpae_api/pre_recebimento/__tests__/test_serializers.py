@@ -21,12 +21,14 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serialize
     EtapasDoCronogramaFichaDeRecebimentoSerializer,
     EtapasDoCronogramaSerializer,
     PainelCronogramaSerializer,
+    CronogramaSimplesSerializer,
     SolicitacaoAlteracaoCronogramaSerializer,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoDetalharSerializer,
     PainelDocumentoDeRecebimentoSerializer,
+    DocumentoDeRecebimentoSerializer,
 )
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
     PainelFichaTecnicaSerializer,
@@ -454,6 +456,53 @@ def test_ficha_tecnica_detalhar_serializer_campo_programa(ficha_tecnica_factory)
     assert "programa_display" in serializer.data
     assert serializer.data["programa"] == FichaTecnicaDoProduto.LEVE_LEITE
     assert serializer.data["programa_display"] == "Leve Leite"
+
+
+def test_documento_recebimento_serializer(documento_recebimento_leve_leite):
+    """Testa se o DocumentoDeRecebimentoSerializer retorna todos os campos corretamente."""
+    doc = documento_recebimento_leve_leite
+    serializer = DocumentoDeRecebimentoSerializer(doc)
+    data = serializer.data
+
+    assert data["uuid"] == str(doc.uuid)
+    assert data["numero_cronograma"] == doc.cronograma.numero
+    assert data["numero_laudo"] == doc.numero_laudo
+    assert data["pregao_chamada_publica"] == doc.cronograma.contrato.pregao_chamada_publica
+    assert data["nome_produto"] == doc.cronograma.ficha_tecnica.produto.nome
+    assert data["programa_leve_leite"] is True
+    assert data["status"] == doc.get_status_display()
+    assert data["criado_em"] == doc.criado_em.strftime("%d/%m/%Y")
+
+    # Teste com programa diferente
+    doc.cronograma.ficha_tecnica.programa = "ALIMENTACAO_ESCOLAR"
+    doc.cronograma.ficha_tecnica.save()
+    serializer = DocumentoDeRecebimentoSerializer(doc)
+    assert serializer.data["programa_leve_leite"] is False
+
+
+def test_cronograma_simples_serializer(cronograma, contrato):
+    """Testa se o CronogramaSimplesSerializer retorna todos os campos corretamente."""
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+    
+    ficha = baker.make("FichaTecnicaDoProduto", programa=FichaTecnicaDoProduto.LEVE_LEITE)
+    cronograma.ficha_tecnica = ficha
+    cronograma.contrato = contrato
+    cronograma.save()
+
+    serializer = CronogramaSimplesSerializer(cronograma)
+    data = serializer.data
+
+    assert data["uuid"] == str(cronograma.uuid)
+    assert data["numero"] == cronograma.numero
+    assert data["pregao_chamada_publica"] == contrato.pregao_chamada_publica
+    assert data["nome_produto"] == ficha.produto.nome
+    assert data["programa_leve_leite"] is True
+
+    # Teste com programa diferente
+    ficha.programa = "ALIMENTACAO_ESCOLAR"
+    ficha.save()
+    serializer = CronogramaSimplesSerializer(cronograma)
+    assert serializer.data["programa_leve_leite"] is False
 
 
 def test_solicitacao_alteracao_cronograma_serializer_leve_leite(
