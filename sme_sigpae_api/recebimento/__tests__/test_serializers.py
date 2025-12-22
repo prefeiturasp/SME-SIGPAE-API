@@ -5,6 +5,7 @@ from sme_sigpae_api.recebimento.api.serializers.serializers import (
     ArquivoFichaRecebimentoSerializer,
     DadosCronogramaSerializer,
     FichaDeRecebimentoDetalharSerializer,
+    FichaDeRecebimentoSerializer,
     OcorrenciaFichaRecebimentoSerializer,
     QuestaoFichaRecebimentoDetailSerializer,
     QuestaoFichaRecebimentoSerializer,
@@ -210,6 +211,47 @@ def test_ficha_recebimento_detalhar_serializer(ficha_recebimento):
 
     assert "peso_embalagem_primaria_4" in data
     assert isinstance(data["peso_embalagem_primaria_4"], float)
+
+
+def test_ficha_recebimento_serializer(ficha_recebimento):
+    serializer = FichaDeRecebimentoSerializer(instance=ficha_recebimento)
+    data = serializer.data
+
+    assert "uuid" in data
+    assert isinstance(data["uuid"], str)
+
+    assert "numero_cronograma" in data
+    assert data["numero_cronograma"] == ficha_recebimento.etapa.cronograma.numero
+
+    assert "nome_produto" in data
+    assert (
+        data["nome_produto"]
+        == ficha_recebimento.etapa.cronograma.ficha_tecnica.produto.nome
+    )
+
+    assert "fornecedor" in data
+    assert (
+        data["fornecedor"] == ficha_recebimento.etapa.cronograma.empresa.nome_fantasia
+    )
+
+    assert "pregao_chamada_publica" in data
+    assert (
+        data["pregao_chamada_publica"]
+        == ficha_recebimento.etapa.cronograma.contrato.pregao_chamada_publica
+    )
+
+    assert "data_recebimento" in data
+    assert data["data_recebimento"] == ficha_recebimento.data_entrega.strftime(
+        "%d/%m/%Y"
+    )
+
+    assert "status" in data
+    assert isinstance(data["status"], str)
+    assert data["status"] == ficha_recebimento.get_status_display()
+
+    assert "programa_leve_leite" in data
+    assert isinstance(data["programa_leve_leite"], bool)
+    assert data["programa_leve_leite"] == False
 
 
 def test_reposicao_cronograma_ficha_recebimento_serializer():
