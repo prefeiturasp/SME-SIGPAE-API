@@ -90,7 +90,15 @@ class RecreioNasFeriasViewSet(viewsets.ModelViewSet):
             )
         inicio_recreio = recreio.data_inicio
         fim_recreio = recreio.data_fim
-        dias_letivos_filtrados = gerar_dias_letivos_recreio(inicio_recreio, fim_recreio)
+        try:
+            dias_letivos_filtrados = gerar_dias_letivos_recreio(
+                inicio_recreio, fim_recreio
+            )
+        except ValueError as exc:
+            return Response(
+                dict(detail=str(exc)),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         calendario = gerar_calendario_recreio(
             inicio_recreio, fim_recreio, dias_letivos_filtrados
         )
