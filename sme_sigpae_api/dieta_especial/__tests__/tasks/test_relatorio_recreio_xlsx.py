@@ -12,9 +12,21 @@ from .test_setup_relatorio_recreio import BaseSetupRecreioNasFerias
 pytestmark = pytest.mark.django_db
 
 
+def linha(sheet, row):
+    return (
+        sheet[f"A{row}"].value,
+        sheet[f"B{row}"].value,
+        sheet[f"C{row}"].value,
+        sheet[f"D{row}"].value,
+        sheet[f"E{row}"].value,
+        sheet[f"G{row}"].value,
+    )
+
+
 @pytest.mark.usefixtures("client_autenticado_vinculo_codae_gestao_alimentacao_dieta")
 @freeze_time("2025-09-04")
 class TestGeraXlsxRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
+
     def test_gera_xlsx_recreio_nas_ferias(
         self, client_autenticado_vinculo_codae_gestao_alimentacao_dieta
     ):
@@ -39,26 +51,40 @@ class TestGeraXlsxRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
                 == "Total de Dietas Autorizadas: 3 | Para as Unidades da DRE/LOTE: IP - LOTE 01 | Data de extração do relatório: 04/09/2025"
             )
 
-            assert sheet["A5"].value == 1
-            assert sheet["B5"].value == "7654321 - JOÃO COSTA"
-            assert sheet["C5"].value == "EMEF PERICLES"
-            assert sheet["D5"].value == "EMEBS HELEN KELLER"
-            assert sheet["E5"].value == "Tipo B"
-            assert sheet["G5"].value == "DE 01/09/2025 ATÉ 29/09/2025"
+            linhas_obtidas = {
+                linha(sheet, 5),
+                linha(sheet, 6),
+                linha(sheet, 7),
+            }
 
-            assert sheet["A6"].value == 2
-            assert sheet["B6"].value == "1234567 - MARIA SILVA"
-            assert sheet["C6"].value == "EMEBS HELEN KELLER"
-            assert sheet["D6"].value == "EMEF PERICLES"
-            assert sheet["E6"].value == "Tipo A"
-            assert sheet["G6"].value == "DE 01/08/2025 ATÉ 31/08/2025"
+            linhas_esperadas = {
+                (
+                    1,
+                    "7654321 - JOÃO COSTA",
+                    "EMEF PERICLES",
+                    "EMEBS HELEN KELLER",
+                    "Tipo B",
+                    "DE 01/09/2025 ATÉ 29/09/2025",
+                ),
+                (
+                    2,
+                    "1234567 - MARIA SILVA",
+                    "EMEBS HELEN KELLER",
+                    "EMEF PERICLES",
+                    "Tipo A",
+                    "DE 01/08/2025 ATÉ 31/08/2025",
+                ),
+                (
+                    3,
+                    "Aluno não matriculado - GOHAN MENESES",
+                    "-",
+                    "EMEF PERICLES",
+                    "Tipo A",
+                    "DE 01/08/2025 ATÉ 31/08/2025",
+                ),
+            }
 
-            assert sheet["A7"].value == 3
-            assert sheet["B7"].value == "Aluno não matriculado - GOHAN MENESES"
-            assert sheet["C7"].value == "-"
-            assert sheet["D7"].value == "EMEF PERICLES"
-            assert sheet["E7"].value == "Tipo A"
-            assert sheet["G7"].value == "DE 01/08/2025 ATÉ 31/08/2025"
+            assert linhas_obtidas == linhas_esperadas
 
     def test_gera_pdf_historico_dietas_especiais_periodo_param(
         self, client_autenticado_vinculo_codae_gestao_alimentacao_dieta
