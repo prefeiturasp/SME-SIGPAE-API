@@ -251,7 +251,7 @@ def test_ficha_recebimento_serializer(ficha_recebimento):
 
     assert "programa_leve_leite" in data
     assert isinstance(data["programa_leve_leite"], bool)
-    assert data["programa_leve_leite"] == False
+    assert data["programa_leve_leite"] == True
 
 
 def test_reposicao_cronograma_ficha_recebimento_serializer():

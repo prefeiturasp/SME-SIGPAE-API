@@ -170,6 +170,7 @@ def test_url_ficha_recebimento_rascunho_create_update(
         "pregao_chamada_publica",
         "data_recebimento",
         "status",
+        "programa_leve_leite",
     }
     assert response_data["status"] == "Rascunho"
 
@@ -210,6 +211,7 @@ def test_url_ficha_recebimento_rascunho_create_update(
         "pregao_chamada_publica",
         "data_recebimento",
         "status",
+        "programa_leve_leite",
     }
     assert update_data["status"] == "Rascunho"
 
@@ -462,6 +464,7 @@ def test_criar_ficha_saldo_zero(
         "pregao_chamada_publica",
         "data_recebimento",
         "status",
+        "programa_leve_leite",
     }
     assert response_data["status"] == "Assinado CODAE"
 
@@ -518,6 +521,7 @@ def test_atualizar_ficha_saldo_zero(
         "pregao_chamada_publica",
         "data_recebimento",
         "status",
+        "programa_leve_leite",
     }
     assert response_data["status"] == "Assinado CODAE"
 
@@ -572,6 +576,7 @@ def test_criar_ficha_saldo_zero_campos_opcionais(
         "pregao_chamada_publica",
         "data_recebimento",
         "status",
+        "programa_leve_leite",
     }
     assert response_data["status"] == "Assinado CODAE"
 
