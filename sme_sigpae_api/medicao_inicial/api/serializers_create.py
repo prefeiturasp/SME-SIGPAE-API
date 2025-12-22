@@ -396,8 +396,11 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
             1
         ]
+        periodos_escolares = escola.periodos_escolares(ano=instance.ano).values_list(
+            "nome", flat=True
+        )
         for dia in range(1, quantidade_dias_mes + 1):
-            for periodo_escolar in escola.periodos_escolares_com_alunos:
+            for periodo_escolar in periodos_escolares:
                 try:
                     medicao = instance.medicoes.get(
                         periodo_escolar__nome=periodo_escolar
@@ -470,11 +473,13 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
             1
         ]
+        periodos_escolares = list(
+            escola.periodos_escolares(ano=instance.ano).values_list("nome", flat=True)
+        )
+        if instance.ue_possui_alunos_periodo_parcial:
+            periodos_escolares.append("PARCIAL")
         for dia in range(1, quantidade_dias_mes + 1):
-            periodos_escolares_com_alunos = escola.periodos_escolares_com_alunos
-            if instance.ue_possui_alunos_periodo_parcial:
-                periodos_escolares_com_alunos.append("PARCIAL")
-            for periodo_escolar in periodos_escolares_com_alunos:
+            for periodo_escolar in periodos_escolares:
                 try:
                     medicao = instance.medicoes.get(
                         periodo_escolar__nome=periodo_escolar
@@ -575,9 +580,12 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
             1
         ]
+        periodos_escolares = escola.periodos_escolares(ano=instance.ano).values_list(
+            "nome", flat=True
+        )
         for dia in range(1, quantidade_dias_mes + 1):
             for categoria in categorias:
-                for periodo_escolar in escola.periodos_escolares_com_alunos:
+                for periodo_escolar in periodos_escolares:
                     medicao = instance.medicoes.get(
                         periodo_escolar__nome=periodo_escolar
                     )
@@ -674,14 +682,14 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
 
     def analisa_periodos_por_dia_dietas_autorizadas(
         self,
-        periodos_escolares_com_alunos,
+        periodos_escolares,
         instance,
         categoria,
         logs_do_mes,
         dia,
         valores_medicao_a_criar,
     ):
-        for periodo_escolar in periodos_escolares_com_alunos:
+        for periodo_escolar in periodos_escolares:
             medicao = instance.medicoes.get(periodo_escolar__nome=periodo_escolar)
             if self.checa_se_existe_ao_menos_um_log_quantidade_maior_que_0(
                 categoria, logs_do_mes, periodo_escolar
@@ -710,14 +718,16 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
             1
         ]
+        periodos_escolares = list(
+            escola.periodos_escolares(ano=instance.ano).values_list("nome", flat=True)
+        )
+        if instance.ue_possui_alunos_periodo_parcial:
+            periodos_escolares.append("PARCIAL")
         for dia in range(1, quantidade_dias_mes + 1):
             for categoria in categorias:
-                periodos_escolares_com_alunos = escola.periodos_escolares_com_alunos
-                if instance.ue_possui_alunos_periodo_parcial:
-                    periodos_escolares_com_alunos.append("PARCIAL")
                 valores_medicao_a_criar = (
                     self.analisa_periodos_por_dia_dietas_autorizadas(
-                        periodos_escolares_com_alunos,
+                        periodos_escolares,
                         instance,
                         categoria,
                         logs_do_mes,
