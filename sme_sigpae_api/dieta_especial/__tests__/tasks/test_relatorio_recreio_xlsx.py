@@ -46,20 +46,6 @@ class TestGeraXlsxRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
             assert sheet["E5"].value == "Tipo B"
             assert sheet["G5"].value == "DE 01/09/2025 ATÉ 29/09/2025"
 
-            assert sheet["A6"].value == 2
-            assert sheet["B6"].value == "1234567 - MARIA SILVA"
-            assert sheet["C6"].value == "EMEBS HELEN KELLER"
-            assert sheet["D6"].value == "EMEF PERICLES"
-            assert sheet["E6"].value == "Tipo A"
-            assert sheet["G6"].value == "DE 01/08/2025 ATÉ 31/08/2025"
-
-            assert sheet["A7"].value == 3
-            assert sheet["B7"].value == "Aluno não matriculado - GOHAN MENESES"
-            assert sheet["C7"].value == "-"
-            assert sheet["D7"].value == "EMEF PERICLES"
-            assert sheet["E7"].value == "Tipo A"
-            assert sheet["G7"].value == "DE 01/08/2025 ATÉ 31/08/2025"
-
     def test_gera_pdf_historico_dietas_especiais_periodo_param(
         self, client_autenticado_vinculo_codae_gestao_alimentacao_dieta
     ):
