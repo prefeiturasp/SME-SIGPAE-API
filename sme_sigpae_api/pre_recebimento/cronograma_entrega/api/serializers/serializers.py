@@ -437,6 +437,7 @@ class CronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer):
     etapas = EtapasDoCronogramaFichaDeRecebimentoSerializer(many=True)
     documentos_de_recebimento = serializers.SerializerMethodField()
     sistema_vedacao_embalagem_secundaria = serializers.SerializerMethodField()
+    programa_leve_leite = serializers.SerializerMethodField()
 
     def get_fornecedor(self, obj):
         return obj.empresa.nome_fantasia if obj.empresa else None
@@ -511,6 +512,12 @@ class CronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer):
             else None
         )
 
+    def get_programa_leve_leite(self, obj):
+        try:
+            return obj.ficha_tecnica.programa == "LEVE_LEITE"
+        except AttributeError:
+            return False
+
     class Meta:
         model = Cronograma
         fields = (
@@ -530,6 +537,7 @@ class CronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer):
             "etapas",
             "documentos_de_recebimento",
             "sistema_vedacao_embalagem_secundaria",
+            "programa_leve_leite",
         )
 
 

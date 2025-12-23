@@ -235,6 +235,20 @@ def test_doc_recebimento_serializer_qualquer_modalidade(cronograma_qualquer):
     assert serializer.data["pregao_chamada_publica"] == "CP-2022-02"
 
 
+def test_cronograma_ficha_recebimento_serializer():
+    ficha_tecnica = baker.make(
+        "FichaTecnicaDoProduto",
+        material_embalagem_primaria="Vidro temperado",
+        sistema_vedacao_embalagem_secundaria="Lacre termossoldado",
+    )
+    ficha_tecnica.programa = "LEVE_LEITE"
+    cronograma = baker.make("Cronograma", ficha_tecnica=ficha_tecnica)
+
+    serializer = CronogramaFichaDeRecebimentoSerializer(cronograma)
+
+    assert serializer.data["programa_leve_leite"] is True
+
+
 def test_cronograma_ficha_recebimento_serializer_embalagens():
     ficha_tecnica = baker.make(
         "FichaTecnicaDoProduto",
