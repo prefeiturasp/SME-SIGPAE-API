@@ -806,7 +806,7 @@ def filtrar_dias_letivos(dias_letivos: list[int], mes: int, ano: int):
         dia_semana = data.weekday()  # 0=Segunda, 6=Domingo
 
         eh_fim_de_semana = dia_semana >= 5  # 5=Sábado, 6=Domingo
-        eh_feriado = dia in feriados
+        eh_feriado = str(dia) in feriados
 
         if not eh_fim_de_semana and not eh_feriado:
             dias_filtrados.append(dia)

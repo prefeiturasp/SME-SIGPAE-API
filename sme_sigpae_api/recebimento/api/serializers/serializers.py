@@ -134,6 +134,7 @@ class FichaDeRecebimentoSerializer(serializers.ModelSerializer):
     pregao_chamada_publica = serializers.SerializerMethodField()
     data_recebimento = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
+    programa_leve_leite = serializers.SerializerMethodField()
 
     def get_numero_cronograma(self, obj):
         try:
@@ -165,6 +166,13 @@ class FichaDeRecebimentoSerializer(serializers.ModelSerializer):
         except AttributeError:
             None
 
+    def get_programa_leve_leite(self, obj):
+        try:
+            print(obj.etapa.cronograma.ficha_tecnica)
+            return obj.etapa.cronograma.ficha_tecnica.programa == "LEVE_LEITE"
+        except AttributeError:
+            return False
+
     class Meta:
         model = FichaDeRecebimento
         fields = (
@@ -175,6 +183,7 @@ class FichaDeRecebimentoSerializer(serializers.ModelSerializer):
             "pregao_chamada_publica",
             "data_recebimento",
             "status",
+            "programa_leve_leite",
         )
 
 

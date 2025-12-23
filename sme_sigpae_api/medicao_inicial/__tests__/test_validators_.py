@@ -205,7 +205,7 @@ def test_get_lista_dias_letivos_diurno(solicitacao_dias_letivos_escola, escola):
     dias_letivos = get_lista_dias_letivos(
         solicitacao_dias_letivos_escola, escola, periodo_escolar=None
     )
-    assert len(dias_letivos) == 20
+    assert len(dias_letivos) == 19
     assert dias_letivos == [
         "03",
         "04",
@@ -220,7 +220,6 @@ def test_get_lista_dias_letivos_diurno(solicitacao_dias_letivos_escola, escola):
         "17",
         "18",
         "19",
-        "20",
         "21",
         "24",
         "25",
@@ -236,7 +235,7 @@ def test_get_lista_dias_letivos_noturno(
     dias_letivos = get_lista_dias_letivos(
         solicitacao_dias_letivos_escola, escola, periodo_escolar=periodo_escolar_noite
     )
-    assert len(dias_letivos) == 18
+    assert len(dias_letivos) == 17
     assert dias_letivos == [
         "03",
         "04",
@@ -249,7 +248,6 @@ def test_get_lista_dias_letivos_noturno(
         "17",
         "18",
         "19",
-        "20",
         "21",
         "24",
         "25",
@@ -284,7 +282,6 @@ def test_obter_periodos_corretos_com_periodo_notuno(
         "17",
         "18",
         "19",
-        "20",
         "21",
         "24",
         "25",
@@ -306,7 +303,6 @@ def test_obter_periodos_corretos_com_periodo_notuno(
         "17",
         "18",
         "19",
-        "20",
         "21",
         "24",
         "25",
@@ -338,7 +334,6 @@ def test_obter_periodos_corretos_sem_periodo_notuno(
         "17",
         "18",
         "19",
-        "20",
         "21",
         "24",
         "25",
