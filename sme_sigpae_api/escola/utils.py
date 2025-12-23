@@ -837,3 +837,31 @@ def datas_para_gerar_logs(escola, hoje: date | None = None) -> list[date]:
         datas.append(hoje)
 
     return datas
+
+
+def duplica_logs_ultimo_dia_letivo(tipo_turma):
+    from sme_sigpae_api.escola.models import Escola, LogAlunosMatriculadosPeriodoEscola
+
+    DEZEMBRO = 12
+
+    hoje = date.today()
+    if hoje.month != DEZEMBRO:
+        return
+
+    ontem = date.today() - timedelta(days=1)
+
+    escolas = Escola.objects.all()
+    for escola in escolas:
+        if hoje == escola.ultimo_dia_letivo:
+            logs_da_escola = escola.logs_alunos_matriculados_por_periodo.filter(
+                criado_em__date=ontem, tipo_turma=tipo_turma
+            )
+            for log in logs_da_escola:
+                LogAlunosMatriculadosPeriodoEscola.objects.create(
+                    escola=escola,
+                    tipo_turma=log.tipo_turma,
+                    periodo_escolar=log.periodo_escolar,
+                    quantidade_alunos=log.quantidade_alunos,
+                    cei_ou_emei=log.cei_ou_emei,
+                    infantil_ou_fundamental=log.infantil_ou_fundamental,
+                )

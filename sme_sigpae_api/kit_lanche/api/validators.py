@@ -134,27 +134,30 @@ def nao_deve_ter_mais_solicitacoes_que_alunos(solicitacao_avulsa):
     """
     data = solicitacao_avulsa.data
     escola = solicitacao_avulsa.escola
-    if escola.tipo_unidade.iniciais not in ["CEU GESTAO", "CMCT"]:
-        quantidade_aluno_passeio = solicitacao_avulsa.quantidade_alunos
 
-        solicitacoes = SolicitacaoKitLancheAvulsa.objects.filter(
-            escola=escola,
-            status__in=[
-                PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR,
-                PedidoAPartirDaEscolaWorkflow.DRE_VALIDADO,
-                PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO,
-                PedidoAPartirDaEscolaWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
-            ],
-            solicitacao_kit_lanche__data=data,
-        ).aggregate(Sum("quantidade_alunos"))
+    if not escola.possui_alunos_regulares:
+        return
 
-        if solicitacoes.get("quantidade_alunos__sum") is None:
-            quantidade_alunos = 0
-        else:
-            quantidade_alunos = int(solicitacoes.get("quantidade_alunos__sum"))  # type: ignore
-        quantidade_alunos_total_passeio = quantidade_alunos + quantidade_aluno_passeio
-        if quantidade_alunos_total_passeio > escola.quantidade_alunos:
-            raise serializers.ValidationError(
-                "A quantidade de alunos informados para o evento excede a quantidade de alunos matriculados na escola."
-                f' Na data {data.strftime("%d-%m-%Y")} já tem pedidos para {quantidade_alunos} alunos'
-            )
+    quantidade_aluno_passeio = solicitacao_avulsa.quantidade_alunos
+
+    solicitacoes = SolicitacaoKitLancheAvulsa.objects.filter(
+        escola=escola,
+        status__in=[
+            PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR,
+            PedidoAPartirDaEscolaWorkflow.DRE_VALIDADO,
+            PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO,
+            PedidoAPartirDaEscolaWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
+        ],
+        solicitacao_kit_lanche__data=data,
+    ).aggregate(Sum("quantidade_alunos"))
+
+    if solicitacoes.get("quantidade_alunos__sum") is None:
+        quantidade_alunos = 0
+    else:
+        quantidade_alunos = int(solicitacoes.get("quantidade_alunos__sum"))  # type: ignore
+    quantidade_alunos_total_passeio = quantidade_alunos + quantidade_aluno_passeio
+    if quantidade_alunos_total_passeio > escola.quantidade_alunos:
+        raise serializers.ValidationError(
+            "A quantidade de alunos informados para o evento excede a quantidade de alunos matriculados na escola."
+            f' Na data {data.strftime("%d-%m-%Y")} já tem pedidos para {quantidade_alunos} alunos'
+        )
