@@ -154,7 +154,7 @@ def nao_deve_ter_mais_solicitacoes_que_alunos(solicitacao_avulsa):
     if solicitacoes.get("quantidade_alunos__sum") is None:
         quantidade_alunos = 0
     else:
-        quantidade_alunos = int(solicitacoes.get("quantidade_alunos__sum"))  # type: ignore
+        quantidade_alunos = int(solicitacoes.get("quantidade_alunos__sum"))
     quantidade_alunos_total_passeio = quantidade_alunos + quantidade_aluno_passeio
     if quantidade_alunos_total_passeio > escola.quantidade_alunos:
         raise serializers.ValidationError(
