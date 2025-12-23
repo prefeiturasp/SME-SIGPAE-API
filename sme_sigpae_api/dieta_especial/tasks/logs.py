@@ -82,16 +82,15 @@ def gera_logs_dietas_especiais_diariamente():
     retry_kwargs={"max_retries": 8},
 )
 def gera_logs_dietas_recreio_ferias_diariamente():
-    logger.info(
-        "x-x-x-x Iniciando a geração de logs de dietas autorizadas - Recreio nas Férias x-x-x-x"
-    )
-
     hoje = datetime.date.today()
 
     # 1) Verifica se está em Janeiro ou Julho
     if hoje.month not in (1, 7):
-        logger.info("Fora dos meses de janeiro/julho. Task não será executada.")
         return
+
+    logger.info(
+        "x-x-x-x Iniciando a geração de logs de dietas autorizadas - Recreio nas Férias x-x-x-x"
+    )
 
     ontem = hoje - datetime.timedelta(days=1)
 
