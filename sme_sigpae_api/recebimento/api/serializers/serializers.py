@@ -168,7 +168,6 @@ class FichaDeRecebimentoSerializer(serializers.ModelSerializer):
 
     def get_programa_leve_leite(self, obj):
         try:
-            print(obj.etapa.cronograma.ficha_tecnica)
             return obj.etapa.cronograma.ficha_tecnica.programa == "LEVE_LEITE"
         except AttributeError:
             return False

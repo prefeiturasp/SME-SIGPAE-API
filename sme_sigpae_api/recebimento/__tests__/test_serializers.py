@@ -214,6 +214,7 @@ def test_ficha_recebimento_detalhar_serializer(ficha_recebimento):
 
 
 def test_ficha_recebimento_serializer(ficha_recebimento):
+    ficha_recebimento.etapa.cronograma.ficha_tecnica.programa = "LEVE_LEITE"
     serializer = FichaDeRecebimentoSerializer(instance=ficha_recebimento)
     data = serializer.data
 
