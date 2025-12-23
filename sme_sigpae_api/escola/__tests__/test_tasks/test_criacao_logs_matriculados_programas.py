@@ -4,7 +4,6 @@ from unittest.mock import patch
 import pytest
 from freezegun import freeze_time
 
-from sme_sigpae_api.escola.__tests__.conftest import mocked_response
 from sme_sigpae_api.escola.models import LogAlunosMatriculadosPeriodoEscola
 from sme_sigpae_api.escola.tasks import matriculados_por_escola_e_periodo_regulares
 
@@ -12,7 +11,6 @@ pytestmark = pytest.mark.django_db
 
 
 class TestUseCaseCriacaoLogsMatriculadosProgramas:
-
     def _setup_generico(
         self,
         periodo_escolar_factory,
