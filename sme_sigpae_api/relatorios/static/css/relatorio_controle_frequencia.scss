@@ -6,7 +6,7 @@
   font-family: "Roboto", sans-serif;
 }
 
-/* sonar-ignore-next-line */
+/* NOSONAR */
 @page :nth(1) {
   //WTF bug...
   padding-top: 0 !important;
@@ -19,7 +19,7 @@
   }
 }
 
-/* sonar-ignore-next-line */
+/* NOSONAR */
 @page :nth(n+2) {
   padding-top: 150px;
   @top-center {

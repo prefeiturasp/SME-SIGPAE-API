@@ -61,13 +61,13 @@ h2.subtitulo {
   }
 }
 
-/* sonar-ignore-next-line */
+/* NOSONAR */
 @page :nth(n+2) {
   margin-top: 5cm;
   padding-top: 0;
 }
 
-/* sonar-ignore-next-line */
+/* NOSONAR */
 @page :nth(1) {
   padding-top: 5cm;
   margin-top: 0;
