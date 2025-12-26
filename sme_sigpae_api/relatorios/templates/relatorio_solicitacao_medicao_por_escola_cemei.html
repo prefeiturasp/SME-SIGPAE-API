@@ -374,7 +374,7 @@
     <table class="tabela-valores-medicao mt-3">
       <thead class="texto-branco">
           <tr>
-              <th rowspan="2">FAIXAS ETÁRIAS</th>
+              <th rowspan="2" scope="col">FAIXAS ETÁRIAS</th>
               {% for periodo in tabela.periodos %}
                   <th class="periodo-grupo cor-periodo-grupo-{{ tabela.ordem_periodos_grupos|get_element_by_index:forloop.counter0 }}-somatorio" colspan="{{ tabela.len_periodos|get_element_by_index:forloop.counter0 }}">
                       {{ periodo|upper }}
