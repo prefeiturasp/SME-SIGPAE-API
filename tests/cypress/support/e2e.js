@@ -31,6 +31,7 @@ import './commands_api/commands_imr'
 import './commands_api/commands_informacoes_nutricionais'
 import './commands_api/commands_itens_cadastros'
 import './commands_api/commands_laboratorios'
+import './commands_api/commands_marcas'
 
 import './commands_ui/commands_login'
 import './commands_ui/commands_globais'
