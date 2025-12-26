@@ -286,7 +286,7 @@ def test_url_busca_questoes_cronograma_uuid_invalido(
         "/questoes-por-produto/busca-questoes-cronograma/?cronograma_uuid=7c200bb9-032a-4ffe-be6d-b687d06cee2bAa"
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"] == "UUID inválido."
+    assert response.json()["detail"] == ["UUID inválido."]
 
 
 def test_url_busca_questoes_cronograma_sem_questoes_por_produto(

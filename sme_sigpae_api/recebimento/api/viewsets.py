@@ -1,8 +1,8 @@
 from django.core.exceptions import ValidationError
-from django.http import Http404
 from django_filters import rest_framework as filters
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
 from sme_sigpae_api.dados_comuns.helpers_autenticidade import (
@@ -100,7 +100,7 @@ class QuestoesPorProdutoModelViewSet(viewsets.ModelViewSet):
         except ValidationError:
             raise ValidationError("UUID inválido.")
         except Cronograma.DoesNotExist:
-            raise Http404("Cronograma não encontrado.")
+            raise NotFound("Cronograma não encontrado.")
 
     def _get_questao(self, ficha_tecnica):
         return self.get_queryset().filter(ficha_tecnica=ficha_tecnica).first()
@@ -115,15 +115,19 @@ class QuestoesPorProdutoModelViewSet(viewsets.ModelViewSet):
         cronograma_uuid = request.query_params.get("cronograma_uuid")
         if not cronograma_uuid:
             raise ValidationError("Parâmetro 'cronograma_uuid' obrigatório.")
+        try:
+            cronograma = self._get_cronograma(cronograma_uuid)
+            questao = self._get_questao(cronograma.ficha_tecnica)
 
-        cronograma = self._get_cronograma(cronograma_uuid)
-        questao = self._get_questao(cronograma.ficha_tecnica)
+            if not questao:
+                return Response(status=status.HTTP_200_OK)
 
-        if not questao:
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-        serializer = QuestoesPorProdutoDetalheSerializer(questao)
-        return Response(serializer.data)
+            serializer = QuestoesPorProdutoDetalheSerializer(questao)
+            return Response(serializer.data)
+        except ValidationError as error:
+            return Response({"detail": error}, status=status.HTTP_400_BAD_REQUEST)
+        except NotFound as error:
+            return Response({"detail": str(error)}, status=status.HTTP_404_NOT_FOUND)
 
 
 class FichaDeRecebimentoRascunhoViewSet(
