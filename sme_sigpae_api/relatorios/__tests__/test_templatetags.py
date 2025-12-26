@@ -182,15 +182,15 @@ def test_multiplicacao_inteiros():
 
 
 def test_multiplicacao_floats():
-    assert multiply(2.5, 2) == 5.0
+    assert multiply(2.5, 2) == pytest.approx(5.0)
 
 
 def test_multiplicacao_string_com_virgula():
-    assert multiply("2,5", 2) == 5.0
+    assert multiply("2,5", 2) == pytest.approx(5.0)
 
 
 def test_multiplicacao_string_com_ponto():
-    assert multiply("2.5", 2) == 5.0
+    assert multiply("2.5", 2) == pytest.approx(5.0)
 
 
 def test_multiplicacao_string_invalida():

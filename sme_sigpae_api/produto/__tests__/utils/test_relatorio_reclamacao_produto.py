@@ -215,6 +215,3 @@ def test_build_xlsx_reclamacao(reclamacao_produto_query_excel):
         "Status da Reclamação",
         "Data da Reclamação",
     ]
-    df["Edital"].iloc[0] == "Edital de Pregão nº 41/sme/2017"
-    df["Edital"].iloc[1] == "Edital de Pregão nº 78/sme/2016"
-    df["Edital"].iloc[2] == "Edital de Pregão nº 78/sme/2022"
