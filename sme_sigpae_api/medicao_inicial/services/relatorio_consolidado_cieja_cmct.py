@@ -30,6 +30,9 @@ from sme_sigpae_api.medicao_inicial.services.utils import (
 )
 
 
+NOME_PERIODO_SOLICITACAO_ALIMENTACAO = "Solicitações de Alimentação"
+
+
 def get_alimentacoes_por_periodo(solicitacoes: list[SolicitacaoMedicaoInicial]) -> list:
     """
     Agrupa e organiza alimentações por período e dieta a partir de solicitações
@@ -122,7 +125,7 @@ def _get_lista_alimentacoes(medicao: Medicao, nome_periodo: str) -> list[str]:
         .distinct()
     )
 
-    if nome_periodo != "Solicitações de Alimentação":
+    if nome_periodo != NOME_PERIODO_SOLICITACAO_ALIMENTACAO:
         lista_alimentacoes += [
             "total_refeicoes_pagamento",
             "total_sobremesas_pagamento",
@@ -332,7 +335,7 @@ def _define_filtro(
     if periodo in [
         "Programas e Projetos",
         "ETEC",
-        "Solicitações de Alimentação",
+        NOME_PERIODO_SOLICITACAO_ALIMENTACAO,
     ]:
         filtros["grupo__nome"] = periodo
     elif periodo in dietas_especiais:
@@ -410,7 +413,7 @@ def processa_periodo_regular(
 
     categorias = (
         [periodo.upper()]
-        if periodo == "Solicitações de Alimentação"
+        if periodo == NOME_PERIODO_SOLICITACAO_ALIMENTACAO
         else ["ALIMENTAÇÃO"]
     )
     soma = _calcula_soma_medicao(medicao, campo, categorias)
