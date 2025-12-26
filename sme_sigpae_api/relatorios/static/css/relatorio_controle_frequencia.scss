@@ -3,7 +3,7 @@
 @page {
   size: A4 landscape;
   margin: 0;
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
 }
 
 @page :nth(1) {
@@ -30,7 +30,7 @@
 
 main {
   padding: 15px 30px;
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
 
   .periodo-cabecalho {
     display: flex;
@@ -56,7 +56,7 @@ main {
       margin-left: 10px;
     }
   }
-  
+
   .aluno-com-dieta-especial {
     font-size: 10px;
 
@@ -110,11 +110,11 @@ tbody {
   .nao-exibe-checkbox {
     background-color: $cinza-quase-claro !important;
   }
-  
+
   .dia-nao-letivo {
     background-color: #e6e6e6;
   }
-  
+
   .dia-nao-letivo-ckbox-freq, .dia-nao-letivo-frequencia-head {
     background-color: #e6e6e6 !important;
   }
@@ -150,7 +150,7 @@ th {
 .tabela-principal {
   tr:first-child, .linha-faixa-matriculados {
     background-color: $cinza-claro;
-    
+
     th:nth-child(2) {
       text-align: center;
     }
