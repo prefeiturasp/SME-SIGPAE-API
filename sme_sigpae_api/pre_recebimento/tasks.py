@@ -28,12 +28,7 @@ from sme_sigpae_api.relatorios.utils import html_to_pdf_file
 logger = logging.getLogger(__name__)
 
 
-@shared_task(
-    retry_backoff=2,
-    retry_kwargs={"max_retries": 8},
-    time_limit=3000,
-    soft_time_limit=3000,
-)
+
 def _preparar_dataframe_cronogramas(dados):
     """Prepara o DataFrame com os dados dos cronogramas."""
     if not dados:
@@ -71,6 +66,12 @@ def _finalizar_formatacao_worksheet(worksheet, workbook, headers, subtitulo, tit
     _formatar_headers(headers, workbook, worksheet)
 
 
+@shared_task(
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 8},
+    time_limit=3000,
+    soft_time_limit=3000,
+)
 def gerar_relatorio_cronogramas_xlsx_async(user, ids_cronogramas, filtros=None):
     logger.info(
         "x-x-x-x Iniciando a geração do arquivo relatorio_cronogramas.xlsx x-x-x-x"
