@@ -28,7 +28,6 @@ from sme_sigpae_api.relatorios.utils import html_to_pdf_file
 logger = logging.getLogger(__name__)
 
 
-
 def _preparar_dataframe_cronogramas(dados):
     """Prepara o DataFrame com os dados dos cronogramas."""
     if not dados:
