@@ -2106,19 +2106,16 @@ class ParametrizacaoFinanceiraViewSet(ModelViewSet):
             uuid=uuid_parametrizacao_financeira,
         )
 
-        data_inicial = request.data.get("data_inicial")
-        data_final = request.data.get("data_final")
-
         with transaction.atomic():
-            parametrizacao_origem.data_final = parse_date(data_inicial)
+            parametrizacao_origem.data_final = datetime.date.today() - datetime.timedelta(days=1)
             parametrizacao_origem.save()
 
             nova_parametrizacao = ParametrizacaoFinanceira.objects.create(
                 edital=parametrizacao_origem.edital,
                 lote=parametrizacao_origem.lote,
                 grupo_unidade_escolar=parametrizacao_origem.grupo_unidade_escolar,
-                data_inicial=parse_date(data_inicial),
-                data_final=parse_date(data_final) if data_final else None,
+                data_inicial=datetime.date.today(),
+                data_final=None,
                 legenda=parametrizacao_origem.legenda,
             )
 
