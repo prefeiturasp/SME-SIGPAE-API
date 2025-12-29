@@ -88,6 +88,9 @@ from .utils import (
 env = environ.Env()
 
 
+ARQUIVO_MARCA_DAGUA_PRELIMINAR = "preliminar.pdf"
+
+
 def valida_request_method_get(request):
     if request and request.method != "GET":
         return HttpResponseNotAllowed()
@@ -1620,7 +1623,7 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
             html_string, "relatorio_dieta_especial.pdf", is_async=True
         )
     return html_to_pdf_watermark(
-        html_string, "relatorio_dieta_especial.pdf", "preliminar.pdf", is_async=True
+        html_string, "relatorio_dieta_especial.pdf", ARQUIVO_MARCA_DAGUA_PRELIMINAR, is_async=True
     )
 
 
@@ -1658,7 +1661,7 @@ def relatorio_solicitacao_medicao_por_escola_cei(solicitacao):
         )
     else:
         return html_to_pdf_watermark(
-            html_string, "relatorio_dieta_especial.pdf", "preliminar.pdf", is_async=True
+            html_string, "relatorio_dieta_especial.pdf", ARQUIVO_MARCA_DAGUA_PRELIMINAR, is_async=True
         )
 
 
@@ -1714,7 +1717,7 @@ def relatorio_solicitacao_medicao_por_escola_cemei(solicitacao):
         )
     else:
         return html_to_pdf_watermark(
-            html_string, "relatorio_dieta_especial.pdf", "preliminar.pdf", is_async=True
+            html_string, "relatorio_dieta_especial.pdf", ARQUIVO_MARCA_DAGUA_PRELIMINAR, is_async=True
         )
 
 
@@ -2021,7 +2024,7 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
         )
     else:
         return html_to_pdf_watermark(
-            html_string, "relatorio_dieta_especial.pdf", "preliminar.pdf", is_async=True
+            html_string, "relatorio_dieta_especial.pdf", ARQUIVO_MARCA_DAGUA_PRELIMINAR, is_async=True
         )
 
 
