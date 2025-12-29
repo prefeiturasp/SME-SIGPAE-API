@@ -17,18 +17,18 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serialize
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     CronogramaFichaDeRecebimentoSerializer,
+    CronogramaSimplesSerializer,
     EtapasDoCronogramaCalendarioSerializer,
     EtapasDoCronogramaFichaDeRecebimentoSerializer,
     EtapasDoCronogramaSerializer,
     PainelCronogramaSerializer,
-    CronogramaSimplesSerializer,
     SolicitacaoAlteracaoCronogramaSerializer,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoDetalharSerializer,
-    PainelDocumentoDeRecebimentoSerializer,
     DocumentoDeRecebimentoSerializer,
+    PainelDocumentoDeRecebimentoSerializer,
 )
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
     PainelFichaTecnicaSerializer,
@@ -481,7 +481,9 @@ def test_documento_recebimento_serializer(documento_recebimento_leve_leite):
     assert data["uuid"] == str(doc.uuid)
     assert data["numero_cronograma"] == doc.cronograma.numero
     assert data["numero_laudo"] == doc.numero_laudo
-    assert data["pregao_chamada_publica"] == doc.cronograma.contrato.pregao_chamada_publica
+    assert (
+        data["pregao_chamada_publica"] == doc.cronograma.contrato.pregao_chamada_publica
+    )
     assert data["nome_produto"] == doc.cronograma.ficha_tecnica.produto.nome
     assert data["programa_leve_leite"] is True
     assert data["status"] == doc.get_status_display()
@@ -496,9 +498,13 @@ def test_documento_recebimento_serializer(documento_recebimento_leve_leite):
 
 def test_cronograma_simples_serializer(cronograma, contrato):
     """Testa se o CronogramaSimplesSerializer retorna todos os campos corretamente."""
-    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
-    
-    ficha = baker.make("FichaTecnicaDoProduto", programa=FichaTecnicaDoProduto.LEVE_LEITE)
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
+        FichaTecnicaDoProduto,
+    )
+
+    ficha = baker.make(
+        "FichaTecnicaDoProduto", programa=FichaTecnicaDoProduto.LEVE_LEITE
+    )
     cronograma.ficha_tecnica = ficha
     cronograma.contrato = contrato
     cronograma.save()

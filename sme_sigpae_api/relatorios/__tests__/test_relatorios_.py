@@ -803,3 +803,31 @@ def test_obter_relatorio_da_unidade_emebs():
         resultado = obter_relatorio_da_unidade(tipos_unidade)
 
         assert resultado == mock_modulo_emebs
+
+
+def test_obter_relatorio_da_unidade_cieja_cmct():
+    with patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
+        {"EMEF", "EMEFM"},
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
+        {"CEI", "CEI CEU"},
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEMEI",
+        {"CEMEI", "CEU CEMEI"},
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEBS",
+        {"EMEBS"},
+    ), patch(
+        "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CIEJA_CMCT",
+        {"CIEJA", "CMCT"},
+    ), patch(
+        "sme_sigpae_api.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola"
+    ) as mock_modulo_emebs:
+
+        tipos_unidade = ["CIEJA", "CMCT"]
+        resultado = obter_relatorio_da_unidade(tipos_unidade)
+
+        assert resultado == mock_modulo_emebs
