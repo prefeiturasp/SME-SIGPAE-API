@@ -49,6 +49,8 @@ from sme_sigpae_api.terceirizada.api.serializers.serializers import (
 )
 from sme_sigpae_api.terceirizada.models import Edital
 
+FORMATO_DATA_BR = "%d/%m/%Y"
+
 
 class DiaSobremesaDoceSerializer(serializers.ModelSerializer):
     tipo_unidade = TipoUnidadeEscolarSimplesSerializer()
@@ -287,7 +289,7 @@ class PermissaoLancamentoEspecialSerializer(serializers.ModelSerializer):
     ativo = serializers.SerializerMethodField()
 
     def get_alterado_em(self, obj):
-        return datetime.datetime.strftime(obj.alterado_em, "%d/%m/%Y")
+        return datetime.datetime.strftime(obj.alterado_em, FORMATO_DATA_BR)
 
     def get_ativo(self, obj):
         return obj.ativo
@@ -372,10 +374,10 @@ class DadosParametrizacaoFinanceiraSerializer(serializers.ModelSerializer):
         ]
 
     def get_data_inicial(self, obj):
-        return obj.data_inicial.strftime("%d/%m/%Y") if obj.data_inicial else None
+        return obj.data_inicial.strftime(FORMATO_DATA_BR) if obj.data_inicial else None
 
     def get_data_final(self, obj):
-        return obj.data_final.strftime("%d/%m/%Y") if obj.data_final else None
+        return obj.data_final.strftime(FORMATO_DATA_BR) if obj.data_final else None
 
 
 class ParametrizacaoFinanceiraSerializer(serializers.ModelSerializer):
