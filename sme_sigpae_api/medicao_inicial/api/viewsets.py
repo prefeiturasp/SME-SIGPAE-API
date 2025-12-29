@@ -2092,7 +2092,7 @@ class ParametrizacaoFinanceiraViewSet(ModelViewSet):
         )
         serializer = DadosParametrizacaoFinanceiraSerializer(parametrizacao)
         return Response(serializer.data)
-    
+
     @action(
         detail=False,
         methods=["POST"],
@@ -2141,6 +2141,7 @@ class ParametrizacaoFinanceiraViewSet(ModelViewSet):
 
         serializer = DadosParametrizacaoFinanceiraSerializer(nova_parametrizacao)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class RelatorioFinanceiroViewSet(ModelViewSet):
     lookup_field = "uuid"
