@@ -140,7 +140,6 @@ from .serializers_create import (
     PermissaoLancamentoEspecialCreateUpdateSerializer,
     SolicitacaoMedicaoInicialCreateSerializer,
 )
-from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.helpers import parse_date
 
 calendario = BrazilSaoPauloCity()
 
