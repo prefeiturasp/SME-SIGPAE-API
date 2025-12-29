@@ -90,9 +90,7 @@ def html_to_pdf_response(html_string, pdf_filename, request=None):
 
 def html_to_pdf_file(html_string, pdf_filename, is_async=False):
     pdf_file = HTML(
-        string=html_string,
-        url_fetcher=django_url_fetcher,
-        base_url="file://abobrinha",
+        string=html_string, base_url=staticfiles_storage.location
     ).write_pdf()
 
     if is_async:
