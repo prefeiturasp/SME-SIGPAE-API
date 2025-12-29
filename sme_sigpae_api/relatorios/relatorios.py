@@ -11,6 +11,7 @@ from django.template.loader import get_template, render_to_string
 from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_CEI,
     ORDEM_UNIDADES_GRUPO_CEMEI,
+    ORDEM_UNIDADES_GRUPO_CIEJA_CMCT,
     ORDEM_UNIDADES_GRUPO_EMEBS,
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
@@ -2365,7 +2366,7 @@ def obter_relatorio_da_unidade(tipos_de_unidade: list[str]) -> Callable:
     """
     estrategias = [
         {
-            "unidades": ORDEM_UNIDADES_GRUPO_EMEF | ORDEM_UNIDADES_GRUPO_EMEI,
+            "unidades": ORDEM_UNIDADES_GRUPO_EMEF | ORDEM_UNIDADES_GRUPO_EMEI | ORDEM_UNIDADES_GRUPO_CIEJA_CMCT,
             "modulo": relatorio_solicitacao_medicao_por_escola,
         },
         {
