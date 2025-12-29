@@ -1524,9 +1524,12 @@ class ParametrizacaoFinanceiraWriteModelSerializer(serializers.ModelSerializer):
         return parametrizacao_financeira
 
     def update(self, instance, validated_data):
-        tabelas = validated_data.pop("tabelas")
+        tabelas = validated_data.pop("tabelas", None)
 
         instance = super().update(instance, validated_data)
+
+        if not tabelas:
+            return instance
 
         for tabela in tabelas:
             valores = tabela.pop("valores")
