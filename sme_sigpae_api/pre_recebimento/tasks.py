@@ -41,10 +41,10 @@ def _preparar_dataframe_cronogramas(dados):
 
     df = pd.DataFrame(dados)
     df.insert(13, "unidade_etapa", value=df.iloc[:, 5])
-    
+
     indices_leve_leite = df.index[df["programa_leve_leite"]].tolist()
     df = df.drop(columns=["programa_leve_leite"])
-    
+
     return df, indices_leve_leite
 
 
@@ -52,10 +52,10 @@ def _aplicar_estilos_leve_leite(worksheet, workbook, indices_leve_leite, dados):
     """Aplica a formatação azul para produtos do programa Leve Leite."""
     if not indices_leve_leite:
         return
-    
+
     blue_format = workbook.add_format({"font_color": "#90CEFD"})
     col_produto = 1  # Coluna B
-    
+
     for row_idx in indices_leve_leite:
         excel_row = row_idx + 3
         valor_produto = dados[row_idx].get("produto_nome", "")
@@ -117,7 +117,7 @@ def gerar_relatorio_cronogramas_xlsx_async(user, ids_cronogramas, filtros=None):
             header=False,
             startrow=3,
         )
-        
+
         workbook = xlsxwriter.book
         worksheet = xlsxwriter.sheets[TITULO_RELATORIO]
 
