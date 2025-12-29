@@ -28,6 +28,43 @@ from sme_sigpae_api.relatorios.utils import html_to_pdf_file
 logger = logging.getLogger(__name__)
 
 
+def _preparar_dataframe_cronogramas(dados):
+    """Prepara o DataFrame com os dados dos cronogramas."""
+    if not dados:
+        return pd.DataFrame(), []
+
+    df = pd.DataFrame(dados)
+    df.insert(13, "unidade_etapa", value=df.iloc[:, 5])
+
+    indices_leve_leite = df.index[df["programa_leve_leite"]].tolist()
+    df = df.drop(columns=["programa_leve_leite"])
+
+    return df, indices_leve_leite
+
+
+def _aplicar_estilos_leve_leite(worksheet, workbook, indices_leve_leite, dados):
+    """Aplica a formatação azul para produtos do programa Leve Leite."""
+    if not indices_leve_leite:
+        return
+
+    blue_format = workbook.add_format({"font_color": "#90CEFD"})
+    col_produto = 1  # Coluna B
+
+    for row_idx in indices_leve_leite:
+        excel_row = row_idx + 3
+        valor_produto = dados[row_idx].get("produto_nome", "")
+        worksheet.write(excel_row, col_produto, valor_produto, blue_format)
+
+
+def _finalizar_formatacao_worksheet(worksheet, workbook, headers, subtitulo, titulo_relatorio):
+    """Aplica formatações finais à planilha."""
+    ultima_coluna = len(headers) - 1
+    _definir_largura_colunas(worksheet)
+    _formatar_titulo(ultima_coluna, titulo_relatorio, workbook, worksheet)
+    _formatar_subtitulo(subtitulo, ultima_coluna, workbook, worksheet)
+    _formatar_headers(headers, workbook, worksheet)
+
+
 @shared_task(
     retry_backoff=2,
     retry_kwargs={"max_retries": 8},
@@ -58,8 +95,6 @@ def gerar_relatorio_cronogramas_xlsx_async(user, ids_cronogramas, filtros=None):
         "Situação",
     ]
 
-    ULTIMA_COLUNA = len(HEADERS) - 1
-
     TITULO_ARQUIVO = "relatorio_cronogramas.xlsx"
     TITULO_RELATORIO = "Relatório de Cronogramas"
 
@@ -73,13 +108,7 @@ def gerar_relatorio_cronogramas_xlsx_async(user, ids_cronogramas, filtros=None):
 
     try:
         dados, subtitulo = _dados_relatorio_cronograma_xlsx(ids_cronogramas, filtros)
-
-        if dados:
-            df = pd.DataFrame(dados)
-            df.insert(13, "unidade_etapa", value=df.iloc[:, 5])
-
-        else:
-            df = pd.DataFrame()
+        df, indices_leve_leite = _preparar_dataframe_cronogramas(dados)
 
         df.to_excel(
             xlsxwriter,
@@ -88,13 +117,12 @@ def gerar_relatorio_cronogramas_xlsx_async(user, ids_cronogramas, filtros=None):
             header=False,
             startrow=3,
         )
+
         workbook = xlsxwriter.book
         worksheet = xlsxwriter.sheets[TITULO_RELATORIO]
 
-        _definir_largura_colunas(worksheet)
-        _formatar_titulo(ULTIMA_COLUNA, TITULO_RELATORIO, workbook, worksheet)
-        _formatar_subtitulo(subtitulo, ULTIMA_COLUNA, workbook, worksheet)
-        _formatar_headers(HEADERS, workbook, worksheet)
+        _aplicar_estilos_leve_leite(worksheet, workbook, indices_leve_leite, dados)
+        _finalizar_formatacao_worksheet(worksheet, workbook, HEADERS, subtitulo, TITULO_RELATORIO)
 
         xlsxwriter.close()
         output.seek(0)
@@ -135,7 +163,6 @@ def gerar_relatorio_cronogramas_pdf_async(user, ids_cronogramas, filtros=None):
 
     try:
         paginas, subtitulo = _dados_relatorio_cronograma_pdf(ids_cronogramas, filtros)
-        print(filtros["situacao"])
         html_string = render_to_string(
             TEMPLATE_HTML,
             {
@@ -155,6 +182,8 @@ def gerar_relatorio_cronogramas_pdf_async(user, ids_cronogramas, filtros=None):
             TITULO_ARQUIVO,
             arquivo_relatorio,
         )
+
+        return arquivo_relatorio
 
     except Exception as e:
         atualiza_central_download_com_erro(obj_central_download, str(e))
@@ -184,6 +213,7 @@ def _criar_linha_base_excel(cronograma, etapa):
         "data_programada": etapa.get("data_programada"),
         "quantidade": extrair_numero_quantidade(etapa.get("quantidade")),
         "total_embalagens": etapa.get("total_embalagens"),
+        "programa_leve_leite": cronograma.get("programa_leve_leite", False),
     }
 
 

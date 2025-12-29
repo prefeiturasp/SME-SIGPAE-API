@@ -656,6 +656,13 @@ class CronogramaRelatorioSerializer(serializers.ModelSerializer):
     marca = serializers.SerializerMethodField()
     custo_unitario_produto = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
+    programa_leve_leite = serializers.SerializerMethodField()
+
+    def get_programa_leve_leite(self, obj):
+        try:
+            return obj.ficha_tecnica.programa == "LEVE_LEITE"
+        except AttributeError:
+            return False
 
     def get_produto(self, obj):
         try:
@@ -701,6 +708,7 @@ class CronogramaRelatorioSerializer(serializers.ModelSerializer):
             "marca",
             "custo_unitario_produto",
             "etapas",
+            "programa_leve_leite",
         )
 
 
