@@ -2366,7 +2366,9 @@ def obter_relatorio_da_unidade(tipos_de_unidade: list[str]) -> Callable:
     """
     estrategias = [
         {
-            "unidades": ORDEM_UNIDADES_GRUPO_EMEF | ORDEM_UNIDADES_GRUPO_EMEI | ORDEM_UNIDADES_GRUPO_CIEJA_CMCT,
+            "unidades": ORDEM_UNIDADES_GRUPO_EMEF
+            | ORDEM_UNIDADES_GRUPO_EMEI
+            | ORDEM_UNIDADES_GRUPO_CIEJA_CMCT,
             "modulo": relatorio_solicitacao_medicao_por_escola,
         },
         {

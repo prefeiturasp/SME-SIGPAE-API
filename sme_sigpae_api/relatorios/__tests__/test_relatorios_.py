@@ -804,6 +804,7 @@ def test_obter_relatorio_da_unidade_emebs():
 
         assert resultado == mock_modulo_emebs
 
+
 def test_obter_relatorio_da_unidade_cieja_cmct():
     with patch(
         "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
@@ -816,10 +817,10 @@ def test_obter_relatorio_da_unidade_cieja_cmct():
     ), patch(
         "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEMEI",
         {"CEMEI", "CEU CEMEI"},
-    ),  patch(
+    ), patch(
         "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEBS",
         {"EMEBS"},
-    ),patch(
+    ), patch(
         "sme_sigpae_api.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CIEJA_CMCT",
         {"CIEJA", "CMCT"},
     ), patch(
