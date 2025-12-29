@@ -24,6 +24,8 @@ from ..relatorios import (
     relatorio_solicitacao_medicao_por_escola,
     relatorio_suspensao_de_alimentacao,
 )
+from sme_sigpae_api.pre_recebimento.tasks import gerar_relatorio_cronogramas_pdf_async
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
 pytestmark = pytest.mark.django_db
 
@@ -659,6 +661,26 @@ def test_relatorio_cronograma_entrega(cronograma):
         for etapa in etapas:
             if etapa.numero_empenho:
                 assert etapa.numero_empenho in texto_pdf
+
+
+def test_relatorio_cronograma_lista_com_leve_leite(cronograma, usuario):
+    cronograma.ficha_tecnica.programa = FichaTecnicaDoProduto.LEVE_LEITE
+    cronograma.ficha_tecnica.save()
+
+    pdf_content = gerar_relatorio_cronogramas_pdf_async(usuario.username, [cronograma.id], {})
+    texto_pdf = extrair_texto_de_pdf(pdf_content)
+
+    assert "LEVE LEITE - PLL" in texto_pdf
+
+
+def test_relatorio_cronograma_lista_sem_leve_leite(cronograma, usuario):
+    cronograma.ficha_tecnica.programa = FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR
+    cronograma.ficha_tecnica.save()
+
+    pdf_content = gerar_relatorio_cronogramas_pdf_async(usuario.username, [cronograma.id], {})
+    texto_pdf = extrair_texto_de_pdf(pdf_content)
+
+    assert "LEVE LEITE - PLL" not in texto_pdf
 
     if cronograma.armazem and cronograma.armazem.nome_fantasia:
         nome_armazem = cronograma.armazem.nome_fantasia

@@ -81,6 +81,11 @@ def gerar_relatorio_cronogramas_xlsx_async(user, ids_cronogramas, filtros=None):
         else:
             df = pd.DataFrame()
 
+        indices_leve_leite = []
+        if not df.empty:
+            indices_leve_leite = df.index[df["programa_leve_leite"] == True].tolist()
+            df = df.drop(columns=["programa_leve_leite"])
+
         df.to_excel(
             xlsxwriter,
             TITULO_RELATORIO,
@@ -90,6 +95,14 @@ def gerar_relatorio_cronogramas_xlsx_async(user, ids_cronogramas, filtros=None):
         )
         workbook = xlsxwriter.book
         worksheet = xlsxwriter.sheets[TITULO_RELATORIO]
+
+        if indices_leve_leite:
+            blue_format = workbook.add_format({"font_color": "#90CEFD"})
+            col_produto = 1  # Coluna B
+            for row_idx in indices_leve_leite:
+                excel_row = row_idx + 3
+                valor_produto = dados[row_idx].get("produto_nome", "")
+                worksheet.write(excel_row, col_produto, valor_produto, blue_format)
 
         _definir_largura_colunas(worksheet)
         _formatar_titulo(ULTIMA_COLUNA, TITULO_RELATORIO, workbook, worksheet)
@@ -135,7 +148,6 @@ def gerar_relatorio_cronogramas_pdf_async(user, ids_cronogramas, filtros=None):
 
     try:
         paginas, subtitulo = _dados_relatorio_cronograma_pdf(ids_cronogramas, filtros)
-        print(filtros["situacao"])
         html_string = render_to_string(
             TEMPLATE_HTML,
             {
@@ -155,6 +167,8 @@ def gerar_relatorio_cronogramas_pdf_async(user, ids_cronogramas, filtros=None):
             TITULO_ARQUIVO,
             arquivo_relatorio,
         )
+
+        return arquivo_relatorio
 
     except Exception as e:
         atualiza_central_download_com_erro(obj_central_download, str(e))
@@ -184,6 +198,7 @@ def _criar_linha_base_excel(cronograma, etapa):
         "data_programada": etapa.get("data_programada"),
         "quantidade": extrair_numero_quantidade(etapa.get("quantidade")),
         "total_embalagens": etapa.get("total_embalagens"),
+        "programa_leve_leite": cronograma.get("programa_leve_leite", False),
     }
 
 
