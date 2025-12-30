@@ -42,7 +42,9 @@ from sme_sigpae_api.dieta_especial.models import (
 )
 
 
-pytestmark = pytest.mark.django_db
+pytestmark = [
+    pytest.mark.django_db(transaction=True, reset_sequences=True)
+]
 
 
 class TestLogsRecreioNasFerias:
