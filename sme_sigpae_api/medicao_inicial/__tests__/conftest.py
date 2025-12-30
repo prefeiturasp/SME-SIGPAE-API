@@ -43,6 +43,9 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef imp
 )
 from sme_sigpae_api.perfil.models.usuario import Usuario
 
+MODEL_MEDICAO_RESPONSAVEL = "medicao_inicial.Responsavel"
+PROGRAMAS_E_PROOJETOS = "PROGRAMAS E PROJETOS"
+
 
 @pytest.fixture
 def kit_lanche_1():
@@ -2232,7 +2235,7 @@ def responsavel(solicitacao_medicao_inicial):
     nome = "tester"
     rf = "1234567"
     return baker.make(
-        "medicao_inicial.Responsavel",
+        MODEL_MEDICAO_RESPONSAVEL,
         nome=nome,
         rf=rf,
         solicitacao_medicao_inicial=solicitacao_medicao_inicial,
@@ -4390,7 +4393,7 @@ def solicitacao_medicao_informacoes_basicas(escola):
     )
     contagem = baker.make("TipoContagemAlimentacao", nome="Catraca")
     responsavel = baker.make(
-        "medicao_inicial.Responsavel", nome="REsponsavel 1", rf="1256387"
+        MODEL_MEDICAO_RESPONSAVEL, nome="REsponsavel 1", rf="1256387"
     )
     solicitacao_medicao_inicial.tipos_contagem_alimentacao.set([contagem])
     solicitacao_medicao_inicial.responsaveis.set([responsavel])
@@ -4455,73 +4458,104 @@ def relatorio_consolidado_xlsx_cieja(
         grupo=grupo_solicitacoes_alimentacao,
     )
 
+    categorias_dieta = [
+        categoria_medicao_dieta_a,
+        categoria_medicao_dieta_b,
+        categoria_medicao_dieta_a_enteral_aminoacidos,
+    ]
+
     for dia in ["01", "02", "03", "04", "05"]:
-        for medicao in [medicao_manha, medicao_tarde]:
+        _criar_valores_medicao_periodos(
+            dia,
+            [medicao_manha, medicao_tarde],
+            categoria_medicao,
+            categorias_dieta,
+            categoria_medicao_dieta_a_enteral_aminoacidos,
+        )
+
+        if dia in ["02", "03"]:
+            _criar_valores_programas_projetos(
+                dia, medicao_programas_projetos, categoria_medicao
+            )
+
+        if dia == "05":
+            _criar_valores_solicitacao_alimentacao(
+                dia, medicao_solicitacao_alimentacao, categoria_medicao_solicitacoes_alimentacao
+            )
+
+    return solicitacao_relatorio_consolidado_escola_cieja
+
+
+def _criar_valores_medicao_periodos(
+    dia, medicoes, categoria_medicao, categorias_dieta, categoria_dieta_enteral
+):
+    for medicao in medicoes:
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo="matriculados",
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor="40",
+        )
+
+        for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
             baker.make(
                 "ValorMedicao",
                 dia=dia,
-                nome_campo="matriculados",
+                nome_campo=campo,
                 medicao=medicao,
                 categoria_medicao=categoria_medicao,
-                valor="40",
+                valor="30",
             )
-            for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
 
+            if campo in ["lanche", "lanche_4h"]:
+                _criar_valores_dieta(dia, campo, medicao, categorias_dieta)
+            elif campo == "refeicao":
                 baker.make(
                     "ValorMedicao",
                     dia=dia,
                     nome_campo=campo,
                     medicao=medicao,
-                    categoria_medicao=categoria_medicao,
-                    valor="30",
-                )
-                if campo in ["lanche", "lanche_4h"]:
-                    for categoria in [
-                        categoria_medicao_dieta_a,
-                        categoria_medicao_dieta_b,
-                        categoria_medicao_dieta_a_enteral_aminoacidos,
-                    ]:
-                        baker.make(
-                            "ValorMedicao",
-                            dia=dia,
-                            nome_campo=campo,
-                            medicao=medicao,
-                            categoria_medicao=categoria,
-                            valor="4",
-                        )
-                elif campo == "refeicao":
-                    baker.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo=campo,
-                        medicao=medicao,
-                        categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
-                        valor="4",
-                    )
-
-        if dia in ["02", "03"]:
-            for campo in ["numero_de_alunos", "frequencia", "lanche_4h"]:
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo=campo,
-                    medicao=medicao_programas_projetos,
-                    categoria_medicao=categoria_medicao,
-                    valor="10",
+                    categoria_medicao=categoria_dieta_enteral,
+                    valor="4",
                 )
 
-        if dia == "05":
-            for campo in ["kit_lanche", "lanche_emergencial"]:
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo=campo,
-                    medicao=medicao_solicitacao_alimentacao,
-                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
-                    valor="5",
-                )
 
-    return solicitacao_relatorio_consolidado_escola_cieja
+def _criar_valores_dieta(dia, campo, medicao, categorias_dieta):
+    for categoria in categorias_dieta:
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo=campo,
+            medicao=medicao,
+            categoria_medicao=categoria,
+            valor="4",
+        )
+
+
+def _criar_valores_programas_projetos(dia, medicao, categoria_medicao):
+    for campo in ["numero_de_alunos", "frequencia", "lanche_4h"]:
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo=campo,
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor="10",
+        )
+
+
+def _criar_valores_solicitacao_alimentacao(dia, medicao, categoria_medicao):
+    for campo in ["kit_lanche", "lanche_emergencial"]:
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo=campo,
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor="5",
+        )
 
 
 @pytest.fixture
@@ -4568,9 +4602,9 @@ def mock_colunas_cieja():
         ]:
             colunas.append((periodo, campo))
 
-    colunas.append(("PROGRAMAS E PROJETOS", "lanche_4h"))
-    colunas.append(("PROGRAMAS E PROJETOS", "total_refeicoes_pagamento"))
-    colunas.append(("PROGRAMAS E PROJETOS", "total_sobremesas_pagamento"))
+    colunas.append((PROGRAMAS_E_PROOJETOS, "lanche_4h"))
+    colunas.append((PROGRAMAS_E_PROOJETOS, "total_refeicoes_pagamento"))
+    colunas.append((PROGRAMAS_E_PROOJETOS, "total_sobremesas_pagamento"))
     colunas.append(("DIETA ESPECIAL - TIPO A", "lanche"))
     colunas.append(("DIETA ESPECIAL - TIPO A", "lanche_4h"))
     colunas.append(("DIETA ESPECIAL - TIPO A", "refeicao"))
@@ -4855,7 +4889,7 @@ def solicitacao_log_medicao_usuario_system(usuario_admin, escola):
     )
     contagem = baker.make("TipoContagemAlimentacao", nome="Catraca")
     responsavel = baker.make(
-        "medicao_inicial.Responsavel", nome="REsponsavel 1", rf="1256387"
+        MODEL_MEDICAO_RESPONSAVEL, nome="REsponsavel 1", rf="1256387"
     )
     solicitacao.tipos_contagem_alimentacao.set([contagem])
     solicitacao.responsaveis.set([responsavel])
