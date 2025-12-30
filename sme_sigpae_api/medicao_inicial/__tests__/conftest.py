@@ -25,6 +25,7 @@ from sme_sigpae_api.medicao_inicial.models import (
     Medicao,
     PermissaoLancamentoEspecial,
     SolicitacaoMedicaoInicial,
+    TipoValorParametrizacaoFinanceira,
 )
 from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_cei import (
     insere_tabela_periodos_na_planilha as cei_insere_tabela,
@@ -699,7 +700,7 @@ def solicitacao_medicao_inicial_sem_valores(escola):
     periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
     solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial",
-        uuid="0c914b27-c7cd-4682-a439-a4874745b005",  # agora válido
+        uuid="0c914b27-c7cd-4682-a439-a4874745b005",
         mes=12,
         ano=2022,
         escola=escola,
@@ -2029,6 +2030,8 @@ def parametrizacao_financeira_emef(
     tipo_unidade_escolar_ceu_emef,
     tipo_unidade_escolar_emefm,
     tipo_unidade_escolar_ceu_gestao,
+    tipo_alimentacao_lanche,
+    tipo_alimentacao_lanche_4h,
 ):
     grupo_unidade_escolar = baker.make(
         "GrupoUnidadeEscolar",
@@ -2051,6 +2054,57 @@ def parametrizacao_financeira_emef(
         data_final="2025-10-30",
         legenda="Parametrização Financeira: Legenda Inicial",
     )
+
+    tabela_precos = baker.make(
+        "ParametrizacaoFinanceiraTabela",
+        nome="Preço das Alimentações",
+        periodo_escolar=None,
+        parametrizacao_financeira=parametrizacao_financeira,
+    )
+
+    tabela_dieta_a = baker.make(
+        "ParametrizacaoFinanceiraTabela",
+        nome="Tarde",
+        periodo_escolar=None,
+        parametrizacao_financeira=parametrizacao_financeira,
+    )
+
+    tipo_unitario = TipoValorParametrizacaoFinanceira.objects.get(nome="UNITARIO")
+    tipo_reajuste = TipoValorParametrizacaoFinanceira.objects.get(nome="REAJUSTE")
+    tipo_acrescimo = TipoValorParametrizacaoFinanceira.objects.get(nome="ACRESCIMO")
+
+    for tipo_valor in [tipo_unitario, tipo_reajuste]:
+        baker.make(
+            "ParametrizacaoFinanceiraTabelaValor",
+            tabela=tabela_precos,
+            nome_campo="lanche",
+            faixa_etaria=None,
+            tipo_alimentacao=tipo_alimentacao_lanche,
+            tipo_valor=tipo_valor,
+            valor="10.50",
+        )
+
+        baker.make(
+            "ParametrizacaoFinanceiraTabelaValor",
+            tabela=tabela_precos,
+            nome_campo="lanche_4h",
+            faixa_etaria=None,
+            tipo_alimentacao=tipo_alimentacao_lanche_4h,
+            tipo_valor=tipo_valor,
+            valor="5.25",
+        )
+
+    for tipo_valor in [tipo_unitario, tipo_acrescimo]:
+        baker.make(
+            "ParametrizacaoFinanceiraTabelaValor",
+            tabela=tabela_dieta_a,
+            nome_campo="lanche",
+            faixa_etaria=None,
+            tipo_alimentacao=tipo_alimentacao_lanche,
+            tipo_valor=tipo_valor,
+            valor="12.00",
+        )
+
     return parametrizacao_financeira
 
 
