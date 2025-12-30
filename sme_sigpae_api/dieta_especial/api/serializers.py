@@ -906,7 +906,7 @@ class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer(serializers.Mo
     escola_nome = serializers.CharField(source="escola.nome", read_only=True)
     classificacao_nome = serializers.CharField(source="classificacao.nome", read_only=True)
     faixa_etaria_uuid = serializers.UUIDField(source="faixa_etaria.uuid", read_only=True)
-    faixa_etaria_descricao = serializers.CharField(source="faixa_etaria.descricao", read_only=True)
+    faixa_etaria_nome = serializers.CharField(source="faixa_etaria.__str__", read_only=True)
 
     class Meta:
         model = LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI
@@ -918,7 +918,7 @@ class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer(serializers.Mo
             "classificacao",
             "classificacao_nome",
             "faixa_etaria_uuid",
-            "faixa_etaria_descricao",
+            "faixa_etaria_nome",
             "quantidade",
         )
 
