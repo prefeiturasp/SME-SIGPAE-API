@@ -49,6 +49,15 @@ pytestmark = [
 
 class TestLogsRecreioNasFerias:
     def setup_method(self):
+        from sme_sigpae_api.dieta_especial.models import MotivoAlteracaoUE, ClassificacaoDieta
+        from sme_sigpae_api.escola.models import TipoGestao
+
+        MotivoAlteracaoUE.objects.filter(
+            nome="Dieta Especial - Recreio nas Férias"
+        ).delete()
+        ClassificacaoDieta.objects.filter(nome__in=["Tipo A", "Tipo B"]).delete()
+        TipoGestao.objects.filter(nome="TERC TOTAL").delete()
+
         self.tipo_gestao_terc = TipoGestaoFactory.create(nome="TERC TOTAL")
 
         self.dre = DiretoriaRegionalFactory.create(nome="IPIRANGA", iniciais="IP")
