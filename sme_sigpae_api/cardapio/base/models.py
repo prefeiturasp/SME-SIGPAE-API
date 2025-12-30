@@ -29,6 +29,9 @@ class TipoAlimentacao(
     Lanche Emergencial
     """
 
+    LANCHE_EMERGENCIAL = "Lanche Emergencial"
+    LANCHE_4H = "Lanche 4h"
+
     @property
     def substituicoes_periodo_escolar(self):
         return self.substituicoes_periodo_escolar

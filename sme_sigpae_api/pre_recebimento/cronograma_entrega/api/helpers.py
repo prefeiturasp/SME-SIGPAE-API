@@ -185,7 +185,9 @@ def filtrar_etapas(serialized_data, filtros):
     situacoes = filtros.get("situacao", [])
 
     sem_datas = not data_inicial and not data_final
-    if (sem_datas and not situacoes) or (sem_datas and len(situacoes) == 3):
+    sem_filtros = (sem_datas and not situacoes) or (sem_datas and len(situacoes) == 3)
+
+    if sem_filtros:
         return serialized_data
 
     data_inicio_obj = parse_date(data_inicial) if data_inicial else None
@@ -196,18 +198,16 @@ def filtrar_etapas(serialized_data, filtros):
         cronograma_data = serialized_data[i]
         etapas = cronograma_data.get("etapas", [])
 
-        for j in range(len(etapas) - 1, -1, -1):
-            etapa_data = etapas[j]
-            deve_manter_etapa = aplicar_filtros_etapa(
-                etapa_data,
+        etapas[:] = [
+            etapa for etapa in etapas
+            if aplicar_filtros_etapa(
+                etapa,
                 data_inicio_obj,
                 data_fim_obj,
                 situacoes,
                 tem_filtro_situacao,
             )
-
-            if not deve_manter_etapa:
-                etapas.pop(j)
+        ]
 
         if not etapas:
             serialized_data.pop(i)

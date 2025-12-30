@@ -148,6 +148,9 @@ DEFAULT_PAGE = 1
 DEFAULT_PAGE_SIZE = 10
 
 
+MSG_ERROR_VERIFIQUE_PARAMETROS = "Verifique os parâmetros e tente novamente"
+
+
 class CustomPagination(PageNumberPagination):
     page = DEFAULT_PAGE
     page_size = DEFAULT_PAGE_SIZE
@@ -686,7 +689,7 @@ class SolicitacaoMedicaoInicialViewSet(
             )
         except Exception:
             return Response(
-                data={"erro": "Verifique os parâmetros e tente novamente"},
+                data={"erro": MSG_ERROR_VERIFIQUE_PARAMETROS},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -1970,7 +1973,7 @@ class RelatoriosViewSet(ViewSet):
             )
         except Exception:
             return Response(
-                data={"detail": "Verifique os parâmetros e tente novamente"},
+                data={"detail": MSG_ERROR_VERIFIQUE_PARAMETROS},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -2009,7 +2012,7 @@ class RelatoriosViewSet(ViewSet):
             )
         except Exception:
             return Response(
-                data={"detail": "Verifique os parâmetros e tente novamente"},
+                data={"detail": MSG_ERROR_VERIFIQUE_PARAMETROS},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -2047,7 +2050,7 @@ class RelatoriosViewSet(ViewSet):
             )
         except Exception:
             return Response(
-                data={"detail": "Verifique os parâmetros e tente novamente"},
+                data={"detail": MSG_ERROR_VERIFIQUE_PARAMETROS},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

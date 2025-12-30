@@ -1892,6 +1892,53 @@ def get_classificacoes_dietas(categoria):
     return classificacoes
 
 
+def _validar_lancamento_dietas_dia(
+    lista_erros,
+    medicao,
+    logs_,
+    ano,
+    mes,
+    dia,
+    categoria,
+    classificacoes,
+    escola,
+):
+    valores_medicao_ = list(
+        set(
+            medicao.valores_medicao.values_list(
+                "nome_campo",
+                "categoria_medicao_id",
+                "dia",
+            )
+        )
+    )
+
+    if lista_erros_com_periodo(lista_erros, medicao, "dietas"):
+        return
+
+    periodo_com_erro = validate_lancamento_alimentacoes_medicao_emef_emebs_dietas(
+        lista_erros,
+        medicao,
+        logs_,
+        ano,
+        mes,
+        dia,
+        categoria,
+        classificacoes,
+        False,
+        valores_medicao_,
+        escola,
+    )
+
+    if periodo_com_erro:
+        lista_erros.append(
+            {
+                "periodo_escolar": medicao.periodo_escolar.nome,
+                "erro": "Restam dias a serem lançados nas dietas.",
+            }
+        )
+
+
 def validate_lancamento_dietas_emef(solicitacao, lista_erros):
     ano = solicitacao.ano
     mes = solicitacao.mes
@@ -1924,40 +1971,18 @@ def validate_lancamento_dietas_emef(solicitacao, lista_erros):
             dias_letivos_uteis = [int(dia) for dia in dias_letivos]
 
             for dia in dias_letivos_uteis:
-                valores_medicao_ = list(
-                    set(
-                        medicao.valores_medicao.values_list(
-                            "nome_campo",
-                            "categoria_medicao_id",
-                            "dia",
-                        )
-                    )
+                _validar_lancamento_dietas_dia(
+                    lista_erros,
+                    medicao,
+                    logs_,
+                    ano,
+                    mes,
+                    dia,
+                    categoria,
+                    classificacoes,
+                    escola,
                 )
-                periodo_com_erro = False
-                if lista_erros_com_periodo(lista_erros, medicao, "dietas"):
-                    continue
-                periodo_com_erro = (
-                    validate_lancamento_alimentacoes_medicao_emef_emebs_dietas(
-                        lista_erros,
-                        medicao,
-                        logs_,
-                        ano,
-                        mes,
-                        dia,
-                        categoria,
-                        classificacoes,
-                        periodo_com_erro,
-                        valores_medicao_,
-                        escola,
-                    )
-                )
-                if periodo_com_erro:
-                    lista_erros.append(
-                        {
-                            "periodo_escolar": medicao.periodo_escolar.nome,
-                            "erro": "Restam dias a serem lançados nas dietas.",
-                        }
-                    )
+
     return lista_erros
 
 
@@ -3443,6 +3468,54 @@ def checa_valor_observacao(valor_observacao, periodo_com_erro):
     return periodo_com_erro
 
 
+def _validar_lancamento_dietas_emebs_dia(
+    lista_erros,
+    medicao,
+    logs_,
+    ano,
+    mes,
+    dia,
+    categoria,
+    classificacoes,
+    escola,
+):
+    valores_medicao_ = list(
+        set(
+            medicao.valores_medicao.values_list(
+                "nome_campo",
+                "categoria_medicao_id",
+                "dia",
+                "infantil_ou_fundamental",
+            )
+        )
+    )
+
+    if lista_erros_com_periodo(lista_erros, medicao, "dietas"):
+        return
+
+    periodo_com_erro = validate_lancamento_alimentacoes_medicao_emebs_dietas(
+        lista_erros,
+        medicao,
+        logs_,
+        ano,
+        mes,
+        dia,
+        categoria,
+        classificacoes,
+        False,
+        valores_medicao_,
+        escola,
+    )
+
+    if periodo_com_erro:
+        lista_erros.append(
+            {
+                "periodo_escolar": medicao.periodo_escolar.nome,
+                "erro": "Restam dias a serem lançados nas dietas.",
+            }
+        )
+
+
 def validate_lancamento_dietas_emebs(solicitacao, lista_erros):
     ano = solicitacao.ano
     mes = solicitacao.mes
@@ -3474,43 +3547,20 @@ def validate_lancamento_dietas_emebs(solicitacao, lista_erros):
                 else dias_letivos_geral["default"]
             )
             dias_letivos_uteis = [int(dia) for dia in dias_letivos]
-            for dia in dias_letivos_uteis:
 
-                valores_medicao_ = list(
-                    set(
-                        medicao.valores_medicao.values_list(
-                            "nome_campo",
-                            "categoria_medicao_id",
-                            "dia",
-                            "infantil_ou_fundamental",
-                        )
-                    )
+            for dia in dias_letivos_uteis:
+                _validar_lancamento_dietas_emebs_dia(
+                    lista_erros,
+                    medicao,
+                    logs_,
+                    ano,
+                    mes,
+                    dia,
+                    categoria,
+                    classificacoes,
+                    escola,
                 )
-                periodo_com_erro = False
-                if lista_erros_com_periodo(lista_erros, medicao, "dietas"):
-                    continue
-                periodo_com_erro = (
-                    validate_lancamento_alimentacoes_medicao_emebs_dietas(
-                        lista_erros,
-                        medicao,
-                        logs_,
-                        ano,
-                        mes,
-                        dia,
-                        categoria,
-                        classificacoes,
-                        periodo_com_erro,
-                        valores_medicao_,
-                        escola,
-                    )
-                )
-                if periodo_com_erro:
-                    lista_erros.append(
-                        {
-                            "periodo_escolar": medicao.periodo_escolar.nome,
-                            "erro": "Restam dias a serem lançados nas dietas.",
-                        }
-                    )
+
     return lista_erros
 
 

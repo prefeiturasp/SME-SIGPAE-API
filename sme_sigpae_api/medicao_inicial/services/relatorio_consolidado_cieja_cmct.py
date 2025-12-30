@@ -30,6 +30,10 @@ from sme_sigpae_api.medicao_inicial.services.utils import (
 )
 
 
+NOME_PERIODO_SOLICITACAO_ALIMENTACAO = "Solicitações de Alimentação"
+DIETA_ESPECIAL_TIPO_A = "DIETA ESPECIAL - TIPO A"
+
+
 def get_alimentacoes_por_periodo(solicitacoes: list[SolicitacaoMedicaoInicial]) -> list:
     """
     Agrupa e organiza alimentações por período e dieta a partir de solicitações
@@ -122,7 +126,7 @@ def _get_lista_alimentacoes(medicao: Medicao, nome_periodo: str) -> list[str]:
         .distinct()
     )
 
-    if nome_periodo != "Solicitações de Alimentação":
+    if nome_periodo != NOME_PERIODO_SOLICITACAO_ALIMENTACAO:
         lista_alimentacoes += [
             "total_refeicoes_pagamento",
             "total_sobremesas_pagamento",
@@ -175,7 +179,7 @@ def _unificar_dietas_tipo_a(dietas_alimentacoes: dict) -> dict:
     Returns:
         dict: Dicionário com as dietas do Tipo A unificadas. Se existir a dieta alternativa, suas alimentações são mescladas na dieta principal e a alternativa é removida.
     """
-    dieta_principal = "DIETA ESPECIAL - TIPO A"
+    dieta_principal = DIETA_ESPECIAL_TIPO_A
     dieta_alternativa = "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
     valor_principal = dietas_alimentacoes.get(dieta_principal, [])
     valor_alternativo = dietas_alimentacoes.get(dieta_alternativa, [])
@@ -332,7 +336,7 @@ def _define_filtro(
     if periodo in [
         "Programas e Projetos",
         "ETEC",
-        "Solicitações de Alimentação",
+        NOME_PERIODO_SOLICITACAO_ALIMENTACAO,
     ]:
         filtros["grupo__nome"] = periodo
     elif periodo in dietas_especiais:
@@ -370,10 +374,10 @@ def processa_dieta_especial(
 
     categorias = (
         [
-            "DIETA ESPECIAL - TIPO A",
+            DIETA_ESPECIAL_TIPO_A,
             "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
         ]
-        if periodo == "DIETA ESPECIAL - TIPO A"
+        if periodo == DIETA_ESPECIAL_TIPO_A
         else [periodo]
     )
     total = 0.0
@@ -410,7 +414,7 @@ def processa_periodo_regular(
 
     categorias = (
         [periodo.upper()]
-        if periodo == "Solicitações de Alimentação"
+        if periodo == NOME_PERIODO_SOLICITACAO_ALIMENTACAO
         else ["ALIMENTAÇÃO"]
     )
     soma = _calcula_soma_medicao(medicao, campo, categorias)
@@ -524,7 +528,7 @@ def ajusta_layout_tabela(
         "INTERMEDIARIO": formatacao_intermediario,
         "PROGRAMAS E PROJETOS": formatacao_programas,
         "ETEC": formatacao_etec,
-        "DIETA ESPECIAL - TIPO A": formatacao_dieta_a,
+        DIETA_ESPECIAL_TIPO_A: formatacao_dieta_a,
         "DIETA ESPECIAL - TIPO B": formatacao_dieta_b,
     }
 
