@@ -62,6 +62,16 @@ router.register(
     viewsets.LogQuantidadeDietasAutorizadasCEIViewSet,
     basename="Log quantidade dietas autorizadas CEI",
 )
+router.register(
+    "log-quantidade-dietas-autorizadas-recreio-nas-ferias",
+    viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet,
+    basename="Log quantidade dietas autorizadas RecreioNasFerias",
+)
+router.register(
+    "log-quantidade-dietas-autorizadas-recreio-nas-ferias-cei",
+    viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet,
+    basename="Log quantidade dietas autorizadas RecreioNasFerias CEI",
+)
 
 
 urlpatterns = [

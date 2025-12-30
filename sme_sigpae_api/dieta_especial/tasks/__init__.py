@@ -1,5 +1,6 @@
 from sme_sigpae_api.dieta_especial.tasks.logs import (
     gera_logs_dietas_especiais_diariamente,
+    gera_logs_dietas_recreio_ferias_diariamente,
 )
 from sme_sigpae_api.dieta_especial.tasks.processamentos import (
     cancela_dietas_ativas_automaticamente_task,
@@ -29,6 +30,7 @@ from sme_sigpae_api.dieta_especial.tasks.relatorio_terceirizadas_xlsx import (
 
 __all__ = [
     "gera_logs_dietas_especiais_diariamente",
+    "gera_logs_dietas_recreio_ferias_diariamente",
     "cancela_dietas_ativas_automaticamente_task",
     "processa_dietas_especiais_task",
     "gera_pdf_relatorio_historico_dietas_especiais_async",
