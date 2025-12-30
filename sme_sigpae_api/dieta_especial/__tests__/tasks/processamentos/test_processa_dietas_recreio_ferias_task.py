@@ -24,8 +24,6 @@ from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import 
     EmpresaFactory,
 )
 from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
-    ClassificacaoDietaFactory,
-    MotivoAlteracaoUEFactory,
     SolicitacaoDietaEspecialFactory,
 )
 from sme_sigpae_api.dieta_especial.tasks.utils.logs import (
@@ -52,13 +50,21 @@ class TestLogsRecreioNasFerias:
         from sme_sigpae_api.dieta_especial.models import MotivoAlteracaoUE, ClassificacaoDieta
         from sme_sigpae_api.escola.models import TipoGestao
 
-        MotivoAlteracaoUE.objects.filter(
-            nome="Dieta Especial - Recreio nas Férias"
-        ).delete()
-        ClassificacaoDieta.objects.filter(nome__in=["Tipo A", "Tipo B"]).delete()
-        TipoGestao.objects.filter(nome="TERC TOTAL").delete()
+        self.tipo_gestao_terc, _ = TipoGestao.objects.get_or_create(
+            nome="TERC TOTAL"
+        )
 
-        self.tipo_gestao_terc = TipoGestaoFactory.create(nome="TERC TOTAL")
+        self.classificacao_tipo_a, _ = ClassificacaoDieta.objects.get_or_create(
+            nome="Tipo A"
+        )
+        self.classificacao_tipo_b, _ = ClassificacaoDieta.objects.get_or_create(
+            nome="Tipo B"
+        )
+
+        self.motivo_recreio, _ = MotivoAlteracaoUE.objects.get_or_create(
+            nome="Dieta Especial - Recreio nas Férias",
+            defaults={"descricao": "", "ativo": True},
+        )
 
         self.dre = DiretoriaRegionalFactory.create(nome="IPIRANGA", iniciais="IP")
         self.terceirizada = EmpresaFactory.create(nome_fantasia="EMPRESA LTDA")
@@ -70,25 +76,10 @@ class TestLogsRecreioNasFerias:
 
         self.periodo_integral = PeriodoEscolarFactory.create(nome="INTEGRAL")
 
-        self.classificacao_tipo_a = ClassificacaoDietaFactory.create(nome="Tipo A")
-        self.classificacao_tipo_b = ClassificacaoDietaFactory.create(nome="Tipo B")
-
-        self.motivo_recreio = MotivoAlteracaoUEFactory.create(
-            nome="Dieta Especial - Recreio nas Férias"
-        )
-
-        self.faixa_0_a_11m = FaixaEtariaFactory.create(
-            inicio=0, fim=12, ativo=True
-        )
-        self.faixa_1a_a_1a11m = FaixaEtariaFactory.create(
-            inicio=12, fim=24, ativo=True
-        )
-        self.faixa_2a_a_3a11m = FaixaEtariaFactory.create(
-            inicio=24, fim=48, ativo=True
-        )
-        self.faixa_4a_a_5a11m = FaixaEtariaFactory.create(
-            inicio=48, fim=72, ativo=True
-        )
+        self.faixa_0_a_11m = FaixaEtariaFactory.create(inicio=0, fim=12, ativo=True)
+        self.faixa_1a_a_1a11m = FaixaEtariaFactory.create(inicio=12, fim=24, ativo=True)
+        self.faixa_2a_a_3a11m = FaixaEtariaFactory.create(inicio=24, fim=48, ativo=True)
+        self.faixa_4a_a_5a11m = FaixaEtariaFactory.create(inicio=48, fim=72, ativo=True)
 
 
     def setup_escola_emef(self):
