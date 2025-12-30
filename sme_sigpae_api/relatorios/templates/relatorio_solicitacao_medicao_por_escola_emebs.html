@@ -414,7 +414,7 @@
     </div>
   {% endif %}
 
-  {% if primeira_tabela_somatorio_dietas_tipo_a_infantil.body or segunda_tabela_somatorio_dietas_tipo_a_infantil.header or primeira_tabela_somatorio_dietas_tipo_b_infantil.body or segunda_tabela_somatorio_dietas_tipo_b_infantil.header %}
+  {% if primeira_tabela_somatorio_dietas_tipo_a_infantil.body or primeira_tabela_somatorio_dietas_tipo_b_infantil.body %}
     <h1 class="titulo-tabela-somatorio text-center mt-4 mb-4">SOMATÓRIO DE DIETAS OFERTADAS NOS PERÍODOS INFANTIL</h1>
 
     <div class="tabelas-somatorio-dietas mb-2">
@@ -444,7 +444,7 @@
         </div>
       {% endif %}
 
-      {% if segunda_tabela_somatorio_dietas_tipo_a_infantil.header %}
+      {% if segunda_tabela_somatorio_dietas_tipo_a_infantil.body %}
         <div>
           <table class="mr-1">
             <thead class="head-tabelas-somatorio">
@@ -498,7 +498,7 @@
         </div>
       {% endif %}
 
-      {% if segunda_tabela_somatorio_dietas_tipo_b_infantil.header %}
+      {% if segunda_tabela_somatorio_dietas_tipo_b_infantil.body %}
         <div>
           <table>
             <thead class="head-tabelas-somatorio">
@@ -655,7 +655,7 @@
           </div>
         {% endif %}
 
-        {% if segunda_tabela_somatorio_dietas_tipo_a_fundamental.header %}
+        {% if segunda_tabela_somatorio_dietas_tipo_a_fundamental.body %}
           <div>
             <table class="mr-1">
               <thead class="head-tabelas-somatorio">
@@ -711,7 +711,7 @@
           </div>
         {% endif %}
 
-        {% if segunda_tabela_somatorio_dietas_tipo_b_fundamental.header %}
+        {% if segunda_tabela_somatorio_dietas_tipo_b_fundamental.body %}
           <div>
             <table>
               <thead class="head-tabelas-somatorio">

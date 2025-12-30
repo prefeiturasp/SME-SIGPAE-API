@@ -56,6 +56,7 @@ def test_merge_pdf_com_rodape_assinatura_integration(monkeypatch):
 
     class FakeHTML:
         def __init__(self, *args, **kwargs):
+            # Mock não requer inicialização
             pass
 
         @staticmethod

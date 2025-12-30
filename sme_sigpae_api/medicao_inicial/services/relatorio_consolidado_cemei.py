@@ -30,6 +30,8 @@ from sme_sigpae_api.medicao_inicial.services.utils import (
     update_periodos_alimentacoes,
 )
 
+PROGRAMAS_E_PROJETOS = "PROGRAMAS E PROJETOS"
+
 
 def get_alimentacoes_por_periodo(
     solicitacoes: list[SolicitacaoMedicaoInicial],
@@ -224,7 +226,7 @@ def _define_filtro(periodo: str, grupos_medicao: list[str]) -> dict:
     elif "DIETA ESPECIAL" in periodo:
         if "INFANTIL" in periodo:
             filtros["grupo__nome__in"] = grupos_medicao
-        elif "PROGRAMAS E PROJETOS" in periodo:
+        elif PROGRAMAS_E_PROJETOS in periodo:
             filtros["grupo__nome"] = "Programas e Projetos"
         else:
             filtros["periodo_escolar__nome"] = periodo.split(" - ")[-1]
@@ -363,9 +365,9 @@ def ajusta_layout_tabela(
             "formatacao": formatacao_dieta_b,
             "nome": "DIETA ESPECIAL - TIPO B",
         },
-        "PROGRAMAS E PROJETOS": {
+        PROGRAMAS_E_PROJETOS: {
             "formatacao": formatacao_programas,
-            "nome": "PROGRAMAS E PROJETOS",
+            "nome": PROGRAMAS_E_PROJETOS,
         },
         "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS": {
             "formatacao": formatacao_programas,

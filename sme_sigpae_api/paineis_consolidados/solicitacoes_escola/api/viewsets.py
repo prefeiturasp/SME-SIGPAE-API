@@ -457,6 +457,7 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                 ),
                 inclusao,
                 return_dict,
+                inc.escola,
             )
         return return_dict
 
@@ -510,7 +511,13 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
             data__month=mes, data__year=ano, cancelado=False
         ):
             tratar_append_return_dict(
-                inclusao_normal.data.day, mes, ano, periodo, inclusao, return_dict
+                inclusao_normal.data.day,
+                mes,
+                ano,
+                periodo,
+                inclusao,
+                return_dict,
+                inc.escola,
             )
         return return_dict
 
@@ -534,7 +541,9 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                     continue
 
                 if inclusao.tipo_doc == "INC_ALIMENTA_CONTINUA":
-                    tratar_inclusao_continua(mes, ano, periodo, inclusao, return_dict)
+                    tratar_inclusao_continua(
+                        inc.escola, mes, ano, periodo, inclusao, return_dict
+                    )
                 else:
                     return_dict = self.tratar_inclusoes_normais(
                         inc, mes, ano, periodo, inclusao, return_dict

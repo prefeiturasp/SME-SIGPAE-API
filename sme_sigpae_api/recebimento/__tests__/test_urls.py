@@ -170,6 +170,7 @@ def test_url_ficha_recebimento_rascunho_create_update(
         "pregao_chamada_publica",
         "data_recebimento",
         "status",
+        "programa_leve_leite",
     }
     assert response_data["status"] == "Rascunho"
 
@@ -210,6 +211,7 @@ def test_url_ficha_recebimento_rascunho_create_update(
         "pregao_chamada_publica",
         "data_recebimento",
         "status",
+        "programa_leve_leite",
     }
     assert update_data["status"] == "Rascunho"
 
@@ -284,7 +286,7 @@ def test_url_busca_questoes_cronograma_uuid_invalido(
         "/questoes-por-produto/busca-questoes-cronograma/?cronograma_uuid=7c200bb9-032a-4ffe-be6d-b687d06cee2bAa"
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"] == "UUID inválido."
+    assert response.json()["detail"] == ["UUID inválido."]
 
 
 def test_url_busca_questoes_cronograma_sem_questoes_por_produto(
@@ -377,6 +379,7 @@ def test_gerar_pdf_ficha_recebimento(
     ficha_completa = ficha_de_recebimento_factory(
         status=FichaDeRecebimentoWorkflow.ASSINADA
     )
+    ficha_completa.etapa.cronograma.ficha_tecnica.programa = "LEVE_LEITE"
 
     response = client_autenticado_qualidade.get(
         f"/fichas-de-recebimento/{ficha_completa.uuid}/gerar-pdf-ficha/"
@@ -399,6 +402,8 @@ def test_gerar_pdf_ficha_recebimento(
     pdf_text = page.extract_text()
 
     assert "FICHA DE RECEBIMENTO" in pdf_text
+
+    assert "LEVE LEITE - PLL" in pdf_text
 
     assert cronograma.numero in pdf_text
     assert cronograma.contrato.numero in pdf_text
@@ -459,6 +464,7 @@ def test_criar_ficha_saldo_zero(
         "pregao_chamada_publica",
         "data_recebimento",
         "status",
+        "programa_leve_leite",
     }
     assert response_data["status"] == "Assinado CODAE"
 
@@ -515,6 +521,7 @@ def test_atualizar_ficha_saldo_zero(
         "pregao_chamada_publica",
         "data_recebimento",
         "status",
+        "programa_leve_leite",
     }
     assert response_data["status"] == "Assinado CODAE"
 
@@ -569,6 +576,7 @@ def test_criar_ficha_saldo_zero_campos_opcionais(
         "pregao_chamada_publica",
         "data_recebimento",
         "status",
+        "programa_leve_leite",
     }
     assert response_data["status"] == "Assinado CODAE"
 

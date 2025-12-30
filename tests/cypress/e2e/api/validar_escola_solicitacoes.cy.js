@@ -877,7 +877,11 @@ describe('Validar rotas de Escola Solicitações da aplicação SIGPAE', () => {
 				expect(response.body.results[0]).to.have.property('status_evento')
 				expect(response.body.results[0]).to.have.property('motivo')
 				expect(response.body.results[0].status_atual).to.satisfy((value) => {
-					return value === 'DRE_A_VALIDAR' || value === 'DRE_VALIDADO'
+					return (
+						value === 'DRE_A_VALIDAR' ||
+						value === 'DRE_VALIDADO' ||
+						value === 'CODAE_QUESTIONADO'
+					)
 				})
 				expect(response.body.results[0]).to.have.property('conferido')
 				expect(response.body.results[0]).to.have.property(

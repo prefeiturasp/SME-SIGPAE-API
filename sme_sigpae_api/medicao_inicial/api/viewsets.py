@@ -68,12 +68,14 @@ from ..models import (
     Empenho,
     Medicao,
     OcorrenciaMedicaoInicial,
-    ParametrizacaoFinanceira,
     PermissaoLancamentoEspecial,
     RelatorioFinanceiro,
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
     ValorMedicao,
+    ParametrizacaoFinanceira,
+    ParametrizacaoFinanceiraTabela,
+    ParametrizacaoFinanceiraTabelaValor,
 )
 from ..tasks import (
     exporta_relatorio_adesao_para_pdf,
@@ -144,6 +146,9 @@ calendario = BrazilSaoPauloCity()
 
 DEFAULT_PAGE = 1
 DEFAULT_PAGE_SIZE = 10
+
+
+MSG_ERROR_VERIFIQUE_PARAMETROS = "Verifique os parâmetros e tente novamente"
 
 
 class CustomPagination(PageNumberPagination):
@@ -684,7 +689,7 @@ class SolicitacaoMedicaoInicialViewSet(
             )
         except Exception:
             return Response(
-                data={"erro": "Verifique os parâmetros e tente novamente"},
+                data={"erro": MSG_ERROR_VERIFIQUE_PARAMETROS},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -1968,7 +1973,7 @@ class RelatoriosViewSet(ViewSet):
             )
         except Exception:
             return Response(
-                data={"detail": "Verifique os parâmetros e tente novamente"},
+                data={"detail": MSG_ERROR_VERIFIQUE_PARAMETROS},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -2007,7 +2012,7 @@ class RelatoriosViewSet(ViewSet):
             )
         except Exception:
             return Response(
-                data={"detail": "Verifique os parâmetros e tente novamente"},
+                data={"detail": MSG_ERROR_VERIFIQUE_PARAMETROS},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -2045,7 +2050,7 @@ class RelatoriosViewSet(ViewSet):
             )
         except Exception:
             return Response(
-                data={"detail": "Verifique os parâmetros e tente novamente"},
+                data={"detail": MSG_ERROR_VERIFIQUE_PARAMETROS},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -2090,6 +2095,55 @@ class ParametrizacaoFinanceiraViewSet(ModelViewSet):
         )
         serializer = DadosParametrizacaoFinanceiraSerializer(parametrizacao)
         return Response(serializer.data)
+
+    @action(
+        detail=False,
+        methods=["POST"],
+        url_path="clonar-encerrar/(?P<uuid_parametrizacao_financeira>[^/.]+)",
+        permission_classes=[UsuarioMedicao],
+    )
+    def clonar_encerrar_parametrizacao_financeira(self, request, uuid_parametrizacao_financeira):
+        parametrizacao_origem = get_object_or_404(
+            ParametrizacaoFinanceira,
+            uuid=uuid_parametrizacao_financeira,
+        )
+
+        with transaction.atomic():
+            parametrizacao_origem.data_final = datetime.date.today() - datetime.timedelta(days=1)
+            parametrizacao_origem.save()
+
+            nova_parametrizacao = ParametrizacaoFinanceira.objects.create(
+                edital=parametrizacao_origem.edital,
+                lote=parametrizacao_origem.lote,
+                grupo_unidade_escolar=parametrizacao_origem.grupo_unidade_escolar,
+                data_inicial=datetime.date.today(),
+                data_final=None,
+                legenda=parametrizacao_origem.legenda,
+            )
+
+            for tabela in parametrizacao_origem.tabelas.all():
+                nova_tabela = ParametrizacaoFinanceiraTabela.objects.create(
+                    nome=tabela.nome,
+                    periodo_escolar=tabela.periodo_escolar,
+                    parametrizacao_financeira=nova_parametrizacao,
+                )
+
+                valores = [
+                    ParametrizacaoFinanceiraTabelaValor(
+                        tabela=nova_tabela,
+                        nome_campo=valor.nome_campo,
+                        faixa_etaria=valor.faixa_etaria,
+                        tipo_alimentacao=valor.tipo_alimentacao,
+                        tipo_valor=valor.tipo_valor,
+                        valor=valor.valor,
+                    )
+                    for valor in tabela.valores.all()
+                ]
+
+                ParametrizacaoFinanceiraTabelaValor.objects.bulk_create(valores)
+
+        serializer = DadosParametrizacaoFinanceiraSerializer(nova_parametrizacao)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class RelatorioFinanceiroViewSet(ModelViewSet):

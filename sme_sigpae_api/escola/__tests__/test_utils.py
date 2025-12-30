@@ -175,7 +175,9 @@ def test_registra_quantidade_matriculados(dicionario_de_alunos_matriculados):
     assert AlunosMatriculadosPeriodoEscola.objects.count() == 3
     assert LogAlunosMatriculadosPeriodoEscola.objects.count() == 0
 
-    registra_quantidade_matriculados(dicionario_de_alunos_matriculados, tipo_turma)
+    registra_quantidade_matriculados(
+        dicionario_de_alunos_matriculados, datetime.date(2025, 2, 5), tipo_turma
+    )
     assert AlunosMatriculadosPeriodoEscola.objects.count() == 9
     assert LogAlunosMatriculadosPeriodoEscola.objects.count() == 8
 

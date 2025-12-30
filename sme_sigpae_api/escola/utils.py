@@ -94,7 +94,7 @@ def update_datetime_LogAlunosMatriculadosPeriodoEscola():
         log.save()
 
 
-def registra_quantidade_matriculados(matriculas, tipo_turma):  # noqa C901
+def registra_quantidade_matriculados(matriculas, ontem, tipo_turma):  # noqa C901
     import ast
 
     import pandas as pd
@@ -112,43 +112,41 @@ def registra_quantidade_matriculados(matriculas, tipo_turma):  # noqa C901
     )
     for matricula in matriculas:
         escola = Escola.objects.filter(codigo_eol=matricula["codigoEolEscola"]).first()
-        datas = datas_para_gerar_logs(escola)
-        for data_ref in datas:
-            turnos = ast.literal_eval(matricula["turnos"])
-            periodos = []
-            for turno_resp in turnos:
-                turno = remove_acentos(turno_resp["turno"])
-                periodo = PeriodoEscolar.objects.filter(nome=turno.upper()).first()
-                if not periodo:
-                    logger.debug(
-                        f'Periodo {turno_resp["turno"]} não encontrado na tabela de Períodos'
-                    )
-                    continue
-                periodos.append(periodo)
-                if tipo_turma == "REGULAR":
-                    create_update_objeto_escola_periodo_escolar(
-                        escola, periodo, turno_resp["quantidade"]
-                    )
-                matricula_sigpae = AlunosMatriculadosPeriodoEscola.objects.filter(
-                    tipo_turma=tipo_turma, escola=escola, periodo_escolar=periodo
-                ).first()
-                if matricula_sigpae:
-                    matricula_sigpae.quantidade_alunos = turno_resp["quantidade"]
-                    objs.append(matricula_sigpae)
-                else:
-                    AlunosMatriculadosPeriodoEscola.criar(
-                        escola=escola,
-                        periodo_escolar=periodo,
-                        quantidade_alunos=turno_resp["quantidade"],
-                        tipo_turma=tipo_turma,
-                    )
-                LogAlunosMatriculadosPeriodoEscola.criar(
+        turnos = ast.literal_eval(matricula["turnos"])
+        periodos = []
+        for turno_resp in turnos:
+            turno = remove_acentos(turno_resp["turno"])
+            periodo = PeriodoEscolar.objects.filter(nome=turno.upper()).first()
+            if not periodo:
+                logger.debug(
+                    f'Periodo {turno_resp["turno"]} não encontrado na tabela de Períodos'
+                )
+                continue
+            periodos.append(periodo)
+            if tipo_turma == "REGULAR":
+                create_update_objeto_escola_periodo_escolar(
+                    escola, periodo, turno_resp["quantidade"]
+                )
+            matricula_sigpae = AlunosMatriculadosPeriodoEscola.objects.filter(
+                tipo_turma=tipo_turma, escola=escola, periodo_escolar=periodo
+            ).first()
+            if matricula_sigpae:
+                matricula_sigpae.quantidade_alunos = turno_resp["quantidade"]
+                objs.append(matricula_sigpae)
+            else:
+                AlunosMatriculadosPeriodoEscola.criar(
                     escola=escola,
                     periodo_escolar=periodo,
                     quantidade_alunos=turno_resp["quantidade"],
-                    data=data_ref,
                     tipo_turma=tipo_turma,
                 )
+            LogAlunosMatriculadosPeriodoEscola.criar(
+                escola=escola,
+                periodo_escolar=periodo,
+                quantidade_alunos=turno_resp["quantidade"],
+                data=ontem,
+                tipo_turma=tipo_turma,
+            )
 
         AlunosMatriculadosPeriodoEscola.objects.filter(
             tipo_turma=tipo_turma, escola=escola
@@ -211,7 +209,7 @@ def registro_quantidade_alunos_matriculados_por_escola_periodo(tipo_turma):
             )
             logger.debug(resposta)
 
-            registra_quantidade_matriculados(resposta, tipo_turma.name)
+            registra_quantidade_matriculados(resposta, ontem, tipo_turma.name)
         except Exception as e:
             dois_dias_atras = ontem - timedelta(days=1)
             duplica_dia_anterior(dre, dois_dias_atras, ontem, tipo_turma.name)
@@ -837,3 +835,32 @@ def datas_para_gerar_logs(escola, hoje: date | None = None) -> list[date]:
         datas.append(hoje)
 
     return datas
+
+
+def duplica_logs_ultimo_dia_letivo(tipo_turma):
+    from sme_sigpae_api.escola.models import Escola, LogAlunosMatriculadosPeriodoEscola
+
+    DEZEMBRO = 12
+
+    hoje = date.today()
+    if hoje.month != DEZEMBRO:
+        return
+
+    ontem = date.today() - timedelta(days=1)
+
+    escolas = Escola.objects.all()
+    for escola in escolas:
+        if hoje != escola.ultimo_dia_letivo:
+            continue
+        logs_da_escola = escola.logs_alunos_matriculados_por_periodo.filter(
+            criado_em__date=ontem, tipo_turma=tipo_turma.name
+        )
+        for log in logs_da_escola:
+            LogAlunosMatriculadosPeriodoEscola.objects.create(
+                escola=escola,
+                tipo_turma=log.tipo_turma,
+                periodo_escolar=log.periodo_escolar,
+                quantidade_alunos=log.quantidade_alunos,
+                cei_ou_emei=log.cei_ou_emei,
+                infantil_ou_fundamental=log.infantil_ou_fundamental,
+            )

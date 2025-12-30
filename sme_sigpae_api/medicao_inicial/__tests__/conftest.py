@@ -1750,6 +1750,23 @@ def solicitacao_medicao_inicial_teste_salvar_logs_cei(
     baker.make("Aluno", serie="2", escola=escola_cei, periodo_escolar=periodo_tarde)
 
     for periodo in [periodo_integral, periodo_parcial, periodo_tarde]:
+        if periodo != periodo_parcial:
+            baker.make(
+                "AlunosMatriculadosPeriodoEscola",
+                periodo_escolar=periodo,
+                quantidade_alunos=100,
+                escola=escola_cei,
+                tipo_turma="REGULAR",
+            )
+            log = baker.make(
+                "LogAlunosMatriculadosPeriodoEscola",
+                periodo_escolar=periodo,
+                quantidade_alunos=100,
+                escola=escola_cei,
+                tipo_turma="REGULAR",
+            )
+            log.criado_em = datetime.date(2023, 10, 1)
+            log.save()
         for dia in range(1, 32):
             log = baker.make(
                 "LogAlunosMatriculadosFaixaEtariaDia",
@@ -4901,4 +4918,41 @@ def vinculo_alimentacao_integral(escola, periodo_escolar_integral):
         tipo_unidade_escolar=escola.tipo_unidade,
         periodo_escolar=periodo_escolar_integral,
         ativo=True,
+    )
+
+
+@pytest.fixture
+def recreio_nas_ferias():
+    return baker.make(
+        "RecreioNasFerias",
+        titulo="Recreio nas Férias - DEZ/2025",
+        data_inicio=datetime.date(2025, 12, 10),
+        data_fim=datetime.date(2025, 12, 30),
+    )
+
+
+@pytest.fixture
+def solicitacao_recreio_nas_ferias(escola, recreio_nas_ferias):
+    return baker.make(
+        SolicitacaoMedicaoInicial,
+        mes="12",
+        ano="2025",
+        escola=escola,
+        recreio_nas_ferias=recreio_nas_ferias,
+    )
+
+
+@pytest.fixture
+def solicitacao_recreio_incorreto(escola):
+    return baker.make(
+        SolicitacaoMedicaoInicial,
+        mes="12",
+        ano="2025",
+        escola=escola,
+        recreio_nas_ferias=baker.make(
+            "RecreioNasFerias",
+            titulo="Recreio nas Férias - DEZ/2025",
+            data_inicio=datetime.date(2025, 12, 10),
+            data_fim=datetime.date(2026, 1, 30),
+        ),
     )
