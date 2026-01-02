@@ -37,6 +37,8 @@ from ..models import (
     ClassificacaoDieta,
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+    LogQuantidadeDietasAutorizadasRecreioNasFerias,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
     MotivoAlteracaoUE,
     MotivoNegacao,
     ProtocoloPadraoDietaEspecial,
@@ -55,6 +57,8 @@ from .validators import (
     atributos_string_nao_vazios,
     deve_ter_atributos,
 )
+
+CLASSIFICACAO_NOME_SOURCE = "classificacao.nome"
 
 
 class AlergiaIntoleranciaSerializer(serializers.ModelSerializer):
@@ -846,7 +850,7 @@ class LogQuantidadeDietasAutorizadasSerializer(serializers.ModelSerializer):
     escola = serializers.SlugRelatedField(
         slug_field="uuid", required=False, queryset=Escola.objects.all()
     )
-    classificacao = serializers.CharField(source="classificacao.nome", required=False)
+    classificacao = serializers.CharField(source=CLASSIFICACAO_NOME_SOURCE, required=False)
     dia = serializers.SerializerMethodField()
     periodo_escolar = serializers.SlugRelatedField(
         slug_field="uuid", required=False, queryset=PeriodoEscolar.objects.all()
@@ -865,7 +869,7 @@ class LogQuantidadeDietasAutorizadasCEISerializer(serializers.ModelSerializer):
     escola = serializers.SlugRelatedField(
         slug_field="nome", required=False, queryset=Escola.objects.all()
     )
-    classificacao = serializers.CharField(source="classificacao.nome", required=False)
+    classificacao = serializers.CharField(source=CLASSIFICACAO_NOME_SOURCE, required=False)
     dia = serializers.SerializerMethodField()
     periodo_escolar = serializers.SlugRelatedField(
         slug_field="nome", required=False, queryset=PeriodoEscolar.objects.all()
@@ -879,6 +883,46 @@ class LogQuantidadeDietasAutorizadasCEISerializer(serializers.ModelSerializer):
     class Meta:
         model = LogQuantidadeDietasAutorizadasCEI
         exclude = ("id", "uuid")
+
+
+class LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer(serializers.ModelSerializer):
+    escola_uuid = serializers.UUIDField(source="escola.uuid", read_only=True)
+    escola_nome = serializers.CharField(source="escola.nome", read_only=True)
+    classificacao_nome = serializers.CharField(source=CLASSIFICACAO_NOME_SOURCE, read_only=True)
+
+    class Meta:
+        model = LogQuantidadeDietasAutorizadasRecreioNasFerias
+        fields = (
+            "uuid",
+            "data",
+            "escola_uuid",
+            "escola_nome",
+            "classificacao",
+            "classificacao_nome",
+            "quantidade",
+        )
+
+
+class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer(serializers.ModelSerializer):
+    escola_uuid = serializers.UUIDField(source="escola.uuid", read_only=True)
+    escola_nome = serializers.CharField(source="escola.nome", read_only=True)
+    classificacao_nome = serializers.CharField(source=CLASSIFICACAO_NOME_SOURCE, read_only=True)
+    faixa_etaria_uuid = serializers.UUIDField(source="faixa_etaria.uuid", read_only=True)
+    faixa_etaria_nome = serializers.CharField(source="faixa_etaria.__str__", read_only=True)
+
+    class Meta:
+        model = LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI
+        fields = (
+            "uuid",
+            "data",
+            "escola_uuid",
+            "escola_nome",
+            "classificacao",
+            "classificacao_nome",
+            "faixa_etaria_uuid",
+            "faixa_etaria_nome",
+            "quantidade",
+        )
 
 
 class UnidadeEducacionalSerializer(serializers.Serializer):

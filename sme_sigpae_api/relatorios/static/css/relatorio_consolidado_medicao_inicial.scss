@@ -3,18 +3,18 @@
 @page {
   size: A4 landscape;
   margin: 0;
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
 }
 
 @media print {
   body {
-    font-family: "Roboto";
+    font-family: "Roboto", sans-serif;
     margin: 0;
   }
 }
 
 h1 {
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
   font-style: normal;
   font-weight: 700;
   font-size: 10px;
@@ -59,7 +59,7 @@ h1 {
     border-spacing: 0;
     border: solid 0.5px $preto;
     .custom-filtros {
-      font-family: "Roboto";
+      font-family: "Roboto", sans-serif;
       font-style: normal;
       font-size: 10px;
       line-height: 15px;
@@ -186,7 +186,7 @@ table.tabela-valores {
     padding-right: 0;
     span {
       text-align: justify;
-      font-family: "Roboto";
+      font-family: "Roboto", sans-serif;
       font-style: normal;
       font-weight: 400;
       font-size: 9px;

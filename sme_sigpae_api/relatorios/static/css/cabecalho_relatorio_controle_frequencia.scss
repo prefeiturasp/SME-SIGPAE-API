@@ -3,13 +3,13 @@
 @page {
   size: A4 landscape;
   margin: 0;
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
 }
 
 header {
   padding: 15px 30px;
   background-color: $cinza-claro;
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
 
   #container-logo,
   #container-filtros {

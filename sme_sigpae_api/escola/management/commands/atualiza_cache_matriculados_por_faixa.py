@@ -13,6 +13,7 @@ from ...models import (
     LogAlunosMatriculadosFaixaEtariaDia,
     PeriodoEscolar,
 )
+from ...utils import datas_para_gerar_logs
 
 env = environ.Env()
 
@@ -75,28 +76,29 @@ class Command(BaseCommand):
         return periodo
 
     def _duplica_dia_anterior(self, escola):
-        ontem = date.today() - timedelta(days=1)
-        logs = LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
-            escola=escola, data=ontem - timedelta(days=1)
-        )
-        for log in logs:
-            (
-                log_alunos_matriculados_faixa_dia,
-                _,
-            ) = LogAlunosMatriculadosFaixaEtariaDia.objects.update_or_create(
-                escola=escola,
-                periodo_escolar=log.periodo_escolar,
-                faixa_etaria=log.faixa_etaria,
-                data=ontem,
-                defaults={
-                    "escola": escola,
-                    "periodo_escolar": log.periodo_escolar,
-                    "faixa_etaria": log.faixa_etaria,
-                    "quantidade": log.quantidade,
-                    "data": ontem,
-                },
+        datas = datas_para_gerar_logs(escola)
+        for data_ref in datas:
+            logs = LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
+                escola=escola, data=data_ref - timedelta(days=1)
             )
-            self._cria_log_aluno_por_dia(escola, log_alunos_matriculados_faixa_dia)
+            for log in logs:
+                (
+                    log_alunos_matriculados_faixa_dia,
+                    _,
+                ) = LogAlunosMatriculadosFaixaEtariaDia.objects.update_or_create(
+                    escola=escola,
+                    periodo_escolar=log.periodo_escolar,
+                    faixa_etaria=log.faixa_etaria,
+                    data=data_ref,
+                    defaults={
+                        "escola": escola,
+                        "periodo_escolar": log.periodo_escolar,
+                        "faixa_etaria": log.faixa_etaria,
+                        "quantidade": log.quantidade,
+                        "data": data_ref,
+                    },
+                )
+                self._cria_log_aluno_por_dia(escola, log_alunos_matriculados_faixa_dia)
 
     def periodos_integral_sem_alunos_pariciais(self, periodos, periodo_parcial):
         if "INTEGRAL" in periodos and "PARCIAL" in periodo_parcial:
@@ -160,49 +162,66 @@ class Command(BaseCommand):
                 except Aluno.DoesNotExist as e:
                     self.stdout.write(self.style.ERROR(str(e)))
 
-    def _salvar_matriculados_por_faixa_dia(self, escola):
-        try:
-            msg = f"Salvando matriculados por faixa da escola {escola.codigo_eol} - {escola.nome}"
-            self.stdout.write(self.style.SUCCESS(msg))
-            ontem = date.today() - timedelta(days=1)
-            periodos_faixas_gerais = escola.alunos_por_periodo_e_faixa_etaria()
-            periodos_faixas_parciais = escola.alunos_periodo_parcial_e_faixa_etaria(
-                ontem
-            )
-            periodos_faixas = self.periodos_integral_sem_alunos_pariciais(
-                periodos_faixas_gerais, periodos_faixas_parciais
-            )
-            for periodo, qtd_faixas in periodos_faixas.items():
-                periodo_escolar = PeriodoEscolar.objects.get(
-                    nome=self._formatar_periodo_eol(periodo)
-                )
-                for faixa_etaria, quantidade in qtd_faixas.items():
-                    faixa_obj = FaixaEtaria.objects.get(uuid=faixa_etaria)
-                    pula_gerar_logs, quantidade = self.trata_cemei_ao_gerar_logs(
-                        escola, periodo, faixa_obj, quantidade
-                    )
-                    if pula_gerar_logs:
-                        continue
-                    (
-                        log_alunos_matriculados_faixa_dia,
-                        _,
-                    ) = LogAlunosMatriculadosFaixaEtariaDia.objects.update_or_create(
-                        escola=escola,
-                        periodo_escolar=periodo_escolar,
-                        faixa_etaria=faixa_obj,
-                        data=ontem,
-                        defaults={
-                            "escola": escola,
-                            "periodo_escolar": periodo_escolar,
-                            "faixa_etaria": faixa_obj,
-                            "quantidade": quantidade,
-                            "data": ontem,
-                        },
-                    )
-                    self._cria_log_aluno_por_dia(
-                        escola, log_alunos_matriculados_faixa_dia
-                    )
+    def _obter_periodos_faixas(self, escola, data_ref):
+        periodos_faixas_gerais = escola.alunos_por_periodo_e_faixa_etaria()
+        periodos_faixas_parciais = escola.alunos_periodo_parcial_e_faixa_etaria(
+            data_ref
+        )
+        return self.periodos_integral_sem_alunos_pariciais(
+            periodos_faixas_gerais, periodos_faixas_parciais
+        )
 
-        except Exception as e:
-            self.stdout.write(self.style.ERROR(str(e)))
-            self._duplica_dia_anterior(escola)
+    def _processar_periodo_faixa(
+        self,
+        escola,
+        data_ref,
+        periodo,
+        periodo_escolar,
+        qtd_faixas,
+    ):
+        for faixa_etaria, quantidade in qtd_faixas.items():
+            faixa_obj = FaixaEtaria.objects.get(uuid=faixa_etaria)
+
+            pula_gerar_logs, quantidade = self.trata_cemei_ao_gerar_logs(
+                escola, periodo, faixa_obj, quantidade
+            )
+            if pula_gerar_logs:
+                continue
+
+            log_faixa_dia, _ = (
+                LogAlunosMatriculadosFaixaEtariaDia.objects.update_or_create(
+                    escola=escola,
+                    periodo_escolar=periodo_escolar,
+                    faixa_etaria=faixa_obj,
+                    data=data_ref,
+                    defaults={
+                        "quantidade": quantidade,
+                        "data": data_ref,
+                    },
+                )
+            )
+
+            self._cria_log_aluno_por_dia(escola, log_faixa_dia)
+
+    def _salvar_matriculados_por_faixa_dia(self, escola):
+        msg = (
+            f"Salvando matriculados por faixa da escola "
+            f"{escola.codigo_eol} - {escola.nome}"
+        )
+        self.stdout.write(self.style.SUCCESS(msg))
+
+        datas = datas_para_gerar_logs(escola)
+
+        for data_ref in datas:
+            try:
+                periodos_faixas = self._obter_periodos_faixas(escola, data_ref)
+                for periodo, qtd_faixas in periodos_faixas.items():
+                    periodo_escolar = PeriodoEscolar.objects.get(
+                        nome=self._formatar_periodo_eol(periodo)
+                    )
+                    self._processar_periodo_faixa(
+                        escola, data_ref, periodo, periodo_escolar, qtd_faixas
+                    )
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(str(e)))
+                self._duplica_dia_anterior(escola)

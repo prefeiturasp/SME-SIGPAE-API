@@ -13,6 +13,7 @@
   }
 }
 
+/* NOSONAR */
 @page:first {
   size: A4;
   margin: 7cm 0 12cm 0;
@@ -33,7 +34,7 @@
 }
 
 body {
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
   margin: 0;
   padding: 0;
 }

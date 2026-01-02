@@ -168,15 +168,15 @@ def test_update_datetime_log_alunos_matriculados_periodo_escola(
     )
 
 
+@freeze_time("2025-02-06")
 def test_registra_quantidade_matriculados(dicionario_de_alunos_matriculados):
-    ontem = datetime.date(2025, 2, 5)
     tipo_turma = "REGULAR"
 
     assert AlunosMatriculadosPeriodoEscola.objects.count() == 3
     assert LogAlunosMatriculadosPeriodoEscola.objects.count() == 0
 
     registra_quantidade_matriculados(
-        dicionario_de_alunos_matriculados, ontem, tipo_turma
+        dicionario_de_alunos_matriculados, datetime.date(2025, 2, 5), tipo_turma
     )
     assert AlunosMatriculadosPeriodoEscola.objects.count() == 9
     assert LogAlunosMatriculadosPeriodoEscola.objects.count() == 8

@@ -31,6 +31,9 @@ fake = Faker("pt_BR")
 Faker.seed(420)
 
 
+CLASSIFICACAO_DIETA_NOME_TIPO_A = "Tipo A"
+
+
 @pytest.fixture
 def usuario_admin():
     return baker.make("Usuario", email="admin@admin.com", is_superuser=True)
@@ -618,7 +621,7 @@ def client_autenticado_vinculo_terceirizada_dieta(
         data_inicial=hoje,
         ativo=True,
     )
-    classificacao = baker.make("ClassificacaoDieta", nome="Tipo A")
+    classificacao = baker.make("ClassificacaoDieta", nome=CLASSIFICACAO_DIETA_NOME_TIPO_A)
     protocolo_padrao = baker.make(
         "ProtocoloPadraoDietaEspecial",
         nome_protocolo="ALERGIA - OVO",
@@ -1023,7 +1026,7 @@ def log_alunos_matriculados_integral_cei(escola_cei, periodo_escolar_integral):
 @pytest.fixture
 def classificacoes_dietas():
     return [
-        baker.make(ClassificacaoDieta, nome="Tipo A"),
+        baker.make(ClassificacaoDieta, nome=CLASSIFICACAO_DIETA_NOME_TIPO_A),
         baker.make(ClassificacaoDieta, nome="Tipo A Enteral"),
         baker.make(ClassificacaoDieta, nome="Tipo B"),
     ]
@@ -1443,7 +1446,7 @@ def escolas_tipo_emebs():
             "lote": "Lote EMEBS",
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
-                "Tipo A": {
+                CLASSIFICACAO_DIETA_NOME_TIPO_A: {
                     "infantil": {},
                     "fundamental": {"TARDE": 1},
                     "periodos": {},
@@ -1464,7 +1467,7 @@ def escolas_tipo_emebs():
         "nome_periodo_escolar": "TARDE",
         "tipo_unidade": "EMEBS",
         "lote": "Lote EMEBS",
-        "nome_classificacao": "Tipo A",
+        "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 5,
         "inicio": None,
         "fim": None,
@@ -1477,7 +1480,7 @@ def escolas_tipo_emebs():
         "nome_periodo_escolar": None,
         "tipo_unidade": "EMEBS",
         "lote": "Lote EMEBS",
-        "nome_classificacao": "Tipo A",
+        "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 6,
         "inicio": None,
         "fim": None,
@@ -1493,7 +1496,7 @@ def escolas_tipo_emei_emef_cieja():
             "lote": "LOTE EMEF",
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
-                "Tipo A": {
+                CLASSIFICACAO_DIETA_NOME_TIPO_A: {
                     "infantil": {},
                     "fundamental": {},
                     "periodos": {"TARDE": 1},
@@ -1514,7 +1517,7 @@ def escolas_tipo_emei_emef_cieja():
         "nome_periodo_escolar": "TARDE",
         "tipo_unidade": "EMEF",
         "lote": "LOTE EMEF",
-        "nome_classificacao": "Tipo A",
+        "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 5,
         "inicio": None,
         "fim": None,
@@ -1528,7 +1531,7 @@ def escolas_tipo_emei_emef_cieja():
         "nome_periodo_escolar": None,
         "tipo_unidade": "EMEF",
         "lote": "LOTE EMEF",
-        "nome_classificacao": "Tipo A",
+        "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 6,
         "inicio": None,
         "fim": None,
@@ -1544,7 +1547,7 @@ def escolas_tipos_cmct_ceugestao():
             "lote": "LOTE CEU GESTAO",
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
-                "Tipo A": {
+                CLASSIFICACAO_DIETA_NOME_TIPO_A: {
                     "infantil": {},
                     "fundamental": {},
                     "periodos": {},
@@ -1565,7 +1568,7 @@ def escolas_tipos_cmct_ceugestao():
         "nome_periodo_escolar": None,
         "tipo_unidade": "CEU GESTAO",
         "lote": "LOTE CEU GESTAO",
-        "nome_classificacao": "Tipo A",
+        "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 10,
         "inicio": None,
         "fim": None,
@@ -1579,7 +1582,7 @@ def escolas_tipos_cmct_ceugestao():
         "nome_periodo_escolar": None,
         "tipo_unidade": "CEU GESTAO",
         "lote": "LOTE CEU GESTAO",
-        "nome_classificacao": "Tipo A",
+        "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 5,
         "inicio": None,
         "fim": None,
@@ -1595,7 +1598,7 @@ def escolas_tipo_cei():
             "lote": "LOTE CEI DIRET",
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
-                "Tipo A": {
+                CLASSIFICACAO_DIETA_NOME_TIPO_A: {
                     "infantil": {},
                     "fundamental": {},
                     "periodos": {
@@ -1618,7 +1621,7 @@ def escolas_tipo_cei():
         "nome_periodo_escolar": "INTEGRAL",
         "tipo_unidade": "CEI DIRET",
         "lote": "LOTE CEI DIRET",
-        "nome_classificacao": "Tipo A",
+        "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 3,
         "inicio": 7,
         "fim": 12,
@@ -1631,7 +1634,7 @@ def escolas_tipo_cei():
         "nome_periodo_escolar": "INTEGRAL",
         "tipo_unidade": "CEI DIRET",
         "lote": "LOTE CEI DIRET",
-        "nome_classificacao": "Tipo A",
+        "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 4,
         "inicio": None,
         "fim": None,
@@ -1649,7 +1652,7 @@ def escolas_tipo_cemei_por_faixa_etaria():
             "lote": "LOTE CEMEI",
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
-                "Tipo A": {
+                CLASSIFICACAO_DIETA_NOME_TIPO_A: {
                     "infantil": {},
                     "fundamental": {},
                     "periodos": {},
@@ -1671,7 +1674,7 @@ def escolas_tipo_cemei_por_faixa_etaria():
         "nome_periodo_escolar": "INTEGRAL",
         "tipo_unidade": "CEMEI",
         "lote": "LOTE CEMEI",
-        "nome_classificacao": "Tipo A",
+        "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 3,
         "inicio": 7,
         "fim": 12,
@@ -1684,7 +1687,7 @@ def escolas_tipo_cemei_por_faixa_etaria():
         "nome_periodo_escolar": "INTEGRAL",
         "tipo_unidade": "CEMEI",
         "lote": "LOTE CEMEI",
-        "nome_classificacao": "Tipo A",
+        "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 4,
         "inicio": None,
         "fim": None,
@@ -1702,7 +1705,7 @@ def escolas_tipo_cemei_por_periodo():
             "lote": "LOTE CEMEI",
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
-                "Tipo A": {
+                CLASSIFICACAO_DIETA_NOME_TIPO_A: {
                     "infantil": {},
                     "fundamental": {},
                     "periodos": {},
@@ -1723,7 +1726,7 @@ def escolas_tipo_cemei_por_periodo():
         "nome_periodo_escolar": "INTEGRAL",
         "tipo_unidade": "CEMEI",
         "lote": "LOTE CEMEI",
-        "nome_classificacao": "Tipo A",
+        "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 3,
         "inicio": None,
         "fim": None,
@@ -1737,7 +1740,7 @@ def escolas_tipo_cemei_por_periodo():
         "nome_periodo_escolar": None,
         "tipo_unidade": "CEMEI",
         "lote": "LOTE CEMEI",
-        "nome_classificacao": "Tipo A",
+        "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 4,
         "inicio": None,
         "fim": None,
@@ -1748,7 +1751,7 @@ def escolas_tipo_cemei_por_periodo():
 
 @pytest.fixture
 def classificacao_tipo_a():
-    return baker.make("ClassificacaoDieta", nome="Tipo A")
+    return baker.make("ClassificacaoDieta", nome=CLASSIFICACAO_DIETA_NOME_TIPO_A)
 
 
 @pytest.fixture
@@ -1910,7 +1913,7 @@ def unidade_educacional():
         "lote": "LOTE 07",
         "unidade_educacional": "CEI ANTÔNIO",
         "tipo_unidade": "CEI",
-        "classificacao": "Tipo A",
+        "classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "total": 20,
         "data": "24/08/2023",
         "periodos": [

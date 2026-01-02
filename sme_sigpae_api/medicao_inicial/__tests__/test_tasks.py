@@ -112,9 +112,11 @@ class GeraPDFRelatorioUnificadoMedicoesIniciaisAsyncTest(TestCase):
         mock_atualiza,
         mock_gera_objeto,
     ):
+        from uuid import UUID
+
         mock_gera_objeto.return_value = Mock()
         mock_relatorio_lançamentos.return_value = "arquivo_mock"
-        uuid_mock = "123456-abcd-7890"
+        uuid_mock = [UUID("12345678-abcd-1234-5678-123456789012")]
         tipos_de_unidade = ["EMEF", "CEUEMEF", "EMEFM", "EMEBS", "CIEJA", "CEU Gestão"]
 
         gera_pdf_relatorio_unificado_async(

@@ -808,7 +808,7 @@ def ordenar_alunos_matriculados(queryset):
 
 def cria_arquivo_excel(caminho_arquivo: Path, dados: List[Dict[str, str]]):
     """
-    Cria um arquivo Excel a partir dos dados fornecidos.s
+    Cria um arquivo Excel a partir dos dados fornecidos.
     """
     wb = Workbook()
     ws = wb.active
@@ -816,3 +816,51 @@ def cria_arquivo_excel(caminho_arquivo: Path, dados: List[Dict[str, str]]):
     for row in dados:
         ws.append(list(row.values()))
     wb.save(caminho_arquivo)
+
+
+def datas_para_gerar_logs(escola, hoje: date | None = None) -> list[date]:
+    """
+    Retorna a lista de datas para as quais os logs devem ser gerados.
+    Normalmente: [ontem]
+    No último dia letivo do ano: [ontem, hoje]
+    """
+    DEZEMBRO = 12
+
+    hoje = hoje or date.today()
+    ontem = hoje - timedelta(days=1)
+
+    datas = [ontem]
+
+    if hoje.month == DEZEMBRO and hoje == escola.ultimo_dia_letivo:
+        datas.append(hoje)
+
+    return datas
+
+
+def duplica_logs_ultimo_dia_letivo(tipo_turma):
+    from sme_sigpae_api.escola.models import Escola, LogAlunosMatriculadosPeriodoEscola
+
+    DEZEMBRO = 12
+
+    hoje = date.today()
+    if hoje.month != DEZEMBRO:
+        return
+
+    ontem = date.today() - timedelta(days=1)
+
+    escolas = Escola.objects.all()
+    for escola in escolas:
+        if hoje != escola.ultimo_dia_letivo:
+            continue
+        logs_da_escola = escola.logs_alunos_matriculados_por_periodo.filter(
+            criado_em__date=ontem, tipo_turma=tipo_turma.name
+        )
+        for log in logs_da_escola:
+            LogAlunosMatriculadosPeriodoEscola.objects.create(
+                escola=escola,
+                tipo_turma=log.tipo_turma,
+                periodo_escolar=log.periodo_escolar,
+                quantidade_alunos=log.quantidade_alunos,
+                cei_ou_emei=log.cei_ou_emei,
+                infantil_ou_fundamental=log.infantil_ou_fundamental,
+            )

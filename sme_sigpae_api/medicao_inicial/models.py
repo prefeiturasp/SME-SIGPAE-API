@@ -32,6 +32,8 @@ from ..perfil.models import Usuario
 from ..terceirizada.models import Edital
 from .recreio_nas_ferias.models import RecreioNasFerias
 
+MODEL_PERIODO_ESCOLAR = "escola.PeriodoEscolar"
+
 
 class DiaSobremesaDoce(TemData, TemChaveExterna, CriadoEm, CriadoPor):
     tipo_unidade = models.ForeignKey(TipoUnidadeEscolar, on_delete=models.CASCADE)
@@ -384,7 +386,7 @@ class Medicao(
         "SolicitacaoMedicaoInicial", on_delete=models.CASCADE, related_name="medicoes"
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", blank=True, null=True, on_delete=models.DO_NOTHING
+        MODEL_PERIODO_ESCOLAR, blank=True, null=True, on_delete=models.DO_NOTHING
     )
     grupo = models.ForeignKey(
         GrupoMedicao, blank=True, null=True, on_delete=models.PROTECT
@@ -537,7 +539,7 @@ class PermissaoLancamentoEspecial(
         related_name="permissoes_lancamento_especial",
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", blank=True, null=True, on_delete=models.DO_NOTHING
+        MODEL_PERIODO_ESCOLAR, blank=True, null=True, on_delete=models.DO_NOTHING
     )
     alimentacoes_lancamento_especial = models.ManyToManyField(
         AlimentacaoLancamentoEspecial
@@ -707,7 +709,7 @@ class ParametrizacaoFinanceira(TemChaveExterna, CriadoEm, TemAlteradoEm):
 class ParametrizacaoFinanceiraTabela(TemChaveExterna, CriadoEm, TemAlteradoEm):
     nome = models.CharField()
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar",
+        MODEL_PERIODO_ESCOLAR,
         on_delete=models.PROTECT,
         related_name="parametrizacao_financeira_tabela_periodo_escolar",
         null=True,

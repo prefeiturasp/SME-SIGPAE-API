@@ -13,6 +13,9 @@ from sme_sigpae_api.medicao_inicial.validators import (
 pytestmark = pytest.mark.django_db
 
 
+PROGRAMAS_E_PROJETOS = "Programas e Projetos"
+
+
 @freeze_time("2025-09-01")
 class TestUseCaseFinalizaMedicaoEscolaSemAlunosRegulares:
     def _setup_core(
@@ -108,7 +111,7 @@ class TestUseCaseFinalizaMedicaoEscolaSemAlunosRegulares:
         log_solicitacoes_usuario_factory,
     ):
         self.motivo_inclusao_continua = motivo_inclusao_continua_factory.create(
-            nome="Programas e Projetos"
+            nome=PROGRAMAS_E_PROJETOS
         )
         self.inclusao_continua = inclusao_continua_factory.create(
             escola=self.escola_cmct,
@@ -149,7 +152,7 @@ class TestUseCaseFinalizaMedicaoEscolaSemAlunosRegulares:
         self.medicao_programas_projetos = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao_medicao_inicial,
             periodo_escolar=None,
-            grupo__nome="Programas e Projetos",
+            grupo__nome=PROGRAMAS_E_PROJETOS,
         )
 
     def _setup_logs_medicao_dieta_manha(
@@ -294,6 +297,6 @@ class TestUseCaseFinalizaMedicaoEscolaSemAlunosRegulares:
         assert lista_erros == [
             {
                 "erro": "Restam dias a serem lançados nas alimentações.",
-                "periodo_escolar": "Programas e Projetos",
+                "periodo_escolar": PROGRAMAS_E_PROJETOS,
             }
         ]

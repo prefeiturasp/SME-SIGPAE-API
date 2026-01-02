@@ -457,6 +457,7 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                 ),
                 inclusao,
                 return_dict,
+                inc.escola,
             )
         return return_dict
 
@@ -510,7 +511,13 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
             data__month=mes, data__year=ano, cancelado=False
         ):
             tratar_append_return_dict(
-                inclusao_normal.data.day, mes, ano, periodo, inclusao, return_dict
+                inclusao_normal.data.day,
+                mes,
+                ano,
+                periodo,
+                inclusao,
+                return_dict,
+                inc.escola,
             )
         return return_dict
 
@@ -534,7 +541,9 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                     continue
 
                 if inclusao.tipo_doc == "INC_ALIMENTA_CONTINUA":
-                    tratar_inclusao_continua(mes, ano, periodo, inclusao, return_dict)
+                    tratar_inclusao_continua(
+                        inc.escola, mes, ano, periodo, inclusao, return_dict
+                    )
                 else:
                     return_dict = self.tratar_inclusoes_normais(
                         inc, mes, ano, periodo, inclusao, return_dict
@@ -873,3 +882,28 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         data = {"results": tratar_dias_duplicados(return_dict)}
 
         return Response(data)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="ultimo-dia-com-solicitacao-autorizada-no-mes",
+    )
+    def ultimo_dia_com_solicitacao_autorizada_no_mes(self, request):
+        """Retorna a última data com solicitação autorizada da escola naquele mês e ano"""
+        escola_uuid = request.query_params.get("escola_uuid")
+        mes = request.query_params.get("mes")
+        ano = request.query_params.get("ano")
+
+        primeiro_dia_mes = datetime.date(int(ano), int(mes), 1)
+
+        query_set = SolicitacoesEscola.get_autorizados(escola_uuid=escola_uuid)
+        query_set = SolicitacoesEscola.busca_filtro(query_set, request.query_params)
+        query_set = query_set.filter(
+            Q(data_evento__month=mes, data_evento__year=ano)
+            | Q(data_evento__lt=primeiro_dia_mes, data_evento_2__gte=primeiro_dia_mes)
+        ).order_by("-data_evento")
+
+        response = {"ultima_data": None}
+        if query_set:
+            response["ultima_data"] = query_set.first().data_evento
+        return Response(response, status=status.HTTP_200_OK)

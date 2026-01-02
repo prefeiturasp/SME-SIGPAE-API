@@ -116,10 +116,11 @@ def tratar_periodo_parcial_cemei(nome_periodo_escolar, suspensao):
     return nome_periodo_escolar
 
 
-def tratar_append_return_dict(dia, mes, ano, periodo, inclusao, return_dict):
+def tratar_append_return_dict(dia, mes, ano, periodo, inclusao, return_dict, escola):
     if (
         get_ultimo_dia_mes(datetime.date(int(ano), int(mes), 1)) < datetime.date.today()
         or dia < datetime.date.today().day
+        or (escola.ultimo_dia_letivo and dia == escola.ultimo_dia_letivo.day)
     ):
         if isinstance(periodo, QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI):
             queryset_tipos_alimentacao = (
@@ -157,18 +158,21 @@ def tratar_append_return_dict(dia, mes, ano, periodo, inclusao, return_dict):
 
 
 def criar_dict_dias_inclusoes_continuas(
-    i, data_evento_final_no_mes, periodo, ano, mes, inclusao, return_dict
+    i, data_evento_final_no_mes, periodo, ano, mes, inclusao, return_dict, escola
 ):
     while i <= data_evento_final_no_mes:
         if (
             not periodo.dias_semana
             or (datetime.date(int(ano), int(mes), i).weekday()) in periodo.dias_semana
         ):
-            tratar_append_return_dict(i, mes, ano, periodo, inclusao, return_dict)
+            tratar_append_return_dict(
+                i, mes, ano, periodo, inclusao, return_dict, escola
+            )
         i += 1
 
 
-def tratar_inclusao_continua(mes, ano, periodo, inclusao, return_dict):
+def tratar_inclusao_continua(escola, mes, ano, periodo, inclusao, return_dict):
+    data_evento_final_no_mes = None
     if inclusao.data_evento.month != int(mes) and inclusao.data_evento_2.month == int(
         mes
     ):
@@ -193,8 +197,13 @@ def tratar_inclusao_continua(mes, ano, periodo, inclusao, return_dict):
         # data_inicial e data_final fora do mês analisado
         i = datetime.date(int(ano), int(mes), 1).day
         data_evento_final_no_mes = calendar.monthrange(int(ano), int(mes))[1]
+    if (
+        escola.ultimo_dia_letivo
+        and data_evento_final_no_mes == escola.ultimo_dia_letivo.day
+    ):
+        data_evento_final_no_mes += 1
     criar_dict_dias_inclusoes_continuas(
-        i, data_evento_final_no_mes, periodo, ano, mes, inclusao, return_dict
+        i, data_evento_final_no_mes, periodo, ano, mes, inclusao, return_dict, escola
     )
 
 

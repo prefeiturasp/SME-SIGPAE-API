@@ -74,3 +74,9 @@ class LogQuantidadeDietasEspeciaisFilter(filters.FilterSet):
         field_name="periodo_escolar", lookup_expr="isnull"
     )
     cei_ou_emei = filters.CharFilter(field_name="cei_ou_emei")
+
+
+class LogQuantidadeDietasRecreioNasFeriasFilter(filters.FilterSet):
+    escola_uuid = filters.UUIDFilter(field_name="escola__uuid")
+    mes = filters.CharFilter(field_name="data__month", lookup_expr="exact")
+    ano = filters.CharFilter(field_name="data__year", lookup_expr="iexact")

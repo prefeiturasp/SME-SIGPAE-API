@@ -32,6 +32,7 @@ class LayoutDeEmbalagemSerializer(serializers.ModelSerializer):
     nome_produto = serializers.SerializerMethodField()
     pregao_chamada_publica = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
+    programa = serializers.SerializerMethodField()
 
     def get_numero_ficha_tecnica(self, obj):
         return obj.ficha_tecnica.numero if obj.ficha_tecnica else None
@@ -45,6 +46,9 @@ class LayoutDeEmbalagemSerializer(serializers.ModelSerializer):
     def get_pregao_chamada_publica(self, obj):
         return obj.ficha_tecnica.pregao_chamada_publica if obj.ficha_tecnica else None
 
+    def get_programa(self, obj):
+        return obj.ficha_tecnica.programa if obj.ficha_tecnica else None
+
     class Meta:
         model = LayoutDeEmbalagem
         fields = (
@@ -54,6 +58,7 @@ class LayoutDeEmbalagemSerializer(serializers.ModelSerializer):
             "nome_produto",
             "status",
             "criado_em",
+            "programa",
         )
 
 
@@ -67,6 +72,7 @@ class LayoutDeEmbalagemDetalheSerializer(serializers.ModelSerializer):
     log_mais_recente = serializers.SerializerMethodField()
     primeira_analise = serializers.SerializerMethodField()
     logs = LogSolicitacoesUsuarioSimplesSerializer(many=True)
+    programa = serializers.SerializerMethodField()
 
     def get_numero_ficha_tecnica(self, obj):
         return obj.ficha_tecnica.numero if obj.ficha_tecnica else None
@@ -96,6 +102,9 @@ class LayoutDeEmbalagemDetalheSerializer(serializers.ModelSerializer):
 
     def get_primeira_analise(self, obj):
         return obj.eh_primeira_analise
+
+    def get_programa(self, obj):
+        return obj.ficha_tecnica.programa if obj.ficha_tecnica else None
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -128,6 +137,7 @@ class LayoutDeEmbalagemDetalheSerializer(serializers.ModelSerializer):
             "log_mais_recente",
             "primeira_analise",
             "logs",
+            "programa",
         )
 
 

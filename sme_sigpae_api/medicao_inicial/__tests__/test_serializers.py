@@ -7,6 +7,10 @@ from sme_sigpae_api.dieta_especial.models import (
     ClassificacaoDieta,
     LogQuantidadeDietasAutorizadasCEI,
 )
+from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
+    AlunosMatriculadosPeriodoEscolaFactory,
+    LogAlunosMatriculadosPeriodoEscolaFactory,
+)
 from sme_sigpae_api.medicao_inicial.api.serializers_create import (
     SolicitacaoMedicaoInicialCreateSerializer,
 )
@@ -82,6 +86,20 @@ def test_cria_valores_medicao_cei_com_faixa_etaria(
     classificacao = ClassificacaoDieta.objects.create(
         nome="DIETA ESPECIAL - TIPO B - Apenas fruta"
     )
+    AlunosMatriculadosPeriodoEscolaFactory.create(
+        escola=escola,
+        tipo_turma="REGULAR",
+        periodo_escolar=periodo_escolar,
+        quantidade_alunos=100,
+    )
+    log = LogAlunosMatriculadosPeriodoEscolaFactory.create(
+        escola=escola,
+        tipo_turma="REGULAR",
+        periodo_escolar=periodo_escolar,
+        quantidade_alunos=100,
+    )
+    log.criado_em = date(2022, 12, 1)
+    log.save()
 
     LogQuantidadeDietasAutorizadasCEI.objects.create(
         escola=escola,

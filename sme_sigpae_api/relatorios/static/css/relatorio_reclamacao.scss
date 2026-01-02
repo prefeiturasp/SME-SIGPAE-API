@@ -2,7 +2,7 @@
 
 @page {
   size: A4 landscape;
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
   margin-bottom: 3em;
   @bottom-left {
     background: $cinza-claro;
@@ -22,10 +22,12 @@
 
   }
 }
+/* NOSONAR */
 @page :nth(n+2) {
   margin-top: 2em;
 }
 
+/* NOSONAR */
 @page :nth(1) {
   margin-top: 0;
 }
@@ -101,7 +103,7 @@
 .corpo-relatorio-produto-reclamacao {
 	padding: 0.5em 1em;
     width: calc(100% - 2cm);
-    margin: 0 auto; 
+    margin: 0 auto;
     box-sizing: border-box;
 }
 
