@@ -899,8 +899,8 @@ class Escola(
     def __str__(self):
         return f"{self.codigo_eol}: {self.nome}"
 
-    def matriculados_por_periodo_e_faixa_etaria(self):
-        periodos = self.periodos_escolares().values_list("nome", flat=True)
+    def matriculados_por_periodo_e_faixa_etaria(self, data=datetime.date.today()):
+        periodos = self.periodos_escolares(data.year).values_list("nome", flat=True)
         matriculados_por_faixa = {}
         if self.eh_cei or self.eh_cemei:
             for periodo in periodos:

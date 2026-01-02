@@ -262,11 +262,11 @@ def criar_logs_integral_parcial(
     return logs
 
 
-def faixas_por_periodo_e_faixa_etaria(escola, periodo):
+def faixas_por_periodo_e_faixa_etaria(escola, periodo, ontem):
     try:
-        return escola.matriculados_por_periodo_e_faixa_etaria()[periodo]
+        return escola.matriculados_por_periodo_e_faixa_etaria(data=ontem)[periodo]
     except KeyError:
-        return escola.matriculados_por_periodo_e_faixa_etaria()["INTEGRAL"]
+        return escola.matriculados_por_periodo_e_faixa_etaria(data=ontem)["INTEGRAL"]
 
 
 def condicoes(log, escola, ontem, classificacao, periodo, faixa):
@@ -293,7 +293,7 @@ def existe_log(logs_a_criar, escola, ontem, classificacao, periodo, faixa):
 def append_logs_a_criar_de_quantidade_zero(logs_a_criar, periodos, escola, ontem):
     dict_periodos = PeriodoEscolar.dict_periodos()
     for periodo in periodos:
-        faixas = faixas_por_periodo_e_faixa_etaria(escola, periodo)
+        faixas = faixas_por_periodo_e_faixa_etaria(escola, periodo, ontem)
         for faixa, _ in faixas.items():
             if faixa in [
                 str(f)
@@ -448,7 +448,9 @@ def gera_logs_dietas_recreio_ferias_escolas_comuns(escola, dietas_recreio, data_
     return logs_a_criar
 
 
-def gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei(escola, dietas_recreio, data_log):
+def gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei(
+    escola, dietas_recreio, data_log
+):
     """
     - alunos >= 4 anos OU ciclo != CICLO_ALUNO_CEI
     - alunos não matriculados com idade >= 4 anos.

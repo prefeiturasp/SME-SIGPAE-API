@@ -146,7 +146,7 @@ class TestUseCaseTransferenciaLotes:
             quantidade_alunos=100,
             tipo_turma="REGULAR",
         )
-        assert self.escola_emef.periodos_escolares().count() == 2
+        assert self.escola_emef.periodos_escolares(2025).count() == 2
 
     def _setup_tipos_alimentacao(self):
         self.tipo_alimentacao_refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
