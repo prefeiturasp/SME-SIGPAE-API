@@ -117,6 +117,7 @@ class DocumentoDeRecebimentoSerializer(serializers.ModelSerializer):
     numero_cronograma = serializers.SerializerMethodField()
     pregao_chamada_publica = serializers.SerializerMethodField()
     nome_produto = serializers.SerializerMethodField()
+    programa_leve_leite = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
 
     def get_numero_cronograma(self, obj):
@@ -138,6 +139,12 @@ class DocumentoDeRecebimentoSerializer(serializers.ModelSerializer):
     def get_criado_em(self, obj):
         return obj.criado_em.strftime("%d/%m/%Y")
 
+    def get_programa_leve_leite(self, obj):
+        try:
+            return obj.cronograma.ficha_tecnica.programa == "LEVE_LEITE"
+        except AttributeError:
+            return None
+
     class Meta:
         model = DocumentoDeRecebimento
         fields = (
@@ -146,6 +153,7 @@ class DocumentoDeRecebimentoSerializer(serializers.ModelSerializer):
             "numero_laudo",
             "pregao_chamada_publica",
             "nome_produto",
+            "programa_leve_leite",
             "status",
             "criado_em",
         )
@@ -224,6 +232,7 @@ class DocRecebimentoDetalharSerializer(serializers.ModelSerializer):
     status = serializers.CharField(source="get_status_display")
     tipos_de_documentos = TipoDocumentoDeRecebimentoLookupSerializer(many=True)
     logs = LogSolicitacoesUsuarioSimplesSerializer(many=True)
+    programa_leve_leite = serializers.SerializerMethodField()
 
     def get_numero_cronograma(self, obj):
         return obj.cronograma.numero if obj.cronograma else None
@@ -244,6 +253,12 @@ class DocRecebimentoDetalharSerializer(serializers.ModelSerializer):
     def get_criado_em(self, obj):
         return obj.criado_em.strftime("%d/%m/%Y")
 
+    def get_programa_leve_leite(self, obj):
+        try:
+            return obj.cronograma.ficha_tecnica.programa == "LEVE_LEITE"
+        except AttributeError:
+            return None
+
     class Meta:
         model = DocumentoDeRecebimento
         fields = (
@@ -257,6 +272,7 @@ class DocRecebimentoDetalharSerializer(serializers.ModelSerializer):
             "tipos_de_documentos",
             "correcao_solicitada",
             "logs",
+            "programa_leve_leite",
         )
 
 

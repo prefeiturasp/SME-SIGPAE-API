@@ -82,6 +82,8 @@ from ..models import (
     ClassificacaoDieta,
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+    LogQuantidadeDietasAutorizadasRecreioNasFerias,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
     MotivoAlteracaoUE,
     MotivoNegacao,
     ProtocoloPadraoDietaEspecial,
@@ -110,6 +112,7 @@ from .filters import (
     AlimentoFilter,
     DietaEspecialFilter,
     LogQuantidadeDietasEspeciaisFilter,
+    LogQuantidadeDietasRecreioNasFeriasFilter,
     MotivoNegacaoFilter,
 )
 from .serializers import (
@@ -118,6 +121,8 @@ from .serializers import (
     ClassificacaoDietaSerializer,
     LogQuantidadeDietasAutorizadasCEISerializer,
     LogQuantidadeDietasAutorizadasSerializer,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer,
     MotivoAlteracaoUESerializer,
     MotivoNegacaoSerializer,
     PanoramaSerializer,
@@ -139,6 +144,9 @@ from .serializers_create import (
     ProtocoloPadraoDietaEspecialSerializerCreate,
     SolicitacaoDietaEspecialCreateSerializer,
 )
+
+
+MSG_DRE_NAO_INFORMADA = "(DRE não informada)"
 
 
 class SolicitacaoDietaEspecialViewSet(
@@ -1756,7 +1764,7 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
                     "dre": (
                         escola.diretoria_regional.nome
                         if escola.diretoria_regional
-                        else "(DRE não informada)"
+                        else MSG_DRE_NAO_INFORMADA
                     ),
                     "codigo_eol": escola.codigo_eol,
                 }
@@ -1794,7 +1802,7 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
             escola_uuid_str,
             {
                 "nome": row.get("escola_nome") or "(Escola não encontrada)",
-                "dre": row.get("dre_nome") or "(DRE não informada)",
+                "dre": row.get("dre_nome") or MSG_DRE_NAO_INFORMADA,
                 "codigo_eol": None,
             },
         )
@@ -1821,7 +1829,7 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
             escola_destino_uuid_str,
             {
                 "nome": "(Escola não encontrada)",
-                "dre": "(DRE não informada)",
+                "dre": MSG_DRE_NAO_INFORMADA,
                 "codigo_eol": None,
             },
         )
@@ -1862,7 +1870,7 @@ class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
         copia = copy(aluno)
         copia._escola_contexto_id = None
         copia._escola_nome = "(Sem escola vinculada)"
-        copia._escola_dre = "(DRE não informada)"
+        copia._escola_dre = MSG_DRE_NAO_INFORMADA
         copia._escola_codigo_eol = None
         return copia
 
@@ -2299,4 +2307,24 @@ class LogQuantidadeDietasAutorizadasCEIViewSet(mixins.ListModelMixin, GenericVie
     )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = LogQuantidadeDietasEspeciaisFilter
+    pagination_class = None
+
+
+class LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet(
+    mixins.ListModelMixin, GenericViewSet
+):
+    serializer_class = LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer
+    queryset = LogQuantidadeDietasAutorizadasRecreioNasFerias.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = LogQuantidadeDietasRecreioNasFeriasFilter
+    pagination_class = None
+
+
+class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet(
+    mixins.ListModelMixin, GenericViewSet
+):
+    serializer_class = LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer
+    queryset = LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = LogQuantidadeDietasRecreioNasFeriasFilter
     pagination_class = None

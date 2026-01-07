@@ -32,19 +32,14 @@ def chave_ordenacao_unidade(obj) -> tuple:
     """
     escola_obj = getattr(obj, "escola", None)
 
-    if escola_obj and hasattr(escola_obj, "nome"):
-        escola_nome = escola_obj.nome or ""
-    else:
-        escola_nome = ""
+    escola_nome = getattr(escola_obj, "nome", "") if escola_obj else ""
+    escola_nome = escola_nome or ""
 
     tipo_str = ""
     if escola_obj:
         tipo_unidade_obj = getattr(escola_obj, "tipo_unidade", None)
         if tipo_unidade_obj is not None:
-            if hasattr(tipo_unidade_obj, "iniciais"):
-                tipo_str = tipo_unidade_obj.iniciais or ""
-            else:
-                tipo_str = str(tipo_unidade_obj) if tipo_unidade_obj is not None else ""
+            tipo_str = getattr(tipo_unidade_obj, "iniciais", None) or str(tipo_unidade_obj)
     tipo_str = (tipo_str or "").strip()
 
     grupo, ordem = prioridade_por_tipo(tipo_str)

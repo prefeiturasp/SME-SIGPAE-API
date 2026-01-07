@@ -11,6 +11,8 @@ from sme_sigpae_api.dieta_especial.models import (
     ClassificacaoDieta,
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+    LogQuantidadeDietasAutorizadasRecreioNasFerias,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
 )
 from sme_sigpae_api.escola.models import FaixaEtaria, PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.models import SolicitacaoMedicaoInicial
@@ -260,11 +262,11 @@ def criar_logs_integral_parcial(
     return logs
 
 
-def faixas_por_periodo_e_faixa_etaria(escola, periodo):
+def faixas_por_periodo_e_faixa_etaria(escola, periodo, ontem):
     try:
-        return escola.matriculados_por_periodo_e_faixa_etaria()[periodo]
+        return escola.matriculados_por_periodo_e_faixa_etaria(data=ontem)[periodo]
     except KeyError:
-        return escola.matriculados_por_periodo_e_faixa_etaria()["INTEGRAL"]
+        return escola.matriculados_por_periodo_e_faixa_etaria(data=ontem)["INTEGRAL"]
 
 
 def condicoes(log, escola, ontem, classificacao, periodo, faixa):
@@ -291,7 +293,7 @@ def existe_log(logs_a_criar, escola, ontem, classificacao, periodo, faixa):
 def append_logs_a_criar_de_quantidade_zero(logs_a_criar, periodos, escola, ontem):
     dict_periodos = PeriodoEscolar.dict_periodos()
     for periodo in periodos:
-        faixas = faixas_por_periodo_e_faixa_etaria(escola, periodo)
+        faixas = faixas_por_periodo_e_faixa_etaria(escola, periodo, ontem)
         for faixa, _ in faixas.items():
             if faixa in [
                 str(f)
@@ -423,3 +425,206 @@ def gera_logs_dietas_escolas_cei(escola, dietas_autorizadas, ontem):
         return logs_a_criar_nao_existe_solicitacao_medicao(
             escola, dietas_autorizadas, ontem
         )
+
+
+def gera_logs_dietas_recreio_ferias_escolas_comuns(escola, dietas_recreio, data_log):
+    logs_a_criar = []
+
+    for classificacao in ClassificacaoDieta.objects.all():
+        dietas_filtradas = dietas_recreio.filter(
+            classificacao=classificacao,
+            escola_destino=escola,
+        )
+
+        quantidade = dietas_filtradas.count()
+        log = LogQuantidadeDietasAutorizadasRecreioNasFerias(
+            quantidade=quantidade,
+            escola=escola,
+            data=data_log,
+            classificacao=classificacao,
+        )
+        logs_a_criar.append(log)
+
+    return logs_a_criar
+
+
+def gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei(
+    escola, dietas_recreio, data_log
+):
+    """
+    - alunos >= 4 anos OU ciclo != CICLO_ALUNO_CEI
+    - alunos não matriculados com idade >= 4 anos.
+    """
+    logs_a_criar = []
+
+    for classificacao in ClassificacaoDieta.objects.all():
+        dietas_filtradas = dietas_recreio.filter(
+            classificacao=classificacao,
+            escola_destino=escola,
+        )
+
+        cont = _contar_dietas_sem_faixa(dietas_filtradas)
+
+        log = LogQuantidadeDietasAutorizadasRecreioNasFerias(
+            quantidade=cont,
+            escola=escola,
+            data=data_log,
+            classificacao=classificacao,
+        )
+        logs_a_criar.append(log)
+
+    return logs_a_criar
+
+
+def _contar_dietas_sem_faixa(dietas_filtradas):
+    """Conta dietas que atendem aos critérios sem faixa etária."""
+    cont = 0
+    for dieta in dietas_filtradas:
+        aluno = getattr(dieta, "aluno", None)
+        if not aluno:
+            continue
+
+        if _deve_contar_aluno_sem_faixa(dieta, aluno):
+            cont += 1
+
+    return cont
+
+
+def _deve_contar_aluno_sem_faixa(dieta, aluno):
+    """Verifica se aluno deve ser contado (>= 4 anos ou ciclo != CEI)."""
+    if dieta.tipo_solicitacao == "ALUNO_NAO_MATRICULADO":
+        return _aluno_nao_matriculado_tem_4_anos_ou_mais(aluno)
+
+    return aluno.ciclo != aluno.CICLO_ALUNO_CEI
+
+
+def _aluno_nao_matriculado_tem_4_anos_ou_mais(aluno):
+    """Verifica se aluno não matriculado tem 4 anos ou mais."""
+    if not aluno.data_nascimento:
+        return False
+
+    idade_meses = quantidade_meses(datetime.date.today(), aluno.data_nascimento)
+    return idade_meses >= 48  # 4 anos * 12 meses
+
+
+def _faixa_etaria_para_aluno(aluno):
+    if not aluno.data_nascimento:
+        return None
+    meses = quantidade_meses(datetime.date.today(), aluno.data_nascimento)
+    ultima_faixa = FaixaEtaria.objects.filter(ativo=True).order_by("fim").last()
+    if not ultima_faixa:
+        return None
+    if meses >= ultima_faixa.fim:
+        return ultima_faixa
+    return FaixaEtaria.objects.filter(
+        ativo=True, inicio__lte=meses, fim__gt=meses
+    ).first()
+
+
+def gera_logs_dietas_recreio_ferias_escolas_cei(escola, dietas_recreio, data_log):
+    """
+    - alunos NÃO MATRICULADOS com idade <= 3a11m entram
+    - alunos MATRICULADOS ciclo 1 entram
+    """
+    logs_a_criar = []
+
+    for classificacao in ClassificacaoDieta.objects.all():
+        dietas_filtradas = dietas_recreio.filter(
+            classificacao=classificacao,
+            escola_destino=escola,
+        )
+
+        contador_faixas = _contar_dietas_por_faixa(escola, dietas_filtradas)
+
+        logs_a_criar.extend(
+            _criar_logs_com_quantidade(escola, data_log, classificacao, contador_faixas)
+        )
+
+        logs_a_criar.extend(
+            _criar_logs_faixas_sem_alunos(escola, data_log, classificacao, logs_a_criar)
+        )
+
+    return logs_a_criar
+
+
+def _contar_dietas_por_faixa(escola, dietas_filtradas):
+    contador_faixas = Counter()
+
+    for dieta in dietas_filtradas:
+        aluno = getattr(dieta, "aluno", None)
+        if not aluno:
+            continue
+
+        faixa = _obter_faixa_etaria_dieta(escola, dieta, aluno)
+        if faixa:
+            contador_faixas[faixa] += 1
+
+    return contador_faixas
+
+
+def _obter_faixa_etaria_dieta(escola, dieta, aluno):
+    """Obtém faixa etária do aluno se ele atender aos critérios."""
+    if escola.eh_cemei:
+        return _obter_faixa_cemei(dieta, aluno)
+
+    return _faixa_etaria_para_aluno(aluno)
+
+
+def _obter_faixa_cemei(dieta, aluno):
+    """Obtém faixa etária para alunos de CEMEI."""
+    if dieta.tipo_solicitacao == "ALUNO_NAO_MATRICULADO":
+        return _obter_faixa_nao_matriculado_cemei(aluno)
+
+    if aluno.ciclo == aluno.CICLO_ALUNO_CEI:
+        return _faixa_etaria_para_aluno(aluno)
+
+    return None
+
+
+def _obter_faixa_nao_matriculado_cemei(aluno):
+    """Obtém faixa para aluno não matriculado em CEMEI (até 3a11m)."""
+    if not aluno.data_nascimento:
+        return None
+
+    meses = quantidade_meses(datetime.date.today(), aluno.data_nascimento)
+    if meses <= 47:  # até 3a11m
+        return _faixa_etaria_para_aluno(aluno)
+
+    return None
+
+
+def _criar_logs_com_quantidade(escola, data_log, classificacao, contador_faixas):
+    logs = []
+    for faixa, qtd in contador_faixas.items():
+        log = LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI(
+            quantidade=qtd,
+            escola=escola,
+            data=data_log,
+            classificacao=classificacao,
+            faixa_etaria=faixa,
+        )
+        logs.append(log)
+    return logs
+
+
+def _criar_logs_faixas_sem_alunos(escola, data_log, classificacao, logs_existentes):
+    faixas_atuais = set(FaixaEtaria.objects.filter(ativo=True))
+    faixas_com_log = {
+        log.faixa_etaria
+        for log in logs_existentes
+        if log.escola == escola and log.classificacao == classificacao
+    }
+    faixas_sem_log = faixas_atuais - faixas_com_log
+
+    logs = []
+    for faixa in faixas_sem_log:
+        log_zero = LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI(
+            quantidade=0,
+            escola=escola,
+            data=data_log,
+            classificacao=classificacao,
+            faixa_etaria=faixa,
+        )
+        logs.append(log_zero)
+
+    return logs

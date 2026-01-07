@@ -5,17 +5,16 @@
 
   .titulo-relatorio {
     text-align: center;
-    font-family: 'Roboto';
+    font-family: 'Roboto', sans-serif;
     font-style: normal;
     font-weight: 600;
     font-size: 20px;
     line-height: 23px;
-    text-align: center;
     color: #000000;
   }
 
   .status {
-    font-family: 'Roboto';
+    font-family: 'Roboto', sans-serif;
     font-style: normal;
     font-size: 15px;
     color: #000000;
@@ -29,7 +28,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-family: 'Roboto';
+    font-family: 'Roboto', sans-serif;
     font-style: normal;
     font-size: 15px;
     color: #000000;
@@ -48,7 +47,7 @@
 
   .resultado {
     margin-top: 3%;
-    font-family: 'Roboto';
+    font-family: 'Roboto', sans-serif;
     font-style: normal;
     font-size: 12px;
     font-weight: normal;

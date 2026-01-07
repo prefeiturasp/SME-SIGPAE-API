@@ -238,7 +238,7 @@ def test_gera_logs_dietas_especiais_diariamente_com_logs_gerados(
     monkeypatch.setattr(
         Escola,
         "matriculados_por_periodo_e_faixa_etaria",
-        lambda p1: {
+        lambda *args, **kwargs: {
             "MANHA": Counter({"uuid_fake": 125}),
             "TARDE": Counter({"uuid_fake": 154}),
             "INTEGRAL": Counter(

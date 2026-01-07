@@ -17,14 +17,17 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serialize
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     CronogramaFichaDeRecebimentoSerializer,
+    CronogramaSimplesSerializer,
     EtapasDoCronogramaCalendarioSerializer,
     EtapasDoCronogramaFichaDeRecebimentoSerializer,
     EtapasDoCronogramaSerializer,
     PainelCronogramaSerializer,
+    SolicitacaoAlteracaoCronogramaSerializer,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoDetalharSerializer,
+    DocumentoDeRecebimentoSerializer,
     PainelDocumentoDeRecebimentoSerializer,
 )
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
@@ -230,6 +233,20 @@ def test_doc_recebimento_serializer_qualquer_modalidade(cronograma_qualquer):
         == cronograma_qualquer.contrato.numero_chamada_publica
     )
     assert serializer.data["pregao_chamada_publica"] == "CP-2022-02"
+
+
+def test_cronograma_ficha_recebimento_serializer():
+    ficha_tecnica = baker.make(
+        "FichaTecnicaDoProduto",
+        material_embalagem_primaria="Vidro temperado",
+        sistema_vedacao_embalagem_secundaria="Lacre termossoldado",
+    )
+    ficha_tecnica.programa = "LEVE_LEITE"
+    cronograma = baker.make("Cronograma", ficha_tecnica=ficha_tecnica)
+
+    serializer = CronogramaFichaDeRecebimentoSerializer(cronograma)
+
+    assert serializer.data["programa_leve_leite"] is True
 
 
 def test_cronograma_ficha_recebimento_serializer_embalagens():
@@ -453,3 +470,104 @@ def test_ficha_tecnica_detalhar_serializer_campo_programa(ficha_tecnica_factory)
     assert "programa_display" in serializer.data
     assert serializer.data["programa"] == FichaTecnicaDoProduto.LEVE_LEITE
     assert serializer.data["programa_display"] == "Leve Leite"
+
+
+def test_documento_recebimento_serializer(documento_recebimento_leve_leite):
+    """Testa se o DocumentoDeRecebimentoSerializer retorna todos os campos corretamente."""
+    doc = documento_recebimento_leve_leite
+    serializer = DocumentoDeRecebimentoSerializer(doc)
+    data = serializer.data
+
+    assert data["uuid"] == str(doc.uuid)
+    assert data["numero_cronograma"] == doc.cronograma.numero
+    assert data["numero_laudo"] == doc.numero_laudo
+    assert (
+        data["pregao_chamada_publica"] == doc.cronograma.contrato.pregao_chamada_publica
+    )
+    assert data["nome_produto"] == doc.cronograma.ficha_tecnica.produto.nome
+    assert data["programa_leve_leite"] is True
+    assert data["status"] == doc.get_status_display()
+    assert data["criado_em"] == doc.criado_em.strftime("%d/%m/%Y")
+
+    # Teste com programa diferente
+    doc.cronograma.ficha_tecnica.programa = "ALIMENTACAO_ESCOLAR"
+    doc.cronograma.ficha_tecnica.save()
+    serializer = DocumentoDeRecebimentoSerializer(doc)
+    assert serializer.data["programa_leve_leite"] is False
+
+
+def test_cronograma_simples_serializer(cronograma, contrato):
+    """Testa se o CronogramaSimplesSerializer retorna todos os campos corretamente."""
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
+        FichaTecnicaDoProduto,
+    )
+
+    ficha = baker.make(
+        "FichaTecnicaDoProduto", programa=FichaTecnicaDoProduto.LEVE_LEITE
+    )
+    cronograma.ficha_tecnica = ficha
+    cronograma.contrato = contrato
+    cronograma.save()
+
+    serializer = CronogramaSimplesSerializer(cronograma)
+    data = serializer.data
+
+    assert data["uuid"] == str(cronograma.uuid)
+    assert data["numero"] == cronograma.numero
+    assert data["pregao_chamada_publica"] == contrato.pregao_chamada_publica
+    assert data["nome_produto"] == ficha.produto.nome
+    assert data["programa_leve_leite"] is True
+
+    # Teste com programa diferente
+    ficha.programa = "ALIMENTACAO_ESCOLAR"
+    ficha.save()
+    serializer = CronogramaSimplesSerializer(cronograma)
+    assert serializer.data["programa_leve_leite"] is False
+
+
+def test_solicitacao_alteracao_cronograma_serializer_leve_leite(
+    cronograma_leve_leite, cronograma_assinado_perfil_dilog
+):
+    solicitacao = baker.make(
+        "SolicitacaoAlteracaoCronograma",
+        cronograma=cronograma_leve_leite,
+        status="EM_ANALISE",
+    )
+
+    serializer = SolicitacaoAlteracaoCronogramaSerializer(solicitacao)
+    data = serializer.data
+
+    assert "programa_leve_leite" in data
+    assert data["programa_leve_leite"] is True
+
+    assert "uuid" in data
+    assert data["uuid"] == str(solicitacao.uuid)
+
+    assert "numero_solicitacao" in data
+
+    assert "fornecedor" in data
+    assert data["fornecedor"] == str(cronograma_leve_leite.empresa)
+
+    assert "cronograma" in data
+    assert data["cronograma"] == cronograma_leve_leite.numero
+
+    assert "status" in data
+    assert data["status"] == solicitacao.get_status_display()
+
+    assert "criado_em" in data
+
+    if cronograma_assinado_perfil_dilog.ficha_tecnica:
+        cronograma_assinado_perfil_dilog.ficha_tecnica.programa = "ALIMENTACAO_ESCOLAR"
+        cronograma_assinado_perfil_dilog.ficha_tecnica.save()
+
+    solicitacao2 = baker.make(
+        "SolicitacaoAlteracaoCronograma",
+        cronograma=cronograma_assinado_perfil_dilog,
+        status="EM_ANALISE",
+    )
+
+    serializer2 = SolicitacaoAlteracaoCronogramaSerializer(solicitacao2)
+    data2 = serializer2.data
+
+    assert "programa_leve_leite" in data2
+    assert data2["programa_leve_leite"] is False

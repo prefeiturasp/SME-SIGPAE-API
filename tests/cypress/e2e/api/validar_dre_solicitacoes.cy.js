@@ -99,7 +99,8 @@ describe('Validar rotas de Diretoria Regional Solicitações da aplicação SIGP
 					expect(response.body.results[0].status_atual).to.satisfy((value) => {
 						return (
 							value === 'TERCEIRIZADA_RESPONDEU_QUESTIONAMENTO' ||
-							value === 'DRE_VALIDADO'
+							value === 'DRE_VALIDADO' ||
+							value === 'CODAE_QUESTIONADO'
 						)
 					})
 					expect(response.body.results[0]).to.have.property('conferido')

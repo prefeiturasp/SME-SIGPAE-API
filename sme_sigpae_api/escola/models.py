@@ -105,6 +105,9 @@ redis_conn = redis.StrictRedis(
 )
 
 
+ESCOLA_TIPO_GESTAO_NOME = "TERC TOTAL"
+
+
 class DiretoriaRegional(
     ExportModelOperationsMixin("diretoria_regional"),
     Nomeavel,
@@ -154,7 +157,7 @@ class DiretoriaRegional(
         quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
             escola__in=self.escolas.all(),
             tipo_turma="REGULAR",
-            escola__tipo_gestao__nome="TERC TOTAL",
+            escola__tipo_gestao__nome=ESCOLA_TIPO_GESTAO_NOME,
         ).aggregate(Sum("quantidade_alunos"))
         return quantidade_result.get("quantidade_alunos__sum") or 0
 
@@ -791,7 +794,7 @@ class Escola(
 
     @property
     def modulo_gestao(self):
-        if self.tipo_gestao and self.tipo_gestao.nome == "TERC TOTAL":
+        if self.tipo_gestao and self.tipo_gestao.nome == ESCOLA_TIPO_GESTAO_NOME:
             return "TERCEIRIZADA"
         return "ABASTECIMENTO"
 
@@ -896,8 +899,8 @@ class Escola(
     def __str__(self):
         return f"{self.codigo_eol}: {self.nome}"
 
-    def matriculados_por_periodo_e_faixa_etaria(self):
-        periodos = self.periodos_escolares().values_list("nome", flat=True)
+    def matriculados_por_periodo_e_faixa_etaria(self, data=datetime.date.today()):
+        periodos = self.periodos_escolares(data.year).values_list("nome", flat=True)
         matriculados_por_faixa = {}
         if self.eh_cei or self.eh_cemei:
             for periodo in periodos:
@@ -1664,7 +1667,7 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
             escola__in=self.escolas.all(),
             tipo_turma="REGULAR",
-            escola__tipo_gestao__nome="TERC TOTAL",
+            escola__tipo_gestao__nome=ESCOLA_TIPO_GESTAO_NOME,
         ).aggregate(Sum("quantidade_alunos"))
         return quantidade_result.get("quantidade_alunos__sum") or 0
 
@@ -2250,7 +2253,7 @@ class Codae(
         quantidade_result = AlunosMatriculadosPeriodoEscola.objects.filter(
             escola__in=Escola.objects.all(),
             tipo_turma="REGULAR",
-            escola__tipo_gestao__nome="TERC TOTAL",
+            escola__tipo_gestao__nome=ESCOLA_TIPO_GESTAO_NOME,
         ).aggregate(Sum("quantidade_alunos"))
         return quantidade_result.get("quantidade_alunos__sum") or 0
 

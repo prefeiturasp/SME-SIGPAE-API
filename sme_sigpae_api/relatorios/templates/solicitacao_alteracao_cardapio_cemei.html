@@ -15,7 +15,7 @@
 
 <div class="header-solicitacao">
   <div class="row mx-5 my-2">
-    <div class="col-4" style="padding: 1%; font-family: 'Roboto'; font-style: bold; font-weight: 700; background: #F3F3F3; border: 1px solid #E3E6F0; border-radius: 4px; text-align: center; color: #42474A;">
+    <div class="col-4" style="padding: 1%; font-family: 'Roboto', sans-serif; font-style: bold; font-weight: 700; background: #F3F3F3; border: 1px solid #E3E6F0; border-radius: 4px; text-align: center; color: #42474A;">
       <p style="font-size: 24px; margin: 0;"># {{ solicitacao.id_externo }}</p>
       <p style="font-size: 14px; margin: 0;">Nº DA SOLICITAÇÃO</p>
     </div>
@@ -94,27 +94,27 @@
 </div>
 {% for periodo_cei in periodos_cei %}
   <div class="row mx-5 my-2">
-    <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto'; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
+    <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
       {{ periodo_cei.nome }}
     </div>
   </div>
   <div class="row mx-5" style="padding: 0px 0px 0px 3%;">
-    <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto'; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
+    <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
       Alunos CEI
     </div>
   </div>
   <div class="row mx-5" style="padding: 0px 0px 0px 3%;">
-    <div class="col-12 my-3" style="font-family: 'Roboto'; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
+    <div class="col-12 my-3" style="font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
       Alteração do tipo de Alimentação de: <b>{{ periodo_cei.tipos_alimentacao_de }}</b>
     </div>
-    <div class="col-12 my-3" style="font-family: 'Roboto'; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
+    <div class="col-12 my-3" style="font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
       Para o tipo de alimentação: <b>{{ periodo_cei.tipos_alimentacao_para }}</b>
     </div>
   </div>
   <div class="mx-5" style="padding: 0px 0px 0px 3%;">
     <table class="table table-bordered">
       <thead>
-        <tr style="background: #F5F6F8; font-family: 'Roboto'; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
+        <tr style="background: #F5F6F8; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
           <th>Faixa Etária</th>
           <th style="text-align: center">Alunos Matriculados</th>
           <th style="text-align: center">Quantidade</th>
@@ -122,13 +122,13 @@
       </thead>
       <tbody>
         {% for faixa in periodo_cei.faixas_etarias %}
-          <tr style="font-family: 'Roboto'; font-style: normal; font-weight: 400; font-size: 14px; color: #333333;">
+          <tr style="font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 400; font-size: 14px; color: #333333;">
             <td>{{ faixa.faixa_etaria }}</td>
             <td style="text-align: center">{{ faixa.matriculados_quando_criado }}</td>
             <td style="text-align: center">{{ faixa.quantidade_alunos }}</td>
           </tr>
         {% endfor %}
-        <tr style="background: #F5F6F8; font-family: 'Roboto'; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
+        <tr style="background: #F5F6F8; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
           <td>Total</td>
           <td style="text-align: center">{{ periodo_cei.total_matriculados }}</td>
           <td style="text-align: center">{{ periodo_cei.total_solicitacao }}</td>
@@ -139,22 +139,22 @@
   {% for periodo_emei in periodos_emei %}
     {% if periodo_emei.nome == periodo_cei.nome %}
       <div class="row mx-5" style="padding: 0px 0px 0px 3%;">
-        <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto'; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
+        <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
           Alunos EMEI
         </div>
       </div>
       <div class="row mx-5" style="padding: 0px 0px 0px 3%;">
-        <div class="col-12 my-3" style="font-family: 'Roboto'; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
+        <div class="col-12 my-3" style="font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
           Alteração do tipo de Alimentação de: <b>{{ periodo_emei.tipos_alimentacao_de }}</b>
         </div>
-        <div class="col-12 my-3" style="font-family: 'Roboto'; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
+        <div class="col-12 my-3" style="font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
           Para o tipo de alimentação: <b>{{ periodo_emei.tipos_alimentacao_para }}</b>
         </div>
       </div>
       <div class="mx-5" style="padding: 0px 0px 0px 3%;">
         <table class="table table-bordered">
           <thead>
-            <tr style="background: #F5F6F8; font-family: 'Roboto'; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
+            <tr style="background: #F5F6F8; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
               <th>Alunos Matriculados: {{ periodo_emei.total_matriculados }}</th>
               <th>Quantidade: {{ periodo_emei.total_solicitacao }}</th>
             </tr>
@@ -169,27 +169,27 @@
 {% for periodo_emei in periodos_emei %}
   {% if periodos_cei|length == 0 %}
     <div class="row mx-5 my-2">
-      <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto'; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
+      <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
         {{ periodo_emei.nome }}
       </div>
     </div>
     <div class="row mx-5" style="padding: 0px 0px 0px 3%;">
-      <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto'; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
+      <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
         Alunos EMEI
       </div>
     </div>
     <div class="row mx-5" style="padding: 0px 0px 0px 3%;">
-      <div class="col-12 my-3" style="font-family: 'Roboto'; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
+      <div class="col-12 my-3" style="font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
         Alteração do tipo de Alimentação de: <b>{{ periodo_emei.tipos_alimentacao_de }}</b>
       </div>
-      <div class="col-12 my-3" style="font-family: 'Roboto'; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
+      <div class="col-12 my-3" style="font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
         Para o tipo de alimentação: <b>{{ periodo_emei.tipos_alimentacao_para }}</b>
       </div>
     </div>
     <div class="mx-5" style="padding: 0px 0px 0px 3%;">
       <table class="table table-bordered">
         <thead>
-          <tr style="background: #F5F6F8; font-family: 'Roboto'; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
+          <tr style="background: #F5F6F8; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
             <th>Alunos Matriculados: {{ periodo_emei.total_matriculados }}</th>
             <th>Quantidade: {{ periodo_emei.total_solicitacao }}</th>
           </tr>
@@ -200,27 +200,27 @@
     {% for perioco_cei in periodos_cei %}
       {% if perioco_cei.nome != periodo_emei.nome %}
         <div class="row mx-5 my-2">
-          <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto'; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
+          <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
             {{ periodo_emei.nome }}
           </div>
         </div>
         <div class="row mx-5" style="padding: 0px 0px 0px 3%;">
-          <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto'; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
+          <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
             Alunos EMEI
           </div>
         </div>
         <div class="row mx-5" style="padding: 0px 0px 0px 3%;">
-          <div class="col-12 my-3" style="font-family: 'Roboto'; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
+          <div class="col-12 my-3" style="font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
             Alteração do tipo de Alimentação de: <b>{{ periodo_emei.tipos_alimentacao_de }}</b>
           </div>
-          <div class="col-12 my-3" style="font-family: 'Roboto'; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
+          <div class="col-12 my-3" style="font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
             Para o tipo de alimentação: <b>{{ periodo_emei.tipos_alimentacao_para }}</b>
           </div>
         </div>
         <div class="mx-5" style="padding: 0px 0px 0px 3%;">
           <table class="table table-bordered">
             <thead>
-              <tr style="background: #F5F6F8; font-family: 'Roboto'; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
+              <tr style="background: #F5F6F8; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
                 <th>Alunos Matriculados: {{ periodo_emei.total_matriculados }}</th>
                 <th>Quantidade: {{ periodo_emei.total_solicitacao }}</th>
               </tr>

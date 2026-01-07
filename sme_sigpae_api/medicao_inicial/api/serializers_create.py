@@ -1,10 +1,10 @@
 import calendar
 import json
 from datetime import date, datetime
-
+from django.utils import timezone
 import environ
 from django.core.exceptions import ValidationError
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Q
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
@@ -1501,13 +1501,17 @@ class ParametrizacaoFinanceiraWriteModelSerializer(serializers.ModelSerializer):
         if self.instance:
             return attrs
 
-        if ParametrizacaoFinanceira.objects.filter(
+        existe_ativa = ParametrizacaoFinanceira.objects.filter(
             edital=attrs["edital"],
             lote=attrs["lote"],
             grupo_unidade_escolar=attrs["grupo_unidade_escolar"],
-        ).exists():
+        ).filter(
+            Q(data_final__isnull=True) | Q(data_final__gte=timezone.now().date())
+        ).exists()
+
+        if existe_ativa:
             raise ValidationError(
-                "Já existe uma parametrização financeira para este edital, lote e tipos de unidades"
+                "Já existe uma parametrização financeira ativa para este edital, lote e grupo de unidades."
             )
 
         return attrs
@@ -1534,9 +1538,12 @@ class ParametrizacaoFinanceiraWriteModelSerializer(serializers.ModelSerializer):
         return parametrizacao_financeira
 
     def update(self, instance, validated_data):
-        tabelas = validated_data.pop("tabelas")
+        tabelas = validated_data.pop("tabelas", None)
 
         instance = super().update(instance, validated_data)
+
+        if not tabelas:
+            return instance
 
         for tabela in tabelas:
             valores = tabela.pop("valores")

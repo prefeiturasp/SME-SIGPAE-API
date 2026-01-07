@@ -46,6 +46,7 @@ from ..perfil.models import Usuario
 from ..relatorios.utils import html_to_pdf_file
 from .utils import (
     calendario_sgp,
+    duplica_logs_ultimo_dia_letivo,
     ordenar_alunos_matriculados,
     registro_quantidade_alunos_matriculados_por_escola_periodo,
 )
@@ -278,6 +279,9 @@ def matriculados_por_escola_e_periodo_regulares():  # noqa C901
     """
 
     registro_quantidade_alunos_matriculados_por_escola_periodo(TipoTurma.REGULAR)
+    logger.debug("""Processando duplicação para o ultimo dia letivo""")
+    duplica_logs_ultimo_dia_letivo(TipoTurma.REGULAR)
+    logger.debug("""Fim do processamento da duplicação para o ultimo dia letivo""")
 
 
 @shared_task(
@@ -291,6 +295,9 @@ def matriculados_por_escola_e_periodo_programas():  # noqa C901
     """
 
     registro_quantidade_alunos_matriculados_por_escola_periodo(TipoTurma.PROGRAMAS)
+    logger.debug("""Processando duplicação para o ultimo dia letivo""")
+    duplica_logs_ultimo_dia_letivo(TipoTurma.PROGRAMAS)
+    logger.debug("""Fim do processamento da duplicação para o ultimo dia letivo""")
 
 
 @shared_task(

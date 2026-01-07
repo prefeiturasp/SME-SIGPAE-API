@@ -30,6 +30,8 @@ from .models import (
     LogDietasAtivasCanceladasAutomaticamente,
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+    LogQuantidadeDietasAutorizadasRecreioNasFerias,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
     MotivoAlteracaoUE,
     MotivoNegacao,
     PlanilhaDietasAtivas,
@@ -378,6 +380,40 @@ class LogQuantidadeDietasAutorizadasCEIAdmin(admin.ModelAdmin):
         ("data", DateRangeFilter),
         "classificacao",
         "periodo_escolar",
+        "faixa_etaria",
+    )
+
+
+@admin.register(LogQuantidadeDietasAutorizadasRecreioNasFerias)
+class LogQuantidadeDietasAutorizadasRecreioNasFeriasAdmin(admin.ModelAdmin):
+    list_display = (
+        "escola",
+        "classificacao",
+        "quantidade",
+        "data",
+        "criado_em",
+    )
+    search_fields = ("escola__nome", "escola__codigo_eol")
+    list_filter = (
+        ("data", DateRangeFilter),
+        "classificacao",
+    )
+
+
+@admin.register(LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI)
+class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIAdmin(admin.ModelAdmin):
+    list_display = (
+        "escola",
+        "faixa_etaria",
+        "classificacao",
+        "quantidade",
+        "data",
+        "criado_em",
+    )
+    search_fields = ("escola__nome", "escola__codigo_eol")
+    list_filter = (
+        ("data", DateRangeFilter),
+        "classificacao",
         "faixa_etaria",
     )
 

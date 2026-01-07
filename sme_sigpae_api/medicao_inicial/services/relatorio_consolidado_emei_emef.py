@@ -26,6 +26,9 @@ from sme_sigpae_api.medicao_inicial.services.utils import (
 from ..models import CategoriaMedicao
 
 
+MEDICAO_CATEGORIA_ALIMENTACAO = "ALIMENTAÇÃO"
+
+
 def get_alimentacoes_por_periodo(solicitacoes):
     periodos_alimentacoes = {}
     dietas_alimentacoes = {}
@@ -239,7 +242,7 @@ def processa_periodo_regular(solicitacao, filtros, campo, periodo, tipo_unidade=
     categorias = (
         [periodo.upper()]
         if periodo == "Solicitações de Alimentação"
-        else ["ALIMENTAÇÃO"]
+        else [MEDICAO_CATEGORIA_ALIMENTACAO]
     )
     soma = _calcula_soma_medicao(medicao, campo, categorias)
     return soma if soma is not None else "-"
@@ -265,7 +268,7 @@ def _get_total_pagamento(medicao, nome_campo, tipo_unidade):
 def calcula_totais_pagamento_emef(
     primeira_oferta, repeticao_primeira, segunda_oferta, repeticao_segunda, medicao, dia
 ):
-    categoria = "ALIMENTAÇÃO"
+    categoria = MEDICAO_CATEGORIA_ALIMENTACAO
     matriculados = medicao.valores_medicao.filter(
         nome_campo="matriculados", dia=f"{dia:02d}"
     ).first()
@@ -368,7 +371,7 @@ def _total_pagamento_emei(medicao, nome_campo):
 
     total_pagamento = (
         medicao.valores_medicao.filter(
-            nome_campo__in=lista_campos, categoria_medicao__nome="ALIMENTAÇÃO"
+            nome_campo__in=lista_campos, categoria_medicao__nome=MEDICAO_CATEGORIA_ALIMENTACAO
         )
         .annotate(valor_float=Cast("valor", output_field=FloatField()))
         .aggregate(total=Sum("valor_float"))

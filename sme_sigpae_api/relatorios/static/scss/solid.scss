@@ -5,7 +5,7 @@
 @import 'variables';
 
 @font-face {
-  font-family: 'Font Awesome 5 Free';
+  font-family: 'Font Awesome 5 Free', sans-serif;
   font-style: normal;
   font-weight: 900;
   font-display: $fa-font-display;
@@ -19,6 +19,6 @@
 
 .fa,
 .fas {
-  font-family: 'Font Awesome 5 Free';
+  font-family: 'Font Awesome 5 Free', sans-serif;
   font-weight: 900;
 }

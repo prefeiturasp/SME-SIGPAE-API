@@ -841,3 +841,67 @@ class LogQuantidadeDietasAutorizadasCEI(TemChaveExterna, TemData, CriadoEm):
             "Logs da quantidade de dietas autorizadas por unidade escolar CEI"
         )
         ordering = ("-data", "escola__nome")
+
+
+class LogQuantidadeDietasAutorizadasRecreioNasFerias(TemChaveExterna, TemData, CriadoEm):
+    escola = models.ForeignKey(
+        "escola.Escola",
+        on_delete=models.CASCADE,
+        related_name="logs_dietas_autorizadas_recreio_ferias",
+    )
+    quantidade = models.PositiveIntegerField()
+    classificacao = models.ForeignKey(
+        "ClassificacaoDieta",
+        on_delete=models.CASCADE,
+        related_name="logs_dietas_autorizadas_recreio_ferias",
+    )
+
+    def __str__(self) -> str:
+        return (
+            f'{self.escola.nome} - {self.data.strftime("%d/%m/%Y")} - '
+            f'{self.classificacao.nome} - {self.quantidade} dieta(s)'
+        )
+
+    class Meta:
+        verbose_name = (
+            "Log da quantidade de dietas autorizadas por unidade escolar - Recreio nas Férias"
+        )
+        verbose_name_plural = (
+            "Logs da quantidade de dietas autorizadas por unidade escolar - Recreio nas Férias"
+        )
+        ordering = ("-data", "escola__nome")
+
+
+class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI(TemChaveExterna, TemData, CriadoEm):
+    escola = models.ForeignKey(
+        "escola.Escola",
+        on_delete=models.CASCADE,
+        related_name="logs_dietas_autorizadas_recreio_ferias_cei",
+    )
+    quantidade = models.PositiveIntegerField()
+    classificacao = models.ForeignKey(
+        "ClassificacaoDieta",
+        on_delete=models.CASCADE,
+        related_name="logs_dietas_autorizadas_recreio_ferias_cei",
+    )
+    faixa_etaria = models.ForeignKey(
+        "escola.FaixaEtaria",
+        null=True,
+        on_delete=models.DO_NOTHING,
+        related_name="logs_dietas_autorizadas_recreio_ferias_cei",
+    )
+
+    def __str__(self) -> str:
+        return (
+            f'{self.escola.nome} - {self.data.strftime("%d/%m/%Y")} - '
+            f'{self.classificacao.nome} - {self.quantidade} dieta(s) -- {self.faixa_etaria}'
+        )
+
+    class Meta:
+        verbose_name = (
+            "Log da quantidade de dietas autorizadas por unidade escolar CEI - Recreio nas Férias"
+        )
+        verbose_name_plural = (
+            "Logs da quantidade de dietas autorizadas por unidade escolar CEI - Recreio nas Férias"
+        )
+        ordering = ("-data", "escola__nome")

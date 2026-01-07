@@ -167,7 +167,7 @@ def merge_pdf_com_string_template(
     pdf_usuario = PdfFileReader(arquivo_pdf, strict=False)
 
     css_string = (
-        "html, body {font-family: Roboto; margin: 0; padding: 0}\n@page {size: A4 %s; margin: 0}"
+        "html, body {font-family: 'Roboto', sans-serif; margin: 0; padding: 0}\n@page {size: A4 %s; margin: 0}"
         % obter_orientacao_pdf(pdf_usuario)
     )
     stylesheets = [CSS(string=css_string)]

@@ -46,7 +46,7 @@
 
         &:before {
           content: "\f00c";
-          font-family: "FontAwesome";
+          font-family: "FontAwesome", sans-serif;
           font-size: 18px;
           font-weight: 900;
           background-color: $preto !important;
@@ -92,7 +92,7 @@
         &:before {
           color: $branco;
           content: "\f04d";
-          font-family: "FontAwesome";
+          font-family: "FontAwesome", sans-serif;
           font-size: 10px;
         }
       }
@@ -113,7 +113,7 @@
         color: $preto;
 
         &:before {
-          font-family: "FontAwesome";
+          font-family: "FontAwesome", sans-serif;
           font-size: 18px;
           content: "\f05e";
           font-weight: 900;
@@ -124,7 +124,7 @@
 
       &.cancelled {
         &:before {
-          font-family: "FontAwesome";
+          font-family: "FontAwesome", sans-serif;
           font-size: 18px;
           content: "\f057";
           font-weight: 900;
@@ -135,7 +135,7 @@
 
       &.questioned {
         &:before {
-          font-family: "FontAwesome";
+          font-family: "FontAwesome", sans-serif;
           font-size: 18px;
           content: "\f12a";
           font-weight: 900;

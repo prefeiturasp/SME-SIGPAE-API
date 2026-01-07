@@ -22,7 +22,12 @@
             {% for cronograma in pagina %}
               <tr>
                 <td>{{ cronograma.numero|default:"-" }}</td>
-                <td>{{ cronograma.produto|default:"-" }}</td>
+                <td>
+                  {{ cronograma.produto|default:"-" }}
+                  {% if cronograma.programa_leve_leite %}
+                    <span class="tag-leve-leite">LEVE LEITE - PLL</span>
+                  {% endif %}
+                </td>
                 <td>{{ cronograma.empresa|default:"-" }}</td>
                 <td>{{ cronograma.qtd_total_programada|default:"-" }}</td>
                 <td>{{ cronograma.armazem|default:"-" }}</td>

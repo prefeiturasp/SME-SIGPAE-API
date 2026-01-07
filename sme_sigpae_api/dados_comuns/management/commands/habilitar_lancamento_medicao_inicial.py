@@ -31,6 +31,10 @@ from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
 )
 
 env = environ.Env()
+ETAPA_DOIS_CADASTRO_DIETA_ESPECIAIS = "2. Cadastro de dietas especiais"
+ETAPA_QUATRO_UM_KIT_LANCHE_PASSEIO = "4.1. Criar solicitação de KIT LANCHE PASSEIO"
+ETAPA_QUATRO_DOIS_LANCHE_EMERGENCIAL = "4.2 Criar solicitação de LANCHE EMERGENCIAL"
+ETAPA_CINCO_PROGRAMAS_PROJETOS = "5. Criar PROGRAMAS E PROJETOS"
 
 
 class Command(BaseCommand):
@@ -210,7 +214,7 @@ class Command(BaseCommand):
 
         periodos_escolares_db = escola.periodos_escolares(ano=ano)
 
-        self.stdout.write("2. Cadastro de dietas especiais")
+        self.stdout.write(ETAPA_DOIS_CADASTRO_DIETA_ESPECIAIS)
         if escola.eh_emebs:
             incluir_dietas_especiais_emebs(
                 escola, ano, mes, quantidade_dias_mes, periodos_escolares
@@ -225,9 +229,9 @@ class Command(BaseCommand):
         usuario_dre = obter_usuario(email_dre)
 
         self.stdout.write("4. Incluindo as Solicitações de Alimentacao")
-        self.stdout.write("4.1. Criar solicitação de KIT LANCHE PASSEIO")
+        self.stdout.write(ETAPA_QUATRO_UM_KIT_LANCHE_PASSEIO)
         solicitar_kit_lanche(escola, usuario, ano, mes, dia_kit_lanche, usuario_dre)
-        self.stdout.write("4.2 Criar solicitação de LANCHE EMERGENCIAL")
+        self.stdout.write(ETAPA_QUATRO_DOIS_LANCHE_EMERGENCIAL)
         periodo_escolar_solicitacoes = periodos_escolares_db.get(nome="MANHA")
         solicitar_lanche_emergencial(
             escola,
@@ -239,7 +243,7 @@ class Command(BaseCommand):
             usuario_dre,
         )
 
-        self.stdout.write("5. Criar PROGRAMAS E PROJETOS")
+        self.stdout.write(ETAPA_CINCO_PROGRAMAS_PROJETOS)
         incluir_programas_e_projetos(
             escola,
             usuario,
@@ -288,7 +292,7 @@ class Command(BaseCommand):
         )
         periodos_escolares_db = escola.periodos_escolares(ano=ano)
 
-        self.stdout.write("2. Cadastro de dietas especiais")
+        self.stdout.write(ETAPA_DOIS_CADASTRO_DIETA_ESPECIAIS)
         incluir_dietas_especiais_cemei(
             escola, ano, mes, quantidade_dias_mes, periodos_escolares
         )
@@ -298,11 +302,11 @@ class Command(BaseCommand):
         usuario_dre = obter_usuario(email_dre)
 
         self.stdout.write("4. Incluindo as solicitações de alimentacao")
-        self.stdout.write("4.1. Criar solicitação de KIT LANCHE PASSEIO")
+        self.stdout.write(ETAPA_QUATRO_UM_KIT_LANCHE_PASSEIO)
         solicitar_kit_lanche_cemei(
             escola, usuario, ano, mes, dia_kit_lanche, usuario_dre
         )
-        self.stdout.write("4.2 Criar solicitação de LANCHE EMERGENCIAL")
+        self.stdout.write(ETAPA_QUATRO_DOIS_LANCHE_EMERGENCIAL)
         periodo_escolar_solicitacoes = periodos_escolares_db.get(nome="INTEGRAL")
         solicitar_lanche_emergencial_cemei(
             escola,
@@ -314,7 +318,7 @@ class Command(BaseCommand):
             usuario_dre,
         )
 
-        self.stdout.write("5. Criar PROGRAMAS E PROJETOS")
+        self.stdout.write(ETAPA_CINCO_PROGRAMAS_PROJETOS)
         incluir_programas_e_projetos(
             escola,
             usuario,
@@ -338,7 +342,7 @@ class Command(BaseCommand):
             periodos_escolares, escola, ano, mes, quantidade_dias_mes
         )
         periodos_escolares_db = escola.periodos_escolares(ano=ano)
-        self.stdout.write("2. Cadastro de dietas especiais")
+        self.stdout.write(ETAPA_DOIS_CADASTRO_DIETA_ESPECIAIS)
         incluir_dietas_especiais_cei(
             escola, ano, mes, quantidade_dias_mes, periodos_escolares_db
         )
@@ -384,9 +388,9 @@ class Command(BaseCommand):
         incluir_dietas_especiais_ceu_gestao(escola, ano, mes, dia_kit_lanche)
 
         self.stdout.write("4. Incluindo as Solicitações de Alimentacao")
-        self.stdout.write("4.1. Criar solicitação de KIT LANCHE PASSEIO")
+        self.stdout.write(ETAPA_QUATRO_UM_KIT_LANCHE_PASSEIO)
         solicitar_kit_lanche(escola, usuario, ano, mes, dia_kit_lanche, usuario_dre)
-        self.stdout.write("4.2 Criar solicitação de LANCHE EMERGENCIAL")
+        self.stdout.write(ETAPA_QUATRO_DOIS_LANCHE_EMERGENCIAL)
         periodo_escolar_solicitacoes = periodos_escolares_db.get(nome="MANHA")
         solicitar_lanche_emergencial(
             escola,
@@ -398,7 +402,7 @@ class Command(BaseCommand):
             usuario_dre,
         )
 
-        self.stdout.write("5. Criar PROGRAMAS E PROJETOS")
+        self.stdout.write(ETAPA_CINCO_PROGRAMAS_PROJETOS)
         incluir_programas_e_projetos(
             escola,
             usuario,

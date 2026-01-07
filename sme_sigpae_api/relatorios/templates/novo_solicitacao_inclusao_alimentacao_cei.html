@@ -10,7 +10,7 @@
 
 <div class="header-solicitacao">
   <div class="row mx-5 my-2">
-    <div class="col-4" style="padding: 1%; font-family: 'Roboto'; font-style: bold; font-weight: 700; background: #F3F3F3; border: 1px solid #E3E6F0; border-radius: 4px; text-align: center; color: #42474A;">
+    <div class="col-4" style="padding: 1%; font-family: 'Roboto', sans-serif; font-style: bold; font-weight: 700; background: #F3F3F3; border: 1px solid #E3E6F0; border-radius: 4px; text-align: center; color: #42474A;">
       <p style="font-size: 24px; margin: 0;"># {{ solicitacao.id_externo }}</p>
       <p style="font-size: 14px; margin: 0;">Nº DA SOLICITAÇÃO</p>
     </div>
@@ -58,7 +58,7 @@
 </div>
 
 
-<div class="row mx-5 my-2" style="font-family: 'Roboto'; font-style: normal; font-weight: 400; font-size: 14px; color: #42474A;">
+<div class="row mx-5 my-2" style="font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 400; font-size: 14px; color: #42474A;">
   <div class="col-12">
     <p><b>Solicitação de Alimentação</b></p>
   </div>
@@ -109,19 +109,19 @@
 
 {% for inclusao in inclusoes %}
   <div class="row mx-5 my-2">
-    <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto'; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
+    <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
       {{ inclusao.periodo_externo_nome }}
     </div>
   </div>
   {% if inclusao.periodo_externo_nome == 'INTEGRAL' %}
     {% for periodo_interno in inclusao.periodos_internos %}
       <div class="row mx-5" style="padding: 0px 0px 0px 3%;">
-        <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto'; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
+        <div class="col-12" style="background: #F1F1F1; border: 1px solid #E0E0E0; border-radius: 6px; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 400; font-size: 14px; padding-top: 1%; padding-bottom: 1% ; color: #333333;">
           {{periodo_interno.periodo_interno_nome}}
         </div>
       </div>
       <div class="row mx-5" style="padding: 0px 0px 0px 3%;">
-        <div class="col-12 my-2" style="font-family: 'Roboto'; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
+        <div class="col-12 my-2" style="font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
           Tipos de Inclusão de Alimentação: <b>{{inclusao.tipos_alimentacao}}</b>
         </div>
       </div>
@@ -129,7 +129,7 @@
       <div class="mx-5" style="padding: 0px 0px 0px 3%;">
         <table class="table table-bordered">
           <thead>
-            <tr style="background: #F5F6F8; font-family: 'Roboto'; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
+            <tr style="background: #F5F6F8; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
               <th>Faixa Etária</th>
               <th style="text-align: center">Alunos Matriculados</th>
               <th style="text-align: center">Quantidade</th>
@@ -137,13 +137,13 @@
           </thead>
           <tbody>
             {% for faixa in periodo_interno.quantidades_faixas %}
-              <tr style="font-family: 'Roboto'; font-style: normal; font-weight: 400; font-size: 14px; color: #333333;">
+              <tr style="font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 400; font-size: 14px; color: #333333;">
                 <td>{{faixa.nome_faixa}}</td>
                 <td style="text-align: center">{{faixa.matriculados_quando_criado}}</td>
                 <td style="text-align: center">{{faixa.quantidade_alunos}}</td>
               </tr>
             {% endfor %}
-            <tr style="background: #F5F6F8; font-family: 'Roboto'; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
+            <tr style="background: #F5F6F8; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
               <td>Total</td>
               <td style="text-align: center">{{periodo_interno.total_matriculados}}</td>
               <td style="text-align: center">{{periodo_interno.total_inclusao}}</td>
@@ -154,14 +154,14 @@
     {% endfor %}
   {% else %}
     <div class="row mx-5" style="padding: 0px 0px 0px 3%;">
-      <div class="col-12 my-2" style="font-family: 'Roboto'; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
+      <div class="col-12 my-2" style="font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 500; font-size: 14px; color: #686868;">
         Tipos de Inclusão de Alimentação: <b>{{inclusao.tipos_alimentacao}}</b>
       </div>
     </div>
     <div class="mx-5" style="padding: 0px 0px 0px 3%;">
       <table class="table table-bordered">
         <thead>
-          <tr style="background: #F5F6F8; font-family: 'Roboto'; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
+          <tr style="background: #F5F6F8; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
             <th>Faixa Etária</th>
             <th style="text-align: center">Alunos Matriculados</th>
             <th style="text-align: center">Quantidade</th>
@@ -169,13 +169,13 @@
         </thead>
         <tbody>
           {% for faixa in inclusao.quantidades_faixas %}
-            <tr style="font-family: 'Roboto'; font-style: normal; font-weight: 400; font-size: 14px; color: #333333;">
+            <tr style="font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 400; font-size: 14px; color: #333333;">
               <td>{{faixa.nome_faixa}}</td>
               <td style="text-align: center">{{faixa.matriculados_quando_criado}}</td>
               <td style="text-align: center">{{faixa.quantidade_alunos}}</td>
             </tr>
           {% endfor %}
-          <tr style="background: #F5F6F8; font-family: 'Roboto'; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
+          <tr style="background: #F5F6F8; font-family: 'Roboto', sans-serif; font-style: normal; font-weight: 700; font-size: 14px; color: #42474A;">
             <td>Total</td>
             <td style="text-align: center">{{inclusao.total_matriculados}}</td>
             <td style="text-align: center">{{inclusao.total_inclusao}}</td>

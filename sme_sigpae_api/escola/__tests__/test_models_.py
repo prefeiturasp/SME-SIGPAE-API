@@ -572,7 +572,7 @@ def test_periodos_escolares_escola_cei(
     log_aluno_integral_cei,
     log_alunos_matriculados_integral_cei,
 ):
-    periodos = escola_cei.periodos_escolares()
+    periodos = escola_cei.periodos_escolares(2025)
     assert periodos.count() == 1
     assert isinstance(periodos[0], PeriodoEscolar)
     assert periodos[0].nome == periodo_escolar.nome

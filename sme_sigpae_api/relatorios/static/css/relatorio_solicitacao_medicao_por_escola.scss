@@ -3,13 +3,15 @@
 @page {
   size: A4 landscape;
   margin: 0;
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
 }
 
+/* NOSONAR */
 @page :nth(n+2) {
   margin-top: 0;
 }
 
+/* NOSONAR */
 @page :nth(1) {
   //WTF bug...
   margin-top: 0;
@@ -17,7 +19,7 @@
 
 @media print {
   body {
-    font-family: "Roboto";
+    font-family: "Roboto", sans-serif;
     margin: 0;
   }
 }
@@ -68,7 +70,7 @@
     height: 37.26px;
   }
   h1 {
-    font-family: "Roboto";
+    font-family: "Roboto", sans-serif;
     font-style: normal;
     font-weight: 700;
     font-size: 10px;
@@ -104,7 +106,7 @@
     border-spacing: 0;
     border: solid 0.5px $preto;
     .custom-filtros {
-      font-family: "Roboto";
+      font-family: "Roboto", sans-serif;
       font-style: normal;
       font-size: 10px;
       line-height: 15px;
@@ -122,7 +124,7 @@
 }
 
 .titulo-body-p1 {
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
   font-style: normal;
   font-weight: 700;
   font-size: 10px;
@@ -131,7 +133,7 @@
 }
 
 .tipo-contagem {
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
   font-style: normal;
   font-weight: 700;
   font-size: 10px;
@@ -180,7 +182,7 @@
     width: 50%;
   }
 
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
   font-style: normal;
   font-weight: 700;
   font-size: 10px;
@@ -215,7 +217,7 @@
 .usuario-title {
   padding: 0;
   margin: 0;
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
   font-style: normal;
   font-size: 10px;
 }
@@ -226,7 +228,7 @@
 
 .usuarios {
   .usuario-label {
-    font-family: "Roboto";
+    font-family: "Roboto", sans-serif;
     font-style: normal;
     font-size: 10px;
     width: 79%;
@@ -238,7 +240,7 @@
   }
 
   .usuario-values {
-    font-family: "Roboto";
+    font-family: "Roboto", sans-serif;
     font-style: normal;
     font-size: 10px;
     height: 15px;
@@ -251,7 +253,7 @@
 
 .titulo-assinatura {
   padding: 0;
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
   font-style: normal;
   font-size: 10px;
   color: $cinza-meio-escuro;
@@ -329,7 +331,7 @@
       padding-right: 0;
       span {
         text-align: justify;
-        font-family: "Roboto";
+        font-family: "Roboto", sans-serif;
         font-style: normal;
         font-weight: 400;
         font-size: 9px;
@@ -340,7 +342,7 @@
 
 .titulo-tabela-observacoes,
 .titulo-tabela-somatorio {
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
   font-style: normal;
   font-weight: 700;
   font-size: 12px;
@@ -651,7 +653,7 @@ table.tabela-valores-medicao {
 }
 
 .info-abaixo-tabela {
-  font-family: "Roboto";
+  font-family: "Roboto", sans-serif;
   font-style: normal;
   font-weight: 500;
   font-size: 9px;
@@ -678,6 +680,7 @@ table.tabela-valores-medicao {
   color: #252525;
 }
 
+/* NOSONAR */
 @page:first {
   margin-bottom: 8mm;
   @bottom-right {
