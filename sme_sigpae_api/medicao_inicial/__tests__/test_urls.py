@@ -11,6 +11,7 @@ from sme_sigpae_api.medicao_inicial.models import (
     Empenho,
     Medicao,
     TipoValorParametrizacaoFinanceira,
+    ParametrizacaoFinanceira,
 )
 
 
@@ -2365,3 +2366,47 @@ def test_url_dias_letivos_recreio_datas_em_meses_diferentes(
     assert response.json() == {
         "detail": "O início e o fim do recreio devem estar no mesmo mês."
     }
+
+
+def test_url_endpoint_clonar_encerrar_parametrizacao(
+    client_autenticado_codae_medicao, parametrizacao_financeira_emef
+):
+    qtd_tabelas_origem = parametrizacao_financeira_emef.tabelas.count()
+    valores_por_tabela = {
+        tabela.id: tabela.valores.count()
+        for tabela in parametrizacao_financeira_emef.tabelas.all()
+    }
+
+    response = client_autenticado_codae_medicao.post(
+        f"/medicao-inicial/parametrizacao-financeira/clonar-encerrar/"
+        f"{parametrizacao_financeira_emef.uuid}/"
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    data = response.json()
+
+    parametrizacao_financeira_emef.refresh_from_db()
+    assert parametrizacao_financeira_emef.data_final == (
+        datetime.date.today() - datetime.timedelta(days=1)
+    )
+
+    nova_parametrizacao = ParametrizacaoFinanceira.objects.get(uuid=data["uuid"])
+
+    assert nova_parametrizacao.edital == parametrizacao_financeira_emef.edital
+    assert nova_parametrizacao.lote == parametrizacao_financeira_emef.lote
+    assert (
+        nova_parametrizacao.grupo_unidade_escolar
+        == parametrizacao_financeira_emef.grupo_unidade_escolar
+    )
+    assert nova_parametrizacao.data_inicial == datetime.date.today()
+    assert nova_parametrizacao.data_final is None
+
+    assert nova_parametrizacao.tabelas.count() == qtd_tabelas_origem
+
+    for tabela_origem in parametrizacao_financeira_emef.tabelas.all():
+        tabela_nova = nova_parametrizacao.tabelas.get(
+            nome=tabela_origem.nome,
+            periodo_escolar=tabela_origem.periodo_escolar,
+        )
+
+        assert tabela_nova.valores.count() == valores_por_tabela[tabela_origem.id]
