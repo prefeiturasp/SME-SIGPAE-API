@@ -71,7 +71,11 @@ def build_xlsx_relatorio_terceirizadas(
         worksheet = xlwriter.sheets["Solicitações de dieta especial"]
         worksheet.set_row(0, 30)
         worksheet.set_row(1, 30)
-        worksheet.set_column("B:F", 30)
+
+        is_autorizadas = status.upper() == "AUTORIZADAS"
+        ultima_coluna = "H" if is_autorizadas else "F"
+
+        worksheet.set_column(f"B:{ultima_coluna}", 30)
         merge_format = workbook.add_format({"align": "center", "bg_color": "#a9d18e"})
         merge_format.set_align("vcenter")
         cell_format = workbook.add_format()
@@ -96,18 +100,35 @@ def build_xlsx_relatorio_terceirizadas(
             f"Total de dietas: {queryset.count()}",
             v_center_format,
         )
+
         worksheet.write(3, 1, "COD.EOL do Aluno", single_cell_format)
         worksheet.write(3, 2, "Nome do Aluno", single_cell_format)
-        worksheet.write(3, 3, "Nome da Escola", single_cell_format)
-        worksheet.write(3, 4, "Classificação da dieta", single_cell_format)
+        col_index = 3
+
+        if is_autorizadas:
+            worksheet.write(3, col_index, "Data de Nascimento", single_cell_format)
+            col_index += 1
+
+        worksheet.write(3, col_index, "Nome da Escola", single_cell_format)
+        col_index += 1
+
+        worksheet.write(3, col_index, "Classificação da dieta", single_cell_format)
+        col_index += 1
+
         worksheet.write(
             3,
-            5,
+            col_index,
             "Relação por Diagnóstico" if exibir_diagnostico else "Protocolo Padrão",
             single_cell_format,
         )
+        col_index += 1
+
+        if is_autorizadas and exibir_diagnostico:
+            worksheet.write(3, col_index, "Protocolo Padrão", single_cell_format)
+            col_index += 1
+
         if status.upper() == "CANCELADAS":
             worksheet.set_column("G:G", 30)
-            worksheet.write(3, 6, "Data de cancelamento", single_cell_format)
+            worksheet.write(3, col_index, "Data de cancelamento", single_cell_format)
         df.reset_index(drop=True, inplace=True)
     output.seek(0)

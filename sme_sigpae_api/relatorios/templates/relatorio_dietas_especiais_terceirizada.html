@@ -32,6 +32,9 @@
               Protocolo padrão
             {% endif %}
           </th>
+          {% if status == 'autorizadas' and diagnostico %}
+            <th scope="col">Protocolo Padrão</th>
+          {% endif %}
           {% if status == 'canceladas' %}
             <th scope="col">Data de cancelamento</th>
           {% endif %}
@@ -53,6 +56,9 @@
               {{ solicitacao.protocolo_padrao }}
             {% endif %}
           </td>
+          {% if status == 'autorizadas' and diagnostico %}
+            <td>{{ solicitacao.protocolo_padrao }}</td>
+          {% endif %}
           {% if status == 'canceladas' %}
             <td>{{ solicitacao.data_cancelamento }}</td>
           {% endif %}
