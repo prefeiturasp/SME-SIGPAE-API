@@ -41,10 +41,7 @@ import './commands_api/commands_motivos_inclusao_normal'
 import './commands_api/commands_motivos_suspensao_cardapio'
 import './commands_api/commands_nome_de_produtos_edital'
 import './commands_api/commands_perfis'
-<<<<<<< HEAD
 import './commands_api/commands_perfis_vinculados'
-=======
->>>>>>> 9142e450ca33d3262af13cfa94065c4f950c489e
 
 import './commands_ui/commands_login'
 import './commands_ui/commands_globais'

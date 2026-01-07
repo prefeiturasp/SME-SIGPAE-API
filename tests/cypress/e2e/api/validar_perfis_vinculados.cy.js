@@ -59,7 +59,7 @@ describe('Validar rotas de Perfis Vinculados da aplicação SIGPAE', () => {
 			)
 		})
 
-		it.only('Validar GET com sucesso de Perfis Subordinados Por Perfil Master', () => {
+		it('Validar GET com sucesso de Perfis Subordinados Por Perfil Master', () => {
 			var perfil_master = ''
 			var perfis_subordinados = ''
 			cy.consultar_perfis_vinculados().then((response) => {
@@ -67,12 +67,14 @@ describe('Validar rotas de Perfis Vinculados da aplicação SIGPAE', () => {
 				perfil_master = response.body.results[0].perfil_master.nome
 				perfis_subordinados =
 					response.body.results[0].perfis_subordinados[0].nome
-			})
 
-			cy.consultar_perfis_subordinados_por_perfil_master().then((response) => {
-				expect(response.status).to.eq(200)
-				expect(response.body).to.be.an('array')
-				expect(response.body).to.contain(perfis_subordinados)
+				cy.consultar_perfis_subordinados_por_perfil_master(perfil_master).then(
+					(response) => {
+						expect(response.status).to.eq(200)
+						expect(response.body).to.be.an('array')
+						expect(response.body).to.contain(perfis_subordinados)
+					},
+				)
 			})
 		})
 
