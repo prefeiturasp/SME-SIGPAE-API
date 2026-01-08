@@ -962,9 +962,8 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         self._update_responsaveis(instance)
         self._update_alunos(instance, validated_data)
         self._update_tipos_contagem_alimentacao(instance)
-        anexos = self._process_anexos(instance)
         self._finaliza_medicao_se_necessario(
-            instance, validated_data, anexos, justificativa_sem_lancamentos
+            instance, validated_data, justificativa_sem_lancamentos
         )
         self._finaliza_medicao_sem_lancamentos(instance, justificativa_sem_lancamentos)
         return instance
@@ -1074,6 +1073,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             self.valida_finalizar_medicao_escola_sem_alunos_regulares(instance)
             self.valida_finalizar_medicao_emebs(instance)
             instance.ue_envia(user=self.context["request"].user)
+            anexos = self._process_anexos(instance)
             if hasattr(instance, "ocorrencia"):
                 instance.ocorrencia.ue_envia(
                     user=self.context["request"].user, anexos=anexos
