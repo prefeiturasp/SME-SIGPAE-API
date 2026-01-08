@@ -52,8 +52,9 @@ class ParametrizacaoFinanceiraFilter(filters.FilterSet):
 
 class RelatorioFinanceiroFilter(filters.FilterSet):
     lote = filters.CharFilter(method="filtra_lotes")
-    grupo_unidade_escolar = filters.UUIDFilter(field_name="grupo_unidade_escolar__uuid")
+    grupo_unidade_escolar = filters.CharFilter(method="filtra_grupos")
     mes_ano = filters.CharFilter(method="filtra_mes_ano")
+    status = filters.CharFilter(method="filtra_status")
 
     def filtra_mes_ano(self, queryset, _, value):
         mes, ano = value.split("_")
@@ -62,6 +63,14 @@ class RelatorioFinanceiroFilter(filters.FilterSet):
     def filtra_lotes(self, queryset, _, value):
         uuids = value.split(",")
         return queryset.filter(lote__uuid__in=uuids)
+    
+    def filtra_grupos(self, queryset, _, value):
+        uuids = value.split(",")
+        return queryset.filter(grupo_unidade_escolar__uuid__in=uuids)
+
+    def filtra_status(self, queryset, _, value):
+        values = value.split(",")
+        return queryset.filter(status__in=values)
 
 
 class SolicitacaoMedicaoInicialFilter(filters.FilterSet):
