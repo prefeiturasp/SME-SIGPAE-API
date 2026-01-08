@@ -603,6 +603,13 @@ def test_relatorio_ficha_recebimento(
     assert "HOUVE OCORRÊNCIA(S) NO RECEBIMENTO: SIM" in texto
     assert "Faltaram 5 unidades do produto" in texto
 
+    assert "Qtde Recebida" in texto
+    assert "10,00 kg" in texto
+    assert (
+        ficha_recebimento_com_ocorrencia.etapa.cronograma.unidade_medida.abreviacao
+        in texto
+    )
+
     # Teste para Ficha de Recebimento de Reposição
     pdf_response_reposicao = get_pdf_ficha_recebimento(
         None, ficha_recebimento_reposicao
