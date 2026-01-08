@@ -1,3 +1,4 @@
+from sme_sigpae_api.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory import DocumentoDeRecebimentoFactory
 import datetime
 import io
 
@@ -424,13 +425,24 @@ def mock_filtros_relatorio_reclamacao(lote):
 def ficha_recebimento_com_ocorrencia():
     """Ficha de recebimento com ocorrência criada usando factories."""
 
-    cronograma = CronogramaFactory()
+    unidade_medida = baker.make(
+        "pre_recebimento.UnidadeMedida", nome="QUILOGRAMA", abreviacao="kg"
+    )
+    cronograma = CronogramaFactory(unidade_medida=unidade_medida)
     etapa = EtapasDoCronogramaFactory(cronograma=cronograma)
 
     ficha = FichaDeRecebimentoFactory(
         etapa=etapa,
         observacao="Recebimento com problemas detectados",
         houve_ocorrencia=True,
+    )
+
+    doc_recebimento = DocumentoDeRecebimentoFactory()
+    baker.make(
+         "recebimento.DocumentoFichaDeRecebimento",
+         ficha_recebimento=ficha,
+         documento_recebimento=doc_recebimento,
+         quantidade_recebida=10.00,
     )
 
     OcorrenciaFichaRecebimento.objects.create(

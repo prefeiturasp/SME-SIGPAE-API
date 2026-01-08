@@ -2268,7 +2268,7 @@ def get_pdf_ficha_recebimento(request, ficha):
     """
 
     documentos_serializer = DocRecebimentoFichaDeRecebimentoSerializer(
-        ficha.documentos_recebimento.all(), many=True
+        ficha.documentos_recebimento.all(), many=True, context={"ficha_recebimento": ficha}
     )
 
     html_string = render_to_string(

@@ -64,11 +64,11 @@
         <div class="row pb-3">
           <div class="col-6">
             Quantidade Programada:
-            <span class="font-weight-bold"> {{etapa.quantidade}}</span>
+            <span class="font-weight-bold"> {{etapa.quantidade}} {{cronograma.unidade_medida.abreviacao}}</span>
           </div>
           <div class="col-6">
             Embalagens Programadas:
-            <span class="font-weight-bold"> {{etapa.total_embalagens}}</span>
+            <span class="font-weight-bold"> {{etapa.total_embalagens}} {{cronograma.unidade_medida.abreviacao}}</span>
           </div>
         </div>
 
@@ -158,6 +158,7 @@
                 <th scope="col">Lote(s) do Laudo</th>
                 <th scope="col">Data(s) Fabricação</th>
                 <th scope="col">Data(s) Validade</th>
+                <th scope="col">Qtde Recebida</th>
               </tr>
             </thead>
             <tbody>
@@ -172,6 +173,7 @@
                   {{laudo.datas_fabricacao}}
                 </td>
                 <td>{{laudo.datas_validade}}</td>
+                <td>{{laudo.quantidade_recebida|agrupador_milhar_com_decimal}} {{cronograma.unidade_medida.abreviacao}}</td>
               </tr>
             {% endfor %}
             </tbody>
