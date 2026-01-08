@@ -1,10 +1,11 @@
 import calendar
 import json
 from datetime import date, datetime
-from django.utils import timezone
+
 import environ
 from django.core.exceptions import ValidationError
-from django.db.models import QuerySet, Q
+from django.db.models import Q, QuerySet
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
@@ -1057,7 +1058,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         return anexos_processados
 
     def _finaliza_medicao_se_necessario(
-        self, instance, validated_data, anexos, justificativa_sem_lancamentos
+        self, instance, validated_data, justificativa_sem_lancamentos
     ):
         if justificativa_sem_lancamentos:
             return
@@ -1501,13 +1502,17 @@ class ParametrizacaoFinanceiraWriteModelSerializer(serializers.ModelSerializer):
         if self.instance:
             return attrs
 
-        existe_ativa = ParametrizacaoFinanceira.objects.filter(
-            edital=attrs["edital"],
-            lote=attrs["lote"],
-            grupo_unidade_escolar=attrs["grupo_unidade_escolar"],
-        ).filter(
-            Q(data_final__isnull=True) | Q(data_final__gte=timezone.now().date())
-        ).exists()
+        existe_ativa = (
+            ParametrizacaoFinanceira.objects.filter(
+                edital=attrs["edital"],
+                lote=attrs["lote"],
+                grupo_unidade_escolar=attrs["grupo_unidade_escolar"],
+            )
+            .filter(
+                Q(data_final__isnull=True) | Q(data_final__gte=timezone.now().date())
+            )
+            .exists()
+        )
 
         if existe_ativa:
             raise ValidationError(
