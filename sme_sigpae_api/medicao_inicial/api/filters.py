@@ -63,7 +63,7 @@ class RelatorioFinanceiroFilter(filters.FilterSet):
     def filtra_lotes(self, queryset, _, value):
         uuids = value.split(",")
         return queryset.filter(lote__uuid__in=uuids)
-    
+
     def filtra_grupos(self, queryset, _, value):
         uuids = value.split(",")
         return queryset.filter(grupo_unidade_escolar__uuid__in=uuids)
