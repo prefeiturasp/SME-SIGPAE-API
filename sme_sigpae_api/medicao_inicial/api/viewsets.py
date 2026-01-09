@@ -2168,7 +2168,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             )
             parametrizacao = ParametrizacaoFinanceira.objects.filter(
                 lote=relatorio_financeiro.lote,
-                tipos_unidades__in=relatorio_financeiro.grupo_unidade_escolar.tipos_unidades.all(),
+                grupo_unidade_escolar=relatorio_financeiro.grupo_unidade_escolar,
             ).first()
             if not parametrizacao:
                 return Response(
@@ -2178,9 +2178,8 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
                     status=status.HTTP_404_NOT_FOUND,
                 )
             response = {
-                **ParametrizacaoFinanceiraSerializer(parametrizacao).data,
+                **DadosParametrizacaoFinanceiraSerializer(parametrizacao).data,
                 "lote": parametrizacao.lote.uuid,
-                "grupo_unidade_escolar": relatorio_financeiro.grupo_unidade_escolar.uuid,
                 "mes_ano": f"{relatorio_financeiro.mes}_{relatorio_financeiro.ano}",
             }
             return Response(
