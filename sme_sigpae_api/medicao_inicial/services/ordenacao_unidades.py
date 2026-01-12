@@ -39,7 +39,9 @@ def chave_ordenacao_unidade(obj) -> tuple:
     if escola_obj:
         tipo_unidade_obj = getattr(escola_obj, "tipo_unidade", None)
         if tipo_unidade_obj is not None:
-            tipo_str = getattr(tipo_unidade_obj, "iniciais", None) or str(tipo_unidade_obj)
+            tipo_str = getattr(tipo_unidade_obj, "iniciais", None) or str(
+                tipo_unidade_obj
+            )
     tipo_str = (tipo_str or "").strip()
 
     grupo, ordem = prioridade_por_tipo(tipo_str)

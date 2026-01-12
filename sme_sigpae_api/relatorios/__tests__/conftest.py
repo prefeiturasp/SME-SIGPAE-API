@@ -1,4 +1,3 @@
-from sme_sigpae_api.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory import DocumentoDeRecebimentoFactory
 import datetime
 import io
 
@@ -23,6 +22,9 @@ from sme_sigpae_api.perfil.models.usuario import Usuario
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (
     CronogramaFactory,
     EtapasDoCronogramaFactory,
+)
+from sme_sigpae_api.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory import (
+    DocumentoDeRecebimentoFactory,
 )
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.fixtures.factories.ficha_tecnica_do_produto_factory import (
     FichaTecnicaFactory,
@@ -439,10 +441,10 @@ def ficha_recebimento_com_ocorrencia():
 
     doc_recebimento = DocumentoDeRecebimentoFactory()
     baker.make(
-         "recebimento.DocumentoFichaDeRecebimento",
-         ficha_recebimento=ficha,
-         documento_recebimento=doc_recebimento,
-         quantidade_recebida=10.00,
+        "recebimento.DocumentoFichaDeRecebimento",
+        ficha_recebimento=ficha,
+        documento_recebimento=doc_recebimento,
+        quantidade_recebida=10.00,
     )
 
     OcorrenciaFichaRecebimento.objects.create(
