@@ -621,7 +621,9 @@ def client_autenticado_vinculo_terceirizada_dieta(
         data_inicial=hoje,
         ativo=True,
     )
-    classificacao = baker.make("ClassificacaoDieta", nome=CLASSIFICACAO_DIETA_NOME_TIPO_A)
+    classificacao = baker.make(
+        "ClassificacaoDieta", nome=CLASSIFICACAO_DIETA_NOME_TIPO_A
+    )
     protocolo_padrao = baker.make(
         "ProtocoloPadraoDietaEspecial",
         nome_protocolo="ALERGIA - OVO",

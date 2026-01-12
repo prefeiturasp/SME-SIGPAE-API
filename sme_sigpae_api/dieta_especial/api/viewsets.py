@@ -120,9 +120,9 @@ from .serializers import (
     AlimentoSerializer,
     ClassificacaoDietaSerializer,
     LogQuantidadeDietasAutorizadasCEISerializer,
-    LogQuantidadeDietasAutorizadasSerializer,
-    LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer,
     LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer,
+    LogQuantidadeDietasAutorizadasSerializer,
     MotivoAlteracaoUESerializer,
     MotivoNegacaoSerializer,
     PanoramaSerializer,
@@ -144,7 +144,6 @@ from .serializers_create import (
     ProtocoloPadraoDietaEspecialSerializerCreate,
     SolicitacaoDietaEspecialCreateSerializer,
 )
-
 
 MSG_DRE_NAO_INFORMADA = "(DRE não informada)"
 

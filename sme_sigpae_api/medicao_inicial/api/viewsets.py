@@ -68,14 +68,14 @@ from ..models import (
     Empenho,
     Medicao,
     OcorrenciaMedicaoInicial,
+    ParametrizacaoFinanceira,
+    ParametrizacaoFinanceiraTabela,
+    ParametrizacaoFinanceiraTabelaValor,
     PermissaoLancamentoEspecial,
     RelatorioFinanceiro,
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
     ValorMedicao,
-    ParametrizacaoFinanceira,
-    ParametrizacaoFinanceiraTabela,
-    ParametrizacaoFinanceiraTabelaValor,
 )
 from ..tasks import (
     exporta_relatorio_adesao_para_pdf,
@@ -2102,14 +2102,18 @@ class ParametrizacaoFinanceiraViewSet(ModelViewSet):
         url_path="clonar-encerrar/(?P<uuid_parametrizacao_financeira>[^/.]+)",
         permission_classes=[UsuarioMedicao],
     )
-    def clonar_encerrar_parametrizacao_financeira(self, request, uuid_parametrizacao_financeira):
+    def clonar_encerrar_parametrizacao_financeira(
+        self, request, uuid_parametrizacao_financeira
+    ):
         parametrizacao_origem = get_object_or_404(
             ParametrizacaoFinanceira,
             uuid=uuid_parametrizacao_financeira,
         )
 
         with transaction.atomic():
-            parametrizacao_origem.data_final = datetime.date.today() - datetime.timedelta(days=1)
+            parametrizacao_origem.data_final = (
+                datetime.date.today() - datetime.timedelta(days=1)
+            )
             parametrizacao_origem.save()
 
             nova_parametrizacao = ParametrizacaoFinanceira.objects.create(

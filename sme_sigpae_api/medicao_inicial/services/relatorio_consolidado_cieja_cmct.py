@@ -29,7 +29,6 @@ from sme_sigpae_api.medicao_inicial.services.utils import (
     update_periodos_alimentacoes,
 )
 
-
 NOME_PERIODO_SOLICITACAO_ALIMENTACAO = "Solicitações de Alimentação"
 DIETA_ESPECIAL_TIPO_A = "DIETA ESPECIAL - TIPO A"
 
