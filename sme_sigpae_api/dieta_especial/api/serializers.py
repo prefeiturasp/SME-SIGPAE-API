@@ -936,21 +936,19 @@ class LogQuantidadeDietasAutorizadasCEISerializer(serializers.ModelSerializer):
 
 
 class LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer(serializers.ModelSerializer):
-    escola_uuid = serializers.UUIDField(source="escola.uuid", read_only=True)
-    escola_nome = serializers.CharField(source="escola.nome", read_only=True)
-    classificacao_nome = serializers.CharField(source=CLASSIFICACAO_NOME_SOURCE, read_only=True)
+    escola = serializers.SlugRelatedField(
+        slug_field="uuid", required=False, queryset=Escola.objects.all()
+    )
+    classificacao = serializers.CharField(source=CLASSIFICACAO_NOME_SOURCE, read_only=True)
+    dia = serializers.SerializerMethodField()
+      
+    def get_dia(self, obj):
+        dia = obj.data.day
+        return f"{dia:02d}"
 
     class Meta:
         model = LogQuantidadeDietasAutorizadasRecreioNasFerias
-        fields = (
-            "uuid",
-            "data",
-            "escola_uuid",
-            "escola_nome",
-            "classificacao",
-            "classificacao_nome",
-            "quantidade",
-        )
+        exclude = ("id", "uuid")
 
 
 class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer(serializers.ModelSerializer):
