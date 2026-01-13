@@ -1,5 +1,5 @@
 {% include 'relatorio_base.html' %} {% load index %} {% load static %} {% load
-sass_tags %}
+sass_tags %} {% load humanize %}
 
 <html>
   <body>
@@ -343,7 +343,7 @@ sass_tags %}
             <div class="col-6">
               Quantidade da Nota Fiscal:
               <span class="font-weight-bold">
-                {{veiculo.quantidade_nota_fiscal}}
+                {{veiculo.quantidade_nota_fiscal|decimal_br:2}}
                 {{cronograma.unidade_medida.abreviacao}}
               </span>
             </div>
@@ -352,13 +352,13 @@ sass_tags %}
             <div class="col-6">
               Embalagens da Nota Fiscal:
               <span class="font-weight-bold">
-                {{veiculo.embalagens_nota_fiscal}}
+                {{veiculo.embalagens_nota_fiscal|intcomma}}
               </span>
             </div>
             <div class="col-6">
               Quantidade Recebida:
               <span class="font-weight-bold">
-                {{veiculo.quantidade_recebida}}
+                {{veiculo.quantidade_recebida|decimal_br:2}}
                 {{cronograma.unidade_medida.abreviacao}}
               </span>
             </div>
@@ -367,7 +367,7 @@ sass_tags %}
             <div class="col-6">
               Embalagens Recebidas:
               <span class="font-weight-bold">
-                {{veiculo.embalagens_recebidas}}
+                {{veiculo.embalagens_recebidas|intcomma}}
                 {{cronograma.tipo_embalagem_secundaria.abreviacao}}
               </span>
             </div>
