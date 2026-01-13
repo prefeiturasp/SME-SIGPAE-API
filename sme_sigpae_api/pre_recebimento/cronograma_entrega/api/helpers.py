@@ -199,7 +199,8 @@ def filtrar_etapas(serialized_data, filtros):
         etapas = cronograma_data.get("etapas", [])
 
         etapas[:] = [
-            etapa for etapa in etapas
+            etapa
+            for etapa in etapas
             if aplicar_filtros_etapa(
                 etapa,
                 data_inicio_obj,

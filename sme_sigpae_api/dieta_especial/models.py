@@ -843,7 +843,9 @@ class LogQuantidadeDietasAutorizadasCEI(TemChaveExterna, TemData, CriadoEm):
         ordering = ("-data", "escola__nome")
 
 
-class LogQuantidadeDietasAutorizadasRecreioNasFerias(TemChaveExterna, TemData, CriadoEm):
+class LogQuantidadeDietasAutorizadasRecreioNasFerias(
+    TemChaveExterna, TemData, CriadoEm
+):
     escola = models.ForeignKey(
         "escola.Escola",
         on_delete=models.CASCADE,
@@ -859,20 +861,18 @@ class LogQuantidadeDietasAutorizadasRecreioNasFerias(TemChaveExterna, TemData, C
     def __str__(self) -> str:
         return (
             f'{self.escola.nome} - {self.data.strftime("%d/%m/%Y")} - '
-            f'{self.classificacao.nome} - {self.quantidade} dieta(s)'
+            f"{self.classificacao.nome} - {self.quantidade} dieta(s)"
         )
 
     class Meta:
-        verbose_name = (
-            "Log da quantidade de dietas autorizadas por unidade escolar - Recreio nas Férias"
-        )
-        verbose_name_plural = (
-            "Logs da quantidade de dietas autorizadas por unidade escolar - Recreio nas Férias"
-        )
+        verbose_name = "Log da quantidade de dietas autorizadas por unidade escolar - Recreio nas Férias"
+        verbose_name_plural = "Logs da quantidade de dietas autorizadas por unidade escolar - Recreio nas Férias"
         ordering = ("-data", "escola__nome")
 
 
-class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI(TemChaveExterna, TemData, CriadoEm):
+class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI(
+    TemChaveExterna, TemData, CriadoEm
+):
     escola = models.ForeignKey(
         "escola.Escola",
         on_delete=models.CASCADE,
@@ -894,14 +894,10 @@ class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI(TemChaveExterna, TemData
     def __str__(self) -> str:
         return (
             f'{self.escola.nome} - {self.data.strftime("%d/%m/%Y")} - '
-            f'{self.classificacao.nome} - {self.quantidade} dieta(s) -- {self.faixa_etaria}'
+            f"{self.classificacao.nome} - {self.quantidade} dieta(s) -- {self.faixa_etaria}"
         )
 
     class Meta:
-        verbose_name = (
-            "Log da quantidade de dietas autorizadas por unidade escolar CEI - Recreio nas Férias"
-        )
-        verbose_name_plural = (
-            "Logs da quantidade de dietas autorizadas por unidade escolar CEI - Recreio nas Férias"
-        )
+        verbose_name = "Log da quantidade de dietas autorizadas por unidade escolar CEI - Recreio nas Férias"
+        verbose_name_plural = "Logs da quantidade de dietas autorizadas por unidade escolar CEI - Recreio nas Férias"
         ordering = ("-data", "escola__nome")

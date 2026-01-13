@@ -1,22 +1,22 @@
-import logging
 import datetime
+import logging
 
-from django.db.models import Q
 from celery import shared_task
+from django.db.models import Q
 
 from sme_sigpae_api.dieta_especial.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
-    SolicitacaoDietaEspecial,
     LogQuantidadeDietasAutorizadasRecreioNasFerias,
     LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
+    SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.dieta_especial.tasks.utils.logs import (
     cria_logs_totais_cei_por_faixa_etaria,
     gera_logs_dietas_escolas_cei,
     gera_logs_dietas_escolas_comuns,
-    gera_logs_dietas_recreio_ferias_escolas_comuns,
     gera_logs_dietas_recreio_ferias_escolas_cei,
+    gera_logs_dietas_recreio_ferias_escolas_comuns,
     gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei,
 )
 from sme_sigpae_api.escola.models import Escola

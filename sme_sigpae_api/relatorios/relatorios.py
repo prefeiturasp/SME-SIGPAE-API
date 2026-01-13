@@ -1624,7 +1624,10 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
             html_string, "relatorio_dieta_especial.pdf", is_async=True
         )
     return html_to_pdf_watermark(
-        html_string, "relatorio_dieta_especial.pdf", ARQUIVO_MARCA_DAGUA_PRELIMINAR, is_async=True
+        html_string,
+        "relatorio_dieta_especial.pdf",
+        ARQUIVO_MARCA_DAGUA_PRELIMINAR,
+        is_async=True,
     )
 
 
@@ -1662,7 +1665,10 @@ def relatorio_solicitacao_medicao_por_escola_cei(solicitacao):
         )
     else:
         return html_to_pdf_watermark(
-            html_string, "relatorio_dieta_especial.pdf", ARQUIVO_MARCA_DAGUA_PRELIMINAR, is_async=True
+            html_string,
+            "relatorio_dieta_especial.pdf",
+            ARQUIVO_MARCA_DAGUA_PRELIMINAR,
+            is_async=True,
         )
 
 
@@ -1718,7 +1724,10 @@ def relatorio_solicitacao_medicao_por_escola_cemei(solicitacao):
         )
     else:
         return html_to_pdf_watermark(
-            html_string, "relatorio_dieta_especial.pdf", ARQUIVO_MARCA_DAGUA_PRELIMINAR, is_async=True
+            html_string,
+            "relatorio_dieta_especial.pdf",
+            ARQUIVO_MARCA_DAGUA_PRELIMINAR,
+            is_async=True,
         )
 
 
@@ -2025,7 +2034,10 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
         )
     else:
         return html_to_pdf_watermark(
-            html_string, "relatorio_dieta_especial.pdf", ARQUIVO_MARCA_DAGUA_PRELIMINAR, is_async=True
+            html_string,
+            "relatorio_dieta_especial.pdf",
+            ARQUIVO_MARCA_DAGUA_PRELIMINAR,
+            is_async=True,
         )
 
 
@@ -2268,7 +2280,9 @@ def get_pdf_ficha_recebimento(request, ficha):
     """
 
     documentos_serializer = DocRecebimentoFichaDeRecebimentoSerializer(
-        ficha.documentos_recebimento.all(), many=True, context={"ficha_recebimento": ficha}
+        ficha.documentos_recebimento.all(),
+        many=True,
+        context={"ficha_recebimento": ficha},
     )
 
     html_string = render_to_string(

@@ -621,7 +621,9 @@ def client_autenticado_vinculo_terceirizada_dieta(
         data_inicial=hoje,
         ativo=True,
     )
-    classificacao = baker.make("ClassificacaoDieta", nome=CLASSIFICACAO_DIETA_NOME_TIPO_A)
+    classificacao = baker.make(
+        "ClassificacaoDieta", nome=CLASSIFICACAO_DIETA_NOME_TIPO_A
+    )
     protocolo_padrao = baker.make(
         "ProtocoloPadraoDietaEspecial",
         nome_protocolo="ALERGIA - OVO",
@@ -2163,3 +2165,17 @@ def mock_request_codae_atualiza_protocolo(
         "data_termino": "2026-10-25",
         "registro_funcional_nutricionista": "Elaborado por NUTRI CODAE ADMIN - RF 8107807",
     }
+
+
+@pytest.fixture
+def logs_dieta_recreio_nas_ferias(escola, classificacoes_dietas):
+
+    data = datetime.date(2025, 12, 22)
+    for classificacao in classificacoes_dietas:
+        baker.make(
+            "LogQuantidadeDietasAutorizadasRecreioNasFerias",
+            escola=escola,
+            quantidade=5,
+            classificacao=classificacao,
+            data=data,
+        )

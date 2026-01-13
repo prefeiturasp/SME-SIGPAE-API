@@ -253,7 +253,9 @@ def tipo_alimentacao():
         TipoAlimentacao.objects.create(nome=TipoAlimentacao.LANCHE_4H).save()
         print("4.2. TipoAlimentacao Lanche 4h cadastrado.")
 
-    lanche_emergencial = TipoAlimentacao.objects.filter(nome=TipoAlimentacao.LANCHE_EMERGENCIAL)
+    lanche_emergencial = TipoAlimentacao.objects.filter(
+        nome=TipoAlimentacao.LANCHE_EMERGENCIAL
+    )
     if not lanche_emergencial.exists():
         print(
             " 4.3. Nenhum TipoAlimentacao para Lanche emergencial encontrado. Cadastrando..."
@@ -288,7 +290,9 @@ def motivo_inclusao_normal():
         print(
             " 6.1 Nenhum MotivoInclusaoNormal para Evento Específico encontrado. Cadastrando..."
         )
-        MotivoInclusaoNormal.objects.create(nome=MOTIVO_INCLUSAO_EVENTO_ESPECIFICO).save()
+        MotivoInclusaoNormal.objects.create(
+            nome=MOTIVO_INCLUSAO_EVENTO_ESPECIFICO
+        ).save()
         print("6.2 MotivoInclusaoNormal Evento Específico cadastrado.")
 
 
@@ -609,9 +613,13 @@ def solicitar_lanche_emergencial(
 ):
 
     data = data_solicitacao_lanche_emergencial()
-    motivo = MotivoAlteracaoCardapio.objects.get(nome=TipoAlimentacao.LANCHE_EMERGENCIAL)
+    motivo = MotivoAlteracaoCardapio.objects.get(
+        nome=TipoAlimentacao.LANCHE_EMERGENCIAL
+    )
     tipo_alimentacao = TipoAlimentacao.objects.get(nome=TipoAlimentacao.LANCHE_4H)
-    tipo_lanche_emergencial = TipoAlimentacao.objects.get(nome=TipoAlimentacao.LANCHE_EMERGENCIAL)
+    tipo_lanche_emergencial = TipoAlimentacao.objects.get(
+        nome=TipoAlimentacao.LANCHE_EMERGENCIAL
+    )
     usuario_codae = obter_usuario_codae()
 
     solicitacao_json = {
@@ -669,9 +677,13 @@ def solicitar_lanche_emergencial_cemei(
 ):
 
     data = data_solicitacao_lanche_emergencial()
-    motivo = MotivoAlteracaoCardapio.objects.get(nome=TipoAlimentacao.LANCHE_EMERGENCIAL)
+    motivo = MotivoAlteracaoCardapio.objects.get(
+        nome=TipoAlimentacao.LANCHE_EMERGENCIAL
+    )
     tipo_alimentacao = TipoAlimentacao.objects.get(nome=TipoAlimentacao.LANCHE_4H)
-    tipo_lanche_emergencial = TipoAlimentacao.objects.get(nome=TipoAlimentacao.LANCHE_EMERGENCIAL)
+    tipo_lanche_emergencial = TipoAlimentacao.objects.get(
+        nome=TipoAlimentacao.LANCHE_EMERGENCIAL
+    )
     usuario_codae = obter_usuario_codae()
 
     solicitacao_json = {
@@ -1010,7 +1022,9 @@ def incluir_dietas_especiais_cei(
     faixas = FaixaEtaria.objects.filter(ativo=True)
     for periodo in periodos_escolares:
         for classificacao in classificacoes_dieta:
-            quantidade = 1 if CLASSIFICACAO_DIETA_NOME_TIPO_A in classificacao.nome else 2
+            quantidade = (
+                1 if CLASSIFICACAO_DIETA_NOME_TIPO_A in classificacao.nome else 2
+            )
             for faixa in faixas:
                 for dia in range(1, quantidade_dias_mes + 1):
                     log = LogQuantidadeDietasAutorizadasCEI(
@@ -1056,7 +1070,9 @@ def cadastra_cei_da_cemei(
     for periodo in periodos_cei_cemei:
         pe = PeriodoEscolar.objects.get(nome=periodo)
         for classificacao in classificacoes_dieta:
-            quantidade = 1 if CLASSIFICACAO_DIETA_NOME_TIPO_A in classificacao.nome else 2
+            quantidade = (
+                1 if CLASSIFICACAO_DIETA_NOME_TIPO_A in classificacao.nome else 2
+            )
             for faixa in faixas:
                 for dia in range(1, quantidade_dias_mes + 1):
                     log = LogQuantidadeDietasAutorizadasCEI(
@@ -1079,7 +1095,9 @@ def cadastra_emei_da_cemei(
     for periodo in periodos_emei_cemei:
         pe = PeriodoEscolar.objects.get(nome=periodo)
         for classificacao in classificacoes_dieta:
-            quantidade = 1 if CLASSIFICACAO_DIETA_NOME_TIPO_A in classificacao.nome else 2
+            quantidade = (
+                1 if CLASSIFICACAO_DIETA_NOME_TIPO_A in classificacao.nome else 2
+            )
             for dia in range(1, quantidade_dias_mes + 1):
                 log = LogQuantidadeDietasAutorizadas(
                     escola=escola,

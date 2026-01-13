@@ -56,7 +56,9 @@ def _aplicar_estilos_leve_leite(worksheet, workbook, indices_leve_leite, dados):
         worksheet.write(excel_row, col_produto, valor_produto, blue_format)
 
 
-def _finalizar_formatacao_worksheet(worksheet, workbook, headers, subtitulo, titulo_relatorio):
+def _finalizar_formatacao_worksheet(
+    worksheet, workbook, headers, subtitulo, titulo_relatorio
+):
     """Aplica formatações finais à planilha."""
     ultima_coluna = len(headers) - 1
     _definir_largura_colunas(worksheet)
@@ -122,7 +124,9 @@ def gerar_relatorio_cronogramas_xlsx_async(user, ids_cronogramas, filtros=None):
         worksheet = xlsxwriter.sheets[TITULO_RELATORIO]
 
         _aplicar_estilos_leve_leite(worksheet, workbook, indices_leve_leite, dados)
-        _finalizar_formatacao_worksheet(worksheet, workbook, HEADERS, subtitulo, TITULO_RELATORIO)
+        _finalizar_formatacao_worksheet(
+            worksheet, workbook, HEADERS, subtitulo, TITULO_RELATORIO
+        )
 
         xlsxwriter.close()
         output.seek(0)

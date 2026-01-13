@@ -120,9 +120,9 @@ from .serializers import (
     AlimentoSerializer,
     ClassificacaoDietaSerializer,
     LogQuantidadeDietasAutorizadasCEISerializer,
-    LogQuantidadeDietasAutorizadasSerializer,
-    LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer,
     LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer,
+    LogQuantidadeDietasAutorizadasSerializer,
     MotivoAlteracaoUESerializer,
     MotivoNegacaoSerializer,
     PanoramaSerializer,
@@ -144,7 +144,6 @@ from .serializers_create import (
     ProtocoloPadraoDietaEspecialSerializerCreate,
     SolicitacaoDietaEspecialCreateSerializer,
 )
-
 
 MSG_DRE_NAO_INFORMADA = "(DRE não informada)"
 
@@ -1005,12 +1004,6 @@ class SolicitacaoDietaEspecialViewSet(
 
     def filtrar_queryset_polo_recreio_ferias(self, query_set, query_params):
         motivos = []
-
-        if query_params.get("cei_polo") == "true":
-            motivos.append("polo")
-
-        if query_params.get("recreio_nas_ferias") == "true":
-            motivos.append("recreio")
 
         if query_params.get("outro") == "true":
             motivos.append("outro")

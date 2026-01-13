@@ -5832,9 +5832,17 @@ class FluxoFormularioSupervisao(xwf_models.WorkflowEnabled, models.Model):
 class RelatorioFinanceiroMedicaoInicialWorkflow(xwf_models.Workflow):
     log_model = ""  # Disable logging to database
 
+    RELATORIO_FINANCEIRO_GERADO = "RELATORIO_FINANCEIRO_GERADO"
     EM_ANALISE = "EM_ANALISE"
+    GERADA_MEDICAO_FINAL = "GERADA_MEDICAO_FINAL"
+    FINALIZADO = "FINALIZADO"
 
-    states = ((EM_ANALISE, "Em análise"),)
+    states = (
+        (RELATORIO_FINANCEIRO_GERADO, "Relatório Financeiro Gerado"),
+        (EM_ANALISE, "Em análise"),
+        (GERADA_MEDICAO_FINAL, "Gerada Medição Final"),
+        (FINALIZADO, "Finalizado"),
+    )
 
     transitions = ()
 

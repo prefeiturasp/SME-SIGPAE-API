@@ -25,7 +25,6 @@ from sme_sigpae_api.medicao_inicial.services.utils import (
 
 from ..models import CategoriaMedicao
 
-
 MEDICAO_CATEGORIA_ALIMENTACAO = "ALIMENTAÇÃO"
 
 
@@ -371,7 +370,8 @@ def _total_pagamento_emei(medicao, nome_campo):
 
     total_pagamento = (
         medicao.valores_medicao.filter(
-            nome_campo__in=lista_campos, categoria_medicao__nome=MEDICAO_CATEGORIA_ALIMENTACAO
+            nome_campo__in=lista_campos,
+            categoria_medicao__nome=MEDICAO_CATEGORIA_ALIMENTACAO,
         )
         .annotate(valor_float=Cast("valor", output_field=FloatField()))
         .aggregate(total=Sum("valor_float"))
