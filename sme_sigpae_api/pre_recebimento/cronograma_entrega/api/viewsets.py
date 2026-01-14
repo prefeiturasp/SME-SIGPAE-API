@@ -805,6 +805,7 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
             solicitacao_cronograma.save()
 
             if cronograma.status != Cronograma.workflow_class.ASSINADO_CODAE:
+                usuario_codae = cronograma.logs[len(cronograma.logs) - 2].usuario
                 cronograma.finaliza_solicitacao_alteracao(
                     user=usuario_codae,
                     justificativa=str(solicitacao_cronograma.uuid),
