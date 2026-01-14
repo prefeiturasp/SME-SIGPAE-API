@@ -1,5 +1,6 @@
 import pytest
 from rest_framework import status
+from django.urls import reverse
 
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from sme_sigpae_api.terceirizada.models import Terceirizada
@@ -49,3 +50,59 @@ def test_post_cronogramas(
     response = client.post(f"/cronogramas/", payload)
 
     assert response.status_code == status.HTTP_201_CREATED
+
+
+def test_fornecedor_ciente_nao_aplica_alteracoes_se_ja_assinado_codae(
+    client_autenticado_fornecedor,
+    solicitacao_alteracao_cronograma,
+):
+    """
+    Se o cronograma já está ASSINADO_CODAE,
+    fornecedor_ciente NÃO reaplica as alterações.
+    """
+    from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
+        Cronograma,
+        SolicitacaoAlteracaoCronograma,
+    )
+
+    client, user = client_autenticado_fornecedor
+    solicitacao = solicitacao_alteracao_cronograma
+    cronograma = solicitacao.cronograma
+
+    # ✅ cronograma já finalizado
+    cronograma.status = Cronograma.workflow_class.ASSINADO_CODAE
+    cronograma.save(update_fields=["status"])
+
+    # ✅ solicitação no ÚNICO estado válido para fornecedor_ciente
+    solicitacao.status = (
+        SolicitacaoAlteracaoCronograma.workflow_class.ALTERACAO_ENVIADA_FORNECEDOR
+    )
+    solicitacao.save(update_fields=["status"])
+
+    qtd_antes = cronograma.qtd_total_programada
+    etapas_antes = list(cronograma.etapas.values_list("id", flat=True))
+    programacoes_antes = list(
+        cronograma.programacoes_de_recebimento.values_list("id", flat=True)
+    )
+
+    url = reverse(
+        "solicitacao-de-alteracao-de-cronograma-fornecedor-ciente",
+        kwargs={"uuid": solicitacao.uuid},
+    )
+
+    response = client.patch(
+        url,
+        data={"password": DJANGO_ADMIN_PASSWORD},
+    )
+
+    assert response.status_code == status.HTTP_200_OK, response.data
+
+    cronograma.refresh_from_db()
+
+    assert cronograma.status == Cronograma.workflow_class.ASSINADO_CODAE
+    assert cronograma.qtd_total_programada == qtd_antes
+    assert list(cronograma.etapas.values_list("id", flat=True)) == etapas_antes
+    assert list(
+        cronograma.programacoes_de_recebimento.values_list("id", flat=True)
+    ) == programacoes_antes
+
