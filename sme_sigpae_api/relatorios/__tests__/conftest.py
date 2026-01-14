@@ -32,6 +32,7 @@ from sme_sigpae_api.pre_recebimento.ficha_tecnica.fixtures.factories.ficha_tecni
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from sme_sigpae_api.recebimento.fixtures.factories.ficha_de_recebimento_factory import (
     FichaDeRecebimentoFactory,
+    VeiculoFichaDeRecebimentoFactory,
 )
 from sme_sigpae_api.recebimento.fixtures.factories.reposicao_cronograma_factory import (
     ReposicaoCronogramaFichaRecebimentoFactory,
@@ -445,6 +446,23 @@ def ficha_recebimento_com_ocorrencia():
         ficha_recebimento=ficha,
         documento_recebimento=doc_recebimento,
         quantidade_recebida=10.00,
+    )
+
+    VeiculoFichaDeRecebimentoFactory(
+        ficha_recebimento=ficha,
+        numero="VEÍCULO 01",
+        temperatura_recebimento="22°C",
+        temperatura_produto="4°C",
+        lacre="LACRE123456",
+        numero_sif_sisbi_sisp="SIF123456",
+        numero_nota_fiscal="NF123456",
+        quantidade_nota_fiscal=2000.00,
+        embalagens_nota_fiscal=3000,
+        quantidade_recebida=1000.00,
+        embalagens_recebidas=1500,
+        estado_higienico_adequado=True,
+        termografo=True,
+        placa="ABC1234",
     )
 
     OcorrenciaFichaRecebimento.objects.create(
