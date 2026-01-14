@@ -4736,13 +4736,25 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
         )
 
     @xworkflows.after_transition("finaliza_solicitacao_alteracao")
-    def _codae_finaliza_solicitacao_alteracao_hook(self, *args, **kwargs):
+    def _finaliza_solicitacao_alteracao_hook(self, *args, **kwargs):
+        from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import SolicitacaoAlteracaoCronograma
+
         user = kwargs["user"]
-        if user:
-            self.salvar_log_transicao(
-                status_evento=LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELA_CODAE,
-                usuario=user,
-            )
+        solicitacao_uuid = kwargs.get("justificativa")
+
+        if solicitacao_uuid:
+            solicitacao = SolicitacaoAlteracaoCronograma.objects.get(uuid=solicitacao_uuid)
+
+            self.qtd_total_programada = solicitacao.qtd_total_programada
+            self.etapas.set(solicitacao.etapas_novas.all())
+            self.programacoes_de_recebimento.all().delete()
+            self.programacoes_de_recebimento.set(solicitacao.programacoes_novas.all())
+            self.save()
+
+        self.salvar_log_transicao(
+            status_evento=LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELA_CODAE,
+            usuario=user,
+        )
 
     class Meta:
         abstract = True

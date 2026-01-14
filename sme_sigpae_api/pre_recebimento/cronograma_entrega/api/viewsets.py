@@ -801,22 +801,15 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
 
             solicitacao_cronograma.fornecedor_ciente(user=usuario)
             cronograma = solicitacao_cronograma.cronograma
-            cronograma.qtd_total_programada = (
-                solicitacao_cronograma.qtd_total_programada
-            )
-            cronograma.etapas.set(solicitacao_cronograma.etapas_novas.all())
-            cronograma.programacoes_de_recebimento.all().delete()
-            cronograma.programacoes_de_recebimento.set(
-                solicitacao_cronograma.programacoes_novas.all()
-            )
-            cronograma.save()
 
             solicitacao_cronograma.save()
-            # Pega o usuario CODAE do penúltimo log, pois ele sempre será a assinatura da CODAE
-            usuario_codae = cronograma.logs[len(cronograma.logs) - 2].usuario
-            solicitacao_cronograma.cronograma.finaliza_solicitacao_alteracao(
-                user=usuario_codae
-            )
+
+            if cronograma.status != Cronograma.workflow_class.ASSINADO_CODAE:
+                usuario_codae = cronograma.logs[len(cronograma.logs) - 2].usuario
+                cronograma.finaliza_solicitacao_alteracao(
+                    user=usuario_codae,
+                    justificativa=str(solicitacao_cronograma.uuid),
+                )
             serializer = SolicitacaoAlteracaoCronogramaSerializer(
                 solicitacao_cronograma
             )

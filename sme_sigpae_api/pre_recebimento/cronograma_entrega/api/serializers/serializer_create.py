@@ -252,6 +252,10 @@ class SolicitacaoDeAlteracaoCronogramaCreateSerializer(serializers.ModelSerializ
                 cronograma.codae_realiza_alteracao(
                     user=user, justificativa=alteracao_cronograma.uuid
                 )
+                cronograma.finaliza_solicitacao_alteracao(
+                    user=user,
+                    justificativa=str(alteracao_cronograma.uuid),
+                )
         except InvalidTransitionError as e:
             raise serializers.ValidationError(
                 f"Erro de transição de estado do cronograma: {e}"
