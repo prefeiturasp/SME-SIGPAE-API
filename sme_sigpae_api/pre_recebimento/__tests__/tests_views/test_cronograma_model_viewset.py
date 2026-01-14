@@ -5,6 +5,7 @@ from django.urls import reverse
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from sme_sigpae_api.terceirizada.models import Terceirizada
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
+    Cronograma,
     SolicitacaoAlteracaoCronograma,
 )
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
@@ -60,24 +61,13 @@ def test_fornecedor_ciente_nao_aplica_alteracoes_se_ja_assinado_codae(
     client_user_autenticado_fornecedor,
     solicitacao_alteracao_cronograma,
 ):
-    """
-    Se o cronograma já está ASSINADO_CODAE,
-    fornecedor_ciente NÃO reaplica as alterações.
-    """
-    from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
-        Cronograma,
-        SolicitacaoAlteracaoCronograma,
-    )
-
     client, user = client_user_autenticado_fornecedor
     solicitacao = solicitacao_alteracao_cronograma
     cronograma = solicitacao.cronograma
 
-    # ✅ cronograma já finalizado
     cronograma.status = Cronograma.workflow_class.ASSINADO_CODAE
     cronograma.save(update_fields=["status"])
 
-    # ✅ solicitação no ÚNICO estado válido para fornecedor_ciente
     solicitacao.status = (
         SolicitacaoAlteracaoCronograma.workflow_class.ALTERACAO_ENVIADA_FORNECEDOR
     )
