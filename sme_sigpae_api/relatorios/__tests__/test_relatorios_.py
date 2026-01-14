@@ -605,6 +605,19 @@ def test_relatorio_ficha_recebimento(
 
     assert "Qtde Recebida" in texto
     assert "10,00 kg" in texto
+
+    assert "Quantidade da Nota Fiscal" in texto
+    assert "2.000,00 kg" in texto
+
+    assert "Quantidade Recebida" in texto
+    assert "1.000,00 kg" in texto
+
+    assert "Embalagens da Nota Fiscal" in texto
+    assert "3.000" in texto
+
+    assert "Embalagens Recebidas" in texto
+    assert "1.500" in texto
+
     assert (
         ficha_recebimento_com_ocorrencia.etapa.cronograma.unidade_medida.abreviacao
         in texto

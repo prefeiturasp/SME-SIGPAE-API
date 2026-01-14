@@ -94,10 +94,10 @@ def test_veiculo_ficha_recebimento_serializer(veiculo_ficha_recebimento):
     assert data["lacre"] == "LCR123456"
     assert data["numero_sif_sisbi_sisp"] == "123"
     assert data["numero_nota_fiscal"] == "NF123"
-    assert data["quantidade_nota_fiscal"] == "10"
-    assert data["embalagens_nota_fiscal"] == "5"
-    assert data["quantidade_recebida"] == "10"
-    assert data["embalagens_recebidas"] == "5"
+    assert data["quantidade_nota_fiscal"] == "10.00"
+    assert data["embalagens_nota_fiscal"] == 5
+    assert data["quantidade_recebida"] == "10.00"
+    assert data["embalagens_recebidas"] == 5
     assert data["estado_higienico_adequado"] == True
     assert data["termografo"] == False
 
