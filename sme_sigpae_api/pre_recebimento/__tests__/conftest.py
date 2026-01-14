@@ -1482,7 +1482,7 @@ def solicitacao_alteracao_cronograma(
 
 
 @pytest.fixture
-def client_autenticado_fornecedor(
+def client_user_autenticado_fornecedor(
     client,
     django_user_model,
     empresa_factory,

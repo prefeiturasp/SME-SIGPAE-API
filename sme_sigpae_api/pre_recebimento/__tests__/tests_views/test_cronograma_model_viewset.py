@@ -57,7 +57,7 @@ def test_post_cronogramas(
 
 
 def test_fornecedor_ciente_nao_aplica_alteracoes_se_ja_assinado_codae(
-    client_autenticado_fornecedor,
+    client_user_autenticado_fornecedor,
     solicitacao_alteracao_cronograma,
 ):
     """
@@ -69,7 +69,7 @@ def test_fornecedor_ciente_nao_aplica_alteracoes_se_ja_assinado_codae(
         SolicitacaoAlteracaoCronograma,
     )
 
-    client, user = client_autenticado_fornecedor
+    client, user = client_user_autenticado_fornecedor
     solicitacao = solicitacao_alteracao_cronograma
     cronograma = solicitacao.cronograma
 
@@ -112,7 +112,7 @@ def test_fornecedor_ciente_nao_aplica_alteracoes_se_ja_assinado_codae(
 
 
 def test_fornecedor_ciente_aplica_alteracoes_se_nao_assinado_codae(
-    client_autenticado_fornecedor,
+    client_user_autenticado_fornecedor,
     solicitacao_alteracao_cronograma,
     django_user_model,
 ):
@@ -121,7 +121,7 @@ def test_fornecedor_ciente_aplica_alteracoes_se_nao_assinado_codae(
         SolicitacaoAlteracaoCronograma,
     )
 
-    client, user = client_autenticado_fornecedor
+    client, user = client_user_autenticado_fornecedor
     solicitacao = solicitacao_alteracao_cronograma
     cronograma = solicitacao.cronograma
 
