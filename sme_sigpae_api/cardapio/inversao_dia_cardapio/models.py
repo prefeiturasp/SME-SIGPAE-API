@@ -22,6 +22,8 @@ from sme_sigpae_api.dados_comuns.behaviors import (
 from sme_sigpae_api.dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
 
+FORMATO_DATA_BR = "%d/%m/%Y"
+
 
 class InversaoCardapio(
     ExportModelOperationsMixin("inversao_cardapio"),
@@ -91,11 +93,11 @@ class InversaoCardapio(
     @property
     def datas(self):
         if self.cardapio_de:
-            datas = self.cardapio_de.data.strftime("%d/%m/%Y")
+            datas = self.cardapio_de.data.strftime(FORMATO_DATA_BR)
         else:
-            datas = self.data_de_inversao.strftime("%d/%m/%Y")
+            datas = self.data_de_inversao.strftime(FORMATO_DATA_BR)
         if self.data_de_inversao_2:
-            datas += "<br />" + self.data_de_inversao_2.strftime("%d/%m/%Y")
+            datas += "<br />" + self.data_de_inversao_2.strftime(FORMATO_DATA_BR)
         return datas
 
     @property
@@ -161,10 +163,10 @@ class InversaoCardapio(
         data_de_inversao = ""
         data_de_inversao_2 = ""
         if self.data_de_inversao:
-            data_de_inversao = self.data_de_inversao.strftime("%d/%m/%Y")
+            data_de_inversao = self.data_de_inversao.strftime(FORMATO_DATA_BR)
 
         if self.data_de_inversao_2:
-            data_de_inversao_2 = self.data_de_inversao_2.strftime("%d/%m/%Y")
+            data_de_inversao_2 = self.data_de_inversao_2.strftime(FORMATO_DATA_BR)
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
             "unidade_educacional": self.rastro_escola.nome,
