@@ -9,6 +9,8 @@ from sme_sigpae_api.dieta_especial.models import (
 )
 
 logger = logging.getLogger("sigpae.cmd_corrige_protocolos_padrao_dieta_especial")
+NOVO_HIFEN = " - NOVO"
+NOVO_PARENTESES = " (NOVO)"
 
 
 class Command(BaseCommand):
@@ -29,24 +31,24 @@ class Command(BaseCommand):
         )
         qtd_novos = (
             ProtocoloPadraoDietaEspecial.objects.filter(
-                nome_protocolo__icontains=" - NOVO"
+                nome_protocolo__icontains=NOVO_HIFEN
             ).count()
             + ProtocoloPadraoDietaEspecial.objects.filter(
-                nome_protocolo__icontains=" (NOVO)"
+                nome_protocolo__icontains=NOVO_PARENTESES
             ).count()
         )
         ProtocoloPadraoDietaEspecial.objects.filter(
-            nome_protocolo__icontains=" - NOVO"
+            nome_protocolo__icontains=NOVO_HIFEN
         ).update(
             nome_protocolo=Func(
-                F("nome_protocolo"), Value(" - NOVO"), Value(""), function="replace"
+                F("nome_protocolo"), Value(NOVO_HIFEN), Value(""), function="replace"
             )
         )
         ProtocoloPadraoDietaEspecial.objects.filter(
-            nome_protocolo__icontains=" (NOVO)"
+            nome_protocolo__icontains=NOVO_PARENTESES
         ).update(
             nome_protocolo=Func(
-                F("nome_protocolo"), Value(" (NOVO)"), Value(""), function="replace"
+                F("nome_protocolo"), Value(NOVO_PARENTESES), Value(""), function="replace"
             )
         )
         self.stdout.write(self.style.SUCCESS(f"{qtd_novos} corrigidos"))

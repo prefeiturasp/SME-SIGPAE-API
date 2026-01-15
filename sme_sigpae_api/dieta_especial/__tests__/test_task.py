@@ -529,8 +529,6 @@ def test_build_xlsx_status_autorizado(
         assert rows[row_idx][1] == "123456"
         assert rows[row_idx][2] == "Roberto Alves da Silva"
         assert rows[row_idx][4] == "CEI DIRET JOAO MENDES"
-        rows[row_idx][5] == None
-        rows[row_idx][6] == None
 
 
 def test_gera_xlsx_relatorio_dietas_especiais_terceirizadas_async(
