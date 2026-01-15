@@ -129,14 +129,14 @@
                     {% if solicitacao.eh_evento_especifico %}
                       <thead>
                         <tr>
-                          <th class="text-center">Quantidade: {{quantidade_emei.quantidade_alunos}}</th>
+                          <th scope="col" class="text-center">Quantidade: {{quantidade_emei.quantidade_alunos}}</th>
                         </tr>
                       </thead>
                     {% else %}
                       <thead>
                         <tr>
-                          <th class="text-center">Alunos Matriculados: {{quantidade_emei.matriculados_quando_criado}}</th>
-                          <th class="text-center">Quantidade: {{quantidade_emei.quantidade_alunos}}</th>
+                          <th scope="col" class="text-center">Alunos Matriculados: {{quantidade_emei.matriculados_quando_criado}}</th>
+                          <th scope="col" class="text-center">Quantidade: {{quantidade_emei.quantidade_alunos}}</th>
                         </tr>
                       </thead>
                     {% endif %}
