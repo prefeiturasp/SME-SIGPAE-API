@@ -1,14 +1,29 @@
 import datetime
 import logging
-import pytest
-from freezegun import freeze_time
-
-from celery import shared_task
-from django.db.models import Q
 from collections import Counter
 
+import pytest
+from celery import shared_task
+from django.db.models import Q
+from freezegun import freeze_time
+
+from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
+    ClassificacaoDietaFactory,
+    MotivoAlteracaoUEFactory,
+    SolicitacaoDietaEspecialFactory,
+)
+from sme_sigpae_api.dieta_especial.models import (
+    LogQuantidadeDietasAutorizadasRecreioNasFerias,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
+    SolicitacaoDietaEspecial,
+)
 from sme_sigpae_api.dieta_especial.tasks.logs import (
     gera_logs_dietas_recreio_ferias_diariamente,
+)
+from sme_sigpae_api.dieta_especial.tasks.utils.logs import (
+    gera_logs_dietas_recreio_ferias_escolas_cei,
+    gera_logs_dietas_recreio_ferias_escolas_comuns,
+    gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei,
 )
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
     AlunoFactory,
@@ -20,36 +35,20 @@ from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
     TipoGestaoFactory,
     TipoUnidadeEscolarFactory,
 )
+from sme_sigpae_api.escola.models import Aluno
 from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import (
     EmpresaFactory,
 )
-from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
-    ClassificacaoDietaFactory,
-    MotivoAlteracaoUEFactory,
-    SolicitacaoDietaEspecialFactory,
-)
-from sme_sigpae_api.dieta_especial.tasks.utils.logs import (
-    gera_logs_dietas_recreio_ferias_escolas_cei,
-    gera_logs_dietas_recreio_ferias_escolas_comuns,
-    gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei,
-)
 
-from sme_sigpae_api.escola.models import Aluno
-from sme_sigpae_api.dieta_especial.models import (
-    SolicitacaoDietaEspecial,
-    LogQuantidadeDietasAutorizadasRecreioNasFerias,
-    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
-)
-
-
-pytestmark = [
-    pytest.mark.django_db(transaction=True, reset_sequences=True)
-]
+pytestmark = [pytest.mark.django_db(transaction=True, reset_sequences=True)]
 
 
 class TestLogsRecreioNasFerias:
     def setup_method(self):
-        from sme_sigpae_api.dieta_especial.models import MotivoAlteracaoUE, ClassificacaoDieta
+        from sme_sigpae_api.dieta_especial.models import (
+            ClassificacaoDieta,
+            MotivoAlteracaoUE,
+        )
         from sme_sigpae_api.escola.models import TipoGestao
 
         MotivoAlteracaoUE.objects.all().delete()
@@ -75,19 +74,10 @@ class TestLogsRecreioNasFerias:
             nome="Dieta Especial - Recreio nas Férias"
         )
 
-        self.faixa_0_a_11m = FaixaEtariaFactory.create(
-            inicio=0, fim=12, ativo=True
-        )
-        self.faixa_1a_a_1a11m = FaixaEtariaFactory.create(
-            inicio=12, fim=24, ativo=True
-        )
-        self.faixa_2a_a_3a11m = FaixaEtariaFactory.create(
-            inicio=24, fim=48, ativo=True
-        )
-        self.faixa_4a_a_5a11m = FaixaEtariaFactory.create(
-            inicio=48, fim=72, ativo=True
-        )
-
+        self.faixa_0_a_11m = FaixaEtariaFactory.create(inicio=0, fim=12, ativo=True)
+        self.faixa_1a_a_1a11m = FaixaEtariaFactory.create(inicio=12, fim=24, ativo=True)
+        self.faixa_2a_a_3a11m = FaixaEtariaFactory.create(inicio=24, fim=48, ativo=True)
+        self.faixa_4a_a_5a11m = FaixaEtariaFactory.create(inicio=48, fim=72, ativo=True)
 
     def setup_escola_emef(self):
         tipo_unidade = TipoUnidadeEscolarFactory.create(iniciais="EMEF")
@@ -186,14 +176,16 @@ class TestLogsRecreioNasFerias:
         dietas = SolicitacaoDietaEspecial.objects.filter(escola_destino=escola)
         data_log = datetime.date(2025, 1, 15)
 
-        logs = gera_logs_dietas_recreio_ferias_escolas_comuns(
-            escola, dietas, data_log
-        )
+        logs = gera_logs_dietas_recreio_ferias_escolas_comuns(escola, dietas, data_log)
 
         assert len(logs) == 2
 
-        log_tipo_a = [l for l in logs if l.classificacao == self.classificacao_tipo_a][0]
-        log_tipo_b = [l for l in logs if l.classificacao == self.classificacao_tipo_b][0]
+        log_tipo_a = [l for l in logs if l.classificacao == self.classificacao_tipo_a][
+            0
+        ]
+        log_tipo_b = [l for l in logs if l.classificacao == self.classificacao_tipo_b][
+            0
+        ]
 
         assert log_tipo_a.quantidade == 3
         assert log_tipo_b.quantidade == 2
@@ -317,14 +309,10 @@ class TestLogsRecreioNasFerias:
         dietas = SolicitacaoDietaEspecial.objects.filter(escola_destino=escola)
         data_log = datetime.date(2025, 1, 15)
 
-        logs = gera_logs_dietas_recreio_ferias_escolas_comuns(
-            escola, dietas, data_log
-        )
+        logs = gera_logs_dietas_recreio_ferias_escolas_comuns(escola, dietas, data_log)
 
         assert all(l.escola == escola for l in logs)
-        logs_tipo_a = [
-            l for l in logs if l.classificacao == self.classificacao_tipo_a
-        ]
+        logs_tipo_a = [l for l in logs if l.classificacao == self.classificacao_tipo_a]
         assert len(logs_tipo_a) == 1
         assert logs_tipo_a[0].quantidade == 5
 
@@ -333,12 +321,9 @@ class TestLogsRecreioNasFerias:
 
         with freeze_time("2025-03-15"):
             gera_logs_dietas_recreio_ferias_diariamente()
+            assert LogQuantidadeDietasAutorizadasRecreioNasFerias.objects.count() == 0
             assert (
-                LogQuantidadeDietasAutorizadasRecreioNasFerias.objects.count() == 0
-            )
-            assert (
-                LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.objects.count()
-                == 0
+                LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.objects.count() == 0
             )
 
     @freeze_time("2025-01-15")
@@ -361,12 +346,16 @@ class TestLogsRecreioNasFerias:
         self.criar_dieta_recreio_comum(aluno, self.classificacao_tipo_a)
 
         logs_antes = LogQuantidadeDietasAutorizadasRecreioNasFerias.objects.count()
-        logs_cei_antes = LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.objects.count()
+        logs_cei_antes = (
+            LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.objects.count()
+        )
 
         gera_logs_dietas_recreio_ferias_diariamente()
 
         logs_depois = LogQuantidadeDietasAutorizadasRecreioNasFerias.objects.count()
-        logs_cei_depois = LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.objects.count()
+        logs_cei_depois = (
+            LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.objects.count()
+        )
 
         assert logs_antes == logs_depois
         assert logs_cei_antes == logs_cei_depois
@@ -384,9 +373,7 @@ class TestLogsRecreioNasFerias:
         dietas = SolicitacaoDietaEspecial.objects.filter(escola_destino=escola)
         data_log = datetime.date(2025, 1, 15)
 
-        logs = gera_logs_dietas_recreio_ferias_escolas_comuns(
-            escola, dietas, data_log
-        )
+        logs = gera_logs_dietas_recreio_ferias_escolas_comuns(escola, dietas, data_log)
 
         log_tipo_b = [l for l in logs if l.classificacao == self.classificacao_tipo_b]
         assert len(log_tipo_b) == 1

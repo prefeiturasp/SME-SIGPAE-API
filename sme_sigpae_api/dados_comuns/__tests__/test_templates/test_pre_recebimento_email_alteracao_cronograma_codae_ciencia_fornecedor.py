@@ -7,14 +7,18 @@ def test_template_email_base():
         "pre_recebimento_email_alteracao_cronograma_codae_ciencia_fornecedor.html"
     )
     hidden_email = None
-    fornecedor = "Dornecedor XYZ"
+    razao_social = "Razao Social XYZ"
+    nome_fantasia = "Nome Fantasia XYZ"
     numero_cronograma = 323232
+    nome_produto = "Produto Teste"
 
     dados_template = {
         "titulo": titulo,
         "hidden_email": hidden_email,
-        "fornecedor": fornecedor,
         "numero_cronograma": numero_cronograma,
+        "nome_fantasia": nome_fantasia,
+        "razao_social": razao_social,
+        "nome_produto": nome_produto,
     }
     html = render_to_string(template, context=dados_template)
     assert isinstance(html, str)
@@ -27,6 +31,6 @@ def test_template_email_base():
         in html
     )
     assert (
-        f"O Fornecedor <strong>{fornecedor}</strong> deu ciência nas Alterações do Cronograma <strong>Nº {numero_cronograma}</strong>"
+        f"O fornecedor {nome_fantasia} - {razao_social} deu ciência nas alterações do cronograma n° {numero_cronograma}"
         in html
     )

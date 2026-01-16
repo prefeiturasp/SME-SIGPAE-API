@@ -614,9 +614,11 @@ class SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer(
 ):
     codigo_eol_aluno = serializers.SerializerMethodField()
     nome_aluno = serializers.SerializerMethodField()
+    data_nascimento_aluno = serializers.SerializerMethodField()
     nome_escola = serializers.SerializerMethodField()
     classificacao_dieta = serializers.SerializerMethodField()
     alergias_intolerancias = serializers.SerializerMethodField()
+    protocolo_padrao = serializers.SerializerMethodField()
     data_ultimo_log = serializers.SerializerMethodField()
 
     def get_codigo_eol_aluno(self, obj):
@@ -624,6 +626,14 @@ class SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer(
 
     def get_nome_aluno(self, obj):
         return obj.aluno.nome if obj.aluno else None
+
+    def get_data_nascimento_aluno(self, obj):
+        if obj.aluno and obj.aluno.data_nascimento:
+            data = obj.aluno.data_nascimento
+            if isinstance(data, str):
+                data = datetime.strptime(data, "%Y-%m-%d").date()
+            return data.strftime("%d/%m/%Y")
+        return None
 
     def get_nome_escola(self, obj):
         return obj.escola_destino.nome if obj.escola_destino else None
@@ -636,28 +646,43 @@ class SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer(
             obj.alergias_intolerancias.all().values_list("descricao", flat=True)
         )
 
-    def get_data_ultimo_log(self, obj):
+    def get_protocolo_padrao(self, obj):
         return (
-            datetime.strftime(obj.logs.last().criado_em, "%d/%m/%Y")
-            if obj.logs
-            else None
+            obj.protocolo_padrao.nome_protocolo
+            if obj.protocolo_padrao
+            else obj.nome_protocolo
         )
+
+    def get_data_ultimo_log(self, obj):
+        if obj.logs.exists():
+            ultimo_log = obj.logs.last()
+            if ultimo_log and ultimo_log.criado_em:
+                return datetime.strftime(ultimo_log.criado_em, "%d/%m/%Y")
+        return None
 
     class Meta:
         model = SolicitacaoDietaEspecial
         fields = (
             "codigo_eol_aluno",
             "nome_aluno",
+            "data_nascimento_aluno",
             "nome_escola",
             "classificacao_dieta",
             "alergias_intolerancias",
+            "protocolo_padrao",
             "data_ultimo_log",
         )
 
     def __init__(self, *args, **kwargs):
-        """Não retornar campo data_ultimo_log caso status da solicitação for 'AUTORIZADAS'."""
-        if kwargs["context"]["status"] == "AUTORIZADAS":
-            del self.fields["data_ultimo_log"]
+        context = kwargs.get("context", {})
+        status = context.get("status", "").upper()
+
+        if status == "AUTORIZADAS":
+            self.fields.pop("data_ultimo_log", None)
+
+        if status != "AUTORIZADAS":
+            self.fields.pop("data_nascimento_aluno", None)
+            self.fields.pop("protocolo_padrao", None)
 
         super().__init__(*args, **kwargs)
 
@@ -665,6 +690,7 @@ class SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer(
 class SolicitacaoDietaEspecialExportXLSXSerializer(serializers.ModelSerializer):
     codigo_eol_aluno = serializers.SerializerMethodField()
     nome_aluno = serializers.SerializerMethodField()
+    data_nascimento_aluno = serializers.SerializerMethodField()
     nome_escola = serializers.SerializerMethodField()
     classificacao_dieta = serializers.SerializerMethodField()
     protocolo_padrao = serializers.SerializerMethodField()
@@ -675,6 +701,14 @@ class SolicitacaoDietaEspecialExportXLSXSerializer(serializers.ModelSerializer):
 
     def get_nome_aluno(self, obj):
         return obj.aluno.nome if obj.aluno else None
+
+    def get_data_nascimento_aluno(self, obj):
+        if obj.aluno and obj.aluno.data_nascimento:
+            data = obj.aluno.data_nascimento
+            if isinstance(data, str):
+                data = datetime.strptime(data, "%Y-%m-%d").date()
+            return data.strftime("%d/%m/%Y")
+        return None
 
     def get_nome_escola(self, obj):
         return obj.escola_destino.nome if obj.escola_destino else None
@@ -701,6 +735,7 @@ class SolicitacaoDietaEspecialExportXLSXSerializer(serializers.ModelSerializer):
         fields = (
             "codigo_eol_aluno",
             "nome_aluno",
+            "data_nascimento_aluno",
             "nome_escola",
             "classificacao_dieta",
             "protocolo_padrao",
@@ -708,9 +743,14 @@ class SolicitacaoDietaEspecialExportXLSXSerializer(serializers.ModelSerializer):
         )
 
     def __init__(self, *args, **kwargs):
-        """Não retornar campo data_ultimo_log caso status da solicitação for 'AUTORIZADAS'."""
-        if kwargs["context"]["status"] == "AUTORIZADAS":
-            del self.fields["data_ultimo_log"]
+        context = kwargs.get("context", {})
+        status = context.get("status", "").upper()
+
+        if status == "AUTORIZADAS":
+            self.fields.pop("data_ultimo_log", None)
+
+        if status != "AUTORIZADAS":
+            self.fields.pop("data_nascimento_aluno", None)
 
         super().__init__(*args, **kwargs)
 
@@ -776,6 +816,7 @@ class ProtocoloPadraoDietaEspecialSimplesSerializer(serializers.ModelSerializer)
 class SolicitacaoDietaEspecialRelatorioTercSerializer(serializers.ModelSerializer):
     cod_eol_aluno = serializers.SerializerMethodField()
     nome_aluno = serializers.SerializerMethodField()
+    data_nascimento_aluno = serializers.SerializerMethodField()
     nome_escola = serializers.SerializerMethodField()
     codigo_eol_escola = serializers.SerializerMethodField()
     serie_aluno = serializers.CharField(source="aluno.serie")
@@ -801,6 +842,14 @@ class SolicitacaoDietaEspecialRelatorioTercSerializer(serializers.ModelSerialize
 
     def get_nome_aluno(self, obj):
         return obj.aluno.nome if obj.aluno else None
+
+    def get_data_nascimento_aluno(self, obj):
+        if obj.aluno and obj.aluno.data_nascimento:
+            data = obj.aluno.data_nascimento
+            if isinstance(data, str):
+                data = datetime.strptime(data, "%Y-%m-%d").date()
+            return data.strftime("%d/%m/%Y")
+        return None
 
     def get_data_ultimo_log(self, obj):
         return (
@@ -831,6 +880,7 @@ class SolicitacaoDietaEspecialRelatorioTercSerializer(serializers.ModelSerialize
             "criado_em",
             "cod_eol_aluno",
             "nome_aluno",
+            "data_nascimento_aluno",
             "codigo_eol_escola",
             "nome_escola",
             "status_solicitacao",
@@ -850,7 +900,9 @@ class LogQuantidadeDietasAutorizadasSerializer(serializers.ModelSerializer):
     escola = serializers.SlugRelatedField(
         slug_field="uuid", required=False, queryset=Escola.objects.all()
     )
-    classificacao = serializers.CharField(source=CLASSIFICACAO_NOME_SOURCE, required=False)
+    classificacao = serializers.CharField(
+        source=CLASSIFICACAO_NOME_SOURCE, required=False
+    )
     dia = serializers.SerializerMethodField()
     periodo_escolar = serializers.SlugRelatedField(
         slug_field="uuid", required=False, queryset=PeriodoEscolar.objects.all()
@@ -869,7 +921,9 @@ class LogQuantidadeDietasAutorizadasCEISerializer(serializers.ModelSerializer):
     escola = serializers.SlugRelatedField(
         slug_field="nome", required=False, queryset=Escola.objects.all()
     )
-    classificacao = serializers.CharField(source=CLASSIFICACAO_NOME_SOURCE, required=False)
+    classificacao = serializers.CharField(
+        source=CLASSIFICACAO_NOME_SOURCE, required=False
+    )
     dia = serializers.SerializerMethodField()
     periodo_escolar = serializers.SlugRelatedField(
         slug_field="nome", required=False, queryset=PeriodoEscolar.objects.all()
@@ -885,30 +939,40 @@ class LogQuantidadeDietasAutorizadasCEISerializer(serializers.ModelSerializer):
         exclude = ("id", "uuid")
 
 
-class LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer(serializers.ModelSerializer):
-    escola_uuid = serializers.UUIDField(source="escola.uuid", read_only=True)
-    escola_nome = serializers.CharField(source="escola.nome", read_only=True)
-    classificacao_nome = serializers.CharField(source=CLASSIFICACAO_NOME_SOURCE, read_only=True)
+class LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer(
+    serializers.ModelSerializer
+):
+    escola = serializers.SlugRelatedField(
+        slug_field="uuid", required=False, queryset=Escola.objects.all()
+    )
+    classificacao = serializers.CharField(
+        source=CLASSIFICACAO_NOME_SOURCE, read_only=True
+    )
+    dia = serializers.SerializerMethodField()
+
+    def get_dia(self, obj):
+        dia = obj.data.day
+        return f"{dia:02d}"
 
     class Meta:
         model = LogQuantidadeDietasAutorizadasRecreioNasFerias
-        fields = (
-            "uuid",
-            "data",
-            "escola_uuid",
-            "escola_nome",
-            "classificacao",
-            "classificacao_nome",
-            "quantidade",
-        )
+        exclude = ("id", "uuid")
 
 
-class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer(serializers.ModelSerializer):
+class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer(
+    serializers.ModelSerializer
+):
     escola_uuid = serializers.UUIDField(source="escola.uuid", read_only=True)
     escola_nome = serializers.CharField(source="escola.nome", read_only=True)
-    classificacao_nome = serializers.CharField(source=CLASSIFICACAO_NOME_SOURCE, read_only=True)
-    faixa_etaria_uuid = serializers.UUIDField(source="faixa_etaria.uuid", read_only=True)
-    faixa_etaria_nome = serializers.CharField(source="faixa_etaria.__str__", read_only=True)
+    classificacao_nome = serializers.CharField(
+        source=CLASSIFICACAO_NOME_SOURCE, read_only=True
+    )
+    faixa_etaria_uuid = serializers.UUIDField(
+        source="faixa_etaria.uuid", read_only=True
+    )
+    faixa_etaria_nome = serializers.CharField(
+        source="faixa_etaria.__str__", read_only=True
+    )
 
     class Meta:
         model = LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI

@@ -7,6 +7,7 @@ from sme_sigpae_api.dados_comuns.fluxo_status import (
     SolicitacaoMedicaoInicialWorkflow,
 )
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
 
 pytestmark = pytest.mark.django_db
 
@@ -229,3 +230,35 @@ def test_codae_pede_correcao_sem_lancamentos_medicao_usuario_sem_permissao(
         PermissionDenied, match="Você não tem permissão para executar essa ação."
     ):
         medicao.codae_pede_correcao_sem_lancamentos(**kwargs)
+
+
+def test_finaliza_solicitacao_alteracao_hook(
+    solicitacao_alteracao_cronograma,
+    user_codae_produto,
+):
+    solicitacao = solicitacao_alteracao_cronograma
+    cronograma = solicitacao.cronograma
+
+    kwargs = {
+        "user": user_codae_produto,
+        "justificativa": str(solicitacao.uuid),
+    }
+
+    cronograma.finaliza_solicitacao_alteracao(**kwargs)
+    cronograma.refresh_from_db()
+
+    assert cronograma.status == Cronograma.workflow_class.ASSINADO_CODAE
+
+    assert cronograma.qtd_total_programada == solicitacao.qtd_total_programada
+
+    assert list(cronograma.etapas.values_list("id", flat=True)) == list(
+        solicitacao.etapas_novas.values_list("id", flat=True)
+    )
+
+    assert list(cronograma.programacoes_de_recebimento.values_list("id", flat=True)) == list(
+        solicitacao.programacoes_novas.values_list("id", flat=True)
+    )
+
+    log = cronograma.logs.order_by("-criado_em").first()
+    assert log.status_evento == LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELA_CODAE
+    assert log.usuario == user_codae_produto

@@ -298,25 +298,25 @@ class VeiculoFichaDeRecebimento(models.Model):
         null=True,
         blank=True,
     )
-    quantidade_nota_fiscal = models.CharField(
-        max_length=15,
+    quantidade_nota_fiscal = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
         null=True,
         blank=True,
     )
-    embalagens_nota_fiscal = models.CharField(
+    embalagens_nota_fiscal = models.IntegerField(
         "Quantidade de Embalagens da Nota Fiscal",
-        max_length=15,
         null=True,
         blank=True,
     )
-    quantidade_recebida = models.CharField(
-        max_length=15,
+    quantidade_recebida = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
         null=True,
         blank=True,
     )
-    embalagens_recebidas = models.CharField(
-        "Quantidade de Embalagens da Recebidas",
-        max_length=15,
+    embalagens_recebidas = models.IntegerField(
+        "Quantidade de Embalagens Recebidas",
         null=True,
         blank=True,
     )

@@ -10,8 +10,8 @@ from sme_sigpae_api.medicao_inicial.models import (
     DiaSobremesaDoce,
     Empenho,
     Medicao,
-    TipoValorParametrizacaoFinanceira,
     ParametrizacaoFinanceira,
+    TipoValorParametrizacaoFinanceira,
 )
 
 

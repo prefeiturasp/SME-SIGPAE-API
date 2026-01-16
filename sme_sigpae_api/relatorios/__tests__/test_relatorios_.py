@@ -8,6 +8,8 @@ from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.helpers import (
     formata_cnpj_ficha_tecnica,
     formata_telefone_ficha_tecnica,
 )
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+from sme_sigpae_api.pre_recebimento.tasks import gerar_relatorio_cronogramas_pdf_async
 from sme_sigpae_api.relatorios.utils import extrair_texto_de_pdf
 
 from ..relatorios import (
@@ -24,8 +26,6 @@ from ..relatorios import (
     relatorio_solicitacao_medicao_por_escola,
     relatorio_suspensao_de_alimentacao,
 )
-from sme_sigpae_api.pre_recebimento.tasks import gerar_relatorio_cronogramas_pdf_async
-from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
 pytestmark = pytest.mark.django_db
 
@@ -603,6 +603,26 @@ def test_relatorio_ficha_recebimento(
     assert "HOUVE OCORRÊNCIA(S) NO RECEBIMENTO: SIM" in texto
     assert "Faltaram 5 unidades do produto" in texto
 
+    assert "Qtde Recebida" in texto
+    assert "10,00 kg" in texto
+
+    assert "Quantidade da Nota Fiscal" in texto
+    assert "2.000,00 kg" in texto
+
+    assert "Quantidade Recebida" in texto
+    assert "1.000,00 kg" in texto
+
+    assert "Embalagens da Nota Fiscal" in texto
+    assert "3.000" in texto
+
+    assert "Embalagens Recebidas" in texto
+    assert "1.500" in texto
+
+    assert (
+        ficha_recebimento_com_ocorrencia.etapa.cronograma.unidade_medida.abreviacao
+        in texto
+    )
+
     # Teste para Ficha de Recebimento de Reposição
     pdf_response_reposicao = get_pdf_ficha_recebimento(
         None, ficha_recebimento_reposicao
@@ -667,7 +687,9 @@ def test_relatorio_cronograma_lista_com_leve_leite(cronograma, usuario):
     cronograma.ficha_tecnica.programa = FichaTecnicaDoProduto.LEVE_LEITE
     cronograma.ficha_tecnica.save()
 
-    pdf_content = gerar_relatorio_cronogramas_pdf_async(usuario.username, [cronograma.id], {})
+    pdf_content = gerar_relatorio_cronogramas_pdf_async(
+        usuario.username, [cronograma.id], {}
+    )
     texto_pdf = extrair_texto_de_pdf(pdf_content)
 
     assert "LEVE LEITE - PLL" in texto_pdf
@@ -677,7 +699,9 @@ def test_relatorio_cronograma_lista_sem_leve_leite(cronograma, usuario):
     cronograma.ficha_tecnica.programa = FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR
     cronograma.ficha_tecnica.save()
 
-    pdf_content = gerar_relatorio_cronogramas_pdf_async(usuario.username, [cronograma.id], {})
+    pdf_content = gerar_relatorio_cronogramas_pdf_async(
+        usuario.username, [cronograma.id], {}
+    )
     texto_pdf = extrair_texto_de_pdf(pdf_content)
 
     assert "LEVE LEITE - PLL" not in texto_pdf

@@ -1,10 +1,11 @@
 import calendar
 import json
 from datetime import date, datetime
-from django.utils import timezone
+
 import environ
 from django.core.exceptions import ValidationError
-from django.db.models import QuerySet, Q
+from django.db.models import Q, QuerySet
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
@@ -962,9 +963,8 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         self._update_responsaveis(instance)
         self._update_alunos(instance, validated_data)
         self._update_tipos_contagem_alimentacao(instance)
-        anexos = self._process_anexos(instance)
         self._finaliza_medicao_se_necessario(
-            instance, validated_data, anexos, justificativa_sem_lancamentos
+            instance, validated_data, justificativa_sem_lancamentos
         )
         self._finaliza_medicao_sem_lancamentos(instance, justificativa_sem_lancamentos)
         return instance
@@ -1058,7 +1058,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         return anexos_processados
 
     def _finaliza_medicao_se_necessario(
-        self, instance, validated_data, anexos, justificativa_sem_lancamentos
+        self, instance, validated_data, justificativa_sem_lancamentos
     ):
         if justificativa_sem_lancamentos:
             return
@@ -1074,6 +1074,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             self.valida_finalizar_medicao_escola_sem_alunos_regulares(instance)
             self.valida_finalizar_medicao_emebs(instance)
             instance.ue_envia(user=self.context["request"].user)
+            anexos = self._process_anexos(instance)
             if hasattr(instance, "ocorrencia"):
                 instance.ocorrencia.ue_envia(
                     user=self.context["request"].user, anexos=anexos
@@ -1501,13 +1502,17 @@ class ParametrizacaoFinanceiraWriteModelSerializer(serializers.ModelSerializer):
         if self.instance:
             return attrs
 
-        existe_ativa = ParametrizacaoFinanceira.objects.filter(
-            edital=attrs["edital"],
-            lote=attrs["lote"],
-            grupo_unidade_escolar=attrs["grupo_unidade_escolar"],
-        ).filter(
-            Q(data_final__isnull=True) | Q(data_final__gte=timezone.now().date())
-        ).exists()
+        existe_ativa = (
+            ParametrizacaoFinanceira.objects.filter(
+                edital=attrs["edital"],
+                lote=attrs["lote"],
+                grupo_unidade_escolar=attrs["grupo_unidade_escolar"],
+            )
+            .filter(
+                Q(data_final__isnull=True) | Q(data_final__gte=timezone.now().date())
+            )
+            .exists()
+        )
 
         if existe_ativa:
             raise ValidationError(

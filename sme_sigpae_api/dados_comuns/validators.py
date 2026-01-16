@@ -20,6 +20,7 @@ from .constants import obter_dias_uteis_apos_hoje
 from .utils import datetime_range, eh_dia_util
 
 calendario = BrazilSaoPauloCity()
+ERROR_MSG_EXISTE_RPL_MES = "Já existe uma solicitação de RPL para o mês e período selecionado!"
 
 
 def nao_pode_ser_no_passado(data: datetime.date):
@@ -76,9 +77,7 @@ def valida_duplicidade_solicitacoes(attrs):
     solicitacoes = solicitacoes.exclude(status__in=status_permitidos)
 
     if solicitacoes:
-        raise serializers.ValidationError(
-            "Já existe uma solicitação de RPL para o mês e período selecionado!"
-        )
+        raise serializers.ValidationError(ERROR_MSG_EXISTE_RPL_MES)
     return True
 
 
@@ -108,9 +107,7 @@ def valida_duplicidade_solicitacoes_cei(attrs, data):
     solicitacoes = solicitacoes.exclude(status__in=status_permitidos)
 
     if solicitacoes:
-        raise serializers.ValidationError(
-            "Já existe uma solicitação de RPL para o mês e período selecionado!"
-        )
+        raise serializers.ValidationError(ERROR_MSG_EXISTE_RPL_MES)
     return True
 
 
@@ -148,9 +145,7 @@ def valida_duplicidade_solicitacoes_cemei(attrs):
     )
     solicitacoes = solicitacoes.exclude(status__in=status_permitidos)
     if solicitacoes:
-        raise serializers.ValidationError(
-            "Já existe uma solicitação de RPL para o mês e período selecionado!"
-        )
+        raise serializers.ValidationError(ERROR_MSG_EXISTE_RPL_MES)
     return True
 
 
