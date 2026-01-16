@@ -42,6 +42,7 @@ from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import 
 )
 
 fake = Faker("pt_BR")
+CINCO_UNIDADES = "5 unidades"
 
 
 @pytest.fixture
@@ -281,7 +282,7 @@ def payload_ficha_recebimento_rascunho(
             {
                 "tipo": "FALTA",
                 "relacao": "CRONOGRAMA",
-                "quantidade": "5 unidades",
+                "quantidade": CINCO_UNIDADES,
                 "descricao": "Falta de produto no recebimento",
             },
             {
@@ -358,7 +359,7 @@ def ficha_recebimento_rascunho(etapa_cronograma):
             {
                 "tipo": "FALTA",
                 "relacao": "CRONOGRAMA",
-                "quantidade": "5 unidades",
+                "quantidade": CINCO_UNIDADES,
                 "descricao": "Falta de produto no recebimento",
             },
             {
@@ -403,7 +404,7 @@ def ocorrencia_ficha_recebimento_data(ficha_recebimento):
     return {
         "tipo": "FALTA",
         "relacao": "CRONOGRAMA",
-        "quantidade": "5 unidades",
+        "quantidade": CINCO_UNIDADES,
         "descricao": "Produto em falta",
         "ficha_recebimento": ficha_recebimento.id,
     }
