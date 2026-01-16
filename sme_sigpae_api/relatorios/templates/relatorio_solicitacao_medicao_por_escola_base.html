@@ -1,6 +1,6 @@
 {% load index %} {% load static %} {% load sass_tags %}
 
-<html>
+<html lang="pt-BR">
   <head>
     <link
       rel="stylesheet"
@@ -99,7 +99,7 @@
       </div>
     </div>
 
-    {% block tabelas %}{% endblock %} 
+    {% block tabelas %}{% endblock %}
     {% include "relatorio_observacoes_solicitacao_medicao_por_escola_cei.html" with observacoes=observacoes %}
     {% include "relatorio_somatorio_solicitacao_medicao_por_escola_cei.html" with tabelas_somatorios=tabelas_somatorios %}
   </body>
