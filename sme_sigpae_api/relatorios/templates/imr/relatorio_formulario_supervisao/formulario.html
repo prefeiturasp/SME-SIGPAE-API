@@ -27,13 +27,13 @@
               tipo_ocorrencia_anterior|get_attribute:"categoria" != tipo_ocorrencia.categoria
             %}
               <tr class="categoria">
-                <th class="pb-3" colspan="3">
+                <th class="pb-3" scope="col" colspan="3">
                   {{ tipo_ocorrencia.categoria.nome }}
                 </th>
               </tr>
               {% if tipo_ocorrencia.categoria.gera_notificacao %}
                 <tr class="frequencia">
-                  <th class="pb-3" colspan="3">
+                  <th class="pb-3" scope="col" colspan="3">
                     Maior frequência no período: {{ formulario_supervisao.maior_frequencia_no_periodo }}
                   </th>
                 </tr>

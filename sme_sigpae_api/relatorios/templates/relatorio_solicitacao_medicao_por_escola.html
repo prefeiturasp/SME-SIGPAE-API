@@ -195,11 +195,12 @@
     <table class="tabela-valores-medicao mt-3">
       <thead class="texto-branco">
         <tr>
-          <th rowspan="3">Dias</th>
+          <th scope="col" rowspan="3">Dias</th>
           {% for periodo in tabela.periodos %}
           <th
             class="periodo-grupo cor-periodo-grupo-{{ tabela.ordem_periodos_grupos|get_element_by_index:forloop.counter0 }}"
             colspan="{{ tabela.len_periodos|get_element_by_index:forloop.counter0 }}"
+            scope="col"
           >
             {{ periodo|upper }}
           </th>
@@ -210,6 +211,7 @@
           <th
             class="categoria"
             colspan="{{ tabela.len_categorias|get_element_by_index:forloop.counter0 }}"
+            scope="col"
           >
             {{ categoria|upper }}
           </th>
@@ -217,7 +219,7 @@
         </tr>
         <tr>
           {% for campo in tabela.nomes_campos %}
-          <th>{{ campo|get_nome_campo }}</th>
+          <th scope="col">{{ campo|get_nome_campo }}</th>
           {% endfor %}
         </tr>
       </thead>

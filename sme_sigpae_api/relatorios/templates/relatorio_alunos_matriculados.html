@@ -74,8 +74,8 @@
                 <table>
                   <thead>
                     <tr>
-                      <th>Faixa Etária</th>
-                      <th class="text-center">Alunos matriculados</th>
+                      <th scope="col">Faixa Etária</th>
+                      <th scope="col" class="text-center">Alunos matriculados</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -88,8 +88,8 @@
                       </tr>
                     {% endfor%}
                     <tr>
-                      <th>Total</th>
-                      <th class="text-center">{{alunos_matriculados.matriculados}}</th>
+                      <th scope="col">Total</th>
+                      <th scope="col" class="text-center">{{alunos_matriculados.matriculados}}</th>
                     </tr>
                   </tbody>
                 </table>

@@ -10,7 +10,7 @@
     <table class="tabela-valores-medicao mt-3">
       <thead class="texto-branco">
           <tr>
-              <th rowspan="4">Dias</th>
+              <th scope="col" rowspan="4">Dias</th>
               {% for periodo in tabela.periodos %}
                   <th class="periodo-grupo cor-periodo-grupo-{{ tabela.ordem_periodos_grupos|get_element_by_index:forloop.counter0 }}" colspan="{{ tabela.len_periodos|get_element_by_index:forloop.counter0 }}">
                       {{ periodo|upper }}
@@ -19,16 +19,16 @@
           </tr>
           <tr>
               {% for categoria in tabela.categorias %}
-                  <th class="categoria" colspan="{{ tabela.len_categorias|get_element_by_index:forloop.counter0 }}">{{ categoria.categoria|upper }}</th>
+                  <th class="categoria" scope="col" colspan="{{ tabela.len_categorias|get_element_by_index:forloop.counter0 }}">{{ categoria.categoria|upper }}</th>
               {% endfor %}
           </tr>
           <tr>
             {% for categoria in tabela.categorias %}
                 {% for faixa in categoria.faixas_etarias %}
                     {% if faixa == "total" %}
-                        <th  class="faixa-etaria" colspan="1"></th>
+                        <th scope="col" class="faixa-etaria" colspan="1"></th>
                     {% else %}
-                      <th class="faixa-etaria" colspan="2">{{ faixa }}</th>
+                      <th scope="col" class="faixa-etaria" colspan="2">{{ faixa }}</th>
                     {% endif %}
                 {% endfor %}
             {% endfor %}
@@ -37,14 +37,14 @@
             {% for categoria in tabela.categorias %}
                 {% for faixa in categoria.faixas_etarias %}
                     {% if faixa == "total" %}
-                        <th  class="faixa-etaria" > Total do Dia</th>
+                        <th scope="col" class="faixa-etaria" > Total do Dia</th>
                     {% else %}
                       {% if categoria.categoria == "ALIMENTAÇÃO" %}
-                          <th>Matriculados</th>
-                          <th>Frequência</th>
+                          <th scope="col">Matriculados</th>
+                          <th scope="col">Frequência</th>
                       {% else %}
-                          <th>Aprovadas</th>
-                          <th>Frequência</th>
+                          <th scope="col">Aprovadas</th>
+                          <th scope="col">Frequência</th>
                       {% endif %}
                     {% endif %}
                 {% endfor %}
