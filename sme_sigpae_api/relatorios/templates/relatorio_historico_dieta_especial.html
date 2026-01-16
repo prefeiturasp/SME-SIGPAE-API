@@ -4,7 +4,7 @@
 {% load sass_tags %}
 {% load safe_html_tags %}
 
-<html>
+<html lang="pt-BR">
 <head>
   <link rel="stylesheet" href="{% sass_src 'css/cabecalho.scss' %}" type="text/css">
   <link rel="stylesheet" href="{% sass_src 'css/produtos_terceirizada.scss' %}" type="text/css">
@@ -43,7 +43,7 @@
                 <td>{{ registro.classificacao }}</td>
                 <td class="center">{{ periodo.periodo|title_personalizado }}</td>
                 <td class="center">{{ periodo.faixa_etaria|sum_faixas }}</td>
-                <td class="center">{{ registro.data|date:"d/m/Y" }}</td>             
+                <td class="center">{{ registro.data|date:"d/m/Y" }}</td>
               </tr>
               <tr class="detalhes-collapse-cei">
                 <td colspan="6">
@@ -71,7 +71,7 @@
                 <td>{{ registro.classificacao }}</td>
                 <td class="center">{{ periodo.periodo|title_personalizado }}</td>
                 <td class="center">{{ periodo|soma_dietas_periodo_cemei }}</td>
-                <td class="center">{{ registro.data|date:"d/m/Y" }}</td>            
+                <td class="center">{{ registro.data|date:"d/m/Y" }}</td>
               </tr>
               {% if periodo.por_idade %}
                 <tr class="detalhes-collapse-cei">
@@ -113,7 +113,7 @@
                 <td>{{ registro.classificacao }}</td>
                 <td class="center">{{ periodo.periodo|title_personalizado }}</td>
                 <td class="center">{{ periodo|soma_autorizadas_emebs }}</td>
-                <td class="center">{{ registro.data|date:"d/m/Y" }}</td>            
+                <td class="center">{{ registro.data|date:"d/m/Y" }}</td>
               </tr>
               {% if periodo.autorizadas_infantil > 0 %}
                 <tr class="detalhes-collapse-cei">
@@ -146,7 +146,7 @@
                 <td>{{ registro.classificacao }}</td>
                 <td class="center">{{ periodo.periodo|title_personalizado }}</td>
                 <td class="center">{{ periodo.autorizadas }}</td>
-                <td class="center">{{ registro.data|date:"d/m/Y" }}</td>            
+                <td class="center">{{ registro.data|date:"d/m/Y" }}</td>
               </tr>
             {% endif %}
           {% endfor %}
