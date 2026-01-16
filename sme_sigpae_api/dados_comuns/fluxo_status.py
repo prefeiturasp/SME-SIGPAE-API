@@ -5009,6 +5009,9 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 "numero_cronograma": numero_cronograma,
                 "url_solicitacao_alteracao": url_completo,
                 "fornecedor": user.nome,
+                "nome_fantasia": self.cronograma.empresa.nome_fantasia,
+                "razao_social": self.cronograma.empresa.razao_social,
+                "nome_produto": self.cronograma.ficha_tecnica.produto.nome,
                 "log_transicao": log_transicao,
             }
 
