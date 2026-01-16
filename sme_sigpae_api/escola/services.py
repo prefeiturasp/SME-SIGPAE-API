@@ -60,13 +60,18 @@ class NovoSGPServicoLogado:
             "login": login or DJANGO_NOVO_SGP_API_LOGIN,
             "senha": senha or DJANGO_NOVO_SGP_API_PASSWORD,
         }
-        response = requests.post(
-            f"{DJANGO_NOVO_SGP_API_URL}/v1/autenticacao",
-            json=data,
-            headers=self.headers,
-            timeout=120,
-        )
-        return response
+        try:
+            response = requests.post(
+                f"{DJANGO_NOVO_SGP_API_URL}/v1/autenticacao",
+                json=data,
+                headers=self.headers,
+                timeout=120,
+            )
+            return response
+        except Exception:
+            raise NovoSGPServicoLogadoException(
+                "Não foi possível logar no sistema. Verifique seu RF e sua senha e tente novamente."
+            )
 
     def __init__(self, login=None, senha=None):
         """Retorna um objeto para requisições no novosgp com token de acesso."""

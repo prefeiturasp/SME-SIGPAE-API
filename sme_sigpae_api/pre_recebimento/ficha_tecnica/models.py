@@ -141,7 +141,7 @@ class FichaTecnicaDoProduto(
         choices=MECANISMO_CONTROLE_CHOICES, max_length=12, blank=True
     )
     componentes_produto = models.CharField(
-        "Componentes do Produto", max_length=250, blank=True
+        "Componentes do Produto", max_length=1500, blank=True
     )
     alergenicos = models.BooleanField("Pode conter alergênicos?", null=True)
     ingredientes_alergenicos = models.CharField(
