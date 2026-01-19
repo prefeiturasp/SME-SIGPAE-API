@@ -42,6 +42,7 @@ from ..models import (
 
 fake = Faker("pt_BR")
 Faker.seed(420)
+TERC_TOTAL = "TERC TOTAL"
 
 
 @pytest.fixture(
@@ -233,7 +234,7 @@ def escola(tipo_unidade, diretoria_regional):
     )
     tipo_gestao = baker.make(
         "TipoGestao",
-        nome="TERC TOTAL",
+        nome=TERC_TOTAL,
     )
     escola = baker.make(
         "Escola",
@@ -569,7 +570,7 @@ def escola_cei():
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
     return baker.make(
         "Escola",
@@ -648,7 +649,7 @@ def escola_cemei():
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
     return baker.make(
         "Escola",
@@ -1028,7 +1029,7 @@ def escola_cemei_1():
     return baker.make(
         "Escola",
         uuid="1fc5fca2-2694-4781-be65-8331716c74a0",
-        tipo_gestao__nome="TERC TOTAL",
+        tipo_gestao__nome=TERC_TOTAL,
     )
 
 

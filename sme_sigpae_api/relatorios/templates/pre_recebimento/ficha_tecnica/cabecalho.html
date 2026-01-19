@@ -2,7 +2,7 @@
 {% load static %}
 {% load sass_tags %}
 
-<html>
+<html lang="pt-BR">
 <body>
 <header class="header">
 		<section class="titulo-e-logo flex-between">
@@ -16,8 +16,8 @@
     <div class="info mt-2 border border-dark">
 			<div class="row">
 				<div class="col pt-2 pb-2 grow-2"> N° da Ficha Técnica: </div>
-				<div class="col pt-2 pb-2 grow-2"> 
-					Produto: 
+				<div class="col pt-2 pb-2 grow-2">
+					Produto:
 					{% if ficha.programa == 'LEVE_LEITE' %}
 					<span class="tag-leve-leite">LEVE LEITE - PLL</span>
 					{% endif %}

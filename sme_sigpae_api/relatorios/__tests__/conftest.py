@@ -41,6 +41,9 @@ from sme_sigpae_api.recebimento.models import (
     OcorrenciaFichaRecebimento,
 )
 
+LOREM_IPSUM = "lorem ipsum"
+JUSTIFICATIVA_NAO_NECESSIDADE = "Não há necessidade"
+
 
 def criar_suspensoes(grupo_suspensao, datas_cancelamentos):
     """
@@ -106,7 +109,7 @@ def template_mensagem_dieta_especial():
 def grupo_suspensao_alimentacao(escola):
     grupo_suspensao = baker.make(
         GrupoSuspensaoAlimentacao,
-        observacao="lorem ipsum",
+        observacao=LOREM_IPSUM,
         escola=escola,
         rastro_escola=escola,
         status="INFORMADO",
@@ -129,7 +132,7 @@ def grupo_suspensao_alimentacao(escola):
 def grupo_suspensao_alimentacao_cancelamento_parcial(escola):
     grupo_suspensao = baker.make(
         GrupoSuspensaoAlimentacao,
-        observacao="lorem ipsum",
+        observacao=LOREM_IPSUM,
         escola=escola,
         rastro_escola=escola,
         status="INFORMADO",
@@ -156,7 +159,7 @@ def grupo_suspensao_alimentacao_cancelamento_parcial(escola):
 def grupo_suspensao_alimentacao_cancelamento_total(escola):
     grupo_suspensao = baker.make(
         GrupoSuspensaoAlimentacao,
-        observacao="lorem ipsum",
+        observacao=LOREM_IPSUM,
         escola=escola,
         rastro_escola=escola,
         status="ESCOLA_CANCELOU",
@@ -256,7 +259,7 @@ def solicitacao_dieta_especial_cancelada(
     user, password = usuario_escola
     client.login(username=user.email, password=password)
     solicitacao_dieta_especial_autorizada.cancelar_pedido(
-        user=user, justificativa="Não há necessidade"
+        user=user, justificativa=JUSTIFICATIVA_NAO_NECESSIDADE
     )
     solicitacao_dieta_especial_autorizada.ativo = False
     solicitacao_dieta_especial_autorizada.save()
@@ -326,10 +329,10 @@ def solicitacao_dieta_especial_inativa(
     user, password = usuario_escola
     client.login(username=user.email, password=password)
     solicitacao_dieta_especial_autorizada.inicia_fluxo_inativacao(
-        user=user, justificativa="Não há necessidade"
+        user=user, justificativa=JUSTIFICATIVA_NAO_NECESSIDADE
     )
     solicitacao_dieta_especial_autorizada.codae_autoriza_inativacao(
-        user=user, justificativa="Não há necessidade"
+        user=user, justificativa=JUSTIFICATIVA_NAO_NECESSIDADE
     )
     solicitacao_dieta_especial_autorizada.ativo = False
     solicitacao_dieta_especial_autorizada.save()

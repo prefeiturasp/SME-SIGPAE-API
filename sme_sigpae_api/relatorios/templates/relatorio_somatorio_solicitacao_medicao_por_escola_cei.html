@@ -12,7 +12,7 @@
           <tr>
               <th rowspan="2" scope="col">FAIXAS ETÁRIAS</th>
               {% for periodo in tabela.periodos %}
-                  <th class="periodo-grupo cor-periodo-grupo-{{ tabela.ordem_periodos_grupos|get_element_by_index:forloop.counter0 }}" colspan="{{ tabela.len_periodos|get_element_by_index:forloop.counter0 }}">
+                  <th scope="col" class="periodo-grupo cor-periodo-grupo-{{ tabela.ordem_periodos_grupos|get_element_by_index:forloop.counter0 }}" colspan="{{ tabela.len_periodos|get_element_by_index:forloop.counter0 }}">
                       {{ periodo|upper }}
                   </th>
               {% endfor %}
@@ -20,9 +20,9 @@
           <tr>
               {% for categoria in tabela.categorias %}
                   {% if categoria == "total" %}
-                      <th  class="categoria" > Total do Dia</th>
+                      <th scope="col" class="categoria"> Total do Dia</th>
                   {% else %}
-                      <th>
+                      <th scope="col">
                         {{ categoria|get_nome_categoria }}</th>
                   {% endif %}
               {% endfor %}

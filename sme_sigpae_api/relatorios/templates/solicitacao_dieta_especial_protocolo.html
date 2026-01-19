@@ -27,14 +27,14 @@
           <table>
             <tr style="height: 2em">
               {% if solicitacao.tipo_solicitacao == 'ALUNO_NAO_MATRICULADO'%}
-                <th class="w-25">CPF do Aluno</th>
+                <th scope="col" class="w-25">CPF do Aluno</th>
                  {% if solicitacao.dieta_para_recreio_ferias %}
                     <th>
                       <div class="tag-recreio-nas-ferias">Dieta para Recreio nas Férias</div>
                     </th>
                  {% endif %}
               {%else%}
-                <th class="w-25">Cód. EOL do Aluno</th>
+                <th scope="col" class="w-25">Cód. EOL do Aluno</th>
               {%endif%}
             </tr>
             <tr style="height: 2em">
