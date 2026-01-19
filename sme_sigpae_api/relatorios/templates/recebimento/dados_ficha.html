@@ -353,6 +353,7 @@ sass_tags %} {% load humanize %}
               Embalagens da Nota Fiscal:
               <span class="font-weight-bold">
                 {{veiculo.embalagens_nota_fiscal|intcomma}}
+                {{cronograma.tipo_embalagem_secundaria.abreviacao}}
               </span>
             </div>
             <div class="col-6">
