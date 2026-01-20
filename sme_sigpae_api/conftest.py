@@ -354,10 +354,12 @@ register(RecreioNasFeriasUnidadeParticipanteFactory)
 register(CategoriaAlimentacaoFactory)
 register(RecreioNasFeriasUnidadeTipoAlimentacaoFactory)
 
+EMAIL_TEST = "test@test.com"
+
 
 @pytest.fixture
 def client_autenticado(client, django_user_model):
-    email = "test@test.com"
+    email = EMAIL_TEST
     password = constants.DJANGO_ADMIN_PASSWORD
     django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -384,7 +386,7 @@ def client_admin_django(client, django_user_model):
 
 @pytest.fixture
 def client_autenticado_vinculo_escola(client, django_user_model):
-    email = "test@test.com"
+    email = EMAIL_TEST
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -443,7 +445,7 @@ def client_autenticado_vinculo_escola(client, django_user_model):
 def client_autenticado_diretoria_regional(
     client, django_user_model, diretoria_regional_ip
 ):
-    email = "test@test.com"
+    email = EMAIL_TEST
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -464,7 +466,7 @@ def client_autenticado_diretoria_regional(
 
 @pytest.fixture
 def client_autenticado_codae_gestao_alimentacao(client, django_user_model):
-    email = "test@test.com"
+    email = EMAIL_TEST
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"

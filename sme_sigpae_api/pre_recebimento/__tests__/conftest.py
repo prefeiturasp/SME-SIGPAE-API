@@ -10,6 +10,7 @@ from sme_sigpae_api.dados_comuns.constants import (
     DILOG_CRONOGRAMA,
     DILOG_QUALIDADE,
     DJANGO_ADMIN_PASSWORD,
+    ADMINISTRADOR_GESTAO_PRODUTO,
 )
 from sme_sigpae_api.dados_comuns.fluxo_status import (
     FichaTecnicaDoProdutoWorkflow,
@@ -1404,3 +1405,120 @@ def layout_embalagem_leve_leite(ficha_tecnica_leve_leite):
         observacoes="Layout para programa Leve Leite",
         status=LayoutDeEmbalagemWorkflow.ENVIADO_PARA_ANALISE,
     )
+
+
+@pytest.fixture
+def user_codae_produto(django_user_model):
+    email = "test2@test.com"
+    password = DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    perfil_admin_gestao_produto = baker.make(
+        "Perfil",
+        nome=ADMINISTRADOR_GESTAO_PRODUTO,
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf2",
+    )
+    hoje = datetime.date.today()
+    codae = baker.make("Codae")
+    baker.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_admin_gestao_produto,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    return user
+
+
+@pytest.fixture
+def cronograma_para_alteracao(cronograma_factory):
+    from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
+
+    cronograma = cronograma_factory()
+
+    cronograma.status = Cronograma.workflow_class.ALTERACAO_CODAE
+    cronograma.save(update_fields=["status"])
+
+    return cronograma
+
+
+@pytest.fixture
+def solicitacao_alteracao_cronograma(
+    cronograma_para_alteracao,
+    etapas_do_cronograma_factory,
+    user_codae_produto,
+):
+    from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
+        SolicitacaoAlteracaoCronograma,
+        ProgramacaoDoRecebimentoDoCronograma,
+    )
+
+    cronograma = cronograma_para_alteracao
+
+    etapa_antiga = etapas_do_cronograma_factory(cronograma=cronograma)
+    etapa_nova = etapas_do_cronograma_factory(cronograma=cronograma)
+
+    solicitacao = SolicitacaoAlteracaoCronograma.objects.create(
+        cronograma=cronograma,
+        usuario_solicitante=user_codae_produto,
+        qtd_total_programada=123.0,
+        justificativa="teste",
+        numero_solicitacao=f"TESTE-{cronograma.id}",
+    )
+
+    solicitacao.etapas_antigas.set([etapa_antiga])
+    solicitacao.etapas_novas.set([etapa_nova])
+
+    prog = ProgramacaoDoRecebimentoDoCronograma.objects.create(
+        data_programada="22/08/2022 - Etapa 1 - Parte 1",
+        tipo_carga=ProgramacaoDoRecebimentoDoCronograma.PALETIZADA,
+    )
+    solicitacao.programacoes_novas.set([prog])
+
+    return solicitacao
+
+
+@pytest.fixture
+def client_user_autenticado_fornecedor(
+    client,
+    django_user_model,
+    empresa_factory,
+    perfil_factory,
+):
+    from sme_sigpae_api.perfil.models import Vinculo
+    from sme_sigpae_api.terceirizada.models import Terceirizada
+    from sme_sigpae_api.dados_comuns.constants import ADMINISTRADOR_EMPRESA
+
+    email = "fornecedor@test.com"
+    password = "adminadmin"
+
+    user = django_user_model.objects.create_user(
+        username=email,
+        password=password,
+        email=email,
+        registro_funcional="123456",
+    )
+
+    perfil = perfil_factory(nome=ADMINISTRADOR_EMPRESA)
+
+    empresa = empresa_factory(tipo_servico=Terceirizada.FORNECEDOR)
+
+    Vinculo.objects.create(
+        usuario=user,
+        instituicao=empresa,
+        perfil=perfil,
+        ativo=False,
+        data_inicial=None,
+        data_final=None,
+    )
+
+    client.force_login(user)
+
+    assert user.vinculo_atual is not None
+    assert user.eh_empresa is True
+    assert user.eh_fornecedor is True
+
+    return client, user

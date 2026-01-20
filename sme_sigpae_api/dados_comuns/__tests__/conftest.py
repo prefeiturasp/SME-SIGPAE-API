@@ -42,6 +42,7 @@ from ..models import (
 
 fake = Faker("pt_BR")
 Faker.seed(420)
+TERC_TOTAL = "TERC TOTAL"
 
 
 @pytest.fixture(
@@ -233,7 +234,7 @@ def escola(tipo_unidade, diretoria_regional):
     )
     tipo_gestao = baker.make(
         "TipoGestao",
-        nome="TERC TOTAL",
+        nome=TERC_TOTAL,
     )
     escola = baker.make(
         "Escola",
@@ -569,7 +570,7 @@ def escola_cei():
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
     return baker.make(
         "Escola",
@@ -648,7 +649,7 @@ def escola_cemei():
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
     return baker.make(
         "Escola",
@@ -1028,7 +1029,7 @@ def escola_cemei_1():
     return baker.make(
         "Escola",
         uuid="1fc5fca2-2694-4781-be65-8331716c74a0",
-        tipo_gestao__nome="TERC TOTAL",
+        tipo_gestao__nome=TERC_TOTAL,
     )
 
 
@@ -1165,3 +1166,51 @@ def solicitacao_para_corecao(solicitacao_sem_lancamento, medicao_sem_lancamento)
     solicitacao_sem_lancamento.save()
 
     return solicitacao_sem_lancamento
+
+
+@pytest.fixture
+def cronograma_para_alteracao(cronograma_factory):
+    from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
+
+    cronograma = cronograma_factory()
+
+    cronograma.status = Cronograma.workflow_class.ALTERACAO_CODAE
+    cronograma.save(update_fields=["status"])
+
+    return cronograma
+
+
+@pytest.fixture
+def solicitacao_alteracao_cronograma(
+    cronograma_para_alteracao,
+    etapas_do_cronograma_factory,
+    user_codae_produto,
+):
+    from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
+        SolicitacaoAlteracaoCronograma,
+        ProgramacaoDoRecebimentoDoCronograma,
+    )
+
+    cronograma = cronograma_para_alteracao
+
+    etapa_antiga = etapas_do_cronograma_factory(cronograma=cronograma)
+    etapa_nova = etapas_do_cronograma_factory(cronograma=cronograma)
+
+    solicitacao = SolicitacaoAlteracaoCronograma.objects.create(
+        cronograma=cronograma,
+        usuario_solicitante=user_codae_produto,
+        qtd_total_programada=123.0,
+        justificativa="teste",
+        numero_solicitacao=f"TESTE-{cronograma.id}",
+    )
+
+    solicitacao.etapas_antigas.set([etapa_antiga])
+    solicitacao.etapas_novas.set([etapa_nova])
+
+    prog = ProgramacaoDoRecebimentoDoCronograma.objects.create(
+        data_programada="22/08/2022 - Etapa 1 - Parte 1",
+        tipo_carga=ProgramacaoDoRecebimentoDoCronograma.PALETIZADA,
+    )
+    solicitacao.programacoes_novas.set([prog])
+
+    return solicitacao

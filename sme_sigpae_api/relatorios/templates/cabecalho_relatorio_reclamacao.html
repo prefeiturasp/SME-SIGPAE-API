@@ -1,31 +1,33 @@
+<!DOCTYPE html>
 {% include 'relatorio_base.html' %}
 {% load index %}
 {% load static %}
 {% load sass_tags %}
 
-<html>
+<html lang="pt-BR">
 <head>
   <link rel="stylesheet" href="{% sass_src 'css/relatorio_reclamacao.scss' %}" type="text/css">
+  <title>SIGPAE</title>
   {% block css %}{% endblock %}
 </head>
 <body>
 <header class="header">
   <section class="logo-titulo">
     <img src="{% static 'images/LOGO_PB_POSITIVO.png' %}" alt=""/>
-    <h1>SIGPAE - RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÕES DE PRODUTOS</h1> 
+    <h1>SIGPAE - RELATÓRIO DE ACOMPANHAMENTO DE RECLAMAÇÕES DE PRODUTOS</h1>
   </section>
   <section class="cabecario-reclamacao">
     <article class="info-line">
       <div>
-        Total de Reclamações de Produtos: <b>{{ cabecalho.numero_reclamacoes }}</b> 
+        Total de Reclamações de Produtos: <b>{{ cabecalho.numero_reclamacoes }}</b>
       </div>
       {% if cabecalho.periodo%}
         <div>
-          Período: <b>{{ cabecalho.periodo }}</b> 
+          Período: <b>{{ cabecalho.periodo }}</b>
         </div>
       {% endif %}
       <div>
-        Data de extração do relatório: <b>{{ cabecalho.data_extracao }}</b> 
+        Data de extração do relatório: <b>{{ cabecalho.data_extracao }}</b>
       </div>
     </article>
     <article>

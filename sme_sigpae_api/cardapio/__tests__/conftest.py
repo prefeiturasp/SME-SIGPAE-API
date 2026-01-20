@@ -18,6 +18,9 @@ from sme_sigpae_api.dados_comuns.models import TemplateMensagem
 
 fake = Faker("pt_BR")
 Faker.seed(420)
+FAKE_EMAIL = "fake@email.com"
+TERC_TOTAL = "TERC TOTAL"
+DIRETORIA_REGIONAL_IPIRANGA = "DIRETORIA REGIONAL IPIRANGA"
 
 
 @pytest.fixture
@@ -68,12 +71,12 @@ def periodo_tarde():
 def escola():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
     tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="EMEF")
-    contato = baker.make("dados_comuns.Contato", nome="FULANO", email="fake@email.com")
+    contato = baker.make("dados_comuns.Contato", nome="FULANO", email=FAKE_EMAIL)
     diretoria_regional = baker.make(
         "DiretoriaRegional",
-        nome="DIRETORIA REGIONAL IPIRANGA",
+        nome=DIRETORIA_REGIONAL_IPIRANGA,
         uuid="012f7722-9ab4-4e21-b0f6-85e17b58b0d1",
     )
 
@@ -152,12 +155,12 @@ def escola_com_dias_nao_letivos(escola_com_vinculo_alimentacao):
 def escola_cei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
     tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
-    contato = baker.make("dados_comuns.Contato", nome="FULANO", email="fake@email.com")
+    contato = baker.make("dados_comuns.Contato", nome="FULANO", email=FAKE_EMAIL)
     diretoria_regional = baker.make(
         "DiretoriaRegional",
-        nome="DIRETORIA REGIONAL IPIRANGA",
+        nome=DIRETORIA_REGIONAL_IPIRANGA,
         uuid="012f7722-9ab4-4e21-b0f6-85e17b58b0d1",
     )
     escola = baker.make(
@@ -178,12 +181,12 @@ def escola_cei():
 def escola_cemei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
     tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
-    contato = baker.make("dados_comuns.Contato", nome="FULANO", email="fake@email.com")
+    contato = baker.make("dados_comuns.Contato", nome="FULANO", email=FAKE_EMAIL)
     diretoria_regional = baker.make(
         "DiretoriaRegional",
-        nome="DIRETORIA REGIONAL IPIRANGA",
+        nome=DIRETORIA_REGIONAL_IPIRANGA,
         uuid="012f7722-9ab4-4e21-b0f6-85e17b58b0d1",
     )
     escola = baker.make(
@@ -329,7 +332,7 @@ def usuario_vinculo_escola_cardapio(
     user = django_user_model.objects.create_user(
         username=rf, password=password, email=email, registro_funcional=rf
     )
-    assert escola.tipo_gestao.nome == "TERC TOTAL"
+    assert escola.tipo_gestao.nome == TERC_TOTAL
     perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     hoje = datetime.date.today()
     baker.make(

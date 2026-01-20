@@ -23,12 +23,16 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.fixtures.factories.cronog
     CronogramaFactory,
     EtapasDoCronogramaFactory,
 )
+from sme_sigpae_api.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory import (
+    DocumentoDeRecebimentoFactory,
+)
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.fixtures.factories.ficha_tecnica_do_produto_factory import (
     FichaTecnicaFactory,
 )
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from sme_sigpae_api.recebimento.fixtures.factories.ficha_de_recebimento_factory import (
     FichaDeRecebimentoFactory,
+    VeiculoFichaDeRecebimentoFactory,
 )
 from sme_sigpae_api.recebimento.fixtures.factories.reposicao_cronograma_factory import (
     ReposicaoCronogramaFichaRecebimentoFactory,
@@ -36,6 +40,9 @@ from sme_sigpae_api.recebimento.fixtures.factories.reposicao_cronograma_factory 
 from sme_sigpae_api.recebimento.models import (
     OcorrenciaFichaRecebimento,
 )
+
+LOREM_IPSUM = "lorem ipsum"
+JUSTIFICATIVA_NAO_NECESSIDADE = "Não há necessidade"
 
 
 def criar_suspensoes(grupo_suspensao, datas_cancelamentos):
@@ -102,7 +109,7 @@ def template_mensagem_dieta_especial():
 def grupo_suspensao_alimentacao(escola):
     grupo_suspensao = baker.make(
         GrupoSuspensaoAlimentacao,
-        observacao="lorem ipsum",
+        observacao=LOREM_IPSUM,
         escola=escola,
         rastro_escola=escola,
         status="INFORMADO",
@@ -125,7 +132,7 @@ def grupo_suspensao_alimentacao(escola):
 def grupo_suspensao_alimentacao_cancelamento_parcial(escola):
     grupo_suspensao = baker.make(
         GrupoSuspensaoAlimentacao,
-        observacao="lorem ipsum",
+        observacao=LOREM_IPSUM,
         escola=escola,
         rastro_escola=escola,
         status="INFORMADO",
@@ -152,7 +159,7 @@ def grupo_suspensao_alimentacao_cancelamento_parcial(escola):
 def grupo_suspensao_alimentacao_cancelamento_total(escola):
     grupo_suspensao = baker.make(
         GrupoSuspensaoAlimentacao,
-        observacao="lorem ipsum",
+        observacao=LOREM_IPSUM,
         escola=escola,
         rastro_escola=escola,
         status="ESCOLA_CANCELOU",
@@ -252,7 +259,7 @@ def solicitacao_dieta_especial_cancelada(
     user, password = usuario_escola
     client.login(username=user.email, password=password)
     solicitacao_dieta_especial_autorizada.cancelar_pedido(
-        user=user, justificativa="Não há necessidade"
+        user=user, justificativa=JUSTIFICATIVA_NAO_NECESSIDADE
     )
     solicitacao_dieta_especial_autorizada.ativo = False
     solicitacao_dieta_especial_autorizada.save()
@@ -322,10 +329,10 @@ def solicitacao_dieta_especial_inativa(
     user, password = usuario_escola
     client.login(username=user.email, password=password)
     solicitacao_dieta_especial_autorizada.inicia_fluxo_inativacao(
-        user=user, justificativa="Não há necessidade"
+        user=user, justificativa=JUSTIFICATIVA_NAO_NECESSIDADE
     )
     solicitacao_dieta_especial_autorizada.codae_autoriza_inativacao(
-        user=user, justificativa="Não há necessidade"
+        user=user, justificativa=JUSTIFICATIVA_NAO_NECESSIDADE
     )
     solicitacao_dieta_especial_autorizada.ativo = False
     solicitacao_dieta_especial_autorizada.save()
@@ -424,13 +431,41 @@ def mock_filtros_relatorio_reclamacao(lote):
 def ficha_recebimento_com_ocorrencia():
     """Ficha de recebimento com ocorrência criada usando factories."""
 
-    cronograma = CronogramaFactory()
+    unidade_medida = baker.make(
+        "pre_recebimento.UnidadeMedida", nome="QUILOGRAMA", abreviacao="kg"
+    )
+    cronograma = CronogramaFactory(unidade_medida=unidade_medida)
     etapa = EtapasDoCronogramaFactory(cronograma=cronograma)
 
     ficha = FichaDeRecebimentoFactory(
         etapa=etapa,
         observacao="Recebimento com problemas detectados",
         houve_ocorrencia=True,
+    )
+
+    doc_recebimento = DocumentoDeRecebimentoFactory()
+    baker.make(
+        "recebimento.DocumentoFichaDeRecebimento",
+        ficha_recebimento=ficha,
+        documento_recebimento=doc_recebimento,
+        quantidade_recebida=10.00,
+    )
+
+    VeiculoFichaDeRecebimentoFactory(
+        ficha_recebimento=ficha,
+        numero="VEÍCULO 01",
+        temperatura_recebimento="22°C",
+        temperatura_produto="4°C",
+        lacre="LACRE123456",
+        numero_sif_sisbi_sisp="SIF123456",
+        numero_nota_fiscal="NF123456",
+        quantidade_nota_fiscal=2000.00,
+        embalagens_nota_fiscal=3000,
+        quantidade_recebida=1000.00,
+        embalagens_recebidas=1500,
+        estado_higienico_adequado=True,
+        termografo=True,
+        placa="ABC1234",
     )
 
     OcorrenciaFichaRecebimento.objects.create(

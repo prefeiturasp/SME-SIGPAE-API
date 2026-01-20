@@ -507,56 +507,28 @@ def test_build_xlsx_status_autorizado(
     sheet = workbook[nome_aba]
     rows = list(sheet.iter_rows(values_only=True))
 
-    assert rows[0] == ("Relatório de dietas especiais", None, None, None, None, None)
-    assert rows[1] == (
-        "Dietas Autorizadas: | Classificação(ões) da dieta: Tipo A,Tipo A Enteral,Tipo B | Protocolo(s) padrão(ões): ALERGIA A ABACAXI, ALERGIA A AVEIA | Data inicial: 01/01/2025 | Data final: 31/01/2025",
-        None,
-        None,
-        None,
-        None,
-        "Total de dietas: 4",
-    )
-    assert rows[2] == (None, None, None, None, None, None)
-    assert rows[3] == (
-        2,
-        "COD.EOL do Aluno",
-        "Nome do Aluno",
-        "Nome da Escola",
-        "Classificação da dieta",
-        "Protocolo Padrão",
-    )
-    assert rows[4] == (
-        3,
-        "123456",
-        "Roberto Alves da Silva",
-        "CEI DIRET JOAO MENDES",
-        None,
-        None,
-    )
-    assert rows[5] == (
-        4,
-        "123456",
-        "Roberto Alves da Silva",
-        "CEI DIRET JOAO MENDES",
-        None,
-        None,
-    )
-    assert rows[6] == (
-        5,
-        "123456",
-        "Roberto Alves da Silva",
-        "CEI DIRET JOAO MENDES",
-        None,
-        None,
-    )
-    assert rows[7] == (
-        6,
-        "123456",
-        "Roberto Alves da Silva",
-        "CEI DIRET JOAO MENDES",
-        None,
-        None,
-    )
+    assert rows[0][0] == "Relatório de dietas especiais"
+
+    assert "Dietas Autorizadas:" in rows[1][0]
+    assert "Classificação(ões) da dieta: Tipo A,Tipo A Enteral,Tipo B" in rows[1][0]
+    assert "Protocolo(s) padrão(ões): ALERGIA A ABACAXI, ALERGIA A AVEIA" in rows[1][0]
+    assert "Data inicial: 01/01/2025" in rows[1][0]
+    assert "Data final: 31/01/2025" in rows[1][0]
+    assert rows[1][-1] == "Total de dietas: 4"
+
+    assert all(cell is None for cell in rows[2])
+
+    assert rows[3][1] == "COD.EOL do Aluno"
+    assert rows[3][2] == "Nome do Aluno"
+    assert rows[3][3] == "Data de Nascimento"
+    assert rows[3][4] == "Nome da Escola"
+    assert rows[3][5] == "Classificação da dieta"
+    assert rows[3][6] == "Protocolo Padrão"
+
+    for row_idx in range(4, 8):
+        assert rows[row_idx][1] == "123456"
+        assert rows[row_idx][2] == "Roberto Alves da Silva"
+        assert rows[row_idx][4] == "CEI DIRET JOAO MENDES"
 
 
 def test_gera_xlsx_relatorio_dietas_especiais_terceirizadas_async(

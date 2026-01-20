@@ -4,6 +4,8 @@ from sme_sigpae_api.dados_comuns.constants import (
     COORDENADOR_CODAE_DILOG_LOGISTICA,
     DILOG_CRONOGRAMA,
     DILOG_QUALIDADE,
+    DILOG_DIRETORIA,
+    DILOG_ABASTECIMENTO,
 )
 
 
@@ -36,6 +38,8 @@ class PermissaoParaVisualizarFichaRecebimento(BasePermission):
         DILOG_QUALIDADE,
         COORDENADOR_CODAE_DILOG_LOGISTICA,
         DILOG_CRONOGRAMA,
+        DILOG_DIRETORIA,
+        DILOG_ABASTECIMENTO,
     ]
 
     def has_permission(self, request, view):

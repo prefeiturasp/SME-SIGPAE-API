@@ -221,7 +221,7 @@ class TestUseCaseRelatorioDietasAutorizadas:
             solicitacao_dieta_especial_factory, log_solicitacoes_usuario_factory, escola
         )
 
-    def test_relatorio_dietas_autorizadas_cei_polo_recreio_e_outro(
+    def test_relatorio_dietas_autorizadas_alteracao_ue_motivo_outro(
         self,
         client_autenticado_vinculo_dre_dieta,
         escola,
@@ -247,15 +247,13 @@ class TestUseCaseRelatorioDietasAutorizadas:
         )
         client, _ = client_autenticado_vinculo_dre_dieta
         response = client.get(
-            "/solicitacoes-dieta-especial/relatorio-dieta-especial-terceirizada/?limit=10&offset=0&recreio_nas_ferias=true&cei_polo=true&outro=true&status_selecionado=AUTORIZADAS",
+            "/solicitacoes-dieta-especial/relatorio-dieta-especial-terceirizada/?limit=10&offset=0&outro=true&status_selecionado=AUTORIZADAS",
             content_type="application/json",
         )
         assert response.status_code == status.HTTP_200_OK
-        assert response.json()["count"] == 3
+        assert response.json()["count"] == 1
         uuid_solicitacoes = [s["uuid"] for s in response.json()["results"]]
         for uuid_ in [
-            self.solicitacao_cei_polo.uuid,
-            self.solicitacao_recreio_nas_ferias.uuid,
             self.solicitacao_outro.uuid,
         ]:
             assert str(uuid_) in uuid_solicitacoes

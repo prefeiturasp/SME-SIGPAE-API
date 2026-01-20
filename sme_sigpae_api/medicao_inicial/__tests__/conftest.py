@@ -4534,7 +4534,9 @@ def relatorio_consolidado_xlsx_cieja(
 
         if dia == "05":
             _criar_valores_solicitacao_alimentacao(
-                dia, medicao_solicitacao_alimentacao, categoria_medicao_solicitacoes_alimentacao
+                dia,
+                medicao_solicitacao_alimentacao,
+                categoria_medicao_solicitacoes_alimentacao,
             )
 
     return solicitacao_relatorio_consolidado_escola_cieja

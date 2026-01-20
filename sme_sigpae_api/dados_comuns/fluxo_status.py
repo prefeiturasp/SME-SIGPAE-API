@@ -4736,13 +4736,25 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
         )
 
     @xworkflows.after_transition("finaliza_solicitacao_alteracao")
-    def _codae_finaliza_solicitacao_alteracao_hook(self, *args, **kwargs):
+    def _finaliza_solicitacao_alteracao_hook(self, *args, **kwargs):
+        from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import SolicitacaoAlteracaoCronograma
+
         user = kwargs["user"]
-        if user:
-            self.salvar_log_transicao(
-                status_evento=LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELA_CODAE,
-                usuario=user,
-            )
+        solicitacao_uuid = kwargs.get("justificativa")
+
+        if solicitacao_uuid:
+            solicitacao = SolicitacaoAlteracaoCronograma.objects.get(uuid=solicitacao_uuid)
+
+            self.qtd_total_programada = solicitacao.qtd_total_programada
+            self.etapas.set(solicitacao.etapas_novas.all())
+            self.programacoes_de_recebimento.all().delete()
+            self.programacoes_de_recebimento.set(solicitacao.programacoes_novas.all())
+            self.save()
+
+        self.salvar_log_transicao(
+            status_evento=LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELA_CODAE,
+            usuario=user,
+        )
 
     class Meta:
         abstract = True
@@ -4997,6 +5009,9 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 "numero_cronograma": numero_cronograma,
                 "url_solicitacao_alteracao": url_completo,
                 "fornecedor": user.nome,
+                "nome_fantasia": self.cronograma.empresa.nome_fantasia,
+                "razao_social": self.cronograma.empresa.razao_social,
+                "nome_produto": self.cronograma.ficha_tecnica.produto.nome,
                 "log_transicao": log_transicao,
             }
 
@@ -5832,9 +5847,17 @@ class FluxoFormularioSupervisao(xwf_models.WorkflowEnabled, models.Model):
 class RelatorioFinanceiroMedicaoInicialWorkflow(xwf_models.Workflow):
     log_model = ""  # Disable logging to database
 
+    RELATORIO_FINANCEIRO_GERADO = "RELATORIO_FINANCEIRO_GERADO"
     EM_ANALISE = "EM_ANALISE"
+    GERADA_MEDICAO_FINAL = "GERADA_MEDICAO_FINAL"
+    FINALIZADO = "FINALIZADO"
 
-    states = ((EM_ANALISE, "Em análise"),)
+    states = (
+        (RELATORIO_FINANCEIRO_GERADO, "Relatório Financeiro Gerado"),
+        (EM_ANALISE, "Em análise"),
+        (GERADA_MEDICAO_FINAL, "Gerada Medição Final"),
+        (FINALIZADO, "Finalizado"),
+    )
 
     transitions = ()
 
