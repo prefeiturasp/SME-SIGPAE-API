@@ -64,6 +64,7 @@ from ...dados_comuns.permissions import (
     UsuarioEscolaTercTotal,
     UsuarioNutricionista,
     UsuarioOrgaoFiscalizador,
+    UsuarioSupervisaoNutricao,
     UsuarioTerceirizadaProduto,
 )
 from ...dados_comuns.utils import url_configs
@@ -1502,7 +1503,7 @@ class HomologacaoProdutoViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        permission_classes=[UsuarioCODAEGestaoProduto],
+        permission_classes=[UsuarioCODAEGestaoProduto | UsuarioSupervisaoNutricao],
         methods=["get"],
         url_path=constants.VINCULOS_ATIVOS_PRODUTO_EDITAL,
     )
