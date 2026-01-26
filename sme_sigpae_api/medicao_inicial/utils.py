@@ -7,7 +7,7 @@ from collections import defaultdict
 from functools import reduce
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import IntegerField, Sum
+from django.db.models import IntegerField, Sum, FloatField
 from django.db.models.functions import Cast
 from django.db.utils import IntegrityError
 from django.template.loader import render_to_string
@@ -51,11 +51,16 @@ from sme_sigpae_api.medicao_inicial.models import (
     RelatorioFinanceiro,
     SolicitacaoMedicaoInicial,
     ValorMedicao,
+    Medicao,
 )
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesEscola
 from sme_sigpae_api.perfil.models.usuario import Usuario
 from sme_sigpae_api.relatorios.utils import merge_pdf_com_rodape_assinatura
 from sme_sigpae_api.terceirizada.models import Edital
+from sme_sigpae_api.medicao_inicial.services.utils import (
+    get_categorias_dietas,
+    get_nome_periodo as obter_nome_periodo,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -4850,3 +4855,98 @@ def substitui_criador_system_por_usuario_real(
         log.usuario = usuario
         log.criado_em = datetime.datetime.now()
         log.save()
+
+
+def _processa_periodo_regular(medicao, nome_periodo, resultado, faixas_map):
+    valores = (
+        medicao.valores_medicao
+        .filter(
+            nome_campo="frequencia",
+            categoria_medicao__nome="ALIMENTAÇÃO"
+        )
+        .values("faixa_etaria")
+        .annotate(
+            total=Sum(Cast("valor", FloatField()))
+        )
+    )
+
+    for item in valores:
+        if item["total"] is None:
+            continue
+
+        faixa_nome = faixas_map.get(item["faixa_etaria"])
+        if not faixa_nome:
+            continue
+
+        resultado.setdefault(nome_periodo, {})
+        resultado[nome_periodo].setdefault(faixa_nome, 0)
+        resultado[nome_periodo][faixa_nome] += item["total"]
+
+
+def _processa_dietas(medicao, resultado, faixas_map):
+    dietas = get_categorias_dietas(medicao)
+
+    for dieta in dietas:
+        valores = (
+            medicao.valores_medicao
+            .filter(
+                nome_campo="frequencia",
+                categoria_medicao__nome=dieta
+            )
+            .values("faixa_etaria")
+            .annotate(
+                total=Sum(Cast("valor", FloatField()))
+            )
+        )
+
+        for item in valores:
+            if item["total"] is None:
+                continue
+
+            faixa_nome = faixas_map.get(item["faixa_etaria"])
+            if not faixa_nome:
+                continue
+
+            dieta_nome = f'{dieta} - {medicao.periodo_escolar.nome}' if medicao.periodo_escolar else dieta
+            resultado.setdefault(dieta_nome, {})
+            resultado[dieta_nome].setdefault(faixa_nome, 0)
+            resultado[dieta_nome][faixa_nome] += item["total"]
+
+
+def gerar_totais_consolidado_cei(solicitacoes):
+    medicoes = (
+        Medicao.objects
+        .filter(solicitacao_medicao_inicial__in=solicitacoes)
+        .select_related("periodo_escolar", "grupo")
+    )
+
+    faixas_map = {
+        f.id: str(f)
+        for f in FaixaEtaria.objects.all()
+    }
+
+    resultado = {}
+
+    for medicao in medicoes:
+        nome_periodo = obter_nome_periodo(medicao)
+
+        _processa_periodo_regular(medicao, nome_periodo, resultado, faixas_map)
+        _processa_dietas(medicao, resultado, faixas_map)
+
+    return resultado
+
+
+def calcula_totais_consumo_por_faixa_etaria(uuid_lote, uuid_grupo_escolar, mes, ano):
+    lote = Lote.objects.get(uuid=uuid_lote)
+    grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(uuid=uuid_grupo_escolar)
+
+    solicitacoes = SolicitacaoMedicaoInicial.objects.filter(
+        mes=str(mes),
+        ano=str(ano),
+        status='MEDICAO_APROVADA_PELA_CODAE',
+        escola__lote=lote,
+        escola__tipo_unidade__in=grupo_unidade_escolar.tipos_unidades.all(),
+    )
+
+    dados = gerar_totais_consolidado_cei(solicitacoes)
+    return dados
