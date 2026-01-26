@@ -2155,3 +2155,44 @@ def test_url_endpoint_homologacao_produto_codae_suspendeu(
     )
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json().get("results")) == 0
+
+
+def test_url_endpoint_vinculos_ativos_produto_edital(
+    client_autenticado_vinculo_codae_nutrisupervisor,
+    homologacoes_produto,
+):
+    uuid_teste = homologacoes_produto.uuid
+    response = client_autenticado_vinculo_codae_nutrisupervisor.get(
+        f"/homologacoes-produtos/{uuid_teste}/vinculos-ativos-produto-edital/"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json().get("vinculos_produto_edital")) == 0
+
+
+def test_url_endpoint_vinculos_ativos_produto_edital_erro_permissao_perfil(
+    client_autenticado_vinculo_terceirizada,
+    homologacoes_produto,
+):
+    client, _ = client_autenticado_vinculo_terceirizada
+    uuid_teste = homologacoes_produto.uuid
+    response = client.get(
+        f"/homologacoes-produtos/{uuid_teste}/vinculos-ativos-produto-edital/"
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == {
+        "detail": "Você não tem permissão para executar essa ação."
+    }
+
+
+def test_url_endpoint_vinculos_ativos_produto_edital_erro_permissao_vinculo(
+    client_autenticado_vinculo_escola_nutrisupervisor,
+    homologacoes_produto,
+):
+    uuid_teste = homologacoes_produto.uuid
+    response = client_autenticado_vinculo_escola_nutrisupervisor.get(
+        f"/homologacoes-produtos/{uuid_teste}/vinculos-ativos-produto-edital/"
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == {
+        "detail": "Você não tem permissão para executar essa ação."
+    }
