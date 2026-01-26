@@ -89,7 +89,7 @@ class TipoDeInformacaoNutricional(Nomeavel, TemChaveExterna):
 class InformacaoNutricional(TemChaveExterna, Nomeavel):
     ORDEM_TABELA = [
         "VALOR ENERGÉTICO",
-        "CARBOIDRATOS TOTAIS",
+        "CARBOIDRATOS",
         "AÇÚCARES TOTAIS",
         "AÇÚCARES ADICIONADOS",
         "PROTEÍNAS",
@@ -109,6 +109,7 @@ class InformacaoNutricional(TemChaveExterna, Nomeavel):
     @property
     def eh_dependente(self):
         return self.nome.upper() in [
+            "AÇÚCARES TOTAIS",
             "AÇÚCARES ADICIONADOS",
             "GORDURAS SATURADAS",
             "GORDURAS TRANS",

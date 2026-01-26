@@ -114,7 +114,6 @@ class FichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
     )
     prazo_validade = serializers.CharField(required=True, allow_blank=True)
     numero_registro = serializers.CharField(required=False, allow_blank=True)
-    agroecologico = serializers.BooleanField(required=False)
     organico = serializers.BooleanField(required=False)
     mecanismo_controle = serializers.ChoiceField(
         choices=FichaTecnicaDoProduto.MECANISMO_CONTROLE_CHOICES,
