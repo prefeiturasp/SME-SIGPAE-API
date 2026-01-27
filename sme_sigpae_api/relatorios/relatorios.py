@@ -2245,8 +2245,17 @@ def obter_justificativa_dieta(solicitacao):
         .filter(uuid=solicitacao.uuid)
         .exists()
     ):
-        ultima_autorizada = SolicitacoesCODAE.get_autorizados_dieta_especial().filter(codigo_eol_aluno=solicitacao.aluno.codigo_eol, ativo=True).order_by('-criado_em').last()
-        data = ultima_autorizada.data.strftime("%d/%m/%Y") if ultima_autorizada is not None else "Data não encontrada"
+        ultima_autorizada = (
+            SolicitacoesCODAE.get_autorizados_dieta_especial()
+            .filter(codigo_eol_aluno=solicitacao.aluno.codigo_eol, ativo=True)
+            .order_by("-criado_em")
+            .last()
+        )
+        data = (
+            ultima_autorizada.data.strftime("%d/%m/%Y")
+            if ultima_autorizada is not None
+            else "Data não encontrada"
+        )
         mensagem = "Autorização de novo protocolo de dieta especial"
         justificativa = f"Dieta Inativada em: {data} | Justificativa: {mensagem}"
 
