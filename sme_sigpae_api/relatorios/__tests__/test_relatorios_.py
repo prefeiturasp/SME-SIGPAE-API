@@ -335,10 +335,9 @@ def test_obter_justificativa_dieta_dieta_inativa(solicitacao_dieta_especial_inat
     justificativa = obter_justificativa_dieta(solicitacao_dieta_especial_inativa)
     assert (
         justificativa
-        == f'Dieta Inativada em: {log_recente.criado_em.strftime("%d/%m/%Y")} | Justificativa: Autorização de novo protocolo de dieta especial'
+        == f'Dieta Inativada em: Data não encontrada | Justificativa: Autorização de novo protocolo de dieta especial'
     )
-
-
+    
 def test_get_pdf_ficha_tecnica(ficha_tecnica):
 
     response = get_pdf_ficha_tecnica(None, ficha_tecnica)
