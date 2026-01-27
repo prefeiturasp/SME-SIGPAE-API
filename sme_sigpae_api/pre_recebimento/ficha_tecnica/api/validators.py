@@ -9,7 +9,6 @@ from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
 
 def valida_campos_pereciveis_ficha_tecnica(attrs):
     attrs_obrigatorios_pereciveis = {
-        "agroecologico",
         "organico",
         "prazo_validade_descongelamento",
         "temperatura_congelamento",
@@ -20,23 +19,22 @@ def valida_campos_pereciveis_ficha_tecnica(attrs):
 
     if not attrs_obrigatorios_pereciveis.issubset(attrs.keys()):
         raise serializers.ValidationError(
-            "Fichas Técnicas de Produtos PERECÍVEIS exigem que sejam forncecidos valores para os campos"
-            + " agroecologico, organico, prazo_validade_descongelamento, temperatura_congelamento"
+            "Fichas Técnicas de Produtos PERECÍVEIS exigem que sejam fornecidos valores para os campos"
+            + " organico, prazo_validade_descongelamento, temperatura_congelamento"
             + ", temperatura_veiculo, condicoes_de_transporte e variacao_percentual."
         )
 
 
 def valida_campos_nao_pereciveis_ficha_tecnica(attrs):
-    attrs_obrigatorios_pereciveis = {
-        "agroecologico",
+    attrs_obrigatorios_nao_pereciveis = {
         "organico",
         "produto_eh_liquido",
     }
 
-    if not attrs_obrigatorios_pereciveis.issubset(attrs.keys()):
+    if not attrs_obrigatorios_nao_pereciveis.issubset(attrs.keys()):
         raise serializers.ValidationError(
-            "Fichas Técnicas de Produtos NÃO PERECÍVEIS exigem que sejam forncecidos valores para os campos"
-            + " agroecologico, organico, e produto_eh_liquido"
+            "Fichas Técnicas de Produtos NÃO PERECÍVEIS exigem que sejam fornecidos valores para os campos"
+            + " organico, e produto_eh_liquido"
         )
 
 
@@ -82,7 +80,6 @@ class ServiceValidacaoCorrecaoFichaTecnica:
         "detalhes_produto_conferido": {
             "obrigatorios": [
                 "prazo_validade",
-                "agroecologico",
                 "organico",
                 "componentes_produto",
                 "alergenicos",

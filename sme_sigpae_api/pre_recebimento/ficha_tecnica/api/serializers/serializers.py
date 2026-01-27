@@ -160,7 +160,6 @@ class FichaTecnicaDetalharSerializer(serializers.ModelSerializer):
             "envasador_distribuidor",
             "prazo_validade",
             "numero_registro",
-            "agroecologico",
             "organico",
             "mecanismo_controle",
             "componentes_produto",

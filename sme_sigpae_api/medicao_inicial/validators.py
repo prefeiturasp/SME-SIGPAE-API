@@ -2618,18 +2618,19 @@ def valida_dietas_solicitacoes_continuas(
 
     categorias = CategoriaMedicao.objects.filter(nome__icontains="dieta")
     nomes_campos = ["frequencia"]
+    logs_dietas_autorizadas_no_mes = escola.logs_dietas_autorizadas.filter(
+        data__month=mes,
+        data__year=ano,
+        quantidade__gt=0,
+        periodo_escolar__nome=None,
+        infantil_ou_fundamental=infantil_ou_fundamental,
+    ).exclude(classificacao__nome="Tipo C")
+
     ids_categorias_existentes_no_mes = list(
         set(
-            escola.logs_dietas_autorizadas.filter(
-                data__month=mes,
-                data__year=ano,
-                quantidade__gt=0,
-                periodo_escolar__nome=None,
-                infantil_ou_fundamental=infantil_ou_fundamental,
-            )
-            .exclude(classificacao__nome="Tipo C")
-            .values_list("classificacao", flat=True)
-            .distinct()
+            logs_dietas_autorizadas_no_mes.values_list(
+                "classificacao", flat=True
+            ).distinct()
         )
     )
     classificacoes = ClassificacaoDieta.objects.filter(
@@ -2644,9 +2645,18 @@ def valida_dietas_solicitacoes_continuas(
         )
         for dia in range(1, quantidade_dias_mes + 1):
             feriados = calendario.holidays(int(ano))
-            if dia in [
-                feriado[0].day for feriado in feriados if feriado[0].month == int(mes)
-            ]:
+            numero_alunos_log_dieta_do_dia = _get_numero_alunos(
+                logs_dietas_autorizadas_no_mes, dia
+            )
+            if (
+                dia
+                in [
+                    feriado[0].day
+                    for feriado in feriados
+                    if feriado[0].month == int(mes)
+                ]
+                or numero_alunos_log_dieta_do_dia == 0
+            ):
                 continue
             data = datetime.date(year=int(ano), month=int(mes), day=dia)
             dia_semana = data.weekday()
@@ -3688,3 +3698,16 @@ def obter_periodos_corretos(
         ),
     }
     return dias_letivos_geral
+
+
+def _get_numero_alunos(logs_dietas_autorizadas_no_mes, dia):
+    try:
+        numero_alunos_log_dieta_do_dia = logs_dietas_autorizadas_no_mes.get(
+            data__day=dia
+        )
+        return numero_alunos_log_dieta_do_dia
+    except (
+        LogQuantidadeDietasAutorizadas.DoesNotExist,
+        LogQuantidadeDietasAutorizadas.MultipleObjectsReturned,
+    ):
+        return 0
