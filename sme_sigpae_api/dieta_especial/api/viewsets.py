@@ -367,6 +367,7 @@ class SolicitacaoDietaEspecialViewSet(
         solicitacao = self.get_object()
         if (
             solicitacao.aluno.possui_dieta_especial_ativa
+            and solicitacao.status == SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
             and solicitacao.tipo_solicitacao == "COMUM"
         ):
             solicitacao.aluno.inativar_dieta_especial()
