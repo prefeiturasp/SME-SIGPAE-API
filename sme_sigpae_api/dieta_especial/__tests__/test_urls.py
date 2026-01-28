@@ -1420,3 +1420,27 @@ def test_url_endpoint_autorizar_dieta_nao_altera_o_campo_ativo(
         para_autorizar.status
         == SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
     )
+
+
+def test_url_endpoint_salvar_rascunho_dieta_substituicao_incorreta(
+    client_autenticado_vinculo_codae_dieta,
+    solicitacao_dieta_especial,
+    payload_autorizar,
+):
+    obj = SolicitacaoDietaEspecial.objects.first()
+    obj.status = SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR
+    obj.save()
+    data_termino = datetime.date.today() + datetime.timedelta(days=60)
+    payload_autorizar["data_termino"] = data_termino.isoformat()
+    payload_autorizar["substituicoes"].append({})
+    response = client_autenticado_vinculo_codae_dieta.patch(
+        f"/solicitacoes-dieta-especial/{obj.uuid}/",
+        content_type="application/json",
+        data=payload_autorizar,
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    json = response.json()
+    assert json == {
+        "substituicoes": "Um ou mais itens na lista de substituições estão vazios."
+    }
