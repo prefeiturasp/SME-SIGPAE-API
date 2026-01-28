@@ -2227,9 +2227,6 @@ def formata_justificativa(solicitacao, status_evento_explicacao):
 def obter_justificativa_dieta(solicitacao):
     status_dieta = solicitacao.status.state.name
     ativo = solicitacao.ativo
-    log_recente = solicitacao.logs.last()
-    data = log_recente.criado_em.strftime("%d/%m/%Y") if log_recente else ""
-
     status_cancelamentos = [
         DietaEspecialWorkflow.CANCELADO_ALUNO_MUDOU_ESCOLA,
         DietaEspecialWorkflow.CANCELADO_ALUNO_NAO_PERTENCE_REDE,
@@ -2258,17 +2255,18 @@ def obter_justificativa_dieta(solicitacao):
                 id=ultima_autorizada.id
             ).last()
             if solicitacao_ativa:
-                log_recente = solicitacao_ativa.logs.last()
-                if (
-                    log_recente
-                    and log_recente.status_evento_explicacao == "CODAE autorizou"
-                ):
-                    data = log_recente.criado_em.strftime("%d/%m/%Y")
+                log_autorizado = solicitacao_ativa.logs.filter(
+                    status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU
+                ).last()
+                if log_autorizado:
+                    data = log_autorizado.criado_em.strftime("%d/%m/%Y")
 
         mensagem = "Autorização de novo protocolo de dieta especial"
         justificativa = f"Dieta Inativada em: {data} | Justificativa: {mensagem}"
 
     elif cancelamento_padrao or cancelado_pela_escola:
+        log_recente = solicitacao.logs.last()
+        data = log_recente.criado_em.strftime("%d/%m/%Y") if log_recente else ""
         mensagem = formata_justificativa(
             solicitacao, log_recente.status_evento_explicacao
         )
