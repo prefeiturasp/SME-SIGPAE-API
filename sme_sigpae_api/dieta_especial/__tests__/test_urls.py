@@ -1379,3 +1379,44 @@ def test_logs_dieta_recreio_nas_ferias_escola_sem_log(
     assert response.status_code == status.HTTP_200_OK
     logs = response.json()
     assert len(logs) == 0
+
+
+def test_url_endpoint_autorizar_dieta_nao_altera_o_campo_ativo(
+    client_autenticado_vinculo_codae_dieta,
+    solicitacao_dieta_especial_cancela_aluno_nao_pertence_rede,
+    payload_autorizar,
+):
+    cancelada = SolicitacaoDietaEspecial.objects.get(
+        status=SolicitacaoDietaEspecial.workflow_class.CANCELADO_ALUNO_NAO_PERTENCE_REDE
+    )
+    assert cancelada.ativo == True
+    para_autorizar = SolicitacaoDietaEspecial.objects.get(
+        status=SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR
+    )
+    assert para_autorizar.ativo == True
+
+    data_termino = datetime.date.today() + datetime.timedelta(days=60)
+    payload_autorizar["data_termino"] = data_termino.isoformat()
+    response = client_autenticado_vinculo_codae_dieta.patch(
+        f"/solicitacoes-dieta-especial/{para_autorizar.uuid}/autorizar/",
+        content_type="application/json",
+        data=payload_autorizar,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()
+    assert json["detail"] == "Autorização de Dieta Especial realizada com sucesso!"
+
+    cancelada.refresh_from_db()
+    assert cancelada.ativo == True
+    assert (
+        cancelada.status
+        == SolicitacaoDietaEspecial.workflow_class.CANCELADO_ALUNO_NAO_PERTENCE_REDE
+    )
+
+    para_autorizar.refresh_from_db()
+    assert para_autorizar.ativo == True
+    assert (
+        para_autorizar.status
+        == SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
+    )
