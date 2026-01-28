@@ -855,4 +855,3 @@ class InterrupcaoProgramadaEntregaCreateSerializer(serializers.ModelSerializer):
                 {"descricao_motivo": "Descrição é obrigatória quando motivo é 'Outros'"}
             )
         return attrs
-
