@@ -2408,7 +2408,21 @@ def obter_relatorio_da_unidade(tipos_de_unidade: list[str]) -> Callable:
     raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
 
 
-def obtem_data_inativacao(solicitacao):
+def obtem_data_inativacao(solicitacao: SolicitacaoDietaEspecial) -> str:
+    """
+    Determina a data de inativação de uma solicitação de dieta especial.
+
+    A inativação é definida pela data em que a solicitação subsequente (seja ela
+    autorizada, cancelada ou inativa) recebeu o status de autorização da CODAE.
+
+    Args:
+        solicitacao (SolicitacaoDietaEspecial):  Objeto da solicitação de dieta especial para a qual se deseja encontrar
+        a data de inativação/substituição.
+
+    Returns:
+        str: Data de inativação no formato "DD/MM/AAAA" se encontrada.
+        Retorna "Data não encontrada" se não for possível determinar a data.
+    """
     data = "Data não encontrada"
     solicitacoes_canceladas_e_autorizadas = (
         (
