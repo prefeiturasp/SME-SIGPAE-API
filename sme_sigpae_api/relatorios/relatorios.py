@@ -16,6 +16,7 @@ from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
 )
+from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
@@ -2245,6 +2246,25 @@ def obter_justificativa_dieta(solicitacao):
         .filter(uuid=solicitacao.uuid)
         .exists()
     ):
+        ultima_autorizada = (
+            SolicitacoesCODAE.get_autorizados_dieta_especial()
+            .filter(codigo_eol_aluno=solicitacao.aluno.codigo_eol, ativo=True)
+            .order_by("-criado_em")
+            .last()
+        )
+        data = "Data não encontrada"
+        if ultima_autorizada:
+            solicitacao_ativa = SolicitacaoDietaEspecial.objects.filter(
+                id=ultima_autorizada.id
+            ).last()
+            if solicitacao_ativa:
+                log_recente = solicitacao_ativa.logs.last()
+                if (
+                    log_recente
+                    and log_recente.status_evento_explicacao == "CODAE autorizou"
+                ):
+                    data = log_recente.criado_em.strftime("%d/%m/%Y")
+
         mensagem = "Autorização de novo protocolo de dieta especial"
         justificativa = f"Dieta Inativada em: {data} | Justificativa: {mensagem}"
 
