@@ -135,7 +135,6 @@ class FichaTecnicaDoProduto(
     numero_registro = models.CharField(
         "Nº do Registro do Rótulo", max_length=150, blank=True
     )
-    agroecologico = models.BooleanField("É agroecológico?", null=True)
     organico = models.BooleanField("É orgânico?", null=True)
     mecanismo_controle = models.CharField(
         choices=MECANISMO_CONTROLE_CHOICES, max_length=12, blank=True
