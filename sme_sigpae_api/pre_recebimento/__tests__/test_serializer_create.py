@@ -24,7 +24,7 @@ def test_invalido_nao_perecivel_sem_produto_liquido(payload_base):
     assert not is_valid
     errors = str(serializer.errors)
     assert (
-        "Fichas Técnicas de Produtos NÃO PERECÍVEIS exigem que sejam forncecidos valores para os campos agroecologico, organico, e produto_eh_liquido"
+        "Fichas Técnicas de Produtos NÃO PERECÍVEIS exigem que sejam fornecidos valores para os campos organico, e produto_eh_liquido"
         in errors
     ), errors
 
@@ -33,7 +33,6 @@ def test_valido_perecivel_com_campos_obrigatorios(payload_base):
     payload_base.update(
         {
             "categoria": FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS,
-            "agroecologico": True,
             "prazo_validade_descongelamento": "2 dias",
             "temperatura_congelamento": -18,
             "temperatura_veiculo": 4,
@@ -61,7 +60,7 @@ def test_invalido_perecivel_sem_campos_obrigatorios(payload_base):
     assert not is_valid
     errors = str(serializer.errors)
     assert (
-        "Fichas Técnicas de Produtos PERECÍVEIS exigem que sejam forncecidos valores para os campos agroecologico, organico, prazo_validade_descongelamento, temperatura_congelamento, temperatura_veiculo, condicoes_de_transporte e variacao_percentual."
+        "Fichas Técnicas de Produtos PERECÍVEIS exigem que sejam fornecidos valores para os campos organico, prazo_validade_descongelamento, temperatura_congelamento, temperatura_veiculo, condicoes_de_transporte e variacao_percentual."
         in errors
     ), errors
 
@@ -112,6 +111,6 @@ def test_produto_eh_liquido_obrigatorio_para_nao_perecivel(payload_base):
     serializer = FichaTecnicaCreateSerializer(data=payload_base)
     assert not serializer.is_valid()
     assert (
-        "Fichas Técnicas de Produtos NÃO PERECÍVEIS exigem que sejam forncecidos valores"
+        "Fichas Técnicas de Produtos NÃO PERECÍVEIS exigem que sejam fornecidos valores"
         in str(serializer.errors)
     )
