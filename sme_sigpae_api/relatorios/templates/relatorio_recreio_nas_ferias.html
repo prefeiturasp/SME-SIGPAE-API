@@ -39,9 +39,9 @@
           {% for solicitacao in dados %}
             <tbody class="solicitacao">
               <tr>
-                <th>{{ solicitacao.codigo_eol_aluno }} - {{ solicitacao.nome_aluno }}</th>
-                <th>{{ solicitacao.nome_escola }}</th>
-                <th>{{ solicitacao.escola_destino }}</th>
+                <th scope="col">{{ solicitacao.codigo_eol_aluno }} - {{ solicitacao.nome_aluno }}</th>
+                <th scope="col">{{ solicitacao.nome_escola }}</th>
+                <th scope="col">{{ solicitacao.escola_destino }}</th>
               </tr>
               <tr>
                 <td class="texto-detalhe padding-grande" colspan="3">
