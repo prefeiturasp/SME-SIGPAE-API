@@ -17,10 +17,47 @@ from ..documento_recebimento.models import (
 from ..ficha_tecnica.models import FichaTecnicaDoProduto
 from ..layout_embalagem.models import LayoutDeEmbalagem, TipoDeEmbalagemDeLayout
 from ..qualidade.models import Laboratorio, TipoEmbalagemQld
+from ..cronograma_entrega.models import (
+    Cronograma,
+    EtapasDoCronograma,
+    ProgramacaoDoRecebimentoDoCronograma,
+    SolicitacaoAlteracaoCronograma,
+    InterrupcaoProgramadaEntrega,
+)
+from django.db import IntegrityError
 
 pytestmark = pytest.mark.django_db
 
 fake = Faker("pt_BR")
+
+
+def test_interrupcao_programada_entrega_instance_model(interrupcao_programada_entrega):
+    assert isinstance(interrupcao_programada_entrega, InterrupcaoProgramadaEntrega)
+
+
+def test_interrupcao_programada_entrega_str_model(interrupcao_programada_entrega):
+    # Formato esperado: Interrupção MOTIVO - DD/MM/YYYY
+    expected_str = f"Interrupção {interrupcao_programada_entrega.get_motivo_display()} - {interrupcao_programada_entrega.data:%d/%m/%Y}"
+    assert str(interrupcao_programada_entrega) == expected_str
+
+
+def test_interrupcao_programada_entrega_meta_modelo(interrupcao_programada_entrega):
+    assert interrupcao_programada_entrega._meta.verbose_name == "Interrupção Programada de Entrega"
+    assert (
+        interrupcao_programada_entrega._meta.verbose_name_plural
+        == "Interrupções Programadas de Entregas"
+    )
+
+
+def test_interrupcao_programada_entrega_unicidade_data(interrupcao_programada_entrega):
+    """Teste para garantir que não podem existir duas interrupções na mesma data."""
+    with pytest.raises(IntegrityError):
+        InterrupcaoProgramadaEntrega.objects.create(
+            data=interrupcao_programada_entrega.data,
+            motivo=interrupcao_programada_entrega.motivo,
+            tipo_calendario=interrupcao_programada_entrega.tipo_calendario
+        )
+
 
 
 def test_cronograma_instance_model(cronograma):

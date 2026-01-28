@@ -23,8 +23,10 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serialize
     EtapasDoCronogramaSerializer,
     PainelCronogramaSerializer,
     SolicitacaoAlteracaoCronogramaSerializer,
+    InterrupcaoProgramadaEntregaSerializer,
+    InterrupcaoProgramadaEntregaCreateSerializer,
 )
-from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma, InterrupcaoProgramadaEntrega
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoDetalharSerializer,
     DocumentoDeRecebimentoSerializer,
@@ -571,3 +573,43 @@ def test_solicitacao_alteracao_cronograma_serializer_leve_leite(
 
     assert "programa_leve_leite" in data2
     assert data2["programa_leve_leite"] is False
+
+
+def test_interrupcao_programada_entrega_serializer(interrupcao_programada_entrega):
+    serializer = InterrupcaoProgramadaEntregaSerializer(interrupcao_programada_entrega)
+    data = serializer.data
+
+    assert data["uuid"] == str(interrupcao_programada_entrega.uuid)
+    assert data["data"] == interrupcao_programada_entrega.data.strftime("%d/%m/%Y")
+    assert data["motivo"] == interrupcao_programada_entrega.motivo
+    assert data["motivo_display"] == interrupcao_programada_entrega.get_motivo_display()
+    assert data["tipo_calendario"] == interrupcao_programada_entrega.tipo_calendario
+    assert data["tipo_calendario_display"] == interrupcao_programada_entrega.get_tipo_calendario_display()
+    assert data["descricao_motivo"] == interrupcao_programada_entrega.descricao_motivo
+
+
+def test_interrupcao_programada_entrega_create_serializer_validacao_outros():
+    """Teste para verificar a validação quando o motivo é OUTROS e não há descrição"""
+    data = {
+        "data": timezone.now().date(),
+        "motivo": InterrupcaoProgramadaEntrega.MOTIVO_OUTROS,
+        "descricao_motivo": "",  # Descrição vazia deve falhar
+        "tipo_calendario": InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL
+    }
+    serializer = InterrupcaoProgramadaEntregaCreateSerializer(data=data)
+    assert not serializer.is_valid()
+    assert "descricao_motivo" in serializer.errors
+
+
+def test_interrupcao_programada_entrega_create_serializer_sucesso():
+    """Teste de criação com sucesso"""
+    data = {
+        "data": timezone.now().date(),
+        "motivo": InterrupcaoProgramadaEntrega.MOTIVO_REUNIAO,
+        "descricao_motivo": "",
+        "tipo_calendario": InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_PONTO_A_PONTO
+    }
+    serializer = InterrupcaoProgramadaEntregaCreateSerializer(data=data)
+    assert serializer.is_valid(), serializer.errors
+    instance = serializer.save()
+    assert instance.motivo == InterrupcaoProgramadaEntrega.MOTIVO_REUNIAO
