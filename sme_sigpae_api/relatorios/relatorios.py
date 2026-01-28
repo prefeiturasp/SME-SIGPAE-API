@@ -2227,9 +2227,6 @@ def formata_justificativa(solicitacao, status_evento_explicacao):
 def obter_justificativa_dieta(solicitacao):
     status_dieta = solicitacao.status.state.name
     ativo = solicitacao.ativo
-    log_recente = solicitacao.logs.last()
-    data = log_recente.criado_em.strftime("%d/%m/%Y") if log_recente else ""
-
     status_cancelamentos = [
         DietaEspecialWorkflow.CANCELADO_ALUNO_MUDOU_ESCOLA,
         DietaEspecialWorkflow.CANCELADO_ALUNO_NAO_PERTENCE_REDE,
@@ -2246,29 +2243,13 @@ def obter_justificativa_dieta(solicitacao):
         .filter(uuid=solicitacao.uuid)
         .exists()
     ):
-        ultima_autorizada = (
-            SolicitacoesCODAE.get_autorizados_dieta_especial()
-            .filter(codigo_eol_aluno=solicitacao.aluno.codigo_eol, ativo=True)
-            .order_by("-criado_em")
-            .last()
-        )
-        data = "Data não encontrada"
-        if ultima_autorizada:
-            solicitacao_ativa = SolicitacaoDietaEspecial.objects.filter(
-                id=ultima_autorizada.id
-            ).last()
-            if solicitacao_ativa:
-                log_recente = solicitacao_ativa.logs.last()
-                if (
-                    log_recente
-                    and log_recente.status_evento_explicacao == "CODAE autorizou"
-                ):
-                    data = log_recente.criado_em.strftime("%d/%m/%Y")
-
+        data = obtem_data_inativacao(solicitacao)
         mensagem = "Autorização de novo protocolo de dieta especial"
         justificativa = f"Dieta Inativada em: {data} | Justificativa: {mensagem}"
 
     elif cancelamento_padrao or cancelado_pela_escola:
+        log_recente = solicitacao.logs.last()
+        data = log_recente.criado_em.strftime("%d/%m/%Y") if log_recente else ""
         mensagem = formata_justificativa(
             solicitacao, log_recente.status_evento_explicacao
         )
@@ -2425,3 +2406,46 @@ def obter_relatorio_da_unidade(tipos_de_unidade: list[str]) -> Callable:
         if set(tipos_de_unidade).issubset(estrategia["unidades"]):
             return estrategia["modulo"]
     raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
+
+
+def obtem_data_inativacao(solicitacao: SolicitacaoDietaEspecial) -> str:
+    """
+    Determina a data de inativação de uma solicitação de dieta especial.
+
+    A inativação é definida pela data em que a solicitação subsequente (seja ela
+    autorizada, cancelada ou inativa) recebeu o status de autorização da CODAE.
+
+    Args:
+        solicitacao (SolicitacaoDietaEspecial):  Objeto da solicitação de dieta especial para a qual se deseja encontrar
+        a data de inativação/substituição.
+
+    Returns:
+        str: Data de inativação no formato "DD/MM/AAAA" se encontrada.
+        Retorna "Data não encontrada" se não for possível determinar a data.
+    """
+    data = "Data não encontrada"
+    solicitacoes_canceladas_e_autorizadas = (
+        (
+            SolicitacoesCODAE.get_autorizados_dieta_especial()
+            | SolicitacoesCODAE.get_cancelados_dieta_especial()
+            | SolicitacoesCODAE.get_inativas_dieta_especial()
+        )
+        .filter(
+            codigo_eol_aluno=solicitacao.aluno.codigo_eol,
+            criado_em__gt=solicitacao.criado_em,
+        )
+        .order_by("criado_em")
+    )
+    proxima_solicitacao = solicitacoes_canceladas_e_autorizadas.first()
+    if proxima_solicitacao:
+        solicitacao_ativa = SolicitacaoDietaEspecial.objects.filter(
+            id=proxima_solicitacao.id
+        ).last()
+        if solicitacao_ativa:
+            log_autorizado = solicitacao_ativa.logs.filter(
+                status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU
+            ).last()
+            if log_autorizado:
+                data = log_autorizado.criado_em.strftime("%d/%m/%Y")
+
+    return data
