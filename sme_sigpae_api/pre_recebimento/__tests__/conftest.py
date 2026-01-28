@@ -1520,3 +1520,43 @@ def client_user_autenticado_fornecedor(
     assert user.eh_fornecedor is True
 
     return client, user
+
+
+@pytest.fixture
+def interrupcao_programada_entrega():
+    return baker.make(
+        "InterrupcaoProgramadaEntrega",
+        data=datetime.date.today(),
+        motivo="EMENDA",
+        tipo_calendario="ARMAZENAVEL",
+    )
+
+
+@pytest.fixture
+def interrupcao_programada_entrega_outros():
+    return baker.make(
+        "InterrupcaoProgramadaEntrega",
+        data=datetime.date.today() + datetime.timedelta(days=1),
+        motivo="OUTROS",
+        descricao_motivo="Motivo customizado para teste",
+        tipo_calendario="PONTO_A_PONTO",
+    )
+
+
+@pytest.fixture
+def payload_interrupcao_programada_entrega():
+    return {
+        "data": str(datetime.date.today() + datetime.timedelta(days=5)),
+        "motivo": "REUNIAO",
+        "tipo_calendario": "ARMAZENAVEL",
+    }
+
+
+@pytest.fixture
+def payload_interrupcao_programada_entrega_outros():
+    return {
+        "data": str(datetime.date.today() + datetime.timedelta(days=10)),
+        "motivo": "OUTROS",
+        "descricao_motivo": "Descrição do motivo customizado",
+        "tipo_calendario": "PONTO_A_PONTO",
+    }

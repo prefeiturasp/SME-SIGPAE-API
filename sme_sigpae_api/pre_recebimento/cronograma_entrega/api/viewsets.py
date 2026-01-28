@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import QuerySet
 from django_filters import rest_framework as filters
-from rest_framework import viewsets
+from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -61,6 +61,8 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serialize
     CronogramaSerializer,
     CronogramaSimplesSerializer,
     EtapasDoCronogramaCalendarioSerializer,
+    InterrupcaoProgramadaEntregaCreateSerializer,
+    InterrupcaoProgramadaEntregaSerializer,
     PainelCronogramaSerializer,
     PainelSolicitacaoAlteracaoCronogramaSerializer,
     SolicitacaoAlteracaoCronogramaCompletoSerializer,
@@ -73,6 +75,7 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.services import (
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
     Cronograma,
     EtapasDoCronograma,
+    InterrupcaoProgramadaEntrega,
     SolicitacaoAlteracaoCronograma,
 )
 from sme_sigpae_api.pre_recebimento.tasks import (
@@ -854,3 +857,38 @@ class CalendarioCronogramaViewset(viewsets.ReadOnlyModelViewSet):
         ).order_by("-criado_em")
 
         return queryset
+
+
+class InterrupcaoProgramadaEntregaViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    """ViewSet para cadastro e listagem de Interrupções Programadas de Entregas."""
+
+    queryset = InterrupcaoProgramadaEntrega.objects.all()
+    permission_classes = (PermissaoParaVisualizarCalendarioCronograma,)
+    lookup_field = "uuid"
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return InterrupcaoProgramadaEntregaCreateSerializer
+        return InterrupcaoProgramadaEntregaSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        mes = self.request.query_params.get("mes")
+        ano = self.request.query_params.get("ano")
+        if mes and ano:
+            qs = qs.filter(data__month=mes, data__year=ano)
+        return qs
+
+    @action(detail=False, methods=["GET"], url_path="motivos")
+    def motivos(self, request):
+        """Retorna lista de motivos disponíveis para interrupção."""
+        return Response(
+            [
+                {"value": c[0], "label": c[1]}
+                for c in InterrupcaoProgramadaEntrega.MOTIVO_CHOICES
+            ]
+        )
