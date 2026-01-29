@@ -1271,18 +1271,23 @@ class SolicitacaoMedicaoInicialViewSet(
             ano = request.query_params.get("ano")
             uuid_grupo_escolar = request.query_params.get("grupo_unidade_escolar")
             uuid_lote = request.query_params.get("lote")
+            tipo_calculo = request.query_params.get("tipo_calculo")
 
-            if not all([mes, ano, uuid_grupo_escolar, uuid_lote]):
+            if not all([mes, ano, uuid_grupo_escolar, uuid_lote, tipo_calculo]):
                 return Response(
-                    {"detail": "Parâmetros obrigatórios: mes, ano, lote, grupo_unidade_escolar"},
+                    {"detail": "Parâmetros obrigatórios: mes, ano, lote, grupo_unidade_escolar, tipo_calculo"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
+            lote = Lote.objects.get(uuid=uuid_lote)
+            grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(uuid=uuid_grupo_escolar)
+
             data = calcula_totais_consumo_por_faixa_etaria(
-                uuid_lote=uuid_lote,
-                uuid_grupo_escolar=uuid_grupo_escolar,
+                lote=lote,
+                grupo_unidade_escolar=grupo_unidade_escolar,
                 mes=mes,
                 ano=ano,
+                tipo_calculo=tipo_calculo,
             )
 
             return Response(data, status=status.HTTP_200_OK)
