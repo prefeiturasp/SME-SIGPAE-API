@@ -12,7 +12,7 @@ from sme_sigpae_api.dieta_especial.api.serializers import UnidadeEducacionalSeri
 
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
-from ...dados_comuns.models import TemplateMensagem
+from ...dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
 from ...dados_comuns.utils import convert_base64_to_contentfile
 from ...escola.models import Aluno, FaixaEtaria, PeriodoEscolar
 from ...perfil.models import Usuario
@@ -2179,3 +2179,52 @@ def logs_dieta_recreio_nas_ferias(escola, classificacoes_dietas):
             classificacao=classificacao,
             data=data,
         )
+
+
+@pytest.fixture
+def solicitacao_dieta_especial_cancela_aluno_nao_pertence_rede(
+    usuario_admin, escola
+):
+    email = "escola2@admin.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    rf = "1545934"
+    user = Usuario.objects.create_user(
+        username=email, password=password, email=email, registro_funcional=rf
+    )
+    perfil_professor = baker.make("perfil.Perfil", nome="ADMINISTRADOR_UE", ativo=False)
+    baker.make(
+        "perfil.Vinculo",
+        usuario=user,
+        instituicao=escola,
+        perfil=perfil_professor,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    aluno = baker.make(
+        Aluno,
+        nome="Roberto Alves da Silva",
+        codigo_eol="654321",
+        data_nascimento="2000-01-01",
+    )
+    solicitacao_dieta_especial_cancelada = baker.make(
+        SolicitacaoDietaEspecial,
+        rastro_escola=escola,
+        escola_destino=escola,
+        rastro_terceirizada=escola.lote.terceirizada,
+        aluno=aluno,
+        criado_por=user,
+    )
+    solicitacao_dieta_especial_cancelada.inicia_fluxo(user=user)
+    solicitacao_dieta_especial_cancelada.codae_autoriza(user=user)
+    solicitacao_dieta_especial_cancelada.cancelar_aluno_nao_pertence_rede(
+        user=usuario_admin
+    )
+    solicitacao_dieta_especial_a_autorizar = baker.make(
+        SolicitacaoDietaEspecial,
+        rastro_escola=escola,
+        escola_destino=escola,
+        rastro_terceirizada=escola.lote.terceirizada,
+        aluno=aluno,
+        criado_por=user,
+    )
+    solicitacao_dieta_especial_a_autorizar.inicia_fluxo(user=user)

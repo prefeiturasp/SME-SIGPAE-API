@@ -45,6 +45,11 @@ router.register(
     cronograma_viewsets.CalendarioCronogramaViewset,
     basename="calendario-cronogramas",
 )
+router.register(
+    "interrupcao-programada-entrega",
+    cronograma_viewsets.InterrupcaoProgramadaEntregaViewSet,
+    basename="interrupcao-programada-entrega",
+)
 
 
 urlpatterns = [path("", include(router.urls))]

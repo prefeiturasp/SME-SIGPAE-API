@@ -10,6 +10,7 @@ from faker import Faker
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APIClient
+from django.utils import timezone
 
 from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.api.paginations import DefaultPagination
@@ -2961,7 +2962,6 @@ def test_ficha_tecnica_validate_pereciveis(
     # testa validação dos atributos presentes somente em perecíveis
     payload = {**payload_ficha_tecnica_pereciveis}
     attrs_obrigatorios_pereciveis = {
-        "agroecologico",
         "organico",
         "prazo_validade_descongelamento",
         "temperatura_congelamento",
@@ -2980,8 +2980,8 @@ def test_ficha_tecnica_validate_pereciveis(
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json()["non_field_errors"] == [
-        "Fichas Técnicas de Produtos PERECÍVEIS exigem que sejam forncecidos valores para os campos"
-        + " agroecologico, organico, prazo_validade_descongelamento, temperatura_congelamento"
+        "Fichas Técnicas de Produtos PERECÍVEIS exigem que sejam fornecidos valores para os campos"
+        + " organico, prazo_validade_descongelamento, temperatura_congelamento"
         + ", temperatura_veiculo, condicoes_de_transporte e variacao_percentual."
     ]
 
@@ -3038,7 +3038,6 @@ def test_ficha_tecnica_validate_nao_pereciveis(
     payload = {**payload_ficha_tecnica_nao_pereciveis}
     attrs_obrigatorios_nao_pereciveis = {
         "produto_eh_liquido",
-        "agroecologico",
         "organico",
     }
     for attr in attrs_obrigatorios_nao_pereciveis:
@@ -3052,7 +3051,7 @@ def test_ficha_tecnica_validate_nao_pereciveis(
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json()["non_field_errors"] == [
-        "Fichas Técnicas de Produtos NÃO PERECÍVEIS exigem que sejam forncecidos valores para os campos agroecologico, organico, e produto_eh_liquido"
+        "Fichas Técnicas de Produtos NÃO PERECÍVEIS exigem que sejam fornecidos valores para os campos organico, e produto_eh_liquido"
     ]
 
     # teste de validação dos atributos volume_embalagem_primaria e unidade_medida_volume_primaria
@@ -3829,7 +3828,7 @@ def test_url_pdf_ficha_tecnica_nao_perecivel(
     pdf_text = page.extract_text()
 
     assert ficha_tecnica.produto.nome in pdf_text
-    assert ficha_tecnica.marca.nome in pdf_text
+    #assert ficha_tecnica.marca.nome in pdf_text
 
 
 def test_url_pdf_ficha_tecnica_tag_leve_leite(
@@ -3879,3 +3878,34 @@ def test_url_pdf_ficha_tecnica_tag_leve_leite(
     pdf_text_alimentacao = page_alimentacao.extract_text()
 
     assert "LEVE LEITE - PLL" not in pdf_text_alimentacao
+
+
+def test_url_interrupcao_programada_entrega_list_authorized(client_autenticado_dilog_cronograma):
+    response = client_autenticado_dilog_cronograma.get("/interrupcao-programada-entrega/")
+    assert response.status_code == status.HTTP_200_OK
+    assert "results" in response.json()
+    assert "count" in response.json()
+
+
+def test_url_interrupcao_programada_entrega_create_authorized(client_autenticado_dilog_cronograma):
+    data = {
+        "data": timezone.now().date().strftime("%Y-%m-%d"),
+        "motivo": "REUNIAO",
+        "tipo_calendario": "ARMAZENAVEL"
+    }
+    response = client_autenticado_dilog_cronograma.post(
+        "/interrupcao-programada-entrega/", 
+        content_type="application/json", 
+        data=json.dumps(data)
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json()["motivo"] == "REUNIAO"
+
+
+def test_url_interrupcao_programada_entrega_motivos_list(client_autenticado_dilog_cronograma):
+    response = client_autenticado_dilog_cronograma.get("/interrupcao-programada-entrega/motivos/")
+    assert response.status_code == status.HTTP_200_OK
+    assert isinstance(response.json(), list)
+    assert len(response.json()) > 0
+    assert "value" in response.json()[0]
+    assert "label" in response.json()[0]

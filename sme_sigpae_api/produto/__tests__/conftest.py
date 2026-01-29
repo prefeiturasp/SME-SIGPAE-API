@@ -818,7 +818,7 @@ def client_autenticado_vinculo_escola_ue(client, django_user_model, escola):
 def client_autenticado_vinculo_escola_nutrisupervisor(
     client, django_user_model, escola
 ):
-    email = "test@test.com"
+    email = "nutri@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -852,7 +852,7 @@ def client_autenticado_vinculo_escola_nutrisupervisor(
 
 @pytest.fixture
 def client_autenticado_vinculo_codae_nutrisupervisor(client, django_user_model, codae):
-    email = "test@test.com"
+    email = "nutricodade@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"

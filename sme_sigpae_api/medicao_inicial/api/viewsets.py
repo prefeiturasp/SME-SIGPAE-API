@@ -93,6 +93,7 @@ from ..utils import (
     get_valor_total,
     log_alteracoes_escola_corrige_periodo,
     tratar_valores,
+    calcula_totais_consumo_por_faixa_etaria,
 )
 from .constants import (
     ORDEM_NAME_LANCAMENTOS_ESPECIAIS,
@@ -1257,6 +1258,40 @@ class SolicitacaoMedicaoInicialViewSet(
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except (ValidationError, InvalidTransitionError) as e:
+            return Response(
+                dict(detail=str(e)),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    @action(detail=False, methods=["GET"], url_path="totais-atendimento-consumo")
+    def totais_atendimento_consumo(self, request):
+        try:
+            mes = request.query_params.get("mes")
+            ano = request.query_params.get("ano")
+            uuid_grupo_escolar = request.query_params.get("grupo_unidade_escolar")
+            uuid_lote = request.query_params.get("lote")
+            tipo_calculo = request.query_params.get("tipo_calculo")
+
+            if not all([mes, ano, uuid_grupo_escolar, uuid_lote, tipo_calculo]):
+                return Response(
+                    {"detail": "Parâmetros obrigatórios: mes, ano, lote, grupo_unidade_escolar, tipo_calculo"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            lote = Lote.objects.get(uuid=uuid_lote)
+            grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(uuid=uuid_grupo_escolar)
+
+            data = calcula_totais_consumo_por_faixa_etaria(
+                lote=lote,
+                grupo_unidade_escolar=grupo_unidade_escolar,
+                mes=mes,
+                ano=ano,
+                tipo_calculo=tipo_calculo,
+            )
+
+            return Response(data, status=status.HTTP_200_OK)
+
         except (ValidationError, InvalidTransitionError) as e:
             return Response(
                 dict(detail=str(e)),

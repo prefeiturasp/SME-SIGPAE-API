@@ -9,6 +9,7 @@ from sme_sigpae_api.dados_comuns.utils import numero_com_agrupador_de_milhar_e_d
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
     Cronograma,
     EtapasDoCronograma,
+    InterrupcaoProgramadaEntrega,
     ProgramacaoDoRecebimentoDoCronograma,
     SolicitacaoAlteracaoCronograma,
     UnidadeMedida,
@@ -822,3 +823,35 @@ class PainelSolicitacaoAlteracaoCronogramaSerializer(serializers.Serializer):
         return OrderedDict(
             [(key, result[key]) for key in result if result[key] is not None]
         )
+
+
+class InterrupcaoProgramadaEntregaSerializer(serializers.ModelSerializer):
+    motivo_display = serializers.CharField(source="get_motivo_display", read_only=True)
+    tipo_calendario_display = serializers.CharField(
+        source="get_tipo_calendario_display", read_only=True
+    )
+
+    class Meta:
+        model = InterrupcaoProgramadaEntrega
+        fields = [
+            "uuid",
+            "data",
+            "motivo",
+            "motivo_display",
+            "descricao_motivo",
+            "tipo_calendario",
+            "tipo_calendario_display",
+        ]
+
+
+class InterrupcaoProgramadaEntregaCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InterrupcaoProgramadaEntrega
+        fields = ["data", "motivo", "descricao_motivo", "tipo_calendario"]
+
+    def validate(self, attrs):
+        if attrs.get("motivo") == "OUTROS" and not attrs.get("descricao_motivo"):
+            raise serializers.ValidationError(
+                {"descricao_motivo": "Descrição é obrigatória quando motivo é 'Outros'"}
+            )
+        return attrs

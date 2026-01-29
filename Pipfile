@@ -85,7 +85,7 @@ tornado="==6.5.2"    # http://www.tornadoweb.org/en/stable/
 sentry-sdk = "==2.38.0"
 django-prometheus = "==2.4.1"
 # Relatórios
-weasyprint = "==66"
+weasyprint = "==68.0"
 django-sass-processor = "==1.4.2"
 django-compressor = "==4.5.1"
 libsass = "==0.23.0"
@@ -113,7 +113,7 @@ drf-spectacular = "==0.28.0"
 cerberus = "*"
 coverage-badge = "==1.1.2"
 beautifulsoup4 = "==4.13.4"
-pypdf = "==6.4.0"
+pypdf = "==6.6.2"
 unidecode = "==1.4.0"
 bleach = "==6.3.0"
 
