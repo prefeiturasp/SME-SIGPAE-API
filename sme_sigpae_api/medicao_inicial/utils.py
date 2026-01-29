@@ -5010,17 +5010,15 @@ def _processa_total_pagamento_tipo_alimentacao(medicao, resultado):
 
 
 def _acumula_lanche(totais, campo, valor):
-    LANCHES = {
-        "lanche": "total_lanche",
-        "lanche_extra": "total_lanche",
-        "lanche_4h": "total_lanche_4h",
-        "2_lanche_4h": "total_lanche_4h",
-        "lanche_emergencial": "total_lanche_emergencial",
-    }
-
-    chave_total = LANCHES.get(campo)
-    if not chave_total:
+    if not campo.startswith("lanche") and not campo.startswith("2_lanche"):
         return False
+
+    if "lanche_4h" in campo:
+        chave_total = "total_lanche_4h"
+    elif "lanche_emergencial" in campo:
+        chave_total = "total_lanche_emergencial"
+    else:
+        chave_total = "total_lanche"
 
     totais[chave_total] = totais.get(chave_total, 0) + valor
     return True
