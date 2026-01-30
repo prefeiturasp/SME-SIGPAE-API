@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 {% load index %}
 {% load static %}
 {% load sass_tags %}
@@ -7,6 +8,7 @@
 <head>
   <link rel="stylesheet" href="{% sass_src 'css/custom_bootstrap.scss' %}" type="text/css">
   <link rel="stylesheet" href="{% sass_src 'css/relatorio_solicitacao_medicao_por_escola_cemei.scss' %}" type="text/css">
+  <title>SIGPAE</title>
 </head>
 <body>
   {% if solicitacao.status == 'MEDICAO_APROVADA_PELA_CODAE' %}
