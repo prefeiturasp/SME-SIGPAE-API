@@ -3405,14 +3405,6 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
             emails=self._partes_interessadas_termino,
             html=html,
         )
-        
-    @xworkflows.after_transition("codae_inativou")
-    def _codae_inativou_hook(self, *args, **kwargs):
-        user = kwargs["user"]
-        self.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.CODAE_INATIVOU,
-            usuario=user,
-        )
 
     class Meta:
         abstract = True
