@@ -413,6 +413,7 @@ class DietaEspecialWorkflow(xwf_models.Workflow):
     CODAE_A_AUTORIZAR = "CODAE_A_AUTORIZAR"  # INICIO
     CODAE_NEGOU_PEDIDO = "CODAE_NEGOU_PEDIDO"
     CODAE_AUTORIZADO = "CODAE_AUTORIZADO"
+    CODAE_INATIVOU = "CODAE_INATIVOU"
     TERCEIRIZADA_TOMOU_CIENCIA = "TERCEIRIZADA_TOMOU_CIENCIA"
     ESCOLA_SOLICITOU_INATIVACAO = "ESCOLA_SOLICITOU_INATIVACAO"
     CODAE_NEGOU_INATIVACAO = "CODAE_NEGOU_INATIVACAO"
@@ -430,6 +431,7 @@ class DietaEspecialWorkflow(xwf_models.Workflow):
         (CODAE_A_AUTORIZAR, "CODAE a autorizar"),
         (CODAE_NEGOU_PEDIDO, "CODAE negou a solicitação"),
         (CODAE_AUTORIZADO, "CODAE autorizou"),
+        (CODAE_INATIVOU, "CODAE inativou"),
         (TERCEIRIZADA_TOMOU_CIENCIA, "Terceirizada toma ciencia"),
         (ESCOLA_CANCELOU, "Escola cancelou"),
         (CODAE_NEGOU_CANCELAMENTO, "CODAE negou o cancelamento"),
@@ -455,6 +457,7 @@ class DietaEspecialWorkflow(xwf_models.Workflow):
         ("inicia_fluxo", RASCUNHO, CODAE_A_AUTORIZAR),
         ("codae_nega", [CODAE_A_AUTORIZAR], CODAE_NEGOU_PEDIDO),
         ("codae_autoriza", [RASCUNHO, CODAE_A_AUTORIZAR], CODAE_AUTORIZADO),
+        ("codae_inativou", [CODAE_AUTORIZADO], CODAE_INATIVOU),
         ("terceirizada_toma_ciencia", CODAE_AUTORIZADO, TERCEIRIZADA_TOMOU_CIENCIA),
         (
             "cancelar_pedido",
@@ -3404,6 +3407,14 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
             corpo="",
             emails=self._partes_interessadas_termino,
             html=html,
+        )
+        
+    @xworkflows.after_transition("codae_inativou")
+    def _codae_inativou_hook(self, *args, **kwargs):
+        user = kwargs["user"]
+        self.salvar_log_transicao(
+            status_evento=LogSolicitacoesUsuario.CODAE_INATIVOU,
+            usuario=user,
         )
 
     class Meta:
