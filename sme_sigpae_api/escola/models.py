@@ -2580,11 +2580,14 @@ class Aluno(TemChaveExterna):
     @property
     def possui_dieta_especial_ativa(self):
         return self.dietas_especiais.filter(ativo=True).exists()
-    
+
     @property
     def obter_dieta_especial_ativa(self):
         from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
-        return self.dietas_especiais.filter(ativo=True, status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO)
+
+        return self.dietas_especiais.filter(
+            ativo=True, status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
+        )
 
     @property
     def foto_aluno_base64(self):

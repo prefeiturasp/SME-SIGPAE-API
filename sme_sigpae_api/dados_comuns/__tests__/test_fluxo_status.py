@@ -255,9 +255,9 @@ def test_finaliza_solicitacao_alteracao_hook(
         solicitacao.etapas_novas.values_list("id", flat=True)
     )
 
-    assert list(cronograma.programacoes_de_recebimento.values_list("id", flat=True)) == list(
-        solicitacao.programacoes_novas.values_list("id", flat=True)
-    )
+    assert list(
+        cronograma.programacoes_de_recebimento.values_list("id", flat=True)
+    ) == list(solicitacao.programacoes_novas.values_list("id", flat=True))
 
     log = cronograma.logs.order_by("-criado_em").first()
     assert log.status_evento == LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELA_CODAE

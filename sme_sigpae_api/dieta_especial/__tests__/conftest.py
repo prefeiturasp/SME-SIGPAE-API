@@ -2182,9 +2182,7 @@ def logs_dieta_recreio_nas_ferias(escola, classificacoes_dietas):
 
 
 @pytest.fixture
-def solicitacao_dieta_especial_cancela_aluno_nao_pertence_rede(
-    usuario_admin, escola
-):
+def solicitacao_dieta_especial_cancela_aluno_nao_pertence_rede(usuario_admin, escola):
     email = "escola2@admin.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     rf = "1545934"
