@@ -1393,7 +1393,7 @@ def test_url_endpoint_autorizar_dieta_nao_altera_o_campo_ativo(
     para_autorizar = SolicitacaoDietaEspecial.objects.get(
         status=SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR
     )
-    assert para_autorizar.ativo == True
+    assert para_autorizar.ativo == False
 
     data_termino = datetime.date.today() + datetime.timedelta(days=60)
     payload_autorizar["data_termino"] = data_termino.isoformat()
@@ -1444,3 +1444,82 @@ def test_url_endpoint_salvar_rascunho_dieta_substituicao_incorreta(
     assert json == {
         "substituicoes": "Um ou mais itens na lista de substituições estão vazios."
     }
+
+
+def test_url_endpoint_autorizar_dieta_log_inativo(
+    client_autenticado_vinculo_codae_dieta,
+    solicitacao_dieta_especial_log_inativada,
+    payload_autorizar,
+):    
+    a_ser_inativada = SolicitacaoDietaEspecial.objects.get(
+        status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
+    )
+    assert a_ser_inativada.ativo == True
+    
+    para_autorizar = SolicitacaoDietaEspecial.objects.get(
+        status=SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR
+    )
+    assert para_autorizar.ativo == False
+
+    data_termino = datetime.date.today() + datetime.timedelta(days=60)
+    payload_autorizar["data_termino"] = data_termino.isoformat()
+    response = client_autenticado_vinculo_codae_dieta.patch(
+        f"/solicitacoes-dieta-especial/{para_autorizar.uuid}/autorizar/",
+        content_type="application/json",
+        data=payload_autorizar,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()
+    assert json["detail"] == "Autorização de Dieta Especial realizada com sucesso!"
+
+    autorizada = SolicitacaoDietaEspecial.objects.filter(
+        ativo=True, status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
+    )
+    assert autorizada.count() == 1
+
+    inativada = SolicitacaoDietaEspecial.objects.filter(
+        ativo=False, status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
+    )
+    assert inativada.count() == 1
+    logs = inativada.first().logs
+    assert len(logs) == 3
+    assert logs.last().status_evento_explicacao == "CODAE inativou"
+
+
+
+def test_url_endpoint_verifica_dieta_log_inativo(
+    client_autenticado_vinculo_codae_dieta,
+    solicitacao_dieta_especial_log_inativada,
+    payload_autorizar,
+):        
+    para_autorizar = SolicitacaoDietaEspecial.objects.get(
+        status=SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR
+    )
+    data_termino = datetime.date.today() + datetime.timedelta(days=60)
+    payload_autorizar["data_termino"] = data_termino.isoformat()
+    response = client_autenticado_vinculo_codae_dieta.patch(
+        f"/solicitacoes-dieta-especial/{para_autorizar.uuid}/autorizar/",
+        content_type="application/json",
+        data=payload_autorizar,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    
+    inativa = SolicitacaoDietaEspecial.objects.get(
+        ativo=False, status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
+    )
+    response = client_autenticado_vinculo_codae_dieta.get(
+        f"/solicitacoes-dieta-especial/{inativa.uuid}/",
+        content_type="application/json"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    informacao_dieta = response.json()
+    assert len(informacao_dieta["logs"]) == len(inativa.logs)
+    
+    ultimo_log = informacao_dieta["logs"][-1]
+    assert ultimo_log["status_evento_explicacao"] == "CODAE inativou"
+    assert ultimo_log["status_evento_explicacao"] == inativa.logs.last().status_evento_explicacao
+    
+    assert any(
+    log["status_evento_explicacao"] == "CODAE inativou"
+    for log in informacao_dieta["logs"]
+)
