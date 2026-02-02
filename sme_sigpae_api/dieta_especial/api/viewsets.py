@@ -365,12 +365,8 @@ class SolicitacaoDietaEspecialViewSet(
     )
     def autorizar(self, request, uuid=None):  # noqa C901
         solicitacao = self.get_object()
-        if (
-            solicitacao.aluno.possui_dieta_especial_ativa
-            and solicitacao.status
-            == SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
-            and solicitacao.tipo_solicitacao == "COMUM"
-        ):
+        dieta_ativa = solicitacao.aluno.obter_dieta_especial_ativa
+        if dieta_ativa and solicitacao.tipo_solicitacao == "COMUM":
             solicitacao.aluno.inativar_dieta_especial()
         serializer = self.get_serializer()
         try:
