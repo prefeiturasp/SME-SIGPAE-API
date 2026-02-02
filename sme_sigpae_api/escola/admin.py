@@ -18,6 +18,7 @@ from .models import (
     EscolaPeriodoEscolar,
     FaixaIdadeEscolar,
     GrupoUnidadeEscolar,
+    HistoricoEscola,
     HistoricoMatriculaAluno,
     LogAlteracaoQuantidadeAlunosPorEscolaEPeriodoEscolar,
     LogAlunoPorDia,
@@ -365,3 +366,4 @@ admin.site.register(Subprefeitura)
 admin.site.register(TipoGestao)
 admin.site.register(TipoUnidadeEscolar)
 admin.site.register(GrupoUnidadeEscolar)
+admin.site.register(HistoricoEscola)
