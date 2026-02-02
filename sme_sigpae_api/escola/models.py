@@ -2580,6 +2580,11 @@ class Aluno(TemChaveExterna):
     @property
     def possui_dieta_especial_ativa(self):
         return self.dietas_especiais.filter(ativo=True).exists()
+    
+    @property
+    def obter_dieta_especial_ativa(self):
+        from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+        return self.dietas_especiais.filter(ativo=True, status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO)
 
     @property
     def foto_aluno_base64(self):
@@ -2598,6 +2603,7 @@ class Aluno(TemChaveExterna):
             dieta_especial = self.dietas_especiais.get(ativo=True)
             dieta_especial.ativo = False
             dieta_especial.save()
+            return dieta_especial
         except MultipleObjectsReturned:
             logger.critical("Aluno não deve possuir mais de uma Dieta Especial ativa")
 
