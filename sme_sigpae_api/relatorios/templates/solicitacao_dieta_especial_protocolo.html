@@ -29,7 +29,7 @@
               {% if solicitacao.tipo_solicitacao == 'ALUNO_NAO_MATRICULADO'%}
                 <th scope="col" class="w-25">CPF do Aluno</th>
                  {% if solicitacao.dieta_para_recreio_ferias %}
-                    <th>
+                    <th scope="col">
                       <div class="tag-recreio-nas-ferias">Dieta para Recreio nas Férias</div>
                     </th>
                  {% endif %}
@@ -45,8 +45,8 @@
               {%endif%}
             </tr>
             <tr style="height: 3em">
-              <th style="height: 2em" class="w-25">Nome completo do Aluno</th>
-              <th class="w-25">Data de nascimento</th>
+              <th scope="col" style="height: 2em" class="w-25">Nome completo do Aluno</th>
+              <th scope="col" class="w-25">Data de nascimento</th>
             </tr>
             <tr style="height: 2em">
                 <td>{{ solicitacao.aluno.nome }}</td>

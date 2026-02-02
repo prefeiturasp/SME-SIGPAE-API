@@ -273,3 +273,50 @@ def gerar_numero_solicitacao(sender, instance, created, **kwargs):
     if created:
         instance.gerar_numero_solicitacao()
         instance.save()
+
+
+class InterrupcaoProgramadaEntrega(ModeloBase):
+    """Modelo para cadastro de interrupções programadas de entregas."""
+
+    MOTIVO_EMENDA = "EMENDA"
+    MOTIVO_REUNIAO = "REUNIAO"
+    MOTIVO_INVENTARIO = "INVENTARIO"
+    MOTIVO_OUTROS = "OUTROS"
+
+    MOTIVO_CHOICES = (
+        (MOTIVO_EMENDA, "Emenda"),
+        (MOTIVO_REUNIAO, "Reunião"),
+        (MOTIVO_INVENTARIO, "Inventário"),
+        (MOTIVO_OUTROS, "Outros"),
+    )
+
+    TIPO_CALENDARIO_ARMAZENAVEL = "ARMAZENAVEL"
+    TIPO_CALENDARIO_PONTO_A_PONTO = "PONTO_A_PONTO"
+
+    TIPO_CALENDARIO_CHOICES = (
+        (TIPO_CALENDARIO_ARMAZENAVEL, "Armazenável"),
+        (TIPO_CALENDARIO_PONTO_A_PONTO, "Ponto a Ponto"),
+    )
+
+    data = models.DateField("Data da Interrupção", unique=True)
+    motivo = models.CharField(
+        "Motivo da Interrupção", max_length=20, choices=MOTIVO_CHOICES
+    )
+    descricao_motivo = models.TextField(
+        "Descrição do Motivo",
+        blank=True,
+        help_text="Obrigatório quando motivo = OUTROS",
+    )
+    tipo_calendario = models.CharField(
+        "Tipo de Calendário",
+        max_length=20,
+        choices=TIPO_CALENDARIO_CHOICES,
+        default=TIPO_CALENDARIO_ARMAZENAVEL,
+    )
+
+    class Meta:
+        verbose_name = "Interrupção Programada de Entrega"
+        verbose_name_plural = "Interrupções Programadas de Entregas"
+
+    def __str__(self):
+        return f"Interrupção {self.get_motivo_display()} - {self.data:%d/%m/%Y}"

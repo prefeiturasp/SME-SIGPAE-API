@@ -7,7 +7,7 @@ from collections import defaultdict
 from functools import reduce
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import IntegerField, Sum
+from django.db.models import IntegerField, Sum, FloatField, Q
 from django.db.models.functions import Cast
 from django.db.utils import IntegrityError
 from django.template.loader import render_to_string
@@ -51,13 +51,21 @@ from sme_sigpae_api.medicao_inicial.models import (
     RelatorioFinanceiro,
     SolicitacaoMedicaoInicial,
     ValorMedicao,
+    Medicao,
 )
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesEscola
 from sme_sigpae_api.perfil.models.usuario import Usuario
 from sme_sigpae_api.relatorios.utils import merge_pdf_com_rodape_assinatura
 from sme_sigpae_api.terceirizada.models import Edital
+from sme_sigpae_api.medicao_inicial.services.utils import (
+    get_categorias_dietas,
+    get_nome_periodo as obter_nome_periodo,
+)
+from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef import _get_total_pagamento
 
 logger = logging.getLogger(__name__)
+
+CHAVE_ALIMENTACAO_REGULAR = "ALIMENTAÇÃO"
 
 
 def process_single_anexo(anexo, usuario):
@@ -4850,3 +4858,267 @@ def substitui_criador_system_por_usuario_real(
         log.usuario = usuario
         log.criado_em = datetime.datetime.now()
         log.save()
+
+
+def _processa_periodo_regular_faixa(medicao, nome_periodo, resultado, faixas_etarias):
+    valores = (
+        medicao.valores_medicao
+        .filter(
+            nome_campo="frequencia",
+            categoria_medicao__nome="ALIMENTAÇÃO"
+        )
+        .values("faixa_etaria")
+        .annotate(
+            total=Sum(Cast("valor", FloatField()))
+        )
+    )
+
+    for item in valores:
+        if item["total"] is None:
+            continue
+
+        faixa_nome = faixas_etarias.get(item["faixa_etaria"])
+        if not faixa_nome:
+            continue
+
+        resultado.setdefault(nome_periodo, {})
+        resultado[nome_periodo].setdefault(faixa_nome, 0)
+        resultado[nome_periodo][faixa_nome] += item["total"]
+
+
+def _processa_dietas_faixa(medicao, resultado, faixas_etarias):
+    dietas = get_categorias_dietas(medicao)
+
+    for dieta in dietas:
+        valores = (
+            medicao.valores_medicao
+            .filter(
+                nome_campo="frequencia",
+                categoria_medicao__nome=dieta
+            )
+            .values("faixa_etaria")
+            .annotate(
+                total=Sum(Cast("valor", FloatField()))
+            )
+        )
+
+        for item in valores:
+            if item["total"] is None:
+                continue
+
+            faixa_nome = faixas_etarias.get(item["faixa_etaria"])
+            if not faixa_nome:
+                continue
+
+            dieta_nome = f'{dieta} - {medicao.periodo_escolar.nome}' if medicao.periodo_escolar else dieta
+            resultado.setdefault(dieta_nome, {})
+            resultado[dieta_nome].setdefault(faixa_nome, 0)
+            resultado[dieta_nome][faixa_nome] += item["total"]
+
+
+def _processa_periodo_tipo_alimentacao(medicao, resultado):
+    valores = (
+        medicao.valores_medicao
+        .exclude(
+            Q(
+                nome_campo__in=[
+                    "observacoes",
+                    "dietas_autorizadas",
+                    "matriculados",
+                    "frequencia",
+                    "numero_de_alunos",
+                ]
+            )
+            | Q(categoria_medicao__nome__icontains="DIETA ESPECIAL")
+        )
+        .values("nome_campo")
+        .annotate(total=Sum(Cast("valor", FloatField())))
+    )
+
+    for item in valores:
+        if item["total"] is None:
+            continue
+
+        resultado.setdefault(CHAVE_ALIMENTACAO_REGULAR, {})
+        resultado[CHAVE_ALIMENTACAO_REGULAR].setdefault(item["nome_campo"], 0)
+        resultado[CHAVE_ALIMENTACAO_REGULAR][item["nome_campo"]] += item["total"]
+
+
+def _processa_dietas_tipo_alimentacao(medicao, resultado):
+    dietas = get_categorias_dietas(medicao)
+    for dieta in dietas:
+        valores = (
+            medicao.valores_medicao
+            .filter(categoria_medicao__nome=dieta)
+            .exclude(
+                nome_campo__in=[
+                    "dietas_autorizadas",
+                    "observacoes",
+                    "frequencia",
+                    "matriculados",
+                    "numero_de_alunos",
+                ]
+            )
+            .values("nome_campo")
+            .annotate(total=Sum(Cast("valor", FloatField())))
+        )
+
+        for item in valores:
+            if item["total"] is None:
+                continue
+
+            resultado.setdefault(dieta, {})
+            resultado[dieta].setdefault(item["nome_campo"], 0)
+            resultado[dieta][item["nome_campo"]] += item["total"]
+
+
+def _unificar_dietas_tipo_a_tipo_alimentacao(resultado):
+    dieta_base = "DIETA ESPECIAL - TIPO A"
+    dieta_enteral = "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+
+    if dieta_enteral not in resultado:
+        return resultado
+
+    resultado.setdefault(dieta_base, {})
+
+    for campo, valor in resultado[dieta_enteral].items():
+        resultado[dieta_base][campo] = (
+            resultado[dieta_base].get(campo, 0) + valor
+        )
+
+    resultado.pop(dieta_enteral, None)
+    return resultado
+
+
+def _processa_total_pagamento_tipo_alimentacao(medicao, resultado):
+    tipo_unidade = medicao.solicitacao_medicao_inicial.escola.tipo_unidade.iniciais
+
+    total_refeicoes = _get_total_pagamento(
+        medicao, "total_refeicoes_pagamento", tipo_unidade
+    )
+
+    total_sobremesas = _get_total_pagamento(
+        medicao, "total_sobremesas_pagamento", tipo_unidade
+    )
+
+    resultado.setdefault(CHAVE_ALIMENTACAO_REGULAR, {})
+    resultado[CHAVE_ALIMENTACAO_REGULAR].setdefault("total_refeicao", 0)
+    resultado[CHAVE_ALIMENTACAO_REGULAR].setdefault("total_sobremesa", 0)
+
+    resultado[CHAVE_ALIMENTACAO_REGULAR]["total_refeicao"] += total_refeicoes or 0
+    resultado[CHAVE_ALIMENTACAO_REGULAR]["total_sobremesa"] += total_sobremesas or 0
+
+
+def _acumula_lanche(totais, campo, valor):
+    if not campo.startswith("lanche") and not campo.startswith("2_lanche"):
+        return False
+
+    if "lanche_4h" in campo:
+        chave_total = "total_lanche_4h"
+    elif "lanche_emergencial" in campo:
+        chave_total = "total_lanche_emergencial"
+    else:
+        chave_total = "total_lanche"
+
+    totais[chave_total] = totais.get(chave_total, 0) + valor
+    return True
+
+
+def _processar_lanches(dados):
+    totais = {}
+    campos_remover = []
+
+    for campo, valor in dados.items():
+        if valor is None:
+            continue
+
+        if _acumula_lanche(totais, campo, valor):
+            campos_remover.append(campo)
+
+    return totais, campos_remover
+
+
+def _consolidar_lanches_alimentacao(resultado):
+    if CHAVE_ALIMENTACAO_REGULAR not in resultado:
+        return resultado
+
+    dados = resultado[CHAVE_ALIMENTACAO_REGULAR]
+
+    totais, campos_remover = _processar_lanches(dados)
+
+    for campo in campos_remover:
+        dados.pop(campo, None)
+
+    dados.update({k: v for k, v in totais.items() if v})
+
+    return resultado
+
+
+def _consolidar_campos(resultado, chave_principal):
+    CONSOLIDACOES_ALIMENTACAO = {
+        "total_refeicao": [
+            "refeicao",
+            "2_refeicao_1_oferta",
+        ],
+        "total_sobremesa": [
+            "sobremesa",
+            "2_sobremesa_1_oferta",
+        ],
+    }
+
+    if chave_principal not in resultado:
+        return resultado
+
+    dados = resultado[chave_principal]
+    for campo_total, campos_origem in CONSOLIDACOES_ALIMENTACAO.items():
+        if campo_total not in dados:
+            continue
+        for campo in campos_origem:
+            dados.pop(campo, None)
+
+    return resultado
+
+
+def gerar_totais_consolidado(solicitacoes, tipo):
+    medicoes = (
+        Medicao.objects
+        .filter(solicitacao_medicao_inicial__in=solicitacoes)
+        .select_related("periodo_escolar", "grupo")
+    )
+    if tipo == "faixa_etaria":
+        faixas_etarias = {f.id: str(f) for f in FaixaEtaria.objects.all()}
+
+    resultado = {}
+    for medicao in medicoes:
+        if tipo == "faixa_etaria":
+            nome_periodo = obter_nome_periodo(medicao)
+            _processa_periodo_regular_faixa(medicao, nome_periodo, resultado, faixas_etarias)
+            _processa_dietas_faixa(medicao, resultado, faixas_etarias)
+        else:
+            _processa_periodo_tipo_alimentacao(medicao, resultado)
+            _processa_total_pagamento_tipo_alimentacao(medicao, resultado)
+            _processa_dietas_tipo_alimentacao(medicao, resultado)
+
+    if tipo == "tipo_alimentacao":
+        resultado = _unificar_dietas_tipo_a_tipo_alimentacao(resultado)
+        resultado = _consolidar_lanches_alimentacao(resultado)
+        resultado = _consolidar_campos(
+            resultado,
+            CHAVE_ALIMENTACAO_REGULAR,
+        )
+
+    return resultado
+
+
+def calcula_totais_consumo_por_faixa_etaria(
+    lote, grupo_unidade_escolar, mes, ano, tipo_calculo="faixa_etaria"
+):
+    solicitacoes = SolicitacaoMedicaoInicial.objects.filter(
+        mes=str(mes),
+        ano=str(ano),
+        status="MEDICAO_APROVADA_PELA_CODAE",
+        escola__lote=lote,
+        escola__tipo_unidade__in=grupo_unidade_escolar.tipos_unidades.all(),
+    )
+
+    return gerar_totais_consolidado(solicitacoes, tipo_calculo)
