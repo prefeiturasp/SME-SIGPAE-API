@@ -3205,6 +3205,10 @@ class HistoricoEscola(
     def __str__(self) -> str:
         return f"{self.escola.codigo_eol} - {self.escola.nome} -> era {self.nome} - até {self.data_final.strftime("%d/%m/%Y")}"
 
+    @property
+    def nome_escola_normalizado(self):
+        return f"{self.nome} (ATUAL {self.escola.nome})"
+
     class Meta:
         verbose_name = "Histórico da Escola"
         verbose_name_plural = "Históricos da escola"

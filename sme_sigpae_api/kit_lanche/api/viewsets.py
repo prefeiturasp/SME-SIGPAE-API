@@ -129,6 +129,15 @@ class SolicitacaoKitLancheAvulsaViewSet(ModelViewSet):
             return serializers_create.SolicitacaoKitLancheAvulsaCreationSerializer
         return serializers.SolicitacaoKitLancheAvulsaSerializer
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+
+        if self.action == "retrieve":
+            solicitacao = self.get_object()
+            context["data_kit_lanche"] = solicitacao.data
+
+        return context
+
     @action(
         detail=False,
         url_path=f"{constants.PEDIDOS_DRE}/{constants.FILTRO_PADRAO_PEDIDOS}",
