@@ -14,3 +14,9 @@ class DataSolicitacaoContextMixin:
             context["data"] = data
 
         return context
+
+
+class EscolaNomeHistoricoSerializerMixin:
+    def get_nome(self, obj) -> str:
+        data = self.context.get("data")
+        return obj.nome_historico(data) if data else obj.nome
