@@ -150,10 +150,16 @@ def test_gera_proximo_numero_cronograma_sem_ultimo_cronograma():
 
 def test_gera_proximo_numero_cronograma_com_ultimo_cronograma(cronograma):
     numero = CronogramaCreateSerializer().gera_proximo_numero_cronograma()
-    assert (
-        numero
-        == f"{str(int(cronograma.numero[:3]) + 1).zfill(3)}/{timezone.now().year}A"
-    )
+
+    ultimo_ano = int(cronograma.numero.split("/")[1][:4])
+    ano_atual = timezone.now().year
+
+    if ultimo_ano != ano_atual:
+        assert numero == f"001/{ano_atual}A"
+    else:
+        ultimo_numero = int(cronograma.numero[:3])
+        proximo_numero = str(ultimo_numero + 1).zfill(3)
+        assert numero == f"{proximo_numero}/{ano_atual}A"
 
 
 def test_novo_numero_solicitacao(solicitacao_cronograma_em_analise):
