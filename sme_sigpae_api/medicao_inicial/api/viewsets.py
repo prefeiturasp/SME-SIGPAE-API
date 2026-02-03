@@ -1715,7 +1715,7 @@ class OcorrenciaViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="codae-aprova-ocorrencia",
-        permission_classes=[UsuarioCODAEGestaoAlimentacao],
+        permission_classes=[UsuarioCODAEGestaoAlimentacao | UsuarioCODAENutriManifestacao],
     )
     def codae_aprova_ocorrencia(self, request, uuid=None):
         object = self.get_object()
