@@ -348,6 +348,13 @@ class EscolaSimplesSerializer(serializers.ModelSerializer):
     tipo_gestao = TipoGestaoSerializer()
     diretoria_regional = DiretoriaRegionalSimplissimaSerializer()
     periodos_escolares = serializers.SerializerMethodField()
+    nome = serializers.SerializerMethodField()
+
+    def get_nome(self, obj) -> str:
+        print(self.request)
+        if not obj.historicos_escola.exists():
+            return obj.nome
+        return obj.historicos_escola.get().nome
 
     def get_periodos_escolares(self, obj):
         ano_hoje = datetime.datetime.now().year
