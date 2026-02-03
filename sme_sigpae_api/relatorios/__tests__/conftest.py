@@ -1,8 +1,8 @@
 import datetime
 import io
 
-from freezegun import freeze_time
 import pytest
+from freezegun import freeze_time
 from model_bakery import baker
 from PyPDF4 import PdfFileReader, PdfFileWriter
 from weasyprint import HTML
@@ -198,6 +198,7 @@ def usuario_escola(escola):
     )  # ativo
     return user, password
 
+
 @pytest.fixture
 def aluno():
     return baker.make(
@@ -207,6 +208,7 @@ def aluno():
         data_nascimento="2000-01-01",
     )
 
+
 @freeze_time("2025-12-10")
 @pytest.fixture
 def solicitacao_dieta_especial_a_autorizar(
@@ -214,7 +216,7 @@ def solicitacao_dieta_especial_a_autorizar(
 ):
     user, password = usuario_escola
     # client.login(username=user.email, password=password)
-    
+
     solic = baker.make(
         SolicitacaoDietaEspecial,
         escola_destino=escola,
@@ -223,16 +225,15 @@ def solicitacao_dieta_especial_a_autorizar(
         aluno=aluno,
         ativo=False,
         criado_por=user,
-        criado_em="2025-12-10"
+        criado_em="2025-12-10",
     )
     solic.inicia_fluxo(user=user)
-    log = solic.logs.filter(
-        status_evento=LogSolicitacoesUsuario.INICIO_FLUXO
-    ).last()
+    log = solic.logs.filter(status_evento=LogSolicitacoesUsuario.INICIO_FLUXO).last()
     log.criado_em = "2025-12-10"
     log.save()
 
     return solic
+
 
 @freeze_time("2025-12-20")
 @pytest.fixture
@@ -337,16 +338,17 @@ def solicitacao_dieta_especial_autorizada_alteracao_ue(
 
     return solicitacao_dieta_especial_a_autorizar
 
+
 @pytest.fixture
 def solicitacao_dieta_especial_inativa(
     client, solicitacao_dieta_especial_autorizada, usuario_escola, escola, aluno
-):    
+):
     user, password = usuario_escola
-    
+
     # Desativando 1 @ dieta
     solicitacao_dieta_especial_autorizada.ativo = False
     solicitacao_dieta_especial_autorizada.save()
-    
+
     # Criando 2 dieta
     solicitacao_dieta_especial_inativa = baker.make(
         SolicitacaoDietaEspecial,
@@ -356,7 +358,7 @@ def solicitacao_dieta_especial_inativa(
         aluno=aluno,
         ativo=False,
         criado_por=user,
-        criado_em="2026-01-08"
+        criado_em="2026-01-08",
     )
     solicitacao_dieta_especial_inativa.inicia_fluxo(user=user)
     log = solicitacao_dieta_especial_inativa.logs.filter(
@@ -364,7 +366,7 @@ def solicitacao_dieta_especial_inativa(
     ).last()
     log.criado_em = "2026-01-08"
     log.save()
-    
+
     solicitacao_dieta_especial_inativa.codae_autoriza(user=user)
     log = solicitacao_dieta_especial_inativa.logs.filter(
         status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU
@@ -376,10 +378,13 @@ def solicitacao_dieta_especial_inativa(
 
     return solicitacao_dieta_especial_autorizada
 
+
 @pytest.fixture
-def solicitacao_dieta_especial_inativa_com_log(solicitacao_dieta_especial_inativa, usuario_escola):
-    
-    user, password = usuario_escola    
+def solicitacao_dieta_especial_inativa_com_log(
+    solicitacao_dieta_especial_inativa, usuario_escola
+):
+
+    user, password = usuario_escola
     baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=solicitacao_dieta_especial_inativa.uuid,
@@ -387,7 +392,7 @@ def solicitacao_dieta_especial_inativa_com_log(solicitacao_dieta_especial_inativ
         usuario=user,
         criado_em=datetime.datetime(
             2026, 2, 1, 23, 59, 59, tzinfo=datetime.timezone.utc
-        )
+        ),
     )
     return solicitacao_dieta_especial_inativa
 
@@ -713,7 +718,7 @@ def solicitacoes_medicao_inicial_emef(
 @pytest.fixture
 def solicitacao_medicao_inicial_aprovada_codae(
     solicitacoes_medicao_inicial_emef,
-    django_user_model, 
+    django_user_model,
 ):
     usuario = django_user_model.objects.create_user(
         nome="Usuário TESTE",
