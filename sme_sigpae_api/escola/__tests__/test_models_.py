@@ -4,6 +4,7 @@ from collections import Counter
 import pytest
 from django.contrib import admin
 from freezegun import freeze_time
+from model_bakery import baker
 
 from ...cardapio.base.models import Cardapio
 from ...dados_comuns.constants import DAQUI_A_SETE_DIAS, DAQUI_A_TRINTA_DIAS, SEM_FILTRO
@@ -769,3 +770,38 @@ def test_dia_calendario_sem_perido(dia_calendario_diurno, escola):
     assert dia_calendario_diurno.escola == escola
     assert dia_calendario_diurno.periodo_escolar is None
     assert dia_calendario_diurno.data == datetime.date(2024, 5, 15)
+
+
+@pytest.mark.django_db
+class TestEscolaQuantidadeAlunosPorCeiEmei:
+
+    @pytest.mark.django_db
+    def test_cemei_sem_alunos_nao_gera_keyerror(self, escola_cemei_sem_alunos, faixas_etarias_ativas):
+        """
+        Este teste força a entrada no loop de períodos mesmo sem alunos matriculados.
+        Sem o seu ajuste (usando .get() ou try/except), isso daria KeyError: 'INTEGRAL'
+        """
+        from sme_sigpae_api.escola.constants import PERIODOS_ESPECIAIS_CEMEI
+
+        for nome_periodo in PERIODOS_ESPECIAIS_CEMEI:
+            baker.make("PeriodoEscolar", nome=nome_periodo)
+
+        resultado = escola_cemei_sem_alunos.quantidade_alunos_por_cei_emei(manha_e_tarde_sempre=True)
+
+        assert resultado is not None
+        assert len(resultado) > 0
+        for item in resultado:
+            assert item["CEI"] == []
+
+    def test_cemei_com_alunos_retorna_dados_corretos(self, escola_cemei, faixas_etarias_ativas):
+        resultado = escola_cemei.quantidade_alunos_por_cei_emei()
+
+        assert resultado is not None
+        assert isinstance(resultado, list)
+        assert len(resultado) > 0
+
+        primeiro_periodo = resultado[0]
+        assert "nome" in primeiro_periodo
+        assert "CEI" in primeiro_periodo
+        assert "EMEI" in primeiro_periodo
+
