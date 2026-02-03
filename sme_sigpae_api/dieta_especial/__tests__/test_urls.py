@@ -1450,12 +1450,12 @@ def test_url_endpoint_autorizar_dieta_log_inativo(
     client_autenticado_vinculo_codae_dieta,
     solicitacao_dieta_especial_log_inativada,
     payload_autorizar,
-):    
+):
     a_ser_inativada = SolicitacaoDietaEspecial.objects.get(
         status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
     )
     assert a_ser_inativada.ativo == True
-    
+
     para_autorizar = SolicitacaoDietaEspecial.objects.get(
         status=SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR
     )
@@ -1486,12 +1486,11 @@ def test_url_endpoint_autorizar_dieta_log_inativo(
     assert logs.last().status_evento_explicacao == "CODAE inativou"
 
 
-
 def test_url_endpoint_verifica_dieta_log_inativo(
     client_autenticado_vinculo_codae_dieta,
     solicitacao_dieta_especial_log_inativada,
     payload_autorizar,
-):        
+):
     para_autorizar = SolicitacaoDietaEspecial.objects.get(
         status=SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR
     )
@@ -1503,23 +1502,25 @@ def test_url_endpoint_verifica_dieta_log_inativo(
         data=payload_autorizar,
     )
     assert response.status_code == status.HTTP_200_OK
-    
+
     inativa = SolicitacaoDietaEspecial.objects.get(
         ativo=False, status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
     )
     response = client_autenticado_vinculo_codae_dieta.get(
-        f"/solicitacoes-dieta-especial/{inativa.uuid}/",
-        content_type="application/json"
+        f"/solicitacoes-dieta-especial/{inativa.uuid}/", content_type="application/json"
     )
     assert response.status_code == status.HTTP_200_OK
     informacao_dieta = response.json()
     assert len(informacao_dieta["logs"]) == len(inativa.logs)
-    
+
     ultimo_log = informacao_dieta["logs"][-1]
     assert ultimo_log["status_evento_explicacao"] == "CODAE inativou"
-    assert ultimo_log["status_evento_explicacao"] == inativa.logs.last().status_evento_explicacao
-    
+    assert (
+        ultimo_log["status_evento_explicacao"]
+        == inativa.logs.last().status_evento_explicacao
+    )
+
     assert any(
-    log["status_evento_explicacao"] == "CODAE inativou"
-    for log in informacao_dieta["logs"]
-)
+        log["status_evento_explicacao"] == "CODAE inativou"
+        for log in informacao_dieta["logs"]
+    )

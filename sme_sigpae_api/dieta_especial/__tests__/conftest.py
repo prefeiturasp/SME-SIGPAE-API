@@ -501,6 +501,7 @@ def massa_dados_protocolo_padrao_test(solicitacao_dieta_especial):
         "contratos": [contrato_1, contrato_2],
     }
 
+
 @pytest.fixture
 def usuario_escola_dieta(django_user_model, escola, template_mensagem_dieta_especial):
     email = "diretor_escola_dieta@test.com"
@@ -520,10 +521,9 @@ def usuario_escola_dieta(django_user_model, escola, template_mensagem_dieta_espe
     )
     return user, password
 
+
 @pytest.fixture
-def client_autenticado_vinculo_escola_dieta(
-    client, usuario_escola_dieta
-):
+def client_autenticado_vinculo_escola_dieta(client, usuario_escola_dieta):
     user, password = usuario_escola_dieta
     client.login(username=user.email, password=password)
     return client, user
@@ -551,8 +551,11 @@ def client_autenticado_vinculo_dre_dieta(
     client.login(username=email, password=password)
     return client, user
 
+
 @pytest.fixture
-def usuario_vinculo_codae_dieta(django_user_model, escola, codae, template_mensagem_dieta_especial):
+def usuario_vinculo_codae_dieta(
+    django_user_model, escola, codae, template_mensagem_dieta_especial
+):
     email = "test@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
@@ -570,13 +573,12 @@ def usuario_vinculo_codae_dieta(django_user_model, escola, codae, template_mensa
         data_inicial=hoje,
         ativo=True,
     )
-    
+
     return user, password
 
+
 @pytest.fixture
-def client_autenticado_vinculo_codae_dieta(
-    client, usuario_vinculo_codae_dieta
-):
+def client_autenticado_vinculo_codae_dieta(client, usuario_vinculo_codae_dieta):
     user, password = usuario_vinculo_codae_dieta
     client.login(username=user.email, password=password)
     return client
@@ -2189,8 +2191,11 @@ def logs_dieta_recreio_nas_ferias(escola, classificacoes_dietas):
             data=data,
         )
 
+
 @pytest.fixture
-def solictacao_autorizada(escola, aluno, usuario_escola_dieta,usuario_vinculo_codae_dieta):
+def solictacao_autorizada(
+    escola, aluno, usuario_escola_dieta, usuario_vinculo_codae_dieta
+):
     user_escola, _ = usuario_escola_dieta
     user_codae, _ = usuario_vinculo_codae_dieta
     solicitacao_dieta_especial = baker.make(
@@ -2205,12 +2210,13 @@ def solictacao_autorizada(escola, aluno, usuario_escola_dieta,usuario_vinculo_co
     solicitacao_dieta_especial.codae_autoriza(user=user_codae)
     return solicitacao_dieta_especial
 
+
 @pytest.fixture
-def solicitacao_dieta_especial_cancela_aluno_nao_pertence_rede(solictacao_autorizada, usuario_admin, escola, aluno, usuario_escola_dieta):
+def solicitacao_dieta_especial_cancela_aluno_nao_pertence_rede(
+    solictacao_autorizada, usuario_admin, escola, aluno, usuario_escola_dieta
+):
     user_escola, _ = usuario_escola_dieta
-    solictacao_autorizada.cancelar_aluno_nao_pertence_rede(
-        user=usuario_admin
-    )
+    solictacao_autorizada.cancelar_aluno_nao_pertence_rede(user=usuario_admin)
     solicitacao_dieta_especial_a_autorizar = baker.make(
         SolicitacaoDietaEspecial,
         rastro_escola=escola,
@@ -2218,13 +2224,15 @@ def solicitacao_dieta_especial_cancela_aluno_nao_pertence_rede(solictacao_autori
         rastro_terceirizada=escola.lote.terceirizada,
         aluno=aluno,
         criado_por=user_escola,
-        ativo=False
+        ativo=False,
     )
     solicitacao_dieta_especial_a_autorizar.inicia_fluxo(user=user_escola)
 
 
 @pytest.fixture
-def solicitacao_dieta_especial_log_inativada(solictacao_autorizada, escola, aluno, usuario_escola_dieta):
+def solicitacao_dieta_especial_log_inativada(
+    solictacao_autorizada, escola, aluno, usuario_escola_dieta
+):
     user_escola, _ = usuario_escola_dieta
     solicitacao_dieta_especial_a_autorizar = baker.make(
         SolicitacaoDietaEspecial,
@@ -2233,6 +2241,6 @@ def solicitacao_dieta_especial_log_inativada(solictacao_autorizada, escola, alun
         rastro_terceirizada=escola.lote.terceirizada,
         aluno=aluno,
         criado_por=user_escola,
-        ativo=False
+        ativo=False,
     )
     solicitacao_dieta_especial_a_autorizar.inicia_fluxo(user=user_escola)
