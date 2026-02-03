@@ -1,14 +1,14 @@
 import pytest
-from rest_framework import status
 from django.urls import reverse
+from rest_framework import status
 
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
-from sme_sigpae_api.terceirizada.models import Terceirizada
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
     Cronograma,
     SolicitacaoAlteracaoCronograma,
 )
-from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
+from sme_sigpae_api.terceirizada.models import Terceirizada
 
 pytestmark = pytest.mark.django_db
 
@@ -96,9 +96,10 @@ def test_fornecedor_ciente_nao_aplica_alteracoes_se_ja_assinado_codae(
     assert cronograma.status == Cronograma.workflow_class.ASSINADO_CODAE
     assert cronograma.qtd_total_programada == qtd_antes
     assert list(cronograma.etapas.values_list("id", flat=True)) == etapas_antes
-    assert list(
-        cronograma.programacoes_de_recebimento.values_list("id", flat=True)
-    ) == programacoes_antes
+    assert (
+        list(cronograma.programacoes_de_recebimento.values_list("id", flat=True))
+        == programacoes_antes
+    )
 
 
 def test_fornecedor_ciente_aplica_alteracoes_se_nao_assinado_codae(

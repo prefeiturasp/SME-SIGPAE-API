@@ -2,6 +2,7 @@ import datetime
 import io
 
 import pytest
+from freezegun import freeze_time
 from model_bakery import baker
 from PyPDF4 import PdfFileReader, PdfFileWriter
 from weasyprint import HTML
@@ -192,39 +193,49 @@ def usuario_escola(escola):
         usuario=user,
         instituicao=escola,
         perfil=perfil_professor,
-        data_inicial=datetime.date.today(),
+        data_inicial="2024-12-10",
         ativo=True,
     )  # ativo
     return user, password
 
 
 @pytest.fixture
-def solicitacao_dieta_especial_a_autorizar(
-    client, escola, template_mensagem_dieta_especial, usuario_escola
-):
-    user, password = usuario_escola
-    client.login(username=user.email, password=password)
-
-    aluno = baker.make(
+def aluno():
+    return baker.make(
         Aluno,
         nome="Roberto Alves da Silva",
         codigo_eol="123456",
         data_nascimento="2000-01-01",
     )
+
+
+@freeze_time("2025-12-10")
+@pytest.fixture
+def solicitacao_dieta_especial_a_autorizar(
+    client, escola, template_mensagem_dieta_especial, usuario_escola, aluno
+):
+    user, password = usuario_escola
+    # client.login(username=user.email, password=password)
+
     solic = baker.make(
         SolicitacaoDietaEspecial,
         escola_destino=escola,
         rastro_escola=escola,
         rastro_terceirizada=escola.lote.terceirizada,
         aluno=aluno,
-        ativo=True,
+        ativo=False,
         criado_por=user,
+        criado_em="2025-12-10",
     )
     solic.inicia_fluxo(user=user)
+    log = solic.logs.filter(status_evento=LogSolicitacoesUsuario.INICIO_FLUXO).last()
+    log.criado_em = "2025-12-10"
+    log.save()
 
     return solic
 
 
+@freeze_time("2025-12-20")
 @pytest.fixture
 def solicitacao_dieta_especial_autorizada(
     client, escola, solicitacao_dieta_especial_a_autorizar
@@ -243,12 +254,18 @@ def solicitacao_dieta_especial_autorizada(
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
-        data_inicial=datetime.date.today(),
+        data_inicial="2024-12-20",
         ativo=True,
     )
 
     solicitacao_dieta_especial_a_autorizar.codae_autoriza(user=user)
-
+    log = solicitacao_dieta_especial_a_autorizar.logs.filter(
+        status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU
+    ).last()
+    log.criado_em = "2025-12-20"
+    log.save()
+    solicitacao_dieta_especial_a_autorizar.ativo = True
+    solicitacao_dieta_especial_a_autorizar.save()
     return solicitacao_dieta_especial_a_autorizar
 
 
@@ -324,19 +341,60 @@ def solicitacao_dieta_especial_autorizada_alteracao_ue(
 
 @pytest.fixture
 def solicitacao_dieta_especial_inativa(
-    client, solicitacao_dieta_especial_autorizada, usuario_escola
+    client, solicitacao_dieta_especial_autorizada, usuario_escola, escola, aluno
 ):
     user, password = usuario_escola
-    client.login(username=user.email, password=password)
-    solicitacao_dieta_especial_autorizada.inicia_fluxo_inativacao(
-        user=user, justificativa=JUSTIFICATIVA_NAO_NECESSIDADE
-    )
-    solicitacao_dieta_especial_autorizada.codae_autoriza_inativacao(
-        user=user, justificativa=JUSTIFICATIVA_NAO_NECESSIDADE
-    )
+
+    # Desativando 1 @ dieta
     solicitacao_dieta_especial_autorizada.ativo = False
     solicitacao_dieta_especial_autorizada.save()
+
+    # Criando 2 dieta
+    solicitacao_dieta_especial_inativa = baker.make(
+        SolicitacaoDietaEspecial,
+        escola_destino=escola,
+        rastro_escola=escola,
+        rastro_terceirizada=escola.lote.terceirizada,
+        aluno=aluno,
+        ativo=False,
+        criado_por=user,
+        criado_em="2026-01-08",
+    )
+    solicitacao_dieta_especial_inativa.inicia_fluxo(user=user)
+    log = solicitacao_dieta_especial_inativa.logs.filter(
+        status_evento=LogSolicitacoesUsuario.INICIO_FLUXO
+    ).last()
+    log.criado_em = "2026-01-08"
+    log.save()
+
+    solicitacao_dieta_especial_inativa.codae_autoriza(user=user)
+    log = solicitacao_dieta_especial_inativa.logs.filter(
+        status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU
+    ).last()
+    log.criado_em = "2026-01-26"
+    log.save()
+    solicitacao_dieta_especial_inativa.ativo = False
+    solicitacao_dieta_especial_inativa.save()
+
     return solicitacao_dieta_especial_autorizada
+
+
+@pytest.fixture
+def solicitacao_dieta_especial_inativa_com_log(
+    solicitacao_dieta_especial_inativa, usuario_escola
+):
+
+    user, password = usuario_escola
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao_dieta_especial_inativa.uuid,
+        status_evento=LogSolicitacoesUsuario.CODAE_INATIVOU,
+        usuario=user,
+        criado_em=datetime.datetime(
+            2026, 2, 1, 23, 59, 59, tzinfo=datetime.timezone.utc
+        ),
+    )
+    return solicitacao_dieta_especial_inativa
 
 
 @pytest.fixture

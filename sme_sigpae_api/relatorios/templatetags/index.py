@@ -1,11 +1,11 @@
 import math
 import re
+from decimal import Decimal, InvalidOperation
 
 from django import template
 from django.db.models import QuerySet
 from django.template import base as template_base
 from django.template.defaultfilters import title as django_title
-from decimal import Decimal, InvalidOperation
 
 from sme_sigpae_api.dados_comuns.utils import numero_com_agrupador_de_milhar_e_decimal
 from sme_sigpae_api.produto.constants import RELATORIO_RECLAMACOES_PRODUTOS
@@ -986,6 +986,8 @@ def cnpj_mask(value):
 def decimal_br(value, casas=2):
     try:
         value = Decimal(value)
-        return f"{value:,.{casas}f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        return (
+            f"{value:,.{casas}f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        )
     except (InvalidOperation, TypeError):
         return "0,00"
