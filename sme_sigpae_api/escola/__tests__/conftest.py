@@ -187,6 +187,26 @@ def escola_cemei(periodo_escolar):
 
 
 @pytest.fixture
+def escola_cemei_sem_alunos(periodo_escolar):
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    diretoria_regional = baker.make(
+        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+    )
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    escola = baker.make(
+        "Escola",
+        nome="CEMEI TESTE SEM ALUNOS",
+        lote=lote,
+        diretoria_regional=diretoria_regional,
+        tipo_gestao=tipo_gestao,
+        tipo_unidade=tipo_unidade_escolar,
+    )
+    return escola
+
+
+@pytest.fixture
 def escola_emebs(periodo_escolar):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
