@@ -859,9 +859,10 @@ class Escola(
         for periodo in periodos:
             return_dict[periodo] = {}
             try:
-                return_dict[periodo]["CEI"] = lista_faixas[periodo]
+                periodo_cei = lista_faixas.get(periodo, [])
+                return_dict[periodo]["CEI"] = periodo_cei
             except KeyError:
-                return_dict[periodo]["CEI"] = lista_faixas["INTEGRAL"]
+                return_dict[periodo]["CEI"] = lista_faixas.get('INTEGRAL')
             return_dict[periodo]["EMEI"] = self.quantidade_alunos_emei_por_periodo(
                 periodo
             )
