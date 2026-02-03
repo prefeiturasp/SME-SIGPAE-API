@@ -753,6 +753,7 @@ def relatorio_inclusao_alimentacao_normal(request, solicitacao):
     valida_request_method_get(request)
 
     escola = solicitacao.rastro_escola
+    escola.nome = escola.nome_historico(solicitacao.data)
     logs = solicitacao.logs
     html_string = render_to_string(
         "solicitacao_inclusao_alimentacao_normal.html",
