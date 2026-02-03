@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 {% include 'relatorio_base.html' %}
 {% load static %}
 {% load index %}
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="{% sass_src 'css/cabecalho.scss' %}" type="text/css">
     <link rel="stylesheet" href="{% sass_src 'css/relatorio_recreio_nas_ferias.scss' %}" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,600,600i,700,700i,900,900i" rel="stylesheet" />
+    <title>SIGPAE</title>
   </head>
   <header class="header">
     <section class="titulo-e-logo titulo-centralizado">
@@ -39,9 +41,9 @@
           {% for solicitacao in dados %}
             <tbody class="solicitacao">
               <tr>
-                <th>{{ solicitacao.codigo_eol_aluno }} - {{ solicitacao.nome_aluno }}</th>
-                <th>{{ solicitacao.nome_escola }}</th>
-                <th>{{ solicitacao.escola_destino }}</th>
+                <th scope="col">{{ solicitacao.codigo_eol_aluno }} - {{ solicitacao.nome_aluno }}</th>
+                <th scope="col">{{ solicitacao.nome_escola }}</th>
+                <th scope="col">{{ solicitacao.escola_destino }}</th>
               </tr>
               <tr>
                 <td class="texto-detalhe padding-grande" colspan="3">

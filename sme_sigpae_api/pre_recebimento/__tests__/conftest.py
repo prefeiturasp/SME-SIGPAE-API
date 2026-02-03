@@ -864,7 +864,6 @@ def payload_ficha_tecnica_pereciveis(
         "programa": FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR,
         "prazo_validade": fake.pystr(max_chars=150),
         "numero_registro": fake.pystr(max_chars=150),
-        "agroecologico": True,
         "organico": True,
         "mecanismo_controle": FichaTecnicaDoProduto.MECANISMO_OPAC,
         "componentes_produto": fake.pystr(max_chars=250),
@@ -1159,7 +1158,6 @@ def payload_base(produto_arroz, empresa, unidade_medida_logistica):
         "habilitacao": "CRN123",
         "numero_registro_orgao": "456",
         "arquivo": "file.pdf",
-        "agroecologico": True,
         "organico": False,
         "volume_embalagem_primaria": 5,
         "unidade_medida_volume_primaria": unidade_medida_logistica.uuid,
@@ -1522,3 +1520,43 @@ def client_user_autenticado_fornecedor(
     assert user.eh_fornecedor is True
 
     return client, user
+
+
+@pytest.fixture
+def interrupcao_programada_entrega():
+    return baker.make(
+        "InterrupcaoProgramadaEntrega",
+        data=datetime.date.today(),
+        motivo="EMENDA",
+        tipo_calendario="ARMAZENAVEL",
+    )
+
+
+@pytest.fixture
+def interrupcao_programada_entrega_outros():
+    return baker.make(
+        "InterrupcaoProgramadaEntrega",
+        data=datetime.date.today() + datetime.timedelta(days=1),
+        motivo="OUTROS",
+        descricao_motivo="Motivo customizado para teste",
+        tipo_calendario="PONTO_A_PONTO",
+    )
+
+
+@pytest.fixture
+def payload_interrupcao_programada_entrega():
+    return {
+        "data": str(datetime.date.today() + datetime.timedelta(days=5)),
+        "motivo": "REUNIAO",
+        "tipo_calendario": "ARMAZENAVEL",
+    }
+
+
+@pytest.fixture
+def payload_interrupcao_programada_entrega_outros():
+    return {
+        "data": str(datetime.date.today() + datetime.timedelta(days=10)),
+        "motivo": "OUTROS",
+        "descricao_motivo": "Descrição do motivo customizado",
+        "tipo_calendario": "PONTO_A_PONTO",
+    }
