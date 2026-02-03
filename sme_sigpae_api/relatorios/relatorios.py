@@ -2412,8 +2412,14 @@ def obtem_data_inativacao(solicitacao: SolicitacaoDietaEspecial) -> str:
     """
     Determina a data de inativação de uma solicitação de dieta especial.
 
-    A inativação é definida pela data em que a solicitação subsequente (seja ela
-    autorizada, cancelada ou inativa) recebeu o status de autorização da CODAE.
+    A inativação é definida pela data em que a solicitação foi explicitamente inativada pela CODAE
+    ou pela data em que uma solicitação subsequente (autorizada, cancelada ou inativa)
+    recebeu o status de autorização da CODAE.
+
+    A função segue a seguinte ordem de precedência:
+    1. Busca por registro explícito de inativação (CODAE_INATIVOU)
+    2. Caso não encontrado, busca pela próxima solicitação subsequente do mesmo aluno
+       que tenha sido autorizada pela CODAE
 
     Args:
         solicitacao (SolicitacaoDietaEspecial):  Objeto da solicitação de dieta especial para a qual se deseja encontrar
@@ -2423,6 +2429,13 @@ def obtem_data_inativacao(solicitacao: SolicitacaoDietaEspecial) -> str:
         str: Data de inativação no formato "DD/MM/AAAA" se encontrada.
         Retorna "Data não encontrada" se não for possível determinar a data.
     """
+
+    log_inativado = solicitacao.logs.filter(
+        status_evento=LogSolicitacoesUsuario.CODAE_INATIVOU
+    ).last()
+    if log_inativado:
+        return log_inativado.criado_em.strftime("%d/%m/%Y")
+
     data = "Data não encontrada"
     solicitacoes_canceladas_e_autorizadas = (
         (
