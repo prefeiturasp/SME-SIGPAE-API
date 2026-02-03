@@ -4737,13 +4737,17 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
 
     @xworkflows.after_transition("finaliza_solicitacao_alteracao")
     def _finaliza_solicitacao_alteracao_hook(self, *args, **kwargs):
-        from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import SolicitacaoAlteracaoCronograma
+        from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
+            SolicitacaoAlteracaoCronograma,
+        )
 
         user = kwargs["user"]
         solicitacao_uuid = kwargs.get("justificativa")
 
         if solicitacao_uuid:
-            solicitacao = SolicitacaoAlteracaoCronograma.objects.get(uuid=solicitacao_uuid)
+            solicitacao = SolicitacaoAlteracaoCronograma.objects.get(
+                uuid=solicitacao_uuid
+            )
 
             self.qtd_total_programada = solicitacao.qtd_total_programada
             self.etapas.set(solicitacao.etapas_novas.all())

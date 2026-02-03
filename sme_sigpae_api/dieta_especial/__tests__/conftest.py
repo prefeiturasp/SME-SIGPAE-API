@@ -503,13 +503,11 @@ def massa_dados_protocolo_padrao_test(solicitacao_dieta_especial):
 
 
 @pytest.fixture
-def client_autenticado_vinculo_escola_dieta(
-    client, django_user_model, escola, template_mensagem_dieta_especial
-):
-    email = "test@test.com"
+def usuario_escola_dieta(django_user_model, escola, template_mensagem_dieta_especial):
+    email = "diretor_escola_dieta@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
-        username=email, password=password, email=email, registro_funcional="8888888"
+        username=email, password=password, email=email, registro_funcional="8888889"
     )
     perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     hoje = datetime.date.today()
@@ -521,7 +519,13 @@ def client_autenticado_vinculo_escola_dieta(
         data_inicial=hoje,
         ativo=True,
     )
-    client.login(username=email, password=password)
+    return user, password
+
+
+@pytest.fixture
+def client_autenticado_vinculo_escola_dieta(client, usuario_escola_dieta):
+    user, password = usuario_escola_dieta
+    client.login(username=user.email, password=password)
     return client, user
 
 
@@ -549,8 +553,8 @@ def client_autenticado_vinculo_dre_dieta(
 
 
 @pytest.fixture
-def client_autenticado_vinculo_codae_dieta(
-    client, django_user_model, escola, codae, template_mensagem_dieta_especial
+def usuario_vinculo_codae_dieta(
+    django_user_model, escola, codae, template_mensagem_dieta_especial
 ):
     email = "test@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
@@ -569,7 +573,14 @@ def client_autenticado_vinculo_codae_dieta(
         data_inicial=hoje,
         ativo=True,
     )
-    client.login(username=email, password=password)
+
+    return user, password
+
+
+@pytest.fixture
+def client_autenticado_vinculo_codae_dieta(client, usuario_vinculo_codae_dieta):
+    user, password = usuario_vinculo_codae_dieta
+    client.login(username=user.email, password=password)
     return client
 
 
@@ -2182,49 +2193,54 @@ def logs_dieta_recreio_nas_ferias(escola, classificacoes_dietas):
 
 
 @pytest.fixture
-def solicitacao_dieta_especial_cancela_aluno_nao_pertence_rede(
-    usuario_admin, escola
+def solictacao_autorizada(
+    escola, aluno, usuario_escola_dieta, usuario_vinculo_codae_dieta
 ):
-    email = "escola2@admin.com"
-    password = constants.DJANGO_ADMIN_PASSWORD
-    rf = "1545934"
-    user = Usuario.objects.create_user(
-        username=email, password=password, email=email, registro_funcional=rf
-    )
-    perfil_professor = baker.make("perfil.Perfil", nome="ADMINISTRADOR_UE", ativo=False)
-    baker.make(
-        "perfil.Vinculo",
-        usuario=user,
-        instituicao=escola,
-        perfil=perfil_professor,
-        data_inicial=datetime.date.today(),
-        ativo=True,
-    )
-    aluno = baker.make(
-        Aluno,
-        nome="Roberto Alves da Silva",
-        codigo_eol="654321",
-        data_nascimento="2000-01-01",
-    )
-    solicitacao_dieta_especial_cancelada = baker.make(
+    user_escola, _ = usuario_escola_dieta
+    user_codae, _ = usuario_vinculo_codae_dieta
+    solicitacao_dieta_especial = baker.make(
         SolicitacaoDietaEspecial,
         rastro_escola=escola,
         escola_destino=escola,
         rastro_terceirizada=escola.lote.terceirizada,
         aluno=aluno,
-        criado_por=user,
+        criado_por=user_escola,
     )
-    solicitacao_dieta_especial_cancelada.inicia_fluxo(user=user)
-    solicitacao_dieta_especial_cancelada.codae_autoriza(user=user)
-    solicitacao_dieta_especial_cancelada.cancelar_aluno_nao_pertence_rede(
-        user=usuario_admin
-    )
+    solicitacao_dieta_especial.inicia_fluxo(user=user_escola)
+    solicitacao_dieta_especial.codae_autoriza(user=user_codae)
+    return solicitacao_dieta_especial
+
+
+@pytest.fixture
+def solicitacao_dieta_especial_cancela_aluno_nao_pertence_rede(
+    solictacao_autorizada, usuario_admin, escola, aluno, usuario_escola_dieta
+):
+    user_escola, _ = usuario_escola_dieta
+    solictacao_autorizada.cancelar_aluno_nao_pertence_rede(user=usuario_admin)
     solicitacao_dieta_especial_a_autorizar = baker.make(
         SolicitacaoDietaEspecial,
         rastro_escola=escola,
         escola_destino=escola,
         rastro_terceirizada=escola.lote.terceirizada,
         aluno=aluno,
-        criado_por=user,
+        criado_por=user_escola,
+        ativo=False,
     )
-    solicitacao_dieta_especial_a_autorizar.inicia_fluxo(user=user)
+    solicitacao_dieta_especial_a_autorizar.inicia_fluxo(user=user_escola)
+
+
+@pytest.fixture
+def solicitacao_dieta_especial_log_inativada(
+    solictacao_autorizada, escola, aluno, usuario_escola_dieta
+):
+    user_escola, _ = usuario_escola_dieta
+    solicitacao_dieta_especial_a_autorizar = baker.make(
+        SolicitacaoDietaEspecial,
+        rastro_escola=escola,
+        escola_destino=escola,
+        rastro_terceirizada=escola.lote.terceirizada,
+        aluno=aluno,
+        criado_por=user_escola,
+        ativo=False,
+    )
+    solicitacao_dieta_especial_a_autorizar.inicia_fluxo(user=user_escola)

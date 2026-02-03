@@ -86,6 +86,7 @@ from ..tasks import (
 )
 from ..utils import (
     atualizar_anexos_ocorrencia,
+    calcula_totais_consumo_por_faixa_etaria,
     criar_log_aprovar_periodos_corrigidos,
     criar_log_solicitar_correcao_periodos,
     get_campos_a_desconsiderar,
@@ -93,7 +94,6 @@ from ..utils import (
     get_valor_total,
     log_alteracoes_escola_corrige_periodo,
     tratar_valores,
-    calcula_totais_consumo_por_faixa_etaria,
 )
 from .constants import (
     ORDEM_NAME_LANCAMENTOS_ESPECIAIS,
@@ -1275,12 +1275,16 @@ class SolicitacaoMedicaoInicialViewSet(
 
             if not all([mes, ano, uuid_grupo_escolar, uuid_lote, tipo_calculo]):
                 return Response(
-                    {"detail": "Parâmetros obrigatórios: mes, ano, lote, grupo_unidade_escolar, tipo_calculo"},
+                    {
+                        "detail": "Parâmetros obrigatórios: mes, ano, lote, grupo_unidade_escolar, tipo_calculo"
+                    },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
             lote = Lote.objects.get(uuid=uuid_lote)
-            grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(uuid=uuid_grupo_escolar)
+            grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(
+                uuid=uuid_grupo_escolar
+            )
 
             data = calcula_totais_consumo_por_faixa_etaria(
                 lote=lote,

@@ -2,10 +2,10 @@ from rest_framework.permissions import BasePermission
 
 from sme_sigpae_api.dados_comuns.constants import (
     COORDENADOR_CODAE_DILOG_LOGISTICA,
-    DILOG_CRONOGRAMA,
-    DILOG_QUALIDADE,
-    DILOG_DIRETORIA,
     DILOG_ABASTECIMENTO,
+    DILOG_CRONOGRAMA,
+    DILOG_DIRETORIA,
+    DILOG_QUALIDADE,
 )
 
 

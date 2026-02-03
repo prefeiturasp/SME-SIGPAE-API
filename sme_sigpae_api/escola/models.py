@@ -2604,9 +2604,15 @@ class Aluno(TemChaveExterna):
 
     def inativar_dieta_especial(self):
         try:
-            dieta_especial = self.dietas_especiais.get(ativo=True)
+            from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+
+            dieta_especial = self.dietas_especiais.get(
+                ativo=True,
+                status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+            )
             dieta_especial.ativo = False
             dieta_especial.save()
+            return dieta_especial
         except MultipleObjectsReturned:
             logger.critical("Aluno não deve possuir mais de uma Dieta Especial ativa")
 
