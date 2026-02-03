@@ -351,22 +351,8 @@ class EscolaSimplesSerializer(serializers.ModelSerializer):
     nome = serializers.SerializerMethodField()
 
     def get_nome(self, obj) -> str:
-        data_kit = self.context.get("data_kit_lanche")
-
-        if not data_kit:
-            return obj.nome
-
-        historico = (
-            obj.historicos_escola.filter(
-                models.Q(data_inicial__lte=data_kit)
-                | models.Q(data_inicial__isnull=True)
-            )
-            .filter(data_final__gte=data_kit)
-            .order_by("-data_inicial")
-            .first()
-        )
-
-        return historico.nome_escola_normalizado if historico else obj.nome
+        data = self.context.get("data")
+        return obj.nome_historico(data)
 
     def get_periodos_escolares(self, obj):
         ano_hoje = datetime.datetime.now().year

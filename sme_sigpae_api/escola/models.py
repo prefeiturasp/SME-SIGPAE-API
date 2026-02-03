@@ -545,6 +545,21 @@ class Escola(
         help_text="Envia e-mail quando houver um produto com status de homologado, não homologado, ativar ou suspender.",  # noqa
     )
 
+    def nome_historico(self, data: datetime.date) -> str:
+        if not data:
+            return self.nome
+
+        historico = (
+            self.historicos_escola.filter(
+                models.Q(data_inicial__lte=data) | models.Q(data_inicial__isnull=True)
+            )
+            .filter(data_final__gte=data)
+            .order_by("-data_inicial")
+            .first()
+        )
+
+        return historico.nome_escola_normalizado if historico else self.nome
+
     @property
     def ultimo_dia_letivo(self):
         DEZEMBRO = 12

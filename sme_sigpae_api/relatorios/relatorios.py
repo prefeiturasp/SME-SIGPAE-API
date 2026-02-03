@@ -1005,6 +1005,7 @@ def relatorio_inclusao_alimentacao_cemei(request, solicitacao):  # noqa C901
 def relatorio_kit_lanche_passeio(request, solicitacao):
     TEMPO_PASSEIO = {"0": "até 4 horas", "1": "de 5 a 7 horas", "2": "8 horas ou mais"}
     escola = solicitacao.rastro_escola
+    escola.nome = escola.nome_historico(solicitacao.data)
     logs = solicitacao.logs
     tempo_passeio_num = str(solicitacao.solicitacao_kit_lanche.tempo_passeio)
     tempo_passeio = TEMPO_PASSEIO.get(tempo_passeio_num)

@@ -11,6 +11,7 @@ from rest_framework.viewsets import ModelViewSet
 from xworkflows import InvalidTransitionError
 
 from ...dados_comuns import constants
+from ...dados_comuns.mixins.serializer_context import DataSolicitacaoContextMixin
 from ...dados_comuns.permissions import (
     PermissaoParaRecuperarObjeto,
     PermissaoParaRecuperarSolicitacaoUnificada,
@@ -110,7 +111,7 @@ class KitLancheViewSet(ModelViewSet):
             return Response(dict(detail="Nome válido"), status=404)
 
 
-class SolicitacaoKitLancheAvulsaViewSet(ModelViewSet):
+class SolicitacaoKitLancheAvulsaViewSet(DataSolicitacaoContextMixin, ModelViewSet):
     lookup_field = "uuid"
     queryset = SolicitacaoKitLancheAvulsa.objects.all()
     serializer_class = serializers.SolicitacaoKitLancheAvulsaSerializer
@@ -128,15 +129,6 @@ class SolicitacaoKitLancheAvulsaViewSet(ModelViewSet):
         if self.action in ["create", "update", "partial_update"]:
             return serializers_create.SolicitacaoKitLancheAvulsaCreationSerializer
         return serializers.SolicitacaoKitLancheAvulsaSerializer
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-
-        if self.action == "retrieve":
-            solicitacao = self.get_object()
-            context["data_kit_lanche"] = solicitacao.data
-
-        return context
 
     @action(
         detail=False,
