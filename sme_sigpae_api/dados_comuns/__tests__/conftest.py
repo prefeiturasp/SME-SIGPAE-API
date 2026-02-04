@@ -1187,8 +1187,8 @@ def solicitacao_alteracao_cronograma(
     user_codae_produto,
 ):
     from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
-        SolicitacaoAlteracaoCronograma,
         ProgramacaoDoRecebimentoDoCronograma,
+        SolicitacaoAlteracaoCronograma,
     )
 
     cronograma = cronograma_para_alteracao

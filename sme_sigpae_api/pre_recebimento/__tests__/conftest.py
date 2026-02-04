@@ -6,11 +6,11 @@ from faker import Faker
 from model_bakery import baker
 
 from sme_sigpae_api.dados_comuns.constants import (
+    ADMINISTRADOR_GESTAO_PRODUTO,
     DILOG_ABASTECIMENTO,
     DILOG_CRONOGRAMA,
     DILOG_QUALIDADE,
     DJANGO_ADMIN_PASSWORD,
-    ADMINISTRADOR_GESTAO_PRODUTO,
 )
 from sme_sigpae_api.dados_comuns.fluxo_status import (
     FichaTecnicaDoProdutoWorkflow,
@@ -1450,8 +1450,8 @@ def solicitacao_alteracao_cronograma(
     user_codae_produto,
 ):
     from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
-        SolicitacaoAlteracaoCronograma,
         ProgramacaoDoRecebimentoDoCronograma,
+        SolicitacaoAlteracaoCronograma,
     )
 
     cronograma = cronograma_para_alteracao
@@ -1486,9 +1486,9 @@ def client_user_autenticado_fornecedor(
     empresa_factory,
     perfil_factory,
 ):
+    from sme_sigpae_api.dados_comuns.constants import ADMINISTRADOR_EMPRESA
     from sme_sigpae_api.perfil.models import Vinculo
     from sme_sigpae_api.terceirizada.models import Terceirizada
-    from sme_sigpae_api.dados_comuns.constants import ADMINISTRADOR_EMPRESA
 
     email = "fornecedor@test.com"
     password = "adminadmin"

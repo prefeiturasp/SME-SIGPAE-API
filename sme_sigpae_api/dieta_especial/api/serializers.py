@@ -360,9 +360,11 @@ class SolicitacaoDietaEspecialUpdateSerializer(serializers.ModelSerializer):
         if substituicoes:
             for substituicao in substituicoes:
                 if len(substituicao) == 0:
-                    raise serializers.ValidationError({
-                        "substituicoes": "Um ou mais itens na lista de substituições estão vazios."
-                    })
+                    raise serializers.ValidationError(
+                        {
+                            "substituicoes": "Um ou mais itens na lista de substituições estão vazios."
+                        }
+                    )
                 substitutos = substituicao.pop("substitutos", None)
                 substituicao["solicitacao_dieta_especial"] = instance
                 subst_obj = SubstituicaoAlimento.objects.create(**substituicao)

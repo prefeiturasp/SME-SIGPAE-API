@@ -7,7 +7,7 @@ from collections import defaultdict
 from functools import reduce
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import IntegerField, Sum, FloatField, Q
+from django.db.models import FloatField, IntegerField, Q, Sum
 from django.db.models.functions import Cast
 from django.db.utils import IntegrityError
 from django.template.loader import render_to_string
@@ -48,20 +48,24 @@ from sme_sigpae_api.inclusao_alimentacao.models import (
 )
 from sme_sigpae_api.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
+    Medicao,
     RelatorioFinanceiro,
     SolicitacaoMedicaoInicial,
     ValorMedicao,
-    Medicao,
+)
+from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef import (
+    _get_total_pagamento,
+)
+from sme_sigpae_api.medicao_inicial.services.utils import (
+    get_categorias_dietas,
+)
+from sme_sigpae_api.medicao_inicial.services.utils import (
+    get_nome_periodo as obter_nome_periodo,
 )
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesEscola
 from sme_sigpae_api.perfil.models.usuario import Usuario
 from sme_sigpae_api.relatorios.utils import merge_pdf_com_rodape_assinatura
 from sme_sigpae_api.terceirizada.models import Edital
-from sme_sigpae_api.medicao_inicial.services.utils import (
-    get_categorias_dietas,
-    get_nome_periodo as obter_nome_periodo,
-)
-from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef import _get_total_pagamento
 
 logger = logging.getLogger(__name__)
 
@@ -4862,15 +4866,11 @@ def substitui_criador_system_por_usuario_real(
 
 def _processa_periodo_regular_faixa(medicao, nome_periodo, resultado, faixas_etarias):
     valores = (
-        medicao.valores_medicao
-        .filter(
-            nome_campo="frequencia",
-            categoria_medicao__nome="ALIMENTAÇÃO"
+        medicao.valores_medicao.filter(
+            nome_campo="frequencia", categoria_medicao__nome="ALIMENTAÇÃO"
         )
         .values("faixa_etaria")
-        .annotate(
-            total=Sum(Cast("valor", FloatField()))
-        )
+        .annotate(total=Sum(Cast("valor", FloatField())))
     )
 
     for item in valores:
@@ -4891,15 +4891,11 @@ def _processa_dietas_faixa(medicao, resultado, faixas_etarias):
 
     for dieta in dietas:
         valores = (
-            medicao.valores_medicao
-            .filter(
-                nome_campo="frequencia",
-                categoria_medicao__nome=dieta
+            medicao.valores_medicao.filter(
+                nome_campo="frequencia", categoria_medicao__nome=dieta
             )
             .values("faixa_etaria")
-            .annotate(
-                total=Sum(Cast("valor", FloatField()))
-            )
+            .annotate(total=Sum(Cast("valor", FloatField())))
         )
 
         for item in valores:
@@ -4910,7 +4906,11 @@ def _processa_dietas_faixa(medicao, resultado, faixas_etarias):
             if not faixa_nome:
                 continue
 
-            dieta_nome = f'{dieta} - {medicao.periodo_escolar.nome}' if medicao.periodo_escolar else dieta
+            dieta_nome = (
+                f"{dieta} - {medicao.periodo_escolar.nome}"
+                if medicao.periodo_escolar
+                else dieta
+            )
             resultado.setdefault(dieta_nome, {})
             resultado[dieta_nome].setdefault(faixa_nome, 0)
             resultado[dieta_nome][faixa_nome] += item["total"]
@@ -4918,8 +4918,7 @@ def _processa_dietas_faixa(medicao, resultado, faixas_etarias):
 
 def _processa_periodo_tipo_alimentacao(medicao, resultado):
     valores = (
-        medicao.valores_medicao
-        .exclude(
+        medicao.valores_medicao.exclude(
             Q(
                 nome_campo__in=[
                     "observacoes",
@@ -4948,8 +4947,7 @@ def _processa_dietas_tipo_alimentacao(medicao, resultado):
     dietas = get_categorias_dietas(medicao)
     for dieta in dietas:
         valores = (
-            medicao.valores_medicao
-            .filter(categoria_medicao__nome=dieta)
+            medicao.valores_medicao.filter(categoria_medicao__nome=dieta)
             .exclude(
                 nome_campo__in=[
                     "dietas_autorizadas",
@@ -4982,9 +4980,7 @@ def _unificar_dietas_tipo_a_tipo_alimentacao(resultado):
     resultado.setdefault(dieta_base, {})
 
     for campo, valor in resultado[dieta_enteral].items():
-        resultado[dieta_base][campo] = (
-            resultado[dieta_base].get(campo, 0) + valor
-        )
+        resultado[dieta_base][campo] = resultado[dieta_base].get(campo, 0) + valor
 
     resultado.pop(dieta_enteral, None)
     return resultado
@@ -5080,11 +5076,9 @@ def _consolidar_campos(resultado, chave_principal):
 
 
 def gerar_totais_consolidado(solicitacoes, tipo):
-    medicoes = (
-        Medicao.objects
-        .filter(solicitacao_medicao_inicial__in=solicitacoes)
-        .select_related("periodo_escolar", "grupo")
-    )
+    medicoes = Medicao.objects.filter(
+        solicitacao_medicao_inicial__in=solicitacoes
+    ).select_related("periodo_escolar", "grupo")
     if tipo == "faixa_etaria":
         faixas_etarias = {f.id: str(f) for f in FaixaEtaria.objects.all()}
 
@@ -5092,7 +5086,9 @@ def gerar_totais_consolidado(solicitacoes, tipo):
     for medicao in medicoes:
         if tipo == "faixa_etaria":
             nome_periodo = obter_nome_periodo(medicao)
-            _processa_periodo_regular_faixa(medicao, nome_periodo, resultado, faixas_etarias)
+            _processa_periodo_regular_faixa(
+                medicao, nome_periodo, resultado, faixas_etarias
+            )
             _processa_dietas_faixa(medicao, resultado, faixas_etarias)
         else:
             _processa_periodo_tipo_alimentacao(medicao, resultado)
