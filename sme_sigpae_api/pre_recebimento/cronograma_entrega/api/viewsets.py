@@ -890,5 +890,6 @@ class InterrupcaoProgramadaEntregaViewSet(
             [
                 {"value": c[0], "label": c[1]}
                 for c in InterrupcaoProgramadaEntrega.MOTIVO_CHOICES
+                if c[0] != InterrupcaoProgramadaEntrega.MOTIVO_FERIADO
             ]
         )
