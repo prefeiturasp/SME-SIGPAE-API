@@ -262,3 +262,36 @@ def test_finaliza_solicitacao_alteracao_hook(
     log = cronograma.logs.order_by("-criado_em").first()
     assert log.status_evento == LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELA_CODAE
     assert log.usuario == user_codae_produto
+
+
+def test_codae_pede_correcao_ocorrencia_hook(
+    ocorrencia_medicao_inicial_status_aprovado_dre, usuario_nutrimanifestacao
+):
+    kwargs = {
+        "user": usuario_nutrimanifestacao,
+        "justificativa": str(ocorrencia_medicao_inicial_status_aprovado_dre.uuid),
+    }
+    ocorrencia_medicao_inicial_status_aprovado_dre.codae_pede_correcao_ocorrencia(
+        **kwargs
+    )
+    ocorrencia_medicao_inicial_status_aprovado_dre.refresh_from_db()
+    log = ocorrencia_medicao_inicial_status_aprovado_dre.logs.order_by(
+        "-criado_em"
+    ).first()
+    assert log.status_evento == LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE
+    assert log.usuario == usuario_nutrimanifestacao
+    assert log.justificativa == str(ocorrencia_medicao_inicial_status_aprovado_dre.uuid)
+
+
+def test_codae_aprova_ocorrencia_hook(
+    ocorrencia_medicao_inicial_status_aprovado_dre, usuario_nutrimanifestacao
+):
+    ocorrencia_medicao_inicial_status_aprovado_dre.codae_aprova_ocorrencia(
+        user=usuario_nutrimanifestacao
+    )
+    ocorrencia_medicao_inicial_status_aprovado_dre.refresh_from_db()
+    log = ocorrencia_medicao_inicial_status_aprovado_dre.logs.order_by(
+        "-criado_em"
+    ).first()
+    assert log.status_evento == LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE
+    assert log.usuario == usuario_nutrimanifestacao

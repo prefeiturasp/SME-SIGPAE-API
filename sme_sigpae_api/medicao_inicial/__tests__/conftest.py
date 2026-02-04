@@ -5076,19 +5076,3 @@ def client_autenticado_vinculo_nutrimanifestacao(client, django_user_model):
     )
     client.login(username=email, password=password)
     return client, user
-
-
-@pytest.fixture
-def ocorrencia_medicao_inicial_status_aprovado_dre():
-    nome = "arquivo_teste.pdf"
-    arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
-    )
-    return baker.make(
-        "OcorrenciaMedicaoInicial",
-        uuid="04fb4c1c-0e31-4936-93a7-f2760b968c3b",
-        nome_ultimo_arquivo=nome,
-        ultimo_arquivo=arquivo,
-        solicitacao_medicao_inicial=baker.make("SolicitacaoMedicaoInicial"),
-        status="MEDICAO_APROVADA_PELA_DRE",
-    )

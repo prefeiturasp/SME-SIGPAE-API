@@ -4099,7 +4099,10 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         justificativa = kwargs.get("justificativa", "")
         if user:
-            if user.vinculo_atual.perfil.nome not in [ADMINISTRADOR_MEDICAO, COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO]:
+            if user.vinculo_atual.perfil.nome not in [
+                ADMINISTRADOR_MEDICAO,
+                COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
+            ]:
                 raise PermissionDenied(
                     "Você não tem permissão para executar essa ação."
                 )
@@ -4119,7 +4122,10 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
     def _codae_aprova_ocorrencia_hook(self, *args, **kwargs):
         user = kwargs["user"]
         if user:
-            if user.vinculo_atual.perfil.nome not in [ADMINISTRADOR_MEDICAO, COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO]:
+            if user.vinculo_atual.perfil.nome not in [
+                ADMINISTRADOR_MEDICAO,
+                COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
+            ]:
                 raise PermissionDenied(
                     "Você não tem permissão para executar essa ação."
                 )
