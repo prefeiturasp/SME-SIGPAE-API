@@ -511,11 +511,12 @@ class GrupoInclusaoAlimentacaoNormalViewSet(InclusaoAlimentacaoViewSetBase):
 
 
 class InclusaoAlimentacaoContinuaViewSet(
-    ModelViewSet,
+    DataSolicitacaoContextMixin,
     DREValida,
     CodaeAutoriza,
     CodaeQuestionaTerceirizadaResponde,
     TerceirizadaTomaCiencia,
+    ModelViewSet,
 ):
     lookup_field = "uuid"
     queryset = InclusaoAlimentacaoContinua.objects.all()
