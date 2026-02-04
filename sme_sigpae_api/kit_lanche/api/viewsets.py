@@ -429,7 +429,7 @@ class SolicitacaoKitLancheAvulsaViewSet(DataSolicitacaoContextMixin, ModelViewSe
         return Response(serializer.data)
 
 
-class SolicitacaoKitLancheUnificadaViewSet(ModelViewSet):
+class SolicitacaoKitLancheUnificadaViewSet(DataSolicitacaoContextMixin, ModelViewSet):
     lookup_field = "uuid"
     queryset = SolicitacaoKitLancheUnificada.objects.all()
     serializer_class = serializers.SolicitacaoKitLancheUnificadaSerializer
