@@ -9,6 +9,7 @@ import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
 
+from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.behaviors import TempoPasseio
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from sme_sigpae_api.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
@@ -5045,4 +5046,49 @@ def solicitacao_recreio_incorreto(escola):
             data_inicio=datetime.date(2025, 12, 10),
             data_fim=datetime.date(2026, 1, 30),
         ),
+    )
+
+
+@pytest.fixture
+def client_autenticado_vinculo_nutrimanifestacao(client, django_user_model):
+    email = "nutri_manifestacao@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888885"
+    )
+    perfil_nutrimanifestacao = baker.make(
+        "Perfil",
+        nome=constants.COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
+        ativo=True,
+        uuid="106f5a1a-627f-4b69-bf0b-6a44f6fa08bb",
+    )
+    codae = baker.make(
+        "Codae", nome="CODAE", uuid="78907a88-dca9-413b-a08f-aeefaedf2acc"
+    )
+
+    baker.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_nutrimanifestacao,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client, user
+
+
+@pytest.fixture
+def ocorrencia_medicao_inicial_status_aprovado_dre():
+    nome = "arquivo_teste.pdf"
+    arquivo = SimpleUploadedFile(
+        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+    )
+    return baker.make(
+        "OcorrenciaMedicaoInicial",
+        uuid="04fb4c1c-0e31-4936-93a7-f2760b968c3b",
+        nome_ultimo_arquivo=nome,
+        ultimo_arquivo=arquivo,
+        solicitacao_medicao_inicial=baker.make("SolicitacaoMedicaoInicial"),
+        status="MEDICAO_APROVADA_PELA_DRE",
     )
