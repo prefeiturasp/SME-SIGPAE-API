@@ -6,6 +6,8 @@ CREATE OR REPLACE VIEW solicitacoes_consolidadas AS
 SELECT
     base.*,
     CASE
+        WHEN base.tipo_doc = 'DIETA_ESPECIAL' THEN
+            base.escola_nome_original
         WHEN he.id IS NOT NULL THEN
             he.nome || ' (ATUAL ' || base.escola_nome_original || ')'
         ELSE
@@ -981,6 +983,7 @@ LEFT JOIN LATERAL (
     SELECT he.*
     FROM escola_historicoescola he
     WHERE he.escola_id = base.escola_id
+      AND base.tipo_doc <> 'DIETA_ESPECIAL'
       AND (he.data_inicial IS NULL OR he.data_inicial <= base.data_evento)
       AND he.data_final >= base.data_evento
     ORDER BY he.data_final DESC
