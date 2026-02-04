@@ -390,6 +390,16 @@ def test_get_pdf_ficha_tecnica(ficha_tecnica):
     )
     assert ficha_tecnica.envasador_distribuidor.email in texto
 
+    assert "O Produto é agroecológico?" not in texto
+    assert (
+        "Informações de Armazenamento que deverão constar na Embalagem Primária"
+        in texto
+    )
+    assert (
+        "Informações de Armazenamento que deverão constar na Embalagem Secundária"
+        in texto
+    )
+
 
 def test_formata_informacoes_ficha_tecnica(ficha_tecnica):
     cnpj, telefone = formata_informacoes_ficha_tecnica(ficha_tecnica.empresa)
