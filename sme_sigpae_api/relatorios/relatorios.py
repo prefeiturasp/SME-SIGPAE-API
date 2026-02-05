@@ -229,6 +229,12 @@ def _formata_tipos_alimentacao(tipos_alimentacao):
     return formatado
 
 
+def _aplica_nome_historico_escola(escola, data):
+    if escola:
+        escola.nome = escola.nome_historico(data)
+    return escola
+
+
 def relatorio_alteracao_cardapio(request, solicitacao):
     """
     Esta é uma função interna (não exposta via URL) chamada para gerar PDF.
@@ -246,7 +252,7 @@ def relatorio_alteracao_cardapio(request, solicitacao):
         formata_substituicoes.append(resultado)
 
     escola = solicitacao.rastro_escola
-    escola.nome = escola.nome_historico(solicitacao.data)
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     html_string = render_to_string(
         "solicitacao_alteracao_cardapio.html",
@@ -266,7 +272,7 @@ def relatorio_alteracao_cardapio(request, solicitacao):
 
 def relatorio_alteracao_cardapio_cei(request, solicitacao):
     escola = solicitacao.rastro_escola
-    escola.nome = escola.nome_historico(solicitacao.data)
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     substituicoes = solicitacao.substituicoes_cei_periodo_escolar
     logs = solicitacao.logs
     html_string = render_to_string(
@@ -287,7 +293,7 @@ def relatorio_alteracao_cardapio_cei(request, solicitacao):
 
 def relatorio_alteracao_alimentacao_cemei(request, solicitacao):  # noqa C901
     escola = solicitacao.rastro_escola
-    escola.nome = escola.nome_historico(solicitacao.data)
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     periodos_escolares_cei = []
     periodos_cei = []
@@ -729,7 +735,7 @@ def relatorio_dieta_especial_protocolo(request, solicitacao, sem_foto=False):
 
 def relatorio_inclusao_alimentacao_continua(request, solicitacao):
     escola = solicitacao.rastro_escola
-    escola.nome = escola.nome_historico(solicitacao.data)
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     html_string = render_to_string(
         "solicitacao_inclusao_alimentacao_continua.html",
@@ -757,7 +763,7 @@ def relatorio_inclusao_alimentacao_normal(request, solicitacao):
     valida_request_method_get(request)
 
     escola = solicitacao.rastro_escola
-    escola.nome = escola.nome_historico(solicitacao.data)
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     html_string = render_to_string(
         "solicitacao_inclusao_alimentacao_normal.html",
@@ -776,7 +782,7 @@ def relatorio_inclusao_alimentacao_normal(request, solicitacao):
 
 def relatorio_inclusao_alimentacao_cei(request, solicitacao):
     escola = solicitacao.rastro_escola
-    escola.nome = escola.nome_historico(solicitacao.data)
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     if solicitacao.periodo_escolar:
         html_string = render_to_string(
@@ -881,7 +887,7 @@ def relatorio_inclusao_alimentacao_cei(request, solicitacao):
 
 def relatorio_inclusao_alimentacao_cemei(request, solicitacao):  # noqa C901
     escola = solicitacao.rastro_escola
-    escola.nome = escola.nome_historico(solicitacao.data)
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     periodos_escolares_cei = []
     periodos_cei = []
@@ -1012,7 +1018,7 @@ def relatorio_inclusao_alimentacao_cemei(request, solicitacao):  # noqa C901
 def relatorio_kit_lanche_passeio(request, solicitacao):
     TEMPO_PASSEIO = {"0": "até 4 horas", "1": "de 5 a 7 horas", "2": "8 horas ou mais"}
     escola = solicitacao.rastro_escola
-    escola.nome = escola.nome_historico(solicitacao.data)
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     tempo_passeio_num = str(solicitacao.solicitacao_kit_lanche.tempo_passeio)
     tempo_passeio = TEMPO_PASSEIO.get(tempo_passeio_num)
@@ -1036,7 +1042,7 @@ def relatorio_kit_lanche_passeio(request, solicitacao):
 
 def relatorio_kit_lanche_passeio_cei(request, solicitacao):
     escola = solicitacao.rastro_escola
-    escola.nome = escola.nome_historico(solicitacao.data)
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     html_string = render_to_string(
         "solicitacao_kit_lanche_passeio_cei.html",
@@ -1058,7 +1064,7 @@ def relatorio_kit_lanche_passeio_cei(request, solicitacao):
 def relatorio_kit_lanche_passeio_cemei(request, solicitacao):
     TEMPO_PASSEIO = {0: "até 4 horas", 1: "de 5 a 7 horas", 2: "8 horas ou mais"}
     escola = solicitacao.rastro_escola
-    escola.nome = escola.nome_historico(solicitacao.data)
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     tempo_passeio_cei = None
     tempo_passeio_emei = None
@@ -1087,7 +1093,7 @@ def relatorio_kit_lanche_passeio_cemei(request, solicitacao):
 
 def relatorio_inversao_dia_de_cardapio(request, solicitacao):
     escola = solicitacao.rastro_escola
-    escola.nome = escola.nome_historico(solicitacao.data)
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     data_de = (
         solicitacao.cardapio_de.data
@@ -1118,7 +1124,7 @@ def relatorio_inversao_dia_de_cardapio(request, solicitacao):
 
 def relatorio_suspensao_de_alimentacao(request, solicitacao):
     escola = solicitacao.rastro_escola
-    escola.nome = escola.nome_historico(solicitacao.data)
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     # TODO: GrupoSuspensaoAlimentacaoSerializerViewSet não tem motivo, quem
     # tem é cada suspensão do relacionamento
@@ -1145,7 +1151,7 @@ def relatorio_suspensao_de_alimentacao(request, solicitacao):
 
 def relatorio_suspensao_de_alimentacao_cei(request, solicitacao):
     escola = solicitacao.rastro_escola
-    escola.nome = escola.nome_historico(solicitacao.data)
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     periodos_escolares = solicitacao.periodos_escolares.all()
     html_string = render_to_string(
