@@ -12,24 +12,30 @@ def cria_historico_escolas_cemei(apps, _):
     Escola = apps.get_model("escola", "Escola")
     TipoUnidadeEscolar = apps.get_model("escola", "TipoUnidadeEscolar")
 
-    emei = TipoUnidadeEscolar.objects.get(iniciais="EMEI")
+    emei = TipoUnidadeEscolar.objects.filter(iniciais="EMEI").first()
+    if not emei:
+        return
     data_final = datetime.date(2025, 12, 31)
 
-    escola_cemei_caminho_dos_martins = Escola.objects.get(codigo_eol="019533")
-    HistoricoEscola.objects.update_or_create(
-        escola=escola_cemei_caminho_dos_martins,
-        nome="EMEI CAMINHO DOS MARTINS",
-        tipo_unidade=emei,
-        data_final=data_final,
-    )
+    escola_cemei_caminho_dos_martins = Escola.objects.filter(
+        codigo_eol="019533"
+    ).first()
+    if escola_cemei_caminho_dos_martins:
+        HistoricoEscola.objects.update_or_create(
+            escola=escola_cemei_caminho_dos_martins,
+            nome="EMEI CAMINHO DOS MARTINS",
+            tipo_unidade=emei,
+            data_final=data_final,
+        )
 
-    escola_cemei_anita_costa = Escola.objects.get(codigo_eol="092380")
-    HistoricoEscola.objects.update_or_create(
-        escola=escola_cemei_anita_costa,
-        nome="EMEI ANITA COSTA, DA.",
-        tipo_unidade=emei,
-        data_final=data_final,
-    )
+    escola_cemei_anita_costa = Escola.objects.filter(codigo_eol="092380").first()
+    if escola_cemei_anita_costa:
+        HistoricoEscola.objects.update_or_create(
+            escola=escola_cemei_anita_costa,
+            nome="EMEI ANITA COSTA, DA.",
+            tipo_unidade=emei,
+            data_final=data_final,
+        )
 
 
 def backwards(apps, _):
