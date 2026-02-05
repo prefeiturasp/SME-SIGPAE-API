@@ -21,6 +21,7 @@ from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
 )
+from sme_sigpae_api.produto.models import InformacaoNutricional
 from sme_sigpae_api.produto.utils.relatorio_reclamacao_produto import (
     gerar_relatorio_reclamacao_produto_excel,
 )
@@ -2136,7 +2137,19 @@ def get_pdf_cronograma(request, cronograma):
 def get_pdf_ficha_tecnica(request, ficha):
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnica.objects.filter(
         ficha_tecnica=ficha
+    ).select_related("informacao_nutricional")
+
+    def get_ordem_nutricional(info_nutricional):
+        nome = info_nutricional.informacao_nutricional.nome.upper()
+        try:
+            return InformacaoNutricional.ORDEM_TABELA.index(nome)
+        except ValueError:
+            return len(InformacaoNutricional.ORDEM_TABELA)
+
+    info_nutricionais_ordenadas = sorted(
+        informacoes_nutricionais, key=get_ordem_nutricional
     )
+
     empresa = ficha.empresa
     cnpj_empresa, telefone_empresa = formata_informacoes_ficha_tecnica(empresa)
 
@@ -2156,7 +2169,7 @@ def get_pdf_ficha_tecnica(request, ficha):
             "cnpj_empresa": cnpj_empresa,
             "telefone_empresa": telefone_empresa,
             "status_ficha": retorna_status_ficha_tecnica(ficha.status),
-            "tabela": list(informacoes_nutricionais),
+            "tabela": info_nutricionais_ordenadas,
             "logs": ficha.logs,
             "fabricante": fabricante,
             "cnpj_fabricante": cnpj_fabricante,
