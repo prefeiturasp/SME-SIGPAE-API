@@ -2410,3 +2410,28 @@ def test_url_endpoint_clonar_encerrar_parametrizacao(
         )
 
         assert tabela_nova.valores.count() == valores_por_tabela[tabela_origem.id]
+
+
+def test_url_codae_aprova_ocorrencia_perfil_nutrimanifestacao(
+    client_autenticado_vinculo_nutrimanifestacao,
+    anexo_ocorrencia_medicao_inicial_status_aprovado_dre,
+    anexo_ocorrencia_medicao_inicial_status_inicial,
+):
+    client, user = client_autenticado_vinculo_nutrimanifestacao
+    uuid = anexo_ocorrencia_medicao_inicial_status_aprovado_dre.uuid
+    response = client.patch(
+        f"/medicao-inicial/ocorrencia/{uuid}/codae-aprova-ocorrencia/",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert (
+        response.data["logs"][-1]["status_evento_explicacao"] == "Aprovado pela CODAE"
+    )
+
+    uuid = anexo_ocorrencia_medicao_inicial_status_inicial.uuid
+    response = client.patch(
+        f"/medicao-inicial/ocorrencia/{uuid}" f"/codae-pede-correcao-ocorrencia/",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["status"] == "MEDICAO_CORRECAO_SOLICITADA_CODAE"
