@@ -32,7 +32,9 @@ sass_tags %} {% load humanize %}
               <span class="font-weight-bold">
                 {{cronograma.ficha_tecnica.produto.nome}}</span
               >
+              {% if cronograma.ficha_tecnica.programa == 'LEVE_LEITE' %}
               <span class="tag-leve-leite">LEVE LEITE - PLL</span>
+              {% endif %}
             </div>
           </div>
           <div class="row pb-3">
