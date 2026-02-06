@@ -9,6 +9,7 @@ from freezegun import freeze_time
 from pypdf import PdfReader
 from rest_framework import status
 
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from sme_sigpae_api.dados_comuns.fluxo_status import FichaDeRecebimentoWorkflow
 from sme_sigpae_api.recebimento.models import (
     FichaDeRecebimento,
@@ -371,6 +372,52 @@ def test_ficha_recebimento_list_filter_status(
 
 
 @freeze_time("2025-09-09")
+def test_gerar_pdf_ficha_recebimento_sem_tag_leve_leite(
+    client_autenticado_qualidade, ficha_de_recebimento_factory
+):
+    """Testa a geração de PDF para uma ficha de recebimento existente sem tag LEVE LEITE."""
+
+    ficha_completa_sem_tag = ficha_de_recebimento_factory(
+        status=FichaDeRecebimentoWorkflow.ASSINADA
+    )
+
+    response = client_autenticado_qualidade.get(
+        f"/fichas-de-recebimento/{ficha_completa_sem_tag.uuid}/gerar-pdf-ficha/"
+    )
+
+    cronograma = ficha_completa_sem_tag.etapa.cronograma
+    empresa = cronograma.empresa
+    ficha_tecnica = cronograma.ficha_tecnica
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response["Content-Type"] == "application/pdf"
+    assert (
+        f'filename="ficha_recebimento_{cronograma.numero}.pdf"'
+        in response["Content-Disposition"]
+    )
+
+    pdf_reader = PdfReader(BytesIO(response.content))
+    page = pdf_reader.pages[0]
+    pdf_text = page.extract_text()
+
+    assert "FICHA DE RECEBIMENTO" in pdf_text
+
+    assert "LEVE LEITE - PLL" not in pdf_text
+
+    assert cronograma.numero in pdf_text
+    assert cronograma.contrato.numero in pdf_text
+    assert cronograma.contrato.ata in pdf_text
+
+    assert f"{empresa.nome_fantasia} - {empresa.razao_social}" in pdf_text
+
+    assert ficha_tecnica.produto.nome in pdf_text
+    assert ficha_tecnica.marca.nome in pdf_text
+
+    assert ficha_tecnica.material_embalagem_primaria in pdf_text
+    assert ficha_tecnica.sistema_vedacao_embalagem_secundaria in pdf_text
+
+
+@freeze_time("2025-09-09")
 def test_gerar_pdf_ficha_recebimento(
     client_autenticado_qualidade, ficha_de_recebimento_factory
 ):
@@ -379,7 +426,7 @@ def test_gerar_pdf_ficha_recebimento(
     ficha_completa = ficha_de_recebimento_factory(
         status=FichaDeRecebimentoWorkflow.ASSINADA
     )
-    ficha_completa.etapa.cronograma.ficha_tecnica.programa = "LEVE_LEITE"
+    ficha_completa.etapa.cronograma.ficha_tecnica.programa = FichaTecnicaDoProduto.LEVE_LEITE
 
     response = client_autenticado_qualidade.get(
         f"/fichas-de-recebimento/{ficha_completa.uuid}/gerar-pdf-ficha/"
