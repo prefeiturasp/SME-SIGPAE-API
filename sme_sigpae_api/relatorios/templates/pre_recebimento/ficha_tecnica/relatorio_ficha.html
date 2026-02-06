@@ -94,13 +94,6 @@
         </div>
 
         <div class="row pb-3">
-          <div class="col-12">
-            O Produto é agroecológico?
-            <span class="font-weight-bold"> {{ ficha.agroecologico|yesno:"SIM,NÃO"}}</span>
-          </div>
-        </div>
-
-        <div class="row pb-3">
           <div class="col-4">
             O Produto é orgânico?
             <span class="font-weight-bold"> {{ ficha.organico |yesno:"SIM,NÃO" }}</span>
@@ -159,7 +152,7 @@
 
     </div>
 
-    <div id="dados_nutricionais">
+    <div id="dados_nutricionais" style="page-break-before: always;">
       <h5 class="title titulo-secao separator">INFORMAÇÕES NUTRICIONAIS</h5>
 
       <div class="content">
@@ -192,7 +185,10 @@
             {% for info in tabela %}
               <tr>
 
-                <td class="{% if info.informacao_nutricional.eh_dependente %} pl-3 {%endif%}">
+                <td 
+                  class="{% if info.informacao_nutricional.nome == 'AÇÚCARES ADICIONADOS' %} pl-4 
+                  {% elif info.informacao_nutricional.eh_dependente %} pl-3 {%endif%}"
+                >
                   {{info.informacao_nutricional.nome}}
                 </td>
                 <td>{{info.quantidade_por_100g}} {{info.informacao_nutricional.medida}}</td>
@@ -286,14 +282,17 @@
 
       <div class="content">
         <div class="row pb-3">
-          <div class="col-6">
-            Embalagem Primária:
+          <div class="col-12">
+            Informações de Armazenamento que deverão constar na Embalagem Primária:
             <span class="font-weight-bold">
               {{ficha.embalagem_primaria}}
             </span>
           </div>
-          <div class="col-6">
-            Embalagem Secundária:
+        </div>
+        
+        <div class="row pb-3">
+          <div class="col-12">
+            Informações de Armazenamento que deverão constar na Embalagem Secundária:
             <span class="font-weight-bold">
               {{ficha.embalagem_secundaria}}
             </span>

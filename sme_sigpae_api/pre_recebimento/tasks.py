@@ -4,6 +4,8 @@ from datetime import date
 
 import pandas as pd
 from celery import shared_task
+from workalendar.america import BrazilSaoPauloCity
+
 from django.template.loader import render_to_string
 
 from sme_sigpae_api.dados_comuns.utils import (
@@ -22,7 +24,9 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serialize
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
     Cronograma,
+    InterrupcaoProgramadaEntrega,
 )
+from sme_sigpae_api.dados_comuns.constants import TRADUCOES_FERIADOS
 from sme_sigpae_api.relatorios.utils import html_to_pdf_file
 
 logger = logging.getLogger(__name__)
@@ -477,3 +481,63 @@ def _formatar_headers(HEADERS, workbook, worksheet):
             header,
             headers_format,
         )
+
+
+@shared_task(
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 8},
+)
+def importa_feriados_para_interrupcoes_programadas():
+    """
+    Task periódica para importar feriados do ano atual e próximo ano
+    como Interrupções Programadas de Entrega.
+    """
+    logger.info(
+        "x-x-x-x Iniciando importação de feriados para Interrupções Programadas x-x-x-x"
+    )
+
+    calendario = BrazilSaoPauloCity()
+    ano_atual = date.today().year
+    anos = [ano_atual, ano_atual + 1]
+
+    tipos_calendario = [
+        InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL,
+        InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_PONTO_A_PONTO,
+    ]
+
+    datas_existentes_por_tipo = {}
+    for tipo in tipos_calendario:
+        datas_existentes = set(
+            InterrupcaoProgramadaEntrega.objects.filter(
+                data__year__in=anos,
+                tipo_calendario=tipo,
+            ).values_list("data", flat=True)
+        )
+        datas_existentes_por_tipo[tipo] = datas_existentes
+
+    feriados_criados = 0
+    feriados_ignorados = 0
+
+    for ano in anos:
+        feriados = calendario.holidays(ano)
+
+        for data_feriado, nome_feriado in feriados:
+            nome_traduzido = TRADUCOES_FERIADOS.get(nome_feriado, nome_feriado)
+
+            for tipo_calendario in tipos_calendario:
+                if data_feriado in datas_existentes_por_tipo[tipo_calendario]:
+                    feriados_ignorados += 1
+                    continue
+
+                InterrupcaoProgramadaEntrega.objects.create(
+                    data=data_feriado,
+                    motivo=InterrupcaoProgramadaEntrega.MOTIVO_FERIADO,
+                    descricao_motivo=nome_traduzido,
+                    tipo_calendario=tipo_calendario,
+                )
+                feriados_criados += 1
+
+    logger.info(
+        f"x-x-x-x Finaliza importação de feriados. "
+        f"Criados: {feriados_criados}, Ignorados: {feriados_ignorados} x-x-x-x"
+    )
