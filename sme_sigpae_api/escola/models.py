@@ -545,11 +545,11 @@ class Escola(
         help_text="Envia e-mail quando houver um produto com status de homologado, não homologado, ativar ou suspender.",  # noqa
     )
 
-    def nome_historico(self, data: datetime.date) -> str:
+    def historico_escola_por_data(self, data: datetime.date):
         if not data:
-            return self.nome
+            return None
 
-        historico = (
+        return (
             self.historicos_escola.filter(
                 models.Q(data_inicial__lte=data) | models.Q(data_inicial__isnull=True)
             )
@@ -557,6 +557,12 @@ class Escola(
             .order_by("-data_inicial")
             .first()
         )
+
+    def nome_historico(self, data: datetime.date) -> str:
+        if not data:
+            return self.nome
+
+        historico = self.historico_escola_por_data(data)
 
         return historico.nome_escola_normalizado if historico else self.nome
 
@@ -768,6 +774,20 @@ class Escola(
             "CEU CEMEI",
             "CEMEI",
         ]
+
+    def eh_cemei_data(self, data):
+        if not data:
+            return self.eh_cemei
+
+        historico = self.historico_escola_por_data(data)
+
+        if historico:
+            return historico.tipo_unidade and historico.tipo_unidade.iniciais in [
+                "CEU CEMEI",
+                "CEMEI",
+            ]
+
+        return self.eh_cemei
 
     @property
     def eh_emei(self):

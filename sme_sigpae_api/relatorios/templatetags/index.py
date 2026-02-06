@@ -1,3 +1,4 @@
+import datetime
 import math
 import re
 from decimal import Decimal, InvalidOperation
@@ -47,6 +48,27 @@ def get_element_by_index(indexable, i):
     if i < 0:
         return None
     return indexable[i]
+
+
+@register.filter
+def nome_escola_historico(solicitacao):
+    """
+    Retorna o nome histórico da escola baseado na data da solicitação de medição.
+
+    Args:
+        solicitacao: Objeto SolicitacaoMedicaoInicial
+
+    Returns:
+        str: Nome histórico da escola na data da medição
+    """
+    if not solicitacao:
+        return ""
+
+    try:
+        data = datetime.date(int(solicitacao.ano), int(solicitacao.mes), 1)
+        return solicitacao.escola.nome_historico(data)
+    except (ValueError, AttributeError):
+        return solicitacao.escola.nome if hasattr(solicitacao, "escola") else ""
 
 
 @register.filter

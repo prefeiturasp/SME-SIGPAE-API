@@ -47,7 +47,7 @@
           <table class="tabela-cabecalho">
             <tr class="custom-filtros">
               <td><b>Cód. EOL: </b>{{ solicitacao.escola.codigo_eol }}</td>
-              <td><b>U.E: </b>{{ solicitacao.escola.nome }}</td>
+              <td><b>U.E: </b>{{ solicitacao|nome_escola_historico }}</td>
               <td>
                 <b>Telefone da UE: </b>{{ solicitacao.escola.contato.telefone }}
               </td>

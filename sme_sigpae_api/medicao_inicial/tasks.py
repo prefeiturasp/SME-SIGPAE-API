@@ -145,10 +145,11 @@ def gera_pdf_relatorio_solicitacao_medicao_por_escola_async(
     obj_central_download = gera_objeto_na_central_download(
         user=user, identificador=nome_arquivo
     )
+    data = datetime.date(int(solicitacao.ano), int(solicitacao.mes), 1)
     try:
         if solicitacao.escola.eh_cei:
             arquivo = relatorio_solicitacao_medicao_por_escola_cei(solicitacao)
-        elif solicitacao.escola.eh_cemei:
+        elif solicitacao.escola.eh_cemei_data(data):
             arquivo = relatorio_solicitacao_medicao_por_escola_cemei(solicitacao)
         elif solicitacao.escola.eh_emebs:
             arquivo = relatorio_solicitacao_medicao_por_escola_emebs(solicitacao)
