@@ -13,6 +13,7 @@ from sme_sigpae_api.escola.models import (
     DiretoriaRegional,
     Escola,
     FaixaEtaria,
+    HistoricoEscola,
     HistoricoMatriculaAluno,
     LogAlunosMatriculadosFaixaEtariaDia,
     LogAlunosMatriculadosPeriodoEscola,
@@ -134,6 +135,21 @@ class HistoricoMatriculaAlunoFactory(DjangoModelFactory):
 
     class Meta:
         model = HistoricoMatriculaAluno
+
+
+class HistoricoEscolaFactory(DjangoModelFactory):
+    nome = Sequence(lambda n: f"Histórico Escola {n} - {fake.unique.company()}")
+    escola = SubFactory(EscolaFactory)
+    tipo_unidade = SubFactory(TipoUnidadeEscolarFactory)
+    data_inicial = LazyAttribute(
+        lambda _: fake.date_between(start_date="-2y", end_date="-1y")
+    )
+    data_final = LazyAttribute(
+        lambda _: fake.date_between(start_date="-1y", end_date="today")
+    )
+
+    class Meta:
+        model = HistoricoEscola
 
 
 class LogAlunosMatriculadosFaixaEtariaDiaFactory(DjangoModelFactory):

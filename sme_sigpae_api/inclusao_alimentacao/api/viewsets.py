@@ -8,6 +8,7 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from xworkflows import InvalidTransitionError
 
 from ...dados_comuns import constants, services
+from ...dados_comuns.mixins.serializer_context import DataSolicitacaoContextMixin
 from ...dados_comuns.permissions import (
     PermissaoParaRecuperarObjeto,
     UsuarioCODAEGestaoAlimentacao,
@@ -272,12 +273,13 @@ class TerceirizadaTomaCiencia:
 
 
 class InclusaoAlimentacaoViewSetBase(
-    ModelViewSet,
+    DataSolicitacaoContextMixin,
     EscolaIniciaCancela,
     DREValida,
     CodaeAutoriza,
     CodaeQuestionaTerceirizadaResponde,
     TerceirizadaTomaCiencia,
+    ModelViewSet,
 ):
     lookup_field = "uuid"
     permission_classes = (IsAuthenticated,)
@@ -509,11 +511,12 @@ class GrupoInclusaoAlimentacaoNormalViewSet(InclusaoAlimentacaoViewSetBase):
 
 
 class InclusaoAlimentacaoContinuaViewSet(
-    ModelViewSet,
+    DataSolicitacaoContextMixin,
     DREValida,
     CodaeAutoriza,
     CodaeQuestionaTerceirizadaResponde,
     TerceirizadaTomaCiencia,
+    ModelViewSet,
 ):
     lookup_field = "uuid"
     queryset = InclusaoAlimentacaoContinua.objects.all()

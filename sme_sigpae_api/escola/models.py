@@ -36,6 +36,7 @@ from ..dados_comuns.behaviors import (
     CriadoEm,
     CriadoPor,
     Iniciais,
+    IntervaloDeDia,
     Justificativa,
     Nomeavel,
     Posicao,
@@ -543,6 +544,21 @@ class Escola(
         default=False,
         help_text="Envia e-mail quando houver um produto com status de homologado, não homologado, ativar ou suspender.",  # noqa
     )
+
+    def nome_historico(self, data: datetime.date) -> str:
+        if not data:
+            return self.nome
+
+        historico = (
+            self.historicos_escola.filter(
+                models.Q(data_inicial__lte=data) | models.Q(data_inicial__isnull=True)
+            )
+            .filter(data_final__gte=data)
+            .order_by("-data_inicial")
+            .first()
+        )
+
+        return historico.nome_escola_normalizado if historico else self.nome
 
     @property
     def ultimo_dia_letivo(self):
@@ -3190,3 +3206,25 @@ class HistoricoMatriculaAluno(TemChaveExterna):
 
     def __str__(self) -> str:
         return f"{self.aluno} - {self.escola} | De: {self.data_inicio} Ate: {self.data_fim}"
+
+
+class HistoricoEscola(
+    Nomeavel, TemChaveExterna, CriadoEm, TemAlteradoEm, IntervaloDeDia
+):
+    escola = models.ForeignKey(
+        "Escola", on_delete=models.PROTECT, related_name="historicos_escola"
+    )
+    tipo_unidade = models.ForeignKey(TipoUnidadeEscolar, on_delete=models.CASCADE)
+    data_inicial = models.DateField(null=True)
+    data_final = models.DateField(null=True)
+
+    def __str__(self) -> str:
+        return f"{self.escola.codigo_eol} - {self.escola.nome} -> era {self.nome} - até {self.data_final.strftime("%d/%m/%Y")}"
+
+    @property
+    def nome_escola_normalizado(self):
+        return f"{self.nome} (ATUAL {self.escola.nome})"
+
+    class Meta:
+        verbose_name = "Histórico da Escola"
+        verbose_name_plural = "Históricos da escola"

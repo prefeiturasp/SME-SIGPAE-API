@@ -2073,6 +2073,9 @@ def parametrizacao_financeira_emef(
         parametrizacao_financeira=parametrizacao_financeira,
     )
 
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="UNITARIO")
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="REAJUSTE")
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="ACRESCIMO")
     tipo_unitario = TipoValorParametrizacaoFinanceira.objects.get(nome="UNITARIO")
     tipo_reajuste = TipoValorParametrizacaoFinanceira.objects.get(nome="REAJUSTE")
     tipo_acrescimo = TipoValorParametrizacaoFinanceira.objects.get(nome="ACRESCIMO")
