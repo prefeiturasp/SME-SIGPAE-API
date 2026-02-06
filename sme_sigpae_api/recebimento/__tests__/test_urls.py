@@ -378,7 +378,8 @@ def test_gerar_pdf_ficha_recebimento_sem_tag_leve_leite(
     """Testa a geração de PDF para uma ficha de recebimento existente sem tag LEVE LEITE."""
 
     ficha_completa_sem_tag = ficha_de_recebimento_factory(
-        status=FichaDeRecebimentoWorkflow.ASSINADA
+        status=FichaDeRecebimentoWorkflow.ASSINADA,
+        etapa__cronograma__ficha_tecnica__programa=FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR
     )
 
     response = client_autenticado_qualidade.get(
@@ -424,9 +425,9 @@ def test_gerar_pdf_ficha_recebimento(
     """Testa a geração de PDF para uma ficha de recebimento existente."""
 
     ficha_completa = ficha_de_recebimento_factory(
-        status=FichaDeRecebimentoWorkflow.ASSINADA
+        status=FichaDeRecebimentoWorkflow.ASSINADA,
+        etapa__cronograma__ficha_tecnica__programa=FichaTecnicaDoProduto.LEVE_LEITE
     )
-    ficha_completa.etapa.cronograma.ficha_tecnica.programa = FichaTecnicaDoProduto.LEVE_LEITE
 
     response = client_autenticado_qualidade.get(
         f"/fichas-de-recebimento/{ficha_completa.uuid}/gerar-pdf-ficha/"
