@@ -776,7 +776,9 @@ def test_dia_calendario_sem_perido(dia_calendario_diurno, escola):
 class TestEscolaQuantidadeAlunosPorCeiEmei:
 
     @pytest.mark.django_db
-    def test_cemei_sem_alunos_nao_gera_keyerror(self, escola_cemei_sem_alunos, faixas_etarias_ativas):
+    def test_cemei_sem_alunos_nao_gera_keyerror(
+        self, escola_cemei_sem_alunos, faixas_etarias_ativas
+    ):
         """
         Este teste força a entrada no loop de períodos mesmo sem alunos matriculados.
         Sem o seu ajuste (usando .get() ou try/except), isso daria KeyError: 'INTEGRAL'
@@ -786,14 +788,18 @@ class TestEscolaQuantidadeAlunosPorCeiEmei:
         for nome_periodo in PERIODOS_ESPECIAIS_CEMEI:
             baker.make("PeriodoEscolar", nome=nome_periodo)
 
-        resultado = escola_cemei_sem_alunos.quantidade_alunos_por_cei_emei(manha_e_tarde_sempre=True)
+        resultado = escola_cemei_sem_alunos.quantidade_alunos_por_cei_emei(
+            manha_e_tarde_sempre=True
+        )
 
         assert resultado is not None
         assert len(resultado) > 0
         for item in resultado:
             assert item["CEI"] == []
 
-    def test_cemei_com_alunos_retorna_dados_corretos(self, escola_cemei, faixas_etarias_ativas):
+    def test_cemei_com_alunos_retorna_dados_corretos(
+        self, escola_cemei, faixas_etarias_ativas
+    ):
         resultado = escola_cemei.quantidade_alunos_por_cei_emei()
 
         assert resultado is not None
@@ -804,4 +810,3 @@ class TestEscolaQuantidadeAlunosPorCeiEmei:
         assert "nome" in primeiro_periodo
         assert "CEI" in primeiro_periodo
         assert "EMEI" in primeiro_periodo
-
