@@ -1,4 +1,3 @@
-import datetime
 import math
 import re
 from decimal import Decimal, InvalidOperation
@@ -65,8 +64,7 @@ def nome_escola_historico(solicitacao):
         return ""
 
     try:
-        data = datetime.date(int(solicitacao.ano), int(solicitacao.mes), 1)
-        return solicitacao.escola.nome_historico(data)
+        return solicitacao.escola.nome_historico(solicitacao.data_referencia)
     except (ValueError, AttributeError):
         return solicitacao.escola.nome if hasattr(solicitacao, "escola") else ""
 

@@ -536,10 +536,9 @@ class SolicitacaoMedicaoInicialViewSet(
         user = request.user.get_username()
         uuid_sol_medicao = request.query_params["uuid"]
         solicitacao = SolicitacaoMedicaoInicial.objects.get(uuid=uuid_sol_medicao)
-        data = datetime.date(int(solicitacao.ano), int(solicitacao.mes), 1)
         gera_pdf_relatorio_solicitacao_medicao_por_escola_async.delay(
             user=user,
-            nome_arquivo=f"Relatório Medição Inicial - {solicitacao.escola.nome_historico(data)} - "
+            nome_arquivo=f"Relatório Medição Inicial - {solicitacao.escola.nome_historico(solicitacao.data_referencia)} - "
             f"{solicitacao.mes}/{solicitacao.ano}.pdf",
             uuid_sol_medicao=uuid_sol_medicao,
         )
