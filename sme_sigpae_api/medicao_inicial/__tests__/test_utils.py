@@ -576,7 +576,7 @@ def test_build_dict_relacao_categorias_e_campos_cei(
     ) == {"ALIMENTAÇÃO": ["01 a 02 meses"]}
 
 
-def test_utils_tratar_valores(escola, escola_emei):
+def test_utils_tratar_valores(solicitacao_medicao_inicial, escola, escola_emei):
     campos = [
         "lanche",
         "refeicao",
@@ -593,7 +593,9 @@ def test_utils_tratar_valores(escola, escola_emei):
         "repeticao_2_sobremesa",
     ]
     total_por_nome_campo = {campo: 10 for campo in campos}
-    assert tratar_valores(escola_emei, total_por_nome_campo) == {
+    assert tratar_valores(
+        solicitacao_medicao_inicial, escola_emei, total_por_nome_campo
+    ) == {
         "lanche_emergencial": 10,
         "kit_lanche": 10,
         "lanche": 20,
@@ -601,7 +603,9 @@ def test_utils_tratar_valores(escola, escola_emei):
         "refeicao": 20,
         "sobremesa": 20,
     }
-    assert tratar_valores(escola, total_por_nome_campo) == {
+    assert tratar_valores(
+        solicitacao_medicao_inicial, escola, total_por_nome_campo
+    ) == {
         "lanche_emergencial": 10,
         "kit_lanche": 10,
         "lanche": 20,
