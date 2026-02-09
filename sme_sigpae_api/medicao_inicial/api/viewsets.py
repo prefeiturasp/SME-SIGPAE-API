@@ -553,6 +553,7 @@ class SolicitacaoMedicaoInicialViewSet(
         user = request.user.get_username()
         mes = request.query_params.get("mes")
         ano = request.query_params.get("ano")
+        data_referencia = datetime.date(int(ano), int(mes), 1)
         if not mes and not ano:
             return Response(
                 data="É necessário informar o mês/ano de referência",
@@ -577,13 +578,23 @@ class SolicitacaoMedicaoInicialViewSet(
         ]
 
         if query_set.exists():
-            solicitacoes = []
-            for solicitacao in query_set:
-                id_tipo_unidade = solicitacao.escola.tipo_unidade.id
-                if grupo_unidade_escolar.tipos_unidades.filter(
-                    id=id_tipo_unidade
-                ).exists():
-                    solicitacoes.append(solicitacao.uuid)
+            historico_valido = HistoricoEscola.objects.filter(
+                escola=OuterRef("escola"),
+                tipo_unidade__in=grupo_unidade_escolar.tipos_unidades.all(),
+                data_final__gte=data_referencia,
+            ).filter(
+                Q(data_inicial__lte=data_referencia) | Q(data_inicial__isnull=True)
+            )
+            query_set_filtrado = query_set.annotate(
+                tem_historico_valido=Exists(historico_valido)
+            ).filter(
+                Q(tem_historico_valido=True)
+                | Q(
+                    tem_historico_valido=False,
+                    escola__tipo_unidade__in=grupo_unidade_escolar.tipos_unidades.all(),
+                )
+            )
+            solicitacoes = list(query_set_filtrado.values_list("uuid", flat=True))
             if solicitacoes:
                 nome_arquivo = f"Relatório Unificado das Medições Inicias - {diretoria_regional.nome} - {grupo_unidade_escolar.nome} - {mes}/{ano}.pdf"
                 gera_pdf_relatorio_unificado_async.delay(
