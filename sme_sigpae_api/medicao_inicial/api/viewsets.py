@@ -553,13 +553,13 @@ class SolicitacaoMedicaoInicialViewSet(
         user = request.user.get_username()
         mes = request.query_params.get("mes")
         ano = request.query_params.get("ano")
-        data_referencia = datetime.date(int(ano), int(mes), 1)
         if not mes and not ano:
             return Response(
                 data="É necessário informar o mês/ano de referência",
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        data_referencia = datetime.date(int(ano), int(mes), 1)
         uuid_grupo_escolar = request.query_params.get("grupo_escolar")
         status_solicitacao = request.query_params.get("status")
         uuid_dre = request.query_params.get("dre")
@@ -634,13 +634,14 @@ class SolicitacaoMedicaoInicialViewSet(
     def relatorio_consolidado_exportar_xlsx(self, request: Request):
         mes = request.query_params.get("mes")
         ano = request.query_params.get("ano")
-        data_referencia = datetime.date(int(ano), int(mes), 1)
 
         if not mes and not ano:
             return Response(
                 data="É necessário informar o mês/ano de referência",
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+        data_referencia = datetime.date(int(ano), int(mes), 1)
 
         try:
             uuid_grupo_escolar = request.query_params.get("grupo_escolar")
