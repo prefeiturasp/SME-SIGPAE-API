@@ -739,10 +739,10 @@ class SolicitacaoMedicaoInicialViewSet(
             )
         ordem = (
             constants.ORDEM_PERIODOS_GRUPOS_CEI
-            if solicitacao.escola.eh_cei
+            if solicitacao.escola.eh_cei_data(solicitacao.data_referencia)
             else (
                 constants.ORDEM_PERIODOS_GRUPOS_CEMEI
-                if solicitacao.escola.eh_cemei
+                if solicitacao.escola.eh_cemei_data(solicitacao.data_referencia)
                 else constants.ORDEM_PERIODOS_GRUPOS
             )
         )
@@ -794,7 +794,9 @@ class SolicitacaoMedicaoInicialViewSet(
                         total_por_nome_campo.get(valor_medicao.nome_campo, 0)
                         + int(valor_medicao.valor)
                     )
-            total_por_nome_campo = tratar_valores(escola, total_por_nome_campo)
+            total_por_nome_campo = tratar_valores(
+                solicitacao, escola, total_por_nome_campo
+            )
             valor_total = get_valor_total(escola, total_por_nome_campo, medicao)
             valores = [
                 {"nome_campo": nome_campo, "valor": valor}
@@ -807,8 +809,8 @@ class SolicitacaoMedicaoInicialViewSet(
                 "valores": valores,
                 "valor_total": valor_total,
             }
-            if escola.eh_cei or (
-                escola.eh_cemei
+            if escola.eh_cei_data(solicitacao.data_referencia) or (
+                escola.eh_cemei_data(solicitacao.data_referencia)
                 and ("Infantil" not in medicao.nome_periodo_grupo)
                 and ("Solicitações" not in medicao.nome_periodo_grupo)
             ):
@@ -827,8 +829,9 @@ class SolicitacaoMedicaoInicialViewSet(
         escola = usuario.vinculo_atual.instituicao
         mes = request.query_params.get("mes")
         ano = request.query_params.get("ano")
+        data_referencia = datetime.date(int(ano), int(mes), 1)
         retorno = []
-        if escola.eh_cemei:
+        if escola.eh_cemei_data(data_referencia):
             logs = LogAlunosMatriculadosPeriodoEscola.objects.filter(
                 escola=escola,
                 criado_em__year=ano,
