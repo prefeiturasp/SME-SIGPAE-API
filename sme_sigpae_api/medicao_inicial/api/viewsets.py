@@ -849,7 +849,9 @@ class SolicitacaoMedicaoInicialViewSet(
                 lista_periodos.remove("INTEGRAL")
             lista_periodos = sorted(f"Infantil {periodo}" for periodo in lista_periodos)
 
-            ordem_personalizada = ordem_periodos(escola).get("EMEI", {})
+            ordem_personalizada = ordem_periodos(escola, data_referencia).get(
+                "EMEI", {}
+            )
             retorno = sorted(
                 lista_periodos,
                 key=lambda p: ordem_personalizada.get(p.replace("Infantil ", ""), 99),

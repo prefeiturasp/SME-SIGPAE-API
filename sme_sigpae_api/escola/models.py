@@ -566,6 +566,14 @@ class Escola(
 
         return historico.nome_escola_normalizado if historico else self.nome
 
+    def tipo_unidade_historico(self, data: datetime.date) -> TipoUnidadeEscolar:
+        if not data:
+            return self.tipo_unidade
+
+        historico = self.historico_escola_por_data(data)
+
+        return historico.tipo_unidade if historico else self.tipo_unidade
+
     @property
     def ultimo_dia_letivo(self):
         DEZEMBRO = 12
