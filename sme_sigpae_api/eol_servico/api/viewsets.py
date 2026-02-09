@@ -27,17 +27,15 @@ class DadosUsuarioEOLCompletoViewSet(ViewSet):
                 == "CODAE"
             )
 
-            codigo_dre_usuario_logado = serializer_usuario_logado.data["vinculo_atual"][
-                "instituicao"
-            ]["codigo_eol"]
-            codigo_dre_rf_buscado = dados_usuario["cargos"][0]["codigoDre"]
+            codigo_ue_usuario_logado = serializer_usuario_logado.data["vinculo_atual"]["instituicao"]["codigo_eol"]
+            codigo_ue_rf_buscado = dados_usuario["cargos"][0]["codigoUnidade"]
 
             if (
                 not usuario_eh_codae
-                and codigo_dre_usuario_logado != codigo_dre_rf_buscado
+                and codigo_ue_usuario_logado != codigo_ue_rf_buscado
             ):
                 return Response(
-                    {"detail": "RF não pertence a uma unidade de sua DRE."},
+                    {"detail": "RF não pertence à Unidade Educacional"},
                     status=status.HTTP_403_FORBIDDEN,
                 )
 
