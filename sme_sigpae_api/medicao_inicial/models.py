@@ -138,7 +138,7 @@ class SolicitacaoMedicaoInicial(
 
     @property
     def escola_cei_com_inclusao_parcial_autorizada(self):
-        if not self.escola.eh_cei:
+        if not self.escola.eh_cei_data(self.data_referencia):
             return False
         return self.escola.inclusao_alimentacao_inclusaoalimentacaodacei_rastro_escola.filter(
             status="CODAE_AUTORIZADO",
