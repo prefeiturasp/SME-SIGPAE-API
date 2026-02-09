@@ -134,7 +134,7 @@ class SolicitacaoMedicaoInicial(
 
     @property
     def data_referencia(self):
-        return datetime.date(year=self.ano, month=self.mes, day=1)
+        return datetime.date(year=int(self.ano), month=int(self.mes), day=1)
 
     @property
     def escola_cei_com_inclusao_parcial_autorizada(self):
