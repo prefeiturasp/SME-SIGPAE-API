@@ -5,7 +5,7 @@ import json
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import F, IntegerField, Q, QuerySet
+from django.db.models import Exists, F, IntegerField, OuterRef, Q, QuerySet
 from django.db.models.functions import Cast
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
@@ -55,6 +55,7 @@ from ...escola.models import (
     Escola,
     FaixaEtaria,
     GrupoUnidadeEscolar,
+    HistoricoEscola,
     LogAlunosMatriculadosPeriodoEscola,
     Lote,
     TipoTurma,
@@ -622,6 +623,8 @@ class SolicitacaoMedicaoInicialViewSet(
     def relatorio_consolidado_exportar_xlsx(self, request: Request):
         mes = request.query_params.get("mes")
         ano = request.query_params.get("ano")
+        data_referencia = datetime.date(int(ano), int(mes), 1)
+
         if not mes and not ano:
             return Response(
                 data="É necessário informar o mês/ano de referência",
@@ -654,11 +657,27 @@ class SolicitacaoMedicaoInicialViewSet(
                 uuid=uuid_grupo_escolar
             )
             tipos_unidades = grupo_unidade_escolar.tipos_unidades.all()
-            filtros["escola__tipo_unidade__in"] = tipos_unidades
 
-            solicitacoes_com_filtro = SolicitacaoMedicaoInicial.objects.filter(
-                **filtros
-            ).values_list("uuid", flat=True)
+            historico_valido = HistoricoEscola.objects.filter(
+                escola=OuterRef("escola"),
+                tipo_unidade__in=tipos_unidades,
+                data_final__gte=data_referencia,
+            ).filter(
+                Q(data_inicial__lte=data_referencia) | Q(data_inicial__isnull=True)
+            )
+
+            solicitacoes_com_filtro = (
+                SolicitacaoMedicaoInicial.objects.filter(**filtros)
+                .annotate(tem_historico_valido=Exists(historico_valido))
+                .filter(
+                    Q(tem_historico_valido=True)
+                    | Q(
+                        tem_historico_valido=False,
+                        escola__tipo_unidade__in=tipos_unidades,
+                    )
+                )
+                .values_list("uuid", flat=True)
+            )
             if solicitacoes_com_filtro.exists():
                 solicitacoes = list(solicitacoes_com_filtro)
 

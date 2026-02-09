@@ -181,22 +181,26 @@ class SolicitacaoMedicaoInicialDashboardSerializer(serializers.ModelSerializer):
     escola = serializers.SerializerMethodField()
     escola_uuid = serializers.CharField(source="escola.uuid")
     status = serializers.CharField(source="get_status_display")
-    tipo_unidade = serializers.CharField(source="escola.tipo_unidade")
+    tipo_unidade = serializers.SerializerMethodField()
     log_mais_recente = serializers.SerializerMethodField()
     mes_ano = serializers.SerializerMethodField()
     sem_lancamentos = serializers.BooleanField()
 
-    def get_escola(self, obj):
+    def get_escola(self, obj) -> str:
         return obj.escola.nome_historico(obj.data_referencia)
 
-    def get_log_mais_recente(self, obj):
+    def get_tipo_unidade(self, obj) -> str | None:
+        tipo_unidade = obj.escola.tipo_unidade_historico(obj.data_referencia)
+        return tipo_unidade.iniciais if tipo_unidade else None
+
+    def get_log_mais_recente(self, obj) -> str | None:
         return (
             datetime.datetime.strftime(obj.log_mais_recente.criado_em, "%d/%m/%Y %H:%M")
             if obj.log_mais_recente
             else None
         )
 
-    def get_mes_ano(self, obj):
+    def get_mes_ano(self, obj) -> str:
         return f"{converte_numero_em_mes(int(obj.mes))} {obj.ano}"
 
     class Meta:
