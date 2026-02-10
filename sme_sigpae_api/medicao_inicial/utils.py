@@ -4943,9 +4943,15 @@ def _processa_periodo_tipo_alimentacao(medicao, resultado):
         resultado[CHAVE_ALIMENTACAO_REGULAR][item["nome_campo"]] += item["total"]
 
 
-def _processa_dietas_tipo_alimentacao(medicao, resultado):
+def _processa_dietas_tipo_alimentacao(medicao, nome_periodo, resultado):
     dietas = get_categorias_dietas(medicao)
+    periodo_noturno = nome_periodo.upper() == "NOITE"
     for dieta in dietas:
+        if "TIPO A" in dieta.upper():
+            dieta_base = "DIETA ESPECIAL - TIPO A"
+        else:
+            dieta_base = dieta
+
         valores = (
             medicao.valores_medicao.filter(categoria_medicao__nome=dieta)
             .exclude(
@@ -4961,29 +4967,19 @@ def _processa_dietas_tipo_alimentacao(medicao, resultado):
             .annotate(total=Sum(Cast("valor", FloatField())))
         )
 
+        resultado.setdefault(dieta_base, {})
         for item in valores:
             if item["total"] is None:
                 continue
 
-            resultado.setdefault(dieta, {})
-            resultado[dieta].setdefault(item["nome_campo"], 0)
-            resultado[dieta][item["nome_campo"]] += item["total"]
+            chave_nome = (
+                "refeicao_eja"
+                if periodo_noturno and item["nome_campo"] == "refeicao"
+                else item["nome_campo"]
+            )
 
-
-def _unificar_dietas_tipo_a_tipo_alimentacao(resultado):
-    dieta_base = "DIETA ESPECIAL - TIPO A"
-    dieta_enteral = "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
-
-    if dieta_enteral not in resultado:
-        return resultado
-
-    resultado.setdefault(dieta_base, {})
-
-    for campo, valor in resultado[dieta_enteral].items():
-        resultado[dieta_base][campo] = resultado[dieta_base].get(campo, 0) + valor
-
-    resultado.pop(dieta_enteral, None)
-    return resultado
+            resultado[dieta_base].setdefault(chave_nome, 0)
+            resultado[dieta_base][chave_nome] += item["total"]
 
 
 def _processa_total_pagamento_tipo_alimentacao(medicao, nome_periodo, resultado):
@@ -5105,10 +5101,9 @@ def gerar_totais_consolidado(solicitacoes, tipo):
         else:
             _processa_periodo_tipo_alimentacao(medicao, resultado)
             _processa_total_pagamento_tipo_alimentacao(medicao, nome_periodo, resultado)
-            _processa_dietas_tipo_alimentacao(medicao, resultado)
+            _processa_dietas_tipo_alimentacao(medicao, nome_periodo, resultado)
 
     if tipo == "tipo_alimentacao":
-        resultado = _unificar_dietas_tipo_a_tipo_alimentacao(resultado)
         resultado = _consolidar_lanches_alimentacao(resultado)
         resultado = _consolidar_campos(
             resultado,
