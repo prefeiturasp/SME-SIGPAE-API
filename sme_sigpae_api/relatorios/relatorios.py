@@ -180,6 +180,7 @@ def relatorio_kit_lanche_unificado(request, solicitacao):
         todos_kits_cancelados = todas_escolas_sol_kit_lanche_unificado_cancelado(
             solicitacao
         )
+
     html_string = render_to_string(
         "solicitacao_kit_lanche_unificado.html",
         {
