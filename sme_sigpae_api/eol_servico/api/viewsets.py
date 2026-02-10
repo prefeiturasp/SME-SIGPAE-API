@@ -27,12 +27,13 @@ class DadosUsuarioEOLCompletoViewSet(ViewSet):
                 == "CODAE"
             )
 
-            codigo_ue_usuario_logado = serializer_usuario_logado.data["vinculo_atual"]["instituicao"]["codigo_eol"]
+            codigo_ue_dre_usuario_logado = serializer_usuario_logado.data["vinculo_atual"]["instituicao"]["codigo_eol"]
             codigo_ue_rf_buscado = dados_usuario["cargos"][0]["codigoUnidade"]
+            codigo_dre_rf_buscado = dados_usuario["cargos"][0]["codigoDre"]
 
-            if (
-                not usuario_eh_codae
-                and codigo_ue_usuario_logado != codigo_ue_rf_buscado
+            if not usuario_eh_codae and (
+                codigo_ue_dre_usuario_logado != codigo_ue_rf_buscado
+                and codigo_ue_dre_usuario_logado != codigo_dre_rf_buscado
             ):
                 return Response(
                     {"detail": "RF não pertence à Unidade Educacional"},
