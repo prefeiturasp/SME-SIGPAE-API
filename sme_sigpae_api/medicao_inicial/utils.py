@@ -4986,7 +4986,7 @@ def _unificar_dietas_tipo_a_tipo_alimentacao(resultado):
     return resultado
 
 
-def _processa_total_pagamento_tipo_alimentacao(medicao, resultado):
+def _processa_total_pagamento_tipo_alimentacao(medicao, nome_periodo, resultado):
     tipo_unidade = medicao.solicitacao_medicao_inicial.escola.tipo_unidade.iniciais
 
     total_refeicoes = _get_total_pagamento(
@@ -4998,23 +4998,34 @@ def _processa_total_pagamento_tipo_alimentacao(medicao, resultado):
     )
 
     resultado.setdefault(CHAVE_ALIMENTACAO_REGULAR, {})
-    resultado[CHAVE_ALIMENTACAO_REGULAR].setdefault("total_refeicao", 0)
+
+    chave_refeicao = (
+        "total_refeicao_eja"
+        if nome_periodo.upper() == "NOITE"
+        else "total_refeicao"
+    )
+
+    resultado[CHAVE_ALIMENTACAO_REGULAR].setdefault(chave_refeicao, 0)
     resultado[CHAVE_ALIMENTACAO_REGULAR].setdefault("total_sobremesa", 0)
 
-    resultado[CHAVE_ALIMENTACAO_REGULAR]["total_refeicao"] += total_refeicoes or 0
+    resultado[CHAVE_ALIMENTACAO_REGULAR][chave_refeicao] += total_refeicoes or 0
     resultado[CHAVE_ALIMENTACAO_REGULAR]["total_sobremesa"] += total_sobremesas or 0
 
 
 def _acumula_lanche(totais, campo, valor):
-    if not campo.startswith("lanche") and not campo.startswith("2_lanche"):
+    if valor is None:
         return False
 
-    if "lanche_4h" in campo:
-        chave_total = "total_lanche_4h"
+    if campo.startswith("kit_lanche"):
+        chave_total = "total_kit_lanche"
     elif "lanche_emergencial" in campo:
         chave_total = "total_lanche_emergencial"
-    else:
+    elif "lanche_4h" in campo:
+        chave_total = "total_lanche_4h"
+    elif "lanche" in campo:
         chave_total = "total_lanche"
+    else:
+        return False
 
     totais[chave_total] = totais.get(chave_total, 0) + valor
     return True
@@ -5084,6 +5095,7 @@ def gerar_totais_consolidado(solicitacoes, tipo):
 
     resultado = {}
     for medicao in medicoes:
+        nome_periodo = obter_nome_periodo(medicao)
         if tipo == "faixa_etaria":
             nome_periodo = obter_nome_periodo(medicao)
             _processa_periodo_regular_faixa(
@@ -5092,7 +5104,7 @@ def gerar_totais_consolidado(solicitacoes, tipo):
             _processa_dietas_faixa(medicao, resultado, faixas_etarias)
         else:
             _processa_periodo_tipo_alimentacao(medicao, resultado)
-            _processa_total_pagamento_tipo_alimentacao(medicao, resultado)
+            _processa_total_pagamento_tipo_alimentacao(medicao, nome_periodo, resultado)
             _processa_dietas_tipo_alimentacao(medicao, resultado)
 
     if tipo == "tipo_alimentacao":
