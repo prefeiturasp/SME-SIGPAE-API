@@ -258,7 +258,7 @@ class SolicitacaoKitLancheUnificadaRelatorioSolicitacoesAlimentacaoSerializer(
         if isinstance(instituicao, Escola):
             escolas_quantidades = escolas_quantidades.filter(escola=instituicao)
         return EscolaQuantidadeSerializerRelatorioSolicitacoesAlimentacaoSimples(
-            escolas_quantidades, many=True
+            escolas_quantidades, context=self.context, many=True
         ).data
 
     def get_total_kit_lanche(self, obj):
