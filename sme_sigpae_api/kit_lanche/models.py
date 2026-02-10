@@ -613,7 +613,7 @@ class SolicitacaoKitLancheUnificada(
             "unidade_educacional": (
                 f"{self.escolas_quantidades.count()} Escolas"
                 if self.escolas_quantidades.count() > 1
-                else self.escolas_quantidades.get().escola.nome
+                else self.escolas_quantidades.get().escola.nome_historico(self.data)
             ),
             "terceirizada": "Várias Terceirizadas",
             "tipo_doc": "Kit Lanche Unificado",
@@ -632,7 +632,7 @@ class SolicitacaoKitLancheUnificada(
         }
 
         if isinstance(instituicao, Escola):
-            dict_["unidade_educacional"] = instituicao.nome
+            dict_["unidade_educacional"] = instituicao.nome_historico(self.data)
             dict_["terceirizada"] = instituicao.lote.terceirizada.nome_fantasia
             dict_["numero_alunos"] = self.escolas_quantidades.get(
                 escola=instituicao
