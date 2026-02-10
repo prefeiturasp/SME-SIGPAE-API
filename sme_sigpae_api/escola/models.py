@@ -36,7 +36,6 @@ from ..dados_comuns.behaviors import (
     CriadoEm,
     CriadoPor,
     Iniciais,
-    IntervaloDeDia,
     Justificativa,
     Nomeavel,
     Posicao,
@@ -3208,14 +3207,12 @@ class HistoricoMatriculaAluno(TemChaveExterna):
         return f"{self.aluno} - {self.escola} | De: {self.data_inicio} Ate: {self.data_fim}"
 
 
-class HistoricoEscola(
-    Nomeavel, TemChaveExterna, CriadoEm, TemAlteradoEm, IntervaloDeDia
-):
+class HistoricoEscola(Nomeavel, TemChaveExterna, CriadoEm, TemAlteradoEm):
     escola = models.ForeignKey(
         "Escola", on_delete=models.PROTECT, related_name="historicos_escola"
     )
     tipo_unidade = models.ForeignKey(TipoUnidadeEscolar, on_delete=models.CASCADE)
-    data_inicial = models.DateField(null=True)
+    data_inicial = models.DateField(blank=True, null=True)
     data_final = models.DateField(null=True)
 
     def __str__(self) -> str:
