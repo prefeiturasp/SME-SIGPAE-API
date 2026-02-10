@@ -90,13 +90,15 @@ class SolicitacoesExportXLSXSerializer(serializers.ModelSerializer):
             return obj.terceirizada_nome
         elif "Unificada" in str(obj.get_raw_model):
             if isinstance(self.context["instituicao"], Escola):
-                return self.context["instituicao"].nome
+                return self.context["instituicao"].nome_historico(obj.data_evento)
             else:
                 solicitacao_unificada = obj.get_raw_model.objects.get(uuid=obj.uuid)
                 return (
                     f"{solicitacao_unificada.escolas_quantidades.count()} Escolas"
                     if solicitacao_unificada.escolas_quantidades.count() > 1
-                    else solicitacao_unificada.escolas_quantidades.first().escola.nome
+                    else solicitacao_unificada.escolas_quantidades.first().escola.nome_historico(
+                        obj.data_evento
+                    )
                 )
         return obj.escola_nome
 
