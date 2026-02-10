@@ -90,6 +90,7 @@ def mock_eol_response_success():
         "cargos": [
             {
                 "codigoUnidade": "123456",
+                "codigoDre": "654321",
                 "descricaoUnidade": "EMEF Teste",
                 "descricaoCargo": "Professor"
             }
@@ -110,7 +111,8 @@ def mock_serializer_usuario_codae():
                 "visao": "CODAE"
             },
             "instituicao": {
-                "codigo_eol": "123456"
+                "codigo_eol": "123456",
+                "nome": "QUALQUER ESCOLA"
             }
         }
     }
@@ -128,8 +130,27 @@ def mock_serializer_usuario_dre():
                 "visao": "DRE"
             },
             "instituicao": {
-                "codigo_eol": "123456"
+                "codigo_eol": "123456",
+                "nome": "DIRETORIA REGIONAL QUALQUER"
             }
         }
     }
 
+
+@pytest.fixture
+def mock_serializer_usuario_diretor_ue():
+    return {
+        "uuid": "test-uuid-dre",
+        "nome": "Usuario Diretor UE",
+        "email": "dre@teste.com",
+        "registro_funcional": "7654321",
+        "vinculo_atual": {
+            "perfil": {
+                "visao": "DIRETOR_UE"
+            },
+            "instituicao": {
+                "codigo_eol": "123456",
+                "nome": "QUALQUER ESCOLA"
+            }
+        }
+    }
