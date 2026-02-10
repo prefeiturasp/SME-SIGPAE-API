@@ -556,6 +556,7 @@ class EtapaCronogramaRelatorioSerializer(serializers.ModelSerializer):
     situacao = serializers.SerializerMethodField()
     etapa = serializers.SerializerMethodField()
     parte = serializers.SerializerMethodField()
+    numero_empenho = serializers.SerializerMethodField()
 
     def get_etapa(self, obj):
         return f"Etapa {obj.etapa}" if obj.etapa is not None else None
@@ -628,6 +629,12 @@ class EtapaCronogramaRelatorioSerializer(serializers.ModelSerializer):
     def get_situacao(self, obj):
         return "-"
 
+    def get_numero_empenho(self, obj):
+        try:
+            return obj.numero_empenho
+        except AttributeError:
+            return "-"
+
     class Meta:
         model = EtapasDoCronograma
         fields = (
@@ -651,6 +658,8 @@ class EtapaCronogramaRelatorioSerializer(serializers.ModelSerializer):
 
 class CronogramaRelatorioSerializer(serializers.ModelSerializer):
     etapas = EtapasDoCronogramaFichaDeRecebimentoSerializer(many=True)
+    numero_contrato = serializers.SerializerMethodField()
+    numero_processo = serializers.SerializerMethodField()
     produto = serializers.SerializerMethodField()
     empresa = serializers.SerializerMethodField()
     armazem = serializers.SerializerMethodField()
@@ -664,6 +673,18 @@ class CronogramaRelatorioSerializer(serializers.ModelSerializer):
             return obj.ficha_tecnica.programa == "LEVE_LEITE"
         except AttributeError:
             return False
+
+    def get_numero_contrato(self, obj):
+        try:
+            return obj.contrato.numero
+        except AttributeError:
+            return None
+
+    def get_numero_processo(self, obj):
+        try:
+            return obj.contrato.processo
+        except AttributeError:
+            return None
 
     def get_produto(self, obj):
         try:
@@ -701,6 +722,8 @@ class CronogramaRelatorioSerializer(serializers.ModelSerializer):
         fields = (
             "uuid",
             "numero",
+            "numero_contrato",
+            "numero_processo",
             "produto",
             "empresa",
             "qtd_total_programada",

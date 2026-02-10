@@ -226,3 +226,19 @@ def extrair_numero_quantidade(quantidade_str):
 
     match = re.match(r"([0-9.,]+)", str(quantidade_str).strip())
     return match.group(1) if match else str(quantidade_str)
+
+
+def converter_para_numero(quantidade_str):
+    """
+    Converte string formatada para número float.
+    Exemplo: "10.000,00 kg" -> 10000.00
+    """
+    numero_str = extrair_numero_quantidade(quantidade_str)
+    if not numero_str:
+        return None
+
+    try:
+        numero_limpo = numero_str.replace(".", "").replace(",", ".")
+        return float(numero_limpo)
+    except (ValueError, AttributeError):
+        return None
