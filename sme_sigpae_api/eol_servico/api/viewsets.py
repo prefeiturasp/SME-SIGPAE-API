@@ -35,8 +35,15 @@ class DadosUsuarioEOLCompletoViewSet(ViewSet):
                 codigo_ue_dre_usuario_logado != codigo_ue_rf_buscado
                 and codigo_ue_dre_usuario_logado != codigo_dre_rf_buscado
             ):
+                nome_instituicao = serializer_usuario_logado.data["vinculo_atual"]["instituicao"]["nome"]
+
+                if "DIRETORIA REGIONAL" in nome_instituicao:
+                    mensagem_erro = "RF não pertence a uma unidade de sua DRE"
+                else:
+                    mensagem_erro = "RF não pertence à Unidade Educacional"
+
                 return Response(
-                    {"detail": "RF não pertence à Unidade Educacional"},
+                    {"detail": mensagem_erro},
                     status=status.HTTP_403_FORBIDDEN,
                 )
 
