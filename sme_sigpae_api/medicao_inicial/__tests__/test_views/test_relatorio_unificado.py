@@ -199,7 +199,7 @@ class TestGeraRelatorioUnificado:
             </html>
             """
             html_strings_captured.append(html_string)
-            # Retorna um PDF válido fake
+
             from pypdf import PdfWriter
 
             buffer = BytesIO()
@@ -210,13 +210,11 @@ class TestGeraRelatorioUnificado:
 
         mock_relatorio_cemei.side_effect = capture_html
 
-        # Configura o mock do .delay para executar a função sincronamente
         def execute_task_sync(*args, **kwargs):
             return gera_pdf_relatorio_unificado_async(*args, **kwargs)
 
         mock_delay.side_effect = execute_task_sync
 
-        # Faz a requisição ao endpoint
         url = "/medicao-inicial/solicitacao-medicao-inicial/relatorio-unificado/"
         response = client_autenticado_codae_medicao.get(
             url,
@@ -229,18 +227,15 @@ class TestGeraRelatorioUnificado:
             },
         )
 
-        # Verifica que a requisição foi bem-sucedida
         assert response.status_code == 200
         assert (
             response.json()["detail"]
             == "Solicitação de geração de arquivo recebida com sucesso."
         )
 
-        # Verifica que o .delay foi chamado
         assert mock_delay.called
         assert mock_delay.call_count == 1
 
-        # Verifica que a task foi executada e gerou os PDFs
         assert (
             mock_relatorio_cemei.call_count == 2
         ), "Deve gerar 2 PDFs (um para cada escola)"
