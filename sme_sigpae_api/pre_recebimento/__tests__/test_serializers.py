@@ -17,6 +17,7 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serialize
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     CronogramaFichaDeRecebimentoSerializer,
+    CronogramaRelatorioSerializer,
     CronogramaSimplesSerializer,
     EtapasDoCronogramaCalendarioSerializer,
     EtapasDoCronogramaFichaDeRecebimentoSerializer,
@@ -625,3 +626,35 @@ def test_interrupcao_programada_entrega_create_serializer_sucesso():
     assert serializer.is_valid(), serializer.errors
     instance = serializer.save()
     assert instance.motivo == InterrupcaoProgramadaEntrega.MOTIVO_REUNIAO
+
+
+def test_cronograma_relatorio_serializer(cronograma_assinado_perfil_dilog):
+    """Testa se o CronogramaRelatorioSerializer retorna todos os campos corretamente."""
+    cronograma = cronograma_assinado_perfil_dilog
+    serializer = CronogramaRelatorioSerializer(cronograma)
+    data = serializer.data
+
+    assert "uuid" in data
+    assert "numero" in data
+    assert "status" in data
+    assert "qtd_total_programada" in data
+    assert "etapas" in data
+    assert "programa_leve_leite" in data
+
+    assert "numero_contrato" in data
+    assert "numero_processo" in data
+    assert "produto" in data
+    assert "empresa" in data
+    assert "armazem" in data
+    assert "marca" in data
+    assert "custo_unitario_produto" in data
+
+    assert data["uuid"] == str(cronograma.uuid)
+    assert data["numero"] == cronograma.numero
+    assert data["numero_contrato"] == cronograma.contrato.numero
+    assert data["numero_processo"] == cronograma.contrato.processo
+    assert data["produto"] == cronograma.ficha_tecnica.produto.nome
+    assert data["empresa"] == cronograma.empresa.nome_fantasia
+    assert data["armazem"] == cronograma.armazem.nome_fantasia
+    assert data["marca"] == cronograma.ficha_tecnica.marca.nome
+    assert isinstance(data["etapas"], list)
