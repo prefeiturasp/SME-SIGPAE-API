@@ -229,7 +229,7 @@ class SolicitacaoKitLancheAvulsa(
     def solicitacao_dict_para_relatorio(self, label_data, data_log, instituicao):
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
-            "unidade_educacional": self.rastro_escola.nome,
+            "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada.nome,
             "tipo_doc": "Kit Lanche Passeio",
             "data_evento": self.data,
@@ -316,7 +316,7 @@ class SolicitacaoKitLancheCEIAvulsa(
     def solicitacao_dict_para_relatorio(self, label_data, data_log, instituicao):
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
-            "unidade_educacional": self.rastro_escola.nome,
+            "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada.nome,
             "tipo_doc": "Kit Lanche Passeio de CEI",
             "data_evento": self.data,
@@ -613,7 +613,7 @@ class SolicitacaoKitLancheUnificada(
             "unidade_educacional": (
                 f"{self.escolas_quantidades.count()} Escolas"
                 if self.escolas_quantidades.count() > 1
-                else self.escolas_quantidades.get().escola.nome
+                else self.escolas_quantidades.get().escola.nome_historico(self.data)
             ),
             "terceirizada": "Várias Terceirizadas",
             "tipo_doc": "Kit Lanche Unificado",
@@ -632,7 +632,7 @@ class SolicitacaoKitLancheUnificada(
         }
 
         if isinstance(instituicao, Escola):
-            dict_["unidade_educacional"] = instituicao.nome
+            dict_["unidade_educacional"] = instituicao.nome_historico(self.data)
             dict_["terceirizada"] = instituicao.lote.terceirizada.nome_fantasia
             dict_["numero_alunos"] = self.escolas_quantidades.get(
                 escola=instituicao
@@ -838,7 +838,7 @@ class SolicitacaoKitLancheCEMEI(
     def solicitacao_dict_para_relatorio(self, label_data, data_log, instituicao):
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
-            "unidade_educacional": self.rastro_escola.nome,
+            "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada.nome,
             "tipo_doc": "Kit Lanche Passeio de CEMEI",
             "data_evento": self.data,

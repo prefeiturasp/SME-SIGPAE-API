@@ -21,6 +21,7 @@ from ..relatorios.utils import html_to_pdf_email_anexo
 from .constants import (
     ADMINISTRADOR_MEDICAO,
     COGESTOR_DRE,
+    COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
     DILOG_ABASTECIMENTO,
     DILOG_CRONOGRAMA,
     DILOG_DIRETORIA,
@@ -4098,7 +4099,10 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         justificativa = kwargs.get("justificativa", "")
         if user:
-            if user.vinculo_atual.perfil.nome not in [ADMINISTRADOR_MEDICAO]:
+            if user.vinculo_atual.perfil.nome not in [
+                ADMINISTRADOR_MEDICAO,
+                COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
+            ]:
                 raise PermissionDenied(
                     "Você não tem permissão para executar essa ação."
                 )
@@ -4118,7 +4122,10 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
     def _codae_aprova_ocorrencia_hook(self, *args, **kwargs):
         user = kwargs["user"]
         if user:
-            if user.vinculo_atual.perfil.nome not in [ADMINISTRADOR_MEDICAO]:
+            if user.vinculo_atual.perfil.nome not in [
+                ADMINISTRADOR_MEDICAO,
+                COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
+            ]:
                 raise PermissionDenied(
                     "Você não tem permissão para executar essa ação."
                 )
@@ -4737,13 +4744,17 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
 
     @xworkflows.after_transition("finaliza_solicitacao_alteracao")
     def _finaliza_solicitacao_alteracao_hook(self, *args, **kwargs):
-        from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import SolicitacaoAlteracaoCronograma
+        from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
+            SolicitacaoAlteracaoCronograma,
+        )
 
         user = kwargs["user"]
         solicitacao_uuid = kwargs.get("justificativa")
 
         if solicitacao_uuid:
-            solicitacao = SolicitacaoAlteracaoCronograma.objects.get(uuid=solicitacao_uuid)
+            solicitacao = SolicitacaoAlteracaoCronograma.objects.get(
+                uuid=solicitacao_uuid
+            )
 
             self.qtd_total_programada = solicitacao.qtd_total_programada
             self.etapas.set(solicitacao.etapas_novas.all())

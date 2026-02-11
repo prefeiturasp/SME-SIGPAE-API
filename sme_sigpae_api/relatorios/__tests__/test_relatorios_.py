@@ -330,12 +330,25 @@ def test_obter_justificativa_dieta_cancelada(
     )
 
 
-def test_obter_justificativa_dieta_dieta_inativa(solicitacao_dieta_especial_inativa):
-    log_recente = solicitacao_dieta_especial_inativa.logs.last()
+def test_obter_justificativa_dieta_dieta_inativa_sem_log_inativacao(
+    solicitacao_dieta_especial_inativa,
+):
     justificativa = obter_justificativa_dieta(solicitacao_dieta_especial_inativa)
     assert (
         justificativa
-        == f"Dieta Inativada em: Data não encontrada | Justificativa: Autorização de novo protocolo de dieta especial"
+        == f"Dieta Inativada em: 26/01/2026 | Justificativa: Autorização de novo protocolo de dieta especial"
+    )
+
+
+def test_obter_justificativa_dieta_dieta_inativa_com_log_inativacao(
+    solicitacao_dieta_especial_inativa_com_log,
+):
+    justificativa = obter_justificativa_dieta(
+        solicitacao_dieta_especial_inativa_com_log
+    )
+    assert (
+        justificativa
+        == f"Dieta Inativada em: 01/02/2026 | Justificativa: Autorização de novo protocolo de dieta especial"
     )
 
 
@@ -376,6 +389,16 @@ def test_get_pdf_ficha_tecnica(ficha_tecnica):
         in texto
     )
     assert ficha_tecnica.envasador_distribuidor.email in texto
+
+    assert "O Produto é agroecológico?" not in texto
+    assert (
+        "Informações de Armazenamento que deverão constar na Embalagem Primária"
+        in texto
+    )
+    assert (
+        "Informações de Armazenamento que deverão constar na Embalagem Secundária"
+        in texto
+    )
 
 
 def test_formata_informacoes_ficha_tecnica(ficha_tecnica):

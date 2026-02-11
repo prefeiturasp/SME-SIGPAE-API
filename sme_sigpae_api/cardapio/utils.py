@@ -14,21 +14,24 @@ def converter_data(formato: str) -> str:
         raise ValueError(f"Data inválida: {formato}. Esperado no formato YYYY-MM-DD.")
 
 
-def ordem_periodos(escola: Escola) -> dict[str, int]:
+def ordem_periodos(
+    escola: Escola, data: datetime.date = datetime.date.today()
+) -> dict[str, int]:
     """
     Retorna a ordem dos períodos de acordo com o tipo de escola.
 
     Args:
         escola (Escola): Objeto representando a escola
+        data (datetime.date, optional): Data para verificar o tipo da escola no histórico
 
     Returns:
         dict[str, int]: Dicionário mapeando períodos (ex: "MANHA", "TARDE") para sua ordem correspondente.
     """
     periodos_por_escola = {
-        "eh_emef": {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3, "NOITE": 4},
-        "eh_ceu_gestao": {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3, "NOITE": 4},
-        "eh_emei": {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3},
-        "eh_cemei": {
+        "eh_emef_data": {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3, "NOITE": 4},
+        "eh_ceu_gestao_data": {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3, "NOITE": 4},
+        "eh_emei_data": {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3},
+        "eh_cemei_data": {
             "CEI DIRET": {
                 "INTEGRAL": 1,
                 "PARCIAL": 2,
@@ -39,15 +42,15 @@ def ordem_periodos(escola: Escola) -> dict[str, int]:
                 "INTEGRAL": 3,
             },
         },
-        "eh_cei": {"INTEGRAL": 1, "PARCIAL": 2, "MANHA": 3, "TARDE": 4},
-        "eh_cieja": {
+        "eh_cei_data": {"INTEGRAL": 1, "PARCIAL": 2, "MANHA": 3, "TARDE": 4},
+        "eh_cieja_data": {
             "MANHA": 1,
             "INTERMEDIARIO": 2,
             "TARDE": 3,
             "VESPERTINO": 4,
             "NOITE": 5,
         },
-        "eh_emebs": {
+        "eh_emebs_data": {
             "MANHA": 1,
             "TARDE": 2,
             "INTEGRAL": 3,
@@ -57,7 +60,8 @@ def ordem_periodos(escola: Escola) -> dict[str, int]:
     }
 
     for attr, turnos in periodos_por_escola.items():
-        if getattr(escola, attr, False):
+        metodo = getattr(escola, attr, None)
+        if metodo and callable(metodo) and metodo(data):
             return turnos
 
     return {

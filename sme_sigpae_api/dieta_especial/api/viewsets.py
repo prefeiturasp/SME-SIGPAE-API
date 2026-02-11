@@ -367,7 +367,11 @@ class SolicitacaoDietaEspecialViewSet(
         solicitacao = self.get_object()
         dieta_ativa = solicitacao.aluno.obter_dieta_especial_ativa
         if dieta_ativa and solicitacao.tipo_solicitacao == "COMUM":
-            solicitacao.aluno.inativar_dieta_especial()
+            dieta_inativada = solicitacao.aluno.inativar_dieta_especial()
+            dieta_inativada.salvar_log_transicao(
+                status_evento=LogSolicitacoesUsuario.CODAE_INATIVOU,
+                usuario=request.user,
+            )
         serializer = self.get_serializer()
         try:
             if solicitacao.tipo_solicitacao != "ALTERACAO_UE":

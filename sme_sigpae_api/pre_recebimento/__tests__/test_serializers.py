@@ -21,12 +21,15 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serialize
     EtapasDoCronogramaCalendarioSerializer,
     EtapasDoCronogramaFichaDeRecebimentoSerializer,
     EtapasDoCronogramaSerializer,
+    InterrupcaoProgramadaEntregaCreateSerializer,
+    InterrupcaoProgramadaEntregaSerializer,
     PainelCronogramaSerializer,
     SolicitacaoAlteracaoCronogramaSerializer,
-    InterrupcaoProgramadaEntregaSerializer,
-    InterrupcaoProgramadaEntregaCreateSerializer,
 )
-from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma, InterrupcaoProgramadaEntrega
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
+    Cronograma,
+    InterrupcaoProgramadaEntrega,
+)
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoDetalharSerializer,
     DocumentoDeRecebimentoSerializer,
@@ -147,10 +150,16 @@ def test_gera_proximo_numero_cronograma_sem_ultimo_cronograma():
 
 def test_gera_proximo_numero_cronograma_com_ultimo_cronograma(cronograma):
     numero = CronogramaCreateSerializer().gera_proximo_numero_cronograma()
-    assert (
-        numero
-        == f"{str(int(cronograma.numero[:3]) + 1).zfill(3)}/{timezone.now().year}A"
-    )
+
+    ultimo_ano = int(cronograma.numero.split("/")[1][:4])
+    ano_atual = timezone.now().year
+
+    if ultimo_ano != ano_atual:
+        assert numero == f"001/{ano_atual}A"
+    else:
+        ultimo_numero = int(cronograma.numero[:3])
+        proximo_numero = str(ultimo_numero + 1).zfill(3)
+        assert numero == f"{proximo_numero}/{ano_atual}A"
 
 
 def test_novo_numero_solicitacao(solicitacao_cronograma_em_analise):
@@ -584,7 +593,10 @@ def test_interrupcao_programada_entrega_serializer(interrupcao_programada_entreg
     assert data["motivo"] == interrupcao_programada_entrega.motivo
     assert data["motivo_display"] == interrupcao_programada_entrega.get_motivo_display()
     assert data["tipo_calendario"] == interrupcao_programada_entrega.tipo_calendario
-    assert data["tipo_calendario_display"] == interrupcao_programada_entrega.get_tipo_calendario_display()
+    assert (
+        data["tipo_calendario_display"]
+        == interrupcao_programada_entrega.get_tipo_calendario_display()
+    )
     assert data["descricao_motivo"] == interrupcao_programada_entrega.descricao_motivo
 
 
@@ -594,7 +606,7 @@ def test_interrupcao_programada_entrega_create_serializer_validacao_outros():
         "data": timezone.now().date(),
         "motivo": InterrupcaoProgramadaEntrega.MOTIVO_OUTROS,
         "descricao_motivo": "",  # Descrição vazia deve falhar
-        "tipo_calendario": InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL
+        "tipo_calendario": InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL,
     }
     serializer = InterrupcaoProgramadaEntregaCreateSerializer(data=data)
     assert not serializer.is_valid()
@@ -607,7 +619,7 @@ def test_interrupcao_programada_entrega_create_serializer_sucesso():
         "data": timezone.now().date(),
         "motivo": InterrupcaoProgramadaEntrega.MOTIVO_REUNIAO,
         "descricao_motivo": "",
-        "tipo_calendario": InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_PONTO_A_PONTO
+        "tipo_calendario": InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_PONTO_A_PONTO,
     }
     serializer = InterrupcaoProgramadaEntregaCreateSerializer(data=data)
     assert serializer.is_valid(), serializer.errors
