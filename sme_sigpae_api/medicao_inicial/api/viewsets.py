@@ -5,7 +5,7 @@ import json
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import F, IntegerField, Q, QuerySet
+from django.db.models import Exists, F, IntegerField, OuterRef, Q, QuerySet
 from django.db.models.functions import Cast
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
@@ -55,6 +55,7 @@ from ...escola.models import (
     Escola,
     FaixaEtaria,
     GrupoUnidadeEscolar,
+    HistoricoEscola,
     LogAlunosMatriculadosPeriodoEscola,
     Lote,
     TipoTurma,
@@ -538,7 +539,7 @@ class SolicitacaoMedicaoInicialViewSet(
         solicitacao = SolicitacaoMedicaoInicial.objects.get(uuid=uuid_sol_medicao)
         gera_pdf_relatorio_solicitacao_medicao_por_escola_async.delay(
             user=user,
-            nome_arquivo=f"Relatório Medição Inicial - {solicitacao.escola.nome} - "
+            nome_arquivo=f"Relatório Medição Inicial - {solicitacao.escola.nome_historico(solicitacao.data_referencia)} - "
             f"{solicitacao.mes}/{solicitacao.ano}.pdf",
             uuid_sol_medicao=uuid_sol_medicao,
         )
@@ -558,6 +559,7 @@ class SolicitacaoMedicaoInicialViewSet(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        data_referencia = datetime.date(int(ano), int(mes), 1)
         uuid_grupo_escolar = request.query_params.get("grupo_escolar")
         status_solicitacao = request.query_params.get("status")
         uuid_dre = request.query_params.get("dre")
@@ -576,13 +578,23 @@ class SolicitacaoMedicaoInicialViewSet(
         ]
 
         if query_set.exists():
-            solicitacoes = []
-            for solicitacao in query_set:
-                id_tipo_unidade = solicitacao.escola.tipo_unidade.id
-                if grupo_unidade_escolar.tipos_unidades.filter(
-                    id=id_tipo_unidade
-                ).exists():
-                    solicitacoes.append(solicitacao.uuid)
+            historico_valido = HistoricoEscola.objects.filter(
+                escola=OuterRef("escola"),
+                tipo_unidade__in=grupo_unidade_escolar.tipos_unidades.all(),
+                data_final__gte=data_referencia,
+            ).filter(
+                Q(data_inicial__lte=data_referencia) | Q(data_inicial__isnull=True)
+            )
+            query_set_filtrado = query_set.annotate(
+                tem_historico_valido=Exists(historico_valido)
+            ).filter(
+                Q(tem_historico_valido=True)
+                | Q(
+                    tem_historico_valido=False,
+                    escola__tipo_unidade__in=grupo_unidade_escolar.tipos_unidades.all(),
+                )
+            )
+            solicitacoes = list(query_set_filtrado.values_list("uuid", flat=True))
             if solicitacoes:
                 nome_arquivo = f"Relatório Unificado das Medições Inicias - {diretoria_regional.nome} - {grupo_unidade_escolar.nome} - {mes}/{ano}.pdf"
                 gera_pdf_relatorio_unificado_async.delay(
@@ -622,11 +634,14 @@ class SolicitacaoMedicaoInicialViewSet(
     def relatorio_consolidado_exportar_xlsx(self, request: Request):
         mes = request.query_params.get("mes")
         ano = request.query_params.get("ano")
+
         if not mes and not ano:
             return Response(
                 data="É necessário informar o mês/ano de referência",
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+        data_referencia = datetime.date(int(ano), int(mes), 1)
 
         try:
             uuid_grupo_escolar = request.query_params.get("grupo_escolar")
@@ -654,11 +669,27 @@ class SolicitacaoMedicaoInicialViewSet(
                 uuid=uuid_grupo_escolar
             )
             tipos_unidades = grupo_unidade_escolar.tipos_unidades.all()
-            filtros["escola__tipo_unidade__in"] = tipos_unidades
 
-            solicitacoes_com_filtro = SolicitacaoMedicaoInicial.objects.filter(
-                **filtros
-            ).values_list("uuid", flat=True)
+            historico_valido = HistoricoEscola.objects.filter(
+                escola=OuterRef("escola"),
+                tipo_unidade__in=tipos_unidades,
+                data_final__gte=data_referencia,
+            ).filter(
+                Q(data_inicial__lte=data_referencia) | Q(data_inicial__isnull=True)
+            )
+
+            solicitacoes_com_filtro = (
+                SolicitacaoMedicaoInicial.objects.filter(**filtros)
+                .annotate(tem_historico_valido=Exists(historico_valido))
+                .filter(
+                    Q(tem_historico_valido=True)
+                    | Q(
+                        tem_historico_valido=False,
+                        escola__tipo_unidade__in=tipos_unidades,
+                    )
+                )
+                .values_list("uuid", flat=True)
+            )
             if solicitacoes_com_filtro.exists():
                 solicitacoes = list(solicitacoes_com_filtro)
 
@@ -739,10 +770,10 @@ class SolicitacaoMedicaoInicialViewSet(
             )
         ordem = (
             constants.ORDEM_PERIODOS_GRUPOS_CEI
-            if solicitacao.escola.eh_cei
+            if solicitacao.escola.eh_cei_data(solicitacao.data_referencia)
             else (
                 constants.ORDEM_PERIODOS_GRUPOS_CEMEI
-                if solicitacao.escola.eh_cemei
+                if solicitacao.escola.eh_cemei_data(solicitacao.data_referencia)
                 else constants.ORDEM_PERIODOS_GRUPOS
             )
         )
@@ -794,7 +825,9 @@ class SolicitacaoMedicaoInicialViewSet(
                         total_por_nome_campo.get(valor_medicao.nome_campo, 0)
                         + int(valor_medicao.valor)
                     )
-            total_por_nome_campo = tratar_valores(escola, total_por_nome_campo)
+            total_por_nome_campo = tratar_valores(
+                solicitacao, escola, total_por_nome_campo
+            )
             valor_total = get_valor_total(escola, total_por_nome_campo, medicao)
             valores = [
                 {"nome_campo": nome_campo, "valor": valor}
@@ -807,8 +840,8 @@ class SolicitacaoMedicaoInicialViewSet(
                 "valores": valores,
                 "valor_total": valor_total,
             }
-            if escola.eh_cei or (
-                escola.eh_cemei
+            if escola.eh_cei_data(solicitacao.data_referencia) or (
+                escola.eh_cemei_data(solicitacao.data_referencia)
                 and ("Infantil" not in medicao.nome_periodo_grupo)
                 and ("Solicitações" not in medicao.nome_periodo_grupo)
             ):
@@ -827,8 +860,9 @@ class SolicitacaoMedicaoInicialViewSet(
         escola = usuario.vinculo_atual.instituicao
         mes = request.query_params.get("mes")
         ano = request.query_params.get("ano")
+        data_referencia = datetime.date(int(ano), int(mes), 1)
         retorno = []
-        if escola.eh_cemei:
+        if escola.eh_cemei_data(data_referencia):
             logs = LogAlunosMatriculadosPeriodoEscola.objects.filter(
                 escola=escola,
                 criado_em__year=ano,
@@ -846,7 +880,9 @@ class SolicitacaoMedicaoInicialViewSet(
                 lista_periodos.remove("INTEGRAL")
             lista_periodos = sorted(f"Infantil {periodo}" for periodo in lista_periodos)
 
-            ordem_personalizada = ordem_periodos(escola).get("EMEI", {})
+            ordem_personalizada = ordem_periodos(escola, data_referencia).get(
+                "EMEI", {}
+            )
             retorno = sorted(
                 lista_periodos,
                 key=lambda p: ordem_personalizada.get(p.replace("Infantil ", ""), 99),

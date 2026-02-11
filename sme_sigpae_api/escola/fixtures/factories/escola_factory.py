@@ -13,6 +13,7 @@ from sme_sigpae_api.escola.models import (
     DiretoriaRegional,
     Escola,
     FaixaEtaria,
+    GrupoUnidadeEscolar,
     HistoricoEscola,
     HistoricoMatriculaAluno,
     LogAlunosMatriculadosFaixaEtariaDia,
@@ -167,3 +168,10 @@ class DiaCalendarioFactory(DjangoModelFactory):
 
     class Meta:
         model = DiaCalendario
+
+
+class GrupoUnidadeEscolarFactory(DjangoModelFactory):
+    nome = Sequence(lambda n: f"Grupo {n}")
+
+    class Meta:
+        model = GrupoUnidadeEscolar

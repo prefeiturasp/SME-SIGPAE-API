@@ -50,6 +50,26 @@ def get_element_by_index(indexable, i):
 
 
 @register.filter
+def nome_escola_historico(solicitacao):
+    """
+    Retorna o nome histórico da escola baseado na data da solicitação de medição.
+
+    Args:
+        solicitacao: Objeto SolicitacaoMedicaoInicial
+
+    Returns:
+        str: Nome histórico da escola na data da medição
+    """
+    if not solicitacao:
+        return ""
+
+    try:
+        return solicitacao.escola.nome_historico(solicitacao.data_referencia)
+    except (ValueError, AttributeError):
+        return solicitacao.escola.nome if hasattr(solicitacao, "escola") else ""
+
+
+@register.filter
 def index_exists(indexable, i):
     return i <= len(indexable)
 

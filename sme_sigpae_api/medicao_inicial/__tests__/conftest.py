@@ -2252,6 +2252,8 @@ def sol_med_inicial_devolvida_pela_dre_para_ue(escola):
         status="MEDICAO_CORRECAO_SOLICITADA",
         uuid="d9de8653-4910-423e-9381-e391c2ae8ecb",
         com_ocorrencias=True,
+        mes="12",
+        ano="2025",
     )
     baker.make(
         "OcorrenciaMedicaoInicial",
@@ -2276,6 +2278,8 @@ def sol_med_inicial_devolvida_pela_codae_para_ue(escola):
         status="MEDICAO_CORRECAO_SOLICITADA_CODAE",
         uuid="d9de8653-4910-423e-9381-e391c2ae8ecb",
         com_ocorrencias=True,
+        mes="12",
+        ano="2025",
     )
     baker.make(
         "OcorrenciaMedicaoInicial",

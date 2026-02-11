@@ -544,11 +544,11 @@ class Escola(
         help_text="Envia e-mail quando houver um produto com status de homologado, não homologado, ativar ou suspender.",  # noqa
     )
 
-    def nome_historico(self, data: datetime.date) -> str:
+    def historico_escola_por_data(self, data: datetime.date):
         if not data:
-            return self.nome
+            return None
 
-        historico = (
+        return (
             self.historicos_escola.filter(
                 models.Q(data_inicial__lte=data) | models.Q(data_inicial__isnull=True)
             )
@@ -557,7 +557,21 @@ class Escola(
             .first()
         )
 
+    def nome_historico(self, data: datetime.date) -> str:
+        if not data:
+            return self.nome
+
+        historico = self.historico_escola_por_data(data)
+
         return historico.nome_escola_normalizado if historico else self.nome
+
+    def tipo_unidade_historico(self, data: datetime.date) -> TipoUnidadeEscolar:
+        if not data:
+            return self.tipo_unidade
+
+        historico = self.historico_escola_por_data(data)
+
+        return historico.tipo_unidade if historico else self.tipo_unidade
 
     @property
     def ultimo_dia_letivo(self):
@@ -750,7 +764,7 @@ class Escola(
         ).exclude(perfil__nome=DIRETOR_UE)
 
     @property
-    def eh_cei(self):
+    def eh_cei(self) -> bool:
         lista_tipos_unidades = [
             "CEI DIRET",
             "CEU CEI",
@@ -762,26 +776,26 @@ class Escola(
         return self.tipo_unidade and self.tipo_unidade.iniciais in lista_tipos_unidades
 
     @property
-    def eh_cemei(self):
+    def eh_cemei(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in [
             "CEU CEMEI",
             "CEMEI",
         ]
 
     @property
-    def eh_emei(self):
+    def eh_emei(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in ["CEU EMEI", "EMEI"]
 
     @property
-    def eh_emebs(self):
+    def eh_emebs(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in ["EMEBS"]
 
     @property
-    def eh_ceu_gestao(self):
+    def eh_ceu_gestao(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in ["CEU GESTAO"]
 
     @property
-    def eh_emef_emei_cieja(self):
+    def eh_emef_emei_cieja(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in [
             "EMEI",
             "EMEF",
@@ -792,7 +806,7 @@ class Escola(
         ]
 
     @property
-    def eh_emef(self):
+    def eh_emef(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in [
             "EMEF",
             "CEU EMEF",
@@ -800,12 +814,105 @@ class Escola(
         ]
 
     @property
-    def eh_cieja(self):
+    def eh_cieja(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in ["CIEJA"]
 
     @property
-    def eh_cmct(self):
+    def eh_cmct(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in ["CMCT"]
+
+    def _eh_tipo_unidade_data(
+        self, data: datetime.date, iniciais_validas: set[str], fallback: bool
+    ) -> bool:
+        """Verifica se a escola é do tipo de unidade especificado na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        if not data:
+            return fallback
+
+        historico = self.historico_escola_por_data(data)
+
+        if historico and historico.tipo_unidade:
+            return historico.tipo_unidade.iniciais in iniciais_validas
+
+        return fallback
+
+    def eh_cemei_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é CEMEI na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={"CEU CEMEI", "CEMEI"},
+            fallback=self.eh_cemei,
+        )
+
+    def eh_emei_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é EMEI na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={"CEU EMEI", "EMEI"},
+            fallback=self.eh_emei,
+        )
+
+    def eh_cei_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é CEI na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={
+                "CEI DIRET",
+                "CEU CEI",
+                "CEI",
+                "CCI",
+                "CCI/CIPS",
+                "CEI CEU",
+            },
+            fallback=self.eh_cei,
+        )
+
+    def eh_emebs_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é EMEBS na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={"EMEBS"},
+            fallback=self.eh_emebs,
+        )
+
+    def eh_ceu_gestao_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é CEU GESTAO na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={"CEU GESTAO"},
+            fallback=self.eh_ceu_gestao,
+        )
+
+    def eh_emef_emei_cieja_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é EMEI, EMEF ou CIEJA na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={"EMEI", "EMEF", "EMEFM", "CEU EMEF", "CEU EMEI", "CIEJA"},
+            fallback=self.eh_emef_emei_cieja,
+        )
+
+    def eh_emef_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é EMEF na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={"EMEF", "CEU EMEF", "EMEFM"},
+            fallback=self.eh_emef,
+        )
+
+    def eh_cieja_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é CIEJA na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={"CIEJA"},
+            fallback=self.eh_cieja,
+        )
+
+    def eh_cmct_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é CMCT na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={"CMCT"},
+            fallback=self.eh_cmct,
+        )
 
     @property
     def modulo_gestao(self):
