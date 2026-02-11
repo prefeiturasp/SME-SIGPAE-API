@@ -5,7 +5,9 @@ from unittest.mock import patch
 import pytest
 from freezegun import freeze_time
 from model_bakery import baker
+from rest_framework.test import APIClient
 
+from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from sme_sigpae_api.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from sme_sigpae_api.dados_comuns.models import CentralDeDownload
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
@@ -30,16 +32,6 @@ from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import 
 )
 
 pytestmark = pytest.mark.django_db
-
-
-@pytest.fixture
-def usuario(django_user_model):
-    return django_user_model.objects.create_user(
-        username="user_teste",
-        password="password",
-        email="user_teste@admin.com",
-        registro_funcional="123456",
-    )
 
 
 @freeze_time("2026-02-15")
@@ -161,13 +153,17 @@ class TestGeraRelatorioUnificado:
     @patch(
         "sme_sigpae_api.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_cemei"
     )
-    def test_gera_relatorio_unificado_com_sucesso(self, mock_relatorio_cemei, usuario):
+    @patch(
+        "sme_sigpae_api.medicao_inicial.api.viewsets.gera_pdf_relatorio_unificado_async.delay"
+    )
+    def test_gera_relatorio_unificado_com_sucesso(
+        self, mock_delay, mock_relatorio_cemei, client_autenticado_codae_medicao
+    ):
         """
-        Testa que o relatório unificado é gerado com sucesso para duas solicitações:
-        - Uma com escola que tem HistoricoEscola no mês da solicitação
-        - Outra sem HistoricoEscola
-
-        Valida o conteúdo HTML gerado com asserts específicos para cada escola.
+        Testa que o relatório unificado é gerado com sucesso ao chamar o endpoint.
+        - Chama o endpoint /relatorio-unificado com os parâmetros necessários
+        - Mocka o .delay para executar a task sincronamente
+        - Valida o conteúdo HTML gerado com asserts específicos para cada escola.
         """
         tipo_emei, tipo_cemei, grupo = self.setup_tipos_unidade_e_grupo()
         dre, lote, tipo_gestao = self.setup_infraestrutura_comum()
@@ -214,26 +210,44 @@ class TestGeraRelatorioUnificado:
 
         mock_relatorio_cemei.side_effect = capture_html
 
-        nome_arquivo = "relatorio_unificado_teste.pdf"
+        # Configura o mock do .delay para executar a função sincronamente
+        def execute_task_sync(*args, **kwargs):
+            return gera_pdf_relatorio_unificado_async(*args, **kwargs)
 
-        ids_solicitacoes = [
-            solicitacao_com_historico.uuid,
-            solicitacao_sem_historico.uuid,
-        ]
-        tipos_de_unidade = ["CEMEI"]
+        mock_delay.side_effect = execute_task_sync
 
-        gera_pdf_relatorio_unificado_async(
-            user=usuario.get_username(),
-            nome_arquivo=nome_arquivo,
-            ids_solicitacoes=ids_solicitacoes,
-            tipos_de_unidade=tipos_de_unidade,
+        # Faz a requisição ao endpoint
+        url = "/medicao-inicial/solicitacao-medicao-inicial/relatorio-unificado/"
+        response = client_autenticado_codae_medicao.get(
+            url,
+            {
+                "mes": "01",
+                "ano": "2026",
+                "grupo_escolar": str(grupo.uuid),
+                "status": SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+                "dre": str(dre.uuid),
+            },
         )
 
+        # Verifica que a requisição foi bem-sucedida
+        assert response.status_code == 200
+        assert (
+            response.json()["detail"]
+            == "Solicitação de geração de arquivo recebida com sucesso."
+        )
+
+        # Verifica que o .delay foi chamado
+        assert mock_delay.called
+        assert mock_delay.call_count == 1
+
+        # Verifica que a task foi executada e gerou os PDFs
         assert (
             mock_relatorio_cemei.call_count == 2
         ), "Deve gerar 2 PDFs (um para cada escola)"
 
-        registro = CentralDeDownload.objects.get(identificador=nome_arquivo)
+        registro = CentralDeDownload.objects.get(
+            identificador__contains="Relatório Unificado das Medições Inicias"
+        )
         assert registro.status == CentralDeDownload.STATUS_CONCLUIDO
         assert registro.arquivo is not None
 
