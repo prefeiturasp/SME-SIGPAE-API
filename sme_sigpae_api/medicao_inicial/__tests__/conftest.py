@@ -5079,3 +5079,56 @@ def client_autenticado_vinculo_nutrimanifestacao(client, django_user_model):
     )
     client.login(username=email, password=password)
     return client, user
+
+
+@pytest.fixture
+def solicitacao_medicao_inicial_valores_emef(
+    escola,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    tipo_alimentacao_refeicao,
+):
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    periodo_noturno = baker.make("PeriodoEscolar", nome="NOITE")
+
+    solicitacao_medicao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=4,
+        ano=2025,
+        escola=escola,
+        status="MEDICAO_APROVADA_PELA_CODAE",
+    )
+    solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
+
+    medicao_manha = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_medicao,
+        periodo_escolar=periodo_manha,
+    )
+    medicao_noturno = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_medicao,
+        periodo_escolar=periodo_noturno,
+    )
+
+    baker.make("Aluno", periodo_escolar=periodo_manha, escola=escola)
+
+    categorias = [categoria_medicao, categoria_medicao_dieta_a]
+    dias = ["01", "04"]
+
+    for medicao in [medicao_manha, medicao_noturno]:
+        for categoria in categorias:
+            for dia in dias:
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    semana="1",
+                    nome_campo="refeicao",
+                    tipo_alimentacao=tipo_alimentacao_refeicao,
+                    medicao=medicao,
+                    categoria_medicao=categoria,
+                    valor="05",
+                )
+
+    return solicitacao_medicao

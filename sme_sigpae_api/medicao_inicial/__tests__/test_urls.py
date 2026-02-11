@@ -2435,3 +2435,38 @@ def test_url_codae_aprova_ocorrencia_perfil_nutrimanifestacao(
     )
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["status"] == "MEDICAO_CORRECAO_SOLICITADA_CODAE"
+
+
+def test_url_endpoint_totais_atendimento_consumo(
+    client_autenticado_codae_medicao,
+    parametrizacao_financeira_emef,
+    escola,
+    solicitacao_medicao_inicial_valores_emef,
+):
+    params = {
+        "mes": 4,
+        "ano": 2025,
+        "grupo_unidade_escolar": parametrizacao_financeira_emef.grupo_unidade_escolar.uuid,
+        "lote": escola.lote.uuid,
+        "tipo_calculo": "tipo_alimentacao",
+    }
+
+    response = client_autenticado_codae_medicao.get(
+        "/medicao-inicial/solicitacao-medicao-inicial/totais-atendimento-consumo/",
+        data=params,
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert isinstance(response.data, dict)
+
+    data = response.data
+
+    assert "ALIMENTAÇÃO" in data
+    assert "DIETA ESPECIAL - TIPO A" in data
+
+    alimentacao = data["ALIMENTAÇÃO"]
+    dieta_a = data["DIETA ESPECIAL - TIPO A"]
+
+    assert "total_refeicao" in alimentacao
+    assert "refeicao" in dieta_a
