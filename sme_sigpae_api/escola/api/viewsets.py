@@ -589,24 +589,20 @@ class LogAlunosMatriculadosPeriodoEscolaViewSet(ModelViewSet):
             criado_em__year=ano,
             tipo_turma=tipo_turma,
         )
-        if (
-            Escola.objects.get(uuid=escola_uuid).eh_cemei
-            and "Infantil" in periodo_escolar
-        ):
-            periodo = periodo_escolar.replace("Infantil ", "")
-            queryset = queryset.filter(periodo_escolar__nome=periodo)
-            if "INTEGRAL" in periodo_escolar:
-                queryset = queryset.filter(cei_ou_emei="EMEI")
+
+        if periodo_escolar:
+            if (
+                Escola.objects.get(uuid=escola_uuid).eh_cemei
+                and "Infantil" in periodo_escolar
+            ):
+                periodo = periodo_escolar.replace("Infantil ", "")
+                queryset = queryset.filter(periodo_escolar__nome=periodo)
+                if "INTEGRAL" in periodo_escolar:
+                    queryset = queryset.filter(cei_ou_emei="EMEI")
+                else:
+                    queryset = queryset.filter(cei_ou_emei="N/A")
             else:
-                queryset = queryset.filter(cei_ou_emei="N/A")
-        else:
-            queryset = queryset.filter(
-                escola__uuid=escola_uuid,
-                criado_em__month=mes,
-                criado_em__year=ano,
-                tipo_turma=tipo_turma,
-                periodo_escolar__uuid=periodo_escolar,
-            )
+                queryset = queryset.filter(periodo_escolar__uuid=periodo_escolar)
 
         return queryset
 
