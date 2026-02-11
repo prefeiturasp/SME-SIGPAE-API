@@ -4193,7 +4193,7 @@ def get_valor_total(escola, total_por_nome_campo, medicao):
 
 
 def get_campos_a_desconsiderar(escola, medicao):
-    campos_a_desconsiderar = ["matriculados", "numero_de_alunos", "observacoes"]
+    campos_a_desconsiderar = ["matriculados", "numero_de_alunos", "observacoes", "participantes"]
     if not (
         escola.eh_cei
         or (
