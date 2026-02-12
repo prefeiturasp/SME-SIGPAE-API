@@ -1145,8 +1145,14 @@ def filtra_relatorio_recreio_nas_ferias(query_params: QueryDict) -> QuerySet:
     padrao = filtros.get("padrao", {})
     matriculado = filtros.get("matriculado", {})
     nao_matriculado = filtros.get("nao_matriculado", {})
+
+    status_permitidos = [
+        SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+        SolicitacaoDietaEspecial.workflow_class.TERMINADA_AUTOMATICAMENTE_SISTEMA
+    ]
+
     filtro_matriculados = Q(
-        status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+        status__in=status_permitidos,
         tipo_solicitacao="ALTERACAO_UE",
         motivo_alteracao_ue__nome__icontains="recreio",
         **padrao,
@@ -1154,7 +1160,7 @@ def filtra_relatorio_recreio_nas_ferias(query_params: QueryDict) -> QuerySet:
     )
 
     filtro_nao_matriculados = Q(
-        status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+        status__in=status_permitidos,
         tipo_solicitacao__in=[
             SolicitacaoDietaEspecial.COMUM,
             SolicitacaoDietaEspecial.ALUNO_NAO_MATRICULADO,
