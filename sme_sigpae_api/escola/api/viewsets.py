@@ -77,6 +77,7 @@ from ..models import (
     EscolaPeriodoEscolar,
     FaixaEtaria,
     GrupoUnidadeEscolar,
+    HistoricoEscola,
     LogAlteracaoQuantidadeAlunosPorEscolaEPeriodoEscolar,
     LogAlunosMatriculadosFaixaEtariaDia,
     LogAlunosMatriculadosPeriodoEscola,
@@ -589,24 +590,20 @@ class LogAlunosMatriculadosPeriodoEscolaViewSet(ModelViewSet):
             criado_em__year=ano,
             tipo_turma=tipo_turma,
         )
-        if (
-            Escola.objects.get(uuid=escola_uuid).eh_cemei
-            and "Infantil" in periodo_escolar
-        ):
-            periodo = periodo_escolar.replace("Infantil ", "")
-            queryset = queryset.filter(periodo_escolar__nome=periodo)
-            if "INTEGRAL" in periodo_escolar:
-                queryset = queryset.filter(cei_ou_emei="EMEI")
+
+        if periodo_escolar:
+            if (
+                Escola.objects.get(uuid=escola_uuid).eh_cemei
+                and "Infantil" in periodo_escolar
+            ):
+                periodo = periodo_escolar.replace("Infantil ", "")
+                queryset = queryset.filter(periodo_escolar__nome=periodo)
+                if "INTEGRAL" in periodo_escolar:
+                    queryset = queryset.filter(cei_ou_emei="EMEI")
+                else:
+                    queryset = queryset.filter(cei_ou_emei="N/A")
             else:
-                queryset = queryset.filter(cei_ou_emei="N/A")
-        else:
-            queryset = queryset.filter(
-                escola__uuid=escola_uuid,
-                criado_em__month=mes,
-                criado_em__year=ano,
-                tipo_turma=tipo_turma,
-                periodo_escolar__uuid=periodo_escolar,
-            )
+                queryset = queryset.filter(periodo_escolar__uuid=periodo_escolar)
 
         return queryset
 
@@ -1445,3 +1442,95 @@ class RelatorioControleDeFrequenciaViewSet(ModelViewSet):
                 data={"detail": "Verifique os parâmetros e tente novamente"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class HistoricoEscolaViewSet(GenericViewSet):
+    """ViewSet para obter histórico de uma escola em um determinado mês/ano."""
+
+    lookup_field = "uuid"
+    permission_classes = (IsAuthenticated,)
+
+    def _validar_parametros(self, mes, ano):
+        """Valida os parâmetros mes e ano."""
+        if not mes or not ano:
+            return Response(
+                {"detail": "Os parâmetros 'mes' e 'ano' são obrigatórios."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            mes_int = int(mes)
+            ano_int = int(ano)
+        except ValueError:
+            return Response(
+                {"detail": "Os parâmetros 'mes' e 'ano' devem ser números inteiros."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if mes_int < 1 or mes_int > 12:
+            return Response(
+                {"detail": "O parâmetro 'mes' deve estar entre 1 e 12."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return mes_int, ano_int
+
+    def _obter_historico_vigente(self, escola, data_referencia):
+        """Busca histórico vigente para a escola na data de referência."""
+        return (
+            HistoricoEscola.objects.filter(
+                escola=escola,
+                data_final__gte=data_referencia,
+            )
+            .filter(Q(data_inicial__lte=data_referencia) | Q(data_inicial__isnull=True))
+            .first()
+        )
+
+    def _montar_response_data(self, nome, tipo_unidade):
+        """Monta o dicionário de resposta."""
+        return {
+            "nome": nome,
+            "tipo_unidade": {
+                "uuid": str(tipo_unidade.uuid),
+                "iniciais": tipo_unidade.iniciais,
+            },
+        }
+
+    def retrieve(self, request, uuid=None):
+        """
+        Retorna o nome e tipo de unidade escolar da escola para o mês/ano fornecido.
+        Se houver histórico vigente para o período, retorna os dados do histórico.
+        Caso contrário, retorna os dados atuais da escola.
+
+        Query params obrigatórios:
+        - mes: mês de referência (formato: 1-12)
+        - ano: ano de referência (formato: YYYY)
+        """
+        mes = request.query_params.get("mes")
+        ano = request.query_params.get("ano")
+
+        parametros_validados = self._validar_parametros(mes, ano)
+        if isinstance(parametros_validados, Response):
+            return parametros_validados
+
+        mes_int, ano_int = parametros_validados
+
+        try:
+            escola = Escola.objects.get(uuid=uuid)
+        except Escola.DoesNotExist:
+            return Response(
+                {"detail": "Escola não encontrada."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        data_referencia = datetime.date(ano_int, mes_int, 1)
+        historico = self._obter_historico_vigente(escola, data_referencia)
+
+        if historico:
+            response_data = self._montar_response_data(
+                historico.nome, historico.tipo_unidade
+            )
+        else:
+            response_data = self._montar_response_data(escola.nome, escola.tipo_unidade)
+
+        return Response(response_data, status=status.HTTP_200_OK)

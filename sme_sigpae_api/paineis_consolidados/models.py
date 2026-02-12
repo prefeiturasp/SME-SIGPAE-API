@@ -439,7 +439,9 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
             solicitacao = class_name.objects.get(uuid=solicitacao["uuid"])
             resultado.append(
                 serializer_name(
-                    solicitacao, context={"request": request}, many=False
+                    solicitacao,
+                    context={"request": request, "data": solicitacao.data},
+                    many=False,
                 ).data
             )
         return resultado

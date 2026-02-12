@@ -9,6 +9,7 @@ import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
 
+from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.behaviors import TempoPasseio
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from sme_sigpae_api.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
@@ -2072,6 +2073,9 @@ def parametrizacao_financeira_emef(
         parametrizacao_financeira=parametrizacao_financeira,
     )
 
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="UNITARIO")
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="REAJUSTE")
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="ACRESCIMO")
     tipo_unitario = TipoValorParametrizacaoFinanceira.objects.get(nome="UNITARIO")
     tipo_reajuste = TipoValorParametrizacaoFinanceira.objects.get(nome="REAJUSTE")
     tipo_acrescimo = TipoValorParametrizacaoFinanceira.objects.get(nome="ACRESCIMO")
@@ -2248,6 +2252,8 @@ def sol_med_inicial_devolvida_pela_dre_para_ue(escola):
         status="MEDICAO_CORRECAO_SOLICITADA",
         uuid="d9de8653-4910-423e-9381-e391c2ae8ecb",
         com_ocorrencias=True,
+        mes="12",
+        ano="2025",
     )
     baker.make(
         "OcorrenciaMedicaoInicial",
@@ -2272,6 +2278,8 @@ def sol_med_inicial_devolvida_pela_codae_para_ue(escola):
         status="MEDICAO_CORRECAO_SOLICITADA_CODAE",
         uuid="d9de8653-4910-423e-9381-e391c2ae8ecb",
         com_ocorrencias=True,
+        mes="12",
+        ano="2025",
     )
     baker.make(
         "OcorrenciaMedicaoInicial",
@@ -5046,3 +5054,85 @@ def solicitacao_recreio_incorreto(escola):
             data_fim=datetime.date(2026, 1, 30),
         ),
     )
+
+
+@pytest.fixture
+def client_autenticado_vinculo_nutrimanifestacao(client, django_user_model):
+    email = "nutri_manifestacao@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888885"
+    )
+    perfil_nutrimanifestacao = baker.make(
+        "Perfil",
+        nome=constants.COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
+        ativo=True,
+        uuid="106f5a1a-627f-4b69-bf0b-6a44f6fa08bb",
+    )
+    codae = baker.make(
+        "Codae", nome="CODAE", uuid="78907a88-dca9-413b-a08f-aeefaedf2acc"
+    )
+
+    baker.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_nutrimanifestacao,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client, user
+
+
+@pytest.fixture
+def solicitacao_medicao_inicial_valores_emef(
+    escola,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    tipo_alimentacao_refeicao,
+):
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    periodo_noturno = baker.make("PeriodoEscolar", nome="NOITE")
+
+    solicitacao_medicao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=4,
+        ano=2025,
+        escola=escola,
+        status="MEDICAO_APROVADA_PELA_CODAE",
+    )
+    solicitacao_medicao.tipos_contagem_alimentacao.set([tipo_contagem])
+
+    medicao_manha = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_medicao,
+        periodo_escolar=periodo_manha,
+    )
+    medicao_noturno = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_medicao,
+        periodo_escolar=periodo_noturno,
+    )
+
+    baker.make("Aluno", periodo_escolar=periodo_manha, escola=escola)
+
+    categorias = [categoria_medicao, categoria_medicao_dieta_a]
+    dias = ["01", "04"]
+
+    for medicao in [medicao_manha, medicao_noturno]:
+        for categoria in categorias:
+            for dia in dias:
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    semana="1",
+                    nome_campo="refeicao",
+                    tipo_alimentacao=tipo_alimentacao_refeicao,
+                    medicao=medicao,
+                    categoria_medicao=categoria,
+                    valor="05",
+                )
+
+    return solicitacao_medicao

@@ -241,7 +241,7 @@ class InclusaoAlimentacaoContinua(
     def solicitacao_dict_para_relatorio(self, label_data, data_log, instituicao):
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
-            "unidade_educacional": self.rastro_escola.nome,
+            "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada,
             "tipo_doc": "Inclusão de Alimentação Contínua",
             "data_inicial": self.data_inicial,
@@ -479,7 +479,7 @@ class GrupoInclusaoAlimentacaoNormal(
     def solicitacao_dict_para_relatorio(self, label_data, data_log, instituicao):
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
-            "unidade_educacional": self.rastro_escola.nome,
+            "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada,
             "tipo_doc": "Inclusão de Alimentação",
             "data_evento": self.data,
@@ -780,7 +780,7 @@ class InclusaoAlimentacaoDaCEI(
         ).distinct()
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
-            "unidade_educacional": self.rastro_escola.nome,
+            "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada,
             "tipo_doc": "Inclusão de Alimentação CEI",
             "data_evento": self.data,
@@ -1097,7 +1097,7 @@ class InclusaoDeAlimentacaoCEMEI(
         ).exists()
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
-            "unidade_educacional": self.rastro_escola.nome,
+            "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada,
             "tipo_doc": "Inclusão de Alimentação CEMEI",
             "data_evento": self.data,

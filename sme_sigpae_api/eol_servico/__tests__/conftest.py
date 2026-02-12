@@ -5,6 +5,7 @@ from faker import Faker
 from model_bakery import baker
 
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+import sme_sigpae_api.escola.models as models
 
 fake = Faker("pt_BR")
 Faker.seed(420)
@@ -19,6 +20,36 @@ Faker.seed(420)
 )
 def datas_nascimento_api(request):
     return request.param
+
+
+@pytest.fixture
+def tipo_gestao():
+    return baker.make(models.TipoGestao, nome=fake.name())
+
+
+@pytest.fixture
+def lote():
+    return baker.make(models.Lote, nome="lote", iniciais="lt")
+
+
+@pytest.fixture
+def diretoria_regional():
+    return baker.make(
+        models.DiretoriaRegional,
+        nome="DRE Teste",
+        codigo_eol="123456"
+    )
+
+
+@pytest.fixture
+def escola(lote, tipo_gestao, diretoria_regional):
+    return baker.make(
+        models.Escola,
+        lote=lote,
+        tipo_gestao=tipo_gestao,
+        diretoria_regional=diretoria_regional,
+        codigo_eol="000001"
+    )
 
 
 @pytest.fixture
@@ -46,3 +77,80 @@ def client_autenticado_da_escola(client, django_user_model):
     )
     client.login(username=email, password=password)
     return client
+
+
+@pytest.fixture
+def mock_eol_response_success():
+    """Mock da resposta bem-sucedida do EOL"""
+    return {
+        "nome": "João da Silva",
+        "email": "joao.silva@email.com",
+        "cpf": "12345678900",
+        "rf": "9876543",
+        "cargos": [
+            {
+                "codigoUnidade": "123456",
+                "codigoDre": "654321",
+                "descricaoUnidade": "EMEF Teste",
+                "descricaoCargo": "Professor"
+            }
+        ]
+    }
+
+
+@pytest.fixture
+def mock_serializer_usuario_codae():
+    """Mock do serializer para usuário CODAE"""
+    return {
+        "uuid": "test-uuid",
+        "nome": "Usuario CODAE",
+        "email": "codae@teste.com",
+        "registro_funcional": "1234567",
+        "vinculo_atual": {
+            "perfil": {
+                "visao": "CODAE"
+            },
+            "instituicao": {
+                "codigo_eol": "123456",
+                "nome": "QUALQUER ESCOLA"
+            }
+        }
+    }
+
+
+@pytest.fixture
+def mock_serializer_usuario_dre():
+    return {
+        "uuid": "test-uuid-dre",
+        "nome": "Usuario DRE",
+        "email": "dre@teste.com",
+        "registro_funcional": "7654321",
+        "vinculo_atual": {
+            "perfil": {
+                "visao": "DRE"
+            },
+            "instituicao": {
+                "codigo_eol": "123456",
+                "nome": "DIRETORIA REGIONAL QUALQUER"
+            }
+        }
+    }
+
+
+@pytest.fixture
+def mock_serializer_usuario_diretor_ue():
+    return {
+        "uuid": "test-uuid-dre",
+        "nome": "Usuario Diretor UE",
+        "email": "dre@teste.com",
+        "registro_funcional": "7654321",
+        "vinculo_atual": {
+            "perfil": {
+                "visao": "DIRETOR_UE"
+            },
+            "instituicao": {
+                "codigo_eol": "123456",
+                "nome": "QUALQUER ESCOLA"
+            }
+        }
+    }

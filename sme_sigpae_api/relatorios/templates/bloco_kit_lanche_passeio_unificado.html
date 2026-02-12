@@ -41,7 +41,7 @@
                   {% for escola_quantidade in solicitacao.escolas_quantidades|smart_slice:idx %}
                   <tr>
                     <td>{{escola_quantidade.escola.codigo_eol}}</td>
-                    <td>{{escola_quantidade.escola.nome}}</td>
+                    <td>{{escola_quantidade|nome_escola_historico_kit_unificado}}</td>
                     <td class="text-center">{{escola_quantidade.quantidade_alunos}}</td>
                     <td class="text-center">{{escola_quantidade.get_tempo_passeio_display}}</td>
                     <td class="text-center">{{escola_quantidade.kits.all|concatena_str}}</td>

@@ -14,6 +14,9 @@ from sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models import (
     SuspensaoAlimentacaoDaCEI,
 )
 from sme_sigpae_api.dados_comuns import constants
+from sme_sigpae_api.dados_comuns.mixins.serializer_context import (
+    DataSolicitacaoContextMixin,
+)
 from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaRecuperarObjeto,
     UsuarioEscolaTercTotal,
@@ -21,7 +24,9 @@ from sme_sigpae_api.dados_comuns.permissions import (
 from sme_sigpae_api.relatorios.relatorios import relatorio_suspensao_de_alimentacao_cei
 
 
-class SuspensaoAlimentacaoDaCEIViewSet(viewsets.ModelViewSet):
+class SuspensaoAlimentacaoDaCEIViewSet(
+    DataSolicitacaoContextMixin, viewsets.ModelViewSet
+):
     lookup_field = "uuid"
     queryset = SuspensaoAlimentacaoDaCEI.objects.all()
     permission_classes = (IsAuthenticated,)

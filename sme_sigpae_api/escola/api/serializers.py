@@ -7,6 +7,7 @@ from rest_framework.exceptions import ValidationError
 
 from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns.api.serializers import ContatoSerializer, EnderecoSerializer
+from ...dados_comuns.mixins.serializer_context import EscolaNomeHistoricoSerializerMixin
 from ...paineis_consolidados import models
 from ...perfil.api.serializers import PerfilSimplesSerializer
 from ...perfil.models import Usuario, Vinculo
@@ -224,7 +225,10 @@ class LoteReclamacaoSerializer(serializers.ModelSerializer):
         fields = ("uuid", "nome", "terceirizada")
 
 
-class EscolaSimplissimaSerializer(serializers.ModelSerializer):
+class EscolaSimplissimaSerializer(
+    EscolaNomeHistoricoSerializerMixin, serializers.ModelSerializer
+):
+    nome = serializers.SerializerMethodField()
     lote = LoteReclamacaoSerializer()
     tipo_gestao = serializers.CharField()
     diretoria_regional = DiretoriaRegionalSimplissimaSerializer()
@@ -322,7 +326,10 @@ class LoteSerializer(serializers.ModelSerializer):
         fields = ("uuid", "nome")
 
 
-class EscolaNomeCodigoEOLSerializer(serializers.ModelSerializer):
+class EscolaNomeCodigoEOLSerializer(
+    EscolaNomeHistoricoSerializerMixin, serializers.ModelSerializer
+):
+    nome = serializers.SerializerMethodField()
     lote = LoteSerializer()
 
     class Meta:
@@ -342,12 +349,15 @@ class LoteSimplesSerializer(serializers.ModelSerializer):
         exclude = ("id",)
 
 
-class EscolaSimplesSerializer(serializers.ModelSerializer):
+class EscolaSimplesSerializer(
+    EscolaNomeHistoricoSerializerMixin, serializers.ModelSerializer
+):
     tipo_unidade = TipoUnidadeEscolarSerializer()
     lote = LoteNomeSerializer()
     tipo_gestao = TipoGestaoSerializer()
     diretoria_regional = DiretoriaRegionalSimplissimaSerializer()
     periodos_escolares = serializers.SerializerMethodField()
+    nome = serializers.SerializerMethodField()
 
     def get_periodos_escolares(self, obj):
         ano_hoje = datetime.datetime.now().year
@@ -373,7 +383,11 @@ class EscolaSimplesSerializer(serializers.ModelSerializer):
         )
 
 
-class EscolaListagemSimplesSelializer(serializers.ModelSerializer):
+class EscolaListagemSimplesSelializer(
+    EscolaNomeHistoricoSerializerMixin, serializers.ModelSerializer
+):
+    nome = serializers.SerializerMethodField()
+
     class Meta:
         model = Escola
         fields = ("uuid", "nome", "codigo_eol", "quantidade_alunos")
@@ -387,7 +401,10 @@ class LoteComContratosSerializer(serializers.ModelSerializer):
         fields = ("uuid", "nome", "contratos_do_lote")
 
 
-class EscolaListagemSimplissimaComDRESelializer(serializers.ModelSerializer):
+class EscolaListagemSimplissimaComDRESelializer(
+    EscolaNomeHistoricoSerializerMixin, serializers.ModelSerializer
+):
+    nome = serializers.SerializerMethodField()
     diretoria_regional = DiretoriaRegionalSimplissimaSerializer()
     lote = serializers.CharField(source="lote.uuid", required=False)
     lote_obj = LoteComContratosSerializer(source="lote", required=False)
@@ -411,7 +428,10 @@ class EscolaListagemSimplissimaComDRESelializer(serializers.ModelSerializer):
         )
 
 
-class EscolaCompletaSerializer(serializers.ModelSerializer):
+class EscolaCompletaSerializer(
+    EscolaNomeHistoricoSerializerMixin, serializers.ModelSerializer
+):
+    nome = serializers.SerializerMethodField()
     diretoria_regional = DiretoriaRegionalSimplesSerializer()
     idades = FaixaIdadeEscolarSerializer(many=True)
     tipo_unidade = TipoUnidadeEscolarSerializer()
@@ -871,7 +891,10 @@ class EscolaParaFiltroSerializer(serializers.ModelSerializer):
         fields = ("uuid", "nome", "diretoria_regional", "tipo_unidade", "lote")
 
 
-class EscolaAlunoPeriodoSerializer(serializers.ModelSerializer):
+class EscolaAlunoPeriodoSerializer(
+    EscolaNomeHistoricoSerializerMixin, serializers.ModelSerializer
+):
+    nome = serializers.SerializerMethodField()
     diretoria_regional = DiretoriaRegionalParaFiltroSerializer()
     tipo_unidade = TipoUnidadeParaFiltroSerializer()
     lote = LoteSerializer()
@@ -989,3 +1012,8 @@ class EscolaFormIMRSelializer(serializers.ModelSerializer):
     class Meta:
         model = Escola
         fields = ("uuid", "nome", "codigo_eol", "lote", "terceirizada", "edital")
+
+
+class HistoricoEscolaSerializer(serializers.Serializer):
+    nome = serializers.CharField()
+    tipo_unidade = TipoUnidadeEscolarSimplesSerializer()

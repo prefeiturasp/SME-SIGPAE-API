@@ -19,6 +19,9 @@ from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
     MotivoAlteracaoCardapio,
 )
 from sme_sigpae_api.dados_comuns import constants
+from sme_sigpae_api.dados_comuns.mixins.serializer_context import (
+    DataSolicitacaoContextMixin,
+)
 from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaRecuperarObjeto,
     UsuarioCODAEGestaoAlimentacao,
@@ -33,7 +36,7 @@ from sme_sigpae_api.escola.models import Escola
 from sme_sigpae_api.relatorios.relatorios import relatorio_alteracao_cardapio
 
 
-class AlteracoesCardapioViewSet(viewsets.ModelViewSet):
+class AlteracoesCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet):
     lookup_field = "uuid"
     permission_classes = (IsAuthenticated,)
     queryset = AlteracaoCardapio.objects.all()

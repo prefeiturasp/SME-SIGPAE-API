@@ -169,7 +169,7 @@ class InversaoCardapio(
             data_de_inversao_2 = self.data_de_inversao_2.strftime(FORMATO_DATA_BR)
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
-            "unidade_educacional": self.rastro_escola.nome,
+            "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada,
             "tipo_doc": "Inversão de dia de Cardápio",
             "data_evento": f"{data_de_inversao} {data_de_inversao_2}",

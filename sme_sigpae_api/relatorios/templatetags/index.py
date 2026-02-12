@@ -50,6 +50,26 @@ def get_element_by_index(indexable, i):
 
 
 @register.filter
+def nome_escola_historico(solicitacao):
+    """
+    Retorna o nome histórico da escola baseado na data da solicitação de medição.
+
+    Args:
+        solicitacao: Objeto SolicitacaoMedicaoInicial
+
+    Returns:
+        str: Nome histórico da escola na data da medição
+    """
+    if not solicitacao:
+        return ""
+
+    try:
+        return solicitacao.escola.nome_historico(solicitacao.data_referencia)
+    except (ValueError, AttributeError):
+        return solicitacao.escola.nome if hasattr(solicitacao, "escola") else ""
+
+
+@register.filter
 def index_exists(indexable, i):
     return i <= len(indexable)
 
@@ -991,3 +1011,27 @@ def decimal_br(value, casas=2):
         )
     except (InvalidOperation, TypeError):
         return "0,00"
+
+
+@register.filter
+def nome_escola_historico_kit_unificado(escola_quantidade):
+    """
+    Retorna o nome histórico da escola baseado na data da solicitação de kit unificado.
+    Args:
+        escola_quantidade: Objeto EscolaQuantidade
+    Returns:
+        str: Nome histórico da escola na data da solicitação de kit unificado
+    """
+    if not escola_quantidade:
+        return ""
+
+    try:
+        return escola_quantidade.escola.nome_historico(
+            escola_quantidade.solicitacao_unificada.data
+        )
+    except (ValueError, AttributeError):
+        return (
+            escola_quantidade.escola.nome
+            if hasattr(escola_quantidade, "escola")
+            else ""
+        )

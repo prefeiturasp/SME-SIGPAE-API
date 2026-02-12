@@ -134,9 +134,15 @@ def get_valores_iniciais(solicitacao: SolicitacaoMedicaoInicial) -> list[str]:
             [2] (str): Nome completo da escola
     """
     return [
-        solicitacao.escola.tipo_unidade.iniciais,
+        (
+            solicitacao.escola.tipo_unidade_historico(
+                solicitacao.data_referencia
+            ).iniciais
+            if solicitacao.escola.tipo_unidade_historico(solicitacao.data_referencia)
+            else ""
+        ),
         solicitacao.escola.codigo_eol,
-        solicitacao.escola.nome,
+        solicitacao.escola.nome_historico(solicitacao.data_referencia),
     ]
 
 
