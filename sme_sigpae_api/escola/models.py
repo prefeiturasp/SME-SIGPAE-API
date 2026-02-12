@@ -107,6 +107,22 @@ redis_conn = redis.StrictRedis(
 
 ESCOLA_TIPO_GESTAO_NOME = "TERC TOTAL"
 
+EMEI = "EMEI"
+EMEF = "EMEF"
+EMEFM = "EMEFM"
+CIEJA = "CIEJA"
+CEU_EMEI = "CEU EMEI"
+CEU_EMEF = "CEU EMEF"
+
+LISTA_TIPOS_UNIDADES = [
+    "CEI DIRET",
+    "CEU CEI",
+    "CEI",
+    "CCI",
+    "CCI/CIPS",
+    "CEI CEU",
+]
+
 
 class DiretoriaRegional(
     ExportModelOperationsMixin("diretoria_regional"),
@@ -412,15 +428,7 @@ class TipoUnidadeEscolar(
 
     @property
     def eh_cei(self):
-        lista_tipos_unidades = [
-            "CEI DIRET",
-            "CEU CEI",
-            "CEI",
-            "CCI",
-            "CCI/CIPS",
-            "CEI CEU",
-        ]
-        return self.iniciais in lista_tipos_unidades
+        return self.iniciais in LISTA_TIPOS_UNIDADES
 
     def get_cardapio(self, data):
         # TODO: ter certeza que tem so um cardapio por dia por tipo de u.e.
@@ -765,15 +773,7 @@ class Escola(
 
     @property
     def eh_cei(self) -> bool:
-        lista_tipos_unidades = [
-            "CEI DIRET",
-            "CEU CEI",
-            "CEI",
-            "CCI",
-            "CCI/CIPS",
-            "CEI CEU",
-        ]
-        return self.tipo_unidade and self.tipo_unidade.iniciais in lista_tipos_unidades
+        return self.tipo_unidade and self.tipo_unidade.iniciais in LISTA_TIPOS_UNIDADES
 
     @property
     def eh_cemei(self) -> bool:
@@ -784,7 +784,7 @@ class Escola(
 
     @property
     def eh_emei(self) -> bool:
-        return self.tipo_unidade and self.tipo_unidade.iniciais in ["CEU EMEI", "EMEI"]
+        return self.tipo_unidade and self.tipo_unidade.iniciais in [CEU_EMEI, EMEI]
 
     @property
     def eh_emebs(self) -> bool:
@@ -797,25 +797,25 @@ class Escola(
     @property
     def eh_emef_emei_cieja(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in [
-            "EMEI",
-            "EMEF",
-            "EMEFM",
-            "CEU EMEF",
-            "CEU EMEI",
-            "CIEJA",
+            EMEI,
+            EMEF,
+            EMEFM,
+            CEU_EMEF,
+            CEU_EMEI,
+            CIEJA,
         ]
 
     @property
     def eh_emef(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in [
-            "EMEF",
-            "CEU EMEF",
-            "EMEFM",
+            EMEF,
+            CEU_EMEF,
+            EMEFM,
         ]
 
     @property
     def eh_cieja(self) -> bool:
-        return self.tipo_unidade and self.tipo_unidade.iniciais in ["CIEJA"]
+        return self.tipo_unidade and self.tipo_unidade.iniciais in [CIEJA]
 
     @property
     def eh_cmct(self) -> bool:
@@ -847,7 +847,7 @@ class Escola(
         """Verifica se a escola é EMEI na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
         return self._eh_tipo_unidade_data(
             data,
-            iniciais_validas={"CEU EMEI", "EMEI"},
+            iniciais_validas={CEU_EMEI, EMEI},
             fallback=self.eh_emei,
         )
 
@@ -886,7 +886,7 @@ class Escola(
         """Verifica se a escola é EMEI, EMEF ou CIEJA na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
         return self._eh_tipo_unidade_data(
             data,
-            iniciais_validas={"EMEI", "EMEF", "EMEFM", "CEU EMEF", "CEU EMEI", "CIEJA"},
+            iniciais_validas={EMEI, EMEF, EMEFM, CEU_EMEF, CEU_EMEI, CIEJA},
             fallback=self.eh_emef_emei_cieja,
         )
 
@@ -894,7 +894,7 @@ class Escola(
         """Verifica se a escola é EMEF na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
         return self._eh_tipo_unidade_data(
             data,
-            iniciais_validas={"EMEF", "CEU EMEF", "EMEFM"},
+            iniciais_validas={EMEF, CEU_EMEF, EMEFM},
             fallback=self.eh_emef,
         )
 
@@ -902,7 +902,7 @@ class Escola(
         """Verifica se a escola é CIEJA na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
         return self._eh_tipo_unidade_data(
             data,
-            iniciais_validas={"CIEJA"},
+            iniciais_validas={CIEJA},
             fallback=self.eh_cieja,
         )
 
@@ -969,7 +969,7 @@ class Escola(
                 return_dict[periodo]["CEI"] = periodo_cei
             except KeyError:
                 return_dict[periodo]["CEI"] = lista_faixas.get("INTEGRAL")
-            return_dict[periodo]["EMEI"] = self.quantidade_alunos_emei_por_periodo(
+            return_dict[periodo][EMEI] = self.quantidade_alunos_emei_por_periodo(
                 periodo
             )
 
@@ -994,7 +994,7 @@ class Escola(
             return_dict[periodo]["CEI"] = self.quantidade_alunos_cei_por_periodo(
                 periodo
             )
-            return_dict[periodo]["EMEI"] = self.quantidade_alunos_emei_por_periodo(
+            return_dict[periodo][EMEI] = self.quantidade_alunos_emei_por_periodo(
                 periodo
             )
 
@@ -2918,7 +2918,7 @@ class LogAlunosMatriculadosPeriodoEscola(TemChaveExterna, CriadoEm, TemObservaca
             criado_em__month=self.criado_em.month,
             criado_em__day=self.criado_em.day,
             tipo_turma=self.tipo_turma,
-            cei_ou_emei="EMEI",
+            cei_ou_emei=EMEI,
         ).exists():
             log = LogAlunosMatriculadosPeriodoEscola.objects.create(
                 escola=self.escola,
@@ -2927,7 +2927,7 @@ class LogAlunosMatriculadosPeriodoEscola(TemChaveExterna, CriadoEm, TemObservaca
                     "INTEGRAL"
                 ),
                 tipo_turma=self.tipo_turma,
-                cei_ou_emei="EMEI",
+                cei_ou_emei=EMEI,
             )
             log.criado_em = self.criado_em
             log.save()

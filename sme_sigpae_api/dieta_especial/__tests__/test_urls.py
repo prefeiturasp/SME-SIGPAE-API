@@ -1150,7 +1150,7 @@ def test_relatorio_historico_dieta_especial_cliente_nao_autorizado(
 
 
 def test_relatorio_recreio_nas_ferias(
-    client_autenticado_vinculo_terceirizada_dieta, relatorio_recreio_nas_ferias
+    client_autenticado_vinculo_terceirizada_dieta, relatorio_recreio_nas_ferias_somente_autorizadas
 ):
     response = client_autenticado_vinculo_terceirizada_dieta.get(
         "/solicitacoes-dieta-especial/relatorio-recreio-nas-ferias/"

@@ -1,4 +1,5 @@
 import calendar
+import copy
 import datetime
 import json
 import logging
@@ -2572,7 +2573,7 @@ def popula_faixas_dias(
         )
         valores_dia += ["-", str(total if total else 0)]
     else:
-        if categoria_corrente == "ALIMENTAÇÃO":
+        if categoria_corrente == CHAVE_ALIMENTACAO_REGULAR:
             popula_campo_matriculados_cei(
                 solicitacao,
                 tabela,
@@ -2796,14 +2797,14 @@ def get_nome_campo(campo):
 def somar_lanches(values, medicao, campo, tipo_turma=None):
     if campo == "lanche":
         values_lanche_e_2_lanche_5h = medicao.valores_medicao.filter(
-            categoria_medicao__nome="ALIMENTAÇÃO",
+            categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
             nome_campo__in=["lanche", "2_lanche_5h"],
             infantil_ou_fundamental=tipo_turma if tipo_turma is not None else "N/A",
         )
         values = values_lanche_e_2_lanche_5h
     if campo == "lanche_4h":
         values_lanche_4h_e_2_lanche_4h = medicao.valores_medicao.filter(
-            categoria_medicao__nome="ALIMENTAÇÃO",
+            categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
             nome_campo__in=["lanche_4h", "2_lanche_4h"],
             infantil_ou_fundamental=tipo_turma if tipo_turma is not None else "N/A",
         )
@@ -2827,7 +2828,7 @@ def somar_valores_semelhantes(
             values = dict_total_refeicoes[medicao_nome]
         else:
             values_repeticao_refeicao = medicao.valores_medicao.filter(
-                categoria_medicao__nome="ALIMENTAÇÃO",
+                categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
                 nome_campo__in=[
                     "repeticao_refeicao",
                     "2_refeicao_1_oferta",
@@ -2843,7 +2844,7 @@ def somar_valores_semelhantes(
             values = dict_total_sobremesas[medicao_nome]
         else:
             values_repeticao_sobremesa = medicao.valores_medicao.filter(
-                categoria_medicao__nome="ALIMENTAÇÃO",
+                categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
                 nome_campo__in=[
                     "repeticao_sobremesa",
                     "2_sobremesa_1_oferta",
@@ -2888,7 +2889,7 @@ def get_somatorio_manha(
                 grupo=None,
             )
         values = medicao.valores_medicao.filter(
-            categoria_medicao__nome="ALIMENTAÇÃO",
+            categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
             nome_campo=campo,
             infantil_ou_fundamental=tipo_turma if tipo_turma is not None else "N/A",
         )
@@ -2922,7 +2923,7 @@ def get_somatorio_tarde(
                 periodo_escolar__nome="TARDE", grupo=None
             )
         values = medicao.valores_medicao.filter(
-            categoria_medicao__nome="ALIMENTAÇÃO",
+            categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
             nome_campo=campo,
             infantil_ou_fundamental=tipo_turma if tipo_turma is not None else "N/A",
         )
@@ -2956,7 +2957,7 @@ def get_somatorio_integral(
                 periodo_escolar__nome="INTEGRAL", grupo=None
             )
         values = medicao.valores_medicao.filter(
-            categoria_medicao__nome="ALIMENTAÇÃO",
+            categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
             nome_campo=campo,
             infantil_ou_fundamental=tipo_turma if tipo_turma is not None else "N/A",
         )
@@ -2987,7 +2988,7 @@ def get_somatorio_programas_e_projetos(
         somatorio_programas_e_projetos = 0
         for medicao in medicoes:
             qs_values = medicao.valores_medicao.filter(
-                categoria_medicao__nome="ALIMENTAÇÃO",
+                categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
                 nome_campo=campo,
                 infantil_ou_fundamental=tipo_turma if tipo_turma is not None else "N/A",
             )
@@ -3048,7 +3049,7 @@ def get_somatorio_eja_helper(
             periodo_escolar__nome=periodo_nome, grupo=None
         )
         values = medicao.valores_medicao.filter(
-            categoria_medicao__nome="ALIMENTAÇÃO",
+            categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
             nome_campo=tipo_alimentacao,
             infantil_ou_fundamental=tipo_turma if tipo_turma is not None else "N/A",
         )
@@ -3126,7 +3127,7 @@ def get_somatorio_etec(campo, solicitacao, dict_total_refeicoes, dict_total_sobr
     try:
         medicao = solicitacao.medicoes.get(grupo__nome="ETEC")
         values = medicao.valores_medicao.filter(
-            categoria_medicao__nome="ALIMENTAÇÃO", nome_campo=campo
+            categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR, nome_campo=campo
         )
         values = somar_valores_semelhantes(
             values,
@@ -3205,7 +3206,10 @@ def build_tabela_somatorio_body(
 
     for medicao in medicoes:
         primeira_tabela_header, segunda_tabela_header = build_tabela_somatorio_header(
-            medicao, primeira_tabela_header, segunda_tabela_header, "ALIMENTAÇÃO"
+            medicao,
+            primeira_tabela_header,
+            segunda_tabela_header,
+            CHAVE_ALIMENTACAO_REGULAR,
         )
         queryset = (
             medicao.valores_medicao.filter(infantil_ou_fundamental=tipo_turma)
@@ -3257,7 +3261,7 @@ def build_tabela_somatorio_body(
     primeira_tabela_somatorio, segunda_tabela_somatorio = adiciona_nomes_header(
         primeira_tabela_somatorio,
         segunda_tabela_somatorio,
-        "ALIMENTAÇÃO",
+        CHAVE_ALIMENTACAO_REGULAR,
         "TIPOS DE ALIMENTAÇÃO",
     )
 
@@ -4202,7 +4206,12 @@ def get_valor_total(escola, total_por_nome_campo, medicao):
 
 
 def get_campos_a_desconsiderar(escola, medicao):
-    campos_a_desconsiderar = ["matriculados", "numero_de_alunos", "observacoes", "participantes"]
+    campos_a_desconsiderar = [
+        "matriculados",
+        "numero_de_alunos",
+        "observacoes",
+        "participantes",
+    ]
     if not (
         escola.eh_cei_data(medicao.solicitacao_medicao_inicial.data_referencia)
         or (
@@ -4304,17 +4313,17 @@ def get_total_campo_periodo(solicitacao, periodo, nome_campo):
 
         if nome_campo == "lanche":
             valores = medicao.valores_medicao.filter(
-                categoria_medicao__nome="ALIMENTAÇÃO",
+                categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
                 nome_campo__in=["lanche", "2_lanche_5h"],
             )
         elif nome_campo == "lanche_4h":
             valores = medicao.valores_medicao.filter(
-                categoria_medicao__nome="ALIMENTAÇÃO",
+                categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
                 nome_campo__in=["lanche_4h", "2_lanche_4h"],
             )
         else:
             valores = medicao.valores_medicao.filter(
-                categoria_medicao__nome="ALIMENTAÇÃO", nome_campo=nome_campo
+                categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR, nome_campo=nome_campo
             )
         total = sum(
             int(valor_medicao.valor)
@@ -4367,7 +4376,7 @@ def get_total_refeicoes_sobremesas_pagamento_por_periodo(solicitacao, periodo, c
 
 def get_valor_campo_dia(medicao, nome_campo, dia):
     valor_medicao = medicao.valores_medicao.filter(
-        categoria_medicao__nome="ALIMENTAÇÃO",
+        categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
         nome_campo=nome_campo,
         dia=f"{dia:02d}",
     ).first()
@@ -4381,17 +4390,17 @@ def get_total_campo_grupo(solicitacao, grupo, nome_campo):
 
         if nome_campo == "lanche":
             valores = medicao.valores_medicao.filter(
-                categoria_medicao__nome="ALIMENTAÇÃO",
+                categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
                 nome_campo__in=["lanche", "2_lanche_5h"],
             )
         elif nome_campo == "lanche_4h":
             valores = medicao.valores_medicao.filter(
-                categoria_medicao__nome="ALIMENTAÇÃO",
+                categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
                 nome_campo__in=["lanche_4h", "2_lanche_4h"],
             )
         else:
             valores = medicao.valores_medicao.filter(
-                categoria_medicao__nome="ALIMENTAÇÃO", nome_campo=nome_campo
+                categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR, nome_campo=nome_campo
             )
         total = sum(
             int(valor_medicao.valor)
@@ -4876,7 +4885,7 @@ def substitui_criador_system_por_usuario_real(
 def _processa_periodo_regular_faixa(medicao, nome_periodo, resultado, faixas_etarias):
     valores = (
         medicao.valores_medicao.filter(
-            nome_campo="frequencia", categoria_medicao__nome="ALIMENTAÇÃO"
+            nome_campo="frequencia", categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR
         )
         .values("faixa_etaria")
         .annotate(total=Sum(Cast("valor", FloatField())))
@@ -5005,9 +5014,7 @@ def _processa_total_pagamento_tipo_alimentacao(medicao, nome_periodo, resultado)
     resultado.setdefault(CHAVE_ALIMENTACAO_REGULAR, {})
 
     chave_refeicao = (
-        "total_refeicao_eja"
-        if nome_periodo.upper() == "NOITE"
-        else "total_refeicao"
+        "total_refeicao_eja" if nome_periodo.upper() == "NOITE" else "total_refeicao"
     )
 
     resultado[CHAVE_ALIMENTACAO_REGULAR].setdefault(chave_refeicao, 0)
@@ -5054,7 +5061,9 @@ def _consolidar_lanches_alimentacao(resultado):
     if CHAVE_ALIMENTACAO_REGULAR not in resultado:
         return resultado
 
-    dados = resultado[CHAVE_ALIMENTACAO_REGULAR]
+    resultado_copia = copy.deepcopy(resultado)
+
+    dados = resultado_copia[CHAVE_ALIMENTACAO_REGULAR]
 
     totais, campos_remover = _processar_lanches(dados)
 
@@ -5063,7 +5072,7 @@ def _consolidar_lanches_alimentacao(resultado):
 
     dados.update({k: v for k, v in totais.items() if v})
 
-    return resultado
+    return resultado_copia
 
 
 def _consolidar_campos(resultado, chave_principal):
@@ -5081,14 +5090,16 @@ def _consolidar_campos(resultado, chave_principal):
     if chave_principal not in resultado:
         return resultado
 
-    dados = resultado[chave_principal]
+    resultado_copia = copy.deepcopy(resultado)
+
+    dados = resultado_copia[chave_principal]
     for campo_total, campos_origem in CONSOLIDACOES_ALIMENTACAO.items():
         if campo_total not in dados:
             continue
         for campo in campos_origem:
             dados.pop(campo, None)
 
-    return resultado
+    return resultado_copia
 
 
 def gerar_totais_consolidado(solicitacoes, tipo):
