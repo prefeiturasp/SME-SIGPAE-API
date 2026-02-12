@@ -1012,3 +1012,8 @@ class EscolaFormIMRSelializer(serializers.ModelSerializer):
     class Meta:
         model = Escola
         fields = ("uuid", "nome", "codigo_eol", "lote", "terceirizada", "edital")
+
+
+class HistoricoEscolaSerializer(serializers.Serializer):
+    nome = serializers.CharField()
+    tipo_unidade = TipoUnidadeEscolarSimplesSerializer()
