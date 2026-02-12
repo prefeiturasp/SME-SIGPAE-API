@@ -100,5 +100,10 @@ router.register(
     viewsets.RelatorioControleDeFrequenciaViewSet,
     basename="relatorio-controle-frequencia",
 )
+router.register(
+    "historico-escola",
+    viewsets.HistoricoEscolaViewSet,
+    basename="historico-escola",
+)
 
 urlpatterns = [path("", include(router.urls))]
