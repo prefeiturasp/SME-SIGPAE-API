@@ -47,6 +47,7 @@ from sme_sigpae_api.perfil.models.usuario import Usuario
 
 MODEL_MEDICAO_RESPONSAVEL = "medicao_inicial.Responsavel"
 PROGRAMAS_E_PROOJETOS = "PROGRAMAS E PROJETOS"
+PRECO_DAS_ALIMENTACOES = "Preço das Alimentações"
 
 
 @pytest.fixture
@@ -2061,7 +2062,7 @@ def parametrizacao_financeira_emef(
 
     tabela_precos = baker.make(
         "ParametrizacaoFinanceiraTabela",
-        nome="Preço das Alimentações",
+        nome=PRECO_DAS_ALIMENTACOES,
         periodo_escolar=None,
         parametrizacao_financeira=parametrizacao_financeira,
     )
@@ -4760,7 +4761,7 @@ def payload_create_parametrizacao_financeira_cei(
         "data_final": "2025-10-30",
         "tabelas": [
             {
-                "nome": "Preço das Alimentações",
+                "nome": PRECO_DAS_ALIMENTACOES,
                 "valores": [
                     {
                         "faixa_etaria": faixa.uuid,
@@ -4774,7 +4775,7 @@ def payload_create_parametrizacao_financeira_cei(
                 "periodo_escolar": periodo_escolar_integral.nome,
             },
             {
-                "nome": "Preço das Alimentações",
+                "nome": PRECO_DAS_ALIMENTACOES,
                 "valores": [
                     {
                         "faixa_etaria": faixa.uuid,

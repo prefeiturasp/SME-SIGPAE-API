@@ -44,6 +44,8 @@ from .utils import (
     incluir_lanche,
 )
 
+TIPO_C = "Tipo C"
+
 calendario = BrazilSaoPauloCity()
 
 
@@ -2624,7 +2626,7 @@ def valida_dietas_solicitacoes_continuas(
         quantidade__gt=0,
         periodo_escolar__nome=None,
         infantil_ou_fundamental=infantil_ou_fundamental,
-    ).exclude(classificacao__nome="Tipo C")
+    ).exclude(classificacao__nome=TIPO_C)
 
     ids_categorias_existentes_no_mes = list(
         set(
@@ -2707,7 +2709,7 @@ def valida_dietas_solicitacoes_continuas_emei_cemei(
             escola.logs_dietas_autorizadas.filter(
                 data__month=mes, data__year=ano, quantidade__gt=0
             )
-            .exclude(classificacao__nome="Tipo C")
+            .exclude(classificacao__nome=TIPO_C)
             .values_list("classificacao", flat=True)
             .distinct()
         )
@@ -2992,7 +2994,7 @@ def validate_lancamento_dietas_inclusoes_escola_sem_alunos_regulares(
             escola.logs_dietas_autorizadas.filter(
                 data__month=mes, data__year=ano, quantidade__gt=0
             )
-            .exclude(classificacao__nome="Tipo C")
+            .exclude(classificacao__nome=TIPO_C)
             .values_list("classificacao", flat=True)
             .distinct()
         )
