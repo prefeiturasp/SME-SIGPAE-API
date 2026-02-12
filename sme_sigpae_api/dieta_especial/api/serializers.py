@@ -59,6 +59,7 @@ from .validators import (
 )
 
 CLASSIFICACAO_NOME_SOURCE = "classificacao.nome"
+DATE_FORMAT = "%d/%m/%Y"
 
 
 class AlergiaIntoleranciaSerializer(serializers.ModelSerializer):
@@ -638,7 +639,7 @@ class SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer(
             data = obj.aluno.data_nascimento
             if isinstance(data, str):
                 data = datetime.strptime(data, "%Y-%m-%d").date()
-            return data.strftime("%d/%m/%Y")
+            return data.strftime(DATE_FORMAT)
         return None
 
     def get_nome_escola(self, obj):
@@ -663,7 +664,7 @@ class SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer(
         if obj.logs.exists():
             ultimo_log = obj.logs.last()
             if ultimo_log and ultimo_log.criado_em:
-                return datetime.strftime(ultimo_log.criado_em, "%d/%m/%Y")
+                return datetime.strftime(ultimo_log.criado_em, DATE_FORMAT)
         return None
 
     class Meta:
@@ -713,7 +714,7 @@ class SolicitacaoDietaEspecialExportXLSXSerializer(serializers.ModelSerializer):
             data = obj.aluno.data_nascimento
             if isinstance(data, str):
                 data = datetime.strptime(data, "%Y-%m-%d").date()
-            return data.strftime("%d/%m/%Y")
+            return data.strftime(DATE_FORMAT)
         return None
 
     def get_nome_escola(self, obj):
@@ -731,7 +732,7 @@ class SolicitacaoDietaEspecialExportXLSXSerializer(serializers.ModelSerializer):
 
     def get_data_ultimo_log(self, obj):
         return (
-            datetime.strftime(obj.logs.last().criado_em, "%d/%m/%Y")
+            datetime.strftime(obj.logs.last().criado_em, DATE_FORMAT)
             if obj.logs
             else None
         )
@@ -854,12 +855,12 @@ class SolicitacaoDietaEspecialRelatorioTercSerializer(serializers.ModelSerialize
             data = obj.aluno.data_nascimento
             if isinstance(data, str):
                 data = datetime.strptime(data, "%Y-%m-%d").date()
-            return data.strftime("%d/%m/%Y")
+            return data.strftime(DATE_FORMAT)
         return None
 
     def get_data_ultimo_log(self, obj):
         return (
-            datetime.strftime(obj.logs.last().criado_em, "%d/%m/%Y")
+            datetime.strftime(obj.logs.last().criado_em, DATE_FORMAT)
             if (
                 obj.logs
                 and obj.status
