@@ -1994,6 +1994,19 @@ def relatorio_recreio_nas_ferias(
         data_inicio=datetime.date(2025, 5, 5),
         data_termino=datetime.date(2025, 5, 15),
     )
+    baker.make(
+        "SolicitacaoDietaEspecial",
+        status=DietaEspecialWorkflow.TERMINADA_AUTOMATICAMENTE_SISTEMA,
+        tipo_solicitacao="ALTERACAO_UE",
+        motivo_alteracao_ue=motivo_alteracao_ue,
+        rastro_escola=escola_dre_guaianases,
+        escola_destino=escola_cemei,
+        aluno=baker.make("Aluno", nome="Maria", codigo_eol="823459"),
+        alergias_intolerancias=[alergia_ao_trigo],
+        classificacao=classificacao_tipo_b,
+        data_inicio=datetime.date(2025, 5, 5),
+        data_termino=datetime.date(2025, 5, 15),
+    )
     # Alunos Não Matriculados
     baker.make(
         "SolicitacaoDietaEspecial",
@@ -2016,6 +2029,19 @@ def relatorio_recreio_nas_ferias(
         rastro_escola=escola_parceira,
         escola_destino=escola_emebs,
         aluno=baker.make("Aluno", nome="Carla", codigo_eol="723457"),
+        alergias_intolerancias=[alergia_ao_trigo],
+        classificacao=classificacao_tipo_b,
+        data_inicio=datetime.date(2025, 5, 10),
+        data_termino=datetime.date(2025, 5, 20),
+    )
+    baker.make(
+        "SolicitacaoDietaEspecial",
+        status=DietaEspecialWorkflow.TERMINADA_AUTOMATICAMENTE_SISTEMA,
+        tipo_solicitacao="ALUNO_NAO_MATRICULADO",
+        dieta_para_recreio_ferias=True,
+        rastro_escola=escola_parceira,
+        escola_destino=escola_cemei,
+        aluno=baker.make("Aluno", nome="Carla", codigo_eol="723458"),
         alergias_intolerancias=[alergia_ao_trigo],
         classificacao=classificacao_tipo_b,
         data_inicio=datetime.date(2025, 5, 10),

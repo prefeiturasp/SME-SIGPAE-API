@@ -866,7 +866,7 @@ def test_filtra_relatorio_recreio_nas_ferias_sem_parametos(
     query_params = QueryDict(mutable=True)
     queryset = filtra_relatorio_recreio_nas_ferias(query_params)
     assert isinstance(queryset, QuerySet)
-    assert queryset.count() == 4
+    assert queryset.count() == 6
 
 
 def test_filtra_relatorio_recreio_nas_ferias_filtro_lote(
@@ -896,7 +896,7 @@ def test_filtra_relatorio_recreio_nas_ferias_filtro_classicicao(
     query_params.setlist("classificacoes_selecionadas[]", [classificacao_tipo_b.id])
     queryset = filtra_relatorio_recreio_nas_ferias(query_params)
     assert isinstance(queryset, QuerySet)
-    assert queryset.count() == 2
+    assert queryset.count() == 4
 
 
 def test_filtra_relatorio_recreio_nas_ferias_filtro_alergia(
@@ -917,4 +917,23 @@ def test_filtra_relatorio_recreio_nas_ferias_filtro_data(relatorio_recreio_nas_f
     query_params["data_fim"] = "15/05/2025"
     queryset = filtra_relatorio_recreio_nas_ferias(query_params)
     assert isinstance(queryset, QuerySet)
-    assert queryset.count() == 4
+    assert queryset.count() == 6
+
+
+def test_filtra_relatorio_recreio_nas_ferias_status_permitidos(
+    relatorio_recreio_nas_ferias,
+):
+    query_params = QueryDict(mutable=True)
+    queryset = filtra_relatorio_recreio_nas_ferias(query_params)
+
+    assert isinstance(queryset, QuerySet)
+
+    status_retornados = set(queryset.values_list('status', flat=True))
+    status_esperados = {
+        SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+        SolicitacaoDietaEspecial.workflow_class.TERMINADA_AUTOMATICAMENTE_SISTEMA
+    }
+
+    assert status_retornados.issubset(status_esperados)
+    assert SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO in status_retornados
+    assert SolicitacaoDietaEspecial.workflow_class.TERMINADA_AUTOMATICAMENTE_SISTEMA in status_retornados
