@@ -845,7 +845,7 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 					terceirizada_conferiu_gestao: true,
 					eh_alteracao_com_lanche_repetida: true,
 					criado_por: null,
-					data: '2025-11-30',
+					data: '2026-11-30',
 				}
 				cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 					expect(response.status).to.eq(400)
