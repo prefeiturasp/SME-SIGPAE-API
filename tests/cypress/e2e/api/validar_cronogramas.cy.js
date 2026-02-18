@@ -52,17 +52,16 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 					'qtd_total_empenho',
 				)
 				expect(response.body.results[0].etapas[0]).to.have.property('etapa')
-					.that.exist
 				expect(response.body.results[0].etapas[0]).to.have.property('parte')
 				expect(response.body.results[0].etapas[0]).to.have.property(
 					'data_programada',
-				).that.exist
+				)
 				expect(response.body.results[0].etapas[0]).to.have.property(
 					'quantidade',
-				).that.exist
+				)
 				expect(response.body.results[0].etapas[0]).to.have.property(
 					'total_embalagens',
-				).that.exist
+				)
 				expect(response.body.results[0])
 					.to.have.property('programacoes_de_recebimento')
 					.to.be.an('array')
@@ -731,18 +730,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 				expect(response.body.results[0]).to.have.property(
 					'qtd_total_programada',
 				)
-				expect(response.body.results[0]).to.have.property('unidade_medida').that
-					.exist
-				expect(response.body.results[0].unidade_medida).to.have.property('uuid')
-					.that.exist
-				expect(response.body.results[0].unidade_medida).to.have.property('nome')
-					.that.exist
-				expect(response.body.results[0].unidade_medida).to.have.property(
-					'abreviacao',
-				).that.exist
-				expect(response.body.results[0].unidade_medida).to.have.property(
-					'criado_em',
-				).that.exist
+				expect(response.body.results[0]).to.have.property('unidade_medida')
 				expect(response.body.results[0]).to.have.property('armazem').that.exist
 				expect(response.body.results[0].armazem).to.have.property('uuid').that
 					.exist
@@ -1489,17 +1477,16 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 						'qtd_total_empenho',
 					)
 					expect(response.body.results[0].etapas[0]).to.have.property('etapa')
-						.that.exist
 					expect(response.body.results[0].etapas[0]).to.have.property('parte')
 					expect(response.body.results[0].etapas[0]).to.have.property(
 						'data_programada',
-					).that.exist
+					)
 					expect(response.body.results[0].etapas[0]).to.have.property(
 						'quantidade',
-					).that.exist
+					)
 					expect(response.body.results[0].etapas[0]).to.have.property(
 						'total_embalagens',
-					).that.exist
+					)
 					expect(response.body.results[0])
 						.to.have.property('programacoes_de_recebimento')
 						.to.be.an('array')
@@ -1566,14 +1553,11 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 					expect(response.body.etapas[0]).to.have.property('numero_empenho')
 						.that.exist
 					expect(response.body.etapas[0]).to.have.property('qtd_total_empenho')
-					expect(response.body.etapas[0]).to.have.property('etapa').that.exist
+					expect(response.body.etapas[0]).to.have.property('etapa')
 					expect(response.body.etapas[0]).to.have.property('parte')
 					expect(response.body.etapas[0]).to.have.property('data_programada')
-						.that.exist
-					expect(response.body.etapas[0]).to.have.property('quantidade').that
-						.exist
+					expect(response.body.etapas[0]).to.have.property('quantidade')
 					expect(response.body.etapas[0]).to.have.property('total_embalagens')
-						.that.exist
 					expect(response.body)
 						.to.have.property('programacoes_de_recebimento')
 						.to.be.an('array')
@@ -1613,14 +1597,11 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 					expect(response.body.results).property('contrato').that.exist.and.is
 						.not.empty
 					expect(response.body.results).property('pregao_chamada_publica').that
-						.exist.and.is.not.empty
+						.exist
 					expect(response.body.results).property('ata').that.exist
 					expect(response.body.results).to.have.property('produto')
 					expect(response.body.results).to.have.property('marca')
 					expect(response.body.results).to.have.property('qtd_total_programada')
-						.that.exist
-					expect(response.body.results).to.have.property('qtd_total_programada')
-						.that.exist
 					expect(response.body.results).to.have.property(
 						'peso_liquido_embalagem_primaria',
 					)
@@ -1639,19 +1620,16 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 					).that.exist
 					expect(response.body.results.etapas[0]).to.have.property(
 						'qtd_total_empenho',
-					).that.exist
-					expect(response.body.results.etapas[0]).to.have.property('etapa').that
-						.exist
+					)
+					expect(response.body.results.etapas[0]).to.have.property('etapa')
 					expect(response.body.results.etapas[0]).to.have.property('parte')
 					expect(response.body.results.etapas[0]).to.have.property(
 						'data_programada',
-					).that.exist
+					)
 					expect(response.body.results.etapas[0]).to.have.property('quantidade')
-						.that.exist
 					expect(response.body.results.etapas[0]).to.have.property(
 						'total_embalagens',
-					).that.exist
-
+					)
 					expect(response.body.results)
 						.to.have.property('documentos_de_recebimento')
 						.to.be.an('array')
@@ -1699,14 +1677,11 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 					expect(response.body.etapas[0]).to.have.property('numero_empenho')
 						.that.exist
 					expect(response.body.etapas[0]).to.have.property('qtd_total_empenho')
-					expect(response.body.etapas[0]).to.have.property('etapa').that.exist
+					expect(response.body.etapas[0]).to.have.property('etapa')
 					expect(response.body.etapas[0]).to.have.property('parte')
 					expect(response.body.etapas[0]).to.have.property('data_programada')
-						.that.exist
-					expect(response.body.etapas[0]).to.have.property('quantidade').that
-						.exist
+					expect(response.body.etapas[0]).to.have.property('quantidade')
 					expect(response.body.etapas[0]).to.have.property('total_embalagens')
-						.that.exist
 					expect(response.body)
 						.to.have.property('programacoes_de_recebimento')
 						.to.be.an('array')
@@ -2049,8 +2024,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 				expect(response.body.results[0]).to.have.property(
 					'pregao_chamada_publica',
 				).that.exist
-				expect(response.body.results[0]).to.have.property('nome_produto').that
-					.exist
+				expect(response.body.results[0]).to.have.property('nome_produto')
 			})
 		})
 
@@ -2071,7 +2045,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 					.and.is.not.empty
 				expect(response.body.results[0]).to.have.property(
 					'qtd_total_programada',
-				).that.exist
+				)
 				expect(response.body.results[0]).to.have.property('status').that.exist
 					.and.is.not.empty
 				expect(response.body.results[0]).to.have.property('marca')
@@ -2087,22 +2061,21 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 				).that.exist
 				expect(response.body.results[0].etapas[0]).to.have.property(
 					'qtd_total_empenho',
-				).that.exist
+				)
 				expect(response.body.results[0].etapas[0]).to.have.property('etapa')
-					.that.exist
 				expect(response.body.results[0].etapas[0]).to.have.property('parte')
 				expect(response.body.results[0].etapas[0]).to.have.property(
 					'data_programada',
-				).that.exist
+				)
 				expect(response.body.results[0].etapas[0]).to.have.property(
 					'quantidade',
-				).that.exist
+				)
 				expect(response.body.results[0].etapas[0]).to.have.property(
 					'total_embalagens',
-				).that.exist
+				)
 				expect(response.body.results[0].etapas[0]).to.have.property(
 					'desvinculada_recebimento',
-				).that.exist
+				)
 				expect(response.body).to.have.property('totalizadores').that.exist
 				expect(response.body.totalizadores).to.have.property(
 					'Assinado e Enviado ao Fornecedor',

@@ -21,6 +21,7 @@ from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
 )
+from sme_sigpae_api.produto.models import InformacaoNutricional
 from sme_sigpae_api.produto.utils.relatorio_reclamacao_produto import (
     gerar_relatorio_reclamacao_produto_excel,
 )
@@ -179,6 +180,7 @@ def relatorio_kit_lanche_unificado(request, solicitacao):
         todos_kits_cancelados = todas_escolas_sol_kit_lanche_unificado_cancelado(
             solicitacao
         )
+
     html_string = render_to_string(
         "solicitacao_kit_lanche_unificado.html",
         {
@@ -228,6 +230,12 @@ def _formata_tipos_alimentacao(tipos_alimentacao):
     return formatado
 
 
+def _aplica_nome_historico_escola(escola, data):
+    if escola:
+        escola.nome = escola.nome_historico(data)
+    return escola
+
+
 def relatorio_alteracao_cardapio(request, solicitacao):
     """
     Esta é uma função interna (não exposta via URL) chamada para gerar PDF.
@@ -245,6 +253,7 @@ def relatorio_alteracao_cardapio(request, solicitacao):
         formata_substituicoes.append(resultado)
 
     escola = solicitacao.rastro_escola
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     html_string = render_to_string(
         "solicitacao_alteracao_cardapio.html",
@@ -264,6 +273,7 @@ def relatorio_alteracao_cardapio(request, solicitacao):
 
 def relatorio_alteracao_cardapio_cei(request, solicitacao):
     escola = solicitacao.rastro_escola
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     substituicoes = solicitacao.substituicoes_cei_periodo_escolar
     logs = solicitacao.logs
     html_string = render_to_string(
@@ -284,6 +294,7 @@ def relatorio_alteracao_cardapio_cei(request, solicitacao):
 
 def relatorio_alteracao_alimentacao_cemei(request, solicitacao):  # noqa C901
     escola = solicitacao.rastro_escola
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     periodos_escolares_cei = []
     periodos_cei = []
@@ -679,7 +690,6 @@ def relatorio_dieta_especial_protocolo(request, solicitacao, sem_foto=False):
         escola = solicitacao.rastro_escola
     else:
         escola = solicitacao.escola_destino
-
     substituicao_ordenada = solicitacao.substituicoes.order_by("alimento__nome")
 
     referencia = "unidade" if escola.eh_parceira else "empresa"
@@ -726,6 +736,7 @@ def relatorio_dieta_especial_protocolo(request, solicitacao, sem_foto=False):
 
 def relatorio_inclusao_alimentacao_continua(request, solicitacao):
     escola = solicitacao.rastro_escola
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     html_string = render_to_string(
         "solicitacao_inclusao_alimentacao_continua.html",
@@ -753,6 +764,7 @@ def relatorio_inclusao_alimentacao_normal(request, solicitacao):
     valida_request_method_get(request)
 
     escola = solicitacao.rastro_escola
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     html_string = render_to_string(
         "solicitacao_inclusao_alimentacao_normal.html",
@@ -771,6 +783,7 @@ def relatorio_inclusao_alimentacao_normal(request, solicitacao):
 
 def relatorio_inclusao_alimentacao_cei(request, solicitacao):
     escola = solicitacao.rastro_escola
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     if solicitacao.periodo_escolar:
         html_string = render_to_string(
@@ -875,6 +888,7 @@ def relatorio_inclusao_alimentacao_cei(request, solicitacao):
 
 def relatorio_inclusao_alimentacao_cemei(request, solicitacao):  # noqa C901
     escola = solicitacao.rastro_escola
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     periodos_escolares_cei = []
     periodos_cei = []
@@ -1005,6 +1019,7 @@ def relatorio_inclusao_alimentacao_cemei(request, solicitacao):  # noqa C901
 def relatorio_kit_lanche_passeio(request, solicitacao):
     TEMPO_PASSEIO = {"0": "até 4 horas", "1": "de 5 a 7 horas", "2": "8 horas ou mais"}
     escola = solicitacao.rastro_escola
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     tempo_passeio_num = str(solicitacao.solicitacao_kit_lanche.tempo_passeio)
     tempo_passeio = TEMPO_PASSEIO.get(tempo_passeio_num)
@@ -1028,6 +1043,7 @@ def relatorio_kit_lanche_passeio(request, solicitacao):
 
 def relatorio_kit_lanche_passeio_cei(request, solicitacao):
     escola = solicitacao.rastro_escola
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     html_string = render_to_string(
         "solicitacao_kit_lanche_passeio_cei.html",
@@ -1049,6 +1065,7 @@ def relatorio_kit_lanche_passeio_cei(request, solicitacao):
 def relatorio_kit_lanche_passeio_cemei(request, solicitacao):
     TEMPO_PASSEIO = {0: "até 4 horas", 1: "de 5 a 7 horas", 2: "8 horas ou mais"}
     escola = solicitacao.rastro_escola
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     tempo_passeio_cei = None
     tempo_passeio_emei = None
@@ -1077,6 +1094,7 @@ def relatorio_kit_lanche_passeio_cemei(request, solicitacao):
 
 def relatorio_inversao_dia_de_cardapio(request, solicitacao):
     escola = solicitacao.rastro_escola
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     data_de = (
         solicitacao.cardapio_de.data
@@ -1107,6 +1125,7 @@ def relatorio_inversao_dia_de_cardapio(request, solicitacao):
 
 def relatorio_suspensao_de_alimentacao(request, solicitacao):
     escola = solicitacao.rastro_escola
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     # TODO: GrupoSuspensaoAlimentacaoSerializerViewSet não tem motivo, quem
     # tem é cada suspensão do relacionamento
@@ -1133,6 +1152,7 @@ def relatorio_suspensao_de_alimentacao(request, solicitacao):
 
 def relatorio_suspensao_de_alimentacao_cei(request, solicitacao):
     escola = solicitacao.rastro_escola
+    escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
     periodos_escolares = solicitacao.periodos_escolares.all()
     html_string = render_to_string(
@@ -2124,7 +2144,19 @@ def get_pdf_cronograma(request, cronograma):
 def get_pdf_ficha_tecnica(request, ficha):
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnica.objects.filter(
         ficha_tecnica=ficha
+    ).select_related("informacao_nutricional")
+
+    def get_ordem_nutricional(info_nutricional):
+        nome = info_nutricional.informacao_nutricional.nome.upper()
+        try:
+            return InformacaoNutricional.ORDEM_TABELA.index(nome)
+        except ValueError:
+            return len(InformacaoNutricional.ORDEM_TABELA)
+
+    info_nutricionais_ordenadas = sorted(
+        informacoes_nutricionais, key=get_ordem_nutricional
     )
+
     empresa = ficha.empresa
     cnpj_empresa, telefone_empresa = formata_informacoes_ficha_tecnica(empresa)
 
@@ -2144,7 +2176,7 @@ def get_pdf_ficha_tecnica(request, ficha):
             "cnpj_empresa": cnpj_empresa,
             "telefone_empresa": telefone_empresa,
             "status_ficha": retorna_status_ficha_tecnica(ficha.status),
-            "tabela": list(informacoes_nutricionais),
+            "tabela": info_nutricionais_ordenadas,
             "logs": ficha.logs,
             "fabricante": fabricante,
             "cnpj_fabricante": cnpj_fabricante,
@@ -2412,8 +2444,14 @@ def obtem_data_inativacao(solicitacao: SolicitacaoDietaEspecial) -> str:
     """
     Determina a data de inativação de uma solicitação de dieta especial.
 
-    A inativação é definida pela data em que a solicitação subsequente (seja ela
-    autorizada, cancelada ou inativa) recebeu o status de autorização da CODAE.
+    A inativação é definida pela data em que a solicitação foi explicitamente inativada pela CODAE
+    ou pela data em que uma solicitação subsequente (autorizada, cancelada ou inativa)
+    recebeu o status de autorização da CODAE.
+
+    A função segue a seguinte ordem de precedência:
+    1. Busca por registro explícito de inativação (CODAE_INATIVOU)
+    2. Caso não encontrado, busca pela próxima solicitação subsequente do mesmo aluno
+       que tenha sido autorizada pela CODAE
 
     Args:
         solicitacao (SolicitacaoDietaEspecial):  Objeto da solicitação de dieta especial para a qual se deseja encontrar
@@ -2423,6 +2461,13 @@ def obtem_data_inativacao(solicitacao: SolicitacaoDietaEspecial) -> str:
         str: Data de inativação no formato "DD/MM/AAAA" se encontrada.
         Retorna "Data não encontrada" se não for possível determinar a data.
     """
+
+    log_inativado = solicitacao.logs.filter(
+        status_evento=LogSolicitacoesUsuario.CODAE_INATIVOU
+    ).last()
+    if log_inativado:
+        return log_inativado.criado_em.strftime("%d/%m/%Y")
+
     data = "Data não encontrada"
     solicitacoes_canceladas_e_autorizadas = (
         (

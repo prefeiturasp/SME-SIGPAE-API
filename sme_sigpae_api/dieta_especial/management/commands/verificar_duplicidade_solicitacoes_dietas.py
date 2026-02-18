@@ -51,6 +51,29 @@ class Command(BaseCommand):
                 por_eol[codigo_eol].append(s)
         return por_eol
 
+    def _formatar_data(self, obj, campo, formato="%d/%m/%Y"):
+        """Formata uma data do objeto ou retorna '-' se não existir."""
+        valor = getattr(obj, campo, None)
+        if valor and hasattr(valor, "strftime"):
+            return valor.strftime(formato)
+        return str(valor) if valor else "-"
+
+    def _extrair_dados_solicitacao(self, solicitacao):
+        """Extrai e formata todos os dados de uma solicitação para o Excel."""
+        aluno = solicitacao.aluno
+        return [
+            str(solicitacao.uuid),
+            getattr(aluno, "codigo_eol", "-"),
+            getattr(aluno, "nome", "-"),
+            getattr(solicitacao.rastro_dre, "nome", "-"),
+            getattr(solicitacao.rastro_escola, "nome", "-"),
+            getattr(solicitacao.classificacao, "nome", "Sem classificação"),
+            self._formatar_data(solicitacao, "data_inicio"),
+            self._formatar_data(solicitacao, "data_termino"),
+            self._formatar_data(solicitacao, "criado_em", "%d/%m/%Y %H:%M"),
+            self._formatar_data(solicitacao, "data_ultimo_log", "%d/%m/%Y %H:%M"),
+        ]
+
     def _exportar_para_excel(self, duplicadas):
         output_dir = os.path.join(settings.MEDIA_ROOT, "exportacao_solicitacoes")
         os.makedirs(output_dir, exist_ok=True)
@@ -87,50 +110,8 @@ class Command(BaseCommand):
             solicitacoes.sort(key=lambda s: s.data_ultimo_log or datetime.min)
 
             for s in solicitacoes:
-                aluno = s.aluno
-                aluno_nome = getattr(aluno, "nome", "-")
-                codigo_eol = getattr(aluno, "codigo_eol", "-")
-                dre_nome = getattr(s.rastro_dre, "nome", "-")
-                ue_nome = getattr(s.rastro_escola, "nome", "-")
-                classificacao = getattr(s.classificacao, "nome", "Sem classificação")
-
-                criado_em = (
-                    s.criado_em.strftime("%d/%m/%Y %H:%M")
-                    if hasattr(s, "criado_em") and hasattr(s.criado_em, "strftime")
-                    else str(getattr(s, "criado_em", "-"))
-                )
-                data_inicio = (
-                    s.data_inicio.strftime("%d/%m/%Y")
-                    if hasattr(s, "data_inicio") and hasattr(s.data_inicio, "strftime")
-                    else str(getattr(s, "data_inicio", "-"))
-                )
-                data_termino = (
-                    s.data_termino.strftime("%d/%m/%Y")
-                    if hasattr(s, "data_termino")
-                    and hasattr(s.data_termino, "strftime")
-                    else str(getattr(s, "data_termino", "-"))
-                )
-                data_ultimo_log = (
-                    s.data_ultimo_log.strftime("%d/%m/%Y %H:%M")
-                    if hasattr(s, "data_ultimo_log")
-                    and hasattr(s.data_ultimo_log, "strftime")
-                    else str(getattr(s, "data_ultimo_log", "-"))
-                )
-
-                ws.append(
-                    [
-                        str(s.uuid),
-                        codigo_eol,
-                        aluno_nome,
-                        dre_nome,
-                        ue_nome,
-                        classificacao,
-                        data_inicio,
-                        data_termino,
-                        criado_em,
-                        data_ultimo_log,
-                    ]
-                )
+                dados = self._extrair_dados_solicitacao(s)
+                ws.append(dados)
                 total += 1
 
             ws.append([])

@@ -5,15 +5,16 @@ from datetime import date
 import pandas as pd
 from celery import shared_task
 from django.template.loader import render_to_string
+from workalendar.america import BrazilSaoPauloCity
 
+from sme_sigpae_api.dados_comuns.constants import TRADUCOES_FERIADOS
 from sme_sigpae_api.dados_comuns.utils import (
     atualiza_central_download,
     atualiza_central_download_com_erro,
     gera_objeto_na_central_download,
-    numero_com_agrupador_de_milhar_e_decimal,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.helpers import (
-    extrair_numero_quantidade,
+    converter_para_numero,
     filtrar_etapas,
     totalizador_relatorio_cronograma,
 )
@@ -22,6 +23,7 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serialize
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
     Cronograma,
+    InterrupcaoProgramadaEntrega,
 )
 from sme_sigpae_api.relatorios.utils import html_to_pdf_file
 
@@ -35,6 +37,11 @@ def _preparar_dataframe_cronogramas(dados):
 
     df = pd.DataFrame(dados)
     df.insert(13, "unidade_etapa", value=df.iloc[:, 5])
+
+    if "data_programada" in df.columns:
+        df["data_programada"] = pd.to_datetime(
+            df["data_programada"], format="%d/%m/%Y", errors="coerce"
+        ).dt.normalize()
 
     indices_leve_leite = df.index[df["programa_leve_leite"]].tolist()
     df = df.drop(columns=["programa_leve_leite"])
@@ -56,15 +63,25 @@ def _aplicar_estilos_leve_leite(worksheet, workbook, indices_leve_leite, dados):
         worksheet.write(excel_row, col_produto, valor_produto, blue_format)
 
 
+def aplicar_formatacao_numeros(worksheet, workbook, coluna, largura=None):
+    """Aplica formatação numérica brasileira em uma coluna específica."""
+    number_format = workbook.add_format({"num_format": "#,##0.00;(#,##0.00)"})
+    col_range = f"{coluna}:{coluna}"
+    worksheet.set_column(col_range, largura, number_format)
+
+
 def _finalizar_formatacao_worksheet(
-    worksheet, workbook, headers, subtitulo, titulo_relatorio
+    worksheet, workbook, headers, subtitulo, titulo_relatorio, remove_titulos=False
 ):
     """Aplica formatações finais à planilha."""
     ultima_coluna = len(headers) - 1
     _definir_largura_colunas(worksheet)
-    _formatar_titulo(ultima_coluna, titulo_relatorio, workbook, worksheet)
-    _formatar_subtitulo(subtitulo, ultima_coluna, workbook, worksheet)
+    if not remove_titulos:
+        _formatar_titulo(ultima_coluna, titulo_relatorio, workbook, worksheet)
+        _formatar_subtitulo(subtitulo, ultima_coluna, workbook, worksheet)
     _formatar_headers(headers, workbook, worksheet)
+    aplicar_formatacao_numeros(worksheet, workbook, "E", largura=18)  # Quantidade Total
+    aplicar_formatacao_numeros(worksheet, workbook, "M", largura=12)  # Quantidade
 
 
 @shared_task(
@@ -95,6 +112,9 @@ def gerar_relatorio_cronogramas_xlsx_async(user, ids_cronogramas, filtros=None):
         "Unidade/Etapa",
         "Total de Embalagens",
         "Situação",
+        "Nº do Processo - SEI",
+        "Nº do Empenho",
+        "Nº do Contrato",
     ]
 
     TITULO_ARQUIVO = "relatorio_cronogramas.xlsx"
@@ -106,7 +126,9 @@ def gerar_relatorio_cronogramas_xlsx_async(user, ids_cronogramas, filtros=None):
     )
 
     output = io.BytesIO()
-    xlsxwriter = pd.ExcelWriter(output, engine="xlsxwriter")
+    xlsxwriter = pd.ExcelWriter(
+        output, engine="xlsxwriter", datetime_format="dd/mm/yyyy"
+    )
 
     try:
         dados, subtitulo = _dados_relatorio_cronograma_xlsx(ids_cronogramas, filtros)
@@ -117,7 +139,7 @@ def gerar_relatorio_cronogramas_xlsx_async(user, ids_cronogramas, filtros=None):
             TITULO_RELATORIO,
             index=False,
             header=False,
-            startrow=3,
+            startrow=1,
         )
 
         workbook = xlsxwriter.book
@@ -125,7 +147,12 @@ def gerar_relatorio_cronogramas_xlsx_async(user, ids_cronogramas, filtros=None):
 
         _aplicar_estilos_leve_leite(worksheet, workbook, indices_leve_leite, dados)
         _finalizar_formatacao_worksheet(
-            worksheet, workbook, HEADERS, subtitulo, TITULO_RELATORIO
+            worksheet,
+            workbook,
+            HEADERS,
+            subtitulo,
+            TITULO_RELATORIO,
+            remove_titulos=True,
         )
 
         xlsxwriter.close()
@@ -200,14 +227,13 @@ def gerar_relatorio_cronogramas_pdf_async(user, ids_cronogramas, filtros=None):
 
 def _criar_linha_base_excel(cronograma, etapa):
     """Cria a linha base com dados do cronograma e etapa para o Excel."""
+
     return {
         "cronograma_numero": cronograma.get("numero"),
         "produto_nome": cronograma.get("produto", ""),
         "empresa_razao_social": cronograma.get("empresa", ""),
         "marca": cronograma.get("marca", ""),
-        "qtd_total_programada": numero_com_agrupador_de_milhar_e_decimal(
-            cronograma.get("qtd_total_programada")
-        ),
+        "qtd_total_programada": cronograma.get("qtd_total_programada"),
         "produto_unidade": etapa.get("unidade_medida"),
         "custo_unitario": cronograma.get("custo_unitario_produto"),
         "armazem": cronograma.get("armazem", ""),
@@ -215,9 +241,13 @@ def _criar_linha_base_excel(cronograma, etapa):
         "etapa": etapa.get("etapa"),
         "parte": etapa.get("parte"),
         "data_programada": etapa.get("data_programada"),
-        "quantidade": extrair_numero_quantidade(etapa.get("quantidade")),
+        "quantidade": converter_para_numero(etapa.get("quantidade")),
         "total_embalagens": etapa.get("total_embalagens"),
         "programa_leve_leite": cronograma.get("programa_leve_leite", False),
+        "situacao": etapa.get("situacao", ""),
+        "numero_processo": cronograma.get("numero_processo", ""),
+        "numero_empenho": etapa.get("numero_empenho", ""),
+        "numero_contrato": cronograma.get("numero_contrato", ""),
     }
 
 
@@ -387,9 +417,9 @@ def _definir_largura_colunas(worksheet):
         "D:D": 18,
         "E:E": 18,
         "F:F": 10,
-        "G:G": 25,
+        "G:G": 20,
         "H:H": 30,
-        "I:I": 20,
+        "I:I": 30,
         "J:J": 10,
         "K:K": 10,
         "L:L": 18,
@@ -397,6 +427,9 @@ def _definir_largura_colunas(worksheet):
         "N:N": 10,
         "O:O": 12,
         "P:P": 10,
+        "Q:Q": 18,
+        "R:R": 12,
+        "S:S": 18,
     }
 
     for col, width in LARGURA_COLUNAS.items():
@@ -458,7 +491,7 @@ def _formatar_subtitulo(subtitulo, ULTIMA_COLUNA, workbook, worksheet):
 
 def _formatar_headers(HEADERS, workbook, worksheet):
     ALTURA_LINHA_HEADERS = 30
-    LINHA_HEADERS = 2
+    LINHA_HEADERS = 0
 
     headers_format = workbook.add_format(
         {
@@ -477,3 +510,63 @@ def _formatar_headers(HEADERS, workbook, worksheet):
             header,
             headers_format,
         )
+
+
+@shared_task(
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 8},
+)
+def importa_feriados_para_interrupcoes_programadas():
+    """
+    Task periódica para importar feriados do ano atual e próximo ano
+    como Interrupções Programadas de Entrega.
+    """
+    logger.info(
+        "x-x-x-x Iniciando importação de feriados para Interrupções Programadas x-x-x-x"
+    )
+
+    calendario = BrazilSaoPauloCity()
+    ano_atual = date.today().year
+    anos = [ano_atual, ano_atual + 1]
+
+    tipos_calendario = [
+        InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL,
+        InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_PONTO_A_PONTO,
+    ]
+
+    datas_existentes_por_tipo = {}
+    for tipo in tipos_calendario:
+        datas_existentes = set(
+            InterrupcaoProgramadaEntrega.objects.filter(
+                data__year__in=anos,
+                tipo_calendario=tipo,
+            ).values_list("data", flat=True)
+        )
+        datas_existentes_por_tipo[tipo] = datas_existentes
+
+    feriados_criados = 0
+    feriados_ignorados = 0
+
+    for ano in anos:
+        feriados = calendario.holidays(ano)
+
+        for data_feriado, nome_feriado in feriados:
+            nome_traduzido = TRADUCOES_FERIADOS.get(nome_feriado, nome_feriado)
+
+            for tipo_calendario in tipos_calendario:
+                if data_feriado in datas_existentes_por_tipo[tipo_calendario]:
+                    feriados_ignorados += 1
+                    continue
+
+                InterrupcaoProgramadaEntrega.objects.create(
+                    data=data_feriado,
+                    motivo=InterrupcaoProgramadaEntrega.MOTIVO_FERIADO,
+                    descricao_motivo=nome_traduzido,
+                    tipo_calendario=tipo_calendario,
+                )
+                feriados_criados += 1
+
+    logger.info(
+        f"x-x-x-x Finaliza importação de feriados. "
+        f"Criados: {feriados_criados}, Ignorados: {feriados_ignorados} x-x-x-x"
+    )

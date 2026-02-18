@@ -20,7 +20,9 @@ from .constants import obter_dias_uteis_apos_hoje
 from .utils import datetime_range, eh_dia_util
 
 calendario = BrazilSaoPauloCity()
-ERROR_MSG_EXISTE_RPL_MES = "Já existe uma solicitação de RPL para o mês e período selecionado!"
+ERROR_MSG_EXISTE_RPL_MES = (
+    "Já existe uma solicitação de RPL para o mês e período selecionado!"
+)
 
 
 def nao_pode_ser_no_passado(data: datetime.date):

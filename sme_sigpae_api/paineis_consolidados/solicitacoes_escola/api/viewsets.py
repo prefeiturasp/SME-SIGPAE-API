@@ -244,6 +244,7 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         escola_uuid = request.query_params.get("escola_uuid")
         mes = request.query_params.get("mes")
         ano = request.query_params.get("ano")
+        data_referencia = datetime.date(int(ano), int(mes), 1)
 
         uuids_inclusoes_normais = GrupoInclusaoAlimentacaoNormal.objects.filter(
             status="CODAE_AUTORIZADO",
@@ -259,7 +260,7 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         ).distinct()
         escola = Escola.objects.get(uuid=escola_uuid)
 
-        ordem_personalizada = ordem_periodos(escola)
+        ordem_personalizada = ordem_periodos(escola, data_referencia)
         condicoes_ordenacao = [
             When(periodo_escolar__nome=nome, then=Value(prioridade))
             for nome, prioridade in ordem_personalizada.items()

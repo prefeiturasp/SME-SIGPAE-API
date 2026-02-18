@@ -1,3 +1,4 @@
+import datetime
 from math import ceil
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -890,5 +891,19 @@ class InterrupcaoProgramadaEntregaViewSet(
             [
                 {"value": c[0], "label": c[1]}
                 for c in InterrupcaoProgramadaEntrega.MOTIVO_CHOICES
+                if c[0] != InterrupcaoProgramadaEntrega.MOTIVO_FERIADO
             ]
         )
+
+    @action(detail=False, methods=["GET"], url_path="datas-bloqueadas-armazenavel")
+    def datas_bloqueadas_armazenavel(self, request):
+        """Retorna lista de datas bloqueadas para cadastro de etapas (tipo ARMAZENAVEL)."""
+        ano_atual = datetime.datetime.now().year
+        ano_proximo = ano_atual + 1
+
+        datas = InterrupcaoProgramadaEntrega.objects.filter(
+            tipo_calendario=InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL,
+            data__year__in=[ano_atual, ano_proximo],
+        ).values_list("data", flat=True)
+
+        return Response({"results": list(datas)}, status=HTTP_200_OK)

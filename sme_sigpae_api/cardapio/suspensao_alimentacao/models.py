@@ -185,7 +185,7 @@ class GrupoSuspensaoAlimentacao(
         datas = " ".join(datas)
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
-            "unidade_educacional": self.rastro_escola.nome,
+            "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada,
             "tipo_doc": "Suspensão de Alimentação",
             "data_evento": datas,

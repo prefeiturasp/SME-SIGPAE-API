@@ -1403,3 +1403,30 @@ def dia_calendario_noturno(escola, periodo_escolar_noite):
         data=datetime.date(2024, 5, 15),
         dia_letivo=False,
     )
+
+
+@pytest.fixture
+def get_historico_escola(client_autenticado):
+    """
+    Fixture para fazer requisições ao endpoint de histórico da escola.
+
+    Uso:
+        response = get_historico_escola(escola_uuid, mes=1, ano=2023)
+    """
+
+    def _get_historico_escola(escola_uuid, mes=None, ano=None):
+        url = f"/historico-escola/{escola_uuid}/"
+        params = {}
+        if mes is not None:
+            params["mes"] = mes
+        if ano is not None:
+            params["ano"] = ano
+
+        if params:
+            from urllib.parse import urlencode
+
+            url = f"{url}?{urlencode(params)}"
+
+        return client_autenticado.get(url)
+
+    return _get_historico_escola

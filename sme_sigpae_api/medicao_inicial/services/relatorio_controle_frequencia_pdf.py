@@ -1,3 +1,4 @@
+import datetime
 import io
 from calendar import monthrange
 
@@ -25,12 +26,15 @@ def gera_relatorio_controle_frequencia_pdf(query_params, escola_uuid):
 
     vs_relatorio_controle = RelatorioControleDeFrequenciaViewSet()
     escola = Escola.objects.get(uuid=escola_uuid)
-    qs = queryset_alunos_matriculados(escola)
-    queryset = qs.filter(escola=escola)
     mes_ano = query_params.get("mes_ano")
     mes, ano = mes_ano.split("_")
+    data_referencia = datetime.date(int(ano), int(mes), 1)
+    qs = queryset_alunos_matriculados(escola, data_referencia)
+    queryset = qs.filter(escola=escola)
     periodos_uuids = query_params.get("periodos")
-    escola_eh_cei_ou_cemei = escola.eh_cei or escola.eh_cemei
+    escola_eh_cei_ou_cemei = escola.eh_cei_data(
+        data_referencia
+    ) or escola.eh_cemei_data(data_referencia)
 
     filtros = {}
 

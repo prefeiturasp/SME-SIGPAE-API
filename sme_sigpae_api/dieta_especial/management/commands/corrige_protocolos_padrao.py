@@ -48,7 +48,10 @@ class Command(BaseCommand):
             nome_protocolo__icontains=NOVO_PARENTESES
         ).update(
             nome_protocolo=Func(
-                F("nome_protocolo"), Value(NOVO_PARENTESES), Value(""), function="replace"
+                F("nome_protocolo"),
+                Value(NOVO_PARENTESES),
+                Value(""),
+                function="replace",
             )
         )
         self.stdout.write(self.style.SUCCESS(f"{qtd_novos} corrigidos"))

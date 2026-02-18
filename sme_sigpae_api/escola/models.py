@@ -107,6 +107,22 @@ redis_conn = redis.StrictRedis(
 
 ESCOLA_TIPO_GESTAO_NOME = "TERC TOTAL"
 
+EMEI = "EMEI"
+EMEF = "EMEF"
+EMEFM = "EMEFM"
+CIEJA = "CIEJA"
+CEU_EMEI = "CEU EMEI"
+CEU_EMEF = "CEU EMEF"
+
+LISTA_TIPOS_UNIDADES = [
+    "CEI DIRET",
+    "CEU CEI",
+    "CEI",
+    "CCI",
+    "CCI/CIPS",
+    "CEI CEU",
+]
+
 
 class DiretoriaRegional(
     ExportModelOperationsMixin("diretoria_regional"),
@@ -412,15 +428,7 @@ class TipoUnidadeEscolar(
 
     @property
     def eh_cei(self):
-        lista_tipos_unidades = [
-            "CEI DIRET",
-            "CEU CEI",
-            "CEI",
-            "CCI",
-            "CCI/CIPS",
-            "CEI CEU",
-        ]
-        return self.iniciais in lista_tipos_unidades
+        return self.iniciais in LISTA_TIPOS_UNIDADES
 
     def get_cardapio(self, data):
         # TODO: ter certeza que tem so um cardapio por dia por tipo de u.e.
@@ -543,6 +551,35 @@ class Escola(
         default=False,
         help_text="Envia e-mail quando houver um produto com status de homologado, não homologado, ativar ou suspender.",  # noqa
     )
+
+    def historico_escola_por_data(self, data: datetime.date):
+        if not data:
+            return None
+
+        return (
+            self.historicos_escola.filter(
+                models.Q(data_inicial__lte=data) | models.Q(data_inicial__isnull=True)
+            )
+            .filter(data_final__gte=data)
+            .order_by("-data_inicial")
+            .first()
+        )
+
+    def nome_historico(self, data: datetime.date) -> str:
+        if not data:
+            return self.nome
+
+        historico = self.historico_escola_por_data(data)
+
+        return historico.nome_escola_normalizado if historico else self.nome
+
+    def tipo_unidade_historico(self, data: datetime.date) -> TipoUnidadeEscolar:
+        if not data:
+            return self.tipo_unidade
+
+        historico = self.historico_escola_por_data(data)
+
+        return historico.tipo_unidade if historico else self.tipo_unidade
 
     @property
     def ultimo_dia_letivo(self):
@@ -735,62 +772,147 @@ class Escola(
         ).exclude(perfil__nome=DIRETOR_UE)
 
     @property
-    def eh_cei(self):
-        lista_tipos_unidades = [
-            "CEI DIRET",
-            "CEU CEI",
-            "CEI",
-            "CCI",
-            "CCI/CIPS",
-            "CEI CEU",
-        ]
-        return self.tipo_unidade and self.tipo_unidade.iniciais in lista_tipos_unidades
+    def eh_cei(self) -> bool:
+        return self.tipo_unidade and self.tipo_unidade.iniciais in LISTA_TIPOS_UNIDADES
 
     @property
-    def eh_cemei(self):
+    def eh_cemei(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in [
             "CEU CEMEI",
             "CEMEI",
         ]
 
     @property
-    def eh_emei(self):
-        return self.tipo_unidade and self.tipo_unidade.iniciais in ["CEU EMEI", "EMEI"]
+    def eh_emei(self) -> bool:
+        return self.tipo_unidade and self.tipo_unidade.iniciais in [CEU_EMEI, EMEI]
 
     @property
-    def eh_emebs(self):
+    def eh_emebs(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in ["EMEBS"]
 
     @property
-    def eh_ceu_gestao(self):
+    def eh_ceu_gestao(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in ["CEU GESTAO"]
 
     @property
-    def eh_emef_emei_cieja(self):
+    def eh_emef_emei_cieja(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in [
-            "EMEI",
-            "EMEF",
-            "EMEFM",
-            "CEU EMEF",
-            "CEU EMEI",
-            "CIEJA",
+            EMEI,
+            EMEF,
+            EMEFM,
+            CEU_EMEF,
+            CEU_EMEI,
+            CIEJA,
         ]
 
     @property
-    def eh_emef(self):
+    def eh_emef(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in [
-            "EMEF",
-            "CEU EMEF",
-            "EMEFM",
+            EMEF,
+            CEU_EMEF,
+            EMEFM,
         ]
 
     @property
-    def eh_cieja(self):
-        return self.tipo_unidade and self.tipo_unidade.iniciais in ["CIEJA"]
+    def eh_cieja(self) -> bool:
+        return self.tipo_unidade and self.tipo_unidade.iniciais in [CIEJA]
 
     @property
-    def eh_cmct(self):
+    def eh_cmct(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in ["CMCT"]
+
+    def _eh_tipo_unidade_data(
+        self, data: datetime.date, iniciais_validas: set[str], fallback: bool
+    ) -> bool:
+        """Verifica se a escola é do tipo de unidade especificado na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        if not data:
+            return fallback
+
+        historico = self.historico_escola_por_data(data)
+
+        if historico and historico.tipo_unidade:
+            return historico.tipo_unidade.iniciais in iniciais_validas
+
+        return fallback
+
+    def eh_cemei_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é CEMEI na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={"CEU CEMEI", "CEMEI"},
+            fallback=self.eh_cemei,
+        )
+
+    def eh_emei_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é EMEI na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={CEU_EMEI, EMEI},
+            fallback=self.eh_emei,
+        )
+
+    def eh_cei_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é CEI na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={
+                "CEI DIRET",
+                "CEU CEI",
+                "CEI",
+                "CCI",
+                "CCI/CIPS",
+                "CEI CEU",
+            },
+            fallback=self.eh_cei,
+        )
+
+    def eh_emebs_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é EMEBS na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={"EMEBS"},
+            fallback=self.eh_emebs,
+        )
+
+    def eh_ceu_gestao_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é CEU GESTAO na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={"CEU GESTAO"},
+            fallback=self.eh_ceu_gestao,
+        )
+
+    def eh_emef_emei_cieja_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é EMEI, EMEF ou CIEJA na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={EMEI, EMEF, EMEFM, CEU_EMEF, CEU_EMEI, CIEJA},
+            fallback=self.eh_emef_emei_cieja,
+        )
+
+    def eh_emef_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é EMEF na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={EMEF, CEU_EMEF, EMEFM},
+            fallback=self.eh_emef,
+        )
+
+    def eh_cieja_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é CIEJA na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={CIEJA},
+            fallback=self.eh_cieja,
+        )
+
+    def eh_cmct_data(self, data: datetime.date) -> bool:
+        """Verifica se a escola é CMCT na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
+        return self._eh_tipo_unidade_data(
+            data,
+            iniciais_validas={"CMCT"},
+            fallback=self.eh_cmct,
+        )
 
     @property
     def modulo_gestao(self):
@@ -846,8 +968,8 @@ class Escola(
                 periodo_cei = lista_faixas.get(periodo, [])
                 return_dict[periodo]["CEI"] = periodo_cei
             except KeyError:
-                return_dict[periodo]["CEI"] = lista_faixas.get('INTEGRAL')
-            return_dict[periodo]["EMEI"] = self.quantidade_alunos_emei_por_periodo(
+                return_dict[periodo]["CEI"] = lista_faixas.get("INTEGRAL")
+            return_dict[periodo][EMEI] = self.quantidade_alunos_emei_por_periodo(
                 periodo
             )
 
@@ -872,7 +994,7 @@ class Escola(
             return_dict[periodo]["CEI"] = self.quantidade_alunos_cei_por_periodo(
                 periodo
             )
-            return_dict[periodo]["EMEI"] = self.quantidade_alunos_emei_por_periodo(
+            return_dict[periodo][EMEI] = self.quantidade_alunos_emei_por_periodo(
                 periodo
             )
 
@@ -2604,9 +2726,15 @@ class Aluno(TemChaveExterna):
 
     def inativar_dieta_especial(self):
         try:
-            dieta_especial = self.dietas_especiais.get(ativo=True)
+            from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+
+            dieta_especial = self.dietas_especiais.get(
+                ativo=True,
+                status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+            )
             dieta_especial.ativo = False
             dieta_especial.save()
+            return dieta_especial
         except MultipleObjectsReturned:
             logger.critical("Aluno não deve possuir mais de uma Dieta Especial ativa")
 
@@ -2790,7 +2918,7 @@ class LogAlunosMatriculadosPeriodoEscola(TemChaveExterna, CriadoEm, TemObservaca
             criado_em__month=self.criado_em.month,
             criado_em__day=self.criado_em.day,
             tipo_turma=self.tipo_turma,
-            cei_ou_emei="EMEI",
+            cei_ou_emei=EMEI,
         ).exists():
             log = LogAlunosMatriculadosPeriodoEscola.objects.create(
                 escola=self.escola,
@@ -2799,7 +2927,7 @@ class LogAlunosMatriculadosPeriodoEscola(TemChaveExterna, CriadoEm, TemObservaca
                     "INTEGRAL"
                 ),
                 tipo_turma=self.tipo_turma,
-                cei_ou_emei="EMEI",
+                cei_ou_emei=EMEI,
             )
             log.criado_em = self.criado_em
             log.save()
@@ -3184,3 +3312,23 @@ class HistoricoMatriculaAluno(TemChaveExterna):
 
     def __str__(self) -> str:
         return f"{self.aluno} - {self.escola} | De: {self.data_inicio} Ate: {self.data_fim}"
+
+
+class HistoricoEscola(Nomeavel, TemChaveExterna, CriadoEm, TemAlteradoEm):
+    escola = models.ForeignKey(
+        "Escola", on_delete=models.PROTECT, related_name="historicos_escola"
+    )
+    tipo_unidade = models.ForeignKey(TipoUnidadeEscolar, on_delete=models.CASCADE)
+    data_inicial = models.DateField(blank=True, null=True)
+    data_final = models.DateField(null=True)
+
+    def __str__(self) -> str:
+        return f"{self.escola.codigo_eol} - {self.escola.nome} -> era {self.nome} - até {self.data_final.strftime("%d/%m/%Y")}"
+
+    @property
+    def nome_escola_normalizado(self):
+        return f"{self.nome} (ATUAL {self.escola.nome})"
+
+    class Meta:
+        verbose_name = "Histórico da Escola"
+        verbose_name_plural = "Históricos da escola"

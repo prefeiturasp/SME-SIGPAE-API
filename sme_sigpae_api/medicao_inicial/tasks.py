@@ -146,11 +146,11 @@ def gera_pdf_relatorio_solicitacao_medicao_por_escola_async(
         user=user, identificador=nome_arquivo
     )
     try:
-        if solicitacao.escola.eh_cei:
+        if solicitacao.escola.eh_cei_data(solicitacao.data_referencia):
             arquivo = relatorio_solicitacao_medicao_por_escola_cei(solicitacao)
-        elif solicitacao.escola.eh_cemei:
+        elif solicitacao.escola.eh_cemei_data(solicitacao.data_referencia):
             arquivo = relatorio_solicitacao_medicao_por_escola_cemei(solicitacao)
-        elif solicitacao.escola.eh_emebs:
+        elif solicitacao.escola.eh_emebs_data(solicitacao.data_referencia):
             arquivo = relatorio_solicitacao_medicao_por_escola_emebs(solicitacao)
         else:
             arquivo = relatorio_solicitacao_medicao_por_escola(solicitacao)

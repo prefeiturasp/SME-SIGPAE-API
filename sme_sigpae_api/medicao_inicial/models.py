@@ -133,8 +133,12 @@ class SolicitacaoMedicaoInicial(
             )
 
     @property
+    def data_referencia(self):
+        return datetime.date(year=int(self.ano), month=int(self.mes), day=1)
+
+    @property
     def escola_cei_com_inclusao_parcial_autorizada(self):
-        if not self.escola.eh_cei:
+        if not self.escola.eh_cei_data(self.data_referencia):
             return False
         return self.escola.inclusao_alimentacao_inclusaoalimentacaodacei_rastro_escola.filter(
             status="CODAE_AUTORIZADO",
@@ -159,7 +163,7 @@ class SolicitacaoMedicaoInicial(
         return ocorrencia_aprovada and todas_medicoes_aprovadas
 
     @property
-    def assinatura_ue(self):
+    def assinatura_ue(self) -> str:
         log_enviado_ue = self.logs.filter(
             status_evento=LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE
         ).first()
@@ -172,7 +176,7 @@ class SolicitacaoMedicaoInicial(
         data_enviado_ue = log_enviado_ue.criado_em.strftime("%d/%m/%Y às %H:%M")
         assinatura_escola = f"""Documento conferido e registrado eletronicamente por {usuario_escola.nome},
                                 {usuario_escola.cargo}, {usuario_escola.registro_funcional},
-                                {self.escola.nome} em {data_enviado_ue}. O registro eletrônico da Medição
+                                {self.escola.nome_historico(self.data_referencia)} em {data_enviado_ue}. O registro eletrônico da Medição
                                 Inicial é comprovação e ateste do serviço prestado à Unidade Educacional,
                                 pela empresa {razao_social}."""
         return assinatura_escola

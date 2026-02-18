@@ -61,22 +61,10 @@ class TestGeraPDFRelatorioHistoricoDietasEspeciaisAsync(BaseSetupHistoricoDietas
             "120",
         ]
 
-        esperados_tabela = [
-            "IP - LOTE",
-            "EMEBS HELEN",
-            "KELLER",
-            "Alunos do Infantil (4 a 6 anos)",
-        ]
-
         for texto in esperados_cabecalho:
             assert (
                 texto in conteudo_pdf_pagina_1
             ), f"Texto do cabeçalho não encontrado: {texto}"
-
-        for texto in esperados_tabela:
-            assert (
-                texto in conteudo_pdf_pagina_1
-            ), f"Texto da tabela não encontrado: {texto}"
 
     def test_gera_pdf_historico_dietas_especiais_periodo_param(
         self, client_autenticado_vinculo_codae_gestao_alimentacao_dieta

@@ -184,15 +184,17 @@ class VinculoTipoAlimentacaoViewSet(
     @action(detail=False, url_path="escola/(?P<escola_uuid>[^/.]+)")
     def filtro_por_escola(self, request, escola_uuid=None):
         escola = Escola.objects.get(uuid=escola_uuid)
+        mes = request.query_params.get("mes", datetime.date.today().month)
         ano = request.query_params.get("ano", datetime.date.today().year)
+        data_referencia = datetime.date(int(ano), int(mes), 1)
         pega_atualmente = request.query_params.get("pega_atualmente", False)
         periodos_para_filtrar = self.trata_inclusao_continua_medicao_inicial(
             request, escola, ano, pega_atualmente
         )
 
-        ordem_personalizada = ordem_periodos(escola)
+        ordem_personalizada = ordem_periodos(escola, data_referencia)
 
-        if escola.eh_cemei:
+        if escola.eh_cemei_data(data_referencia):
             ordem_das_unidades = {"CEI DIRET": 1, "EMEI": 2}
             unidades = [
                 When(tipo_unidade_escolar__iniciais=key, then=Value(val))
@@ -243,7 +245,9 @@ class VinculoTipoAlimentacaoViewSet(
                 )
                 .order_by("ordem_personalizada")
             )
-            vinculos = vinculos.filter(tipo_unidade_escolar=escola.tipo_unidade)
+            vinculos = vinculos.filter(
+                tipo_unidade_escolar=escola.tipo_unidade_historico(data_referencia)
+            )
         page = self.paginate_queryset(vinculos)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)

@@ -112,7 +112,12 @@ class CronogramaCreateSerializer(serializers.ModelSerializer):
     def gera_proximo_numero_cronograma(self):
         ano = date.today().year
         ultimo_cronograma = Cronograma.objects.last()
-        if ultimo_cronograma:
+        ultimo_cronograma_ano = (
+            int(ultimo_cronograma.numero.split("/")[1][:4])
+            if ultimo_cronograma
+            else None
+        )
+        if ultimo_cronograma and (ultimo_cronograma_ano == ano):
             return f"{str(int(ultimo_cronograma.numero[:3]) + 1).zfill(3)}/{ano}A"
         else:
             return f"001/{ano}A"

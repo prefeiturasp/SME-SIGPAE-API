@@ -25,7 +25,7 @@ class RecreioNasFerias(TemChaveExterna, CriadoEm, TemAlteradoEm):
 
 
 class RecreioNasFeriasUnidadeParticipante(TemChaveExterna, CriadoEm, TemAlteradoEm):
-    CEI_OU_EMEI = (("N/A", "N/A"), ("CEI", "CEI"), ("EMEI", "EMEI"))
+    OPCOES_CEI_OU_EMEI = (("N/A", "N/A"), ("CEI", "CEI"), ("EMEI", "EMEI"))
 
     recreio_nas_ferias = models.ForeignKey(
         RecreioNasFerias,
@@ -37,7 +37,9 @@ class RecreioNasFeriasUnidadeParticipante(TemChaveExterna, CriadoEm, TemAlterado
     num_inscritos = models.PositiveIntegerField(default=0)
     num_colaboradores = models.PositiveIntegerField(default=0)
     liberar_medicao = models.BooleanField(default=False)
-    cei_ou_emei = models.CharField(max_length=4, choices=CEI_OU_EMEI, default="N/A")
+    cei_ou_emei = models.CharField(
+        max_length=4, choices=OPCOES_CEI_OU_EMEI, default="N/A"
+    )
 
     def __str__(self):
         return f"{self.unidade_educacional} - {self.recreio_nas_ferias.titulo}"

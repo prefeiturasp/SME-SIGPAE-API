@@ -69,6 +69,8 @@ from .escola.fixtures.factories.escola_factory import (
     DiretoriaRegionalFactory,
     EscolaFactory,
     FaixaEtariaFactory,
+    GrupoUnidadeEscolarFactory,
+    HistoricoEscolaFactory,
     HistoricoMatriculaAlunoFactory,
     LogAlunosMatriculadosFaixaEtariaDiaFactory,
     LogAlunosMatriculadosPeriodoEscolaFactory,
@@ -353,6 +355,8 @@ register(RecreioNasFeriasFactory)
 register(RecreioNasFeriasUnidadeParticipanteFactory)
 register(CategoriaAlimentacaoFactory)
 register(RecreioNasFeriasUnidadeTipoAlimentacaoFactory)
+register(HistoricoEscolaFactory)
+register(GrupoUnidadeEscolarFactory)
 
 EMAIL_TEST = "test@test.com"
 

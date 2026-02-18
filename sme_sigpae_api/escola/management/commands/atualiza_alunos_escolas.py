@@ -231,6 +231,7 @@ class Command(BaseCommand):
                 x["codigoAluno"],
                 x.get("anoLetivo"),
                 x.get("dataSituacao"),
+                x.get("codigoEolEscola"),
             )
         )
 

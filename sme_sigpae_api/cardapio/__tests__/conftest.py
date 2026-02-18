@@ -21,6 +21,7 @@ Faker.seed(420)
 FAKE_EMAIL = "fake@email.com"
 TERC_TOTAL = "TERC TOTAL"
 DIRETORIA_REGIONAL_IPIRANGA = "DIRETORIA REGIONAL IPIRANGA"
+DADOS_COMUNS_CONTATO = "dados_comuns.Contato"
 
 
 @pytest.fixture
@@ -73,7 +74,7 @@ def escola():
     lote = baker.make("Lote", terceirizada=terceirizada)
     tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
     tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="EMEF")
-    contato = baker.make("dados_comuns.Contato", nome="FULANO", email=FAKE_EMAIL)
+    contato = baker.make(DADOS_COMUNS_CONTATO, nome="FULANO", email=FAKE_EMAIL)
     diretoria_regional = baker.make(
         "DiretoriaRegional",
         nome=DIRETORIA_REGIONAL_IPIRANGA,
@@ -157,7 +158,7 @@ def escola_cei():
     lote = baker.make("Lote", terceirizada=terceirizada)
     tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
     tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
-    contato = baker.make("dados_comuns.Contato", nome="FULANO", email=FAKE_EMAIL)
+    contato = baker.make(DADOS_COMUNS_CONTATO, nome="FULANO", email=FAKE_EMAIL)
     diretoria_regional = baker.make(
         "DiretoriaRegional",
         nome=DIRETORIA_REGIONAL_IPIRANGA,
@@ -183,7 +184,7 @@ def escola_cemei():
     lote = baker.make("Lote", terceirizada=terceirizada)
     tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
     tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
-    contato = baker.make("dados_comuns.Contato", nome="FULANO", email=FAKE_EMAIL)
+    contato = baker.make(DADOS_COMUNS_CONTATO, nome="FULANO", email=FAKE_EMAIL)
     diretoria_regional = baker.make(
         "DiretoriaRegional",
         nome=DIRETORIA_REGIONAL_IPIRANGA,

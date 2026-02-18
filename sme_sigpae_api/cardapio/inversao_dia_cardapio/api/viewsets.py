@@ -12,6 +12,9 @@ from sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create import
 )
 from sme_sigpae_api.cardapio.inversao_dia_cardapio.models import InversaoCardapio
 from sme_sigpae_api.dados_comuns import constants
+from sme_sigpae_api.dados_comuns.mixins.serializer_context import (
+    DataSolicitacaoContextMixin,
+)
 from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaRecuperarObjeto,
     UsuarioCODAEGestaoAlimentacao,
@@ -22,7 +25,7 @@ from sme_sigpae_api.dados_comuns.permissions import (
 from sme_sigpae_api.relatorios.relatorios import relatorio_inversao_dia_de_cardapio
 
 
-class InversaoCardapioViewSet(viewsets.ModelViewSet):
+class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet):
     lookup_field = "uuid"
     serializer_class = InversaoCardapioSerializer
     permission_classes = (IsAuthenticated,)

@@ -12,7 +12,10 @@ from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factor
     SolicitacaoDietaEspecialFactory,
 )
 from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
-from sme_sigpae_api.escola.fixtures.factories.escola_factory import AlunoFactory
+from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
+    AlunoFactory,
+    HistoricoEscolaFactory,
+)
 from sme_sigpae_api.inclusao_alimentacao.fixtures.factories.base_factory import (
     GrupoInclusaoAlimentacaoNormalFactory,
     InclusaoAlimentacaoNormalFactory,
@@ -38,6 +41,7 @@ class TestEndpointsPainelGerencialAlimentacao:
                 escola=escola,
                 rastro_lote=escola.lote,
                 rastro_dre=escola.diretoria_regional,
+                rastro_escola=escola,
                 status=status,
             )
         )
@@ -99,6 +103,37 @@ class TestEndpointsPainelGerencialAlimentacao:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.json()["count"] == 1
+
+    def test_pendentes_autorizacao_com_historico_escola(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+        escola,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+
+        HistoricoEscolaFactory.create(
+            escola=escola,
+            nome="Nome Antigo da Escola",
+            tipo_unidade=escola.tipo_unidade,
+            data_inicial=None,
+            data_final="2025-01-31",
+        )
+
+        self.setup_solicitacoes(
+            escola,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.DRE_VALIDADO,
+            status_evento=LogSolicitacoesUsuario.DRE_VALIDOU,
+        )
+
+        response = client.get("/codae-solicitacoes/pendentes-autorizacao/")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["count"] == 1
+
+        escola_nome = response.json()["results"][0]["escola_nome"]
+        assert "Nome Antigo da Escola" in escola_nome
+        assert f"(ATUAL {escola.nome})" in escola_nome
 
     def test_questionamentos(
         self,

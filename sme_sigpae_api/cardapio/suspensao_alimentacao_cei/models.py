@@ -84,7 +84,7 @@ class SuspensaoAlimentacaoDaCEI(
     def solicitacao_dict_para_relatorio(self, label_data, data_log, instituicao):
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
-            "unidade_educacional": self.rastro_escola.nome,
+            "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada,
             "tipo_doc": "Suspensão de Alimentação de CEI",
             "data_evento": self.data,

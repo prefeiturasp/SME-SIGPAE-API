@@ -281,12 +281,14 @@ class InterrupcaoProgramadaEntrega(ModeloBase):
     MOTIVO_EMENDA = "EMENDA"
     MOTIVO_REUNIAO = "REUNIAO"
     MOTIVO_INVENTARIO = "INVENTARIO"
+    MOTIVO_FERIADO = "FERIADO"
     MOTIVO_OUTROS = "OUTROS"
 
     MOTIVO_CHOICES = (
         (MOTIVO_EMENDA, "Emenda"),
         (MOTIVO_REUNIAO, "Reunião"),
         (MOTIVO_INVENTARIO, "Inventário"),
+        (MOTIVO_FERIADO, "Feriado"),
         (MOTIVO_OUTROS, "Outros"),
     )
 
@@ -298,7 +300,7 @@ class InterrupcaoProgramadaEntrega(ModeloBase):
         (TIPO_CALENDARIO_PONTO_A_PONTO, "Ponto a Ponto"),
     )
 
-    data = models.DateField("Data da Interrupção", unique=True)
+    data = models.DateField("Data da Interrupção")
     motivo = models.CharField(
         "Motivo da Interrupção", max_length=20, choices=MOTIVO_CHOICES
     )
@@ -317,6 +319,7 @@ class InterrupcaoProgramadaEntrega(ModeloBase):
     class Meta:
         verbose_name = "Interrupção Programada de Entrega"
         verbose_name_plural = "Interrupções Programadas de Entregas"
+        unique_together = [("data", "tipo_calendario")]
 
     def __str__(self):
         return f"Interrupção {self.get_motivo_display()} - {self.data:%d/%m/%Y}"

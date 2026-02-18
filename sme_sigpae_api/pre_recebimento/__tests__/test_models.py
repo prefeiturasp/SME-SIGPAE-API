@@ -1,4 +1,5 @@
 import pytest
+from django.db import IntegrityError
 from faker import Faker
 
 from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaAlteracaoWorkflow
@@ -7,6 +8,7 @@ from ..base.models import UnidadeMedida
 from ..cronograma_entrega.models import (
     Cronograma,
     EtapasDoCronograma,
+    InterrupcaoProgramadaEntrega,
     ProgramacaoDoRecebimentoDoCronograma,
     SolicitacaoAlteracaoCronograma,
 )
@@ -17,14 +19,6 @@ from ..documento_recebimento.models import (
 from ..ficha_tecnica.models import FichaTecnicaDoProduto
 from ..layout_embalagem.models import LayoutDeEmbalagem, TipoDeEmbalagemDeLayout
 from ..qualidade.models import Laboratorio, TipoEmbalagemQld
-from ..cronograma_entrega.models import (
-    Cronograma,
-    EtapasDoCronograma,
-    ProgramacaoDoRecebimentoDoCronograma,
-    SolicitacaoAlteracaoCronograma,
-    InterrupcaoProgramadaEntrega,
-)
-from django.db import IntegrityError
 
 pytestmark = pytest.mark.django_db
 
@@ -42,7 +36,10 @@ def test_interrupcao_programada_entrega_str_model(interrupcao_programada_entrega
 
 
 def test_interrupcao_programada_entrega_meta_modelo(interrupcao_programada_entrega):
-    assert interrupcao_programada_entrega._meta.verbose_name == "Interrupção Programada de Entrega"
+    assert (
+        interrupcao_programada_entrega._meta.verbose_name
+        == "Interrupção Programada de Entrega"
+    )
     assert (
         interrupcao_programada_entrega._meta.verbose_name_plural
         == "Interrupções Programadas de Entregas"
@@ -55,9 +52,8 @@ def test_interrupcao_programada_entrega_unicidade_data(interrupcao_programada_en
         InterrupcaoProgramadaEntrega.objects.create(
             data=interrupcao_programada_entrega.data,
             motivo=interrupcao_programada_entrega.motivo,
-            tipo_calendario=interrupcao_programada_entrega.tipo_calendario
+            tipo_calendario=interrupcao_programada_entrega.tipo_calendario,
         )
-
 
 
 def test_cronograma_instance_model(cronograma):
