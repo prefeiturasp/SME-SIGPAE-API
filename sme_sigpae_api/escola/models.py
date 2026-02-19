@@ -1087,25 +1087,27 @@ class Escola(
     ):
         if not self.eh_cei and not self.eh_cemei:
             return {}
-
         data_referencia = self.obter_data_referencia(data_referencia)
         faixas_etarias = self.obter_faixas_etarias(faixas_etarias)
         deletar_alunos_periodo_parcial_outras_escolas(self, data_referencia)
-        alunos_periodo_parcial = AlunoPeriodoParcial.objects.filter(
-            aluno__escola__codigo_eol=self.codigo_eol,
-            solicitacao_medicao_inicial__mes=str(data_referencia.month).zfill(2),
-            solicitacao_medicao_inicial__ano=str(data_referencia.year),
-        ).values_list("aluno__codigo_eol", flat=True)
-
+        alunos_periodo_parcial = (
+            AlunoPeriodoParcial.objects.filter(
+                aluno__escola__codigo_eol=self.codigo_eol,
+                solicitacao_medicao_inicial__mes=str(data_referencia.month).zfill(2),
+                solicitacao_medicao_inicial__ano=str(data_referencia.year),
+            )
+            .filter(
+                Q(data_removido__isnull=True) | Q(data_removido__gte=data_referencia)
+            )
+            .values_list("aluno__codigo_eol", flat=True)
+        )
         lista_alunos = (
             EOLServicoSGP.get_lista_alunos_por_escola_ano_corrente_ou_seguinte(
                 self.codigo_eol
             )
         )
-
         alunos_periodo_parcial_set = set(alunos_periodo_parcial)
         seis_anos_atras = datetime.date.today() - relativedelta(years=6)
-
         resultados = {}
         for aluno in lista_alunos:
             if str(aluno["codigoAluno"]) not in alunos_periodo_parcial_set:
