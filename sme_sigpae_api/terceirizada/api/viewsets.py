@@ -1,6 +1,6 @@
 from datetime import date
 
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.db.models.functions import Lower
 from django.db.utils import IntegrityError
 from django_filters import rest_framework as filters
@@ -56,6 +56,21 @@ class EditalViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=["GET"], url_path="lista-numeros")
     def lista_numeros(self, request):
         queryset = self.get_queryset()
+
+        excluir_encerrados = request.query_params.get('excluir_encerrados', 'false').lower() == 'true'
+        excluir_parceira = request.query_params.get('excluir_parceira', 'false').lower() == 'true'
+
+        if excluir_encerrados:
+            queryset = queryset.annotate(
+                total_contratos=Count('contratos'),
+                ativos=Count('contratos', filter=Q(contratos__encerrado=False))
+            ).filter(
+                Q(total_contratos=0) | Q(ativos__gt=0)
+            )
+
+        if excluir_parceira:
+            queryset = queryset.exclude(numero="PARCEIRA")
+
         response = {"results": EditalSimplesSerializer(queryset, many=True).data}
         return Response(response)
 
