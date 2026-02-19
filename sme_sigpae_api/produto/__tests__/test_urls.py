@@ -944,8 +944,35 @@ def test_url_endpoint_produtos_editais_filtros(
                 "uuid": "617a8139-02a9-4801-a197-622aa20795b9",
             }
         ],
+        "editais_destino": [
+            {
+                "numero": "Edital de Pregão nº 56/SME/2016",
+                "uuid": "617a8139-02a9-4801-a197-622aa20795b9",
+            }
+        ],
     }
     assert resultado == esperado
+
+
+def test_editais_destino_difere_de_editais(
+    client_autenticado_vinculo_codae_produto, vinculo_produto_edital_com_filtros
+):
+    client = client_autenticado_vinculo_codae_produto
+    response = client.get("/produtos-editais/filtros/")
+    assert response.status_code == status.HTTP_200_OK
+
+    resultado = response.json()
+    numeros_editais = [e["numero"] for e in resultado["editais"]]
+    numeros_destino = [e["numero"] for e in resultado["editais_destino"]]
+
+    assert "EDITAL-ENCERRADO" in numeros_editais
+    assert "PARCEIRA" in numeros_editais
+
+    assert "EDITAL-ENCERRADO" not in numeros_destino
+    assert "PARCEIRA" not in numeros_destino
+
+    assert set(numeros_destino).issubset(set(numeros_editais))
+    assert "Edital de Pregão nº 56/SME/2016" in numeros_destino
 
 
 def test_url_endpoint_produtos_editais_filtrar(

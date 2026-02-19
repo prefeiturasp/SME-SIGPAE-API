@@ -578,6 +578,37 @@ def vinculo_produto_edital(produto, edital):
 
 
 @pytest.fixture
+def vinculo_produto_edital_com_filtros(produto, edital):
+    baker.make(
+        "ProdutoEdital",
+        produto=produto,
+        edital=edital,
+        ativo=True,
+        tipo_produto=ProdutoEdital.DIETA_ESPECIAL,
+    )
+
+    edital_encerrado = baker.make(
+        "Edital",
+        numero="EDITAL-ENCERRADO",
+        tipo_contratacao="Teste",
+        processo="Teste",
+        objeto="Teste",
+    )
+    baker.make(Contrato, edital=edital_encerrado, encerrado=True)
+
+    edital_parceira = baker.make(
+        "Edital",
+        numero="PARCEIRA",
+        tipo_contratacao="Teste",
+        processo="Teste",
+        objeto="Teste",
+    )
+    baker.make(Contrato, edital=edital_parceira, encerrado=False)
+
+    return produto
+
+
+@pytest.fixture
 def client_autenticado_da_terceirizada(client, django_user_model, terceirizada):
     email = "foo@codae.com"
     password = DJANGO_ADMIN_PASSWORD
