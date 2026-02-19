@@ -1096,6 +1096,7 @@ class Escola(
                 solicitacao_medicao_inicial__mes=str(data_referencia.month).zfill(2),
                 solicitacao_medicao_inicial__ano=str(data_referencia.year),
             )
+            .filter(Q(data__isnull=True) | Q(data__lte=data_referencia))
             .filter(
                 Q(data_removido__isnull=True) | Q(data_removido__gte=data_referencia)
             )
