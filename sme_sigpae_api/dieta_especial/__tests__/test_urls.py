@@ -1029,8 +1029,8 @@ def test_relatorio_historico_dieta_especial(
     log_dietas_autorizadas,
     log_dietas_autorizadas_cei,
 ):
-    response = client_autenticado_vinculo_terceirizada_dieta.get(
-        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/?data=20/03/2024"
+    response = client_autenticado_vinculo_terceirizada_dieta.post(
+        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/", data={"data": "20/03/2024"}
     )
     assert response.status_code == status.HTTP_200_OK
     historico = response.json()
@@ -1117,7 +1117,7 @@ def test_relatorio_historico_dieta_especial(
 def test_relatorio_historico_dieta_especial_retona_data_obrigatoria(
     client_autenticado_vinculo_terceirizada_dieta,
 ):
-    response = client_autenticado_vinculo_terceirizada_dieta.get(
+    response = client_autenticado_vinculo_terceirizada_dieta.post(
         "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/"
     )
 
@@ -1128,8 +1128,8 @@ def test_relatorio_historico_dieta_especial_retona_data_obrigatoria(
 def test_relatorio_historico_dieta_especial_retona_data_padrao_incorreto(
     client_autenticado_vinculo_terceirizada_dieta,
 ):
-    response = client_autenticado_vinculo_terceirizada_dieta.get(
-        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/?data=2025-02-06"
+    response = client_autenticado_vinculo_terceirizada_dieta.post(
+        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/", data={"data": "2025-02-06"}
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {
@@ -1140,7 +1140,7 @@ def test_relatorio_historico_dieta_especial_retona_data_padrao_incorreto(
 def test_relatorio_historico_dieta_especial_cliente_nao_autorizado(
     client_autenticado_dilog,
 ):
-    response = client_autenticado_dilog.get(
+    response = client_autenticado_dilog.post(
         "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN

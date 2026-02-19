@@ -38,6 +38,7 @@ from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...dados_comuns.models import LogSolicitacoesUsuario
+from ...dados_comuns.utils import convert_dict_to_querydict
 from ...dados_comuns.permissions import (
     PermissaoHistoricoDietasEspeciais,
     PermissaoParaRecuperarDietaEspecial,
@@ -1445,14 +1446,14 @@ class SolicitacaoDietaEspecialViewSet(
 
     @action(
         detail=False,
-        methods=["GET"],
+        methods=["POST"],
         url_path="relatorio-historico-dieta-especial",
         permission_classes=(PermissaoHistoricoDietasEspeciais,),
     )
     def relatorio_historico_dieta_especial(self, request):
         try:
             filtros, data_dieta = gerar_filtros_relatorio_historico(
-                request.query_params
+                convert_dict_to_querydict(request.data)
             )
             dietas = gera_dicionario_historico_dietas(filtros)
             paginator = HistoricoDietasPagination()
@@ -1466,13 +1467,13 @@ class SolicitacaoDietaEspecialViewSet(
 
     @action(
         detail=False,
-        methods=["GET"],
+        methods=["POST"],
         url_path="relatorio-historico-dieta-especial/exportar-pdf",
         permission_classes=(PermissaoHistoricoDietasEspeciais,),
     )
     def relatorio_historico_dieta_especial_exportar_pdf(self, request):
         try:
-            query_dict = request.query_params
+            query_dict = request.data
             data = {
                 key: query_dict.getlist(key) if "[]" in key else query_dict.get(key)
                 for key in query_dict.keys()
@@ -1493,13 +1494,13 @@ class SolicitacaoDietaEspecialViewSet(
 
     @action(
         detail=False,
-        methods=["GET"],
+        methods=["POST"],
         url_path="relatorio-historico-dieta-especial/exportar-excel",
         permission_classes=(PermissaoHistoricoDietasEspeciais,),
     )
     def relatorio_historico_dieta_especial_exportar_excel(self, request):
         try:
-            query_dict = request.query_params
+            query_dict = request.data
             data = {
                 key: query_dict.getlist(key) if "[]" in key else query_dict.get(key)
                 for key in query_dict.keys()
