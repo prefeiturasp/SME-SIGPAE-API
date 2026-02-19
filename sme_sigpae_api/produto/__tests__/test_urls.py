@@ -944,6 +944,12 @@ def test_url_endpoint_produtos_editais_filtros(
                 "uuid": "617a8139-02a9-4801-a197-622aa20795b9",
             }
         ],
+        "editais_destino": [
+            {
+                "numero": "Edital de Pregão nº 56/SME/2016",
+                "uuid": "617a8139-02a9-4801-a197-622aa20795b9",
+            }
+        ],
     }
     assert resultado == esperado
 
