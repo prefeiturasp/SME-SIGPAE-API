@@ -87,6 +87,7 @@ from ..tasks import (
 )
 from ..utils import (
     atualizar_anexos_ocorrencia,
+    busca_dias_zerados,
     calcula_totais_consumo_por_faixa_etaria,
     criar_log_aprovar_periodos_corrigidos,
     criar_log_solicitar_correcao_periodos,
@@ -1337,6 +1338,15 @@ class SolicitacaoMedicaoInicialViewSet(
                 dict(detail=str(e)),
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    @action(
+        detail=False, methods=["GET"], url_path="dias-zerados"
+    )
+    def dias_zerados(self, request):
+        uuid = request.query_params.get("uuid_solicitacao")
+        solicitacao = SolicitacaoMedicaoInicial.objects.get(uuid=uuid)
+        dias_zerados = busca_dias_zerados(solicitacao)
+        return Response(dias_zerados, status=status.HTTP_200_OK)
 
 
 class TipoContagemAlimentacaoViewSet(mixins.ListModelMixin, GenericViewSet):

@@ -5145,3 +5145,42 @@ def calcula_totais_consumo_por_faixa_etaria(
     )
 
     return gerar_totais_consolidado(solicitacoes, tipo_calculo)
+
+
+def busca_dias_zerados(solicitacao):
+    dias = Medicao.objects.filter(
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar__isnull=False,
+        grupo__isnull=True
+    ).values_list('valores_medicao__dia', flat=True).distinct().order_by('valores_medicao__dia')
+    
+    resultado = []
+    for dia in dias:
+        medicoes_regulares = Medicao.objects.filter(
+            solicitacao_medicao_inicial=solicitacao,
+            valores_medicao__dia=dia,
+            periodo_escolar__isnull=False,
+            grupo__isnull=True
+        ).distinct()
+        
+        tem_apontamento = False
+        for medicao in medicoes_regulares:
+            valores_lancados = medicao.valores_medicao.filter(dia=dia).exclude(nome_campo__in=['observacoes', 'dietas_autorizadas', 'matriculados'])
+            if valores_lancados.count() == 0:
+                tem_apontamento = True
+                break
+            for valor_medicao in valores_lancados:
+                if int(valor_medicao.valor) > 0:
+                    tem_apontamento = True
+                    break
+                else:
+                    pass
+            if tem_apontamento:
+                break
+
+        resultado.append({
+            'dia': dia,
+            'tem_apontamento': tem_apontamento
+        })
+            
+    return resultado
