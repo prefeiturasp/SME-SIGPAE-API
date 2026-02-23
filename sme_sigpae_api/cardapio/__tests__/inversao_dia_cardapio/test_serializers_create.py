@@ -1,3 +1,4 @@
+import datetime
 import pytest
 from freezegun import freeze_time
 from model_bakery import baker
@@ -80,3 +81,26 @@ def test_inversao_serializer_creators(inversao_card_params):
     assert inversao_cardapio.data_de_inversao == data_de_atualiza
     assert inversao_cardapio.data_para_inversao == data_para_atualiza
     assert inversao_cardapio.escola == escola2
+
+
+@freeze_time("2025-01-01")
+def test_inversao_serializer_falha_em_final_de_semana_nao_letivo(tipo_alimentacao):
+    # Sábado: 2025-01-04
+    data_de = datetime.date(2025, 1, 4)
+    data_para = datetime.date(2025, 1, 6)  # Segunda
+    serializer_obj = InversaoCardapioSerializerCreate()
+    
+    escola = baker.make("escola.Escola")
+    # Sábado NÃO letivo
+    baker.make("escola.DiaCalendario", escola=escola, data=data_de, dia_letivo=False)
+    
+    attrs = dict(
+        data_de=data_de,
+        data_para=data_para,
+        escola=escola,
+        tipos_alimentacao=[tipo_alimentacao],
+    )
+    
+    from rest_framework.exceptions import ValidationError
+    with pytest.raises(ValidationError, match=f'Dia {data_de.strftime("%d/%m/%Y")} não é um dia letivo'):
+        serializer_obj.validate(attrs=attrs)
