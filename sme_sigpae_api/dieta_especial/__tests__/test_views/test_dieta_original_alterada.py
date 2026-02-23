@@ -3,6 +3,9 @@ import datetime
 import pytest
 from rest_framework import status
 
+from sme_sigpae_api.dados_comuns.fixtures.factories.dados_comuns_factories import (
+    ContatoFactory,
+)
 from sme_sigpae_api.dados_comuns.fluxo_status import DietaEspecialWorkflow
 from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     AlergiaIntoleranciaFactory,
@@ -36,6 +39,10 @@ class TestDietaOriginalAlteradaSyncUpdate:
         2. dieta_alteracao_ue_autorizada: dieta ALTERACAO_UE já autorizada, vinculada à dieta_comum_autorizada
         3. dieta_nova_a_autorizar: nova dieta COMUM pendente de autorização (CODAE_A_AUTORIZAR)
         """
+        if not escola.contato:
+            escola.contato = ContatoFactory.create(email="contato@escola.com")
+            escola.save()
+
         alergia_leite = AlergiaIntoleranciaFactory.create(descricao="Alergia a Leite")
         alergia_ovo = AlergiaIntoleranciaFactory.create(descricao="Alergia a Ovo")
         alergia_soja = AlergiaIntoleranciaFactory.create(descricao="Alergia a Soja")
@@ -291,6 +298,144 @@ class TestDietaOriginalAlteradaSyncUpdate:
         assert (
             dieta_alteracao_ue_autorizada.caracteristicas_do_alimento
             == "Características ATUALIZADAS dos alimentos"
+        )
+
+        # Verifica alergias/intolerâncias da dieta de alteração UE
+        alergias_dieta_alteracao = set(
+            dieta_alteracao_ue_autorizada.alergias_intolerancias.values_list(
+                "id", flat=True
+            )
+        )
+        assert alergias_dieta_alteracao == {
+            alergia_ovo.id,
+            alergia_soja.id,
+        }
+
+        # Verifica que a dieta de ALTERACAO_UE mantém seus campos específicos
+        assert (
+            dieta_alteracao_ue_autorizada.tipo_solicitacao
+            == SolicitacaoDietaEspecial.ALTERACAO_UE
+        )
+        assert dieta_alteracao_ue_autorizada.dieta_alterada == dieta_comum_autorizada
+        assert dieta_alteracao_ue_autorizada.motivo_alteracao_ue is not None
+
+    def test_atualiza_protocolo_dieta_comum_reflete_em_dieta_alteracao_ue(
+        self,
+        client_autenticado_protocolo_dieta,
+        escola,
+    ):
+        """
+        Testa se ao atualizar o protocolo de uma dieta COMUM já autorizada,
+        a solicitação de ALTERACAO_UE autorizada do mesmo aluno é atualizada com os mesmos dados.
+
+        Cenário:
+        - Existe uma dieta COMUM já autorizada (dieta_comum_autorizada)
+        - Existe uma dieta ALTERACAO_UE já autorizada (dieta_alteracao_ue_autorizada), vinculada à dieta_comum_autorizada
+        - Ao atualizar o protocolo da dieta_comum_autorizada com novos dados, a dieta ALTERACAO_UE também deve ser atualizada
+        """
+        data = self.setup(escola)
+        alergia_ovo = data["alergia_ovo"]
+        alergia_soja = data["alergia_soja"]
+        tipo_b = data["tipo_b"]
+        substituicoes = data["substituicoes"]
+        dieta_comum_autorizada = data["dieta_comum_autorizada"]
+        dieta_alteracao_ue_autorizada = data["dieta_alteracao_ue_autorizada"]
+
+        novo_protocolo = ProtocoloPadraoDietaEspecialFactory(
+            nome_protocolo="ALERGIA - OVO E DERIVADOS",
+            status="LIBERADO",
+        )
+
+        payload_atualizacao = {
+            "classificacao": tipo_b.id,  # Mudando de Tipo A para Tipo B
+            "alergias_intolerancias": [
+                alergia_ovo.id,  # Alergia a Ovo
+                alergia_soja.id,  # Alergia a Soja
+            ],
+            "registro_funcional_nutricionista": "CRN555666 - Nutricionista ATUALIZADO via Protocolo",
+            "substituicoes": substituicoes,
+            "informacoes_adicionais": "Informações ATUALIZADAS via atualiza_protocolo",
+            "protocolo_padrao": str(novo_protocolo.uuid),
+            "nome_protocolo": novo_protocolo.nome_protocolo,
+            "orientacoes_gerais": "Orientações ATUALIZADAS via protocolo - Evitar ovo",
+            "caracteristicas_do_alimento": "Características ATUALIZADAS via protocolo",
+        }
+
+        url = f"/solicitacoes-dieta-especial/{dieta_comum_autorizada.uuid}/codae-atualiza-protocolo/"
+        response = client_autenticado_protocolo_dieta.patch(
+            url,
+            data=payload_atualizacao,
+            content_type="application/json",
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+
+        dieta_comum_autorizada.refresh_from_db()
+        dieta_alteracao_ue_autorizada.refresh_from_db()
+
+        # VERIFICA SE A DIETA COMUM FOI ATUALIZADA
+        assert dieta_comum_autorizada.status == DietaEspecialWorkflow.CODAE_AUTORIZADO
+        assert dieta_comum_autorizada.ativo is True
+        assert dieta_comum_autorizada.classificacao.id == tipo_b.id
+        assert (
+            dieta_comum_autorizada.registro_funcional_nutricionista
+            == "CRN555666 - Nutricionista ATUALIZADO via Protocolo"
+        )
+        assert (
+            dieta_comum_autorizada.informacoes_adicionais
+            == "Informações ATUALIZADAS via atualiza_protocolo"
+        )
+        assert str(dieta_comum_autorizada.protocolo_padrao.uuid) == str(
+            novo_protocolo.uuid
+        )
+        assert dieta_comum_autorizada.nome_protocolo == novo_protocolo.nome_protocolo
+        assert (
+            dieta_comum_autorizada.orientacoes_gerais
+            == "Orientações ATUALIZADAS via protocolo - Evitar ovo"
+        )
+        assert (
+            dieta_comum_autorizada.caracteristicas_do_alimento
+            == "Características ATUALIZADAS via protocolo"
+        )
+
+        # Verifica alergias/intolerâncias da dieta comum
+        alergias_dieta_comum = set(
+            dieta_comum_autorizada.alergias_intolerancias.values_list("id", flat=True)
+        )
+        assert alergias_dieta_comum == {
+            alergia_ovo.id,
+            alergia_soja.id,
+        }
+
+        # VERIFICA SE A DIETA DE ALTERACAO_UE TAMBÉM FOI ATUALIZADA COM OS MESMOS DADOS
+        assert (
+            dieta_alteracao_ue_autorizada.status
+            == DietaEspecialWorkflow.CODAE_AUTORIZADO
+        )
+        assert dieta_alteracao_ue_autorizada.ativo is False
+        assert dieta_alteracao_ue_autorizada.classificacao.id == tipo_b.id
+        assert (
+            dieta_alteracao_ue_autorizada.registro_funcional_nutricionista
+            == "CRN555666 - Nutricionista ATUALIZADO via Protocolo"
+        )
+        assert (
+            dieta_alteracao_ue_autorizada.informacoes_adicionais
+            == "Informações ATUALIZADAS via atualiza_protocolo"
+        )
+        assert str(dieta_alteracao_ue_autorizada.protocolo_padrao.uuid) == str(
+            novo_protocolo.uuid
+        )
+        assert (
+            dieta_alteracao_ue_autorizada.nome_protocolo
+            == novo_protocolo.nome_protocolo
+        )
+        assert (
+            dieta_alteracao_ue_autorizada.orientacoes_gerais
+            == "Orientações ATUALIZADAS via protocolo - Evitar ovo"
+        )
+        assert (
+            dieta_alteracao_ue_autorizada.caracteristicas_do_alimento
+            == "Características ATUALIZADAS via protocolo"
         )
 
         # Verifica alergias/intolerâncias da dieta de alteração UE
