@@ -1339,8 +1339,8 @@ class SolicitacaoMedicaoInicialViewSet(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-    @action(detail=False, methods=["GET"], url_path="dias-zerados")
-    def dias_zerados(self, request):
+    @action(detail=False, methods=["GET"], url_path="dias-frequencia-zerada")
+    def dias_frequencia_zerados(self, request):
         uuid = request.query_params.get("uuid_solicitacao")
         if not uuid:
             return Response(

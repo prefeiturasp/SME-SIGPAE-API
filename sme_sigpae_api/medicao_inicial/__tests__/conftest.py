@@ -5137,3 +5137,72 @@ def solicitacao_medicao_inicial_valores_emef(
                 )
 
     return solicitacao_medicao
+
+
+@pytest.fixture
+def medicoes_frequencia_zerada(
+    periodo_escolar_manha,
+    periodo_escolar_tarde,
+    escola,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_b,
+):
+    solicitacao_medicao = baker.make(
+        "SolicitacaoMedicaoInicial", mes=4, ano=2023, escola=escola
+    )
+    medicao_manha = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_medicao,
+        periodo_escolar=periodo_escolar_manha,
+    )
+    for categoria in [
+        categoria_medicao,
+        categoria_medicao_dieta_a,
+        categoria_medicao_dieta_b,
+    ]:
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_manha,
+            dia="13",
+            nome_campo="frequencia",
+            categoria_medicao=categoria,
+            valor="0",
+        )
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_manha,
+            dia="24",
+            nome_campo="frequencia",
+            categoria_medicao=categoria,
+            valor="0" if categoria == categoria_medicao_dieta_b else "5",
+        )
+
+    medicao_tarde = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_medicao,
+        periodo_escolar=periodo_escolar_tarde,
+    )
+    for categoria in [
+        categoria_medicao,
+        categoria_medicao_dieta_a,
+        categoria_medicao_dieta_b,
+    ]:
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_tarde,
+            dia="13",
+            nome_campo="frequencia",
+            categoria_medicao=categoria,
+            valor="0",
+        )
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_tarde,
+            dia="24",
+            nome_campo="frequencia",
+            categoria_medicao=categoria,
+            valor="0",
+        )
+
+    return solicitacao_medicao
