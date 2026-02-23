@@ -5149,44 +5149,35 @@ def calcula_totais_consumo_por_faixa_etaria(
 
 
 def busca_dias_zerados(solicitacao):
-    dias = Medicao.objects.filter(
-        solicitacao_medicao_inicial=solicitacao,
-        periodo_escolar__isnull=False,
-        grupo__isnull=True
-    ).values_list('valores_medicao__dia', flat=True).distinct().order_by('valores_medicao__dia')
-    
-    dietas = CategoriaMedicao.objects.filter(nome__contains='DIETA')
+    dietas = CategoriaMedicao.objects.filter(nome__icontains='DIETA')
     resultado = {
         'alimentacoes': [],
         'dietas': {dieta.nome: [] for dieta in dietas}
     }
+    medicoes_regulares = Medicao.objects.filter(
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar__isnull=False,
+        grupo__isnull=True
+    ).prefetch_related("valores_medicao__categoria_medicao")
 
-    for dia in dias:
-        medicoes_regulares = Medicao.objects.filter(
-            solicitacao_medicao_inicial=solicitacao,
-            valores_medicao__dia=dia,
-            periodo_escolar__isnull=False,
-            grupo__isnull=True
-        ).distinct()
-
-        esta_zerado_alimentacao = True
-        esta_zerado_dieta = {dieta.nome: True for dieta in dietas}
-
-        for medicao in medicoes_regulares:
-            frequencia_alimentacao = medicao.valores_medicao.filter(dia=dia, nome_campo='frequencia', categoria_medicao__nome='ALIMENTAÇÃO')
-            if frequencia_alimentacao.count() == 0 or int(frequencia_alimentacao.first().valor) > 0:
-                esta_zerado_alimentacao = False
+    mapa_dias = defaultdict(lambda: defaultdict(list))
+    for medicao in medicoes_regulares:
+        for valor in medicao.valores_medicao.filter(nome_campo='frequencia'):
+            mapa_dias[valor.dia][valor.categoria_medicao.nome].append(int(valor.valor))
+    
+    for dia, categorias_do_dia in mapa_dias.items():
+        valores_alimentacao = categorias_do_dia.get("ALIMENTAÇÃO", [])
+        if not valores_alimentacao or all(v == 0 for v in valores_alimentacao):
+            resultado["alimentacoes"].append(dia)
             
-            for dieta in dietas:
-                frequencia_dieta = medicao.valores_medicao.filter(dia=dia, nome_campo='frequencia', categoria_medicao__nome=dieta.nome)
-                if frequencia_dieta.count() == 0 or int(frequencia_dieta.first().valor) > 0:
-                    esta_zerado_dieta[dieta.nome] = False
-                
-        if esta_zerado_alimentacao:
-            resultado['alimentacoes'].append(dia)
-            
-        for key, value in esta_zerado_dieta.items():
-            if value:
-                resultado['dietas'][key].append(dia)
+        for dieta in dietas:
+            valores_dieta = categorias_do_dia.get(dieta.nome, [])
+            if not valores_dieta or all(v == 0 for v in valores_dieta):
+                resultado["dietas"][dieta.nome].append(dia)  
+    
+    
+    
+   
+
             
     return resultado
