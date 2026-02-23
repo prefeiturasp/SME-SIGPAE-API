@@ -243,7 +243,11 @@ class SolicitacaoDietaEspecialViewSet(
             solicitacao.aluno.inativar_dieta_especial()
         if not solicitacao.tipo_solicitacao == "ALTERACAO_UE":
             serializer = self.get_serializer()
+            data_copy = deepcopy(request.data)
             serializer.update(solicitacao, request.data)
+            self.verifica_se_aluno_possui_solicitacao_alteracao_ue(
+                request, solicitacao.aluno, serializer, data_copy
+            )
             solicitacao.ativo = True
         self.salva_log_transicao(solicitacao, request.user, texto_html)
         if solicitacao.aluno.escola:
