@@ -49,6 +49,7 @@ from sme_sigpae_api.inclusao_alimentacao.models import (
 )
 from sme_sigpae_api.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
+    CategoriaMedicao,
     Medicao,
     RelatorioFinanceiro,
     SolicitacaoMedicaoInicial,
@@ -5154,7 +5155,12 @@ def busca_dias_zerados(solicitacao):
         grupo__isnull=True
     ).values_list('valores_medicao__dia', flat=True).distinct().order_by('valores_medicao__dia')
     
-    resultado = []
+    dietas = CategoriaMedicao.objects.filter(nome__contains='DIETA')
+    resultado = {
+        'alimentacoes': [],
+        'dietas': {dieta.nome: [] for dieta in dietas}
+    }
+
     for dia in dias:
         medicoes_regulares = Medicao.objects.filter(
             solicitacao_medicao_inicial=solicitacao,
@@ -5162,25 +5168,25 @@ def busca_dias_zerados(solicitacao):
             periodo_escolar__isnull=False,
             grupo__isnull=True
         ).distinct()
-        
-        tem_apontamento = False
-        for medicao in medicoes_regulares:
-            valores_lancados = medicao.valores_medicao.filter(dia=dia).exclude(nome_campo__in=['observacoes', 'dietas_autorizadas', 'matriculados'])
-            if valores_lancados.count() == 0:
-                tem_apontamento = True
-                break
-            for valor_medicao in valores_lancados:
-                if int(valor_medicao.valor) > 0:
-                    tem_apontamento = True
-                    break
-                else:
-                    pass
-            if tem_apontamento:
-                break
 
-        resultado.append({
-            'dia': dia,
-            'tem_apontamento': tem_apontamento
-        })
+        esta_zerado_alimentacao = True
+        esta_zerado_dieta = {dieta.nome: True for dieta in dietas}
+
+        for medicao in medicoes_regulares:
+            frequencia_alimentacao = medicao.valores_medicao.filter(dia=dia, nome_campo='frequencia', categoria_medicao__nome='ALIMENTAÇÃO')
+            if frequencia_alimentacao.count() == 0 or int(frequencia_alimentacao.first().valor) > 0:
+                esta_zerado_alimentacao = False
+            
+            for dieta in dietas:
+                frequencia_dieta = medicao.valores_medicao.filter(dia=dia, nome_campo='frequencia', categoria_medicao__nome=dieta.nome)
+                if frequencia_dieta.count() == 0 or int(frequencia_dieta.first().valor) > 0:
+                    esta_zerado_dieta[dieta.nome] = False
+                
+        if esta_zerado_alimentacao:
+            resultado['alimentacoes'].append(dia)
+            
+        for key, value in esta_zerado_dieta.items():
+            if value:
+                resultado['dietas'][key].append(dia)
             
     return resultado
