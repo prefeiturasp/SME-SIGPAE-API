@@ -787,3 +787,10 @@ class TestOrdenaFaixasPorIdade:
         assert [f["nome_faixa"] for f in resultado[0]["faixas"]] == ["00 meses", "07 a 11 meses"]
         assert [f["nome_faixa"] for f in resultado[1]["faixas"]] == ["01 a 03 meses", "04 a 05 meses"]
 
+    def test_lista_vazia_nao_quebra(self):
+        assert ordena_faixas_por_idade([]) == []
+
+    def test_periodo_sem_faixas_nao_quebra(self):
+        periodos = [make_periodo("MANHA", [])]
+        resultado = ordena_faixas_por_idade(periodos)
+        assert resultado[0]["faixas"] == []
