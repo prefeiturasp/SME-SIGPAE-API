@@ -5148,36 +5148,104 @@ def calcula_totais_consumo_por_faixa_etaria(
     return gerar_totais_consolidado(solicitacoes, tipo_calculo)
 
 
-def busca_dias_zerados(solicitacao):
-    dietas = CategoriaMedicao.objects.filter(nome__icontains='DIETA')
-    resultado = {
-        'alimentacoes': [],
-        'dietas': {dieta.nome: [] for dieta in dietas}
-    }
+def busca_dias_zerados(solicitacao: SolicitacaoMedicaoInicial) -> dict:
+    """
+    Retorna os dias em que todas as frequências estão zeradas.
+
+    Um dia é considerado zerado quando:
+    - Todas as frequências da categoria "ALIMENTAÇÃO" estão zeradas em todos os períodos lançados.
+    - Para cada categoria de dieta (ex: Dieta A, B, etc), todas as frequências estão zeradas em todos os períodos.
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial):  Instância da solicitação de medição inicial.
+
+    Returns:
+        dict:  dict com estrutura:
+        {
+            "alimentacoes": [dias_zerados],
+            "dietas": {
+                "Dieta A": [dias_zerados],
+                "Dieta B": [dias_zerados],
+            }
+        }
+    """
+    dietas = CategoriaMedicao.objects.filter(nome__icontains="DIETA")
+    resultado = {"alimentacoes": [], "dietas": {dieta.nome: [] for dieta in dietas}}
     medicoes_regulares = Medicao.objects.filter(
         solicitacao_medicao_inicial=solicitacao,
         periodo_escolar__isnull=False,
-        grupo__isnull=True
+        grupo__isnull=True,
     ).prefetch_related("valores_medicao__categoria_medicao")
 
-    mapa_dias = defaultdict(lambda: defaultdict(list))
-    for medicao in medicoes_regulares:
-        for valor in medicao.valores_medicao.filter(nome_campo='frequencia'):
-            mapa_dias[valor.dia][valor.categoria_medicao.nome].append(int(valor.valor))
-    
-    for dia, categorias_do_dia in mapa_dias.items():
-        valores_alimentacao = categorias_do_dia.get("ALIMENTAÇÃO", [])
-        if not valores_alimentacao or all(v == 0 for v in valores_alimentacao):
-            resultado["alimentacoes"].append(dia)
-            
-        for dieta in dietas:
-            valores_dieta = categorias_do_dia.get(dieta.nome, [])
-            if not valores_dieta or all(v == 0 for v in valores_dieta):
-                resultado["dietas"][dieta.nome].append(dia)  
-    
-    
-    
-   
+    mapa_dias = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+    periodos_lancados = [
+        medicao.periodo_escolar.nome.upper() for medicao in medicoes_regulares
+    ]
 
-            
+    for medicao in medicoes_regulares:
+        periodo = medicao.periodo_escolar.nome.upper()
+        for valor in medicao.valores_medicao.filter(nome_campo="frequencia"):
+            mapa_dias[valor.dia][periodo][valor.categoria_medicao.nome] += int(
+                valor.valor or 0
+            )
+
+    for dia, periodos in mapa_dias.items():
+        _alimentacao_zerada(dia, periodos, periodos_lancados, resultado)
+        _dieta_zerada(dia, periodos, periodos_lancados, resultado, dietas)
+
     return resultado
+
+
+def _alimentacao_zerada(
+    dia: str, periodos: dict, periodos_lancados: list[str], resultado: dict
+) -> None:
+    """
+    Verifica se a alimentação está zerada em um determinado dia e, em caso positivo,
+    adiciona o dia à lista 'alimentacoes' no dicionário resultado.
+
+    Args:
+        dia (str):  Dia sendo analisado
+        periodos (dict): períodos encontrados com frequencia zerada
+        periodos_lancados (list[str]): Lista de nomes dos períodos escolares lançados na solicitação.
+        resultado (dict): Dicionário de resultados
+    """
+    todos_periodos_zerados = True
+    for periodo in periodos_lancados:
+        soma = periodos.get(periodo, {}).get("ALIMENTAÇÃO", 0)
+        if soma > 0:
+            todos_periodos_zerados = False
+            break
+
+    if todos_periodos_zerados:
+        resultado["alimentacoes"].append(dia)
+
+
+def _dieta_zerada(
+    dia: str,
+    periodos: dict,
+    periodos_lancados: list[str],
+    resultado: dict,
+    dietas: list[CategoriaMedicao],
+) -> None:
+    """
+    Verifica se cada dieta está zerada em um determinado dia e, em caso positivo,
+    adiciona o dia à lista correspondente à dieta no dicionário resultado.
+
+    Args:
+        dia (str):  Dia sendo analisado
+        periodos (dict): períodos encontrados com frequencia zerada
+        periodos_lancados (list[str]): Lista de nomes dos períodos escolares lançados na solicitação.
+        resultado (dict): Dicionário de resultados
+        dietas (list[CategoriaMedicao]): Lista de objetos CategoriaMedicao cujo nome contém "DIETA"
+    """
+    for dieta in dietas:
+        zerado = True
+
+        for periodo in periodos_lancados:
+            soma = periodos.get(periodo, {}).get(dieta.nome, 0)
+            if soma > 0:
+                zerado = False
+                break
+
+        if zerado:
+            resultado["dietas"][dieta.nome].append(dia)

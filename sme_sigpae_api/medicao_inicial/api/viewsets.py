@@ -1339,14 +1339,24 @@ class SolicitacaoMedicaoInicialViewSet(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-    @action(
-        detail=False, methods=["GET"], url_path="dias-zerados"
-    )
+    @action(detail=False, methods=["GET"], url_path="dias-zerados")
     def dias_zerados(self, request):
         uuid = request.query_params.get("uuid_solicitacao")
-        solicitacao = SolicitacaoMedicaoInicial.objects.get(uuid=uuid)
-        dias_zerados = busca_dias_zerados(solicitacao)
-        return Response(dias_zerados, status=status.HTTP_200_OK)
+        if not uuid:
+            return Response(
+                {"detail": "Parâmetro 'uuid_solicitacao' é obrigatório."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        solicitacao = SolicitacaoMedicaoInicial.objects.filter(uuid=uuid).first()
+        if not solicitacao:
+            return Response(
+                {"detail": "A solicitação não foi encontrada."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        resultado = busca_dias_zerados(solicitacao)
+        return Response(resultado, status=status.HTTP_200_OK)
 
 
 class TipoContagemAlimentacaoViewSet(mixins.ListModelMixin, GenericViewSet):
