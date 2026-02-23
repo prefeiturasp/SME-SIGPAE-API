@@ -160,12 +160,23 @@ def deve_existir_cardapio(escola, data: datetime.date):
 
 
 def deve_ser_dia_letivo_e_dia_da_semana(escola, data: datetime.date):
+    """Valida que a data é um dia letivo da escola.
+
+    Para dias de semana normais (Seg–Sex): passa sempre.
+    Para sábados, domingos e feriados: exige que exista um registro
+    DiaCalendario com dia_letivo=True para aquela escola e data.
+    """
     SEXTA_FEIRA = 4
 
-    if data.weekday() > SEXTA_FEIRA and not escola.calendario.get(data=data).dia_letivo:
-        raise serializers.ValidationError(
-            f'O dia {data.strftime("%d-%m-%Y")} não é dia letivo'
-        )
+    eh_fim_de_semana = data.weekday() > SEXTA_FEIRA
+    eh_feriado = calendario.is_holiday(data)
+
+    if eh_fim_de_semana or eh_feriado:
+        dia_letivo = escola.calendario.filter(data=data, dia_letivo=True, periodo_escolar=None).exists()
+        if not dia_letivo:
+            raise serializers.ValidationError(
+                f'Dia {data.strftime("%d/%m/%Y")} não é um dia letivo'
+            )
     return True
 
 
