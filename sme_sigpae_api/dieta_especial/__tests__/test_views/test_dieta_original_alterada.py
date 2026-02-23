@@ -1,187 +1,25 @@
 import datetime
 
 import pytest
-from model_bakery import baker
 from rest_framework import status
 
-from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.fluxo_status import DietaEspecialWorkflow
-from sme_sigpae_api.dieta_especial.models import (
-    AlergiaIntolerancia,
-    Alimento,
-    ClassificacaoDieta,
-    ProtocoloPadraoDietaEspecial,
-    SolicitacaoDietaEspecial,
+from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
+    AlergiaIntoleranciaFactory,
+    AlimentoFactory,
+    ClassificacaoDietaFactory,
+    MotivoAlteracaoUEFactory,
+    ProtocoloPadraoDietaEspecialFactory,
+    SolicitacaoDietaEspecialFactory,
 )
-from sme_sigpae_api.escola.models import Aluno
-from sme_sigpae_api.produto.models import Produto
+from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
+    AlunoFactory,
+    EscolaFactory,
+)
+from sme_sigpae_api.produto.fixtures.factories.produto_factory import ProdutoFactory
 
 pytestmark = pytest.mark.django_db
-
-
-@pytest.fixture
-def alergias_intolerancias_fixture():
-    """Cria alergias/intolerâncias para o teste."""
-    alergia_1 = baker.make(AlergiaIntolerancia, descricao="Alergia a Leite")
-    alergia_2 = baker.make(AlergiaIntolerancia, descricao="Alergia a Ovo")
-    alergia_3 = baker.make(AlergiaIntolerancia, descricao="Alergia a Soja")
-    return [alergia_1, alergia_2, alergia_3]
-
-
-@pytest.fixture
-def classificacoes_fixture():
-    """Cria classificações para o teste."""
-    tipo_a = baker.make(ClassificacaoDieta, nome="Tipo A")
-    tipo_b = baker.make(ClassificacaoDieta, nome="Tipo B")
-    tipo_a_enteral = baker.make(ClassificacaoDieta, nome="Tipo A Enteral")
-    return [tipo_a, tipo_b, tipo_a_enteral]
-
-
-@pytest.fixture
-def protocolo_padrao_fixture():
-    """Cria protocolo padrão para o teste."""
-    return baker.make(
-        ProtocoloPadraoDietaEspecial,
-        nome_protocolo="ALERGIA - LEITE E DERIVADOS",
-        status="LIBERADO",
-    )
-
-
-@pytest.fixture
-def alimentos_fixture():
-    """Cria alimentos para o teste."""
-    baker.make(Alimento, _quantity=6)
-    return Alimento.objects.all()
-
-
-@pytest.fixture
-def produtos_fixture():
-    """Cria produtos para o teste."""
-    baker.make(Produto, _quantity=6)
-    return Produto.objects.all()
-
-
-@pytest.fixture
-def substituicoes_fixture(alimentos_fixture, produtos_fixture):
-    """Cria substituições para o teste."""
-    substituicoes = []
-    ids_produtos = [p.uuid for p in produtos_fixture]
-    for i in range(4):
-        substituicoes.append(
-            {
-                "alimento": alimentos_fixture[i % len(alimentos_fixture)].id,
-                "tipo": "I" if i % 2 == 0 else "S",
-                "substitutos": ids_produtos[: min(3, len(ids_produtos))],
-            }
-        )
-    return substituicoes
-
-
-@pytest.fixture
-def aluno_teste(escola):
-    """Cria um aluno para o teste."""
-    return baker.make(
-        Aluno,
-        nome="João da Silva Santos",
-        codigo_eol="7891234",
-        data_nascimento="2015-05-10",
-        escola=escola,
-    )
-
-
-@pytest.fixture
-def dieta_comum_autorizada(
-    aluno_teste,
-    escola,
-    alergias_intolerancias_fixture,
-    classificacoes_fixture,
-    protocolo_padrao_fixture,
-    substituicoes_fixture,
-    alimentos_fixture,
-    produtos_fixture,
-    template_mensagem_dieta_especial,
-):
-    """Cria uma solicitação de dieta especial COMUM autorizada com todos os campos preenchidos."""
-    dieta = baker.make(
-        SolicitacaoDietaEspecial,
-        aluno=aluno_teste,
-        rastro_escola=escola,
-        escola_destino=escola,
-        tipo_solicitacao=SolicitacaoDietaEspecial.COMUM,
-        status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
-        ativo=True,
-        classificacao=classificacoes_fixture[0],
-        nome_completo_pescritor="Dr. Roberto Médico Silva",
-        registro_funcional_pescritor="CRM123",
-        registro_funcional_nutricionista="CRN987654",
-        observacoes="Aluno com alergia severa a laticínios",
-        informacoes_adicionais="Informações adicionais sobre a dieta",
-        protocolo_padrao=protocolo_padrao_fixture,
-        nome_protocolo=protocolo_padrao_fixture.nome_protocolo,
-        orientacoes_gerais="Evitar contato cruzado com derivados de leite",
-        data_inicio=datetime.date.today(),
-        caracteristicas_do_alimento="Alimentos sem lactose",
-    )
-    # Adiciona alergias/intolerâncias
-    dieta.alergias_intolerancias.set([alergias_intolerancias_fixture[0]])
-    return dieta
-
-
-@pytest.fixture
-def dieta_alteracao_ue_autorizada(
-    aluno_teste,
-    escola,
-    dieta_comum_autorizada,
-    alergias_intolerancias_fixture,
-    classificacoes_fixture,
-    protocolo_padrao_fixture,
-    substituicoes_fixture,
-    alimentos_fixture,
-    produtos_fixture,
-    template_mensagem_dieta_especial,
-):
-    """Cria uma solicitação de dieta especial ALTERACAO_UE autorizada do mesmo aluno."""
-    motivo_alteracao = baker.make(
-        "MotivoAlteracaoUE",
-        nome="Dieta Especial - Recreio nas Férias",
-        descricao="Solicitação para recreio nas férias",
-    )
-
-    escola_destino = baker.make(
-        "Escola",
-        nome="EMEF DESTINO RECREIO",
-        codigo_eol="999999",
-        lote=escola.lote,
-        diretoria_regional=escola.diretoria_regional,
-        tipo_gestao=escola.tipo_gestao,
-    )
-
-    dieta_alteracao = baker.make(
-        SolicitacaoDietaEspecial,
-        aluno=aluno_teste,
-        rastro_escola=escola,
-        escola_destino=escola_destino,
-        tipo_solicitacao=SolicitacaoDietaEspecial.ALTERACAO_UE,
-        status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
-        ativo=True,
-        dieta_alterada=dieta_comum_autorizada,
-        motivo_alteracao_ue=motivo_alteracao,
-        classificacao=classificacoes_fixture[0],
-        nome_completo_pescritor="Dr. Roberto Médico Silva",
-        registro_funcional_pescritor="CRM123",
-        registro_funcional_nutricionista="CRN987654",
-        observacoes="Aluno com alergia severa a laticínios",
-        informacoes_adicionais="Informações adicionais sobre a dieta",
-        protocolo_padrao=protocolo_padrao_fixture,
-        nome_protocolo=protocolo_padrao_fixture.nome_protocolo,
-        orientacoes_gerais="Evitar contato cruzado com derivados de leite",
-        data_inicio=datetime.date.today(),
-        data_termino=datetime.date.today() + datetime.timedelta(days=15),
-        caracteristicas_do_alimento="Alimentos sem lactose",
-    )
-    # Adiciona as mesmas alergias/intolerâncias da dieta comum
-    dieta_alteracao.alergias_intolerancias.set([alergias_intolerancias_fixture[0]])
-    return dieta_alteracao
 
 
 class TestDietaOriginalAlteradaSyncUpdate:
@@ -190,44 +28,155 @@ class TestDietaOriginalAlteradaSyncUpdate:
     a solicitação de ALTERACAO_UE do mesmo aluno também é atualizada com os mesmos dados.
     """
 
+    def setup(self, escola):
+        """Configura os modelos de teste usando factories."""
+        alergia_leite = AlergiaIntoleranciaFactory.create(descricao="Alergia a Leite")
+        alergia_ovo = AlergiaIntoleranciaFactory.create(descricao="Alergia a Ovo")
+        alergia_soja = AlergiaIntoleranciaFactory.create(descricao="Alergia a Soja")
+
+        tipo_a = ClassificacaoDietaFactory.create(nome="Tipo A")
+        tipo_b = ClassificacaoDietaFactory.create(nome="Tipo B")
+        tipo_a_enteral = ClassificacaoDietaFactory.create(nome="Tipo A Enteral")
+
+        protocolo_padrao = ProtocoloPadraoDietaEspecialFactory.create(
+            nome_protocolo="ALERGIA - LEITE E DERIVADOS",
+            status="LIBERADO",
+        )
+
+        alimentos = [AlimentoFactory.create() for _ in range(6)]
+        produtos = [ProdutoFactory.create() for _ in range(6)]
+
+        substituicoes = []
+        ids_produtos = [p.uuid for p in produtos]
+        for i in range(4):
+            substituicoes.append(
+                {
+                    "alimento": alimentos[i % len(alimentos)].id,
+                    "tipo": "I" if i % 2 == 0 else "S",
+                    "substitutos": ids_produtos[: min(3, len(ids_produtos))],
+                }
+            )
+
+        aluno_teste = AlunoFactory(
+            nome="João da Silva Santos",
+            codigo_eol="7891234",
+            data_nascimento="2015-05-10",
+            escola=escola,
+        )
+
+        dieta_comum_autorizada = SolicitacaoDietaEspecialFactory.create(
+            aluno=aluno_teste,
+            rastro_escola=escola,
+            escola_destino=escola,
+            tipo_solicitacao=SolicitacaoDietaEspecial.COMUM,
+            status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
+            ativo=True,
+            classificacao=tipo_a,
+            nome_completo_pescritor="Dr. Roberto Médico Silva",
+            registro_funcional_pescritor="CRM123",
+            registro_funcional_nutricionista="CRN987654",
+            observacoes="Aluno com alergia severa a laticínios",
+            informacoes_adicionais="Informações adicionais sobre a dieta",
+            protocolo_padrao=protocolo_padrao,
+            nome_protocolo=protocolo_padrao.nome_protocolo,
+            orientacoes_gerais="Evitar contato cruzado com derivados de leite",
+            data_inicio=datetime.date.today(),
+            caracteristicas_do_alimento="Alimentos sem lactose",
+        )
+        dieta_comum_autorizada.alergias_intolerancias.set([alergia_leite])
+
+        motivo_alteracao = MotivoAlteracaoUEFactory.create(
+            nome="Dieta Especial - Recreio nas Férias",
+            descricao="Solicitação para recreio nas férias",
+        )
+
+        escola_destino = EscolaFactory.create(
+            nome="EMEF DESTINO RECREIO",
+            codigo_eol="999999",
+            lote=escola.lote,
+            diretoria_regional=escola.diretoria_regional,
+            tipo_gestao=escola.tipo_gestao,
+        )
+
+        dieta_alteracao_ue_autorizada = SolicitacaoDietaEspecialFactory.create(
+            aluno=aluno_teste,
+            rastro_escola=escola,
+            escola_destino=escola_destino,
+            tipo_solicitacao=SolicitacaoDietaEspecial.ALTERACAO_UE,
+            status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
+            ativo=True,
+            dieta_alterada=dieta_comum_autorizada,
+            motivo_alteracao_ue=motivo_alteracao,
+            classificacao=tipo_a,
+            nome_completo_pescritor="Dr. Roberto Médico Silva",
+            registro_funcional_pescritor="CRM123",
+            registro_funcional_nutricionista="CRN987654",
+            observacoes="Aluno com alergia severa a laticínios",
+            informacoes_adicionais="Informações adicionais sobre a dieta",
+            protocolo_padrao=protocolo_padrao,
+            nome_protocolo=protocolo_padrao.nome_protocolo,
+            orientacoes_gerais="Evitar contato cruzado com derivados de leite",
+            data_inicio=datetime.date.today(),
+            data_termino=datetime.date.today() + datetime.timedelta(days=15),
+            caracteristicas_do_alimento="Alimentos sem lactose",
+        )
+        dieta_alteracao_ue_autorizada.alergias_intolerancias.set([alergia_leite])
+
+        return {
+            "alergia_leite": alergia_leite,
+            "alergia_ovo": alergia_ovo,
+            "alergia_soja": alergia_soja,
+            "tipo_a": tipo_a,
+            "tipo_b": tipo_b,
+            "tipo_a_enteral": tipo_a_enteral,
+            "protocolo_padrao": protocolo_padrao,
+            "alimentos": alimentos,
+            "produtos": produtos,
+            "substituicoes": substituicoes,
+            "aluno_teste": aluno_teste,
+            "dieta_comum_autorizada": dieta_comum_autorizada,
+            "motivo_alteracao": motivo_alteracao,
+            "escola_destino": escola_destino,
+            "dieta_alteracao_ue_autorizada": dieta_alteracao_ue_autorizada,
+        }
+
     def test_autoriza_dieta_comum_atualiza_dieta_alteracao_ue(
         self,
         client_autenticado_protocolo_dieta,
-        dieta_comum_autorizada,
-        dieta_alteracao_ue_autorizada,
-        alergias_intolerancias_fixture,
-        classificacoes_fixture,
-        protocolo_padrao_fixture,
-        substituicoes_fixture,
-        alimentos_fixture,
-        produtos_fixture,
+        escola,
     ):
         """
         Testa se ao autorizar uma dieta COMUM com novos dados,
         a dieta ALTERACAO_UE autorizada do mesmo aluno é atualizada com os mesmos dados.
         """
+        # Setup dos modelos
+        data = self.setup(escola)
+        alergia_ovo = data["alergia_ovo"]
+        alergia_soja = data["alergia_soja"]
+        tipo_b = data["tipo_b"]
+        substituicoes = data["substituicoes"]
+        dieta_comum_autorizada = data["dieta_comum_autorizada"]
+        dieta_alteracao_ue_autorizada = data["dieta_alteracao_ue_autorizada"]
+
         # Muda o status da dieta comum para CODAE_A_AUTORIZAR para poder autorizar novamente
         dieta_comum_autorizada.status = DietaEspecialWorkflow.CODAE_A_AUTORIZAR
         dieta_comum_autorizada.ativo = False
         dieta_comum_autorizada.save()
 
         # Prepara o payload com novos dados para autorização
-        novo_protocolo = baker.make(
-            ProtocoloPadraoDietaEspecial,
+        novo_protocolo = ProtocoloPadraoDietaEspecialFactory(
             nome_protocolo="ALERGIA - OVO E DERIVADOS",
             status="LIBERADO",
         )
 
         payload_autorizacao = {
-            "classificacao": classificacoes_fixture[
-                1
-            ].id,  # Mudando de Tipo A para Tipo B
+            "classificacao": tipo_b.id,  # Mudando de Tipo A para Tipo B
             "alergias_intolerancias": [
-                alergias_intolerancias_fixture[1].id,  # Alergia a Ovo
-                alergias_intolerancias_fixture[2].id,  # Alergia a Soja
+                alergia_ovo.id,  # Alergia a Ovo
+                alergia_soja.id,  # Alergia a Soja
             ],
             "registro_funcional_nutricionista": "CRN111222 - Nutricionista Atualizado CODAE",
-            "substituicoes": substituicoes_fixture,  # Adicionado campo obrigatório
+            "substituicoes": substituicoes,
             "informacoes_adicionais": "Informações adicionais ATUALIZADAS",
             "protocolo_padrao": str(novo_protocolo.uuid),
             "nome_protocolo": novo_protocolo.nome_protocolo,
@@ -256,7 +205,7 @@ class TestDietaOriginalAlteradaSyncUpdate:
         # VERIFICA SE A DIETA COMUM FOI ATUALIZADA
         assert dieta_comum_autorizada.status == DietaEspecialWorkflow.CODAE_AUTORIZADO
         assert dieta_comum_autorizada.ativo is True
-        assert dieta_comum_autorizada.classificacao.id == classificacoes_fixture[1].id
+        assert dieta_comum_autorizada.classificacao.id == tipo_b.id
         assert (
             dieta_comum_autorizada.registro_funcional_nutricionista
             == "CRN111222 - Nutricionista Atualizado CODAE"
@@ -283,8 +232,8 @@ class TestDietaOriginalAlteradaSyncUpdate:
             dieta_comum_autorizada.alergias_intolerancias.values_list("id", flat=True)
         )
         assert alergias_dieta_comum == {
-            alergias_intolerancias_fixture[1].id,
-            alergias_intolerancias_fixture[2].id,
+            alergia_ovo.id,
+            alergia_soja.id,
         }
 
         # VERIFICA SE A DIETA DE ALTERACAO_UE TAMBÉM FOI ATUALIZADA COM OS MESMOS DADOS
@@ -293,10 +242,7 @@ class TestDietaOriginalAlteradaSyncUpdate:
             == DietaEspecialWorkflow.CODAE_AUTORIZADO
         )
         assert dieta_alteracao_ue_autorizada.ativo is False
-        assert (
-            dieta_alteracao_ue_autorizada.classificacao.id
-            == classificacoes_fixture[1].id
-        )
+        assert dieta_alteracao_ue_autorizada.classificacao.id == tipo_b.id
         assert (
             dieta_alteracao_ue_autorizada.registro_funcional_nutricionista
             == "CRN111222 - Nutricionista Atualizado CODAE"
@@ -328,8 +274,8 @@ class TestDietaOriginalAlteradaSyncUpdate:
             )
         )
         assert alergias_dieta_alteracao == {
-            alergias_intolerancias_fixture[1].id,
-            alergias_intolerancias_fixture[2].id,
+            alergia_ovo.id,
+            alergia_soja.id,
         }
 
         # Verifica que a dieta de ALTERACAO_UE mantém seus campos específicos
