@@ -245,7 +245,7 @@ class SolicitacaoDietaEspecialViewSet(
             serializer = self.get_serializer()
             data_copy = deepcopy(request.data)
             serializer.update(solicitacao, request.data)
-            self.verifica_se_aluno_possui_solicitacao_alteracao_ue(
+            self.verifica_se_aluno_possui_solicitacao_alteracao_ue_autorizada(
                 request, solicitacao.aluno, serializer, data_copy
             )
             solicitacao.ativo = True
@@ -364,7 +364,7 @@ class SolicitacaoDietaEspecialViewSet(
         except ValidationError as e:
             return Response(e, status=status.HTTP_400_BAD_REQUEST)
 
-    def verifica_se_aluno_possui_solicitacao_alteracao_ue(
+    def verifica_se_aluno_possui_solicitacao_alteracao_ue_autorizada(
         self, request, aluno, serializer, data
     ):
         dieta_alteracao_ue_autorizada = (
@@ -399,7 +399,7 @@ class SolicitacaoDietaEspecialViewSet(
             if solicitacao.tipo_solicitacao != SolicitacaoDietaEspecial.ALTERACAO_UE:
                 data_copy = deepcopy(request.data)
                 serializer.update(solicitacao, request.data)
-                self.verifica_se_aluno_possui_solicitacao_alteracao_ue(
+                self.verifica_se_aluno_possui_solicitacao_alteracao_ue_autorizada(
                     request, solicitacao.aluno, serializer, data_copy
                 )
                 solicitacao.ativo = True
