@@ -47,6 +47,7 @@ from ..utils import (
     string_to_meses,
     trata_filtro_data_relatorio_controle_frequencia_pdf,
     update_datetime_LogAlunosMatriculadosPeriodoEscola,
+    ordena_faixas_por_idade,
 )
 
 pytestmark = pytest.mark.django_db
@@ -725,3 +726,64 @@ def test_dias_letivos_noturno_sem_periodo_cadastrado(
 
     mock_sgp.assert_not_called()
     mock_processa.assert_not_called()
+
+
+def make_periodo(nome_periodo, nomes_faixas):
+    """Helper para montar estrutura de período com faixas."""
+    return {
+        "periodo": nome_periodo,
+        "quantidade": 10,
+        "faixas": [{"nome_faixa": nome, "dias": [], "alunos_por_faixa": []} for nome in nomes_faixas],
+    }
+
+
+class TestOrdenaFaixasPorIdade:
+    def test_ordena_faixas_ordem_correta(self):
+        periodos = [
+            make_periodo("MANHA", [
+                "07 a 11 meses",
+                "00 meses",
+                "04 a 05 meses",
+                "01 a 03 meses",
+                "06 meses",
+                "01 ano a 03 anos e 11 meses",
+                "04 anos a 06 anos",
+            ])
+        ]
+        resultado = ordena_faixas_por_idade(periodos)
+        nomes_ordenados = [f["nome_faixa"] for f in resultado[0]["faixas"]]
+        assert nomes_ordenados == [
+            "00 meses",
+            "01 a 03 meses",
+            "04 a 05 meses",
+            "06 meses",
+            "07 a 11 meses",
+            "01 ano a 03 anos e 11 meses",
+            "04 anos a 06 anos",
+        ]
+
+    def test_faixas_ausentes_nao_quebram(self):
+        periodos = [
+            make_periodo("TARDE", ["06 meses", "00 meses"])
+        ]
+        resultado = ordena_faixas_por_idade(periodos)
+        nomes_ordenados = [f["nome_faixa"] for f in resultado[0]["faixas"]]
+        assert nomes_ordenados == ["00 meses", "06 meses"]
+
+    def test_faixa_desconhecida_vai_para_o_fim(self):
+        periodos = [
+            make_periodo("MANHA", ["faixa_desconhecida", "06 meses", "00 meses"])
+        ]
+        resultado = ordena_faixas_por_idade(periodos)
+        nomes_ordenados = [f["nome_faixa"] for f in resultado[0]["faixas"]]
+        assert nomes_ordenados == ["00 meses", "06 meses", "faixa_desconhecida"]
+
+    def test_multiplos_periodos_ordenados_independentemente(self):
+        periodos = [
+            make_periodo("MANHA", ["07 a 11 meses", "00 meses"]),
+            make_periodo("TARDE", ["04 a 05 meses", "01 a 03 meses"]),
+        ]
+        resultado = ordena_faixas_por_idade(periodos)
+        assert [f["nome_faixa"] for f in resultado[0]["faixas"]] == ["00 meses", "07 a 11 meses"]
+        assert [f["nome_faixa"] for f in resultado[1]["faixas"]] == ["01 a 03 meses", "04 a 05 meses"]
+
