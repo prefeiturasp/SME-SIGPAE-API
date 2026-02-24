@@ -5150,22 +5150,46 @@ def calcula_totais_consumo_por_faixa_etaria(
 
 def busca_dias_zerados(solicitacao: SolicitacaoMedicaoInicial) -> dict:
     """
-    Retorna os dias em que todas as frequências estão zeradas.
+    Retorna os dias em que todas as frequências estão zeradas
+    para Alimentação e Dietas.
 
-    Um dia é considerado zerado quando:
-    - Todas as frequências da categoria "ALIMENTAÇÃO" estão zeradas em todos os períodos lançados.
-    - Para cada categoria de dieta (ex: Dieta A, B, etc), todas as frequências estão zeradas em todos os períodos.
+    Regras:
+        EMEF:
+            Um dia é zerado quando a soma da categoria é 0
+            em todos os períodos escolares lançados.
 
+        EMEBS:
+            A verificação é feita separadamente para
+            INFANTIL e FUNDAMENTAL.
+
+            Uma modalidade é considerada zerada se:
+                1. Existir lançamento para ela no dia.
+                2. A soma for 0 em todos os períodos lançados.
     Args:
         solicitacao (SolicitacaoMedicaoInicial):  Instância da solicitação de medição inicial.
 
     Returns:
-        dict:  dict com estrutura:
+        dict:
+        Estrutura varia conforme o tipo de escola.
+        EMEF:
         {
             "alimentacoes": [dias_zerados],
             "dietas": {
                 "Dieta A": [dias_zerados],
                 "Dieta B": [dias_zerados],
+            }
+        }
+        EMEBS:
+        {
+            "alimentacoes": {
+                "INFANTIL": [dias_zerados],
+                "FUNDAMENTAL": [dias_zerados],
+            },
+            "dietas": {
+                "Dieta A": {
+                    "INFANTIL": [dias_zerados],
+                    "FUNDAMENTAL": [dias_zerados],
+                }
             }
         }
     """
@@ -5200,10 +5224,6 @@ def busca_dias_zerados(solicitacao: SolicitacaoMedicaoInicial) -> dict:
             _zerados_emebs(medicao, mapa_dias, periodo)
         else:
             _zerados_emef(medicao, mapa_dias, periodo)
-        # for valor in medicao.valores_medicao.filter(nome_campo="frequencia"):
-        #     mapa_dias[valor.dia][periodo][valor.categoria_medicao.nome] += int(
-        #         valor.valor or 0
-        #     )
 
     for dia, periodos in mapa_dias.items():
         _alimentacao_zerada(
@@ -5221,14 +5241,35 @@ def busca_dias_zerados(solicitacao: SolicitacaoMedicaoInicial) -> dict:
     return resultado
 
 
-def _zerados_emef(medicao, mapa_dias, periodo):
+def _zerados_emef(medicao: Medicao, mapa_dias: dict, periodo: str) -> None:
+    """
+    Acumula as frequências por dia, período e categoria (EMEF).
+    Estrutura gerada:
+        mapa_dias[dia][periodo][categoria] = soma
+
+    Args:
+        medicao (Medicao): Instância da medição processada.
+        mapa_dias (dict): Estrutura acumuladora das somas por dia.
+        periodo (str): Nome do período escolar (ex: MANHA, TARDE).
+    """
     for valor in medicao.valores_medicao.filter(nome_campo="frequencia"):
         mapa_dias[valor.dia][periodo][valor.categoria_medicao.nome] += int(
             valor.valor or 0
         )
 
 
-def _zerados_emebs(medicao, mapa_dias, periodo):
+def _zerados_emebs(medicao: Medicao, mapa_dias: dict, periodo: str) -> None:
+    """
+    Acumula as frequências por dia, período, categoria e modalidade (EMEBS).
+
+    Estrutura gerada:
+        mapa_dias[dia][periodo][categoria][modalidade] = soma
+
+    Args:
+        medicao (Medicao): Instância da medição processada.
+        mapa_dias (dict): Estrutura acumuladora das somas por dia.
+        periodo (str): Nome do período escolar.
+    """
     for valor in medicao.valores_medicao.filter(
         nome_campo="frequencia", infantil_ou_fundamental=ValorMedicao.INFANTIL
     ):
@@ -5251,14 +5292,14 @@ def _alimentacao_zerada(
     eh_emebs: bool = False,
 ) -> None:
     """
-    Verifica se a alimentação está zerada em um determinado dia e, em caso positivo,
-    adiciona o dia à lista 'alimentacoes' no dicionário resultado.
+    Verifica se a categoria "ALIMENTAÇÃO" está zerada no dia.
 
     Args:
         dia (str):  Dia sendo analisado
-        periodos (dict): períodos encontrados com frequencia zerada
+        periodos (dict): Estrutura contendo os valores acumulados do dia.
         periodos_lancados (list[str]): Lista de nomes dos períodos escolares lançados na solicitação.
-        resultado (dict): Dicionário de resultados
+        resultado (dict): Estrutura de retorno a ser preenchida.
+        eh_emebs (bool): Indica se a escola é do tipo EMEBS.
     """
     if eh_emebs:
         _alimentacao_zerada_emebs(dia, periodos, periodos_lancados, resultado)
@@ -5283,15 +5324,15 @@ def _dieta_zerada(
     eh_emebs: bool = False,
 ) -> None:
     """
-    Verifica se cada dieta está zerada em um determinado dia e, em caso positivo,
-    adiciona o dia à lista correspondente à dieta no dicionário resultado.
+    Verifica se cada categoria de dieta está zerada no dia.
 
     Args:
-        dia (str):  Dia sendo analisado
-        periodos (dict): períodos encontrados com frequencia zerada
+         dia (str):  Dia sendo analisado
+        periodos (dict): Estrutura contendo os valores acumulados do dia.
         periodos_lancados (list[str]): Lista de nomes dos períodos escolares lançados na solicitação.
-        resultado (dict): Dicionário de resultados
+        resultado (dict): Estrutura de retorno a ser preenchida.
         dietas (list[CategoriaMedicao]): Lista de objetos CategoriaMedicao cujo nome contém "DIETA"
+        eh_emebs (bool): Indica se a escola é do tipo EMEBS.
     """
     if eh_emebs:
         _dieta_zerada_emebs(dia, periodos, periodos_lancados, resultado, dietas)
@@ -5312,27 +5353,17 @@ def _dieta_zerada(
 def _alimentacao_zerada_emebs(
     dia: str, periodos: dict, periodos_lancados: list[str], resultado: dict
 ) -> None:
+    """
+    Verifica se "ALIMENTAÇÃO" está zerada por modalidade no dia.
+
+    Args:
+        dia (str):  Dia sendo analisado
+        periodos (dict): Estrutura contendo os valores acumulados do dia.
+        periodos_lancados (list[str]): Lista de nomes dos períodos escolares lançados na solicitação.
+        resultado (dict):  Estrutura de retorno a ser preenchida.
+    """
     for tipo in (ValorMedicao.INFANTIL, ValorMedicao.FUNDAMENTAL):
-        encontrou_modalidade = False
-        zerado = True
-
-        for periodo in periodos_lancados:
-            categoria_periodo = periodos.get(periodo, {}).get("ALIMENTAÇÃO")
-
-            if not categoria_periodo:
-                continue
-
-            if tipo not in categoria_periodo:
-                continue
-
-            encontrou_modalidade = True
-            soma = categoria_periodo[tipo]
-
-            if soma > 0:
-                zerado = False
-                break
-
-        if encontrou_modalidade and zerado:
+        if _modalidade_zerada("ALIMENTAÇÃO", tipo, periodos, periodos_lancados):
             resultado["alimentacoes"][tipo].append(dia)
 
 
@@ -5343,27 +5374,52 @@ def _dieta_zerada_emebs(
     resultado: dict,
     dietas: list[CategoriaMedicao],
 ) -> None:
+    """
+    Verifica se cada dieta está zerada por modalidade no dia.
+
+    Args:
+       dia (str):  Dia sendo analisado
+        periodos (dict): Estrutura contendo os valores acumulados do dia.
+        periodos_lancados (list[str]): Lista de nomes dos períodos escolares lançados na solicitação.
+        resultado (dict):  Estrutura de retorno a ser preenchida.
+        dietas (list[CategoriaMedicao]): Lista de objetos CategoriaMedicao cujo nome contém "DIETA"
+    """
     for dieta in dietas:
         nome_dieta = dieta.nome
         for tipo in (ValorMedicao.INFANTIL, ValorMedicao.FUNDAMENTAL):
-            encontrou_modalidade = False
-            zerado = True
-
-            for periodo in periodos_lancados:
-                categoria_periodo = periodos.get(periodo, {}).get(nome_dieta)
-
-                if not categoria_periodo:
-                    continue
-
-                if tipo not in categoria_periodo:
-                    continue
-
-                encontrou_modalidade = True
-                soma = categoria_periodo[tipo]
-
-                if soma > 0:
-                    zerado = False
-                    break
-
-            if encontrou_modalidade and zerado:
+            if _modalidade_zerada(nome_dieta, tipo, periodos, periodos_lancados):
                 resultado["dietas"][nome_dieta][tipo].append(dia)
+
+
+def _modalidade_zerada(
+    nome_categoria: str,
+    tipo: str,
+    periodos: dict,
+    periodos_lancados: list[str],
+) -> bool:
+    """
+    Determina se uma categoria está zerada para uma modalidade.
+
+    Args:
+        nome_categoria (str): Nome da categoria (ex: "ALIMENTAÇÃO").
+        tipo (str): Modalidade analisada (INFANTIL ou FUNDAMENTAL).
+        periodos (dict): estrutura acumulada do dia.
+        periodos_lancados (list[str]): Lista de períodos escolares lançados.
+
+    Returns:
+        bool: True se a categoria estiver zerada para a modalidade.
+    """
+    encontrou_modalidade = False
+
+    for periodo in periodos_lancados:
+        categoria_periodo = periodos.get(periodo, {}).get(nome_categoria)
+
+        if not categoria_periodo or tipo not in categoria_periodo:
+            continue
+
+        encontrou_modalidade = True
+
+        if categoria_periodo[tipo] > 0:
+            return False
+
+    return encontrou_modalidade
