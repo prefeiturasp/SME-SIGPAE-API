@@ -376,7 +376,16 @@ class SolicitacaoDietaEspecialViewSet(
             .first()
         )
         if dieta_alteracao_ue_autorizada:
-            serializer.update(dieta_alteracao_ue_autorizada, data)
+            data_sem_datas = {
+                k: v
+                for k, v in data.items()
+                if k not in ("data_inicio", "data_termino")
+            }
+            if dieta_alteracao_ue_autorizada.data_termino:
+                data_sem_datas["data_termino"] = (
+                    dieta_alteracao_ue_autorizada.data_termino.strftime("%Y-%m-%d")
+                )
+            serializer.update(dieta_alteracao_ue_autorizada, data_sem_datas)
 
     @transaction.atomic
     @action(
