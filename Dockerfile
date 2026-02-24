@@ -6,7 +6,7 @@ RUN apt-get update && \
     pip install xlsxwriter && \
     pip install pycparser && \
     pip install --no-cache-dir -U pip && \
-    pip install --no-cache-dir pipenv==2023.11.15
+    pip install --no-cache-dir pipenv==2026.0.3
 
 WORKDIR /code
 COPY . /code/

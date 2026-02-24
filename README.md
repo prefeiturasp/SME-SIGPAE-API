@@ -4,7 +4,7 @@
 
 ![python-version](https://img.shields.io/badge/python-3.13-blue)
 ![django-version](https://img.shields.io/badge/django-5.2-blue)
-![pipenv-version](https://img.shields.io/badge/pipenv-2023.11.15-blue)
+![pipenv-version](https://img.shields.io/badge/pipenv-2026.0.3-blue)
 
 # Estratégia de Transformação Digital e Governo Aberto na SME
 
@@ -260,7 +260,7 @@ celery -A config worker --beat -S sme_sigpae_api.dados_comuns.utils.NaiveDatabas
 Pré-requisitos:
 
 * Python 3.13.3
-* pipenv versão 2023.11.15
+* pipenv versão 2026.0.3
 
 Para instalação dos pré-requisitos utilizando o Pyenv, abra um terminal na pasta do backend do projeto na sua máquina e execute os comandos abaixo:
 
@@ -274,7 +274,7 @@ $ pyenv install 3.13.3
 # Defina a versão do Python para a pasta
 $ pyenv local 3.13.3
 
-$ pip install pipenv==2023.11.15
+$ pip install pipenv==2026.0.3
 
 # Crie o ambiente virtual e instale as dependências do projeto
 $ pipenv install --dev

@@ -13,7 +13,7 @@ before_script:
   - export AUTHOR_NAME="$(git log -1 $TRAVIS_COMMIT --pretty="%aN")"
 
 install:
-  - pip install pipenv==2022.4.8
+  - pip install pipenv==2026.0.3
   - pipenv install --dev
 script:
   - pytest
