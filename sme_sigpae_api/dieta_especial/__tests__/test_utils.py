@@ -192,22 +192,22 @@ def test_gerar_filtros_relatorio_historico(
 ):
     query_params = QueryDict(mutable=True)
     query_params.setlist(
-        "unidades_educacionais_selecionadas[]",
+        "unidades_educacionais_selecionadas",
         [
             str(escola.uuid),
             str(escola_emebs.uuid),
         ],
     )
     query_params.setlist(
-        "tipos_unidades_selecionadas[]",
+        "tipos_unidades_selecionadas",
         [str(escola_emebs.tipo_unidade.uuid)],
     )
     query_params.setlist(
-        "periodos_escolares_selecionadas[]",
+        "periodos_escolares_selecionadas",
         [str(periodo_escolar_integral.uuid)],
     )
     query_params.setlist(
-        "classificacoes_selecionadas[]",
+        "classificacoes_selecionadas",
         [classificacao.id for classificacao in classificacoes_dietas],
     )
     query_params["tipo_gestao"] = str(escola_emebs.tipo_gestao.uuid)
