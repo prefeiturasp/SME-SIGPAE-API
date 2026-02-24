@@ -6,7 +6,6 @@ from rest_framework import status
 from sme_sigpae_api.dados_comuns.fixtures.factories.dados_comuns_factories import (
     ContatoFactory,
 )
-from sme_sigpae_api.dados_comuns.fluxo_status import DietaEspecialWorkflow
 from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     AlergiaIntoleranciaFactory,
     AlimentoFactory,
@@ -16,6 +15,7 @@ from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factor
     SolicitacaoDietaEspecialFactory,
 )
 from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+from sme_sigpae_api.dieta_especial.utils import termina_dietas_especiais
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
     AlunoFactory,
     EscolaFactory,
@@ -25,7 +25,7 @@ from sme_sigpae_api.produto.fixtures.factories.produto_factory import ProdutoFac
 pytestmark = pytest.mark.django_db
 
 
-class TestDietaOriginalAlteradaSyncUpdate:
+class TestUseCaseDietaOriginalAlterada:
     """
     Testa se ao autorizar uma solicitação de dieta especial do tipo COMUM,
     a solicitação de ALTERACAO_UE do mesmo aluno também é atualizada com os mesmos dados.
@@ -82,7 +82,7 @@ class TestDietaOriginalAlteradaSyncUpdate:
             rastro_escola=escola,
             escola_destino=escola,
             tipo_solicitacao=SolicitacaoDietaEspecial.COMUM,
-            status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
             ativo=True,
             classificacao=tipo_a,
             nome_completo_pescritor="Dr. Roberto Médico Silva",
@@ -116,7 +116,7 @@ class TestDietaOriginalAlteradaSyncUpdate:
             rastro_escola=escola,
             escola_destino=escola_destino,
             tipo_solicitacao=SolicitacaoDietaEspecial.ALTERACAO_UE,
-            status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
             ativo=False,  # Dieta de alteração UE não fica ativa, apenas a COMUM
             dieta_alterada=dieta_comum_autorizada,
             motivo_alteracao_ue=motivo_alteracao,
@@ -141,7 +141,7 @@ class TestDietaOriginalAlteradaSyncUpdate:
             rastro_escola=escola,
             escola_destino=escola,
             tipo_solicitacao=SolicitacaoDietaEspecial.COMUM,
-            status=DietaEspecialWorkflow.CODAE_A_AUTORIZAR,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR,
             ativo=False,
             classificacao=tipo_a,
             nome_completo_pescritor="Dr. Roberto Médico Silva",
@@ -236,7 +236,10 @@ class TestDietaOriginalAlteradaSyncUpdate:
         dieta_alteracao_ue_autorizada.refresh_from_db()
 
         # VERIFICA SE A NOVA DIETA COMUM FOI AUTORIZADA
-        assert dieta_nova_a_autorizar.status == DietaEspecialWorkflow.CODAE_AUTORIZADO
+        assert (
+            dieta_nova_a_autorizar.status
+            == SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
+        )
         assert dieta_nova_a_autorizar.ativo is True
         assert dieta_nova_a_autorizar.classificacao.id == tipo_b.id
         assert (
@@ -272,7 +275,7 @@ class TestDietaOriginalAlteradaSyncUpdate:
         # VERIFICA SE A DIETA DE ALTERACAO_UE TAMBÉM FOI ATUALIZADA COM OS MESMOS DADOS DA NOVA DIETA
         assert (
             dieta_alteracao_ue_autorizada.status
-            == DietaEspecialWorkflow.CODAE_AUTORIZADO
+            == SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
         )
         assert dieta_alteracao_ue_autorizada.ativo is False
         assert dieta_alteracao_ue_autorizada.classificacao.id == tipo_b.id
@@ -374,7 +377,10 @@ class TestDietaOriginalAlteradaSyncUpdate:
         dieta_alteracao_ue_autorizada.refresh_from_db()
 
         # VERIFICA SE A DIETA COMUM FOI ATUALIZADA
-        assert dieta_comum_autorizada.status == DietaEspecialWorkflow.CODAE_AUTORIZADO
+        assert (
+            dieta_comum_autorizada.status
+            == SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
+        )
         assert dieta_comum_autorizada.ativo is True
         assert dieta_comum_autorizada.classificacao.id == tipo_b.id
         assert (
@@ -410,7 +416,7 @@ class TestDietaOriginalAlteradaSyncUpdate:
         # VERIFICA SE A DIETA DE ALTERACAO_UE TAMBÉM FOI ATUALIZADA COM OS MESMOS DADOS
         assert (
             dieta_alteracao_ue_autorizada.status
-            == DietaEspecialWorkflow.CODAE_AUTORIZADO
+            == SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
         )
         assert dieta_alteracao_ue_autorizada.ativo is False
         assert dieta_alteracao_ue_autorizada.classificacao.id == tipo_b.id
@@ -450,6 +456,59 @@ class TestDietaOriginalAlteradaSyncUpdate:
         }
 
         # Verifica que a dieta de ALTERACAO_UE mantém seus campos específicos
+        assert (
+            dieta_alteracao_ue_autorizada.tipo_solicitacao
+            == SolicitacaoDietaEspecial.ALTERACAO_UE
+        )
+        assert dieta_alteracao_ue_autorizada.dieta_alterada == dieta_comum_autorizada
+        assert dieta_alteracao_ue_autorizada.motivo_alteracao_ue is not None
+
+    def test_termina_dietas_nao_afeta_alteracao_ue_quando_comum_cancelada(
+        self,
+        escola,
+        usuario_admin,
+    ):
+        """
+        Testa se ao rodar a task termina_dietas_especiais, quando a dieta COMUM
+        foi cancelada pela escola (ESCOLA_CANCELOU), a dieta ALTERACAO_UE
+        permanece com status CODAE_AUTORIZADO.
+
+        Cenário:
+        - Existe uma dieta COMUM já autorizada que é cancelada pela escola (ESCOLA_CANCELOU)
+        - Existe uma dieta ALTERACAO_UE autorizada, vinculada à dieta COMUM
+        - Ao rodar termina_dietas_especiais, a dieta ALTERACAO_UE não deve ser afetada
+        """
+        data = self.setup(escola)
+        dieta_comum_autorizada = data["dieta_comum_autorizada"]
+        dieta_alteracao_ue_autorizada = data["dieta_alteracao_ue_autorizada"]
+
+        # Cancela a dieta COMUM pela escola
+        dieta_comum_autorizada.status = (
+            SolicitacaoDietaEspecial.workflow_class.ESCOLA_CANCELOU
+        )
+        dieta_comum_autorizada.ativo = False
+        dieta_comum_autorizada.save()
+
+        # Executa a task termina_dietas_especiais
+        termina_dietas_especiais(usuario=usuario_admin)
+
+        # Recarrega do banco de dados
+        dieta_alteracao_ue_autorizada.refresh_from_db()
+        dieta_comum_autorizada.refresh_from_db()
+
+        # Verifica que a dieta COMUM continua com status ESCOLA_CANCELOU
+        assert (
+            dieta_comum_autorizada.status
+            == SolicitacaoDietaEspecial.workflow_class.ESCOLA_CANCELOU
+        )
+        assert dieta_comum_autorizada.ativo is False
+
+        # Verifica que a dieta ALTERACAO_UE permanece autorizada e inalterada
+        assert (
+            dieta_alteracao_ue_autorizada.status
+            == SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
+        )
+        assert dieta_alteracao_ue_autorizada.ativo is False
         assert (
             dieta_alteracao_ue_autorizada.tipo_solicitacao
             == SolicitacaoDietaEspecial.ALTERACAO_UE
