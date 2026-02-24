@@ -5169,35 +5169,86 @@ def busca_dias_zerados(solicitacao: SolicitacaoMedicaoInicial) -> dict:
             }
         }
     """
-    dietas = CategoriaMedicao.objects.filter(nome__icontains="DIETA")
-    resultado = {"alimentacoes": [], "dietas": {dieta.nome: [] for dieta in dietas}}
+    todas_dietas = CategoriaMedicao.objects.filter(nome__icontains="DIETA")
     medicoes_regulares = Medicao.objects.filter(
         solicitacao_medicao_inicial=solicitacao,
         periodo_escolar__isnull=False,
         grupo__isnull=True,
     ).prefetch_related("valores_medicao__categoria_medicao")
-
-    mapa_dias = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     periodos_lancados = [
         medicao.periodo_escolar.nome.upper() for medicao in medicoes_regulares
     ]
 
+    escola_emebs = solicitacao.escola.eh_emebs
+    alimentacoes = []
+    dietas = {dieta.nome: [] for dieta in todas_dietas}
+    mapa_dias = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+    if escola_emebs:
+        alimentacoes = {ValorMedicao.INFANTIL: [], ValorMedicao.FUNDAMENTAL: []}
+        dietas = {
+            dieta.nome: {ValorMedicao.INFANTIL: [], ValorMedicao.FUNDAMENTAL: []}
+            for dieta in todas_dietas
+        }
+        mapa_dias = defaultdict(
+            lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+        )
+    resultado = {"alimentacoes": alimentacoes, "dietas": dietas}
+
     for medicao in medicoes_regulares:
         periodo = medicao.periodo_escolar.nome.upper()
-        for valor in medicao.valores_medicao.filter(nome_campo="frequencia"):
-            mapa_dias[valor.dia][periodo][valor.categoria_medicao.nome] += int(
-                valor.valor or 0
-            )
+        if escola_emebs:
+            _zerados_emebs(medicao, mapa_dias, periodo)
+        else:
+            _zerados_emef(medicao, mapa_dias, periodo)
+        # for valor in medicao.valores_medicao.filter(nome_campo="frequencia"):
+        #     mapa_dias[valor.dia][periodo][valor.categoria_medicao.nome] += int(
+        #         valor.valor or 0
+        #     )
 
     for dia, periodos in mapa_dias.items():
-        _alimentacao_zerada(dia, periodos, periodos_lancados, resultado)
-        _dieta_zerada(dia, periodos, periodos_lancados, resultado, dietas)
+        _alimentacao_zerada(
+            dia, periodos, periodos_lancados, resultado, eh_emebs=escola_emebs
+        )
+        _dieta_zerada(
+            dia,
+            periodos,
+            periodos_lancados,
+            resultado,
+            todas_dietas,
+            eh_emebs=escola_emebs,
+        )
 
     return resultado
 
 
+def _zerados_emef(medicao, mapa_dias, periodo):
+    for valor in medicao.valores_medicao.filter(nome_campo="frequencia"):
+        mapa_dias[valor.dia][periodo][valor.categoria_medicao.nome] += int(
+            valor.valor or 0
+        )
+
+
+def _zerados_emebs(medicao, mapa_dias, periodo):
+    for valor in medicao.valores_medicao.filter(
+        nome_campo="frequencia", infantil_ou_fundamental=ValorMedicao.INFANTIL
+    ):
+        mapa_dias[valor.dia][periodo][valor.categoria_medicao.nome][
+            ValorMedicao.INFANTIL
+        ] += int(valor.valor or 0)
+    for valor in medicao.valores_medicao.filter(
+        nome_campo="frequencia", infantil_ou_fundamental=ValorMedicao.FUNDAMENTAL
+    ):
+        mapa_dias[valor.dia][periodo][valor.categoria_medicao.nome][
+            ValorMedicao.FUNDAMENTAL
+        ] += int(valor.valor or 0)
+
+
 def _alimentacao_zerada(
-    dia: str, periodos: dict, periodos_lancados: list[str], resultado: dict
+    dia: str,
+    periodos: dict,
+    periodos_lancados: list[str],
+    resultado: dict,
+    eh_emebs: bool = False,
 ) -> None:
     """
     Verifica se a alimentação está zerada em um determinado dia e, em caso positivo,
@@ -5209,15 +5260,18 @@ def _alimentacao_zerada(
         periodos_lancados (list[str]): Lista de nomes dos períodos escolares lançados na solicitação.
         resultado (dict): Dicionário de resultados
     """
-    todos_periodos_zerados = True
-    for periodo in periodos_lancados:
-        soma = periodos.get(periodo, {}).get("ALIMENTAÇÃO", 0)
-        if soma > 0:
-            todos_periodos_zerados = False
-            break
+    if eh_emebs:
+        _alimentacao_zerada_emebs(dia, periodos, periodos_lancados, resultado)
+    else:
+        todos_periodos_zerados = True
+        for periodo in periodos_lancados:
+            soma = periodos.get(periodo, {}).get("ALIMENTAÇÃO", 0)
+            if soma > 0:
+                todos_periodos_zerados = False
+                break
 
-    if todos_periodos_zerados:
-        resultado["alimentacoes"].append(dia)
+        if todos_periodos_zerados:
+            resultado["alimentacoes"].append(dia)
 
 
 def _dieta_zerada(
@@ -5226,6 +5280,7 @@ def _dieta_zerada(
     periodos_lancados: list[str],
     resultado: dict,
     dietas: list[CategoriaMedicao],
+    eh_emebs: bool = False,
 ) -> None:
     """
     Verifica se cada dieta está zerada em um determinado dia e, em caso positivo,
@@ -5238,14 +5293,77 @@ def _dieta_zerada(
         resultado (dict): Dicionário de resultados
         dietas (list[CategoriaMedicao]): Lista de objetos CategoriaMedicao cujo nome contém "DIETA"
     """
-    for dieta in dietas:
+    if eh_emebs:
+        _dieta_zerada_emebs(dia, periodos, periodos_lancados, resultado, dietas)
+    else:
+        for dieta in dietas:
+            zerado = True
+
+            for periodo in periodos_lancados:
+                soma = periodos.get(periodo, {}).get(dieta.nome, 0)
+                if soma > 0:
+                    zerado = False
+                    break
+
+            if zerado:
+                resultado["dietas"][dieta.nome].append(dia)
+
+
+def _alimentacao_zerada_emebs(
+    dia: str, periodos: dict, periodos_lancados: list[str], resultado: dict
+) -> None:
+    for tipo in (ValorMedicao.INFANTIL, ValorMedicao.FUNDAMENTAL):
+        encontrou_modalidade = False
         zerado = True
 
         for periodo in periodos_lancados:
-            soma = periodos.get(periodo, {}).get(dieta.nome, 0)
+            categoria_periodo = periodos.get(periodo, {}).get("ALIMENTAÇÃO")
+
+            if not categoria_periodo:
+                continue
+
+            if tipo not in categoria_periodo:
+                continue
+
+            encontrou_modalidade = True
+            soma = categoria_periodo[tipo]
+
             if soma > 0:
                 zerado = False
                 break
 
-        if zerado:
-            resultado["dietas"][dieta.nome].append(dia)
+        if encontrou_modalidade and zerado:
+            resultado["alimentacoes"][tipo].append(dia)
+
+
+def _dieta_zerada_emebs(
+    dia: str,
+    periodos: dict,
+    periodos_lancados: list[str],
+    resultado: dict,
+    dietas: list[CategoriaMedicao],
+) -> None:
+    for dieta in dietas:
+        nome_dieta = dieta.nome
+        for tipo in (ValorMedicao.INFANTIL, ValorMedicao.FUNDAMENTAL):
+            encontrou_modalidade = False
+            zerado = True
+
+            for periodo in periodos_lancados:
+                categoria_periodo = periodos.get(periodo, {}).get(nome_dieta)
+
+                if not categoria_periodo:
+                    continue
+
+                if tipo not in categoria_periodo:
+                    continue
+
+                encontrou_modalidade = True
+                soma = categoria_periodo[tipo]
+
+                if soma > 0:
+                    zerado = False
+                    break
+
+            if encontrou_modalidade and zerado:
+                resultado["dietas"][nome_dieta][tipo].append(dia)
