@@ -832,13 +832,13 @@ def test_gera_filtros_relatorio_recreio_nas_ferias(
 
     query_params = QueryDict(mutable=True)
     query_params["lote"] = str(escola_emebs.lote.uuid)
-    query_params.setlist("unidades_educacionais_selecionadas[]", escolas_destino)
+    query_params.setlist("unidades_educacionais_selecionadas", escolas_destino)
     query_params.setlist(
-        "classificacoes_selecionadas[]",
+        "classificacoes_selecionadas",
         classificacoes,
     )
     query_params.setlist(
-        "alergias_intolerancias_selecionadas[]",
+        "alergias_intolerancias_selecionadas",
         alergias,
     )
     query_params["data_inicio"] = "12/04/2025"
