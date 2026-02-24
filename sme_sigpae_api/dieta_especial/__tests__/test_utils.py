@@ -192,22 +192,22 @@ def test_gerar_filtros_relatorio_historico(
 ):
     query_params = QueryDict(mutable=True)
     query_params.setlist(
-        "unidades_educacionais_selecionadas[]",
+        "unidades_educacionais_selecionadas",
         [
             str(escola.uuid),
             str(escola_emebs.uuid),
         ],
     )
     query_params.setlist(
-        "tipos_unidades_selecionadas[]",
+        "tipos_unidades_selecionadas",
         [str(escola_emebs.tipo_unidade.uuid)],
     )
     query_params.setlist(
-        "periodos_escolares_selecionadas[]",
+        "periodos_escolares_selecionadas",
         [str(periodo_escolar_integral.uuid)],
     )
     query_params.setlist(
-        "classificacoes_selecionadas[]",
+        "classificacoes_selecionadas",
         [classificacao.id for classificacao in classificacoes_dietas],
     )
     query_params["tipo_gestao"] = str(escola_emebs.tipo_gestao.uuid)
@@ -260,19 +260,19 @@ def test_gerar_filtros_relatorio_historico_somente_com_data():
 def test_gerar_filtros_relatorio_historico_retona_data_obrigatoria():
     query_params = QueryDict(mutable=True)
     query_params.setlist(
-        "unidades_educacionais_selecionadas[]",
+        "unidades_educacionais_selecionadas",
         [],
     )
     query_params.setlist(
-        "tipos_unidades_selecionadas[]",
+        "tipos_unidades_selecionadas",
         [],
     )
     query_params.setlist(
-        "periodos_escolares_selecionadas[]",
+        "periodos_escolares_selecionadas",
         [],
     )
     query_params.setlist(
-        "classificacoes_selecionadas[]",
+        "classificacoes_selecionadas",
         [],
     )
     query_params["tipo_gestao"] = None
@@ -832,13 +832,13 @@ def test_gera_filtros_relatorio_recreio_nas_ferias(
 
     query_params = QueryDict(mutable=True)
     query_params["lote"] = str(escola_emebs.lote.uuid)
-    query_params.setlist("unidades_educacionais_selecionadas[]", escolas_destino)
+    query_params.setlist("unidades_educacionais_selecionadas", escolas_destino)
     query_params.setlist(
-        "classificacoes_selecionadas[]",
+        "classificacoes_selecionadas",
         classificacoes,
     )
     query_params.setlist(
-        "alergias_intolerancias_selecionadas[]",
+        "alergias_intolerancias_selecionadas",
         alergias,
     )
     query_params["data_inicio"] = "12/04/2025"
@@ -883,7 +883,7 @@ def test_filtra_relatorio_recreio_nas_ferias_filtro_escola_destino(
     relatorio_recreio_nas_ferias, escola_emebs
 ):
     query_params = QueryDict(mutable=True)
-    query_params.setlist("unidades_educacionais_selecionadas[]", [escola_emebs.uuid])
+    query_params.setlist("unidades_educacionais_selecionadas", [escola_emebs.uuid])
     queryset = filtra_relatorio_recreio_nas_ferias(query_params)
     assert isinstance(queryset, QuerySet)
     assert queryset.count() == 1
@@ -893,7 +893,7 @@ def test_filtra_relatorio_recreio_nas_ferias_filtro_classicicao(
     relatorio_recreio_nas_ferias, classificacao_tipo_b
 ):
     query_params = QueryDict(mutable=True)
-    query_params.setlist("classificacoes_selecionadas[]", [classificacao_tipo_b.id])
+    query_params.setlist("classificacoes_selecionadas", [classificacao_tipo_b.id])
     queryset = filtra_relatorio_recreio_nas_ferias(query_params)
     assert isinstance(queryset, QuerySet)
     assert queryset.count() == 4
@@ -904,7 +904,7 @@ def test_filtra_relatorio_recreio_nas_ferias_filtro_alergia(
 ):
     query_params = QueryDict(mutable=True)
     query_params.setlist(
-        "alergias_intolerancias_selecionadas[]", [alergia_a_chocolate.id]
+        "alergias_intolerancias_selecionadas", [alergia_a_chocolate.id]
     )
     queryset = filtra_relatorio_recreio_nas_ferias(query_params)
     assert isinstance(queryset, QuerySet)
