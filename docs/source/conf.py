@@ -1,3 +1,78 @@
+import os
+import sys
+
+import django
+
+sys.path.insert(0, os.path.abspath("../../"))
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.docs")
+
+# Variáveis de ambiente mínimas para que o Django consiga inicializar durante
+# a geração da documentação (valores fictícios, sem conexão real).
+_SPHINX_DUMMY_VARS = {
+    "REDIS_URL": "redis://localhost:6379/0",
+    "REDIS_HOST": "localhost",
+    "REDIS_PORT": "6379",
+    "REDIS_DB": "0",
+    "REDIS_PREFIX": "docs",
+    "POSTGRES_DB": "docs",
+    "POSTGRES_USER": "docs",
+    "POSTGRES_PASSWORD": "docs",
+    "POSTGRES_HOST": "localhost",
+    "POSTGRES_PORT": "5432",
+    "DJANGO_SECRET_KEY": "sphinx-docs-dummy-secret-key",
+    "DJANGO_READ_DOT_ENV_FILE": "false",
+    "DJANGO_ADMIN_URL": "admin/",
+    "DJANGO_ADMIN_PASSWORD": "dummy",
+    "DJANGO_ADMIN_TREINAMENTO_PASSWORD": "dummy",
+    "DJANGO_ENV": "docs",
+    "DJANGO_EOL_API_TOKEN": "dummy",
+    "DJANGO_EOL_API_URL": "http://localhost/",
+    "DJANGO_EOL_PAPA_API_SENHA_CANCELAMENTO": "dummy",
+    "DJANGO_EOL_PAPA_API_SENHA_ENVIO": "dummy",
+    "DJANGO_EOL_PAPA_API_URL": "http://localhost/",
+    "DJANGO_EOL_PAPA_API_USUARIO": "dummy",
+    "DJANGO_EOL_SGP_API_TOKEN": "dummy",
+    "DJANGO_EOL_SGP_API_URL": "http://localhost/",
+    "DJANGO_NOVO_SGP_API_LOGIN": "dummy",
+    "DJANGO_NOVO_SGP_API_PASSWORD": "dummy",
+    "DJANGO_NOVO_SGP_API_TOKEN": "dummy",
+    "DJANGO_NOVO_SGP_API_URL": "http://localhost/",
+    "DJANGO_XMLNS": "http://localhost/",
+    "EMAIL_NOTIFICACAO_FALHA_TASK": "docs@example.com",
+    "HOST": "localhost",
+    "NAME": "docs",
+    "PASSWORD": "dummy",
+    "PORT": "5432",
+    "USER": "docs",
+    "REACT_APP_URL": "http://localhost/",
+    "SENHA_PROVISORIA": "dummy",
+    "SENTRY_URL": "",
+}
+for _k, _v in _SPHINX_DUMMY_VARS.items():
+    os.environ.setdefault(_k, _v)
+
+django.setup()
+
+# Patch em sphinx.util.inspect.object_description para que erros de banco de
+# dados (OperationalError, ProgrammingError) ao repr() de querysets Django não
+# derrubem o build — retorna uma string placeholder no lugar.
+import sphinx.util.inspect as _sphinx_inspect  # noqa: E402
+from django.db import OperationalError as _DBOperationalError  # noqa: E402
+from django.db import ProgrammingError as _DBProgrammingError  # noqa: E402
+
+_original_object_description = _sphinx_inspect.object_description
+
+
+def _safe_object_description(obj, *args, **kwargs):
+    try:
+        return _original_object_description(obj, *args, **kwargs)
+    except (ValueError, _DBOperationalError, _DBProgrammingError):
+        return repr(type(obj))
+
+
+_sphinx_inspect.object_description = _safe_object_description
+
 # SME-SIGPAE-API documentation build configuration file, created by
 # sphinx-quickstart.
 #
@@ -21,7 +96,16 @@
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = []
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",  # suporta Google/NumPy docstrings
+    "sphinx.ext.viewcode",
+    "sphinx_autodoc_typehints",
+]
+
+# Preservar a representação textual dos valores padrão (evita que o autodoc
+# chame repr() em querysets Django, o que tentaria conectar ao banco).
+autodoc_preserve_defaults = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -87,7 +171,7 @@ pygments_style = "sphinx"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = "default"
+html_theme = "sphinx_rtd_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
