@@ -12,6 +12,7 @@ from sme_sigpae_api.escola.models import Escola
 from sme_sigpae_api.escola.utils import (
     formata_periodos_pdf_controle_frequencia,
     trata_filtro_data_relatorio_controle_frequencia_pdf,
+    ordena_faixas_por_idade,
 )
 from sme_sigpae_api.medicao_inicial.utils import (
     get_data_relatorio,
@@ -58,6 +59,7 @@ def gera_relatorio_controle_frequencia_pdf(query_params, escola_uuid):
     periodos = formata_periodos_pdf_controle_frequencia(
         qtd_matriculados, queryset, query_params, escola, mes_seguinte
     )
+    periodos = ordena_faixas_por_idade(periodos)
 
     data_relatorio = get_data_relatorio(query_params)
     mes_ano_formatado = f"{converte_numero_em_mes(int(mes))}/{ano}"
