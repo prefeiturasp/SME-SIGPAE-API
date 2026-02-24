@@ -817,6 +817,7 @@ def payload_ficha_tecnica_rascunho(
             "fabricante": str(fabricante_factory().uuid),
         },
         "categoria": FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS,
+        "tipo_entrega": FichaTecnicaDoProduto.ARMAZEM,
         "pregao_chamada_publica": fake.pystr(max_chars=100),
         "prazo_validade": "",
         "numero_registro": "",
@@ -1127,6 +1128,7 @@ def payload_base(produto_arroz, empresa, unidade_medida_logistica):
         "produto": produto_arroz.uuid,
         "marca": marca.uuid,
         "categoria": FichaTecnicaDoProduto.CATEGORIA_NAO_PERECIVEIS,
+        "tipo_entrega": FichaTecnicaDoProduto.ARMAZEM,
         "programa": FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR,
         "pregao_chamada_publica": "123",
         "empresa": empresa.uuid,
@@ -1161,6 +1163,24 @@ def payload_base(produto_arroz, empresa, unidade_medida_logistica):
         "organico": False,
         "volume_embalagem_primaria": 5,
         "unidade_medida_volume_primaria": unidade_medida_logistica.uuid,
+    }
+
+
+@pytest.fixture
+def payload_base_flv(produto_arroz, empresa, unidade_medida_logistica):
+    return {
+        "produto": produto_arroz.uuid,
+        "categoria": FichaTecnicaDoProduto.CATEGORIA_FLV,
+        "tipo_entrega": FichaTecnicaDoProduto.PONTO_A_PONTO,
+        "programa": FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR,
+        "pregao_chamada_publica": "123",
+        "empresa": empresa.uuid,
+        "organico": False,
+        "especie_variedade": "Variedade X",
+        "nome_responsavel_tecnico": "João",
+        "habilitacao": "CRN123",
+        "numero_registro_orgao": "456",
+        "arquivo": "file.pdf",
     }
 
 
