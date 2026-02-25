@@ -5171,7 +5171,7 @@ def busca_dias_zerados(solicitacao: SolicitacaoMedicaoInicial) -> dict:
     Returns:
         dict:
         Estrutura varia conforme o tipo de escola.
-        EMEF:
+        EMEF e outras unidades:
         {
             "alimentacoes": [dias_zerados],
             "dietas": {
@@ -5194,16 +5194,24 @@ def busca_dias_zerados(solicitacao: SolicitacaoMedicaoInicial) -> dict:
         }
     """
     todas_dietas = CategoriaMedicao.objects.filter(nome__icontains="DIETA")
+    escola_emebs = solicitacao.escola.eh_emebs
+    escola_cemei = solicitacao.escola.eh_cemei
+
     medicoes_regulares = Medicao.objects.filter(
         solicitacao_medicao_inicial=solicitacao,
-        periodo_escolar__isnull=False,
-        grupo__isnull=True,
+        periodo_escolar__isnull=True if escola_cemei else False,
+        grupo__isnull=False if escola_cemei else True,
     ).prefetch_related("valores_medicao__categoria_medicao")
+
     periodos_lancados = [
-        medicao.periodo_escolar.nome.upper() for medicao in medicoes_regulares
+        (
+            medicao.periodo_escolar.nome
+            if medicao.periodo_escolar
+            else medicao.grupo.nome
+        ).upper()
+        for medicao in medicoes_regulares
     ]
 
-    escola_emebs = solicitacao.escola.eh_emebs
     alimentacoes = []
     dietas = {dieta.nome: [] for dieta in todas_dietas}
     mapa_dias = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
@@ -5219,7 +5227,11 @@ def busca_dias_zerados(solicitacao: SolicitacaoMedicaoInicial) -> dict:
     resultado = {"alimentacoes": alimentacoes, "dietas": dietas}
 
     for medicao in medicoes_regulares:
-        periodo = medicao.periodo_escolar.nome.upper()
+        periodo = (
+            medicao.periodo_escolar.nome
+            if medicao.periodo_escolar
+            else medicao.grupo.nome
+        ).upper()
         if escola_emebs:
             _zerados_emebs(medicao, mapa_dias, periodo)
         else:
