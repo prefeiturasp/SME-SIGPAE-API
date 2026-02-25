@@ -3,6 +3,13 @@
 {% load static %}
 
 {% block conteudo %}
+{% block extra_css %}
+<style>
+  .conteudo .tabela-info-nutricional th {
+    border: 1px solid #C0C0C0;
+  }
+</style>
+{% endblock %}
 <div class="conteudo tabela-sem-borda">
   <div class="section">
     <h5 style="color: #686868; margin-bottom: -8px;">Descrição da Empresa Solicitante (Terceirizada)</h5>
@@ -10,21 +17,21 @@
       <table class="ficha-produto-table">
         <thead>
           <tr class="sem-border-bottom">
-            <td style="color: #686868; margin-left: 0; padding-left: 0;">
+            <th style="color: #686868; margin-left: 0; padding-left: 0;">
               <div>
                 Empresa Solicitante (Terceirizada)
               </div>
-            </td>
-            <td style="color: #686868">
+            </th>
+            <th style="color: #686868">
               <div>
                 Telefone
               </div>
-            </td>
-            <td style="color: #686868">
+            </th>
+            <th style="color: #686868">
               <div>
                 E-mail
               </div>
-            </td>
+            </th>
           </tr>
         </thead>
         <tbody class="ficha-produto-body">
@@ -59,11 +66,11 @@
         <table class="ficha-produto-table">
           <thead>
             <tr class="sem-border-bottom">
-              <td style="color: #686868; margin-left: 0; padding-left: 0;">
+              <th style="color: #686868; margin-left: 0; padding-left: 0;">
                 <div>
                     Editais Vinculados ao Produto
                 </div>
-              </td>
+              </th>
             </tr>
           </thead>
           <tbody class="ficha-produto-body">
@@ -89,11 +96,11 @@
         <table class="ficha-produto-table">
           <thead>
             <tr class="sem-border-bottom">
-              <td style="color: #686868; margin-left: 0; padding-left: 0;">
+              <th style="color: #686868; margin-left: 0; padding-left: 0;">
                 <div>
                     Produto Suspenso nos Editais
                 </div>
-              </td>
+              </th>
             </tr>
           </thead>
           <tbody class="ficha-produto-body">
@@ -116,11 +123,11 @@
       <table class="ficha-produto-table">
         <thead>
           <tr class="sem-border-bottom">
-            <td style="margin-left: 0; padding-left: 0; color: #686868">
+            <th style="margin-left: 0; padding-left: 0; color: #686868">
               <div>
                 Nome do Produto
               </div>
-            </td>
+            </th>
           </tr>
         </thead>
         <tbody class="ficha-produto-body">
@@ -136,16 +143,16 @@
       <table class="ficha-produto-table">
         <thead>
           <tr class="sem-border-bottom">
-            <td style="color: #686868; margin-left: 0; padding-left: 0; width: 50%">
+            <th style="color: #686868; margin-left: 0; padding-left: 0; width: 50%">
               <div>
                 Marca
               </div>
-            </td>
-            <td style="color: #686868">
+            </th>
+            <th style="color: #686868">
               <div>
                 Fabricante
               </div>
-            </td>
+            </th>
           </tr>
         </thead>
         <tbody class="ficha-produto-body">
@@ -166,11 +173,11 @@
       <table class="ficha-produto-table">
         <thead>
           <tr class="sem-border-bottom">
-            <td style="margin-left: 0; padding-left: 0; color: #686868">
+            <th style="margin-left: 0; padding-left: 0; color: #686868">
               <div>
                 O produto se destina a alimentação de alunos com dieta especial?
               </div>
-            </td>
+            </th>
           </tr>
         </thead>
         <tbody class="ficha-produto-body">
@@ -190,11 +197,11 @@
       <table class="ficha-produto-table">
         <thead>
           <tr class="sem-border-bottom">
-            <td style="color: #686868; margin-left: 0; padding-left: 0;">
+            <th style="color: #686868; margin-left: 0; padding-left: 0;">
               <div>
                 Componentes do produto
               </div>
-            </td>
+            </th>
           </tr>
         </thead>
         <tbody class="ficha-produto-body">
@@ -210,16 +217,16 @@
       <table class="ficha-produto-table">
         <thead>
           <tr class="sem-border-bottom">
-            <td style="color: #686868; margin-left: 0; padding-left: 0; width: 55%; font-size: 12px;">
+            <th style="color: #686868; margin-left: 0; padding-left: 0; width: 55%; font-size: 12px;">
               <div>
                 O produto contém ou pode conter ingredientes/aditivos alergênicos?
               </div>
-            </td>
-            <td style="color: #686868; font-size: 12px; font-weight: 700;">
+            </th>
+            <th style="color: #686868; font-size: 12px; font-weight: 700;">
               <div>
                 IMPORTANTE
               </div>
-            </td>
+            </th>
           </tr>
         </thead>
         <tbody class="ficha-produto-body">
@@ -250,16 +257,16 @@
       <table class="ficha-produto-table">
         <thead>
           <tr class="sem-border-bottom">
-            <td style="color: #686868; margin-left: 0; padding-left: 0;">
+            <th style="color: #686868; margin-left: 0; padding-left: 0;">
               <div>
                 Porção
               </div>
-            </td>
-            <td style="color: #686868">
+            </th>
+            <th style="color: #686868">
               <div>
                 Unidade Caseira
               </div>
-            </td>
+            </th>
           </tr>
         </thead>
         <tbody class="ficha-produto-body">
@@ -282,15 +289,15 @@
       <table>
         <thead>
           <tr>
-            <td colspan="4">
+            <th colspan="4">
               Título
-            </td>
-            <td>
+            </th>
+            <th>
               Quantidade por porção
-            </td>
-            <td>
+            </th>
+            <th>
               %VD(*)
-            </td>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -322,21 +329,21 @@
       <table class="ficha-produto-table">
         <thead>
           <tr class="sem-border-bottom">
-            <td style="color: #686868; margin-left: 0; padding-left: 0;">
+            <th style="color: #686868; margin-left: 0; padding-left: 0;">
               <div>
                 Classificação de Grãos
               </div>
-            </td>
-            <td style="color: #686868">
+            </th>
+            <th style="color: #686868">
               <div>
                 Embalagem Primária
               </div>
-            </td>
-            <td style="color: #686868">
+            </th>
+            <th style="color: #686868">
               <div>
                 Prazo de Validade
               </div>
-            </td>
+            </th>
           </tr>
         </thead>
         <tbody class="ficha-produto-body">
@@ -362,11 +369,11 @@
       <table class="ficha-produto-table">
         <thead>
           <tr class="sem-border-bottom">
-            <td style="color: #686868; margin-left: 0; padding-left: 0;">
+            <th style="color: #686868; margin-left: 0; padding-left: 0;">
               <div>
                 Condições de armazenamento, conservação e prazo máximo para consumo após abertura da embalagem
               </div>
-            </td>
+            </th>
           </tr>
         </thead>
         <tbody class="ficha-produto-body">
@@ -380,11 +387,11 @@
         </tbody>
         <thead>
           <tr class="sem-border-bottom">
-            <td style="color: #686868; margin-left: 0; padding-left: 0;">
+            <th style="color: #686868; margin-left: 0; padding-left: 0;">
               <div>
                 Outras informações
               </div>
-            </td>
+            </th>
           </tr>
         </thead>
         <tbody class="ficha-produto-body">
@@ -398,11 +405,11 @@
         </tbody>
         <thead>
           <tr class="sem-border-bottom">
-            <td style="color: #686868; margin-left: 0; padding-left: 0;">
+            <th style="color: #686868; margin-left: 0; padding-left: 0;">
               <div>
                 Nº de registro do produto de órgão competente
               </div>
-            </td>
+            </th>
           </tr>
         </thead>
         <tbody class="ficha-produto-body">
@@ -421,7 +428,7 @@
     {% if imagens %}
       <hr style="color: #EEEEEE; margin-top: 30px;">
       <h5 style="color: #686868;">Fotos do Produto</h5>
-      <table class="tabela-imagem">
+      <table class="tabela-imagem" role="presentation">
         {% for imagem in imagens %}
           {% if forloop.first %}
             <tr>

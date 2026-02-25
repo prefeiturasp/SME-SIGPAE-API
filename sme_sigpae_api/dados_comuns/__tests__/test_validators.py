@@ -2,6 +2,7 @@ import datetime
 
 import pytest
 from freezegun import freeze_time
+from model_bakery import baker
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -12,6 +13,7 @@ from ..validators import (
     campo_nao_pode_ser_nulo,
     deve_existir_cardapio,
     deve_pedir_com_antecedencia,
+    deve_ser_dia_letivo_e_dia_da_semana,
     deve_ser_no_mesmo_ano_corrente,
     deve_ser_no_passado,
     deve_ter_extensao_xls_xlsx_pdf,
@@ -123,6 +125,57 @@ def test_nao_existe_cardapio(dias_sem_cardapio, escola):
         match=f'Escola não possui cardápio para esse dia: {dias_sem_cardapio.strftime("%d-%m-%Y")}',
     ):
         deve_existir_cardapio(escola, dias_sem_cardapio)
+
+
+@freeze_time("2025-01-01")  # Quarta-feira (feriado)
+def test_deve_ser_dia_letivo_e_dia_da_semana_dia_util_sucesso(escola):
+    # Segunda-feira: 2025-01-06 (não feriado)
+    data = datetime.date(2025, 1, 6)
+    assert deve_ser_dia_letivo_e_dia_da_semana(escola, data) is True
+
+
+def test_deve_ser_dia_letivo_e_dia_da_semana_sabado_letivo_sucesso(escola):
+    # Sábado: 2025-01-04
+    data = datetime.date(2025, 1, 4)
+    baker.make("escola.DiaCalendario", escola=escola, data=data, dia_letivo=True)
+    assert deve_ser_dia_letivo_e_dia_da_semana(escola, data) is True
+
+
+def test_deve_ser_dia_letivo_e_dia_da_semana_sabado_nao_letivo_falha(escola):
+    # Sábado: 2025-01-04
+    data = datetime.date(2025, 1, 4)
+    baker.make("escola.DiaCalendario", escola=escola, data=data, dia_letivo=False)
+    with pytest.raises(
+        ValidationError, match=f'Dia {data.strftime("%d/%m/%Y")} não é um dia letivo'
+    ):
+        deve_ser_dia_letivo_e_dia_da_semana(escola, data)
+
+
+def test_deve_ser_dia_letivo_e_dia_da_semana_sabado_sem_registro_falha(escola):
+    # Sábado: 2025-01-11
+    data = datetime.date(2025, 1, 11)
+    # Sem registro no DiaCalendario
+    with pytest.raises(
+        ValidationError, match=f'Dia {data.strftime("%d/%m/%Y")} não é um dia letivo'
+    ):
+        deve_ser_dia_letivo_e_dia_da_semana(escola, data)
+
+
+def test_deve_ser_dia_letivo_e_dia_da_semana_feriado_letivo_sucesso(escola):
+    # Feriado: 2025-01-01 (Quarta-feira)
+    data = datetime.date(2025, 1, 1)
+    baker.make("escola.DiaCalendario", escola=escola, data=data, dia_letivo=True)
+    assert deve_ser_dia_letivo_e_dia_da_semana(escola, data) is True
+
+
+def test_deve_ser_dia_letivo_e_dia_da_semana_feriado_sem_registro_falha(escola):
+    # Feriado: 2025-01-01 (Quarta-feira)
+    data = datetime.date(2025, 1, 1)
+    # Sem registro no DiaCalendario
+    with pytest.raises(
+        ValidationError, match=f'Dia {data.strftime("%d/%m/%Y")} não é um dia letivo'
+    ):
+        deve_ser_dia_letivo_e_dia_da_semana(escola, data)
 
 
 @freeze_time("2019-07-10")
