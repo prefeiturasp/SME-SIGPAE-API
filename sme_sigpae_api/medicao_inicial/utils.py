@@ -22,6 +22,9 @@ from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_PERIODOS_GRUPOS_CEMEI,
     ORDEM_PERIODOS_GRUPOS_EMEBS,
     TIPOS_TURMAS_EMEBS,
+    ORDEM_UNIDADES_GRUPO_EMEF,
+    ORDEM_UNIDADES_GRUPO_EMEI,
+    ORDEM_UNIDADES_GRUPO_CIEJA_CMCT,
 )
 from sme_sigpae_api.dados_comuns.utils import (
     convert_base64_to_contentfile,
@@ -55,7 +58,8 @@ from sme_sigpae_api.medicao_inicial.models import (
     ValorMedicao,
 )
 from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef import (
-    _get_total_pagamento,
+    _total_pagamento_emef,
+    _total_pagamento_emei,
 )
 from sme_sigpae_api.medicao_inicial.services.utils import (
     get_categorias_dietas,
@@ -4963,7 +4967,11 @@ def _processa_periodo_tipo_alimentacao(medicao, resultado):
 
 def _processa_dietas_tipo_alimentacao(medicao, nome_periodo, resultado):
     dietas = get_categorias_dietas(medicao)
-    periodo_noturno = nome_periodo.upper() == "NOITE"
+    tipo_unidade = medicao.solicitacao_medicao_inicial.escola.tipo_unidade.iniciais
+    refeicao_eja = (
+        nome_periodo.upper() == "NOITE"
+        and tipo_unidade not in ORDEM_UNIDADES_GRUPO_CIEJA_CMCT
+    )
     for dieta in dietas:
         if "TIPO A" in dieta.upper():
             dieta_base = "DIETA ESPECIAL - TIPO A"
@@ -4992,12 +5000,25 @@ def _processa_dietas_tipo_alimentacao(medicao, nome_periodo, resultado):
 
             chave_nome = (
                 "refeicao_eja"
-                if periodo_noturno and item["nome_campo"] == "refeicao"
+                if refeicao_eja and item["nome_campo"] == "refeicao"
                 else item["nome_campo"]
             )
 
             resultado[dieta_base].setdefault(chave_nome, 0)
             resultado[dieta_base][chave_nome] += item["total"]
+
+
+def _get_total_pagamento(medicao, nome_campo, tipo_unidade):
+    if (
+        tipo_unidade in ORDEM_UNIDADES_GRUPO_EMEF
+        or tipo_unidade in ORDEM_UNIDADES_GRUPO_CIEJA_CMCT
+    ):
+        return _total_pagamento_emef(medicao, nome_campo) or 0
+
+    elif tipo_unidade in ORDEM_UNIDADES_GRUPO_EMEI:
+        return _total_pagamento_emei(medicao, nome_campo) or 0
+
+    return 0
 
 
 def _processa_total_pagamento_tipo_alimentacao(medicao, nome_periodo, resultado):
@@ -5014,7 +5035,10 @@ def _processa_total_pagamento_tipo_alimentacao(medicao, nome_periodo, resultado)
     resultado.setdefault(CHAVE_ALIMENTACAO_REGULAR, {})
 
     chave_refeicao = (
-        "total_refeicao_eja" if nome_periodo.upper() == "NOITE" else "total_refeicao"
+        "total_refeicao_eja"
+        if nome_periodo.upper() == "NOITE"
+        and tipo_unidade not in ORDEM_UNIDADES_GRUPO_CIEJA_CMCT
+        else "total_refeicao"
     )
 
     resultado[CHAVE_ALIMENTACAO_REGULAR].setdefault(chave_refeicao, 0)
@@ -5129,6 +5153,13 @@ def gerar_totais_consolidado(solicitacoes, tipo):
             resultado,
             CHAVE_ALIMENTACAO_REGULAR,
         )
+
+        if CHAVE_ALIMENTACAO_REGULAR in resultado:
+            dados = resultado[CHAVE_ALIMENTACAO_REGULAR]
+            resultado[CHAVE_ALIMENTACAO_REGULAR] = {
+                chave if chave.startswith("total_") else f"total_{chave}": valor
+                for chave, valor in dados.items()
+            }
 
     return resultado
 
