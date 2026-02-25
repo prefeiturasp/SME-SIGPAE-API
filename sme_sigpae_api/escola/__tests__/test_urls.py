@@ -750,3 +750,62 @@ def test_dia_calendario_mes_nao_cadastrado(
     resposta = response.json()
     assert isinstance(resposta, list)
     assert len(resposta) == 0
+
+
+def test_url_endpoint_filtrar_sem_duplicacao_faixa_etaria(
+    client_autenticado_da_escola,
+    escola,
+    periodo_escolar,
+    periodo_escolar_parcial,
+    faixas_etarias_ativas,
+):
+    # Forçar a escola a ser CEI para testar a lógica específica
+    tipo_unidade_cei = baker.make("TipoUnidadeEscolar", iniciais="CEI")
+    escola.tipo_unidade = tipo_unidade_cei
+    escola.save()
+
+    aluno = baker.make(
+        "Aluno",
+        nome="Criança Teste",
+        codigo_eol="999999",
+        escola=escola,
+        periodo_escolar=periodo_escolar,
+    )
+
+    data_teste = datetime.date(2024, 6, 15)
+
+    # Log 1: Faixa Etária 1
+    log1 = baker.make(
+        "LogAlunosMatriculadosFaixaEtariaDia",
+        escola=escola,
+        periodo_escolar=periodo_escolar,
+        faixa_etaria=faixas_etarias_ativas[0],
+        quantidade=1,
+        data=data_teste,
+    )
+    baker.make("LogAlunoPorDia", log_alunos_matriculados_faixa_dia=log1, aluno=aluno)
+
+    # Log 2: Faixa Etária 2 (mesmo aluno, mesmo dia, mesmo período)
+    log2 = baker.make(
+        "LogAlunosMatriculadosFaixaEtariaDia",
+        escola=escola,
+        periodo_escolar=periodo_escolar,
+        faixa_etaria=faixas_etarias_ativas[1],
+        quantidade=1,
+        data=data_teste,
+    )
+    baker.make("LogAlunoPorDia", log_alunos_matriculados_faixa_dia=log2, aluno=aluno)
+
+    url = (
+        f"/relatorio-controle-frequencia/filtrar/?"
+        f"periodos={json.dumps([str(periodo_escolar.uuid)])}&"
+        f"data_inicial=2024-06-15&data_final=2024-06-15&"
+        f"mes_ano=06_2024"
+    )
+
+    response = client_autenticado_da_escola.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    # Deve ser 1, não 2, pois o aluno é o mesmo e usamos Count(distinct=True)
+    assert response.data["total_matriculados"] == 1
+    assert response.data["periodos"]["INTEGRAL"] == 1

@@ -1239,13 +1239,17 @@ class RelatorioControleDeFrequenciaViewSet(ModelViewSet):
         self, queryset, escola_eh_cei_ou_cemei, periodos_uuids
     ):
         max_quantidades_por_periodo = {}
-        param_quantidade = (
-            "quantidade" if escola_eh_cei_ou_cemei else "quantidade_alunos"
-        )
 
-        soma_quantidades_por_periodo = queryset.values(
-            "periodo_escolar__uuid", "criado_em__date"
-        ).annotate(soma_quantidade=Sum(param_quantidade))
+        if escola_eh_cei_ou_cemei:
+            soma_quantidades_por_periodo = queryset.values(
+                "periodo_escolar__uuid", "data"
+            ).annotate(
+                soma_quantidade=Count("logs_alunos_por_dia__aluno", distinct=True)
+            )
+        else:
+            soma_quantidades_por_periodo = queryset.values(
+                "periodo_escolar__uuid", "criado_em__date"
+            ).annotate(soma_quantidade=Sum("quantidade_alunos"))
 
         for periodo_uuid in json.loads(periodos_uuids):
             periodo = PeriodoEscolar.objects.get(uuid=periodo_uuid)
