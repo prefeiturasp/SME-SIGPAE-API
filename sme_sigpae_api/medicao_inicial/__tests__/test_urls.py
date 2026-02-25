@@ -2473,9 +2473,9 @@ def test_url_endpoint_totais_atendimento_consumo(
 
 
 def test_url_dias_frequencia_zerada(
-    client_autenticado_codae_medicao, medicoes_frequencia_zerada
+    client_autenticado_codae_medicao, medicoes_frequencia_zerada_emef
 ):
-    uuid_solicitaco = medicoes_frequencia_zerada.uuid
+    uuid_solicitaco = medicoes_frequencia_zerada_emef.uuid
     response = client_autenticado_codae_medicao.get(
         f"/medicao-inicial/solicitacao-medicao-inicial/dias-frequencia-zerada/?uuid_solicitacao={str(uuid_solicitaco)}/",
         data={"uuid_solicitacao": uuid_solicitaco},

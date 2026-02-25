@@ -5140,7 +5140,7 @@ def solicitacao_medicao_inicial_valores_emef(
 
 
 @pytest.fixture
-def medicoes_frequencia_zerada(
+def medicoes_frequencia_zerada_emef(
     periodo_escolar_manha,
     periodo_escolar_tarde,
     escola,
@@ -5206,3 +5206,106 @@ def medicoes_frequencia_zerada(
         )
 
     return solicitacao_medicao
+
+
+@pytest.fixture(params=[False, True])
+def medicoes_frequencia_zerada_emef_emebs(
+    request,
+    periodo_escolar_manha,
+    periodo_escolar_tarde,
+    escola,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_b,
+):
+    eh_emebs = request.param
+
+    if eh_emebs:
+        tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="EMEBS")
+    else:
+        tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="EMEF")
+
+    escola.tipo_unidade = tipo_unidade
+    escola.save()
+    escola.save()
+
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=4,
+        ano=2023,
+        escola=escola,
+    )
+
+    categorias = [
+        categoria_medicao,
+        categoria_medicao_dieta_a,
+        categoria_medicao_dieta_b,
+    ]
+
+    for periodo in (periodo_escolar_manha, periodo_escolar_tarde):
+        medicao = baker.make(
+            "Medicao",
+            solicitacao_medicao_inicial=solicitacao,
+            periodo_escolar=periodo,
+        )
+
+        for categoria in categorias:
+            if eh_emebs:
+                for tipo in ("INFANTIL", "FUNDAMENTAL"):
+                    baker.make(
+                        "ValorMedicao",
+                        medicao=medicao,
+                        dia="13",
+                        nome_campo="frequencia",
+                        categoria_medicao=categoria,
+                        infantil_ou_fundamental=tipo,
+                        valor="0",
+                    )
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao,
+                    dia="10",
+                    nome_campo="frequencia",
+                    categoria_medicao=categoria_medicao,
+                    infantil_ou_fundamental="INFANTIL",
+                    valor="0",
+                )
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao,
+                    dia="24",
+                    nome_campo="frequencia",
+                    categoria_medicao=categoria,
+                    infantil_ou_fundamental="INFANTIL",
+                    valor="5",
+                )
+
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao,
+                    dia="24",
+                    nome_campo="frequencia",
+                    categoria_medicao=categoria,
+                    infantil_ou_fundamental="FUNDAMENTAL",
+                    valor="0",
+                )
+            else:
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao,
+                    dia="13",
+                    nome_campo="frequencia",
+                    categoria_medicao=categoria,
+                    valor="0",
+                )
+
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao,
+                    dia="24",
+                    nome_campo="frequencia",
+                    categoria_medicao=categoria,
+                    valor="0" if categoria == categoria_medicao_dieta_b else "5",
+                )
+
+    return solicitacao

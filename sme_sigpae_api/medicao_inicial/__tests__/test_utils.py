@@ -1594,8 +1594,8 @@ def test_sem_logs_nada_e_modificado(
     assert log is None
 
 
-def test_busca_dias_zerados(medicoes_frequencia_zerada):
-    resultado = busca_dias_zerados(medicoes_frequencia_zerada)
+def test_busca_dias_zerados_emef(medicoes_frequencia_zerada_emef):
+    resultado = busca_dias_zerados(medicoes_frequencia_zerada_emef)
     assert "13" in resultado["alimentacoes"]
     assert "13" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
     assert "13" in resultado["dietas"]["DIETA ESPECIAL - TIPO B"]
@@ -1603,3 +1603,27 @@ def test_busca_dias_zerados(medicoes_frequencia_zerada):
     assert "24" not in resultado["alimentacoes"]
     assert "24" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
     assert "24" in resultado["dietas"]["DIETA ESPECIAL - TIPO B"]
+
+
+def test_busca_dias_zerados_emef_emebs(medicoes_frequencia_zerada_emef_emebs):
+    resultado = busca_dias_zerados(medicoes_frequencia_zerada_emef_emebs)
+    eh_emebs = medicoes_frequencia_zerada_emef_emebs.escola.eh_emebs
+
+    if eh_emebs:
+        for tipo in ("INFANTIL", "FUNDAMENTAL"):
+            assert "13" in resultado["alimentacoes"][tipo]
+            assert "13" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"][tipo]
+            assert "13" in resultado["dietas"]["DIETA ESPECIAL - TIPO B"][tipo]
+
+        assert "24" not in resultado["alimentacoes"]["INFANTIL"]
+        assert "24" in resultado["alimentacoes"]["FUNDAMENTAL"]
+
+    else:
+
+        assert "13" in resultado["alimentacoes"]
+        assert "13" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
+        assert "13" in resultado["dietas"]["DIETA ESPECIAL - TIPO B"]
+
+        assert "24" not in resultado["alimentacoes"]
+        assert "24" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
+        assert "24" in resultado["dietas"]["DIETA ESPECIAL - TIPO B"]
