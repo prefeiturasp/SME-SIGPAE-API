@@ -2,15 +2,18 @@
 {% load i18n static %}
 
 {% block object-tools-items %}
-<li>
-    <a
-        href="exportar_planilha_importacao_usuarios_perfil_codae"
-        style="background: #79AEC8; font-weight: bold"
-        onMouseOver="this.style.background='#417690'"
-        onMouseOut="this.style.background='#79AEC8'"
-    >
-        Download modelo
-    </a>
-</li>
+<ul style="margin: 0; padding: 0; display: contents; gap: 5px;">
+  <li>
+      <a
+          href="exportar_planilha_importacao_usuarios_perfil_codae"
+          style="background: #79AEC8; font-weight: bold"
+          onMouseOver="this.style.background='#417690'"
+          onMouseOut="this.style.background='#79AEC8'"
+          onFocus="this.style.background='#417690'"
+      >
+          Download modelo
+      </a>
+  </li>
+</ul>
 {{ block.super }}
 {% endblock %}
