@@ -5154,6 +5154,13 @@ def gerar_totais_consolidado(solicitacoes, tipo):
             CHAVE_ALIMENTACAO_REGULAR,
         )
 
+        if CHAVE_ALIMENTACAO_REGULAR in resultado:
+            dados = resultado[CHAVE_ALIMENTACAO_REGULAR]
+            resultado[CHAVE_ALIMENTACAO_REGULAR] = {
+                chave if chave.startswith("total_") else f"total_{chave}": valor
+                for chave, valor in dados.items()
+            }
+
     return resultado
 
 
