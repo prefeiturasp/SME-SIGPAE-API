@@ -374,7 +374,7 @@ class Command(BaseCommand):
             registro_
             for registro_ in dados_alunos_escola
             if registro["codigoAluno"] == registro_["codigoAluno"]
-            and registro["codigoTipoTurma"] == self.codigo_turma_regular
+            and registro_["codigoTipoTurma"] == self.codigo_turma_regular
         ]
         if len(registros_aluno) == 1:
             return False
@@ -382,7 +382,7 @@ class Command(BaseCommand):
             registro_
             for registro_ in registros_aluno
             if registro_["codigoSituacaoMatricula"] in self.status_matricula_ativa
-            and registro["codigoTipoTurma"] == self.codigo_turma_regular
+            and registro_["codigoTipoTurma"] == self.codigo_turma_regular
         ]
         if not tem_registro_ativo:
             return False
@@ -393,8 +393,9 @@ class Command(BaseCommand):
                 escola=escola, codigo_situacao=codigo_situacao
             ).exists():
                 aluno.cria_historico(codigo_situacao, situacao, escola)
-        aluno.escola = escola
-        aluno.nao_matriculado = False
+        registro_ativo = tem_registro_ativo[-1]
+        data_nascimento = registro_ativo["dataNascimento"].split("T")[0]
+        self._atualiza_aluno(aluno, registro_ativo, data_nascimento, escola)
         aluno.save()
         return True
 

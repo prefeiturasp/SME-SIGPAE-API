@@ -52,11 +52,15 @@ from .dados_comuns.fixtures.factories.dados_comuns_factories import (
 )
 from .dados_comuns.models import TemplateMensagem
 from .dieta_especial.fixtures.factories.dieta_especial_base_factory import (
+    AlergiaIntoleranciaFactory,
+    AlimentoFactory,
     ClassificacaoDietaFactory,
     LogQuantidadeDietasAutorizadasCEIFactory,
     LogQuantidadeDietasAutorizadasFactory,
     MotivoAlteracaoUEFactory,
+    ProtocoloPadraoDietaEspecialFactory,
     SolicitacaoDietaEspecialFactory,
+    SubstituicaoAlimentoFactory,
 )
 from .eol_servico.utils import EOLServicoSGP
 from .escola.fixtures.factories.dia_suspensao_atividades_factory import (
@@ -303,6 +307,10 @@ register(SolicitacaoKitLancheAvulsaFactory)
 register(AlunoFactory)
 register(SolicitacaoDietaEspecialFactory)
 register(ClassificacaoDietaFactory)
+register(AlergiaIntoleranciaFactory)
+register(AlimentoFactory)
+register(ProtocoloPadraoDietaEspecialFactory)
+register(SubstituicaoAlimentoFactory)
 register(InclusaoDeAlimentacaoCEMEIFactory)
 register(QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEIFactory)
 register(QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEIFactory)

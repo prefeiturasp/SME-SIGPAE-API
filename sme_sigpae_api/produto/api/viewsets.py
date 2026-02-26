@@ -2624,9 +2624,18 @@ class ProdutosEditaisViewSet(viewsets.ModelViewSet):
             produtos = vinculos.distinct("produto__nome").values(
                 "produto__nome", "produto__uuid"
             )
-            editais = Edital.objects.all().values("numero", "uuid")
+            todos_editais = Edital.objects.all()
+            editais_destino = todos_editais.annotate(
+                total_contratos=Count('contratos'),
+                ativos=Count('contratos', filter=Q(contratos__encerrado=False))
+            ).filter(
+                Q(total_contratos=0) | Q(ativos__gt=0)
+            ).exclude(
+                numero="PARCEIRA"
+            ).values("numero", "uuid")
+
             return Response(
-                dict(produtos=produtos, editais=editais), status=status.HTTP_200_OK
+                dict(produtos=produtos, editais=todos_editais.values("numero", "uuid"), editais_destino=list(editais_destino)), status=status.HTTP_200_OK
             )
         except Exception as e:
             return Response(

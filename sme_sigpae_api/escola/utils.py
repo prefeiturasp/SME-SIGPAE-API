@@ -752,6 +752,26 @@ def formata_periodos_pdf_controle_frequencia(
     return periodos
 
 
+def ordena_faixas_por_idade(periodos: list) -> list:
+    ORDEM_FAIXA_ETARIA = {
+        "00 meses": 1,
+        "0 a 1 mês": 2,
+        "01 a 03 meses": 3,
+        "04 a 05 meses": 4,
+        "06 meses": 5,
+        "07 a 11 meses": 6,
+        "1 a 3 anos e 11 meses": 7,
+        "4 a 6 anos": 8
+    }
+
+    for periodo in periodos:
+        periodo["faixas"] = sorted(
+            periodo["faixas"],
+            key=lambda f: ORDEM_FAIXA_ETARIA.get(f["nome_faixa"], 99)
+        )
+    return periodos
+
+
 def ordenar_alunos_matriculados(queryset):
     ordenacao = Case(
         When(

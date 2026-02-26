@@ -76,7 +76,7 @@ class TestGeraPDFRelatorioHistoricoDietasEspeciaisAsync(BaseSetupHistoricoDietas
             {
                 "lote": str(self.lote.uuid),
                 "data": "09/05/2025",
-                "periodos_escolares_selecionadas[]": str(self.periodo_integral.uuid),
+                "periodos_escolares_selecionadas": str(self.periodo_integral.uuid),
             }
         )
         gera_pdf_relatorio_historico_dietas_especiais_async(user, nome_arquivo, data)
