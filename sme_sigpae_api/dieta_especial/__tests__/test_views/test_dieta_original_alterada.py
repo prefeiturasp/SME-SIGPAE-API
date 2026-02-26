@@ -322,6 +322,16 @@ class TestUseCaseDietaOriginalAlterada:
         assert dieta_alteracao_ue_autorizada.dieta_alterada == dieta_comum_autorizada
         assert dieta_alteracao_ue_autorizada.motivo_alteracao_ue is not None
 
+        # Verifica que data_inicio e data_termino da dieta ALTERACAO_UE NÃO foram alterados
+        data_inicio_esperado = datetime.date.today()
+        data_termino_esperado = datetime.date.today() + datetime.timedelta(days=15)
+        assert (
+            dieta_alteracao_ue_autorizada.data_inicio == data_inicio_esperado
+        ), "data_inicio da dieta ALTERACAO_UE não deve ser alterado ao autorizar a dieta COMUM"
+        assert (
+            dieta_alteracao_ue_autorizada.data_termino == data_termino_esperado
+        ), "data_termino da dieta ALTERACAO_UE não deve ser alterado ao autorizar a dieta COMUM"
+
     def test_atualiza_protocolo_dieta_comum_reflete_em_dieta_alteracao_ue(
         self,
         client_autenticado_protocolo_dieta,
@@ -462,6 +472,16 @@ class TestUseCaseDietaOriginalAlterada:
         )
         assert dieta_alteracao_ue_autorizada.dieta_alterada == dieta_comum_autorizada
         assert dieta_alteracao_ue_autorizada.motivo_alteracao_ue is not None
+
+        # Verifica que data_inicio e data_termino da dieta ALTERACAO_UE NÃO foram alterados
+        data_inicio_esperado = datetime.date.today()
+        data_termino_esperado = datetime.date.today() + datetime.timedelta(days=15)
+        assert (
+            dieta_alteracao_ue_autorizada.data_inicio == data_inicio_esperado
+        ), "data_inicio da dieta ALTERACAO_UE não deve ser alterado ao atualizar protocolo da dieta COMUM"
+        assert (
+            dieta_alteracao_ue_autorizada.data_termino == data_termino_esperado
+        ), "data_termino da dieta ALTERACAO_UE não deve ser alterado ao atualizar protocolo da dieta COMUM"
 
     def test_termina_dietas_nao_afeta_alteracao_ue_quando_comum_cancelada(
         self,
