@@ -19,7 +19,7 @@ from sme_sigpae_api.escola.management.commands.atualiza_alunos_escolas import (
     Command,
     MaxRetriesExceeded,
 )
-from sme_sigpae_api.escola.models import Aluno
+from sme_sigpae_api.escola.models import Aluno, PeriodoEscolar
 
 
 class AtualizaAlunosEscolasCommandTest(TestCase):
@@ -260,6 +260,130 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         assert historico_escola_000094.data_fim is not None
 
         assert Aluno.objects.filter(nome="ZOE ALUNA TESTE").exists() is False
+
+    @freeze_time("2025-01-01")
+    @patch(
+        "sme_sigpae_api.escola.management.commands.atualiza_alunos_escolas.Command.get_response_alunos_por_escola"
+    )
+    @pytest.mark.django_db
+    def test_atualiza_dados_aluno_multiplos_registros_d_menos_1(
+        self,
+        mock_get_response_alunos_por_escola,
+    ) -> None:
+        """Testa se os dados do aluno são atualizados quando ele tem múltiplos
+        registros na mesma escola (ex: remanejamento interno).
+        Este cenário usa _trata_alunos_ativos_mais_de_um_resultado."""
+        escola = EscolaFactory.create(codigo_eol="000099")
+
+        periodo_tarde = PeriodoEscolar.objects.get(tipo_turno=3)
+
+        aluno_existente = AlunoFactory.create(
+            codigo_eol="5555555",
+            nome="NOME ANTIGO LUCAS",
+            serie="1A",
+            periodo_escolar=self.periodo_escolar_manha,
+            escola=escola,
+            data_nascimento="2015-01-01",
+            etapa=None,
+            ciclo=None,
+        )
+
+        with open(
+            "sme_sigpae_api/escola/__tests__/commands/mocks/mock_ue_000099_dados_alunos_atualiza_dados.json",
+            "r",
+        ) as file:
+            mock_data_escola = json.load(file)
+
+        def side_effect_fn(cod_eol, ano_param=None):
+            if cod_eol == "000099" and ano_param is None:
+                return mocked_response(mock_data_escola, 200)
+            return mocked_response({}, 404)
+
+        mock_get_response_alunos_por_escola.side_effect = side_effect_fn
+        self.call_command()
+
+        aluno_atualizado = Aluno.objects.get(codigo_eol="5555555")
+        assert aluno_atualizado.nome == "LUCAS ALUNO ATUALIZADO"
+        assert aluno_atualizado.serie == "5B"
+        assert aluno_atualizado.periodo_escolar == periodo_tarde
+        assert str(aluno_atualizado.data_nascimento) == "2019-05-15"
+        assert aluno_atualizado.etapa == 2
+        assert aluno_atualizado.ciclo == 3
+        assert aluno_atualizado.desc_etapa == "ENSINO FUNDAMENTAL"
+        assert aluno_atualizado.desc_ciclo == "ALFABETIZACAO"
+        assert aluno_atualizado.escola == escola
+        assert aluno_atualizado.nao_matriculado is False
+
+    @freeze_time("2025-01-01")
+    @patch(
+        "sme_sigpae_api.escola.management.commands.atualiza_alunos_escolas.Command.get_response_alunos_por_escola"
+    )
+    @pytest.mark.django_db
+    def test_atualiza_dados_aluno_registro_unico_d_menos_1(
+        self,
+        mock_get_response_alunos_por_escola,
+    ) -> None:
+        """Testa se os dados do aluno são atualizados quando ele tem um único
+        registro na escola. Este cenário usa _trata_aluno_status_ativo."""
+        escola = EscolaFactory.create(codigo_eol="000099")
+
+        aluno_existente = AlunoFactory.create(
+            codigo_eol="4444444",
+            nome="NOME ANTIGO MARIA",
+            serie="2B",
+            periodo_escolar=self.periodo_escolar_manha,
+            escola=escola,
+            data_nascimento="2015-06-01",
+            etapa=None,
+            ciclo=None,
+        )
+
+        mock_data = [
+            {
+                "codigoAluno": 4444444,
+                "tipoTurno": 1,
+                "anoLetivo": 2025,
+                "nomeAluno": "MARIA ALUNA ATUALIZADA",
+                "nomeSocialAluno": None,
+                "codigoSituacaoMatricula": 1,
+                "situacaoMatricula": "Ativo",
+                "dataSituacao": "2025-02-01T10:09:54.24",
+                "dataNascimento": "2018-03-20T00:00:00",
+                "numeroAlunoChamada": "005",
+                "codigoTurma": 2651133,
+                "nomeResponsavel": None,
+                "tipoResponsavel": None,
+                "celularResponsavel": None,
+                "dataAtualizacaoContato": "0001-01-01T00:00:00",
+                "codigoTipoTurma": 1,
+                "turmaNome": "6A",
+                "etapaEnsino": 2,
+                "cicloEnsino": 3,
+                "descEtapaEnsino": "ENSINO FUNDAMENTAL",
+                "descCicloEnsino": "ALFABETIZACAO",
+                "dataAtualizacaoTabela": "0001-01-01T00:00:00",
+            }
+        ]
+
+        def side_effect_fn(cod_eol, ano_param=None):
+            if cod_eol == "000099" and ano_param is None:
+                return mocked_response(mock_data, 200)
+            return mocked_response({}, 404)
+
+        mock_get_response_alunos_por_escola.side_effect = side_effect_fn
+        self.call_command()
+
+        aluno_atualizado = Aluno.objects.get(codigo_eol="4444444")
+        assert aluno_atualizado.nome == "MARIA ALUNA ATUALIZADA"
+        assert aluno_atualizado.serie == "6A"
+        assert aluno_atualizado.periodo_escolar == self.periodo_escolar_manha
+        assert str(aluno_atualizado.data_nascimento) == "2018-03-20"
+        assert aluno_atualizado.etapa == 2
+        assert aluno_atualizado.ciclo == 3
+        assert aluno_atualizado.desc_etapa == "ENSINO FUNDAMENTAL"
+        assert aluno_atualizado.desc_ciclo == "ALFABETIZACAO"
+        assert aluno_atualizado.escola == escola
+        assert aluno_atualizado.nao_matriculado is False
 
 
 class TestObtemAlunosEscola(TestCase):
