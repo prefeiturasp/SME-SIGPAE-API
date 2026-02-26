@@ -64,12 +64,19 @@ class FichaTecnicaListagemSerializer(serializers.ModelSerializer):
     criado_em = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
     programa = serializers.CharField()
+    flv_ponto_a_ponto = serializers.SerializerMethodField()
 
     def get_nome_produto(self, obj):
         return obj.produto.nome if obj.produto else None
 
     def get_criado_em(self, obj):
         return obj.criado_em.strftime("%d/%m/%Y")
+
+    def get_flv_ponto_a_ponto(self, obj):
+        return (
+            obj.categoria == FichaTecnicaDoProduto.CATEGORIA_FLV
+            and obj.tipo_entrega == FichaTecnicaDoProduto.PONTO_A_PONTO
+        )
 
     class Meta:
         model = FichaTecnicaDoProduto
@@ -81,6 +88,7 @@ class FichaTecnicaListagemSerializer(serializers.ModelSerializer):
             "criado_em",
             "status",
             "programa",
+            "flv_ponto_a_ponto",
         )
 
 
@@ -151,6 +159,7 @@ class FichaTecnicaDetalharSerializer(serializers.ModelSerializer):
             "pregao_chamada_publica",
             "marca",
             "categoria",
+            "tipo_entrega",
             "programa",
             "programa_display",
             "status",
@@ -162,6 +171,7 @@ class FichaTecnicaDetalharSerializer(serializers.ModelSerializer):
             "numero_registro",
             "organico",
             "mecanismo_controle",
+            "especie_variedade",
             "componentes_produto",
             "alergenicos",
             "ingredientes_alergenicos",
