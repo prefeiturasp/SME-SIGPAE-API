@@ -195,9 +195,13 @@ def test_data_lanche_emergencial_invalido_lanca_erro():
 @mock.patch(
     "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.obter_usuario"
 )
+@mock.patch(
+    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.calendario_sgp"
+)
 @mock.patch("sme_sigpae_api.escola.models.Escola.objects.get")
 def test_executa_com_atualizar_escolas(
     mock_get_escola,
+    mock_calendario_sgp,
     mock_obter_usuario,
     mock_obter_escolas,
     mock_call_command,
