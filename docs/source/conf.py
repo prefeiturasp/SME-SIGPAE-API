@@ -103,9 +103,13 @@ extensions = [
     "sphinx_autodoc_typehints",
 ]
 
-# Preservar a representação textual dos valores padrão (evita que o autodoc
-# chame repr() em querysets Django, o que tentaria conectar ao banco).
-autodoc_preserve_defaults = True
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": False,
+    "private-members": False,
+    "special-members": False,
+    "inherited-members": True,
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -159,6 +163,8 @@ exclude_patterns = ["_build"]
 # If true, sectionauthor and moduleauthor directives will be shown in the
 # output. They are ignored by default.
 # show_authors = False
+
+add_module_names = False
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
