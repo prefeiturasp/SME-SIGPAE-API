@@ -833,6 +833,7 @@ class SolicitacaoDietaEspecialRelatorioTercSerializer(serializers.ModelSerialize
     rastro_lote = LoteSerializer()
     classificacao = ClassificacaoDietaSerializer()
     protocolo_padrao = ProtocoloPadraoDietaEspecialSimplesSerializer()
+    nome_protocolo = serializers.SerializerMethodField()
     data_ultimo_log = serializers.SerializerMethodField()
     alergias_intolerancias = AlergiaIntoleranciaSerializer(many=True)
     tipo_gestao = serializers.SerializerMethodField()
@@ -857,6 +858,13 @@ class SolicitacaoDietaEspecialRelatorioTercSerializer(serializers.ModelSerialize
                 data = datetime.strptime(data, "%Y-%m-%d").date()
             return data.strftime(DATE_FORMAT)
         return None
+
+    def get_nome_protocolo(self, obj):
+        return (
+            obj.protocolo_padrao.nome_protocolo
+            if obj.protocolo_padrao
+            else obj.nome_protocolo
+        )
 
     def get_data_ultimo_log(self, obj):
         return (
