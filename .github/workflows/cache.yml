@@ -33,5 +33,5 @@ jobs:
         uses: prefeiturasp/SME-GithubAction-Images@python38-v1.0
         with:
           command: |
-            pip install --user pipenv pipenv==2026.0.3
+            pip install --user pipenv pipenv==2022.4.8
             pipenv install --dev

@@ -71,7 +71,7 @@ jobs:
         with:
           command: |
             docker network connect python-network $(hostname)
-            pip install --user pipenv pipenv==2026.0.3
+            pip install --user pipenv pipenv==2022.4.8
             source terceirizadas
             pipenv install --dev
             echo "################ FLAKE8 ################"
@@ -85,7 +85,7 @@ jobs:
         with:
           command: |
             docker network connect python-network $(hostname)
-            pip install --user pipenv pipenv==2026.0.3
+            pip install --user pipenv pipenv==2022.4.8
             source terceirizadas
             echo "################ FLAKE8 ################"
             pipenv run flake8
