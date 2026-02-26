@@ -57,3 +57,33 @@ def test_log_dietas_recreio_nas_ferias_serializer(
     assert "criado_em" in data
     assert "data" in data
     assert "quantidade" in data
+
+def test_serializer_solicitacao_dieta_especial_relatorio_terceirizada_fallback(
+    solicitacao_dieta_especial,
+    protocolo_padrao_dieta_especial,
+):
+    from sme_sigpae_api.dieta_especial.api.serializers import (
+        SolicitacaoDietaEspecialRelatorioTercSerializer,
+    )
+
+    # Caso 1: Com protocolo_padrao (FK)
+    solicitacao_dieta_especial.protocolo_padrao = (
+        protocolo_padrao_dieta_especial
+    )
+    # Configura escola_destino para evitar erro no serializer
+    solicitacao_dieta_especial.escola_destino = solicitacao_dieta_especial.rastro_escola
+    solicitacao_dieta_especial.nome_protocolo = "Nome Antigo"
+    serializer = SolicitacaoDietaEspecialRelatorioTercSerializer(
+        solicitacao_dieta_especial
+    )
+    assert (
+        serializer.data["nome_protocolo"]
+        == protocolo_padrao_dieta_especial.nome_protocolo
+    )
+
+    # Caso 2: Sem protocolo_padrao (Fallback para o campo de texto)
+    solicitacao_dieta_especial.protocolo_padrao = None
+    serializer = SolicitacaoDietaEspecialRelatorioTercSerializer(
+        solicitacao_dieta_especial
+    )
+    assert serializer.data["nome_protocolo"] == "Nome Antigo"
