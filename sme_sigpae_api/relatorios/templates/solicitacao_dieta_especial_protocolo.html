@@ -85,7 +85,7 @@
     </table>
   </div>
   <h5>
-    {{ solicitacao.nome_protocolo|default:solicitacao.protocolo_padrao.nome_protocolo | upper }}
+    {% if solicitacao.nome_protocolo %}{{ solicitacao.nome_protocolo | upper }}{% elif solicitacao.protocolo_padrao %}{{ solicitacao.protocolo_padrao.nome_protocolo | upper }}{% endif %}
   </h5>
   <p><strong>{% next_section %}. Orientações Gerais</strong></p>
   <p>{{ solicitacao.orientacoes_gerais|safe_content }}</p>

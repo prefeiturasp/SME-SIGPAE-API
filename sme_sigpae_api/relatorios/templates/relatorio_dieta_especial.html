@@ -79,7 +79,7 @@
         </div>
         <div class="informacao-tres">
           <label>Nome do protocolo</label>
-          {{ dieta.nome_protocolo|default:dieta.protocolo_padrao.nome_protocolo }}
+          {% if dieta.nome_protocolo %}{{ dieta.nome_protocolo }}{% elif dieta.protocolo_padrao %}{{ dieta.protocolo_padrao.nome_protocolo }}{% endif %}
         </div>
         <div class="informacao">
           <label>Data de término</label>

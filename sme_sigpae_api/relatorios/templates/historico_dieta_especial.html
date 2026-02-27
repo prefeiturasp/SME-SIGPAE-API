@@ -146,7 +146,7 @@
             </div>
             <div>
               Nome do Protocolo Padrão: 
-              <span class="highlight">{{ solicitacao.nome_protocolo|default:solicitacao.protocolo_padrao.nome_protocolo }}</span>
+              <span class="highlight">{% if solicitacao.nome_protocolo %}{{ solicitacao.nome_protocolo }}{% elif solicitacao.protocolo_padrao %}{{ solicitacao.protocolo_padrao.nome_protocolo }}{% endif %}</span>
             </div>
             <div>
               Orientações Gerais: 
