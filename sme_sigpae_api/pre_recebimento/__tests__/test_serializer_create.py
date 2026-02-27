@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializer_create import (
     FichaTecnicaCreateSerializer,
+    FichaTecnicaFLVCreateSerializer,
 )
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
@@ -114,3 +115,9 @@ def test_produto_eh_liquido_obrigatorio_para_nao_perecivel(payload_base):
         "Fichas Técnicas de Produtos NÃO PERECÍVEIS exigem que sejam fornecidos valores"
         in str(serializer.errors)
     )
+
+
+def test_ficha_flv_valida(payload_base_flv):
+    payload_base_flv["categoria"] = FichaTecnicaDoProduto.CATEGORIA_FLV
+    serializer = FichaTecnicaFLVCreateSerializer(data=payload_base_flv)
+    assert serializer.is_valid(), serializer.errors

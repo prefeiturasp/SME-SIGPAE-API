@@ -3976,4 +3976,16 @@ def test_datas_bloqueadas_armazenavel(client_autenticado_vinculo_dilog_cronogram
     
     # Datas inválidas não devem estar no resultado
     assert date(ano_atual, 3, 15) not in results
-    assert date(ano_atual - 1, 12, 25) not in results
+    assert datetime.date(ano_atual - 1, 12, 25) not in results
+
+
+def test_deleta_interrupcao_programada(client_autenticado_vinculo_dilog_cronograma):
+    client, _ = client_autenticado_vinculo_dilog_cronograma
+
+    interrupcao = baker.make("InterrupcaoProgramadaEntrega")
+    url = f"/interrupcao-programada-entrega/{interrupcao.uuid}/"
+
+    response = client.delete(url)
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert InterrupcaoProgramadaEntrega.objects.filter(uuid=interrupcao.uuid).count() == 0

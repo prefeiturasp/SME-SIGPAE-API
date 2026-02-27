@@ -7,6 +7,16 @@ from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
 )
 
 
+def valida_campos_flv_ficha_tecnica(attrs):
+    attrs_obrigatorios_flv = {"organico", "especie_variedade"}
+
+    if not attrs_obrigatorios_flv.issubset(attrs.keys()):
+        raise serializers.ValidationError(
+            "Fichas Técnicas de Produtos FLV exigem que sejam fornecidos valores para os campos"
+            + " organico e especie_variedade"
+        )
+
+
 def valida_campos_pereciveis_ficha_tecnica(attrs):
     attrs_obrigatorios_pereciveis = {
         "organico",

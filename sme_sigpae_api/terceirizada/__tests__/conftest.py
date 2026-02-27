@@ -41,6 +41,30 @@ def client():
 
 
 @pytest.fixture
+def client_autenticado_terceiro_com_filtros(client_autenticado):
+    terceirizada = baker.make(
+        Terceirizada, contatos=[baker.make("dados_comuns.Contato")], make_m2m=True
+    )
+
+    baker.make(
+        Nutricionista,
+        terceirizada=terceirizada,
+        contatos=[baker.make("dados_comuns.Contato")],
+    )
+
+    edital_ativo = baker.make(Edital, numero="EDITAL-001")
+    baker.make(Contrato, terceirizada=terceirizada, edital=edital_ativo, encerrado=False, make_m2m=True)
+
+    edital_encerrado = baker.make(Edital, numero="EDITAL-002")
+    baker.make(Contrato, terceirizada=terceirizada, edital=edital_encerrado, encerrado=True, make_m2m=True)
+
+    edital_parceira = baker.make(Edital, numero="PARCEIRA")
+    baker.make(Contrato, terceirizada=terceirizada, edital=edital_parceira, encerrado=False, make_m2m=True)
+
+    return client_autenticado
+
+
+@pytest.fixture
 def client_autenticado_terceiro(client_autenticado):
     terceirizada = baker.make(
         Terceirizada, contatos=[baker.make("dados_comuns.Contato")], make_m2m=True

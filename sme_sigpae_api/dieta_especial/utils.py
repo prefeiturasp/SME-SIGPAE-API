@@ -721,17 +721,17 @@ def gerar_filtros_relatorio_historico(query_params: QueryDict) -> tuple:
     map_filtros = {
         "escola__tipo_gestao__uuid": query_params.get("tipo_gestao", None),
         "escola__tipo_unidade__uuid__in": query_params.getlist(
-            "tipos_unidades_selecionadas[]", None
+            "tipos_unidades_selecionadas", None
         ),
         "escola__lote__uuid": query_params.get("lote", None),
         "escola__uuid__in": query_params.getlist(
-            "unidades_educacionais_selecionadas[]", None
+            "unidades_educacionais_selecionadas", None
         ),
         "periodo_escolar__uuid__in": query_params.getlist(
-            "periodos_escolares_selecionadas[]", None
+            "periodos_escolares_selecionadas", None
         ),
         "classificacao__id__in": query_params.getlist(
-            "classificacoes_selecionadas[]", None
+            "classificacoes_selecionadas", None
         ),
         "quantidade__gt": 0,
     }
@@ -1190,13 +1190,13 @@ def gera_filtros_relatorio_recreio_nas_ferias(query_params: QueryDict) -> dict:
         "padrao": {
             "escola_destino__lote__uuid": query_params.get("lote", None),
             "escola_destino__uuid__in": query_params.getlist(
-                "unidades_educacionais_selecionadas[]", None
+                "unidades_educacionais_selecionadas", None
             ),
             "classificacao__id__in": query_params.getlist(
-                "classificacoes_selecionadas[]", None
+                "classificacoes_selecionadas", None
             ),
             "alergias_intolerancias__id__in": query_params.getlist(
-                "alergias_intolerancias_selecionadas[]", None
+                "alergias_intolerancias_selecionadas", None
             ),
         },
         "matriculado": {},

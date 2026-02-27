@@ -21,6 +21,7 @@ from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializer_cre
     CorrecaoFichaTecnicaSerializer,
     FichaTecnicaAtualizacaoSerializer,
     FichaTecnicaCreateSerializer,
+    FichaTecnicaFLVCreateSerializer,
     FichaTecnicaRascunhoSerializer,
 )
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
@@ -77,11 +78,24 @@ class FichaTecnicaModelViewSet(
         serializer_classes_map = {
             "list": FichaTecnicaListagemSerializer,
             "retrieve": FichaTecnicaDetalharSerializer,
-            "create": FichaTecnicaCreateSerializer,
-            "update": FichaTecnicaCreateSerializer,
+            "create": self._get_create_update_serializer(),
+            "update": self._get_create_update_serializer(),
         }
 
         return serializer_classes_map.get(self.action, FichaTecnicaRascunhoSerializer)
+
+    def _get_create_update_serializer(self):
+        if self.action == "update":
+            ficha = self.get_object()
+            if ficha.categoria == "FLV":
+                return FichaTecnicaFLVCreateSerializer
+
+        elif self.action == "create":
+            categoria = self.request.data.get("categoria")
+            if categoria == "FLV":
+                return FichaTecnicaFLVCreateSerializer
+
+        return FichaTecnicaCreateSerializer
 
     def create(self, request, *args, **kwargs):
         if auth_response := verificar_autenticidade_usuario(request):

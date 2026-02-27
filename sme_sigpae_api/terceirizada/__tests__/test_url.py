@@ -1,4 +1,5 @@
 import json
+import pytest
 
 from rest_framework import status
 
@@ -40,6 +41,25 @@ def test_url_endpoint_editais_numeros_autenticado(client_autenticado_terceiro):
     item = data["results"][0]
 
     assert isinstance(item, dict)
+
+
+@pytest.mark.parametrize("params, expected_count, excluded_numbers", [
+    ("", 3, []),
+    ("?excluir_encerrados=true", 2, ["EDITAL-002"]),
+    ("?excluir_parceira=true", 2, ["PARCEIRA"]),
+    ("?excluir_encerrados=true&excluir_parceira=true", 1, ["EDITAL-002", "PARCEIRA"]),
+])
+def test_lista_numeros_query_params_variados(client_autenticado_terceiro_com_filtros, params, expected_count,
+                                        excluded_numbers):
+    client = client_autenticado_terceiro_com_filtros
+    response = client.get(f"/editais/lista-numeros/{params}")
+
+    data = response.json()["results"]
+    numeros = [e["numero"] for e in data]
+
+    assert len(data) == expected_count
+    for num in excluded_numbers:
+        assert num not in numeros
 
 
 def test_url_endpoint_editais_contratos_autenticado(client_autenticado_terceiro):

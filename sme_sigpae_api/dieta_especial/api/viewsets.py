@@ -49,6 +49,7 @@ from ...dados_comuns.permissions import (
     UsuarioEscolaTercTotal,
 )
 from ...dados_comuns.services import enviar_email_codae_atualiza_protocolo
+from ...dados_comuns.utils import convert_dict_to_querydict
 from ...dieta_especial.tasks import gera_pdf_relatorio_dieta_especial_async
 from ...escola.models import (
     Aluno,
@@ -242,7 +243,11 @@ class SolicitacaoDietaEspecialViewSet(
             solicitacao.aluno.inativar_dieta_especial()
         if not solicitacao.tipo_solicitacao == "ALTERACAO_UE":
             serializer = self.get_serializer()
+            data_copy = deepcopy(request.data)
             serializer.update(solicitacao, request.data)
+            self.verifica_se_aluno_possui_solicitacao_alteracao_ue_autorizada(
+                request, solicitacao.aluno, serializer, data_copy
+            )
             solicitacao.ativo = True
         self.salva_log_transicao(solicitacao, request.user, texto_html)
         if solicitacao.aluno.escola:
@@ -359,6 +364,29 @@ class SolicitacaoDietaEspecialViewSet(
         except ValidationError as e:
             return Response(e, status=status.HTTP_400_BAD_REQUEST)
 
+    def verifica_se_aluno_possui_solicitacao_alteracao_ue_autorizada(
+        self, request, aluno, serializer, data
+    ):
+        dieta_alteracao_ue_autorizada = (
+            aluno.dietas_especiais.filter(
+                status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+                tipo_solicitacao=SolicitacaoDietaEspecial.ALTERACAO_UE,
+            )
+            .filter()
+            .first()
+        )
+        if dieta_alteracao_ue_autorizada:
+            data_sem_datas = {
+                k: v
+                for k, v in data.items()
+                if k not in ("data_inicio", "data_termino")
+            }
+            if dieta_alteracao_ue_autorizada.data_termino:
+                data_sem_datas["data_termino"] = (
+                    dieta_alteracao_ue_autorizada.data_termino.strftime("%Y-%m-%d")
+                )
+            serializer.update(dieta_alteracao_ue_autorizada, data_sem_datas)
+
     @transaction.atomic
     @action(
         detail=True, methods=["patch"], permission_classes=(UsuarioCODAEDietaEspecial,)
@@ -366,7 +394,10 @@ class SolicitacaoDietaEspecialViewSet(
     def autorizar(self, request, uuid=None):  # noqa C901
         solicitacao = self.get_object()
         dieta_ativa = solicitacao.aluno.obter_dieta_especial_ativa
-        if dieta_ativa and solicitacao.tipo_solicitacao == "COMUM":
+        if (
+            dieta_ativa
+            and solicitacao.tipo_solicitacao == SolicitacaoDietaEspecial.COMUM
+        ):
             dieta_inativada = solicitacao.aluno.inativar_dieta_especial()
             dieta_inativada.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.CODAE_INATIVOU,
@@ -374,8 +405,12 @@ class SolicitacaoDietaEspecialViewSet(
             )
         serializer = self.get_serializer()
         try:
-            if solicitacao.tipo_solicitacao != "ALTERACAO_UE":
+            if solicitacao.tipo_solicitacao != SolicitacaoDietaEspecial.ALTERACAO_UE:
+                data_copy = deepcopy(request.data)
                 serializer.update(solicitacao, request.data)
+                self.verifica_se_aluno_possui_solicitacao_alteracao_ue_autorizada(
+                    request, solicitacao.aluno, serializer, data_copy
+                )
                 solicitacao.ativo = True
             solicitacao.codae_autoriza(user=request.user)
             if not solicitacao.data_inicio:
@@ -1445,14 +1480,14 @@ class SolicitacaoDietaEspecialViewSet(
 
     @action(
         detail=False,
-        methods=["GET"],
+        methods=["POST"],
         url_path="relatorio-historico-dieta-especial",
         permission_classes=(PermissaoHistoricoDietasEspeciais,),
     )
     def relatorio_historico_dieta_especial(self, request):
         try:
             filtros, data_dieta = gerar_filtros_relatorio_historico(
-                request.query_params
+                convert_dict_to_querydict(request.data)
             )
             dietas = gera_dicionario_historico_dietas(filtros)
             paginator = HistoricoDietasPagination()
@@ -1466,13 +1501,13 @@ class SolicitacaoDietaEspecialViewSet(
 
     @action(
         detail=False,
-        methods=["GET"],
+        methods=["POST"],
         url_path="relatorio-historico-dieta-especial/exportar-pdf",
         permission_classes=(PermissaoHistoricoDietasEspeciais,),
     )
     def relatorio_historico_dieta_especial_exportar_pdf(self, request):
         try:
-            query_dict = request.query_params
+            query_dict = request.data
             data = {
                 key: query_dict.getlist(key) if "[]" in key else query_dict.get(key)
                 for key in query_dict.keys()
@@ -1493,13 +1528,13 @@ class SolicitacaoDietaEspecialViewSet(
 
     @action(
         detail=False,
-        methods=["GET"],
+        methods=["POST"],
         url_path="relatorio-historico-dieta-especial/exportar-excel",
         permission_classes=(PermissaoHistoricoDietasEspeciais,),
     )
     def relatorio_historico_dieta_especial_exportar_excel(self, request):
         try:
-            query_dict = request.query_params
+            query_dict = request.data
             data = {
                 key: query_dict.getlist(key) if "[]" in key else query_dict.get(key)
                 for key in query_dict.keys()

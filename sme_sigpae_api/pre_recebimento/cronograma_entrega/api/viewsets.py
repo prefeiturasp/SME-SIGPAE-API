@@ -863,6 +863,7 @@ class CalendarioCronogramaViewset(viewsets.ReadOnlyModelViewSet):
 class InterrupcaoProgramadaEntregaViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
     """ViewSet para cadastro e listagem de Interrupções Programadas de Entregas."""
