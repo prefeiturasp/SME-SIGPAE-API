@@ -66,13 +66,27 @@ def test_serializer_solicitacao_dieta_especial_relatorio_terceirizada_fallback(
         SolicitacaoDietaEspecialRelatorioTercSerializer,
     )
 
-    # Caso 1: Com protocolo_padrao (FK)
+    # Caso 1: Ambos presentes -> Prioridade para o nome na dieta
     solicitacao_dieta_especial.protocolo_padrao = (
         protocolo_padrao_dieta_especial
     )
-    # Configura escola_destino para evitar erro no serializer
     solicitacao_dieta_especial.escola_destino = solicitacao_dieta_especial.rastro_escola
-    solicitacao_dieta_especial.nome_protocolo = "Nome Antigo"
+    solicitacao_dieta_especial.nome_protocolo = "Nome Especifico na Dieta"
+    serializer = SolicitacaoDietaEspecialRelatorioTercSerializer(
+        solicitacao_dieta_especial
+    )
+    assert serializer.data["nome_protocolo"] == "Nome Especifico na Dieta"
+
+    # Caso 2: Somente nome_protocolo na dieta
+    solicitacao_dieta_especial.protocolo_padrao = None
+    serializer = SolicitacaoDietaEspecialRelatorioTercSerializer(
+        solicitacao_dieta_especial
+    )
+    assert serializer.data["nome_protocolo"] == "Nome Especifico na Dieta"
+
+    # Caso 3: Somente nome no objeto protocolo_padrao (Fallbcak)
+    solicitacao_dieta_especial.nome_protocolo = ""
+    solicitacao_dieta_especial.protocolo_padrao = protocolo_padrao_dieta_especial
     serializer = SolicitacaoDietaEspecialRelatorioTercSerializer(
         solicitacao_dieta_especial
     )
@@ -80,10 +94,3 @@ def test_serializer_solicitacao_dieta_especial_relatorio_terceirizada_fallback(
         serializer.data["nome_protocolo"]
         == protocolo_padrao_dieta_especial.nome_protocolo
     )
-
-    # Caso 2: Sem protocolo_padrao (Fallback para o campo de texto)
-    solicitacao_dieta_especial.protocolo_padrao = None
-    serializer = SolicitacaoDietaEspecialRelatorioTercSerializer(
-        solicitacao_dieta_especial
-    )
-    assert serializer.data["nome_protocolo"] == "Nome Antigo"

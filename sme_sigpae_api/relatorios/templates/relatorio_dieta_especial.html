@@ -79,7 +79,7 @@
         </div>
         <div class="informacao-tres">
           <label>Nome do protocolo</label>
-          {{ dieta.protocolo_padrao.nome_protocolo|default:dieta.nome_protocolo }}
+          {{ dieta.nome_protocolo|default:dieta.protocolo_padrao.nome_protocolo }}
         </div>
         <div class="informacao">
           <label>Data de término</label>

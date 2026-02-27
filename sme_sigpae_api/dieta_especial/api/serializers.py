@@ -655,9 +655,11 @@ class SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer(
 
     def get_protocolo_padrao(self, obj):
         return (
-            obj.protocolo_padrao.nome_protocolo
-            if obj.protocolo_padrao
-            else obj.nome_protocolo
+            obj.nome_protocolo
+            if obj.nome_protocolo
+            else (
+                obj.protocolo_padrao.nome_protocolo if obj.protocolo_padrao else ""
+            )
         )
 
     def get_data_ultimo_log(self, obj):
@@ -725,9 +727,11 @@ class SolicitacaoDietaEspecialExportXLSXSerializer(serializers.ModelSerializer):
 
     def get_protocolo_padrao(self, obj):
         return (
-            obj.protocolo_padrao.nome_protocolo
-            if obj.protocolo_padrao
-            else obj.nome_protocolo
+            obj.nome_protocolo
+            if obj.nome_protocolo
+            else (
+                obj.protocolo_padrao.nome_protocolo if obj.protocolo_padrao else ""
+            )
         )
 
     def get_data_ultimo_log(self, obj):
@@ -861,9 +865,11 @@ class SolicitacaoDietaEspecialRelatorioTercSerializer(serializers.ModelSerialize
 
     def get_nome_protocolo(self, obj):
         return (
-            obj.protocolo_padrao.nome_protocolo
-            if obj.protocolo_padrao
-            else obj.nome_protocolo
+            obj.nome_protocolo
+            if obj.nome_protocolo
+            else (
+                obj.protocolo_padrao.nome_protocolo if obj.protocolo_padrao else ""
+            )
         )
 
     def get_data_ultimo_log(self, obj):
