@@ -192,10 +192,10 @@
           </label>
         {% endif %}
     </div>
-    {% if solicitacao.protocolo_padrao %}
+    {% if solicitacao.nome_protocolo or solicitacao.protocolo_padrao %}
       <div class="bloco-pescritor-dieta-especial">
         <h5>Protocolo da Dieta Especial</h5>
-        <p style="text-transform: uppercase">{{ solicitacao.protocolo_padrao.nome_protocolo }}</p>
+        <p style="text-transform: uppercase">{% if solicitacao.nome_protocolo %}{{ solicitacao.nome_protocolo }}{% elif solicitacao.protocolo_padrao %}{{ solicitacao.protocolo_padrao.nome_protocolo }}{% endif %}</p>
       </div>
     {% endif %}
     {% if solicitacao.escola.tipo_gestao.nome == 'MISTA' or solicitacao.escola.tipo_gestao.nome == 'PARCEIRA' or solicitacao.escola.tipo_gestao.nome == 'DIRETA' or solicitacao.escola.tipo_gestao.nome == 'TERC TOTAL' %}
