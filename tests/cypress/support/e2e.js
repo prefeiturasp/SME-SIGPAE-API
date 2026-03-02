@@ -42,8 +42,8 @@ import './commands_api/commands_motivos_suspensao_cardapio'
 import './commands_api/commands_nome_de_produtos_edital'
 import './commands_api/commands_perfis'
 import './commands_api/commands_perfis_vinculados'
-
 import './commands_api/commands_periodos_escolares'
+import './commands_api/commands_terceirizadas'
 
 import './commands_ui/commands_login'
 import './commands_ui/commands_globais'

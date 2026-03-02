@@ -49,7 +49,9 @@ def gera_xlsx_relatorio_dietas_especiais_terceirizadas_async(
                 "nome_escola": solicitacao.escola.nome,
                 "classificacao": classificacao,
                 "protocolo_padrao": (
-                    solicitacao.protocolo_padrao.nome_protocolo if solicitacao.protocolo_padrao else solicitacao.nome_protocolo
+                    solicitacao.nome_protocolo if solicitacao.nome_protocolo else (
+                        solicitacao.protocolo_padrao.nome_protocolo if solicitacao.protocolo_padrao else "--"
+                    )
                 ),
                 "alergias_intolerancias": solicitacao.alergias_intolerancias,
             }
