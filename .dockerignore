@@ -44,7 +44,7 @@ build/
 Jenkinsfile*
 .editorconfig
 .codeclimate.yml
-docs/
+docs/build
 CONTRIBUTING.md
 CODEOFCONDUCT.md
 CONTRIBUTORS.txt
@@ -60,3 +60,5 @@ docker-compose-dev.yml
 # ──────────────────────────────
 *.key
 *.pem
+
+pgdata/
