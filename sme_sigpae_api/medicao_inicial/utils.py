@@ -5232,7 +5232,7 @@ def busca_dias_zerados(solicitacao: SolicitacaoMedicaoInicial) -> dict:
         solicitacao_medicao_inicial=solicitacao,
         periodo_escolar__isnull=True if escola_cemei else False,
         grupo__isnull=False if escola_cemei else True,
-    ).prefetch_related("valores_medicao__categoria_medicao")
+    ).exclude(grupo__nome__in=('Programas e Projetos', 'Solicitações de Alimentação')).prefetch_related("valores_medicao__categoria_medicao")
 
     periodos_lancados = [
         (
