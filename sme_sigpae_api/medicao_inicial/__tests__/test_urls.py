@@ -2486,8 +2486,8 @@ def test_url_dias_frequencia_zerada(
     assert isinstance(response.data, dict)
 
     resultado = response.json()
-    assert '05' in resultado["alimentacoes"]
-    assert '13' in resultado["alimentacoes"]
+    assert "05" in resultado["alimentacoes"]
+    assert "13" in resultado["alimentacoes"]
     assert resultado["dietas"]["DIETA ESPECIAL - TIPO A"] == ["05"]
 
 
