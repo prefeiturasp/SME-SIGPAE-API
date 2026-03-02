@@ -5227,7 +5227,7 @@ def busca_dias_zerados(solicitacao: SolicitacaoMedicaoInicial) -> dict:
     escola_emebs = solicitacao.escola.eh_emebs
     escola_cemei = solicitacao.escola.eh_cemei
     todas_dietas = CategoriaMedicao.objects.filter(nome__icontains="DIETA")
-    periodos_escolares = [f"INFANTIL {periodo.nome}" if escola_cemei else periodo.nome for periodo in solicitacao.escola.periodos_escolares()]
+    periodos_escolares = [f"INFANTIL {periodo.nome}" if escola_cemei else periodo.nome for periodo in solicitacao.escola.periodos_escolares(ano=int(solicitacao.ano))]
 
     alimentacoes = []
     dietas = {dieta.nome: [] for dieta in todas_dietas}
