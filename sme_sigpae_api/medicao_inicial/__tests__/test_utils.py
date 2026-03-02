@@ -1596,34 +1596,32 @@ def test_sem_logs_nada_e_modificado(
 
 def test_busca_dias_zerados_emef(medicoes_frequencia_zerada_emef):
     resultado = busca_dias_zerados(medicoes_frequencia_zerada_emef)
+    assert "05" in resultado["alimentacoes"]
     assert "13" in resultado["alimentacoes"]
-    assert "13" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
-    assert "13" in resultado["dietas"]["DIETA ESPECIAL - TIPO B"]
+    assert "20" not in resultado["alimentacoes"]
 
-    assert "24" not in resultado["alimentacoes"]
-    assert "24" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
-    assert "24" in resultado["dietas"]["DIETA ESPECIAL - TIPO B"]
+    assert "05" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
+    assert "13" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
+    assert "20" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
 
 
-def test_busca_dias_zerados_emef_emebs(medicoes_frequencia_zerada_emef_emebs):
-    resultado = busca_dias_zerados(medicoes_frequencia_zerada_emef_emebs)
-    eh_emebs = medicoes_frequencia_zerada_emef_emebs.escola.eh_emebs
+def test_busca_dias_zerados_emebs(medicoes_frequencia_zerada_emebs):
+    resultado = busca_dias_zerados(medicoes_frequencia_zerada_emebs)
 
-    if eh_emebs:
-        for tipo in ("INFANTIL", "FUNDAMENTAL"):
-            assert "13" in resultado["alimentacoes"][tipo]
-            assert "13" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"][tipo]
-            assert "13" in resultado["dietas"]["DIETA ESPECIAL - TIPO B"][tipo]
+    assert "10" in resultado["alimentacoes"]["INFANTIL"]
+    assert "10" in resultado["alimentacoes"]["FUNDAMENTAL"]
 
-        assert "24" not in resultado["alimentacoes"]["INFANTIL"]
-        assert "24" in resultado["alimentacoes"]["FUNDAMENTAL"]
+    assert "13" in resultado["alimentacoes"]["INFANTIL"]
+    assert "13" not in resultado["alimentacoes"]["FUNDAMENTAL"]
 
-    else:
+    assert "24" not in resultado["alimentacoes"]["INFANTIL"]
+    assert "24" not in resultado["alimentacoes"]["FUNDAMENTAL"]
 
-        assert "13" in resultado["alimentacoes"]
-        assert "13" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
-        assert "13" in resultado["dietas"]["DIETA ESPECIAL - TIPO B"]
+    assert "10" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["INFANTIL"]
+    assert "10" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["FUNDAMENTAL"]
 
-        assert "24" not in resultado["alimentacoes"]
-        assert "24" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
-        assert "24" in resultado["dietas"]["DIETA ESPECIAL - TIPO B"]
+    assert "13" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["INFANTIL"]
+    assert "13" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["FUNDAMENTAL"]
+
+    assert "24" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["INFANTIL"]
+    assert "24" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["FUNDAMENTAL"]
