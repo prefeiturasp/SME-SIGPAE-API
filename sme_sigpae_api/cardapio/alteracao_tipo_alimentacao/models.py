@@ -41,10 +41,26 @@ class AlteracaoCardapio(
     EhAlteracaoCardapio,
     TemTerceirizadaConferiuGestaoAlimentacao,
 ):
-    """
-    Modelo responsável por armazenar Solicitações de Alteração do Tipo de Alimentação genéricas.
-    Tipos de unidade contempladas: EMEF, EMEI, CIEJA, EMEBS.
-    Exceções não contempladas: CEI, CEMEI.
+    """Modelo responsável por armazenar Solicitações de Alteração do Tipo de Alimentação genéricas.
+
+    Representa uma solicitação formal de troca do tipo de alimentação servida em
+    determinado(s) período(s) escolar(es), com data inicial e final delimitadas.
+
+    Tipos de unidade contempladas:
+        - EMEF
+        - EMEI
+        - CIEJA
+        - EMEBS
+
+    Exceções **não** contempladas:
+        - CEI
+        - CEMEI
+
+    :cvar DESCRICAO: Descrição legível do tipo de solicitação.
+    :vartype DESCRICAO: str
+    :cvar eh_alteracao_com_lanche_repetida: Indica se a alteração envolve lanche repetido
+        no mesmo mês.
+    :vartype eh_alteracao_com_lanche_repetida: bool
     """
 
     DESCRICAO = "Alteração do Tipo de Alimentação"
@@ -53,6 +69,16 @@ class AlteracaoCardapio(
 
     @classmethod
     def com_lanche_do_mes_corrente(cls, escola_uuid):
+        """Retorna alterações de cardápio do mês corrente que incluam lanche como tipo de destino.
+
+        Filtra as alterações da escola informada cujo período de substituição contemple
+        algum tipo de alimentação com ``"lanche"`` no nome.
+
+        :param escola_uuid: UUID da escola a ser filtrada.
+        :type escola_uuid: uuid.UUID
+        :returns: QuerySet de :class:`AlteracaoCardapio` do mês corrente contendo lanche.
+        :rtype: django.db.models.QuerySet
+        """
         lanche = TipoAlimentacao.objects.filter(nome__icontains="lanche")
         alteracoes_da_escola = cls.do_mes_corrente.all().filter(
             escola__uuid=escola_uuid,
@@ -62,6 +88,11 @@ class AlteracaoCardapio(
 
     @property
     def data(self):
+        """Retorna a data mais antiga do intervalo (inicial ou final).
+
+        :returns: Data de início da alteração, ou a data final caso seja anterior.
+        :rtype: datetime.date
+        """
         data = self.data_inicial
         if self.data_final < data:
             data = self.data_final
@@ -69,30 +100,74 @@ class AlteracaoCardapio(
 
     @property
     def numero_alunos(self):
+        """Retorna o total de alunos somando todas as substituições vinculadas.
+
+        :returns: Soma da quantidade de alunos em todas as
+            :class:`SubstituicaoAlimentacaoNoPeriodoEscolar` desta alteração, ou
+            ``None`` se não houver substituições.
+        :rtype: int or None
+        """
         return self.substituicoes.aggregate(Sum("qtd_alunos"))["qtd_alunos__sum"]
 
     @property
     def eh_unico_dia(self):
+        """Verifica se a alteração ocorre em um único dia.
+
+        :returns: ``True`` se ``data_inicial`` e ``data_final`` forem iguais,
+            ``False`` caso contrário.
+        :rtype: bool
+        """
         return self.data_inicial == self.data_final
 
     @property
     def substituicoes(self):
+        """Atalho para o relacionamento ``substituicoes_periodo_escolar``.
+
+        :returns: Manager reverso das substituições de alimentação vinculadas.
+        :rtype: django.db.models.Manager
+        """
         return self.substituicoes_periodo_escolar
 
     @property
     def inclusoes(self):
+        """Atalho para o relacionamento ``datas_intervalo``.
+
+        :returns: Manager reverso das datas do intervalo vinculadas.
+        :rtype: django.db.models.Manager
+        """
         return self.datas_intervalo
 
     @property
     def tipo(self):
+        """Retorna a descrição legível do tipo da solicitação.
+
+        :returns: String ``"Alteração do Tipo de Alimentação"``.
+        :rtype: str
+        """
         return "Alteração do Tipo de Alimentação"
 
     @property
     def path(self):
+        """Retorna o caminho relativo do relatório desta solicitação no frontend.
+
+        :returns: URL relativa no formato
+            ``"alteracao-do-tipo-de-alimentacao/relatorio?uuid=<uuid>&tipoSolicitacao=solicitacao-normal"``.
+        :rtype: str
+        """
         return f"alteracao-do-tipo-de-alimentacao/relatorio?uuid={self.uuid}&tipoSolicitacao=solicitacao-normal"
 
     @property
     def template_mensagem(self):
+        """Retorna o assunto e o corpo HTML do template de mensagem de alteração de cardápio.
+
+        Busca o :class:`~sme_sigpae_api.dados_comuns.models.TemplateMensagem` do tipo
+        ``ALTERACAO_CARDAPIO`` e retorna seus campos de assunto e conteúdo HTML.
+
+        :returns: Tupla ``(assunto, corpo_html)`` do template.
+        :rtype: tuple[str, str]
+        :raises TemplateMensagem.DoesNotExist: Caso não exista template do tipo
+            ``ALTERACAO_CARDAPIO`` cadastrado.
+        """
         template = TemplateMensagem.objects.get(
             tipo=TemplateMensagem.ALTERACAO_CARDAPIO
         )
@@ -100,6 +175,23 @@ class AlteracaoCardapio(
         return template.assunto, corpo
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
+        """Registra no log a transição de status da solicitação.
+
+        Cria uma entrada em :class:`~sme_sigpae_api.dados_comuns.models.LogSolicitacoesUsuario`
+        associada a esta alteração de cardápio.
+
+        :param status_evento: Código do evento de status (constante de
+            :class:`~sme_sigpae_api.dados_comuns.models.LogSolicitacoesUsuario`).
+        :type status_evento: int
+        :param usuario: Usuário responsável pela transição.
+        :type usuario: django.contrib.auth.models.AbstractUser
+        :param justificativa: Texto justificando a transição (opcional).
+        :type justificativa: str
+        :param resposta_sim_nao: Indica resposta booleana associada ao log (opcional,
+            padrão ``False``).
+        :type resposta_sim_nao: bool
+        :returns: None
+        """
         justificativa = kwargs.get("justificativa", "")
         resposta_sim_nao = kwargs.get("resposta_sim_nao", False)
         LogSolicitacoesUsuario.objects.create(
@@ -114,6 +206,24 @@ class AlteracaoCardapio(
 
     @property
     def substituicoes_dict(self):
+        """Retorna as substituições de alimentação serializadas como lista de dicionários.
+
+        Cada item da lista representa uma :class:`SubstituicaoAlimentacaoNoPeriodoEscolar`
+        com os campos ``periodo``, ``alteracao_de`` e ``alteracao_para``.
+
+        :returns: Lista de dicionários no formato::
+
+            [
+                {
+                    "periodo": "MANHA",
+                    "alteracao_de": "Lanche, Refeição",
+                    "alteracao_para": "Lanche Emergencial",
+                },
+                ...
+            ]
+
+        :rtype: list[dict]
+        """
         substituicoes = []
         for obj in self.substituicoes_periodo_escolar.all():
             tipos_alimentacao_de = list(
@@ -135,10 +245,23 @@ class AlteracaoCardapio(
 
     @property
     def existe_dia_cancelado(self):
+        """Verifica se ao menos uma data do intervalo foi cancelada individualmente.
+
+        :returns: ``True`` se existir alguma
+            :class:`DataIntervaloAlteracaoCardapio` com ``cancelado=True``,
+            ``False`` caso contrário.
+        :rtype: bool
+        """
         return self.datas_intervalo.filter(cancelado=True).exists()
 
     @property
     def datas(self):
+        """Retorna todas as datas do intervalo formatadas e concatenadas em uma string.
+
+        :returns: Datas no formato ``"DD/MM/YYYY"`` separadas por vírgula e espaço,
+            ex.: ``"01/03/2026, 02/03/2026"``.
+        :rtype: str
+        """
         return ", ".join(
             [
                 data.strftime("%d/%m/%Y")
@@ -147,6 +270,42 @@ class AlteracaoCardapio(
         )
 
     def solicitacao_dict_para_relatorio(self, label_data, data_log, instituicao):
+        """Serializa os dados da solicitação para uso em relatórios.
+
+        Retorna um dicionário com todas as informações relevantes da alteração de
+        cardápio, incluindo rastreamentos históricos, datas, motivo e substituições.
+
+        :param label_data: Rótulo descritivo para o campo de data no relatório.
+        :type label_data: str
+        :param data_log: Data do log de referência exibida no relatório.
+        :type data_log: datetime.date
+        :param instituicao: Instituição solicitante (não utilizado diretamente na
+            construção do dict, mantido por compatibilidade de assinatura).
+        :type instituicao: object
+        :returns: Dicionário com os campos do relatório::
+
+            {
+                "lote": str,
+                "unidade_educacional": str,
+                "terceirizada": object,
+                "tipo_doc": str,
+                "data_evento": datetime.date,
+                "datas_intervalo": QuerySet,
+                "numero_alunos": int,
+                "motivo": str,
+                "data_inicial": datetime.date,
+                "data_final": datetime.date,
+                "data_autorizacao": datetime.date,
+                "observacao": str,
+                "substituicoes": list[dict],
+                "label_data": str,
+                "data_log": datetime.date,
+                "id_externo": str,
+                "status": str,
+            }
+
+        :rtype: dict
+        """
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
             "unidade_educacional": self.rastro_escola.nome_historico(self.data),
@@ -179,6 +338,24 @@ class SubstituicaoAlimentacaoNoPeriodoEscolar(
     ExportModelOperationsMixin("substituicao_alimentacao_periodo_escolar"),
     TemChaveExterna,
 ):
+    """Representa uma substituição de tipo de alimentação em um período escolar específico.
+
+    Está vinculada a uma :class:`AlteracaoCardapio` e define quais tipos de alimentação
+    serão trocados (``tipos_alimentacao_de``) por quais outros (``tipos_alimentacao_para``)
+    em um determinado período escolar, bem como a quantidade de alunos afetados.
+
+    :cvar alteracao_cardapio: Alteração de cardápio à qual esta substituição pertence.
+    :vartype alteracao_cardapio: AlteracaoCardapio
+    :cvar qtd_alunos: Quantidade de alunos impactados pela substituição.
+    :vartype qtd_alunos: int
+    :cvar periodo_escolar: Período escolar onde a substituição ocorre.
+    :vartype periodo_escolar: escola.PeriodoEscolar
+    :cvar tipos_alimentacao_de: Tipos de alimentação originais a serem substituídos.
+    :vartype tipos_alimentacao_de: ManyToManyField[TipoAlimentacao]
+    :cvar tipos_alimentacao_para: Tipos de alimentação que substituirão os originais.
+    :vartype tipos_alimentacao_para: ManyToManyField[TipoAlimentacao]
+    """
+
     alteracao_cardapio = models.ForeignKey(
         "AlteracaoCardapio",
         on_delete=models.CASCADE,
@@ -219,11 +396,18 @@ class MotivoAlteracaoCardapio(
     TemChaveExterna,
     Ativavel,
 ):
-    """Usado em conjunto com AlteracaoCardapio.
+    """Representa o motivo pelo qual uma :class:`AlteracaoCardapio` foi solicitada.
 
-    Exemplos:
-        - atividade diferenciada
-        - aniversariante do mes
+    Utilizado em conjunto com :class:`AlteracaoCardapio` para categorizar a razão
+    da troca de tipo de alimentação.
+
+    Exemplos de motivos:
+        - Atividade diferenciada
+        - Aniversariante do mês
+
+    :cvar nome: Nome descritivo do motivo (herdado de
+        :class:`~sme_sigpae_api.dados_comuns.behaviors.Nomeavel`).
+    :vartype nome: str
     """
 
     def __str__(self):
@@ -241,6 +425,21 @@ class DataIntervaloAlteracaoCardapio(
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
 ):
+    """Representa uma data específica pertencente ao intervalo de uma :class:`AlteracaoCardapio`.
+
+    Permite que cada dia do intervalo seja tratado individualmente, possibilitando
+    cancelamentos pontuais sem invalidar toda a solicitação.
+
+    :cvar alteracao_cardapio: Alteração de cardápio à qual esta data pertence.
+    :vartype alteracao_cardapio: AlteracaoCardapio
+    :cvar data: Data do intervalo (herdada de
+        :class:`~sme_sigpae_api.dados_comuns.behaviors.TemData`).
+    :vartype data: datetime.date
+    :cvar cancelado: Indica se esta data foi cancelada individualmente (herdado de
+        :class:`~sme_sigpae_api.dados_comuns.behaviors.CanceladoIndividualmente`).
+    :vartype cancelado: bool
+    """
+
     alteracao_cardapio = models.ForeignKey(
         "AlteracaoCardapio", on_delete=models.CASCADE, related_name="datas_intervalo"
     )

@@ -24,6 +24,7 @@ from ..helpers import (
 from ..validators import (
     ServiceValidacaoCorrecaoFichaTecnica,
     valida_campos_dependentes_ficha_tecnica,
+    valida_campos_flv_ficha_tecnica,
     valida_campos_nao_pereciveis_ficha_tecnica,
     valida_campos_pereciveis_ficha_tecnica,
     valida_ingredientes_alergenicos_ficha_tecnica,
@@ -91,7 +92,7 @@ class FichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
     )
     marca = serializers.SlugRelatedField(
         slug_field="uuid",
-        required=True,
+        required=False,
         queryset=Marca.objects.all(),
     )
     categoria = serializers.ChoiceField(
@@ -112,7 +113,7 @@ class FichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
     envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(
         required=False, allow_null=True
     )
-    prazo_validade = serializers.CharField(required=True, allow_blank=True)
+    prazo_validade = serializers.CharField(required=False, allow_blank=True)
     numero_registro = serializers.CharField(required=False, allow_blank=True)
     organico = serializers.BooleanField(required=False)
     mecanismo_controle = serializers.ChoiceField(
@@ -120,12 +121,12 @@ class FichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
         required=False,
         allow_blank=True,
     )
-    componentes_produto = serializers.CharField(required=True, allow_blank=True)
+    componentes_produto = serializers.CharField(required=False, allow_blank=True)
     alergenicos = serializers.BooleanField(required=False)
-    ingredientes_alergenicos = serializers.CharField(required=True, allow_blank=True)
+    ingredientes_alergenicos = serializers.CharField(required=False, allow_blank=True)
     gluten = serializers.BooleanField(required=False)
     lactose = serializers.BooleanField(required=False)
-    lactose_detalhe = serializers.CharField(required=True, allow_blank=True)
+    lactose_detalhe = serializers.CharField(required=False, allow_blank=True)
     porcao = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     unidade_medida_porcao = serializers.SlugRelatedField(
         slug_field="uuid",
@@ -136,21 +137,24 @@ class FichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
     valor_unidade_caseira = serializers.CharField(
         required=False, allow_blank=True, allow_null=True
     )
-    unidade_medida_caseira = serializers.CharField(required=True, allow_blank=True)
+    unidade_medida_caseira = serializers.CharField(required=False, allow_blank=True)
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnicaCreateSerializer(
-        many=True
+        many=True,
+        required=False,
     )
     prazo_validade_descongelamento = serializers.CharField(
         required=False, allow_blank=True
     )
-    condicoes_de_conservacao = serializers.CharField(required=True, allow_blank=True)
+    condicoes_de_conservacao = serializers.CharField(required=False, allow_blank=True)
     temperatura_congelamento = serializers.FloatField(required=False, allow_null=True)
     temperatura_veiculo = serializers.FloatField(required=False, allow_null=True)
     condicoes_de_transporte = serializers.CharField(required=False, allow_blank=True)
-    embalagem_primaria = serializers.CharField(required=True, allow_blank=True)
-    embalagem_secundaria = serializers.CharField(required=True, allow_blank=True)
+    embalagem_primaria = serializers.CharField(required=False, allow_blank=True)
+    embalagem_secundaria = serializers.CharField(required=False, allow_blank=True)
     embalagens_de_acordo_com_anexo = serializers.BooleanField(required=False)
-    material_embalagem_primaria = serializers.CharField(required=True, allow_blank=True)
+    material_embalagem_primaria = serializers.CharField(
+        required=False, allow_blank=True
+    )
     produto_eh_liquido = serializers.BooleanField(required=False)
     volume_embalagem_primaria = serializers.FloatField(required=False, allow_null=True)
     unidade_medida_volume_primaria = serializers.SlugRelatedField(
@@ -197,15 +201,15 @@ class FichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
     )
     variacao_percentual = serializers.FloatField(required=False, allow_null=True)
     sistema_vedacao_embalagem_secundaria = serializers.CharField(
-        required=True, allow_blank=True
+        required=False, allow_blank=True
     )
     rotulo_legivel = serializers.BooleanField(required=False)
-    nome_responsavel_tecnico = serializers.CharField(required=True, allow_blank=True)
-    habilitacao = serializers.CharField(required=True, allow_blank=True)
-    numero_registro_orgao = serializers.CharField(required=True, allow_blank=True)
-    arquivo = serializers.CharField(required=True, allow_blank=True)
-    modo_de_preparo = serializers.CharField(required=True, allow_blank=True)
-    informacoes_adicionais = serializers.CharField(required=True, allow_blank=True)
+    nome_responsavel_tecnico = serializers.CharField(required=False, allow_blank=True)
+    habilitacao = serializers.CharField(required=False, allow_blank=True)
+    numero_registro_orgao = serializers.CharField(required=False, allow_blank=True)
+    arquivo = serializers.CharField(required=False, allow_blank=True)
+    modo_de_preparo = serializers.CharField(required=False, allow_blank=True)
+    informacoes_adicionais = serializers.CharField(required=False, allow_blank=True)
 
     def validate_arquivo(self, value):
         if value and "pdf" not in value:
@@ -231,11 +235,15 @@ class FichaTecnicaCreateSerializer(serializers.ModelSerializer):
     )
     marca = serializers.SlugRelatedField(
         slug_field="uuid",
-        required=True,
+        required=False,
         queryset=Marca.objects.all(),
     )
     categoria = serializers.ChoiceField(
         choices=FichaTecnicaDoProduto.CATEGORIA_CHOICES,
+        required=True,
+    )
+    tipo_entrega = serializers.ChoiceField(
+        choices=FichaTecnicaDoProduto.TIPO_ENTREGA_CHOICES,
         required=True,
     )
     programa = serializers.ChoiceField(
@@ -252,6 +260,8 @@ class FichaTecnicaCreateSerializer(serializers.ModelSerializer):
     envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(
         required=False, allow_null=True
     )
+    numero_registro = serializers.CharField(required=False, allow_blank=True)
+    organico = serializers.BooleanField(required=False)
     mecanismo_controle = serializers.ChoiceField(
         choices=FichaTecnicaDoProduto.MECANISMO_CONTROLE_CHOICES,
         required=False,
@@ -347,6 +357,83 @@ class FichaTecnicaCreateSerializer(serializers.ModelSerializer):
                 "Checkbox indicando que o rótulo contém as informações solicitadas no Anexo I precisa ser marcado."
             )
         return value
+
+    def validate_arquivo(self, value):
+        if value and "pdf" not in value:
+            raise serializers.ValidationError("Arquivo deve ser um PDF.")
+        return value
+
+    def create(self, validated_data):
+        instance = cria_ficha_tecnica(validated_data)
+
+        user = self.context["request"].user
+        instance.inicia_fluxo(user=user)
+
+        return instance
+
+    def update(self, instance, validated_data):
+        instance = atualiza_ficha_tecnica(instance, validated_data)
+
+        user = self.context["request"].user
+        instance.inicia_fluxo(user=user)
+
+        return instance
+
+    class Meta:
+        model = FichaTecnicaDoProduto
+        exclude = ("id",)
+
+
+class FichaTecnicaFLVCreateSerializer(serializers.ModelSerializer):
+    produto = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=True,
+        queryset=NomeDeProdutoEdital.objects.all(),
+    )
+    marca = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=False,
+        queryset=Marca.objects.all(),
+    )
+    categoria = serializers.ChoiceField(
+        choices=FichaTecnicaDoProduto.CATEGORIA_CHOICES,
+        required=True,
+    )
+    tipo_entrega = serializers.ChoiceField(
+        choices=FichaTecnicaDoProduto.TIPO_ENTREGA_CHOICES,
+        required=True,
+    )
+    programa = serializers.ChoiceField(
+        choices=FichaTecnicaDoProduto.PROGRAMA_CHOICES,
+        required=True,
+    )
+    pregao_chamada_publica = serializers.CharField(required=True)
+    empresa = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=True,
+        queryset=Terceirizada.objects.all(),
+    )
+    fabricante = FabricanteFichaTecnicaCreateSerializer(required=False, allow_null=True)
+    envasador_distribuidor = FabricanteFichaTecnicaCreateSerializer(
+        required=False, allow_null=True
+    )
+    numero_registro = serializers.CharField(required=False, allow_blank=True)
+    organico = serializers.BooleanField(required=True)
+    mecanismo_controle = serializers.ChoiceField(
+        choices=FichaTecnicaDoProduto.MECANISMO_CONTROLE_CHOICES,
+        required=False,
+    )
+    especie_variedade = serializers.CharField(required=True)
+    nome_responsavel_tecnico = serializers.CharField(required=True)
+    habilitacao = serializers.CharField(required=True)
+    numero_registro_orgao = serializers.CharField(required=True)
+    arquivo = serializers.CharField(required=True)
+    informacoes_adicionais = serializers.CharField(required=False, allow_blank=True)
+
+    def validate(self, attrs):
+        valida_campos_flv_ficha_tecnica(attrs)
+
+        return attrs
 
     def validate_arquivo(self, value):
         if value and "pdf" not in value:

@@ -67,10 +67,20 @@ class FichaTecnicaDoProduto(
 ):
     CATEGORIA_PERECIVEIS = "PERECIVEIS"
     CATEGORIA_NAO_PERECIVEIS = "NAO_PERECIVEIS"
+    CATEGORIA_FLV = "FLV"
 
     CATEGORIA_CHOICES = (
         (CATEGORIA_PERECIVEIS, "Perecíveis"),
         (CATEGORIA_NAO_PERECIVEIS, "Não Perecíveis"),
+        (CATEGORIA_FLV, "FLV"),
+    )
+
+    ARMAZEM = "ARMAZEM"
+    PONTO_A_PONTO = "PONTO_A_PONTO"
+
+    TIPO_ENTREGA_CHOICES = (
+        (ARMAZEM, "Armazém"),
+        (PONTO_A_PONTO, "Ponto a Ponto"),
     )
 
     MECANISMO_CERTIFICACAO = "CERTIFICACAO"
@@ -100,6 +110,12 @@ class FichaTecnicaDoProduto(
     )
     marca = models.ForeignKey(Marca, on_delete=models.PROTECT, blank=True, null=True)
     categoria = models.CharField(choices=CATEGORIA_CHOICES, max_length=14, blank=True)
+    tipo_entrega = models.CharField(
+        "Tipo de Entrega",
+        max_length=20,
+        choices=TIPO_ENTREGA_CHOICES,
+        default=ARMAZEM,
+    )
     programa = models.CharField(
         "Programa",
         max_length=20,
@@ -138,6 +154,9 @@ class FichaTecnicaDoProduto(
     organico = models.BooleanField("É orgânico?", null=True)
     mecanismo_controle = models.CharField(
         choices=MECANISMO_CONTROLE_CHOICES, max_length=12, blank=True
+    )
+    especie_variedade = models.CharField(
+        "Espécie ou Variedade Cultivada", max_length=150, blank=True
     )
     componentes_produto = models.CharField(
         "Componentes do Produto", max_length=1500, blank=True

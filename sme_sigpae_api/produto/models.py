@@ -987,6 +987,8 @@ class RespostaAnaliseSensorial(
 
     @property
     def numero_protocolo(self):
+        if self.homologacao_produto is None:
+            return None
         return self.homologacao_produto.protocolo_analise_sensorial
 
     def __str__(self):

@@ -19,6 +19,7 @@ from sme_sigpae_api.medicao_inicial.utils import (
     build_tabelas_relatorio_medicao,
     build_tabelas_relatorio_medicao_cemei,
     build_tabelas_relatorio_medicao_emebs,
+    busca_dias_zerados,
     get_lista_categorias_campos,
     get_lista_categorias_campos_cei,
     get_lista_dias_letivos,
@@ -1591,3 +1592,36 @@ def test_sem_logs_nada_e_modificado(
     )
     log = solicitacao_medicao_inicial_cemei.logs.first()
     assert log is None
+
+
+def test_busca_dias_zerados_emef(medicoes_frequencia_zerada_emef):
+    resultado = busca_dias_zerados(medicoes_frequencia_zerada_emef)
+    assert "05" in resultado["alimentacoes"]
+    assert "13" in resultado["alimentacoes"]
+    assert "20" not in resultado["alimentacoes"]
+
+    assert "05" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
+    assert "13" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
+    assert "20" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
+
+
+def test_busca_dias_zerados_emebs(medicoes_frequencia_zerada_emebs):
+    resultado = busca_dias_zerados(medicoes_frequencia_zerada_emebs)
+
+    assert "10" in resultado["alimentacoes"]["INFANTIL"]
+    assert "10" in resultado["alimentacoes"]["FUNDAMENTAL"]
+
+    assert "13" in resultado["alimentacoes"]["INFANTIL"]
+    assert "13" not in resultado["alimentacoes"]["FUNDAMENTAL"]
+
+    assert "24" not in resultado["alimentacoes"]["INFANTIL"]
+    assert "24" not in resultado["alimentacoes"]["FUNDAMENTAL"]
+
+    assert "10" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["INFANTIL"]
+    assert "10" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["FUNDAMENTAL"]
+
+    assert "13" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["INFANTIL"]
+    assert "13" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["FUNDAMENTAL"]
+
+    assert "24" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["INFANTIL"]
+    assert "24" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["FUNDAMENTAL"]

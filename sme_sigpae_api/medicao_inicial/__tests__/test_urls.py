@@ -2470,3 +2470,48 @@ def test_url_endpoint_totais_atendimento_consumo(
 
     assert "total_refeicao" in alimentacao
     assert "refeicao" in dieta_a
+
+
+def test_url_dias_frequencia_zerada(
+    client_autenticado_codae_medicao, medicoes_frequencia_zerada_emef
+):
+    uuid_solicitaco = medicoes_frequencia_zerada_emef.uuid
+    response = client_autenticado_codae_medicao.get(
+        f"/medicao-inicial/solicitacao-medicao-inicial/dias-frequencia-zerada/?uuid_solicitacao={str(uuid_solicitaco)}/",
+        data={"uuid_solicitacao": uuid_solicitaco},
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert isinstance(response.data, dict)
+
+    resultado = response.json()
+    assert "05" in resultado["alimentacoes"]
+    assert "13" in resultado["alimentacoes"]
+    assert resultado["dietas"]["DIETA ESPECIAL - TIPO A"] == ["05"]
+
+
+def test_url_dias_frequencia_zerada_solicitacao_nao_encontrada(
+    client_autenticado_codae_medicao,
+    anexo_ocorrencia_medicao_inicial_status_aprovado_dre,
+):
+    uuid_solicitaco = anexo_ocorrencia_medicao_inicial_status_aprovado_dre.uuid
+    response = client_autenticado_codae_medicao.get(
+        f"/medicao-inicial/solicitacao-medicao-inicial/dias-frequencia-zerada/?uuid_solicitacao={str(uuid_solicitaco)}/",
+        data={"uuid_solicitacao": uuid_solicitaco},
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert isinstance(response.data, dict)
+    assert response.json() == {"detail": "A solicitação não foi encontrada."}
+
+
+def test_url_dias_frequencia_zerada_uuid_nao_enviado(client_autenticado_codae_medicao):
+    response = client_autenticado_codae_medicao.get(
+        f"/medicao-inicial/solicitacao-medicao-inicial/dias-frequencia-zerada/"
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert isinstance(response.data, dict)
+    assert response.json() == {"detail": "Parâmetro 'uuid_solicitacao' é obrigatório."}
