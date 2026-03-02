@@ -5224,10 +5224,11 @@ def busca_dias_zerados(solicitacao: SolicitacaoMedicaoInicial) -> dict:
             }
         }
     """
-    todas_dietas = CategoriaMedicao.objects.filter(nome__icontains="DIETA")
     escola_emebs = solicitacao.escola.eh_emebs
     escola_cemei = solicitacao.escola.eh_cemei
-    
+    todas_dietas = CategoriaMedicao.objects.filter(nome__icontains="DIETA")
+    periodos_escolares = [f"INFANTIL {periodo.nome}" if escola_cemei else periodo.nome for periodo in solicitacao.escola.periodos_escolares()]
+
     alimentacoes = []
     dietas = {dieta.nome: [] for dieta in todas_dietas}
     mapa_dias = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
@@ -5256,11 +5257,12 @@ def busca_dias_zerados(solicitacao: SolicitacaoMedicaoInicial) -> dict:
         ).upper()
         for medicao in medicoes_regulares
     ]
-    periodos_escolares = [f"INFANTIL {periodo.nome}" if escola_cemei else periodo.nome for periodo in solicitacao.escola.periodos_escolares()]
-
+    
     if len(periodos_lancados) < len(periodos_escolares):
         return resultado
     
+    dietas_especiais_solicitadas = _verifica_dietas_consumidas(solicitacao, escola_emebs, escola_cemei)
+
     for medicao in medicoes_regulares:
         periodo = (
             medicao.periodo_escolar.nome
@@ -5282,7 +5284,7 @@ def busca_dias_zerados(solicitacao: SolicitacaoMedicaoInicial) -> dict:
             periodos_lancados,
             resultado,
             todas_dietas,
-            periodos_escolares,
+            dietas_especiais_solicitadas,
             eh_emebs=escola_emebs,
         )
 
@@ -5368,7 +5370,7 @@ def _dieta_zerada(
     periodos_lancados: list[str],
     resultado: dict,
     dietas: list[CategoriaMedicao],
-    periodos_escolares: list[str],
+    dietas_especiais_solicitadas: list[str],
     eh_emebs: bool = False,
 ) -> None:
     """
@@ -5383,19 +5385,18 @@ def _dieta_zerada(
         eh_emebs (bool): Indica se a escola é do tipo EMEBS.
     """
     if eh_emebs:
-        _dieta_zerada_emebs(dia, periodos, periodos_lancados, resultado, dietas, periodos_escolares)
+        _dieta_zerada_emebs(dia, periodos, periodos_lancados, resultado, dietas, dietas_especiais_solicitadas)
     else:
-        for dieta in dietas:
+        
+        for dieta, periodos_escolares in dietas_especiais_solicitadas.items():
             zerado = True
-
-            for periodo in periodos_lancados:
-                soma = periodos.get(periodo, {}).get(dieta.nome, 0)
-                if soma > 0:
+            for periodo in periodos_escolares:
+                esta_zerado = periodos.get(periodo, {}).get(dieta, 1) == 0
+                if not esta_zerado:
                     zerado = False
                     break
-
             if zerado:
-                resultado["dietas"][dieta.nome].append(dia)
+                resultado["dietas"][dieta].append(dia)
 
 
 def _alimentacao_zerada_emebs(
@@ -5421,7 +5422,7 @@ def _dieta_zerada_emebs(
     periodos_lancados: list[str],
     resultado: dict,
     dietas: list[CategoriaMedicao],
-    periodos_escolares,
+    dietas_especiais_solicitadas,
 ) -> None:
     """
     Verifica se cada dieta está zerada por modalidade no dia.
@@ -5433,10 +5434,15 @@ def _dieta_zerada_emebs(
         resultado (dict):  Estrutura de retorno a ser preenchida.
         dietas (list[CategoriaMedicao]): Lista de objetos CategoriaMedicao cujo nome contém "DIETA"
     """
-    for dieta in dietas:
-        nome_dieta = dieta.nome
+    for nome_dieta, periodos_escolares in dietas_especiais_solicitadas.items():
         for tipo in (ValorMedicao.INFANTIL, ValorMedicao.FUNDAMENTAL):
-            if _modalidade_zerada(nome_dieta, tipo, periodos, periodos_lancados, periodos_escolares):
+            zerado = True
+            for periodo_escolar in periodos_escolares.get(tipo, {}):
+                esta_zerado = periodos.get(periodo_escolar, {}).get(nome_dieta, {}).get(tipo, 1) == 0
+                if not esta_zerado:
+                    zerado = False
+                    break
+            if zerado:
                 resultado["dietas"][nome_dieta][tipo].append(dia)
 
 
@@ -5461,22 +5467,60 @@ def _modalidade_zerada(
     """
     encontrou_modalidade = True
     for periodo_escolar in periodos_escolares:
+        if periodo_escolar == 'NOITE' and tipo == ValorMedicao.INFANTIL:
+            continue
         periodo_existe = periodo_escolar in periodos_lancados
         esta_zerado = periodos.get(periodo_escolar, {}).get(nome_categoria, {}).get(tipo, 1) == 0
         if not (periodo_existe and esta_zerado):
             encontrou_modalidade = False
             break
-         
-
-    # for periodo in periodos_lancados:
-    #     categoria_periodo = periodos.get(periodo, {}).get(nome_categoria)
-
-    #     if not categoria_periodo or tipo not in categoria_periodo:
-    #         continue
-
-    #     encontrou_modalidade = True
-
-    #     if categoria_periodo[tipo] > 0:
-    #         return False
-
     return encontrou_modalidade
+
+
+def _verifica_dietas_consumidas(solicitacao, escola_emebs, escola_cemei):
+    dados_agregados = LogQuantidadeDietasAutorizadas.objects.filter(
+        escola=solicitacao.escola,
+        criado_em__year=int(solicitacao.ano),
+        criado_em__month=int(solicitacao.mes),
+        periodo_escolar__isnull=False
+    ).exclude(
+        classificacao__nome__icontains='Tipo C'
+    ).values(
+        'classificacao__nome',
+        'periodo_escolar__nome',
+        'infantil_ou_fundamental',
+    ).annotate(
+        total_quantidade=Sum('quantidade')
+    ).filter(
+        total_quantidade__gt=0
+    )
+
+    resultado_intermediario = defaultdict(lambda: defaultdict(set)) if escola_emebs else defaultdict(set) 
+    dicionario_dieta = {
+        'Tipo A ENTERAL': 'DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS',
+        'Tipo A RESTRIÇÃO DE AMINOÁCIDOS': 'DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS',
+        'Tipo A': "DIETA ESPECIAL - TIPO A", 
+        'Tipo B': "DIETA ESPECIAL - TIPO B",
+    }
+
+    for item in dados_agregados:
+        classificacao = dicionario_dieta.get(item['classificacao__nome'])
+        periodo = f"INFANTIL {item['periodo_escolar__nome']}" if escola_cemei else item['periodo_escolar__nome']
+        infantil_fundamental = item['infantil_ou_fundamental']
+        
+        if escola_emebs:
+            resultado_intermediario[classificacao][infantil_fundamental].add(periodo)
+        else:
+            resultado_intermediario[classificacao].add(periodo)
+    if escola_emebs:
+        resultado_final = {}
+        for classificacao, tipos_ensino in resultado_intermediario.items():
+            resultado_final[classificacao] = {}
+            for tipo_ensino, periodos in tipos_ensino.items():
+                resultado_final[classificacao][tipo_ensino] = sorted(list(periodos))
+        return resultado_final
+    else:
+        return {
+            chave: sorted(list(valores)) 
+            for chave, valores in resultado_intermediario.items()
+        }
