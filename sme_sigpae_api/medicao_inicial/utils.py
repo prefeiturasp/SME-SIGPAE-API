@@ -24,6 +24,7 @@ from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_CIEJA_CMCT,
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
+    ORDEM_UNIDADES_GRUPO_CEMEI,
     TIPOS_TURMAS_EMEBS,
 )
 from sme_sigpae_api.dados_comuns.utils import (
@@ -5010,13 +5011,16 @@ def _processa_dietas_tipo_alimentacao(medicao, nome_periodo, resultado):
 
 
 def _get_total_pagamento(medicao, nome_campo, tipo_unidade):
-    if (
-        tipo_unidade in ORDEM_UNIDADES_GRUPO_EMEF
-        or tipo_unidade in ORDEM_UNIDADES_GRUPO_CIEJA_CMCT
+    if tipo_unidade in (
+        set(ORDEM_UNIDADES_GRUPO_EMEF)
+        | set(ORDEM_UNIDADES_GRUPO_CIEJA_CMCT)
     ):
         return _total_pagamento_emef(medicao, nome_campo) or 0
 
-    elif tipo_unidade in ORDEM_UNIDADES_GRUPO_EMEI:
+    if tipo_unidade in (
+        set(ORDEM_UNIDADES_GRUPO_EMEI)
+        | set(ORDEM_UNIDADES_GRUPO_CEMEI)
+    ):
         return _total_pagamento_emei(medicao, nome_campo) or 0
 
     return 0
@@ -5127,42 +5131,75 @@ def _consolidar_campos(resultado, chave_principal):
     return resultado_copia
 
 
+def _executar_faixa_etaria(medicoes):
+    resultado = {}
+    faixas_etarias = {f.id: str(f) for f in FaixaEtaria.objects.all()}
+
+    for medicao in medicoes:
+        nome_periodo = obter_nome_periodo(medicao)
+
+        _processa_periodo_regular_faixa(
+            medicao, nome_periodo, resultado, faixas_etarias
+        )
+        _processa_dietas_faixa(
+            medicao, resultado, faixas_etarias
+        )
+
+    return resultado
+
+
+def _executar_tipo_alimentacao(medicoes):
+    resultado = {}
+    for medicao in medicoes:
+        nome_periodo = obter_nome_periodo(medicao)
+
+        _processa_periodo_tipo_alimentacao(medicao, resultado)
+        _processa_total_pagamento_tipo_alimentacao(
+            medicao, nome_periodo, resultado
+        )
+        _processa_dietas_tipo_alimentacao(
+            medicao, nome_periodo, resultado
+        )
+
+    resultado = _consolidar_lanches_alimentacao(resultado)
+    resultado = _consolidar_campos(
+        resultado,
+        CHAVE_ALIMENTACAO_REGULAR,
+    )
+
+    if CHAVE_ALIMENTACAO_REGULAR in resultado:
+        dados = resultado[CHAVE_ALIMENTACAO_REGULAR]
+        resultado[CHAVE_ALIMENTACAO_REGULAR] = {
+            chave if chave.startswith("total_") else f"total_{chave}": valor
+            for chave, valor in dados.items()
+        }
+
+    return resultado
+
+
 def gerar_totais_consolidado(solicitacoes, tipo):
     medicoes = Medicao.objects.filter(
         solicitacao_medicao_inicial__in=solicitacoes
     ).select_related("periodo_escolar", "grupo")
-    if tipo == "faixa_etaria":
-        faixas_etarias = {f.id: str(f) for f in FaixaEtaria.objects.all()}
 
-    resultado = {}
-    for medicao in medicoes:
-        nome_periodo = obter_nome_periodo(medicao)
-        if tipo == "faixa_etaria":
-            nome_periodo = obter_nome_periodo(medicao)
-            _processa_periodo_regular_faixa(
-                medicao, nome_periodo, resultado, faixas_etarias
-            )
-            _processa_dietas_faixa(medicao, resultado, faixas_etarias)
-        else:
-            _processa_periodo_tipo_alimentacao(medicao, resultado)
-            _processa_total_pagamento_tipo_alimentacao(medicao, nome_periodo, resultado)
-            _processa_dietas_tipo_alimentacao(medicao, nome_periodo, resultado)
+    executa_faixa = tipo == "faixa_etaria"
+    executa_tipo = tipo == "tipo_alimentacao"
 
-    if tipo == "tipo_alimentacao":
-        resultado = _consolidar_lanches_alimentacao(resultado)
-        resultado = _consolidar_campos(
-            resultado,
-            CHAVE_ALIMENTACAO_REGULAR,
-        )
+    if not executa_faixa and not executa_tipo:
+        executa_faixa = True
+        executa_tipo = True
 
-        if CHAVE_ALIMENTACAO_REGULAR in resultado:
-            dados = resultado[CHAVE_ALIMENTACAO_REGULAR]
-            resultado[CHAVE_ALIMENTACAO_REGULAR] = {
-                chave if chave.startswith("total_") else f"total_{chave}": valor
-                for chave, valor in dados.items()
-            }
+    if executa_faixa and executa_tipo:
+        return {
+            "TIPO": _executar_tipo_alimentacao(medicoes),
+            "FAIXA": _executar_faixa_etaria(medicoes),
+        }
 
-    return resultado
+    if executa_faixa:
+        return _executar_faixa_etaria(medicoes)
+
+    if executa_tipo:
+        return _executar_tipo_alimentacao(medicoes)
 
 
 def calcula_totais_consumo_por_faixa_etaria(
