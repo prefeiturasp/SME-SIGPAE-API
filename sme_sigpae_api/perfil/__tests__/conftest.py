@@ -1334,6 +1334,42 @@ def mocked_response_get_dados_usuario_coresso_sem_acesso_automatico():
     }
 
 
+def mocked_response_get_dados_usuario_coresso_cieja_coordenador_geral():
+    return {
+        "rf": "1234567",
+        "cpf": "93697506064",
+        "email": "user@escola.com",
+        "cargos": [
+            {
+                "codigoCargo": 99,
+                "descricaoCargo": "CIEJA COORDENADOR GERAL",
+                "codigoUnidade": "400158",
+                "descricaoUnidade": "CEI DIRET - JOSE DE MOURA, VER.",
+                "codigoDre": "108600",
+            }
+        ],
+        "nome": "RONALDO CIEJA",
+    }
+
+
+def mocked_response_get_dados_usuario_coresso_cieja_assist_coord_geral():
+    return {
+        "rf": "1234567",
+        "cpf": "93697506064",
+        "email": "user@escola.com",
+        "cargos": [
+            {
+                "codigoCargo": 98,
+                "descricaoCargo": "CIEJA ASSIST COORD GERAL",
+                "codigoUnidade": "400158",
+                "descricaoUnidade": "CEI DIRET - JOSE DE MOURA, VER.",
+                "codigoDre": "108600",
+            }
+        ],
+        "nome": "RONALDO CIEJA",
+    }
+
+
 @pytest.fixture
 def usuario_administrador_contratos():
     usuario = baker.make("Usuario", username="testuser")
