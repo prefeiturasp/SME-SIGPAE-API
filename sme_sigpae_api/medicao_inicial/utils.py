@@ -4905,9 +4905,10 @@ def _processa_periodo_regular_faixa(medicao, nome_periodo, resultado, faixas_eta
         if not faixa_nome:
             continue
 
-        resultado.setdefault(nome_periodo, {})
-        resultado[nome_periodo].setdefault(faixa_nome, 0)
-        resultado[nome_periodo][faixa_nome] += item["total"]
+        chave_nome = f"{CHAVE_ALIMENTACAO_REGULAR} - {nome_periodo}"
+        resultado.setdefault(chave_nome, {})
+        resultado[chave_nome].setdefault(faixa_nome, 0)
+        resultado[chave_nome][faixa_nome] += item["total"]
 
 
 def _processa_dietas_faixa(medicao, resultado, faixas_etarias):
