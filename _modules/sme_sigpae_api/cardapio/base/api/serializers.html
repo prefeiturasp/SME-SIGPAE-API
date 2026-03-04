@@ -1,0 +1,411 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_sigpae_api.cardapio.base.api.serializers &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sme_sigpae_api.cardapio.base.api.serializers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sme_sigpae_api.cardapio.base.api.serializers</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.base.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Cardapio</span><span class="p">,</span>
+    <span class="n">ComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span><span class="p">,</span>
+    <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span><span class="p">,</span>
+    <span class="n">MotivoDRENaoValida</span><span class="p">,</span>
+    <span class="n">SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span><span class="p">,</span>
+    <span class="n">TipoAlimentacao</span><span class="p">,</span>
+    <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.escola.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">EscolaListagemSimplesSelializer</span><span class="p">,</span>
+    <span class="n">PeriodoEscolarSimplesSerializer</span><span class="p">,</span>
+    <span class="n">TipoUnidadeEscolarSerializer</span><span class="p">,</span>
+    <span class="n">TipoUnidadeEscolarSerializerSimples</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.terceirizada.api.serializers.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="n">EditalSerializer</span>
+
+
+<div class="viewcode-block" id="TipoAlimentacaoSerializer">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.TipoAlimentacaoSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TipoAlimentacaoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="TipoAlimentacaoSerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.TipoAlimentacaoSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">TipoAlimentacao</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TipoAlimentacaoSimplesSerializer">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.TipoAlimentacaoSimplesSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TipoAlimentacaoSimplesSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="TipoAlimentacaoSimplesSerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.TipoAlimentacaoSimplesSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">TipoAlimentacao</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer</span><span class="p">(</span>
+    <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span>
+<span class="p">):</span>
+    <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSimplesSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">combo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">ComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipos_alimentacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;combo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;label&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CombosVinculoTipoAlimentoSimplesSerializer">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplesSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CombosVinculoTipoAlimentoSimplesSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSimplesSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">substituicoes</span> <span class="o">=</span> <span class="n">SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">vinculo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+    <span class="p">)</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CombosVinculoTipoAlimentoSimplesSerializer.get_label">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplesSerializer.get_label">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">tipo_alimentacao</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">tipos_alimentacao</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">label</span> <span class="o">+=</span> <span class="n">tipo_alimentacao</span><span class="o">.</span><span class="n">nome</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">label</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; e </span><span class="si">{</span><span class="n">tipo_alimentacao</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">label</span></div>
+
+
+<div class="viewcode-block" id="CombosVinculoTipoAlimentoSimplesSerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplesSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipos_alimentacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vinculo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;substituicoes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;label&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CombosVinculoTipoAlimentoSimplissimaSerializer">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplissimaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CombosVinculoTipoAlimentoSimplissimaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CombosVinculoTipoAlimentoSimplissimaSerializer.get_label">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplissimaSerializer.get_label">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">tipo_alimentacao</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">tipos_alimentacao</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">label</span> <span class="o">+=</span> <span class="n">tipo_alimentacao</span><span class="o">.</span><span class="n">nome</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">label</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; e </span><span class="si">{</span><span class="n">tipo_alimentacao</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">label</span></div>
+
+
+<div class="viewcode-block" id="CombosVinculoTipoAlimentoSimplissimaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplissimaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;label&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer</span><span class="p">(</span>
+    <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span>
+<span class="p">):</span>
+    <span class="n">escola</span> <span class="o">=</span> <span class="n">EscolaListagemSimplesSelializer</span><span class="p">()</span>
+    <span class="n">tipo_alimentacao</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSerializer</span><span class="p">()</span>
+    <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">PeriodoEscolarSimplesSerializer</span><span class="p">()</span>
+
+<div class="viewcode-block" id="HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;hora_inicial&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;hora_final&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;escola&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_alimentacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;periodo_escolar&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="VinculoTipoAlimentoSimplesSerializer">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.VinculoTipoAlimentoSimplesSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VinculoTipoAlimentoSimplesSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">tipo_unidade_escolar</span> <span class="o">=</span> <span class="n">TipoUnidadeEscolarSerializerSimples</span><span class="p">()</span>
+    <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">PeriodoEscolarSimplesSerializer</span><span class="p">()</span>
+    <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="VinculoTipoAlimentoSimplesSerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.VinculoTipoAlimentoSimplesSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_unidade_escolar&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;periodo_escolar&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipos_alimentacao&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="VinculoTipoAlimentoPeriodoSerializer">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.VinculoTipoAlimentoPeriodoSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VinculoTipoAlimentoPeriodoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">nome</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="VinculoTipoAlimentoPeriodoSerializer.get_nome">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.VinculoTipoAlimentoPeriodoSerializer.get_nome">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="o">.</span><span class="n">nome</span></div>
+
+
+<div class="viewcode-block" id="VinculoTipoAlimentoPeriodoSerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.VinculoTipoAlimentoPeriodoSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;nome&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipos_alimentacao&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CardapioSimplesSerializer">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.CardapioSimplesSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CardapioSimplesSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="CardapioSimplesSerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.CardapioSimplesSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Cardapio</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CardapioSerializer">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.CardapioSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CardapioSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">tipos_unidade_escolar</span> <span class="o">=</span> <span class="n">TipoUnidadeEscolarSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">edital</span> <span class="o">=</span> <span class="n">EditalSerializer</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CardapioSerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.CardapioSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Cardapio</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MotivoDRENaoValidaSerializer">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.MotivoDRENaoValidaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MotivoDRENaoValidaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="MotivoDRENaoValidaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.MotivoDRENaoValidaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">MotivoDRENaoValida</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TipoUnidadeEscolarAgrupadoSerializer">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.TipoUnidadeEscolarAgrupadoSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TipoUnidadeEscolarAgrupadoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">Serializer</span><span class="p">):</span>
+    <span class="n">uuid</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">()</span>
+    <span class="n">iniciais</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+    <span class="n">ativo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">()</span>
+    <span class="n">tem_somente_integral_e_parcial</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">()</span>
+    <span class="n">pertence_relatorio_solicitacoes_alimentacao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">()</span>
+    <span class="n">periodos_escolares</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="TipoUnidadeEscolarAgrupadoSerializer.get_periodos_escolares">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.TipoUnidadeEscolarAgrupadoSerializer.get_periodos_escolares">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_periodos_escolares</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">vinculos</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;vinculos&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">periodos_data</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">vinculo</span> <span class="ow">in</span> <span class="n">vinculos</span><span class="p">:</span>
+            <span class="n">periodo_data</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="n">vinculo</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+                <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">vinculo</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+                <span class="s2">&quot;tipos_alimentacao&quot;</span><span class="p">:</span> <span class="n">TipoAlimentacaoSimplesSerializer</span><span class="p">(</span>
+                    <span class="n">vinculo</span><span class="o">.</span><span class="n">tipos_alimentacao</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">periodos_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">periodo_data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">periodos_data</span></div>
+
+
+<div class="viewcode-block" id="TipoUnidadeEscolarAgrupadoSerializer.agrupar_vinculos_por_tipo_ue">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.serializers.TipoUnidadeEscolarAgrupadoSerializer.agrupar_vinculos_por_tipo_ue">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">agrupar_vinculos_por_tipo_ue</span><span class="p">(</span><span class="n">vinculos</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+
+        <span class="n">agrupados</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">vinculo</span> <span class="ow">in</span> <span class="n">vinculos</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">vinculo</span><span class="o">.</span><span class="n">tipo_unidade_escolar</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">vinculo</span><span class="o">.</span><span class="n">tipo_unidade_escolar</span><span class="o">.</span><span class="n">uuid</span>
+                <span class="n">agrupados</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vinculo</span><span class="p">)</span>
+
+        <span class="n">resultado</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">vinculos_do_tipo</span> <span class="ow">in</span> <span class="n">agrupados</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">tipo_ue</span> <span class="o">=</span> <span class="n">vinculos_do_tipo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tipo_unidade_escolar</span>
+
+            <span class="n">dados_tipo_ue</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="n">tipo_ue</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+                <span class="s2">&quot;iniciais&quot;</span><span class="p">:</span> <span class="n">tipo_ue</span><span class="o">.</span><span class="n">iniciais</span><span class="p">,</span>
+                <span class="s2">&quot;ativo&quot;</span><span class="p">:</span> <span class="n">tipo_ue</span><span class="o">.</span><span class="n">ativo</span><span class="p">,</span>
+                <span class="s2">&quot;tem_somente_integral_e_parcial&quot;</span><span class="p">:</span> <span class="n">tipo_ue</span><span class="o">.</span><span class="n">tem_somente_integral_e_parcial</span><span class="p">,</span>
+                <span class="s2">&quot;pertence_relatorio_solicitacoes_alimentacao&quot;</span><span class="p">:</span> <span class="n">tipo_ue</span><span class="o">.</span><span class="n">pertence_relatorio_solicitacoes_alimentacao</span><span class="p">,</span>
+                <span class="s2">&quot;vinculos&quot;</span><span class="p">:</span> <span class="n">vinculos_do_tipo</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">resultado</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dados_tipo_ue</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">resultado</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;iniciais&quot;</span><span class="p">])</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
