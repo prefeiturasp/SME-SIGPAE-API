@@ -1,4 +1,7 @@
+from unittest.mock import patch
+
 import pytest
+from model_bakery import baker
 from openpyxl import load_workbook
 from openpyxl.cell import Cell
 
@@ -170,3 +173,114 @@ def test_processamento_erro_abas(arquivo_alimentos_abas_incorreta):
         ArquivoCargaAlimentosSubstitutos.objects.last().log
         == "Erro: Número de abas na planilha é diferente de 2"
     )
+
+
+# ---------------------------------------------------------------------------
+# Testes para inativa_alimentos_ausentes
+# ---------------------------------------------------------------------------
+
+
+def test_inativa_alimentos_ausentes_inativa_os_ausentes(
+    arquivo_carga_alimentos_e_substitutos,
+):
+    """Alimentos ativos que não constam em nomes_processados devem ser inativados."""
+    arroz = baker.make("dieta_especial.Alimento", nome="ARROZ", ativo=True)
+    feijao = baker.make("dieta_especial.Alimento", nome="FEIJAO", ativo=True)
+    macarrao = baker.make("dieta_especial.Alimento", nome="MACARRAO", ativo=True)
+
+    processador = ProcessadorPlanilha(arquivo_carga_alimentos_e_substitutos)
+    processador.nomes_processados = {"ARROZ", "FEIJAO"}
+    processador.inativa_alimentos_ausentes()
+
+    arroz.refresh_from_db()
+    feijao.refresh_from_db()
+    macarrao.refresh_from_db()
+
+    assert arroz.ativo is True
+    assert feijao.ativo is True
+    assert macarrao.ativo is False
+
+
+def test_inativa_alimentos_ausentes_mantem_presentes_ativos(
+    arquivo_carga_alimentos_e_substitutos,
+):
+    """Alimentos cujos nomes estão em nomes_processados não devem ser alterados."""
+    arroz = baker.make("dieta_especial.Alimento", nome="ARROZ", ativo=True)
+    feijao = baker.make("dieta_especial.Alimento", nome="FEIJAO", ativo=True)
+    batata = baker.make("dieta_especial.Alimento", nome="BATATA", ativo=True)
+
+    processador = ProcessadorPlanilha(arquivo_carga_alimentos_e_substitutos)
+    processador.nomes_processados = {"ARROZ", "FEIJAO", "BATATA"}
+    processador.inativa_alimentos_ausentes()
+
+    for alimento in [arroz, feijao, batata]:
+        alimento.refresh_from_db()
+        assert alimento.ativo is True
+
+
+def test_inativa_alimentos_ausentes_ignora_ja_inativos(
+    arquivo_carga_alimentos_e_substitutos,
+):
+    """Alimentos já inativos e ausentes da planilha não devem ser reprocessados."""
+    arroz = baker.make("dieta_especial.Alimento", nome="ARROZ", ativo=True)
+    macarrao = baker.make("dieta_especial.Alimento", nome="MACARRAO", ativo=False)
+
+    processador = ProcessadorPlanilha(arquivo_carga_alimentos_e_substitutos)
+    processador.nomes_processados = {"ARROZ"}
+    processador.inativa_alimentos_ausentes()
+
+    arroz.refresh_from_db()
+    macarrao.refresh_from_db()
+
+    assert arroz.ativo is True
+    # MACARRAO já estava inativo; continua inativo e não "reativado" por engano
+    assert macarrao.ativo is False
+    # Nenhum alimento ativo foi inativado (MACARRAO já era False)
+    assert Alimento.objects.filter(ativo=True).count() == 1
+
+
+def test_processamento_completo_inativa_alimentos_ausentes(
+    arquivo_carga_alimentos_com_informacoes,
+):
+    """Após o processamento completo, alimentos do banco não presentes em nenhuma
+    das abas da planilha devem ser inativados."""
+    # Cria alimentos extras que não estão na planilha
+    macarrao = baker.make("dieta_especial.Alimento", nome="MACARRAO", ativo=True)
+    batata_doce = baker.make("dieta_especial.Alimento", nome="BATATA DOCE", ativo=True)
+
+    processador = ProcessadorPlanilha(arquivo_carga_alimentos_com_informacoes)
+    processador.processamento()
+
+    macarrao.refresh_from_db()
+    batata_doce.refresh_from_db()
+
+    assert macarrao.ativo is False
+    assert batata_doce.ativo is False
+
+
+def test_processamento_com_erros_nao_inativa_alimentos_ausentes(
+    arquivo_carga_alimentos_com_informacoes,
+):
+    """Quando o processamento encontra erros de validação nas linhas, os alimentos
+    ausentes NÃO devem ser inativados para evitar inativações indevidas."""
+    macarrao = baker.make("dieta_especial.Alimento", nome="MACARRAO", ativo=True)
+
+    processador = ProcessadorPlanilha(arquivo_carga_alimentos_com_informacoes)
+
+    # Força um erro simulado durante o processamento para acionar o guard
+    # que impede a inativação quando há linhas com falha.
+    original_processa = processador.processa_alimentos
+
+    def processa_com_erro(*args, **kwargs):
+        original_processa(*args, **kwargs)
+        processador.erros.append("Erro simulado para testar o guard")
+
+    with patch.object(processador, "inativa_alimentos_ausentes") as mock_inativa:
+        processador.processa_alimentos = processa_com_erro
+        processador.processamento()
+
+        assert len(processador.erros) > 0
+        mock_inativa.assert_not_called()
+
+    macarrao.refresh_from_db()
+    assert macarrao.ativo is True
