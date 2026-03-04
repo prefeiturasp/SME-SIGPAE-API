@@ -20,6 +20,7 @@ class ProcessadorPlanilha:
         """Prepara atributos importantes para o processamento da planilha."""
         self.arquivo = arquivo
         self.erros = []
+        self.nomes_processados = set()
 
     @property
     def path(self):
@@ -45,6 +46,8 @@ class ProcessadorPlanilha:
         self.processa_alimentos(
             worksheet=worksheet_substitutos, tipo_listagem=Alimento.SO_SUBSTITUTOS
         )
+        if not self.erros:
+            self.inativa_alimentos_ausentes()
 
     def validacao_inicial(self) -> bool:
         return self.existe_conteudo() and self.extensao_do_arquivo_esta_correta()
@@ -100,8 +103,22 @@ class ProcessadorPlanilha:
                     if alimento.tipo_listagem_protocolo != tipo_listagem:
                         alimento.tipo_listagem_protocolo = Alimento.AMBOS
                     alimento.save()
+
+                self.nomes_processados.add(alimentos_schema.nome.upper())
             except Exception as exc:
                 self.erros.append(f"Linha {ind} - {exc}")
+
+    def inativa_alimentos_ausentes(self) -> None:
+        """Inativa os alimentos que não foram encontrados em nenhuma das abas da planilha."""
+        inativados = (
+            Alimento.objects.filter(ativo=True)
+            .exclude(nome__in=self.nomes_processados)
+            .update(ativo=False)
+        )
+        if inativados:
+            logger.info(
+                f"{inativados} alimento(s) inativado(s) por não constarem na planilha."
+            )
 
     def finaliza_processamento(self) -> None:
         if self.erros:
