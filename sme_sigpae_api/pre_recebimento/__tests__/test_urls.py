@@ -3890,7 +3890,7 @@ def test_url_pdf_ficha_tecnica_flv(
     pdf_text_flv = page.extract_text()
 
     assert "Ponto a Ponto" in pdf_text_flv
-    assert "Variedade X" in pdf_text_flv
+    assert "Espécie ou Variedade Cultivada" in pdf_text_flv
 
     assert "Informações Nutricionais" not in pdf_text_flv
 
