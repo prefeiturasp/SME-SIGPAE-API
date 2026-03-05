@@ -657,9 +657,7 @@ class SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer(
         return (
             obj.nome_protocolo
             if obj.nome_protocolo
-            else (
-                obj.protocolo_padrao.nome_protocolo if obj.protocolo_padrao else ""
-            )
+            else (obj.protocolo_padrao.nome_protocolo if obj.protocolo_padrao else "")
         )
 
     def get_data_ultimo_log(self, obj):
@@ -729,9 +727,7 @@ class SolicitacaoDietaEspecialExportXLSXSerializer(serializers.ModelSerializer):
         return (
             obj.nome_protocolo
             if obj.nome_protocolo
-            else (
-                obj.protocolo_padrao.nome_protocolo if obj.protocolo_padrao else ""
-            )
+            else (obj.protocolo_padrao.nome_protocolo if obj.protocolo_padrao else "")
         )
 
     def get_data_ultimo_log(self, obj):
@@ -867,9 +863,7 @@ class SolicitacaoDietaEspecialRelatorioTercSerializer(serializers.ModelSerialize
         return (
             obj.nome_protocolo
             if obj.nome_protocolo
-            else (
-                obj.protocolo_padrao.nome_protocolo if obj.protocolo_padrao else ""
-            )
+            else (obj.protocolo_padrao.nome_protocolo if obj.protocolo_padrao else "")
         )
 
     def get_data_ultimo_log(self, obj):
@@ -994,7 +988,7 @@ class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer(
         slug_field="nome", required=False, queryset=PeriodoEscolar.objects.all()
     )
     faixa_etaria = FaixaEtariaSerializer()
-    
+
     def get_dia(self, obj):
         dia = obj.data.day
         return f"{dia:02d}"
