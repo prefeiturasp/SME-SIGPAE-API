@@ -1343,6 +1343,7 @@ class RelatorioControleDeFrequenciaViewSet(ModelViewSet):
         escola = request.user.vinculo_atual.instituicao
         mes = request.query_params.get("mes")
         ano = request.query_params.get("ano")
+        data_referencia = datetime.date(int(ano), int(mes), 1) if mes and ano else None
 
         if mes is None or ano is None:
             return Response(
@@ -1352,7 +1353,9 @@ class RelatorioControleDeFrequenciaViewSet(ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         try:
-            escola_eh_cei_ou_cemei = escola.eh_cei or escola.eh_cemei
+            escola_eh_cei_ou_cemei = escola.eh_cei_data(
+                data_referencia
+            ) or escola.eh_cemei_data(data_referencia)
 
             if escola_eh_cei_ou_cemei:
                 log_alunos = escola.logs_alunos_matriculados_por_faixa_etaria.filter(
