@@ -18,6 +18,8 @@ from sme_sigpae_api.perfil.__tests__.conftest import (
     mocked_response_autentica_coresso_diretor_login_errado,
     mocked_response_get_dados_usuario_coresso,
     mocked_response_get_dados_usuario_coresso_adm_escola,
+    mocked_response_get_dados_usuario_coresso_cieja_assist_coord_geral,
+    mocked_response_get_dados_usuario_coresso_cieja_coordenador_geral,
     mocked_response_get_dados_usuario_coresso_cogestor,
     mocked_response_get_dados_usuario_coresso_coordenador,
     mocked_response_get_dados_usuario_coresso_gestor,
@@ -499,3 +501,59 @@ def test_login_coresso_diretor_que_vira_adm_ue(
     assert response.status_code == status.HTTP_200_OK
     usuario = Usuario.objects.get(username=data["login"])
     assert usuario.vinculo_atual.perfil.nome == ADMINISTRADOR_UE
+
+
+def test_login_coresso_cieja_coordenador_geral_tem_vinculo_diretor_ue(
+    client_autenticado_da_escola, monkeypatch
+):
+    """Usuário com descricaoCargo 'CIEJA COORDENADOR GERAL' deve ter vínculo DIRETOR_UE."""
+    data = {"login": "1234567", "password": DJANGO_ADMIN_PASSWORD}
+
+    monkeypatch.setattr(
+        AutenticacaoService,
+        "autentica",
+        lambda p1, p2: mocked_response(
+            mocked_response_autentica_coresso_diretor(), 200
+        ),
+    )
+    monkeypatch.setattr(
+        EOLServicoSGP,
+        "get_dados_usuario",
+        lambda p1: mocked_response(
+            mocked_response_get_dados_usuario_coresso_cieja_coordenador_geral(), 200
+        ),
+    )
+    response = client_autenticado_da_escola.post(
+        "/login/", content_type="application/json", data=json.dumps(data)
+    )
+    assert response.status_code == status.HTTP_200_OK
+    usuario = Usuario.objects.get(username=data["login"])
+    assert usuario.vinculo_atual.perfil.nome == DIRETOR_UE
+
+
+def test_login_coresso_cieja_assist_coord_geral_tem_vinculo_diretor_ue(
+    client_autenticado_da_escola, monkeypatch
+):
+    """Usuário com descricaoCargo 'CIEJA ASSIST COORD GERAL' deve ter vínculo DIRETOR_UE."""
+    data = {"login": "1234567", "password": DJANGO_ADMIN_PASSWORD}
+
+    monkeypatch.setattr(
+        AutenticacaoService,
+        "autentica",
+        lambda p1, p2: mocked_response(
+            mocked_response_autentica_coresso_diretor(), 200
+        ),
+    )
+    monkeypatch.setattr(
+        EOLServicoSGP,
+        "get_dados_usuario",
+        lambda p1: mocked_response(
+            mocked_response_get_dados_usuario_coresso_cieja_assist_coord_geral(), 200
+        ),
+    )
+    response = client_autenticado_da_escola.post(
+        "/login/", content_type="application/json", data=json.dumps(data)
+    )
+    assert response.status_code == status.HTTP_200_OK
+    usuario = Usuario.objects.get(username=data["login"])
+    assert usuario.vinculo_atual.perfil.nome == DIRETOR_UE
