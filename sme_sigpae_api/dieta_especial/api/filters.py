@@ -57,6 +57,7 @@ class DietaEspecialFilter(filters.FilterSet):
 
 class AlimentoFilter(filters.FilterSet):
     tipo = filters.MultipleChoiceFilter(choices=Alimento.TIPO_CHOICES)
+    ativo = filters.BooleanFilter(field_name="ativo")
 
 
 class MotivoNegacaoFilter(filters.FilterSet):
