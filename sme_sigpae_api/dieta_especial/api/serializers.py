@@ -657,9 +657,7 @@ class SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer(
         return (
             obj.nome_protocolo
             if obj.nome_protocolo
-            else (
-                obj.protocolo_padrao.nome_protocolo if obj.protocolo_padrao else ""
-            )
+            else (obj.protocolo_padrao.nome_protocolo if obj.protocolo_padrao else "")
         )
 
     def get_data_ultimo_log(self, obj):
@@ -729,9 +727,7 @@ class SolicitacaoDietaEspecialExportXLSXSerializer(serializers.ModelSerializer):
         return (
             obj.nome_protocolo
             if obj.nome_protocolo
-            else (
-                obj.protocolo_padrao.nome_protocolo if obj.protocolo_padrao else ""
-            )
+            else (obj.protocolo_padrao.nome_protocolo if obj.protocolo_padrao else "")
         )
 
     def get_data_ultimo_log(self, obj):
@@ -867,9 +863,7 @@ class SolicitacaoDietaEspecialRelatorioTercSerializer(serializers.ModelSerialize
         return (
             obj.nome_protocolo
             if obj.nome_protocolo
-            else (
-                obj.protocolo_padrao.nome_protocolo if obj.protocolo_padrao else ""
-            )
+            else (obj.protocolo_padrao.nome_protocolo if obj.protocolo_padrao else "")
         )
 
     def get_data_ultimo_log(self, obj):
@@ -983,31 +977,25 @@ class LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer(
 class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer(
     serializers.ModelSerializer
 ):
-    escola_uuid = serializers.UUIDField(source="escola.uuid", read_only=True)
-    escola_nome = serializers.CharField(source="escola.nome", read_only=True)
-    classificacao_nome = serializers.CharField(
-        source=CLASSIFICACAO_NOME_SOURCE, read_only=True
+    escola = serializers.SlugRelatedField(
+        slug_field="nome", required=False, queryset=Escola.objects.all()
     )
-    faixa_etaria_uuid = serializers.UUIDField(
-        source="faixa_etaria.uuid", read_only=True
+    classificacao = serializers.CharField(
+        source=CLASSIFICACAO_NOME_SOURCE, required=False
     )
-    faixa_etaria_nome = serializers.CharField(
-        source="faixa_etaria.__str__", read_only=True
+    dia = serializers.SerializerMethodField()
+    periodo_escolar = serializers.SlugRelatedField(
+        slug_field="nome", required=False, queryset=PeriodoEscolar.objects.all()
     )
+    faixa_etaria = FaixaEtariaSerializer()
+
+    def get_dia(self, obj):
+        dia = obj.data.day
+        return f"{dia:02d}"
 
     class Meta:
         model = LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI
-        fields = (
-            "uuid",
-            "data",
-            "escola_uuid",
-            "escola_nome",
-            "classificacao",
-            "classificacao_nome",
-            "faixa_etaria_uuid",
-            "faixa_etaria_nome",
-            "quantidade",
-        )
+        exclude = ("id", "uuid")
 
 
 class UnidadeEducacionalSerializer(serializers.Serializer):
