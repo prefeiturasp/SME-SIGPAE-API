@@ -202,4 +202,106 @@ describe('Validar rotas de Terceirizadas da aplicação SIGPAE', () => {
 			)
 		})
 	})
+
+	context('Rota api/terceirizadas/listagens', () => {
+		it('Validar GET com sucesso de Terceirizadas Emails Por Módulo', () => {
+			cy.consultar_terceirizadas_emails_modulos().then((response) => {
+				expect(response.status).to.eq(200)
+				expect(response.body).to.have.property('count')
+				expect(response.body).to.have.property('next')
+				expect(response.body).to.have.property('previous')
+				expect(response.body).to.have.property('results')
+				expect(response.body.results).to.be.an('array')
+				expect(response.body.results[0]).to.have.property('uuid')
+				expect(response.body.results[0]).to.have.property('razao_social')
+				expect(response.body.results[0])
+					.to.have.property('emails_terceirizadas')
+					.to.be.an('array')
+			})
+		})
+
+		it('Validar GET com sucesso de Terceirizadas Lista CNPJs', () => {
+			cy.consultar_terceirizadas_lista_cnpjs().then((response) => {
+				expect(response.status).to.eq(200)
+				expect(response.body).to.have.property('results')
+				expect(response.body.results).to.be.an('array')
+			})
+		})
+
+		it('Validar GET com sucesso de Terceirizadas Lista Empresas Cronograma', () => {
+			cy.consultar_terceirizadas_empresas_cronogramas().then((response) => {
+				expect(response.status).to.eq(200)
+				expect(response.body).to.have.property('results')
+				expect(response.body.results).to.be.an('array')
+				expect(response.body.results[0]).to.have.property('uuid')
+				expect(response.body.results[0]).to.have.property('cnpj')
+				expect(response.body.results[0]).to.have.property('nome_fantasia')
+				expect(response.body.results[0])
+					.to.have.property('contatos')
+					.to.be.an('array')
+				expect(response.body.results[0])
+					.to.have.property('contratos')
+					.to.be.an('array')
+			})
+		})
+
+		it('Validar GET com sucesso de Terceirizadas Lista Nomes', () => {
+			cy.consultar_terceirizadas_lista_nomes().then((response) => {
+				expect(response.status).to.eq(200)
+				expect(response.body).to.have.property('results')
+				expect(response.body.results).to.be.an('array')
+				expect(response.body.results[0]).to.have.property('uuid')
+				expect(response.body.results[0]).to.have.property('cnpj')
+				expect(response.body.results[0]).to.have.property('nome_fantasia')
+				expect(response.body.results[0])
+					.to.have.property('contatos')
+					.to.be.an('array')
+				expect(response.body.results[0])
+					.to.have.property('contratos')
+					.to.be.an('array')
+			})
+		})
+
+		it('Validar GET com sucesso de Terceirizadas Lista Nomes Distribuidores', () => {
+			cy.consultar_terceirizadas_lista_nomes_distribuidores().then(
+				(response) => {
+					expect(response.status).to.eq(200)
+					expect(response.body).to.have.property('results')
+					expect(response.body.results).to.be.an('array')
+					expect(response.body.results[0]).to.have.property('uuid')
+					expect(response.body.results[0]).to.have.property('nome_fantasia')
+					expect(response.body.results[0]).to.have.property('razao_social')
+				},
+			)
+		})
+
+		it('Validar GET com sucesso de Terceirizadas Lista Simples', () => {
+			cy.consultar_terceirizadas_lista_simples().then((response) => {
+				expect(response.status).to.eq(200)
+				expect(response.body).to.have.property('results')
+				expect(response.body.results).to.be.an('array')
+				expect(response.body.results[0]).to.have.property('uuid')
+				expect(response.body.results[0]).to.have.property('nome_fantasia')
+				expect(response.body.results[0]).to.have.property('razao_social')
+			})
+		})
+
+		it('Validar GET com sucesso de Terceirizadas Relatório Quantitativo', () => {
+			cy.consultar_terceirizadas_relatorio_quantitativo().then((response) => {
+				expect(response.status).to.eq(200)
+				expect(response.body).to.have.property('results')
+				expect(response.body.results).to.be.an('array')
+				expect(response.body.results[0]).to.have.property('nome_terceirizada')
+				expect(response.body.results[0])
+					.to.have.property('qtde_por_status')
+					.to.be.an('array')
+				expect(response.body.results[0].qtde_por_status[0]).to.have.property(
+					'status',
+				)
+				expect(response.body.results[0].qtde_por_status[0]).to.have.property(
+					'qtde',
+				)
+			})
+		})
+	})
 })
