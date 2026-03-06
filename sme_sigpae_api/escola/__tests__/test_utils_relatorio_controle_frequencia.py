@@ -133,9 +133,9 @@ class TestAlunoPertenceAEscola:
 
     def test_historico_com_data_fim_posterior_ao_data_final_param_retorna_true(self):
         """
-        Historico mais recente: escola=A, data_fim=2026-03-10.
-        data_final param = 2026-03-07 → data_fim (10) > data_final (7) → True.
-        O aluno ainda estava matriculado durante todo o período consultado.
+        Historico: escola=A, data_inicio=01/01/2026, data_fim=10/03/2026.
+        Intervalo consultado: 01/03/2026 a 07/03/2026.
+        Sobreposição: 01/03 <= 10/03 E 01/01 <= 07/03 → True.
         """
         escola_a = EscolaFactory()
         escola_b = EscolaFactory()
@@ -148,14 +148,21 @@ class TestAlunoPertenceAEscola:
             data_fim=datetime.date(2026, 3, 10),
         )
 
+        data_inicial = datetime.date(2026, 3, 1)
         data_final = datetime.date(2026, 3, 7)
-        assert aluno_pertence_a_escola(aluno, escola_a, data_final=data_final) is True
+        assert (
+            aluno_pertence_a_escola(
+                aluno, escola_a, data_inicial=data_inicial, data_final=data_final
+            )
+            is True
+        )
 
     def test_historico_com_data_fim_anterior_ao_data_final_param_retorna_false(self):
         """
-        Historico mais recente: escola=A, data_fim=2026-03-05.
-        data_final param = 2026-03-07 → data_fim (5) não > data_final (7) → False.
-        O aluno saiu antes do fim do período consultado.
+        Historico: escola=A, data_inicio=01/01/2026, data_fim=28/02/2026.
+        Intervalo consultado: 01/03/2026 a 07/03/2026.
+        Sobreposição: 01/03 <= 28/02? Não → False.
+        O aluno saiu antes do início do período consultado.
         """
         escola_a = EscolaFactory()
         escola_b = EscolaFactory()
@@ -165,16 +172,22 @@ class TestAlunoPertenceAEscola:
             aluno=aluno,
             escola=escola_a,
             data_inicio=datetime.date(2026, 1, 1),
-            data_fim=datetime.date(2026, 3, 5),
+            data_fim=datetime.date(2026, 2, 28),
         )
 
+        data_inicial = datetime.date(2026, 3, 1)
         data_final = datetime.date(2026, 3, 7)
-        assert aluno_pertence_a_escola(aluno, escola_a, data_final=data_final) is False
+        assert (
+            aluno_pertence_a_escola(
+                aluno, escola_a, data_inicial=data_inicial, data_final=data_final
+            )
+            is False
+        )
 
-    def test_historico_com_data_fim_sem_data_final_param_retorna_false(self):
+    def test_historico_com_data_fim_sem_params_de_data_retorna_false(self):
         """
-        Historico mais recente: escola=A, data_fim definida, mas sem data_final param.
-        Sem param, apenas data_fim=None é aceito → False.
+        Historico mais recente: escola=A, data_fim definida, sem params de data.
+        Sem intervalo, apenas data_fim=None é aceito → False.
         """
         escola_a = EscolaFactory()
         escola_b = EscolaFactory()
@@ -187,7 +200,7 @@ class TestAlunoPertenceAEscola:
             data_fim=datetime.date(2026, 3, 10),
         )
 
-        assert aluno_pertence_a_escola(aluno, escola_a, data_final=None) is False
+        assert aluno_pertence_a_escola(aluno, escola_a) is False
 
     def test_aluno_sem_historico_e_escola_fk_igual_retorna_true(self):
         """Aluno sem nenhum historico, mas FK direta bate → True."""
@@ -330,8 +343,8 @@ class TestColetaAlunosPorDia:
 
     def test_aluno_com_data_fim_historico_posterior_ao_data_final_aparece(self):
         """
-        data_final param = 2026-03-07, historico data_fim = 2026-03-10 → aparece.
-        O aluno estava matriculado em toda a faixa consultada.
+        Historico: data_inicio=01/01/2026, data_fim=10/03/2026.
+        Intervalo consultado: 01/03 a 07/03 → sobreposição → aparece.
         """
         escola_a = EscolaFactory()
         escola_b = EscolaFactory()
@@ -347,19 +360,26 @@ class TestColetaAlunosPorDia:
         log_faixa = self._cria_log_faixa_dia(escola_a, data=datetime.date(2026, 3, 1))
         _cria_log_aluno_por_dia(log_faixa, aluno)
 
+        data_inicial = datetime.date(2026, 3, 1)
         data_final = datetime.date(2026, 3, 7)
         alunos_por_dia = []
         alunos_por_faixa = []
         _coleta_alunos_por_dia(
-            log_faixa, alunos_por_dia, alunos_por_faixa, escola_a, data_final
+            log_faixa,
+            alunos_por_dia,
+            alunos_por_faixa,
+            escola_a,
+            data_inicial,
+            data_final,
         )
 
         assert _formata_nome_aluno(aluno) in alunos_por_dia
 
     def test_aluno_com_data_fim_historico_anterior_ao_data_final_nao_aparece(self):
         """
-        data_final param = 2026-03-07, historico data_fim = 2026-03-05 → não aparece.
-        O aluno saiu antes do fim do período consultado.
+        Historico: data_inicio=01/01/2026, data_fim=28/02/2026.
+        Intervalo consultado: 01/03 a 07/03 → sem sobreposição → não aparece.
+        O aluno saiu antes do início do período consultado.
         """
         escola_a = EscolaFactory()
         escola_b = EscolaFactory()
@@ -369,17 +389,23 @@ class TestColetaAlunosPorDia:
             aluno=aluno,
             escola=escola_a,
             data_inicio=datetime.date(2026, 1, 1),
-            data_fim=datetime.date(2026, 3, 5),
+            data_fim=datetime.date(2026, 2, 28),
         )
 
         log_faixa = self._cria_log_faixa_dia(escola_a, data=datetime.date(2026, 3, 1))
         _cria_log_aluno_por_dia(log_faixa, aluno)
 
+        data_inicial = datetime.date(2026, 3, 1)
         data_final = datetime.date(2026, 3, 7)
         alunos_por_dia = []
         alunos_por_faixa = []
         _coleta_alunos_por_dia(
-            log_faixa, alunos_por_dia, alunos_por_faixa, escola_a, data_final
+            log_faixa,
+            alunos_por_dia,
+            alunos_por_faixa,
+            escola_a,
+            data_inicial,
+            data_final,
         )
 
         assert _formata_nome_aluno(aluno) not in alunos_por_dia
@@ -397,7 +423,12 @@ class TestColetaAlunosPorDia:
         alunos_por_dia = []
         alunos_por_faixa = []
         _coleta_alunos_por_dia(
-            log_faixa, alunos_por_dia, alunos_por_faixa, escola=None, data_final=None
+            log_faixa,
+            alunos_por_dia,
+            alunos_por_faixa,
+            escola=None,
+            data_inicial=None,
+            data_final=None,
         )
 
         assert len(alunos_por_dia) == 2
