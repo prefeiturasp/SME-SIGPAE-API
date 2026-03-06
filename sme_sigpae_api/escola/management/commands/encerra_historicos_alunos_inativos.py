@@ -35,9 +35,7 @@ class Command(BaseCommand):
     headers = {"x-api-eol-key": f"{DJANGO_EOL_SGP_API_TOKEN}"}
 
     def handle(self, *args, **options):
-        escolas = Escola.objects.filter(
-            nome="CEI DIRET ENEDINA DE SOUSA CARVALHO"
-        ).all()
+        escolas = Escola.objects.all()
         total = escolas.count()
         self.stdout.write(f"Processando {total} escolas...")
 
