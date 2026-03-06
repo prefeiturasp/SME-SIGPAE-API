@@ -384,41 +384,28 @@ class AnaliseFichaTecnica(ModeloBase, CriadoPor):
 
     @property
     def aprovada(self):
-        return (
-            (
-                self.fabricante_envasador_conferido is True
-                and not self.fabricante_envasador_correcoes
-            )
-            and (
-                self.detalhes_produto_conferido is True
-                and not self.detalhes_produto_correcoes
-            )
-            and (
-                self.informacoes_nutricionais_conferido is True
-                and not self.informacoes_nutricionais_correcoes
-            )
-            and (self.conservacao_conferido is True and not self.conservacao_correcoes)
-            and (
-                self.temperatura_e_transporte_conferido in [True, None]
-                and not self.temperatura_e_transporte_correcoes
-            )
-            and (
-                self.armazenamento_conferido is True
-                and not self.armazenamento_correcoes
-            )
-            and (
-                self.embalagem_e_rotulagem_conferido is True
-                and not self.embalagem_e_rotulagem_correcoes
-            )
-            and (
-                self.responsavel_tecnico_conferido is True
-                and not self.responsavel_tecnico_correcoes
-            )
-            and (
-                self.modo_preparo_conferido is True and not self.modo_preparo_correcoes
-            )
+        valido = (
+            (self.fabricante_envasador_conferido is True and not self.fabricante_envasador_correcoes)
+            and (self.detalhes_produto_conferido is True and not self.detalhes_produto_correcoes)
+            and (self.temperatura_e_transporte_conferido in [True, None] and not self.temperatura_e_transporte_correcoes)
+            and (self.responsavel_tecnico_conferido is True and not self.responsavel_tecnico_correcoes)
             and self.outras_informacoes_conferido is True
         )
+
+        if not valido:
+            return False
+
+        if self.ficha_tecnica.categoria != "FLV":
+            valido_extra = (
+                (self.informacoes_nutricionais_conferido is True and not self.informacoes_nutricionais_correcoes)
+                and (self.conservacao_conferido is True and not self.conservacao_correcoes)
+                and (self.armazenamento_conferido is True and not self.armazenamento_correcoes)
+                and (self.embalagem_e_rotulagem_conferido is True and not self.embalagem_e_rotulagem_correcoes)
+                and (self.modo_preparo_conferido is True and not self.modo_preparo_correcoes)
+            )
+            return valido_extra
+
+        return True
 
     class Meta:
         verbose_name = "Análise da Ficha Técnica"
