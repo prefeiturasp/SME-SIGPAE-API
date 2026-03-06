@@ -1167,7 +1167,7 @@ def payload_base(produto_arroz, empresa, unidade_medida_logistica):
 
 
 @pytest.fixture
-def payload_base_flv(produto_arroz, empresa, unidade_medida_logistica):
+def payload_base_flv(produto_arroz, empresa):
     return {
         "produto": produto_arroz.uuid,
         "categoria": FichaTecnicaDoProduto.CATEGORIA_FLV,
@@ -1182,6 +1182,21 @@ def payload_base_flv(produto_arroz, empresa, unidade_medida_logistica):
         "numero_registro_orgao": "456",
         "arquivo": "file.pdf",
     }
+
+
+@pytest.fixture
+def ficha_tecnica_flv(produto_arroz, empresa):
+    """Fixture para ficha técnica de FLV"""
+    return baker.make(
+        "FichaTecnicaDoProduto",
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
+        programa=FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR,
+        especie_variedade="Variedade X",
+        produto=produto_arroz,
+        pregao_chamada_publica="123",
+        empresa=empresa
+    )
 
 
 @pytest.fixture
