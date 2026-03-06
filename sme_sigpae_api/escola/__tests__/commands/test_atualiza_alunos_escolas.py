@@ -1,3 +1,4 @@
+import datetime
 import json
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
@@ -384,6 +385,75 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         assert aluno_atualizado.desc_ciclo == "ALFABETIZACAO"
         assert aluno_atualizado.escola == escola
         assert aluno_atualizado.nao_matriculado is False
+
+    @freeze_time("2025-01-01")
+    @patch(
+        "sme_sigpae_api.escola.management.commands.atualiza_alunos_escolas.Command.get_response_alunos_por_escola"
+    )
+    @pytest.mark.django_db
+    def test_d_menos_1_cria_novo_historico_quando_historico_encerrado_e_aluno_ativo(
+        self,
+        mock_get_response_alunos_por_escola,
+    ) -> None:
+        """Testa que um novo histórico ativo é criado quando o aluno está ativo na
+        escola mas possui apenas histórico encerrado (data_fim != None).
+        Garante a correção do bug onde _lida_com_matricula_aluno_existente não
+        criava um novo histórico nesse cenário."""
+        escola = EscolaFactory.create(codigo_eol="000098")
+        aluno = AlunoFactory.create(
+            codigo_eol="3333333",
+            nome="ALUNO RETORNO TESTE",
+            periodo_escolar=self.periodo_escolar_manha,
+            escola=escola,
+            data_nascimento="2018-05-10",
+        )
+        HistoricoMatriculaAlunoFactory.create(
+            aluno=aluno,
+            escola=escola,
+            data_fim=datetime.date(2024, 12, 31),
+            codigo_situacao=5,
+        )
+
+        mock_data = [
+            {
+                "codigoAluno": 3333333,
+                "tipoTurno": 1,
+                "anoLetivo": 2025,
+                "nomeAluno": "ALUNO RETORNO TESTE",
+                "nomeSocialAluno": None,
+                "codigoSituacaoMatricula": 1,
+                "situacaoMatricula": "Ativo",
+                "dataSituacao": "2025-01-02T08:00:00",
+                "dataNascimento": "2018-05-10T00:00:00",
+                "numeroAlunoChamada": "001",
+                "codigoTurma": 9999001,
+                "nomeResponsavel": None,
+                "tipoResponsavel": None,
+                "celularResponsavel": None,
+                "dataAtualizacaoContato": "0001-01-01T00:00:00",
+                "codigoTipoTurma": 1,
+                "turmaNome": "3A",
+                "etapaEnsino": 2,
+                "cicloEnsino": 3,
+                "descEtapaEnsino": "ENSINO FUNDAMENTAL",
+                "descCicloEnsino": "ALFABETIZACAO",
+                "dataAtualizacaoTabela": "0001-01-01T00:00:00",
+            }
+        ]
+
+        def side_effect_fn(cod_eol, ano_param=None):
+            if cod_eol == "000098" and ano_param is None:
+                return mocked_response(mock_data, 200)
+            return mocked_response({}, 404)
+
+        mock_get_response_alunos_por_escola.side_effect = side_effect_fn
+        self.call_command()
+
+        aluno_atualizado = Aluno.objects.get(codigo_eol="3333333")
+        # Deve ter o histórico antigo (encerrado) + novo histórico ativo
+        assert aluno_atualizado.historico.count() == 2
+        assert aluno_atualizado.historico.filter(data_fim__isnull=True).exists()
+        assert aluno_atualizado.historico.filter(data_fim__isnull=False).count() == 1
 
 
 class TestObtemAlunosEscola(TestCase):

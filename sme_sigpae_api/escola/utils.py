@@ -593,6 +593,15 @@ def trata_filtro_data_relatorio_controle_frequencia_pdf(
     ) != query_params.get("data_final"):
         if dia_inicial and int(dia_inicial) >= hoje.day:
             filtros["data"] = ontem
+        else:
+            filtros["data__gte"] = query_params.get("data_inicial")
+            data_final_str = query_params.get("data_final")
+            if data_final_str:
+                ano_f, mes_f, dia_f = data_final_str.split("-")
+                data_final_date = date(int(ano_f), int(mes_f), int(dia_f))
+                filtros["data__lte"] = str(min(data_final_date, ontem))
+            else:
+                filtros["data__lte"] = str(ontem)
     else:
         filtros["data__gte"] = query_params.get("data_inicial", f"{ano}-{mes}-{'01'}")
         filtros["data__lte"] = query_params.get("data_final", f"{ano}-{mes}-{num_dias}")
@@ -621,6 +630,30 @@ def dias_append(dias, dia, alunos_por_dia):
     )
 
 
+def aluno_pertence_a_escola(aluno, escola, data_inicial=None, data_final=None):
+    from .models import HistoricoMatriculaAluno
+
+    if aluno.escola_id == escola.id:
+        return True
+    historico_mais_recente = (
+        HistoricoMatriculaAluno.objects.filter(aluno=aluno)
+        .order_by("-data_inicio")
+        .first()
+    )
+    if historico_mais_recente is None or historico_mais_recente.escola_id != escola.id:
+        return False
+    if historico_mais_recente.data_fim is None:
+        return True
+    if data_inicial is not None and data_final is not None:
+        # Qualquer dia do intervalo [data_inicial, data_final] contido em
+        # [historico.data_inicio, historico.data_fim] → exibe o aluno.
+        return (
+            data_inicial <= historico_mais_recente.data_fim
+            and historico_mais_recente.data_inicio <= data_final
+        )
+    return False
+
+
 def trata_dados_futuro_mes_atual(
     queryset_periodo_faixa,
     log_periodo_faixa,
@@ -645,6 +678,39 @@ def trata_dados_futuro_mes_atual(
                 dia += 1
 
 
+def _coleta_alunos_por_dia(
+    log_periodo_faixa,
+    alunos_por_dia,
+    alunos_por_faixa,
+    escola,
+    data_inicial=None,
+    data_final=None,
+):
+    for log_aluno_dia in log_periodo_faixa.logs_alunos_por_dia.all():
+        if escola and not aluno_pertence_a_escola(
+            log_aluno_dia.aluno, escola, data_inicial, data_final
+        ):
+            continue
+        data_nascimento = log_aluno_dia.aluno.data_nascimento
+        aluno = f"{log_aluno_dia.aluno.nome} - {data_nascimento.day:02d}/{data_nascimento.month:02d}/{data_nascimento.year}"
+        alunos_por_dia.append(aluno)
+        alunos_por_faixa_append(alunos_por_faixa, aluno)
+
+
+def _append_dias_mes_seguinte(dias, alunos_por_dia, query_params, num_dias):
+    dia = 1
+    if query_params.get("data_inicial"):
+        _, _, dia_inicial = query_params.get("data_inicial").split("-")
+        dia = int(dia_inicial)
+        num_dias = 1
+    if query_params.get("data_final"):
+        _, _, dia_final = query_params.get("data_final").split("-")
+        num_dias = int(dia_final)
+    while dia <= num_dias:
+        dias_append(dias, dia, alunos_por_dia)
+        dia += 1
+
+
 def trata_dados_futuro(
     mes_atual,
     log_periodo_faixa,
@@ -655,18 +721,21 @@ def trata_dados_futuro(
     queryset_periodo,
     queryset_periodo_faixa,
     uuid_faixas,
+    escola=None,
+    data_inicial=None,
+    data_final=None,
 ):
-    for log_aluno_dia in log_periodo_faixa.logs_alunos_por_dia.all():
-        data_nascimento = log_aluno_dia.aluno.data_nascimento
-        aluno = f"{log_aluno_dia.aluno.nome} - {data_nascimento.day:02d}/{data_nascimento.month:02d}/{data_nascimento.year}"
-        alunos_por_dia.append(aluno)
-        alunos_por_faixa_append(alunos_por_faixa, aluno)
+    _coleta_alunos_por_dia(
+        log_periodo_faixa,
+        alunos_por_dia,
+        alunos_por_faixa,
+        escola,
+        data_inicial,
+        data_final,
+    )
     mes_ano = query_params.get("mes_ano")
     mes, ano = mes_ano.split("_")
-    _, num_dias = monthrange(
-        int(ano),
-        int(mes),
-    )
+    _, num_dias = monthrange(int(ano), int(mes))
     if mes_atual:
         dias_append(dias, log_periodo_faixa.data.day, alunos_por_dia)
         trata_dados_futuro_mes_atual(
@@ -678,23 +747,65 @@ def trata_dados_futuro(
             query_params,
         )
     else:
-        dia = 1
-        if query_params.get("data_inicial"):
-            _, _, dia_inicial = query_params.get("data_inicial").split("-")
-            dia = int(dia_inicial)
-            num_dias = 1
-        if query_params.get("data_final"):
-            _, _, dia_final = query_params.get("data_final").split("-")
-            num_dias = int(dia_final)
-        while dia <= num_dias:
-            dias_append(dias, dia, alunos_por_dia)
-            dia += 1
+        _append_dias_mes_seguinte(dias, alunos_por_dia, query_params, num_dias)
+
+
+def _processa_log_periodo_faixa(
+    log_periodo_faixa,
+    mes_seguinte,
+    mes_atual,
+    alunos_por_faixa,
+    dias,
+    query_params,
+    queryset_periodo,
+    queryset_periodo_faixa,
+    uuid_faixas,
+    escola,
+    data_inicial_param,
+    data_final_param,
+):
+    alunos_por_dia = []
+    if mes_seguinte or mes_atual:
+        trata_dados_futuro(
+            mes_atual,
+            log_periodo_faixa,
+            alunos_por_dia,
+            alunos_por_faixa,
+            dias,
+            query_params,
+            queryset_periodo,
+            queryset_periodo_faixa,
+            uuid_faixas,
+            escola=escola,
+            data_inicial=data_inicial_param,
+            data_final=data_final_param,
+        )
+    else:
+        _coleta_alunos_por_dia(
+            log_periodo_faixa,
+            alunos_por_dia,
+            alunos_por_faixa,
+            escola,
+            data_inicial_param,
+            data_final_param,
+        )
+        dias_append(dias, log_periodo_faixa.data.day, alunos_por_dia)
 
 
 def formata_periodos_pdf_controle_frequencia(
     qtd_matriculados, queryset, query_params, escola, mes_seguinte
 ):
     from .models import FaixaEtaria
+
+    data_inicial_param = None
+    if query_params.get("data_inicial"):
+        ano_i, mes_i, dia_i = query_params.get("data_inicial").split("-")
+        data_inicial_param = date(int(ano_i), int(mes_i), int(dia_i))
+
+    data_final_param = None
+    if query_params.get("data_final"):
+        ano_f, mes_f, dia_f = query_params.get("data_final").split("-")
+        data_final_param = date(int(ano_f), int(mes_f), int(dia_f))
 
     periodos = []
     mes_atual = eh_mes_atual(query_params)
@@ -711,26 +822,20 @@ def formata_periodos_pdf_controle_frequencia(
             dias = []
             alunos_por_faixa = []
             for log_periodo_faixa in queryset_periodo_faixa:
-                alunos_por_dia = []
-                if mes_seguinte or mes_atual:
-                    trata_dados_futuro(
-                        mes_atual,
-                        log_periodo_faixa,
-                        alunos_por_dia,
-                        alunos_por_faixa,
-                        dias,
-                        query_params,
-                        queryset_periodo,
-                        queryset_periodo_faixa,
-                        uuid_faixas,
-                    )
-                else:
-                    for log_aluno_dia in log_periodo_faixa.logs_alunos_por_dia.all():
-                        data_nascimento = log_aluno_dia.aluno.data_nascimento
-                        aluno = f"{log_aluno_dia.aluno.nome} - {data_nascimento.day:02d}/{data_nascimento.month:02d}/{data_nascimento.year}"
-                        alunos_por_dia.append(aluno)
-                        alunos_por_faixa_append(alunos_por_faixa, aluno)
-                    dias_append(dias, log_periodo_faixa.data.day, alunos_por_dia)
+                _processa_log_periodo_faixa(
+                    log_periodo_faixa,
+                    mes_seguinte,
+                    mes_atual,
+                    alunos_por_faixa,
+                    dias,
+                    query_params,
+                    queryset_periodo,
+                    queryset_periodo_faixa,
+                    uuid_faixas,
+                    escola,
+                    data_inicial_param,
+                    data_final_param,
+                )
             faixas.append(
                 {
                     "nome_faixa": FaixaEtaria.objects.get(uuid=uuid_faixa).__str__(),
@@ -761,13 +866,12 @@ def ordena_faixas_por_idade(periodos: list) -> list:
         "06 meses": 5,
         "07 a 11 meses": 6,
         "1 a 3 anos e 11 meses": 7,
-        "4 a 6 anos": 8
+        "4 a 6 anos": 8,
     }
 
     for periodo in periodos:
         periodo["faixas"] = sorted(
-            periodo["faixas"],
-            key=lambda f: ORDEM_FAIXA_ETARIA.get(f["nome_faixa"], 99)
+            periodo["faixas"], key=lambda f: ORDEM_FAIXA_ETARIA.get(f["nome_faixa"], 99)
         )
     return periodos
 
