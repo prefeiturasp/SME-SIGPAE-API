@@ -81,10 +81,12 @@
       <h5 class="title titulo-secao separator">DETALHES DO PRODUTO</h5>
 
       <div class="content">
-
-        <div class="row pb-3">
-          <div class="col-12">Prazo de Validade: <span class="font-weight-bold"> {{ficha.prazo_validade}}</span> </div>
-        </div>
+        
+        {% if ficha.categoria != "FLV" %}
+          <div class="row pb-3">
+            <div class="col-12">Prazo de Validade: <span class="font-weight-bold"> {{ficha.prazo_validade}}</span> </div>
+          </div>
+        {% endif %}
 
         <div class="row pb-3">
           <div class="col-12">
@@ -99,319 +101,330 @@
             <span class="font-weight-bold"> {{ ficha.organico |yesno:"SIM,NÃO" }}</span>
           </div>
           {% if ficha.organico %}
-          <div class="col-8">
-            Qual é o mecanismo de controle?
-            <span class="font-weight-bold"> {{ficha.mecanismo_controle}}</span>
+            <div class="col-8">
+              Qual é o mecanismo de controle?
+              <span class="font-weight-bold"> {{ficha.mecanismo_controle}}</span>
+            </div>
+          {% endif %}
+        </div>
+
+        {% if ficha.categoria != "FLV" %}
+          <div class="row pb-3">
+            <div class="col-12">Componentes do Produto: <span class="font-weight-bold"> {{ficha.componentes_produto}}</span> </div>
           </div>
-        {% endif %}
-        </div>
 
-        <div class="row pb-3">
-          <div class="col-12">Componentes do Produto: <span class="font-weight-bold"> {{ficha.componentes_produto}}</span> </div>
-        </div>
-
-        <div class="row pb-3">
-          <div class="col-12">
-            O Produto contém ou pode conter ingredientes/aditivos alergênicos?
-            <span class="font-weight-bold"> {{ ficha.alergenicos |yesno:"SIM,NÃO" }}</span>
-          </div>
-        </div>
-
-        {% if ficha.alergenicos %}
           <div class="row pb-3">
             <div class="col-12">
-              Quais ingredientes/aditivos alergênicos? Indicar conforme a RDC Nº727/22, Anvisa.
-              <span class="font-weight-bold"> {{ ficha.ingredientes_alergenicos }}</span>
+              O Produto contém ou pode conter ingredientes/aditivos alergênicos?
+              <span class="font-weight-bold"> {{ ficha.alergenicos |yesno:"SIM,NÃO" }}</span>
+            </div>
+          </div>
+
+          {% if ficha.alergenicos %}
+            <div class="row pb-3">
+              <div class="col-12">
+                Quais ingredientes/aditivos alergênicos? Indicar conforme a RDC Nº727/22, Anvisa.
+                <span class="font-weight-bold"> {{ ficha.ingredientes_alergenicos }}</span>
+              </div>
+            </div>
+          {% endif %}
+
+          <div class="row pb-3">
+            <div class="col-12">
+              O Produto contém glúten? Indicar conforme Lei Federal Nº 10.674/03, Anvisa.
+              <span class="font-weight-bold"> {{ ficha.gluten |yesno:"SIM,NÃO" }}</span>
+            </div>
+          </div>
+
+          <div class="row pb-3">
+            <div class="col-12">O Produto contém lactose?
+              <span class="font-weight-bold"> {{ ficha.lactose |yesno:"SIM,NÃO" }}</span>
+            </div>
+          </div>
+
+          {% if ficha.lactose %}
+            <div class="row pb-3">
+              <div class="col-12">
+                Detalhar: Indicar conforme a RDC Nº 727/22, Anvisa.
+                <span class="font-weight-bold"> {{ ficha.lactose_detalhe }}</span>
+              </div>
+            </div>
+          {% endif %}
+        {% endif %}
+
+        {% if ficha.categoria == "FLV" %}
+          <div class="row pb-3">
+            <div class="col-12">Espécie ou Variedade Cultivada:
+              <span class="font-weight-bold"> {{ ficha.especie_variedade }}</span>
             </div>
           </div>
         {% endif %}
-
-        <div class="row pb-3">
-          <div class="col-12">
-            O Produto contém glúten? Indicar conforme Lei Federal Nº 10.674/03, Anvisa.
-            <span class="font-weight-bold"> {{ ficha.gluten |yesno:"SIM,NÃO" }}</span>
-          </div>
-        </div>
-
-        <div class="row pb-3">
-          <div class="col-12">O Produto contém lactose?
-            <span class="font-weight-bold"> {{ ficha.lactose |yesno:"SIM,NÃO" }}</span>
-          </div>
-        </div>
-
-        {% if ficha.lactose %}
-          <div class="row pb-3">
-            <div class="col-12">
-              Detalhar: Indicar conforme a RDC Nº 727/22, Anvisa.
-              <span class="font-weight-bold"> {{ ficha.lactose_detalhe }}</span>
-            </div>
-          </div>
-        {% endif %}
-
       </div>
 
     </div>
 
-    <div id="dados_nutricionais" style="page-break-before: always;">
-      <h5 class="title titulo-secao separator">INFORMAÇÕES NUTRICIONAIS</h5>
-
-      <div class="content">
-        <div class="row pb-3">
-          <div class="col-6">
-            Porção:
-            <span class="font-weight-bold">
-              {{ficha.porcao}} {{ficha.unidade_medida_porcao.abreviacao}}
-            </span>
-          </div>
-          <div class="col-6">
-            Unidade Caseira:
-            <span class="font-weight-bold">
-              {{ficha.valor_unidade_caseira}} {{ficha.unidade_medida_caseira}}
-            </span>
-          </div>
-        </div>
-
-        <div class="table-responsive-sm">
-          <table class="table table-lg table-bordered table-cronograma">
-            <thead>
-              <tr>
-                <th scope="col">Informação Nutricional</th>
-                <th scope="col">Quantidade por 100g</th>
-                <th scope="col">Quantidade por porção</th>
-                <th scope="col">%VD(*)</th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for info in tabela %}
-              <tr>
-
-                <td 
-                  class="{% if info.informacao_nutricional.nome == 'AÇÚCARES ADICIONADOS' %} pl-4 
-                  {% elif info.informacao_nutricional.eh_dependente %} pl-3 {%endif%}"
-                >
-                  {{info.informacao_nutricional.nome}}
-                </td>
-                <td>{{info.quantidade_por_100g}} {{info.informacao_nutricional.medida}}</td>
-                <td>
-                  {{info.quantidade_porcao}} {{info.informacao_nutricional.medida}}
-                  {% if info.informacao_nutricional.tipo_nutricional.nome == "CALORIA" %}
-                    =
-                    {{ info.quantidade_porcao | multiply:4.2 }} kJ
-                  {% endif %}
-                </td>
-                <td>{{info.valor_diario}}%</td>
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
-          <div class="rodape-tabela">
-            <div>* % Valores Diários com base em uma dieta de 2.000kcal ou 8.400kJ. Seus Valores Diários podem ser maiores ou menores dependendo de suas necessidades energéticas.            </div>
-            <div>** VD não estabelecidos.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="dados_conservacao">
-      <h5 class="title titulo-secao separator">CONSERVAÇÃO</h5>
-
-      <div class="content">
-        {% if ficha.categoria == "PERECIVEIS" %}
-          <div class="row pb-3">
-            <div class="col-12">
-              Prazo de validade após o descongelamento e mantido sob refrigeração:
-              <span class="font-weight-bold">
-                {{ficha.prazo_validade_descongelamento}}
-              </span>
-            </div>
-          </div>
-        {% endif %}
-        <div class="row pb-3">
-          <div class="col-12">
-            Condições de conservação e Prazo máximo para consumo após a abertura da embalagem primária:
-            <span class="font-weight-bold">
-              {{ficha.condicoes_de_conservacao}}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {% if ficha.categoria == "PERECIVEIS" %}
-      <div id="dados_transporte">
-        <h5 class="title titulo-secao separator">TEMPERATURA E TRANSPORTE</h5>
+    {% if ficha.categoria != "FLV" %}
+      <div id="dados_nutricionais" style="page-break-before: always;">
+        <h5 class="title titulo-secao separator">INFORMAÇÕES NUTRICIONAIS</h5>
 
         <div class="content">
-
-
           <div class="row pb-3">
-            <div class="col-12">
-              Temperatura de Congelamento do Produto:
+            <div class="col-6">
+              Porção:
               <span class="font-weight-bold">
-                {{ficha.temperatura_congelamento}} ºC
+                {{ficha.porcao}} {{ficha.unidade_medida_porcao.abreviacao}}
+              </span>
+            </div>
+            <div class="col-6">
+              Unidade Caseira:
+              <span class="font-weight-bold">
+                {{ficha.valor_unidade_caseira}} {{ficha.unidade_medida_caseira}}
               </span>
             </div>
           </div>
 
+          <div class="table-responsive-sm">
+            <table class="table table-lg table-bordered table-cronograma">
+              <thead>
+                <tr>
+                  <th scope="col">Informação Nutricional</th>
+                  <th scope="col">Quantidade por 100g</th>
+                  <th scope="col">Quantidade por porção</th>
+                  <th scope="col">%VD(*)</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for info in tabela %}
+                <tr>
+
+                  <td 
+                    class="{% if info.informacao_nutricional.nome == 'AÇÚCARES ADICIONADOS' %} pl-4 
+                    {% elif info.informacao_nutricional.eh_dependente %} pl-3 {%endif%}"
+                  >
+                    {{info.informacao_nutricional.nome}}
+                  </td>
+                  <td>{{info.quantidade_por_100g}} {{info.informacao_nutricional.medida}}</td>
+                  <td>
+                    {{info.quantidade_porcao}} {{info.informacao_nutricional.medida}}
+                    {% if info.informacao_nutricional.tipo_nutricional.nome == "CALORIA" %}
+                      =
+                      {{ info.quantidade_porcao | multiply:4.2 }} kJ
+                    {% endif %}
+                  </td>
+                  <td>{{info.valor_diario}}%</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+            <div class="rodape-tabela">
+              <div>* % Valores Diários com base em uma dieta de 2.000kcal ou 8.400kJ. Seus Valores Diários podem ser maiores ou menores dependendo de suas necessidades energéticas.            </div>
+              <div>** VD não estabelecidos.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="dados_conservacao">
+        <h5 class="title titulo-secao separator">CONSERVAÇÃO</h5>
+
+        <div class="content">
+          {% if ficha.categoria == "PERECIVEIS" %}
+            <div class="row pb-3">
+              <div class="col-12">
+                Prazo de validade após o descongelamento e mantido sob refrigeração:
+                <span class="font-weight-bold">
+                  {{ficha.prazo_validade_descongelamento}}
+                </span>
+              </div>
+            </div>
+          {% endif %}
+          <div class="row pb-3">
+            <div class="col-12">
+              Condições de conservação e Prazo máximo para consumo após a abertura da embalagem primária:
+              <span class="font-weight-bold">
+                {{ficha.condicoes_de_conservacao}}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if ficha.categoria == "PERECIVEIS" %}
+        <div id="dados_transporte">
+          <h5 class="title titulo-secao separator">TEMPERATURA E TRANSPORTE</h5>
+
+          <div class="content">
+
+
+            <div class="row pb-3">
+              <div class="col-12">
+                Temperatura de Congelamento do Produto:
+                <span class="font-weight-bold">
+                  {{ficha.temperatura_congelamento}} ºC
+                </span>
+              </div>
+            </div>
+
+
+            <div class="row pb-3">
+              <div class="col-12">
+                Temperatura Interna do Veículo para Transporte:
+                <span class="font-weight-bold">
+                  {{ficha.temperatura_veiculo}} ºC
+                </span>
+              </div>
+            </div>
+
+
+            <div class="row pb-3">
+              <div class="col-12">
+                Condições de Transporte:
+                <span class="font-weight-bold">
+                  {{ficha.condicoes_de_transporte}}
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      {% endif %}
+
+      <div id="dados_conservacao">
+        <h5 class="title titulo-secao separator">ARMAZENAMENTO</h5>
+
+        <div class="content">
+          <div class="row pb-3">
+            <div class="col-12">
+              Informações de Armazenamento que deverão constar na Embalagem Primária:
+              <span class="font-weight-bold">
+                {{ficha.embalagem_primaria}}
+              </span>
+            </div>
+          </div>
+          
+          <div class="row pb-3">
+            <div class="col-12">
+              Informações de Armazenamento que deverão constar na Embalagem Secundária:
+              <span class="font-weight-bold">
+                {{ficha.embalagem_secundaria}}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="dados_embalagem">
+        <h5 class="title titulo-secao separator">EMBALAGENS E ROTULAGENS</h5>
+
+        <div class="content">
+          <div class="row pb-3">
+            <div class="col-12">
+              <div class="checkbox-preenchido">
+                <span class="check-verde">&#10004; </span>
+                <label>
+                  Declaro que as embalagens primária e secundária em que serão entregues
+                  o produto estarão de acordo com as especificações do Anexo I do Edital.
+                </label>
+              </div>
+            </div>
+          </div>
 
           <div class="row pb-3">
             <div class="col-12">
-              Temperatura Interna do Veículo para Transporte:
+              Descreva o material de embalagem primária:
               <span class="font-weight-bold">
-                {{ficha.temperatura_veiculo}} ºC
+                {{ficha.material_embalagem_primaria}}
               </span>
             </div>
           </div>
 
+          {% if ficha.categoria == "NAO_PERECIVEIS" %}
+            <div class="row pb-3">
+              <div class="col-12">
+                O produto é líquido?
+                <span class="font-weight-bold">
+                  {{ficha.produto_eh_liquido |yesno:"SIM,NÃO"}}
+                </span>
+              </div>
+            </div>
+
+            {% if ficha.produto_eh_liquido %}
+              <div class="row pb-3">
+                <div class="col-12">
+                  Volume do Produto na Embalagem Primária:
+                  <span class="font-weight-bold">
+                    {{ficha.volume_embalagem_primaria}} {{ficha.unidade_medida_volume_primaria.abreviacao}}
+                  </span>
+                </div>
+              </div>
+            {% endif %}
+          {% endif %}
+
+          <div class="row pb-3">
+            <div class="col-6">
+              Peso Líquido do Produto na Embalagem Primária:
+              <span class="font-weight-bold">
+                {{ficha.peso_liquido_embalagem_primaria}} {{ficha.unidade_medida_primaria.abreviacao}}
+              </span>
+            </div>
+            <div class="col-6">
+              Peso Líquido do Produto na Embalagem Secundária:
+              <span class="font-weight-bold">
+                {{ficha.peso_liquido_embalagem_secundaria}} {{ficha.unidade_medida_secundaria.abreviacao}}
+              </span>
+            </div>
+          </div>
+
+          <div class="row pb-3">
+            <div class="col-6">
+              Peso da Embalagem Primária Vazia:
+              <span class="font-weight-bold">
+                {{ficha.peso_embalagem_primaria_vazia}} {{ficha.unidade_medida_primaria_vazia.abreviacao}}
+              </span>
+            </div>
+            <div class="col-6">
+              Peso da Embalagem Secundária Vazia:
+              <span class="font-weight-bold">
+                {{ficha.peso_embalagem_secundaria_vazia}} {{ficha.unidade_medida_secundaria_vazia.abreviacao}}
+              </span>
+            </div>
+          </div>
+
+          {% if ficha.categoria == "PERECIVEIS" %}
+            <div class="row pb-3">
+              <div class="col-12">
+                Variação Porcentual do Peso do Produto ao Descongelar:
+                <span class="font-weight-bold">
+                  {{ficha.variacao_percentual}}%
+                </span>
+              </div>
+            </div>
+          {% endif %}
 
           <div class="row pb-3">
             <div class="col-12">
-              Condições de Transporte:
+              Descrever o Material e o Sistema de Vedação da Embalagem Secundária:
               <span class="font-weight-bold">
-                {{ficha.condicoes_de_transporte}}
+                {{ficha.sistema_vedacao_embalagem_secundaria}}
               </span>
+            </div>
+          </div>
+
+          <div class="row pb-3">
+            <div class="col-12">
+              <div class="checkbox-preenchido">
+                <span class="check-verde">&#10004; </span>
+                <label>
+                  Declaro que no rótulo da embalagem primária e, se for o caso, da secundária, constarão,
+                  de forma legível e indelével, todas as informações solicitadas do Anexo I do Edital.
+                </label>
+              </div>
             </div>
           </div>
 
         </div>
       </div>
     {% endif %}
-
-    <div id="dados_conservacao">
-      <h5 class="title titulo-secao separator">ARMAZENAMENTO</h5>
-
-      <div class="content">
-        <div class="row pb-3">
-          <div class="col-12">
-            Informações de Armazenamento que deverão constar na Embalagem Primária:
-            <span class="font-weight-bold">
-              {{ficha.embalagem_primaria}}
-            </span>
-          </div>
-        </div>
-        
-        <div class="row pb-3">
-          <div class="col-12">
-            Informações de Armazenamento que deverão constar na Embalagem Secundária:
-            <span class="font-weight-bold">
-              {{ficha.embalagem_secundaria}}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="dados_embalagem">
-      <h5 class="title titulo-secao separator">EMBALAGENS E ROTULAGENS</h5>
-
-      <div class="content">
-        <div class="row pb-3">
-          <div class="col-12">
-            <div class="checkbox-preenchido">
-              <span class="check-verde">&#10004; </span>
-              <label>
-                Declaro que as embalagens primária e secundária em que serão entregues
-                o produto estarão de acordo com as especificações do Anexo I do Edital.
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="row pb-3">
-          <div class="col-12">
-            Descreva o material de embalagem primária:
-            <span class="font-weight-bold">
-              {{ficha.material_embalagem_primaria}}
-            </span>
-          </div>
-        </div>
-
-        {% if ficha.categoria == "NAO_PERECIVEIS" %}
-          <div class="row pb-3">
-            <div class="col-12">
-              O produto é líquido?
-              <span class="font-weight-bold">
-                {{ficha.produto_eh_liquido |yesno:"SIM,NÃO"}}
-              </span>
-            </div>
-          </div>
-
-          {% if ficha.produto_eh_liquido %}
-            <div class="row pb-3">
-              <div class="col-12">
-                Volume do Produto na Embalagem Primária:
-                <span class="font-weight-bold">
-                  {{ficha.volume_embalagem_primaria}} {{ficha.unidade_medida_volume_primaria.abreviacao}}
-                </span>
-              </div>
-            </div>
-          {% endif %}
-        {% endif %}
-
-        <div class="row pb-3">
-          <div class="col-6">
-            Peso Líquido do Produto na Embalagem Primária:
-            <span class="font-weight-bold">
-              {{ficha.peso_liquido_embalagem_primaria}} {{ficha.unidade_medida_primaria.abreviacao}}
-            </span>
-          </div>
-          <div class="col-6">
-            Peso Líquido do Produto na Embalagem Secundária:
-            <span class="font-weight-bold">
-              {{ficha.peso_liquido_embalagem_secundaria}} {{ficha.unidade_medida_secundaria.abreviacao}}
-            </span>
-          </div>
-        </div>
-
-        <div class="row pb-3">
-          <div class="col-6">
-            Peso da Embalagem Primária Vazia:
-            <span class="font-weight-bold">
-              {{ficha.peso_embalagem_primaria_vazia}} {{ficha.unidade_medida_primaria_vazia.abreviacao}}
-            </span>
-          </div>
-          <div class="col-6">
-            Peso da Embalagem Secundária Vazia:
-            <span class="font-weight-bold">
-              {{ficha.peso_embalagem_secundaria_vazia}} {{ficha.unidade_medida_secundaria_vazia.abreviacao}}
-            </span>
-          </div>
-        </div>
-
-        {% if ficha.categoria == "PERECIVEIS" %}
-          <div class="row pb-3">
-            <div class="col-12">
-              Variação Porcentual do Peso do Produto ao Descongelar:
-              <span class="font-weight-bold">
-                {{ficha.variacao_percentual}}%
-              </span>
-            </div>
-          </div>
-        {% endif %}
-
-        <div class="row pb-3">
-          <div class="col-12">
-            Descrever o Material e o Sistema de Vedação da Embalagem Secundária:
-            <span class="font-weight-bold">
-              {{ficha.sistema_vedacao_embalagem_secundaria}}
-            </span>
-          </div>
-        </div>
-
-        <div class="row pb-3">
-          <div class="col-12">
-            <div class="checkbox-preenchido">
-              <span class="check-verde">&#10004; </span>
-              <label>
-                Declaro que no rótulo da embalagem primária e, se for o caso, da secundária, constarão,
-                de forma legível e indelével, todas as informações solicitadas do Anexo I do Edital.
-              </label>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
 
     <div id="dados_responsavel_tecnico">
       <h5 class="title titulo-secao separator">RESPONSÁVEL TÉCNICO</h5>
@@ -442,7 +455,7 @@
       </div>
     </div>
 
-    {% if ficha.modo_de_preparo %}
+    {% if ficha.modo_de_preparo and ficha.categoria != "FLV" %}
       <div id="dados_modo_preparo">
         <h5 class="title titulo-secao separator">MODO DE PREPARO</h5>
 

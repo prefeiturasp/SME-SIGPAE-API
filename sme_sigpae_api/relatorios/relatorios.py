@@ -2184,6 +2184,7 @@ def get_pdf_ficha_tecnica(request, ficha):
             "envasador_distribuidor": envasador_distribuidor,
             "cnpj_distribuidor": cnpj_distribuidor,
             "telefone_distribuidor": telefone_distribuidor,
+            "tipo_entrega": ficha.get_tipo_entrega_display(),
         },
     )
     data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
