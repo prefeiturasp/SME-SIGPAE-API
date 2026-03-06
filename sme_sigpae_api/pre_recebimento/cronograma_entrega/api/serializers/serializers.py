@@ -6,9 +6,6 @@ from rest_framework import serializers
 
 from sme_sigpae_api.dados_comuns.fluxo_status import DocumentoDeRecebimentoWorkflow
 from sme_sigpae_api.dados_comuns.utils import numero_com_agrupador_de_milhar_e_decimal
-from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
-    FichaTecnicaDoProduto,
-)
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
     Cronograma,
     EtapasDoCronograma,
