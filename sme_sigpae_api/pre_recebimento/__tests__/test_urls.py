@@ -3869,15 +3869,9 @@ def test_url_pdf_ficha_tecnica_tag_leve_leite(
 
 
 def test_url_pdf_ficha_tecnica_flv(
-    client_autenticado_fornecedor, ficha_tecnica_factory, empresa
+    client_autenticado_fornecedor, ficha_tecnica_flv
 ):
-    ficha_flv = ficha_tecnica_factory(
-        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
-        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
-        programa=FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR,
-        especie_variedade="Variedade X",
-        empresa=empresa,
-    )
+    ficha_flv = ficha_tecnica_flv
 
     response_flv = client_autenticado_fornecedor.get(
         f"/ficha-tecnica/{str(ficha_flv.uuid)}/gerar-pdf-ficha/"
@@ -3891,6 +3885,7 @@ def test_url_pdf_ficha_tecnica_flv(
 
     assert "Ponto a Ponto" in pdf_text_flv
     assert "Espécie ou Variedade Cultivada" in pdf_text_flv
+    assert "Variedade X" in pdf_text_flv
 
     assert "Informações Nutricionais" not in pdf_text_flv
 
