@@ -521,6 +521,16 @@ class Command(BaseCommand):
 
         if not aluno.historico.filter(escola=aluno.escola).exists():
             aluno.cria_historico(codigo_situacao, situacao)
+        elif (
+            codigo_situacao in self.status_matricula_ativa
+            and not aluno.historico.filter(
+                escola=aluno.escola, data_fim__isnull=True
+            ).exists()
+        ):
+            # Histórico existe mas está encerrado (data_fim != None) e o aluno
+            # voltou a estar ativo na escola: cria um novo histórico ativo.
+            aluno.cria_historico(codigo_situacao, situacao)
+            return
 
         if codigo_situacao not in self.status_matricula_ativa:
             aluno.historico.filter(escola=aluno.escola).update(
