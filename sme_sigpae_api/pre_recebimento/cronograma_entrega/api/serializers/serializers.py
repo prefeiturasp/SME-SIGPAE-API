@@ -6,6 +6,9 @@ from rest_framework import serializers
 
 from sme_sigpae_api.dados_comuns.fluxo_status import DocumentoDeRecebimentoWorkflow
 from sme_sigpae_api.dados_comuns.utils import numero_com_agrupador_de_milhar_e_decimal
+from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
+    FichaTecnicaDoProduto,
+)
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
     Cronograma,
     EtapasDoCronograma,
@@ -51,7 +54,11 @@ class EtapasDoCronogramaSerializer(serializers.ModelSerializer):
     parte = serializers.SerializerMethodField()
 
     def get_data_programada(self, obj):
-        return obj.data_programada.strftime("%d/%m/%Y") if obj.data_programada else None
+        if not obj.data_programada:
+            return None
+        if obj.cronograma and obj.cronograma.ponto_a_ponto:
+            return obj.data_programada.strftime("%m/%Y")
+        return obj.data_programada.strftime("%d/%m/%Y")
 
     def get_etapa(self, obj):
         return f"Etapa {obj.etapa}" if obj.etapa is not None else None
@@ -107,7 +114,11 @@ class EtapasDoCronogramaCalendarioSerializer(serializers.ModelSerializer):
         return obj.cronograma.empresa.nome_fantasia if obj.cronograma.empresa else None
 
     def get_data_programada(self, obj):
-        return obj.data_programada.strftime("%d/%m/%Y") if obj.data_programada else None
+        if not obj.data_programada:
+            return None
+        if obj.cronograma and obj.cronograma.ponto_a_ponto:
+            return obj.data_programada.strftime("%m/%Y")
+        return obj.data_programada.strftime("%d/%m/%Y")
 
     def get_status(self, obj):
         return obj.cronograma.get_status_display() if obj.cronograma else None
@@ -197,6 +208,10 @@ class CronogramaSerializer(serializers.ModelSerializer):
     unidade_medida = UnidadeMedidaSerialzer()
     ficha_tecnica = FichaTecnicaCronogramaSerializer()
     tipo_embalagem_secundaria = TipoEmbalagemQldSimplesSerializer()
+    ponto_a_ponto = serializers.SerializerMethodField()
+
+    def get_ponto_a_ponto(self, obj):
+        return obj.ponto_a_ponto
 
     class Meta:
         model = Cronograma
@@ -217,6 +232,9 @@ class CronogramaSerializer(serializers.ModelSerializer):
             "tipo_embalagem_secundaria",
             "custo_unitario_produto",
             "observacoes",
+            "numero_empenho",
+            "qtd_total_empenho",
+            "ponto_a_ponto",
         )
 
 
@@ -254,7 +272,12 @@ class CronogramaComLogSerializer(serializers.ModelSerializer):
             "custo_unitario_produto",
             "logs",
             "observacoes",
+            "numero_empenho",
+            "qtd_total_empenho",
+            "ponto_a_ponto",
         )
+
+    ponto_a_ponto = serializers.BooleanField(read_only=True)
 
 
 class SolicitacaoAlteracaoCronogramaCompletoSerializer(serializers.ModelSerializer):
@@ -282,9 +305,11 @@ class SolicitacaoAlteracaoCronogramaCompletoSerializer(serializers.ModelSerializ
 
 
 class CronogramaRascunhosSerializer(serializers.ModelSerializer):
+    ponto_a_ponto = serializers.BooleanField(read_only=True)
+
     class Meta:
         model = Cronograma
-        fields = ("uuid", "numero", "alterado_em")
+        fields = ("uuid", "numero", "alterado_em", "ponto_a_ponto")
 
 
 class CronogramaSimplesSerializer(serializers.ModelSerializer):
@@ -304,6 +329,9 @@ class CronogramaSimplesSerializer(serializers.ModelSerializer):
         except AttributeError:
             return False
 
+    def get_ponto_a_ponto(self, obj):
+        return obj.ponto_a_ponto
+
     class Meta:
         model = Cronograma
         fields = (
@@ -312,6 +340,7 @@ class CronogramaSimplesSerializer(serializers.ModelSerializer):
             "pregao_chamada_publica",
             "nome_produto",
             "programa_leve_leite",
+            "ponto_a_ponto",
         )
 
 
@@ -360,7 +389,11 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
             return valor
 
     def get_data_programada(self, obj):
-        return obj.data_programada.strftime("%d/%m/%Y") if obj.data_programada else None
+        if not obj.data_programada:
+            return None
+        if obj.cronograma and obj.cronograma.ponto_a_ponto:
+            return obj.data_programada.strftime("%m/%Y")
+        return obj.data_programada.strftime("%d/%m/%Y")
 
     def get_desvinculada_recebimento(self, obj):
         return not obj.ficha_recebimento.exists()
@@ -557,6 +590,14 @@ class EtapaCronogramaRelatorioSerializer(serializers.ModelSerializer):
     etapa = serializers.SerializerMethodField()
     parte = serializers.SerializerMethodField()
     numero_empenho = serializers.SerializerMethodField()
+    data_programada = serializers.SerializerMethodField()
+
+    def get_data_programada(self, obj):
+        if not obj.data_programada:
+            return None
+        if obj.cronograma and obj.cronograma.ponto_a_ponto:
+            return obj.data_programada.strftime("%m/%Y")
+        return obj.data_programada.strftime("%d/%m/%Y")
 
     def get_etapa(self, obj):
         return f"Etapa {obj.etapa}" if obj.etapa is not None else None
