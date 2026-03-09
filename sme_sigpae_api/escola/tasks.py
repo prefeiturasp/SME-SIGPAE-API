@@ -423,5 +423,17 @@ def registra_historico_matriculas_alunos(*args, **kwargs):
     retry_backoff=5,
     retry_kwargs={"max_retries": 2},
 )
+def encerra_historicos_alunos_inativos():
+    logger.debug(
+        f"Iniciando task encerra_historicos_alunos_inativos às {datetime.datetime.now()}"
+    )
+    management.call_command("encerra_historicos_alunos_inativos", verbosity=0)
+
+
+@shared_task(
+    autoretry_for=(ConnectionError,),
+    retry_backoff=5,
+    retry_kwargs={"max_retries": 2},
+)
 def cria_logs_alunos_por_dia_escolas_cei(*args, **kwargs):
     management.call_command("cria_logs_alunos_por_dia_escolas_cei", verbosity=0)

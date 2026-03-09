@@ -18,6 +18,7 @@ from sme_sigpae_api.escola.tasks import (
     atualiza_total_alunos_escolas,
     build_pdf_alunos_matriculados,
     cria_logs_alunos_por_dia_escolas_cei,
+    encerra_historicos_alunos_inativos,
     gera_pdf_relatorio_alunos_matriculados_async,
     gera_xlsx_relatorio_alunos_matriculados_async,
     nega_solicitacoes_pendentes_autorizacao_vencidas,
@@ -270,6 +271,14 @@ def test_registra_historico_matriculas_alunos_com_parametro(mock_call_command):
     registra_historico_matriculas_alunos(ano="2025")
     mock_call_command.assert_called_once_with(
         "registra_historico_matriculas_alunos", "--ano=2025", verbosity=0
+    )
+
+
+@patch("django.core.management.call_command")
+def test_encerra_historicos_alunos_inativos(mock_call_command):
+    encerra_historicos_alunos_inativos()
+    mock_call_command.assert_called_once_with(
+        "encerra_historicos_alunos_inativos", verbosity=0
     )
 
 
