@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.db.models import Q
 from django_filters import rest_framework as filters
 
-from sme_sigpae_api.produto.models import Produto
+from sme_sigpae_api.produto.models import InformacaoNutricional, Produto
 from sme_sigpae_api.produto.utils.genericos import (
     converte_para_datetime,
     cria_filtro_aditivos,
@@ -164,3 +164,11 @@ class FabricanteFilter(filters.FilterSet):
     nome_edital = filters.CharFilter(
         field_name="produto__vinculos__edital__numero", lookup_expr="iexact"
     )
+
+
+class InformacaoNutricionalFilter(filters.FilterSet):
+    ativo = filters.BooleanFilter(field_name="ativo")
+
+    class Meta:
+        model = InformacaoNutricional
+        fields = ["ativo"]

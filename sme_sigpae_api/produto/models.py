@@ -86,7 +86,7 @@ class TipoDeInformacaoNutricional(Nomeavel, TemChaveExterna):
         return self.nome
 
 
-class InformacaoNutricional(TemChaveExterna, Nomeavel):
+class InformacaoNutricional(TemChaveExterna, Nomeavel, Ativavel):
     ORDEM_TABELA = [
         "VALOR ENERGÉTICO",
         "CARBOIDRATOS",

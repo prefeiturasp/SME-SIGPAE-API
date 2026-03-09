@@ -1906,6 +1906,44 @@ def test_url_informacoes_nutricionais_ordenadas(
         assert recebido["nome"] == cadastrado.nome
 
 
+def test_url_informacoes_nutricionais_ordenadas_filtra_por_ativo(
+    client_autenticado_codae_dilog, informacao_nutricional_factory
+):
+    info_ativa = informacao_nutricional_factory.create(ativo=True)
+    informacao_nutricional_factory.create(ativo=False)
+
+    response = client_autenticado_codae_dilog.get(
+        "/informacoes-nutricionais/ordenadas/?ativo=true"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json()["results"]) == 1
+    assert response.json()["results"][0]["uuid"] == str(info_ativa.uuid)
+    assert response.json()["results"][0]["ativo"] is True
+
+
+def test_url_informacoes_nutricionais_agrupadas_filtra_por_ativo(
+    client_autenticado_codae_dilog, informacao_nutricional_factory
+):
+    tipo_nutricional = informacao_nutricional_factory.create(
+        ativo=True
+    ).tipo_nutricional
+    info_inativa = informacao_nutricional_factory.create(
+        tipo_nutricional=tipo_nutricional,
+        ativo=False,
+    )
+
+    response = client_autenticado_codae_dilog.get(
+        "/informacoes-nutricionais/agrupadas/?ativo=false"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json()["results"]) == 1
+    assert response.json()["results"][0]["informacoes_nutricionais"][0]["uuid"] == str(
+        info_inativa.uuid
+    )
+
+
 def test_url_endpoint_reclamacao_produto_codae_recusa(
     client_autenticado_vinculo_codae_produto,
     reclamacao_respondido_terceirizada,
