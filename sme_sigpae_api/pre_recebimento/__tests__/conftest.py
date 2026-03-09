@@ -1608,11 +1608,6 @@ def ficha_tecnica_nao_perecivel():
 
 
 @pytest.fixture
-def ficha_tecnica_flv():
-    return baker.make(FichaTecnicaDoProduto, categoria=FichaTecnicaDoProduto.CATEGORIA_FLV)
-
-
-@pytest.fixture
 def usuario():
     from django.contrib.auth import get_user_model
     return baker.make(get_user_model())
