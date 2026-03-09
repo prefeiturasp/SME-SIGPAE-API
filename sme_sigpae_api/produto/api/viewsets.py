@@ -127,6 +127,7 @@ from ..utils.query_produtos_por_status import (
 from .filters import (
     CadastroProdutosEditalFilter,
     FabricanteFilter,
+    InformacaoNutricionalFilter,
     ItemCadastroFilter,
     MarcaFilter,
     ProdutoFilter,
@@ -2625,17 +2626,23 @@ class ProdutosEditaisViewSet(viewsets.ModelViewSet):
                 "produto__nome", "produto__uuid"
             )
             todos_editais = Edital.objects.all()
-            editais_destino = todos_editais.annotate(
-                total_contratos=Count('contratos'),
-                ativos=Count('contratos', filter=Q(contratos__encerrado=False))
-            ).filter(
-                Q(total_contratos=0) | Q(ativos__gt=0)
-            ).exclude(
-                numero="PARCEIRA"
-            ).values("numero", "uuid")
+            editais_destino = (
+                todos_editais.annotate(
+                    total_contratos=Count("contratos"),
+                    ativos=Count("contratos", filter=Q(contratos__encerrado=False)),
+                )
+                .filter(Q(total_contratos=0) | Q(ativos__gt=0))
+                .exclude(numero="PARCEIRA")
+                .values("numero", "uuid")
+            )
 
             return Response(
-                dict(produtos=produtos, editais=todos_editais.values("numero", "uuid"), editais_destino=list(editais_destino)), status=status.HTTP_200_OK
+                dict(
+                    produtos=produtos,
+                    editais=todos_editais.values("numero", "uuid"),
+                    editais_destino=list(editais_destino),
+                ),
+                status=status.HTTP_200_OK,
             )
         except Exception as e:
             return Response(
@@ -3044,16 +3051,20 @@ class InformacaoNutricionalViewSet(InformacaoNutricionalBaseViewSet):
     lookup_field = "uuid"
     serializer_class = InformacaoNutricionalSerializer
     queryset = InformacaoNutricional.objects.all()
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = InformacaoNutricionalFilter
 
     @action(detail=False, methods=["GET"], url_path="agrupadas")
     def informacoes_nutricionais_agrupadas(self, request):
-        query_set = InformacaoNutricional.objects.all().order_by("id")
+        query_set = self.filter_queryset(
+            InformacaoNutricional.objects.all().order_by("id")
+        )
         response = {"results": self._agrupa_informacoes_por_tipo(query_set)}
         return Response(response)
 
     @action(detail=False, methods=["GET"], url_path="ordenadas")
     def informacoes_nutricionais_ordenadas(self, request):
-        query_set = InformacaoNutricional.ordenadas()
+        query_set = self.filter_queryset(InformacaoNutricional.ordenadas())
         response = {
             "results": InformacaoNutricionalSerializer(query_set, many=True).data
         }
