@@ -258,6 +258,7 @@ class PainelFichaTecnicaSerializer(serializers.ModelSerializer):
     numero_ficha = serializers.CharField(source="numero")
     nome_produto = serializers.CharField(source="produto.nome")
     categoria = serializers.CharField()
+    tipo_entrega = serializers.CharField()
     nome_empresa = serializers.CharField(source="empresa.nome_fantasia")
     status = serializers.CharField(source="get_status_display")
     log_mais_recente = serializers.SerializerMethodField()
@@ -292,4 +293,5 @@ class PainelFichaTecnicaSerializer(serializers.ModelSerializer):
             "log_mais_recente",
             "programa_leve_leite",
             "categoria",
+            "tipo_entrega",
         )
