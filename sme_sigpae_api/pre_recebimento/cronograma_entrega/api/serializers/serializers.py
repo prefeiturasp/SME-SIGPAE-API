@@ -456,6 +456,9 @@ class CronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer):
     fornecedor = serializers.SerializerMethodField()
     contrato = serializers.SerializerMethodField()
     pregao_chamada_publica = serializers.SerializerMethodField()
+    numero_chamada_publica = serializers.CharField(
+        source="contrato.numero_chamada_publica"
+    )
     ata = serializers.SerializerMethodField()
     produto = serializers.SerializerMethodField()
     marca = serializers.SerializerMethodField()
@@ -569,6 +572,7 @@ class CronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer):
             "documentos_de_recebimento",
             "sistema_vedacao_embalagem_secundaria",
             "programa_leve_leite",
+            "numero_chamada_publica",
         )
 
 
