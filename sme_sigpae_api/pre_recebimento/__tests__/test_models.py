@@ -16,7 +16,7 @@ from ..documento_recebimento.models import (
     DocumentoDeRecebimento,
     TipoDeDocumentoDeRecebimento,
 )
-from ..ficha_tecnica.models import FichaTecnicaDoProduto
+from ..ficha_tecnica.models import FichaTecnicaDoProduto, AnaliseFichaTecnica
 from ..layout_embalagem.models import LayoutDeEmbalagem, TipoDeEmbalagemDeLayout
 from ..qualidade.models import Laboratorio, TipoEmbalagemQld
 
@@ -340,3 +340,80 @@ def test_ficha_tecnica_programa(ficha_tecnica_factory):
         FichaTecnicaDoProduto.LEVE_LEITE,
         FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR,
     ]
+
+
+@pytest.mark.django_db
+def test_analise_ficha_tecnica_aprovada_categoria_normal(
+    ficha_tecnica_perecivel,
+):
+    analise = AnaliseFichaTecnica.objects.create(
+        ficha_tecnica=ficha_tecnica_perecivel,
+        fabricante_envasador_conferido=True,
+        fabricante_envasador_correcoes="",
+        detalhes_produto_conferido=True,
+        detalhes_produto_correcoes="",
+        informacoes_nutricionais_conferido=True,
+        informacoes_nutricionais_correcoes="",
+        conservacao_conferido=True,
+        conservacao_correcoes="",
+        temperatura_e_transporte_conferido=True,
+        temperatura_e_transporte_correcoes="",
+        armazenamento_conferido=True,
+        armazenamento_correcoes="",
+        embalagem_e_rotulagem_conferido=True,
+        embalagem_e_rotulagem_correcoes="",
+        responsavel_tecnico_conferido=True,
+        responsavel_tecnico_correcoes="",
+        modo_preparo_conferido=True,
+        modo_preparo_correcoes="",
+        outras_informacoes_conferido=True,
+    )
+    assert analise.aprovada is True
+
+
+@pytest.mark.django_db
+def test_analise_ficha_tecnica_reprovada_com_correcao_categoria_normal(
+    ficha_tecnica_perecivel,
+):
+    analise = AnaliseFichaTecnica.objects.create(
+        ficha_tecnica=ficha_tecnica_perecivel,
+        fabricante_envasador_conferido=True,
+        fabricante_envasador_correcoes="",
+        detalhes_produto_conferido=True,
+        detalhes_produto_correcoes="",
+        informacoes_nutricionais_conferido=True,
+        informacoes_nutricionais_correcoes="",
+        conservacao_conferido=False,
+        conservacao_correcoes="Temperatura incorreta.",
+        temperatura_e_transporte_conferido=True,
+        temperatura_e_transporte_correcoes="",
+        armazenamento_conferido=True,
+        armazenamento_correcoes="",
+        embalagem_e_rotulagem_conferido=True,
+        embalagem_e_rotulagem_correcoes="",
+        responsavel_tecnico_conferido=True,
+        responsavel_tecnico_correcoes="",
+        modo_preparo_conferido=True,
+        modo_preparo_correcoes="",
+        outras_informacoes_conferido=True,
+    )
+    assert analise.aprovada is False
+
+
+@pytest.mark.django_db
+def test_analise_ficha_tecnica_aprovada_categoria_flv(
+    ficha_tecnica_flv,
+):
+    analise = AnaliseFichaTecnica.objects.create(
+        ficha_tecnica=ficha_tecnica_flv,
+        fabricante_envasador_conferido=True,
+        fabricante_envasador_correcoes="",
+        detalhes_produto_conferido=True,
+        detalhes_produto_correcoes="",
+        temperatura_e_transporte_conferido=True,
+        temperatura_e_transporte_correcoes="",
+        responsavel_tecnico_conferido=True,
+        responsavel_tecnico_correcoes="",
+        outras_informacoes_conferido=True,
+    )
+    assert analise.aprovada is True

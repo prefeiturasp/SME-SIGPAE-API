@@ -1595,3 +1595,61 @@ def payload_interrupcao_programada_entrega_outros():
         "descricao_motivo": "Descrição do motivo customizado",
         "tipo_calendario": "PONTO_A_PONTO",
     }
+
+
+@pytest.fixture
+def ficha_tecnica_perecivel():
+    return baker.make(FichaTecnicaDoProduto, categoria=FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS)
+
+
+@pytest.fixture
+def ficha_tecnica_nao_perecivel():
+    return baker.make(FichaTecnicaDoProduto, categoria=FichaTecnicaDoProduto.CATEGORIA_NAO_PERECIVEIS)
+
+
+@pytest.fixture
+def usuario():
+    from django.contrib.auth import get_user_model
+    return baker.make(get_user_model())
+
+
+@pytest.fixture
+def payload_analise_aprovada():
+    return {
+        "fabricante_envasador_conferido": True,
+        "fabricante_envasador_correcoes": "",
+        "detalhes_produto_conferido": True,
+        "detalhes_produto_correcoes": "",
+        "informacoes_nutricionais_conferido": True,
+        "informacoes_nutricionais_correcoes": "",
+        "conservacao_conferido": True,
+        "conservacao_correcoes": "",
+        "temperatura_e_transporte_conferido": True,
+        "temperatura_e_transporte_correcoes": "",
+        "armazenamento_conferido": True,
+        "armazenamento_correcoes": "",
+        "embalagem_e_rotulagem_conferido": True,
+        "embalagem_e_rotulagem_correcoes": "",
+        "responsavel_tecnico_conferido": True,
+        "responsavel_tecnico_correcoes": "",
+        "modo_preparo_conferido": True,
+        "modo_preparo_correcoes": "",
+        "outras_informacoes_conferido": True,
+        "aprovada": True,
+    }
+
+
+@pytest.fixture
+def payload_analise_flv_aprovada():
+    return {
+        "fabricante_envasador_conferido": True,
+        "fabricante_envasador_correcoes": "",
+        "detalhes_produto_conferido": True,
+        "detalhes_produto_correcoes": "",
+        "temperatura_e_transporte_conferido": True,
+        "temperatura_e_transporte_correcoes": "",
+        "responsavel_tecnico_conferido": True,
+        "responsavel_tecnico_correcoes": "",
+        "outras_informacoes_conferido": True,
+        "aprovada": True,
+    }
