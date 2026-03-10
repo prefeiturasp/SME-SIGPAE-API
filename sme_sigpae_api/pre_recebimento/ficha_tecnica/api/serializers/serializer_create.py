@@ -701,7 +701,6 @@ class AnaliseFichaTecnicaCreateSerializer(serializers.ModelSerializer):
         return analise
 
     def _avaliar_estado_ficha_tecnica(self, analise, usuario):
-        return
         (
             analise.ficha_tecnica.gpcodae_aprova(user=usuario)
             if analise.aprovada
