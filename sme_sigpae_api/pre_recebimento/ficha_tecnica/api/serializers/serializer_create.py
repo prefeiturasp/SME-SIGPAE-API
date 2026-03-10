@@ -615,7 +615,7 @@ class AnaliseFichaTecnicaCreateSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
         ficha_tecnica = self.context.get("ficha_tecnica")
 
-        if ficha_tecnica and ficha_tecnica.categoria == "FLV":
+        if ficha_tecnica and ficha_tecnica.categoria == "FLV" and ficha_tecnica.tipo_entrega == "PONTO_A_PONTO":
             campos_inexistentes_flv = [
                 "informacoes_nutricionais_conferido",
                 "conservacao_conferido",
@@ -642,7 +642,7 @@ class AnaliseFichaTecnicaCreateSerializer(serializers.ModelSerializer):
             "modo_preparo",
         ]
 
-        if ficha_tecnica.categoria == "FLV":
+        if ficha_tecnica.categoria == "FLV" and ficha_tecnica.tipo_entrega == "PONTO_A_PONTO":
             campos_para_remover = [
                 "informacoes_nutricionais",
                 "conservacao",
@@ -701,6 +701,7 @@ class AnaliseFichaTecnicaCreateSerializer(serializers.ModelSerializer):
         return analise
 
     def _avaliar_estado_ficha_tecnica(self, analise, usuario):
+        return
         (
             analise.ficha_tecnica.gpcodae_aprova(user=usuario)
             if analise.aprovada

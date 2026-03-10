@@ -395,7 +395,7 @@ class AnaliseFichaTecnica(ModeloBase, CriadoPor):
         if not valido:
             return False
 
-        if self.ficha_tecnica.categoria != "FLV":
+        if not (self.ficha_tecnica.categoria == "FLV" and self.ficha_tecnica.tipo_entrega == "PONTO_A_PONTO"):
             valido_extra = (
                 (self.informacoes_nutricionais_conferido is True and not self.informacoes_nutricionais_correcoes)
                 and (self.conservacao_conferido is True and not self.conservacao_correcoes)
