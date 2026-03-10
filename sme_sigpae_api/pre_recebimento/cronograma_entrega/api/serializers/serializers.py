@@ -456,9 +456,7 @@ class CronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer):
     fornecedor = serializers.SerializerMethodField()
     contrato = serializers.SerializerMethodField()
     pregao_chamada_publica = serializers.SerializerMethodField()
-    numero_chamada_publica = serializers.CharField(
-        source="contrato.numero_chamada_publica"
-    )
+    numero_chamada_publica = serializers.SerializerMethodField()
     ata = serializers.SerializerMethodField()
     produto = serializers.SerializerMethodField()
     marca = serializers.SerializerMethodField()
@@ -481,6 +479,9 @@ class CronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer):
 
     def get_pregao_chamada_publica(self, obj):
         return obj.contrato.pregao_chamada_publica if obj.contrato else None
+
+    def get_numero_chamada_publica(self, obj):
+        return obj.contrato.numero_chamada_publica if obj.contrato else None
 
     def get_ata(self, obj):
         return obj.contrato.ata if obj.contrato else None
