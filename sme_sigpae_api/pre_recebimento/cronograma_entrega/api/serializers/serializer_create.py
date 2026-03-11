@@ -368,38 +368,48 @@ class CronogramaPontoAPontoCreateSerializer(serializers.ModelSerializer):
                 pass
         return f"001/{ano}P"
 
-    def validate(self, attrs):
+    def _validate_etapas_finalizacao(self, etapas):
+        etapas_errors = []
+        has_errors = False
+        for etapa in etapas:
+            etapa_error = {}
+            if not etapa.get("data_programada"):
+                etapa_error["data_programada"] = ["Este campo é obrigatório."]
+            if not etapa.get("quantidade"):
+                etapa_error["quantidade"] = ["Este campo é obrigatório."]
+
+            if etapa_error:
+                has_errors = True
+            etapas_errors.append(etapa_error)
+
+        return etapas_errors if has_errors else None
+
+    def _validate_finalizacao(self, attrs):
         user = self.context["request"].user
+        if not user.verificar_autenticidade(attrs.pop("password", None)):
+            raise NotAuthenticated(
+                "Assinatura do cronograma não foi validada. Verifique sua senha."
+            )
+
+        errors = {}
+        if not attrs.get("unidade_medida"):
+            errors["unidade_medida"] = ["Este campo é obrigatório."]
+
+        etapas = attrs.get("etapas", [])
+        if not etapas:
+            errors["etapas"] = ["Pelo menos uma etapa deve ser informada."]
+        else:
+            etapas_errors = self._validate_etapas_finalizacao(etapas)
+            if etapas_errors:
+                errors["etapas"] = etapas_errors
+
+        if errors:
+            raise serializers.ValidationError(errors)
+
+    def validate(self, attrs):
         cadastro_finalizado = attrs.get("cadastro_finalizado", False)
         if cadastro_finalizado:
-            if not user.verificar_autenticidade(attrs.pop("password", None)):
-                raise NotAuthenticated(
-                    "Assinatura do cronograma não foi validada. Verifique sua senha."
-                )
-
-            # Validações obrigatórias apenas para finalização
-            errors = {}
-            if not attrs.get("unidade_medida"):
-                errors["unidade_medida"] = ["Este campo é obrigatório."]
-
-            etapas = attrs.get("etapas", [])
-            if not etapas:
-                errors["etapas"] = ["Pelo menos uma etapa deve ser informada."]
-            else:
-                etapas_errors = []
-                for etapa in etapas:
-                    etapa_error = {}
-                    if not etapa.get("data_programada"):
-                        etapa_error["data_programada"] = ["Este campo é obrigatório."]
-                    if not etapa.get("quantidade"):
-                        etapa_error["quantidade"] = ["Este campo é obrigatório."]
-                    etapas_errors.append(etapa_error if etapa_error else {})
-
-                if any(etapas_errors):
-                    errors["etapas"] = etapas_errors
-
-            if errors:
-                raise serializers.ValidationError(errors)
+            self._validate_finalizacao(attrs)
 
         contrato = attrs.get("contrato", None)
         empresa = attrs.get("empresa", None)
