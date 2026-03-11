@@ -31,7 +31,7 @@ black = "==25.1.0"
 isort = "==6.0.1"
 flake8 = "==6.1.0"
 pip-audit = "==2.9.0"
-pdfplumber = "==0.11.7"
+pdfplumber = "==0.11.9"
 
 [packages]
 Sphinx="==9.1.0"  # https://github.com/sphinx-doc/sphinx
