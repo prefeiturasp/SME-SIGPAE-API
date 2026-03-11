@@ -577,6 +577,24 @@ class PermissaoLancamentoEspecial(
         return f"#{self.id_externo} - {self.periodo_escolar.nome} - {self.escola.nome} -- de {self.data_inicial} até {self.data_final or '-- '}"
 
 
+class LancheEmergencialDiario(models.Model):
+    escola = models.ForeignKey(
+        "escola.Escola",
+        on_delete=models.CASCADE,
+        related_name="lanches_emergenciais_diarios",
+    )
+    data_inicial = models.DateField("Data inicial")
+    data_final = models.DateField("Data final", null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.escola.codigo_eol}: {self.escola.nome} - {self.data_inicial} até {self.data_final or '--'}"
+
+    class Meta:
+        verbose_name = "Lanche Emergencial Diário"
+        verbose_name_plural = "Lanches Emergenciais Diários"
+        ordering = ("escola__nome", "data_inicial")
+
+
 class DiaParaCorrigir(
     TemChaveExterna, TemIdentificadorExternoAmigavel, TemDia, CriadoEm, CriadoPor
 ):
