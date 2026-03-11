@@ -111,16 +111,20 @@ class CronogramaCreateSerializer(serializers.ModelSerializer):
 
     def gera_proximo_numero_cronograma(self):
         ano = date.today().year
-        ultimo_cronograma = Cronograma.objects.last()
-        ultimo_cronograma_ano = (
-            int(ultimo_cronograma.numero.split("/")[1][:4])
-            if ultimo_cronograma
-            else None
+        # Filtra apenas cronogramas com sufixo 'A' do ano atual e ordena pelo número
+        # para encontrar o último sequencial corretamente, independente da ordem de inserção.
+        ultimo_cronograma = (
+            Cronograma.objects.filter(numero__endswith=f"{ano}A")
+            .order_by("numero")
+            .last()
         )
-        if ultimo_cronograma and (ultimo_cronograma_ano == ano):
-            return f"{str(int(ultimo_cronograma.numero[:3]) + 1).zfill(3)}/{ano}A"
-        else:
-            return f"001/{ano}A"
+        if ultimo_cronograma:
+            try:
+                sequencial = int(ultimo_cronograma.numero.split("/")[0])
+                return f"{str(sequencial + 1).zfill(3)}/{ano}A"
+            except (ValueError, IndexError):
+                pass
+        return f"001/{ano}A"
 
     def validate(self, attrs):
         user = self.context["request"].user
@@ -293,8 +297,8 @@ class EtapasDoCronogramaPontoAPontoCreateSerializer(serializers.ModelSerializer)
     Serializer simplificado para etapas do cronograma Ponto a Ponto (FLV).
     Omitidos campos de empenho e total de embalagens.
     """
-    data_programada = serializers.CharField(required=True)
-    quantidade = serializers.FloatField(required=True)
+    data_programada = serializers.CharField(required=False)
+    quantidade = serializers.FloatField(required=False)
 
     class Meta:
         model = EtapasDoCronograma
@@ -336,6 +340,7 @@ class CronogramaPontoAPontoCreateSerializer(serializers.ModelSerializer):
         slug_field="uuid",
         queryset=UnidadeMedida.objects.all(),
         allow_null=True,
+        required=False
     )
     ficha_tecnica = serializers.SlugRelatedField(
         slug_field="uuid",
@@ -348,26 +353,63 @@ class CronogramaPontoAPontoCreateSerializer(serializers.ModelSerializer):
 
     def gera_proximo_numero_cronograma(self):
         ano = date.today().year
-        # Busca o último cronograma que termina com P para o ano atual
-        ultimo_cronograma = Cronograma.objects.filter(numero__endswith=f"{ano}P").order_by('numero').last()
+        # Filtra apenas cronogramas com sufixo 'P' do ano atual e ordena pelo número
+        # para encontrar o último sequencial corretamente, independente da ordem de inserção.
+        ultimo_cronograma = (
+            Cronograma.objects.filter(numero__endswith=f"{ano}P")
+            .order_by("numero")
+            .last()
+        )
         if ultimo_cronograma:
             try:
-                # numero formato: 001/2026P
-                sequencial = int(ultimo_cronograma.numero[:3])
+                sequencial = int(ultimo_cronograma.numero.split("/")[0])
                 return f"{str(sequencial + 1).zfill(3)}/{ano}P"
             except (ValueError, IndexError):
                 pass
         return f"001/{ano}P"
 
-    def validate(self, attrs):
+    def _validate_etapas_finalizacao(self, etapas):
+        etapas_errors = []
+        has_errors = False
+        for etapa in etapas:
+            etapa_error = {}
+            if not etapa.get("data_programada"):
+                etapa_error["data_programada"] = ["Este campo é obrigatório."]
+            if not etapa.get("quantidade"):
+                etapa_error["quantidade"] = ["Este campo é obrigatório."]
+
+            if etapa_error:
+                has_errors = True
+            etapas_errors.append(etapa_error)
+
+        return etapas_errors if has_errors else None
+
+    def _validate_finalizacao(self, attrs):
         user = self.context["request"].user
-        cadastro_finalizado = attrs.get("cadastro_finalizado", None)
-        if cadastro_finalizado and not user.verificar_autenticidade(
-            attrs.pop("password", None)
-        ):
+        if not user.verificar_autenticidade(attrs.pop("password", None)):
             raise NotAuthenticated(
                 "Assinatura do cronograma não foi validada. Verifique sua senha."
             )
+
+        errors = {}
+        if not attrs.get("unidade_medida"):
+            errors["unidade_medida"] = ["Este campo é obrigatório."]
+
+        etapas = attrs.get("etapas", [])
+        if not etapas:
+            errors["etapas"] = ["Pelo menos uma etapa deve ser informada."]
+        else:
+            etapas_errors = self._validate_etapas_finalizacao(etapas)
+            if etapas_errors:
+                errors["etapas"] = etapas_errors
+
+        if errors:
+            raise serializers.ValidationError(errors)
+
+    def validate(self, attrs):
+        cadastro_finalizado = attrs.get("cadastro_finalizado", False)
+        if cadastro_finalizado:
+            self._validate_finalizacao(attrs)
 
         contrato = attrs.get("contrato", None)
         empresa = attrs.get("empresa", None)
