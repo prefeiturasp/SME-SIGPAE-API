@@ -28,6 +28,7 @@ from sme_sigpae_api.medicao_inicial.models import (
     DiaParaCorrigir,
     DiaSobremesaDoce,
     Empenho,
+    LancheEmergencialDiario,
     Medicao,
     OcorrenciaMedicaoInicial,
     ParametrizacaoFinanceira,
@@ -310,6 +311,15 @@ class PermissaoLancamentoEspecialSerializer(serializers.ModelSerializer):
     class Meta:
         model = PermissaoLancamentoEspecial
         fields = "__all__"
+
+
+class LancheEmergencialDiarioSerializer(serializers.ModelSerializer):
+    escola = EscolaSimplissimaSerializer()
+    escola_uuid = serializers.CharField(source="escola.uuid")
+
+    class Meta:
+        model = LancheEmergencialDiario
+        fields = ("escola", "escola_uuid", "data_inicial", "data_final")
 
 
 class DiaParaCorrigirSerializer(serializers.ModelSerializer):
