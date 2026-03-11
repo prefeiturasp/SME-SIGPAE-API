@@ -111,16 +111,20 @@ class CronogramaCreateSerializer(serializers.ModelSerializer):
 
     def gera_proximo_numero_cronograma(self):
         ano = date.today().year
-        ultimo_cronograma = Cronograma.objects.last()
-        ultimo_cronograma_ano = (
-            int(ultimo_cronograma.numero.split("/")[1][:4])
-            if ultimo_cronograma
-            else None
+        # Filtra apenas cronogramas com sufixo 'A' do ano atual e ordena pelo número
+        # para encontrar o último sequencial corretamente, independente da ordem de inserção.
+        ultimo_cronograma = (
+            Cronograma.objects.filter(numero__endswith=f"{ano}A")
+            .order_by("numero")
+            .last()
         )
-        if ultimo_cronograma and (ultimo_cronograma_ano == ano):
-            return f"{str(int(ultimo_cronograma.numero[:3]) + 1).zfill(3)}/{ano}A"
-        else:
-            return f"001/{ano}A"
+        if ultimo_cronograma:
+            try:
+                sequencial = int(ultimo_cronograma.numero.split("/")[0])
+                return f"{str(sequencial + 1).zfill(3)}/{ano}A"
+            except (ValueError, IndexError):
+                pass
+        return f"001/{ano}A"
 
     def validate(self, attrs):
         user = self.context["request"].user
@@ -349,12 +353,16 @@ class CronogramaPontoAPontoCreateSerializer(serializers.ModelSerializer):
 
     def gera_proximo_numero_cronograma(self):
         ano = date.today().year
-        # Busca o último cronograma que termina com P para o ano atual
-        ultimo_cronograma = Cronograma.objects.filter(numero__endswith=f"{ano}P").order_by('numero').last()
+        # Filtra apenas cronogramas com sufixo 'P' do ano atual e ordena pelo número
+        # para encontrar o último sequencial corretamente, independente da ordem de inserção.
+        ultimo_cronograma = (
+            Cronograma.objects.filter(numero__endswith=f"{ano}P")
+            .order_by("numero")
+            .last()
+        )
         if ultimo_cronograma:
             try:
-                # numero formato: 001/2026P
-                sequencial = int(ultimo_cronograma.numero[:3])
+                sequencial = int(ultimo_cronograma.numero.split("/")[0])
                 return f"{str(sequencial + 1).zfill(3)}/{ano}P"
             except (ValueError, IndexError):
                 pass
