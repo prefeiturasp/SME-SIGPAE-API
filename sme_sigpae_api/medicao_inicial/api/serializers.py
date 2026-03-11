@@ -314,12 +314,12 @@ class PermissaoLancamentoEspecialSerializer(serializers.ModelSerializer):
 
 
 class LancheEmergencialDiarioSerializer(serializers.ModelSerializer):
-    escola = EscolaSimplissimaSerializer()
+    escola_nome = serializers.CharField(source="escola.nome")
     escola_uuid = serializers.CharField(source="escola.uuid")
 
     class Meta:
         model = LancheEmergencialDiario
-        fields = ("escola", "escola_uuid", "data_inicial", "data_final")
+        fields = ("escola_nome", "escola_uuid", "data_inicial", "data_final")
 
 
 class DiaParaCorrigirSerializer(serializers.ModelSerializer):
