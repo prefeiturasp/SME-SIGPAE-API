@@ -67,6 +67,7 @@ from ..models import (
     DiaParaCorrigir,
     DiaSobremesaDoce,
     Empenho,
+    LancheEmergencialDiario,
     Medicao,
     OcorrenciaMedicaoInicial,
     ParametrizacaoFinanceira,
@@ -109,6 +110,7 @@ from .filters import (
     ClausulaDeDescontoFilter,
     DiaParaCorrecaoFilter,
     EmpenhoFilter,
+    LancheEmergencialDiarioFilter,
     ParametrizacaoFinanceiraFilter,
     RelatorioFinanceiroFilter,
     SolicitacaoMedicaoInicialFilter,
@@ -122,6 +124,7 @@ from .serializers import (
     DiaParaCorrigirSerializer,
     DiaSobremesaDoceSerializer,
     EmpenhoSerializer,
+    LancheEmergencialDiarioSerializer,
     MedicaoSerializer,
     OcorrenciaMedicaoInicialSerializer,
     ParametrizacaoFinanceiraSerializer,
@@ -1853,6 +1856,24 @@ class OcorrenciaViewSet(
 class AlimentacaoLancamentoEspecialViewSet(mixins.ListModelMixin, GenericViewSet):
     queryset = AlimentacaoLancamentoEspecial.objects.filter(ativo=True)
     serializer_class = AlimentacaoLancamentoEspecialSerializer
+    pagination_class = None
+
+
+class LancheEmergencialDiarioViewSet(mixins.ListModelMixin, GenericViewSet):
+    permission_classes = [
+        UsuarioEscolaTercTotal
+        | UsuarioDiretoriaRegional
+        | UsuarioCODAENutriManifestacao
+        | UsuarioCODAEGestaoAlimentacao
+        | UsuarioCODAEGabinete
+        | UsuarioDinutreDiretoria
+        | UsuarioEmpresaTerceirizada
+        | UsuarioSupervisaoNutricao
+    ]
+    queryset = LancheEmergencialDiario.objects.select_related("escola")
+    serializer_class = LancheEmergencialDiarioSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = LancheEmergencialDiarioFilter
     pagination_class = None
 
 
