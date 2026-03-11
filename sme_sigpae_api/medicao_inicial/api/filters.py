@@ -1,4 +1,9 @@
+import datetime
+
+from django.db.models import Q
 from django_filters import rest_framework as filters
+
+from sme_sigpae_api.dados_comuns.utils import get_ultimo_dia_mes
 
 
 class DiaParaCorrecaoFilter(filters.FilterSet):
@@ -91,3 +96,27 @@ class SolicitacaoMedicaoInicialFilter(filters.FilterSet):
             queryset = queryset.filter(recreio_nas_ferias__isnull=True)
 
         return queryset
+
+
+class LancheEmergencialDiarioFilter(filters.FilterSet):
+    escola_uuid = filters.CharFilter(field_name="escola__uuid", lookup_expr="iexact")
+    mes = filters.CharFilter()
+    ano = filters.CharFilter()
+
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+
+        if not self.data:
+            return queryset
+
+        mes = self.data.get("mes")
+        ano = self.data.get("ano")
+        if not mes or not ano:
+            return queryset
+
+        primeiro_dia_mes = datetime.date(int(ano), int(mes), 1)
+        ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
+
+        return queryset.filter(data_inicial__lte=ultimo_dia_mes).filter(
+            Q(data_final__gte=primeiro_dia_mes) | Q(data_final__isnull=True)
+        )
