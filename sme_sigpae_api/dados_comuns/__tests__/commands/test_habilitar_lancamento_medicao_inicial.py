@@ -12,31 +12,31 @@ pytestmark = pytest.mark.django_db
 
 @override_settings(DJANGO_ENV="development")
 @mock.patch(
-    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.incluir_etec"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_etec"
 )
 @mock.patch(
-    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.incluir_programas_e_projetos"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_programas_e_projetos"
 )
 @mock.patch(
-    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.solicitar_lanche_emergencial"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.solicitar_lanche_emergencial"
 )
 @mock.patch(
-    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.solicitar_kit_lanche"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.solicitar_kit_lanche"
 )
 @mock.patch(
-    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.incluir_dietas_especiais"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_dietas_especiais"
 )
 @mock.patch(
-    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.incluir_log_alunos_matriculados"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_log_alunos_matriculados"
 )
 @mock.patch(
-    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.habilitar_dias_letivos"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.habilitar_dias_letivos"
 )
 @mock.patch(
-    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.obter_escolas"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_escolas"
 )
 @mock.patch(
-    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.obter_usuario"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_usuario"
 )
 @mock.patch("sme_sigpae_api.escola.models.Escola.objects.get")
 def test_executa_com_sucesso(
@@ -106,7 +106,7 @@ def test_executa_com_sucesso(
 
 @override_settings(DJANGO_ENV="production")
 @mock.patch(
-    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.obter_escolas"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_escolas"
 )
 def test_nao_executa_em_producao(mock_obter_escolas):
     out = io.StringIO()
@@ -190,20 +190,48 @@ def test_data_lanche_emergencial_invalido_lanca_erro():
     "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.call_command"
 )
 @mock.patch(
-    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.obter_escolas"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.habilitar_dias_letivos"
 )
 @mock.patch(
-    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.obter_usuario"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_escolas"
+)
+@mock.patch(
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_usuario"
 )
 @mock.patch(
     "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.calendario_sgp"
 )
+@mock.patch(
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_dietas_especiais"
+)
+@mock.patch(
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.solicitar_kit_lanche"
+)
+@mock.patch(
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.solicitar_lanche_emergencial"
+)
+@mock.patch(
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_programas_e_projetos"
+)
+@mock.patch(
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_etec"
+)
+@mock.patch(
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_log_alunos_matriculados"
+)
 @mock.patch("sme_sigpae_api.escola.models.Escola.objects.get")
 def test_executa_com_atualizar_escolas(
     mock_get_escola,
+    mock_incluir_logs,
+    mock_etec,
+    mock_programas_e_projetos,
+    mock_solicitar_lanche_emergencial,
+    mock_solicitar_kit_lanche,
+    mock_incluir_dietas_especiais,
     mock_calendario_sgp,
     mock_obter_usuario,
     mock_obter_escolas,
+    mock_habilitar_dias_letivos,
     mock_call_command,
     mock_matriculados_task,
     user_diretor_escola,
@@ -233,6 +261,10 @@ def test_executa_com_atualizar_escolas(
         }
     ]
     mock_obter_usuario.return_value = usuario
+    mock_solicitar_kit_lanche.return_value = "OK"
+    mock_solicitar_lanche_emergencial.return_value = "OK"
+    mock_programas_e_projetos.return_value = "OK"
+    mock_etec.return_value = "OK"
 
     mock_call_command.reset_mock()
     mock_matriculados_task.reset_mock()
@@ -250,3 +282,10 @@ def test_executa_com_atualizar_escolas(
 
     mock_call_command.assert_called_once_with("atualiza_dados_escolas")
     mock_matriculados_task.assert_called_once()
+    mock_habilitar_dias_letivos.assert_called_once()
+    mock_incluir_logs.assert_called_once()
+    mock_incluir_dietas_especiais.assert_called_once()
+    mock_solicitar_kit_lanche.assert_called_once()
+    mock_solicitar_lanche_emergencial.assert_called_once()
+    mock_programas_e_projetos.assert_called_once()
+    mock_etec.assert_called_once()
