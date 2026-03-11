@@ -201,6 +201,391 @@ describe('Validar rotas de Terceirizadas da aplicação SIGPAE', () => {
 				},
 			)
 		})
+
+		it('Validar POST com sucesso de Terceirizadas', () => {
+			var dados_teste = {
+				nome_fantasia: 'Testes Automação ' + new Date().getTime(),
+				razao_social: 'Testes Automação LTDA ' + new Date().getTime(),
+				cnpj: '60498984000104',
+				representante_legal: 'Representante Teste',
+				representante_telefone: '1155555555',
+				representante_email: 'representante@example.com',
+				cep: '05010000',
+				logradouro: 'Rua Teste Automação',
+				numero: '123',
+				complemento: 'Complemento Teste',
+				bairro: 'Bairro Teste',
+				cidade: 'São Paulo',
+				estado: 'SP',
+				credenciado: true,
+				contato_telefone: '1155555555',
+				contato_email: 'user@example.com',
+				contato_nome_nutri: 'Nutricionista Responsável Teste',
+				crn_numero: '1155555555',
+				super_admin_terceirizadas: true,
+				nutri_telefone: '11 977777777',
+				nutri_email: 'user@example.com',
+				contato_eh_nutricionista: true,
+				responsavel_cargo: 'Cargo Teste',
+				responsavel_cpf: Math.floor(Math.random() * 99999999999)
+					.toString()
+					.padStart(11, '0'),
+				responsavel_nome: 'Responsável Teste',
+				responsavel_telefone: '11999999999',
+				responsavel_email: 'responsavel@example.com',
+				lotes: [],
+			}
+			var cnpj = dados_teste.cnpj
+			cy.cadastrar_terceirizadas(dados_teste).then((response) => {
+				expect(response.status).to.eq(201)
+				expect(response.body.cnpj).to.eq(cnpj)
+				var uuid_response = response.body.uuid
+
+				// Deletar a terceirizada cadastrada no teste
+				cy.deletar_terceirizadas(uuid_response).then((responseDelete) => {
+					expect(responseDelete.status).to.eq(204)
+				})
+			})
+		})
+
+		it('Validar POST de Terceirizadas com CPF do Responsável Já Cadastrado', () => {
+			var responsavel_cpf = ''
+			cy.consultar_terceirizadas().then((response) => {
+				expect(response.status).to.eq(200)
+				responsavel_cpf = response.body.results[0].responsavel_cpf
+
+				var dados_teste = {
+					nome_fantasia: 'Testes Automação ' + new Date().getTime(),
+					razao_social: 'Testes Automação LTDA ' + new Date().getTime(),
+					cnpj: '60498984000104',
+					representante_legal: 'Representante Teste',
+					representante_telefone: '1155555555',
+					representante_email: 'representante@example.com',
+					cep: '05010000',
+					logradouro: 'Rua Teste Automação',
+					numero: '123',
+					complemento: 'Complemento Teste',
+					bairro: 'Bairro Teste',
+					cidade: 'São Paulo',
+					estado: 'SP',
+					credenciado: true,
+					contato_telefone: '1155555555',
+					contato_email: 'user@example.com',
+					contato_nome_nutri: 'Nutricionista Responsável Teste',
+					crn_numero: '1155555555',
+					super_admin_terceirizadas: true,
+					nutri_telefone: '11 977777777',
+					nutri_email: 'user@example.com',
+					contato_eh_nutricionista: true,
+					responsavel_cargo: 'Cargo Teste',
+					responsavel_cpf: responsavel_cpf,
+					responsavel_nome: 'Responsável Teste',
+					responsavel_telefone: '11999999999',
+					responsavel_email: 'responsavel@example.com',
+					lotes: [],
+				}
+
+				cy.cadastrar_terceirizadas(dados_teste).then((response) => {
+					expect(response.status).to.eq(400)
+					expect(response.body.responsavel_cpf[0]).to.eq(
+						'Terceirizada com este responsavel cpf já existe.',
+					)
+				})
+			})
+		})
+
+		it('Validar POST de Terceirizadas com o campo CNPJ em Branco', () => {
+			var dados_teste = {
+				nome_fantasia: 'Testes Automação ' + new Date().getTime(),
+				razao_social: 'Testes Automação LTDA ' + new Date().getTime(),
+				cnpj: '',
+				representante_legal: 'Representante Teste',
+				representante_telefone: '1155555555',
+				representante_email: 'representante@example.com',
+				cep: '05010000',
+				logradouro: 'Rua Teste Automação',
+				numero: '123',
+				complemento: 'Complemento Teste',
+				bairro: 'Bairro Teste',
+				cidade: 'São Paulo',
+				estado: 'SP',
+				credenciado: true,
+				contato_telefone: '1155555555',
+				contato_email: 'user@example.com',
+				contato_nome_nutri: 'Nutricionista Responsável Teste',
+				crn_numero: '1155555555',
+				super_admin_terceirizadas: true,
+				nutri_telefone: '11 977777777',
+				nutri_email: 'user@example.com',
+				contato_eh_nutricionista: true,
+				responsavel_cargo: 'Cargo Teste',
+				responsavel_cpf: Math.floor(Math.random() * 99999999999)
+					.toString()
+					.padStart(11, '0'),
+				responsavel_nome: 'Responsável Teste',
+				responsavel_telefone: '11999999999',
+				responsavel_email: 'responsavel@example.com',
+				lotes: [],
+			}
+			cy.cadastrar_terceirizadas(dados_teste).then((response) => {
+				expect(response.status).to.eq(400)
+				expect(response.body.cnpj[0]).to.eq(
+					'Este campo não pode estar em branco.',
+				)
+			})
+		})
+
+		it('Validar DELETE com sucesso de Terceirizadas', () => {
+			var dados_teste = {
+				nome_fantasia: 'Testes Automação ' + new Date().getTime(),
+				razao_social: 'Testes Automação LTDA ' + new Date().getTime(),
+				cnpj: '60498984000104',
+				representante_legal: 'Representante Teste',
+				representante_telefone: '1155555555',
+				representante_email: 'representante@example.com',
+				cep: '05010000',
+				logradouro: 'Rua Teste Automação',
+				numero: '123',
+				complemento: 'Complemento Teste',
+				bairro: 'Bairro Teste',
+				cidade: 'São Paulo',
+				estado: 'SP',
+				credenciado: true,
+				contato_telefone: '1155555555',
+				contato_email: 'user@example.com',
+				contato_nome_nutri: 'Nutricionista Responsável Teste',
+				crn_numero: '1155555555',
+				super_admin_terceirizadas: true,
+				nutri_telefone: '11 977777777',
+				nutri_email: 'user@example.com',
+				contato_eh_nutricionista: true,
+				responsavel_cargo: 'Cargo Teste',
+				responsavel_cpf: Math.floor(Math.random() * 99999999999)
+					.toString()
+					.padStart(11, '0'),
+				responsavel_nome: 'Responsável Teste',
+				responsavel_telefone: '11999999999',
+				responsavel_email: 'responsavel@example.com',
+				lotes: [],
+			}
+			var cnpj = dados_teste.cnpj
+			cy.cadastrar_terceirizadas(dados_teste).then((response) => {
+				expect(response.status).to.eq(201)
+				expect(response.body.cnpj).to.eq(cnpj)
+				var uuid_response = response.body.uuid
+
+				// Deletar a terceirizada cadastrada no teste
+				cy.deletar_terceirizadas(uuid_response).then((responseDelete) => {
+					expect(responseDelete.status).to.eq(204)
+				})
+			})
+		})
+
+		it('Validar DELETE de Terceirizadas com UUID inválido', () => {
+			var uuid = '3ac751ee-f95d-4d5b-80da-437506b00000'
+			cy.deletar_terceirizadas(uuid).then((responseDelete) => {
+				expect(responseDelete.status).to.eq(404)
+			})
+		})
+
+		it('Validar PUT com sucesso de Terceirizadas', () => {
+			var dados_teste = {
+				nome_fantasia: 'Testes Automação ' + new Date().getTime(),
+				razao_social: 'Testes Automação LTDA ' + new Date().getTime(),
+				cnpj: '60498984000104',
+				representante_legal: 'Representante Teste',
+				representante_telefone: '1155555555',
+				representante_email: 'representante@example.com',
+				cep: '05010000',
+				logradouro: 'Rua Teste Automação',
+				numero: '123',
+				complemento: 'Complemento Teste',
+				bairro: 'Bairro Teste',
+				cidade: 'São Paulo',
+				estado: 'SP',
+				credenciado: true,
+				contato_telefone: '1155555555',
+				contato_email: 'user@example.com',
+				contato_nome_nutri: 'Nutricionista Responsável Teste',
+				crn_numero: '1155555555',
+				super_admin_terceirizadas: true,
+				nutri_telefone: '11 977777777',
+				nutri_email: 'user@example.com',
+				contato_eh_nutricionista: true,
+				responsavel_cargo: 'Cargo Teste',
+				responsavel_cpf: Math.floor(Math.random() * 99999999999)
+					.toString()
+					.padStart(11, '0'),
+				responsavel_nome: 'Responsável Teste',
+				responsavel_telefone: '11999999999',
+				responsavel_email: 'responsavel@example.com',
+				lotes: [],
+			}
+			var cnpj = dados_teste.cnpj
+			cy.cadastrar_terceirizadas(dados_teste).then((response) => {
+				expect(response.status).to.eq(201)
+				expect(response.body.cnpj).to.eq(cnpj)
+				var uuid_response = response.body.uuid
+
+				var dados_alterados = {
+					nome_fantasia: 'Testes Automação ALTERADO ' + new Date().getTime(),
+					razao_social:
+						'Testes Automação LTDA ALTERADO ' + new Date().getTime(),
+					cnpj: '60498984000104',
+					representante_legal: 'Representante Teste',
+					representante_telefone: '1155555555',
+					representante_email: 'representante@example.com',
+					cep: '05010000',
+					logradouro: 'Rua Teste Automação',
+					numero: '123',
+					complemento: 'Complemento Teste',
+					bairro: 'Bairro Teste',
+					cidade: 'São Paulo',
+					estado: 'SP',
+					credenciado: true,
+					contato_telefone: '1155555555',
+					contato_email: 'user@example.com',
+					contato_nome_nutri: 'Nutricionista Responsável Teste',
+					crn_numero: '1155555555',
+					super_admin_terceirizadas: true,
+					nutri_telefone: '11 977777777',
+					nutri_email: 'user@example.com',
+					contato_eh_nutricionista: true,
+					responsavel_cargo: 'Cargo Teste',
+					responsavel_cpf: dados_teste.responsavel_cpf,
+					responsavel_nome: 'Responsável Teste',
+					responsavel_telefone: '11999999999',
+					responsavel_email: 'responsavel@example.com',
+					lotes: [],
+				}
+
+				// Alterar a terceirizada cadastrada no teste
+				cy.alterar_terceirizadas_put(uuid_response, dados_alterados).then(
+					(responsePut) => {
+						expect(responsePut.status).to.eq(200)
+					},
+				)
+				// Deletar a terceirizada cadastrada no teste
+				cy.deletar_terceirizadas(uuid_response).then((responseDelete) => {
+					expect(responseDelete.status).to.eq(204)
+				})
+			})
+		})
+
+		it('Validar PUT de Terceirizadas com UUID inválido', () => {
+			var uuid = '3ac751ee-f95d-4d5b-80da-437506b00000'
+			var dados_alterados = {
+				nome_fantasia: 'Testes Automação ALTERADO ' + new Date().getTime(),
+				razao_social: 'Testes Automação LTDA ALTERADO ' + new Date().getTime(),
+				cnpj: '60498984000104',
+				representante_legal: 'Representante Teste',
+				representante_telefone: '1155555555',
+				representante_email: 'representante@example.com',
+			}
+			cy.alterar_terceirizadas_put(uuid, dados_alterados).then((response) => {
+				expect(response.status).to.eq(404)
+			})
+		})
+
+		it('Validar PATCH com sucesso de Terceirizadas', () => {
+			var dados_teste = {
+				nome_fantasia: 'Testes Automação ' + new Date().getTime(),
+				razao_social: 'Testes Automação LTDA ' + new Date().getTime(),
+				cnpj: '60498984000104',
+				representante_legal: 'Representante Teste',
+				representante_telefone: '1155555555',
+				representante_email: 'representante@example.com',
+				cep: '05010000',
+				logradouro: 'Rua Teste Automação',
+				numero: '123',
+				complemento: 'Complemento Teste',
+				bairro: 'Bairro Teste',
+				cidade: 'São Paulo',
+				estado: 'SP',
+				credenciado: true,
+				contato_telefone: '1155555555',
+				contato_email: 'user@example.com',
+				contato_nome_nutri: 'Nutricionista Responsável Teste',
+				crn_numero: '1155555555',
+				super_admin_terceirizadas: true,
+				nutri_telefone: '11 977777777',
+				nutri_email: 'user@example.com',
+				contato_eh_nutricionista: true,
+				responsavel_cargo: 'Cargo Teste',
+				responsavel_cpf: Math.floor(Math.random() * 99999999999)
+					.toString()
+					.padStart(11, '0'),
+				responsavel_nome: 'Responsável Teste',
+				responsavel_telefone: '11999999999',
+				responsavel_email: 'responsavel@example.com',
+				lotes: [],
+			}
+			var cnpj = dados_teste.cnpj
+			cy.cadastrar_terceirizadas(dados_teste).then((response) => {
+				expect(response.status).to.eq(201)
+				expect(response.body.cnpj).to.eq(cnpj)
+				var uuid_response = response.body.uuid
+
+				var dados_alterados = {
+					nome_fantasia: 'Testes Automação PATCH ' + new Date().getTime(),
+					razao_social:
+						'Testes Automação LTDA ALTERADO PATCH ' + new Date().getTime(),
+					cnpj: '60498984000104',
+					representante_legal: 'Representante Teste',
+					representante_telefone: '1155555555',
+					representante_email: 'representante@example.com',
+					cep: '05010000',
+					logradouro: 'Rua Teste Automação',
+					numero: '123',
+					complemento: 'Complemento Teste',
+					bairro: 'Bairro Teste',
+					cidade: 'São Paulo',
+					estado: 'SP',
+					credenciado: true,
+					contato_telefone: '1155555555',
+					contato_email: 'user@example.com',
+					contato_nome_nutri: 'Nutricionista Responsável Teste',
+					crn_numero: '1155555555',
+					super_admin_terceirizadas: true,
+					nutri_telefone: '11 977777777',
+					nutri_email: 'user@example.com',
+					contato_eh_nutricionista: true,
+					responsavel_cargo: 'Cargo Teste',
+					responsavel_cpf: dados_teste.responsavel_cpf,
+					responsavel_nome: 'Responsável Teste',
+					responsavel_telefone: '11999999999',
+					responsavel_email: 'responsavel@example.com',
+					lotes: [],
+				}
+
+				// Alterar a terceirizada cadastrada no teste
+				cy.alterar_terceirizadas_patch(uuid_response, dados_alterados).then(
+					(responsePut) => {
+						expect(responsePut.status).to.eq(200)
+					},
+				)
+				// Deletar a terceirizada cadastrada no teste
+				cy.deletar_terceirizadas(uuid_response).then((responseDelete) => {
+					expect(responseDelete.status).to.eq(204)
+				})
+			})
+		})
+
+		it('Validar PATCH de Terceirizadas com UUID inválido', () => {
+			var uuid = '3ac751ee-f95d-4d5b-80da-437506b00000'
+			var dados_alterados = {
+				nome_fantasia: 'Testes Automação PATCH ' + new Date().getTime(),
+				razao_social:
+					'Testes Automação LTDA ALTERADO PATCH ' + new Date().getTime(),
+				cnpj: '60498984000104',
+				representante_legal: 'Representante Teste',
+				representante_telefone: '1155555555',
+				representante_email: 'representante@example.com',
+			}
+			cy.alterar_terceirizadas_patch(uuid, dados_alterados).then((response) => {
+				expect(response.status).to.eq(404)
+			})
+		})
 	})
 
 	context('Rota api/terceirizadas/listagens', () => {
