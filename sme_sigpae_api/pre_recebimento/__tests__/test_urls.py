@@ -1015,12 +1015,21 @@ def test_url_dashboard_cronograma_com_filtro(
     client_autenticado_dilog_abastecimento, cronograma_factory, status_card
 ):
     cronogramas = cronograma_factory.create_batch(size=10, status=status_card)
+    cronograma_filtrado = cronogramas[0]
+
+    # Evita intermitencia causada por filtros com icontains em dados gerados aleatoriamente.
+    cronograma_filtrado.numero = f"CRONOGRAMA-UNICO-{status_card}"
+    cronograma_filtrado.save(update_fields=["numero"])
+    cronograma_filtrado.ficha_tecnica.produto.nome = f"PRODUTO-UNICO-{status_card}"
+    cronograma_filtrado.ficha_tecnica.produto.save(update_fields=["nome"])
+    cronograma_filtrado.empresa.razao_social = f"FORNECEDOR-UNICO-{status_card}"
+    cronograma_filtrado.empresa.save(update_fields=["razao_social"])
 
     filtros = {
         "status": status_card,
         "offset": 0,
         "limit": 10,
-        "numero_cronograma": cronogramas[0].numero,
+        "numero_cronograma": cronograma_filtrado.numero,
     }
     response = client_autenticado_dilog_abastecimento.get(
         "/cronogramas/dashboard-com-filtro/", filtros
@@ -1032,7 +1041,7 @@ def test_url_dashboard_cronograma_com_filtro(
         "status": status_card,
         "offset": 0,
         "limit": 10,
-        "nome_produto": cronogramas[0].ficha_tecnica.produto.nome,
+        "nome_produto": cronograma_filtrado.ficha_tecnica.produto.nome,
     }
     response = client_autenticado_dilog_abastecimento.get(
         "/cronogramas/dashboard-com-filtro/", filtros
@@ -1044,7 +1053,7 @@ def test_url_dashboard_cronograma_com_filtro(
         "status": status_card,
         "offset": 0,
         "limit": 10,
-        "nome_fornecedor": cronogramas[0].empresa.razao_social,
+        "nome_fornecedor": cronograma_filtrado.empresa.razao_social,
     }
     response = client_autenticado_dilog_abastecimento.get(
         "/cronogramas/dashboard-com-filtro/", filtros
@@ -3868,9 +3877,7 @@ def test_url_pdf_ficha_tecnica_tag_leve_leite(
     assert "LEVE LEITE - PLL" not in pdf_text_alimentacao
 
 
-def test_url_pdf_ficha_tecnica_flv(
-    client_autenticado_fornecedor, ficha_tecnica_flv
-):
+def test_url_pdf_ficha_tecnica_flv(client_autenticado_fornecedor, ficha_tecnica_flv):
     ficha_flv = ficha_tecnica_flv
 
     response_flv = client_autenticado_fornecedor.get(
