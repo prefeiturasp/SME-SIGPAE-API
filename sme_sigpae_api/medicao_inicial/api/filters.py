@@ -100,8 +100,11 @@ class SolicitacaoMedicaoInicialFilter(filters.FilterSet):
 
 class LancheEmergencialDiarioFilter(filters.FilterSet):
     escola_uuid = filters.CharFilter(field_name="escola__uuid", lookup_expr="iexact")
-    mes = filters.CharFilter()
-    ano = filters.CharFilter()
+    mes = filters.CharFilter(method="noop")
+    ano = filters.CharFilter(method="noop")
+
+    def noop(self, queryset, _, value):
+        return queryset
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
