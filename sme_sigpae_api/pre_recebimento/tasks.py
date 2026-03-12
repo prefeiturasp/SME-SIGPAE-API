@@ -57,8 +57,9 @@ def _aplicar_estilos_leve_leite(worksheet, workbook, indices_leve_leite, dados):
     blue_format = workbook.add_format({"font_color": "#90CEFD"})
     col_produto = 1  # Coluna B
 
+    # O DataFrame e escrito com startrow=1, entao a primeira linha de dados e a linha 2 do Excel.
     for row_idx in indices_leve_leite:
-        excel_row = row_idx + 3
+        excel_row = row_idx + 1
         valor_produto = dados[row_idx].get("produto_nome", "")
         worksheet.write(excel_row, col_produto, valor_produto, blue_format)
 

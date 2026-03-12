@@ -53,6 +53,7 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.helpers import (
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializer_create import (
     CronogramaCreateSerializer,
     SolicitacaoDeAlteracaoCronogramaCreateSerializer,
+    CronogramaPontoAPontoCreateSerializer
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     CronogramaComLogSerializer,
@@ -105,8 +106,11 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
     def get_serializer_class(self):
         if self.action in ["retrieve", "list"]:
             return CronogramaSerializer
-        else:
-            return CronogramaCreateSerializer
+
+        if self.request and self.request.data.get("ponto_a_ponto"):
+            return CronogramaPontoAPontoCreateSerializer
+
+        return CronogramaCreateSerializer
 
     def get_queryset(self):
         return Cronograma.objects.all().order_by("-criado_em")
@@ -906,5 +910,7 @@ class InterrupcaoProgramadaEntregaViewSet(
             tipo_calendario=InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL,
             data__year__in=[ano_atual, ano_proximo],
         ).values_list("data", flat=True)
+
+        return Response({"results": list(datas)}, status=HTTP_200_OK)
 
         return Response({"results": list(datas)}, status=HTTP_200_OK)

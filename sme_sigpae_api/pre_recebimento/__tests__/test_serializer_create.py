@@ -6,6 +6,7 @@ from rest_framework import serializers
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.serializers.serializer_create import (
     FichaTecnicaCreateSerializer,
     FichaTecnicaFLVCreateSerializer,
+    AnaliseFichaTecnicaCreateSerializer,
 )
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
@@ -121,3 +122,84 @@ def test_ficha_flv_valida(payload_base_flv):
     payload_base_flv["categoria"] = FichaTecnicaDoProduto.CATEGORIA_FLV
     serializer = FichaTecnicaFLVCreateSerializer(data=payload_base_flv)
     assert serializer.is_valid(), serializer.errors
+
+
+def make_serializer(payload, ficha_tecnica, usuario):
+    return AnaliseFichaTecnicaCreateSerializer(
+        data=payload,
+        context={"ficha_tecnica": ficha_tecnica, "criado_por": usuario},
+    )
+
+
+def test_analise_normal_valida(payload_analise_aprovada, ficha_tecnica_nao_perecivel, usuario):
+    serializer = make_serializer(payload_analise_aprovada, ficha_tecnica_nao_perecivel, usuario)
+    assert serializer.is_valid(), serializer.errors
+
+
+def test_analise_normal_conferido_false_com_correcoes_valido(payload_analise_aprovada, ficha_tecnica_nao_perecivel, usuario):
+    payload_analise_aprovada.update({
+        "conservacao_conferido": False,
+        "conservacao_correcoes": "Temperatura incorreta.",
+        "aprovada": False,
+    })
+    serializer = make_serializer(payload_analise_aprovada, ficha_tecnica_nao_perecivel, usuario)
+    assert serializer.is_valid(), serializer.errors
+
+
+def test_analise_normal_conferido_false_sem_correcoes_invalido(payload_analise_aprovada, ficha_tecnica_nao_perecivel, usuario):
+    payload_analise_aprovada.update({
+        "conservacao_conferido": False,
+        "conservacao_correcoes": "",
+        "aprovada": False,
+    })
+    serializer = make_serializer(payload_analise_aprovada, ficha_tecnica_nao_perecivel, usuario)
+    assert not serializer.is_valid()
+    assert "não pode ser vazio" in str(serializer.errors)
+
+
+def test_analise_normal_conferido_true_com_correcoes_invalido(payload_analise_aprovada, ficha_tecnica_nao_perecivel, usuario):
+    payload_analise_aprovada.update({
+        "modo_preparo_conferido": True,
+        "modo_preparo_correcoes": "Correção indevida.",
+    })
+    serializer = make_serializer(payload_analise_aprovada, ficha_tecnica_nao_perecivel, usuario)
+    assert not serializer.is_valid()
+    assert "deve ser vazio" in str(serializer.errors)
+
+
+def test_analise_normal_campos_inexistentes_para_flv_sao_obrigatorios(ficha_tecnica_nao_perecivel, usuario):
+    serializer = make_serializer({}, ficha_tecnica_nao_perecivel, usuario)
+    assert not serializer.is_valid()
+    for campo in [
+        "informacoes_nutricionais_conferido",
+        "conservacao_conferido",
+        "armazenamento_conferido",
+        "embalagem_e_rotulagem_conferido",
+        "modo_preparo_conferido",
+    ]:
+        assert campo in serializer.errors, f"Esperado erro em: {campo}"
+
+
+def test_analise_flv_valida_sem_campos_inexistentes(payload_analise_flv_aprovada, ficha_tecnica_flv, usuario):
+    serializer = make_serializer(payload_analise_flv_aprovada, ficha_tecnica_flv, usuario)
+    assert serializer.is_valid(), serializer.errors
+
+
+def test_analise_flv_campos_inexistentes_ignorados_mesmo_se_enviados(payload_analise_flv_aprovada, ficha_tecnica_flv, usuario):
+    payload_analise_flv_aprovada.update({
+        "modo_preparo_conferido": False,
+        "modo_preparo_correcoes": "",
+    })
+    serializer = make_serializer(payload_analise_flv_aprovada, ficha_tecnica_flv, usuario)
+    assert serializer.is_valid(), serializer.errors
+
+
+def test_analise_flv_campos_obrigatorios_continuam_sendo_validados(payload_analise_flv_aprovada, ficha_tecnica_flv, usuario):
+    payload_analise_flv_aprovada.update({
+        "fabricante_envasador_conferido": False,
+        "fabricante_envasador_correcoes": "",
+        "aprovada": False,
+    })
+    serializer = make_serializer(payload_analise_flv_aprovada, ficha_tecnica_flv, usuario)
+    assert not serializer.is_valid()
+    assert "não pode ser vazio" in str(serializer.errors)

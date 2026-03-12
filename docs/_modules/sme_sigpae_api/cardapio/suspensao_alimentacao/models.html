@@ -1,0 +1,390 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_sigpae_api.cardapio.suspensao_alimentacao.models &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sme_sigpae_api.cardapio.suspensao_alimentacao.models</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sme_sigpae_api.cardapio.suspensao_alimentacao.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_prometheus.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExportModelOperationsMixin</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.base.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">TipoAlimentacao</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.suspensao_alimentacao.managers.suspensao_alimentacao_managers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GrupoSuspensaoAlimentacaoDestaSemanaManager</span><span class="p">,</span>
+    <span class="n">GrupoSuspensaoAlimentacaoDesteMesManager</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CanceladoIndividualmente</span><span class="p">,</span>
+    <span class="n">CriadoEm</span><span class="p">,</span>
+    <span class="n">CriadoPor</span><span class="p">,</span>
+    <span class="n">Logs</span><span class="p">,</span>
+    <span class="n">Nomeavel</span><span class="p">,</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">TemData</span><span class="p">,</span>
+    <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
+    <span class="n">TemObservacao</span><span class="p">,</span>
+    <span class="n">TemPrioridade</span><span class="p">,</span>
+    <span class="n">TemTerceirizadaConferiuGestaoAlimentacao</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxoInformativoPartindoDaEscola</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span><span class="p">,</span> <span class="n">TemplateMensagem</span>
+
+
+<div class="viewcode-block" id="MotivoSuspensao">
+<a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.admin.MotivoSuspensao">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MotivoSuspensao</span><span class="p">(</span>
+    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;motivo_suspensao&quot;</span><span class="p">),</span> <span class="n">Nomeavel</span><span class="p">,</span> <span class="n">TemChaveExterna</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Trabalha em conjunto com SuspensaoAlimentacao.</span>
+
+<span class="sd">    Exemplos:</span>
+<span class="sd">        - greve</span>
+<span class="sd">        - reforma</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nome</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Motivo de suspensão de alimentação&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Motivo de suspensão de alimentação&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="SuspensaoAlimentacao">
+<a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.admin.SuspensaoAlimentacao">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SuspensaoAlimentacao</span><span class="p">(</span>
+    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;suspensao_alimentacao&quot;</span><span class="p">),</span>
+    <span class="n">TemData</span><span class="p">,</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">CanceladoIndividualmente</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Trabalha em conjunto com GrupoSuspensaoAlimentacao.&quot;&quot;&quot;</span>
+
+    <span class="n">prioritario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">MotivoSuspensao</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">)</span>
+    <span class="n">outro_motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="s2">&quot;Outro motivo&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+    <span class="n">grupo_suspensao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;GrupoSuspensaoAlimentacao&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;suspensoes_alimentacao&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">motivo</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Suspensão de alimentação&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Suspensões de alimentação&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="QuantidadePorPeriodoSuspensaoAlimentacao">
+<a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.admin.QuantidadePorPeriodoSuspensaoAlimentacao">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">QuantidadePorPeriodoSuspensaoAlimentacao</span><span class="p">(</span>
+    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;quantidade_periodo&quot;</span><span class="p">),</span> <span class="n">TemChaveExterna</span>
+<span class="p">):</span>
+    <span class="n">CEI_OU_EMEI_CHOICES</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;TODOS&quot;</span><span class="p">,</span> <span class="s2">&quot;Todos&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;CEI&quot;</span><span class="p">,</span> <span class="s2">&quot;CEI&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;EMEI&quot;</span><span class="p">,</span> <span class="s2">&quot;EMEI&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">numero_alunos</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">SmallIntegerField</span><span class="p">()</span>
+    <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.PeriodoEscolar&quot;</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span>
+    <span class="p">)</span>
+    <span class="n">grupo_suspensao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;GrupoSuspensaoAlimentacao&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;quantidades_por_periodo&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># TODO: SUBSTITUIR POR COMBOS DO TIPO DE ALIMENTACAO</span>
+    <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">TipoAlimentacao</span><span class="p">)</span>
+    <span class="n">alunos_cei_ou_emei</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">CEI_OU_EMEI_CHOICES</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Quantidade de alunos: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">numero_alunos</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Quantidade por período de suspensão de alimentação&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Quantidade por período de suspensão de alimentação&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="GrupoSuspensaoAlimentacao">
+<a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.admin.GrupoSuspensaoAlimentacao">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GrupoSuspensaoAlimentacao</span><span class="p">(</span>
+    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;grupo_suspensao_alimentacao&quot;</span><span class="p">),</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">CriadoPor</span><span class="p">,</span>
+    <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
+    <span class="n">CriadoEm</span><span class="p">,</span>
+    <span class="n">TemObservacao</span><span class="p">,</span>
+    <span class="n">FluxoInformativoPartindoDaEscola</span><span class="p">,</span>
+    <span class="n">Logs</span><span class="p">,</span>
+    <span class="n">TemPrioridade</span><span class="p">,</span>
+    <span class="n">TemTerceirizadaConferiuGestaoAlimentacao</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serve para agrupar suspensões.</span>
+
+<span class="sd">    Vide SuspensaoAlimentacao e QuantidadePorPeriodoSuspensaoAlimentacao</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">DESCRICAO</span> <span class="o">=</span> <span class="s2">&quot;Suspensão de Alimentação&quot;</span>
+    <span class="n">escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s2">&quot;escola.Escola&quot;</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">)</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span>  <span class="c1"># Manager Padrão</span>
+    <span class="n">desta_semana</span> <span class="o">=</span> <span class="n">GrupoSuspensaoAlimentacaoDestaSemanaManager</span><span class="p">()</span>
+    <span class="n">deste_mes</span> <span class="o">=</span> <span class="n">GrupoSuspensaoAlimentacaoDesteMesManager</span><span class="p">()</span>
+
+<div class="viewcode-block" id="GrupoSuspensaoAlimentacao.get_informados">
+<a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.admin.GrupoSuspensaoAlimentacao.get_informados">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_informados</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">INFORMADO</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GrupoSuspensaoAlimentacao.get_tomados_ciencia">
+<a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.admin.GrupoSuspensaoAlimentacao.get_tomados_ciencia">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tomados_ciencia</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">TERCEIRIZADA_TOMOU_CIENCIA</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GrupoSuspensaoAlimentacao.get_rascunhos_do_usuario">
+<a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.admin.GrupoSuspensaoAlimentacao.get_rascunhos_do_usuario">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_rascunhos_do_usuario</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">usuario</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">criado_por</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">RASCUNHO</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>  <span class="c1"># type: ignore</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">quantidades_por_periodo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantidades_por_periodo</span>
+
+    <span class="nd">@property</span>  <span class="c1"># type: ignore</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">suspensoes_alimentacao</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">suspensoes_alimentacao</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tipo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Suspensão de Alimentação&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;suspensao-de-alimentacao/relatorio?uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&amp;tipoSolicitacao=solicitacao-normal&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">suspensoes_alimentacao</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">query</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">datas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">suspensoes_alimentacao</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+                    <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">numero_alunos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantidades_por_periodo</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Sum</span><span class="p">(</span><span class="s2">&quot;numero_alunos&quot;</span><span class="p">))[</span>
+            <span class="s2">&quot;numero_alunos__sum&quot;</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="GrupoSuspensaoAlimentacao.solicitacao_dict_para_relatorio">
+<a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.admin.GrupoSuspensaoAlimentacao.solicitacao_dict_para_relatorio">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solicitacao_dict_para_relatorio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_data</span><span class="p">,</span> <span class="n">data_log</span><span class="p">,</span> <span class="n">instituicao</span><span class="p">):</span>
+        <span class="n">datas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">suspensoes_alimentacao</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">datas</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">datas</span><span class="p">]</span>
+        <span class="n">datas</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">datas</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;lote&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rastro_lote</span><span class="o">.</span><span class="n">diretoria_regional</span><span class="o">.</span><span class="n">iniciais</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rastro_lote</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_educacional&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rastro_escola</span><span class="o">.</span><span class="n">nome_historico</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
+            <span class="s2">&quot;terceirizada&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rastro_terceirizada</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_doc&quot;</span><span class="p">:</span> <span class="s2">&quot;Suspensão de Alimentação&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_evento&quot;</span><span class="p">:</span> <span class="n">datas</span><span class="p">,</span>
+            <span class="s2">&quot;numero_alunos&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">numero_alunos</span><span class="p">,</span>
+            <span class="s2">&quot;label_data&quot;</span><span class="p">:</span> <span class="n">label_data</span><span class="p">,</span>
+            <span class="s2">&quot;data_log&quot;</span><span class="p">:</span> <span class="n">data_log</span><span class="p">,</span>
+            <span class="s2">&quot;dias_motivos&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">suspensoes_alimentacao</span><span class="p">,</span>
+            <span class="s2">&quot;quantidades_periodo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantidades_por_periodo</span><span class="p">,</span>
+            <span class="s2">&quot;datas&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">datas</span><span class="p">,</span>
+            <span class="s2">&quot;observacao&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">observacao</span><span class="p">,</span>
+            <span class="s2">&quot;id_externo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_externo</span><span class="p">,</span>
+            <span class="s2">&quot;existe_dia_cancelado&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">existe_dia_cancelado</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">existe_dia_cancelado</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">suspensoes_alimentacao</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">cancelado</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">observacao</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">template_mensagem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">TemplateMensagem</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">tipo</span><span class="o">=</span><span class="n">TemplateMensagem</span><span class="o">.</span><span class="n">SUSPENSAO_ALIMENTACAO</span>
+        <span class="p">)</span>
+        <span class="n">corpo</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">template_html</span>
+        <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">assunto</span><span class="p">,</span> <span class="n">corpo</span>
+
+<div class="viewcode-block" id="GrupoSuspensaoAlimentacao.salvar_log_transicao">
+<a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.admin.GrupoSuspensaoAlimentacao.salvar_log_transicao">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">salvar_log_transicao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status_evento</span><span class="p">,</span> <span class="n">usuario</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">descricao</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="n">status_evento</span><span class="o">=</span><span class="n">status_evento</span><span class="p">,</span>
+            <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span><span class="p">,</span>
+            <span class="n">solicitacao_tipo</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">SUSPENSAO_DE_CARDAPIO</span><span class="p">,</span>
+            <span class="n">usuario</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span>
+            <span class="n">uuid_original</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Grupo de suspensão de alimentação&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Grupo de suspensão de alimentação&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="SuspensaoAlimentacaoNoPeriodoEscolar">
+<a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.admin.SuspensaoAlimentacaoNoPeriodoEscolar">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SuspensaoAlimentacaoNoPeriodoEscolar</span><span class="p">(</span>
+    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;suspensao_periodo_escolar&quot;</span><span class="p">),</span> <span class="n">TemChaveExterna</span>
+<span class="p">):</span>
+    <span class="n">suspensao_alimentacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">SuspensaoAlimentacao</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;suspensoes_periodo_escolar&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">qtd_alunos</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.PeriodoEscolar&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;suspensoes_periodo_escolar&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="s2">&quot;TipoAlimentacao&quot;</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;suspensoes_periodo_escolar&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Suspensão de alimentação da Alteração de Cardápio: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">suspensao_alimentacao</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Suspensão de alimentação no período&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Suspensões de alimentação no período&quot;</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
