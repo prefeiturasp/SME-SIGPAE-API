@@ -1,0 +1,578 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_prometheus.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExportModelOperationsMixin</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">EhAlteracaoCardapio</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.base.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">TipoAlimentacao</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Ativavel</span><span class="p">,</span>
+    <span class="n">CanceladoIndividualmente</span><span class="p">,</span>
+    <span class="n">CriadoEm</span><span class="p">,</span>
+    <span class="n">CriadoPor</span><span class="p">,</span>
+    <span class="n">IntervaloDeDia</span><span class="p">,</span>
+    <span class="n">Logs</span><span class="p">,</span>
+    <span class="n">Nomeavel</span><span class="p">,</span>
+    <span class="n">SolicitacaoForaDoPrazo</span><span class="p">,</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">TemData</span><span class="p">,</span>
+    <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
+    <span class="n">TemObservacao</span><span class="p">,</span>
+    <span class="n">TemPrioridade</span><span class="p">,</span>
+    <span class="n">TemTerceirizadaConferiuGestaoAlimentacao</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxoAprovacaoPartindoDaEscola</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span><span class="p">,</span> <span class="n">TemplateMensagem</span>
+
+
+<div class="viewcode-block" id="AlteracaoCardapio">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlteracaoCardapio</span><span class="p">(</span>
+    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;alteracao_cardapio&quot;</span><span class="p">),</span>
+    <span class="n">CriadoEm</span><span class="p">,</span>
+    <span class="n">CriadoPor</span><span class="p">,</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">IntervaloDeDia</span><span class="p">,</span>
+    <span class="n">TemObservacao</span><span class="p">,</span>
+    <span class="n">FluxoAprovacaoPartindoDaEscola</span><span class="p">,</span>
+    <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
+    <span class="n">Logs</span><span class="p">,</span>
+    <span class="n">TemPrioridade</span><span class="p">,</span>
+    <span class="n">SolicitacaoForaDoPrazo</span><span class="p">,</span>
+    <span class="n">EhAlteracaoCardapio</span><span class="p">,</span>
+    <span class="n">TemTerceirizadaConferiuGestaoAlimentacao</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Modelo responsável por armazenar Solicitações de Alteração do Tipo de Alimentação genéricas.</span>
+
+<span class="sd">    Representa uma solicitação formal de troca do tipo de alimentação servida em</span>
+<span class="sd">    determinado(s) período(s) escolar(es), com data inicial e final delimitadas.</span>
+
+<span class="sd">    Tipos de unidade contempladas:</span>
+<span class="sd">        - EMEF</span>
+<span class="sd">        - EMEI</span>
+<span class="sd">        - CIEJA</span>
+<span class="sd">        - EMEBS</span>
+
+<span class="sd">    Exceções **não** contempladas:</span>
+<span class="sd">        - CEI</span>
+<span class="sd">        - CEMEI</span>
+
+<span class="sd">    :cvar DESCRICAO: Descrição legível do tipo de solicitação.</span>
+<span class="sd">    :vartype DESCRICAO: str</span>
+<span class="sd">    :cvar eh_alteracao_com_lanche_repetida: Indica se a alteração envolve lanche repetido</span>
+<span class="sd">        no mesmo mês.</span>
+<span class="sd">    :vartype eh_alteracao_com_lanche_repetida: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">DESCRICAO</span> <span class="o">=</span> <span class="s2">&quot;Alteração do Tipo de Alimentação&quot;</span>
+
+    <span class="n">eh_alteracao_com_lanche_repetida</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AlteracaoCardapio.com_lanche_do_mes_corrente">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.com_lanche_do_mes_corrente">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">com_lanche_do_mes_corrente</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">escola_uuid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna alterações de cardápio do mês corrente que incluam lanche como tipo de destino.</span>
+
+<span class="sd">        Filtra as alterações da escola informada cujo período de substituição contemple</span>
+<span class="sd">        algum tipo de alimentação com ``&quot;lanche&quot;`` no nome.</span>
+
+<span class="sd">        :param escola_uuid: UUID da escola a ser filtrada.</span>
+<span class="sd">        :type escola_uuid: uuid.UUID</span>
+<span class="sd">        :returns: QuerySet de :class:`AlteracaoCardapio` do mês corrente contendo lanche.</span>
+<span class="sd">        :rtype: django.db.models.QuerySet</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lanche</span> <span class="o">=</span> <span class="n">TipoAlimentacao</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">nome__icontains</span><span class="o">=</span><span class="s2">&quot;lanche&quot;</span><span class="p">)</span>
+        <span class="n">alteracoes_da_escola</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">do_mes_corrente</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">escola__uuid</span><span class="o">=</span><span class="n">escola_uuid</span><span class="p">,</span>
+            <span class="n">substituicoes_periodo_escolar__tipos_alimentacao_para__in</span><span class="o">=</span><span class="n">lanche</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">alteracoes_da_escola</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a data mais antiga do intervalo (inicial ou final).</span>
+
+<span class="sd">        :returns: Data de início da alteração, ou a data final caso seja anterior.</span>
+<span class="sd">        :rtype: datetime.date</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_inicial</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_final</span> <span class="o">&lt;</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_final</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">numero_alunos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o total de alunos somando todas as substituições vinculadas.</span>
+
+<span class="sd">        :returns: Soma da quantidade de alunos em todas as</span>
+<span class="sd">            :class:`SubstituicaoAlimentacaoNoPeriodoEscolar` desta alteração, ou</span>
+<span class="sd">            ``None`` se não houver substituições.</span>
+<span class="sd">        :rtype: int or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Sum</span><span class="p">(</span><span class="s2">&quot;qtd_alunos&quot;</span><span class="p">))[</span><span class="s2">&quot;qtd_alunos__sum&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eh_unico_dia</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Verifica se a alteração ocorre em um único dia.</span>
+
+<span class="sd">        :returns: ``True`` se ``data_inicial`` e ``data_final`` forem iguais,</span>
+<span class="sd">            ``False`` caso contrário.</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_inicial</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_final</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">substituicoes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Atalho para o relacionamento ``substituicoes_periodo_escolar``.</span>
+
+<span class="sd">        :returns: Manager reverso das substituições de alimentação vinculadas.</span>
+<span class="sd">        :rtype: django.db.models.Manager</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_periodo_escolar</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">inclusoes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Atalho para o relacionamento ``datas_intervalo``.</span>
+
+<span class="sd">        :returns: Manager reverso das datas do intervalo vinculadas.</span>
+<span class="sd">        :rtype: django.db.models.Manager</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">datas_intervalo</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tipo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a descrição legível do tipo da solicitação.</span>
+
+<span class="sd">        :returns: String ``&quot;Alteração do Tipo de Alimentação&quot;``.</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;Alteração do Tipo de Alimentação&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o caminho relativo do relatório desta solicitação no frontend.</span>
+
+<span class="sd">        :returns: URL relativa no formato</span>
+<span class="sd">            ``&quot;alteracao-do-tipo-de-alimentacao/relatorio?uuid=&lt;uuid&gt;&amp;tipoSolicitacao=solicitacao-normal&quot;``.</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;alteracao-do-tipo-de-alimentacao/relatorio?uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&amp;tipoSolicitacao=solicitacao-normal&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">template_mensagem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o assunto e o corpo HTML do template de mensagem de alteração de cardápio.</span>
+
+<span class="sd">        Busca o :class:`~sme_sigpae_api.dados_comuns.models.TemplateMensagem` do tipo</span>
+<span class="sd">        ``ALTERACAO_CARDAPIO`` e retorna seus campos de assunto e conteúdo HTML.</span>
+
+<span class="sd">        :returns: Tupla ``(assunto, corpo_html)`` do template.</span>
+<span class="sd">        :rtype: tuple[str, str]</span>
+<span class="sd">        :raises TemplateMensagem.DoesNotExist: Caso não exista template do tipo</span>
+<span class="sd">            ``ALTERACAO_CARDAPIO`` cadastrado.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">TemplateMensagem</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">tipo</span><span class="o">=</span><span class="n">TemplateMensagem</span><span class="o">.</span><span class="n">ALTERACAO_CARDAPIO</span>
+        <span class="p">)</span>
+        <span class="n">corpo</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">template_html</span>
+        <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">assunto</span><span class="p">,</span> <span class="n">corpo</span>
+
+<div class="viewcode-block" id="AlteracaoCardapio.salvar_log_transicao">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.salvar_log_transicao">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">salvar_log_transicao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status_evento</span><span class="p">,</span> <span class="n">usuario</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Registra no log a transição de status da solicitação.</span>
+
+<span class="sd">        Cria uma entrada em :class:`~sme_sigpae_api.dados_comuns.models.LogSolicitacoesUsuario`</span>
+<span class="sd">        associada a esta alteração de cardápio.</span>
+
+<span class="sd">        :param status_evento: Código do evento de status (constante de</span>
+<span class="sd">            :class:`~sme_sigpae_api.dados_comuns.models.LogSolicitacoesUsuario`).</span>
+<span class="sd">        :type status_evento: int</span>
+<span class="sd">        :param usuario: Usuário responsável pela transição.</span>
+<span class="sd">        :type usuario: django.contrib.auth.models.AbstractUser</span>
+<span class="sd">        :param justificativa: Texto justificando a transição (opcional).</span>
+<span class="sd">        :type justificativa: str</span>
+<span class="sd">        :param resposta_sim_nao: Indica resposta booleana associada ao log (opcional,</span>
+<span class="sd">            padrão ``False``).</span>
+<span class="sd">        :type resposta_sim_nao: bool</span>
+<span class="sd">        :returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">resposta_sim_nao</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;resposta_sim_nao&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">descricao</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="n">status_evento</span><span class="o">=</span><span class="n">status_evento</span><span class="p">,</span>
+            <span class="n">solicitacao_tipo</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">ALTERACAO_DE_CARDAPIO</span><span class="p">,</span>
+            <span class="n">usuario</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span>
+            <span class="n">uuid_original</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span><span class="p">,</span>
+            <span class="n">resposta_sim_nao</span><span class="o">=</span><span class="n">resposta_sim_nao</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">substituicoes_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as substituições de alimentação serializadas como lista de dicionários.</span>
+
+<span class="sd">        Cada item da lista representa uma :class:`SubstituicaoAlimentacaoNoPeriodoEscolar`</span>
+<span class="sd">        com os campos ``periodo``, ``alteracao_de`` e ``alteracao_para``.</span>
+
+<span class="sd">        :returns: Lista de dicionários no formato::</span>
+
+<span class="sd">            [</span>
+<span class="sd">                {</span>
+<span class="sd">                    &quot;periodo&quot;: &quot;MANHA&quot;,</span>
+<span class="sd">                    &quot;alteracao_de&quot;: &quot;Lanche, Refeição&quot;,</span>
+<span class="sd">                    &quot;alteracao_para&quot;: &quot;Lanche Emergencial&quot;,</span>
+<span class="sd">                },</span>
+<span class="sd">                ...</span>
+<span class="sd">            ]</span>
+
+<span class="sd">        :rtype: list[dict]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">substituicoes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_periodo_escolar</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">tipos_alimentacao_de</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">tipos_alimentacao_de</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">tipos_alimentacao_de</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tipos_alimentacao_de</span><span class="p">)</span>
+            <span class="n">tipos_alimentacao_para</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">tipos_alimentacao_para</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">tipos_alimentacao_para</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tipos_alimentacao_para</span><span class="p">)</span>
+            <span class="n">substituicoes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;periodo&quot;</span><span class="p">:</span> <span class="n">obj</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+                    <span class="s2">&quot;alteracao_de&quot;</span><span class="p">:</span> <span class="n">tipos_alimentacao_de</span><span class="p">,</span>
+                    <span class="s2">&quot;alteracao_para&quot;</span><span class="p">:</span> <span class="n">tipos_alimentacao_para</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">substituicoes</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">existe_dia_cancelado</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Verifica se ao menos uma data do intervalo foi cancelada individualmente.</span>
+
+<span class="sd">        :returns: ``True`` se existir alguma</span>
+<span class="sd">            :class:`DataIntervaloAlteracaoCardapio` com ``cancelado=True``,</span>
+<span class="sd">            ``False`` caso contrário.</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">datas_intervalo</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">cancelado</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">datas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna todas as datas do intervalo formatadas e concatenadas em uma string.</span>
+
+<span class="sd">        :returns: Datas no formato ``&quot;DD/MM/YYYY&quot;`` separadas por vírgula e espaço,</span>
+<span class="sd">            ex.: ``&quot;01/03/2026, 02/03/2026&quot;``.</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">datas_intervalo</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="AlteracaoCardapio.solicitacao_dict_para_relatorio">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.solicitacao_dict_para_relatorio">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solicitacao_dict_para_relatorio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_data</span><span class="p">,</span> <span class="n">data_log</span><span class="p">,</span> <span class="n">instituicao</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Serializa os dados da solicitação para uso em relatórios.</span>
+
+<span class="sd">        Retorna um dicionário com todas as informações relevantes da alteração de</span>
+<span class="sd">        cardápio, incluindo rastreamentos históricos, datas, motivo e substituições.</span>
+
+<span class="sd">        :param label_data: Rótulo descritivo para o campo de data no relatório.</span>
+<span class="sd">        :type label_data: str</span>
+<span class="sd">        :param data_log: Data do log de referência exibida no relatório.</span>
+<span class="sd">        :type data_log: datetime.date</span>
+<span class="sd">        :param instituicao: Instituição solicitante (não utilizado diretamente na</span>
+<span class="sd">            construção do dict, mantido por compatibilidade de assinatura).</span>
+<span class="sd">        :type instituicao: object</span>
+<span class="sd">        :returns: Dicionário com os campos do relatório::</span>
+
+<span class="sd">            {</span>
+<span class="sd">                &quot;lote&quot;: str,</span>
+<span class="sd">                &quot;unidade_educacional&quot;: str,</span>
+<span class="sd">                &quot;terceirizada&quot;: object,</span>
+<span class="sd">                &quot;tipo_doc&quot;: str,</span>
+<span class="sd">                &quot;data_evento&quot;: datetime.date,</span>
+<span class="sd">                &quot;datas_intervalo&quot;: QuerySet,</span>
+<span class="sd">                &quot;numero_alunos&quot;: int,</span>
+<span class="sd">                &quot;motivo&quot;: str,</span>
+<span class="sd">                &quot;data_inicial&quot;: datetime.date,</span>
+<span class="sd">                &quot;data_final&quot;: datetime.date,</span>
+<span class="sd">                &quot;data_autorizacao&quot;: datetime.date,</span>
+<span class="sd">                &quot;observacao&quot;: str,</span>
+<span class="sd">                &quot;substituicoes&quot;: list[dict],</span>
+<span class="sd">                &quot;label_data&quot;: str,</span>
+<span class="sd">                &quot;data_log&quot;: datetime.date,</span>
+<span class="sd">                &quot;id_externo&quot;: str,</span>
+<span class="sd">                &quot;status&quot;: str,</span>
+<span class="sd">            }</span>
+
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;lote&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rastro_lote</span><span class="o">.</span><span class="n">diretoria_regional</span><span class="o">.</span><span class="n">iniciais</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rastro_lote</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_educacional&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rastro_escola</span><span class="o">.</span><span class="n">nome_historico</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
+            <span class="s2">&quot;terceirizada&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rastro_terceirizada</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_doc&quot;</span><span class="p">:</span> <span class="s2">&quot;Alteração do tipo de Alimentação&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_evento&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="s2">&quot;datas_intervalo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">datas_intervalo</span><span class="p">,</span>
+            <span class="s2">&quot;numero_alunos&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">numero_alunos</span><span class="p">,</span>
+            <span class="s2">&quot;motivo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">motivo</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+            <span class="s2">&quot;data_inicial&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_inicial</span><span class="p">,</span>
+            <span class="s2">&quot;data_final&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_final</span><span class="p">,</span>
+            <span class="s2">&quot;data_autorizacao&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_autorizacao</span><span class="p">,</span>
+            <span class="s2">&quot;observacao&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">observacao</span><span class="p">,</span>
+            <span class="s2">&quot;substituicoes&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_dict</span><span class="p">,</span>
+            <span class="s2">&quot;label_data&quot;</span><span class="p">:</span> <span class="n">label_data</span><span class="p">,</span>
+            <span class="s2">&quot;data_log&quot;</span><span class="p">:</span> <span class="n">data_log</span><span class="p">,</span>
+            <span class="s2">&quot;id_externo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_externo</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Alteração de cardápio de: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_inicial</span><span class="si">}</span><span class="s2"> para </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_final</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Alteração de cardápio&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Alterações de cardápio&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="SubstituicaoAlimentacaoNoPeriodoEscolar">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubstituicaoAlimentacaoNoPeriodoEscolar</span><span class="p">(</span>
+    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;substituicao_alimentacao_periodo_escolar&quot;</span><span class="p">),</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Representa uma substituição de tipo de alimentação em um período escolar específico.</span>
+
+<span class="sd">    Está vinculada a uma :class:`AlteracaoCardapio` e define quais tipos de alimentação</span>
+<span class="sd">    serão trocados (``tipos_alimentacao_de``) por quais outros (``tipos_alimentacao_para``)</span>
+<span class="sd">    em um determinado período escolar, bem como a quantidade de alunos afetados.</span>
+
+<span class="sd">    :cvar alteracao_cardapio: Alteração de cardápio à qual esta substituição pertence.</span>
+<span class="sd">    :vartype alteracao_cardapio: AlteracaoCardapio</span>
+<span class="sd">    :cvar qtd_alunos: Quantidade de alunos impactados pela substituição.</span>
+<span class="sd">    :vartype qtd_alunos: int</span>
+<span class="sd">    :cvar periodo_escolar: Período escolar onde a substituição ocorre.</span>
+<span class="sd">    :vartype periodo_escolar: escola.PeriodoEscolar</span>
+<span class="sd">    :cvar tipos_alimentacao_de: Tipos de alimentação originais a serem substituídos.</span>
+<span class="sd">    :vartype tipos_alimentacao_de: ManyToManyField[TipoAlimentacao]</span>
+<span class="sd">    :cvar tipos_alimentacao_para: Tipos de alimentação que substituirão os originais.</span>
+<span class="sd">    :vartype tipos_alimentacao_para: ManyToManyField[TipoAlimentacao]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;AlteracaoCardapio&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;substituicoes_periodo_escolar&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">qtd_alunos</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.PeriodoEscolar&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;substituicoes_periodo_escolar&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">tipos_alimentacao_de</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="s2">&quot;TipoAlimentacao&quot;</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;substituicoes_alimentos_de&quot;</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Tipos de alimentação substituídos na solicitação&quot;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">tipos_alimentacao_para</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="s2">&quot;TipoAlimentacao&quot;</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;substituicoes_alimento_para&quot;</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Substituições selecionada na solicitação&quot;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Substituições de alimentação: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2"> da Alteração de Cardápio: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alteracao_cardapio</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Substituições de alimentação no período&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Substituições de alimentação no período&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="MotivoAlteracaoCardapio">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MotivoAlteracaoCardapio</span><span class="p">(</span>
+    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;motivo_alteracao_cardapio&quot;</span><span class="p">),</span>
+    <span class="n">Nomeavel</span><span class="p">,</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">Ativavel</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Representa o motivo pelo qual uma :class:`AlteracaoCardapio` foi solicitada.</span>
+
+<span class="sd">    Utilizado em conjunto com :class:`AlteracaoCardapio` para categorizar a razão</span>
+<span class="sd">    da troca de tipo de alimentação.</span>
+
+<span class="sd">    Exemplos de motivos:</span>
+<span class="sd">        - Atividade diferenciada</span>
+<span class="sd">        - Aniversariante do mês</span>
+
+<span class="sd">    :cvar nome: Nome descritivo do motivo (herdado de</span>
+<span class="sd">        :class:`~sme_sigpae_api.dados_comuns.behaviors.Nomeavel`).</span>
+<span class="sd">    :vartype nome: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nome</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Motivo de alteração de cardápio&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Motivos de alteração de cardápio&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="DataIntervaloAlteracaoCardapio">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataIntervaloAlteracaoCardapio</span><span class="p">(</span>
+    <span class="n">CanceladoIndividualmente</span><span class="p">,</span>
+    <span class="n">CriadoEm</span><span class="p">,</span>
+    <span class="n">TemData</span><span class="p">,</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Representa uma data específica pertencente ao intervalo de uma :class:`AlteracaoCardapio`.</span>
+
+<span class="sd">    Permite que cada dia do intervalo seja tratado individualmente, possibilitando</span>
+<span class="sd">    cancelamentos pontuais sem invalidar toda a solicitação.</span>
+
+<span class="sd">    :cvar alteracao_cardapio: Alteração de cardápio à qual esta data pertence.</span>
+<span class="sd">    :vartype alteracao_cardapio: AlteracaoCardapio</span>
+<span class="sd">    :cvar data: Data do intervalo (herdada de</span>
+<span class="sd">        :class:`~sme_sigpae_api.dados_comuns.behaviors.TemData`).</span>
+<span class="sd">    :vartype data: datetime.date</span>
+<span class="sd">    :cvar cancelado: Indica se esta data foi cancelada individualmente (herdado de</span>
+<span class="sd">        :class:`~sme_sigpae_api.dados_comuns.behaviors.CanceladoIndividualmente`).</span>
+<span class="sd">    :vartype cancelado: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;AlteracaoCardapio&quot;</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;datas_intervalo&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Data </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2"> da Alteração de cardápio #</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alteracao_cardapio</span><span class="o">.</span><span class="n">id_externo</span><span class="si">}</span><span class="s2"> de &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alteracao_cardapio</span><span class="o">.</span><span class="n">data_inicial</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alteracao_cardapio</span><span class="o">.</span><span class="n">data_inicial</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Data do intervalo de Alteração de cardápio&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Datas do intervalo de Alteração de cardápio&quot;</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,565 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_sigpae_api.cardapio.base.api.viewsets &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sme_sigpae_api.cardapio.base.api.viewsets</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sme_sigpae_api.cardapio.base.api.viewsets</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Case</span><span class="p">,</span> <span class="n">IntegerField</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">When</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">mixins</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">viewsets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">action</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.response</span><span class="w"> </span><span class="kn">import</span> <span class="n">Response</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.viewsets</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericViewSet</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.base.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CardapioSerializer</span><span class="p">,</span>
+    <span class="n">CombosVinculoTipoAlimentoSimplesSerializer</span><span class="p">,</span>
+    <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer</span><span class="p">,</span>
+    <span class="n">MotivoDRENaoValidaSerializer</span><span class="p">,</span>
+    <span class="n">SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer</span><span class="p">,</span>
+    <span class="n">TipoAlimentacaoSerializer</span><span class="p">,</span>
+    <span class="n">TipoUnidadeEscolarAgrupadoSerializer</span><span class="p">,</span>
+    <span class="n">VinculoTipoAlimentoSimplesSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.base.api.serializers_create</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CardapioCreateSerializer</span><span class="p">,</span>
+    <span class="n">ComboDoVinculoTipoAlimentoSimplesSerializerCreate</span><span class="p">,</span>
+    <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate</span><span class="p">,</span>
+    <span class="n">SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate</span><span class="p">,</span>
+    <span class="n">VinculoTipoAlimentoCreateSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.base.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Cardapio</span><span class="p">,</span>
+    <span class="n">ComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span><span class="p">,</span>
+    <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span><span class="p">,</span>
+    <span class="n">MotivoDRENaoValida</span><span class="p">,</span>
+    <span class="n">SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span><span class="p">,</span>
+    <span class="n">TipoAlimentacao</span><span class="p">,</span>
+    <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">ordem_periodos</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.escola.api.viewsets</span><span class="w"> </span><span class="kn">import</span> <span class="n">PeriodoEscolarViewSet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.escola.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">PERIODOS_ESPECIAIS_CEMEI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.escola.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Escola</span><span class="p">,</span> <span class="n">PeriodoEscolar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.inclusao_alimentacao.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">InclusaoAlimentacaoNormal</span><span class="p">,</span>
+    <span class="n">QuantidadePorPeriodo</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="CardapioViewSet">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.CardapioViewSet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CardapioViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+    <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">CardapioSerializer</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">Cardapio</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CardapioViewSet.get_serializer_class">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.CardapioViewSet.get_serializer_class">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">CardapioCreateSerializer</span>
+        <span class="k">return</span> <span class="n">CardapioSerializer</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TipoAlimentacaoViewSet">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.TipoAlimentacaoViewSet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TipoAlimentacaoViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+    <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSerializer</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">TipoAlimentacao</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+    <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+<div class="viewcode-block" id="HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet.filtro_por_escola">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet.filtro_por_escola">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;escola/(?P&lt;escola_uuid&gt;[^/.]+)&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filtro_por_escola</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">escola_uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">combos</span> <span class="o">=</span> <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">escola__uuid</span><span class="o">=</span><span class="n">escola_uuid</span>
+        <span class="p">)</span>
+        <span class="n">page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paginate_queryset</span><span class="p">(</span><span class="n">combos</span><span class="p">)</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_paginated_response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet.get_serializer_class">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet.get_serializer_class">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate</span>
+        <span class="k">return</span> <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="VinculoTipoAlimentacaoViewSet">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VinculoTipoAlimentacaoViewSet</span><span class="p">(</span>
+    <span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">,</span>
+    <span class="n">mixins</span><span class="o">.</span><span class="n">RetrieveModelMixin</span><span class="p">,</span>
+    <span class="n">mixins</span><span class="o">.</span><span class="n">ListModelMixin</span><span class="p">,</span>
+    <span class="n">GenericViewSet</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">VinculoTipoAlimentoSimplesSerializer</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">ativo</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="VinculoTipoAlimentacaoViewSet.filtro_por_tipo_ue">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.filtro_por_tipo_ue">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;tipo_unidade_escolar/(?P&lt;tipo_unidade_escolar_uuid&gt;[^/.]+)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filtro_por_tipo_ue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">tipo_unidade_escolar_uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">vinculos</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">tipo_unidade_escolar__uuid</span><span class="o">=</span><span class="n">tipo_unidade_escolar_uuid</span><span class="p">,</span> <span class="n">ativo</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;periodo_escolar__posicao&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paginate_queryset</span><span class="p">(</span><span class="n">vinculos</span><span class="p">)</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_paginated_response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VinculoTipoAlimentacaoViewSet.get_vinculos_inclusoes_evento_especifico">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.get_vinculos_inclusoes_evento_especifico">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_vinculos_inclusoes_evento_especifico</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">mes</span><span class="p">,</span> <span class="n">ano</span><span class="p">,</span> <span class="n">tipo_solicitacao</span><span class="p">,</span> <span class="n">escola</span>
+    <span class="p">):</span>
+        <span class="n">gupos_uuids</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">InclusaoAlimentacaoNormal</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">data__month</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">mes</span><span class="p">),</span>
+                <span class="n">data__year</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">ano</span><span class="p">),</span>
+                <span class="n">motivo__nome</span><span class="o">=</span><span class="s2">&quot;Evento Específico&quot;</span><span class="p">,</span>
+                <span class="n">grupo_inclusao__escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+                <span class="n">grupo_inclusao__status</span><span class="o">=</span><span class="s2">&quot;CODAE_AUTORIZADO&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;grupo_inclusao__uuid&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="n">periodos_escolares_uuids</span> <span class="o">=</span> <span class="n">escola</span><span class="o">.</span><span class="n">periodos_escolares</span><span class="p">()</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="n">quantidades_por_periodo</span> <span class="o">=</span> <span class="n">QuantidadePorPeriodo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">grupo_inclusao_normal__uuid__in</span><span class="o">=</span><span class="n">gupos_uuids</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">periodo_escolar__uuid__in</span><span class="o">=</span><span class="n">periodos_escolares_uuids</span><span class="p">)</span>
+
+        <span class="n">periodos_escolares_uuids</span> <span class="o">=</span> <span class="n">quantidades_por_periodo</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+            <span class="s2">&quot;periodo_escolar__uuid&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="n">vinculos</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">tipo_unidade_escolar__iniciais</span><span class="o">=</span><span class="n">escola</span><span class="o">.</span><span class="n">tipo_unidade</span><span class="o">.</span><span class="n">iniciais</span><span class="p">,</span>
+                <span class="n">periodo_escolar__nome__in</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">PERIODOS_INCLUSAO_MOTIVO_ESPECIFICO</span><span class="p">,</span>
+                <span class="n">periodo_escolar__uuid__in</span><span class="o">=</span><span class="n">periodos_escolares_uuids</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">vinculos</span></div>
+
+
+<div class="viewcode-block" id="VinculoTipoAlimentacaoViewSet.vinculos_inclusoes_evento_especifico_autorizadas">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.vinculos_inclusoes_evento_especifico_autorizadas">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constants</span><span class="o">.</span><span class="n">VINCULOS_INCLUSOES_EVENTO_ESPECIFICO_AUTORIZADAS</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vinculos_inclusoes_evento_especifico_autorizadas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">escola_uuid</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;escola_uuid&quot;</span><span class="p">)</span>
+        <span class="n">mes</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mes&quot;</span><span class="p">)</span>
+        <span class="n">ano</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ano&quot;</span><span class="p">)</span>
+        <span class="n">tipo_solicitacao</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tipo_solicitacao&quot;</span><span class="p">)</span>
+        <span class="n">escola</span> <span class="o">=</span> <span class="n">Escola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">escola_uuid</span><span class="p">)</span>
+        <span class="n">vinculos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vinculos_inclusoes_evento_especifico</span><span class="p">(</span>
+            <span class="n">mes</span><span class="p">,</span> <span class="n">ano</span><span class="p">,</span> <span class="n">tipo_solicitacao</span><span class="p">,</span> <span class="n">escola</span>
+        <span class="p">)</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">vinculos</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_200_OK</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VinculoTipoAlimentacaoViewSet.trata_inclusao_continua_medicao_inicial">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.trata_inclusao_continua_medicao_inicial">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">trata_inclusao_continua_medicao_inicial</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">ano</span><span class="p">,</span> <span class="n">pega_atualmente</span>
+    <span class="p">):</span>
+        <span class="n">mes</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mes&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">periodos_escolares_inclusao_continua</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">mes</span><span class="p">:</span>
+            <span class="n">periodoEscolarViewset</span> <span class="o">=</span> <span class="n">PeriodoEscolarViewSet</span><span class="p">()</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">periodoEscolarViewset</span><span class="o">.</span><span class="n">inclusao_continua_por_mes</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">data</span> <span class="ow">and</span> <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;periodos&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="n">periodos_escolares_inclusao_continua</span> <span class="o">=</span> <span class="n">PeriodoEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">uuid__in</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;periodos&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                <span class="p">)</span>
+        <span class="n">periodos_para_filtrar</span> <span class="o">=</span> <span class="n">escola</span><span class="o">.</span><span class="n">periodos_escolares</span><span class="p">(</span><span class="n">ano</span><span class="p">,</span> <span class="n">pega_atualmente</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">periodos_escolares_inclusao_continua</span><span class="p">:</span>
+            <span class="n">periodos_para_filtrar</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">periodos_para_filtrar</span> <span class="o">|</span> <span class="n">periodos_escolares_inclusao_continua</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">periodos_para_filtrar</span></div>
+
+
+<div class="viewcode-block" id="VinculoTipoAlimentacaoViewSet.filtro_por_escola">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.filtro_por_escola">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;escola/(?P&lt;escola_uuid&gt;[^/.]+)&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filtro_por_escola</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">escola_uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">escola</span> <span class="o">=</span> <span class="n">Escola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">escola_uuid</span><span class="p">)</span>
+        <span class="n">mes</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mes&quot;</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">month</span><span class="p">)</span>
+        <span class="n">ano</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ano&quot;</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+        <span class="n">data_referencia</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">ano</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">mes</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">pega_atualmente</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pega_atualmente&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">periodos_para_filtrar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trata_inclusao_continua_medicao_inicial</span><span class="p">(</span>
+            <span class="n">request</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">ano</span><span class="p">,</span> <span class="n">pega_atualmente</span>
+        <span class="p">)</span>
+
+        <span class="n">ordem_personalizada</span> <span class="o">=</span> <span class="n">ordem_periodos</span><span class="p">(</span><span class="n">escola</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">escola</span><span class="o">.</span><span class="n">eh_cemei_data</span><span class="p">(</span><span class="n">data_referencia</span><span class="p">):</span>
+            <span class="n">ordem_das_unidades</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;CEI DIRET&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;EMEI&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+            <span class="n">unidades</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">When</span><span class="p">(</span><span class="n">tipo_unidade_escolar__iniciais</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">then</span><span class="o">=</span><span class="n">Value</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">ordem_das_unidades</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">]</span>
+
+            <span class="n">periodo_cases</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">unidade</span><span class="p">,</span> <span class="n">periodos</span> <span class="ow">in</span> <span class="n">ordem_personalizada</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">periodo</span><span class="p">,</span> <span class="n">ordem</span> <span class="ow">in</span> <span class="n">periodos</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">periodo_cases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">When</span><span class="p">(</span>
+                            <span class="n">tipo_unidade_escolar__iniciais</span><span class="o">=</span><span class="n">unidade</span><span class="p">,</span>
+                            <span class="n">periodo_escolar__nome</span><span class="o">=</span><span class="n">periodo</span><span class="p">,</span>
+                            <span class="n">then</span><span class="o">=</span><span class="n">Value</span><span class="p">(</span><span class="n">ordem</span><span class="p">),</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="n">vinculos</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">periodo_escolar__nome__in</span><span class="o">=</span><span class="n">PERIODOS_ESPECIAIS_CEMEI</span><span class="p">,</span>
+                    <span class="n">tipo_unidade_escolar__iniciais__in</span><span class="o">=</span><span class="n">ordem_das_unidades</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+                    <span class="n">unidade_order</span><span class="o">=</span><span class="n">Case</span><span class="p">(</span>
+                        <span class="o">*</span><span class="n">unidades</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Value</span><span class="p">(</span><span class="mi">99</span><span class="p">),</span> <span class="n">output_field</span><span class="o">=</span><span class="n">IntegerField</span><span class="p">()</span>
+                    <span class="p">),</span>
+                    <span class="n">periodo_order</span><span class="o">=</span><span class="n">Case</span><span class="p">(</span>
+                        <span class="o">*</span><span class="n">periodo_cases</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Value</span><span class="p">(</span><span class="mi">99</span><span class="p">),</span> <span class="n">output_field</span><span class="o">=</span><span class="n">IntegerField</span><span class="p">()</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;unidade_order&quot;</span><span class="p">,</span> <span class="s2">&quot;periodo_order&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">condicoes_ordenacao</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">When</span><span class="p">(</span><span class="n">periodo_escolar__nome</span><span class="o">=</span><span class="n">nome</span><span class="p">,</span> <span class="n">then</span><span class="o">=</span><span class="n">Value</span><span class="p">(</span><span class="n">prioridade</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">nome</span><span class="p">,</span> <span class="n">prioridade</span> <span class="ow">in</span> <span class="n">ordem_personalizada</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">]</span>
+            <span class="n">vinculos</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">periodo_escolar__in</span><span class="o">=</span><span class="n">periodos_para_filtrar</span><span class="p">,</span> <span class="n">ativo</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+                    <span class="n">ordem_personalizada</span><span class="o">=</span><span class="n">Case</span><span class="p">(</span>
+                        <span class="o">*</span><span class="n">condicoes_ordenacao</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="n">Value</span><span class="p">(</span><span class="mi">99</span><span class="p">),</span>  <span class="c1"># Valor alto para períodos não listados</span>
+                        <span class="n">output_field</span><span class="o">=</span><span class="n">IntegerField</span><span class="p">(),</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;ordem_personalizada&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">vinculos</span> <span class="o">=</span> <span class="n">vinculos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">tipo_unidade_escolar</span><span class="o">=</span><span class="n">escola</span><span class="o">.</span><span class="n">tipo_unidade_historico</span><span class="p">(</span><span class="n">data_referencia</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paginate_queryset</span><span class="p">(</span><span class="n">vinculos</span><span class="p">)</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_paginated_response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VinculoTipoAlimentacaoViewSet.atualizar_lista_de_vinculos">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.atualizar_lista_de_vinculos">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;atualizar_lista_de_vinculos&quot;</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;put&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">atualizar_lista_de_vinculos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;vinculos&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;vinculos é um parâmetro obrigatório&quot;</span><span class="p">)</span>
+            <span class="n">vinculos_from_request</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;vinculos&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">for</span> <span class="n">vinculo</span> <span class="ow">in</span> <span class="n">vinculos_from_request</span><span class="p">:</span>
+                <span class="n">vinculo_class</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span>
+                <span class="p">)</span>
+                <span class="n">instance</span> <span class="o">=</span> <span class="n">vinculo_class</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">vinculo</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">])</span>
+                <span class="n">instance</span><span class="o">.</span><span class="n">tipos_alimentacao</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+                    <span class="n">TipoAlimentacao</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                        <span class="n">uuid__in</span><span class="o">=</span><span class="n">vinculo</span><span class="p">[</span><span class="s2">&quot;tipos_alimentacao&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="n">vinculos_uuids</span> <span class="o">=</span> <span class="p">[</span><span class="n">vinculo</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">vinculo</span> <span class="ow">in</span> <span class="n">vinculos_from_request</span><span class="p">]</span>
+            <span class="n">vinculos</span> <span class="o">=</span> <span class="n">vinculo_class</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">uuid__in</span><span class="o">=</span><span class="n">vinculos_uuids</span><span class="p">)</span>
+            <span class="n">page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paginate_queryset</span><span class="p">(</span><span class="n">vinculos</span><span class="p">)</span>
+            <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_paginated_response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AssertionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VinculoTipoAlimentacaoViewSet.motivo_inclusao_especifico">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.motivo_inclusao_especifico">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span> <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;motivo_inclusao_especifico&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">motivo_inclusao_especifico</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">tipo_unidade_escolar_iniciais</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;tipo_unidade_escolar_iniciais&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">tipo_unidade_escolar_iniciais</span><span class="p">:</span>
+                <span class="n">vinculos</span> <span class="o">=</span> <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">tipo_unidade_escolar__iniciais</span><span class="o">=</span><span class="n">tipo_unidade_escolar_iniciais</span><span class="p">,</span>
+                    <span class="n">periodo_escolar__nome__in</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">PERIODOS_INCLUSAO_MOTIVO_ESPECIFICO</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">vinculos</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_200_OK</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+                    <span class="s2">&quot;tipo_unidade_escolar_iniciais é obrigatório via query_params&quot;</span>
+                <span class="p">)</span>
+        <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="n">e</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VinculoTipoAlimentacaoViewSet.get_serializer_class">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.get_serializer_class">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">VinculoTipoAlimentoCreateSerializer</span>
+        <span class="k">return</span> <span class="n">VinculoTipoAlimentoSimplesSerializer</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet</span><span class="p">(</span>
+    <span class="n">mixins</span><span class="o">.</span><span class="n">RetrieveModelMixin</span><span class="p">,</span>
+    <span class="n">mixins</span><span class="o">.</span><span class="n">ListModelMixin</span><span class="p">,</span>
+    <span class="n">mixins</span><span class="o">.</span><span class="n">CreateModelMixin</span><span class="p">,</span>
+    <span class="n">mixins</span><span class="o">.</span><span class="n">DestroyModelMixin</span><span class="p">,</span>
+    <span class="n">GenericViewSet</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">CombosVinculoTipoAlimentoSimplesSerializer</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">ComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.get_serializer_class">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.get_serializer_class">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;create&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ComboDoVinculoTipoAlimentoSimplesSerializerCreate</span>
+        <span class="k">return</span> <span class="n">CombosVinculoTipoAlimentoSimplesSerializer</span></div>
+
+
+<div class="viewcode-block" id="CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.destroy">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.destroy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">destroy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">pode_excluir</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;Não pode excluir, o combo já tem movimentação no sistema&quot;</span>
+                <span class="p">},</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">perform_destroy</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_204_NO_CONTENT</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet</span><span class="p">(</span>
+    <span class="n">mixins</span><span class="o">.</span><span class="n">RetrieveModelMixin</span><span class="p">,</span>
+    <span class="n">mixins</span><span class="o">.</span><span class="n">ListModelMixin</span><span class="p">,</span>
+    <span class="n">mixins</span><span class="o">.</span><span class="n">CreateModelMixin</span><span class="p">,</span>
+    <span class="n">mixins</span><span class="o">.</span><span class="n">DestroyModelMixin</span><span class="p">,</span>
+    <span class="n">GenericViewSet</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.get_serializer_class">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.get_serializer_class">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;create&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate</span>
+        <span class="k">return</span> <span class="n">SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer</span></div>
+
+
+<div class="viewcode-block" id="SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.destroy">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.destroy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">destroy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">pode_excluir</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;Não pode excluir, o combo já tem movimentação no sistema&quot;</span>
+                <span class="p">},</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">perform_destroy</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_204_NO_CONTENT</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MotivosDRENaoValidaViewSet">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.MotivosDRENaoValidaViewSet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MotivosDRENaoValidaViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="o">.</span><span class="n">ReadOnlyModelViewSet</span><span class="p">):</span>
+    <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">MotivoDRENaoValida</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">MotivoDRENaoValidaSerializer</span></div>
+
+
+
+<div class="viewcode-block" id="VinculosPorTipoUnidadeEscolarViewSet">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.VinculosPorTipoUnidadeEscolarViewSet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VinculosPorTipoUnidadeEscolarViewSet</span><span class="p">(</span><span class="n">mixins</span><span class="o">.</span><span class="n">ListModelMixin</span><span class="p">,</span> <span class="n">GenericViewSet</span><span class="p">):</span>
+<div class="viewcode-block" id="VinculosPorTipoUnidadeEscolarViewSet.list">
+<a class="viewcode-back" href="../../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.api.viewsets.VinculosPorTipoUnidadeEscolarViewSet.list">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lista todos os tipos de UE com seus períodos e tipos de alimentação</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vinculos</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">ativo</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tipo_unidade_escolar__ativo</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s2">&quot;tipo_unidade_escolar&quot;</span><span class="p">,</span> <span class="s2">&quot;periodo_escolar&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s2">&quot;tipos_alimentacao&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">dados_agrupados</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">TipoUnidadeEscolarAgrupadoSerializer</span><span class="o">.</span><span class="n">agrupar_vinculos_por_tipo_ue</span><span class="p">(</span><span class="n">vinculos</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">TipoUnidadeEscolarAgrupadoSerializer</span><span class="p">(</span><span class="n">dados_agrupados</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">})</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
