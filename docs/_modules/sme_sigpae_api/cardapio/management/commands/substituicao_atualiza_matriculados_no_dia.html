@@ -1,0 +1,258 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_sigpae_api.cardapio.management.commands.substituicao_atualiza_matriculados_no_dia &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sme_sigpae_api.cardapio.management.commands.substituicao_atualiza_matriculados_no_dia</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sme_sigpae_api.cardapio.management.commands.substituicao_atualiza_matriculados_no_dia</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.core.management.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseCommand</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AlteracaoCardapioCEI</span><span class="p">,</span>
+    <span class="n">FaixaEtariaSubstituicaoAlimentacaoCEI</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AlteracaoCardapioCEMEI</span><span class="p">,</span>
+    <span class="n">FaixaEtariaSubstituicaoAlimentacaoCEMEICEI</span><span class="p">,</span>
+    <span class="n">SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.escola.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">EscolaPeriodoEscolar</span>
+
+
+<div class="viewcode-block" id="Command">
+<a class="viewcode-back" href="../../../../../cardapio/management.html#sme_sigpae_api.cardapio.management.commands.substituicao_atualiza_matriculados_no_dia.Command">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Command</span><span class="p">(</span><span class="n">BaseCommand</span><span class="p">):</span>
+    <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    Popular coluna matriculados_quando_criado com base na data das solicitações de alteracao.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Command.handle">
+<a class="viewcode-back" href="../../../../../cardapio/management.html#sme_sigpae_api.cardapio.management.commands.substituicao_atualiza_matriculados_no_dia.Command.handle">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Iniciando processo de popular matriculados_quando_criado.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">popular_substituicao_alimentacao_cei</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">popular_substituicao_cemei_emei</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">popular_substituicao_cemei_cei</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Command.popular_substituicao_alimentacao_cei">
+<a class="viewcode-back" href="../../../../../cardapio/management.html#sme_sigpae_api.cardapio.management.commands.substituicao_atualiza_matriculados_no_dia.Command.popular_substituicao_alimentacao_cei">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">popular_substituicao_alimentacao_cei</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;+++ INICIANDO SUBSTITUICOES CEI +++&quot;</span><span class="p">)</span>
+        <span class="n">class_substituicao</span> <span class="o">=</span> <span class="n">FaixaEtariaSubstituicaoAlimentacaoCEI</span>
+        <span class="n">solicitacoes_pks</span> <span class="o">=</span> <span class="n">class_substituicao</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">matriculados_quando_criado</span><span class="o">=</span><span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="n">solicitacoes_pks</span> <span class="o">=</span> <span class="n">solicitacoes_pks</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+            <span class="s2">&quot;substituicao_alimentacao__alteracao_cardapio&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="n">solicitacoes</span> <span class="o">=</span> <span class="n">AlteracaoCardapioCEI</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">id__in</span><span class="o">=</span><span class="n">solicitacoes_pks</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">solicitacao</span> <span class="ow">in</span> <span class="n">solicitacoes</span><span class="p">:</span>
+            <span class="n">escola_periodo</span> <span class="o">=</span> <span class="n">EscolaPeriodoEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">periodo_escolar__nome</span><span class="o">=</span><span class="s2">&quot;INTEGRAL&quot;</span><span class="p">,</span> <span class="n">escola__uuid</span><span class="o">=</span><span class="n">solicitacao</span><span class="o">.</span><span class="n">escola</span><span class="o">.</span><span class="n">uuid</span>
+            <span class="p">)</span>
+            <span class="n">faixa_alunos</span> <span class="o">=</span> <span class="n">escola_periodo</span><span class="o">.</span><span class="n">alunos_por_faixa_etaria</span><span class="p">(</span><span class="n">solicitacao</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">substituicoes_faixas_pks</span> <span class="o">=</span> <span class="n">solicitacao</span><span class="o">.</span><span class="n">substituicoes_cei_periodo_escolar</span>
+            <span class="n">substituicoes_faixas_pks</span> <span class="o">=</span> <span class="n">substituicoes_faixas_pks</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+                <span class="s2">&quot;faixas_etarias&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+            <span class="n">substituicoes_faixas</span> <span class="o">=</span> <span class="n">FaixaEtariaSubstituicaoAlimentacaoCEI</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">id__in</span><span class="o">=</span><span class="n">substituicoes_faixas_pks</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">faixa</span> <span class="ow">in</span> <span class="n">substituicoes_faixas</span><span class="p">:</span>
+                <span class="n">matriculados_quando_criado</span> <span class="o">=</span> <span class="n">faixa_alunos</span><span class="p">[</span><span class="n">faixa</span><span class="o">.</span><span class="n">faixa_etaria</span><span class="o">.</span><span class="n">uuid</span><span class="p">]</span>
+                <span class="n">faixa</span><span class="o">.</span><span class="n">matriculados_quando_criado</span> <span class="o">=</span> <span class="n">matriculados_quando_criado</span>
+                <span class="n">uuid</span> <span class="o">=</span> <span class="n">faixa</span><span class="o">.</span><span class="n">faixa_etaria</span><span class="o">.</span><span class="n">uuid</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Faixa uuid: </span><span class="si">{</span><span class="n">uuid</span><span class="si">}</span><span class="s2"> - matriculados quando criado: </span><span class="si">{</span><span class="n">matriculados_quando_criado</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">faixa</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;+++ FINALIZANDO SUBSTITUICOES CEI +++&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Command.popular_substituicao_cemei_emei">
+<a class="viewcode-back" href="../../../../../cardapio/management.html#sme_sigpae_api.cardapio.management.commands.substituicao_atualiza_matriculados_no_dia.Command.popular_substituicao_cemei_emei">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">popular_substituicao_cemei_emei</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;+++ INICIANDO SUBSTITUICOES CEMEI EMEI +++&quot;</span><span class="p">)</span>
+        <span class="n">class_substituicao</span> <span class="o">=</span> <span class="n">SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI</span>
+        <span class="n">solicitacoes_pks</span> <span class="o">=</span> <span class="n">class_substituicao</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">matriculados_quando_criado</span><span class="o">=</span><span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="n">solicitacoes_pks</span> <span class="o">=</span> <span class="n">solicitacoes_pks</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+            <span class="s2">&quot;alteracao_cardapio&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="n">solicitacoes</span> <span class="o">=</span> <span class="n">AlteracaoCardapioCEMEI</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">id__in</span><span class="o">=</span><span class="n">solicitacoes_pks</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">solicitacao</span> <span class="ow">in</span> <span class="n">solicitacoes</span><span class="p">:</span>
+            <span class="n">faixa_alunos</span> <span class="o">=</span> <span class="n">solicitacao</span><span class="o">.</span><span class="n">escola</span><span class="o">.</span><span class="n">quantidade_alunos_por_cei_emei</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">substituicoes_faixas</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">solicitacao</span><span class="o">.</span><span class="n">substituicoes_cemei_emei_periodo_escolar</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">faixa</span> <span class="ow">in</span> <span class="n">substituicoes_faixas</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">periodo_matriculas</span> <span class="ow">in</span> <span class="n">faixa_alunos</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">periodo_matriculas</span><span class="p">[</span><span class="s2">&quot;nome&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">faixa</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="o">.</span><span class="n">nome</span><span class="p">:</span>
+                        <span class="n">faixa</span><span class="o">.</span><span class="n">matriculados_quando_criado</span> <span class="o">=</span> <span class="n">periodo_matriculas</span><span class="p">[</span><span class="s2">&quot;EMEI&quot;</span><span class="p">]</span>
+                        <span class="n">uuid</span> <span class="o">=</span> <span class="n">faixa</span><span class="o">.</span><span class="n">uuid</span>
+                        <span class="n">qtd</span> <span class="o">=</span> <span class="n">periodo_matriculas</span><span class="p">[</span><span class="s2">&quot;EMEI&quot;</span><span class="p">]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Substituicao CEMEI EMEI uuid: </span><span class="si">{</span><span class="n">uuid</span><span class="si">}</span><span class="s2"> - matriculados quando criado: </span><span class="si">{</span><span class="n">qtd</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">faixa</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;+++ FINALIZANDO SUBSTITUICOES CEMEI EMEI +++&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Command.popular_substituicao_cemei_cei">
+<a class="viewcode-back" href="../../../../../cardapio/management.html#sme_sigpae_api.cardapio.management.commands.substituicao_atualiza_matriculados_no_dia.Command.popular_substituicao_cemei_cei">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">popular_substituicao_cemei_cei</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;+++ INICIANDO SUBSTITUICOES CEMEI CEI +++&quot;</span><span class="p">)</span>
+
+        <span class="n">solicitacoes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_solicitacoes</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">solicitacao</span> <span class="ow">in</span> <span class="n">solicitacoes</span><span class="p">:</span>
+            <span class="n">faixa_alunos</span> <span class="o">=</span> <span class="n">solicitacao</span><span class="o">.</span><span class="n">escola</span><span class="o">.</span><span class="n">quantidade_alunos_por_cei_emei</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">substituicoes_faixas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_substituicoes_faixas</span><span class="p">(</span><span class="n">solicitacao</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">faixa</span> <span class="ow">in</span> <span class="n">substituicoes_faixas</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_atualizar_matriculados</span><span class="p">(</span><span class="n">faixa</span><span class="p">,</span> <span class="n">faixa_alunos</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;+++ FINALIZANDO SUBSTITUICOES CEMEI CEI +++&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_solicitacoes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna solicitações de alteração de cardápio sem matriculados registrados.&quot;&quot;&quot;</span>
+        <span class="n">substituicoes_sem_matricula</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">FaixaEtariaSubstituicaoAlimentacaoCEMEICEI</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">matriculados_quando_criado</span><span class="o">=</span><span class="kc">None</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;substituicao_alimentacao__alteracao_cardapio&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">AlteracaoCardapioCEMEI</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">id__in</span><span class="o">=</span><span class="n">substituicoes_sem_matricula</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_substituicoes_faixas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solicitacao</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna faixas etárias vinculadas à substituição do cardápio.&quot;&quot;&quot;</span>
+        <span class="n">substituicoes_faixas_pks</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">solicitacao</span><span class="o">.</span><span class="n">substituicoes_cemei_cei_periodo_escolar</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+                <span class="s2">&quot;faixas_etarias&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">FaixaEtariaSubstituicaoAlimentacaoCEMEICEI</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">id__in</span><span class="o">=</span><span class="n">substituicoes_faixas_pks</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_atualizar_matriculados</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">faixa</span><span class="p">,</span> <span class="n">faixa_alunos</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Atualiza o campo matriculados_quando_criado se encontrar correspondência.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">periodo_matriculas</span> <span class="ow">in</span> <span class="n">faixa_alunos</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">periodo_matriculas</span><span class="p">[</span><span class="s2">&quot;nome&quot;</span><span class="p">]</span>
+                <span class="o">!=</span> <span class="n">faixa</span><span class="o">.</span><span class="n">substituicao_alimentacao</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="o">.</span><span class="n">nome</span>
+            <span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="k">for</span> <span class="n">faixa_matriculados</span> <span class="ow">in</span> <span class="n">periodo_matriculas</span><span class="p">[</span><span class="s2">&quot;CEI&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">faixa_matriculados</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">(</span><span class="n">faixa</span><span class="o">.</span><span class="n">faixa_etaria</span><span class="o">.</span><span class="n">uuid</span><span class="p">):</span>
+                    <span class="k">continue</span>
+
+                <span class="n">faixa</span><span class="o">.</span><span class="n">matriculados_quando_criado</span> <span class="o">=</span> <span class="n">faixa_matriculados</span><span class="p">[</span>
+                    <span class="s2">&quot;quantidade_alunos&quot;</span>
+                <span class="p">]</span>
+                <span class="n">faixa</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Faixa uuid: </span><span class="si">{</span><span class="n">faixa</span><span class="o">.</span><span class="n">faixa_etaria</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2"> - &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;matriculados quando criado: </span><span class="si">{</span><span class="n">faixa</span><span class="o">.</span><span class="n">matriculados_quando_criado</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

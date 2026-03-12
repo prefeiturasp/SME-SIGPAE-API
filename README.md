@@ -152,6 +152,9 @@ https://www.figma.com/file/52MKvjiFFjoy7WLuvLLjAi/Spt_13-ALIMENTA%C3%87%C3%83O-T
 
 # Links Úteis
 
+**Documentação da API:**  
+[https://prefeiturasp.github.io/SME-SIGPAE-API/](https://prefeiturasp.github.io/SME-SIGPAE-API/)
+
 **Homologação:**  
 [https://hom-sigpae.sme.prefeitura.sp.gov.br/](https://hom-sigpae.sme.prefeitura.sp.gov.br/)
 

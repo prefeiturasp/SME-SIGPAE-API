@@ -106,10 +106,18 @@ class LoginView(TokenObtainPairView):
             for cargo in Perfil.cargos_diretor() + Perfil.cargos_adm_escola()
         ]
 
+    def eh_cargo_diretor_cieja(self, dados_usuario):
+        desc_cargo = dados_usuario["cargos"][0]["descricaoCargo"].strip()
+        return (
+            "CIEJA COORDENADOR GERAL" in desc_cargo
+            or "CIEJA ASSIST COORD GERAL" in desc_cargo
+        )
+
     def usuario_com_cargo_diretor(self, dados_usuario):
-        return dados_usuario["cargos"][0]["codigoCargo"] in [
+        codigo_cargo = dados_usuario["cargos"][0]["codigoCargo"]
+        return codigo_cargo in [
             cargo["codigo"] for cargo in Perfil.cargos_diretor()
-        ]
+        ] or self.eh_cargo_diretor_cieja(dados_usuario)
 
     def usuario_com_cargo_automatico_adm_escola(self, dados_usuario):
         return dados_usuario["cargos"][0]["codigoCargo"] in [

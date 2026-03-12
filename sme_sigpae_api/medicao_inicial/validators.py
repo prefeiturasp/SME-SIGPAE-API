@@ -2617,7 +2617,6 @@ def valida_dietas_solicitacoes_continuas(
     infantil_ou_fundamental=ValorMedicao.NA,
 ):
     periodo_com_erro_dieta = False
-
     categorias = CategoriaMedicao.objects.filter(nome__icontains="dieta")
     nomes_campos = ["frequencia"]
     logs_dietas_autorizadas_no_mes = escola.logs_dietas_autorizadas.filter(
@@ -2627,7 +2626,6 @@ def valida_dietas_solicitacoes_continuas(
         periodo_escolar__nome=None,
         infantil_ou_fundamental=infantil_ou_fundamental,
     ).exclude(classificacao__nome=TIPO_C)
-
     ids_categorias_existentes_no_mes = list(
         set(
             logs_dietas_autorizadas_no_mes.values_list(
@@ -2648,7 +2646,7 @@ def valida_dietas_solicitacoes_continuas(
         for dia in range(1, quantidade_dias_mes + 1):
             feriados = calendario.holidays(int(ano))
             numero_alunos_log_dieta_do_dia = _get_numero_alunos(
-                logs_dietas_autorizadas_no_mes, dia
+                logs_dietas_autorizadas_no_mes, dia, classificacao
             )
             if (
                 dia
@@ -2780,7 +2778,6 @@ def validate_solicitacoes_continuas(
     quantidade_dias_mes = calendar.monthrange(
         int(solicitacao.ano), int(solicitacao.mes)
     )[1]
-
     periodo_com_erro = valida_alimentacoes_solicitacoes_continuas(
         solicitacao.ano,
         solicitacao.mes,
@@ -3702,10 +3699,10 @@ def obter_periodos_corretos(
     return dias_letivos_geral
 
 
-def _get_numero_alunos(logs_dietas_autorizadas_no_mes, dia):
+def _get_numero_alunos(logs_dietas_autorizadas_no_mes, dia, classificacao):
     try:
         numero_alunos_log_dieta_do_dia = logs_dietas_autorizadas_no_mes.get(
-            data__day=dia
+            data__day=dia, classificacao=classificacao
         )
         return numero_alunos_log_dieta_do_dia
     except (

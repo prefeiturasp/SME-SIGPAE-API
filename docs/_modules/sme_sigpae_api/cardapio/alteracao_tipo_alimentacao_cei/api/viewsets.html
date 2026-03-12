@@ -1,0 +1,232 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">action</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.response</span><span class="w"> </span><span class="kn">import</span> <span class="n">Response</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.viewsets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AlteracoesCardapioViewSet</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AlteracaoCardapioCEISerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AlteracaoCardapioCEISerializerCreate</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AlteracaoCardapioCEI</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.permissions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">UsuarioCODAEGestaoAlimentacao</span><span class="p">,</span>
+    <span class="n">UsuarioDiretoriaRegional</span><span class="p">,</span>
+    <span class="n">UsuarioEmpresaGenerico</span><span class="p">,</span>
+    <span class="n">UsuarioEscolaTercTotal</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.relatorios.relatorios</span><span class="w"> </span><span class="kn">import</span> <span class="n">relatorio_alteracao_cardapio_cei</span>
+
+
+<div class="viewcode-block" id="AlteracoesCardapioCEIViewSet">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlteracoesCardapioCEIViewSet</span><span class="p">(</span><span class="n">AlteracoesCardapioViewSet</span><span class="p">):</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">AlteracaoCardapioCEI</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AlteracoesCardapioCEIViewSet.get_serializer_class">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.get_serializer_class">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">AlteracaoCardapioCEISerializerCreate</span>
+        <span class="k">return</span> <span class="n">AlteracaoCardapioCEISerializer</span></div>
+
+
+<div class="viewcode-block" id="AlteracoesCardapioCEIViewSet.minhas_solicitacoes">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.minhas_solicitacoes">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SOLICITACOES_DO_USUARIO</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">UsuarioEscolaTercTotal</span><span class="p">,),</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">minhas_solicitacoes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">alteracoes_cardapio_rascunho</span> <span class="o">=</span> <span class="n">AlteracaoCardapioCEI</span><span class="o">.</span><span class="n">get_rascunhos_do_usuario</span><span class="p">(</span>
+            <span class="n">usuario</span>
+        <span class="p">)</span>
+        <span class="n">page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paginate_queryset</span><span class="p">(</span><span class="n">alteracoes_cardapio_rascunho</span><span class="p">)</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_paginated_response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AlteracoesCardapioCEIViewSet.solicitacoes_codae">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.solicitacoes_codae">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constants</span><span class="o">.</span><span class="n">PEDIDOS_CODAE</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">constants</span><span class="o">.</span><span class="n">FILTRO_PADRAO_PEDIDOS</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">[</span><span class="n">UsuarioCODAEGestaoAlimentacao</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solicitacoes_codae</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">filtro_aplicado</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SEM_FILTRO</span><span class="p">):</span>
+        <span class="c1"># TODO: colocar regras de codae CODAE aqui...</span>
+        <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">codae</span> <span class="o">=</span> <span class="n">usuario</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span>
+        <span class="n">alteracoes_cardapio</span> <span class="o">=</span> <span class="n">codae</span><span class="o">.</span><span class="n">alteracoes_cardapio_cei_das_minhas</span><span class="p">(</span><span class="n">filtro_aplicado</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;diretoria_regional&quot;</span><span class="p">):</span>
+            <span class="n">dre_uuid</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;diretoria_regional&quot;</span><span class="p">)</span>
+            <span class="n">alteracoes_cardapio</span> <span class="o">=</span> <span class="n">alteracoes_cardapio</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">rastro_dre__uuid</span><span class="o">=</span><span class="n">dre_uuid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lote&quot;</span><span class="p">):</span>
+            <span class="n">lote_uuid</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lote&quot;</span><span class="p">)</span>
+            <span class="n">alteracoes_cardapio</span> <span class="o">=</span> <span class="n">alteracoes_cardapio</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">rastro_lote__uuid</span><span class="o">=</span><span class="n">lote_uuid</span>
+            <span class="p">)</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">alteracoes_cardapio</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="AlteracoesCardapioCEIViewSet.solicitacoes_diretoria_regional">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.solicitacoes_diretoria_regional">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constants</span><span class="o">.</span><span class="n">PEDIDOS_DRE</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">constants</span><span class="o">.</span><span class="n">FILTRO_PADRAO_PEDIDOS</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">[</span><span class="n">UsuarioDiretoriaRegional</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solicitacoes_diretoria_regional</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">filtro_aplicado</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SEM_FILTRO</span>
+    <span class="p">):</span>
+        <span class="c1"># TODO: colocar regras de DRE aqui...</span>
+        <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">dre</span> <span class="o">=</span> <span class="n">usuario</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span>
+        <span class="n">alteracoes_cardapio</span> <span class="o">=</span> <span class="n">dre</span><span class="o">.</span><span class="n">alteracoes_cardapio_cei_das_minhas_escolas</span><span class="p">(</span>
+            <span class="n">filtro_aplicado</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lote&quot;</span><span class="p">):</span>
+            <span class="n">lote_uuid</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lote&quot;</span><span class="p">)</span>
+            <span class="n">alteracoes_cardapio</span> <span class="o">=</span> <span class="n">alteracoes_cardapio</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">rastro_lote__uuid</span><span class="o">=</span><span class="n">lote_uuid</span>
+            <span class="p">)</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">alteracoes_cardapio</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="AlteracoesCardapioCEIViewSet.solicitacoes_terceirizada">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.solicitacoes_terceirizada">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constants</span><span class="o">.</span><span class="n">PEDIDOS_TERCEIRIZADA</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">constants</span><span class="o">.</span><span class="n">FILTRO_PADRAO_PEDIDOS</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">[</span><span class="n">UsuarioEmpresaGenerico</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solicitacoes_terceirizada</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">filtro_aplicado</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SEM_FILTRO</span><span class="p">):</span>
+        <span class="c1"># TODO: colocar regras de Terceirizada aqui...</span>
+        <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">terceirizada</span> <span class="o">=</span> <span class="n">usuario</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span>
+        <span class="n">alteracoes_cardapio</span> <span class="o">=</span> <span class="n">terceirizada</span><span class="o">.</span><span class="n">alteracoes_cardapio_cei_das_minhas</span><span class="p">(</span>
+            <span class="n">filtro_aplicado</span>
+        <span class="p">)</span>
+
+        <span class="n">page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paginate_queryset</span><span class="p">(</span><span class="n">alteracoes_cardapio</span><span class="p">)</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_paginated_response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AlteracoesCardapioCEIViewSet.relatorio">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.relatorio">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span> <span class="n">url_path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constants</span><span class="o">.</span><span class="n">RELATORIO</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">relatorio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">relatorio_alteracao_cardapio_cei</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">solicitacao</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">())</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

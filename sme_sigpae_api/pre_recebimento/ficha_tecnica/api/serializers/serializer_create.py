@@ -611,7 +611,25 @@ class AnaliseFichaTecnicaCreateSerializer(serializers.ModelSerializer):
     )
     outras_informacoes_conferido = serializers.BooleanField()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        ficha_tecnica = self.context.get("ficha_tecnica")
+
+        if ficha_tecnica and ficha_tecnica.categoria == "FLV" and ficha_tecnica.tipo_entrega == "PONTO_A_PONTO":
+            campos_inexistentes_flv = [
+                "informacoes_nutricionais_conferido",
+                "conservacao_conferido",
+                "armazenamento_conferido",
+                "embalagem_e_rotulagem_conferido",
+                "modo_preparo_conferido",
+            ]
+            for campo in campos_inexistentes_flv:
+                self.fields[campo].required = False
+                self.fields[campo].allow_null = True
+
     def validate(self, attrs):
+        ficha_tecnica = self.context.get("ficha_tecnica")
+
         campos_dependentes = [
             "fabricante_envasador",
             "detalhes_produto",
@@ -623,6 +641,20 @@ class AnaliseFichaTecnicaCreateSerializer(serializers.ModelSerializer):
             "responsavel_tecnico",
             "modo_preparo",
         ]
+
+        if ficha_tecnica.categoria == "FLV" and ficha_tecnica.tipo_entrega == "PONTO_A_PONTO":
+            campos_para_remover = [
+                "informacoes_nutricionais",
+                "conservacao",
+                "armazenamento",
+                "embalagem_e_rotulagem",
+                "modo_preparo",
+            ]
+            campos_dependentes = [c for c in campos_dependentes if c not in campos_para_remover]
+
+            for campo in campos_para_remover:
+                attrs.pop(f"{campo}_conferido", None)
+                attrs.pop(f"{campo}_correcoes", None)
 
         self._validate_campos_correcoes_preenchido(attrs, campos_dependentes)
         self._validate_campos_correcoes_vazio(attrs, campos_dependentes)

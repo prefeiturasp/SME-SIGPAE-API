@@ -1,13 +1,10 @@
-import pathlib
-
 import environ
 from des import urls as des_urls
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path, re_path
+from django.urls import include, path
 from django.views import defaults as default_views
-from django.views.static import serve
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
@@ -82,26 +79,6 @@ urlpatterns += medicao_inicial_urls
 urlpatterns += pre_recebimento_urls
 urlpatterns += recebimento_urls
 urlpatterns += imr_urls
-
-DOCS_ROOT = pathlib.Path(__file__).resolve().parents[1] / "docs/build/html"
-
-urlpatterns += [
-    re_path(
-        r"^read-the-docs/(?P<path>.+)$",
-        serve,
-        {
-            "document_root": DOCS_ROOT,
-        },
-    ),
-    re_path(
-        r"^read-the-docs/$",
-        serve,
-        {
-            "path": "index.html",
-            "document_root": DOCS_ROOT,
-        },
-    ),
-]
 
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit

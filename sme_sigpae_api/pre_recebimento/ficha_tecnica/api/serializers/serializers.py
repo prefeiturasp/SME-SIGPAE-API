@@ -25,9 +25,16 @@ from sme_sigpae_api.terceirizada.api.serializers.serializers import (
 class FichaTecnicaSimplesSerializer(serializers.ModelSerializer):
     produto = NomeDeProdutoEditalSerializer()
     uuid_empresa = serializers.SerializerMethodField()
+    flv_ponto_a_ponto = serializers.SerializerMethodField()
 
     def get_uuid_empresa(self, obj):
         return obj.empresa.uuid if obj.empresa else None
+
+    def get_flv_ponto_a_ponto(self, obj):
+        return (
+            obj.categoria == FichaTecnicaDoProduto.CATEGORIA_FLV
+            and obj.tipo_entrega == FichaTecnicaDoProduto.PONTO_A_PONTO
+        )
 
     class Meta:
         model = FichaTecnicaDoProduto
@@ -38,6 +45,7 @@ class FichaTecnicaSimplesSerializer(serializers.ModelSerializer):
             "uuid_empresa",
             "pregao_chamada_publica",
             "programa",
+            "flv_ponto_a_ponto",
         )
 
 
@@ -257,6 +265,8 @@ class FichaTecnicaComAnaliseDetalharSerializer(FichaTecnicaDetalharSerializer):
 class PainelFichaTecnicaSerializer(serializers.ModelSerializer):
     numero_ficha = serializers.CharField(source="numero")
     nome_produto = serializers.CharField(source="produto.nome")
+    categoria = serializers.CharField()
+    tipo_entrega = serializers.CharField()
     nome_empresa = serializers.CharField(source="empresa.nome_fantasia")
     status = serializers.CharField(source="get_status_display")
     log_mais_recente = serializers.SerializerMethodField()
@@ -290,4 +300,6 @@ class PainelFichaTecnicaSerializer(serializers.ModelSerializer):
             "status",
             "log_mais_recente",
             "programa_leve_leite",
+            "categoria",
+            "tipo_entrega",
         )
