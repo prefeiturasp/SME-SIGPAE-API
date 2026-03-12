@@ -1,0 +1,610 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>suspensao_alimentacao_cei &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="suspensao_alimentacao" href="suspensao_alimentacao.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../cardapio.html">cardapio</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="alteracao_tipo_alimentacao.html">alteracao_tipo_alimentacao</a></li>
+<li class="toctree-l3"><a class="reference internal" href="alteracao_tipo_alimentacao_cei.html">alteracao_tipo_alimentacao_cei</a></li>
+<li class="toctree-l3"><a class="reference internal" href="alteracao_tipo_alimentacao_cemei.html">alteracao_tipo_alimentacao_cemei</a></li>
+<li class="toctree-l3"><a class="reference internal" href="base.html">base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inversao_dia_cardapio.html">inversao_dia_cardapio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="management.html">management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html">models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="suspensao_alimentacao.html">suspensao_alimentacao</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">suspensao_alimentacao_cei</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.admin">admin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models">models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api">api</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../cardapio.html">cardapio</a></li>
+      <li class="breadcrumb-item active">suspensao_alimentacao_cei</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cardapio/suspensao_alimentacao_cei.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei">
+<span id="suspensao-alimentacao-cei"></span><h1>suspensao_alimentacao_cei<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei" title="Link to this heading"></a></h1>
+<section id="module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.admin">
+<span id="admin"></span><h2>admin<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.admin" title="Link to this heading"></a></h2>
+</section>
+<section id="module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models">
+<span id="models"></span><h2>models<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacaoDaCEI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criado_em</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criado_por</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observacao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terceirizada_conferiu_gestao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rastro_escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rastro_dre</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rastro_lote</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rastro_terceirizada</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motivo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outro_motivo</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/models.html#SuspensaoAlimentacaoDaCEI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('suspensao_alimentacao_de_cei')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemData</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoPor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemIdentificadorExternoAmigavel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoEm</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoInformativoPartindoDaEscola</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Logs</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemObservacao</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemPrioridade</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemTerceirizadaConferiuGestaoAlimentacao</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.DESCRICAO">
+<span class="sig-name descname"><span class="pre">DESCRICAO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Suspensão</span> <span class="pre">de</span> <span class="pre">Alimentação</span> <span class="pre">de</span> <span class="pre">CEI'</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.DESCRICAO" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.DoesNotExist">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.DoesNotExist" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.MultipleObjectsReturned">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.MultipleObjectsReturned" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.criado_em">
+<span class="sig-name descname"><span class="pre">criado_em</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.criado_em" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.criado_por">
+<span class="sig-name descname"><span class="pre">criado_por</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.criado_por" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.criado_por_id">
+<span class="sig-name descname"><span class="pre">criado_por_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.criado_por_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.data">
+<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.data" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.escola">
+<span class="sig-name descname"><span class="pre">escola</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.escola" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.escola_cancela">
+<span class="sig-name descname"><span class="pre">escola_cancela</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.escola_cancela" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.escola_id">
+<span class="sig-name descname"><span class="pre">escola_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.escola_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_informados">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_informados</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/models.html#SuspensaoAlimentacaoDaCEI.get_informados"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_informados" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_next_by_criado_em">
+<span class="sig-name descname"><span class="pre">get_next_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_next_by_criado_em" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_next_by_data">
+<span class="sig-name descname"><span class="pre">get_next_by_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateField:</span> <span class="pre">data&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_next_by_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_previous_by_criado_em">
+<span class="sig-name descname"><span class="pre">get_previous_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_previous_by_criado_em" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_previous_by_data">
+<span class="sig-name descname"><span class="pre">get_previous_by_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateField:</span> <span class="pre">data&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_previous_by_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_rascunhos_do_usuario">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_rascunhos_do_usuario</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">usuario</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/models.html#SuspensaoAlimentacaoDaCEI.get_rascunhos_do_usuario"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_rascunhos_do_usuario" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_status_display">
+<span class="sig-name descname"><span class="pre">get_status_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django_xworkflows.models.StateField:</span> <span class="pre">status&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_status_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.id" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.informa">
+<span class="sig-name descname"><span class="pre">informa</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.informa" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.motivo">
+<span class="sig-name descname"><span class="pre">motivo</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.motivo" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.motivo_id">
+<span class="sig-name descname"><span class="pre">motivo_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.motivo_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.numero_alunos">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">numero_alunos</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.numero_alunos" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.objects" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.observacao">
+<span class="sig-name descname"><span class="pre">observacao</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.observacao" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.outro_motivo">
+<span class="sig-name descname"><span class="pre">outro_motivo</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.outro_motivo" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.path">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.periodos_escolares">
+<span class="sig-name descname"><span class="pre">periodos_escolares</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.periodos_escolares" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related objects manager on the forward and reverse sides of
+a many-to-many relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pizza</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">toppings</span> <span class="o">=</span> <span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Topping</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;pizzas&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Pizza.toppings</span></code> and <code class="docutils literal notranslate"><span class="pre">Topping.pizzas</span></code> are <code class="docutils literal notranslate"><span class="pre">ManyToManyDescriptor</span></code>
+instances.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_dre">
+<span class="sig-name descname"><span class="pre">rastro_dre</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_dre" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_dre_id">
+<span class="sig-name descname"><span class="pre">rastro_dre_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_dre_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_escola">
+<span class="sig-name descname"><span class="pre">rastro_escola</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_escola" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_escola_id">
+<span class="sig-name descname"><span class="pre">rastro_escola_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_escola_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_lote">
+<span class="sig-name descname"><span class="pre">rastro_lote</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_lote" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_lote_id">
+<span class="sig-name descname"><span class="pre">rastro_lote_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_lote_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_terceirizada">
+<span class="sig-name descname"><span class="pre">rastro_terceirizada</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_terceirizada" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_terceirizada_id">
+<span class="sig-name descname"><span class="pre">rastro_terceirizada_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_terceirizada_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.salvar_log_transicao">
+<span class="sig-name descname"><span class="pre">salvar_log_transicao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status_evento</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usuario</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">justificativa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/models.html#SuspensaoAlimentacaoDaCEI.salvar_log_transicao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.salvar_log_transicao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.solicitacao_dict_para_relatorio">
+<span class="sig-name descname"><span class="pre">solicitacao_dict_para_relatorio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instituicao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/models.html#SuspensaoAlimentacaoDaCEI.solicitacao_dict_para_relatorio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.solicitacao_dict_para_relatorio" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.status">
+<span class="sig-name descname"><span class="pre">status</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;sme_sigpae_api.dados_comuns.fluxo_status.InformativoPartindoDaEscolaWorkflow</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.status" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.template_mensagem">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">template_mensagem</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.template_mensagem" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.terceirizada_conferiu_gestao">
+<span class="sig-name descname"><span class="pre">terceirizada_conferiu_gestao</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.terceirizada_conferiu_gestao" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.terceirizada_toma_ciencia">
+<span class="sig-name descname"><span class="pre">terceirizada_toma_ciencia</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.terceirizada_toma_ciencia" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.tipo">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tipo</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.tipo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.uuid" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api">
+<span id="api"></span><h2>api<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api" title="Link to this heading"></a></h2>
+<section id="module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers">
+<span id="api-serializers"></span><h3>api/serializers<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers.SuspensaoAlimentacaoDaCEISerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacaoDaCEISerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/serializers.html#SuspensaoAlimentacaoDaCEISerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers.SuspensaoAlimentacaoDaCEISerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers.SuspensaoAlimentacaoDaCEISerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/serializers.html#SuspensaoAlimentacaoDaCEISerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers.SuspensaoAlimentacaoDaCEISerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers.SuspensaoAlimentacaoDaCEISerializer.Meta.exclude">
+<span class="sig-name descname"><span class="pre">exclude</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('id',)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers.SuspensaoAlimentacaoDaCEISerializer.Meta.exclude" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers.SuspensaoAlimentacaoDaCEISerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers.SuspensaoAlimentacaoDaCEISerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI" title="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI"><code class="xref py py-class docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEI</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create">
+<span id="api-serializers-create"></span><h3>api/serializers_create<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacaodeCEICreateSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/serializers_create.html#SuspensaoAlimentacaodeCEICreateSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/serializers_create.html#SuspensaoAlimentacaodeCEICreateSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.Meta.exclude">
+<span class="sig-name descname"><span class="pre">exclude</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('id',</span> <span class="pre">'status',</span> <span class="pre">'criado_por')</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.Meta.exclude" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI" title="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI"><code class="xref py py-class docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEI</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.create">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/serializers_create.html#SuspensaoAlimentacaodeCEICreateSerializer.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.create" title="Link to this definition"></a></dt>
+<dd><p>We have a bit of extra checking around this in order to provide
+descriptive messages when something goes wrong, but this method is
+essentially just:</p>
+<blockquote>
+<div><p>return ExampleModel.objects.create(<a href="#id1"><span class="problematic" id="id2">**</span></a>validated_data)</p>
+</div></blockquote>
+<p>If there are many to many fields present on the instance then they
+cannot be set until the model is instantiated, in which case the
+implementation is like so:</p>
+<blockquote>
+<div><p>example_relationship = validated_data.pop(‘example_relationship’)
+instance = ExampleModel.objects.create(<a href="#id3"><span class="problematic" id="id4">**</span></a>validated_data)
+instance.example_relationship = example_relationship
+return instance</p>
+</div></blockquote>
+<p>The default implementation also does not handle nested relationships.
+If you want to support writable nested relationships you’ll need
+to write an explicit <cite>.create()</cite> method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/serializers_create.html#SuspensaoAlimentacaodeCEICreateSerializer.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.update" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/serializers_create.html#SuspensaoAlimentacaodeCEICreateSerializer.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.validate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets">
+<span id="api-viewsets"></span><h3>api/viewsets<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacaoDaCEIViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataSolicitacaoContextMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelViewSet</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.cancela_suspensao_cei">
+<span class="sig-name descname"><span class="pre">cancela_suspensao_cei</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.cancela_suspensao_cei"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.cancela_suspensao_cei" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.destroy">
+<span class="sig-name descname"><span class="pre">destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.destroy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.destroy" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.get_permissions">
+<span class="sig-name descname"><span class="pre">get_permissions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.get_permissions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.get_permissions" title="Link to this definition"></a></dt>
+<dd><p>Instantiates and returns the list of permissions that this view requires.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.get_serializer_class">
+<span class="sig-name descname"><span class="pre">get_serializer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.get_serializer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.get_serializer_class" title="Link to this definition"></a></dt>
+<dd><p>Return the class to use for the serializer.
+Defaults to using <cite>self.serializer_class</cite>.</p>
+<p>You may want to override this if you need to provide different
+serializations depending on the incoming request.</p>
+<p>(Eg. admins get full serialization, others get basic serialization)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.informa_suspensao">
+<span class="sig-name descname"><span class="pre">informa_suspensao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.informa_suspensao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.informa_suspensao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.informadas">
+<span class="sig-name descname"><span class="pre">informadas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.informadas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.informadas" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.lookup_field">
+<span class="sig-name descname"><span class="pre">lookup_field</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'uuid'</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.lookup_field" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.meus_rascunhos">
+<span class="sig-name descname"><span class="pre">meus_rascunhos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.meus_rascunhos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.meus_rascunhos" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.permission_classes">
+<span class="sig-name descname"><span class="pre">permission_classes</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'rest_framework.permissions.IsAuthenticated'&gt;,)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.permission_classes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.queryset">
+<span class="sig-name descname"><span class="pre">queryset</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;QuerySet</span> <span class="pre">[&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">8A744&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">68D3E&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">FBDA6&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">95C65&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">8A91E&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">05F93&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">D484E&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">7EFAC&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">B026D&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">BFFB7&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">232B1&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">EA223&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">9C4AB&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">2332D&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">D44A4&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">FB780&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">E5127&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">366C5&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">23651&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">A1881&gt;,</span> <span class="pre">'...(remaining</span> <span class="pre">elements</span> <span class="pre">truncated)...']&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.queryset" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.relatorio">
+<span class="sig-name descname"><span class="pre">relatorio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.relatorio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.relatorio" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.serializer_class">
+<span class="sig-name descname"><span class="pre">serializer_class</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.serializer_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers.SuspensaoAlimentacaoDaCEISerializer" title="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers.SuspensaoAlimentacaoDaCEISerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEISerializer</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.terceirizada_marca_inclusao_como_conferida">
+<span class="sig-name descname"><span class="pre">terceirizada_marca_inclusao_como_conferida</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.terceirizada_marca_inclusao_como_conferida"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.terceirizada_marca_inclusao_como_conferida" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="suspensao_alimentacao.html" class="btn btn-neutral float-left" title="suspensao_alimentacao" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

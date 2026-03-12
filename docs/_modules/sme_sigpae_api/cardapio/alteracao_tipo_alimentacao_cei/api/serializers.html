@@ -1,0 +1,203 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AlteracaoCardapioSerializerBase</span><span class="p">,</span>
+    <span class="n">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerBase</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AlteracaoCardapioCEI</span><span class="p">,</span>
+    <span class="n">FaixaEtariaSubstituicaoAlimentacaoCEI</span><span class="p">,</span>
+    <span class="n">SubstituicaoAlimentacaoNoPeriodoEscolarCEI</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.escola.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FaixaEtariaSerializer</span><span class="p">,</span>
+    <span class="n">TipoAlimentacaoSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.escola.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">FaixaEtaria</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.terceirizada.api.serializers.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TerceirizadaSimplesSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="FaixaEtariaSubstituicaoAlimentacaoCEISerializer">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.FaixaEtariaSubstituicaoAlimentacaoCEISerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FaixaEtariaSubstituicaoAlimentacaoCEISerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">faixa_etaria</span> <span class="o">=</span> <span class="n">FaixaEtariaSerializer</span><span class="p">()</span>
+
+<div class="viewcode-block" id="FaixaEtariaSubstituicaoAlimentacaoCEISerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.FaixaEtariaSubstituicaoAlimentacaoCEISerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">FaixaEtariaSubstituicaoAlimentacaoCEI</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer</span><span class="p">(</span>
+    <span class="n">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerBase</span>
+<span class="p">):</span>
+    <span class="n">tipo_alimentacao_para</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSerializer</span><span class="p">()</span>
+
+    <span class="n">faixas_etarias</span> <span class="o">=</span> <span class="n">FaixaEtariaSubstituicaoAlimentacaoCEISerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer.to_representation">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer.to_representation">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_representation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="n">retorno</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_representation</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+
+        <span class="n">faixas_etarias_da_solicitacao</span> <span class="o">=</span> <span class="n">FaixaEtaria</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">uuid__in</span><span class="o">=</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">faixa_etaria</span><span class="o">.</span><span class="n">uuid</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">instance</span><span class="o">.</span><span class="n">faixas_etarias</span><span class="o">.</span><span class="n">all</span><span class="p">()]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Inclui o total de alunos nas faixas etárias num período</span>
+        <span class="n">qtde_alunos</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">alteracao_cardapio</span><span class="o">.</span><span class="n">escola</span><span class="o">.</span><span class="n">alunos_por_periodo_e_faixa_etaria</span><span class="p">(</span>
+                <span class="n">instance</span><span class="o">.</span><span class="n">alteracao_cardapio</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">faixas_etarias_da_solicitacao</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">nome_periodo_correcoes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;PARCIAL&quot;</span><span class="p">:</span> <span class="s2">&quot;INTEGRAL&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;MANHA&quot;</span><span class="p">:</span> <span class="s2">&quot;MANHÃ&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">nome_periodo</span> <span class="o">=</span> <span class="n">nome_periodo_correcoes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span> <span class="n">instance</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="o">.</span><span class="n">nome</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">faixa_etaria</span> <span class="ow">in</span> <span class="n">retorno</span><span class="p">[</span><span class="s2">&quot;faixas_etarias&quot;</span><span class="p">]:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">uuid_faixa_etaria</span> <span class="o">=</span> <span class="n">faixa_etaria</span><span class="p">[</span><span class="s2">&quot;faixa_etaria&quot;</span><span class="p">][</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span>
+                <span class="n">faixa_etaria</span><span class="p">[</span><span class="s2">&quot;total_alunos_no_periodo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">qtde_alunos</span><span class="p">[</span><span class="n">nome_periodo</span><span class="p">][</span>
+                    <span class="n">uuid_faixa_etaria</span>
+                <span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+        <span class="k">return</span> <span class="n">retorno</span></div>
+
+
+<div class="viewcode-block" id="SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SubstituicaoAlimentacaoNoPeriodoEscolarCEI</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="AlteracaoCardapioCEISerializer">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.AlteracaoCardapioCEISerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlteracaoCardapioCEISerializer</span><span class="p">(</span><span class="n">AlteracaoCardapioSerializerBase</span><span class="p">):</span>
+    <span class="n">substituicoes</span> <span class="o">=</span> <span class="n">SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">rastro_terceirizada</span> <span class="o">=</span> <span class="n">TerceirizadaSimplesSerializer</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AlteracaoCardapioCEISerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.AlteracaoCardapioCEISerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">AlteracaoCardapioCEI</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
