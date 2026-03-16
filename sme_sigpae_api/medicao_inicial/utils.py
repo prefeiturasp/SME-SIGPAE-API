@@ -22,8 +22,10 @@ from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_PERIODOS_GRUPOS_CEMEI,
     ORDEM_PERIODOS_GRUPOS_EMEBS,
     ORDEM_UNIDADES_GRUPO_CIEJA_CMCT,
+    ORDEM_UNIDADES_GRUPO_EMEBS,
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
+    ORDEM_UNIDADES_GRUPO_CEMEI,
     TIPOS_TURMAS_EMEBS,
 )
 from sme_sigpae_api.dados_comuns.utils import (
@@ -62,6 +64,9 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef imp
     _total_pagamento_emef,
     _total_pagamento_emei,
 )
+from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emebs import (
+    _get_total_pagamento as _get_total_pagamento_emebs,
+)
 from sme_sigpae_api.medicao_inicial.services.utils import (
     get_categorias_dietas,
 )
@@ -76,6 +81,7 @@ from sme_sigpae_api.terceirizada.models import Edital
 logger = logging.getLogger(__name__)
 
 CHAVE_ALIMENTACAO_REGULAR = "ALIMENTAÇÃO"
+TURMAS_EMEBS = ["INFANTIL", "FUNDAMENTAL"]
 
 
 def process_single_anexo(anexo, usuario):
@@ -4904,9 +4910,10 @@ def _processa_periodo_regular_faixa(medicao, nome_periodo, resultado, faixas_eta
         if not faixa_nome:
             continue
 
-        resultado.setdefault(nome_periodo, {})
-        resultado[nome_periodo].setdefault(faixa_nome, 0)
-        resultado[nome_periodo][faixa_nome] += item["total"]
+        chave_nome = f"{CHAVE_ALIMENTACAO_REGULAR} - {nome_periodo}"
+        resultado.setdefault(chave_nome, {})
+        resultado[chave_nome].setdefault(faixa_nome, 0)
+        resultado[chave_nome][faixa_nome] += item["total"]
 
 
 def _processa_dietas_faixa(medicao, resultado, faixas_etarias):
@@ -4939,7 +4946,25 @@ def _processa_dietas_faixa(medicao, resultado, faixas_etarias):
             resultado[dieta_nome][faixa_nome] += item["total"]
 
 
+def soma_valores_periodo(chave_campo, valores, resultado, refeicao_eja=False):
+    for item in valores:
+        if item["total"] is None:
+            continue
+
+        chave_nome = (
+            "refeicao_eja"
+            if refeicao_eja and item["nome_campo"] == "refeicao"
+            else item["nome_campo"]
+        )
+
+        resultado.setdefault(chave_campo, {})
+        resultado[chave_campo].setdefault(chave_nome, 0)
+        resultado[chave_campo][chave_nome] += item["total"]
+
+
 def _processa_periodo_tipo_alimentacao(medicao, resultado):
+    tipo_unidade = medicao.solicitacao_medicao_inicial.escola.tipo_unidade.iniciais
+
     valores = (
         medicao.valores_medicao.exclude(
             Q(
@@ -4957,27 +4982,41 @@ def _processa_periodo_tipo_alimentacao(medicao, resultado):
         .annotate(total=Sum(Cast("valor", FloatField())))
     )
 
-    for item in valores:
-        if item["total"] is None:
-            continue
+    if tipo_unidade in ORDEM_UNIDADES_GRUPO_EMEBS:
+        resultado.setdefault("INFANTIL", {})
+        resultado.setdefault("FUNDAMENTAL", {})
 
-        resultado.setdefault(CHAVE_ALIMENTACAO_REGULAR, {})
-        resultado[CHAVE_ALIMENTACAO_REGULAR].setdefault(item["nome_campo"], 0)
-        resultado[CHAVE_ALIMENTACAO_REGULAR][item["nome_campo"]] += item["total"]
+        for turma in TIPOS_TURMAS_EMEBS:
+            valores_bloco = valores.filter(infantil_ou_fundamental=turma)
+
+            soma_valores_periodo(
+                CHAVE_ALIMENTACAO_REGULAR,
+                valores_bloco,
+                resultado[turma],
+            )
+    else:
+        soma_valores_periodo(
+            CHAVE_ALIMENTACAO_REGULAR,
+            valores,
+            resultado,
+        )
 
 
 def _processa_dietas_tipo_alimentacao(medicao, nome_periodo, resultado):
     dietas = get_categorias_dietas(medicao)
     tipo_unidade = medicao.solicitacao_medicao_inicial.escola.tipo_unidade.iniciais
+
     refeicao_eja = (
         nome_periodo.upper() == "NOITE"
-        and tipo_unidade not in ORDEM_UNIDADES_GRUPO_CIEJA_CMCT
+        and tipo_unidade in ORDEM_UNIDADES_GRUPO_EMEF
     )
+
     for dieta in dietas:
-        if "TIPO A" in dieta.upper():
-            dieta_base = "DIETA ESPECIAL - TIPO A"
-        else:
-            dieta_base = dieta
+        dieta_base = (
+            "DIETA ESPECIAL - TIPO A"
+            if "TIPO A" in dieta.upper()
+            else dieta
+        )
 
         valores = (
             medicao.valores_medicao.filter(categoria_medicao__nome=dieta)
@@ -4994,51 +5033,51 @@ def _processa_dietas_tipo_alimentacao(medicao, nome_periodo, resultado):
             .annotate(total=Sum(Cast("valor", FloatField())))
         )
 
-        resultado.setdefault(dieta_base, {})
-        for item in valores:
-            if item["total"] is None:
-                continue
+        if tipo_unidade in ORDEM_UNIDADES_GRUPO_EMEBS:
+            resultado.setdefault("INFANTIL", {})
+            resultado.setdefault("FUNDAMENTAL", {})
 
-            chave_nome = (
-                "refeicao_eja"
-                if refeicao_eja and item["nome_campo"] == "refeicao"
-                else item["nome_campo"]
+            for turma in TIPOS_TURMAS_EMEBS:
+                valores_bloco = valores.filter(infantil_ou_fundamental=turma)
+
+                soma_valores_periodo(
+                    dieta_base,
+                    valores_bloco,
+                    resultado[turma],
+                    refeicao_eja,
+                )
+        else:
+            soma_valores_periodo(
+                dieta_base,
+                valores,
+                resultado,
+                refeicao_eja,
             )
-
-            resultado[dieta_base].setdefault(chave_nome, 0)
-            resultado[dieta_base][chave_nome] += item["total"]
 
 
 def _get_total_pagamento(medicao, nome_campo, tipo_unidade):
-    if (
-        tipo_unidade in ORDEM_UNIDADES_GRUPO_EMEF
-        or tipo_unidade in ORDEM_UNIDADES_GRUPO_CIEJA_CMCT
+    if tipo_unidade in (
+        set(ORDEM_UNIDADES_GRUPO_EMEF)
+        | set(ORDEM_UNIDADES_GRUPO_CIEJA_CMCT)
     ):
         return _total_pagamento_emef(medicao, nome_campo) or 0
 
-    elif tipo_unidade in ORDEM_UNIDADES_GRUPO_EMEI:
+    if tipo_unidade in (
+        set(ORDEM_UNIDADES_GRUPO_EMEI)
+        | set(ORDEM_UNIDADES_GRUPO_CEMEI)
+    ):
         return _total_pagamento_emei(medicao, nome_campo) or 0
 
     return 0
 
 
-def _processa_total_pagamento_tipo_alimentacao(medicao, nome_periodo, resultado):
-    tipo_unidade = medicao.solicitacao_medicao_inicial.escola.tipo_unidade.iniciais
-
-    total_refeicoes = _get_total_pagamento(
-        medicao, "total_refeicoes_pagamento", tipo_unidade
-    )
-
-    total_sobremesas = _get_total_pagamento(
-        medicao, "total_sobremesas_pagamento", tipo_unidade
-    )
-
+def soma_total_pagamento_alimentacao(total_refeicoes, total_sobremesas, nome_periodo, tipo_unidade, resultado):
     resultado.setdefault(CHAVE_ALIMENTACAO_REGULAR, {})
 
     chave_refeicao = (
         "total_refeicao_eja"
         if nome_periodo.upper() == "NOITE"
-        and tipo_unidade not in ORDEM_UNIDADES_GRUPO_CIEJA_CMCT
+        and tipo_unidade in ORDEM_UNIDADES_GRUPO_EMEF
         else "total_refeicao"
     )
 
@@ -5047,6 +5086,32 @@ def _processa_total_pagamento_tipo_alimentacao(medicao, nome_periodo, resultado)
 
     resultado[CHAVE_ALIMENTACAO_REGULAR][chave_refeicao] += total_refeicoes or 0
     resultado[CHAVE_ALIMENTACAO_REGULAR]["total_sobremesa"] += total_sobremesas or 0
+
+
+def _processa_total_pagamento_tipo_alimentacao(medicao, nome_periodo, resultado):
+    tipo_unidade = medicao.solicitacao_medicao_inicial.escola.tipo_unidade.iniciais
+
+    if tipo_unidade in ORDEM_UNIDADES_GRUPO_EMEBS:
+        for turma in TIPOS_TURMAS_EMEBS:
+            total_refeicoes = _get_total_pagamento_emebs(
+                medicao, "total_refeicoes_pagamento", turma
+            )
+
+            total_sobremesas = _get_total_pagamento_emebs(
+                medicao, "total_sobremesas_pagamento", turma
+            )
+    else:
+        total_refeicoes = _get_total_pagamento(
+            medicao, "total_refeicoes_pagamento", tipo_unidade
+        )
+
+        total_sobremesas = _get_total_pagamento(
+            medicao, "total_sobremesas_pagamento", tipo_unidade
+        )
+
+        soma_total_pagamento_alimentacao(
+            total_refeicoes, total_sobremesas, nome_periodo, tipo_unidade, resultado
+        )
 
 
 def _acumula_lanche(totais, campo, valor):
@@ -5100,7 +5165,7 @@ def _consolidar_lanches_alimentacao(resultado):
     return resultado_copia
 
 
-def _consolidar_campos(resultado, chave_principal):
+def _consolidar_campos(resultado):
     CONSOLIDACOES_ALIMENTACAO = {
         "total_refeicao": [
             "refeicao",
@@ -5112,12 +5177,12 @@ def _consolidar_campos(resultado, chave_principal):
         ],
     }
 
-    if chave_principal not in resultado:
+    if CHAVE_ALIMENTACAO_REGULAR not in resultado:
         return resultado
 
     resultado_copia = copy.deepcopy(resultado)
 
-    dados = resultado_copia[chave_principal]
+    dados = resultado_copia[CHAVE_ALIMENTACAO_REGULAR]
     for campo_total, campos_origem in CONSOLIDACOES_ALIMENTACAO.items():
         if campo_total not in dados:
             continue
@@ -5127,42 +5192,83 @@ def _consolidar_campos(resultado, chave_principal):
     return resultado_copia
 
 
+def _executar_faixa_etaria(medicoes):
+    resultado = {}
+    faixas_etarias = {f.id: str(f) for f in FaixaEtaria.objects.all()}
+
+    for medicao in medicoes:
+        nome_periodo = obter_nome_periodo(medicao)
+
+        _processa_periodo_regular_faixa(
+            medicao, nome_periodo, resultado, faixas_etarias
+        )
+        _processa_dietas_faixa(
+            medicao, resultado, faixas_etarias
+        )
+
+    return resultado
+
+
+def _aplica_consolidacoes(bloco):
+    resultado = copy.deepcopy(bloco)
+    resultado = _consolidar_campos(resultado)
+    resultado = _consolidar_lanches_alimentacao(resultado)
+
+    if CHAVE_ALIMENTACAO_REGULAR in resultado:
+        dados = resultado[CHAVE_ALIMENTACAO_REGULAR]
+        resultado[CHAVE_ALIMENTACAO_REGULAR] = {
+            chave if chave.startswith("total_") else f"total_{chave}": valor
+            for chave, valor in dados.items()
+        }
+
+    return resultado
+
+
+def _executar_tipo_alimentacao(medicoes):
+    resultado = {}
+    for medicao in medicoes:
+        nome_periodo = obter_nome_periodo(medicao)
+
+        _processa_periodo_tipo_alimentacao(medicao, resultado)
+        _processa_total_pagamento_tipo_alimentacao(
+            medicao, nome_periodo, resultado
+        )
+        _processa_dietas_tipo_alimentacao(
+            medicao, nome_periodo, resultado
+        )
+
+    if set(resultado) == {"INFANTIL", "FUNDAMENTAL"}:
+        for turma in TURMAS_EMEBS:
+            resultado[turma] = _aplica_consolidacoes(resultado[turma])
+    else:
+        resultado = _aplica_consolidacoes(resultado)
+
+    return resultado
+
+
 def gerar_totais_consolidado(solicitacoes, tipo):
     medicoes = Medicao.objects.filter(
         solicitacao_medicao_inicial__in=solicitacoes
     ).select_related("periodo_escolar", "grupo")
-    if tipo == "faixa_etaria":
-        faixas_etarias = {f.id: str(f) for f in FaixaEtaria.objects.all()}
 
-    resultado = {}
-    for medicao in medicoes:
-        nome_periodo = obter_nome_periodo(medicao)
-        if tipo == "faixa_etaria":
-            nome_periodo = obter_nome_periodo(medicao)
-            _processa_periodo_regular_faixa(
-                medicao, nome_periodo, resultado, faixas_etarias
-            )
-            _processa_dietas_faixa(medicao, resultado, faixas_etarias)
-        else:
-            _processa_periodo_tipo_alimentacao(medicao, resultado)
-            _processa_total_pagamento_tipo_alimentacao(medicao, nome_periodo, resultado)
-            _processa_dietas_tipo_alimentacao(medicao, nome_periodo, resultado)
+    executa_faixa = tipo == "faixa_etaria"
+    executa_tipo = tipo == "tipo_alimentacao"
 
-    if tipo == "tipo_alimentacao":
-        resultado = _consolidar_lanches_alimentacao(resultado)
-        resultado = _consolidar_campos(
-            resultado,
-            CHAVE_ALIMENTACAO_REGULAR,
-        )
+    if not executa_faixa and not executa_tipo:
+        executa_faixa = True
+        executa_tipo = True
 
-        if CHAVE_ALIMENTACAO_REGULAR in resultado:
-            dados = resultado[CHAVE_ALIMENTACAO_REGULAR]
-            resultado[CHAVE_ALIMENTACAO_REGULAR] = {
-                chave if chave.startswith("total_") else f"total_{chave}": valor
-                for chave, valor in dados.items()
-            }
+    if executa_faixa and executa_tipo:
+        return {
+            "TIPO": _executar_tipo_alimentacao(medicoes),
+            "FAIXA": _executar_faixa_etaria(medicoes),
+        }
 
-    return resultado
+    if executa_faixa:
+        return _executar_faixa_etaria(medicoes)
+
+    if executa_tipo:
+        return _executar_tipo_alimentacao(medicoes)
 
 
 def calcula_totais_consumo_por_faixa_etaria(

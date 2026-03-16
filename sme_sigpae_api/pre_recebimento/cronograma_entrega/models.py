@@ -57,7 +57,20 @@ class Cronograma(ModeloBase, TemIdentificadorExternoAmigavel, Logs, FluxoCronogr
     custo_unitario_produto = models.FloatField(
         "Custo Unitário do Produto", blank=True, null=True
     )
+    numero_empenho = models.CharField("Número do Empenho", blank=True, max_length=50)
+    qtd_total_empenho = models.FloatField(
+        "Qtde. Total do Empenho", blank=True, null=True
+    )
     observacoes = models.TextField("Observações", blank=True)
+
+    @property
+    def ponto_a_ponto(self):
+        if not self.ficha_tecnica:
+            return False
+        return (
+            self.ficha_tecnica.categoria == "FLV"
+            and self.ficha_tecnica.tipo_entrega == "PONTO_A_PONTO"
+        )
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         justificativa = kwargs.get("justificativa", "")

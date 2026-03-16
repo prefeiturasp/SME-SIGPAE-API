@@ -2,8 +2,12 @@ import re
 from unittest.mock import patch
 
 import pytest
+from django.template.loader import render_to_string
 from freezegun import freeze_time
 
+from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
+    DocRecebimentoFichaDeRecebimentoSerializer,
+)
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.helpers import (
     formata_cnpj_ficha_tecnica,
     formata_telefone_ficha_tecnica,
@@ -604,6 +608,48 @@ def test_cabecalho_reclamacao_produto_sem_data_inicial(
         "lotes": "IP - 3567-3, LPSD - 1235-8",
         "periodo": "Até 19/08/2025",
     }
+
+
+def test_template_relatorio_ficha_recebimento_exibe_numero_chamada_publica_quando_ata_nao_existe(
+    ficha_recebimento_com_ocorrencia,
+):
+    ficha = ficha_recebimento_com_ocorrencia
+    contrato = ficha.etapa.cronograma.contrato
+    contrato.ata = ""
+    contrato.numero_chamada_publica = "CHAMADA PUBLICA 123/2026"
+    contrato.save(update_fields=["ata", "numero_chamada_publica"])
+
+    documentos_serializer = DocRecebimentoFichaDeRecebimentoSerializer(
+        ficha.documentos_recebimento.all(),
+        many=True,
+        context={"ficha_recebimento": ficha},
+    )
+
+    html = render_to_string(
+        "recebimento/relatorio_ficha_recebimento.html",
+        {
+            "ficha": ficha,
+            "etapa": ficha.etapa,
+            "cronograma": ficha.etapa.cronograma,
+            "reposicao_cronograma": ficha.reposicao_cronograma,
+            "ficha_tecnica": ficha.etapa.cronograma.ficha_tecnica,
+            "documentos": documentos_serializer.data,
+            "veiculos": ficha.veiculos.all(),
+            "questoes_primarias": ficha.questaoficharecebimento_set.filter(
+                tipo_questao="PRIMARIA"
+            ),
+            "questoes_secundarias": ficha.questaoficharecebimento_set.filter(
+                tipo_questao="SECUNDARIA"
+            ),
+            "ocorrencias": ficha.ocorrencias.all(),
+            "arquivos": ", ".join(
+                [str(objeto.nome) for objeto in ficha.arquivos.all() if objeto.nome]
+            ),
+            "assinatura": ficha.logs.last(),
+        },
+    )
+
+    assert contrato.numero_chamada_publica in html
 
 
 def test_relatorio_ficha_recebimento(

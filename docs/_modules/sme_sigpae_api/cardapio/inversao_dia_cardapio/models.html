@@ -1,0 +1,317 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_sigpae_api.cardapio.inversao_dia_cardapio.models &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sme_sigpae_api.cardapio.inversao_dia_cardapio.models</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sme_sigpae_api.cardapio.inversao_dia_cardapio.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_prometheus.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExportModelOperationsMixin</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.base.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cardapio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">InversaoCardapioDestaSemanaManager</span><span class="p">,</span>
+    <span class="n">InversaoCardapioDesteMesManager</span><span class="p">,</span>
+    <span class="n">InversaoCardapioVencidaManager</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CriadoEm</span><span class="p">,</span>
+    <span class="n">CriadoPor</span><span class="p">,</span>
+    <span class="n">Logs</span><span class="p">,</span>
+    <span class="n">Motivo</span><span class="p">,</span>
+    <span class="n">SolicitacaoForaDoPrazo</span><span class="p">,</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
+    <span class="n">TemObservacao</span><span class="p">,</span>
+    <span class="n">TemPrioridade</span><span class="p">,</span>
+    <span class="n">TemTerceirizadaConferiuGestaoAlimentacao</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxoAprovacaoPartindoDaEscola</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span><span class="p">,</span> <span class="n">TemplateMensagem</span>
+
+<span class="n">FORMATO_DATA_BR</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span>
+
+
+<div class="viewcode-block" id="InversaoCardapio">
+<a class="viewcode-back" href="../../../../cardapio/inversao_dia_cardapio.html#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">InversaoCardapio</span><span class="p">(</span>
+    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;inversao_cardapio&quot;</span><span class="p">),</span>
+    <span class="n">CriadoEm</span><span class="p">,</span>
+    <span class="n">CriadoPor</span><span class="p">,</span>
+    <span class="n">TemObservacao</span><span class="p">,</span>
+    <span class="n">Motivo</span><span class="p">,</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
+    <span class="n">FluxoAprovacaoPartindoDaEscola</span><span class="p">,</span>
+    <span class="n">TemPrioridade</span><span class="p">,</span>
+    <span class="n">Logs</span><span class="p">,</span>
+    <span class="n">SolicitacaoForaDoPrazo</span><span class="p">,</span>
+    <span class="n">TemTerceirizadaConferiuGestaoAlimentacao</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Troca um cardápio de um dia por outro.</span>
+
+<span class="sd">    servir o cardápio do dia 30 no dia 15, automaticamente o</span>
+<span class="sd">    cardápio do dia 15 será servido no dia 30</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">DESCRICAO</span> <span class="o">=</span> <span class="s2">&quot;Inversão de Cardápio&quot;</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span>  <span class="c1"># Manager Padrão</span>
+    <span class="n">desta_semana</span> <span class="o">=</span> <span class="n">InversaoCardapioDestaSemanaManager</span><span class="p">()</span>
+    <span class="n">deste_mes</span> <span class="o">=</span> <span class="n">InversaoCardapioDesteMesManager</span><span class="p">()</span>
+    <span class="n">vencidos</span> <span class="o">=</span> <span class="n">InversaoCardapioVencidaManager</span><span class="p">()</span>
+    <span class="n">data_de_inversao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="s2">&quot;Data de inversão&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">data_para_inversao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="s2">&quot;Data para inversão&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">data_de_inversao_2</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="s2">&quot;Data de inversão&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">data_para_inversao_2</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="s2">&quot;Data para inversão&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">alunos_da_cemei</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Alunos da CEMEI&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">50</span>
+    <span class="p">)</span>
+    <span class="n">alunos_da_cemei_2</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Alunos da CEMEI&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">50</span>
+    <span class="p">)</span>
+
+    <span class="n">cardapio_de</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Cardapio</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;cardapio_de&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">cardapio_para</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Cardapio</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;cardapio_para&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.Escola&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span>
+    <span class="p">)</span>
+
+    <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="s2">&quot;TipoAlimentacao&quot;</span><span class="p">,</span> <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Tipos de alimentacao.&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="InversaoCardapio.get_solicitacoes_rascunho">
+<a class="viewcode-back" href="../../../../cardapio/inversao_dia_cardapio.html#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_solicitacoes_rascunho">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_solicitacoes_rascunho</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">usuario</span><span class="p">):</span>
+        <span class="n">solicitacoes_unificadas</span> <span class="o">=</span> <span class="n">InversaoCardapio</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">criado_por</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">InversaoCardapio</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">RASCUNHO</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">solicitacoes_unificadas</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">datas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cardapio_de</span><span class="p">:</span>
+            <span class="n">datas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cardapio_de</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">FORMATO_DATA_BR</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">datas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">FORMATO_DATA_BR</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao_2</span><span class="p">:</span>
+            <span class="n">datas</span> <span class="o">+=</span> <span class="s2">&quot;&lt;br /&gt;&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao_2</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">FORMATO_DATA_BR</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">datas</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data_de</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cardapio_de</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cardapio_de</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao</span> <span class="ow">or</span> <span class="kc">None</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data_para</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cardapio_para</span><span class="o">.</span><span class="n">data</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cardapio_para</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_para_inversao</span> <span class="ow">or</span> <span class="kc">None</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_para</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_para</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tipo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Inversão de Dia de Cardápio&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;inversao-de-dia-de-cardapio/relatorio?uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&amp;tipoSolicitacao=solicitacao-normal&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">numero_alunos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">template_mensagem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">TemplateMensagem</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tipo</span><span class="o">=</span><span class="n">TemplateMensagem</span><span class="o">.</span><span class="n">INVERSAO_CARDAPIO</span><span class="p">)</span>
+        <span class="n">template_troca</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;@id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_externo</span><span class="p">,</span>
+            <span class="s2">&quot;@criado_em&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">criado_em</span><span class="p">),</span>
+            <span class="s2">&quot;@criado_por&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">criado_por</span><span class="p">),</span>
+            <span class="s2">&quot;@status&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">),</span>
+            <span class="c1"># TODO: verificar a url padrão do pedido</span>
+            <span class="s2">&quot;@link&quot;</span><span class="p">:</span> <span class="s2">&quot;https://teste.com&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">corpo</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">template_html</span>
+        <span class="k">for</span> <span class="n">chave</span><span class="p">,</span> <span class="n">valor</span> <span class="ow">in</span> <span class="n">template_troca</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">corpo</span> <span class="o">=</span> <span class="n">corpo</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">chave</span><span class="p">,</span> <span class="n">valor</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">assunto</span><span class="p">,</span> <span class="n">corpo</span>
+
+<div class="viewcode-block" id="InversaoCardapio.salvar_log_transicao">
+<a class="viewcode-back" href="../../../../cardapio/inversao_dia_cardapio.html#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.salvar_log_transicao">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">salvar_log_transicao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status_evento</span><span class="p">,</span> <span class="n">usuario</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">resposta_sim_nao</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;resposta_sim_nao&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">descricao</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="n">status_evento</span><span class="o">=</span><span class="n">status_evento</span><span class="p">,</span>
+            <span class="n">solicitacao_tipo</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">INVERSAO_DE_CARDAPIO</span><span class="p">,</span>
+            <span class="n">usuario</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span>
+            <span class="n">uuid_original</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span><span class="p">,</span>
+            <span class="n">resposta_sim_nao</span><span class="o">=</span><span class="n">resposta_sim_nao</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InversaoCardapio.solicitacao_dict_para_relatorio">
+<a class="viewcode-back" href="../../../../cardapio/inversao_dia_cardapio.html#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.solicitacao_dict_para_relatorio">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solicitacao_dict_para_relatorio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_data</span><span class="p">,</span> <span class="n">data_log</span><span class="p">,</span> <span class="n">instituicao</span><span class="p">):</span>
+        <span class="n">data_de_inversao</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">data_de_inversao_2</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao</span><span class="p">:</span>
+            <span class="n">data_de_inversao</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">FORMATO_DATA_BR</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao_2</span><span class="p">:</span>
+            <span class="n">data_de_inversao_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao_2</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">FORMATO_DATA_BR</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;lote&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rastro_lote</span><span class="o">.</span><span class="n">diretoria_regional</span><span class="o">.</span><span class="n">iniciais</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rastro_lote</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_educacional&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rastro_escola</span><span class="o">.</span><span class="n">nome_historico</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
+            <span class="s2">&quot;terceirizada&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rastro_terceirizada</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_doc&quot;</span><span class="p">:</span> <span class="s2">&quot;Inversão de dia de Cardápio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_evento&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data_de_inversao</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">data_de_inversao_2</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_alunos&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">numero_alunos</span><span class="p">,</span>
+            <span class="s2">&quot;data_de_inversao&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao</span><span class="p">,</span>
+            <span class="s2">&quot;data_inicial&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao</span><span class="p">,</span>
+            <span class="s2">&quot;data_final&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_para_inversao</span><span class="p">,</span>
+            <span class="s2">&quot;data_para_inversao&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_para_inversao</span><span class="p">,</span>
+            <span class="s2">&quot;data_de_inversao_2&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao_2</span><span class="p">,</span>
+            <span class="s2">&quot;data_para_inversao_2&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_para_inversao_2</span><span class="p">,</span>
+            <span class="s2">&quot;data_de&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de</span><span class="p">,</span>
+            <span class="s2">&quot;data_para&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_para</span><span class="p">,</span>
+            <span class="s2">&quot;label_data&quot;</span><span class="p">:</span> <span class="n">label_data</span><span class="p">,</span>
+            <span class="s2">&quot;data_log&quot;</span><span class="p">:</span> <span class="n">data_log</span><span class="p">,</span>
+            <span class="s2">&quot;motivo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">motivo</span><span class="p">,</span>
+            <span class="s2">&quot;observacao&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">observacao</span><span class="p">,</span>
+            <span class="s2">&quot;tipos_alimentacao&quot;</span><span class="p">:</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tipos_alimentacao</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;datas&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">datas</span><span class="p">,</span>
+            <span class="s2">&quot;id_externo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_externo</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Inversão de Cardápio </span><span class="se">\n</span><span class="s2">De: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cardapio_de</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Para: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cardapio_para</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">data_para_inversao</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Inversão de cardápio&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Inversões de cardápio&quot;</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

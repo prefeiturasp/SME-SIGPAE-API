@@ -2288,6 +2288,31 @@ def logs_dieta_recreio_nas_ferias(escola, classificacoes_dietas):
             data=data,
         )
 
+@pytest.fixture
+def logs_dieta_recreio_nas_ferias_cei(escola, classificacoes_dietas):
+    faixa_um = baker.make("FaixaEtaria", inicio=0, fim=6)
+    faixa_dois = baker.make("FaixaEtaria", inicio=7, fim=12)
+    data = datetime.date(2025, 12, 22)
+    for classificacao in classificacoes_dietas:
+        baker.make(
+            "LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI",
+            escola=escola,
+            quantidade=5,
+            classificacao=classificacao,
+            data=data,
+            faixa_etaria=faixa_um
+        )
+
+    baker.make(
+        "LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI",
+        escola=escola,
+        quantidade=5,
+        classificacao=classificacoes_dietas[-1],
+        data=data,
+        faixa_etaria=faixa_dois
+    )
+
+        
 
 @pytest.fixture
 def solictacao_autorizada(

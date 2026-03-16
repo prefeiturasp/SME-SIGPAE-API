@@ -1,0 +1,936 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>inversao_dia_cardapio &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="management" href="management.html" />
+    <link rel="prev" title="base" href="base.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../cardapio.html">cardapio</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="alteracao_tipo_alimentacao.html">alteracao_tipo_alimentacao</a></li>
+<li class="toctree-l3"><a class="reference internal" href="alteracao_tipo_alimentacao_cei.html">alteracao_tipo_alimentacao_cei</a></li>
+<li class="toctree-l3"><a class="reference internal" href="alteracao_tipo_alimentacao_cemei.html">alteracao_tipo_alimentacao_cemei</a></li>
+<li class="toctree-l3"><a class="reference internal" href="base.html">base</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">inversao_dia_cardapio</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.admin">admin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.models">models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api">api</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures">fixtures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.managers">managers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="management.html">management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html">models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="suspensao_alimentacao.html">suspensao_alimentacao</a></li>
+<li class="toctree-l3"><a class="reference internal" href="suspensao_alimentacao_cei.html">suspensao_alimentacao_cei</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../cardapio.html">cardapio</a></li>
+      <li class="breadcrumb-item active">inversao_dia_cardapio</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cardapio/inversao_dia_cardapio.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio">
+<span id="inversao-dia-cardapio"></span><h1>inversao_dia_cardapio<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio" title="Link to this heading"></a></h1>
+<section id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio.admin">
+<span id="admin"></span><h2>admin<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.admin" title="Link to this heading"></a></h2>
+</section>
+<section id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio.models">
+<span id="models"></span><h2>models<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.models" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/models.html#InversaoCardapio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('inversao_cardapio')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoEm</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoPor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemObservacao</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Motivo</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemIdentificadorExternoAmigavel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemPrioridade</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Logs</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">SolicitacaoForaDoPrazo</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemTerceirizadaConferiuGestaoAlimentacao</span></code></p>
+<p>Troca um cardápio de um dia por outro.</p>
+<p>servir o cardápio do dia 30 no dia 15, automaticamente o
+cardápio do dia 15 será servido no dia 30</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.DESCRICAO">
+<span class="sig-name descname"><span class="pre">DESCRICAO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio'</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.DESCRICAO" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.DoesNotExist">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.DoesNotExist" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.MultipleObjectsReturned">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.MultipleObjectsReturned" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.alunos_da_cemei">
+<span class="sig-name descname"><span class="pre">alunos_da_cemei</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.alunos_da_cemei" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.alunos_da_cemei_2">
+<span class="sig-name descname"><span class="pre">alunos_da_cemei_2</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.alunos_da_cemei_2" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.cardapio_de">
+<span class="sig-name descname"><span class="pre">cardapio_de</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.cardapio_de" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.cardapio_de_id">
+<span class="sig-name descname"><span class="pre">cardapio_de_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.cardapio_de_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.cardapio_para">
+<span class="sig-name descname"><span class="pre">cardapio_para</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.cardapio_para" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.cardapio_para_id">
+<span class="sig-name descname"><span class="pre">cardapio_para_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.cardapio_para_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_autoriza">
+<span class="sig-name descname"><span class="pre">codae_autoriza</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_autoriza" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_autoriza_questionamento">
+<span class="sig-name descname"><span class="pre">codae_autoriza_questionamento</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_autoriza_questionamento" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_nega">
+<span class="sig-name descname"><span class="pre">codae_nega</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_nega" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_nega_questionamento">
+<span class="sig-name descname"><span class="pre">codae_nega_questionamento</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_nega_questionamento" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_questiona">
+<span class="sig-name descname"><span class="pre">codae_questiona</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_questiona" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_em">
+<span class="sig-name descname"><span class="pre">criado_em</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_em" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_por">
+<span class="sig-name descname"><span class="pre">criado_por</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_por" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_por_id">
+<span class="sig-name descname"><span class="pre">criado_por_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_por_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_de">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">data_de</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_de" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_de_inversao">
+<span class="sig-name descname"><span class="pre">data_de_inversao</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_de_inversao" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_de_inversao_2">
+<span class="sig-name descname"><span class="pre">data_de_inversao_2</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_de_inversao_2" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_para">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">data_para</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_para" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_para_inversao">
+<span class="sig-name descname"><span class="pre">data_para_inversao</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_para_inversao" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_para_inversao_2">
+<span class="sig-name descname"><span class="pre">data_para_inversao_2</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_para_inversao_2" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.datas">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">datas</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.datas" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.desta_semana">
+<span class="sig-name descname"><span class="pre">desta_semana</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDestaSemanaManager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.desta_semana" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.deste_mes">
+<span class="sig-name descname"><span class="pre">deste_mes</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDesteMesManager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.deste_mes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.dre_nao_valida">
+<span class="sig-name descname"><span class="pre">dre_nao_valida</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.dre_nao_valida" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.dre_pede_revisao">
+<span class="sig-name descname"><span class="pre">dre_pede_revisao</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.dre_pede_revisao" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.dre_valida">
+<span class="sig-name descname"><span class="pre">dre_valida</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.dre_valida" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.escola">
+<span class="sig-name descname"><span class="pre">escola</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.escola" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.escola_id">
+<span class="sig-name descname"><span class="pre">escola_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.escola_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.escola_revisa">
+<span class="sig-name descname"><span class="pre">escola_revisa</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.escola_revisa" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.foi_solicitado_fora_do_prazo">
+<span class="sig-name descname"><span class="pre">foi_solicitado_fora_do_prazo</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.foi_solicitado_fora_do_prazo" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_next_by_criado_em">
+<span class="sig-name descname"><span class="pre">get_next_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_next_by_criado_em" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_previous_by_criado_em">
+<span class="sig-name descname"><span class="pre">get_previous_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_previous_by_criado_em" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_solicitacoes_rascunho">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_solicitacoes_rascunho</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">usuario</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/models.html#InversaoCardapio.get_solicitacoes_rascunho"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_solicitacoes_rascunho" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_status_display">
+<span class="sig-name descname"><span class="pre">get_status_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django_xworkflows.models.StateField:</span> <span class="pre">status&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_status_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.id" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.inicia_fluxo">
+<span class="sig-name descname"><span class="pre">inicia_fluxo</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.inicia_fluxo" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.motivo">
+<span class="sig-name descname"><span class="pre">motivo</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.motivo" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.numero_alunos">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">numero_alunos</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.numero_alunos" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.objects" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.observacao">
+<span class="sig-name descname"><span class="pre">observacao</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.observacao" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.path">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_dre">
+<span class="sig-name descname"><span class="pre">rastro_dre</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_dre" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_dre_id">
+<span class="sig-name descname"><span class="pre">rastro_dre_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_dre_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_escola">
+<span class="sig-name descname"><span class="pre">rastro_escola</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_escola" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_escola_id">
+<span class="sig-name descname"><span class="pre">rastro_escola_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_escola_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_lote">
+<span class="sig-name descname"><span class="pre">rastro_lote</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_lote" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_lote_id">
+<span class="sig-name descname"><span class="pre">rastro_lote_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_lote_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_terceirizada">
+<span class="sig-name descname"><span class="pre">rastro_terceirizada</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_terceirizada" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_terceirizada_id">
+<span class="sig-name descname"><span class="pre">rastro_terceirizada_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_terceirizada_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.salvar_log_transicao">
+<span class="sig-name descname"><span class="pre">salvar_log_transicao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status_evento</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usuario</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/models.html#InversaoCardapio.salvar_log_transicao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.salvar_log_transicao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.solicitacao_dict_para_relatorio">
+<span class="sig-name descname"><span class="pre">solicitacao_dict_para_relatorio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instituicao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/models.html#InversaoCardapio.solicitacao_dict_para_relatorio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.solicitacao_dict_para_relatorio" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.status">
+<span class="sig-name descname"><span class="pre">status</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;sme_sigpae_api.dados_comuns.fluxo_status.PedidoAPartirDaEscolaWorkflow</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.status" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.template_mensagem">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">template_mensagem</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.template_mensagem" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.terceirizada_conferiu_gestao">
+<span class="sig-name descname"><span class="pre">terceirizada_conferiu_gestao</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.terceirizada_conferiu_gestao" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.terceirizada_responde_questionamento">
+<span class="sig-name descname"><span class="pre">terceirizada_responde_questionamento</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.terceirizada_responde_questionamento" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.terceirizada_toma_ciencia">
+<span class="sig-name descname"><span class="pre">terceirizada_toma_ciencia</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.terceirizada_toma_ciencia" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.tipo">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tipo</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.tipo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.tipos_alimentacao">
+<span class="sig-name descname"><span class="pre">tipos_alimentacao</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.tipos_alimentacao" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related objects manager on the forward and reverse sides of
+a many-to-many relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pizza</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">toppings</span> <span class="o">=</span> <span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Topping</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;pizzas&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Pizza.toppings</span></code> and <code class="docutils literal notranslate"><span class="pre">Topping.pizzas</span></code> are <code class="docutils literal notranslate"><span class="pre">ManyToManyDescriptor</span></code>
+instances.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.uuid" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.vencidos">
+<span class="sig-name descname"><span class="pre">vencidos</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioVencidaManager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio.vencidos" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api">
+<span id="api"></span><h2>api<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api" title="Link to this heading"></a></h2>
+<section id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers">
+<span id="api-serializers"></span><h3>api/serializers<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/serializers.html#InversaoCardapioSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/serializers.html#InversaoCardapioSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSerializer.Meta.exclude">
+<span class="sig-name descname"><span class="pre">exclude</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('id',</span> <span class="pre">'criado_por')</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSerializer.Meta.exclude" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio" title="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio"><code class="xref py py-class docutils literal notranslate"><span class="pre">InversaoCardapio</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSimpleserializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioSimpleserializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/serializers.html#InversaoCardapioSimpleserializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSimpleserializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSimpleserializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/serializers.html#InversaoCardapioSimpleserializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSimpleserializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSimpleserializer.Meta.exclude">
+<span class="sig-name descname"><span class="pre">exclude</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('id',</span> <span class="pre">'criado_por',</span> <span class="pre">'cardapio_de',</span> <span class="pre">'cardapio_para')</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSimpleserializer.Meta.exclude" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSimpleserializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSimpleserializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio" title="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio"><code class="xref py py-class docutils literal notranslate"><span class="pre">InversaoCardapio</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create">
+<span id="api-serializers-create"></span><h3>api/serializers_create<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioSerializerCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'motivo',</span> <span class="pre">'observacao',</span> <span class="pre">'data_de',</span> <span class="pre">'data_para',</span> <span class="pre">'tipos_alimentacao',</span> <span class="pre">'data_de_2',</span> <span class="pre">'data_para_2',</span> <span class="pre">'escola',</span> <span class="pre">'status_explicacao',</span> <span class="pre">'alunos_da_cemei',</span> <span class="pre">'alunos_da_cemei_2')</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio" title="sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio"><code class="xref py py-class docutils literal notranslate"><span class="pre">InversaoCardapio</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.create">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.create" title="Link to this definition"></a></dt>
+<dd><p>We have a bit of extra checking around this in order to provide
+descriptive messages when something goes wrong, but this method is
+essentially just:</p>
+<blockquote>
+<div><p>return ExampleModel.objects.create(<a href="#id1"><span class="problematic" id="id2">**</span></a>validated_data)</p>
+</div></blockquote>
+<p>If there are many to many fields present on the instance then they
+cannot be set until the model is instantiated, in which case the
+implementation is like so:</p>
+<blockquote>
+<div><p>example_relationship = validated_data.pop(‘example_relationship’)
+instance = ExampleModel.objects.create(<a href="#id3"><span class="problematic" id="id4">**</span></a>validated_data)
+instance.example_relationship = example_relationship
+return instance</p>
+</div></blockquote>
+<p>The default implementation also does not handle nested relationships.
+If you want to support writable nested relationships you’ll need
+to write an explicit <cite>.create()</cite> method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.update" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_de">
+<span class="sig-name descname"><span class="pre">validate_data_de</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_de</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate.validate_data_de"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_de" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_de_2">
+<span class="sig-name descname"><span class="pre">validate_data_de_2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_de_2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate.validate_data_de_2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_de_2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_para">
+<span class="sig-name descname"><span class="pre">validate_data_para</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_para</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate.validate_data_para"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_para" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_para_2">
+<span class="sig-name descname"><span class="pre">validate_data_para_2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_para_2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate.validate_data_para_2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_para_2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.validators">
+<span id="api-validators"></span><h3>api/validators<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.validators" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.validators.nao_pode_existir_solicitacao_igual_para_mesma_escola">
+<span class="sig-name descname"><span class="pre">nao_pode_existir_solicitacao_igual_para_mesma_escola</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_de</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_para</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tipos_alimentacao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/validators.html#nao_pode_existir_solicitacao_igual_para_mesma_escola"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.validators.nao_pode_existir_solicitacao_igual_para_mesma_escola" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.validators.nao_pode_ter_mais_que_60_dias_diferenca">
+<span class="sig-name descname"><span class="pre">nao_pode_ter_mais_que_60_dias_diferenca</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_de</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_para</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/validators.html#nao_pode_ter_mais_que_60_dias_diferenca"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.validators.nao_pode_ter_mais_que_60_dias_diferenca" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets">
+<span id="api-viewsets"></span><h3>api/viewsets<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataSolicitacaoContextMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelViewSet</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.codae_autoriza_solicitacao">
+<span class="sig-name descname"><span class="pre">codae_autoriza_solicitacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.codae_autoriza_solicitacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.codae_autoriza_solicitacao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.codae_nega_solicitacao">
+<span class="sig-name descname"><span class="pre">codae_nega_solicitacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.codae_nega_solicitacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.codae_nega_solicitacao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.codae_questiona">
+<span class="sig-name descname"><span class="pre">codae_questiona</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.codae_questiona"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.codae_questiona" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.destroy">
+<span class="sig-name descname"><span class="pre">destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.destroy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.destroy" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.diretoria_regional_nao_valida_solicitacao">
+<span class="sig-name descname"><span class="pre">diretoria_regional_nao_valida_solicitacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.diretoria_regional_nao_valida_solicitacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.diretoria_regional_nao_valida_solicitacao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.diretoria_regional_valida_solicitacao">
+<span class="sig-name descname"><span class="pre">diretoria_regional_valida_solicitacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.diretoria_regional_valida_solicitacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.diretoria_regional_valida_solicitacao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.escola_cancela_solicitacao">
+<span class="sig-name descname"><span class="pre">escola_cancela_solicitacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.escola_cancela_solicitacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.escola_cancela_solicitacao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.get_permissions">
+<span class="sig-name descname"><span class="pre">get_permissions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.get_permissions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.get_permissions" title="Link to this definition"></a></dt>
+<dd><p>Instantiates and returns the list of permissions that this view requires.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.get_serializer_class">
+<span class="sig-name descname"><span class="pre">get_serializer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.get_serializer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.get_serializer_class" title="Link to this definition"></a></dt>
+<dd><p>Return the class to use for the serializer.
+Defaults to using <cite>self.serializer_class</cite>.</p>
+<p>You may want to override this if you need to provide different
+serializations depending on the incoming request.</p>
+<p>(Eg. admins get full serialization, others get basic serialization)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.inicio_de_solicitacao">
+<span class="sig-name descname"><span class="pre">inicio_de_solicitacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.inicio_de_solicitacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.inicio_de_solicitacao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.lookup_field">
+<span class="sig-name descname"><span class="pre">lookup_field</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'uuid'</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.lookup_field" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.minhas_solicitacoes">
+<span class="sig-name descname"><span class="pre">minhas_solicitacoes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.minhas_solicitacoes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.minhas_solicitacoes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.permission_classes">
+<span class="sig-name descname"><span class="pre">permission_classes</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'rest_framework.permissions.IsAuthenticated'&gt;,)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.permission_classes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.queryset">
+<span class="sig-name descname"><span class="pre">queryset</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;QuerySet</span> <span class="pre">[&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-12-09</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-12-16&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-10-10</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-10-21&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-11-30</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-12-01&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-10-11</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-10-14&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-10-11</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-10-27&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-10-11</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-10-27&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-10-11</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-10-18&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-10-11</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-10-27&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-10-11</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-10-27&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-12-07</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-12-16&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-12-07</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-12-09&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-10-07</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-10-10&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-12-09</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-12-16&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-12-09</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-12-16&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-10-07</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-10-10&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-10-11</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-10-13&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-10-11</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-10-13&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-10-10</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-10-27&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-10-11</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-10-13&gt;,</span> <span class="pre">&lt;InversaoCardapio:</span> <span class="pre">Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio</span>&#160; <span class="pre">De:</span> <span class="pre">2022-10-10</span>&#160; <span class="pre">Para:</span> <span class="pre">2022-10-27&gt;,</span> <span class="pre">'...(remaining</span> <span class="pre">elements</span> <span class="pre">truncated)...']&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.queryset" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.relatorio">
+<span class="sig-name descname"><span class="pre">relatorio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.relatorio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.relatorio" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.serializer_class">
+<span class="sig-name descname"><span class="pre">serializer_class</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.serializer_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSerializer" title="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">InversaoCardapioSerializer</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.solicitacoes_codae">
+<span class="sig-name descname"><span class="pre">solicitacoes_codae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtro_aplicado</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sem_filtro'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.solicitacoes_codae"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.solicitacoes_codae" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.solicitacoes_diretoria_regional">
+<span class="sig-name descname"><span class="pre">solicitacoes_diretoria_regional</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtro_aplicado</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sem_filtro'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.solicitacoes_diretoria_regional"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.solicitacoes_diretoria_regional" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.solicitacoes_terceirizada">
+<span class="sig-name descname"><span class="pre">solicitacoes_terceirizada</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtro_aplicado</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sem_filtro'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.solicitacoes_terceirizada"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.solicitacoes_terceirizada" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.terceirizada_marca_inclusao_como_conferida">
+<span class="sig-name descname"><span class="pre">terceirizada_marca_inclusao_como_conferida</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.terceirizada_marca_inclusao_como_conferida"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.terceirizada_marca_inclusao_como_conferida" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.terceirizada_responde_questionamento">
+<span class="sig-name descname"><span class="pre">terceirizada_responde_questionamento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.terceirizada_responde_questionamento"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.terceirizada_responde_questionamento" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.terceirizada_toma_ciencia">
+<span class="sig-name descname"><span class="pre">terceirizada_toma_ciencia</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.terceirizada_toma_ciencia"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.terceirizada_toma_ciencia" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures">
+<span id="fixtures"></span><h2>fixtures<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures" title="Link to this heading"></a></h2>
+<section id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories">
+<span id="fixtures-factories"></span><h3>fixtures/factories<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories" title="Link to this heading"></a></h3>
+<dl class="py class" id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/fixtures/factories/inversao_cardapio_factory.html#InversaoCardapioFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DjangoModelFactory</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory.escola">
+<span class="sig-name descname"><span class="pre">escola</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory.escola" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory.rastro_dre">
+<span class="sig-name descname"><span class="pre">rastro_dre</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory.rastro_dre" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory.rastro_escola">
+<span class="sig-name descname"><span class="pre">rastro_escola</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory.rastro_escola" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory.rastro_lote">
+<span class="sig-name descname"><span class="pre">rastro_lote</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory.rastro_lote" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory.rastro_terceirizada">
+<span class="sig-name descname"><span class="pre">rastro_terceirizada</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory.rastro_terceirizada" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory.tipos_alimentacao">
+<span class="sig-name descname"><span class="pre">tipos_alimentacao</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.PostGeneration</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory.tipos_alimentacao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio.managers">
+<span id="managers"></span><h2>managers<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.managers" title="Link to this heading"></a></h2>
+<dl class="py class" id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDestaSemanaManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioDestaSemanaManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/managers/inversao_dia_cardapio_managers.html#InversaoCardapioDestaSemanaManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDestaSemanaManager" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Manager</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDestaSemanaManager.get_queryset">
+<span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/managers/inversao_dia_cardapio_managers.html#InversaoCardapioDestaSemanaManager.get_queryset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDestaSemanaManager.get_queryset" title="Link to this definition"></a></dt>
+<dd><p>Return a new QuerySet object. Subclasses can override this method to
+customize the behavior of the Manager.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDesteMesManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioDesteMesManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/managers/inversao_dia_cardapio_managers.html#InversaoCardapioDesteMesManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDesteMesManager" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Manager</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDesteMesManager.get_queryset">
+<span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/managers/inversao_dia_cardapio_managers.html#InversaoCardapioDesteMesManager.get_queryset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDesteMesManager.get_queryset" title="Link to this definition"></a></dt>
+<dd><p>Return a new QuerySet object. Subclasses can override this method to
+customize the behavior of the Manager.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioVencidaManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioVencidaManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/managers/inversao_dia_cardapio_managers.html#InversaoCardapioVencidaManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioVencidaManager" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Manager</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioVencidaManager.get_queryset">
+<span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/managers/inversao_dia_cardapio_managers.html#InversaoCardapioVencidaManager.get_queryset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioVencidaManager.get_queryset" title="Link to this definition"></a></dt>
+<dd><p>Return a new QuerySet object. Subclasses can override this method to
+customize the behavior of the Manager.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="base.html" class="btn btn-neutral float-left" title="base" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="management.html" class="btn btn-neutral float-right" title="management" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -2,14 +2,16 @@ import copy
 import datetime
 import json
 import uuid
+from io import BytesIO
 
 import pytest
-from model_bakery import baker
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from faker import Faker
 from freezegun import freeze_time
+from model_bakery import baker
+from pypdf import PdfReader
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -1013,12 +1015,21 @@ def test_url_dashboard_cronograma_com_filtro(
     client_autenticado_dilog_abastecimento, cronograma_factory, status_card
 ):
     cronogramas = cronograma_factory.create_batch(size=10, status=status_card)
+    cronograma_filtrado = cronogramas[0]
+
+    # Evita intermitencia causada por filtros com icontains em dados gerados aleatoriamente.
+    cronograma_filtrado.numero = f"CRONOGRAMA-UNICO-{status_card}"
+    cronograma_filtrado.save(update_fields=["numero"])
+    cronograma_filtrado.ficha_tecnica.produto.nome = f"PRODUTO-UNICO-{status_card}"
+    cronograma_filtrado.ficha_tecnica.produto.save(update_fields=["nome"])
+    cronograma_filtrado.empresa.razao_social = f"FORNECEDOR-UNICO-{status_card}"
+    cronograma_filtrado.empresa.save(update_fields=["razao_social"])
 
     filtros = {
         "status": status_card,
         "offset": 0,
         "limit": 10,
-        "numero_cronograma": cronogramas[0].numero,
+        "numero_cronograma": cronograma_filtrado.numero,
     }
     response = client_autenticado_dilog_abastecimento.get(
         "/cronogramas/dashboard-com-filtro/", filtros
@@ -1030,7 +1041,7 @@ def test_url_dashboard_cronograma_com_filtro(
         "status": status_card,
         "offset": 0,
         "limit": 10,
-        "nome_produto": cronogramas[0].ficha_tecnica.produto.nome,
+        "nome_produto": cronograma_filtrado.ficha_tecnica.produto.nome,
     }
     response = client_autenticado_dilog_abastecimento.get(
         "/cronogramas/dashboard-com-filtro/", filtros
@@ -1042,7 +1053,7 @@ def test_url_dashboard_cronograma_com_filtro(
         "status": status_card,
         "offset": 0,
         "limit": 10,
-        "nome_fornecedor": cronogramas[0].empresa.razao_social,
+        "nome_fornecedor": cronograma_filtrado.empresa.razao_social,
     }
     response = client_autenticado_dilog_abastecimento.get(
         "/cronogramas/dashboard-com-filtro/", filtros
@@ -3801,13 +3812,6 @@ def test_url_pdf_ficha_tecnica_nao_perecivel(
     client_autenticado_fornecedor, ficha_tecnica_factory, empresa
 ):
     """Testa a geração de PDF para ficha técnica de produtos não perecíveis."""
-    from io import BytesIO
-
-    from pypdf import PdfReader
-
-    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
-        FichaTecnicaDoProduto,
-    )
 
     ficha_tecnica = ficha_tecnica_factory(
         categoria=FichaTecnicaDoProduto.CATEGORIA_NAO_PERECIVEIS,
@@ -3836,15 +3840,6 @@ def test_url_pdf_ficha_tecnica_nao_perecivel(
 def test_url_pdf_ficha_tecnica_tag_leve_leite(
     client_autenticado_fornecedor, ficha_tecnica_factory, empresa
 ):
-    """Testa que a tag 'LEVE LEITE - PLL' aparece apenas para fichas do programa LEVE_LEITE."""
-    from io import BytesIO
-
-    from pypdf import PdfReader
-
-    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
-        FichaTecnicaDoProduto,
-    )
-
     # Teste com programa LEVE_LEITE - tag deve aparecer
     ficha_leve_leite = ficha_tecnica_factory(
         programa=FichaTecnicaDoProduto.LEVE_LEITE,
@@ -3880,6 +3875,26 @@ def test_url_pdf_ficha_tecnica_tag_leve_leite(
     pdf_text_alimentacao = page_alimentacao.extract_text()
 
     assert "LEVE LEITE - PLL" not in pdf_text_alimentacao
+
+
+def test_url_pdf_ficha_tecnica_flv(client_autenticado_fornecedor, ficha_tecnica_flv):
+    ficha_flv = ficha_tecnica_flv
+
+    response_flv = client_autenticado_fornecedor.get(
+        f"/ficha-tecnica/{str(ficha_flv.uuid)}/gerar-pdf-ficha/"
+    )
+
+    assert response_flv.status_code == status.HTTP_200_OK
+
+    pdf_reader = PdfReader(BytesIO(response_flv.content))
+    page = pdf_reader.pages[0]
+    pdf_text_flv = page.extract_text()
+
+    assert "Ponto a Ponto" in pdf_text_flv
+
+    assert "Informações Nutricionais" not in pdf_text_flv
+    assert "Modo de Preparo" not in pdf_text_flv
+    assert "Armazenamento" not in pdf_text_flv
 
 
 def test_url_interrupcao_programada_entrega_list_authorized(
@@ -3923,57 +3938,56 @@ def test_url_interrupcao_programada_entrega_motivos_list(
     assert "label" in response.json()[0]
 
 
-
 def test_datas_bloqueadas_armazenavel(client_autenticado_vinculo_dilog_cronograma):
     client, _ = client_autenticado_vinculo_dilog_cronograma
     url = "/interrupcao-programada-entrega/datas-bloqueadas-armazenavel/"
 
     date = datetime.date
-    
+
     ano_atual = date.today().year
     ano_proximo = ano_atual + 1
-    
+
     # Criar interrupções válidas (ARMAZENAVEL, ano atual e próximo)
     data1 = date(ano_atual, 1, 10)
     data2 = date(ano_proximo, 2, 20)
-    
+
     baker.make(
         "InterrupcaoProgramadaEntrega",
         data=data1,
-        tipo_calendario=InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL
+        tipo_calendario=InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL,
     )
     baker.make(
         "InterrupcaoProgramadaEntrega",
         data=data2,
-        tipo_calendario=InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL
+        tipo_calendario=InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL,
     )
-    
+
     # Criar interrupção de outro tipo (não deve retornar)
     baker.make(
         "InterrupcaoProgramadaEntrega",
         data=date(ano_atual, 3, 15),
-        tipo_calendario=InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_PONTO_A_PONTO
+        tipo_calendario=InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_PONTO_A_PONTO,
     )
-    
+
     # Criar interrupção de outro ano (não deve retornar)
     baker.make(
         "InterrupcaoProgramadaEntrega",
         data=date(ano_atual - 1, 12, 25),
-        tipo_calendario=InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL
+        tipo_calendario=InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL,
     )
 
     response = client.get(url)
-    
+
     assert response.status_code == status.HTTP_200_OK
     results = response.data["results"]
-    
+
     assert len(results) == 2
-    
+
     # Datas válidas devem estar no resultado
     # O QuerySet values_list retorna datetime.date objects que são serializados como strings ISO
     assert data1 in results
     assert data2 in results
-    
+
     # Datas inválidas não devem estar no resultado
     assert date(ano_atual, 3, 15) not in results
     assert datetime.date(ano_atual - 1, 12, 25) not in results
@@ -3988,4 +4002,6 @@ def test_deleta_interrupcao_programada(client_autenticado_vinculo_dilog_cronogra
     response = client.delete(url)
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
-    assert InterrupcaoProgramadaEntrega.objects.filter(uuid=interrupcao.uuid).count() == 0
+    assert (
+        InterrupcaoProgramadaEntrega.objects.filter(uuid=interrupcao.uuid).count() == 0
+    )
