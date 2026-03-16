@@ -3687,7 +3687,6 @@ def validate_lanches_emergenciais_diarios(
         solicitacao.dias_lanche_emergencial_diario
     ).issubset(dias_lanche_emergencial_lancados)
     if not todos_lanches_emergencias_lancados:
-        print("AOPAAA")
         lista_erros.append(
             {
                 "periodo_escolar": "Solicitações de Alimentação",
