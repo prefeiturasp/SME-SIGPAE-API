@@ -79,6 +79,7 @@ from ..validators import (
     validate_lancamento_inclusoes_dietas_emef_emebs,
     validate_lancamento_kit_lanche,
     validate_lanche_emergencial,
+    validate_lanches_emergenciais_diarios,
     validate_medicao_cemei,
     validate_solicitacoes_etec,
     validate_solicitacoes_etec_escola_sem_alunos_regulares,
@@ -282,6 +283,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_lanche_emergencial(instance, lista_erros)
         lista_erros = validate_solicitacoes_etec(instance, lista_erros)
         lista_erros = validate_solicitacoes_programas_e_projetos(instance, lista_erros)
+        lista_erros = validate_lanches_emergenciais_diarios(instance, lista_erros)
 
         if lista_erros:
             raise ValidationError(lista_erros)
@@ -297,6 +299,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         ):
             return
         lista_erros = validate_medicao_cemei(instance)
+        lista_erros = validate_lanches_emergenciais_diarios(instance, lista_erros)
         if lista_erros:
             raise ValidationError(lista_erros)
 
@@ -352,6 +355,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         )
         lista_erros = validate_lancamento_kit_lanche(instance, lista_erros)
         lista_erros = validate_lanche_emergencial(instance, lista_erros)
+        lista_erros = validate_lanches_emergenciais_diarios(instance, lista_erros)
 
         if lista_erros:
             raise ValidationError(lista_erros)
@@ -379,6 +383,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_solicitacoes_programas_e_projetos_emebs(
             instance, lista_erros
         )
+        lista_erros = validate_lanches_emergenciais_diarios(instance, lista_erros)
 
         if lista_erros:
             raise ValidationError(lista_erros)
@@ -1009,12 +1014,12 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 )
             instance.alunos_periodo_parcial.all().delete()
             for aluno in json.loads(alunos_periodo_parcial):
-                (dia, mes, ano) = aluno.get("data", "").split("/")
+                dia, mes, ano = aluno.get("data", "").split("/")
                 dia = int(dia)
                 mes = int(mes)
                 ano = int(ano)
                 if aluno.get("data_removido", ""):
-                    (dia_, mes_, ano_) = aluno.get("data_removido", "").split("/")
+                    dia_, mes_, ano_ = aluno.get("data_removido", "").split("/")
                     dia_ = int(dia_)
                     mes_ = int(mes_)
                     ano_ = int(ano_)
