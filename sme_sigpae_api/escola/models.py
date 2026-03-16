@@ -552,25 +552,6 @@ class Escola(
         help_text="Envia e-mail quando houver um produto com status de homologado, não homologado, ativar ou suspender.",  # noqa
     )
 
-    def tem_lanche_emergencial_diario(self, solicitacao_medicao_inicial) -> bool:
-        """
-        Retorna true se escola possui permissão para lançamento de lanche emergencial diário para uma Solicitação de Medição Inicial
-        """
-        return (
-            self.lanches_emergenciais_diarios.filter(
-                data_inicial__month__lte=solicitacao_medicao_inicial.mes,
-                data_inicial__year__lte=solicitacao_medicao_inicial.ano,
-            )
-            .filter(
-                Q(
-                    data_final__month__gte=solicitacao_medicao_inicial.mes,
-                    data_final__year__gte=solicitacao_medicao_inicial.ano,
-                )
-                | Q(data_final__isnull=True)
-            )
-            .exists()
-        )
-
     def historico_escola_por_data(self, data: datetime.date):
         if not data:
             return None

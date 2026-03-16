@@ -1,9 +1,11 @@
+import calendar
 import datetime
 import unicodedata
 from calendar import monthcalendar, setfirstweekday
 
 import numpy
 from django.db import models
+from django.db.models import Q
 
 from ..dados_comuns.behaviors import (
     Ativavel,
@@ -131,6 +133,79 @@ class SolicitacaoMedicaoInicial(
             Medicao.objects.get_or_create(
                 solicitacao_medicao_inicial=self, periodo_escolar=periodo_escolar
             )
+
+    @property
+    def tem_lanche_emergencial_diario(self) -> bool:
+        """
+        Retorna true se escola possui permissão para lançamento de lanche emergencial diário para uma Solicitação de Medição Inicial
+        """
+        return (
+            self.escola.lanches_emergenciais_diarios.filter(
+                data_inicial__month__lte=self.mes,
+                data_inicial__year__lte=self.ano,
+            )
+            .filter(
+                Q(
+                    data_final__month__gte=self.mes,
+                    data_final__year__gte=self.ano,
+                )
+                | Q(data_final__isnull=True)
+            )
+            .exists()
+        )
+
+    @property
+    def dias_lanche_emergencial_diario(self) -> list[int]:
+        """
+        Retorna os dias do mês em que há permissão para lançamento
+        de lanche emergencial diário e que são dias letivos no calendário.
+        """
+
+        if not self.tem_lanche_emergencial_diario:
+            return []
+
+        mes = int(self.mes)
+        ano = int(self.ano)
+
+        primeiro_dia_mes = datetime.date(ano, mes, 1)
+        ultimo_dia_mes = datetime.date(ano, mes, calendar.monthrange(ano, mes)[1])
+
+        periodos = (
+            self.escola.lanches_emergenciais_diarios.filter(
+                data_inicial__lte=ultimo_dia_mes
+            )
+            .filter(Q(data_final__gte=primeiro_dia_mes) | Q(data_final__isnull=True))
+            .only("data_inicial", "data_final")
+        )
+
+        dias = set()
+
+        for periodo in periodos:
+            inicio = max(periodo.data_inicial, primeiro_dia_mes)
+
+            fim = (
+                min(periodo.data_final, ultimo_dia_mes)
+                if periodo.data_final
+                else ultimo_dia_mes
+            )
+
+            dias.update(range(inicio.day, fim.day + 1))
+
+        if not dias:
+            return []
+
+        # busca calendário escolar do mês
+        calendario = {
+            d.data.day: d.dia_letivo
+            for d in self.escola.calendario.filter(
+                data__range=(primeiro_dia_mes, ultimo_dia_mes),
+                periodo_escolar__isnull=True,
+            ).only("data", "dia_letivo")
+        }
+
+        dias_validos = [dia for dia in dias if calendario.get(dia) is True]
+
+        return [f"{dia:02d}" for dia in sorted(dias_validos)]
 
     @property
     def data_referencia(self):
