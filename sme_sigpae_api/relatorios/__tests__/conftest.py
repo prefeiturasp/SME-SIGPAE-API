@@ -749,3 +749,10 @@ def solicitacao_medicao_inicial_aprovada_codae(
     )
     solicitacoes_medicao_inicial_emef.save()
     return solicitacoes_medicao_inicial_emef
+
+   
+@pytest.fixture
+def ficha_recebimento_observacao_com_none():
+    return FichaDeRecebimentoFactory(
+        observacao=None,
+    )
