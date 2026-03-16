@@ -1030,7 +1030,8 @@ def test_relatorio_historico_dieta_especial(
     log_dietas_autorizadas_cei,
 ):
     response = client_autenticado_vinculo_terceirizada_dieta.post(
-        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/", data={"data": "20/03/2024"}
+        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/",
+        data={"data": "20/03/2024"},
     )
     assert response.status_code == status.HTTP_200_OK
     historico = response.json()
@@ -1129,7 +1130,8 @@ def test_relatorio_historico_dieta_especial_retona_data_padrao_incorreto(
     client_autenticado_vinculo_terceirizada_dieta,
 ):
     response = client_autenticado_vinculo_terceirizada_dieta.post(
-        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/", data={"data": "2025-02-06"}
+        "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/",
+        data={"data": "2025-02-06"},
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {
@@ -1150,7 +1152,8 @@ def test_relatorio_historico_dieta_especial_cliente_nao_autorizado(
 
 
 def test_relatorio_recreio_nas_ferias(
-    client_autenticado_vinculo_terceirizada_dieta, relatorio_recreio_nas_ferias_somente_autorizadas
+    client_autenticado_vinculo_terceirizada_dieta,
+    relatorio_recreio_nas_ferias_somente_autorizadas,
 ):
     response = client_autenticado_vinculo_terceirizada_dieta.get(
         "/solicitacoes-dieta-especial/relatorio-recreio-nas-ferias/"
@@ -1524,3 +1527,54 @@ def test_url_endpoint_verifica_dieta_log_inativo(
         log["status_evento_explicacao"] == "CODAE inativou"
         for log in informacao_dieta["logs"]
     )
+
+
+def test_logs_dieta_recreio_nas_ferias_cei(
+    client_autenticado_vinculo_codae_gestao_alimentacao_dieta,
+    escola,
+    logs_dieta_recreio_nas_ferias_cei,
+):
+    client, user = client_autenticado_vinculo_codae_gestao_alimentacao_dieta
+    response = client.get(
+        f"/log-quantidade-dietas-autorizadas-recreio-nas-ferias-cei/?escola_uuid={str(escola.uuid)}&mes=12&ano=2025"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    logs = response.json()
+    assert len(logs) == 4
+
+    logs_faixa_0_5 = [
+        log for log in logs if log["faixa_etaria"]["__str__"] == "0 meses a 05 meses"
+    ]
+    assert len(logs_faixa_0_5) == 3
+    assert any(log["classificacao"] == "Tipo A" for log in logs_faixa_0_5)
+    assert any(log["classificacao"] == "Tipo A Enteral" for log in logs_faixa_0_5)
+    assert any(log["classificacao"] == "Tipo B" for log in logs_faixa_0_5)
+
+    logs_faixa_7_11 = [
+        log for log in logs if log["faixa_etaria"]["__str__"] == "07 a 11 meses"
+    ]
+    assert len(logs_faixa_7_11) == 1
+    assert logs_faixa_7_11[0]["classificacao"] == "Tipo B"
+
+    for log in logs:
+        assert log["dia"] == "22"
+        assert log["data"] == "22/12/2025"
+        assert log["quantidade"] == 5
+        assert log["escola"] == str(escola.nome)
+        assert all(
+            key in log["faixa_etaria"] for key in ["uuid", "inicio", "fim", "__str__"]
+        )
+
+
+def test_logs_dieta_recreio_nas_ferias_cei_escola_sem_log(
+    client_autenticado_vinculo_codae_gestao_alimentacao_dieta, escola
+):
+    client, user = client_autenticado_vinculo_codae_gestao_alimentacao_dieta
+    response = client.get(
+        f"/log-quantidade-dietas-autorizadas-recreio-nas-ferias-cei/?escola_uuid={str(escola.uuid)}&mes=12&ano=2025"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    logs = response.json()
+    assert len(logs) == 0

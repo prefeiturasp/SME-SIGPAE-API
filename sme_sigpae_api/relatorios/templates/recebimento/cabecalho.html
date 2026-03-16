@@ -25,7 +25,7 @@
 			<div class="row green-important-text">
 				<div class="col pb-2 grow-2"> {{cronograma.numero}} </div>
 				<div class="col pb-2 grow-2"> {{cronograma.contrato.numero}} </div>
-        		<div class="col pb-2 grow-2"> {{cronograma.contrato.ata}} </div>
+				<div class="col pb-2 grow-2"> {{ cronograma.contrato.ata|default:cronograma.contrato.numero_chamada_publica }} </div>
 			</div>
 		</div>
 	</header>

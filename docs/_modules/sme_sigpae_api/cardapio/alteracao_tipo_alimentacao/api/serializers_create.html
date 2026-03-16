@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.validators</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">precisa_pertencer_a_um_tipo_de_alimentacao</span><span class="p">,</span>
+    <span class="n">valida_duplicidade_solicitacoes_lanche_emergencial</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AlteracaoCardapio</span><span class="p">,</span>
+    <span class="n">DataIntervaloAlteracaoCardapio</span><span class="p">,</span>
+    <span class="n">MotivoAlteracaoCardapio</span><span class="p">,</span>
+    <span class="n">SubstituicaoAlimentacaoNoPeriodoEscolar</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.base.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">TipoAlimentacao</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_instance_from_dict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.validators</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">deve_pedir_com_antecedencia</span><span class="p">,</span>
+    <span class="n">deve_ser_no_mesmo_ano_corrente</span><span class="p">,</span>
+    <span class="n">nao_pode_ser_no_passado</span><span class="p">,</span>
+    <span class="n">valida_datas_alteracao_cardapio</span><span class="p">,</span>
+    <span class="n">valida_duplicidade_solicitacoes</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.escola.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiaCalendario</span><span class="p">,</span> <span class="n">Escola</span><span class="p">,</span> <span class="n">PeriodoEscolar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.escola.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">eh_dia_sem_atividade_escolar</span>
+
+
+<div class="viewcode-block" id="SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase</span><span class="p">(</span>
+    <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span>
+<span class="p">):</span>
+    <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">PeriodoEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="n">tipos_alimentacao_de</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">TipoAlimentacao</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate</span><span class="p">(</span>
+    <span class="n">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase</span>
+<span class="p">):</span>
+    <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">PeriodoEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="n">tipos_alimentacao_para</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">TipoAlimentacao</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate.create">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate.create">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+        <span class="n">tipos_alimentacao_de</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;tipos_alimentacao_de&quot;</span><span class="p">)</span>
+        <span class="n">tipos_alimentacao_para</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;tipos_alimentacao_para&quot;</span><span class="p">)</span>
+        <span class="n">substituicao_alimentacao</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">SubstituicaoAlimentacaoNoPeriodoEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">validated_data</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">substituicao_alimentacao</span><span class="o">.</span><span class="n">tipos_alimentacao_de</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">tipos_alimentacao_de</span><span class="p">)</span>
+        <span class="n">substituicao_alimentacao</span><span class="o">.</span><span class="n">tipos_alimentacao_para</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">tipos_alimentacao_para</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">substituicao_alimentacao</span></div>
+
+
+<div class="viewcode-block" id="SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SubstituicaoAlimentacaoNoPeriodoEscolar</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="AlteracaoCardapioSerializerCreateBase">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreateBase">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlteracaoCardapioSerializerCreateBase</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">motivo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">MotivoAlteracaoCardapio</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">escola</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">Escola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">status_explicacao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="AlteracaoCardapioSerializerCreateBase.create">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreateBase.create">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+        <span class="n">substituicoes</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;substituicoes&quot;</span><span class="p">)</span>
+        <span class="n">validated_data</span><span class="p">[</span><span class="s2">&quot;criado_por&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">user</span>
+
+        <span class="n">substituicoes_lista</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">substituicao</span> <span class="ow">in</span> <span class="n">substituicoes</span><span class="p">:</span>
+            <span class="n">substituicoes_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Meta</span><span class="o">.</span><span class="n">serializer_substituicao</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">substituicao</span>
+            <span class="p">)</span>
+            <span class="n">substituicoes_lista</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">substituicoes_object</span><span class="p">)</span>
+        <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Meta</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">validated_data</span><span class="p">)</span>
+        <span class="n">alteracao_cardapio</span><span class="o">.</span><span class="n">substituicoes</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">substituicoes_lista</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">alteracao_cardapio</span></div>
+
+
+<div class="viewcode-block" id="AlteracaoCardapioSerializerCreateBase.update">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreateBase.update">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+        <span class="n">substituicoes_json</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;substituicoes&quot;</span><span class="p">)</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">substituicoes</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+
+        <span class="n">substituicoes_lista</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">substituicao_json</span> <span class="ow">in</span> <span class="n">substituicoes_json</span><span class="p">:</span>
+            <span class="n">substituicoes_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Meta</span><span class="o">.</span><span class="n">serializer_substituicao</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">substituicao_json</span>
+            <span class="p">)</span>
+            <span class="n">substituicoes_lista</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">substituicoes_object</span><span class="p">)</span>
+
+        <span class="n">update_instance_from_dict</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">)</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">substituicoes</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">substituicoes_lista</span><span class="p">)</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">instance</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DatasIntervaloAlteracaoCardapioSerializerCreateSerializer">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.DatasIntervaloAlteracaoCardapioSerializerCreateSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DatasIntervaloAlteracaoCardapioSerializerCreateSerializer</span><span class="p">(</span>
+    <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span>
+<span class="p">):</span>
+    <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="DatasIntervaloAlteracaoCardapioSerializerCreateSerializer.create">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.DatasIntervaloAlteracaoCardapioSerializerCreateSerializer.create">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+        <span class="n">data_intervalo</span> <span class="o">=</span> <span class="n">DataIntervaloAlteracaoCardapio</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">validated_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data_intervalo</span></div>
+
+
+<div class="viewcode-block" id="DatasIntervaloAlteracaoCardapioSerializerCreateSerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.DatasIntervaloAlteracaoCardapioSerializerCreateSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">DataIntervaloAlteracaoCardapio</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="AlteracaoCardapioSerializerCreate">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlteracaoCardapioSerializerCreate</span><span class="p">(</span><span class="n">AlteracaoCardapioSerializerCreateBase</span><span class="p">):</span>
+    <span class="n">substituicoes</span> <span class="o">=</span> <span class="n">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">datas_intervalo</span> <span class="o">=</span> <span class="n">DatasIntervaloAlteracaoCardapioSerializerCreateSerializer</span><span class="p">(</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="AlteracaoCardapioSerializerCreate.validate">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.validate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+        <span class="n">escola</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;escola&quot;</span><span class="p">)</span>
+        <span class="n">substituicoes</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;substituicoes&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">substicuicao</span> <span class="ow">in</span> <span class="n">substituicoes</span><span class="p">:</span>
+            <span class="n">tipos_alimentacao_de</span> <span class="o">=</span> <span class="n">substicuicao</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tipos_alimentacao_de&quot;</span><span class="p">)</span>
+            <span class="n">tipo_alimentacao_para</span> <span class="o">=</span> <span class="n">substicuicao</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tipo_alimentacao_para&quot;</span><span class="p">)</span>
+            <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">substicuicao</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;periodo_escolar&quot;</span><span class="p">)</span>
+            <span class="n">precisa_pertencer_a_um_tipo_de_alimentacao</span><span class="p">(</span>
+                <span class="n">tipos_alimentacao_de</span><span class="p">,</span>
+                <span class="n">tipo_alimentacao_para</span><span class="p">,</span>
+                <span class="n">escola</span><span class="o">.</span><span class="n">tipo_unidade</span><span class="p">,</span>
+                <span class="n">periodo_escolar</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">valida_datas_alteracao_cardapio</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
+        <span class="n">nao_pode_ser_no_passado</span><span class="p">(</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;data_inicial&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;motivo&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">nome</span> <span class="o">!=</span> <span class="s2">&quot;Lanche Emergencial&quot;</span><span class="p">:</span>
+            <span class="n">deve_pedir_com_antecedencia</span><span class="p">(</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;data_inicial&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;motivo&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">nome</span> <span class="o">==</span> <span class="s2">&quot;RPL - Refeição por Lanche&quot;</span><span class="p">:</span>
+            <span class="n">valida_duplicidade_solicitacoes</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
+        <span class="n">deve_ser_no_mesmo_ano_corrente</span><span class="p">(</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;data_inicial&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">attrs</span></div>
+
+
+<div class="viewcode-block" id="AlteracaoCardapioSerializerCreate.datas_nos_meses_de_ferias">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.datas_nos_meses_de_ferias">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">datas_nos_meses_de_ferias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datas_intervalo</span><span class="p">):</span>
+        <span class="n">MESES_DE_FERIAS</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">12</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">datas_intervalo</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">month</span> <span class="ow">in</span> <span class="n">MESES_DE_FERIAS</span>
+            <span class="ow">or</span> <span class="n">datas_intervalo</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">month</span> <span class="ow">in</span> <span class="n">MESES_DE_FERIAS</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AlteracaoCardapioSerializerCreate.criar_datas_intervalo">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.criar_datas_intervalo">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">criar_datas_intervalo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datas_intervalo</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="n">datas_intervalo</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">dict</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="s2">&quot;alteracao_cardapio&quot;</span><span class="p">:</span> <span class="n">instance</span><span class="p">})</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">datas_intervalo</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">eh_alteracao_lanche_emergencial</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">data_intervalo</span> <span class="ow">in</span> <span class="n">datas_intervalo</span><span class="p">:</span>
+                <span class="n">DataIntervaloAlteracaoCardapio</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">data_intervalo</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">DiaCalendario</span><span class="o">.</span><span class="n">pelo_menos_um_dia_letivo</span><span class="p">(</span>
+                <span class="n">instance</span><span class="o">.</span><span class="n">escola</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">data_intervalo</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">data_intervalo</span> <span class="ow">in</span> <span class="n">datas_intervalo</span><span class="p">],</span>
+                <span class="n">instance</span><span class="p">,</span>
+            <span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">datas_nos_meses_de_ferias</span><span class="p">(</span><span class="n">datas_intervalo</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+                    <span class="s2">&quot;Não é possível solicitar Lanche Emergencial para dia(s) não letivo(s)&quot;</span>
+                <span class="p">)</span>
+            <span class="k">for</span> <span class="n">data_intervalo</span> <span class="ow">in</span> <span class="n">datas_intervalo</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">eh_dia_sem_atividade_escolar</span><span class="p">(</span>
+                    <span class="n">instance</span><span class="o">.</span><span class="n">escola</span><span class="p">,</span> <span class="n">data_intervalo</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">instance</span>
+                <span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">datas_nos_meses_de_ferias</span><span class="p">(</span><span class="n">datas_intervalo</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="n">DataIntervaloAlteracaoCardapio</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">data_intervalo</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AlteracaoCardapioSerializerCreate.criar_substituicoes">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.criar_substituicoes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">criar_substituicoes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">substituicoes</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="n">substituicoes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">dict</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="s2">&quot;alteracao_cardapio&quot;</span><span class="p">:</span> <span class="n">instance</span><span class="p">})</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">substituicoes</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">substituicao</span> <span class="ow">in</span> <span class="n">substituicoes</span><span class="p">:</span>
+            <span class="n">tipos_alimentacao_de</span> <span class="o">=</span> <span class="n">substituicao</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;tipos_alimentacao_de&quot;</span><span class="p">)</span>
+            <span class="n">tipos_alimentacao_para</span> <span class="o">=</span> <span class="n">substituicao</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;tipos_alimentacao_para&quot;</span><span class="p">)</span>
+            <span class="n">substituicao_alimentacao</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">SubstituicaoAlimentacaoNoPeriodoEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">substituicao</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">substituicao_alimentacao</span><span class="o">.</span><span class="n">tipos_alimentacao_de</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">tipos_alimentacao_de</span><span class="p">)</span>
+            <span class="n">substituicao_alimentacao</span><span class="o">.</span><span class="n">tipos_alimentacao_para</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">tipos_alimentacao_para</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AlteracaoCardapioSerializerCreate.create">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.create">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+        <span class="n">valida_duplicidade_solicitacoes_lanche_emergencial</span><span class="p">(</span><span class="n">validated_data</span><span class="p">)</span>
+        <span class="n">validated_data</span><span class="p">[</span><span class="s2">&quot;criado_por&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">substituicoes</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;substituicoes&quot;</span><span class="p">)</span>
+        <span class="n">datas_intervalo</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;datas_intervalo&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">validated_data</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">criar_substituicoes</span><span class="p">(</span><span class="n">substituicoes</span><span class="p">,</span> <span class="n">alteracao_cardapio</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">criar_datas_intervalo</span><span class="p">(</span><span class="n">datas_intervalo</span><span class="p">,</span> <span class="n">alteracao_cardapio</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">alteracao_cardapio</span></div>
+
+
+<div class="viewcode-block" id="AlteracaoCardapioSerializerCreate.update">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.update">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+        <span class="n">valida_duplicidade_solicitacoes_lanche_emergencial</span><span class="p">(</span><span class="n">validated_data</span><span class="p">)</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">substituicoes</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">datas_intervalo</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+
+        <span class="n">validated_data</span><span class="p">[</span><span class="s2">&quot;criado_por&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">substituicoes</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;substituicoes&quot;</span><span class="p">)</span>
+        <span class="n">datas_intervalo</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;datas_intervalo&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">update_instance_from_dict</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">)</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">criar_substituicoes</span><span class="p">(</span><span class="n">substituicoes</span><span class="p">,</span> <span class="n">instance</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">criar_datas_intervalo</span><span class="p">(</span><span class="n">datas_intervalo</span><span class="p">,</span> <span class="n">instance</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">instance</span></div>
+
+
+<div class="viewcode-block" id="AlteracaoCardapioSerializerCreate.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">AlteracaoCardapio</span>
+        <span class="n">serializer_substituicao</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate</span>
+        <span class="p">)</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

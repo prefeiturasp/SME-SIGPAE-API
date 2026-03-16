@@ -163,3 +163,52 @@ def test_fornecedor_ciente_aplica_alteracoes_se_nao_assinado_codae(
     assert list(
         cronograma.programacoes_de_recebimento.values_list("id", flat=True)
     ) == list(solicitacao.programacoes_novas.values_list("id", flat=True))
+
+
+def test_post_cronograma_ponto_a_ponto(
+    client_autenticado_vinculo_dilog_cronograma,
+    contrato_factory,
+    empresa_factory,
+    ficha_tecnica_factory,
+    unidade_medida_factory,
+):
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+
+    client, _ = client_autenticado_vinculo_dilog_cronograma
+    empresa = empresa_factory(tipo_servico=Terceirizada.FORNECEDOR)
+    contrato = contrato_factory(terceirizada=empresa)
+    # Ficha técnica que ativa o fluxo ponto a ponto
+    ficha_tecnica = ficha_tecnica_factory(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
+    )
+    unidade_medida = unidade_medida_factory()
+    payload = {
+        "ponto_a_ponto": True,
+        "cadastro_finalizado": False,
+        "contrato": f"{contrato.uuid}",
+        "empresa": f"{empresa.uuid}",
+        "ficha_tecnica": f"{ficha_tecnica.uuid}",
+        "qtd_total_programada": "50",
+        "unidade_medida": f"{unidade_medida.uuid}",
+        "custo_unitario_produto": 5.0,
+        "etapas": [
+            {
+                "etapa": 1,
+                "data_programada": "05/2026",
+                "quantidade": "50",
+            }
+        ],
+    }
+    import json
+    response = client.post(f"/cronogramas/", json.dumps(payload), content_type="application/json")
+
+    assert response.status_code == status.HTTP_201_CREATED, response.data
+    cronograma = Cronograma.objects.get(numero=response.data["numero"])
+    assert cronograma.ponto_a_ponto is True
+    assert cronograma.armazem is None
+    # Verifica se a data foi salva como o primeiro dia do mês
+    etapa = cronograma.etapas.first()
+    assert etapa.data_programada.year == 2026
+    assert etapa.data_programada.month == 5
+    assert etapa.data_programada.day == 1

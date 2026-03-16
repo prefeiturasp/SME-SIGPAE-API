@@ -1308,12 +1308,12 @@ class SolicitacaoMedicaoInicialViewSet(
             ano = request.query_params.get("ano")
             uuid_grupo_escolar = request.query_params.get("grupo_unidade_escolar")
             uuid_lote = request.query_params.get("lote")
-            tipo_calculo = request.query_params.get("tipo_calculo")
+            tipo_calculo = request.query_params.get("tipo_calculo", None)
 
-            if not all([mes, ano, uuid_grupo_escolar, uuid_lote, tipo_calculo]):
+            if not all([mes, ano, uuid_grupo_escolar, uuid_lote]):
                 return Response(
                     {
-                        "detail": "Parâmetros obrigatórios: mes, ano, lote, grupo_unidade_escolar, tipo_calculo"
+                        "detail": "Parâmetros obrigatórios: mes, ano, lote e grupo_unidade_escolar"
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
