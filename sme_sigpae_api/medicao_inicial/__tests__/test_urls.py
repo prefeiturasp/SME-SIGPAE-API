@@ -9,6 +9,7 @@ from sme_sigpae_api.medicao_inicial.models import (
     DiaParaCorrigir,
     DiaSobremesaDoce,
     Empenho,
+    LancheEmergencialDiario,
     Medicao,
     ParametrizacaoFinanceira,
     TipoValorParametrizacaoFinanceira,
@@ -85,6 +86,37 @@ def test_url_endpoint_list_dias_erro(client_autenticado_coordenador_codae):
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+def test_url_endpoint_lanches_emergenciais_diarios(
+    client_autenticado_coordenador_codae, escola, escola_emei
+):
+    LancheEmergencialDiario.objects.create(
+        escola=escola,
+        data_inicial=datetime.date(2026, 3, 1),
+        data_final=None,
+    )
+    LancheEmergencialDiario.objects.create(
+        escola=escola,
+        data_inicial=datetime.date(2026, 1, 1),
+        data_final=datetime.date(2026, 2, 28),
+    )
+    LancheEmergencialDiario.objects.create(
+        escola=escola_emei,
+        data_inicial=datetime.date(2026, 3, 1),
+        data_final=None,
+    )
+
+    response = client_autenticado_coordenador_codae.get(
+        f"/medicao-inicial/lanches-emergenciais-diarios/?escola_uuid={escola.uuid}&mes=04&ano=2026",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json()) == 1
+    assert response.json()[0]["escola_uuid"] == str(escola.uuid)
+    assert response.json()[0]["data_inicial"] == "01/03/2026"
+    assert response.json()[0]["data_final"] is None
 
 
 def test_url_endpoint_solicitacao_medicao_inicial(

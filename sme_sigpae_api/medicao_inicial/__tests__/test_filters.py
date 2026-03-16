@@ -4,6 +4,7 @@ from sme_sigpae_api.medicao_inicial.api.filters import (
     ClausulaDeDescontoFilter,
     DiaParaCorrecaoFilter,
     EmpenhoFilter,
+    LancheEmergencialDiarioFilter,
     ParametrizacaoFinanceiraFilter,
     RelatorioFinanceiroFilter,
 )
@@ -11,6 +12,7 @@ from sme_sigpae_api.medicao_inicial.models import (
     ClausulaDeDesconto,
     DiaParaCorrigir,
     Empenho,
+    LancheEmergencialDiario,
     ParametrizacaoFinanceira,
     RelatorioFinanceiro,
 )
@@ -159,3 +161,45 @@ def test_relatorio_financeiro_filter_mes_ano(relatorio_financeiro):
     )
     assert filtro.qs.count() == 1
     assert filtro.qs[0] == relatorio_financeiro
+
+
+def test_lanche_emergencial_diario_filter_periodo_com_data_final_nula(escola):
+    lanche = LancheEmergencialDiario.objects.create(
+        escola=escola,
+        data_inicial="2026-03-01",
+        data_final=None,
+    )
+    LancheEmergencialDiario.objects.create(
+        escola=escola,
+        data_inicial="2026-05-01",
+        data_final="2026-05-31",
+    )
+
+    filtro = LancheEmergencialDiarioFilter(
+        data={"escola_uuid": escola.uuid, "mes": "04", "ano": "2026"},
+        queryset=LancheEmergencialDiario.objects.all(),
+    )
+
+    assert filtro.qs.count() == 1
+    assert filtro.qs[0] == lanche
+
+
+def test_lanche_emergencial_diario_filter_periodo_fechado(escola):
+    lanche = LancheEmergencialDiario.objects.create(
+        escola=escola,
+        data_inicial="2026-03-10",
+        data_final="2026-04-05",
+    )
+    LancheEmergencialDiario.objects.create(
+        escola=escola,
+        data_inicial="2026-05-01",
+        data_final=None,
+    )
+
+    filtro = LancheEmergencialDiarioFilter(
+        data={"escola_uuid": escola.uuid, "mes": "04", "ano": "2026"},
+        queryset=LancheEmergencialDiario.objects.all(),
+    )
+
+    assert filtro.qs.count() == 1
+    assert filtro.qs[0] == lanche
