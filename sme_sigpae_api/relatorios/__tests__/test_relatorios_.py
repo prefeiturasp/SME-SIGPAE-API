@@ -946,3 +946,25 @@ def test_obter_relatorio_da_unidade_cieja_cmct():
         resultado = obter_relatorio_da_unidade(tipos_unidade)
 
         assert resultado == mock_modulo_emebs
+
+
+def test_relatorio_ficha_recebimento_observacao_none(
+    ficha_recebimento_observacao_com_none
+):
+    pdf_response = get_pdf_ficha_recebimento(None, ficha_recebimento_observacao_com_none)
+
+    texto = extrair_texto_de_pdf(pdf_response.content)
+
+    assert "Descreva as observações necessárias: None" not in texto
+    
+    
+def test_relatorio_ficha_recebimento_observacao_com_texto(
+    ficha_recebimento_observacao_com_none
+):  
+    
+    ficha_recebimento_observacao_com_none.observacao = "Ajustar as embalagens"
+    ficha_recebimento_observacao_com_none.save()
+    
+    pdf_response2 = get_pdf_ficha_recebimento(None, ficha_recebimento_observacao_com_none)
+    texto2 = extrair_texto_de_pdf(pdf_response2.content)
+    assert "Descreva as observações necessárias: Ajustar as embalagens" in texto2
