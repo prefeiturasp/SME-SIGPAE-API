@@ -136,7 +136,8 @@ class LogSolicitacoesUsuario(
         CODAE_NEGOU_ALTERACAO_UE_DIETA_ESPECIAL,
         OCORRENCIA_EXCLUIDA_PELA_ESCOLA,
         CODAE_INATIVOU,
-    ) = range(109)
+        CANCELADO_ENCERRAMENTO_MATRICULA,
+    ) = range(110)
 
     STATUS_POSSIVEIS = (
         (INICIO_FLUXO, "Solicitação Realizada"),
@@ -311,6 +312,10 @@ class LogSolicitacoesUsuario(
         ),
         (OCORRENCIA_EXCLUIDA_PELA_ESCOLA, "Ocorrência excluída pela Escola"),
         (CODAE_INATIVOU, "CODAE inativou"),
+        (
+            CANCELADO_ENCERRAMENTO_MATRICULA,
+            "Cancelamento por Encerramento de Matrícula",
+        ),
     )
     (  # DA ESCOLA
         SOLICITACAO_KIT_LANCHE_AVULSA,
