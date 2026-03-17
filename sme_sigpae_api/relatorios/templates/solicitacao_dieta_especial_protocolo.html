@@ -88,7 +88,9 @@
     {% if solicitacao.nome_protocolo %}{{ solicitacao.nome_protocolo | upper }}{% elif solicitacao.protocolo_padrao %}{{ solicitacao.protocolo_padrao.nome_protocolo | upper }}{% endif %}
   </h5>
   <p><strong>{% next_section %}. Orientações Gerais</strong></p>
-  <p>{{ solicitacao.orientacoes_gerais|safe_content }}</p>
+  <div class="tabelas-protocolo-dieta">
+    {{ solicitacao.orientacoes_gerais|safe_content }}
+  </div>
   {% if data_termino %}
   <p>- Esta dieta especial terá seu fornecimento encerrado em {{ data_termino }}</p>
   {% endif %}
@@ -123,7 +125,7 @@
   </table>
   {% if solicitacao.informacoes_adicionais %}
   <p><strong>{% next_section %}. Informações Adicionais</strong></p>
-  <div class="protocolo-dieta-informacoes-adicionais">
+  <div class="tabelas-protocolo-dieta">
     {{ solicitacao.informacoes_adicionais|safe_content }}
   </div>
   {% endif %}
