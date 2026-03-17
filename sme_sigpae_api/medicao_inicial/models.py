@@ -1,6 +1,7 @@
 import calendar
 import datetime
 import unicodedata
+import uuid
 from calendar import monthcalendar, setfirstweekday
 
 import numpy
@@ -653,6 +654,8 @@ class PermissaoLancamentoEspecial(
 
 
 class LancheEmergencialDiario(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, null=True)
+    criado_em = models.DateTimeField("Criado em", auto_now_add=True, null=True)
     escola = models.ForeignKey(
         "escola.Escola",
         on_delete=models.CASCADE,
