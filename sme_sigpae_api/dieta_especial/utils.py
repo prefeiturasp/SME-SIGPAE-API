@@ -295,8 +295,10 @@ def cancela_dietas_pendente_autorizacao():
         .distinct("pk")
     )
     for dieta in dietas_pendentes:
-        if dieta.aluno.escola != dieta.escola_destino:
-            _cancelar_dieta_encerramento_matricula(dieta)
+        aluno = Aluno.objects.filter(codigo_eol=dieta.codigo_eol_aluno).first()
+        solicitacao_dieta = SolicitacaoDietaEspecial.objects.filter(pk=dieta.pk).first()
+        if aluno.escola != solicitacao_dieta.escola_destino:
+            _cancelar_dieta_encerramento_matricula(solicitacao_dieta)
 
 
 def cancela_dietas_ativas_automaticamente():  # noqa C901 D205 D400
