@@ -196,7 +196,7 @@
             <h4>CODAE ATUALIZOU PROTOCOLO</h4>
             <div>RF: <span class="highlight">{{ log.usuario.registro_funcional }}</span></div>
             <div>Data: <span class="highlight">{{ log.criado_em|date:"d/m/Y - H:i" }}</span></div>
-            {{ log.justificativa | safe_content }}
+            {{ log.justificativa|remove_style|safe_content }}
           </div>
         {% elif log.status_evento_explicacao == "Cancelada por atingir data de término" %}
           <div class="secao-log">
