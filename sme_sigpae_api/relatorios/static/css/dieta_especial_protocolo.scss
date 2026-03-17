@@ -102,11 +102,19 @@
   }
 }
 
-.protocolo-dieta-informacoes-adicionais {
+.tabelas-protocolo-dieta {
+
+  figure {
+    margin: 0;
+  }
+
   table {
     border-collapse: collapse;
+    width: 100%;
   }
-  td {
+
+  table td, 
+  table th {
     padding: 0.5em;
     border: 1px solid $preto;
   }
