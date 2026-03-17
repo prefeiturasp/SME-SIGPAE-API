@@ -118,6 +118,12 @@ def _cancelar_dieta_aluno_fora_da_rede(dieta):
     dieta.save()
 
 
+def _cancelar_dieta_encerramento_matricula(dieta):
+    usuario_admin = Usuario.objects.get(pk=1)
+    dieta.sistema_cancela_aluno_encerramento_matricula(user=usuario_admin)
+    dieta.save()
+
+
 def enviar_email_para_diretor_da_escola_origem(
     solicitacao_dieta, aluno, escola
 ):  # noqa C901
@@ -279,6 +285,18 @@ def aluno_matriculado_em_outra_ue(aluno, solicitacao_dieta):
     if aluno.escola:
         return aluno.escola.codigo_eol != solicitacao_dieta.escola.codigo_eol
     return False
+
+
+def cancela_dietas_pendente_autorizacao():
+    dietas_pendentes = (
+        SolicitacoesCODAE.get_pendentes_dieta_especial()
+        .filter(tipo_solicitacao_dieta="COMUM")
+        .order_by("pk")
+        .distinct("pk")
+    )
+    for dieta in dietas_pendentes:
+        if dieta.aluno.escola != dieta.escola_destino:
+            _cancelar_dieta_encerramento_matricula(dieta)
 
 
 def cancela_dietas_ativas_automaticamente():  # noqa C901 D205 D400
@@ -1148,7 +1166,7 @@ def filtra_relatorio_recreio_nas_ferias(query_params: QueryDict) -> QuerySet:
 
     status_permitidos = [
         SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
-        SolicitacaoDietaEspecial.workflow_class.TERMINADA_AUTOMATICAMENTE_SISTEMA
+        SolicitacaoDietaEspecial.workflow_class.TERMINADA_AUTOMATICAMENTE_SISTEMA,
     ]
 
     filtro_matriculados = Q(

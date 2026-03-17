@@ -3296,6 +3296,13 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
             usuario=kwargs["user"],
         )
 
+    @xworkflows.after_transition("sistema_cancela_aluno_encerramento_matricula")
+    def _sistema_cancela_aluno_nao_pertence_rede_hook(self, *args, **kwargs):
+        self.salvar_log_transicao(
+            status_evento=LogSolicitacoesUsuario.CANCELADO_ENCERRAMENTO_MATRICULA,
+            usuario=kwargs["user"],
+        )
+
     @xworkflows.after_transition("codae_nega")
     def _codae_nega_hook(self, *args, **kwargs):
         user = kwargs["user"]
