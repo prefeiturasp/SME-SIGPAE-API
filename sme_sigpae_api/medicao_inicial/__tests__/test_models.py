@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 
 pytestmark = pytest.mark.django_db
@@ -93,6 +95,74 @@ def test_solicitacao_medicao_assinatura_dre_sucesso(
     assert (
         "Documento conferido e aprovado eletronicamente por "
         in solicitacao_com_anexo_e_medicoes_aprovadas.assinatura_dre
+    )
+
+
+def test_solicitacao_medicao_tem_lanche_emergencial_diario_true(
+    solicitacao_medicao_inicial_factory,
+    lanche_emergencial_diario_factory,
+):
+    solicitacao = solicitacao_medicao_inicial_factory(mes="03", ano="2024")
+
+    lanche_emergencial_diario_factory(
+        escola=solicitacao.escola,
+        data_inicial=datetime.date(2024, 3, 1),
+        data_final=datetime.date(2024, 3, 31),
+    )
+
+    assert solicitacao.tem_lanche_emergencial_diario is True
+
+
+def test_solicitacao_medicao_tem_lanche_emergencial_diario_false(
+    solicitacao_medicao_inicial_factory,
+    lanche_emergencial_diario_factory,
+):
+    solicitacao = solicitacao_medicao_inicial_factory(mes="03", ano="2024")
+
+    lanche_emergencial_diario_factory(
+        escola=solicitacao.escola,
+        data_inicial=datetime.date(2024, 4, 1),
+        data_final=datetime.date(2024, 4, 30),
+    )
+
+    assert solicitacao.tem_lanche_emergencial_diario is False
+
+
+def test_solicitacao_medicao_dias_lanche_emergencial_diario_retorna_apenas_dias_do_periodo_letivos(
+    solicitacao_medicao_inicial_factory,
+    lanche_emergencial_diario_factory,
+    dia_calendario_factory,
+):
+    solicitacao = solicitacao_medicao_inicial_factory(mes="03", ano="2024")
+    lanche = lanche_emergencial_diario_factory(
+        escola=solicitacao.escola,
+        data_inicial=datetime.date(2024, 3, 5),
+        data_final=datetime.date(2024, 3, 7),
+    )
+
+    dias_letivos = {5, 7, 8}
+    for dia in range(1, 32):
+        dia_calendario_factory(
+            escola=solicitacao.escola,
+            data=datetime.date(2024, 3, dia),
+            dia_letivo=dia in dias_letivos,
+            periodo_escolar=None,
+        )
+
+    dias_retornados = solicitacao.dias_lanche_emergencial_diario
+
+    assert dias_retornados == ["05", "07"]
+    assert all(
+        lanche.data_inicial.day <= int(dia) <= lanche.data_final.day
+        for dia in dias_retornados
+    )
+    assert all(
+        solicitacao.escola.calendario.get(
+            data=datetime.date(2024, 3, int(dia)),
+            periodo_escolar__isnull=True,
+        ).dia_letivo
+        is True
+        for dia in dias_retornados
     )
 
 

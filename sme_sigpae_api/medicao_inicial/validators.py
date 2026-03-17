@@ -32,6 +32,7 @@ from ..paineis_consolidados.models import SolicitacoesEscola
 from .api.constants import ALIMENTACOES_LANCAMENTOS_ESPECIAIS
 from .models import (
     CategoriaMedicao,
+    Medicao,
     PermissaoLancamentoEspecial,
     SolicitacaoMedicaoInicial,
     ValorMedicao,
@@ -3656,6 +3657,43 @@ def validate_lancamento_alimentacoes_medicao_emebs_dietas(
             )
             periodo_com_erro = checa_valor_medicao(valor_medicao, periodo_com_erro)
     return periodo_com_erro
+
+
+def validate_lanches_emergenciais_diarios(
+    solicitacao: SolicitacaoMedicaoInicial, lista_erros: list[dict]
+) -> list[dict]:
+    if not solicitacao.tem_lanche_emergencial_diario:
+        return lista_erros
+
+    try:
+        medicao_solicitacoes_alimentacao = solicitacao.medicoes.get(
+            grupo__nome="Solicitações de Alimentação"
+        )
+    except Medicao.DoesNotExist:
+        lista_erros.append(
+            {
+                "periodo_escolar": "Solicitações de Alimentação",
+                "erro": "Restam dias a serem lançados nos Lanches Emergenciais.",
+            }
+        )
+        return lista_erros
+
+    dias_lanche_emergencial_lancados = (
+        medicao_solicitacoes_alimentacao.valores_medicao.filter(
+            nome_campo="lanche_emergencial"
+        ).values_list("dia", flat=True)
+    )
+    todos_lanches_emergencias_lancados = set(
+        solicitacao.dias_lanche_emergencial_diario
+    ).issubset(dias_lanche_emergencial_lancados)
+    if not todos_lanches_emergencias_lancados:
+        lista_erros.append(
+            {
+                "periodo_escolar": "Solicitações de Alimentação",
+                "erro": "Restam dias a serem lançados nos Lanches Emergenciais.",
+            }
+        )
+    return lista_erros
 
 
 def checa_valor_medicao(valor_medicao, periodo_com_erro):

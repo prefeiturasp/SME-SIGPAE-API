@@ -2,6 +2,7 @@ import datetime
 import importlib
 
 from django.contrib import admin
+from rangefilter.filters import DateRangeFilter
 
 from .models import (
     AlimentacaoLancamentoEspecial,
@@ -10,6 +11,7 @@ from .models import (
     DiaSobremesaDoce,
     Empenho,
     GrupoMedicao,
+    LancheEmergencialDiario,
     Medicao,
     ParametrizacaoFinanceira,
     ParametrizacaoFinanceiraTabela,
@@ -26,6 +28,14 @@ admin.site.register(CategoriaMedicao)
 admin.site.register(DiaSobremesaDoce)
 admin.site.register(GrupoMedicao)
 admin.site.register(TipoContagemAlimentacao)
+
+
+@admin.register(LancheEmergencialDiario)
+class LancheEmergencialDiarioAdmin(admin.ModelAdmin):
+    list_display = ("escola", "data_inicial", "data_final")
+    search_fields = ("escola__nome", "escola__codigo_eol")
+    list_filter = (("data_inicial", DateRangeFilter), ("data_final", DateRangeFilter))
+    search_help_text = "Pesquisa por: nome da escola, código eol da escola"
 
 
 @admin.register(SolicitacaoMedicaoInicial)

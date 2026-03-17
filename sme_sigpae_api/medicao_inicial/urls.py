@@ -22,6 +22,11 @@ router.register(
     "alimentacoes-lancamentos-especiais", viewsets.AlimentacaoLancamentoEspecialViewSet
 )
 router.register(
+    "lanches-emergenciais-diarios",
+    viewsets.LancheEmergencialDiarioViewSet,
+    basename="lanches-emergenciais-diarios",
+)
+router.register(
     "permissao-lancamentos-especiais", viewsets.PermissaoLancamentoEspecialViewSet
 )
 router.register("dias-para-corrigir", viewsets.DiasParaCorrigirViewSet)
