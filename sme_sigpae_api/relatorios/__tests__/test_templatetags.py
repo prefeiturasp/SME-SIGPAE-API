@@ -221,8 +221,8 @@ def test_remove_style():
     assert "color:red" not in result
     assert "</style>" not in result
     assert "<p>ok</p>" in result
-    
-    
+
+
 def test_remove_multiplos_styles():
     html = """
     <style>.a{}</style>
@@ -234,7 +234,8 @@ def test_remove_multiplos_styles():
 
     assert result.count("<style") == 0
     assert "<p>ok</p>" in result
-    
+
+
 def test_sem_tag_style():
     html = "<div><p>texto</p></div>"
 
@@ -242,8 +243,8 @@ def test_sem_tag_style():
 
     assert "<div>" in result
     assert "<p>texto</p>" in result
-    
-    
+
+
 def test_nao_remove_atributo_style():
     html = '<div><p style="color:red">texto</p></div>'
     result = remove_style(html)

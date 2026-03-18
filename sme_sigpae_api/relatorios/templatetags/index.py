@@ -1036,8 +1036,8 @@ def nome_escola_historico_kit_unificado(escola_quantidade):
             if hasattr(escola_quantidade, "escola")
             else ""
         )
-     
-        
+
+
 @register.filter
 def remove_style(value):
     if not value:
