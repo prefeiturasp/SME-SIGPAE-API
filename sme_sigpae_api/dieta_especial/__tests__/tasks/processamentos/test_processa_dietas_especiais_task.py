@@ -1,7 +1,5 @@
 import datetime
 import random
-from types import SimpleNamespace
-from unittest.mock import patch
 
 import pytest
 
@@ -36,23 +34,6 @@ from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import 
 )
 
 pytestmark = pytest.mark.django_db
-
-
-class FakePainelQuerySet(list):
-    def filter(self, **kwargs):
-        return FakePainelQuerySet(
-            [
-                item
-                for item in self
-                if all(getattr(item, field) == value for field, value in kwargs.items())
-            ]
-        )
-
-    def order_by(self, *_args):
-        return self
-
-    def distinct(self, *_args):
-        return self
 
 
 def test_processa_dietas_especiais_task(
@@ -318,19 +299,7 @@ class TestCancelaDietasPendenteAutorizacaoTask:
         )
         return solicitacao
 
-    def painel_item(self, solicitacao, tipo_solicitacao_dieta):
-        return SimpleNamespace(
-            pk=solicitacao.pk,
-            codigo_eol_aluno=solicitacao.aluno.codigo_eol,
-            tipo_solicitacao_dieta=tipo_solicitacao_dieta,
-        )
-
-    @patch(
-        "sme_sigpae_api.dieta_especial.utils.SolicitacoesCODAE.get_pendentes_dieta_especial"
-    )
-    def test_cancela_dietas_pendente_autorizacao_task_quando_aluno_mudou_escola(
-        self, mock_get_pendentes
-    ):
+    def test_cancela_dietas_pendente_autorizacao_task_quando_aluno_mudou_escola(self):
         app.conf.update(CELERY_ALWAYS_EAGER=True)
         aluno = AlunoFactory.create(
             codigo_eol="7777777",
@@ -341,9 +310,6 @@ class TestCancelaDietasPendenteAutorizacaoTask:
             aluno=aluno,
             escola_destino=self.escola_destino,
             tipo_solicitacao=TIPO_SOLICITACAO_DIETA["COMUM"],
-        )
-        mock_get_pendentes.return_value = FakePainelQuerySet(
-            [self.painel_item(solicitacao, "COMUM")]
         )
 
         cancela_dietas_pendente_autorizacao_task()
@@ -360,11 +326,8 @@ class TestCancelaDietasPendenteAutorizacaoTask:
         )
         assert ultimo_log.usuario_id == self.usuario.id
 
-    @patch(
-        "sme_sigpae_api.dieta_especial.utils.SolicitacoesCODAE.get_pendentes_dieta_especial"
-    )
     def test_cancela_dietas_pendente_autorizacao_task_quando_aluno_nao_mudou_escola(
-        self, mock_get_pendentes
+        self,
     ):
         app.conf.update(CELERY_ALWAYS_EAGER=True)
         aluno = AlunoFactory.create(
@@ -378,9 +341,6 @@ class TestCancelaDietasPendenteAutorizacaoTask:
             tipo_solicitacao=TIPO_SOLICITACAO_DIETA["COMUM"],
         )
         quantidade_logs_antes = solicitacao.logs.count()
-        mock_get_pendentes.return_value = FakePainelQuerySet(
-            [self.painel_item(solicitacao, "COMUM")]
-        )
 
         cancela_dietas_pendente_autorizacao_task()
 
@@ -391,11 +351,8 @@ class TestCancelaDietasPendenteAutorizacaoTask:
         )
         assert solicitacao.logs.count() == quantidade_logs_antes
 
-    @patch(
-        "sme_sigpae_api.dieta_especial.utils.SolicitacoesCODAE.get_pendentes_dieta_especial"
-    )
     def test_cancela_dietas_pendente_autorizacao_task_nao_afeta_alteracao_ue_ou_aluno_nao_matriculado(
-        self, mock_get_pendentes
+        self,
     ):
         app.conf.update(CELERY_ALWAYS_EAGER=True)
         aluno_alteracao = AlunoFactory.create(
@@ -421,12 +378,6 @@ class TestCancelaDietasPendenteAutorizacaoTask:
         )
         logs_alteracao_antes = solicitacao_alteracao.logs.count()
         logs_nao_matriculado_antes = solicitacao_nao_matriculado.logs.count()
-        mock_get_pendentes.return_value = FakePainelQuerySet(
-            [
-                self.painel_item(solicitacao_alteracao, "ALTERACAO_UE"),
-                self.painel_item(solicitacao_nao_matriculado, "ALUNO_NAO_MATRICULADO"),
-            ]
-        )
 
         cancela_dietas_pendente_autorizacao_task()
 
