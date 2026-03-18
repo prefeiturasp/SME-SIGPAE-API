@@ -19,6 +19,7 @@ from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
 
 pytestmark = pytest.mark.django_db
 
+from django.template.loader import render_to_string
 
 def test_compara_alergias(
     solicitacao_historico_atualizacao_protocolo, alergia_ao_trigo, alergia_a_chocolate
@@ -628,3 +629,32 @@ def test_atualiza_historico_protocolo_exception(
             solicitacao_historico_atualizacao_protocolo,
             dados,
         )
+
+def test_orientacoes_gerais_renderiza_tabela(orientacoes_html):
+    html = render_to_string(
+        "dieta_especial/historico_atualizacao_dieta.html",
+        {"alteracoes": {"Orientações Gerais": orientacoes_html}}
+    )
+    
+    assert html.count('<figure') == 0
+    assert html.count('<table style="">') == 2
+    assert html.count('<td style="">') == 4
+        
+def test_css_class_aplicada(orientacoes_html):
+    html = render_to_string(
+        "dieta_especial/historico_atualizacao_dieta.html",
+        {"alteracoes": {"Orientações Gerais": orientacoes_html}}
+    )
+    assert "tabelas-protocolo-dieta" in html
+    assert "background-color:silver" not in html
+    assert "color:black" not in html
+   
+    
+def test_css_presente_no_template(orientacoes_html):
+    html = render_to_string(
+        "dieta_especial/historico_atualizacao_dieta.html",
+        {"alteracoes": {"Orientações Gerais": orientacoes_html}}
+    )
+    assert '<style type="text/css">' in html
+    assert "border-collapse: collapse" in html
+    assert "border: 1px solid" in html

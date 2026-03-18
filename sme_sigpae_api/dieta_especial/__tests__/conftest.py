@@ -2366,3 +2366,8 @@ def solicitacao_dieta_especial_log_inativada(
         ativo=False,
     )
     solicitacao_dieta_especial_a_autorizar.inicia_fluxo(user=user_escola)
+
+@pytest.fixture
+def orientacoes_html():
+    html = '''<figure class="table"><table style="border-style:none;"><tbody><tr><td style="background-color:silver;border-color:windowtext;border-width:1.0pt;padding:0cm 5.4pt;width:359.75pt;"><p style="text-align:center;"><span style="color:black;"><strong>Alimento</strong></span></p></td><td style="background-color:silver;border-bottom-style:solid;border-color:windowtext;border-left-style:none;border-right-style:solid;border-top-style:solid;border-width:1.0pt;padding:0cm 5.4pt;width:286.75pt;"><p style="text-align:center;"><span style="color:black;"><strong>Alimento Substituto</strong></span></p></td></tr></tbody></table></figure>'''
+    return {"de": html, "para": "<p>Substituições da Dieta</p>" + html}
