@@ -7,7 +7,12 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.helpers import (
     filtrar_etapas,
     parse_date,
     passa_filtro_data_etapa,
+    totalizador_relatorio_cronograma,
 )
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
+    CronogramaRelatorioSerializer,
+)
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.helpers import (
     formata_cnpj_ficha_tecnica,
     formata_telefone_ficha_tecnica,
@@ -124,3 +129,45 @@ def test_formata_cnpj_ficha_tecnica(cnpj, cnpj_formatado):
 )
 def test_formata_telefone_ficha_tecnica(telefone, telefone_formatado):
     assert formata_telefone_ficha_tecnica(telefone) == telefone_formatado
+
+
+@pytest.mark.django_db
+def test_totalizador_com_queryset(cronogramas_multiplos_status_com_log):
+    queryset = Cronograma.objects.all()
+    result = totalizador_relatorio_cronograma(queryset)
+
+    assert isinstance(result, dict)
+    assert sum(result.values()) == 6
+    result["Assinado Fornecedor"] == 3
+    result["Assinado Abastecimento"] == 2
+    result["Assinado CODAE"] == 1
+    result["Rascunho"] == 0
+    result["Assinado e Enviado ao Fornecedor"] == 0
+    result["Alteração CODAE"] == 0
+    result["Solicitado Alteração"] == 0
+
+
+@pytest.mark.django_db
+def test_totalizador_com_lista_dict(cronogramas_multiplos_status_com_log):
+    queryset = Cronograma.objects.all()
+    serializer = CronogramaRelatorioSerializer(queryset, many=True)
+    result = totalizador_relatorio_cronograma(serializer.data)
+
+    assert isinstance(result, dict)
+    assert sum(result.values()) == 6
+    result["Assinado Fornecedor"] == 3
+    result["Assinado Abastecimento"] == 2
+    result["Assinado CODAE"] == 1
+    result["Rascunho"] == 0
+    result["Assinado e Enviado ao Fornecedor"] == 0
+    result["Alteração CODAE"] == 0
+    result["Solicitado Alteração"] == 0
+
+
+@pytest.mark.django_db
+def test_ordenacao_decrescente(cronogramas_multiplos_status_com_log):
+    queryset = Cronograma.objects.all()
+    result = totalizador_relatorio_cronograma(queryset)
+    values = list(result.values())
+
+    assert values == sorted(values, reverse=True)

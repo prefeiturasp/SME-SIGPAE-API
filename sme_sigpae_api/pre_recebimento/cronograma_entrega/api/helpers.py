@@ -1,7 +1,8 @@
-from collections import Counter
 import re
+from collections import Counter
 from datetime import datetime
 from typing import Union
+
 from django.db.models.query import QuerySet
 
 from sme_sigpae_api.dados_comuns.fluxo_status import (
@@ -33,7 +34,9 @@ def cria_programacao_de_cronograma(programacoes, cronograma=None):
     return programacoes_criadas
 
 
-def totalizador_relatorio_cronograma(data: Union[QuerySet, list[dict]]) -> dict[str, int]:
+def totalizador_relatorio_cronograma(
+    data: Union[QuerySet, list[dict]],
+) -> dict[str, int]:
     """
     Calcula a quantidade de itens por status do cronograma.
     Aceita tanto um QuerySet (usando ORM) quanto uma lista de dicionários

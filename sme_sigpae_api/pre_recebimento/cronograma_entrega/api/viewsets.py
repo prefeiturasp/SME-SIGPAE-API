@@ -52,8 +52,8 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.helpers import (
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializer_create import (
     CronogramaCreateSerializer,
+    CronogramaPontoAPontoCreateSerializer,
     SolicitacaoDeAlteracaoCronogramaCreateSerializer,
-    CronogramaPontoAPontoCreateSerializer
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     CronogramaComLogSerializer,
@@ -910,7 +910,5 @@ class InterrupcaoProgramadaEntregaViewSet(
             tipo_calendario=InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL,
             data__year__in=[ano_atual, ano_proximo],
         ).values_list("data", flat=True)
-
-        return Response({"results": list(datas)}, status=HTTP_200_OK)
 
         return Response({"results": list(datas)}, status=HTTP_200_OK)
