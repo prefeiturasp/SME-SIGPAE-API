@@ -15,6 +15,7 @@ from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factor
 from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
 from sme_sigpae_api.dieta_especial.tasks import (
     cancela_dietas_ativas_automaticamente_task,
+    cancela_dietas_pendente_autorizacao_task,
     processa_dietas_especiais_task,
 )
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
@@ -245,3 +246,150 @@ class TestProcessaDietasEspeciaisTask:
             == 1
         )
         assert SolicitacaoDietaEspecial.objects.filter(ativo=True).count() == 2
+
+
+class TestCancelaDietasPendenteAutorizacaoTask:
+    def setup_method(self):
+        self.usuario = UsuarioFactory.create(id=1, nome="System Admin")
+        self.periodo_integral = PeriodoEscolarFactory.create(nome="INTEGRAL")
+        self.dre = DiretoriaRegionalFactory.create(nome="IPIRANGA", iniciais="IP")
+        self.terceirizada = EmpresaFactory.create(nome_fantasia="EMPRESA LTDA")
+        self.lote = LoteFactory.create(
+            nome="LOTE 01", diretoria_regional=self.dre, terceirizada=self.terceirizada
+        )
+        self.tipo_unidade = TipoUnidadeEscolarFactory.create(iniciais="EMEF")
+        self.escola_origem = EscolaFactory.create(
+            nome="EMEF ORIGEM",
+            codigo_eol="100001",
+            tipo_gestao__nome="TERC TOTAL",
+            tipo_unidade=self.tipo_unidade,
+            lote=self.lote,
+            diretoria_regional=self.dre,
+        )
+        self.escola_destino = EscolaFactory.create(
+            nome="EMEF DESTINO",
+            codigo_eol="100002",
+            tipo_gestao__nome="TERC TOTAL",
+            tipo_unidade=self.tipo_unidade,
+            lote=self.lote,
+            diretoria_regional=self.dre,
+        )
+        self.escola_terceira = EscolaFactory.create(
+            nome="EMEF TERCEIRA",
+            codigo_eol="100003",
+            tipo_gestao__nome="TERC TOTAL",
+            tipo_unidade=self.tipo_unidade,
+            lote=self.lote,
+            diretoria_regional=self.dre,
+        )
+
+    def cria_solicitacao_pendente(self, *, aluno, escola_destino, tipo_solicitacao):
+        solicitacao = SolicitacaoDietaEspecialFactory.create(
+            aluno=aluno,
+            ativo=False,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR,
+            escola_destino=escola_destino,
+            tipo_solicitacao=tipo_solicitacao,
+            rastro_escola=self.escola_origem,
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=solicitacao.uuid,
+            status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+            usuario=self.usuario,
+        )
+        return solicitacao
+
+    def test_cancela_dietas_pendente_autorizacao_task_quando_aluno_mudou_escola(self):
+        app.conf.update(CELERY_ALWAYS_EAGER=True)
+        aluno = AlunoFactory.create(
+            codigo_eol="7777777",
+            periodo_escolar=self.periodo_integral,
+            escola=self.escola_terceira,
+        )
+        solicitacao = self.cria_solicitacao_pendente(
+            aluno=aluno,
+            escola_destino=self.escola_destino,
+            tipo_solicitacao=TIPO_SOLICITACAO_DIETA["COMUM"],
+        )
+
+        cancela_dietas_pendente_autorizacao_task()
+
+        solicitacao.refresh_from_db()
+        ultimo_log = solicitacao.logs.last()
+        assert (
+            solicitacao.status
+            == SolicitacaoDietaEspecial.workflow_class.CANCELADO_ENCERRAMENTO_MATRICULA
+        )
+        assert (
+            ultimo_log.status_evento
+            == LogSolicitacoesUsuario.CANCELADO_ENCERRAMENTO_MATRICULA
+        )
+        assert ultimo_log.usuario_id == self.usuario.id
+
+    def test_cancela_dietas_pendente_autorizacao_task_quando_aluno_nao_mudou_escola(
+        self,
+    ):
+        app.conf.update(CELERY_ALWAYS_EAGER=True)
+        aluno = AlunoFactory.create(
+            codigo_eol="8888888",
+            periodo_escolar=self.periodo_integral,
+            escola=self.escola_destino,
+        )
+        solicitacao = self.cria_solicitacao_pendente(
+            aluno=aluno,
+            escola_destino=self.escola_destino,
+            tipo_solicitacao=TIPO_SOLICITACAO_DIETA["COMUM"],
+        )
+        quantidade_logs_antes = solicitacao.logs.count()
+
+        cancela_dietas_pendente_autorizacao_task()
+
+        solicitacao.refresh_from_db()
+        assert (
+            solicitacao.status
+            == SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR
+        )
+        assert solicitacao.logs.count() == quantidade_logs_antes
+
+    def test_cancela_dietas_pendente_autorizacao_task_nao_afeta_alteracao_ue_ou_aluno_nao_matriculado(
+        self,
+    ):
+        app.conf.update(CELERY_ALWAYS_EAGER=True)
+        aluno_alteracao = AlunoFactory.create(
+            codigo_eol="9999999",
+            periodo_escolar=self.periodo_integral,
+            escola=self.escola_terceira,
+        )
+        aluno_nao_matriculado = AlunoFactory.create(
+            codigo_eol="1111111",
+            periodo_escolar=self.periodo_integral,
+            escola=None,
+            nao_matriculado=True,
+        )
+        solicitacao_alteracao = self.cria_solicitacao_pendente(
+            aluno=aluno_alteracao,
+            escola_destino=self.escola_destino,
+            tipo_solicitacao=TIPO_SOLICITACAO_DIETA["ALTERACAO_UE"],
+        )
+        solicitacao_nao_matriculado = self.cria_solicitacao_pendente(
+            aluno=aluno_nao_matriculado,
+            escola_destino=self.escola_destino,
+            tipo_solicitacao=TIPO_SOLICITACAO_DIETA["ALUNO_NAO_MATRICULADO"],
+        )
+        logs_alteracao_antes = solicitacao_alteracao.logs.count()
+        logs_nao_matriculado_antes = solicitacao_nao_matriculado.logs.count()
+
+        cancela_dietas_pendente_autorizacao_task()
+
+        solicitacao_alteracao.refresh_from_db()
+        solicitacao_nao_matriculado.refresh_from_db()
+        assert (
+            solicitacao_alteracao.status
+            == SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR
+        )
+        assert (
+            solicitacao_nao_matriculado.status
+            == SolicitacaoDietaEspecial.workflow_class.CODAE_A_AUTORIZAR
+        )
+        assert solicitacao_alteracao.logs.count() == logs_alteracao_antes
+        assert solicitacao_nao_matriculado.logs.count() == logs_nao_matriculado_antes

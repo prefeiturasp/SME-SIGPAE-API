@@ -2271,6 +2271,7 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
                 FluxoDietaEspecialPartindoDaEscola.workflow_class.CANCELADO_ALUNO_NAO_PERTENCE_REDE,
                 FluxoDietaEspecialPartindoDaEscola.workflow_class.CODAE_AUTORIZOU_INATIVACAO,
                 FluxoDietaEspecialPartindoDaEscola.workflow_class.TERCEIRIZADA_TOMOU_CIENCIA_INATIVACAO,
+                FluxoDietaEspecialPartindoDaEscola.workflow_class.CANCELADO_ENCERRAMENTO_MATRICULA,
             ],
         )
         self.dieta_especial_solicitacaodietaespecial_rastro_lote.exclude(
