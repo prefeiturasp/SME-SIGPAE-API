@@ -242,3 +242,9 @@ def test_sem_tag_style():
 
     assert "<div>" in result
     assert "<p>texto</p>" in result
+    
+    
+def test_nao_remove_atributo_style():
+    html = '<div><p style="color:red">texto</p></div>'
+    result = remove_style(html)
+    assert '<p style="color:red">texto</p>' in result
