@@ -306,7 +306,7 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
                 "next": f"?page={page_number + 1}" if has_next else None,
                 "previous": f"?page={page_number - 1}" if has_previous else None,
                 "results": dados_paginados,
-                "totalizadores": totalizador_relatorio_cronograma(queryset),
+                "totalizadores": totalizador_relatorio_cronograma(dados_filtrados),
             }
 
             return Response(response_data)
