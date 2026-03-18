@@ -2288,6 +2288,7 @@ def logs_dieta_recreio_nas_ferias(escola, classificacoes_dietas):
             data=data,
         )
 
+
 @pytest.fixture
 def logs_dieta_recreio_nas_ferias_cei(escola, classificacoes_dietas):
     faixa_um = baker.make("FaixaEtaria", inicio=0, fim=6)
@@ -2300,7 +2301,7 @@ def logs_dieta_recreio_nas_ferias_cei(escola, classificacoes_dietas):
             quantidade=5,
             classificacao=classificacao,
             data=data,
-            faixa_etaria=faixa_um
+            faixa_etaria=faixa_um,
         )
 
     baker.make(
@@ -2309,10 +2310,9 @@ def logs_dieta_recreio_nas_ferias_cei(escola, classificacoes_dietas):
         quantidade=5,
         classificacao=classificacoes_dietas[-1],
         data=data,
-        faixa_etaria=faixa_dois
+        faixa_etaria=faixa_dois,
     )
 
-        
 
 @pytest.fixture
 def solictacao_autorizada(
@@ -2366,3 +2366,9 @@ def solicitacao_dieta_especial_log_inativada(
         ativo=False,
     )
     solicitacao_dieta_especial_a_autorizar.inicia_fluxo(user=user_escola)
+
+
+@pytest.fixture
+def orientacoes_html():
+    html = """<figure class="table"><table style="border-style:none;"><tbody><tr><td style="background-color:silver;border-color:windowtext;border-width:1.0pt;padding:0cm 5.4pt;width:359.75pt;"><p style="text-align:center;"><span style="color:black;"><strong>Alimento</strong></span></p></td><td style="background-color:silver;border-bottom-style:solid;border-color:windowtext;border-left-style:none;border-right-style:solid;border-top-style:solid;border-width:1.0pt;padding:0cm 5.4pt;width:286.75pt;"><p style="text-align:center;"><span style="color:black;"><strong>Alimento Substituto</strong></span></p></td></tr></tbody></table></figure>"""
+    return {"de": html, "para": "<p>Substituições da Dieta</p>" + html}
