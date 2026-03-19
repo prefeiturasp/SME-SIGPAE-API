@@ -79,7 +79,7 @@ class AlteracaoCardapio(
         - CEMEI
 
     Attributes:
-        DESCRICAO (str): Descrição legível do tipo de solicitação.
+        DESCRICAO (str): Descrição legível do tipo de solicitação. Utilizado no dashboard de Gestão de Alimentação para identificar o tipo de cada solicitação. O valor é a string ``"Alteração do Tipo de Alimentação"``.
     """
 
     DESCRICAO = "Alteração do Tipo de Alimentação"
@@ -414,3 +414,38 @@ class DataIntervaloAlteracaoCardapio(
         verbose_name = "Data do intervalo de Alteração de cardápio"
         verbose_name_plural = "Datas do intervalo de Alteração de cardápio"
         ordering = ("data",)
+
+
+def _patch_docs():
+    AlteracaoCardapio.codae_autoriza.__doc__ = """
+        Autoriza a solicitação de Gestão de Alimentação como CODAE pedida com mais de 5 dias úteis de antecedência.
+        Só é possível autorizar uma solicitação que foi validada pela Diretoria Regional.
+
+        Exceção:
+        - Alteração do Tipo de Alimentação - Lanche Emergencial
+
+        Este método é herdado de django_xworkflows.
+
+        Possui um hook para, após a autorização:
+          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.
+          - enviar e-mail para as partes interessadas notificando sobre a autorização.
+            nome do hook: _codae_autoriza_hook
+        """
+
+    AlteracaoCardapio.codae_autoriza_questionamento.__doc__ = """
+        Autoriza a solicitação de Gestão de Alimentação como CODAE pedida com menos de 5 dias úteis de antecedência, mediante resposta positiva do questionamento para a empresa terceirizada que atende a escola.
+        Só é possível autorizar uma solicitação que foi validada pela Diretoria Regional.
+
+        Uma solicitação pode ser autorizada se:
+        - teve uma resposta positiva do questionamento pela empresa terceirizada que atende a escola, ou seja, resposta_sim_nao=True no log de questionamento.
+
+        Este método é herdado de django_xworkflows.
+
+        Possui um hook para, após a autorização:
+          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.
+          - enviar e-mail para as partes interessadas notificando sobre a autorização.
+            nome do hook: _codae_autoriza_hook
+        """
+
+
+_patch_docs()
