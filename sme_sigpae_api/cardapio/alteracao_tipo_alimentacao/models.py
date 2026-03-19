@@ -489,5 +489,32 @@ def _patch_docs():
           - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.
         """
 
+    AlteracaoCardapio.dre_nao_valida.__doc__ = """
+        DRE não valida a solicitação de Gestão de Alimentação.
+
+        Este método é herdado de django_xworkflows.
+
+        Possui um hook (``_dre_nao_valida_hook``) para, após a não validação:
+          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.
+          - enviar e-mail para as partes interessadas notificando sobre a não validação.
+        """
+
+    AlteracaoCardapio.dre_pede_revisao.__doc__ = """
+        Deprecado.
+        """
+
+    AlteracaoCardapio.dre_valida.__doc__ = """
+        DRE valida a solicitação de Gestão de Alimentação.
+
+        Este método é herdado de django_xworkflows.
+
+        Possui um hook (``_dre_valida_hook``) para, após a validação:
+          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.
+        """
+
+    AlteracaoCardapio.escola_revisa.__doc__ = """
+        Deprecado.
+        """
+
 
 _patch_docs()
