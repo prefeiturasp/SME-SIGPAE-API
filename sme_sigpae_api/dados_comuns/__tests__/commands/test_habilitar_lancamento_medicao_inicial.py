@@ -33,7 +33,7 @@ pytestmark = pytest.mark.django_db
     "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.habilitar_dias_letivos"
 )
 @mock.patch(
-    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_escolas"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_informacoes_escolas"
 )
 @mock.patch(
     "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_usuario"
@@ -106,7 +106,7 @@ def test_executa_com_sucesso(
 
 @override_settings(DJANGO_ENV="production")
 @mock.patch(
-    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_escolas"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_informacoes_escolas"
 )
 def test_nao_executa_em_producao(mock_obter_escolas):
     out = io.StringIO()
@@ -193,7 +193,7 @@ def test_data_lanche_emergencial_invalido_lanca_erro():
     "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.habilitar_dias_letivos"
 )
 @mock.patch(
-    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_escolas"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_informacoes_escolas"
 )
 @mock.patch(
     "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_usuario"
