@@ -80,13 +80,9 @@ class AlteracaoCardapio(
 
     Attributes:
         DESCRICAO (str): Descrição legível do tipo de solicitação.
-        eh_alteracao_com_lanche_repetida (bool): Indica se a alteração envolve
-            lanche repetido no mesmo mês.
     """
 
     DESCRICAO = "Alteração do Tipo de Alimentação"
-
-    eh_alteracao_com_lanche_repetida = models.BooleanField(default=False)
 
     @property
     def data(self):

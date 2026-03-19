@@ -49,7 +49,6 @@ class AlteracaoCardapioSerializerBase(serializers.ModelSerializer):
     escola = EscolaSimplesSerializer()
     motivo = MotivoAlteracaoCardapioSerializer()
     foi_solicitado_fora_do_prazo = serializers.BooleanField()
-    eh_alteracao_com_lanche_repetida = serializers.BooleanField()
     id_externo = serializers.CharField()
     logs = LogSolicitacoesUsuarioSerializer(many=True)
     prioridade = serializers.CharField()
