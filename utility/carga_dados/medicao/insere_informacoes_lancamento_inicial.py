@@ -1135,3 +1135,136 @@ def cadastra_emei_da_cemei(
             print(
                 f"Logs da dieta {classificacao.nome} para o Período {periodo} cadastrados"
             )
+
+
+# **************************** **************************** REMOÇÃO DOS LOGS DE ALUNOS MATRICULADOS **************************** ****************************
+
+
+def remover_log_alunos_matriculados(periodos, escola, ano, mes, quantidade_dias_mes):
+    for periodo in periodos:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for dia in range(1, quantidade_dias_mes + 1):
+            data = datetime.date(ano, mes, dia)
+            log = LogAlunosMatriculadosPeriodoEscola.objects.filter(
+                escola=escola, periodo_escolar=pe, criado_em=data
+            )
+            log.delete()
+        print(f"Logs do Período {periodo} removidos")
+
+
+def remover_log_alunos_matriculados_emebs(
+    periodos, escola, ano, mes, quantidade_dias_mes
+):
+    periodo_infantil = periodos["INFANTIL"]
+    periodo_fundamental = periodos["FUNDAMENTAL"]
+
+    for periodo in periodo_infantil:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for dia in range(1, quantidade_dias_mes + 1):
+            data = datetime.date(ano, mes, dia)
+            log = LogAlunosMatriculadosPeriodoEscola.objects.filter(
+                escola=escola,
+                periodo_escolar=pe,
+                tipo_turma=TipoTurma.REGULAR.name,
+                infantil_ou_fundamental="INFANTIL",
+                criado_em=data
+            )
+            log.delete()
+        print(f"Logs do INFANTIL para o Período {periodo} removidos")
+
+    for periodo in periodo_fundamental:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for dia in range(1, quantidade_dias_mes + 1):
+            data = datetime.date(ano, mes, dia)
+            log = LogAlunosMatriculadosPeriodoEscola.objects.filter(
+                escola=escola,
+                periodo_escolar=pe,
+                tipo_turma=TipoTurma.REGULAR.name,
+                infantil_ou_fundamental="FUNDAMENTAL",
+                criado_em=data
+            )
+            log.delete()
+        print(f"Logs do FUNDAMENTAL para o Período {periodo} removidos")
+
+
+def remover_log_alunos_matriculados_cei(
+    periodos, escola, ano, mes, quantidade_dias_mes
+):
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    for periodo in periodos:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for dia in range(1, quantidade_dias_mes + 1):
+            data = datetime.date(ano, mes, dia)
+            log = LogAlunosMatriculadosPeriodoEscola.objects.filter(
+                escola=escola,
+                periodo_escolar=pe,
+                tipo_turma=TipoTurma.REGULAR.name,
+                criado_em=data
+            )
+            log.delete()
+
+        print(f"Logs do Período {periodo} removidos.")
+        for faixa in faixas:
+            for dia in range(1, quantidade_dias_mes + 1):
+                data = datetime.date(ano, mes, dia)
+                log_faixa = LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
+                    escola=escola,
+                    periodo_escolar=pe,
+                    faixa_etaria=faixa,
+                    data=data,
+                    criado_em=data,
+                )
+                log_faixa.delete()
+            print(f"Logs do Período {periodo} para faixa {faixa.__str__()} removidos")
+
+
+def remover_log_alunos_matriculados_cei_da_cemei(
+    periodos, escola, ano, mes, quantidade_dias_mes
+):
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    for periodo in periodos["CEI"]:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for dia in range(1, quantidade_dias_mes + 1):
+            data = datetime.date(ano, mes, dia)
+            log = LogAlunosMatriculadosPeriodoEscola.objects.filter(
+                escola=escola,
+                periodo_escolar=pe,
+                tipo_turma=TipoTurma.REGULAR.name,
+                cei_ou_emei="CEI",
+                criado_em=data
+            )
+            log.delete()
+        print(f"Logs do Período {periodo} removidos")
+
+        for faixa in faixas:
+            for dia in range(1, quantidade_dias_mes + 1):
+                data = datetime.date(ano, mes, dia)
+                log_faixa = LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
+                    escola=escola,
+                    periodo_escolar=pe,
+                    faixa_etaria=faixa,
+                    data=data,
+                    criado_em=data                    
+                )
+                log_faixa.delete()
+            print(f"Logs do Período {periodo} para faixa {faixa.__str__()} removidos")
+
+
+def remover_log_alunos_matriculados_emei_da_cemei(
+    periodos, escola, ano, mes, quantidade_dias_mes
+):
+    for periodo in periodos["EMEI"]:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        cei_ou_emei = "EMEI" if pe.nome == "INTEGRAL" else "N/A"
+        for dia in range(1, quantidade_dias_mes + 1):
+            data = datetime.date(ano, mes, dia)
+            log = LogAlunosMatriculadosPeriodoEscola.objects.filter(
+                escola=escola,
+                periodo_escolar=pe,
+                tipo_turma=TipoTurma.REGULAR.name,
+                cei_ou_emei=cei_ou_emei,
+                criado_em=data
+            )
+            log.delete()
+
+        print(f"Logs do Período INTANTIL {periodo} removidos")

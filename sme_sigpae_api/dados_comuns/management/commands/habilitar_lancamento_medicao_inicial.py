@@ -25,6 +25,11 @@ from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
     incluir_solicitacoes_ceu_gestao,
     obter_informacoes_escolas,
     obter_usuario,
+    remover_log_alunos_matriculados,
+    remover_log_alunos_matriculados_cei,
+    remover_log_alunos_matriculados_cei_da_cemei,
+    remover_log_alunos_matriculados_emebs,
+    remover_log_alunos_matriculados_emei_da_cemei,
     solicitar_kit_lanche,
     solicitar_kit_lanche_cemei,
     solicitar_lanche_emergencial,
@@ -217,10 +222,12 @@ class Command(BaseCommand):
     ):
         self.stdout.write("1. Inclui Log de Alunos Matriculados por período escolar")
         if escola.eh_emebs:
+            remover_log_alunos_matriculados_emebs(periodos_escolares, escola, ano, mes, quantidade_dias_mes)
             incluir_log_alunos_matriculados_emebs(
                 periodos_escolares, escola, ano, mes, quantidade_dias_mes
             )
         else:
+            remover_log_alunos_matriculados(periodos_escolares, escola, ano, mes, quantidade_dias_mes)
             incluir_log_alunos_matriculados(
                 periodos_escolares, escola, ano, mes, quantidade_dias_mes
             )
@@ -296,10 +303,12 @@ class Command(BaseCommand):
             "1. Inclui Log de Alunos Matriculados por período escolar e faixa etária"
         )
         self.stdout.write("1.1. Por faixa etária")
+        remover_log_alunos_matriculados_cei_da_cemei(periodos_escolares, escola, ano, mes, quantidade_dias_mes)
         incluir_log_alunos_matriculados_cei_da_cemei(
             periodos_escolares, escola, ano, mes, quantidade_dias_mes
         )
         self.stdout.write("1.2. Por período escolar")
+        remover_log_alunos_matriculados_emei_da_cemei(periodos_escolares, escola, ano, mes, quantidade_dias_mes)
         incluir_log_alunos_matriculados_emei_da_cemei(
             periodos_escolares, escola, ano, mes, quantidade_dias_mes
         )
@@ -351,6 +360,7 @@ class Command(BaseCommand):
         quantidade_dias_mes,
     ):
         self.stdout.write("1. Inclui Log de Alunos Matriculados por faixa etária")
+        remover_log_alunos_matriculados_cei(periodos_escolares, escola, ano, mes, quantidade_dias_mes)
         incluir_log_alunos_matriculados_cei(
             periodos_escolares, escola, ano, mes, quantidade_dias_mes
         )
