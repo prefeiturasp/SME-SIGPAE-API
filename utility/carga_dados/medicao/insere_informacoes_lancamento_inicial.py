@@ -48,35 +48,44 @@ MOTIVO_INCLUSAO_EVENTO_ESPECIFICO = "Evento Específico"
 CLASSIFICACAO_DIETA_NOME_TIPO_A = "Tipo A"
 
 
+def escolas_validas():
+    return [escola.get("tipo") for escola in dados_usuario_periodos()]
+
+
 def dados_usuario_periodos():
 
     return [
         # ESCOLA EMEF
         {
+            "tipo": "EMEF",
             "nome_escola": "",
             "email": "escolaemef@admin.com",
             "periodos": ["MANHA", "TARDE", "NOITE", "INTEGRAL"],
         },
         # ESCOLA EMEI
         {
+            "tipo": "EMEI",
             "nome_escola": "",
             "email": "escolaemei@admin.com",
             "periodos": ["MANHA", "TARDE", "INTEGRAL"],
         },
         # ESCOLA CIEJA
         {
+            "tipo": "CIEJA",
             "nome_escola": "",
             "email": "escolacieja@admin.com",
             "periodos": ["MANHA", "TARDE", "NOITE", "INTERMEDIARIO", "VESPERTINO"],
         },
         # ESCOLA CEU GESTÃO
         {
+            "tipo": "CEU_GESTAO",
             "nome_escola": "",
             "email": "ceugestao@admin.com",
             "periodos": ["MANHA", "TARDE", "NOITE", "INTEGRAL"],
         },
         # ESCOLA EMEBS
         {
+            "tipo": "EMEBS",
             "nome_escola": "",
             "email": "escolaemebs@admin.com",
             "periodos": {
@@ -86,18 +95,21 @@ def dados_usuario_periodos():
         },
         # ESCOLA CEMEI
         {
+            "tipo": "CEMEI",
             "nome_escola": "",
             "email": "escolacemei@admin.com",
             "periodos": {"EMEI": ["MANHA", "TARDE", "INTEGRAL"], "CEI": ["INTEGRAL"]},
         },
         # ESCOLA CEI
         {
+            "tipo": "CEI",
             "nome_escola": "",
             "email": "escolacei@admin.com",
             "periodos": ["MANHA", "TARDE", "INTEGRAL"],
         },
         # ESCOLA CMCT
         {
+            "tipo": "CMCT",
             "nome_escola": "",
             "email": "escolacmct@admin.com",
             "periodos": ["MANHA", "TARDE", "NOITE"],
@@ -123,10 +135,9 @@ def obter_usuario_dre(diretoria_regional, index):
     return usuario
 
 
-def obter_escolas():
+def obter_informacoes_escolas(dados):
     "Escolas da mesma DRE"
     erro = False
-    dados = dados_usuario_periodos()
     for index, informacao in enumerate(dados, start=1):
         usuario = obter_usuario(informacao["email"])
         try:

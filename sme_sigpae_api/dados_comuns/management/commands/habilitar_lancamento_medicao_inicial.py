@@ -7,6 +7,8 @@ from django.core.management import BaseCommand, CommandError, call_command
 from sme_sigpae_api.escola.models import Escola
 from sme_sigpae_api.escola.tasks import matriculados_por_escola_e_periodo_regulares
 from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
+    dados_usuario_periodos,
+    escolas_validas,
     habilitar_dias_letivos,
     incluir_dietas_especiais,
     incluir_dietas_especiais_cei,
@@ -21,7 +23,7 @@ from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
     incluir_log_alunos_matriculados_emei_da_cemei,
     incluir_programas_e_projetos,
     incluir_solicitacoes_ceu_gestao,
-    obter_escolas,
+    obter_informacoes_escolas,
     obter_usuario,
     solicitar_kit_lanche,
     solicitar_kit_lanche_cemei,
@@ -35,7 +37,6 @@ ETAPA_DOIS_CADASTRO_DIETA_ESPECIAIS = "2. Cadastro de dietas especiais"
 ETAPA_QUATRO_UM_KIT_LANCHE_PASSEIO = "4.1. Criar solicitação de KIT LANCHE PASSEIO"
 ETAPA_QUATRO_DOIS_LANCHE_EMERGENCIAL = "4.2 Criar solicitação de LANCHE EMERGENCIAL"
 ETAPA_CINCO_PROGRAMAS_PROJETOS = "5. Criar PROGRAMAS E PROJETOS"
-
 
 class Command(BaseCommand):
     help = "Habilita a tela de lançamento de Medição Inicial"
@@ -64,20 +65,26 @@ class Command(BaseCommand):
             action="store_true",
             help="Atualizar os dados das escolas",
         )
+        parser.add_argument(
+            "--tipo-escola",
+            type=str,
+            help=f"Filtrar por tipo de escola ({", ".join(escolas_validas())})"
+        )
 
     def handle(self, *args, **options):
         if env("DJANGO_ENV") == "production":
             self.stdout.write(self.style.ERROR("SÓ PODE EXECUTAR EM DESENVOLVIMENTO"))
             return
-        ano, mes, dia_kit_lanche, dia_lanche_emergencial, atualizar_escolas = (
+        ano, mes, dia_kit_lanche, dia_lanche_emergencial, atualizar_escolas, tipo_escola = (
             self.parse_parametros(options)
         )
-        self.valida_parametros(ano, mes, dia_kit_lanche, dia_lanche_emergencial)
+        self.valida_parametros(ano, mes, dia_kit_lanche, dia_lanche_emergencial, tipo_escola)
         quantidade_dias_mes = calendar.monthrange(int(ano), int(mes))[1]
 
         self.stdout.write("================== INICIANDO O SCRIPT ==================")
+        escolas = self.obter_escolas(tipo_escola)
         self.stdout.write("Obtendo a lista de escolas")
-        dados_escolas = obter_escolas()
+        dados_escolas = obter_informacoes_escolas(escolas)
         self.processa_dados_iniciais(ano, mes, atualizar_escolas, dados_escolas)
         for dados in dados_escolas:
             self.processar_escola(
@@ -97,9 +104,11 @@ class Command(BaseCommand):
         dia_kit = options.get("data_kit_lanche")
         dia_emergencial = options.get("data_lanche_emergencial")
         atualizar_escolas = options.get("atualizar_escolas")
-        return ano, mes, dia_kit, dia_emergencial, atualizar_escolas
+        tipo_escola = options.get("tipo_escola")
+        return ano, mes, dia_kit, dia_emergencial, atualizar_escolas, tipo_escola
 
-    def valida_parametros(self, ano, mes, dia_kit, dia_emergencial):
+    def valida_parametros(self, ano, mes, dia_kit, dia_emergencial, tipo_escola):
+        escolas = escolas_validas()
         if mes < 1 or mes > 12:
             raise CommandError("Mês deve estar entre 1 e 12")
         dias_no_mes = calendar.monthrange(ano, mes)[1]
@@ -112,6 +121,10 @@ class Command(BaseCommand):
         if not 1 <= dia_emergencial <= dias_no_mes:
             raise CommandError(
                 f"Dia do lanche emergencial deve estar entre 1 e {dias_no_mes} para {mes:02d}/{ano}"
+            )
+        if tipo_escola not in escolas:
+            raise CommandError(
+                f"Tipo de escola {tipo_escola} inválida. Tipo válidos: {", ".join(escolas)}"
             )
 
     def processa_dados_iniciais(self, ano, mes, atualizar_escolas, dados_escolas):
@@ -425,3 +438,9 @@ class Command(BaseCommand):
                 dia_lanche_emergencial,
                 usuario_dre,
             )
+
+    def obter_escolas(self, tipo_escola):
+        dados_completos = dados_usuario_periodos()
+        if tipo_escola:
+            return [d for d in dados_completos if d.get("tipo") == tipo_escola]
+        return dados_completos
