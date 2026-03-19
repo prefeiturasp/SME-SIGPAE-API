@@ -223,7 +223,7 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 determinado(s) período(s) escolar(es), com data inicial e final delimitadas.</p>
 <p><strong>O que é uma Alteração do Tipo de Alimentação?</strong></p>
 <p>É uma solicitação de troca do tipo de alimentação servida em um determinado dia.</p>
-<p>Quais os tipos de Alteração do Tipo de Alimentação que existem?</p>
+<p><strong>Quais os tipos de Alteração do Tipo de Alimentação que existem?</strong></p>
 <ul class="simple">
 <li><dl class="simple">
 <dt>RPL (Refeição por Lanche)</dt><dd><ul>
@@ -339,26 +339,6 @@ lanche repetido no mesmo mês.</p>
 <dd><p>NoOp function, ignores all arguments.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.com_lanche_do_mes_corrente">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">com_lanche_do_mes_corrente</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">escola_uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/models.html#AlteracaoCardapio.com_lanche_do_mes_corrente"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.com_lanche_do_mes_corrente" title="Link to this definition"></a></dt>
-<dd><p>Retorna alterações de cardápio do mês corrente que incluam lanche como tipo de destino.</p>
-<p>Filtra as alterações da escola informada cujo período de substituição
-contemple algum tipo de alimentação com <code class="docutils literal notranslate"><span class="pre">&quot;lanche&quot;</span></code> no nome.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>escola_uuid</strong> (<em>uuid.UUID</em>) – UUID da escola a ser filtrada.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>QuerySet de <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code> do mês
-corrente contendo lanche.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>django.db.models.QuerySet</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.criado_em">
 <span class="sig-name descname"><span class="pre">criado_em</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.criado_em" title="Link to this definition"></a></dt>
@@ -466,21 +446,6 @@ class built by <code class="docutils literal notranslate"><span class="pre">crea
 <span class="sig-name descname"><span class="pre">eh_alteracao_com_lanche_repetida</span></span><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
 <dd><p>A wrapper for a deferred-loading field. When the value is read from this
 object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.eh_unico_dia">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">eh_unico_dia</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.eh_unico_dia" title="Link to this definition"></a></dt>
-<dd><p>Verifica se a alteração ocorre em um único dia.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> se <code class="docutils literal notranslate"><span class="pre">data_inicial</span></code> e <code class="docutils literal notranslate"><span class="pre">data_final</span></code> forem iguais,
-<code class="docutils literal notranslate"><span class="pre">False</span></code> caso contrário.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>bool</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">

@@ -76,7 +76,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">EhAlteracaoCardapio</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.base.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">TipoAlimentacao</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Ativavel</span><span class="p">,</span>
     <span class="n">CanceladoIndividualmente</span><span class="p">,</span>
@@ -123,14 +122,14 @@
 
 <span class="sd">    É uma solicitação de troca do tipo de alimentação servida em um determinado dia.</span>
 
-<span class="sd">    Quais os tipos de Alteração do Tipo de Alimentação que existem?</span>
+<span class="sd">    **Quais os tipos de Alteração do Tipo de Alimentação que existem?**</span>
 
 <span class="sd">    - RPL (Refeição por Lanche)</span>
 <span class="sd">        - substitui a refeição do dia por um lanche</span>
 <span class="sd">        - cada escola só pode pedir uma RPL por mês</span>
 <span class="sd">        - exemplo: no dia dos aniversariantes do mês, a escola pode solicitar uma RPL para substituir a refeição por um lanche especial.</span>
 <span class="sd">        - na Medição Inicial, o lançamento de lanche neste dia é dobrado e a refeição é zerada.</span>
-<span class="sd">      </span>
+
 <span class="sd">    - LPR (Lanche por Refeição)</span>
 <span class="sd">        - substitui o lanche do dia por uma refeição</span>
 <span class="sd">        - não há limite de solicitações de LPR por mês</span>
@@ -162,30 +161,6 @@
 
     <span class="n">eh_alteracao_com_lanche_repetida</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AlteracaoCardapio.com_lanche_do_mes_corrente">
-<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.com_lanche_do_mes_corrente">[docs]</a>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">com_lanche_do_mes_corrente</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">escola_uuid</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna alterações de cardápio do mês corrente que incluam lanche como tipo de destino.</span>
-
-<span class="sd">        Filtra as alterações da escola informada cujo período de substituição</span>
-<span class="sd">        contemple algum tipo de alimentação com ``&quot;lanche&quot;`` no nome.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            escola_uuid (uuid.UUID): UUID da escola a ser filtrada.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            django.db.models.QuerySet: QuerySet de ``AlteracaoCardapio`` do mês</span>
-<span class="sd">            corrente contendo lanche.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">lanche</span> <span class="o">=</span> <span class="n">TipoAlimentacao</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">nome__icontains</span><span class="o">=</span><span class="s2">&quot;lanche&quot;</span><span class="p">)</span>
-        <span class="n">alteracoes_da_escola</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">do_mes_corrente</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-            <span class="n">escola__uuid</span><span class="o">=</span><span class="n">escola_uuid</span><span class="p">,</span>
-            <span class="n">substituicoes_periodo_escolar__tipos_alimentacao_para__in</span><span class="o">=</span><span class="n">lanche</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">alteracoes_da_escola</span></div>
-
-
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a data mais antiga do intervalo (inicial ou final).</span>
@@ -209,16 +184,6 @@
 <span class="sd">            ``None`` se não houver substituições.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Sum</span><span class="p">(</span><span class="s2">&quot;qtd_alunos&quot;</span><span class="p">))[</span><span class="s2">&quot;qtd_alunos__sum&quot;</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">eh_unico_dia</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Verifica se a alteração ocorre em um único dia.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            bool: ``True`` se ``data_inicial`` e ``data_final`` forem iguais,</span>
-<span class="sd">            ``False`` caso contrário.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_inicial</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_final</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">substituicoes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
