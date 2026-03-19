@@ -49,7 +49,7 @@ class AlteracaoCardapio(
 
     É uma solicitação de troca do tipo de alimentação servida em um determinado dia.
 
-    **Quais os tipos de Alteração do Tipo de Alimentação que existem?**
+    **Quais os tipos de Alteração do Tipo de Alimentação possíveis?**
 
     - RPL (Refeição por Lanche)
         - substitui a refeição do dia por um lanche
@@ -422,29 +422,71 @@ def _patch_docs():
         Só é possível autorizar uma solicitação que foi validada pela Diretoria Regional.
 
         Exceção:
-        - Alteração do Tipo de Alimentação - Lanche Emergencial
+          - Alteração do Tipo de Alimentação - Lanche Emergencial
 
         Este método é herdado de django_xworkflows.
 
-        Possui um hook para, após a autorização:
+        Possui um hook (``_codae_autoriza_hook``) para, após a autorização:
           - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.
           - enviar e-mail para as partes interessadas notificando sobre a autorização.
-            nome do hook: _codae_autoriza_hook
         """
 
     AlteracaoCardapio.codae_autoriza_questionamento.__doc__ = """
-        Autoriza a solicitação de Gestão de Alimentação como CODAE pedida com menos de 5 dias úteis de antecedência, mediante resposta positiva do questionamento para a empresa terceirizada que atende a escola.
+        CODAE autoriza a solicitação de Gestão de Alimentação pedida com menos de 5 dias úteis de antecedência, mediante resposta positiva do questionamento para a empresa terceirizada que atende a escola.
         Só é possível autorizar uma solicitação que foi validada pela Diretoria Regional.
 
         Uma solicitação pode ser autorizada se:
-        - teve uma resposta positiva do questionamento pela empresa terceirizada que atende a escola, ou seja, resposta_sim_nao=True no log de questionamento.
+          - teve uma resposta positiva do questionamento pela empresa terceirizada que atende a escola, ou seja, resposta_sim_nao=True no log de questionamento.
 
         Este método é herdado de django_xworkflows.
 
-        Possui um hook para, após a autorização:
+        Possui um hook (``_codae_autoriza_hook``) para, após a autorização:
           - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.
           - enviar e-mail para as partes interessadas notificando sobre a autorização.
-            nome do hook: _codae_autoriza_hook
+        """
+
+    AlteracaoCardapio.codae_nega.__doc__ = """
+        CODAE nega a solicitação de Gestão de Alimentação.
+        Só é possível negar uma solicitação que foi validada pela Diretoria Regional.
+
+        Uma solicitação pode ser negada se, por exemplo:
+          - infringir alguma regra do edital
+          - tiver algum dado incorreto ou inconsistente (por exemplo, um Kit Lanche não pode ser solicitado para um "passeio" nas dependências da escola. É apenas para passeios externos.)
+
+        Este método é herdado de django_xworkflows.
+
+        Possui um hook (``_codae_recusou_hook``) para, após a negação:
+          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.
+          - enviar e-mail para as partes interessadas notificando sobre a negação.
+        """
+
+    AlteracaoCardapio.codae_nega_questionamento.__doc__ = """
+        CODAE nega a solicitação de Gestão de Alimentação pedida com menos de 5 dias úteis de antecedência.
+        Só é possível negar uma solicitação que foi validada pela Diretoria Regional.
+
+        Uma solicitação pode ser negada se:
+          - não tiver uma resposta positiva do questionamento pela empresa terceirizada que atende a escola, ou seja, resposta_sim_nao=False no log de questionamento.
+
+        Este método é herdado de django_xworkflows.
+
+        Possui um hook (``_codae_recusou_hook``) para, após a negação:
+          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.
+          - enviar e-mail para as partes interessadas notificando sobre a negação.
+        """
+
+    AlteracaoCardapio.codae_questiona.__doc__ = """
+        CODAE questiona a solicitação de Gestão de Alimentação pedida com menos de 5 dias úteis de antecedência.
+        Só é possível questionar uma solicitação que foi validada pela Diretoria Regional.
+
+        Uma solicitação pedida com menos de 5 dias úteis de antecedência não pode ser autorizada imediatamente, pois a empresa terceirizada que atende a escola precisa confirmar se é possível atender a solicitação nesse prazo. Portanto, o CODAE questiona a solicitação para obter essa confirmação.
+
+        Exceção (pode ser autorizado imediatamente, sem questionamento):
+          - Alteração do Tipo de Alimentação - Lanche Emergencial
+
+        Este método é herdado de django_xworkflows.
+
+        Possui um hook (``_codae_questiona_hook``) para, após o questionamento:
+          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.
         """
 
 
