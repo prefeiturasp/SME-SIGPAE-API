@@ -113,16 +113,6 @@ class AlteracaoCardapio(
         return self.substituicoes.aggregate(Sum("qtd_alunos"))["qtd_alunos__sum"]
 
     @property
-    def eh_unico_dia(self):
-        """Verifica se a alteração ocorre em um único dia.
-
-        Returns:
-            bool: ``True`` se ``data_inicial`` e ``data_final`` forem iguais,
-            ``False`` caso contrário.
-        """
-        return self.data_inicial == self.data_final
-
-    @property
     def substituicoes(self):
         """Retorna um atalho para ``substituicoes_periodo_escolar``.
 
