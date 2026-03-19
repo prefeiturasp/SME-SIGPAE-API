@@ -221,6 +221,40 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <p>Modelo responsável por armazenar Solicitações de Alteração do Tipo de Alimentação genéricas.</p>
 <p>Representa uma solicitação formal de troca do tipo de alimentação servida em
 determinado(s) período(s) escolar(es), com data inicial e final delimitadas.</p>
+<p><strong>O que é uma Alteração do Tipo de Alimentação?</strong></p>
+<p>É uma solicitação de troca do tipo de alimentação servida em um determinado dia.</p>
+<p>Quais os tipos de Alteração do Tipo de Alimentação que existem?</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>RPL (Refeição por Lanche)</dt><dd><ul>
+<li><p>substitui a refeição do dia por um lanche</p></li>
+<li><p>cada escola só pode pedir uma RPL por mês</p></li>
+<li><p>exemplo: no dia dos aniversariantes do mês, a escola pode solicitar uma RPL para substituir a refeição por um lanche especial.</p></li>
+<li><p>na Medição Inicial, o lançamento de lanche neste dia é dobrado e a refeição é zerada.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>LPR (Lanche por Refeição)</dt><dd><ul>
+<li><p>substitui o lanche do dia por uma refeição</p></li>
+<li><p>não há limite de solicitações de LPR por mês</p></li>
+<li><p>na Medição Inicial, o lançamento de lanche neste dia é zerado e a refeição é dobrada.</p></li>
+<li><p>esta solicitação raramente é utilizada, pois as escolas preferem lanche que refeição.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Lanche Emergencial</dt><dd><ul>
+<li><p>substitui todas as alimentações do dia por lanche emergencial (no passado, era chamado de Merenda Seca)</p></li>
+<li><p>única solicitação que pode ser feita sem o mínimo de 2 dias úteis de antecedência</p></li>
+<li><p>normalmente requerida quando acontece algum imprevisto que inviabiliza a preparação da refeição, como falta de energia ou água, ou atraso na entrega dos alimentos.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
 <dl class="simple">
 <dt>Tipos de unidade contempladas:</dt><dd><ul class="simple">
 <li><p>EMEF</p></li>
@@ -229,24 +263,38 @@ determinado(s) período(s) escolar(es), com data inicial e final delimitadas.</p
 <li><p>EMEBS</p></li>
 </ul>
 </dd>
-<dt>Exceções <strong>não</strong> contempladas:</dt><dd><ul class="simple">
+<dt>Exceções não contempladas:</dt><dd><ul class="simple">
 <li><p>CEI</p></li>
 <li><p>CEMEI</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">Variables<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>DESCRICAO</strong> (<em>str</em>) – Descrição legível do tipo de solicitação.</p></li>
-<li><p><strong>eh_alteracao_com_lanche_repetida</strong> (<em>bool</em>) – Indica se a alteração envolve lanche repetido
-no mesmo mês.</p></li>
-</ul>
-</dd>
-</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.DESCRICAO">
-<span class="sig-name descname"><span class="pre">DESCRICAO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Alteração</span> <span class="pre">do</span> <span class="pre">Tipo</span> <span class="pre">de</span> <span class="pre">Alimentação'</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.DESCRICAO" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DESCRICAO</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.DESCRICAO" title="Link to this definition"></a></dt>
+<dd><p>Descrição legível do tipo de solicitação.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.eh_alteracao_com_lanche_repetida">
+<span class="sig-name descname"><span class="pre">eh_alteracao_com_lanche_repetida</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.eh_alteracao_com_lanche_repetida" title="Link to this definition"></a></dt>
+<dd><p>Indica se a alteração envolve
+lanche repetido no mesmo mês.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">DESCRICAO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Alteração</span> <span class="pre">do</span> <span class="pre">Tipo</span> <span class="pre">de</span> <span class="pre">Alimentação'</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
@@ -295,14 +343,15 @@ no mesmo mês.</p></li>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.com_lanche_do_mes_corrente">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">com_lanche_do_mes_corrente</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">escola_uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/models.html#AlteracaoCardapio.com_lanche_do_mes_corrente"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.com_lanche_do_mes_corrente" title="Link to this definition"></a></dt>
 <dd><p>Retorna alterações de cardápio do mês corrente que incluam lanche como tipo de destino.</p>
-<p>Filtra as alterações da escola informada cujo período de substituição contemple
-algum tipo de alimentação com <code class="docutils literal notranslate"><span class="pre">&quot;lanche&quot;</span></code> no nome.</p>
+<p>Filtra as alterações da escola informada cujo período de substituição
+contemple algum tipo de alimentação com <code class="docutils literal notranslate"><span class="pre">&quot;lanche&quot;</span></code> no nome.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>escola_uuid</strong> (<em>uuid.UUID</em>) – UUID da escola a ser filtrada.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>QuerySet de <a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code></a> do mês corrente contendo lanche.</p>
+<dd class="field-even"><p>QuerySet de <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code> do mês
+corrente contendo lanche.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>django.db.models.QuerySet</p>
@@ -341,7 +390,8 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <dd><p>Retorna a data mais antiga do intervalo (inicial ou final).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Data de início da alteração, ou a data final caso seja anterior.</p>
+<dd class="field-odd"><p>Data de início da alteração, ou a data final caso seja
+anterior.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>datetime.date</p>
@@ -369,8 +419,8 @@ object the first time, the query is executed.</p>
 <dd><p>Retorna todas as datas do intervalo formatadas e concatenadas em uma string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Datas no formato <code class="docutils literal notranslate"><span class="pre">&quot;DD/MM/YYYY&quot;</span></code> separadas por vírgula e espaço,
-ex.: <code class="docutils literal notranslate"><span class="pre">&quot;01/03/2026,</span> <span class="pre">02/03/2026&quot;</span></code>.</p>
+<dd class="field-odd"><p>Datas no formato <code class="docutils literal notranslate"><span class="pre">&quot;DD/MM/YYYY&quot;</span></code> separadas por vírgula e
+espaço, por exemplo <code class="docutils literal notranslate"><span class="pre">&quot;01/03/2026,</span> <span class="pre">02/03/2026&quot;</span></code>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>str</p>
@@ -412,8 +462,8 @@ class built by <code class="docutils literal notranslate"><span class="pre">crea
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.eh_alteracao_com_lanche_repetida">
-<span class="sig-name descname"><span class="pre">eh_alteracao_com_lanche_repetida</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.eh_alteracao_com_lanche_repetida" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">eh_alteracao_com_lanche_repetida</span></span><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
 <dd><p>A wrapper for a deferred-loading field. When the value is read from this
 object the first time, the query is executed.</p>
 </dd></dl>
@@ -463,9 +513,8 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <dd><p>Verifica se ao menos uma data do intervalo foi cancelada individualmente.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> se existir alguma
-<a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataIntervaloAlteracaoCardapio</span></code></a> com <code class="docutils literal notranslate"><span class="pre">cancelado=True</span></code>,
-<code class="docutils literal notranslate"><span class="pre">False</span></code> caso contrário.</p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> se existir alguma <code class="docutils literal notranslate"><span class="pre">DataIntervaloAlteracaoCardapio</span></code>
+com <code class="docutils literal notranslate"><span class="pre">cancelado=True</span></code>, <code class="docutils literal notranslate"><span class="pre">False</span></code> caso contrário.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>bool</p>
@@ -525,10 +574,11 @@ object the first time, the query is executed.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.inclusoes">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">inclusoes</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.inclusoes" title="Link to this definition"></a></dt>
-<dd><p>Atalho para o relacionamento <code class="docutils literal notranslate"><span class="pre">datas_intervalo</span></code>.</p>
+<dd><p>Retorna um atalho para <code class="docutils literal notranslate"><span class="pre">datas_intervalo</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Manager reverso das datas do intervalo vinculadas.</p>
+<dd class="field-odd"><p>Manager reverso das datas do intervalo
+vinculadas.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>django.db.models.Manager</p>
@@ -567,11 +617,11 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Soma da quantidade de alunos em todas as
-<a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolar</span></code></a> desta alteração, ou
+<code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolar</span></code> desta alteração, ou
 <code class="docutils literal notranslate"><span class="pre">None</span></code> se não houver substituições.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>int or None</p>
+<dd class="field-even"><p>int | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -674,17 +724,21 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.salvar_log_transicao">
 <span class="sig-name descname"><span class="pre">salvar_log_transicao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status_evento</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usuario</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/models.html#AlteracaoCardapio.salvar_log_transicao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.salvar_log_transicao" title="Link to this definition"></a></dt>
 <dd><p>Registra no log a transição de status da solicitação.</p>
-<p>Cria uma entrada em <code class="xref py py-class docutils literal notranslate"><span class="pre">LogSolicitacoesUsuario</span></code>
-associada a esta alteração de cardápio.</p>
+<p>Cria uma entrada em <code class="docutils literal notranslate"><span class="pre">LogSolicitacoesUsuario</span></code> associada a esta
+alteração de cardápio.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>status_evento</strong> (<em>int</em>) – Código do evento de status (constante de
-<code class="xref py py-class docutils literal notranslate"><span class="pre">LogSolicitacoesUsuario</span></code>).</p></li>
-<li><p><strong>usuario</strong> (<em>django.contrib.auth.models.AbstractUser</em>) – Usuário responsável pela transição.</p></li>
-<li><p><strong>justificativa</strong> (<em>str</em>) – Texto justificando a transição (opcional).</p></li>
-<li><p><strong>resposta_sim_nao</strong> (<em>bool</em>) – Indica resposta booleana associada ao log (opcional,
-padrão <code class="docutils literal notranslate"><span class="pre">False</span></code>).</p></li>
+<li><p><strong>status_evento</strong> (<em>int</em>) – Código do evento de status.</p></li>
+<li><p><strong>usuario</strong> (<em>django.contrib.auth.models.AbstractUser</em>) – Usuário
+responsável pela transição.</p></li>
+<li><p><strong>**kwargs</strong> – <p>Parâmetros opcionais do log.
+<cite>justificativa</cite> (str): Texto justificando a transição.
+<cite>resposta_sim_nao</cite> (bool): Indica resposta booleana associada</p>
+<blockquote>
+<div><p>ao log. O padrão é <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</div></blockquote>
+</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -697,43 +751,22 @@ padrão <code class="docutils literal notranslate"><span class="pre">False</span
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.solicitacao_dict_para_relatorio">
 <span class="sig-name descname"><span class="pre">solicitacao_dict_para_relatorio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instituicao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/models.html#AlteracaoCardapio.solicitacao_dict_para_relatorio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.solicitacao_dict_para_relatorio" title="Link to this definition"></a></dt>
 <dd><p>Serializa os dados da solicitação para uso em relatórios.</p>
-<p>Retorna um dicionário com todas as informações relevantes da alteração de
-cardápio, incluindo rastreamentos históricos, datas, motivo e substituições.</p>
+<p>Retorna um dicionário com as informações relevantes da alteração de
+cardápio, incluindo rastreamentos históricos, datas, motivo e
+substituições.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>label_data</strong> (<em>str</em>) – Rótulo descritivo para o campo de data no relatório.</p></li>
-<li><p><strong>data_log</strong> (<em>datetime.date</em>) – Data do log de referência exibida no relatório.</p></li>
-<li><p><strong>instituicao</strong> (<em>object</em>) – Instituição solicitante (não utilizado diretamente na
-construção do dict, mantido por compatibilidade de assinatura).</p></li>
+<li><p><strong>label_data</strong> (<em>str</em>) – Rótulo descritivo para o campo de data no
+relatório.</p></li>
+<li><p><strong>data_log</strong> (<em>datetime.date</em>) – Data do log de referência exibida no
+relatório.</p></li>
+<li><p><strong>instituicao</strong> (<em>object</em>) – Instituição solicitante, mantida por
+compatibilidade de assinatura.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>Dicionário com os campos do relatório:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-</pre></div>
-</div>
-<blockquote>
-<div><p>”lote”: str,
-“unidade_educacional”: str,
-“terceirizada”: object,
-“tipo_doc”: str,
-“data_evento”: datetime.date,
-“datas_intervalo”: QuerySet,
-“numero_alunos”: int,
-“motivo”: str,
-“data_inicial”: datetime.date,
-“data_final”: datetime.date,
-“data_autorizacao”: datetime.date,
-“observacao”: str,
-“substituicoes”: list[dict],
-“label_data”: str,
-“data_log”: datetime.date,
-“id_externo”: str,
-“status”: str,</p>
-</div></blockquote>
-<p>}</p>
-</p>
+<dd class="field-even"><p>Dicionário com os campos utilizados no relatório.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
@@ -749,10 +782,11 @@ construção do dict, mantido por compatibilidade de assinatura).</p></li>
 <dl class="py property">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.substituicoes">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">substituicoes</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.substituicoes" title="Link to this definition"></a></dt>
-<dd><p>Atalho para o relacionamento <code class="docutils literal notranslate"><span class="pre">substituicoes_periodo_escolar</span></code>.</p>
+<dd><p>Retorna um atalho para <code class="docutils literal notranslate"><span class="pre">substituicoes_periodo_escolar</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Manager reverso das substituições de alimentação vinculadas.</p>
+<dd class="field-odd"><p>Manager reverso das substituições de
+alimentacao vinculadas.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>django.db.models.Manager</p>
@@ -764,24 +798,13 @@ construção do dict, mantido por compatibilidade de assinatura).</p></li>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.substituicoes_dict">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">substituicoes_dict</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.substituicoes_dict" title="Link to this definition"></a></dt>
 <dd><p>Retorna as substituições de alimentação serializadas como lista de dicionários.</p>
-<p>Cada item da lista representa uma <a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolar</span></code></a>
-com os campos <code class="docutils literal notranslate"><span class="pre">periodo</span></code>, <code class="docutils literal notranslate"><span class="pre">alteracao_de</span></code> e <code class="docutils literal notranslate"><span class="pre">alteracao_para</span></code>.</p>
+<p>Cada item da lista representa uma
+<code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolar</span></code> com os campos <code class="docutils literal notranslate"><span class="pre">periodo</span></code>,
+<code class="docutils literal notranslate"><span class="pre">alteracao_de</span></code> e <code class="docutils literal notranslate"><span class="pre">alteracao_para</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><p>Lista de dicionários no formato:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
-</pre></div>
-</div>
-<blockquote>
-<div><dl class="simple">
-<dt>{</dt><dd><p>“periodo”: “MANHA”,
-“alteracao_de”: “Lanche, Refeição”,
-“alteracao_para”: “Lanche Emergencial”,</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>]</p>
-</p>
+<dd class="field-odd"><p>Lista de dicionários no formato
+<code class="docutils literal notranslate"><span class="pre">{&quot;periodo&quot;:</span> <span class="pre">str,</span> <span class="pre">&quot;alteracao_de&quot;:</span> <span class="pre">str,</span> <span class="pre">&quot;alteracao_para&quot;:</span> <span class="pre">str}</span></code>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>list[dict]</p>
@@ -808,8 +831,8 @@ class built by <code class="docutils literal notranslate"><span class="pre">crea
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.template_mensagem">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">template_mensagem</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.template_mensagem" title="Link to this definition"></a></dt>
 <dd><p>Retorna o assunto e o corpo HTML do template de mensagem de alteração de cardápio.</p>
-<p>Busca o <code class="xref py py-class docutils literal notranslate"><span class="pre">TemplateMensagem</span></code> do tipo
-<code class="docutils literal notranslate"><span class="pre">ALTERACAO_CARDAPIO</span></code> e retorna seus campos de assunto e conteúdo HTML.</p>
+<p>Busca o <code class="docutils literal notranslate"><span class="pre">TemplateMensagem</span></code> do tipo <code class="docutils literal notranslate"><span class="pre">ALTERACAO_CARDAPIO</span></code> e retorna
+seus campos de assunto e conteúdo HTML.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Tupla <code class="docutils literal notranslate"><span class="pre">(assunto,</span> <span class="pre">corpo_html)</span></code> do template.</p>
@@ -819,7 +842,7 @@ class built by <code class="docutils literal notranslate"><span class="pre">crea
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>TemplateMensagem.DoesNotExist</strong> – Caso não exista template do tipo
-<code class="docutils literal notranslate"><span class="pre">ALTERACAO_CARDAPIO</span></code> cadastrado.</p>
+    <code class="docutils literal notranslate"><span class="pre">ALTERACAO_CARDAPIO</span></code> cadastrado.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -870,20 +893,43 @@ object the first time, the query is executed.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DataIntervaloAlteracaoCardapio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/models.html#DataIntervaloAlteracaoCardapio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">CanceladoIndividualmente</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoEm</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemData</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemIdentificadorExternoAmigavel</span></code></p>
-<p>Representa uma data específica pertencente ao intervalo de uma <a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code></a>.</p>
-<p>Permite que cada dia do intervalo seja tratado individualmente, possibilitando
-cancelamentos pontuais sem invalidar toda a solicitação.</p>
+<p>Representa uma data específica pertencente ao intervalo de uma <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code>.</p>
+<p>Permite que cada dia do intervalo seja tratado individualmente,
+possibilitando cancelamentos pontuais sem invalidar toda a solicitação.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.alteracao_cardapio">
+<span class="sig-name descname"><span class="pre">alteracao_cardapio</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.alteracao_cardapio" title="Link to this definition"></a></dt>
+<dd><p>Alteração de cardápio à qual
+esta data pertence.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Variables<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>alteracao_cardapio</strong> (<a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio"><em>AlteracaoCardapio</em></a>) – Alteração de cardápio à qual esta data pertence.</p></li>
-<li><p><strong>data</strong> (<em>datetime.date</em>) – Data do intervalo (herdada de
-<code class="xref py py-class docutils literal notranslate"><span class="pre">TemData</span></code>).</p></li>
-<li><p><strong>cancelado</strong> (<em>bool</em>) – Indica se esta data foi cancelada individualmente (herdado de
-<code class="xref py py-class docutils literal notranslate"><span class="pre">CanceladoIndividualmente</span></code>).</p></li>
-</ul>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio">AlteracaoCardapio</a></p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.data">
+<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.data" title="Link to this definition"></a></dt>
+<dd><p>Data do intervalo.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>datetime.date</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.cancelado">
+<span class="sig-name descname"><span class="pre">cancelado</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.cancelado" title="Link to this definition"></a></dt>
+<dd><p>Indica se esta data foi cancelada individualmente.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py exception">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.DoesNotExist">
 <span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.DoesNotExist" title="Link to this definition"></a></dt>
@@ -897,8 +943,8 @@ cancelamentos pontuais sem invalidar toda a solicitação.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.alteracao_cardapio">
-<span class="sig-name descname"><span class="pre">alteracao_cardapio</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.alteracao_cardapio" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">alteracao_cardapio</span></span><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
 <dd><p>Accessor to the related object on the forward side of a many-to-one or
 one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <p>In the example:</p>
@@ -915,8 +961,8 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.cancelado">
-<span class="sig-name descname"><span class="pre">cancelado</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.cancelado" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">cancelado</span></span><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
 <dd><p>A wrapper for a deferred-loading field. When the value is read from this
 object the first time, the query is executed.</p>
 </dd></dl>
@@ -961,8 +1007,8 @@ object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.data">
-<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.data" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
 <dd><p>A wrapper for a deferred-loading field. When the value is read from this
 object the first time, the query is executed.</p>
 </dd></dl>
@@ -1012,9 +1058,8 @@ object the first time, the query is executed.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MotivoAlteracaoCardapio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/models.html#MotivoAlteracaoCardapio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('motivo_alteracao_cardapio')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Nomeavel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Ativavel</span></code></p>
-<p>Representa o motivo pelo qual uma <a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code></a> foi solicitada.</p>
-<p>Utilizado em conjunto com <a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code></a> para categorizar a razão
-da troca de tipo de alimentação.</p>
+<p>Representa o motivo pelo qual uma <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code> foi solicitada.</p>
+<p>Utilizado para categorizar a razão da troca de tipo de alimentação.</p>
 <dl class="simple">
 <dt>Exemplos de motivos:</dt><dd><ul class="simple">
 <li><p>Atividade diferenciada</p></li>
@@ -1022,12 +1067,17 @@ da troca de tipo de alimentação.</p>
 </ul>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio.nome">
+<span class="sig-name descname"><span class="pre">nome</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio.nome" title="Link to this definition"></a></dt>
+<dd><p>Nome descritivo do motivo.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Variables<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>nome</strong> (<em>str</em>) – Nome descritivo do motivo (herdado de
-<code class="xref py py-class docutils literal notranslate"><span class="pre">Nomeavel</span></code>).</p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
+</dd></dl>
+
 <dl class="py exception">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio.DoesNotExist">
 <span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio.DoesNotExist" title="Link to this definition"></a></dt>
@@ -1100,8 +1150,8 @@ object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio.nome">
-<span class="sig-name descname"><span class="pre">nome</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio.nome" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id5">
+<span class="sig-name descname"><span class="pre">nome</span></span><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>
 <dd><p>A wrapper for a deferred-loading field. When the value is read from this
 object the first time, the query is executed.</p>
 </dd></dl>
@@ -1125,20 +1175,68 @@ object the first time, the query is executed.</p>
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/models.html#SubstituicaoAlimentacaoNoPeriodoEscolar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('substituicao_alimentacao_periodo_escolar')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code></p>
 <p>Representa uma substituição de tipo de alimentação em um período escolar específico.</p>
-<p>Está vinculada a uma <a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code></a> e define quais tipos de alimentação
-serão trocados (<code class="docutils literal notranslate"><span class="pre">tipos_alimentacao_de</span></code>) por quais outros (<code class="docutils literal notranslate"><span class="pre">tipos_alimentacao_para</span></code>)
-em um determinado período escolar, bem como a quantidade de alunos afetados.</p>
+<p>Está vinculada a uma <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code> e define quais tipos de
+alimentação serão trocados por quais outros em um determinado período
+escolar, bem como a quantidade de alunos afetados.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.alteracao_cardapio">
+<span class="sig-name descname"><span class="pre">alteracao_cardapio</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.alteracao_cardapio" title="Link to this definition"></a></dt>
+<dd><p>Alteração de cardápio à qual
+esta substituição pertence.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Variables<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>alteracao_cardapio</strong> (<a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio"><em>AlteracaoCardapio</em></a>) – Alteração de cardápio à qual esta substituição pertence.</p></li>
-<li><p><strong>qtd_alunos</strong> (<em>int</em>) – Quantidade de alunos impactados pela substituição.</p></li>
-<li><p><strong>periodo_escolar</strong> (<em>escola.PeriodoEscolar</em>) – Período escolar onde a substituição ocorre.</p></li>
-<li><p><strong>tipos_alimentacao_de</strong> (<em>ManyToManyField</em><em>[</em><a class="reference internal" href="base.html#sme_sigpae_api.cardapio.base.models.TipoAlimentacao" title="sme_sigpae_api.cardapio.base.models.TipoAlimentacao"><em>TipoAlimentacao</em></a><em>]</em>) – Tipos de alimentação originais a serem substituídos.</p></li>
-<li><p><strong>tipos_alimentacao_para</strong> (<em>ManyToManyField</em><em>[</em><a class="reference internal" href="base.html#sme_sigpae_api.cardapio.base.models.TipoAlimentacao" title="sme_sigpae_api.cardapio.base.models.TipoAlimentacao"><em>TipoAlimentacao</em></a><em>]</em>) – Tipos de alimentação que substituirão os originais.</p></li>
-</ul>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio">AlteracaoCardapio</a></p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.qtd_alunos">
+<span class="sig-name descname"><span class="pre">qtd_alunos</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.qtd_alunos" title="Link to this definition"></a></dt>
+<dd><p>Quantidade de alunos impactados pela substituição.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.periodo_escolar">
+<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.periodo_escolar" title="Link to this definition"></a></dt>
+<dd><p>Período escolar onde a
+substituição ocorre.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>escola.PeriodoEscolar</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao_de">
+<span class="sig-name descname"><span class="pre">tipos_alimentacao_de</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao_de" title="Link to this definition"></a></dt>
+<dd><p>Tipos de
+alimentação originais a serem substituídos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ManyToManyField[<a class="reference internal" href="base.html#sme_sigpae_api.cardapio.base.models.TipoAlimentacao" title="sme_sigpae_api.cardapio.base.models.TipoAlimentacao">TipoAlimentacao</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao_para">
+<span class="sig-name descname"><span class="pre">tipos_alimentacao_para</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao_para" title="Link to this definition"></a></dt>
+<dd><p>Tipos de
+alimentação que substituirão os originais.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ManyToManyField[<a class="reference internal" href="base.html#sme_sigpae_api.cardapio.base.models.TipoAlimentacao" title="sme_sigpae_api.cardapio.base.models.TipoAlimentacao">TipoAlimentacao</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py exception">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.DoesNotExist">
 <span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.DoesNotExist" title="Link to this definition"></a></dt>
@@ -1152,8 +1250,8 @@ em um determinado período escolar, bem como a quantidade de alunos afetados.</p
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.alteracao_cardapio">
-<span class="sig-name descname"><span class="pre">alteracao_cardapio</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.alteracao_cardapio" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id6">
+<span class="sig-name descname"><span class="pre">alteracao_cardapio</span></span><a class="headerlink" href="#id6" title="Link to this definition"></a></dt>
 <dd><p>Accessor to the related object on the forward side of a many-to-one or
 one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <p>In the example:</p>
@@ -1182,8 +1280,8 @@ object the first time, the query is executed.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.periodo_escolar">
-<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.periodo_escolar" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id7">
+<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><a class="headerlink" href="#id7" title="Link to this definition"></a></dt>
 <dd><p>Accessor to the related object on the forward side of a many-to-one or
 one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <p>In the example:</p>
@@ -1200,15 +1298,15 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.qtd_alunos">
-<span class="sig-name descname"><span class="pre">qtd_alunos</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.qtd_alunos" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id8">
+<span class="sig-name descname"><span class="pre">qtd_alunos</span></span><a class="headerlink" href="#id8" title="Link to this definition"></a></dt>
 <dd><p>A wrapper for a deferred-loading field. When the value is read from this
 object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao_de">
-<span class="sig-name descname"><span class="pre">tipos_alimentacao_de</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao_de" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id9">
+<span class="sig-name descname"><span class="pre">tipos_alimentacao_de</span></span><a class="headerlink" href="#id9" title="Link to this definition"></a></dt>
 <dd><p>Accessor to the related objects manager on the forward and reverse sides of
 a many-to-many relation.</p>
 <p>In the example:</p>
@@ -1223,8 +1321,8 @@ class built by <code class="docutils literal notranslate"><span class="pre">crea
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao_para">
-<span class="sig-name descname"><span class="pre">tipos_alimentacao_para</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao_para" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id10">
+<span class="sig-name descname"><span class="pre">tipos_alimentacao_para</span></span><a class="headerlink" href="#id10" title="Link to this definition"></a></dt>
 <dd><p>Accessor to the related objects manager on the forward and reverse sides of
 a many-to-many relation.</p>
 <p>In the example:</p>
@@ -1393,14 +1491,14 @@ object the first time, the query is executed.</p>
 descriptive messages when something goes wrong, but this method is
 essentially just:</p>
 <blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id1"><span class="problematic" id="id2">**</span></a>validated_data)</p>
+<div><p>return ExampleModel.objects.create(<a href="#id11"><span class="problematic" id="id12">**</span></a>validated_data)</p>
 </div></blockquote>
 <p>If there are many to many fields present on the instance then they
 cannot be set until the model is instantiated, in which case the
 implementation is like so:</p>
 <blockquote>
 <div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id3"><span class="problematic" id="id4">**</span></a>validated_data)
+instance = ExampleModel.objects.create(<a href="#id13"><span class="problematic" id="id14">**</span></a>validated_data)
 instance.example_relationship = example_relationship
 return instance</p>
 </div></blockquote>
@@ -1447,14 +1545,14 @@ to write an explicit <cite>.create()</cite> method.</p>
 descriptive messages when something goes wrong, but this method is
 essentially just:</p>
 <blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id5"><span class="problematic" id="id6">**</span></a>validated_data)</p>
+<div><p>return ExampleModel.objects.create(<a href="#id15"><span class="problematic" id="id16">**</span></a>validated_data)</p>
 </div></blockquote>
 <p>If there are many to many fields present on the instance then they
 cannot be set until the model is instantiated, in which case the
 implementation is like so:</p>
 <blockquote>
 <div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id7"><span class="problematic" id="id8">**</span></a>validated_data)
+instance = ExampleModel.objects.create(<a href="#id17"><span class="problematic" id="id18">**</span></a>validated_data)
 instance.example_relationship = example_relationship
 return instance</p>
 </div></blockquote>
@@ -1498,14 +1596,14 @@ to write an explicit <cite>.create()</cite> method.</p>
 descriptive messages when something goes wrong, but this method is
 essentially just:</p>
 <blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id9"><span class="problematic" id="id10">**</span></a>validated_data)</p>
+<div><p>return ExampleModel.objects.create(<a href="#id19"><span class="problematic" id="id20">**</span></a>validated_data)</p>
 </div></blockquote>
 <p>If there are many to many fields present on the instance then they
 cannot be set until the model is instantiated, in which case the
 implementation is like so:</p>
 <blockquote>
 <div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id11"><span class="problematic" id="id12">**</span></a>validated_data)
+instance = ExampleModel.objects.create(<a href="#id21"><span class="problematic" id="id22">**</span></a>validated_data)
 instance.example_relationship = example_relationship
 return instance</p>
 </div></blockquote>
@@ -1544,14 +1642,14 @@ to write an explicit <cite>.create()</cite> method.</p>
 descriptive messages when something goes wrong, but this method is
 essentially just:</p>
 <blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id13"><span class="problematic" id="id14">**</span></a>validated_data)</p>
+<div><p>return ExampleModel.objects.create(<a href="#id23"><span class="problematic" id="id24">**</span></a>validated_data)</p>
 </div></blockquote>
 <p>If there are many to many fields present on the instance then they
 cannot be set until the model is instantiated, in which case the
 implementation is like so:</p>
 <blockquote>
 <div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id15"><span class="problematic" id="id16">**</span></a>validated_data)
+instance = ExampleModel.objects.create(<a href="#id25"><span class="problematic" id="id26">**</span></a>validated_data)
 instance.example_relationship = example_relationship
 return instance</p>
 </div></blockquote>
