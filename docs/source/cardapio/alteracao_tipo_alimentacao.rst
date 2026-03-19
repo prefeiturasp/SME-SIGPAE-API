@@ -25,6 +25,7 @@ models
 .. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models
    :members:
    :show-inheritance:
+   :exclude-members: DoesNotExist, MultipleObjectsReturned
 
 api
 ---

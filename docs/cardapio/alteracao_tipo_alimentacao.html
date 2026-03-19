@@ -272,22 +272,10 @@ determinado(s) período(s) escolar(es), com data inicial e final delimitadas.</p
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.DESCRICAO">
 <span class="sig-name descname"><span class="pre">DESCRICAO</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.DESCRICAO" title="Link to this definition"></a></dt>
-<dd><p>Descrição legível do tipo de solicitação.</p>
+<dd><p>Descrição legível do tipo de solicitação. Utilizado no dashboard de Gestão de Alimentação para identificar o tipo de cada solicitação. O valor é a string <code class="docutils literal notranslate"><span class="pre">&quot;Alteração</span> <span class="pre">do</span> <span class="pre">Tipo</span> <span class="pre">de</span> <span class="pre">Alimentação&quot;</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.eh_alteracao_com_lanche_repetida">
-<span class="sig-name descname"><span class="pre">eh_alteracao_com_lanche_repetida</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.eh_alteracao_com_lanche_repetida" title="Link to this definition"></a></dt>
-<dd><p>Indica se a alteração envolve
-lanche repetido no mesmo mês.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
@@ -297,22 +285,20 @@ lanche repetido no mesmo mês.</p>
 <span class="sig-name descname"><span class="pre">DESCRICAO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Alteração</span> <span class="pre">do</span> <span class="pre">Tipo</span> <span class="pre">de</span> <span class="pre">Alimentação'</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py exception">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.DoesNotExist">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.DoesNotExist" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.MultipleObjectsReturned">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.MultipleObjectsReturned" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.codae_autoriza">
 <span class="sig-name descname"><span class="pre">codae_autoriza</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.codae_autoriza" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>Autoriza a solicitação de alteração de cardápio como CODAE.
+Só é possível autorizar uma solicitação que foi validada pela Diretoria Regional.</p>
+<p>Este método é herdado de django_xworkflows.</p>
+<dl class="simple">
+<dt>Possui um hook para, após a autorização:</dt><dd><ul class="simple">
+<li><p>criar uma entrada de log específico para esta ação, utilizando o método <code class="docutils literal notranslate"><span class="pre">salvar_log_transicao</span></code>.</p></li>
+<li><p>enviar e-mail para as partes interessadas notificando sobre a autorização.
+nome do hook: _codae_autoriza_hook</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -439,13 +425,6 @@ class built by <code class="docutils literal notranslate"><span class="pre">crea
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.dre_valida">
 <span class="sig-name descname"><span class="pre">dre_valida</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.dre_valida" title="Link to this definition"></a></dt>
 <dd><p>NoOp function, ignores all arguments.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">eh_alteracao_com_lanche_repetida</span></span><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -895,21 +874,9 @@ esta data pertence.</p>
 </dl>
 </dd></dl>
 
-<dl class="py exception">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.DoesNotExist">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.DoesNotExist" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.MultipleObjectsReturned">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio.MultipleObjectsReturned" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
-</dd></dl>
-
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id2">
-<span class="sig-name descname"><span class="pre">alteracao_cardapio</span></span><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">alteracao_cardapio</span></span><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
 <dd><p>Accessor to the related object on the forward side of a many-to-one or
 one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <p>In the example:</p>
@@ -926,8 +893,8 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id3">
-<span class="sig-name descname"><span class="pre">cancelado</span></span><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">cancelado</span></span><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
 <dd><p>A wrapper for a deferred-loading field. When the value is read from this
 object the first time, the query is executed.</p>
 </dd></dl>
@@ -972,8 +939,8 @@ object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id4">
-<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
 <dd><p>A wrapper for a deferred-loading field. When the value is read from this
 object the first time, the query is executed.</p>
 </dd></dl>
@@ -1043,18 +1010,6 @@ object the first time, the query is executed.</p>
 </dl>
 </dd></dl>
 
-<dl class="py exception">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio.DoesNotExist">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio.DoesNotExist" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio.MultipleObjectsReturned">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio.MultipleObjectsReturned" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio.alteracaocardapio_set">
 <span class="sig-name descname"><span class="pre">alteracaocardapio_set</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio.alteracaocardapio_set" title="Link to this definition"></a></dt>
@@ -1115,8 +1070,8 @@ object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id5">
-<span class="sig-name descname"><span class="pre">nome</span></span><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">nome</span></span><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
 <dd><p>A wrapper for a deferred-loading field. When the value is read from this
 object the first time, the query is executed.</p>
 </dd></dl>
@@ -1202,21 +1157,9 @@ alimentação que substituirão os originais.</p>
 </dl>
 </dd></dl>
 
-<dl class="py exception">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.DoesNotExist">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.DoesNotExist" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.MultipleObjectsReturned">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.MultipleObjectsReturned" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
-</dd></dl>
-
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id6">
-<span class="sig-name descname"><span class="pre">alteracao_cardapio</span></span><a class="headerlink" href="#id6" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id5">
+<span class="sig-name descname"><span class="pre">alteracao_cardapio</span></span><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>
 <dd><p>Accessor to the related object on the forward side of a many-to-one or
 one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <p>In the example:</p>
@@ -1245,8 +1188,8 @@ object the first time, the query is executed.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id7">
-<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><a class="headerlink" href="#id7" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id6">
+<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><a class="headerlink" href="#id6" title="Link to this definition"></a></dt>
 <dd><p>Accessor to the related object on the forward side of a many-to-one or
 one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <p>In the example:</p>
@@ -1263,15 +1206,15 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id8">
-<span class="sig-name descname"><span class="pre">qtd_alunos</span></span><a class="headerlink" href="#id8" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id7">
+<span class="sig-name descname"><span class="pre">qtd_alunos</span></span><a class="headerlink" href="#id7" title="Link to this definition"></a></dt>
 <dd><p>A wrapper for a deferred-loading field. When the value is read from this
 object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id9">
-<span class="sig-name descname"><span class="pre">tipos_alimentacao_de</span></span><a class="headerlink" href="#id9" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id8">
+<span class="sig-name descname"><span class="pre">tipos_alimentacao_de</span></span><a class="headerlink" href="#id8" title="Link to this definition"></a></dt>
 <dd><p>Accessor to the related objects manager on the forward and reverse sides of
 a many-to-many relation.</p>
 <p>In the example:</p>
@@ -1286,8 +1229,8 @@ class built by <code class="docutils literal notranslate"><span class="pre">crea
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id10">
-<span class="sig-name descname"><span class="pre">tipos_alimentacao_para</span></span><a class="headerlink" href="#id10" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id9">
+<span class="sig-name descname"><span class="pre">tipos_alimentacao_para</span></span><a class="headerlink" href="#id9" title="Link to this definition"></a></dt>
 <dd><p>Accessor to the related objects manager on the forward and reverse sides of
 a many-to-many relation.</p>
 <p>In the example:</p>
@@ -1456,14 +1399,14 @@ object the first time, the query is executed.</p>
 descriptive messages when something goes wrong, but this method is
 essentially just:</p>
 <blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id11"><span class="problematic" id="id12">**</span></a>validated_data)</p>
+<div><p>return ExampleModel.objects.create(<a href="#id10"><span class="problematic" id="id11">**</span></a>validated_data)</p>
 </div></blockquote>
 <p>If there are many to many fields present on the instance then they
 cannot be set until the model is instantiated, in which case the
 implementation is like so:</p>
 <blockquote>
 <div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id13"><span class="problematic" id="id14">**</span></a>validated_data)
+instance = ExampleModel.objects.create(<a href="#id12"><span class="problematic" id="id13">**</span></a>validated_data)
 instance.example_relationship = example_relationship
 return instance</p>
 </div></blockquote>
@@ -1510,14 +1453,14 @@ to write an explicit <cite>.create()</cite> method.</p>
 descriptive messages when something goes wrong, but this method is
 essentially just:</p>
 <blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id15"><span class="problematic" id="id16">**</span></a>validated_data)</p>
+<div><p>return ExampleModel.objects.create(<a href="#id14"><span class="problematic" id="id15">**</span></a>validated_data)</p>
 </div></blockquote>
 <p>If there are many to many fields present on the instance then they
 cannot be set until the model is instantiated, in which case the
 implementation is like so:</p>
 <blockquote>
 <div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id17"><span class="problematic" id="id18">**</span></a>validated_data)
+instance = ExampleModel.objects.create(<a href="#id16"><span class="problematic" id="id17">**</span></a>validated_data)
 instance.example_relationship = example_relationship
 return instance</p>
 </div></blockquote>
@@ -1561,14 +1504,14 @@ to write an explicit <cite>.create()</cite> method.</p>
 descriptive messages when something goes wrong, but this method is
 essentially just:</p>
 <blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id19"><span class="problematic" id="id20">**</span></a>validated_data)</p>
+<div><p>return ExampleModel.objects.create(<a href="#id18"><span class="problematic" id="id19">**</span></a>validated_data)</p>
 </div></blockquote>
 <p>If there are many to many fields present on the instance then they
 cannot be set until the model is instantiated, in which case the
 implementation is like so:</p>
 <blockquote>
 <div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id21"><span class="problematic" id="id22">**</span></a>validated_data)
+instance = ExampleModel.objects.create(<a href="#id20"><span class="problematic" id="id21">**</span></a>validated_data)
 instance.example_relationship = example_relationship
 return instance</p>
 </div></blockquote>
@@ -1607,14 +1550,14 @@ to write an explicit <cite>.create()</cite> method.</p>
 descriptive messages when something goes wrong, but this method is
 essentially just:</p>
 <blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id23"><span class="problematic" id="id24">**</span></a>validated_data)</p>
+<div><p>return ExampleModel.objects.create(<a href="#id22"><span class="problematic" id="id23">**</span></a>validated_data)</p>
 </div></blockquote>
 <p>If there are many to many fields present on the instance then they
 cannot be set until the model is instantiated, in which case the
 implementation is like so:</p>
 <blockquote>
 <div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id25"><span class="problematic" id="id26">**</span></a>validated_data)
+instance = ExampleModel.objects.create(<a href="#id24"><span class="problematic" id="id25">**</span></a>validated_data)
 instance.example_relationship = example_relationship
 return instance</p>
 </div></blockquote>
