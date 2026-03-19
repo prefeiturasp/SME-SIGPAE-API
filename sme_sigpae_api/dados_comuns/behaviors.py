@@ -90,6 +90,13 @@ class StatusAtivoInativo(models.Model):
 
 
 class CriadoEm(models.Model):
+    """Behavior abstrato que registra a data e hora de criacao do modelo.
+
+    Attributes:
+        criado_em (datetime.datetime): Timestamp preenchido automaticamente na
+            criacao do registro.
+    """
+
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
 
     class Meta:
@@ -207,6 +214,13 @@ class TempoPasseio(models.Model):
 
 
 class CriadoPor(models.Model):
+    """Behavior abstrato que relaciona o registro ao usuario criador.
+
+    Attributes:
+        criado_por (perfil.Usuario | None): Usuario responsavel pela criacao do
+            registro. O campo ainda permite `null` e `blank`.
+    """
+
     # TODO: futuramente deixar obrigatorio esse campo
     criado_por = models.ForeignKey(
         "perfil.Usuario", on_delete=models.DO_NOTHING, null=True, blank=True

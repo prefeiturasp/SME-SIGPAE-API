@@ -475,7 +475,7 @@ def _patch_docs():
         """
 
     AlteracaoCardapio.codae_questiona.__doc__ = """
-        CODAE questiona a solicitação de Gestão de Alimentação pedida com menos de 5 dias úteis de antecedência.
+        CODAE questiona a empresa terceirizada se é possível atender a solicitação de Gestão de Alimentação pedida com menos de 5 dias úteis de antecedência.
         Só é possível questionar uma solicitação que foi validada pela Diretoria Regional.
 
         Uma solicitação pedida com menos de 5 dias úteis de antecedência não pode ser autorizada imediatamente, pois a empresa terceirizada que atende a escola precisa confirmar se é possível atender a solicitação nesse prazo. Portanto, o CODAE questiona a solicitação para obter essa confirmação.
