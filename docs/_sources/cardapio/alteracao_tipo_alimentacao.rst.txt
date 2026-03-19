@@ -25,7 +25,32 @@ models
 .. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models
    :members:
    :show-inheritance:
-   :exclude-members: DoesNotExist, MultipleObjectsReturned
+   :exclude-members: AlteracaoCardapio, DoesNotExist, MultipleObjectsReturned
+
+.. autoclass:: AlteracaoCardapio
+   :members:
+   :show-inheritance:
+   :exclude-members: criado_em, criado_por, criado_por_id, DoesNotExist, MultipleObjectsReturned
+
+   .. attribute:: criado_em
+      :type: datetime.datetime
+
+      **Origem:**
+      ``dados_comuns/behaviors.py``
+
+      **Descrição:**
+      Timestamp preenchido automaticamente na criação do registro.
+   
+   .. attribute:: criado_por
+      :type: perfil.Usuario | None
+
+      **Origem:**
+      ``dados_comuns/behaviors.py``
+
+      **Descrição:**
+      Usuario responsavel pela criacao do registro. O campo ainda permite `null` e `blank`
+
+      (perfil.Usuario | None): Usuario responsavel pela criacao doregistro. O campo ainda permite `null` e `blank`
 
 api
 ---
