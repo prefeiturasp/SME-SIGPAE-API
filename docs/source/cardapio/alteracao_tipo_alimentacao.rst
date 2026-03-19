@@ -138,7 +138,6 @@ models
       Pode ser ``None`` (campo permite ``null`` e ``blank``).
 
    .. method:: get_status_display()
-      :rtype: str
 
       **Origem:**
       ``django_xworkflows.models.StateField``
@@ -151,8 +150,10 @@ models
       O valor retornado corresponde ao texto definido em ``states`` do workflow,
       sendo mais apropriado para exibição em interfaces (ex: telas e relatórios).
 
-      Exemplo:
-      - ``CODAE_AUTORIZADO`` → ``"CODAE autorizou pedido"``
+      :return: Texto legível do status
+      :rtype: str
+
+      Exemplo: ``CODAE_AUTORIZADO`` retorna ``"CODAE autorizou pedido"``.
 
 api
 ---

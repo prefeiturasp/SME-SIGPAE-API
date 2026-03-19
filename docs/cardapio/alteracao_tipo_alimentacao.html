@@ -781,6 +781,27 @@ Identificador da escola que efetuou a solicitação de alteração do tipo de al
 Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.get_status_display">
+<span class="sig-name descname"><span class="pre">get_status_display</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.get_status_display" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django_xworkflows.models.StateField</span></code></p>
+<p><strong>Descrição:</strong>
+Relacionado ao campo <code class="docutils literal notranslate"><span class="pre">status</span></code> do workflow.</p>
+<p>Retorna a representação legível (label) do status atual da instância.</p>
+<p>O valor retornado corresponde ao texto definido em <code class="docutils literal notranslate"><span class="pre">states</span></code> do workflow,
+sendo mais apropriado para exibição em interfaces (ex: telas e relatórios).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Texto legível do status</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+<p>Exemplo: <code class="docutils literal notranslate"><span class="pre">CODAE_AUTORIZADO</span></code> retorna <code class="docutils literal notranslate"><span class="pre">&quot;CODAE</span> <span class="pre">autorizou</span> <span class="pre">pedido&quot;</span></code>.</p>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id9">
 <span class="sig-name descname"><span class="pre">DESCRICAO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Alteração</span> <span class="pre">do</span> <span class="pre">Tipo</span> <span class="pre">de</span> <span class="pre">Alimentação'</span></span><a class="headerlink" href="#id9" title="Link to this definition"></a></dt>
