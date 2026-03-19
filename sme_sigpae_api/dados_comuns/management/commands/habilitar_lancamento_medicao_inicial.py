@@ -122,7 +122,7 @@ class Command(BaseCommand):
             raise CommandError(
                 f"Dia do lanche emergencial deve estar entre 1 e {dias_no_mes} para {mes:02d}/{ano}"
             )
-        if tipo_escola not in escolas:
+        if (tipo_escola is not None) and (tipo_escola not in escolas):
             raise CommandError(
                 f"Tipo de escola {tipo_escola} inválida. Tipo válidos: {", ".join(escolas)}"
             )

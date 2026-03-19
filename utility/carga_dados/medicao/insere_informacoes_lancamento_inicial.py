@@ -1,5 +1,5 @@
 import datetime
-
+from rest_framework import serializers
 from dateutil.relativedelta import relativedelta
 from django.contrib.contenttypes.models import ContentType
 
@@ -13,6 +13,7 @@ from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_cr
     AlteracaoCardapioCEMEISerializerCreate,
 )
 from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
+from sme_sigpae_api.dados_comuns.utils import eh_dia_util, obter_dias_uteis_apos
 from sme_sigpae_api.dieta_especial.models import (
     ClassificacaoDieta,
     LogQuantidadeDietasAutorizadas,
@@ -51,6 +52,12 @@ CLASSIFICACAO_DIETA_NOME_TIPO_A = "Tipo A"
 def escolas_validas():
     return [escola.get("tipo") for escola in dados_usuario_periodos()]
 
+
+def retorna_dia_util(data):
+    if not eh_dia_util(data):
+        return obter_dias_uteis_apos(data, 1)
+    return data.date()
+    
 
 def dados_usuario_periodos():
 
@@ -189,7 +196,7 @@ def habilitar_dias_letivos(escolas, data):
     data_lanche_emergencial = data_solicitacao_lanche_emergencial()
     calendario_sgp(data_lanche_emergencial, escolas)
     print(
-        f"3. A data do pedido do lanche emergencial {data_kit_lanche.strftime("%d/%m/%Y")} agora é letivo"
+        f"3. A data do pedido do lanche emergencial {data_lanche_emergencial.strftime("%d/%m/%Y")} agora é letivo"
     )
 
 
@@ -487,7 +494,7 @@ def incluir_log_alunos_matriculados_emei_da_cemei(
 
 def data_solicitacao_kit_lanche():
     data = datetime.datetime.now() + relativedelta(months=1)
-    return data.date()
+    return retorna_dia_util(data)
 
 
 def solicitar_kit_lanche(escola, usuario, ano, mes, data_kit_lanche, usuario_dre):
@@ -533,7 +540,8 @@ def solicitar_kit_lanche(escola, usuario, ano, mes, data_kit_lanche, usuario_dre
     )
     print("Solicitação aprovado pela CODAE")
 
-    dia_passeio = datetime.date(ano, mes, data_kit_lanche)
+    dia_passeio = retorna_dia_util(datetime.datetime(ano, mes, data_kit_lanche))
+    
     solicitacao_kit_lanche = solicitacao_kit_lanche_avulsa.solicitacao_kit_lanche
     solicitacao_kit_lanche.data = dia_passeio
     solicitacao_kit_lanche.save()
@@ -603,7 +611,7 @@ def solicitar_kit_lanche_cemei(escola, usuario, ano, mes, data_kit_lanche, usuar
     )
     print("Solicitação aprovado pela CODAE")
 
-    dia_passeio = datetime.date(ano, mes, data_kit_lanche)
+    dia_passeio = retorna_dia_util(datetime.datetime(ano, mes, data_kit_lanche))
     solicitacao_kit_lanche_cemei.data = dia_passeio
     solicitacao_kit_lanche_cemei.save()
     print(f"Data da solicitação alterada para {dia_passeio.strftime('%d/%m/%Y')}")
@@ -616,7 +624,7 @@ def solicitar_kit_lanche_cemei(escola, usuario, ano, mes, data_kit_lanche, usuar
 
 def data_solicitacao_lanche_emergencial():
     data = datetime.datetime.now() + relativedelta(months=1, days=5)
-    return data.date()
+    return retorna_dia_util(data)
 
 
 def solicitar_lanche_emergencial(
@@ -650,9 +658,16 @@ def solicitar_lanche_emergencial(
         ],
     }
     context = {"request": type("Request", (), {"user": usuario})}
-    solicitacao_lanche_emergencial = AlteracaoCardapioSerializerCreate(
-        context=context
-    ).create(solicitacao_json)
+    
+    try:
+        solicitacao_lanche_emergencial = AlteracaoCardapioSerializerCreate(
+            context=context
+        ).create(solicitacao_json)
+    except serializers.ValidationError as ex:
+        mensagem = ex.detail[0]
+        if mensagem == "Já existe uma solicitação de Lanche Emergencial para a mesma data e período selecionado!":
+            print(mensagem)
+            return
 
     solicitacao_lanche_emergencial.inicia_fluxo(user=usuario)
     print(
@@ -667,7 +682,7 @@ def solicitar_lanche_emergencial(
     )
     print("Solicitação aprovado pela CODAE")
 
-    dia_lanche_emergencial = datetime.date(ano, mes, data_lanche_emercencial)
+    dia_lanche_emergencial = retorna_dia_util(datetime.datetime(ano, mes, data_lanche_emercencial))
     solicitacao_lanche_emergencial.data_final = dia_lanche_emergencial
     solicitacao_lanche_emergencial.data_inicial = dia_lanche_emergencial
     solicitacao_lanche_emergencial.save()
@@ -733,7 +748,7 @@ def solicitar_lanche_emergencial_cemei(
     )
     print("Solicitação aprovado pela CODAE")
 
-    dia_lanche_emergencial = datetime.date(ano, mes, data_lanche_emercencial)
+    dia_lanche_emergencial = retorna_dia_util(datetime.datetime(ano, mes, data_lanche_emercencial))
     solicitacao_lanche_emergencial.data_final = dia_lanche_emergencial
     solicitacao_lanche_emergencial.data_inicial = dia_lanche_emergencial
     solicitacao_lanche_emergencial.save()
@@ -753,9 +768,9 @@ def solicitar_lanche_emergencial_cemei(
 
 
 def data_programas_e_projetos_etec():
-    data_inicial = datetime.datetime.now() + relativedelta(months=1)
-    data_final = datetime.datetime.now() + relativedelta(months=1, days=5)
-    return data_inicial.date(), data_final.date()
+    data_inicial = retorna_dia_util(datetime.datetime.now() + relativedelta(months=1))
+    data_final = retorna_dia_util(datetime.datetime.now() + relativedelta(months=1, days=5))
+    return data_inicial, data_final
 
 
 def incluir_programas_e_projetos(
@@ -798,8 +813,8 @@ def incluir_programas_e_projetos(
     )
     print("Solicitação aprovado pela CODAE")
 
-    nova_data_inicio = datetime.date(ano, mes, data_kit_lanche)
-    nova_data_fim = datetime.date(ano, mes, data_kit_lanche) + relativedelta(days=2)
+    nova_data_inicio = retorna_dia_util(datetime.datetime(ano, mes, data_kit_lanche))
+    nova_data_fim = retorna_dia_util(datetime.datetime(ano, mes, data_kit_lanche)) + relativedelta(days=2)
     programas_e_projetos.data_final = nova_data_fim
     programas_e_projetos.data_inicial = nova_data_inicio
     programas_e_projetos.save()
@@ -854,10 +869,8 @@ def incluir_etec(
     )
     print("Solicitação aprovado pela CODAE")
 
-    nova_data_inicio = datetime.date(ano, mes, data_lanche_emergencial)
-    nova_data_fim = datetime.date(ano, mes, data_lanche_emergencial) + relativedelta(
-        days=2
-    )
+    nova_data_inicio = retorna_dia_util(datetime.datetime(ano, mes, data_lanche_emergencial))
+    nova_data_fim = retorna_dia_util(datetime.datetime(ano, mes, data_lanche_emergencial)) + relativedelta(days=2)
     etec.data_final = nova_data_fim
     etec.data_inicial = nova_data_inicio
     etec.save()
@@ -925,7 +938,7 @@ def incluir_solicitacoes_ceu_gestao(
     )
     print("Solicitação aprovado pela CODAE")
 
-    nova_data = datetime.date(ano, mes, data_kit_lanche)
+    nova_data = retorna_dia_util(datetime.datetime(ano, mes, data_kit_lanche))
     periodo_inclusao = ceu_gestao.inclusoes_normais.all()[0]
     periodo_inclusao.data = nova_data
     periodo_inclusao.save()
