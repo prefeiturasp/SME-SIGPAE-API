@@ -5,7 +5,6 @@ from django_prometheus.models import ExportModelOperationsMixin
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors import (
     EhAlteracaoCardapio,
 )
-from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
 from sme_sigpae_api.dados_comuns.behaviors import (
     Ativavel,
     CanceladoIndividualmente,
@@ -88,27 +87,6 @@ class AlteracaoCardapio(
     DESCRICAO = "Alteração do Tipo de Alimentação"
 
     eh_alteracao_com_lanche_repetida = models.BooleanField(default=False)
-
-    @classmethod
-    def com_lanche_do_mes_corrente(cls, escola_uuid):
-        """Retorna alterações de cardápio do mês corrente que incluam lanche como tipo de destino.
-
-        Filtra as alterações da escola informada cujo período de substituição
-        contemple algum tipo de alimentação com ``"lanche"`` no nome.
-
-        Args:
-            escola_uuid (uuid.UUID): UUID da escola a ser filtrada.
-
-        Returns:
-            django.db.models.QuerySet: QuerySet de ``AlteracaoCardapio`` do mês
-            corrente contendo lanche.
-        """
-        lanche = TipoAlimentacao.objects.filter(nome__icontains="lanche")
-        alteracoes_da_escola = cls.do_mes_corrente.all().filter(
-            escola__uuid=escola_uuid,
-            substituicoes_periodo_escolar__tipos_alimentacao_para__in=lanche,
-        )
-        return alteracoes_da_escola
 
     @property
     def data(self):
