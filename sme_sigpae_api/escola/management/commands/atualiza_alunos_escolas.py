@@ -222,7 +222,11 @@ class Command(BaseCommand):
 
     def get_todos_os_registros(self):
         """Busca e consolida registros de alunos de todas as escolas."""
-        escolas = list(Escola.objects.values_list("codigo_eol", flat=True))
+        escolas = list(
+            Escola.objects.exclude(tipo_unidade__iniciais="ESC.PART.").values_list(
+                "codigo_eol", flat=True
+            )
+        )
         proximo_ano = datetime.date.today().year + 1
 
         todos_os_registros = self._coleta_dados_em_paralelo(escolas, proximo_ano)
@@ -268,7 +272,10 @@ class Command(BaseCommand):
         registros_alunos_novos = {}
 
         logger.debug("iniciando... dict escolas")
-        escolas = {e.codigo_eol: e for e in Escola.objects.all()}
+        escolas = {
+            e.codigo_eol: e
+            for e in Escola.objects.exclude(tipo_unidade__iniciais="ESC.PART.")
+        }
         logger.debug(f"finalizando dict escolas: {len(escolas)} escolas")
         logger.debug("iniciando... dict alunos")
         alunos = {a.codigo_eol: a for a in Aluno.objects.all()}
@@ -492,7 +499,9 @@ class Command(BaseCommand):
                 )
 
     def _atualiza_todas_as_escolas_d_menos_1(self):
-        escolas = Escola.objects.prefetch_related("aluno_set")
+        escolas = Escola.objects.exclude(
+            tipo_unidade__iniciais="ESC.PART."
+        ).prefetch_related("aluno_set")
         proximo_ano = datetime.date.today().year + 1
 
         total = escolas.count()
