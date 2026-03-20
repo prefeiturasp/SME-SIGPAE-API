@@ -81,8 +81,30 @@
 <a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin">[docs]</a>
 <span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">AlteracaoCardapio</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlteracaoCardapioModelAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
-    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;data_inicial&quot;</span><span class="p">,</span> <span class="s2">&quot;data_final&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;DESCRICAO&quot;</span><span class="p">)</span>
-    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Admin do Django para solicitações de alteração do tipo de alimentação.</span>
+
+<span class="sd">    Configura a listagem administrativa de :class:`AlteracaoCardapio`,</span>
+<span class="sd">    exibindo informações da escola e do período da solicitação, habilitando</span>
+<span class="sd">    busca textual, filtros por motivo e rastros administrativos e mantendo o</span>
+<span class="sd">    campo ``escola`` apenas para leitura.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        list_display (tuple[str, ...]): Colunas exibidas na listagem do admin.</span>
+<span class="sd">            Valores: ``(&quot;escola__codigo_eol&quot;, &quot;escola__nome&quot;, &quot;data_inicial&quot;, &quot;data_final&quot;, &quot;status&quot;, &quot;DESCRICAO&quot;)``.</span>
+<span class="sd">        search_fields (tuple[str, ...]): Campos consultados pela busca textual do admin.</span>
+<span class="sd">            Valores: ``(&quot;uuid&quot;, &quot;escola__nome&quot;, &quot;escola__codigo_eol&quot;)``.</span>
+<span class="sd">        search_help_text (str): Texto auxiliar exibido abaixo do campo de busca.</span>
+<span class="sd">            Valores: ``&quot;Pesquisar por: UUID, nome da escola, codigo eol da escola&quot;``.</span>
+<span class="sd">        list_filter (tuple[str, ...]): Filtros laterais disponíveis na listagem.</span>
+<span class="sd">            Valores: ``(&quot;motivo__nome&quot;, &quot;status&quot;, &quot;rastro_lote&quot;, &quot;rastro_terceirizada&quot;)``.</span>
+<span class="sd">        readonly_fields (tuple[str, ...]): Campos somente leitura no formulário.</span>
+<span class="sd">            Valores: ``(&quot;escola&quot;,)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;escola__codigo_eol&quot;</span><span class="p">,</span> <span class="s2">&quot;escola__nome&quot;</span><span class="p">,</span> <span class="s2">&quot;data_inicial&quot;</span><span class="p">,</span> <span class="s2">&quot;data_final&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;DESCRICAO&quot;</span><span class="p">)</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;escola__nome&quot;</span><span class="p">,</span> <span class="s2">&quot;escola__codigo_eol&quot;</span><span class="p">)</span>
+    <span class="n">search_help_text</span> <span class="o">=</span> <span class="s2">&quot;Pesquisar por: UUID, nome da escola, codigo eol da escola&quot;</span>
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;motivo__nome&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;rastro_lote&quot;</span><span class="p">,</span> <span class="s2">&quot;rastro_terceirizada&quot;</span><span class="p">)</span>
     <span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;escola&quot;</span><span class="p">,)</span></div>
 
 

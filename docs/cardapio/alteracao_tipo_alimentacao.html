@@ -103,25 +103,70 @@
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracaoCardapioModelAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/admin.html#AlteracaoCardapioModelAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
+<p>Admin do Django para solicitações de alteração do tipo de alimentação.</p>
+<p>Configura a listagem administrativa de <code class="xref py py-class docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code>,
+exibindo informações da escola e do período da solicitação, habilitando
+busca textual, filtros por motivo e rastros administrativos e mantendo o
+campo <code class="docutils literal notranslate"><span class="pre">escola</span></code> apenas para leitura.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin.list_display">
-<span class="sig-name descname"><span class="pre">list_display</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'data_inicial',</span> <span class="pre">'data_final',</span> <span class="pre">'status',</span> <span class="pre">'DESCRICAO')</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin.list_display" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">list_display</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin.list_display" title="Link to this definition"></a></dt>
+<dd><p>Colunas exibidas na listagem do admin.
+Valores: <code class="docutils literal notranslate"><span class="pre">(&quot;escola__codigo_eol&quot;,</span> <span class="pre">&quot;escola__nome&quot;,</span> <span class="pre">&quot;data_inicial&quot;,</span> <span class="pre">&quot;data_final&quot;,</span> <span class="pre">&quot;status&quot;,</span> <span class="pre">&quot;DESCRICAO&quot;)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[str, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin.search_fields">
+<span class="sig-name descname"><span class="pre">search_fields</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin.search_fields" title="Link to this definition"></a></dt>
+<dd><p>Campos consultados pela busca textual do admin.
+Valores: <code class="docutils literal notranslate"><span class="pre">(&quot;uuid&quot;,</span> <span class="pre">&quot;escola__nome&quot;,</span> <span class="pre">&quot;escola__codigo_eol&quot;)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[str, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin.search_help_text">
+<span class="sig-name descname"><span class="pre">search_help_text</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin.search_help_text" title="Link to this definition"></a></dt>
+<dd><p>Texto auxiliar exibido abaixo do campo de busca.
+Valores: <code class="docutils literal notranslate"><span class="pre">&quot;Pesquisar</span> <span class="pre">por:</span> <span class="pre">UUID,</span> <span class="pre">nome</span> <span class="pre">da</span> <span class="pre">escola,</span> <span class="pre">codigo</span> <span class="pre">eol</span> <span class="pre">da</span> <span class="pre">escola&quot;</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin.list_filter">
-<span class="sig-name descname"><span class="pre">list_filter</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('status',)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin.list_filter" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin.media">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin.media" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">list_filter</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin.list_filter" title="Link to this definition"></a></dt>
+<dd><p>Filtros laterais disponíveis na listagem.
+Valores: <code class="docutils literal notranslate"><span class="pre">(&quot;motivo__nome&quot;,</span> <span class="pre">&quot;status&quot;,</span> <span class="pre">&quot;rastro_lote&quot;,</span> <span class="pre">&quot;rastro_terceirizada&quot;)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[str, …]</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin.readonly_fields">
-<span class="sig-name descname"><span class="pre">readonly_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('escola',)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin.readonly_fields" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">readonly_fields</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin.readonly_fields" title="Link to this definition"></a></dt>
+<dd><p>Campos somente leitura no formulário.
+Valores: <code class="docutils literal notranslate"><span class="pre">(&quot;escola&quot;,)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[str, …]</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
