@@ -118,13 +118,13 @@ def build_xlsx_relatorio_terceirizadas(
         worksheet.write(
             3,
             col_index,
-            "Relação por Diagnóstico" if exibir_diagnostico else "Protocolo Padrão",
+            "Relação por Diagnóstico" if exibir_diagnostico else "Protocolo",
             single_cell_format,
         )
         col_index += 1
 
         if is_autorizadas and exibir_diagnostico:
-            worksheet.write(3, col_index, "Protocolo Padrão", single_cell_format)
+            worksheet.write(3, col_index, "Protocolo", single_cell_format)
             col_index += 1
 
         if status.upper() == "CANCELADAS":
