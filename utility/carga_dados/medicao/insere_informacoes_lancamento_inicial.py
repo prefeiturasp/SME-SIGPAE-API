@@ -1,7 +1,8 @@
 import datetime
-from rest_framework import serializers
+
 from dateutil.relativedelta import relativedelta
 from django.contrib.contenttypes.models import ContentType
+from rest_framework import serializers
 
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create import (
     AlteracaoCardapioSerializerCreate,
@@ -57,7 +58,7 @@ def retorna_dia_util(data):
     if not eh_dia_util(data):
         return obter_dias_uteis_apos(data, 1)
     return data.date()
-    
+
 
 def dados_usuario_periodos():
 
@@ -541,7 +542,7 @@ def solicitar_kit_lanche(escola, usuario, ano, mes, data_kit_lanche, usuario_dre
     print("Solicitação aprovado pela CODAE")
 
     dia_passeio = retorna_dia_util(datetime.datetime(ano, mes, data_kit_lanche))
-    
+
     solicitacao_kit_lanche = solicitacao_kit_lanche_avulsa.solicitacao_kit_lanche
     solicitacao_kit_lanche.data = dia_passeio
     solicitacao_kit_lanche.save()
@@ -658,14 +659,17 @@ def solicitar_lanche_emergencial(
         ],
     }
     context = {"request": type("Request", (), {"user": usuario})}
-    
+
     try:
         solicitacao_lanche_emergencial = AlteracaoCardapioSerializerCreate(
             context=context
         ).create(solicitacao_json)
     except serializers.ValidationError as ex:
         mensagem = ex.detail[0]
-        if mensagem == "Já existe uma solicitação de Lanche Emergencial para a mesma data e período selecionado!":
+        if (
+            mensagem
+            == "Já existe uma solicitação de Lanche Emergencial para a mesma data e período selecionado!"
+        ):
             print(mensagem)
             return
 
@@ -682,7 +686,9 @@ def solicitar_lanche_emergencial(
     )
     print("Solicitação aprovado pela CODAE")
 
-    dia_lanche_emergencial = retorna_dia_util(datetime.datetime(ano, mes, data_lanche_emercencial))
+    dia_lanche_emergencial = retorna_dia_util(
+        datetime.datetime(ano, mes, data_lanche_emercencial)
+    )
     solicitacao_lanche_emergencial.data_final = dia_lanche_emergencial
     solicitacao_lanche_emergencial.data_inicial = dia_lanche_emergencial
     solicitacao_lanche_emergencial.save()
@@ -748,7 +754,9 @@ def solicitar_lanche_emergencial_cemei(
     )
     print("Solicitação aprovado pela CODAE")
 
-    dia_lanche_emergencial = retorna_dia_util(datetime.datetime(ano, mes, data_lanche_emercencial))
+    dia_lanche_emergencial = retorna_dia_util(
+        datetime.datetime(ano, mes, data_lanche_emercencial)
+    )
     solicitacao_lanche_emergencial.data_final = dia_lanche_emergencial
     solicitacao_lanche_emergencial.data_inicial = dia_lanche_emergencial
     solicitacao_lanche_emergencial.save()
@@ -769,7 +777,9 @@ def solicitar_lanche_emergencial_cemei(
 
 def data_programas_e_projetos_etec():
     data_inicial = retorna_dia_util(datetime.datetime.now() + relativedelta(months=1))
-    data_final = retorna_dia_util(datetime.datetime.now() + relativedelta(months=1, days=5))
+    data_final = retorna_dia_util(
+        datetime.datetime.now() + relativedelta(months=1, days=5)
+    )
     return data_inicial, data_final
 
 
@@ -814,7 +824,9 @@ def incluir_programas_e_projetos(
     print("Solicitação aprovado pela CODAE")
 
     nova_data_inicio = retorna_dia_util(datetime.datetime(ano, mes, data_kit_lanche))
-    nova_data_fim = retorna_dia_util(datetime.datetime(ano, mes, data_kit_lanche)) + relativedelta(days=2)
+    nova_data_fim = retorna_dia_util(
+        datetime.datetime(ano, mes, data_kit_lanche)
+    ) + relativedelta(days=2)
     programas_e_projetos.data_final = nova_data_fim
     programas_e_projetos.data_inicial = nova_data_inicio
     programas_e_projetos.save()
@@ -869,8 +881,12 @@ def incluir_etec(
     )
     print("Solicitação aprovado pela CODAE")
 
-    nova_data_inicio = retorna_dia_util(datetime.datetime(ano, mes, data_lanche_emergencial))
-    nova_data_fim = retorna_dia_util(datetime.datetime(ano, mes, data_lanche_emergencial)) + relativedelta(days=2)
+    nova_data_inicio = retorna_dia_util(
+        datetime.datetime(ano, mes, data_lanche_emergencial)
+    )
+    nova_data_fim = retorna_dia_util(
+        datetime.datetime(ano, mes, data_lanche_emergencial)
+    ) + relativedelta(days=2)
     etec.data_final = nova_data_fim
     etec.data_inicial = nova_data_inicio
     etec.save()
@@ -1167,7 +1183,7 @@ def remover_log_alunos_matriculados_emebs(
                 periodo_escolar=pe,
                 tipo_turma=TipoTurma.REGULAR.name,
                 infantil_ou_fundamental="INFANTIL",
-                criado_em=data
+                criado_em=data,
             )
             log.delete()
         print(f"Logs do INFANTIL para o Período {periodo} removidos")
@@ -1181,7 +1197,7 @@ def remover_log_alunos_matriculados_emebs(
                 periodo_escolar=pe,
                 tipo_turma=TipoTurma.REGULAR.name,
                 infantil_ou_fundamental="FUNDAMENTAL",
-                criado_em=data
+                criado_em=data,
             )
             log.delete()
         print(f"Logs do FUNDAMENTAL para o Período {periodo} removidos")
@@ -1199,7 +1215,7 @@ def remover_log_alunos_matriculados_cei(
                 escola=escola,
                 periodo_escolar=pe,
                 tipo_turma=TipoTurma.REGULAR.name,
-                criado_em=data
+                criado_em=data,
             )
             log.delete()
 
@@ -1231,7 +1247,7 @@ def remover_log_alunos_matriculados_cei_da_cemei(
                 periodo_escolar=pe,
                 tipo_turma=TipoTurma.REGULAR.name,
                 cei_ou_emei="CEI",
-                criado_em=data
+                criado_em=data,
             )
             log.delete()
         print(f"Logs do Período {periodo} removidos")
@@ -1244,7 +1260,7 @@ def remover_log_alunos_matriculados_cei_da_cemei(
                     periodo_escolar=pe,
                     faixa_etaria=faixa,
                     data=data,
-                    criado_em=data                    
+                    criado_em=data,
                 )
                 log_faixa.delete()
             print(f"Logs do Período {periodo} para faixa {faixa.__str__()} removidos")
@@ -1263,7 +1279,7 @@ def remover_log_alunos_matriculados_emei_da_cemei(
                 periodo_escolar=pe,
                 tipo_turma=TipoTurma.REGULAR.name,
                 cei_ou_emei=cei_ou_emei,
-                criado_em=data
+                criado_em=data,
             )
             log.delete()
 

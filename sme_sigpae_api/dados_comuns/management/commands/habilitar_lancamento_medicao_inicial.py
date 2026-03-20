@@ -48,6 +48,7 @@ ETAPA_QUATRO_UM_KIT_LANCHE_PASSEIO = "4.1. Criar solicitação de KIT LANCHE PAS
 ETAPA_QUATRO_DOIS_LANCHE_EMERGENCIAL = "4.2 Criar solicitação de LANCHE EMERGENCIAL"
 ETAPA_CINCO_PROGRAMAS_PROJETOS = "5. Criar PROGRAMAS E PROJETOS"
 
+
 class Command(BaseCommand):
     help = "Habilita a tela de lançamento de Medição Inicial"
 
@@ -78,17 +79,24 @@ class Command(BaseCommand):
         parser.add_argument(
             "--tipo-escola",
             type=str,
-            help=f"Filtrar por tipo de escola ({", ".join(escolas_validas())})"
+            help=f"Filtrar por tipo de escola ({", ".join(escolas_validas())})",
         )
 
     def handle(self, *args, **options):
         if env("DJANGO_ENV") == "production":
             self.stdout.write(self.style.ERROR("SÓ PODE EXECUTAR EM DESENVOLVIMENTO"))
             return
-        ano, mes, dia_kit_lanche, dia_lanche_emergencial, atualizar_escolas, tipo_escola = (
-            self.parse_parametros(options)
+        (
+            ano,
+            mes,
+            dia_kit_lanche,
+            dia_lanche_emergencial,
+            atualizar_escolas,
+            tipo_escola,
+        ) = self.parse_parametros(options)
+        self.valida_parametros(
+            ano, mes, dia_kit_lanche, dia_lanche_emergencial, tipo_escola
         )
-        self.valida_parametros(ano, mes, dia_kit_lanche, dia_lanche_emergencial, tipo_escola)
         quantidade_dias_mes = calendar.monthrange(int(ano), int(mes))[1]
 
         self.stdout.write("================== INICIANDO O SCRIPT ==================")
@@ -227,12 +235,16 @@ class Command(BaseCommand):
     ):
         self.stdout.write("1. Inclui Log de Alunos Matriculados por período escolar")
         if escola.eh_emebs:
-            remover_log_alunos_matriculados_emebs(periodos_escolares, escola, ano, mes, quantidade_dias_mes)
+            remover_log_alunos_matriculados_emebs(
+                periodos_escolares, escola, ano, mes, quantidade_dias_mes
+            )
             incluir_log_alunos_matriculados_emebs(
                 periodos_escolares, escola, ano, mes, quantidade_dias_mes
             )
         else:
-            remover_log_alunos_matriculados(periodos_escolares, escola, ano, mes, quantidade_dias_mes)
+            remover_log_alunos_matriculados(
+                periodos_escolares, escola, ano, mes, quantidade_dias_mes
+            )
             incluir_log_alunos_matriculados(
                 periodos_escolares, escola, ano, mes, quantidade_dias_mes
             )
@@ -241,12 +253,16 @@ class Command(BaseCommand):
 
         self.stdout.write(ETAPA_DOIS_CADASTRO_DIETA_ESPECIAIS)
         if escola.eh_emebs:
-            remover_dietas_especiais_emebs(escola, ano, mes, quantidade_dias_mes, periodos_escolares)
+            remover_dietas_especiais_emebs(
+                escola, ano, mes, quantidade_dias_mes, periodos_escolares
+            )
             incluir_dietas_especiais_emebs(
                 escola, ano, mes, quantidade_dias_mes, periodos_escolares
             )
         else:
-            remover_dietas_especiais(escola, periodos_escolares_db, ano, mes, quantidade_dias_mes)
+            remover_dietas_especiais(
+                escola, periodos_escolares_db, ano, mes, quantidade_dias_mes
+            )
             incluir_dietas_especiais(
                 escola, periodos_escolares_db, ano, mes, quantidade_dias_mes
             )
@@ -310,19 +326,25 @@ class Command(BaseCommand):
             "1. Inclui Log de Alunos Matriculados por período escolar e faixa etária"
         )
         self.stdout.write("1.1. Por faixa etária")
-        remover_log_alunos_matriculados_cei_da_cemei(periodos_escolares, escola, ano, mes, quantidade_dias_mes)
+        remover_log_alunos_matriculados_cei_da_cemei(
+            periodos_escolares, escola, ano, mes, quantidade_dias_mes
+        )
         incluir_log_alunos_matriculados_cei_da_cemei(
             periodos_escolares, escola, ano, mes, quantidade_dias_mes
         )
         self.stdout.write("1.2. Por período escolar")
-        remover_log_alunos_matriculados_emei_da_cemei(periodos_escolares, escola, ano, mes, quantidade_dias_mes)
+        remover_log_alunos_matriculados_emei_da_cemei(
+            periodos_escolares, escola, ano, mes, quantidade_dias_mes
+        )
         incluir_log_alunos_matriculados_emei_da_cemei(
             periodos_escolares, escola, ano, mes, quantidade_dias_mes
         )
         periodos_escolares_db = escola.periodos_escolares(ano=ano)
 
         self.stdout.write(ETAPA_DOIS_CADASTRO_DIETA_ESPECIAIS)
-        remover_dietas_especiais_cemei(escola, ano, mes, quantidade_dias_mes, periodos_escolares)
+        remover_dietas_especiais_cemei(
+            escola, ano, mes, quantidade_dias_mes, periodos_escolares
+        )
         incluir_dietas_especiais_cemei(
             escola, ano, mes, quantidade_dias_mes, periodos_escolares
         )
@@ -368,13 +390,17 @@ class Command(BaseCommand):
         quantidade_dias_mes,
     ):
         self.stdout.write("1. Inclui Log de Alunos Matriculados por faixa etária")
-        remover_log_alunos_matriculados_cei(periodos_escolares, escola, ano, mes, quantidade_dias_mes)
+        remover_log_alunos_matriculados_cei(
+            periodos_escolares, escola, ano, mes, quantidade_dias_mes
+        )
         incluir_log_alunos_matriculados_cei(
             periodos_escolares, escola, ano, mes, quantidade_dias_mes
         )
         periodos_escolares_db = escola.periodos_escolares(ano=ano)
         self.stdout.write(ETAPA_DOIS_CADASTRO_DIETA_ESPECIAIS)
-        remover_dietas_especiais_cei(escola, ano, mes, quantidade_dias_mes, periodos_escolares_db)
+        remover_dietas_especiais_cei(
+            escola, ano, mes, quantidade_dias_mes, periodos_escolares_db
+        )
         incluir_dietas_especiais_cei(
             escola, ano, mes, quantidade_dias_mes, periodos_escolares_db
         )
