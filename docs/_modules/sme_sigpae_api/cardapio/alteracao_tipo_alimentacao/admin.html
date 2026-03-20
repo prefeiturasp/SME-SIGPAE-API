@@ -101,7 +101,14 @@
 <span class="sd">            Valores: ``(&quot;escola&quot;,)``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;escola__codigo_eol&quot;</span><span class="p">,</span> <span class="s2">&quot;escola__nome&quot;</span><span class="p">,</span> <span class="s2">&quot;data_inicial&quot;</span><span class="p">,</span> <span class="s2">&quot;data_final&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;DESCRICAO&quot;</span><span class="p">)</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;escola__codigo_eol&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;escola__nome&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;data_inicial&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;data_final&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DESCRICAO&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;escola__nome&quot;</span><span class="p">,</span> <span class="s2">&quot;escola__codigo_eol&quot;</span><span class="p">)</span>
     <span class="n">search_help_text</span> <span class="o">=</span> <span class="s2">&quot;Pesquisar por: UUID, nome da escola, codigo eol da escola&quot;</span>
     <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;motivo__nome&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;rastro_lote&quot;</span><span class="p">,</span> <span class="s2">&quot;rastro_terceirizada&quot;</span><span class="p">)</span>

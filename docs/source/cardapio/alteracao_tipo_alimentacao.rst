@@ -1,5 +1,5 @@
 alteracao\_tipo\_alimentacao
-===========================
+============================
 
 .. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao
    :members:
@@ -19,6 +19,59 @@ behaviors
 .. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors
    :members:
    :show-inheritance:
+   :exclude-members: EhAlteracaoCardapio
+
+.. autoclass:: EhAlteracaoCardapio
+   :members:
+   :show-inheritance:
+   :exclude-members: desta_semana, deste_mes, do_mes_corrente, escola, escola_id, motivo, motivo_id, objects, vencidos
+
+   .. attribute:: escola
+      :type: escola.Escola | None
+
+      **Origem:**
+      :class:`EhAlteracaoCardapio`
+
+      **Descrição:**
+      Escola que efetuou a solicitação de alteração do tipo de alimentação. O campo ainda permite `null` e `blank`
+
+   .. attribute:: escola_id
+      :type: int | None
+
+      **Origem:**
+      :class:`EhAlteracaoCardapio`
+
+      **Descrição:**
+      Identificador da escola que efetuou a solicitação de alteração do tipo de alimentação.
+
+      Corresponde à chave primária de :class:`escola.Escola`.
+      Pode ser ``None`` (campo permite ``null`` e ``blank``).
+   
+   .. attribute:: motivo
+      :type: cardapio.MotivoAlteracaoCardapio | None
+
+      **Origem:**
+      :class:`EhAlteracaoCardapio`
+
+      **Descrição:**
+      Motivo associado à solicitação de alteração do tipo de alimentação. O campo ainda permite `null` e `blank`
+
+   .. attribute:: motivo_id
+      :type: int | None
+
+      **Origem:**
+      :class:`EhAlteracaoCardapio`
+
+      **Descrição:**
+      Identificador do motivo associado à solicitação de alteração do tipo de alimentação.
+
+      Motivos disponíveis:
+         - Lanche Emergencial
+         - LPR (Lanche por Refeição)
+         - RPL (Refeição por Lanche)
+
+      Corresponde à chave primária de :class:`MotivoAlteracaoCardapio`.
+      Pode ser ``None`` (campo permite ``null`` e ``blank``).
 
 models
 ------

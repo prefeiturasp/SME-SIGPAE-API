@@ -95,10 +95,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="alteracao-tipo-alimentacao">
-<h1>alteracao_tipo_alimentacao<a class="headerlink" href="#alteracao-tipo-alimentacao" title="Link to this heading"></a></h1>
+  <section id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao">
+<span id="alteracao-tipo-alimentacao"></span><h1>alteracao_tipo_alimentacao<a class="headerlink" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao" title="Link to this heading"></a></h1>
 <section id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin">
-<span id="admin"></span><span id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao"></span><h2>admin<a class="headerlink" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin" title="Link to this heading"></a></h2>
+<span id="admin"></span><h2>admin<a class="headerlink" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracaoCardapioModelAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/admin.html#AlteracaoCardapioModelAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin" title="Link to this definition"></a></dt>
@@ -177,6 +177,117 @@ Valores: <code class="docutils literal notranslate"><span class="pre">(&quot;esc
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">EhAlteracaoCardapio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/behaviors.html#EhAlteracaoCardapio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>Classe abstrata com campos e consultas comuns das solicitações de alteração de cardápio.</p>
+<p>Centraliza os relacionamentos compartilhados entre os modelos de alteração de
+cardápio e expõe managers especializados para consultas por período, além de
+um método utilitário para recuperar rascunhos de um usuário.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.objects" title="Link to this definition"></a></dt>
+<dd><p>Manager padrão do Django.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>django.db.models.Manager</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.desta_semana">
+<span class="sig-name descname"><span class="pre">desta_semana</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.desta_semana" title="Link to this definition"></a></dt>
+<dd><p>Manager para
+solicitações cuja data esteja na semana atual.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDestaSemanaManager" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDestaSemanaManager">AlteracoesCardapioDestaSemanaManager</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.deste_mes">
+<span class="sig-name descname"><span class="pre">deste_mes</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.deste_mes" title="Link to this definition"></a></dt>
+<dd><p>Manager para
+solicitações cuja data esteja no mês atual.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDesteMesManager" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDesteMesManager">AlteracoesCardapioDesteMesManager</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.vencidos">
+<span class="sig-name descname"><span class="pre">vencidos</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.vencidos" title="Link to this definition"></a></dt>
+<dd><p>Manager para solicitações
+com período já encerrado.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioVencidaManager" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioVencidaManager">AlteracoesCardapioVencidaManager</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.do_mes_corrente">
+<span class="sig-name descname"><span class="pre">do_mes_corrente</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.do_mes_corrente" title="Link to this definition"></a></dt>
+<dd><p>Manager para
+solicitações do mês corrente, conforme regra de negócio do módulo.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDoMesCorrenteManager" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDoMesCorrenteManager">AlteracoesCardapioDoMesCorrenteManager</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.escola">
+<span class="sig-name descname"><span class="pre">escola</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">escola.Escola</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.escola" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio"><code class="xref py py-class docutils literal notranslate"><span class="pre">EhAlteracaoCardapio</span></code></a></p>
+<p><strong>Descrição:</strong>
+Escola que efetuou a solicitação de alteração do tipo de alimentação. O campo ainda permite <cite>null</cite> e <cite>blank</cite></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.escola_id">
+<span class="sig-name descname"><span class="pre">escola_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.escola_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio"><code class="xref py py-class docutils literal notranslate"><span class="pre">EhAlteracaoCardapio</span></code></a></p>
+<p><strong>Descrição:</strong>
+Identificador da escola que efetuou a solicitação de alteração do tipo de alimentação.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">escola.Escola</span></code>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.motivo">
+<span class="sig-name descname"><span class="pre">motivo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">cardapio.MotivoAlteracaoCardapio</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.motivo" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio"><code class="xref py py-class docutils literal notranslate"><span class="pre">EhAlteracaoCardapio</span></code></a></p>
+<p><strong>Descrição:</strong>
+Motivo associado à solicitação de alteração do tipo de alimentação. O campo ainda permite <cite>null</cite> e <cite>blank</cite></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.motivo_id">
+<span class="sig-name descname"><span class="pre">motivo_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.motivo_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio"><code class="xref py py-class docutils literal notranslate"><span class="pre">EhAlteracaoCardapio</span></code></a></p>
+<p><strong>Descrição:</strong>
+Identificador do motivo associado à solicitação de alteração do tipo de alimentação.</p>
+<dl class="simple">
+<dt>Motivos disponíveis:</dt><dd><ul class="simple">
+<li><p>Lanche Emergencial</p></li>
+<li><p>LPR (Lanche por Refeição)</p></li>
+<li><p>RPL (Refeição por Lanche)</p></li>
+</ul>
+</dd>
+</dl>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">MotivoAlteracaoCardapio</span></code>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/behaviors.html#EhAlteracaoCardapio.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.Meta" title="Link to this definition"></a></dt>
@@ -188,71 +299,23 @@ Valores: <code class="docutils literal notranslate"><span class="pre">(&quot;esc
 
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.desta_semana">
-<span class="sig-name descname"><span class="pre">desta_semana</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.desta_semana" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.deste_mes">
-<span class="sig-name descname"><span class="pre">deste_mes</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.deste_mes" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.do_mes_corrente">
-<span class="sig-name descname"><span class="pre">do_mes_corrente</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.do_mes_corrente" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.escola">
-<span class="sig-name descname"><span class="pre">escola</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.escola" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.escola_id">
-<span class="sig-name descname"><span class="pre">escola_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.escola_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.get_rascunhos_do_usuario">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_rascunhos_do_usuario</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">usuario</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/behaviors.html#EhAlteracaoCardapio.get_rascunhos_do_usuario"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.get_rascunhos_do_usuario" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.motivo">
-<span class="sig-name descname"><span class="pre">motivo</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.motivo" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+<dd><p>Retorna os rascunhos criados por um usuário.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>usuario</strong> (<em>perfil.Usuario</em>) – Usuário autor dos rascunhos.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Conjunto de solicitações em status
+<code class="docutils literal notranslate"><span class="pre">RASCUNHO</span></code> criadas pelo usuário informado.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>django.db.models.QuerySet</p>
+</dd>
+</dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.motivo_id">
-<span class="sig-name descname"><span class="pre">motivo_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.motivo_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.objects">
-<span class="sig-name descname"><span class="pre">objects</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.objects" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.vencidos">
-<span class="sig-name descname"><span class="pre">vencidos</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.vencidos" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 

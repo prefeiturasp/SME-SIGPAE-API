@@ -82,6 +82,24 @@
 <div class="viewcode-block" id="EhAlteracaoCardapio">
 <a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EhAlteracaoCardapio</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Classe abstrata com campos e consultas comuns das solicitações de alteração de cardápio.</span>
+
+<span class="sd">    Centraliza os relacionamentos compartilhados entre os modelos de alteração de</span>
+<span class="sd">    cardápio e expõe managers especializados para consultas por período, além de</span>
+<span class="sd">    um método utilitário para recuperar rascunhos de um usuário.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        objects (django.db.models.Manager): Manager padrão do Django.</span>
+<span class="sd">        desta_semana (AlteracoesCardapioDestaSemanaManager): Manager para</span>
+<span class="sd">            solicitações cuja data esteja na semana atual.</span>
+<span class="sd">        deste_mes (AlteracoesCardapioDesteMesManager): Manager para</span>
+<span class="sd">            solicitações cuja data esteja no mês atual.</span>
+<span class="sd">        vencidos (AlteracoesCardapioVencidaManager): Manager para solicitações</span>
+<span class="sd">            com período já encerrado.</span>
+<span class="sd">        do_mes_corrente (AlteracoesCardapioDoMesCorrenteManager): Manager para</span>
+<span class="sd">            solicitações do mês corrente, conforme regra de negócio do módulo.           </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">objects</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span>  <span class="c1"># Manager Padrão</span>
     <span class="n">desta_semana</span> <span class="o">=</span> <span class="n">AlteracoesCardapioDestaSemanaManager</span><span class="p">()</span>
     <span class="n">deste_mes</span> <span class="o">=</span> <span class="n">AlteracoesCardapioDesteMesManager</span><span class="p">()</span>
@@ -99,6 +117,16 @@
 <a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio.get_rascunhos_do_usuario">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_rascunhos_do_usuario</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">usuario</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna os rascunhos criados por um usuário.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            usuario (perfil.Usuario): Usuário autor dos rascunhos.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            django.db.models.QuerySet: Conjunto de solicitações em status</span>
+<span class="sd">            ``RASCUNHO`` criadas pelo usuário informado.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
             <span class="n">criado_por</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">RASCUNHO</span>
         <span class="p">)</span></div>
