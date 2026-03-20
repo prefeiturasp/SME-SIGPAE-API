@@ -417,6 +417,19 @@ class DataIntervaloAlteracaoCardapio(
 
 
 def _patch_docs():
+    AlteracaoCardapio.inicia_fluxo.__doc__ = """
+        Inicia o fluxo da solicitação de Gestão de Alimentação (envia a solicitação para DRE validar).
+
+        Só é possível iniciar uma solicitação que esteja em **RASCUNHO**.
+
+        Este método é herdado de django_xworkflows.
+
+        Possui um hook (``_inicia_fluxo_hook``) para, após o início do fluxo:
+          - definir o campo ``foi_solicitado_fora_do_prazo`` com base na prioridade da solicitação.
+          - salvar os rastros históricos da solicitação (escola, DRE, lote e terceirizada).
+          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.
+        """
+
     AlteracaoCardapio.codae_autoriza.__doc__ = """
         Autoriza a solicitação de Gestão de Alimentação como CODAE pedida com mais de 5 dias úteis de antecedência.
         Só é possível autorizar uma solicitação que foi validada pela Diretoria Regional.
@@ -534,6 +547,22 @@ def _patch_docs():
           - o status TERCEIRIZADA_TOMOU_CIENCIA foi deprecado.
           - a empresa toma ciência sem alterar o status da solicitação, através do campo ``terceirizada_conferiu_gestao``.
 
+        """
+
+    AlteracaoCardapio.terceirizada_responde_questionamento.__doc__ = """
+        A empresa terceirizada responde ao questionamento da CODAE sobre a possibilidade de atendimento da solicitação.
+
+        Só é possível responder um questionamento quando a solicitação está em **CODAE_QUESTIONADO**.
+
+        Caso a empresa responda que **sim** (resposta_sim_nao=True), a solicitação pode ser autorizada normalmente pela CODAE, mesmo tendo sido pedida com menos de 5 dias úteis de antecedência.
+
+        Caso a empresa responda que **não** (resposta_sim_nao=False), a solicitação deve ser negada pela CODAE, pois a empresa, pelo contrato, tem o direito de negar solicitações pedidas com menos de 5 dias úteis de antecedência.
+
+        Este método é herdado de django_xworkflows.
+
+        Possui um hook (``_terceirizada_responde_questionamento_hook``) para, após a resposta:
+          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.
+          - registrar no log a justificativa informada e a resposta booleana em ``resposta_sim_nao``.
         """
 
 

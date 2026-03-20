@@ -506,6 +506,19 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_patch_docs</span><span class="p">():</span>
+    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">inicia_fluxo</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Inicia o fluxo da solicitação de Gestão de Alimentação (envia a solicitação para DRE validar).</span>
+
+<span class="s2">        Só é possível iniciar uma solicitação que esteja em **RASCUNHO**.</span>
+
+<span class="s2">        Este método é herdado de django_xworkflows.</span>
+
+<span class="s2">        Possui um hook (``_inicia_fluxo_hook``) para, após o início do fluxo:</span>
+<span class="s2">          - definir o campo ``foi_solicitado_fora_do_prazo`` com base na prioridade da solicitação.</span>
+<span class="s2">          - salvar os rastros históricos da solicitação (escola, DRE, lote e terceirizada).</span>
+<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
     <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">codae_autoriza</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        Autoriza a solicitação de Gestão de Alimentação como CODAE pedida com mais de 5 dias úteis de antecedência.</span>
 <span class="s2">        Só é possível autorizar uma solicitação que foi validada pela Diretoria Regional.</span>
@@ -605,10 +618,10 @@
 
     <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">escola_revisa</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        Deprecado.</span>
-<span class="s2">        </span>
+
 <span class="s2">        Este método é herdado de django_xworkflows.</span>
 <span class="s2">        &quot;&quot;&quot;</span>
-    
+
     <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">terceirizada_toma_ciencia</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        Deprecado.</span>
 
@@ -623,6 +636,22 @@
 <span class="s2">          - o status TERCEIRIZADA_TOMOU_CIENCIA foi deprecado.</span>
 <span class="s2">          - a empresa toma ciência sem alterar o status da solicitação, através do campo ``terceirizada_conferiu_gestao``.</span>
 
+<span class="s2">        &quot;&quot;&quot;</span>
+
+    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">terceirizada_responde_questionamento</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        A empresa terceirizada responde ao questionamento da CODAE sobre a possibilidade de atendimento da solicitação.</span>
+
+<span class="s2">        Só é possível responder um questionamento quando a solicitação está em **CODAE_QUESTIONADO**.</span>
+
+<span class="s2">        Caso a empresa responda que **sim** (resposta_sim_nao=True), a solicitação pode ser autorizada normalmente pela CODAE, mesmo tendo sido pedida com menos de 5 dias úteis de antecedência.</span>
+
+<span class="s2">        Caso a empresa responda que **não** (resposta_sim_nao=False), a solicitação deve ser negada pela CODAE, pois a empresa, pelo contrato, tem o direito de negar solicitações pedidas com menos de 5 dias úteis de antecedência.</span>
+
+<span class="s2">        Este método é herdado de django_xworkflows.</span>
+
+<span class="s2">        Possui um hook (``_terceirizada_responde_questionamento_hook``) para, após a resposta:</span>
+<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
+<span class="s2">          - registrar no log a justificativa informada e a resposta booleana em ``resposta_sim_nao``.</span>
 <span class="s2">        &quot;&quot;&quot;</span>
 
 

@@ -781,6 +781,168 @@ Identificador da escola que efetuou a solicitação de alteração do tipo de al
 Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.foi_solicitado_fora_do_prazo">
+<span class="sig-name descname"><span class="pre">foi_solicitado_fora_do_prazo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.foi_solicitado_fora_do_prazo" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Indica se a solicitação foi criada fora do prazo regular de antecedência.</p>
+<p>Quando <code class="docutils literal notranslate"><span class="pre">True</span></code>, significa que o pedido foi criado com 5 dias úteis ou menos de antecedência.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.Model</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador interno do registro no banco de dados.</p>
+<p>Corresponde à chave primária gerada automaticamente pelo Django.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.motivo">
+<span class="sig-name descname"><span class="pre">motivo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">cardapio.MotivoAlteracaoCardapio</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.motivo" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">EhAlteracaoCardapio</span></code></p>
+<p><strong>Descrição:</strong>
+Motivo associado à solicitação de alteração do tipo de alimentação. O campo ainda permite <cite>null</cite> e <cite>blank</cite></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.motivo_id">
+<span class="sig-name descname"><span class="pre">motivo_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.motivo_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">EhAlteracaoCardapio</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador do motivo associado à solicitação de alteração do tipo de alimentação.</p>
+<p>Corresponde à chave primária de <a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio"><code class="xref py py-class docutils literal notranslate"><span class="pre">MotivoAlteracaoCardapio</span></code></a>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.observacao">
+<span class="sig-name descname"><span class="pre">observacao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.observacao" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Campo de texto livre para registrar observações complementares da solicitação.</p>
+<p>Pode ser uma string vazia, pois o campo permite <code class="docutils literal notranslate"><span class="pre">blank</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.substituicoes_periodo_escolar">
+<span class="sig-name descname"><span class="pre">substituicoes_periodo_escolar</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolar</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.substituicoes_periodo_escolar" title="Link to this definition"></a></dt>
+<dd><p>Relação reversa 1:N com <a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolar</span></code></a>.</p>
+<p>Representa todas as substituições de tipo de alimentação vinculadas à solicitação, organizadas por período escolar.</p>
+<p>Cada registro associado define o período escolar, os tipos de alimentação substituídos, os tipos resultantes e a quantidade de alunos impactados.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_dre">
+<span class="sig-name descname"><span class="pre">rastro_dre</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">escola.DiretoriaRegional</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_dre" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Diretoria Regional de Educação vinculada ao rastro histórico da solicitação.</p>
+<p>Representa a DRE da escola no momento em que o rastro do pedido foi salvo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_dre_id">
+<span class="sig-name descname"><span class="pre">rastro_dre_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_dre_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador da DRE vinculada ao rastro histórico da solicitação.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">escola.DiretoriaRegional</span></code>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_escola">
+<span class="sig-name descname"><span class="pre">rastro_escola</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">escola.Escola</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_escola" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Escola registrada no rastro histórico da solicitação.</p>
+<p>Representa a escola vinculada ao pedido no momento em que o rastro foi salvo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_escola_id">
+<span class="sig-name descname"><span class="pre">rastro_escola_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_escola_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador da escola registrada no rastro histórico da solicitação.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">escola.Escola</span></code>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_lote">
+<span class="sig-name descname"><span class="pre">rastro_lote</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">escola.Lote</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_lote" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Lote registrado no rastro histórico da solicitação.</p>
+<p>Representa o lote da escola no momento em que o rastro foi salvo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_lote_id">
+<span class="sig-name descname"><span class="pre">rastro_lote_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_lote_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador do lote registrado no rastro histórico da solicitação.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">escola.Lote</span></code>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_terceirizada">
+<span class="sig-name descname"><span class="pre">rastro_terceirizada</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">terceirizada.Terceirizada</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_terceirizada" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Terceirizada registrada no rastro histórico da solicitação.</p>
+<p>Representa a empresa terceirizada vinculada ao lote da escola no momento em que o rastro foi salvo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_terceirizada_id">
+<span class="sig-name descname"><span class="pre">rastro_terceirizada_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_terceirizada_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador da terceirizada registrada no rastro histórico da solicitação.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">terceirizada.Terceirizada</span></code>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.status">
+<span class="sig-name descname"><span class="pre">status</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.status" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django_xworkflows.models.StateField</span></code></p>
+<p><strong>Descrição:</strong>
+Estado atual da solicitação dentro do workflow de aprovação partindo da escola.</p>
+<p>Armazena um dos valores definidos em <code class="xref py py-class docutils literal notranslate"><span class="pre">PedidoAPartirDaEscolaWorkflow</span></code>, como <code class="docutils literal notranslate"><span class="pre">RASCUNHO</span></code>, <code class="docutils literal notranslate"><span class="pre">DRE_A_VALIDAR</span></code> ou <code class="docutils literal notranslate"><span class="pre">CODAE_AUTORIZADO</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.terceirizada_conferiu_gestao">
+<span class="sig-name descname"><span class="pre">terceirizada_conferiu_gestao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.terceirizada_conferiu_gestao" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Indica se a terceirizada marcou ciência da solicitação na Gestão de Alimentação.</p>
+<p>Quando <code class="docutils literal notranslate"><span class="pre">True</span></code>, registra que a empresa conferiu o pedido sem necessariamente alterar o status do workflow.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.get_status_display">
 <span class="sig-name descname"><span class="pre">get_status_display</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.get_status_display" title="Link to this definition"></a></dt>
@@ -1012,20 +1174,6 @@ com <code class="docutils literal notranslate"><span class="pre">cancelado=True<
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.foi_solicitado_fora_do_prazo">
-<span class="sig-name descname"><span class="pre">foi_solicitado_fora_do_prazo</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.foi_solicitado_fora_do_prazo" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.id" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
 <dl class="py property">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.inclusoes">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">inclusoes</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.inclusoes" title="Link to this definition"></a></dt>
@@ -1044,26 +1192,18 @@ vinculadas.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.inicia_fluxo">
 <span class="sig-name descname"><span class="pre">inicia_fluxo</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.inicia_fluxo" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>Inicia o fluxo da solicitação de Gestão de Alimentação (envia a solicitação para DRE validar).</p>
+<p>Só é possível iniciar uma solicitação que esteja em <strong>RASCUNHO</strong>.</p>
+<p>Este método é herdado de django_xworkflows.</p>
+<dl class="simple">
+<dt>Possui um hook (<code class="docutils literal notranslate"><span class="pre">_inicia_fluxo_hook</span></code>) para, após o início do fluxo:</dt><dd><ul class="simple">
+<li><p>definir o campo <code class="docutils literal notranslate"><span class="pre">foi_solicitado_fora_do_prazo</span></code> com base na prioridade da solicitação.</p></li>
+<li><p>salvar os rastros históricos da solicitação (escola, DRE, lote e terceirizada).</p></li>
+<li><p>criar uma entrada de log específico para esta ação, utilizando o método <code class="docutils literal notranslate"><span class="pre">salvar_log_transicao</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.motivo">
-<span class="sig-name descname"><span class="pre">motivo</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.motivo" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.motivo_id">
-<span class="sig-name descname"><span class="pre">motivo_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.motivo_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.numero_alunos">
@@ -1081,13 +1221,6 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.observacao">
-<span class="sig-name descname"><span class="pre">observacao</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.observacao" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
 <dl class="py property">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.path">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.path" title="Link to this definition"></a></dt>
@@ -1102,78 +1235,6 @@ object the first time, the query is executed.</p>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_dre">
-<span class="sig-name descname"><span class="pre">rastro_dre</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_dre" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_dre_id">
-<span class="sig-name descname"><span class="pre">rastro_dre_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_dre_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_escola">
-<span class="sig-name descname"><span class="pre">rastro_escola</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_escola" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_escola_id">
-<span class="sig-name descname"><span class="pre">rastro_escola_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_escola_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_lote">
-<span class="sig-name descname"><span class="pre">rastro_lote</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_lote" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_lote_id">
-<span class="sig-name descname"><span class="pre">rastro_lote_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_lote_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_terceirizada">
-<span class="sig-name descname"><span class="pre">rastro_terceirizada</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_terceirizada" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_terceirizada_id">
-<span class="sig-name descname"><span class="pre">rastro_terceirizada_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.rastro_terceirizada_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.salvar_log_transicao">
@@ -1229,11 +1290,6 @@ compatibilidade de assinatura.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.status">
-<span class="sig-name descname"><span class="pre">status</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;sme_sigpae_api.dados_comuns.fluxo_status.PedidoAPartirDaEscolaWorkflow</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.status" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
 <dl class="py property">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.substituicoes">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">substituicoes</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.substituicoes" title="Link to this definition"></a></dt>
@@ -1267,21 +1323,6 @@ alimentacao vinculadas.</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.substituicoes_periodo_escolar">
-<span class="sig-name descname"><span class="pre">substituicoes_periodo_escolar</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.substituicoes_periodo_escolar" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related objects manager on the reverse side of a
-many-to-one relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Parent.children</span></code> is a <code class="docutils literal notranslate"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
-<p>Most of the implementation is delegated to a dynamically defined manager
-class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
-</dd></dl>
-
 <dl class="py property">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.template_mensagem">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">template_mensagem</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.template_mensagem" title="Link to this definition"></a></dt>
@@ -1303,16 +1344,20 @@ seus campos de assunto e conteúdo HTML.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.terceirizada_conferiu_gestao">
-<span class="sig-name descname"><span class="pre">terceirizada_conferiu_gestao</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.terceirizada_conferiu_gestao" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.terceirizada_responde_questionamento">
 <span class="sig-name descname"><span class="pre">terceirizada_responde_questionamento</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.terceirizada_responde_questionamento" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>A empresa terceirizada responde ao questionamento da CODAE sobre a possibilidade de atendimento da solicitação.</p>
+<p>Só é possível responder um questionamento quando a solicitação está em <strong>CODAE_QUESTIONADO</strong>.</p>
+<p>Caso a empresa responda que <strong>sim</strong> (resposta_sim_nao=True), a solicitação pode ser autorizada normalmente pela CODAE, mesmo tendo sido pedida com menos de 5 dias úteis de antecedência.</p>
+<p>Caso a empresa responda que <strong>não</strong> (resposta_sim_nao=False), a solicitação deve ser negada pela CODAE, pois a empresa, pelo contrato, tem o direito de negar solicitações pedidas com menos de 5 dias úteis de antecedência.</p>
+<p>Este método é herdado de django_xworkflows.</p>
+<dl class="simple">
+<dt>Possui um hook (<code class="docutils literal notranslate"><span class="pre">_terceirizada_responde_questionamento_hook</span></code>) para, após a resposta:</dt><dd><ul class="simple">
+<li><p>criar uma entrada de log específico para esta ação, utilizando o método <code class="docutils literal notranslate"><span class="pre">salvar_log_transicao</span></code>.</p></li>
+<li><p>registrar no log a justificativa informada e a resposta booleana em <code class="docutils literal notranslate"><span class="pre">resposta_sim_nao</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
