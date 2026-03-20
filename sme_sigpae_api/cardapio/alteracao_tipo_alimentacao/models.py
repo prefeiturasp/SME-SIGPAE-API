@@ -501,6 +501,8 @@ def _patch_docs():
 
     AlteracaoCardapio.dre_pede_revisao.__doc__ = """
         Deprecado.
+
+        Este método é herdado de django_xworkflows.
         """
 
     AlteracaoCardapio.dre_valida.__doc__ = """
@@ -514,6 +516,24 @@ def _patch_docs():
 
     AlteracaoCardapio.escola_revisa.__doc__ = """
         Deprecado.
+
+        Este método é herdado de django_xworkflows.
+        """
+
+    AlteracaoCardapio.terceirizada_toma_ciencia.__doc__ = """
+        Deprecado.
+
+        Este método é herdado de django_xworkflows.
+
+        Antigamente, este método era utilizado para registrar a ciência da empresa terceirizada sobre a solicitação.
+
+        O status final do fluxo era **TERCEIRIZADA_TOMOU_CIENCIA**.
+
+        Atualmente:
+          - o status final é **CODAE_AUTORIZADO**.
+          - o status TERCEIRIZADA_TOMOU_CIENCIA foi deprecado.
+          - a empresa toma ciência sem alterar o status da solicitação, através do campo ``terceirizada_conferiu_gestao``.
+
         """
 
 

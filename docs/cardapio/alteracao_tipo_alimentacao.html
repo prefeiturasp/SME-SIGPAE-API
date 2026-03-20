@@ -803,6 +803,19 @@ sendo mais apropriado para exibição em interfaces (ex: telas e relatórios).</
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador único do registro.</p>
+<p>Gerado automaticamente no momento da criação, sendo utilizado como
+identificador externo amigável.</p>
+<p>Pode ser utilizado em integrações externas e URLs públicas,
+evitando a exposição do identificador interno (ID).</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="id9">
 <span class="sig-name descname"><span class="pre">DESCRICAO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Alteração</span> <span class="pre">do</span> <span class="pre">Tipo</span> <span class="pre">de</span> <span class="pre">Alimentação'</span></span><a class="headerlink" href="#id9" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -961,6 +974,7 @@ espaço, por exemplo <code class="docutils literal notranslate"><span class="pre
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.dre_pede_revisao">
 <span class="sig-name descname"><span class="pre">dre_pede_revisao</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.dre_pede_revisao" title="Link to this definition"></a></dt>
 <dd><p>Deprecado.</p>
+<p>Este método é herdado de django_xworkflows.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -980,6 +994,7 @@ espaço, por exemplo <code class="docutils literal notranslate"><span class="pre
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.escola_revisa">
 <span class="sig-name descname"><span class="pre">escola_revisa</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.escola_revisa" title="Link to this definition"></a></dt>
 <dd><p>Deprecado.</p>
+<p>Este método é herdado de django_xworkflows.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -1303,7 +1318,18 @@ object the first time, the query is executed.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.terceirizada_toma_ciencia">
 <span class="sig-name descname"><span class="pre">terceirizada_toma_ciencia</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.terceirizada_toma_ciencia" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>Deprecado.</p>
+<p>Este método é herdado de django_xworkflows.</p>
+<p>Antigamente, este método era utilizado para registrar a ciência da empresa terceirizada sobre a solicitação.</p>
+<p>O status final do fluxo era <strong>TERCEIRIZADA_TOMOU_CIENCIA</strong>.</p>
+<dl class="simple">
+<dt>Atualmente:</dt><dd><ul class="simple">
+<li><p>o status final é <strong>CODAE_AUTORIZADO</strong>.</p></li>
+<li><p>o status TERCEIRIZADA_TOMOU_CIENCIA foi deprecado.</p></li>
+<li><p>a empresa toma ciência sem alterar o status da solicitação, através do campo <code class="docutils literal notranslate"><span class="pre">terceirizada_conferiu_gestao</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
@@ -1318,13 +1344,6 @@ object the first time, the query is executed.</p>
 <dd class="field-even"><p>str</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.uuid">
-<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.uuid" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
 </dd></dl>
 
 </dd></dl>

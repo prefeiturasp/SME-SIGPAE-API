@@ -590,6 +590,8 @@
 
     <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">dre_pede_revisao</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        Deprecado.</span>
+
+<span class="s2">        Este método é herdado de django_xworkflows.</span>
 <span class="s2">        &quot;&quot;&quot;</span>
 
     <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">dre_valida</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -603,6 +605,24 @@
 
     <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">escola_revisa</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        Deprecado.</span>
+<span class="s2">        </span>
+<span class="s2">        Este método é herdado de django_xworkflows.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+    
+    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">terceirizada_toma_ciencia</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Deprecado.</span>
+
+<span class="s2">        Este método é herdado de django_xworkflows.</span>
+
+<span class="s2">        Antigamente, este método era utilizado para registrar a ciência da empresa terceirizada sobre a solicitação.</span>
+
+<span class="s2">        O status final do fluxo era **TERCEIRIZADA_TOMOU_CIENCIA**.</span>
+
+<span class="s2">        Atualmente:</span>
+<span class="s2">          - o status final é **CODAE_AUTORIZADO**.</span>
+<span class="s2">          - o status TERCEIRIZADA_TOMOU_CIENCIA foi deprecado.</span>
+<span class="s2">          - a empresa toma ciência sem alterar o status da solicitação, através do campo ``terceirizada_conferiu_gestao``.</span>
+
 <span class="s2">        &quot;&quot;&quot;</span>
 
 

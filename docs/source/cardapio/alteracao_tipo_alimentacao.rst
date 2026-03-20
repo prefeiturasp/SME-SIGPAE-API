@@ -47,7 +47,8 @@ models
       get_previous_by_data_final,
       get_previous_by_data_inicial,
       get_status_display,
-      MultipleObjectsReturned
+      MultipleObjectsReturned,
+      uuid
 
    .. attribute:: criado_em
       :type: datetime.datetime
@@ -154,6 +155,21 @@ models
       :rtype: str
 
       Exemplo: ``CODAE_AUTORIZADO`` retorna ``"CODAE autorizou pedido"``.
+   
+   .. attribute:: uuid
+      :type: uuid.UUID
+
+      **Origem:**
+      ``dados_comuns/behaviors.py``
+
+      **Descrição:**
+      Identificador único do registro.
+
+      Gerado automaticamente no momento da criação, sendo utilizado como
+      identificador externo amigável.
+
+      Pode ser utilizado em integrações externas e URLs públicas,
+      evitando a exposição do identificador interno (ID).
 
 api
 ---
