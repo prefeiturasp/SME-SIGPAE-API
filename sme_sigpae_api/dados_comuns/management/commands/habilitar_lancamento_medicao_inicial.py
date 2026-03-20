@@ -7,6 +7,8 @@ from django.core.management import BaseCommand, CommandError, call_command
 from sme_sigpae_api.escola.models import Escola
 from sme_sigpae_api.escola.tasks import matriculados_por_escola_e_periodo_regulares
 from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
+    dados_usuario_periodos,
+    escolas_validas,
     habilitar_dias_letivos,
     incluir_dietas_especiais,
     incluir_dietas_especiais_cei,
@@ -21,8 +23,18 @@ from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
     incluir_log_alunos_matriculados_emei_da_cemei,
     incluir_programas_e_projetos,
     incluir_solicitacoes_ceu_gestao,
-    obter_escolas,
+    obter_informacoes_escolas,
     obter_usuario,
+    remover_dietas_especiais,
+    remover_dietas_especiais_cei,
+    remover_dietas_especiais_cemei,
+    remover_dietas_especiais_ceu_gestao,
+    remover_dietas_especiais_emebs,
+    remover_log_alunos_matriculados,
+    remover_log_alunos_matriculados_cei,
+    remover_log_alunos_matriculados_cei_da_cemei,
+    remover_log_alunos_matriculados_emebs,
+    remover_log_alunos_matriculados_emei_da_cemei,
     solicitar_kit_lanche,
     solicitar_kit_lanche_cemei,
     solicitar_lanche_emergencial,
@@ -64,20 +76,33 @@ class Command(BaseCommand):
             action="store_true",
             help="Atualizar os dados das escolas",
         )
+        parser.add_argument(
+            "--tipo-escola",
+            type=str,
+            help=f"Filtrar por tipo de escola ({", ".join(escolas_validas())})",
+        )
 
     def handle(self, *args, **options):
         if env("DJANGO_ENV") == "production":
             self.stdout.write(self.style.ERROR("SÓ PODE EXECUTAR EM DESENVOLVIMENTO"))
             return
-        ano, mes, dia_kit_lanche, dia_lanche_emergencial, atualizar_escolas = (
-            self.parse_parametros(options)
+        (
+            ano,
+            mes,
+            dia_kit_lanche,
+            dia_lanche_emergencial,
+            atualizar_escolas,
+            tipo_escola,
+        ) = self.parse_parametros(options)
+        self.valida_parametros(
+            ano, mes, dia_kit_lanche, dia_lanche_emergencial, tipo_escola
         )
-        self.valida_parametros(ano, mes, dia_kit_lanche, dia_lanche_emergencial)
         quantidade_dias_mes = calendar.monthrange(int(ano), int(mes))[1]
 
         self.stdout.write("================== INICIANDO O SCRIPT ==================")
+        escolas = self.obter_escolas(tipo_escola)
         self.stdout.write("Obtendo a lista de escolas")
-        dados_escolas = obter_escolas()
+        dados_escolas = obter_informacoes_escolas(escolas)
         self.processa_dados_iniciais(ano, mes, atualizar_escolas, dados_escolas)
         for dados in dados_escolas:
             self.processar_escola(
@@ -97,9 +122,11 @@ class Command(BaseCommand):
         dia_kit = options.get("data_kit_lanche")
         dia_emergencial = options.get("data_lanche_emergencial")
         atualizar_escolas = options.get("atualizar_escolas")
-        return ano, mes, dia_kit, dia_emergencial, atualizar_escolas
+        tipo_escola = options.get("tipo_escola")
+        return ano, mes, dia_kit, dia_emergencial, atualizar_escolas, tipo_escola
 
-    def valida_parametros(self, ano, mes, dia_kit, dia_emergencial):
+    def valida_parametros(self, ano, mes, dia_kit, dia_emergencial, tipo_escola):
+        escolas = escolas_validas()
         if mes < 1 or mes > 12:
             raise CommandError("Mês deve estar entre 1 e 12")
         dias_no_mes = calendar.monthrange(ano, mes)[1]
@@ -112,6 +139,10 @@ class Command(BaseCommand):
         if not 1 <= dia_emergencial <= dias_no_mes:
             raise CommandError(
                 f"Dia do lanche emergencial deve estar entre 1 e {dias_no_mes} para {mes:02d}/{ano}"
+            )
+        if (tipo_escola is not None) and (tipo_escola not in escolas):
+            raise CommandError(
+                f"Tipo de escola {tipo_escola} inválida. Tipo válidos: {", ".join(escolas)}"
             )
 
     def processa_dados_iniciais(self, ano, mes, atualizar_escolas, dados_escolas):
@@ -204,10 +235,16 @@ class Command(BaseCommand):
     ):
         self.stdout.write("1. Inclui Log de Alunos Matriculados por período escolar")
         if escola.eh_emebs:
+            remover_log_alunos_matriculados_emebs(
+                periodos_escolares, escola, ano, mes, quantidade_dias_mes
+            )
             incluir_log_alunos_matriculados_emebs(
                 periodos_escolares, escola, ano, mes, quantidade_dias_mes
             )
         else:
+            remover_log_alunos_matriculados(
+                periodos_escolares, escola, ano, mes, quantidade_dias_mes
+            )
             incluir_log_alunos_matriculados(
                 periodos_escolares, escola, ano, mes, quantidade_dias_mes
             )
@@ -216,10 +253,16 @@ class Command(BaseCommand):
 
         self.stdout.write(ETAPA_DOIS_CADASTRO_DIETA_ESPECIAIS)
         if escola.eh_emebs:
+            remover_dietas_especiais_emebs(
+                escola, ano, mes, quantidade_dias_mes, periodos_escolares
+            )
             incluir_dietas_especiais_emebs(
                 escola, ano, mes, quantidade_dias_mes, periodos_escolares
             )
         else:
+            remover_dietas_especiais(
+                escola, periodos_escolares_db, ano, mes, quantidade_dias_mes
+            )
             incluir_dietas_especiais(
                 escola, periodos_escolares_db, ano, mes, quantidade_dias_mes
             )
@@ -283,16 +326,25 @@ class Command(BaseCommand):
             "1. Inclui Log de Alunos Matriculados por período escolar e faixa etária"
         )
         self.stdout.write("1.1. Por faixa etária")
+        remover_log_alunos_matriculados_cei_da_cemei(
+            periodos_escolares, escola, ano, mes, quantidade_dias_mes
+        )
         incluir_log_alunos_matriculados_cei_da_cemei(
             periodos_escolares, escola, ano, mes, quantidade_dias_mes
         )
         self.stdout.write("1.2. Por período escolar")
+        remover_log_alunos_matriculados_emei_da_cemei(
+            periodos_escolares, escola, ano, mes, quantidade_dias_mes
+        )
         incluir_log_alunos_matriculados_emei_da_cemei(
             periodos_escolares, escola, ano, mes, quantidade_dias_mes
         )
         periodos_escolares_db = escola.periodos_escolares(ano=ano)
 
         self.stdout.write(ETAPA_DOIS_CADASTRO_DIETA_ESPECIAIS)
+        remover_dietas_especiais_cemei(
+            escola, ano, mes, quantidade_dias_mes, periodos_escolares
+        )
         incluir_dietas_especiais_cemei(
             escola, ano, mes, quantidade_dias_mes, periodos_escolares
         )
@@ -338,11 +390,17 @@ class Command(BaseCommand):
         quantidade_dias_mes,
     ):
         self.stdout.write("1. Inclui Log de Alunos Matriculados por faixa etária")
+        remover_log_alunos_matriculados_cei(
+            periodos_escolares, escola, ano, mes, quantidade_dias_mes
+        )
         incluir_log_alunos_matriculados_cei(
             periodos_escolares, escola, ano, mes, quantidade_dias_mes
         )
         periodos_escolares_db = escola.periodos_escolares(ano=ano)
         self.stdout.write(ETAPA_DOIS_CADASTRO_DIETA_ESPECIAIS)
+        remover_dietas_especiais_cei(
+            escola, ano, mes, quantidade_dias_mes, periodos_escolares_db
+        )
         incluir_dietas_especiais_cei(
             escola, ano, mes, quantidade_dias_mes, periodos_escolares_db
         )
@@ -385,6 +443,7 @@ class Command(BaseCommand):
         periodos_escolares_db = escola.periodos_escolares(ano=ano)
 
         self.stdout.write("3. Cadastro de dietas especiais")
+        remover_dietas_especiais_ceu_gestao(escola, ano, mes, dia_kit_lanche)
         incluir_dietas_especiais_ceu_gestao(escola, ano, mes, dia_kit_lanche)
 
         self.stdout.write("4. Incluindo as Solicitações de Alimentacao")
@@ -425,3 +484,9 @@ class Command(BaseCommand):
                 dia_lanche_emergencial,
                 usuario_dre,
             )
+
+    def obter_escolas(self, tipo_escola):
+        dados_completos = dados_usuario_periodos()
+        if tipo_escola:
+            return [d for d in dados_completos if d.get("tipo") == tipo_escola]
+        return dados_completos
