@@ -1268,3 +1268,172 @@ def remover_log_alunos_matriculados_emei_da_cemei(
             log.delete()
 
         print(f"Logs do Período INTANTIL {periodo} removidos")
+
+
+# **************************** **************************** REMOÇÃO DAS DIETAS ESPECIAIS **************************** ****************************
+
+
+def remover_dietas_especiais(escola, periodos_escolares, ano, mes, quantidade_dias_mes):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    for periodo in periodos_escolares:
+        for classificacao in classificacoes_dieta:
+            for dia in range(1, quantidade_dias_mes + 1):
+                log = LogQuantidadeDietasAutorizadas.objects.filter(
+                    escola=escola,
+                    periodo_escolar=periodo,
+                    data=datetime.date(ano, mes, dia),
+                    classificacao=classificacao,
+                )
+                log.delete()
+            print(
+                f"Logs da dieta {classificacao.nome} para o Período {periodo} removidos"
+            )
+
+
+def remover_dietas_especiais_emebs(escola, ano, mes, quantidade_dias_mes, periodos):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+
+    remove_periodo_emebs(
+        escola,
+        classificacoes_dieta,
+        periodos["INFANTIL"],
+        quantidade_dias_mes,
+        ano,
+        mes,
+        "INFANTIL",
+    )
+
+    remove_periodo_emebs(
+        escola,
+        classificacoes_dieta,
+        periodos["FUNDAMENTAL"],
+        quantidade_dias_mes,
+        ano,
+        mes,
+        "FUNDAMENTAL",
+    )
+
+
+def remove_periodo_emebs(
+    escola,
+    classificacoes_dieta,
+    periodos,
+    quantidade_dias_mes,
+    ano,
+    mes,
+    infantil_ou_fundamental,
+):
+    for periodo in periodos:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for classificacao in classificacoes_dieta:
+            for dia in range(1, quantidade_dias_mes + 1):
+                log = LogQuantidadeDietasAutorizadas.objects.filter(
+                    escola=escola,
+                    periodo_escolar=pe,
+                    data=datetime.date(ano, mes, dia),
+                    classificacao=classificacao,
+                    infantil_ou_fundamental=infantil_ou_fundamental,
+                )
+                log.delete()
+            print(
+                f"Logs da dieta {classificacao.nome} do {infantil_ou_fundamental} para o Período {periodo} removidos"
+            )
+
+
+def remover_dietas_especiais_cei(
+    escola, ano, mes, quantidade_dias_mes, periodos_escolares
+):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    for periodo in periodos_escolares:
+        for classificacao in classificacoes_dieta:
+            for faixa in faixas:
+                for dia in range(1, quantidade_dias_mes + 1):
+                    log = LogQuantidadeDietasAutorizadasCEI.objects.filter(
+                        escola=escola,
+                        periodo_escolar=periodo,
+                        data=datetime.date(ano, mes, dia),
+                        classificacao=classificacao,
+                        faixa_etaria=faixa,
+                    )
+                    log.delete()
+                print(
+                    f"Logs dieta {classificacao.nome} para faixa {faixa.__str__()} no Período {periodo} removidos"
+                )
+
+
+def remover_dietas_especiais_cemei(
+    escola, ano, mes, quantidade_dias_mes, periodos_escolares
+):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    remove_cei_da_cemei(
+        escola,
+        ano,
+        mes,
+        quantidade_dias_mes,
+        classificacoes_dieta,
+        periodos_escolares["CEI"],
+    )
+    remove_emei_da_cemei(
+        escola,
+        ano,
+        mes,
+        quantidade_dias_mes,
+        classificacoes_dieta,
+        periodos_escolares["EMEI"],
+    )
+
+
+def remove_cei_da_cemei(
+    escola, ano, mes, quantidade_dias_mes, classificacoes_dieta, periodos_cei_cemei
+):
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    for periodo in periodos_cei_cemei:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for classificacao in classificacoes_dieta:
+            for faixa in faixas:
+                for dia in range(1, quantidade_dias_mes + 1):
+                    log = LogQuantidadeDietasAutorizadasCEI.objects.filter(
+                        escola=escola,
+                        periodo_escolar=pe,
+                        data=datetime.date(ano, mes, dia),
+                        classificacao=classificacao,
+                        faixa_etaria=faixa,
+                    )
+                    log.delete()
+                print(
+                    f"Logs dieta {classificacao.nome} para faixa {faixa.__str__()} no Período {periodo} removidos"
+                )
+
+
+def remove_emei_da_cemei(
+    escola, ano, mes, quantidade_dias_mes, classificacoes_dieta, periodos_emei_cemei
+):
+    for periodo in periodos_emei_cemei:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for classificacao in classificacoes_dieta:
+            for dia in range(1, quantidade_dias_mes + 1):
+                log = LogQuantidadeDietasAutorizadas.objects.filter(
+                    escola=escola,
+                    periodo_escolar=pe,
+                    data=datetime.date(ano, mes, dia),
+                    classificacao=classificacao,
+                    cei_ou_emei="EMEI",
+                )
+                log.delete()
+            print(
+                f"Logs da dieta {classificacao.nome} para o Período {periodo} removidos"
+            )
+
+
+def remover_dietas_especiais_ceu_gestao(escola, ano, mes, dia_kit_lanche):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    for classificacao in classificacoes_dieta:
+        log = LogQuantidadeDietasAutorizadas.objects.filter(
+            escola=escola,
+            periodo_escolar=None,
+            data=datetime.date(ano, mes, dia_kit_lanche),
+            classificacao=classificacao,
+        )
+        log.delete()
+        print(f"Logs da dieta {classificacao.nome} removidos")

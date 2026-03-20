@@ -25,6 +25,11 @@ from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
     incluir_solicitacoes_ceu_gestao,
     obter_informacoes_escolas,
     obter_usuario,
+    remover_dietas_especiais,
+    remover_dietas_especiais_cei,
+    remover_dietas_especiais_cemei,
+    remover_dietas_especiais_ceu_gestao,
+    remover_dietas_especiais_emebs,
     remover_log_alunos_matriculados,
     remover_log_alunos_matriculados_cei,
     remover_log_alunos_matriculados_cei_da_cemei,
@@ -236,10 +241,12 @@ class Command(BaseCommand):
 
         self.stdout.write(ETAPA_DOIS_CADASTRO_DIETA_ESPECIAIS)
         if escola.eh_emebs:
+            remover_dietas_especiais_emebs(escola, ano, mes, quantidade_dias_mes, periodos_escolares)
             incluir_dietas_especiais_emebs(
                 escola, ano, mes, quantidade_dias_mes, periodos_escolares
             )
         else:
+            remover_dietas_especiais(escola, periodos_escolares_db, ano, mes, quantidade_dias_mes)
             incluir_dietas_especiais(
                 escola, periodos_escolares_db, ano, mes, quantidade_dias_mes
             )
@@ -315,6 +322,7 @@ class Command(BaseCommand):
         periodos_escolares_db = escola.periodos_escolares(ano=ano)
 
         self.stdout.write(ETAPA_DOIS_CADASTRO_DIETA_ESPECIAIS)
+        remover_dietas_especiais_cemei(escola, ano, mes, quantidade_dias_mes, periodos_escolares)
         incluir_dietas_especiais_cemei(
             escola, ano, mes, quantidade_dias_mes, periodos_escolares
         )
@@ -366,6 +374,7 @@ class Command(BaseCommand):
         )
         periodos_escolares_db = escola.periodos_escolares(ano=ano)
         self.stdout.write(ETAPA_DOIS_CADASTRO_DIETA_ESPECIAIS)
+        remover_dietas_especiais_cei(escola, ano, mes, quantidade_dias_mes, periodos_escolares_db)
         incluir_dietas_especiais_cei(
             escola, ano, mes, quantidade_dias_mes, periodos_escolares_db
         )
@@ -408,6 +417,7 @@ class Command(BaseCommand):
         periodos_escolares_db = escola.periodos_escolares(ano=ano)
 
         self.stdout.write("3. Cadastro de dietas especiais")
+        remover_dietas_especiais_ceu_gestao(escola, ano, mes, dia_kit_lanche)
         incluir_dietas_especiais_ceu_gestao(escola, ano, mes, dia_kit_lanche)
 
         self.stdout.write("4. Incluindo as Solicitações de Alimentacao")
