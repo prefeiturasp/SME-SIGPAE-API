@@ -450,12 +450,15 @@
 
 <span class="sd">    Utilizado para categorizar a razão da troca de tipo de alimentação.</span>
 
-<span class="sd">    Exemplos de motivos:</span>
-<span class="sd">        - Atividade diferenciada</span>
-<span class="sd">        - Aniversariante do mês</span>
+<span class="sd">    Motivos possíveis:</span>
+<span class="sd">        - Lanche Emergencial</span>
+<span class="sd">        - RPL (Refeição por Lanche)</span>
+<span class="sd">        - LPR (Lanche por Refeição)</span>
 
-<span class="sd">    Attributes:</span>
-<span class="sd">        nome (str): Nome descritivo do motivo.</span>
+<span class="sd">    Os motivos são compartilhados entre as Alterações do Tipo de Alimentação:</span>
+<span class="sd">        - Alteração Padrão (EMEF, EMEI, CIEJA, EMEBS, etc.)</span>
+<span class="sd">        - Alteração CEI (CEI DIRET, CEU CEI, CCI/CIPS)</span>
+<span class="sd">        - Alteração CEMEI (CEMEI, CEU CEMEI)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -480,12 +483,6 @@
 
 <span class="sd">    Permite que cada dia do intervalo seja tratado individualmente,</span>
 <span class="sd">    possibilitando cancelamentos pontuais sem invalidar toda a solicitação.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        alteracao_cardapio (AlteracaoCardapio): Alteração de cardápio à qual</span>
-<span class="sd">            esta data pertence.</span>
-<span class="sd">        data (datetime.date): Data do intervalo.</span>
-<span class="sd">        cancelado (bool): Indica se esta data foi cancelada individualmente.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>

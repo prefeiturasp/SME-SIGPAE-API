@@ -365,12 +365,15 @@ class MotivoAlteracaoCardapio(
 
     Utilizado para categorizar a razão da troca de tipo de alimentação.
 
-    Exemplos de motivos:
-        - Atividade diferenciada
-        - Aniversariante do mês
+    Motivos possíveis:
+        - Lanche Emergencial
+        - RPL (Refeição por Lanche)
+        - LPR (Lanche por Refeição)
 
-    Attributes:
-        nome (str): Nome descritivo do motivo.
+    Os motivos são compartilhados entre as Alterações do Tipo de Alimentação:
+        - Alteração Padrão (EMEF, EMEI, CIEJA, EMEBS, etc.)
+        - Alteração CEI (CEI DIRET, CEU CEI, CCI/CIPS)
+        - Alteração CEMEI (CEMEI, CEU CEMEI)
     """
 
     def __str__(self):
@@ -392,12 +395,6 @@ class DataIntervaloAlteracaoCardapio(
 
     Permite que cada dia do intervalo seja tratado individualmente,
     possibilitando cancelamentos pontuais sem invalidar toda a solicitação.
-
-    Attributes:
-        alteracao_cardapio (AlteracaoCardapio): Alteração de cardápio à qual
-            esta data pertence.
-        data (datetime.date): Data do intervalo.
-        cancelado (bool): Indica se esta data foi cancelada individualmente.
     """
 
     alteracao_cardapio = models.ForeignKey(
