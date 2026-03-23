@@ -455,6 +455,132 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         assert aluno_atualizado.historico.filter(data_fim__isnull=True).exists()
         assert aluno_atualizado.historico.filter(data_fim__isnull=False).count() == 1
 
+    @patch(
+        "sme_sigpae_api.escola.management.commands.atualiza_alunos_escolas.Command._coleta_dados_em_paralelo"
+    )
+    @pytest.mark.django_db
+    def test_get_todos_os_registros_exclui_escolas_particulares(
+        self,
+        mock_coleta_dados,
+    ):
+        escola_publica = EscolaFactory.create(
+            codigo_eol="000111", tipo_unidade__iniciais="CEMEI"
+        )
+
+        escola_particular = EscolaFactory.create(
+            codigo_eol="000222", tipo_unidade__iniciais="ESC.PART."
+        )
+
+        mock_coleta_dados.return_value = []
+
+        command = Command()
+
+        command.get_todos_os_registros()
+
+        args, kwargs = mock_coleta_dados.call_args
+        escolas_passadas = args[0]
+
+        assert escola_publica.codigo_eol in escolas_passadas
+        assert escola_particular.codigo_eol not in escolas_passadas
+
+    @patch(
+        "sme_sigpae_api.escola.management.commands.atualiza_alunos_escolas.Command._atualiza_alunos_da_escola"
+    )
+    @patch(
+        "sme_sigpae_api.escola.management.commands.atualiza_alunos_escolas.Command._obtem_alunos_escola"
+    )
+    @pytest.mark.django_db
+    def test_d_menos_1_exclui_escolas_particulares(
+        self,
+        mock_obtem_alunos,
+        mock_atualiza_alunos_escola,
+    ):
+
+        escola_publica = EscolaFactory.create(
+            codigo_eol="000111", tipo_unidade__iniciais="EMEF"
+        )
+
+        escola_particular = EscolaFactory.create(
+            codigo_eol="000222", tipo_unidade__iniciais="ESC.PART."
+        )
+        mock_obtem_alunos.return_value = [{}]
+        command = Command()
+        command._atualiza_todas_as_escolas_d_menos_1()
+        escolas_processadas = [
+            call_args[0][0] for call_args in mock_atualiza_alunos_escola.call_args_list
+        ]
+        assert escola_publica in escolas_processadas
+        assert escola_particular not in escolas_processadas
+
+    @patch(
+        "sme_sigpae_api.escola.management.commands.atualiza_alunos_escolas.Command._lida_com_matricula_aluno_existente_d_menos_2"
+    )
+    @patch(
+        "sme_sigpae_api.escola.management.commands.atualiza_alunos_escolas.Command.get_todos_os_registros"
+    )
+    @pytest.mark.django_db
+    def test_d_menos_2_exclui_escolas_particulares(
+        self,
+        mock_get_todos_os_registros,
+        mock_lida_matricula,
+    ):
+
+        escola_publica = EscolaFactory.create(
+            codigo_eol="000112", tipo_unidade__iniciais="EMEBS"
+        )
+        aluno_publica = AlunoFactory.create(
+            codigo_eol="9999988",
+            escola=escola_publica,
+            periodo_escolar=self.periodo_escolar_manha,
+        )
+        HistoricoMatriculaAlunoFactory.create(
+            aluno=aluno_publica, escola=escola_publica
+        )
+
+        escola_particular = EscolaFactory.create(
+            codigo_eol="000221", tipo_unidade__iniciais="ESC.PART."
+        )
+        aluno_particulas = AlunoFactory.create(
+            codigo_eol="8899999",
+            escola=escola_particular,
+            periodo_escolar=self.periodo_escolar_manha,
+        )
+        HistoricoMatriculaAlunoFactory.create(
+            aluno=aluno_particulas, escola=escola_particular
+        )
+
+        mock_get_todos_os_registros.return_value = [
+            {
+                "codigoAluno": aluno_publica.codigo_eol,
+                "codigoEolEscola": "000112",
+                "codigoTipoTurma": 1,
+                "codigoSituacaoMatricula": 1,
+                "dataNascimento": "2010-01-01T00:00:00",
+                "nomeAluno": "Teste",
+                "tipoTurno": 1,
+                "turmaNome": "7A",
+                "situacaoMatricula": "Sem continuidade",
+            },
+            {
+                "codigoAluno": aluno_particulas.codigo_eol,
+                "codigoEolEscola": "000221",
+                "codigoTipoTurma": 1,
+                "codigoSituacaoMatricula": 1,
+                "dataNascimento": "2010-01-01T00:00:00",
+                "nomeAluno": "Teste 2",
+                "tipoTurno": 1,
+                "turmaNome": "9A",
+                "situacaoMatricula": "Sem continuidade",
+            },
+        ]
+        command = Command()
+        command._atualiza_todas_as_escolas_d_menos_2()
+        escolas_usadas = [
+            call_args[0][1] for call_args in mock_lida_matricula.call_args_list
+        ]
+        assert escola_publica in escolas_usadas
+        assert escola_particular not in escolas_usadas
+
 
 class TestObtemAlunosEscola(TestCase):
     def set_up_periodos_escolares(self):
