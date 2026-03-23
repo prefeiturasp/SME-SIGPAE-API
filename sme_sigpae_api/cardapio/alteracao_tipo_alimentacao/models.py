@@ -309,16 +309,10 @@ class SubstituicaoAlimentacaoNoPeriodoEscolar(
     alimentação serão trocados por quais outros em um determinado período
     escolar, bem como a quantidade de alunos afetados.
 
-    Attributes:
-        alteracao_cardapio (AlteracaoCardapio): Alteração de cardápio à qual
-            esta substituição pertence.
-        qtd_alunos (int): Quantidade de alunos impactados pela substituição.
-        periodo_escolar (escola.PeriodoEscolar): Período escolar onde a
-            substituição ocorre.
-        tipos_alimentacao_de (ManyToManyField[TipoAlimentacao]): Tipos de
-            alimentação originais a serem substituídos.
-        tipos_alimentacao_para (ManyToManyField[TipoAlimentacao]): Tipos de
-            alimentação que substituirão os originais.
+    Exemplos:
+        - no período INTEGRAL, ao selecionar motivo Lanche Emergencial, substituir REFEIÇÃO por LANCHE EMERGENCIAL para 50 alunos.
+        - no período MANHA, ao selecionar motivo LPR, substituir LANCHE por REFEIÇÃO para 30 alunos.
+        - no período TARDE, ao selecionar motivo RPL, substituir REFEIÇÃO por LANCHE para 20 alunos.
     """
 
     alteracao_cardapio = models.ForeignKey(

@@ -323,169 +323,6 @@ Pode ser <code class="docutils literal notranslate"><span class="pre">None</span
 <section id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models">
 <span id="models"></span><h2>models<a class="headerlink" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models" title="Link to this heading"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/models.html#SubstituicaoAlimentacaoNoPeriodoEscolar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('substituicao_alimentacao_periodo_escolar')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code></p>
-<p>Representa uma substituição de tipo de alimentação em um período escolar específico.</p>
-<p>Está vinculada a uma <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code> e define quais tipos de
-alimentação serão trocados por quais outros em um determinado período
-escolar, bem como a quantidade de alunos afetados.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.alteracao_cardapio">
-<span class="sig-name descname"><span class="pre">alteracao_cardapio</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.alteracao_cardapio" title="Link to this definition"></a></dt>
-<dd><p>Alteração de cardápio à qual
-esta substituição pertence.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio">AlteracaoCardapio</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.qtd_alunos">
-<span class="sig-name descname"><span class="pre">qtd_alunos</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.qtd_alunos" title="Link to this definition"></a></dt>
-<dd><p>Quantidade de alunos impactados pela substituição.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.periodo_escolar">
-<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.periodo_escolar" title="Link to this definition"></a></dt>
-<dd><p>Período escolar onde a
-substituição ocorre.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>escola.PeriodoEscolar</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao_de">
-<span class="sig-name descname"><span class="pre">tipos_alimentacao_de</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao_de" title="Link to this definition"></a></dt>
-<dd><p>Tipos de
-alimentação originais a serem substituídos.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ManyToManyField[<a class="reference internal" href="base.html#sme_sigpae_api.cardapio.base.models.TipoAlimentacao" title="sme_sigpae_api.cardapio.base.models.TipoAlimentacao">TipoAlimentacao</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao_para">
-<span class="sig-name descname"><span class="pre">tipos_alimentacao_para</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao_para" title="Link to this definition"></a></dt>
-<dd><p>Tipos de
-alimentação que substituirão os originais.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ManyToManyField[<a class="reference internal" href="base.html#sme_sigpae_api.cardapio.base.models.TipoAlimentacao" title="sme_sigpae_api.cardapio.base.models.TipoAlimentacao">TipoAlimentacao</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">alteracao_cardapio</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.alteracao_cardapio_id">
-<span class="sig-name descname"><span class="pre">alteracao_cardapio_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.alteracao_cardapio_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.id" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.objects">
-<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.objects" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.periodo_escolar_id">
-<span class="sig-name descname"><span class="pre">periodo_escolar_id</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.periodo_escolar_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="id2">
-<span class="sig-name descname"><span class="pre">qtd_alunos</span></span><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="id3">
-<span class="sig-name descname"><span class="pre">tipos_alimentacao_de</span></span><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related objects manager on the forward and reverse sides of
-a many-to-many relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pizza</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">toppings</span> <span class="o">=</span> <span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Topping</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;pizzas&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Pizza.toppings</span></code> and <code class="docutils literal notranslate"><span class="pre">Topping.pizzas</span></code> are <code class="docutils literal notranslate"><span class="pre">ManyToManyDescriptor</span></code>
-instances.</p>
-<p>Most of the implementation is delegated to a dynamically defined manager
-class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="id4">
-<span class="sig-name descname"><span class="pre">tipos_alimentacao_para</span></span><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related objects manager on the forward and reverse sides of
-a many-to-many relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pizza</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">toppings</span> <span class="o">=</span> <span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Topping</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;pizzas&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Pizza.toppings</span></code> and <code class="docutils literal notranslate"><span class="pre">Topping.pizzas</span></code> are <code class="docutils literal notranslate"><span class="pre">ManyToManyDescriptor</span></code>
-instances.</p>
-<p>Most of the implementation is delegated to a dynamically defined manager
-class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.uuid">
-<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.uuid" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracaoCardapio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/models.html#AlteracaoCardapio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('alteracao_cardapio')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoEm</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoPor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">IntervaloDeDia</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemObservacao</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemIdentificadorExternoAmigavel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Logs</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemPrioridade</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">SolicitacaoForaDoPrazo</span></code>, <a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio"><code class="xref py py-class docutils literal notranslate"><span class="pre">EhAlteracaoCardapio</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemTerceirizadaConferiuGestaoAlimentacao</span></code></p>
@@ -829,8 +666,8 @@ evitando a exposição do identificador interno (ID).</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id5">
-<span class="sig-name descname"><span class="pre">DESCRICAO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Alteração</span> <span class="pre">do</span> <span class="pre">Tipo</span> <span class="pre">de</span> <span class="pre">Alimentação'</span></span><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">DESCRICAO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Alteração</span> <span class="pre">do</span> <span class="pre">Tipo</span> <span class="pre">de</span> <span class="pre">Alimentação'</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1446,6 +1283,114 @@ Identificador único do registro.</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/models.html#SubstituicaoAlimentacaoNoPeriodoEscolar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('substituicao_alimentacao_periodo_escolar')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code></p>
+<p>Representa uma substituição de tipo de alimentação em um período escolar específico.</p>
+<p>Está vinculada a uma <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code> e define quais tipos de
+alimentação serão trocados por quais outros em um determinado período
+escolar, bem como a quantidade de alunos afetados.</p>
+<dl class="simple">
+<dt>Exemplos:</dt><dd><ul class="simple">
+<li><p>no período INTEGRAL, ao selecionar motivo Lanche Emergencial, substituir REFEIÇÃO por LANCHE EMERGENCIAL para 50 alunos.</p></li>
+<li><p>no período MANHA, ao selecionar motivo LPR, substituir LANCHE por REFEIÇÃO para 30 alunos.</p></li>
+<li><p>no período TARDE, ao selecionar motivo RPL, substituir REFEIÇÃO por LANCHE para 20 alunos.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.alteracao_cardapio">
+<span class="sig-name descname"><span class="pre">alteracao_cardapio</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">cardapio.AlteracaoCardapio</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.alteracao_cardapio" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.ForeignKey</span></code></p>
+<p><strong>Descrição:</strong>
+Solicitação de alteração do tipo de alimentação à qual esta substituição pertence.</p>
+<p>Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> porque o campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.alteracao_cardapio_id">
+<span class="sig-name descname"><span class="pre">alteracao_cardapio_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.alteracao_cardapio_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.ForeignKey</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador da solicitação de alteração do tipo de alimentação associada a esta substituição.</p>
+<p>Corresponde à chave primária de <a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code></a>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> porque o campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.Model</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador interno do registro no banco de dados.</p>
+<p>Corresponde à chave primária gerada automaticamente pelo Django.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.periodo_escolar">
+<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">escola.PeriodoEscolar</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.periodo_escolar" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.ForeignKey</span></code></p>
+<p><strong>Descrição:</strong>
+Período escolar ao qual a substituição de alimentação se aplica.</p>
+<p>Exemplo: manhã, tarde, noite ou integral, conforme os períodos cadastrados para a unidade.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.periodo_escolar_id">
+<span class="sig-name descname"><span class="pre">periodo_escolar_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.periodo_escolar_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.ForeignKey</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador do período escolar ao qual esta substituição se aplica.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">escola.PeriodoEscolar</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.qtd_alunos">
+<span class="sig-name descname"><span class="pre">qtd_alunos</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.qtd_alunos" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.PositiveSmallIntegerField</span></code></p>
+<p><strong>Descrição:</strong>
+Quantidade de alunos impactados por esta substituição de alimentação no período escolar informado.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao_de">
+<span class="sig-name descname"><span class="pre">tipos_alimentacao_de</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.Manager</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="base.html#sme_sigpae_api.cardapio.base.models.TipoAlimentacao" title="sme_sigpae_api.cardapio.base.models.TipoAlimentacao"><span class="pre">TipoAlimentacao</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao_de" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.ManyToManyField</span></code></p>
+<p><strong>Descrição:</strong>
+Conjunto de tipos de alimentação originais que serão substituídos nesta solicitação.</p>
+<p>Trata-se de uma relação muitos-para-muitos com <code class="xref py py-class docutils literal notranslate"><span class="pre">TipoAlimentacao</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao_para">
+<span class="sig-name descname"><span class="pre">tipos_alimentacao_para</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.Manager</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="base.html#sme_sigpae_api.cardapio.base.models.TipoAlimentacao" title="sme_sigpae_api.cardapio.base.models.TipoAlimentacao"><span class="pre">TipoAlimentacao</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao_para" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.ManyToManyField</span></code></p>
+<p><strong>Descrição:</strong>
+Conjunto de tipos de alimentação que passarão a ser oferecidos no lugar dos tipos originais.</p>
+<p>Trata-se de uma relação muitos-para-muitos com <code class="xref py py-class docutils literal notranslate"><span class="pre">TipoAlimentacao</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador único do registro.</p>
+<p>Gerado automaticamente no momento da criação, sendo utilizado como identificador externo.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api">
 <span id="api"></span><h2>api<a class="headerlink" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api" title="Link to this heading"></a></h2>
@@ -1592,14 +1537,14 @@ Identificador único do registro.</p>
 descriptive messages when something goes wrong, but this method is
 essentially just:</p>
 <blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id6"><span class="problematic" id="id7">**</span></a>validated_data)</p>
+<div><p>return ExampleModel.objects.create(<a href="#id1"><span class="problematic" id="id2">**</span></a>validated_data)</p>
 </div></blockquote>
 <p>If there are many to many fields present on the instance then they
 cannot be set until the model is instantiated, in which case the
 implementation is like so:</p>
 <blockquote>
 <div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id8"><span class="problematic" id="id9">**</span></a>validated_data)
+instance = ExampleModel.objects.create(<a href="#id3"><span class="problematic" id="id4">**</span></a>validated_data)
 instance.example_relationship = example_relationship
 return instance</p>
 </div></blockquote>
@@ -1646,14 +1591,14 @@ to write an explicit <cite>.create()</cite> method.</p>
 descriptive messages when something goes wrong, but this method is
 essentially just:</p>
 <blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id10"><span class="problematic" id="id11">**</span></a>validated_data)</p>
+<div><p>return ExampleModel.objects.create(<a href="#id5"><span class="problematic" id="id6">**</span></a>validated_data)</p>
 </div></blockquote>
 <p>If there are many to many fields present on the instance then they
 cannot be set until the model is instantiated, in which case the
 implementation is like so:</p>
 <blockquote>
 <div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id12"><span class="problematic" id="id13">**</span></a>validated_data)
+instance = ExampleModel.objects.create(<a href="#id7"><span class="problematic" id="id8">**</span></a>validated_data)
 instance.example_relationship = example_relationship
 return instance</p>
 </div></blockquote>
@@ -1697,14 +1642,14 @@ to write an explicit <cite>.create()</cite> method.</p>
 descriptive messages when something goes wrong, but this method is
 essentially just:</p>
 <blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id14"><span class="problematic" id="id15">**</span></a>validated_data)</p>
+<div><p>return ExampleModel.objects.create(<a href="#id9"><span class="problematic" id="id10">**</span></a>validated_data)</p>
 </div></blockquote>
 <p>If there are many to many fields present on the instance then they
 cannot be set until the model is instantiated, in which case the
 implementation is like so:</p>
 <blockquote>
 <div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id16"><span class="problematic" id="id17">**</span></a>validated_data)
+instance = ExampleModel.objects.create(<a href="#id11"><span class="problematic" id="id12">**</span></a>validated_data)
 instance.example_relationship = example_relationship
 return instance</p>
 </div></blockquote>
@@ -1743,14 +1688,14 @@ to write an explicit <cite>.create()</cite> method.</p>
 descriptive messages when something goes wrong, but this method is
 essentially just:</p>
 <blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id18"><span class="problematic" id="id19">**</span></a>validated_data)</p>
+<div><p>return ExampleModel.objects.create(<a href="#id13"><span class="problematic" id="id14">**</span></a>validated_data)</p>
 </div></blockquote>
 <p>If there are many to many fields present on the instance then they
 cannot be set until the model is instantiated, in which case the
 implementation is like so:</p>
 <blockquote>
 <div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id20"><span class="problematic" id="id21">**</span></a>validated_data)
+instance = ExampleModel.objects.create(<a href="#id15"><span class="problematic" id="id16">**</span></a>validated_data)
 instance.example_relationship = example_relationship
 return instance</p>
 </div></blockquote>

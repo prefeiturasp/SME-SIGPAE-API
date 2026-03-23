@@ -79,7 +79,13 @@ models
 .. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models
    :members:
    :show-inheritance:
-   :exclude-members: AlteracaoCardapio, DataIntervaloAlteracaoCardapio, DoesNotExist, MotivoAlteracaoCardapio, MultipleObjectsReturned
+   :exclude-members: 
+      AlteracaoCardapio, 
+      DataIntervaloAlteracaoCardapio, 
+      DoesNotExist, 
+      MotivoAlteracaoCardapio, 
+      MultipleObjectsReturned,
+      SubstituicaoAlimentacaoNoPeriodoEscolar
 
 .. autoclass:: AlteracaoCardapio
    :members:
@@ -627,6 +633,121 @@ models
       Identificador interno do registro no banco de dados.
 
       Corresponde à chave primária gerada automaticamente pelo Django.
+
+   .. attribute:: uuid
+      :type: uuid.UUID
+
+      **Origem:**
+      ``dados_comuns/behaviors.py``
+
+      **Descrição:**
+      Identificador único do registro.
+
+      Gerado automaticamente no momento da criação, sendo utilizado como identificador externo.
+
+.. autoclass:: SubstituicaoAlimentacaoNoPeriodoEscolar
+   :members:
+   :show-inheritance:
+   :exclude-members:
+      alteracao_cardapio,
+      alteracao_cardapio_id,
+      DoesNotExist,
+      id,
+      MultipleObjectsReturned,
+      objects,
+      periodo_escolar,
+      periodo_escolar_id,
+      qtd_alunos,
+      tipos_alimentacao_de,
+      tipos_alimentacao_para,
+      uuid
+
+   .. attribute:: alteracao_cardapio
+      :type: cardapio.AlteracaoCardapio | None
+
+      **Origem:**
+      ``django.db.models.ForeignKey``
+
+      **Descrição:**
+      Solicitação de alteração do tipo de alimentação à qual esta substituição pertence.
+
+      Pode ser ``None`` porque o campo permite ``null`` e ``blank``.
+
+   .. attribute:: alteracao_cardapio_id
+      :type: int | None
+
+      **Origem:**
+      ``django.db.models.ForeignKey``
+
+      **Descrição:**
+      Identificador da solicitação de alteração do tipo de alimentação associada a esta substituição.
+
+      Corresponde à chave primária de :class:`AlteracaoCardapio`.
+      Pode ser ``None`` porque o campo permite ``null`` e ``blank``.
+
+   .. attribute:: id
+      :type: int
+
+      **Origem:**
+      ``django.db.models.Model``
+
+      **Descrição:**
+      Identificador interno do registro no banco de dados.
+
+      Corresponde à chave primária gerada automaticamente pelo Django.
+
+   .. attribute:: periodo_escolar
+      :type: escola.PeriodoEscolar
+
+      **Origem:**
+      ``django.db.models.ForeignKey``
+
+      **Descrição:**
+      Período escolar ao qual a substituição de alimentação se aplica.
+
+      Exemplo: manhã, tarde, noite ou integral, conforme os períodos cadastrados para a unidade.
+
+   .. attribute:: periodo_escolar_id
+      :type: int
+
+      **Origem:**
+      ``django.db.models.ForeignKey``
+
+      **Descrição:**
+      Identificador do período escolar ao qual esta substituição se aplica.
+
+      Corresponde à chave primária de :class:`escola.PeriodoEscolar`.
+
+   .. attribute:: qtd_alunos
+      :type: int
+
+      **Origem:**
+      ``django.db.models.PositiveSmallIntegerField``
+
+      **Descrição:**
+      Quantidade de alunos impactados por esta substituição de alimentação no período escolar informado.
+
+   .. attribute:: tipos_alimentacao_de
+      :type: django.db.models.Manager[TipoAlimentacao]
+
+      **Origem:**
+      ``django.db.models.ManyToManyField``
+
+      **Descrição:**
+      Conjunto de tipos de alimentação originais que serão substituídos nesta solicitação.
+
+      Trata-se de uma relação muitos-para-muitos com :class:`TipoAlimentacao`.
+
+   .. attribute:: tipos_alimentacao_para
+      :type: django.db.models.Manager[TipoAlimentacao]
+
+      **Origem:**
+      ``django.db.models.ManyToManyField``
+
+      **Descrição:**
+      Conjunto de tipos de alimentação que passarão a ser oferecidos no lugar dos tipos originais.
+
+      Trata-se de uma relação muitos-para-muitos com :class:`TipoAlimentacao`.
 
    .. attribute:: uuid
       :type: uuid.UUID

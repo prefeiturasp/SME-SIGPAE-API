@@ -391,16 +391,10 @@
 <span class="sd">    alimentação serão trocados por quais outros em um determinado período</span>
 <span class="sd">    escolar, bem como a quantidade de alunos afetados.</span>
 
-<span class="sd">    Attributes:</span>
-<span class="sd">        alteracao_cardapio (AlteracaoCardapio): Alteração de cardápio à qual</span>
-<span class="sd">            esta substituição pertence.</span>
-<span class="sd">        qtd_alunos (int): Quantidade de alunos impactados pela substituição.</span>
-<span class="sd">        periodo_escolar (escola.PeriodoEscolar): Período escolar onde a</span>
-<span class="sd">            substituição ocorre.</span>
-<span class="sd">        tipos_alimentacao_de (ManyToManyField[TipoAlimentacao]): Tipos de</span>
-<span class="sd">            alimentação originais a serem substituídos.</span>
-<span class="sd">        tipos_alimentacao_para (ManyToManyField[TipoAlimentacao]): Tipos de</span>
-<span class="sd">            alimentação que substituirão os originais.</span>
+<span class="sd">    Exemplos:</span>
+<span class="sd">        - no período INTEGRAL, ao selecionar motivo Lanche Emergencial, substituir REFEIÇÃO por LANCHE EMERGENCIAL para 50 alunos.</span>
+<span class="sd">        - no período MANHA, ao selecionar motivo LPR, substituir LANCHE por REFEIÇÃO para 30 alunos.</span>
+<span class="sd">        - no período TARDE, ao selecionar motivo RPL, substituir REFEIÇÃO por LANCHE para 20 alunos.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
