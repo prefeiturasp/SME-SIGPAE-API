@@ -78,6 +78,7 @@ from ..models import (
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
     ValorMedicao,
+    DadosLiquidacao,
 )
 from ..tasks import (
     exporta_relatorio_adesao_para_pdf,
@@ -97,6 +98,8 @@ from ..utils import (
     get_valor_total,
     log_alteracoes_escola_corrige_periodo,
     tratar_valores,
+    mapear_dados_liquidacao_existentes,
+    obter_instancia_dado_liquidacao,
 )
 from .constants import (
     ORDEM_NAME_LANCAMENTOS_ESPECIAIS,
@@ -135,6 +138,7 @@ from .serializers import (
     SolicitacaoMedicaoInicialSerializer,
     TipoContagemAlimentacaoSerializer,
     ValorMedicaoSerializer,
+    DadosLiquidacaoSerializer,
 )
 from .serializers_create import (
     ClausulaDeDescontoCreateUpdateSerializer,
@@ -145,6 +149,7 @@ from .serializers_create import (
     ParametrizacaoFinanceiraWriteModelSerializer,
     PermissaoLancamentoEspecialCreateUpdateSerializer,
     SolicitacaoMedicaoInicialCreateSerializer,
+    DadosLiquidacaoUpdateSerializer,
 )
 
 calendario = BrazilSaoPauloCity()
@@ -2310,3 +2315,72 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             )
         except Exception as e:
             return Response({"Erro": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DadosLiquidacaoViewSet(ModelViewSet):
+    queryset = DadosLiquidacao.objects.all()
+
+    def get_serializer_class(self):
+        if self.action in ["create", "update", "partial_update"]:
+            return DadosLiquidacaoUpdateSerializer
+
+        return DadosLiquidacaoSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        relatorio_uuid = self.request.query_params.get("relatorio_financeiro")
+
+        if relatorio_uuid:
+            queryset = queryset.filter(relatorio_financeiro__uuid=relatorio_uuid)
+
+        return queryset
+
+    @action(
+        detail=False,
+        methods=["put"],
+        url_path=r"registrar-empenhos/(?P<uuid_relatorio_financeiro>[^/.]+)",
+        permission_classes=[UsuarioMedicao],
+    )
+    @transaction.atomic
+    def registrar_empenhos(self, request, uuid_relatorio_financeiro=None):
+        if not isinstance(request.data, list):
+            raise ValidationError("Envie uma lista de dados.")
+
+        queryset = DadosLiquidacao.objects.filter(
+            relatorio_financeiro__uuid=uuid_relatorio_financeiro
+        )
+
+        existentes_por_uuid, existentes_por_chave = (
+            mapear_dados_liquidacao_existentes(queryset)
+        )
+
+        resultado = []
+        ids_processados = set()
+
+        for item_data in request.data:
+            instancia = obter_instancia_dado_liquidacao(
+                item_data,
+                existentes_por_uuid,
+                existentes_por_chave,
+            )
+
+            serializer = DadosLiquidacaoUpdateSerializer(
+                instance=instancia,
+                data={
+                    **item_data,
+                    "relatorio_financeiro_id": uuid_relatorio_financeiro,
+                },
+            )
+
+            serializer.is_valid(raise_exception=True)
+            obj = serializer.save()
+
+            ids_processados.add(obj.id)
+            resultado.append(obj)
+
+        queryset.exclude(id__in=ids_processados).delete()
+
+        return Response(
+            DadosLiquidacaoSerializer(resultado, many=True).data,
+            status=status.HTTP_200_OK,
+        )

@@ -5672,3 +5672,28 @@ def _verifica_dietas_consumidas(solicitacao, escola_emebs, escola_cemei):
             chave: sorted(list(valores))
             for chave, valores in resultado_intermediario.items()
         }
+
+
+def mapear_dados_liquidacao_existentes(queryset):
+    return (
+        {str(obj.uuid): obj for obj in queryset},
+        {
+            (obj.numero_empenho, obj.tipo_empenho): obj
+            for obj in queryset
+        },
+    )
+
+
+def obter_instancia_dado_liquidacao(
+    item_data,
+    existentes_por_uuid,
+    existentes_por_chave,
+):
+    uuid = item_data.get("uuid")
+
+    if uuid and str(uuid) in existentes_por_uuid:
+        return existentes_por_uuid[str(uuid)]
+
+    return existentes_por_chave.get(
+        (item_data.get("numero_empenho"), item_data.get("tipo_empenho"))
+    )
