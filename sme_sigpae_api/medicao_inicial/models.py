@@ -30,7 +30,7 @@ from ..dados_comuns.fluxo_status import (
     LogSolicitacoesUsuario,
 )
 from ..escola.constants import INFANTIL_OU_FUNDAMENTAL
-from ..escola.models import PeriodoEscolar, TipoUnidadeEscolar
+from ..escola.models import PeriodoEscolar, TipoUnidadeEscolar, Escola
 from ..perfil.models import Usuario
 from ..terceirizada.models import Edital
 from .recreio_nas_ferias.models import RecreioNasFerias
@@ -905,3 +905,43 @@ class RelatorioFinanceiro(
         verbose_name_plural = "Relatórios Financeiros"
         ordering = ["-alterado_em"]
         unique_together = ("grupo_unidade_escolar", "lote", "mes", "ano")
+
+
+class DadosLiquidacao(TemChaveExterna, CriadoEm, TemAlteradoEm):
+    relatorio_financeiro = models.ForeignKey(
+        RelatorioFinanceiro,
+        to_field="uuid",
+        on_delete=models.PROTECT,
+        related_name="dados_liquidacao",
+    )
+    numero_empenho = models.CharField(
+        "Número do empenho",
+        max_length=40,
+    )
+    tipo_empenho = models.CharField(
+        "Tipo de empenho",
+        max_length=100,
+    )
+    unidades_educacionais = models.ManyToManyField(
+        Escola,
+        blank=True,
+        related_name="dados_liquidacao",
+    )
+
+    def __str__(self):
+        return f"Empenho: {self.numero_empenho} | Tipo: {self.tipo_empenho}"
+
+    class Meta:
+        verbose_name = "Dado Liquidação"
+        verbose_name_plural = "Dados Liquidações"
+        ordering = ["-alterado_em"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "numero_empenho",
+                    "tipo_empenho",
+                    "relatorio_financeiro",
+                ],
+                name="unique_dados_liquidacao_empenho_por_relatorio",
+            )
+        ]
