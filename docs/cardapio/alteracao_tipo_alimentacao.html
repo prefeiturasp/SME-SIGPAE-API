@@ -1938,12 +1938,71 @@ aninhado em <code class="docutils literal notranslate"><span class="pre">Alterac
 <dl class="py function">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.validators.precisa_pertencer_a_um_tipo_de_alimentacao">
 <span class="sig-name descname"><span class="pre">precisa_pertencer_a_um_tipo_de_alimentacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tipos_alimentacao_de</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tipo_alimentacao_para</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tipo_unidade_escolar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodo_escolar</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/validators.html#precisa_pertencer_a_um_tipo_de_alimentacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.validators.precisa_pertencer_a_um_tipo_de_alimentacao" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Valida se os tipos de alimentacao pertencem ao contexto informado.</p>
+<p>Garante que todos os tipos de alimentacao de origem estejam habilitados
+para o periodo escolar e tipo de unidade da escola e que o tipo de destino
+nao esteja repetido entre os tipos substituidos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tipos_alimentacao_de</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="base.html#sme_sigpae_api.cardapio.base.models.TipoAlimentacao" title="sme_sigpae_api.cardapio.base.models.TipoAlimentacao"><em>TipoAlimentacao</em></a><em>]</em>) – Tipos de alimentacao
+que serao substituidos.</p></li>
+<li><p><strong>tipo_alimentacao_para</strong> (<a class="reference internal" href="base.html#sme_sigpae_api.cardapio.base.models.TipoAlimentacao" title="sme_sigpae_api.cardapio.base.models.TipoAlimentacao"><em>TipoAlimentacao</em></a>) – Tipo de alimentacao de destino.</p></li>
+<li><p><strong>tipo_unidade_escolar</strong> (<em>str</em>) – Tipo de unidade da escola associado ao
+pedido.</p></li>
+<li><p><strong>periodo_escolar</strong> (<em>PeriodoEscolar</em>) – Periodo escolar ao qual a
+substituicao se aplica.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> quando a combinacao e valida.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValidationError</strong> – Quando algum tipo de origem nao pertence ao contexto
+    de periodo/tipo de unidade ou quando o tipo de destino ja consta
+    entre os tipos substituidos.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.validators.valida_duplicidade_solicitacoes_lanche_emergencial">
 <span class="sig-name descname"><span class="pre">valida_duplicidade_solicitacoes_lanche_emergencial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eh_cemei</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/validators.html#valida_duplicidade_solicitacoes_lanche_emergencial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.validators.valida_duplicidade_solicitacoes_lanche_emergencial" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><dl class="simple">
+<dt>Valida se existe alguma solicitação ativa (não é rascunho, nem foi negada ou cancelada) de Lanche Emergencial para a mesma combinação de:</dt><dd><ul class="simple">
+<li><p>escola</p></li>
+<li><p>data</p></li>
+<li><p>periodo escolar</p></li>
+<li><p>tipos de alimentacao de origem.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Caso já exista alguma solicitação ativa que contenha a mesma combinação, a função levanta um ValidationError,
+impedindo a criação de uma nova solicitação de Lanche Emergencial para a mesma situação.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>attrs</strong> (<em>dict</em>) – Dados validados da solicitacao.</p></li>
+<li><p><strong>eh_cemei</strong> (<em>bool</em><em>, </em><em>optional</em>) – Define se a consulta deve usar o modelo de
+substituição do fluxo CEMEI. Default é <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> quando nao ha duplicidade bloqueante ou quando o motivo
+da solicitacao nao e Lanche Emergencial.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValidationError</strong> – Quando ja existe uma solicitacao ativa de Lanche
+    Emergencial para a mesma combinacao de data e periodo.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.viewsets">
