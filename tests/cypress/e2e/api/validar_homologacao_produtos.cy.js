@@ -5,8 +5,10 @@ describe('Validar rotas de homologações de produtos da aplicação SIGPAE', ()
 	var senha = Cypress.config('senha')
 
 	before(() => {
-		cy.autenticar_login(usuario, senha)
-	})
+		  cy.log('usuario: ' + usuario)
+		  cy.log('senha existe: ' + !!senha)
+		  cy.autenticar_login(usuario, senha)
+})
 
 	context('Casos de teste para a rota api/homologacoes-produtos/', () => {
 		it('Validar GET de homologações de produtos com sucesso', () => {
