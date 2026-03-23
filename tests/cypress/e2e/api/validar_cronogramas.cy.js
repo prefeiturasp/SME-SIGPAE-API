@@ -442,7 +442,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 			})
 		})
 
-		it.only('Validar GET de cronogramas com parâmetro Status ASSINADO_FORNECEDOR com sucesso', () => {
+		it('Validar GET de cronogramas com parâmetro Status ASSINADO_FORNECEDOR com sucesso', () => {
 			var parametros = 'status=ASSINADO_FORNECEDOR'
 
 			cy.validar_cronogramas(parametros).then((response) => {

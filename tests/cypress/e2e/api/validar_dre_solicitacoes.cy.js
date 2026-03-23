@@ -510,6 +510,7 @@ describe('Validar rotas de Diretoria Regional Solicitações da aplicação SIGP
 							value === 'CANCELADO_ALUNO_NAO_PERTENCE_REDE' ||
 							value === 'CANCELADO_ALUNO_MUDOU_ESCOLA' ||
 							value === 'ESCOLA_CANCELOU' ||
+							value === 'CANCELADO_ENCERRAMENTO_MATRICULA' ||
 							value === 'TERMINADA_AUTOMATICAMENTE_SISTEMA'
 						)
 					})
