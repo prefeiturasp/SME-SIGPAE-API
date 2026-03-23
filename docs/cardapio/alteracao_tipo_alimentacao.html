@@ -1400,6 +1400,18 @@ Identificador único do registro.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.AlteracaoCardapioSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracaoCardapioSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers.html#AlteracaoCardapioSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.AlteracaoCardapioSerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.AlteracaoCardapioSerializerBase" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.AlteracaoCardapioSerializerBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializerBase</span></code></a></p>
+<p>Serializa a representacao detalhada de uma alteracao de cardapio.</p>
+<p>Inclui substituicoes por periodo, datas do intervalo, motivo, escola,
+logs e dados de rastreabilidade usados nas respostas completas da API.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioViewSet</span></code>: retornado por
+<code class="docutils literal notranslate"><span class="pre">get_serializer_class()</span></code> em todas as acoes de leitura e nas actions
+customizadas que respondem com o objeto serializado, exceto
+<code class="docutils literal notranslate"><span class="pre">create</span></code>, <code class="docutils literal notranslate"><span class="pre">update</span></code> e <code class="docutils literal notranslate"><span class="pre">partial_update</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.AlteracaoCardapioSerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers.html#AlteracaoCardapioSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.AlteracaoCardapioSerializer.Meta" title="Link to this definition"></a></dt>
@@ -1423,12 +1435,33 @@ Identificador único do registro.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.AlteracaoCardapioSerializerBase">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracaoCardapioSerializerBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers.html#AlteracaoCardapioSerializerBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.AlteracaoCardapioSerializerBase" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Define os campos comuns das respostas de alteracao de cardapio.</p>
+<p>Reune os relacionamentos e campos calculados compartilhados pelos
+serializers de leitura de <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code>.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p>Nenhum diretamente.</p></li>
+<li><p>Uso indireto em <code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioViewSet</span></code>, como classe base de
+<code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializer</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.AlteracaoCardapioSimplesSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracaoCardapioSimplesSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers.html#AlteracaoCardapioSimplesSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.AlteracaoCardapioSimplesSerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa uma visao resumida de alteracao de cardapio.</p>
+<p>Remove campos mais pesados e relacionamentos aninhados para atender listagens
+que precisam de um payload menor.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioViewSet</span></code>: uso direto na action
+<code class="docutils literal notranslate"><span class="pre">solicitacoes_dre</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.AlteracaoCardapioSimplesSerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers.html#AlteracaoCardapioSimplesSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.AlteracaoCardapioSimplesSerializer.Meta" title="Link to this definition"></a></dt>
@@ -1452,6 +1485,19 @@ Identificador único do registro.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.MotivoAlteracaoCardapioSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MotivoAlteracaoCardapioSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers.html#MotivoAlteracaoCardapioSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.MotivoAlteracaoCardapioSerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa motivos ativos de alteracao do tipo de alimentacao.</p>
+<p>Expoe os campos publicos de <code class="docutils literal notranslate"><span class="pre">MotivoAlteracaoCardapio</span></code> usados para listar
+e embutir o motivo selecionado em respostas de solicitacoes.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MotivosAlteracaoCardapioViewSet</span></code>: uso direto como
+<code class="docutils literal notranslate"><span class="pre">serializer_class</span></code> nas acoes <code class="docutils literal notranslate"><span class="pre">list</span></code> e <code class="docutils literal notranslate"><span class="pre">retrieve</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioViewSet</span></code>: uso indireto, aninhado em
+<code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializer</span></code> e retornado nas respostas que usam
+esse serializer.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.MotivoAlteracaoCardapioSerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers.html#MotivoAlteracaoCardapioSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.MotivoAlteracaoCardapioSerializer.Meta" title="Link to this definition"></a></dt>
@@ -1475,6 +1521,17 @@ Identificador único do registro.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicoesAlimentacaoNoPeriodoEscolarSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers.html#SubstituicoesAlimentacaoNoPeriodoEscolarSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarSerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerBase" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerBase</span></code></a></p>
+<p>Serializa substituicoes completas de alimentacao por periodo escolar.</p>
+<p>Complementa o serializer base com os tipos de alimentacao de destino para
+representar cada item da lista <code class="docutils literal notranslate"><span class="pre">substituicoes</span></code> de uma alteracao.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p>Nenhum diretamente.</p></li>
+<li><p>Uso indireto em <code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioViewSet</span></code>, aninhado em
+<code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializer</span></code> nas respostas de leitura.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarSerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers.html#SubstituicoesAlimentacaoNoPeriodoEscolarSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarSerializer.Meta" title="Link to this definition"></a></dt>
@@ -1498,6 +1555,18 @@ Identificador único do registro.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerBase">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers.html#SubstituicoesAlimentacaoNoPeriodoEscolarSerializerBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerBase" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Define os campos base de substituicoes por periodo escolar.</p>
+<p>Centraliza a serializacao comum de periodo escolar, UUID da alteracao de
+cardapio e tipos de alimentacao de origem.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p>Nenhum diretamente.</p></li>
+<li><p>Uso indireto em <code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioViewSet</span></code>, por meio de
+<code class="docutils literal notranslate"><span class="pre">SubstituicoesAlimentacaoNoPeriodoEscolarSerializer</span></code> aninhado em
+<code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializer</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -1507,6 +1576,17 @@ Identificador único do registro.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracaoCardapioSerializerCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#AlteracaoCardapioSerializerCreate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreateBase" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreateBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializerCreateBase</span></code></a></p>
+<p>Serializa a criacao e atualizacao completas de alteracoes de cardapio.</p>
+<p>Valida datas e regras de negocio, resolve relacionamentos por UUID e cria
+as substituicoes e datas do intervalo associadas ao pedido.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioViewSet</span></code>: retornado por
+<code class="docutils literal notranslate"><span class="pre">get_serializer_class()</span></code> nas actions <code class="docutils literal notranslate"><span class="pre">create</span></code>, <code class="docutils literal notranslate"><span class="pre">update</span></code> e
+<code class="docutils literal notranslate"><span class="pre">partial_update</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#AlteracaoCardapioSerializerCreate.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.Meta" title="Link to this definition"></a></dt>
@@ -1533,50 +1613,139 @@ Identificador único do registro.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.create">
 <span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#AlteracaoCardapioSerializerCreate.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.create" title="Link to this definition"></a></dt>
-<dd><p>We have a bit of extra checking around this in order to provide
-descriptive messages when something goes wrong, but this method is
-essentially just:</p>
-<blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id1"><span class="problematic" id="id2">**</span></a>validated_data)</p>
-</div></blockquote>
-<p>If there are many to many fields present on the instance then they
-cannot be set until the model is instantiated, in which case the
-implementation is like so:</p>
-<blockquote>
-<div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id3"><span class="problematic" id="id4">**</span></a>validated_data)
-instance.example_relationship = example_relationship
-return instance</p>
-</div></blockquote>
-<p>The default implementation also does not handle nested relationships.
-If you want to support writable nested relationships you’ll need
-to write an explicit <cite>.create()</cite> method.</p>
+<dd><p>Cria uma alteracao de cardapio completa com datas e substituicoes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>validated_data</strong> (<em>dict</em>) – Dados validados da solicitacao, incluindo
+listas aninhadas de <code class="docutils literal notranslate"><span class="pre">substituicoes</span></code> e <code class="docutils literal notranslate"><span class="pre">datas_intervalo</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instancia criada com seus relacionamentos.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio">AlteracaoCardapio</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValidationError</strong> – Quando houver duplicidade indevida de solicitacao
+    de Lanche Emergencial.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.criar_datas_intervalo">
 <span class="sig-name descname"><span class="pre">criar_datas_intervalo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datas_intervalo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#AlteracaoCardapioSerializerCreate.criar_datas_intervalo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.criar_datas_intervalo" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Cria as datas individuais do intervalo vinculadas a uma solicitacao.</p>
+<p>Para pedidos de Lanche Emergencial, aplica validacoes extras para dias
+letivos e ignora dias sem atividade escolar fora dos meses de ferias.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datas_intervalo</strong> (<em>list</em><em>[</em><em>dict</em><em>]</em>) – Datas validadas a serem persistidas.</p></li>
+<li><p><strong>instance</strong> (<a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio"><em>AlteracaoCardapio</em></a>) – Solicitacao dona das datas.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValidationError</strong> – Quando uma solicitacao de Lanche Emergencial nao
+    possui ao menos um dia letivo fora dos meses de ferias.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.criar_substituicoes">
 <span class="sig-name descname"><span class="pre">criar_substituicoes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">substituicoes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#AlteracaoCardapioSerializerCreate.criar_substituicoes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.criar_substituicoes" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Cria as substituicoes de alimentacao vinculadas a uma solicitacao.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>substituicoes</strong> (<em>list</em><em>[</em><em>dict</em><em>]</em>) – Itens validados com periodo escolar e
+tipos de alimentacao de origem e destino.</p></li>
+<li><p><strong>instance</strong> (<a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio"><em>AlteracaoCardapio</em></a>) – Solicitacao dona das substituicoes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.datas_nos_meses_de_ferias">
 <span class="sig-name descname"><span class="pre">datas_nos_meses_de_ferias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datas_intervalo</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#AlteracaoCardapioSerializerCreate.datas_nos_meses_de_ferias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.datas_nos_meses_de_ferias" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Verifica se o intervalo toca algum mes considerado de ferias.</p>
+<dl class="simple">
+<dt>Meses de férias:</dt><dd><ul class="simple">
+<li><p>Janeiro: período de férias escolares de verão.</p></li>
+<li><p>Julho: período de férias escolares de inverno.</p></li>
+<li><p>Dezembro: período de férias escolares de verão e festas de fim de ano.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>datas_intervalo</strong> (<em>list</em><em>[</em><em>dict</em><em>]</em>) – Lista de itens com a chave <code class="docutils literal notranslate"><span class="pre">data</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> quando a primeira ou a ultima data do intervalo esta
+em janeiro, julho ou dezembro.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.update">
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#AlteracaoCardapioSerializerCreate.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.update" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Atualiza uma alteracao de cardapio recriando datas e substituicoes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>instance</strong> (<a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio"><em>AlteracaoCardapio</em></a>) – Instancia existente a ser atualizada.</p></li>
+<li><p><strong>validated_data</strong> (<em>dict</em>) – Dados validados da requisicao.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instancia atualizada com seus relacionamentos
+recriados.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio">AlteracaoCardapio</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValidationError</strong> – Quando houver duplicidade indevida de solicitacao
+    de Lanche Emergencial.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.validate">
 <span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#AlteracaoCardapioSerializerCreate.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreate.validate" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Aplica as validacoes de negocio da solicitacao de alteracao.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>attrs</strong> (<em>dict</em>) – Dados normalizados pelo serializer antes da criacao
+ou atualizacao da instancia.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Os mesmos atributos recebidos, apos passarem pelas
+validacoes de consistencia e regras de negocio.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValidationError</strong> – Quando datas, motivo ou substituicoes violam as
+    regras do dominio.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -1584,33 +1753,55 @@ to write an explicit <cite>.create()</cite> method.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreateBase">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracaoCardapioSerializerCreateBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#AlteracaoCardapioSerializerCreateBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreateBase" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Define os campos comuns de escrita para alteracoes de cardapio.</p>
+<p>Resolve referencias por UUID de escola e motivo e concentra a logica basica
+de criacao e atualizacao das substituicoes vinculadas.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p>Nenhum diretamente.</p></li>
+<li><p>Uso indireto em <code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioViewSet</span></code>, como classe base de
+<code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializerCreate</span></code> nas actions <code class="docutils literal notranslate"><span class="pre">create</span></code>,
+<code class="docutils literal notranslate"><span class="pre">update</span></code> e <code class="docutils literal notranslate"><span class="pre">partial_update</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreateBase.create">
 <span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#AlteracaoCardapioSerializerCreateBase.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreateBase.create" title="Link to this definition"></a></dt>
-<dd><p>We have a bit of extra checking around this in order to provide
-descriptive messages when something goes wrong, but this method is
-essentially just:</p>
-<blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id5"><span class="problematic" id="id6">**</span></a>validated_data)</p>
-</div></blockquote>
-<p>If there are many to many fields present on the instance then they
-cannot be set until the model is instantiated, in which case the
-implementation is like so:</p>
-<blockquote>
-<div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id7"><span class="problematic" id="id8">**</span></a>validated_data)
-instance.example_relationship = example_relationship
-return instance</p>
-</div></blockquote>
-<p>The default implementation also does not handle nested relationships.
-If you want to support writable nested relationships you’ll need
-to write an explicit <cite>.create()</cite> method.</p>
+<dd><p>Cria uma alteracao de cardapio usando a estrategia base do serializer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>validated_data</strong> (<em>dict</em>) – Dados validados da solicitacao, contendo a
+lista de <code class="docutils literal notranslate"><span class="pre">substituicoes</span></code> ja validada.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instancia criada com as substituicoes vinculadas.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio">AlteracaoCardapio</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreateBase.update">
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#AlteracaoCardapioSerializerCreateBase.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreateBase.update" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Atualiza uma alteracao de cardapio recriando suas substituicoes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>instance</strong> (<a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio"><em>AlteracaoCardapio</em></a>) – Instancia a ser atualizada.</p></li>
+<li><p><strong>validated_data</strong> (<em>dict</em>) – Dados validados recebidos na requisicao.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instancia atualizada e salva.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio">AlteracaoCardapio</a></p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -1618,6 +1809,20 @@ to write an explicit <cite>.create()</cite> method.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.DatasIntervaloAlteracaoCardapioSerializerCreateSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DatasIntervaloAlteracaoCardapioSerializerCreateSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#DatasIntervaloAlteracaoCardapioSerializerCreateSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.DatasIntervaloAlteracaoCardapioSerializerCreateSerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa as datas individuais do intervalo na escrita da solicitacao.</p>
+<p>Recebe a referencia da alteracao de cardapio por UUID quando necessario e
+persiste cada <code class="docutils literal notranslate"><span class="pre">DataIntervaloAlteracaoCardapio</span></code> associada ao pedido.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p>Nenhum diretamente.</p></li>
+<li><p>Uso indireto em <code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioViewSet</span></code>, aninhado em
+<code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializerCreate</span></code> nas actions <code class="docutils literal notranslate"><span class="pre">create</span></code>,
+<code class="docutils literal notranslate"><span class="pre">update</span></code> e <code class="docutils literal notranslate"><span class="pre">partial_update</span></code>.</p></li>
+<li><p>Uso indireto em <code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioViewSet</span></code>, aninhado em
+<code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializer</span></code> nas respostas detalhadas de leitura.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.DatasIntervaloAlteracaoCardapioSerializerCreateSerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#DatasIntervaloAlteracaoCardapioSerializerCreateSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.DatasIntervaloAlteracaoCardapioSerializerCreateSerializer.Meta" title="Link to this definition"></a></dt>
@@ -1638,24 +1843,18 @@ to write an explicit <cite>.create()</cite> method.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.DatasIntervaloAlteracaoCardapioSerializerCreateSerializer.create">
 <span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#DatasIntervaloAlteracaoCardapioSerializerCreateSerializer.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.DatasIntervaloAlteracaoCardapioSerializerCreateSerializer.create" title="Link to this definition"></a></dt>
-<dd><p>We have a bit of extra checking around this in order to provide
-descriptive messages when something goes wrong, but this method is
-essentially just:</p>
-<blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id9"><span class="problematic" id="id10">**</span></a>validated_data)</p>
-</div></blockquote>
-<p>If there are many to many fields present on the instance then they
-cannot be set until the model is instantiated, in which case the
-implementation is like so:</p>
-<blockquote>
-<div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id11"><span class="problematic" id="id12">**</span></a>validated_data)
-instance.example_relationship = example_relationship
-return instance</p>
-</div></blockquote>
-<p>The default implementation also does not handle nested relationships.
-If you want to support writable nested relationships you’ll need
-to write an explicit <cite>.create()</cite> method.</p>
+<dd><p>Cria um registro de data individual do intervalo da solicitacao.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>validated_data</strong> (<em>dict</em>) – Dados validados da data do intervalo.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instancia criada.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio">DataIntervaloAlteracaoCardapio</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -1664,6 +1863,18 @@ to write an explicit <cite>.create()</cite> method.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase</span></code></a></p>
+<p>Serializa a escrita completa de substituicoes por periodo escolar.</p>
+<p>Complementa o serializer base com a alteracao de cardapio de destino e os
+tipos de alimentacao para os quais a refeicao sera convertida.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p>Nenhum diretamente.</p></li>
+<li><p>Uso indireto em <code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioViewSet</span></code>, aninhado em
+<code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializerCreate</span></code> nas actions <code class="docutils literal notranslate"><span class="pre">create</span></code>,
+<code class="docutils literal notranslate"><span class="pre">update</span></code> e <code class="docutils literal notranslate"><span class="pre">partial_update</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate.Meta" title="Link to this definition"></a></dt>
@@ -1684,24 +1895,20 @@ to write an explicit <cite>.create()</cite> method.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate.create">
 <span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate.create" title="Link to this definition"></a></dt>
-<dd><p>We have a bit of extra checking around this in order to provide
-descriptive messages when something goes wrong, but this method is
-essentially just:</p>
-<blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id13"><span class="problematic" id="id14">**</span></a>validated_data)</p>
-</div></blockquote>
-<p>If there are many to many fields present on the instance then they
-cannot be set until the model is instantiated, in which case the
-implementation is like so:</p>
-<blockquote>
-<div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id15"><span class="problematic" id="id16">**</span></a>validated_data)
-instance.example_relationship = example_relationship
-return instance</p>
-</div></blockquote>
-<p>The default implementation also does not handle nested relationships.
-If you want to support writable nested relationships you’ll need
-to write an explicit <cite>.create()</cite> method.</p>
+<dd><p>Cria uma substituicao de alimentacao com relacionamentos many-to-many.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>validated_data</strong> (<em>dict</em>) – Dados validados pelo serializer, incluindo
+<code class="docutils literal notranslate"><span class="pre">tipos_alimentacao_de</span></code> e <code class="docutils literal notranslate"><span class="pre">tipos_alimentacao_para</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instancia criada com os
+tipos de alimentacao de origem e destino vinculados.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar">SubstituicaoAlimentacaoNoPeriodoEscolar</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -1710,6 +1917,19 @@ to write an explicit <cite>.create()</cite> method.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/serializers_create.html#SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Define os campos base para escrita de substituicoes por periodo.</p>
+<p>Recebe referencias por UUID para o periodo escolar e para os tipos de
+alimentacao de origem ao criar ou atualizar uma alteracao de cardapio.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p>Nenhum diretamente.</p></li>
+<li><p>Uso indireto em <code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioViewSet</span></code>, por meio de
+<code class="docutils literal notranslate"><span class="pre">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate</span></code>
+aninhado em <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializerCreate</span></code> nas actions
+<code class="docutils literal notranslate"><span class="pre">create</span></code>, <code class="docutils literal notranslate"><span class="pre">update</span></code> e <code class="docutils literal notranslate"><span class="pre">partial_update</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

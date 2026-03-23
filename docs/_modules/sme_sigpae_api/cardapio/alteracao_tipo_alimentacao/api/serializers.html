@@ -93,6 +93,19 @@
 <div class="viewcode-block" id="MotivoAlteracaoCardapioSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.MotivoAlteracaoCardapioSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MotivoAlteracaoCardapioSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa motivos ativos de alteracao do tipo de alimentacao.</span>
+
+<span class="sd">    Expoe os campos publicos de ``MotivoAlteracaoCardapio`` usados para listar</span>
+<span class="sd">    e embutir o motivo selecionado em respostas de solicitacoes.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``MotivosAlteracaoCardapioViewSet``: uso direto como</span>
+<span class="sd">          ``serializer_class`` nas acoes ``list`` e ``retrieve``.</span>
+<span class="sd">        - ``AlteracoesCardapioViewSet``: uso indireto, aninhado em</span>
+<span class="sd">          ``AlteracaoCardapioSerializer`` e retornado nas respostas que usam</span>
+<span class="sd">          esse serializer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="MotivoAlteracaoCardapioSerializer.Meta">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.MotivoAlteracaoCardapioSerializer.Meta">[docs]</a>
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
@@ -107,6 +120,18 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerBase</span><span class="p">(</span>
     <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define os campos base de substituicoes por periodo escolar.</span>
+
+<span class="sd">    Centraliza a serializacao comum de periodo escolar, UUID da alteracao de</span>
+<span class="sd">    cardapio e tipos de alimentacao de origem.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - Nenhum diretamente.</span>
+<span class="sd">        - Uso indireto em ``AlteracoesCardapioViewSet``, por meio de</span>
+<span class="sd">          ``SubstituicoesAlimentacaoNoPeriodoEscolarSerializer`` aninhado em</span>
+<span class="sd">          ``AlteracaoCardapioSerializer``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">PeriodoEscolarSerializer</span><span class="p">()</span>
     <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
         <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
@@ -120,6 +145,17 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">SubstituicoesAlimentacaoNoPeriodoEscolarSerializer</span><span class="p">(</span>
     <span class="n">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerBase</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa substituicoes completas de alimentacao por periodo escolar.</span>
+
+<span class="sd">    Complementa o serializer base com os tipos de alimentacao de destino para</span>
+<span class="sd">    representar cada item da lista ``substituicoes`` de uma alteracao.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - Nenhum diretamente.</span>
+<span class="sd">        - Uso indireto em ``AlteracoesCardapioViewSet``, aninhado em</span>
+<span class="sd">          ``AlteracaoCardapioSerializer`` nas respostas de leitura.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">tipos_alimentacao_para</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SubstituicoesAlimentacaoNoPeriodoEscolarSerializer.Meta">
@@ -134,6 +170,17 @@
 <div class="viewcode-block" id="AlteracaoCardapioSerializerBase">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.AlteracaoCardapioSerializerBase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlteracaoCardapioSerializerBase</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define os campos comuns das respostas de alteracao de cardapio.</span>
+
+<span class="sd">    Reune os relacionamentos e campos calculados compartilhados pelos</span>
+<span class="sd">    serializers de leitura de ``AlteracaoCardapio``.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - Nenhum diretamente.</span>
+<span class="sd">        - Uso indireto em ``AlteracoesCardapioViewSet``, como classe base de</span>
+<span class="sd">          ``AlteracaoCardapioSerializer``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">escola</span> <span class="o">=</span> <span class="n">EscolaSimplesSerializer</span><span class="p">()</span>
     <span class="n">motivo</span> <span class="o">=</span> <span class="n">MotivoAlteracaoCardapioSerializer</span><span class="p">()</span>
     <span class="n">foi_solicitado_fora_do_prazo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">()</span>
@@ -146,6 +193,18 @@
 <div class="viewcode-block" id="AlteracaoCardapioSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.AlteracaoCardapioSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlteracaoCardapioSerializer</span><span class="p">(</span><span class="n">AlteracaoCardapioSerializerBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa a representacao detalhada de uma alteracao de cardapio.</span>
+
+<span class="sd">    Inclui substituicoes por periodo, datas do intervalo, motivo, escola,</span>
+<span class="sd">    logs e dados de rastreabilidade usados nas respostas completas da API.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``AlteracoesCardapioViewSet``: retornado por</span>
+<span class="sd">          ``get_serializer_class()`` em todas as acoes de leitura e nas actions</span>
+<span class="sd">          customizadas que respondem com o objeto serializado, exceto</span>
+<span class="sd">          ``create``, ``update`` e ``partial_update``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">substituicoes</span> <span class="o">=</span> <span class="n">SubstituicoesAlimentacaoNoPeriodoEscolarSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">datas_intervalo</span> <span class="o">=</span> <span class="n">DatasIntervaloAlteracaoCardapioSerializerCreateSerializer</span><span class="p">(</span>
         <span class="n">many</span><span class="o">=</span><span class="kc">True</span>
@@ -164,6 +223,16 @@
 <div class="viewcode-block" id="AlteracaoCardapioSimplesSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.AlteracaoCardapioSimplesSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlteracaoCardapioSimplesSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa uma visao resumida de alteracao de cardapio.</span>
+
+<span class="sd">    Remove campos mais pesados e relacionamentos aninhados para atender listagens</span>
+<span class="sd">    que precisam de um payload menor.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``AlteracoesCardapioViewSet``: uso direto na action</span>
+<span class="sd">          ``solicitacoes_dre``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">prioridade</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
 
 <div class="viewcode-block" id="AlteracaoCardapioSimplesSerializer.Meta">
