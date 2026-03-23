@@ -456,9 +456,11 @@ ORDEM_HEADERS_EMEBS = {
     "TARDE": 3,
     "INTEGRAL": 4,
     "NOITE": 5,
-    "Programas e Projetos": 6,
-    "DIETA ESPECIAL - TIPO A": 7,
-    "DIETA ESPECIAL - TIPO B": 8,
+    "INTERMEDIARIO": 6,
+    "VESPERTINO": 7,
+    "Programas e Projetos": 8,
+    "DIETA ESPECIAL - TIPO A": 9,
+    "DIETA ESPECIAL - TIPO B": 10,
 }
 
 ORDEM_HEADERS_CIEJA_CMCT = {
