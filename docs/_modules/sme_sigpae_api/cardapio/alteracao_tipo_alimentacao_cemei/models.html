@@ -1,0 +1,458 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sum</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">EhAlteracaoCardapio</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.managers.alteracao_tipo_alimentacao_cemei_managers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AlteracoesCardapioCEMEIDestaSemanaManager</span><span class="p">,</span>
+    <span class="n">AlteracoesCardapioCEMEIDesteMesManager</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CanceladoIndividualmente</span><span class="p">,</span>
+    <span class="n">CriadoEm</span><span class="p">,</span>
+    <span class="n">CriadoPor</span><span class="p">,</span>
+    <span class="n">Logs</span><span class="p">,</span>
+    <span class="n">MatriculadosQuandoCriado</span><span class="p">,</span>
+    <span class="n">SolicitacaoForaDoPrazo</span><span class="p">,</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">TemData</span><span class="p">,</span>
+    <span class="n">TemFaixaEtariaEQuantidade</span><span class="p">,</span>
+    <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
+    <span class="n">TemObservacao</span><span class="p">,</span>
+    <span class="n">TemPrioridade</span><span class="p">,</span>
+    <span class="n">TemTerceirizadaConferiuGestaoAlimentacao</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxoAprovacaoPartindoDaEscola</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span>
+
+
+<div class="viewcode-block" id="AlteracaoCardapioCEMEI">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlteracaoCardapioCEMEI</span><span class="p">(</span>
+    <span class="n">CriadoEm</span><span class="p">,</span>
+    <span class="n">CriadoPor</span><span class="p">,</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">TemObservacao</span><span class="p">,</span>
+    <span class="n">FluxoAprovacaoPartindoDaEscola</span><span class="p">,</span>
+    <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
+    <span class="n">Logs</span><span class="p">,</span>
+    <span class="n">TemPrioridade</span><span class="p">,</span>
+    <span class="n">SolicitacaoForaDoPrazo</span><span class="p">,</span>
+    <span class="n">EhAlteracaoCardapio</span><span class="p">,</span>
+    <span class="n">TemTerceirizadaConferiuGestaoAlimentacao</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">DESCRICAO</span> <span class="o">=</span> <span class="s2">&quot;Alteração do Tipo de Alimentação CEMEI&quot;</span>
+
+    <span class="n">TODOS</span> <span class="o">=</span> <span class="s2">&quot;TODOS&quot;</span>
+    <span class="n">CEI</span> <span class="o">=</span> <span class="s2">&quot;CEI&quot;</span>
+    <span class="n">EMEI</span> <span class="o">=</span> <span class="s2">&quot;EMEI&quot;</span>
+
+    <span class="n">STATUS_CHOICES</span> <span class="o">=</span> <span class="p">((</span><span class="n">TODOS</span><span class="p">,</span> <span class="s2">&quot;Todos&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">CEI</span><span class="p">,</span> <span class="s2">&quot;CEI&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">EMEI</span><span class="p">,</span> <span class="s2">&quot;EMEI&quot;</span><span class="p">))</span>
+
+    <span class="n">alunos_cei_e_ou_emei</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">STATUS_CHOICES</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">TODOS</span>
+    <span class="p">)</span>
+    <span class="n">alterar_dia</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="s2">&quot;Alterar dia&quot;</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">data_inicial</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="s2">&quot;Data inicial&quot;</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">data_final</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="s2">&quot;Data final&quot;</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span>  <span class="c1"># Manager Padrão</span>
+    <span class="n">desta_semana</span> <span class="o">=</span> <span class="n">AlteracoesCardapioCEMEIDestaSemanaManager</span><span class="p">()</span>
+    <span class="n">deste_mes</span> <span class="o">=</span> <span class="n">AlteracoesCardapioCEMEIDesteMesManager</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">alterar_dia</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_inicial</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">datas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">datas_intervalo</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">existe_dia_cancelado</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">datas_intervalo</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">cancelado</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">inclusoes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">datas_intervalo</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tipo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Alteração do Tipo de Alimentação&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;alteracao-do-tipo-de-alimentacao-cemei/relatorio?uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&amp;tipoSolicitacao=solicitacao-cemei&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">numero_alunos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">total</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_cemei_cei_periodo_escolar</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span>
+                <span class="n">Sum</span><span class="p">(</span><span class="s2">&quot;faixas_etarias__quantidade&quot;</span><span class="p">)</span>
+            <span class="p">)[</span><span class="s2">&quot;faixas_etarias__quantidade__sum&quot;</span><span class="p">]</span>
+            <span class="ow">or</span> <span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="n">total</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_cemei_emei_periodo_escolar</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Sum</span><span class="p">(</span><span class="s2">&quot;qtd_alunos&quot;</span><span class="p">))[</span>
+                <span class="s2">&quot;qtd_alunos__sum&quot;</span>
+            <span class="p">]</span>
+            <span class="ow">or</span> <span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">total</span>
+
+<div class="viewcode-block" id="AlteracaoCardapioCEMEI.salvar_log_transicao">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI.salvar_log_transicao">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">salvar_log_transicao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status_evento</span><span class="p">,</span> <span class="n">usuario</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">resposta_sim_nao</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;resposta_sim_nao&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">descricao</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="n">status_evento</span><span class="o">=</span><span class="n">status_evento</span><span class="p">,</span>
+            <span class="n">solicitacao_tipo</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">ALTERACAO_DE_CARDAPIO</span><span class="p">,</span>
+            <span class="n">usuario</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span>
+            <span class="n">uuid_original</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span><span class="p">,</span>
+            <span class="n">resposta_sim_nao</span><span class="o">=</span><span class="n">resposta_sim_nao</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AlteracaoCardapioCEMEI.substituicoes_dict">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI.substituicoes_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">substituicoes_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">substituicoes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">periodos_cei</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_cemei_cei_periodo_escolar</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">periodos_cei</span> <span class="o">=</span> <span class="n">periodos_cei</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;periodo_escolar__nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">periodos_emei</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_cemei_emei_periodo_escolar</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">periodos_emei</span> <span class="o">=</span> <span class="n">periodos_emei</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;periodo_escolar__nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">nomes_periodos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">periodos_cei</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">periodos_emei</span><span class="p">)</span>
+        <span class="n">nomes_periodos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">nomes_periodos</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">periodo</span> <span class="ow">in</span> <span class="n">nomes_periodos</span><span class="p">:</span>
+            <span class="n">substituicoes_cei</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_cemei_cei_periodo_escolar</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">periodo_escolar__nome</span><span class="o">=</span><span class="n">periodo</span>
+            <span class="p">)</span>
+            <span class="n">substituicoes_emei</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_cemei_emei_periodo_escolar</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">periodo_escolar__nome</span><span class="o">=</span><span class="n">periodo</span>
+            <span class="p">)</span>
+            <span class="n">faixas_cei</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">faixa_emei</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">sc</span> <span class="ow">in</span> <span class="n">substituicoes_cei</span><span class="p">:</span>
+                <span class="n">tipos_alimentacao_de</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                    <span class="n">sc</span><span class="o">.</span><span class="n">tipos_alimentacao_de</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">tipos_alimentacao_de</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tipos_alimentacao_de</span><span class="p">)</span>
+                <span class="n">tipos_alimentacao_para</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                    <span class="n">sc</span><span class="o">.</span><span class="n">tipos_alimentacao_para</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">tipos_alimentacao_para</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tipos_alimentacao_para</span><span class="p">)</span>
+                <span class="n">total_alunos</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">total_matriculados</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">faixas_etarias</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">faixa</span> <span class="ow">in</span> <span class="n">sc</span><span class="o">.</span><span class="n">faixas_etarias</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                    <span class="n">total_alunos</span> <span class="o">+=</span> <span class="n">faixa</span><span class="o">.</span><span class="n">quantidade</span>
+                    <span class="n">total_matriculados</span> <span class="o">+=</span> <span class="n">faixa</span><span class="o">.</span><span class="n">matriculados_quando_criado</span>
+                    <span class="n">faixa_etaria</span> <span class="o">=</span> <span class="n">faixa</span><span class="o">.</span><span class="n">faixa_etaria</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+                    <span class="n">faixas_etarias</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;faixa_etaria&quot;</span><span class="p">:</span> <span class="n">faixa_etaria</span><span class="p">,</span>
+                            <span class="s2">&quot;quantidade&quot;</span><span class="p">:</span> <span class="n">faixa</span><span class="o">.</span><span class="n">quantidade</span><span class="p">,</span>
+                            <span class="s2">&quot;matriculados_quando_criado&quot;</span><span class="p">:</span> <span class="n">faixa</span><span class="o">.</span><span class="n">matriculados_quando_criado</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+                <span class="n">faixas_cei</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;faixas_etarias&quot;</span><span class="p">:</span> <span class="n">faixas_etarias</span><span class="p">,</span>
+                    <span class="s2">&quot;total_alunos&quot;</span><span class="p">:</span> <span class="n">total_alunos</span><span class="p">,</span>
+                    <span class="s2">&quot;total_matriculados&quot;</span><span class="p">:</span> <span class="n">total_matriculados</span><span class="p">,</span>
+                    <span class="s2">&quot;tipos_alimentacao_de&quot;</span><span class="p">:</span> <span class="n">tipos_alimentacao_de</span><span class="p">,</span>
+                    <span class="s2">&quot;tipos_alimentacao_para&quot;</span><span class="p">:</span> <span class="n">tipos_alimentacao_para</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="k">for</span> <span class="n">se</span> <span class="ow">in</span> <span class="n">substituicoes_emei</span><span class="p">:</span>
+                <span class="n">tipos_alimentacao_de</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                    <span class="n">se</span><span class="o">.</span><span class="n">tipos_alimentacao_de</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">tipos_alimentacao_de</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tipos_alimentacao_de</span><span class="p">)</span>
+                <span class="n">tipos_alimentacao_para</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                    <span class="n">se</span><span class="o">.</span><span class="n">tipos_alimentacao_para</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">tipos_alimentacao_para</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tipos_alimentacao_para</span><span class="p">)</span>
+                <span class="n">faixa_emei</span><span class="p">[</span><span class="s2">&quot;tipos_alimentacao_de&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tipos_alimentacao_de</span>
+                <span class="n">faixa_emei</span><span class="p">[</span><span class="s2">&quot;tipos_alimentacao_para&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tipos_alimentacao_para</span>
+                <span class="n">faixa_emei</span><span class="p">[</span><span class="s2">&quot;quantidade&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">se</span><span class="o">.</span><span class="n">qtd_alunos</span>
+                <span class="n">faixa_emei</span><span class="p">[</span><span class="s2">&quot;matriculados_quando_criado&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">se</span><span class="o">.</span><span class="n">matriculados_quando_criado</span>
+            <span class="n">substituicoes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;periodo&quot;</span><span class="p">:</span> <span class="n">periodo</span><span class="p">,</span>
+                    <span class="s2">&quot;faixas_cei&quot;</span><span class="p">:</span> <span class="n">faixas_cei</span><span class="p">,</span>
+                    <span class="s2">&quot;faixas_emei&quot;</span><span class="p">:</span> <span class="n">faixa_emei</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">substituicoes</span></div>
+
+
+<div class="viewcode-block" id="AlteracaoCardapioCEMEI.solicitacao_dict_para_relatorio">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI.solicitacao_dict_para_relatorio">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solicitacao_dict_para_relatorio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_data</span><span class="p">,</span> <span class="n">data_log</span><span class="p">,</span> <span class="n">instituicao</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;lote&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rastro_lote</span><span class="o">.</span><span class="n">diretoria_regional</span><span class="o">.</span><span class="n">iniciais</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rastro_lote</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_educacional&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rastro_escola</span><span class="o">.</span><span class="n">nome_historico</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
+            <span class="s2">&quot;terceirizada&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rastro_terceirizada</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_doc&quot;</span><span class="p">:</span> <span class="s2">&quot;Alteração do tipo de Alimentação CEMEI&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_inicial&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_inicial</span><span class="p">,</span>
+            <span class="s2">&quot;data_final&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_final</span><span class="p">,</span>
+            <span class="s2">&quot;data_evento&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="s2">&quot;numero_alunos&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">numero_alunos</span><span class="p">,</span>
+            <span class="s2">&quot;motivo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">motivo</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+            <span class="s2">&quot;substituicoes&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_dict</span><span class="p">(),</span>
+            <span class="s2">&quot;observacao&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">observacao</span><span class="p">,</span>
+            <span class="s2">&quot;data_autorizacao&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_autorizacao</span><span class="p">,</span>
+            <span class="s2">&quot;label_data&quot;</span><span class="p">:</span> <span class="n">label_data</span><span class="p">,</span>
+            <span class="s2">&quot;data_log&quot;</span><span class="p">:</span> <span class="n">data_log</span><span class="p">,</span>
+            <span class="s2">&quot;id_externo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_externo</span><span class="p">,</span>
+            <span class="s2">&quot;datas_intervalo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">datas_intervalo</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Alteração de cardápio CEMEI de </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Alteração de cardápio CEMEI&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Alterações de cardápio CEMEI&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI</span><span class="p">(</span><span class="n">TemChaveExterna</span><span class="p">):</span>
+    <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;AlteracaoCardapioCEMEI&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;substituicoes_cemei_cei_periodo_escolar&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.PeriodoEscolar&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;substituicoes_cemei_cei_periodo_escolar&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">tipos_alimentacao_de</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="s2">&quot;TipoAlimentacao&quot;</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;substituicoes_cemei_cei_tipo_alimentacao_de&quot;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">tipos_alimentacao_para</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="s2">&quot;TipoAlimentacao&quot;</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;substituicoes_cemei_cei_alimento_para&quot;</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Substituições selecionada na solicitação&quot;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Substituições de alimentação CEMEI: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2"> da Alteração de Cardápio: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alteracao_cardapio</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Substituições de alimentação CEMEI CEI no período&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Substituições de alimentação CEMEI CEI no período&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI</span><span class="p">(</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">MatriculadosQuandoCriado</span>
+<span class="p">):</span>
+    <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;AlteracaoCardapioCEMEI&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;substituicoes_cemei_emei_periodo_escolar&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">qtd_alunos</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.PeriodoEscolar&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;substituicoes_cemei_emei_periodo_escolar&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">tipos_alimentacao_de</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="s2">&quot;TipoAlimentacao&quot;</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;substituicoes_cemei_emei_tipo_alimentacao_de&quot;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">tipos_alimentacao_para</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="s2">&quot;TipoAlimentacao&quot;</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;substituicoes_cemei_emei_alimento_para&quot;</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Substituições selecionada na solicitação&quot;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Substituições de alimentação CEMEI EMEI: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;da Alteração de Cardápio: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alteracao_cardapio</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Substituições de alimentação CEMEI EMEI no período&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Substituições de alimentação CEMEI EMEI no período&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="FaixaEtariaSubstituicaoAlimentacaoCEMEICEI">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.FaixaEtariaSubstituicaoAlimentacaoCEMEICEI">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FaixaEtariaSubstituicaoAlimentacaoCEMEICEI</span><span class="p">(</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">TemFaixaEtariaEQuantidade</span><span class="p">,</span> <span class="n">MatriculadosQuandoCriado</span>
+<span class="p">):</span>
+    <span class="n">substituicao_alimentacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;faixas_etarias&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">retorno</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Faixa Etária de substituição de alimentação CEMEI CEI: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">retorno</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; da Substituição: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">substituicao_alimentacao</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">retorno</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Faixa Etária de substituição de alimentação CEMEI CEI&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Faixas Etárias de substituição de alimentação CEMEI CEI&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="DataIntervaloAlteracaoCardapioCEMEI">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.DataIntervaloAlteracaoCardapioCEMEI">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataIntervaloAlteracaoCardapioCEMEI</span><span class="p">(</span>
+    <span class="n">CanceladoIndividualmente</span><span class="p">,</span>
+    <span class="n">CriadoEm</span><span class="p">,</span>
+    <span class="n">TemData</span><span class="p">,</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">alteracao_cardapio_cemei</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;AlteracaoCardapioCEMEI&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;datas_intervalo&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Data </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2"> da Alteração de cardápio CEMEI #</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alteracao_cardapio_cemei</span><span class="o">.</span><span class="n">id_externo</span><span class="si">}</span><span class="s2"> de &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alteracao_cardapio_cemei</span><span class="o">.</span><span class="n">data_inicial</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alteracao_cardapio_cemei</span><span class="o">.</span><span class="n">data_inicial</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Data do intervalo de Alteração de cardápio CEMEI&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Datas do intervalo de Alteração de cardápio CEMEI&quot;</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

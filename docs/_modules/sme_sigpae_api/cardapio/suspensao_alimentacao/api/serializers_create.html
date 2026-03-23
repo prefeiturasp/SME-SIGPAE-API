@@ -1,0 +1,259 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.base.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">TipoAlimentacao</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.suspensao_alimentacao.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GrupoSuspensaoAlimentacao</span><span class="p">,</span>
+    <span class="n">MotivoSuspensao</span><span class="p">,</span>
+    <span class="n">QuantidadePorPeriodoSuspensaoAlimentacao</span><span class="p">,</span>
+    <span class="n">SuspensaoAlimentacao</span><span class="p">,</span>
+    <span class="n">SuspensaoAlimentacaoNoPeriodoEscolar</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_instance_from_dict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.validators</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">deve_ser_no_mesmo_ano_corrente</span><span class="p">,</span>
+    <span class="n">nao_pode_ser_no_passado</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.escola.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Escola</span><span class="p">,</span> <span class="n">PeriodoEscolar</span>
+
+
+<div class="viewcode-block" id="SuspensaoAlimentacaoNoPeriodoEscolarCreateSerializer">
+<a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create.SuspensaoAlimentacaoNoPeriodoEscolarCreateSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SuspensaoAlimentacaoNoPeriodoEscolarCreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">PeriodoEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">TipoAlimentacao</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="SuspensaoAlimentacaoNoPeriodoEscolarCreateSerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create.SuspensaoAlimentacaoNoPeriodoEscolarCreateSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SuspensaoAlimentacaoNoPeriodoEscolar</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;suspensao_alimentacao&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SuspensaoAlimentacaoCreateSerializer">
+<a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create.SuspensaoAlimentacaoCreateSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SuspensaoAlimentacaoCreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">motivo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">MotivoSuspensao</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="SuspensaoAlimentacaoCreateSerializer.validate_data">
+<a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create.SuspensaoAlimentacaoCreateSerializer.validate_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">nao_pode_ser_no_passado</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">deve_ser_no_mesmo_ano_corrente</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="SuspensaoAlimentacaoCreateSerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create.SuspensaoAlimentacaoCreateSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SuspensaoAlimentacao</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="QuantidadePorPeriodoSuspensaoAlimentacaoCreateSerializer">
+<a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create.QuantidadePorPeriodoSuspensaoAlimentacaoCreateSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">QuantidadePorPeriodoSuspensaoAlimentacaoCreateSerializer</span><span class="p">(</span>
+    <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span>
+<span class="p">):</span>
+    <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">PeriodoEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">TipoAlimentacao</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">alunos_cei_ou_emei</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="QuantidadePorPeriodoSuspensaoAlimentacaoCreateSerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create.QuantidadePorPeriodoSuspensaoAlimentacaoCreateSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">QuantidadePorPeriodoSuspensaoAlimentacao</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;grupo_suspensao&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="GrupoSuspensaoAlimentacaoCreateSerializer">
+<a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create.GrupoSuspensaoAlimentacaoCreateSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GrupoSuspensaoAlimentacaoCreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">escola</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">Escola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">quantidades_por_periodo</span> <span class="o">=</span> <span class="n">QuantidadePorPeriodoSuspensaoAlimentacaoCreateSerializer</span><span class="p">(</span>
+        <span class="n">many</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">suspensoes_alimentacao</span> <span class="o">=</span> <span class="n">SuspensaoAlimentacaoCreateSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GrupoSuspensaoAlimentacaoCreateSerializer.create">
+<a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create.GrupoSuspensaoAlimentacaoCreateSerializer.create">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+        <span class="n">quantidades_por_periodo_array</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;quantidades_por_periodo&quot;</span><span class="p">)</span>
+        <span class="n">suspensoes_alimentacao_array</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;suspensoes_alimentacao&quot;</span><span class="p">)</span>
+        <span class="n">validated_data</span><span class="p">[</span><span class="s2">&quot;criado_por&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">user</span>
+
+        <span class="n">quantidades</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">quantidade_json</span> <span class="ow">in</span> <span class="n">quantidades_por_periodo_array</span><span class="p">:</span>
+            <span class="n">quantidade</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">QuantidadePorPeriodoSuspensaoAlimentacaoCreateSerializer</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                    <span class="n">quantidade_json</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">quantidades</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quantidade</span><span class="p">)</span>
+
+        <span class="n">suspensoes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">suspensao_json</span> <span class="ow">in</span> <span class="n">suspensoes_alimentacao_array</span><span class="p">:</span>
+            <span class="n">suspensao</span> <span class="o">=</span> <span class="n">SuspensaoAlimentacaoCreateSerializer</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">suspensao_json</span><span class="p">)</span>
+            <span class="n">suspensoes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">suspensao</span><span class="p">)</span>
+
+        <span class="n">grupo</span> <span class="o">=</span> <span class="n">GrupoSuspensaoAlimentacao</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">validated_data</span><span class="p">)</span>
+        <span class="n">grupo</span><span class="o">.</span><span class="n">quantidades_por_periodo</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">quantidades</span><span class="p">)</span>
+        <span class="n">grupo</span><span class="o">.</span><span class="n">suspensoes_alimentacao</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">suspensoes</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">grupo</span></div>
+
+
+<div class="viewcode-block" id="GrupoSuspensaoAlimentacaoCreateSerializer.update">
+<a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create.GrupoSuspensaoAlimentacaoCreateSerializer.update">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+        <span class="n">quantidades_por_periodo_array</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;quantidades_por_periodo&quot;</span><span class="p">)</span>
+        <span class="n">suspensoes_alimentacao_array</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;suspensoes_alimentacao&quot;</span><span class="p">)</span>
+
+        <span class="n">instance</span><span class="o">.</span><span class="n">quantidades_por_periodo</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">suspensoes_alimentacao</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+
+        <span class="n">quantidades</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">quantidade_json</span> <span class="ow">in</span> <span class="n">quantidades_por_periodo_array</span><span class="p">:</span>
+            <span class="n">quantidade</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">QuantidadePorPeriodoSuspensaoAlimentacaoCreateSerializer</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                    <span class="n">quantidade_json</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">quantidades</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quantidade</span><span class="p">)</span>
+
+        <span class="n">suspensoes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">suspensao_json</span> <span class="ow">in</span> <span class="n">suspensoes_alimentacao_array</span><span class="p">:</span>
+            <span class="n">suspensao</span> <span class="o">=</span> <span class="n">SuspensaoAlimentacaoCreateSerializer</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">suspensao_json</span><span class="p">)</span>
+            <span class="n">suspensoes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">suspensao</span><span class="p">)</span>
+
+        <span class="n">update_instance_from_dict</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">quantidades_por_periodo</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">quantidades</span><span class="p">)</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">suspensoes_alimentacao</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">suspensoes</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">instance</span></div>
+
+
+<div class="viewcode-block" id="GrupoSuspensaoAlimentacaoCreateSerializer.Meta">
+<a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create.GrupoSuspensaoAlimentacaoCreateSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">GrupoSuspensaoAlimentacao</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
