@@ -57,8 +57,12 @@ coverage.xml
 # Django stuff:
 staticfiles/
 
-# Sphinx documentation
+# Sphinx build
 docs/_build/
+docs/build/
+docs/_modules/
+docs/_sources/
+docs/.doctrees/
 
 # PyBuilder
 target/
