@@ -44,8 +44,6 @@ class AlteracaoCardapioCEI(
 ):
     DESCRICAO = "Alteração do Tipo de Alimentação CEI"
 
-    eh_alteracao_com_lanche_repetida = models.BooleanField(default=False)
-
     objects = models.Manager()  # Manager Padrão
     desta_semana = AlteracoesCardapioCEIDestaSemanaManager()
     deste_mes = AlteracoesCardapioCEIDesteMesManager()

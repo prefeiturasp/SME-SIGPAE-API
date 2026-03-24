@@ -334,7 +334,6 @@ def test_url_endpoint_alt_card_datas_intervalo_lanche_emergencial_erro_sem_dia_l
         "data_inicial": "18/11/2023",
         "data_final": "19/11/2023",
         "observacao": "<p>cozinha em reforma</p>",
-        "eh_alteracao_com_lanche_repetida": False,
         "escola": f"{str(escola_com_vinculo_alimentacao.uuid)}",
         "substituicoes": [
             {
@@ -375,7 +374,6 @@ def test_url_endpoint_alt_card_datas_intervalo_lanche_emergencial_com_dia_letivo
         "data_inicial": "18/11/2023",
         "data_final": "19/11/2023",
         "observacao": "<p>cozinha em reforma</p>",
-        "eh_alteracao_com_lanche_repetida": False,
         "escola": f"{str(escola_com_dias_letivos.uuid)}",
         "substituicoes": [
             {
@@ -416,7 +414,6 @@ def test_url_endpoint_alt_card_datas_intervalo_lanche_emergencial_com_inclusao_n
         "data_inicial": "18/11/2023",
         "data_final": "19/11/2023",
         "observacao": "<p>cozinha em reforma</p>",
-        "eh_alteracao_com_lanche_repetida": False,
         "escola": f"{str(escola_com_dias_nao_letivos.uuid)}",
         "substituicoes": [
             {
@@ -457,7 +454,6 @@ def test_url_endpoint_alt_card_datas_intervalo_lanche_emergencial_com_inclusao_n
         "data_inicial": "18/11/2023",
         "data_final": "19/11/2023",
         "observacao": "<p>cozinha em reforma</p>",
-        "eh_alteracao_com_lanche_repetida": False,
         "escola": f"{str(escola_com_dias_letivos.uuid)}",
         "substituicoes": [
             {
@@ -498,7 +494,6 @@ def test_url_endpoint_alt_card_datas_intervalo_lanche_emergencial_com_inclusao_c
         "data_inicial": "18/11/2023",
         "data_final": "19/11/2023",
         "observacao": "<p>cozinha em reforma</p>",
-        "eh_alteracao_com_lanche_repetida": False,
         "escola": f"{str(escola_com_dias_nao_letivos.uuid)}",
         "substituicoes": [
             {
@@ -538,7 +533,6 @@ def test_url_endpoint_alt_card_datas_intervalo_lanche_emergencial_com_inclusao_c
         "data_inicial": "18/11/2023",
         "data_final": "19/11/2023",
         "observacao": "<p>cozinha em reforma</p>",
-        "eh_alteracao_com_lanche_repetida": False,
         "escola": f"{str(escola_com_dias_letivos.uuid)}",
         "substituicoes": [
             {
@@ -579,7 +573,6 @@ def test_url_endpoint_alt_card_datas_intervalo_lanche_emergencial_com_inclusao_c
         "data_inicial": "18/11/2023",
         "data_final": "19/11/2023",
         "observacao": "<p>cozinha em reforma</p>",
-        "eh_alteracao_com_lanche_repetida": False,
         "escola": f"{str(escola_com_dias_letivos.uuid)}",
         "substituicoes": [
             {

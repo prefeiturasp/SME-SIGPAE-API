@@ -322,7 +322,6 @@ def alteracao_substituicoes_params(request, daqui_dez_dias_ou_ultimo_dia_do_ano)
         "status": "DRE_A VALIDAR",
         "alterar_dia": daqui_dez_dias_ou_ultimo_dia_do_ano.isoformat(),
         "quantidades_periodo_TARDE": {"numero_de_alunos": "30"},
-        "eh_alteracao_com_lanche_repetida": False,
         "escola": str(escola.uuid),
         "substituicoes": [
             {
