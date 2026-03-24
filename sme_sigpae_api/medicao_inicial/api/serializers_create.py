@@ -964,6 +964,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         justificativa_sem_lancamentos = validated_data.pop(
             "justificativa_sem_lancamentos", None
         )
+        validated_data.pop("alunos_periodo_parcial", None)
         self._update_instance_fields(instance, validated_data)
         self._update_responsaveis(instance)
         self._update_alunos(instance, validated_data)
@@ -1008,12 +1009,16 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         )
         if alunos_periodo_parcial:
             escola_associada = validated_data.get("escola")
-            if self.context["request"].data.get("alunos_parcial_alterado") == "true":
-                atualiza_alunos_periodo_parcial(
-                    instance, json.loads(alunos_periodo_parcial)
-                )
+            if isinstance(alunos_periodo_parcial, str):
+                alunos_periodo_parcial = json.loads(alunos_periodo_parcial)
+
+            if self.context["request"].data.get("alunos_parcial_alterado") in [
+                "true",
+                True,
+            ]:
+                atualiza_alunos_periodo_parcial(instance, alunos_periodo_parcial)
             instance.alunos_periodo_parcial.all().delete()
-            for aluno in json.loads(alunos_periodo_parcial):
+            for aluno in alunos_periodo_parcial:
                 dia, mes, ano = aluno.get("data", "").split("/")
                 dia = int(dia)
                 mes = int(mes)
@@ -1603,6 +1608,8 @@ class InformacoesBasicasMedicaoInicialUpdateSerializer(
 
         self._update_tipos_contagem_alimentacao(instance)
         validated_data.pop("tipos_contagem_alimentacao", None)
+
+        validated_data.pop("alunos_periodo_parcial", None)
 
         self._update_instance_fields(instance, validated_data)
         self._update_alunos(instance, validated_data)

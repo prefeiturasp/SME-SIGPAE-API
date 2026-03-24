@@ -2233,18 +2233,19 @@ def test_url_endpoint_atualiza_informacoes_basicas_aluno_parcial_sincroniza_logs
     )
     payload_base = {
         "escola": str(escola_cei.uuid),
-        "responsaveis": json.dumps([{"nome": "Responsável 1", "rf": "1234567"}]),
-        "ue_possui_alunos_periodo_parcial": "true",
-        "alunos_parcial_alterado": "true",
+        "responsaveis": [{"nome": "Responsável 1", "rf": "1234567"}],
+        "ue_possui_alunos_periodo_parcial": True,
+        "alunos_parcial_alterado": True,
     }
 
     response = client_autenticado_da_escola_cei.patch(
         url,
+        content_type="application/json",
         data={
             **payload_base,
-            "alunos_periodo_parcial": json.dumps(
-                [{"aluno": str(aluno.uuid), "data": "10/04/2023"}]
-            ),
+            "alunos_periodo_parcial": [
+                {"aluno": str(aluno.uuid), "data": "10/04/2023"}
+            ],
         },
     )
 
@@ -2252,17 +2253,16 @@ def test_url_endpoint_atualiza_informacoes_basicas_aluno_parcial_sincroniza_logs
 
     response = client_autenticado_da_escola_cei.patch(
         url,
+        content_type="application/json",
         data={
             **payload_base,
-            "alunos_periodo_parcial": json.dumps(
-                [
-                    {
-                        "aluno": str(aluno.uuid),
-                        "data": "12/04/2023",
-                        "data_removido": "15/04/2023",
-                    }
-                ]
-            ),
+            "alunos_periodo_parcial": [
+                {
+                    "aluno": str(aluno.uuid),
+                    "data": "12/04/2023",
+                    "data_removido": "15/04/2023",
+                }
+            ],
         },
     )
 
