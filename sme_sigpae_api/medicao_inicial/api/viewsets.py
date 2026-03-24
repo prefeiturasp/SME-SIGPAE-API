@@ -2318,15 +2318,51 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
 
 
 class DadosLiquidacaoViewSet(ModelViewSet):
+    """
+    ViewSet responsável pelo gerenciamento de DadosLiquidacao.
+
+    Endpoints padrão:
+        - GET /dados-liquidacao/
+        - POST /dados-liquidacao/
+        - PUT /dados-liquidacao/{id}/
+        - PATCH /dados-liquidacao/{id}/
+        - DELETE /dados-liquidacao/{id}/
+
+    Funcionalidades adicionais:
+        - Filtro por relatório financeiro via query param
+        - Registro em lote de empenhos
+
+    Query Params:
+        relatorio_financeiro (UUID, optional): Filtra os dados por UUID do relatório financeiro.
+
+    Serializers:
+        - DadosLiquidacaoSerializer: Usado para leitura
+        - DadosLiquidacaoUpdateSerializer: Usado para escrita
+    """
+
     queryset = DadosLiquidacao.objects.all()
 
     def get_serializer_class(self):
+        """
+        Retorna o serializer adequado com base na ação.
+
+        Returns:
+            Serializer: Classe de serializer apropriada.
+        """
+
         if self.action in ["create", "update", "partial_update"]:
             return DadosLiquidacaoUpdateSerializer
 
         return DadosLiquidacaoSerializer
 
     def get_queryset(self):
+        """
+        Filtra o queryset com base no UUID do relatório financeiro.
+
+        Returns:
+            QuerySet: Lista filtrada de DadosLiquidacao.
+        """
+
         queryset = super().get_queryset()
         relatorio_uuid = self.request.query_params.get("relatorio_financeiro")
 
@@ -2343,6 +2379,41 @@ class DadosLiquidacaoViewSet(ModelViewSet):
     )
     @transaction.atomic
     def registrar_empenhos(self, request, uuid_relatorio_financeiro=None):
+        """
+        Registra ou atualiza múltiplos dados de liquidação em lote.
+
+        Esse endpoint realiza:
+            - Criação de novos registros
+            - Atualização de registros existentes
+            - Remoção de registros não enviados na requisição
+
+        Args:
+            request (Request): Requisição contendo uma lista de dados de liquidação.
+            uuid_relatorio_financeiro (UUID): UUID do relatório financeiro associado.
+
+        Request Body:
+            list[dict]: Lista de objetos contendo:
+                - uuid (optional)
+                - numero_empenho (str)
+                - tipo_empenho (str)
+                - unidades_educacionais (list[UUID])
+
+        Returns:
+            Response: Lista dos dados processados.
+
+        Raises:
+            ValidationError: Caso o payload não seja uma lista ou contenha dados inválidos.
+
+        Notes:
+            - A operação é atômica (rollback em caso de erro).
+            - Registros não incluídos na requisição serão removidos.
+            - A identificação dos registros existentes pode ocorrer por UUID ou chave composta.
+
+        Status Codes:
+            200 OK: Operação realizada com sucesso.
+            400 Bad Request: Erro de validação.
+        """
+
         if not isinstance(request.data, list):
             raise ValidationError("Envie uma lista de dados.")
 

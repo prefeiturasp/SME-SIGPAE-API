@@ -1616,6 +1616,22 @@ class InformacoesBasicasMedicaoInicialUpdateSerializer(
 
 
 class DadosLiquidacaoUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer responsável pela criação e atualização de DadosLiquidacao.
+
+    Utiliza SlugRelatedField para associar:
+    - Relatório financeiro via UUID
+    - Unidades educacionais via UUID
+
+    Attributes:
+        relatorio_financeiro_id (UUID): UUID do relatório financeiro.
+        unidades_educacionais (List[UUID]): Lista de UUIDs das unidades educacionais.
+
+    Notes:
+        - O campo relatorio_financeiro_id é write_only.
+        - O campo unidades_educacionais aceita múltiplos valores.
+    """
+
     relatorio_financeiro_id = serializers.SlugRelatedField(
         queryset=RelatorioFinanceiro.objects.all(),
         slug_field="uuid",

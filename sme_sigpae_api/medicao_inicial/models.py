@@ -908,6 +908,26 @@ class RelatorioFinanceiro(
 
 
 class DadosLiquidacao(TemChaveExterna, CriadoEm, TemAlteradoEm):
+    """
+    Dados para liquidação vinculados a um relatório financeiro.
+
+    Essa entidade armazena informações relacionadas a empenhos, incluindo
+    número, tipo e as unidades educacionais associadas.
+
+    Attributes:
+        relatorio_financeiro (RelatorioFinanceiro): Relatório financeiro ao qual o dado pertence.
+        numero_empenho (str): Número identificador do empenho.
+        tipo_empenho (str): Tipo/classificação do empenho.
+        unidades_educacionais (ManyToMany[Escola]): Lista de unidades educacionais (escolas) associadas ao empenho.
+
+    Meta:
+        verbose_name (str): Nome singular da entidade.
+        verbose_name_plural (str): Nome plural da entidade.
+        ordering (list): Ordenação padrão por data de alteração decrescente.
+        constraints (list): Garante unicidade da combinação entre número do empenho,
+            tipo e relatório financeiro.
+    """
+
     relatorio_financeiro = models.ForeignKey(
         RelatorioFinanceiro,
         to_field="uuid",

@@ -426,6 +426,16 @@ class RelatorioFinanceiroSerializer(serializers.ModelSerializer):
 
 
 class DadosLiquidacaoSerializer(serializers.ModelSerializer):
+    """
+    Serializer de leitura para DadosLiquidacao.
+
+    Retorna os dados completos com relacionamentos aninhados.
+
+    Attributes:
+        relatorio_financeiro (RelatorioFinanceiroSerializer): Dados do relatório financeiro.
+        unidades_educacionais (List[EscolaSerializer]): Lista de unidades educacionais associadas.
+    """
+
     relatorio_financeiro = RelatorioFinanceiroSerializer(read_only=True)
     unidades_educacionais = EscolaSerializer(
         many=True,
