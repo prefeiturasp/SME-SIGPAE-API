@@ -849,7 +849,11 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
         return self.get_paginated_response(serializer.data)
 
 
-class HomologacaoProdutoViewSet(viewsets.ModelViewSet):
+class HomologacaoProdutoViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
     lookup_field = "uuid"
     serializer_class = HomologacaoProdutoSerializer
     queryset = HomologacaoProduto.objects.all()
