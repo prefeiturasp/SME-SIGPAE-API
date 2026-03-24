@@ -21,11 +21,11 @@ from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_PERIODOS_GRUPOS_CEI,
     ORDEM_PERIODOS_GRUPOS_CEMEI,
     ORDEM_PERIODOS_GRUPOS_EMEBS,
+    ORDEM_UNIDADES_GRUPO_CEMEI,
     ORDEM_UNIDADES_GRUPO_CIEJA_CMCT,
     ORDEM_UNIDADES_GRUPO_EMEBS,
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
-    ORDEM_UNIDADES_GRUPO_CEMEI,
     TIPOS_TURMAS_EMEBS,
 )
 from sme_sigpae_api.dados_comuns.utils import (
@@ -60,12 +60,12 @@ from sme_sigpae_api.medicao_inicial.models import (
     SolicitacaoMedicaoInicial,
     ValorMedicao,
 )
+from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emebs import (
+    _get_total_pagamento as _get_total_pagamento_emebs,
+)
 from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emei_emef import (
     _total_pagamento_emef,
     _total_pagamento_emei,
-)
-from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_emebs import (
-    _get_total_pagamento as _get_total_pagamento_emebs,
 )
 from sme_sigpae_api.medicao_inicial.services.utils import (
     get_categorias_dietas,
@@ -4743,121 +4743,135 @@ def cria_relatorios_financeiros_por_grupo_unidade_escolar(data):
                     continue
 
 
-def cria_logs_parcial(logs, periodo, solicitacao, periodo_escolar, data, faixa_etaria):
-    if not logs and periodo == "PARCIAL":
-        LogAlunosMatriculadosFaixaEtariaDia.objects.create(
-            escola=solicitacao.escola,
-            periodo_escolar=periodo_escolar,
-            quantidade=1,
-            data=data,
-            faixa_etaria=faixa_etaria,
+def _parse_data_aluno_periodo_parcial(data_referencia):
+    if not data_referencia:
+        return None
+    if isinstance(data_referencia, datetime.date):
+        return data_referencia
+    dia, mes, ano = data_referencia.split("/")
+    return datetime.date(int(ano), int(mes), int(dia))
+
+
+def _serializa_estado_aluno_periodo_parcial(aluno_uuid, data, data_removido=None):
+    return {
+        "aluno_uuid": str(aluno_uuid),
+        "data": _parse_data_aluno_periodo_parcial(data),
+        "data_removido": _parse_data_aluno_periodo_parcial(data_removido),
+    }
+
+
+def _mapa_estado_alunos_periodo_parcial(solicitacao, alunos_periodo_parcial):
+    estado = {}
+
+    for aluno_periodo_parcial in alunos_periodo_parcial:
+        if hasattr(aluno_periodo_parcial, "aluno_id"):
+            estado[str(aluno_periodo_parcial.aluno.uuid)] = (
+                _serializa_estado_aluno_periodo_parcial(
+                    aluno_periodo_parcial.aluno.uuid,
+                    aluno_periodo_parcial.data,
+                    aluno_periodo_parcial.data_removido,
+                )
+            )
+            continue
+
+        aluno_uuid = aluno_periodo_parcial.get("aluno")
+        if not aluno_uuid:
+            continue
+        estado[str(aluno_uuid)] = _serializa_estado_aluno_periodo_parcial(
+            aluno_uuid,
+            aluno_periodo_parcial.get("data"),
+            aluno_periodo_parcial.get("data_removido"),
+        )
+
+    return estado
+
+
+def _datas_ativas_periodo_parcial(solicitacao, estado_aluno):
+    if not estado_aluno or not estado_aluno.get("data"):
+        return set()
+
+    data_inicial = estado_aluno["data"]
+    quantidade_dias = monthrange(int(solicitacao.ano), int(solicitacao.mes))[1]
+    ultimo_dia_do_mes = datetime.date(
+        int(solicitacao.ano), int(solicitacao.mes), quantidade_dias
+    )
+    data_final = ultimo_dia_do_mes
+
+    if estado_aluno.get("data_removido"):
+        data_final = min(
+            estado_aluno["data_removido"] - datetime.timedelta(days=1),
+            ultimo_dia_do_mes,
+        )
+
+    if data_final < data_inicial:
+        return set()
+
+    datas = set()
+    data_atual = data_inicial
+    while data_atual <= data_final:
+        datas.add(data_atual)
+        data_atual += datetime.timedelta(days=1)
+
+    return datas
+
+
+def _ajusta_quantidade_log_aluno_periodo_parcial(
+    solicitacao, periodo_escolar, faixa_etaria, data, delta
+):
+    log, _ = LogAlunosMatriculadosFaixaEtariaDia.objects.get_or_create(
+        escola=solicitacao.escola,
+        periodo_escolar=periodo_escolar,
+        faixa_etaria=faixa_etaria,
+        data=data,
+        defaults={"quantidade": 0},
+    )
+    log.quantidade = max(log.quantidade + delta, 0)
+    log.save()
+
+
+def _atualiza_logs_diferenca_periodo_parcial(solicitacao, aluno, datas, operacao):
+    if not datas:
+        return
+
+    periodo_integral = PeriodoEscolar.objects.get(nome="INTEGRAL")
+    periodo_parcial = PeriodoEscolar.objects.get(nome="PARCIAL")
+    delta_parcial = 1 if operacao == "adicionar" else -1
+    delta_integral = -1 if operacao == "adicionar" else 1
+
+    for data in sorted(datas):
+        faixa_etaria = aluno.faixa_etaria(data)
+        _ajusta_quantidade_log_aluno_periodo_parcial(
+            solicitacao, periodo_parcial, faixa_etaria, data, delta_parcial
+        )
+        _ajusta_quantidade_log_aluno_periodo_parcial(
+            solicitacao, periodo_integral, faixa_etaria, data, delta_integral
         )
 
 
-def subtrai_quantidade(log):
-    if log.quantidade > 0:
-        log.quantidade -= 1
-        log.save()
-
-
-def atualiza_quantidade_logs_adicao(logs, periodo):
-    for log in logs:
-        if periodo == "PARCIAL":
-            log.quantidade += 1
-            log.save()
-        else:
-            subtrai_quantidade(log)
-
-
-def atualiza_logs_adicao(solicitacao, aluno_periodo_parcial, aluno):
-    aluno_data = aluno_periodo_parcial.get("data", "")
-    if isinstance(aluno_data, datetime.date):
-        aluno_data = f"{aluno_data.day}/{aluno_data.month}/{aluno_data.year}"
-    (dia, mes, ano) = aluno_data.split("/")
-    dia = int(dia)
-    mes = int(mes)
-    ano = int(ano)
-    if not solicitacao.alunos_periodo_parcial.filter(
-        aluno=aluno, data=datetime.date(ano, mes, dia)
-    ).exists():
-        for periodo in ["PARCIAL", "INTEGRAL"]:
-            cont_dia = dia
-            periodo_escolar = PeriodoEscolar.objects.get(nome=periodo)
-            quantidade_dias = monthrange(int(solicitacao.ano), int(solicitacao.mes))[1]
-            ultimo_dia_do_mes = datetime.date(
-                int(solicitacao.ano), int(solicitacao.mes), quantidade_dias
-            )
-            while cont_dia <= ultimo_dia_do_mes.day:
-                data = datetime.date(
-                    int(solicitacao.ano), int(solicitacao.mes), int(cont_dia)
-                )
-                faixa_etaria = aluno.faixa_etaria(data)
-                logs = LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
-                    escola=solicitacao.escola,
-                    periodo_escolar=periodo_escolar,
-                    data__year=int(solicitacao.ano),
-                    data__month=int(solicitacao.mes),
-                    data__day=int(cont_dia),
-                    faixa_etaria=faixa_etaria,
-                )
-                cria_logs_parcial(
-                    logs, periodo, solicitacao, periodo_escolar, data, faixa_etaria
-                )
-                atualiza_quantidade_logs_adicao(logs, periodo)
-                cont_dia += 1
-
-
-def atualiza_quantidade_logs_remocao(logs, periodo):
-    for log in logs:
-        if periodo == "PARCIAL":
-            subtrai_quantidade(log)
-        else:
-            log.quantidade += 1
-            log.save()
-
-
-def atualiza_logs_remocao(solicitacao, aluno_periodo_parcial, aluno):
-    aluno_data_removido = aluno_periodo_parcial.get("data_removido", "")
-    if isinstance(aluno_data_removido, datetime.date):
-        aluno_data_removido = f"{aluno_data_removido.day}/{aluno_data_removido.month}/{aluno_data_removido.year}"
-    (dia, mes, ano) = aluno_data_removido.split("/")
-    dia = int(dia)
-    mes = int(mes)
-    ano = int(ano)
-    if not solicitacao.alunos_periodo_parcial.filter(
-        aluno=aluno, data_removido=datetime.date(ano, mes, dia)
-    ).exists():
-        for periodo in ["PARCIAL", "INTEGRAL"]:
-            cont_dia = dia
-            periodo_escolar = PeriodoEscolar.objects.get(nome=periodo)
-            quantidade_dias = monthrange(int(solicitacao.ano), int(solicitacao.mes))[1]
-            ultimo_dia_do_mes = datetime.date(
-                int(solicitacao.ano), int(solicitacao.mes), quantidade_dias
-            )
-            while cont_dia <= ultimo_dia_do_mes.day:
-                data = datetime.date(
-                    int(solicitacao.ano), int(solicitacao.mes), int(cont_dia)
-                )
-                faixa_etaria = aluno.faixa_etaria(data)
-                logs = LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
-                    escola=solicitacao.escola,
-                    periodo_escolar=periodo_escolar,
-                    data__year=int(solicitacao.ano),
-                    data__month=int(solicitacao.mes),
-                    data__day=cont_dia,
-                    faixa_etaria=faixa_etaria,
-                )
-                atualiza_quantidade_logs_remocao(logs, periodo)
-                cont_dia += 1
-
-
 def atualiza_alunos_periodo_parcial(solicitacao, alunos_periodo_parcial):
-    for aluno_periodo_parcial in alunos_periodo_parcial:
-        aluno_uuid = aluno_periodo_parcial.get("aluno")
+    estado_atual = _mapa_estado_alunos_periodo_parcial(
+        solicitacao, solicitacao.alunos_periodo_parcial.select_related("aluno")
+    )
+    estado_novo = _mapa_estado_alunos_periodo_parcial(
+        solicitacao, alunos_periodo_parcial
+    )
+
+    for aluno_uuid in set(estado_atual) | set(estado_novo):
         aluno = Aluno.objects.get(uuid=aluno_uuid)
-        atualiza_logs_adicao(solicitacao, aluno_periodo_parcial, aluno)
-        if aluno_periodo_parcial.get("data_removido", ""):
-            atualiza_logs_remocao(solicitacao, aluno_periodo_parcial, aluno)
+        datas_atuais = _datas_ativas_periodo_parcial(
+            solicitacao, estado_atual.get(aluno_uuid)
+        )
+        datas_novas = _datas_ativas_periodo_parcial(
+            solicitacao, estado_novo.get(aluno_uuid)
+        )
+
+        _atualiza_logs_diferenca_periodo_parcial(
+            solicitacao, aluno, datas_atuais - datas_novas, "remover"
+        )
+        _atualiza_logs_diferenca_periodo_parcial(
+            solicitacao, aluno, datas_novas - datas_atuais, "adicionar"
+        )
+
     for medicao in solicitacao.medicoes.all():
         medicao.valores_medicao.filter(
             nome_campo__in=["frequencia", "observacoes"]
@@ -5007,16 +5021,11 @@ def _processa_dietas_tipo_alimentacao(medicao, nome_periodo, resultado):
     tipo_unidade = medicao.solicitacao_medicao_inicial.escola.tipo_unidade.iniciais
 
     refeicao_eja = (
-        nome_periodo.upper() == "NOITE"
-        and tipo_unidade in ORDEM_UNIDADES_GRUPO_EMEF
+        nome_periodo.upper() == "NOITE" and tipo_unidade in ORDEM_UNIDADES_GRUPO_EMEF
     )
 
     for dieta in dietas:
-        dieta_base = (
-            "DIETA ESPECIAL - TIPO A"
-            if "TIPO A" in dieta.upper()
-            else dieta
-        )
+        dieta_base = "DIETA ESPECIAL - TIPO A" if "TIPO A" in dieta.upper() else dieta
 
         valores = (
             medicao.valores_medicao.filter(categoria_medicao__nome=dieta)
@@ -5057,27 +5066,26 @@ def _processa_dietas_tipo_alimentacao(medicao, nome_periodo, resultado):
 
 def _get_total_pagamento(medicao, nome_campo, tipo_unidade):
     if tipo_unidade in (
-        set(ORDEM_UNIDADES_GRUPO_EMEF)
-        | set(ORDEM_UNIDADES_GRUPO_CIEJA_CMCT)
+        set(ORDEM_UNIDADES_GRUPO_EMEF) | set(ORDEM_UNIDADES_GRUPO_CIEJA_CMCT)
     ):
         return _total_pagamento_emef(medicao, nome_campo) or 0
 
     if tipo_unidade in (
-        set(ORDEM_UNIDADES_GRUPO_EMEI)
-        | set(ORDEM_UNIDADES_GRUPO_CEMEI)
+        set(ORDEM_UNIDADES_GRUPO_EMEI) | set(ORDEM_UNIDADES_GRUPO_CEMEI)
     ):
         return _total_pagamento_emei(medicao, nome_campo) or 0
 
     return 0
 
 
-def soma_total_pagamento_alimentacao(total_refeicoes, total_sobremesas, nome_periodo, tipo_unidade, resultado):
+def soma_total_pagamento_alimentacao(
+    total_refeicoes, total_sobremesas, nome_periodo, tipo_unidade, resultado
+):
     resultado.setdefault(CHAVE_ALIMENTACAO_REGULAR, {})
 
     chave_refeicao = (
         "total_refeicao_eja"
-        if nome_periodo.upper() == "NOITE"
-        and tipo_unidade in ORDEM_UNIDADES_GRUPO_EMEF
+        if nome_periodo.upper() == "NOITE" and tipo_unidade in ORDEM_UNIDADES_GRUPO_EMEF
         else "total_refeicao"
     )
 
@@ -5202,9 +5210,7 @@ def _executar_faixa_etaria(medicoes):
         _processa_periodo_regular_faixa(
             medicao, nome_periodo, resultado, faixas_etarias
         )
-        _processa_dietas_faixa(
-            medicao, resultado, faixas_etarias
-        )
+        _processa_dietas_faixa(medicao, resultado, faixas_etarias)
 
     return resultado
 
@@ -5230,12 +5236,8 @@ def _executar_tipo_alimentacao(medicoes):
         nome_periodo = obter_nome_periodo(medicao)
 
         _processa_periodo_tipo_alimentacao(medicao, resultado)
-        _processa_total_pagamento_tipo_alimentacao(
-            medicao, nome_periodo, resultado
-        )
-        _processa_dietas_tipo_alimentacao(
-            medicao, nome_periodo, resultado
-        )
+        _processa_total_pagamento_tipo_alimentacao(medicao, nome_periodo, resultado)
+        _processa_dietas_tipo_alimentacao(medicao, nome_periodo, resultado)
 
     if set(resultado) == {"INFANTIL", "FUNDAMENTAL"}:
         for turma in TURMAS_EMEBS:
