@@ -171,7 +171,11 @@ class EscolaParaFiltrosViewSet(ListModelMixin, GenericViewSet):
     )
     serializer_class = EscolaParaFiltrosReadOnlySerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    filterset_fields = ["diretoria_regional__uuid"]
+    filterset_fields = {
+        "tipo_unidade__uuid": ["in"],
+        "diretoria_regional__uuid": ["exact"],
+        "lote_uuid": ["exact"],
+    }
     pagination_class = None
 
     @action(detail=True, url_path="periodos-escolares", url_name="periodos-escolares")
@@ -243,7 +247,7 @@ class EscolaSimplissimaComDREUnpaginatedViewSet(EscolaSimplissimaComDREViewSet):
         escolas = self.get_queryset().filter(tipo_gestao__nome="TERC TOTAL")
         escola = request.query_params.get("escola", None)
         dre = request.query_params.get("dre", None)
-        tipo_unidade = request.query_params.getlist("tipo_unidade", None)
+        tipo_unidade = request.query_params.get("tipo_unidade", None)
         terceirizada = request.query_params.get("terceirizada", None)
         nome_edital = request.query_params.get("nome_edital", None)
         if escola:
@@ -251,7 +255,7 @@ class EscolaSimplissimaComDREUnpaginatedViewSet(EscolaSimplissimaComDREViewSet):
         if dre:
             escolas = escolas.filter(diretoria_regional__uuid=dre)
         if tipo_unidade:
-            escolas = escolas.filter(tipo_unidade__uuid__in=tipo_unidade)
+            escolas = escolas.filter(tipo_unidade__uuid=tipo_unidade)
         if terceirizada:
             escolas = escolas.filter(lote__terceirizada__uuid=terceirizada)
         if nome_edital:
