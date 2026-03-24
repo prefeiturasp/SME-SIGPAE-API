@@ -49,6 +49,7 @@ router.register(
     recreio_nas_ferias_viewsets.RecreioNasFeriasViewSet,
     basename="recreio-nas-ferias",
 )
+router.register("dados-liquidacao", viewsets.DadosLiquidacaoViewSet, basename="dados-liquidacao")
 
 urlpatterns = [
     path("medicao-inicial/", include(router.urls)),

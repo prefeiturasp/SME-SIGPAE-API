@@ -47,6 +47,8 @@ from sme_sigpae_api.medicao_inicial.models import (
     TipoContagemAlimentacao,
     TipoValorParametrizacaoFinanceira,
     ValorMedicao,
+    DadosLiquidacao,
+    RelatorioFinanceiro,
 )
 from sme_sigpae_api.medicao_inicial.utils import process_anexos_from_request
 from sme_sigpae_api.perfil.models import Usuario
@@ -1611,3 +1613,46 @@ class InformacoesBasicasMedicaoInicialUpdateSerializer(
         substitui_criador_system_por_usuario_real(instance, usuario)
 
         return instance
+
+
+class DadosLiquidacaoUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer responsável pela criação e atualização de DadosLiquidacao.
+
+    Utiliza SlugRelatedField para associar:
+    - Relatório financeiro via UUID
+    - Unidades educacionais via UUID
+
+    Attributes:
+        relatorio_financeiro_id (UUID): UUID do relatório financeiro.
+        unidades_educacionais (List[UUID]): Lista de UUIDs das unidades educacionais.
+
+    Notes:
+        - O campo relatorio_financeiro_id é write_only.
+        - O campo unidades_educacionais aceita múltiplos valores.
+    """
+
+    relatorio_financeiro_id = serializers.SlugRelatedField(
+        queryset=RelatorioFinanceiro.objects.all(),
+        slug_field="uuid",
+        source="relatorio_financeiro",
+        write_only=True
+    )
+    unidades_educacionais = serializers.SlugRelatedField(
+        many=True,
+        queryset=Escola.objects.all(),
+        slug_field="uuid",
+        write_only=True,
+    )
+
+    class Meta:
+        model = DadosLiquidacao
+        fields = [
+            "uuid",
+            "relatorio_financeiro_id",
+            "numero_empenho",
+            "tipo_empenho",
+            "unidades_educacionais",
+            "criado_em",
+            "alterado_em",
+        ]
