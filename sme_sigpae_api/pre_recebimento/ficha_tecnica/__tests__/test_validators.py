@@ -16,7 +16,7 @@ def test_valida_campos_flv_sucesso():
     ficha = FichaTecnicaFactory(
         categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
         tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
-        status="Enviada para Correção"
+        status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO
     )
     # Criar análise com alguns campos não conferidos (precisam de correção)
     analise = AnaliseFichaTecnicaFactory(
@@ -30,9 +30,8 @@ def test_valida_campos_flv_sucesso():
     attrs = {
         "fabricante": ficha.fabricante.fabricante.uuid,
         "organico": True,
-        "mecanismo_controle": "Audit",
+        "mecanismo_controle": FichaTecnicaDoProduto.MECANISMO_CERTIFICACAO,
         "especie_variedade": "Banana Nanica",
-        "password": "123"
     }
 
     validator = ServiceValidacaoCorrecaoFichaTecnica(ficha, attrs)
@@ -44,7 +43,7 @@ def test_valida_campos_flv_erro_campo_obrigatorio_faltando():
     ficha = FichaTecnicaFactory(
         categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
         tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
-        status="Enviada para Correção"
+        status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO
     )
     AnaliseFichaTecnicaFactory(
         ficha_tecnica=ficha,
@@ -67,7 +66,7 @@ def test_valida_campos_flv_erro_campo_nao_permitido():
     ficha = FichaTecnicaFactory(
         categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
         tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
-        status="Enviada para Correção"
+        status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO
     )
     AnaliseFichaTecnicaFactory(
         ficha_tecnica=ficha,
