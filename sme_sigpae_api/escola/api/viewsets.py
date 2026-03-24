@@ -174,7 +174,7 @@ class EscolaParaFiltrosViewSet(ListModelMixin, GenericViewSet):
     filterset_fields = {
         "tipo_unidade__uuid": ["in"],
         "diretoria_regional__uuid": ["exact"],
-        "lote_uuid": ["exact"],
+        "lote__uuid": ["exact"],
     }
     pagination_class = None
 
