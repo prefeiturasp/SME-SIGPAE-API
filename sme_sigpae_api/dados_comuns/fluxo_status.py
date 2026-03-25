@@ -3238,6 +3238,8 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         user = kwargs["user"]
         justificativa = kwargs["justificativa"]
         alta_medica = kwargs.get("alta_medica", False)
+        pendente_autorizacao = kwargs.get('pendente_autorizacao', False)
+        
         assunto = "[SIGPAE] Status de solicitação - #" + self.id_externo
         titulo = (
             f'Status de solicitação - "{self.aluno.codigo_eol} - {self.aluno.nome}"'
@@ -3253,7 +3255,8 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
             usuario=user,
             justificativa=justificativa,
         )
-        if self.tipo_solicitacao != "CANCELAMENTO_DIETA":
+        
+        if self.tipo_solicitacao != "CANCELAMENTO_DIETA" and not pendente_autorizacao:
             self._preenche_template_e_envia_email(
                 assunto,
                 titulo,

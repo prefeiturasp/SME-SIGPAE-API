@@ -642,9 +642,11 @@ class SolicitacaoDietaEspecialViewSet(
     def escola_cancela_solicitacao(self, request, uuid=None):
         justificativa = request.data.get("justificativa", "")
         solicitacao = self.get_object()
+        alta_medica = solicitacao.status == DietaEspecialWorkflow.states.ESCOLA_SOLICITOU_INATIVACAO
+        pendente_autorizacao = solicitacao.status == DietaEspecialWorkflow.states.CODAE_A_AUTORIZAR
         try:
             solicitacao.cancelar_pedido(
-                user=request.user, justificativa=justificativa, alta_medica=True
+                user=request.user, justificativa=justificativa, alta_medica=alta_medica, pendente_autorizacao=pendente_autorizacao
             )
             solicitacao.ativo = False
             solicitacao.save()
@@ -655,7 +657,7 @@ class SolicitacaoDietaEspecialViewSet(
                     solicitacao.dieta_alterada.cancelar_pedido(
                         user=request.user,
                         justificativa=solicitacao.logs.first().justificativa,
-                        alta_medica=True,
+                        alta_medica=alta_medica,
                     )
                 solicitacao.dieta_alterada.save()
             if solicitacao.tipo_solicitacao == "ALTERACAO_UE":
