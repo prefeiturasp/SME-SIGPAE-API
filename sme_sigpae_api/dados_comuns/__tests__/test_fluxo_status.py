@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 import xworkflows
 from rest_framework.exceptions import PermissionDenied, ValidationError
@@ -295,3 +297,89 @@ def test_codae_aprova_ocorrencia_hook(
     ).first()
     assert log.status_evento == LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE
     assert log.usuario == usuario_nutrimanifestacao
+
+
+@patch(
+    "sme_sigpae_api.dados_comuns.fluxo_status.FluxoDietaEspecialPartindoDaEscola._preenche_template_e_envia_email"
+)
+def test_nao_envia_email_de_cancelamento(
+    mock_envia_email, solicitacao_dieta_especial, user_diretor_escola
+):
+    solicitacao_dieta_especial.cancelar_pedido(
+        user=user_diretor_escola[0],
+        justificativa="Teste",
+        alta_medica=False,
+        pendente_autorizacao=True,
+    )
+
+    mock_envia_email.assert_not_called()
+
+
+@patch(
+    "sme_sigpae_api.dados_comuns.fluxo_status.FluxoDietaEspecialPartindoDaEscola._preenche_template_e_envia_email"
+)
+def test_nao_envia_email_de_cancelamento_com_tipo_solicitacao_cancelamento(
+    mock_envia_email, solicitacao_dieta_especial, user_diretor_escola
+):
+    solicitacao_dieta_especial.tipo_solicitacao = "CANCELAMENTO_DIETA"
+    solicitacao_dieta_especial.save()
+
+    solicitacao_dieta_especial.cancelar_pedido(
+        user=user_diretor_escola[0],
+        justificativa="Teste",
+        alta_medica=False,
+        pendente_autorizacao=False,
+    )
+
+    mock_envia_email.assert_not_called()
+
+
+@patch(
+    "sme_sigpae_api.dados_comuns.fluxo_status.FluxoDietaEspecialPartindoDaEscola._preenche_template_e_envia_email"
+)
+def test_envia_email_de_cancelamento(
+    mock_envia_email, solicitacao_dieta_especial, user_diretor_escola
+):
+    solicitacao_dieta_especial.cancelar_pedido(
+        user=user_diretor_escola[0],
+        justificativa="Teste",
+        alta_medica=False,
+        pendente_autorizacao=False,
+    )
+    assunto = (
+        "[SIGPAE] Status de solicitação - #" + solicitacao_dieta_especial.id_externo
+    )
+    titulo = f'Status de solicitação - "{solicitacao_dieta_especial.aluno.codigo_eol} - {solicitacao_dieta_especial.aluno.nome}"'
+    mock_envia_email.assert_called_once_with(
+        assunto,
+        titulo,
+        user_diretor_escola[0],
+        solicitacao_dieta_especial._partes_interessadas_codae_cancela,
+        None,
+    )
+
+
+@patch(
+    "sme_sigpae_api.dados_comuns.fluxo_status.FluxoDietaEspecialPartindoDaEscola._preenche_template_e_envia_email"
+)
+def test_envia_email_de_cancelamento_por_alta_medica(
+    mock_envia_email, solicitacao_dieta_especial, user_diretor_escola
+):
+
+    solicitacao_dieta_especial.cancelar_pedido(
+        user=user_diretor_escola[0],
+        justificativa="Teste",
+        alta_medica=True,
+        pendente_autorizacao=False,
+    )
+    assunto = (
+        "[SIGPAE] Status de solicitação - #" + solicitacao_dieta_especial.id_externo
+    )
+    titulo = solicitacao_dieta_especial.str_dre_lote_escola
+    mock_envia_email.assert_called_once_with(
+        assunto,
+        titulo,
+        user_diretor_escola[0],
+        solicitacao_dieta_especial._partes_interessadas_codae_cancela,
+        "cancelar_pedido",
+    )
