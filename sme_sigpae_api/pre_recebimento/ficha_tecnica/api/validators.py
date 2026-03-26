@@ -171,11 +171,7 @@ class ServiceValidacaoCorrecaoFichaTecnica:
 
     CAMPOS_NAO_PERECIVEIS = {
         **CAMPOS_OBRIGATORIOS_COMUNS,
-        "conservacao_conferido": {
-            "obrigatorios": [
-                "condicoes_de_conservacao",
-            ]
-        },
+        "conservacao_conferido": {"obrigatorios": ["condicoes_de_conservacao"]},
         "embalagem_e_rotulagem_conferido": {
             "obrigatorios": [
                 "embalagens_de_acordo_com_anexo",
@@ -197,6 +193,38 @@ class ServiceValidacaoCorrecaoFichaTecnica:
                 "unidade_medida_volume_primaria",
             ],
         },
+    }
+
+    CAMPOS_FLV = {
+        "fabricante_envasador_conferido": {
+            "obrigatorios": [
+                "fabricante",
+            ],
+            "opcionais": [
+                "envasador_distribuidor",
+            ],
+        },
+        "detalhes_produto_conferido": {
+            "obrigatorios": [
+                "organico",
+                "especie_variedade",
+            ],
+            "dependentes": [
+                "mecanismo_controle",
+            ],
+            "opcionais": [
+                "numero_registro",
+            ],
+        },
+        "responsavel_tecnico_conferido": {
+            "obrigatorios": [
+                "nome_responsavel_tecnico",
+                "habilitacao",
+                "numero_registro_orgao",
+                "arquivo",
+            ]
+        },
+        "outras_informacoes_conferido": {"obrigatorios": []},
     }
 
     def __init__(self, ficha_tecnica, attrs) -> None:
@@ -280,10 +308,12 @@ class ServiceValidacaoCorrecaoFichaTecnica:
                 campos_nao_permitidos.pop(campo)
 
     def _obter_campos_collapses_por_categoria(self):
+        if self._ficha_tecnica.categoria == FichaTecnicaDoProduto.CATEGORIA_FLV:
+            return self.CAMPOS_FLV
+
         return (
             self.CAMPOS_PERECIVEIS
-            if self._ficha_tecnica.categoria
-            == FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS
+            if self._ficha_tecnica.categoria == FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS
             else self.CAMPOS_NAO_PERECIVEIS
         )
 

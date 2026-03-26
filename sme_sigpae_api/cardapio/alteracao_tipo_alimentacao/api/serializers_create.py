@@ -27,6 +27,19 @@ from sme_sigpae_api.escola.utils import eh_dia_sem_atividade_escolar
 class SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase(
     serializers.ModelSerializer
 ):
+    """Define os campos base para escrita de substituicoes por periodo.
+
+    Recebe referencias por UUID para o periodo escolar e para os tipos de
+    alimentacao de origem ao criar ou atualizar uma alteracao de cardapio.
+
+    Viewsets que utilizam este serializer:
+        - Nenhum diretamente.
+        - Uso indireto em ``AlteracoesCardapioViewSet``, por meio de
+          ``SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate``
+          aninhado em ``AlteracaoCardapioSerializerCreate`` nas actions
+          ``create``, ``update`` e ``partial_update``.
+    """
+
     periodo_escolar = serializers.SlugRelatedField(
         slug_field="uuid", required=True, queryset=PeriodoEscolar.objects.all()
     )
@@ -42,6 +55,18 @@ class SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase(
 class SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate(
     SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase
 ):
+    """Serializa a escrita completa de substituicoes por periodo escolar.
+
+    Complementa o serializer base com a alteracao de cardapio de destino e os
+    tipos de alimentacao para os quais a refeicao sera convertida.
+
+    Viewsets que utilizam este serializer:
+        - Nenhum diretamente.
+        - Uso indireto em ``AlteracoesCardapioViewSet``, aninhado em
+          ``AlteracaoCardapioSerializerCreate`` nas actions ``create``,
+          ``update`` e ``partial_update``.
+    """
+
     alteracao_cardapio = serializers.SlugRelatedField(
         slug_field="uuid", required=False, queryset=AlteracaoCardapio.objects.all()
     )
@@ -57,6 +82,16 @@ class SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate(
     )
 
     def create(self, validated_data):
+        """Cria uma substituicao de alimentacao com relacionamentos many-to-many.
+
+        Args:
+            validated_data (dict): Dados validados pelo serializer, incluindo
+                ``tipos_alimentacao_de`` e ``tipos_alimentacao_para``.
+
+        Returns:
+            SubstituicaoAlimentacaoNoPeriodoEscolar: Instancia criada com os
+            tipos de alimentacao de origem e destino vinculados.
+        """
         tipos_alimentacao_de = validated_data.pop("tipos_alimentacao_de")
         tipos_alimentacao_para = validated_data.pop("tipos_alimentacao_para")
         substituicao_alimentacao = (
@@ -72,6 +107,18 @@ class SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate(
 
 
 class AlteracaoCardapioSerializerCreateBase(serializers.ModelSerializer):
+    """Define os campos comuns de escrita para alteracoes de cardapio.
+
+    Resolve referencias por UUID de escola e motivo e concentra a logica basica
+    de criacao e atualizacao das substituicoes vinculadas.
+
+    Viewsets que utilizam este serializer:
+        - Nenhum diretamente.
+        - Uso indireto em ``AlteracoesCardapioViewSet``, como classe base de
+          ``AlteracaoCardapioSerializerCreate`` nas actions ``create``,
+          ``update`` e ``partial_update``.
+    """
+
     motivo = serializers.SlugRelatedField(
         slug_field="uuid", required=True, queryset=MotivoAlteracaoCardapio.objects.all()
     )
@@ -83,6 +130,15 @@ class AlteracaoCardapioSerializerCreateBase(serializers.ModelSerializer):
     )
 
     def create(self, validated_data):
+        """Cria uma alteracao de cardapio usando a estrategia base do serializer.
+
+        Args:
+            validated_data (dict): Dados validados da solicitacao, contendo a
+                lista de ``substituicoes`` ja validada.
+
+        Returns:
+            AlteracaoCardapio: Instancia criada com as substituicoes vinculadas.
+        """
         substituicoes = validated_data.pop("substituicoes")
         validated_data["criado_por"] = self.context["request"].user
 
@@ -98,6 +154,15 @@ class AlteracaoCardapioSerializerCreateBase(serializers.ModelSerializer):
         return alteracao_cardapio
 
     def update(self, instance, validated_data):
+        """Atualiza uma alteracao de cardapio recriando suas substituicoes.
+
+        Args:
+            instance (AlteracaoCardapio): Instancia a ser atualizada.
+            validated_data (dict): Dados validados recebidos na requisicao.
+
+        Returns:
+            AlteracaoCardapio: Instancia atualizada e salva.
+        """
         substituicoes_json = validated_data.pop("substituicoes")
         instance.substituicoes.all().delete()
 
@@ -118,11 +183,33 @@ class AlteracaoCardapioSerializerCreateBase(serializers.ModelSerializer):
 class DatasIntervaloAlteracaoCardapioSerializerCreateSerializer(
     serializers.ModelSerializer
 ):
+    """Serializa as datas individuais do intervalo na escrita da solicitacao.
+
+    Recebe a referencia da alteracao de cardapio por UUID quando necessario e
+    persiste cada ``DataIntervaloAlteracaoCardapio`` associada ao pedido.
+
+    Viewsets que utilizam este serializer:
+        - Nenhum diretamente.
+        - Uso indireto em ``AlteracoesCardapioViewSet``, aninhado em
+          ``AlteracaoCardapioSerializerCreate`` nas actions ``create``,
+          ``update`` e ``partial_update``.
+        - Uso indireto em ``AlteracoesCardapioViewSet``, aninhado em
+          ``AlteracaoCardapioSerializer`` nas respostas detalhadas de leitura.
+    """
+
     alteracao_cardapio = serializers.SlugRelatedField(
         slug_field="uuid", required=False, queryset=AlteracaoCardapio.objects.all()
     )
 
     def create(self, validated_data):
+        """Cria um registro de data individual do intervalo da solicitacao.
+
+        Args:
+            validated_data (dict): Dados validados da data do intervalo.
+
+        Returns:
+            DataIntervaloAlteracaoCardapio: Instancia criada.
+        """
         data_intervalo = DataIntervaloAlteracaoCardapio.objects.create(**validated_data)
         return data_intervalo
 
@@ -132,12 +219,37 @@ class DatasIntervaloAlteracaoCardapioSerializerCreateSerializer(
 
 
 class AlteracaoCardapioSerializerCreate(AlteracaoCardapioSerializerCreateBase):
+    """Serializa a criacao e atualizacao completas de alteracoes de cardapio.
+
+    Valida datas e regras de negocio, resolve relacionamentos por UUID e cria
+    as substituicoes e datas do intervalo associadas ao pedido.
+
+    Viewsets que utilizam este serializer:
+        - ``AlteracoesCardapioViewSet``: retornado por
+          ``get_serializer_class()`` nas actions ``create``, ``update`` e
+          ``partial_update``.
+    """
+
     substituicoes = SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreate(many=True)
     datas_intervalo = DatasIntervaloAlteracaoCardapioSerializerCreateSerializer(
         required=False, many=True
     )
 
     def validate(self, attrs):
+        """Aplica as validacoes de negocio da solicitacao de alteracao.
+
+        Args:
+            attrs (dict): Dados normalizados pelo serializer antes da criacao
+                ou atualizacao da instancia.
+
+        Returns:
+            dict: Os mesmos atributos recebidos, apos passarem pelas
+            validacoes de consistencia e regras de negocio.
+
+        Raises:
+            ValidationError: Quando datas, motivo ou substituicoes violam as
+                regras do dominio.
+        """
         escola = attrs.get("escola")
         substituicoes = attrs.get("substituicoes")
         for substicuicao in substituicoes:
@@ -161,13 +273,47 @@ class AlteracaoCardapioSerializerCreate(AlteracaoCardapioSerializerCreateBase):
         return attrs
 
     def datas_nos_meses_de_ferias(self, datas_intervalo):
-        MESES_DE_FERIAS = [1, 7, 12]
+        """Verifica se o intervalo toca algum mes considerado de ferias.
+
+        Meses de férias:
+          - Janeiro: período de férias escolares de verão.
+          - Julho: período de férias escolares de inverno.
+          - Dezembro: período de férias escolares de verão e festas de fim de ano.
+
+        Args:
+            datas_intervalo (list[dict]): Lista de itens com a chave ``data``.
+
+        Returns:
+            bool: ``True`` quando a primeira ou a ultima data do intervalo esta
+            em janeiro, julho ou dezembro.
+        """
+        JANEIRO = 1
+        JULHO = 7
+        DEZEMBRO = 12
+
+        MESES_DE_FERIAS = [JANEIRO, JULHO, DEZEMBRO]
         return (
             datas_intervalo[0]["data"].month in MESES_DE_FERIAS
             or datas_intervalo[-1]["data"].month in MESES_DE_FERIAS
         )
 
     def criar_datas_intervalo(self, datas_intervalo, instance):
+        """Cria as datas individuais do intervalo vinculadas a uma solicitacao.
+
+        Para pedidos de Lanche Emergencial, aplica validacoes extras para dias
+        letivos e ignora dias sem atividade escolar fora dos meses de ferias.
+
+        Args:
+            datas_intervalo (list[dict]): Datas validadas a serem persistidas.
+            instance (AlteracaoCardapio): Solicitacao dona das datas.
+
+        Returns:
+            None
+
+        Raises:
+            ValidationError: Quando uma solicitacao de Lanche Emergencial nao
+                possui ao menos um dia letivo fora dos meses de ferias.
+        """
         datas_intervalo = [
             dict(item, **{"alteracao_cardapio": instance}) for item in datas_intervalo
         ]
@@ -191,6 +337,16 @@ class AlteracaoCardapioSerializerCreate(AlteracaoCardapioSerializerCreateBase):
                 DataIntervaloAlteracaoCardapio.objects.create(**data_intervalo)
 
     def criar_substituicoes(self, substituicoes, instance):
+        """Cria as substituicoes de alimentacao vinculadas a uma solicitacao.
+
+        Args:
+            substituicoes (list[dict]): Itens validados com periodo escolar e
+                tipos de alimentacao de origem e destino.
+            instance (AlteracaoCardapio): Solicitacao dona das substituicoes.
+
+        Returns:
+            None
+        """
         substituicoes = [
             dict(item, **{"alteracao_cardapio": instance}) for item in substituicoes
         ]
@@ -204,6 +360,19 @@ class AlteracaoCardapioSerializerCreate(AlteracaoCardapioSerializerCreateBase):
             substituicao_alimentacao.tipos_alimentacao_para.set(tipos_alimentacao_para)
 
     def create(self, validated_data):
+        """Cria uma alteracao de cardapio completa com datas e substituicoes.
+
+        Args:
+            validated_data (dict): Dados validados da solicitacao, incluindo
+                listas aninhadas de ``substituicoes`` e ``datas_intervalo``.
+
+        Returns:
+            AlteracaoCardapio: Instancia criada com seus relacionamentos.
+
+        Raises:
+            ValidationError: Quando houver duplicidade indevida de solicitacao
+                de Lanche Emergencial.
+        """
         valida_duplicidade_solicitacoes_lanche_emergencial(validated_data)
         validated_data["criado_por"] = self.context["request"].user
         substituicoes = validated_data.pop("substituicoes")
@@ -216,6 +385,20 @@ class AlteracaoCardapioSerializerCreate(AlteracaoCardapioSerializerCreateBase):
         return alteracao_cardapio
 
     def update(self, instance, validated_data):
+        """Atualiza uma alteracao de cardapio recriando datas e substituicoes.
+
+        Args:
+            instance (AlteracaoCardapio): Instancia existente a ser atualizada.
+            validated_data (dict): Dados validados da requisicao.
+
+        Returns:
+            AlteracaoCardapio: Instancia atualizada com seus relacionamentos
+            recriados.
+
+        Raises:
+            ValidationError: Quando houver duplicidade indevida de solicitacao
+                de Lanche Emergencial.
+        """
         valida_duplicidade_solicitacoes_lanche_emergencial(validated_data)
         instance.substituicoes.all().delete()
         instance.datas_intervalo.all().delete()

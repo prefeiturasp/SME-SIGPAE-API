@@ -47,6 +47,8 @@ from sme_sigpae_api.medicao_inicial.models import (
     TipoContagemAlimentacao,
     TipoValorParametrizacaoFinanceira,
     ValorMedicao,
+    DadosLiquidacao,
+    RelatorioFinanceiro,
 )
 from sme_sigpae_api.medicao_inicial.utils import process_anexos_from_request
 from sme_sigpae_api.perfil.models import Usuario
@@ -964,6 +966,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         justificativa_sem_lancamentos = validated_data.pop(
             "justificativa_sem_lancamentos", None
         )
+        validated_data.pop("alunos_periodo_parcial", None)
         self._update_instance_fields(instance, validated_data)
         self._update_responsaveis(instance)
         self._update_alunos(instance, validated_data)
@@ -1008,12 +1011,16 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         )
         if alunos_periodo_parcial:
             escola_associada = validated_data.get("escola")
-            if self.context["request"].data.get("alunos_parcial_alterado") == "true":
-                atualiza_alunos_periodo_parcial(
-                    instance, json.loads(alunos_periodo_parcial)
-                )
+            if isinstance(alunos_periodo_parcial, str):
+                alunos_periodo_parcial = json.loads(alunos_periodo_parcial)
+
+            if self.context["request"].data.get("alunos_parcial_alterado") in [
+                "true",
+                True,
+            ]:
+                atualiza_alunos_periodo_parcial(instance, alunos_periodo_parcial)
             instance.alunos_periodo_parcial.all().delete()
-            for aluno in json.loads(alunos_periodo_parcial):
+            for aluno in alunos_periodo_parcial:
                 dia, mes, ano = aluno.get("data", "").split("/")
                 dia = int(dia)
                 mes = int(mes)
@@ -1604,6 +1611,8 @@ class InformacoesBasicasMedicaoInicialUpdateSerializer(
         self._update_tipos_contagem_alimentacao(instance)
         validated_data.pop("tipos_contagem_alimentacao", None)
 
+        validated_data.pop("alunos_periodo_parcial", None)
+
         self._update_instance_fields(instance, validated_data)
         self._update_alunos(instance, validated_data)
 
@@ -1611,3 +1620,46 @@ class InformacoesBasicasMedicaoInicialUpdateSerializer(
         substitui_criador_system_por_usuario_real(instance, usuario)
 
         return instance
+
+
+class DadosLiquidacaoUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer responsável pela criação e atualização de DadosLiquidacao.
+
+    Utiliza SlugRelatedField para associar:
+    - Relatório financeiro via UUID
+    - Unidades educacionais via UUID
+
+    Attributes:
+        relatorio_financeiro_id (UUID): UUID do relatório financeiro.
+        unidades_educacionais (List[UUID]): Lista de UUIDs das unidades educacionais.
+
+    Notes:
+        - O campo relatorio_financeiro_id é write_only.
+        - O campo unidades_educacionais aceita múltiplos valores.
+    """
+
+    relatorio_financeiro_id = serializers.SlugRelatedField(
+        queryset=RelatorioFinanceiro.objects.all(),
+        slug_field="uuid",
+        source="relatorio_financeiro",
+        write_only=True
+    )
+    unidades_educacionais = serializers.SlugRelatedField(
+        many=True,
+        queryset=Escola.objects.all(),
+        slug_field="uuid",
+        write_only=True,
+    )
+
+    class Meta:
+        model = DadosLiquidacao
+        fields = [
+            "uuid",
+            "relatorio_financeiro_id",
+            "numero_empenho",
+            "tipo_empenho",
+            "unidades_educacionais",
+            "criado_em",
+            "alterado_em",
+        ]

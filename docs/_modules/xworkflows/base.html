@@ -1,0 +1,1187 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>xworkflows.base &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">xworkflows.base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for xworkflows.base</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># Copyright (c) 2011-2013 Raphaël Barrois</span>
+<span class="c1"># This code is distributed under the two-clause BSD License.</span>
+
+
+<span class="sd">&quot;&quot;&quot;Base components of XWorkflows.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.compat</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_python3</span><span class="p">,</span> <span class="n">is_string</span><span class="p">,</span> <span class="n">u</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">WorkflowError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for errors from the xworkflows module.&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">AbortTransition</span><span class="p">(</span><span class="n">WorkflowError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised to prevent a transition from proceeding.&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">InvalidTransitionError</span><span class="p">(</span><span class="n">AbortTransition</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when trying to perform a transition not available from current state.&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ForbiddenTransition</span><span class="p">(</span><span class="n">AbortTransition</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when the &#39;check&#39; hook of a transition was defined and returned False.&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">State</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A state within a workflow.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name (str): the name of the state</span>
+<span class="sd">        title (str): the human-readable title for the state</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">STATE_NAME_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\w+$&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">STATE_NAME_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid state name </span><span class="si">%s</span><span class="s1">.&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%r</span><span class="s1">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">StateList</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A list of states.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_states</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">st</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">st</span><span class="p">)</span> <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">states</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_order</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">states</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_states</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;StateList </span><span class="si">%s</span><span class="s1"> has no state named </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_states</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name_or_state</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name_or_state</span><span class="p">,</span> <span class="n">State</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_states</span><span class="p">[</span><span class="n">name_or_state</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_states</span><span class="p">[</span><span class="n">name_or_state</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%r</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_states</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_order</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_states</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">State</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">state</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_states</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_states</span><span class="p">[</span><span class="n">state</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">==</span> <span class="n">state</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># Expect a state name</span>
+            <span class="k">return</span> <span class="n">state</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_states</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Transition</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A transition.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name (str): the name of the Transition</span>
+<span class="sd">        source (State list): the &#39;source&#39; states of the transition</span>
+<span class="sd">        target (State): the &#39;target&#39; state of the transition</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">State</span><span class="p">):</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="p">[</span><span class="n">source</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">source</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%r</span><span class="s1">, </span><span class="si">%r</span><span class="s1">, </span><span class="si">%r</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TransitionList</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Holder for the transitions of a given workflow.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transitions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a TransitionList.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            transitions (list of (name, source, target) tuple): the transitions</span>
+<span class="sd">                to include.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transitions</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_order</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">trdef</span> <span class="ow">in</span> <span class="n">transitions</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_transitions</span><span class="p">[</span><span class="n">trdef</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">trdef</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trdef</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_transitions</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transitions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;TransitionList </span><span class="si">%s</span><span class="s2"> has no transition named </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transitions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_order</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transitions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Transition</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transitions</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transitions</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">==</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transitions</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">available_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve all transitions available from a given state.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            state (State): the initial state.</span>
+
+<span class="sd">        Yields:</span>
+<span class="sd">            Transition: all transitions starting from that state</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">transition</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">transition</span><span class="o">.</span><span class="n">source</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">transition</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%r</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transitions</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_setup_states</span><span class="p">(</span><span class="n">state_definitions</span><span class="p">,</span> <span class="n">prev</span><span class="o">=</span><span class="p">()):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a StateList object from a &#39;states&#39; Workflow attribute.&quot;&quot;&quot;</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">prev</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">state_def</span> <span class="ow">in</span> <span class="n">state_definitions</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">state_def</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;The &#39;state&#39; attribute of a workflow should be &quot;</span>
+                <span class="s2">&quot;a two-tuple of strings; got </span><span class="si">%r</span><span class="s2"> instead.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">state_def</span><span class="p">,)</span>
+            <span class="p">)</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">state_def</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">State</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span> <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">states</span><span class="p">):</span>
+            <span class="c1"># Replacing an existing state</span>
+            <span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="n">state</span> <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span> <span class="k">else</span> <span class="n">st</span> <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">states</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">StateList</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_setup_transitions</span><span class="p">(</span><span class="n">tdef</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">prev</span><span class="o">=</span><span class="p">()):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a TransitionList object from a &#39;transitions&#39; Workflow attribute.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tdef: list of transition definitions</span>
+<span class="sd">        states (StateList): already parsed state definitions.</span>
+<span class="sd">        prev (TransitionList): transition definitions from a parent.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        TransitionList: the list of transitions defined in the &#39;tdef&#39; argument.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">trs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">prev</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">transition</span> <span class="ow">in</span> <span class="n">tdef</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span> <span class="o">=</span> <span class="n">transition</span>
+            <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">source</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">State</span><span class="p">):</span>
+                <span class="n">source</span> <span class="o">=</span> <span class="p">[</span><span class="n">source</span><span class="p">]</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="p">[</span><span class="n">states</span><span class="p">[</span><span class="n">src</span><span class="p">]</span> <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">source</span><span class="p">]</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="n">target</span><span class="p">]</span>
+            <span class="n">tr</span> <span class="o">=</span> <span class="n">Transition</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Elements of the &#39;transition&#39; attribute of a &quot;</span>
+                <span class="s2">&quot;workflow should be three-tuples; got </span><span class="si">%r</span><span class="s2"> instead.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">transition</span><span class="p">,)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">prev_tr</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">tr</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">prev_tr</span> <span class="ow">in</span> <span class="n">trs</span><span class="p">):</span>
+            <span class="c1"># Replacing an existing state</span>
+            <span class="n">trs</span> <span class="o">=</span> <span class="p">[</span><span class="n">tr</span> <span class="k">if</span> <span class="n">prev_tr</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">tr</span><span class="o">.</span><span class="n">name</span> <span class="k">else</span> <span class="n">prev_tr</span> <span class="k">for</span> <span class="n">prev_tr</span> <span class="ow">in</span> <span class="n">trs</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">trs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">TransitionList</span><span class="p">(</span><span class="n">trs</span><span class="p">)</span>
+
+
+<span class="n">HOOK_BEFORE</span> <span class="o">=</span> <span class="s1">&#39;before&#39;</span>
+<span class="n">HOOK_AFTER</span> <span class="o">=</span> <span class="s1">&#39;after&#39;</span>
+<span class="n">HOOK_CHECK</span> <span class="o">=</span> <span class="s1">&#39;check&#39;</span>
+<span class="n">HOOK_ON_ENTER</span> <span class="o">=</span> <span class="s1">&#39;on_enter&#39;</span>
+<span class="n">HOOK_ON_LEAVE</span> <span class="o">=</span> <span class="s1">&#39;on_leave&#39;</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Hook</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A hook to run when a transition occurs.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        kind (str): the kind of hook</span>
+<span class="sd">        priority (int): the priority of the hook (higher values run first)</span>
+<span class="sd">        function (callable): the actual function to call</span>
+<span class="sd">        names (str list): name of the transitions or states to which the hook</span>
+<span class="sd">            relates. The special value &#39;*&#39; means &#39;applies to all transitions/</span>
+<span class="sd">            states&#39;.</span>
+
+<span class="sd">    Hooks are sortable by descending priority and ascending function name.</span>
+
+<span class="sd">    Hook kinds are as follow:</span>
+<span class="sd">        - HOOK_BEFORE: run before the related transitions</span>
+<span class="sd">        - HOOK_AFTER: run after the related transitions</span>
+<span class="sd">        - HOOK_CHECK: run as part of pre-transition checks (return value matters)</span>
+<span class="sd">        - HOOK_ON_ENTER: run just after a transition entering a related state</span>
+<span class="sd">        - HOOK_ON_LEAVE: run just before a transition leaving from a related state</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="n">HOOK_BEFORE</span><span class="p">,</span> <span class="n">HOOK_AFTER</span><span class="p">,</span> <span class="n">HOOK_CHECK</span><span class="p">,</span>
+            <span class="n">HOOK_ON_ENTER</span><span class="p">,</span> <span class="n">HOOK_ON_LEAVE</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">=</span> <span class="n">kind</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">priority</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;priority&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">=</span> <span class="n">function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">names</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">,)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_match_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks whether a given State matches self.names.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">==</span> <span class="s1">&#39;*&#39;</span>
+                <span class="ow">or</span> <span class="n">state</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span>
+                <span class="ow">or</span> <span class="n">state</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_match_transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transition</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks whether a given Transition matches self.names.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">==</span> <span class="s1">&#39;*&#39;</span>
+                <span class="ow">or</span> <span class="n">transition</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span>
+                <span class="ow">or</span> <span class="n">transition</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">applies_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transition</span><span class="p">,</span> <span class="n">from_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether this hook applies to the given transition/state.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            transition (Transition): the transition to check</span>
+<span class="sd">            from_state (State or None): the state to check. If absent, the check</span>
+<span class="sd">                is &#39;might this hook apply to the related transition, given a</span>
+<span class="sd">                valid source state&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;*&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="n">HOOK_BEFORE</span><span class="p">,</span> <span class="n">HOOK_AFTER</span><span class="p">,</span> <span class="n">HOOK_CHECK</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_transition</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">HOOK_ON_ENTER</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_state</span><span class="p">(</span><span class="n">transition</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">from_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Testing whether the hook may apply to at least one source of the</span>
+            <span class="c1"># transition</span>
+            <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_match_state</span><span class="p">(</span><span class="n">src</span><span class="p">)</span> <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">transition</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_state</span><span class="p">(</span><span class="n">from_state</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Equality is based on priority, function and kind.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Hook</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">priority</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">priority</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">function</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">kind</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">names</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Hook</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compare hooks of the same kind.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Hook</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">priority</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+            <span class="o">&lt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priority</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compare hooks of the same kind.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Hook</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">priority</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+            <span class="o">&gt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priority</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1"> </span><span class="si">%r</span><span class="s1">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ImplementationWrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wraps a transition implementation.</span>
+
+<span class="sd">    Emulates a function behaviour, but provides a few extra features.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        instance (WorkflowEnabled): the instance to update</span>
+<span class="sd">.</span>
+<span class="sd">        field_name (str): the name of the field of the instance to update.</span>
+<span class="sd">        transition (Transition): the transition to perform</span>
+<span class="sd">        workflow (Workflow): the workflow to which this is related.</span>
+
+<span class="sd">        hooks (Hook list): optional hooks to call during the transition</span>
+<span class="sd">        implementation (callable): the code to invoke between &#39;before&#39; and the</span>
+<span class="sd">            state update.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">transition</span><span class="p">,</span> <span class="n">workflow</span><span class="p">,</span>
+                 <span class="n">implementation</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instance</span> <span class="o">=</span> <span class="n">instance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span> <span class="o">=</span> <span class="n">field_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transition</span> <span class="o">=</span> <span class="n">transition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span> <span class="o">=</span> <span class="n">workflow</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hooks</span> <span class="o">=</span> <span class="n">hooks</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">implementation</span> <span class="o">=</span> <span class="n">implementation</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">implementation</span><span class="o">.</span><span class="vm">__doc__</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">current_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_pre_transition_checks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the pre-transition checks.&quot;&quot;&quot;</span>
+        <span class="n">current_state</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">current_state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="o">.</span><span class="n">source</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidTransitionError</span><span class="p">(</span>
+                <span class="s2">&quot;Transition &#39;</span><span class="si">%s</span><span class="s2">&#39; isn&#39;t available from state &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">current_state</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_hooks</span><span class="p">(</span><span class="n">HOOK_CHECK</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ForbiddenTransition</span><span class="p">(</span>
+                    <span class="s2">&quot;Transition &#39;</span><span class="si">%s</span><span class="s2">&#39; was forbidden by &quot;</span>
+                    <span class="s2">&quot;custom pre-transition check.&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_filter_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">hook_kinds</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter a list of hooks, keeping only applicable ones.&quot;&quot;&quot;</span>
+        <span class="n">hooks</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">hooks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="p">[])</span> <span class="k">for</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">hook_kinds</span><span class="p">),</span> <span class="p">[])</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">hook</span> <span class="k">for</span> <span class="n">hook</span> <span class="ow">in</span> <span class="n">hooks</span>
+                      <span class="k">if</span> <span class="n">hook</span><span class="o">.</span><span class="n">applies_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_state</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_pre_transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">hook</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_hooks</span><span class="p">(</span><span class="n">HOOK_BEFORE</span><span class="p">,</span> <span class="n">HOOK_ON_LEAVE</span><span class="p">):</span>
+            <span class="n">hook</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_during_transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">implementation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_log_transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_state</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">log_transition</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="p">,</span> <span class="n">from_state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_post_transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Performs post-transition actions.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">hook</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_hooks</span><span class="p">(</span><span class="n">HOOK_AFTER</span><span class="p">,</span> <span class="n">HOOK_ON_ENTER</span><span class="p">):</span>
+            <span class="n">hook</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the transition, with all checks.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pre_transition_checks</span><span class="p">()</span>
+        <span class="c1"># Call hooks.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pre_transition</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_during_transition</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">from_state</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+
+        <span class="c1"># Call hooks.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_transition</span><span class="p">(</span><span class="n">from_state</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_post_transition</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether this transition is available on the current object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pre_transition_checks</span><span class="p">()</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">InvalidTransitionError</span><span class="p">,</span> <span class="n">ForbiddenTransition</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;</span><span class="si">%s</span><span class="s2"> for </span><span class="si">%r</span><span class="s2"> on </span><span class="si">%r</span><span class="s2">: </span><span class="si">%r</span><span class="s2">&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">implementation</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ImplementationProperty</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Holds an implementation of a transition.</span>
+
+<span class="sd">    This class is a &#39;non-data descriptor&#39;, somewhat similar to a property.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        field_name (str): the name of the field of the instance to update.</span>
+<span class="sd">        transition (Transition): the transition to perform</span>
+<span class="sd">        workflow (Workflow): the workflow to which this is related.</span>
+
+<span class="sd">        hooks (Hook list): hooks to apply along with the transition.</span>
+<span class="sd">        implementation (callable): the code to invoke between &#39;before&#39; and the</span>
+<span class="sd">            state update.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">transition</span><span class="p">,</span> <span class="n">workflow</span><span class="p">,</span> <span class="n">implementation</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span> <span class="o">=</span> <span class="n">field_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transition</span> <span class="o">=</span> <span class="n">transition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span> <span class="o">=</span> <span class="n">workflow</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hooks</span> <span class="o">=</span> <span class="n">hooks</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">implementation</span> <span class="o">=</span> <span class="n">implementation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">implementation</span><span class="o">.</span><span class="vm">__doc__</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
+            <span class="n">field_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span>
+            <span class="n">transition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="p">,</span>
+            <span class="n">workflow</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">workflow</span><span class="p">,</span>
+            <span class="n">implementation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">implementation</span><span class="p">,</span>
+            <span class="c1"># Don&#39;t copy hooks: they&#39;ll be re-generated during metaclass __new__</span>
+            <span class="n">hooks</span><span class="o">=</span><span class="p">{},</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hook</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hooks</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">hook</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">BaseWorkflowEnabled</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Unable to apply transition &#39;</span><span class="si">%s</span><span class="s2">&#39; to object </span><span class="si">%r</span><span class="s2">, which is not &quot;</span>
+                <span class="s2">&quot;attached to a Workflow.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">instance</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">implementation_class</span><span class="p">(</span>
+            <span class="n">instance</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">implementation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hooks</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;</span><span class="si">%s</span><span class="s2"> for &#39;</span><span class="si">%s</span><span class="s2">&#39; on &#39;</span><span class="si">%s</span><span class="s2">&#39;: </span><span class="si">%s</span><span class="s2">&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">implementation</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TransitionWrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mark that a method should be used for a transition with a different name.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        trname (str): the name of the transition that the method implements</span>
+<span class="sd">        func (function): the decorated method</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trname</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">after</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trname</span> <span class="o">=</span> <span class="n">trname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">field</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check</span> <span class="o">=</span> <span class="n">check</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">before</span> <span class="o">=</span> <span class="n">before</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">after</span> <span class="o">=</span> <span class="n">after</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trname</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trname</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;</span><span class="si">%s</span><span class="s2"> for </span><span class="si">%r</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">transition</span><span class="p">(</span><span class="n">trname</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">after</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator to declare a function as a transition implementation.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">trname</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;The @transition decorator should be called as &quot;</span>
+            <span class="s2">&quot;@transition([&#39;transition_name&#39;], **kwargs)&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">check</span> <span class="ow">or</span> <span class="n">before</span> <span class="ow">or</span> <span class="n">after</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;The use of check=, before= and after= in @transition decorators is &quot;</span>
+            <span class="s2">&quot;deprecated in favor of @transition_check, @before_transition and &quot;</span>
+            <span class="s2">&quot;@after_transition decorators.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">TransitionWrapper</span><span class="p">(</span><span class="n">trname</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="n">check</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="o">=</span><span class="n">after</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_make_hook_dict</span><span class="p">(</span><span class="n">fun</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure the given function has a xworkflows_hook attribute.</span>
+
+<span class="sd">    That attribute has the following structure:</span>
+<span class="sd">    &gt;&gt;&gt; {</span>
+<span class="sd">    ...     &#39;before&#39;: [(&#39;state&#39;, &lt;TransitionHook&gt;), ...],</span>
+<span class="sd">    ... }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">fun</span><span class="p">,</span> <span class="s1">&#39;xworkflows_hook&#39;</span><span class="p">):</span>
+        <span class="n">fun</span><span class="o">.</span><span class="n">xworkflows_hook</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">HOOK_BEFORE</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="n">HOOK_AFTER</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="n">HOOK_CHECK</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="n">HOOK_ON_ENTER</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="n">HOOK_ON_LEAVE</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="p">}</span>
+    <span class="k">return</span> <span class="n">fun</span><span class="o">.</span><span class="n">xworkflows_hook</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_HookDeclaration</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for decorators declaring methods as transition hooks.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        *names (str tuple): name of the states/transitions to bind to; use &#39;*&#39;</span>
+<span class="sd">            for &#39;all&#39;</span>
+<span class="sd">        priority (int): priority of the hook, defaults to 0</span>
+<span class="sd">        field (str): name of the field to which the hooked transition relates</span>
+
+<span class="sd">    Usage:</span>
+<span class="sd">        &gt;&gt;&gt; @_HookDeclaration(&#39;foo&#39;, &#39;bar&#39;, priority=4)</span>
+<span class="sd">        ... def my_hook(self):</span>
+<span class="sd">        ...   pass</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">,)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">priority</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;priority&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;field&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_as_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Hook</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hook_name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">priority</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="n">hook_dict</span> <span class="o">=</span> <span class="n">_make_hook_dict</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="n">hooks</span> <span class="o">=</span> <span class="n">hook_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hook_name</span><span class="p">]</span>
+        <span class="n">hooks</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_as_hook</span><span class="p">(</span><span class="n">func</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">func</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">before_transition</span><span class="p">(</span><span class="n">_HookDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorates a method that should be called before a given transition.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; @before_transition(&#39;foobar&#39;)</span>
+<span class="sd">        ... def blah(self):</span>
+<span class="sd">        ...   pass</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">hook_name</span> <span class="o">=</span> <span class="n">HOOK_BEFORE</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">after_transition</span><span class="p">(</span><span class="n">_HookDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorates a method that should be called after a given transition.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; @after_transition(&#39;foobar&#39;)</span>
+<span class="sd">        ... def blah(self):</span>
+<span class="sd">        ...   pass</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">hook_name</span> <span class="o">=</span> <span class="n">HOOK_AFTER</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">transition_check</span><span class="p">(</span><span class="n">_HookDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorates a method that should be called after a given transition.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; @transition_check(&#39;foobar&#39;)</span>
+<span class="sd">        ... def blah(self):</span>
+<span class="sd">        ...   pass</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">hook_name</span> <span class="o">=</span> <span class="n">HOOK_CHECK</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">on_enter_state</span><span class="p">(</span><span class="n">_HookDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorates a method that should be used as a hook for a state.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; @on_enter_state(&#39;foo&#39;, &#39;bar&#39;)</span>
+<span class="sd">        ... def blah(self):</span>
+<span class="sd">        ...   pass</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">hook_name</span> <span class="o">=</span> <span class="n">HOOK_ON_ENTER</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">on_leave_state</span><span class="p">(</span><span class="n">_HookDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorates a method that should be used as a hook for a state.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; @on_leave_state(&#39;foo&#39;, &#39;bar&#39;)</span>
+<span class="sd">        ... def blah(self):</span>
+<span class="sd">        ...   pass</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">hook_name</span> <span class="o">=</span> <span class="n">HOOK_ON_LEAVE</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">noop</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;NoOp function, ignores all arguments.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ImplementationList</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stores all implementations.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        state_field (str): the name of the field holding the state of objects.</span>
+<span class="sd">        implementations (dict(str =&gt; ImplementationProperty)): maps a transition</span>
+<span class="sd">            name to the associated implementation.</span>
+<span class="sd">        workflow (Workflow): the related workflow</span>
+<span class="sd">        transitions_at (dict(str =&gt; str)): maps a transition name to the</span>
+<span class="sd">            name of the attribute holding the related implementation.</span>
+<span class="sd">        custom_implems (str set): list of transition names for which a custom</span>
+<span class="sd">            implementation has been defined.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_field</span><span class="p">,</span> <span class="n">workflow</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_field</span> <span class="o">=</span> <span class="n">state_field</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span> <span class="o">=</span> <span class="n">workflow</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">implementations</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transitions_at</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">custom_implems</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_parent_implems</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_implems</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Import previously defined implementations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            parent_implems (ImplementationList): List of implementations defined</span>
+<span class="sd">                in a parent class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">trname</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">implem</span> <span class="ow">in</span> <span class="n">parent_implems</span><span class="o">.</span><span class="n">get_custom_implementations</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">implementations</span><span class="p">[</span><span class="n">trname</span><span class="p">]</span> <span class="o">=</span> <span class="n">implem</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transitions_at</span><span class="p">[</span><span class="n">trname</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">custom_implems</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">trname</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_implem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transition</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add an implementation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            transition (Transition): the transition for which the implementation</span>
+<span class="sd">                is added</span>
+<span class="sd">            attribute (str): the name of the attribute where the implementation</span>
+<span class="sd">                will be available</span>
+<span class="sd">            function (callable): the actual implementation function</span>
+<span class="sd">            **kwargs: extra arguments for the related ImplementationProperty.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">implem</span> <span class="o">=</span> <span class="n">ImplementationProperty</span><span class="p">(</span>
+            <span class="n">field_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">state_field</span><span class="p">,</span>
+            <span class="n">transition</span><span class="o">=</span><span class="n">transition</span><span class="p">,</span>
+            <span class="n">workflow</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">workflow</span><span class="p">,</span>
+            <span class="n">implementation</span><span class="o">=</span><span class="n">function</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">implementations</span><span class="p">[</span><span class="n">transition</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">implem</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transitions_at</span><span class="p">[</span><span class="n">transition</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">attribute</span>
+        <span class="k">return</span> <span class="n">implem</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">should_collect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Decide whether a given value should be collected.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="c1"># decorated with @transition</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">TransitionWrapper</span><span class="p">)</span>
+            <span class="c1"># Relates to a compatible transition</span>
+            <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">trname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">transitions</span>
+            <span class="c1"># Either not bound to a state field or bound to the current one</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">field</span> <span class="ow">or</span> <span class="n">value</span><span class="o">.</span><span class="n">field</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_field</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">collect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Collect the implementations from a given attributes dict.&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">should_collect</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                <span class="n">transition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">transitions</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">trname</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">value</span><span class="o">.</span><span class="n">trname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">implementations</span>
+                        <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">trname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_implems</span>
+                        <span class="ow">and</span> <span class="n">name</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transitions_at</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">trname</span><span class="p">]):</span>
+                    <span class="c1"># We already have an implementation registered.</span>
+                    <span class="n">other_implem_at</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transitions_at</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">trname</span><span class="p">]</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Error for attribute </span><span class="si">%s</span><span class="s2">: it defines implementation &quot;</span>
+                        <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> for transition </span><span class="si">%s</span><span class="s2">, which is already implemented &quot;</span>
+                        <span class="s2">&quot;at </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">transition</span><span class="p">,</span> <span class="n">other_implem_at</span><span class="p">))</span>
+
+                <span class="n">implem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_implem</span><span class="p">(</span><span class="n">transition</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">func</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">custom_implems</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">transition</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">check</span><span class="p">:</span>
+                    <span class="n">implem</span><span class="o">.</span><span class="n">add_hook</span><span class="p">(</span><span class="n">Hook</span><span class="p">(</span><span class="n">HOOK_CHECK</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">check</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">before</span><span class="p">:</span>
+                    <span class="n">implem</span><span class="o">.</span><span class="n">add_hook</span><span class="p">(</span><span class="n">Hook</span><span class="p">(</span><span class="n">HOOK_BEFORE</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">before</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">after</span><span class="p">:</span>
+                    <span class="n">implem</span><span class="o">.</span><span class="n">add_hook</span><span class="p">(</span><span class="n">Hook</span><span class="p">(</span><span class="n">HOOK_AFTER</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">after</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_custom_implementations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve a list of cutom implementations.</span>
+
+<span class="sd">        Yields:</span>
+<span class="sd">            (str, str, ImplementationProperty) tuples: The name of the attribute</span>
+<span class="sd">                an implementation lives at, the name of the related transition,</span>
+<span class="sd">                and the related implementation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">trname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_implems</span><span class="p">:</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transitions_at</span><span class="p">[</span><span class="n">trname</span><span class="p">]</span>
+            <span class="n">implem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">implementations</span><span class="p">[</span><span class="n">trname</span><span class="p">]</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">trname</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">implem</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_missing_implementations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">transition</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">transitions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">transition</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">implementations</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_implem</span><span class="p">(</span><span class="n">transition</span><span class="p">,</span> <span class="n">transition</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">noop</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">register_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">utils</span><span class="o">.</span><span class="n">iterclass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;xworkflows_hook&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">register_function_hooks</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">register_function_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Looks at an object method and registers it for relevent transitions.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">hook_kind</span><span class="p">,</span> <span class="n">hooks</span> <span class="ow">in</span> <span class="n">func</span><span class="o">.</span><span class="n">xworkflows_hook</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">hook</span> <span class="ow">in</span> <span class="n">hooks</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">field_name</span> <span class="ow">and</span> <span class="n">field_name</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_field</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">for</span> <span class="n">transition</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">transitions</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">hook</span><span class="o">.</span><span class="n">applies_to</span><span class="p">(</span><span class="n">transition</span><span class="p">):</span>
+                        <span class="n">implem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">implementations</span><span class="p">[</span><span class="n">transition</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+                        <span class="n">implem</span><span class="o">.</span><span class="n">add_hook</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_may_override</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">implem</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks whether an ImplementationProperty may override an attribute.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">ImplementationProperty</span><span class="p">):</span>
+            <span class="c1"># Overriding another custom implementation for the same transition</span>
+            <span class="c1"># and field</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">transition</span> <span class="o">==</span> <span class="n">implem</span><span class="o">.</span><span class="n">transition</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">field_name</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_field</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">TransitionWrapper</span><span class="p">):</span>
+            <span class="c1"># Overriding the definition that led to adding the current</span>
+            <span class="c1"># ImplementationProperty.</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">other</span><span class="o">.</span><span class="n">trname</span> <span class="o">==</span> <span class="n">implem</span><span class="o">.</span><span class="n">transition</span><span class="o">.</span><span class="n">name</span>
+                <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">field</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">field</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_field</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">func</span> <span class="o">==</span> <span class="n">implem</span><span class="o">.</span><span class="n">implementation</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fill_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the &#39;attrs&#39; dict with generated ImplementationProperty.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">trname</span><span class="p">,</span> <span class="n">attrname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transitions_at</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="n">implem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">implementations</span><span class="p">[</span><span class="n">trname</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">attrname</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+                <span class="n">conflicting</span> <span class="o">=</span> <span class="n">attrs</span><span class="p">[</span><span class="n">attrname</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_may_override</span><span class="p">(</span><span class="n">implem</span><span class="p">,</span> <span class="n">conflicting</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Can&#39;t override transition implementation </span><span class="si">%s</span><span class="s2">=</span><span class="si">%r</span><span class="s2"> with </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span>
+                        <span class="p">(</span><span class="n">attrname</span><span class="p">,</span> <span class="n">conflicting</span><span class="p">,</span> <span class="n">implem</span><span class="p">))</span>
+
+            <span class="n">attrs</span><span class="p">[</span><span class="n">attrname</span><span class="p">]</span> <span class="o">=</span> <span class="n">implem</span>
+        <span class="k">return</span> <span class="n">attrs</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform all actions on a given attribute dict.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_missing_implementations</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fill_attrs</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">WorkflowMeta</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base metaclass for all Workflows.</span>
+
+<span class="sd">    Sets the &#39;states&#39;, &#39;transitions&#39;, and &#39;initial_state&#39; attributes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+
+        <span class="n">state_defs</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;states&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">transitions_defs</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;transitions&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">initial_state</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;initial_state&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">new_class</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">WorkflowMeta</span><span class="p">,</span> <span class="n">mcs</span><span class="p">)</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
+
+        <span class="n">new_class</span><span class="o">.</span><span class="n">states</span> <span class="o">=</span> <span class="n">_setup_states</span><span class="p">(</span><span class="n">state_defs</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">new_class</span><span class="p">,</span> <span class="s1">&#39;states&#39;</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="n">new_class</span><span class="o">.</span><span class="n">transitions</span> <span class="o">=</span> <span class="n">_setup_transitions</span><span class="p">(</span>
+            <span class="n">transitions_defs</span><span class="p">,</span>
+            <span class="n">new_class</span><span class="o">.</span><span class="n">states</span><span class="p">,</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">new_class</span><span class="p">,</span> <span class="s1">&#39;transitions&#39;</span><span class="p">,</span> <span class="p">[]),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">initial_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_class</span><span class="o">.</span><span class="n">initial_state</span> <span class="o">=</span> <span class="n">new_class</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">initial_state</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">new_class</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseWorkflow</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for all workflows.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        states (StateList): list of states of this Workflow</span>
+<span class="sd">        transitions (TransitionList): list of Transitions of this Workflow</span>
+<span class="sd">        initial_state (State): initial state for the Workflow</span>
+<span class="sd">        implementation_class (ImplementationWrapper subclass): class to use</span>
+<span class="sd">            for transition implementation wrapping.</span>
+
+<span class="sd">    For each transition, a ImplementationWrapper with the same name (unless</span>
+<span class="sd">    another name has been specified through the use of the @transition</span>
+<span class="sd">    decorator) is provided to perform the specified transition.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">implementation_class</span> <span class="o">=</span> <span class="n">ImplementationWrapper</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transition</span><span class="p">,</span> <span class="n">from_state</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log a transition.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            transition (Transition): the name of the performed transition</span>
+<span class="sd">            from_state (State): the source state</span>
+<span class="sd">            instance (object): the modified object</span>
+
+<span class="sd">        Kwargs:</span>
+<span class="sd">            Any passed when calling the transition</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;xworkflows.transitions&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">instance_repr</span> <span class="o">=</span> <span class="n">u</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">instance</span><span class="p">),</span> <span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">UnicodeEncodeError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">):</span>
+            <span class="n">instance_repr</span> <span class="o">=</span> <span class="n">u</span><span class="p">(</span><span class="s2">&quot;&lt;bad repr&gt;&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="n">u</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> performed transition </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2"> -&gt; </span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">),</span> <span class="n">instance_repr</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">transition</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">from_state</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">transition</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+
+<span class="c1"># Workaround for metaclasses on python2/3.</span>
+<span class="c1"># Equivalent to:</span>
+<span class="c1"># Python2</span>
+<span class="c1">#</span>
+<span class="c1"># class Workflow(BaseWorkflow):</span>
+<span class="c1">#     __metaclass__ = WorkflowMeta</span>
+<span class="c1">#</span>
+<span class="c1"># Python3</span>
+<span class="c1">#</span>
+<span class="c1"># class Workflow(metaclass=WorkflowMeta):</span>
+<span class="c1">#     pass</span>
+
+<span class="n">Workflow</span> <span class="o">=</span> <span class="n">WorkflowMeta</span><span class="p">(</span><span class="s1">&#39;Workflow&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">BaseWorkflow</span><span class="p">,),</span> <span class="p">{})</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">StateWrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Slightly enhanced wrapper around a base State object.</span>
+
+<span class="sd">    Knows about the workflow.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">workflow</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span> <span class="o">=</span> <span class="n">workflow</span>
+        <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">workflow</span><span class="o">.</span><span class="n">states</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;is_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">st</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">st</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">state</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">State</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">other</span>
+        <span class="k">elif</span> <span class="n">is_string</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%r</span><span class="s1">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s1">&#39;state&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s1">&#39;Trying to access attribute </span><span class="si">%s</span><span class="s1"> of a non-initialized </span><span class="si">%r</span><span class="s1"> object!&#39;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_python3</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">__unicode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">u</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># A StateWrapper should compare equal to its name.</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">transitions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve a list of transitions available from this state.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">transitions</span><span class="o">.</span><span class="n">available_from</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">StateProperty</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Property-like attribute holding the state of a WorkflowEnabled object.</span>
+
+<span class="sd">    The state is stored in the internal __dict__ of the instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workflow</span><span class="p">,</span> <span class="n">state_field_name</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">StateProperty</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span> <span class="o">=</span> <span class="n">workflow</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span> <span class="o">=</span> <span class="n">state_field_name</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the current state of the &#39;instance&#39; object.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">initial_state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">StateWrapper</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the current state of the &#39;instance&#39; object.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Value </span><span class="si">%s</span><span class="s2"> is not a valid state for workflow </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span><span class="p">))</span>
+        <span class="n">instance</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;StateProperty(</span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workflow</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_name</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">StateField</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates that a given class attribute is actually a workflow state.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workflow</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workflow</span> <span class="o">=</span> <span class="n">workflow</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">WorkflowEnabledMeta</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base metaclass for all Workflow Enabled objects.</span>
+
+<span class="sd">    Defines:</span>
+<span class="sd">    - one class attribute for each the attached workflows,</span>
+<span class="sd">    - a &#39;_workflows&#39; attribute, a dict mapping each field_name to the related</span>
+<span class="sd">        Workflow,</span>
+<span class="sd">    - a &#39;_xworkflows_implems&#39; attribute, a dict mapping each field_name to a</span>
+<span class="sd">        dict of related ImplementationProperty.</span>
+<span class="sd">    - one class attribute for each transition for each attached workflow</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_workflow</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">state_field</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Attach a workflow to the attribute list (create a StateProperty).&quot;&quot;&quot;</span>
+        <span class="n">attrs</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">StateProperty</span><span class="p">(</span><span class="n">state_field</span><span class="o">.</span><span class="n">workflow</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_find_workflows</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Finds all occurrences of a workflow in the attributes definitions.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict(str =&gt; StateField): maps an attribute name to a StateField</span>
+<span class="sd">                describing the related Workflow.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">workflows</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Workflow</span><span class="p">):</span>
+                <span class="n">workflows</span><span class="p">[</span><span class="n">attribute</span><span class="p">]</span> <span class="o">=</span> <span class="n">StateField</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">workflows</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_transitions</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">workflow</span><span class="p">,</span> <span class="n">attrs</span><span class="p">,</span> <span class="n">implems</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Collect and enhance transition definitions to a workflow.</span>
+
+<span class="sd">        Modifies the &#39;attrs&#39; dict in-place.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            field_name (str): name of the field transitions should update</span>
+<span class="sd">            workflow (Workflow): workflow we&#39;re working on</span>
+<span class="sd">            attrs (dict): dictionary of attributes to be updated.</span>
+<span class="sd">            implems (ImplementationList): Implementation list from parent</span>
+<span class="sd">                classes (optional)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ImplementationList: The new implementation list for this field.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_implems</span> <span class="o">=</span> <span class="n">ImplementationList</span><span class="p">(</span><span class="n">field_name</span><span class="p">,</span> <span class="n">workflow</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">implems</span><span class="p">:</span>
+            <span class="n">new_implems</span><span class="o">.</span><span class="n">load_parent_implems</span><span class="p">(</span><span class="n">implems</span><span class="p">)</span>
+        <span class="n">new_implems</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">new_implems</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_register_hooks</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">implems</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">implem_list</span> <span class="ow">in</span> <span class="n">implems</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">implem_list</span><span class="o">.</span><span class="n">register_hooks</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+        <span class="c1"># Map field_name =&gt; StateField</span>
+        <span class="n">workflows</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Map field_name =&gt; ImplementationList</span>
+        <span class="n">implems</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Collect workflows and implementations from parents</span>
+        <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">bases</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="s1">&#39;_workflows&#39;</span><span class="p">):</span>
+                <span class="n">workflows</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">_workflows</span><span class="p">)</span>
+                <span class="n">implems</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">_xworkflows_implems</span><span class="p">)</span>
+
+        <span class="n">workflows</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">mcs</span><span class="o">.</span><span class="n">_find_workflows</span><span class="p">(</span><span class="n">attrs</span><span class="p">))</span>
+
+        <span class="c1"># Update attributes with workflow descriptions, and collect</span>
+        <span class="c1"># implementation declarations.</span>
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">state_field</span> <span class="ow">in</span> <span class="n">workflows</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">mcs</span><span class="o">.</span><span class="n">_add_workflow</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">state_field</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
+
+            <span class="n">implems</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">_add_transitions</span><span class="p">(</span>
+                <span class="n">field</span><span class="p">,</span> <span class="n">state_field</span><span class="o">.</span><span class="n">workflow</span><span class="p">,</span> <span class="n">attrs</span><span class="p">,</span> <span class="n">implems</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">))</span>
+
+        <span class="c1"># Set specific attributes for children</span>
+        <span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;_workflows&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">workflows</span>
+        <span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;_xworkflows_implems&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">implems</span>
+
+        <span class="bp">cls</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">WorkflowEnabledMeta</span><span class="p">,</span> <span class="n">mcs</span><span class="p">)</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
+        <span class="n">mcs</span><span class="o">.</span><span class="n">_register_hooks</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">implems</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseWorkflowEnabled</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for all objects using a workflow.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        workflows (dict(str, StateField)): Maps the name of a &#39;state_field&#39; to</span>
+<span class="sd">            the related Workflow</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+<span class="c1"># Workaround for metaclasses on python2/3.</span>
+<span class="c1"># Equivalent to:</span>
+<span class="c1"># Python2</span>
+<span class="c1">#</span>
+<span class="c1"># class WorkflowEnabled(BaseWorkflowEnabled):</span>
+<span class="c1">#     __metaclass__ = WorkflowEnabledMeta</span>
+<span class="c1">#</span>
+<span class="c1"># Python3</span>
+<span class="c1">#</span>
+<span class="c1"># class WorkflowEnabled(metaclass=WorkflowEnabledMeta):</span>
+<span class="c1">#     pass</span>
+
+<span class="n">WorkflowEnabled</span> <span class="o">=</span> <span class="n">WorkflowEnabledMeta</span><span class="p">(</span><span class="s1">&#39;WorkflowEnabled&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">BaseWorkflowEnabled</span><span class="p">,),</span> <span class="p">{})</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

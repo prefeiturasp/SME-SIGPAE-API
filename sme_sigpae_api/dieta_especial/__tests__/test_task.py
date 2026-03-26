@@ -426,7 +426,7 @@ def test_build_xlsx_status_cancelado(
         "Nome do Aluno",
         "Nome da Escola",
         "Classificação da dieta",
-        "Protocolo Padrão",
+        "Protocolo",
         "Data de cancelamento",
     )
     assert rows[4] == (
@@ -523,7 +523,7 @@ def test_build_xlsx_status_autorizado(
     assert rows[3][3] == "Data de Nascimento"
     assert rows[3][4] == "Nome da Escola"
     assert rows[3][5] == "Classificação da dieta"
-    assert rows[3][6] == "Protocolo Padrão"
+    assert rows[3][6] == "Protocolo"
 
     for row_idx in range(4, 8):
         assert rows[row_idx][1] == "123456"

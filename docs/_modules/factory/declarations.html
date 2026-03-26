@@ -1,0 +1,907 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>factory.declarations &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">factory.declarations</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for factory.declarations</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: See the LICENSE file.</span>
+
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">T</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">enums</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">utils</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;factory.generate&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseDeclaration</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">OrderedBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A factory declaration.</span>
+
+<span class="sd">    Declarations mark an attribute as needing lazy evaluation.</span>
+<span class="sd">    This allows them to refer to attributes defined by other BaseDeclarations</span>
+<span class="sd">    in the same factory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">FACTORY_BUILDER_PHASE</span> <span class="o">=</span> <span class="n">enums</span><span class="o">.</span><span class="n">BuilderPhase</span><span class="o">.</span><span class="n">ATTRIBUTE_RESOLUTION</span>
+
+    <span class="c1">#: Whether this declaration has a special handling for call-time overrides</span>
+    <span class="c1">#: (e.g. Tranformer).</span>
+    <span class="c1">#: Overridden values will be passed in the `extra` args.</span>
+    <span class="n">CAPTURE_OVERRIDES</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1">#: Whether to unroll the context before evaluating the declaration.</span>
+    <span class="c1">#: Set to False on declarations that perform their own unrolling.</span>
+    <span class="n">UNROLL_CONTEXT_BEFORE_EVALUATION</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">defaults</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span> <span class="o">=</span> <span class="n">defaults</span> <span class="ow">or</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">unroll_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="n">full_context</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">full_context</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span><span class="p">)</span>
+        <span class="n">full_context</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">UNROLL_CONTEXT_BEFORE_EVALUATION</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">full_context</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">enums</span><span class="o">.</span><span class="n">get_builder_phase</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">full_context</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="c1"># Optimization for simple contexts - don&#39;t do anything.</span>
+            <span class="k">return</span> <span class="n">full_context</span>
+
+        <span class="kn">import</span><span class="w"> </span><span class="nn">factory.base</span>
+        <span class="n">subfactory</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">DictFactory</span>
+        <span class="k">return</span> <span class="n">step</span><span class="o">.</span><span class="n">recurse</span><span class="p">(</span><span class="n">subfactory</span><span class="p">,</span> <span class="n">full_context</span><span class="p">,</span> <span class="n">force_sequence</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">sequence</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_unwrap_evaluate_pre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wrapped</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">overrides</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate a wrapped pre-declaration.</span>
+
+<span class="sd">        This is especially useful for declarations wrapping another one,</span>
+<span class="sd">        e.g. Maybe or Transformer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">BaseDeclaration</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">wrapped</span><span class="o">.</span><span class="n">evaluate_pre</span><span class="p">(</span>
+                <span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span>
+                <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+                <span class="n">overrides</span><span class="o">=</span><span class="n">overrides</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">wrapped</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_pre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">overrides</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unroll_context</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">overrides</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">extra</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate this declaration.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance (builder.Resolver): The object holding currently computed</span>
+<span class="sd">                attributes</span>
+<span class="sd">            step: a factory.builder.BuildStep</span>
+<span class="sd">            extra (dict): additional, call-time added kwargs</span>
+<span class="sd">                for the step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;This is an abstract method&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">OrderedDeclaration</span><span class="p">(</span><span class="n">BaseDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compatibility&quot;&quot;&quot;</span>
+
+    <span class="c1"># FIXME(rbarrois)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LazyFunction</span><span class="p">(</span><span class="n">BaseDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simplest BaseDeclaration computed by calling the given function.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        function (function): a function without arguments and</span>
+<span class="sd">            returning the computed value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">=</span> <span class="n">function</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">extra</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;LazyFunction: Evaluating </span><span class="si">%r</span><span class="s2"> on </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">()</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LazyAttribute</span><span class="p">(</span><span class="n">BaseDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specific BaseDeclaration computed using a lambda.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        function (function): a function, expecting the current LazyStub and</span>
+<span class="sd">            returning the computed value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">=</span> <span class="n">function</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">extra</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;LazyAttribute: Evaluating </span><span class="si">%r</span><span class="s2"> on </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">,</span> <span class="n">instance</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Transformer</span><span class="p">(</span><span class="n">BaseDeclaration</span><span class="p">):</span>
+    <span class="n">CAPTURE_OVERRIDES</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">UNROLL_CONTEXT_BEFORE_EVALUATION</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Force</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Bypass a transformer&#39;s transformation.</span>
+
+<span class="sd">        The forced value can be any declaration, and will be evaluated as if it</span>
+<span class="sd">        had been passed instead of the Transformer declaration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forced_value</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">forced_value</span> <span class="o">=</span> <span class="n">forced_value</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;Transformer.Force(</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forced_value</span><span class="p">)</span><span class="si">}</span><span class="s1">)&#39;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">transform</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">transform</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_pre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">overrides</span><span class="p">):</span>
+        <span class="c1"># The call-time value, if present, is set under the &quot;&quot; key.</span>
+        <span class="n">value_or_declaration</span> <span class="o">=</span> <span class="n">overrides</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value_or_declaration</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Force</span><span class="p">):</span>
+            <span class="n">bypass_transform</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">value_or_declaration</span> <span class="o">=</span> <span class="n">value_or_declaration</span><span class="o">.</span><span class="n">forced_value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bypass_transform</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unwrap_evaluate_pre</span><span class="p">(</span>
+            <span class="n">value_or_declaration</span><span class="p">,</span>
+            <span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span>
+            <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+            <span class="n">overrides</span><span class="o">=</span><span class="n">overrides</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">bypass_transform</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_UNSPECIFIED</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">deepgetattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">_UNSPECIFIED</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Try to retrieve the given attribute of an object, digging on &#39;.&#39;.</span>
+
+<span class="sd">    This is an extended getattr, digging deeper if &#39;.&#39; is found.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        obj (object): the object of which an attribute should be read</span>
+<span class="sd">        name (str): the name of an attribute to look up.</span>
+<span class="sd">        default (object): the default value to use if the attribute wasn&#39;t found</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        the attribute pointed to by &#39;name&#39;, splitting on &#39;.&#39;.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        AttributeError: if obj has no &#39;name&#39; attribute.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">attr</span><span class="p">,</span> <span class="n">subname</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">deepgetattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">),</span> <span class="n">subname</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_UNSPECIFIED</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">default</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SelfAttribute</span><span class="p">(</span><span class="n">BaseDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specific BaseDeclaration copying values from other fields.</span>
+
+<span class="sd">    If the field name starts with two dots or more, the lookup will be anchored</span>
+<span class="sd">    in the related &#39;parent&#39;.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        depth (int): the number of steps to go up in the containers chain</span>
+<span class="sd">        attribute_name (str): the name of the attribute to copy.</span>
+<span class="sd">        default (object): the default value to use if the attribute doesn&#39;t</span>
+<span class="sd">            exist.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_name</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">_UNSPECIFIED</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">attribute_name</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">attribute_name</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))</span>
+        <span class="n">attribute_name</span> <span class="o">=</span> <span class="n">attribute_name</span><span class="p">[</span><span class="n">depth</span><span class="p">:]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attribute_name</span> <span class="o">=</span> <span class="n">attribute_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">extra</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Fetching from a parent</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">chain</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">instance</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;SelfAttribute: Picking attribute </span><span class="si">%r</span><span class="s2"> on </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribute_name</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">deepgetattr</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribute_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%r</span><span class="s1">, default=</span><span class="si">%r</span><span class="s1">)&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attribute_name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Iterator</span><span class="p">(</span><span class="n">BaseDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill this value using the values returned by an iterator.</span>
+
+<span class="sd">    Warning: the iterator should not end !</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        iterator (iterable): the iterator whose value should be used.</span>
+<span class="sd">        getter (callable or None): a function to parse returned values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterator</span><span class="p">,</span> <span class="n">cycle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getter</span> <span class="o">=</span> <span class="n">getter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iterator</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">cycle</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iterator_builder</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">utils</span><span class="o">.</span><span class="n">ResetableIterator</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">cycle</span><span class="p">(</span><span class="n">iterator</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iterator_builder</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">utils</span><span class="o">.</span><span class="n">ResetableIterator</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">extra</span><span class="p">):</span>
+        <span class="c1"># Begin unrolling as late as possible.</span>
+        <span class="c1"># This helps with ResetableIterator(MyModel.objects.all())</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterator</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterator_builder</span><span class="p">()</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Iterator: Fetching next value from </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterator</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iterator</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">getter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset the internal iterator.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iterator</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Sequence</span><span class="p">(</span><span class="n">BaseDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specific BaseDeclaration to use for &#39;sequenced&#39; fields.</span>
+
+<span class="sd">    These fields are typically used to generate increasing unique values.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        function (function): A function, expecting the current sequence counter</span>
+<span class="sd">            and returning the computed value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">=</span> <span class="n">function</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">extra</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Sequence: Computing next value of </span><span class="si">%r</span><span class="s2"> for seq=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">sequence</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">sequence</span><span class="p">))</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LazyAttributeSequence</span><span class="p">(</span><span class="n">Sequence</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Composite of a LazyAttribute and a Sequence.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        function (function): A function, expecting the current LazyStub and the</span>
+<span class="sd">            current sequence counter.</span>
+<span class="sd">        type (function): A function converting an integer into the expected kind</span>
+<span class="sd">            of counter for the &#39;function&#39; attribute.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">extra</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;LazyAttributeSequence: Computing next value of </span><span class="si">%r</span><span class="s2"> for seq=</span><span class="si">%s</span><span class="s2">, obj=</span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">sequence</span><span class="p">,</span> <span class="n">instance</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">sequence</span><span class="p">))</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ContainerAttribute</span><span class="p">(</span><span class="n">BaseDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Variant of LazyAttribute, also receives the containers of the object.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        function (function): A function, expecting the current LazyStub and the</span>
+<span class="sd">            (optional) object having a subfactory containing this attribute.</span>
+<span class="sd">        strict (bool): Whether evaluating should fail when the containers are</span>
+<span class="sd">            not passed in (i.e used outside a SubFactory).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">=</span> <span class="n">function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strict</span> <span class="o">=</span> <span class="n">strict</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">extra</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the current ContainerAttribute.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            obj (LazyStub): a lazy stub of the object being constructed, if</span>
+<span class="sd">                needed.</span>
+<span class="sd">            containers (list of LazyStub): a list of lazy stubs of factories</span>
+<span class="sd">                being evaluated in a chain, each item being a future field of</span>
+<span class="sd">                next one.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Strip the current instance from the chain</span>
+        <span class="n">chain</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">chain</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strict</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">chain</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;A ContainerAttribute in &#39;strict&#39; mode can only be used &quot;</span>
+                <span class="s2">&quot;within a SubFactory.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">chain</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ParameteredAttribute</span><span class="p">(</span><span class="n">BaseDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for attributes expecting parameters.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        defaults (dict): Default values for the parameters.</span>
+<span class="sd">            May be overridden by call-time parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">extra</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the current definition and fill its attributes.</span>
+
+<span class="sd">        Uses attributes definition in the following order:</span>
+<span class="sd">        - values defined when defining the ParameteredAttribute</span>
+<span class="sd">        - additional values defined when instantiating the containing factory</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance (builder.Resolver): The object holding currently computed</span>
+<span class="sd">                attributes</span>
+<span class="sd">            step: a factory.builder.BuildStep</span>
+<span class="sd">            extra (dict): additional, call-time added kwargs</span>
+<span class="sd">                for the step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">extra</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Actually generate the related attribute.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sequence (int): the current sequence number</span>
+<span class="sd">            obj (LazyStub): the object being constructed</span>
+<span class="sd">            create (bool): whether the calling factory was in &#39;create&#39; or</span>
+<span class="sd">                &#39;build&#39; mode</span>
+<span class="sd">            params (dict): parameters inherited from init and evaluation-time</span>
+<span class="sd">                overrides.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Computed value for the current declaration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_FactoryWrapper</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle a &#39;factory&#39; arg.</span>
+
+<span class="sd">    Such args can be either a Factory subclass, or a fully qualified import</span>
+<span class="sd">    path for that subclass (e.g &#39;myapp.factories.MyFactory&#39;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factory_or_path</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factory</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">factory_or_path</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">factory</span> <span class="o">=</span> <span class="n">factory_or_path</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">factory_or_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">factory_or_path</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;A factory= argument must receive either a class &quot;</span>
+                    <span class="s2">&quot;or the fully qualified path to a Factory subclass; got &quot;</span>
+                    <span class="s2">&quot;</span><span class="si">%r</span><span class="s2"> instead.&quot;</span> <span class="o">%</span> <span class="n">factory_or_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">factory_or_path</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">factory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">factory</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">import_object</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">factory</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">factory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;_FactoryImport: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&gt;&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;_FactoryImport: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">factory</span><span class="o">.</span><span class="vm">__class__</span><span class="si">}</span><span class="s1">&gt;&#39;</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SubFactory</span><span class="p">(</span><span class="n">BaseDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for attributes based upon a sub-factory.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        defaults (dict): Overrides to the defaults defined in the wrapped</span>
+<span class="sd">            factory</span>
+<span class="sd">        factory (base.Factory): the wrapped factory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Whether to align the attribute&#39;s sequence counter to the holding</span>
+    <span class="c1"># factory&#39;s sequence counter</span>
+    <span class="n">FORCE_SEQUENCE</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">UNROLL_CONTEXT_BEFORE_EVALUATION</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factory</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factory_wrapper</span> <span class="o">=</span> <span class="n">_FactoryWrapper</span><span class="p">(</span><span class="n">factory</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_factory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the wrapped factory.Factory subclass.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">factory_wrapper</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">extra</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the current definition and fill its attributes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            step: a factory.builder.BuildStep</span>
+<span class="sd">            params (dict): additional, call-time added kwargs</span>
+<span class="sd">                for the step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">subfactory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_factory</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;SubFactory: Instantiating </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">(</span><span class="si">%s</span><span class="s2">), create=</span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">subfactory</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span> <span class="n">subfactory</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">log_pprint</span><span class="p">(</span><span class="n">kwargs</span><span class="o">=</span><span class="n">extra</span><span class="p">),</span>
+            <span class="n">step</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">force_sequence</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">sequence</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">FORCE_SEQUENCE</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">step</span><span class="o">.</span><span class="n">recurse</span><span class="p">(</span><span class="n">subfactory</span><span class="p">,</span> <span class="n">extra</span><span class="p">,</span> <span class="n">force_sequence</span><span class="o">=</span><span class="n">force_sequence</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Dict</span><span class="p">(</span><span class="n">SubFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill a dict with usual declarations.&quot;&quot;&quot;</span>
+
+    <span class="n">FORCE_SEQUENCE</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">dict_factory</span><span class="o">=</span><span class="s1">&#39;factory.DictFactory&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dict_factory</span><span class="p">,</span> <span class="o">**</span><span class="nb">dict</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">List</span><span class="p">(</span><span class="n">SubFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill a list with standard declarations.&quot;&quot;&quot;</span>
+
+    <span class="n">FORCE_SEQUENCE</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">list_factory</span><span class="o">=</span><span class="s1">&#39;factory.ListFactory&#39;</span><span class="p">):</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="p">)}</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">list_factory</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+
+<span class="c1"># Parameters</span>
+<span class="c1"># ==========</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Skip</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="n">SKIP</span> <span class="o">=</span> <span class="n">Skip</span><span class="p">()</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Maybe</span><span class="p">(</span><span class="n">BaseDeclaration</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decider</span><span class="p">,</span> <span class="n">yes_declaration</span><span class="o">=</span><span class="n">SKIP</span><span class="p">,</span> <span class="n">no_declaration</span><span class="o">=</span><span class="n">SKIP</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">enums</span><span class="o">.</span><span class="n">get_builder_phase</span><span class="p">(</span><span class="n">decider</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># No builder phase =&gt; flat value</span>
+            <span class="n">decider</span> <span class="o">=</span> <span class="n">SelfAttribute</span><span class="p">(</span><span class="n">decider</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">decider</span> <span class="o">=</span> <span class="n">decider</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yes</span> <span class="o">=</span> <span class="n">yes_declaration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">no</span> <span class="o">=</span> <span class="n">no_declaration</span>
+
+        <span class="n">phases</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;yes_declaration&#39;</span><span class="p">:</span> <span class="n">enums</span><span class="o">.</span><span class="n">get_builder_phase</span><span class="p">(</span><span class="n">yes_declaration</span><span class="p">),</span>
+            <span class="s1">&#39;no_declaration&#39;</span><span class="p">:</span> <span class="n">enums</span><span class="o">.</span><span class="n">get_builder_phase</span><span class="p">(</span><span class="n">no_declaration</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">used_phases</span> <span class="o">=</span> <span class="p">{</span><span class="n">phase</span> <span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="n">phases</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">phase</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">used_phases</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Inconsistent phases for </span><span class="si">{</span><span class="bp">self</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">phases</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">FACTORY_BUILDER_PHASE</span> <span class="o">=</span> <span class="n">used_phases</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span> <span class="k">if</span> <span class="n">used_phases</span> <span class="k">else</span> <span class="n">enums</span><span class="o">.</span><span class="n">BuilderPhase</span><span class="o">.</span><span class="n">ATTRIBUTE_RESOLUTION</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">overrides</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle post-generation declarations&quot;&quot;&quot;</span>
+        <span class="n">decider_phase</span> <span class="o">=</span> <span class="n">enums</span><span class="o">.</span><span class="n">get_builder_phase</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decider</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">decider_phase</span> <span class="o">==</span> <span class="n">enums</span><span class="o">.</span><span class="n">BuilderPhase</span><span class="o">.</span><span class="n">ATTRIBUTE_RESOLUTION</span><span class="p">:</span>
+            <span class="c1"># Note: we work on the *builder stub*, not on the actual instance.</span>
+            <span class="c1"># This gives us access to all Params-level definitions.</span>
+            <span class="n">choice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decider</span><span class="o">.</span><span class="n">evaluate_pre</span><span class="p">(</span>
+                <span class="n">instance</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">stub</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span> <span class="n">overrides</span><span class="o">=</span><span class="n">overrides</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">decider_phase</span> <span class="o">==</span> <span class="n">enums</span><span class="o">.</span><span class="n">BuilderPhase</span><span class="o">.</span><span class="n">POST_INSTANTIATION</span>
+            <span class="n">choice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decider</span><span class="o">.</span><span class="n">evaluate_post</span><span class="p">(</span>
+                <span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span> <span class="n">overrides</span><span class="o">=</span><span class="p">{})</span>
+
+        <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yes</span> <span class="k">if</span> <span class="n">choice</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">no</span>
+        <span class="k">if</span> <span class="n">enums</span><span class="o">.</span><span class="n">get_builder_phase</span><span class="p">(</span><span class="n">target</span><span class="p">)</span> <span class="o">==</span> <span class="n">enums</span><span class="o">.</span><span class="n">BuilderPhase</span><span class="o">.</span><span class="n">POST_INSTANTIATION</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">evaluate_post</span><span class="p">(</span>
+                <span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span>
+                <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+                <span class="n">overrides</span><span class="o">=</span><span class="n">overrides</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Flat value (can&#39;t be ATTRIBUTE_RESOLUTION, checked in __init__)</span>
+            <span class="k">return</span> <span class="n">target</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_pre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">overrides</span><span class="p">):</span>
+        <span class="n">choice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decider</span><span class="o">.</span><span class="n">evaluate_pre</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span> <span class="n">overrides</span><span class="o">=</span><span class="p">{})</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yes</span> <span class="k">if</span> <span class="n">choice</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">no</span>
+        <span class="c1"># The value can&#39;t be POST_INSTANTIATION, checked in __init__;</span>
+        <span class="c1"># evaluate it as `evaluate_pre`</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unwrap_evaluate_pre</span><span class="p">(</span>
+            <span class="n">target</span><span class="p">,</span>
+            <span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span>
+            <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+            <span class="n">overrides</span><span class="o">=</span><span class="n">overrides</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;Maybe(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">decider</span><span class="si">!r}</span><span class="s1">, yes=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">yes</span><span class="si">!r}</span><span class="s1">, no=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">no</span><span class="si">!r}</span><span class="s1">)&#39;</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Parameter</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">OrderedBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A complex parameter, to be used in a Factory.Params section.</span>
+
+<span class="sd">    Must implement:</span>
+<span class="sd">    - A &quot;compute&quot; function, performing the actual declaration override</span>
+<span class="sd">    - Optionally, a get_revdeps() function (to compute other parameters it may alter)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_declarations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">declarations</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the overrides for this parameter.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        - field_name (str): the field this parameter is installed at</span>
+<span class="sd">        - declarations (dict): the global factory declarations</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: the declarations to override</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_revdeps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the list of other parameters modified by this one.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SimpleParameter</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_declarations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">declarations</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">field_name</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrap</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">value</span><span class="o">.</span><span class="n">touch_creation_counter</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Trait</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The simplest complex parameter, it enables a bunch of new declarations based on a boolean flag.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">overrides</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overrides</span> <span class="o">=</span> <span class="n">overrides</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_declarations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">declarations</span><span class="p">):</span>
+        <span class="n">overrides</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">maybe_field</span><span class="p">,</span> <span class="n">new_value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">overrides</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">overrides</span><span class="p">[</span><span class="n">maybe_field</span><span class="p">]</span> <span class="o">=</span> <span class="n">Maybe</span><span class="p">(</span>
+                <span class="n">decider</span><span class="o">=</span><span class="n">SelfAttribute</span><span class="p">(</span>
+                    <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                        <span class="s1">&#39;.&#39;</span> <span class="o">*</span> <span class="n">maybe_field</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">enums</span><span class="o">.</span><span class="n">SPLITTER</span><span class="p">),</span>
+                        <span class="n">field_name</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">yes_declaration</span><span class="o">=</span><span class="n">new_value</span><span class="p">,</span>
+                <span class="n">no_declaration</span><span class="o">=</span><span class="n">declarations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">maybe_field</span><span class="p">,</span> <span class="n">SKIP</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">overrides</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_revdeps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This might alter fields it&#39;s injecting.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">parameters</span> <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">overrides</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">=</span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">overrides</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="p">)</span>
+
+
+<span class="c1"># Post-generation</span>
+<span class="c1"># ===============</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PostGenerationContext</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="n">value_provided</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">T</span><span class="o">.</span><span class="n">Any</span>
+    <span class="n">extra</span><span class="p">:</span> <span class="n">T</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">T</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PostGenerationDeclaration</span><span class="p">(</span><span class="n">BaseDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Declarations to be called once the model object has been generated.&quot;&quot;&quot;</span>
+
+    <span class="n">FACTORY_BUILDER_PHASE</span> <span class="o">=</span> <span class="n">enums</span><span class="o">.</span><span class="n">BuilderPhase</span><span class="o">.</span><span class="n">POST_INSTANTIATION</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">overrides</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unroll_context</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">overrides</span><span class="p">)</span>
+        <span class="n">postgen_context</span> <span class="o">=</span> <span class="n">PostGenerationContext</span><span class="p">(</span>
+            <span class="n">value_provided</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="s1">&#39;&#39;</span> <span class="ow">in</span> <span class="n">context</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">),</span>
+            <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">postgen_context</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Call this hook; no return value is expected.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance (object): the newly generated object</span>
+<span class="sd">            step (bool): whether the object was &#39;built&#39; or &#39;created&#39;</span>
+<span class="sd">            context: a declarations.PostGenerationContext containing values</span>
+<span class="sd">                extracted from the containing factory&#39;s declaration</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PostGeneration</span><span class="p">(</span><span class="n">PostGenerationDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calls a given function once the object has been generated.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">=</span> <span class="n">function</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;PostGeneration: Calling </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">(</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">log_pprint</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">),</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">_asdict</span><span class="p">(),</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">create</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">enums</span><span class="o">.</span><span class="n">CREATE_STRATEGY</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">(</span>
+            <span class="n">instance</span><span class="p">,</span> <span class="n">create</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">context</span><span class="o">.</span><span class="n">extra</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">RelatedFactory</span><span class="p">(</span><span class="n">PostGenerationDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calls a factory once the object has been generated.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        factory (Factory): the factory to call</span>
+<span class="sd">        defaults (dict): extra declarations for calling the related factory</span>
+<span class="sd">        name (str): the name to use to refer to the generated object when</span>
+<span class="sd">            calling the related factory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">UNROLL_CONTEXT_BEFORE_EVALUATION</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factory</span><span class="p">,</span> <span class="n">factory_related_name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">defaults</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">factory_related_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span> <span class="o">=</span> <span class="n">defaults</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factory_wrapper</span> <span class="o">=</span> <span class="n">_FactoryWrapper</span><span class="p">(</span><span class="n">factory</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_factory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the wrapped factory.Factory subclass.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">factory_wrapper</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="n">factory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_factory</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">value_provided</span><span class="p">:</span>
+            <span class="c1"># The user passed in a custom value</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;RelatedFactory: Using provided </span><span class="si">%r</span><span class="s2"> instead of generating </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                <span class="n">factory</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span> <span class="n">factory</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="n">passed_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="p">)</span>
+        <span class="n">passed_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">extra</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="n">passed_kwargs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">instance</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;RelatedFactory: Generating </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">(</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+            <span class="n">factory</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+            <span class="n">factory</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">log_pprint</span><span class="p">((</span><span class="n">step</span><span class="p">,),</span> <span class="n">passed_kwargs</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">step</span><span class="o">.</span><span class="n">recurse</span><span class="p">(</span><span class="n">factory</span><span class="p">,</span> <span class="n">passed_kwargs</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">RelatedFactoryList</span><span class="p">(</span><span class="n">RelatedFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calls a factory &#39;size&#39; times once the object has been generated.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        factory (Factory): the factory to call &quot;size-times&quot;</span>
+<span class="sd">        defaults (dict): extra declarations for calling the related factory</span>
+<span class="sd">        factory_related_name (str): the name to use to refer to the generated</span>
+<span class="sd">            object when calling the related factory</span>
+<span class="sd">        size (int|lambda): the number of times &#39;factory&#39; is called, ultimately</span>
+<span class="sd">            returning a list of &#39;factory&#39; objects w/ size &#39;size&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factory</span><span class="p">,</span> <span class="n">factory_related_name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">defaults</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">factory</span><span class="p">,</span> <span class="n">factory_related_name</span><span class="p">,</span> <span class="o">**</span><span class="n">defaults</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">parent</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">())</span>
+        <span class="p">]</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">NotProvided</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PostGenerationMethodCall</span><span class="p">(</span><span class="n">PostGenerationDeclaration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calls a method of the generated object.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        method_name (str): the method to call</span>
+<span class="sd">        method_args (list): arguments to pass to the method</span>
+<span class="sd">        method_kwargs (dict): keyword arguments to pass to the method</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        class UserFactory(factory.Factory):</span>
+<span class="sd">            ...</span>
+<span class="sd">            password = factory.PostGenerationMethodCall(&#39;set_pass&#39;, password=&#39;&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">InvalidDeclarationError</span><span class="p">(</span>
+                <span class="s2">&quot;A PostGenerationMethodCall can only handle 1 positional argument; &quot;</span>
+                <span class="s2">&quot;please provide other parameters through keyword arguments.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method_name</span> <span class="o">=</span> <span class="n">method_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method_arg</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="n">NotProvided</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">value_provided</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">method_arg</span> <span class="ow">is</span> <span class="n">NotProvided</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">method_arg</span><span class="p">,)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">value</span><span class="p">,)</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">method_kwargs</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">extra</span><span class="p">)</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">method_name</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;PostGenerationMethodCall: Calling </span><span class="si">%r</span><span class="s2">.</span><span class="si">%s</span><span class="s2">(</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+            <span class="n">instance</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">method_name</span><span class="p">,</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">log_pprint</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

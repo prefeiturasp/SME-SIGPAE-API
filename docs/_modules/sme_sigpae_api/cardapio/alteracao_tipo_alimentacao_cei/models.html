@@ -117,8 +117,6 @@
 <span class="p">):</span>
     <span class="n">DESCRICAO</span> <span class="o">=</span> <span class="s2">&quot;Alteração do Tipo de Alimentação CEI&quot;</span>
 
-    <span class="n">eh_alteracao_com_lanche_repetida</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
     <span class="n">objects</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span>  <span class="c1"># Manager Padrão</span>
     <span class="n">desta_semana</span> <span class="o">=</span> <span class="n">AlteracoesCardapioCEIDestaSemanaManager</span><span class="p">()</span>
     <span class="n">deste_mes</span> <span class="o">=</span> <span class="n">AlteracoesCardapioCEIDesteMesManager</span><span class="p">()</span>

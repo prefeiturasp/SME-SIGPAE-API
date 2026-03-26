@@ -76,7 +76,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">EhAlteracaoCardapio</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.cardapio.base.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">TipoAlimentacao</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Ativavel</span><span class="p">,</span>
     <span class="n">CanceladoIndividualmente</span><span class="p">,</span>
@@ -119,55 +118,52 @@
 <span class="sd">    Representa uma solicitação formal de troca do tipo de alimentação servida em</span>
 <span class="sd">    determinado(s) período(s) escolar(es), com data inicial e final delimitadas.</span>
 
+<span class="sd">    **O que é uma Alteração do Tipo de Alimentação?**</span>
+
+<span class="sd">    É uma solicitação de troca do tipo de alimentação servida em um determinado dia.</span>
+
+<span class="sd">    **Quais os tipos de Alteração do Tipo de Alimentação possíveis?**</span>
+
+<span class="sd">    - RPL (Refeição por Lanche)</span>
+<span class="sd">        - substitui a refeição do dia por um lanche</span>
+<span class="sd">        - cada escola só pode pedir uma RPL por mês</span>
+<span class="sd">        - exemplo: no dia dos aniversariantes do mês, a escola pode solicitar uma RPL para substituir a refeição por um lanche especial.</span>
+<span class="sd">        - na Medição Inicial, o lançamento de lanche neste dia é dobrado e a refeição é zerada.</span>
+
+<span class="sd">    - LPR (Lanche por Refeição)</span>
+<span class="sd">        - substitui o lanche do dia por uma refeição</span>
+<span class="sd">        - não há limite de solicitações de LPR por mês</span>
+<span class="sd">        - na Medição Inicial, o lançamento de lanche neste dia é zerado e a refeição é dobrada.</span>
+<span class="sd">        - esta solicitação raramente é utilizada, pois as escolas preferem lanche que refeição.</span>
+
+<span class="sd">    - Lanche Emergencial</span>
+<span class="sd">        - substitui todas as alimentações do dia por lanche emergencial (no passado, era chamado de Merenda Seca)</span>
+<span class="sd">        - única solicitação que pode ser feita sem o mínimo de 2 dias úteis de antecedência</span>
+<span class="sd">        - normalmente requerida quando acontece algum imprevisto que inviabiliza a preparação da refeição, como falta de energia ou água, ou atraso na entrega dos alimentos.</span>
+
 <span class="sd">    Tipos de unidade contempladas:</span>
 <span class="sd">        - EMEF</span>
 <span class="sd">        - EMEI</span>
 <span class="sd">        - CIEJA</span>
 <span class="sd">        - EMEBS</span>
 
-<span class="sd">    Exceções **não** contempladas:</span>
+<span class="sd">    Exceções não contempladas:</span>
 <span class="sd">        - CEI</span>
 <span class="sd">        - CEMEI</span>
 
-<span class="sd">    :cvar DESCRICAO: Descrição legível do tipo de solicitação.</span>
-<span class="sd">    :vartype DESCRICAO: str</span>
-<span class="sd">    :cvar eh_alteracao_com_lanche_repetida: Indica se a alteração envolve lanche repetido</span>
-<span class="sd">        no mesmo mês.</span>
-<span class="sd">    :vartype eh_alteracao_com_lanche_repetida: bool</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        DESCRICAO (str): Descrição legível do tipo de solicitação. Utilizado no dashboard de Gestão de Alimentação para identificar o tipo de cada solicitação. O valor é a string ``&quot;Alteração do Tipo de Alimentação&quot;``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">DESCRICAO</span> <span class="o">=</span> <span class="s2">&quot;Alteração do Tipo de Alimentação&quot;</span>
-
-    <span class="n">eh_alteracao_com_lanche_repetida</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-<div class="viewcode-block" id="AlteracaoCardapio.com_lanche_do_mes_corrente">
-<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.com_lanche_do_mes_corrente">[docs]</a>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">com_lanche_do_mes_corrente</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">escola_uuid</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna alterações de cardápio do mês corrente que incluam lanche como tipo de destino.</span>
-
-<span class="sd">        Filtra as alterações da escola informada cujo período de substituição contemple</span>
-<span class="sd">        algum tipo de alimentação com ``&quot;lanche&quot;`` no nome.</span>
-
-<span class="sd">        :param escola_uuid: UUID da escola a ser filtrada.</span>
-<span class="sd">        :type escola_uuid: uuid.UUID</span>
-<span class="sd">        :returns: QuerySet de :class:`AlteracaoCardapio` do mês corrente contendo lanche.</span>
-<span class="sd">        :rtype: django.db.models.QuerySet</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">lanche</span> <span class="o">=</span> <span class="n">TipoAlimentacao</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">nome__icontains</span><span class="o">=</span><span class="s2">&quot;lanche&quot;</span><span class="p">)</span>
-        <span class="n">alteracoes_da_escola</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">do_mes_corrente</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-            <span class="n">escola__uuid</span><span class="o">=</span><span class="n">escola_uuid</span><span class="p">,</span>
-            <span class="n">substituicoes_periodo_escolar__tipos_alimentacao_para__in</span><span class="o">=</span><span class="n">lanche</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">alteracoes_da_escola</span></div>
-
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a data mais antiga do intervalo (inicial ou final).</span>
 
-<span class="sd">        :returns: Data de início da alteração, ou a data final caso seja anterior.</span>
-<span class="sd">        :rtype: datetime.date</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            datetime.date: Data de início da alteração, ou a data final caso seja</span>
+<span class="sd">            anterior.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_inicial</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_final</span> <span class="o">&lt;</span> <span class="n">data</span><span class="p">:</span>
@@ -178,38 +174,30 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">numero_alunos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o total de alunos somando todas as substituições vinculadas.</span>
 
-<span class="sd">        :returns: Soma da quantidade de alunos em todas as</span>
-<span class="sd">            :class:`SubstituicaoAlimentacaoNoPeriodoEscolar` desta alteração, ou</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            int | None: Soma da quantidade de alunos em todas as</span>
+<span class="sd">            ``SubstituicaoAlimentacaoNoPeriodoEscolar`` desta alteração, ou</span>
 <span class="sd">            ``None`` se não houver substituições.</span>
-<span class="sd">        :rtype: int or None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Sum</span><span class="p">(</span><span class="s2">&quot;qtd_alunos&quot;</span><span class="p">))[</span><span class="s2">&quot;qtd_alunos__sum&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">eh_unico_dia</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Verifica se a alteração ocorre em um único dia.</span>
-
-<span class="sd">        :returns: ``True`` se ``data_inicial`` e ``data_final`` forem iguais,</span>
-<span class="sd">            ``False`` caso contrário.</span>
-<span class="sd">        :rtype: bool</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_inicial</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_final</span>
-
-    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">substituicoes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Atalho para o relacionamento ``substituicoes_periodo_escolar``.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna um atalho para ``substituicoes_periodo_escolar``.</span>
 
-<span class="sd">        :returns: Manager reverso das substituições de alimentação vinculadas.</span>
-<span class="sd">        :rtype: django.db.models.Manager</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            django.db.models.Manager: Manager reverso das substituições de</span>
+<span class="sd">            alimentacao vinculadas.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_periodo_escolar</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">inclusoes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Atalho para o relacionamento ``datas_intervalo``.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna um atalho para ``datas_intervalo``.</span>
 
-<span class="sd">        :returns: Manager reverso das datas do intervalo vinculadas.</span>
-<span class="sd">        :rtype: django.db.models.Manager</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            django.db.models.Manager: Manager reverso das datas do intervalo</span>
+<span class="sd">            vinculadas.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">datas_intervalo</span>
 
@@ -217,8 +205,8 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">tipo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a descrição legível do tipo da solicitação.</span>
 
-<span class="sd">        :returns: String ``&quot;Alteração do Tipo de Alimentação&quot;``.</span>
-<span class="sd">        :rtype: str</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String ``&quot;Alteração do Tipo de Alimentação&quot;``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;Alteração do Tipo de Alimentação&quot;</span>
 
@@ -226,9 +214,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o caminho relativo do relatório desta solicitação no frontend.</span>
 
-<span class="sd">        :returns: URL relativa no formato</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str: URL relativa no formato</span>
 <span class="sd">            ``&quot;alteracao-do-tipo-de-alimentacao/relatorio?uuid=&lt;uuid&gt;&amp;tipoSolicitacao=solicitacao-normal&quot;``.</span>
-<span class="sd">        :rtype: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;alteracao-do-tipo-de-alimentacao/relatorio?uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&amp;tipoSolicitacao=solicitacao-normal&quot;</span>
 
@@ -236,13 +224,15 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">template_mensagem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o assunto e o corpo HTML do template de mensagem de alteração de cardápio.</span>
 
-<span class="sd">        Busca o :class:`~sme_sigpae_api.dados_comuns.models.TemplateMensagem` do tipo</span>
-<span class="sd">        ``ALTERACAO_CARDAPIO`` e retorna seus campos de assunto e conteúdo HTML.</span>
+<span class="sd">        Busca o ``TemplateMensagem`` do tipo ``ALTERACAO_CARDAPIO`` e retorna</span>
+<span class="sd">        seus campos de assunto e conteúdo HTML.</span>
 
-<span class="sd">        :returns: Tupla ``(assunto, corpo_html)`` do template.</span>
-<span class="sd">        :rtype: tuple[str, str]</span>
-<span class="sd">        :raises TemplateMensagem.DoesNotExist: Caso não exista template do tipo</span>
-<span class="sd">            ``ALTERACAO_CARDAPIO`` cadastrado.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple[str, str]: Tupla ``(assunto, corpo_html)`` do template.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TemplateMensagem.DoesNotExist: Caso não exista template do tipo</span>
+<span class="sd">                ``ALTERACAO_CARDAPIO`` cadastrado.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">template</span> <span class="o">=</span> <span class="n">TemplateMensagem</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
             <span class="n">tipo</span><span class="o">=</span><span class="n">TemplateMensagem</span><span class="o">.</span><span class="n">ALTERACAO_CARDAPIO</span>
@@ -255,20 +245,20 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">salvar_log_transicao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status_evento</span><span class="p">,</span> <span class="n">usuario</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Registra no log a transição de status da solicitação.</span>
 
-<span class="sd">        Cria uma entrada em :class:`~sme_sigpae_api.dados_comuns.models.LogSolicitacoesUsuario`</span>
-<span class="sd">        associada a esta alteração de cardápio.</span>
+<span class="sd">        Cria uma entrada em ``LogSolicitacoesUsuario`` associada a esta</span>
+<span class="sd">        alteração de cardápio.</span>
 
-<span class="sd">        :param status_evento: Código do evento de status (constante de</span>
-<span class="sd">            :class:`~sme_sigpae_api.dados_comuns.models.LogSolicitacoesUsuario`).</span>
-<span class="sd">        :type status_evento: int</span>
-<span class="sd">        :param usuario: Usuário responsável pela transição.</span>
-<span class="sd">        :type usuario: django.contrib.auth.models.AbstractUser</span>
-<span class="sd">        :param justificativa: Texto justificando a transição (opcional).</span>
-<span class="sd">        :type justificativa: str</span>
-<span class="sd">        :param resposta_sim_nao: Indica resposta booleana associada ao log (opcional,</span>
-<span class="sd">            padrão ``False``).</span>
-<span class="sd">        :type resposta_sim_nao: bool</span>
-<span class="sd">        :returns: None</span>
+<span class="sd">        Args:</span>
+<span class="sd">            status_evento (int): Código do evento de status.</span>
+<span class="sd">            usuario (django.contrib.auth.models.AbstractUser): Usuário</span>
+<span class="sd">                responsável pela transição.</span>
+<span class="sd">            **kwargs: Parâmetros opcionais do log.</span>
+<span class="sd">                `justificativa` (str): Texto justificando a transição.</span>
+<span class="sd">                `resposta_sim_nao` (bool): Indica resposta booleana associada</span>
+<span class="sd">                    ao log. O padrão é ``False``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">resposta_sim_nao</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;resposta_sim_nao&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -287,21 +277,13 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">substituicoes_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as substituições de alimentação serializadas como lista de dicionários.</span>
 
-<span class="sd">        Cada item da lista representa uma :class:`SubstituicaoAlimentacaoNoPeriodoEscolar`</span>
-<span class="sd">        com os campos ``periodo``, ``alteracao_de`` e ``alteracao_para``.</span>
+<span class="sd">        Cada item da lista representa uma</span>
+<span class="sd">        ``SubstituicaoAlimentacaoNoPeriodoEscolar`` com os campos ``periodo``,</span>
+<span class="sd">        ``alteracao_de`` e ``alteracao_para``.</span>
 
-<span class="sd">        :returns: Lista de dicionários no formato::</span>
-
-<span class="sd">            [</span>
-<span class="sd">                {</span>
-<span class="sd">                    &quot;periodo&quot;: &quot;MANHA&quot;,</span>
-<span class="sd">                    &quot;alteracao_de&quot;: &quot;Lanche, Refeição&quot;,</span>
-<span class="sd">                    &quot;alteracao_para&quot;: &quot;Lanche Emergencial&quot;,</span>
-<span class="sd">                },</span>
-<span class="sd">                ...</span>
-<span class="sd">            ]</span>
-
-<span class="sd">        :rtype: list[dict]</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            list[dict]: Lista de dicionários no formato</span>
+<span class="sd">            ``{&quot;periodo&quot;: str, &quot;alteracao_de&quot;: str, &quot;alteracao_para&quot;: str}``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">substituicoes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_periodo_escolar</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
@@ -326,10 +308,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">existe_dia_cancelado</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Verifica se ao menos uma data do intervalo foi cancelada individualmente.</span>
 
-<span class="sd">        :returns: ``True`` se existir alguma</span>
-<span class="sd">            :class:`DataIntervaloAlteracaoCardapio` com ``cancelado=True``,</span>
-<span class="sd">            ``False`` caso contrário.</span>
-<span class="sd">        :rtype: bool</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: ``True`` se existir alguma ``DataIntervaloAlteracaoCardapio``</span>
+<span class="sd">            com ``cancelado=True``, ``False`` caso contrário.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">datas_intervalo</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">cancelado</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
 
@@ -337,9 +318,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">datas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna todas as datas do intervalo formatadas e concatenadas em uma string.</span>
 
-<span class="sd">        :returns: Datas no formato ``&quot;DD/MM/YYYY&quot;`` separadas por vírgula e espaço,</span>
-<span class="sd">            ex.: ``&quot;01/03/2026, 02/03/2026&quot;``.</span>
-<span class="sd">        :rtype: str</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Datas no formato ``&quot;DD/MM/YYYY&quot;`` separadas por vírgula e</span>
+<span class="sd">            espaço, por exemplo ``&quot;01/03/2026, 02/03/2026&quot;``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="p">[</span>
@@ -353,39 +334,20 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">solicitacao_dict_para_relatorio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_data</span><span class="p">,</span> <span class="n">data_log</span><span class="p">,</span> <span class="n">instituicao</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Serializa os dados da solicitação para uso em relatórios.</span>
 
-<span class="sd">        Retorna um dicionário com todas as informações relevantes da alteração de</span>
-<span class="sd">        cardápio, incluindo rastreamentos históricos, datas, motivo e substituições.</span>
+<span class="sd">        Retorna um dicionário com as informações relevantes da alteração de</span>
+<span class="sd">        cardápio, incluindo rastreamentos históricos, datas, motivo e</span>
+<span class="sd">        substituições.</span>
 
-<span class="sd">        :param label_data: Rótulo descritivo para o campo de data no relatório.</span>
-<span class="sd">        :type label_data: str</span>
-<span class="sd">        :param data_log: Data do log de referência exibida no relatório.</span>
-<span class="sd">        :type data_log: datetime.date</span>
-<span class="sd">        :param instituicao: Instituição solicitante (não utilizado diretamente na</span>
-<span class="sd">            construção do dict, mantido por compatibilidade de assinatura).</span>
-<span class="sd">        :type instituicao: object</span>
-<span class="sd">        :returns: Dicionário com os campos do relatório::</span>
+<span class="sd">        Args:</span>
+<span class="sd">            label_data (str): Rótulo descritivo para o campo de data no</span>
+<span class="sd">                relatório.</span>
+<span class="sd">            data_log (datetime.date): Data do log de referência exibida no</span>
+<span class="sd">                relatório.</span>
+<span class="sd">            instituicao (object): Instituição solicitante, mantida por</span>
+<span class="sd">                compatibilidade de assinatura.</span>
 
-<span class="sd">            {</span>
-<span class="sd">                &quot;lote&quot;: str,</span>
-<span class="sd">                &quot;unidade_educacional&quot;: str,</span>
-<span class="sd">                &quot;terceirizada&quot;: object,</span>
-<span class="sd">                &quot;tipo_doc&quot;: str,</span>
-<span class="sd">                &quot;data_evento&quot;: datetime.date,</span>
-<span class="sd">                &quot;datas_intervalo&quot;: QuerySet,</span>
-<span class="sd">                &quot;numero_alunos&quot;: int,</span>
-<span class="sd">                &quot;motivo&quot;: str,</span>
-<span class="sd">                &quot;data_inicial&quot;: datetime.date,</span>
-<span class="sd">                &quot;data_final&quot;: datetime.date,</span>
-<span class="sd">                &quot;data_autorizacao&quot;: datetime.date,</span>
-<span class="sd">                &quot;observacao&quot;: str,</span>
-<span class="sd">                &quot;substituicoes&quot;: list[dict],</span>
-<span class="sd">                &quot;label_data&quot;: str,</span>
-<span class="sd">                &quot;data_log&quot;: datetime.date,</span>
-<span class="sd">                &quot;id_externo&quot;: str,</span>
-<span class="sd">                &quot;status&quot;: str,</span>
-<span class="sd">            }</span>
-
-<span class="sd">        :rtype: dict</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Dicionário com os campos utilizados no relatório.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;lote&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rastro_lote</span><span class="o">.</span><span class="n">diretoria_regional</span><span class="o">.</span><span class="n">iniciais</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rastro_lote</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -425,20 +387,14 @@
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Representa uma substituição de tipo de alimentação em um período escolar específico.</span>
 
-<span class="sd">    Está vinculada a uma :class:`AlteracaoCardapio` e define quais tipos de alimentação</span>
-<span class="sd">    serão trocados (``tipos_alimentacao_de``) por quais outros (``tipos_alimentacao_para``)</span>
-<span class="sd">    em um determinado período escolar, bem como a quantidade de alunos afetados.</span>
+<span class="sd">    Está vinculada a uma ``AlteracaoCardapio`` e define quais tipos de</span>
+<span class="sd">    alimentação serão trocados por quais outros em um determinado período</span>
+<span class="sd">    escolar, bem como a quantidade de alunos afetados.</span>
 
-<span class="sd">    :cvar alteracao_cardapio: Alteração de cardápio à qual esta substituição pertence.</span>
-<span class="sd">    :vartype alteracao_cardapio: AlteracaoCardapio</span>
-<span class="sd">    :cvar qtd_alunos: Quantidade de alunos impactados pela substituição.</span>
-<span class="sd">    :vartype qtd_alunos: int</span>
-<span class="sd">    :cvar periodo_escolar: Período escolar onde a substituição ocorre.</span>
-<span class="sd">    :vartype periodo_escolar: escola.PeriodoEscolar</span>
-<span class="sd">    :cvar tipos_alimentacao_de: Tipos de alimentação originais a serem substituídos.</span>
-<span class="sd">    :vartype tipos_alimentacao_de: ManyToManyField[TipoAlimentacao]</span>
-<span class="sd">    :cvar tipos_alimentacao_para: Tipos de alimentação que substituirão os originais.</span>
-<span class="sd">    :vartype tipos_alimentacao_para: ManyToManyField[TipoAlimentacao]</span>
+<span class="sd">    Exemplos:</span>
+<span class="sd">        - no período INTEGRAL, ao selecionar motivo Lanche Emergencial, substituir REFEIÇÃO por LANCHE EMERGENCIAL para 50 alunos.</span>
+<span class="sd">        - no período MANHA, ao selecionar motivo LPR, substituir LANCHE por REFEIÇÃO para 30 alunos.</span>
+<span class="sd">        - no período TARDE, ao selecionar motivo RPL, substituir REFEIÇÃO por LANCHE para 20 alunos.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
@@ -484,18 +440,19 @@
     <span class="n">TemChaveExterna</span><span class="p">,</span>
     <span class="n">Ativavel</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Representa o motivo pelo qual uma :class:`AlteracaoCardapio` foi solicitada.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Representa o motivo pelo qual uma ``AlteracaoCardapio`` foi solicitada.</span>
 
-<span class="sd">    Utilizado em conjunto com :class:`AlteracaoCardapio` para categorizar a razão</span>
-<span class="sd">    da troca de tipo de alimentação.</span>
+<span class="sd">    Utilizado para categorizar a razão da troca de tipo de alimentação.</span>
 
-<span class="sd">    Exemplos de motivos:</span>
-<span class="sd">        - Atividade diferenciada</span>
-<span class="sd">        - Aniversariante do mês</span>
+<span class="sd">    Motivos possíveis:</span>
+<span class="sd">        - Lanche Emergencial</span>
+<span class="sd">        - RPL (Refeição por Lanche)</span>
+<span class="sd">        - LPR (Lanche por Refeição)</span>
 
-<span class="sd">    :cvar nome: Nome descritivo do motivo (herdado de</span>
-<span class="sd">        :class:`~sme_sigpae_api.dados_comuns.behaviors.Nomeavel`).</span>
-<span class="sd">    :vartype nome: str</span>
+<span class="sd">    Os motivos são compartilhados entre as Alterações do Tipo de Alimentação:</span>
+<span class="sd">        - Alteração Padrão (EMEF, EMEI, CIEJA, EMEBS, etc.)</span>
+<span class="sd">        - Alteração CEI (CEI DIRET, CEU CEI, CCI/CIPS)</span>
+<span class="sd">        - Alteração CEMEI (CEMEI, CEU CEMEI)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -516,19 +473,10 @@
     <span class="n">TemChaveExterna</span><span class="p">,</span>
     <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Representa uma data específica pertencente ao intervalo de uma :class:`AlteracaoCardapio`.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Representa uma data específica pertencente ao intervalo de uma ``AlteracaoCardapio``.</span>
 
-<span class="sd">    Permite que cada dia do intervalo seja tratado individualmente, possibilitando</span>
-<span class="sd">    cancelamentos pontuais sem invalidar toda a solicitação.</span>
-
-<span class="sd">    :cvar alteracao_cardapio: Alteração de cardápio à qual esta data pertence.</span>
-<span class="sd">    :vartype alteracao_cardapio: AlteracaoCardapio</span>
-<span class="sd">    :cvar data: Data do intervalo (herdada de</span>
-<span class="sd">        :class:`~sme_sigpae_api.dados_comuns.behaviors.TemData`).</span>
-<span class="sd">    :vartype data: datetime.date</span>
-<span class="sd">    :cvar cancelado: Indica se esta data foi cancelada individualmente (herdado de</span>
-<span class="sd">        :class:`~sme_sigpae_api.dados_comuns.behaviors.CanceladoIndividualmente`).</span>
-<span class="sd">    :vartype cancelado: bool</span>
+<span class="sd">    Permite que cada dia do intervalo seja tratado individualmente,</span>
+<span class="sd">    possibilitando cancelamentos pontuais sem invalidar toda a solicitação.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
@@ -546,6 +494,159 @@
         <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Datas do intervalo de Alteração de cardápio&quot;</span>
         <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,)</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_patch_docs</span><span class="p">():</span>
+    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">inicia_fluxo</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Inicia o fluxo da solicitação de Gestão de Alimentação (envia a solicitação para DRE validar).</span>
+
+<span class="s2">        Só é possível iniciar uma solicitação que esteja em **RASCUNHO**.</span>
+
+<span class="s2">        Este método é herdado de django_xworkflows.</span>
+
+<span class="s2">        Possui um hook (``_inicia_fluxo_hook``) para, após o início do fluxo:</span>
+<span class="s2">          - definir o campo ``foi_solicitado_fora_do_prazo`` com base na prioridade da solicitação.</span>
+<span class="s2">          - salvar os rastros históricos da solicitação (escola, DRE, lote e terceirizada).</span>
+<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">codae_autoriza</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Autoriza a solicitação de Gestão de Alimentação como CODAE pedida com mais de 5 dias úteis de antecedência.</span>
+<span class="s2">        Só é possível autorizar uma solicitação que foi validada pela Diretoria Regional.</span>
+
+<span class="s2">        Exceção:</span>
+<span class="s2">          - Alteração do Tipo de Alimentação - Lanche Emergencial</span>
+
+<span class="s2">        Este método é herdado de django_xworkflows.</span>
+
+<span class="s2">        Possui um hook (``_codae_autoriza_hook``) para, após a autorização:</span>
+<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
+<span class="s2">          - enviar e-mail para as partes interessadas notificando sobre a autorização.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">codae_autoriza_questionamento</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        CODAE autoriza a solicitação de Gestão de Alimentação pedida com menos de 5 dias úteis de antecedência, mediante resposta positiva do questionamento para a empresa terceirizada que atende a escola.</span>
+<span class="s2">        Só é possível autorizar uma solicitação que foi validada pela Diretoria Regional.</span>
+
+<span class="s2">        Uma solicitação pode ser autorizada se:</span>
+<span class="s2">          - teve uma resposta positiva do questionamento pela empresa terceirizada que atende a escola, ou seja, resposta_sim_nao=True no log de questionamento.</span>
+
+<span class="s2">        Este método é herdado de django_xworkflows.</span>
+
+<span class="s2">        Possui um hook (``_codae_autoriza_hook``) para, após a autorização:</span>
+<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
+<span class="s2">          - enviar e-mail para as partes interessadas notificando sobre a autorização.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">codae_nega</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        CODAE nega a solicitação de Gestão de Alimentação.</span>
+<span class="s2">        Só é possível negar uma solicitação que foi validada pela Diretoria Regional.</span>
+
+<span class="s2">        Uma solicitação pode ser negada se, por exemplo:</span>
+<span class="s2">          - infringir alguma regra do edital</span>
+<span class="s2">          - tiver algum dado incorreto ou inconsistente (por exemplo, um Kit Lanche não pode ser solicitado para um &quot;passeio&quot; nas dependências da escola. É apenas para passeios externos.)</span>
+
+<span class="s2">        Este método é herdado de django_xworkflows.</span>
+
+<span class="s2">        Possui um hook (``_codae_recusou_hook``) para, após a negação:</span>
+<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
+<span class="s2">          - enviar e-mail para as partes interessadas notificando sobre a negação.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">codae_nega_questionamento</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        CODAE nega a solicitação de Gestão de Alimentação pedida com menos de 5 dias úteis de antecedência.</span>
+<span class="s2">        Só é possível negar uma solicitação que foi validada pela Diretoria Regional.</span>
+
+<span class="s2">        Uma solicitação pode ser negada se:</span>
+<span class="s2">          - não tiver uma resposta positiva do questionamento pela empresa terceirizada que atende a escola, ou seja, resposta_sim_nao=False no log de questionamento.</span>
+
+<span class="s2">        Este método é herdado de django_xworkflows.</span>
+
+<span class="s2">        Possui um hook (``_codae_recusou_hook``) para, após a negação:</span>
+<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
+<span class="s2">          - enviar e-mail para as partes interessadas notificando sobre a negação.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">codae_questiona</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        CODAE questiona a empresa terceirizada se é possível atender a solicitação de Gestão de Alimentação pedida com menos de 5 dias úteis de antecedência.</span>
+<span class="s2">        Só é possível questionar uma solicitação que foi validada pela Diretoria Regional.</span>
+
+<span class="s2">        Uma solicitação pedida com menos de 5 dias úteis de antecedência não pode ser autorizada imediatamente, pois a empresa terceirizada que atende a escola precisa confirmar se é possível atender a solicitação nesse prazo. Portanto, o CODAE questiona a solicitação para obter essa confirmação.</span>
+
+<span class="s2">        Exceção (pode ser autorizado imediatamente, sem questionamento):</span>
+<span class="s2">          - Alteração do Tipo de Alimentação - Lanche Emergencial</span>
+
+<span class="s2">        Este método é herdado de django_xworkflows.</span>
+
+<span class="s2">        Possui um hook (``_codae_questiona_hook``) para, após o questionamento:</span>
+<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">dre_nao_valida</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        DRE não valida a solicitação de Gestão de Alimentação.</span>
+
+<span class="s2">        Este método é herdado de django_xworkflows.</span>
+
+<span class="s2">        Possui um hook (``_dre_nao_valida_hook``) para, após a não validação:</span>
+<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
+<span class="s2">          - enviar e-mail para as partes interessadas notificando sobre a não validação.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">dre_pede_revisao</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Deprecado.</span>
+
+<span class="s2">        Este método é herdado de django_xworkflows.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">dre_valida</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        DRE valida a solicitação de Gestão de Alimentação.</span>
+
+<span class="s2">        Este método é herdado de django_xworkflows.</span>
+
+<span class="s2">        Possui um hook (``_dre_valida_hook``) para, após a validação:</span>
+<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">escola_revisa</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Deprecado.</span>
+
+<span class="s2">        Este método é herdado de django_xworkflows.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">terceirizada_toma_ciencia</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Deprecado.</span>
+
+<span class="s2">        Este método é herdado de django_xworkflows.</span>
+
+<span class="s2">        Antigamente, este método era utilizado para registrar a ciência da empresa terceirizada sobre a solicitação.</span>
+
+<span class="s2">        O status final do fluxo era **TERCEIRIZADA_TOMOU_CIENCIA**.</span>
+
+<span class="s2">        Atualmente:</span>
+<span class="s2">          - o status final é **CODAE_AUTORIZADO**.</span>
+<span class="s2">          - o status TERCEIRIZADA_TOMOU_CIENCIA foi deprecado.</span>
+<span class="s2">          - a empresa toma ciência sem alterar o status da solicitação, através do campo ``terceirizada_conferiu_gestao``.</span>
+
+<span class="s2">        &quot;&quot;&quot;</span>
+
+    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">terceirizada_responde_questionamento</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        A empresa terceirizada responde ao questionamento da CODAE sobre a possibilidade de atendimento da solicitação.</span>
+
+<span class="s2">        Só é possível responder um questionamento quando a solicitação está em **CODAE_QUESTIONADO**.</span>
+
+<span class="s2">        Caso a empresa responda que **sim** (resposta_sim_nao=True), a solicitação pode ser autorizada normalmente pela CODAE, mesmo tendo sido pedida com menos de 5 dias úteis de antecedência.</span>
+
+<span class="s2">        Caso a empresa responda que **não** (resposta_sim_nao=False), a solicitação deve ser negada pela CODAE, pois a empresa, pelo contrato, tem o direito de negar solicitações pedidas com menos de 5 dias úteis de antecedência.</span>
+
+<span class="s2">        Este método é herdado de django_xworkflows.</span>
+
+<span class="s2">        Possui um hook (``_terceirizada_responde_questionamento_hook``) para, após a resposta:</span>
+<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
+<span class="s2">          - registrar no log a justificativa informada e a resposta booleana em ``resposta_sim_nao``.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+
+<span class="n">_patch_docs</span><span class="p">()</span>
 </pre></div>
 
            </div>

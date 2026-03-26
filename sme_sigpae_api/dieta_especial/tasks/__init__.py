@@ -4,6 +4,7 @@ from sme_sigpae_api.dieta_especial.tasks.logs import (
 )
 from sme_sigpae_api.dieta_especial.tasks.processamentos import (
     cancela_dietas_ativas_automaticamente_task,
+    cancela_dietas_pendente_autorizacao_task,
     processa_dietas_especiais_task,
 )
 from sme_sigpae_api.dieta_especial.tasks.relatorio_historico_logs_pdf import (
@@ -32,6 +33,7 @@ __all__ = [
     "gera_logs_dietas_especiais_diariamente",
     "gera_logs_dietas_recreio_ferias_diariamente",
     "cancela_dietas_ativas_automaticamente_task",
+    "cancela_dietas_pendente_autorizacao_task",
     "processa_dietas_especiais_task",
     "gera_pdf_relatorio_historico_dietas_especiais_async",
     "gera_xlsx_relatorio_historico_dietas_especiais_async",

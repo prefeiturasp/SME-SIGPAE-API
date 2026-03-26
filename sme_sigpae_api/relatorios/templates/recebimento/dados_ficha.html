@@ -538,7 +538,7 @@ sass_tags %} {% load humanize %}
           <div class="row pb-3">
             <div class="col-12">
               Descreva as observações necessárias:
-              <span class="font-weight-bold"> {{ficha.observacao}} </span>
+              <span class="font-weight-bold"> {{ ficha.observacao|default:"" }} </span>
             </div>
           </div>
           <div class="row pb-3">
