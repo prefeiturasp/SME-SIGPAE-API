@@ -4,8 +4,11 @@ from collections import defaultdict
 
 import pytest
 from freezegun import freeze_time
+from model_bakery import baker
 
+from sme_sigpae_api.dieta_especial.models import LogQuantidadeDietasAutorizadasCEI
 from sme_sigpae_api.medicao_inicial.utils import (
+    atualiza_alunos_periodo_parcial,
     avalia_soma_total_com_dados_tabela_anterior,
     build_dict_relacao_categorias_e_campos,
     build_dict_relacao_categorias_e_campos_cei,
@@ -1625,3 +1628,60 @@ def test_busca_dias_zerados_emebs(medicoes_frequencia_zerada_emebs):
 
     assert "24" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["INFANTIL"]
     assert "24" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["FUNDAMENTAL"]
+
+
+@freeze_time("2026-03-25")
+def test_atualiza_alunos_periodo_parcial_cria_logs_dieta_cei_ate_ontem_no_mes_e_idempotente(
+    escola_cei,
+    periodo_escolar_integral,
+    periodo_escolar_parcial,
+    classificacao_dieta_tipo_a,
+):
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola_cei,
+        mes=3,
+        ano=2026,
+        ue_possui_alunos_periodo_parcial=True,
+    )
+    aluno = baker.make(
+        "Aluno",
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar_integral,
+        data_nascimento=datetime.date(2024, 1, 15),
+    )
+    faixa_etaria = aluno.faixa_etaria(datetime.date(2026, 3, 1))
+
+    baker.make(
+        "SolicitacaoDietaEspecial",
+        aluno=aluno,
+        escola_destino=escola_cei,
+        classificacao=classificacao_dieta_tipo_a,
+        ativo=True,
+        status="CODAE_AUTORIZADO",
+    )
+
+    alunos_periodo_parcial = [{"aluno": str(aluno.uuid), "data": "20/02/2026"}]
+
+    atualiza_alunos_periodo_parcial(solicitacao, alunos_periodo_parcial)
+    atualiza_alunos_periodo_parcial(solicitacao, alunos_periodo_parcial)
+
+    logs = LogQuantidadeDietasAutorizadasCEI.objects.filter(
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar_parcial,
+        classificacao=classificacao_dieta_tipo_a,
+        faixa_etaria=faixa_etaria,
+        data__month=3,
+        data__year=2026,
+    )
+
+    assert logs.count() == 24
+    assert logs.get(data=datetime.date(2026, 3, 1)).quantidade == 1
+    assert logs.get(data=datetime.date(2026, 3, 24)).quantidade == 1
+    assert not logs.filter(data=datetime.date(2026, 3, 25)).exists()
+    assert not LogQuantidadeDietasAutorizadasCEI.objects.filter(
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar_parcial,
+        classificacao=classificacao_dieta_tipo_a,
+        data=datetime.date(2026, 2, 28),
+    ).exists()
