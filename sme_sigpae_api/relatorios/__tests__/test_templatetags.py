@@ -8,6 +8,7 @@ from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.relatorios.templatetags.index import (
     existe_suspensoes_cancelada,
     multiply,
+    remove_style,
     suspensoes_canceladas,
 )
 
@@ -209,3 +210,42 @@ def test_multiplicador_zero():
 def test_valor_none():
     with pytest.raises(TypeError):
         multiply(None, 2)
+
+
+def test_remove_style():
+    html = "<style>.a{color:red}</style><p>ok</p>"
+
+    result = remove_style(html)
+
+    assert "<style>" not in result
+    assert "color:red" not in result
+    assert "</style>" not in result
+    assert "<p>ok</p>" in result
+
+
+def test_remove_multiplos_styles():
+    html = """
+    <style>.a{}</style>
+    <p>ok</p>
+    <style>.b{}</style>
+    """
+
+    result = remove_style(html)
+
+    assert result.count("<style") == 0
+    assert "<p>ok</p>" in result
+
+
+def test_sem_tag_style():
+    html = "<div><p>texto</p></div>"
+
+    result = remove_style(html)
+
+    assert "<div>" in result
+    assert "<p>texto</p>" in result
+
+
+def test_nao_remove_atributo_style():
+    html = '<div><p style="color:red">texto</p></div>'
+    result = remove_style(html)
+    assert '<p style="color:red">texto</p>' in result

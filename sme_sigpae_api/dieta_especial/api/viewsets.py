@@ -642,9 +642,19 @@ class SolicitacaoDietaEspecialViewSet(
     def escola_cancela_solicitacao(self, request, uuid=None):
         justificativa = request.data.get("justificativa", "")
         solicitacao = self.get_object()
+        alta_medica = (
+            solicitacao.status
+            == DietaEspecialWorkflow.states.ESCOLA_SOLICITOU_INATIVACAO
+        )
+        pendente_autorizacao = (
+            solicitacao.status == DietaEspecialWorkflow.states.CODAE_A_AUTORIZAR
+        )
         try:
             solicitacao.cancelar_pedido(
-                user=request.user, justificativa=justificativa, alta_medica=True
+                user=request.user,
+                justificativa=justificativa,
+                alta_medica=alta_medica,
+                pendente_autorizacao=pendente_autorizacao,
             )
             solicitacao.ativo = False
             solicitacao.save()
@@ -655,7 +665,7 @@ class SolicitacaoDietaEspecialViewSet(
                     solicitacao.dieta_alterada.cancelar_pedido(
                         user=request.user,
                         justificativa=solicitacao.logs.first().justificativa,
-                        alta_medica=True,
+                        alta_medica=alta_medica,
                     )
                 solicitacao.dieta_alterada.save()
             if solicitacao.tipo_solicitacao == "ALTERACAO_UE":
@@ -1141,10 +1151,12 @@ class SolicitacaoDietaEspecialViewSet(
                 key: value for key, value in params.items() if value is not None
             }
 
-            logs = LogSolicitacoesUsuario.objects.filter(**log_filtros)
-
-            solicitacoes_uuids = [log.uuid_original for log in logs]
-            query_set = query_set.filter(uuid__in=solicitacoes_uuids)
+            logs = (
+                LogSolicitacoesUsuario.objects.filter(**log_filtros)
+                .values("uuid_original")
+                .distinct()
+            )
+            query_set = query_set.filter(uuid__in=Subquery(logs))
         return query_set
 
     @action(detail=False, methods=("get",), url_path="filtros-relatorio-dieta-especial")

@@ -147,6 +147,7 @@ from .kit_lanche.fixtures.factories.base_factory import (
 from .medicao_inicial.fixtures.factories.base_factory import (
     CategoriaMedicaoFactory,
     GrupoMedicaoFactory,
+    LancheEmergencialDiarioFactory,
     TipoContagemAlimentacaoFactory,
 )
 from .medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_factory import (
@@ -365,6 +366,7 @@ register(CategoriaAlimentacaoFactory)
 register(RecreioNasFeriasUnidadeTipoAlimentacaoFactory)
 register(HistoricoEscolaFactory)
 register(GrupoUnidadeEscolarFactory)
+register(LancheEmergencialDiarioFactory)
 
 EMAIL_TEST = "test@test.com"
 

@@ -2,6 +2,7 @@ import math
 import re
 from decimal import Decimal, InvalidOperation
 
+from bs4 import BeautifulSoup
 from django import template
 from django.db.models import QuerySet
 from django.template import base as template_base
@@ -1035,3 +1036,13 @@ def nome_escola_historico_kit_unificado(escola_quantidade):
             if hasattr(escola_quantidade, "escola")
             else ""
         )
+
+
+@register.filter
+def remove_style(value):
+    if not value:
+        return value
+    soup = BeautifulSoup(value, "html.parser")
+    for tag in soup.find_all("style"):
+        tag.decompose()
+    return str(soup)

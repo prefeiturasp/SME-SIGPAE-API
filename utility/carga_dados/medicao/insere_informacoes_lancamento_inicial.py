@@ -2,6 +2,7 @@ import datetime
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.contenttypes.models import ContentType
+from rest_framework import serializers
 
 from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create import (
     AlteracaoCardapioSerializerCreate,
@@ -13,6 +14,7 @@ from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_cr
     AlteracaoCardapioCEMEISerializerCreate,
 )
 from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
+from sme_sigpae_api.dados_comuns.utils import eh_dia_util, obter_dias_uteis_apos
 from sme_sigpae_api.dieta_especial.models import (
     ClassificacaoDieta,
     LogQuantidadeDietasAutorizadas,
@@ -48,35 +50,50 @@ MOTIVO_INCLUSAO_EVENTO_ESPECIFICO = "Evento Específico"
 CLASSIFICACAO_DIETA_NOME_TIPO_A = "Tipo A"
 
 
+def escolas_validas():
+    return [escola.get("tipo") for escola in dados_usuario_periodos()]
+
+
+def retorna_dia_util(data):
+    if not eh_dia_util(data):
+        return obter_dias_uteis_apos(data, 1)
+    return data.date()
+
+
 def dados_usuario_periodos():
 
     return [
         # ESCOLA EMEF
         {
+            "tipo": "EMEF",
             "nome_escola": "",
             "email": "escolaemef@admin.com",
             "periodos": ["MANHA", "TARDE", "NOITE", "INTEGRAL"],
         },
         # ESCOLA EMEI
         {
+            "tipo": "EMEI",
             "nome_escola": "",
             "email": "escolaemei@admin.com",
             "periodos": ["MANHA", "TARDE", "INTEGRAL"],
         },
         # ESCOLA CIEJA
         {
+            "tipo": "CIEJA",
             "nome_escola": "",
             "email": "escolacieja@admin.com",
             "periodos": ["MANHA", "TARDE", "NOITE", "INTERMEDIARIO", "VESPERTINO"],
         },
         # ESCOLA CEU GESTÃO
         {
+            "tipo": "CEU_GESTAO",
             "nome_escola": "",
             "email": "ceugestao@admin.com",
             "periodos": ["MANHA", "TARDE", "NOITE", "INTEGRAL"],
         },
         # ESCOLA EMEBS
         {
+            "tipo": "EMEBS",
             "nome_escola": "",
             "email": "escolaemebs@admin.com",
             "periodos": {
@@ -86,18 +103,21 @@ def dados_usuario_periodos():
         },
         # ESCOLA CEMEI
         {
+            "tipo": "CEMEI",
             "nome_escola": "",
             "email": "escolacemei@admin.com",
             "periodos": {"EMEI": ["MANHA", "TARDE", "INTEGRAL"], "CEI": ["INTEGRAL"]},
         },
         # ESCOLA CEI
         {
+            "tipo": "CEI",
             "nome_escola": "",
             "email": "escolacei@admin.com",
             "periodos": ["MANHA", "TARDE", "INTEGRAL"],
         },
         # ESCOLA CMCT
         {
+            "tipo": "CMCT",
             "nome_escola": "",
             "email": "escolacmct@admin.com",
             "periodos": ["MANHA", "TARDE", "NOITE"],
@@ -123,10 +143,9 @@ def obter_usuario_dre(diretoria_regional, index):
     return usuario
 
 
-def obter_escolas():
+def obter_informacoes_escolas(dados):
     "Escolas da mesma DRE"
     erro = False
-    dados = dados_usuario_periodos()
     for index, informacao in enumerate(dados, start=1):
         usuario = obter_usuario(informacao["email"])
         try:
@@ -178,7 +197,7 @@ def habilitar_dias_letivos(escolas, data):
     data_lanche_emergencial = data_solicitacao_lanche_emergencial()
     calendario_sgp(data_lanche_emergencial, escolas)
     print(
-        f"3. A data do pedido do lanche emergencial {data_kit_lanche.strftime("%d/%m/%Y")} agora é letivo"
+        f"3. A data do pedido do lanche emergencial {data_lanche_emergencial.strftime("%d/%m/%Y")} agora é letivo"
     )
 
 
@@ -476,7 +495,7 @@ def incluir_log_alunos_matriculados_emei_da_cemei(
 
 def data_solicitacao_kit_lanche():
     data = datetime.datetime.now() + relativedelta(months=1)
-    return data.date()
+    return retorna_dia_util(data)
 
 
 def solicitar_kit_lanche(escola, usuario, ano, mes, data_kit_lanche, usuario_dre):
@@ -522,7 +541,8 @@ def solicitar_kit_lanche(escola, usuario, ano, mes, data_kit_lanche, usuario_dre
     )
     print("Solicitação aprovado pela CODAE")
 
-    dia_passeio = datetime.date(ano, mes, data_kit_lanche)
+    dia_passeio = retorna_dia_util(datetime.datetime(ano, mes, data_kit_lanche))
+
     solicitacao_kit_lanche = solicitacao_kit_lanche_avulsa.solicitacao_kit_lanche
     solicitacao_kit_lanche.data = dia_passeio
     solicitacao_kit_lanche.save()
@@ -592,7 +612,7 @@ def solicitar_kit_lanche_cemei(escola, usuario, ano, mes, data_kit_lanche, usuar
     )
     print("Solicitação aprovado pela CODAE")
 
-    dia_passeio = datetime.date(ano, mes, data_kit_lanche)
+    dia_passeio = retorna_dia_util(datetime.datetime(ano, mes, data_kit_lanche))
     solicitacao_kit_lanche_cemei.data = dia_passeio
     solicitacao_kit_lanche_cemei.save()
     print(f"Data da solicitação alterada para {dia_passeio.strftime('%d/%m/%Y')}")
@@ -605,7 +625,7 @@ def solicitar_kit_lanche_cemei(escola, usuario, ano, mes, data_kit_lanche, usuar
 
 def data_solicitacao_lanche_emergencial():
     data = datetime.datetime.now() + relativedelta(months=1, days=5)
-    return data.date()
+    return retorna_dia_util(data)
 
 
 def solicitar_lanche_emergencial(
@@ -639,9 +659,19 @@ def solicitar_lanche_emergencial(
         ],
     }
     context = {"request": type("Request", (), {"user": usuario})}
-    solicitacao_lanche_emergencial = AlteracaoCardapioSerializerCreate(
-        context=context
-    ).create(solicitacao_json)
+
+    try:
+        solicitacao_lanche_emergencial = AlteracaoCardapioSerializerCreate(
+            context=context
+        ).create(solicitacao_json)
+    except serializers.ValidationError as ex:
+        mensagem = ex.detail[0]
+        if (
+            mensagem
+            == "Já existe uma solicitação de Lanche Emergencial para a mesma data e período selecionado!"
+        ):
+            print(mensagem)
+            return
 
     solicitacao_lanche_emergencial.inicia_fluxo(user=usuario)
     print(
@@ -656,7 +686,9 @@ def solicitar_lanche_emergencial(
     )
     print("Solicitação aprovado pela CODAE")
 
-    dia_lanche_emergencial = datetime.date(ano, mes, data_lanche_emercencial)
+    dia_lanche_emergencial = retorna_dia_util(
+        datetime.datetime(ano, mes, data_lanche_emercencial)
+    )
     solicitacao_lanche_emergencial.data_final = dia_lanche_emergencial
     solicitacao_lanche_emergencial.data_inicial = dia_lanche_emergencial
     solicitacao_lanche_emergencial.save()
@@ -722,7 +754,9 @@ def solicitar_lanche_emergencial_cemei(
     )
     print("Solicitação aprovado pela CODAE")
 
-    dia_lanche_emergencial = datetime.date(ano, mes, data_lanche_emercencial)
+    dia_lanche_emergencial = retorna_dia_util(
+        datetime.datetime(ano, mes, data_lanche_emercencial)
+    )
     solicitacao_lanche_emergencial.data_final = dia_lanche_emergencial
     solicitacao_lanche_emergencial.data_inicial = dia_lanche_emergencial
     solicitacao_lanche_emergencial.save()
@@ -742,9 +776,11 @@ def solicitar_lanche_emergencial_cemei(
 
 
 def data_programas_e_projetos_etec():
-    data_inicial = datetime.datetime.now() + relativedelta(months=1)
-    data_final = datetime.datetime.now() + relativedelta(months=1, days=5)
-    return data_inicial.date(), data_final.date()
+    data_inicial = retorna_dia_util(datetime.datetime.now() + relativedelta(months=1))
+    data_final = retorna_dia_util(
+        datetime.datetime.now() + relativedelta(months=1, days=5)
+    )
+    return data_inicial, data_final
 
 
 def incluir_programas_e_projetos(
@@ -787,8 +823,10 @@ def incluir_programas_e_projetos(
     )
     print("Solicitação aprovado pela CODAE")
 
-    nova_data_inicio = datetime.date(ano, mes, data_kit_lanche)
-    nova_data_fim = datetime.date(ano, mes, data_kit_lanche) + relativedelta(days=2)
+    nova_data_inicio = retorna_dia_util(datetime.datetime(ano, mes, data_kit_lanche))
+    nova_data_fim = retorna_dia_util(
+        datetime.datetime(ano, mes, data_kit_lanche)
+    ) + relativedelta(days=2)
     programas_e_projetos.data_final = nova_data_fim
     programas_e_projetos.data_inicial = nova_data_inicio
     programas_e_projetos.save()
@@ -843,10 +881,12 @@ def incluir_etec(
     )
     print("Solicitação aprovado pela CODAE")
 
-    nova_data_inicio = datetime.date(ano, mes, data_lanche_emergencial)
-    nova_data_fim = datetime.date(ano, mes, data_lanche_emergencial) + relativedelta(
-        days=2
+    nova_data_inicio = retorna_dia_util(
+        datetime.datetime(ano, mes, data_lanche_emergencial)
     )
+    nova_data_fim = retorna_dia_util(
+        datetime.datetime(ano, mes, data_lanche_emergencial)
+    ) + relativedelta(days=2)
     etec.data_final = nova_data_fim
     etec.data_inicial = nova_data_inicio
     etec.save()
@@ -914,7 +954,7 @@ def incluir_solicitacoes_ceu_gestao(
     )
     print("Solicitação aprovado pela CODAE")
 
-    nova_data = datetime.date(ano, mes, data_kit_lanche)
+    nova_data = retorna_dia_util(datetime.datetime(ano, mes, data_kit_lanche))
     periodo_inclusao = ceu_gestao.inclusoes_normais.all()[0]
     periodo_inclusao.data = nova_data
     periodo_inclusao.save()
@@ -1111,3 +1151,305 @@ def cadastra_emei_da_cemei(
             print(
                 f"Logs da dieta {classificacao.nome} para o Período {periodo} cadastrados"
             )
+
+
+# **************************** **************************** REMOÇÃO DOS LOGS DE ALUNOS MATRICULADOS **************************** ****************************
+
+
+def remover_log_alunos_matriculados(periodos, escola, ano, mes, quantidade_dias_mes):
+    for periodo in periodos:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for dia in range(1, quantidade_dias_mes + 1):
+            data = datetime.date(ano, mes, dia)
+            log = LogAlunosMatriculadosPeriodoEscola.objects.filter(
+                escola=escola, periodo_escolar=pe, criado_em=data
+            )
+            log.delete()
+        print(f"Logs do Período {periodo} removidos")
+
+
+def remover_log_alunos_matriculados_emebs(
+    periodos, escola, ano, mes, quantidade_dias_mes
+):
+    periodo_infantil = periodos["INFANTIL"]
+    periodo_fundamental = periodos["FUNDAMENTAL"]
+
+    for periodo in periodo_infantil:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for dia in range(1, quantidade_dias_mes + 1):
+            data = datetime.date(ano, mes, dia)
+            log = LogAlunosMatriculadosPeriodoEscola.objects.filter(
+                escola=escola,
+                periodo_escolar=pe,
+                tipo_turma=TipoTurma.REGULAR.name,
+                infantil_ou_fundamental="INFANTIL",
+                criado_em=data,
+            )
+            log.delete()
+        print(f"Logs do INFANTIL para o Período {periodo} removidos")
+
+    for periodo in periodo_fundamental:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for dia in range(1, quantidade_dias_mes + 1):
+            data = datetime.date(ano, mes, dia)
+            log = LogAlunosMatriculadosPeriodoEscola.objects.filter(
+                escola=escola,
+                periodo_escolar=pe,
+                tipo_turma=TipoTurma.REGULAR.name,
+                infantil_ou_fundamental="FUNDAMENTAL",
+                criado_em=data,
+            )
+            log.delete()
+        print(f"Logs do FUNDAMENTAL para o Período {periodo} removidos")
+
+
+def remover_log_alunos_matriculados_cei(
+    periodos, escola, ano, mes, quantidade_dias_mes
+):
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    for periodo in periodos:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for dia in range(1, quantidade_dias_mes + 1):
+            data = datetime.date(ano, mes, dia)
+            log = LogAlunosMatriculadosPeriodoEscola.objects.filter(
+                escola=escola,
+                periodo_escolar=pe,
+                tipo_turma=TipoTurma.REGULAR.name,
+                criado_em=data,
+            )
+            log.delete()
+
+        print(f"Logs do Período {periodo} removidos.")
+        for faixa in faixas:
+            for dia in range(1, quantidade_dias_mes + 1):
+                data = datetime.date(ano, mes, dia)
+                log_faixa = LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
+                    escola=escola,
+                    periodo_escolar=pe,
+                    faixa_etaria=faixa,
+                    data=data,
+                    criado_em=data,
+                )
+                log_faixa.delete()
+            print(f"Logs do Período {periodo} para faixa {faixa.__str__()} removidos")
+
+
+def remover_log_alunos_matriculados_cei_da_cemei(
+    periodos, escola, ano, mes, quantidade_dias_mes
+):
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    for periodo in periodos["CEI"]:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for dia in range(1, quantidade_dias_mes + 1):
+            data = datetime.date(ano, mes, dia)
+            log = LogAlunosMatriculadosPeriodoEscola.objects.filter(
+                escola=escola,
+                periodo_escolar=pe,
+                tipo_turma=TipoTurma.REGULAR.name,
+                cei_ou_emei="CEI",
+                criado_em=data,
+            )
+            log.delete()
+        print(f"Logs do Período {periodo} removidos")
+
+        for faixa in faixas:
+            for dia in range(1, quantidade_dias_mes + 1):
+                data = datetime.date(ano, mes, dia)
+                log_faixa = LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
+                    escola=escola,
+                    periodo_escolar=pe,
+                    faixa_etaria=faixa,
+                    data=data,
+                    criado_em=data,
+                )
+                log_faixa.delete()
+            print(f"Logs do Período {periodo} para faixa {faixa.__str__()} removidos")
+
+
+def remover_log_alunos_matriculados_emei_da_cemei(
+    periodos, escola, ano, mes, quantidade_dias_mes
+):
+    for periodo in periodos["EMEI"]:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        cei_ou_emei = "EMEI" if pe.nome == "INTEGRAL" else "N/A"
+        for dia in range(1, quantidade_dias_mes + 1):
+            data = datetime.date(ano, mes, dia)
+            log = LogAlunosMatriculadosPeriodoEscola.objects.filter(
+                escola=escola,
+                periodo_escolar=pe,
+                tipo_turma=TipoTurma.REGULAR.name,
+                cei_ou_emei=cei_ou_emei,
+                criado_em=data,
+            )
+            log.delete()
+
+        print(f"Logs do Período INTANTIL {periodo} removidos")
+
+
+# **************************** **************************** REMOÇÃO DAS DIETAS ESPECIAIS **************************** ****************************
+
+
+def remover_dietas_especiais(escola, periodos_escolares, ano, mes, quantidade_dias_mes):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    for periodo in periodos_escolares:
+        for classificacao in classificacoes_dieta:
+            for dia in range(1, quantidade_dias_mes + 1):
+                log = LogQuantidadeDietasAutorizadas.objects.filter(
+                    escola=escola,
+                    periodo_escolar=periodo,
+                    data=datetime.date(ano, mes, dia),
+                    classificacao=classificacao,
+                )
+                log.delete()
+            print(
+                f"Logs da dieta {classificacao.nome} para o Período {periodo} removidos"
+            )
+
+
+def remover_dietas_especiais_emebs(escola, ano, mes, quantidade_dias_mes, periodos):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+
+    remove_periodo_emebs(
+        escola,
+        classificacoes_dieta,
+        periodos["INFANTIL"],
+        quantidade_dias_mes,
+        ano,
+        mes,
+        "INFANTIL",
+    )
+
+    remove_periodo_emebs(
+        escola,
+        classificacoes_dieta,
+        periodos["FUNDAMENTAL"],
+        quantidade_dias_mes,
+        ano,
+        mes,
+        "FUNDAMENTAL",
+    )
+
+
+def remove_periodo_emebs(
+    escola,
+    classificacoes_dieta,
+    periodos,
+    quantidade_dias_mes,
+    ano,
+    mes,
+    infantil_ou_fundamental,
+):
+    for periodo in periodos:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for classificacao in classificacoes_dieta:
+            for dia in range(1, quantidade_dias_mes + 1):
+                log = LogQuantidadeDietasAutorizadas.objects.filter(
+                    escola=escola,
+                    periodo_escolar=pe,
+                    data=datetime.date(ano, mes, dia),
+                    classificacao=classificacao,
+                    infantil_ou_fundamental=infantil_ou_fundamental,
+                )
+                log.delete()
+            print(
+                f"Logs da dieta {classificacao.nome} do {infantil_ou_fundamental} para o Período {periodo} removidos"
+            )
+
+
+def remover_dietas_especiais_cei(
+    escola, ano, mes, quantidade_dias_mes, periodos_escolares
+):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    for periodo in periodos_escolares:
+        for classificacao in classificacoes_dieta:
+            for faixa in faixas:
+                for dia in range(1, quantidade_dias_mes + 1):
+                    log = LogQuantidadeDietasAutorizadasCEI.objects.filter(
+                        escola=escola,
+                        periodo_escolar=periodo,
+                        data=datetime.date(ano, mes, dia),
+                        classificacao=classificacao,
+                        faixa_etaria=faixa,
+                    )
+                    log.delete()
+                print(
+                    f"Logs dieta {classificacao.nome} para faixa {faixa.__str__()} no Período {periodo} removidos"
+                )
+
+
+def remover_dietas_especiais_cemei(
+    escola, ano, mes, quantidade_dias_mes, periodos_escolares
+):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    remove_cei_da_cemei(
+        escola,
+        ano,
+        mes,
+        quantidade_dias_mes,
+        classificacoes_dieta,
+        periodos_escolares["CEI"],
+    )
+    remove_emei_da_cemei(
+        escola,
+        ano,
+        mes,
+        quantidade_dias_mes,
+        classificacoes_dieta,
+        periodos_escolares["EMEI"],
+    )
+
+
+def remove_cei_da_cemei(
+    escola, ano, mes, quantidade_dias_mes, classificacoes_dieta, periodos_cei_cemei
+):
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    for periodo in periodos_cei_cemei:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for classificacao in classificacoes_dieta:
+            for faixa in faixas:
+                for dia in range(1, quantidade_dias_mes + 1):
+                    log = LogQuantidadeDietasAutorizadasCEI.objects.filter(
+                        escola=escola,
+                        periodo_escolar=pe,
+                        data=datetime.date(ano, mes, dia),
+                        classificacao=classificacao,
+                        faixa_etaria=faixa,
+                    )
+                    log.delete()
+                print(
+                    f"Logs dieta {classificacao.nome} para faixa {faixa.__str__()} no Período {periodo} removidos"
+                )
+
+
+def remove_emei_da_cemei(
+    escola, ano, mes, quantidade_dias_mes, classificacoes_dieta, periodos_emei_cemei
+):
+    for periodo in periodos_emei_cemei:
+        pe = PeriodoEscolar.objects.get(nome=periodo)
+        for classificacao in classificacoes_dieta:
+            for dia in range(1, quantidade_dias_mes + 1):
+                log = LogQuantidadeDietasAutorizadas.objects.filter(
+                    escola=escola,
+                    periodo_escolar=pe,
+                    data=datetime.date(ano, mes, dia),
+                    classificacao=classificacao,
+                    cei_ou_emei="EMEI",
+                )
+                log.delete()
+            print(
+                f"Logs da dieta {classificacao.nome} para o Período {periodo} removidos"
+            )
+
+
+def remover_dietas_especiais_ceu_gestao(escola, ano, mes, dia_kit_lanche):
+    classificacoes_dieta = ClassificacaoDieta.objects.all().order_by("nome")
+    for classificacao in classificacoes_dieta:
+        log = LogQuantidadeDietasAutorizadas.objects.filter(
+            escola=escola,
+            periodo_escolar=None,
+            data=datetime.date(ano, mes, dia_kit_lanche),
+            classificacao=classificacao,
+        )
+        log.delete()
+        print(f"Logs da dieta {classificacao.nome} removidos")

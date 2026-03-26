@@ -3,12 +3,15 @@ import json
 
 import pytest
 from freezegun import freeze_time
+from model_bakery import baker
 from rest_framework import status
 
+from sme_sigpae_api.escola.models import LogAlunosMatriculadosFaixaEtariaDia
 from sme_sigpae_api.medicao_inicial.models import (
     DiaParaCorrigir,
     DiaSobremesaDoce,
     Empenho,
+    LancheEmergencialDiario,
     Medicao,
     ParametrizacaoFinanceira,
     TipoValorParametrizacaoFinanceira,
@@ -85,6 +88,37 @@ def test_url_endpoint_list_dias_erro(client_autenticado_coordenador_codae):
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+def test_url_endpoint_lanches_emergenciais_diarios(
+    client_autenticado_coordenador_codae, escola, escola_emei
+):
+    LancheEmergencialDiario.objects.create(
+        escola=escola,
+        data_inicial=datetime.date(2026, 3, 1),
+        data_final=None,
+    )
+    LancheEmergencialDiario.objects.create(
+        escola=escola,
+        data_inicial=datetime.date(2026, 1, 1),
+        data_final=datetime.date(2026, 2, 28),
+    )
+    LancheEmergencialDiario.objects.create(
+        escola=escola_emei,
+        data_inicial=datetime.date(2026, 3, 1),
+        data_final=None,
+    )
+
+    response = client_autenticado_coordenador_codae.get(
+        f"/medicao-inicial/lanches-emergenciais-diarios/?escola_uuid={escola.uuid}&mes=04&ano=2026",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json()) == 1
+    assert response.json()[0]["escola_uuid"] == str(escola.uuid)
+    assert response.json()[0]["data_inicial"] == "01/03/2026"
+    assert response.json()[0]["data_final"] is None
 
 
 def test_url_endpoint_solicitacao_medicao_inicial(
@@ -2149,6 +2183,145 @@ def test_url_endpoint_atualiza_informacoes_basicas(
     assert "Responsável 2" in nomes
     assert data["tipos_contagem_alimentacao"] == [str(tipo_contagem_alimentacao.uuid)]
     assert data["escola"] == str(solicitacao_medicao_informacoes_basicas.escola.uuid)
+
+
+@pytest.mark.django_db
+def test_url_endpoint_atualiza_informacoes_basicas_aluno_parcial_sincroniza_logs_por_intervalo(
+    client_autenticado_da_escola_cei,
+    escola_cei,
+    periodo_escolar_integral,
+    periodo_escolar_parcial,
+    faixas_etarias_ativas,
+):
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola_cei,
+        mes="04",
+        ano=2023,
+        ue_possui_alunos_periodo_parcial=True,
+    )
+    aluno = baker.make(
+        "Aluno",
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar_integral,
+        data_nascimento=datetime.date(2023, 1, 15),
+    )
+    faixa_etaria = faixas_etarias_ativas[1]
+
+    for dia in range(1, 31):
+        data = datetime.date(2023, 4, dia)
+        baker.make(
+            "LogAlunosMatriculadosFaixaEtariaDia",
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_integral,
+            faixa_etaria=faixa_etaria,
+            quantidade=7,
+            data=data,
+        )
+        baker.make(
+            "LogAlunosMatriculadosFaixaEtariaDia",
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_parcial,
+            faixa_etaria=faixa_etaria,
+            quantidade=0,
+            data=data,
+        )
+
+    url = (
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao.uuid}/"
+        "informacoes-basicas/"
+    )
+    payload_base = {
+        "escola": str(escola_cei.uuid),
+        "responsaveis": [{"nome": "Responsável 1", "rf": "1234567"}],
+        "ue_possui_alunos_periodo_parcial": True,
+        "alunos_parcial_alterado": True,
+    }
+
+    response = client_autenticado_da_escola_cei.patch(
+        url,
+        content_type="application/json",
+        data={
+            **payload_base,
+            "alunos_periodo_parcial": [
+                {"aluno": str(aluno.uuid), "data": "10/04/2023"}
+            ],
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response = client_autenticado_da_escola_cei.patch(
+        url,
+        content_type="application/json",
+        data={
+            **payload_base,
+            "alunos_periodo_parcial": [
+                {
+                    "aluno": str(aluno.uuid),
+                    "data": "12/04/2023",
+                    "data_removido": "15/04/2023",
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    assert (
+        LogAlunosMatriculadosFaixaEtariaDia.objects.get(
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_integral,
+            faixa_etaria=faixa_etaria,
+            data=datetime.date(2023, 4, 11),
+        ).quantidade
+        == 7
+    )
+    assert (
+        LogAlunosMatriculadosFaixaEtariaDia.objects.get(
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_parcial,
+            faixa_etaria=faixa_etaria,
+            data=datetime.date(2023, 4, 11),
+        ).quantidade
+        == 0
+    )
+    assert (
+        LogAlunosMatriculadosFaixaEtariaDia.objects.get(
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_integral,
+            faixa_etaria=faixa_etaria,
+            data=datetime.date(2023, 4, 12),
+        ).quantidade
+        == 6
+    )
+    assert (
+        LogAlunosMatriculadosFaixaEtariaDia.objects.get(
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_parcial,
+            faixa_etaria=faixa_etaria,
+            data=datetime.date(2023, 4, 12),
+        ).quantidade
+        == 1
+    )
+    assert (
+        LogAlunosMatriculadosFaixaEtariaDia.objects.get(
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_integral,
+            faixa_etaria=faixa_etaria,
+            data=datetime.date(2023, 4, 15),
+        ).quantidade
+        == 7
+    )
+    assert (
+        LogAlunosMatriculadosFaixaEtariaDia.objects.get(
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_parcial,
+            faixa_etaria=faixa_etaria,
+            data=datetime.date(2023, 4, 15),
+        ).quantidade
+        == 0
+    )
 
 
 @pytest.mark.django_db

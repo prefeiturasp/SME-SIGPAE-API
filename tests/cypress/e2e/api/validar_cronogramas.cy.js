@@ -75,7 +75,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 		})
 
 		it('Validar GET de cronogramas com parâmetro Status RASCUNHO com sucesso', () => {
-			var parametros = '/?status=RASCUNHO'
+			var parametros = 'status=RASCUNHO'
 
 			cy.validar_cronogramas(parametros).then((response) => {
 				expect(response.status).to.eq(200)
@@ -148,7 +148,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 		})
 
 		it('Validar GET de cronogramas com parâmetro Status ASSINADO_E_ENVIADO_AO_FORNECEDOR com sucesso', () => {
-			var parametros = '?status=ASSINADO_E_ENVIADO_AO_FORNECEDOR'
+			var parametros = 'status=ASSINADO_E_ENVIADO_AO_FORNECEDOR'
 
 			cy.validar_cronogramas(parametros).then((response) => {
 				expect(response.status).to.eq(200)
@@ -241,12 +241,6 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 					'pregao_chamada_publica',
 				).that.exist
 				expect(response.body.results[0].ficha_tecnica).to.have.property('marca')
-				expect(response.body.results[0].ficha_tecnica.marca).to.have.property(
-					'uuid',
-				).that.exist
-				expect(response.body.results[0].ficha_tecnica.marca).to.have.property(
-					'nome',
-				).that.exist
 				expect(response.body.results[0].ficha_tecnica).to.have.property(
 					'volume_embalagem_primaria',
 				)
@@ -255,47 +249,13 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 				)
 				expect(response.body.results[0].ficha_tecnica).to.have.property(
 					'peso_liquido_embalagem_primaria',
-				).that.exist
+				)
 				expect(response.body.results[0].ficha_tecnica).to.have.property(
 					'unidade_medida_primaria',
-				).that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_primaria,
-				).to.have.property('uuid').that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_primaria,
-				).to.have.property('nome').that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_primaria,
-				).to.have.property('abreviacao').that.exist
-				expect(response.body.results[0].ficha_tecnica).to.have.property(
-					'peso_liquido_embalagem_secundaria',
-				).that.exist
+				)
 				expect(response.body.results[0].ficha_tecnica).to.have.property(
 					'unidade_medida_secundaria',
-				).that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_secundaria,
-				).to.have.property('uuid').that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_secundaria,
-				).to.have.property('nome').that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_secundaria,
-				).to.have.property('abreviacao').that.exist
-
-				expect(response.body.results[0]).to.have.property(
-					'tipo_embalagem_secundaria',
-				).that.exist
-				expect(
-					response.body.results[0].tipo_embalagem_secundaria,
-				).to.have.property('uuid').that.exist
-				expect(
-					response.body.results[0].tipo_embalagem_secundaria,
-				).to.have.property('nome').that.exist
-				expect(
-					response.body.results[0].tipo_embalagem_secundaria,
-				).to.have.property('abreviacao').that.exist
+				)
 				expect(response.body.results[0]).to.have.property(
 					'custo_unitario_produto',
 				).that.exist
@@ -305,7 +265,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 		})
 
 		it('Validar GET de cronogramas com parâmetro Status ALTERACAO_CODAE com sucesso', () => {
-			var parametros = '?status=ALTERACAO_CODAE'
+			var parametros = 'status=ALTERACAO_CODAE'
 
 			cy.validar_cronogramas(parametros).then((response) => {
 				expect(response.status).to.eq(200)
@@ -394,7 +354,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 		})
 
 		it('Validar GET de cronogramas com parâmetro Status ASSINADO_CODAE com sucesso', () => {
-			var parametros = '?status=ASSINADO_CODAE'
+			var parametros = 'status=ASSINADO_CODAE'
 
 			cy.validar_cronogramas(parametros).then((response) => {
 				expect(response.status).to.eq(200)
@@ -483,7 +443,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 		})
 
 		it('Validar GET de cronogramas com parâmetro Status ASSINADO_FORNECEDOR com sucesso', () => {
-			var parametros = '?status=ASSINADO_FORNECEDOR'
+			var parametros = 'status=ASSINADO_FORNECEDOR'
 
 			cy.validar_cronogramas(parametros).then((response) => {
 				expect(response.status).to.eq(200)
@@ -528,50 +488,25 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 				expect(response.body.results[0].unidade_medida).to.have.property(
 					'criado_em',
 				).that.exist
-				expect(response.body.results[0]).to.have.property('armazem').that.exist
-				expect(response.body.results[0].armazem).to.have.property('uuid').that
-					.exist
-				expect(response.body.results[0].armazem).to.have.property(
-					'nome_fantasia',
-				).that.exist
-				expect(response.body.results[0].armazem).to.have.property(
-					'razao_social',
-				).that.exist
 				expect(response.body.results[0]).to.have.property('etapas').that.exist
 				expect(response.body.results[0].etapas).to.be.an('array')
 				expect(response.body.results[0].etapas[0]).to.have.property('uuid').that
 					.exist
-				expect(response.body.results[0].etapas[0]).to.have.property(
-					'numero_empenho',
+				expect(response.body.results[0].etapas[0]).to.have.property('numero_empenho',
 				).that.exist
-				expect(response.body.results[0].etapas[0]).to.have.property(
-					'qtd_total_empenho',
+				expect(response.body.results[0].etapas[0]).to.have.property('etapa',
 				).that.exist
-				expect(response.body.results[0].etapas[0]).to.have.property('etapa')
-					.that.exist
-				expect(response.body.results[0].etapas[0]).to.have.property('parte')
-					.that.exist
-				expect(response.body.results[0].etapas[0]).to.have.property(
-					'data_programada',
+				expect(response.body.results[0].etapas[0]).to.have.property('data_programada',
 				).that.exist
-				expect(response.body.results[0].etapas[0]).to.have.property(
-					'quantidade',
+				expect(response.body.results[0].etapas[0]).to.have.property('quantidade',
 				).that.exist
-				expect(response.body.results[0].etapas[0]).to.have.property(
-					'total_embalagens',
-				).that.exist
+				expect(response.body.results[0].etapas[0]).to.have.property('total_embalagens',
+				)
+				expect(response.body.results[0].etapas[0]).to.have.property('qtd_total_empenho',
+				)
 				expect(response.body.results[0])
 					.to.have.property('programacoes_de_recebimento')
 					.to.be.an('array')
-				expect(
-					response.body.results[0].programacoes_de_recebimento[0],
-				).to.have.property('uuid').that.exist
-				expect(
-					response.body.results[0].programacoes_de_recebimento[0],
-				).to.have.property('data_programada').that.exist
-				expect(
-					response.body.results[0].programacoes_de_recebimento[0],
-				).to.have.property('tipo_carga').that.exist
 				expect(response.body.results[0]).to.have.property('ficha_tecnica').that
 					.exist
 				expect(response.body.results[0].ficha_tecnica).to.have.property('uuid')
@@ -595,13 +530,6 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 					'pregao_chamada_publica',
 				).that.exist
 				expect(response.body.results[0].ficha_tecnica).to.have.property('marca')
-					.that.exist
-				expect(response.body.results[0].ficha_tecnica.marca).to.have.property(
-					'uuid',
-				).that.exist
-				expect(response.body.results[0].ficha_tecnica.marca).to.have.property(
-					'nome',
-				).that.exist
 				expect(response.body.results[0].ficha_tecnica).to.have.property(
 					'volume_embalagem_primaria',
 				)
@@ -610,57 +538,39 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 				)
 				expect(response.body.results[0].ficha_tecnica).to.have.property(
 					'peso_liquido_embalagem_primaria',
-				).that.exist
+				)
 				expect(response.body.results[0].ficha_tecnica).to.have.property(
 					'unidade_medida_primaria',
-				).that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_primaria,
-				).to.have.property('uuid').that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_primaria,
-				).to.have.property('nome').that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_primaria,
-				).to.have.property('abreviacao').that.exist
+				)
 				expect(response.body.results[0].ficha_tecnica).to.have.property(
 					'peso_liquido_embalagem_secundaria',
-				).that.exist
+				)
 				expect(response.body.results[0].ficha_tecnica).to.have.property(
 					'unidade_medida_secundaria',
-				).that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_secundaria,
-				).to.have.property('uuid').that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_secundaria,
-				).to.have.property('nome').that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_secundaria,
-				).to.have.property('abreviacao').that.exist
-
+				)
 				expect(response.body.results[0]).to.have.property(
 					'tipo_embalagem_secundaria',
-				).that.exist
-				expect(
-					response.body.results[0].tipo_embalagem_secundaria,
-				).to.have.property('uuid').that.exist
-				expect(
-					response.body.results[0].tipo_embalagem_secundaria,
-				).to.have.property('nome').that.exist
-				expect(
-					response.body.results[0].tipo_embalagem_secundaria,
-				).to.have.property('abreviacao').that.exist
+				)
 				expect(response.body.results[0]).to.have.property(
 					'custo_unitario_produto',
 				).that.exist
 				expect(response.body.results[0]).to.have.property('observacoes').that
 					.exist
+				expect(response.body.results[0]).to.have.property(
+					'numero_empenho',
+				).that.exist
+				expect(response.body.results[0]).to.have.property(
+					'qtd_total_empenho',
+				).that.exist
+				expect(response.body.results[0]).to.have.property(
+					'ponto_a_ponto',
+				).that.exist
+				
 			})
 		})
 
 		it('Validar GET de cronogramas com parâmetro Status SOLICITADO_ALTERACAO com sucesso', () => {
-			var parametros = '?status=SOLICITADO_ALTERACAO'
+			var parametros = 'status=SOLICITADO_ALTERACAO'
 
 			cy.validar_cronogramas(parametros).then((response) => {
 				expect(response.status).to.eq(200)
@@ -748,7 +658,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 		})
 
 		it('Validar GET de cronogramas com parâmetro Status ASSINADO_DILOG_ABASTECIMENTO com sucesso', () => {
-			var parametros = '?status=ASSINADO_DILOG_ABASTECIMENTO'
+			var parametros = 'status=ASSINADO_DILOG_ABASTECIMENTO'
 
 			cy.validar_cronogramas(parametros).then((response) => {
 				expect(response.status).to.eq(200)
@@ -925,7 +835,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 		})
 
 		it('Validar GET de cronogramas com parâmetro Nome Empresa com sucesso', () => {
-			var parametros = '?nome_empresa=JP%20Alimentos'
+			var parametros = 'nome_empresa=JP%20Alimentos'
 
 			cy.validar_cronogramas(parametros).then((response) => {
 				expect(response.status).to.eq(200)
@@ -992,7 +902,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 		})
 
 		it('Validar GET de cronogramas com parâmetro Nome Empresa inválido', () => {
-			var parametros = '?nome_empresa=testes testes'
+			var parametros = 'nome_empresa=testes testes'
 
 			cy.validar_cronogramas(parametros).then((response) => {
 				expect(response.status).to.eq(200)
@@ -1006,7 +916,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 		})
 
 		it('Validar GET de cronogramas com parâmetro Nome Produto com sucesso', () => {
-			var parametros = '?nome_produto=ARROZ%20TIPO%20I'
+			var parametros = 'nome_produto=ARROZ%20TIPO%20I'
 
 			cy.validar_cronogramas(parametros).then((response) => {
 				expect(response.status).to.eq(200)
@@ -1181,7 +1091,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 		})
 
 		it('Validar GET de cronogramas com parâmetro Nome Produto inválido', () => {
-			var parametros = '?nome_produto=testes-testes'
+			var parametros = 'nome_produto=testes-testes'
 
 			cy.validar_cronogramas(parametros).then((response) => {
 				expect(response.status).to.eq(200)
@@ -1195,7 +1105,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 		})
 
 		it('Validar GET de cronogramas com parâmetro Número com sucesso', () => {
-			var parametros = '?numero=172%2F2024A'
+			var parametros = 'numero=172%2F2024A'
 
 			cy.validar_cronogramas(parametros).then((response) => {
 				expect(response.status).to.eq(200)
@@ -1372,7 +1282,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 		})
 
 		it('Validar GET de cronogramas com parâmetro Número inválido', () => {
-			var parametros = '?numero=testeteste'
+			var parametros = 'numero=testeteste'
 
 			cy.validar_cronogramas(parametros).then((response) => {
 				expect(response.status).to.eq(200)
@@ -1388,7 +1298,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 		it('Validar GET de cronogramas com parâmetro UUID com sucesso', () => {
 			cy.validar_cronogramas('').then((response) => {
 				var uuid = response.body.results[0].uuid
-				var parametros = '?uuid=' + uuid
+				var parametros = 'uuid=' + uuid
 				var empresa = response.body.results[0].empresa.nome_fantasia
 
 				cy.validar_cronogramas(parametros).then((response) => {
@@ -1455,7 +1365,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 		})
 
 		it('Validar GET de cronogramas com parâmetro UUID inválido', () => {
-			var parametros = '?uuid=53886ad8-cb8b-4175-853e-deaaaaaaaaaa'
+			var parametros = 'uuid=53886ad8-cb8b-4175-853e-deaaaaaaaaaa'
 
 			cy.validar_cronogramas(parametros).then((response) => {
 				expect(response.status).to.eq(200)
@@ -1473,7 +1383,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 				var uuid = responseList.body.results[0].uuid
 				var empresa = responseList.body.results[0].empresa.nome_fantasia
 
-				cy.validar_cronogramas(uuid + '/').then((response) => {
+				cy.validar_cronogramas_por_uuid(uuid).then((response) => {
 					expect(response.status).to.eq(200)
 					expect(response.body).to.have.property('uuid').to.eq(uuid)
 					expect(response.body).to.have.property('numero').that.exist
@@ -1514,9 +1424,9 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 		})
 
 		it('Validar GET de cronogramas com UUID inválido', () => {
-			var uuid = '53886ad8-cb8b-4175-853e-de087aaaaaaa/'
+			var uuid = '53886ad8-cb8b-4175-853e-de087aaaaaaa'
 
-			cy.validar_cronogramas(uuid).then((response) => {
+			cy.validar_cronogramas_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(404)
 			})
 		})

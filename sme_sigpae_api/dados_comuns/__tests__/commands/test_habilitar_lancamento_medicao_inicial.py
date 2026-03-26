@@ -27,13 +27,19 @@ pytestmark = pytest.mark.django_db
     "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_dietas_especiais"
 )
 @mock.patch(
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.remover_dietas_especiais"
+)
+@mock.patch(
     "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_log_alunos_matriculados"
+)
+@mock.patch(
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.remover_log_alunos_matriculados"
 )
 @mock.patch(
     "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.habilitar_dias_letivos"
 )
 @mock.patch(
-    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_escolas"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_informacoes_escolas"
 )
 @mock.patch(
     "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_usuario"
@@ -44,8 +50,10 @@ def test_executa_com_sucesso(
     mock_obter_usuario,
     mock_obter_escolas,
     mock_habilitar_dias_letivos,
+    mock_remover_logs,
     mock_incluir_logs,
-    mock_dietas_especiais,
+    mock_remover_dietas_especiais,
+    mock_incluir_dietas_especiais,
     mock_solicitar_kit_lache,
     mock_solicitar_lanche_emergencial,
     mock_programas_e_projetos,
@@ -70,6 +78,7 @@ def test_executa_com_sucesso(
     mock_get_escola.return_value = escola_fake
     mock_obter_escolas.return_value = [
         {
+            "tipo": "EMEF",
             "nome_escola": escola.nome,
             "email": usuario.email,
             "periodos": ["MANHA"],
@@ -96,8 +105,10 @@ def test_executa_com_sucesso(
 
     mock_obter_escolas.assert_called_once()
     mock_habilitar_dias_letivos.assert_called_once()
+    mock_remover_logs.assert_called_once()
     mock_incluir_logs.assert_called_once()
-    mock_dietas_especiais.assert_called_once()
+    mock_remover_dietas_especiais.assert_called_once()
+    mock_incluir_dietas_especiais.assert_called_once()
     mock_solicitar_kit_lache.assert_called_once()
     mock_solicitar_lanche_emergencial.assert_called_once()
     mock_programas_e_projetos.assert_called_once()
@@ -106,7 +117,7 @@ def test_executa_com_sucesso(
 
 @override_settings(DJANGO_ENV="production")
 @mock.patch(
-    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_escolas"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_informacoes_escolas"
 )
 def test_nao_executa_em_producao(mock_obter_escolas):
     out = io.StringIO()
@@ -193,7 +204,7 @@ def test_data_lanche_emergencial_invalido_lanca_erro():
     "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.habilitar_dias_letivos"
 )
 @mock.patch(
-    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_escolas"
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_informacoes_escolas"
 )
 @mock.patch(
     "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_usuario"
@@ -203,6 +214,9 @@ def test_data_lanche_emergencial_invalido_lanca_erro():
 )
 @mock.patch(
     "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_dietas_especiais"
+)
+@mock.patch(
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.remover_dietas_especiais"
 )
 @mock.patch(
     "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.solicitar_kit_lanche"
@@ -219,14 +233,19 @@ def test_data_lanche_emergencial_invalido_lanca_erro():
 @mock.patch(
     "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_log_alunos_matriculados"
 )
+@mock.patch(
+    "sme_sigpae_api.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.remover_log_alunos_matriculados"
+)
 @mock.patch("sme_sigpae_api.escola.models.Escola.objects.get")
 def test_executa_com_atualizar_escolas(
     mock_get_escola,
+    mock_remover_logs,
     mock_incluir_logs,
     mock_etec,
     mock_programas_e_projetos,
     mock_solicitar_lanche_emergencial,
     mock_solicitar_kit_lanche,
+    mock_remover_dietas_especiais,
     mock_incluir_dietas_especiais,
     mock_calendario_sgp,
     mock_obter_usuario,
@@ -283,7 +302,9 @@ def test_executa_com_atualizar_escolas(
     mock_call_command.assert_called_once_with("atualiza_dados_escolas")
     mock_matriculados_task.assert_called_once()
     mock_habilitar_dias_letivos.assert_called_once()
+    mock_remover_logs.assert_called_once()
     mock_incluir_logs.assert_called_once()
+    mock_remover_dietas_especiais.assert_called_once()
     mock_incluir_dietas_especiais.assert_called_once()
     mock_solicitar_kit_lanche.assert_called_once()
     mock_solicitar_lanche_emergencial.assert_called_once()

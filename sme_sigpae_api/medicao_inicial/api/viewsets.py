@@ -67,6 +67,7 @@ from ..models import (
     DiaParaCorrigir,
     DiaSobremesaDoce,
     Empenho,
+    LancheEmergencialDiario,
     Medicao,
     OcorrenciaMedicaoInicial,
     ParametrizacaoFinanceira,
@@ -77,6 +78,7 @@ from ..models import (
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
     ValorMedicao,
+    DadosLiquidacao,
 )
 from ..tasks import (
     exporta_relatorio_adesao_para_pdf,
@@ -96,6 +98,8 @@ from ..utils import (
     get_valor_total,
     log_alteracoes_escola_corrige_periodo,
     tratar_valores,
+    mapear_dados_liquidacao_existentes,
+    obter_instancia_dado_liquidacao,
 )
 from .constants import (
     ORDEM_NAME_LANCAMENTOS_ESPECIAIS,
@@ -109,6 +113,7 @@ from .filters import (
     ClausulaDeDescontoFilter,
     DiaParaCorrecaoFilter,
     EmpenhoFilter,
+    LancheEmergencialDiarioFilter,
     ParametrizacaoFinanceiraFilter,
     RelatorioFinanceiroFilter,
     SolicitacaoMedicaoInicialFilter,
@@ -122,6 +127,7 @@ from .serializers import (
     DiaParaCorrigirSerializer,
     DiaSobremesaDoceSerializer,
     EmpenhoSerializer,
+    LancheEmergencialDiarioSerializer,
     MedicaoSerializer,
     OcorrenciaMedicaoInicialSerializer,
     ParametrizacaoFinanceiraSerializer,
@@ -132,6 +138,7 @@ from .serializers import (
     SolicitacaoMedicaoInicialSerializer,
     TipoContagemAlimentacaoSerializer,
     ValorMedicaoSerializer,
+    DadosLiquidacaoSerializer,
 )
 from .serializers_create import (
     ClausulaDeDescontoCreateUpdateSerializer,
@@ -142,6 +149,7 @@ from .serializers_create import (
     ParametrizacaoFinanceiraWriteModelSerializer,
     PermissaoLancamentoEspecialCreateUpdateSerializer,
     SolicitacaoMedicaoInicialCreateSerializer,
+    DadosLiquidacaoUpdateSerializer,
 )
 
 calendario = BrazilSaoPauloCity()
@@ -1856,6 +1864,24 @@ class AlimentacaoLancamentoEspecialViewSet(mixins.ListModelMixin, GenericViewSet
     pagination_class = None
 
 
+class LancheEmergencialDiarioViewSet(mixins.ListModelMixin, GenericViewSet):
+    permission_classes = [
+        UsuarioEscolaTercTotal
+        | UsuarioDiretoriaRegional
+        | UsuarioCODAENutriManifestacao
+        | UsuarioCODAEGestaoAlimentacao
+        | UsuarioCODAEGabinete
+        | UsuarioDinutreDiretoria
+        | UsuarioEmpresaTerceirizada
+        | UsuarioSupervisaoNutricao
+    ]
+    queryset = LancheEmergencialDiario.objects.select_related("escola")
+    serializer_class = LancheEmergencialDiarioSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = LancheEmergencialDiarioFilter
+    pagination_class = None
+
+
 class PermissaoLancamentoEspecialViewSet(ModelViewSet):
     lookup_field = "uuid"
     permission_classes = [UsuarioCODAEGestaoAlimentacao]
@@ -2289,3 +2315,143 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             )
         except Exception as e:
             return Response({"Erro": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DadosLiquidacaoViewSet(ModelViewSet):
+    """
+    ViewSet responsável pelo gerenciamento de DadosLiquidacao.
+
+    Endpoints padrão:
+        - GET /dados-liquidacao/
+        - POST /dados-liquidacao/
+        - PUT /dados-liquidacao/{id}/
+        - PATCH /dados-liquidacao/{id}/
+        - DELETE /dados-liquidacao/{id}/
+
+    Funcionalidades adicionais:
+        - Filtro por relatório financeiro via query param
+        - Registro em lote de empenhos
+
+    Query Params:
+        relatorio_financeiro (UUID, optional): Filtra os dados por UUID do relatório financeiro.
+
+    Serializers:
+        - DadosLiquidacaoSerializer: Usado para leitura
+        - DadosLiquidacaoUpdateSerializer: Usado para escrita
+    """
+
+    queryset = DadosLiquidacao.objects.all()
+
+    def get_serializer_class(self):
+        """
+        Retorna o serializer adequado com base na ação.
+
+        Returns:
+            Serializer: Classe de serializer apropriada.
+        """
+
+        if self.action in ["create", "update", "partial_update"]:
+            return DadosLiquidacaoUpdateSerializer
+
+        return DadosLiquidacaoSerializer
+
+    def get_queryset(self):
+        """
+        Filtra o queryset com base no UUID do relatório financeiro.
+
+        Returns:
+            QuerySet: Lista filtrada de DadosLiquidacao.
+        """
+
+        queryset = super().get_queryset()
+        relatorio_uuid = self.request.query_params.get("relatorio_financeiro")
+
+        if relatorio_uuid:
+            queryset = queryset.filter(relatorio_financeiro__uuid=relatorio_uuid)
+
+        return queryset
+
+    @action(
+        detail=False,
+        methods=["put"],
+        url_path=r"registrar-empenhos/(?P<uuid_relatorio_financeiro>[^/.]+)",
+        permission_classes=[UsuarioMedicao],
+    )
+    @transaction.atomic
+    def registrar_empenhos(self, request, uuid_relatorio_financeiro=None):
+        """
+        Registra ou atualiza múltiplos dados de liquidação em lote.
+
+        Esse endpoint realiza:
+            - Criação de novos registros
+            - Atualização de registros existentes
+            - Remoção de registros não enviados na requisição
+
+        Args:
+            request (Request): Requisição contendo uma lista de dados de liquidação.
+            uuid_relatorio_financeiro (UUID): UUID do relatório financeiro associado.
+
+        Request Body:
+            list[dict]: Lista de objetos contendo:
+                - uuid (optional)
+                - numero_empenho (str)
+                - tipo_empenho (str)
+                - unidades_educacionais (list[UUID])
+
+        Returns:
+            Response: Lista dos dados processados.
+
+        Raises:
+            ValidationError: Caso o payload não seja uma lista ou contenha dados inválidos.
+
+        Notes:
+            - A operação é atômica (rollback em caso de erro).
+            - Registros não incluídos na requisição serão removidos.
+            - A identificação dos registros existentes pode ocorrer por UUID ou chave composta.
+
+        Status Codes:
+            200 OK: Operação realizada com sucesso.
+            400 Bad Request: Erro de validação.
+        """
+
+        if not isinstance(request.data, list):
+            raise ValidationError("Envie uma lista de dados.")
+
+        queryset = DadosLiquidacao.objects.filter(
+            relatorio_financeiro__uuid=uuid_relatorio_financeiro
+        )
+
+        existentes_por_uuid, existentes_por_chave = (
+            mapear_dados_liquidacao_existentes(queryset)
+        )
+
+        resultado = []
+        ids_processados = set()
+
+        for item_data in request.data:
+            instancia = obter_instancia_dado_liquidacao(
+                item_data,
+                existentes_por_uuid,
+                existentes_por_chave,
+            )
+
+            serializer = DadosLiquidacaoUpdateSerializer(
+                instance=instancia,
+                data={
+                    **item_data,
+                    "relatorio_financeiro_id": uuid_relatorio_financeiro,
+                },
+            )
+
+            serializer.is_valid(raise_exception=True)
+            obj = serializer.save()
+
+            ids_processados.add(obj.id)
+            resultado.append(obj)
+
+        queryset.exclude(id__in=ids_processados).delete()
+
+        return Response(
+            DadosLiquidacaoSerializer(resultado, many=True).data,
+            status=status.HTTP_200_OK,
+        )

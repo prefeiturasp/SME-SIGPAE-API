@@ -22,6 +22,11 @@ router.register(
     "alimentacoes-lancamentos-especiais", viewsets.AlimentacaoLancamentoEspecialViewSet
 )
 router.register(
+    "lanches-emergenciais-diarios",
+    viewsets.LancheEmergencialDiarioViewSet,
+    basename="lanches-emergenciais-diarios",
+)
+router.register(
     "permissao-lancamentos-especiais", viewsets.PermissaoLancamentoEspecialViewSet
 )
 router.register("dias-para-corrigir", viewsets.DiasParaCorrigirViewSet)
@@ -44,6 +49,7 @@ router.register(
     recreio_nas_ferias_viewsets.RecreioNasFeriasViewSet,
     basename="recreio-nas-ferias",
 )
+router.register("dados-liquidacao", viewsets.DadosLiquidacaoViewSet, basename="dados-liquidacao")
 
 urlpatterns = [
     path("medicao-inicial/", include(router.urls)),

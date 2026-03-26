@@ -1,9 +1,12 @@
+import calendar
 import datetime
 import unicodedata
+import uuid
 from calendar import monthcalendar, setfirstweekday
 
 import numpy
 from django.db import models
+from django.db.models import Q
 
 from ..dados_comuns.behaviors import (
     Ativavel,
@@ -27,7 +30,7 @@ from ..dados_comuns.fluxo_status import (
     LogSolicitacoesUsuario,
 )
 from ..escola.constants import INFANTIL_OU_FUNDAMENTAL
-from ..escola.models import PeriodoEscolar, TipoUnidadeEscolar
+from ..escola.models import PeriodoEscolar, TipoUnidadeEscolar, Escola
 from ..perfil.models import Usuario
 from ..terceirizada.models import Edital
 from .recreio_nas_ferias.models import RecreioNasFerias
@@ -131,6 +134,79 @@ class SolicitacaoMedicaoInicial(
             Medicao.objects.get_or_create(
                 solicitacao_medicao_inicial=self, periodo_escolar=periodo_escolar
             )
+
+    @property
+    def tem_lanche_emergencial_diario(self) -> bool:
+        """
+        Retorna true se escola possui permissão para lançamento de lanche emergencial diário para uma Solicitação de Medição Inicial
+        """
+        return (
+            self.escola.lanches_emergenciais_diarios.filter(
+                data_inicial__month__lte=self.mes,
+                data_inicial__year__lte=self.ano,
+            )
+            .filter(
+                Q(
+                    data_final__month__gte=self.mes,
+                    data_final__year__gte=self.ano,
+                )
+                | Q(data_final__isnull=True)
+            )
+            .exists()
+        )
+
+    @property
+    def dias_lanche_emergencial_diario(self) -> list[int]:
+        """
+        Retorna os dias do mês em que há permissão para lançamento
+        de lanche emergencial diário e que são dias letivos no calendário.
+        """
+
+        if not self.tem_lanche_emergencial_diario:
+            return []
+
+        mes = int(self.mes)
+        ano = int(self.ano)
+
+        primeiro_dia_mes = datetime.date(ano, mes, 1)
+        ultimo_dia_mes = datetime.date(ano, mes, calendar.monthrange(ano, mes)[1])
+
+        periodos = (
+            self.escola.lanches_emergenciais_diarios.filter(
+                data_inicial__lte=ultimo_dia_mes
+            )
+            .filter(Q(data_final__gte=primeiro_dia_mes) | Q(data_final__isnull=True))
+            .only("data_inicial", "data_final")
+        )
+
+        dias = set()
+
+        for periodo in periodos:
+            inicio = max(periodo.data_inicial, primeiro_dia_mes)
+
+            fim = (
+                min(periodo.data_final, ultimo_dia_mes)
+                if periodo.data_final
+                else ultimo_dia_mes
+            )
+
+            dias.update(range(inicio.day, fim.day + 1))
+
+        if not dias:
+            return []
+
+        # busca calendário escolar do mês
+        calendario = {
+            d.data.day: d.dia_letivo
+            for d in self.escola.calendario.filter(
+                data__range=(primeiro_dia_mes, ultimo_dia_mes),
+                periodo_escolar__isnull=True,
+            ).only("data", "dia_letivo")
+        }
+
+        dias_validos = [dia for dia in dias if calendario.get(dia) is True]
+
+        return [f"{dia:02d}" for dia in sorted(dias_validos)]
 
     @property
     def data_referencia(self):
@@ -577,6 +653,26 @@ class PermissaoLancamentoEspecial(
         return f"#{self.id_externo} - {self.periodo_escolar.nome} - {self.escola.nome} -- de {self.data_inicial} até {self.data_final or '-- '}"
 
 
+class LancheEmergencialDiario(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, null=True)
+    criado_em = models.DateTimeField("Criado em", auto_now_add=True, null=True)
+    escola = models.ForeignKey(
+        "escola.Escola",
+        on_delete=models.CASCADE,
+        related_name="lanches_emergenciais_diarios",
+    )
+    data_inicial = models.DateField("Data inicial")
+    data_final = models.DateField("Data final", null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.escola.codigo_eol}: {self.escola.nome} - {self.data_inicial} até {self.data_final or '--'}"
+
+    class Meta:
+        verbose_name = "Lanche Emergencial Diário"
+        verbose_name_plural = "Lanches Emergenciais Diários"
+        ordering = ("escola__nome", "data_inicial")
+
+
 class DiaParaCorrigir(
     TemChaveExterna, TemIdentificadorExternoAmigavel, TemDia, CriadoEm, CriadoPor
 ):
@@ -809,3 +905,63 @@ class RelatorioFinanceiro(
         verbose_name_plural = "Relatórios Financeiros"
         ordering = ["-alterado_em"]
         unique_together = ("grupo_unidade_escolar", "lote", "mes", "ano")
+
+
+class DadosLiquidacao(TemChaveExterna, CriadoEm, TemAlteradoEm):
+    """
+    Dados para liquidação vinculados a um relatório financeiro.
+
+    Essa entidade armazena informações relacionadas a empenhos, incluindo
+    número, tipo e as unidades educacionais associadas.
+
+    Attributes:
+        relatorio_financeiro (RelatorioFinanceiro): Relatório financeiro ao qual o dado pertence.
+        numero_empenho (str): Número identificador do empenho.
+        tipo_empenho (str): Tipo/classificação do empenho.
+        unidades_educacionais (ManyToMany[Escola]): Lista de unidades educacionais (escolas) associadas ao empenho.
+
+    Meta:
+        verbose_name (str): Nome singular da entidade.
+        verbose_name_plural (str): Nome plural da entidade.
+        ordering (list): Ordenação padrão por data de alteração decrescente.
+        constraints (list): Garante unicidade da combinação entre número do empenho,
+            tipo e relatório financeiro.
+    """
+
+    relatorio_financeiro = models.ForeignKey(
+        RelatorioFinanceiro,
+        to_field="uuid",
+        on_delete=models.PROTECT,
+        related_name="dados_liquidacao",
+    )
+    numero_empenho = models.CharField(
+        "Número do empenho",
+        max_length=40,
+    )
+    tipo_empenho = models.CharField(
+        "Tipo de empenho",
+        max_length=100,
+    )
+    unidades_educacionais = models.ManyToManyField(
+        Escola,
+        blank=True,
+        related_name="dados_liquidacao",
+    )
+
+    def __str__(self):
+        return f"Empenho: {self.numero_empenho} | Tipo: {self.tipo_empenho}"
+
+    class Meta:
+        verbose_name = "Dado Liquidação"
+        verbose_name_plural = "Dados Liquidações"
+        ordering = ["-alterado_em"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "numero_empenho",
+                    "tipo_empenho",
+                    "relatorio_financeiro",
+                ],
+                name="unique_dados_liquidacao_empenho_por_relatorio",
+            )
+        ]

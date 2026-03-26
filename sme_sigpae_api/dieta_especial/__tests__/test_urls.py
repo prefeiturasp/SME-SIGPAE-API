@@ -1024,6 +1024,27 @@ def test_filtros_relatorio_dieta_especial_success(
     }
 
 
+def test_filtros_relatorio_dieta_especial_canceladas_success(
+    client_autenticado_vinculo_terceirizada_dieta,
+    solicitacao_dieta_especial_codae_autorizou_inativacao,
+    solicitacao_dieta_especial_cancelada_automaticamente,
+):
+    response = client_autenticado_vinculo_terceirizada_dieta.get(
+        "/solicitacoes-dieta-especial/filtros-relatorio-dieta-especial/"
+        "?status_selecionado=CANCELADAS"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    body = response.json()
+    assert set(body.keys()) == {
+        "alergias_intolerancias",
+        "classificacoes",
+        "lotes",
+        "protocolos_padrao",
+        "tipos_gestao",
+        "tipos_unidades",
+    }
+
+
 def test_relatorio_historico_dieta_especial(
     client_autenticado_vinculo_terceirizada_dieta,
     log_dietas_autorizadas,

@@ -422,6 +422,7 @@ class DietaEspecialWorkflow(xwf_models.Workflow):
     TERMINADA_AUTOMATICAMENTE_SISTEMA = "TERMINADA_AUTOMATICAMENTE_SISTEMA"
     CANCELADO_ALUNO_MUDOU_ESCOLA = "CANCELADO_ALUNO_MUDOU_ESCOLA"
     CANCELADO_ALUNO_NAO_PERTENCE_REDE = "CANCELADO_ALUNO_NAO_PERTENCE_REDE"
+    CANCELADO_ENCERRAMENTO_MATRICULA = "CANCELADO_ENCERRAMENTO_MATRICULA"
 
     ESCOLA_CANCELOU = "ESCOLA_CANCELOU"
     CODAE_NEGOU_CANCELAMENTO = "CODAE_NEGOU_CANCELAMENTO"
@@ -449,6 +450,10 @@ class DietaEspecialWorkflow(xwf_models.Workflow):
         (
             CANCELADO_ALUNO_NAO_PERTENCE_REDE,
             "Cancelamento para aluno não matriculado na rede municipal",
+        ),
+        (
+            CANCELADO_ENCERRAMENTO_MATRICULA,
+            "Cancelamento por Encerramento de Matrícula",
         ),
     )
 
@@ -488,6 +493,11 @@ class DietaEspecialWorkflow(xwf_models.Workflow):
             "cancelar_aluno_nao_pertence_rede",
             CODAE_AUTORIZADO,
             CANCELADO_ALUNO_NAO_PERTENCE_REDE,
+        ),
+        (
+            "sistema_cancela_aluno_encerramento_matricula",
+            CODAE_A_AUTORIZAR,
+            CANCELADO_ENCERRAMENTO_MATRICULA,
         ),
     )
 
@@ -3238,6 +3248,8 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         user = kwargs["user"]
         justificativa = kwargs["justificativa"]
         alta_medica = kwargs.get("alta_medica", False)
+        pendente_autorizacao = kwargs.get("pendente_autorizacao", False)
+
         assunto = "[SIGPAE] Status de solicitação - #" + self.id_externo
         titulo = (
             f'Status de solicitação - "{self.aluno.codigo_eol} - {self.aluno.nome}"'
@@ -3253,7 +3265,8 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
             usuario=user,
             justificativa=justificativa,
         )
-        if self.tipo_solicitacao != "CANCELAMENTO_DIETA":
+
+        if self.tipo_solicitacao != "CANCELAMENTO_DIETA" and not pendente_autorizacao:
             self._preenche_template_e_envia_email(
                 assunto,
                 titulo,
@@ -3283,6 +3296,13 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
     def _cancelar_aluno_nao_pertence_rede_hook(self, *args, **kwargs):
         self.salvar_log_transicao(
             status_evento=LogSolicitacoesUsuario.CANCELADO_ALUNO_NAO_PERTENCE_REDE,
+            usuario=kwargs["user"],
+        )
+
+    @xworkflows.after_transition("sistema_cancela_aluno_encerramento_matricula")
+    def _sistema_cancela_aluno_encerramento_matricula_hook(self, *args, **kwargs):
+        self.salvar_log_transicao(
+            status_evento=LogSolicitacoesUsuario.CANCELADO_ENCERRAMENTO_MATRICULA,
             usuario=kwargs["user"],
         )
 
@@ -4720,6 +4740,10 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 "numero_cronograma": numero_cronograma,
                 "log_transicao": log_transicao,
                 "url_cronograma": url_cronograma,
+                "nome_produto": self.ficha_tecnica.produto.nome if self.ficha_tecnica else "-",
+                "nome_usual_fornecedor": self.empresa.nome_fantasia if self.empresa else "-",
+                "razao_social_fornecedor": self.empresa.razao_social if self.empresa else "-",
+                "data_assinatura": log_transicao.criado_em,
             },
         )
 

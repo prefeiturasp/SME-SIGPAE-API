@@ -3,7 +3,20 @@
 Cypress.Commands.add('validar_cronogramas', (parametros) => {
 	cy.request({
 		method: 'GET',
-		url: Cypress.config('baseUrl') + `api/cronogramas/${parametros}`,
+		url:
+			Cypress.config('baseUrl') + `api/cronogramas/?page_size=2/&${parametros}`,
+		timeout: 60000,
+		headers: {
+			Authorization: 'JWT ' + globalThis.token,
+		},
+		failOnStatusCode: false,
+	})
+})
+
+Cypress.Commands.add('validar_cronogramas_por_uuid', (uuid) => {
+	cy.request({
+		method: 'GET',
+		url: Cypress.config('baseUrl') + `api/cronogramas/${uuid}/`,
 		timeout: 60000,
 		headers: {
 			Authorization: 'JWT ' + globalThis.token,
