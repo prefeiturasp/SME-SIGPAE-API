@@ -13,6 +13,10 @@ from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
 )
 from sme_sigpae_api.medicao_inicial.api.serializers_create import (
     SolicitacaoMedicaoInicialCreateSerializer,
+    DadosLiquidacaoUpdateSerializer,
+)
+from sme_sigpae_api.medicao_inicial.api.serializers import (
+    DadosLiquidacaoSerializer,
 )
 from sme_sigpae_api.medicao_inicial.models import Medicao, ValorMedicao
 
@@ -123,3 +127,35 @@ def test_cria_valores_medicao_cei_com_faixa_etaria(
     assert valores.count() == 1
     assert valores.first().valor == "7"
     assert valores.first().faixa_etaria == faixa_etaria
+
+
+def test_cria_dados_liquidacao(
+    relatorio_financeiro,
+    escola_cei
+):
+    payload = {
+        "relatorio_financeiro_id": str(relatorio_financeiro.uuid),
+        "numero_empenho": "888/6598",
+        "tipo_empenho": "PRINCIPAL",
+        "unidades_educacionais": [escola_cei.uuid],
+    }
+
+    serializer = DadosLiquidacaoUpdateSerializer(data=payload)
+
+    assert serializer.is_valid(), serializer.errors
+    instance = serializer.save()
+
+    assert instance.relatorio_financeiro == relatorio_financeiro
+    assert instance.numero_empenho == "888/6598"
+    assert instance.unidades_educacionais.count() == 1
+
+
+def test_retorna_dados_liquidacao(dados_liquidacao_cmct):
+    serializer = DadosLiquidacaoSerializer(dados_liquidacao_cmct)
+
+    data = serializer.data
+
+    assert "relatorio_financeiro" in data
+    assert isinstance(data["unidades_educacionais"], list)
+    assert len(data["unidades_educacionais"]) == 1
+    assert "uuid" in data["unidades_educacionais"][0]
