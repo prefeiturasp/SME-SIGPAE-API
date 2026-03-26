@@ -318,43 +318,55 @@ def append_logs_a_criar_de_quantidade_zero(logs_a_criar, periodos, escola, ontem
 
 
 def adicionar_logs_a_criar_integral_parcial(
-    periodos, periodo, dietas, solicitacao_medicao, escola, ontem, classificacao, faixas
+    periodos,
+    periodo,
+    dietas,
+    solicitacao_medicao,
+    escola,
+    ontem,
+    classificacao,
+    faixas,
+    logs_a_criar,
+    dict_periodos,
 ):
-    dict_periodos = PeriodoEscolar.dict_periodos()
-    logs_a_criar = []
     if periodo == "INTEGRAL" and "PARCIAL" in periodos:
-        logs_a_criar += criar_logs_integral_parcial(
-            True,
-            dietas,
-            solicitacao_medicao,
-            escola,
-            ontem,
-            classificacao,
-            periodo,
-            faixas,
+        logs_a_criar.extend(
+            criar_logs_integral_parcial(
+                True,
+                dietas,
+                solicitacao_medicao,
+                escola,
+                ontem,
+                classificacao,
+                periodo,
+                faixas,
+            )
         )
     elif periodo == "PARCIAL":
-        logs_a_criar += criar_logs_integral_parcial(
-            False,
-            dietas,
-            solicitacao_medicao,
-            escola,
-            ontem,
-            classificacao,
-            periodo,
-            None,
+        logs_a_criar.extend(
+            criar_logs_integral_parcial(
+                False,
+                dietas,
+                solicitacao_medicao,
+                escola,
+                ontem,
+                classificacao,
+                periodo,
+                None,
+            )
         )
     else:
         for faixa, quantidade in Counter(faixas).items():
-            log = LogQuantidadeDietasAutorizadasCEI(
-                quantidade=quantidade,
-                escola=escola,
-                data=ontem,
-                classificacao=classificacao,
-                periodo_escolar=dict_periodos[periodo],
-                faixa_etaria=faixa,
+            logs_a_criar.append(
+                LogQuantidadeDietasAutorizadasCEI(
+                    quantidade=quantidade,
+                    escola=escola,
+                    data=ontem,
+                    classificacao=classificacao,
+                    periodo_escolar=dict_periodos[periodo],
+                    faixa_etaria=faixa,
+                )
             )
-            logs_a_criar.append(log)
     return logs_a_criar
 
 
@@ -367,9 +379,11 @@ def logs_a_criar_existe_solicitacao_medicao(escola, dietas_autorizadas, ontem):
     ).first()
     if not solicitacao_medicao:
         raise ObjectDoesNotExist("Solicitação de Medição Inicial não encontrada.")
+    logs_a_criar = []
     periodos = escola.periodos_escolares_com_alunos
     periodos = append_periodo_parcial(periodos, solicitacao_medicao)
     periodos = list(set(periodos))
+    dict_periodos = PeriodoEscolar.dict_periodos()
     for periodo in periodos:
         for classificacao in ClassificacaoDieta.objects.all():
             dietas = dietas_autorizadas.filter(
@@ -384,7 +398,7 @@ def logs_a_criar_existe_solicitacao_medicao(escola, dietas_autorizadas, ontem):
             faixas = []
             faixas += append_faixas_dietas(dietas_filtradas_periodo, escola)
             faixas += append_faixas_dietas(dietas_nao_matriculados, escola)
-            logs_a_criar = adicionar_logs_a_criar_integral_parcial(
+            adicionar_logs_a_criar_integral_parcial(
                 periodos,
                 periodo,
                 dietas,
@@ -393,6 +407,8 @@ def logs_a_criar_existe_solicitacao_medicao(escola, dietas_autorizadas, ontem):
                 ontem,
                 classificacao,
                 faixas,
+                logs_a_criar,
+                dict_periodos,
             )
     logs_a_criar = append_logs_a_criar_de_quantidade_zero(
         logs_a_criar, periodos, escola, ontem
