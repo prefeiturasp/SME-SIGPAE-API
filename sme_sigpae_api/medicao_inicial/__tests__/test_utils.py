@@ -1697,3 +1697,96 @@ def test_atualiza_alunos_periodo_parcial_cria_logs_dieta_cei_ate_ontem_no_mes(
         classificacao=classificacao_dieta_tipo_a,
         data=datetime.date(2026, 2, 28),
     ).exists()
+
+
+@freeze_time("2026-03-25")
+def test_atualiza_alunos_periodo_parcial_cria_logs_dieta_cei_em_multiplas_faixas_etarias(
+    escola_cei,
+    periodo_escolar_integral,
+    periodo_escolar_parcial,
+    classificacao_dieta_tipo_a,
+    faixa_etaria_factory,
+):
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola_cei,
+        mes=3,
+        ano=2026,
+        ue_possui_alunos_periodo_parcial=True,
+    )
+    set_up_faixas_etarias(faixa_etaria_factory)
+
+    alunos = [
+        baker.make(
+            "Aluno",
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_integral,
+            data_nascimento=datetime.date(2024, 1, 15),
+        ),
+        baker.make(
+            "Aluno",
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_integral,
+            data_nascimento=datetime.date(2025, 6, 15),
+        ),
+        baker.make(
+            "Aluno",
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_integral,
+            data_nascimento=datetime.date(2021, 12, 15),
+        ),
+    ]
+
+    faixas_etarias = [aluno.faixa_etaria(datetime.date(2026, 3, 1)) for aluno in alunos]
+
+    for aluno in alunos:
+        baker.make(
+            "SolicitacaoDietaEspecial",
+            aluno=aluno,
+            escola_destino=escola_cei,
+            classificacao=classificacao_dieta_tipo_a,
+            ativo=True,
+            status="CODAE_AUTORIZADO",
+        )
+
+    alunos_periodo_parcial = [
+        {"aluno": str(aluno.uuid), "data": "01/03/2026"} for aluno in alunos
+    ]
+
+    atualiza_alunos_periodo_parcial(solicitacao, alunos_periodo_parcial)
+
+    logs = LogQuantidadeDietasAutorizadasCEI.objects.filter(
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar_parcial,
+        classificacao=classificacao_dieta_tipo_a,
+        faixa_etaria__in=faixas_etarias,
+        data__month=3,
+        data__year=2026,
+    )
+
+    assert logs.count() == 72
+    assert logs.filter(data=datetime.date(2026, 3, 1)).count() == 3
+    assert logs.filter(data=datetime.date(2026, 3, 24)).count() == 3
+
+    for faixa_etaria in faixas_etarias:
+        assert (
+            logs.get(
+                data=datetime.date(2026, 3, 1), faixa_etaria=faixa_etaria
+            ).quantidade
+            == 1
+        )
+        assert (
+            logs.get(
+                data=datetime.date(2026, 3, 24), faixa_etaria=faixa_etaria
+            ).quantidade
+            == 1
+        )
+
+    assert not logs.filter(data=datetime.date(2026, 3, 25)).exists()
+    assert not LogQuantidadeDietasAutorizadasCEI.objects.filter(
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar_parcial,
+        classificacao=classificacao_dieta_tipo_a,
+        faixa_etaria__in=faixas_etarias,
+        data=datetime.date(2026, 2, 28),
+    ).exists()
