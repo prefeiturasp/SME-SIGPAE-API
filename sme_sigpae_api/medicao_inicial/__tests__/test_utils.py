@@ -1630,12 +1630,23 @@ def test_busca_dias_zerados_emebs(medicoes_frequencia_zerada_emebs):
     assert "24" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["FUNDAMENTAL"]
 
 
+def set_up_faixas_etarias(faixa_etaria_factory):
+    faixa_etaria_factory.create(inicio=0, fim=1)
+    faixa_etaria_factory.create(inicio=1, fim=4)
+    faixa_etaria_factory.create(inicio=4, fim=6)
+    faixa_etaria_factory.create(inicio=6, fim=7)
+    faixa_etaria_factory.create(inicio=7, fim=12)
+    faixa_etaria_factory.create(inicio=12, fim=48)
+    faixa_etaria_factory.create(inicio=48, fim=73)
+
+
 @freeze_time("2026-03-25")
-def test_atualiza_alunos_periodo_parcial_cria_logs_dieta_cei_ate_ontem_no_mes_e_idempotente(
+def test_atualiza_alunos_periodo_parcial_cria_logs_dieta_cei_ate_ontem_no_mes(
     escola_cei,
     periodo_escolar_integral,
     periodo_escolar_parcial,
     classificacao_dieta_tipo_a,
+    faixa_etaria_factory,
 ):
     solicitacao = baker.make(
         "SolicitacaoMedicaoInicial",
@@ -1650,6 +1661,8 @@ def test_atualiza_alunos_periodo_parcial_cria_logs_dieta_cei_ate_ontem_no_mes_e_
         periodo_escolar=periodo_escolar_integral,
         data_nascimento=datetime.date(2024, 1, 15),
     )
+    set_up_faixas_etarias(faixa_etaria_factory)
+
     faixa_etaria = aluno.faixa_etaria(datetime.date(2026, 3, 1))
 
     baker.make(
@@ -1661,9 +1674,8 @@ def test_atualiza_alunos_periodo_parcial_cria_logs_dieta_cei_ate_ontem_no_mes_e_
         status="CODAE_AUTORIZADO",
     )
 
-    alunos_periodo_parcial = [{"aluno": str(aluno.uuid), "data": "20/02/2026"}]
+    alunos_periodo_parcial = [{"aluno": str(aluno.uuid), "data": "01/03/2026"}]
 
-    atualiza_alunos_periodo_parcial(solicitacao, alunos_periodo_parcial)
     atualiza_alunos_periodo_parcial(solicitacao, alunos_periodo_parcial)
 
     logs = LogQuantidadeDietasAutorizadasCEI.objects.filter(
