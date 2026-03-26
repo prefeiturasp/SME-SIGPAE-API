@@ -158,8 +158,8 @@ class FichaTecnicaDoProduto(
     especie_variedade = models.CharField(
         "Espécie ou Variedade Cultivada", max_length=150, blank=True
     )
-    componentes_produto = models.CharField(
-        "Componentes do Produto", max_length=1500, blank=True
+    componentes_produto = models.TextField(
+        "Componentes do Produto", blank=True
     )
     alergenicos = models.BooleanField("Pode conter alergênicos?", null=True)
     ingredientes_alergenicos = models.CharField(

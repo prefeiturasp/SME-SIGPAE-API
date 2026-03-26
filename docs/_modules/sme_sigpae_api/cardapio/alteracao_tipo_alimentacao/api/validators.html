@@ -87,6 +87,29 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">precisa_pertencer_a_um_tipo_de_alimentacao</span><span class="p">(</span>
     <span class="n">tipos_alimentacao_de</span><span class="p">,</span> <span class="n">tipo_alimentacao_para</span><span class="p">,</span> <span class="n">tipo_unidade_escolar</span><span class="p">,</span> <span class="n">periodo_escolar</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Valida se os tipos de alimentacao pertencem ao contexto informado.</span>
+
+<span class="sd">    Garante que todos os tipos de alimentacao de origem estejam habilitados</span>
+<span class="sd">    para o periodo escolar e tipo de unidade da escola e que o tipo de destino</span>
+<span class="sd">    nao esteja repetido entre os tipos substituidos.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tipos_alimentacao_de (Iterable[TipoAlimentacao]): Tipos de alimentacao</span>
+<span class="sd">            que serao substituidos.</span>
+<span class="sd">        tipo_alimentacao_para (TipoAlimentacao): Tipo de alimentacao de destino.</span>
+<span class="sd">        tipo_unidade_escolar (str): Tipo de unidade da escola associado ao</span>
+<span class="sd">            pedido.</span>
+<span class="sd">        periodo_escolar (PeriodoEscolar): Periodo escolar ao qual a</span>
+<span class="sd">            substituicao se aplica.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: ``True`` quando a combinacao e valida.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValidationError: Quando algum tipo de origem nao pertence ao contexto</span>
+<span class="sd">            de periodo/tipo de unidade ou quando o tipo de destino ja consta</span>
+<span class="sd">            entre os tipos substituidos.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
             <span class="n">periodo_escolar</span><span class="o">=</span><span class="n">periodo_escolar</span><span class="p">,</span> <span class="n">tipo_unidade_escolar</span><span class="o">=</span><span class="n">tipo_unidade_escolar</span>
@@ -106,6 +129,21 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_parametros_queryset</span><span class="p">(</span><span class="n">attrs</span><span class="p">,</span> <span class="n">eh_cemei</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extrai parametros usados na busca de duplicidade de solicitacoes.</span>
+
+<span class="sd">    Normaliza os dados recebidos pelo serializer em uma estrutura unica para a</span>
+<span class="sd">    consulta, considerando a variacao de chave usada nos cenarios CEMEI.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        attrs (dict): Dados validados da solicitacao.</span>
+<span class="sd">        eh_cemei (bool): Indica se a consulta deve usar a estrutura/modelo do</span>
+<span class="sd">            fluxo CEMEI.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: Tupla no formato ``(escola, periodos_e_tipos, datas, modelo)``,</span>
+<span class="sd">        onde ``periodos_e_tipos`` contem pares de UUID do periodo escolar e os</span>
+<span class="sd">        UUIDs dos tipos de alimentacao de origem.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">escola</span> <span class="o">=</span> <span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;escola&quot;</span><span class="p">]</span>
     <span class="n">substituicoes</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;substituicoes&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">eh_cemei</span><span class="p">:</span>
@@ -131,6 +169,28 @@
 <div class="viewcode-block" id="valida_duplicidade_solicitacoes_lanche_emergencial">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.validators.valida_duplicidade_solicitacoes_lanche_emergencial">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">valida_duplicidade_solicitacoes_lanche_emergencial</span><span class="p">(</span><span class="n">attrs</span><span class="p">,</span> <span class="n">eh_cemei</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Valida se existe alguma solicitação ativa (não é rascunho, nem foi negada ou cancelada) de Lanche Emergencial para a mesma combinação de:</span>
+<span class="sd">        - escola</span>
+<span class="sd">        - data</span>
+<span class="sd">        - periodo escolar</span>
+<span class="sd">        - tipos de alimentacao de origem.</span>
+
+<span class="sd">    Caso já exista alguma solicitação ativa que contenha a mesma combinação, a função levanta um ValidationError,</span>
+<span class="sd">    impedindo a criação de uma nova solicitação de Lanche Emergencial para a mesma situação.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        attrs (dict): Dados validados da solicitacao.</span>
+<span class="sd">        eh_cemei (bool, optional): Define se a consulta deve usar o modelo de</span>
+<span class="sd">            substituição do fluxo CEMEI. Default é ``False``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: ``True`` quando nao ha duplicidade bloqueante ou quando o motivo</span>
+<span class="sd">        da solicitacao nao e Lanche Emergencial.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValidationError: Quando ja existe uma solicitacao ativa de Lanche</span>
+<span class="sd">            Emergencial para a mesma combinacao de data e periodo.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">motivo</span> <span class="o">=</span> <span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;motivo&quot;</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">motivo</span><span class="o">.</span><span class="n">nome</span> <span class="o">!=</span> <span class="s2">&quot;Lanche Emergencial&quot;</span><span class="p">:</span>

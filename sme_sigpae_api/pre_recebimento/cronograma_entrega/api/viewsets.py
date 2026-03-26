@@ -52,8 +52,8 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.helpers import (
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializer_create import (
     CronogramaCreateSerializer,
+    CronogramaPontoAPontoCreateSerializer,
     SolicitacaoDeAlteracaoCronogramaCreateSerializer,
-    CronogramaPontoAPontoCreateSerializer
 )
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     CronogramaComLogSerializer,
@@ -306,7 +306,7 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
                 "next": f"?page={page_number + 1}" if has_next else None,
                 "previous": f"?page={page_number - 1}" if has_previous else None,
                 "results": dados_paginados,
-                "totalizadores": totalizador_relatorio_cronograma(queryset),
+                "totalizadores": totalizador_relatorio_cronograma(dados_filtrados),
             }
 
             return Response(response_data)
@@ -910,7 +910,5 @@ class InterrupcaoProgramadaEntregaViewSet(
             tipo_calendario=InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL,
             data__year__in=[ano_atual, ano_proximo],
         ).values_list("data", flat=True)
-
-        return Response({"results": list(datas)}, status=HTTP_200_OK)
 
         return Response({"results": list(datas)}, status=HTTP_200_OK)

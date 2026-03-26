@@ -390,6 +390,7 @@ describe('Validar rotas de Escola Solicitações da aplicação SIGPAE', () => {
 						value === 'CANCELADO_ALUNO_NAO_PERTENCE_REDE' ||
 						value === 'CANCELADO_ALUNO_MUDOU_ESCOLA' ||
 						value === 'ESCOLA_CANCELOU' ||
+						value === 'CANCELADO_ENCERRAMENTO_MATRICULA' ||
 						value === 'TERMINADA_AUTOMATICAMENTE_SISTEMA'
 					)
 				})

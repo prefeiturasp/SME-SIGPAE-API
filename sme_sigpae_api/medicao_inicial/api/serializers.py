@@ -21,6 +21,7 @@ from sme_sigpae_api.escola.api.serializers import (
     TipoAlimentacaoSerializer,
     TipoUnidadeEscolarSimplesSerializer,
 )
+from sme_sigpae_api.dieta_especial.api.serializers import EscolaSerializer
 from sme_sigpae_api.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
@@ -40,6 +41,7 @@ from sme_sigpae_api.medicao_inicial.models import (
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
     ValorMedicao,
+    DadosLiquidacao,
 )
 from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.api.serializers import (
     RecreioNasFeriasSerializer,
@@ -421,3 +423,33 @@ class RelatorioFinanceiroSerializer(serializers.ModelSerializer):
     class Meta:
         model = RelatorioFinanceiro
         exclude = ("id", "criado_em", "alterado_em")
+
+
+class DadosLiquidacaoSerializer(serializers.ModelSerializer):
+    """
+    Serializer de leitura para DadosLiquidacao.
+
+    Retorna os dados completos com relacionamentos aninhados.
+
+    Attributes:
+        relatorio_financeiro (RelatorioFinanceiroSerializer): Dados do relatório financeiro.
+        unidades_educacionais (List[EscolaSerializer]): Lista de unidades educacionais associadas.
+    """
+
+    relatorio_financeiro = RelatorioFinanceiroSerializer(read_only=True)
+    unidades_educacionais = EscolaSerializer(
+        many=True,
+        read_only=True
+    )
+
+    class Meta:
+        model = DadosLiquidacao
+        fields = [
+            "uuid",
+            "relatorio_financeiro",
+            "numero_empenho",
+            "tipo_empenho",
+            "unidades_educacionais",
+            "criado_em",
+            "alterado_em",
+        ]
