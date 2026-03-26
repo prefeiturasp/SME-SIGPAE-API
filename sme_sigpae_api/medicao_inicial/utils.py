@@ -35,6 +35,7 @@ from sme_sigpae_api.dados_comuns.utils import (
 from sme_sigpae_api.dieta_especial.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+    SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.escola.models import (
     Aluno,
@@ -4848,6 +4849,65 @@ def _atualiza_logs_diferenca_periodo_parcial(solicitacao, aluno, datas, operacao
         )
 
 
+def _datas_ativas_periodo_parcial_logs_dieta(solicitacao, estado_aluno):
+    datas = _datas_ativas_periodo_parcial(solicitacao, estado_aluno)
+    if not datas:
+        return set()
+
+    ontem = timezone.now().date() - datetime.timedelta(days=1)
+    return {data for data in datas if data <= ontem}
+
+
+def _dietas_autorizadas_ativas_aluno_periodo_parcial(solicitacao, aluno):
+    return aluno.dietas_especiais.filter(
+        ativo=True,
+        status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+        escola_destino=solicitacao.escola,
+        classificacao__isnull=False,
+    ).select_related("classificacao")
+
+
+def _ajusta_quantidade_log_dieta_periodo_parcial(
+    solicitacao, periodo_escolar, faixa_etaria, classificacao, data, delta
+):
+    log, _ = LogQuantidadeDietasAutorizadasCEI.objects.get_or_create(
+        escola=solicitacao.escola,
+        periodo_escolar=periodo_escolar,
+        faixa_etaria=faixa_etaria,
+        classificacao=classificacao,
+        data=data,
+        defaults={"quantidade": 0},
+    )
+    log.quantidade = max(log.quantidade + delta, 0)
+    log.save()
+
+
+def _atualiza_logs_dietas_periodo_parcial(solicitacao, aluno, datas, operacao):
+    if not datas:
+        return
+
+    dietas_autorizadas = _dietas_autorizadas_ativas_aluno_periodo_parcial(
+        solicitacao, aluno
+    )
+    if not dietas_autorizadas.exists():
+        return
+
+    periodo_parcial = PeriodoEscolar.objects.get(nome="PARCIAL")
+    delta = 1 if operacao == "adicionar" else -1
+
+    for data in sorted(datas):
+        faixa_etaria = aluno.faixa_etaria(data)
+        for dieta in dietas_autorizadas:
+            _ajusta_quantidade_log_dieta_periodo_parcial(
+                solicitacao,
+                periodo_parcial,
+                faixa_etaria,
+                dieta.classificacao,
+                data,
+                delta,
+            )
+
+
 def atualiza_alunos_periodo_parcial(solicitacao, alunos_periodo_parcial):
     estado_atual = _mapa_estado_alunos_periodo_parcial(
         solicitacao, solicitacao.alunos_periodo_parcial.select_related("aluno")
@@ -4864,12 +4924,24 @@ def atualiza_alunos_periodo_parcial(solicitacao, alunos_periodo_parcial):
         datas_novas = _datas_ativas_periodo_parcial(
             solicitacao, estado_novo.get(aluno_uuid)
         )
+        datas_atuais_dieta = _datas_ativas_periodo_parcial_logs_dieta(
+            solicitacao, estado_atual.get(aluno_uuid)
+        )
+        datas_novas_dieta = _datas_ativas_periodo_parcial_logs_dieta(
+            solicitacao, estado_novo.get(aluno_uuid)
+        )
 
         _atualiza_logs_diferenca_periodo_parcial(
             solicitacao, aluno, datas_atuais - datas_novas, "remover"
         )
         _atualiza_logs_diferenca_periodo_parcial(
             solicitacao, aluno, datas_novas - datas_atuais, "adicionar"
+        )
+        _atualiza_logs_dietas_periodo_parcial(
+            solicitacao, aluno, datas_atuais_dieta - datas_novas_dieta, "remover"
+        )
+        _atualiza_logs_dietas_periodo_parcial(
+            solicitacao, aluno, datas_novas_dieta - datas_atuais_dieta, "adicionar"
         )
 
     for medicao in solicitacao.medicoes.all():
@@ -5681,10 +5753,7 @@ def _verifica_dietas_consumidas(solicitacao, escola_emebs, escola_cemei):
 def mapear_dados_liquidacao_existentes(queryset):
     return (
         {str(obj.uuid): obj for obj in queryset},
-        {
-            (obj.numero_empenho, obj.tipo_empenho): obj
-            for obj in queryset
-        },
+        {(obj.numero_empenho, obj.tipo_empenho): obj for obj in queryset},
     )
 
 
