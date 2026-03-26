@@ -317,15 +317,56 @@ def append_logs_a_criar_de_quantidade_zero(logs_a_criar, periodos, escola, ontem
     return logs_a_criar
 
 
+def adicionar_logs_a_criar_integral_parcial(
+    periodos, periodo, dietas, solicitacao_medicao, escola, ontem, classificacao, faixas
+):
+    dict_periodos = PeriodoEscolar.dict_periodos()
+    logs_a_criar = []
+    if periodo == "INTEGRAL" and "PARCIAL" in periodos:
+        logs_a_criar += criar_logs_integral_parcial(
+            True,
+            dietas,
+            solicitacao_medicao,
+            escola,
+            ontem,
+            classificacao,
+            periodo,
+            faixas,
+        )
+    elif periodo == "PARCIAL":
+        logs_a_criar += criar_logs_integral_parcial(
+            False,
+            dietas,
+            solicitacao_medicao,
+            escola,
+            ontem,
+            classificacao,
+            periodo,
+            None,
+        )
+    else:
+        for faixa, quantidade in Counter(faixas).items():
+            log = LogQuantidadeDietasAutorizadasCEI(
+                quantidade=quantidade,
+                escola=escola,
+                data=ontem,
+                classificacao=classificacao,
+                periodo_escolar=dict_periodos[periodo],
+                faixa_etaria=faixa,
+            )
+            logs_a_criar.append(log)
+    return logs_a_criar
+
+
 def logs_a_criar_existe_solicitacao_medicao(escola, dietas_autorizadas, ontem):
-    solicitacao_medicao = SolicitacaoMedicaoInicial.objects.get(
+    solicitacao_medicao = SolicitacaoMedicaoInicial.objects.filter(
         escola__codigo_eol=escola.codigo_eol,
         mes=f"{datetime.date.today().month:02d}",
         ano=datetime.date.today().year,
         recreio_nas_ferias=None,
-    )
-    dict_periodos = PeriodoEscolar.dict_periodos()
-    logs_a_criar = []
+    ).first()
+    if not solicitacao_medicao:
+        raise ObjectDoesNotExist("Solicitação de Medição Inicial não encontrada.")
     periodos = escola.periodos_escolares_com_alunos
     periodos = append_periodo_parcial(periodos, solicitacao_medicao)
     periodos = list(set(periodos))
@@ -343,39 +384,16 @@ def logs_a_criar_existe_solicitacao_medicao(escola, dietas_autorizadas, ontem):
             faixas = []
             faixas += append_faixas_dietas(dietas_filtradas_periodo, escola)
             faixas += append_faixas_dietas(dietas_nao_matriculados, escola)
-            if periodo == "INTEGRAL" and "PARCIAL" in periodos:
-                logs_a_criar += criar_logs_integral_parcial(
-                    True,
-                    dietas,
-                    solicitacao_medicao,
-                    escola,
-                    ontem,
-                    classificacao,
-                    periodo,
-                    faixas,
-                )
-            elif periodo == "PARCIAL":
-                logs_a_criar += criar_logs_integral_parcial(
-                    False,
-                    dietas,
-                    solicitacao_medicao,
-                    escola,
-                    ontem,
-                    classificacao,
-                    periodo,
-                    None,
-                )
-            else:
-                for faixa, quantidade in Counter(faixas).items():
-                    log = LogQuantidadeDietasAutorizadasCEI(
-                        quantidade=quantidade,
-                        escola=escola,
-                        data=ontem,
-                        classificacao=classificacao,
-                        periodo_escolar=dict_periodos[periodo],
-                        faixa_etaria=faixa,
-                    )
-                    logs_a_criar.append(log)
+            logs_a_criar = adicionar_logs_a_criar_integral_parcial(
+                periodos,
+                periodo,
+                dietas,
+                solicitacao_medicao,
+                escola,
+                ontem,
+                classificacao,
+                faixas,
+            )
     logs_a_criar = append_logs_a_criar_de_quantidade_zero(
         logs_a_criar, periodos, escola, ontem
     )
