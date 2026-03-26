@@ -5404,3 +5404,15 @@ def medicoes_frequencia_zerada_emebs(
         infantil_ou_fundamental="INFANTIL",
     )
     return solicitacao_medicao
+
+
+@pytest.fixture()
+def dados_liquidacao_cmct(relatorio_financeiro, escola_cmct):
+    obj = baker.make(
+        "DadosLiquidacao",
+        relatorio_financeiro=relatorio_financeiro,
+        numero_empenho="777/8598",
+        tipo_empenho="PRINCIPAL",
+    )
+    obj.unidades_educacionais.set([escola_cmct])
+    return obj
