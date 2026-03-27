@@ -2019,10 +2019,17 @@ def test_url_endpoint_relatorio_consolidado_xlsx_com_datas_fora_do_mes_referenci
     client_autenticado_diretoria_regional,
     grupo_escolar,
     relatorio_consolidado_xlsx_emef,
-    mocker,
+    monkeypatch,
 ):
-    mocker.patch(
-        "sme_sigpae_api.medicao_inicial.api.viewsets.exporta_relatorio_consolidado_xlsx.delay"
+    called = False
+
+    def fake_delay(**kwargs):
+        nonlocal called
+        called = True
+
+    monkeypatch.setattr(
+        "sme_sigpae_api.medicao_inicial.api.viewsets.exporta_relatorio_consolidado_xlsx.delay",
+        fake_delay,
     )
 
     response = client_autenticado_diretoria_regional.get(
@@ -2041,6 +2048,7 @@ def test_url_endpoint_relatorio_consolidado_xlsx_com_datas_fora_do_mes_referenci
     assert response.json() == {
         "erro": "data_inicial e data_final devem pertencer ao mês/ano de referência informado."
     }
+    assert called is False
 
 
 def test_codae_solicita_correcao_sem_lancamento(
