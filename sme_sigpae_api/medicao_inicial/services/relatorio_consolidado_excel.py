@@ -1,4 +1,5 @@
 import io
+from datetime import date
 from uuid import UUID
 
 import pandas as pd
@@ -49,9 +50,11 @@ def gera_relatorio_consolidado_xlsx(
     solicitacoes = SolicitacaoMedicaoInicial.objects.filter(uuid__in=solicitacoes_uuid)
     try:
         modulo_da_unidade, parametros = _obter_modulo_da_unidade(tipos_de_unidade)
-        colunas = modulo_da_unidade.get_alimentacoes_por_periodo(solicitacoes)
+        colunas = modulo_da_unidade.get_alimentacoes_por_periodo(
+            solicitacoes, query_params=query_params
+        )
         linhas = modulo_da_unidade.get_valores_tabela(
-            solicitacoes, colunas, *parametros
+            solicitacoes, colunas, *parametros, query_params=query_params
         )
 
         arquivo_excel = _gera_excel(
@@ -315,5 +318,12 @@ def _formata_filtros(query_params: dict, tipos_de_unidade: list[str]) -> str:
 
     if tipos_de_unidade:
         filtros += f" - {', '.join(tipos_de_unidade)}"
+
+    data_inicial = query_params.get("data_inicial")
+    data_final = query_params.get("data_final")
+    if data_inicial and data_final:
+        data_inicial_formatada = date.fromisoformat(data_inicial).strftime("%d/%m/%Y")
+        data_final_formatada = date.fromisoformat(data_final).strftime("%d/%m/%Y")
+        filtros += f" - {data_inicial_formatada} a {data_final_formatada}"
 
     return filtros

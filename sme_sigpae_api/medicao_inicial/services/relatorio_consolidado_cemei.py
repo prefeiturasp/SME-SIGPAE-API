@@ -21,6 +21,7 @@ from sme_sigpae_api.medicao_inicial.services import (
 )
 from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from sme_sigpae_api.medicao_inicial.services.utils import (
+    filtra_queryset_pelo_intervalo_de_dias,
     generate_columns,
     gera_colunas_alimentacao,
     get_categorias_dietas,
@@ -35,20 +36,27 @@ PROGRAMAS_E_PROJETOS = "PROGRAMAS E PROJETOS"
 
 def get_alimentacoes_por_periodo(
     solicitacoes: list[SolicitacaoMedicaoInicial],
+    query_params: dict | None = None,
 ) -> list[tuple]:
     periodos_alimentacoes = {}
     dietas_alimentacoes = {}
     for solicitacao in solicitacoes:
         for medicao in solicitacao.medicoes.all():
             nome_periodo = get_nome_periodo(medicao)
-            lista_alimentacoes = _get_lista_alimentacoes(medicao, nome_periodo)
+            lista_alimentacoes = _get_lista_alimentacoes(
+                medicao, nome_periodo, query_params
+            )
             periodos_alimentacoes = update_periodos_alimentacoes(
                 periodos_alimentacoes, nome_periodo, lista_alimentacoes
             )
-            categorias_dietas = get_categorias_dietas(medicao)
+            categorias_dietas = get_categorias_dietas(
+                filtra_queryset_pelo_intervalo_de_dias(
+                    medicao.valores_medicao, query_params
+                )
+            )
             for categoria in categorias_dietas:
                 lista_alimentacoes_dietas = _get_lista_alimentacoes_dietas(
-                    medicao, categoria
+                    medicao, categoria, query_params
                 )
                 if "infantil" in nome_periodo.lower():
                     nome_categoria = categoria + " - INFANTIL"
@@ -63,21 +71,28 @@ def get_alimentacoes_por_periodo(
     return columns
 
 
-def _get_lista_alimentacoes(medicao: Medicao, nome_periodo: str) -> list[int | str]:
+def _get_lista_alimentacoes(
+    medicao: Medicao, nome_periodo: str, query_params: dict | None = None
+) -> list[int | str]:
     if medicao.periodo_escolar and nome_periodo in ["INTEGRAL", "PARCIAL"]:
         return list(
             faixa.id
             for faixa in FaixaEtaria.objects.filter(
-                id__in=medicao.valores_medicao.filter(
-                    nome_campo="frequencia"
-                ).values_list("faixa_etaria", flat=True)
+                id__in=filtra_queryset_pelo_intervalo_de_dias(
+                    medicao.valores_medicao, query_params
+                )
+                .filter(nome_campo="frequencia")
+                .values_list("faixa_etaria", flat=True)
             )
             .distinct()
             .order_by("inicio")
         )
     else:
         lista_alimentacoes = list(
-            medicao.valores_medicao.exclude(
+            filtra_queryset_pelo_intervalo_de_dias(
+                medicao.valores_medicao, query_params
+            )
+            .exclude(
                 Q(
                     nome_campo__in=[
                         "observacoes",
@@ -100,21 +115,28 @@ def _get_lista_alimentacoes(medicao: Medicao, nome_periodo: str) -> list[int | s
         return lista_alimentacoes
 
 
-def _get_lista_alimentacoes_dietas(medicao: Medicao, categoria: str) -> list[int | str]:
+def _get_lista_alimentacoes_dietas(
+    medicao: Medicao, categoria: str, query_params: dict | None = None
+) -> list[int | str]:
     if medicao.periodo_escolar:
         return list(
             faixa.id
             for faixa in FaixaEtaria.objects.filter(
-                id__in=medicao.valores_medicao.filter(
-                    categoria_medicao__nome=categoria, nome_campo="frequencia"
-                ).values_list("faixa_etaria", flat=True)
+                id__in=filtra_queryset_pelo_intervalo_de_dias(
+                    medicao.valores_medicao, query_params
+                )
+                .filter(categoria_medicao__nome=categoria, nome_campo="frequencia")
+                .values_list("faixa_etaria", flat=True)
             )
             .distinct()
             .order_by("inicio")
         )
     else:
         return list(
-            medicao.valores_medicao.filter(categoria_medicao__nome=categoria)
+            filtra_queryset_pelo_intervalo_de_dias(
+                medicao.valores_medicao, query_params
+            )
+            .filter(categoria_medicao__nome=categoria)
             .exclude(
                 nome_campo__in=[
                     "dietas_autorizadas",
@@ -168,7 +190,9 @@ def _sort_and_merge(periodos_alimentacoes: dict, dietas_alimentacoes: dict) -> d
 
 
 def get_valores_tabela(
-    solicitacoes: list[SolicitacaoMedicaoInicial], colunas: list[tuple]
+    solicitacoes: list[SolicitacaoMedicaoInicial],
+    colunas: list[tuple],
+    query_params: dict | None = None,
 ) -> list[list[str | float]]:
     grupos_medicao = GrupoMedicao.objects.filter(
         nome__icontains="Infantil"
@@ -184,6 +208,7 @@ def get_valores_tabela(
                 campo,
                 valores_solicitacao_atual,
                 grupos_medicao,
+                query_params,
             )
         valores.append(valores_solicitacao_atual)
     return valores
@@ -204,13 +229,18 @@ def _processa_periodo_campo(
     campo: str,
     valores: list[str],
     grupos_medicao: list[str],
+    query_params: dict | None = None,
 ) -> list[str | float]:
     filtros = _define_filtro(periodo, grupos_medicao)
     try:
         if "DIETA ESPECIAL" in periodo:
-            total = _processa_dieta_especial(solicitacao, filtros, campo, periodo)
+            total = _processa_dieta_especial(
+                solicitacao, filtros, campo, periodo, query_params
+            )
         else:
-            total = _processa_periodo_regular(solicitacao, filtros, campo, periodo)
+            total = _processa_periodo_regular(
+                solicitacao, filtros, campo, periodo, query_params
+            )
         valores.append(total)
     except Exception:
         valores.append("-")
@@ -236,7 +266,11 @@ def _define_filtro(periodo: str, grupos_medicao: list[str]) -> dict:
 
 
 def _processa_dieta_especial(
-    solicitacao: SolicitacaoMedicaoInicial, filtros: dict, campo: str, periodo: str
+    solicitacao: SolicitacaoMedicaoInicial,
+    filtros: dict,
+    campo: str,
+    periodo: str,
+    query_params: dict | None = None,
 ) -> str | float:
     periodo = (
         periodo.replace(" - INFANTIL", "")
@@ -247,26 +281,35 @@ def _processa_dieta_especial(
     soma = "-"
     if any("periodo_escolar" in chave for chave in filtros.keys()):
         soma = relatorio_consolidado_cei.processa_dieta_especial(
-            solicitacao, filtros, campo, periodo
+            solicitacao, filtros, campo, periodo, query_params
         )
     elif any("grupo" in chave for chave in filtros.keys()):
         soma = relatorio_consolidado_emei_emef.processa_dieta_especial(
-            solicitacao, filtros, campo, periodo
+            solicitacao, filtros, campo, periodo, query_params
         )
     return soma
 
 
 def _processa_periodo_regular(
-    solicitacao: SolicitacaoMedicaoInicial, filtros: dict, campo: str, periodo: str
+    solicitacao: SolicitacaoMedicaoInicial,
+    filtros: dict,
+    campo: str,
+    periodo: str,
+    query_params: dict | None = None,
 ) -> str | float:
     soma = "-"
     if any("periodo_escolar" in chave for chave in filtros.keys()):
         soma = relatorio_consolidado_cei.processa_periodo_regular(
-            solicitacao, filtros, campo, periodo
+            solicitacao, filtros, campo, periodo, query_params
         )
     elif any("grupo" in chave for chave in filtros.keys()):
         soma = relatorio_consolidado_emei_emef.processa_periodo_regular(
-            solicitacao, filtros, campo, periodo, tipo_unidade="EMEI"
+            solicitacao,
+            filtros,
+            campo,
+            periodo,
+            query_params=query_params,
+            tipo_unidade="EMEI",
         )
     return soma
 

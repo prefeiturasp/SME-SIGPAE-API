@@ -64,6 +64,7 @@ from ..models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
+    DadosLiquidacao,
     DiaParaCorrigir,
     DiaSobremesaDoce,
     Empenho,
@@ -78,7 +79,6 @@ from ..models import (
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
     ValorMedicao,
-    DadosLiquidacao,
 )
 from ..tasks import (
     exporta_relatorio_adesao_para_pdf,
@@ -97,9 +97,9 @@ from ..utils import (
     get_dict_alimentacoes_lancamentos_especiais,
     get_valor_total,
     log_alteracoes_escola_corrige_periodo,
-    tratar_valores,
     mapear_dados_liquidacao_existentes,
     obter_instancia_dado_liquidacao,
+    tratar_valores,
 )
 from .constants import (
     ORDEM_NAME_LANCAMENTOS_ESPECIAIS,
@@ -123,6 +123,7 @@ from .serializers import (
     AlimentacaoLancamentoEspecialSerializer,
     CategoriaMedicaoSerializer,
     ClausulaDeDescontoSerializer,
+    DadosLiquidacaoSerializer,
     DadosParametrizacaoFinanceiraSerializer,
     DiaParaCorrigirSerializer,
     DiaSobremesaDoceSerializer,
@@ -138,10 +139,10 @@ from .serializers import (
     SolicitacaoMedicaoInicialSerializer,
     TipoContagemAlimentacaoSerializer,
     ValorMedicaoSerializer,
-    DadosLiquidacaoSerializer,
 )
 from .serializers_create import (
     ClausulaDeDescontoCreateUpdateSerializer,
+    DadosLiquidacaoUpdateSerializer,
     DiaSobremesaDoceCreateManySerializer,
     EmpenhoCreateUpdateSerializer,
     InformacoesBasicasMedicaoInicialUpdateSerializer,
@@ -149,7 +150,6 @@ from .serializers_create import (
     ParametrizacaoFinanceiraWriteModelSerializer,
     PermissaoLancamentoEspecialCreateUpdateSerializer,
     SolicitacaoMedicaoInicialCreateSerializer,
-    DadosLiquidacaoUpdateSerializer,
 )
 
 calendario = BrazilSaoPauloCity()
@@ -160,6 +160,55 @@ DEFAULT_PAGE_SIZE = 10
 
 
 MSG_ERROR_VERIFIQUE_PARAMETROS = "Verifique os parâmetros e tente novamente"
+
+
+def valida_periodo_relatorio_consolidado(
+    mes: str,
+    ano: str,
+    data_inicial_str: str | None,
+    data_final_str: str | None,
+) -> None:
+    if not data_inicial_str and not data_final_str:
+        return
+
+    if not data_inicial_str or not data_final_str:
+        raise ValidationError("Informe data_inicial e data_final juntos.")
+
+    data_inicial, data_final = _parse_datas_relatorio_consolidado(
+        data_inicial_str, data_final_str
+    )
+
+    if data_inicial > data_final:
+        raise ValidationError("data_inicial não pode ser maior que data_final.")
+
+    if not _datas_pertencem_ao_mes_referencia(data_inicial, data_final, mes, ano):
+        raise ValidationError(
+            "data_inicial e data_final devem pertencer ao mês/ano de referência informado."
+        )
+
+
+def _parse_datas_relatorio_consolidado(
+    data_inicial_str: str, data_final_str: str
+) -> tuple[datetime.date, datetime.date]:
+    try:
+        return (
+            datetime.date.fromisoformat(data_inicial_str),
+            datetime.date.fromisoformat(data_final_str),
+        )
+    except ValueError as error:
+        raise ValidationError(
+            "data_inicial e data_final devem estar no formato YYYY-MM-DD."
+        ) from error
+
+
+def _datas_pertencem_ao_mes_referencia(
+    data_inicial: datetime.date, data_final: datetime.date, mes: str, ano: str
+) -> bool:
+    mes_ano_referencia = (int(mes), int(ano))
+    return all(
+        (data.month, data.year) == mes_ano_referencia
+        for data in (data_inicial, data_final)
+    )
 
 
 class CustomPagination(PageNumberPagination):
@@ -650,82 +699,11 @@ class SolicitacaoMedicaoInicialViewSet(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        data_referencia = datetime.date(int(ano), int(mes), 1)
-
         try:
-            uuid_grupo_escolar = request.query_params.get("grupo_escolar")
-            status_solicitacao = request.query_params.get("status")
-            uuid_dre = request.query_params.get("dre")
-            uuid_lotes = request.query_params.getlist("lotes[]", None)
-
-            query_params = request.query_params.dict()
-
-            filtros = {
-                "mes": mes,
-                "ano": ano,
-                "status": status_solicitacao,
-            }
-
-            if uuid_lotes:
-                lotes = Lote.objects.filter(uuid__in=uuid_lotes)
-                filtros["escola__lote__in"] = lotes
-                query_params["lotes"] = request.query_params.getlist("lotes[]")
-
-            diretoria_regional = DiretoriaRegional.objects.get(uuid=uuid_dre)
-            filtros["escola__diretoria_regional"] = diretoria_regional
-
-            grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(
-                uuid=uuid_grupo_escolar
-            )
-            tipos_unidades = grupo_unidade_escolar.tipos_unidades.all()
-
-            historico_valido = HistoricoEscola.objects.filter(
-                escola=OuterRef("escola"),
-                tipo_unidade__in=tipos_unidades,
-                data_final__gte=data_referencia,
-            ).filter(
-                Q(data_inicial__lte=data_referencia) | Q(data_inicial__isnull=True)
-            )
-
-            solicitacoes_com_filtro = (
-                SolicitacaoMedicaoInicial.objects.filter(**filtros)
-                .annotate(tem_historico_valido=Exists(historico_valido))
-                .filter(
-                    Q(tem_historico_valido=True)
-                    | Q(
-                        tem_historico_valido=False,
-                        escola__tipo_unidade__in=tipos_unidades,
-                    )
-                )
-                .values_list("uuid", flat=True)
-            )
-            if solicitacoes_com_filtro.exists():
-                solicitacoes = list(solicitacoes_com_filtro)
-
-                tipos_de_unidade_do_grupo = list(
-                    tipos_unidades.values_list("iniciais", flat=True)
-                )
-
-                nome_arquivo = f"Relatório Consolidado das Medições Inicias - {diretoria_regional.nome} - {grupo_unidade_escolar.nome} - {mes}/{ano}.xlsx"
-
-                exporta_relatorio_consolidado_xlsx.delay(
-                    user=request.user.get_username(),
-                    nome_arquivo=nome_arquivo,
-                    solicitacoes=solicitacoes,
-                    tipos_de_unidade=tipos_de_unidade_do_grupo,
-                    query_params=query_params,
-                )
-
-                return Response(
-                    data={
-                        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-                    },
-                    status=status.HTTP_200_OK,
-                )
+            return self._processa_relatorio_consolidado_exportar_xlsx(request, mes, ano)
+        except ValidationError as error:
             return Response(
-                data={
-                    "erro": "Não foram encontradas Medições Iniciais. Verifique os parâmetros e tente novamente"
-                },
+                data={"erro": error.message},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         except Exception:
@@ -733,6 +711,79 @@ class SolicitacaoMedicaoInicialViewSet(
                 data={"erro": MSG_ERROR_VERIFIQUE_PARAMETROS},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    def _processa_relatorio_consolidado_exportar_xlsx(
+        self, request: Request, mes: str, ano: str
+    ) -> Response:
+        data_referencia = datetime.date(int(ano), int(mes), 1)
+        valida_periodo_relatorio_consolidado(
+            mes,
+            ano,
+            request.query_params.get("data_inicial"),
+            request.query_params.get("data_final"),
+        )
+        uuid_grupo_escolar = request.query_params.get("grupo_escolar")
+        status_solicitacao = request.query_params.get("status")
+        uuid_dre = request.query_params.get("dre")
+        uuid_lotes = request.query_params.getlist("lotes[]", None)
+
+        query_params = request.query_params.dict()
+        filtros = {"mes": mes, "ano": ano, "status": status_solicitacao}
+
+        if uuid_lotes:
+            lotes = Lote.objects.filter(uuid__in=uuid_lotes)
+            filtros["escola__lote__in"] = lotes
+            query_params["lotes"] = request.query_params.getlist("lotes[]")
+
+        diretoria_regional = DiretoriaRegional.objects.get(uuid=uuid_dre)
+        filtros["escola__diretoria_regional"] = diretoria_regional
+
+        grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(uuid=uuid_grupo_escolar)
+        tipos_unidades = grupo_unidade_escolar.tipos_unidades.all()
+
+        historico_valido = HistoricoEscola.objects.filter(
+            escola=OuterRef("escola"),
+            tipo_unidade__in=tipos_unidades,
+            data_final__gte=data_referencia,
+        ).filter(Q(data_inicial__lte=data_referencia) | Q(data_inicial__isnull=True))
+
+        solicitacoes_com_filtro = (
+            SolicitacaoMedicaoInicial.objects.filter(**filtros)
+            .annotate(tem_historico_valido=Exists(historico_valido))
+            .filter(
+                Q(tem_historico_valido=True)
+                | Q(
+                    tem_historico_valido=False,
+                    escola__tipo_unidade__in=tipos_unidades,
+                )
+            )
+            .values_list("uuid", flat=True)
+        )
+
+        if not solicitacoes_com_filtro.exists():
+            return Response(
+                data={
+                    "erro": "Não foram encontradas Medições Iniciais. Verifique os parâmetros e tente novamente"
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        exporta_relatorio_consolidado_xlsx.delay(
+            user=request.user.get_username(),
+            nome_arquivo=(
+                f"Relatório Consolidado das Medições Inicias - "
+                f"{diretoria_regional.nome} - {grupo_unidade_escolar.nome} - "
+                f"{mes}/{ano}.xlsx"
+            ),
+            solicitacoes=list(solicitacoes_com_filtro),
+            tipos_de_unidade=list(tipos_unidades.values_list("iniciais", flat=True)),
+            query_params=query_params,
+        )
+
+        return Response(
+            data={"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            status=status.HTTP_200_OK,
+        )
 
     @action(
         detail=False,
@@ -2421,8 +2472,8 @@ class DadosLiquidacaoViewSet(ModelViewSet):
             relatorio_financeiro__uuid=uuid_relatorio_financeiro
         )
 
-        existentes_por_uuid, existentes_por_chave = (
-            mapear_dados_liquidacao_existentes(queryset)
+        existentes_por_uuid, existentes_por_chave = mapear_dados_liquidacao_existentes(
+            queryset
         )
 
         resultado = []
