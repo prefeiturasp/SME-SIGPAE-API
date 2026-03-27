@@ -2688,3 +2688,44 @@ def test_url_dias_frequencia_zerada_uuid_nao_enviado(client_autenticado_codae_me
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert isinstance(response.data, dict)
     assert response.json() == {"detail": "Parâmetro 'uuid_solicitacao' é obrigatório."}
+
+
+def test_registrar_empenhos_relatorio_financeiro(
+    client_autenticado_codae_medicao,
+    relatorio_financeiro,
+    dados_liquidacao_cmct,
+    escola_cei,
+    escola_cmct,
+):
+    payload = [
+        {
+            "uuid": str(dados_liquidacao_cmct.uuid),
+            "numero_empenho": "888/7987",
+            "tipo_empenho": "PRINCIPAL",
+            "unidades_educacionais": [
+                str(escola_cei.uuid),
+                str(escola_cmct.uuid),
+            ],
+        }
+    ]
+
+    url = f"/medicao-inicial/dados-liquidacao/registrar-empenhos/{relatorio_financeiro.uuid}/"
+
+    response = client_autenticado_codae_medicao.put(
+        url,
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+
+    result = json.loads(response.content)
+
+    assert response.status_code == status.HTTP_200_OK
+
+    dados_liquidacao_cmct.refresh_from_db()
+
+    assert dados_liquidacao_cmct.numero_empenho == "888/7987"
+    assert dados_liquidacao_cmct.unidades_educacionais.count() == 2
+
+    assert isinstance(result, list)
+    assert result[0]["numero_empenho"] == "888/7987"
+    assert len(result[0]["unidades_educacionais"]) == 2
