@@ -20,6 +20,7 @@ from sme_sigpae_api.medicao_inicial.models import (
 from sme_sigpae_api.medicao_inicial.services import relatorio_consolidado_emei_emef
 from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from sme_sigpae_api.medicao_inicial.services.utils import (
+    filtra_queryset_pelo_intervalo_de_dias,
     generate_columns,
     gera_colunas_alimentacao,
     get_categorias_dietas,
@@ -33,7 +34,10 @@ NOME_PERIODO_SOLICITACAO_ALIMENTACAO = "Solicitações de Alimentação"
 DIETA_ESPECIAL_TIPO_A = "DIETA ESPECIAL - TIPO A"
 
 
-def get_alimentacoes_por_periodo(solicitacoes: list[SolicitacaoMedicaoInicial]) -> list:
+def get_alimentacoes_por_periodo(
+    solicitacoes: list[SolicitacaoMedicaoInicial],
+    query_params: dict | None = None,
+) -> list:
     """
     Agrupa e organiza alimentações por período e dieta a partir de solicitações
 
@@ -68,15 +72,21 @@ def get_alimentacoes_por_periodo(solicitacoes: list[SolicitacaoMedicaoInicial]) 
         for medicao in solicitacao.medicoes.all():
 
             nome_periodo = get_nome_periodo(medicao)
-            lista_alimentacoes = _get_lista_alimentacoes(medicao, nome_periodo)
+            lista_alimentacoes = _get_lista_alimentacoes(
+                medicao, nome_periodo, query_params
+            )
             periodos_alimentacoes = update_periodos_alimentacoes(
                 periodos_alimentacoes, nome_periodo, lista_alimentacoes
             )
 
-            categorias_dietas = get_categorias_dietas(medicao)
+            categorias_dietas = get_categorias_dietas(
+                filtra_queryset_pelo_intervalo_de_dias(
+                    medicao.valores_medicao, query_params
+                )
+            )
             for categoria in categorias_dietas:
                 lista_alimentacoes_dietas = _get_lista_alimentacoes_dietas(
-                    medicao, categoria
+                    medicao, categoria, query_params
                 )
                 dietas_alimentacoes = update_dietas_alimentacoes(
                     dietas_alimentacoes, categoria, lista_alimentacoes_dietas
@@ -89,7 +99,9 @@ def get_alimentacoes_por_periodo(solicitacoes: list[SolicitacaoMedicaoInicial]) 
     return columns
 
 
-def _get_lista_alimentacoes(medicao: Medicao, nome_periodo: str) -> list[str]:
+def _get_lista_alimentacoes(
+    medicao: Medicao, nome_periodo: str, query_params: dict | None = None
+) -> list[str]:
     """ "
     Obtém a lista de alimentações baseada nos valores de medição.
     Filtra e retorna uma lista distinta de nomes de campos de alimentação excluindo campos específicos como observações, dietas autorizadas,
@@ -109,7 +121,8 @@ def _get_lista_alimentacoes(medicao: Medicao, nome_periodo: str) -> list[str]:
 
     """
     lista_alimentacoes = list(
-        medicao.valores_medicao.exclude(
+        filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
+        .exclude(
             Q(
                 nome_campo__in=[
                     "observacoes",
@@ -134,7 +147,9 @@ def _get_lista_alimentacoes(medicao: Medicao, nome_periodo: str) -> list[str]:
     return lista_alimentacoes
 
 
-def _get_lista_alimentacoes_dietas(medicao: Medicao, categoria: str) -> list[str]:
+def _get_lista_alimentacoes_dietas(
+    medicao: Medicao, categoria: str, query_params: dict | None = None
+) -> list[str]:
     """
     Obtém lista de alimentações específicas de uma categoria de dieta.
 
@@ -153,7 +168,8 @@ def _get_lista_alimentacoes_dietas(medicao: Medicao, categoria: str) -> list[str
         ['lanche', 'lanche_4h', 'refeicao']
     """
     return list(
-        medicao.valores_medicao.filter(categoria_medicao__nome=categoria)
+        filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
+        .filter(categoria_medicao__nome=categoria)
         .exclude(
             nome_campo__in=[
                 "dietas_autorizadas",
@@ -236,6 +252,7 @@ def _sort_and_merge(periodos_alimentacoes: dict, dietas_alimentacoes: dict) -> d
 def get_valores_tabela(
     solicitacoes: list[SolicitacaoMedicaoInicial],
     colunas: list[tuple],
+    query_params: dict | None = None,
 ) -> list:
     """
     Gera a matriz de valores para preenchimento da tabela de relatório consolidado.
@@ -269,6 +286,7 @@ def get_valores_tabela(
                 valores_solicitacao_atual,
                 dietas_especiais,
                 periodos_escolares,
+                query_params,
             )
         valores.append(valores_solicitacao_atual)
     return valores
@@ -281,6 +299,7 @@ def _processa_periodo_campo(
     valores: list[str],
     dietas_especiais: list[str],
     periodos_escolares: list[str],
+    query_params: dict | None = None,
 ):
     """
     Processa um campo específico para um período em uma solicitação de medição.
@@ -303,9 +322,13 @@ def _processa_periodo_campo(
 
     try:
         if periodo in dietas_especiais:
-            total = processa_dieta_especial(solicitacao, filtros, campo, periodo)
+            total = processa_dieta_especial(
+                solicitacao, filtros, campo, periodo, query_params
+            )
         else:
-            total = processa_periodo_regular(solicitacao, filtros, campo, periodo)
+            total = processa_periodo_regular(
+                solicitacao, filtros, campo, periodo, query_params
+            )
         valores.append(total)
     except Exception:
         valores.append("-")
@@ -347,7 +370,11 @@ def _define_filtro(
 
 
 def processa_dieta_especial(
-    solicitacao: SolicitacaoMedicaoInicial, filtros: dict, campo: str, periodo: str
+    solicitacao: SolicitacaoMedicaoInicial,
+    filtros: dict,
+    campo: str,
+    periodo: str,
+    query_params: dict | None = None,
 ) -> float | str:
     """
     Processa e calcula totais para dietas especiais em solicitações de medição.
@@ -381,7 +408,7 @@ def processa_dieta_especial(
     )
     total = 0.0
     for medicao in medicoes:
-        soma = _calcula_soma_medicao(medicao, campo, categorias)
+        soma = _calcula_soma_medicao(medicao, campo, categorias, query_params)
         if soma is not None:
             total += soma
 
@@ -389,7 +416,11 @@ def processa_dieta_especial(
 
 
 def processa_periodo_regular(
-    solicitacao: SolicitacaoMedicaoInicial, filtros: dict, campo: str, periodo: str
+    solicitacao: SolicitacaoMedicaoInicial,
+    filtros: dict,
+    campo: str,
+    periodo: str,
+    query_params: dict | None = None,
 ) -> float | str:
     """
     Processa e calcula valores para períodos regulares em solicitações de medição.
@@ -409,18 +440,25 @@ def processa_periodo_regular(
     medicao = solicitacao.medicoes.get(**filtros)
 
     if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
-        return relatorio_consolidado_emei_emef._total_pagamento_emef(medicao, campo)
+        return relatorio_consolidado_emei_emef._total_pagamento_emef(
+            medicao, campo, query_params
+        )
 
     categorias = (
         [periodo.upper()]
         if periodo == NOME_PERIODO_SOLICITACAO_ALIMENTACAO
         else ["ALIMENTAÇÃO"]
     )
-    soma = _calcula_soma_medicao(medicao, campo, categorias)
+    soma = _calcula_soma_medicao(medicao, campo, categorias, query_params)
     return soma if soma is not None else "-"
 
 
-def _calcula_soma_medicao(medicao: Medicao, campo: str, categorias: list[str]) -> float:
+def _calcula_soma_medicao(
+    medicao: Medicao,
+    campo: str,
+    categorias: list[str],
+    query_params: dict | None = None,
+) -> float:
     """
     Calcula a soma de valores de um campo específico em uma medição.
     Agrega os valores numéricos de um campo específico dentro de uma medição, filtrando por categorias de medição especificadas.
@@ -434,9 +472,8 @@ def _calcula_soma_medicao(medicao: Medicao, campo: str, categorias: list[str]) -
         float: Soma total dos valores do campo especificado, ou None se não houver valores que atendam aos critérios.
     """
     return (
-        medicao.valores_medicao.filter(
-            nome_campo=campo, categoria_medicao__nome__in=categorias
-        )
+        filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
+        .filter(nome_campo=campo, categoria_medicao__nome__in=categorias)
         .annotate(valor_float=Cast("valor", output_field=FloatField()))
         .aggregate(total=Sum("valor_float"))["total"]
     )

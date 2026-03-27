@@ -160,6 +160,63 @@ def test_gera_relatorio_consolidado_xlsx_emef(
     )
 
 
+def test_gera_relatorio_consolidado_xlsx_emef_com_filtro_de_datas(
+    relatorio_consolidado_xlsx_emef, mock_query_params_excel_emef
+):
+    solicitacoes = [relatorio_consolidado_xlsx_emef.uuid]
+    tipos_unidade = ["EMEF"]
+    query_params = {
+        **mock_query_params_excel_emef,
+        "data_inicial": "2025-04-03",
+        "data_final": "2025-04-05",
+    }
+
+    arquivo = gera_relatorio_consolidado_xlsx(solicitacoes, tipos_unidade, query_params)
+    excel_buffer = BytesIO(arquivo)
+
+    workbook = load_workbook(filename=excel_buffer)
+    nome_aba = f"Relatório Consolidado { relatorio_consolidado_xlsx_emef.mes}-{ relatorio_consolidado_xlsx_emef.ano}"
+    sheet = workbook[nome_aba]
+    rows = list(sheet.iter_rows(values_only=True))
+
+    assert rows[1] == (
+        "ABRIL/2025 - DIRETORIA REGIONAL IPIRANGA - 1 - EMEF - 03/04/2025 A 05/04/2025",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[5] == (
+        "EMEF",
+        "123456",
+        "EMEF TESTE",
+        10,
+        10,
+        75,
+        75,
+        75,
+        75,
+        75,
+        75,
+        12,
+        12,
+        6,
+        6,
+        6,
+    )
+
+
 def test_gera_relatorio_consolidado_xlsx_emei(
     relatorio_consolidado_xlsx_emei, mock_query_params_excel_emei
 ):

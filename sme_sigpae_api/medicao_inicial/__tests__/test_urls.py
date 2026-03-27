@@ -2015,6 +2015,34 @@ def test_url_endpoint_relatorio_consolidado_xlsx_com_erros(
     }
 
 
+def test_url_endpoint_relatorio_consolidado_xlsx_com_datas_fora_do_mes_referencia(
+    client_autenticado_diretoria_regional,
+    grupo_escolar,
+    relatorio_consolidado_xlsx_emef,
+    mocker,
+):
+    mocker.patch(
+        "sme_sigpae_api.medicao_inicial.api.viewsets.exporta_relatorio_consolidado_xlsx.delay"
+    )
+
+    response = client_autenticado_diretoria_regional.get(
+        "/medicao-inicial/solicitacao-medicao-inicial/relatorio-consolidado/exportar-xlsx/"
+        f"?mes={relatorio_consolidado_xlsx_emef.mes}"
+        f"&ano={relatorio_consolidado_xlsx_emef.ano}"
+        f"&grupo_escolar={grupo_escolar}"
+        f"&status=MEDICAO_APROVADA_PELA_CODAE"
+        f"&dre={relatorio_consolidado_xlsx_emef.escola.diretoria_regional.uuid}"
+        "&data_inicial=2025-05-01"
+        "&data_final=2025-05-03",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "erro": "data_inicial e data_final devem pertencer ao mês/ano de referência informado."
+    }
+
+
 def test_codae_solicita_correcao_sem_lancamento(
     client_autenticado_codae_medicao, solicitacao_sem_lancamento
 ):
