@@ -103,20 +103,38 @@
 }
 
 .tabelas-protocolo-dieta {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 
   figure {
     margin: 0;
+    max-width: 100%;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  img {
+    max-width: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    display: inline-block;
+    object-fit: contain;
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 
   table {
     border-collapse: collapse;
     width: 100%;
+    table-layout: fixed;
   }
 
-  table td, 
+  table td,
   table th {
     padding: 0.5em;
     border: 1px solid $preto;
+    word-break: break-word;
+    overflow-wrap: anywhere;
   }
 }
 
