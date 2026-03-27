@@ -38,7 +38,7 @@ Sphinx="==9.1.0"  # https://github.com/sphinx-doc/sphinx
 sphinx-rtd-theme="==3.1.0"  # https://github.com/readthedocs/sphinx_rtd_theme
 sphinx-autodoc-typehints="==3.7.0"  # https://github.com/tox-dev/sphinx-autodoc-typehints
 psycopg2="==2.9.10"  # https://github.com/psycopg/psycopg2
-requests="==2.32.4"
+requests="==2.33.0"
 celery = "==5.5.1"   # http://www.celeryproject.org
 pytz= "==2025.2"  # https://github.com/stub42/pytz
 python-slugify= "==8.0.4"  # https://github.com/un33k/python-slugify
@@ -99,7 +99,7 @@ drf-spectacular = "==0.28.0"
 cerberus = "*"
 coverage-badge = "==1.1.2"
 beautifulsoup4 = "==4.13.4"
-pypdf = "==6.9.1"
+pypdf = "==6.9.2"
 unidecode = "==1.4.0"
 bleach = "==6.3.0"
 
