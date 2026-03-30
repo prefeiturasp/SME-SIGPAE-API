@@ -1181,6 +1181,10 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         if key_com_ocorrencias is not None and self.context["request"].data.get(
             "finaliza_medicao"
         ):
+            if date.today() <= instance.recreio_nas_ferias.data_fim:
+                raise serializers.ValidationError(
+                    "A medição só pode ser finalizada 1 dia após a data fim do Recreio nas Férias."
+                )
             instance.ue_envia(user=self.context["request"].user)
             anexos = self._process_anexos(instance)
             if hasattr(instance, "ocorrencia"):
