@@ -64,6 +64,7 @@ from ..models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
+    DadosLiquidacao,
     DiaParaCorrigir,
     DiaSobremesaDoce,
     Empenho,
@@ -96,6 +97,8 @@ from ..utils import (
     get_dict_alimentacoes_lancamentos_especiais,
     get_valor_total,
     log_alteracoes_escola_corrige_periodo,
+    mapear_dados_liquidacao_existentes,
+    obter_instancia_dado_liquidacao,
     tratar_valores,
 )
 from .constants import (
@@ -120,6 +123,7 @@ from .serializers import (
     AlimentacaoLancamentoEspecialSerializer,
     CategoriaMedicaoSerializer,
     ClausulaDeDescontoSerializer,
+    DadosLiquidacaoSerializer,
     DadosParametrizacaoFinanceiraSerializer,
     DiaParaCorrigirSerializer,
     DiaSobremesaDoceSerializer,
@@ -138,6 +142,7 @@ from .serializers import (
 )
 from .serializers_create import (
     ClausulaDeDescontoCreateUpdateSerializer,
+    DadosLiquidacaoUpdateSerializer,
     DiaSobremesaDoceCreateManySerializer,
     EmpenhoCreateUpdateSerializer,
     InformacoesBasicasMedicaoInicialUpdateSerializer,
@@ -155,6 +160,55 @@ DEFAULT_PAGE_SIZE = 10
 
 
 MSG_ERROR_VERIFIQUE_PARAMETROS = "Verifique os parâmetros e tente novamente"
+
+
+def valida_periodo_relatorio_consolidado(
+    mes: str,
+    ano: str,
+    data_inicial_str: str | None,
+    data_final_str: str | None,
+) -> None:
+    if not data_inicial_str and not data_final_str:
+        return
+
+    if not data_inicial_str or not data_final_str:
+        raise ValidationError("Informe data_inicial e data_final juntos.")
+
+    data_inicial, data_final = _parse_datas_relatorio_consolidado(
+        data_inicial_str, data_final_str
+    )
+
+    if data_inicial > data_final:
+        raise ValidationError("data_inicial não pode ser maior que data_final.")
+
+    if not _datas_pertencem_ao_mes_referencia(data_inicial, data_final, mes, ano):
+        raise ValidationError(
+            "data_inicial e data_final devem pertencer ao mês/ano de referência informado."
+        )
+
+
+def _parse_datas_relatorio_consolidado(
+    data_inicial_str: str, data_final_str: str
+) -> tuple[datetime.date, datetime.date]:
+    try:
+        return (
+            datetime.date.fromisoformat(data_inicial_str),
+            datetime.date.fromisoformat(data_final_str),
+        )
+    except ValueError as error:
+        raise ValidationError(
+            "data_inicial e data_final devem estar no formato YYYY-MM-DD."
+        ) from error
+
+
+def _datas_pertencem_ao_mes_referencia(
+    data_inicial: datetime.date, data_final: datetime.date, mes: str, ano: str
+) -> bool:
+    mes_ano_referencia = (int(mes), int(ano))
+    return all(
+        (data.month, data.year) == mes_ano_referencia
+        for data in (data_inicial, data_final)
+    )
 
 
 class CustomPagination(PageNumberPagination):
@@ -645,82 +699,11 @@ class SolicitacaoMedicaoInicialViewSet(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        data_referencia = datetime.date(int(ano), int(mes), 1)
-
         try:
-            uuid_grupo_escolar = request.query_params.get("grupo_escolar")
-            status_solicitacao = request.query_params.get("status")
-            uuid_dre = request.query_params.get("dre")
-            uuid_lotes = request.query_params.getlist("lotes[]", None)
-
-            query_params = request.query_params.dict()
-
-            filtros = {
-                "mes": mes,
-                "ano": ano,
-                "status": status_solicitacao,
-            }
-
-            if uuid_lotes:
-                lotes = Lote.objects.filter(uuid__in=uuid_lotes)
-                filtros["escola__lote__in"] = lotes
-                query_params["lotes"] = request.query_params.getlist("lotes[]")
-
-            diretoria_regional = DiretoriaRegional.objects.get(uuid=uuid_dre)
-            filtros["escola__diretoria_regional"] = diretoria_regional
-
-            grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(
-                uuid=uuid_grupo_escolar
-            )
-            tipos_unidades = grupo_unidade_escolar.tipos_unidades.all()
-
-            historico_valido = HistoricoEscola.objects.filter(
-                escola=OuterRef("escola"),
-                tipo_unidade__in=tipos_unidades,
-                data_final__gte=data_referencia,
-            ).filter(
-                Q(data_inicial__lte=data_referencia) | Q(data_inicial__isnull=True)
-            )
-
-            solicitacoes_com_filtro = (
-                SolicitacaoMedicaoInicial.objects.filter(**filtros)
-                .annotate(tem_historico_valido=Exists(historico_valido))
-                .filter(
-                    Q(tem_historico_valido=True)
-                    | Q(
-                        tem_historico_valido=False,
-                        escola__tipo_unidade__in=tipos_unidades,
-                    )
-                )
-                .values_list("uuid", flat=True)
-            )
-            if solicitacoes_com_filtro.exists():
-                solicitacoes = list(solicitacoes_com_filtro)
-
-                tipos_de_unidade_do_grupo = list(
-                    tipos_unidades.values_list("iniciais", flat=True)
-                )
-
-                nome_arquivo = f"Relatório Consolidado das Medições Inicias - {diretoria_regional.nome} - {grupo_unidade_escolar.nome} - {mes}/{ano}.xlsx"
-
-                exporta_relatorio_consolidado_xlsx.delay(
-                    user=request.user.get_username(),
-                    nome_arquivo=nome_arquivo,
-                    solicitacoes=solicitacoes,
-                    tipos_de_unidade=tipos_de_unidade_do_grupo,
-                    query_params=query_params,
-                )
-
-                return Response(
-                    data={
-                        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-                    },
-                    status=status.HTTP_200_OK,
-                )
+            return self._processa_relatorio_consolidado_exportar_xlsx(request, mes, ano)
+        except ValidationError as error:
             return Response(
-                data={
-                    "erro": "Não foram encontradas Medições Iniciais. Verifique os parâmetros e tente novamente"
-                },
+                data={"erro": error.message},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         except Exception:
@@ -728,6 +711,79 @@ class SolicitacaoMedicaoInicialViewSet(
                 data={"erro": MSG_ERROR_VERIFIQUE_PARAMETROS},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    def _processa_relatorio_consolidado_exportar_xlsx(
+        self, request: Request, mes: str, ano: str
+    ) -> Response:
+        data_referencia = datetime.date(int(ano), int(mes), 1)
+        valida_periodo_relatorio_consolidado(
+            mes,
+            ano,
+            request.query_params.get("data_inicial"),
+            request.query_params.get("data_final"),
+        )
+        uuid_grupo_escolar = request.query_params.get("grupo_escolar")
+        status_solicitacao = request.query_params.get("status")
+        uuid_dre = request.query_params.get("dre")
+        uuid_lotes = request.query_params.getlist("lotes[]", None)
+
+        query_params = request.query_params.dict()
+        filtros = {"mes": mes, "ano": ano, "status": status_solicitacao}
+
+        if uuid_lotes:
+            lotes = Lote.objects.filter(uuid__in=uuid_lotes)
+            filtros["escola__lote__in"] = lotes
+            query_params["lotes"] = request.query_params.getlist("lotes[]")
+
+        diretoria_regional = DiretoriaRegional.objects.get(uuid=uuid_dre)
+        filtros["escola__diretoria_regional"] = diretoria_regional
+
+        grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(uuid=uuid_grupo_escolar)
+        tipos_unidades = grupo_unidade_escolar.tipos_unidades.all()
+
+        historico_valido = HistoricoEscola.objects.filter(
+            escola=OuterRef("escola"),
+            tipo_unidade__in=tipos_unidades,
+            data_final__gte=data_referencia,
+        ).filter(Q(data_inicial__lte=data_referencia) | Q(data_inicial__isnull=True))
+
+        solicitacoes_com_filtro = (
+            SolicitacaoMedicaoInicial.objects.filter(**filtros)
+            .annotate(tem_historico_valido=Exists(historico_valido))
+            .filter(
+                Q(tem_historico_valido=True)
+                | Q(
+                    tem_historico_valido=False,
+                    escola__tipo_unidade__in=tipos_unidades,
+                )
+            )
+            .values_list("uuid", flat=True)
+        )
+
+        if not solicitacoes_com_filtro.exists():
+            return Response(
+                data={
+                    "erro": "Não foram encontradas Medições Iniciais. Verifique os parâmetros e tente novamente"
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        exporta_relatorio_consolidado_xlsx.delay(
+            user=request.user.get_username(),
+            nome_arquivo=(
+                f"Relatório Consolidado das Medições Inicias - "
+                f"{diretoria_regional.nome} - {grupo_unidade_escolar.nome} - "
+                f"{mes}/{ano}.xlsx"
+            ),
+            solicitacoes=list(solicitacoes_com_filtro),
+            tipos_de_unidade=list(tipos_unidades.values_list("iniciais", flat=True)),
+            query_params=query_params,
+        )
+
+        return Response(
+            data={"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            status=status.HTTP_200_OK,
+        )
 
     @action(
         detail=False,
@@ -2310,3 +2366,143 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             )
         except Exception as e:
             return Response({"Erro": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DadosLiquidacaoViewSet(ModelViewSet):
+    """
+    ViewSet responsável pelo gerenciamento de DadosLiquidacao.
+
+    Endpoints padrão:
+        - GET /dados-liquidacao/
+        - POST /dados-liquidacao/
+        - PUT /dados-liquidacao/{id}/
+        - PATCH /dados-liquidacao/{id}/
+        - DELETE /dados-liquidacao/{id}/
+
+    Funcionalidades adicionais:
+        - Filtro por relatório financeiro via query param
+        - Registro em lote de empenhos
+
+    Query Params:
+        relatorio_financeiro (UUID, optional): Filtra os dados por UUID do relatório financeiro.
+
+    Serializers:
+        - DadosLiquidacaoSerializer: Usado para leitura
+        - DadosLiquidacaoUpdateSerializer: Usado para escrita
+    """
+
+    queryset = DadosLiquidacao.objects.all()
+
+    def get_serializer_class(self):
+        """
+        Retorna o serializer adequado com base na ação.
+
+        Returns:
+            Serializer: Classe de serializer apropriada.
+        """
+
+        if self.action in ["create", "update", "partial_update"]:
+            return DadosLiquidacaoUpdateSerializer
+
+        return DadosLiquidacaoSerializer
+
+    def get_queryset(self):
+        """
+        Filtra o queryset com base no UUID do relatório financeiro.
+
+        Returns:
+            QuerySet: Lista filtrada de DadosLiquidacao.
+        """
+
+        queryset = super().get_queryset()
+        relatorio_uuid = self.request.query_params.get("relatorio_financeiro")
+
+        if relatorio_uuid:
+            queryset = queryset.filter(relatorio_financeiro__uuid=relatorio_uuid)
+
+        return queryset
+
+    @action(
+        detail=False,
+        methods=["put"],
+        url_path=r"registrar-empenhos/(?P<uuid_relatorio_financeiro>[^/.]+)",
+        permission_classes=[UsuarioMedicao],
+    )
+    @transaction.atomic
+    def registrar_empenhos(self, request, uuid_relatorio_financeiro=None):
+        """
+        Registra ou atualiza múltiplos dados de liquidação em lote.
+
+        Esse endpoint realiza:
+            - Criação de novos registros
+            - Atualização de registros existentes
+            - Remoção de registros não enviados na requisição
+
+        Args:
+            request (Request): Requisição contendo uma lista de dados de liquidação.
+            uuid_relatorio_financeiro (UUID): UUID do relatório financeiro associado.
+
+        Request Body:
+            list[dict]: Lista de objetos contendo:
+                - uuid (optional)
+                - numero_empenho (str)
+                - tipo_empenho (str)
+                - unidades_educacionais (list[UUID])
+
+        Returns:
+            Response: Lista dos dados processados.
+
+        Raises:
+            ValidationError: Caso o payload não seja uma lista ou contenha dados inválidos.
+
+        Notes:
+            - A operação é atômica (rollback em caso de erro).
+            - Registros não incluídos na requisição serão removidos.
+            - A identificação dos registros existentes pode ocorrer por UUID ou chave composta.
+
+        Status Codes:
+            200 OK: Operação realizada com sucesso.
+            400 Bad Request: Erro de validação.
+        """
+
+        if not isinstance(request.data, list):
+            raise ValidationError("Envie uma lista de dados.")
+
+        queryset = DadosLiquidacao.objects.filter(
+            relatorio_financeiro__uuid=uuid_relatorio_financeiro
+        )
+
+        existentes_por_uuid, existentes_por_chave = mapear_dados_liquidacao_existentes(
+            queryset
+        )
+
+        resultado = []
+        ids_processados = set()
+
+        for item_data in request.data:
+            instancia = obter_instancia_dado_liquidacao(
+                item_data,
+                existentes_por_uuid,
+                existentes_por_chave,
+            )
+
+            serializer = DadosLiquidacaoUpdateSerializer(
+                instance=instancia,
+                data={
+                    **item_data,
+                    "relatorio_financeiro_id": uuid_relatorio_financeiro,
+                },
+            )
+
+            serializer.is_valid(raise_exception=True)
+            obj = serializer.save()
+
+            ids_processados.add(obj.id)
+            resultado.append(obj)
+
+        queryset.exclude(id__in=ids_processados).delete()
+
+        return Response(
+            DadosLiquidacaoSerializer(resultado, many=True).data,
+            status=status.HTTP_200_OK,
+        )

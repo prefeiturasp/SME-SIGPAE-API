@@ -21,6 +21,7 @@ from .models import (
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
     ValorMedicao,
+    DadosLiquidacao,
 )
 
 admin.site.register(AlimentacaoLancamentoEspecial)
@@ -216,6 +217,11 @@ class ParametrizacaoFinanceiraTabelaValorAdmin(admin.ModelAdmin):
 @admin.register(RelatorioFinanceiro)
 class RelatorioFinanceiroAdmin(admin.ModelAdmin):
     list_display = ("__str__", "grupo_unidade_escolar")
+
+
+@admin.register(DadosLiquidacao)
+class DadosLiquidacaoAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "relatorio_financeiro")
 
 
 importlib.import_module("sme_sigpae_api.medicao_inicial.recreio_nas_ferias.admin")

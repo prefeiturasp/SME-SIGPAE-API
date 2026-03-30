@@ -1,5 +1,9 @@
 import re
+from collections import Counter
 from datetime import datetime
+from typing import Union
+
+from django.db.models.query import QuerySet
 
 from sme_sigpae_api.dados_comuns.fluxo_status import (
     CronogramaWorkflow,
@@ -30,15 +34,39 @@ def cria_programacao_de_cronograma(programacoes, cronograma=None):
     return programacoes_criadas
 
 
-def totalizador_relatorio_cronograma(queryset):
-    status_count = {
-        CronogramaWorkflow.states[s].title: queryset.filter(status=s).count()
-        for s in CronogramaWorkflow.states
-    }
-    ordered_status_count = dict(
-        sorted(status_count.items(), key=lambda e: e[1], reverse=True)
-    )
-    return ordered_status_count
+def totalizador_relatorio_cronograma(
+    data: Union[QuerySet, list[dict]],
+) -> dict[str, int]:
+    """
+    Calcula a quantidade de itens por status do cronograma.
+    Aceita tanto um QuerySet (usando ORM) quanto uma lista de dicionários
+    já serializados, mantendo o mesmo formato de saída.
+
+    Args:
+        data (Union[QuerySet, list[dict]]):
+          - QuerySet: coleção de objetos com campo `status`
+          - list[dict]: dados serializados contendo a chave `status`
+
+    Returns:
+        dict[str, int]: Dicionário ordenado de forma decrescente pela quantidade,
+            onde a chave é o título do status (`states[s].title`) e o valor é a contagem.
+    """
+    is_queryset = isinstance(data, QuerySet)
+
+    if is_queryset:
+        status_count = {
+            CronogramaWorkflow.states[s].title: data.filter(status=s).count()
+            for s in CronogramaWorkflow.states
+        }
+    else:
+        counter = Counter(item.get("status") for item in data)
+        status_count = {
+            CronogramaWorkflow.states[s].title: counter.get(
+                CronogramaWorkflow.states[s].title, 0
+            )
+            for s in CronogramaWorkflow.states
+        }
+    return dict(sorted(status_count.items(), key=lambda e: e[1], reverse=True))
 
 
 def parse_date(date_str):

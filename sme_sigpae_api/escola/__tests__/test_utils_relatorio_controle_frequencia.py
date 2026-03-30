@@ -17,7 +17,11 @@ from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
     PeriodoEscolarFactory,
 )
 from sme_sigpae_api.escola.models import LogAlunoPorDia
-from sme_sigpae_api.escola.utils import _coleta_alunos_por_dia, aluno_pertence_a_escola
+from sme_sigpae_api.escola.utils import (
+    _coleta_alunos_por_dia,
+    aluno_pertence_a_escola,
+    formata_periodos_pdf_controle_frequencia,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -432,3 +436,72 @@ class TestColetaAlunosPorDia:
         )
 
         assert len(alunos_por_dia) == 2
+
+
+class TestFormataPeriodosPdfControleFrequencia:
+    def _cria_log_faixa_dia(self, escola, data=None):
+        periodo = PeriodoEscolarFactory(nome="MANHA")
+        faixa = FaixaEtariaFactory(inicio=0, fim=12)
+        return LogAlunosMatriculadosFaixaEtariaDiaFactory(
+            escola=escola,
+            periodo_escolar=periodo,
+            faixa_etaria=faixa,
+            data=data or datetime.date(2026, 3, 15),
+        )
+
+    def _qtd_matriculados(self, periodo):
+        return {"periodos": {periodo.nome: 1}}
+
+    def test_periodo_padrao_do_mes_inclui_aluno_com_historico_encerrado_no_mes(self):
+        escola = EscolaFactory()
+        aluno = AlunoFactory(escola=EscolaFactory())
+        log_faixa = self._cria_log_faixa_dia(escola, data=datetime.date(2026, 3, 15))
+        _cria_log_aluno_por_dia(log_faixa, aluno)
+
+        HistoricoMatriculaAlunoFactory(
+            aluno=aluno,
+            escola=escola,
+            data_inicio=datetime.date(2026, 1, 1),
+            data_fim=datetime.date(2026, 3, 15),
+        )
+
+        periodos = formata_periodos_pdf_controle_frequencia(
+            self._qtd_matriculados(log_faixa.periodo_escolar),
+            log_faixa.__class__.objects.filter(pk=log_faixa.pk),
+            {"mes_ano": "03_2026"},
+            escola,
+            mes_seguinte=False,
+        )
+
+        assert (
+            _formata_nome_aluno(aluno) in periodos[0]["faixas"][0]["alunos_por_faixa"]
+        )
+
+    def test_periodo_explicito_do_mes_inclui_aluno_com_historico_encerrado_no_mes(self):
+        escola = EscolaFactory()
+        aluno = AlunoFactory(escola=EscolaFactory())
+        log_faixa = self._cria_log_faixa_dia(escola, data=datetime.date(2026, 3, 15))
+        _cria_log_aluno_por_dia(log_faixa, aluno)
+
+        HistoricoMatriculaAlunoFactory(
+            aluno=aluno,
+            escola=escola,
+            data_inicio=datetime.date(2026, 1, 1),
+            data_fim=datetime.date(2026, 3, 15),
+        )
+
+        periodos = formata_periodos_pdf_controle_frequencia(
+            self._qtd_matriculados(log_faixa.periodo_escolar),
+            log_faixa.__class__.objects.filter(pk=log_faixa.pk),
+            {
+                "mes_ano": "03_2026",
+                "data_inicial": "2026-03-01",
+                "data_final": "2026-03-31",
+            },
+            escola,
+            mes_seguinte=False,
+        )
+
+        assert (
+            _formata_nome_aluno(aluno) in periodos[0]["faixas"][0]["alunos_por_faixa"]
+        )

@@ -647,7 +647,6 @@ def requisicao_alteracao_cardapio_periodo_manha(
         "data_inicial": "18/11/2023",
         "data_final": "18/11/2023",
         "observacao": "<p>cozinha em reforma</p>",
-        "eh_alteracao_com_lanche_repetida": False,
         "escola": str(escola_com_dias_letivos.uuid),
         "substituicoes": [
             {

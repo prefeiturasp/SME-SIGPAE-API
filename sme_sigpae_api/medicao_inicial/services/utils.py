@@ -1,3 +1,6 @@
+import datetime
+from calendar import monthrange
+
 import pandas as pd
 
 from sme_sigpae_api.medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
@@ -49,7 +52,7 @@ def update_periodos_alimentacoes(
     return periodos_alimentacoes
 
 
-def get_categorias_dietas(medicao: Medicao) -> list:
+def get_categorias_dietas(medicao_ou_queryset) -> list:
     """
     Obtém lista de categorias de dietas especiais da medição.
 
@@ -64,9 +67,12 @@ def get_categorias_dietas(medicao: Medicao) -> list:
         ['DIETA ESPECIAL - TIPO B', 'DIETA ESPECIAL - TIPO A - ENTERAL]
     """
     return list(
-        medicao.valores_medicao.exclude(
-            categoria_medicao__nome__icontains="ALIMENTAÇÃO"
+        (
+            medicao_ou_queryset.valores_medicao
+            if hasattr(medicao_ou_queryset, "valores_medicao")
+            else medicao_ou_queryset
         )
+        .exclude(categoria_medicao__nome__icontains="ALIMENTAÇÃO")
         .values_list("categoria_medicao__nome", flat=True)
         .distinct()
     )
@@ -144,6 +150,50 @@ def get_valores_iniciais(solicitacao: SolicitacaoMedicaoInicial) -> list[str]:
         solicitacao.escola.codigo_eol,
         solicitacao.escola.nome_historico(solicitacao.data_referencia),
     ]
+
+
+def get_filtros_intervalo_dias(query_params: dict | None) -> dict:
+    """
+    Retorna os filtros de dia para o intervalo informado na query string.
+
+    O relatório consolidado continua sendo mensal; portanto, quando ambas as
+    datas são informadas, o recorte é aplicado apenas sobre o campo `dia`
+    armazenado em `ValorMedicao`.
+    """
+    if not query_params:
+        return {}
+
+    data_inicial = query_params.get("data_inicial")
+    data_final = query_params.get("data_final")
+    if not (data_inicial and data_final):
+        return {}
+
+    dia_inicial = datetime.date.fromisoformat(data_inicial).day
+    dia_final = datetime.date.fromisoformat(data_final).day
+    return {
+        "dia__gte": f"{dia_inicial:02d}",
+        "dia__lte": f"{dia_final:02d}",
+    }
+
+
+def filtra_queryset_pelo_intervalo_de_dias(queryset, query_params: dict | None):
+    """
+    Aplica o recorte de dias sobre um queryset de `ValorMedicao`, quando houver.
+    """
+    filtros_dias = get_filtros_intervalo_dias(query_params)
+    return queryset.filter(**filtros_dias) if filtros_dias else queryset
+
+
+def get_lista_dias_periodo(
+    mes: str | int, ano: str | int, query_params: dict | None = None
+) -> range:
+    """
+    Retorna os dias que devem compor o relatório dentro do mês/ano informado.
+    """
+    filtros_dias = get_filtros_intervalo_dias(query_params)
+    dia_inicial = int(filtros_dias.get("dia__gte", 1))
+    dia_final = int(filtros_dias.get("dia__lte", monthrange(int(ano), int(mes))[1]))
+    return range(dia_inicial, dia_final + 1)
 
 
 def gera_colunas_alimentacao(

@@ -1151,10 +1151,12 @@ class SolicitacaoDietaEspecialViewSet(
                 key: value for key, value in params.items() if value is not None
             }
 
-            logs = LogSolicitacoesUsuario.objects.filter(**log_filtros)
-
-            solicitacoes_uuids = [log.uuid_original for log in logs]
-            query_set = query_set.filter(uuid__in=solicitacoes_uuids)
+            logs = (
+                LogSolicitacoesUsuario.objects.filter(**log_filtros)
+                .values("uuid_original")
+                .distinct()
+            )
+            query_set = query_set.filter(uuid__in=Subquery(logs))
         return query_set
 
     @action(detail=False, methods=("get",), url_path="filtros-relatorio-dieta-especial")

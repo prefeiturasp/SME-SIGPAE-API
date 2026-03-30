@@ -11,8 +11,8 @@ from sme_sigpae_api.dados_comuns.utils import converte_numero_em_mes
 from sme_sigpae_api.escola.models import Escola
 from sme_sigpae_api.escola.utils import (
     formata_periodos_pdf_controle_frequencia,
-    trata_filtro_data_relatorio_controle_frequencia_pdf,
     ordena_faixas_por_idade,
+    trata_filtro_data_relatorio_controle_frequencia_pdf,
 )
 from sme_sigpae_api.medicao_inicial.utils import (
     get_data_relatorio,
@@ -20,6 +20,18 @@ from sme_sigpae_api.medicao_inicial.utils import (
     get_queryset_filtrado,
     queryset_alunos_matriculados,
 )
+
+
+def _total_matriculados(periodos):
+    todos_alunos = set()
+    for periodo in periodos:
+        alunos_unicos_periodo = set()
+        for faixa in periodo["faixas"]:
+            alunos_unicos_periodo.update(faixa["alunos_por_faixa"])
+        periodo["quantidade"] = len(alunos_unicos_periodo)
+        todos_alunos.update(alunos_unicos_periodo)
+    total_matriculados = len(todos_alunos)
+    return total_matriculados
 
 
 def gera_relatorio_controle_frequencia_pdf(query_params, escola_uuid):
@@ -54,12 +66,13 @@ def gera_relatorio_controle_frequencia_pdf(query_params, escola_uuid):
     qtd_matriculados = vs_relatorio_controle.filtrar_alunos_matriculados(
         queryset, escola_eh_cei_ou_cemei, periodos_uuids
     )
-    total_matriculados = qtd_matriculados["total_matriculados"]
 
     periodos = formata_periodos_pdf_controle_frequencia(
         qtd_matriculados, queryset, query_params, escola, mes_seguinte
     )
     periodos = ordena_faixas_por_idade(periodos)
+
+    total_matriculados = _total_matriculados(periodos)
 
     data_relatorio = get_data_relatorio(query_params)
     mes_ano_formatado = f"{converte_numero_em_mes(int(mes))}/{ano}"

@@ -1,4 +1,3 @@
-import calendar
 import logging
 import math
 
@@ -14,7 +13,9 @@ from sme_sigpae_api.escola.models import PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
 from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from sme_sigpae_api.medicao_inicial.services.utils import (
+    filtra_queryset_pelo_intervalo_de_dias,
     gera_colunas_alimentacao,
+    get_lista_dias_periodo,
     get_nome_periodo,
     get_valores_iniciais,
 )
@@ -22,7 +23,7 @@ from sme_sigpae_api.medicao_inicial.services.utils import (
 logger = logging.getLogger(__name__)
 
 
-def get_alimentacoes_por_periodo(solicitacoes):
+def get_alimentacoes_por_periodo(solicitacoes, query_params=None):
     periodos_alimentacoes = {}
     dietas_alimentacoes = {}
 
@@ -30,7 +31,7 @@ def get_alimentacoes_por_periodo(solicitacoes):
         for medicao in solicitacao.medicoes.all():
             nome_periodo = get_nome_periodo(medicao)
             alimentacoes_infantil, alimentacoes_fundamental = _get_lista_alimentacoes(
-                medicao, nome_periodo
+                medicao, nome_periodo, query_params
             )
             periodos_alimentacoes = _update_periodos_alimentacoes(
                 periodos_alimentacoes,
@@ -44,18 +45,22 @@ def get_alimentacoes_por_periodo(solicitacoes):
                 lista_alimentacoes=alimentacoes_fundamental,
                 turma="FUNDAMENTAL",
             )
-            dietas_infantil, dietas_fundamental = _get_categorias_dietas(medicao)
+            dietas_infantil, dietas_fundamental = _get_categorias_dietas(
+                medicao, query_params
+            )
             dietas_alimentacoes = _obter_dietas_especiais(
                 dietas_alimentacoes,
                 medicao,
                 dietas_turma=dietas_infantil,
                 turma="INFANTIL",
+                query_params=query_params,
             )
             dietas_alimentacoes = _obter_dietas_especiais(
                 dietas_alimentacoes,
                 medicao,
                 dietas_turma=dietas_fundamental,
                 turma="FUNDAMENTAL",
+                query_params=query_params,
             )
 
     dietas_alimentacoes = _unificar_dietas_tipo_a(dietas_alimentacoes, turma="INFANTIL")
@@ -68,8 +73,10 @@ def get_alimentacoes_por_periodo(solicitacoes):
     return columns
 
 
-def _get_lista_alimentacoes(medicao, nome_periodo):
-    lista_alimentacoes = medicao.valores_medicao.exclude(
+def _get_lista_alimentacoes(medicao, nome_periodo, query_params=None):
+    lista_alimentacoes = filtra_queryset_pelo_intervalo_de_dias(
+        medicao.valores_medicao, query_params
+    ).exclude(
         Q(
             nome_campo__in=[
                 "observacoes",
@@ -122,10 +129,10 @@ def _update_periodos_alimentacoes(
     return periodos_alimentacoes
 
 
-def _get_categorias_dietas(medicao):
-    lista_dietas = medicao.valores_medicao.exclude(
-        categoria_medicao__nome__icontains="ALIMENTAÇÃO"
-    )
+def _get_categorias_dietas(medicao, query_params=None):
+    lista_dietas = filtra_queryset_pelo_intervalo_de_dias(
+        medicao.valores_medicao, query_params
+    ).exclude(categoria_medicao__nome__icontains="ALIMENTAÇÃO")
     infantil = list(
         lista_dietas.filter(infantil_ou_fundamental="INFANTIL")
         .values_list("categoria_medicao__nome", flat=True)
@@ -140,10 +147,16 @@ def _get_categorias_dietas(medicao):
     return infantil, fundamental
 
 
-def _obter_dietas_especiais(dietas_alimentacoes, medicao, dietas_turma, turma):
+def _obter_dietas_especiais(
+    dietas_alimentacoes,
+    medicao,
+    dietas_turma,
+    turma,
+    query_params=None,
+):
     for categoria in dietas_turma:
         lista_alimentacoes_dietas = _get_lista_alimentacoes_dietas(
-            medicao, categoria, turma
+            medicao, categoria, turma, query_params
         )
         dietas_alimentacoes = _update_dietas_alimentacoes(
             dietas_alimentacoes,
@@ -154,11 +167,10 @@ def _obter_dietas_especiais(dietas_alimentacoes, medicao, dietas_turma, turma):
     return dietas_alimentacoes
 
 
-def _get_lista_alimentacoes_dietas(medicao, categoria, turma):
+def _get_lista_alimentacoes_dietas(medicao, categoria, turma, query_params=None):
     return list(
-        medicao.valores_medicao.filter(
-            categoria_medicao__nome=categoria, infantil_ou_fundamental=turma
-        )
+        filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
+        .filter(categoria_medicao__nome=categoria, infantil_ou_fundamental=turma)
         .exclude(
             nome_campo__in=[
                 "dietas_autorizadas",
@@ -260,7 +272,7 @@ def _generate_columns(dict_periodos_dietas):
     return columns
 
 
-def get_valores_tabela(solicitacoes, colunas):
+def get_valores_tabela(solicitacoes, colunas, query_params=None):
     dietas_especiais = CategoriaMedicao.objects.filter(
         nome__icontains="DIETA ESPECIAL"
     ).values_list("nome", flat=True)
@@ -278,6 +290,7 @@ def get_valores_tabela(solicitacoes, colunas):
                 valores_solicitacao_atual,
                 dietas_especiais,
                 periodos_escolares,
+                query_params,
             )
         valores.append(valores_solicitacao_atual)
     return valores
@@ -291,16 +304,25 @@ def get_solicitacoes_ordenadas(solicitacoes):
 
 
 def _processa_periodo_campo(
-    solicitacao, turma, periodo, campo, valores, dietas_especiais, periodos_escolares
+    solicitacao,
+    turma,
+    periodo,
+    campo,
+    valores,
+    dietas_especiais,
+    periodos_escolares,
+    query_params=None,
 ):
     filtros = _define_filtro(periodo, dietas_especiais, periodos_escolares)
 
     try:
         if periodo in dietas_especiais:
-            total = processa_dieta_especial(solicitacao, filtros, campo, periodo, turma)
+            total = processa_dieta_especial(
+                solicitacao, filtros, campo, periodo, turma, query_params
+            )
         else:
             total = processa_periodo_regular(
-                solicitacao, filtros, campo, periodo, turma
+                solicitacao, filtros, campo, periodo, turma, query_params
             )
         valores.append(total)
     except (TypeError, AttributeError, ValueError) as exception:
@@ -330,7 +352,9 @@ def _define_filtro(periodo, dietas_especiais, periodos_escolares):
     return filtros
 
 
-def processa_dieta_especial(solicitacao, filtros, campo, periodo, turma):
+def processa_dieta_especial(
+    solicitacao, filtros, campo, periodo, turma, query_params=None
+):
     condicoes = Q()
     for filtro, valor in filtros.items():
         condicoes = condicoes | Q(**{filtro: valor})
@@ -349,18 +373,20 @@ def processa_dieta_especial(solicitacao, filtros, campo, periodo, turma):
     )
     total = 0.0
     for medicao in medicoes:
-        soma = _calcula_soma_medicao(medicao, campo, categorias, [turma])
+        soma = _calcula_soma_medicao(medicao, campo, categorias, [turma], query_params)
         if soma is not None:
             total += soma
 
     return "-" if math.isclose(total, 0.0, rel_tol=1e-9) else total
 
 
-def processa_periodo_regular(solicitacao, filtros, campo, periodo, turma):
+def processa_periodo_regular(
+    solicitacao, filtros, campo, periodo, turma, query_params=None
+):
     medicao = solicitacao.medicoes.get(**filtros)
 
     if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
-        return _get_total_pagamento(medicao, campo, turma)
+        return _get_total_pagamento(medicao, campo, turma, query_params)
 
     if periodo == "Solicitações de Alimentação":
         categorias = [periodo.upper()]
@@ -369,13 +395,14 @@ def processa_periodo_regular(solicitacao, filtros, campo, periodo, turma):
         categorias = ["ALIMENTAÇÃO"]
         turma = [turma]
 
-    soma = _calcula_soma_medicao(medicao, campo, categorias, turma)
+    soma = _calcula_soma_medicao(medicao, campo, categorias, turma, query_params)
     return soma if soma is not None else "-"
 
 
-def _calcula_soma_medicao(medicao, campo, categorias, turma):
+def _calcula_soma_medicao(medicao, campo, categorias, turma, query_params=None):
     return (
-        medicao.valores_medicao.filter(
+        filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
+        .filter(
             nome_campo=campo,
             categoria_medicao__nome__in=categorias,
             infantil_ou_fundamental__in=turma,
@@ -385,11 +412,15 @@ def _calcula_soma_medicao(medicao, campo, categorias, turma):
     )
 
 
-def _get_total_pagamento(medicao, nome_campo, turma):
+def _get_total_pagamento(medicao, nome_campo, turma, query_params=None):
     if turma == "INFANTIL":
-        total_valores = medicao.valores_medicao.filter(
-            infantil_ou_fundamental=turma
-        ).count()
+        total_valores = (
+            filtra_queryset_pelo_intervalo_de_dias(
+                medicao.valores_medicao, query_params
+            )
+            .filter(infantil_ou_fundamental=turma)
+            .count()
+        )
         if (
             total_valores > 0
             and medicao.periodo_escolar
@@ -398,12 +429,14 @@ def _get_total_pagamento(medicao, nome_campo, turma):
             valor_padrao = 0
         else:
             valor_padrao = "-"
-        return _total_pagamento_infantil(medicao, nome_campo, valor_padrao)
+        return _total_pagamento_infantil(
+            medicao, nome_campo, valor_padrao, query_params
+        )
     elif turma == "FUNDAMENTAL":
-        return _total_pagamento_fundamental(medicao, nome_campo)
+        return _total_pagamento_fundamental(medicao, nome_campo, query_params)
 
 
-def _total_pagamento_infantil(medicao, nome_campo, valor_padrao):
+def _total_pagamento_infantil(medicao, nome_campo, valor_padrao, query_params=None):
     campos_refeicoes = [
         "refeicao",
         "2_refeicao_1_oferta",
@@ -419,7 +452,8 @@ def _total_pagamento_infantil(medicao, nome_campo, valor_padrao):
     )
 
     total_pagamento = (
-        medicao.valores_medicao.filter(
+        filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
+        .filter(
             nome_campo__in=lista_campos,
             categoria_medicao__nome="ALIMENTAÇÃO",
             infantil_ou_fundamental="INFANTIL",
@@ -492,13 +526,12 @@ def calcula_totais_pagamento_emebs_fundamental(
     return total_refeicao + total_segunda_refeicao
 
 
-def _total_pagamento_fundamental(medicao, nome_campo):
+def _total_pagamento_fundamental(medicao, nome_campo, query_params=None):
     mes = medicao.solicitacao_medicao_inicial.mes
     ano = medicao.solicitacao_medicao_inicial.ano
-    total_dias_no_mes = calendar.monthrange(int(ano), int(mes))[1]
     total_pagamento = 0
 
-    for dia in range(1, total_dias_no_mes + 1):
+    for dia in get_lista_dias_periodo(mes, ano, query_params):
         if nome_campo == "total_refeicoes_pagamento":
             total_pagamento += calcula_totais_pagamento_emebs_fundamental(
                 "refeicao",
