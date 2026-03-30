@@ -344,3 +344,108 @@ def test_obter_periodos_corretos_sem_periodo_notuno(
 
     assert "noite" in periodos
     assert periodos["noite"] == periodos["default"]
+
+
+def test_validate_solicitacoes_programas_e_projetos_periodos_zero_alimentacao_exige_observacao(
+    solicitacao_medicao_finaliza_programas_projetos_zerados_alimentacao
+):
+    solicitacao = solicitacao_medicao_finaliza_programas_projetos_zerados_alimentacao
+    lista_erros = []
+    lista_erros = validate_solicitacoes_programas_e_projetos(solicitacao, lista_erros)
+    assert len(lista_erros) == 1
+    assert any(
+        "Avaliar lançamentos de dias sem frequencia nos demais períodos." in erro["erro"] and erro["periodo_escolar"] == "Programas e Projetos"
+        for erro in lista_erros
+    )
+
+def test_validate_solicitacoes_programas_e_projetos_periodos_zero_dietas_exige_observacao(
+    solicitacao_medicao_finaliza_programas_projetos_zerados_dietas
+):
+    solicitacao = solicitacao_medicao_finaliza_programas_projetos_zerados_dietas
+    lista_erros = []
+    lista_erros = validate_solicitacoes_programas_e_projetos(solicitacao, lista_erros)
+
+    assert len(lista_erros) == 1
+    assert any(
+        "Avaliar lançamentos de dias sem frequencia nos demais períodos." in erro["erro"]
+        and erro["periodo_escolar"] == "Programas e Projetos"
+        for erro in lista_erros
+    )
+
+def test_validate_solicitacoes_programas_e_projetos_periodos_zero_alimentacao_com_observacao_ok(
+    solicitacao_medicao_finaliza_programas_projetos_zerados_alimentacao, categoria_medicao
+):
+    solicitacao = solicitacao_medicao_finaliza_programas_projetos_zerados_alimentacao
+    medicao_programas = solicitacao.get_medicao_programas_e_projetos
+
+    program_valor = medicao_programas.valores_medicao.filter(
+        nome_campo="frequencia", dia="14", categoria_medicao=categoria_medicao
+    ).first()
+    medicao_programas.valores_medicao.create(
+        nome_campo="observacoes",
+        dia="14",
+        categoria_medicao=program_valor.categoria_medicao,
+        valor="justificativa",
+    )
+
+    lista_erros = []
+    lista_erros = validate_solicitacoes_programas_e_projetos(solicitacao, lista_erros)
+
+    assert all(
+        erro["periodo_escolar"] != "Programas e Projetos" for erro in lista_erros
+    )
+    
+def test_validate_solicitacoes_programas_e_projetos_periodos_zero_dieta_com_observacao_ok(
+    solicitacao_medicao_finaliza_programas_projetos_zerados_dietas, categoria_medicao_dieta_a
+):
+    solicitacao = solicitacao_medicao_finaliza_programas_projetos_zerados_dietas
+    medicao_programas = solicitacao.get_medicao_programas_e_projetos
+
+    program_valor = medicao_programas.valores_medicao.filter(
+        nome_campo="frequencia", dia="14", categoria_medicao=categoria_medicao_dieta_a
+    ).first()
+    medicao_programas.valores_medicao.create(
+        nome_campo="observacoes",
+        dia="14",
+        categoria_medicao=program_valor.categoria_medicao,
+        valor="justificativa",
+    )
+
+    lista_erros = []
+    lista_erros = validate_solicitacoes_programas_e_projetos(solicitacao, lista_erros)
+
+    assert all(
+        erro["periodo_escolar"] != "Programas e Projetos" for erro in lista_erros
+    )
+
+def test_validate_solicitacoes_programas_e_projetos_periodos_altera_periodo_tarde_alimentacao(
+    solicitacao_medicao_finaliza_programas_projetos_zerados_alimentacao, periodo_escolar_tarde, categoria_medicao
+):
+    solicitacao = solicitacao_medicao_finaliza_programas_projetos_zerados_alimentacao
+    medicao_tarde = solicitacao.medicoes.filter(periodo_escolar=periodo_escolar_tarde).first()
+    valor = medicao_tarde.valores_medicao.get(
+        nome_campo="frequencia", dia="14", categoria_medicao=categoria_medicao
+    )
+    valor.valor = "40"
+    valor.save()
+    lista_erros = []
+    lista_erros = validate_solicitacoes_programas_e_projetos(solicitacao, lista_erros)
+    assert all(
+        erro["periodo_escolar"] != "Programas e Projetos" for erro in lista_erros
+    )
+    
+def test_validate_solicitacoes_programas_e_projetos_periodos_altera_periodo_tarde_dieta(
+    solicitacao_medicao_finaliza_programas_projetos_zerados_dietas, periodo_escolar_tarde, categoria_medicao_dieta_a
+):
+    solicitacao = solicitacao_medicao_finaliza_programas_projetos_zerados_dietas
+    medicao_tarde = solicitacao.medicoes.filter(periodo_escolar=periodo_escolar_tarde).first()
+    valor = medicao_tarde.valores_medicao.get(
+        nome_campo="frequencia", dia="14", categoria_medicao=categoria_medicao_dieta_a
+    )
+    valor.valor = "3"
+    valor.save()
+    lista_erros = []
+    lista_erros = validate_solicitacoes_programas_e_projetos(solicitacao, lista_erros)
+    assert all(
+        erro["periodo_escolar"] != "Programas e Projetos" for erro in lista_erros
+    )
