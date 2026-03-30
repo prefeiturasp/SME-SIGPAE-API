@@ -2901,7 +2901,7 @@ def validate_solicitacoes_programas_e_projetos(solicitacao, lista_erros):
 
     medicao_programas_projetos = solicitacao.get_medicao_programas_e_projetos
 
-    return validate_solicitacoes_continuas(
+    lista_erros = validate_solicitacoes_continuas(
         solicitacao,
         lista_erros,
         inclusoes,
@@ -2909,6 +2909,138 @@ def validate_solicitacoes_programas_e_projetos(solicitacao, lista_erros):
         "Programas e Projetos",
         True,
     )
+
+    lista_erros = valida_programas_e_projetos_periodos_zero(
+        solicitacao, medicao_programas_projetos, lista_erros
+    )
+
+    return erros_unicos(lista_erros)
+
+
+def _valor_periodo_eh_zero(
+    medicao_periodo: Medicao,
+    dia: str,
+    categoria_alimentacao: CategoriaMedicao,
+) -> bool:
+    """Verifica se a frequência de um período escolar é zero no dia informado.
+
+    Args:
+        medicao_periodo: Instância de `Medicao` para o período escolar.
+        dia: Dia do mês como string, ex.: "14".
+        categoria_alimentacao: Instância de `CategoriaMedicao`, normalmente "ALIMENTAÇÃO".
+
+    Returns:
+        bool: True se não houver valor ou o valor for "0", caso contrário False.
+    """
+    valor_periodo = medicao_periodo.valores_medicao.filter(
+        nome_campo="frequencia",
+        categoria_medicao=categoria_alimentacao,
+        dia=dia,
+    ).first()
+    if not valor_periodo or valor_periodo.valor is None:
+        return True
+    return valor_periodo.valor == "0"
+
+
+def _programas_e_projetos_tem_observacao(
+    medicao_programas_e_projetos: Medicao,
+    dia: str,
+) -> bool:
+    """Verifica se existe observação de Programas e Projetos no dia informado.
+
+    Args:
+        medicao_programas_e_projetos: Instância de `Medicao` do grupo Programas e Projetos.
+        dia: Dia do mês como string, ex.: "14".
+
+    Returns:
+        bool: True se existir um registro de observação no dia, False caso contrário.
+    """
+    return medicao_programas_e_projetos.valores_medicao.filter(
+        nome_campo="observacoes",
+        dia=dia,
+    ).exists()
+
+
+def _valor_programas_e_projetos(
+    medicao_programas_e_projetos: Medicao,
+    dia: str,
+    categoria_alimentacao: CategoriaMedicao,
+) -> str | None:
+    """Retorna o valor de frequência de Programas e Projetos para o dia informado.
+
+    Args:
+        medicao_programas_e_projetos: Instância de `Medicao` do grupo Programas e Projetos.
+        dia: Dia do mês como string, ex.: "14".
+        categoria_alimentacao: Instância de `CategoriaMedicao`, normalmente "ALIMENTAÇÃO".
+
+    Returns:
+        str|None: Valor de frequência se encontrado; None caso não exista.
+    """
+    valor_programas = medicao_programas_e_projetos.valores_medicao.filter(
+        nome_campo="frequencia",
+        categoria_medicao=categoria_alimentacao,
+        dia=dia,
+    ).first()
+    if not valor_programas or valor_programas.valor is None:
+        return None
+    return valor_programas.valor
+
+
+def valida_programas_e_projetos_periodos_zero(
+    solicitacao: SolicitacaoMedicaoInicial,
+    medicao_programas_e_projetos: Medicao,
+    lista_erros: list[dict[str, str]],
+) -> list[dict[str, str]]:
+    """Valida Programas e Projetos quando todos os períodos estão com zero.
+
+    Para cada dia em que Programas e Projetos possui registro de frequência,
+    verifica se todos os períodos escolares também estão com frequência zero.
+
+    Se algum dia tiver todos os períodos em zero e o valor de Programas e Projetos
+    for diferente de "0" sem observação, adiciona erro.
+
+    Args:
+        solicitacao: Instância de `SolicitacaoMedicaoInicial`.
+        medicao_programas_e_projetos: Instância de `Medicao` de Programas e Projetos.
+        lista_erros: Lista de dicionários de erros acumulados.
+
+    Returns:
+        list[dict[str, str]]: Lista de erros atualizada, com erros únicos.
+    """
+
+    categoria_alimentacao = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
+
+    dias_programas = set(
+        medicao_programas_e_projetos.valores_medicao.filter(
+            nome_campo="frequencia",
+            categoria_medicao=categoria_alimentacao,
+        ).values_list("dia", flat=True)
+    )
+
+    medicoes_periodos = solicitacao.medicoes.filter(periodo_escolar__isnull=False)
+
+    for dia in dias_programas:
+        if not all(
+            _valor_periodo_eh_zero(medicao_periodo, dia, categoria_alimentacao)
+            for medicao_periodo in medicoes_periodos
+        ):
+            continue
+
+        valor_programas = _valor_programas_e_projetos(
+            medicao_programas_e_projetos, dia, categoria_alimentacao
+        )
+
+        if valor_programas != "0" and not _programas_e_projetos_tem_observacao(
+            medicao_programas_e_projetos, dia
+        ):
+            lista_erros.append(
+                {
+                    "periodo_escolar": "Programas e Projetos",
+                    "erro": "Avaliar lançamentos de dias sem frequencia nos demais períodos.",
+                }
+            )
+
+    return erros_unicos(lista_erros)
 
 
 # TODO: adicionar testes unitarios
