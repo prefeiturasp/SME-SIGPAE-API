@@ -2913,7 +2913,7 @@ def validate_solicitacoes_programas_e_projetos(solicitacao, lista_erros):
     lista_erros = valida_programas_e_projetos_periodos_zero(
         solicitacao, medicao_programas_projetos, lista_erros
     )
-
+    
     return erros_unicos(lista_erros)
 
 
@@ -2927,7 +2927,7 @@ def _valor_periodo_eh_zero(
     Args:
         medicao_periodo: Instância de `Medicao` para o período escolar.
         dia: Dia do mês como string, ex.: "14".
-        categoria_alimentacao: Instância de `CategoriaMedicao`, normalmente "ALIMENTAÇÃO".
+        categoria_alimentacao: Instância de `CategoriaMedicao`.
 
     Returns:
         bool: True se não houver valor ou o valor for "0", caso contrário False.
@@ -2971,7 +2971,7 @@ def _valor_programas_e_projetos(
     Args:
         medicao_programas_e_projetos: Instância de `Medicao` do grupo Programas e Projetos.
         dia: Dia do mês como string, ex.: "14".
-        categoria_alimentacao: Instância de `CategoriaMedicao`, normalmente "ALIMENTAÇÃO".
+        categoria_alimentacao: Instância de `CategoriaMedicao`.
 
     Returns:
         str|None: Valor de frequência se encontrado; None caso não exista.
@@ -2999,6 +2999,8 @@ def valida_programas_e_projetos_periodos_zero(
     Se algum dia tiver todos os períodos em zero e o valor de Programas e Projetos
     for diferente de "0" sem observação, adiciona erro.
 
+    Faz isso para Alimentação e para todas as categorias de Dietas.
+
     Args:
         solicitacao: Instância de `SolicitacaoMedicaoInicial`.
         medicao_programas_e_projetos: Instância de `Medicao` de Programas e Projetos.
@@ -3008,37 +3010,37 @@ def valida_programas_e_projetos_periodos_zero(
         list[dict[str, str]]: Lista de erros atualizada, com erros únicos.
     """
 
-    categoria_alimentacao = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
-
-    dias_programas = set(
-        medicao_programas_e_projetos.valores_medicao.filter(
-            nome_campo="frequencia",
-            categoria_medicao=categoria_alimentacao,
-        ).values_list("dia", flat=True)
-    )
-
+    categorias_a_validar = CategoriaMedicao.objects.exclude(nome__icontains="SOLICITAÇÕES DE ALIMENTAÇÃO")
     medicoes_periodos = solicitacao.medicoes.filter(periodo_escolar__isnull=False)
 
-    for dia in dias_programas:
-        if not all(
-            _valor_periodo_eh_zero(medicao_periodo, dia, categoria_alimentacao)
-            for medicao_periodo in medicoes_periodos
-        ):
-            continue
-
-        valor_programas = _valor_programas_e_projetos(
-            medicao_programas_e_projetos, dia, categoria_alimentacao
+    for categoria in categorias_a_validar:
+        dias_programas = set(
+            medicao_programas_e_projetos.valores_medicao.filter(
+                nome_campo="frequencia",
+                categoria_medicao=categoria,
+            ).values_list("dia", flat=True)
         )
 
-        if valor_programas != "0" and not _programas_e_projetos_tem_observacao(
-            medicao_programas_e_projetos, dia
-        ):
-            lista_erros.append(
-                {
-                    "periodo_escolar": "Programas e Projetos",
-                    "erro": "Avaliar lançamentos de dias sem frequencia nos demais períodos.",
-                }
+        for dia in dias_programas:
+            if not all(
+                _valor_periodo_eh_zero(medicao_periodo, dia, categoria)
+                for medicao_periodo in medicoes_periodos
+            ):
+                continue
+
+            valor_programas = _valor_programas_e_projetos(
+                medicao_programas_e_projetos, dia, categoria
             )
+
+            if valor_programas is not None and valor_programas != "0" and not _programas_e_projetos_tem_observacao(
+                medicao_programas_e_projetos, dia
+            ):
+                lista_erros.append(
+                    {
+                        "periodo_escolar": "Programas e Projetos",
+                        "erro": "Avaliar lançamentos de dias sem frequencia nos demais períodos.",
+                    }
+                )
 
     return erros_unicos(lista_erros)
 
