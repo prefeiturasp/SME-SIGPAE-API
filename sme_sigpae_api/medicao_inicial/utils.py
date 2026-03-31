@@ -3,17 +3,17 @@ import copy
 import datetime
 import json
 import logging
+import re
 from calendar import monthrange
 from collections import defaultdict
 from functools import reduce
-
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import FloatField, IntegerField, Q, QuerySet, Sum
+from django.db.models import FloatField, IntegerField, Q, QuerySet, Sum, Func
 from django.db.models.functions import Cast
 from django.db.utils import IntegrityError
 from django.template.loader import render_to_string
 from django.utils import timezone
-
+from decimal import Decimal, InvalidOperation
 from sme_sigpae_api.dados_comuns.constants import (
     MAX_COLUNAS,
     ORDEM_CAMPOS,
@@ -5347,8 +5347,8 @@ def gerar_totais_consolidado(solicitacoes, tipo):
         return _executar_tipo_alimentacao(medicoes)
 
 
-def calcula_totais_consumo_por_faixa_etaria(
-    lote, grupo_unidade_escolar, mes, ano, tipo_calculo="faixa_etaria"
+def calcula_totais_consumo_por_grupo(
+    lote, grupo_unidade_escolar, mes, ano, tipo_calculo
 ):
     solicitacoes = SolicitacaoMedicaoInicial.objects.filter(
         mes=str(mes),
@@ -5356,6 +5356,19 @@ def calcula_totais_consumo_por_faixa_etaria(
         status="MEDICAO_APROVADA_PELA_CODAE",
         escola__lote=lote,
         escola__tipo_unidade__in=grupo_unidade_escolar.tipos_unidades.all(),
+    )
+
+    return gerar_totais_consolidado(solicitacoes, tipo_calculo)
+
+
+def calcula_totais_consumo_por_escolas(
+    escolas_uuids, mes, ano, tipo_calculo
+):
+    solicitacoes = SolicitacaoMedicaoInicial.objects.filter(
+        mes=str(mes),
+        ano=str(ano),
+        status="MEDICAO_APROVADA_PELA_CODAE",
+        escola__uuid__in=escolas_uuids,
     )
 
     return gerar_totais_consolidado(solicitacoes, tipo_calculo)
@@ -5770,3 +5783,105 @@ def obter_instancia_dado_liquidacao(
     return existentes_por_chave.get(
         (item_data.get("numero_empenho"), item_data.get("tipo_empenho"))
     )
+
+
+def to_decimal_safe(valor):
+    try:
+        if valor in [None, "", " "]:
+            return Decimal("0")
+
+        if isinstance(valor, str):
+            valor = valor.replace(",", ".")
+
+        return Decimal(str(valor))
+    except (InvalidOperation, ValueError):
+        return Decimal("0")
+
+
+def _total_parametrizacao(valores):
+    total = 0
+
+    mapa = {
+        v.tipo_valor.nome: to_decimal_safe(v.valor)
+        for v in valores
+    }
+
+    valor_unitario = mapa.get('UNITARIO')
+    valor_unitario_reajuste = mapa.get('REAJUSTE')
+    percentual_acrescimo = mapa.get('ACRESCIMO')
+
+    if valor_unitario is not None and valor_unitario_reajuste is not None:
+        total = valor_unitario + valor_unitario_reajuste
+
+    elif valor_unitario is not None and percentual_acrescimo is not None:
+        total = valor_unitario * (1 + percentual_acrescimo / 100)
+
+    return total
+
+
+def _calcula_total_alimentacao(consumo, periodo, valores, tipo):
+    chave_consumo = (
+        f"ALIMENTAÇÃO - {periodo.nome}"
+        if periodo and tipo == "FAIXA"
+        else "ALIMENTAÇÃO"
+    )
+
+    dados_consumo = consumo.get(chave_consumo, {})
+
+    total = 0
+
+    for chave, valor in dados_consumo.items():
+        nome_campo = re.sub(r"\s+", "_", chave.removeprefix("total_").strip())
+
+        valores_campo = valores.annotate(
+            nome_sem_acento=Func(
+                'nome_campo',
+                function='unaccent'
+            )
+        ).filter(nome_sem_acento=nome_campo)
+
+        if not valores_campo.exists():
+            continue
+
+        total_parametrizacao = _total_parametrizacao(valores_campo)
+        total += to_decimal_safe(total_parametrizacao) * to_decimal_safe(valor)
+
+    return total
+
+
+def _calcula_total_tabelas(consumo, tabelas, tipo=None):
+    total_alimentacao = 0
+
+    for tabela in tabelas:
+        if tipo == "FAIXA":
+            valores_tabela = tabela.valores.filter(faixa_etaria__isnull=False)
+        elif tipo == "TIPO":
+            valores_tabela = tabela.valores.filter(
+                Q(tipo_alimentacao__isnull=False) | Q(nome_campo='kit_lanche')
+            )
+        else:
+            valores_tabela = tabela.valores.all()
+
+        if "Preço das Alimentações" in tabela.nome:
+            total_alimentacao += _calcula_total_alimentacao(
+                consumo,
+                tabela.periodo_escolar,
+                valores_tabela,
+                tipo,
+            )
+
+    return total_alimentacao
+
+
+def calcular_total_pagamento(consumo, parametrizacao, tipo_calculo):
+    total_pagamento = 0
+    tabelas = parametrizacao.tabelas.all()
+    if tipo_calculo not in ["tipo_alimentacao", "faixa_etaria"]:
+        for tipo in ["TIPO", "FAIXA"]:
+            total_pagamento += _calcula_total_tabelas(
+                consumo[tipo], tabelas, tipo,
+            )
+    else:
+        total_pagamento += _calcula_total_tabelas(consumo, tabelas)
+
+    return total_pagamento
