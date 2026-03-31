@@ -70,6 +70,7 @@ from ..relatorios.utils import (
     html_to_pdf_response,
     html_to_pdf_watermark,
 )
+from sme_sigpae_api.medicao_inicial.models import SolicitacaoMedicaoInicial
 from ..terceirizada.models import Edital
 from ..terceirizada.utils import transforma_dados_relatorio_quantitativo
 from . import constants
@@ -1572,6 +1573,22 @@ def calcular_flags_dietas(
     )
 
     return flags
+
+
+def relatorio_historico_ocorrencias_medicao_inicial(
+    solicitacao: SolicitacaoMedicaoInicial,
+    logs,
+    nome_arquivo,
+) -> bytes:
+    html_string = render_to_string(
+        "relatorio_historico_ocorrencias_medicao_inicial.html",
+        {
+            "solicitacao": solicitacao,
+            "logs": logs,
+            "data_referencia": solicitacao.data_referencia,
+        },
+    )
+    return html_to_pdf_file(html_string, nome_arquivo, is_async=True)
 
 
 def relatorio_solicitacao_medicao_por_escola(solicitacao):
