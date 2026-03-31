@@ -5699,8 +5699,8 @@ def _verifica_dietas_consumidas(solicitacao, escola_emebs, escola_cemei):
     dados_agregados = (
         LogQuantidadeDietasAutorizadas.objects.filter(
             escola=solicitacao.escola,
-            criado_em__year=int(solicitacao.ano),
-            criado_em__month=int(solicitacao.mes),
+            data__year=int(solicitacao.ano),
+            data__month=int(solicitacao.mes),
             periodo_escolar__isnull=False,
         )
         .exclude(classificacao__nome__icontains="Tipo C")

@@ -388,7 +388,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_lanches_emergenciais_diarios(instance, lista_erros)
 
         if lista_erros:
-            raise ValidationError(lista_erros)
+            raise serializers.ValidationError(lista_erros)
 
     def cria_valores_medicao_logs_alunos_matriculados_emef_emei(
         self, instance: SolicitacaoMedicaoInicial
