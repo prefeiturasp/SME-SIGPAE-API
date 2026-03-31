@@ -7,8 +7,9 @@ import re
 from calendar import monthrange
 from collections import defaultdict
 from functools import reduce
+from unidecode import unidecode
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import FloatField, IntegerField, Q, QuerySet, Sum, Func
+from django.db.models import FloatField, IntegerField, Q, QuerySet, Sum
 from django.db.models.functions import Cast
 from django.db.utils import IntegrityError
 from django.template.loader import render_to_string
@@ -5819,6 +5820,21 @@ def _total_parametrizacao(valores):
     return total
 
 
+def _mapear_valores_tabela(valores):
+    mapa = {}
+
+    for v in valores:
+        chave = unidecode(v.nome_campo)
+        chave = re.sub(r"\s+", "_", chave)
+
+        if chave not in mapa:
+            mapa[chave] = []
+
+        mapa[chave].append(v)
+
+    return mapa
+
+
 def _calcula_total_alimentacao(consumo, periodo, valores, tipo):
     chave_consumo = (
         f"ALIMENTAÇÃO - {periodo.nome}"
@@ -5829,17 +5845,14 @@ def _calcula_total_alimentacao(consumo, periodo, valores, tipo):
     total = 0
     dados_consumo = consumo.get(chave_consumo, {})
 
+    mapa_valores = _mapear_valores_tabela(valores)
     for chave, valor in dados_consumo.items():
         nome_campo = re.sub(r"\s+", "_", chave.removeprefix("total_").strip())
+        nome_campo = unidecode(nome_campo)
 
-        valores_campo = valores.annotate(
-            nome_sem_acento=Func(
-                'nome_campo',
-                function='unaccent'
-            )
-        ).filter(nome_sem_acento=nome_campo)
+        valores_campo = mapa_valores.get(nome_campo)
 
-        if not valores_campo.exists():
+        if not valores_campo:
             continue
 
         total_parametrizacao = _total_parametrizacao(valores_campo)
@@ -5869,17 +5882,14 @@ def _calcula_total_dietas(
     total = 0
     dados_consumo = consumo.get(chave_consumo, {})
 
+    mapa_valores = _mapear_valores_tabela(valores)
     for chave, valor in dados_consumo.items():
         nome_campo = re.sub(r"\s+", "_", chave)
+        nome_campo = unidecode(nome_campo)
 
-        valores_campo = valores.annotate(
-            nome_sem_acento=Func(
-                'nome_campo',
-                function='unaccent'
-            )
-        ).filter(nome_sem_acento=nome_campo)
+        valores_campo = mapa_valores.get(nome_campo)
 
-        if not valores_campo.exists():
+        if not valores_campo:
             continue
 
         total_parametrizacao = _total_parametrizacao(valores_campo)
