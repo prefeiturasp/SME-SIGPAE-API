@@ -3944,7 +3944,6 @@ def valida_programas_e_projetos_periodos_zero_emebs(
                     infantil_ou_fundamental,
                     medicoes_periodos,
                 ):
-                    print(f"dia {dia} no {infantil_ou_fundamental}")
                     lista_erros.append(
                         {
                             "periodo_escolar": "Programas e Projetos",
