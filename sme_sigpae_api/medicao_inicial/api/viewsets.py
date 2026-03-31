@@ -1227,7 +1227,7 @@ class SolicitacaoMedicaoInicialViewSet(
         permission_classes=[UsuarioEscolaTercTotal],
     )
     def solicitacoes_lancadas(self, request):
-        queryset = SolicitacaoMedicaoInicial.objects.all()
+        queryset = self.filter_queryset(self.get_queryset())
 
         escola_uuid = request.query_params.get("escola")
         data_ano_anterior = datetime.date.today() - relativedelta(years=1)

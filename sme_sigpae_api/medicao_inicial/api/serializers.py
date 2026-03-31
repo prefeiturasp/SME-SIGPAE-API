@@ -190,6 +190,7 @@ class SolicitacaoMedicaoInicialDashboardSerializer(serializers.ModelSerializer):
     log_mais_recente = serializers.SerializerMethodField()
     mes_ano = serializers.SerializerMethodField()
     sem_lancamentos = serializers.BooleanField()
+    recreio_nas_ferias = serializers.SerializerMethodField()
 
     def get_escola(self, obj) -> str:
         return obj.escola.nome_historico(obj.data_referencia)
@@ -208,6 +209,14 @@ class SolicitacaoMedicaoInicialDashboardSerializer(serializers.ModelSerializer):
     def get_mes_ano(self, obj) -> str:
         return f"{converte_numero_em_mes(int(obj.mes))} {obj.ano}"
 
+    def get_recreio_nas_ferias(self, obj) -> dict | None:
+        if not obj.recreio_nas_ferias:
+            return None
+        return {
+            "titulo": obj.recreio_nas_ferias.titulo,
+            "uuid": obj.recreio_nas_ferias.uuid,
+        }
+
     class Meta:
         model = SolicitacaoMedicaoInicial
         fields = (
@@ -224,6 +233,7 @@ class SolicitacaoMedicaoInicialDashboardSerializer(serializers.ModelSerializer):
             "todas_medicoes_e_ocorrencia_aprovados_por_medicao",
             "escola_cei_com_inclusao_parcial_autorizada",
             "sem_lancamentos",
+            "recreio_nas_ferias",
         )
 
 

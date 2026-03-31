@@ -92,7 +92,10 @@ class SolicitacaoMedicaoInicialFilter(filters.FilterSet):
         if not self.data:
             return queryset
 
-        if "recreio_nas_ferias" not in self.data:
+        if (
+            "recreio_nas_ferias" not in self.data
+            and "voltar_unico_registro" in self.data
+        ):
             queryset = queryset.filter(recreio_nas_ferias__isnull=True)
 
         return queryset
