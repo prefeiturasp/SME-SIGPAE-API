@@ -5826,9 +5826,8 @@ def _calcula_total_alimentacao(consumo, periodo, valores, tipo):
         else "ALIMENTAÇÃO"
     )
 
-    dados_consumo = consumo.get(chave_consumo, {})
-
     total = 0
+    dados_consumo = consumo.get(chave_consumo, {})
 
     for chave, valor in dados_consumo.items():
         nome_campo = re.sub(r"\s+", "_", chave.removeprefix("total_").strip())
@@ -5849,8 +5848,53 @@ def _calcula_total_alimentacao(consumo, periodo, valores, tipo):
     return total
 
 
-def _calcula_total_tabelas(consumo, tabelas, tipo=None):
+def _calcula_total_dietas(
+    consumo,
+    tabela,
+    valores,
+    tipo,
+):
+    chave_consumo = None
+
+    if "Dietas Tipo A" in tabela.nome:
+        chave_base = "DIETA ESPECIAL - TIPO A"
+    else:
+        chave_base = "DIETA ESPECIAL - TIPO B"
+
+    if tabela.periodo_escolar and tipo == "FAIXA":
+        chave_consumo = f"{chave_base} - {tabela.periodo_escolar.nome}"
+    else:
+        chave_consumo = chave_base
+
+    total = 0
+    dados_consumo = consumo.get(chave_consumo, {})
+
+    for chave, valor in dados_consumo.items():
+        nome_campo = re.sub(r"\s+", "_", chave)
+
+        valores_campo = valores.annotate(
+            nome_sem_acento=Func(
+                'nome_campo',
+                function='unaccent'
+            )
+        ).filter(nome_sem_acento=nome_campo)
+
+        if not valores_campo.exists():
+            continue
+
+        total_parametrizacao = _total_parametrizacao(valores_campo)
+        total += to_decimal_safe(total_parametrizacao) * to_decimal_safe(valor)
+
+    return total
+
+
+def _calcula_total_tabelas(
+    consumo,
+    tabelas,
+    tipo=None
+):
     total_alimentacao = 0
+    total_dietas = 0
 
     for tabela in tabelas:
         if tipo == "FAIXA":
@@ -5864,13 +5908,15 @@ def _calcula_total_tabelas(consumo, tabelas, tipo=None):
 
         if "Preço das Alimentações" in tabela.nome:
             total_alimentacao += _calcula_total_alimentacao(
-                consumo,
-                tabela.periodo_escolar,
-                valores_tabela,
-                tipo,
+                consumo, tabela.periodo_escolar, valores_tabela, tipo,
+            )
+        else:
+            total_dietas += _calcula_total_dietas(
+                consumo, tabela, valores_tabela, tipo,
             )
 
-    return total_alimentacao
+    total_tabelas = total_alimentacao + total_dietas
+    return total_tabelas
 
 
 def calcular_total_pagamento(consumo, parametrizacao, tipo_calculo):
