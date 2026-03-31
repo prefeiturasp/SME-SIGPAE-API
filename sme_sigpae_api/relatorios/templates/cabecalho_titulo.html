@@ -1,10 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+{% load static %}
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Title</title>
+  <title>SIGPAE</title>
+  {%block styles %} {%endblock %}
 </head>
 <body>
+  <header class="header" style="page-break-before: always;">
+		<section class="titulo-e-logo flex-between">
+      <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt="SP" />
+			<h1 class="titulo">Sistema de Gestão do Programa de Alimentação Escolar</h1>
+    </section>
+    <div class="info mt-2 border border-dark">
+			<span>RELATÓRIO DE HISTÓRICO DO FORMULÁRIO DE OCORRÊNCIAS</span>
+		</div>
+	</header>
 
+  {% block conteudo %} {% endblock %}
 </body>
 </html>
