@@ -1,10 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-</head>
-<body>
+{% include 'relatorio_base.html' %} {% load index static sass_tags %}
+<html lang="pt-BR">
+  <head>
+    {% block styles %}
+    <link rel="stylesheet" href="{% sass_src 'css/custom_bootstrap.scss' %}" type="text/css">
+    <link rel="stylesheet" href="{% sass_src 'css/cabecalho_titulo.scss' %}" type="text/css">
+    {% endblock %}
+    <title>SIGPAE</title>
+  </head>
+  <body>
+    {% include "cabecalho_titulo.html" %}
 
-</body>
+    <div class="page-container">
+      {% for log in logs %}
+      <div>
+        <div class="status-evento font-weight-bold">{{ log.status_evento_explicacao }}</div>
+        <div>
+          <p>Data: <strong class="font-weight-bold">{{ log.criado_em }}</strong></p>
+        </div>
+        <div class="ue-dre-container">
+          <p>Unidade Educacional: <strong class="font-weight-bold">{{ solicitacao.escola.nome }}</strong></p>
+          <p class="dre-content">DRE: <strong class="font-weight-bold">{{ solicitacao.escola.diretoria_regional.nome }}</strong></p>
+        </div>
+        <div>
+          <p>RF: <strong class="font-weight-bold">{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
+        </div>
+        <div class="flex">
+          <p>Arquivos:</p>
+          <div class="arquivos-container">
+            {% for arquivo in log.anexos.all %}
+            <p><strong class="font-weight-bold">{{ arquivo.nome }}</strong></p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% if not forloop.last %}<hr />{% endif %}
+      {% endfor %}
+    </div>
+
+    {% include "logistica/guia_remessa/rodape.html" %}
+  </body>
 </html>
