@@ -3,6 +3,7 @@ import json
 
 import environ
 from rest_framework import serializers
+from calendar import monthrange
 
 from sme_sigpae_api.dados_comuns.api.serializers import (
     LogSolicitacoesUsuarioComAnexosSerializer,
@@ -51,6 +52,10 @@ from sme_sigpae_api.terceirizada.api.serializers.serializers import (
     LoteSimplesSerializer,
 )
 from sme_sigpae_api.terceirizada.models import Edital
+from ..utils import (
+    calcula_totais_consumo_por_escolas,
+    calcular_total_pagamento,
+)
 
 FORMATO_DATA_BR = "%d/%m/%Y"
 
@@ -441,6 +446,7 @@ class DadosLiquidacaoSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True
     )
+    total_pagamento = serializers.SerializerMethodField()
 
     class Meta:
         model = DadosLiquidacao
@@ -450,6 +456,34 @@ class DadosLiquidacaoSerializer(serializers.ModelSerializer):
             "numero_empenho",
             "tipo_empenho",
             "unidades_educacionais",
+            "total_pagamento",
             "criado_em",
             "alterado_em",
         ]
+
+    def get_total_pagamento(self, obj):
+        escolas = obj.unidades_educacionais.values_list("uuid", flat=True)
+
+        mes = int(obj.relatorio_financeiro.mes)
+        ano = int(obj.relatorio_financeiro.ano)
+
+        grupo_nome = obj.relatorio_financeiro.grupo_unidade_escolar.nome
+
+        tipo_calculo = (
+            "faixa_etaria" if grupo_nome == "Grupo 1"
+            else None if grupo_nome == "Grupo 2"
+            else "tipo_alimentacao"
+        )
+
+        consumo = calcula_totais_consumo_por_escolas(
+            escolas, mes, ano, tipo_calculo=tipo_calculo
+        )
+
+        parametrizacao = ParametrizacaoFinanceira.objects.filter(
+            grupo_unidade_escolar=obj.relatorio_financeiro.grupo_unidade_escolar,
+            lote=obj.relatorio_financeiro.lote,
+            data_inicial__lte=datetime.date(ano, mes, monthrange(ano, mes)[1]),
+            data_final__gte=datetime.date(ano, mes, 1),
+        ).order_by('-data_inicial').first()
+
+        return calcular_total_pagamento(consumo, parametrizacao, tipo_calculo)
