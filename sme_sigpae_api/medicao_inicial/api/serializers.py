@@ -10,6 +10,7 @@ from sme_sigpae_api.dados_comuns.api.serializers import (
 )
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.dados_comuns.utils import converte_numero_em_mes
+from sme_sigpae_api.dieta_especial.api.serializers import EscolaSerializer
 from sme_sigpae_api.escola.api.serializers import (
     AlunoPeriodoParcialSimplesSerializer,
     DiretoriaRegionalSimplissimaSerializer,
@@ -21,11 +22,11 @@ from sme_sigpae_api.escola.api.serializers import (
     TipoAlimentacaoSerializer,
     TipoUnidadeEscolarSimplesSerializer,
 )
-from sme_sigpae_api.dieta_especial.api.serializers import EscolaSerializer
 from sme_sigpae_api.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
+    DadosLiquidacao,
     DiaParaCorrigir,
     DiaSobremesaDoce,
     Empenho,
@@ -41,7 +42,6 @@ from sme_sigpae_api.medicao_inicial.models import (
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
     ValorMedicao,
-    DadosLiquidacao,
 )
 from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.api.serializers import (
     RecreioNasFeriasSerializer,
@@ -164,6 +164,7 @@ class SolicitacaoMedicaoInicialSerializer(serializers.ModelSerializer):
 class SolicitacaoMedicaoInicialLancadaSerializer(serializers.ModelSerializer):
     escola = serializers.SerializerMethodField()
     escola_uuid = serializers.CharField(source="escola.uuid")
+    recreio_nas_ferias = RecreioNasFeriasSerializer()
 
     def get_escola(self, obj):
         return obj.escola.nome_historico(obj.data_referencia)
@@ -177,6 +178,7 @@ class SolicitacaoMedicaoInicialLancadaSerializer(serializers.ModelSerializer):
             "escola",
             "escola_uuid",
             "escola_cei_com_inclusao_parcial_autorizada",
+            "recreio_nas_ferias",
         )
 
 
@@ -437,10 +439,7 @@ class DadosLiquidacaoSerializer(serializers.ModelSerializer):
     """
 
     relatorio_financeiro = RelatorioFinanceiroSerializer(read_only=True)
-    unidades_educacionais = EscolaSerializer(
-        many=True,
-        read_only=True
-    )
+    unidades_educacionais = EscolaSerializer(many=True, read_only=True)
 
     class Meta:
         model = DadosLiquidacao
