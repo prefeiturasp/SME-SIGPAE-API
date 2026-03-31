@@ -6,7 +6,9 @@ Funcionalidade: Cadastro de Empresas
   Para que fiquem disponíveis no sistema
 
   Contexto:
-    Dado que estou logado no sistema com usuário "Codae" e "senha"
+    Dado que acesso o sistema
+    Quando informo os dados do usuário "CODAE" no dispositivo "web"
+    E clico no botão acessar
 
   Cenário: Cadastro de empresa com sucesso
     Quando acesso o menu Cadastros > Empresas
