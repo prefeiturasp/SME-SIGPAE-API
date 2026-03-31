@@ -90,7 +90,7 @@ from ..tasks import (
 from ..utils import (
     atualizar_anexos_ocorrencia,
     busca_dias_zerados,
-    calcula_totais_consumo_por_faixa_etaria,
+    calcula_totais_consumo_por_grupo,
     criar_log_aprovar_periodos_corrigidos,
     criar_log_solicitar_correcao_periodos,
     get_campos_a_desconsiderar,
@@ -1382,7 +1382,7 @@ class SolicitacaoMedicaoInicialViewSet(
                 uuid=uuid_grupo_escolar
             )
 
-            data = calcula_totais_consumo_por_faixa_etaria(
+            data = calcula_totais_consumo_por_grupo(
                 lote=lote,
                 grupo_unidade_escolar=grupo_unidade_escolar,
                 mes=mes,
@@ -2344,10 +2344,16 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             relatorio_financeiro = RelatorioFinanceiro.objects.get(
                 uuid=uuid_relatorio_financeiro
             )
+            mes = int(relatorio_financeiro.mes)
+            ano = int(relatorio_financeiro.ano)
+
             parametrizacao = ParametrizacaoFinanceira.objects.filter(
                 lote=relatorio_financeiro.lote,
                 grupo_unidade_escolar=relatorio_financeiro.grupo_unidade_escolar,
+                data_inicial__lte=datetime.date(ano, mes, calendar.monthrange(ano, mes)[1]),
+                data_final__gte=datetime.date(ano, mes, 1),
             ).first()
+
             if not parametrizacao:
                 return Response(
                     {
@@ -2355,11 +2361,13 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
                     },
                     status=status.HTTP_404_NOT_FOUND,
                 )
+
             response = {
                 **DadosParametrizacaoFinanceiraSerializer(parametrizacao).data,
                 "lote": parametrizacao.lote.uuid,
                 "mes_ano": f"{relatorio_financeiro.mes}_{relatorio_financeiro.ano}",
             }
+
             return Response(
                 data=response,
                 status=status.HTTP_200_OK,
