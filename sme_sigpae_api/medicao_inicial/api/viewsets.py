@@ -84,6 +84,7 @@ from ..tasks import (
     exporta_relatorio_adesao_para_pdf,
     exporta_relatorio_adesao_para_xlsx,
     exporta_relatorio_consolidado_xlsx,
+    gera_pdf_historico_ocorrencias_medicao_inicial_async,
     gera_pdf_relatorio_solicitacao_medicao_por_escola_async,
     gera_pdf_relatorio_unificado_async,
 )
@@ -587,6 +588,22 @@ class SolicitacaoMedicaoInicialViewSet(
                     meses_anos_unicos, key=lambda k: (k["ano"], k["mes"]), reverse=True
                 )
             },
+            status=status.HTTP_200_OK,
+        )
+
+    @action(detail=False, methods=["GET"], url_path="historico-ocorrencias-pdf")
+    def historico_ocorrencias_pdf(self, request):
+        user = request.user.get_username()
+        uuid_sol_medicao = request.query_params["uuid"]
+        solicitacao = SolicitacaoMedicaoInicial.objects.get(uuid=uuid_sol_medicao)
+        gera_pdf_historico_ocorrencias_medicao_inicial_async.delay(
+            user=user,
+            nome_arquivo=f"Relatório Historico Medição Inicial Com Ocorrencia - {solicitacao.escola.nome_historico(solicitacao.data_referencia)} - "
+                         f"{solicitacao.mes}/{solicitacao.ano}.pdf",
+            uuid_sol_medicao=uuid_sol_medicao,
+        )
+        return Response(
+            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
             status=status.HTTP_200_OK,
         )
 
