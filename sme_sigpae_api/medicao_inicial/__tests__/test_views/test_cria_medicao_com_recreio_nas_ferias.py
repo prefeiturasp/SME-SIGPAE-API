@@ -162,3 +162,47 @@ class TestUseCaseCriaMedicaoInicialComRecreioNasFerias:
         assert response.json() == {
             "recreio_nas_ferias": ["A medição não está liberada para esta escola"]
         }
+
+    def test_retrieve_retorna_apenas_unidade_da_escola_da_solicitacao(
+        self,
+        client_autenticado_diretoria_regional,
+        escola,
+        escola_factory,
+        recreio_nas_ferias_unidade_participante_factory,
+        solicitacao_medicao_inicial_factory,
+        setup_medicao_com_recreio,
+    ):
+        contexto = setup_medicao_com_recreio
+        outra_escola = escola_factory.create(
+            diretoria_regional=escola.diretoria_regional,
+        )
+
+        contexto.recreio_ue.liberar_medicao = True
+        contexto.recreio_ue.save()
+
+        recreio_nas_ferias_unidade_participante_factory.create(
+            unidade_educacional=outra_escola,
+            lote=outra_escola.lote,
+            recreio_nas_ferias=contexto.recreio,
+            num_inscritos=50,
+            num_colaboradores=10,
+            liberar_medicao=True,
+        )
+
+        solicitacao = solicitacao_medicao_inicial_factory.create(
+            escola=escola,
+            recreio_nas_ferias=contexto.recreio,
+            mes="03",
+            ano="2026",
+        )
+
+        response = client_autenticado_diretoria_regional.get(
+            f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao.uuid}/",
+            content_type="application/json",
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.json()["recreio_nas_ferias"]["unidades_participantes"]) == 1
+        assert response.json()["recreio_nas_ferias"]["unidades_participantes"][0][
+            "unidade_educacional"
+        ]["uuid"] == str(escola.uuid)

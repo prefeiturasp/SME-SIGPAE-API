@@ -140,7 +140,7 @@ class SolicitacaoMedicaoInicialSerializer(serializers.ModelSerializer):
     sem_lancamentos = serializers.BooleanField()
     justificativa_sem_lancamentos = serializers.CharField()
     justificativa_codae_correcao_sem_lancamentos = serializers.CharField()
-    recreio_nas_ferias = RecreioNasFeriasSerializer()
+    recreio_nas_ferias = serializers.SerializerMethodField()
 
     def get_escola(self, obj):
         return obj.escola.nome_historico(obj.data_referencia)
@@ -152,6 +152,13 @@ class SolicitacaoMedicaoInicialSerializer(serializers.ModelSerializer):
 
     def get_escola_eh_emebs(self, obj):
         return obj.escola.eh_emebs_data(obj.data_referencia)
+
+    def get_recreio_nas_ferias(self, obj):
+        if not obj.recreio_nas_ferias:
+            return None
+
+        context = {**self.context, "escola_uuid": str(obj.escola.uuid)}
+        return RecreioNasFeriasSerializer(obj.recreio_nas_ferias, context=context).data
 
     class Meta:
         model = SolicitacaoMedicaoInicial
