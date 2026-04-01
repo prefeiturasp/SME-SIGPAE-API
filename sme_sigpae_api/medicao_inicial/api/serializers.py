@@ -439,6 +439,7 @@ class DadosLiquidacaoSerializer(serializers.ModelSerializer):
     Attributes:
         relatorio_financeiro (RelatorioFinanceiroSerializer): Dados do relatório financeiro.
         unidades_educacionais (List[EscolaSerializer]): Lista de unidades educacionais associadas.
+        total_pagamento (Decimal): Valor total calculado com base no consumo e parametrização financeira.
     """
 
     relatorio_financeiro = RelatorioFinanceiroSerializer(read_only=True)
@@ -462,6 +463,31 @@ class DadosLiquidacaoSerializer(serializers.ModelSerializer):
         ]
 
     def get_total_pagamento(self, obj):
+        """
+        Calcula o valor total de pagamento para o objeto de liquidação.
+
+        O cálculo considera:
+        - As unidades educacionais associadas
+        - O tipo de cálculo definido pelo grupo da unidade escolar:
+            - Grupo 1 → cálculo por faixa etária
+            - Grupo 2 → cálculo combinado (tipo e faixa)
+            - Demais grupos → cálculo por tipo de alimentação
+        - O consumo consolidado no período do relatório financeiro
+        - A parametrização financeira vigente no mês/ano do relatório
+
+        Etapas:
+        1. Obtém as escolas vinculadas
+        2. Determina o tipo de cálculo
+        3. Calcula o consumo e atendimento total das escolas
+        4. Busca a parametrização válida no período
+        5. Calcula o valor total com base na parametrização
+
+        Args:
+            obj (DadosLiquidacao): Instância sendo serializada.
+
+        Returns:
+            Decimal: Valor total calculado para pagamento.
+        """
         escolas = obj.unidades_educacionais.values_list("uuid", flat=True)
         grupo_nome = obj.relatorio_financeiro.grupo_unidade_escolar.nome
 
