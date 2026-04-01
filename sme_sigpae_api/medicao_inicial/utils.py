@@ -5878,6 +5878,20 @@ def _mapear_valores_tabela(valores):
 
 
 def _formata_refeicao_emef(chave, dieta=False):
+    """
+    Formata o nome do campo de refeição para o padrão utilizado no grupo EMEF.
+
+    Aplica regras específicas de prefixo para refeições e dietas enterais,
+    padronizando o nome conforme esperado na tabela de parametrização.
+
+    Args:
+        chave (str): Nome original do campo de consumo.
+        dieta (bool, optional): Indica se o campo refere-se a dieta especial.
+            Default é False.
+
+    Returns:
+        str: Nome do campo formatado conforme padrão EMEF.
+    """
     prefixo = "refeicao_-_"
     dieta_prefixo = "dieta_enteral_-_" if dieta else ""
 
@@ -5890,6 +5904,23 @@ def _formata_refeicao_emef(chave, dieta=False):
 
 
 def _normalizar_nome_campo(nome_campo, grupo_nome, dieta=False):
+    """
+    Normaliza o nome de um campo para comparação com a tabela de parametrização.
+
+    Realiza:
+    - Remoção de acentos
+    - Substituição de espaços por underscore
+    - Aplicação de regras específicas por grupo (ex: grupo 4 - EMEF)
+
+    Args:
+        nome_campo (str): Nome original do campo de consumo.
+        grupo_nome (str): Nome do grupo da unidade escolar.
+        dieta (bool, optional): Indica se o campo refere-se a dieta especial.
+            Default é False.
+
+    Returns:
+        str: Nome normalizado e pronto para busca na tabela.
+    """
     nome_campo = re.sub(r"\s+", "_", nome_campo)
     nome_campo = unidecode(nome_campo)
 
@@ -5911,11 +5942,17 @@ def _calcula_total_alimentacao(
     Calcula o total financeiro para alimentações com base no consumo e parametrização.
 
     Considera o período escolar quando o tipo de cálculo é por faixa etária.
+    Para cada item de consumo:
+    - Normaliza o nome do campo
+    - Busca os valores correspondentes na parametrização
+    - Aplica a regra de cálculo da parametrização
+    - Multiplica pelo consumo informado
 
     Args:
         consumo (dict): Estrutura contendo os dados de consumo.
-        periodo (Any): Periodo Escolar, utilizado seu `nome` para verificação.
+        periodo (Any): Período escolar, utilizado via atributo `nome`.
         valores (Iterable): Valores da tabela de parametrização já filtrados.
+        grupo_nome (str): Nome do grupo da unidade escolar.
         tipo (str): Tipo de cálculo ("FAIXA", "TIPO", etc.).
 
     Returns:
@@ -5958,13 +5995,21 @@ def _calcula_total_dietas(
     """
     Calcula o total financeiro para dietas especiais (Tipo A ou Tipo B).
 
-    A chave de consumo é definida dinamicamente com base no nome da tabela
-    e no período escolar.
+    A chave de consumo é definida dinamicamente com base:
+    - No tipo da dieta (A ou B)
+    - No período escolar (quando aplicável)
+
+    Para cada item:
+    - Normaliza o nome do campo (com suporte a dieta)
+    - Busca na parametrização
+    - Aplica cálculo
+    - Multiplica pelo consumo
 
     Args:
         consumo (dict): Estrutura contendo os dados de consumo.
         tabela (Any): Objeto com atributos `nome` e `periodo_escolar`.
         valores (Iterable): Valores da tabela de parametrização já filtrados.
+        grupo_nome (str): Nome do grupo da unidade escolar.
         tipo (str): Tipo de cálculo ("FAIXA", "TIPO", etc.).
 
     Returns:
@@ -6011,11 +6056,20 @@ def _calcula_total_tabelas(
     """
     Calcula o total consolidado de todas as tabelas de parametrização.
 
-    Separa o cálculo entre alimentações e dietas, somando os resultados.
+    Para cada tabela:
+    - Filtra os valores conforme o tipo de cálculo
+    - Separa entre alimentações e dietas
+    - Delega o cálculo para funções específicas
+
+    Tipos de filtro:
+    - FAIXA: valores com faixa etária
+    - TIPO: valores por tipo de alimentação ou kit lanche
+    - None: todos os valores
 
     Args:
         consumo (dict): Estrutura contendo os dados de consumo.
         tabelas (Iterable): Lista/QuerySet de tabelas de parametrização.
+        grupo_nome (str): Nome do grupo da unidade escolar.
         tipo (str, optional): Tipo de cálculo ("FAIXA", "TIPO" ou None).
 
     Returns:
