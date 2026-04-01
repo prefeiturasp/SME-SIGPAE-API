@@ -2925,7 +2925,7 @@ def _validate_solicitacoes_programas_e_projetos_emei_cemei(
 
     if not inclusoes:
         return lista_erros
-    return validate_solicitacoes_continuas_emei_cemei(
+    lista_erros = validate_solicitacoes_continuas_emei_cemei(
         solicitacao,
         lista_erros,
         inclusoes,
@@ -2933,6 +2933,12 @@ def _validate_solicitacoes_programas_e_projetos_emei_cemei(
         "Programas e Projetos",
         True,
     )
+    
+    lista_erros = valida_programas_e_projetos_periodos_zero(
+        solicitacao, medicao, lista_erros
+    )
+
+    return erros_unicos(lista_erros)
 
 
 def validate_solicitacoes_etec(solicitacao, lista_erros):
@@ -3787,7 +3793,10 @@ def valida_programas_e_projetos_periodos_zero(
     """
 
     categorias_a_validar = CategoriaMedicao.objects.exclude(nome__icontains="SOLICITAÇÕES DE ALIMENTAÇÃO")
-    medicoes_periodos = solicitacao.medicoes.filter(periodo_escolar__isnull=False)
+    if solicitacao.escola.eh_cemei:
+        medicoes_periodos = solicitacao.medicoes.filter(grupo__nome__icontains="infantil")
+    else:
+        medicoes_periodos = solicitacao.medicoes.filter(periodo_escolar__isnull=False)
 
     for categoria in categorias_a_validar:
         dias_programas = set(

@@ -5708,6 +5708,7 @@ def _verifica_dietas_consumidas(solicitacao, escola_emebs, escola_cemei):
             "classificacao__nome",
             "periodo_escolar__nome",
             "infantil_ou_fundamental",
+            "cei_ou_emei"
         )
         .annotate(total_quantidade=Sum("quantidade"))
         .filter(total_quantidade__gt=0)
@@ -5725,6 +5726,9 @@ def _verifica_dietas_consumidas(solicitacao, escola_emebs, escola_cemei):
 
     for item in dados_agregados:
         classificacao = dicionario_dieta.get(item["classificacao__nome"])
+        if escola_cemei and item['periodo_escolar__nome'] == "INTEGRAL" and item['cei_ou_emei'] == 'CEI':
+            continue
+        
         periodo = (
             f"INFANTIL {item['periodo_escolar__nome']}"
             if escola_cemei
