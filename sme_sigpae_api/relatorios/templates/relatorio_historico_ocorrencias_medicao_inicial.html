@@ -18,25 +18,110 @@
     <div class="page-container">
       {% for log in logs %}
       <div>
+
         <div class="status-evento font-weight-bold">{{ log.status_evento_explicacao }}</div>
+
+        {# Campo comum a todos os status #}
         <div>
-          <p>Data: <strong class="font-weight-bold">{{ log.criado_em }}</strong></p>
+          <p>Data: <strong>{{ log.criado_em }}</strong></p>
         </div>
+
+        {# 5 - RECEBIDO PARA ANÁLISE #}
+        {% if log.status_evento_explicacao == "Enviado pela UE" %}
         <div class="ue-dre-container">
-          <p>Unidade Educacional: <strong class="font-weight-bold">{{ solicitacao.escola.nome }}</strong></p>
-          <p class="dre-content">DRE: <strong class="font-weight-bold">{{ solicitacao.escola.diretoria_regional.nome }}</strong></p>
+          <p>Unidade Educacional: <strong>{{ solicitacao.escola.nome }}</strong></p>
+          <p class="dre-content">DRE: <strong>{{ solicitacao.escola.diretoria_regional.nome }}</strong></p>
         </div>
         <div>
-          <p>RF: <strong class="font-weight-bold">{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
+          <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
         </div>
         <div class="flex">
           <p>Arquivos:</p>
           <div class="arquivos-container">
             {% for arquivo in log.anexos.all %}
-            <p><strong class="font-weight-bold">{{ arquivo.nome }}</strong></p>
+            <p><strong>{{ arquivo.nome }}</strong></p>
+            {% empty %}
+            <p>Nenhum arquivo anexado.</p>
             {% endfor %}
           </div>
         </div>
+
+        {# 6 - DEVOLVIDO PARA AJUSTES PELA DRE #}
+        {% elif log.status_evento_explicacao == "Correção solicitada" %}
+        <div>
+          <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
+        </div>
+        <div>
+          <p>Mês do lançamento: <strong>{{ solicitacao.mes }}/{{ solicitacao.ano }}</strong></p>
+        </div>
+        <div>
+          <p>Justificativa: <strong>{{ log.justificativa }}</strong></p>
+        </div>
+
+        {# 7 - CORRIGIDO PARA DRE #}
+        {% elif log.status_evento_explicacao == "Corrigido para DRE" %}
+        <div>
+          <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
+        </div>
+        <div>
+          <p>Mês do lançamento: <strong>{{ solicitacao.mes }}/{{ solicitacao.ano }}</strong></p>
+        </div>
+        <div class="flex">
+          <p>Arquivos:</p>
+          <div class="arquivos-container">
+            {% for arquivo in log.anexos.all %}
+            <p><strong>{{ arquivo.nome }}</strong></p>
+            {% empty %}
+            <p>Nenhum arquivo anexado.</p>
+            {% endfor %}
+          </div>
+        </div>
+
+        {# 8 - APROVADO PELA DRE #}
+        {% elif log.status_evento_explicacao == "Aprovado pela DRE" %}
+        <div>
+          <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
+        </div>
+
+        {# 9 - DEVOLVIDO PARA AJUSTES PELA CODAE #}
+        {% elif log.status_evento_explicacao == "Correção solicitada pela CODAE" %}
+        <div>
+          <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
+        </div>
+        <div>
+          <p>Mês do lançamento: <strong>{{ solicitacao.mes }}/{{ solicitacao.ano }}</strong></p>
+        </div>
+        <div>
+          <p>Justificativa: <strong>{{ log.justificativa }}</strong></p>
+        </div>
+
+        {# 10 - CORRIGIDO PARA CODAE #}
+        {% elif log.status_evento_explicacao == "Corrigido para CODAE" %}
+        <div>
+          <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
+        </div>
+        <div>
+          <p>Mês do lançamento: <strong>{{ solicitacao.mes }}/{{ solicitacao.ano }}</strong></p>
+        </div>
+        <div class="flex">
+          <p>Arquivos:</p>
+          <div class="arquivos-container">
+            {% for arquivo in log.anexos.all %}
+            <p><strong>{{ arquivo.nome }}</strong></p>
+            {% empty %}
+            <p>Nenhum arquivo anexado.</p>
+            {% endfor %}
+          </div>
+        </div>
+
+        {# 11 - APROVADO PELA CODAE #}
+        {% elif log.status_evento_explicacao == "Aprovado pela CODAE" %}
+        <div>
+          <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
+        </div>
+
+        {% endif %}
+
       </div>
       {% if not forloop.last %}<hr />{% endif %}
       {% endfor %}
