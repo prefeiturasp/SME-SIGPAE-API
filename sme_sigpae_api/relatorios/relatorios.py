@@ -1594,6 +1594,9 @@ def relatorio_historico_ocorrencias_medicao_inicial(
             "logo_sme": logo_sme,
         },
     )
+    data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
+    html_string = html_string.replace("dt_file", data_arquivo)
+
     return html_to_pdf_file(html_string, nome_arquivo, is_async=True)
 
 
