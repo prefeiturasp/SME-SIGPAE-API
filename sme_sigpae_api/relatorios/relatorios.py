@@ -8,6 +8,7 @@ from django.db.models import F, FloatField, Sum
 from django.http import HttpResponseNotAllowed
 from django.template.loader import get_template, render_to_string
 
+from sme_sigpae_api.dados_comuns.utils import convert_image_to_base64
 from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_CEI,
     ORDEM_UNIDADES_GRUPO_CEMEI,
@@ -1580,12 +1581,17 @@ def relatorio_historico_ocorrencias_medicao_inicial(
     logs,
     nome_arquivo,
 ) -> bytes:
+    logo_sme = convert_image_to_base64(
+        "sme_sigpae_api/relatorios/static/images/LOGO_FUNDO_CLARO.png", "png"
+    )
+
     html_string = render_to_string(
         "relatorio_historico_ocorrencias_medicao_inicial.html",
         {
             "solicitacao": solicitacao,
             "logs": logs,
             "data_referencia": solicitacao.data_referencia,
+            "logo_sme": logo_sme,
         },
     )
     return html_to_pdf_file(html_string, nome_arquivo, is_async=True)
