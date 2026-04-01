@@ -11,6 +11,7 @@ pytestmark = pytest.mark.django_db
 MSG_ERRO = "Avaliar lançamentos de dias sem frequencia nos demais períodos."
 PERIODO = "Programas e Projetos"
 
+
 def assert_erro(lista_erros):
     assert len(lista_erros) == 1
     assert any(
@@ -53,12 +54,30 @@ def run_validator(validator, solicitacao):
 @pytest.mark.parametrize(
     "validator, fixture_name",
     [
-        (validate_solicitacoes_programas_e_projetos, "solicitacao_medicao_finaliza_programas_projetos_zerados_alimentacao"),
-        (validate_solicitacoes_programas_e_projetos, "solicitacao_medicao_finaliza_programas_projetos_zerados_dietas"),
-        (validate_solicitacoes_programas_e_projetos_emebs, "solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_alimentacao"),
-        (validate_solicitacoes_programas_e_projetos_emebs, "solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_dietas"),
-        (_validate_solicitacoes_programas_e_projetos_emei_cemei, "solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao"),
-        (_validate_solicitacoes_programas_e_projetos_emei_cemei, "solicitacao_medicao_finaliza_programas_projetos_cemei_zerados_dietas"),
+        (
+            validate_solicitacoes_programas_e_projetos,
+            "solicitacao_medicao_finaliza_programas_projetos_zerados_alimentacao",
+        ),
+        (
+            validate_solicitacoes_programas_e_projetos,
+            "solicitacao_medicao_finaliza_programas_projetos_zerados_dietas",
+        ),
+        (
+            validate_solicitacoes_programas_e_projetos_emebs,
+            "solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_alimentacao",
+        ),
+        (
+            validate_solicitacoes_programas_e_projetos_emebs,
+            "solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_dietas",
+        ),
+        (
+            _validate_solicitacoes_programas_e_projetos_emei_cemei,
+            "solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao",
+        ),
+        (
+            _validate_solicitacoes_programas_e_projetos_emei_cemei,
+            "solicitacao_medicao_finaliza_programas_projetos_cemei_zerados_dietas",
+        ),
     ],
 )
 def test_exige_observacao(request, validator, fixture_name):
@@ -72,12 +91,42 @@ def test_exige_observacao(request, validator, fixture_name):
 @pytest.mark.parametrize(
     "validator, fixture_name, categoria_fixture, extra",
     [
-        (validate_solicitacoes_programas_e_projetos, "solicitacao_medicao_finaliza_programas_projetos_zerados_alimentacao", "categoria_medicao", None),
-        (validate_solicitacoes_programas_e_projetos, "solicitacao_medicao_finaliza_programas_projetos_zerados_dietas", "categoria_medicao_dieta_a", None),
-        (validate_solicitacoes_programas_e_projetos_emebs, "solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_alimentacao", "categoria_medicao", {"infantil_ou_fundamental": "FUNDAMENTAL"}),
-        (validate_solicitacoes_programas_e_projetos_emebs, "solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_dietas", "categoria_medicao_dieta_a", {"infantil_ou_fundamental": "FUNDAMENTAL"}),
-        (_validate_solicitacoes_programas_e_projetos_emei_cemei, "solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao", "categoria_medicao", None),
-        (_validate_solicitacoes_programas_e_projetos_emei_cemei, "solicitacao_medicao_finaliza_programas_projetos_cemei_zerados_dietas", "categoria_medicao_dieta_a", None),
+        (
+            validate_solicitacoes_programas_e_projetos,
+            "solicitacao_medicao_finaliza_programas_projetos_zerados_alimentacao",
+            "categoria_medicao",
+            None,
+        ),
+        (
+            validate_solicitacoes_programas_e_projetos,
+            "solicitacao_medicao_finaliza_programas_projetos_zerados_dietas",
+            "categoria_medicao_dieta_a",
+            None,
+        ),
+        (
+            validate_solicitacoes_programas_e_projetos_emebs,
+            "solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_alimentacao",
+            "categoria_medicao",
+            {"infantil_ou_fundamental": "FUNDAMENTAL"},
+        ),
+        (
+            validate_solicitacoes_programas_e_projetos_emebs,
+            "solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_dietas",
+            "categoria_medicao_dieta_a",
+            {"infantil_ou_fundamental": "FUNDAMENTAL"},
+        ),
+        (
+            _validate_solicitacoes_programas_e_projetos_emei_cemei,
+            "solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao",
+            "categoria_medicao",
+            None,
+        ),
+        (
+            _validate_solicitacoes_programas_e_projetos_emei_cemei,
+            "solicitacao_medicao_finaliza_programas_projetos_cemei_zerados_dietas",
+            "categoria_medicao_dieta_a",
+            None,
+        ),
     ],
 )
 def test_com_observacao_ok(request, validator, fixture_name, categoria_fixture, extra):

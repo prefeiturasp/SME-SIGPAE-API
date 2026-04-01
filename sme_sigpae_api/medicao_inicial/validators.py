@@ -2933,7 +2933,7 @@ def _validate_solicitacoes_programas_e_projetos_emei_cemei(
         "Programas e Projetos",
         True,
     )
-    
+
     lista_erros = valida_programas_e_projetos_periodos_zero(
         solicitacao, medicao, lista_erros
     )
@@ -3792,9 +3792,13 @@ def valida_programas_e_projetos_periodos_zero(
         list[dict[str, str]]: Lista de erros atualizada, com erros únicos.
     """
 
-    categorias_a_validar = CategoriaMedicao.objects.exclude(nome__icontains="SOLICITAÇÕES DE ALIMENTAÇÃO")
+    categorias_a_validar = CategoriaMedicao.objects.exclude(
+        nome__icontains="SOLICITAÇÕES DE ALIMENTAÇÃO"
+    )
     if solicitacao.escola.eh_cemei:
-        medicoes_periodos = solicitacao.medicoes.filter(grupo__nome__icontains="infantil")
+        medicoes_periodos = solicitacao.medicoes.filter(
+            grupo__nome__icontains="infantil"
+        )
     else:
         medicoes_periodos = solicitacao.medicoes.filter(periodo_escolar__isnull=False)
 
@@ -3817,8 +3821,12 @@ def valida_programas_e_projetos_periodos_zero(
                 medicao_programas_e_projetos, dia, categoria
             )
 
-            if valor_programas is not None and valor_programas != "0" and not _programas_e_projetos_tem_observacao(
-                medicao_programas_e_projetos, dia
+            if (
+                valor_programas is not None
+                and valor_programas != "0"
+                and not _programas_e_projetos_tem_observacao(
+                    medicao_programas_e_projetos, dia
+                )
             ):
                 lista_erros.append(
                     {
@@ -3834,7 +3842,7 @@ def _valor_periodo_eh_zero(
     medicao_periodo: Medicao,
     dia: str,
     categoria_alimentacao: CategoriaMedicao,
-    infantil_ou_fundamental: str = ValorMedicao.NA
+    infantil_ou_fundamental: str = ValorMedicao.NA,
 ) -> bool:
     """Verifica se a frequência de um período escolar é zero no dia informado.
 
@@ -3851,7 +3859,7 @@ def _valor_periodo_eh_zero(
         nome_campo="frequencia",
         categoria_medicao=categoria_alimentacao,
         dia=dia,
-        infantil_ou_fundamental=infantil_ou_fundamental
+        infantil_ou_fundamental=infantil_ou_fundamental,
     ).first()
     if not valor_periodo or valor_periodo.valor is None:
         return True
@@ -3861,7 +3869,7 @@ def _valor_periodo_eh_zero(
 def _programas_e_projetos_tem_observacao(
     medicao_programas_e_projetos: Medicao,
     dia: str,
-    infantil_ou_fundamental: str = ValorMedicao.NA
+    infantil_ou_fundamental: str = ValorMedicao.NA,
 ) -> bool:
     """Verifica se existe observação de Programas e Projetos no dia informado.
 
@@ -3876,7 +3884,7 @@ def _programas_e_projetos_tem_observacao(
     return medicao_programas_e_projetos.valores_medicao.filter(
         nome_campo="observacoes",
         dia=dia,
-        infantil_ou_fundamental=infantil_ou_fundamental
+        infantil_ou_fundamental=infantil_ou_fundamental,
     ).exists()
 
 
@@ -3884,7 +3892,7 @@ def _valor_programas_e_projetos(
     medicao_programas_e_projetos: Medicao,
     dia: str,
     categoria_alimentacao: CategoriaMedicao,
-    infantil_ou_fundamental: str = ValorMedicao.NA
+    infantil_ou_fundamental: str = ValorMedicao.NA,
 ) -> str | None:
     """Retorna o valor de frequência de Programas e Projetos para o dia informado.
 
@@ -3901,7 +3909,7 @@ def _valor_programas_e_projetos(
         nome_campo="frequencia",
         categoria_medicao=categoria_alimentacao,
         dia=dia,
-        infantil_ou_fundamental=infantil_ou_fundamental
+        infantil_ou_fundamental=infantil_ou_fundamental,
     ).first()
     if not valor_programas or valor_programas.valor is None:
         return None
@@ -3932,10 +3940,15 @@ def valida_programas_e_projetos_periodos_zero_emebs(
         list[dict[str, str]]: Lista de erros atualizada, com erros únicos.
     """
 
-    categorias_a_validar = CategoriaMedicao.objects.exclude(nome__icontains="SOLICITAÇÕES DE ALIMENTAÇÃO")
+    categorias_a_validar = CategoriaMedicao.objects.exclude(
+        nome__icontains="SOLICITAÇÕES DE ALIMENTAÇÃO"
+    )
     medicoes_periodos = solicitacao.medicoes.filter(periodo_escolar__isnull=False)
 
-    campos_infantil_ou_fundamental = [ValorMedicao.INFANTIL, ValorMedicao.FUNDAMENTAL, ]
+    campos_infantil_ou_fundamental = [
+        ValorMedicao.INFANTIL,
+        ValorMedicao.FUNDAMENTAL,
+    ]
     for infantil_ou_fundamental in campos_infantil_ou_fundamental:
         for categoria in categorias_a_validar:
             dias_programas = set(

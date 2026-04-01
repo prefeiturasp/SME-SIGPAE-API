@@ -5224,7 +5224,7 @@ def medicoes_frequencia_zerada_emef(
             periodo_escolar=periodo_escolar,
             quantidade=2,
             classificacao=classificacao_dieta_tipo_a,
-            data=datetime.date(ano, mes, 5)
+            data=datetime.date(ano, mes, 5),
         )
         log_cinco.criado_em = datetime.date(ano, mes, 5)
         log_cinco.save()
@@ -5235,7 +5235,7 @@ def medicoes_frequencia_zerada_emef(
             periodo_escolar=periodo_escolar,
             quantidade=2,
             classificacao=classificacao_dieta_tipo_a,
-            data=datetime.date(ano, mes, 13)
+            data=datetime.date(ano, mes, 13),
         )
         log_treze.criado_em = datetime.date(ano, mes, 13)
         log_treze.save()
@@ -5369,7 +5369,7 @@ def medicoes_frequencia_zerada_emebs(
                 quantidade=2,
                 classificacao=classificacao_dieta_tipo_a,
                 infantil_ou_fundamental=tipo,
-                data=datetime.date(ano, mes, 10)
+                data=datetime.date(ano, mes, 10),
             )
             log_cinco.criado_em = datetime.date(ano, mes, 10)
             log_cinco.save()
@@ -5382,7 +5382,7 @@ def medicoes_frequencia_zerada_emebs(
                     quantidade=2,
                     classificacao=classificacao_dieta_tipo_a,
                     infantil_ou_fundamental=tipo,
-                    data=datetime.date(ano, mes, 24)
+                    data=datetime.date(ano, mes, 24),
                 )
                 log_treze.criado_em = datetime.date(ano, mes, 24)
                 log_treze.save()

@@ -33,6 +33,7 @@ from sme_sigpae_api.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
+    DadosLiquidacao,
     DiaSobremesaDoce,
     Empenho,
     GrupoMedicao,
@@ -42,13 +43,12 @@ from sme_sigpae_api.medicao_inicial.models import (
     ParametrizacaoFinanceiraTabela,
     ParametrizacaoFinanceiraTabelaValor,
     PermissaoLancamentoEspecial,
+    RelatorioFinanceiro,
     Responsavel,
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
     TipoValorParametrizacaoFinanceira,
     ValorMedicao,
-    DadosLiquidacao,
-    RelatorioFinanceiro,
 )
 from sme_sigpae_api.medicao_inicial.utils import process_anexos_from_request
 from sme_sigpae_api.perfil.models import Usuario
@@ -1643,7 +1643,7 @@ class DadosLiquidacaoUpdateSerializer(serializers.ModelSerializer):
         queryset=RelatorioFinanceiro.objects.all(),
         slug_field="uuid",
         source="relatorio_financeiro",
-        write_only=True
+        write_only=True,
     )
     unidades_educacionais = serializers.SlugRelatedField(
         many=True,
