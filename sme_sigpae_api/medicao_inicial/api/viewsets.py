@@ -810,6 +810,15 @@ class SolicitacaoMedicaoInicialViewSet(
             status=status.HTTP_200_OK,
         )
 
+    def get_ordem_periodos(self, solicitacao):
+        if solicitacao.recreio_nas_ferias:
+            return constants.ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS
+        if solicitacao.escola.eh_cei_data(solicitacao.data_referencia):
+            return constants.ORDEM_PERIODOS_GRUPOS_CEI
+        if solicitacao.escola.eh_cemei_data(solicitacao.data_referencia):
+            return constants.ORDEM_PERIODOS_GRUPOS_CEMEI
+        return constants.ORDEM_PERIODOS_GRUPOS
+
     @action(
         detail=False,
         methods=["GET"],
@@ -853,15 +862,7 @@ class SolicitacaoMedicaoInicialViewSet(
                     ).data,
                 }
             )
-        ordem = (
-            constants.ORDEM_PERIODOS_GRUPOS_CEI
-            if solicitacao.escola.eh_cei_data(solicitacao.data_referencia)
-            else (
-                constants.ORDEM_PERIODOS_GRUPOS_CEMEI
-                if solicitacao.escola.eh_cemei_data(solicitacao.data_referencia)
-                else constants.ORDEM_PERIODOS_GRUPOS
-            )
-        )
+        ordem = self.get_ordem_periodos(solicitacao)
 
         return Response(
             {"results": sorted(retorno, key=lambda k: ordem[k["nome_periodo_grupo"]])},
