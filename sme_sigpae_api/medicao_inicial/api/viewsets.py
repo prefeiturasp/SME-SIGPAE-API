@@ -456,6 +456,9 @@ class SolicitacaoMedicaoInicialViewSet(
             "dre": lambda params: {
                 "escola__diretoria_regional__uuid": params.get("dre")
             },
+            "recreio_nas_ferias": lambda params: {
+                "recreio_nas_ferias__uuid": params.get("recreio_nas_ferias")
+            },
             "ocorrencias": lambda params: {
                 "com_ocorrencias": params.get("ocorrencias").lower() == "true"
             },
@@ -476,6 +479,9 @@ class SolicitacaoMedicaoInicialViewSet(
         for param, parser in mapping.items():
             if query_params.get(param) or query_params.getlist(param):
                 kwargs.update(parser(query_params))
+
+        if query_params.get("mes_ano") and not query_params.get("recreio_nas_ferias"):
+            kwargs["recreio_nas_ferias__isnull"] = True
 
         return kwargs
 
@@ -570,21 +576,40 @@ class SolicitacaoMedicaoInicialViewSet(
         if filtros:
             qs_solicitacao_medicao = qs_solicitacao_medicao.filter(**filtros)
 
-        meses_anos = qs_solicitacao_medicao.values_list("mes", "ano").distinct()
+        meses_anos = qs_solicitacao_medicao.values_list(
+            "mes", "ano", "recreio_nas_ferias__titulo", "recreio_nas_ferias__uuid"
+        ).distinct()
         meses_anos_unicos = []
 
         for mes_ano in meses_anos:
             status_ = (
-                qs_solicitacao_medicao.filter(mes=mes_ano[0], ano=mes_ano[1])
+                qs_solicitacao_medicao.filter(
+                    mes=mes_ano[0], ano=mes_ano[1], recreio_nas_ferias__uuid=mes_ano[3]
+                )
                 .values_list("status", flat=True)
                 .distinct()
             )
-            mes_ano_obj = {"mes": mes_ano[0], "ano": mes_ano[1], "status": status_}
+            mes_ano_obj = {
+                "mes": mes_ano[0],
+                "ano": mes_ano[1],
+                "recreio_nas_ferias": (
+                    {"titulo": mes_ano[2], "uuid": mes_ano[3]}
+                    if mes_ano[2] and mes_ano[3]
+                    else None
+                ),
+                "status": status_,
+            }
             meses_anos_unicos.append(mes_ano_obj)
         return Response(
             {
                 "results": sorted(
-                    meses_anos_unicos, key=lambda k: (k["ano"], k["mes"]), reverse=True
+                    meses_anos_unicos,
+                    key=lambda k: (
+                        k["ano"],
+                        k["mes"],
+                        1 if k["recreio_nas_ferias"] is None else 0,
+                    ),
+                    reverse=True,
                 )
             },
             status=status.HTTP_200_OK,
