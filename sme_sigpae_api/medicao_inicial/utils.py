@@ -5787,6 +5787,18 @@ def obter_instancia_dado_liquidacao(
 
 
 def to_decimal_safe(valor):
+    """
+    Converte um valor para Decimal de forma segura.
+
+    Trata valores nulos, strings vazias e formatação com vírgula,
+    retornando Decimal("0") em caso de erro.
+
+    Args:
+        valor (Any): Valor a ser convertido (str, int, float, Decimal ou None).
+
+    Returns:
+        Decimal: Valor convertido para Decimal ou Decimal("0") em caso de falha.
+    """
     try:
         if valor in [None, "", " "]:
             return Decimal("0")
@@ -5800,6 +5812,21 @@ def to_decimal_safe(valor):
 
 
 def _total_parametrizacao(valores):
+    """
+    Calcula o valor total de uma parametrização com base nos tipos de valores.
+
+    Regras:
+    - UNITARIO + REAJUSTE → soma direta
+    - UNITARIO + ACRESCIMO (%) → aplica percentual
+
+    Args:
+        valores (Iterable): Lista/QuerySet de objetos com atributos:
+            - tipo_valor.nome (str)
+            - valor (Any)
+
+    Returns:
+        Decimal: Valor total calculado da parametrização.
+    """
     total = 0
 
     mapa = {
@@ -5821,6 +5848,21 @@ def _total_parametrizacao(valores):
 
 
 def _mapear_valores_tabela(valores):
+    """
+    Cria um mapa em memória dos valores da tabela, normalizando os nomes dos campos.
+
+    Remove acentos e substitui espaços por underscore, permitindo
+    comparação eficiente sem necessidade de queries no banco.
+
+    Args:
+        valores (Iterable): Lista/QuerySet de objetos com atributo `nome_campo`.
+
+    Returns:
+        dict[str, list]: Dicionário no formato:
+            {
+                "nome_normalizado": [valores...]
+            }
+    """
     mapa = {}
 
     for v in valores:
@@ -5836,6 +5878,20 @@ def _mapear_valores_tabela(valores):
 
 
 def _calcula_total_alimentacao(consumo, periodo, valores, tipo):
+    """
+    Calcula o total financeiro para alimentações com base no consumo e parametrização.
+
+    Considera o período escolar quando o tipo de cálculo é por faixa etária.
+
+    Args:
+        consumo (dict): Estrutura contendo os dados de consumo.
+        periodo (Any): Periodo Escolar, utilizado seu `nome` para verificação.
+        valores (Iterable): Valores da tabela de parametrização já filtrados.
+        tipo (str): Tipo de cálculo ("FAIXA", "TIPO", etc.).
+
+    Returns:
+        Decimal: Valor total calculado para alimentação.
+    """
     chave_consumo = (
         f"ALIMENTAÇÃO - {periodo.nome}"
         if periodo and tipo == "FAIXA"
@@ -5846,6 +5902,7 @@ def _calcula_total_alimentacao(consumo, periodo, valores, tipo):
     dados_consumo = consumo.get(chave_consumo, {})
 
     mapa_valores = _mapear_valores_tabela(valores)
+
     for chave, valor in dados_consumo.items():
         nome_campo = re.sub(r"\s+", "_", chave.removeprefix("total_").strip())
         nome_campo = unidecode(nome_campo)
@@ -5861,14 +5918,22 @@ def _calcula_total_alimentacao(consumo, periodo, valores, tipo):
     return total
 
 
-def _calcula_total_dietas(
-    consumo,
-    tabela,
-    valores,
-    tipo,
-):
-    chave_consumo = None
+def _calcula_total_dietas(consumo, tabela, valores, tipo):
+    """
+    Calcula o total financeiro para dietas especiais (Tipo A ou Tipo B).
 
+    A chave de consumo é definida dinamicamente com base no nome da tabela
+    e no período escolar.
+
+    Args:
+        consumo (dict): Estrutura contendo os dados de consumo.
+        tabela (Any): Objeto com atributos `nome` e `periodo_escolar`.
+        valores (Iterable): Valores da tabela de parametrização já filtrados.
+        tipo (str): Tipo de cálculo ("FAIXA", "TIPO", etc.).
+
+    Returns:
+        Decimal: Valor total calculado para dietas especiais.
+    """
     if "Dietas Tipo A" in tabela.nome:
         chave_base = "DIETA ESPECIAL - TIPO A"
     else:
@@ -5883,6 +5948,7 @@ def _calcula_total_dietas(
     dados_consumo = consumo.get(chave_consumo, {})
 
     mapa_valores = _mapear_valores_tabela(valores)
+
     for chave, valor in dados_consumo.items():
         nome_campo = re.sub(r"\s+", "_", chave)
         nome_campo = unidecode(nome_campo)
@@ -5898,13 +5964,23 @@ def _calcula_total_dietas(
     return total
 
 
-def _calcula_total_tabelas(
-    consumo,
-    tabelas,
-    tipo=None
-):
+def _calcula_total_tabelas(consumo, tabelas, tipo=None):
+    """
+    Calcula o total consolidado de todas as tabelas de parametrização.
+
+    Separa o cálculo entre alimentações e dietas, somando os resultados.
+
+    Args:
+        consumo (dict): Estrutura contendo os dados de consumo.
+        tabelas (Iterable): Lista/QuerySet de tabelas de parametrização.
+        tipo (str, optional): Tipo de cálculo ("FAIXA", "TIPO" ou None).
+
+    Returns:
+        Decimal: Valor total consolidado das tabelas.
+    """
     total_alimentacao = 0
     total_dietas = 0
+    # print('DADOS CONSUMO: ', consumo)
 
     for tabela in tabelas:
         if tipo == "FAIXA":
@@ -5914,6 +5990,7 @@ def _calcula_total_tabelas(
                 Q(tipo_alimentacao__isnull=False) | Q(nome_campo='kit_lanche')
             )
         else:
+            # print('VALORES SEM FILTRO')
             valores_tabela = tabela.valores.all()
 
         if "Preço das Alimentações" in tabela.nome:
@@ -5925,19 +6002,36 @@ def _calcula_total_tabelas(
                 consumo, tabela, valores_tabela, tipo,
             )
 
-    total_tabelas = total_alimentacao + total_dietas
-    return total_tabelas
+    return total_alimentacao + total_dietas
 
 
 def calcular_total_pagamento(consumo, parametrizacao, tipo_calculo):
+    """
+    Calcula o valor total de pagamento com base no consumo e parametrização financeira.
+
+    Pode executar o cálculo por:
+    - Tipo de alimentação
+    - Faixa etária
+    - Ambos (quando não especificado)
+
+    Args:
+        consumo (dict): Estrutura contendo os dados do total de consumo e atendimento.
+        parametrizacao (Any): Parametrização Financeira utilizada pela relação das `tabelas`.
+        tipo_calculo (str): Tipo de cálculo ("tipo_alimentacao", "faixa_etaria" ou outro).
+
+    Returns:
+        Decimal: Valor total do pagamento calculado.
+    """
     total_pagamento = 0
     tabelas = parametrizacao.tabelas.all()
+
     if tipo_calculo not in ["tipo_alimentacao", "faixa_etaria"]:
         for tipo in ["TIPO", "FAIXA"]:
             total_pagamento += _calcula_total_tabelas(
                 consumo[tipo], tabelas, tipo,
             )
     else:
+        # print('ENTROU')
         total_pagamento += _calcula_total_tabelas(consumo, tabelas)
 
     return total_pagamento
