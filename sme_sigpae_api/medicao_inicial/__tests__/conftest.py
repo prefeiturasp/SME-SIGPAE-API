@@ -5659,3 +5659,113 @@ def solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_dietas(
 
         
     return solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_alimentacao
+
+
+@pytest.fixture
+def solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao(
+    escola_cemei,
+    grupo_infantil_manha,
+    grupo_infantil_tarde,
+    categoria_medicao,
+    grupo_programas_e_projetos,
+    motivo_inclusao_continua_programas_projetos
+):
+    solicitacao_medicao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        uuid="bed4d779-2d57-4c5f-bf9c-9b93ddac54d9",
+        mes="01",
+        ano=2026,
+        escola=escola_cemei,
+    )
+
+    medicao_manha = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_medicao,
+        grupo=grupo_infantil_manha,
+    )
+    medicao_tarde = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_medicao,
+        grupo=grupo_infantil_tarde,
+    )
+
+    medicao_programas_projetos = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_medicao,
+        grupo=grupo_programas_e_projetos,
+    )
+    
+    for medicao_ in [medicao_manha, medicao_tarde]:
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_,
+            nome_campo="frequencia",
+            dia="14",
+            categoria_medicao=categoria_medicao,
+            valor="0",
+        )
+        
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao_programas_projetos,
+        nome_campo="frequencia",
+        dia="14",
+        categoria_medicao=categoria_medicao,
+        valor="10",
+    )
+
+    
+    baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola_cemei,
+        rastro_escola=escola_cemei,
+        data_inicial=datetime.date(2026, 1, 14),
+        data_final=datetime.date(2026, 1, 14),
+        motivo=motivo_inclusao_continua_programas_projetos,
+        status="CODAE_AUTORIZADO",
+    )
+        
+    return solicitacao_medicao
+
+
+
+@pytest.fixture
+def solicitacao_medicao_finaliza_programas_projetos_cemei_zerados_dietas(
+    solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao,
+    categoria_medicao,
+    categoria_medicao_dieta_a
+
+):
+    for medicao in solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao.medicoes.filter(grupo__isnull=False):
+
+        if medicao.grupo.nome == "Programas e Projetos":
+            valor = medicao.valores_medicao.get(
+                nome_campo="frequencia", dia="14", categoria_medicao=categoria_medicao
+            )
+            valor.valor = "10"
+            valor.save()
+            baker.make(
+                "ValorMedicao",
+                medicao=medicao,
+                nome_campo="frequencia",
+                dia="14",
+                categoria_medicao=categoria_medicao_dieta_a,
+                valor="3",
+            )
+        else:
+            valor = medicao.valores_medicao.get(
+                nome_campo="frequencia", dia="14", categoria_medicao=categoria_medicao
+            )
+            valor.valor = "20"
+            valor.save()
+            baker.make(
+                "ValorMedicao",
+                medicao=medicao,
+                nome_campo="frequencia",
+                dia="14",
+                categoria_medicao=categoria_medicao_dieta_a,
+                valor="0",
+            )
+
+    return solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao
+

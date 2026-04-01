@@ -6,6 +6,7 @@ from freezegun.api import freeze_time
 from sme_sigpae_api.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.medicao_inicial.validators import (
+    _validate_solicitacoes_programas_e_projetos_emei_cemei,
     get_lista_dias_letivos,
     obter_periodos_corretos,
     valida_medicoes_inexistentes_cei,
@@ -466,7 +467,6 @@ def test_validate_solicitacoes_programas_e_projetos_emebs_periodos_zero_alimenta
         for erro in lista_erros
     )
 
-
 def test_validate_solicitacoes_programas_e_projetos_emebs_periodos_zero_dietas_exige_observacao(
     solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_dietas
 ):
@@ -479,8 +479,6 @@ def test_validate_solicitacoes_programas_e_projetos_emebs_periodos_zero_dietas_e
         and erro["periodo_escolar"] == "Programas e Projetos"
         for erro in lista_erros
     )
-
-
 
 def test_validate_solicitacoes_programas_e_projetos_emebs_periodos_zero_alimentacao_com_observacao_ok(
     solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_alimentacao, categoria_medicao
@@ -525,8 +523,6 @@ def test_validate_solicitacoes_programas_e_projetos_emebs_periodos_zero_dietas_c
     assert all(
         erro["periodo_escolar"] != "Programas e Projetos" for erro in lista_erros
     )
-
-    
     
 def test_validate_solicitacoes_programas_e_projetos_emebs_periodos_altera_periodo_tarde_alimentacao(
     solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_alimentacao, periodo_escolar_tarde, categoria_medicao
@@ -562,3 +558,110 @@ def test_validate_solicitacoes_programas_e_projetos_emebs_periodos_altera_period
 
 
 
+def test_validate_solicitacoes_programas_e_projetos_cemei_periodos_zero_alimentacao_exige_observacao(
+    solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao
+):
+    solicitacao = solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao
+    medicao_programas = solicitacao.get_medicao_programas_e_projetos
+    lista_erros = []
+    lista_erros = _validate_solicitacoes_programas_e_projetos_emei_cemei(solicitacao, lista_erros, medicao_programas)
+    assert len(lista_erros) == 1
+    assert any(
+        "Avaliar lançamentos de dias sem frequencia nos demais períodos." in erro["erro"] and erro["periodo_escolar"] == "Programas e Projetos"
+        for erro in lista_erros
+    )
+
+def test_validate_solicitacoes_programas_e_projetos_cemei_periodos_zero_dietas_exige_observacao(
+    solicitacao_medicao_finaliza_programas_projetos_cemei_zerados_dietas
+):
+    solicitacao = solicitacao_medicao_finaliza_programas_projetos_cemei_zerados_dietas
+    medicao_programas = solicitacao.get_medicao_programas_e_projetos
+    lista_erros = []
+    lista_erros = _validate_solicitacoes_programas_e_projetos_emei_cemei(solicitacao, lista_erros, medicao_programas)
+
+    assert len(lista_erros) == 1
+    assert any(
+        "Avaliar lançamentos de dias sem frequencia nos demais períodos." in erro["erro"]
+        and erro["periodo_escolar"] == "Programas e Projetos"
+        for erro in lista_erros
+    )
+
+def test_validate_solicitacoes_programas_e_projetos_cemei_periodos_zero_alimentacao_com_observacao_ok(
+    solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao, categoria_medicao
+):
+    solicitacao = solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao
+    medicao_programas = solicitacao.get_medicao_programas_e_projetos
+
+    program_valor = medicao_programas.valores_medicao.filter(
+        nome_campo="frequencia", dia="14", categoria_medicao=categoria_medicao
+    ).first()
+    medicao_programas.valores_medicao.create(
+        nome_campo="observacoes",
+        dia="14",
+        categoria_medicao=program_valor.categoria_medicao,
+        valor="justificativa",
+    )
+
+    lista_erros = []
+    lista_erros = _validate_solicitacoes_programas_e_projetos_emei_cemei(solicitacao, lista_erros, medicao_programas)
+
+    assert all(
+        erro["periodo_escolar"] != "Programas e Projetos" for erro in lista_erros
+    )
+    
+def test_validate_solicitacoes_programas_e_projetos_cemei_periodos_zero_dieta_com_observacao_ok(
+    solicitacao_medicao_finaliza_programas_projetos_cemei_zerados_dietas, categoria_medicao_dieta_a
+):
+    solicitacao = solicitacao_medicao_finaliza_programas_projetos_cemei_zerados_dietas
+    medicao_programas = solicitacao.get_medicao_programas_e_projetos
+
+    program_valor = medicao_programas.valores_medicao.filter(
+        nome_campo="frequencia", dia="14", categoria_medicao=categoria_medicao_dieta_a
+    ).first()
+    medicao_programas.valores_medicao.create(
+        nome_campo="observacoes",
+        dia="14",
+        categoria_medicao=program_valor.categoria_medicao,
+        valor="justificativa",
+    )
+
+    lista_erros = []
+    lista_erros = _validate_solicitacoes_programas_e_projetos_emei_cemei(solicitacao, lista_erros, medicao_programas)
+
+    assert all(
+        erro["periodo_escolar"] != "Programas e Projetos" for erro in lista_erros
+    )
+
+def test_validate_solicitacoes_programas_e_projetos_cemei_periodos_altera_periodo_tarde_alimentacao(
+    solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao, grupo_infantil_tarde, categoria_medicao
+):
+    solicitacao = solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao
+    medicao_programas = solicitacao.get_medicao_programas_e_projetos
+    medicao_tarde = solicitacao.medicoes.filter(grupo=grupo_infantil_tarde).first()
+    valor = medicao_tarde.valores_medicao.get(
+        nome_campo="frequencia", dia="14", categoria_medicao=categoria_medicao
+    )
+    valor.valor = "40"
+    valor.save()
+    lista_erros = []
+    lista_erros = _validate_solicitacoes_programas_e_projetos_emei_cemei(solicitacao, lista_erros, medicao_programas)
+    assert all(
+        erro["periodo_escolar"] != "Programas e Projetos" for erro in lista_erros
+    )
+    
+def test_validate_solicitacoes_programas_e_projetos_cemei_periodos_altera_periodo_tarde_dieta(
+    solicitacao_medicao_finaliza_programas_projetos_cemei_zerados_dietas, grupo_infantil_tarde, categoria_medicao_dieta_a
+):
+    solicitacao = solicitacao_medicao_finaliza_programas_projetos_cemei_zerados_dietas
+    medicao_programas = solicitacao.get_medicao_programas_e_projetos
+    medicao_tarde = solicitacao.medicoes.filter(grupo=grupo_infantil_tarde).first()
+    valor = medicao_tarde.valores_medicao.get(
+        nome_campo="frequencia", dia="14", categoria_medicao=categoria_medicao_dieta_a
+    )
+    valor.valor = "3"
+    valor.save()
+    lista_erros = []
+    lista_erros = _validate_solicitacoes_programas_e_projetos_emei_cemei(solicitacao, lista_erros, medicao_programas)
+    assert all(
+        erro["periodo_escolar"] != "Programas e Projetos" for erro in lista_erros
+    )
