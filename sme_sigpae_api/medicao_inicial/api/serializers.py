@@ -463,10 +463,6 @@ class DadosLiquidacaoSerializer(serializers.ModelSerializer):
 
     def get_total_pagamento(self, obj):
         escolas = obj.unidades_educacionais.values_list("uuid", flat=True)
-
-        mes = int(obj.relatorio_financeiro.mes)
-        ano = int(obj.relatorio_financeiro.ano)
-
         grupo_nome = obj.relatorio_financeiro.grupo_unidade_escolar.nome
 
         tipo_calculo = (
@@ -476,8 +472,11 @@ class DadosLiquidacaoSerializer(serializers.ModelSerializer):
         )
 
         consumo = calcula_totais_consumo_por_escolas(
-            escolas, mes, ano, tipo_calculo=tipo_calculo
+            escolas, obj.relatorio_financeiro, tipo_calculo=tipo_calculo
         )
+
+        mes = int(obj.relatorio_financeiro.mes)
+        ano = int(obj.relatorio_financeiro.ano)
 
         parametrizacao = ParametrizacaoFinanceira.objects.filter(
             grupo_unidade_escolar=obj.relatorio_financeiro.grupo_unidade_escolar,
