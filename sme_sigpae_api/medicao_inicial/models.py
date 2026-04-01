@@ -30,12 +30,14 @@ from ..dados_comuns.fluxo_status import (
     LogSolicitacoesUsuario,
 )
 from ..escola.constants import INFANTIL_OU_FUNDAMENTAL
-from ..escola.models import PeriodoEscolar, TipoUnidadeEscolar, Escola
+from ..escola.models import Escola, PeriodoEscolar, TipoUnidadeEscolar
 from ..perfil.models import Usuario
 from ..terceirizada.models import Edital
 from .recreio_nas_ferias.models import RecreioNasFerias
 
 MODEL_PERIODO_ESCOLAR = "escola.PeriodoEscolar"
+GRUPO_RECREIO_NAS_FERIAS = "Recreio nas Férias"
+GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI = "Recreio nas Férias - de 0 a 3 anos e 11 meses"
 
 
 class DiaSobremesaDoce(TemData, TemChaveExterna, CriadoEm, CriadoPor):
@@ -346,7 +348,13 @@ class SolicitacaoMedicaoInicial(
         )
 
     def get_or_create_medicao_por_periodo_e_ou_grupo(self, periodo_e_ou_grupo: str):
+        periodo_e_ou_grupo = self._normaliza_nome_grupo_recreio_nas_ferias_cei(
+            periodo_e_ou_grupo
+        )
         if GrupoMedicao.objects.filter(nome=periodo_e_ou_grupo).exists():
+            medicao_legada = self._normaliza_medicao_legada_recreio_nas_ferias_cei()
+            if medicao_legada:
+                return medicao_legada
             grupo = GrupoMedicao.objects.get(nome=periodo_e_ou_grupo)
             medicao, created = Medicao.objects.get_or_create(
                 solicitacao_medicao_inicial=self, grupo=grupo
@@ -361,7 +369,13 @@ class SolicitacaoMedicaoInicial(
 
     def get_medicao_por_periodo_e_ou_grupo(self, periodo_e_ou_grupo: str):
         try:
+            periodo_e_ou_grupo = self._normaliza_nome_grupo_recreio_nas_ferias_cei(
+                periodo_e_ou_grupo
+            )
             if GrupoMedicao.objects.filter(nome=periodo_e_ou_grupo).exists():
+                medicao_legada = self._normaliza_medicao_legada_recreio_nas_ferias_cei()
+                if medicao_legada:
+                    return medicao_legada
                 grupo = GrupoMedicao.objects.get(nome=periodo_e_ou_grupo)
                 medicao = Medicao.objects.get(
                     solicitacao_medicao_inicial=self, grupo=grupo
@@ -375,6 +389,45 @@ class SolicitacaoMedicaoInicial(
             return medicao
         except Medicao.DoesNotExist:
             return None
+
+    def _eh_grupo_legado_recreio_nas_ferias_cei(self, nome_grupo: str) -> bool:
+        return self.escola.eh_cei_data(self.data_referencia) and nome_grupo in [
+            GRUPO_RECREIO_NAS_FERIAS,
+            GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI,
+        ]
+
+    def _normaliza_nome_grupo_recreio_nas_ferias_cei(self, nome_grupo: str) -> str:
+        if self._eh_grupo_legado_recreio_nas_ferias_cei(nome_grupo):
+            return GRUPO_RECREIO_NAS_FERIAS
+        return nome_grupo
+
+    def _normaliza_medicao_legada_recreio_nas_ferias_cei(self):
+        if not self._eh_grupo_legado_recreio_nas_ferias_cei(
+            GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI
+        ):
+            return None
+
+        grupo_legado = GrupoMedicao.objects.filter(
+            nome=GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI
+        ).first()
+        grupo_padrao = GrupoMedicao.objects.filter(
+            nome=GRUPO_RECREIO_NAS_FERIAS
+        ).first()
+
+        if not grupo_legado or not grupo_padrao:
+            return None
+
+        medicao_legada = Medicao.objects.filter(
+            solicitacao_medicao_inicial=self,
+            grupo=grupo_legado,
+        ).first()
+
+        if not medicao_legada:
+            return None
+
+        medicao_legada.grupo = grupo_padrao
+        medicao_legada.save(update_fields=["grupo"])
+        return medicao_legada
 
     class Meta:
         verbose_name = "Solicitação de medição inicial"
@@ -479,12 +532,18 @@ class Medicao(
 
     @property
     def nome_periodo_grupo(self):
-        if self.grupo and self.periodo_escolar:
-            nome_periodo_grupo = (
-                f"{self.grupo.nome} - " + f"{self.periodo_escolar.nome}"
+        nome_grupo = self.grupo.nome if self.grupo else None
+        if (
+            nome_grupo == GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI
+            and self.escola.eh_cei_data(
+                self.solicitacao_medicao_inicial.data_referencia
             )
+        ):
+            nome_grupo = GRUPO_RECREIO_NAS_FERIAS
+        if self.grupo and self.periodo_escolar:
+            nome_periodo_grupo = f"{nome_grupo} - {self.periodo_escolar.nome}"
         elif self.grupo and not self.periodo_escolar:
-            nome_periodo_grupo = f"{self.grupo.nome}"
+            nome_periodo_grupo = f"{nome_grupo}"
         else:
             nome_periodo_grupo = f"{self.periodo_escolar.nome}"
         return nome_periodo_grupo

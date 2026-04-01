@@ -117,6 +117,7 @@ from .filters import (
     ParametrizacaoFinanceiraFilter,
     RelatorioFinanceiroFilter,
     SolicitacaoMedicaoInicialFilter,
+    ValorMedicaoFilter,
 )
 from .permissions import EhAdministradorMedicaoInicialOuGestaoAlimentacao
 from .serializers import (
@@ -839,13 +840,7 @@ class SolicitacaoMedicaoInicialViewSet(
         solicitacao = SolicitacaoMedicaoInicial.objects.get(uuid=uuid)
         retorno = []
         for medicao in solicitacao.medicoes.all():
-            nome = None
-            if medicao.grupo and medicao.periodo_escolar:
-                nome = f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome}"
-            elif medicao.grupo and not medicao.periodo_escolar:
-                nome = f"{medicao.grupo.nome}"
-            elif medicao.periodo_escolar:
-                nome = medicao.periodo_escolar.nome
+            nome = medicao.nome_periodo_grupo
             retorno.append(
                 {
                     "uuid_medicao_periodo_grupo": medicao.uuid,
@@ -1462,35 +1457,9 @@ class ValorMedicaoViewSet(
     lookup_field = "uuid"
     queryset = ValorMedicao.objects.all()
     serializer_class = ValorMedicaoSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = ValorMedicaoFilter
     pagination_class = None
-
-    def get_queryset(self):
-        queryset = ValorMedicao.objects.all()
-        nome_periodo_escolar = self.request.query_params.get(
-            "nome_periodo_escolar", None
-        )
-        uuid_solicitacao_medicao = self.request.query_params.get(
-            "uuid_solicitacao_medicao", None
-        )
-        nome_grupo = self.request.query_params.get("nome_grupo", None)
-        uuid_medicao_periodo_grupo = self.request.query_params.get(
-            "uuid_medicao_periodo_grupo", None
-        )
-        if nome_periodo_escolar:
-            queryset = queryset.filter(
-                medicao__periodo_escolar__nome=nome_periodo_escolar
-            )
-        if nome_grupo:
-            queryset = queryset.filter(medicao__grupo__nome=nome_grupo)
-        elif not uuid_medicao_periodo_grupo:
-            queryset = queryset.filter(medicao__grupo__isnull=True)
-        if uuid_solicitacao_medicao:
-            queryset = queryset.filter(
-                medicao__solicitacao_medicao_inicial__uuid=uuid_solicitacao_medicao
-            )
-        if uuid_medicao_periodo_grupo:
-            queryset = queryset.filter(medicao__uuid=uuid_medicao_periodo_grupo)
-        return queryset
 
     def destroy(self, request, *args, **kwargs):
         instance = ValorMedicao.objects.get(uuid=kwargs.get("uuid"))
