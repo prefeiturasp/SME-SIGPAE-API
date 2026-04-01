@@ -975,6 +975,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             instance, validated_data, justificativa_sem_lancamentos
         )
         self._finaliza_medicao_sem_lancamentos(instance, justificativa_sem_lancamentos)
+        self._finaliza_recreio_nas_ferias(instance, validated_data)
         return instance
 
     def _check_user_permission(self):
@@ -1072,7 +1073,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
     def _finaliza_medicao_se_necessario(
         self, instance, validated_data, justificativa_sem_lancamentos
     ):
-        if justificativa_sem_lancamentos:
+        if justificativa_sem_lancamentos or instance.recreio_nas_ferias:
             return
         key_com_ocorrencias = validated_data.get("com_ocorrencias", None)
         if key_com_ocorrencias is not None and self.context["request"].data.get(
@@ -1158,7 +1159,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
     def _finaliza_medicao_sem_lancamentos(
         self, instance, justificativa_sem_lancamentos
     ):
-        if not justificativa_sem_lancamentos:
+        if not justificativa_sem_lancamentos or instance.recreio_nas_ferias:
             return
         usuario = self.context["request"].user
         self._checa_se_pode_finalizar_sem_lancamentos(instance)
@@ -1172,6 +1173,26 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 user=usuario,
                 justificativa_sem_lancamentos=justificativa_sem_lancamentos,
             )
+
+    def _finaliza_recreio_nas_ferias(self, instance, validated_data):
+        if not instance.recreio_nas_ferias:
+            return
+        key_com_ocorrencias = validated_data.get("com_ocorrencias", None)
+        if key_com_ocorrencias is not None and self.context["request"].data.get(
+            "finaliza_medicao"
+        ):
+            if date.today() <= instance.recreio_nas_ferias.data_fim:
+                raise serializers.ValidationError(
+                    "A medição só pode ser finalizada 1 dia após a data fim do Recreio nas Férias."
+                )
+            instance.ue_envia(user=self.context["request"].user)
+            anexos = self._process_anexos(instance)
+            if hasattr(instance, "ocorrencia"):
+                instance.ocorrencia.ue_envia(
+                    user=self.context["request"].user, anexos=anexos
+                )
+            for medicao in instance.medicoes.all():
+                medicao.ue_envia(user=self.context["request"].user)
 
     class Meta:
         model = SolicitacaoMedicaoInicial
