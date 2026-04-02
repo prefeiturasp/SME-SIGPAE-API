@@ -809,3 +809,67 @@ def test_url_endpoint_filtrar_sem_duplicacao_faixa_etaria(
     # Deve ser 1, não 2, pois o aluno é o mesmo e usamos Count(distinct=True)
     assert response.data["total_matriculados"] == 1
     assert response.data["periodos"]["INTEGRAL"] == 1
+
+
+def test_url_endpoint_filtrar_total_unico_por_mes_usa_historico_matricula(
+    client_autenticado_da_escola,
+    escola,
+    faixas_etarias_ativas,
+):
+    tipo_unidade_cei = baker.make("TipoUnidadeEscolar", iniciais="CEI")
+    escola.tipo_unidade = tipo_unidade_cei
+    escola.save()
+
+    outra_escola = baker.make("Escola")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
+    aluno = baker.make(
+        "Aluno",
+        nome="Criança Histórico",
+        codigo_eol="1234567",
+        escola=outra_escola,
+    )
+    baker.make(
+        "HistoricoMatriculaAluno",
+        aluno=aluno,
+        escola=escola,
+        data_inicio=datetime.date(2024, 6, 1),
+        data_fim=datetime.date(2024, 6, 30),
+    )
+
+    data_teste = datetime.date(2024, 6, 15)
+    log_manha = baker.make(
+        "LogAlunosMatriculadosFaixaEtariaDia",
+        escola=escola,
+        periodo_escolar=periodo_manha,
+        faixa_etaria=faixas_etarias_ativas[0],
+        quantidade=1,
+        data=data_teste,
+    )
+    log_tarde = baker.make(
+        "LogAlunosMatriculadosFaixaEtariaDia",
+        escola=escola,
+        periodo_escolar=periodo_tarde,
+        faixa_etaria=faixas_etarias_ativas[1],
+        quantidade=1,
+        data=data_teste,
+    )
+    baker.make(
+        "LogAlunoPorDia", log_alunos_matriculados_faixa_dia=log_manha, aluno=aluno
+    )
+    baker.make(
+        "LogAlunoPorDia", log_alunos_matriculados_faixa_dia=log_tarde, aluno=aluno
+    )
+
+    url = (
+        f"/relatorio-controle-frequencia/filtrar/?"
+        f"periodos={json.dumps([str(periodo_manha.uuid), str(periodo_tarde.uuid)])}&"
+        f"mes_ano=06_2024"
+    )
+
+    response = client_autenticado_da_escola.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["total_matriculados"] == 1
+    assert response.data["periodos"]["MANHA"] == 1
+    assert response.data["periodos"]["TARDE"] == 1
