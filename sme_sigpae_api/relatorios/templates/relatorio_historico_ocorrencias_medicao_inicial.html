@@ -18,7 +18,17 @@
       {% for log in logs %}
       <div class="log-container">
 
-        <div class="status-evento font-weight-bold">{{ log.status_evento_explicacao }}</div>
+        <div class="status-evento font-weight-bold">
+          {% if log.status_evento_explicacao == "Enviado pela UE" %}
+            Recebido para Análise
+          {% elif log.status_evento_explicacao == "Correção solicitada" %}
+            DEVOLVIDO PARA AJUSTES PELA DRE
+          {% elif log.status_evento_explicacao == "Correção solicitada pela CODAE" %}
+            DEVOLVIDO PARA AJUSTES PELA CODAE
+          {% else %}
+            {{ log.status_evento_explicacao }}
+          {% endif %}
+        </div>
 
         {# Campo comum a todos os status #}
         <div>
