@@ -355,7 +355,10 @@ class SolicitacaoMedicaoInicial(
             medicao_legada = self._normaliza_medicao_legada_recreio_nas_ferias_cei()
             if medicao_legada:
                 return medicao_legada
-            grupo = GrupoMedicao.objects.get(nome=periodo_e_ou_grupo)
+            medicao = self.medicoes.filter(grupo__nome=periodo_e_ou_grupo).first()
+            if medicao:
+                return medicao
+            grupo = GrupoMedicao.objects.filter(nome=periodo_e_ou_grupo).first()
             medicao, created = Medicao.objects.get_or_create(
                 solicitacao_medicao_inicial=self, grupo=grupo
             )
@@ -376,10 +379,7 @@ class SolicitacaoMedicaoInicial(
                 medicao_legada = self._normaliza_medicao_legada_recreio_nas_ferias_cei()
                 if medicao_legada:
                     return medicao_legada
-                grupo = GrupoMedicao.objects.get(nome=periodo_e_ou_grupo)
-                medicao = Medicao.objects.get(
-                    solicitacao_medicao_inicial=self, grupo=grupo
-                )
+                medicao = self.medicoes.filter(grupo__nome=periodo_e_ou_grupo).first()
                 return medicao
             else:
                 periodo_escolar = PeriodoEscolar.objects.get(nome=periodo_e_ou_grupo)
@@ -446,20 +446,22 @@ class SolicitacaoMedicaoInicial(
         ):
             return None
 
-        grupo_legado = GrupoMedicao.objects.filter(
-            nome=GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI
-        ).first()
-        grupo_padrao = GrupoMedicao.objects.filter(
-            nome=GRUPO_RECREIO_NAS_FERIAS
-        ).first()
+        grupo_padrao = (
+            GrupoMedicao.objects.filter(nome=GRUPO_RECREIO_NAS_FERIAS)
+            .order_by("-id")
+            .first()
+        )
 
-        if not grupo_legado or not grupo_padrao:
+        if not grupo_padrao:
             return None
 
-        medicao_legada = Medicao.objects.filter(
-            solicitacao_medicao_inicial=self,
-            grupo=grupo_legado,
-        ).first()
+        medicao_legada = (
+            self.medicoes.filter(
+                grupo__nome=GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI,
+            )
+            .order_by("-id")
+            .first()
+        )
 
         if not medicao_legada:
             return None
