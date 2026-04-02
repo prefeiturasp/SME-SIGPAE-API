@@ -3,13 +3,12 @@
 {% load static %}
 {% load index %}
 {% load sass_tags %}
+{% load safe_html_tags %}
 <html lang="pt-BR">
   <head>
-    {% block styles %}
     <link rel="stylesheet" href="{% sass_src 'css/custom_bootstrap.scss' %}" type="text/css">
     <link rel="stylesheet" href="{% sass_src 'css/cabecalho_titulo.scss' %}" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,600,600i,700,700i,900,900i" rel="stylesheet" />
-    {% endblock %}
     <title>SIGPAE</title>
   </head>
   <body>
@@ -17,31 +16,29 @@
 
     <div class="page-container">
       {% for log in logs %}
-      <div>
+      <div class="log-container">
 
         <div class="status-evento font-weight-bold">{{ log.status_evento_explicacao }}</div>
 
         {# Campo comum a todos os status #}
         <div>
-          <p>Data: <strong>{{ log.criado_em }}</strong></p>
+          <p style="margin: 0.4em 0; !important;">Data: <strong>{{ log.criado_em }}</strong></p>
         </div>
 
         {# 5 - RECEBIDO PARA ANÁLISE #}
         {% if log.status_evento_explicacao == "Enviado pela UE" %}
         <div class="ue-dre-container">
-          <p>Unidade Educacional: <strong>{{ solicitacao.escola.nome }}</strong></p>
-          <p class="dre-content">DRE: <strong>{{ solicitacao.escola.diretoria_regional.nome }}</strong></p>
+          <p style="margin: 0.4em 0; !important;">Unidade Educacional: <strong>{{ solicitacao.escola.nome }}</strong></p>
+          <p style="margin: 0.4em 0; !important;" class="dre-content">DRE: <strong>{{ solicitacao.escola.diretoria_regional.nome }}</strong></p>
         </div>
         <div>
-          <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
+          <p style="margin: 0.4em 0; !important;">RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
         </div>
         <div class="flex">
-          <p>Arquivos:</p>
+          <p style="margin: 0.4em 0; !important;">Arquivos:</p>
           <div class="arquivos-container">
             {% for arquivo in log.anexos.all %}
-            <p><strong>{{ arquivo.nome }}</strong></p>
-            {% empty %}
-            <p>Nenhum arquivo anexado.</p>
+            <p style="margin: 0.4em 0; !important;"><strong>{{ arquivo.nome }}</strong></p>
             {% endfor %}
           </div>
         </div>
@@ -55,7 +52,7 @@
           <p>Mês do lançamento: <strong>{{ solicitacao.mes }}/{{ solicitacao.ano }}</strong></p>
         </div>
         <div>
-          <p>Justificativa: <strong>{{ log.justificativa }}</strong></p>
+          <p>Justificativa: <strong>{{ log.justificativa|striptags }}</strong></p>
         </div>
 
         {# 7 - CORRIGIDO PARA DRE #}
@@ -67,12 +64,10 @@
           <p>Mês do lançamento: <strong>{{ solicitacao.mes }}/{{ solicitacao.ano }}</strong></p>
         </div>
         <div class="flex">
-          <p>Arquivos:</p>
+          <p style="margin: 0.3em 0; !important;">Arquivos:</p>
           <div class="arquivos-container">
             {% for arquivo in log.anexos.all %}
-            <p><strong>{{ arquivo.nome }}</strong></p>
-            {% empty %}
-            <p>Nenhum arquivo anexado.</p>
+            <p style="margin: 0.3em 0; !important;"><strong>{{ arquivo.nome }}</strong></p>
             {% endfor %}
           </div>
         </div>
@@ -92,7 +87,7 @@
           <p>Mês do lançamento: <strong>{{ solicitacao.mes }}/{{ solicitacao.ano }}</strong></p>
         </div>
         <div>
-          <p>Justificativa: <strong>{{ log.justificativa }}</strong></p>
+          <p>Justificativa: <strong>{{ log.justificativa|striptags }}</strong></p>
         </div>
 
         {# 10 - CORRIGIDO PARA CODAE #}
@@ -104,12 +99,10 @@
           <p>Mês do lançamento: <strong>{{ solicitacao.mes }}/{{ solicitacao.ano }}</strong></p>
         </div>
         <div class="flex">
-          <p>Arquivos:</p>
+          <p style="margin: 0.3em 0; !important;">Arquivos:</p>
           <div class="arquivos-container">
             {% for arquivo in log.anexos.all %}
-            <p><strong>{{ arquivo.nome }}</strong></p>
-            {% empty %}
-            <p>Nenhum arquivo anexado.</p>
+            <p style="margin: 0.3em 0; !important;"><strong>{{ arquivo.nome }}</strong></p>
             {% endfor %}
           </div>
         </div>
@@ -123,7 +116,9 @@
         {% endif %}
 
       </div>
-      {% if not forloop.last %}<hr />{% endif %}
+      {% if not forloop.last and not forloop.counter|divisibleby:4 %}
+          <hr />
+      {% endif %}
       {% endfor %}
     </div>
 

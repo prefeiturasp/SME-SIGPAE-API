@@ -1,8 +1,8 @@
 @import "variaveis";
 
 @page {
-  font-family: "Roboto", sans-serif;
-  margin-bottom: 2em;
+  padding-top: 3.6cm !important;
+  padding-bottom: 1cm !important;
 }
 
 .flex{
@@ -36,6 +36,11 @@
 }
 
 .header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  margin-top: -10em;
   padding: 0.5em 2em 1em 2em;
   background: $cinza-claro;
   font-size: 14px;
@@ -65,7 +70,15 @@
   font-size: 14px;
   line-height: 16px;
   color: #42474A;
-  margin-top: 2em;
+}
+
+.page-container > div {
+  break-inside: avoid;
+}
+
+.log-container {
+  break-inside: avoid;
+  page-break-inside: avoid; /* fallback */
 }
 
 .page-container .status-evento {
@@ -86,7 +99,7 @@
 }
 
 .page-container p {
-  margin: 0.8em 0;
+  margin: 1.2em 0;
 }
 
 hr {
