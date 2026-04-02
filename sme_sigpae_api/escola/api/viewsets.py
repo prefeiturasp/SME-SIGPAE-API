@@ -1,5 +1,6 @@
 import datetime
 import json
+from calendar import monthrange
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models import Count, F, Max, Q, Sum
@@ -1239,8 +1240,70 @@ class RelatorioControleDeFrequenciaViewSet(ModelViewSet):
             return LogAlunosMatriculadosFaixaEtariaDia.objects.all()
         return LogAlunosMatriculadosPeriodoEscola.objects.all()
 
+    def _obter_intervalo_total_matriculados(self, query_params):
+        data_inicial = query_params.get("data_inicial")
+        data_final = query_params.get("data_final")
+
+        if data_inicial and not data_final:
+            data_final = data_inicial
+        elif data_final and not data_inicial:
+            data_inicial = data_final
+
+        if data_inicial and data_final:
+            return (
+                datetime.date.fromisoformat(data_inicial),
+                datetime.date.fromisoformat(data_final),
+            )
+
+        mes_ano = query_params.get("mes_ano")
+        if mes_ano:
+            mes, ano = mes_ano.split("_")
+        else:
+            mes = query_params.get("mes")
+            ano = query_params.get("ano")
+
+        if mes and ano:
+            _, ultimo_dia_mes = monthrange(int(ano), int(mes))
+            return (
+                datetime.date(int(ano), int(mes), 1),
+                datetime.date(int(ano), int(mes), ultimo_dia_mes),
+            )
+
+        hoje = datetime.date.today()
+        _, ultimo_dia_mes = monthrange(hoje.year, hoje.month)
+        return (
+            datetime.date(hoje.year, hoje.month, 1),
+            datetime.date(hoje.year, hoje.month, ultimo_dia_mes),
+        )
+
+    def _total_matriculados_unicos(self, queryset, escola, query_params):
+        data_inicial, data_final = self._obter_intervalo_total_matriculados(
+            query_params
+        )
+        filtro_historico = Q(
+            logs_alunos_por_dia__aluno__historico__escola=escola,
+            logs_alunos_por_dia__aluno__historico__data_inicio__lte=data_final,
+        ) & (
+            Q(logs_alunos_por_dia__aluno__historico__data_fim__isnull=True)
+            | Q(logs_alunos_por_dia__aluno__historico__data_fim__gte=data_inicial)
+        )
+
+        return (
+            queryset.filter(
+                Q(logs_alunos_por_dia__aluno__escola=escola) | filtro_historico
+            )
+            .values_list("logs_alunos_por_dia__aluno_id", flat=True)
+            .distinct()
+            .count()
+        )
+
     def filtrar_alunos_matriculados(
-        self, queryset, escola_eh_cei_ou_cemei, periodos_uuids
+        self,
+        queryset,
+        escola_eh_cei_ou_cemei,
+        periodos_uuids,
+        escola=None,
+        query_params=None,
     ):
         max_quantidades_por_periodo = {}
 
@@ -1277,9 +1340,16 @@ class RelatorioControleDeFrequenciaViewSet(ModelViewSet):
             max_quantidades_por_periodo[periodo.nome] = (
                 total_matriculados if total_matriculados else 0
             )
+
+        total_matriculados = sum(max_quantidades_por_periodo.values())
+        if escola_eh_cei_ou_cemei and escola and query_params:
+            total_matriculados = self._total_matriculados_unicos(
+                queryset, escola, query_params
+            )
+
         response = {
             "periodos": max_quantidades_por_periodo,
-            "total_matriculados": sum(max_quantidades_por_periodo.values()),
+            "total_matriculados": total_matriculados,
         }
 
         return response
@@ -1413,7 +1483,11 @@ class RelatorioControleDeFrequenciaViewSet(ModelViewSet):
             queryset = queryset.filter(**filtros)
 
         response = self.filtrar_alunos_matriculados(
-            queryset, escola_eh_cei_ou_cemei, periodos_uuids
+            queryset,
+            escola_eh_cei_ou_cemei,
+            periodos_uuids,
+            escola=escola,
+            query_params=request.query_params,
         )
 
         return Response(response, status=status.HTTP_200_OK)

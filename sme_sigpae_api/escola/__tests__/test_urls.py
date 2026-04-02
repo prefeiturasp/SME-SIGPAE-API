@@ -809,3 +809,61 @@ def test_url_endpoint_filtrar_sem_duplicacao_faixa_etaria(
     # Deve ser 1, não 2, pois o aluno é o mesmo e usamos Count(distinct=True)
     assert response.data["total_matriculados"] == 1
     assert response.data["periodos"]["INTEGRAL"] == 1
+
+
+def test_url_endpoint_filtrar_total_unico_por_mes_usa_historico_matricula(
+    client_autenticado_da_escola_cei,
+    escola_cei,
+    periodo_escolar,
+    periodo_escolar_parcial,
+    faixas_etarias_ativas,
+):
+    aluno = baker.make(
+        "Aluno",
+        nome="Criança Histórico",
+        codigo_eol="1234567",
+        escola=escola_cei,
+    )
+    baker.make(
+        "HistoricoMatriculaAluno",
+        aluno=aluno,
+        escola=escola_cei,
+        data_inicio=datetime.date(2024, 6, 1),
+        data_fim=datetime.date(2024, 6, 30),
+    )
+
+    data_teste = datetime.date(2024, 6, 15)
+    log_integral = baker.make(
+        "LogAlunosMatriculadosFaixaEtariaDia",
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar,
+        faixa_etaria=faixas_etarias_ativas[0],
+        quantidade=1,
+        data=data_teste,
+    )
+    log_parcial = baker.make(
+        "LogAlunosMatriculadosFaixaEtariaDia",
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar_parcial,
+        faixa_etaria=faixas_etarias_ativas[1],
+        quantidade=1,
+        data=data_teste,
+    )
+    baker.make(
+        "LogAlunoPorDia", log_alunos_matriculados_faixa_dia=log_integral, aluno=aluno
+    )
+    baker.make(
+        "LogAlunoPorDia", log_alunos_matriculados_faixa_dia=log_parcial, aluno=aluno
+    )
+
+    url = (
+        f"/relatorio-controle-frequencia/filtrar/?"
+        f"periodos={json.dumps([str(periodo_escolar.uuid), str(periodo_escolar_parcial.uuid)])}&"
+        f"data_inicial=2024-06-01&data_final=2024-06-30&"
+        f"mes_ano=06_2024"
+    )
+
+    response = client_autenticado_da_escola_cei.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["total_matriculados"] == 1
