@@ -5224,6 +5224,7 @@ def medicoes_frequencia_zerada_emef(
             periodo_escolar=periodo_escolar,
             quantidade=2,
             classificacao=classificacao_dieta_tipo_a,
+            data=datetime.date(ano, mes, 5),
         )
         log_cinco.criado_em = datetime.date(ano, mes, 5)
         log_cinco.save()
@@ -5234,6 +5235,7 @@ def medicoes_frequencia_zerada_emef(
             periodo_escolar=periodo_escolar,
             quantidade=2,
             classificacao=classificacao_dieta_tipo_a,
+            data=datetime.date(ano, mes, 13),
         )
         log_treze.criado_em = datetime.date(ano, mes, 13)
         log_treze.save()
@@ -5367,6 +5369,7 @@ def medicoes_frequencia_zerada_emebs(
                 quantidade=2,
                 classificacao=classificacao_dieta_tipo_a,
                 infantil_ou_fundamental=tipo,
+                data=datetime.date(ano, mes, 10),
             )
             log_cinco.criado_em = datetime.date(ano, mes, 10)
             log_cinco.save()
@@ -5379,6 +5382,7 @@ def medicoes_frequencia_zerada_emebs(
                     quantidade=2,
                     classificacao=classificacao_dieta_tipo_a,
                     infantil_ou_fundamental=tipo,
+                    data=datetime.date(ano, mes, 24),
                 )
                 log_treze.criado_em = datetime.date(ano, mes, 24)
                 log_treze.save()
@@ -5416,3 +5420,270 @@ def dados_liquidacao_cmct(relatorio_financeiro, escola_cmct):
     )
     obj.unidades_educacionais.set([escola_cmct])
     return obj
+
+
+def build_solicitacao(
+    *,
+    escola,
+    categoria_medicao,
+    grupo_programas,
+    motivo,
+    periodo_manha=None,
+    periodo_tarde=None,
+    grupo_manha=None,
+    grupo_tarde=None,
+    emebs=False,
+):
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        uuid="bed4d779-2d57-4c5f-bf9c-9b93ddac54d9",
+        mes="01",
+        ano=2026,
+        escola=escola,
+    )
+
+    medicoes = []
+
+    # escolar padrão / emebs
+    if periodo_manha and periodo_tarde:
+        medicoes.append(
+            baker.make(
+                "Medicao",
+                solicitacao_medicao_inicial=solicitacao,
+                periodo_escolar=periodo_manha,
+            )
+        )
+        medicoes.append(
+            baker.make(
+                "Medicao",
+                solicitacao_medicao_inicial=solicitacao,
+                periodo_escolar=periodo_tarde,
+            )
+        )
+
+    # cemei
+    if grupo_manha and grupo_tarde:
+        medicoes.append(
+            baker.make(
+                "Medicao",
+                solicitacao_medicao_inicial=solicitacao,
+                grupo=grupo_manha,
+            )
+        )
+        medicoes.append(
+            baker.make(
+                "Medicao",
+                solicitacao_medicao_inicial=solicitacao,
+                grupo=grupo_tarde,
+            )
+        )
+
+    medicao_programas = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        grupo=grupo_programas,
+    )
+
+    # valores zerados
+    for medicao in medicoes:
+        if emebs:
+            for tipo in ["FUNDAMENTAL", "INFANTIL"]:
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao,
+                    nome_campo="frequencia",
+                    dia="14",
+                    categoria_medicao=categoria_medicao,
+                    valor="0",
+                    infantil_ou_fundamental=tipo,
+                )
+        else:
+            baker.make(
+                "ValorMedicao",
+                medicao=medicao,
+                nome_campo="frequencia",
+                dia="14",
+                categoria_medicao=categoria_medicao,
+                valor="0",
+            )
+
+    # programas
+    if emebs:
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_programas,
+            nome_campo="frequencia",
+            dia="14",
+            categoria_medicao=categoria_medicao,
+            valor="10",
+            infantil_ou_fundamental="FUNDAMENTAL",
+        )
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_programas,
+            nome_campo="frequencia",
+            dia="14",
+            categoria_medicao=categoria_medicao,
+            valor="0",
+            infantil_ou_fundamental="INFANTIL",
+        )
+    else:
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_programas,
+            nome_campo="frequencia",
+            dia="14",
+            categoria_medicao=categoria_medicao,
+            valor="10",
+        )
+
+    baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        data_inicial=datetime.date(2026, 1, 14),
+        data_final=datetime.date(2026, 1, 14),
+        motivo=motivo,
+        status="CODAE_AUTORIZADO",
+    )
+
+    return solicitacao
+
+
+def apply_dieta(
+    solicitacao,
+    categoria_base,
+    categoria_dieta,
+    emebs=False,
+    is_cemei=False,
+):
+    for medicao in solicitacao.medicoes.all():
+        filtros = {
+            "nome_campo": "frequencia",
+            "dia": "14",
+            "categoria_medicao": categoria_base,
+        }
+
+        if emebs:
+            filtros["infantil_ou_fundamental"] = "FUNDAMENTAL"
+
+        valor = medicao.valores_medicao.get(**filtros)
+
+        if is_cemei:
+            is_programa = medicao.grupo.nome == "Programas e Projetos"
+        else:
+            is_programa = bool(medicao.grupo)
+
+        valor.valor = "10" if is_programa else "20"
+        valor.save()
+
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao,
+            nome_campo="frequencia",
+            dia="14",
+            categoria_medicao=categoria_dieta,
+            valor="3" if is_programa else "0",
+            **({"infantil_ou_fundamental": "FUNDAMENTAL"} if emebs else {}),
+        )
+
+    return solicitacao
+
+
+@pytest.fixture
+def solicitacao_medicao_finaliza_programas_projetos_zerados_alimentacao(
+    escola,
+    periodo_escolar_manha,
+    periodo_escolar_tarde,
+    categoria_medicao,
+    grupo_programas_e_projetos,
+    motivo_inclusao_continua_programas_projetos,
+):
+    return build_solicitacao(
+        escola=escola,
+        categoria_medicao=categoria_medicao,
+        grupo_programas=grupo_programas_e_projetos,
+        motivo=motivo_inclusao_continua_programas_projetos,
+        periodo_manha=periodo_escolar_manha,
+        periodo_tarde=periodo_escolar_tarde,
+    )
+
+
+@pytest.fixture
+def solicitacao_medicao_finaliza_programas_projetos_zerados_dietas(
+    solicitacao_medicao_finaliza_programas_projetos_zerados_alimentacao,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+):
+    return apply_dieta(
+        solicitacao_medicao_finaliza_programas_projetos_zerados_alimentacao,
+        categoria_medicao,
+        categoria_medicao_dieta_a,
+    )
+
+
+@pytest.fixture
+def solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_alimentacao(
+    escola_emebs,
+    periodo_escolar_manha,
+    periodo_escolar_tarde,
+    categoria_medicao,
+    grupo_programas_e_projetos,
+    motivo_inclusao_continua_programas_projetos,
+):
+    return build_solicitacao(
+        escola=escola_emebs,
+        categoria_medicao=categoria_medicao,
+        grupo_programas=grupo_programas_e_projetos,
+        motivo=motivo_inclusao_continua_programas_projetos,
+        periodo_manha=periodo_escolar_manha,
+        periodo_tarde=periodo_escolar_tarde,
+        emebs=True,
+    )
+
+
+@pytest.fixture
+def solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_dietas(
+    solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_alimentacao,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+):
+    return apply_dieta(
+        solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_alimentacao,
+        categoria_medicao,
+        categoria_medicao_dieta_a,
+        emebs=True,
+    )
+
+
+@pytest.fixture
+def solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao(
+    escola_cemei,
+    grupo_infantil_manha,
+    grupo_infantil_tarde,
+    categoria_medicao,
+    grupo_programas_e_projetos,
+    motivo_inclusao_continua_programas_projetos,
+):
+    return build_solicitacao(
+        escola=escola_cemei,
+        categoria_medicao=categoria_medicao,
+        grupo_programas=grupo_programas_e_projetos,
+        motivo=motivo_inclusao_continua_programas_projetos,
+        grupo_manha=grupo_infantil_manha,
+        grupo_tarde=grupo_infantil_tarde,
+    )
+
+
+@pytest.fixture
+def solicitacao_medicao_finaliza_programas_projetos_cemei_zerados_dietas(
+    solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+):
+    return apply_dieta(
+        solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao,
+        categoria_medicao,
+        categoria_medicao_dieta_a,
+        is_cemei=True,
+    )

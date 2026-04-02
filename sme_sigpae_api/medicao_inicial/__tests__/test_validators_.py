@@ -6,6 +6,7 @@ from freezegun.api import freeze_time
 from sme_sigpae_api.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.medicao_inicial.validators import (
+    _validate_solicitacoes_programas_e_projetos_emei_cemei,
     get_lista_dias_letivos,
     obter_periodos_corretos,
     valida_medicoes_inexistentes_cei,
@@ -20,6 +21,7 @@ from sme_sigpae_api.medicao_inicial.validators import (
     validate_medicao_cemei,
     validate_solicitacoes_etec,
     validate_solicitacoes_programas_e_projetos,
+    validate_solicitacoes_programas_e_projetos_emebs,
 )
 
 pytestmark = pytest.mark.django_db

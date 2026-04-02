@@ -1,5 +1,6 @@
 import datetime
 import json
+from calendar import monthrange
 
 import environ
 from rest_framework import serializers
@@ -51,6 +52,11 @@ from sme_sigpae_api.terceirizada.api.serializers.serializers import (
     LoteSimplesSerializer,
 )
 from sme_sigpae_api.terceirizada.models import Edital
+
+from ..utils import (
+    calcula_totais_consumo_por_escolas,
+    calcular_total_pagamento,
+)
 
 FORMATO_DATA_BR = "%d/%m/%Y"
 
@@ -453,10 +459,12 @@ class DadosLiquidacaoSerializer(serializers.ModelSerializer):
     Attributes:
         relatorio_financeiro (RelatorioFinanceiroSerializer): Dados do relatório financeiro.
         unidades_educacionais (List[EscolaSerializer]): Lista de unidades educacionais associadas.
+        total_pagamento (Decimal): Valor total calculado com base no consumo e parametrização financeira.
     """
 
     relatorio_financeiro = RelatorioFinanceiroSerializer(read_only=True)
     unidades_educacionais = EscolaSerializer(many=True, read_only=True)
+    total_pagamento = serializers.SerializerMethodField()
 
     class Meta:
         model = DadosLiquidacao
@@ -466,6 +474,65 @@ class DadosLiquidacaoSerializer(serializers.ModelSerializer):
             "numero_empenho",
             "tipo_empenho",
             "unidades_educacionais",
+            "total_pagamento",
             "criado_em",
             "alterado_em",
         ]
+
+    def get_total_pagamento(self, obj):
+        """
+        Calcula o valor total de pagamento para o objeto de liquidação.
+
+        O cálculo considera:
+        - As unidades educacionais associadas
+        - O tipo de cálculo definido pelo grupo da unidade escolar:
+            - Grupo 1 → cálculo por faixa etária
+            - Grupo 2 → cálculo combinado (tipo e faixa)
+            - Demais grupos → cálculo por tipo de alimentação
+        - O consumo consolidado no período do relatório financeiro
+        - A parametrização financeira vigente no mês/ano do relatório
+
+        Etapas:
+        1. Obtém as escolas vinculadas
+        2. Determina o tipo de cálculo
+        3. Calcula o consumo e atendimento total das escolas
+        4. Busca a parametrização válida no período
+        5. Calcula o valor total com base na parametrização
+
+        Args:
+            obj (DadosLiquidacao): Instância sendo serializada.
+
+        Returns:
+            Decimal: Valor total calculado para pagamento.
+        """
+        escolas = obj.unidades_educacionais.values_list("uuid", flat=True)
+        grupo_nome = obj.relatorio_financeiro.grupo_unidade_escolar.nome
+
+        tipo_calculo = (
+            "faixa_etaria"
+            if grupo_nome == "Grupo 1"
+            else None if grupo_nome == "Grupo 2" else "tipo_alimentacao"
+        )
+
+        consumo = calcula_totais_consumo_por_escolas(
+            escolas, obj.relatorio_financeiro, tipo_calculo=tipo_calculo
+        )
+
+        mes = int(obj.relatorio_financeiro.mes)
+        ano = int(obj.relatorio_financeiro.ano)
+
+        parametrizacao = (
+            ParametrizacaoFinanceira.objects.filter(
+                grupo_unidade_escolar=obj.relatorio_financeiro.grupo_unidade_escolar,
+                lote=obj.relatorio_financeiro.lote,
+                data_inicial__lte=datetime.date(ano, mes, monthrange(ano, mes)[1]),
+                data_final__gte=datetime.date(ano, mes, 1),
+            )
+            .order_by("-data_inicial")
+            .first()
+        )
+
+        if not parametrizacao:
+            return 0
+
+        return calcular_total_pagamento(consumo, parametrizacao, tipo_calculo)
