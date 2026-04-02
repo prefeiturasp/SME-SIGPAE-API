@@ -748,14 +748,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
     def retorna_medicao_por_nome_grupo(
         self, instance: SolicitacaoMedicaoInicial, nome_grupo: str
     ) -> Medicao:
-        try:
-            medicao = instance.medicoes.get(grupo__nome=nome_grupo)
-        except Medicao.DoesNotExist:
-            grupo = GrupoMedicao.objects.get(nome=nome_grupo)
-            medicao = Medicao.objects.create(
-                solicitacao_medicao_inicial=instance, grupo=grupo
-            )
-        return medicao
+        return instance.get_or_create_medicao_por_periodo_e_ou_grupo(nome_grupo)
 
     def retorna_numero_alunos_dia(
         self, inclusao: InclusaoAlimentacaoContinua, data: date
