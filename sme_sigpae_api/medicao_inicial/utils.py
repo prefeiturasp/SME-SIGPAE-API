@@ -8,6 +8,8 @@ from calendar import monthrange
 from collections import defaultdict
 from functools import reduce
 from unidecode import unidecode
+from typing import Any, Dict
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import FloatField, IntegerField, Q, QuerySet, Sum
 from django.db.models.functions import Cast
@@ -5709,12 +5711,30 @@ def _modalidade_zerada(
     return encontrou_modalidade
 
 
-def _verifica_dietas_consumidas(solicitacao, escola_emebs, escola_cemei):
+def _verifica_dietas_consumidas(
+    solicitacao: SolicitacaoMedicaoInicial, escola_emebs: bool, escola_cemei: bool
+) -> Dict[str, Any]:
+    """
+    Verifica as dietas especiais consumidas para uma solicitação de medição inicial.
+
+    Agrega dados de logs de dietas autorizadas, filtra por quantidade > 0,
+    e organiza os períodos escolares por classificação de dieta.
+
+    Para escolas EMEBS, agrupa adicionalmente por modalidade (INFANTIL/FUNDAMENTAL).
+
+    Args:
+        solicitacao: Instância da solicitação de medição inicial.
+        escola_emebs: Indica se a escola é do tipo EMEBS.
+        escola_cemei: Indica se a escola é do tipo CEMEI.
+
+    Returns:
+        Dicionário com as dietas e seus períodos escolares.
+    """
     dados_agregados = (
         LogQuantidadeDietasAutorizadas.objects.filter(
             escola=solicitacao.escola,
-            criado_em__year=int(solicitacao.ano),
-            criado_em__month=int(solicitacao.mes),
+            data__year=int(solicitacao.ano),
+            data__month=int(solicitacao.mes),
             periodo_escolar__isnull=False,
         )
         .exclude(classificacao__nome__icontains="Tipo C")
@@ -5722,6 +5742,7 @@ def _verifica_dietas_consumidas(solicitacao, escola_emebs, escola_cemei):
             "classificacao__nome",
             "periodo_escolar__nome",
             "infantil_ou_fundamental",
+            "cei_ou_emei",
         )
         .annotate(total_quantidade=Sum("quantidade"))
         .filter(total_quantidade__gt=0)
@@ -5739,6 +5760,13 @@ def _verifica_dietas_consumidas(solicitacao, escola_emebs, escola_cemei):
 
     for item in dados_agregados:
         classificacao = dicionario_dieta.get(item["classificacao__nome"])
+        if (
+            escola_cemei
+            and item["periodo_escolar__nome"] == "INTEGRAL"
+            and item["cei_ou_emei"] == "CEI"
+        ):
+            continue
+
         periodo = (
             f"INFANTIL {item['periodo_escolar__nome']}"
             if escola_cemei
@@ -5751,11 +5779,13 @@ def _verifica_dietas_consumidas(solicitacao, escola_emebs, escola_cemei):
         else:
             resultado_intermediario[classificacao].add(periodo)
     if escola_emebs:
-        resultado_final = {}
-        for classificacao, tipos_ensino in resultado_intermediario.items():
-            resultado_final[classificacao] = {}
-            for tipo_ensino, periodos in tipos_ensino.items():
-                resultado_final[classificacao][tipo_ensino] = sorted(list(periodos))
+        resultado_final = {
+            classificacao: {
+                tipo_ensino: sorted(list(periodos))
+                for tipo_ensino, periodos in tipos_ensino.items()
+            }
+            for classificacao, tipos_ensino in resultado_intermediario.items()
+        }
         return resultado_final
     else:
         return {

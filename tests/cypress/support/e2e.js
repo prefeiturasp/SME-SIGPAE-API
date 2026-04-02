@@ -44,6 +44,7 @@ import './commands_api/commands_perfis'
 import './commands_api/commands_perfis_vinculados'
 import './commands_api/commands_periodos_escolares'
 import './commands_api/commands_terceirizadas'
+import './commands_api/commands_homologacao_produtos'
 
 import './commands_ui/commands_login'
 import './commands_ui/commands_globais'
