@@ -373,8 +373,39 @@ def usuario_diretor_escola(django_user_model, escola):
 
 
 @pytest.fixture
+def usuario_diretor_escola_cei(django_user_model, escola_cei):
+    email = "user@escola.com"
+    password = DJANGO_ADMIN_PASSWORD
+
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
+
+    usuario = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="123456"
+    )
+
+    hoje = datetime.date.today()
+    baker.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=escola_cei,
+        perfil=perfil_diretor,
+        data_inicial=hoje,
+        ativo=True,
+    )
+
+    return usuario, password
+
+
+@pytest.fixture
 def client_autenticado_da_escola(client, usuario_diretor_escola):
     usuario, password = usuario_diretor_escola
+    client.login(username=usuario.email, password=password)
+    return client
+
+
+@pytest.fixture
+def client_autenticado_da_escola_cei(client, usuario_diretor_escola_cei):
+    usuario, password = usuario_diretor_escola_cei
     client.login(username=usuario.email, password=password)
     return client
 
