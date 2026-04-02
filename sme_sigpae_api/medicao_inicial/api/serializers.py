@@ -511,4 +511,7 @@ class DadosLiquidacaoSerializer(serializers.ModelSerializer):
             data_final__gte=datetime.date(ano, mes, 1),
         ).order_by('-data_inicial').first()
 
+        if not parametrizacao:
+            return 0
+
         return calcular_total_pagamento(consumo, parametrizacao, tipo_calculo)
