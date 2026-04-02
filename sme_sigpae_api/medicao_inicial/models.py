@@ -391,17 +391,56 @@ class SolicitacaoMedicaoInicial(
             return None
 
     def _eh_grupo_legado_recreio_nas_ferias_cei(self, nome_grupo: str) -> bool:
+        """Verifica se o grupo informado usa a regra de compatibilizacao de CEI.
+
+        Para escolas CEI na data de referencia da solicitacao, tanto o nome
+        padrao quanto a nomenclatura legada do grupo de Recreio nas Ferias sao
+        tratados como equivalentes.
+
+        Args:
+            nome_grupo: Nome do grupo de medicao a ser avaliado.
+
+        Returns:
+            True quando a escola e CEI na data de referencia e o grupo informado
+            corresponde a uma das nomenclaturas aceitas para Recreio nas Ferias.
+            Caso contrario, False.
+        """
         return self.escola.eh_cei_data(self.data_referencia) and nome_grupo in [
             GRUPO_RECREIO_NAS_FERIAS,
             GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI,
         ]
 
     def _normaliza_nome_grupo_recreio_nas_ferias_cei(self, nome_grupo: str) -> str:
+        """Converte o nome legado do grupo para a nomenclatura padrao.
+
+        Quando o grupo informado se enquadra na regra de compatibilizacao para
+        CEI, a funcao sempre retorna o nome padrao de Recreio nas Ferias.
+
+        Args:
+            nome_grupo: Nome do grupo de medicao recebido pela operacao.
+
+        Returns:
+            O nome padrao do grupo de Recreio nas Ferias quando houver
+            compatibilizacao para CEI. Nos demais casos, retorna o valor
+            original sem alteracoes.
+        """
         if self._eh_grupo_legado_recreio_nas_ferias_cei(nome_grupo):
             return GRUPO_RECREIO_NAS_FERIAS
         return nome_grupo
 
     def _normaliza_medicao_legada_recreio_nas_ferias_cei(self):
+        """Migra a medicao legada de CEI para o grupo padrao.
+
+        A rotina busca uma medicao da solicitacao atual vinculada ao grupo
+        legado de Recreio nas Ferias para CEI e, quando encontrada, atualiza o
+        relacionamento para o grupo padrao.
+
+        Returns:
+            A medicao atualizada para o grupo padrao quando a normalizacao e
+            realizada. Retorna None quando a solicitacao nao se enquadra na
+            regra, quando os grupos nao existem ou quando nao ha medicao legada
+            para migrar.
+        """
         if not self._eh_grupo_legado_recreio_nas_ferias_cei(
             GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI
         ):
