@@ -39,6 +39,10 @@ from ..relatorios.relatorios import (
 from .models import Responsavel, SolicitacaoMedicaoInicial
 from .utils import cria_relatorios_financeiros_por_grupo_unidade_escolar
 
+from sme_sigpae_api.medicao_inicial.services.relatorio_historio_correcoes_pdf import (
+    gera_relatorio_historico_correcoes_pdf,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -395,3 +399,29 @@ def cria_relatorios_financeiros():
     logger.info(
         "x-x-x-x Finaliza criação de Relatórios Financeiros da Medição Inicial x-x-x-x"
     )
+
+
+@shared_task(
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 8},
+    time_limit=3000,
+    soft_time_limit=3000,
+)
+def exporta_relatorio_historico_correcoes_pdf(
+    user, nome_arquivo, solicitacao_uuid
+):
+    logger.info(f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x")
+    obj_central_download = gera_objeto_na_central_download(
+        user=user, identificador=nome_arquivo
+    )
+    try:
+        arquivo = gera_relatorio_historico_correcoes_pdf(
+            solicitacao_uuid
+        )
+        atualiza_central_download(obj_central_download, nome_arquivo, arquivo)
+
+    except Exception as e:
+        atualiza_central_download_com_erro(obj_central_download, str(e))
+        logger.error(f"Erro ao gerar relatório consolidado: {e}")
+
+    logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")

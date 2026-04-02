@@ -84,6 +84,7 @@ from ..tasks import (
     exporta_relatorio_adesao_para_pdf,
     exporta_relatorio_adesao_para_xlsx,
     exporta_relatorio_consolidado_xlsx,
+    exporta_relatorio_historico_correcoes_pdf,
     gera_pdf_relatorio_solicitacao_medicao_por_escola_async,
     gera_pdf_relatorio_unificado_async,
 )
@@ -1437,7 +1438,32 @@ class SolicitacaoMedicaoInicialViewSet(
 
         resultado = busca_dias_zerados(solicitacao)
         return Response(resultado, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=["GET"], url_path="relatorio-historio-correcoes")
+    def relatorio_historico_correcoes(self, request, uuid=None):
+        solicitacao_medicao_inicial = self.get_object()
+        if not solicitacao_medicao_inicial:
+            return Response(
+                {"detail": "A solicitação não foi encontrada."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        
+        if solicitacao_medicao_inicial.historico is None:
+            return Response(
+                {"detail": "A medição não possui histórico a ser gerado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+            
+        exporta_relatorio_historico_correcoes_pdf.delay(
+            user=request.user.get_username(),
+            nome_arquivo=f"Relatório Histório de Correções - {solicitacao_medicao_inicial.escola.nome} - {solicitacao_medicao_inicial.mes}/{solicitacao_medicao_inicial.ano}.pdf",
+            solicitacao_uuid=solicitacao_medicao_inicial.uuid
+        )
 
+        return Response(
+            data={"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            status=status.HTTP_200_OK,
+        )
 
 class TipoContagemAlimentacaoViewSet(mixins.ListModelMixin, GenericViewSet):
     queryset = TipoContagemAlimentacao.objects.filter(ativo=True)
