@@ -25,7 +25,7 @@
           <p style="margin: 0.4em 0; !important;">Data: <strong>{{ log.criado_em }}</strong></p>
         </div>
 
-        {# 5 - RECEBIDO PARA ANÁLISE #}
+        {# RECEBIDO PARA ANÁLISE #}
         {% if log.status_evento_explicacao == "Enviado pela UE" %}
         <div class="ue-dre-container">
           <p style="margin: 0.4em 0; !important;">Unidade Educacional: <strong>{{ solicitacao.escola.nome }}</strong></p>
@@ -43,7 +43,7 @@
           </div>
         </div>
 
-        {# 6 - DEVOLVIDO PARA AJUSTES PELA DRE #}
+        {# DEVOLVIDO PARA AJUSTES PELA DRE #}
         {% elif log.status_evento_explicacao == "Correção solicitada" %}
         <div>
           <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
@@ -55,7 +55,7 @@
           <p>Justificativa: <strong>{{ log.justificativa|striptags }}</strong></p>
         </div>
 
-        {# 7 - CORRIGIDO PARA DRE #}
+        {# CORRIGIDO PARA DRE #}
         {% elif log.status_evento_explicacao == "Corrigido para DRE" %}
         <div>
           <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
@@ -72,13 +72,13 @@
           </div>
         </div>
 
-        {# 8 - APROVADO PELA DRE #}
+        {# APROVADO PELA DRE #}
         {% elif log.status_evento_explicacao == "Aprovado pela DRE" %}
         <div>
           <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
         </div>
 
-        {# 9 - DEVOLVIDO PARA AJUSTES PELA CODAE #}
+        {# DEVOLVIDO PARA AJUSTES PELA CODAE #}
         {% elif log.status_evento_explicacao == "Correção solicitada pela CODAE" %}
         <div>
           <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
@@ -90,7 +90,7 @@
           <p>Justificativa: <strong>{{ log.justificativa|striptags }}</strong></p>
         </div>
 
-        {# 10 - CORRIGIDO PARA CODAE #}
+        {# CORRIGIDO PARA CODAE #}
         {% elif log.status_evento_explicacao == "Corrigido para CODAE" %}
         <div>
           <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
@@ -107,7 +107,7 @@
           </div>
         </div>
 
-        {# 11 - APROVADO PELA CODAE #}
+        {# APROVADO PELA CODAE #}
         {% elif log.status_evento_explicacao == "Aprovado pela CODAE" %}
         <div>
           <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
