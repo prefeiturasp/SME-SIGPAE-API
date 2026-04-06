@@ -90,12 +90,46 @@
     {% for log in logs %}
       <div class="log-item">
           <div class="secao-log">
-            <h4>{{ log.status_evento_explicacao }}</h4>
-            <div>RF: <span class="highlight">{{ log.usuario.registro_funcional }}</span></div>
-            <div>Data: <span class="highlight">{{ log.criado_em|date:"d/m/Y - H:i" }}</span></div>
-            <div>
-              <span>{{ log.descricao}}</span>
-            </div>
+            <h4>{{ log.titulo }}</h4>
+            <div>Data: <span class="highlight">{{ log.data|date:"d/m/Y - H:i" }}</span></div>
+            <div>Unidade Educacional: <span class="highlight">{{ log.unidade }}</span></div>
+            <div>DRE: <span class="highlight">{{ log.dre }}</span></div>
+            <div>RF: <span class="highlight">{{ log.rf }} - {{ log.nome }}</span></div>
+            {% if log.alteracoes%}
+            <div><span class="highlight">Correções Solicitadas</span></div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>PERÍODO</th>
+                    <th>TABELA DE LANÇAMENTO</th>
+                    <th>CORREÇÕES</th>
+                    <th>OBSERVAÇÃO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for alteracao in log.alteracoes %}
+                    <tr>
+                      <td>{{ alteracao.periodo_escolar }}</td>
+                      <td colSpan=2>
+                        {% for lancamento in alteracao.tabelas_lancamentos %}
+                          <div>
+                            <span>{{ lancamento.categoria_medicao }}</span>
+                          </div>
+                          <div>
+                            {%for semana in lancamento.semanas%} 
+                              Semana: {{ semana.semana }}</br>
+                              Dias: {{ semana.dias |join:", " }}
+                            {%endfor%}
+                          </div>
+                        {% endfor %}
+                      </td>
+                      <td>{{ alteracao.justificativa | safe }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% endif %}
+
           </div>
       </div>
     {% endfor %}

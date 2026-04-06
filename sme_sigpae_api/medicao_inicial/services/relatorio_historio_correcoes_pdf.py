@@ -3,49 +3,68 @@ import json
 
 from django.template.loader import render_to_string
 
+from sme_sigpae_api.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.dados_comuns.utils import converte_numero_em_mes
 from sme_sigpae_api.escola.models import DiretoriaRegional, Escola, Lote
 from sme_sigpae_api.medicao_inicial.models import SolicitacaoMedicaoInicial
+from sme_sigpae_api.produto.constants import STATUS_DICT
 from sme_sigpae_api.relatorios.utils import html_to_pdf_file
 
+def filtrar_por_acao(
+    dados: list[dict], acao: str
+) -> list[dict]:
+    """
+    Filtra uma lista de dicionários pelo campo 'acao'.
+    
+    Args:
+        dados (list[dict]): _description_
+        acao (str): _description_
 
-def _formata_filtros(query_params: dict):
-    mes, ano = query_params.get("mes_ano").split("_")
-    filtros = f"{converte_numero_em_mes(int(mes))} - {ano}"
+    Returns:
+        list[dict]: _description_
+    """
+    return [item for item in dados if item.get("acao") == acao]
 
-    dre_uuid = query_params.get("diretoria_regional")
-    if dre_uuid:
-        dre = DiretoriaRegional.objects.filter(uuid=dre_uuid).first()
-        filtros += f" | {dre.nome}"
-
-    lotes_uuid = query_params.get("lotes")
-    if lotes_uuid:
-        lotes = Lote.objects.filter(uuid__in=lotes_uuid).values_list("nome", flat=True)
-        filtros += f" | {', '.join(lotes)}"
-
-    escola_codigo_eol = query_params.get("escola")
-    if escola_codigo_eol:
-        escola_codigo_eol, *_ = escola_codigo_eol.split("-")
-        escola = Escola.objects.filter(codigo_eol=escola_codigo_eol.strip()).first()
-        filtros += f" | {escola.nome}"
-
-    periodo_lancamento_de = query_params.get("periodo_lancamento_de")
-    periodo_lancamento_ate = query_params.get("periodo_lancamento_ate")
-    if periodo_lancamento_de and periodo_lancamento_ate:
-        filtros += f" | Período de lançamento: {periodo_lancamento_de} até {periodo_lancamento_ate}"
-
-    return filtros
-
-
+def ajustes(logs, historico, extras):
+    informacoes = []
+    escola = extras["escola"]
+    
+    for log in logs:
+        # descricao = STATUS_DICT[LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE]
+        if log.status_evento_explicacao == STATUS_DICT[LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE]:
+            informacoes.append({
+                "titulo": "RECEBIDO PARA ANÁLISE",
+                "data": log.criado_em,
+                "rf": log.usuario.registro_funcional,
+                "nome": log.usuario.nome,
+                "unidade": escola.nome,
+                "dre": escola.diretoria_regional.nome
+            })
+        elif log.status_evento_explicacao == STATUS_DICT[LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA]:
+            h = filtrar_por_acao(historico, SolicitacaoMedicaoInicialWorkflow.MEDICAO_CORRECAO_SOLICITADA)
+            informacoes.append({
+                "titulo": "DEVOLVIDO PARA AJUSTES PELA DRE",
+                "data": log.criado_em,
+                "rf": log.usuario.registro_funcional,
+                "nome": log.usuario.nome,
+                "mes_lançamento": extras["data_solicitacao"],
+                "alteracoes": h[0].get("alteracoes")
+            })
+        
+    return informacoes
+    
+    
 def gera_relatorio_historico_correcoes_pdf(solicitacao_uuid):
     solicitacao = SolicitacaoMedicaoInicial.objects.get(uuid=solicitacao_uuid)
     logs = solicitacao.logs.order_by("criado_em")
     historico = json.loads(solicitacao.historico)
-    
+    data_solicitacao = f"{solicitacao.mes}/{solicitacao.ano}"
+    informacoes = ajustes(logs, historico, {"escola": solicitacao.escola, "data_solicitacao": data_solicitacao})
     html_string = render_to_string(
         "relatorio_historico_correcoes_medicao.html",
         {
-            "logs": logs,
+            "logs": informacoes,
             "solicitacao": solicitacao,
             "subtitulo": "RELATÓRIO DE HISTÓRICO DE MEDIÇÃO INICIAL",
         },

@@ -13,22 +13,24 @@
   <style>
 
     @page {
-        size: A4;
-        margin: 2cm; /* Margem geral da página */
-      
-        @top-center {
-            content: element(header);
-        }
-    }
-
-    header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 50px;
-        text-align: center;
-        border-bottom: 1px solid #000;
+      margin-bottom: 4em;
+      @bottom-left {
+        background: #EEEEEE;
+        color: #000000;
+        content: "Documento gerado em {% now 'd/m/Y' %} às {% now 'H:i' %}" ;
+        font-size: 11px;
+        width: 100%;
+        padding: 1em 2em 4em 2em;
+        margin-top: 2em;
+      }
+      @bottom-right {
+        color: #000000;
+        content: "Página " counter(page) " de " counter(pages);
+        font-size: 11px;
+        width: 45%;
+        padding: 1em 2em 4em 2em;
+        margin-top: 2em;
+      }
     }
     
 
