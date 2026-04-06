@@ -33,23 +33,23 @@
 
         {# Campo comum a todos os status #}
         <div>
-          <p style="margin: 0.4em 0; !important;">Data: <strong>{{ log.criado_em }}</strong></p>
+          <p style="margin: 0.4em 0;">Data: <strong>{{ log.criado_em|date:"d/m/Y" }} - {{ log.criado_em|time:"H:i" }}</strong></p>
         </div>
 
         {# RECEBIDO PARA ANÁLISE #}
         {% if log.status_evento_explicacao == "Enviado pela UE" %}
         <div class="ue-dre-container">
-          <p style="margin: 0.4em 0; !important;">Unidade Educacional: <strong>{{ solicitacao.escola.nome }}</strong></p>
-          <p style="margin: 0.4em 0; !important;" class="dre-content">DRE: <strong>{{ solicitacao.escola.diretoria_regional.nome }}</strong></p>
+          <p style="margin: 0.4em 0;">Unidade Educacional: <strong>{{ solicitacao.escola.nome }}</strong></p>
+          <p style="margin: 0.4em 0;" class="dre-content">DRE: <strong>{{ solicitacao.escola.diretoria_regional.nome }}</strong></p>
         </div>
         <div>
-          <p style="margin: 0.4em 0; !important;">RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
+          <p style="margin: 0.4em 0;">RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
         </div>
         <div class="flex">
-          <p style="margin: 0.4em 0; !important;">Arquivos:</p>
+          <p style="margin: 0.4em 0;">Arquivos:</p>
           <div class="arquivos-container">
             {% for arquivo in log.anexos.all %}
-            <p style="margin: 0.4em 0; !important;"><strong>{{ arquivo.nome }}</strong></p>
+            <p style="margin: 0.4em 0;"><strong>{{ arquivo.nome }}</strong></p>
             {% endfor %}
           </div>
         </div>
@@ -75,10 +75,10 @@
           <p>Mês do lançamento: <strong>{{ solicitacao.mes }}/{{ solicitacao.ano }}</strong></p>
         </div>
         <div class="flex">
-          <p style="margin: 0.3em 0; !important;">Arquivos:</p>
+          <p style="margin: 0.3em 0;">Arquivos:</p>
           <div class="arquivos-container">
             {% for arquivo in log.anexos.all %}
-            <p style="margin: 0.3em 0; !important;"><strong>{{ arquivo.nome }}</strong></p>
+            <p style="margin: 0.3em 0;"><strong>{{ arquivo.nome }}</strong></p>
             {% endfor %}
           </div>
         </div>
@@ -110,10 +110,10 @@
           <p>Mês do lançamento: <strong>{{ solicitacao.mes }}/{{ solicitacao.ano }}</strong></p>
         </div>
         <div class="flex">
-          <p style="margin: 0.3em 0; !important;">Arquivos:</p>
+          <p style="margin: 0.3em 0;">Arquivos:</p>
           <div class="arquivos-container">
             {% for arquivo in log.anexos.all %}
-            <p style="margin: 0.3em 0; !important;"><strong>{{ arquivo.nome }}</strong></p>
+            <p style="margin: 0.3em 0;"><strong>{{ arquivo.nome }}</strong></p>
             {% endfor %}
           </div>
         </div>
