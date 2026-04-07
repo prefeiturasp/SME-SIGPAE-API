@@ -2207,8 +2207,6 @@ def get_lista_dias_solicitacoes(params, escola):
         query_set = remover_duplicados(query_set)
         datas_kits = []
         for obj in query_set:
-            if _eh_fim_de_semana(obj.data_evento):
-                continue
             datas_kits.append(_formatar_dia(obj.data_evento))
         return datas_kits
 
