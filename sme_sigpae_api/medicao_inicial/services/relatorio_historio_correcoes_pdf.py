@@ -29,9 +29,9 @@ def filtrar_por_acao(
 def ajustes(logs, historico, extras):
     informacoes = []
     escola = extras["escola"]
+    mes_ano = extras["data_solicitacao"]
     
     for log in logs:
-        # descricao = STATUS_DICT[LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE]
         if log.status_evento_explicacao == STATUS_DICT[LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE]:
             informacoes.append({
                 "titulo": "RECEBIDO PARA ANÁLISE",
@@ -48,7 +48,18 @@ def ajustes(logs, historico, extras):
                 "data": log.criado_em,
                 "rf": log.usuario.registro_funcional,
                 "nome": log.usuario.nome,
-                "mes_lançamento": extras["data_solicitacao"],
+                "mes_lancamento": mes_ano,
+                "alteracoes": h[0].get("alteracoes")
+            })
+            
+        elif log.status_evento_explicacao == STATUS_DICT[LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PELA_UE]:
+            h = filtrar_por_acao(historico, SolicitacaoMedicaoInicialWorkflow.MEDICAO_CORRIGIDA_PELA_UE)
+            informacoes.append({
+                "titulo": "CORRIGIDO PARA DRE",
+                "data": log.criado_em,
+                "rf": log.usuario.registro_funcional,
+                "nome": log.usuario.nome,
+                "mes_lancamento": mes_ano,
                 "alteracoes": h[0].get("alteracoes")
             })
         
