@@ -2161,6 +2161,14 @@ def remover_duplicados(query_set):
     return sem_uuid_repetido
 
 
+def _eh_fim_de_semana(data):
+    return data.weekday() >= 5
+
+
+def _formatar_dia(data):
+    return str(data.day).rjust(2, "0")
+
+
 def formatar_query_set_alteracao(query_set, mes, ano):
     datas = []
     for alteracao_alimentacao in query_set:
@@ -2171,10 +2179,9 @@ def formatar_query_set_alteracao(query_set, mes, ano):
             data__month=mes, data__year=ano, cancelado=False
         )
         for obj in datas_intervalos:
-            if not len(str(obj.data.day)) == 1:
-                datas.append(str(obj.data.day))
-            else:
-                datas.append(("0" + str(obj.data.day)))
+            if _eh_fim_de_semana(obj.data):
+                continue
+            datas.append(_formatar_dia(obj.data))
     return list(set(datas))
 
 
@@ -2200,10 +2207,9 @@ def get_lista_dias_solicitacoes(params, escola):
         query_set = remover_duplicados(query_set)
         datas_kits = []
         for obj in query_set:
-            if not len(str(obj.data_evento.day)) == 1:
-                datas_kits.append(str(obj.data_evento.day))
-            else:
-                datas_kits.append(("0" + str(obj.data_evento.day)))
+            if _eh_fim_de_semana(obj.data_evento):
+                continue
+            datas_kits.append(_formatar_dia(obj.data_evento))
         return datas_kits
 
 
