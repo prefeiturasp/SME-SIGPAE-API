@@ -63,7 +63,6 @@ def ajustes(logs, historico, extras):
                 "alteracoes": h[0].get("alteracoes")
             })
         elif log.status_evento_explicacao == STATUS_DICT[LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_DRE]:
-            h = filtrar_por_acao(historico, SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_DRE)
             informacoes.append({
                 "titulo": "APROVADO PELA DRE",
                 "data": log.criado_em,
@@ -89,6 +88,14 @@ def ajustes(logs, historico, extras):
                 "nome": log.usuario.nome,
                 "mes_lancamento": mes_ano,
                 "alteracoes": h[0].get("alteracoes")
+            })
+        elif log.status_evento_explicacao == STATUS_DICT[LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE]:
+            informacoes.append({
+                "titulo": "APROVADO PELA CODAE",
+                "data": log.criado_em,
+                "rf": log.usuario.registro_funcional,
+                "nome": log.usuario.nome,
+
             })
 
     return informacoes
