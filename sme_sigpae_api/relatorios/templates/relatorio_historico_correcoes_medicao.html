@@ -37,8 +37,53 @@
       font-size: 11px !important;
     }
 
+    {% comment %} .secao-log > ul > li {
+      font-size: 12px !important;
+    } {% endcomment %}
+ 
+    /* container geral da lista */
+    .secao-log ul {
+      list-style: disc; 
+      padding-left: 18px; 
+      margin: 2px 0;
+      font-size: 12px;
+    }
+
+    /* nível 1 (SEMANA) */
     .secao-log > ul > li {
-      font-size: 11px !important;
+      font-weight: bold;
+      padding: 4px 0;
+      padding-left: 8px;
+      font-size: 12px;
+    }
+
+    /* nível 2 (campo_nome) */
+    .secao-log ul ul > li {
+      font-weight: normal;
+      margin-top: 4px;
+      padding-left: 10px;
+      font-size: 12px;
+    }
+
+    /* nível 3 (DE / PARA) */
+    .secao-log ul ul ul > li {
+      font-size: 11px;
+      margin-top: 2px;
+      padding-left: 12px;
+      font-size: 12px;
+
+    }
+
+    /* destaque DE / PARA */
+    .secao-log ul ul ul li b {
+      font-weight: bold;
+      color: #000;
+      font-size: 12px;
+    }
+
+    /* espaçamento entre blocos */
+    .secao-log ul > li + ul {
+      margin-top: 1px;
     }
 
     .highlight {
@@ -118,6 +163,10 @@
         width: 20%;
       }
     
+      .secao-log .reduz-espaco {
+        display: block;
+        margin: 4px 0 2px 0; /* 🔥 reduz espaço */
+      }
 
   </style>
 
@@ -191,20 +240,22 @@
                     <ul>
                       {%for semana in lancamento.semanas%}
                           {% for dia in semana.dias%}
-                            <li> SEMANA {{ semana.semana }} - DIAS {{ dia.dia}} </li>
-                            <ul>
-                              {%for campo in dia.campos%}
-                                <li>{{ campo.campo_nome }}</li>
-                                <ul>
-                                  <li>
-                                    <b>DE:</b> {{ campo.de }}
+                            <li><b>SEMANA {{ semana.semana }} - DIAS {{ dia.dia}}</b>
+                              <ul>
+                                {%for campo in dia.campos%}
+                                  <li>{{ campo.campo_nome }}
+                                    <ul>
+                                      <li>
+                                        <b>DE:</b> {{ campo.de }}
+                                      </li>
+                                      <li >
+                                        <b>PARA:</b> {{ campo.para }}
+                                      </li>
+                                    </ul>
                                   </li>
-                                  <li >
-                                    <b>PARA:</b> {{ campo.para }}
-                                  </li>
-                                </ul>
-                              {% endfor%}
-                            </ul>
+                                {% endfor%}
+                              </ul>
+                            </li>
                           {%endfor%}
                       {%endfor%}
                     </ul>
