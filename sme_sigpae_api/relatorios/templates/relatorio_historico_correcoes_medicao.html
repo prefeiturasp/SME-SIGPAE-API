@@ -25,64 +25,99 @@
       background-color: #DDDDDD;
       border-radius: 8px;
       padding: 8px 8px;
+      font-size: 14px;
     }
 
     .secao-log > div {
-      font-size: 14px;
+      font-size: 12px;
       margin-bottom: 15px;
     }
 
     .secao-log > p {
-      font-size: 13px !important;
+      font-size: 11px !important;
     }
 
     .secao-log > ul > li {
-      font-size: 13px !important;
+      font-size: 11px !important;
     }
 
     .highlight {
-      color: #42474A;
-      font-size: 14px;
+      color: #000000;
+      font-size: 12px;
       font-weight: 600;
     }
 
-    /* Estilo da tabela */
     .secao-log table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
+      table-layout: fixed;
     }
 
     .secao-log table th {
-      background-color: #DDDDDD;
-      padding: 10px;
+      background-color: #F5F5F5;
+      padding: 10px 2px;
       text-align: left;
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 600;
-      border: 1px solid #ddd;
     }
 
     .secao-log table td {
-      padding: 10px;
-      font-size: 13px;
-      border: 1px solid #ddd;
-      vertical-align: top;
+      font-size: 11px;
     }
+    .secao-log table td,
+    .secao-log table th {
+      word-break: break-word;
+      overflow-wrap: break-word;
+      overflow: hidden;
+      border: 1px solid #bdbdbd;
+    }
+    .linha-interna {
+       display: grid;
+        grid-template-columns: 1fr 1fr; 
+        width: 100%;
+        max-width: 100%;
+      }
 
-    .secao-log table th:nth-child(1),
-    .secao-log table td:nth-child(1) {
-      width: 30%;
-    }
+    .linha-interna.divisor {
+        border-bottom: 1px solid #dadada;
+      }
 
-    .secao-log table th:nth-child(2),
-    .secao-log table td:nth-child(2) {
-      width: 20%;
-    }
+      .coluna {
+         padding: 5px;
+        min-width: 0; 
+        word-break: break-word;
+      }
 
-    .secao-log table th:nth-child(3),
-    .secao-log table td:nth-child(3) {
-      width: 50%;
-    }
+
+      .coluna.esquerda {
+        border-right: 1px solid #dadada;
+      }
+
+  
+      .coluna p {
+        margin: 2px 0;
+      }
+
+      .secao-log table th:nth-child(1),
+      .secao-log table td:nth-child(1) {
+        width: 20%;
+      }
+
+      .secao-log table th:nth-child(2),
+      .secao-log table td:nth-child(2) {
+        width: 30%;
+      }
+
+      .secao-log table th:nth-child(3),
+      .secao-log table td:nth-child(3) {
+        width: 30%;
+      }
+
+      .secao-log table th:nth-child(4),
+      .secao-log table td:nth-child(4) {
+        width: 20%;
+      }
+    
 
   </style>
 
@@ -118,16 +153,20 @@
                   {% for alteracao in log.alteracoes %}
                     <tr>
                       <td>{{ alteracao.periodo_escolar }}</td>
-                      <td colSpan=2>
+                      <td colspan=2 class="celula-transbordada">
                         {% for lancamento in alteracao.tabelas_lancamentos %}
-                          <div>
-                            <span>{{ lancamento.categoria_medicao }}</span>
-                          </div>
-                          <div>
-                            {%for semana in lancamento.semanas%} 
-                              Semana: {{ semana.semana }}</br>
-                              Dias: {{ semana.dias |join:", " }}
-                            {%endfor%}
+                          <div class="linha-interna {% if not forloop.last %}divisor{% endif %}">  
+                              <div class="coluna esquerda">
+                                <span>{{ lancamento.categoria_medicao }}</span>
+                              </div>
+                              <div class="coluna direita">
+                                {%for semana in lancamento.semanas%} 
+                                  <div>
+                                    <p><b>Semana:</b> {{ semana.semana }}</p>
+                                    <p><b>Dias:</b> {{ semana.dias|join:", " }}</p>
+                                  </div>
+                                {%endfor%}
+                              </div>
                           </div>
                         {% endfor %}
                       </td>
