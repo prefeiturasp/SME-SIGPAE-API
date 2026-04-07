@@ -67,7 +67,18 @@ def ajustes(logs, historico, extras):
             informacoes.append({
                 "titulo": "APROVADO PELA DRE",
                 "data": log.criado_em,
-                "rf": log.usuario.registro_funcional
+                "rf": log.usuario.registro_funcional,
+                "nome": log.usuario.nome,
+            })
+        elif log.status_evento_explicacao == STATUS_DICT[LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE]:
+            h = filtrar_por_acao(historico, SolicitacaoMedicaoInicialWorkflow.MEDICAO_CORRECAO_SOLICITADA_CODAE)
+            informacoes.append({
+                "titulo": "DEVOLVIDO PARA AJUSTES PELA CODAE",
+                "data": log.criado_em,
+                "rf": log.usuario.registro_funcional,
+                "nome": log.usuario.nome,
+                "mes_lancamento": mes_ano,
+                "alteracoes": h[0].get("alteracoes")
             })
         
     return informacoes

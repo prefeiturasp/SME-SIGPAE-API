@@ -97,7 +97,7 @@
             <div>DRE: <span class="highlight">{{ log.dre }}</span></div>
             <div>RF: <span class="highlight">{{ log.rf }} - {{ log.nome }}</span></div>
           </div>
-        {% elif log.titulo == "DEVOLVIDO PARA AJUSTES PELA DRE" %}
+        {% elif log.titulo == "DEVOLVIDO PARA AJUSTES PELA DRE" or log.titulo == "DEVOLVIDO PARA AJUSTES PELA CODAE" %}
           <div class="secao-log">
             <h4>{{ log.titulo }}</h4>
             <div>Data: <span class="highlight">{{ log.data|date:"d/m/Y - H:i" }}</span></div>
