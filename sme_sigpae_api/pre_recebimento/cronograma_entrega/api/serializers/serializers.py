@@ -921,3 +921,36 @@ class InterrupcaoProgramadaEntregaCreateSerializer(serializers.ModelSerializer):
                 {"descricao_motivo": "Descrição é obrigatória quando motivo é 'Outros'"}
             )
         return attrs
+
+
+class CronogramaMensalAssinadoSerializer(serializers.ModelSerializer):
+    """Serializer para listar cronogramas mensal Ponto a Ponto assinados"""
+
+    produto_nome = serializers.SerializerMethodField()
+    fornecedor_nome = serializers.SerializerMethodField()
+    numero_contrato = serializers.SerializerMethodField()
+
+    def get_produto_nome(self, obj):
+        if obj.ficha_tecnica and obj.ficha_tecnica.produto:
+            return obj.ficha_tecnica.produto.nome
+        return None
+
+    def get_fornecedor_nome(self, obj):
+        if obj.empresa:
+            return obj.empresa.nome_fantasia
+        return None
+
+    def get_numero_contrato(self, obj):
+        if obj.contrato:
+            return obj.contrato.numero
+        return None
+
+    class Meta:
+        model = Cronograma
+        fields = (
+            "uuid",
+            "numero",
+            "produto_nome",
+            "fornecedor_nome",
+            "numero_contrato",
+        )
