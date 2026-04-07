@@ -138,7 +138,7 @@
               </table>
             {% endif %}
           </div>
-        {% elif log.titulo == "CORRIGIDO PARA DRE" %}
+        {% elif log.titulo == "CORRIGIDO PARA DRE" or log.titulo == "CORRIGIDO PARA CODAE" %}
           <div class="secao-log">
             <h4>{{ log.titulo }}</h4>
             <div>Data: <span class="highlight">{{ log.data|date:"d/m/Y - H:i" }}</span></div>

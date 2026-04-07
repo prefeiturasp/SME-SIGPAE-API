@@ -80,10 +80,19 @@ def ajustes(logs, historico, extras):
                 "mes_lancamento": mes_ano,
                 "alteracoes": h[0].get("alteracoes")
             })
-        
+        elif log.status_evento_explicacao == STATUS_DICT[LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE]:
+            h = filtrar_por_acao(historico, SolicitacaoMedicaoInicialWorkflow.MEDICAO_CORRIGIDA_PARA_CODAE)
+            informacoes.append({
+                "titulo": "CORRIGIDO PARA CODAE",
+                "data": log.criado_em,
+                "rf": log.usuario.registro_funcional,
+                "nome": log.usuario.nome,
+                "mes_lancamento": mes_ano,
+                "alteracoes": h[0].get("alteracoes")
+            })
+
     return informacoes
-    
-    
+
 def gera_relatorio_historico_correcoes_pdf(solicitacao_uuid):
     solicitacao = SolicitacaoMedicaoInicial.objects.get(uuid=solicitacao_uuid)
     logs = solicitacao.logs.order_by("criado_em")
