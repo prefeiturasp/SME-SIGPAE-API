@@ -89,93 +89,97 @@
   <div class="conteudo tabela-sem-borda">
     {% for log in logs %}
       <div class="log-item">
-         {% if log.titulo == "RECEBIDO PARA ANÁLISE" %}
-            <div class="secao-log">
-              <h4>{{ log.titulo }}</h4>
-              <div>Data: <span class="highlight">{{ log.data|date:"d/m/Y - H:i" }}</span></div>
-              <div>Unidade Educacional: <span class="highlight">{{ log.unidade }}</span></div>
-              <div>DRE: <span class="highlight">{{ log.dre }}</span></div>
-              <div>RF: <span class="highlight">{{ log.rf }} - {{ log.nome }}</span></div>
-            </div>
-          {% elif log.titulo == "DEVOLVIDO PARA AJUSTES PELA DRE" %}
-            <div class="secao-log">
-              <h4>{{ log.titulo }}</h4>
-              <div>Data: <span class="highlight">{{ log.data|date:"d/m/Y - H:i" }}</span></div>
-              <div>RF: <span class="highlight">{{ log.rf }} - {{ log.nome }}</span></div>
-              <div>Mês de lançamento: <span class="highlight">{{ log.mes_lancamento }}</span></div>
-              {% if log.alteracoes%}
-                <div><span class="highlight">Correções Solicitadas</span></div>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>PERÍODO</th>
-                      <th>TABELA DE LANÇAMENTO</th>
-                      <th>CORREÇÕES</th>
-                      <th>OBSERVAÇÃO</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for alteracao in log.alteracoes %}
-                      <tr>
-                        <td>{{ alteracao.periodo_escolar }}</td>
-                        <td colSpan=2>
-                          {% for lancamento in alteracao.tabelas_lancamentos %}
-                            <div>
-                              <span>{{ lancamento.categoria_medicao }}</span>
-                            </div>
-                            <div>
-                              {%for semana in lancamento.semanas%} 
-                                Semana: {{ semana.semana }}</br>
-                                Dias: {{ semana.dias |join:", " }}
-                              {%endfor%}
-                            </div>
-                          {% endfor %}
-                        </td>
-                        <td>{{ alteracao.justificativa | safe }}</td>
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              {% endif %}
-            </div>
-          {% elif log.titulo == "CORRIGIDO PARA DRE" %}
-            <div class="secao-log">
-              <h4>{{ log.titulo }}</h4>
-              <div>Data: <span class="highlight">{{ log.data|date:"d/m/Y - H:i" }}</span></div>
-              <div>RF: <span class="highlight">{{ log.rf }} - {{ log.nome }}</span></div>
-              <div>Mês de lançamento: <span class="highlight">{{ log.mes_lancamento }}</span></div>
-              {% if log.alteracoes%}
-                <div><span class="highlight">Correções Realizadas pela UE</span></div>
+        {% if log.titulo == "RECEBIDO PARA ANÁLISE" %}
+          <div class="secao-log">
+            <h4>{{ log.titulo }}</h4>
+            <div>Data: <span class="highlight">{{ log.data|date:"d/m/Y - H:i" }}</span></div>
+            <div>Unidade Educacional: <span class="highlight">{{ log.unidade }}</span></div>
+            <div>DRE: <span class="highlight">{{ log.dre }}</span></div>
+            <div>RF: <span class="highlight">{{ log.rf }} - {{ log.nome }}</span></div>
+          </div>
+        {% elif log.titulo == "DEVOLVIDO PARA AJUSTES PELA DRE" %}
+          <div class="secao-log">
+            <h4>{{ log.titulo }}</h4>
+            <div>Data: <span class="highlight">{{ log.data|date:"d/m/Y - H:i" }}</span></div>
+            <div>RF: <span class="highlight">{{ log.rf }} - {{ log.nome }}</span></div>
+            <div>Mês de lançamento: <span class="highlight">{{ log.mes_lancamento }}</span></div>
+            {% if log.alteracoes%}
+              <div><span class="highlight">Correções Solicitadas</span></div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>PERÍODO</th>
+                    <th>TABELA DE LANÇAMENTO</th>
+                    <th>CORREÇÕES</th>
+                    <th>OBSERVAÇÃO</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {% for alteracao in log.alteracoes %}
-                    {% for lancamento in alteracao.tabelas_lancamentos %}
-                      <div><span class="highlight">Período {{  alteracao.periodo_escolar }} - Tabela {{ lancamento.categoria_medicao}}</span></div>
-                      <ul>
-                        {%for semana in lancamento.semanas%}
-                            {% for dia in semana.dias%}
-                             <li> SEMANA {{ semana.semana }} - DIAS {{ dia.dia}} </li>
-                             <ul>
-                                {%for campo in dia.campos%}
-                                  <li>{{ campo.campo_nome }}</li>
-                                  <ul>
-                                    <li>
-                                      <b>DE:</b> {{ campo.de }}
-                                    </li>
-                                    <li >
-                                      <b>PARA:</b> {{ campo.para }}
-                                    </li>
-                                  </ul>
-                                {% endfor%}
-                             </ul>
+                    <tr>
+                      <td>{{ alteracao.periodo_escolar }}</td>
+                      <td colSpan=2>
+                        {% for lancamento in alteracao.tabelas_lancamentos %}
+                          <div>
+                            <span>{{ lancamento.categoria_medicao }}</span>
+                          </div>
+                          <div>
+                            {%for semana in lancamento.semanas%} 
+                              Semana: {{ semana.semana }}</br>
+                              Dias: {{ semana.dias |join:", " }}
                             {%endfor%}
-                        {%endfor%}
-                      </ul>
-                    {%endfor%}
+                          </div>
+                        {% endfor %}
+                      </td>
+                      <td>{{ alteracao.justificativa | safe }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% endif %}
+          </div>
+        {% elif log.titulo == "CORRIGIDO PARA DRE" %}
+          <div class="secao-log">
+            <h4>{{ log.titulo }}</h4>
+            <div>Data: <span class="highlight">{{ log.data|date:"d/m/Y - H:i" }}</span></div>
+            <div>RF: <span class="highlight">{{ log.rf }} - {{ log.nome }}</span></div>
+            <div>Mês de lançamento: <span class="highlight">{{ log.mes_lancamento }}</span></div>
+            {% if log.alteracoes%}
+              <div><span class="highlight">Correções Realizadas pela UE</span></div>
+                {% for alteracao in log.alteracoes %}
+                  {% for lancamento in alteracao.tabelas_lancamentos %}
+                    <div><span class="highlight">Período {{  alteracao.periodo_escolar }} - Tabela {{ lancamento.categoria_medicao}}</span></div>
+                    <ul>
+                      {%for semana in lancamento.semanas%}
+                          {% for dia in semana.dias%}
+                            <li> SEMANA {{ semana.semana }} - DIAS {{ dia.dia}} </li>
+                            <ul>
+                              {%for campo in dia.campos%}
+                                <li>{{ campo.campo_nome }}</li>
+                                <ul>
+                                  <li>
+                                    <b>DE:</b> {{ campo.de }}
+                                  </li>
+                                  <li >
+                                    <b>PARA:</b> {{ campo.para }}
+                                  </li>
+                                </ul>
+                              {% endfor%}
+                            </ul>
+                          {%endfor%}
+                      {%endfor%}
+                    </ul>
                   {%endfor%}
-              {% endif%}
-            </div>
-
-
-         {% endif %}
+                {%endfor%}
+            {% endif%}
+          </div>
+        {% elif log.titulo == "APROVADO PELA DRE" %}
+          <div class="secao-log">
+            <h4>{{ log.titulo }}</h4>
+            <div>Data: <span class="highlight">{{ log.data|date:"d/m/Y - H:i" }}</span></div>
+            <div>RF: <span class="highlight">{{ log.rf }} - {{ log.nome }}</span></div>
+          </div>
+        {% endif %}
       </div>
     {% endfor %}
   </div>
