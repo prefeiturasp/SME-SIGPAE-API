@@ -35,7 +35,9 @@ from ..relatorios.relatorios import (
     relatorio_solicitacao_medicao_por_escola_cei,
     relatorio_solicitacao_medicao_por_escola_cemei,
     relatorio_solicitacao_medicao_por_escola_emebs,
+    relatorio_historico_ocorrencias_medicao_inicial,
 )
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from .models import Responsavel, SolicitacaoMedicaoInicial
 from .utils import cria_relatorios_financeiros_por_grupo_unidade_escolar
 
@@ -129,6 +131,48 @@ def copiar_alunos_periodo_parcial(solicitacao_origem, solicitacao_destino):
                 int(solicitacao_destino.ano), int(solicitacao_destino.mes), 1
             ),
         )
+
+
+@shared_task(
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 8},
+    time_limit=3000,
+    soft_time_limit=3000,
+)
+def gera_pdf_historico_ocorrencias_medicao_inicial_async(
+    user: str,
+    nome_arquivo: str,
+    uuid_sol_medicao: str,
+) -> None:
+    logger.info(f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x")
+    obj_central_download = gera_objeto_na_central_download(
+        user=user, identificador=nome_arquivo
+    )
+    try:
+        solicitacao = SolicitacaoMedicaoInicial.objects.get(uuid=uuid_sol_medicao)
+        ocorrencia = solicitacao.ocorrencia
+
+        arquivo = relatorio_historico_ocorrencias_medicao_inicial(
+            solicitacao=solicitacao,
+            logs=ocorrencia.logs.filter(
+                status_evento__in=[
+                    LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE,
+                    LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA,
+                    LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PELA_UE,
+                    LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_DRE,
+                    LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
+                    LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE,
+                    LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
+                ]
+            ).order_by("criado_em"),
+            nome_arquivo=nome_arquivo,
+        )
+        atualiza_central_download(obj_central_download, nome_arquivo, arquivo)
+    except Exception as e:
+        atualiza_central_download_com_erro(obj_central_download, str(e))
+        logger.error(f"Erro ao gerar histórico de ocorrências: {e}")
+
+    logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
 
 
 @shared_task(

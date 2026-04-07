@@ -15,6 +15,7 @@ from sme_sigpae_api.pre_recebimento.ficha_tecnica.api.helpers import (
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from sme_sigpae_api.pre_recebimento.tasks import gerar_relatorio_cronogramas_pdf_async
 from sme_sigpae_api.relatorios.utils import extrair_texto_de_pdf
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 
 from ..relatorios import (
     cabecalho_reclamacao_produto,
@@ -956,15 +957,48 @@ def test_relatorio_ficha_recebimento_observacao_none(
     texto = extrair_texto_de_pdf(pdf_response.content)
 
     assert "Descreva as observações necessárias: None" not in texto
-    
-    
+
+
 def test_relatorio_ficha_recebimento_observacao_com_texto(
     ficha_recebimento_observacao_com_none
-):  
-    
+):
+
     ficha_recebimento_observacao_com_none.observacao = "Ajustar as embalagens"
     ficha_recebimento_observacao_com_none.save()
-    
+
     pdf_response2 = get_pdf_ficha_recebimento(None, ficha_recebimento_observacao_com_none)
     texto2 = extrair_texto_de_pdf(pdf_response2.content)
     assert "Descreva as observações necessárias: Ajustar as embalagens" in texto2
+
+
+def test_relatorio_historico_ocorrencias_renderiza_todos_os_tipos_de_logs(
+    solicitacao_com_historico_completo,
+):
+    solicitacao = solicitacao_com_historico_completo
+    logs = LogSolicitacoesUsuario.objects.filter(uuid_original=solicitacao.uuid).order_by('criado_em')
+
+    html = render_to_string(
+        "relatorio_historico_ocorrencias_medicao_inicial.html",
+        {
+            "solicitacao": solicitacao,
+            "logs": logs,
+            "data_referencia": solicitacao.data_referencia,
+            "logo_sme": "",
+        },
+    )
+
+    # --- Validação do Log de Envio (UE) ---
+    assert "Recebido para Análise" in html
+    assert solicitacao.escola.nome in html
+    assert solicitacao.escola.diretoria_regional.nome in html
+
+    # --- Validação do Log de Correção (DRE) ---
+    assert "DEVOLVIDO PARA AJUSTES PELA DRE" in html
+    assert "Precisa ajustar o valor." in html
+
+    # --- Validação do Log de Aprovação (CODAE) ---
+    assert "Aprovado pela CODAE" in html
+
+    # --- Validação Geral ---
+    assert "RELATÓRIO DE HISTÓRICO DO FORMULÁRIO DE OCORRÊNCIAS" in html
+    assert f"{solicitacao.mes}/{solicitacao.ano}" in html

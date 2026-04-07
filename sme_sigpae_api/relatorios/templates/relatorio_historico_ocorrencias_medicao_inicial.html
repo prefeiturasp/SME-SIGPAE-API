@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+{% include 'relatorio_base.html' %}
+{% load static %}
+{% load index %}
+{% load sass_tags %}
+{% load safe_html_tags %}
+<html lang="pt-BR">
+  <head>
+    <link rel="stylesheet" href="{% sass_src 'css/custom_bootstrap.scss' %}" type="text/css">
+    <link rel="stylesheet" href="{% sass_src 'css/cabecalho_titulo.scss' %}" type="text/css">
+    <link rel="stylesheet" href="{% sass_src 'css/relatorio_historico_ocorrencias_medicao_inicial.scss' %}" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,600,600i,700,700i,900,900i" rel="stylesheet" />
+    <title>SIGPAE</title>
+  </head>
+  <body>
+    {% include "cabecalho_titulo.html" with titulo_cabecalho="RELATÓRIO DE HISTÓRICO DO FORMULÁRIO DE OCORRÊNCIAS" %}
+
+    <div class="page-container">
+      {% for log in logs %}
+      <div class="log-container">
+
+        <div class="status-evento font-weight-bold">
+          {% if log.status_evento_explicacao == "Enviado pela UE" %}
+            Recebido para Análise
+          {% elif log.status_evento_explicacao == "Correção solicitada" %}
+            DEVOLVIDO PARA AJUSTES PELA DRE
+          {% elif log.status_evento_explicacao == "Correção solicitada pela CODAE" %}
+            DEVOLVIDO PARA AJUSTES PELA CODAE
+          {% else %}
+            {{ log.status_evento_explicacao }}
+          {% endif %}
+        </div>
+
+        {# Campo comum a todos os status #}
+        <div>
+          <p style="margin: 0.4em 0;">Data: <strong>{{ log.criado_em|date:"d/m/Y" }} - {{ log.criado_em|time:"H:i" }}</strong></p>
+        </div>
+
+        {# RECEBIDO PARA ANÁLISE #}
+        {% if log.status_evento_explicacao == "Enviado pela UE" %}
+        <div class="ue-dre-container">
+          <p style="margin: 0.4em 0;">Unidade Educacional: <strong>{{ solicitacao.escola.nome }}</strong></p>
+          <p style="margin: 0.4em 0;" class="dre-content">DRE: <strong>{{ solicitacao.escola.diretoria_regional.nome }}</strong></p>
+        </div>
+        <div>
+          <p style="margin: 0.4em 0;">RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
+        </div>
+        <div class="flex">
+          <p style="margin: 0.4em 0;">Arquivos:</p>
+          <div class="arquivos-container">
+            {% for arquivo in log.anexos.all %}
+            <p style="margin: 0.4em 0;"><strong>{{ arquivo.nome }}</strong></p>
+            {% endfor %}
+          </div>
+        </div>
+
+        {# DEVOLVIDO PARA AJUSTES PELA DRE #}
+        {% elif log.status_evento_explicacao == "Correção solicitada" %}
+        <div>
+          <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
+        </div>
+        <div>
+          <p>Mês do lançamento: <strong>{{ solicitacao.mes }}/{{ solicitacao.ano }}</strong></p>
+        </div>
+        <div>
+          <p>Justificativa: <strong>{{ log.justificativa|striptags }}</strong></p>
+        </div>
+
+        {# CORRIGIDO PARA DRE #}
+        {% elif log.status_evento_explicacao == "Corrigido para DRE" %}
+        <div>
+          <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
+        </div>
+        <div>
+          <p>Mês do lançamento: <strong>{{ solicitacao.mes }}/{{ solicitacao.ano }}</strong></p>
+        </div>
+        <div class="flex">
+          <p style="margin: 0.3em 0;">Arquivos:</p>
+          <div class="arquivos-container">
+            {% for arquivo in log.anexos.all %}
+            <p style="margin: 0.3em 0;"><strong>{{ arquivo.nome }}</strong></p>
+            {% endfor %}
+          </div>
+        </div>
+
+        {# APROVADO PELA DRE #}
+        {% elif log.status_evento_explicacao == "Aprovado pela DRE" %}
+        <div>
+          <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
+        </div>
+
+        {# DEVOLVIDO PARA AJUSTES PELA CODAE #}
+        {% elif log.status_evento_explicacao == "Correção solicitada pela CODAE" %}
+        <div>
+          <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
+        </div>
+        <div>
+          <p>Mês do lançamento: <strong>{{ solicitacao.mes }}/{{ solicitacao.ano }}</strong></p>
+        </div>
+        <div>
+          <p>Justificativa: <strong>{{ log.justificativa|striptags }}</strong></p>
+        </div>
+
+        {# CORRIGIDO PARA CODAE #}
+        {% elif log.status_evento_explicacao == "Corrigido para CODAE" %}
+        <div>
+          <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
+        </div>
+        <div>
+          <p>Mês do lançamento: <strong>{{ solicitacao.mes }}/{{ solicitacao.ano }}</strong></p>
+        </div>
+        <div class="flex">
+          <p style="margin: 0.3em 0;">Arquivos:</p>
+          <div class="arquivos-container">
+            {% for arquivo in log.anexos.all %}
+            <p style="margin: 0.3em 0;"><strong>{{ arquivo.nome }}</strong></p>
+            {% endfor %}
+          </div>
+        </div>
+
+        {# APROVADO PELA CODAE #}
+        {% elif log.status_evento_explicacao == "Aprovado pela CODAE" %}
+        <div>
+          <p>RF e Nome: <strong>{{ log.usuario.registro_funcional }} - {{ log.usuario.nome }}</strong></p>
+        </div>
+
+        {% endif %}
+
+      </div>
+      {% if not forloop.last and not forloop.counter|divisibleby:4 %}
+          <hr />
+      {% endif %}
+      {% endfor %}
+    </div>
+
+    {% include "logistica/guia_remessa/rodape.html" %}
+  </body>
+</html>

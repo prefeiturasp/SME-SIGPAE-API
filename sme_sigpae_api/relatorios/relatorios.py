@@ -8,6 +8,7 @@ from django.db.models import F, FloatField, Sum
 from django.http import HttpResponseNotAllowed
 from django.template.loader import get_template, render_to_string
 
+from sme_sigpae_api.dados_comuns.utils import convert_image_to_base64
 from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_CEI,
     ORDEM_UNIDADES_GRUPO_CEMEI,
@@ -70,6 +71,7 @@ from ..relatorios.utils import (
     html_to_pdf_response,
     html_to_pdf_watermark,
 )
+from sme_sigpae_api.medicao_inicial.models import SolicitacaoMedicaoInicial
 from ..terceirizada.models import Edital
 from ..terceirizada.utils import transforma_dados_relatorio_quantitativo
 from . import constants
@@ -1572,6 +1574,30 @@ def calcular_flags_dietas(
     )
 
     return flags
+
+
+def relatorio_historico_ocorrencias_medicao_inicial(
+    solicitacao: SolicitacaoMedicaoInicial,
+    logs,
+    nome_arquivo,
+) -> bytes:
+    logo_sme = convert_image_to_base64(
+        "sme_sigpae_api/relatorios/static/images/LOGO_FUNDO_CLARO.png", "png"
+    )
+
+    html_string = render_to_string(
+        "relatorio_historico_ocorrencias_medicao_inicial.html",
+        {
+            "solicitacao": solicitacao,
+            "logs": logs,
+            "data_referencia": solicitacao.data_referencia,
+            "logo_sme": logo_sme,
+        },
+    )
+    data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
+    html_string = html_string.replace("dt_file", data_arquivo)
+
+    return html_to_pdf_file(html_string, nome_arquivo, is_async=True)
 
 
 def relatorio_solicitacao_medicao_por_escola(solicitacao):
