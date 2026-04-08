@@ -3,8 +3,8 @@ import datetime
 
 from django.core.management import BaseCommand
 
+from sme_sigpae_api.dieta_especial.logs.models import LogQuantidadeDietasAutorizadas
 from sme_sigpae_api.dieta_especial.models import (
-    LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
 from sme_sigpae_api.escola.models import Escola, LogAlunosMatriculadosPeriodoEscola

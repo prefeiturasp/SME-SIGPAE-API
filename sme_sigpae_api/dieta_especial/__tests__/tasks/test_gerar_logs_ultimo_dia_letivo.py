@@ -4,8 +4,8 @@ import pytest
 from freezegun import freeze_time
 
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
+from sme_sigpae_api.dieta_especial.logs.models import LogQuantidadeDietasAutorizadas
 from sme_sigpae_api.dieta_especial.models import (
-    LogQuantidadeDietasAutorizadas,
     SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.dieta_especial.tasks import gera_logs_dietas_especiais_diariamente

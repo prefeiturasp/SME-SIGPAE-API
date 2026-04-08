@@ -25,7 +25,6 @@ from ..dados_comuns.fluxo_status import FluxoDietaEspecialPartindoDaEscola
 from ..dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
 from ..dados_comuns.utils import convert_base64_to_contentfile
 from ..escola.api.serializers import AlunoSerializer
-from ..escola.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
 from ..escola.models import Aluno
 from .managers import AlimentoProprioManager
 
@@ -714,45 +713,6 @@ class ArquivoCargaUsuariosEscola(ArquivoCargaBase):
 
     def __str__(self) -> str:
         return str(self.conteudo)
-
-
-class LogQuantidadeDietasAutorizadas(TemChaveExterna, TemData, CriadoEm):
-    escola = models.ForeignKey(
-        "escola.Escola",
-        on_delete=models.CASCADE,
-        related_name="logs_dietas_autorizadas",
-    )
-    quantidade = models.PositiveIntegerField()
-    classificacao = models.ForeignKey(
-        "ClassificacaoDieta",
-        on_delete=models.CASCADE,
-        related_name="logs_dietas_autorizadas",
-    )
-    periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar",
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL,
-        related_name="logs_dietas_autorizadas",
-    )
-    cei_ou_emei = models.CharField(max_length=4, choices=CEI_OU_EMEI, default="N/A")
-    infantil_ou_fundamental = models.CharField(
-        max_length=11, choices=INFANTIL_OU_FUNDAMENTAL, default="N/A"
-    )
-
-    def __str__(self) -> str:
-        return (
-            f'{self.escola.nome} - {self.data.strftime("%d/%m/%Y")} - {self.classificacao.nome}'
-            f'{(" - " + self.periodo_escolar.nome) if self.periodo_escolar else ""}'
-            f" - {self.quantidade} dieta(s)"
-        )
-
-    class Meta:
-        verbose_name = "Log da quantidade de dietas autorizadas por unidade escolar"
-        verbose_name_plural = (
-            "Logs da quantidade de dietas autorizadas por unidade escolar"
-        )
-        ordering = ("-data", "escola__nome")
 
 
 class LogQuantidadeDietasAutorizadasCEI(TemChaveExterna, TemData, CriadoEm):

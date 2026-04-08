@@ -7,8 +7,8 @@ import pytest
 import requests
 from freezegun import freeze_time
 
+from sme_sigpae_api.dieta_especial.logs.models import LogQuantidadeDietasAutorizadas
 from sme_sigpae_api.dieta_especial.models import (
-    LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
 from sme_sigpae_api.escola.models import LogAlunosMatriculadosPeriodoEscola

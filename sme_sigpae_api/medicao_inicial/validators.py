@@ -7,13 +7,13 @@ from django.db.models import Q, QuerySet
 from workalendar.america import BrazilSaoPauloCity
 
 from sme_sigpae_api.dados_comuns.utils import filtrar_dias_letivos, get_ultimo_dia_mes
+from sme_sigpae_api.dieta_especial.logs.models import LogQuantidadeDietasAutorizadas
 
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from ..dieta_especial.models import (
     ClassificacaoDieta,
-    LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
 from ..escola.models import (

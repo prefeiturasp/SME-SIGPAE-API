@@ -13,9 +13,9 @@ from rest_framework.pagination import PageNumberPagination
 
 from sme_sigpae_api.dieta_especial.logs.models import (
     LogDietasAtivasCanceladasAutomaticamente,
+    LogQuantidadeDietasAutorizadas,
 )
 from sme_sigpae_api.dieta_especial.models import (
-    LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
 from sme_sigpae_api.escola.models import Lote

@@ -6,8 +6,8 @@ import logging
 import re
 from calendar import monthrange
 from collections import defaultdict
+from decimal import Decimal, InvalidOperation
 from functools import reduce
-from unidecode import unidecode
 from typing import Any, Dict
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -16,7 +16,8 @@ from django.db.models.functions import Cast
 from django.db.utils import IntegrityError
 from django.template.loader import render_to_string
 from django.utils import timezone
-from decimal import Decimal, InvalidOperation
+from unidecode import unidecode
+
 from sme_sigpae_api.dados_comuns.constants import (
     MAX_COLUNAS,
     ORDEM_CAMPOS,
@@ -35,8 +36,8 @@ from sme_sigpae_api.dados_comuns.utils import (
     convert_base64_to_contentfile,
     convert_image_to_base64,
 )
+from sme_sigpae_api.dieta_especial.logs.models import LogQuantidadeDietasAutorizadas
 from sme_sigpae_api.dieta_especial.models import (
-    LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
     SolicitacaoDietaEspecial,
 )
@@ -5364,9 +5365,7 @@ def calcula_totais_consumo_por_grupo(
     return gerar_totais_consolidado(solicitacoes, tipo_calculo)
 
 
-def calcula_totais_consumo_por_escolas(
-    escolas_uuids, relatorio, tipo_calculo
-):
+def calcula_totais_consumo_por_escolas(escolas_uuids, relatorio, tipo_calculo):
     solicitacoes = SolicitacaoMedicaoInicial.objects.filter(
         mes=str(relatorio.mes),
         ano=str(relatorio.ano),
@@ -5859,14 +5858,11 @@ def _total_parametrizacao(valores):
     """
     total = 0
 
-    mapa = {
-        v.tipo_valor.nome: to_decimal_safe(v.valor)
-        for v in valores
-    }
+    mapa = {v.tipo_valor.nome: to_decimal_safe(v.valor) for v in valores}
 
-    valor_unitario = mapa.get('UNITARIO')
-    valor_unitario_reajuste = mapa.get('REAJUSTE')
-    percentual_acrescimo = mapa.get('ACRESCIMO')
+    valor_unitario = mapa.get("UNITARIO")
+    valor_unitario_reajuste = mapa.get("REAJUSTE")
+    percentual_acrescimo = mapa.get("ACRESCIMO")
 
     if valor_unitario is not None and valor_unitario_reajuste is not None:
         total = valor_unitario + valor_unitario_reajuste
@@ -6060,11 +6056,7 @@ def _calcula_total_dietas(
 
     mapa_valores = _mapear_valores_tabela(valores)
     for chave, valor in dados_consumo.items():
-        nome_campo = _normalizar_nome_campo(
-            chave,
-            grupo_nome,
-            dieta=True
-        )
+        nome_campo = _normalizar_nome_campo(chave, grupo_nome, dieta=True)
 
         valores_campo = mapa_valores.get(nome_campo)
 
@@ -6113,7 +6105,7 @@ def _calcula_total_tabelas(
             valores_tabela = tabela.valores.filter(faixa_etaria__isnull=False)
         elif tipo == "TIPO":
             valores_tabela = tabela.valores.filter(
-                Q(tipo_alimentacao__isnull=False) | Q(nome_campo='kit_lanche')
+                Q(tipo_alimentacao__isnull=False) | Q(nome_campo="kit_lanche")
             )
         else:
             valores_tabela = tabela.valores.all()
@@ -6162,11 +6154,16 @@ def calcular_total_pagamento(consumo, parametrizacao, tipo_calculo):
     if tipo_calculo not in ["tipo_alimentacao", "faixa_etaria"]:
         for tipo in ["TIPO", "FAIXA"]:
             total_pagamento += _calcula_total_tabelas(
-                consumo[tipo], tabelas, grupo_nome, tipo,
+                consumo[tipo],
+                tabelas,
+                grupo_nome,
+                tipo,
             )
     else:
         total_pagamento += _calcula_total_tabelas(
-            consumo, tabelas, grupo_nome,
+            consumo,
+            tabelas,
+            grupo_nome,
         )
 
     return total_pagamento

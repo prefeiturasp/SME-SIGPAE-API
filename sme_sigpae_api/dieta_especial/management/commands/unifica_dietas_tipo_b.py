@@ -3,9 +3,9 @@ import logging
 import environ
 from django.core.management import BaseCommand
 
+from sme_sigpae_api.dieta_especial.logs.models import LogQuantidadeDietasAutorizadas
 from sme_sigpae_api.dieta_especial.models import (
     ClassificacaoDieta,
-    LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
     SolicitacaoDietaEspecial,
 )

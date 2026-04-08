@@ -18,9 +18,9 @@ from sme_sigpae_api.dados_comuns.fluxo_status import (
     SolicitacaoMedicaoInicialWorkflow,
 )
 from sme_sigpae_api.dados_comuns.parser_xml import ListXMLParser
+from sme_sigpae_api.dieta_especial.logs.models import LogQuantidadeDietasAutorizadas
 from sme_sigpae_api.dieta_especial.models import (
     ClassificacaoDieta,
-    LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
 from sme_sigpae_api.perfil.models import ContentType
@@ -1258,9 +1258,10 @@ def ocorrencia_medicao_inicial_status_aprovado_dre():
         status="MEDICAO_APROVADA_PELA_DRE",
     )
 
+
 @pytest.fixture
 def solicitacao_dieta_especial(escola, user_diretor_escola):
-    user, _  = user_diretor_escola
+    user, _ = user_diretor_escola
     solicitacao = baker.make(
         "SolicitacaoDietaEspecial",
         aluno=baker.make(
@@ -1274,7 +1275,7 @@ def solicitacao_dieta_especial(escola, user_diretor_escola):
         tipo_solicitacao="COMUM",
         rastro_terceirizada=escola.lote.terceirizada,
         criado_por=user,
-        ativo = False
+        ativo=False,
     )
     solicitacao.save()
     solicitacao.inicia_fluxo(user=user)

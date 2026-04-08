@@ -7,9 +7,9 @@ from django.db.models import Q
 
 from sme_sigpae_api.dados_comuns.utils import quantidade_meses
 from sme_sigpae_api.dieta_especial.constants import ETAPA_INFANTIL
+from sme_sigpae_api.dieta_especial.logs.models import LogQuantidadeDietasAutorizadas
 from sme_sigpae_api.dieta_especial.models import (
     ClassificacaoDieta,
-    LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
     LogQuantidadeDietasAutorizadasRecreioNasFerias,
     LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,

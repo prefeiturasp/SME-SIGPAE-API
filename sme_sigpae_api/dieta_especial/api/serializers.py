@@ -5,6 +5,7 @@ from django.db.models import Q
 from drf_base64.serializers import ModelSerializer
 from rest_framework import serializers, status
 
+from sme_sigpae_api.dieta_especial.logs.models import LogQuantidadeDietasAutorizadas
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 
 from ...dados_comuns.api.serializers import (
@@ -35,7 +36,6 @@ from ..models import (
     Alimento,
     Anexo,
     ClassificacaoDieta,
-    LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
     LogQuantidadeDietasAutorizadasRecreioNasFerias,
     LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
