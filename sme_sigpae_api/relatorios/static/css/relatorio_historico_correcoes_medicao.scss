@@ -1,0 +1,138 @@
+@import "variaveis";
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+table th {
+    background-color: #F5F5F5;
+    padding: 10px 2px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+tr {
+  break-inside: avoid;
+}
+
+table td {
+    font-size: 11px;
+  }
+  
+table td,
+table th {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    // overflow: hidden;
+    border: 1px solid #bdbdbd;
+  }
+
+
+  /* NOVAS PROPORÇÕES DAS COLUNAS */
+ table th:nth-child(1),
+ table td:nth-child(1) {
+    width: 20%;  /* PERÍODO */
+  }
+
+  table th:nth-child(2),
+  table td:nth-child(2) {
+    width: 30%;  /* TABELA DE LANÇAMENTO */
+  }
+
+  table th:nth-child(3),
+  table td:nth-child(3) {
+    width: 20%;  /* CORREÇÕES */
+  }
+
+  table th:nth-child(4),
+  table td:nth-child(4) {
+    width: 30%;  /* OBSERVAÇÃO */
+  }
+
+    /* Ajuste específico para célula com colspan=2 */
+table td.celula-transbordada {
+    position: relative;
+    padding: 0 !important;
+  }
+
+table td.celula-transbordada .linha-interna {
+    display: grid;
+    grid-template-columns: 60% 40%; /* 30% da TABELA + 20% das CORREÇÕES = 50% total, proporção 60/40 */
+    width: 100%;
+    min-height: 100%;
+  }
+
+table td.celula-transbordada .linha-interna.divisor {
+    border-bottom: 1px solid #dadada;
+  }
+
+table td.celula-transbordada .coluna {
+    padding: 5px;
+    min-width: 0; 
+    word-break: break-word;
+  }
+
+table td.celula-transbordada .coluna.esquerda {
+    border-right: 1px solid #bdbdbd; /* Linha divisória visível */
+    padding: 5px;
+  }
+
+table td.celula-transbordada .coluna.direita {
+    padding: 5px;
+  }
+
+/* container geral da lista */
+ul {
+    list-style: disc; 
+    padding-left: 18px; 
+    margin: 2px 0;
+    font-size: 12px;
+  }
+
+  /* nível 1 (SEMANA) */
+> ul > li {
+    font-weight: bold;
+    padding: 4px 0;
+    padding-left: 8px;
+    font-size: 12px;
+  }
+
+  /* nível 2 (campo_nome) */
+ul ul > li {
+    font-weight: normal;
+    margin-top: 4px;
+    padding-left: 10px;
+    font-size: 12px;
+  }
+
+  /* nível 3 (DE / PARA) */
+ul ul ul > li {
+    font-size: 11px;
+    margin-top: 2px;
+    padding-left: 12px;
+    font-size: 12px;
+  }
+
+  /* destaque DE / PARA */
+ul ul ul li b {
+    font-weight: bold;
+    // color:#42474A;
+    font-size: 12px;
+  }
+
+  /* espaçamento entre blocos */
+ul > li + ul {
+    margin-top: 1px;
+  }
+
+.log-container{
+  break-inside: auto;
+  // page-break-inside: avoid; /* fallback */
+}
+
+.page-container > div {
+  break-inside: auto;
+}
