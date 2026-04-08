@@ -4,6 +4,7 @@ from unittest.mock import patch
 import pytest
 from django.template.loader import render_to_string
 from freezegun import freeze_time
+from model_bakery import baker
 
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
@@ -779,6 +780,28 @@ def test_relatorio_cronograma_lista_sem_leve_leite(cronograma, usuario):
     if cronograma.armazem and cronograma.armazem.nome_fantasia:
         nome_armazem = cronograma.armazem.nome_fantasia
         assert nome_armazem in texto_pdf or nome_armazem.upper() in texto_pdf
+
+
+def test_relatorio_cronograma_pdf_modalidade_nao_informada(cronograma, usuario):
+    pdf_content = gerar_relatorio_cronogramas_pdf_async(
+        usuario.username, [cronograma.id], {}
+    )
+    texto_pdf = extrair_texto_de_pdf(pdf_content)
+
+    assert "Não Informado" in texto_pdf
+
+
+def test_relatorio_cronograma_pdf_modalidade_pregao_eletronico(cronograma, usuario):
+    modalidade = baker.make("terceirizada.Modalidade", nome="Pregão Eletrônico")
+    cronograma.contrato.modalidade = modalidade
+    cronograma.contrato.save()
+
+    pdf_content = gerar_relatorio_cronogramas_pdf_async(
+        usuario.username, [cronograma.id], {}
+    )
+    texto_pdf = extrair_texto_de_pdf(pdf_content)
+
+    assert "Pregão Eletrônico" in texto_pdf
 
 
 def test_obter_relatorio_da_unidade_emef():
