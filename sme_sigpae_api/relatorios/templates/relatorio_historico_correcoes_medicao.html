@@ -89,8 +89,8 @@
                 <div><p><strong>Correções Realizadas pela UE</strong></p></div>
                   {% for alteracao in log.alteracoes %}
                     {% for lancamento in alteracao.tabelas_lancamentos %}
-                      <div><strong>Período {{  alteracao.periodo_escolar|nomes_relatorio_correcao_medicao }} - Tabela  de {{ lancamento.categoria_medicao| nomes_relatorio_correcao_medicao}}</strong></p></div>
-                      <ul>
+                      <div class="titulo-correcao"><strong>Período {{  alteracao.periodo_escolar|nomes_relatorio_correcao_medicao }} - Tabela  de {{ lancamento.categoria_medicao| nomes_relatorio_correcao_medicao}}</strong></div>
+                      <ul class="lista-correcoes">
                         {%for semana in lancamento.semanas%}
                             {% for dia in semana.dias%}
                               <li><b>SEMANA {{ semana.semana }} - DIAS {{ dia.dia}}</b>
