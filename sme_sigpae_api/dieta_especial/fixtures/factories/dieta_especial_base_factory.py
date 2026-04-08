@@ -2,10 +2,6 @@ from factory import Sequence, SubFactory
 from factory.django import DjangoModelFactory
 from faker import Faker
 
-from sme_sigpae_api.dieta_especial.logs_models.models import (
-    LogQuantidadeDietasAutorizadas,
-    LogQuantidadeDietasAutorizadasCEI,
-)
 from sme_sigpae_api.dieta_especial.models import (
     AlergiaIntolerancia,
     Alimento,
@@ -18,8 +14,6 @@ from sme_sigpae_api.dieta_especial.models import (
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
     AlunoFactory,
     EscolaFactory,
-    FaixaEtariaFactory,
-    PeriodoEscolarFactory,
 )
 
 fake = Faker("pt_BR")
@@ -40,27 +34,6 @@ class SolicitacaoDietaEspecialFactory(DjangoModelFactory):
 
     class Meta:
         model = SolicitacaoDietaEspecial
-
-
-class LogQuantidadeDietasAutorizadasFactory(DjangoModelFactory):
-    escola = SubFactory(EscolaFactory)
-    quantidade = Sequence(lambda n: fake.random_int(min=0, max=100))
-    classificacao = SubFactory(ClassificacaoDietaFactory)
-    periodo_escolar = SubFactory(PeriodoEscolarFactory)
-
-    class Meta:
-        model = LogQuantidadeDietasAutorizadas
-
-
-class LogQuantidadeDietasAutorizadasCEIFactory(DjangoModelFactory):
-    escola = SubFactory(EscolaFactory)
-    quantidade = Sequence(lambda n: fake.random_int(min=0, max=100))
-    classificacao = SubFactory(ClassificacaoDietaFactory)
-    periodo_escolar = SubFactory(PeriodoEscolarFactory)
-    faixa_etaria = SubFactory(FaixaEtariaFactory)
-
-    class Meta:
-        model = LogQuantidadeDietasAutorizadasCEI
 
 
 class MotivoAlteracaoUEFactory(DjangoModelFactory):

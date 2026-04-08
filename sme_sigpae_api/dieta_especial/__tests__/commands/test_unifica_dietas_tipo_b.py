@@ -6,9 +6,11 @@ from django.core.management import call_command
 
 from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
+    SolicitacaoDietaEspecialFactory,
+)
+from sme_sigpae_api.dieta_especial.logs_models.fixtures.factories.base import (
     LogQuantidadeDietasAutorizadasCEIFactory,
     LogQuantidadeDietasAutorizadasFactory,
-    SolicitacaoDietaEspecialFactory,
 )
 from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
