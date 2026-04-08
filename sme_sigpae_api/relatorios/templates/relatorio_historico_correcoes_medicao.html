@@ -7,168 +7,174 @@
 {% block conteudo %}
 
   <style>
-    span > p {
-      margin-top: 5px;
-      margin-bottom: 5px;
-    }
+  span > p {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
 
-    .conteudo.tabela-sem-borda {
-      font-family: Arial, sans-serif;
-    }
+  .conteudo.tabela-sem-borda {
+    font-family: Arial, sans-serif;
+  }
 
-    .log-item {
-      margin-bottom: 20px;
-      border-bottom: 1px solid #9e9c9c;
-    }
+  .log-item {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #9e9c9c;
+  }
 
-    .secao-log > h4 {
-      background-color: #DDDDDD;
-      border-radius: 8px;
-      padding: 8px 8px;
-      font-size: 14px;
-    }
+  .secao-log > h4 {
+    background-color: #DDDDDD;
+    border-radius: 8px;
+    padding: 8px 8px;
+    font-size: 14px;
+  }
 
-    .secao-log > div {
-      font-size: 12px;
-      margin-bottom: 15px;
-    }
+  .secao-log > div {
+    font-size: 12px;
+    margin-bottom: 15px;
+  }
 
-    .secao-log > p {
-      font-size: 11px !important;
-    }
+  .secao-log > p {
+    font-size: 11px !important;
+  }
 
-    {% comment %} .secao-log > ul > li {
-      font-size: 12px !important;
-    } {% endcomment %}
- 
-    /* container geral da lista */
-    .secao-log ul {
-      list-style: disc; 
-      padding-left: 18px; 
-      margin: 2px 0;
-      font-size: 12px;
-    }
+  /* container geral da lista */
+  .secao-log ul {
+    list-style: disc; 
+    padding-left: 18px; 
+    margin: 2px 0;
+    font-size: 12px;
+  }
 
-    /* nível 1 (SEMANA) */
-    .secao-log > ul > li {
-      font-weight: bold;
-      padding: 4px 0;
-      padding-left: 8px;
-      font-size: 12px;
-    }
+  /* nível 1 (SEMANA) */
+  .secao-log > ul > li {
+    font-weight: bold;
+    padding: 4px 0;
+    padding-left: 8px;
+    font-size: 12px;
+  }
 
-    /* nível 2 (campo_nome) */
-    .secao-log ul ul > li {
-      font-weight: normal;
-      margin-top: 4px;
-      padding-left: 10px;
-      font-size: 12px;
-    }
+  /* nível 2 (campo_nome) */
+  .secao-log ul ul > li {
+    font-weight: normal;
+    margin-top: 4px;
+    padding-left: 10px;
+    font-size: 12px;
+  }
 
-    /* nível 3 (DE / PARA) */
-    .secao-log ul ul ul > li {
-      font-size: 11px;
-      margin-top: 2px;
-      padding-left: 12px;
-      font-size: 12px;
+  /* nível 3 (DE / PARA) */
+  .secao-log ul ul ul > li {
+    font-size: 11px;
+    margin-top: 2px;
+    padding-left: 12px;
+    font-size: 12px;
+  }
 
-    }
+  /* destaque DE / PARA */
+  .secao-log ul ul ul li b {
+    font-weight: bold;
+    color: #000;
+    font-size: 12px;
+  }
 
-    /* destaque DE / PARA */
-    .secao-log ul ul ul li b {
-      font-weight: bold;
-      color: #000;
-      font-size: 12px;
-    }
+  /* espaçamento entre blocos */
+  .secao-log ul > li + ul {
+    margin-top: 1px;
+  }
 
-    /* espaçamento entre blocos */
-    .secao-log ul > li + ul {
-      margin-top: 1px;
-    }
+  .highlight {
+    color: #000000;
+    font-size: 12px;
+    font-weight: 600;
+  }
 
-    .highlight {
-      color: #000000;
-      font-size: 12px;
-      font-weight: 600;
-    }
+  .secao-log table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
 
-    .secao-log table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-    }
+  .secao-log table th {
+    background-color: #F5F5F5;
+    padding: 10px 2px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+  }
 
-    .secao-log table th {
-      background-color: #F5F5F5;
-      padding: 10px 2px;
-      text-align: left;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .secao-log table td {
-      font-size: 11px;
-    }
-    .secao-log table td,
-    .secao-log table th {
-      word-break: break-word;
-      overflow-wrap: break-word;
-      overflow: hidden;
-      border: 1px solid #bdbdbd;
-    }
-    .linha-interna {
-       display: grid;
-        grid-template-columns: 1fr 1fr; 
-        width: 100%;
-        max-width: 100%;
-      }
-
-    .linha-interna.divisor {
-        border-bottom: 1px solid #dadada;
-      }
-
-      .coluna {
-         padding: 5px;
-        min-width: 0; 
-        word-break: break-word;
-      }
-
-
-      .coluna.esquerda {
-        border-right: 1px solid #dadada;
-      }
-
+  .secao-log table td {
+    font-size: 11px;
+  }
   
-      .coluna p {
-        margin: 2px 0;
-      }
+  .secao-log table td,
+  .secao-log table th {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    overflow: hidden;
+    border: 1px solid #bdbdbd;
+  }
 
-      .secao-log table th:nth-child(1),
-      .secao-log table td:nth-child(1) {
-        width: 20%;
-      }
+  /* NOVAS PROPORÇÕES DAS COLUNAS */
+  .secao-log table th:nth-child(1),
+  .secao-log table td:nth-child(1) {
+    width: 20%;  /* PERÍODO */
+  }
 
-      .secao-log table th:nth-child(2),
-      .secao-log table td:nth-child(2) {
-        width: 30%;
-      }
+  .secao-log table th:nth-child(2),
+  .secao-log table td:nth-child(2) {
+    width: 30%;  /* TABELA DE LANÇAMENTO */
+  }
 
-      .secao-log table th:nth-child(3),
-      .secao-log table td:nth-child(3) {
-        width: 30%;
-      }
+  .secao-log table th:nth-child(3),
+  .secao-log table td:nth-child(3) {
+    width: 20%;  /* CORREÇÕES */
+  }
 
-      .secao-log table th:nth-child(4),
-      .secao-log table td:nth-child(4) {
-        width: 20%;
-      }
-    
-      .secao-log .reduz-espaco {
-        display: block;
-        margin: 4px 0 2px 0; /* 🔥 reduz espaço */
-      }
+  .secao-log table th:nth-child(4),
+  .secao-log table td:nth-child(4) {
+    width: 30%;  /* OBSERVAÇÃO */
+  }
 
-  </style>
+  /* Ajuste específico para célula com colspan=2 */
+  .secao-log table td.celula-transbordada {
+    position: relative;
+    padding: 0 !important;
+  }
+
+  .secao-log table td.celula-transbordada .linha-interna {
+    display: grid;
+    grid-template-columns: 60% 40%; /* 30% da TABELA + 20% das CORREÇÕES = 50% total, proporção 60/40 */
+    width: 100%;
+    min-height: 100%;
+  }
+
+  .secao-log table td.celula-transbordada .linha-interna.divisor {
+    border-bottom: 1px solid #dadada;
+  }
+
+  .secao-log table td.celula-transbordada .coluna {
+    padding: 5px;
+    min-width: 0; 
+    word-break: break-word;
+  }
+
+  .secao-log table td.celula-transbordada .coluna.esquerda {
+    border-right: 1px solid #bdbdbd; /* Linha divisória visível */
+    padding: 5px;
+  }
+
+  .secao-log table td.celula-transbordada .coluna.direita {
+    padding: 5px;
+  }
+
+  .coluna p {
+    margin: 2px 0;
+  }
+
+  .secao-log .reduz-espaco {
+    display: block;
+    margin: 4px 0 2px 0;
+  }
+</style>
 
   <div class="conteudo tabela-sem-borda">
     {% for log in logs %}
@@ -201,12 +207,12 @@
                 <tbody>
                   {% for alteracao in log.alteracoes %}
                     <tr>
-                      <td>{{ alteracao.periodo_escolar }}</td>
+                      <td>{{ alteracao.periodo_escolar|nomes_relatorio_correcao_medicao}}</td>
                       <td colspan=2 class="celula-transbordada">
                         {% for lancamento in alteracao.tabelas_lancamentos %}
                           <div class="linha-interna {% if not forloop.last %}divisor{% endif %}">  
                               <div class="coluna esquerda">
-                                <span>{{ lancamento.categoria_medicao }}</span>
+                                <span>{{ lancamento.categoria_medicao|nomes_relatorio_correcao_medicao }}</span>
                               </div>
                               <div class="coluna direita">
                                 {%for semana in lancamento.semanas%} 
@@ -236,14 +242,14 @@
               <div><span class="highlight">Correções Realizadas pela UE</span></div>
                 {% for alteracao in log.alteracoes %}
                   {% for lancamento in alteracao.tabelas_lancamentos %}
-                    <div><span class="highlight">Período {{  alteracao.periodo_escolar }} - Tabela {{ lancamento.categoria_medicao}}</span></div>
+                    <div><span class="highlight">Período {{  alteracao.periodo_escolar|nomes_relatorio_correcao_medicao }} - Tabela  de {{ lancamento.categoria_medicao| nomes_relatorio_correcao_medicao}}</span></div>
                     <ul>
                       {%for semana in lancamento.semanas%}
                           {% for dia in semana.dias%}
                             <li><b>SEMANA {{ semana.semana }} - DIAS {{ dia.dia}}</b>
                               <ul>
                                 {%for campo in dia.campos%}
-                                  <li>{{ campo.campo_nome }}
+                                  <li>{{ campo.campo_nome|get_nome_campo }}
                                     <ul>
                                       <li>
                                         <b>DE:</b> {{ campo.de }}

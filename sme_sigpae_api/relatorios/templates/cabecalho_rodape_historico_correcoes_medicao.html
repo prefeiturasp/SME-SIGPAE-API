@@ -13,8 +13,10 @@
   <style>
 
     @page {
-      margin-bottom: 4em;
-      @bottom-left {
+      size: A4;
+      margin: 7cm 0 1.7cm 0;
+      {% comment %} margin-bottom: 4em; {% endcomment %}
+      {% comment %} @bottom-left {
         background: #EEEEEE;
         color: #000000;
         content: "Documento gerado em {% now 'd/m/Y' %} às {% now 'H:i' %}" ;
@@ -30,9 +32,33 @@
         width: 45%;
         padding: 1em 2em 4em 2em;
         margin-top: 2em;
+      } {% endcomment %}
+
+      @top-left {
+        content: element(header);
+        {% comment %} vertical-align: top; {% endcomment %}
+      }
+             
+      @bottom-center {
+        color: #000000;
+        content: counter(page) "/" counter(pages);
+        font-size: 10px;
+        padding-top: 5px;
+      }
+      
+      @bottom-right {
+        color: #000000;
+        content: "Documento gerado em {% now "d/m/Y" %} às {% now "H:i" %}";
+        font-size: 10px;
+        white-space: nowrap;
+        padding-top: 5px;
       }
     }
-    
+
+    .header {
+      position: running(header);
+      {% comment %} margin-bottom: 20px; {% endcomment %}
+    }
 
     .titulo-e-logo {
       display: flex;

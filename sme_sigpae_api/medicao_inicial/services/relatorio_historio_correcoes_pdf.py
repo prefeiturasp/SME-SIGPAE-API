@@ -43,25 +43,27 @@ def ajustes(logs, historico, extras):
             })
         elif log.status_evento_explicacao == STATUS_DICT[LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA]:
             h = filtrar_por_acao(historico, SolicitacaoMedicaoInicialWorkflow.MEDICAO_CORRECAO_SOLICITADA)
-            informacoes.append({
-                "titulo": "DEVOLVIDO PARA AJUSTES PELA DRE",
-                "data": log.criado_em,
-                "rf": log.usuario.registro_funcional,
-                "nome": log.usuario.nome,
-                "mes_lancamento": mes_ano,
-                "alteracoes": h[0].get("alteracoes")
-            })
+            if h:
+                informacoes.append({
+                    "titulo": "DEVOLVIDO PARA AJUSTES PELA DRE",
+                    "data": log.criado_em,
+                    "rf": log.usuario.registro_funcional,
+                    "nome": log.usuario.nome,
+                    "mes_lancamento": mes_ano,
+                    "alteracoes": h[0].get("alteracoes")
+                })
             
         elif log.status_evento_explicacao == STATUS_DICT[LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PELA_UE]:
             h = filtrar_por_acao(historico, SolicitacaoMedicaoInicialWorkflow.MEDICAO_CORRIGIDA_PELA_UE)
-            informacoes.append({
-                "titulo": "CORRIGIDO PARA DRE",
-                "data": log.criado_em,
-                "rf": log.usuario.registro_funcional,
-                "nome": log.usuario.nome,
-                "mes_lancamento": mes_ano,
-                "alteracoes": h[0].get("alteracoes")
-            })
+            if h:
+                informacoes.append({
+                    "titulo": "CORRIGIDO PARA DRE",
+                    "data": log.criado_em,
+                    "rf": log.usuario.registro_funcional,
+                    "nome": log.usuario.nome,
+                    "mes_lancamento": mes_ano,
+                    "alteracoes": h[0].get("alteracoes")
+                })
         elif log.status_evento_explicacao == STATUS_DICT[LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_DRE]:
             informacoes.append({
                 "titulo": "APROVADO PELA DRE",
@@ -71,32 +73,35 @@ def ajustes(logs, historico, extras):
             })
         elif log.status_evento_explicacao == STATUS_DICT[LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE]:
             h = filtrar_por_acao(historico, SolicitacaoMedicaoInicialWorkflow.MEDICAO_CORRECAO_SOLICITADA_CODAE)
-            informacoes.append({
-                "titulo": "DEVOLVIDO PARA AJUSTES PELA CODAE",
-                "data": log.criado_em,
-                "rf": log.usuario.registro_funcional,
-                "nome": log.usuario.nome,
-                "mes_lancamento": mes_ano,
-                "alteracoes": h[0].get("alteracoes")
-            })
+            if h:
+                informacoes.append({
+                    "titulo": "DEVOLVIDO PARA AJUSTES PELA CODAE",
+                    "data": log.criado_em,
+                    "rf": log.usuario.registro_funcional,
+                    "nome": log.usuario.nome,
+                    "mes_lancamento": mes_ano,
+                    "alteracoes": h[0].get("alteracoes")
+                })
         elif log.status_evento_explicacao == STATUS_DICT[LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE]:
             h = filtrar_por_acao(historico, SolicitacaoMedicaoInicialWorkflow.MEDICAO_CORRIGIDA_PARA_CODAE)
-            informacoes.append({
-                "titulo": "CORRIGIDO PARA CODAE",
-                "data": log.criado_em,
-                "rf": log.usuario.registro_funcional,
-                "nome": log.usuario.nome,
-                "mes_lancamento": mes_ano,
-                "alteracoes": h[0].get("alteracoes")
-            })
+            if h:
+                informacoes.append({
+                    "titulo": "CORRIGIDO PARA CODAE",
+                    "data": log.criado_em,
+                    "rf": log.usuario.registro_funcional,
+                    "nome": log.usuario.nome,
+                    "mes_lancamento": mes_ano,
+                    "alteracoes": h[0].get("alteracoes")
+                })
         elif log.status_evento_explicacao == STATUS_DICT[LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE]:
-            informacoes.append({
-                "titulo": "APROVADO PELA CODAE",
-                "data": log.criado_em,
-                "rf": log.usuario.registro_funcional,
-                "nome": log.usuario.nome,
+            if h:
+                informacoes.append({
+                    "titulo": "APROVADO PELA CODAE",
+                    "data": log.criado_em,
+                    "rf": log.usuario.registro_funcional,
+                    "nome": log.usuario.nome,
 
-            })
+                })
 
     return informacoes
 
@@ -104,7 +109,7 @@ def gera_relatorio_historico_correcoes_pdf(solicitacao_uuid):
     solicitacao = SolicitacaoMedicaoInicial.objects.get(uuid=solicitacao_uuid)
     logs = solicitacao.logs.order_by("criado_em")
     historico = json.loads(solicitacao.historico)
-    data_solicitacao = f"{solicitacao.mes}/{solicitacao.ano}"
+    data_solicitacao = f"{converte_numero_em_mes(int(solicitacao.mes))}/{solicitacao.ano}"
     informacoes = ajustes(logs, historico, {"escola": solicitacao.escola, "data_solicitacao": data_solicitacao})
     html_string = render_to_string(
         "relatorio_historico_correcoes_medicao.html",
