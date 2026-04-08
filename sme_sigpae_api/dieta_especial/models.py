@@ -26,7 +26,7 @@ from ..dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
 from ..dados_comuns.utils import convert_base64_to_contentfile
 from ..escola.api.serializers import AlunoSerializer
 from ..escola.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
-from ..escola.models import Aluno, Escola
+from ..escola.models import Aluno
 from .managers import AlimentoProprioManager
 
 PENDENTES_EVENTO_DIETA_ESPECIAL = [
@@ -574,61 +574,6 @@ class PlanilhaDietasAtivas(models.Model):
 
     def __str__(self):
         return str(self.arquivo)
-
-
-class LogDietasAtivasCanceladasAutomaticamente(CriadoEm):
-    dieta = models.ForeignKey(
-        "SolicitacaoDietaEspecial",
-        on_delete=models.CASCADE,
-        related_name="dietas_especiais",
-    )
-    codigo_eol_aluno = models.CharField(  # noqa DJ01
-        "Código EOL aluno",
-        max_length=7,
-        validators=[MinLengthValidator(7)],
-        null=True,
-        blank=True,
-    )
-    nome_aluno = models.CharField(
-        "Nome do Aluno", max_length=100, null=True, blank=True
-    )  # noqa DJ01
-    codigo_eol_escola_origem = models.CharField(  # noqa DJ01
-        "Código EOL escola origem",
-        max_length=6,
-        validators=[MinLengthValidator(6)],
-        null=True,
-        blank=True,
-    )
-    nome_escola_origem = models.CharField(
-        "Nome da Escola origem", max_length=160, null=True, blank=True
-    )  # noqa DJ01
-    codigo_eol_escola_destino = models.CharField(  # noqa DJ01
-        "Código EOL escola destino",
-        max_length=6,
-        validators=[MinLengthValidator(6)],
-        null=True,
-        blank=True,
-    )
-    nome_escola_destino = models.CharField(
-        "Nome da Escola destino", max_length=160, null=True, blank=True
-    )  # noqa DJ01
-
-    class Meta:
-        ordering = ("-criado_em",)
-        verbose_name = "log dietas ativas canceladas automaticamente"
-        verbose_name_plural = "log dietas ativas canceladas automaticamente"
-
-    def __str__(self):
-        return str(self.pk)
-
-    @property
-    def escola_existe(self):
-        escola_existe_no_sigpae = Escola.objects.filter(
-            codigo_eol=self.codigo_eol_escola_destino
-        ).first()
-        if escola_existe_no_sigpae:
-            return True
-        return False
 
 
 class AlimentoSubstituto(models.Model):
