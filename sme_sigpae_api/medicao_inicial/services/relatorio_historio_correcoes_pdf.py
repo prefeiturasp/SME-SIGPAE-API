@@ -119,5 +119,6 @@ def gera_relatorio_historico_correcoes_pdf(solicitacao_uuid):
             "subtitulo": "RELATÓRIO DE HISTÓRICO DE MEDIÇÃO INICIAL",
         },
     )
-
+    data_arquivo = datetime.today().strftime("%d/%m/%Y às %H:%M")
+    html_string = html_string.replace("dt_file", data_arquivo)
     return html_to_pdf_file(html_string, "relatorio_historio_correcoes.pdf", True)
