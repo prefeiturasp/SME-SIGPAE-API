@@ -73,7 +73,7 @@ table td.celula-transbordada .linha-interna {
     grid-template-columns: 60% 40%; /* 30% da TABELA + 20% das CORREÇÕES = 50% total, proporção 60/40 */
     width: 100%;
     min-height: 100%;
-    align-items: center;
+    align-items: stretch;
   }
 
 table td.celula-transbordada .linha-interna.divisor {
@@ -95,6 +95,8 @@ table td.celula-transbordada .coluna.esquerda {
 
 table td.celula-transbordada .coluna.direita {
     padding: 5px;
+    flex-direction: column;  
+    align-items: flex-start; 
   }
 
 /* container geral da lista */
