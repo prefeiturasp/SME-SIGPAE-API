@@ -710,6 +710,7 @@ class CronogramaRelatorioSerializer(serializers.ModelSerializer):
     custo_unitario_produto = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
     programa_leve_leite = serializers.SerializerMethodField()
+    modalidade = serializers.SerializerMethodField()
 
     def get_programa_leve_leite(self, obj):
         try:
@@ -760,6 +761,13 @@ class CronogramaRelatorioSerializer(serializers.ModelSerializer):
             else None
         )
 
+    def get_modalidade(self, obj):
+        if not obj.contrato:
+            return "Não Informado"
+        if not obj.contrato.modalidade:
+            return "Não Informado"
+        return obj.contrato.modalidade.nome or "Não Informado"
+
     class Meta:
         model = Cronograma
         fields = (
@@ -776,6 +784,7 @@ class CronogramaRelatorioSerializer(serializers.ModelSerializer):
             "custo_unitario_produto",
             "etapas",
             "programa_leve_leite",
+            "modalidade",
         )
 
 

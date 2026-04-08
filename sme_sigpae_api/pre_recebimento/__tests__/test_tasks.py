@@ -142,6 +142,37 @@ def test_aplicar_estilos_leve_leite_nao_sobrescreve_coluna_produto_no_xlsx():
         assert worksheet_lida.cell(row=indice + 2, column=2).value == produto_esperado
 
 
+def test_criar_linha_base_excel():
+    cronograma_mock = {
+        "numero": "CR-001",
+        "produto": "Arroz",
+        "empresa": "Empresa X",
+        "marca": "Marca Y",
+        "qtd_total_programada": 1000,
+        "custo_unitario_produto": "5,50",
+        "armazem": "Armazém Central",
+        "status": "ATIVO",
+        "modalidade": "Pregão Eletrônico",
+    }
+
+    etapa_mock = {
+        "etapa": "1",
+        "parte": "1",
+        "data_programada": "15/01/2024",
+        "quantidade": "500,00 kg",
+        "total_embalagens": "50",
+        "unidade_medida": "kg",
+    }
+
+    result = _criar_linha_base_excel(cronograma_mock, etapa_mock)
+
+    assert result["cronograma_numero"] == "CR-001"
+    assert result["etapa"] == "1"
+    assert result["parte"] == "1"
+    assert "quantidade" in result
+    assert result["modalidade"] == "Pregão Eletrônico"
+
+
 @pytest.mark.django_db
 class TestImportaFeriadosTask:
 
