@@ -32,6 +32,10 @@ from sme_sigpae_api.dados_comuns.api.paginations import HistoricoDietasPaginatio
 from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
     atualiza_historico_protocolo,
 )
+from sme_sigpae_api.dieta_especial.logs.api.filters import (
+    LogQuantidadeDietasEspeciaisFilter,
+    LogQuantidadeDietasRecreioNasFeriasFilter,
+)
 from sme_sigpae_api.dieta_especial.logs.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
@@ -114,8 +118,6 @@ from ..utils import (
 from .filters import (
     AlimentoFilter,
     DietaEspecialFilter,
-    LogQuantidadeDietasEspeciaisFilter,
-    LogQuantidadeDietasRecreioNasFeriasFilter,
     MotivoNegacaoFilter,
 )
 from .serializers import (
