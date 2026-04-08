@@ -475,6 +475,21 @@ def test_url_endpoint_quantidades_alimentacoes_lancadas_periodo_grupo_escola_cem
     ][0]["valor_total"] == 80
 
 
+def test_url_endpoint_historico_ocorrencias_pdf(
+    client_autenticado_da_escola, solicitacao_medicao_inicial_com_valores_repeticao
+):
+    uuid_solicitacao = solicitacao_medicao_inicial_com_valores_repeticao.uuid
+    response = client_autenticado_da_escola.get(
+        "/medicao-inicial/solicitacao-medicao-inicial/historico-ocorrencias-pdf/"
+        f"?uuid={uuid_solicitacao}",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "detail": "Solicitação de geração de arquivo recebida com sucesso."
+    }
+
+
 def test_url_endpoint_relatorio_pdf(
     client_autenticado_da_escola, solicitacao_medicao_inicial_com_valores_repeticao
 ):

@@ -2162,6 +2162,14 @@ def remover_duplicados(query_set):
     return sem_uuid_repetido
 
 
+def _eh_fim_de_semana(data):
+    return data.weekday() >= 5
+
+
+def _formatar_dia(data):
+    return str(data.day).rjust(2, "0")
+
+
 def formatar_query_set_alteracao(query_set, mes, ano):
     datas = []
     for alteracao_alimentacao in query_set:
@@ -2172,10 +2180,9 @@ def formatar_query_set_alteracao(query_set, mes, ano):
             data__month=mes, data__year=ano, cancelado=False
         )
         for obj in datas_intervalos:
-            if not len(str(obj.data.day)) == 1:
-                datas.append(str(obj.data.day))
-            else:
-                datas.append(("0" + str(obj.data.day)))
+            if _eh_fim_de_semana(obj.data):
+                continue
+            datas.append(_formatar_dia(obj.data))
     return list(set(datas))
 
 
@@ -2201,10 +2208,7 @@ def get_lista_dias_solicitacoes(params, escola):
         query_set = remover_duplicados(query_set)
         datas_kits = []
         for obj in query_set:
-            if not len(str(obj.data_evento.day)) == 1:
-                datas_kits.append(str(obj.data_evento.day))
-            else:
-                datas_kits.append(("0" + str(obj.data_evento.day)))
+            datas_kits.append(_formatar_dia(obj.data_evento))
         return datas_kits
 
 
@@ -2318,12 +2322,15 @@ def append_lanches_nomes_campos(nomes_campos, tipos_alimentacao):
     return nomes_campos
 
 
-def get_tipos_alimentacao(inclusoes, dia_semana):
+def get_tipos_alimentacao(inclusoes, dia_semana, data):
     nomes_campos = ["frequencia"]
     tipos_alimentacao = []
     for inclusao in inclusoes:
         for qp in inclusao.quantidades_periodo.filter(
-            dias_semana__icontains=dia_semana
+            dias_semana__icontains=dia_semana,
+            cancelado=False,
+            inclusao_alimentacao_continua__data_inicial__lte=data,
+            inclusao_alimentacao_continua__data_final__gte=data,
         ):
             tipos_alimentacao += qp.tipos_alimentacao.all().values_list(
                 "nome", flat=True
@@ -2333,8 +2340,8 @@ def get_tipos_alimentacao(inclusoes, dia_semana):
     return tipos_alimentacao, nomes_campos
 
 
-def build_nomes_campos_alimentacoes_programas_e_projetos(inclusoes, dia_semana):
-    tipos_alimentacao, nomes_campos = get_tipos_alimentacao(inclusoes, dia_semana)
+def build_nomes_campos_alimentacoes_programas_e_projetos(inclusoes, dia_semana, data):
+    tipos_alimentacao, nomes_campos = get_tipos_alimentacao(inclusoes, dia_semana, data)
     if "Refeição" in tipos_alimentacao:
         nomes_campos.append("refeicao")
         nomes_campos.append("repeticao_refeicao")
@@ -2403,7 +2410,7 @@ def valida_alimentacoes_solicitacoes_continuas(
                 quantidades_por_periodo__dias_semana__icontains=dia_semana,
             )
         nomes_campos = build_nomes_campos_alimentacoes_programas_e_projetos(
-            inclusoes_filtradas, dia_semana
+            inclusoes_filtradas, dia_semana, data
         )
         if (
             periodo_com_erro
@@ -2486,7 +2493,7 @@ def valida_alimentacoes_solicitacoes_continuas_emei_cemei(
         ):
             continue
         nomes_campos = build_nomes_campos_alimentacoes_programas_e_projetos(
-            inclusoes, dia_semana
+            inclusoes, dia_semana, data
         )
         for nome_campo in nomes_campos:
             if not medicao_programas_projetos.valores_medicao.filter(

@@ -5941,3 +5941,28 @@ class FluxoFichaDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
 
     class Meta:
         abstract = True
+
+
+class CronogramaSemanalWorkflow(xwf_models.Workflow):
+    """Workflow para Cronograma Semanal FLV"""
+
+    log_model = ""
+    RASCUNHO = "RASCUNHO"
+
+    states = (
+        (RASCUNHO, "Rascunho"),
+    )
+
+    transitions = ()
+
+    initial_state = RASCUNHO
+
+
+class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
+    """Classe abstrata que adiciona workflow de Cronograma Semanal"""
+
+    workflow_class = CronogramaSemanalWorkflow
+    status = xwf_models.StateField(workflow_class)
+
+    class Meta:
+        abstract = True

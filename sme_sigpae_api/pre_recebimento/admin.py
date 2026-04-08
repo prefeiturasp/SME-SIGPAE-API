@@ -3,6 +3,7 @@ import importlib
 submodulos_admin = [
     "base",
     "cronograma_entrega",
+    "cronograma_semanal",
     "documento_recebimento",
     "ficha_tecnica",
     "layout_embalagem",
