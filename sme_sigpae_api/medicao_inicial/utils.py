@@ -6,17 +6,17 @@ import logging
 import re
 from calendar import monthrange
 from collections import defaultdict
-from decimal import Decimal, InvalidOperation
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from functools import reduce
 from typing import Any, Dict
 
+import unidecode
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import FloatField, IntegerField, Q, QuerySet, Sum
 from django.db.models.functions import Cast
 from django.db.utils import IntegrityError
 from django.template.loader import render_to_string
 from django.utils import timezone
-from unidecode import unidecode
 
 from sme_sigpae_api.dados_comuns.constants import (
     MAX_COLUNAS,
@@ -5835,9 +5835,16 @@ def to_decimal_safe(valor):
             return Decimal("0")
 
         if isinstance(valor, str):
-            valor = valor.replace(",", ".")
+            valor = valor.strip()
+
+            if "," in valor:
+                valor = valor.replace(".", "")
+                valor = valor.replace(",", ".")
+            else:
+                valor = valor
 
         return Decimal(str(valor))
+
     except (InvalidOperation, ValueError):
         return Decimal("0")
 
@@ -5864,7 +5871,7 @@ def _total_parametrizacao(valores):
 
     valor_unitario = mapa.get("UNITARIO")
     valor_unitario_reajuste = mapa.get("REAJUSTE")
-    percentual_acrescimo = mapa.get("ACRESCIMO")
+    percentual_acrescimo = mapa.get("ACRESCIMO", Decimal("0"))
 
     if valor_unitario is not None and valor_unitario_reajuste is not None:
         total = valor_unitario + valor_unitario_reajuste
@@ -6008,7 +6015,16 @@ def _calcula_total_alimentacao(
             continue
 
         total_parametrizacao = _total_parametrizacao(valores_campo)
-        total += to_decimal_safe(total_parametrizacao) * to_decimal_safe(valor)
+
+        total_unitario = to_decimal_safe(total_parametrizacao).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
+
+        valor_total = (total_unitario * to_decimal_safe(valor)).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
+
+        total += valor_total
 
     return total
 
@@ -6066,7 +6082,16 @@ def _calcula_total_dietas(
             continue
 
         total_parametrizacao = _total_parametrizacao(valores_campo)
-        total += to_decimal_safe(total_parametrizacao) * to_decimal_safe(valor)
+
+        total_unitario = to_decimal_safe(total_parametrizacao).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
+
+        valor_total = (total_unitario * to_decimal_safe(valor)).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
+
+        total += valor_total
 
     return total
 
@@ -6075,7 +6100,7 @@ def _calcula_total_tabelas(
     consumo,
     tabelas,
     grupo_nome,
-    tipo=None,
+    tipo_ou_turma=None,
 ):
     """
     Calcula o total consolidado de todas as tabelas de parametrização.
@@ -6094,7 +6119,7 @@ def _calcula_total_tabelas(
         consumo (dict): Estrutura contendo os dados de consumo.
         tabelas (Iterable): Lista/QuerySet de tabelas de parametrização.
         grupo_nome (str): Nome do grupo da unidade escolar.
-        tipo (str, optional): Tipo de cálculo ("FAIXA", "TIPO" ou None).
+        tipo_ou_turma (str, optional): Tipo de cálculo ("FAIXA", "TIPO", "INFANTIL", "FUNDAMENTAL" ou None).
 
     Returns:
         Decimal: Valor total consolidado das tabelas.
@@ -6102,15 +6127,21 @@ def _calcula_total_tabelas(
     total_alimentacao = 0
     total_dietas = 0
 
-    for tabela in tabelas:
-        if tipo == "FAIXA":
-            valores_tabela = tabela.valores.filter(faixa_etaria__isnull=False)
-        elif tipo == "TIPO":
-            valores_tabela = tabela.valores.filter(
-                Q(tipo_alimentacao__isnull=False) | Q(nome_campo="kit_lanche")
-            )
-        else:
-            valores_tabela = tabela.valores.all()
+    _tabelas = tabelas
+
+    if tipo_ou_turma in ["INFANTIL", "FUNDAMENTAL"]:
+        _tabelas = tabelas.filter(nome__icontains=f"EMEBS {tipo_ou_turma}")
+
+    for tabela in _tabelas:
+        tem_faixa = tabela.valores.filter(faixa_etaria__isnull=False).exists()
+
+        if tipo_ou_turma == "TIPO" and tem_faixa:
+            continue
+
+        if tipo_ou_turma == "FAIXA" and not tem_faixa:
+            continue
+
+        valores_tabela = tabela.valores.all()
 
         if "Preço das Alimentações" in tabela.nome:
             total_alimentacao += _calcula_total_alimentacao(
@@ -6118,7 +6149,7 @@ def _calcula_total_tabelas(
                 tabela.periodo_escolar,
                 valores_tabela,
                 grupo_nome,
-                tipo,
+                tipo_ou_turma,
             )
         else:
             total_dietas += _calcula_total_dietas(
@@ -6126,7 +6157,7 @@ def _calcula_total_tabelas(
                 tabela,
                 valores_tabela,
                 grupo_nome,
-                tipo,
+                tipo_ou_turma,
             )
 
     return total_alimentacao + total_dietas
@@ -6160,6 +6191,14 @@ def calcular_total_pagamento(consumo, parametrizacao, tipo_calculo):
                 tabelas,
                 grupo_nome,
                 tipo,
+            )
+    elif grupo_nome.lower() == "grupo 5":
+        for turma in ["INFANTIL", "FUNDAMENTAL"]:
+            total_pagamento += _calcula_total_tabelas(
+                consumo[turma],
+                tabelas,
+                grupo_nome,
+                turma,
             )
     else:
         total_pagamento += _calcula_total_tabelas(
