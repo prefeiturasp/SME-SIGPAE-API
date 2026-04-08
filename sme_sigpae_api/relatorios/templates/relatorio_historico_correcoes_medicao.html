@@ -53,7 +53,7 @@
                     <tbody>
                       {% for alteracao in log.alteracoes %}
                         <tr>
-                          <td>{{ alteracao.periodo_escolar|nomes_relatorio_correcao_medicao}}</td>
+                          <td style="padding: 5px;">{{ alteracao.periodo_escolar|nomes_relatorio_correcao_medicao}}</td>
                           <td colspan=2 class="celula-transbordada">
                             {% for lancamento in alteracao.tabelas_lancamentos %}
                               <div class="linha-interna {% if not forloop.last %}divisor{% endif %}">  
@@ -63,15 +63,15 @@
                                   <div class="coluna direita">
                                     {%for semana in lancamento.semanas%} 
                                       <div>
-                                        <p><b>Semana:</b> {{ semana.semana }}</p>
-                                        <p><b>Dias:</b> {{ semana.dias|join:", " }}</p>
+                                        <p><b>Semana:</b> {{ semana.semana }}<br>
+                                        <b>Dias:</b> {{ semana.dias|join:", " }}</p>
                                       </div>
                                     {%endfor%}
                                   </div>
                               </div>
                             {% endfor %}
                           </td>
-                          <td>{{ alteracao.justificativa | safe }}</td>
+                          <td style="padding: 5px;">{{ alteracao.justificativa | safe }}</td>
                         </tr>
                       {% endfor %}
                     </tbody>

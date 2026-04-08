@@ -1,5 +1,14 @@
 @import "variaveis";
 
+.log-container{
+  break-inside: auto;
+}
+
+.page-container > div {
+  break-inside: auto;
+}
+
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -26,8 +35,8 @@ table td,
 table th {
     word-break: break-word;
     overflow-wrap: break-word;
-    // overflow: hidden;
     border: 1px solid #bdbdbd;
+    vertical-align: middle;
   }
 
 
@@ -56,6 +65,7 @@ table th {
 table td.celula-transbordada {
     position: relative;
     padding: 0 !important;
+    vertical-align: middle; 
   }
 
 table td.celula-transbordada .linha-interna {
@@ -63,6 +73,7 @@ table td.celula-transbordada .linha-interna {
     grid-template-columns: 60% 40%; /* 30% da TABELA + 20% das CORREÇÕES = 50% total, proporção 60/40 */
     width: 100%;
     min-height: 100%;
+    align-items: center;
   }
 
 table td.celula-transbordada .linha-interna.divisor {
@@ -73,6 +84,8 @@ table td.celula-transbordada .coluna {
     padding: 5px;
     min-width: 0; 
     word-break: break-word;
+    display: flex;
+    align-items: center;
   }
 
 table td.celula-transbordada .coluna.esquerda {
@@ -128,11 +141,3 @@ ul > li + ul {
     margin-top: 1px;
   }
 
-.log-container{
-  break-inside: auto;
-  // page-break-inside: avoid; /* fallback */
-}
-
-.page-container > div {
-  break-inside: auto;
-}
