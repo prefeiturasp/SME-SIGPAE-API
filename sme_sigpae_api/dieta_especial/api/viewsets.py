@@ -32,7 +32,10 @@ from sme_sigpae_api.dados_comuns.api.paginations import HistoricoDietasPaginatio
 from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
     atualiza_historico_protocolo,
 )
-from sme_sigpae_api.dieta_especial.logs.models import LogQuantidadeDietasAutorizadas
+from sme_sigpae_api.dieta_especial.logs.models import (
+    LogQuantidadeDietasAutorizadas,
+    LogQuantidadeDietasAutorizadasCEI,
+)
 from sme_sigpae_api.escola.models import Escola
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 
@@ -82,7 +85,6 @@ from ..models import (
     Alimento,
     Anexo,
     ClassificacaoDieta,
-    LogQuantidadeDietasAutorizadasCEI,
     LogQuantidadeDietasAutorizadasRecreioNasFerias,
     LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
     MotivoAlteracaoUE,

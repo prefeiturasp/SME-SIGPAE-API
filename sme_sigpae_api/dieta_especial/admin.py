@@ -11,6 +11,7 @@ from sme_sigpae_api.dados_comuns.constants import COORDENADOR_LOGISTICA
 from sme_sigpae_api.dieta_especial.logs.models import (
     LogDietasAtivasCanceladasAutomaticamente,
     LogQuantidadeDietasAutorizadas,
+    LogQuantidadeDietasAutorizadasCEI,
 )
 from sme_sigpae_api.escola.models import Codae
 from sme_sigpae_api.escola.utils_analise_dietas_ativas import main
@@ -31,7 +32,6 @@ from .models import (
     ArquivoCargaDietaEspecial,
     ArquivoCargaUsuariosEscola,
     ClassificacaoDieta,
-    LogQuantidadeDietasAutorizadasCEI,
     LogQuantidadeDietasAutorizadasRecreioNasFerias,
     LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
     MotivoAlteracaoUE,

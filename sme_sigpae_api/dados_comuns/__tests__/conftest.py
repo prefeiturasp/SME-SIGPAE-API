@@ -18,10 +18,12 @@ from sme_sigpae_api.dados_comuns.fluxo_status import (
     SolicitacaoMedicaoInicialWorkflow,
 )
 from sme_sigpae_api.dados_comuns.parser_xml import ListXMLParser
-from sme_sigpae_api.dieta_especial.logs.models import LogQuantidadeDietasAutorizadas
+from sme_sigpae_api.dieta_especial.logs.models import (
+    LogQuantidadeDietasAutorizadas,
+    LogQuantidadeDietasAutorizadasCEI,
+)
 from sme_sigpae_api.dieta_especial.models import (
     ClassificacaoDieta,
-    LogQuantidadeDietasAutorizadasCEI,
 )
 from sme_sigpae_api.perfil.models import ContentType
 from utility.carga_dados.escola.importa_dados import (

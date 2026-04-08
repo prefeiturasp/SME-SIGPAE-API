@@ -12,9 +12,11 @@ from sme_sigpae_api.dados_comuns.models import CentralDeDownload
 from sme_sigpae_api.dieta_especial.api.serializers import (
     SolicitacaoDietaEspecialExportXLSXSerializer,
 )
-from sme_sigpae_api.dieta_especial.logs.models import LogQuantidadeDietasAutorizadas
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.logs.models import (
+    LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+)
+from sme_sigpae_api.dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.dieta_especial.tasks import (

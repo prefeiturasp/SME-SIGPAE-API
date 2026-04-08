@@ -36,9 +36,11 @@ from sme_sigpae_api.dados_comuns.utils import (
     convert_base64_to_contentfile,
     convert_image_to_base64,
 )
-from sme_sigpae_api.dieta_especial.logs.models import LogQuantidadeDietasAutorizadas
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.logs.models import (
+    LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+)
+from sme_sigpae_api.dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.escola.models import (
