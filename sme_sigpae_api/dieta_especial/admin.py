@@ -12,6 +12,8 @@ from sme_sigpae_api.dieta_especial.logs.models import (
     LogDietasAtivasCanceladasAutomaticamente,
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+    LogQuantidadeDietasAutorizadasRecreioNasFerias,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
 )
 from sme_sigpae_api.escola.models import Codae
 from sme_sigpae_api.escola.utils_analise_dietas_ativas import main
@@ -32,8 +34,6 @@ from .models import (
     ArquivoCargaDietaEspecial,
     ArquivoCargaUsuariosEscola,
     ClassificacaoDieta,
-    LogQuantidadeDietasAutorizadasRecreioNasFerias,
-    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
     MotivoAlteracaoUE,
     MotivoNegacao,
     PlanilhaDietasAtivas,

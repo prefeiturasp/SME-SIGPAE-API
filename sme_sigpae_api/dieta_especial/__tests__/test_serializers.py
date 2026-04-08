@@ -4,7 +4,7 @@ from sme_sigpae_api.dieta_especial.api.serializers import (
     LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer,
     SolicitacaoDietaEspecialRecreioNasFeriasSerializer,
 )
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.logs.models import (
     LogQuantidadeDietasAutorizadasRecreioNasFerias,
 )
 
@@ -58,6 +58,7 @@ def test_log_dietas_recreio_nas_ferias_serializer(
     assert "data" in data
     assert "quantidade" in data
 
+
 def test_serializer_solicitacao_dieta_especial_relatorio_terceirizada_fallback(
     solicitacao_dieta_especial,
     protocolo_padrao_dieta_especial,
@@ -67,9 +68,7 @@ def test_serializer_solicitacao_dieta_especial_relatorio_terceirizada_fallback(
     )
 
     # Caso 1: Ambos presentes -> Prioridade para o nome na dieta
-    solicitacao_dieta_especial.protocolo_padrao = (
-        protocolo_padrao_dieta_especial
-    )
+    solicitacao_dieta_especial.protocolo_padrao = protocolo_padrao_dieta_especial
     solicitacao_dieta_especial.escola_destino = solicitacao_dieta_especial.rastro_escola
     solicitacao_dieta_especial.nome_protocolo = "Nome Especifico na Dieta"
     serializer = SolicitacaoDietaEspecialRelatorioTercSerializer(

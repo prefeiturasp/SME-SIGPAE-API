@@ -7,10 +7,10 @@ from django.db.models import Q
 from sme_sigpae_api.dieta_especial.logs.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
-)
-from sme_sigpae_api.dieta_especial.models import (
     LogQuantidadeDietasAutorizadasRecreioNasFerias,
     LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
+)
+from sme_sigpae_api.dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.dieta_especial.tasks.utils.logs import (

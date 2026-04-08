@@ -12,9 +12,11 @@ from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factor
     MotivoAlteracaoUEFactory,
     SolicitacaoDietaEspecialFactory,
 )
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.logs.models import (
     LogQuantidadeDietasAutorizadasRecreioNasFerias,
     LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
+)
+from sme_sigpae_api.dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.dieta_especial.tasks.logs import (

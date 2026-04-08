@@ -8,6 +8,8 @@ from rest_framework import serializers, status
 from sme_sigpae_api.dieta_especial.logs.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+    LogQuantidadeDietasAutorizadasRecreioNasFerias,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
 )
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 
@@ -39,8 +41,6 @@ from ..models import (
     Alimento,
     Anexo,
     ClassificacaoDieta,
-    LogQuantidadeDietasAutorizadasRecreioNasFerias,
-    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
     MotivoAlteracaoUE,
     MotivoNegacao,
     ProtocoloPadraoDietaEspecial,

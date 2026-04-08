@@ -10,11 +10,11 @@ from sme_sigpae_api.dieta_especial.constants import ETAPA_INFANTIL
 from sme_sigpae_api.dieta_especial.logs.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+    LogQuantidadeDietasAutorizadasRecreioNasFerias,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
 )
 from sme_sigpae_api.dieta_especial.models import (
     ClassificacaoDieta,
-    LogQuantidadeDietasAutorizadasRecreioNasFerias,
-    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
 )
 from sme_sigpae_api.escola.models import FaixaEtaria, PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.models import SolicitacaoMedicaoInicial
