@@ -36,6 +36,12 @@ from sme_sigpae_api.dieta_especial.logs_models.api.filters import (
     LogQuantidadeDietasEspeciaisFilter,
     LogQuantidadeDietasRecreioNasFeriasFilter,
 )
+from sme_sigpae_api.dieta_especial.logs_models.api.serializers import (
+    LogQuantidadeDietasAutorizadasCEISerializer,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer,
+    LogQuantidadeDietasAutorizadasSerializer,
+)
 from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
@@ -124,10 +130,6 @@ from .serializers import (
     AlergiaIntoleranciaSerializer,
     AlimentoSerializer,
     ClassificacaoDietaSerializer,
-    LogQuantidadeDietasAutorizadasCEISerializer,
-    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer,
-    LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer,
-    LogQuantidadeDietasAutorizadasSerializer,
     MotivoAlteracaoUESerializer,
     MotivoNegacaoSerializer,
     PanoramaSerializer,
