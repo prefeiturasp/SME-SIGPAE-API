@@ -176,6 +176,15 @@ class DocumentoDeRecebimentoAnalisarSerializer(
         super().__init__(*args, **kwargs)
         self.fields["correcao_solicitada"] = serializers.CharField(required=False)
 
+        is_solicitacao_correcao = bool(kwargs.get("data", {}).get("correcao_solicitada"))
+        if is_solicitacao_correcao:
+            for field_name, field in self.fields.items():
+                if field_name != "correcao_solicitada":
+                    field.required = False
+                    field.allow_null = True
+                    if hasattr(field, "allow_blank"):
+                        field.allow_blank = True
+
     def update(self, instance, validated_data):
         user = self.context["request"].user
         datas_fabricacao_e_prazos = validated_data.pop("datas_fabricacao_e_prazos", [])
