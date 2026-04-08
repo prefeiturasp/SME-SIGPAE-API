@@ -11,7 +11,7 @@ from django.http import QueryDict
 from django.template.loader import render_to_string
 from rest_framework.pagination import PageNumberPagination
 
-from sme_sigpae_api.dieta_especial.logs.models import (
+from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogDietasAtivasCanceladasAutomaticamente,
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,

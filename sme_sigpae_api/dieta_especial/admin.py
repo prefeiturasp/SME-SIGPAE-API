@@ -8,7 +8,7 @@ from django.urls import path
 from rangefilter.filters import DateRangeFilter
 
 from sme_sigpae_api.dados_comuns.constants import COORDENADOR_LOGISTICA
-from sme_sigpae_api.dieta_especial.logs.models import (
+from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogDietasAtivasCanceladasAutomaticamente,
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,

@@ -509,7 +509,7 @@ def criar_logs_alunos_matriculados_inexistentes(escola, hoje):
 
 
 def analisa_logs_quantidade_dietas_autorizadas():
-    from sme_sigpae_api.dieta_especial.logs.models import (
+    from sme_sigpae_api.dieta_especial.logs_models.models import (
         LogQuantidadeDietasAutorizadas,
         LogQuantidadeDietasAutorizadasCEI,
     )
@@ -540,7 +540,7 @@ def analisa_logs_quantidade_dietas_autorizadas():
 
 
 def analisa_logs_quantidade_dietas_autorizadas_cemei(escola, hoje):
-    from sme_sigpae_api.dieta_especial.logs.models import (
+    from sme_sigpae_api.dieta_especial.logs_models.models import (
         LogQuantidadeDietasAutorizadas,
         LogQuantidadeDietasAutorizadasCEI,
     )
@@ -619,7 +619,7 @@ def criar_logs_quantidade_dietas_autorizadas_inexistentes(escola, hoje, modelo):
 
 
 def create_objects_logs(escola, log_para_criar, data):
-    from sme_sigpae_api.dieta_especial.logs.models import (
+    from sme_sigpae_api.dieta_especial.logs_models.models import (
         LogQuantidadeDietasAutorizadas,
         LogQuantidadeDietasAutorizadasCEI,
     )

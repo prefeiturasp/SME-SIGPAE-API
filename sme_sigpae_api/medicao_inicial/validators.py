@@ -7,7 +7,7 @@ from django.db.models import Q, QuerySet
 from workalendar.america import BrazilSaoPauloCity
 
 from sme_sigpae_api.dados_comuns.utils import filtrar_dias_letivos, get_ultimo_dia_mes
-from sme_sigpae_api.dieta_especial.logs.models import (
+from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )

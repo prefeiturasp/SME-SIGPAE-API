@@ -4,7 +4,7 @@ from sme_sigpae_api.dieta_especial.api.serializers import (
     LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer,
     SolicitacaoDietaEspecialRecreioNasFeriasSerializer,
 )
-from sme_sigpae_api.dieta_especial.logs.models import (
+from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasRecreioNasFerias,
 )
 

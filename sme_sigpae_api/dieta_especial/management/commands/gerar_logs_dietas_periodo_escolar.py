@@ -2,7 +2,9 @@ import logging
 
 from django.core.management import BaseCommand
 
-from sme_sigpae_api.dieta_especial.logs.models import LogQuantidadeDietasAutorizadas
+from sme_sigpae_api.dieta_especial.logs_models.models import (
+    LogQuantidadeDietasAutorizadas,
+)
 from sme_sigpae_api.escola.models import PeriodoEscolar
 
 logger = logging.getLogger("sigpae.cmd_gerar_logs_dietas_periodo_escolar")

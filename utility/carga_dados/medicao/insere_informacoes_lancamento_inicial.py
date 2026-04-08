@@ -15,7 +15,7 @@ from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_cr
 )
 from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
 from sme_sigpae_api.dados_comuns.utils import eh_dia_util, obter_dias_uteis_apos
-from sme_sigpae_api.dieta_especial.logs.models import (
+from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )

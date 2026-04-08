@@ -5,7 +5,7 @@ from django.db.models import Q
 from drf_base64.serializers import ModelSerializer
 from rest_framework import serializers, status
 
-from sme_sigpae_api.dieta_especial.logs.models import (
+from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
     LogQuantidadeDietasAutorizadasRecreioNasFerias,

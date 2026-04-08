@@ -1,7 +1,7 @@
 import pytest
 import xworkflows
 
-from sme_sigpae_api.dieta_especial.logs.models import (
+from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogDietasAtivasCanceladasAutomaticamente,
 )
 
