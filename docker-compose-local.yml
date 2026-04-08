@@ -1,0 +1,12 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sigpae-api
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    command: >
+      sh -c "gunicorn config.wsgi:application --bind=0.0.0.0:8000 --log-level debug -w 8 --timeout 600"
