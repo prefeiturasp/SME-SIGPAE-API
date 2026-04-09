@@ -22,7 +22,6 @@ from sme_sigpae_api.escola.utils_escola import create_tempfile, escreve_escolas_
 from sme_sigpae_api.processamento_arquivos.dieta_especial import (
     importa_alimentos,
     importa_dietas_especiais,
-    importa_usuarios_escola,
 )
 
 from .forms import AlimentoProprioForm
@@ -32,7 +31,6 @@ from .models import (
     AlimentoProprio,
     ArquivoCargaAlimentosSubstitutos,
     ArquivoCargaDietaEspecial,
-    ArquivoCargaUsuariosEscola,
     ClassificacaoDieta,
     MotivoAlteracaoUE,
     MotivoNegacao,
@@ -318,29 +316,6 @@ class ArquivoCargaAlimentosSubstitutosAdmin(admin.ModelAdmin):
 
     processa_carga.short_description = (
         "Realiza a importação dos alimentos e alimentos substitutos"
-    )
-
-
-@admin.register(ArquivoCargaUsuariosEscola)
-class ArquivoCargaUsuariosEscolaAdmin(admin.ModelAdmin):
-    list_display = ("uuid", "__str__", "criado_em", "status")
-    readonly_fields = ("resultado", "status", "log")
-    list_filter = ("status",)
-    actions = ("processa_carga",)
-
-    def processa_carga(self, request, queryset):
-        if len(queryset) > 1:
-            self.message_user(request, "Escolha somente uma planilha.", messages.ERROR)
-            return
-
-        importa_usuarios_escola(request.user, queryset.first())
-        self.message_user(
-            request,
-            f"Processo Terminado. Verifique o status do processo. {queryset.first().uuid}",
-        )
-
-    processa_carga.short_description = (
-        "Realiza a importação dos usuários Diretor e Assistente Diretor"
     )
 
 

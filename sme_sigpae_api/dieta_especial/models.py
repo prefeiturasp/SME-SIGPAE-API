@@ -279,20 +279,3 @@ class ArquivoCargaAlimentosSubstitutos(ArquivoCargaBase):
 
     def __str__(self) -> str:
         return str(self.conteudo)
-
-
-class ArquivoCargaUsuariosEscola(ArquivoCargaBase):
-    """Essa classe foi colocada aqui pois os usuários seriam usados para a dieta especial."""
-
-    resultado = models.FileField(blank=True, default="")
-
-    class Meta:
-        verbose_name = (
-            "Arquivo para importação de usuários Diretor e Assistente Diretor"
-        )
-        verbose_name_plural = (
-            "Arquivos para importação de usuários Diretor e Assistente Diretor"
-        )
-
-    def __str__(self) -> str:
-        return str(self.conteudo)
