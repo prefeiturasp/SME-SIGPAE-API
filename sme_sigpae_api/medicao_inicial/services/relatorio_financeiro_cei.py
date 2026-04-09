@@ -49,11 +49,12 @@ def _build_tabela_alimentacao_cei(tabelas, faixas_etarias, totais_consumo):
             valor_total_geral += valor_total
 
             linhas.append({
-                "faixa": f"Período {periodo.capitalize()} - {faixa.__str__()}",
+                "periodo": f"Período {periodo.capitalize()}",
+                "faixa": f"{faixa.__str__()}",
                 "valor_unitario": valor_unitario,
                 "valor_reajuste": valor_reajuste,
                 "total_unitario": total_unitario,
-                "numero_atendimentos": numero_atendimentos,
+                "numero_atendimentos": int(numero_atendimentos),
                 "valor_total": valor_total,
             })
 
@@ -101,11 +102,12 @@ def _build_tabela_dieta_cei(
             valor_total_geral += valor_total
 
             linhas.append({
-                "faixa": f"Período {periodo.capitalize()} - {faixa.__str__()}",
+                "periodo": f"Período {periodo.capitalize()}",
+                "faixa": f"{faixa.__str__()}",
                 "valor_unitario": valor_unitario,
                 "valor_acrescimo": valor_acrescimo,
                 "total_unitario": total_unitario,
-                "numero_consumo": numero_consumo,
+                "numero_consumo": int(numero_consumo),
                 "valor_total": valor_total,
             })
 
