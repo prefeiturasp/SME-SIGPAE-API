@@ -7,7 +7,7 @@ from celery import shared_task
 from dateutil.relativedelta import relativedelta
 from pypdf import PdfWriter
 
-from sme_sigpae_api.dados_comuns.models import CentralDeDownload
+from sme_sigpae_api.dados_comuns.models import CentralDeDownload, LogSolicitacoesUsuario
 from sme_sigpae_api.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from sme_sigpae_api.medicao_inicial.services.relatorio_adesao_excel import (
     gera_relatorio_adesao_xlsx,
@@ -21,6 +21,9 @@ from sme_sigpae_api.medicao_inicial.services.relatorio_consolidado_excel import 
 from sme_sigpae_api.medicao_inicial.services.relatorio_controle_frequencia_pdf import (
     gera_relatorio_controle_frequencia_pdf,
 )
+from sme_sigpae_api.medicao_inicial.services.relatorio_historio_correcoes_pdf import (
+    gera_relatorio_historico_correcoes_pdf,
+)
 from sme_sigpae_api.perfil.models.usuario import Usuario
 
 from ..dados_comuns.utils import (
@@ -31,19 +34,14 @@ from ..dados_comuns.utils import (
 from ..escola.models import AlunoPeriodoParcial, Escola
 from ..relatorios.relatorios import (
     obter_relatorio_da_unidade,
+    relatorio_historico_ocorrencias_medicao_inicial,
     relatorio_solicitacao_medicao_por_escola,
     relatorio_solicitacao_medicao_por_escola_cei,
     relatorio_solicitacao_medicao_por_escola_cemei,
     relatorio_solicitacao_medicao_por_escola_emebs,
-    relatorio_historico_ocorrencias_medicao_inicial,
 )
-from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from .models import Responsavel, SolicitacaoMedicaoInicial
 from .utils import cria_relatorios_financeiros_por_grupo_unidade_escolar
-
-from sme_sigpae_api.medicao_inicial.services.relatorio_historio_correcoes_pdf import (
-    gera_relatorio_historico_correcoes_pdf,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -451,17 +449,13 @@ def cria_relatorios_financeiros():
     time_limit=3000,
     soft_time_limit=3000,
 )
-def exporta_relatorio_historico_correcoes_pdf(
-    user, nome_arquivo, solicitacao_uuid
-):
+def exporta_relatorio_historico_correcoes_pdf(user, nome_arquivo, solicitacao_uuid):
     logger.info(f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x")
     obj_central_download = gera_objeto_na_central_download(
         user=user, identificador=nome_arquivo
     )
     try:
-        arquivo = gera_relatorio_historico_correcoes_pdf(
-            solicitacao_uuid
-        )
+        arquivo = gera_relatorio_historico_correcoes_pdf(solicitacao_uuid)
         atualiza_central_download(obj_central_download, nome_arquivo, arquivo)
 
     except Exception as e:
