@@ -1,4 +1,5 @@
 
+from datetime import datetime
 from decimal import Decimal
 from sme_sigpae_api.medicao_inicial.utils import to_decimal_safe
 
@@ -138,7 +139,12 @@ def _build_consolidado_total(alimentacao, dieta_a, dieta_b):
     }
 
 
-def build_relatorio_financeiro_grupo_cei(parametrizacao, faixas_etarias, totais_consumo):
+def build_relatorio_financeiro_grupo_cei(
+    relatorio_financeiro,
+    parametrizacao,
+    faixas_etarias,
+    totais_consumo
+):
     tabelas = parametrizacao.tabelas.all()
 
     alimentacao = _build_tabela_alimentacao_cei(
@@ -155,9 +161,19 @@ def build_relatorio_financeiro_grupo_cei(parametrizacao, faixas_etarias, totais_
 
     consolidado = _build_consolidado_total(alimentacao, dieta_a, dieta_b)
 
+    tipos = relatorio_financeiro.grupo_unidade_escolar.tipos_unidades.all()
+    iniciais = ", ".join([t.iniciais for t in tipos])
+    grupo_com_unidades = f"{relatorio_financeiro.grupo_unidade_escolar.nome} ({iniciais})"
+
     return {
         "alimentacao": alimentacao,
         "dieta_a": dieta_a,
         "dieta_b": dieta_b,
         "consolidado": consolidado,
+        "cabecalho": {
+            "data_geracao": datetime.now().strftime("%d/%m/%Y %H:%M"),
+            "data_referencia": f"{relatorio_financeiro.mes}/{relatorio_financeiro.ano}",
+            "grupo_unidade_escolar": grupo_com_unidades,
+            "dre_lote": f"{relatorio_financeiro.lote.nome.upper()} - {relatorio_financeiro.lote.diretoria_regional.nome}",
+        }
     }

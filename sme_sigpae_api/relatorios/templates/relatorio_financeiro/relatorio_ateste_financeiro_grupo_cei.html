@@ -37,15 +37,18 @@
 
         <div class="info-box">
           <div class="linha">
-            <div><strong>REFERÊNCIA:</strong> AGOSTO/2025</div>
+            <div>
+              REFERÊNCIA: <strong>{{ cabecalho.data_referencia }}</strong>
+            </div>
 
-            <div><strong>DATA DO RELATÓRIO:</strong> 25/10/2025 - 15:35</div>
+            <div>
+              DATA DO RELATÓRIO: <strong>{{ cabecalho.data_geracao }}</strong>
+            </div>
           </div>
 
           <div class="linha">
-            LOTE 05 - FREGUESIA/BRASILÂNDIA -
-            <strong>GRUPO 1</strong> (CCI, CCI/CIPS, CEI, CEI CEU, CEI DIRET,
-            CEU CEI)
+            {{ cabecalho.dre_lote }}
+            <strong>- {{ cabecalho.grupo_unidade_escolar }}</strong>,
           </div>
         </div>
       </div>

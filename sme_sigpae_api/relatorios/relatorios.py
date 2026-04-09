@@ -2537,6 +2537,7 @@ def relatorio_ateste_financeiro_grupo_cei(relatorio_financeiro, parametrizacao):
     faixas = FaixaEtaria.objects.filter(ativo=True)
 
     relatorio_cei = build_relatorio_financeiro_grupo_cei(
+        relatorio_financeiro,
         parametrizacao,
         faixas,
         totais_consumo,
