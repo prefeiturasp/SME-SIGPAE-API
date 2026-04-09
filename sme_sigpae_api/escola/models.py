@@ -2710,7 +2710,9 @@ class Aluno(TemChaveExterna):
 
     @property
     def obter_dieta_especial_ativa(self):
-        from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+        from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+            SolicitacaoDietaEspecial,
+        )
 
         return self.dietas_especiais.filter(
             ativo=True, status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO
@@ -2730,7 +2732,9 @@ class Aluno(TemChaveExterna):
 
     def inativar_dieta_especial(self):
         try:
-            from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+            from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+                SolicitacaoDietaEspecial,
+            )
 
             dieta_especial = self.dietas_especiais.get(
                 ativo=True,

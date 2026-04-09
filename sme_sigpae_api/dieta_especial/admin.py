@@ -15,6 +15,7 @@ from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasRecreioNasFerias,
     LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
 )
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import Anexo
 from sme_sigpae_api.escola.models import Codae
 from sme_sigpae_api.escola.utils_analise_dietas_ativas import main
 from sme_sigpae_api.escola.utils_escola import create_tempfile, escreve_escolas_json
@@ -29,7 +30,6 @@ from .models import (
     AlergiaIntolerancia,
     Alimento,
     AlimentoProprio,
-    Anexo,
     ArquivoCargaAlimentosSubstitutos,
     ArquivoCargaDietaEspecial,
     ArquivoCargaUsuariosEscola,

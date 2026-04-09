@@ -17,7 +17,9 @@ from sme_sigpae_api.dados_comuns.models import (
     LogSolicitacoesUsuario,
     TemplateMensagem,
 )
-from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    SolicitacaoDietaEspecial,
+)
 from sme_sigpae_api.escola.models import Aluno, Lote
 from sme_sigpae_api.perfil.models.usuario import Usuario
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (

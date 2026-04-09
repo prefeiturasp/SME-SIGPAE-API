@@ -32,16 +32,15 @@ from ...terceirizada.api.serializers.serializers import EditalSimplesSerializer
 from ..models import (
     AlergiaIntolerancia,
     Alimento,
-    Anexo,
     ClassificacaoDieta,
     MotivoAlteracaoUE,
     MotivoNegacao,
     ProtocoloPadraoDietaEspecial,
-    SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
     SubstituicaoAlimentoProtocoloPadrao,
     TipoContagem,
 )
+from ..solicitacao_dieta_especial.models import Anexo, SolicitacaoDietaEspecial
 from .serializers_create import (
     SolicitacaoDietaEspecialCreateSerializer,
     SubstituicaoAutorizarSerializer,

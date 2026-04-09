@@ -31,6 +31,10 @@ from sme_sigpae_api.dados_comuns.api.paginations import HistoricoDietasPaginatio
 from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
     atualiza_historico_protocolo,
 )
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    Anexo,
+    SolicitacaoDietaEspecial,
+)
 from sme_sigpae_api.escola.models import Escola
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 
@@ -78,12 +82,10 @@ from ..forms import (
 from ..models import (
     AlergiaIntolerancia,
     Alimento,
-    Anexo,
     ClassificacaoDieta,
     MotivoAlteracaoUE,
     MotivoNegacao,
     ProtocoloPadraoDietaEspecial,
-    SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
     TipoContagem,
 )
