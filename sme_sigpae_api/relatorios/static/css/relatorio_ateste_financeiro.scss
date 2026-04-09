@@ -1,0 +1,129 @@
+@import "variaveis";
+
+.relatorio-financeiro {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+
+  * {
+    box-sizing: border-box;
+  }
+
+  .cabecalho-relatorio {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+
+    background-color: $cinza-claro !important;
+    margin: -42mm -7mm 5px -7mm;
+    padding: 10px 15px;
+
+    font-family: "Roboto", sans-serif;
+
+    .topo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo img {
+      height: 45px;
+    }
+
+    .titulos {
+      flex: 1;
+      text-align: center;
+    }
+
+    .linha-superior {
+      font-size: 11px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .titulo-principal {
+      font-size: 14px;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+
+    .info-box {
+      margin-top: 10px;
+      border: 1px solid $cinza-escuro;
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-size: 11px;
+    }
+
+    .info-box .linha {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .info-box .linha:last-child {
+      display: block;
+      margin-bottom: 0;
+    }
+  }
+
+  .tabela-relatorio {
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: 10px;
+    font-family: "Roboto", sans-serif;
+    margin-bottom: 15px;
+  }
+
+  .tabela-relatorio thead {
+    display: table-row-group;
+  }
+
+  .tabela-relatorio th,
+  .tabela-relatorio td {
+    border: 1px solid $cinza-claro;
+    padding: 4px 6px;
+    text-align: center;
+    line-height: 1.6;
+    overflow-wrap: break-word;
+  }
+
+  .tabela-relatorio th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+  }
+
+  .tabela-relatorio td:first-child,
+  .tabela-relatorio th:first-child {
+    text-align: center;
+    width: 32%;
+  }
+
+  .tabela-relatorio th:not(:first-child),
+  .tabela-relatorio td:not(:first-child) {
+    width: 12%;
+  }
+
+  .linha-total td {
+    font-weight: bold;
+    background-color: $cinza-claro !important;
+  }
+
+  .cor-tipo-a th {
+    background-color: #b1dbb7 !important;
+  }
+
+  .cor-tipo-b th {
+    background-color: #67a37e !important;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 5mm;
+  padding-top: 3.6cm !important;
+  padding-bottom: 0.5cm !important;
+}
