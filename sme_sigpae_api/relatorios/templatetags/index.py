@@ -1058,7 +1058,7 @@ def nomes_relatorio_correcao_medicao(nome):
         "ETEC": "ETEC",
         "DIETA ESPECIAL - TIPO A": "Dieta Tipo A",
         "DIETA ESPECIAL - TIPO B": "Dieta Tipo B",
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": "Dieta Tipo A Enteral/Restrição de Aminoácidos"
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": "Dieta Tipo A Enteral/Restrição de Aminoácidos",
     }
 
     return nomes.get(nome, nome.capitalize())
