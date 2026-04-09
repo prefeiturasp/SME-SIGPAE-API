@@ -1,0 +1,34 @@
+<table class="tabela-relatorio">
+  <thead>
+    <tr class="{{ tipo_class }}">
+      <th>DIETA ESPECIAL - {{ tipoDieta }}</th>
+      <th>VALOR UNITÁRIO</th>
+      <th>% de ACRÉSCIMO</th>
+      <th>VALOR UNIT. TOTAL</th>
+      <th>CONSUMO {{ tipoDieta }}</th>
+      <th>VALOR TOTAL</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for linha in linhas %}
+    <tr>
+      <td><b>{{ linha.periodo }}</b> - {{ linha.faixa }}</td>
+      <td>R$ {{ linha.valor_unitario|floatformat:2 }}</td>
+      <td>% {{ linha.valor_acrescimo|floatformat:2 }}</td>
+      <td>R$ {{ linha.total_unitario|floatformat:2 }}</td>
+      <td>{{ linha.numero_consumo }}</td>
+      <td>R$ {{ linha.valor_total|floatformat:2 }}</td>
+    </tr>
+    {% endfor %}
+
+    <tr class="linha-total">
+      <td>TOTAL ({{ ordem }})</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>{{ total_consumo }}</td>
+      <td>R$ {{ valor_total|floatformat:2 }}</td>
+    </tr>
+  </tbody>
+</table>
