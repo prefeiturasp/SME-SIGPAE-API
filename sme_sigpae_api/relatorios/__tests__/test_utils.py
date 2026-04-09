@@ -7,7 +7,7 @@ import pytest
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django_weasyprint.utils import django_url_fetcher
-from PyPDF4 import PdfFileReader
+from pypdf import PdfReader
 from weasyprint import HTML
 
 from sme_sigpae_api.relatorios.utils import merge_pdf_com_rodape_assinatura
@@ -76,9 +76,9 @@ def test_merge_pdf_com_rodape_assinatura_integration(monkeypatch):
     b64 = result_data_url.split(",", 1)[1]
     merged_bytes = base64.b64decode(b64)
 
-    reader = PdfFileReader(io.BytesIO(merged_bytes))
-    num_pages = reader.getNumPages()
-    last_page_text = reader.getPage(num_pages - 1).extractText()
+    reader = PdfReader(io.BytesIO(merged_bytes))
+    num_pages = len(reader.pages)
+    last_page_text = reader.pages[num_pages - 1].extract_text()
 
     assert RODAPE_TEXTO_ESPERADO in last_page_text
 

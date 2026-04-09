@@ -4713,10 +4713,9 @@ def get_pdf_merge_cabecalho(
     pdf_cabecalho_relatorio_controle_frequencia,
     pdf_writer,
 ):
-    for page in range(pdf_relatorio_controle_frequencia.getNumPages()):
-        page = pdf_relatorio_controle_frequencia.getPage(page)
-        page.mergePage(pdf_cabecalho_relatorio_controle_frequencia.getPage(0))
-        pdf_writer.addPage(page)
+    for page in pdf_relatorio_controle_frequencia.pages:
+        page.merge_page(pdf_cabecalho_relatorio_controle_frequencia.pages[0])
+        pdf_writer.add_page(page)
     return pdf_writer
 
 
