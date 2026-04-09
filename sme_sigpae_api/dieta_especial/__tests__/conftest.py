@@ -6,24 +6,25 @@ from faker import Faker
 from freezegun import freeze_time
 from model_bakery import baker
 
+from sme_sigpae_api.dados_comuns import constants
+from sme_sigpae_api.dados_comuns.fluxo_status import DietaEspecialWorkflow
+from sme_sigpae_api.dados_comuns.models import TemplateMensagem
+from sme_sigpae_api.dados_comuns.utils import convert_base64_to_contentfile
 from sme_sigpae_api.dieta_especial.api.serializers import UnidadeEducacionalSerializer
-
-from ...dados_comuns import constants
-from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
-from ...dados_comuns.models import TemplateMensagem
-from ...dados_comuns.utils import convert_base64_to_contentfile
-from ...escola.models import Aluno, FaixaEtaria, PeriodoEscolar
-from ...perfil.models import Usuario
-from ...produto.models import Produto
-from ...terceirizada.models import Edital
-from ..models import (
+from sme_sigpae_api.dieta_especial.models import (
     AlergiaIntolerancia,
     Alimento,
-    Anexo,
     ClassificacaoDieta,
     MotivoNegacao,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    Anexo,
     SolicitacaoDietaEspecial,
 )
+from sme_sigpae_api.escola.models import Aluno, FaixaEtaria, PeriodoEscolar
+from sme_sigpae_api.perfil.models import Usuario
+from sme_sigpae_api.produto.models import Produto
+from sme_sigpae_api.terceirizada.models import Edital
 
 fake = Faker("pt_BR")
 Faker.seed(420)

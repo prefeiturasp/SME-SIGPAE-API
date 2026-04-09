@@ -1,9 +1,13 @@
+import pytest
+
 from sme_sigpae_api.dieta_especial.logs_models.api.serializers import (
     LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer,
 )
 from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasRecreioNasFerias,
 )
+
+pytestmark = pytest.mark.django_db
 
 
 def test_log_dietas_recreio_nas_ferias_serializer(
