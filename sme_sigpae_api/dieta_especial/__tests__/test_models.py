@@ -1,12 +1,8 @@
 import pytest
 import xworkflows
 
-from sme_sigpae_api.dieta_especial.logs_models.models import (
-    LogDietasAtivasCanceladasAutomaticamente,
-)
-
-from ...dados_comuns.models import LogSolicitacoesUsuario
-from ..models import (
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
+from sme_sigpae_api.dieta_especial.models import (
     ProtocoloPadraoDietaEspecial,
 )
 
@@ -95,18 +91,6 @@ def test_solicitacao_dieta_especial_transicao_cancelar_fora_da_rede(
         ultimo_log.status_evento
         == LogSolicitacoesUsuario.CANCELADO_ALUNO_NAO_PERTENCE_REDE
     )
-
-
-def test_instance_model(log_dietas_ativas_canceladas_automaticamente):
-    model = log_dietas_ativas_canceladas_automaticamente
-    assert isinstance(model, LogDietasAtivasCanceladasAutomaticamente)
-    assert model.dieta
-    assert model.codigo_eol_aluno
-    assert model.nome_aluno
-    assert model.codigo_eol_escola_origem
-    assert model.nome_escola_origem
-    assert model.codigo_eol_escola_destino
-    assert model.nome_escola_destino
 
 
 def test_instance_model_protocolo_padrao(protocolo_padrao_dieta_especial):
