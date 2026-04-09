@@ -1,0 +1,34 @@
+<table class="tabela-relatorio">
+  <thead>
+    <tr>
+      <th class="col-faixa">ALIMENTAÇÕES FAIXAS ETÁRIAS - SEM DIETAS</th>
+      <th>VALOR UNITÁRIO</th>
+      <th>VALOR DO REAJUSTE</th>
+      <th>VALOR UNIT. TOTAL</th>
+      <th>NÚMERO DE ATEND.</th>
+      <th>VALOR TOTAL</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for linha in linhas %}
+    <tr>
+      <td><b>{{ linha.periodo }}</b> - {{ linha.faixa }}</td>
+      <td>R$ {{ linha.valor_unitario|floatformat:2 }}</td>
+      <td>R$ {{ linha.valor_reajuste|floatformat:2 }}</td>
+      <td>R$ {{ linha.total_unitario|floatformat:2 }}</td>
+      <td>{{ linha.numero_atendimentos }}</td>
+      <td>R$ {{ linha.valor_total|floatformat:2 }}</td>
+    </tr>
+    {% endfor %}
+
+    <tr class="linha-total">
+      <td>TOTAL ({{ ordem }})</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>{{ total_atendimentos }}</td>
+      <td>R$ {{ valor_total|floatformat:2 }}</td>
+    </tr>
+  </tbody>
+</table>
