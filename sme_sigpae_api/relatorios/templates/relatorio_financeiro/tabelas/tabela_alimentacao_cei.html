@@ -1,3 +1,4 @@
+{% load index %}
 <table class="tabela-relatorio">
   <thead>
     <tr>
@@ -14,11 +15,11 @@
     {% for linha in linhas %}
     <tr>
       <td><b>{{ linha.periodo }}</b> - {{ linha.faixa }}</td>
-      <td>R$ {{ linha.valor_unitario|floatformat:2 }}</td>
-      <td>R$ {{ linha.valor_reajuste|floatformat:2 }}</td>
-      <td>R$ {{ linha.total_unitario|floatformat:2 }}</td>
+      <td>R$ {{ linha.valor_unitario|agrupador_milhar_com_decimal }}</td>
+      <td>R$ {{ linha.valor_reajuste|agrupador_milhar_com_decimal }}</td>
+      <td>R$ {{ linha.total_unitario|agrupador_milhar_com_decimal }}</td>
       <td>{{ linha.numero_atendimentos }}</td>
-      <td>R$ {{ linha.valor_total|floatformat:2 }}</td>
+      <td>R$ {{ linha.valor_total|agrupador_milhar_com_decimal }}</td>
     </tr>
     {% endfor %}
 
@@ -28,7 +29,7 @@
       <td></td>
       <td></td>
       <td>{{ total_atendimentos }}</td>
-      <td>R$ {{ valor_total|floatformat:2 }}</td>
+      <td>R$ {{ valor_total|agrupador_milhar_com_decimal }}</td>
     </tr>
   </tbody>
 </table>
