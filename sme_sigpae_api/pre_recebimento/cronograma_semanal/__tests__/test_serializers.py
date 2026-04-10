@@ -1,0 +1,289 @@
+import pytest
+
+from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
+    CronogramaMensalAssinadoSerializer,
+)
+from sme_sigpae_api.pre_recebimento.cronograma_semanal.api.serializer_create import (
+    CronogramaSemanalRascunhoSerializer,
+    ProgramacaoEntregaSemanalCreateSerializer,
+)
+
+pytestmark = pytest.mark.django_db
+
+
+class TestCronogramaMensalAssinadoSerializer:
+    def test_serializer_campos(self, cronograma_ponto_a_ponto_assinado):
+        serializer = CronogramaMensalAssinadoSerializer(cronograma_ponto_a_ponto_assinado)
+        data = serializer.data
+
+        assert "uuid" in data
+        assert "numero" in data
+        assert "produto_nome" in data
+        assert "fornecedor_nome" in data
+        assert "numero_contrato" in data
+
+    def test_serializer_produto_nome(self, cronograma_ponto_a_ponto_assinado):
+        serializer = CronogramaMensalAssinadoSerializer(cronograma_ponto_a_ponto_assinado)
+        assert serializer.data["produto_nome"] == cronograma_ponto_a_ponto_assinado.ficha_tecnica.produto.nome
+
+    def test_serializer_fornecedor_nome(self, cronograma_ponto_a_ponto_assinado):
+        serializer = CronogramaMensalAssinadoSerializer(cronograma_ponto_a_ponto_assinado)
+        assert serializer.data["fornecedor_nome"] == cronograma_ponto_a_ponto_assinado.empresa.nome_fantasia
+
+    def test_serializer_numero_contrato(self, cronograma_ponto_a_ponto_assinado):
+        serializer = CronogramaMensalAssinadoSerializer(cronograma_ponto_a_ponto_assinado)
+        assert serializer.data["numero_contrato"] == cronograma_ponto_a_ponto_assinado.contrato.numero
+
+
+class TestProgramacaoEntregaSemanalCreateSerializer:
+    def test_serializer_valido(self):
+        data = {
+            "mes_programado": "03/2026",
+            "data_inicio": "2026-03-01",
+            "data_fim": "2026-03-31",
+            "quantidade": 100.0,
+        }
+        serializer = ProgramacaoEntregaSemanalCreateSerializer(data=data)
+        assert serializer.is_valid(), serializer.errors
+
+    def test_serializer_mes_obrigatorio(self):
+        data = {
+            "data_inicio": "2026-03-01",
+            "data_fim": "2026-03-31",
+            "quantidade": 100.0,
+        }
+        serializer = ProgramacaoEntregaSemanalCreateSerializer(data=data)
+        assert not serializer.is_valid()
+        assert "mes_programado" in serializer.errors
+
+    def test_serializer_data_inicio_obrigatorio(self):
+        data = {
+            "mes_programado": "03/2026",
+            "data_fim": "2026-03-31",
+            "quantidade": 100.0,
+        }
+        serializer = ProgramacaoEntregaSemanalCreateSerializer(data=data)
+        assert not serializer.is_valid()
+        assert "data_inicio" in serializer.errors
+
+    def test_serializer_data_fim_obrigatorio(self):
+        data = {
+            "mes_programado": "03/2026",
+            "data_inicio": "2026-03-01",
+            "quantidade": 100.0,
+        }
+        serializer = ProgramacaoEntregaSemanalCreateSerializer(data=data)
+        assert not serializer.is_valid()
+        assert "data_fim" in serializer.errors
+
+    def test_serializer_quantidade_obrigatorio(self):
+        data = {
+            "mes_programado": "03/2026",
+            "data_inicio": "2026-03-01",
+            "data_fim": "2026-03-31",
+        }
+        serializer = ProgramacaoEntregaSemanalCreateSerializer(data=data)
+        assert not serializer.is_valid()
+        assert "quantidade" in serializer.errors
+
+
+class TestCronogramaSemanalRascunhoSerializer:
+    def test_serializer_valido(self, cronograma_ponto_a_ponto_assinado):
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+        }
+        serializer = CronogramaSemanalRascunhoSerializer(data=data)
+        assert serializer.is_valid(), serializer.errors
+
+    def test_serializer_com_observacoes(self, cronograma_ponto_a_ponto_assinado):
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "observacoes": "Observação de teste",
+        }
+        serializer = CronogramaSemanalRascunhoSerializer(data=data)
+        assert serializer.is_valid(), serializer.errors
+
+    def test_serializer_cronograma_mensal_obrigatorio(self):
+        data = {
+            "observacoes": "Observação de teste",
+        }
+        serializer = CronogramaSemanalRascunhoSerializer(data=data)
+        assert not serializer.is_valid()
+        assert "cronograma_mensal" in serializer.errors
+
+    def test_serializer_cronograma_nao_ponto_a_ponto(
+        self, cronograma_nao_ponto_a_ponto_assinado
+    ):
+        data = {
+            "cronograma_mensal": str(cronograma_nao_ponto_a_ponto_assinado.uuid),
+        }
+        serializer = CronogramaSemanalRascunhoSerializer(data=data)
+        assert not serializer.is_valid()
+        assert "cronograma_mensal" in serializer.errors
+        assert "Ponto a Ponto" in str(serializer.errors["cronograma_mensal"])
+
+    def test_serializer_cronograma_nao_assinado_codae(
+        self, cronograma_ponto_a_ponto_nao_assinado
+    ):
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_nao_assinado.uuid),
+        }
+        serializer = CronogramaSemanalRascunhoSerializer(data=data)
+        assert not serializer.is_valid()
+        assert "cronograma_mensal" in serializer.errors
+        assert "ASSINADO_CODAE" in str(serializer.errors["cronograma_mensal"])
+
+    def test_serializer_com_programacoes(self, cronograma_ponto_a_ponto_assinado):
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "03/2026",
+                    "data_inicio": "2026-03-01",
+                    "data_fim": "2026-03-15",
+                    "quantidade": 50.0,
+                }
+            ],
+        }
+        serializer = CronogramaSemanalRascunhoSerializer(data=data)
+        assert serializer.is_valid(), serializer.errors
+
+    def test_serializer_sem_programacoes(self, cronograma_ponto_a_ponto_assinado):
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+        }
+        serializer = CronogramaSemanalRascunhoSerializer(data=data)
+        assert serializer.is_valid(), serializer.errors
+
+    def test_serializer_cronograma_inexistente(self):
+        data = {
+            "cronograma_mensal": "00000000-0000-0000-0000-000000000000",
+        }
+        serializer = CronogramaSemanalRascunhoSerializer(data=data)
+        assert not serializer.is_valid()
+        assert "cronograma_mensal" in serializer.errors
+
+    def test_serializer_create(self, cronograma_ponto_a_ponto_assinado):
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "observacoes": "Teste de criação",
+            "programacoes": [
+                {
+                    "mes_programado": "03/2026",
+                    "data_inicio": "2026-03-01",
+                    "data_fim": "2026-03-15",
+                    "quantidade": 50.0,
+                }
+            ],
+        }
+        serializer = CronogramaSemanalRascunhoSerializer(data=data)
+        assert serializer.is_valid(), serializer.errors
+        cronograma_semanal = serializer.save()
+        assert cronograma_semanal.uuid is not None
+        assert cronograma_semanal.programacoes.count() == 1
+
+    def test_serializer_update(
+        self, cronograma_semanal_rascunho, cronograma_ponto_a_ponto_assinado
+    ):
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "observacoes": "Observação atualizada",
+        }
+        serializer = CronogramaSemanalRascunhoSerializer(
+            cronograma_semanal_rascunho, data=data, partial=True
+        )
+        assert serializer.is_valid(), serializer.errors
+        cronograma_semanal = serializer.save()
+        assert cronograma_semanal.observacoes == "Observação atualizada"
+
+    def test_serializer_update_substitui_programacoes(
+        self, cronograma_semanal_rascunho, cronograma_ponto_a_ponto_assinado
+    ):
+        from sme_sigpae_api.pre_recebimento.cronograma_semanal.models import (
+            ProgramacaoEntregaSemanal,
+        )
+        from django.utils import timezone
+        import datetime
+
+        ProgramacaoEntregaSemanal.objects.create(
+            cronograma_semanal=cronograma_semanal_rascunho,
+            mes_programado="01/2026",
+            data_inicio=timezone.now().date(),
+            data_fim=timezone.now().date() + datetime.timedelta(days=5),
+            quantidade=10.0,
+        )
+
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "03/2026",
+                    "data_inicio": "2026-03-01",
+                    "data_fim": "2026-03-15",
+                    "quantidade": 50.0,
+                },
+                {
+                    "mes_programado": "04/2026",
+                    "data_inicio": "2026-04-01",
+                    "data_fim": "2026-04-15",
+                    "quantidade": 30.0,
+                },
+            ],
+        }
+        serializer = CronogramaSemanalRascunhoSerializer(
+            cronograma_semanal_rascunho, data=data, partial=True
+        )
+        assert serializer.is_valid(), serializer.errors
+        cronograma_semanal = serializer.save()
+        assert cronograma_semanal.programacoes.count() == 2
+
+    def test_serializer_update_remove_programacoes(
+        self, cronograma_semanal_rascunho, cronograma_ponto_a_ponto_assinado
+    ):
+        from sme_sigpae_api.pre_recebimento.cronograma_semanal.models import (
+            ProgramacaoEntregaSemanal,
+        )
+        from django.utils import timezone
+        import datetime
+
+        ProgramacaoEntregaSemanal.objects.create(
+            cronograma_semanal=cronograma_semanal_rascunho,
+            mes_programado="01/2026",
+            data_inicio=timezone.now().date(),
+            data_fim=timezone.now().date() + datetime.timedelta(days=5),
+            quantidade=10.0,
+        )
+
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [],
+        }
+        serializer = CronogramaSemanalRascunhoSerializer(
+            cronograma_semanal_rascunho, data=data, partial=True
+        )
+        assert serializer.is_valid(), serializer.errors
+        cronograma_semanal = serializer.save()
+        assert cronograma_semanal.programacoes.count() == 0
+
+
+class TestCronogramaMensalAssinadoSerializerCamposNulos:
+    def test_serializer_campos_nulos(self):
+        from model_bakery import baker
+        from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
+            CronogramaMensalAssinadoSerializer,
+        )
+        from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
+
+        cronograma_vazio = baker.make(
+            Cronograma,
+            ficha_tecnica=None,
+            empresa=None,
+            contrato=None,
+        )
+
+        serializer = CronogramaMensalAssinadoSerializer(cronograma_vazio)
+        data = serializer.data
+
+        assert data["produto_nome"] is None
+        assert data["fornecedor_nome"] is None
+        assert data["numero_contrato"] is None

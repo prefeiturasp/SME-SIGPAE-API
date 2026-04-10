@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from model_bakery import baker
 
 pytestmark = pytest.mark.django_db
 
@@ -218,3 +219,62 @@ def test_justificativa_codae_correcao_sem_lancamentos_possui_logs_sem_lancamento
         solicitacao_sem_lancamento_com_correcao.justificativa_codae_correcao_sem_lancamentos
         is None
     )
+
+
+def test_solicitacao_medicao_normaliza_grupo_legado_recreio_nas_ferias_para_cei(
+    escola_cei,
+    recreio_nas_ferias,
+):
+    grupo_recreio = baker.make("GrupoMedicao", nome="Recreio nas Férias")
+    grupo_legado = baker.make(
+        "GrupoMedicao",
+        nome="Recreio nas Férias - de 0 a 3 anos e 11 meses",
+    )
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes="12",
+        ano="2025",
+        escola=escola_cei,
+        recreio_nas_ferias=recreio_nas_ferias,
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        grupo=grupo_legado,
+        periodo_escolar=None,
+    )
+
+    medicao_normalizada = solicitacao.get_medicao_por_periodo_e_ou_grupo(
+        "Recreio nas Férias"
+    )
+
+    medicao.refresh_from_db()
+
+    assert medicao_normalizada == medicao
+    assert medicao.grupo == grupo_recreio
+    assert medicao.nome_periodo_grupo == "Recreio nas Férias"
+
+
+def test_medicao_mantem_grupo_recreio_com_faixa_etaria_para_cemei(
+    escola_cemei,
+    recreio_nas_ferias,
+):
+    grupo_legado = baker.make(
+        "GrupoMedicao",
+        nome="Recreio nas Férias - de 0 a 3 anos e 11 meses",
+    )
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes="12",
+        ano="2025",
+        escola=escola_cemei,
+        recreio_nas_ferias=recreio_nas_ferias,
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        grupo=grupo_legado,
+        periodo_escolar=None,
+    )
+
+    assert medicao.nome_periodo_grupo == "Recreio nas Férias - de 0 a 3 anos e 11 meses"

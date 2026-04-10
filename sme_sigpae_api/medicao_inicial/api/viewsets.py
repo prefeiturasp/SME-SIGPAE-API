@@ -84,13 +84,16 @@ from ..tasks import (
     exporta_relatorio_adesao_para_pdf,
     exporta_relatorio_adesao_para_xlsx,
     exporta_relatorio_consolidado_xlsx,
+    exporta_relatorio_historico_correcoes_pdf,
+    gera_pdf_historico_ocorrencias_medicao_inicial_async,
     gera_pdf_relatorio_solicitacao_medicao_por_escola_async,
     gera_pdf_relatorio_unificado_async,
+    gera_pdf_relatorio_financeiro_consolidado_async,
 )
 from ..utils import (
     atualizar_anexos_ocorrencia,
     busca_dias_zerados,
-    calcula_totais_consumo_por_faixa_etaria,
+    calcula_totais_consumo_por_grupo,
     criar_log_aprovar_periodos_corrigidos,
     criar_log_solicitar_correcao_periodos,
     get_campos_a_desconsiderar,
@@ -117,6 +120,7 @@ from .filters import (
     ParametrizacaoFinanceiraFilter,
     RelatorioFinanceiroFilter,
     SolicitacaoMedicaoInicialFilter,
+    ValorMedicaoFilter,
 )
 from .permissions import EhAdministradorMedicaoInicialOuGestaoAlimentacao
 from .serializers import (
@@ -456,6 +460,9 @@ class SolicitacaoMedicaoInicialViewSet(
             "dre": lambda params: {
                 "escola__diretoria_regional__uuid": params.get("dre")
             },
+            "recreio_nas_ferias": lambda params: {
+                "recreio_nas_ferias__uuid": params.get("recreio_nas_ferias")
+            },
             "ocorrencias": lambda params: {
                 "com_ocorrencias": params.get("ocorrencias").lower() == "true"
             },
@@ -476,6 +483,9 @@ class SolicitacaoMedicaoInicialViewSet(
         for param, parser in mapping.items():
             if query_params.get(param) or query_params.getlist(param):
                 kwargs.update(parser(query_params))
+
+        if query_params.get("mes_ano") and not query_params.get("recreio_nas_ferias"):
+            kwargs["recreio_nas_ferias__isnull"] = True
 
         return kwargs
 
@@ -570,23 +580,58 @@ class SolicitacaoMedicaoInicialViewSet(
         if filtros:
             qs_solicitacao_medicao = qs_solicitacao_medicao.filter(**filtros)
 
-        meses_anos = qs_solicitacao_medicao.values_list("mes", "ano").distinct()
+        meses_anos = qs_solicitacao_medicao.values_list(
+            "mes", "ano", "recreio_nas_ferias__titulo", "recreio_nas_ferias__uuid"
+        ).distinct()
         meses_anos_unicos = []
 
         for mes_ano in meses_anos:
             status_ = (
-                qs_solicitacao_medicao.filter(mes=mes_ano[0], ano=mes_ano[1])
+                qs_solicitacao_medicao.filter(
+                    mes=mes_ano[0], ano=mes_ano[1], recreio_nas_ferias__uuid=mes_ano[3]
+                )
                 .values_list("status", flat=True)
                 .distinct()
             )
-            mes_ano_obj = {"mes": mes_ano[0], "ano": mes_ano[1], "status": status_}
+            mes_ano_obj = {
+                "mes": mes_ano[0],
+                "ano": mes_ano[1],
+                "recreio_nas_ferias": (
+                    {"titulo": mes_ano[2], "uuid": mes_ano[3]}
+                    if mes_ano[2] and mes_ano[3]
+                    else None
+                ),
+                "status": status_,
+            }
             meses_anos_unicos.append(mes_ano_obj)
         return Response(
             {
                 "results": sorted(
-                    meses_anos_unicos, key=lambda k: (k["ano"], k["mes"]), reverse=True
+                    meses_anos_unicos,
+                    key=lambda k: (
+                        k["ano"],
+                        k["mes"],
+                        1 if k["recreio_nas_ferias"] is None else 0,
+                    ),
+                    reverse=True,
                 )
             },
+            status=status.HTTP_200_OK,
+        )
+
+    @action(detail=False, methods=["GET"], url_path="historico-ocorrencias-pdf")
+    def historico_ocorrencias_pdf(self, request):
+        user = request.user.get_username()
+        uuid_sol_medicao = request.query_params["uuid"]
+        solicitacao = SolicitacaoMedicaoInicial.objects.get(uuid=uuid_sol_medicao)
+        gera_pdf_historico_ocorrencias_medicao_inicial_async.delay(
+            user=user,
+            nome_arquivo=f"Relatório Historico Medição Inicial Com Ocorrencia - {solicitacao.escola.nome_historico(solicitacao.data_referencia)} - "
+            f"{solicitacao.mes}/{solicitacao.ano}.pdf",
+            uuid_sol_medicao=uuid_sol_medicao,
+        )
+        return Response(
+            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
             status=status.HTTP_200_OK,
         )
 
@@ -785,6 +830,15 @@ class SolicitacaoMedicaoInicialViewSet(
             status=status.HTTP_200_OK,
         )
 
+    def get_ordem_periodos(self, solicitacao):
+        if solicitacao.recreio_nas_ferias:
+            return constants.ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS
+        if solicitacao.escola.eh_cei_data(solicitacao.data_referencia):
+            return constants.ORDEM_PERIODOS_GRUPOS_CEI
+        if solicitacao.escola.eh_cemei_data(solicitacao.data_referencia):
+            return constants.ORDEM_PERIODOS_GRUPOS_CEMEI
+        return constants.ORDEM_PERIODOS_GRUPOS
+
     @action(
         detail=False,
         methods=["GET"],
@@ -805,13 +859,7 @@ class SolicitacaoMedicaoInicialViewSet(
         solicitacao = SolicitacaoMedicaoInicial.objects.get(uuid=uuid)
         retorno = []
         for medicao in solicitacao.medicoes.all():
-            nome = None
-            if medicao.grupo and medicao.periodo_escolar:
-                nome = f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome}"
-            elif medicao.grupo and not medicao.periodo_escolar:
-                nome = f"{medicao.grupo.nome}"
-            elif medicao.periodo_escolar:
-                nome = medicao.periodo_escolar.nome
+            nome = medicao.nome_periodo_grupo
             retorno.append(
                 {
                     "uuid_medicao_periodo_grupo": medicao.uuid,
@@ -828,15 +876,7 @@ class SolicitacaoMedicaoInicialViewSet(
                     ).data,
                 }
             )
-        ordem = (
-            constants.ORDEM_PERIODOS_GRUPOS_CEI
-            if solicitacao.escola.eh_cei_data(solicitacao.data_referencia)
-            else (
-                constants.ORDEM_PERIODOS_GRUPOS_CEMEI
-                if solicitacao.escola.eh_cemei_data(solicitacao.data_referencia)
-                else constants.ORDEM_PERIODOS_GRUPOS
-            )
-        )
+        ordem = self.get_ordem_periodos(solicitacao)
 
         return Response(
             {"results": sorted(retorno, key=lambda k: ordem[k["nome_periodo_grupo"]])},
@@ -1382,7 +1422,7 @@ class SolicitacaoMedicaoInicialViewSet(
                 uuid=uuid_grupo_escolar
             )
 
-            data = calcula_totais_consumo_por_faixa_etaria(
+            data = calcula_totais_consumo_por_grupo(
                 lote=lote,
                 grupo_unidade_escolar=grupo_unidade_escolar,
                 mes=mes,
@@ -1417,6 +1457,32 @@ class SolicitacaoMedicaoInicialViewSet(
         resultado = busca_dias_zerados(solicitacao)
         return Response(resultado, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=["GET"], url_path="relatorio-historio-correcoes")
+    def relatorio_historico_correcoes(self, request, uuid=None):
+        solicitacao_medicao_inicial = self.get_object()
+        if not solicitacao_medicao_inicial:
+            return Response(
+                {"detail": "A solicitação não foi encontrada."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if solicitacao_medicao_inicial.historico is None:
+            return Response(
+                {"detail": "A medição não possui histórico a ser gerado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        exporta_relatorio_historico_correcoes_pdf.delay(
+            user=request.user.get_username(),
+            nome_arquivo=f"Relatório Histório de Correções - {solicitacao_medicao_inicial.escola.nome} - {solicitacao_medicao_inicial.mes}/{solicitacao_medicao_inicial.ano}.pdf",
+            solicitacao_uuid=solicitacao_medicao_inicial.uuid,
+        )
+
+        return Response(
+            data={"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            status=status.HTTP_200_OK,
+        )
+
 
 class TipoContagemAlimentacaoViewSet(mixins.ListModelMixin, GenericViewSet):
     queryset = TipoContagemAlimentacao.objects.filter(ativo=True)
@@ -1436,35 +1502,9 @@ class ValorMedicaoViewSet(
     lookup_field = "uuid"
     queryset = ValorMedicao.objects.all()
     serializer_class = ValorMedicaoSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = ValorMedicaoFilter
     pagination_class = None
-
-    def get_queryset(self):
-        queryset = ValorMedicao.objects.all()
-        nome_periodo_escolar = self.request.query_params.get(
-            "nome_periodo_escolar", None
-        )
-        uuid_solicitacao_medicao = self.request.query_params.get(
-            "uuid_solicitacao_medicao", None
-        )
-        nome_grupo = self.request.query_params.get("nome_grupo", None)
-        uuid_medicao_periodo_grupo = self.request.query_params.get(
-            "uuid_medicao_periodo_grupo", None
-        )
-        if nome_periodo_escolar:
-            queryset = queryset.filter(
-                medicao__periodo_escolar__nome=nome_periodo_escolar
-            )
-        if nome_grupo:
-            queryset = queryset.filter(medicao__grupo__nome=nome_grupo)
-        elif not uuid_medicao_periodo_grupo:
-            queryset = queryset.filter(medicao__grupo__isnull=True)
-        if uuid_solicitacao_medicao:
-            queryset = queryset.filter(
-                medicao__solicitacao_medicao_inicial__uuid=uuid_solicitacao_medicao
-            )
-        if uuid_medicao_periodo_grupo:
-            queryset = queryset.filter(medicao__uuid=uuid_medicao_periodo_grupo)
-        return queryset
 
     def destroy(self, request, *args, **kwargs):
         instance = ValorMedicao.objects.get(uuid=kwargs.get("uuid"))
@@ -2344,10 +2384,19 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             relatorio_financeiro = RelatorioFinanceiro.objects.get(
                 uuid=uuid_relatorio_financeiro
             )
+
+            mes = int(relatorio_financeiro.mes)
+            ano = int(relatorio_financeiro.ano)
+
             parametrizacao = ParametrizacaoFinanceira.objects.filter(
                 lote=relatorio_financeiro.lote,
                 grupo_unidade_escolar=relatorio_financeiro.grupo_unidade_escolar,
+                data_inicial__lte=datetime.date(
+                    ano, mes, calendar.monthrange(ano, mes)[1]
+                ),
+                data_final__gte=datetime.date(ano, mes, 1),
             ).first()
+
             if not parametrizacao:
                 return Response(
                     {
@@ -2355,17 +2404,46 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
                     },
                     status=status.HTTP_404_NOT_FOUND,
                 )
+
             response = {
                 **DadosParametrizacaoFinanceiraSerializer(parametrizacao).data,
                 "lote": parametrizacao.lote.uuid,
                 "mes_ano": f"{relatorio_financeiro.mes}_{relatorio_financeiro.ano}",
             }
+
             return Response(
                 data=response,
                 status=status.HTTP_200_OK,
             )
         except Exception as e:
             return Response({"Erro": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(
+        detail=False,
+        methods=["POST"],
+        url_path="exportar-pdf/(?P<uuid_relatorio_financeiro>[^/.]+)",
+    )
+    def relatorio_pdf(self, request, uuid_relatorio_financeiro):
+        user = request.user.get_username()
+
+        relatorio_financeiro = RelatorioFinanceiro.objects.filter(uuid=uuid_relatorio_financeiro).first()
+        if not relatorio_financeiro:
+            return Response(
+                {"Erro": "Relatório financeiro não encontrado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        gera_pdf_relatorio_financeiro_consolidado_async.delay(
+            user=user,
+            nome_arquivo=f"Ateste Financeiro - Medição Inicial {relatorio_financeiro.lote.diretoria_regional.nome} - {relatorio_financeiro.grupo_unidade_escolar.nome} - "
+            f"{relatorio_financeiro.mes}/{relatorio_financeiro.ano}.pdf",
+            uuid_relatorio_financeiro=uuid_relatorio_financeiro,
+        )
+
+        return Response(
+            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            status=status.HTTP_200_OK,
+        )
 
 
 class DadosLiquidacaoViewSet(ModelViewSet):
