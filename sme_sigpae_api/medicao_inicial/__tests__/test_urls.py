@@ -2780,3 +2780,43 @@ def test_registrar_empenhos_relatorio_financeiro(
     assert isinstance(result, list)
     assert result[0]["numero_empenho"] == "888/7987"
     assert len(result[0]["unidades_educacionais"]) == 2
+
+
+def test_url_endpoint_historico_correcoes_medicao_pdf(
+    client_autenticado_da_escola, solicitacao_com_historico_correcao
+):
+    uuid_solicitacao = solicitacao_com_historico_correcao.uuid
+    response = client_autenticado_da_escola.get(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{uuid_solicitacao}/relatorio-historio-correcoes/",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "detail": "Solicitação de geração de arquivo recebida com sucesso."
+    }
+
+
+def test_url_endpoint_historico_correcoes_medicao_pdf_sem_historico(
+    client_autenticado_da_escola, medicoes_frequencia_zerada_emebs
+):
+    uuid_solicitacao = medicoes_frequencia_zerada_emebs.uuid
+    response = client_autenticado_da_escola.get(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{uuid_solicitacao}/relatorio-historio-correcoes/",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "A medição não possui histórico a ser gerado."}
+
+
+def test_url_endpoint_historico_correcoes_medicao_pdf_uuid_invalido(
+    client_autenticado_da_escola, kit_lanche_1
+):
+    uuid_solicitacao = kit_lanche_1.uuid
+    response = client_autenticado_da_escola.get(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{uuid_solicitacao}/relatorio-historio-correcoes/",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {
+        "detail": "No SolicitacaoMedicaoInicial matches the given query."
+    }

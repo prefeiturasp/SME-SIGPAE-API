@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+{% include 'relatorio_base.html' %}
+{% load static %}
+{% load index %}
+{% load sass_tags %}
+{% load safe_html_tags %}
+<html lang="pt-BR">
+  <head>
+    <link rel="stylesheet" href="{% sass_src 'css/custom_bootstrap.scss' %}" type="text/css">
+    <link rel="stylesheet" href="{% sass_src 'css/cabecalho_titulo.scss' %}" type="text/css">
+    <link rel="stylesheet" href="{% sass_src 'css/relatorio_historico_ocorrencias_medicao_inicial.scss' %}" type="text/css">
+    <link rel="stylesheet" href="{% sass_src 'css/relatorio_historico_correcoes_medicao.scss' %}" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,600,600i,700,700i,900,900i" rel="stylesheet" />
+    <title>SIGPAE</title>
+  </head>
+  <body>
+    {% include "cabecalho_rodape_historico_correcoes_medicao.html" %}
+
+     <div class="page-container">
+        {% for log in logs %}
+          <div class="log-container">
+            <div class="status-evento font-weight-bold">{{ log.titulo }}</div>
+            <div>
+              <p style="margin: 0.4em 0;">Data: <strong>{{ log.data|date:"d/m/Y - H:i" }}</strong></p>
+            </div>
+
+            {% if log.titulo == "RECEBIDO PARA ANÁLISE" %}
+              <div class="ue-dre-container">
+                <p style="margin: 0.4em 0;">Unidade Educacional: <strong>{{ log.unidade  }}</strong></p>
+                <p style="margin: 0.4em 0;" class="dre-content">DRE: <strong>{{  log.dre }}</strong></p>
+              </div>
+              <div>
+                <p style="margin: 0.4em 0;">RF e Nome: <strong>{{ log.rf }} - {{ log.nome }}</strong></p>
+              </div>            
+            {% elif log.titulo == "DEVOLVIDO PARA AJUSTES PELA DRE" or log.titulo == "DEVOLVIDO PARA AJUSTES PELA CODAE" %}
+              <div>
+                <p >RF e Nome: <strong>{{ log.rf }} - {{ log.nome }}</strong></p>
+              </div>
+              <div>
+                <p>Mês do lançamento: <strong>{{log.mes_lancamento}}</strong></p>
+              </div>
+              {% if log.alteracoes%}
+                  <div><p><strong>Correções Solicitadas</strong></p></div>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>PERÍODO</th>
+                        <th>TABELA DE LANÇAMENTO</th>
+                        <th>CORREÇÕES</th>
+                        <th>OBSERVAÇÃO</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for alteracao in log.alteracoes %}
+                        <tr>
+                          <td style="padding: 5px;">{{ alteracao.periodo_escolar|nomes_relatorio_correcao_medicao}}</td>
+                          <td colspan=2 class="celula-transbordada">
+                            {% for lancamento in alteracao.tabelas_lancamentos %}
+                              <div class="linha-interna {% if not forloop.last %}divisor{% endif %}">  
+                                  <div class="coluna esquerda">
+                                    <span>{{ lancamento.categoria_medicao|nomes_relatorio_correcao_medicao }}</span>
+                                  </div>
+                                  <div class="coluna direita">
+                                    {%for semana in lancamento.semanas%} 
+                                      <div>
+                                        <p><b>Semana:</b> {{ semana.semana }}<br>
+                                        <b>Dias:</b> {{ semana.dias|join:", " }}</p>
+                                      </div>
+                                    {%endfor%}
+                                  </div>
+                              </div>
+                            {% endfor %}
+                          </td>
+                          <td style="padding: 5px;">{{ alteracao.justificativa | safe }}</td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+              {% endif %}
+
+            {% elif log.titulo == "CORRIGIDO PARA DRE" or log.titulo == "CORRIGIDO PARA CODAE" %}
+              <div>
+                <p >RF e Nome: <strong>{{ log.rf }} - {{ log.nome }}</strong></p>
+              </div>
+              <div>
+                <p>Mês do lançamento: <strong>{{log.mes_lancamento}}</strong></p>
+              </div>
+              {% if log.alteracoes%}
+                <div><p><strong>Correções Realizadas pela UE</strong></p></div>
+                  {% for alteracao in log.alteracoes %}
+                    {% for lancamento in alteracao.tabelas_lancamentos %}
+                      <div class="titulo-correcao"><strong>Período {{  alteracao.periodo_escolar|nomes_relatorio_correcao_medicao }} - Tabela  de {{ lancamento.categoria_medicao| nomes_relatorio_correcao_medicao}}</strong></div>
+                      <ul class="lista-correcoes">
+                        {%for semana in lancamento.semanas%}
+                            {% for dia in semana.dias%}
+                              <li><b>SEMANA {{ semana.semana }} - DIAS {{ dia.dia}}</b>
+                                <ul>
+                                  {%for campo in dia.campos%}
+                                    <li>{{ campo.campo_nome|get_nome_campo }}
+                                      <ul>
+                                        <li>
+                                          <b>DE:</b> {{ campo.de }}
+                                        </li>
+                                        <li >
+                                          <b>PARA:</b> {{ campo.para }}
+                                        </li>
+                                      </ul>
+                                    </li>
+                                  {% endfor%}
+                                </ul>
+                              </li>
+                            {%endfor%}
+                        {%endfor%}
+                      </ul>
+                    {%endfor%}
+                  {%endfor%}
+              {% endif%}
+            {% elif log.titulo == "APROVADO PELA DRE" or log.titulo == "APROVADO PELA CODAE" %}
+              <div>
+                  <p >RF e Nome: <strong>{{ log.rf }} - {{ log.nome }}</strong></p>
+              </div>
+            {% endif %}
+          </div>
+          {% if not forloop.last and not forloop.last %}
+            <hr />
+          {% endif %}
+        {% endfor %}
+     </div>
+    {% include "logistica/guia_remessa/rodape.html" %}
+  </body>
+</html>

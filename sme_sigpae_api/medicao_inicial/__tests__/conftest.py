@@ -5687,3 +5687,314 @@ def solicitacao_medicao_finaliza_programas_projetos_cemei_zerados_dietas(
         categoria_medicao_dieta_a,
         is_cemei=True,
     )
+
+
+@pytest.fixture
+def solicitacao_com_historico_correcao(django_user_model, escola):
+    hist = [
+    {
+        "usuario": {
+            "uuid": "a4f08910-44e1-4828-99f4-d008cb79753c",
+            "nome": "DRE ADMIN",
+            "username": "26755818011",
+            "email": "dre@admin.com"
+        },
+        "criado_em": "06/04/2026 11:00:10",
+        "acao": "MEDICAO_CORRECAO_SOLICITADA",
+        "alteracoes": [
+            {
+                "periodo_escolar": "MANHA",
+                "justificativa": "<p>Favor, conferir o número de <strong>Lanche 4h </strong>lançados</p>",
+                "tabelas_lancamentos": [
+                    {
+                        "categoria_medicao": "ALIMENTAÇÃO",
+                        "semanas": [
+                            {
+                                "semana": "3",
+                                "dias": [
+                                    "12"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "usuario": {
+            "uuid": "f5d31a72-1a8a-4519-8eca-47f1ba756449",
+            "nome": "ESCOLA CIEJA ADMIN",
+            "username": "61927274222",
+            "email": "escolacieja@admin.com"
+        },
+        "criado_em": "07/04/2026 08:11:35",
+        "acao": "MEDICAO_CORRIGIDA_PELA_UE",
+        "alteracoes": [
+            {
+                "periodo_escolar": "MANHA",
+                "tabelas_lancamentos": [
+                    {
+                        "categoria_medicao": "ALIMENTAÇÃO",
+                        "semanas": [
+                            {
+                                "semana": "3",
+                                "dias": [
+                                    {
+                                        "dia": "12",
+                                        "campos": [
+                                            {
+                                                "campo_nome": "lanche_4h",
+                                                "de": "9",
+                                                "para": "10"
+                                            },
+                                            {
+                                                "campo_nome": "refeicao",
+                                                "de": "9",
+                                                "para": "20"
+                                            },
+                                            {
+                                                "campo_nome": "repeticao_refeicao",
+                                                "de": "9",
+                                                "para": "12"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+        ]
+    },
+    {
+        "usuario": {
+            "uuid": "a4f08910-44e1-4828-99f4-d008cb79753c",
+            "nome": "DRE ADMIN",
+            "username": "26755818011",
+            "email": "dre@admin.com"
+        },
+        "criado_em": "07/04/2026 09:07:11",
+        "acao": "MEDICAO_APROVADA_PELA_DRE",
+        "alteracoes": [
+            {
+                "periodo_escolar": "MANHA"
+            },
+        ]
+    },
+    {
+        "usuario": {
+            "uuid": "420251b2-b93e-4122-90db-095a51cd567b",
+            "nome": "USUARIO MEDICAO",
+            "username": "73710035007",
+            "email": "medicao@admin.com"
+        },
+        "criado_em": "07/04/2026 09:22:26",
+        "acao": "MEDICAO_CORRECAO_SOLICITADA_CODAE",
+        "alteracoes": [
+            {
+                "periodo_escolar": "MANHA",
+                "justificativa": "<p>Verifique a frequencia, deveria ser 80</p>",
+                "tabelas_lancamentos": [
+                    {
+                        "categoria_medicao": "ALIMENTAÇÃO",
+                        "semanas": [
+                            {
+                                "semana": "3",
+                                "dias": [
+                                    "10",
+                                    "11",
+                                    "12",
+                                    "13",
+                                    "14"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "usuario": {
+            "uuid": "f5d31a72-1a8a-4519-8eca-47f1ba756449",
+            "nome": "ESCOLA CIEJA ADMIN",
+            "username": "61927274222",
+            "email": "escolacieja@admin.com"
+        },
+        "criado_em": "07/04/2026 09:45:01",
+        "acao": "MEDICAO_CORRIGIDA_PARA_CODAE",
+        "alteracoes": [
+            {
+                "periodo_escolar": "MANHA",
+                "tabelas_lancamentos": [
+                    {
+                        "categoria_medicao": "ALIMENTAÇÃO",
+                        "semanas": [
+                            {
+                                "semana": "3",
+                                "dias": [
+                                    {
+                                        "dia": "10",
+                                        "campos": [
+                                            {
+                                                "campo_nome": "frequencia",
+                                                "de": "100",
+                                                "para": "80"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "dia": "11",
+                                        "campos": [
+                                            {
+                                                "campo_nome": "frequencia",
+                                                "de": "100",
+                                                "para": "80"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "dia": "12",
+                                        "campos": [
+                                            {
+                                                "campo_nome": "frequencia",
+                                                "de": "100",
+                                                "para": "80"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "dia": "13",
+                                        "campos": [
+                                            {
+                                                "campo_nome": "frequencia",
+                                                "de": "100",
+                                                "para": "80"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "dia": "14",
+                                        "campos": [
+                                            {
+                                                "campo_nome": "frequencia",
+                                                "de": "100",
+                                                "para": "80"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "usuario": {
+            "uuid": "420251b2-b93e-4122-90db-095a51cd567b",
+            "nome": "USUARIO MEDICAO",
+            "username": "73710035007",
+            "email": "medicao@admin.com"
+        },
+        "criado_em": "07/04/2026 10:27:14",
+        "acao": "MEDICAO_APROVADA_PELA_CODAE",
+        "alteracoes": [
+            {
+                "periodo_escolar": "MANHA"
+            }
+        ]
+    }
+    ]
+    solicitacao_medicao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes="04",
+        ano="2025",
+        escola=escola,
+        rastro_lote=escola.lote,
+        historico=json.dumps(hist)
+    )
+    usuario = django_user_model.objects.create_user(
+        nome="Usuário TESTE",
+        username="medicao_teste",
+        password=DJANGO_ADMIN_PASSWORD,
+        email="medicao@escola.com",
+        registro_funcional="9173586",
+    )
+    
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao_medicao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+        criado_em=datetime.datetime(
+            2026, 4, 6, 10, 0, 0, tzinfo=datetime.timezone.utc
+        ),
+        usuario=usuario,
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao_medicao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+        criado_em=datetime.datetime(
+            2026, 4, 6, 11, 0, 0, tzinfo=datetime.timezone.utc
+        ),
+        usuario=usuario,
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao_medicao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PELA_UE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+        criado_em=datetime.datetime(
+            2026, 4, 6, 12, 0, 0, tzinfo=datetime.timezone.utc
+        ),
+        usuario=usuario,
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao_medicao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_DRE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+        criado_em=datetime.datetime(
+            2026, 4, 6, 13, 0, 0, tzinfo=datetime.timezone.utc
+        ),
+        usuario=usuario,
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao_medicao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+        criado_em=datetime.datetime(
+            2026, 4, 6, 14, 0, 0, tzinfo=datetime.timezone.utc
+        ),
+        usuario=usuario,
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao_medicao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+        criado_em=datetime.datetime(
+            2026, 4, 6, 16, 0, 0, tzinfo=datetime.timezone.utc
+        ),
+        usuario=usuario,
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao_medicao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+        criado_em=datetime.datetime(
+            2026, 4, 6, 17, 0, 0, tzinfo=datetime.timezone.utc
+        ),
+        usuario=usuario,
+    )
+
+    
+    return solicitacao_medicao
