@@ -2384,7 +2384,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             relatorio_financeiro = RelatorioFinanceiro.objects.get(
                 uuid=uuid_relatorio_financeiro
             )
-  
+
             mes = int(relatorio_financeiro.mes)
             ano = int(relatorio_financeiro.ano)
 
