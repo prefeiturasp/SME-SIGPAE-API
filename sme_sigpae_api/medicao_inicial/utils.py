@@ -5997,7 +5997,7 @@ def _calcula_total_alimentacao(
     """
     chave_consumo = (
         f"ALIMENTAÇÃO - {periodo.nome}"
-        if periodo and tipo == "FAIXA"
+        if periodo and (tipo == "FAIXA" or not tipo)
         else "ALIMENTAÇÃO"
     )
 
@@ -6066,7 +6066,7 @@ def _calcula_total_dietas(
     else:
         chave_base = "DIETA ESPECIAL - TIPO B"
 
-    if tabela.periodo_escolar and tipo == "FAIXA":
+    if tabela.periodo_escolar and (tipo == "FAIXA" or not tipo):
         chave_consumo = f"{chave_base} - {tabela.periodo_escolar.nome}"
     else:
         chave_consumo = chave_base
