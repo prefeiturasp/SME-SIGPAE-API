@@ -122,7 +122,7 @@
 
   .consolidado-total {
     width: 100%;
-    padding: 16px 10px;
+    padding: 16px 24px;
     font-family: Arial, Helvetica, sans-serif;
     color: #1b1b1b;
 
@@ -138,18 +138,9 @@
       margin-bottom: 22px;
     }
 
-    .consolidado-titulo::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background-color: #dcdcdc;
-      position: relative;
-      top: -2px;
-    }
-
     .consolidado-conteudo {
       display: flex;
-      gap: 14px;
+      gap: 16px;
       align-items: flex-start;
     }
 
@@ -164,7 +155,7 @@
     }
 
     .bloco-titulo {
-      font-size: 12px;
+      font-size: 12px !important;
       font-weight: 700;
       color: #0b8a5a;
     }
@@ -206,15 +197,23 @@
     }
 
     .extenso {
-      font-size: 8px;
+      font-size: 10px;
       color: #6b6b6b;
+
       flex: 1;
       text-align: right;
+
       white-space: normal;
       word-break: break-word;
       overflow-wrap: break-word;
     }
   }
+}
+
+.data-geracao {
+  position: running(data-geracao);
+  font-size: 8px;
+  font-family: "Roboto", sans-serif;
 }
 
 @page {
@@ -225,16 +224,12 @@
 
   @bottom-center {
     content: "Página " counter(page) " / " counter(pages);
-    border-top: 1px solid #ccc;
     padding-top: 5px;
     font-size: 10px;
     font-family: "Roboto", sans-serif;
-    background: $cinza-claro;
   }
 
   @bottom-right {
-    content: "Documento gerado eletronicamente em " string(data-geracao);
-    font-size: 10px;
-    font-family: "Roboto", sans-serif;
+    content: element(data-geracao);
   }
 }
