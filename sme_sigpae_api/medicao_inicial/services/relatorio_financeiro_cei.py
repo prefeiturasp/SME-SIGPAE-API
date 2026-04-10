@@ -2,6 +2,7 @@
 from datetime import datetime
 from decimal import Decimal
 from sme_sigpae_api.medicao_inicial.utils import to_decimal_safe
+from num2words import num2words
 
 
 def _buscar_valor(valores, faixa_uuid, tipo):
@@ -114,7 +115,7 @@ def _build_tabela_dieta_cei(
 
     return {
         "linhas": linhas,
-        "total_consumo": total_consumo,
+        "total_consumo": int(total_consumo),
         "valor_total": valor_total_geral,
     }
 
@@ -133,9 +134,9 @@ def _build_consolidado_total(alimentacao, dieta_a, dieta_b):
     )
 
     return {
-        "quantidade": quantidade,
+        "quantidade": int(quantidade),
         "valor": valor,
-        "valor_extenso": "TESTE",
+        "valor_extenso": num2words(valor, lang='pt_BR', to='currency'),
     }
 
 
