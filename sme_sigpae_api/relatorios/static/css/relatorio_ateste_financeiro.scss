@@ -119,6 +119,95 @@
   .cor-tipo-b th {
     background-color: #67a37e !important;
   }
+
+  .consolidado-total {
+    width: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #1b1b1b;
+    padding-top: 10px;
+
+    page-break-inside: avoid;
+
+    .consolidado-titulo {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+
+      font-size: 14px;
+      font-weight: 700;
+      color: #0b8a5a;
+
+      margin: 0 0 16px 0;
+      line-height: 1.2;
+    }
+    .consolidado-titulo::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background-color: #dcdcdc;
+      position: relative;
+    }
+
+    .consolidado-conteudo {
+      display: grid;
+      grid-template-columns: 2fr 10fr;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .bloco {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .bloco-titulo {
+      font-size: 12px;
+      font-weight: 700;
+      color: #0b8a5a;
+      line-height: 1.2;
+    }
+
+    .caixa {
+      background: #eef0f5;
+      border-radius: 6px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      border: 1px solid #cfd4dd;
+    }
+
+    .caixa.quantidade {
+      min-width: 260px;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .caixa.valor {
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .valor {
+      font-size: 10px;
+      font-weight: 700;
+      color: #4a4a4a;
+      white-space: nowrap;
+      padding-left: 10px;
+    }
+
+    .unidade {
+      font-size: 10px;
+      font-weight: 700;
+      color: #6b6b6b;
+    }
+
+    .extenso {
+      font-size: 10px;
+      color: #6b6b6b;
+      text-align: right;
+    }
+  }
 }
 
 @page {
@@ -126,4 +215,16 @@
   margin: 5mm;
   padding-top: 3.6cm !important;
   padding-bottom: 0.5cm !important;
+
+  @bottom-center {
+    content: "Página " counter(page) " / " counter(pages);
+    border-top: 1px solid #ccc;
+    padding-top: 5px;
+  }
+
+  @bottom-right {
+    content: "Documento gerado eletronicamente em " string(data-geracao);
+    font-size: 10px;
+    font-family: "Roboto", sans-serif;
+  }
 }
