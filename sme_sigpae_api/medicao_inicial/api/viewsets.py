@@ -88,6 +88,7 @@ from ..tasks import (
     gera_pdf_historico_ocorrencias_medicao_inicial_async,
     gera_pdf_relatorio_solicitacao_medicao_por_escola_async,
     gera_pdf_relatorio_unificado_async,
+    gera_pdf_relatorio_financeiro_consolidado_async,
 )
 from ..utils import (
     atualizar_anexos_ocorrencia,
@@ -2383,6 +2384,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             relatorio_financeiro = RelatorioFinanceiro.objects.get(
                 uuid=uuid_relatorio_financeiro
             )
+
             mes = int(relatorio_financeiro.mes)
             ano = int(relatorio_financeiro.ano)
 
@@ -2415,6 +2417,33 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             )
         except Exception as e:
             return Response({"Erro": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(
+        detail=False,
+        methods=["POST"],
+        url_path="exportar-pdf/(?P<uuid_relatorio_financeiro>[^/.]+)",
+    )
+    def relatorio_pdf(self, request, uuid_relatorio_financeiro):
+        user = request.user.get_username()
+
+        relatorio_financeiro = RelatorioFinanceiro.objects.filter(uuid=uuid_relatorio_financeiro).first()
+        if not relatorio_financeiro:
+            return Response(
+                {"Erro": "Relatório financeiro não encontrado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        gera_pdf_relatorio_financeiro_consolidado_async.delay(
+            user=user,
+            nome_arquivo=f"Ateste Financeiro - Medição Inicial {relatorio_financeiro.lote.diretoria_regional.nome} - {relatorio_financeiro.grupo_unidade_escolar.nome} - "
+            f"{relatorio_financeiro.mes}/{relatorio_financeiro.ano}.pdf",
+            uuid_relatorio_financeiro=uuid_relatorio_financeiro,
+        )
+
+        return Response(
+            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            status=status.HTTP_200_OK,
+        )
 
 
 class DadosLiquidacaoViewSet(ModelViewSet):

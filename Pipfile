@@ -102,6 +102,7 @@ beautifulsoup4 = "==4.13.4"
 pypdf = "==6.9.2"
 unidecode = "==1.4.0"
 bleach = "==6.3.0"
+num2words = "==0.5.14"
 
 [requires]
 python_version = "3.13.3"
