@@ -37,7 +37,7 @@ def test_build_relatorio_financeiro_grupo_cei(
     assert resultado["dieta_b"]["total_consumo"] == 1
     assert resultado["consolidado"]["quantidade"] == 18
 
-    assert resultado["cabecalho"]["data_referencia"] == "10/2025"
+    assert resultado["cabecalho"]["data_referencia"] == "OUTUBRO/2025"
 
 
 @pytest.mark.django_db
@@ -56,7 +56,7 @@ def test_relatorio_ateste_financeiro_grupo_cei_conteudo_pdf(
     assert "SECRETARIA MUNICIPAL DE EDUCAÇÃO" in texto
 
     assert "REFERÊNCIA:" in texto
-    assert "10/2025" in texto
+    assert "OUTUBRO/2025" in texto
 
     assert relatorio_financeiro_cei.lote.nome.upper() in texto
     assert (
