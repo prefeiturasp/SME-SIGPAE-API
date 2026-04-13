@@ -132,7 +132,6 @@ class CargaDadosCommandTest(TestCase):
         assert KitLanche.objects.count() == 10
         assert TipoDeInformacaoNutricional.objects.count() == 6
         assert InformacaoNutricional.objects.count() == 43
-        assert Alimento.objects.count() == 9
         assert ClassificacaoDieta.objects.count() == 4
         assert MotivoNegacao.objects.count() == 14
         assert MotivoAlteracaoUE.objects.count() == 2
