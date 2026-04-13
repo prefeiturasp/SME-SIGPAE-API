@@ -86,9 +86,9 @@ from ..tasks import (
     exporta_relatorio_consolidado_xlsx,
     exporta_relatorio_historico_correcoes_pdf,
     gera_pdf_historico_ocorrencias_medicao_inicial_async,
+    gera_pdf_relatorio_financeiro_consolidado_async,
     gera_pdf_relatorio_solicitacao_medicao_por_escola_async,
     gera_pdf_relatorio_unificado_async,
-    gera_pdf_relatorio_financeiro_consolidado_async,
 )
 from ..utils import (
     atualizar_anexos_ocorrencia,
@@ -674,6 +674,8 @@ class SolicitacaoMedicaoInicialViewSet(
             ano=ano,
             status=status_solicitacao,
             escola__diretoria_regional__uuid=uuid_dre,
+        ).exclude(
+            medicoes__status=SolicitacaoMedicaoInicial.workflow_class.MEDICAO_SEM_LANCAMENTOS
         )
         tipos_de_unidade_do_grupo = [
             tipo_unidade.iniciais
@@ -2426,7 +2428,9 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
     def relatorio_pdf(self, request, uuid_relatorio_financeiro):
         user = request.user.get_username()
 
-        relatorio_financeiro = RelatorioFinanceiro.objects.filter(uuid=uuid_relatorio_financeiro).first()
+        relatorio_financeiro = RelatorioFinanceiro.objects.filter(
+            uuid=uuid_relatorio_financeiro
+        ).first()
         if not relatorio_financeiro:
             return Response(
                 {"Erro": "Relatório financeiro não encontrado."},
