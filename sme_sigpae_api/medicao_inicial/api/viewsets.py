@@ -84,9 +84,11 @@ from ..tasks import (
     exporta_relatorio_adesao_para_pdf,
     exporta_relatorio_adesao_para_xlsx,
     exporta_relatorio_consolidado_xlsx,
+    exporta_relatorio_historico_correcoes_pdf,
     gera_pdf_historico_ocorrencias_medicao_inicial_async,
     gera_pdf_relatorio_solicitacao_medicao_por_escola_async,
     gera_pdf_relatorio_unificado_async,
+    gera_pdf_relatorio_financeiro_consolidado_async,
 )
 from ..utils import (
     atualizar_anexos_ocorrencia,
@@ -625,7 +627,7 @@ class SolicitacaoMedicaoInicialViewSet(
         gera_pdf_historico_ocorrencias_medicao_inicial_async.delay(
             user=user,
             nome_arquivo=f"Relatório Historico Medição Inicial Com Ocorrencia - {solicitacao.escola.nome_historico(solicitacao.data_referencia)} - "
-                         f"{solicitacao.mes}/{solicitacao.ano}.pdf",
+            f"{solicitacao.mes}/{solicitacao.ano}.pdf",
             uuid_sol_medicao=uuid_sol_medicao,
         )
         return Response(
@@ -1454,6 +1456,32 @@ class SolicitacaoMedicaoInicialViewSet(
 
         resultado = busca_dias_zerados(solicitacao)
         return Response(resultado, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["GET"], url_path="relatorio-historio-correcoes")
+    def relatorio_historico_correcoes(self, request, uuid=None):
+        solicitacao_medicao_inicial = self.get_object()
+        if not solicitacao_medicao_inicial:
+            return Response(
+                {"detail": "A solicitação não foi encontrada."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if solicitacao_medicao_inicial.historico is None:
+            return Response(
+                {"detail": "A medição não possui histórico a ser gerado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        exporta_relatorio_historico_correcoes_pdf.delay(
+            user=request.user.get_username(),
+            nome_arquivo=f"Relatório Histório de Correções - {solicitacao_medicao_inicial.escola.nome} - {solicitacao_medicao_inicial.mes}/{solicitacao_medicao_inicial.ano}.pdf",
+            solicitacao_uuid=solicitacao_medicao_inicial.uuid,
+        )
+
+        return Response(
+            data={"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            status=status.HTTP_200_OK,
+        )
 
 
 class TipoContagemAlimentacaoViewSet(mixins.ListModelMixin, GenericViewSet):
@@ -2356,6 +2384,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             relatorio_financeiro = RelatorioFinanceiro.objects.get(
                 uuid=uuid_relatorio_financeiro
             )
+
             mes = int(relatorio_financeiro.mes)
             ano = int(relatorio_financeiro.ano)
 
@@ -2388,6 +2417,33 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             )
         except Exception as e:
             return Response({"Erro": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(
+        detail=False,
+        methods=["POST"],
+        url_path="exportar-pdf/(?P<uuid_relatorio_financeiro>[^/.]+)",
+    )
+    def relatorio_pdf(self, request, uuid_relatorio_financeiro):
+        user = request.user.get_username()
+
+        relatorio_financeiro = RelatorioFinanceiro.objects.filter(uuid=uuid_relatorio_financeiro).first()
+        if not relatorio_financeiro:
+            return Response(
+                {"Erro": "Relatório financeiro não encontrado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        gera_pdf_relatorio_financeiro_consolidado_async.delay(
+            user=user,
+            nome_arquivo=f"Ateste Financeiro - Medição Inicial {relatorio_financeiro.lote.diretoria_regional.nome} - {relatorio_financeiro.grupo_unidade_escolar.nome} - "
+            f"{relatorio_financeiro.mes}/{relatorio_financeiro.ano}.pdf",
+            uuid_relatorio_financeiro=uuid_relatorio_financeiro,
+        )
+
+        return Response(
+            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            status=status.HTTP_200_OK,
+        )
 
 
 class DadosLiquidacaoViewSet(ModelViewSet):

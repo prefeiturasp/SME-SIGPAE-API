@@ -58,7 +58,7 @@ class LayoutDeEmbalagemCreateSerializer(serializers.ModelSerializer):
     tipos_de_embalagens = TipoDeEmbalagemDeLayoutCreateSerializer(
         many=True, required=False
     )
-    observacoes = serializers.CharField(required=False)
+    observacoes = serializers.CharField(required=False, allow_blank=True)
 
     def validate_ficha_tecnica(self, value):
         if (
