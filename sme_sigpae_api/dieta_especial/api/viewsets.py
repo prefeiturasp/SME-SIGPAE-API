@@ -87,7 +87,6 @@ from ..models import (
     ClassificacaoDieta,
     ProtocoloPadraoDietaEspecial,
     SubstituicaoAlimento,
-    TipoContagem,
 )
 from ..tasks import (
     gera_pdf_relatorio_dietas_especiais_terceirizadas_async,
@@ -128,7 +127,6 @@ from .serializers import (
     SolicitacaoDietaEspecialSimplesSerializer,
     SolicitacaoDietaEspecialUpdateSerializer,
     SolicitacoesAtivasInativasPorAlunoSerializer,
-    TipoContagemSerializer,
     UnidadeEducacionalSerializer,
 )
 from .serializers_create import (
@@ -2138,14 +2136,6 @@ class AlimentoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericV
     pagination_class = None
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = AlimentoFilter
-
-
-class TipoContagemViewSet(mixins.ListModelMixin, GenericViewSet):
-    queryset = TipoContagem.objects.all().order_by("nome")
-    serializer_class = TipoContagemSerializer
-    pagination_class = None
-    verbose_name = "Tipo de Contagem"
-    verbose_name_plural = "Tipos de Contagem"
 
 
 class MotivoAlteracaoUEViewSet(mixins.ListModelMixin, GenericViewSet):

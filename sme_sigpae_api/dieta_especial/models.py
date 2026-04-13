@@ -84,11 +84,6 @@ class SubstituicaoAlimento(models.Model):
     )
 
 
-class TipoContagem(Nomeavel, TemChaveExterna):
-    def __str__(self):
-        return self.nome
-
-
 class PlanilhaDietasAtivas(models.Model):
     """Importa dados de planilha de Dietas Ativas específicas.
 

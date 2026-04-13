@@ -36,7 +36,6 @@ from ..models import (
     ProtocoloPadraoDietaEspecial,
     SubstituicaoAlimento,
     SubstituicaoAlimentoProtocoloPadrao,
-    TipoContagem,
 )
 from ..solicitacao_dieta_especial.models import (
     Anexo,
@@ -95,12 +94,6 @@ class AlimentosSubstitutosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Alimento
         fields = ("uuid", "nome", "tipo")
-
-
-class TipoContagemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TipoContagem
-        exclude = ("id",)
 
 
 class AnexoSerializer(ModelSerializer):

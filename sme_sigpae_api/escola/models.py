@@ -543,7 +543,6 @@ class Escola(
         default=None,
     )
     idades = models.ManyToManyField(FaixaIdadeEscolar, blank=True)
-    tipos_contagem = models.ManyToManyField("dieta_especial.TipoContagem", blank=True)
     endereco = models.ForeignKey(
         "dados_comuns.Endereco", blank=True, null=True, on_delete=models.DO_NOTHING
     )

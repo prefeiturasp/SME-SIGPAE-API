@@ -37,7 +37,6 @@ from .models import (
     SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
     SubstituicaoAlimentoProtocoloPadrao,
-    TipoContagem,
 )
 from .tasks import processa_dietas_especiais_task
 from .tasks.admin_actions import get_escolas_task
@@ -360,4 +359,3 @@ admin.site.register(MotivoAlteracaoUE)
 admin.site.register(MotivoNegacao)
 admin.site.register(SubstituicaoAlimento)
 admin.site.register(SubstituicaoAlimentoProtocoloPadrao)
-admin.site.register(TipoContagem)
