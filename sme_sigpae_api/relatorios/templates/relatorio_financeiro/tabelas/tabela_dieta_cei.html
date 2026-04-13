@@ -14,11 +14,11 @@
   <tbody>
     {% for linha in linhas %}
     <tr>
-      <td><b>{{ linha.periodo }}</b> - {{ linha.faixa }}</td>
+      <td>{{ linha.periodo }} - <b>{{ linha.faixa }}</b></td>
       <td>R$ {{ linha.valor_unitario|agrupador_milhar_com_decimal }}</td>
       <td>% {{ linha.valor_acrescimo|agrupador_milhar_com_decimal }}</td>
       <td>R$ {{ linha.total_unitario|agrupador_milhar_com_decimal }}</td>
-      <td>{{ linha.numero_consumo }}</td>
+      <td>{{ linha.numero_consumo|numero_para_milhar }}</td>
       <td>R$ {{ linha.valor_total|agrupador_milhar_com_decimal }}</td>
     </tr>
     {% endfor %}
@@ -28,7 +28,7 @@
       <td></td>
       <td></td>
       <td></td>
-      <td>{{ total_consumo }}</td>
+      <td>{{ total_consumo|numero_para_milhar }}</td>
       <td>R$ {{ valor_total|agrupador_milhar_com_decimal }}</td>
     </tr>
   </tbody>

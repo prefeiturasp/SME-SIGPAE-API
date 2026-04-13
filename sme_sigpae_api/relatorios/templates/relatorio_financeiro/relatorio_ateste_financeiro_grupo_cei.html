@@ -18,7 +18,8 @@
 
   <body>
     <div class="data-geracao">
-      Documento gerado em {{ cabecalho.data_geracao }}
+      Documento gerado em {{ cabecalho.data_geracao }} às {{
+      cabecalho.hora_geracao }}
     </div>
     <div class="relatorio-financeiro">
       <div class="cabecalho-relatorio">
@@ -46,13 +47,17 @@
             </div>
 
             <div>
-              DATA DO RELATÓRIO: <strong>{{ cabecalho.data_geracao }}</strong>
+              DATA DO RELATÓRIO:
+              <strong
+                >{{ cabecalho.data_geracao }} - {{ cabecalho.hora_geracao
+                }}</strong
+              >
             </div>
           </div>
 
           <div class="linha">
             {{ cabecalho.dre_lote }}
-            <strong>- {{ cabecalho.grupo_unidade_escolar }}</strong>,
+            <strong>- {{ cabecalho.grupo_unidade_escolar }}</strong>
           </div>
         </div>
       </div>

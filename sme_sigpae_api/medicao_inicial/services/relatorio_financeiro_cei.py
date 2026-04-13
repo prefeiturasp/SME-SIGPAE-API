@@ -62,7 +62,7 @@ def _build_tabela_alimentacao_cei(tabelas, faixas_etarias, totais_consumo):
 
     return {
         "linhas": linhas,
-        "total_atendimentos": total_atendimentos,
+        "total_atendimentos": int(total_atendimentos),
         "valor_total": valor_total_geral,
     }
 
@@ -172,7 +172,8 @@ def build_relatorio_financeiro_grupo_cei(
         "dieta_b": dieta_b,
         "consolidado": consolidado,
         "cabecalho": {
-            "data_geracao": datetime.now().strftime("%d/%m/%Y %H:%M"),
+            "data_geracao": datetime.now().strftime("%d/%m/%Y"),
+            "hora_geracao": datetime.now().strftime("%H:%M"),
             "data_referencia": f"{relatorio_financeiro.mes}/{relatorio_financeiro.ano}",
             "grupo_unidade_escolar": grupo_com_unidades,
             "dre_lote": f"{relatorio_financeiro.lote.nome.upper()} - {relatorio_financeiro.lote.diretoria_regional.nome}",
