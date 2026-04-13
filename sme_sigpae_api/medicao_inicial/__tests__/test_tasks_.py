@@ -34,6 +34,7 @@ from sme_sigpae_api.medicao_inicial.tasks import (
     gera_pdf_relatorio_unificado_async,
     processa_relatorio_lançamentos,
     solicitacao_medicao_atual_existe,
+    gera_pdf_relatorio_financeiro_consolidado_async,
 )
 from sme_sigpae_api.perfil.models.usuario import Usuario
 from sme_sigpae_api.terceirizada.models import Terceirizada
@@ -851,3 +852,27 @@ def test_exporta_relatorio_historico_correcoes_pdf_exception(
     assert (
         registro.msg_erro == "SolicitacaoMedicaoInicial matching query does not exist."
     )
+        
+
+
+@pytest.mark.django_db
+def test_gerar_pdf_relatorio_financeiro_async(
+    relatorio_financeiro_cei,
+    parametrizacao_financeira_cei,
+    usuario,
+):
+    nome_arquivo = "teste.pdf"
+    user = usuario.get_username()
+
+    gera_pdf_relatorio_financeiro_consolidado_async(
+        user=user,
+        nome_arquivo=nome_arquivo,
+        uuid_relatorio_financeiro=relatorio_financeiro_cei.uuid,
+    )
+
+    registro = CentralDeDownload.objects.get(
+        identificador=nome_arquivo
+    )
+
+    assert registro.status == CentralDeDownload.STATUS_CONCLUIDO
+    assert registro.arquivo is not None

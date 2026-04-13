@@ -2820,3 +2820,32 @@ def test_url_endpoint_historico_correcoes_medicao_pdf_uuid_invalido(
     assert response.json() == {
         "detail": "No SolicitacaoMedicaoInicial matches the given query."
     }
+
+
+@pytest.mark.django_db
+def test_endpoint_exportar_pdf_relatorio_financeiro_com_sucesso(
+    client_autenticado_codae_medicao,
+    relatorio_financeiro_cei,
+):
+    response = client_autenticado_codae_medicao.post(
+        f"/medicao-inicial/relatorio-financeiro/exportar-pdf/{relatorio_financeiro_cei.uuid}/"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data == {
+        "detail": "Solicitação de geração de arquivo recebida com sucesso."
+    }
+
+
+@pytest.mark.django_db
+def test_endpoint_exportar_pdf_relatorio_financeiro_nao_encontrado(
+    client_autenticado_codae_medicao,
+):
+    response = client_autenticado_codae_medicao.post(
+        "/medicao-inicial/relatorio-financeiro/exportar-pdf/3f1d9e8a-6b4c-4a72-9f15-2c8e7b6d1a43/"
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.data == {
+        "Erro": "Relatório financeiro não encontrado."
+    }

@@ -687,7 +687,10 @@ class HomologacaoProdutoWorkflow(xwf_models.Workflow):
         ),
         (
             "terceirizada_responde_reclamacao",
-            CODAE_PEDIU_ANALISE_RECLAMACAO,
+            [
+                CODAE_PEDIU_ANALISE_RECLAMACAO,
+                UE_RESPONDEU_QUESTIONAMENTO,
+            ],
             TERCEIRIZADA_RESPONDEU_RECLAMACAO,
         ),
         (
@@ -4740,9 +4743,15 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 "numero_cronograma": numero_cronograma,
                 "log_transicao": log_transicao,
                 "url_cronograma": url_cronograma,
-                "nome_produto": self.ficha_tecnica.produto.nome if self.ficha_tecnica else "-",
-                "nome_usual_fornecedor": self.empresa.nome_fantasia if self.empresa else "-",
-                "razao_social_fornecedor": self.empresa.razao_social if self.empresa else "-",
+                "nome_produto": (
+                    self.ficha_tecnica.produto.nome if self.ficha_tecnica else "-"
+                ),
+                "nome_usual_fornecedor": (
+                    self.empresa.nome_fantasia if self.empresa else "-"
+                ),
+                "razao_social_fornecedor": (
+                    self.empresa.razao_social if self.empresa else "-"
+                ),
                 "data_assinatura": log_transicao.criado_em,
             },
         )
