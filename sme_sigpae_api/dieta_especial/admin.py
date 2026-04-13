@@ -7,7 +7,6 @@ from django.shortcuts import redirect
 from django.urls import path
 from rangefilter.filters import DateRangeFilter
 
-from sme_sigpae_api.dados_comuns.constants import COORDENADOR_LOGISTICA
 from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogDietasAtivasCanceladasAutomaticamente,
     LogQuantidadeDietasAutorizadas,
@@ -20,7 +19,6 @@ from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     MotivoAlteracaoUE,
     MotivoNegacao,
 )
-from sme_sigpae_api.escola.models import Codae
 from sme_sigpae_api.escola.utils_analise_dietas_ativas import main
 from sme_sigpae_api.escola.utils_escola import create_tempfile, escreve_escolas_json
 from sme_sigpae_api.processamento_arquivos.dieta_especial import (
@@ -28,11 +26,9 @@ from sme_sigpae_api.processamento_arquivos.dieta_especial import (
     importa_dietas_especiais,
 )
 
-from .forms import AlimentoProprioForm
 from .models import (
     AlergiaIntolerancia,
     Alimento,
-    AlimentoProprio,
     ArquivoCargaAlimentosSubstitutos,
     ArquivoCargaDietaEspecial,
     ClassificacaoDieta,
@@ -87,45 +83,6 @@ class AlimentoAdmin(admin.ModelAdmin):
     search_fields = ("nome",)
     ordering = ("nome",)
     list_filter = ("tipo_listagem_protocolo",)
-
-
-@admin.register(AlimentoProprio)
-class AlimentoProprioAdmin(admin.ModelAdmin):
-    list_display = ("nome", "marca", "outras_informacoes", "ativo")
-    search_fields = ("nome", "marca__nome", "outras_informacoes")
-    list_filter = ("ativo",)
-    ordering = ("nome",)
-    readonly_fields = ("tipo",)
-    form = AlimentoProprioForm
-    actions = ("inativar_alimentos",)
-
-    def inativar_alimentos(self, request, queryset):
-        count = queryset.update(ativo=False)
-
-        if count == 1:
-            msg = "{} alimento próprio foi inativado."  # noqa P103
-        else:
-            msg = "{} alimentos próprios foram inativados."  # noqa P103
-
-        self.message_user(request, msg.format(count))
-
-    inativar_alimentos.short_description = "Marcar para inativar alimentos"
-
-    def has_module_permission(self, request, obj=None):
-        usuario = request.user
-        if usuario:
-            if not usuario.is_anonymous:
-                return (
-                    not usuario.is_anonymous
-                    and usuario.vinculo_atual
-                    and isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome in [COORDENADOR_LOGISTICA]
-                    or usuario.email == "admin@admin.com"
-                )
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
 
 
 class SubstituicaoAlimentoInline(admin.TabularInline):

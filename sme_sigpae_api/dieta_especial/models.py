@@ -13,7 +13,6 @@ from ..dados_comuns.behaviors import (
     TemIdentificadorExternoAmigavel,
 )
 from ..escola.models import Aluno
-from .managers import AlimentoProprioManager
 from .solicitacao_dieta_especial.models import SolicitacaoDietaEspecial
 
 
@@ -63,19 +62,6 @@ class Alimento(Nomeavel, TemChaveExterna, Ativavel):
 
     def __str__(self):
         return self.nome
-
-
-class AlimentoProprio(Alimento):
-    objects = AlimentoProprioManager()
-
-    class Meta:
-        proxy = True
-        verbose_name = "alimento próprio CODAE"
-        verbose_name_plural = "alimentos próprios CODAE"
-
-    def save(self, *args, **kwargs):
-        self.tipo = "P"
-        super(AlimentoProprio, self).save(*args, **kwargs)
 
 
 class SubstituicaoAlimento(models.Model):

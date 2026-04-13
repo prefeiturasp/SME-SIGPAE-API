@@ -18,7 +18,6 @@ from sme_sigpae_api.dados_comuns.models import Contato, TemplateMensagem
 from sme_sigpae_api.dieta_especial.models import (
     AlergiaIntolerancia,
     Alimento,
-    AlimentoProprio,
     ClassificacaoDieta,
 )
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
@@ -110,7 +109,6 @@ class CargaDadosCommandTest(TestCase):
         assert Marca.objects.count() == 0
         assert Fabricante.objects.count() == 0
         assert Produto.objects.count() == 0
-        assert AlimentoProprio.objects.count() == 0
 
         self.call_command()
 
@@ -147,7 +145,6 @@ class CargaDadosCommandTest(TestCase):
         assert Vinculo.objects.count() == 30
         assert Marca.objects.count() == 193
         assert Fabricante.objects.count() == 193
-        assert AlimentoProprio.objects.count() == 9
 
         vinculos = (
             VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.count()

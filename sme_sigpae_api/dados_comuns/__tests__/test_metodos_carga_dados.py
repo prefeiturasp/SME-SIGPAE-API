@@ -14,7 +14,6 @@ from sme_sigpae_api.dados_comuns.models import Contato, TemplateMensagem
 from sme_sigpae_api.dieta_especial.models import (
     AlergiaIntolerancia,
     Alimento,
-    AlimentoProprio,
     ClassificacaoDieta,
 )
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
@@ -62,7 +61,6 @@ from utility.carga_dados.dados_comuns.importa_dados import (
 from utility.carga_dados.dieta_especial.importa_dados import (
     cria_alergia_intolerancias,
     cria_alimento,
-    cria_alimento_proprio,
     cria_classificacoes_dieta,
     cria_motivo_alteracao_ue,
     cria_motivo_negacao,
@@ -469,10 +467,3 @@ def test_adiciona_contato_em_terceirizada(lotes):
     adiciona_contato_em_terceirizada()
     for t in Terceirizada.objects.all():
         assert t.contatos.count() == 2
-
-
-def test_cria_alimento_proprio():
-    assert AlimentoProprio.objects.count() == 0
-    cria_marca()
-    cria_alimento_proprio()
-    assert AlimentoProprio.objects.count() == 9

@@ -1,12 +1,7 @@
-from secrets import choice
-
 from sme_sigpae_api.dieta_especial.data.alergia_intolerancia import (
     data_alergia_intolerancias,
 )
 from sme_sigpae_api.dieta_especial.data.alimentos import data_alimentos
-from sme_sigpae_api.dieta_especial.data.alimentos_proprios_codae import (
-    data_alimentos_proprios_codae,
-)
 from sme_sigpae_api.dieta_especial.data.classificacao_dieta import (
     data_classificacoes_dieta,
 )
@@ -17,14 +12,12 @@ from sme_sigpae_api.dieta_especial.data.motivo_negacao import data_motivo_negaco
 from sme_sigpae_api.dieta_especial.models import (
     AlergiaIntolerancia,
     Alimento,
-    AlimentoProprio,
     ClassificacaoDieta,
 )
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     MotivoAlteracaoUE,
     MotivoNegacao,
 )
-from sme_sigpae_api.produto.models import Marca
 from utility.carga_dados.escola.helper import bcolors
 from utility.carga_dados.helper import ja_existe, progressbar
 
@@ -34,15 +27,6 @@ def cria_alimento():
         _, created = Alimento.objects.get_or_create(nome=item)
         if not created:
             ja_existe("Alimento", item)
-
-
-def cria_alimento_proprio():
-    marcas = Marca.objects.all()
-    for item in progressbar(data_alimentos_proprios_codae, "Alimento próprio"):
-        marca = choice(marcas)
-        _, created = AlimentoProprio.objects.get_or_create(nome=item, marca=marca)
-        if not created:
-            ja_existe("Alimento próprio", item)
 
 
 def cria_motivo_negacao():
