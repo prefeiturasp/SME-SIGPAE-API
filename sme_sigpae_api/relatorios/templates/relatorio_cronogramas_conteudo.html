@@ -58,6 +58,7 @@
                         <th>Quantidade</th>
                         <th>Total de Embalagens</th>
                         <th>Situação</th>
+                        <th>Modalidade/Tipo</th>
                       </tr>
                     </thead>
 
@@ -82,6 +83,7 @@
                               <td>{{ etapa.quantidade|default:"-" }}</td>
                               <td>{{ etapa.total_embalagens|default:"-" }}</td>
                               <td>{{ ficha.situacao|default:"-" }}</td>
+                              <td>{{ cronograma.modalidade|default:"Não Informado" }}</td>
                             </tr>
                           {% endfor %}
                         {% endif %}
@@ -95,6 +97,7 @@
                               <td>{{ etapa.quantidade|default:"-" }}</td>
                               <td>{{ etapa.total_embalagens|default:"-" }}</td>
                               <td>A receber</td>
+                              <td>{{ cronograma.modalidade|default:"Não Informado" }}</td>
                             </tr>
                           {% endif %}
                         {% endif %}

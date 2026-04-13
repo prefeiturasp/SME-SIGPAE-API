@@ -687,7 +687,10 @@ class HomologacaoProdutoWorkflow(xwf_models.Workflow):
         ),
         (
             "terceirizada_responde_reclamacao",
-            CODAE_PEDIU_ANALISE_RECLAMACAO,
+            [
+                CODAE_PEDIU_ANALISE_RECLAMACAO,
+                UE_RESPONDEU_QUESTIONAMENTO,
+            ],
             TERCEIRIZADA_RESPONDEU_RECLAMACAO,
         ),
         (
@@ -4740,9 +4743,15 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 "numero_cronograma": numero_cronograma,
                 "log_transicao": log_transicao,
                 "url_cronograma": url_cronograma,
-                "nome_produto": self.ficha_tecnica.produto.nome if self.ficha_tecnica else "-",
-                "nome_usual_fornecedor": self.empresa.nome_fantasia if self.empresa else "-",
-                "razao_social_fornecedor": self.empresa.razao_social if self.empresa else "-",
+                "nome_produto": (
+                    self.ficha_tecnica.produto.nome if self.ficha_tecnica else "-"
+                ),
+                "nome_usual_fornecedor": (
+                    self.empresa.nome_fantasia if self.empresa else "-"
+                ),
+                "razao_social_fornecedor": (
+                    self.empresa.razao_social if self.empresa else "-"
+                ),
                 "data_assinatura": log_transicao.criado_em,
             },
         )
@@ -5938,6 +5947,31 @@ class FluxoFichaDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
                 status_evento=LogSolicitacoesUsuario.FICHA_RECEBIMENTO_ASSINADA,
                 usuario=user,
             )
+
+    class Meta:
+        abstract = True
+
+
+class CronogramaSemanalWorkflow(xwf_models.Workflow):
+    """Workflow para Cronograma Semanal FLV"""
+
+    log_model = ""
+    RASCUNHO = "RASCUNHO"
+
+    states = (
+        (RASCUNHO, "Rascunho"),
+    )
+
+    transitions = ()
+
+    initial_state = RASCUNHO
+
+
+class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
+    """Classe abstrata que adiciona workflow de Cronograma Semanal"""
+
+    workflow_class = CronogramaSemanalWorkflow
+    status = xwf_models.StateField(workflow_class)
 
     class Meta:
         abstract = True

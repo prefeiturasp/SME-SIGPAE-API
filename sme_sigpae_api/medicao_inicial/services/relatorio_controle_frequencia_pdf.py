@@ -64,7 +64,11 @@ def gera_relatorio_controle_frequencia_pdf(query_params, escola_uuid):
     )
 
     qtd_matriculados = vs_relatorio_controle.filtrar_alunos_matriculados(
-        queryset, escola_eh_cei_ou_cemei, periodos_uuids
+        queryset,
+        escola_eh_cei_ou_cemei,
+        periodos_uuids,
+        escola=escola,
+        query_params=query_params,
     )
 
     periodos = formata_periodos_pdf_controle_frequencia(

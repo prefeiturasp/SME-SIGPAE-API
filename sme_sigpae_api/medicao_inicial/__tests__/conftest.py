@@ -5224,6 +5224,7 @@ def medicoes_frequencia_zerada_emef(
             periodo_escolar=periodo_escolar,
             quantidade=2,
             classificacao=classificacao_dieta_tipo_a,
+            data=datetime.date(ano, mes, 5),
         )
         log_cinco.criado_em = datetime.date(ano, mes, 5)
         log_cinco.save()
@@ -5234,6 +5235,7 @@ def medicoes_frequencia_zerada_emef(
             periodo_escolar=periodo_escolar,
             quantidade=2,
             classificacao=classificacao_dieta_tipo_a,
+            data=datetime.date(ano, mes, 13),
         )
         log_treze.criado_em = datetime.date(ano, mes, 13)
         log_treze.save()
@@ -5367,6 +5369,7 @@ def medicoes_frequencia_zerada_emebs(
                 quantidade=2,
                 classificacao=classificacao_dieta_tipo_a,
                 infantil_ou_fundamental=tipo,
+                data=datetime.date(ano, mes, 10),
             )
             log_cinco.criado_em = datetime.date(ano, mes, 10)
             log_cinco.save()
@@ -5379,6 +5382,7 @@ def medicoes_frequencia_zerada_emebs(
                     quantidade=2,
                     classificacao=classificacao_dieta_tipo_a,
                     infantil_ou_fundamental=tipo,
+                    data=datetime.date(ano, mes, 24),
                 )
                 log_treze.criado_em = datetime.date(ano, mes, 24)
                 log_treze.save()
@@ -5416,3 +5420,679 @@ def dados_liquidacao_cmct(relatorio_financeiro, escola_cmct):
     )
     obj.unidades_educacionais.set([escola_cmct])
     return obj
+
+
+def build_solicitacao(
+    *,
+    escola,
+    categoria_medicao,
+    grupo_programas,
+    motivo,
+    periodo_manha=None,
+    periodo_tarde=None,
+    grupo_manha=None,
+    grupo_tarde=None,
+    emebs=False,
+):
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        uuid="bed4d779-2d57-4c5f-bf9c-9b93ddac54d9",
+        mes="01",
+        ano=2026,
+        escola=escola,
+    )
+
+    medicoes = []
+
+    # escolar padrão / emebs
+    if periodo_manha and periodo_tarde:
+        medicoes.append(
+            baker.make(
+                "Medicao",
+                solicitacao_medicao_inicial=solicitacao,
+                periodo_escolar=periodo_manha,
+            )
+        )
+        medicoes.append(
+            baker.make(
+                "Medicao",
+                solicitacao_medicao_inicial=solicitacao,
+                periodo_escolar=periodo_tarde,
+            )
+        )
+
+    # cemei
+    if grupo_manha and grupo_tarde:
+        medicoes.append(
+            baker.make(
+                "Medicao",
+                solicitacao_medicao_inicial=solicitacao,
+                grupo=grupo_manha,
+            )
+        )
+        medicoes.append(
+            baker.make(
+                "Medicao",
+                solicitacao_medicao_inicial=solicitacao,
+                grupo=grupo_tarde,
+            )
+        )
+
+    medicao_programas = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        grupo=grupo_programas,
+    )
+
+    # valores zerados
+    for medicao in medicoes:
+        if emebs:
+            for tipo in ["FUNDAMENTAL", "INFANTIL"]:
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao,
+                    nome_campo="frequencia",
+                    dia="14",
+                    categoria_medicao=categoria_medicao,
+                    valor="0",
+                    infantil_ou_fundamental=tipo,
+                )
+        else:
+            baker.make(
+                "ValorMedicao",
+                medicao=medicao,
+                nome_campo="frequencia",
+                dia="14",
+                categoria_medicao=categoria_medicao,
+                valor="0",
+            )
+
+    # programas
+    if emebs:
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_programas,
+            nome_campo="frequencia",
+            dia="14",
+            categoria_medicao=categoria_medicao,
+            valor="10",
+            infantil_ou_fundamental="FUNDAMENTAL",
+        )
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_programas,
+            nome_campo="frequencia",
+            dia="14",
+            categoria_medicao=categoria_medicao,
+            valor="0",
+            infantil_ou_fundamental="INFANTIL",
+        )
+    else:
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_programas,
+            nome_campo="frequencia",
+            dia="14",
+            categoria_medicao=categoria_medicao,
+            valor="10",
+        )
+
+    baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        data_inicial=datetime.date(2026, 1, 14),
+        data_final=datetime.date(2026, 1, 14),
+        motivo=motivo,
+        status="CODAE_AUTORIZADO",
+    )
+
+    return solicitacao
+
+
+def apply_dieta(
+    solicitacao,
+    categoria_base,
+    categoria_dieta,
+    emebs=False,
+    is_cemei=False,
+):
+    for medicao in solicitacao.medicoes.all():
+        filtros = {
+            "nome_campo": "frequencia",
+            "dia": "14",
+            "categoria_medicao": categoria_base,
+        }
+
+        if emebs:
+            filtros["infantil_ou_fundamental"] = "FUNDAMENTAL"
+
+        valor = medicao.valores_medicao.get(**filtros)
+
+        if is_cemei:
+            is_programa = medicao.grupo.nome == "Programas e Projetos"
+        else:
+            is_programa = bool(medicao.grupo)
+
+        valor.valor = "10" if is_programa else "20"
+        valor.save()
+
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao,
+            nome_campo="frequencia",
+            dia="14",
+            categoria_medicao=categoria_dieta,
+            valor="3" if is_programa else "0",
+            **({"infantil_ou_fundamental": "FUNDAMENTAL"} if emebs else {}),
+        )
+
+    return solicitacao
+
+
+@pytest.fixture
+def solicitacao_medicao_finaliza_programas_projetos_zerados_alimentacao(
+    escola,
+    periodo_escolar_manha,
+    periodo_escolar_tarde,
+    categoria_medicao,
+    grupo_programas_e_projetos,
+    motivo_inclusao_continua_programas_projetos,
+):
+    return build_solicitacao(
+        escola=escola,
+        categoria_medicao=categoria_medicao,
+        grupo_programas=grupo_programas_e_projetos,
+        motivo=motivo_inclusao_continua_programas_projetos,
+        periodo_manha=periodo_escolar_manha,
+        periodo_tarde=periodo_escolar_tarde,
+    )
+
+
+@pytest.fixture
+def solicitacao_medicao_finaliza_programas_projetos_zerados_dietas(
+    solicitacao_medicao_finaliza_programas_projetos_zerados_alimentacao,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+):
+    return apply_dieta(
+        solicitacao_medicao_finaliza_programas_projetos_zerados_alimentacao,
+        categoria_medicao,
+        categoria_medicao_dieta_a,
+    )
+
+
+@pytest.fixture
+def solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_alimentacao(
+    escola_emebs,
+    periodo_escolar_manha,
+    periodo_escolar_tarde,
+    categoria_medicao,
+    grupo_programas_e_projetos,
+    motivo_inclusao_continua_programas_projetos,
+):
+    return build_solicitacao(
+        escola=escola_emebs,
+        categoria_medicao=categoria_medicao,
+        grupo_programas=grupo_programas_e_projetos,
+        motivo=motivo_inclusao_continua_programas_projetos,
+        periodo_manha=periodo_escolar_manha,
+        periodo_tarde=periodo_escolar_tarde,
+        emebs=True,
+    )
+
+
+@pytest.fixture
+def solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_dietas(
+    solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_alimentacao,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+):
+    return apply_dieta(
+        solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_alimentacao,
+        categoria_medicao,
+        categoria_medicao_dieta_a,
+        emebs=True,
+    )
+
+
+@pytest.fixture
+def solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao(
+    escola_cemei,
+    grupo_infantil_manha,
+    grupo_infantil_tarde,
+    categoria_medicao,
+    grupo_programas_e_projetos,
+    motivo_inclusao_continua_programas_projetos,
+):
+    return build_solicitacao(
+        escola=escola_cemei,
+        categoria_medicao=categoria_medicao,
+        grupo_programas=grupo_programas_e_projetos,
+        motivo=motivo_inclusao_continua_programas_projetos,
+        grupo_manha=grupo_infantil_manha,
+        grupo_tarde=grupo_infantil_tarde,
+    )
+
+
+@pytest.fixture
+def solicitacao_medicao_finaliza_programas_projetos_cemei_zerados_dietas(
+    solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+):
+    return apply_dieta(
+        solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao,
+        categoria_medicao,
+        categoria_medicao_dieta_a,
+        is_cemei=True,
+    )
+
+
+@pytest.fixture
+def solicitacao_com_historico_correcao(django_user_model, escola):
+    hist = [
+    {
+        "usuario": {
+            "uuid": "a4f08910-44e1-4828-99f4-d008cb79753c",
+            "nome": "DRE ADMIN",
+            "username": "26755818011",
+            "email": "dre@admin.com"
+        },
+        "criado_em": "06/04/2026 11:00:10",
+        "acao": "MEDICAO_CORRECAO_SOLICITADA",
+        "alteracoes": [
+            {
+                "periodo_escolar": "MANHA",
+                "justificativa": "<p>Favor, conferir o número de <strong>Lanche 4h </strong>lançados</p>",
+                "tabelas_lancamentos": [
+                    {
+                        "categoria_medicao": "ALIMENTAÇÃO",
+                        "semanas": [
+                            {
+                                "semana": "3",
+                                "dias": [
+                                    "12"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "usuario": {
+            "uuid": "f5d31a72-1a8a-4519-8eca-47f1ba756449",
+            "nome": "ESCOLA CIEJA ADMIN",
+            "username": "61927274222",
+            "email": "escolacieja@admin.com"
+        },
+        "criado_em": "07/04/2026 08:11:35",
+        "acao": "MEDICAO_CORRIGIDA_PELA_UE",
+        "alteracoes": [
+            {
+                "periodo_escolar": "MANHA",
+                "tabelas_lancamentos": [
+                    {
+                        "categoria_medicao": "ALIMENTAÇÃO",
+                        "semanas": [
+                            {
+                                "semana": "3",
+                                "dias": [
+                                    {
+                                        "dia": "12",
+                                        "campos": [
+                                            {
+                                                "campo_nome": "lanche_4h",
+                                                "de": "9",
+                                                "para": "10"
+                                            },
+                                            {
+                                                "campo_nome": "refeicao",
+                                                "de": "9",
+                                                "para": "20"
+                                            },
+                                            {
+                                                "campo_nome": "repeticao_refeicao",
+                                                "de": "9",
+                                                "para": "12"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+        ]
+    },
+    {
+        "usuario": {
+            "uuid": "a4f08910-44e1-4828-99f4-d008cb79753c",
+            "nome": "DRE ADMIN",
+            "username": "26755818011",
+            "email": "dre@admin.com"
+        },
+        "criado_em": "07/04/2026 09:07:11",
+        "acao": "MEDICAO_APROVADA_PELA_DRE",
+        "alteracoes": [
+            {
+                "periodo_escolar": "MANHA"
+            },
+        ]
+    },
+    {
+        "usuario": {
+            "uuid": "420251b2-b93e-4122-90db-095a51cd567b",
+            "nome": "USUARIO MEDICAO",
+            "username": "73710035007",
+            "email": "medicao@admin.com"
+        },
+        "criado_em": "07/04/2026 09:22:26",
+        "acao": "MEDICAO_CORRECAO_SOLICITADA_CODAE",
+        "alteracoes": [
+            {
+                "periodo_escolar": "MANHA",
+                "justificativa": "<p>Verifique a frequencia, deveria ser 80</p>",
+                "tabelas_lancamentos": [
+                    {
+                        "categoria_medicao": "ALIMENTAÇÃO",
+                        "semanas": [
+                            {
+                                "semana": "3",
+                                "dias": [
+                                    "10",
+                                    "11",
+                                    "12",
+                                    "13",
+                                    "14"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "usuario": {
+            "uuid": "f5d31a72-1a8a-4519-8eca-47f1ba756449",
+            "nome": "ESCOLA CIEJA ADMIN",
+            "username": "61927274222",
+            "email": "escolacieja@admin.com"
+        },
+        "criado_em": "07/04/2026 09:45:01",
+        "acao": "MEDICAO_CORRIGIDA_PARA_CODAE",
+        "alteracoes": [
+            {
+                "periodo_escolar": "MANHA",
+                "tabelas_lancamentos": [
+                    {
+                        "categoria_medicao": "ALIMENTAÇÃO",
+                        "semanas": [
+                            {
+                                "semana": "3",
+                                "dias": [
+                                    {
+                                        "dia": "10",
+                                        "campos": [
+                                            {
+                                                "campo_nome": "frequencia",
+                                                "de": "100",
+                                                "para": "80"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "dia": "11",
+                                        "campos": [
+                                            {
+                                                "campo_nome": "frequencia",
+                                                "de": "100",
+                                                "para": "80"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "dia": "12",
+                                        "campos": [
+                                            {
+                                                "campo_nome": "frequencia",
+                                                "de": "100",
+                                                "para": "80"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "dia": "13",
+                                        "campos": [
+                                            {
+                                                "campo_nome": "frequencia",
+                                                "de": "100",
+                                                "para": "80"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "dia": "14",
+                                        "campos": [
+                                            {
+                                                "campo_nome": "frequencia",
+                                                "de": "100",
+                                                "para": "80"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "usuario": {
+            "uuid": "420251b2-b93e-4122-90db-095a51cd567b",
+            "nome": "USUARIO MEDICAO",
+            "username": "73710035007",
+            "email": "medicao@admin.com"
+        },
+        "criado_em": "07/04/2026 10:27:14",
+        "acao": "MEDICAO_APROVADA_PELA_CODAE",
+        "alteracoes": [
+            {
+                "periodo_escolar": "MANHA"
+            }
+        ]
+    }
+    ]
+    solicitacao_medicao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes="04",
+        ano="2025",
+        escola=escola,
+        rastro_lote=escola.lote,
+        historico=json.dumps(hist)
+    )
+    usuario = django_user_model.objects.create_user(
+        nome="Usuário TESTE",
+        username="medicao_teste",
+        password=DJANGO_ADMIN_PASSWORD,
+        email="medicao@escola.com",
+        registro_funcional="9173586",
+    )
+    
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao_medicao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+        criado_em=datetime.datetime(
+            2026, 4, 6, 10, 0, 0, tzinfo=datetime.timezone.utc
+        ),
+        usuario=usuario,
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao_medicao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+        criado_em=datetime.datetime(
+            2026, 4, 6, 11, 0, 0, tzinfo=datetime.timezone.utc
+        ),
+        usuario=usuario,
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao_medicao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PELA_UE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+        criado_em=datetime.datetime(
+            2026, 4, 6, 12, 0, 0, tzinfo=datetime.timezone.utc
+        ),
+        usuario=usuario,
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao_medicao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_DRE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+        criado_em=datetime.datetime(
+            2026, 4, 6, 13, 0, 0, tzinfo=datetime.timezone.utc
+        ),
+        usuario=usuario,
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao_medicao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+        criado_em=datetime.datetime(
+            2026, 4, 6, 14, 0, 0, tzinfo=datetime.timezone.utc
+        ),
+        usuario=usuario,
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao_medicao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+        criado_em=datetime.datetime(
+            2026, 4, 6, 16, 0, 0, tzinfo=datetime.timezone.utc
+        ),
+        usuario=usuario,
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao_medicao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+        criado_em=datetime.datetime(
+            2026, 4, 6, 17, 0, 0, tzinfo=datetime.timezone.utc
+        ),
+        usuario=usuario,
+    )
+
+    
+    return solicitacao_medicao
+
+
+@pytest.fixture
+def grupo_unidade_escolar_cei(
+    tipo_unidade_escolar_cei,
+    tipo_unidade_escolar_cci,
+    tipo_unidade_escolar_cei_ceu,
+):
+    return baker.make(
+        "GrupoUnidadeEscolar",
+        nome="Grupo 1",
+        uuid="5bd9ad5c-e0ab-4812-b2b6-336fc8988960",
+        tipos_unidades=[
+            tipo_unidade_escolar_cei,
+            tipo_unidade_escolar_cci,
+            tipo_unidade_escolar_cei_ceu,
+        ],
+    )
+
+
+@pytest.fixture
+def parametrizacao_financeira_cei(
+    edital,
+    escola_ceu_gestao,
+    faixas_etarias_ativas,
+    grupo_unidade_escolar_cei,
+    periodo_escolar_integral,
+    periodo_escolar_parcial,
+):
+    parametrizacao_financeira = baker.make(
+        "ParametrizacaoFinanceira",
+        edital=edital,
+        lote=escola_ceu_gestao.lote,
+        grupo_unidade_escolar=grupo_unidade_escolar_cei,
+        data_inicial="2025-10-01",
+        data_final="2025-10-30",
+        legenda="Legenda teste",
+    )
+
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="UNITARIO")
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="REAJUSTE")
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="ACRESCIMO")
+
+    tipo_unitario = TipoValorParametrizacaoFinanceira.objects.get(nome="UNITARIO")
+    tipo_reajuste = TipoValorParametrizacaoFinanceira.objects.get(nome="REAJUSTE")
+    tipo_acrescimo = TipoValorParametrizacaoFinanceira.objects.get(nome="ACRESCIMO")
+
+    tabelas_config = [
+        (PRECO_DAS_ALIMENTACOES, periodo_escolar_integral, [tipo_unitario, tipo_reajuste]),
+        (PRECO_DAS_ALIMENTACOES, periodo_escolar_parcial, [tipo_unitario, tipo_reajuste]),
+        (
+            "Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos",
+            periodo_escolar_integral,
+            [tipo_unitario, tipo_acrescimo],
+        ),
+        (
+            "Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos",
+            periodo_escolar_parcial,
+            [tipo_unitario, tipo_acrescimo],
+        ),
+        ("Dietas Tipo B", periodo_escolar_integral, [tipo_unitario, tipo_acrescimo]),
+        ("Dietas Tipo B", periodo_escolar_parcial, [tipo_unitario, tipo_acrescimo]),
+    ]
+
+    for nome_tabela, periodo, tipos_valor in tabelas_config:
+        tabela = baker.make(
+            "ParametrizacaoFinanceiraTabela",
+            nome=nome_tabela,
+            periodo_escolar=periodo,
+            parametrizacao_financeira=parametrizacao_financeira,
+        )
+
+        for faixa in faixas_etarias_ativas:
+            for tipo_valor in tipos_valor:
+                baker.make(
+                    "ParametrizacaoFinanceiraTabelaValor",
+                    tabela=tabela,
+                    faixa_etaria=faixa,
+                    nome_campo=str(faixa).lower().replace(" ", "_"),
+                    tipo_valor=tipo_valor,
+                    valor="1.00",
+                )
+
+    return parametrizacao_financeira
+
+
+@pytest.fixture
+def relatorio_financeiro_cei(
+    escola_ceu_gestao,
+    grupo_unidade_escolar_cei,
+):
+    return baker.make(
+        "RelatorioFinanceiro",
+        grupo_unidade_escolar=grupo_unidade_escolar_cei,
+        lote=escola_ceu_gestao.lote,
+        mes="10",
+        ano="2025",
+    )

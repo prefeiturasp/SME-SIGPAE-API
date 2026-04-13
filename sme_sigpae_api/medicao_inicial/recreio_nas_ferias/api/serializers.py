@@ -300,8 +300,12 @@ class RecreioNasFeriasSerializer(RecreioNasFeriasCreateSerializer):
 
     def get_unidades_participantes(self, obj):
         request = self.context.get("request")
+        escola_uuid = self.context.get("escola_uuid")
 
         qs = obj.unidades_participantes.all()
+
+        if escola_uuid:
+            qs = qs.filter(unidade_educacional__uuid=escola_uuid)
 
         if request and request.user.tipo_usuario == "escola":
             escola = request.user.vinculo_atual.instituicao
