@@ -5998,3 +5998,101 @@ def solicitacao_com_historico_correcao(django_user_model, escola):
 
     
     return solicitacao_medicao
+
+
+@pytest.fixture
+def grupo_unidade_escolar_cei(
+    tipo_unidade_escolar_cei,
+    tipo_unidade_escolar_cci,
+    tipo_unidade_escolar_cei_ceu,
+):
+    return baker.make(
+        "GrupoUnidadeEscolar",
+        nome="Grupo 1",
+        uuid="5bd9ad5c-e0ab-4812-b2b6-336fc8988960",
+        tipos_unidades=[
+            tipo_unidade_escolar_cei,
+            tipo_unidade_escolar_cci,
+            tipo_unidade_escolar_cei_ceu,
+        ],
+    )
+
+
+@pytest.fixture
+def parametrizacao_financeira_cei(
+    edital,
+    escola_ceu_gestao,
+    faixas_etarias_ativas,
+    grupo_unidade_escolar_cei,
+    periodo_escolar_integral,
+    periodo_escolar_parcial,
+):
+    parametrizacao_financeira = baker.make(
+        "ParametrizacaoFinanceira",
+        edital=edital,
+        lote=escola_ceu_gestao.lote,
+        grupo_unidade_escolar=grupo_unidade_escolar_cei,
+        data_inicial="2025-10-01",
+        data_final="2025-10-30",
+        legenda="Legenda teste",
+    )
+
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="UNITARIO")
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="REAJUSTE")
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="ACRESCIMO")
+
+    tipo_unitario = TipoValorParametrizacaoFinanceira.objects.get(nome="UNITARIO")
+    tipo_reajuste = TipoValorParametrizacaoFinanceira.objects.get(nome="REAJUSTE")
+    tipo_acrescimo = TipoValorParametrizacaoFinanceira.objects.get(nome="ACRESCIMO")
+
+    tabelas_config = [
+        (PRECO_DAS_ALIMENTACOES, periodo_escolar_integral, [tipo_unitario, tipo_reajuste]),
+        (PRECO_DAS_ALIMENTACOES, periodo_escolar_parcial, [tipo_unitario, tipo_reajuste]),
+        (
+            "Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos",
+            periodo_escolar_integral,
+            [tipo_unitario, tipo_acrescimo],
+        ),
+        (
+            "Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos",
+            periodo_escolar_parcial,
+            [tipo_unitario, tipo_acrescimo],
+        ),
+        ("Dietas Tipo B", periodo_escolar_integral, [tipo_unitario, tipo_acrescimo]),
+        ("Dietas Tipo B", periodo_escolar_parcial, [tipo_unitario, tipo_acrescimo]),
+    ]
+
+    for nome_tabela, periodo, tipos_valor in tabelas_config:
+        tabela = baker.make(
+            "ParametrizacaoFinanceiraTabela",
+            nome=nome_tabela,
+            periodo_escolar=periodo,
+            parametrizacao_financeira=parametrizacao_financeira,
+        )
+
+        for faixa in faixas_etarias_ativas:
+            for tipo_valor in tipos_valor:
+                baker.make(
+                    "ParametrizacaoFinanceiraTabelaValor",
+                    tabela=tabela,
+                    faixa_etaria=faixa,
+                    nome_campo=str(faixa).lower().replace(" ", "_"),
+                    tipo_valor=tipo_valor,
+                    valor="1.00",
+                )
+
+    return parametrizacao_financeira
+
+
+@pytest.fixture
+def relatorio_financeiro_cei(
+    escola_ceu_gestao,
+    grupo_unidade_escolar_cei,
+):
+    return baker.make(
+        "RelatorioFinanceiro",
+        grupo_unidade_escolar=grupo_unidade_escolar_cei,
+        lote=escola_ceu_gestao.lote,
+        mes="10",
+        ano="2025",
+    )
