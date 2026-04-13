@@ -5997,11 +5997,11 @@ def _calcula_total_alimentacao(
     """
     chave_consumo = (
         f"ALIMENTAÇÃO - {periodo.nome}"
-        if periodo and tipo == "FAIXA"
+        if periodo and (tipo == "FAIXA" or not tipo)
         else "ALIMENTAÇÃO"
     )
 
-    total = 0
+    total = Decimal("0")
     dados_consumo = consumo.get(chave_consumo, {})
 
     mapa_valores = _mapear_valores_tabela(valores)
@@ -6017,18 +6017,12 @@ def _calcula_total_alimentacao(
             continue
 
         total_parametrizacao = _total_parametrizacao(valores_campo)
-
-        total_unitario = to_decimal_safe(total_parametrizacao).quantize(
-            Decimal("0.01"), rounding=ROUND_HALF_UP
-        )
-
-        valor_total = (total_unitario * to_decimal_safe(valor)).quantize(
-            Decimal("0.01"), rounding=ROUND_HALF_UP
-        )
+        total_unitario = to_decimal_safe(total_parametrizacao)
+        valor_total = total_unitario * to_decimal_safe(valor)
 
         total += valor_total
 
-    return total
+    return total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
 def _calcula_total_dietas(
@@ -6066,12 +6060,12 @@ def _calcula_total_dietas(
     else:
         chave_base = "DIETA ESPECIAL - TIPO B"
 
-    if tabela.periodo_escolar and tipo == "FAIXA":
+    if tabela.periodo_escolar and (tipo == "FAIXA" or not tipo):
         chave_consumo = f"{chave_base} - {tabela.periodo_escolar.nome}"
     else:
         chave_consumo = chave_base
 
-    total = 0
+    total = Decimal("0")
     dados_consumo = consumo.get(chave_consumo, {})
 
     mapa_valores = _mapear_valores_tabela(valores)
@@ -6088,18 +6082,12 @@ def _calcula_total_dietas(
             continue
 
         total_parametrizacao = _total_parametrizacao(valores_campo)
-
-        total_unitario = to_decimal_safe(total_parametrizacao).quantize(
-            Decimal("0.01"), rounding=ROUND_HALF_UP
-        )
-
-        valor_total = (total_unitario * to_decimal_safe(valor)).quantize(
-            Decimal("0.01"), rounding=ROUND_HALF_UP
-        )
+        total_unitario = to_decimal_safe(total_parametrizacao)
+        valor_total = total_unitario * to_decimal_safe(valor)
 
         total += valor_total
 
-    return total
+    return total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
 def _calcula_total_tabelas(
