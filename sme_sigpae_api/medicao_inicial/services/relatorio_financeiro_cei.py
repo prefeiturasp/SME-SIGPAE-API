@@ -1,6 +1,7 @@
 
 from datetime import datetime
 from decimal import Decimal
+from sme_sigpae_api.dados_comuns.utils import converte_numero_em_mes
 from sme_sigpae_api.medicao_inicial.utils import to_decimal_safe
 from num2words import num2words
 
@@ -165,6 +166,7 @@ def build_relatorio_financeiro_grupo_cei(
     tipos = relatorio_financeiro.grupo_unidade_escolar.tipos_unidades.all()
     iniciais = ", ".join([t.iniciais for t in tipos])
     grupo_com_unidades = f"{relatorio_financeiro.grupo_unidade_escolar.nome} ({iniciais})"
+    data_referencia = converte_numero_em_mes(int(relatorio_financeiro.mes)).upper() + f"/{relatorio_financeiro.ano}"
 
     return {
         "alimentacao": alimentacao,
@@ -174,7 +176,7 @@ def build_relatorio_financeiro_grupo_cei(
         "cabecalho": {
             "data_geracao": datetime.now().strftime("%d/%m/%Y"),
             "hora_geracao": datetime.now().strftime("%H:%M"),
-            "data_referencia": f"{relatorio_financeiro.mes}/{relatorio_financeiro.ano}",
+            "data_referencia": data_referencia,
             "grupo_unidade_escolar": grupo_com_unidades,
             "dre_lote": f"{relatorio_financeiro.lote.nome.upper()} - {relatorio_financeiro.lote.diretoria_regional.nome}",
         }
