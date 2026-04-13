@@ -19,6 +19,8 @@ from sme_sigpae_api.dieta_especial.models import (
     Alimento,
     AlimentoProprio,
     ClassificacaoDieta,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     MotivoAlteracaoUE,
     MotivoNegacao,
 )

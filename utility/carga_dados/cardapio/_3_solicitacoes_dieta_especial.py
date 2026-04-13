@@ -12,11 +12,11 @@ from sme_sigpae_api.dieta_especial.models import (
     AlergiaIntolerancia,
     Alimento,
     ClassificacaoDieta,
-    MotivoNegacao,
     SubstituicaoAlimento,
 )
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     Anexo,
+    MotivoNegacao,
     SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.escola.models import Aluno, Escola

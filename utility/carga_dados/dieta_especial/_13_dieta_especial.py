@@ -5,6 +5,8 @@ from sme_sigpae_api.dieta_especial.models import (
     AlergiaIntolerancia,
     Alimento,
     ClassificacaoDieta,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     MotivoNegacao,
 )
 from utility.carga_dados.escola.helper import printa_pontinhos

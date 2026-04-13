@@ -47,8 +47,8 @@ pytestmark = [pytest.mark.django_db(transaction=True, reset_sequences=True)]
 
 class TestLogsRecreioNasFerias:
     def setup_method(self):
-        from sme_sigpae_api.dieta_especial.models import (
-            ClassificacaoDieta,
+        from sme_sigpae_api.dieta_especial.models import ClassificacaoDieta
+        from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
             MotivoAlteracaoUE,
         )
         from sme_sigpae_api.escola.models import TipoGestao

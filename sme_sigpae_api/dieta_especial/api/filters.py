@@ -4,9 +4,9 @@ from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ..models import (
     Alimento,
     ClassificacaoDieta,
-    MotivoNegacao,
     ProtocoloPadraoDietaEspecial,
 )
+from ..solicitacao_dieta_especial.models import MotivoNegacao
 
 
 class DietaEspecialFilter(filters.FilterSet):

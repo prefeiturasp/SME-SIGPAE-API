@@ -33,6 +33,8 @@ from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
 )
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     Anexo,
+    MotivoAlteracaoUE,
+    MotivoNegacao,
     SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.escola.models import Escola
@@ -83,8 +85,6 @@ from ..models import (
     AlergiaIntolerancia,
     Alimento,
     ClassificacaoDieta,
-    MotivoAlteracaoUE,
-    MotivoNegacao,
     ProtocoloPadraoDietaEspecial,
     SubstituicaoAlimento,
     TipoContagem,

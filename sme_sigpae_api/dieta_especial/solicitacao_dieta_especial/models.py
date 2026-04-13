@@ -10,7 +10,9 @@ from sme_sigpae_api.dados_comuns.behaviors import (
     Ativavel,
     CriadoEm,
     CriadoPor,
+    Descritivel,
     Logs,
+    Nomeavel,
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
     TemPrioridade,
@@ -424,3 +426,29 @@ class Anexo(ExportModelOperationsMixin("anexo"), models.Model):
 
     def __str__(self):
         return self.nome
+
+
+class MotivoNegacao(Descritivel):
+    CANCELAMENTO = "CANCELAMENTO"
+    INCLUSAO = "INCLUSAO"
+
+    PROCESSO_CHOICES = (
+        (CANCELAMENTO, "Solicitação de Cancelamento"),
+        (INCLUSAO, "Solicitação de Inclusão"),
+    )
+
+    processo = models.CharField(
+        choices=PROCESSO_CHOICES, default=INCLUSAO, blank=False, max_length=20
+    )
+
+    def __str__(self):
+        return self.descricao
+
+
+class MotivoAlteracaoUE(Descritivel, Nomeavel, TemChaveExterna, Ativavel):
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        verbose_name = "Motivo Alteração U.E"
+        verbose_name_plural = "Motivo Alteração U.E"

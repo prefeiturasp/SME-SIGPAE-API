@@ -21,12 +21,15 @@ from ...terceirizada.models import Edital
 from ..models import (
     Alimento,
     AlimentoSubstituto,
-    MotivoAlteracaoUE,
     ProtocoloPadraoDietaEspecial,
     SubstituicaoAlimento,
     SubstituicaoAlimentoProtocoloPadrao,
 )
-from ..solicitacao_dieta_especial.models import Anexo, SolicitacaoDietaEspecial
+from ..solicitacao_dieta_especial.models import (
+    Anexo,
+    MotivoAlteracaoUE,
+    SolicitacaoDietaEspecial,
+)
 from ..utils import log_create, log_update
 from .validators import AlunoSerializerValidator, edital_ja_existe_protocolo
 

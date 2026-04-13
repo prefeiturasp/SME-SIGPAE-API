@@ -33,14 +33,17 @@ from ..models import (
     AlergiaIntolerancia,
     Alimento,
     ClassificacaoDieta,
-    MotivoAlteracaoUE,
-    MotivoNegacao,
     ProtocoloPadraoDietaEspecial,
     SubstituicaoAlimento,
     SubstituicaoAlimentoProtocoloPadrao,
     TipoContagem,
 )
-from ..solicitacao_dieta_especial.models import Anexo, SolicitacaoDietaEspecial
+from ..solicitacao_dieta_especial.models import (
+    Anexo,
+    MotivoAlteracaoUE,
+    MotivoNegacao,
+    SolicitacaoDietaEspecial,
+)
 from .serializers_create import (
     SolicitacaoDietaEspecialCreateSerializer,
     SubstituicaoAutorizarSerializer,

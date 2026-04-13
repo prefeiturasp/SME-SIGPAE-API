@@ -17,11 +17,11 @@ from ..models import (
     AlergiaIntolerancia,
     Alimento,
     ClassificacaoDieta,
-    MotivoNegacao,
     ProtocoloPadraoDietaEspecial,
     SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
 )
+from ..solicitacao_dieta_especial.models import MotivoNegacao
 
 
 def endpoint_lista(client_autenticado, endpoint, quantidade):
