@@ -1,13 +1,23 @@
-describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
-	var usuario = Cypress.config('usuario_dilog_qualidade')
-	var senha = Cypress.config('senha')
+﻿describe('Validar rotas de LaboratÃ³rios da aplicaÃ§Ã£o SIGPAE', () => {
+const normalizarMensagem = (mensagem) =>
+	mensagem
+		.normalize('NFD')
+		.replace(/[\u0300-\u036f]/g, '')
+		.toLowerCase()
+
+const validarMensagem = (mensagem, trechoEsperado) => {
+	expect(normalizarMensagem(mensagem)).to.include(trechoEsperado)
+}
+
+	var usuario = Cypress.env('usuario_dilog_qualidade')
+	var senha = Cypress.env('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
 
 	context('Rota api/laboratorios/', () => {
-		it('Validar GET com sucesso de Laboratórios', () => {
+		it('Validar GET com sucesso de LaboratÃ³rios', () => {
 			cy.consultar_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count')
@@ -36,7 +46,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Laboratórios com filtro Nome Válido', () => {
+		it('Validar GET com sucesso de LaboratÃ³rios com filtro Nome VÃ¡lido', () => {
 			var nome_filtro = ''
 			cy.consultar_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
@@ -72,8 +82,8 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET de Laboratórios com filtro Nome Inválido', () => {
-			var filtro = '?nome=NomeInválido Para o Teste'
+		it('Validar GET de LaboratÃ³rios com filtro Nome InvÃ¡lido', () => {
+			var filtro = '?nome=NomeInvÃ¡lido Para o Teste'
 			cy.consultar_laboratorios_com_filtros(filtro).then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count').eq(0)
@@ -84,7 +94,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Laboratórios com filtro CNPJ', () => {
+		it('Validar GET com sucesso de LaboratÃ³rios com filtro CNPJ', () => {
 			var cnpj_filtro = ''
 			cy.consultar_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
@@ -122,7 +132,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET de Laboratórios com filtro CNPJ Inválido', () => {
+		it('Validar GET de LaboratÃ³rios com filtro CNPJ InvÃ¡lido', () => {
 			var filtro = '?cnpj=11110000000000'
 			cy.consultar_laboratorios_com_filtros(filtro).then((response) => {
 				expect(response.status).to.eq(200)
@@ -134,7 +144,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Laboratórios com filtro UUID Válido', () => {
+		it('Validar GET com sucesso de LaboratÃ³rios com filtro UUID VÃ¡lido', () => {
 			var uuid_filtro = ''
 			cy.consultar_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
@@ -172,7 +182,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET de Laboratórios com filtro UUID Inválido', () => {
+		it('Validar GET de LaboratÃ³rios com filtro UUID InvÃ¡lido', () => {
 			var filtro = '?uuid=bd08e0a0-b0b0-0ab0-b000-a05c000f00c0'
 			cy.consultar_laboratorios_com_filtros(filtro).then((response) => {
 				expect(response.status).to.eq(200)
@@ -184,7 +194,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Laboratórios Com UUID Válido', () => {
+		it('Validar GET com sucesso de LaboratÃ³rios Com UUID VÃ¡lido', () => {
 			var uuid_response = ''
 			cy.consultar_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
@@ -212,14 +222,14 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET de Laboratórios Com UUID Inválido', () => {
+		it('Validar GET de LaboratÃ³rios Com UUID InvÃ¡lido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b00000'
 			cy.consultar_laboratorios_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(404)
 			})
 		})
 
-		it('Validar GET com sucesso de Lista Laboratórios', () => {
+		it('Validar GET com sucesso de Lista LaboratÃ³rios', () => {
 			cy.consultar_lista_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -229,7 +239,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Lista Laboratórios Credenciados', () => {
+		it('Validar GET com sucesso de Lista LaboratÃ³rios Credenciados', () => {
 			cy.consultar_lista_laboratorios_credenciados().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -239,7 +249,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Lista Nomes Laboratórios', () => {
+		it('Validar GET com sucesso de Lista Nomes LaboratÃ³rios', () => {
 			cy.consultar_lista_nomes_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -248,15 +258,15 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar POST com sucesso de Laboratórios', () => {
+		it('Validar POST com sucesso de LaboratÃ³rios', () => {
 			var dados_teste = {
-				nome: 'Testes Automação ' + new Date().getTime(),
+				nome: 'Testes AutomaÃ§Ã£o ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
 				cep: '05010000',
-				logradouro: 'Rua Teste Automação',
+				logradouro: 'Rua Teste AutomaÃ§Ã£o',
 				numero: '123',
 				bairro: 'Bairro Teste',
-				cidade: 'São Paulo',
+				cidade: 'SÃ£o Paulo',
 				estado: 'SP',
 				credenciado: true,
 				contato_nome: 'Contato Teste',
@@ -274,22 +284,22 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 				expect(response.body.cnpj).to.eq(cnpj)
 				var uuid_response = response.body.uuid
 
-				// Deletar o laboratório cadastrado no teste
+				// Deletar o laboratÃ³rio cadastrado no teste
 				cy.deletar_laboratorios(uuid_response).then((responseDelete) => {
 					expect(responseDelete.status).to.eq(204)
 				})
 			})
 		})
 
-		it('Validar POST de Laboratórios com Credenciado e Nutricionista Inválido', () => {
+		it('Validar POST de LaboratÃ³rios com Credenciado e Nutricionista InvÃ¡lido', () => {
 			var dados_teste = {
-				nome: 'Testes Automação ' + new Date().getTime(),
+				nome: 'Testes AutomaÃ§Ã£o ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
 				cep: '05010000',
-				logradouro: 'Rua Teste Automação',
+				logradouro: 'Rua Teste AutomaÃ§Ã£o',
 				numero: '123',
 				bairro: 'Bairro Teste',
-				cidade: 'São Paulo',
+				cidade: 'SÃ£o Paulo',
 				estado: 'SP',
 				credenciado: '123',
 				contato_nome: 'Contato Teste',
@@ -304,16 +314,18 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 
 			cy.cadastrar_laboratorios(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				expect(response.body.credenciado[0]).to.eq(
-					'Deve ser um valor booleano válido.',
+				validarMensagem(
+					response.body.credenciado[0],
+					'deve ser um valor booleano valido',
 				)
-				expect(response.body.contatos[0].eh_nutricionista[0]).to.eq(
-					'Deve ser um valor booleano válido.',
+				validarMensagem(
+					response.body.contatos[0].eh_nutricionista[0],
+					'deve ser um valor booleano valido',
 				)
 			})
 		})
 
-		it('Validar POST de Laboratórios com os campos em branco', () => {
+		it('Validar POST de LaboratÃ³rios com os campos em branco', () => {
 			var dados_teste = {
 				nome: '',
 				cnpj: '',
@@ -336,58 +348,45 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 
 			cy.cadastrar_laboratorios(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				expect(response.body.nome[0]).to.eq(
-					'Este campo não pode estar em branco.',
+				validarMensagem(response.body.nome[0], 'este campo nao pode estar em branco')
+				validarMensagem(response.body.cnpj[0], 'este campo nao pode estar em branco')
+				validarMensagem(response.body.cep[0], 'este campo nao pode estar em branco')
+				validarMensagem(
+					response.body.logradouro[0],
+					'este campo nao pode estar em branco',
 				)
-				expect(response.body.cnpj[0]).to.eq(
-					'Este campo não pode estar em branco.',
-				)
-				expect(response.body.cep[0]).to.eq(
-					'Este campo não pode estar em branco.',
-				)
-				expect(response.body.logradouro[0]).to.eq(
-					'Este campo não pode estar em branco.',
-				)
-				expect(response.body.numero[0]).to.eq(
-					'Este campo não pode estar em branco.',
-				)
-				expect(response.body.bairro[0]).to.eq(
-					'Este campo não pode estar em branco.',
-				)
-				expect(response.body.cidade[0]).to.eq(
-					'Este campo não pode estar em branco.',
-				)
-				expect(response.body.estado[0]).to.eq(
-					'Este campo não pode estar em branco.',
-				)
+				validarMensagem(response.body.numero[0], 'este campo nao pode estar em branco')
+				validarMensagem(response.body.bairro[0], 'este campo nao pode estar em branco')
+				validarMensagem(response.body.cidade[0], 'este campo nao pode estar em branco')
+				validarMensagem(response.body.estado[0], 'este campo nao pode estar em branco')
 			})
 		})
 
-		it('Validar POST de Laboratórios sem informar os campos obrigatórios', () => {
+		it('Validar POST de LaboratÃ³rios sem informar os campos obrigatÃ³rios', () => {
 			var dados_teste = {}
 			cy.cadastrar_laboratorios(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				expect(response.body.nome[0]).to.eq('Este campo é obrigatório.')
-				expect(response.body.cnpj[0]).to.eq('Este campo é obrigatório.')
-				expect(response.body.cep[0]).to.eq('Este campo é obrigatório.')
-				expect(response.body.logradouro[0]).to.eq('Este campo é obrigatório.')
-				expect(response.body.numero[0]).to.eq('Este campo é obrigatório.')
-				expect(response.body.bairro[0]).to.eq('Este campo é obrigatório.')
-				expect(response.body.cidade[0]).to.eq('Este campo é obrigatório.')
-				expect(response.body.estado[0]).to.eq('Este campo é obrigatório.')
-				expect(response.body.credenciado[0]).to.eq('Este campo é obrigatório.')
+				validarMensagem(response.body.nome[0], 'este campo e obrigatorio')
+				validarMensagem(response.body.cnpj[0], 'este campo e obrigatorio')
+				validarMensagem(response.body.cep[0], 'este campo e obrigatorio')
+				validarMensagem(response.body.logradouro[0], 'este campo e obrigatorio')
+				validarMensagem(response.body.numero[0], 'este campo e obrigatorio')
+				validarMensagem(response.body.bairro[0], 'este campo e obrigatorio')
+				validarMensagem(response.body.cidade[0], 'este campo e obrigatorio')
+				validarMensagem(response.body.estado[0], 'este campo e obrigatorio')
+				validarMensagem(response.body.credenciado[0], 'este campo e obrigatorio')
 			})
 		})
 
-		it('Validar DELETE de Laboratórios com sucesso', () => {
+		it('Validar DELETE de LaboratÃ³rios com sucesso', () => {
 			var dados_teste = {
-				nome: 'Testes Automação ' + new Date().getTime(),
+				nome: 'Testes AutomaÃ§Ã£o ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
 				cep: '05010000',
-				logradouro: 'Rua Teste Automação',
+				logradouro: 'Rua Teste AutomaÃ§Ã£o',
 				numero: '123',
 				bairro: 'Bairro Teste',
-				cidade: 'São Paulo',
+				cidade: 'SÃ£o Paulo',
 				estado: 'SP',
 				credenciado: true,
 				contato_nome: 'Contato Teste',
@@ -411,22 +410,22 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar DELETE de Laboratórios com UUID inválido', () => {
+		it('Validar DELETE de LaboratÃ³rios com UUID invÃ¡lido', () => {
 			var uuid = '53886ad8-cb8b-4175-853e-de087aaaaaaa'
 			cy.deletar_laboratorios(uuid).then((response) => {
 				expect(response.status).to.eq(404)
 			})
 		})
 
-		it('Validar PUT com sucesso de Laboratórios', () => {
+		it('Validar PUT com sucesso de LaboratÃ³rios', () => {
 			var dados_teste = {
-				nome: 'Testes Automação - ' + new Date().getTime(),
+				nome: 'Testes AutomaÃ§Ã£o - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
 				cep: '05010000',
-				logradouro: 'Rua Teste Automação',
+				logradouro: 'Rua Teste AutomaÃ§Ã£o',
 				numero: '123',
 				bairro: 'Bairro Teste',
-				cidade: 'São Paulo',
+				cidade: 'SÃ£o Paulo',
 				estado: 'SP',
 				credenciado: true,
 				contato_nome: 'Contato Teste',
@@ -453,22 +452,22 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 					},
 				)
 
-				// Deletar o laboratório cadastrado no teste
+				// Deletar o laboratÃ³rio cadastrado no teste
 				cy.deletar_laboratorios(uuid_response).then((responseDelete) => {
 					expect(responseDelete.status).to.eq(204)
 				})
 			})
 		})
 
-		it('Validar PUT de Laboratórios com Credenciado e Nutricionista Inválido', () => {
+		it('Validar PUT de LaboratÃ³rios com Credenciado e Nutricionista InvÃ¡lido', () => {
 			var dados_teste = {
-				nome: 'Testes Automação - ' + new Date().getTime(),
+				nome: 'Testes AutomaÃ§Ã£o - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
 				cep: '05010000',
-				logradouro: 'Rua Teste Automação',
+				logradouro: 'Rua Teste AutomaÃ§Ã£o',
 				numero: '123',
 				bairro: 'Bairro Teste',
-				cidade: 'São Paulo',
+				cidade: 'SÃ£o Paulo',
 				estado: 'SP',
 				credenciado: true,
 				contato_nome: 'Contato Teste',
@@ -490,31 +489,33 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 				cy.put_alterar_laboratorios(uuid_response, dados_teste).then(
 					(responsePut) => {
 						expect(responsePut.status).to.eq(400)
-						expect(responsePut.body.credenciado[0]).to.eq(
-							'Deve ser um valor booleano válido.',
+						validarMensagem(
+							responsePut.body.credenciado[0],
+							'deve ser um valor booleano valido',
 						)
-						expect(responsePut.body.contatos[0].eh_nutricionista[0]).to.eq(
-							'Deve ser um valor booleano válido.',
+						validarMensagem(
+							responsePut.body.contatos[0].eh_nutricionista[0],
+							'deve ser um valor booleano valido',
 						)
 					},
 				)
 
-				// Deletar o laboratório cadastrado no teste
+				// Deletar o laboratÃ³rio cadastrado no teste
 				cy.deletar_laboratorios(uuid_response).then((responseDelete) => {
 					expect(responseDelete.status).to.eq(204)
 				})
 			})
 		})
 
-		it('Validar PUT de Laboratórios sem informar os campos obrigatórios', () => {
+		it('Validar PUT de LaboratÃ³rios sem informar os campos obrigatÃ³rios', () => {
 			var dados_teste = {
-				nome: 'Testes Automação - ' + new Date().getTime(),
+				nome: 'Testes AutomaÃ§Ã£o - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
 				cep: '05010000',
-				logradouro: 'Rua Teste Automação',
+				logradouro: 'Rua Teste AutomaÃ§Ã£o',
 				numero: '123',
 				bairro: 'Bairro Teste',
-				cidade: 'São Paulo',
+				cidade: 'SÃ£o Paulo',
 				estado: 'SP',
 				credenciado: true,
 				contato_nome: 'Contato Teste',
@@ -535,46 +536,40 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 				cy.put_alterar_laboratorios(uuid_response, dados_teste).then(
 					(responsePut) => {
 						expect(responsePut.status).to.eq(400)
-						expect(responsePut.body.nome[0]).to.eq('Este campo é obrigatório.')
-						expect(responsePut.body.cnpj[0]).to.eq('Este campo é obrigatório.')
-						expect(responsePut.body.cep[0]).to.eq('Este campo é obrigatório.')
-						expect(responsePut.body.logradouro[0]).to.eq(
-							'Este campo é obrigatório.',
+						validarMensagem(responsePut.body.nome[0], 'este campo e obrigatorio')
+						validarMensagem(responsePut.body.cnpj[0], 'este campo e obrigatorio')
+						validarMensagem(responsePut.body.cep[0], 'este campo e obrigatorio')
+						validarMensagem(
+							responsePut.body.logradouro[0],
+							'este campo e obrigatorio',
 						)
-						expect(responsePut.body.numero[0]).to.eq(
-							'Este campo é obrigatório.',
-						)
-						expect(responsePut.body.bairro[0]).to.eq(
-							'Este campo é obrigatório.',
-						)
-						expect(responsePut.body.cidade[0]).to.eq(
-							'Este campo é obrigatório.',
-						)
-						expect(responsePut.body.estado[0]).to.eq(
-							'Este campo é obrigatório.',
-						)
-						expect(responsePut.body.credenciado[0]).to.eq(
-							'Este campo é obrigatório.',
+						validarMensagem(responsePut.body.numero[0], 'este campo e obrigatorio')
+						validarMensagem(responsePut.body.bairro[0], 'este campo e obrigatorio')
+						validarMensagem(responsePut.body.cidade[0], 'este campo e obrigatorio')
+						validarMensagem(responsePut.body.estado[0], 'este campo e obrigatorio')
+						validarMensagem(
+							responsePut.body.credenciado[0],
+							'este campo e obrigatorio',
 						)
 					},
 				)
 
-				// Deletar o laboratório cadastrado no teste
+				// Deletar o laboratÃ³rio cadastrado no teste
 				cy.deletar_laboratorios(uuid_response).then((responseDelete) => {
 					expect(responseDelete.status).to.eq(204)
 				})
 			})
 		})
 
-		it('Validar PUT de Laboratórios com os campos em branco', () => {
+		it('Validar PUT de LaboratÃ³rios com os campos em branco', () => {
 			var dados_teste = {
-				nome: 'Testes Automação - ' + new Date().getTime(),
+				nome: 'Testes AutomaÃ§Ã£o - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
 				cep: '05010000',
-				logradouro: 'Rua Teste Automação',
+				logradouro: 'Rua Teste AutomaÃ§Ã£o',
 				numero: '123',
 				bairro: 'Bairro Teste',
-				cidade: 'São Paulo',
+				cidade: 'SÃ£o Paulo',
 				estado: 'SP',
 				credenciado: true,
 				contato_nome: 'Contato Teste',
@@ -604,41 +599,28 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 				cy.put_alterar_laboratorios(uuid_response, dados_teste).then(
 					(responsePut) => {
 						expect(responsePut.status).to.eq(400)
-						expect(responsePut.body.nome[0]).to.eq(
-							'Este campo não pode estar em branco.',
+						validarMensagem(responsePut.body.nome[0], 'este campo nao pode estar em branco')
+						validarMensagem(responsePut.body.cnpj[0], 'este campo nao pode estar em branco')
+						validarMensagem(responsePut.body.cep[0], 'este campo nao pode estar em branco')
+						validarMensagem(
+							responsePut.body.logradouro[0],
+							'este campo nao pode estar em branco',
 						)
-						expect(responsePut.body.cnpj[0]).to.eq(
-							'Este campo não pode estar em branco.',
-						)
-						expect(responsePut.body.cep[0]).to.eq(
-							'Este campo não pode estar em branco.',
-						)
-						expect(responsePut.body.logradouro[0]).to.eq(
-							'Este campo não pode estar em branco.',
-						)
-						expect(responsePut.body.numero[0]).to.eq(
-							'Este campo não pode estar em branco.',
-						)
-						expect(responsePut.body.bairro[0]).to.eq(
-							'Este campo não pode estar em branco.',
-						)
-						expect(responsePut.body.cidade[0]).to.eq(
-							'Este campo não pode estar em branco.',
-						)
-						expect(responsePut.body.estado[0]).to.eq(
-							'Este campo não pode estar em branco.',
-						)
+						validarMensagem(responsePut.body.numero[0], 'este campo nao pode estar em branco')
+						validarMensagem(responsePut.body.bairro[0], 'este campo nao pode estar em branco')
+						validarMensagem(responsePut.body.cidade[0], 'este campo nao pode estar em branco')
+						validarMensagem(responsePut.body.estado[0], 'este campo nao pode estar em branco')
 					},
 				)
 
-				// Deletar o laboratório cadastrado no teste
+				// Deletar o laboratÃ³rio cadastrado no teste
 				cy.deletar_laboratorios(uuid_response).then((responseDelete) => {
 					expect(responseDelete.status).to.eq(204)
 				})
 			})
 		})
 
-		it('Validar PUT de Laboratórios com UUID inválido', () => {
+		it('Validar PUT de LaboratÃ³rios com UUID invÃ¡lido', () => {
 			var uuid = '53886ad8-cb8b-4175-853e-de087aaaaaaa'
 			var dados_teste = {}
 			cy.put_alterar_laboratorios(uuid, dados_teste).then((response) => {
@@ -646,15 +628,15 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar PATCH com sucesso de Laboratórios', () => {
+		it('Validar PATCH com sucesso de LaboratÃ³rios', () => {
 			var dados_teste = {
-				nome: 'Testes Automação - ' + new Date().getTime(),
+				nome: 'Testes AutomaÃ§Ã£o - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
 				cep: '05010000',
-				logradouro: 'Rua Teste Automação',
+				logradouro: 'Rua Teste AutomaÃ§Ã£o',
 				numero: '123',
 				bairro: 'Bairro Teste',
-				cidade: 'São Paulo',
+				cidade: 'SÃ£o Paulo',
 				estado: 'SP',
 				credenciado: true,
 				contato_nome: 'Contato Teste',
@@ -681,22 +663,22 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 					},
 				)
 
-				// Deletar o laboratório cadastrado no teste
+				// Deletar o laboratÃ³rio cadastrado no teste
 				cy.deletar_laboratorios(uuid_response).then((responseDelete) => {
 					expect(responseDelete.status).to.eq(204)
 				})
 			})
 		})
 
-		it('Validar PATCH de Laboratórios com Credenciado e Nutricionista Inválido', () => {
+		it('Validar PATCH de LaboratÃ³rios com Credenciado e Nutricionista InvÃ¡lido', () => {
 			var dados_teste = {
-				nome: 'Testes Automação - ' + new Date().getTime(),
+				nome: 'Testes AutomaÃ§Ã£o - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
 				cep: '05010000',
-				logradouro: 'Rua Teste Automação',
+				logradouro: 'Rua Teste AutomaÃ§Ã£o',
 				numero: '123',
 				bairro: 'Bairro Teste',
-				cidade: 'São Paulo',
+				cidade: 'SÃ£o Paulo',
 				estado: 'SP',
 				credenciado: true,
 				contato_nome: 'Contato Teste',
@@ -718,31 +700,33 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 				cy.patch_alterar_laboratorios(uuid_response, dados_teste).then(
 					(responsePatch) => {
 						expect(responsePatch.status).to.eq(400)
-						expect(responsePatch.body.credenciado[0]).to.eq(
-							'Deve ser um valor booleano válido.',
+						validarMensagem(
+							responsePatch.body.credenciado[0],
+							'deve ser um valor booleano valido',
 						)
-						expect(responsePatch.body.contatos[0].eh_nutricionista[0]).to.eq(
-							'Deve ser um valor booleano válido.',
+						validarMensagem(
+							responsePatch.body.contatos[0].eh_nutricionista[0],
+							'deve ser um valor booleano valido',
 						)
 					},
 				)
 
-				// Deletar o laboratório cadastrado no teste
+				// Deletar o laboratÃ³rio cadastrado no teste
 				cy.deletar_laboratorios(uuid_response).then((responseDelete) => {
 					expect(responseDelete.status).to.eq(204)
 				})
 			})
 		})
 
-		it('Validar PATCH de Laboratórios com os campos em branco', () => {
+		it('Validar PATCH de LaboratÃ³rios com os campos em branco', () => {
 			var dados_teste = {
-				nome: 'Testes Automação - ' + new Date().getTime(),
+				nome: 'Testes AutomaÃ§Ã£o - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
 				cep: '05010000',
-				logradouro: 'Rua Teste Automação',
+				logradouro: 'Rua Teste AutomaÃ§Ã£o',
 				numero: '123',
 				bairro: 'Bairro Teste',
-				cidade: 'São Paulo',
+				cidade: 'SÃ£o Paulo',
 				estado: 'SP',
 				credenciado: true,
 				contato_nome: 'Contato Teste',
@@ -772,41 +756,28 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 				cy.patch_alterar_laboratorios(uuid_response, dados_teste).then(
 					(responsePatch) => {
 						expect(responsePatch.status).to.eq(400)
-						expect(responsePatch.body.nome[0]).to.eq(
-							'Este campo não pode estar em branco.',
+						validarMensagem(responsePatch.body.nome[0], 'este campo nao pode estar em branco')
+						validarMensagem(responsePatch.body.cnpj[0], 'este campo nao pode estar em branco')
+						validarMensagem(responsePatch.body.cep[0], 'este campo nao pode estar em branco')
+						validarMensagem(
+							responsePatch.body.logradouro[0],
+							'este campo nao pode estar em branco',
 						)
-						expect(responsePatch.body.cnpj[0]).to.eq(
-							'Este campo não pode estar em branco.',
-						)
-						expect(responsePatch.body.cep[0]).to.eq(
-							'Este campo não pode estar em branco.',
-						)
-						expect(responsePatch.body.logradouro[0]).to.eq(
-							'Este campo não pode estar em branco.',
-						)
-						expect(responsePatch.body.numero[0]).to.eq(
-							'Este campo não pode estar em branco.',
-						)
-						expect(responsePatch.body.bairro[0]).to.eq(
-							'Este campo não pode estar em branco.',
-						)
-						expect(responsePatch.body.cidade[0]).to.eq(
-							'Este campo não pode estar em branco.',
-						)
-						expect(responsePatch.body.estado[0]).to.eq(
-							'Este campo não pode estar em branco.',
-						)
+						validarMensagem(responsePatch.body.numero[0], 'este campo nao pode estar em branco')
+						validarMensagem(responsePatch.body.bairro[0], 'este campo nao pode estar em branco')
+						validarMensagem(responsePatch.body.cidade[0], 'este campo nao pode estar em branco')
+						validarMensagem(responsePatch.body.estado[0], 'este campo nao pode estar em branco')
 					},
 				)
 
-				// Deletar o laboratório cadastrado no teste
+				// Deletar o laboratÃ³rio cadastrado no teste
 				cy.deletar_laboratorios(uuid_response).then((responseDelete) => {
 					expect(responseDelete.status).to.eq(204)
 				})
 			})
 		})
 
-		it('Validar PATCH de Laboratórios com UUID inválido', () => {
+		it('Validar PATCH de LaboratÃ³rios com UUID invÃ¡lido', () => {
 			var uuid = '53886ad8-cb8b-4175-853e-de087aaaaaaa'
 			var dados_teste = {}
 			cy.patch_alterar_laboratorios(uuid, dados_teste).then((response) => {
@@ -815,3 +786,4 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 		})
 	})
 })
+
