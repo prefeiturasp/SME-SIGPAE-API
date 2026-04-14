@@ -8,14 +8,11 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import transaction
 from faker import Faker
 
-from sme_sigpae_api.dieta_especial.models import (
-    AlergiaIntolerancia,
-    Alimento,
-    ClassificacaoDieta,
-    SubstituicaoAlimento,
-)
+from sme_sigpae_api.dieta_especial.models import Alimento, SubstituicaoAlimento
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    AlergiaIntolerancia,
     Anexo,
+    ClassificacaoDieta,
     MotivoNegacao,
     SolicitacaoDietaEspecial,
 )

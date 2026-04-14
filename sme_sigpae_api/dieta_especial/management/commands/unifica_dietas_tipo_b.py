@@ -7,9 +7,9 @@ from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     ClassificacaoDieta,
-    SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.medicao_inicial.models import CategoriaMedicao
 

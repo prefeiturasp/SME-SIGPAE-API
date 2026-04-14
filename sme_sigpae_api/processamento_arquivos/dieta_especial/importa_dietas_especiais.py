@@ -10,13 +10,15 @@ from openpyxl import Workbook, load_workbook, styles
 
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from sme_sigpae_api.dieta_especial.models import (
-    AlergiaIntolerancia,
     ArquivoCargaDietaEspecial,
-    ClassificacaoDieta,
     ProtocoloPadraoDietaEspecial,
     SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
     SubstituicaoAlimentoProtocoloPadrao,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    AlergiaIntolerancia,
+    ClassificacaoDieta,
 )
 from sme_sigpae_api.escola.models import Aluno, Escola
 from sme_sigpae_api.perfil.models.perfil import Perfil, Vinculo

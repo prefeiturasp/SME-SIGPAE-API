@@ -1,8 +1,8 @@
 import numpy as np
 
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.models import ProtocoloPadraoDietaEspecial
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     ClassificacaoDieta,
-    ProtocoloPadraoDietaEspecial,
 )
 from sme_sigpae_api.escola.models import Lote
 

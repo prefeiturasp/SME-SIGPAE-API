@@ -9,12 +9,10 @@ from sme_sigpae_api.dieta_especial.data.motivo_alteracao_ue import (
     data_motivo_alteracao_ue,
 )
 from sme_sigpae_api.dieta_especial.data.motivo_negacao import data_motivo_negacoes
-from sme_sigpae_api.dieta_especial.models import (
-    AlergiaIntolerancia,
-    Alimento,
-    ClassificacaoDieta,
-)
+from sme_sigpae_api.dieta_especial.models import Alimento
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    AlergiaIntolerancia,
+    ClassificacaoDieta,
     MotivoAlteracaoUE,
     MotivoNegacao,
 )

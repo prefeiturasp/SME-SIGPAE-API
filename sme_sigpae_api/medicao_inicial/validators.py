@@ -15,9 +15,7 @@ from sme_sigpae_api.dieta_especial.logs_models.models import (
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
-from ..dieta_especial.models import (
-    ClassificacaoDieta,
-)
+from ..dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from ..escola.models import (
     DiaCalendario,
     Escola,

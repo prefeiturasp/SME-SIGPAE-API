@@ -2,11 +2,10 @@ from django import forms
 
 from ..escola.models import DiretoriaRegional, Escola, Lote
 from ..terceirizada.models import Terceirizada
-from .models import (
+from .models import ProtocoloPadraoDietaEspecial, SolicitacaoDietaEspecial
+from .solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
-    ProtocoloPadraoDietaEspecial,
-    SolicitacaoDietaEspecial,
 )
 
 

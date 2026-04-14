@@ -5,9 +5,11 @@ from openpyxl.cell import Cell
 from sme_sigpae_api.dados_comuns.constants import StatusProcessamentoArquivo
 from sme_sigpae_api.dieta_especial.models import (
     ArquivoCargaDietaEspecial,
-    ClassificacaoDieta,
     SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
 )
 from sme_sigpae_api.escola.models import Escola
 from sme_sigpae_api.processamento_arquivos.dieta_especial import (

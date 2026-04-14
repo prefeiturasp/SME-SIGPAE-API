@@ -7,23 +7,12 @@ from ..dados_comuns.behaviors import (
     Ativavel,
     CriadoEm,
     CriadoPor,
-    Descritivel,
     Nomeavel,
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
 )
 from ..escola.models import Aluno
 from .solicitacao_dieta_especial.models import SolicitacaoDietaEspecial
-
-
-class AlergiaIntolerancia(Descritivel):
-    def __str__(self):
-        return self.descricao
-
-
-class ClassificacaoDieta(Descritivel, Nomeavel):
-    def __str__(self):
-        return self.nome
 
 
 class SolicitacoesDietaEspecialAtivasInativasPorAluno(models.Model):

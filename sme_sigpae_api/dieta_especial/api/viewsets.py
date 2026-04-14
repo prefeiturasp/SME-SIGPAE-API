@@ -81,12 +81,10 @@ from ..forms import (
     RelatorioQuantitativoSolicDietaEspForm,
     SolicitacoesAtivasInativasPorAlunoForm,
 )
-from ..models import (
+from ..models import Alimento, ProtocoloPadraoDietaEspecial, SubstituicaoAlimento
+from ..solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
-    Alimento,
     ClassificacaoDieta,
-    ProtocoloPadraoDietaEspecial,
-    SubstituicaoAlimento,
 )
 from ..tasks import (
     gera_pdf_relatorio_dietas_especiais_terceirizadas_async,

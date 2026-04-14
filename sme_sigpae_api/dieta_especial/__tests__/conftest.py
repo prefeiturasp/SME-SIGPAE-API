@@ -11,13 +11,11 @@ from sme_sigpae_api.dados_comuns.fluxo_status import DietaEspecialWorkflow
 from sme_sigpae_api.dados_comuns.models import TemplateMensagem
 from sme_sigpae_api.dados_comuns.utils import convert_base64_to_contentfile
 from sme_sigpae_api.dieta_especial.api.serializers import UnidadeEducacionalSerializer
-from sme_sigpae_api.dieta_especial.models import (
-    AlergiaIntolerancia,
-    Alimento,
-    ClassificacaoDieta,
-)
+from sme_sigpae_api.dieta_especial.models import Alimento
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    AlergiaIntolerancia,
     Anexo,
+    ClassificacaoDieta,
     MotivoNegacao,
     SolicitacaoDietaEspecial,
 )

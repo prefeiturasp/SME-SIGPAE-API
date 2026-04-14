@@ -14,14 +14,16 @@ from ..constants import (
     ENDPOINT_MOTIVOS_NEGACAO,
 )
 from ..models import (
-    AlergiaIntolerancia,
     Alimento,
-    ClassificacaoDieta,
     ProtocoloPadraoDietaEspecial,
     SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
 )
-from ..solicitacao_dieta_especial.models import MotivoNegacao
+from ..solicitacao_dieta_especial.models import (
+    AlergiaIntolerancia,
+    ClassificacaoDieta,
+    MotivoNegacao,
+)
 
 
 def endpoint_lista(client_autenticado, endpoint, quantidade):

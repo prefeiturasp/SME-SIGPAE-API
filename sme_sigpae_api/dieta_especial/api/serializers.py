@@ -30,15 +30,15 @@ from ...produto.api.serializers.serializers import (
 from ...produto.models import Produto, SolicitacaoCadastroProdutoDieta
 from ...terceirizada.api.serializers.serializers import EditalSimplesSerializer
 from ..models import (
-    AlergiaIntolerancia,
     Alimento,
-    ClassificacaoDieta,
     ProtocoloPadraoDietaEspecial,
     SubstituicaoAlimento,
     SubstituicaoAlimentoProtocoloPadrao,
 )
 from ..solicitacao_dieta_especial.models import (
+    AlergiaIntolerancia,
     Anexo,
+    ClassificacaoDieta,
     MotivoAlteracaoUE,
     MotivoNegacao,
     SolicitacaoDietaEspecial,

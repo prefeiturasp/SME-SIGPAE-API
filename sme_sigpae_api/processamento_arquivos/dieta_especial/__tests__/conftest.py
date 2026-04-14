@@ -7,12 +7,14 @@ from model_bakery import baker
 from openpyxl import Workbook
 
 from sme_sigpae_api.dieta_especial.models import (
-    AlergiaIntolerancia,
     Alimento,
     ArquivoCargaAlimentosSubstitutos,
     ArquivoCargaDietaEspecial,
-    ClassificacaoDieta,
     SolicitacaoDietaEspecial,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    AlergiaIntolerancia,
+    ClassificacaoDieta,
 )
 from sme_sigpae_api.processamento_arquivos.dieta_especial.schemas import (
     ArquivoCargaDietaEspecialSchema,

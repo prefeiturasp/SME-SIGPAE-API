@@ -27,16 +27,18 @@ from sme_sigpae_api.processamento_arquivos.dieta_especial import (
 )
 
 from .models import (
-    AlergiaIntolerancia,
     Alimento,
     ArquivoCargaAlimentosSubstitutos,
     ArquivoCargaDietaEspecial,
-    ClassificacaoDieta,
     PlanilhaDietasAtivas,
     ProtocoloPadraoDietaEspecial,
     SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
     SubstituicaoAlimentoProtocoloPadrao,
+)
+from .solicitacao_dieta_especial.models import (
+    AlergiaIntolerancia,
+    ClassificacaoDieta,
 )
 from .tasks import processa_dietas_especiais_task
 from .tasks.admin_actions import get_escolas_task

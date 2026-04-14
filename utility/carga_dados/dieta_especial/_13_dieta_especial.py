@@ -1,12 +1,10 @@
 import environ
 import pandas as pd
 
-from sme_sigpae_api.dieta_especial.models import (
-    AlergiaIntolerancia,
-    Alimento,
-    ClassificacaoDieta,
-)
+from sme_sigpae_api.dieta_especial.models import Alimento
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    AlergiaIntolerancia,
+    ClassificacaoDieta,
     MotivoNegacao,
 )
 from utility.carga_dados.escola.helper import printa_pontinhos

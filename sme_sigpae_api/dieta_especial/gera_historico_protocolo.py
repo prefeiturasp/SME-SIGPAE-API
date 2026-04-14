@@ -6,12 +6,14 @@ from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 
 from .models import (
-    AlergiaIntolerancia,
     Alimento,
-    ClassificacaoDieta,
     ProtocoloPadraoDietaEspecial,
     SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
+)
+from .solicitacao_dieta_especial.models import (
+    AlergiaIntolerancia,
+    ClassificacaoDieta,
 )
 
 
