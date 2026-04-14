@@ -8,8 +8,7 @@ from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django_weasyprint.utils import django_url_fetcher
 from pikepdf import Pdf
-from pypdf import PdfReader
-from PyPDF4 import PdfFileMerger, PdfFileReader, PdfFileWriter
+from pypdf import PdfReader, PdfWriter
 from weasyprint import CSS, HTML
 
 from ..dados_comuns.models import LogSolicitacoesUsuario
@@ -56,19 +55,19 @@ def merge_pdf_com_rodape_assinatura(arquivo_usuario, string_pdf_rodape):
         string=string_pdf_rodape, base_url=staticfiles_storage.location
     ).write_pdf()
 
-    pdf_usuario = PdfFileReader(arquivo_usuario)
-    pdf_rodape = PdfFileReader(io.BytesIO(pdf_rodape_assinatura))
-    pdf_writer = PdfFileWriter()
+    pdf_usuario = PdfReader(arquivo_usuario)
+    pdf_rodape = PdfReader(io.BytesIO(pdf_rodape_assinatura))
+    pdf_writer = PdfWriter()
 
-    total_paginas = pdf_usuario.getNumPages()
+    total_paginas = len(pdf_usuario.pages)
 
     for idx in range(total_paginas):
-        page = pdf_usuario.getPage(idx)
+        page = pdf_usuario.pages[idx]
 
         if idx == total_paginas - 1:
-            page.mergePage(pdf_rodape.getPage(0))
+            page.merge_page(pdf_rodape.pages[0])
 
-        pdf_writer.addPage(page)
+        pdf_writer.add_page(page)
 
     pdf_writer.write(arquivo_final)
     arquivo_final.seek(0)
@@ -107,17 +106,16 @@ def html_to_pdf_watermark(html_string, pdf_filename, watermark, is_async=False):
         string=html_string, base_url=staticfiles_storage.location
     ).write_pdf()
 
-    watermark_instance = PdfFileReader(
+    watermark_instance = PdfReader(
         f"sme_sigpae_api/relatorios/static/images/{watermark}", strict=False
     )
-    watermark_page = watermark_instance.getPage(0)
-    pdf_reader = PdfFileReader(io.BytesIO(pdf_file), strict=False)
-    pdf_writer = PdfFileWriter()
+    watermark_page = watermark_instance.pages[0]
+    pdf_reader = PdfReader(io.BytesIO(pdf_file), strict=False)
+    pdf_writer = PdfWriter()
 
-    for page in range(pdf_reader.getNumPages()):
-        page = pdf_reader.getPage(page)
-        page.mergePage(watermark_page)
-        pdf_writer.addPage(page)
+    for page in pdf_reader.pages:
+        page.merge_page(watermark_page)
+        pdf_writer.add_page(page)
 
     pdf_writer.write(arquivo_final)
     arquivo_final.seek(0)
@@ -164,7 +162,7 @@ def merge_pdf_com_string_template(
     string_template,
     somente_ultima_pagina=False,
 ):
-    pdf_usuario = PdfFileReader(arquivo_pdf, strict=False)
+    pdf_usuario = PdfReader(arquivo_pdf, strict=False)
 
     css_string = (
         "html, body {font-family: 'Roboto', sans-serif; margin: 0; padding: 0}\n@page {size: A4 %s; margin: 0}"
@@ -176,22 +174,22 @@ def merge_pdf_com_string_template(
         base_url=staticfiles_storage.location,
     ).write_pdf(stylesheets=stylesheets)
 
-    pdf_para_mergear = PdfFileReader(io.BytesIO(html_para_mergear))
+    pdf_para_mergear = PdfReader(io.BytesIO(html_para_mergear))
 
-    pdf_writer = PdfFileWriter()
-    total_paginas = pdf_usuario.getNumPages()
+    pdf_writer = PdfWriter()
+    total_paginas = len(pdf_usuario.pages)
 
     for idx_pagina in range(total_paginas):
-        pagina = pdf_usuario.getPage(idx_pagina)
+        pagina = pdf_usuario.pages[idx_pagina]
 
         if somente_ultima_pagina:
             if idx_pagina == total_paginas - 1:
-                pagina.mergePage(pdf_para_mergear.getPage(0))
+                pagina.merge_page(pdf_para_mergear.pages[0])
 
         else:
-            pagina.mergePage(pdf_para_mergear.getPage(0))
+            pagina.merge_page(pdf_para_mergear.pages[0])
 
-        pdf_writer.addPage(pagina)
+        pdf_writer.add_page(pagina)
 
     arquivo_final = io.BytesIO()
     pdf_writer.write(arquivo_final)
@@ -200,12 +198,12 @@ def merge_pdf_com_string_template(
     return ContentFile(arquivo_final.read())
 
 
-def obter_orientacao_pdf(arquivo_pdf: PdfFileReader):
-    page = arquivo_pdf.getPage(0)
+def obter_orientacao_pdf(arquivo_pdf: PdfReader):
+    page = arquivo_pdf.pages[0]
 
     return (
         "portrait"
-        if page.mediaBox.getHeight() > page.mediaBox.getWidth()
+        if float(page.mediabox.height) > float(page.mediabox.width)
         else "landscape"
     )
 
@@ -410,23 +408,16 @@ def extrair_texto_de_pdf(conteudo: bytes) -> str:
 
 class PDFMergeService:
     def __init__(self):
-        self.merger = PdfFileMerger(strict=False)
-        self.merger_arquivo_final = PdfFileMerger(strict=False)
+        self.writer = PdfWriter(strict=False)
 
     def append_pdf(self, file):
-        self.merger.append(io.BytesIO(file))
+        self.writer.append(io.BytesIO(file))
 
     def merge_pdfs(self):
-        output_merger = io.BytesIO()
-        self.merger.write(output_merger)
-        output_merger.seek(0)
-        self.merger_arquivo_final.append(output_merger)
-
         output_final = io.BytesIO()
-        self.merger_arquivo_final.write(output_final)
+        self.writer.write(output_final)
         output_final.seek(0)
 
-        self.merger.close()
-        self.merger_arquivo_final.close()
+        self.writer.close()
 
         return output_final.getvalue()

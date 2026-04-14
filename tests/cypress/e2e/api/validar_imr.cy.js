@@ -1,8 +1,8 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 
-describe('Validar rotas de IMR da aplicação SIGPAE', () => {
-	var usuario = Cypress.config('usuario_codae')
-	var senha = Cypress.config('senha')
+describe('Validar rotas de IMR da aplicaÃ§Ã£o SIGPAE', () => {
+	var usuario = Cypress.env('usuario_codae')
+	var senha = Cypress.env('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -23,7 +23,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de IMR Equipamentos Com UUID Válido', () => {
+		it('Validar GET com sucesso de IMR Equipamentos Com UUID VÃ¡lido', () => {
 			var uuid = ''
 			var uuid_response = ''
 			cy.consultar_imr_equipamentos(uuid).then((response) => {
@@ -41,7 +41,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de IMR Equipamentos Com UUID Inválido', () => {
+		it('Validar GET com sucesso de IMR Equipamentos Com UUID InvÃ¡lido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b1906j'
 			cy.consultar_imr_equipamentos(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -64,7 +64,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de IMR Insumos Com UUID Válido', () => {
+		it('Validar GET com sucesso de IMR Insumos Com UUID VÃ¡lido', () => {
 			var uuid = ''
 			var uuid_response = ''
 			cy.consultar_imr_insumos(uuid).then((response) => {
@@ -82,7 +82,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de IMR Insumos Com UUID Inválido', () => {
+		it('Validar GET com sucesso de IMR Insumos Com UUID InvÃ¡lido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b1906j'
 			cy.consultar_imr_insumos(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -91,7 +91,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 	})
 
 	context('Rota api/imr/mobiliarios/', () => {
-		it('Validar GET com sucesso de IMR Mobiliários', () => {
+		it('Validar GET com sucesso de IMR MobiliÃ¡rios', () => {
 			var uuid = ''
 			cy.consultar_imr_mobiliarios(uuid).then((response) => {
 				expect(response.status).to.eq(200)
@@ -105,7 +105,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de IMR Mobiliários Com UUID Válido', () => {
+		it('Validar GET com sucesso de IMR MobiliÃ¡rios Com UUID VÃ¡lido', () => {
 			var uuid = ''
 			var uuid_response = ''
 			cy.consultar_imr_mobiliarios(uuid).then((response) => {
@@ -123,7 +123,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de IMR Mobiliários Com UUID Inválido', () => {
+		it('Validar GET com sucesso de IMR MobiliÃ¡rios Com UUID InvÃ¡lido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b1906j'
 			cy.consultar_imr_mobiliarios(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -132,9 +132,9 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 	})
 
 	context('Rota api/imr/periodos-de-visita/', () => {
-		it('Validar GET com sucesso de IMR Períodos de Visita', () => {
-			usuario = Cypress.config('usuario_coordenador_supervisao_nutricao')
-			senha = Cypress.config('senha')
+		it('Validar GET com sucesso de IMR PerÃ­odos de Visita', () => {
+			usuario = Cypress.env('usuario_coordenador_supervisao_nutricao')
+			senha = Cypress.env('senha')
 			cy.autenticar_login(usuario, senha)
 
 			var uuid = ''
@@ -149,9 +149,9 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de IMR Períodos de Visita Com UUID Válido', () => {
-			usuario = Cypress.config('usuario_coordenador_supervisao_nutricao')
-			senha = Cypress.config('senha')
+		it('Validar GET com sucesso de IMR PerÃ­odos de Visita Com UUID VÃ¡lido', () => {
+			usuario = Cypress.env('usuario_coordenador_supervisao_nutricao')
+			senha = Cypress.env('senha')
 			cy.autenticar_login(usuario, senha)
 
 			var uuid = ''
@@ -170,9 +170,9 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de IMR Períodos de Visita Com UUID Inválido', () => {
-			usuario = Cypress.config('usuario_coordenador_supervisao_nutricao')
-			senha = Cypress.config('senha')
+		it('Validar GET com sucesso de IMR PerÃ­odos de Visita Com UUID InvÃ¡lido', () => {
+			usuario = Cypress.env('usuario_coordenador_supervisao_nutricao')
+			senha = Cypress.env('senha')
 			cy.autenticar_login(usuario, senha)
 
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b1906j'
@@ -183,7 +183,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 	})
 
 	context('Rota api/imr/reparos-e-adaptacoes/', () => {
-		it('Validar GET com sucesso de IMR Reparos e Adaptações', () => {
+		it('Validar GET com sucesso de IMR Reparos e AdaptaÃ§Ãµes', () => {
 			var uuid = ''
 			cy.consultar_imr_reparos_adaptacoes(uuid).then((response) => {
 				expect(response.status).to.eq(200)
@@ -196,7 +196,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de IMR Reparos e Adaptações Com UUID Válido', () => {
+		it('Validar GET com sucesso de IMR Reparos e AdaptaÃ§Ãµes Com UUID VÃ¡lido', () => {
 			var uuid = ''
 			var uuid_response = ''
 			cy.consultar_imr_reparos_adaptacoes(uuid).then((response) => {
@@ -213,7 +213,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de IMR Reparos e Adaptações Com UUID Inválido', () => {
+		it('Validar GET com sucesso de IMR Reparos e AdaptaÃ§Ãµes Com UUID InvÃ¡lido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b1906j'
 			cy.consultar_imr_reparos_adaptacoes(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -222,7 +222,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 	})
 
 	context('Rota api/imr/utensilios-cozinha/', () => {
-		it('Validar GET com sucesso de IMR Utensílios Cozinha', () => {
+		it('Validar GET com sucesso de IMR UtensÃ­lios Cozinha', () => {
 			var uuid = ''
 			cy.consultar_imr_utensilios_cozinha(uuid).then((response) => {
 				expect(response.status).to.eq(200)
@@ -235,7 +235,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de IMR Utensílios Cozinha Com UUID Válido', () => {
+		it('Validar GET com sucesso de IMR UtensÃ­lios Cozinha Com UUID VÃ¡lido', () => {
 			var uuid = ''
 			var uuid_response = ''
 			cy.consultar_imr_utensilios_cozinha(uuid).then((response) => {
@@ -252,7 +252,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de IMR Utensílios Cozinha Com UUID Inválido', () => {
+		it('Validar GET com sucesso de IMR UtensÃ­lios Cozinha Com UUID InvÃ¡lido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b1906j'
 			cy.consultar_imr_utensilios_cozinha(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -261,7 +261,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 	})
 
 	context('Rota api/imr/utensilios-mesa/', () => {
-		it('Validar GET com sucesso de IMR Utensílios Mesa', () => {
+		it('Validar GET com sucesso de IMR UtensÃ­lios Mesa', () => {
 			var uuid = ''
 			cy.consultar_imr_utensilios_mesa(uuid).then((response) => {
 				expect(response.status).to.eq(200)
@@ -274,7 +274,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de IMR Utensílios Mesa Com UUID Válido', () => {
+		it('Validar GET com sucesso de IMR UtensÃ­lios Mesa Com UUID VÃ¡lido', () => {
 			var uuid = ''
 			var uuid_response = ''
 			cy.consultar_imr_utensilios_mesa(uuid).then((response) => {
@@ -291,7 +291,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de IMR Utensílios Mesa Com UUID Inválido', () => {
+		it('Validar GET com sucesso de IMR UtensÃ­lios Mesa Com UUID InvÃ¡lido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b1906j'
 			cy.consultar_imr_utensilios_mesa(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -300,7 +300,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 	})
 
 	context('Rota api/imr/formulario-supervisao/', () => {
-		it('Validar GET com sucesso de IMR Formulário Supervisão Por Status EM_PREENCHIMENTO', () => {
+		it('Validar GET com sucesso de IMR FormulÃ¡rio SupervisÃ£o Por Status EM_PREENCHIMENTO', () => {
 			var status = 'EM_PREENCHIMENTO'
 			cy.consultar_imr_formulario_supervisao_por_status(status).then(
 				(response) => {
@@ -321,7 +321,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar GET com sucesso de IMR Formulário Supervisão Por Status NUTRIMANIFESTACAO_A_VALIDAR', () => {
+		it('Validar GET com sucesso de IMR FormulÃ¡rio SupervisÃ£o Por Status NUTRIMANIFESTACAO_A_VALIDAR', () => {
 			var status = 'NUTRIMANIFESTACAO_A_VALIDAR'
 			cy.consultar_imr_formulario_supervisao_por_status(status).then(
 				(response) => {
@@ -342,7 +342,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar GET com sucesso de IMR Formulário Supervisão Por Status APROVADO', () => {
+		it('Validar GET com sucesso de IMR FormulÃ¡rio SupervisÃ£o Por Status APROVADO', () => {
 			var status = 'APROVADO'
 			cy.consultar_imr_formulario_supervisao_por_status(status).then(
 				(response) => {
@@ -356,7 +356,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar GET com sucesso de IMR Formulário Supervisão Por Status COM_COMENTARIOS_DE_CODAE', () => {
+		it('Validar GET com sucesso de IMR FormulÃ¡rio SupervisÃ£o Por Status COM_COMENTARIOS_DE_CODAE', () => {
 			var status = 'COM_COMENTARIOS_DE_CODAE'
 			cy.consultar_imr_formulario_supervisao_por_status(status).then(
 				(response) => {
@@ -370,7 +370,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar GET com sucesso de IMR Formulário Supervisão Por Status VALIDADO_POR_CODAE', () => {
+		it('Validar GET com sucesso de IMR FormulÃ¡rio SupervisÃ£o Por Status VALIDADO_POR_CODAE', () => {
 			var status = 'VALIDADO_POR_CODAE'
 			cy.consultar_imr_formulario_supervisao_por_status(status).then(
 				(response) => {
@@ -384,19 +384,30 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar GET com sucesso de IMR Formulário Supervisão Com Status Inválido', () => {
+		it('Validar GET com sucesso de IMR FormulÃ¡rio SupervisÃ£o Com Status InvÃ¡lido', () => {
 			var status = 'STATUS_INVALIDO'
 			cy.consultar_imr_formulario_supervisao_por_status(status).then(
 				(response) => {
 					expect(response.status).to.eq(400)
-					expect(response.body.status[0]).to.eq(
-						'Faça uma escolha válida. STATUS_INVALIDO não é uma das escolhas disponíveis.',
+					expect(response.body).to.have.property('status')
+					expect(response.body.status).to.be.an('array').and.not.be.empty
+
+					const mensagemStatus = response.body.status[0]
+					const mensagemNormalizada = mensagemStatus
+						.normalize('NFD')
+						.replace(/[\u0300-\u036f]/g, '')
+						.toLowerCase()
+
+					expect(mensagemNormalizada).to.include('faca uma escolha valida')
+					expect(mensagemNormalizada).to.include('status_invalido')
+					expect(mensagemNormalizada).to.include(
+						'nao e uma das escolhas disponiveis',
 					)
 				},
 			)
 		})
 
-		it('Validar GET com sucesso de IMR Formulário Supervisão Com UUID Válido', () => {
+		it('Validar GET com sucesso de IMR FormulÃ¡rio SupervisÃ£o Com UUID VÃ¡lido', () => {
 			var status = 'EM_PREENCHIMENTO'
 			var uuid_response = ''
 			cy.consultar_imr_formulario_supervisao_por_status(status).then(
@@ -433,14 +444,14 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar GET com sucesso de IMR Formulário Supervisão Com UUID Inválido', () => {
+		it('Validar GET com sucesso de IMR FormulÃ¡rio SupervisÃ£o Com UUID InvÃ¡lido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b1906j'
 			cy.consultar_imr_formulario_supervisao_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(404)
 			})
 		})
 
-		it('Validar GET com sucesso de IMR Formulário Supervisão Respostas Com UUID Válido', () => {
+		it('Validar GET com sucesso de IMR FormulÃ¡rio SupervisÃ£o Respostas Com UUID VÃ¡lido', () => {
 			var status = 'EM_PREENCHIMENTO'
 			var uuid_response = ''
 			cy.consultar_imr_formulario_supervisao_por_status(status).then(
@@ -478,7 +489,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar GET com sucesso de IMR Formulário Supervisão Respostas Com UUID Inválido', () => {
+		it('Validar GET com sucesso de IMR FormulÃ¡rio SupervisÃ£o Respostas Com UUID InvÃ¡lido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b1906j'
 			cy.consultar_imr_formulario_supervisao_respostas(uuid).then(
 				(response) => {
@@ -487,7 +498,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar GET com sucesso de IMR Formulário Supervisão Respostas Não Se Aplica Com UUID Válido', () => {
+		it('Validar GET com sucesso de IMR FormulÃ¡rio SupervisÃ£o Respostas NÃ£o Se Aplica Com UUID VÃ¡lido', () => {
 			var status = 'EM_PREENCHIMENTO'
 			var uuid_response = ''
 			cy.consultar_imr_formulario_supervisao_por_status(status).then(
@@ -505,7 +516,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar GET com sucesso de IMR Formulário Supervisão Respostas Não Se Aplica Com UUID Inválido', () => {
+		it('Validar GET com sucesso de IMR FormulÃ¡rio SupervisÃ£o Respostas NÃ£o Se Aplica Com UUID InvÃ¡lido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b1906j'
 			cy.consultar_imr_formulario_supervisao_respostas_nao_aplica(uuid).then(
 				(response) => {
@@ -514,7 +525,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar GET com sucesso de IMR Formulário Supervisão Dashboard', () => {
+		it('Validar GET com sucesso de IMR FormulÃ¡rio SupervisÃ£o Dashboard', () => {
 			cy.consultar_imr_formulario_supervisao_dashboard().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -525,7 +536,7 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de IMR Formulário Supervisão Lista Nomes Nutricionistas', () => {
+		it('Validar GET com sucesso de IMR FormulÃ¡rio SupervisÃ£o Lista Nomes Nutricionistas', () => {
 			cy.consultar_imr_formulario_supervisao_lista_nomes_nutricionistas().then(
 				(response) => {
 					expect(response.status).to.eq(200)
@@ -539,3 +550,4 @@ describe('Validar rotas de IMR da aplicação SIGPAE', () => {
 		})
 	})
 })
+

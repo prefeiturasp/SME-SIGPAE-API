@@ -532,7 +532,7 @@ class DadosLiquidacaoSerializer(serializers.ModelSerializer):
             .first()
         )
 
-        if not parametrizacao:
+        if not parametrizacao or not consumo:
             return 0
 
         return calcular_total_pagamento(consumo, parametrizacao, tipo_calculo)

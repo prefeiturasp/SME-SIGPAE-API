@@ -14,7 +14,9 @@ from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factor
     ProtocoloPadraoDietaEspecialFactory,
     SolicitacaoDietaEspecialFactory,
 )
-from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    SolicitacaoDietaEspecial,
+)
 from sme_sigpae_api.dieta_especial.utils import termina_dietas_especiais
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
     AlunoFactory,

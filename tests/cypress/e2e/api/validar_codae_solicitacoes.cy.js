@@ -1,15 +1,15 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 
-describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
-	var usuario = Cypress.config('usuario_codae')
-	var senha = Cypress.config('senha')
+describe('Validar rotas de Codae solicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE', () => {
+	var usuario = Cypress.env('usuario_codae')
+	var senha = Cypress.env('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
 
 	context('Casos de teste para a rota api/codae-solicitacoes/', () => {
-		it('Validar GET com sucesso de Dietas Pendentes de Autorização', () => {
+		it('Validar GET com sucesso de Dietas Pendentes de AutorizaÃ§Ã£o', () => {
 			cy.consultar_pendentes_autorizacao_dieta().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count')
@@ -781,7 +781,7 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Pendentes de Autorização', () => {
+		it('Validar GET com sucesso de Pendentes de AutorizaÃ§Ã£o', () => {
 			cy.consultar_pendentes_autorizacao().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count')
@@ -971,7 +971,7 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Solicitações Detalhadas', () => {
+		it('Validar GET com sucesso de SolicitaÃ§Ãµes Detalhadas', () => {
 			cy.consultar_solicitacoes_detalhadas().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('data')
@@ -980,7 +980,7 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Pendentes Autorização com Filtro 7 Dias', () => {
+		it('Validar GET com sucesso de Pendentes AutorizaÃ§Ã£o com Filtro 7 Dias', () => {
 			var filtro = 'daqui_a_7_dias'
 			cy.consultar_pendentes_autorizacao_filtro_aplicado(filtro).then(
 				(response) => {
@@ -994,7 +994,7 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar GET com sucesso de Pendentes Autorização sem Filtro', () => {
+		it('Validar GET com sucesso de Pendentes AutorizaÃ§Ã£o sem Filtro', () => {
 			var filtro = 'sem_filtro'
 			cy.consultar_pendentes_autorizacao_filtro_aplicado(filtro).then(
 				(response) => {
@@ -1008,7 +1008,7 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar GET com sucesso de Pendentes Autorização com Filtro 30 Dias', () => {
+		it('Validar GET com sucesso de Pendentes AutorizaÃ§Ã£o com Filtro 30 Dias', () => {
 			var filtro = 'daqui_a_30_dias'
 			cy.consultar_pendentes_autorizacao_filtro_aplicado(filtro).then(
 				(response) => {
@@ -1022,7 +1022,7 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar GET de Pendentes Autorização com Filtro Inválido', () => {
+		it('Validar GET de Pendentes AutorizaÃ§Ã£o com Filtro InvÃ¡lido', () => {
 			var filtro = 'outro_filtro'
 			cy.consultar_pendentes_autorizacao_filtro_aplicado(filtro).then(
 				(response) => {
@@ -1031,7 +1031,7 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar GET com sucesso de Pendentes Autorização com Filtro 7 Dias e Tipo Visão DRE', () => {
+		it('Validar GET com sucesso de Pendentes AutorizaÃ§Ã£o com Filtro 7 Dias e Tipo VisÃ£o DRE', () => {
 			var filtro = 'daqui_a_7_dias'
 			var visao = 'dre'
 			cy.consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1043,7 +1043,7 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Pendentes Autorização com Filtro 7 Dias e Tipo Visão LOTE', () => {
+		it('Validar GET com sucesso de Pendentes AutorizaÃ§Ã£o com Filtro 7 Dias e Tipo VisÃ£o LOTE', () => {
 			var filtro = 'daqui_a_7_dias'
 			var visao = 'lote'
 			cy.consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1055,7 +1055,7 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Pendentes Autorização com Filtro 7 Dias e Tipo Visão TIPO SOLICITAÇÃO', () => {
+		it('Validar GET com sucesso de Pendentes AutorizaÃ§Ã£o com Filtro 7 Dias e Tipo VisÃ£o TIPO SOLICITAÃ‡ÃƒO', () => {
 			var filtro = 'daqui_a_7_dias'
 			var visao = 'tipo_solicitacao'
 			cy.consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1067,7 +1067,7 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Pendentes Autorização sem Filtro e Tipo Visão DRE', () => {
+		it('Validar GET com sucesso de Pendentes AutorizaÃ§Ã£o sem Filtro e Tipo VisÃ£o DRE', () => {
 			var filtro = 'sem_filtro'
 			var visao = 'dre'
 			cy.consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1079,7 +1079,7 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Pendentes Autorização sem Filtro e Tipo Visão LOTE', () => {
+		it('Validar GET com sucesso de Pendentes AutorizaÃ§Ã£o sem Filtro e Tipo VisÃ£o LOTE', () => {
 			var filtro = 'sem_filtro'
 			var visao = 'lote'
 			cy.consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1091,7 +1091,7 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Pendentes Autorização sem Filtro e Tipo Visão TIPO SOLICITAÇÃO', () => {
+		it('Validar GET com sucesso de Pendentes AutorizaÃ§Ã£o sem Filtro e Tipo VisÃ£o TIPO SOLICITAÃ‡ÃƒO', () => {
 			var filtro = 'sem_filtro'
 			var visao = 'tipo_solicitacao'
 			cy.consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1103,7 +1103,7 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Pendentes Autorização com Filtro 30 Dias e Tipo Visão DRE', () => {
+		it('Validar GET com sucesso de Pendentes AutorizaÃ§Ã£o com Filtro 30 Dias e Tipo VisÃ£o DRE', () => {
 			var filtro = 'daqui_a_30_dias'
 			var visao = 'dre'
 			cy.consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1115,7 +1115,7 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Pendentes Autorização com Filtro 30 Dias e Tipo Visão LOTE', () => {
+		it('Validar GET com sucesso de Pendentes AutorizaÃ§Ã£o com Filtro 30 Dias e Tipo VisÃ£o LOTE', () => {
 			var filtro = 'daqui_a_30_dias'
 			var visao = 'lote'
 			cy.consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1127,7 +1127,7 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Pendentes Autorização com Filtro 30 Dias e Tipo Visão TIPO SOLICITAÇÃO', () => {
+		it('Validar GET com sucesso de Pendentes AutorizaÃ§Ã£o com Filtro 30 Dias e Tipo VisÃ£o TIPO SOLICITAÃ‡ÃƒO', () => {
 			var filtro = 'daqui_a_30_dias'
 			var visao = 'tipo_solicitacao'
 			cy.consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1140,3 +1140,4 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 		})
 	})
 })
+

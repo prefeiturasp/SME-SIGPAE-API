@@ -9,7 +9,9 @@ from sme_sigpae_api.dados_comuns.utils import (
     gera_objeto_na_central_download,
 )
 from sme_sigpae_api.dieta_especial.forms import RelatorioDietaForm
-from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    SolicitacaoDietaEspecial,
+)
 from sme_sigpae_api.perfil.models import Usuario
 from sme_sigpae_api.relatorios.relatorios import relatorio_geral_dieta_especial_pdf
 

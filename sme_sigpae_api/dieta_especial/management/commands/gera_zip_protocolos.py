@@ -6,7 +6,9 @@ from django.core.management.base import BaseCommand, CommandError
 from weasyprint import HTML
 
 from sme_sigpae_api.dados_comuns.utils import envia_email_unico_com_anexo_inmemory
-from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    SolicitacaoDietaEspecial,
+)
 from sme_sigpae_api.relatorios.relatorios import relatorio_dieta_especial_protocolo
 
 

@@ -7,7 +7,7 @@ from workalendar.america import BrazilSaoPauloCity
 from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from ..cardapio.base.models import TipoAlimentacao
 from ..dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
-from ..dieta_especial.models import ClassificacaoDieta
+from ..dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from ..escola.models import Aluno, LogAlteracaoQuantidadeAlunosPorEscolaEPeriodoEscolar
 from ..inclusao_alimentacao.models import QuantidadePorPeriodo
 from ..kit_lanche.models import SolicitacaoKitLancheAvulsa
@@ -15,7 +15,7 @@ from ..paineis_consolidados.models import MoldeConsolidado
 
 
 def mes_para_faixa(mes_string):
-    (mes, ano) = mes_string.split("/")
+    mes, ano = mes_string.split("/")
     mes = int(mes)
     ano = int(ano)
     ultimo_dia_do_mes = monthrange(ano, mes)[1]

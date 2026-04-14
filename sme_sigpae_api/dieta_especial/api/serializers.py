@@ -17,12 +17,11 @@ from ...escola.api.serializers import (
     AlunoSerializer,
     AlunoSimplesSerializer,
     EscolaNomeCodigoEOLSerializer,
-    FaixaEtariaSerializer,
     LoteNomeSerializer,
     LoteSerializer,
     TipoGestaoSerializer,
 )
-from ...escola.models import DiretoriaRegional, Escola, PeriodoEscolar
+from ...escola.models import DiretoriaRegional, Escola
 from ...escola.services import NovoSGPServicoLogadoException
 from ...produto.api.serializers.serializers import (
     MarcaSimplesSerializer,
@@ -30,22 +29,19 @@ from ...produto.api.serializers.serializers import (
 )
 from ...produto.models import Produto, SolicitacaoCadastroProdutoDieta
 from ...terceirizada.api.serializers.serializers import EditalSimplesSerializer
-from ..models import (
-    AlergiaIntolerancia,
+from ..protocolo_padrao.models import (
     Alimento,
-    Anexo,
-    ClassificacaoDieta,
-    LogQuantidadeDietasAutorizadas,
-    LogQuantidadeDietasAutorizadasCEI,
-    LogQuantidadeDietasAutorizadasRecreioNasFerias,
-    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
-    MotivoAlteracaoUE,
-    MotivoNegacao,
     ProtocoloPadraoDietaEspecial,
-    SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
     SubstituicaoAlimentoProtocoloPadrao,
-    TipoContagem,
+)
+from ..solicitacao_dieta_especial.models import (
+    AlergiaIntolerancia,
+    Anexo,
+    ClassificacaoDieta,
+    MotivoAlteracaoUE,
+    MotivoNegacao,
+    SolicitacaoDietaEspecial,
 )
 from .serializers_create import (
     SolicitacaoDietaEspecialCreateSerializer,
@@ -98,12 +94,6 @@ class AlimentosSubstitutosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Alimento
         fields = ("uuid", "nome", "tipo")
-
-
-class TipoContagemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TipoContagem
-        exclude = ("id",)
 
 
 class AnexoSerializer(ModelSerializer):
@@ -909,93 +899,6 @@ class SolicitacaoDietaEspecialRelatorioTercSerializer(serializers.ModelSerialize
             "dre",
             "serie_aluno",
         )
-
-
-class LogQuantidadeDietasAutorizadasSerializer(serializers.ModelSerializer):
-    escola = serializers.SlugRelatedField(
-        slug_field="uuid", required=False, queryset=Escola.objects.all()
-    )
-    classificacao = serializers.CharField(
-        source=CLASSIFICACAO_NOME_SOURCE, required=False
-    )
-    dia = serializers.SerializerMethodField()
-    periodo_escolar = serializers.SlugRelatedField(
-        slug_field="uuid", required=False, queryset=PeriodoEscolar.objects.all()
-    )
-
-    def get_dia(self, obj):
-        dia = obj.data.day
-        return f"{dia:02d}"
-
-    class Meta:
-        model = LogQuantidadeDietasAutorizadas
-        exclude = ("id", "uuid")
-
-
-class LogQuantidadeDietasAutorizadasCEISerializer(serializers.ModelSerializer):
-    escola = serializers.SlugRelatedField(
-        slug_field="nome", required=False, queryset=Escola.objects.all()
-    )
-    classificacao = serializers.CharField(
-        source=CLASSIFICACAO_NOME_SOURCE, required=False
-    )
-    dia = serializers.SerializerMethodField()
-    periodo_escolar = serializers.SlugRelatedField(
-        slug_field="nome", required=False, queryset=PeriodoEscolar.objects.all()
-    )
-    faixa_etaria = FaixaEtariaSerializer()
-
-    def get_dia(self, obj):
-        dia = obj.data.day
-        return f"{dia:02d}"
-
-    class Meta:
-        model = LogQuantidadeDietasAutorizadasCEI
-        exclude = ("id", "uuid")
-
-
-class LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer(
-    serializers.ModelSerializer
-):
-    escola = serializers.SlugRelatedField(
-        slug_field="uuid", required=False, queryset=Escola.objects.all()
-    )
-    classificacao = serializers.CharField(
-        source=CLASSIFICACAO_NOME_SOURCE, read_only=True
-    )
-    dia = serializers.SerializerMethodField()
-
-    def get_dia(self, obj):
-        dia = obj.data.day
-        return f"{dia:02d}"
-
-    class Meta:
-        model = LogQuantidadeDietasAutorizadasRecreioNasFerias
-        exclude = ("id", "uuid")
-
-
-class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer(
-    serializers.ModelSerializer
-):
-    escola = serializers.SlugRelatedField(
-        slug_field="nome", required=False, queryset=Escola.objects.all()
-    )
-    classificacao = serializers.CharField(
-        source=CLASSIFICACAO_NOME_SOURCE, required=False
-    )
-    dia = serializers.SerializerMethodField()
-    periodo_escolar = serializers.SlugRelatedField(
-        slug_field="nome", required=False, queryset=PeriodoEscolar.objects.all()
-    )
-    faixa_etaria = FaixaEtariaSerializer()
-
-    def get_dia(self, obj):
-        dia = obj.data.day
-        return f"{dia:02d}"
-
-    class Meta:
-        model = LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI
-        exclude = ("id", "uuid")
 
 
 class UnidadeEducacionalSerializer(serializers.Serializer):

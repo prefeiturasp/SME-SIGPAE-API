@@ -3,7 +3,9 @@ from freezegun import freeze_time
 from rest_framework import status
 
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
-from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    SolicitacaoDietaEspecial,
+)
 
 pytestmark = pytest.mark.django_db
 

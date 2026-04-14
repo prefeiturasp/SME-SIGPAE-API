@@ -1,6 +1,6 @@
-describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
-	var usuario = Cypress.config('usuario_codae')
-	var senha = Cypress.config('senha')
+﻿describe('Validar rotas de Marcas da aplicaÃ§Ã£o SIGPAE', () => {
+	var usuario = Cypress.env('usuario_codae')
+	var senha = Cypress.env('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -17,7 +17,7 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Marcas com Nome Edital Válido', () => {
+		it('Validar GET com sucesso de Marcas com Nome Edital VÃ¡lido', () => {
 			var edital = ''
 			cy.consultar_editais().then((response) => {
 				expect(response.status).to.eq(200)
@@ -34,8 +34,8 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET de Marcas com Nome Edital Inválido', () => {
-			var param = '?nome_edital=NomeInválido Para o Teste'
+		it('Validar GET de Marcas com Nome Edital InvÃ¡lido', () => {
+			var param = '?nome_edital=NomeInvÃ¡lido Para o Teste'
 			cy.consultar_marcas_por_edital(param).then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -43,7 +43,7 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Marcas Com UUID Válido', () => {
+		it('Validar GET com sucesso de Marcas Com UUID VÃ¡lido', () => {
 			var uuid_response = ''
 			cy.consultar_marcas().then((response) => {
 				expect(response.status).to.eq(200)
@@ -57,7 +57,7 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET de Marcas Com UUID Inválido', () => {
+		it('Validar GET de Marcas Com UUID InvÃ¡lido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b00000'
 			cy.consultar_marcas_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -66,7 +66,7 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 
 		it('Validar POST com sucesso de Marcas', () => {
 			var dados_teste = {
-				nome: 'Testes Automação ' + new Date().getTime(),
+				nome: 'Testes AutomaÃ§Ã£o ' + new Date().getTime(),
 			}
 			cy.cadastrar_marcas(dados_teste).then((response) => {
 				expect(response.status).to.eq(201)
@@ -83,7 +83,7 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 
 		it('Validar DELETE de Marcas com sucesso', () => {
 			var dados_teste = {
-				nome: 'Testes Automação ' + new Date().getTime(),
+				nome: 'Testes AutomaÃ§Ã£o ' + new Date().getTime(),
 			}
 			cy.cadastrar_marcas(dados_teste).then((response) => {
 				expect(response.status).to.eq(201)
@@ -97,7 +97,7 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar DELETE de Marcas com UUID Inválido', () => {
+		it('Validar DELETE de Marcas com UUID InvÃ¡lido', () => {
 			var uuid = '53886ad8-cb8b-4175-853e-de087aaaaaaa'
 			cy.deletar_marcas(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -106,7 +106,7 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 
 		it('Validar PUT com sucesso de Marcas', () => {
 			var dados_teste = {
-				nome: 'Testes Automação PUT - ' + new Date().getTime(),
+				nome: 'Testes AutomaÃ§Ã£o PUT - ' + new Date().getTime(),
 			}
 
 			cy.cadastrar_marcas(dados_teste).then((response) => {
@@ -132,7 +132,7 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar PUT de Marcas com UUID Inválido', () => {
+		it('Validar PUT de Marcas com UUID InvÃ¡lido', () => {
 			var uuid = '53886ad8-cb8b-4175-853e-de087aaaaaaa'
 			var dados_teste = {}
 			cy.put_alterar_marcas(uuid, dados_teste).then((response) => {
@@ -142,7 +142,7 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 
 		it('Validar PATCH com sucesso de Marcas', () => {
 			var dados_teste = {
-				nome: 'Testes Automação PATCH - ' + new Date().getTime(),
+				nome: 'Testes AutomaÃ§Ã£o PATCH - ' + new Date().getTime(),
 			}
 
 			cy.cadastrar_marcas(dados_teste).then((response) => {
@@ -168,7 +168,7 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar PATCH de Marcas com UUID Inválido', () => {
+		it('Validar PATCH de Marcas com UUID InvÃ¡lido', () => {
 			var uuid = '53886ad8-cb8b-4175-853e-de087aaaaaaa'
 			var dados_teste = {}
 			cy.patch_alterar_marcas(uuid, dados_teste).then((response) => {
@@ -188,7 +188,7 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Lista Nomes Avaliar Reclamação', () => {
+		it('Validar GET com sucesso de Lista Nomes Avaliar ReclamaÃ§Ã£o', () => {
 			cy.consultar_lista_nomes_avaliar_reclamacao().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -198,7 +198,7 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Lista Nomes Nova Reclamação', () => {
+		it('Validar GET com sucesso de Lista Nomes Nova ReclamaÃ§Ã£o', () => {
 			cy.consultar_lista_nomes_nova_reclamacao().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -208,7 +208,7 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Lista Nomes Responder Reclamação', () => {
+		it('Validar GET com sucesso de Lista Nomes Responder ReclamaÃ§Ã£o', () => {
 			cy.consultar_lista_nomes_responder_reclamacao().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -218,9 +218,9 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Lista Nomes Responder Reclamação Escola', () => {
-			usuario = Cypress.config('usuario_diretor_ue')
-			senha = Cypress.config('senha')
+		it('Validar GET com sucesso de Lista Nomes Responder ReclamaÃ§Ã£o Escola', () => {
+			usuario = Cypress.env('usuario_diretor_ue')
+			senha = Cypress.env('senha')
 			cy.autenticar_login(usuario, senha)
 
 			cy.consultar_lista_nomes_responder_reclamacao_escola().then(
@@ -234,9 +234,9 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar GET com sucesso de Lista Nomes Responder Reclamação NutriSupervisor', () => {
-			usuario = Cypress.config('usuario_coordenador_supervisao_nutricao')
-			senha = Cypress.config('senha')
+		it('Validar GET com sucesso de Lista Nomes Responder ReclamaÃ§Ã£o NutriSupervisor', () => {
+			usuario = Cypress.env('usuario_coordenador_supervisao_nutricao')
+			senha = Cypress.env('senha')
 			cy.autenticar_login(usuario, senha)
 
 			cy.consultar_lista_nomes_responder_reclamacao_nutrisupervisor().then(
@@ -250,7 +250,7 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar GET com sucesso de Lista Nomes Únicos', () => {
+		it('Validar GET com sucesso de Lista Nomes Ãšnicos', () => {
 			cy.consultar_lista_nomes_unicos().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -259,3 +259,4 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 		})
 	})
 })
+

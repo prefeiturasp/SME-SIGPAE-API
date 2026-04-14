@@ -24,7 +24,9 @@ logger = logging.getLogger(__name__)
 def gera_pdf_relatorio_dietas_especiais_terceirizadas_async(
     user, nome_arquivo, ids_dietas, data, filtros
 ):
-    from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+    from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+        SolicitacaoDietaEspecial,
+    )
 
     logger.info(f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x")
     obj_central_download = gera_objeto_na_central_download(
@@ -44,8 +46,12 @@ def gera_pdf_relatorio_dietas_especiais_terceirizadas_async(
                 "nome_escola": solicitacao.escola.nome,
                 "classificacao": classificacao,
                 "protocolo_padrao": (
-                    solicitacao.nome_protocolo if solicitacao.nome_protocolo else (
-                        solicitacao.protocolo_padrao.nome_protocolo if solicitacao.protocolo_padrao else "--"
+                    solicitacao.nome_protocolo
+                    if solicitacao.nome_protocolo
+                    else (
+                        solicitacao.protocolo_padrao.nome_protocolo
+                        if solicitacao.protocolo_padrao
+                        else "--"
                     )
                 ),
                 "alergias_intolerancias": solicitacao.alergias_intolerancias,

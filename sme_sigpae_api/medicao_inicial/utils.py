@@ -6,17 +6,18 @@ import logging
 import re
 from calendar import monthrange
 from collections import defaultdict
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from functools import reduce
-from unidecode import unidecode
 from typing import Any, Dict
 
+import unidecode
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import FloatField, IntegerField, Q, QuerySet, Sum
 from django.db.models.functions import Cast
 from django.db.utils import IntegrityError
 from django.template.loader import render_to_string
 from django.utils import timezone
-from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+
 from sme_sigpae_api.dados_comuns.constants import (
     MAX_COLUNAS,
     ORDEM_CAMPOS,
@@ -35,9 +36,11 @@ from sme_sigpae_api.dados_comuns.utils import (
     convert_base64_to_contentfile,
     convert_image_to_base64,
 )
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.escola.models import (
@@ -4710,10 +4713,9 @@ def get_pdf_merge_cabecalho(
     pdf_cabecalho_relatorio_controle_frequencia,
     pdf_writer,
 ):
-    for page in range(pdf_relatorio_controle_frequencia.getNumPages()):
-        page = pdf_relatorio_controle_frequencia.getPage(page)
-        page.mergePage(pdf_cabecalho_relatorio_controle_frequencia.getPage(0))
-        pdf_writer.addPage(page)
+    for page in pdf_relatorio_controle_frequencia.pages:
+        page.merge_page(pdf_cabecalho_relatorio_controle_frequencia.pages[0])
+        pdf_writer.add_page(page)
     return pdf_writer
 
 
@@ -5364,9 +5366,7 @@ def calcula_totais_consumo_por_grupo(
     return gerar_totais_consolidado(solicitacoes, tipo_calculo)
 
 
-def calcula_totais_consumo_por_escolas(
-    escolas_uuids, relatorio, tipo_calculo
-):
+def calcula_totais_consumo_por_escolas(escolas_uuids, relatorio, tipo_calculo):
     solicitacoes = SolicitacaoMedicaoInicial.objects.filter(
         mes=str(relatorio.mes),
         ano=str(relatorio.ano),
@@ -5866,14 +5866,11 @@ def _total_parametrizacao(valores):
     """
     total = 0
 
-    mapa = {
-        v.tipo_valor.nome: to_decimal_safe(v.valor)
-        for v in valores
-    }
+    mapa = {v.tipo_valor.nome: to_decimal_safe(v.valor) for v in valores}
 
-    valor_unitario = mapa.get('UNITARIO')
-    valor_unitario_reajuste = mapa.get('REAJUSTE')
-    percentual_acrescimo = mapa.get('ACRESCIMO', Decimal("0"))
+    valor_unitario = mapa.get("UNITARIO")
+    valor_unitario_reajuste = mapa.get("REAJUSTE")
+    percentual_acrescimo = mapa.get("ACRESCIMO", Decimal("0"))
 
     if valor_unitario is not None and valor_unitario_reajuste is not None:
         total = valor_unitario + valor_unitario_reajuste
@@ -6070,11 +6067,7 @@ def _calcula_total_dietas(
 
     mapa_valores = _mapear_valores_tabela(valores)
     for chave, valor in dados_consumo.items():
-        nome_campo = _normalizar_nome_campo(
-            chave,
-            grupo_nome,
-            dieta=True
-        )
+        nome_campo = _normalizar_nome_campo(chave, grupo_nome, dieta=True)
 
         valores_campo = mapa_valores.get(nome_campo)
 
@@ -6181,16 +6174,24 @@ def calcular_total_pagamento(consumo, parametrizacao, tipo_calculo):
     if tipo_calculo not in ["tipo_alimentacao", "faixa_etaria"]:
         for tipo in ["TIPO", "FAIXA"]:
             total_pagamento += _calcula_total_tabelas(
-                consumo[tipo], tabelas, grupo_nome, tipo,
+                consumo[tipo],
+                tabelas,
+                grupo_nome,
+                tipo,
             )
     elif grupo_nome.lower() == "grupo 5":
         for turma in ["INFANTIL", "FUNDAMENTAL"]:
             total_pagamento += _calcula_total_tabelas(
-                consumo[turma], tabelas, grupo_nome, turma,
+                consumo[turma],
+                tabelas,
+                grupo_nome,
+                turma,
             )
     else:
         total_pagamento += _calcula_total_tabelas(
-            consumo, tabelas, grupo_nome,
+            consumo,
+            tabelas,
+            grupo_nome,
         )
 
     return total_pagamento

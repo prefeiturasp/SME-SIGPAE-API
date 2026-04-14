@@ -8,7 +8,7 @@ from sme_sigpae_api.dados_comuns.tasks import (
     envia_email_unico_task,
 )
 from sme_sigpae_api.dados_comuns.utils import envia_email_em_massa
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
