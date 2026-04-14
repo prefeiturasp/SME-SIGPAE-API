@@ -1,11 +1,11 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 const dayjs = require('dayjs')
 const { validar_dia_semana } = require('../../support/utils/data_utils')
 var data_atual = dayjs()
 
 describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
-	var usuario = Cypress.config('usuario_diretor_ue')
-	var senha = Cypress.config('senha')
+	var usuario = Cypress.env('usuario_diretor_ue')
+	var senha = Cypress.env('senha')
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
@@ -822,7 +822,7 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			})
 		})
 
-		// Substitui o it por it.only para pular em Jan, Jul ou Dez Conforme a regra de negócio
+		// Substitui o it por it.only para pular em Jan, Jul ou Dez Conforme a regra de negÃ³cio
 		const currentMonth = dayjs().month() + 1
 		const conditionalIt = [1, 7, 12].includes(currentMonth) ? it.skip : it
 		conditionalIt(
@@ -903,8 +903,8 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 
 		it('Validar GET de alterações cardápio por id inválido', () => {
 			var id = '3f42cdc6-f524-4364-af62-13a831abaecd/'
-			usuario = Cypress.config('usuario_coordenador_supervisao_nutricao')
-			senha = Cypress.config('senha')
+			usuario = Cypress.env('usuario_coordenador_supervisao_nutricao')
+			senha = Cypress.env('senha')
 			cy.autenticar_login(usuario, senha)
 			cy.validar_alteracoes_cardapio(id).then((response) => {
 				expect(response.status).to.eq(404)
@@ -914,8 +914,8 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 
 		it('Validar GET de alterações cardápio por id incompleto', () => {
 			var id = '3f42cdc6-f524-4364-af62-13a831abae5d'
-			usuario = Cypress.config('usuario_coordenador_supervisao_nutricao')
-			senha = Cypress.config('senha')
+			usuario = Cypress.env('usuario_coordenador_supervisao_nutricao')
+			senha = Cypress.env('senha')
 			cy.autenticar_login(usuario, senha)
 			cy.validar_alteracoes_cardapio(id).then((response) => {
 				cy.log(response)
@@ -927,8 +927,8 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 
 		it('Validar GET de alterações cardápio por id com sucesso', () => {
 			var id = '3f42cdc6-f524-4364-af62-13a831abae5d/'
-			usuario = Cypress.config('usuario_coordenador_supervisao_nutricao')
-			senha = Cypress.config('senha')
+			usuario = Cypress.env('usuario_coordenador_supervisao_nutricao')
+			senha = Cypress.env('senha')
 			cy.autenticar_login(usuario, senha)
 			cy.validar_alteracoes_cardapio(id).then((response) => {
 				expect(response.status).to.eq(200)
@@ -961,8 +961,8 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 		})
 
 		it('Validar DELETE de alterações cardápio com sucesso', () => {
-			usuario = Cypress.config('usuario_coordenador_logistica')
-			senha = Cypress.config('senha')
+			usuario = Cypress.env('usuario_coordenador_logistica')
+			senha = Cypress.env('senha')
 			cy.autenticar_login(usuario, senha)
 			var dados_teste = {
 				motivo: '1ddec320-cd24-4cf4-9666-3e7b3a2b903c',
@@ -1037,8 +1037,8 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 		'Casos de teste para a rota /api/alteracoes-cardapio/minhas-solicitacoes/',
 		() => {
 			it('Validar GET minhas solicitacoes com sucesso', () => {
-				var usuario = Cypress.config('usuario_diretor_ue')
-				var senha = Cypress.config('senha')
+				var usuario = Cypress.env('usuario_diretor_ue')
+				var senha = Cypress.env('senha')
 				cy.autenticar_login(usuario, senha)
 				cy.validar_alteracoes_cardapio_minhas_solicitacoes().then(
 					(response) => {
@@ -1072,3 +1072,6 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 		},
 	)
 })
+
+
+

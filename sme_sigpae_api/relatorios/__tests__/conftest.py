@@ -750,7 +750,49 @@ def solicitacao_medicao_inicial_aprovada_codae(
     solicitacoes_medicao_inicial_emef.save()
     return solicitacoes_medicao_inicial_emef
 
-   
+
+@pytest.fixture
+def solicitacao_com_historico_completo(
+    solicitacoes_medicao_inicial_emef,
+    django_user_model,
+):
+    solicitacao = solicitacoes_medicao_inicial_emef
+    usuario = django_user_model.objects.create_user(
+        nome="Usuário TESTE",
+        username="medicao_teste",
+        password=DJANGO_ADMIN_PASSWORD,
+        email="medicao@escola.com",
+        registro_funcional="123456",
+    )
+
+    # 1. Log de Envio (Para testar o nome da Escola e DRE)
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE,
+        usuario=usuario,
+    )
+
+    # 2. Log de Correção (Para testar a Justificativa com striptags)
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA,
+        justificativa="<p>Precisa <strong>ajustar</strong> o valor.</p>",
+        usuario=usuario,
+    )
+
+    # 3. Log de Aprovação (Para testar o status final)
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
+        usuario=usuario,
+    )
+
+    return solicitacao
+
+
 @pytest.fixture
 def ficha_recebimento_observacao_com_none():
     return FichaDeRecebimentoFactory(

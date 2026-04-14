@@ -5,6 +5,8 @@ from django_filters import rest_framework as filters
 
 from sme_sigpae_api.dados_comuns.utils import get_ultimo_dia_mes
 
+from ..models import SolicitacaoMedicaoInicial
+
 
 class DiaParaCorrecaoFilter(filters.FilterSet):
     uuid_solicitacao_medicao = filters.CharFilter(
@@ -16,6 +18,46 @@ class DiaParaCorrecaoFilter(filters.FilterSet):
     nome_periodo_escolar = filters.CharFilter(
         field_name="medicao__periodo_escolar__nome", lookup_expr="iexact"
     )
+
+
+class ValorMedicaoFilter(filters.FilterSet):
+    uuid_solicitacao_medicao = filters.CharFilter(
+        field_name="medicao__solicitacao_medicao_inicial__uuid",
+        lookup_expr="iexact",
+    )
+    nome_grupo = filters.CharFilter(method="filtra_nome_grupo")
+    nome_periodo_escolar = filters.CharFilter(
+        field_name="medicao__periodo_escolar__nome", lookup_expr="iexact"
+    )
+    uuid_medicao_periodo_grupo = filters.CharFilter(
+        field_name="medicao__uuid", lookup_expr="iexact"
+    )
+
+    def filtra_nome_grupo(self, queryset, _, value):
+        uuid_solicitacao_medicao = self.data.get("uuid_solicitacao_medicao")
+
+        if uuid_solicitacao_medicao:
+            solicitacao = SolicitacaoMedicaoInicial.objects.get(
+                uuid=uuid_solicitacao_medicao
+            )
+            medicao = solicitacao.get_medicao_por_periodo_e_ou_grupo(value)
+            return queryset.filter(medicao=medicao) if medicao else queryset.none()
+
+        return queryset.filter(medicao__grupo__nome=value)
+
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+
+        if not self.data:
+            return queryset
+
+        nome_grupo = self.data.get("nome_grupo")
+        uuid_medicao_periodo_grupo = self.data.get("uuid_medicao_periodo_grupo")
+
+        if not nome_grupo and not uuid_medicao_periodo_grupo:
+            queryset = queryset.filter(medicao__grupo__isnull=True)
+
+        return queryset
 
 
 class EmpenhoFilter(filters.FilterSet):
@@ -92,7 +134,10 @@ class SolicitacaoMedicaoInicialFilter(filters.FilterSet):
         if not self.data:
             return queryset
 
-        if "recreio_nas_ferias" not in self.data:
+        if (
+            "recreio_nas_ferias" not in self.data
+            and "voltar_unico_registro" in self.data
+        ):
             queryset = queryset.filter(recreio_nas_ferias__isnull=True)
 
         return queryset

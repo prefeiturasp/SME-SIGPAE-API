@@ -1,12 +1,12 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 
-describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
+describe('Validar rotas de alimentos da guia da aplicaÃ§Ã£o SIGPAE', () => {
 	var usuario
 	var senha
 	var id
 	before(() => {
-		usuario = Cypress.config('usuario_coordenador_codae_dilog_logistica')
-		senha = Cypress.config('senha')
+		usuario = Cypress.env('usuario_coordenador_codae_dilog_logistica')
+		senha = Cypress.env('senha')
 		cy.autenticar_login(usuario, senha)
 	})
 
@@ -68,8 +68,8 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 
 		it('Validar que um usuário sem permissão não pode acessar o endpoint', () => {
 			id = ''
-			usuario = Cypress.config('usuario_diretor_ue')
-			senha = Cypress.config('senha')
+			usuario = Cypress.env('usuario_diretor_ue')
+			senha = Cypress.env('senha')
 			cy.autenticar_login(usuario, senha)
 			cy.validar_alimentos_da_guia(id).then((response) => {
 				expect(response.status).to.eq(403)
@@ -84,8 +84,8 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 	context('Casos de teste para a rota api/alimentos-da-guia/uuid/ GET', () => {
 		it('Validar GET com id de um unico alimentos da guia com sucesso', () => {
 			id = 'b9a97cc1-f4dc-469d-be34-f63eb96bdbf4/'
-			usuario = Cypress.config('usuario_coordenador_codae_dilog_logistica')
-			senha = Cypress.config('senha')
+			usuario = Cypress.env('usuario_coordenador_codae_dilog_logistica')
+			senha = Cypress.env('senha')
 			cy.autenticar_login(usuario, senha)
 			cy.validar_alimentos_da_guia(id).then((response) => {
 				expect(response.status).to.eq(200)
@@ -561,3 +561,4 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 		},
 	)
 })
+

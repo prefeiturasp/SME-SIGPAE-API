@@ -1,0 +1,28 @@
+{% load index %}
+<div class="consolidado-total">
+  <h2 class="consolidado-titulo">{{ titulo }}</h2>
+
+  <div class="consolidado-conteudo">
+    <div class="bloco bloco-quantidade">
+      <span class="bloco-titulo">
+        {{ titulo_quantidade|default:"QUANTIDADE SERVIDA (A+B+C):" }}
+      </span>
+
+      <div class="caixa quantidade">
+        <span class="valor">{{ quantidade|numero_para_milhar }}</span>
+        <span class="unidade">ALIMENTAÇÕES</span>
+      </div>
+    </div>
+
+    <div class="bloco bloco-valor bloco-grande">
+      <span class="bloco-titulo">
+        {{ titulo_valor|default:"VALOR DO FATURAMENTO TOTAL (A+B+C):" }}
+      </span>
+
+      <div class="caixa valor">
+        <span class="valor">R$ {{ valor|agrupador_milhar_com_decimal }}</span>
+        <span class="extenso">({{ valor_extenso }})</span>
+      </div>
+    </div>
+  </div>
+</div>

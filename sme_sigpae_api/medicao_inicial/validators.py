@@ -1,8 +1,9 @@
 import calendar
 import datetime
 import unicodedata
+from typing import Dict, List, Optional, Set, Tuple
 
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 from workalendar.america import BrazilSaoPauloCity
 
 from sme_sigpae_api.dados_comuns.utils import filtrar_dias_letivos, get_ultimo_dia_mes
@@ -2908,7 +2909,7 @@ def validate_solicitacoes_programas_e_projetos(solicitacao, lista_erros):
 
     medicao_programas_projetos = solicitacao.get_medicao_programas_e_projetos
 
-    return validate_solicitacoes_continuas(
+    lista_erros = validate_solicitacoes_continuas(
         solicitacao,
         lista_erros,
         inclusoes,
@@ -2916,6 +2917,12 @@ def validate_solicitacoes_programas_e_projetos(solicitacao, lista_erros):
         "Programas e Projetos",
         True,
     )
+
+    lista_erros = valida_programas_e_projetos_periodos_zero(
+        solicitacao, medicao_programas_projetos, lista_erros
+    )
+
+    return erros_unicos(lista_erros)
 
 
 # TODO: adicionar testes unitarios
@@ -2926,7 +2933,7 @@ def _validate_solicitacoes_programas_e_projetos_emei_cemei(
 
     if not inclusoes:
         return lista_erros
-    return validate_solicitacoes_continuas_emei_cemei(
+    lista_erros = validate_solicitacoes_continuas_emei_cemei(
         solicitacao,
         lista_erros,
         inclusoes,
@@ -2934,6 +2941,12 @@ def _validate_solicitacoes_programas_e_projetos_emei_cemei(
         "Programas e Projetos",
         True,
     )
+
+    lista_erros = valida_programas_e_projetos_periodos_zero(
+        solicitacao, medicao, lista_erros
+    )
+
+    return erros_unicos(lista_erros)
 
 
 def validate_solicitacoes_etec(solicitacao, lista_erros):
@@ -3071,7 +3084,7 @@ def validate_solicitacoes_programas_e_projetos_emebs(solicitacao, lista_erros):
     if not inclusoes or not medicao_programas_projetos:
         return lista_erros
 
-    return validate_solicitacoes_continuas(
+    lista_erros = validate_solicitacoes_continuas(
         solicitacao,
         lista_erros,
         inclusoes,
@@ -3081,6 +3094,12 @@ def validate_solicitacoes_programas_e_projetos_emebs(solicitacao, lista_erros):
         False,
         True,
     )
+
+    lista_erros = valida_programas_e_projetos_periodos_zero_emebs(
+        solicitacao, medicao_programas_projetos, lista_erros
+    )
+
+    return erros_unicos(lista_erros)
 
 
 def valida_medicao_etec_inexistente_escola_sem_alunos_regulares(
@@ -3755,3 +3774,418 @@ def _get_numero_alunos(logs_dietas_autorizadas_no_mes, dia, classificacao):
         LogQuantidadeDietasAutorizadas.MultipleObjectsReturned,
     ):
         return 0
+
+
+def valida_programas_e_projetos_periodos_zero(
+    solicitacao: SolicitacaoMedicaoInicial,
+    medicao_programas_e_projetos: Medicao,
+    lista_erros: list[dict[str, str]],
+) -> list[dict[str, str]]:
+    """Valida Programas e Projetos quando todos os períodos estão com zero.
+
+    Para cada dia em que Programas e Projetos possui registro de frequência,
+    verifica se todos os períodos escolares também estão com frequência zero.
+
+    Se algum dia tiver todos os períodos em zero e o valor de Programas e Projetos
+    for diferente de "0" sem observação, adiciona erro.
+
+    Faz isso para Alimentação e para todas as categorias de Dietas.
+
+    Args:
+        solicitacao: Instância de `SolicitacaoMedicaoInicial`.
+        medicao_programas_e_projetos: Instância de `Medicao` de Programas e Projetos.
+        lista_erros: Lista de dicionários de erros acumulados.
+
+    Returns:
+        list[dict[str, str]]: Lista de erros atualizada, com erros únicos.
+    """
+    categorias_a_validar = CategoriaMedicao.objects.exclude(
+        nome__icontains="SOLICITAÇÕES DE ALIMENTAÇÃO"
+    )
+    if solicitacao.escola.eh_cemei:
+        medicoes_periodos = solicitacao.medicoes.filter(
+            grupo__nome__icontains="infantil"
+        )
+    else:
+        medicoes_periodos = solicitacao.medicoes.filter(periodo_escolar__isnull=False)
+
+    valores_programas = _get_valores_programas(
+        medicao_programas_e_projetos, categorias_a_validar
+    )
+    valores_periodos = _get_valores_periodos(medicoes_periodos, categorias_a_validar)
+    observacoes_programas = _get_observacoes_programas(medicao_programas_e_projetos)
+
+    for categoria in categorias_a_validar:
+        dias_programas = _get_dias_programas(valores_programas, categoria)
+        for dia in dias_programas:
+            if not _all_periodos_zero(
+                valores_periodos, medicoes_periodos, dia, categoria
+            ):
+                continue
+            valor_programas = _get_valor_programas(valores_programas, dia, categoria)
+            if _deve_adicionar_erro(valor_programas, observacoes_programas, dia):
+                lista_erros.append(
+                    {
+                        "periodo_escolar": "Programas e Projetos",
+                        "erro": "Avaliar lançamentos de dias sem frequencia nos demais períodos.",
+                    }
+                )
+
+    return erros_unicos(lista_erros)
+
+
+def _get_valores_programas(
+    medicao_programas_e_projetos: Medicao,
+    categorias: QuerySet[CategoriaMedicao],
+) -> dict[tuple[str, int], str | None]:
+    """Prefetch valores de frequência de Programas e Projetos para as categorias especificadas.
+
+    Args:
+        medicao_programas_e_projetos: Instância de `Medicao` de Programas e Projetos.
+        categorias: QuerySet de `CategoriaMedicao` a serem consideradas.
+
+    Returns:
+        dict: Dicionário com chave (dia, categoria_id) e valor como string ou None.
+    """
+    return {
+        (vm.dia, vm.categoria_medicao_id): vm.valor
+        for vm in medicao_programas_e_projetos.valores_medicao.filter(
+            nome_campo="frequencia",
+            categoria_medicao__in=categorias,
+        )
+    }
+
+
+def _get_valores_periodos(
+    medicoes_periodos: QuerySet[Medicao],
+    categorias: QuerySet[CategoriaMedicao],
+) -> Dict[Tuple[int, str, int], Optional[str]]:
+    """Prefetch valores de frequência dos períodos escolares para as categorias especificadas.
+
+    Args:
+        medicoes_periodos: QuerySet de `Medicao` dos períodos escolares.
+        categorias: QuerySet de `CategoriaMedicao` a serem consideradas.
+
+    Returns:
+        dict: Dicionário com chave (medicao_id, dia, categoria_id) e valor como string ou None.
+    """
+    valores = {}
+    for medicao in medicoes_periodos:
+        for vm in medicao.valores_medicao.filter(
+            nome_campo="frequencia",
+            categoria_medicao__in=categorias,
+        ):
+            key = (medicao.id, vm.dia, vm.categoria_medicao_id)
+            valores[key] = vm.valor
+    return valores
+
+
+def _get_observacoes_programas(medicao_programas_e_projetos: Medicao) -> Set[str]:
+    """Obtém o conjunto de dias com observações em Programas e Projetos.
+
+    Args:
+        medicao_programas_e_projetos: Instância de `Medicao` de Programas e Projetos.
+
+    Returns:
+        set: Conjunto de dias (strings) com observações.
+    """
+    return set(
+        medicao_programas_e_projetos.valores_medicao.filter(
+            nome_campo="observacoes"
+        ).values_list("dia", flat=True)
+    )
+
+
+def _get_dias_programas(
+    valores_programas: Dict[Tuple[str, int], Optional[str]],
+    categoria: CategoriaMedicao,
+) -> Set[str]:
+    """Obtém os dias com registros de frequência para uma categoria específica.
+
+    Args:
+        valores_programas: Dicionário de valores de Programas e Projetos.
+        categoria: Instância de `CategoriaMedicao`.
+
+    Returns:
+        set: Conjunto de dias (strings) com registros.
+    """
+    return {
+        dia for (dia, cat_id), _ in valores_programas.items() if cat_id == categoria.id
+    }
+
+
+def _all_periodos_zero(
+    valores_periodos: Dict[Tuple[int, str, int], Optional[str]],
+    medicoes_periodos: QuerySet[Medicao],
+    dia: str,
+    categoria: CategoriaMedicao,
+) -> bool:
+    """Verifica se todos os períodos escolares estão com frequência zero no dia e categoria especificados.
+
+    Args:
+        valores_periodos: Dicionário de valores dos períodos.
+        medicoes_periodos: QuerySet de `Medicao` dos períodos.
+        dia: Dia do mês como string.
+        categoria: Instância de `CategoriaMedicao`.
+
+    Returns:
+        bool: True se todos os períodos estão zero ou sem valor, False caso contrário.
+    """
+    for medicao in medicoes_periodos:
+        key = (medicao.id, dia, categoria.id)
+        valor = valores_periodos.get(key)
+        if valor is not None and valor != "0":
+            return False
+    return True
+
+
+def _get_valor_programas(
+    valores_programas: Dict[Tuple[str, int], Optional[str]],
+    dia: str,
+    categoria: CategoriaMedicao,
+) -> Optional[str]:
+    """Obtém o valor de frequência de Programas e Projetos para o dia e categoria especificados.
+
+    Args:
+        valores_programas: Dicionário de valores de Programas e Projetos.
+        dia: Dia do mês como string.
+        categoria: Instância de `CategoriaMedicao`.
+
+    Returns:
+        str | None: Valor de frequência ou None se não existir.
+    """
+    return valores_programas.get((dia, categoria.id))
+
+
+def _deve_adicionar_erro(
+    valor_programas: Optional[str],
+    observacoes_programas: Set[str],
+    dia: str,
+) -> bool:
+    """Determina se deve adicionar um erro baseado no valor de Programas e Projetos e observações.
+
+    Args:
+        valor_programas: Valor de frequência de Programas e Projetos.
+        observacoes_programas: Conjunto de dias com observações.
+        dia: Dia do mês como string.
+
+    Returns:
+        bool: True se deve adicionar erro, False caso contrário.
+    """
+    return (
+        valor_programas is not None
+        and valor_programas != "0"
+        and dia not in observacoes_programas
+    )
+
+
+def valida_programas_e_projetos_periodos_zero_emebs(
+    solicitacao: SolicitacaoMedicaoInicial,
+    medicao_programas_e_projetos: Medicao,
+    lista_erros: list[dict[str, str]],
+) -> list[dict[str, str]]:
+    """Valida Programas e Projetos quando todos os períodos estão com zero para escolas do tipo EMEBS.
+
+    Para cada dia em que Programas e Projetos possui registro de frequência,
+    verifica se todos os períodos escolares também estão com frequência zero.
+
+    Se algum dia tiver todos os períodos em zero e o valor de Programas e Projetos
+    for diferente de "0" sem observação, adiciona erro.
+
+    Faz isso para Alimentação e para todas as categorias de Dietas.
+
+    Args:
+        solicitacao: Instância de `SolicitacaoMedicaoInicial`.
+        medicao_programas_e_projetos: Instância de `Medicao` de Programas e Projetos.
+        lista_erros: Lista de dicionários de erros acumulados.
+
+    Returns:
+        list[dict[str, str]]: Lista de erros atualizada, com erros únicos.
+    """
+    categorias_a_validar = CategoriaMedicao.objects.exclude(
+        nome__icontains="SOLICITAÇÕES DE ALIMENTAÇÃO"
+    )
+    medicoes_periodos = solicitacao.medicoes.filter(periodo_escolar__isnull=False)
+
+    campos_infantil_ou_fundamental = [
+        ValorMedicao.INFANTIL,
+        ValorMedicao.FUNDAMENTAL,
+    ]
+
+    valores_programas = _get_valores_programas_emebs(
+        medicao_programas_e_projetos,
+        categorias_a_validar,
+        campos_infantil_ou_fundamental,
+    )
+    valores_periodos = _get_valores_periodos_emebs(
+        medicoes_periodos, categorias_a_validar, campos_infantil_ou_fundamental
+    )
+    observacoes_programas = _get_observacoes_programas_emebs(
+        medicao_programas_e_projetos, campos_infantil_ou_fundamental
+    )
+
+    for infantil_ou_fundamental in campos_infantil_ou_fundamental:
+        for categoria in categorias_a_validar:
+            dias_programas = _get_dias_programas_emebs(
+                valores_programas, categoria, infantil_ou_fundamental
+            )
+            for dia in dias_programas:
+                if _programas_e_projetos_periodo_zero_emebs_necessita_erro_otimizado(
+                    valores_programas,
+                    valores_periodos,
+                    observacoes_programas,
+                    categoria,
+                    dia,
+                    infantil_ou_fundamental,
+                    medicoes_periodos,
+                ):
+                    lista_erros.append(
+                        {
+                            "periodo_escolar": "Programas e Projetos",
+                            "erro": "Avaliar lançamentos de dias sem frequencia nos demais períodos.",
+                        }
+                    )
+
+    return erros_unicos(lista_erros)
+
+
+def _get_valores_programas_emebs(
+    medicao_programas_e_projetos: Medicao,
+    categorias: QuerySet[CategoriaMedicao],
+    campos_infantil_ou_fundamental: List[str],
+) -> Dict[Tuple[str, int, str], Optional[str]]:
+    """Prefetch valores de frequência de Programas e Projetos para EMEBS, incluindo infantil/fundamental.
+
+    Args:
+        medicao_programas_e_projetos: Instância de `Medicao` de Programas e Projetos.
+        categorias: QuerySet de `CategoriaMedicao`.
+        campos_infantil_ou_fundamental: Lista de tipos (INFANTIL, FUNDAMENTAL).
+
+    Returns:
+        dict: Dicionário com chave (dia, categoria_id, infantil_ou_fundamental) e valor.
+    """
+    return {
+        (vm.dia, vm.categoria_medicao_id, vm.infantil_ou_fundamental): vm.valor
+        for vm in medicao_programas_e_projetos.valores_medicao.filter(
+            nome_campo="frequencia",
+            categoria_medicao__in=categorias,
+            infantil_ou_fundamental__in=campos_infantil_ou_fundamental,
+        )
+    }
+
+
+def _get_valores_periodos_emebs(
+    medicoes_periodos: QuerySet[Medicao],
+    categorias: QuerySet[CategoriaMedicao],
+    campos_infantil_ou_fundamental: List[str],
+) -> Dict[Tuple[int, str, int, str], Optional[str]]:
+    """Prefetch valores de frequência dos períodos escolares para EMEBS.
+
+    Args:
+        medicoes_periodos: QuerySet de `Medicao` dos períodos.
+        categorias: QuerySet de `CategoriaMedicao`.
+        campos_infantil_ou_fundamental: Lista de tipos (INFANTIL, FUNDAMENTAL).
+
+    Returns:
+        dict: Dicionário com chave (medicao_id, dia, categoria_id, infantil_ou_fundamental) e valor.
+    """
+    valores = {}
+    for medicao in medicoes_periodos:
+        for vm in medicao.valores_medicao.filter(
+            nome_campo="frequencia",
+            categoria_medicao__in=categorias,
+            infantil_ou_fundamental__in=campos_infantil_ou_fundamental,
+        ):
+            key = (
+                medicao.id,
+                vm.dia,
+                vm.categoria_medicao_id,
+                vm.infantil_ou_fundamental,
+            )
+            valores[key] = vm.valor
+    return valores
+
+
+def _get_observacoes_programas_emebs(
+    medicao_programas_e_projetos: Medicao,
+    campos_infantil_ou_fundamental: List[str],
+) -> Set[Tuple[str, str]]:
+    """Obtém o conjunto de dias e tipos com observações em Programas e Projetos para EMEBS.
+
+    Args:
+        medicao_programas_e_projetos: Instância de `Medicao` de Programas e Projetos.
+        campos_infantil_ou_fundamental: Lista de tipos (INFANTIL, FUNDAMENTAL).
+
+    Returns:
+        set: Conjunto de tuplas (dia, infantil_ou_fundamental) com observações.
+    """
+    return set(
+        medicao_programas_e_projetos.valores_medicao.filter(
+            nome_campo="observacoes",
+            infantil_ou_fundamental__in=campos_infantil_ou_fundamental,
+        ).values_list("dia", "infantil_ou_fundamental")
+    )
+
+
+def _get_dias_programas_emebs(
+    valores_programas: Dict[Tuple[str, int, str], Optional[str]],
+    categoria: CategoriaMedicao,
+    infantil_ou_fundamental: str,
+) -> Set[str]:
+    """Obtém os dias com registros de frequência para uma categoria e tipo específicos em EMEBS.
+
+    Args:
+        valores_programas: Dicionário de valores de Programas e Projetos.
+        categoria: Instância de `CategoriaMedicao`.
+        infantil_ou_fundamental: Tipo (INFANTIL ou FUNDAMENTAL).
+
+    Returns:
+        set: Conjunto de dias (strings) com registros.
+    """
+    return {
+        dia
+        for (dia, cat_id, inf_fund), _ in valores_programas.items()
+        if cat_id == categoria.id and inf_fund == infantil_ou_fundamental
+    }
+
+
+def _programas_e_projetos_periodo_zero_emebs_necessita_erro_otimizado(
+    valores_programas: Dict[Tuple[str, int, str], Optional[str]],
+    valores_periodos: Dict[Tuple[int, str, int, str], Optional[str]],
+    observacoes_programas: Set[Tuple[str, str]],
+    categoria: CategoriaMedicao,
+    dia: str,
+    infantil_ou_fundamental: str,
+    medicoes_periodos: QuerySet[Medicao],
+) -> bool:
+    """Verifica se é necessário adicionar erro para Programas e Projetos em EMEBS (versão otimizada).
+
+    Args:
+        valores_programas: Dicionário de valores de Programas e Projetos.
+        valores_periodos: Dicionário de valores dos períodos.
+        observacoes_programas: Conjunto de (dia, tipo) com observações.
+        categoria: Instância de `CategoriaMedicao`.
+        dia: Dia do mês como string.
+        infantil_ou_fundamental: Tipo (INFANTIL ou FUNDAMENTAL).
+        medicoes_periodos: QuerySet de `Medicao` dos períodos.
+
+    Returns:
+        bool: True se deve adicionar erro, False caso contrário.
+    """
+    for medicao in medicoes_periodos:
+        key = (medicao.id, dia, categoria.id, infantil_ou_fundamental)
+        valor = valores_periodos.get(key)
+        if valor is not None and valor != "0":
+            return False
+
+    valor_programas = valores_programas.get(
+        (dia, categoria.id, infantil_ou_fundamental)
+    )
+
+    if valor_programas is None or valor_programas == "0":
+        return False
+
+    if (dia, infantil_ou_fundamental) in observacoes_programas:
+        return False
+
+    return True

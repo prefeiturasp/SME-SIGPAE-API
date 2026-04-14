@@ -1,0 +1,35 @@
+{% load index %}
+<table class="tabela-relatorio">
+  <thead>
+    <tr>
+      <th class="col-faixa">ALIMENTAÇÕES FAIXAS ETÁRIAS - SEM DIETAS</th>
+      <th>VALOR UNITÁRIO</th>
+      <th>VALOR DO REAJUSTE</th>
+      <th>VALOR UNIT. TOTAL</th>
+      <th>NÚMERO DE ATEND.</th>
+      <th>VALOR TOTAL</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for linha in linhas %}
+    <tr>
+      <td>{{ linha.periodo }} - <b>{{ linha.faixa }}</b></td>
+      <td>R$ {{ linha.valor_unitario|agrupador_milhar_com_decimal }}</td>
+      <td>R$ {{ linha.valor_reajuste|agrupador_milhar_com_decimal }}</td>
+      <td>R$ {{ linha.total_unitario|agrupador_milhar_com_decimal }}</td>
+      <td>{{ linha.numero_atendimentos|numero_para_milhar }}</td>
+      <td>R$ {{ linha.valor_total|agrupador_milhar_com_decimal }}</td>
+    </tr>
+    {% endfor %}
+
+    <tr class="linha-total">
+      <td>TOTAL ({{ ordem }})</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>{{ total_atendimentos|numero_para_milhar }}</td>
+      <td>R$ {{ valor_total|agrupador_milhar_com_decimal }}</td>
+    </tr>
+  </tbody>
+</table>

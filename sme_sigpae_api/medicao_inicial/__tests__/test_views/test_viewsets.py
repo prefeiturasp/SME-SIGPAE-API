@@ -79,7 +79,18 @@ def test_solicita_correcao_em_medicoes(
         ),
         (QueryDict("ocorrencias=true"), {"com_ocorrencias": True}),
         (QueryDict("ocorrencias=false"), {"com_ocorrencias": False}),
-        (QueryDict("mes_ano=09_2025"), {"mes": "09", "ano": "2025"}),
+        (
+            QueryDict("mes_ano=09_2025"),
+            {
+                "mes": "09",
+                "ano": "2025",
+                "recreio_nas_ferias__isnull": True,
+            },
+        ),
+        (
+            QueryDict("recreio_nas_ferias=04753691-d8a3-40ce-a133-ee975115f258"),
+            {"recreio_nas_ferias__uuid": "04753691-d8a3-40ce-a133-ee975115f258"},
+        ),
         (
             QueryDict(
                 "lotes_selecionados[]=123e4567-e89b-12d3-a456-426614174000&lotes_selecionados[]=123e4567-e89b-12d3-a456-426614174111"
@@ -101,6 +112,7 @@ def test_solicita_correcao_em_medicoes(
                 "&dre=6fa459ea-ee8a-3ca4-894e-db77e160355e"
                 "&ocorrencias=true"
                 "&mes_ano=09_2025"
+                "&recreio_nas_ferias=04753691-d8a3-40ce-a133-ee975115f258"
                 "&escola=123456 - ESCOLA TESTE CEU"
                 "&lotes_selecionados[]=123e4567-e89b-12d3-a456-426614174000"
                 "&lotes_selecionados[]=123e4567-e89b-12d3-a456-426614174222"
@@ -111,11 +123,28 @@ def test_solicita_correcao_em_medicoes(
                 "com_ocorrencias": True,
                 "mes": "09",
                 "ano": "2025",
+                "recreio_nas_ferias__uuid": "04753691-d8a3-40ce-a133-ee975115f258",
                 "escola__lote__uuid__in": [
                     "123e4567-e89b-12d3-a456-426614174000",
                     "123e4567-e89b-12d3-a456-426614174222",
                 ],
                 "escola__codigo_eol": "123456",
+            },
+        ),
+        (
+            QueryDict(
+                "status=MEDICAO_ENVIADA_PELA_UE"
+                "&mes_ano=03_2026"
+                "&lotes_selecionados[]=87f3e59d-f45f-4dc2-bfb1-0ff6c54d899c"
+            ),
+            {
+                "status": "MEDICAO_ENVIADA_PELA_UE",
+                "mes": "03",
+                "ano": "2026",
+                "recreio_nas_ferias__isnull": True,
+                "escola__lote__uuid__in": [
+                    "87f3e59d-f45f-4dc2-bfb1-0ff6c54d899c",
+                ],
             },
         ),
     ],
