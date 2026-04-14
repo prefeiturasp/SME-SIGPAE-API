@@ -51,17 +51,17 @@ def test_gera_relatorio_historico_correcoes_pdf(
 
 def test_filtrar_historico_por_acao_remove_item(solicitacao_com_historico_correcao):
     historico = json.loads(solicitacao_com_historico_correcao.historico)
-
+    assert len(historico) == 6
     result = filtrar_historico_por_acao(historico, "MEDICAO_CORRECAO_SOLICITADA")
 
     assert result is not None
     assert result["acao"] == "MEDICAO_CORRECAO_SOLICITADA"
-    assert len(historico) == 5  # era 6, removeu 1
+    assert len(historico) == 5
 
 
 def test_filtrar_historico_por_acao_nao_encontra(solicitacao_com_historico_correcao):
     historico = json.loads(solicitacao_com_historico_correcao.historico)
-
+    assert len(historico) == 6
     result = filtrar_historico_por_acao(historico, "ACAO_INEXISTENTE")
 
     assert result is None
