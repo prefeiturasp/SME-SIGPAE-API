@@ -48,6 +48,11 @@ class CardapioAdmin(admin.ModelAdmin):
     ordering = ["data", "criado_em"]
 
 
+@admin.register(TipoAlimentacao)
+class TipoAlimentacaoAdmin(admin.ModelAdmin):
+    search_fields = ("nome",)
+    readonly_fields = ("uuid",)
+
+
 admin.site.register(MotivoDRENaoValida)
 admin.site.register(HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar)
-admin.site.register(TipoAlimentacao)
