@@ -5,15 +5,15 @@ from bs4 import BeautifulSoup
 from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 
-from .models import (
+from .protocolo_padrao.models import (
     Alimento,
     ProtocoloPadraoDietaEspecial,
-    SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
 )
 from .solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
+    SolicitacaoDietaEspecial,
 )
 
 

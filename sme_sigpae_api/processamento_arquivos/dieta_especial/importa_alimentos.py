@@ -7,7 +7,7 @@ from openpyxl import load_workbook
 from sme_sigpae_api.dieta_especial.carga_dados.models import (
     ArquivoCargaAlimentosSubstitutos,
 )
-from sme_sigpae_api.dieta_especial.models import Alimento
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import Alimento
 
 from .schemas import ArquivoCargaAlimentosSchema
 

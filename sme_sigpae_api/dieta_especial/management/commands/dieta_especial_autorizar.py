@@ -1,14 +1,14 @@
 from django.core.management.base import BaseCommand
 from faker import Faker
 
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import (
     Alimento,
-    SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
 )
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
+    SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.perfil.models import Usuario
 

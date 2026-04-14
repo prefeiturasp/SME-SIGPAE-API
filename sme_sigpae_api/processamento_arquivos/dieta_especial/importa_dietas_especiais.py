@@ -12,15 +12,15 @@ from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from sme_sigpae_api.dieta_especial.carga_dados.models import (
     ArquivoCargaDietaEspecial,
 )
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import (
     ProtocoloPadraoDietaEspecial,
-    SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
     SubstituicaoAlimentoProtocoloPadrao,
 )
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
+    SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.escola.models import Aluno, Escola
 from sme_sigpae_api.perfil.models.perfil import Perfil, Vinculo

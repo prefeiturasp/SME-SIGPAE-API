@@ -34,9 +34,7 @@ from .constants import (
     UNIDADES_EMEI_EMEF_CIEJA,
     UNIDADES_SEM_PERIODOS,
 )
-from .models import (
-    SolicitacaoDietaEspecial,
-)
+from .solicitacao_dieta_especial.models import SolicitacaoDietaEspecial
 
 
 def dietas_especiais_a_terminar():

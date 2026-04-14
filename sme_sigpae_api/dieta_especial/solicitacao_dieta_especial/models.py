@@ -21,6 +21,7 @@ from sme_sigpae_api.dados_comuns.fluxo_status import FluxoDietaEspecialPartindoD
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
 from sme_sigpae_api.dados_comuns.utils import convert_base64_to_contentfile
 from sme_sigpae_api.escola.api.serializers import AlunoSerializer
+from sme_sigpae_api.escola.models import Aluno
 
 PENDENTES_EVENTO_DIETA_ESPECIAL = [
     LogSolicitacoesUsuario.INICIO_FLUXO,
@@ -462,3 +463,13 @@ class Anexo(ExportModelOperationsMixin("anexo"), models.Model):
 
     def __str__(self):
         return self.nome
+
+
+class SolicitacoesDietaEspecialAtivasInativasPorAluno(models.Model):
+    aluno = models.OneToOneField(Aluno, on_delete=models.DO_NOTHING, primary_key=True)
+    ativas = models.IntegerField()
+    inativas = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = "dietas_ativas_inativas_por_aluno"

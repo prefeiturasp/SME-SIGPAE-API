@@ -31,16 +31,16 @@ from .carga_dados.models import (
     ArquivoCargaDietaEspecial,
     PlanilhaDietasAtivas,
 )
-from .models import (
+from .protocolo_padrao.models import (
     Alimento,
     ProtocoloPadraoDietaEspecial,
-    SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
     SubstituicaoAlimentoProtocoloPadrao,
 )
 from .solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
+    SolicitacaoDietaEspecial,
 )
 from .tasks import processa_dietas_especiais_task
 from .tasks.admin_actions import get_escolas_task

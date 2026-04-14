@@ -10,13 +10,11 @@ from sme_sigpae_api.dieta_especial.carga_dados.models import (
     ArquivoCargaAlimentosSubstitutos,
     ArquivoCargaDietaEspecial,
 )
-from sme_sigpae_api.dieta_especial.models import (
-    Alimento,
-    SolicitacaoDietaEspecial,
-)
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import Alimento
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
+    SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.processamento_arquivos.dieta_especial.schemas import (
     ArquivoCargaDietaEspecialSchema,

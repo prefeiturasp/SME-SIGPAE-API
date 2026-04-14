@@ -13,16 +13,16 @@ from ..constants import (
     ENDPOINT_CLASSIFICACOES_DIETA,
     ENDPOINT_MOTIVOS_NEGACAO,
 )
-from ..models import (
+from ..protocolo_padrao.models import (
     Alimento,
     ProtocoloPadraoDietaEspecial,
-    SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
 )
 from ..solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
     MotivoNegacao,
+    SolicitacaoDietaEspecial,
 )
 
 

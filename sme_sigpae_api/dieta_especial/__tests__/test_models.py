@@ -2,7 +2,7 @@ import pytest
 import xworkflows
 
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import (
     ProtocoloPadraoDietaEspecial,
 )
 

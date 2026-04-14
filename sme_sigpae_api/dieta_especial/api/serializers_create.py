@@ -18,7 +18,7 @@ from ...escola.models import Aluno, Escola, Responsavel
 from ...produto.api.serializers import serializers as ser
 from ...produto.models import Produto
 from ...terceirizada.models import Edital
-from ..models import (
+from ..protocolo_padrao.models import (
     Alimento,
     AlimentoSubstituto,
     ProtocoloPadraoDietaEspecial,

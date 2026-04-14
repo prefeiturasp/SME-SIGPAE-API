@@ -1,7 +1,7 @@
 from django_filters import rest_framework as filters
 
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
-from ..models import Alimento, ProtocoloPadraoDietaEspecial
+from ..protocolo_padrao.models import Alimento, ProtocoloPadraoDietaEspecial
 from ..solicitacao_dieta_especial.models import ClassificacaoDieta, MotivoNegacao
 
 

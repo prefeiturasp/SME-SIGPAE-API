@@ -13,17 +13,6 @@ from sme_sigpae_api.dados_comuns.behaviors import (
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
-from sme_sigpae_api.escola.models import Aluno
-
-
-class SolicitacoesDietaEspecialAtivasInativasPorAluno(models.Model):
-    aluno = models.OneToOneField(Aluno, on_delete=models.DO_NOTHING, primary_key=True)
-    ativas = models.IntegerField()
-    inativas = models.IntegerField()
-
-    class Meta:
-        managed = False
-        db_table = "dietas_ativas_inativas_por_aluno"
 
 
 class Alimento(Nomeavel, TemChaveExterna, Ativavel):

@@ -29,7 +29,7 @@ from ...produto.api.serializers.serializers import (
 )
 from ...produto.models import Produto, SolicitacaoCadastroProdutoDieta
 from ...terceirizada.api.serializers.serializers import EditalSimplesSerializer
-from ..models import (
+from ..protocolo_padrao.models import (
     Alimento,
     ProtocoloPadraoDietaEspecial,
     SubstituicaoAlimento,

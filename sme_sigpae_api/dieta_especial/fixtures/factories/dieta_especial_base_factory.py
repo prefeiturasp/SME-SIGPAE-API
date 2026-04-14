@@ -2,16 +2,16 @@ from factory import Sequence, SubFactory
 from factory.django import DjangoModelFactory
 from faker import Faker
 
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import (
     Alimento,
     ProtocoloPadraoDietaEspecial,
-    SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
 )
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
     MotivoAlteracaoUE,
+    SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
     AlunoFactory,
