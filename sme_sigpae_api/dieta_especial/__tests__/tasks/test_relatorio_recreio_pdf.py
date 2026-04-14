@@ -3,7 +3,9 @@ from freezegun.api import freeze_time
 from pypdf import PdfReader
 
 from sme_sigpae_api.dados_comuns.models import CentralDeDownload
-from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    SolicitacaoDietaEspecial,
+)
 from sme_sigpae_api.dieta_especial.tasks import (
     gera_pdf_relatorio_recreio_nas_ferias_async,
 )

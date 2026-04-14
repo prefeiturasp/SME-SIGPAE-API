@@ -3,11 +3,11 @@ import pytest
 from openpyxl.cell import Cell
 
 from sme_sigpae_api.dados_comuns.constants import StatusProcessamentoArquivo
-from sme_sigpae_api.dieta_especial.models import (
-    ArquivoCargaDietaEspecial,
+from sme_sigpae_api.dieta_especial.carga_dados.models import ArquivoCargaDietaEspecial
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import SubstituicaoAlimento
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     ClassificacaoDieta,
     SolicitacaoDietaEspecial,
-    SubstituicaoAlimento,
 )
 from sme_sigpae_api.escola.models import Escola
 from sme_sigpae_api.processamento_arquivos.dieta_especial import (

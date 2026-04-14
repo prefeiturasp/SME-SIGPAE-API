@@ -4,7 +4,7 @@ from calendar import monthrange
 
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.template.loader import render_to_string
-from PyPDF4 import PdfFileReader, PdfFileWriter
+from pypdf import PdfReader, PdfWriter
 from weasyprint import HTML
 
 from sme_sigpae_api.dados_comuns.utils import converte_numero_em_mes
@@ -140,13 +140,13 @@ def gera_relatorio_controle_frequencia_pdf(query_params, escola_uuid):
     ).write_pdf()
 
     arquivo_final = io.BytesIO()
-    pdf_cabecalho_relatorio_controle_frequencia = PdfFileReader(
+    pdf_cabecalho_relatorio_controle_frequencia = PdfReader(
         io.BytesIO(html_pdf_cabecalho_relatorio_controle_frequencia), strict=False
     )
-    pdf_relatorio_controle_frequencia = PdfFileReader(
+    pdf_relatorio_controle_frequencia = PdfReader(
         io.BytesIO(html_pdf_relatorio_controle_frequencia), strict=False
     )
-    pdf_writer = PdfFileWriter()
+    pdf_writer = PdfWriter()
 
     pdf_writer = get_pdf_merge_cabecalho(
         pdf_relatorio_controle_frequencia,

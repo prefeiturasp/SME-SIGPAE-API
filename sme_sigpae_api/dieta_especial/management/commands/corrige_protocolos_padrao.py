@@ -3,8 +3,10 @@ import logging
 from django.core.management import BaseCommand
 from django.db.models import F, Func, Value
 
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import (
     ProtocoloPadraoDietaEspecial,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 

@@ -1,10 +1,10 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 const dayjs = require('dayjs')
 var data_atual = dayjs()
 
 describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
-	var usuario = Cypress.config('usuario_abastecimento')
-	var senha = Cypress.config('senha')
+	var usuario = Cypress.env('usuario_abastecimento')
+	var senha = Cypress.env('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -84,7 +84,7 @@ describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET por UUID inváido de conferencia da guia', () => {
+		it('Validar GET por UUID inválido de conferencia da guia', () => {
 			var uuid = '2a69bc14-c0e8-43f8-b7d2-5cce299de/'
 			cy.validar_solicitacoes_dieta(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -237,7 +237,7 @@ describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar DELETE inváido de conferencia da guia', () => {
+		it('Validar DELETE inválido de conferencia da guia', () => {
 			var uuid = '2a69bc14-c0e8-43f8-b7d2-5cce299de/'
 			cy.excluir_conferencia_da_guia(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -507,3 +507,5 @@ describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
 		})
 	})
 })
+
+

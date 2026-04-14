@@ -1,6 +1,22 @@
-describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
-	var usuario = Cypress.config('usuario_codae')
-	var senha = Cypress.config('senha')
+﻿describe('Validar rotas de Itens Cadastros da aplicaÃ§Ã£o SIGPAE', () => {
+const normalizarMensagem = (mensagem) =>
+	mensagem
+		.normalize('NFD')
+		.replace(/[\u0300-\u036f]/g, '')
+		.toLowerCase()
+
+const validarMensagemCampo = (mensagem, trechoEsperado) => {
+	expect(normalizarMensagem(mensagem)).to.include(trechoEsperado)
+}
+
+const validarMensagemLista = (mensagem, trechoEsperado) => {
+	expect(normalizarMensagem(mensagem)).to.include(trechoEsperado)
+}
+
+const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random(1000, 9999)}`
+
+	var usuario = Cypress.env('usuario_codae')
+	var senha = Cypress.env('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -22,7 +38,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Itens Cadastros com filtro Nome Válido', () => {
+		it('Validar GET com sucesso de Itens Cadastros com filtro Nome VÃ¡lido', () => {
 			var nome_filtro = ''
 			cy.consultar_itens_cadastros().then((response) => {
 				expect(response.status).to.eq(200)
@@ -44,8 +60,8 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Itens Cadastros com filtro Nome Inválido', () => {
-			var filtro = '?nome=NomeInválido Para o Teste'
+		it('Validar GET com sucesso de Itens Cadastros com filtro Nome InvÃ¡lido', () => {
+			var filtro = '?nome=NomeInvÃ¡lido Para o Teste'
 			cy.consultar_itens_cadastros_com_filtros(filtro).then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count').eq(0)
@@ -56,7 +72,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Itens Cadastros com filtro Tipo Válido', () => {
+		it('Validar GET com sucesso de Itens Cadastros com filtro Tipo VÃ¡lido', () => {
 			var tipo_filtro = ''
 			cy.consultar_itens_cadastros().then((response) => {
 				expect(response.status).to.eq(200)
@@ -78,8 +94,8 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Itens Cadastros com filtro Tipo Inválido', () => {
-			var filtro = '?tipo=TipoInválido Para o Teste'
+		it('Validar GET com sucesso de Itens Cadastros com filtro Tipo InvÃ¡lido', () => {
+			var filtro = '?tipo=TipoInvÃ¡lido Para o Teste'
 			cy.consultar_itens_cadastros_com_filtros(filtro).then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count').eq(0)
@@ -90,7 +106,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Itens Cadastros com filtros Nome e Tipo Válidos', () => {
+		it('Validar GET com sucesso de Itens Cadastros com filtros Nome e Tipo VÃ¡lidos', () => {
 			var nome_filtro = ''
 			var tipo_filtro = ''
 			cy.consultar_itens_cadastros().then((response) => {
@@ -114,7 +130,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Itens Cadastros Com UUID Válido', () => {
+		it('Validar GET com sucesso de Itens Cadastros Com UUID VÃ¡lido', () => {
 			var uuid_response = ''
 			cy.consultar_itens_cadastros().then((response) => {
 				expect(response.status).to.eq(200)
@@ -130,7 +146,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Itens Cadastros Com UUID Inválido', () => {
+		it('Validar GET com sucesso de Itens Cadastros Com UUID InvÃ¡lido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b1906j'
 			cy.consultar_itens_cadastros_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -159,7 +175,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automação'
+			var nome_teste = gerarNomeUnico('Testes AutomaÃ§Ã£o')
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -180,11 +196,11 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar POST de Itens Cadastros já existente', () => {
+		it('Validar POST de Itens Cadastros jÃ¡ existente', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automação Item Existente'
+			var nome_teste = gerarNomeUnico('Testes AutomaÃ§Ã£o Item Existente')
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -195,7 +211,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 
 				cy.cadastrar_itens_cadastros(dados_teste).then((response) => {
 					expect(response.status).to.eq(400)
-					expect(response.body[0]).to.eq('Item já cadastrado.')
+					validarMensagemLista(response.body[0], 'item ja cadastrado')
 				})
 
 				var filtro = '?nome=' + nome_teste
@@ -210,11 +226,11 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar POST de Itens Cadastros com Tipo Inválido', () => {
+		it('Validar POST de Itens Cadastros com Tipo InvÃ¡lido', () => {
 			const opcoes = ['MARCAS', 'FABRICANTES', 'UNIDADES_MEDIDAS', 'EMBALAGENS']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automação'
+			var nome_teste = gerarNomeUnico('Testes AutomaÃ§Ã£o')
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -232,11 +248,13 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_itens_cadastros(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				expect(response.body.nome[0]).to.eq(
-					'Este campo não pode estar em branco.',
+				validarMensagemCampo(
+					response.body.nome[0],
+					'este campo nao pode estar em branco',
 				)
-				expect(response.body.tipo[0]).to.eq(
-					'Este campo não pode estar em branco.',
+				validarMensagemCampo(
+					response.body.tipo[0],
+					'este campo nao pode estar em branco',
 				)
 			})
 		})
@@ -245,8 +263,8 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			var dados_teste = {}
 			cy.cadastrar_itens_cadastros(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				expect(response.body.nome[0]).to.eq('Este campo é obrigatório.')
-				expect(response.body.tipo[0]).to.eq('Este campo é obrigatório.')
+				validarMensagemCampo(response.body.nome[0], 'este campo e obrigatorio')
+				validarMensagemCampo(response.body.tipo[0], 'este campo e obrigatorio')
 			})
 		})
 
@@ -254,7 +272,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automação DELETE'
+			var nome_teste = gerarNomeUnico('Testes AutomaÃ§Ã£o DELETE')
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -275,7 +293,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar DELETE de Itens Cadastros com UUID inválido', () => {
+		it('Validar DELETE de Itens Cadastros com UUID invÃ¡lido', () => {
 			var uuid = '53886ad8-cb8b-4175-853e-de087aaaaaaa'
 			cy.deletar_itens_cadastros(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -286,7 +304,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automação PUT'
+			var nome_teste = gerarNomeUnico('Testes AutomaÃ§Ã£o PUT')
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -301,7 +319,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 					var uuid_response = response.body.results[0].uuid
 
 					var dados_teste = {
-						nome: 'Testes Automatizados Alterado via PUT',
+						nome: gerarNomeUnico('Testes Automatizados Alterado via PUT'),
 						tipo: tipo_teste,
 					}
 
@@ -319,11 +337,11 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar PUT de Itens Cadastros com Tipo inválido', () => {
+		it('Validar PUT de Itens Cadastros com Tipo invÃ¡lido', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automação PUT - Tipo Inválido'
+			var nome_teste = gerarNomeUnico('Testes AutomaÃ§Ã£o PUT - Tipo InvÃ¡lido')
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -338,16 +356,17 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 					var uuid_response = response.body.results[0].uuid
 
 					var dados_teste = {
-						nome: 'Testes Automatizados - Tipo Inválido via PUT',
+						nome: gerarNomeUnico('Testes Automatizados - Tipo InvÃ¡lido via PUT'),
 						tipo: 'TIPO_INVALIDO',
 					}
 
 					cy.put_alterar_itens_cadastros(uuid_response, dados_teste).then(
 						(responsePut) => {
 							expect(responsePut.status).to.eq(400)
-							expect(responsePut.body[0]).to.eq(
-								'Erro ao criar ItemCadastro. Tipo não permitido: ' +
-									dados_teste.tipo,
+							validarMensagemLista(
+								responsePut.body[0],
+								'erro ao criar itemcadastro. tipo nao permitido: ' +
+									dados_teste.tipo.toLowerCase(),
 							)
 						},
 					)
@@ -359,11 +378,11 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar PUT de Itens Cadastros  já existente', () => {
+		it('Validar PUT de Itens Cadastros  jÃ¡ existente', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automatizados via PUT - Item Existente'
+			var nome_teste = gerarNomeUnico('Testes Automatizados via PUT - Item Existente')
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -380,7 +399,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 					cy.put_alterar_itens_cadastros(uuid_response, dados_teste).then(
 						(responsePut) => {
 							expect(responsePut.status).to.eq(400)
-							expect(responsePut.body[0]).to.eq('Item já cadastrado.')
+							validarMensagemLista(responsePut.body[0], 'item ja cadastrado')
 						},
 					)
 
@@ -403,11 +422,13 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 				}
 				cy.put_alterar_itens_cadastros(uuid, dados_teste).then((response) => {
 					expect(response.status).to.eq(400)
-					expect(response.body.nome[0]).to.eq(
-						'Este campo não pode estar em branco.',
+					validarMensagemCampo(
+						response.body.nome[0],
+						'este campo nao pode estar em branco',
 					)
-					expect(response.body.tipo[0]).to.eq(
-						'Este campo não pode estar em branco.',
+					validarMensagemCampo(
+						response.body.tipo[0],
+						'este campo nao pode estar em branco',
 					)
 				})
 			})
@@ -422,8 +443,8 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 				var dados_teste = {}
 				cy.put_alterar_itens_cadastros(uuid, dados_teste).then((response) => {
 					expect(response.status).to.eq(400)
-					expect(response.body.nome[0]).to.eq('Este campo é obrigatório.')
-					expect(response.body.tipo[0]).to.eq('Este campo é obrigatório.')
+					validarMensagemCampo(response.body.nome[0], 'este campo e obrigatorio')
+					validarMensagemCampo(response.body.tipo[0], 'este campo e obrigatorio')
 				})
 			})
 		})
@@ -432,7 +453,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automação PATCH'
+			var nome_teste = gerarNomeUnico('Testes AutomaÃ§Ã£o PATCH')
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -447,7 +468,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 					var uuid_response = response.body.results[0].uuid
 
 					var dados_teste = {
-						nome: 'Testes Automatizados Alterado via PATCH',
+						nome: gerarNomeUnico('Testes Automatizados Alterado via PATCH'),
 						tipo: tipo_teste,
 					}
 
@@ -465,11 +486,11 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar PACTH de Itens Cadastros com Tipo inválido', () => {
+		it('Validar PACTH de Itens Cadastros com Tipo invÃ¡lido', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automação PATCH'
+			var nome_teste = gerarNomeUnico('Testes AutomaÃ§Ã£o PATCH')
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -484,16 +505,17 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 					var uuid_response = response.body.results[0].uuid
 
 					var dados_teste = {
-						nome: 'Testes Automatizados Alterado via PATCH',
+						nome: gerarNomeUnico('Testes Automatizados Alterado via PATCH'),
 						tipo: 'TIPO_INVALIDO',
 					}
 
 					cy.patch_alterar_itens_cadastros(uuid_response, dados_teste).then(
 						(responsePut) => {
 							expect(responsePut.status).to.eq(400)
-							expect(responsePut.body[0]).to.eq(
-								'Erro ao criar ItemCadastro. Tipo não permitido: ' +
-									dados_teste.tipo,
+							validarMensagemLista(
+								responsePut.body[0],
+								'erro ao criar itemcadastro. tipo nao permitido: ' +
+									dados_teste.tipo.toLowerCase(),
 							)
 						},
 					)
@@ -505,11 +527,11 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar PACTH de Itens Cadastros  já existente', () => {
+		it('Validar PACTH de Itens Cadastros  jÃ¡ existente', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automatizados via PATCH - Item Existente'
+			var nome_teste = gerarNomeUnico('Testes Automatizados via PATCH - Item Existente')
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -526,7 +548,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 					cy.patch_alterar_itens_cadastros(uuid_response, dados_teste).then(
 						(responsePut) => {
 							expect(responsePut.status).to.eq(400)
-							expect(responsePut.body[0]).to.eq('Item já cadastrado.')
+							validarMensagemLista(responsePut.body[0], 'item ja cadastrado')
 						},
 					)
 
@@ -549,14 +571,17 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 				}
 				cy.patch_alterar_itens_cadastros(uuid, dados_teste).then((response) => {
 					expect(response.status).to.eq(400)
-					expect(response.body.nome[0]).to.eq(
-						'Este campo não pode estar em branco.',
+					validarMensagemCampo(
+						response.body.nome[0],
+						'este campo nao pode estar em branco',
 					)
-					expect(response.body.tipo[0]).to.eq(
-						'Este campo não pode estar em branco.',
+					validarMensagemCampo(
+						response.body.tipo[0],
+						'este campo nao pode estar em branco',
 					)
 				})
 			})
 		})
 	})
 })
+

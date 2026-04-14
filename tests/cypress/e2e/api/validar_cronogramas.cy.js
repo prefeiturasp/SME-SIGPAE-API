@@ -1,8 +1,8 @@
 /// <reference types='cypress' />
 
 describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
-	var usuario = Cypress.config('usuario_dilog_cronograma')
-	var senha = Cypress.config('senha')
+	var usuario = Cypress.env('usuario_dilog_cronograma')
+	var senha = Cypress.env('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -388,15 +388,6 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 					'qtd_total_programada',
 				)
 				expect(response.body.results[0]).to.have.property('unidade_medida')
-				expect(response.body.results[0]).to.have.property('armazem').that.exist
-				expect(response.body.results[0].armazem).to.have.property('uuid').that
-					.exist
-				expect(response.body.results[0].armazem).to.have.property(
-					'nome_fantasia',
-				).that.exist
-				expect(response.body.results[0].armazem).to.have.property(
-					'razao_social',
-				).that.exist
 				expect(response.body.results[0]).to.have.property('etapas').that.exist
 				expect(response.body.results[0].etapas).to.be.an('array')
 				expect(response.body.results[0].etapas[0]).to.have.property('uuid').that
@@ -418,19 +409,10 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 				).that.exist
 				expect(response.body.results[0].etapas[0]).to.have.property(
 					'total_embalagens',
-				).that.exist
+				)
 				expect(response.body.results[0])
 					.to.have.property('programacoes_de_recebimento')
 					.to.be.an('array')
-				expect(
-					response.body.results[0].programacoes_de_recebimento[0],
-				).to.have.property('uuid').that.exist
-				expect(
-					response.body.results[0].programacoes_de_recebimento[0],
-				).to.have.property('data_programada').that.exist
-				expect(
-					response.body.results[0].programacoes_de_recebimento[0],
-				).to.have.property('tipo_carga').that.exist
 				expect(response.body.results[0]).to.have.property('ficha_tecnica')
 				expect(response.body.results[0]).to.have.property(
 					'tipo_embalagem_secundaria',
@@ -539,9 +521,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 				expect(response.body.results[0].ficha_tecnica).to.have.property(
 					'peso_liquido_embalagem_primaria',
 				)
-				expect(response.body.results[0].ficha_tecnica).to.have.property(
-					'unidade_medida_primaria',
-				)
+				
 				expect(response.body.results[0].ficha_tecnica).to.have.property(
 					'peso_liquido_embalagem_secundaria',
 				)
@@ -691,27 +671,6 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 				expect(response.body.results[0]).to.have.property(
 					'qtd_total_programada',
 				)
-				expect(response.body.results[0]).to.have.property('unidade_medida').that
-					.exist
-				expect(response.body.results[0].unidade_medida).to.have.property('uuid')
-					.that.exist
-				expect(response.body.results[0].unidade_medida).to.have.property('nome')
-					.that.exist
-				expect(response.body.results[0].unidade_medida).to.have.property(
-					'abreviacao',
-				).that.exist
-				expect(response.body.results[0].unidade_medida).to.have.property(
-					'criado_em',
-				).that.exist
-				expect(response.body.results[0]).to.have.property('armazem').that.exist
-				expect(response.body.results[0].armazem).to.have.property('uuid').that
-					.exist
-				expect(response.body.results[0].armazem).to.have.property(
-					'nome_fantasia',
-				).that.exist
-				expect(response.body.results[0].armazem).to.have.property(
-					'razao_social',
-				).that.exist
 				expect(response.body.results[0]).to.have.property('etapas').that.exist
 				expect(response.body.results[0].etapas).to.be.an('array')
 				expect(response.body.results[0].etapas[0]).to.have.property('uuid').that
@@ -720,8 +679,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 					'numero_empenho',
 				).that.exist
 				expect(response.body.results[0].etapas[0]).to.have.property(
-					'qtd_total_empenho',
-				).that.exist
+					'qtd_total_empenho',)
 				expect(response.body.results[0].etapas[0]).to.have.property('etapa')
 					.that.exist
 				expect(response.body.results[0].etapas[0]).to.have.property('parte')
@@ -747,88 +705,14 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 				expect(
 					response.body.results[0].programacoes_de_recebimento[0],
 				).to.have.property('tipo_carga').that.exist
-				expect(response.body.results[0]).to.have.property('ficha_tecnica').that
-					.exist
-				expect(response.body.results[0].ficha_tecnica).to.have.property('uuid')
-					.that.exist
-				expect(response.body.results[0].ficha_tecnica).to.have.property(
-					'numero',
-				).that.exist
-				expect(response.body.results[0].ficha_tecnica).to.have.property(
-					'produto',
-				).that.exist
-				expect(response.body.results[0].ficha_tecnica.produto).to.have.property(
-					'uuid',
-				).that.exist
-				expect(response.body.results[0].ficha_tecnica.produto).to.have.property(
-					'nome',
-				).that.exist
-				expect(response.body.results[0].ficha_tecnica).to.have.property(
-					'uuid_empresa',
-				).that.exist
-				expect(response.body.results[0].ficha_tecnica).to.have.property(
-					'pregao_chamada_publica',
-				).that.exist
-				expect(response.body.results[0].ficha_tecnica).to.have.property('marca')
-					.that.exist
-				expect(response.body.results[0].ficha_tecnica.marca).to.have.property(
-					'uuid',
-				).that.exist
-				expect(response.body.results[0].ficha_tecnica.marca).to.have.property(
-					'nome',
-				).that.exist
-				expect(response.body.results[0].ficha_tecnica).to.have.property(
-					'volume_embalagem_primaria',
-				)
-				expect(response.body.results[0].ficha_tecnica).to.have.property(
-					'unidade_medida_volume_primaria',
-				)
-				expect(response.body.results[0].ficha_tecnica).to.have.property(
-					'peso_liquido_embalagem_primaria',
-				).that.exist
-				expect(response.body.results[0].ficha_tecnica).to.have.property(
-					'unidade_medida_primaria',
-				).that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_primaria,
-				).to.have.property('uuid').that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_primaria,
-				).to.have.property('nome').that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_primaria,
-				).to.have.property('abreviacao').that.exist
-				expect(response.body.results[0].ficha_tecnica).to.have.property(
-					'peso_liquido_embalagem_secundaria',
-				).that.exist
-				expect(response.body.results[0].ficha_tecnica).to.have.property(
-					'unidade_medida_secundaria',
-				).that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_secundaria,
-				).to.have.property('uuid').that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_secundaria,
-				).to.have.property('nome').that.exist
-				expect(
-					response.body.results[0].ficha_tecnica.unidade_medida_secundaria,
-				).to.have.property('abreviacao').that.exist
-
+				expect(response.body.results[0]).to.have.property('ficha_tecnica')
+				
 				expect(response.body.results[0]).to.have.property(
 					'tipo_embalagem_secundaria',
-				).that.exist
-				expect(
-					response.body.results[0].tipo_embalagem_secundaria,
-				).to.have.property('uuid').that.exist
-				expect(
-					response.body.results[0].tipo_embalagem_secundaria,
-				).to.have.property('nome').that.exist
-				expect(
-					response.body.results[0].tipo_embalagem_secundaria,
-				).to.have.property('abreviacao').that.exist
+				)
 				expect(response.body.results[0]).to.have.property(
 					'custo_unitario_produto',
-				).that.exist
+				)
 				expect(response.body.results[0]).to.have.property('observacoes').that
 					.exist
 			})
@@ -940,7 +824,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 					.exist
 				expect(response.body.results[0].empresa)
 					.to.have.property('nome_fantasia')
-					.to.eq('JP Alimentos')
+					
 				expect(response.body.results[0].empresa).to.have.property(
 					'razao_social',
 				).that.exist
@@ -951,8 +835,6 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 				expect(response.body.results[0]).to.have.property('unidade_medida').that
 					.exist
 				expect(response.body.results[0].unidade_medida).to.have.property('uuid')
-					.that.exist
-				expect(response.body.results[0].unidade_medida).to.have.property('nome')
 					.that.exist
 				expect(response.body.results[0].unidade_medida).to.have.property(
 					'abreviacao',

@@ -29,10 +29,12 @@ from sme_sigpae_api.medicao_inicial.tasks import (
     exporta_relatorio_adesao_para_xlsx,
     exporta_relatorio_consolidado_xlsx,
     exporta_relatorio_controle_frequencia_para_pdf,
+    exporta_relatorio_historico_correcoes_pdf,
     gera_pdf_relatorio_solicitacao_medicao_por_escola_async,
     gera_pdf_relatorio_unificado_async,
     processa_relatorio_lançamentos,
     solicitacao_medicao_atual_existe,
+    gera_pdf_relatorio_financeiro_consolidado_async,
 )
 from sme_sigpae_api.perfil.models.usuario import Usuario
 from sme_sigpae_api.terceirizada.models import Terceirizada
@@ -809,3 +811,68 @@ class CriaSolicitacaoMedicaoInicialMesAtualUsuarioAdmin(TestCase):
         self.assertEqual(
             nova_solicitacao.rastro_terceirizada, self.escola.lote.terceirizada
         )
+
+
+@pytest.mark.django_db
+def test_exporta_relatorio_historico_correcoes_pdf(
+    solicitacao_com_historico_correcao, usuario
+):
+    nome_arquivo = f"Relatório Histório de Correções - {solicitacao_com_historico_correcao.escola.nome} - {solicitacao_com_historico_correcao.mes}/{solicitacao_com_historico_correcao.ano}.pdf"
+    usuario = usuario.get_username()
+
+    exporta_relatorio_historico_correcoes_pdf(
+        user=usuario,
+        nome_arquivo=nome_arquivo,
+        solicitacao_uuid=solicitacao_com_historico_correcao.uuid,
+    )
+
+    registro = CentralDeDownload.objects.get(identificador=nome_arquivo)
+    assert registro.status == CentralDeDownload.STATUS_CONCLUIDO
+    assert registro.arquivo.name is not None
+    assert registro.identificador == nome_arquivo
+    assert registro.msg_erro == ""
+
+
+@pytest.mark.django_db
+def test_exporta_relatorio_historico_correcoes_pdf_exception(
+    solicitacao_com_historico_correcao, usuario
+):
+    nome_arquivo = f"Relatório Histório de Correções - {solicitacao_com_historico_correcao.escola.nome} - {solicitacao_com_historico_correcao.mes}/{solicitacao_com_historico_correcao.ano}.pdf"
+
+    exporta_relatorio_historico_correcoes_pdf(
+        user=usuario.get_username(),
+        nome_arquivo=nome_arquivo,
+        solicitacao_uuid=usuario.uuid,
+    )
+
+    registro = CentralDeDownload.objects.get(identificador=nome_arquivo)
+    assert registro.status == CentralDeDownload.STATUS_ERRO
+    assert registro.arquivo.name == ""
+    assert registro.identificador == nome_arquivo
+    assert (
+        registro.msg_erro == "SolicitacaoMedicaoInicial matching query does not exist."
+    )
+        
+
+
+@pytest.mark.django_db
+def test_gerar_pdf_relatorio_financeiro_async(
+    relatorio_financeiro_cei,
+    parametrizacao_financeira_cei,
+    usuario,
+):
+    nome_arquivo = "teste.pdf"
+    user = usuario.get_username()
+
+    gera_pdf_relatorio_financeiro_consolidado_async(
+        user=user,
+        nome_arquivo=nome_arquivo,
+        uuid_relatorio_financeiro=relatorio_financeiro_cei.uuid,
+    )
+
+    registro = CentralDeDownload.objects.get(
+        identificador=nome_arquivo
+    )
+
+    assert registro.status == CentralDeDownload.STATUS_CONCLUIDO
+    assert registro.arquivo is not None

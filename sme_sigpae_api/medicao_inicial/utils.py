@@ -3,10 +3,14 @@ import copy
 import datetime
 import json
 import logging
+import re
 from calendar import monthrange
 from collections import defaultdict
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from functools import reduce
+from typing import Any, Dict
 
+import unidecode
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import FloatField, IntegerField, Q, QuerySet, Sum
 from django.db.models.functions import Cast
@@ -32,9 +36,11 @@ from sme_sigpae_api.dados_comuns.utils import (
     convert_base64_to_contentfile,
     convert_image_to_base64,
 )
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.escola.models import (
@@ -4707,10 +4713,9 @@ def get_pdf_merge_cabecalho(
     pdf_cabecalho_relatorio_controle_frequencia,
     pdf_writer,
 ):
-    for page in range(pdf_relatorio_controle_frequencia.getNumPages()):
-        page = pdf_relatorio_controle_frequencia.getPage(page)
-        page.mergePage(pdf_cabecalho_relatorio_controle_frequencia.getPage(0))
-        pdf_writer.addPage(page)
+    for page in pdf_relatorio_controle_frequencia.pages:
+        page.merge_page(pdf_cabecalho_relatorio_controle_frequencia.pages[0])
+        pdf_writer.add_page(page)
     return pdf_writer
 
 
@@ -5347,8 +5352,8 @@ def gerar_totais_consolidado(solicitacoes, tipo):
         return _executar_tipo_alimentacao(medicoes)
 
 
-def calcula_totais_consumo_por_faixa_etaria(
-    lote, grupo_unidade_escolar, mes, ano, tipo_calculo="faixa_etaria"
+def calcula_totais_consumo_por_grupo(
+    lote, grupo_unidade_escolar, mes, ano, tipo_calculo
 ):
     solicitacoes = SolicitacaoMedicaoInicial.objects.filter(
         mes=str(mes),
@@ -5356,6 +5361,17 @@ def calcula_totais_consumo_por_faixa_etaria(
         status="MEDICAO_APROVADA_PELA_CODAE",
         escola__lote=lote,
         escola__tipo_unidade__in=grupo_unidade_escolar.tipos_unidades.all(),
+    )
+
+    return gerar_totais_consolidado(solicitacoes, tipo_calculo)
+
+
+def calcula_totais_consumo_por_escolas(escolas_uuids, relatorio, tipo_calculo):
+    solicitacoes = SolicitacaoMedicaoInicial.objects.filter(
+        mes=str(relatorio.mes),
+        ano=str(relatorio.ano),
+        status="MEDICAO_APROVADA_PELA_CODAE",
+        escola__uuid__in=escolas_uuids,
     )
 
     return gerar_totais_consolidado(solicitacoes, tipo_calculo)
@@ -5695,12 +5711,30 @@ def _modalidade_zerada(
     return encontrou_modalidade
 
 
-def _verifica_dietas_consumidas(solicitacao, escola_emebs, escola_cemei):
+def _verifica_dietas_consumidas(
+    solicitacao: SolicitacaoMedicaoInicial, escola_emebs: bool, escola_cemei: bool
+) -> Dict[str, Any]:
+    """
+    Verifica as dietas especiais consumidas para uma solicitação de medição inicial.
+
+    Agrega dados de logs de dietas autorizadas, filtra por quantidade > 0,
+    e organiza os períodos escolares por classificação de dieta.
+
+    Para escolas EMEBS, agrupa adicionalmente por modalidade (INFANTIL/FUNDAMENTAL).
+
+    Args:
+        solicitacao: Instância da solicitação de medição inicial.
+        escola_emebs: Indica se a escola é do tipo EMEBS.
+        escola_cemei: Indica se a escola é do tipo CEMEI.
+
+    Returns:
+        Dicionário com as dietas e seus períodos escolares.
+    """
     dados_agregados = (
         LogQuantidadeDietasAutorizadas.objects.filter(
             escola=solicitacao.escola,
-            criado_em__year=int(solicitacao.ano),
-            criado_em__month=int(solicitacao.mes),
+            data__year=int(solicitacao.ano),
+            data__month=int(solicitacao.mes),
             periodo_escolar__isnull=False,
         )
         .exclude(classificacao__nome__icontains="Tipo C")
@@ -5708,6 +5742,7 @@ def _verifica_dietas_consumidas(solicitacao, escola_emebs, escola_cemei):
             "classificacao__nome",
             "periodo_escolar__nome",
             "infantil_ou_fundamental",
+            "cei_ou_emei",
         )
         .annotate(total_quantidade=Sum("quantidade"))
         .filter(total_quantidade__gt=0)
@@ -5725,6 +5760,13 @@ def _verifica_dietas_consumidas(solicitacao, escola_emebs, escola_cemei):
 
     for item in dados_agregados:
         classificacao = dicionario_dieta.get(item["classificacao__nome"])
+        if (
+            escola_cemei
+            and item["periodo_escolar__nome"] == "INTEGRAL"
+            and item["cei_ou_emei"] == "CEI"
+        ):
+            continue
+
         periodo = (
             f"INFANTIL {item['periodo_escolar__nome']}"
             if escola_cemei
@@ -5737,11 +5779,13 @@ def _verifica_dietas_consumidas(solicitacao, escola_emebs, escola_cemei):
         else:
             resultado_intermediario[classificacao].add(periodo)
     if escola_emebs:
-        resultado_final = {}
-        for classificacao, tipos_ensino in resultado_intermediario.items():
-            resultado_final[classificacao] = {}
-            for tipo_ensino, periodos in tipos_ensino.items():
-                resultado_final[classificacao][tipo_ensino] = sorted(list(periodos))
+        resultado_final = {
+            classificacao: {
+                tipo_ensino: sorted(list(periodos))
+                for tipo_ensino, periodos in tipos_ensino.items()
+            }
+            for classificacao, tipos_ensino in resultado_intermediario.items()
+        }
         return resultado_final
     else:
         return {
@@ -5770,3 +5814,384 @@ def obter_instancia_dado_liquidacao(
     return existentes_por_chave.get(
         (item_data.get("numero_empenho"), item_data.get("tipo_empenho"))
     )
+
+
+def to_decimal_safe(valor):
+    """
+    Converte um valor para Decimal de forma segura.
+
+    Trata valores nulos, strings vazias e formatação com vírgula,
+    retornando Decimal("0") em caso de erro.
+
+    Args:
+        valor (Any): Valor a ser convertido (str, int, float, Decimal ou None).
+
+    Returns:
+        Decimal: Valor convertido para Decimal ou Decimal("0") em caso de falha.
+    """
+    try:
+        if valor in [None, "", " "]:
+            return Decimal("0")
+
+        if isinstance(valor, str):
+            valor = valor.strip()
+
+            if "," in valor:
+                valor = valor.replace(".", "")
+                valor = valor.replace(",", ".")
+            else:
+                valor = valor
+
+        return Decimal(str(valor))
+
+    except (InvalidOperation, ValueError):
+        return Decimal("0")
+
+
+def _total_parametrizacao(valores):
+    """
+    Calcula o valor total de uma parametrização com base nos tipos de valores.
+
+    Regras:
+    - UNITARIO + REAJUSTE → soma direta
+    - UNITARIO + ACRESCIMO (%) → aplica percentual
+
+    Args:
+        valores (Iterable): Lista/QuerySet de objetos com atributos:
+            - tipo_valor.nome (str)
+            - valor (Any)
+
+    Returns:
+        Decimal: Valor total calculado da parametrização.
+    """
+    total = 0
+
+    mapa = {v.tipo_valor.nome: to_decimal_safe(v.valor) for v in valores}
+
+    valor_unitario = mapa.get("UNITARIO")
+    valor_unitario_reajuste = mapa.get("REAJUSTE")
+    percentual_acrescimo = mapa.get("ACRESCIMO", Decimal("0"))
+
+    if valor_unitario is not None and valor_unitario_reajuste is not None:
+        total = valor_unitario + valor_unitario_reajuste
+
+    elif valor_unitario is not None and percentual_acrescimo is not None:
+        total = valor_unitario * (1 + percentual_acrescimo / 100)
+
+    return total
+
+
+def _mapear_valores_tabela(valores):
+    """
+    Cria um mapa em memória dos valores da tabela, normalizando os nomes dos campos.
+
+    Remove acentos e substitui espaços por underscore, permitindo
+    comparação eficiente sem necessidade de queries no banco.
+
+    Args:
+        valores (Iterable): Lista/QuerySet de objetos com atributo `nome_campo`.
+
+    Returns:
+        dict[str, list]: Dicionário no formato:
+            {
+                "nome_normalizado": [valores...]
+            }
+    """
+    mapa = {}
+
+    for v in valores:
+        chave = unidecode(v.nome_campo)
+        chave = re.sub(r"\s+", "_", chave)
+
+        if chave not in mapa:
+            mapa[chave] = []
+
+        mapa[chave].append(v)
+
+    return mapa
+
+
+def _formata_refeicao_emef(chave, dieta=False):
+    """
+    Formata o nome do campo de refeição para o padrão utilizado no grupo EMEF.
+
+    Aplica regras específicas de prefixo para refeições e dietas enterais,
+    padronizando o nome conforme esperado na tabela de parametrização.
+
+    Args:
+        chave (str): Nome original do campo de consumo.
+        dieta (bool, optional): Indica se o campo refere-se a dieta especial.
+            Default é False.
+
+    Returns:
+        str: Nome do campo formatado conforme padrão EMEF.
+    """
+    prefixo = "refeicao_-_"
+    dieta_prefixo = "dieta_enteral_-_" if dieta else ""
+
+    if chave == "refeicao_eja":
+        return f"{prefixo}{dieta_prefixo}eja"
+
+    grupo_emef = "ceu_emef,_ceu_gestao,_emef,_emefm"
+
+    return f"{prefixo}{dieta_prefixo}{grupo_emef}"
+
+
+def _normalizar_nome_campo(nome_campo, grupo_nome, dieta=False):
+    """
+    Normaliza o nome de um campo para comparação com a tabela de parametrização.
+
+    Realiza:
+    - Remoção de acentos
+    - Substituição de espaços por underscore
+    - Aplicação de regras específicas por grupo (ex: grupo 4 - EMEF)
+
+    Args:
+        nome_campo (str): Nome original do campo de consumo.
+        grupo_nome (str): Nome do grupo da unidade escolar.
+        dieta (bool, optional): Indica se o campo refere-se a dieta especial.
+            Default é False.
+
+    Returns:
+        str: Nome normalizado e pronto para busca na tabela.
+    """
+    nome_campo = re.sub(r"\s+", "_", nome_campo)
+    nome_campo = unidecode(nome_campo)
+
+    grupo = unidecode(grupo_nome).lower()
+    if grupo == "grupo 4" and nome_campo.startswith("refeicao"):
+        return _formata_refeicao_emef(nome_campo, dieta)
+
+    return nome_campo
+
+
+def _calcula_total_alimentacao(
+    consumo,
+    periodo,
+    valores,
+    grupo_nome,
+    tipo,
+):
+    """
+    Calcula o total financeiro para alimentações com base no consumo e parametrização.
+
+    Considera o período escolar quando o tipo de cálculo é por faixa etária.
+    Para cada item de consumo:
+    - Normaliza o nome do campo
+    - Busca os valores correspondentes na parametrização
+    - Aplica a regra de cálculo da parametrização
+    - Multiplica pelo consumo informado
+
+    Args:
+        consumo (dict): Estrutura contendo os dados de consumo.
+        periodo (Any): Período escolar, utilizado via atributo `nome`.
+        valores (Iterable): Valores da tabela de parametrização já filtrados.
+        grupo_nome (str): Nome do grupo da unidade escolar.
+        tipo (str): Tipo de cálculo ("FAIXA", "TIPO", etc.).
+
+    Returns:
+        Decimal: Valor total calculado para alimentação.
+    """
+    chave_consumo = (
+        f"ALIMENTAÇÃO - {periodo.nome}"
+        if periodo and (tipo == "FAIXA" or not tipo)
+        else "ALIMENTAÇÃO"
+    )
+
+    total = Decimal("0")
+    dados_consumo = consumo.get(chave_consumo, {})
+
+    mapa_valores = _mapear_valores_tabela(valores)
+    for chave, valor in dados_consumo.items():
+        nome_campo = _normalizar_nome_campo(
+            chave.removeprefix("total_").strip(),
+            grupo_nome,
+        )
+
+        valores_campo = mapa_valores.get(nome_campo)
+
+        if not valores_campo:
+            continue
+
+        total_parametrizacao = _total_parametrizacao(valores_campo)
+        total_unitario = to_decimal_safe(total_parametrizacao)
+        valor_total = total_unitario * to_decimal_safe(valor)
+
+        total += valor_total
+
+    return total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+
+def _calcula_total_dietas(
+    consumo,
+    tabela,
+    valores,
+    grupo_nome,
+    tipo,
+):
+    """
+    Calcula o total financeiro para dietas especiais (Tipo A ou Tipo B).
+
+    A chave de consumo é definida dinamicamente com base:
+    - No tipo da dieta (A ou B)
+    - No período escolar (quando aplicável)
+
+    Para cada item:
+    - Normaliza o nome do campo (com suporte a dieta)
+    - Busca na parametrização
+    - Aplica cálculo
+    - Multiplica pelo consumo
+
+    Args:
+        consumo (dict): Estrutura contendo os dados de consumo.
+        tabela (Any): Objeto com atributos `nome` e `periodo_escolar`.
+        valores (Iterable): Valores da tabela de parametrização já filtrados.
+        grupo_nome (str): Nome do grupo da unidade escolar.
+        tipo (str): Tipo de cálculo ("FAIXA", "TIPO", etc.).
+
+    Returns:
+        Decimal: Valor total calculado para dietas especiais.
+    """
+    if "Dietas Tipo A" in tabela.nome:
+        chave_base = "DIETA ESPECIAL - TIPO A"
+    else:
+        chave_base = "DIETA ESPECIAL - TIPO B"
+
+    if tabela.periodo_escolar and (tipo == "FAIXA" or not tipo):
+        chave_consumo = f"{chave_base} - {tabela.periodo_escolar.nome}"
+    else:
+        chave_consumo = chave_base
+
+    total = Decimal("0")
+    dados_consumo = consumo.get(chave_consumo, {})
+
+    mapa_valores = _mapear_valores_tabela(valores)
+    for chave, valor in dados_consumo.items():
+        nome_campo = _normalizar_nome_campo(chave, grupo_nome, dieta=True)
+
+        valores_campo = mapa_valores.get(nome_campo)
+
+        if not valores_campo:
+            continue
+
+        total_parametrizacao = _total_parametrizacao(valores_campo)
+        total_unitario = to_decimal_safe(total_parametrizacao)
+        valor_total = total_unitario * to_decimal_safe(valor)
+
+        total += valor_total
+
+    return total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+
+def _calcula_total_tabelas(
+    consumo,
+    tabelas,
+    grupo_nome,
+    tipo_ou_turma=None,
+):
+    """
+    Calcula o total consolidado de todas as tabelas de parametrização.
+
+    Para cada tabela:
+    - Filtra os valores conforme o tipo de cálculo
+    - Separa entre alimentações e dietas
+    - Delega o cálculo para funções específicas
+
+    Tipos de filtro:
+    - FAIXA: valores com faixa etária
+    - TIPO: valores por tipo de alimentação ou kit lanche
+    - None: todos os valores
+
+    Args:
+        consumo (dict): Estrutura contendo os dados de consumo.
+        tabelas (Iterable): Lista/QuerySet de tabelas de parametrização.
+        grupo_nome (str): Nome do grupo da unidade escolar.
+        tipo_ou_turma (str, optional): Tipo de cálculo ("FAIXA", "TIPO", "INFANTIL", "FUNDAMENTAL" ou None).
+
+    Returns:
+        Decimal: Valor total consolidado das tabelas.
+    """
+    total_alimentacao = 0
+    total_dietas = 0
+
+    _tabelas = tabelas
+
+    if tipo_ou_turma in ["INFANTIL", "FUNDAMENTAL"]:
+        _tabelas = tabelas.filter(nome__icontains=f"EMEBS {tipo_ou_turma}")
+
+    for tabela in _tabelas:
+        tem_faixa = tabela.valores.filter(faixa_etaria__isnull=False).exists()
+
+        if tipo_ou_turma == "TIPO" and tem_faixa:
+            continue
+
+        if tipo_ou_turma == "FAIXA" and not tem_faixa:
+            continue
+
+        valores_tabela = tabela.valores.all()
+
+        if "Preço das Alimentações" in tabela.nome:
+            total_alimentacao += _calcula_total_alimentacao(
+                consumo,
+                tabela.periodo_escolar,
+                valores_tabela,
+                grupo_nome,
+                tipo_ou_turma,
+            )
+        else:
+            total_dietas += _calcula_total_dietas(
+                consumo,
+                tabela,
+                valores_tabela,
+                grupo_nome,
+                tipo_ou_turma,
+            )
+
+    return total_alimentacao + total_dietas
+
+
+def calcular_total_pagamento(consumo, parametrizacao, tipo_calculo):
+    """
+    Calcula o valor total de pagamento com base no consumo e parametrização financeira.
+
+    Pode executar o cálculo por:
+    - Tipo de alimentação
+    - Faixa etária
+    - Ambos (quando não especificado)
+
+    Args:
+        consumo (dict): Estrutura contendo os dados do total de consumo e atendimento.
+        parametrizacao (Any): Parametrização Financeira utilizada pela relação das `tabelas`.
+        tipo_calculo (str): Tipo de cálculo ("tipo_alimentacao", "faixa_etaria" ou outro).
+
+    Returns:
+        Decimal: Valor total do pagamento calculado.
+    """
+    total_pagamento = 0
+    tabelas = parametrizacao.tabelas.all()
+    grupo_nome = parametrizacao.grupo_unidade_escolar.nome
+
+    if tipo_calculo not in ["tipo_alimentacao", "faixa_etaria"]:
+        for tipo in ["TIPO", "FAIXA"]:
+            total_pagamento += _calcula_total_tabelas(
+                consumo[tipo],
+                tabelas,
+                grupo_nome,
+                tipo,
+            )
+    elif grupo_nome.lower() == "grupo 5":
+        for turma in ["INFANTIL", "FUNDAMENTAL"]:
+            total_pagamento += _calcula_total_tabelas(
+                consumo[turma],
+                tabelas,
+                grupo_nome,
+                turma,
+            )
+    else:
+        total_pagamento += _calcula_total_tabelas(
+            consumo,
+            tabelas,
+            grupo_nome,
+        )
+
+    return total_pagamento

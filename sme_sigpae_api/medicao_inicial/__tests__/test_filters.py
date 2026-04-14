@@ -1,4 +1,5 @@
 import pytest
+from model_bakery import baker
 
 from sme_sigpae_api.medicao_inicial.api.filters import (
     ClausulaDeDescontoFilter,
@@ -7,14 +8,18 @@ from sme_sigpae_api.medicao_inicial.api.filters import (
     LancheEmergencialDiarioFilter,
     ParametrizacaoFinanceiraFilter,
     RelatorioFinanceiroFilter,
+    ValorMedicaoFilter,
 )
 from sme_sigpae_api.medicao_inicial.models import (
+    GRUPO_RECREIO_NAS_FERIAS,
+    GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI,
     ClausulaDeDesconto,
     DiaParaCorrigir,
     Empenho,
     LancheEmergencialDiario,
     ParametrizacaoFinanceira,
     RelatorioFinanceiro,
+    ValorMedicao,
 )
 
 pytestmark = pytest.mark.django_db
@@ -46,6 +51,94 @@ def test_dia_para_corrigir_filter_periodo(dia_para_corrigir):
     )
     assert filtro.qs.count() == 1
     assert filtro.qs[0] == dia_para_corrigir
+
+
+def test_valor_medicao_filter_grupo_com_uuid_solicitacao(
+    solicitacao_medicao_inicial_com_grupo,
+):
+    filtro = ValorMedicaoFilter(
+        data={
+            "uuid_solicitacao_medicao": solicitacao_medicao_inicial_com_grupo.uuid,
+            "nome_grupo": "Programas e Projetos",
+        },
+        queryset=ValorMedicao.objects.all(),
+    )
+
+    assert filtro.qs.count() == 1
+    assert filtro.qs[0].medicao == solicitacao_medicao_inicial_com_grupo.medicoes.get()
+
+
+def test_valor_medicao_filter_sem_grupo_retorna_apenas_medicoes_sem_grupo(
+    solicitacao_medicao_inicial,
+    valor_medicao,
+    categoria_medicao,
+):
+    grupo = baker.make("GrupoMedicao", nome="Programas e Projetos")
+    medicao_com_grupo = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_medicao_inicial,
+        periodo_escolar=valor_medicao.medicao.periodo_escolar,
+        grupo=grupo,
+    )
+    baker.make(
+        "ValorMedicao",
+        valor="99",
+        nome_campo="observacoes",
+        medicao=medicao_com_grupo,
+        categoria_medicao=categoria_medicao,
+    )
+
+    filtro = ValorMedicaoFilter(
+        data={
+            "uuid_solicitacao_medicao": solicitacao_medicao_inicial.uuid,
+            "nome_periodo_escolar": valor_medicao.medicao.periodo_escolar.nome,
+        },
+        queryset=ValorMedicao.objects.all(),
+    )
+
+    assert list(filtro.qs) == [valor_medicao]
+
+
+def test_valor_medicao_filter_normaliza_grupo_legado_recreio_cei(
+    escola_cei,
+    categoria_medicao,
+):
+    grupo_recreio = baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS)
+    grupo_recreio_legado = baker.make(
+        "GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI
+    )
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=12,
+        ano=2025,
+        escola=escola_cei,
+    )
+    medicao_legada = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        grupo=grupo_recreio_legado,
+    )
+    valor_medicao = baker.make(
+        "ValorMedicao",
+        valor="10",
+        nome_campo="observacoes",
+        medicao=medicao_legada,
+        categoria_medicao=categoria_medicao,
+    )
+
+    filtro = ValorMedicaoFilter(
+        data={
+            "uuid_solicitacao_medicao": solicitacao.uuid,
+            "nome_grupo": GRUPO_RECREIO_NAS_FERIAS,
+        },
+        queryset=ValorMedicao.objects.all(),
+    )
+
+    assert list(filtro.qs) == [valor_medicao]
+
+    medicao_legada.refresh_from_db()
+
+    assert medicao_legada.grupo == grupo_recreio
 
 
 def test_empenho_filter_numero(empenho):

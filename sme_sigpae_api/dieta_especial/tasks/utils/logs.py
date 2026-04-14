@@ -7,12 +7,14 @@ from django.db.models import Q
 
 from sme_sigpae_api.dados_comuns.utils import quantidade_meses
 from sme_sigpae_api.dieta_especial.constants import ETAPA_INFANTIL
-from sme_sigpae_api.dieta_especial.models import (
-    ClassificacaoDieta,
+from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
     LogQuantidadeDietasAutorizadasRecreioNasFerias,
     LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
 )
 from sme_sigpae_api.escola.models import FaixaEtaria, PeriodoEscolar
 from sme_sigpae_api.medicao_inicial.models import SolicitacaoMedicaoInicial

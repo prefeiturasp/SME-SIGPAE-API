@@ -206,8 +206,17 @@ class VinculoAdmin(admin.ModelAdmin):
         "usuario__username",
         "usuario__email",
         "usuario__registro_funcional",
+        "usuario__cpf",
     )
-    list_filter = ("content_type", IDFilter, CodigoEOLFilter, NomeUEFilter)
+    search_help_text = "Pesquisa por: nome do usuário, username, email, CPF ou RF"
+    list_filter = (
+        "ativo",
+        "content_type",
+        IDFilter,
+        CodigoEOLFilter,
+        NomeUEFilter,
+        "perfil__nome",
+    )
     raw_id_fields = ("usuario",)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

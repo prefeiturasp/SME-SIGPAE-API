@@ -1,26 +1,90 @@
-from datetime import date
+from datetime import date, timedelta
+from unittest.mock import patch
 
 import pytest
 from model_bakery import baker
+from rest_framework import serializers
 
-from sme_sigpae_api.dieta_especial.models import (
-    ClassificacaoDieta,
+from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
 )
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
     AlunosMatriculadosPeriodoEscolaFactory,
     LogAlunosMatriculadosPeriodoEscolaFactory,
-)
-from sme_sigpae_api.medicao_inicial.api.serializers_create import (
-    SolicitacaoMedicaoInicialCreateSerializer,
-    DadosLiquidacaoUpdateSerializer,
+    PeriodoEscolarFactory,
 )
 from sme_sigpae_api.medicao_inicial.api.serializers import (
     DadosLiquidacaoSerializer,
 )
+from sme_sigpae_api.medicao_inicial.api.serializers_create import (
+    DadosLiquidacaoUpdateSerializer,
+    SolicitacaoMedicaoInicialCreateSerializer,
+)
+from sme_sigpae_api.medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_factory import (
+    MedicaoFactory,
+    SolicitacaoMedicaoInicialFactory,
+)
 from sme_sigpae_api.medicao_inicial.models import Medicao, ValorMedicao
+from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.fixtures.factories.base_factory import (
+    RecreioNasFeriasFactory,
+)
+from sme_sigpae_api.perfil.fixtures.factories.perfil_base_factories import (
+    UsuarioFactory,
+)
 
 pytestmark = pytest.mark.django_db
+
+
+def _serializer_recreio_context(usuario, finaliza_medicao=True):
+    class FakeRequest:
+        user = usuario
+        data = {"finaliza_medicao": finaliza_medicao}
+
+    return {"request": FakeRequest}
+
+
+def _cria_solicitacao_com_medicoes_para_recreio(data_fim):
+    recreio_nas_ferias = RecreioNasFeriasFactory.create(
+        data_inicio=data_fim - timedelta(days=5),
+        data_fim=data_fim,
+    )
+    solicitacao = SolicitacaoMedicaoInicialFactory.create(
+        recreio_nas_ferias=recreio_nas_ferias,
+    )
+    solicitacao.status = (
+        solicitacao.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+    )
+    solicitacao.save(update_fields=["status"])
+
+    medicao_manha = MedicaoFactory.create(
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=PeriodoEscolarFactory.create(nome="MANHA"),
+    )
+    medicao_tarde = MedicaoFactory.create(
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=PeriodoEscolarFactory.create(nome="TARDE"),
+    )
+    for medicao in [medicao_manha, medicao_tarde]:
+        medicao.status = medicao.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+        medicao.save(update_fields=["status"])
+
+    return solicitacao, [medicao_manha, medicao_tarde]
+
+
+def _cria_usuario_com_vinculo_escola(escola):
+    usuario = UsuarioFactory.create()
+    baker.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=escola,
+        perfil__nome="DIRETOR_UE",
+        ativo=True,
+        data_inicial=date.today(),
+    )
+    return usuario
 
 
 def test_nao_cria_valores_medicao_cei_sem_faixa_etaria(
@@ -129,10 +193,7 @@ def test_cria_valores_medicao_cei_com_faixa_etaria(
     assert valores.first().faixa_etaria == faixa_etaria
 
 
-def test_cria_dados_liquidacao(
-    relatorio_financeiro,
-    escola_cei
-):
+def test_cria_dados_liquidacao(relatorio_financeiro, escola_cei):
     payload = {
         "relatorio_financeiro_id": str(relatorio_financeiro.uuid),
         "numero_empenho": "888/6598",
@@ -159,3 +220,81 @@ def test_retorna_dados_liquidacao(dados_liquidacao_cmct):
     assert isinstance(data["unidades_educacionais"], list)
     assert len(data["unidades_educacionais"]) == 1
     assert "uuid" in data["unidades_educacionais"][0]
+
+
+def test_finaliza_recreio_nas_ferias_retorna_erro_quando_ainda_nao_pode_finalizar():
+    solicitacao, medicoes = _cria_solicitacao_com_medicoes_para_recreio(
+        data_fim=date(2026, 1, 31)
+    )
+    usuario = _cria_usuario_com_vinculo_escola(solicitacao.escola)
+    serializer = SolicitacaoMedicaoInicialCreateSerializer(
+        context=_serializer_recreio_context(usuario)
+    )
+
+    with patch.object(
+        serializer, "_process_anexos", return_value=[]
+    ) as processa_anexos:
+        with patch(
+            "sme_sigpae_api.medicao_inicial.api.serializers_create.date"
+        ) as mock_date:
+            mock_date.today.return_value = solicitacao.recreio_nas_ferias.data_fim
+
+            with pytest.raises(serializers.ValidationError) as exc_info:
+                serializer._finaliza_recreio_nas_ferias(
+                    solicitacao,
+                    {"com_ocorrencias": False},
+                )
+
+    solicitacao.refresh_from_db()
+    for medicao in medicoes:
+        medicao.refresh_from_db()
+
+    assert (
+        str(exc_info.value.detail[0])
+        == "A medição só pode ser finalizada 1 dia após a data fim do Recreio nas Férias."
+    )
+    assert (
+        solicitacao.status
+        == solicitacao.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+    )
+    assert all(
+        medicao.status == medicao.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+        for medicao in medicoes
+    )
+    processa_anexos.assert_not_called()
+
+
+def test_finaliza_recreio_nas_ferias_envia_solicitacao_e_medicoes():
+    solicitacao, medicoes = _cria_solicitacao_com_medicoes_para_recreio(
+        data_fim=date(2026, 1, 31)
+    )
+    usuario = _cria_usuario_com_vinculo_escola(solicitacao.escola)
+    serializer = SolicitacaoMedicaoInicialCreateSerializer(
+        context=_serializer_recreio_context(usuario)
+    )
+
+    with patch.object(
+        serializer, "_process_anexos", return_value=[]
+    ) as processa_anexos:
+        with patch(
+            "sme_sigpae_api.medicao_inicial.api.serializers_create.date"
+        ) as mock_date:
+            mock_date.today.return_value = (
+                solicitacao.recreio_nas_ferias.data_fim + timedelta(days=1)
+            )
+
+            serializer._finaliza_recreio_nas_ferias(
+                solicitacao,
+                {"com_ocorrencias": False},
+            )
+
+    solicitacao.refresh_from_db()
+    for medicao in medicoes:
+        medicao.refresh_from_db()
+
+    assert solicitacao.status == solicitacao.workflow_class.MEDICAO_ENVIADA_PELA_UE
+    assert all(
+        medicao.status == medicao.workflow_class.MEDICAO_ENVIADA_PELA_UE
+        for medicao in medicoes
+    )
+    processa_anexos.assert_called_once_with(solicitacao)

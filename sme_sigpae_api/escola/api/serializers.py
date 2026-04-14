@@ -379,7 +379,6 @@ class EscolaSimplesSerializer(
             "lote",
             "tipo_gestao",
             "diretoria_regional",
-            "tipos_contagem",
         )
 
 
@@ -498,11 +497,6 @@ class TerceirizadaSerializer(serializers.ModelSerializer):
         exclude = ("id",)
 
 
-class TipoContagemSerializer(serializers.Serializer):
-    uuid = serializers.CharField()
-    nome = serializers.CharField()
-
-
 class VinculoInstituicaoSerializer(serializers.ModelSerializer):
     instituicao = serializers.SerializerMethodField()
     perfil = PerfilSimplesSerializer()
@@ -573,11 +567,6 @@ class VinculoInstituicaoSerializer(serializers.ModelSerializer):
                 "Escola não possui tipo de gestão. Favor contatar a CODAE."
             )
         return obj.instituicao.tipo_gestao.uuid
-
-    def get_tipos_contagem(self, obj):
-        if not isinstance(obj.instituicao, Escola):
-            return None
-        return TipoContagemSerializer(obj.instituicao.tipos_contagem, many=True).data
 
     def get_endereco(self, obj):
         if not isinstance(obj.instituicao, Escola):
@@ -673,7 +662,6 @@ class VinculoInstituicaoSerializer(serializers.ModelSerializer):
             ),
             "tipo_gestao": self.get_tipo_gestao(obj),
             "tipo_gestao_uuid": self.get_tipo_gestao_uuid(obj),
-            "tipos_contagem": self.get_tipos_contagem(obj),
             "endereco": self.get_endereco(obj),
             "contato": self.get_contato(obj),
         }

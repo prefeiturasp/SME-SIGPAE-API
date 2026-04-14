@@ -1,8 +1,8 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 
-describe('Validar rotas de Diretoria Regional Solicitações da aplicação SIGPAE', () => {
-	var usuario = Cypress.config('usuario_dre')
-	var senha = Cypress.config('senha')
+describe('Validar rotas de Diretoria Regional SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE', () => {
+	var usuario = Cypress.env('usuario_dre')
+	var senha = Cypress.env('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -836,7 +836,7 @@ describe('Validar rotas de Diretoria Regional Solicitações da aplicação SIGP
 				})
 			})
 
-			it('Validar GET com sucesso de Dietas Pendentes de Autorização - DRE', () => {
+			it('Validar GET com sucesso de Dietas Pendentes de AutorizaÃ§Ã£o - DRE', () => {
 				var uuid = '3972e0e9-2d8e-472a-9dfa-30cd219a6d9a'
 				cy.dre_consultar_pendentes_autorizacao_dieta(uuid).then((response) => {
 					expect(response.status).to.eq(200)
@@ -934,7 +934,7 @@ describe('Validar rotas de Diretoria Regional Solicitações da aplicação SIGP
 				})
 			})
 
-			it('Validar GET com sucesso de Pendentes de Autorização - DRE', () => {
+			it('Validar GET com sucesso de Pendentes de AutorizaÃ§Ã£o - DRE', () => {
 				cy.dre_consultar_pendentes_autorizacao().then((response) => {
 					expect(response.status).to.eq(200)
 					expect(response.body).to.have.property('count')
@@ -1031,7 +1031,7 @@ describe('Validar rotas de Diretoria Regional Solicitações da aplicação SIGP
 				})
 			})
 
-			it('Validar GET com sucesso de Solicitações Detalhadas - DRE', () => {
+			it('Validar GET com sucesso de SolicitaÃ§Ãµes Detalhadas - DRE', () => {
 				cy.dre_consultar_solicitacoes_detalhadas().then((response) => {
 					expect(response.status).to.eq(200)
 					expect(response.body).to.have.property('data')
@@ -1040,7 +1040,7 @@ describe('Validar rotas de Diretoria Regional Solicitações da aplicação SIGP
 				})
 			})
 
-			it('Validar GET com sucesso de Pendentes Validação com Filtro 7 Dias e Tipo Visão DRE - DRE', () => {
+			it('Validar GET com sucesso de Pendentes ValidaÃ§Ã£o com Filtro 7 Dias e Tipo VisÃ£o DRE - DRE', () => {
 				var filtro = 'daqui_a_7_dias'
 				var visao = 'dre'
 				cy.dre_consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1052,7 +1052,7 @@ describe('Validar rotas de Diretoria Regional Solicitações da aplicação SIGP
 				})
 			})
 
-			it('Validar GET com sucesso de Pendentes Validação com Filtro 7 Dias e Tipo Visão LOTE - DRE', () => {
+			it('Validar GET com sucesso de Pendentes ValidaÃ§Ã£o com Filtro 7 Dias e Tipo VisÃ£o LOTE - DRE', () => {
 				var filtro = 'daqui_a_7_dias'
 				var visao = 'lote'
 				cy.dre_consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1064,7 +1064,7 @@ describe('Validar rotas de Diretoria Regional Solicitações da aplicação SIGP
 				})
 			})
 
-			it('Validar GET com sucesso de Pendentes Validação com Filtro 7 Dias e Tipo Visão TIPO SOLICITAÇÃO - DRE', () => {
+			it('Validar GET com sucesso de Pendentes ValidaÃ§Ã£o com Filtro 7 Dias e Tipo VisÃ£o TIPO SOLICITAÃ‡ÃƒO - DRE', () => {
 				var filtro = 'daqui_a_7_dias'
 				var visao = 'tipo_solicitacao'
 				cy.dre_consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1076,7 +1076,7 @@ describe('Validar rotas de Diretoria Regional Solicitações da aplicação SIGP
 				})
 			})
 
-			it('Validar GET com sucesso de Pendentes Validação sem Filtro e Tipo Visão DRE - DRE', () => {
+			it('Validar GET com sucesso de Pendentes ValidaÃ§Ã£o sem Filtro e Tipo VisÃ£o DRE - DRE', () => {
 				var filtro = 'sem_filtro'
 				var visao = 'dre'
 				cy.dre_consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1088,7 +1088,7 @@ describe('Validar rotas de Diretoria Regional Solicitações da aplicação SIGP
 				})
 			})
 
-			it('Validar GET com sucesso de Pendentes Validação sem Filtro e Tipo Visão LOTE - DRE', () => {
+			it('Validar GET com sucesso de Pendentes ValidaÃ§Ã£o sem Filtro e Tipo VisÃ£o LOTE - DRE', () => {
 				var filtro = 'sem_filtro'
 				var visao = 'lote'
 				cy.dre_consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1100,7 +1100,7 @@ describe('Validar rotas de Diretoria Regional Solicitações da aplicação SIGP
 				})
 			})
 
-			it('Validar GET com sucesso de Pendentes Validação sem Filtro e Tipo Visão TIPO SOLICITAÇÃO - DRE', () => {
+			it('Validar GET com sucesso de Pendentes ValidaÃ§Ã£o sem Filtro e Tipo VisÃ£o TIPO SOLICITAÃ‡ÃƒO - DRE', () => {
 				var filtro = 'sem_filtro'
 				var visao = 'tipo_solicitacao'
 				cy.dre_consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1112,7 +1112,7 @@ describe('Validar rotas de Diretoria Regional Solicitações da aplicação SIGP
 				})
 			})
 
-			it('Validar GET com sucesso de Pendentes Validação com Filtro 30 Dias e Tipo Visão DRE - DRE', () => {
+			it('Validar GET com sucesso de Pendentes ValidaÃ§Ã£o com Filtro 30 Dias e Tipo VisÃ£o DRE - DRE', () => {
 				var filtro = 'daqui_a_30_dias'
 				var visao = 'dre'
 				cy.dre_consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1124,7 +1124,7 @@ describe('Validar rotas de Diretoria Regional Solicitações da aplicação SIGP
 				})
 			})
 
-			it('Validar GET com sucesso de Pendentes Validação com Filtro 30 Dias e Tipo Visão LOTE - DRE', () => {
+			it('Validar GET com sucesso de Pendentes ValidaÃ§Ã£o com Filtro 30 Dias e Tipo VisÃ£o LOTE - DRE', () => {
 				var filtro = 'daqui_a_30_dias'
 				var visao = 'lote'
 				cy.dre_consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1136,7 +1136,7 @@ describe('Validar rotas de Diretoria Regional Solicitações da aplicação SIGP
 				})
 			})
 
-			it('Validar GET com sucesso de Pendentes Validação com Filtro 30 Dias e Tipo Visão TIPO SOLICITAÇÃO - DRE', () => {
+			it('Validar GET com sucesso de Pendentes ValidaÃ§Ã£o com Filtro 30 Dias e Tipo VisÃ£o TIPO SOLICITAÃ‡ÃƒO - DRE', () => {
 				var filtro = 'daqui_a_30_dias'
 				var visao = 'tipo_solicitacao'
 				cy.dre_consultar_pendentes_autorizacao_filtro_aplicado_tipo_visao(
@@ -1150,3 +1150,4 @@ describe('Validar rotas de Diretoria Regional Solicitações da aplicação SIGP
 		},
 	)
 })
+

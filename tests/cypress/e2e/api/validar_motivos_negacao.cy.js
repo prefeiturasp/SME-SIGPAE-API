@@ -1,6 +1,6 @@
-describe('Validar rotas de Motivos de Negacao da aplicação SIGPAE', () => {
-	var usuario = Cypress.config('usuario_codae')
-	var senha = Cypress.config('senha')
+﻿describe('Validar rotas de Motivos de Negacao da aplicacao SIGPAE', () => {
+	var usuario = Cypress.env('usuario_codae')
+	var senha = Cypress.env('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -29,7 +29,7 @@ describe('Validar rotas de Motivos de Negacao da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET de Motivos de Negacao com Processo Inválido', () => {
+		it('Validar GET de Motivos de Negacao com Processo Invalido', () => {
 			var param = '?processo=NomeInvalidoParaoTeste'
 			cy.consultar_motivos_negacao_por_processo(param).then((response) => {
 				expect(response.status).to.eq(400)
@@ -41,7 +41,7 @@ describe('Validar rotas de Motivos de Negacao da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Motivos de Negacao Com ID Válido', () => {
+		it('Validar GET com sucesso de Motivos de Negacao Com ID Valido', () => {
 			var id_response = ''
 			cy.consultar_motivos_negacao().then((response) => {
 				expect(response.status).to.eq(200)
@@ -56,7 +56,7 @@ describe('Validar rotas de Motivos de Negacao da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET de Motivos de Negacao Com ID Inválido', () => {
+		it('Validar GET de Motivos de Negacao Com ID Invalido', () => {
 			var id = '3ac751e'
 			cy.consultar_motivos_negacao_por_id(id).then((response) => {
 				expect(response.status).to.eq(404)
@@ -64,3 +64,4 @@ describe('Validar rotas de Motivos de Negacao da aplicação SIGPAE', () => {
 		})
 	})
 })
+

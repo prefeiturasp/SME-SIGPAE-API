@@ -1,5 +1,6 @@
 import datetime
 import json
+from calendar import monthrange
 
 import environ
 from rest_framework import serializers
@@ -10,6 +11,7 @@ from sme_sigpae_api.dados_comuns.api.serializers import (
 )
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.dados_comuns.utils import converte_numero_em_mes
+from sme_sigpae_api.dieta_especial.api.serializers import EscolaSerializer
 from sme_sigpae_api.escola.api.serializers import (
     AlunoPeriodoParcialSimplesSerializer,
     DiretoriaRegionalSimplissimaSerializer,
@@ -21,11 +23,11 @@ from sme_sigpae_api.escola.api.serializers import (
     TipoAlimentacaoSerializer,
     TipoUnidadeEscolarSimplesSerializer,
 )
-from sme_sigpae_api.dieta_especial.api.serializers import EscolaSerializer
 from sme_sigpae_api.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
+    DadosLiquidacao,
     DiaParaCorrigir,
     DiaSobremesaDoce,
     Empenho,
@@ -41,7 +43,6 @@ from sme_sigpae_api.medicao_inicial.models import (
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
     ValorMedicao,
-    DadosLiquidacao,
 )
 from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.api.serializers import (
     RecreioNasFeriasSerializer,
@@ -51,6 +52,11 @@ from sme_sigpae_api.terceirizada.api.serializers.serializers import (
     LoteSimplesSerializer,
 )
 from sme_sigpae_api.terceirizada.models import Edital
+
+from ..utils import (
+    calcula_totais_consumo_por_escolas,
+    calcular_total_pagamento,
+)
 
 FORMATO_DATA_BR = "%d/%m/%Y"
 
@@ -140,7 +146,7 @@ class SolicitacaoMedicaoInicialSerializer(serializers.ModelSerializer):
     sem_lancamentos = serializers.BooleanField()
     justificativa_sem_lancamentos = serializers.CharField()
     justificativa_codae_correcao_sem_lancamentos = serializers.CharField()
-    recreio_nas_ferias = RecreioNasFeriasSerializer()
+    recreio_nas_ferias = serializers.SerializerMethodField()
 
     def get_escola(self, obj):
         return obj.escola.nome_historico(obj.data_referencia)
@@ -153,6 +159,13 @@ class SolicitacaoMedicaoInicialSerializer(serializers.ModelSerializer):
     def get_escola_eh_emebs(self, obj):
         return obj.escola.eh_emebs_data(obj.data_referencia)
 
+    def get_recreio_nas_ferias(self, obj):
+        if not obj.recreio_nas_ferias:
+            return None
+
+        context = {**self.context, "escola_uuid": str(obj.escola.uuid)}
+        return RecreioNasFeriasSerializer(obj.recreio_nas_ferias, context=context).data
+
     class Meta:
         model = SolicitacaoMedicaoInicial
         exclude = (
@@ -164,6 +177,7 @@ class SolicitacaoMedicaoInicialSerializer(serializers.ModelSerializer):
 class SolicitacaoMedicaoInicialLancadaSerializer(serializers.ModelSerializer):
     escola = serializers.SerializerMethodField()
     escola_uuid = serializers.CharField(source="escola.uuid")
+    recreio_nas_ferias = RecreioNasFeriasSerializer()
 
     def get_escola(self, obj):
         return obj.escola.nome_historico(obj.data_referencia)
@@ -177,6 +191,7 @@ class SolicitacaoMedicaoInicialLancadaSerializer(serializers.ModelSerializer):
             "escola",
             "escola_uuid",
             "escola_cei_com_inclusao_parcial_autorizada",
+            "recreio_nas_ferias",
         )
 
 
@@ -188,6 +203,7 @@ class SolicitacaoMedicaoInicialDashboardSerializer(serializers.ModelSerializer):
     log_mais_recente = serializers.SerializerMethodField()
     mes_ano = serializers.SerializerMethodField()
     sem_lancamentos = serializers.BooleanField()
+    recreio_nas_ferias = serializers.SerializerMethodField()
 
     def get_escola(self, obj) -> str:
         return obj.escola.nome_historico(obj.data_referencia)
@@ -206,6 +222,14 @@ class SolicitacaoMedicaoInicialDashboardSerializer(serializers.ModelSerializer):
     def get_mes_ano(self, obj) -> str:
         return f"{converte_numero_em_mes(int(obj.mes))} {obj.ano}"
 
+    def get_recreio_nas_ferias(self, obj) -> dict | None:
+        if not obj.recreio_nas_ferias:
+            return None
+        return {
+            "titulo": obj.recreio_nas_ferias.titulo,
+            "uuid": obj.recreio_nas_ferias.uuid,
+        }
+
     class Meta:
         model = SolicitacaoMedicaoInicial
         fields = (
@@ -222,6 +246,7 @@ class SolicitacaoMedicaoInicialDashboardSerializer(serializers.ModelSerializer):
             "todas_medicoes_e_ocorrencia_aprovados_por_medicao",
             "escola_cei_com_inclusao_parcial_autorizada",
             "sem_lancamentos",
+            "recreio_nas_ferias",
         )
 
 
@@ -434,13 +459,12 @@ class DadosLiquidacaoSerializer(serializers.ModelSerializer):
     Attributes:
         relatorio_financeiro (RelatorioFinanceiroSerializer): Dados do relatório financeiro.
         unidades_educacionais (List[EscolaSerializer]): Lista de unidades educacionais associadas.
+        total_pagamento (Decimal): Valor total calculado com base no consumo e parametrização financeira.
     """
 
     relatorio_financeiro = RelatorioFinanceiroSerializer(read_only=True)
-    unidades_educacionais = EscolaSerializer(
-        many=True,
-        read_only=True
-    )
+    unidades_educacionais = EscolaSerializer(many=True, read_only=True)
+    total_pagamento = serializers.SerializerMethodField()
 
     class Meta:
         model = DadosLiquidacao
@@ -450,6 +474,65 @@ class DadosLiquidacaoSerializer(serializers.ModelSerializer):
             "numero_empenho",
             "tipo_empenho",
             "unidades_educacionais",
+            "total_pagamento",
             "criado_em",
             "alterado_em",
         ]
+
+    def get_total_pagamento(self, obj):
+        """
+        Calcula o valor total de pagamento para o objeto de liquidação.
+
+        O cálculo considera:
+        - As unidades educacionais associadas
+        - O tipo de cálculo definido pelo grupo da unidade escolar:
+            - Grupo 1 → cálculo por faixa etária
+            - Grupo 2 → cálculo combinado (tipo e faixa)
+            - Demais grupos → cálculo por tipo de alimentação
+        - O consumo consolidado no período do relatório financeiro
+        - A parametrização financeira vigente no mês/ano do relatório
+
+        Etapas:
+        1. Obtém as escolas vinculadas
+        2. Determina o tipo de cálculo
+        3. Calcula o consumo e atendimento total das escolas
+        4. Busca a parametrização válida no período
+        5. Calcula o valor total com base na parametrização
+
+        Args:
+            obj (DadosLiquidacao): Instância sendo serializada.
+
+        Returns:
+            Decimal: Valor total calculado para pagamento.
+        """
+        escolas = obj.unidades_educacionais.values_list("uuid", flat=True)
+        grupo_nome = obj.relatorio_financeiro.grupo_unidade_escolar.nome
+
+        tipo_calculo = (
+            "faixa_etaria"
+            if grupo_nome == "Grupo 1"
+            else None if grupo_nome == "Grupo 2" else "tipo_alimentacao"
+        )
+
+        consumo = calcula_totais_consumo_por_escolas(
+            escolas, obj.relatorio_financeiro, tipo_calculo=tipo_calculo
+        )
+
+        mes = int(obj.relatorio_financeiro.mes)
+        ano = int(obj.relatorio_financeiro.ano)
+
+        parametrizacao = (
+            ParametrizacaoFinanceira.objects.filter(
+                grupo_unidade_escolar=obj.relatorio_financeiro.grupo_unidade_escolar,
+                lote=obj.relatorio_financeiro.lote,
+                data_inicial__lte=datetime.date(ano, mes, monthrange(ano, mes)[1]),
+                data_final__gte=datetime.date(ano, mes, 1),
+            )
+            .order_by("-data_inicial")
+            .first()
+        )
+
+        if not parametrizacao or not consumo:
+            return 0
+
+        return calcular_total_pagamento(consumo, parametrizacao, tipo_calculo)

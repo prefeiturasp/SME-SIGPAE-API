@@ -33,6 +33,7 @@ from sme_sigpae_api.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
+    DadosLiquidacao,
     DiaSobremesaDoce,
     Empenho,
     GrupoMedicao,
@@ -42,13 +43,12 @@ from sme_sigpae_api.medicao_inicial.models import (
     ParametrizacaoFinanceiraTabela,
     ParametrizacaoFinanceiraTabelaValor,
     PermissaoLancamentoEspecial,
+    RelatorioFinanceiro,
     Responsavel,
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
     TipoValorParametrizacaoFinanceira,
     ValorMedicao,
-    DadosLiquidacao,
-    RelatorioFinanceiro,
 )
 from sme_sigpae_api.medicao_inicial.utils import process_anexos_from_request
 from sme_sigpae_api.perfil.models import Usuario
@@ -288,7 +288,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_lanches_emergenciais_diarios(instance, lista_erros)
 
         if lista_erros:
-            raise ValidationError(lista_erros)
+            raise serializers.ValidationError(lista_erros)
 
     # TODO: adicionar testes unitarios
     def valida_finalizar_medicao_cemei(
@@ -303,7 +303,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_medicao_cemei(instance)
         lista_erros = validate_lanches_emergenciais_diarios(instance, lista_erros)
         if lista_erros:
-            raise ValidationError(lista_erros)
+            raise serializers.ValidationError(lista_erros)
 
     def valida_finalizar_medicao_cei(self, instance: SolicitacaoMedicaoInicial) -> None:
         if (
@@ -388,7 +388,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_lanches_emergenciais_diarios(instance, lista_erros)
 
         if lista_erros:
-            raise ValidationError(lista_erros)
+            raise serializers.ValidationError(lista_erros)
 
     def cria_valores_medicao_logs_alunos_matriculados_emef_emei(
         self, instance: SolicitacaoMedicaoInicial
@@ -748,14 +748,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
     def retorna_medicao_por_nome_grupo(
         self, instance: SolicitacaoMedicaoInicial, nome_grupo: str
     ) -> Medicao:
-        try:
-            medicao = instance.medicoes.get(grupo__nome=nome_grupo)
-        except Medicao.DoesNotExist:
-            grupo = GrupoMedicao.objects.get(nome=nome_grupo)
-            medicao = Medicao.objects.create(
-                solicitacao_medicao_inicial=instance, grupo=grupo
-            )
-        return medicao
+        return instance.get_or_create_medicao_por_periodo_e_ou_grupo(nome_grupo)
 
     def retorna_numero_alunos_dia(
         self, inclusao: InclusaoAlimentacaoContinua, data: date
@@ -975,6 +968,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             instance, validated_data, justificativa_sem_lancamentos
         )
         self._finaliza_medicao_sem_lancamentos(instance, justificativa_sem_lancamentos)
+        self._finaliza_recreio_nas_ferias(instance, validated_data)
         return instance
 
     def _check_user_permission(self):
@@ -1072,7 +1066,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
     def _finaliza_medicao_se_necessario(
         self, instance, validated_data, justificativa_sem_lancamentos
     ):
-        if justificativa_sem_lancamentos:
+        if justificativa_sem_lancamentos or instance.recreio_nas_ferias:
             return
         key_com_ocorrencias = validated_data.get("com_ocorrencias", None)
         if key_com_ocorrencias is not None and self.context["request"].data.get(
@@ -1158,7 +1152,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
     def _finaliza_medicao_sem_lancamentos(
         self, instance, justificativa_sem_lancamentos
     ):
-        if not justificativa_sem_lancamentos:
+        if not justificativa_sem_lancamentos or instance.recreio_nas_ferias:
             return
         usuario = self.context["request"].user
         self._checa_se_pode_finalizar_sem_lancamentos(instance)
@@ -1172,6 +1166,26 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 user=usuario,
                 justificativa_sem_lancamentos=justificativa_sem_lancamentos,
             )
+
+    def _finaliza_recreio_nas_ferias(self, instance, validated_data):
+        if not instance.recreio_nas_ferias:
+            return
+        key_com_ocorrencias = validated_data.get("com_ocorrencias", None)
+        if key_com_ocorrencias is not None and self.context["request"].data.get(
+            "finaliza_medicao"
+        ):
+            if date.today() <= instance.recreio_nas_ferias.data_fim:
+                raise serializers.ValidationError(
+                    "A medição só pode ser finalizada 1 dia após a data fim do Recreio nas Férias."
+                )
+            instance.ue_envia(user=self.context["request"].user)
+            anexos = self._process_anexos(instance)
+            if hasattr(instance, "ocorrencia"):
+                instance.ocorrencia.ue_envia(
+                    user=self.context["request"].user, anexos=anexos
+                )
+            for medicao in instance.medicoes.all():
+                medicao.ue_envia(user=self.context["request"].user)
 
     class Meta:
         model = SolicitacaoMedicaoInicial
@@ -1643,7 +1657,7 @@ class DadosLiquidacaoUpdateSerializer(serializers.ModelSerializer):
         queryset=RelatorioFinanceiro.objects.all(),
         slug_field="uuid",
         source="relatorio_financeiro",
-        write_only=True
+        write_only=True,
     )
     unidades_educacionais = serializers.SlugRelatedField(
         many=True,

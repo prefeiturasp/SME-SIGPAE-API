@@ -710,6 +710,7 @@ class CronogramaRelatorioSerializer(serializers.ModelSerializer):
     custo_unitario_produto = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
     programa_leve_leite = serializers.SerializerMethodField()
+    modalidade = serializers.SerializerMethodField()
 
     def get_programa_leve_leite(self, obj):
         try:
@@ -760,6 +761,13 @@ class CronogramaRelatorioSerializer(serializers.ModelSerializer):
             else None
         )
 
+    def get_modalidade(self, obj):
+        if not obj.contrato:
+            return "Não Informado"
+        if not obj.contrato.modalidade:
+            return "Não Informado"
+        return obj.contrato.modalidade.nome or "Não Informado"
+
     class Meta:
         model = Cronograma
         fields = (
@@ -776,6 +784,7 @@ class CronogramaRelatorioSerializer(serializers.ModelSerializer):
             "custo_unitario_produto",
             "etapas",
             "programa_leve_leite",
+            "modalidade",
         )
 
 
@@ -921,3 +930,36 @@ class InterrupcaoProgramadaEntregaCreateSerializer(serializers.ModelSerializer):
                 {"descricao_motivo": "Descrição é obrigatória quando motivo é 'Outros'"}
             )
         return attrs
+
+
+class CronogramaMensalAssinadoSerializer(serializers.ModelSerializer):
+    """Serializer para listar cronogramas mensal Ponto a Ponto assinados"""
+
+    produto_nome = serializers.SerializerMethodField()
+    fornecedor_nome = serializers.SerializerMethodField()
+    numero_contrato = serializers.SerializerMethodField()
+
+    def get_produto_nome(self, obj):
+        if obj.ficha_tecnica and obj.ficha_tecnica.produto:
+            return obj.ficha_tecnica.produto.nome
+        return None
+
+    def get_fornecedor_nome(self, obj):
+        if obj.empresa:
+            return obj.empresa.nome_fantasia
+        return None
+
+    def get_numero_contrato(self, obj):
+        if obj.contrato:
+            return obj.contrato.numero
+        return None
+
+    class Meta:
+        model = Cronograma
+        fields = (
+            "uuid",
+            "numero",
+            "produto_nome",
+            "fornecedor_nome",
+            "numero_contrato",
+        )

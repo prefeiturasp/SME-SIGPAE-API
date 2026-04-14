@@ -592,6 +592,7 @@ def get_nome_campo(campo):
         "repeticao_2_refeicao": "Repetição 2ª Refeição",
         "2_sobremesa_1_oferta": "2ª Sobremesa 1ª Oferta",
         "repeticao_2_sobremesa": "Repetição 2ª Sobremesa",
+        "observacoes": "Observações",
     }
     return campos.get(campo, campo)
 
@@ -1046,3 +1047,19 @@ def remove_style(value):
     for tag in soup.find_all("style"):
         tag.decompose()
     return str(soup)
+
+
+@register.filter
+def nomes_relatorio_correcao_medicao(nome):
+    nomes = {
+        "MANHA": "Manhã",
+        "Infantil MANHA": "Infantil Manhã",
+        "NOITE": "Noturno - EJA",
+        "INTERMEDIARIO": "Intermediário",
+        "ETEC": "ETEC",
+        "DIETA ESPECIAL - TIPO A": "Dieta Tipo A",
+        "DIETA ESPECIAL - TIPO B": "Dieta Tipo B",
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": "Dieta Tipo A Enteral/Restrição de Aminoácidos",
+    }
+
+    return nomes.get(nome, nome.capitalize())

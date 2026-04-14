@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from sme_sigpae_api.dieta_especial.models import PlanilhaDietasAtivas
+from sme_sigpae_api.dieta_especial.carga_dados.models import PlanilhaDietasAtivas
 from sme_sigpae_api.escola.utils_escola import get_escolas
 
 

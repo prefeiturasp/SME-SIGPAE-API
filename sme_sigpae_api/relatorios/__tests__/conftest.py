@@ -4,7 +4,7 @@ import io
 import pytest
 from freezegun import freeze_time
 from model_bakery import baker
-from PyPDF4 import PdfFileReader, PdfFileWriter
+from pypdf import PdfReader, PdfWriter
 from weasyprint import HTML
 
 from sme_sigpae_api.cardapio.suspensao_alimentacao.models import (
@@ -17,7 +17,9 @@ from sme_sigpae_api.dados_comuns.models import (
     LogSolicitacoesUsuario,
     TemplateMensagem,
 )
-from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    SolicitacaoDietaEspecial,
+)
 from sme_sigpae_api.escola.models import Aluno, Lote
 from sme_sigpae_api.perfil.models.usuario import Usuario
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (
@@ -286,14 +288,14 @@ def solicitacao_dieta_especial_cancelada(
 @pytest.fixture
 def gerar_pdf_simples():
     pdf_final = io.BytesIO()
-    documento = PdfFileWriter()
+    documento = PdfWriter()
 
     for i in range(2):
         html = HTML(
             string=f"<h1>Dieta especial autorizada para o aluno Fulano{i+1} - Página {i+1}</h1>"
         ).write_pdf()
-        pagina_pdf = PdfFileReader(io.BytesIO(html))
-        documento.addPage(pagina_pdf.getPage(0))
+        pagina_pdf = PdfReader(io.BytesIO(html))
+        documento.add_page(pagina_pdf.pages[0])
 
     documento.write(pdf_final)
     pdf_final.seek(0)
@@ -750,7 +752,49 @@ def solicitacao_medicao_inicial_aprovada_codae(
     solicitacoes_medicao_inicial_emef.save()
     return solicitacoes_medicao_inicial_emef
 
-   
+
+@pytest.fixture
+def solicitacao_com_historico_completo(
+    solicitacoes_medicao_inicial_emef,
+    django_user_model,
+):
+    solicitacao = solicitacoes_medicao_inicial_emef
+    usuario = django_user_model.objects.create_user(
+        nome="Usuário TESTE",
+        username="medicao_teste",
+        password=DJANGO_ADMIN_PASSWORD,
+        email="medicao@escola.com",
+        registro_funcional="123456",
+    )
+
+    # 1. Log de Envio (Para testar o nome da Escola e DRE)
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE,
+        usuario=usuario,
+    )
+
+    # 2. Log de Correção (Para testar a Justificativa com striptags)
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA,
+        justificativa="<p>Precisa <strong>ajustar</strong> o valor.</p>",
+        usuario=usuario,
+    )
+
+    # 3. Log de Aprovação (Para testar o status final)
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
+        usuario=usuario,
+    )
+
+    return solicitacao
+
+
 @pytest.fixture
 def ficha_recebimento_observacao_com_none():
     return FichaDeRecebimentoFactory(
