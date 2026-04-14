@@ -9,8 +9,10 @@ from django.db.models import Q
 from openpyxl import Workbook, load_workbook, styles
 
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.carga_dados.models import (
     ArquivoCargaDietaEspecial,
+)
+from sme_sigpae_api.dieta_especial.models import (
     ProtocoloPadraoDietaEspecial,
     SolicitacaoDietaEspecial,
     SubstituicaoAlimento,

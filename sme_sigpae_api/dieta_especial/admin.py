@@ -26,11 +26,13 @@ from sme_sigpae_api.processamento_arquivos.dieta_especial import (
     importa_dietas_especiais,
 )
 
-from .models import (
-    Alimento,
+from .carga_dados.models import (
     ArquivoCargaAlimentosSubstitutos,
     ArquivoCargaDietaEspecial,
     PlanilhaDietasAtivas,
+)
+from .models import (
+    Alimento,
     ProtocoloPadraoDietaEspecial,
     SolicitacaoDietaEspecial,
     SubstituicaoAlimento,

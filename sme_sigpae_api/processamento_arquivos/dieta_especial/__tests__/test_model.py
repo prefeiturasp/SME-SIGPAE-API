@@ -1,7 +1,7 @@
 import pytest
 
 from sme_sigpae_api.dados_comuns.constants import StatusProcessamentoArquivo
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.carga_dados.models import (
     ArquivoCargaAlimentosSubstitutos,
     ArquivoCargaDietaEspecial,
 )

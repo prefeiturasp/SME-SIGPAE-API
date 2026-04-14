@@ -4,10 +4,10 @@ from django.db import transaction
 from django.db.models import Q
 from openpyxl import load_workbook
 
-from sme_sigpae_api.dieta_especial.models import (
-    Alimento,
+from sme_sigpae_api.dieta_especial.carga_dados.models import (
     ArquivoCargaAlimentosSubstitutos,
 )
+from sme_sigpae_api.dieta_especial.models import Alimento
 
 from .schemas import ArquivoCargaAlimentosSchema
 

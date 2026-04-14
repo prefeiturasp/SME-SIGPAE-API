@@ -3,8 +3,8 @@ import pytest
 from openpyxl.cell import Cell
 
 from sme_sigpae_api.dados_comuns.constants import StatusProcessamentoArquivo
+from sme_sigpae_api.dieta_especial.carga_dados.models import ArquivoCargaDietaEspecial
 from sme_sigpae_api.dieta_especial.models import (
-    ArquivoCargaDietaEspecial,
     SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
 )

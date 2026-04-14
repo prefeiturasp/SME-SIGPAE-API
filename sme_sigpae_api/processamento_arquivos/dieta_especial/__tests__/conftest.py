@@ -6,10 +6,12 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
 from openpyxl import Workbook
 
-from sme_sigpae_api.dieta_especial.models import (
-    Alimento,
+from sme_sigpae_api.dieta_especial.carga_dados.models import (
     ArquivoCargaAlimentosSubstitutos,
     ArquivoCargaDietaEspecial,
+)
+from sme_sigpae_api.dieta_especial.models import (
+    Alimento,
     SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
