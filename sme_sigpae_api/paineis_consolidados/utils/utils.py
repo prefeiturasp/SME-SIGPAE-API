@@ -9,7 +9,9 @@ from sme_sigpae_api.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from sme_sigpae_api.dados_comuns.utils import get_ultimo_dia_mes
-from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    SolicitacaoDietaEspecial,
+)
 from sme_sigpae_api.escola.models import DiretoriaRegional, Lote
 from sme_sigpae_api.inclusao_alimentacao.models import (
     QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI,

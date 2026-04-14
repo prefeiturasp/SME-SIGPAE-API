@@ -6,10 +6,10 @@ from openpyxl import load_workbook
 from openpyxl.cell import Cell
 
 from sme_sigpae_api.dados_comuns.constants import StatusProcessamentoArquivo
-from sme_sigpae_api.dieta_especial.models import (
-    Alimento,
+from sme_sigpae_api.dieta_especial.carga_dados.models import (
     ArquivoCargaAlimentosSubstitutos,
 )
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import Alimento
 from sme_sigpae_api.processamento_arquivos.dieta_especial import (
     importa_alimentos as imp_alimentos,
 )

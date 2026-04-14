@@ -18,15 +18,17 @@ from ...escola.models import Aluno, Escola, Responsavel
 from ...produto.api.serializers import serializers as ser
 from ...produto.models import Produto
 from ...terceirizada.models import Edital
-from ..models import (
+from ..protocolo_padrao.models import (
     Alimento,
     AlimentoSubstituto,
-    Anexo,
-    MotivoAlteracaoUE,
     ProtocoloPadraoDietaEspecial,
-    SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
     SubstituicaoAlimentoProtocoloPadrao,
+)
+from ..solicitacao_dieta_especial.models import (
+    Anexo,
+    MotivoAlteracaoUE,
+    SolicitacaoDietaEspecial,
 )
 from ..utils import log_create, log_update
 from .validators import AlunoSerializerValidator, edital_ja_existe_protocolo

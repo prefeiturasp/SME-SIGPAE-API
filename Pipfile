@@ -86,7 +86,6 @@ lxml = "==6.0.2"
 openpyxl = "==3.1.5"
 httpx = "==0.28.1"
 pikepdf = "==10.5.1"
-PyPDF4 = "==1.27.0"
 pydantic = "==2.11.7"
 python-magic = {version = "==0.4.27", markers = "sys_platform == 'linux'"}
 python-magic-bin = {version = "==0.4.14", markers = "sys_platform == 'win32'"}

@@ -254,6 +254,9 @@ class LogAlunosMatriculadosPeriodoEscolaAdmin(admin.ModelAdmin):
         "infantil_ou_fundamental",
     )
     search_fields = ("escola__nome", "escola__codigo_eol", "periodo_escolar__nome")
+    search_help_text = (
+        "Pesquise por: nome da escola, código eol da escola ou período escolar"
+    )
     list_filter = (
         ("criado_em", DateRangeFilter),
         "periodo_escolar__nome",
@@ -278,11 +281,15 @@ class LogAlunosMatriculadosFaixaEtariaDiaAdmin(admin.ModelAdmin):
         "data",
         "criado_em",
     )
-    search_fields = ("escola__nome", "periodo_escolar__nome")
+    search_fields = ("escola__nome", "escola__codigo_eol", "periodo_escolar__nome")
+    search_help_text = (
+        "Pesquise por: nome da escola, código eol da escola ou período escolar"
+    )
     list_filter = (
         ("data", DateRangeFilter),
         "periodo_escolar__nome",
         "escola__tipo_unidade",
+        "faixa_etaria",
     )
     ordering = ("-criado_em", "escola__nome")
 
@@ -301,7 +308,9 @@ class LogAlunoPorDiaAdmin(admin.ModelAdmin):
         "aluno__nome",
         "aluno__codigo_eol",
         "log_alunos_matriculados_faixa_dia__escola__nome",
+        "log_alunos_matriculados_faixa_dia__escola__codigo_eol",
     )
+    search_help_text = "Pesquise por: nome do aluno, código eol do aluno, nome da escola ou código eol da escola"
     list_filter = (("log_alunos_matriculados_faixa_dia__data", DateRangeFilter),)
     ordering = ("-criado_em",)
 
@@ -342,6 +351,9 @@ class PeriodoEscolarAdmin(admin.ModelAdmin):
 class HistoricoMatriculaAlunoAdmin(admin.ModelAdmin):
     list_display = ("aluno", "escola", "data_inicio", "data_fim", "situacao")
     search_fields = ("aluno__nome", "escola__nome", "aluno__codigo_eol")
+    search_help_text = (
+        "Pesquise por: nome do aluno, nome da escola ou código eol do aluno"
+    )
     list_filter = (
         "situacao",
         "escola__diretoria_regional",
@@ -354,6 +366,13 @@ class HistoricoMatriculaAlunoAdmin(admin.ModelAdmin):
 @admin.register(AlunoPeriodoParcial)
 class AlunoPeriodoParcialAdmin(admin.ModelAdmin):
     list_display = ("aluno", "escola", "solicitacao_medicao_inicial")
+    search_fields = (
+        "aluno__nome",
+        "aluno__codigo_eol",
+        "escola__nome",
+        "escola__codigo_eol",
+    )
+    search_help_text = "Pesquise por: nome do aluno, código eol do aluno, nome da escola ou código eol da escola"
 
 
 admin.site.register(Codae)

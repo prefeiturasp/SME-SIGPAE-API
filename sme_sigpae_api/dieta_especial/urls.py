@@ -1,13 +1,16 @@
 from django.urls import include, path, re_path
 from rest_framework import routers
 
+from sme_sigpae_api.dieta_especial.logs_models.api import (
+    viewsets as logs_models_viewsets,
+)
+
 from .api import viewsets
 from .constants import (
     ENDPOINT_ALERGIAS_INTOLERANCIAS,
     ENDPOINT_ALIMENTOS,
     ENDPOINT_CLASSIFICACOES_DIETA,
     ENDPOINT_MOTIVOS_NEGACAO,
-    ENDPOINT_TIPO_CONTAGEM,
 )
 
 router = routers.DefaultRouter()
@@ -38,11 +41,6 @@ router.register(
     basename="Motivos de negação de dieta especial",
 )
 router.register(
-    ENDPOINT_TIPO_CONTAGEM,
-    viewsets.TipoContagemViewSet,
-    basename="Tipos de contagem de refeições",
-)
-router.register(
     "motivo-alteracao-ue",
     viewsets.MotivoAlteracaoUEViewSet,
     basename="Motivos alteracao UE de dieta especial",
@@ -54,22 +52,22 @@ router.register(
 )
 router.register(
     "log-quantidade-dietas-autorizadas",
-    viewsets.LogQuantidadeDietasAutorizadasViewSet,
+    logs_models_viewsets.LogQuantidadeDietasAutorizadasViewSet,
     basename="Log quantidade dietas autorizadas",
 )
 router.register(
     "log-quantidade-dietas-autorizadas-cei",
-    viewsets.LogQuantidadeDietasAutorizadasCEIViewSet,
+    logs_models_viewsets.LogQuantidadeDietasAutorizadasCEIViewSet,
     basename="Log quantidade dietas autorizadas CEI",
 )
 router.register(
     "log-quantidade-dietas-autorizadas-recreio-nas-ferias",
-    viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet,
+    logs_models_viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet,
     basename="Log quantidade dietas autorizadas RecreioNasFerias",
 )
 router.register(
     "log-quantidade-dietas-autorizadas-recreio-nas-ferias-cei",
-    viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet,
+    logs_models_viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet,
     basename="Log quantidade dietas autorizadas RecreioNasFerias CEI",
 )
 

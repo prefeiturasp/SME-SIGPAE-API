@@ -34,7 +34,7 @@ from ..dados_comuns.fluxo_status import (
     PedidoAPartirDaEscolaWorkflow,
 )
 from ..dados_comuns.models import LogSolicitacoesUsuario
-from ..dieta_especial.models import SolicitacaoDietaEspecial
+from ..dieta_especial.solicitacao_dieta_especial.models import SolicitacaoDietaEspecial
 from ..escola.models import Codae, DiretoriaRegional, Escola
 from ..inclusao_alimentacao.api.serializers.serializers import (
     GrupoInclusaoAlimentacaoNormalSerializer,

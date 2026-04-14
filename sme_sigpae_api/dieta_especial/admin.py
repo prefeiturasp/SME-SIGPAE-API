@@ -7,39 +7,40 @@ from django.shortcuts import redirect
 from django.urls import path
 from rangefilter.filters import DateRangeFilter
 
-from sme_sigpae_api.dados_comuns.constants import COORDENADOR_LOGISTICA
-from sme_sigpae_api.escola.models import Codae
-from sme_sigpae_api.escola.utils_analise_dietas_ativas import main
-from sme_sigpae_api.escola.utils_escola import create_tempfile, escreve_escolas_json
-from sme_sigpae_api.processamento_arquivos.dieta_especial import (
-    importa_alimentos,
-    importa_dietas_especiais,
-    importa_usuarios_escola,
-)
-
-from .forms import AlimentoProprioForm
-from .models import (
-    AlergiaIntolerancia,
-    Alimento,
-    AlimentoProprio,
-    Anexo,
-    ArquivoCargaAlimentosSubstitutos,
-    ArquivoCargaDietaEspecial,
-    ArquivoCargaUsuariosEscola,
-    ClassificacaoDieta,
+from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogDietasAtivasCanceladasAutomaticamente,
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
     LogQuantidadeDietasAutorizadasRecreioNasFerias,
     LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    Anexo,
     MotivoAlteracaoUE,
     MotivoNegacao,
+)
+from sme_sigpae_api.escola.utils_analise_dietas_ativas import main
+from sme_sigpae_api.escola.utils_escola import create_tempfile, escreve_escolas_json
+from sme_sigpae_api.processamento_arquivos.dieta_especial import (
+    importa_alimentos,
+    importa_dietas_especiais,
+)
+
+from .carga_dados.models import (
+    ArquivoCargaAlimentosSubstitutos,
+    ArquivoCargaDietaEspecial,
     PlanilhaDietasAtivas,
+)
+from .protocolo_padrao.models import (
+    Alimento,
     ProtocoloPadraoDietaEspecial,
-    SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
     SubstituicaoAlimentoProtocoloPadrao,
-    TipoContagem,
+)
+from .solicitacao_dieta_especial.models import (
+    AlergiaIntolerancia,
+    ClassificacaoDieta,
+    SolicitacaoDietaEspecial,
 )
 from .tasks import processa_dietas_especiais_task
 from .tasks.admin_actions import get_escolas_task
@@ -85,45 +86,6 @@ class AlimentoAdmin(admin.ModelAdmin):
     search_fields = ("nome",)
     ordering = ("nome",)
     list_filter = ("tipo_listagem_protocolo",)
-
-
-@admin.register(AlimentoProprio)
-class AlimentoProprioAdmin(admin.ModelAdmin):
-    list_display = ("nome", "marca", "outras_informacoes", "ativo")
-    search_fields = ("nome", "marca__nome", "outras_informacoes")
-    list_filter = ("ativo",)
-    ordering = ("nome",)
-    readonly_fields = ("tipo",)
-    form = AlimentoProprioForm
-    actions = ("inativar_alimentos",)
-
-    def inativar_alimentos(self, request, queryset):
-        count = queryset.update(ativo=False)
-
-        if count == 1:
-            msg = "{} alimento próprio foi inativado."  # noqa P103
-        else:
-            msg = "{} alimentos próprios foram inativados."  # noqa P103
-
-        self.message_user(request, msg.format(count))
-
-    inativar_alimentos.short_description = "Marcar para inativar alimentos"
-
-    def has_module_permission(self, request, obj=None):
-        usuario = request.user
-        if usuario:
-            if not usuario.is_anonymous:
-                return (
-                    not usuario.is_anonymous
-                    and usuario.vinculo_atual
-                    and isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome in [COORDENADOR_LOGISTICA]
-                    or usuario.email == "admin@admin.com"
-                )
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
 
 
 class SubstituicaoAlimentoInline(admin.TabularInline):
@@ -319,29 +281,6 @@ class ArquivoCargaAlimentosSubstitutosAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(ArquivoCargaUsuariosEscola)
-class ArquivoCargaUsuariosEscolaAdmin(admin.ModelAdmin):
-    list_display = ("uuid", "__str__", "criado_em", "status")
-    readonly_fields = ("resultado", "status", "log")
-    list_filter = ("status",)
-    actions = ("processa_carga",)
-
-    def processa_carga(self, request, queryset):
-        if len(queryset) > 1:
-            self.message_user(request, "Escolha somente uma planilha.", messages.ERROR)
-            return
-
-        importa_usuarios_escola(request.user, queryset.first())
-        self.message_user(
-            request,
-            f"Processo Terminado. Verifique o status do processo. {queryset.first().uuid}",
-        )
-
-    processa_carga.short_description = (
-        "Realiza a importação dos usuários Diretor e Assistente Diretor"
-    )
-
-
 @admin.register(LogQuantidadeDietasAutorizadas)
 class LogQuantidadeDietasAutorizadasAdmin(admin.ModelAdmin):
     list_display = (
@@ -424,4 +363,3 @@ admin.site.register(MotivoAlteracaoUE)
 admin.site.register(MotivoNegacao)
 admin.site.register(SubstituicaoAlimento)
 admin.site.register(SubstituicaoAlimentoProtocoloPadrao)
-admin.site.register(TipoContagem)

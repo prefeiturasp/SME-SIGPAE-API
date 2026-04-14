@@ -1,5 +1,7 @@
 from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
+)
+from sme_sigpae_api.dieta_especial.logs_models.fixtures.factories.base import (
     LogQuantidadeDietasAutorizadasCEIFactory,
     LogQuantidadeDietasAutorizadasFactory,
 )

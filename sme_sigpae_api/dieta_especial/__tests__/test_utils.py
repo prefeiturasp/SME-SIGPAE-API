@@ -8,7 +8,7 @@ from freezegun.api import freeze_time
 
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...terceirizada.models import Edital
-from ..models import SolicitacaoDietaEspecial
+from ..solicitacao_dieta_especial.models import SolicitacaoDietaEspecial
 from ..tasks.utils.logs import (
     gera_logs_dietas_escolas_cei,
     gera_logs_dietas_escolas_comuns,
@@ -928,12 +928,15 @@ def test_filtra_relatorio_recreio_nas_ferias_status_permitidos(
 
     assert isinstance(queryset, QuerySet)
 
-    status_retornados = set(queryset.values_list('status', flat=True))
+    status_retornados = set(queryset.values_list("status", flat=True))
     status_esperados = {
         SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
-        SolicitacaoDietaEspecial.workflow_class.TERMINADA_AUTOMATICAMENTE_SISTEMA
+        SolicitacaoDietaEspecial.workflow_class.TERMINADA_AUTOMATICAMENTE_SISTEMA,
     }
 
     assert status_retornados.issubset(status_esperados)
     assert SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO in status_retornados
-    assert SolicitacaoDietaEspecial.workflow_class.TERMINADA_AUTOMATICAMENTE_SISTEMA in status_retornados
+    assert (
+        SolicitacaoDietaEspecial.workflow_class.TERMINADA_AUTOMATICAMENTE_SISTEMA
+        in status_retornados
+    )

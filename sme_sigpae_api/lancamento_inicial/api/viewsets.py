@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from ...dieta_especial.models import ClassificacaoDieta
+from ...dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from ...escola.models import EscolaPeriodoEscolar
 from ..models import LancamentoDiario
 from ..utils import (
@@ -57,7 +57,7 @@ class LancamentoDiarioViewSet(ModelViewSet):
 
     @action(detail=False, url_path="por-mes", methods=["get"])
     def por_mes(self, request):
-        (data_inicial, data_final) = mes_para_faixa(self.request.GET["mes"])
+        data_inicial, data_final = mes_para_faixa(self.request.GET["mes"])
         escola_periodo_escolar = EscolaPeriodoEscolar.objects.get(
             uuid=self.request.GET["escola_periodo_escolar"]
         )

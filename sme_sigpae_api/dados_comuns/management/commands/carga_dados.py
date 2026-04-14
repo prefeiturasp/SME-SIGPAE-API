@@ -16,7 +16,6 @@ from utility.carga_dados.dados_comuns.importa_dados import (
 from utility.carga_dados.dieta_especial.importa_dados import (
     cria_alergia_intolerancias,
     cria_alimento,
-    cria_alimento_proprio,
     cria_classificacoes_dieta,
     cria_motivo_alteracao_ue,
     cria_motivo_negacao,
@@ -146,8 +145,6 @@ class Command(BaseCommand):
             cria_produto()
             cria_produto_marca()
             adiciona_contato_em_terceirizada()
-
-            cria_alimento_proprio()
 
         # Recebimento
         cria_reposicao_cronograma_ficha_recebimento()

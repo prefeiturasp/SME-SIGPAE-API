@@ -8,7 +8,6 @@ from django.db.models import F, FloatField, Sum
 from django.http import HttpResponseNotAllowed
 from django.template.loader import get_template, render_to_string
 
-from sme_sigpae_api.dados_comuns.utils import convert_image_to_base64
 from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_CEI,
     ORDEM_UNIDADES_GRUPO_CEMEI,
@@ -17,7 +16,14 @@ from sme_sigpae_api.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
 )
-from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+from sme_sigpae_api.dados_comuns.utils import convert_image_to_base64
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    SolicitacaoDietaEspecial,
+)
+from sme_sigpae_api.medicao_inicial.models import SolicitacaoMedicaoInicial
+from sme_sigpae_api.medicao_inicial.services.relatorio_financeiro_cei import (
+    build_relatorio_financeiro_grupo_cei,
+)
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
@@ -72,7 +78,6 @@ from ..relatorios.utils import (
     html_to_pdf_response,
     html_to_pdf_watermark,
 )
-from sme_sigpae_api.medicao_inicial.models import SolicitacaoMedicaoInicial
 from ..terceirizada.models import Edital
 from ..terceirizada.utils import transforma_dados_relatorio_quantitativo
 from . import constants
@@ -90,7 +95,6 @@ from .utils import (
     get_width,
     todas_escolas_sol_kit_lanche_unificado_cancelado,
 )
-from sme_sigpae_api.medicao_inicial.services.relatorio_financeiro_cei import build_relatorio_financeiro_grupo_cei
 
 env = environ.Env()
 

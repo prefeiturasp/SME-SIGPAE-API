@@ -1,6 +1,6 @@
 from collections import Counter
 
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
     SolicitacaoDietaEspecial,

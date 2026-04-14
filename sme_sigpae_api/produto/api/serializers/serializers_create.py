@@ -12,7 +12,9 @@ from ....dados_comuns.utils import (
     update_instance_from_dict,
 )
 from ....dados_comuns.validators import deve_ter_extensao_valida
-from ....dieta_especial.models import SolicitacaoDietaEspecial
+from ....dieta_especial.solicitacao_dieta_especial.models import (
+    SolicitacaoDietaEspecial,
+)
 from ....escola.models import Aluno, Escola
 from ....terceirizada.models import Edital, Terceirizada
 from ...models import (

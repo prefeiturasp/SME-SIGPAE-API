@@ -2,10 +2,10 @@ from django import forms
 
 from ..escola.models import DiretoriaRegional, Escola, Lote
 from ..terceirizada.models import Terceirizada
-from .models import (
+from .protocolo_padrao.models import ProtocoloPadraoDietaEspecial
+from .solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
-    ProtocoloPadraoDietaEspecial,
     SolicitacaoDietaEspecial,
 )
 
@@ -100,13 +100,3 @@ class PanoramaForm(forms.Form):
     escola = forms.ModelChoiceField(
         required=False, queryset=Escola.objects.all(), to_field_name="uuid"
     )
-
-
-class AlimentoProprioForm(forms.ModelForm):
-    class Meta:
-        fields = "__all__"
-
-    def __init__(self, *args, **kwargs):  # noqa D107
-        super().__init__(*args, **kwargs)
-        self.fields["nome"].required = True
-        self.fields["marca"].required = True

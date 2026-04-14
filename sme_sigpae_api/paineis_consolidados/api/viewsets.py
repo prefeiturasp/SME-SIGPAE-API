@@ -19,7 +19,9 @@ from ...dados_comuns.permissions import (
     UsuarioGticCODAE,
     UsuarioNutricionista,
 )
-from ...dieta_especial.models import SolicitacaoDietaEspecial
+from ...dieta_especial.solicitacao_dieta_especial.models import (
+    SolicitacaoDietaEspecial,
+)
 from ...paineis_consolidados.api.constants import (
     TIPO_VISAO,
     TIPO_VISAO_LOTE,

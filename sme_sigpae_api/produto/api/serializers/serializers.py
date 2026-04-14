@@ -14,7 +14,7 @@ from ....dados_comuns.api.serializers import (
 from ....dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from ....dados_comuns.validators import objeto_nao_deve_ter_duplicidade
 from ....dieta_especial.api import serializers as des
-from ....dieta_especial.models import Alimento
+from ....dieta_especial.protocolo_padrao.models import Alimento
 from ....escola.api.serializers import (
     AlunoSimplesSerializer,
     DiretoriaRegionalSimplissimaSerializer,
