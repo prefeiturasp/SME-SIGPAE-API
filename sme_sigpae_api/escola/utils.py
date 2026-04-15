@@ -482,7 +482,7 @@ def get_alunos_com_dietas_autorizadas(query_params, escola):
     )
 
     solicitacoes_dietas_comuns = SolicitacaoDietaEspecial.objects.filter(
-        aluno__escola=escola, tipo_solicitacao="COMUM"
+        aluno__escola=escola, tipo_solicitacao="COMUM", ativo=True
     )
     dietas_com_log_autorizado = [
         s
