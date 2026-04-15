@@ -29,7 +29,9 @@ from ...dados_comuns.fluxo_status import (
     InformativoPartindoDaEscolaWorkflow,
 )
 from ...dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
-from ...dieta_especial.models import SolicitacaoDietaEspecial
+from ...dieta_especial.solicitacao_dieta_especial.models import (
+    SolicitacaoDietaEspecial,
+)
 from ...inclusao_alimentacao.models import (
     DiasMotivosInclusaoDeAlimentacaoCEI,
     GrupoInclusaoAlimentacaoNormal,

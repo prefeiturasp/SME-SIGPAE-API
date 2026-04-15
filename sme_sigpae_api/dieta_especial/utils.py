@@ -11,7 +11,8 @@ from django.http import QueryDict
 from django.template.loader import render_to_string
 from rest_framework.pagination import PageNumberPagination
 
-from sme_sigpae_api.dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.logs_models.models import (
+    LogDietasAtivasCanceladasAutomaticamente,
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
@@ -33,10 +34,7 @@ from .constants import (
     UNIDADES_EMEI_EMEF_CIEJA,
     UNIDADES_SEM_PERIODOS,
 )
-from .models import (
-    LogDietasAtivasCanceladasAutomaticamente,
-    SolicitacaoDietaEspecial,
-)
+from .solicitacao_dieta_especial.models import SolicitacaoDietaEspecial
 
 
 def dietas_especiais_a_terminar():

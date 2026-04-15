@@ -1,15 +1,21 @@
 ﻿/// <reference types='cypress' />
 
+<<<<<<< HEAD
 describe('Validar rotas de Faixas Etárias da aplicaçãoo SIGPAE', () => {
 	var usuario = Cypress.config('usuario_codae')
 	var senha = Cypress.config('senha')
+=======
+describe('Validar rotas de Faixas EtÃ¡rias da aplicaÃ§Ã£o SIGPAE', () => {
+	var usuario = Cypress.env('usuario_codae')
+	var senha = Cypress.env('senha')
+>>>>>>> upstream/testes
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
 
 	context('Rota api/faixas-etarias/', () => {
-		it('Validar GET com sucesso de Faixas Etárias', () => {
+		it('Validar GET com sucesso de Faixas EtÃ¡rias', () => {
 			cy.consultar_faixas_etarias().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count')
@@ -24,3 +30,4 @@ describe('Validar rotas de Faixas Etárias da aplicaçãoo SIGPAE', () => {
 		})
 	})
 })
+

@@ -61,9 +61,12 @@ function obterSenhaPorPerfil(perfil) {
 Dado('que acesso o sistema', function () {
 	cy.clearCookies()
 	cy.clearLocalStorage()
+<<<<<<< HEAD
 	cy.clearAllCookies()
 	cy.clearAllLocalStorage()
 	cy.clearAllSessionStorage()
+=======
+>>>>>>> upstream/testes
 	cy.login_sme('web')
 })
 

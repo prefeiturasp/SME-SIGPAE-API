@@ -1,8 +1,10 @@
 import numpy as np
 
-from sme_sigpae_api.dieta_especial.models import (
-    ClassificacaoDieta,
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import (
     ProtocoloPadraoDietaEspecial,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
 )
 from sme_sigpae_api.escola.models import Lote
 
@@ -118,13 +120,13 @@ def build_xlsx_relatorio_terceirizadas(
         worksheet.write(
             3,
             col_index,
-            "Relação por Diagnóstico" if exibir_diagnostico else "Protocolo Padrão",
+            "Relação por Diagnóstico" if exibir_diagnostico else "Protocolo",
             single_cell_format,
         )
         col_index += 1
 
         if is_autorizadas and exibir_diagnostico:
-            worksheet.write(3, col_index, "Protocolo Padrão", single_cell_format)
+            worksheet.write(3, col_index, "Protocolo", single_cell_format)
             col_index += 1
 
         if status.upper() == "CANCELADAS":

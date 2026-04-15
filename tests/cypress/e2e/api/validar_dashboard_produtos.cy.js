@@ -1,15 +1,15 @@
 ﻿/// <reference types='cypress' />
 
-describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
-	var usuario = Cypress.config('usuario_codae')
-	var senha = Cypress.config('senha')
+describe('Validar rotas de dashboard de produtos da aplicaÃ§Ã£o SIGPAE', () => {
+	var usuario = Cypress.env('usuario_codae')
+	var senha = Cypress.env('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
 
 	context('Casos de teste para a rota api/dashboard-produtos/', () => {
-		it('Validar GET de produtos aguardando análise reclamação com sucesso', () => {
+		it('Validar GET de produtos aguardando anÃ¡lise reclamaÃ§Ã£o com sucesso', () => {
 			cy.consultar_aguardando_analise_reclamacao().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count')
@@ -50,7 +50,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de produtos não homologados', () => {
+		it('Validar GET com sucesso de produtos nÃ£o homologados', () => {
 			cy.consultar_nao_homologados().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count')
@@ -214,9 +214,9 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de correção de produtos', () => {
-			usuario = Cypress.config('usuario_gpcodae')
-			senha = Cypress.config('senha')
+		it('Validar GET com sucesso de correÃ§Ã£o de produtos', () => {
+			usuario = Cypress.env('usuario_gpcodae')
+			senha = Cypress.env('senha')
 			cy.autenticar_login(usuario, senha)
 			cy.consultar_correcao_produtos().then((response) => {
 				expect(response.status).to.eq(200)
@@ -258,9 +258,9 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de aguardando amostra de análise sensorial de produtos', () => {
-			usuario = Cypress.config('usuario_gpcodae')
-			senha = Cypress.config('senha')
+		it('Validar GET com sucesso de aguardando amostra de anÃ¡lise sensorial de produtos', () => {
+			usuario = Cypress.env('usuario_gpcodae')
+			senha = Cypress.env('senha')
 			cy.autenticar_login(usuario, senha)
 			cy.consultar_aguardando_amostra_analise_sensorial().then((response) => {
 				expect(response.status).to.eq(200)
@@ -302,9 +302,9 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de aguardando homologação de produtos', () => {
-			usuario = Cypress.config('usuario_gpcodae')
-			senha = Cypress.config('senha')
+		it('Validar GET com sucesso de aguardando homologaÃ§Ã£o de produtos', () => {
+			usuario = Cypress.env('usuario_gpcodae')
+			senha = Cypress.env('senha')
 			cy.autenticar_login(usuario, senha)
 			cy.consultar_pendente_homologacao().then((response) => {
 				expect(response.status).to.eq(200)
@@ -347,3 +347,4 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 		})
 	})
 })
+

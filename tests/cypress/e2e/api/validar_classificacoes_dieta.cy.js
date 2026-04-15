@@ -1,15 +1,15 @@
 ﻿/// <reference types='cypress' />
 
-describe('Validar rotas de classificações de dieta da aplicação SIGPAE', () => {
-	var usuario = Cypress.config('usuario_diretor_ue')
-	var senha = Cypress.config('senha')
+describe('Validar rotas de classificaÃ§Ãµes de dieta da aplicaÃ§Ã£o SIGPAE', () => {
+	var usuario = Cypress.env('usuario_diretor_ue')
+	var senha = Cypress.env('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
 
 	context('Casos de teste para a rota api/classificacoes-dieta/', () => {
-		it('Validar GET de classificações dieta com sucesso', () => {
+		it('Validar GET de classificaÃ§Ãµes dieta com sucesso', () => {
 			var id = ''
 			cy.validar_solicitacoes_dieta(id).then((response) => {
 				expect(response.status).to.eq(200)
@@ -21,7 +21,7 @@ describe('Validar rotas de classificações de dieta da aplicação SIGPAE', () 
 			})
 		})
 
-		it('Validar GET por ID de classificações dieta com sucesso', () => {
+		it('Validar GET por ID de classificaÃ§Ãµes dieta com sucesso', () => {
 			var id = '1/'
 			cy.validar_solicitacoes_dieta(id).then((response) => {
 				expect(response.status).to.eq(200)
@@ -31,7 +31,7 @@ describe('Validar rotas de classificações de dieta da aplicação SIGPAE', () 
 			})
 		})
 
-		it('Validar GET por ID inválido de classificações dieta', () => {
+		it('Validar GET por ID invÃ¡lido de classificaÃ§Ãµes dieta', () => {
 			var id = '1111/'
 			cy.validar_solicitacoes_dieta(id).then((response) => {
 				expect(response.status).to.eq(404)
@@ -39,3 +39,4 @@ describe('Validar rotas de classificações de dieta da aplicação SIGPAE', () 
 		})
 	})
 })
+

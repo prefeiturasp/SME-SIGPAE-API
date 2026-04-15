@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 ﻿describe('Validar rotas de Terceirizadas da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_codae')
 	var senha = Cypress.config('senha')
+=======
+﻿describe('Validar rotas de Terceirizadas da aplicaÃ§Ã£o SIGPAE', () => {
+	var usuario = Cypress.env('usuario_codae')
+	var senha = Cypress.env('senha')
+>>>>>>> upstream/testes
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -193,7 +199,7 @@
 			})
 		})
 
-		it('Validar GET de Terceirizadas Por UUID Inválido', () => {
+		it('Validar GET de Terceirizadas Por UUID InvÃ¡lido', () => {
 			var uuid_terceirizada = '3ac751ee-f95d-4d5b-80da-437506b00000'
 			cy.consultar_terceirizadas_por_uuid(uuid_terceirizada).then(
 				(response) => {
@@ -204,23 +210,23 @@
 
 		it('Validar POST com sucesso de Terceirizadas', () => {
 			var dados_teste = {
-				nome_fantasia: 'Testes Automação ' + new Date().getTime(),
-				razao_social: 'Testes Automação LTDA ' + new Date().getTime(),
+				nome_fantasia: 'Testes AutomaÃ§Ã£o ' + new Date().getTime(),
+				razao_social: 'Testes AutomaÃ§Ã£o LTDA ' + new Date().getTime(),
 				cnpj: '60498984000104',
 				representante_legal: 'Representante Teste',
 				representante_telefone: '1155555555',
 				representante_email: 'representante@example.com',
 				cep: '05010000',
-				logradouro: 'Rua Teste Automação',
+				logradouro: 'Rua Teste AutomaÃ§Ã£o',
 				numero: '123',
 				complemento: 'Complemento Teste',
 				bairro: 'Bairro Teste',
-				cidade: 'São Paulo',
+				cidade: 'SÃ£o Paulo',
 				estado: 'SP',
 				credenciado: true,
 				contato_telefone: '1155555555',
 				contato_email: 'user@example.com',
-				contato_nome_nutri: 'Nutricionista Responsável Teste',
+				contato_nome_nutri: 'Nutricionista ResponsÃ¡vel Teste',
 				crn_numero: '1155555555',
 				super_admin_terceirizadas: true,
 				nutri_telefone: '11 977777777',
@@ -230,7 +236,7 @@
 				responsavel_cpf: Math.floor(Math.random() * 99999999999)
 					.toString()
 					.padStart(11, '0'),
-				responsavel_nome: 'Responsável Teste',
+				responsavel_nome: 'ResponsÃ¡vel Teste',
 				responsavel_telefone: '11999999999',
 				responsavel_email: 'responsavel@example.com',
 				lotes: [],
@@ -248,30 +254,30 @@
 			})
 		})
 
-		it('Validar POST de Terceirizadas com CPF do Responsável Já Cadastrado', () => {
+		it('Validar POST de Terceirizadas com CPF do ResponsÃ¡vel JÃ¡ Cadastrado', () => {
 			var responsavel_cpf = ''
 			cy.consultar_terceirizadas().then((response) => {
 				expect(response.status).to.eq(200)
 				responsavel_cpf = response.body.results[0].responsavel_cpf
 
 				var dados_teste = {
-					nome_fantasia: 'Testes Automação ' + new Date().getTime(),
-					razao_social: 'Testes Automação LTDA ' + new Date().getTime(),
+					nome_fantasia: 'Testes AutomaÃ§Ã£o ' + new Date().getTime(),
+					razao_social: 'Testes AutomaÃ§Ã£o LTDA ' + new Date().getTime(),
 					cnpj: '60498984000104',
 					representante_legal: 'Representante Teste',
 					representante_telefone: '1155555555',
 					representante_email: 'representante@example.com',
 					cep: '05010000',
-					logradouro: 'Rua Teste Automação',
+					logradouro: 'Rua Teste AutomaÃ§Ã£o',
 					numero: '123',
 					complemento: 'Complemento Teste',
 					bairro: 'Bairro Teste',
-					cidade: 'São Paulo',
+					cidade: 'SÃ£o Paulo',
 					estado: 'SP',
 					credenciado: true,
 					contato_telefone: '1155555555',
 					contato_email: 'user@example.com',
-					contato_nome_nutri: 'Nutricionista Responsável Teste',
+					contato_nome_nutri: 'Nutricionista ResponsÃ¡vel Teste',
 					crn_numero: '1155555555',
 					super_admin_terceirizadas: true,
 					nutri_telefone: '11 977777777',
@@ -279,7 +285,7 @@
 					contato_eh_nutricionista: true,
 					responsavel_cargo: 'Cargo Teste',
 					responsavel_cpf: responsavel_cpf,
-					responsavel_nome: 'Responsável Teste',
+					responsavel_nome: 'ResponsÃ¡vel Teste',
 					responsavel_telefone: '11999999999',
 					responsavel_email: 'responsavel@example.com',
 					lotes: [],
@@ -296,23 +302,23 @@
 
 		it('Validar POST de Terceirizadas com o campo CNPJ em Branco', () => {
 			var dados_teste = {
-				nome_fantasia: 'Testes Automação ' + new Date().getTime(),
-				razao_social: 'Testes Automação LTDA ' + new Date().getTime(),
+				nome_fantasia: 'Testes AutomaÃ§Ã£o ' + new Date().getTime(),
+				razao_social: 'Testes AutomaÃ§Ã£o LTDA ' + new Date().getTime(),
 				cnpj: '',
 				representante_legal: 'Representante Teste',
 				representante_telefone: '1155555555',
 				representante_email: 'representante@example.com',
 				cep: '05010000',
-				logradouro: 'Rua Teste Automação',
+				logradouro: 'Rua Teste AutomaÃ§Ã£o',
 				numero: '123',
 				complemento: 'Complemento Teste',
 				bairro: 'Bairro Teste',
-				cidade: 'São Paulo',
+				cidade: 'SÃ£o Paulo',
 				estado: 'SP',
 				credenciado: true,
 				contato_telefone: '1155555555',
 				contato_email: 'user@example.com',
-				contato_nome_nutri: 'Nutricionista Responsável Teste',
+				contato_nome_nutri: 'Nutricionista ResponsÃ¡vel Teste',
 				crn_numero: '1155555555',
 				super_admin_terceirizadas: true,
 				nutri_telefone: '11 977777777',
@@ -322,7 +328,7 @@
 				responsavel_cpf: Math.floor(Math.random() * 99999999999)
 					.toString()
 					.padStart(11, '0'),
-				responsavel_nome: 'Responsável Teste',
+				responsavel_nome: 'ResponsÃ¡vel Teste',
 				responsavel_telefone: '11999999999',
 				responsavel_email: 'responsavel@example.com',
 				lotes: [],
@@ -337,23 +343,23 @@
 
 		it('Validar DELETE com sucesso de Terceirizadas', () => {
 			var dados_teste = {
-				nome_fantasia: 'Testes Automação ' + new Date().getTime(),
-				razao_social: 'Testes Automação LTDA ' + new Date().getTime(),
+				nome_fantasia: 'Testes AutomaÃ§Ã£o ' + new Date().getTime(),
+				razao_social: 'Testes AutomaÃ§Ã£o LTDA ' + new Date().getTime(),
 				cnpj: '60498984000104',
 				representante_legal: 'Representante Teste',
 				representante_telefone: '1155555555',
 				representante_email: 'representante@example.com',
 				cep: '05010000',
-				logradouro: 'Rua Teste Automação',
+				logradouro: 'Rua Teste AutomaÃ§Ã£o',
 				numero: '123',
 				complemento: 'Complemento Teste',
 				bairro: 'Bairro Teste',
-				cidade: 'São Paulo',
+				cidade: 'SÃ£o Paulo',
 				estado: 'SP',
 				credenciado: true,
 				contato_telefone: '1155555555',
 				contato_email: 'user@example.com',
-				contato_nome_nutri: 'Nutricionista Responsável Teste',
+				contato_nome_nutri: 'Nutricionista ResponsÃ¡vel Teste',
 				crn_numero: '1155555555',
 				super_admin_terceirizadas: true,
 				nutri_telefone: '11 977777777',
@@ -363,7 +369,7 @@
 				responsavel_cpf: Math.floor(Math.random() * 99999999999)
 					.toString()
 					.padStart(11, '0'),
-				responsavel_nome: 'Responsável Teste',
+				responsavel_nome: 'ResponsÃ¡vel Teste',
 				responsavel_telefone: '11999999999',
 				responsavel_email: 'responsavel@example.com',
 				lotes: [],
@@ -381,7 +387,7 @@
 			})
 		})
 
-		it('Validar DELETE de Terceirizadas com UUID inválido', () => {
+		it('Validar DELETE de Terceirizadas com UUID invÃ¡lido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b00000'
 			cy.deletar_terceirizadas(uuid).then((responseDelete) => {
 				expect(responseDelete.status).to.eq(404)
@@ -390,23 +396,23 @@
 
 		it('Validar PUT com sucesso de Terceirizadas', () => {
 			var dados_teste = {
-				nome_fantasia: 'Testes Automação ' + new Date().getTime(),
-				razao_social: 'Testes Automação LTDA ' + new Date().getTime(),
+				nome_fantasia: 'Testes AutomaÃ§Ã£o ' + new Date().getTime(),
+				razao_social: 'Testes AutomaÃ§Ã£o LTDA ' + new Date().getTime(),
 				cnpj: '60498984000104',
 				representante_legal: 'Representante Teste',
 				representante_telefone: '1155555555',
 				representante_email: 'representante@example.com',
 				cep: '05010000',
-				logradouro: 'Rua Teste Automação',
+				logradouro: 'Rua Teste AutomaÃ§Ã£o',
 				numero: '123',
 				complemento: 'Complemento Teste',
 				bairro: 'Bairro Teste',
-				cidade: 'São Paulo',
+				cidade: 'SÃ£o Paulo',
 				estado: 'SP',
 				credenciado: true,
 				contato_telefone: '1155555555',
 				contato_email: 'user@example.com',
-				contato_nome_nutri: 'Nutricionista Responsável Teste',
+				contato_nome_nutri: 'Nutricionista ResponsÃ¡vel Teste',
 				crn_numero: '1155555555',
 				super_admin_terceirizadas: true,
 				nutri_telefone: '11 977777777',
@@ -416,7 +422,7 @@
 				responsavel_cpf: Math.floor(Math.random() * 99999999999)
 					.toString()
 					.padStart(11, '0'),
-				responsavel_nome: 'Responsável Teste',
+				responsavel_nome: 'ResponsÃ¡vel Teste',
 				responsavel_telefone: '11999999999',
 				responsavel_email: 'responsavel@example.com',
 				lotes: [],
@@ -428,24 +434,24 @@
 				var uuid_response = response.body.uuid
 
 				var dados_alterados = {
-					nome_fantasia: 'Testes Automação ALTERADO ' + new Date().getTime(),
+					nome_fantasia: 'Testes AutomaÃ§Ã£o ALTERADO ' + new Date().getTime(),
 					razao_social:
-						'Testes Automação LTDA ALTERADO ' + new Date().getTime(),
+						'Testes AutomaÃ§Ã£o LTDA ALTERADO ' + new Date().getTime(),
 					cnpj: '60498984000104',
 					representante_legal: 'Representante Teste',
 					representante_telefone: '1155555555',
 					representante_email: 'representante@example.com',
 					cep: '05010000',
-					logradouro: 'Rua Teste Automação',
+					logradouro: 'Rua Teste AutomaÃ§Ã£o',
 					numero: '123',
 					complemento: 'Complemento Teste',
 					bairro: 'Bairro Teste',
-					cidade: 'São Paulo',
+					cidade: 'SÃ£o Paulo',
 					estado: 'SP',
 					credenciado: true,
 					contato_telefone: '1155555555',
 					contato_email: 'user@example.com',
-					contato_nome_nutri: 'Nutricionista Responsável Teste',
+					contato_nome_nutri: 'Nutricionista ResponsÃ¡vel Teste',
 					crn_numero: '1155555555',
 					super_admin_terceirizadas: true,
 					nutri_telefone: '11 977777777',
@@ -453,7 +459,7 @@
 					contato_eh_nutricionista: true,
 					responsavel_cargo: 'Cargo Teste',
 					responsavel_cpf: dados_teste.responsavel_cpf,
-					responsavel_nome: 'Responsável Teste',
+					responsavel_nome: 'ResponsÃ¡vel Teste',
 					responsavel_telefone: '11999999999',
 					responsavel_email: 'responsavel@example.com',
 					lotes: [],
@@ -472,11 +478,11 @@
 			})
 		})
 
-		it('Validar PUT de Terceirizadas com UUID inválido', () => {
+		it('Validar PUT de Terceirizadas com UUID invÃ¡lido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b00000'
 			var dados_alterados = {
-				nome_fantasia: 'Testes Automação ALTERADO ' + new Date().getTime(),
-				razao_social: 'Testes Automação LTDA ALTERADO ' + new Date().getTime(),
+				nome_fantasia: 'Testes AutomaÃ§Ã£o ALTERADO ' + new Date().getTime(),
+				razao_social: 'Testes AutomaÃ§Ã£o LTDA ALTERADO ' + new Date().getTime(),
 				cnpj: '60498984000104',
 				representante_legal: 'Representante Teste',
 				representante_telefone: '1155555555',
@@ -489,23 +495,23 @@
 
 		it('Validar PATCH com sucesso de Terceirizadas', () => {
 			var dados_teste = {
-				nome_fantasia: 'Testes Automação ' + new Date().getTime(),
-				razao_social: 'Testes Automação LTDA ' + new Date().getTime(),
+				nome_fantasia: 'Testes AutomaÃ§Ã£o ' + new Date().getTime(),
+				razao_social: 'Testes AutomaÃ§Ã£o LTDA ' + new Date().getTime(),
 				cnpj: '60498984000104',
 				representante_legal: 'Representante Teste',
 				representante_telefone: '1155555555',
 				representante_email: 'representante@example.com',
 				cep: '05010000',
-				logradouro: 'Rua Teste Automação',
+				logradouro: 'Rua Teste AutomaÃ§Ã£o',
 				numero: '123',
 				complemento: 'Complemento Teste',
 				bairro: 'Bairro Teste',
-				cidade: 'São Paulo',
+				cidade: 'SÃ£o Paulo',
 				estado: 'SP',
 				credenciado: true,
 				contato_telefone: '1155555555',
 				contato_email: 'user@example.com',
-				contato_nome_nutri: 'Nutricionista Responsável Teste',
+				contato_nome_nutri: 'Nutricionista ResponsÃ¡vel Teste',
 				crn_numero: '1155555555',
 				super_admin_terceirizadas: true,
 				nutri_telefone: '11 977777777',
@@ -515,7 +521,7 @@
 				responsavel_cpf: Math.floor(Math.random() * 99999999999)
 					.toString()
 					.padStart(11, '0'),
-				responsavel_nome: 'Responsável Teste',
+				responsavel_nome: 'ResponsÃ¡vel Teste',
 				responsavel_telefone: '11999999999',
 				responsavel_email: 'responsavel@example.com',
 				lotes: [],
@@ -527,24 +533,24 @@
 				var uuid_response = response.body.uuid
 
 				var dados_alterados = {
-					nome_fantasia: 'Testes Automação PATCH ' + new Date().getTime(),
+					nome_fantasia: 'Testes AutomaÃ§Ã£o PATCH ' + new Date().getTime(),
 					razao_social:
-						'Testes Automação LTDA ALTERADO PATCH ' + new Date().getTime(),
+						'Testes AutomaÃ§Ã£o LTDA ALTERADO PATCH ' + new Date().getTime(),
 					cnpj: '60498984000104',
 					representante_legal: 'Representante Teste',
 					representante_telefone: '1155555555',
 					representante_email: 'representante@example.com',
 					cep: '05010000',
-					logradouro: 'Rua Teste Automação',
+					logradouro: 'Rua Teste AutomaÃ§Ã£o',
 					numero: '123',
 					complemento: 'Complemento Teste',
 					bairro: 'Bairro Teste',
-					cidade: 'São Paulo',
+					cidade: 'SÃ£o Paulo',
 					estado: 'SP',
 					credenciado: true,
 					contato_telefone: '1155555555',
 					contato_email: 'user@example.com',
-					contato_nome_nutri: 'Nutricionista Responsável Teste',
+					contato_nome_nutri: 'Nutricionista ResponsÃ¡vel Teste',
 					crn_numero: '1155555555',
 					super_admin_terceirizadas: true,
 					nutri_telefone: '11 977777777',
@@ -552,7 +558,7 @@
 					contato_eh_nutricionista: true,
 					responsavel_cargo: 'Cargo Teste',
 					responsavel_cpf: dados_teste.responsavel_cpf,
-					responsavel_nome: 'Responsável Teste',
+					responsavel_nome: 'ResponsÃ¡vel Teste',
 					responsavel_telefone: '11999999999',
 					responsavel_email: 'responsavel@example.com',
 					lotes: [],
@@ -571,12 +577,12 @@
 			})
 		})
 
-		it('Validar PATCH de Terceirizadas com UUID inválido', () => {
+		it('Validar PATCH de Terceirizadas com UUID invÃ¡lido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b00000'
 			var dados_alterados = {
-				nome_fantasia: 'Testes Automação PATCH ' + new Date().getTime(),
+				nome_fantasia: 'Testes AutomaÃ§Ã£o PATCH ' + new Date().getTime(),
 				razao_social:
-					'Testes Automação LTDA ALTERADO PATCH ' + new Date().getTime(),
+					'Testes AutomaÃ§Ã£o LTDA ALTERADO PATCH ' + new Date().getTime(),
 				cnpj: '60498984000104',
 				representante_legal: 'Representante Teste',
 				representante_telefone: '1155555555',
@@ -589,7 +595,7 @@
 	})
 
 	context('Rota api/terceirizadas/listagens', () => {
-		it('Validar GET com sucesso de Terceirizadas Emails Por Módulo', () => {
+		it('Validar GET com sucesso de Terceirizadas Emails Por MÃ³dulo', () => {
 			cy.consultar_terceirizadas_emails_modulos().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count')
@@ -671,7 +677,7 @@
 			})
 		})
 
-		it('Validar GET com sucesso de Terceirizadas Relatório Quantitativo', () => {
+		it('Validar GET com sucesso de Terceirizadas RelatÃ³rio Quantitativo', () => {
 			cy.consultar_terceirizadas_relatorio_quantitativo().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -690,3 +696,4 @@
 		})
 	})
 })
+

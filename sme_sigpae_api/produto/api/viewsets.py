@@ -68,7 +68,7 @@ from ...dados_comuns.permissions import (
     UsuarioTerceirizadaProduto,
 )
 from ...dados_comuns.utils import url_configs
-from ...dieta_especial.models import Alimento
+from ...dieta_especial.protocolo_padrao.models import Alimento
 from ...escola.models import DiretoriaRegional, Escola, Lote
 from ...relatorios.relatorios import (
     relatorio_produto_analise_sensorial,
@@ -849,7 +849,11 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
         return self.get_paginated_response(serializer.data)
 
 
-class HomologacaoProdutoViewSet(viewsets.ModelViewSet):
+class HomologacaoProdutoViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
     lookup_field = "uuid"
     serializer_class = HomologacaoProdutoSerializer
     queryset = HomologacaoProduto.objects.all()

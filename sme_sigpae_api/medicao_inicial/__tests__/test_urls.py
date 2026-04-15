@@ -3,8 +3,10 @@ import json
 
 import pytest
 from freezegun import freeze_time
+from model_bakery import baker
 from rest_framework import status
 
+from sme_sigpae_api.escola.models import LogAlunosMatriculadosFaixaEtariaDia
 from sme_sigpae_api.medicao_inicial.models import (
     DiaParaCorrigir,
     DiaSobremesaDoce,
@@ -471,6 +473,21 @@ def test_url_endpoint_quantidades_alimentacoes_lancadas_periodo_grupo_escola_cem
         for r in response.data["results"]
         if r["nome_periodo_grupo"] == "Infantil MANHA"
     ][0]["valor_total"] == 80
+
+
+def test_url_endpoint_historico_ocorrencias_pdf(
+    client_autenticado_da_escola, solicitacao_medicao_inicial_com_valores_repeticao
+):
+    uuid_solicitacao = solicitacao_medicao_inicial_com_valores_repeticao.uuid
+    response = client_autenticado_da_escola.get(
+        "/medicao-inicial/solicitacao-medicao-inicial/historico-ocorrencias-pdf/"
+        f"?uuid={uuid_solicitacao}",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "detail": "Solicitação de geração de arquivo recebida com sucesso."
+    }
 
 
 def test_url_endpoint_relatorio_pdf(
@@ -2013,6 +2030,42 @@ def test_url_endpoint_relatorio_consolidado_xlsx_com_erros(
     }
 
 
+def test_url_endpoint_relatorio_consolidado_xlsx_com_datas_fora_do_mes_referencia(
+    client_autenticado_diretoria_regional,
+    grupo_escolar,
+    relatorio_consolidado_xlsx_emef,
+    monkeypatch,
+):
+    called = False
+
+    def fake_delay(**kwargs):
+        nonlocal called
+        called = True
+
+    monkeypatch.setattr(
+        "sme_sigpae_api.medicao_inicial.api.viewsets.exporta_relatorio_consolidado_xlsx.delay",
+        fake_delay,
+    )
+
+    response = client_autenticado_diretoria_regional.get(
+        "/medicao-inicial/solicitacao-medicao-inicial/relatorio-consolidado/exportar-xlsx/"
+        f"?mes={relatorio_consolidado_xlsx_emef.mes}"
+        f"&ano={relatorio_consolidado_xlsx_emef.ano}"
+        f"&grupo_escolar={grupo_escolar}"
+        f"&status=MEDICAO_APROVADA_PELA_CODAE"
+        f"&dre={relatorio_consolidado_xlsx_emef.escola.diretoria_regional.uuid}"
+        "&data_inicial=2025-05-01"
+        "&data_final=2025-05-03",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "erro": "data_inicial e data_final devem pertencer ao mês/ano de referência informado."
+    }
+    assert called is False
+
+
 def test_codae_solicita_correcao_sem_lancamento(
     client_autenticado_codae_medicao, solicitacao_sem_lancamento
 ):
@@ -2181,6 +2234,145 @@ def test_url_endpoint_atualiza_informacoes_basicas(
     assert "Responsável 2" in nomes
     assert data["tipos_contagem_alimentacao"] == [str(tipo_contagem_alimentacao.uuid)]
     assert data["escola"] == str(solicitacao_medicao_informacoes_basicas.escola.uuid)
+
+
+@pytest.mark.django_db
+def test_url_endpoint_atualiza_informacoes_basicas_aluno_parcial_sincroniza_logs_por_intervalo(
+    client_autenticado_da_escola_cei,
+    escola_cei,
+    periodo_escolar_integral,
+    periodo_escolar_parcial,
+    faixas_etarias_ativas,
+):
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola_cei,
+        mes="04",
+        ano=2023,
+        ue_possui_alunos_periodo_parcial=True,
+    )
+    aluno = baker.make(
+        "Aluno",
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar_integral,
+        data_nascimento=datetime.date(2023, 1, 15),
+    )
+    faixa_etaria = faixas_etarias_ativas[1]
+
+    for dia in range(1, 31):
+        data = datetime.date(2023, 4, dia)
+        baker.make(
+            "LogAlunosMatriculadosFaixaEtariaDia",
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_integral,
+            faixa_etaria=faixa_etaria,
+            quantidade=7,
+            data=data,
+        )
+        baker.make(
+            "LogAlunosMatriculadosFaixaEtariaDia",
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_parcial,
+            faixa_etaria=faixa_etaria,
+            quantidade=0,
+            data=data,
+        )
+
+    url = (
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao.uuid}/"
+        "informacoes-basicas/"
+    )
+    payload_base = {
+        "escola": str(escola_cei.uuid),
+        "responsaveis": [{"nome": "Responsável 1", "rf": "1234567"}],
+        "ue_possui_alunos_periodo_parcial": True,
+        "alunos_parcial_alterado": True,
+    }
+
+    response = client_autenticado_da_escola_cei.patch(
+        url,
+        content_type="application/json",
+        data={
+            **payload_base,
+            "alunos_periodo_parcial": [
+                {"aluno": str(aluno.uuid), "data": "10/04/2023"}
+            ],
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response = client_autenticado_da_escola_cei.patch(
+        url,
+        content_type="application/json",
+        data={
+            **payload_base,
+            "alunos_periodo_parcial": [
+                {
+                    "aluno": str(aluno.uuid),
+                    "data": "12/04/2023",
+                    "data_removido": "15/04/2023",
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    assert (
+        LogAlunosMatriculadosFaixaEtariaDia.objects.get(
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_integral,
+            faixa_etaria=faixa_etaria,
+            data=datetime.date(2023, 4, 11),
+        ).quantidade
+        == 7
+    )
+    assert (
+        LogAlunosMatriculadosFaixaEtariaDia.objects.get(
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_parcial,
+            faixa_etaria=faixa_etaria,
+            data=datetime.date(2023, 4, 11),
+        ).quantidade
+        == 0
+    )
+    assert (
+        LogAlunosMatriculadosFaixaEtariaDia.objects.get(
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_integral,
+            faixa_etaria=faixa_etaria,
+            data=datetime.date(2023, 4, 12),
+        ).quantidade
+        == 6
+    )
+    assert (
+        LogAlunosMatriculadosFaixaEtariaDia.objects.get(
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_parcial,
+            faixa_etaria=faixa_etaria,
+            data=datetime.date(2023, 4, 12),
+        ).quantidade
+        == 1
+    )
+    assert (
+        LogAlunosMatriculadosFaixaEtariaDia.objects.get(
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_integral,
+            faixa_etaria=faixa_etaria,
+            data=datetime.date(2023, 4, 15),
+        ).quantidade
+        == 7
+    )
+    assert (
+        LogAlunosMatriculadosFaixaEtariaDia.objects.get(
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_parcial,
+            faixa_etaria=faixa_etaria,
+            data=datetime.date(2023, 4, 15),
+        ).quantidade
+        == 0
+    )
 
 
 @pytest.mark.django_db
@@ -2547,3 +2739,113 @@ def test_url_dias_frequencia_zerada_uuid_nao_enviado(client_autenticado_codae_me
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert isinstance(response.data, dict)
     assert response.json() == {"detail": "Parâmetro 'uuid_solicitacao' é obrigatório."}
+
+
+def test_registrar_empenhos_relatorio_financeiro(
+    client_autenticado_codae_medicao,
+    relatorio_financeiro,
+    dados_liquidacao_cmct,
+    escola_cei,
+    escola_cmct,
+):
+    payload = [
+        {
+            "uuid": str(dados_liquidacao_cmct.uuid),
+            "numero_empenho": "888/7987",
+            "tipo_empenho": "PRINCIPAL",
+            "unidades_educacionais": [
+                str(escola_cei.uuid),
+                str(escola_cmct.uuid),
+            ],
+        }
+    ]
+
+    url = f"/medicao-inicial/dados-liquidacao/registrar-empenhos/{relatorio_financeiro.uuid}/"
+
+    response = client_autenticado_codae_medicao.put(
+        url,
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+
+    result = json.loads(response.content)
+
+    assert response.status_code == status.HTTP_200_OK
+
+    dados_liquidacao_cmct.refresh_from_db()
+
+    assert dados_liquidacao_cmct.numero_empenho == "888/7987"
+    assert dados_liquidacao_cmct.unidades_educacionais.count() == 2
+
+    assert isinstance(result, list)
+    assert result[0]["numero_empenho"] == "888/7987"
+    assert len(result[0]["unidades_educacionais"]) == 2
+
+
+def test_url_endpoint_historico_correcoes_medicao_pdf(
+    client_autenticado_da_escola, solicitacao_com_historico_correcao
+):
+    uuid_solicitacao = solicitacao_com_historico_correcao.uuid
+    response = client_autenticado_da_escola.get(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{uuid_solicitacao}/relatorio-historio-correcoes/",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "detail": "Solicitação de geração de arquivo recebida com sucesso."
+    }
+
+
+def test_url_endpoint_historico_correcoes_medicao_pdf_sem_historico(
+    client_autenticado_da_escola, medicoes_frequencia_zerada_emebs
+):
+    uuid_solicitacao = medicoes_frequencia_zerada_emebs.uuid
+    response = client_autenticado_da_escola.get(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{uuid_solicitacao}/relatorio-historio-correcoes/",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "A medição não possui histórico a ser gerado."}
+
+
+def test_url_endpoint_historico_correcoes_medicao_pdf_uuid_invalido(
+    client_autenticado_da_escola, kit_lanche_1
+):
+    uuid_solicitacao = kit_lanche_1.uuid
+    response = client_autenticado_da_escola.get(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{uuid_solicitacao}/relatorio-historio-correcoes/",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {
+        "detail": "No SolicitacaoMedicaoInicial matches the given query."
+    }
+
+
+@pytest.mark.django_db
+def test_endpoint_exportar_pdf_relatorio_financeiro_com_sucesso(
+    client_autenticado_codae_medicao,
+    relatorio_financeiro_cei,
+):
+    response = client_autenticado_codae_medicao.post(
+        f"/medicao-inicial/relatorio-financeiro/exportar-pdf/{relatorio_financeiro_cei.uuid}/"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data == {
+        "detail": "Solicitação de geração de arquivo recebida com sucesso."
+    }
+
+
+@pytest.mark.django_db
+def test_endpoint_exportar_pdf_relatorio_financeiro_nao_encontrado(
+    client_autenticado_codae_medicao,
+):
+    response = client_autenticado_codae_medicao.post(
+        "/medicao-inicial/relatorio-financeiro/exportar-pdf/3f1d9e8a-6b4c-4a72-9f15-2c8e7b6d1a43/"
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.data == {
+        "Erro": "Relatório financeiro não encontrado."
+    }

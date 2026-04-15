@@ -6,7 +6,9 @@ from django.core.management import BaseCommand
 from django.db.models import F, Func, Value
 from django.db.models.functions import Trim, Upper
 
-from sme_sigpae_api.dieta_especial.models import AlergiaIntolerancia
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    AlergiaIntolerancia,
+)
 
 logger = logging.getLogger("sigpae.cmd_corrige_alergias_intolerancias_duplicadas")
 

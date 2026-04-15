@@ -1,8 +1,8 @@
 ﻿/// <reference types='cypress' />
 
-describe('Validar rotas de classificações de dieta da aplicação SIGPAE', () => {
-	var usuario = Cypress.config('usuario_dilog_cronograma')
-	var senha = Cypress.config('senha')
+describe('Validar rotas de calendário cronogramas da aplicação SIGPAE', () => {
+	var usuario = Cypress.env('usuario_dilog_cronograma')
+	var senha = Cypress.env('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -72,3 +72,4 @@ describe('Validar rotas de classificações de dieta da aplicação SIGPAE', () 
 		})
 	})
 })
+

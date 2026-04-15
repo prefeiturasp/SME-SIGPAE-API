@@ -64,6 +64,7 @@ from ..models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
+    DadosLiquidacao,
     DiaParaCorrigir,
     DiaSobremesaDoce,
     Empenho,
@@ -83,19 +84,24 @@ from ..tasks import (
     exporta_relatorio_adesao_para_pdf,
     exporta_relatorio_adesao_para_xlsx,
     exporta_relatorio_consolidado_xlsx,
+    exporta_relatorio_historico_correcoes_pdf,
+    gera_pdf_historico_ocorrencias_medicao_inicial_async,
+    gera_pdf_relatorio_financeiro_consolidado_async,
     gera_pdf_relatorio_solicitacao_medicao_por_escola_async,
     gera_pdf_relatorio_unificado_async,
 )
 from ..utils import (
     atualizar_anexos_ocorrencia,
     busca_dias_zerados,
-    calcula_totais_consumo_por_faixa_etaria,
+    calcula_totais_consumo_por_grupo,
     criar_log_aprovar_periodos_corrigidos,
     criar_log_solicitar_correcao_periodos,
     get_campos_a_desconsiderar,
     get_dict_alimentacoes_lancamentos_especiais,
     get_valor_total,
     log_alteracoes_escola_corrige_periodo,
+    mapear_dados_liquidacao_existentes,
+    obter_instancia_dado_liquidacao,
     tratar_valores,
 )
 from .constants import (
@@ -114,12 +120,14 @@ from .filters import (
     ParametrizacaoFinanceiraFilter,
     RelatorioFinanceiroFilter,
     SolicitacaoMedicaoInicialFilter,
+    ValorMedicaoFilter,
 )
 from .permissions import EhAdministradorMedicaoInicialOuGestaoAlimentacao
 from .serializers import (
     AlimentacaoLancamentoEspecialSerializer,
     CategoriaMedicaoSerializer,
     ClausulaDeDescontoSerializer,
+    DadosLiquidacaoSerializer,
     DadosParametrizacaoFinanceiraSerializer,
     DiaParaCorrigirSerializer,
     DiaSobremesaDoceSerializer,
@@ -138,6 +146,7 @@ from .serializers import (
 )
 from .serializers_create import (
     ClausulaDeDescontoCreateUpdateSerializer,
+    DadosLiquidacaoUpdateSerializer,
     DiaSobremesaDoceCreateManySerializer,
     EmpenhoCreateUpdateSerializer,
     InformacoesBasicasMedicaoInicialUpdateSerializer,
@@ -155,6 +164,55 @@ DEFAULT_PAGE_SIZE = 10
 
 
 MSG_ERROR_VERIFIQUE_PARAMETROS = "Verifique os parâmetros e tente novamente"
+
+
+def valida_periodo_relatorio_consolidado(
+    mes: str,
+    ano: str,
+    data_inicial_str: str | None,
+    data_final_str: str | None,
+) -> None:
+    if not data_inicial_str and not data_final_str:
+        return
+
+    if not data_inicial_str or not data_final_str:
+        raise ValidationError("Informe data_inicial e data_final juntos.")
+
+    data_inicial, data_final = _parse_datas_relatorio_consolidado(
+        data_inicial_str, data_final_str
+    )
+
+    if data_inicial > data_final:
+        raise ValidationError("data_inicial não pode ser maior que data_final.")
+
+    if not _datas_pertencem_ao_mes_referencia(data_inicial, data_final, mes, ano):
+        raise ValidationError(
+            "data_inicial e data_final devem pertencer ao mês/ano de referência informado."
+        )
+
+
+def _parse_datas_relatorio_consolidado(
+    data_inicial_str: str, data_final_str: str
+) -> tuple[datetime.date, datetime.date]:
+    try:
+        return (
+            datetime.date.fromisoformat(data_inicial_str),
+            datetime.date.fromisoformat(data_final_str),
+        )
+    except ValueError as error:
+        raise ValidationError(
+            "data_inicial e data_final devem estar no formato YYYY-MM-DD."
+        ) from error
+
+
+def _datas_pertencem_ao_mes_referencia(
+    data_inicial: datetime.date, data_final: datetime.date, mes: str, ano: str
+) -> bool:
+    mes_ano_referencia = (int(mes), int(ano))
+    return all(
+        (data.month, data.year) == mes_ano_referencia
+        for data in (data_inicial, data_final)
+    )
 
 
 class CustomPagination(PageNumberPagination):
@@ -402,6 +460,9 @@ class SolicitacaoMedicaoInicialViewSet(
             "dre": lambda params: {
                 "escola__diretoria_regional__uuid": params.get("dre")
             },
+            "recreio_nas_ferias": lambda params: {
+                "recreio_nas_ferias__uuid": params.get("recreio_nas_ferias")
+            },
             "ocorrencias": lambda params: {
                 "com_ocorrencias": params.get("ocorrencias").lower() == "true"
             },
@@ -422,6 +483,9 @@ class SolicitacaoMedicaoInicialViewSet(
         for param, parser in mapping.items():
             if query_params.get(param) or query_params.getlist(param):
                 kwargs.update(parser(query_params))
+
+        if query_params.get("mes_ano") and not query_params.get("recreio_nas_ferias"):
+            kwargs["recreio_nas_ferias__isnull"] = True
 
         return kwargs
 
@@ -516,23 +580,58 @@ class SolicitacaoMedicaoInicialViewSet(
         if filtros:
             qs_solicitacao_medicao = qs_solicitacao_medicao.filter(**filtros)
 
-        meses_anos = qs_solicitacao_medicao.values_list("mes", "ano").distinct()
+        meses_anos = qs_solicitacao_medicao.values_list(
+            "mes", "ano", "recreio_nas_ferias__titulo", "recreio_nas_ferias__uuid"
+        ).distinct()
         meses_anos_unicos = []
 
         for mes_ano in meses_anos:
             status_ = (
-                qs_solicitacao_medicao.filter(mes=mes_ano[0], ano=mes_ano[1])
+                qs_solicitacao_medicao.filter(
+                    mes=mes_ano[0], ano=mes_ano[1], recreio_nas_ferias__uuid=mes_ano[3]
+                )
                 .values_list("status", flat=True)
                 .distinct()
             )
-            mes_ano_obj = {"mes": mes_ano[0], "ano": mes_ano[1], "status": status_}
+            mes_ano_obj = {
+                "mes": mes_ano[0],
+                "ano": mes_ano[1],
+                "recreio_nas_ferias": (
+                    {"titulo": mes_ano[2], "uuid": mes_ano[3]}
+                    if mes_ano[2] and mes_ano[3]
+                    else None
+                ),
+                "status": status_,
+            }
             meses_anos_unicos.append(mes_ano_obj)
         return Response(
             {
                 "results": sorted(
-                    meses_anos_unicos, key=lambda k: (k["ano"], k["mes"]), reverse=True
+                    meses_anos_unicos,
+                    key=lambda k: (
+                        k["ano"],
+                        k["mes"],
+                        1 if k["recreio_nas_ferias"] is None else 0,
+                    ),
+                    reverse=True,
                 )
             },
+            status=status.HTTP_200_OK,
+        )
+
+    @action(detail=False, methods=["GET"], url_path="historico-ocorrencias-pdf")
+    def historico_ocorrencias_pdf(self, request):
+        user = request.user.get_username()
+        uuid_sol_medicao = request.query_params["uuid"]
+        solicitacao = SolicitacaoMedicaoInicial.objects.get(uuid=uuid_sol_medicao)
+        gera_pdf_historico_ocorrencias_medicao_inicial_async.delay(
+            user=user,
+            nome_arquivo=f"Relatório Historico Medição Inicial Com Ocorrencia - {solicitacao.escola.nome_historico(solicitacao.data_referencia)} - "
+            f"{solicitacao.mes}/{solicitacao.ano}.pdf",
+            uuid_sol_medicao=uuid_sol_medicao,
+        )
+        return Response(
+            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
             status=status.HTTP_200_OK,
         )
 
@@ -575,6 +674,8 @@ class SolicitacaoMedicaoInicialViewSet(
             ano=ano,
             status=status_solicitacao,
             escola__diretoria_regional__uuid=uuid_dre,
+        ).exclude(
+            medicoes__status=SolicitacaoMedicaoInicial.workflow_class.MEDICAO_SEM_LANCAMENTOS
         )
         tipos_de_unidade_do_grupo = [
             tipo_unidade.iniciais
@@ -645,82 +746,11 @@ class SolicitacaoMedicaoInicialViewSet(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        data_referencia = datetime.date(int(ano), int(mes), 1)
-
         try:
-            uuid_grupo_escolar = request.query_params.get("grupo_escolar")
-            status_solicitacao = request.query_params.get("status")
-            uuid_dre = request.query_params.get("dre")
-            uuid_lotes = request.query_params.getlist("lotes[]", None)
-
-            query_params = request.query_params.dict()
-
-            filtros = {
-                "mes": mes,
-                "ano": ano,
-                "status": status_solicitacao,
-            }
-
-            if uuid_lotes:
-                lotes = Lote.objects.filter(uuid__in=uuid_lotes)
-                filtros["escola__lote__in"] = lotes
-                query_params["lotes"] = request.query_params.getlist("lotes[]")
-
-            diretoria_regional = DiretoriaRegional.objects.get(uuid=uuid_dre)
-            filtros["escola__diretoria_regional"] = diretoria_regional
-
-            grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(
-                uuid=uuid_grupo_escolar
-            )
-            tipos_unidades = grupo_unidade_escolar.tipos_unidades.all()
-
-            historico_valido = HistoricoEscola.objects.filter(
-                escola=OuterRef("escola"),
-                tipo_unidade__in=tipos_unidades,
-                data_final__gte=data_referencia,
-            ).filter(
-                Q(data_inicial__lte=data_referencia) | Q(data_inicial__isnull=True)
-            )
-
-            solicitacoes_com_filtro = (
-                SolicitacaoMedicaoInicial.objects.filter(**filtros)
-                .annotate(tem_historico_valido=Exists(historico_valido))
-                .filter(
-                    Q(tem_historico_valido=True)
-                    | Q(
-                        tem_historico_valido=False,
-                        escola__tipo_unidade__in=tipos_unidades,
-                    )
-                )
-                .values_list("uuid", flat=True)
-            )
-            if solicitacoes_com_filtro.exists():
-                solicitacoes = list(solicitacoes_com_filtro)
-
-                tipos_de_unidade_do_grupo = list(
-                    tipos_unidades.values_list("iniciais", flat=True)
-                )
-
-                nome_arquivo = f"Relatório Consolidado das Medições Inicias - {diretoria_regional.nome} - {grupo_unidade_escolar.nome} - {mes}/{ano}.xlsx"
-
-                exporta_relatorio_consolidado_xlsx.delay(
-                    user=request.user.get_username(),
-                    nome_arquivo=nome_arquivo,
-                    solicitacoes=solicitacoes,
-                    tipos_de_unidade=tipos_de_unidade_do_grupo,
-                    query_params=query_params,
-                )
-
-                return Response(
-                    data={
-                        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-                    },
-                    status=status.HTTP_200_OK,
-                )
+            return self._processa_relatorio_consolidado_exportar_xlsx(request, mes, ano)
+        except ValidationError as error:
             return Response(
-                data={
-                    "erro": "Não foram encontradas Medições Iniciais. Verifique os parâmetros e tente novamente"
-                },
+                data={"erro": error.message},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         except Exception:
@@ -728,6 +758,88 @@ class SolicitacaoMedicaoInicialViewSet(
                 data={"erro": MSG_ERROR_VERIFIQUE_PARAMETROS},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    def _processa_relatorio_consolidado_exportar_xlsx(
+        self, request: Request, mes: str, ano: str
+    ) -> Response:
+        data_referencia = datetime.date(int(ano), int(mes), 1)
+        valida_periodo_relatorio_consolidado(
+            mes,
+            ano,
+            request.query_params.get("data_inicial"),
+            request.query_params.get("data_final"),
+        )
+        uuid_grupo_escolar = request.query_params.get("grupo_escolar")
+        status_solicitacao = request.query_params.get("status")
+        uuid_dre = request.query_params.get("dre")
+        uuid_lotes = request.query_params.getlist("lotes[]", None)
+
+        query_params = request.query_params.dict()
+        filtros = {"mes": mes, "ano": ano, "status": status_solicitacao}
+
+        if uuid_lotes:
+            lotes = Lote.objects.filter(uuid__in=uuid_lotes)
+            filtros["escola__lote__in"] = lotes
+            query_params["lotes"] = request.query_params.getlist("lotes[]")
+
+        diretoria_regional = DiretoriaRegional.objects.get(uuid=uuid_dre)
+        filtros["escola__diretoria_regional"] = diretoria_regional
+
+        grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(uuid=uuid_grupo_escolar)
+        tipos_unidades = grupo_unidade_escolar.tipos_unidades.all()
+
+        historico_valido = HistoricoEscola.objects.filter(
+            escola=OuterRef("escola"),
+            tipo_unidade__in=tipos_unidades,
+            data_final__gte=data_referencia,
+        ).filter(Q(data_inicial__lte=data_referencia) | Q(data_inicial__isnull=True))
+
+        solicitacoes_com_filtro = (
+            SolicitacaoMedicaoInicial.objects.filter(**filtros)
+            .annotate(tem_historico_valido=Exists(historico_valido))
+            .filter(
+                Q(tem_historico_valido=True)
+                | Q(
+                    tem_historico_valido=False,
+                    escola__tipo_unidade__in=tipos_unidades,
+                )
+            )
+            .values_list("uuid", flat=True)
+        )
+
+        if not solicitacoes_com_filtro.exists():
+            return Response(
+                data={
+                    "erro": "Não foram encontradas Medições Iniciais. Verifique os parâmetros e tente novamente"
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        exporta_relatorio_consolidado_xlsx.delay(
+            user=request.user.get_username(),
+            nome_arquivo=(
+                f"Relatório Consolidado das Medições Inicias - "
+                f"{diretoria_regional.nome} - {grupo_unidade_escolar.nome} - "
+                f"{mes}/{ano}.xlsx"
+            ),
+            solicitacoes=list(solicitacoes_com_filtro),
+            tipos_de_unidade=list(tipos_unidades.values_list("iniciais", flat=True)),
+            query_params=query_params,
+        )
+
+        return Response(
+            data={"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            status=status.HTTP_200_OK,
+        )
+
+    def get_ordem_periodos(self, solicitacao):
+        if solicitacao.recreio_nas_ferias:
+            return constants.ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS
+        if solicitacao.escola.eh_cei_data(solicitacao.data_referencia):
+            return constants.ORDEM_PERIODOS_GRUPOS_CEI
+        if solicitacao.escola.eh_cemei_data(solicitacao.data_referencia):
+            return constants.ORDEM_PERIODOS_GRUPOS_CEMEI
+        return constants.ORDEM_PERIODOS_GRUPOS
 
     @action(
         detail=False,
@@ -749,13 +861,7 @@ class SolicitacaoMedicaoInicialViewSet(
         solicitacao = SolicitacaoMedicaoInicial.objects.get(uuid=uuid)
         retorno = []
         for medicao in solicitacao.medicoes.all():
-            nome = None
-            if medicao.grupo and medicao.periodo_escolar:
-                nome = f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome}"
-            elif medicao.grupo and not medicao.periodo_escolar:
-                nome = f"{medicao.grupo.nome}"
-            elif medicao.periodo_escolar:
-                nome = medicao.periodo_escolar.nome
+            nome = medicao.nome_periodo_grupo
             retorno.append(
                 {
                     "uuid_medicao_periodo_grupo": medicao.uuid,
@@ -772,15 +878,7 @@ class SolicitacaoMedicaoInicialViewSet(
                     ).data,
                 }
             )
-        ordem = (
-            constants.ORDEM_PERIODOS_GRUPOS_CEI
-            if solicitacao.escola.eh_cei_data(solicitacao.data_referencia)
-            else (
-                constants.ORDEM_PERIODOS_GRUPOS_CEMEI
-                if solicitacao.escola.eh_cemei_data(solicitacao.data_referencia)
-                else constants.ORDEM_PERIODOS_GRUPOS
-            )
-        )
+        ordem = self.get_ordem_periodos(solicitacao)
 
         return Response(
             {"results": sorted(retorno, key=lambda k: ordem[k["nome_periodo_grupo"]])},
@@ -1326,7 +1424,7 @@ class SolicitacaoMedicaoInicialViewSet(
                 uuid=uuid_grupo_escolar
             )
 
-            data = calcula_totais_consumo_por_faixa_etaria(
+            data = calcula_totais_consumo_por_grupo(
                 lote=lote,
                 grupo_unidade_escolar=grupo_unidade_escolar,
                 mes=mes,
@@ -1361,6 +1459,32 @@ class SolicitacaoMedicaoInicialViewSet(
         resultado = busca_dias_zerados(solicitacao)
         return Response(resultado, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=["GET"], url_path="relatorio-historio-correcoes")
+    def relatorio_historico_correcoes(self, request, uuid=None):
+        solicitacao_medicao_inicial = self.get_object()
+        if not solicitacao_medicao_inicial:
+            return Response(
+                {"detail": "A solicitação não foi encontrada."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if solicitacao_medicao_inicial.historico is None:
+            return Response(
+                {"detail": "A medição não possui histórico a ser gerado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        exporta_relatorio_historico_correcoes_pdf.delay(
+            user=request.user.get_username(),
+            nome_arquivo=f"Relatório Histório de Correções - {solicitacao_medicao_inicial.escola.nome} - {solicitacao_medicao_inicial.mes}/{solicitacao_medicao_inicial.ano}.pdf",
+            solicitacao_uuid=solicitacao_medicao_inicial.uuid,
+        )
+
+        return Response(
+            data={"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            status=status.HTTP_200_OK,
+        )
+
 
 class TipoContagemAlimentacaoViewSet(mixins.ListModelMixin, GenericViewSet):
     queryset = TipoContagemAlimentacao.objects.filter(ativo=True)
@@ -1380,35 +1504,9 @@ class ValorMedicaoViewSet(
     lookup_field = "uuid"
     queryset = ValorMedicao.objects.all()
     serializer_class = ValorMedicaoSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = ValorMedicaoFilter
     pagination_class = None
-
-    def get_queryset(self):
-        queryset = ValorMedicao.objects.all()
-        nome_periodo_escolar = self.request.query_params.get(
-            "nome_periodo_escolar", None
-        )
-        uuid_solicitacao_medicao = self.request.query_params.get(
-            "uuid_solicitacao_medicao", None
-        )
-        nome_grupo = self.request.query_params.get("nome_grupo", None)
-        uuid_medicao_periodo_grupo = self.request.query_params.get(
-            "uuid_medicao_periodo_grupo", None
-        )
-        if nome_periodo_escolar:
-            queryset = queryset.filter(
-                medicao__periodo_escolar__nome=nome_periodo_escolar
-            )
-        if nome_grupo:
-            queryset = queryset.filter(medicao__grupo__nome=nome_grupo)
-        elif not uuid_medicao_periodo_grupo:
-            queryset = queryset.filter(medicao__grupo__isnull=True)
-        if uuid_solicitacao_medicao:
-            queryset = queryset.filter(
-                medicao__solicitacao_medicao_inicial__uuid=uuid_solicitacao_medicao
-            )
-        if uuid_medicao_periodo_grupo:
-            queryset = queryset.filter(medicao__uuid=uuid_medicao_periodo_grupo)
-        return queryset
 
     def destroy(self, request, *args, **kwargs):
         instance = ValorMedicao.objects.get(uuid=kwargs.get("uuid"))
@@ -2288,10 +2386,19 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             relatorio_financeiro = RelatorioFinanceiro.objects.get(
                 uuid=uuid_relatorio_financeiro
             )
+
+            mes = int(relatorio_financeiro.mes)
+            ano = int(relatorio_financeiro.ano)
+
             parametrizacao = ParametrizacaoFinanceira.objects.filter(
                 lote=relatorio_financeiro.lote,
                 grupo_unidade_escolar=relatorio_financeiro.grupo_unidade_escolar,
+                data_inicial__lte=datetime.date(
+                    ano, mes, calendar.monthrange(ano, mes)[1]
+                ),
+                data_final__gte=datetime.date(ano, mes, 1),
             ).first()
+
             if not parametrizacao:
                 return Response(
                     {
@@ -2299,14 +2406,185 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
                     },
                     status=status.HTTP_404_NOT_FOUND,
                 )
+
             response = {
                 **DadosParametrizacaoFinanceiraSerializer(parametrizacao).data,
                 "lote": parametrizacao.lote.uuid,
                 "mes_ano": f"{relatorio_financeiro.mes}_{relatorio_financeiro.ano}",
             }
+
             return Response(
                 data=response,
                 status=status.HTTP_200_OK,
             )
         except Exception as e:
             return Response({"Erro": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(
+        detail=False,
+        methods=["POST"],
+        url_path="exportar-pdf/(?P<uuid_relatorio_financeiro>[^/.]+)",
+    )
+    def relatorio_pdf(self, request, uuid_relatorio_financeiro):
+        user = request.user.get_username()
+
+        relatorio_financeiro = RelatorioFinanceiro.objects.filter(
+            uuid=uuid_relatorio_financeiro
+        ).first()
+        if not relatorio_financeiro:
+            return Response(
+                {"Erro": "Relatório financeiro não encontrado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        gera_pdf_relatorio_financeiro_consolidado_async.delay(
+            user=user,
+            nome_arquivo=f"Ateste Financeiro - Medição Inicial {relatorio_financeiro.lote.diretoria_regional.nome} - {relatorio_financeiro.grupo_unidade_escolar.nome} - "
+            f"{relatorio_financeiro.mes}/{relatorio_financeiro.ano}.pdf",
+            uuid_relatorio_financeiro=uuid_relatorio_financeiro,
+        )
+
+        return Response(
+            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            status=status.HTTP_200_OK,
+        )
+
+
+class DadosLiquidacaoViewSet(ModelViewSet):
+    """
+    ViewSet responsável pelo gerenciamento de DadosLiquidacao.
+
+    Endpoints padrão:
+        - GET /dados-liquidacao/
+        - POST /dados-liquidacao/
+        - PUT /dados-liquidacao/{id}/
+        - PATCH /dados-liquidacao/{id}/
+        - DELETE /dados-liquidacao/{id}/
+
+    Funcionalidades adicionais:
+        - Filtro por relatório financeiro via query param
+        - Registro em lote de empenhos
+
+    Query Params:
+        relatorio_financeiro (UUID, optional): Filtra os dados por UUID do relatório financeiro.
+
+    Serializers:
+        - DadosLiquidacaoSerializer: Usado para leitura
+        - DadosLiquidacaoUpdateSerializer: Usado para escrita
+    """
+
+    queryset = DadosLiquidacao.objects.all()
+
+    def get_serializer_class(self):
+        """
+        Retorna o serializer adequado com base na ação.
+
+        Returns:
+            Serializer: Classe de serializer apropriada.
+        """
+
+        if self.action in ["create", "update", "partial_update"]:
+            return DadosLiquidacaoUpdateSerializer
+
+        return DadosLiquidacaoSerializer
+
+    def get_queryset(self):
+        """
+        Filtra o queryset com base no UUID do relatório financeiro.
+
+        Returns:
+            QuerySet: Lista filtrada de DadosLiquidacao.
+        """
+
+        queryset = super().get_queryset()
+        relatorio_uuid = self.request.query_params.get("relatorio_financeiro")
+
+        if relatorio_uuid:
+            queryset = queryset.filter(relatorio_financeiro__uuid=relatorio_uuid)
+
+        return queryset
+
+    @action(
+        detail=False,
+        methods=["put"],
+        url_path=r"registrar-empenhos/(?P<uuid_relatorio_financeiro>[^/.]+)",
+        permission_classes=[UsuarioMedicao],
+    )
+    @transaction.atomic
+    def registrar_empenhos(self, request, uuid_relatorio_financeiro=None):
+        """
+        Registra ou atualiza múltiplos dados de liquidação em lote.
+
+        Esse endpoint realiza:
+            - Criação de novos registros
+            - Atualização de registros existentes
+            - Remoção de registros não enviados na requisição
+
+        Args:
+            request (Request): Requisição contendo uma lista de dados de liquidação.
+            uuid_relatorio_financeiro (UUID): UUID do relatório financeiro associado.
+
+        Request Body:
+            list[dict]: Lista de objetos contendo:
+                - uuid (optional)
+                - numero_empenho (str)
+                - tipo_empenho (str)
+                - unidades_educacionais (list[UUID])
+
+        Returns:
+            Response: Lista dos dados processados.
+
+        Raises:
+            ValidationError: Caso o payload não seja uma lista ou contenha dados inválidos.
+
+        Notes:
+            - A operação é atômica (rollback em caso de erro).
+            - Registros não incluídos na requisição serão removidos.
+            - A identificação dos registros existentes pode ocorrer por UUID ou chave composta.
+
+        Status Codes:
+            200 OK: Operação realizada com sucesso.
+            400 Bad Request: Erro de validação.
+        """
+
+        if not isinstance(request.data, list):
+            raise ValidationError("Envie uma lista de dados.")
+
+        queryset = DadosLiquidacao.objects.filter(
+            relatorio_financeiro__uuid=uuid_relatorio_financeiro
+        )
+
+        existentes_por_uuid, existentes_por_chave = mapear_dados_liquidacao_existentes(
+            queryset
+        )
+
+        resultado = []
+        ids_processados = set()
+
+        for item_data in request.data:
+            instancia = obter_instancia_dado_liquidacao(
+                item_data,
+                existentes_por_uuid,
+                existentes_por_chave,
+            )
+
+            serializer = DadosLiquidacaoUpdateSerializer(
+                instance=instancia,
+                data={
+                    **item_data,
+                    "relatorio_financeiro_id": uuid_relatorio_financeiro,
+                },
+            )
+
+            serializer.is_valid(raise_exception=True)
+            obj = serializer.save()
+
+            ids_processados.add(obj.id)
+            resultado.append(obj)
+
+        queryset.exclude(id__in=ids_processados).delete()
+
+        return Response(
+            DadosLiquidacaoSerializer(resultado, many=True).data,
+            status=status.HTTP_200_OK,
+        )

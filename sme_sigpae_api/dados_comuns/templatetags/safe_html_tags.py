@@ -26,18 +26,23 @@ def safe_content(value):
         "tr",
         "td",
         "th",
+        "img",
     ]
     allowed_attrs = {
         "*": ["style"],
         "td": ["style"],
         "th": ["style"],
         "p": ["style"],
+        "img": ["src", "alt", "width", "height", "style"],
     }
+
+    ALLOWED_PROTOCOLS = ["http", "https", "data"]
 
     cleaned = bleach.clean(
         value,
         tags=allowed_tags,
         attributes=allowed_attrs,
+        protocols=ALLOWED_PROTOCOLS,
         strip=True,
     )
 

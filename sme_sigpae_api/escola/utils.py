@@ -367,10 +367,8 @@ def calendario_sgp(data_inicio=date.today(), lista_escolas=None):
     periodo_noite = PeriodoEscolar.objects.get(nome="NOITE")
     for cont, escola in enumerate(escolas, 1):
         logger.debug(f"Processando {cont} de {total}")
-        logger.debug(
-            f"""Consultando dias letivos da escola com Nome: {escola.nome}
-        e código eol: {escola.codigo_eol}, data: {data_inicio_formatada}"""
-        )
+        logger.debug(f"""Consultando dias letivos da escola com Nome: {escola.nome}
+        e código eol: {escola.codigo_eol}, data: {data_inicio_formatada}""")
         try:
             data_final = (data_inicio + pd.DateOffset(months=3)).date()
             data_fim = data_final.strftime("%Y-%m-%d")
@@ -479,7 +477,9 @@ def analise_alunos_dietas_somente_uma_data(
 
 def get_alunos_com_dietas_autorizadas(query_params, escola):
     from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
-    from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+    from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+        SolicitacaoDietaEspecial,
+    )
 
     solicitacoes_dietas_comuns = SolicitacaoDietaEspecial.objects.filter(
         aluno__escola=escola, tipo_solicitacao="COMUM"
@@ -797,15 +797,17 @@ def formata_periodos_pdf_controle_frequencia(
 ):
     from .models import FaixaEtaria
 
-    data_inicial_param = None
-    if query_params.get("data_inicial"):
-        ano_i, mes_i, dia_i = query_params.get("data_inicial").split("-")
-        data_inicial_param = date(int(ano_i), int(mes_i), int(dia_i))
+    mes, ano = query_params.get("mes_ano").split("_")
+    _, ultimo_dia_mes = monthrange(int(ano), int(mes))
 
-    data_final_param = None
-    if query_params.get("data_final"):
-        ano_f, mes_f, dia_f = query_params.get("data_final").split("-")
-        data_final_param = date(int(ano_f), int(mes_f), int(dia_f))
+    data_inicial_str = query_params.get("data_inicial", f"{ano}-{mes}-01")
+    data_final_str = query_params.get("data_final", f"{ano}-{mes}-{ultimo_dia_mes:02d}")
+
+    ano_i, mes_i, dia_i = data_inicial_str.split("-")
+    data_inicial_param = date(int(ano_i), int(mes_i), int(dia_i))
+
+    ano_f, mes_f, dia_f = data_final_str.split("-")
+    data_final_param = date(int(ano_f), int(mes_f), int(dia_f))
 
     periodos = []
     mes_atual = eh_mes_atual(query_params)

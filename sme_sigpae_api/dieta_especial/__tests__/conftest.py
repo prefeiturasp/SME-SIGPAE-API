@@ -1,31 +1,28 @@
 import datetime
 import json
-import random
-from random import randint, sample
 
 import pytest
 from faker import Faker
 from freezegun import freeze_time
 from model_bakery import baker
 
+from sme_sigpae_api.dados_comuns import constants
+from sme_sigpae_api.dados_comuns.fluxo_status import DietaEspecialWorkflow
+from sme_sigpae_api.dados_comuns.models import TemplateMensagem
+from sme_sigpae_api.dados_comuns.utils import convert_base64_to_contentfile
 from sme_sigpae_api.dieta_especial.api.serializers import UnidadeEducacionalSerializer
-
-from ...dados_comuns import constants
-from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
-from ...dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
-from ...dados_comuns.utils import convert_base64_to_contentfile
-from ...escola.models import Aluno, FaixaEtaria, PeriodoEscolar
-from ...perfil.models import Usuario
-from ...produto.models import Produto
-from ...terceirizada.models import Edital
-from ..models import (
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import Alimento
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
-    Alimento,
     Anexo,
     ClassificacaoDieta,
     MotivoNegacao,
     SolicitacaoDietaEspecial,
 )
+from sme_sigpae_api.escola.models import Aluno, FaixaEtaria, PeriodoEscolar
+from sme_sigpae_api.perfil.models import Usuario
+from sme_sigpae_api.produto.models import Produto
+from sme_sigpae_api.terceirizada.models import Edital
 
 fake = Faker("pt_BR")
 Faker.seed(420)
@@ -892,22 +889,6 @@ def solicitacoes_dieta_especial_com_data_termino(
 @pytest.fixture
 def periodo_escolar_integral():
     return baker.make("PeriodoEscolar", nome="INTEGRAL")
-
-
-@pytest.fixture
-def log_dietas_ativas_canceladas_automaticamente(
-    solicitacao_dieta_especial_autorizada_ativa,
-):
-    return baker.make(
-        "LogDietasAtivasCanceladasAutomaticamente",
-        dieta=solicitacao_dieta_especial_autorizada_ativa,
-        codigo_eol_aluno="6595803",
-        nome_aluno="GUILHERME RODRIGUES DA HORA",
-        codigo_eol_escola_origem="019871",
-        nome_escola_origem="EMEF PERICLES EUGENIO DA SILVA RAMOS",
-        codigo_eol_escola_destino="018210",
-        nome_escola_destino="EMEFM DARCY RIBEIRO",
-    )
 
 
 @pytest.fixture
@@ -2273,20 +2254,6 @@ def mock_request_codae_atualiza_protocolo(
         "data_termino": "2026-10-25",
         "registro_funcional_nutricionista": "Elaborado por NUTRI CODAE ADMIN - RF 8107807",
     }
-
-
-@pytest.fixture
-def logs_dieta_recreio_nas_ferias(escola, classificacoes_dietas):
-
-    data = datetime.date(2025, 12, 22)
-    for classificacao in classificacoes_dietas:
-        baker.make(
-            "LogQuantidadeDietasAutorizadasRecreioNasFerias",
-            escola=escola,
-            quantidade=5,
-            classificacao=classificacao,
-            data=data,
-        )
 
 
 @pytest.fixture

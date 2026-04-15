@@ -232,7 +232,6 @@ def test_cadastro_diretor(client, users_diretor_escola, tipo_gestao, monkeypatch
             "tipo_unidade_escolar_iniciais": "EMEF",
             "tipo_gestao": "TERC TOTAL",
             "tipo_gestao_uuid": str(tipo_gestao.uuid),
-            "tipos_contagem": [],
             "endereco": {
                 "logradouro": "",
                 "numero": None,
@@ -335,7 +334,6 @@ def test_confirmar_email(client, usuarios_pendentes_confirmacao, tipo_gestao):
                 "tipo_unidade_escolar_iniciais": "EMEF",
                 "tipo_gestao": "TERC TOTAL",
                 "tipo_gestao_uuid": str(tipo_gestao.uuid),
-                "tipos_contagem": [],
                 "endereco": {
                     "logradouro": "",
                     "numero": None,

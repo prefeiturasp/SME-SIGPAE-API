@@ -116,6 +116,7 @@ def gerar_relatorio_cronogramas_xlsx_async(user, ids_cronogramas, filtros=None):
         "Nº do Processo - SEI",
         "Nº do Empenho",
         "Nº do Contrato",
+        "Modalidade/Tipo",
     ]
 
     TITULO_ARQUIVO = "relatorio_cronogramas.xlsx"
@@ -249,6 +250,7 @@ def _criar_linha_base_excel(cronograma, etapa):
         "numero_processo": cronograma.get("numero_processo", ""),
         "numero_empenho": etapa.get("numero_empenho", ""),
         "numero_contrato": cronograma.get("numero_contrato", ""),
+        "modalidade": cronograma.get("modalidade", "")
     }
 
 
@@ -431,6 +433,7 @@ def _definir_largura_colunas(worksheet):
         "Q:Q": 18,
         "R:R": 12,
         "S:S": 18,
+        "T:T": 20,
     }
 
     for col, width in LARGURA_COLUNAS.items():

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿import { Given, When, Then } from 'cypress-cucumber-preprocessor/steps'
+=======
+import { Given, When, Then } from 'cypress-cucumber-preprocessor/steps'
+>>>>>>> upstream/testes
 import { Cadastro_Empresas_Locators } from '../locators/cadastro_empresas_locators'
 import { Menu_Lateral_Locators } from '../locators/menu_lateral_locators'
 
@@ -62,6 +66,7 @@ function preencherCampoData(seletor, valor) {
 	cy.get('body').click(0, 0, { force: true })
 }
 
+<<<<<<< HEAD
 function definirValorInputData(input, valor) {
 	const nativeSetter = Object.getOwnPropertyDescriptor(
 		window.HTMLInputElement.prototype,
@@ -143,6 +148,8 @@ function preencherVigenciaContrato(dataFinal) {
 	cy.get('body').click(0, 0, { force: true })
 }
 
+=======
+>>>>>>> upstream/testes
 function preencherOuValidarCampoBloqueado(seletor, valorEsperado) {
 	cy.get(seletor, { timeout: 15000 })
 		.filter(':visible')
@@ -168,6 +175,7 @@ function preencherOuValidarCampoBloqueado(seletor, valorEsperado) {
 		})
 }
 
+<<<<<<< HEAD
 function normalizarTexto(valor) {
 	return String(valor || '')
 		.normalize('NFD')
@@ -243,6 +251,64 @@ Dado('acesso o menu Cadastros > Empresas', function () {
 		.should('be.visible')
 })
 
+=======
+Dado('que acesso o sistema', function () {
+	const usuario = Cypress.env('usuario_dilog_cronograma')
+	const senha = Cypress.env('senha')
+
+	cy.clearCookies()
+	cy.clearLocalStorage()
+	cy.login_sme('web')
+
+	cy.location('pathname', { timeout: 15000 }).then((pathname) => {
+		if (pathname === '/login') {
+			cy.get('[data-cy="login"]', { timeout: 15000 })
+				.filter(':visible')
+				.first()
+				.should('be.visible')
+				.clear()
+				.type(usuario)
+
+			cy.get('[data-cy="password"]', { timeout: 15000 })
+				.filter(':visible')
+				.first()
+				.should('be.visible')
+				.clear()
+				.type(senha, { log: false })
+
+			cy.get('[data-cy="Acessar"]', { timeout: 15000 })
+				.filter(':visible')
+				.first()
+				.should('be.visible')
+				.click()
+		}
+	})
+
+	cy.url({ timeout: 20000 }).should('not.include', '/login')
+})
+
+Dado('acesso o menu Cadastros > Empresas', function () {
+	cy.get('body', { timeout: 15000 }).then(($body) => {
+		const itemEmpresasVisivel =
+			$body.find(`${Menu_Lateral_Locators.cadastros_empresas}:visible`).length > 0
+
+		if (!itemEmpresasVisivel) {
+			cy.contains('button, span, div, a', Menu_Lateral_Locators.cadastros, {
+				timeout: 15000,
+			})
+				.should('be.visible')
+				.click({ force: true })
+		}
+	})
+
+	cy.get(Menu_Lateral_Locators.cadastros_empresas, { timeout: 15000 })
+		.filter(':visible')
+		.first()
+		.should('exist')
+		.click({ force: true })
+})
+
+>>>>>>> upstream/testes
 Quando(/preencho os campos obrigat[óo]rios de cadastro da empresa/, function () {
 	const timestamp = new Date().getTime()
 
@@ -335,11 +401,18 @@ Quando(/preencho os campos obrigat[óo]rios de cadastro da empresa/, function ()
 	cy.contains('Contratos').scrollIntoView()
 	preencherCampoPorRotulo('Nº do Processo Administrativo (SEI)', `SEI-${timestamp}`)
 	preencherCampoPorRotulo('Nº do Contrato', `CONT-${timestamp}`)
+<<<<<<< HEAD
 	cy.get('body').click(0, 0, { force: true })
 	preencherVigenciaContrato('31/12/2026')
 	selecionarPorRotulo('Modalidade', 'Emergencial')
 	selecionarPorRotulo('Programa', 'Alimentação Escolar')
 	selecionarPorRotulo('Situação', 'Ativo')
+=======
+	preencherCampoData(Cadastro_Empresas_Locators.inputs.vigencia_de, '01/01/2025')
+	preencherCampoData(Cadastro_Empresas_Locators.inputs.vigencia_ate, '31/12/2025')
+	selecionarPorRotulo('Modalidade', 'Emergencial')
+	selecionarPorRotulo('Programa', 'Alimentação Escolar')
+>>>>>>> upstream/testes
 })
 
 Quando(/clico no bot[aã]o Salvar/, function () {

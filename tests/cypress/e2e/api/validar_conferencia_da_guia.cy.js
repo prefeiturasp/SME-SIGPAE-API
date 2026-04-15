@@ -22,8 +22,8 @@ function validarMensagemUuid(mensagemRecebida, mensagemEsperada) {
 }
 
 describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
-	var usuario = Cypress.config('usuario_abastecimento')
-	var senha = Cypress.config('senha')
+	var usuario = Cypress.env('usuario_abastecimento')
+	var senha = Cypress.env('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -529,3 +529,5 @@ describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
 		})
 	})
 })
+
+

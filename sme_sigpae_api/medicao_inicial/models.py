@@ -30,12 +30,14 @@ from ..dados_comuns.fluxo_status import (
     LogSolicitacoesUsuario,
 )
 from ..escola.constants import INFANTIL_OU_FUNDAMENTAL
-from ..escola.models import PeriodoEscolar, TipoUnidadeEscolar
+from ..escola.models import Escola, PeriodoEscolar, TipoUnidadeEscolar
 from ..perfil.models import Usuario
 from ..terceirizada.models import Edital
 from .recreio_nas_ferias.models import RecreioNasFerias
 
 MODEL_PERIODO_ESCOLAR = "escola.PeriodoEscolar"
+GRUPO_RECREIO_NAS_FERIAS = "Recreio nas Férias"
+GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI = "Recreio nas Férias - de 0 a 3 anos e 11 meses"
 
 
 class DiaSobremesaDoce(TemData, TemChaveExterna, CriadoEm, CriadoPor):
@@ -346,8 +348,17 @@ class SolicitacaoMedicaoInicial(
         )
 
     def get_or_create_medicao_por_periodo_e_ou_grupo(self, periodo_e_ou_grupo: str):
+        periodo_e_ou_grupo = self._normaliza_nome_grupo_recreio_nas_ferias_cei(
+            periodo_e_ou_grupo
+        )
         if GrupoMedicao.objects.filter(nome=periodo_e_ou_grupo).exists():
-            grupo = GrupoMedicao.objects.get(nome=periodo_e_ou_grupo)
+            medicao_legada = self._normaliza_medicao_legada_recreio_nas_ferias_cei()
+            if medicao_legada:
+                return medicao_legada
+            medicao = self.medicoes.filter(grupo__nome=periodo_e_ou_grupo).first()
+            if medicao:
+                return medicao
+            grupo = GrupoMedicao.objects.filter(nome=periodo_e_ou_grupo).first()
             medicao, created = Medicao.objects.get_or_create(
                 solicitacao_medicao_inicial=self, grupo=grupo
             )
@@ -361,11 +372,14 @@ class SolicitacaoMedicaoInicial(
 
     def get_medicao_por_periodo_e_ou_grupo(self, periodo_e_ou_grupo: str):
         try:
+            periodo_e_ou_grupo = self._normaliza_nome_grupo_recreio_nas_ferias_cei(
+                periodo_e_ou_grupo
+            )
             if GrupoMedicao.objects.filter(nome=periodo_e_ou_grupo).exists():
-                grupo = GrupoMedicao.objects.get(nome=periodo_e_ou_grupo)
-                medicao = Medicao.objects.get(
-                    solicitacao_medicao_inicial=self, grupo=grupo
-                )
+                medicao_legada = self._normaliza_medicao_legada_recreio_nas_ferias_cei()
+                if medicao_legada:
+                    return medicao_legada
+                medicao = self.medicoes.filter(grupo__nome=periodo_e_ou_grupo).first()
                 return medicao
             else:
                 periodo_escolar = PeriodoEscolar.objects.get(nome=periodo_e_ou_grupo)
@@ -375,6 +389,86 @@ class SolicitacaoMedicaoInicial(
             return medicao
         except Medicao.DoesNotExist:
             return None
+
+    def _eh_grupo_legado_recreio_nas_ferias_cei(self, nome_grupo: str) -> bool:
+        """Verifica se o grupo informado usa a regra de compatibilizacao de CEI.
+
+        Para escolas CEI na data de referencia da solicitacao, tanto o nome
+        padrao quanto a nomenclatura legada do grupo de Recreio nas Ferias sao
+        tratados como equivalentes.
+
+        Args:
+            nome_grupo: Nome do grupo de medicao a ser avaliado.
+
+        Returns:
+            True quando a escola e CEI na data de referencia e o grupo informado
+            corresponde a uma das nomenclaturas aceitas para Recreio nas Ferias.
+            Caso contrario, False.
+        """
+        return self.escola.eh_cei_data(self.data_referencia) and nome_grupo in [
+            GRUPO_RECREIO_NAS_FERIAS,
+            GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI,
+        ]
+
+    def _normaliza_nome_grupo_recreio_nas_ferias_cei(self, nome_grupo: str) -> str:
+        """Converte o nome legado do grupo para a nomenclatura padrao.
+
+        Quando o grupo informado se enquadra na regra de compatibilizacao para
+        CEI, a funcao sempre retorna o nome padrao de Recreio nas Ferias.
+
+        Args:
+            nome_grupo: Nome do grupo de medicao recebido pela operacao.
+
+        Returns:
+            O nome padrao do grupo de Recreio nas Ferias quando houver
+            compatibilizacao para CEI. Nos demais casos, retorna o valor
+            original sem alteracoes.
+        """
+        if self._eh_grupo_legado_recreio_nas_ferias_cei(nome_grupo):
+            return GRUPO_RECREIO_NAS_FERIAS
+        return nome_grupo
+
+    def _normaliza_medicao_legada_recreio_nas_ferias_cei(self):
+        """Migra a medicao legada de CEI para o grupo padrao.
+
+        A rotina busca uma medicao da solicitacao atual vinculada ao grupo
+        legado de Recreio nas Ferias para CEI e, quando encontrada, atualiza o
+        relacionamento para o grupo padrao.
+
+        Returns:
+            A medicao atualizada para o grupo padrao quando a normalizacao e
+            realizada. Retorna None quando a solicitacao nao se enquadra na
+            regra, quando os grupos nao existem ou quando nao ha medicao legada
+            para migrar.
+        """
+        if not self._eh_grupo_legado_recreio_nas_ferias_cei(
+            GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI
+        ):
+            return None
+
+        grupo_padrao = (
+            GrupoMedicao.objects.filter(nome=GRUPO_RECREIO_NAS_FERIAS)
+            .order_by("-id")
+            .first()
+        )
+
+        if not grupo_padrao:
+            return None
+
+        medicao_legada = (
+            self.medicoes.filter(
+                grupo__nome=GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI,
+            )
+            .order_by("-id")
+            .first()
+        )
+
+        if not medicao_legada:
+            return None
+
+        medicao_legada.grupo = grupo_padrao
+        medicao_legada.save(update_fields=["grupo"])
+        return medicao_legada
 
     class Meta:
         verbose_name = "Solicitação de medição inicial"
@@ -479,12 +573,18 @@ class Medicao(
 
     @property
     def nome_periodo_grupo(self):
-        if self.grupo and self.periodo_escolar:
-            nome_periodo_grupo = (
-                f"{self.grupo.nome} - " + f"{self.periodo_escolar.nome}"
+        nome_grupo = self.grupo.nome if self.grupo else None
+        if (
+            nome_grupo == GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI
+            and self.escola.eh_cei_data(
+                self.solicitacao_medicao_inicial.data_referencia
             )
+        ):
+            nome_grupo = GRUPO_RECREIO_NAS_FERIAS
+        if self.grupo and self.periodo_escolar:
+            nome_periodo_grupo = f"{nome_grupo} - {self.periodo_escolar.nome}"
         elif self.grupo and not self.periodo_escolar:
-            nome_periodo_grupo = f"{self.grupo.nome}"
+            nome_periodo_grupo = f"{nome_grupo}"
         else:
             nome_periodo_grupo = f"{self.periodo_escolar.nome}"
         return nome_periodo_grupo
@@ -905,3 +1005,63 @@ class RelatorioFinanceiro(
         verbose_name_plural = "Relatórios Financeiros"
         ordering = ["-alterado_em"]
         unique_together = ("grupo_unidade_escolar", "lote", "mes", "ano")
+
+
+class DadosLiquidacao(TemChaveExterna, CriadoEm, TemAlteradoEm):
+    """
+    Dados para liquidação vinculados a um relatório financeiro.
+
+    Essa entidade armazena informações relacionadas a empenhos, incluindo
+    número, tipo e as unidades educacionais associadas.
+
+    Attributes:
+        relatorio_financeiro (RelatorioFinanceiro): Relatório financeiro ao qual o dado pertence.
+        numero_empenho (str): Número identificador do empenho.
+        tipo_empenho (str): Tipo/classificação do empenho.
+        unidades_educacionais (ManyToMany[Escola]): Lista de unidades educacionais (escolas) associadas ao empenho.
+
+    Meta:
+        verbose_name (str): Nome singular da entidade.
+        verbose_name_plural (str): Nome plural da entidade.
+        ordering (list): Ordenação padrão por data de alteração decrescente.
+        constraints (list): Garante unicidade da combinação entre número do empenho,
+            tipo e relatório financeiro.
+    """
+
+    relatorio_financeiro = models.ForeignKey(
+        RelatorioFinanceiro,
+        to_field="uuid",
+        on_delete=models.PROTECT,
+        related_name="dados_liquidacao",
+    )
+    numero_empenho = models.CharField(
+        "Número do empenho",
+        max_length=40,
+    )
+    tipo_empenho = models.CharField(
+        "Tipo de empenho",
+        max_length=100,
+    )
+    unidades_educacionais = models.ManyToManyField(
+        Escola,
+        blank=True,
+        related_name="dados_liquidacao",
+    )
+
+    def __str__(self):
+        return f"Empenho: {self.numero_empenho} | Tipo: {self.tipo_empenho}"
+
+    class Meta:
+        verbose_name = "Dado Liquidação"
+        verbose_name_plural = "Dados Liquidações"
+        ordering = ["-alterado_em"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "numero_empenho",
+                    "tipo_empenho",
+                    "relatorio_financeiro",
+                ],
+                name="unique_dados_liquidacao_empenho_por_relatorio",
+            )
+        ]

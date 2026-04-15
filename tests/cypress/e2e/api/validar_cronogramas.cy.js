@@ -1,8 +1,8 @@
 ﻿/// <reference types='cypress' />
 
 describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
-	var usuario = Cypress.config('usuario_dilog_cronograma')
-	var senha = Cypress.config('senha')
+	var usuario = Cypress.env('usuario_dilog_cronograma')
+	var senha = Cypress.env('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)

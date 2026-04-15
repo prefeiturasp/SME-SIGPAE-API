@@ -18,10 +18,12 @@ from sme_sigpae_api.dados_comuns.fluxo_status import (
     SolicitacaoMedicaoInicialWorkflow,
 )
 from sme_sigpae_api.dados_comuns.parser_xml import ListXMLParser
-from sme_sigpae_api.dieta_especial.models import (
-    ClassificacaoDieta,
+from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
 )
 from sme_sigpae_api.perfil.models import ContentType
 from utility.carga_dados.escola.importa_dados import (
@@ -1257,3 +1259,26 @@ def ocorrencia_medicao_inicial_status_aprovado_dre():
         solicitacao_medicao_inicial=baker.make("SolicitacaoMedicaoInicial"),
         status="MEDICAO_APROVADA_PELA_DRE",
     )
+
+
+@pytest.fixture
+def solicitacao_dieta_especial(escola, user_diretor_escola):
+    user, _ = user_diretor_escola
+    solicitacao = baker.make(
+        "SolicitacaoDietaEspecial",
+        aluno=baker.make(
+            "Aluno",
+            nome="Mariano Alves da Silva",
+            codigo_eol="896325",
+            data_nascimento="2000-01-01",
+        ),
+        rastro_escola=escola,
+        escola_destino=escola,
+        tipo_solicitacao="COMUM",
+        rastro_terceirizada=escola.lote.terceirizada,
+        criado_por=user,
+        ativo=False,
+    )
+    solicitacao.save()
+    solicitacao.inicia_fluxo(user=user)
+    return solicitacao

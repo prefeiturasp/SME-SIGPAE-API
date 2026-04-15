@@ -1,13 +1,19 @@
+<<<<<<< HEAD
 ﻿describe('Validar rotas de Motivos Suspensão Cardápio da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_codae')
 	var senha = Cypress.config('senha')
+=======
+﻿describe('Validar rotas de Motivos SuspensÃ£o CardÃ¡pio da aplicaÃ§Ã£o SIGPAE', () => {
+	var usuario = Cypress.env('usuario_codae')
+	var senha = Cypress.env('senha')
+>>>>>>> upstream/testes
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
 
 	context('Rota api/motivos-suspensao-cardapio/', () => {
-		it('Validar GET com sucesso de Motivos Suspensão Cardápio', () => {
+		it('Validar GET com sucesso de Motivos SuspensÃ£o CardÃ¡pio', () => {
 			cy.consultar_motivos_suspensao_cardapio().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count')
@@ -20,7 +26,7 @@
 			})
 		})
 
-		it('Validar GET com sucesso de Motivos Suspensão Cardápio Com UUID Válido', () => {
+		it('Validar GET com sucesso de Motivos SuspensÃ£o CardÃ¡pio Com UUID VÃ¡lido', () => {
 			var uuid_response = ''
 			cy.consultar_motivos_suspensao_cardapio().then((response) => {
 				expect(response.status).to.eq(200)
@@ -36,7 +42,7 @@
 			})
 		})
 
-		it('Validar GET de Motivos Suspensão Cardápio Com UUID Inválido', () => {
+		it('Validar GET de Motivos SuspensÃ£o CardÃ¡pio Com UUID InvÃ¡lido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b00000'
 			cy.consultar_motivos_suspensao_cardapio_por_uuid(uuid).then(
 				(response) => {
@@ -46,3 +52,4 @@
 		})
 	})
 })
+

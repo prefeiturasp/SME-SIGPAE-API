@@ -313,6 +313,14 @@ ORDEM_PERIODOS_GRUPOS_CEMEI = {
     "Programas e Projetos": 6,
     "Solicitações de Alimentação": 7,
 }
+
+ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS = {
+    "Recreio nas Férias": 1,
+    "Recreio nas Férias - de 0 a 3 anos e 11 meses": 2,
+    "Recreio nas Férias - 4 a 14 anos": 3,
+    "Colaboradores": 4,
+}
+
 MAX_COLUNAS = 15
 
 #
@@ -456,9 +464,11 @@ ORDEM_HEADERS_EMEBS = {
     "TARDE": 3,
     "INTEGRAL": 4,
     "NOITE": 5,
-    "Programas e Projetos": 6,
-    "DIETA ESPECIAL - TIPO A": 7,
-    "DIETA ESPECIAL - TIPO B": 8,
+    "INTERMEDIARIO": 6,
+    "VESPERTINO": 7,
+    "Programas e Projetos": 8,
+    "DIETA ESPECIAL - TIPO A": 9,
+    "DIETA ESPECIAL - TIPO B": 10,
 }
 
 ORDEM_HEADERS_CIEJA_CMCT = {
