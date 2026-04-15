@@ -118,7 +118,39 @@ def test_total_por_dre_considera_intervalos_nas_bordas_do_mes(
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == 2
+    assert response.json() == 1
+
+
+def test_total_por_dre_desconsidera_mes_da_data_final(
+    client_autenticado_coordenador_codae,
+    diretoria_regional,
+):
+    baker.make(
+        HistoricoAcessoMedicaoInicialUE,
+        escola=baker.make(
+            "Escola", codigo_eol="210001", diretoria_regional=diretoria_regional
+        ),
+        data_inicial=datetime.date(2026, 1, 1),
+        data_final=datetime.date(2026, 2, 1),
+    )
+
+    response = client_autenticado_coordenador_codae.get(
+        "/medicao-inicial/historico-acesso-ue/total-por-dre/",
+        {"mes": 1, "ano": 2026, "dre_uuid": str(diretoria_regional.uuid)},
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == 1
+
+    response = client_autenticado_coordenador_codae.get(
+        "/medicao-inicial/historico-acesso-ue/total-por-dre/",
+        {"mes": 2, "ano": 2026, "dre_uuid": str(diretoria_regional.uuid)},
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == 0
 
 
 def test_total_por_dre_nao_duplica_escola_com_multiplos_historicos_no_mes(

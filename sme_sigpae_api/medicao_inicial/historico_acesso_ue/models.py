@@ -17,14 +17,13 @@ class HistoricoAcessoMedicaoInicialUEQuerySet(models.QuerySet):
         return self.filter(escola__diretoria_regional__uuid=dre_uuid)
 
     def ativos_no_mes_ano(self, mes: int, ano: int):
-        primeiro_dia_mes = datetime.date(ano, mes, 1)
         ultimo_dia_mes = datetime.date(ano, mes, calendar.monthrange(ano, mes)[1])
 
         return self.filter(
             Q(
                 data_final__isnull=False,
                 data_inicial__lte=ultimo_dia_mes,
-                data_final__gte=primeiro_dia_mes,
+                data_final__gt=ultimo_dia_mes,
             )
             | Q(
                 data_final__isnull=True,
