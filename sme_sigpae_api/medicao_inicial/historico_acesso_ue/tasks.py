@@ -90,7 +90,7 @@ def cria_historico_acesso_ue():
 
 
 @shared_task
-def remove_historico_acesso_ue():
+def finaliza_historico_acesso_ue():
     """Inativa historicos abertos quando o lote atual da escola mudou.
 
     Returns:

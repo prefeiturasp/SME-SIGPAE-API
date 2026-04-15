@@ -42,6 +42,7 @@ from ..relatorios.relatorios import (
     relatorio_solicitacao_medicao_por_escola_cemei,
     relatorio_solicitacao_medicao_por_escola_emebs,
 )
+from .historico_acesso_ue import tasks as historico_acesso_ue_tasks
 from .models import (
     ParametrizacaoFinanceira,
     RelatorioFinanceiro,
@@ -49,6 +50,9 @@ from .models import (
     SolicitacaoMedicaoInicial,
 )
 from .utils import cria_relatorios_financeiros_por_grupo_unidade_escolar
+
+cria_historico_acesso_ue = historico_acesso_ue_tasks.cria_historico_acesso_ue
+finaliza_historico_acesso_ue = historico_acesso_ue_tasks.finaliza_historico_acesso_ue
 
 logger = logging.getLogger(__name__)
 
@@ -515,9 +519,3 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
         logger.error(f"Erro: {e}")
 
     logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
-
-
-from .historico_acesso_ue.tasks import (  # noqa: E402,F401
-    cria_historico_acesso_ue,
-    remove_historico_acesso_ue,
-)
