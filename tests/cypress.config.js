@@ -1,15 +1,13 @@
-const path = require('path')
 const { defineConfig } = require('cypress')
 const allureWriter = require('@shelex/cypress-allure-plugin/writer')
 const { cloudPlugin } = require('cypress-cloud/plugin')
-require('dotenv').config({ path: path.resolve(__dirname, '.env') })
+require('dotenv').config()
 
 module.exports = defineConfig({
 	e2e: {
 		setupNodeEvents(on, config) {
 			allureWriter(on, config)
 			require('./cypress/plugin/index.js')(on, config)
-
 			on('before:browser:launch', (browser = {}, launchOptions) => {
 				if (browser.name === 'chrome') {
 					launchOptions.args.push('--no-sandbox')
@@ -17,16 +15,10 @@ module.exports = defineConfig({
 				}
 				return launchOptions
 			})
-
 			return cloudPlugin(on, config)
 		},
-
 		baseUrl: 'https://qa-sigpae.sme.prefeitura.sp.gov.br/',
-		specPattern: 'cypress/e2e/**/**/*.{feature,cy.{js,jsx,ts,tsx}}',
-		experimentalRunAllSpecs: true,
-	},
 
-	env: {
 		usuario_coordenador_logistica: process.env.COORDENADOR_LOGISTICA,
 		usuario_coordenador_codae_dilog_logistica:
 			process.env.COORDENADOR_CODAE_DILOG_LOGISTICA,
@@ -39,14 +31,15 @@ module.exports = defineConfig({
 		usuario_codae: process.env.CODAE,
 		usuario_gpcodae: process.env.GPCODAE,
 		usuario_dre: process.env.DRE,
-		senha: process.env.SENHA,
+		usuario_homologacao_produto: process.env.HOMOLOCACAO_PRODUTO,
+		senha: process.env.SENHA,video: false,
+		timeout: 60000,
+		videoCompression: 0,
+		retries: 0,
+		screenshotOnRunFailure: true,
+		chromeWebSecurity: false,
+		experimentalRunAllSpecs: true,
+		failOnStatusCode: false,
+		specPattern: 'cypress/e2e/**/**/*.{feature,cy.{js,jsx,ts,tsx}}',
 	},
-
-	video: false,
-	defaultCommandTimeout: 60000,
-	videoCompression: 0,
-	retries: 0,
-	screenshotOnRunFailure: true,
-	chromeWebSecurity: false,
-	failOnStatusCode: false,
 })
