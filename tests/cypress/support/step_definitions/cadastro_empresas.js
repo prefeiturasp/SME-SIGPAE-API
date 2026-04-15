@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+﻿import { Given, When, Then } from 'cypress-cucumber-preprocessor/steps'
+=======
 import { Given, When, Then } from 'cypress-cucumber-preprocessor/steps'
+>>>>>>> upstream/testes
 import { Cadastro_Empresas_Locators } from '../locators/cadastro_empresas_locators'
 import { Menu_Lateral_Locators } from '../locators/menu_lateral_locators'
 
@@ -62,6 +66,90 @@ function preencherCampoData(seletor, valor) {
 	cy.get('body').click(0, 0, { force: true })
 }
 
+<<<<<<< HEAD
+function definirValorInputData(input, valor) {
+	const nativeSetter = Object.getOwnPropertyDescriptor(
+		window.HTMLInputElement.prototype,
+		'value',
+	).set
+
+	input.removeAttribute('readonly')
+	input.focus()
+	nativeSetter.call(input, valor)
+	input.dispatchEvent(new Event('input', { bubbles: true }))
+	input.dispatchEvent(new Event('change', { bubbles: true }))
+	input.dispatchEvent(new Event('blur', { bubbles: true }))
+}
+
+function preencherCampoDataPorRotulo(rotulo, valor) {
+	cy.contains('label', rotulo, { timeout: 15000 })
+		.should('be.visible')
+		.parent()
+		.find('input')
+		.filter(':visible')
+		.first()
+		.scrollIntoView()
+		.should('be.visible')
+		.then(($input) => {
+			const input = $input[0]
+			const nativeSetter = Object.getOwnPropertyDescriptor(
+				window.HTMLInputElement.prototype,
+				'value',
+			).set
+
+			input.removeAttribute('readonly')
+			input.focus()
+			nativeSetter.call(input, valor)
+			input.dispatchEvent(new Event('input', { bubbles: true }))
+			input.dispatchEvent(new Event('change', { bubbles: true }))
+			input.dispatchEvent(new Event('blur', { bubbles: true }))
+		})
+
+	cy.get('body').click(0, 0, { force: true })
+}
+
+function preencherVigenciaContrato(dataFinal) {
+	cy.contains('Contratos', { timeout: 15000 })
+		.should('be.visible')
+		.parent()
+		.within(() => {
+			cy.contains('label', 'Vigência do Contrato', { timeout: 15000 }).should(
+				'be.visible',
+			)
+
+			cy.get('input[placeholder="De"]', { timeout: 15000 })
+				.filter(':visible')
+				.first()
+				.scrollIntoView()
+				.should('be.visible')
+				.then(($input) => {
+					const valorAtual = ($input.val() || '').toString().trim()
+
+					if (valorAtual) {
+						return
+					}
+
+					cy.wrap($input).then(($campo) => {
+						definirValorInputData($campo[0], '15/04/2026')
+					})
+				})
+
+			cy.get('input[placeholder="Até"]', { timeout: 15000 })
+				.filter(':visible')
+				.first()
+				.scrollIntoView()
+				.should('be.visible')
+				.then(($input) => {
+					definirValorInputData($input[0], dataFinal)
+				})
+				.should('have.value', dataFinal)
+		})
+
+	cy.get('body').click(0, 0, { force: true })
+}
+
+=======
+>>>>>>> upstream/testes
 function preencherOuValidarCampoBloqueado(seletor, valorEsperado) {
 	cy.get(seletor, { timeout: 15000 })
 		.filter(':visible')
@@ -87,6 +175,83 @@ function preencherOuValidarCampoBloqueado(seletor, valorEsperado) {
 		})
 }
 
+<<<<<<< HEAD
+function normalizarTexto(valor) {
+	return String(valor || '')
+		.normalize('NFD')
+		.replace(/[\u0300-\u036f]/g, '')
+		.replace(/\s+/g, ' ')
+		.trim()
+		.toLowerCase()
+}
+
+function clicarItemMenuPorTexto(texto) {
+	const textoNormalizado = normalizarTexto(texto)
+
+	cy.get('body', { timeout: 15000 }).then(($body) => {
+		const elementosVisiveis = $body.find('*:visible').toArray()
+		const elemento =
+			elementosVisiveis.find((item) => {
+				const textoElemento = normalizarTexto(item.innerText)
+				return textoElemento === textoNormalizado
+			}) ||
+			elementosVisiveis.find((item) => {
+				const textoElemento = normalizarTexto(item.innerText)
+				return textoElemento.includes(textoNormalizado)
+			})
+
+		expect(elemento, `item de menu "${texto}"`).to.exist
+
+		cy.wrap(elemento)
+			.closest('a, button, [role="button"], li, div')
+			.scrollIntoView()
+			.should('be.visible')
+			.click({ force: true })
+	})
+}
+
+function garantirSessaoAutenticada() {
+	cy.url({ timeout: 15000 }).should('not.include', '/login')
+}
+
+function aguardarAplicacaoCarregada() {
+	garantirSessaoAutenticada()
+	cy.get('#root', { timeout: 20000 }).should('be.visible')
+	cy.get('body', { timeout: 20000 }).should(($body) => {
+		const camposLoginVisiveis = $body
+			.find('[data-cy="login"], input.input-login, [data-cy="password"]')
+			.filter(':visible').length
+
+		expect(
+			camposLoginVisiveis,
+			'aplicacao ainda exibindo campos de login apos autenticacao',
+		).to.eq(0)
+	})
+}
+
+Dado('acesso o menu Cadastros > Empresas', function () {
+	aguardarAplicacaoCarregada()
+	cy.get(Menu_Lateral_Locators.cadastros, { timeout: 20000 })
+		.first()
+		.scrollIntoView()
+		.should('be.visible')
+		.click({ force: true })
+
+	cy.get(Menu_Lateral_Locators.cadastros_empresas, { timeout: 15000 })
+		.first()
+		.scrollIntoView()
+		.should('be.visible')
+		.click({ force: true })
+
+	aguardarAplicacaoCarregada()
+	cy.url({ timeout: 20000 }).should('include', '/configuracoes/cadastros/empresa')
+	cy.get(Cadastro_Empresas_Locators.inputs.nomeEmpresa, { timeout: 20000 })
+		.filter(':visible')
+		.first()
+		.should('be.visible')
+})
+
+=======
 Dado('que acesso o sistema', function () {
 	const usuario = Cypress.env('usuario_dilog_cronograma')
 	const senha = Cypress.env('senha')
@@ -143,6 +308,7 @@ Dado('acesso o menu Cadastros > Empresas', function () {
 		.click({ force: true })
 })
 
+>>>>>>> upstream/testes
 Quando(/preencho os campos obrigat[óo]rios de cadastro da empresa/, function () {
 	const timestamp = new Date().getTime()
 
@@ -235,10 +401,18 @@ Quando(/preencho os campos obrigat[óo]rios de cadastro da empresa/, function ()
 	cy.contains('Contratos').scrollIntoView()
 	preencherCampoPorRotulo('Nº do Processo Administrativo (SEI)', `SEI-${timestamp}`)
 	preencherCampoPorRotulo('Nº do Contrato', `CONT-${timestamp}`)
+<<<<<<< HEAD
+	cy.get('body').click(0, 0, { force: true })
+	preencherVigenciaContrato('31/12/2026')
+	selecionarPorRotulo('Modalidade', 'Emergencial')
+	selecionarPorRotulo('Programa', 'Alimentação Escolar')
+	selecionarPorRotulo('Situação', 'Ativo')
+=======
 	preencherCampoData(Cadastro_Empresas_Locators.inputs.vigencia_de, '01/01/2025')
 	preencherCampoData(Cadastro_Empresas_Locators.inputs.vigencia_ate, '31/12/2025')
 	selecionarPorRotulo('Modalidade', 'Emergencial')
 	selecionarPorRotulo('Programa', 'Alimentação Escolar')
+>>>>>>> upstream/testes
 })
 
 Quando(/clico no bot[aã]o Salvar/, function () {

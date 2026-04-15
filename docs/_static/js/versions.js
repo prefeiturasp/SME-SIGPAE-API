@@ -1,4 +1,4 @@
-const themeFlyoutDisplay = "hidden";
+﻿const themeFlyoutDisplay = "hidden";
 const themeVersionSelector = true;
 const themeLanguageSelector = true;
 

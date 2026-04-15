@@ -1,4 +1,4 @@
-/* Highlighting utilities for Sphinx HTML documentation. */
+﻿/* Highlighting utilities for Sphinx HTML documentation. */
 "use strict";
 
 const SPHINX_HIGHLIGHT_ENABLED = true;

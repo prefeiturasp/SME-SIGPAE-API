@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+﻿describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
+	var usuario = Cypress.config('usuario_codae')
+	var senha = Cypress.config('senha')
+=======
 ﻿describe('Validar rotas de Itens Cadastros da aplicaÃ§Ã£o SIGPAE', () => {
 const normalizarMensagem = (mensagem) =>
 	mensagem
@@ -17,6 +22,7 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 
 	var usuario = Cypress.env('usuario_codae')
 	var senha = Cypress.env('senha')
+>>>>>>> upstream/testes
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -531,7 +537,12 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
+<<<<<<< HEAD
+			var nome_teste =
+				'Testes Automatizados via PATCH - Item Existente ' + Date.now()
+=======
 			var nome_teste = gerarNomeUnico('Testes Automatizados via PATCH - Item Existente')
+>>>>>>> upstream/testes
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,

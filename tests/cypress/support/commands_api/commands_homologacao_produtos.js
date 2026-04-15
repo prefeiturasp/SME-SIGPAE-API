@@ -1,9 +1,15 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 
-Cypress.Commands.add('validar_homologacao_produtos', (query) => {
+Cypress.Commands.add('validar_homologacao_produtos', (query = {}) => {
+	const parametros =
+		typeof query === 'string'
+			? Object.fromEntries(new URLSearchParams(query.replace(/^\?/, '')))
+			: query
+
 	return cy.request({
 		method: 'GET',
-		url: Cypress.config('baseUrl') + `api/homologacoes-produtos/${query}`,
+		url: Cypress.config('baseUrl') + 'api/homologacoes-produtos/',
+		qs: parametros,
 		headers: {
 			Authorization: 'JWT ' + globalThis.token,
 		},

@@ -3,6 +3,25 @@ const dayjs = require('dayjs')
 const { validar_dia_semana } = require('../../support/utils/data_utils')
 var data_atual = dayjs()
 
+function normalizarMensagemUuid(mensagem) {
+	return String(mensagem)
+		.replace(/["\u201C\u201D]/g, '')
+		.replaceAll('â€œ', '')
+		.replaceAll('â€', '')
+		.replaceAll('nÃ£o', 'não')
+		.replaceAll('Ã©', 'é')
+		.replaceAll('vÃ¡lido', 'válido')
+		.replace(/\s+/g, ' ')
+		.trim()
+}
+
+function validarMensagemUuid(mensagemRecebida, mensagemEsperada) {
+	const mensagemRecebidaNormalizada = normalizarMensagemUuid(mensagemRecebida)
+	const mensagemEsperadaNormalizada = normalizarMensagemUuid(mensagemEsperada)
+
+	expect(mensagemRecebidaNormalizada).to.eq(mensagemEsperadaNormalizada)
+}
+
 describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 	var usuario = Cypress.env('usuario_diretor_ue')
 	var senha = Cypress.env('senha')
@@ -148,10 +167,9 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				expect(
+				validarMensagemUuid(
 					response.allRequestResponses[0]['Response Body'].motivo[0],
-				).to.eq(
-					'O valor “671f5641-ds54-4736-dsa4-7115590b7018” não é um UUID válido',
+					'O valor "671f5641-ds54-4736-dsa4-7115590b7018" não é um UUID válido',
 				)
 			})
 		})
@@ -206,10 +224,9 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				expect(
+				validarMensagemUuid(
 					response.allRequestResponses[0]['Response Body'].escola[0],
-				).to.eq(
-					'O valor “1ddec320-dss2-45ds-9666-3e7b3a2b903c” não é um UUID válido',
+					'O valor "1ddec320-dss2-45ds-9666-3e7b3a2b903c" não é um UUID válido',
 				)
 			})
 		})
@@ -265,11 +282,10 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				expect(
+				validarMensagemUuid(
 					response.allRequestResponses[0]['Response Body'].substituicoes[0]
 						.periodo_escolar[0],
-				).to.eq(
-					'O valor “671f5641-54ds-56s4-5d6s-7115590b7018” não é um UUID válido',
+					'O valor "671f5641-54ds-56s4-5d6s-7115590b7018" não é um UUID válido',
 				)
 			})
 		})
@@ -296,10 +312,11 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				expect(
+				validarMensagemUuid(
 					response.allRequestResponses[0]['Response Body'].substituicoes[0]
 						.tipos_alimentacao_de[0],
-				).to.eq('O valor “” não é um UUID válido')
+					'O valor não é um UUID válido',
+				)
 			})
 		})
 
@@ -325,11 +342,10 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				expect(
+				validarMensagemUuid(
 					response.allRequestResponses[0]['Response Body'].substituicoes[0]
 						.tipos_alimentacao_de[0],
-				).to.eq(
-					'O valor “5067e137-ds54-ds45-ds54-7f58cce93f33” não é um UUID válido',
+					'O valor 5067e137-ds54-ds45-ds54-7f58cce93f33 não é um UUID válido',
 				)
 			})
 		})
@@ -389,17 +405,15 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				expect(
+				validarMensagemUuid(
 					response.allRequestResponses[0]['Response Body'].datas_intervalo[0]
 						.alteracao_cardapio[0],
-				).to.eq(
-					'O valor “65f11f11-ds51-ds54-ds4-07c875c548f1” não é um UUID válido',
+					'O valor 65f11f11-ds51-ds54-ds4-07c875c548f1 não é um UUID válido',
 				)
-				expect(
+				validarMensagemUuid(
 					response.allRequestResponses[0]['Response Body'].substituicoes[0]
 						.alteracao_cardapio[0],
-				).to.eq(
-					'O valor “65f11f11-ds51-ds54-ds4-07c875c548f1” não é um UUID válido',
+					'O valor 65f11f11-ds51-ds54-ds4-07c875c548f1 não é um UUID válido',
 				)
 			})
 		})
@@ -426,10 +440,11 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				expect(
+				validarMensagemUuid(
 					response.allRequestResponses[0]['Response Body'].substituicoes[0]
 						.tipos_alimentacao_para[0],
-				).to.eq('O valor “” não é um UUID válido')
+					'O valor "" não é um UUID válido',
+				)
 			})
 		})
 
@@ -455,11 +470,10 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				expect(
+				validarMensagemUuid(
 					response.allRequestResponses[0]['Response Body'].substituicoes[0]
 						.tipos_alimentacao_para[0],
-				).to.eq(
-					'O valor “6595ebe5-fd54-ds56-ds56-6347341f9797” não é um UUID válido',
+					'O valor 6595ebe5-fd54-ds56-ds56-6347341f9797 não é um UUID válido',
 				)
 			})
 		})

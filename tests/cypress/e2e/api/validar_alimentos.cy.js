@@ -76,7 +76,7 @@ describe('Validar rotas de alimentos da aplicaÃ§Ã£o SIGPAE', () => {
 				expect(response.body).to.have.property('tipo')
 				expect(response.body.tipo).to.be.an('array')
 				expect(response.body.tipo[0]).to.be.eq(
-					'Faça uma escolha válida. batata não é uma das escolhas disponíveis.',
+					'Fa\u00e7a uma escolha v\u00e1lida. batata n\u00e3o \u00e9 uma das escolhas dispon\u00edveis.',
 				)
 			})
 		})

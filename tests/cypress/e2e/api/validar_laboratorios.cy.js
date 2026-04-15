@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+﻿describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
+	var usuario = Cypress.config('usuario_dilog_qualidade')
+	var senha = Cypress.config('senha')
+=======
 ﻿describe('Validar rotas de LaboratÃ³rios da aplicaÃ§Ã£o SIGPAE', () => {
 const normalizarMensagem = (mensagem) =>
 	mensagem
@@ -11,13 +16,18 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 
 	var usuario = Cypress.env('usuario_dilog_qualidade')
 	var senha = Cypress.env('senha')
+>>>>>>> upstream/testes
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
 
 	context('Rota api/laboratorios/', () => {
+<<<<<<< HEAD
+		it('Validar GET com sucesso de Laboratários', () => {
+=======
 		it('Validar GET com sucesso de LaboratÃ³rios', () => {
+>>>>>>> upstream/testes
 			cy.consultar_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count')
@@ -46,7 +56,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar GET com sucesso de Laboratários com filtro Nome Válido', () => {
+=======
 		it('Validar GET com sucesso de LaboratÃ³rios com filtro Nome VÃ¡lido', () => {
+>>>>>>> upstream/testes
 			var nome_filtro = ''
 			cy.consultar_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
@@ -82,8 +96,13 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar GET de Laboratários com filtro Nome Inválido', () => {
+			var filtro = '?nome=NomeInválido Para o Teste'
+=======
 		it('Validar GET de LaboratÃ³rios com filtro Nome InvÃ¡lido', () => {
 			var filtro = '?nome=NomeInvÃ¡lido Para o Teste'
+>>>>>>> upstream/testes
 			cy.consultar_laboratorios_com_filtros(filtro).then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count').eq(0)
@@ -94,7 +113,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar GET com sucesso de Laboratários com filtro CNPJ', () => {
+=======
 		it('Validar GET com sucesso de LaboratÃ³rios com filtro CNPJ', () => {
+>>>>>>> upstream/testes
 			var cnpj_filtro = ''
 			cy.consultar_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
@@ -132,7 +155,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar GET de Laboratários com filtro CNPJ Inválido', () => {
+=======
 		it('Validar GET de LaboratÃ³rios com filtro CNPJ InvÃ¡lido', () => {
+>>>>>>> upstream/testes
 			var filtro = '?cnpj=11110000000000'
 			cy.consultar_laboratorios_com_filtros(filtro).then((response) => {
 				expect(response.status).to.eq(200)
@@ -144,7 +171,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar GET com sucesso de Laboratários com filtro UUID Válido', () => {
+=======
 		it('Validar GET com sucesso de LaboratÃ³rios com filtro UUID VÃ¡lido', () => {
+>>>>>>> upstream/testes
 			var uuid_filtro = ''
 			cy.consultar_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
@@ -182,7 +213,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar GET de Laboratários com filtro UUID Inválido', () => {
+=======
 		it('Validar GET de LaboratÃ³rios com filtro UUID InvÃ¡lido', () => {
+>>>>>>> upstream/testes
 			var filtro = '?uuid=bd08e0a0-b0b0-0ab0-b000-a05c000f00c0'
 			cy.consultar_laboratorios_com_filtros(filtro).then((response) => {
 				expect(response.status).to.eq(200)
@@ -194,7 +229,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar GET com sucesso de Laboratários Com UUID Válido', () => {
+=======
 		it('Validar GET com sucesso de LaboratÃ³rios Com UUID VÃ¡lido', () => {
+>>>>>>> upstream/testes
 			var uuid_response = ''
 			cy.consultar_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
@@ -222,14 +261,22 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar GET de Laboratários Com UUID Inválido', () => {
+=======
 		it('Validar GET de LaboratÃ³rios Com UUID InvÃ¡lido', () => {
+>>>>>>> upstream/testes
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b00000'
 			cy.consultar_laboratorios_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(404)
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar GET com sucesso de Lista Laboratários', () => {
+=======
 		it('Validar GET com sucesso de Lista LaboratÃ³rios', () => {
+>>>>>>> upstream/testes
 			cy.consultar_lista_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -239,7 +286,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar GET com sucesso de Lista Laboratários Credenciados', () => {
+=======
 		it('Validar GET com sucesso de Lista LaboratÃ³rios Credenciados', () => {
+>>>>>>> upstream/testes
 			cy.consultar_lista_laboratorios_credenciados().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -249,7 +300,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar GET com sucesso de Lista Nomes Laboratários', () => {
+=======
 		it('Validar GET com sucesso de Lista Nomes LaboratÃ³rios', () => {
+>>>>>>> upstream/testes
 			cy.consultar_lista_nomes_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -258,7 +313,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar POST com sucesso de Laboratários', () => {
+=======
 		it('Validar POST com sucesso de LaboratÃ³rios', () => {
+>>>>>>> upstream/testes
 			var dados_teste = {
 				nome: 'Testes AutomaÃ§Ã£o ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -291,7 +350,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar POST de Laboratários com Credenciado e Nutricionista Inválido', () => {
+=======
 		it('Validar POST de LaboratÃ³rios com Credenciado e Nutricionista InvÃ¡lido', () => {
+>>>>>>> upstream/testes
 			var dados_teste = {
 				nome: 'Testes AutomaÃ§Ã£o ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -325,7 +388,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar POST de Laboratários com os campos em branco', () => {
+=======
 		it('Validar POST de LaboratÃ³rios com os campos em branco', () => {
+>>>>>>> upstream/testes
 			var dados_teste = {
 				nome: '',
 				cnpj: '',
@@ -362,7 +429,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar POST de Laboratários sem informar os campos obrigatórios', () => {
+=======
 		it('Validar POST de LaboratÃ³rios sem informar os campos obrigatÃ³rios', () => {
+>>>>>>> upstream/testes
 			var dados_teste = {}
 			cy.cadastrar_laboratorios(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
@@ -378,7 +449,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar DELETE de Laboratários com sucesso', () => {
+=======
 		it('Validar DELETE de LaboratÃ³rios com sucesso', () => {
+>>>>>>> upstream/testes
 			var dados_teste = {
 				nome: 'Testes AutomaÃ§Ã£o ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -410,14 +485,22 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar DELETE de Laboratários com UUID inválido', () => {
+=======
 		it('Validar DELETE de LaboratÃ³rios com UUID invÃ¡lido', () => {
+>>>>>>> upstream/testes
 			var uuid = '53886ad8-cb8b-4175-853e-de087aaaaaaa'
 			cy.deletar_laboratorios(uuid).then((response) => {
 				expect(response.status).to.eq(404)
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar PUT com sucesso de Laboratários', () => {
+=======
 		it('Validar PUT com sucesso de LaboratÃ³rios', () => {
+>>>>>>> upstream/testes
 			var dados_teste = {
 				nome: 'Testes AutomaÃ§Ã£o - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -459,7 +542,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar PUT de Laboratários com Credenciado e Nutricionista Inválido', () => {
+=======
 		it('Validar PUT de LaboratÃ³rios com Credenciado e Nutricionista InvÃ¡lido', () => {
+>>>>>>> upstream/testes
 			var dados_teste = {
 				nome: 'Testes AutomaÃ§Ã£o - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -507,7 +594,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar PUT de Laboratários sem informar os campos obrigatórios', () => {
+=======
 		it('Validar PUT de LaboratÃ³rios sem informar os campos obrigatÃ³rios', () => {
+>>>>>>> upstream/testes
 			var dados_teste = {
 				nome: 'Testes AutomaÃ§Ã£o - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -561,7 +652,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar PUT de Laboratários com os campos em branco', () => {
+=======
 		it('Validar PUT de LaboratÃ³rios com os campos em branco', () => {
+>>>>>>> upstream/testes
 			var dados_teste = {
 				nome: 'Testes AutomaÃ§Ã£o - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -620,7 +715,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar PUT de Laboratários com UUID inválido', () => {
+=======
 		it('Validar PUT de LaboratÃ³rios com UUID invÃ¡lido', () => {
+>>>>>>> upstream/testes
 			var uuid = '53886ad8-cb8b-4175-853e-de087aaaaaaa'
 			var dados_teste = {}
 			cy.put_alterar_laboratorios(uuid, dados_teste).then((response) => {
@@ -628,7 +727,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar PATCH com sucesso de Laboratários', () => {
+=======
 		it('Validar PATCH com sucesso de LaboratÃ³rios', () => {
+>>>>>>> upstream/testes
 			var dados_teste = {
 				nome: 'Testes AutomaÃ§Ã£o - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -652,14 +755,16 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			cy.cadastrar_laboratorios(dados_teste).then((response) => {
 				expect(response.status).to.eq(201)
 				var uuid_response = response.body.uuid
+				const nomeAlteradoPatch =
+					'TESTES AUTOMATIZADOS - ALTERADO VIA PATCH ' + new Date().getTime()
 
-				dados_teste.nome = 'Testes Automatizados - Alterado via PATCH'
-				cy.patch_alterar_laboratorios(uuid_response, dados_teste).then(
+				const dados_patch = {
+					nome: nomeAlteradoPatch,
+				}
+				cy.patch_alterar_laboratorios(uuid_response, dados_patch).then(
 					(responsePatch) => {
 						expect(responsePatch.status).to.eq(200)
-						expect(responsePatch.body.nome).to.eq(
-							'TESTES AUTOMATIZADOS - ALTERADO VIA PATCH',
-						)
+						expect(responsePatch.body.nome).to.eq(nomeAlteradoPatch)
 					},
 				)
 
@@ -670,7 +775,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar PATCH de Laboratários com Credenciado e Nutricionista Inválido', () => {
+=======
 		it('Validar PATCH de LaboratÃ³rios com Credenciado e Nutricionista InvÃ¡lido', () => {
+>>>>>>> upstream/testes
 			var dados_teste = {
 				nome: 'Testes AutomaÃ§Ã£o - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -718,7 +827,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar PATCH de Laboratários com os campos em branco', () => {
+=======
 		it('Validar PATCH de LaboratÃ³rios com os campos em branco', () => {
+>>>>>>> upstream/testes
 			var dados_teste = {
 				nome: 'Testes AutomaÃ§Ã£o - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -777,7 +890,11 @@ const validarMensagem = (mensagem, trechoEsperado) => {
 			})
 		})
 
+<<<<<<< HEAD
+		it('Validar PATCH de Laboratários com UUID inválido', () => {
+=======
 		it('Validar PATCH de LaboratÃ³rios com UUID invÃ¡lido', () => {
+>>>>>>> upstream/testes
 			var uuid = '53886ad8-cb8b-4175-853e-de087aaaaaaa'
 			var dados_teste = {}
 			cy.patch_alterar_laboratorios(uuid, dados_teste).then((response) => {

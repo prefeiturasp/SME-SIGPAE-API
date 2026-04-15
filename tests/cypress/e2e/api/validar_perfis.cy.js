@@ -1,6 +1,12 @@
+<<<<<<< HEAD
+﻿describe('Validar rotas de Perfis da aplicação SIGPAE', () => {
+	var usuario = Cypress.config('usuario_codae')
+	var senha = Cypress.config('senha')
+=======
 ﻿describe('Validar rotas de Perfis da aplicaÃ§Ã£o SIGPAE', () => {
 	var usuario = Cypress.env('usuario_codae')
 	var senha = Cypress.env('senha')
+>>>>>>> upstream/testes
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)

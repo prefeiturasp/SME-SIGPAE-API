@@ -1,4 +1,9 @@
+<<<<<<< HEAD
+﻿export const Cadastro_Empresas_Locators = {
+	// Inputs
+=======
 export const Cadastro_Empresas_Locators = {
+>>>>>>> upstream/testes
 	inputs: {
 		// Dados da Empresa
 		nomeEmpresa: '[data-cy="razao_social"]',
@@ -13,6 +18,13 @@ export const Cadastro_Empresas_Locators = {
 		bairro: '[data-cy="bairro"]',
 		cidade: '[data-cy="cidade"]',
 		estado: '[data-cy="estado"]',
+<<<<<<< HEAD
+		telefone_empresa: '#telefone_empresa_0',
+		email_empresa: '[data-cy="email_empresa_0"]',
+		vigencia_de: '[data-cy="vigencia_de"]',
+		vigencia_ate: '[data-cy="vigencia_ate"]',
+=======
+>>>>>>> upstream/testes
 
 		// Dados do Representante do Contrato
 		rep_nome:
@@ -34,6 +46,13 @@ export const Cadastro_Empresas_Locators = {
 		contato_email:
 			'#content-wrapper section:nth-of-type(4) input:nth-of-type(3)',
 
+<<<<<<< HEAD
+		//Nutricionista ResponsÃ¡vel TÃ©cnico
+		nutri_responsavel_nome: '[data-cy="nutricionista_nome_0"]',
+		nutri_responsavel_crn: '[data-cy="nutricionista_crn_0"]',
+		nutri_responsavel_telefone: '#telefone_terceirizada_0',
+		nutri_responsavel_email: '[data-cy="email_terceirizada_0"]',
+=======
 		// Contratos
 		processo_administrativo:
 			'#content-wrapper section:nth-of-type(5) input:nth-of-type(1)',
@@ -54,6 +73,7 @@ export const Cadastro_Empresas_Locators = {
 		modalidade: 'select:eq(3)',
 		programa: 'select:eq(4)',
 		situacao: 'select:last',
+>>>>>>> upstream/testes
 	},
 
 	buttons: {
@@ -61,6 +81,11 @@ export const Cadastro_Empresas_Locators = {
 		adicionar_contrato: 'button:contains("Adicionar")',
 		salvar: '[data-cy="Salvar"]',
 		cancelar: '[data-testid="btn-cancelar"]',
+<<<<<<< HEAD
+		editar: '[data-testid="btn-editar"]',
+		adicionarContrato: 'button',
+=======
+>>>>>>> upstream/testes
 	},
 
 	modais: {

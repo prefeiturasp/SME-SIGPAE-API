@@ -1,4 +1,4 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 
 Cypress.Commands.add('consultar_nome_de_produtos_edital', () => {
 	cy.request({
