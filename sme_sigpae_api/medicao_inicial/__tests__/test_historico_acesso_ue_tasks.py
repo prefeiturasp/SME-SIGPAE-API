@@ -10,7 +10,7 @@ from sme_sigpae_api.medicao_inicial.historico_acesso_ue.models import (
 )
 from sme_sigpae_api.medicao_inicial.historico_acesso_ue.tasks import (
     cria_historico_acesso_ue,
-    remove_historico_acesso_ue,
+    finaliza_historico_acesso_ue,
 )
 
 pytestmark = pytest.mark.django_db
@@ -122,7 +122,7 @@ def test_cria_historico_acesso_ue_cria_apenas_historicos_para_escolas_elegiveis(
 
 
 @freeze_time("2026-04-15")
-def test_remove_historico_acesso_ue_inativa_apenas_historicos_com_lote_diferente():
+def test_finaliza_historico_acesso_ue_inativa_apenas_historicos_com_lote_diferente():
     hoje = datetime.date.today()
     usuario_sistema = baker.make("perfil.Usuario", id=1)
     tipo_gestao_terc_total = baker.make("TipoGestao", nome="TERC TOTAL")
@@ -172,7 +172,7 @@ def test_remove_historico_acesso_ue_inativa_apenas_historicos_com_lote_diferente
         "sme_sigpae_api.medicao_inicial.historico_acesso_ue.tasks.HistoricoAcessoMedicaoInicialUE.objects.bulk_update",
         wraps=HistoricoAcessoMedicaoInicialUE.objects.bulk_update,
     ) as mock_bulk_update:
-        quantidade_atualizada = remove_historico_acesso_ue()
+        quantidade_atualizada = finaliza_historico_acesso_ue()
 
     assert quantidade_atualizada == 1
     mock_bulk_update.assert_called_once()

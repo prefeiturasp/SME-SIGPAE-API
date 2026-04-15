@@ -3,8 +3,9 @@ import datetime
 from celery import shared_task
 
 from sme_sigpae_api.escola.models import ESCOLA_TIPO_GESTAO_NOME, Escola
-
-from .models import HistoricoAcessoMedicaoInicialUE
+from sme_sigpae_api.medicao_inicial.historico_acesso_ue.models import (
+    HistoricoAcessoMedicaoInicialUE,
+)
 
 USUARIO_SISTEMA_ID = 1
 BULK_BATCH_SIZE = 1000
