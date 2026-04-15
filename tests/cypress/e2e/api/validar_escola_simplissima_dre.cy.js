@@ -1,14 +1,8 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 
-<<<<<<< HEAD
-describe('Validar rotas de Escolas Simpli­ssima Com DRE da aplicação SIGPAE', () => {
+describe('Validar rotas de Escolas Simplíssima Com DRE da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_codae')
 	var senha = Cypress.config('senha')
-=======
-describe('Validar rotas de Escolas SimplÃ­ssima Com DRE da aplicaÃ§Ã£o SIGPAE', () => {
-	var usuario = Cypress.env('usuario_codae')
-	var senha = Cypress.env('senha')
->>>>>>> upstream/testes
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -29,7 +23,7 @@ describe('Validar rotas de Escolas SimplÃ­ssima Com DRE da aplicaÃ§Ã£o SIG
 			})
 		})
 
-		it('Validar GET de Escolas Simplissima com DRE com UUID vÃ¡lido', () => {
+		it('Validar GET de Escolas Simplissima com DRE com UUID válido', () => {
 			var uuid = '141af3ae-7fc1-4850-9da3-f3ecf224d270'
 			cy.consultar_escola_simplissima_dre_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(200)
@@ -45,7 +39,7 @@ describe('Validar rotas de Escolas SimplÃ­ssima Com DRE da aplicaÃ§Ã£o SIG
 			})
 		})
 
-		it('Validar GET de Escolas Simplissima com DRE com UUID invÃ¡lido', () => {
+		it('Validar GET de Escolas Simplissima com DRE com UUID inválido', () => {
 			var uuid = '8f1da4a7-11b6-4a09-9eaa-6633d066f26b'
 			cy.consultar_escola_simplissima_dre_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -53,4 +47,3 @@ describe('Validar rotas de Escolas SimplÃ­ssima Com DRE da aplicaÃ§Ã£o SIG
 		})
 	})
 })
-

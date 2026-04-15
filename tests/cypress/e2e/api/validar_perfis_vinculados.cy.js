@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-﻿describe('Validar rotas de Perfis Vinculados da aplicação SIGPAE', () => {
+describe('Validar rotas de Perfis Vinculados da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_codae')
 	var senha = Cypress.config('senha')
-=======
-﻿describe('Validar rotas de Perfis Vinculados da aplicaÃ§Ã£o SIGPAE', () => {
-	var usuario = Cypress.env('usuario_codae')
-	var senha = Cypress.env('senha')
->>>>>>> upstream/testes
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -56,7 +50,7 @@
 			)
 		})
 
-		it('Validar GET de Perfis Vinculados Por Perfil Master Nao Encontrado', () => {
+		it('Validar GET de Perfis Vinculados Por Perfil Master Não Encontrado', () => {
 			var perfil_master = 0
 			cy.consultar_perfis_vinculados_por_perfil_master(perfil_master).then(
 				(response) => {
@@ -84,7 +78,7 @@
 			})
 		})
 
-		it('Validar GET de Perfis Subordinados Por Perfil Master Nao Encontrado', () => {
+		it('Validar GET de Perfis Subordinados Por Perfil Master Não Encontrado', () => {
 			var perfil_master = 'ABC'
 			cy.consultar_perfis_subordinados_por_perfil_master(perfil_master).then(
 				(response) => {
@@ -97,4 +91,3 @@
 		})
 	})
 })
-

@@ -1,4 +1,4 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 
 Cypress.Commands.add('validar_calendario_cronogramas', (parametros) => {
 	cy.request({

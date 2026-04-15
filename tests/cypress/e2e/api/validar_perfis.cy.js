@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-﻿describe('Validar rotas de Perfis da aplicação SIGPAE', () => {
+describe('Validar rotas de Perfis da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_codae')
 	var senha = Cypress.config('senha')
-=======
-﻿describe('Validar rotas de Perfis da aplicaÃ§Ã£o SIGPAE', () => {
-	var usuario = Cypress.env('usuario_codae')
-	var senha = Cypress.env('senha')
->>>>>>> upstream/testes
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -27,7 +21,7 @@
 			})
 		})
 
-		it('Validar GET com sucesso de Perfis Com UUID VÃ¡lido', () => {
+		it('Validar GET com sucesso de Perfis Com UUID Válido', () => {
 			var uuid_response = ''
 			cy.consultar_perfis().then((response) => {
 				expect(response.status).to.eq(200)
@@ -42,14 +36,14 @@
 			})
 		})
 
-		it('Validar GET de Perfis Com UUID InvÃ¡lido', () => {
+		it('Validar GET de Perfis Com UUID Inválido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b00000'
 			cy.consultar_perfis_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(404)
 			})
 		})
 
-		it('Validar GET com sucesso de Perfis VisÃµes', () => {
+		it('Validar GET com sucesso de Perfis Visões', () => {
 			cy.consultar_perfis_visoes().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.be.an('array')
@@ -59,4 +53,3 @@
 		})
 	})
 })
-

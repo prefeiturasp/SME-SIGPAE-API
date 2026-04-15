@@ -1,19 +1,13 @@
-<<<<<<< HEAD
-﻿describe('Validar rotas de Motivos Alteração Cardápio da aplicação SIGPAE', () => {
+describe('Validar rotas de Motivos Alteração Cardápio da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_codae')
 	var senha = Cypress.config('senha')
-=======
-﻿describe('Validar rotas de Motivos AlteraÃ§Ã£o CardÃ¡pio da aplicaÃ§Ã£o SIGPAE', () => {
-	var usuario = Cypress.env('usuario_codae')
-	var senha = Cypress.env('senha')
->>>>>>> upstream/testes
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
 
 	context('Rota api/motivos-alteracao-cardapio/', () => {
-		it('Validar GET com sucesso de Motivos AlteraÃ§Ã£o CardÃ¡pio', () => {
+		it('Validar GET com sucesso de Motivos Alteração Cardápio', () => {
 			cy.consultar_motivos_alteracao_cardapio().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count')
@@ -27,7 +21,7 @@
 			})
 		})
 
-		it('Validar GET com sucesso de Motivos AlteraÃ§Ã£o CardÃ¡pio Com UUID VÃ¡lido', () => {
+		it('Validar GET com sucesso de Motivos Alteração Cardápio Com UUID Válido', () => {
 			var uuid_response = ''
 			cy.consultar_motivos_alteracao_cardapio().then((response) => {
 				expect(response.status).to.eq(200)
@@ -44,7 +38,7 @@
 			})
 		})
 
-		it('Validar GET de Motivos AlteraÃ§Ã£o CardÃ¡pio Com UUID InvÃ¡lido', () => {
+		it('Validar GET de Motivos Alteração Cardápio Com UUID Inválido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b00000'
 			cy.consultar_motivos_alteracao_cardapio_por_uuid(uuid).then(
 				(response) => {
@@ -54,4 +48,3 @@
 		})
 	})
 })
-

@@ -1,8 +1,8 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 
-describe('Validar rotas da aplicaÃ§Ã£o SIGPAE - ', () => {
-	var usuario = Cypress.env('usuario_dre')
-	var senha = Cypress.env('senha')
+describe('Validar rotas da aplicação SIGPAE - ', () => {
+	var usuario = Cypress.config('usuario_dre')
+	var senha = Cypress.config('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -26,7 +26,7 @@ describe('Validar rotas da aplicaÃ§Ã£o SIGPAE - ', () => {
 			})
 		})
 
-		it('Validar GET de Editais Contratos com UUID vÃ¡lido', () => {
+		it('Validar GET de Editais Contratos com UUID válido', () => {
 			var uuid = 'e40ccae2-2080-4510-aeee-d1b8dcacc3b8'
 			cy.consultar_editais_contratos_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(200)
@@ -39,7 +39,7 @@ describe('Validar rotas da aplicaÃ§Ã£o SIGPAE - ', () => {
 			})
 		})
 
-		it('Validar GET de Editais Contratos com UUID invÃ¡lido', () => {
+		it('Validar GET de Editais Contratos com UUID inválido', () => {
 			var uuid = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
 			cy.consultar_editais_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -63,7 +63,7 @@ describe('Validar rotas da aplicaÃ§Ã£o SIGPAE - ', () => {
 				numero_chamada_publica: '',
 				edital: 31,
 				modalidade: null,
-				numero: 'AUTOMAÃ‡ÃƒO' + new Date().getTime(),
+				numero: 'AUTOMAÇÃO' + new Date().getTime(),
 				tipo_contratacao: 'Teste',
 				processo: '123456',
 				objeto: 'Objeto Teste',
@@ -96,7 +96,7 @@ describe('Validar rotas da aplicaÃ§Ã£o SIGPAE - ', () => {
 				numero_chamada_publica: '',
 				edital: 31,
 				modalidade: null,
-				numero: 'AUTOMAÃ‡ÃƒO' + new Date().getTime(),
+				numero: 'AUTOMAÇÃO' + new Date().getTime(),
 				tipo_contratacao: 'Teste',
 				processo: '123456',
 				objeto: 'Objeto Teste',
@@ -112,11 +112,7 @@ describe('Validar rotas da aplicaÃ§Ã£o SIGPAE - ', () => {
 			})
 		})
 
-<<<<<<< HEAD
-		it('Validar DELETE de Editais Contratos com UUID nãO existente', () => {
-=======
-		it('Validar DELETE de Editais Contratos com UUID nÃ£o existente', () => {
->>>>>>> upstream/testes
+		it('Validar DELETE de Editais Contratos com UUID não existente', () => {
 			var uuid = 'b2dbaff4-dbd3-45b8-b67c-57ff4b5ad35b/'
 			cy.deletar_editais_contratos(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -141,7 +137,7 @@ describe('Validar rotas da aplicaÃ§Ã£o SIGPAE - ', () => {
 				numero_chamada_publica: '',
 				edital: 31,
 				modalidade: null,
-				numero: 'AUTOMAÃ‡ÃƒO' + new Date().getTime(),
+				numero: 'AUTOMAÇÃO' + new Date().getTime(),
 				tipo_contratacao: 'Teste',
 				processo: '123456',
 				objeto: 'Objeto Teste',
@@ -163,7 +159,7 @@ describe('Validar rotas da aplicaÃ§Ã£o SIGPAE - ', () => {
 				numero_chamada_publica: '',
 				edital: 31,
 				modalidade: null,
-				numero: 'AUTOMAÃ‡ÃƒO' + new Date().getTime(),
+				numero: 'AUTOMAÇÃO' + new Date().getTime(),
 				tipo_contratacao: 'Teste',
 				processo: '123456',
 				objeto: 'Objeto Alterado!',
@@ -209,7 +205,7 @@ describe('Validar rotas da aplicaÃ§Ã£o SIGPAE - ', () => {
 				numero_chamada_publica: '',
 				edital: 31,
 				modalidade: null,
-				numero: 'AUTOMAÃ‡ÃƒO' + new Date().getTime(),
+				numero: 'AUTOMAÇÃO' + new Date().getTime(),
 				tipo_contratacao: 'Teste',
 				processo: '123456',
 				objeto: 'Objeto Teste',
@@ -231,7 +227,7 @@ describe('Validar rotas da aplicaÃ§Ã£o SIGPAE - ', () => {
 				numero_chamada_publica: '',
 				edital: 31,
 				modalidade: null,
-				numero: 'AUTOMAÃ‡ÃƒO' + new Date().getTime(),
+				numero: 'AUTOMAÇÃO' + new Date().getTime(),
 				tipo_contratacao: 'Teste',
 				processo: '123456',
 				objeto: 'Objeto Alterado PATCH!',
@@ -261,4 +257,3 @@ describe('Validar rotas da aplicaÃ§Ã£o SIGPAE - ', () => {
 		})
 	})
 })
-

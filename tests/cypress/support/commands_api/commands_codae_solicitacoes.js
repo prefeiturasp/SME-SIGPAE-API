@@ -1,4 +1,4 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 
 Cypress.Commands.add('consultar_pendentes_autorizacao_dieta', () => {
 	cy.request({

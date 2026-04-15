@@ -1,30 +1,11 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 const dayjs = require('dayjs')
 const { validar_dia_semana } = require('../../support/utils/data_utils')
 var data_atual = dayjs()
 
-function normalizarMensagemUuid(mensagem) {
-	return String(mensagem)
-		.replace(/["\u201C\u201D]/g, '')
-		.replaceAll('â€œ', '')
-		.replaceAll('â€', '')
-		.replaceAll('nÃ£o', 'não')
-		.replaceAll('Ã©', 'é')
-		.replaceAll('vÃ¡lido', 'válido')
-		.replace(/\s+/g, ' ')
-		.trim()
-}
-
-function validarMensagemUuid(mensagemRecebida, mensagemEsperada) {
-	const mensagemRecebidaNormalizada = normalizarMensagemUuid(mensagemRecebida)
-	const mensagemEsperadaNormalizada = normalizarMensagemUuid(mensagemEsperada)
-
-	expect(mensagemRecebidaNormalizada).to.eq(mensagemEsperadaNormalizada)
-}
-
 describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
-	var usuario = Cypress.env('usuario_diretor_ue')
-	var senha = Cypress.env('senha')
+	var usuario = Cypress.config('usuario_diretor_ue')
+	var senha = Cypress.config('senha')
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
@@ -167,9 +148,10 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				validarMensagemUuid(
+				expect(
 					response.allRequestResponses[0]['Response Body'].motivo[0],
-					'O valor "671f5641-ds54-4736-dsa4-7115590b7018" não é um UUID válido',
+				).to.eq(
+					'O valor “671f5641-ds54-4736-dsa4-7115590b7018” não é um UUID válido',
 				)
 			})
 		})
@@ -224,9 +206,10 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				validarMensagemUuid(
+				expect(
 					response.allRequestResponses[0]['Response Body'].escola[0],
-					'O valor "1ddec320-dss2-45ds-9666-3e7b3a2b903c" não é um UUID válido',
+				).to.eq(
+					'O valor “1ddec320-dss2-45ds-9666-3e7b3a2b903c” não é um UUID válido',
 				)
 			})
 		})
@@ -282,10 +265,11 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				validarMensagemUuid(
+				expect(
 					response.allRequestResponses[0]['Response Body'].substituicoes[0]
 						.periodo_escolar[0],
-					'O valor "671f5641-54ds-56s4-5d6s-7115590b7018" não é um UUID válido',
+				).to.eq(
+					'O valor “671f5641-54ds-56s4-5d6s-7115590b7018” não é um UUID válido',
 				)
 			})
 		})
@@ -312,11 +296,10 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				validarMensagemUuid(
+				expect(
 					response.allRequestResponses[0]['Response Body'].substituicoes[0]
 						.tipos_alimentacao_de[0],
-					'O valor não é um UUID válido',
-				)
+				).to.eq('O valor “” não é um UUID válido')
 			})
 		})
 
@@ -342,10 +325,11 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				validarMensagemUuid(
+				expect(
 					response.allRequestResponses[0]['Response Body'].substituicoes[0]
 						.tipos_alimentacao_de[0],
-					'O valor 5067e137-ds54-ds45-ds54-7f58cce93f33 não é um UUID válido',
+				).to.eq(
+					'O valor “5067e137-ds54-ds45-ds54-7f58cce93f33” não é um UUID válido',
 				)
 			})
 		})
@@ -405,15 +389,17 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				validarMensagemUuid(
+				expect(
 					response.allRequestResponses[0]['Response Body'].datas_intervalo[0]
 						.alteracao_cardapio[0],
-					'O valor 65f11f11-ds51-ds54-ds4-07c875c548f1 não é um UUID válido',
+				).to.eq(
+					'O valor “65f11f11-ds51-ds54-ds4-07c875c548f1” não é um UUID válido',
 				)
-				validarMensagemUuid(
+				expect(
 					response.allRequestResponses[0]['Response Body'].substituicoes[0]
 						.alteracao_cardapio[0],
-					'O valor 65f11f11-ds51-ds54-ds4-07c875c548f1 não é um UUID válido',
+				).to.eq(
+					'O valor “65f11f11-ds51-ds54-ds4-07c875c548f1” não é um UUID válido',
 				)
 			})
 		})
@@ -440,11 +426,10 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				validarMensagemUuid(
+				expect(
 					response.allRequestResponses[0]['Response Body'].substituicoes[0]
 						.tipos_alimentacao_para[0],
-					'O valor "" não é um UUID válido',
-				)
+				).to.eq('O valor “” não é um UUID válido')
 			})
 		})
 
@@ -470,10 +455,11 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				validarMensagemUuid(
+				expect(
 					response.allRequestResponses[0]['Response Body'].substituicoes[0]
 						.tipos_alimentacao_para[0],
-					'O valor 6595ebe5-fd54-ds56-ds56-6347341f9797 não é um UUID válido',
+				).to.eq(
+					'O valor “6595ebe5-fd54-ds56-ds56-6347341f9797” não é um UUID válido',
 				)
 			})
 		})
@@ -836,7 +822,7 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			})
 		})
 
-		// Substitui o it por it.only para pular em Jan, Jul ou Dez Conforme a regra de negÃ³cio
+		// Substitui o it por it.only para pular em Jan, Jul ou Dez Conforme a regra de negócio
 		const currentMonth = dayjs().month() + 1
 		const conditionalIt = [1, 7, 12].includes(currentMonth) ? it.skip : it
 		conditionalIt(
@@ -917,8 +903,8 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 
 		it('Validar GET de alterações cardápio por id inválido', () => {
 			var id = '3f42cdc6-f524-4364-af62-13a831abaecd/'
-			usuario = Cypress.env('usuario_coordenador_supervisao_nutricao')
-			senha = Cypress.env('senha')
+			usuario = Cypress.config('usuario_coordenador_supervisao_nutricao')
+			senha = Cypress.config('senha')
 			cy.autenticar_login(usuario, senha)
 			cy.validar_alteracoes_cardapio(id).then((response) => {
 				expect(response.status).to.eq(404)
@@ -928,8 +914,8 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 
 		it('Validar GET de alterações cardápio por id incompleto', () => {
 			var id = '3f42cdc6-f524-4364-af62-13a831abae5d'
-			usuario = Cypress.env('usuario_coordenador_supervisao_nutricao')
-			senha = Cypress.env('senha')
+			usuario = Cypress.config('usuario_coordenador_supervisao_nutricao')
+			senha = Cypress.config('senha')
 			cy.autenticar_login(usuario, senha)
 			cy.validar_alteracoes_cardapio(id).then((response) => {
 				cy.log(response)
@@ -941,8 +927,8 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 
 		it('Validar GET de alterações cardápio por id com sucesso', () => {
 			var id = '3f42cdc6-f524-4364-af62-13a831abae5d/'
-			usuario = Cypress.env('usuario_coordenador_supervisao_nutricao')
-			senha = Cypress.env('senha')
+			usuario = Cypress.config('usuario_coordenador_supervisao_nutricao')
+			senha = Cypress.config('senha')
 			cy.autenticar_login(usuario, senha)
 			cy.validar_alteracoes_cardapio(id).then((response) => {
 				expect(response.status).to.eq(200)
@@ -975,8 +961,8 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 		})
 
 		it('Validar DELETE de alterações cardápio com sucesso', () => {
-			usuario = Cypress.env('usuario_coordenador_logistica')
-			senha = Cypress.env('senha')
+			usuario = Cypress.config('usuario_coordenador_logistica')
+			senha = Cypress.config('senha')
 			cy.autenticar_login(usuario, senha)
 			var dados_teste = {
 				motivo: '1ddec320-cd24-4cf4-9666-3e7b3a2b903c',
@@ -1051,8 +1037,8 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 		'Casos de teste para a rota /api/alteracoes-cardapio/minhas-solicitacoes/',
 		() => {
 			it('Validar GET minhas solicitacoes com sucesso', () => {
-				var usuario = Cypress.env('usuario_diretor_ue')
-				var senha = Cypress.env('senha')
+				var usuario = Cypress.config('usuario_diretor_ue')
+				var senha = Cypress.config('senha')
 				cy.autenticar_login(usuario, senha)
 				cy.validar_alteracoes_cardapio_minhas_solicitacoes().then(
 					(response) => {
@@ -1086,6 +1072,3 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 		},
 	)
 })
-
-
-

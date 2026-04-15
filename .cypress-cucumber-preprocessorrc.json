@@ -1,4 +1,0 @@
-{
-	"nonGlobalStepDefinitions": false,
-	"stepDefinitions": "tests/cypress/support/step_definitions"
-}

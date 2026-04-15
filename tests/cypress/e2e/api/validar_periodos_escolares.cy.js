@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-﻿describe('Validar rotas de Periodos Escolares da aplicação SIGPAE', () => {
+describe('Validar rotas de Periodos Escolares da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_codae')
 	var senha = Cypress.config('senha')
-=======
-﻿describe('Validar rotas de Periodos Escolares da aplicaÃ§Ã£o SIGPAE', () => {
-	var usuario = Cypress.env('usuario_codae')
-	var senha = Cypress.env('senha')
->>>>>>> upstream/testes
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -78,8 +72,8 @@
 			})
 		})
 
-		it('Validar GET com sucesso de Periodos Escolares Por Nome InvÃ¡lido', () => {
-			var nome_periodo = 'Nome InvÃ¡lido Para Teste'
+		it('Validar GET com sucesso de Periodos Escolares Por Nome Inválido', () => {
+			var nome_periodo = 'Nome Inválido Para Teste'
 			cy.consultar_periodos_escolares_por_nome(nome_periodo).then(
 				(response) => {
 					expect(response.status).to.eq(200)
@@ -92,7 +86,7 @@
 			)
 		})
 
-		it('Validar GET com sucesso de Periodos Escolares Com UUID VÃ¡lido', () => {
+		it('Validar GET com sucesso de Periodos Escolares Com UUID Válido', () => {
 			var uuid_response = ''
 			cy.consultar_periodos_escolares().then((response) => {
 				expect(response.status).to.eq(200)
@@ -119,16 +113,16 @@
 			})
 		})
 
-		it('Validar GET de Periodos Escolares Com UUID InvÃ¡lido', () => {
+		it('Validar GET de Periodos Escolares Com UUID Inválido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b00000'
 			cy.consultar_periodos_escolares_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(404)
 			})
 		})
 
-		it('Validar GET com sucesso de Periodos Escolares Por UUID e Alunos Por Faixa EtÃ¡ria', () => {
-			var usuario = Cypress.env('usuario_diretor_ue')
-			var senha = Cypress.env('senha')
+		it('Validar GET com sucesso de Periodos Escolares Por UUID e Alunos Por Faixa Etária', () => {
+			var usuario = Cypress.config('usuario_diretor_ue')
+			var senha = Cypress.config('senha')
 			cy.autenticar_login(usuario, senha)
 
 			var uuid = '5067e137-e5f3-4876-a63f-7f58cce93f33'
@@ -152,7 +146,7 @@
 			})
 		})
 
-		it('Validar GET de Periodos Escolares Por UUID e Alunos Por Faixa EtÃ¡ria com Data InvÃ¡lida', () => {
+		it('Validar GET de Periodos Escolares Por UUID e Alunos Por Faixa Etária com Data Inválida', () => {
 			var uuid = '5067e137-e5f3-4876-a63f-7f58cce93f33'
 			var data_referencia = '2025-13-15'
 			cy.consultar_alunos_por_faixa_etaria_data_referencia(
@@ -167,7 +161,7 @@
 			})
 		})
 
-		it('Validar GET de Periodos Escolares Por UUID e Alunos Por Faixa Etaria com UUID Invalido', () => {
+		it('Validar GET de Periodos Escolares Por UUID e Alunos Por Faixa Etária com UUID Inválido', () => {
 			var uuid = '5067e137-e5f3-4876-a63f-0a00aaa00a00'
 			var data_referencia = '2025-12-15'
 			cy.consultar_alunos_por_faixa_etaria_data_referencia(
@@ -178,9 +172,9 @@
 			})
 		})
 
-		it('Validar GET com sucesso de Periodos Escolares Inclusao Contínua Por Mês', () => {
-			var usuario = Cypress.env('usuario_diretor_ue')
-			var senha = Cypress.env('senha')
+		it('Validar GET com sucesso de Periodos Escolares Inclusão Contínua Por Mês', () => {
+			var usuario = Cypress.config('usuario_diretor_ue')
+			var senha = Cypress.config('senha')
 			cy.autenticar_login(usuario, senha)
 			var param = '?mes=10&ano=2025'
 			cy.consultar_inclusao_continua_por_mes(param).then((response) => {
@@ -190,4 +184,3 @@
 		})
 	})
 })
-

@@ -1,8 +1,8 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 
-describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE', () => {
-	var usuario = Cypress.env('usuario_diretor_ue')
-	var senha = Cypress.env('senha')
+describe('Validar rotas de Escola Solicitações da aplicação SIGPAE', () => {
+	var usuario = Cypress.config('usuario_diretor_ue')
+	var senha = Cypress.config('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -702,7 +702,7 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 			})
 		})
 
-		it('Validar GET com sucesso de Dietas Pendentes de AutorizaÃ§Ã£o - ESCOLA', () => {
+		it('Validar GET com sucesso de Dietas Pendentes de Autorização - ESCOLA', () => {
 			var uuid = '3c32be8e-f191-468d-a4e2-3dd8751e5e7a'
 			cy.ue_consultar_pendentes_autorizacao_dieta(uuid).then((response) => {
 				expect(response.status).to.eq(200)
@@ -784,18 +784,9 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 				expect(response.body.results[0]).to.have.property('desc_doc')
 				expect(response.body.results[0]).to.have.property('status_evento')
 				expect(response.body.results[0]).to.have.property('motivo')
-<<<<<<< HEAD
-				expect(response.body.results[0].status_atual).to.satisfy((value) => {
-					return (
-						value === 'CODAE_A_AUTORIZAR' ||
-						value === 'ESCOLA_SOLICITOU_INATIVACAO'
-					)
-				})
-=======
 				expect(response.body.results[0])
 					.to.have.property('status_atual')
-					
->>>>>>> upstream/testes
+					.to.eq('CODAE_A_AUTORIZAR')
 				expect(response.body.results[0]).to.have.property('conferido')
 				expect(response.body.results[0]).to.have.property(
 					'terceirizada_conferiu_gestao',
@@ -805,7 +796,7 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 			})
 		})
 
-		it('Validar GET com sucesso de Pendentes de AutorizaÃ§Ã£o - ESCOLA', () => {
+		it('Validar GET com sucesso de Pendentes de Autorização - ESCOLA', () => {
 			cy.ue_consultar_pendentes_autorizacao().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count')
@@ -903,7 +894,7 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 			})
 		})
 
-		it('Validar GET com sucesso de SolicitaÃ§Ãµes Detalhadas - ESCOLA', () => {
+		it('Validar GET com sucesso de Solicitações Detalhadas - ESCOLA', () => {
 			cy.ue_consultar_solicitacoes_detalhadas().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('data')
@@ -912,7 +903,7 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 			})
 		})
 
-		it('Validar GET com sucesso de Aguardando VigÃªncia Dieta - ESCOLA', () => {
+		it('Validar GET com sucesso de Aguardando Vigência Dieta - ESCOLA', () => {
 			var uuid = '3c32be8e-f191-468d-a4e2-3dd8751e5e7a'
 			cy.ue_consultar_aguardando_vigencia_dieta(uuid).then((response) => {
 				expect(response.status).to.eq(200)
@@ -932,7 +923,7 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 			})
 		})
 
-		it('Validar GET com sucesso de SuspensÃµes Autorizadas - ESCOLA', () => {
+		it('Validar GET com sucesso de Suspensões Autorizadas - ESCOLA', () => {
 			cy.ue_consultar_suspensoes_autorizadas().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -941,4 +932,3 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 		})
 	})
 })
-

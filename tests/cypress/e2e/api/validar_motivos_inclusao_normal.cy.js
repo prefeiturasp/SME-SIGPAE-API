@@ -1,19 +1,13 @@
-<<<<<<< HEAD
-﻿describe('Validar rotas de Motivos Inclusão Normal da aplicação SIGPAE', () => {
+describe('Validar rotas de Motivos Inclusão Normal da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_codae')
 	var senha = Cypress.config('senha')
-=======
-﻿describe('Validar rotas de Motivos InclusÃ£o Normal da aplicaÃ§Ã£o SIGPAE', () => {
-	var usuario = Cypress.env('usuario_codae')
-	var senha = Cypress.env('senha')
->>>>>>> upstream/testes
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
 
 	context('Rota api/motivos-inclusao-normal/', () => {
-		it('Validar GET com sucesso de Motivos InclusÃ£o Normal', () => {
+		it('Validar GET com sucesso de Motivos Inclusão Normal', () => {
 			cy.consultar_motivos_inclusao_normal().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count')
@@ -26,7 +20,7 @@
 			})
 		})
 
-		it('Validar GET com sucesso de Motivos InclusÃ£o Normal Com UUID VÃ¡lido', () => {
+		it('Validar GET com sucesso de Motivos Inclusão Normal Com UUID Válido', () => {
 			var uuid_response = ''
 			cy.consultar_motivos_inclusao_normal().then((response) => {
 				expect(response.status).to.eq(200)
@@ -42,7 +36,7 @@
 			})
 		})
 
-		it('Validar GET de Motivos InclusÃ£o Normal Com UUID InvÃ¡lido', () => {
+		it('Validar GET de Motivos Inclusão Normal Com UUID Inválido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b00000'
 			cy.consultar_motivos_inclusao_normal_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -50,4 +44,3 @@
 		})
 	})
 })
-

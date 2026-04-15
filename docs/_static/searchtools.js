@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Sphinx JavaScript utilities for the full-text search.
  */
 "use strict";

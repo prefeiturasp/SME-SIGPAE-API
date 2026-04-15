@@ -1,8 +1,8 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 
-describe('Validar rotas de alimentos da aplicaÃ§Ã£o SIGPAE', () => {
-	var usuario = Cypress.env('usuario_coordenador_logistica')
-	var senha = Cypress.env('senha')
+describe('Validar rotas de alimentos da aplicação SIGPAE', () => {
+	var usuario = Cypress.config('usuario_coordenador_logistica')
+	var senha = Cypress.config('senha')
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
@@ -76,7 +76,7 @@ describe('Validar rotas de alimentos da aplicaÃ§Ã£o SIGPAE', () => {
 				expect(response.body).to.have.property('tipo')
 				expect(response.body.tipo).to.be.an('array')
 				expect(response.body.tipo[0]).to.be.eq(
-					'Fa\u00e7a uma escolha v\u00e1lida. batata n\u00e3o \u00e9 uma das escolhas dispon\u00edveis.',
+					'Faça uma escolha válida. batata não é uma das escolhas disponíveis.',
 				)
 			})
 		})
@@ -124,4 +124,3 @@ describe('Validar rotas de alimentos da aplicaÃ§Ã£o SIGPAE', () => {
 		})
 	})
 })
-
