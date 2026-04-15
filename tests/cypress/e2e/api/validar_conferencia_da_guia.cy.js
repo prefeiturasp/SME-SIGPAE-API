@@ -2,25 +2,6 @@
 const dayjs = require('dayjs')
 var data_atual = dayjs()
 
-function normalizarMensagemUuid(mensagem) {
-	return String(mensagem)
-		.replace(/["\u201C\u201D]/g, '')
-		.replaceAll('â€œ', '')
-		.replaceAll('â€', '')
-		.replaceAll('nÃ£o', 'não')
-		.replaceAll('Ã©', 'é')
-		.replaceAll('vÃ¡lido', 'válido')
-		.replace(/\s+/g, ' ')
-		.trim()
-}
-
-function validarMensagemUuid(mensagemRecebida, mensagemEsperada) {
-	const mensagemRecebidaNormalizada = normalizarMensagemUuid(mensagemRecebida)
-	const mensagemEsperadaNormalizada = normalizarMensagemUuid(mensagemEsperada)
-
-	expect(mensagemRecebidaNormalizada).to.eq(mensagemEsperadaNormalizada)
-}
-
 describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
 	var usuario = Cypress.env('usuario_abastecimento')
 	var senha = Cypress.env('senha')
@@ -131,7 +112,7 @@ describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar POST de conferencia da guia sem informar placa do vei­culo', () => {
+		it('Validar POST de conferencia da guia sem informar placa do veículo', () => {
 			var dados_teste = {
 				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
 				nome_motorista: 'Motorista Teste Automação PATCH',
@@ -170,7 +151,7 @@ describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
 		it('Validar POST de conferencia da guia sem informar data de recebimento', () => {
 			var dados_teste = {
 				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: 'Motorista Teste AutomaÃ§Ã£o PATCH',
+				nome_motorista: 'Motorista Teste Automação PATCH',
 				placa_veiculo: 'AAA1234',
 				data_recebimento: '',
 				hora_recebimento: '11:00:00',
@@ -231,9 +212,8 @@ describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
 			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
 			cy.cadastrar_conferencia_da_guia(dados_teste, uuid).then((response) => {
 				expect(response.status).to.eq(400)
-				validarMensagemUuid(
-					response.body.guia[0],
-					'O valor "sdfsdfsdfsdfsd" não é um UUID válido',
+				expect(response.body.guia[0]).to.eq(
+					'O valor “sdfsdfsdfsdfsd” não é um UUID válido',
 				)
 			})
 		})
@@ -282,7 +262,7 @@ describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar PUT de conferencia da guia sem informar placa do vei­culo', () => {
+		it('Validar PUT de conferencia da guia sem informar placa do veículo', () => {
 			var dados_teste = {
 				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
 				nome_motorista: 'Motorista Teste Automação PATCH',
@@ -382,9 +362,8 @@ describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
 			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
 			cy.alterar_conferencia_da_guia(dados_teste, uuid).then((response) => {
 				expect(response.status).to.eq(400)
-				validarMensagemUuid(
-					response.body.guia[0],
-					'O valor "sdfsdfsdfsdfsd" não é um UUID válido',
+				expect(response.body.guia[0]).to.eq(
+					'O valor “sdfsdfsdfsdfsd” não é um UUID válido',
 				)
 			})
 		})
@@ -409,7 +388,7 @@ describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar PATCH de conferencia da guia sem informar placa do veículos', () => {
+		it('Validar PATCH de conferencia da guia sem informar placa do veículo', () => {
 			var dados_teste = {
 				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
 				nome_motorista: 'Motorista Teste Automação PATCH',
@@ -429,7 +408,7 @@ describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
 			)
 		})
 
-		it('Validar PATCH de conferencia da guia sem informar nome do motorista', () => {
+		it('Validar PATCH de conferencia da guia sem informar nome do motirista', () => {
 			var dados_teste = {
 				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
 				nome_motorista: '',
@@ -452,7 +431,7 @@ describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
 		it('Validar PATCH de conferencia da guia sem informar data de recebimento', () => {
 			var dados_teste = {
 				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: 'Motorista Teste AutomaÃ§Ã£o PATCH',
+				nome_motorista: 'Motorista Teste Automação PATCH',
 				placa_veiculo: 'AAA1234',
 				data_recebimento: '',
 				hora_recebimento: '11:00:00',
@@ -520,9 +499,8 @@ describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
 			cy.alterar_conferencia_da_guia_patch(dados_teste, uuid).then(
 				(response) => {
 					expect(response.status).to.eq(400)
-					validarMensagemUuid(
-						response.body.guia[0],
-						'O valor "sdfsdfsdfsdfsd" não é um UUID válido',
+					expect(response.body.guia[0]).to.eq(
+						'O valor “sdfsdfsdfsdfsd” não é um UUID válido',
 					)
 				},
 			)

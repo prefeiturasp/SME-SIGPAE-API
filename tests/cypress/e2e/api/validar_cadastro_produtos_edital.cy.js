@@ -287,14 +287,6 @@ describe('Validar rotas de cadastro de produtos edital da aplicação SIGPAE', (
 				ativo: 'True',
 				tipo_produto: 'TERCEIRIZADA',
 			}
-<<<<<<< HEAD
-			var uuid = 'e6d735aa-8a99-491b-9a14-0e2288ff1d0f/'
-			cy.atualizar_produto_edital(uuid, dados_teste).then((response) => {
-				expect(response.status).to.eq(200)
-				expect(response.body.ativo).to.eq('True')
-				expect(response.body.tipo_produto).to.eq(dados_teste.tipo_produto)
-				expect(response.body).to.not.have.property('nome')
-=======
 			var produtoAlterado = {
 				nome: `${nomeExistente} ALTERAR`,
 				ativo: 'True',
@@ -328,7 +320,6 @@ describe('Validar rotas de cadastro de produtos edital da aplicação SIGPAE', (
 						},
 					)
 				})
->>>>>>> upstream/testes
 			})
 		})
 
@@ -449,14 +440,6 @@ describe('Validar rotas de cadastro de produtos edital da aplicação SIGPAE', (
 				ativo: 'True',
 				tipo_produto: 'TERCEIRIZADA',
 			}
-<<<<<<< HEAD
-			var uuid = 'cbd9638c-b972-4184-814d-cc48e95ab7a4/'
-			cy.atualizar_produto_edital_patch(uuid, dados_teste).then((response) => {
-				expect(response.status).to.eq(200)
-				expect(response.body.ativo).to.eq('True')
-				expect(response.body.tipo_produto).to.eq(dados_teste.tipo_produto)
-				expect(response.body).to.not.have.property('nome')
-=======
 			var produtoAlterado = {
 				nome: `${nomeExistente} ALTERAR`,
 				ativo: 'True',
@@ -491,7 +474,6 @@ describe('Validar rotas de cadastro de produtos edital da aplicação SIGPAE', (
 						},
 					)
 				})
->>>>>>> upstream/testes
 			})
 		})
 

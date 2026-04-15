@@ -112,11 +112,7 @@ describe('Validar rotas da aplicaÃ§Ã£o SIGPAE - ', () => {
 			})
 		})
 
-<<<<<<< HEAD
-		it('Validar DELETE de Editais Contratos com UUID nãO existente', () => {
-=======
 		it('Validar DELETE de Editais Contratos com UUID nÃ£o existente', () => {
->>>>>>> upstream/testes
 			var uuid = 'b2dbaff4-dbd3-45b8-b67c-57ff4b5ad35b/'
 			cy.deletar_editais_contratos(uuid).then((response) => {
 				expect(response.status).to.eq(404)
