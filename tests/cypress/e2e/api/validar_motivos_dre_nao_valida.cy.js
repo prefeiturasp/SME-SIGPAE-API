@@ -1,13 +1,13 @@
-﻿describe('Validar rotas de Motivos DRE NÃ£o VÃ¡lida da aplicaÃ§Ã£o SIGPAE', () => {
-	var usuario = Cypress.env('usuario_codae')
-	var senha = Cypress.env('senha')
+describe('Validar rotas de Motivos DRE Não Válida da aplicação SIGPAE', () => {
+	var usuario = Cypress.config('usuario_codae')
+	var senha = Cypress.config('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
 
 	context('Rota api/motivos-dre-nao-valida/', () => {
-		it('Validar GET com sucesso de Motivos DRE NÃ£o VÃ¡lida', () => {
+		it('Validar GET com sucesso de Motivos DRE Não Válida', () => {
 			cy.consultar_motivos_dre_nao_valida().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count')
@@ -20,7 +20,7 @@
 			})
 		})
 
-		it('Validar GET com sucesso de Motivos DRE NÃ£o VÃ¡lida Com UUID VÃ¡lido', () => {
+		it('Validar GET com sucesso de Motivos DRE Não Válida Com UUID Válido', () => {
 			var uuid_response = ''
 			cy.consultar_motivos_dre_nao_valida().then((response) => {
 				expect(response.status).to.eq(200)
@@ -36,7 +36,7 @@
 			})
 		})
 
-		it('Validar GET de Motivos DRE NÃ£o VÃ¡lida Com UUID InvÃ¡lido', () => {
+		it('Validar GET de Motivos DRE Não Válida Com UUID Inválido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b00000'
 			cy.consultar_motivos_dre_nao_valida_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -44,4 +44,3 @@
 		})
 	})
 })
-

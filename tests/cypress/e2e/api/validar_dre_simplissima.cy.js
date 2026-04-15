@@ -1,8 +1,8 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 
-describe('Validar rotas de Diretorias Regionais da aplicaÃ§Ã£o SIGPAE', () => {
-	var usuario = Cypress.env('usuario_dre')
-	var senha = Cypress.env('senha')
+describe('Validar rotas de Diretorias Regionais da aplicação SIGPAE', () => {
+	var usuario = Cypress.config('usuario_dre')
+	var senha = Cypress.config('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -27,7 +27,7 @@ describe('Validar rotas de Diretorias Regionais da aplicaÃ§Ã£o SIGPAE', () =
 			})
 		})
 
-		it('Validar GET de Diretorias Regionais Simplissima com UUID vÃ¡lido', () => {
+		it('Validar GET de Diretorias Regionais Simplissima com UUID válido', () => {
 			var uuid = '8f1da4a7-11b6-4a09-9eaa-6633d066f26b'
 			cy.consultar_dre_simplissima_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(200)
@@ -39,7 +39,7 @@ describe('Validar rotas de Diretorias Regionais da aplicaÃ§Ã£o SIGPAE', () =
 			})
 		})
 
-		it('Validar GET de Diretorias Regionais Simplissima com UUID invÃ¡lido', () => {
+		it('Validar GET de Diretorias Regionais Simplissima com UUID inválido', () => {
 			var uuid = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
 			cy.consultar_dre_simplissima_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -59,4 +59,3 @@ describe('Validar rotas de Diretorias Regionais da aplicaÃ§Ã£o SIGPAE', () =
 		})
 	})
 })
-
