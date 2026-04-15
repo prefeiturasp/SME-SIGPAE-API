@@ -43,6 +43,11 @@ class HistoricoAcessoMedicaoInicialUE(
         on_delete=models.CASCADE,
         related_name="historicos_acesso_medicao_inicial_ue",
     )
+    lote = models.ForeignKey(
+        "escola.Lote",
+        on_delete=models.CASCADE,
+        related_name="historicos_acesso_medicao_inicial_ue",
+    )
     data_inicial = models.DateField("Data inicial")
     data_final = models.DateField("Data final", null=True, blank=True)
 
@@ -51,4 +56,4 @@ class HistoricoAcessoMedicaoInicialUE(
         verbose_name_plural = "Históricos de acesso à medição inicial da UE"
 
     def __str__(self):
-        return f"Histórico de acesso à medição inicial da UE - {self.escola.nome} - {self.data_inicial} a {self.data_final or 'presente'}"
+        return f"Histórico de acesso à medição inicial da UE - {self.escola.nome} - {self.lote.nome} - {self.data_inicial} a {self.data_final or 'presente'}"

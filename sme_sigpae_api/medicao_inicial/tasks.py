@@ -35,14 +35,19 @@ from ..dados_comuns.utils import (
 from ..escola.models import AlunoPeriodoParcial, Escola
 from ..relatorios.relatorios import (
     obter_relatorio_da_unidade,
+    relatorio_ateste_financeiro_grupo_cei,
     relatorio_historico_ocorrencias_medicao_inicial,
     relatorio_solicitacao_medicao_por_escola,
     relatorio_solicitacao_medicao_por_escola_cei,
     relatorio_solicitacao_medicao_por_escola_cemei,
     relatorio_solicitacao_medicao_por_escola_emebs,
-    relatorio_ateste_financeiro_grupo_cei,
 )
-from .models import ParametrizacaoFinanceira, RelatorioFinanceiro, Responsavel, SolicitacaoMedicaoInicial
+from .models import (
+    ParametrizacaoFinanceira,
+    RelatorioFinanceiro,
+    Responsavel,
+    SolicitacaoMedicaoInicial,
+)
 from .utils import cria_relatorios_financeiros_por_grupo_unidade_escolar
 
 logger = logging.getLogger(__name__)
@@ -481,7 +486,9 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
         user=user, identificador=nome_arquivo
     )
     try:
-        relatorio_financeiro = RelatorioFinanceiro.objects.get(uuid=uuid_relatorio_financeiro)
+        relatorio_financeiro = RelatorioFinanceiro.objects.get(
+            uuid=uuid_relatorio_financeiro
+        )
 
         mes = int(relatorio_financeiro.mes)
         ano = int(relatorio_financeiro.ano)
@@ -498,7 +505,9 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
                 "Parametrização financeira não encontrada para o tipo de unidade e lote do relatório financeiro."
             )
 
-        arquivo = relatorio_ateste_financeiro_grupo_cei(relatorio_financeiro, parametrizacao)
+        arquivo = relatorio_ateste_financeiro_grupo_cei(
+            relatorio_financeiro, parametrizacao
+        )
 
         atualiza_central_download(obj_central_download, nome_arquivo, arquivo)
     except Exception as e:
@@ -506,3 +515,9 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
         logger.error(f"Erro: {e}")
 
     logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
+
+
+from .historico_acesso_ue.tasks import (  # noqa: E402,F401
+    cria_historico_acesso_ue,
+    remove_historico_acesso_ue,
+)
