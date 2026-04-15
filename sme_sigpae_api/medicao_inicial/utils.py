@@ -10,7 +10,7 @@ from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from functools import reduce
 from typing import Any, Dict
 
-import unidecode
+from unidecode import unidecode
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import FloatField, IntegerField, Q, QuerySet, Sum
 from django.db.models.functions import Cast
