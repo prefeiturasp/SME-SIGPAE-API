@@ -1,4 +1,4 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 
 Cypress.Commands.add('consultar_motivos_inclusao_normal', () => {
 	cy.request({

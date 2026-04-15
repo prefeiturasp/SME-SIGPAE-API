@@ -1,4 +1,4 @@
-function validar_dia_semana(hoje, dias) {
+﻿function validar_dia_semana(hoje, dias) {
 	let data = hoje.add(dias, 'day')
 	let diaDaSemana = data.day()
 

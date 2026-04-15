@@ -1,4 +1,4 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 
 Cypress.Commands.add('validar_alimentos_da_guia', (id) => {
 	cy.request({

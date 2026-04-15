@@ -1,4 +1,4 @@
-const DOCUMENTATION_OPTIONS = {
+﻿const DOCUMENTATION_OPTIONS = {
     VERSION: '0.1',
     LANGUAGE: 'en',
     COLLAPSE_INDEX: false,

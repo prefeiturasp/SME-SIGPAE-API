@@ -1,4 +1,4 @@
-// Generated from english.sbl by Snowball 3.0.1 - https://snowballstem.org/
+﻿// Generated from english.sbl by Snowball 3.0.1 - https://snowballstem.org/
 
 /**@constructor*/
 var EnglishStemmer = function() {

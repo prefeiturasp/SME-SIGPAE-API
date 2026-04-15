@@ -500,6 +500,19 @@ def test_get_alunos_com_dietas_autorizadas_com_mes_ano(dieta_codae_autorizou, es
     assert alunos[0]["data_autorizacao"] == dieta_codae_autorizou.data_autorizacao
 
 
+@freeze_time("2025-01-01")
+def test_get_alunos_com_dietas_autorizadas_nao_retorna_ativo_false(
+    dieta_codae_autorizou, escola
+):
+    dieta_codae_autorizou.ativo = False
+    dieta_codae_autorizou.save(update_fields=["ativo"])
+
+    query_params = {"mes_ano": "02_2025"}
+    alunos = get_alunos_com_dietas_autorizadas(query_params, escola)
+
+    assert alunos == []
+
+
 @freeze_time("2024-06-15")
 def test_trata_filtro_data_relatorio_mes_futuro():
     filtros = {}
