@@ -125,24 +125,3 @@ npx cypress open
 ```
 
 Se tudo estiver certo, a **interface do Cypress** vai abrir normalmente.
-
-## Configuracao da URL base
-
-- Por padrao, os testes usam `https://qa-sigpae.sme.prefeitura.sp.gov.br/`
-- Para executar contra outro ambiente, defina uma das variaveis abaixo antes de abrir o Cypress:
-  - `CYPRESS_BASE_URL`
-  - `BASE_URL`
-  - `SIGPAE_BASE_URL`
-- Exemplo no PowerShell para execucao local:
-
-```powershell
-$env:CYPRESS_BASE_URL="http://localhost:8000"
-npx cypress open
-```
-
-- Exemplo para executar direto em outro ambiente:
-
-```powershell
-$env:CYPRESS_BASE_URL="https://seu-ambiente.exemplo.gov.br/"
-npx cypress run
-```

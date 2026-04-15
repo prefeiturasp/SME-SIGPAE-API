@@ -1,4 +1,4 @@
-﻿import postgreSQL from 'cypress-postgresql'
+import postgreSQL from 'cypress-postgresql'
 postgreSQL.loadDBCommands()
 
 import './commands_api/commands_login'
@@ -48,33 +48,9 @@ import './commands_api/commands_homologacao_produtos'
 
 import './commands_ui/commands_login'
 import './commands_ui/commands_globais'
-import './step_definitions/login'
-import './step_definitions/cadastro_empresas'
 
 import '@shelex/cypress-allure-plugin'
 import 'cypress-cloud/support'
-
-const originalCypressConfig = Cypress.config.bind(Cypress)
-
-// Compatibilidade com a suite legada: varios testes leem credenciais com
-// Cypress.config('chave'), embora esses valores estejam definidos em env.
-Cypress.config = (...args) => {
-	if (args.length === 1 && typeof args[0] === 'string') {
-		const configValue = originalCypressConfig(args[0])
-
-		if (configValue !== undefined) {
-			return configValue
-		}
-
-		const envValue = Cypress.env(args[0])
-
-		if (envValue !== undefined) {
-			return envValue
-		}
-	}
-
-	return originalCypressConfig(...args)
-}
 
 Cypress.on('uncaught:exception', (err, runnable) => {
 	if (err.message.includes('zygote_host_impl_linux')) {

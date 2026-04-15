@@ -784,18 +784,9 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 				expect(response.body.results[0]).to.have.property('desc_doc')
 				expect(response.body.results[0]).to.have.property('status_evento')
 				expect(response.body.results[0]).to.have.property('motivo')
-<<<<<<< HEAD
-				expect(response.body.results[0].status_atual).to.satisfy((value) => {
-					return (
-						value === 'CODAE_A_AUTORIZAR' ||
-						value === 'ESCOLA_SOLICITOU_INATIVACAO'
-					)
-				})
-=======
 				expect(response.body.results[0])
 					.to.have.property('status_atual')
 					
->>>>>>> upstream/testes
 				expect(response.body.results[0]).to.have.property('conferido')
 				expect(response.body.results[0]).to.have.property(
 					'terceirizada_conferiu_gestao',

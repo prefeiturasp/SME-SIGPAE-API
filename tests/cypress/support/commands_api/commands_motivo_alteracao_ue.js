@@ -1,4 +1,4 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 
 Cypress.Commands.add('consultar_motivo_alteracao_ue', () => {
 	cy.request({

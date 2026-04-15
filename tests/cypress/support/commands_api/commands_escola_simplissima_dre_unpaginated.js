@@ -1,4 +1,4 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 
 Cypress.Commands.add(
 	'consultar_escola_simplissima_dre_unpaginated_por_uuid',
