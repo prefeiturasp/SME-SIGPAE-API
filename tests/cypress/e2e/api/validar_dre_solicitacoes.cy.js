@@ -1,4 +1,4 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 
 describe('Validar rotas de Diretoria Regional Solicitações da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_dre')

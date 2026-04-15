@@ -66,7 +66,7 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar que um usuário sem permissão não pode acessar o endpoint', () => {
+		it('Validar que um usu\u00e1rio sem permiss\u00e3o n\u00e3o pode acessar o endpoint', () => {
 			id = ''
 			usuario = Cypress.config('usuario_diretor_ue')
 			senha = Cypress.config('senha')
@@ -75,7 +75,7 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 				expect(response.status).to.eq(403)
 				expect(response.body).to.have.property('detail').that.is.a('string')
 				expect(response.body.detail).to.eq(
-					'Você não tem permissão para executar essa ação.',
+					'Voc\u00ea n\u00e3o tem permiss\u00e3o para executar essa a\u00e7\u00e3o.',
 				)
 			})
 		})
@@ -161,7 +161,7 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 			cy.cadastrar_alimentos_da_guia(alimento).then((response) => {
 				expect(response.status).to.eq(400)
 				expect(response.body.codigo_suprimento[0]).contains(
-					'Certifique-se de que este campo não tenha mais de 100 caracteres.',
+					'Certifique-se de que este campo n\u00e3o tenha mais de 100 caracteres.',
 				)
 			})
 		})
@@ -175,7 +175,7 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 			cy.cadastrar_alimentos_da_guia(alimento).then((response) => {
 				expect(response.status).to.eq(400)
 				expect(response.body.codigo_papa[0]).contains(
-					'Certifique-se de que este campo não tenha mais de 10 caracteres.',
+					'Certifique-se de que este campo n\u00e3o tenha mais de 10 caracteres.',
 				)
 			})
 		})
@@ -190,7 +190,7 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 			cy.cadastrar_alimentos_da_guia(alimento).then((response) => {
 				expect(response.status).to.eq(400)
 				expect(response.body.nome_alimento[0]).to.eq(
-					'Certifique-se de que este campo não tenha mais de 100 caracteres.',
+					'Certifique-se de que este campo n\u00e3o tenha mais de 100 caracteres.',
 				)
 			})
 		})
@@ -218,7 +218,7 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 			cy.cadastrar_alimentos_da_guia(alimento).then((response) => {
 				expect(response.status).to.eq(400)
 				expect(response.body.guia[0]).to.eq(
-					'Pk inválido "1" - objeto não existe.',
+					'Pk inv\u00e1lido "1" - objeto n\u00e3o existe.',
 				)
 			})
 		})
@@ -306,7 +306,7 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 					(response_alteracao) => {
 						expect(response_alteracao.status).to.eq(400)
 						expect(response_alteracao.body.codigo_suprimento[0]).contains(
-							'Certifique-se de que este campo não tenha mais de 100 caracteres.',
+							'Certifique-se de que este campo n\u00e3o tenha mais de 100 caracteres.',
 						)
 						cy.excluir_alimentos_da_guia(id)
 					},
@@ -327,7 +327,7 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 					(response_alteracao) => {
 						expect(response_alteracao.status).to.eq(400)
 						expect(response_alteracao.body.codigo_papa[0]).contains(
-							'Certifique-se de que este campo não tenha mais de 10 caracteres.',
+							'Certifique-se de que este campo n\u00e3o tenha mais de 10 caracteres.',
 						)
 						cy.excluir_alimentos_da_guia(id)
 					},
@@ -349,7 +349,7 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 					(response_alteracao) => {
 						expect(response_alteracao.status).to.eq(400)
 						expect(response_alteracao.body.nome_alimento[0]).to.eq(
-							'Certifique-se de que este campo não tenha mais de 100 caracteres.',
+							'Certifique-se de que este campo n\u00e3o tenha mais de 100 caracteres.',
 						)
 						cy.excluir_alimentos_da_guia(id)
 					},
@@ -390,7 +390,7 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 					(response_alteracao) => {
 						expect(response_alteracao.status).to.eq(400)
 						expect(response_alteracao.body.guia[0]).to.eq(
-							'Pk inválido "1" - objeto não existe.',
+							'Pk inv\u00e1lido "1" - objeto n\u00e3o existe.',
 						)
 						cy.excluir_alimentos_da_guia(id)
 					},
@@ -452,7 +452,7 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 					(response_alteracao) => {
 						expect(response_alteracao.status).to.eq(400)
 						expect(response_alteracao.body.codigo_suprimento[0]).contains(
-							'Certifique-se de que este campo não tenha mais de 100 caracteres.',
+							'Certifique-se de que este campo n\u00e3o tenha mais de 100 caracteres.',
 						)
 						cy.excluir_alimentos_da_guia(id)
 					},
@@ -473,7 +473,7 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 					(response_alteracao) => {
 						expect(response_alteracao.status).to.eq(400)
 						expect(response_alteracao.body.codigo_papa[0]).contains(
-							'Certifique-se de que este campo não tenha mais de 10 caracteres.',
+							'Certifique-se de que este campo n\u00e3o tenha mais de 10 caracteres.',
 						)
 						cy.excluir_alimentos_da_guia(id)
 					},
@@ -495,7 +495,7 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 					(response_alteracao) => {
 						expect(response_alteracao.status).to.eq(400)
 						expect(response_alteracao.body.nome_alimento[0]).to.eq(
-							'Certifique-se de que este campo não tenha mais de 100 caracteres.',
+							'Certifique-se de que este campo n\u00e3o tenha mais de 100 caracteres.',
 						)
 						cy.excluir_alimentos_da_guia(id)
 					},
@@ -536,7 +536,7 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 					(response_alteracao) => {
 						expect(response_alteracao.status).to.eq(400)
 						expect(response_alteracao.body.guia[0]).to.eq(
-							'Pk inválido "1" - objeto não existe.',
+							'Pk inv\u00e1lido "1" - objeto n\u00e3o existe.',
 						)
 						cy.excluir_alimentos_da_guia(id)
 					},

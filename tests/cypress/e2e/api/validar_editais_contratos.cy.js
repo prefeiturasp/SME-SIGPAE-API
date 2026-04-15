@@ -1,4 +1,4 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 
 describe('Validar rotas da aplicação SIGPAE - ', () => {
 	var usuario = Cypress.config('usuario_dre')
@@ -63,7 +63,7 @@ describe('Validar rotas da aplicação SIGPAE - ', () => {
 				numero_chamada_publica: '',
 				edital: 31,
 				modalidade: null,
-				numero: 'AUTOMAÇÃO' + new Date().getTime(),
+				numero: 'AUTOMAÃ‡ÃƒO' + new Date().getTime(),
 				tipo_contratacao: 'Teste',
 				processo: '123456',
 				objeto: 'Objeto Teste',
@@ -96,7 +96,7 @@ describe('Validar rotas da aplicação SIGPAE - ', () => {
 				numero_chamada_publica: '',
 				edital: 31,
 				modalidade: null,
-				numero: 'AUTOMAÇÃO' + new Date().getTime(),
+				numero: 'AUTOMAÃ‡ÃƒO' + new Date().getTime(),
 				tipo_contratacao: 'Teste',
 				processo: '123456',
 				objeto: 'Objeto Teste',
@@ -112,7 +112,7 @@ describe('Validar rotas da aplicação SIGPAE - ', () => {
 			})
 		})
 
-		it('Validar DELETE de Editais Contratos com UUID não existente', () => {
+		it('Validar DELETE de Editais Contratos com UUID nãO existente', () => {
 			var uuid = 'b2dbaff4-dbd3-45b8-b67c-57ff4b5ad35b/'
 			cy.deletar_editais_contratos(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -137,7 +137,7 @@ describe('Validar rotas da aplicação SIGPAE - ', () => {
 				numero_chamada_publica: '',
 				edital: 31,
 				modalidade: null,
-				numero: 'AUTOMAÇÃO' + new Date().getTime(),
+				numero: 'AUTOMAÃ‡ÃƒO' + new Date().getTime(),
 				tipo_contratacao: 'Teste',
 				processo: '123456',
 				objeto: 'Objeto Teste',
@@ -159,7 +159,7 @@ describe('Validar rotas da aplicação SIGPAE - ', () => {
 				numero_chamada_publica: '',
 				edital: 31,
 				modalidade: null,
-				numero: 'AUTOMAÇÃO' + new Date().getTime(),
+				numero: 'AUTOMAÃ‡ÃƒO' + new Date().getTime(),
 				tipo_contratacao: 'Teste',
 				processo: '123456',
 				objeto: 'Objeto Alterado!',
@@ -205,7 +205,7 @@ describe('Validar rotas da aplicação SIGPAE - ', () => {
 				numero_chamada_publica: '',
 				edital: 31,
 				modalidade: null,
-				numero: 'AUTOMAÇÃO' + new Date().getTime(),
+				numero: 'AUTOMAÃ‡ÃƒO' + new Date().getTime(),
 				tipo_contratacao: 'Teste',
 				processo: '123456',
 				objeto: 'Objeto Teste',

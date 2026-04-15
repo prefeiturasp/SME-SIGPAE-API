@@ -1,4 +1,4 @@
-describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
+﻿describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_codae')
 	var senha = Cypress.config('senha')
 
@@ -509,7 +509,8 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automatizados via PATCH - Item Existente'
+			var nome_teste =
+				'Testes Automatizados via PATCH - Item Existente ' + Date.now()
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,

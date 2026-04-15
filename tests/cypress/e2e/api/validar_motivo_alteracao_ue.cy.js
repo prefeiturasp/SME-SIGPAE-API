@@ -1,4 +1,4 @@
-describe('Validar rotas de Motivo Alteração UE da aplicação SIGPAE', () => {
+﻿describe('Validar rotas de Motivo Alteração UE da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_codae')
 	var senha = Cypress.config('senha')
 

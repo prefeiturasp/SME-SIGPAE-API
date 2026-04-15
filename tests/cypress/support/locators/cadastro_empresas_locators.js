@@ -1,4 +1,4 @@
-export const Cadastro_Empresas_Locators = {
+﻿export const Cadastro_Empresas_Locators = {
 	// Inputs
 	inputs: {
 		nomeEmpresa: '[data-cy="razao_social"]',
@@ -13,6 +13,8 @@ export const Cadastro_Empresas_Locators = {
 		estado: '[data-cy="estado"]',
 		telefone_empresa: '#telefone_empresa_0',
 		email_empresa: '[data-cy="email_empresa_0"]',
+		vigencia_de: '[data-cy="vigencia_de"]',
+		vigencia_ate: '[data-cy="vigencia_ate"]',
 
 		//principal Admin do Sistema
 		responsavel_email: '[data-cy="responsavel_email"]',
@@ -28,7 +30,7 @@ export const Cadastro_Empresas_Locators = {
 		rep_legal_telefone: '#telefone_representante',
 		rep_legal_email: '[data-cy="representante_email"]',
 
-		//Nutricionista Responsável Técnico
+		//Nutricionista ResponsÃ¡vel TÃ©cnico
 		nutri_responsavel_nome: '[data-cy="nutricionista_nome_0"]',
 		nutri_responsavel_crn: '[data-cy="nutricionista_crn_0"]',
 		nutri_responsavel_telefone: '#telefone_terceirizada_0',
@@ -40,6 +42,7 @@ export const Cadastro_Empresas_Locators = {
 		salvar: '[data-cy="Salvar"]',
 		cancelar: '[data-testid="btn-cancelar"]',
 		editar: '[data-testid="btn-editar"]',
+		adicionarContrato: 'button',
 	},
 
 	// Selects

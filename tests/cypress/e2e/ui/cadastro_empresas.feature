@@ -7,7 +7,7 @@ Funcionalidade: Cadastro de Empresas
 
   Contexto:
     Dado que acesso o sistema
-    Quando informo os dados do usuário "CODAE" no dispositivo "web"
+    Quando informo os dados do usuário "DILOG_CRONOGRAMA" no dispositivo "web"
     E clico no botão acessar
 
   Cenário: Cadastro de empresa com sucesso

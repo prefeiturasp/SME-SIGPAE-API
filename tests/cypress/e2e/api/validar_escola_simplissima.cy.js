@@ -1,6 +1,6 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 
-describe('Validar rotas de Escolas Simplíssima da aplicação SIGPAE', () => {
+describe('Validar rotas de Escolas Simpli­ssima da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_codae')
 	var senha = Cypress.config('senha')
 

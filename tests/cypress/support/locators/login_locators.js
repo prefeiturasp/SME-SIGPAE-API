@@ -3,7 +3,7 @@ class Login_SME_Localizadores {
 		return '.logo-sigpae > img'
 	}
 	campo_usuario = () => {
-		return 'input.input-login'
+		return '[data-cy="login"]'
 	}
 	campo_senha = () => {
 		return '[data-cy="password"]'

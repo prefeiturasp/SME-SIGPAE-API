@@ -1,4 +1,4 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 
 Cypress.Commands.add('consultar_laboratorios', () => {
 	cy.request({
@@ -158,6 +158,46 @@ Cypress.Commands.add('put_alterar_laboratorios', (uuid, dados_teste) => {
 })
 
 Cypress.Commands.add('patch_alterar_laboratorios', (uuid, dados_teste) => {
+	const body = {}
+
+	;[
+		'nome',
+		'cnpj',
+		'cep',
+		'logradouro',
+		'numero',
+		'bairro',
+		'cidade',
+		'estado',
+		'credenciado',
+		'complemento',
+	].forEach((campo) => {
+		if (dados_teste[campo] !== undefined) {
+			body[campo] = dados_teste[campo]
+		}
+	})
+
+	const contato = {}
+	const mapaContato = {
+		contato_nome: 'nome',
+		contato_telefone: 'telefone',
+		contato_telefone2: 'telefone2',
+		contato_celular: 'celular',
+		contato_email: 'email',
+		contato_eh_nutricionista: 'eh_nutricionista',
+		contato_crn_numero: 'crn_numero',
+	}
+
+	Object.entries(mapaContato).forEach(([origem, destino]) => {
+		if (dados_teste[origem] !== undefined) {
+			contato[destino] = dados_teste[origem]
+		}
+	})
+
+	if (Object.keys(contato).length > 0) {
+		body.contatos = [contato]
+	}
+
 	cy.request({
 		method: 'PATCH',
 		url: Cypress.config('baseUrl') + `api/laboratorios/${uuid}/`,
@@ -165,29 +205,7 @@ Cypress.Commands.add('patch_alterar_laboratorios', (uuid, dados_teste) => {
 		headers: {
 			Authorization: 'JWT ' + globalThis.token,
 		},
-		body: {
-			nome: dados_teste.nome,
-			cnpj: dados_teste.cnpj,
-			cep: dados_teste.cep,
-			logradouro: dados_teste.logradouro,
-			numero: dados_teste.numero,
-			bairro: dados_teste.bairro,
-			cidade: dados_teste.cidade,
-			estado: dados_teste.estado,
-			credenciado: dados_teste.credenciado,
-			complemento: dados_teste.complemento,
-			contatos: [
-				{
-					nome: dados_teste.contato_nome,
-					telefone: dados_teste.contato_telefone,
-					telefone2: dados_teste.contato_telefone,
-					celular: dados_teste.contato_celular,
-					email: dados_teste.contato_email,
-					eh_nutricionista: dados_teste.contato_eh_nutricionista,
-					crn_numero: dados_teste.contato_crn_numero,
-				},
-			],
-		},
+		body,
 		failOnStatusCode: false,
 	})
 })

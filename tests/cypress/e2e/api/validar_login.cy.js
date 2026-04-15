@@ -1,4 +1,4 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 
 describe('Validar rotas de login da aplicação SIGPAE', () => {
 	context('Casos de teste para a rota api/login/', () => {

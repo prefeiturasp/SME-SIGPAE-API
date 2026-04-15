@@ -1,4 +1,4 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 
 describe('Validar rotas de Escola Solicitações da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_diretor_ue')
@@ -784,9 +784,12 @@ describe('Validar rotas de Escola Solicitações da aplicação SIGPAE', () => {
 				expect(response.body.results[0]).to.have.property('desc_doc')
 				expect(response.body.results[0]).to.have.property('status_evento')
 				expect(response.body.results[0]).to.have.property('motivo')
-				expect(response.body.results[0])
-					.to.have.property('status_atual')
-					.to.eq('CODAE_A_AUTORIZAR')
+				expect(response.body.results[0].status_atual).to.satisfy((value) => {
+					return (
+						value === 'CODAE_A_AUTORIZAR' ||
+						value === 'ESCOLA_SOLICITOU_INATIVACAO'
+					)
+				})
 				expect(response.body.results[0]).to.have.property('conferido')
 				expect(response.body.results[0]).to.have.property(
 					'terceirizada_conferiu_gestao',

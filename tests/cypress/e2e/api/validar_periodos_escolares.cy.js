@@ -1,4 +1,4 @@
-describe('Validar rotas de Periodos Escolares da aplicação SIGPAE', () => {
+﻿describe('Validar rotas de Periodos Escolares da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_codae')
 	var senha = Cypress.config('senha')
 

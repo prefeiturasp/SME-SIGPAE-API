@@ -1,6 +1,6 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 
-describe('Validar rotas de Faixas Etárias da aplicação SIGPAE', () => {
+describe('Validar rotas de Faixas Etárias da aplicaçãoo SIGPAE', () => {
 	var usuario = Cypress.config('usuario_codae')
 	var senha = Cypress.config('senha')
 

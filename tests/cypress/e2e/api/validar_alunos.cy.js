@@ -1,4 +1,4 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 
 describe('Validar rotas de alunos da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_diretor_ue')

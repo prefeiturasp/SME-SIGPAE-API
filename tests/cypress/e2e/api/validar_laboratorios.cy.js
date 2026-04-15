@@ -1,4 +1,4 @@
-describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
+﻿describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_dilog_qualidade')
 	var senha = Cypress.config('senha')
 
@@ -7,7 +7,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 	})
 
 	context('Rota api/laboratorios/', () => {
-		it('Validar GET com sucesso de Laboratórios', () => {
+		it('Validar GET com sucesso de Laboratários', () => {
 			cy.consultar_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count')
@@ -36,7 +36,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Laboratórios com filtro Nome Válido', () => {
+		it('Validar GET com sucesso de Laboratários com filtro Nome Válido', () => {
 			var nome_filtro = ''
 			cy.consultar_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
@@ -72,7 +72,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET de Laboratórios com filtro Nome Inválido', () => {
+		it('Validar GET de Laboratários com filtro Nome Inválido', () => {
 			var filtro = '?nome=NomeInválido Para o Teste'
 			cy.consultar_laboratorios_com_filtros(filtro).then((response) => {
 				expect(response.status).to.eq(200)
@@ -84,7 +84,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Laboratórios com filtro CNPJ', () => {
+		it('Validar GET com sucesso de Laboratários com filtro CNPJ', () => {
 			var cnpj_filtro = ''
 			cy.consultar_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
@@ -122,7 +122,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET de Laboratórios com filtro CNPJ Inválido', () => {
+		it('Validar GET de Laboratários com filtro CNPJ Inválido', () => {
 			var filtro = '?cnpj=11110000000000'
 			cy.consultar_laboratorios_com_filtros(filtro).then((response) => {
 				expect(response.status).to.eq(200)
@@ -134,7 +134,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Laboratórios com filtro UUID Válido', () => {
+		it('Validar GET com sucesso de Laboratários com filtro UUID Válido', () => {
 			var uuid_filtro = ''
 			cy.consultar_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
@@ -172,7 +172,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET de Laboratórios com filtro UUID Inválido', () => {
+		it('Validar GET de Laboratários com filtro UUID Inválido', () => {
 			var filtro = '?uuid=bd08e0a0-b0b0-0ab0-b000-a05c000f00c0'
 			cy.consultar_laboratorios_com_filtros(filtro).then((response) => {
 				expect(response.status).to.eq(200)
@@ -184,7 +184,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Laboratórios Com UUID Válido', () => {
+		it('Validar GET com sucesso de Laboratários Com UUID Válido', () => {
 			var uuid_response = ''
 			cy.consultar_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
@@ -212,14 +212,14 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET de Laboratórios Com UUID Inválido', () => {
+		it('Validar GET de Laboratários Com UUID Inválido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b00000'
 			cy.consultar_laboratorios_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(404)
 			})
 		})
 
-		it('Validar GET com sucesso de Lista Laboratórios', () => {
+		it('Validar GET com sucesso de Lista Laboratários', () => {
 			cy.consultar_lista_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -229,7 +229,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Lista Laboratórios Credenciados', () => {
+		it('Validar GET com sucesso de Lista Laboratários Credenciados', () => {
 			cy.consultar_lista_laboratorios_credenciados().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -239,7 +239,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Lista Nomes Laboratórios', () => {
+		it('Validar GET com sucesso de Lista Nomes Laboratários', () => {
 			cy.consultar_lista_nomes_laboratorios().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -248,7 +248,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar POST com sucesso de Laboratórios', () => {
+		it('Validar POST com sucesso de Laboratários', () => {
 			var dados_teste = {
 				nome: 'Testes Automação ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -274,14 +274,14 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 				expect(response.body.cnpj).to.eq(cnpj)
 				var uuid_response = response.body.uuid
 
-				// Deletar o laboratório cadastrado no teste
+				// Deletar o laboratÃ³rio cadastrado no teste
 				cy.deletar_laboratorios(uuid_response).then((responseDelete) => {
 					expect(responseDelete.status).to.eq(204)
 				})
 			})
 		})
 
-		it('Validar POST de Laboratórios com Credenciado e Nutricionista Inválido', () => {
+		it('Validar POST de Laboratários com Credenciado e Nutricionista Inválido', () => {
 			var dados_teste = {
 				nome: 'Testes Automação ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -313,7 +313,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar POST de Laboratórios com os campos em branco', () => {
+		it('Validar POST de Laboratários com os campos em branco', () => {
 			var dados_teste = {
 				nome: '',
 				cnpj: '',
@@ -363,7 +363,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar POST de Laboratórios sem informar os campos obrigatórios', () => {
+		it('Validar POST de Laboratários sem informar os campos obrigatórios', () => {
 			var dados_teste = {}
 			cy.cadastrar_laboratorios(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
@@ -379,7 +379,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar DELETE de Laboratórios com sucesso', () => {
+		it('Validar DELETE de Laboratários com sucesso', () => {
 			var dados_teste = {
 				nome: 'Testes Automação ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -411,14 +411,14 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar DELETE de Laboratórios com UUID inválido', () => {
+		it('Validar DELETE de Laboratários com UUID inválido', () => {
 			var uuid = '53886ad8-cb8b-4175-853e-de087aaaaaaa'
 			cy.deletar_laboratorios(uuid).then((response) => {
 				expect(response.status).to.eq(404)
 			})
 		})
 
-		it('Validar PUT com sucesso de Laboratórios', () => {
+		it('Validar PUT com sucesso de Laboratários', () => {
 			var dados_teste = {
 				nome: 'Testes Automação - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -453,14 +453,14 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 					},
 				)
 
-				// Deletar o laboratório cadastrado no teste
+				// Deletar o laboratÃ³rio cadastrado no teste
 				cy.deletar_laboratorios(uuid_response).then((responseDelete) => {
 					expect(responseDelete.status).to.eq(204)
 				})
 			})
 		})
 
-		it('Validar PUT de Laboratórios com Credenciado e Nutricionista Inválido', () => {
+		it('Validar PUT de Laboratários com Credenciado e Nutricionista Inválido', () => {
 			var dados_teste = {
 				nome: 'Testes Automação - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -499,14 +499,14 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 					},
 				)
 
-				// Deletar o laboratório cadastrado no teste
+				// Deletar o laboratÃ³rio cadastrado no teste
 				cy.deletar_laboratorios(uuid_response).then((responseDelete) => {
 					expect(responseDelete.status).to.eq(204)
 				})
 			})
 		})
 
-		it('Validar PUT de Laboratórios sem informar os campos obrigatórios', () => {
+		it('Validar PUT de Laboratários sem informar os campos obrigatórios', () => {
 			var dados_teste = {
 				nome: 'Testes Automação - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -559,14 +559,14 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 					},
 				)
 
-				// Deletar o laboratório cadastrado no teste
+				// Deletar o laboratÃ³rio cadastrado no teste
 				cy.deletar_laboratorios(uuid_response).then((responseDelete) => {
 					expect(responseDelete.status).to.eq(204)
 				})
 			})
 		})
 
-		it('Validar PUT de Laboratórios com os campos em branco', () => {
+		it('Validar PUT de Laboratários com os campos em branco', () => {
 			var dados_teste = {
 				nome: 'Testes Automação - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -631,14 +631,14 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 					},
 				)
 
-				// Deletar o laboratório cadastrado no teste
+				// Deletar o laboratÃ³rio cadastrado no teste
 				cy.deletar_laboratorios(uuid_response).then((responseDelete) => {
 					expect(responseDelete.status).to.eq(204)
 				})
 			})
 		})
 
-		it('Validar PUT de Laboratórios com UUID inválido', () => {
+		it('Validar PUT de Laboratários com UUID inválido', () => {
 			var uuid = '53886ad8-cb8b-4175-853e-de087aaaaaaa'
 			var dados_teste = {}
 			cy.put_alterar_laboratorios(uuid, dados_teste).then((response) => {
@@ -646,7 +646,7 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar PATCH com sucesso de Laboratórios', () => {
+		it('Validar PATCH com sucesso de Laboratários', () => {
 			var dados_teste = {
 				nome: 'Testes Automação - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -670,25 +670,27 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 			cy.cadastrar_laboratorios(dados_teste).then((response) => {
 				expect(response.status).to.eq(201)
 				var uuid_response = response.body.uuid
+				const nomeAlteradoPatch =
+					'TESTES AUTOMATIZADOS - ALTERADO VIA PATCH ' + new Date().getTime()
 
-				dados_teste.nome = 'Testes Automatizados - Alterado via PATCH'
-				cy.patch_alterar_laboratorios(uuid_response, dados_teste).then(
+				const dados_patch = {
+					nome: nomeAlteradoPatch,
+				}
+				cy.patch_alterar_laboratorios(uuid_response, dados_patch).then(
 					(responsePatch) => {
 						expect(responsePatch.status).to.eq(200)
-						expect(responsePatch.body.nome).to.eq(
-							'TESTES AUTOMATIZADOS - ALTERADO VIA PATCH',
-						)
+						expect(responsePatch.body.nome).to.eq(nomeAlteradoPatch)
 					},
 				)
 
-				// Deletar o laboratório cadastrado no teste
+				// Deletar o laboratÃ³rio cadastrado no teste
 				cy.deletar_laboratorios(uuid_response).then((responseDelete) => {
 					expect(responseDelete.status).to.eq(204)
 				})
 			})
 		})
 
-		it('Validar PATCH de Laboratórios com Credenciado e Nutricionista Inválido', () => {
+		it('Validar PATCH de Laboratários com Credenciado e Nutricionista Inválido', () => {
 			var dados_teste = {
 				nome: 'Testes Automação - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -727,14 +729,14 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 					},
 				)
 
-				// Deletar o laboratório cadastrado no teste
+				// Deletar o laboratÃ³rio cadastrado no teste
 				cy.deletar_laboratorios(uuid_response).then((responseDelete) => {
 					expect(responseDelete.status).to.eq(204)
 				})
 			})
 		})
 
-		it('Validar PATCH de Laboratórios com os campos em branco', () => {
+		it('Validar PATCH de Laboratários com os campos em branco', () => {
 			var dados_teste = {
 				nome: 'Testes Automação - ' + new Date().getTime(),
 				cnpj: new Date().getTime().toString().slice(0, 14),
@@ -799,14 +801,14 @@ describe('Validar rotas de Laboratórios da aplicação SIGPAE', () => {
 					},
 				)
 
-				// Deletar o laboratório cadastrado no teste
+				// Deletar o laboratÃ³rio cadastrado no teste
 				cy.deletar_laboratorios(uuid_response).then((responseDelete) => {
 					expect(responseDelete.status).to.eq(204)
 				})
 			})
 		})
 
-		it('Validar PATCH de Laboratórios com UUID inválido', () => {
+		it('Validar PATCH de Laboratários com UUID inválido', () => {
 			var uuid = '53886ad8-cb8b-4175-853e-de087aaaaaaa'
 			var dados_teste = {}
 			cy.patch_alterar_laboratorios(uuid, dados_teste).then((response) => {

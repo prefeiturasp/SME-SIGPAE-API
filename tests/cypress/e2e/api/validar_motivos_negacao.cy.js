@@ -1,4 +1,4 @@
-describe('Validar rotas de Motivos de Negacao da aplicação SIGPAE', () => {
+﻿describe('Validar rotas de Motivos de Negação da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_codae')
 	var senha = Cypress.config('senha')
 
@@ -7,7 +7,7 @@ describe('Validar rotas de Motivos de Negacao da aplicação SIGPAE', () => {
 	})
 
 	context('Rota api/motivos-negacao/', () => {
-		it('Validar GET com sucesso de Motivos de Negacao', () => {
+		it('Validar GET com sucesso de Motivos de Negação', () => {
 			cy.consultar_motivos_negacao().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.be.an('array')
@@ -17,7 +17,7 @@ describe('Validar rotas de Motivos de Negacao da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Motivos de Negacao por Processo', () => {
+		it('Validar GET com sucesso de Motivos de Negação por Processo', () => {
 			var processo = Math.random() < 0.5 ? 'INCLUSAO' : 'CANCELAMENTO' // NOSONAR
 			var param = '?processo=' + processo
 			cy.consultar_motivos_negacao_por_processo(param).then((response) => {
@@ -29,7 +29,7 @@ describe('Validar rotas de Motivos de Negacao da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET de Motivos de Negacao com Processo Inválido', () => {
+		it('Validar GET de Motivos de Negação com Processo Inválido', () => {
 			var param = '?processo=NomeInvalidoParaoTeste'
 			cy.consultar_motivos_negacao_por_processo(param).then((response) => {
 				expect(response.status).to.eq(400)
@@ -41,7 +41,7 @@ describe('Validar rotas de Motivos de Negacao da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Motivos de Negacao Com ID Válido', () => {
+		it('Validar GET com sucesso de Motivos de Negação Com ID Válido', () => {
 			var id_response = ''
 			cy.consultar_motivos_negacao().then((response) => {
 				expect(response.status).to.eq(200)
@@ -56,7 +56,7 @@ describe('Validar rotas de Motivos de Negacao da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET de Motivos de Negacao Com ID Inválido', () => {
+		it('Validar GET de Motivos de Negação Com ID Inválido', () => {
 			var id = '3ac751e'
 			cy.consultar_motivos_negacao_por_id(id).then((response) => {
 				expect(response.status).to.eq(404)

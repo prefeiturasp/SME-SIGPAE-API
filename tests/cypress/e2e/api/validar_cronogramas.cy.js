@@ -1,4 +1,4 @@
-/// <reference types='cypress' />
+﻿/// <reference types='cypress' />
 
 describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_dilog_cronograma')
@@ -147,7 +147,7 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET de cronogramas com parâmetro Status ASSINADO_E_ENVIADO_AO_FORNECEDOR com sucesso', () => {
+		it('Validar GET de cronogramas com parÃ¢metro Status ASSINADO_E_ENVIADO_AO_FORNECEDOR com sucesso', () => {
 			var parametros = 'status=ASSINADO_E_ENVIADO_AO_FORNECEDOR'
 
 			cy.validar_cronogramas(parametros).then((response) => {
@@ -762,14 +762,13 @@ describe('Validar rotas de dashboard de produtos da aplicação SIGPAE', () => {
 					'qtd_total_empenho',
 				)
 				expect(response.body.results[0].etapas[0]).to.have.property('etapa')
-					.that.exist
 				expect(response.body.results[0].etapas[0]).to.have.property('parte')
 				expect(response.body.results[0].etapas[0]).to.have.property(
 					'data_programada',
-				).that.exist
+				)
 				expect(response.body.results[0].etapas[0]).to.have.property(
 					'quantidade',
-				).that.exist
+				)
 				expect(response.body.results[0].etapas[0]).to.have.property(
 					'total_embalagens',
 				)

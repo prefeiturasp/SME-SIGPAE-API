@@ -48,7 +48,7 @@ describe('Validar rotas de alergias intolerancias da aplicação SIGPAE', () => 
 		})
 
 		it('Validar GET com id invalido em texto', () => {
-			var id = 'açe'
+			var id = 'aÃ§e'
 			cy.validar_alergias_intolerancias(id).then((response) => {
 				expect(response.allRequestResponses[0]['Response Status']).to.eq(301)
 				expect(response.status).to.eq(200)
