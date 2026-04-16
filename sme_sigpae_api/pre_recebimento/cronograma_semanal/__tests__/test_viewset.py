@@ -3,6 +3,7 @@ from django.test import Client
 from rest_framework import status
 
 from sme_sigpae_api.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
+from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 
 pytestmark = pytest.mark.django_db
 
@@ -229,3 +230,136 @@ class TestCronogramaSemanalViewSet:
             content_type="application/json",
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_patch_assinar_e_enviar_sucesso(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_rascunho,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        payload = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "03/2026",
+                    "data_inicio": "2026-03-01",
+                    "data_fim": "2026-03-15",
+                    "quantidade": 50.0,
+                }
+            ],
+            "password": DJANGO_ADMIN_PASSWORD,
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/assinar-e-enviar/",
+            payload,
+            content_type="application/json",
+        )
+        if response.status_code != status.HTTP_200_OK:
+            print(f"test_patch_assinar_e_enviar_sucesso - Error response: {response.json()}")
+        assert response.status_code == status.HTTP_200_OK
+        cronograma_semanal_rascunho.refresh_from_db()
+        assert (
+            cronograma_semanal_rascunho.status
+            == CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR
+        )
+
+    def test_patch_assinar_e_enviar_senha_invalida(
+        self, client_autenticado_vinculo_dilog_cronograma, cronograma_semanal_rascunho
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        payload = {
+            "password": "senha_invalida",
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/assinar-e-enviar/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert "Assinatura do cronograma não foi validada" in str(response.json())
+
+    def test_patch_assinar_e_enviar_sem_programacoes(
+        self, client_autenticado_vinculo_dilog_cronograma, cronograma_semanal_rascunho
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        payload = {
+            "password": DJANGO_ADMIN_PASSWORD,
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/assinar-e-enviar/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_patch_assinar_e_enviar_atualiza_rascunho_existente(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_rascunho,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        original_uuid = cronograma_semanal_rascunho.uuid
+        payload = {
+            "observacoes": "Observação atualizada ao assinar",
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "03/2026",
+                    "data_inicio": "2026-03-01",
+                    "data_fim": "2026-03-15",
+                    "quantidade": 50.0,
+                }
+            ],
+            "password": DJANGO_ADMIN_PASSWORD,
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/assinar-e-enviar/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        cronograma_semanal_rascunho.refresh_from_db()
+        assert cronograma_semanal_rascunho.uuid == original_uuid
+        assert (
+            cronograma_semanal_rascunho.status
+            == CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR
+        )
+        assert cronograma_semanal_rascunho.observacoes == "Observação atualizada ao assinar"
+
+    def test_patch_assinar_e_enviar_status_nao_rascunho(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+        from model_bakery import baker
+
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        cronograma_semanal_enviado = baker.make(
+            CronogramaSemanal,
+            cronograma_mensal=cronograma_ponto_a_ponto_assinado,
+            status=CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR,
+        )
+        payload = {
+            "password": DJANGO_ADMIN_PASSWORD,
+            "programacoes": [
+                {
+                    "mes_programado": "03/2026",
+                    "data_inicio": "2026-03-01",
+                    "data_fim": "2026-03-15",
+                    "quantidade": 50.0,
+                }
+            ],
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_enviado.uuid}/assinar-e-enviar/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
