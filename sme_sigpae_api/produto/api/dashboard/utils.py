@@ -121,17 +121,17 @@ def filtra_reclamacoes_questionamento_codae(
     filtros = {
         constants.TIPO_USUARIO_ESCOLA: {
             "reclamacoes__escola": request.user.vinculo_atual.instituicao,
-            "reclamacoes__status": ReclamacaoProdutoWorkflow.workflow_class.AGUARDANDO_RESPOSTA_UE,
+            "reclamacoes__status": ReclamacaoProdutoWorkflow.AGUARDANDO_RESPOSTA_UE,
         },
         constants.TIPO_USUARIO_TERCEIRIZADA: {
             "reclamacoes__escola__lote__terceirizada": request.user.vinculo_atual.instituicao,
-            "reclamacoes__status": ReclamacaoProdutoWorkflow.workflow_class.AGUARDANDO_RESPOSTA_TERCEIRIZADA,
+            "reclamacoes__status": ReclamacaoProdutoWorkflow.AGUARDANDO_RESPOSTA_TERCEIRIZADA,
         },
         constants.TIPO_USUARIO_DIRETORIA_REGIONAL: {
             "reclamacoes__escola__lote__diretoria_regional": request.user.vinculo_atual.instituicao
         },
         constants.TIPO_USUARIO_NUTRISUPERVISOR: {
-            "reclamacoes__status": ReclamacaoProdutoWorkflow.workflow_class.AGUARDANDO_RESPOSTA_NUTRISUPERVISOR,
+            "reclamacoes__status": ReclamacaoProdutoWorkflow.AGUARDANDO_RESPOSTA_NUTRISUPERVISOR,
             "reclamacoes__criado_por": request.user,
         },
     }
