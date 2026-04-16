@@ -3648,6 +3648,7 @@ class ReclamacaoProdutoWorkflow(xwf_models.Workflow):
                 ANALISE_SENSORIAL_RESPONDIDA,
                 AGUARDANDO_RESPOSTA_UE,
                 RESPONDIDO_UE,
+                CODAE_ACEITOU,
             ],
             CODAE_ACEITOU,
         ),
