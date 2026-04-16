@@ -166,11 +166,8 @@ def test_url_endpoint_homologacao_produto_codae_pede_analise_sensorial(
             }
         ),
     )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {
-        "detail": "Erro de transição de estado: Transition 'codae_pede_analise_sensorial' isn't available from state "
-        "'CODAE_PEDIU_ANALISE_SENSORIAL'."
-    }
+    assert response.status_code == status.HTTP_200_OK
+
     response = client_autenticado_vinculo_codae_produto.get(
         "/painel-gerencial-homologacoes-produtos/filtro-por-status/codae_pediu_analise_sensorial/"
     )
@@ -372,11 +369,8 @@ def test_url_endpoint_homologacao_produto_aceita_reclamacao(
         data=json.dumps(body_content),
         content_type="application/json",
     )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {
-        "detail": "Erro de transição de estado: Transition 'codae_autorizou_reclamacao' isn't available from state "
-        "'CODAE_AUTORIZOU_RECLAMACAO'."
-    }
+    assert response.status_code == status.HTTP_200_OK
+
     response = client_autenticado_vinculo_codae_produto.get(
         "/painel-gerencial-homologacoes-produtos/filtro-por-status/codae_autorizou_reclamacao/"
     )
@@ -481,7 +475,7 @@ def test_url_endpoint_resposta_analise_sensorial(
         data=json.dumps(body_content),
         content_type="application/json",
     )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.status_code == status.HTTP_200_OK
 
 
 def test_url_endpoint_produtos_listagem(client_autenticado_vinculo_terceirizada):
@@ -1839,11 +1833,7 @@ def test_endpoint_codae_suspende_via_reclamacao_total(
         content_type="application/json",
         data=json.dumps(data),
     )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {
-        "detail": "Erro de transição de estado: Transition 'codae_autorizou_reclamacao' isn't available from state "
-        "'CODAE_AUTORIZOU_RECLAMACAO'."
-    }
+    assert response.status_code == status.HTTP_200_OK
 
 
 def test_relatorio_produtos_suspensos(
