@@ -108,8 +108,7 @@ class AlteracaoCardapio(
         """
         return self.substituicoes.aggregate(Sum("qtd_alunos"))["qtd_alunos__sum"]
 
-    @property
-    def tipos_alimentacao_de(self) -> list[str]:
+    def tipos_alimentacao_de(self, nome_periodo_escolar: str = None) -> list[str]:
         """Retorna uma lista com os tipos de alimentação substituídos nesta solicitação.
 
         Retorna uma lista com os nomes dos tipos de alimentação que estão sendo
@@ -121,9 +120,13 @@ class AlteracaoCardapio(
         """
         tipos = []
         for substituicao in self.substituicoes.all():
-            tipos.extend(
-                substituicao.tipos_alimentacao_de.values_list("nome", flat=True)
-            )
+            if (
+                nome_periodo_escolar is None
+                or substituicao.periodo_escolar.nome == nome_periodo_escolar
+            ):
+                tipos.extend(
+                    substituicao.tipos_alimentacao_de.values_list("nome", flat=True)
+                )
         return tipos
 
     @property
