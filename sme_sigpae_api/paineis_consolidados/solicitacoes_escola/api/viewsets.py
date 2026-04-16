@@ -688,14 +688,20 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         eh_lanche_emergencial,
         alteracao,
         alteracao_alimentacao,
+        nome_periodo_escolar,
         mes,
         ano,
         return_dict,
     ):
         if eh_lanche_emergencial == "true":
-            for data_evento in alteracao.datas_intervalo.filter(
+            datas_intervalo = alteracao.datas_intervalo.filter(
                 data__month=mes, data__year=ano, cancelado=False
-            ):
+            )
+            if nome_periodo_escolar:
+                datas_intervalo = datas_intervalo.filter(
+                    alteracao_cardapio__substituicoes_periodo_escolar__periodo_escolar__nome=nome_periodo_escolar
+                )
+            for data_evento in datas_intervalo:
                 return_dict.append(
                     {
                         "dia": f"{data_evento.data.day:02d}",
@@ -770,6 +776,7 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                 eh_lanche_emergencial,
                 alteracao,
                 alteracao_alimentacao,
+                nome_periodo_escolar,
                 mes,
                 ano,
                 return_dict,
