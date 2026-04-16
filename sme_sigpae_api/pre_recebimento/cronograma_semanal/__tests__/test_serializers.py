@@ -4,6 +4,7 @@ from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serialize
     CronogramaMensalAssinadoSerializer,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_semanal.api.serializer_create import (
+    CronogramaSemanalAssinarEEnviarSerializer,
     CronogramaSemanalRascunhoSerializer,
     ProgramacaoEntregaSemanalCreateSerializer,
 )
@@ -287,3 +288,112 @@ class TestCronogramaMensalAssinadoSerializerCamposNulos:
         assert data["produto_nome"] is None
         assert data["fornecedor_nome"] is None
         assert data["numero_contrato"] is None
+
+
+class TestCronogramaSemanalAssinarEEnviarSerializer:
+    def test_serializer_valido_com_programacoes(
+        self, cronograma_ponto_a_ponto_assinado, client_autenticado_vinculo_dilog_cronograma
+    ):
+        client, user = client_autenticado_vinculo_dilog_cronograma
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "03/2026",
+                    "data_inicio": "2026-03-01",
+                    "data_fim": "2026-03-15",
+                    "quantidade": 50.0,
+                }
+            ],
+        }
+        serializer = CronogramaSemanalAssinarEEnviarSerializer(
+            data=data, context={"request": type("Request", (), {"user": user})()}
+        )
+        assert serializer.is_valid(), serializer.errors
+
+    def test_serializer_sem_programacoes_obrigatorias(
+        self, cronograma_ponto_a_ponto_assinado, client_autenticado_vinculo_dilog_cronograma
+    ):
+        client, user = client_autenticado_vinculo_dilog_cronograma
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+        }
+        serializer = CronogramaSemanalAssinarEEnviarSerializer(
+            data=data, context={"request": type("Request", (), {"user": user})()}
+        )
+        assert not serializer.is_valid()
+        assert "programacoes" in serializer.errors
+
+    def test_serializer_programacoes_vazias(
+        self, cronograma_ponto_a_ponto_assinado, client_autenticado_vinculo_dilog_cronograma
+    ):
+        client, user = client_autenticado_vinculo_dilog_cronograma
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [],
+        }
+        serializer = CronogramaSemanalAssinarEEnviarSerializer(
+            data=data, context={"request": type("Request", (), {"user": user})()}
+        )
+        assert not serializer.is_valid()
+        assert "programacoes" in serializer.errors
+
+    def test_serializer_create_transiciona_status(
+        self, cronograma_ponto_a_ponto_assinado, client_autenticado_vinculo_dilog_cronograma
+    ):
+        from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+        client, user = client_autenticado_vinculo_dilog_cronograma
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "03/2026",
+                    "data_inicio": "2026-03-01",
+                    "data_fim": "2026-03-15",
+                    "quantidade": 50.0,
+                }
+            ],
+        }
+        serializer = CronogramaSemanalAssinarEEnviarSerializer(
+            data=data, context={"request": type("Request", (), {"user": user})()}
+        )
+        assert serializer.is_valid(), serializer.errors
+        cronograma_semanal = serializer.save()
+        assert (
+            cronograma_semanal.status
+            == CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR
+        )
+
+    def test_serializer_update_transiciona_status(
+        self,
+        cronograma_semanal_rascunho,
+        cronograma_ponto_a_ponto_assinado,
+        client_autenticado_vinculo_dilog_cronograma,
+    ):
+        from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+        client, user = client_autenticado_vinculo_dilog_cronograma
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "03/2026",
+                    "data_inicio": "2026-03-01",
+                    "data_fim": "2026-03-15",
+                    "quantidade": 50.0,
+                }
+            ],
+        }
+        serializer = CronogramaSemanalAssinarEEnviarSerializer(
+            cronograma_semanal_rascunho,
+            data=data,
+            partial=True,
+            context={"request": type("Request", (), {"user": user})()},
+        )
+        assert serializer.is_valid(), serializer.errors
+        cronograma_semanal = serializer.save()
+        assert (
+            cronograma_semanal.status
+            == CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR
+        )
