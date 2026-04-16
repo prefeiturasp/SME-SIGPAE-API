@@ -704,6 +704,8 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                         ),
                         "inclusao_id_externo": alteracao.id_externo,
                         "motivo": alteracao_alimentacao.motivo,
+                        "periodos_escolares": alteracao.periodos_escolares,
+                        "tipos_alimentacao_de": alteracao.tipos_alimentacao_de,
                     }
                 )
         return return_dict

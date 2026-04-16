@@ -20,7 +20,6 @@ def filtra_editais(
         "edital_produto"
     ) or request.query_params.get("nome_edital")
     if numero_edital:
-        print(numero_edital)
         query_set = query_set.filter(produto__vinculos__edital__numero=numero_edital)
     return query_set
 

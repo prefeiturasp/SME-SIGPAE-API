@@ -109,6 +109,41 @@ class AlteracaoCardapio(
         return self.substituicoes.aggregate(Sum("qtd_alunos"))["qtd_alunos__sum"]
 
     @property
+    def tipos_alimentacao_de(self) -> list[str]:
+        """Retorna uma lista com os tipos de alimentação substituídos nesta solicitação.
+
+        Retorna uma lista com os nomes dos tipos de alimentação que estão sendo
+        substituídos nesta solicitação, considerando todas as substituições
+        vinculadas.
+
+        Returns:
+            list[str]: Lista de nomes dos tipos de alimentação substituídos.
+        """
+        tipos = []
+        for substituicao in self.substituicoes.all():
+            tipos.extend(
+                substituicao.tipos_alimentacao_de.values_list("nome", flat=True)
+            )
+        return tipos
+
+    @property
+    def periodos_escolares(self) -> list[str]:
+        """Retorna uma lista com os períodos escolares afetados por esta solicitação.
+
+        Retorna uma lista com os nomes dos períodos escolares que estão sendo
+        afetados nesta solicitação, considerando todas as substituições
+        vinculadas.
+
+        Returns:
+            list[str]: Lista de nomes dos períodos escolares afetados.
+        """
+        return list(
+            self.substituicoes.values_list(
+                "periodo_escolar__nome", flat=True
+            ).distinct()
+        )
+
+    @property
     def substituicoes(self):
         """Retorna um atalho para ``substituicoes_periodo_escolar``.
 
