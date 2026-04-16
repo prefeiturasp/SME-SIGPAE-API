@@ -1,22 +1,6 @@
-﻿describe('Validar rotas de Itens Cadastros da aplicaÃ§Ã£o SIGPAE', () => {
-const normalizarMensagem = (mensagem) =>
-	mensagem
-		.normalize('NFD')
-		.replace(/[\u0300-\u036f]/g, '')
-		.toLowerCase()
-
-const validarMensagemCampo = (mensagem, trechoEsperado) => {
-	expect(normalizarMensagem(mensagem)).to.include(trechoEsperado)
-}
-
-const validarMensagemLista = (mensagem, trechoEsperado) => {
-	expect(normalizarMensagem(mensagem)).to.include(trechoEsperado)
-}
-
-const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random(1000, 9999)}`
-
-	var usuario = Cypress.env('usuario_codae')
-	var senha = Cypress.env('senha')
+describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
+	var usuario = Cypress.config('usuario_codae')
+	var senha = Cypress.config('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -38,7 +22,7 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			})
 		})
 
-		it('Validar GET com sucesso de Itens Cadastros com filtro Nome VÃ¡lido', () => {
+		it('Validar GET com sucesso de Itens Cadastros com filtro Nome Válido', () => {
 			var nome_filtro = ''
 			cy.consultar_itens_cadastros().then((response) => {
 				expect(response.status).to.eq(200)
@@ -60,8 +44,8 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			})
 		})
 
-		it('Validar GET com sucesso de Itens Cadastros com filtro Nome InvÃ¡lido', () => {
-			var filtro = '?nome=NomeInvÃ¡lido Para o Teste'
+		it('Validar GET com sucesso de Itens Cadastros com filtro Nome Inválido', () => {
+			var filtro = '?nome=NomeInválido Para o Teste'
 			cy.consultar_itens_cadastros_com_filtros(filtro).then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count').eq(0)
@@ -72,7 +56,7 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			})
 		})
 
-		it('Validar GET com sucesso de Itens Cadastros com filtro Tipo VÃ¡lido', () => {
+		it('Validar GET com sucesso de Itens Cadastros com filtro Tipo Válido', () => {
 			var tipo_filtro = ''
 			cy.consultar_itens_cadastros().then((response) => {
 				expect(response.status).to.eq(200)
@@ -94,8 +78,8 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			})
 		})
 
-		it('Validar GET com sucesso de Itens Cadastros com filtro Tipo InvÃ¡lido', () => {
-			var filtro = '?tipo=TipoInvÃ¡lido Para o Teste'
+		it('Validar GET com sucesso de Itens Cadastros com filtro Tipo Inválido', () => {
+			var filtro = '?tipo=TipoInválido Para o Teste'
 			cy.consultar_itens_cadastros_com_filtros(filtro).then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count').eq(0)
@@ -106,7 +90,7 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			})
 		})
 
-		it('Validar GET com sucesso de Itens Cadastros com filtros Nome e Tipo VÃ¡lidos', () => {
+		it('Validar GET com sucesso de Itens Cadastros com filtros Nome e Tipo Válidos', () => {
 			var nome_filtro = ''
 			var tipo_filtro = ''
 			cy.consultar_itens_cadastros().then((response) => {
@@ -130,7 +114,7 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			})
 		})
 
-		it('Validar GET com sucesso de Itens Cadastros Com UUID VÃ¡lido', () => {
+		it('Validar GET com sucesso de Itens Cadastros Com UUID Válido', () => {
 			var uuid_response = ''
 			cy.consultar_itens_cadastros().then((response) => {
 				expect(response.status).to.eq(200)
@@ -146,7 +130,7 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			})
 		})
 
-		it('Validar GET com sucesso de Itens Cadastros Com UUID InvÃ¡lido', () => {
+		it('Validar GET com sucesso de Itens Cadastros Com UUID Inválido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b1906j'
 			cy.consultar_itens_cadastros_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -175,7 +159,7 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = gerarNomeUnico('Testes AutomaÃ§Ã£o')
+			var nome_teste = 'Testes Automação'
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -196,11 +180,11 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			})
 		})
 
-		it('Validar POST de Itens Cadastros jÃ¡ existente', () => {
+		it('Validar POST de Itens Cadastros já existente', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = gerarNomeUnico('Testes AutomaÃ§Ã£o Item Existente')
+			var nome_teste = 'Testes Automação Item Existente'
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -211,7 +195,7 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 
 				cy.cadastrar_itens_cadastros(dados_teste).then((response) => {
 					expect(response.status).to.eq(400)
-					validarMensagemLista(response.body[0], 'item ja cadastrado')
+					expect(response.body[0]).to.eq('Item já cadastrado.')
 				})
 
 				var filtro = '?nome=' + nome_teste
@@ -226,11 +210,11 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			})
 		})
 
-		it('Validar POST de Itens Cadastros com Tipo InvÃ¡lido', () => {
+		it('Validar POST de Itens Cadastros com Tipo Inválido', () => {
 			const opcoes = ['MARCAS', 'FABRICANTES', 'UNIDADES_MEDIDAS', 'EMBALAGENS']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = gerarNomeUnico('Testes AutomaÃ§Ã£o')
+			var nome_teste = 'Testes Automação'
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -248,13 +232,11 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			}
 			cy.cadastrar_itens_cadastros(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				validarMensagemCampo(
-					response.body.nome[0],
-					'este campo nao pode estar em branco',
+				expect(response.body.nome[0]).to.eq(
+					'Este campo não pode estar em branco.',
 				)
-				validarMensagemCampo(
-					response.body.tipo[0],
-					'este campo nao pode estar em branco',
+				expect(response.body.tipo[0]).to.eq(
+					'Este campo não pode estar em branco.',
 				)
 			})
 		})
@@ -263,8 +245,8 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			var dados_teste = {}
 			cy.cadastrar_itens_cadastros(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
-				validarMensagemCampo(response.body.nome[0], 'este campo e obrigatorio')
-				validarMensagemCampo(response.body.tipo[0], 'este campo e obrigatorio')
+				expect(response.body.nome[0]).to.eq('Este campo é obrigatório.')
+				expect(response.body.tipo[0]).to.eq('Este campo é obrigatório.')
 			})
 		})
 
@@ -272,7 +254,7 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = gerarNomeUnico('Testes AutomaÃ§Ã£o DELETE')
+			var nome_teste = 'Testes Automação DELETE'
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -293,7 +275,7 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			})
 		})
 
-		it('Validar DELETE de Itens Cadastros com UUID invÃ¡lido', () => {
+		it('Validar DELETE de Itens Cadastros com UUID inválido', () => {
 			var uuid = '53886ad8-cb8b-4175-853e-de087aaaaaaa'
 			cy.deletar_itens_cadastros(uuid).then((response) => {
 				expect(response.status).to.eq(404)
@@ -304,7 +286,7 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = gerarNomeUnico('Testes AutomaÃ§Ã£o PUT')
+			var nome_teste = 'Testes Automação PUT'
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -319,7 +301,7 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 					var uuid_response = response.body.results[0].uuid
 
 					var dados_teste = {
-						nome: gerarNomeUnico('Testes Automatizados Alterado via PUT'),
+						nome: 'Testes Automatizados Alterado via PUT',
 						tipo: tipo_teste,
 					}
 
@@ -337,11 +319,11 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			})
 		})
 
-		it('Validar PUT de Itens Cadastros com Tipo invÃ¡lido', () => {
+		it('Validar PUT de Itens Cadastros com Tipo inválido', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = gerarNomeUnico('Testes AutomaÃ§Ã£o PUT - Tipo InvÃ¡lido')
+			var nome_teste = 'Testes Automação PUT - Tipo Inválido'
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -356,17 +338,16 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 					var uuid_response = response.body.results[0].uuid
 
 					var dados_teste = {
-						nome: gerarNomeUnico('Testes Automatizados - Tipo InvÃ¡lido via PUT'),
+						nome: 'Testes Automatizados - Tipo Inválido via PUT',
 						tipo: 'TIPO_INVALIDO',
 					}
 
 					cy.put_alterar_itens_cadastros(uuid_response, dados_teste).then(
 						(responsePut) => {
 							expect(responsePut.status).to.eq(400)
-							validarMensagemLista(
-								responsePut.body[0],
-								'erro ao criar itemcadastro. tipo nao permitido: ' +
-									dados_teste.tipo.toLowerCase(),
+							expect(responsePut.body[0]).to.eq(
+								'Erro ao criar ItemCadastro. Tipo não permitido: ' +
+									dados_teste.tipo,
 							)
 						},
 					)
@@ -378,11 +359,11 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			})
 		})
 
-		it('Validar PUT de Itens Cadastros  jÃ¡ existente', () => {
+		it('Validar PUT de Itens Cadastros  já existente', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = gerarNomeUnico('Testes Automatizados via PUT - Item Existente')
+			var nome_teste = 'Testes Automatizados via PUT - Item Existente'
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -399,7 +380,7 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 					cy.put_alterar_itens_cadastros(uuid_response, dados_teste).then(
 						(responsePut) => {
 							expect(responsePut.status).to.eq(400)
-							validarMensagemLista(responsePut.body[0], 'item ja cadastrado')
+							expect(responsePut.body[0]).to.eq('Item já cadastrado.')
 						},
 					)
 
@@ -422,13 +403,11 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 				}
 				cy.put_alterar_itens_cadastros(uuid, dados_teste).then((response) => {
 					expect(response.status).to.eq(400)
-					validarMensagemCampo(
-						response.body.nome[0],
-						'este campo nao pode estar em branco',
+					expect(response.body.nome[0]).to.eq(
+						'Este campo não pode estar em branco.',
 					)
-					validarMensagemCampo(
-						response.body.tipo[0],
-						'este campo nao pode estar em branco',
+					expect(response.body.tipo[0]).to.eq(
+						'Este campo não pode estar em branco.',
 					)
 				})
 			})
@@ -443,8 +422,8 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 				var dados_teste = {}
 				cy.put_alterar_itens_cadastros(uuid, dados_teste).then((response) => {
 					expect(response.status).to.eq(400)
-					validarMensagemCampo(response.body.nome[0], 'este campo e obrigatorio')
-					validarMensagemCampo(response.body.tipo[0], 'este campo e obrigatorio')
+					expect(response.body.nome[0]).to.eq('Este campo é obrigatório.')
+					expect(response.body.tipo[0]).to.eq('Este campo é obrigatório.')
 				})
 			})
 		})
@@ -453,7 +432,7 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = gerarNomeUnico('Testes AutomaÃ§Ã£o PATCH')
+			var nome_teste = 'Testes Automação PATCH'
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -468,7 +447,7 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 					var uuid_response = response.body.results[0].uuid
 
 					var dados_teste = {
-						nome: gerarNomeUnico('Testes Automatizados Alterado via PATCH'),
+						nome: 'Testes Automatizados Alterado via PATCH',
 						tipo: tipo_teste,
 					}
 
@@ -486,11 +465,11 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			})
 		})
 
-		it('Validar PACTH de Itens Cadastros com Tipo invÃ¡lido', () => {
+		it('Validar PACTH de Itens Cadastros com Tipo inválido', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = gerarNomeUnico('Testes AutomaÃ§Ã£o PATCH')
+			var nome_teste = 'Testes Automação PATCH'
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -505,17 +484,16 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 					var uuid_response = response.body.results[0].uuid
 
 					var dados_teste = {
-						nome: gerarNomeUnico('Testes Automatizados Alterado via PATCH'),
+						nome: 'Testes Automatizados Alterado via PATCH',
 						tipo: 'TIPO_INVALIDO',
 					}
 
 					cy.patch_alterar_itens_cadastros(uuid_response, dados_teste).then(
 						(responsePut) => {
 							expect(responsePut.status).to.eq(400)
-							validarMensagemLista(
-								responsePut.body[0],
-								'erro ao criar itemcadastro. tipo nao permitido: ' +
-									dados_teste.tipo.toLowerCase(),
+							expect(responsePut.body[0]).to.eq(
+								'Erro ao criar ItemCadastro. Tipo não permitido: ' +
+									dados_teste.tipo,
 							)
 						},
 					)
@@ -527,11 +505,11 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 			})
 		})
 
-		it('Validar PACTH de Itens Cadastros  jÃ¡ existente', () => {
+		it('Validar PACTH de Itens Cadastros  já existente', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = gerarNomeUnico('Testes Automatizados via PATCH - Item Existente')
+			var nome_teste = 'Testes Automatizados via PATCH - Item Existente'
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -548,7 +526,7 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 					cy.patch_alterar_itens_cadastros(uuid_response, dados_teste).then(
 						(responsePut) => {
 							expect(responsePut.status).to.eq(400)
-							validarMensagemLista(responsePut.body[0], 'item ja cadastrado')
+							expect(responsePut.body[0]).to.eq('Item já cadastrado.')
 						},
 					)
 
@@ -571,17 +549,14 @@ const gerarNomeUnico = (prefixo) => `${prefixo} ${Date.now()} ${Cypress._.random
 				}
 				cy.patch_alterar_itens_cadastros(uuid, dados_teste).then((response) => {
 					expect(response.status).to.eq(400)
-					validarMensagemCampo(
-						response.body.nome[0],
-						'este campo nao pode estar em branco',
+					expect(response.body.nome[0]).to.eq(
+						'Este campo não pode estar em branco.',
 					)
-					validarMensagemCampo(
-						response.body.tipo[0],
-						'este campo nao pode estar em branco',
+					expect(response.body.tipo[0]).to.eq(
+						'Este campo não pode estar em branco.',
 					)
 				})
 			})
 		})
 	})
 })
-

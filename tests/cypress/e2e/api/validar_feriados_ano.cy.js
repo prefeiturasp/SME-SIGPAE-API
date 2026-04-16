@@ -1,8 +1,8 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 
-describe('Validar rotas de Feriados Ano da aplicaÃ§Ã£o SIGPAE', () => {
-	var usuario = Cypress.env('usuario_codae')
-	var senha = Cypress.env('senha')
+describe('Validar rotas de Feriados Ano da aplicação SIGPAE', () => {
+	var usuario = Cypress.config('usuario_codae')
+	var senha = Cypress.config('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -17,7 +17,7 @@ describe('Validar rotas de Feriados Ano da aplicaÃ§Ã£o SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET com sucesso de Feriados Ano Atual e PrÃ³ximo', () => {
+		it('Validar GET com sucesso de Feriados Ano Atual e Próximo', () => {
 			cy.consultar_feriados_ano_atual_e_proximo().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -26,4 +26,3 @@ describe('Validar rotas de Feriados Ano da aplicaÃ§Ã£o SIGPAE', () => {
 		})
 	})
 })
-

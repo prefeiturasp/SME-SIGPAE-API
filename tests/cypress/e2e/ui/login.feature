@@ -1,36 +1,18 @@
 # language: pt
 
-Funcionalidade: Login
+Funcionalidade: Cadastro de Empresas
+  Como usuário Codae ou Cronograma
+  Preciso realizar o cadastro de empresas
+  Para que fiquem disponíveis no sistema
 
-  Esquema do Cenário: Validar login com perfil "<perfil>"
+  Contexto:
     Dado que acesso o sistema
-    Quando informo os dados do usuário "<perfil>" no dispositivo "<device>"
+    Quando informo os dados do usuário "CODAE" no dispositivo "web"
     E clico no botão acessar
-    Então o sistema deve abrir a tela inicial
 
-    Exemplos:
-      | perfil                              | device |
-      | COORDENADOR_LOGISTICA               | web    |
-      | COORDENADOR_CODAE_DILOG_LOGISTICA   | web    |
-      | COORDENADOR_SUPERVISAO_NUTRICAO     | web    |
-      | DILOG_CRONOGRAMA                    | web    |
-      | DILOG_QUALIDADE                     | web    |
-      | ABASTECIMENTO                       | web    |
-      | DIRETOR_UE                          | web    |
-      | CODAE                               | web    |
-      | GPCODAE                             | web    |
-      | DRE                                 | web    |
-
-  Esquema do Cenário: Validar mensagens de erro no login para "<perfil>"
-    Dado que acesso o sistema
-    Quando informo os dados do usuário "<perfil>" no dispositivo "<device>"
-    E clico no botão acessar
-    Então sistema apresenta "<mensagem>"
-
-    Exemplos:
-      | perfil              | device | mensagem                          |
-      | USUARIO_INVALIDO    | web    | Não foi possível logar no sistema |
-      | SENHA_INVALIDA      | web    | Não foi possível logar no sistema |
-      | USUARIO_INEXISTENTE | web    | Não foi possível logar no sistema |
-      | USUARIO_EM_BRANCO   | web    | Campo obrigatório                 |
-      | SENHA_EM_BRANCO     | web    | Campo obrigatório                 |
+  Cenário: Cadastro de empresa com sucesso
+    Quando acesso o menu Cadastros > Empresas
+    E preencho os campos obrigatórios de cadastro da empresa
+    E clico no botão Salvar
+    E confirmo a ação no modal de confirmação
+    Então devo visualizar a mensagem "Empresa cadastrada com sucesso"

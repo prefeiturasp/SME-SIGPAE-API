@@ -100,7 +100,7 @@ Cypress.Commands.add('validar_produtos_logistica', () => {
 Cypress.Commands.add('atualizar_produto_edital', (uuid, dados_teste) => {
 	cy.request({
 		method: 'PUT',
-		url: Cypress.config('baseUrl') + `api/cadastro-produtos-edital/${uuid}/`,
+		url: Cypress.config('baseUrl') + `api/cadastro-produtos-edital/${uuid}`,
 		timeout: 60000,
 		headers: {
 			Authorization: 'JWT ' + globalThis.token,
@@ -129,7 +129,7 @@ Cypress.Commands.add('excluir_produto_edital', (uuid) => {
 Cypress.Commands.add('atualizar_produto_edital_patch', (uuid, dados_teste) => {
 	cy.request({
 		method: 'PATCH',
-		url: Cypress.config('baseUrl') + `api/cadastro-produtos-edital/${uuid}/`,
+		url: Cypress.config('baseUrl') + `api/cadastro-produtos-edital/${uuid}`,
 		timeout: 60000,
 		headers: {
 			Authorization: 'JWT ' + globalThis.token,

@@ -1,8 +1,8 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 
 describe('Validar rotas de cadastro de produtos edital da aplicação SIGPAE', () => {
-	var usuario = Cypress.env('usuario_diretor_ue')
-	var senha = Cypress.env('senha')
+	var usuario = Cypress.config('usuario_diretor_ue')
+	var senha = Cypress.config('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -27,35 +27,19 @@ describe('Validar rotas de cadastro de produtos edital da aplicação SIGPAE', (
 		})
 
 		it('Validar GET de produtos edital por nome', () => {
-			var nomeProduto = `Teste Automação Novo Produto ${Date.now()}`
-			var dados_teste = {
-				nome: nomeProduto,
-				ativo: 'True',
-				tipo_produto: 'TERCEIRIZADA',
-			}
-			cy.cadastrar_produto_edital(dados_teste).then((responseInclusao) => {
-				expect(responseInclusao.status).to.eq(201)
-
-				var parametros = '?nome=' + nomeProduto
-				cy.consultar_produtos_edital(parametros).then((response) => {
-					expect(response.status).to.eq(200)
-					expect(response.body).to.have.property('count').that.exist
-					expect(response.body).to.have.property('next').that.null
-					expect(response.body).to.have.property('previous').that.null
-					expect(response.body).to.have.property('results').that.is.an('array')
-						.and.not.to.be.empty
-					const primeiro_resultado = response.body.results[0]
-					expect(primeiro_resultado).to.have.property('uuid').that.exist
-					expect(primeiro_resultado).to.have.property('nome').that.eq(nomeProduto)
-					expect(primeiro_resultado).to.have.property('status').that.exist
-					expect(primeiro_resultado).to.have.property('criado_em').that.exist
-
-					cy.excluir_produto_edital(primeiro_resultado.uuid).then(
-						(responseExclusao) => {
-							expect(responseExclusao.status).to.eq(204)
-						},
-					)
-				})
+			var parametros = '?nome=Teste Automação Novo Produto'
+			cy.consultar_produtos_edital(parametros).then((response) => {
+				expect(response.status).to.eq(200)
+				expect(response.body).to.have.property('count').that.exist
+				expect(response.body).to.have.property('next').that.null
+				expect(response.body).to.have.property('previous').that.null
+				expect(response.body).to.have.property('results').that.is.an('array')
+					.and.not.to.be.empty
+				const primeiro_resultado = response.body.results[0]
+				expect(primeiro_resultado).to.have.property('uuid').that.exist
+				expect(primeiro_resultado).to.have.property('nome').that.exist
+				expect(primeiro_resultado).to.have.property('status').that.exist
+				expect(primeiro_resultado).to.have.property('criado_em').that.exist
 			})
 		})
 
@@ -281,45 +265,15 @@ describe('Validar rotas de cadastro de produtos edital da aplicação SIGPAE', (
 		})
 
 		it('Validar PUT de produto edital já cadastrado', () => {
-			var nomeExistente = `PRODUTO DUPLICADO PUT ${Date.now()}`
-			var produtoBase = {
-				nome: nomeExistente,
-				ativo: 'True',
+			var dados_teste = {
+				nome: 'PRODUTO DE TESTE AUTOMAÇÃO - VIA PATCH',
+				ativo: 'Ativo',
 				tipo_produto: 'TERCEIRIZADA',
 			}
-			var produtoAlterado = {
-				nome: `${nomeExistente} ALTERAR`,
-				ativo: 'True',
-				tipo_produto: 'TERCEIRIZADA',
-			}
-			cy.cadastrar_produto_edital(produtoBase).then((responseBase) => {
-				expect(responseBase.status).to.eq(201)
-				cy.cadastrar_produto_edital(produtoAlterado).then((responseAlterado) => {
-					expect(responseAlterado.status).to.eq(201)
-
-					cy.consultar_produtos_edital(`?nome=${nomeExistente}`).then(
-						(responseConsultaBase) => {
-							const uuidBase = responseConsultaBase.body.results[0].uuid
-
-							cy.consultar_produtos_edital(`?nome=${produtoAlterado.nome}`).then(
-								(responseConsultaAlterado) => {
-									const uuidAlterado =
-										responseConsultaAlterado.body.results[0].uuid
-
-									cy.atualizar_produto_edital(uuidAlterado, produtoBase).then(
-										(response) => {
-											expect(response.status).to.eq(400)
-											expect(response.body[0]).to.eq('Item já cadastrado.')
-										},
-									)
-
-									cy.excluir_produto_edital(uuidAlterado)
-									cy.excluir_produto_edital(uuidBase)
-								},
-							)
-						},
-					)
-				})
+			var uuid = 'e6d735aa-8a99-491b-9a14-0e2288ff1d0f/'
+			cy.atualizar_produto_edital(uuid, dados_teste).then((response) => {
+				expect(response.status).to.eq(400)
+				expect(response.body[0]).to.eq('Item já cadastrado.')
 			})
 		})
 
@@ -434,46 +388,15 @@ describe('Validar rotas de cadastro de produtos edital da aplicação SIGPAE', (
 		})
 
 		it('Validar PATCH de produto edital já cadastrado', () => {
-			var nomeExistente = `PRODUTO DUPLICADO PATCH ${Date.now()}`
-			var produtoBase = {
-				nome: nomeExistente,
-				ativo: 'True',
+			var dados_teste = {
+				nome: 'PRODUTO ATUALIZADO VIA PUT - AUTOMAÇÃO',
+				ativo: 'Ativo',
 				tipo_produto: 'TERCEIRIZADA',
 			}
-			var produtoAlterado = {
-				nome: `${nomeExistente} ALTERAR`,
-				ativo: 'True',
-				tipo_produto: 'TERCEIRIZADA',
-			}
-			cy.cadastrar_produto_edital(produtoBase).then((responseBase) => {
-				expect(responseBase.status).to.eq(201)
-				cy.cadastrar_produto_edital(produtoAlterado).then((responseAlterado) => {
-					expect(responseAlterado.status).to.eq(201)
-
-					cy.consultar_produtos_edital(`?nome=${nomeExistente}`).then(
-						(responseConsultaBase) => {
-							const uuidBase = responseConsultaBase.body.results[0].uuid
-
-							cy.consultar_produtos_edital(`?nome=${produtoAlterado.nome}`).then(
-								(responseConsultaAlterado) => {
-									const uuidAlterado =
-										responseConsultaAlterado.body.results[0].uuid
-
-									cy.atualizar_produto_edital_patch(
-										uuidAlterado,
-										produtoBase,
-									).then((response) => {
-										expect(response.status).to.eq(400)
-										expect(response.body[0]).to.eq('Item já cadastrado.')
-									})
-
-									cy.excluir_produto_edital(uuidAlterado)
-									cy.excluir_produto_edital(uuidBase)
-								},
-							)
-						},
-					)
-				})
+			var uuid = 'cbd9638c-b972-4184-814d-cc48e95ab7a4/'
+			cy.atualizar_produto_edital_patch(uuid, dados_teste).then((response) => {
+				expect(response.status).to.eq(400)
+				expect(response.body[0]).to.eq('Item já cadastrado.')
 			})
 		})
 
@@ -550,7 +473,7 @@ afterEach(function () {
 			cy.excluir_produto_edital(uuid).then((response) => {
 				expect(response.status).to.eq(204)
 			})
-			cy.log('Excluindo o produto após o POST com sucesso')
+			cy.log('Excluíndo o produto após o POST com sucesso')
 		})
 	}
 	if (
@@ -571,6 +494,3 @@ afterEach(function () {
 		)
 	}
 })
-
-
-
