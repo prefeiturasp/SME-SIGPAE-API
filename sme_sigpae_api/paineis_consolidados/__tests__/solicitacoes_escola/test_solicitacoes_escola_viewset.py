@@ -843,18 +843,24 @@ class TestEndpointAlteracoesAutorizadas:
                     "numero_alunos": 0,
                     "inclusao_id_externo": "C76CF",
                     "motivo": "Lanche Emergencial",
+                    "periodos_escolares": ["MANHA"],
+                    "tipos_alimentacao_de": ["Refeição", "Lanche"],
                 },
                 {
                     "dia": "02",
                     "numero_alunos": 0,
                     "inclusao_id_externo": "C76CF",
                     "motivo": "Lanche Emergencial",
+                    "periodos_escolares": ["MANHA"],
+                    "tipos_alimentacao_de": ["Refeição", "Lanche"],
                 },
                 {
                     "dia": "03",
                     "numero_alunos": 0,
                     "inclusao_id_externo": "C76CF",
                     "motivo": "Lanche Emergencial",
+                    "periodos_escolares": ["MANHA"],
+                    "tipos_alimentacao_de": ["Refeição", "Lanche"],
                 },
             ]
         }
