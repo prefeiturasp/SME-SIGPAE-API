@@ -105,6 +105,63 @@ class AlteracaoCardapioCEMEI(
         )
         return total
 
+    def tipos_alimentacao_de(self, nome_periodo_escolar: str = None) -> list[str]:
+        """
+        Retorna uma lista com os tipos de alimentação "de" selecionados em todas as substituições da solicitação.
+         - Para as substituições do CEI, os tipos de alimentação "de" são obtidos a partir do campo "tipos_alimentacao_de" da model "SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI".
+         - Para as substituições do EMEI, os tipos de alimentação "de" são obtidos a partir do campo "tipos_alimentacao_de" da model "SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI".
+         - A lista resultante é a combinação dos tipos de alimentação "de" de ambas as substituições, sem duplicatas.
+         - O resultado é uma lista de strings, onde cada string é o nome de um tipo de alimentação "de" selecionado em alguma das substituições da solicitação.
+         - Exemplo de retorno: ["Tipo A", "Tipo B", "Tipo C"]
+         - Se não houver tipos de alimentação "de" selecionados em nenhuma das substituições, o retorno será uma lista vazia.
+         - A ordem dos tipos de alimentação "de" na lista não é garantida, pois depende da ordem de obtenção dos dados.
+        """
+        tipos_alimentacao_de = []
+        substituicoes_cei = self.substituicoes_cemei_cei_periodo_escolar.all()
+        if nome_periodo_escolar:
+            substituicoes_cei = substituicoes_cei.filter(
+                periodo_escolar__nome=nome_periodo_escolar
+            )
+        tipos_alimentacao_de += list(
+            substituicoes_cei.values_list("tipos_alimentacao_de__nome", flat=True)
+        )
+
+        substituicoes_emei = self.substituicoes_cemei_emei_periodo_escolar.all()
+        if nome_periodo_escolar:
+            substituicoes_emei = substituicoes_emei.filter(
+                periodo_escolar__nome=nome_periodo_escolar
+            )
+        tipos_alimentacao_de += list(
+            substituicoes_emei.values_list("tipos_alimentacao_de__nome", flat=True)
+        )
+        return tipos_alimentacao_de
+
+    @property
+    def periodos_escolares(self):
+        """
+        Retorna uma lista com os nomes dos períodos escolares selecionados em todas as substituições da solicitação.
+         - Para as substituições do CEI, os períodos escolares são obtidos a partir do campo "periodo_escolar__nome" da model "SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI".
+         - Para as substituições do EMEI, os períodos escolares são obtidos a partir do campo "periodo_escolar__nome" da model "SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI".
+         - A lista resultante é a combinação dos períodos escolares de ambas as substituições, sem duplicatas.
+         - O resultado é uma lista de strings, onde cada string é o nome de um período escolar selecionado em alguma das substituições da solicitação.
+         - Exemplo de retorno: ["Período A", "Período B", "Período C"]
+         - Se não houver períodos escolares selecionados em nenhuma das substituições, o retorno será uma lista vazia.
+         - A ordem dos períodos escolares na lista não é garantida, pois depende da ordem de obtenção dos dados.
+
+        """
+        periodos = []
+        periodos += list(
+            self.substituicoes_cemei_cei_periodo_escolar.values_list(
+                "periodo_escolar__nome", flat=True
+            )
+        )
+        periodos += list(
+            self.substituicoes_cemei_emei_periodo_escolar.values_list(
+                "periodo_escolar__nome", flat=True
+            )
+        )
+        return periodos
+
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         justificativa = kwargs.get("justificativa", "")
         resposta_sim_nao = kwargs.get("resposta_sim_nao", False)
