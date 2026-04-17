@@ -19,7 +19,6 @@ from django.db.models import (
 )
 from django.forms import ValidationError
 from django_filters import rest_framework as filters
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, mixins, serializers, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -31,6 +30,12 @@ from xworkflows import InvalidTransitionError
 from sme_sigpae_api.dados_comuns.api.paginations import HistoricoDietasPagination
 from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
     atualiza_historico_protocolo,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    Anexo,
+    MotivoAlteracaoUE,
+    MotivoNegacao,
+    SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.escola.models import Escola
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
@@ -76,21 +81,14 @@ from ..forms import (
     RelatorioQuantitativoSolicDietaEspForm,
     SolicitacoesAtivasInativasPorAlunoForm,
 )
-from ..models import (
-    AlergiaIntolerancia,
+from ..protocolo_padrao.models import (
     Alimento,
-    Anexo,
-    ClassificacaoDieta,
-    LogQuantidadeDietasAutorizadas,
-    LogQuantidadeDietasAutorizadasCEI,
-    LogQuantidadeDietasAutorizadasRecreioNasFerias,
-    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
-    MotivoAlteracaoUE,
-    MotivoNegacao,
     ProtocoloPadraoDietaEspecial,
-    SolicitacaoDietaEspecial,
     SubstituicaoAlimento,
-    TipoContagem,
+)
+from ..solicitacao_dieta_especial.models import (
+    AlergiaIntolerancia,
+    ClassificacaoDieta,
 )
 from ..tasks import (
     gera_pdf_relatorio_dietas_especiais_terceirizadas_async,
@@ -112,18 +110,12 @@ from ..utils import (
 from .filters import (
     AlimentoFilter,
     DietaEspecialFilter,
-    LogQuantidadeDietasEspeciaisFilter,
-    LogQuantidadeDietasRecreioNasFeriasFilter,
     MotivoNegacaoFilter,
 )
 from .serializers import (
     AlergiaIntoleranciaSerializer,
     AlimentoSerializer,
     ClassificacaoDietaSerializer,
-    LogQuantidadeDietasAutorizadasCEISerializer,
-    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer,
-    LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer,
-    LogQuantidadeDietasAutorizadasSerializer,
     MotivoAlteracaoUESerializer,
     MotivoNegacaoSerializer,
     PanoramaSerializer,
@@ -137,7 +129,6 @@ from .serializers import (
     SolicitacaoDietaEspecialSimplesSerializer,
     SolicitacaoDietaEspecialUpdateSerializer,
     SolicitacoesAtivasInativasPorAlunoSerializer,
-    TipoContagemSerializer,
     UnidadeEducacionalSerializer,
 )
 from .serializers_create import (
@@ -2149,14 +2140,6 @@ class AlimentoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericV
     filterset_class = AlimentoFilter
 
 
-class TipoContagemViewSet(mixins.ListModelMixin, GenericViewSet):
-    queryset = TipoContagem.objects.all().order_by("nome")
-    serializer_class = TipoContagemSerializer
-    pagination_class = None
-    verbose_name = "Tipo de Contagem"
-    verbose_name_plural = "Tipos de Contagem"
-
-
 class MotivoAlteracaoUEViewSet(mixins.ListModelMixin, GenericViewSet):
     queryset = MotivoAlteracaoUE.objects.filter(ativo=True).order_by("nome")
     serializer_class = MotivoAlteracaoUESerializer
@@ -2332,41 +2315,3 @@ class ProtocoloPadraoDietaEspecialViewSet(ModelViewSet):
                 {"results": "É necessário selecionar um Edital."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-
-class LogQuantidadeDietasAutorizadasViewSet(mixins.ListModelMixin, GenericViewSet):
-    serializer_class = LogQuantidadeDietasAutorizadasSerializer
-    queryset = LogQuantidadeDietasAutorizadas.objects.all()
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = LogQuantidadeDietasEspeciaisFilter
-    pagination_class = None
-
-
-class LogQuantidadeDietasAutorizadasCEIViewSet(mixins.ListModelMixin, GenericViewSet):
-    serializer_class = LogQuantidadeDietasAutorizadasCEISerializer
-    queryset = LogQuantidadeDietasAutorizadasCEI.objects.filter(
-        faixa_etaria__isnull=False
-    )
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = LogQuantidadeDietasEspeciaisFilter
-    pagination_class = None
-
-
-class LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet(
-    mixins.ListModelMixin, GenericViewSet
-):
-    serializer_class = LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer
-    queryset = LogQuantidadeDietasAutorizadasRecreioNasFerias.objects.all()
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = LogQuantidadeDietasRecreioNasFeriasFilter
-    pagination_class = None
-
-
-class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet(
-    mixins.ListModelMixin, GenericViewSet
-):
-    serializer_class = LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer
-    queryset = LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.objects.all()
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = LogQuantidadeDietasRecreioNasFeriasFilter
-    pagination_class = None

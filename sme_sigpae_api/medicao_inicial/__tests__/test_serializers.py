@@ -5,9 +5,11 @@ import pytest
 from model_bakery import baker
 from rest_framework import serializers
 
-from sme_sigpae_api.dieta_especial.models import (
-    ClassificacaoDieta,
+from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
 )
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
     AlunosMatriculadosPeriodoEscolaFactory,

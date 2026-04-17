@@ -18,6 +18,10 @@ from sme_sigpae_api.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory,
 )
+from sme_sigpae_api.dieta_especial.logs_models.fixtures.factories.base import (
+    LogQuantidadeDietasAutorizadasCEIFactory,
+    LogQuantidadeDietasAutorizadasFactory,
+)
 from sme_sigpae_api.pre_recebimento.ficha_tecnica.fixtures.factories.fabricante_ficha_tecnica_factory import (
     FabricanteFichaTecnicaFactory,
 )
@@ -55,8 +59,6 @@ from .dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     AlergiaIntoleranciaFactory,
     AlimentoFactory,
     ClassificacaoDietaFactory,
-    LogQuantidadeDietasAutorizadasCEIFactory,
-    LogQuantidadeDietasAutorizadasFactory,
     MotivoAlteracaoUEFactory,
     ProtocoloPadraoDietaEspecialFactory,
     SolicitacaoDietaEspecialFactory,

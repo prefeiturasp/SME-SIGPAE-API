@@ -2,7 +2,7 @@ import csv
 
 import environ
 
-from sme_sigpae_api.dieta_especial.models import Alimento
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import Alimento
 from utility.carga_dados.escola.helper import printa_pontinhos
 
 ROOT_DIR = environ.Path(__file__) - 1

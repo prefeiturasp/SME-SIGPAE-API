@@ -477,10 +477,12 @@ def analise_alunos_dietas_somente_uma_data(
 
 def get_alunos_com_dietas_autorizadas(query_params, escola):
     from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
-    from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+    from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+        SolicitacaoDietaEspecial,
+    )
 
     solicitacoes_dietas_comuns = SolicitacaoDietaEspecial.objects.filter(
-        aluno__escola=escola, tipo_solicitacao="COMUM"
+        aluno__escola=escola, tipo_solicitacao="COMUM", ativo=True
     )
     dietas_com_log_autorizado = [
         s

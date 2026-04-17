@@ -592,6 +592,7 @@ def get_nome_campo(campo):
         "repeticao_2_refeicao": "Repetição 2ª Refeição",
         "2_sobremesa_1_oferta": "2ª Sobremesa 1ª Oferta",
         "repeticao_2_sobremesa": "Repetição 2ª Sobremesa",
+        "observacoes": "Observações",
     }
     return campos.get(campo, campo)
 

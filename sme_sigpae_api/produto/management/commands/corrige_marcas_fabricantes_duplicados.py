@@ -6,7 +6,7 @@ from django.core.management import BaseCommand
 from django.db.models import F, Func, Value
 from django.db.models.functions import Upper
 
-from sme_sigpae_api.dieta_especial.models import Alimento
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import Alimento
 from sme_sigpae_api.produto.models import Fabricante, Marca, Produto
 
 logger = logging.getLogger("sigpae.cmd_corrige_marcas_fabricantes_duplicados")

@@ -6,7 +6,9 @@ import pytest
 from freezegun import freeze_time
 from model_bakery import baker
 
-from sme_sigpae_api.dieta_especial.models import LogQuantidadeDietasAutorizadasCEI
+from sme_sigpae_api.dieta_especial.logs_models.models import (
+    LogQuantidadeDietasAutorizadasCEI,
+)
 from sme_sigpae_api.medicao_inicial.utils import (
     atualiza_alunos_periodo_parcial,
     avalia_soma_total_com_dados_tabela_anterior,

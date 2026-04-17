@@ -4,7 +4,7 @@ from faker import Faker
 
 from sme_sigpae_api.dados_comuns.fluxo_status import HomologacaoProdutoWorkflow
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
-from sme_sigpae_api.dieta_especial.models import Alimento
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import Alimento
 from sme_sigpae_api.perfil.models import Usuario
 from sme_sigpae_api.produto.data.informacao_nutricional import (  # noqa
     data_informacao_nutricional,

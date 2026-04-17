@@ -22,7 +22,9 @@ from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     SolicitacaoDietaEspecialFactory,
 )
-from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    SolicitacaoDietaEspecial,
+)
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
     AlunoFactory,
     FaixaEtariaFactory,

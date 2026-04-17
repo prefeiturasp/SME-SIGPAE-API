@@ -18,6 +18,7 @@ from sme_sigpae_api.pre_recebimento.cronograma_semanal.api.filters import (
     CronogramaSemanalFilter,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_semanal.api.serializers.serializer_create import (
+    CronogramaSemanalAssinarEEnviarSerializer,
     CronogramaSemanalRascunhoSerializer,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_semanal.api.serializers.serializers import (
@@ -42,6 +43,7 @@ class CronogramaSemanalViewSet(
     - GET /cronogramas-semanais/{uuid}/ - Detalha cronograma semanal
     - POST /cronogramas-semanais/rascunho/ - Cria cronograma semanal como rascunho
     - PATCH /cronogramas-semanais/{uuid}/ - Atualiza cronograma semanal
+    - PATCH /cronogramas-semanais/{uuid}/assinar-e-enviar/ - Assina e envia cronograma semanal
     - GET /cronogramas-semanais/cronogramas-mensal-assinados/ - Lista cronogramas mensal Ponto a Ponto assinados
     """
 
@@ -69,6 +71,8 @@ class CronogramaSemanalViewSet(
             return CronogramaSemanalRascunhoSerializer
         if self.action in ["update", "partial_update"]:
             return CronogramaSemanalRascunhoSerializer
+        if self.action == "assinar_e_enviar":
+            return CronogramaSemanalAssinarEEnviarSerializer
         if self.action in ["retrieve", "list"]:
             return CronogramaSemanalListagemSerializer
         return CronogramaSemanalListagemSerializer
@@ -133,3 +137,42 @@ class CronogramaSemanalViewSet(
             cronogramas_ponto_a_ponto, many=True
         )
         return Response(serializer.data)
+
+    @action(
+        detail=True,
+        methods=["patch"],
+        url_path="assinar-e-enviar",
+        url_name="assinar_e_enviar",
+    )
+    def assinar_e_enviar(self, request, uuid):
+        """
+        Endpoint: PATCH /cronogramas-semanais/{uuid}/assinar-e-enviar/
+
+        Assina digitalmente e envia o cronograma semanal para aprovação.
+        Valida a senha do usuário e executa a transição inicia_fluxo do workflow.
+        """
+        usuario = request.user
+        password = request.data.get("password")
+
+        if not usuario.verificar_autenticidade(password):
+            return Response(
+                {"detail": "Assinatura do cronograma não foi validada."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        try:
+            cronograma_semanal = self.get_object()
+            serializer = self.get_serializer(
+                cronograma_semanal,
+                data=request.data,
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+        except Exception as e:
+            # Se a transição do workflow falhar (ex: status não é RASCUNHO),
+            # retorna erro 400
+            return Response(
+                {"detail": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )

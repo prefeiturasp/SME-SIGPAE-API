@@ -1,7 +1,9 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from sme_sigpae_api.dieta_especial.models import SolicitacaoDietaEspecial
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    SolicitacaoDietaEspecial,
+)
 
 
 def deletar_dieta(dieta_uuid):

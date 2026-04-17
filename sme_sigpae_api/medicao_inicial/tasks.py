@@ -35,15 +35,24 @@ from ..dados_comuns.utils import (
 from ..escola.models import AlunoPeriodoParcial, Escola
 from ..relatorios.relatorios import (
     obter_relatorio_da_unidade,
+    relatorio_ateste_financeiro_grupo_cei,
     relatorio_historico_ocorrencias_medicao_inicial,
     relatorio_solicitacao_medicao_por_escola,
     relatorio_solicitacao_medicao_por_escola_cei,
     relatorio_solicitacao_medicao_por_escola_cemei,
     relatorio_solicitacao_medicao_por_escola_emebs,
-    relatorio_ateste_financeiro_grupo_cei,
 )
-from .models import ParametrizacaoFinanceira, RelatorioFinanceiro, Responsavel, SolicitacaoMedicaoInicial
+from .historico_acesso_ue import tasks as historico_acesso_ue_tasks
+from .models import (
+    ParametrizacaoFinanceira,
+    RelatorioFinanceiro,
+    Responsavel,
+    SolicitacaoMedicaoInicial,
+)
 from .utils import cria_relatorios_financeiros_por_grupo_unidade_escolar
+
+cria_historico_acesso_ue = historico_acesso_ue_tasks.cria_historico_acesso_ue
+finaliza_historico_acesso_ue = historico_acesso_ue_tasks.finaliza_historico_acesso_ue
 
 logger = logging.getLogger(__name__)
 
@@ -481,7 +490,9 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
         user=user, identificador=nome_arquivo
     )
     try:
-        relatorio_financeiro = RelatorioFinanceiro.objects.get(uuid=uuid_relatorio_financeiro)
+        relatorio_financeiro = RelatorioFinanceiro.objects.get(
+            uuid=uuid_relatorio_financeiro
+        )
 
         mes = int(relatorio_financeiro.mes)
         ano = int(relatorio_financeiro.ano)
@@ -498,7 +509,9 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
                 "Parametrização financeira não encontrada para o tipo de unidade e lote do relatório financeiro."
             )
 
-        arquivo = relatorio_ateste_financeiro_grupo_cei(relatorio_financeiro, parametrizacao)
+        arquivo = relatorio_ateste_financeiro_grupo_cei(
+            relatorio_financeiro, parametrizacao
+        )
 
         atualiza_central_download(obj_central_download, nome_arquivo, arquivo)
     except Exception as e:

@@ -8,6 +8,7 @@ from .models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
+    DadosLiquidacao,
     DiaSobremesaDoce,
     Empenho,
     GrupoMedicao,
@@ -21,7 +22,6 @@ from .models import (
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
     ValorMedicao,
-    DadosLiquidacao,
 )
 
 admin.site.register(AlimentacaoLancamentoEspecial)
@@ -43,7 +43,8 @@ class LancheEmergencialDiarioAdmin(admin.ModelAdmin):
 class SolicitacaoMedicaoInicialAdmin(admin.ModelAdmin):
     list_display = ("id_externo", "escola", "mes", "ano", "criado_em", "status")
     search_fields = ("escola__nome", "escola__codigo_eol")
-    list_filter = ("mes", "ano", "status")
+    search_help_text = "Pesquise por: nome da escola ou código eol da escola"
+    list_filter = ("mes", "ano", "status", "escola__lote__iniciais")
 
 
 @admin.register(Medicao)
@@ -62,6 +63,7 @@ class MedicaoAdmin(admin.ModelAdmin):
         "solicitacao_medicao_inicial__escola__nome",
         "solicitacao_medicao_inicial__escola__codigo_eol",
     )
+    search_help_text = "Pesquise por: nome da escola ou código eol da escola"
     list_filter = (
         "periodo_escolar__nome",
         "grupo",
@@ -225,3 +227,4 @@ class DadosLiquidacaoAdmin(admin.ModelAdmin):
 
 
 importlib.import_module("sme_sigpae_api.medicao_inicial.recreio_nas_ferias.admin")
+importlib.import_module("sme_sigpae_api.medicao_inicial.historico_acesso_ue.admin")
