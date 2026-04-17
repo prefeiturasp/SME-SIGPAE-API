@@ -36,6 +36,7 @@ from ..escola.models import AlunoPeriodoParcial, Escola
 from ..relatorios.relatorios import (
     obter_relatorio_da_unidade,
     relatorio_ateste_financeiro_grupo_cei,
+    relatorio_ateste_financeiro_grupo_emei,
     relatorio_historico_ocorrencias_medicao_inicial,
     relatorio_solicitacao_medicao_por_escola,
     relatorio_solicitacao_medicao_por_escola_cei,
@@ -490,9 +491,7 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
         user=user, identificador=nome_arquivo
     )
     try:
-        relatorio_financeiro = RelatorioFinanceiro.objects.get(
-            uuid=uuid_relatorio_financeiro
-        )
+        relatorio_financeiro = RelatorioFinanceiro.objects.get(uuid=uuid_relatorio_financeiro)
 
         mes = int(relatorio_financeiro.mes)
         ano = int(relatorio_financeiro.ano)
@@ -509,9 +508,11 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
                 "Parametrização financeira não encontrada para o tipo de unidade e lote do relatório financeiro."
             )
 
-        arquivo = relatorio_ateste_financeiro_grupo_cei(
-            relatorio_financeiro, parametrizacao
-        )
+        grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome
+        if grupo_nome.upper() == "GRUPO 1":
+            arquivo = relatorio_ateste_financeiro_grupo_cei(relatorio_financeiro, parametrizacao)
+        else:
+            arquivo = relatorio_ateste_financeiro_grupo_emei(relatorio_financeiro, parametrizacao)
 
         atualiza_central_download(obj_central_download, nome_arquivo, arquivo)
     except Exception as e:
