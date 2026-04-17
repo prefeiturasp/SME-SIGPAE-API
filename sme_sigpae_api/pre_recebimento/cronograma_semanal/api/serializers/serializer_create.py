@@ -28,7 +28,9 @@ class ProgramacaoEntregaSemanalCreateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data.get("data_inicio") and data.get("data_fim"):
             if data["data_fim"] < data["data_inicio"]:
-                raise serializers.ValidationError("Data fim deve ser posterior à data início.")
+                raise serializers.ValidationError(
+                    "Data fim deve ser posterior à data início."
+                )
         return data
 
 
