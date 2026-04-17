@@ -11,6 +11,11 @@ from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alter
     MotivoAlteracaoCardapioFactory,
     SubstituicaoAlimentacaoNoPeriodoEscolarFactory,
 )
+from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.fixtures.factories.alteracao_tipo_alimentacao_cemei_factory import (
+    AlteracaoCardapioCEMEIFactory,
+    DataIntervaloAlteracaoCardapioCEMEIFactory,
+    SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEIFactory,
+)
 from sme_sigpae_api.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory,
@@ -833,6 +838,110 @@ class TestEndpointAlteracoesAutorizadas:
             f"&ano=2025&"
             f"eh_lanche_emergencial=true"
             f"&nome_periodo_escolar=MANHA"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == {
+            "results": [
+                {
+                    "dia": "01",
+                    "numero_alunos": 0,
+                    "inclusao_id_externo": "C76CF",
+                    "motivo": "Lanche Emergencial",
+                    "periodos_escolares": ["MANHA"],
+                    "tipos_alimentacao_de": ["Refeição", "Lanche"],
+                },
+                {
+                    "dia": "02",
+                    "numero_alunos": 0,
+                    "inclusao_id_externo": "C76CF",
+                    "motivo": "Lanche Emergencial",
+                    "periodos_escolares": ["MANHA"],
+                    "tipos_alimentacao_de": ["Refeição", "Lanche"],
+                },
+                {
+                    "dia": "03",
+                    "numero_alunos": 0,
+                    "inclusao_id_externo": "C76CF",
+                    "motivo": "Lanche Emergencial",
+                    "periodos_escolares": ["MANHA"],
+                    "tipos_alimentacao_de": ["Refeição", "Lanche"],
+                },
+            ]
+        }
+
+
+@pytest.mark.usefixtures("client_autenticado_vinculo_escola_cemei", "escola_cemei")
+@freeze_time("2025-02-05")
+class TestEndpointAlteracoesAutorizadasCEMEI:
+    def setup_solicitacoes(
+        self,
+        escola_cemei,
+        usuario,
+        status,
+        status_evento,
+    ):
+        motivo_lanche_emergencial = MotivoAlteracaoCardapioFactory.create(
+            nome="Lanche Emergencial"
+        )
+        periodo_manha = PeriodoEscolarFactory.create(nome="MANHA")
+        refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
+        lanche = TipoAlimentacaoFactory.create(nome="Lanche")
+        lanche_emergencial = TipoAlimentacaoFactory.create(nome="Lanche Emergencial")
+
+        alteracao_tipo_alimentacao_lanche_emergencial = (
+            AlteracaoCardapioCEMEIFactory.create(
+                escola=escola_cemei,
+                rastro_escola=escola_cemei,
+                rastro_dre=escola_cemei.diretoria_regional,
+                rastro_lote=escola_cemei.lote,
+                motivo=motivo_lanche_emergencial,
+                data_inicial="2025-02-01",
+                data_final="2025-02-03",
+                status=status,
+                uuid="c76cfacc-f1cb-4ad6-86a3-5a2dc8dc3cd7",
+            )
+        )
+        for dia in ["01", "02", "03"]:
+            DataIntervaloAlteracaoCardapioCEMEIFactory.create(
+                alteracao_cardapio_cemei=alteracao_tipo_alimentacao_lanche_emergencial,
+                data=f"2025-02-{dia}",
+            )
+        SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEIFactory.create(
+            alteracao_cardapio=alteracao_tipo_alimentacao_lanche_emergencial,
+            periodo_escolar=periodo_manha,
+            tipos_alimentacao_de=[refeicao, lanche],
+            tipos_alimentacao_para=[lanche_emergencial],
+            qtd_alunos=0,
+            matriculados_quando_criado=0,
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=alteracao_tipo_alimentacao_lanche_emergencial.uuid,
+            status_evento=status_evento,
+            usuario=usuario,
+        )
+
+    def test_alteracoes_autorizadas_lanche_emergencial_cemei(
+        self,
+        client_autenticado_vinculo_escola_cemei,
+        escola_cemei,
+    ):
+        client, usuario = client_autenticado_vinculo_escola_cemei
+        self.setup_solicitacoes(
+            escola_cemei,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+
+        response = client.get(
+            "/escola-solicitacoes/alteracoes-alimentacao-autorizadas/"
+            f"?escola_uuid={escola_cemei.uuid}"
+            f"&tipo_solicitacao=Alteração"
+            f"&mes=02"
+            f"&ano=2025&"
+            f"eh_lanche_emergencial=true"
+            f"&nome_periodo_escolar=Infantil+MANHA"
         )
 
         assert response.status_code == status.HTTP_200_OK
