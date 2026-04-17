@@ -688,6 +688,19 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
             return nome_periodo_escolar
         return nome_periodo_escolar.split(" ")[1]
 
+    def filtra_por_periodo_escolar(self, queryset, alteracao, nome_periodo_escolar):
+        if not nome_periodo_escolar:
+            return queryset
+
+        periodo = self.normaliza_periodo_escolar(nome_periodo_escolar)
+
+        if alteracao.escola.eh_cemei_data(alteracao.data):
+            lookup = "alteracao_cardapio_cemei__substituicoes_cemei_emei_periodo_escolar__periodo_escolar__nome"
+        else:
+            lookup = "alteracao_cardapio__substituicoes_periodo_escolar__periodo_escolar__nome"
+
+        return queryset.filter(**{lookup: periodo})
+
     def alteracoes_lanche_emergencial(
         self,
         eh_lanche_emergencial,
@@ -698,38 +711,28 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         ano,
         return_dict,
     ):
-        if eh_lanche_emergencial == "true":
-            datas_intervalo = alteracao.datas_intervalo.filter(
-                data__month=mes, data__year=ano, cancelado=False
+        if eh_lanche_emergencial != "true":
+            return return_dict
+
+        datas_intervalo = alteracao.datas_intervalo.filter(
+            data__month=mes, data__year=ano, cancelado=False
+        )
+        datas_intervalo = self.filtra_por_periodo_escolar(
+            datas_intervalo, alteracao, nome_periodo_escolar
+        )
+        for data_evento in datas_intervalo:
+            return_dict.append(
+                {
+                    "dia": f"{data_evento.data.day:02d}",
+                    "numero_alunos": get_numero_alunos_alteracao_alimentacao(alteracao),
+                    "inclusao_id_externo": alteracao.id_externo,
+                    "motivo": alteracao_alimentacao.motivo,
+                    "periodos_escolares": alteracao.periodos_escolares,
+                    "tipos_alimentacao_de": alteracao.tipos_alimentacao_de(
+                        self.normaliza_periodo_escolar(nome_periodo_escolar)
+                    ),
+                }
             )
-            if nome_periodo_escolar:
-                if alteracao.escola.eh_cemei_data(alteracao.data):
-                    datas_intervalo = datas_intervalo.filter(
-                        alteracao_cardapio_cemei__substituicoes_cemei_emei_periodo_escolar__periodo_escolar__nome=self.normaliza_periodo_escolar(
-                            nome_periodo_escolar
-                        )
-                    )
-                else:
-                    datas_intervalo = datas_intervalo.filter(
-                        alteracao_cardapio__substituicoes_periodo_escolar__periodo_escolar__nome=self.normaliza_periodo_escolar(
-                            nome_periodo_escolar
-                        )
-                    )
-            for data_evento in datas_intervalo:
-                return_dict.append(
-                    {
-                        "dia": f"{data_evento.data.day:02d}",
-                        "numero_alunos": get_numero_alunos_alteracao_alimentacao(
-                            alteracao
-                        ),
-                        "inclusao_id_externo": alteracao.id_externo,
-                        "motivo": alteracao_alimentacao.motivo,
-                        "periodos_escolares": alteracao.periodos_escolares,
-                        "tipos_alimentacao_de": alteracao.tipos_alimentacao_de(
-                            self.normaliza_periodo_escolar(nome_periodo_escolar)
-                        ),
-                    }
-                )
         return return_dict
 
     def alteracoes_RPL_LPR(
