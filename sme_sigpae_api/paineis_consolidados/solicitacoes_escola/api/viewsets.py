@@ -683,6 +683,11 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
             )
         return alt
 
+    def normaliza_periodo_escolar(self, nome_periodo_escolar):
+        if " " in nome_periodo_escolar:
+            return nome_periodo_escolar.split(" ")[1]
+        return nome_periodo_escolar
+
     def alteracoes_lanche_emergencial(
         self,
         eh_lanche_emergencial,
@@ -700,11 +705,15 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
             if nome_periodo_escolar:
                 if alteracao.escola.eh_cemei_data(alteracao.data):
                     datas_intervalo = datas_intervalo.filter(
-                        alteracao_cardapio_cemei__substituicoes_cemei_emei_periodo_escolar__periodo_escolar__nome=nome_periodo_escolar
+                        alteracao_cardapio_cemei__substituicoes_cemei_emei_periodo_escolar__periodo_escolar__nome=self.normaliza_periodo_escolar(
+                            nome_periodo_escolar
+                        )
                     )
                 else:
                     datas_intervalo = datas_intervalo.filter(
-                        alteracao_cardapio__substituicoes_periodo_escolar__periodo_escolar__nome=nome_periodo_escolar
+                        alteracao_cardapio__substituicoes_periodo_escolar__periodo_escolar__nome=self.normaliza_periodo_escolar(
+                            nome_periodo_escolar
+                        )
                     )
             for data_evento in datas_intervalo:
                 return_dict.append(
@@ -717,7 +726,7 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                         "motivo": alteracao_alimentacao.motivo,
                         "periodos_escolares": alteracao.periodos_escolares,
                         "tipos_alimentacao_de": alteracao.tipos_alimentacao_de(
-                            nome_periodo_escolar
+                            self.normaliza_periodo_escolar(nome_periodo_escolar)
                         ),
                     }
                 )
