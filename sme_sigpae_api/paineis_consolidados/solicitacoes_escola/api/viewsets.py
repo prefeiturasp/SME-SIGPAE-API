@@ -698,9 +698,14 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                 data__month=mes, data__year=ano, cancelado=False
             )
             if nome_periodo_escolar:
-                datas_intervalo = datas_intervalo.filter(
-                    alteracao_cardapio__substituicoes_periodo_escolar__periodo_escolar__nome=nome_periodo_escolar
-                )
+                if alteracao.escola.eh_cemei_data(alteracao.data):
+                    datas_intervalo = datas_intervalo.filter(
+                        alteracao_cardapio_cemei__substituicoes_cemei_emei_periodo_escolar__periodo_escolar__nome=nome_periodo_escolar
+                    )
+                else:
+                    datas_intervalo = datas_intervalo.filter(
+                        alteracao_cardapio__substituicoes_periodo_escolar__periodo_escolar__nome=nome_periodo_escolar
+                    )
             for data_evento in datas_intervalo:
                 return_dict.append(
                     {

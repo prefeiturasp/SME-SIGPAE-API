@@ -105,8 +105,7 @@ class AlteracaoCardapioCEMEI(
         )
         return total
 
-    @property
-    def tipos_alimentacao_de(self):
+    def tipos_alimentacao_de(self, nome_periodo_escolar: str = None) -> list[str]:
         """
         Retorna uma lista com os tipos de alimentação "de" selecionados em todas as substituições da solicitação.
          - Para as substituições do CEI, os tipos de alimentação "de" são obtidos a partir do campo "tipos_alimentacao_de" da model "SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI".
@@ -118,15 +117,22 @@ class AlteracaoCardapioCEMEI(
          - A ordem dos tipos de alimentação "de" na lista não é garantida, pois depende da ordem de obtenção dos dados.
         """
         tipos_alimentacao_de = []
-        tipos_alimentacao_de += list(
-            self.substituicoes_cemei_cei_periodo_escolar.values_list(
-                "tipos_alimentacao_de__nome", flat=True
+        substituicoes_cei = self.substituicoes_cemei_cei_periodo_escolar.all()
+        if nome_periodo_escolar:
+            substituicoes_cei = substituicoes_cei.filter(
+                periodo_escolar__nome=nome_periodo_escolar
             )
+        tipos_alimentacao_de += list(
+            substituicoes_cei.values_list("tipos_alimentacao_de__nome", flat=True)
         )
-        tipos_alimentacao_de += list(
-            self.substituicoes_cemei_emei_periodo_escolar.values_list(
-                "tipos_alimentacao_de__nome", flat=True
+
+        substituicoes_emei = self.substituicoes_cemei_emei_periodo_escolar.all()
+        if nome_periodo_escolar:
+            substituicoes_emei = substituicoes_emei.filter(
+                periodo_escolar__nome=nome_periodo_escolar
             )
+        tipos_alimentacao_de += list(
+            substituicoes_emei.values_list("tipos_alimentacao_de__nome", flat=True)
         )
         return tipos_alimentacao_de
 
