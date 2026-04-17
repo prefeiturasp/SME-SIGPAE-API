@@ -684,11 +684,36 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         return alt
 
     def normaliza_periodo_escolar(self, nome_periodo_escolar):
+        """Normaliza o nome do periodo escolar recebido na query.
+
+        Args:
+            nome_periodo_escolar (str | None): Nome do periodo informado na
+                requisicao. Pode vir no formato simples, como "MANHA", ou com
+                prefixo, como "Infantil MANHA".
+
+        Returns:
+            str | None: O nome do periodo sem prefixos quando houver espaco no
+            valor informado. Caso contrario, retorna o valor original.
+        """
         if nome_periodo_escolar is None or " " not in nome_periodo_escolar:
             return nome_periodo_escolar
         return nome_periodo_escolar.split(" ")[1]
 
     def filtra_por_periodo_escolar(self, queryset, alteracao, nome_periodo_escolar):
+        """Filtra um queryset de datas pela substituicao do periodo escolar.
+
+        Args:
+            queryset (QuerySet): Conjunto de datas de intervalo da alteracao.
+            alteracao (Model): Instancia da alteracao de cardapio associada ao
+                queryset.
+            nome_periodo_escolar (str | None): Nome do periodo solicitado na
+                requisicao.
+
+        Returns:
+            QuerySet: O queryset original quando nao ha periodo informado, ou o
+            queryset filtrado pelo periodo escolar correspondente ao tipo da
+            alteracao.
+        """
         if not nome_periodo_escolar:
             return queryset
 
@@ -711,6 +736,25 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         ano,
         return_dict,
     ):
+        """Monta o retorno das alteracoes classificadas como lanche emergencial.
+
+        Args:
+            eh_lanche_emergencial (str): Flag textual da query string indicando
+                se o endpoint deve retornar apenas lanches emergenciais.
+            alteracao (Model): Instancia da alteracao de cardapio recuperada do
+                modelo bruto.
+            alteracao_alimentacao (SolicitacoesEscola): Registro consolidado da
+                solicitacao usado para complementar o retorno.
+            nome_periodo_escolar (str | None): Periodo escolar solicitado.
+            mes (str): Mes usado para filtrar as datas da alteracao.
+            ano (str): Ano usado para filtrar as datas da alteracao.
+            return_dict (list[dict]): Lista acumuladora usada na resposta do
+                endpoint.
+
+        Returns:
+            list[dict]: A lista recebida, eventualmente acrescida com os itens
+            de lanche emergencial encontrados para o periodo informado.
+        """
         if eh_lanche_emergencial != "true":
             return return_dict
 
@@ -745,6 +789,25 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         ano,
         return_dict,
     ):
+        """Monta o retorno das alteracoes RPL/LPR para o periodo informado.
+
+        Args:
+            eh_lanche_emergencial (str): Flag textual da query string indicando
+                se o endpoint esta filtrando lanches emergenciais.
+            alteracao (Model): Instancia da alteracao de cardapio recuperada do
+                modelo bruto.
+            alteracao_alimentacao (SolicitacoesEscola): Registro consolidado da
+                solicitacao usado para complementar o retorno.
+            nome_periodo_escolar (str | None): Periodo escolar solicitado.
+            mes (str): Mes usado para filtrar as datas da alteracao.
+            ano (str): Ano usado para filtrar as datas da alteracao.
+            return_dict (list[dict]): Lista acumuladora usada na resposta do
+                endpoint.
+
+        Returns:
+            list[dict]: A lista recebida, eventualmente acrescida com os itens
+            de alteracao RPL/LPR encontrados para o periodo informado.
+        """
         if eh_lanche_emergencial == "true":
             return return_dict
 
