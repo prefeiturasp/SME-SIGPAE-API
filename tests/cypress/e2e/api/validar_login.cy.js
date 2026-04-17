@@ -1,4 +1,4 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 
 describe('Validar rotas de login da aplicaÃ§Ã£o SIGPAE', () => {
 	context('Casos de teste para a rota api/login/', () => {
@@ -9,9 +9,8 @@ describe('Validar rotas de login da aplicaÃ§Ã£o SIGPAE', () => {
 				cy.log(response)
 				expect(response.status).to.eq(200)
 				expect(response.statusText).to.eq('OK')
-				expect(response.allRequestResponses[0]['Response Body'].access).to.exist
+				expect(response.body.access).to.exist
 			})
 		})
 	})
 })
-

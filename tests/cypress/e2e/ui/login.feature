@@ -1,36 +1,25 @@
-# language: pt
+Feature: Login
 
-Funcionalidade: Login
+  Scenario Outline: Validar login com diferentes perfis
+    Given que acesso o sistema
+    When informo os dados do usuario "<perfil>" no dispositivo "<device>"
+    And clico no botao acessar
+    Then sistema apresenta "<mensagem>"
 
-  Esquema do Cenário: Validar login com perfil "<perfil>"
-    Dado que acesso o sistema
-    Quando informo os dados do usuário "<perfil>" no dispositivo "<device>"
-    E clico no botão acessar
-    Então o sistema deve abrir a tela inicial
-
-    Exemplos:
-      | perfil                              | device |
-      | COORDENADOR_LOGISTICA               | web    |
-      | COORDENADOR_CODAE_DILOG_LOGISTICA   | web    |
-      | COORDENADOR_SUPERVISAO_NUTRICAO     | web    |
-      | DILOG_CRONOGRAMA                    | web    |
-      | DILOG_QUALIDADE                     | web    |
-      | ABASTECIMENTO                       | web    |
-      | DIRETOR_UE                          | web    |
-      | CODAE                               | web    |
-      | GPCODAE                             | web    |
-      | DRE                                 | web    |
-
-  Esquema do Cenário: Validar mensagens de erro no login para "<perfil>"
-    Dado que acesso o sistema
-    Quando informo os dados do usuário "<perfil>" no dispositivo "<device>"
-    E clico no botão acessar
-    Então sistema apresenta "<mensagem>"
-
-    Exemplos:
-      | perfil              | device | mensagem                          |
-      | USUARIO_INVALIDO    | web    | Não foi possível logar no sistema |
-      | SENHA_INVALIDA      | web    | Não foi possível logar no sistema |
-      | USUARIO_INEXISTENTE | web    | Não foi possível logar no sistema |
-      | USUARIO_EM_BRANCO   | web    | Campo obrigatório                 |
-      | SENHA_EM_BRANCO     | web    | Campo obrigatório                 |
+    Examples:
+      | perfil                            | device | mensagem                   |
+      | COORDENADOR_LOGISTICA             | web    | sucesso                    |
+      | COORDENADOR_CODAE_DILOG_LOGISTICA | web    | sucesso                    |
+      | COORDENADOR_SUPERVISAO_NUTRICAO   | web    | sucesso                    |
+      | DILOG_CRONOGRAMA                  | web    | sucesso                    |
+      | DILOG_QUALIDADE                   | web    | sucesso                    |
+      | ABASTECIMENTO                     | web    | sucesso                    |
+      | DIRETOR_UE                        | web    | sucesso                    |
+      | CODAE                             | web    | sucesso                    |
+      | GPCODAE                           | web    | sucesso                    |
+      | DRE                               | web    | sucesso                    |
+      | USUARIO_INVALIDO                  | web    | Usuário ou senha inválidos |
+      | SENHA_INVALIDA                    | web    | Usuário ou senha inválidos |
+      | USUARIO_INEXISTENTE               | web    | Usuário ou senha inválidos |
+      | USUARIO_EM_BRANCO                 | web    | Campo obrigatório          |
+      | SENHA_EM_BRANCO                   | web    | Campo obrigatório          |
