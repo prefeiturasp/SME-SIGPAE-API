@@ -1,5 +1,5 @@
 import pytest
-from sme_sigpae_api.medicao_inicial.services.relatorio_financeiro_cei import build_relatorio_financeiro_grupo_cei
+from sme_sigpae_api.medicao_inicial.services.relatorio_ateste_financeiro import build_relatorio_financeiro_grupo_cei
 from sme_sigpae_api.relatorios.relatorios import relatorio_ateste_financeiro_grupo_cei
 from sme_sigpae_api.relatorios.utils import extrair_texto_de_pdf
 
