@@ -317,7 +317,9 @@ class TestCronogramaMensalAssinadoSerializerCamposNulos:
 
 class TestCronogramaSemanalAssinarEEnviarSerializer:
     def test_serializer_valido_com_programacoes(
-        self, cronograma_ponto_a_ponto_assinado, client_autenticado_vinculo_dilog_cronograma
+        self,
+        cronograma_ponto_a_ponto_assinado,
+        client_autenticado_vinculo_dilog_cronograma,
     ):
         client, user = client_autenticado_vinculo_dilog_cronograma
         data = {
@@ -337,7 +339,9 @@ class TestCronogramaSemanalAssinarEEnviarSerializer:
         assert serializer.is_valid(), serializer.errors
 
     def test_serializer_sem_programacoes_obrigatorias(
-        self, cronograma_ponto_a_ponto_assinado, client_autenticado_vinculo_dilog_cronograma
+        self,
+        cronograma_ponto_a_ponto_assinado,
+        client_autenticado_vinculo_dilog_cronograma,
     ):
         client, user = client_autenticado_vinculo_dilog_cronograma
         data = {
@@ -350,7 +354,9 @@ class TestCronogramaSemanalAssinarEEnviarSerializer:
         assert "programacoes" in serializer.errors
 
     def test_serializer_programacoes_vazias(
-        self, cronograma_ponto_a_ponto_assinado, client_autenticado_vinculo_dilog_cronograma
+        self,
+        cronograma_ponto_a_ponto_assinado,
+        client_autenticado_vinculo_dilog_cronograma,
     ):
         client, user = client_autenticado_vinculo_dilog_cronograma
         data = {
@@ -364,7 +370,9 @@ class TestCronogramaSemanalAssinarEEnviarSerializer:
         assert "programacoes" in serializer.errors
 
     def test_serializer_create_transiciona_status(
-        self, cronograma_ponto_a_ponto_assinado, client_autenticado_vinculo_dilog_cronograma
+        self,
+        cronograma_ponto_a_ponto_assinado,
+        client_autenticado_vinculo_dilog_cronograma,
     ):
         from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
 
@@ -386,8 +394,7 @@ class TestCronogramaSemanalAssinarEEnviarSerializer:
         assert serializer.is_valid(), serializer.errors
         cronograma_semanal = serializer.save()
         assert (
-            cronograma_semanal.status
-            == CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR
+            cronograma_semanal.status == CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR
         )
 
     def test_serializer_update_transiciona_status(
@@ -419,9 +426,9 @@ class TestCronogramaSemanalAssinarEEnviarSerializer:
         assert serializer.is_valid(), serializer.errors
         cronograma_semanal = serializer.save()
         assert (
-            cronograma_semanal.status
-            == CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR
+            cronograma_semanal.status == CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR
         )
+
 
 class TestCronogramaSemanalListagemSerializer:
     def test_serializer_campos(self, cronograma_semanal_rascunho):
