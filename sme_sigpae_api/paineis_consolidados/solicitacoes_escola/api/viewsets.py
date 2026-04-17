@@ -684,9 +684,9 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         return alt
 
     def normaliza_periodo_escolar(self, nome_periodo_escolar):
-        if " " in nome_periodo_escolar:
-            return nome_periodo_escolar.split(" ")[1]
-        return nome_periodo_escolar
+        if nome_periodo_escolar is None or " " not in nome_periodo_escolar:
+            return nome_periodo_escolar
+        return nome_periodo_escolar.split(" ")[1]
 
     def alteracoes_lanche_emergencial(
         self,
