@@ -745,21 +745,23 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         ano,
         return_dict,
     ):
-        if eh_lanche_emergencial != "true":
-            alt = self.get_alteracao_obj(alteracao, nome_periodo_escolar)
-            if alt:
-                for data_evento in alteracao.datas_intervalo.filter(
-                    data__month=mes, data__year=ano, cancelado=False
-                ):
-                    return_dict.append(
-                        {
-                            "dia": f"{data_evento.data.day:02d}",
-                            "periodo": nome_periodo_escolar,
-                            "numero_alunos": alt.qtd_alunos,
-                            "inclusao_id_externo": alteracao.id_externo,
-                            "motivo": alteracao_alimentacao.motivo,
-                        }
-                    )
+        if eh_lanche_emergencial == "true":
+            return return_dict
+
+        alt = self.get_alteracao_obj(alteracao, nome_periodo_escolar)
+        if alt:
+            for data_evento in alteracao.datas_intervalo.filter(
+                data__month=mes, data__year=ano, cancelado=False
+            ):
+                return_dict.append(
+                    {
+                        "dia": f"{data_evento.data.day:02d}",
+                        "periodo": nome_periodo_escolar,
+                        "numero_alunos": alt.qtd_alunos,
+                        "inclusao_id_externo": alteracao.id_externo,
+                        "motivo": alteracao_alimentacao.motivo,
+                    }
+                )
         return return_dict
 
     @action(
