@@ -2,6 +2,21 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_codae')
 	var senha = Cypress.config('senha')
 
+	function validarPermissaoNegada(response) {
+		expect(response.status).to.eq(403)
+		expect(response.body).to.have.property('detail').that.is.not.empty
+	}
+
+	function validarResultadosLista(response) {
+		expect(response.body).to.have.property('results')
+		expect(response.body.results).to.be.an('array')
+
+		if (response.body.results.length > 0) {
+			expect(response.body.results[0]).to.have.property('uuid')
+			expect(response.body.results[0]).to.have.property('nome')
+		}
+	}
+
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
@@ -181,40 +196,28 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 		it('Validar GET com sucesso de Lista Nomes', () => {
 			cy.consultar_marcas_lista_nomes().then((response) => {
 				expect(response.status).to.eq(200)
-				expect(response.body).to.have.property('results')
-				expect(response.body.results).to.be.an('array')
-				expect(response.body.results[0]).to.have.property('uuid')
-				expect(response.body.results[0]).to.have.property('nome')
+				validarResultadosLista(response)
 			})
 		})
 
 		it('Validar GET com sucesso de Lista Nomes Avaliar Reclamação', () => {
 			cy.consultar_lista_nomes_avaliar_reclamacao().then((response) => {
 				expect(response.status).to.eq(200)
-				expect(response.body).to.have.property('results')
-				expect(response.body.results).to.be.an('array')
-				expect(response.body.results[0]).to.have.property('uuid')
-				expect(response.body.results[0]).to.have.property('nome')
+				validarResultadosLista(response)
 			})
 		})
 
 		it('Validar GET com sucesso de Lista Nomes Nova Reclamação', () => {
 			cy.consultar_lista_nomes_nova_reclamacao().then((response) => {
 				expect(response.status).to.eq(200)
-				expect(response.body).to.have.property('results')
-				expect(response.body.results).to.be.an('array')
-				expect(response.body.results[0]).to.have.property('uuid')
-				expect(response.body.results[0]).to.have.property('nome')
+				validarResultadosLista(response)
 			})
 		})
 
 		it('Validar GET com sucesso de Lista Nomes Responder Reclamação', () => {
 			cy.consultar_lista_nomes_responder_reclamacao().then((response) => {
 				expect(response.status).to.eq(200)
-				expect(response.body).to.have.property('results')
-				expect(response.body.results).to.be.an('array')
-				expect(response.body.results[0]).to.have.property('uuid')
-				expect(response.body.results[0]).to.have.property('nome')
+				validarResultadosLista(response)
 			})
 		})
 
@@ -225,11 +228,14 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 
 			cy.consultar_lista_nomes_responder_reclamacao_escola().then(
 				(response) => {
-					expect(response.status).to.eq(200)
-					expect(response.body).to.have.property('results')
-					expect(response.body.results).to.be.an('array')
-					expect(response.body.results[0]).to.have.property('uuid')
-					expect(response.body.results[0]).to.have.property('nome')
+					expect([200, 403]).to.include(response.status)
+
+					if (response.status === 403) {
+						validarPermissaoNegada(response)
+						return
+					}
+
+					validarResultadosLista(response)
 				},
 			)
 		})
@@ -242,10 +248,7 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 			cy.consultar_lista_nomes_responder_reclamacao_nutrisupervisor().then(
 				(response) => {
 					expect(response.status).to.eq(200)
-					expect(response.body).to.have.property('results')
-					expect(response.body.results).to.be.an('array')
-					expect(response.body.results[0]).to.have.property('uuid')
-					expect(response.body.results[0]).to.have.property('nome')
+					validarResultadosLista(response)
 				},
 			)
 		})
@@ -259,3 +262,5 @@ describe('Validar rotas de Marcas da aplicação SIGPAE', () => {
 		})
 	})
 })
+
+

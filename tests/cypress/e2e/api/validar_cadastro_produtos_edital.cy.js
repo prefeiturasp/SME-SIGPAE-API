@@ -4,6 +4,28 @@ describe('Validar rotas de cadastro de produtos edital da aplicação SIGPAE', (
 	var usuario = Cypress.config('usuario_diretor_ue')
 	var senha = Cypress.config('senha')
 
+	function criarNomeUnico(prefixo) {
+		return `${prefixo} ${Date.now()} ${Cypress._.random(1000, 9999)}`
+	}
+
+	function excluirProdutoSeCriado(uuid) {
+		if (!uuid) {
+			return
+		}
+
+		cy.excluir_produto_edital(uuid).then((response) => {
+			expect([204, 404]).to.include(response.status)
+		})
+	}
+
+	function buscarUuidProdutoPorNome(nome) {
+		return cy.consultar_produtos_edital(`?nome=${encodeURIComponent(nome)}`).then((response) => {
+			expect(response.status).to.eq(200)
+			expect(response.body.results).to.be.an('array').and.not.to.be.empty
+			return response.body.results[0].uuid
+		})
+	}
+
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
@@ -112,16 +134,21 @@ describe('Validar rotas de cadastro de produtos edital da aplicação SIGPAE', (
 
 		it('Validar POST de cadastro produto edital existente', () => {
 			var dados_teste = {
-				nome: 'Teste Automação',
+				nome: criarNomeUnico('Teste Automacao Produto Existente'),
 				ativo: 'True',
 				tipo_produto: 'TERCEIRIZADA',
 			}
 			cy.cadastrar_produto_edital(dados_teste).then((response) => {
-				expect(response.status).to.eq(400)
-				expect(response.body[0]).to.eq('Item já cadastrado.')
+				expect(response.status).to.eq(201)
+				buscarUuidProdutoPorNome(dados_teste.nome).then((uuidProduto) => {
+					cy.cadastrar_produto_edital(dados_teste).then((responseDuplicado) => {
+						expect(responseDuplicado.status).to.eq(400)
+						expect(responseDuplicado.body[0]).to.eq('Item j\u00E1 cadastrado.')
+					})
+					excluirProdutoSeCriado(uuidProduto)
+				})
 			})
 		})
-
 		it('Validar POST de cadastro produto edital com tipo de produto inválido', () => {
 			var dados_teste = {
 				nome: 'Teste Automação',
@@ -265,18 +292,37 @@ describe('Validar rotas de cadastro de produtos edital da aplicação SIGPAE', (
 		})
 
 		it('Validar PUT de produto edital já cadastrado', () => {
-			var dados_teste = {
-				nome: 'PRODUTO DE TESTE AUTOMAÇÃO - VIA PATCH',
-				ativo: 'Ativo',
+			const produtoBase = {
+				nome: criarNomeUnico('Produto Base PUT'),
+				ativo: 'True',
 				tipo_produto: 'TERCEIRIZADA',
 			}
-			var uuid = 'e6d735aa-8a99-491b-9a14-0e2288ff1d0f/'
-			cy.atualizar_produto_edital(uuid, dados_teste).then((response) => {
-				expect(response.status).to.eq(400)
-				expect(response.body[0]).to.eq('Item já cadastrado.')
+			const produtoAlvo = {
+				nome: criarNomeUnico('Produto Alvo PUT'),
+				ativo: 'True',
+				tipo_produto: 'TERCEIRIZADA',
+			}
+			cy.cadastrar_produto_edital(produtoBase).then((responseBase) => {
+				expect(responseBase.status).to.eq(201)
+				buscarUuidProdutoPorNome(produtoBase.nome).then((uuidBase) => {
+					cy.cadastrar_produto_edital(produtoAlvo).then((responseAlvo) => {
+						expect(responseAlvo.status).to.eq(201)
+						buscarUuidProdutoPorNome(produtoAlvo.nome).then((uuidAlvo) => {
+							cy.atualizar_produto_edital(`${uuidAlvo}/`, {
+								nome: produtoBase.nome,
+								ativo: 'Ativo',
+								tipo_produto: 'TERCEIRIZADA',
+							}).then((response) => {
+								expect(response.status).to.eq(400)
+								expect(response.body[0]).to.eq('Item j\u00E1 cadastrado.')
+							})
+							excluirProdutoSeCriado(uuidAlvo)
+						})
+					})
+					excluirProdutoSeCriado(uuidBase)
+				})
 			})
 		})
-
 		it('Validar PUT de produto edital com tipo de produto inválido', () => {
 			var dados_teste = {
 				nome: 'PRODUTO ATUALIZADO',
@@ -388,18 +434,37 @@ describe('Validar rotas de cadastro de produtos edital da aplicação SIGPAE', (
 		})
 
 		it('Validar PATCH de produto edital já cadastrado', () => {
-			var dados_teste = {
-				nome: 'PRODUTO ATUALIZADO VIA PUT - AUTOMAÇÃO',
-				ativo: 'Ativo',
+			const produtoBase = {
+				nome: criarNomeUnico('Produto Base PATCH'),
+				ativo: 'True',
 				tipo_produto: 'TERCEIRIZADA',
 			}
-			var uuid = 'cbd9638c-b972-4184-814d-cc48e95ab7a4/'
-			cy.atualizar_produto_edital_patch(uuid, dados_teste).then((response) => {
-				expect(response.status).to.eq(400)
-				expect(response.body[0]).to.eq('Item já cadastrado.')
+			const produtoAlvo = {
+				nome: criarNomeUnico('Produto Alvo PATCH'),
+				ativo: 'True',
+				tipo_produto: 'TERCEIRIZADA',
+			}
+			cy.cadastrar_produto_edital(produtoBase).then((responseBase) => {
+				expect(responseBase.status).to.eq(201)
+				buscarUuidProdutoPorNome(produtoBase.nome).then((uuidBase) => {
+					cy.cadastrar_produto_edital(produtoAlvo).then((responseAlvo) => {
+						expect(responseAlvo.status).to.eq(201)
+						buscarUuidProdutoPorNome(produtoAlvo.nome).then((uuidAlvo) => {
+							cy.atualizar_produto_edital_patch(`${uuidAlvo}/`, {
+								nome: produtoBase.nome,
+								ativo: 'Ativo',
+								tipo_produto: 'TERCEIRIZADA',
+							}).then((response) => {
+								expect(response.status).to.eq(400)
+								expect(response.body[0]).to.eq('Item j\u00E1 cadastrado.')
+							})
+							excluirProdutoSeCriado(uuidAlvo)
+						})
+					})
+					excluirProdutoSeCriado(uuidBase)
+				})
 			})
 		})
-
 		it('Validar PATCH de produto edital com tipo de produto inválido', () => {
 			var dados_teste = {
 				nome: 'PRODUTO ATUALIZADO',

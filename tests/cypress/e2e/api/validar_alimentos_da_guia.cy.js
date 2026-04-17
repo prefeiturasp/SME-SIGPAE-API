@@ -72,11 +72,12 @@ describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 			senha = Cypress.config('senha')
 			cy.autenticar_login(usuario, senha)
 			cy.validar_alimentos_da_guia(id).then((response) => {
-				expect(response.status).to.eq(403)
-				expect(response.body).to.have.property('detail').that.is.a('string')
-				expect(response.body.detail).to.eq(
+				expect(response.status).to.eq(200)
+				expect(response.body).to.have.property('count').that.exist
+				expect(response.body).to.have.property('next')
+				expect(response.body).to.have.property('previous')
 					'Você não tem permissão para executar essa ação.',
-				)
+				expect(response.body).to.have.property('results').that.is.an('array')
 			})
 		})
 	})

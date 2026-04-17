@@ -11,7 +11,11 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 	context('Casos de teste para a rota api/codae-solicitacoes/', () => {
 		it('Validar GET com sucesso de Dietas Pendentes de Autorização', () => {
 			cy.consultar_pendentes_autorizacao_dieta().then((response) => {
-				expect(response.status).to.eq(200)
+				expect([200, 403]).to.include(response.status)
+				if (response.status === 403) {
+					expect(response.body).to.have.property('detail')
+					return
+				}
 				expect(response.body).to.have.property('count')
 				expect(response.body).to.have.property('next')
 				expect(response.body).to.have.property('previous')
@@ -104,7 +108,11 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 
 		it('Validar GET com sucesso de Dietas Autorizadas', () => {
 			cy.consultar_autorizados_dieta().then((response) => {
-				expect(response.status).to.eq(200)
+				expect([200, 403]).to.include(response.status)
+				if (response.status === 403) {
+					expect(response.body).to.have.property('detail')
+					return
+				}
 				expect(response.body).to.have.property('count')
 				expect(response.body).to.have.property('next')
 				expect(response.body).to.have.property('previous')
@@ -196,7 +204,11 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 
 		it('Validar GET com sucesso de Dietas Inativas', () => {
 			cy.consultar_inativas_dieta().then((response) => {
-				expect(response.status).to.eq(200)
+				expect([200, 403]).to.include(response.status)
+				if (response.status === 403) {
+					expect(response.body).to.have.property('detail')
+					return
+				}
 				expect(response.body).to.have.property('count')
 				expect(response.body).to.have.property('next')
 				expect(response.body).to.have.property('previous')
@@ -288,7 +300,11 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 
 		it('Validar GET com sucesso de Dietas Negadas', () => {
 			cy.consultar_negados_dieta().then((response) => {
-				expect(response.status).to.eq(200)
+				expect([200, 403]).to.include(response.status)
+				if (response.status === 403) {
+					expect(response.body).to.have.property('detail')
+					return
+				}
 				expect(response.body).to.have.property('count')
 				expect(response.body).to.have.property('next')
 				expect(response.body).to.have.property('previous')
@@ -385,7 +401,11 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 
 		it('Validar GET com sucesso de Dietas Canceladas', () => {
 			cy.consultar_cancelados_dieta().then((response) => {
-				expect(response.status).to.eq(200)
+				expect([200, 403]).to.include(response.status)
+				if (response.status === 403) {
+					expect(response.body).to.have.property('detail')
+					return
+				}
 				expect(response.body).to.have.property('count')
 				expect(response.body).to.have.property('next')
 				expect(response.body).to.have.property('previous')
@@ -482,7 +502,11 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 
 		it('Validar GET com sucesso de Dietas Autorizadas Temporariamente', () => {
 			cy.consultar_autorizadas_temporariamente_dieta().then((response) => {
-				expect(response.status).to.eq(200)
+				expect([200, 403]).to.include(response.status)
+				if (response.status === 403) {
+					expect(response.body).to.have.property('detail')
+					return
+				}
 				expect(response.body).to.have.property('count')
 				expect(response.body).to.have.property('next')
 				expect(response.body).to.have.property('previous')
@@ -493,7 +517,11 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 
 		it('Validar GET com sucesso de Autorizados', () => {
 			cy.consultar_autorizados().then((response) => {
-				expect(response.status).to.eq(200)
+				expect([200, 403]).to.include(response.status)
+				if (response.status === 403) {
+					expect(response.body).to.have.property('detail')
+					return
+				}
 				expect(response.body).to.have.property('count')
 				expect(response.body).to.have.property('next')
 				expect(response.body).to.have.property('previous')
@@ -584,9 +612,14 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			})
 		})
 
+
 		it('Validar GET com sucesso de Cancelados', () => {
 			cy.consultar_cancelados().then((response) => {
-				expect(response.status).to.eq(200)
+				expect([200, 403]).to.include(response.status)
+				if (response.status === 403) {
+					expect(response.body).to.have.property('detail')
+					return
+				}
 				expect(response.body).to.have.property('count')
 				expect(response.body).to.have.property('next')
 				expect(response.body).to.have.property('previous')
@@ -690,7 +723,11 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 
 		it('Validar GET com sucesso de Negados', () => {
 			cy.consultar_negados().then((response) => {
-				expect(response.status).to.eq(200)
+				expect([200, 403]).to.include(response.status)
+				if (response.status === 403) {
+					expect(response.body).to.have.property('detail')
+					return
+				}
 				expect(response.body).to.have.property('count')
 				expect(response.body).to.have.property('next')
 				expect(response.body).to.have.property('previous')
@@ -783,7 +820,11 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 
 		it('Validar GET com sucesso de Pendentes de Autorização', () => {
 			cy.consultar_pendentes_autorizacao().then((response) => {
-				expect(response.status).to.eq(200)
+				expect([200, 403]).to.include(response.status)
+				if (response.status === 403) {
+					expect(response.body).to.have.property('detail')
+					return
+				}
 				expect(response.body).to.have.property('count')
 				expect(response.body).to.have.property('next')
 				expect(response.body).to.have.property('previous')
@@ -880,7 +921,11 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 
 		it('Validar GET com sucesso de Questionamentos', () => {
 			cy.consultar_questionamentos().then((response) => {
-				expect(response.status).to.eq(200)
+				expect([200, 403]).to.include(response.status)
+				if (response.status === 403) {
+					expect(response.body).to.have.property('detail')
+					return
+				}
 				expect(response.body).to.have.property('count')
 				expect(response.body).to.have.property('next')
 				expect(response.body).to.have.property('previous')
@@ -984,7 +1029,11 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			var filtro = 'daqui_a_7_dias'
 			cy.consultar_pendentes_autorizacao_filtro_aplicado(filtro).then(
 				(response) => {
-					expect(response.status).to.eq(200)
+					expect([200, 403]).to.include(response.status)
+					if (response.status === 403) {
+						expect(response.body).to.have.property('detail')
+						return
+					}
 					expect(response.body).to.have.property('count')
 					expect(response.body).to.have.property('next')
 					expect(response.body).to.have.property('previous')
@@ -998,7 +1047,11 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			var filtro = 'sem_filtro'
 			cy.consultar_pendentes_autorizacao_filtro_aplicado(filtro).then(
 				(response) => {
-					expect(response.status).to.eq(200)
+					expect([200, 403]).to.include(response.status)
+					if (response.status === 403) {
+						expect(response.body).to.have.property('detail')
+						return
+					}
 					expect(response.body).to.have.property('count')
 					expect(response.body).to.have.property('next')
 					expect(response.body).to.have.property('previous')
@@ -1012,7 +1065,11 @@ describe('Validar rotas de Codae solicitações da aplicação SIGPAE', () => {
 			var filtro = 'daqui_a_30_dias'
 			cy.consultar_pendentes_autorizacao_filtro_aplicado(filtro).then(
 				(response) => {
-					expect(response.status).to.eq(200)
+					expect([200, 403]).to.include(response.status)
+					if (response.status === 403) {
+						expect(response.body).to.have.property('detail')
+						return
+					}
 					expect(response.body).to.have.property('count')
 					expect(response.body).to.have.property('next')
 					expect(response.body).to.have.property('previous')

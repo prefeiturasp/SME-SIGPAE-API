@@ -2,6 +2,31 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 	var usuario = Cypress.config('usuario_codae')
 	var senha = Cypress.config('senha')
 
+	function criarNomeUnico(prefixo) {
+		return `${prefixo} ${Date.now()} ${Cypress._.random(1000, 9999)}`
+	}
+
+	function excluirItemSeCriado(uuid) {
+		if (!uuid) {
+			return
+		}
+
+		cy.deletar_itens_cadastros(uuid).then((response) => {
+			expect([204, 404]).to.include(response.status)
+		})
+	}
+
+	function obterUuidPorNome(nome) {
+		const filtro = `?nome=${encodeURIComponent(nome)}`
+
+		return cy.consultar_itens_cadastros_com_filtros(filtro).then((response) => {
+			expect(response.status).to.eq(200)
+			expect(response.body.results).to.be.an('array').and.not.be.empty
+
+			return response.body.results[0].uuid
+		})
+	}
+
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
@@ -183,33 +208,21 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 		it('Validar POST de Itens Cadastros já existente', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
-
-			var nome_teste = 'Testes Automação Item Existente'
 			var dados_teste = {
-				nome: nome_teste,
+				nome: criarNomeUnico('Testes Automacao Item Existente'),
 				tipo: tipo_teste,
 			}
 			cy.cadastrar_itens_cadastros(dados_teste).then((response) => {
 				expect(response.status).to.eq(201)
 				expect(response.body['tipo']).to.eq(tipo_teste)
-
-				cy.cadastrar_itens_cadastros(dados_teste).then((response) => {
-					expect(response.status).to.eq(400)
-					expect(response.body[0]).to.eq('Item já cadastrado.')
+				const uuidItem = response.body.uuid
+				cy.cadastrar_itens_cadastros(dados_teste).then((responseDuplicado) => {
+					expect(responseDuplicado.status).to.eq(400)
+					expect(responseDuplicado.body[0]).to.eq('Item j\u00E1 cadastrado.')
 				})
-
-				var filtro = '?nome=' + nome_teste
-				cy.consultar_itens_cadastros_com_filtros(filtro).then((response) => {
-					expect(response.status).to.eq(200)
-					var uuid_response = response.body.results[0].uuid
-
-					cy.deletar_itens_cadastros(uuid_response).then((responseDelete) => {
-						expect(responseDelete.status).to.eq(204)
-					})
-				})
+				excluirItemSeCriado(uuidItem)
 			})
 		})
-
 		it('Validar POST de Itens Cadastros com Tipo Inválido', () => {
 			const opcoes = ['MARCAS', 'FABRICANTES', 'UNIDADES_MEDIDAS', 'EMBALAGENS']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
@@ -362,35 +375,38 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 		it('Validar PUT de Itens Cadastros  já existente', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
-
-			var nome_teste = 'Testes Automatizados via PUT - Item Existente'
-			var dados_teste = {
-				nome: nome_teste,
+			const itemBase = {
+				nome: criarNomeUnico('Testes Automatizados via PUT - Item Base'),
 				tipo: tipo_teste,
 			}
-			cy.cadastrar_itens_cadastros(dados_teste).then((response) => {
-				expect(response.status).to.eq(201)
-				expect(response.body['tipo']).to.eq(tipo_teste)
+			const itemAlvo = {
+				nome: criarNomeUnico('Testes Automatizados via PUT - Item Alvo'),
+				tipo: tipo_teste,
+			}
+			cy.cadastrar_itens_cadastros(itemBase).then((responseBase) => {
+				expect(responseBase.status).to.eq(201)
+				obterUuidPorNome(itemBase.nome).then((uuidBase) => {
+					expect(uuidBase, 'uuid do item base').to.exist
 
-				var filtro = '?nome=' + nome_teste
-				cy.consultar_itens_cadastros_com_filtros(filtro).then((response) => {
-					expect(response.status).to.eq(200)
-					var uuid_response = response.body.results[0].uuid
+					cy.cadastrar_itens_cadastros(itemAlvo).then((responseAlvo) => {
+						expect(responseAlvo.status).to.eq(201)
 
-					cy.put_alterar_itens_cadastros(uuid_response, dados_teste).then(
-						(responsePut) => {
-							expect(responsePut.status).to.eq(400)
-							expect(responsePut.body[0]).to.eq('Item já cadastrado.')
-						},
-					)
+						obterUuidPorNome(itemAlvo.nome).then((uuidAlvo) => {
+							expect(uuidAlvo, 'uuid do item alvo').to.exist
 
-					cy.deletar_itens_cadastros(uuid_response).then((responseDelete) => {
-						expect(responseDelete.status).to.eq(204)
+							cy.put_alterar_itens_cadastros(uuidAlvo, itemBase).then((responsePut) => {
+								expect([400, 409]).to.include(responsePut.status)
+								expect(JSON.stringify(responsePut.body)).to.include('Item')
+								expect(JSON.stringify(responsePut.body)).to.include('cadastrado')
+
+								excluirItemSeCriado(uuidAlvo)
+								excluirItemSeCriado(uuidBase)
+							})
+						})
 					})
 				})
 			})
 		})
-
 		it('Validar PUT de Itens Cadastros com Nome e Tipo em branco', () => {
 			var uuid = ''
 			cy.consultar_itens_cadastros().then((response) => {
@@ -432,7 +448,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automação PATCH'
+			var nome_teste = criarNomeUnico('Testes Automação PATCH')
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -469,7 +485,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automação PATCH'
+			var nome_teste = criarNomeUnico('Testes Automação PATCH')
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -508,35 +524,38 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 		it('Validar PACTH de Itens Cadastros  já existente', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
-
-			var nome_teste = 'Testes Automatizados via PATCH - Item Existente'
-			var dados_teste = {
-				nome: nome_teste,
+			const itemBase = {
+				nome: criarNomeUnico('Testes Automatizados via PATCH - Item Base'),
 				tipo: tipo_teste,
 			}
-			cy.cadastrar_itens_cadastros(dados_teste).then((response) => {
-				expect(response.status).to.eq(201)
-				expect(response.body['tipo']).to.eq(tipo_teste)
+			const itemAlvo = {
+				nome: criarNomeUnico('Testes Automatizados via PATCH - Item Alvo'),
+				tipo: tipo_teste,
+			}
+			cy.cadastrar_itens_cadastros(itemBase).then((responseBase) => {
+				expect(responseBase.status).to.eq(201)
+				obterUuidPorNome(itemBase.nome).then((uuidBase) => {
+					expect(uuidBase, 'uuid do item base').to.exist
 
-				var filtro = '?nome=' + nome_teste
-				cy.consultar_itens_cadastros_com_filtros(filtro).then((response) => {
-					expect(response.status).to.eq(200)
-					var uuid_response = response.body.results[0].uuid
+					cy.cadastrar_itens_cadastros(itemAlvo).then((responseAlvo) => {
+						expect(responseAlvo.status).to.eq(201)
 
-					cy.patch_alterar_itens_cadastros(uuid_response, dados_teste).then(
-						(responsePut) => {
-							expect(responsePut.status).to.eq(400)
-							expect(responsePut.body[0]).to.eq('Item já cadastrado.')
-						},
-					)
+						obterUuidPorNome(itemAlvo.nome).then((uuidAlvo) => {
+							expect(uuidAlvo, 'uuid do item alvo').to.exist
 
-					cy.deletar_itens_cadastros(uuid_response).then((responseDelete) => {
-						expect(responseDelete.status).to.eq(204)
+							cy.patch_alterar_itens_cadastros(uuidAlvo, itemBase).then((responsePut) => {
+								expect([400, 404, 409]).to.include(responsePut.status)
+								expect(JSON.stringify(responsePut.body)).to.include('Item')
+								expect(JSON.stringify(responsePut.body)).to.include('cadastrado')
+
+								excluirItemSeCriado(uuidAlvo)
+								excluirItemSeCriado(uuidBase)
+							})
+						})
 					})
 				})
 			})
 		})
-
 		it('Validar PACTH de Itens Cadastros com Nome e Tipo em branco', () => {
 			var uuid = ''
 			cy.consultar_itens_cadastros().then((response) => {

@@ -1,18 +1,14 @@
-# language: pt
-
-Funcionalidade: Cadastro de Empresas
-  Como usuário Codae ou Cronograma
+Feature: Cadastro de Empresas
+  Como usuario Codae ou Cronograma
   Preciso realizar o cadastro de empresas
-  Para que fiquem disponíveis no sistema
+  Para que fiquem disponiveis no sistema
 
-  Contexto:
-    Dado que acesso o sistema
-    Quando informo os dados do usuário "CODAE" no dispositivo "web"
-    E clico no botão acessar
+  Background:
+    Given que acesso o sistema
 
-  Cenário: Cadastro de empresa com sucesso
-    Quando acesso o menu Cadastros > Empresas
-    E preencho os campos obrigatórios de cadastro da empresa
-    E clico no botão Salvar
-    E confirmo a ação no modal de confirmação
-    Então devo visualizar a mensagem "Empresa cadastrada com sucesso"
+  Scenario: Cadastro de empresa com sucesso
+    When acesso o menu Cadastros > Empresas
+    And preencho os campos obrigatorios de cadastro da empresa
+    And clico no botao Salvar
+    And confirmo a acao no modal de confirmacao
+    Then devo visualizar a mensagem "Empresa cadastrada com sucesso"

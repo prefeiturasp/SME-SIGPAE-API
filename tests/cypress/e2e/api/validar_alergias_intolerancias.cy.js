@@ -6,7 +6,8 @@ describe('Validar rotas de alergias intolerancias da aplicação SIGPAE', () => 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
-
+	
+	
 	context('Casos de teste para a rota api/alergias-intolerancias/', () => {
 		it('Validar GET de todas as alergias intolerancias com sucesso', () => {
 			var id = ''

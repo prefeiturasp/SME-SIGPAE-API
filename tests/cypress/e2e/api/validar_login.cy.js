@@ -9,7 +9,7 @@ describe('Validar rotas de login da aplicação SIGPAE', () => {
 				cy.log(response)
 				expect(response.status).to.eq(200)
 				expect(response.statusText).to.eq('OK')
-				expect(response.allRequestResponses[0]['Response Body'].access).to.exist
+				expect(response.body.access).to.exist
 			})
 		})
 	})
