@@ -299,6 +299,116 @@ def test_listar_recreios(client_autenticado_coordenador_codae, setup_data):
 
 
 @pytest.mark.django_db
+def test_total_por_dre_retorna_400_sem_parametros_obrigatorios(
+    client_autenticado_coordenador_codae,
+):
+    response = client_autenticado_coordenador_codae.get(
+        "/medicao-inicial/recreio-nas-ferias/total-por-dre/",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": "Parâmetros obrigatórios: recreio_nas_ferias_uuid, dre_uuid"
+    }
+
+
+@pytest.mark.django_db
+def test_total_por_dre_conta_apenas_escolas_liberadas_da_dre_no_recreio(
+    client_autenticado_coordenador_codae, setup_data
+):
+    recreio = RecreioNasFerias.objects.create(
+        titulo="Recreio Março",
+        data_inicio=date(2025, 3, 1),
+        data_fim=date(2025, 3, 31),
+    )
+    outro_recreio = RecreioNasFerias.objects.create(
+        titulo="Recreio Abril",
+        data_inicio=date(2025, 4, 1),
+        data_fim=date(2025, 4, 30),
+    )
+
+    outra_dre = DiretoriaRegional.objects.create(nome="Outra DRE", codigo_eol="900001")
+
+    escola_mesma_dre = Escola.objects.create(
+        nome="Escola Liberada 2",
+        codigo_eol="222222",
+        diretoria_regional=setup_data["diretoria_regional"],
+        tipo_unidade=setup_data["tipo_unidade"],
+    )
+    escola_nao_liberada = Escola.objects.create(
+        nome="Escola Não Liberada",
+        codigo_eol="333333",
+        diretoria_regional=setup_data["diretoria_regional"],
+        tipo_unidade=setup_data["tipo_unidade"],
+    )
+    escola_outra_dre = Escola.objects.create(
+        nome="Escola Outra DRE",
+        codigo_eol="444444",
+        diretoria_regional=outra_dre,
+        tipo_unidade=setup_data["tipo_unidade"],
+    )
+
+    RecreioNasFeriasUnidadeParticipante.objects.create(
+        recreio_nas_ferias=recreio,
+        lote=setup_data["lote"],
+        unidade_educacional=setup_data["escola"],
+        num_inscritos=10,
+        num_colaboradores=2,
+        liberar_medicao=True,
+        cei_ou_emei="CEI",
+    )
+    RecreioNasFeriasUnidadeParticipante.objects.create(
+        recreio_nas_ferias=recreio,
+        lote=setup_data["lote"],
+        unidade_educacional=escola_mesma_dre,
+        num_inscritos=12,
+        num_colaboradores=3,
+        liberar_medicao=True,
+        cei_ou_emei="CEI",
+    )
+    RecreioNasFeriasUnidadeParticipante.objects.create(
+        recreio_nas_ferias=recreio,
+        lote=setup_data["lote"],
+        unidade_educacional=escola_nao_liberada,
+        num_inscritos=8,
+        num_colaboradores=1,
+        liberar_medicao=False,
+        cei_ou_emei="CEI",
+    )
+    RecreioNasFeriasUnidadeParticipante.objects.create(
+        recreio_nas_ferias=recreio,
+        lote=setup_data["lote"],
+        unidade_educacional=escola_outra_dre,
+        num_inscritos=15,
+        num_colaboradores=2,
+        liberar_medicao=True,
+        cei_ou_emei="CEI",
+    )
+    RecreioNasFeriasUnidadeParticipante.objects.create(
+        recreio_nas_ferias=outro_recreio,
+        lote=setup_data["lote"],
+        unidade_educacional=setup_data["escola"],
+        num_inscritos=20,
+        num_colaboradores=4,
+        liberar_medicao=True,
+        cei_ou_emei="CEI",
+    )
+
+    response = client_autenticado_coordenador_codae.get(
+        "/medicao-inicial/recreio-nas-ferias/total-por-dre/",
+        {
+            "recreio_nas_ferias_uuid": str(recreio.uuid),
+            "dre_uuid": str(setup_data["diretoria_regional"].uuid),
+        },
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == 2
+
+
+@pytest.mark.django_db
 def test_atualizar_recreio_completo(client_autenticado_coordenador_codae, setup_data):
     recreio = RecreioNasFerias.objects.create(
         titulo="Antigo Título",
