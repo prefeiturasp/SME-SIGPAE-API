@@ -1,3 +1,5 @@
+import uuid
+
 from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -68,6 +70,53 @@ class RecreioNasFeriasViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         kwargs["partial"] = True
         return self.update(request, *args, **kwargs)
+
+    @action(detail=False, url_path="total-por-dre", methods=["get"])
+    def total_por_dre(self, request):
+        """Retorna o total de escolas liberadas por DRE em um recreio nas férias.
+
+        Args:
+            request: Requisição HTTP com os query params
+                recreio_nas_ferias_uuid e dre_uuid.
+
+        Returns:
+            Response: Total de escolas da DRE com medição liberada no recreio
+                informado.
+        """
+        recreio_nas_ferias_uuid = request.query_params.get("recreio_nas_ferias_uuid")
+        dre_uuid = request.query_params.get("dre_uuid")
+
+        if not all([recreio_nas_ferias_uuid, dre_uuid]):
+            return Response(
+                {
+                    "detail": "Parâmetros obrigatórios: recreio_nas_ferias_uuid, dre_uuid"
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            uuid.UUID(recreio_nas_ferias_uuid)
+            uuid.UUID(dre_uuid)
+        except (TypeError, ValueError):
+            return Response(
+                {
+                    "detail": "Parâmetros 'recreio_nas_ferias_uuid' ou 'dre_uuid' inválidos."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        total = (
+            RecreioNasFerias.objects.filter(
+                uuid=recreio_nas_ferias_uuid,
+                unidades_participantes__unidade_educacional__diretoria_regional__uuid=dre_uuid,
+                unidades_participantes__liberar_medicao=True,
+            )
+            .values("unidades_participantes__unidade_educacional")
+            .distinct()
+            .count()
+        )
+
+        return Response(total, status=status.HTTP_200_OK)
 
     @action(detail=False, url_path="dias-letivos", methods=["get"])
     def dias_letivos(self, request):

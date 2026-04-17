@@ -1,7 +1,7 @@
 export const Menu_Lateral_Locators = {
-	cadastros: 'Cadastros',
+	cadastros: '[data-testid="menu-cadastros"]',
 	cadastros_empresas: '[href="/configuracoes/cadastros/empresa"]',
-	gestao_alimentacao: 'Gestão de Alimentação',
-	configuracoes: 'Configurações',
-	relatorios: 'Relatórios',
+	gestao_alimentacao: '[data-testid="gestao-alimentacao"]',
+	configuracoes: '[data-testid="menu-configuracoes"]',
+	relatorios: '[data-testid="relatorios"]',
 }
