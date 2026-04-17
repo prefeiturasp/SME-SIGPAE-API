@@ -6,6 +6,7 @@ from rest_framework import status
 from sme_sigpae_api.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
+from sme_sigpae_api.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.escola.fixtures.factories.escola_factory import EscolaFactory
 from sme_sigpae_api.produto.fixtures.factories.produto_factory import (
@@ -116,7 +117,7 @@ class TestDashboardGestaoProdutosTerceirizada:
         )
 
     def gera_reclamacao(self, escola, usuario):
-        ReclamacaoDeProdutoFactory.create(
+        self.reclamacao = ReclamacaoDeProdutoFactory.create(
             homologacao_produto=self.homologacao_produto, escola=escola
         )
 
@@ -133,7 +134,7 @@ class TestDashboardGestaoProdutosTerceirizada:
         )
 
     def gera_reclamacao_produto_de_outra_escola(self):
-        ReclamacaoDeProdutoFactory.create(
+        self.reclamacao_outra_escola = ReclamacaoDeProdutoFactory.create(
             homologacao_produto=self.homologacao_produto_2, escola=self.escola_2
         )
 
@@ -570,6 +571,10 @@ class TestDashboardGestaoProdutosTerceirizada:
             status_evento=LogSolicitacoesUsuario.CODAE_HOMOLOGADO,
         )
         self.gera_reclamacao(escola, usuario)
+        self.reclamacao.status = (
+            ReclamacaoProdutoWorkflow.AGUARDANDO_RESPOSTA_TERCEIRIZADA
+        )
+        self.reclamacao.save()
         self.gera_reclamacao_produto_de_outra_escola()
 
         self.homologacao_produto.status = (

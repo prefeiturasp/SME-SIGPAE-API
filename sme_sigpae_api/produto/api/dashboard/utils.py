@@ -5,6 +5,7 @@ from django.db.models.functions import Cast, Substr
 from rest_framework.request import Request
 
 from sme_sigpae_api.dados_comuns import constants
+from sme_sigpae_api.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.produto.models import HomologacaoProduto
 
@@ -119,17 +120,17 @@ def filtra_reclamacoes_questionamento_codae(
     filtros = {
         constants.TIPO_USUARIO_ESCOLA: {
             "reclamacoes__escola": request.user.vinculo_atual.instituicao,
-            "status": HomologacaoProduto.workflow_class.CODAE_QUESTIONOU_UE,
+            "reclamacoes__status": ReclamacaoProdutoWorkflow.AGUARDANDO_RESPOSTA_UE,
         },
         constants.TIPO_USUARIO_TERCEIRIZADA: {
             "reclamacoes__escola__lote__terceirizada": request.user.vinculo_atual.instituicao,
-            "status": HomologacaoProduto.workflow_class.CODAE_PEDIU_ANALISE_RECLAMACAO,
+            "reclamacoes__status": ReclamacaoProdutoWorkflow.AGUARDANDO_RESPOSTA_TERCEIRIZADA,
         },
         constants.TIPO_USUARIO_DIRETORIA_REGIONAL: {
             "reclamacoes__escola__lote__diretoria_regional": request.user.vinculo_atual.instituicao
         },
         constants.TIPO_USUARIO_NUTRISUPERVISOR: {
-            "status": HomologacaoProduto.workflow_class.CODAE_QUESTIONOU_NUTRISUPERVISOR,
+            "reclamacoes__status": ReclamacaoProdutoWorkflow.AGUARDANDO_RESPOSTA_NUTRISUPERVISOR,
             "reclamacoes__criado_por": request.user,
         },
     }
