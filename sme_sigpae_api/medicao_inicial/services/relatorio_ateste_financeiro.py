@@ -11,12 +11,19 @@ from sme_sigpae_api.cardapio.base.models import (
 )
 from sme_sigpae_api.dados_comuns.utils import converte_numero_em_mes
 from sme_sigpae_api.escola.models import FaixaEtaria
-from sme_sigpae_api.medicao_inicial.utils import to_decimal_safe
+from sme_sigpae_api.medicao_inicial.utils import (
+    to_decimal_safe,
+    normalizar_nome_campo,
+)
+
+ORDEM_PRIORIDADE = {
+    "REFEIÇÃO": 0,
+    "LANCHE": 1,
+    "LANCHE 4H": 2,
+    "KIT LANCHE": 99,
+}
 
 
-# =========================================================
-# HELPERS COMUNS
-# =========================================================
 def _buscar_valor_por_faixa(valores, faixa_uuid, tipo):
     if not valores:
         return Decimal("0")
@@ -44,8 +51,16 @@ def _buscar_valor_por_tipo(valores, tipo_uuid, tipo_valor):
         (
             v.valor
             for v in valores
-            if getattr(v, "tipo_alimentacao", None)
-            and str(v.tipo_alimentacao.uuid) == str(tipo_uuid)
+            if (
+                (
+                    getattr(v, "tipo_alimentacao", None)
+                    and str(v.tipo_alimentacao.uuid) == str(tipo_uuid)
+                )
+                or (
+                    not getattr(v, "tipo_alimentacao", None)
+                    and str(getattr(v, "nome_campo", "")) == str(tipo_uuid)
+                )
+            )
             and v.tipo_valor
             and v.tipo_valor.nome == tipo_valor
         ),
@@ -306,55 +321,60 @@ def _build_tabela_alimentacao_emei(
     valor_total_geral = Decimal("0")
     linhas = []
 
-    for periodo in ["INTEGRAL", "PARCIAL"]:
-        tabela = next(
-            (
-                t for t in tabelas
-                if t.nome == "Preço das Alimentações"
-                and t.periodo_escolar
-                and t.periodo_escolar.nome == periodo
-            ),
-            None,
+    tabela = next(
+        (
+            t for t in tabelas
+            if t.nome == "Preço das Alimentações"
+        ),
+        None,
+    )
+
+    valores_tabela = tabela.valores.all() if tabela else []
+
+    for tipo in tipos_alimentacao:
+        valor_unitario = _buscar_valor_por_tipo(
+            valores_tabela,
+            tipo["uuid"],
+            "UNITARIO",
         )
 
-        valores_tabela = tabela.valores.all() if tabela else []
+        valor_reajuste = _buscar_valor_por_tipo(
+            valores_tabela,
+            tipo["uuid"],
+            "REAJUSTE",
+        )
 
-        for tipo in tipos_alimentacao:
-            valor_unitario = _buscar_valor_por_tipo(
-                valores_tabela,
-                tipo["uuid"],
-                "UNITARIO",
-            )
+        total_unitario = valor_unitario + valor_reajuste
 
-            valor_reajuste = _buscar_valor_por_tipo(
-                valores_tabela,
-                tipo["uuid"],
-                "REAJUSTE",
-            )
+        nome_normalizado = normalizar_nome_campo(tipo["nome"], "GRUPO 3").lower()
+        print('nome_normalizado: ', nome_normalizado)
 
-            total_unitario = valor_unitario + valor_reajuste
+        numero_atendimentos = totais_consumo.get(
+            "ALIMENTAÇÃO", {}
+        ).get(f"total_{nome_normalizado}", 0)
 
-            numero_atendimentos = totais_consumo.get(
-                f"ALIMENTAÇÃO - {periodo}", {}
-            ).get(tipo["nome"], 0)
+        valor_total = total_unitario * to_decimal_safe(
+            numero_atendimentos
+        )
 
-            valor_total = total_unitario * to_decimal_safe(
-                numero_atendimentos
-            )
+        total_atendimentos += numero_atendimentos
+        valor_total_geral += valor_total
 
-            total_atendimentos += numero_atendimentos
-            valor_total_geral += valor_total
+        linhas.append(
+            {
+                "tipo": tipo["nome"].upper(),
+                "valor_unitario": valor_unitario,
+                "valor_reajuste": valor_reajuste,
+                "total_unitario": total_unitario,
+                "numero_atendimentos": int(numero_atendimentos),
+                "valor_total": valor_total,
+            }
+        )
 
-            linhas.append(
-                {
-                    "tipo": tipo["nome"],
-                    "valor_unitario": valor_unitario,
-                    "valor_reajuste": valor_reajuste,
-                    "total_unitario": total_unitario,
-                    "numero_atendimentos": int(numero_atendimentos),
-                    "valor_total": valor_total,
-                }
-            )
+    linhas = sorted(
+        linhas,
+        key=lambda linha: ORDEM_PRIORIDADE.get(linha["tipo"], 10)
+    )
 
     return {
         "linhas": linhas,
@@ -370,58 +390,61 @@ def _build_tabela_dieta_emei(
     valor_total_geral = Decimal("0")
     linhas = []
 
-    for periodo in ["INTEGRAL", "PARCIAL"]:
-        tabela = next(
-            (
-                t for t in tabelas
-                if t.nome == "Preço das Alimentações"
-                and t.periodo_escolar
-                and t.periodo_escolar.nome == periodo
-            ),
-            None,
+    tabela = next(
+        (
+            t for t in tabelas
+            if tipo_dieta in t.nome.upper()
+        ),
+        None,
+    )
+
+    valores_tabela = tabela.valores.all() if tabela else []
+
+    for tipo in tipos_alimentacao:
+        valor_unitario = _buscar_valor_por_tipo(
+            valores_tabela,
+            tipo["uuid"],
+            "UNITARIO",
         )
 
-        valores_tabela = tabela.valores.all() if tabela else []
+        valor_acrescimo = _buscar_valor_por_tipo(
+            valores_tabela,
+            tipo["uuid"],
+            "ACRESCIMO",
+        )
 
-        for tipo in tipos_alimentacao:
-            valor_unitario = _buscar_valor_por_tipo(
-                valores_tabela,
-                tipo["uuid"],
-                "UNITARIO",
-            )
+        total_unitario = valor_unitario * (
+            1 + (valor_acrescimo / 100)
+        )
 
-            valor_acrescimo = _buscar_valor_por_tipo(
-                valores_tabela,
-                tipo["uuid"],
-                "ACRESCIMO",
-            )
+        nome_normalizado = normalizar_nome_campo(tipo["nome"], "GRUPO 3").lower()
+        numero_consumo = totais_consumo.get(
+            f"DIETA ESPECIAL - {tipo_dieta}",
+            {},
+        ).get(nome_normalizado, 0)
 
-            total_unitario = valor_unitario * (
-                1 + (valor_acrescimo / 100)
-            )
+        valor_total = total_unitario * to_decimal_safe(
+            numero_consumo
+        )
 
-            numero_consumo = totais_consumo.get(
-                f"DIETA ESPECIAL - {tipo_dieta} - {periodo}",
-                {},
-            ).get(tipo["nome"], 0)
+        total_consumo += numero_consumo
+        valor_total_geral += valor_total
 
-            valor_total = total_unitario * to_decimal_safe(
-                numero_consumo
-            )
+        linhas.append(
+            {
+                "tipo": tipo["nome"].upper(),
+                "valor_unitario": valor_unitario,
+                "valor_acrescimo": valor_acrescimo,
+                "total_unitario": total_unitario,
+                "numero_consumo": int(numero_consumo),
+                "valor_total": valor_total,
+            }
+        )
 
-            total_consumo += numero_consumo
-            valor_total_geral += valor_total
-
-            linhas.append(
-                {
-                    "tipo": tipo["nome"],
-                    "valor_unitario": valor_unitario,
-                    "valor_acrescimo": valor_acrescimo,
-                    "total_unitario": total_unitario,
-                    "numero_consumo": int(numero_consumo),
-                    "valor_total": valor_total,
-                }
-            )
+    linhas = sorted(
+        linhas,
+        key=lambda linha: ORDEM_PRIORIDADE.get(linha["tipo"], 10)
+    )
 
     return {
         "linhas": linhas,
@@ -435,7 +458,6 @@ def build_relatorio_financeiro_grupo_emei(
     parametrizacao,
     totais_consumo,
 ):
-    print('TOTAIS CONSUMO: ', totais_consumo)
     tipos_unidades = (
         relatorio_financeiro.grupo_unidade_escolar.tipos_unidades.all()
     )
@@ -443,7 +465,13 @@ def build_relatorio_financeiro_grupo_emei(
     tipos_alimentacao = _obter_tipos_alimentacao_por_unidades(
         tipos_unidades.values_list("uuid", flat=True)
     )
-    print('TIPOS ALIMENTACAO: ', tipos_alimentacao)
+
+    tipos_alimentacao.append(
+        {
+            "uuid": "kit_lanche",
+            "nome": "KIT LANCHE",
+        }
+    )
 
     tabelas = parametrizacao.tabelas.all()
 
@@ -453,16 +481,26 @@ def build_relatorio_financeiro_grupo_emei(
         totais_consumo,
     )
 
+    tipos_dieta_a = [
+        tipo for tipo in tipos_alimentacao
+        if tipo['nome'].upper() in ["LANCHE", "LANCHE 4H", "REFEIÇÃO"]
+    ]
+
     dieta_a = _build_tabela_dieta_emei(
         tabelas,
-        tipos_alimentacao,
+        tipos_dieta_a,
         totais_consumo,
         "TIPO A",
     )
 
+    tipos_dieta_b = [
+        tipo for tipo in tipos_alimentacao
+        if tipo['nome'].upper() in ["LANCHE", "LANCHE 4H"]
+    ]
+
     dieta_b = _build_tabela_dieta_emei(
         tabelas,
-        tipos_alimentacao,
+        tipos_dieta_b,
         totais_consumo,
         "TIPO B",
     )
