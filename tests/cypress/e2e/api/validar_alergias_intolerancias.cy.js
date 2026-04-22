@@ -1,12 +1,13 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 
-describe('Validar rotas de alergias intolerancias da aplicaÃ§Ã£o SIGPAE', () => {
-	var usuario = Cypress.env('usuario_coordenador_logistica')
-	var senha = Cypress.env('senha')
+describe('Validar rotas de alergias intolerancias da aplicação SIGPAE', () => {
+	var usuario = Cypress.config('usuario_coordenador_logistica')
+	var senha = Cypress.config('senha')
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
-
+	
+	
 	context('Casos de teste para a rota api/alergias-intolerancias/', () => {
 		it('Validar GET de todas as alergias intolerancias com sucesso', () => {
 			var id = ''
@@ -48,7 +49,7 @@ describe('Validar rotas de alergias intolerancias da aplicaÃ§Ã£o SIGPAE', ()
 		})
 
 		it('Validar GET com id invalido em texto', () => {
-			var id = 'aÃ§e'
+			var id = 'açe'
 			cy.validar_alergias_intolerancias(id).then((response) => {
 				expect(response.allRequestResponses[0]['Response Status']).to.eq(301)
 				expect(response.status).to.eq(200)
@@ -63,4 +64,3 @@ describe('Validar rotas de alergias intolerancias da aplicaÃ§Ã£o SIGPAE', ()
 		})
 	})
 })
-

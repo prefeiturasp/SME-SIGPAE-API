@@ -28,7 +28,9 @@ class ProgramacaoEntregaSemanalCreateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data.get("data_inicio") and data.get("data_fim"):
             if data["data_fim"] < data["data_inicio"]:
-                raise serializers.ValidationError("Data fim deve ser posterior à data início.")
+                raise serializers.ValidationError(
+                    "Data fim deve ser posterior à data início."
+                )
         return data
 
 
@@ -103,5 +105,62 @@ class CronogramaSemanalRascunhoSerializer(serializers.ModelSerializer):
                     for data in programacoes_data
                 ]
                 ProgramacaoEntregaSemanal.objects.bulk_create(programacoes)
+
+        return instance
+
+
+class CronogramaSemanalAssinarEEnviarSerializer(CronogramaSemanalRascunhoSerializer):
+    """
+    Serializer para assinar e enviar CronogramaSemanal.
+    Todos os campos são obrigatórios e executa a transição inicia_fluxo.
+    """
+
+    programacoes = ProgramacaoEntregaSemanalCreateSerializer(
+        many=True,
+        required=True,
+    )
+
+    def validate_programacoes(self, value):
+        """Valida se há pelo menos uma programação"""
+        if not value or len(value) == 0:
+            raise serializers.ValidationError(
+                "É necessário adicionar pelo menos uma programação."
+            )
+        return value
+
+    def create(self, validated_data):
+        programacoes_data = validated_data.pop("programacoes", [])
+        user = self.context["request"].user
+
+        with transaction.atomic():
+            cronograma_semanal = CronogramaSemanal.objects.create(**validated_data)
+            for programacao_data in programacoes_data:
+                ProgramacaoEntregaSemanal.objects.create(
+                    cronograma_semanal=cronograma_semanal, **programacao_data
+                )
+            # Executa a transição do workflow
+            cronograma_semanal.inicia_fluxo(user=user)
+
+        return cronograma_semanal
+
+    def update(self, instance, validated_data):
+        programacoes_data = validated_data.pop("programacoes", None)
+        user = self.context["request"].user
+
+        with transaction.atomic():
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            instance.save()
+
+            if programacoes_data is not None:
+                instance.programacoes.all().delete()
+                programacoes = [
+                    ProgramacaoEntregaSemanal(cronograma_semanal=instance, **data)
+                    for data in programacoes_data
+                ]
+                ProgramacaoEntregaSemanal.objects.bulk_create(programacoes)
+
+            # Executa a transição do workflow
+            instance.inicia_fluxo(user=user)
 
         return instance

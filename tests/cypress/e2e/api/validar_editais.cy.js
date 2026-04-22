@@ -1,8 +1,8 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 
-describe('Validar rotas da aplicaÃ§Ã£o SIGPAE - ', () => {
-	var usuario = Cypress.env('usuario_dre')
-	var senha = Cypress.env('senha')
+describe('Validar rotas da aplicação SIGPAE - ', () => {
+	var usuario = Cypress.config('usuario_dre')
+	var senha = Cypress.config('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -26,7 +26,7 @@ describe('Validar rotas da aplicaÃ§Ã£o SIGPAE - ', () => {
 			})
 		})
 
-		it('Validar GET de Editais com UUID vÃ¡lido', () => {
+		it('Validar GET de Editais com UUID válido', () => {
 			var uuid = 'e40ccae2-2080-4510-aeee-d1b8dcacc3b8'
 			cy.consultar_editais_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(200)
@@ -39,14 +39,14 @@ describe('Validar rotas da aplicaÃ§Ã£o SIGPAE - ', () => {
 			})
 		})
 
-		it('Validar GET de Editais com UUID invÃ¡lido', () => {
+		it('Validar GET de Editais com UUID inválido', () => {
 			var uuid = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
 			cy.consultar_editais_por_uuid(uuid).then((response) => {
 				expect(response.status).to.eq(404)
 			})
 		})
 
-		it('Validar GET da Lista de NÃºmeros de Editais', () => {
+		it('Validar GET da Lista de Números de Editais', () => {
 			cy.consultar_lista_numeros_editais().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -57,4 +57,3 @@ describe('Validar rotas da aplicaÃ§Ã£o SIGPAE - ', () => {
 		})
 	})
 })
-

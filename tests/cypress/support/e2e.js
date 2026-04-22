@@ -44,10 +44,10 @@ import './commands_api/commands_perfis'
 import './commands_api/commands_perfis_vinculados'
 import './commands_api/commands_periodos_escolares'
 import './commands_api/commands_terceirizadas'
-import './commands_api/commands_homologacao_produtos'
-
 import './commands_ui/commands_login'
 import './commands_ui/commands_globais'
+import './step_definitions/login'
+import './step_definitions/cadastro_empresas'
 
 import '@shelex/cypress-allure-plugin'
 import 'cypress-cloud/support'

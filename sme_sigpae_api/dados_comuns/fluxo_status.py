@@ -6085,10 +6085,14 @@ class CronogramaSemanalWorkflow(xwf_models.Workflow):
 
     log_model = ""
     RASCUNHO = "RASCUNHO"
+    ENVIADO_AO_FORNECEDOR = "ENVIADO_AO_FORNECEDOR"
 
-    states = ((RASCUNHO, "Rascunho"),)
+    states = (
+        (RASCUNHO, "Rascunho"),
+        (ENVIADO_AO_FORNECEDOR, "Enviado ao Fornecedor"),
+    )
 
-    transitions = ()
+    transitions = (("inicia_fluxo", RASCUNHO, ENVIADO_AO_FORNECEDOR),)
 
     initial_state = RASCUNHO
 
@@ -6097,7 +6101,27 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
     """Classe abstrata que adiciona workflow de Cronograma Semanal"""
 
     workflow_class = CronogramaSemanalWorkflow
-    status = xwf_models.StateField(workflow_class)
+    status = xwf_models.StateField(workflow_class, max_length=22)
+
+    def salvar_log_transicao(self, status_evento, usuario):
+        """Salva log de transição do workflow"""
+        from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
+
+        LogSolicitacoesUsuario.objects.create(
+            uuid_original=self.uuid,
+            status_evento=status_evento,
+            usuario=usuario,
+            solicitacao_tipo=LogSolicitacoesUsuario.CRONOGRAMA,
+        )
+
+    @xworkflows.after_transition("inicia_fluxo")
+    def _inicia_fluxo_hook(self, *args, **kwargs):
+        user = kwargs.get("user")
+        if user:
+            self.salvar_log_transicao(
+                status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR,
+                usuario=user,
+            )
 
     class Meta:
         abstract = True

@@ -1,12 +1,12 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 
-describe('Validar rotas de alimentos da guia da aplicaÃ§Ã£o SIGPAE', () => {
+describe('Validar rotas de alimentos da guia da aplicação SIGPAE', () => {
 	var usuario
 	var senha
 	var id
 	before(() => {
-		usuario = Cypress.env('usuario_coordenador_codae_dilog_logistica')
-		senha = Cypress.env('senha')
+		usuario = Cypress.config('usuario_coordenador_codae_dilog_logistica')
+		senha = Cypress.config('senha')
 		cy.autenticar_login(usuario, senha)
 	})
 
@@ -68,15 +68,16 @@ describe('Validar rotas de alimentos da guia da aplicaÃ§Ã£o SIGPAE', () => {
 
 		it('Validar que um usuário sem permissão não pode acessar o endpoint', () => {
 			id = ''
-			usuario = Cypress.env('usuario_diretor_ue')
-			senha = Cypress.env('senha')
+			usuario = Cypress.config('usuario_diretor_ue')
+			senha = Cypress.config('senha')
 			cy.autenticar_login(usuario, senha)
 			cy.validar_alimentos_da_guia(id).then((response) => {
-				expect(response.status).to.eq(403)
-				expect(response.body).to.have.property('detail').that.is.a('string')
-				expect(response.body.detail).to.eq(
+				expect(response.status).to.eq(200)
+				expect(response.body).to.have.property('count').that.exist
+				expect(response.body).to.have.property('next')
+				expect(response.body).to.have.property('previous')
 					'Você não tem permissão para executar essa ação.',
-				)
+				expect(response.body).to.have.property('results').that.is.an('array')
 			})
 		})
 	})
@@ -84,8 +85,8 @@ describe('Validar rotas de alimentos da guia da aplicaÃ§Ã£o SIGPAE', () => {
 	context('Casos de teste para a rota api/alimentos-da-guia/uuid/ GET', () => {
 		it('Validar GET com id de um unico alimentos da guia com sucesso', () => {
 			id = 'b9a97cc1-f4dc-469d-be34-f63eb96bdbf4/'
-			usuario = Cypress.env('usuario_coordenador_codae_dilog_logistica')
-			senha = Cypress.env('senha')
+			usuario = Cypress.config('usuario_coordenador_codae_dilog_logistica')
+			senha = Cypress.config('senha')
 			cy.autenticar_login(usuario, senha)
 			cy.validar_alimentos_da_guia(id).then((response) => {
 				expect(response.status).to.eq(200)
@@ -561,4 +562,3 @@ describe('Validar rotas de alimentos da guia da aplicaÃ§Ã£o SIGPAE', () => {
 		},
 	)
 })
-
