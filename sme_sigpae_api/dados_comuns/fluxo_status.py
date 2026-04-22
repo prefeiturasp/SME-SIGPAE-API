@@ -4293,13 +4293,6 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             status = LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PELA_UE
 
             if isinstance(self, OcorrenciaMedicaoInicial):
-                log_antigo = self.logs.filter(status_evento=status)
-
-                if log_antigo:
-                    log_antigo = log_antigo.first()
-                    log_antigo.anexos.all().delete()
-                    log_antigo.delete()
-
                 log_transicao = self.salvar_log_transicao(
                     status_evento=status, usuario=user, justificativa=justificativa
                 )
@@ -4334,13 +4327,6 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
                 )
 
             status = LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE
-
-            log_antigo = self.logs.filter(status_evento=status)
-
-            if log_antigo:
-                log_antigo = log_antigo.first()
-                log_antigo.anexos.all().delete()
-                log_antigo.delete()
 
             log_transicao = self.salvar_log_transicao(
                 status_evento=status, usuario=user, justificativa=justificativa
