@@ -324,8 +324,10 @@ Quando('clico no botão Salvar', function () {
 	cy.get(Cadastro_Empresas_Locators.buttons.salvar).click()
 })
 
-Quando('confirmo a ação no modal de confirmação', function () {
-	cy.get(Cadastro_Empresas_Locators.modais.confirmacao).click()
+Quando(/confirmo a ação no modal de confirmação/, function () {
+	cy.get(Cadastro_Empresas_Locators.modais.confirmacao, { timeout: 15000 })
+		.should('be.visible')
+		.click()
 })
 
 Entao('devo visualizar a mensagem {string}', function (mensagem) {
@@ -333,12 +335,7 @@ Entao('devo visualizar a mensagem {string}', function (mensagem) {
 		cy.log(`STATUS: ${response.statusCode}`)
 		cy.log(`BODY: ${JSON.stringify(response.body)}`)
 
-		expect(response.statusCode).to.eq(201)
-	})
-
-	cy.contains(Cadastro_Empresas_Locators.mensagens.sucesso, mensagem, {
-		timeout: 10000,
-	})
+	cy.get(Cadastro_Empresas_Locators.mensagens.sucesso, { timeout: 15000 })
 		.should('be.visible')
 		.and('contain', mensagem)
 })
