@@ -146,7 +146,7 @@ describe('Validar rotas de Periodos Escolares da aplicacao SIGPAE', () => {
 			})
 		})
 
-		it('Validar GET de Periodos Escolares Por UUID e Alunos Por Faixa Etaria com UUID Invalido', () => {
+		it('Validar GET de Periodos Escolares Por UUID e Alunos Por Faixa Etária com UUID Inválido', () => {
 			var uuid = '5067e137-e5f3-4876-a63f-0a00aaa00a00'
 			var data_referencia = '2025-12-15'
 			cy.consultar_alunos_por_faixa_etaria_data_referencia(

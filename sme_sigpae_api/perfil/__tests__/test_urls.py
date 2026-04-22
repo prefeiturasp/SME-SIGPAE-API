@@ -398,7 +398,9 @@ def test_busca_sem_vinculos_ativos(
 
 def _setup_usuario_escola(usuario_factory, vinculo_factory, escola_um):
     usuario_escola = usuario_factory.create(
-        email="escola@admin.com", registro_funcional="1234568"
+        username="1234568",
+        email="escola@admin.com",
+        registro_funcional="1234568",
     )
     vinculo_factory.create(
         usuario=usuario_escola,
@@ -413,7 +415,9 @@ def _setup_usuario_escola(usuario_factory, vinculo_factory, escola_um):
 
 def _setup_usuario_dre(usuario_factory, vinculo_factory, diretoria_regional_ip):
     usuario_dre = usuario_factory.create(
-        email="dre@admin.com", registro_funcional="1234567"
+        username="1234567",
+        email="dre@admin.com",
+        registro_funcional="1234567",
     )
     vinculo_factory.create(
         usuario=usuario_dre,

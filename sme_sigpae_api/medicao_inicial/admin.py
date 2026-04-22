@@ -227,3 +227,4 @@ class DadosLiquidacaoAdmin(admin.ModelAdmin):
 
 
 importlib.import_module("sme_sigpae_api.medicao_inicial.recreio_nas_ferias.admin")
+importlib.import_module("sme_sigpae_api.medicao_inicial.historico_acesso_ue.admin")
