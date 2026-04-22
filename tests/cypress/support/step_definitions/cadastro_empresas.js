@@ -333,7 +333,7 @@ Quando(/clico no bot[aã]o Salvar/, function () {
 })
 
 Quando(/confirmo a a[çc][ãa]o no modal de confirma[çc][ãa]o/, function () {
-	cy.contains('Sim', { timeout: 15000 })
+	cy.get(Cadastro_Empresas_Locators.modais.confirmacao, { timeout: 15000 })
 		.should('be.visible')
 		.click()
 })
@@ -343,6 +343,7 @@ Entao('devo visualizar a mensagem {string}', function (mensagem) {
 		.its('response.statusCode')
 		.should('eq', 201)
 
-	cy.url({ timeout: 20000 }).should('include', '/configuracoes/cadastros/empresas-cadastradas')
-	cy.contains('Empresas Cadastradas', { timeout: 10000 }).should('be.visible')
+	cy.get(Cadastro_Empresas_Locators.mensagens.sucesso, { timeout: 15000 })
+		.should('be.visible')
+		.and('contain', mensagem)
 })
