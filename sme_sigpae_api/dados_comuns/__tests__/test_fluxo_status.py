@@ -1,5 +1,7 @@
 from unittest.mock import patch
 
+from copy import deepcopy
+from django.core.files.base import ContentFile
 import pytest
 import xworkflows
 from rest_framework.exceptions import PermissionDenied, ValidationError
@@ -8,7 +10,7 @@ from sme_sigpae_api.dados_comuns.fluxo_status import (
     ReclamacaoProdutoWorkflow,
     SolicitacaoMedicaoInicialWorkflow,
 )
-from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario, AnexoLogSolicitacoesUsuario
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import Cronograma
 
 pytestmark = pytest.mark.django_db
@@ -383,3 +385,86 @@ def test_envia_email_de_cancelamento_por_alta_medica(
         solicitacao_dieta_especial._partes_interessadas_codae_cancela,
         "cancelar_pedido",
     )
+
+
+@patch("sme_sigpae_api.dados_comuns.fluxo_status.convert_base64_to_contentfile")
+def test_deve_acumular_logs_ao_corrigir_multiplas_vezes(
+    mock_convert_base64,
+    ocorrencia_medicao_inicial_status_aprovado_dre,
+    user_diretor_escola,
+):
+    usuario, _ = user_diretor_escola
+    ocorrencia = ocorrencia_medicao_inicial_status_aprovado_dre
+
+    mock_convert_base64.return_value = ContentFile(
+        b"arquivo fake", name="doc1.pdf"
+    )
+
+    kwargs_1 = {
+        "user": usuario,
+        "justificativa": "Primeira correção",
+        "anexos": [
+            {"nome": "doc1.pdf", "base64": "qualquer-coisa"}
+        ],
+    }
+
+    kwargs_2 = {
+        "user": usuario,
+        "justificativa": "Segunda correção",
+        "anexos": [
+            {"nome": "doc2.pdf", "base64": "qualquer-coisa"}
+        ],
+    }
+
+    ocorrencia._ue_corrige_hook(**deepcopy(kwargs_1))
+    ocorrencia._ue_corrige_hook(**deepcopy(kwargs_2))
+
+    status = LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PELA_UE
+    logs = ocorrencia.logs.filter(status_evento=status).order_by("criado_em")
+
+    assert logs.count() == 2
+
+    justificativas = list(logs.values_list("justificativa", flat=True))
+    assert "Primeira correção" in justificativas
+    assert "Segunda correção" in justificativas
+
+
+@patch("sme_sigpae_api.dados_comuns.fluxo_status.convert_base64_to_contentfile")
+def test_deve_manter_anexos_de_todos_os_logs(
+    mock_convert_base64,
+    ocorrencia_medicao_inicial_status_aprovado_dre,
+    user_diretor_escola,
+):
+    usuario, _ = user_diretor_escola
+    ocorrencia = ocorrencia_medicao_inicial_status_aprovado_dre
+
+    mock_convert_base64.return_value = ContentFile(
+        b"arquivo fake", name="anexo.pdf"
+    )
+
+    kwargs_1 = {
+        "user": usuario,
+        "justificativa": "Correção 1",
+        "anexos": [
+            {"nome": "anexo1.pdf", "base64": "qualquer-coisa"}
+        ],
+    }
+
+    kwargs_2 = {
+        "user": usuario,
+        "justificativa": "Correção 2",
+        "anexos": [
+            {"nome": "anexo2.pdf", "base64": "qualquer-coisa"}
+        ],
+    }
+
+    ocorrencia._ue_corrige_hook(**deepcopy(kwargs_1))
+    ocorrencia._ue_corrige_hook(**deepcopy(kwargs_2))
+
+    status = LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PELA_UE
+    logs = ocorrencia.logs.filter(status_evento=status)
+
+    assert logs.count() == 2
+    assert AnexoLogSolicitacoesUsuario.objects.filter(log__in=logs).count() == 2
+    assert all(log.anexos.count() == 1 for log in logs)
+
