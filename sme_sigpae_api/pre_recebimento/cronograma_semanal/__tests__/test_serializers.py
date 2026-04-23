@@ -3,9 +3,13 @@ import pytest
 from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     CronogramaMensalAssinadoSerializer,
 )
-from sme_sigpae_api.pre_recebimento.cronograma_semanal.api.serializer_create import (
+from sme_sigpae_api.pre_recebimento.cronograma_semanal.api.serializers.serializer_create import (
+    CronogramaSemanalAssinarEEnviarSerializer,
     CronogramaSemanalRascunhoSerializer,
     ProgramacaoEntregaSemanalCreateSerializer,
+)
+from sme_sigpae_api.pre_recebimento.cronograma_semanal.api.serializers.serializers import (
+    CronogramaSemanalListagemSerializer,
 )
 
 pytestmark = pytest.mark.django_db
@@ -13,7 +17,9 @@ pytestmark = pytest.mark.django_db
 
 class TestCronogramaMensalAssinadoSerializer:
     def test_serializer_campos(self, cronograma_ponto_a_ponto_assinado):
-        serializer = CronogramaMensalAssinadoSerializer(cronograma_ponto_a_ponto_assinado)
+        serializer = CronogramaMensalAssinadoSerializer(
+            cronograma_ponto_a_ponto_assinado
+        )
         data = serializer.data
 
         assert "uuid" in data
@@ -23,16 +29,31 @@ class TestCronogramaMensalAssinadoSerializer:
         assert "numero_contrato" in data
 
     def test_serializer_produto_nome(self, cronograma_ponto_a_ponto_assinado):
-        serializer = CronogramaMensalAssinadoSerializer(cronograma_ponto_a_ponto_assinado)
-        assert serializer.data["produto_nome"] == cronograma_ponto_a_ponto_assinado.ficha_tecnica.produto.nome
+        serializer = CronogramaMensalAssinadoSerializer(
+            cronograma_ponto_a_ponto_assinado
+        )
+        assert (
+            serializer.data["produto_nome"]
+            == cronograma_ponto_a_ponto_assinado.ficha_tecnica.produto.nome
+        )
 
     def test_serializer_fornecedor_nome(self, cronograma_ponto_a_ponto_assinado):
-        serializer = CronogramaMensalAssinadoSerializer(cronograma_ponto_a_ponto_assinado)
-        assert serializer.data["fornecedor_nome"] == cronograma_ponto_a_ponto_assinado.empresa.nome_fantasia
+        serializer = CronogramaMensalAssinadoSerializer(
+            cronograma_ponto_a_ponto_assinado
+        )
+        assert (
+            serializer.data["fornecedor_nome"]
+            == cronograma_ponto_a_ponto_assinado.empresa.nome_fantasia
+        )
 
     def test_serializer_numero_contrato(self, cronograma_ponto_a_ponto_assinado):
-        serializer = CronogramaMensalAssinadoSerializer(cronograma_ponto_a_ponto_assinado)
-        assert serializer.data["numero_contrato"] == cronograma_ponto_a_ponto_assinado.contrato.numero
+        serializer = CronogramaMensalAssinadoSerializer(
+            cronograma_ponto_a_ponto_assinado
+        )
+        assert (
+            serializer.data["numero_contrato"]
+            == cronograma_ponto_a_ponto_assinado.contrato.numero
+        )
 
 
 class TestProgramacaoEntregaSemanalCreateSerializer:
@@ -199,11 +220,13 @@ class TestCronogramaSemanalRascunhoSerializer:
     def test_serializer_update_substitui_programacoes(
         self, cronograma_semanal_rascunho, cronograma_ponto_a_ponto_assinado
     ):
+        import datetime
+
+        from django.utils import timezone
+
         from sme_sigpae_api.pre_recebimento.cronograma_semanal.models import (
             ProgramacaoEntregaSemanal,
         )
-        from django.utils import timezone
-        import datetime
 
         ProgramacaoEntregaSemanal.objects.create(
             cronograma_semanal=cronograma_semanal_rascunho,
@@ -240,11 +263,13 @@ class TestCronogramaSemanalRascunhoSerializer:
     def test_serializer_update_remove_programacoes(
         self, cronograma_semanal_rascunho, cronograma_ponto_a_ponto_assinado
     ):
+        import datetime
+
+        from django.utils import timezone
+
         from sme_sigpae_api.pre_recebimento.cronograma_semanal.models import (
             ProgramacaoEntregaSemanal,
         )
-        from django.utils import timezone
-        import datetime
 
         ProgramacaoEntregaSemanal.objects.create(
             cronograma_semanal=cronograma_semanal_rascunho,
@@ -269,6 +294,7 @@ class TestCronogramaSemanalRascunhoSerializer:
 class TestCronogramaMensalAssinadoSerializerCamposNulos:
     def test_serializer_campos_nulos(self):
         from model_bakery import baker
+
         from sme_sigpae_api.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
             CronogramaMensalAssinadoSerializer,
         )
@@ -287,3 +313,152 @@ class TestCronogramaMensalAssinadoSerializerCamposNulos:
         assert data["produto_nome"] is None
         assert data["fornecedor_nome"] is None
         assert data["numero_contrato"] is None
+
+
+class TestCronogramaSemanalAssinarEEnviarSerializer:
+    def test_serializer_valido_com_programacoes(
+        self,
+        cronograma_ponto_a_ponto_assinado,
+        client_autenticado_vinculo_dilog_cronograma,
+    ):
+        client, user = client_autenticado_vinculo_dilog_cronograma
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "03/2026",
+                    "data_inicio": "2026-03-01",
+                    "data_fim": "2026-03-15",
+                    "quantidade": 50.0,
+                }
+            ],
+        }
+        serializer = CronogramaSemanalAssinarEEnviarSerializer(
+            data=data, context={"request": type("Request", (), {"user": user})()}
+        )
+        assert serializer.is_valid(), serializer.errors
+
+    def test_serializer_sem_programacoes_obrigatorias(
+        self,
+        cronograma_ponto_a_ponto_assinado,
+        client_autenticado_vinculo_dilog_cronograma,
+    ):
+        client, user = client_autenticado_vinculo_dilog_cronograma
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+        }
+        serializer = CronogramaSemanalAssinarEEnviarSerializer(
+            data=data, context={"request": type("Request", (), {"user": user})()}
+        )
+        assert not serializer.is_valid()
+        assert "programacoes" in serializer.errors
+
+    def test_serializer_programacoes_vazias(
+        self,
+        cronograma_ponto_a_ponto_assinado,
+        client_autenticado_vinculo_dilog_cronograma,
+    ):
+        client, user = client_autenticado_vinculo_dilog_cronograma
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [],
+        }
+        serializer = CronogramaSemanalAssinarEEnviarSerializer(
+            data=data, context={"request": type("Request", (), {"user": user})()}
+        )
+        assert not serializer.is_valid()
+        assert "programacoes" in serializer.errors
+
+    def test_serializer_create_transiciona_status(
+        self,
+        cronograma_ponto_a_ponto_assinado,
+        client_autenticado_vinculo_dilog_cronograma,
+    ):
+        from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+        client, user = client_autenticado_vinculo_dilog_cronograma
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "03/2026",
+                    "data_inicio": "2026-03-01",
+                    "data_fim": "2026-03-15",
+                    "quantidade": 50.0,
+                }
+            ],
+        }
+        serializer = CronogramaSemanalAssinarEEnviarSerializer(
+            data=data, context={"request": type("Request", (), {"user": user})()}
+        )
+        assert serializer.is_valid(), serializer.errors
+        cronograma_semanal = serializer.save()
+        assert (
+            cronograma_semanal.status == CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR
+        )
+
+    def test_serializer_update_transiciona_status(
+        self,
+        cronograma_semanal_rascunho,
+        cronograma_ponto_a_ponto_assinado,
+        client_autenticado_vinculo_dilog_cronograma,
+    ):
+        from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+        client, user = client_autenticado_vinculo_dilog_cronograma
+        data = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "03/2026",
+                    "data_inicio": "2026-03-01",
+                    "data_fim": "2026-03-15",
+                    "quantidade": 50.0,
+                }
+            ],
+        }
+        serializer = CronogramaSemanalAssinarEEnviarSerializer(
+            cronograma_semanal_rascunho,
+            data=data,
+            partial=True,
+            context={"request": type("Request", (), {"user": user})()},
+        )
+        assert serializer.is_valid(), serializer.errors
+        cronograma_semanal = serializer.save()
+        assert (
+            cronograma_semanal.status == CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR
+        )
+
+
+class TestCronogramaSemanalListagemSerializer:
+    def test_serializer_campos(self, cronograma_semanal_rascunho):
+        serializer = CronogramaSemanalListagemSerializer(cronograma_semanal_rascunho)
+        data = serializer.data
+
+        assert "uuid" in data
+        assert "numero" in data
+        assert "produto" in data
+        assert "quantidade_total" in data
+        assert "empresa" in data
+        assert "status" in data
+        assert "alterado_em" in data
+
+        assert data["numero"] == cronograma_semanal_rascunho.cronograma_mensal.numero
+        assert (
+            data["produto"]
+            == cronograma_semanal_rascunho.cronograma_mensal.ficha_tecnica.produto.nome
+        )
+        assert data["status"] == cronograma_semanal_rascunho.get_status_display()
+        assert (
+            data["empresa"]
+            == cronograma_semanal_rascunho.cronograma_mensal.empresa.nome
+        )
+
+        assert (
+            str(cronograma_semanal_rascunho.cronograma_mensal.qtd_total_programada)
+            in data["quantidade_total"]
+        )
+        assert (
+            str(cronograma_semanal_rascunho.cronograma_mensal.unidade_medida)
+            in data["quantidade_total"]
+        )
