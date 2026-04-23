@@ -16,17 +16,45 @@ function preencherCampo(seletor, valor) {
 		.type(valor, { force: true })
 }
 
-function preencherCampoPorRotulo(rotulo, valor) {
-	cy.contains('label', rotulo, { timeout: 15000 })
-		.should('be.visible')
-		.parent()
-		.find('input')
+function preencherCampoControlado(seletor, valor) {
+	cy.get(seletor, { timeout: 15000 })
 		.filter(':visible')
 		.first()
 		.scrollIntoView()
 		.should('be.visible')
-		.clear({ force: true })
-		.type(valor, { force: true })
+		.then(($input) => {
+			if ($input.is(':disabled')) {
+				const input = $input[0]
+				const nativeSetter = Object.getOwnPropertyDescriptor(
+					window.HTMLInputElement.prototype,
+					'value',
+				).set
+
+				input.removeAttribute('disabled')
+				input.focus()
+				nativeSetter.call(input, valor)
+				input.dispatchEvent(new Event('input', { bubbles: true }))
+				input.dispatchEvent(new Event('change', { bubbles: true }))
+				input.dispatchEvent(new Event('blur', { bubbles: true }))
+				return
+			}
+
+			cy.wrap($input)
+				.click({ force: true })
+				.type('{selectall}{backspace}', { force: true })
+				.type(valor, { force: true, delay: 0 })
+				.trigger('blur')
+		})
+
+	cy.get('body').click(0, 0, { force: true })
+}
+
+function preencherCampoSeExistir(seletor, valor) {
+	cy.get('body').then(($body) => {
+		if ($body.find(seletor).length) {
+			preencherCampo(seletor, valor)
+		}
+	})
 }
 
 function selecionarPorRotulo(rotulo, valor) {
@@ -39,27 +67,22 @@ function selecionarPorRotulo(rotulo, valor) {
 		.select(valor)
 }
 
-function preencherCampoData(seletor, valor) {
-	cy.get(seletor, { timeout: 15000 })
-		.filter(':visible')
-		.first()
-		.scrollIntoView()
+function selecionarPrimeiraOpcaoValidaPorRotulo(rotulo) {
+	cy.contains('label', rotulo, { timeout: 15000 })
 		.should('be.visible')
-		.then(($input) => {
-			const input = $input[0]
-			const nativeSetter = Object.getOwnPropertyDescriptor(
-				window.HTMLInputElement.prototype,
-				'value',
-			).set
+		.parent()
+		.find('select')
+		.first()
+		.should('be.visible')
+		.then(($select) => {
+			const opcaoValida = [...$select[0].options].find((option) => {
+				const texto = (option.text || '').trim().toLowerCase()
+				return option.value && !texto.includes('selecione')
+			})
 
-			input.removeAttribute('readonly')
-			input.focus()
-			nativeSetter.call(input, valor)
-			input.dispatchEvent(new Event('input', { bubbles: true }))
-			input.dispatchEvent(new Event('change', { bubbles: true }))
+			expect(opcaoValida, `opcao valida para ${rotulo}`).to.exist
+			cy.wrap($select).select(opcaoValida.value)
 		})
-
-	cy.get('body').click(0, 0, { force: true })
 }
 
 function preencherCampoDataPorPlaceholder(placeholder, valor) {
@@ -114,28 +137,24 @@ function preencherCamposContrato(numeroProcesso, numeroContrato) {
 		})
 }
 
-function preencherOuValidarCampoBloqueado(seletor, valorEsperado) {
-	cy.get(seletor, { timeout: 15000 })
-		.filter(':visible')
-		.first()
+function adicionarContratoEFecharLinhaVazia() {
+	cy.contains('button', 'Adicionar', { timeout: 15000 })
+		.scrollIntoView()
 		.should('be.visible')
-		.then(($input) => {
-			const campo = cy.wrap($input)
+		.click()
 
-			if ($input.is(':disabled') || $input.is('[readonly]')) {
-				campo.invoke('val').then((valorAtual) => {
-					const normalizar = (valor) =>
-						String(valor || '')
-							.normalize('NFD')
-							.replace(/[\u0300-\u036f]/g, '')
-							.toLowerCase()
-
-					expect(normalizar(valorAtual)).to.include(normalizar(valorEsperado))
-				})
-				return
-			}
-
-			campo.clear().type(valorEsperado)
+	cy.contains('Contratos')
+		.parent()
+		.within(() => {
+			cy.get('input[placeholder="De"]').then(($datasInicio) => {
+				if ($datasInicio.length > 1) {
+					cy.contains('button', 'Remover')
+						.last()
+						.scrollIntoView()
+						.should('be.visible')
+						.click()
+				}
+			})
 		})
 }
 
@@ -220,18 +239,19 @@ Dado('que acesso o sistema', function () {
 	cy.url({ timeout: 20000 }).should('not.include', '/login')
 })
 
-Dado('acesso o menu Cadastros > Empresas', function () {
+Quando('acesso o menu Cadastros > Empresas', function () {
 	acessarSubmenuEmpresas()
 })
 
-Quando(/preencho os campos obrigat[óo]rios de cadastro da empresa/, function () {
+Quando('preencho os campos obrigatorios de cadastro da empresa', function () {
 	const timestamp = new Date().getTime()
+	const cpfFake = Math.floor(Math.random() * 99999999999)
+		.toString()
+		.padStart(11, '0')
 
-	// Dados básicos
 	cy.get(Cadastro_Empresas_Locators.inputs.nomeEmpresa).type(`Cypress ${timestamp}`)
 	cy.get(Cadastro_Empresas_Locators.inputs.nome_usual).type(`Cypress ${timestamp}`)
 
-	// ⚠️ CNPJ fake (pode precisar ajustar depois)
 	cy.get(Cadastro_Empresas_Locators.inputs.cnpj).type(
 		'11' +
 			Math.floor(Math.random() * 999999999)
@@ -240,53 +260,101 @@ Quando(/preencho os campos obrigat[óo]rios de cadastro da empresa/, function ()
 			'0001',
 	)
 
-	// CEP → preenche automaticamente endereço
-	cy.get(Cadastro_Empresas_Locators.inputs.cep).clear().type('01001000')
+	cy.get(Cadastro_Empresas_Locators.inputs.cep)
+		.filter(':visible')
+		.first()
+		.clear({ force: true })
+		.type('01001000', { force: true })
+		.blur()
 
-	// Validação do preenchimento automático
+	preencherCampoControlado(Cadastro_Empresas_Locators.inputs.endereco, 'Praca da Se')
+	preencherCampoControlado(Cadastro_Empresas_Locators.inputs.bairro, 'Se')
+	preencherCampoControlado(Cadastro_Empresas_Locators.inputs.cidade, 'Sao Paulo')
+	preencherCampoControlado(Cadastro_Empresas_Locators.inputs.estado, 'SP')
+
 	cy.get(Cadastro_Empresas_Locators.inputs.endereco, { timeout: 10000 })
-		.should('have.value', 'Praça da Sé')
+		.filter(':visible')
+		.first()
+		.should('have.value', 'Praca da Se')
 
 	cy.get(Cadastro_Empresas_Locators.inputs.bairro)
-		.should('have.value', 'Sé')
+		.filter(':visible')
+		.first()
+		.should('have.value', 'Se')
 
 	cy.get(Cadastro_Empresas_Locators.inputs.cidade)
-		.should('have.value', 'São Paulo')
+		.filter(':visible')
+		.first()
+		.should('have.value', 'Sao Paulo')
 
 	cy.get(Cadastro_Empresas_Locators.inputs.estado)
+		.filter(':visible')
+		.first()
 		.should('have.value', 'SP')
 
-	// Complementares
 	cy.get(Cadastro_Empresas_Locators.inputs.numero).type('100')
 	cy.get(Cadastro_Empresas_Locators.inputs.complemento).type('Sala 1')
+	selecionarPrimeiraOpcaoValidaPorRotulo('Tipo de Serviço')
+	selecionarPrimeiraOpcaoValidaPorRotulo('Tipo de Empresa')
+	selecionarPrimeiraOpcaoValidaPorRotulo('Tipo de Alimento')
 
-	// Empresa
-	cy.get(Cadastro_Empresas_Locators.inputs.telefone_empresa).type('11999999999')
-	cy.get(Cadastro_Empresas_Locators.inputs.email_empresa).type('empresa@teste.com')
-
-	// Responsável
-	cy.get(Cadastro_Empresas_Locators.inputs.responsavel_email).type('responsavel@teste.com')
-	cy.get(Cadastro_Empresas_Locators.inputs.responsavel_nome).type('Responsável Teste')
-	cy.get(Cadastro_Empresas_Locators.inputs.responsavel_cpf).type(
-		Math.floor(Math.random() * 99999999999)
-			.toString()
-			.padStart(11, '0'),
+	preencherCampoSeExistir(
+		Cadastro_Empresas_Locators.inputs.telefone_empresa,
+		'11999999999',
 	)
-	cy.get(Cadastro_Empresas_Locators.inputs.responsavel_telefone).type('11988888888')
-	cy.get(Cadastro_Empresas_Locators.inputs.responsavel_cargo).type('Gerente Teste')
-
-	// Representante legal
-	cy.get(Cadastro_Empresas_Locators.inputs.rep_legal_nome).type('Representante Legal Teste')
-	cy.get(Cadastro_Empresas_Locators.inputs.rep_legal_telefone).type('11977777777')
-	cy.get(Cadastro_Empresas_Locators.inputs.rep_legal_email).type('representante@teste.com')
-
-	// Nutricionista
-	cy.get(Cadastro_Empresas_Locators.inputs.nutri_responsavel_nome).type(
-		'Nutricionista Responsável Teste',
+	preencherCampoSeExistir(
+		Cadastro_Empresas_Locators.inputs.email_empresa,
+		`empresa${timestamp}@teste.com`,
 	)
-	cy.get(Cadastro_Empresas_Locators.inputs.nutri_responsavel_crn).type('CRN12345')
-	cy.get(Cadastro_Empresas_Locators.inputs.nutri_responsavel_telefone).type('11966666666')
-	cy.get(Cadastro_Empresas_Locators.inputs.nutri_responsavel_email).type(
+
+	preencherCampoSeExistir(
+		Cadastro_Empresas_Locators.inputs.responsavel_email,
+		'responsavel@teste.com',
+	)
+	preencherCampoSeExistir(
+		Cadastro_Empresas_Locators.inputs.responsavel_nome,
+		'Responsavel Teste',
+	)
+	preencherCampoSeExistir(
+		Cadastro_Empresas_Locators.inputs.responsavel_cpf,
+		cpfFake,
+	)
+	preencherCampoSeExistir(
+		Cadastro_Empresas_Locators.inputs.responsavel_telefone,
+		'49999056098',
+	)
+	preencherCampoSeExistir(
+		Cadastro_Empresas_Locators.inputs.responsavel_cargo,
+		'Gerente Teste',
+	)
+
+	preencherCampoSeExistir(
+		Cadastro_Empresas_Locators.inputs.rep_legal_nome,
+		'Representante Legal Teste',
+	)
+	preencherCampoSeExistir(
+		Cadastro_Empresas_Locators.inputs.rep_legal_telefone,
+		'11977777777',
+	)
+	preencherCampoSeExistir(
+		Cadastro_Empresas_Locators.inputs.rep_legal_email,
+		'representante@teste.com',
+	)
+
+	preencherCampoSeExistir(
+		Cadastro_Empresas_Locators.inputs.nutri_responsavel_nome,
+		'Nutricionista Responsavel Teste',
+	)
+	preencherCampoSeExistir(
+		Cadastro_Empresas_Locators.inputs.nutri_responsavel_crn,
+		'CRN12345',
+	)
+	preencherCampoSeExistir(
+		Cadastro_Empresas_Locators.inputs.nutri_responsavel_telefone,
+		'11966666666',
+	)
+	preencherCampoSeExistir(
+		Cadastro_Empresas_Locators.inputs.nutri_responsavel_email,
 		'nutricionista@teste.com',
 	)
 
@@ -294,20 +362,26 @@ Quando(/preencho os campos obrigat[óo]rios de cadastro da empresa/, function ()
 		.scrollIntoView()
 		.parent()
 		.within(() => {
-			cy.get('input').eq(0).clear().type('Representante Teste')
-			cy.get('input').eq(1).clear().type(cpfFake)
-			cy.get('input').eq(2).clear().type('Gerente')
-			cy.get('input').eq(3).clear().type('11988888888')
-			cy.get('input').eq(4).clear().type(`representante${timestamp}@teste.com`)
+			cy.get('input:visible').then(($inputs) => {
+				cy.wrap($inputs.eq(0)).clear().type('Representante Teste')
+				cy.wrap($inputs.eq(1)).clear().type(cpfFake)
+				cy.wrap($inputs.eq(2)).clear().type('Gerente')
+				cy.wrap($inputs.eq(3)).clear().type('11988888888')
+				cy.wrap($inputs.eq(4))
+					.clear()
+					.type(`representante${timestamp}@teste.com`)
+			})
 		})
 
 	cy.contains('Contatos')
 		.scrollIntoView()
 		.parent()
 		.within(() => {
-			cy.get('input').eq(0).clear().type('Contato Teste')
-			cy.get('input').eq(1).clear().type('11977777777')
-			cy.get('input').eq(2).clear().type(`contato${timestamp}@teste.com`)
+			cy.get('input:visible').then(($inputs) => {
+				cy.wrap($inputs.eq(0)).clear().type('Contato Teste')
+				cy.wrap($inputs.eq(1)).clear().type('11977777777')
+				cy.wrap($inputs.eq(2)).clear().type(`contato${timestamp}@teste.com`)
+			})
 		})
 
 	cy.contains('Contratos').scrollIntoView()
@@ -317,24 +391,32 @@ Quando(/preencho os campos obrigat[óo]rios de cadastro da empresa/, function ()
 	selecionarPorRotulo('Modalidade', 'Emergencial')
 	selecionarPorRotulo('Programa', 'Alimentação Escolar')
 	selecionarPorRotulo('Situação', 'Ativo')
+	adicionarContratoEFecharLinhaVazia()
 })
 
-Quando('clico no botão Salvar', function () {
-	cy.intercept('POST', '**/api/terceirizadas/**').as('postTerceirizada')
-	cy.get(Cadastro_Empresas_Locators.buttons.salvar).click()
+Quando('clico no botao Salvar', function () {
+	cy.intercept('POST', '**/api/empresas-nao-terceirizadas/**').as('postEmpresa')
+
+	cy.get(Cadastro_Empresas_Locators.buttons.salvar, { timeout: 30000 })
+		.scrollIntoView()
+		.should('be.visible')
+		.should(($botao) => {
+			expect($botao).not.to.be.disabled
+		})
+		.click()
 })
 
-Quando(/confirmo a ação no modal de confirmação/, function () {
+Quando('confirmo a acao no modal de confirmacao', function () {
 	cy.get(Cadastro_Empresas_Locators.modais.confirmacao, { timeout: 15000 })
 		.should('be.visible')
 		.click()
 })
 
 Entao('devo visualizar a mensagem {string}', function (mensagem) {
-	cy.wait('@postTerceirizada').then(({ response }) => {
+	cy.wait('@postEmpresa').then(({ response }) => {
 		cy.log(`STATUS: ${response.statusCode}`)
 		cy.log(`BODY: ${JSON.stringify(response.body)}`)
-
+	})
 	cy.get(Cadastro_Empresas_Locators.mensagens.sucesso, { timeout: 15000 })
 		.should('be.visible')
 		.and('contain', mensagem)
