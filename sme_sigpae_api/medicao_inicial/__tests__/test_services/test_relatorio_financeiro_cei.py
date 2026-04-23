@@ -28,7 +28,6 @@ def test_build_relatorio_financeiro_grupo_cei(
     resultado = build_relatorio_financeiro_grupo_cei(
         relatorio_financeiro_cei,
         parametrizacao_financeira_cei,
-        faixas_etarias_ativas,
         totais_consumo,
     )
 
