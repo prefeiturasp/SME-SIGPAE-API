@@ -136,7 +136,7 @@
       font-size: 14px;
       font-weight: 700;
       color: #0b8a5a;
-      margin-bottom: 22px;
+      margin-bottom: 18px;
     }
 
     .consolidado-conteudo {
@@ -166,10 +166,11 @@
       border-radius: 6px;
       padding: 14px 16px;
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       border: 1px solid #cfd4dd;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
       gap: 12px;
+      height: 50px;
     }
 
     .caixa.quantidade {
@@ -179,7 +180,6 @@
 
     .caixa.valor {
       display: flex;
-      align-items: flex-start;
       gap: 12px;
     }
 
