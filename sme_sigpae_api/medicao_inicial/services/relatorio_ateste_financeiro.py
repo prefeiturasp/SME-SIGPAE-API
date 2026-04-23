@@ -25,6 +25,16 @@ ORDEM_PRIORIDADE = {
 
 
 def _buscar_valor_por_faixa(valores, faixa_uuid, tipo):
+    """Busca um valor com base na faixa etária e tipo de valor.
+
+    Args:
+        valores (Iterable): Coleção de objetos com valores parametrizados.
+        faixa_uuid (str): UUID da faixa etária.
+        tipo (str): Tipo do valor ("UNITARIO", "REAJUSTE", etc.).
+
+    Returns:
+        Decimal: Valor encontrado ou Decimal("0") caso não exista.
+    """
     if not valores:
         return Decimal("0")
 
@@ -44,6 +54,20 @@ def _buscar_valor_por_faixa(valores, faixa_uuid, tipo):
 
 
 def _buscar_valor_por_tipo(valores, tipo_uuid, tipo_valor):
+    """Busca valor com base no tipo de alimentação.
+
+    A busca funciona em dois cenários:
+        - Quando há `tipo_alimentacao`, compara pelo UUID.
+        - Caso contrário, compara com `nome_campo`.
+
+    Args:
+        valores (Iterable): Coleção de objetos com valores.
+        tipo_uuid (str): UUID ou identificador do tipo.
+        tipo_valor (str): Tipo do valor ("UNITARIO", "REAJUSTE", "ACRESCIMO").
+
+    Returns:
+        Decimal: Valor encontrado ou Decimal("0").
+    """
     if not valores:
         return Decimal("0")
 
@@ -71,6 +95,16 @@ def _buscar_valor_por_tipo(valores, tipo_uuid, tipo_valor):
 
 
 def _build_consolidado_total(alimentacao, dieta_a, dieta_b):
+    """Gera o consolidado total do relatório.
+
+    Args:
+        alimentacao (dict): Dados de alimentação.
+        dieta_a (dict): Dados da dieta tipo A.
+        dieta_b (dict): Dados da dieta tipo B.
+
+    Returns:
+        dict: Contendo quantidade total, valor total e valor por extenso.
+    """
     quantidade = (
         alimentacao["total_atendimentos"]
         + dieta_a["total_consumo"]
@@ -91,6 +125,15 @@ def _build_consolidado_total(alimentacao, dieta_a, dieta_b):
 
 
 def _montar_cabecalho(relatorio_financeiro, tipos_unidades):
+    """Monta os dados do cabeçalho do relatório.
+
+    Args:
+        relatorio_financeiro (Model): Instância do relatório financeiro.
+        tipos_unidades (QuerySet): Tipos de unidades escolares com base no grupo educacional.
+
+    Returns:
+        dict: Dados formatados do cabeçalho.
+    """
     iniciais = ", ".join([t.iniciais for t in tipos_unidades])
 
     grupo_com_unidades = (
@@ -117,9 +160,17 @@ def _montar_cabecalho(relatorio_financeiro, tipos_unidades):
 # =========================================================
 # CEI
 # =========================================================
-def _build_tabela_alimentacao_cei(
-    tabelas, faixas_etarias, totais_consumo
-):
+def _build_tabela_alimentacao_cei(tabelas, faixas_etarias, totais_consumo):
+    """Retorna dados para a tabela de alimentação do grupo CEI.
+
+    Args:
+        tabelas (QuerySet): Tabelas parametrizadas.
+        faixas_etarias (QuerySet): Faixas etárias ativas.
+        totais_consumo (dict): Dados de totais de consumo e atendimento.
+
+    Returns:
+        dict: Estrutura com linhas da tabela, total de atendimentos e valor total.
+    """
     total_atendimentos = 0
     valor_total_geral = Decimal("0")
     linhas = []
@@ -180,6 +231,17 @@ def _build_tabela_alimentacao_cei(
 def _build_tabela_dieta_cei(
     tabelas, faixas_etarias, totais_consumo, tipo_dieta
 ):
+    """Retorna dados para a tabela de dieta especial do grupo CEI.
+
+    Args:
+        tabelas (QuerySet): Tabelas parametrizadas.
+        faixas_etarias (QuerySet): Faixas etárias.
+        totais_consumo (dict): Dados de totais de consumo e atendimento.
+        tipo_dieta (str): Tipo de dieta ("TIPO A", "TIPO B").
+
+    Returns:
+        dict: Estrutura com linhas da tabela, total de atendimentos e valor total.
+    """
     total_consumo = 0
     valor_total_geral = Decimal("0")
     linhas = []
@@ -245,6 +307,16 @@ def build_relatorio_financeiro_grupo_cei(
     parametrizacao,
     totais_consumo,
 ):
+    """Retorna dados para o relatório financeiro do grupo CEI.
+
+    Args:
+        relatorio_financeiro (Model): Instância do relatório.
+        parametrizacao (Model): Configuração contendo tabelas.
+        totais_consumo (dict): Dados de totais de consumo e atendimento.
+
+    Returns:
+        dict: Estrutura completa do relatório.
+    """
     faixas_etarias = FaixaEtaria.objects.filter(ativo=True)
     tabelas = parametrizacao.tabelas.all()
 
@@ -282,6 +354,14 @@ def build_relatorio_financeiro_grupo_cei(
 # EMEI
 # =========================================================
 def _obter_tipos_alimentacao_por_unidades(uuids_unidades):
+    """Obtém os tipos de alimentação únicos por unidades educacionais.
+
+    Args:
+        uuids_unidades (Iterable): Lista de UUIDs das unidades educacionais.
+
+    Returns:
+        list[dict]: Lista de tipos de alimentação com uuid e nome.
+    """
     vinculos = (
         VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
             ativo=True,
@@ -317,6 +397,16 @@ def _obter_tipos_alimentacao_por_unidades(uuids_unidades):
 def _build_tabela_alimentacao_emei(
     tabelas, tipos_alimentacao, totais_consumo
 ):
+    """Retorna dados da tabela de alimentação para EMEI.
+
+    Args:
+        tabelas (QuerySet): Tabelas parametrizadas.
+        tipos_alimentacao (list): Tipos de alimentação.
+        totais_consumo (dict): Dados de totais de consumo e atendimento.
+
+    Returns:
+        dict: Estrutura com linhas da tabela, total de atendimentos e valor total.
+    """
     total_atendimentos = 0
     valor_total_geral = Decimal("0")
     linhas = []
@@ -347,7 +437,6 @@ def _build_tabela_alimentacao_emei(
         total_unitario = valor_unitario + valor_reajuste
 
         nome_normalizado = normalizar_nome_campo(tipo["nome"], "GRUPO 3").lower()
-        print('nome_normalizado: ', nome_normalizado)
 
         numero_atendimentos = totais_consumo.get(
             "ALIMENTAÇÃO", {}
@@ -386,6 +475,17 @@ def _build_tabela_alimentacao_emei(
 def _build_tabela_dieta_emei(
     tabelas, tipos_alimentacao, totais_consumo, tipo_dieta
 ):
+    """Retorna dados da tabela de dieta especial para EMEI.
+
+    Args:
+        tabelas (QuerySet): Tabelas parametrizadas.
+        tipos_alimentacao (list): Tipos de alimentação.
+        totais_consumo (dict): Dados de totais de consumo e atendimento.
+        tipo_dieta (str): Tipo da dieta (A ou B).
+
+    Returns:
+        dict: Estrutura com linhas da tabela, total de atendimentos e valor total.
+    """
     total_consumo = 0
     valor_total_geral = Decimal("0")
     linhas = []
@@ -458,6 +558,16 @@ def build_relatorio_financeiro_grupo_emei(
     parametrizacao,
     totais_consumo,
 ):
+    """Gera os dados que serão exibidos no relatório financeiro para EMEI.
+
+    Args:
+        relatorio_financeiro (Model): Instância do relatório.
+        parametrizacao (Model): Valores da parametrização com base no lote/dre e grupo da unidade educacional.
+        totais_consumo (dict): Dados de totais de consumo e atendimento.
+
+    Returns:
+        dict: Estrutura completa do relatório.
+    """
     tipos_unidades = (
         relatorio_financeiro.grupo_unidade_escolar.tipos_unidades.all()
     )
