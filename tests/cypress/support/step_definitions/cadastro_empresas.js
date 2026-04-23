@@ -220,11 +220,11 @@ Dado('que acesso o sistema', function () {
 	cy.url({ timeout: 20000 }).should('not.include', '/login')
 })
 
-Dado('acesso o menu Cadastros > Empresas', function () {
+Quando('acesso o menu Cadastros > Empresas', function () {
 	acessarSubmenuEmpresas()
 })
 
-Quando(/preencho os campos obrigat[óo]rios de cadastro da empresa/, function () {
+Quando('preencho os campos obrigatorios de cadastro da empresa', function () {
 	const timestamp = new Date().getTime()
 
 	const cnpjFake =
@@ -322,7 +322,8 @@ Quando(/preencho os campos obrigat[óo]rios de cadastro da empresa/, function ()
 	selecionarPorRotulo('Situação', 'Ativo')
 })
 
-Quando(/clico no bot[aã]o Salvar/, function () {
+
+Quando('clico no botao Salvar', function () {
 	cy.intercept('POST', '**/api/empresas-nao-terceirizadas/**').as('postEmpresa')
 
 	cy.get(Cadastro_Empresas_Locators.buttons.salvar, { timeout: 15000 })
@@ -332,11 +333,12 @@ Quando(/clico no bot[aã]o Salvar/, function () {
 		.click()
 })
 
-Quando(/confirmo a a[çc][ãa]o no modal de confirma[çc][ãa]o/, function () {
+Quando('confirmo a acao no modal de confirmacao', function () {
 	cy.get(Cadastro_Empresas_Locators.modais.confirmacao, { timeout: 15000 })
 		.should('be.visible')
 		.click()
 })
+
 
 Entao('devo visualizar a mensagem {string}', function (mensagem) {
 	cy.wait('@postEmpresa', { timeout: 20000 })
