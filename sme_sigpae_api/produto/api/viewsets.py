@@ -963,14 +963,18 @@ class HomologacaoProdutoViewSet(
             justificativa = request.data.get("justificativa", "")
             terceirizada_uuid = request.data.get("uuidTerceirizada", "")
             if not terceirizada_uuid:
-                return Response({"detail": "O uuid da terceirizada é obrigatório"})
+                return Response(
+                    {"detail": "O uuid da terceirizada é obrigatório"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             terceirizada = Terceirizada.objects.filter(uuid=terceirizada_uuid).first()
             if not terceirizada:
                 return Response(
                     {
                         "detail": f"Terceirizada para uuid {terceirizada_uuid} não encontrado."
-                    }
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
             AnaliseSensorial.objects.create(
@@ -3475,14 +3479,18 @@ class ReclamacaoProdutoViewSet(viewsets.ModelViewSet):
             justificativa = request.data.get("justificativa", "")
             terceirizada_uuid = request.data.get("uuidTerceirizada", "")
             if not terceirizada_uuid:
-                return Response({"detail": "O uuid da terceirizada é obrigatório"})
+                return Response(
+                    {"detail": "O uuid da terceirizada é obrigatório"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             terceirizada = Terceirizada.objects.filter(uuid=terceirizada_uuid).first()
             if not terceirizada:
                 return Response(
                     {
                         "detail": f"Terceirizada para uuid {terceirizada_uuid} não encontrado."
-                    }
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
             AnaliseSensorial.objects.create(
