@@ -613,6 +613,7 @@ class HomologacaoProdutoWorkflow(xwf_models.Workflow):
                 CODAE_QUESTIONOU_UE,
                 CODAE_QUESTIONOU_NUTRISUPERVISOR,
                 CODAE_AUTORIZOU_RECLAMACAO,
+                CODAE_QUESTIONADO,
             ],
             CODAE_PEDIU_ANALISE_SENSORIAL,
         ),
