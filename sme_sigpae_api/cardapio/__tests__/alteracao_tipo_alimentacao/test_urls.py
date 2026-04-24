@@ -763,10 +763,12 @@ def test_url_endpoint_alt_card_relatorio(client_autenticado, alteracao_cardapio)
 
 
 def test_terceirizada_marca_conferencia_alteracao_cardapio_viewset(
-    client_autenticado, alteracao_cardapio
+    client_autenticado_vinculo_terceirizada_cardapio, alteracao_cardapio
 ):
     _checa_se_terceirizada_marcou_conferencia_na_gestao_de_alimentacao(
-        client_autenticado, AlteracaoCardapio, "alteracoes-cardapio"
+        client_autenticado_vinculo_terceirizada_cardapio,
+        AlteracaoCardapio,
+        "alteracoes-cardapio",
     )
 
 
